@@ -131,7 +131,16 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	return RS_OK;
 }
 
-SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0)
+/*static*/SJson * FASTCALL SJson::Parse(const char * pText)
+{
+	SJson * p_result = 0;
+	if(json_parse_document(&p_result, pText) != JSON_OK) {
+		ZDELETE(p_result);
+	}
+	return p_result;
+}
+
+SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0), State(0)
 {
 }
 
@@ -161,9 +170,31 @@ SJson::~SJson()
 	}
 }
 
+bool SJson::IsValid() const
+{
+	return !(State & 0x0001);
+}
+
+int FASTCALL SJson::ToString(SString & rBuf) const
+{
+	return json_tree_to_string(this, rBuf);
+}
+
 void FASTCALL SJson::AssignText(const SString & rT)
 {
 	Text = rT;
+}
+
+const SJson * FASTCALL SJson::FindChildByKey(const char * pKey) const
+{
+	const SJson * p_result = 0;
+	if(!isempty(pKey)) {
+		for(const SJson * p_c = P_Child; !p_result && p_c; p_c = p_c->P_Next) {
+			if(p_c->Text.IsEqiAscii(pKey))
+				p_result = p_c;
+		}
+	}
+	return p_result;
 }
 
 enum json_error json_stream_parse(FILE * file, SJson ** document)
@@ -234,7 +265,7 @@ void FASTCALL json_free_value(SJson ** ppValue)
 	}
 }
 
-/*enum json_error*/int FASTCALL json_insert_child(SJson * pParent, SJson * pChild)
+int FASTCALL json_insert_child(SJson * pParent, SJson * pChild)
 {
 	int    ok = 1;
 	// @todo change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
@@ -298,7 +329,72 @@ void FASTCALL json_free_value(SJson ** ppValue)
 		pParent->P_ChildEnd = pChild;
 	}
 	CATCHZOK
-	//return JSON_OK;
+	return ok;
+}
+
+int FASTCALL SJson::InsertChild(SJson * pChild)
+{
+	int    ok = 1;
+	// @todo change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
+	assert(pChild); // the child must exist
+	assert(this != pChild); // parent and child must not be the same. if they are, it will enter an infinite loop
+	// enforce tree structure correctness
+	switch(Type) {
+		case SJson::tSTRING:
+			// a string accepts every JSON type as a child value
+			// therefore, the sanity check must be performed on the child node
+			switch(pChild->Type) {
+				case SJson::tSTRING:
+				case SJson::tNUMBER:
+				case SJson::tTRUE:
+				case SJson::tFALSE:
+				case SJson::tNULL:
+					THROW_S(!pChild->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE);
+					break;
+				case SJson::tOBJECT:
+				case SJson::tARRAY:
+					break;
+				default:
+					//return JSON_BAD_TREE_STRUCTURE;
+					CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); // this part should never be reached
+					break;
+			}
+			break;
+		case SJson::tOBJECT: // JSON objects may only accept JSON string objects which already have child nodes of their own
+			THROW_S(pChild->Type == SJson::tSTRING, SLERR_JSON_BAD_TREE_STRUCTURE);
+			break;
+		case SJson::tARRAY:
+			switch(pChild->Type) {
+				case SJson::tSTRING:
+				case SJson::tTRUE:
+				case SJson::tFALSE:
+				case SJson::tNULL:
+				case SJson::tNUMBER:
+					THROW_S(!pChild->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE);
+					break;
+				case SJson::tOBJECT:
+				case SJson::tARRAY:
+					break;
+				default:
+					CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
+					break;
+			}
+			break;
+		default:
+			CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
+			break;
+	}
+	pChild->P_Parent = this;
+	if(P_Child) {
+		pChild->P_Previous = P_ChildEnd;
+		P_ChildEnd->P_Next = pChild;
+		P_ChildEnd = pChild;
+	}
+	else {
+		P_Child = pChild;
+		P_ChildEnd = pChild;
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1424,65 +1520,65 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 	return LEX_MORE;
 }
 
-/*enum json_error*/int FASTCALL json_parse_fragment(JsonParsingBlock * info, const char * buffer)
+/*enum json_error*/int FASTCALL json_parse_fragment(JsonParsingBlock * pInfo, const char * pBuffer)
 {
 	int    ok = 1;
 	SJson * p_temp = 0;
-	assert(info);
-	assert(buffer);
-	info->P_Cur = buffer;
-	while(*info->P_Cur != '\0') {
-		switch(info->state) {
+	assert(pInfo);
+	assert(pBuffer);
+	pInfo->P_Cur = pBuffer;
+	while(*pInfo->P_Cur != '\0') {
+		switch(pInfo->state) {
 			case 0:	// starting point 
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
-					case LEX_BEGIN_OBJECT: info->state = 1; break; // begin object
-					case LEX_BEGIN_ARRAY:  info->state = 7; break; // begin array
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
+					case LEX_BEGIN_OBJECT: pInfo->state = 1; break; // begin object
+					case LEX_BEGIN_ARRAY:  pInfo->state = 7; break; // begin array
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT); break;
 				}
 				break;
 			case 1: // open object
-				if(!info->cursor) {
-					THROW(info->cursor = new SJson(SJson::tOBJECT));
+				if(!pInfo->cursor) {
+					THROW(pInfo->cursor = new SJson(SJson::tOBJECT));
 				}
 				else {
 					// perform tree sanity check
-					assert(oneof2(info->cursor->Type, SJson::tSTRING, SJson::tARRAY));
+					assert(oneof2(pInfo->cursor->Type, SJson::tSTRING, SJson::tARRAY));
 					THROW(p_temp = new SJson(SJson::tOBJECT));
-					THROW(json_insert_child(info->cursor, p_temp));
-					info->cursor = p_temp;
+					THROW(json_insert_child(pInfo->cursor, p_temp));
+					pInfo->cursor = p_temp;
 					p_temp = NULL;
 				}
-				info->state = 2; // just entered an object
+				pInfo->state = 2; // just entered an object
 				break;
 			case 2: // opened object
 				//
 				// perform tree sanity checks
 				//
-				assert(info->cursor);
-				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor);
+				assert(pInfo->cursor->Type == SJson::tOBJECT);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
-						p_temp->AssignText(info->Text);
-						THROW(json_insert_child(info->cursor, p_temp));
-						info->cursor = p_temp;
+						p_temp->AssignText(pInfo->Text);
+						THROW(json_insert_child(pInfo->cursor, p_temp));
+						pInfo->cursor = p_temp;
 						p_temp = NULL;
-						info->state = 5; // label, pre label:value separator
+						pInfo->state = 5; // label, pre label:value separator
 						break;
 					case LEX_END_OBJECT:
-						if(!info->cursor->P_Parent)
-							info->state = 99; // finished document. only accept whitespaces until EOF
+						if(!pInfo->cursor->P_Parent)
+							pInfo->state = 99; // finished document. only accept whitespaces until EOF
 						else {
-							info->cursor = info->cursor->P_Parent;
-							switch(info->cursor->Type) {
+							pInfo->cursor = pInfo->cursor->P_Parent;
+							switch(pInfo->cursor->Type) {
 								case SJson::tSTRING: // perform tree sanity checks
-									assert(info->cursor->P_Parent);
-									info->cursor = info->cursor->P_Parent;
-									THROW_S(info->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
-									info->state = 3; // finished adding a field to an object
+									assert(pInfo->cursor->P_Parent);
+									pInfo->cursor = pInfo->cursor->P_Parent;
+									THROW_S(pInfo->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+									pInfo->state = 3; // finished adding a field to an object
 									break;
-								case SJson::tARRAY: info->state = 9; break;
+								case SJson::tARRAY: pInfo->state = 9; break;
 								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); break;
 							}
 						}
@@ -1493,26 +1589,26 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 				break;
 			case 3: // finished adding a field to an object
 				// perform tree sanity checks
-				assert(info->cursor);
-				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor);
+				assert(pInfo->cursor->Type == SJson::tOBJECT);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_VALUE_SEPARATOR:
-						info->state = 4; // sibling, post-object
+						pInfo->state = 4; // sibling, post-object
 						break;
 					case LEX_END_OBJECT:
-						if(!info->cursor->P_Parent)
-							info->state = 99;	/* parse until EOF */
+						if(!pInfo->cursor->P_Parent)
+							pInfo->state = 99;	/* parse until EOF */
 						else {
-							info->cursor = info->cursor->P_Parent;
-							switch(info->cursor->Type) {
+							pInfo->cursor = pInfo->cursor->P_Parent;
+							switch(pInfo->cursor->Type) {
 								case SJson::tSTRING: // perform tree sanity checks
-									assert(info->cursor->P_Parent);
-									info->cursor = info->cursor->P_Parent;
-									THROW_S(info->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
-									info->state = 3; // finished adding a field to an object
+									assert(pInfo->cursor->P_Parent);
+									pInfo->cursor = pInfo->cursor->P_Parent;
+									THROW_S(pInfo->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+									pInfo->state = 3; // finished adding a field to an object
 									break;
 								case SJson::tARRAY:
-									info->state = 9;
+									pInfo->state = 9;
 									break;
 								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE); break;
 							}
@@ -1523,202 +1619,202 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 				}
 				break;
 			case 4: // sibling, post-object
-				assert(info->cursor);
-				assert(info->cursor->Type == SJson::tOBJECT);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor);
+				assert(pInfo->cursor->Type == SJson::tOBJECT);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
-						p_temp->AssignText(info->Text);
-						THROW(json_insert_child(info->cursor, p_temp));
-						info->cursor = p_temp;
+						p_temp->AssignText(pInfo->Text);
+						THROW(json_insert_child(pInfo->cursor, p_temp));
+						pInfo->cursor = p_temp;
 						p_temp = 0;
-						info->state = 5;
+						pInfo->state = 5;
 						break;
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
+						//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
 
 				}
 				break;
 			case 5: // label, pre name separator
 				/* perform tree sanity checks */
-				assert(info->cursor);
-				assert(info->cursor->Type == SJson::tSTRING);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
-					case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
+				assert(pInfo->cursor);
+				assert(pInfo->cursor->Type == SJson::tSTRING);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
+					case LEX_NAME_SEPARATOR: pInfo->state = 6; break; /* label, pos label:value separator */
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
+						//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
 				}
 				break;
 			case 6: // label, pos name separator
 				{
 					// perform tree sanity checks 
-					assert(info->cursor);
-					assert(info->cursor->Type == SJson::tSTRING);
-					const uint value = Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text);
+					assert(pInfo->cursor);
+					assert(pInfo->cursor->Type == SJson::tSTRING);
+					const uint value = Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text);
 					switch(value) {
 						case LEX_STRING:
 							THROW(p_temp = new SJson(SJson::tSTRING));
-							p_temp->AssignText(info->Text);
-							THROW(json_insert_child(info->cursor, p_temp));
-							if(!info->cursor->P_Parent)
-								info->state = 99; // finished document. only accepts whitespaces until EOF
+							p_temp->AssignText(pInfo->Text);
+							THROW(json_insert_child(pInfo->cursor, p_temp));
+							if(!pInfo->cursor->P_Parent)
+								pInfo->state = 99; // finished document. only accepts whitespaces until EOF
 							else
-								info->cursor = info->cursor->P_Parent;
+								pInfo->cursor = pInfo->cursor->P_Parent;
 							p_temp = 0;
-							info->state = 3; // finished adding a field to an object
+							pInfo->state = 3; // finished adding a field to an object
 							break;
 						case LEX_NUMBER:
 							THROW(p_temp = new SJson(SJson::tNUMBER));
-							p_temp->AssignText(info->Text);
-							THROW(json_insert_child(info->cursor, p_temp));
-							if(!info->cursor->P_Parent)
-								info->state = 99; // finished document. only accepts whitespaces until EOF
+							p_temp->AssignText(pInfo->Text);
+							THROW(json_insert_child(pInfo->cursor, p_temp));
+							if(!pInfo->cursor->P_Parent)
+								pInfo->state = 99; // finished document. only accepts whitespaces until EOF
 							else
-								info->cursor = info->cursor->P_Parent;
+								pInfo->cursor = pInfo->cursor->P_Parent;
 							p_temp = 0;
-							info->state = 3; // finished adding a field to an object
+							pInfo->state = 3; // finished adding a field to an object
 							break;
 						case LEX_TRUE:
 							THROW(p_temp = new SJson(SJson::tTRUE));
-							THROW(json_insert_child(info->cursor, p_temp));
-							if(!info->cursor->P_Parent)
-								info->state = 99; // finished document. only accepts whitespaces until EOF
+							THROW(json_insert_child(pInfo->cursor, p_temp));
+							if(!pInfo->cursor->P_Parent)
+								pInfo->state = 99; // finished document. only accepts whitespaces until EOF
 							else
-								info->cursor = info->cursor->P_Parent;
+								pInfo->cursor = pInfo->cursor->P_Parent;
 							p_temp = 0;
-							info->state = 3; // finished adding a field to an object
+							pInfo->state = 3; // finished adding a field to an object
 							break;
 						case LEX_FALSE:
 							THROW(p_temp = new SJson(SJson::tFALSE));
-							THROW(json_insert_child(info->cursor, p_temp));
-							if(!info->cursor->P_Parent)
-								info->state = 99; // finished document. only accepts whitespaces until EOF
+							THROW(json_insert_child(pInfo->cursor, p_temp));
+							if(!pInfo->cursor->P_Parent)
+								pInfo->state = 99; // finished document. only accepts whitespaces until EOF
 							else
-								info->cursor = info->cursor->P_Parent;
+								pInfo->cursor = pInfo->cursor->P_Parent;
 							p_temp = 0;
-							info->state = 3; // finished adding a field to an object
+							pInfo->state = 3; // finished adding a field to an object
 							break;
 						case LEX_NULL:
 							THROW(p_temp = new SJson(SJson::tNULL));
-							THROW(json_insert_child(info->cursor, p_temp));
-							if(!info->cursor->P_Parent)
-								info->state = 99;	/* finished document. only accepts whitespaces until EOF */
+							THROW(json_insert_child(pInfo->cursor, p_temp));
+							if(!pInfo->cursor->P_Parent)
+								pInfo->state = 99;	/* finished document. only accepts whitespaces until EOF */
 							else
-								info->cursor = info->cursor->P_Parent;
+								pInfo->cursor = pInfo->cursor->P_Parent;
 							p_temp = NULL;
-							info->state = 3;	/* finished adding a field to an object */
+							pInfo->state = 3;	/* finished adding a field to an object */
 							break;
-						case LEX_BEGIN_OBJECT: info->state = 1; break;
-						case LEX_BEGIN_ARRAY:  info->state = 7; break;
+						case LEX_BEGIN_OBJECT: pInfo->state = 1; break;
+						case LEX_BEGIN_ARRAY:  pInfo->state = 7; break;
 						case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 						case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
 						case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 						default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-							//fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
+							//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
 					}
 				}
 				break;
 			case 7: // open array
-				if(info->cursor == NULL) {
-					THROW(info->cursor = new SJson(SJson::tARRAY));
+				if(pInfo->cursor == NULL) {
+					THROW(pInfo->cursor = new SJson(SJson::tARRAY));
 				}
 				else { // perform tree sanity checks
-					assert(oneof2(info->cursor->Type, SJson::tARRAY, SJson::tSTRING));
+					assert(oneof2(pInfo->cursor->Type, SJson::tARRAY, SJson::tSTRING));
 					THROW(p_temp = new SJson(SJson::tARRAY));
-					THROW(json_insert_child(info->cursor, p_temp));
-					info->cursor = p_temp;
+					THROW(json_insert_child(pInfo->cursor, p_temp));
+					pInfo->cursor = p_temp;
 					p_temp = 0;
 				}
-				info->state = 8; // just entered an array
+				pInfo->state = 8; // just entered an array
 				break;
 			case 8: // just entered an array
 				// perform tree sanity checks
-				assert(info->cursor);
-				assert(info->cursor->Type == SJson::tARRAY);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor);
+				assert(pInfo->cursor->Type == SJson::tARRAY);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_STRING:
 						THROW(p_temp = new SJson(SJson::tSTRING));
-						p_temp->AssignText(info->Text);
-						THROW(json_insert_child(info->cursor, p_temp));
+						p_temp->AssignText(pInfo->Text);
+						THROW(json_insert_child(pInfo->cursor, p_temp));
 						p_temp = 0;
-						info->state = 9;	/* label, pre label:value separator */
+						pInfo->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NUMBER:
 						THROW(p_temp = new SJson(SJson::tNUMBER));
-						p_temp->AssignText(info->Text);
-						THROW(json_insert_child(info->cursor, p_temp));
+						p_temp->AssignText(pInfo->Text);
+						THROW(json_insert_child(pInfo->cursor, p_temp));
 						p_temp = NULL;
-						info->state = 9;	/* label, pre label:value separator */
+						pInfo->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_TRUE:
 						THROW(p_temp = new SJson(SJson::tTRUE));
-						THROW(json_insert_child(info->cursor, p_temp));
-						info->state = 9;	/* label, pre label:value separator */
+						THROW(json_insert_child(pInfo->cursor, p_temp));
+						pInfo->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_FALSE:
 						THROW(p_temp = new SJson(SJson::tFALSE));
-						THROW(json_insert_child(info->cursor, p_temp));
-						info->state = 9;	/* label, pre label:value separator */
+						THROW(json_insert_child(pInfo->cursor, p_temp));
+						pInfo->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NULL:
 						THROW(p_temp = new SJson(SJson::tNULL));
-						THROW(json_insert_child(info->cursor, p_temp));
-						info->state = 9;	/* label, pre label:value separator */
+						THROW(json_insert_child(pInfo->cursor, p_temp));
+						pInfo->state = 9;	/* label, pre label:value separator */
 						break;
-					case LEX_BEGIN_ARRAY: info->state = 7; break; // open array
+					case LEX_BEGIN_ARRAY: pInfo->state = 7; break; // open array
 					case LEX_END_ARRAY:
-						if(!info->cursor->P_Parent) {
-							/*TODO implement this */
-							info->state = 99;	/* finished document. only accept whitespaces until EOF */
+						if(!pInfo->cursor->P_Parent) {
+							// TODO implement this 
+							pInfo->state = 99;	/* finished document. only accept whitespaces until EOF */
 						}
 						else {
-							info->cursor = info->cursor->P_Parent;
-							switch(info->cursor->Type) {
+							pInfo->cursor = pInfo->cursor->P_Parent;
+							switch(pInfo->cursor->Type) {
 							case SJson::tSTRING:
-								THROW_S(info->cursor->P_Parent, SLERR_JSON_BAD_TREE_STRUCTURE);
-								info->cursor = info->cursor->P_Parent;
-								THROW_S(info->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
-								info->state = 3;	/* followup to adding child to array */
+								THROW_S(pInfo->cursor->P_Parent, SLERR_JSON_BAD_TREE_STRUCTURE);
+								pInfo->cursor = pInfo->cursor->P_Parent;
+								THROW_S(pInfo->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+								pInfo->state = 3;	/* followup to adding child to array */
 								break;
-							case SJson::tARRAY: info->state = 9; break; // followup to adding child to array
+							case SJson::tARRAY: pInfo->state = 9; break; // followup to adding child to array
 							default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
 							}
 						}
 						break;
-					case LEX_BEGIN_OBJECT: info->state = 1; break; // open object
+					case LEX_BEGIN_OBJECT: pInfo->state = 1; break; // open object
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						// fprintf(stderr, "JSON: state %d: defaulted\n", info->state);
+						// fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
 				}
 				break;
 			case 9: // followup to adding child to array
 				// TODO perform tree sanity checks
-				assert(info->cursor);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_VALUE_SEPARATOR:
-						info->state = 8;
+						pInfo->state = 8;
 						break;
 					case LEX_END_ARRAY:
-						if(!info->cursor->P_Parent)
-							info->state = 99; // finished document. only accept whitespaces until EOF
+						if(!pInfo->cursor->P_Parent)
+							pInfo->state = 99; // finished document. only accept whitespaces until EOF
 						else {
-							info->cursor = info->cursor->P_Parent;
-							switch(info->cursor->Type) {
+							pInfo->cursor = pInfo->cursor->P_Parent;
+							switch(pInfo->cursor->Type) {
 								case SJson::tSTRING:
-									if(!info->cursor->P_Parent) {
-										info->state = 99; // finished document. only accept whitespaces until EOF
+									if(!pInfo->cursor->P_Parent) {
+										pInfo->state = 99; // finished document. only accept whitespaces until EOF
 									}
 									else {
-										info->cursor = info->cursor->P_Parent;
-										THROW_S(info->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
-										info->state = 3; // followup to adding child to array
+										pInfo->cursor = pInfo->cursor->P_Parent;
+										THROW_S(pInfo->cursor->Type == SJson::tOBJECT, SLERR_JSON_BAD_TREE_STRUCTURE);
+										pInfo->state = 3; // followup to adding child to array
 									}
 									break;
-								case SJson::tARRAY: info->state = 9; break; // followup to adding child to array
+								case SJson::tARRAY: pInfo->state = 9; break; // followup to adding child to array
 								default: CALLEXCEPT_S(SLERR_JSON_BAD_TREE_STRUCTURE);
 							}
 						}
@@ -1729,8 +1825,8 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 				break;
 			case 99: // finished document. only accept whitespaces until EOF
 				// perform tree sanity check
-				assert(info->cursor->P_Parent == NULL);
-				switch(Lexer(buffer, &info->P_Cur, &info->lex_state, info->Text)) {
+				assert(pInfo->cursor->P_Parent == NULL);
+				switch(Lexer(pBuffer, &pInfo->P_Cur, &pInfo->lex_state, pInfo->Text)) {
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_WAITING_FOR_EOF);
 					case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
@@ -1739,14 +1835,14 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 			default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM);
 		}
 	}
-	info->P_Cur = NULL;
+	pInfo->P_Cur = NULL;
 	/*
-	if(info->state == 99)
+	if(pInfo->state == 99)
 		return JSON_WAITING_FOR_EOF;
 	else
 		return JSON_INCOMPLETE_DOCUMENT;
 	*/
-	THROW_S(info->state != 99, SLERR_JSON_WAITING_FOR_EOF);
+	THROW_S(pInfo->state != 99, SLERR_JSON_WAITING_FOR_EOF);
 	CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 	CATCHZOK
 	return ok;

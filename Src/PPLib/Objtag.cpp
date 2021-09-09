@@ -1,7 +1,7 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
-// Теги объектов
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// @codepage UTF-8
+// РўРµРіРё РѕР±СЉРµРєС‚РѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,7 +18,7 @@ const char * P_ListTagValRestrict = "#LIST";
 	int    ok = 0;
 	const  char * p = 0;
 	if(pItemString && ((p = strstr(pItemString, "/#")) != 0)) {
-		(rColorBuf = (p+1)).Strip(); // '/' пропускаем
+		(rColorBuf = (p+1)).Strip(); // '/' РїСЂРѕРїСѓСЃРєР°РµРј
 		(rRestrictionBuf = pItemString).Trim(p - pItemString).Strip();
 		ok = 2;
 	}
@@ -237,7 +237,7 @@ int TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, lon
 							}
 						}
 						else
-							break; // Зацикленная цепь ребенок->родитель
+							break; // Р—Р°С†РёРєР»РµРЅРЅР°СЏ С†РµРїСЊ СЂРµР±РµРЅРѕРє->СЂРѕРґРёС‚РµР»СЊ
 					}
 				}
 			}
@@ -477,9 +477,9 @@ int PPTagEnumList::Write(int use_ta)
 		PPObjTagListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
 		{
 			//
-			// Так как окно не модальное, объект на который указывает extraPtr может оказаться разрушенным
-			// во время работы экземпляра окна. Потому создаем собственную копию объекта и передаем
-			// базовому классу ссылку на него в ExtraPtr.
+			// РўР°Рє РєР°Рє РѕРєРЅРѕ РЅРµ РјРѕРґР°Р»СЊРЅРѕРµ, РѕР±СЉРµРєС‚ РЅР° РєРѕС‚РѕСЂС‹Р№ СѓРєР°Р·С‹РІР°РµС‚ extraPtr РјРѕР¶РµС‚ РѕРєР°Р·Р°С‚СЊСЃСЏ СЂР°Р·СЂСѓС€РµРЅРЅС‹Рј
+			// РІРѕ РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ СЌРєР·РµРјРїР»СЏСЂР° РѕРєРЅР°. РџРѕС‚РѕРјСѓ СЃРѕР·РґР°РµРј СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РєРѕРїРёСЋ РѕР±СЉРµРєС‚Р° Рё РїРµСЂРµРґР°РµРј
+			// Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ СЃСЃС‹Р»РєСѓ РЅР° РЅРµРіРѕ РІ ExtraPtr.
 			//
 			if(pObj) {
 				static_cast<const PPObjTag *>(pObj)->InitFilt(extraPtr, Filt);
@@ -500,7 +500,7 @@ int PPTagEnumList::Write(int use_ta)
 		{
 			int    update = 0;
 			PPID   id = 0;
-			// @v9.5.5 { Переопределяет код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
+			// @v9.5.5 { РџРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚ РєРѕРґ РёР· PPObjListWindow::handleEvent РґР»СЏ РїСЂРµРґСѓСЃС‚Р°РЅРѕРІРєРё С‚РёРїР° РѕР±СЉРµРєС‚Р° РІ СЃРѕР·РґР°РІР°РµРјРѕРј С‚РµРіРµ
 			PPID   preserve_focus_id = 0;
 			if(event.isCmd(cmaInsert) && P_Obj && Flags & OLW_CANINSERT && !(Flags & OLW_OUTERLIST)) {
 				PPID   obj_type_id = 0;
@@ -796,18 +796,18 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 	{
 			/*
 		\begin{description}
-			\item[Права агента на доступ к кассовым операциям]
+			\item[РџСЂР°РІР° Р°РіРµРЅС‚Р° РЅР° РґРѕСЃС‚СѓРї Рє РєР°СЃСЃРѕРІС‹Рј РѕРїРµСЂР°С†РёСЏРј]
 
-				Ид=4
-				\\Символ = \ppyrsrv{POSRIGHTS}
-				\\Тип объекта=\ppyrsrv{PERSON}
-				\\Тип тега = \ppyrsrv{STRING}
-			\item[Дата рождения]
+				РРґ=4
+				\\РЎРёРјРІРѕР» = \ppyrsrv{POSRIGHTS}
+				\\РўРёРї РѕР±СЉРµРєС‚Р°=\ppyrsrv{PERSON}
+				\\РўРёРї С‚РµРіР° = \ppyrsrv{STRING}
+			\item[Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ]
 
-				Ид=5
-				\\Символ = \ppyrsrv{DOB}
-				\\Тип объекта=\ppyrsrv{PERSON}
-				\\Тип тега = \ppyrsrv{DATE}
+				РРґ=5
+				\\РЎРёРјРІРѕР» = \ppyrsrv{DOB}
+				\\РўРёРї РѕР±СЉРµРєС‚Р°=\ppyrsrv{PERSON}
+				\\РўРёРї С‚РµРіР° = \ppyrsrv{DATE}
 		\end{description}
 			*/
 		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
@@ -910,8 +910,8 @@ int PPObjTag::MakeReserved(long flags)
 				// } @v10.9.4 
 				if(pack.Rec.TagDataType) {
 					//
-					// Здесь нельзя использовать PutPacket поскольку добавляется запись
-					// с предопределенным идентификатором.
+					// Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ PutPacket РїРѕСЃРєРѕР»СЊРєСѓ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ Р·Р°РїРёСЃСЊ
+					// СЃ РїСЂРµРґРѕРїСЂРµРґРµР»РµРЅРЅС‹Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј.
 					//
 					PPTransaction tra(1);
 					THROW(tra);
@@ -1115,7 +1115,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 	int    is_new = 0;
 	ObjTagDialog * dlg = 0;
 	if(*pID && ObjTagFilt::ObjTypeRootIdentToObjType(*pID, 0)) {
-		// Специальный идентификатор, поступивший из списка - тип объекта - его редактировать не надо.
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, РїРѕСЃС‚СѓРїРёРІС€РёР№ РёР· СЃРїРёСЃРєР° - С‚РёРї РѕР±СЉРµРєС‚Р° - РµРіРѕ СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РЅРµ РЅР°РґРѕ.
 		ok = -1;
 	}
 	else {
@@ -1414,7 +1414,7 @@ int PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & r
 		if(Fetch(tagID, &tag_rec) > 0) {
 			switch(tag_rec.TagDataType) {
 				case OTTYP_BOOL:
-					if(rNormCrit.OneOf(';', "no;false;0;нет;ложь", 1))
+					if(rNormCrit.OneOf(';', "no;false;0", 1)) // @v11.1.11 "no;false;0;РЅРµС‚;Р»РѕР¶СЊ"-->"no;false;0"
 						rNormCrit.Z().Cat("0");
 					else
 						rNormCrit.Z().Cat("1");
@@ -1426,7 +1426,7 @@ int PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & r
 							rNormCrit.Z().Cat(_id);
 						}
 						else {
-							rNormCrit.Z().Cat(-1234567890); // С высокой вероятностью невозможное значение
+							rNormCrit.Z().Cat(-1234567890); // РЎ РІС‹СЃРѕРєРѕР№ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊСЋ РЅРµРІРѕР·РјРѕР¶РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 							ok = -1;
 						}
 					}
@@ -1556,7 +1556,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 									int r = p_ref->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
 									THROW(r);
 									if(r < 0) {
-										// PPTXT_TAGHANGEDLINK         "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+										// PPTXT_TAGHANGEDLINK         "РћР±РЅР°СЂСѓР¶РµРЅР° РІРёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РІ С‚РµРіРµ '@tag' РЅР° РѕР±СЉРµРєС‚ {'@objtitle', @int}"
 										PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
 										PPID   subst_id = 0;
 										if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
@@ -1579,7 +1579,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 										int r = psn_obj.Search(rec.IntVal, &psn_rec);
 										THROW(r);
 										if(r < 0) {
-											// PPTXT_TAGHANGEDLINK         "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+											// PPTXT_TAGHANGEDLINK         "РћР±РЅР°СЂСѓР¶РµРЅР° РІРёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РІ С‚РµРіРµ '@tag' РЅР° РѕР±СЉРµРєС‚ {'@objtitle', @int}"
 											PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
 											PPID   subst_id = 0;
 											if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {
@@ -2734,7 +2734,7 @@ private:
 		PPID   ObjType;
 		PPID   TagEnumID;
 		int    TagDataType;
-		UintHashTable UndefList; // Список идентификаторов объектов, для которых нет тега TagID
+		UintHashTable UndefList; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РѕР±СЉРµРєС‚РѕРІ, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅРµС‚ С‚РµРіР° TagID
 	};
 	struct Entry {
 		enum {
@@ -2744,7 +2744,7 @@ private:
 		PPID   ObjID;
 		uint16 TagIdx;
 		uint16 F;
-		ACount Counter; // Счетчик обращений к этому элементу
+		ACount Counter; // РЎС‡РµС‚С‡РёРє РѕР±СЂР°С‰РµРЅРёР№ Рє СЌС‚РѕРјСѓ СЌР»РµРјРµРЅС‚Сѓ
 		union {
 			int32  I;
 			double R;
@@ -2755,10 +2755,10 @@ private:
 		ACount Hits;
 		ACount Misses;
 		ACount Count;
-		ACount Collisions;    // Количество коллизий при нахождении слота (для ObjCacheHash)
-		long   UnusedEntries; // Количество неиспользуемых слотов (для ObjCacheHash)
-		long   MaxCounter;    // Максимальный счетчик
-		long   MinCounter;    // Минимальный счетчик
+		ACount Collisions;    // РљРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»Р»РёР·РёР№ РїСЂРё РЅР°С…РѕР¶РґРµРЅРёРё СЃР»РѕС‚Р° (РґР»СЏ ObjCacheHash)
+		long   UnusedEntries; // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹С… СЃР»РѕС‚РѕРІ (РґР»СЏ ObjCacheHash)
+		long   MaxCounter;    // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЃС‡РµС‚С‡РёРє
+		long   MinCounter;    // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ СЃС‡РµС‚С‡РёРє
 	};
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	uint   Hash(PPID objID, PPID tagID, uint n) const;
@@ -2976,11 +2976,11 @@ int ObjTagCache::AddItem(const ObjTagCache::Entry * pEntry, uint * pPos)
 				pos_undefined = 0;
 				/*
 				if(Ss.getDataLen())
-					UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+					UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚СЂРѕРє
 				*/
 				//
-				// Чтобы не затереть счетчик обращений копируем только прикладную часть буфера
-				// и индекс строки наименования //
+				// Р§С‚РѕР±С‹ РЅРµ Р·Р°С‚РµСЂРµС‚СЊ СЃС‡РµС‚С‡РёРє РѕР±СЂР°С‰РµРЅРёР№ РєРѕРїРёСЂСѓРµРј С‚РѕР»СЊРєРѕ РїСЂРёРєР»Р°РґРЅСѓСЋ С‡Р°СЃС‚СЊ Р±СѓС„РµСЂР°
+				// Рё РёРЅРґРµРєСЃ СЃС‚СЂРѕРєРё РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ //
 				//
 				*p_entry = *pEntry;
 				p_entry->F &= ~ObjCacheEntry::fDirty;
@@ -2989,7 +2989,7 @@ int ObjTagCache::AddItem(const ObjTagCache::Entry * pEntry, uint * pPos)
 			}
 			else if(p_entry->F & Entry::fDirty) {
 				//
-				// Если встретили "грязный" элемент, то можем с чистой совестью его затереть
+				// Р•СЃР»Рё РІСЃС‚СЂРµС‚РёР»Рё "РіСЂСЏР·РЅС‹Р№" СЌР»РµРјРµРЅС‚, С‚Рѕ РјРѕР¶РµРј СЃ С‡РёСЃС‚РѕР№ СЃРѕРІРµСЃС‚СЊСЋ РµРіРѕ Р·Р°С‚РµСЂРµС‚СЊ
 				//
 				idx = f;
 				pos_undefined = 0;
@@ -3008,7 +3008,7 @@ int ObjTagCache::AddItem(const ObjTagCache::Entry * pEntry, uint * pPos)
 		if(p_entry) {
 			/*
 			if(Ss.getDataLen())
-				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
+				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚СЂРѕРє
 			*/
 			*p_entry = *pEntry;
 			p_entry->F &= ~ObjCacheEntry::fDirty;
@@ -3034,16 +3034,16 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 			tp = static_cast<uint16>(pos+1);
 		}
 		if(tp && TagTypeList.at(tp-1).UndefList.Has((uint32)objID)) {
-			ok = -1; // Объект находится в списке тех, для кого тег не определен.
+			ok = -1; // РћР±СЉРµРєС‚ РЅР°С…РѕРґРёС‚СЃСЏ РІ СЃРїРёСЃРєРµ С‚РµС…, РґР»СЏ РєРѕРіРѕ С‚РµРі РЅРµ РѕРїСЂРµРґРµР»РµРЅ.
 		}
 		else {
 			ok = Helper_Get(objID, tagID, pItem);
 			if(ok < 0) {
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				//
-				// Пока мы ждали своей очереди на запись
-				// другой поток мог занести нужный нам элемент в кэш.
-				// По-этому снова проверяем наличие этого элемента.
+				// РџРѕРєР° РјС‹ Р¶РґР°Р»Рё СЃРІРѕРµР№ РѕС‡РµСЂРµРґРё РЅР° Р·Р°РїРёСЃСЊ
+				// РґСЂСѓРіРѕР№ РїРѕС‚РѕРє РјРѕРі Р·Р°РЅРµСЃС‚Рё РЅСѓР¶РЅС‹Р№ РЅР°Рј СЌР»РµРјРµРЅС‚ РІ РєСЌС€.
+				// РџРѕ-СЌС‚РѕРјСѓ СЃРЅРѕРІР° РїСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ СЌС‚РѕРіРѕ СЌР»РµРјРµРЅС‚Р°.
 				//
 				ok = Helper_Get(objID, tagID, pItem);
 				if(ok < 0) {

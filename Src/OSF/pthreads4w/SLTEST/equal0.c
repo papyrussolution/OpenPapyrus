@@ -1,9 +1,5 @@
 /*
  * Test for pthread_equal.
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -28,18 +24,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * --------------------------------------------------------------------------
- *
- * Depends on functions: pthread_self().
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-
+//
+// Depends on functions: pthread_self().
+//
 int PThr4wTest_Equal0()
 {
 	pthread_t t1 = pthread_self();
 	assert(pthread_equal(t1, pthread_self()) != 0);
+	return 0; // Success
+}
+//
+// Depends on functions: pthread_create().
+//
+int PThr4wTest_Equal1()
+{
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			Sleep(2000);
+			return 0;
+		}
+	};
+	pthread_t t1, t2;
+	assert(pthread_create(&t1, NULL, InnerBlock::func, (void*)1) == 0);
+	assert(pthread_create(&t2, NULL, InnerBlock::func, (void*)2) == 0);
+	assert(pthread_equal(t1, t2) == 0);
+	assert(pthread_equal(t1, t1) != 0);
+	/* This is a hack. We don't want to rely on pthread_join yet if we can help it. */
+	Sleep(4000);
 	return 0; // Success
 }

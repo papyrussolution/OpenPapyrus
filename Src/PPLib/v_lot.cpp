@@ -2374,7 +2374,7 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 					pBrw->InsColumn(-1, "@serial", fld_no, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 				if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-					uint fld_no = P_TempTbl ? 16 : 13;
+					uint fld_no = P_TempTbl ? 17 : 14; // @v11.1.1 @fix #+1
 					pBrw->InsColumn(-1, "@rtag_fsrarinfalotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarinfblotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarlotgoodscode", fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);

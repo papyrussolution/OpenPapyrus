@@ -139,7 +139,8 @@ typedef enum {
 	CV_CPROP
 } CVAL;
 
-extern void onig_null_warn(const char* s ARG_UNUSED) {
+void onig_null_warn(const char* s ARG_UNUSED) 
+{
 }
 
 #ifdef DEFAULT_WARN_FUNCTION
@@ -154,20 +155,20 @@ static OnigWarnFunc onig_verb_warn = (OnigWarnFunc)DEFAULT_VERB_WARN_FUNCTION;
 static OnigWarnFunc onig_verb_warn = onig_null_warn;
 #endif
 
-extern void onig_set_warn_func(OnigWarnFunc f)
+void onig_set_warn_func(OnigWarnFunc f)
 {
 	onig_warn = f;
 }
 
-extern void onig_set_verb_warn_func(OnigWarnFunc f)
+void onig_set_verb_warn_func(OnigWarnFunc f)
 {
 	onig_verb_warn = f;
 }
 
-extern void onig_warning(const char* s)
+void onig_warning(const char* s)
 {
-	if(onig_warn == onig_null_warn) return;
-
+	if(onig_warn == onig_null_warn) 
+		return;
 	(*onig_warn)(s);
 }
 
@@ -175,7 +176,7 @@ extern void onig_warning(const char* s)
 
 static int MaxCaptureNum = DEFAULT_MAX_CAPTURE_NUM;
 
-extern int onig_set_capture_num_limit(int num)
+int onig_set_capture_num_limit(int num)
 {
 	if(num < 0) 
 		return -1;
@@ -185,12 +186,12 @@ extern int onig_set_capture_num_limit(int num)
 
 static uint ParseDepthLimit = DEFAULT_PARSE_DEPTH_LIMIT;
 
-extern uint onig_get_parse_depth_limit(void)
+uint onig_get_parse_depth_limit(void)
 {
 	return ParseDepthLimit;
 }
 
-extern int onig_set_parse_depth_limit(uint depth)
+int onig_set_parse_depth_limit(uint depth)
 {
 	if(depth == 0)
 		ParseDepthLimit = DEFAULT_PARSE_DEPTH_LIMIT;
@@ -334,7 +335,7 @@ static void bitset_copy(BitSetRef dest, BitSetRef bs)
 	}
 }
 
-extern int onig_strncmp(const uchar * s1, const uchar * s2, int n)
+int onig_strncmp(const uchar * s1, const uchar * s2, int n)
 {
 	while(n-- > 0) {
 		int x = *s2++ - *s1++;
@@ -344,7 +345,7 @@ extern int onig_strncmp(const uchar * s1, const uchar * s2, int n)
 	return 0;
 }
 
-extern void onig_strcpy(uchar * dest, const uchar * src, const uchar * end)
+void onig_strcpy(uchar * dest, const uchar * src, const uchar * end)
 {
 	int len = (int)(end - src);
 	if(len > 0) {
@@ -443,7 +444,7 @@ static int str_end_hash(/*st_str_end_key*/void * pX)
 	return (int)(val + (val >> 5));
 }
 
-extern hash_table_type onig_st_init_strend_table_with_size(int size)
+hash_table_type onig_st_init_strend_table_with_size(int size)
 {
 	static struct st_hash_type hashType = {
 		/*(int (*)(void *, void *))*/str_end_cmp,
@@ -452,7 +453,7 @@ extern hash_table_type onig_st_init_strend_table_with_size(int size)
 	return (hash_table_type)onig_st_init_table_with_size(&hashType, size);
 }
 
-extern int onig_st_lookup_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type * value)
+int onig_st_lookup_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type * value)
 {
 	st_str_end_key key;
 	key.s   = (uchar *)str_key;
@@ -460,7 +461,7 @@ extern int onig_st_lookup_strend(hash_table_type table, const uchar * str_key, c
 	return onig_st_lookup((st_table *)table, (st_data_t)(&key), value);
 }
 
-extern int onig_st_insert_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type value)
+int onig_st_insert_strend(hash_table_type table, const uchar * str_key, const uchar * end_key, hash_data_type value)
 {
 	int result;
 	st_str_end_key* key = (st_str_end_key*)SAlloc::M(sizeof(st_str_end_key));
@@ -518,7 +519,7 @@ static int callout_name_table_hash(/*st_callout_name_key*/void * pX)
 	return (int)(val + (val >> 5) + ((intptr_t)x->enc & 0xffff) + x->type);
 }
 
-extern hash_table_type onig_st_init_callout_name_table_with_size(int size)
+hash_table_type onig_st_init_callout_name_table_with_size(int size)
 {
 	static struct st_hash_type hashType = {
 		callout_name_table_cmp,
@@ -527,7 +528,7 @@ extern hash_table_type onig_st_init_callout_name_table_with_size(int size)
 	return (hash_table_type)onig_st_init_table_with_size(&hashType, size);
 }
 
-extern int onig_st_lookup_callout_name_table(hash_table_type table, OnigEncoding enc, int type,
+int onig_st_lookup_callout_name_table(hash_table_type table, OnigEncoding enc, int type,
     const uchar * str_key, const uchar * end_key, hash_data_type * value)
 {
 	st_callout_name_key key;
@@ -600,7 +601,7 @@ static int i_print_name_entry(uchar * key, NameEntry* e, void* arg)
 	return ST_CONTINUE;
 }
 
-extern int onig_print_names(FILE* fp, regex_t* reg)
+int onig_print_names(FILE* fp, regex_t* reg)
 {
 	NameTable* t = (NameTable*)reg->name_table;
 	if(IS_NOT_NULL(t)) {
@@ -632,7 +633,7 @@ static int names_clear(regex_t* reg)
 	return 0;
 }
 
-extern int onig_names_free(regex_t* reg)
+int onig_names_free(regex_t* reg)
 {
 	NameTable * t;
 	int r = names_clear(reg);
@@ -677,8 +678,7 @@ static int i_names(uchar * key ARG_UNUSED, NameEntry* e, INamesArg* arg)
 	return ST_CONTINUE;
 }
 
-extern int onig_foreach_name(regex_t* reg,
-    int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
 {
 	INamesArg narg;
 	NameTable* t = (NameTable*)reg->name_table;
@@ -707,7 +707,7 @@ static int i_renumber_name(uchar * key ARG_UNUSED, NameEntry* e, GroupNumMap* ma
 	return ST_CONTINUE;
 }
 
-extern int onig_renumber_name_table(regex_t* reg, GroupNumMap* map)
+int onig_renumber_name_table(regex_t* reg, GroupNumMap* map)
 {
 	NameTable* t = (NameTable*)reg->name_table;
 	if(IS_NOT_NULL(t)) {
@@ -716,7 +716,7 @@ extern int onig_renumber_name_table(regex_t* reg, GroupNumMap* map)
 	return 0;
 }
 
-extern int onig_number_of_names(regex_t* reg)
+int onig_number_of_names(regex_t* reg)
 {
 	NameTable* t = (NameTable*)reg->name_table;
 	if(IS_NOT_NULL(t))
@@ -736,7 +736,7 @@ typedef struct {
 } NameTable;
 
 #ifdef ONIG_DEBUG
-extern int onig_print_names(FILE* fp, regex_t* reg)
+int onig_print_names(FILE* fp, regex_t* reg)
 {
 	int i, j;
 	NameEntry* e;
@@ -794,14 +794,12 @@ static int names_clear(regex_t* reg)
 	return 0;
 }
 
-extern int onig_names_free(regex_t* reg)
+int onig_names_free(regex_t* reg)
 {
-	int r;
 	NameTable* t;
-
-	r = names_clear(reg);
-	if(r != 0) return r;
-
+	int r = names_clear(reg);
+	if(r != 0) 
+		return r;
 	t = (NameTable*)reg->name_table;
 	if(IS_NOT_NULL(t)) SAlloc::F(t);
 	reg->name_table = NULL;
@@ -824,13 +822,11 @@ static NameEntry* name_find(regex_t* reg, uchar * name, uchar * name_end)
 	return (NameEntry*)NULL;
 }
 
-extern int onig_foreach_name(regex_t* reg,
-    int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
 {
 	int i, r;
 	NameEntry* e;
 	NameTable* t = (NameTable*)reg->name_table;
-
 	if(IS_NOT_NULL(t)) {
 		for(i = 0; i < t->num; i++) {
 			e = &(t->e[i]);
@@ -843,10 +839,9 @@ extern int onig_foreach_name(regex_t* reg,
 	return 0;
 }
 
-extern int onig_number_of_names(regex_t* reg)
+int onig_number_of_names(regex_t* reg)
 {
 	NameTable* t = (NameTable*)reg->name_table;
-
 	if(IS_NOT_NULL(t))
 		return t->num;
 	else
@@ -955,7 +950,7 @@ clear:
 	return 0;
 }
 
-extern int onig_name_to_group_numbers(regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
+int onig_name_to_group_numbers(regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
 {
 	NameEntry* e = name_find(reg, name, name_end);
 	if(IS_NULL(e)) 
@@ -977,7 +972,6 @@ static int name_to_group_numbers(ScanEnv* env, const uchar * name, const uchar *
 		    (uchar *)name, (uchar *)name_end);
 		return ONIGERR_UNDEFINED_NAME_REFERENCE;
 	}
-
 	switch(e->back_num) {
 		case 0:
 		    break;
@@ -991,12 +985,10 @@ static int name_to_group_numbers(ScanEnv* env, const uchar * name, const uchar *
 	return e->back_num;
 }
 
-extern int onig_name_to_backref_number(regex_t* reg, const uchar * name,
-    const uchar * name_end, OnigRegion * region)
+int onig_name_to_backref_number(regex_t* reg, const uchar * name, const uchar * name_end, OnigRegion * region)
 {
-	int i, n, * nums;
-
-	n = onig_name_to_group_numbers(reg, name, name_end, &nums);
+	int i, * nums;
+	int n = onig_name_to_group_numbers(reg, name, name_end, &nums);
 	if(n < 0)
 		return n;
 	else if(n == 0)
@@ -1014,17 +1006,13 @@ extern int onig_name_to_backref_number(regex_t* reg, const uchar * name,
 	}
 }
 
-extern int onig_noname_group_capture_is_active(regex_t* reg)
+int onig_noname_group_capture_is_active(regex_t* reg)
 {
 	if(OPTON_DONT_CAPTURE_GROUP(reg->options))
 		return 0;
-
-	if(onig_number_of_names(reg) > 0 &&
-	    IS_SYNTAX_BV(reg->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) &&
-	    !OPTON_CAPTURE_GROUP(reg->options)) {
+	if(onig_number_of_names(reg) > 0 && IS_SYNTAX_BV(reg->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) && !OPTON_CAPTURE_GROUP(reg->options)) {
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -1366,7 +1354,7 @@ static int is_allowed_callout_tag_name(OnigEncoding enc, uchar * name, uchar * n
 	return 1;
 }
 
-extern int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uchar * name, uchar * name_end, int in,
+int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uchar * name, uchar * name_end, int in,
     OnigCalloutFunc start_func, OnigCalloutFunc end_func, int arg_num, uint arg_types[], int opt_arg_num, OnigValue opt_defaults[])
 {
 	int r;
@@ -1482,52 +1470,50 @@ static int get_callout_name_id_by_name(OnigEncoding enc, int is_not_single,
 	return r;
 }
 
-extern OnigCalloutFunc onig_get_callout_start_func(regex_t* reg, int callout_num)
+OnigCalloutFunc onig_get_callout_start_func(regex_t* reg, int callout_num)
 {
 	/* If used for callouts of contents, return 0. */
-	CalloutListEntry* e;
-
-	e = onig_reg_callout_list_at(reg, callout_num);
+	CalloutListEntry * e = onig_reg_callout_list_at(reg, callout_num);
 	CHECK_NULL_RETURN(e);
 	return e->start_func;
 }
 
-extern const uchar * onig_get_callout_tag_start(regex_t* reg, int callout_num)
+const uchar * onig_get_callout_tag_start(regex_t* reg, int callout_num)
 {
 	CalloutListEntry* e = onig_reg_callout_list_at(reg, callout_num);
 	CHECK_NULL_RETURN(e);
 	return e->tag_start;
 }
 
-extern const uchar * onig_get_callout_tag_end(regex_t* reg, int callout_num)
+const uchar * onig_get_callout_tag_end(regex_t* reg, int callout_num)
 {
 	CalloutListEntry* e = onig_reg_callout_list_at(reg, callout_num);
 	CHECK_NULL_RETURN(e);
 	return e->tag_end;
 }
 
-extern OnigCalloutType onig_get_callout_type_by_name_id(int name_id)
+OnigCalloutType onig_get_callout_type_by_name_id(int name_id)
 {
 	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
 		return (OnigCalloutType)0;
 	return GlobalCalloutNameList->v[name_id].type;
 }
 
-extern OnigCalloutFunc onig_get_callout_start_func_by_name_id(int name_id)
+OnigCalloutFunc onig_get_callout_start_func_by_name_id(int name_id)
 {
 	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
 		return 0;
 	return GlobalCalloutNameList->v[name_id].start_func;
 }
 
-extern OnigCalloutFunc onig_get_callout_end_func_by_name_id(int name_id)
+OnigCalloutFunc onig_get_callout_end_func_by_name_id(int name_id)
 {
 	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
 		return 0;
 	return GlobalCalloutNameList->v[name_id].end_func;
 }
 
-extern int onig_get_callout_in_by_name_id(int name_id)
+int onig_get_callout_in_by_name_id(int name_id)
 {
 	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
 		return 0;
@@ -1539,14 +1525,14 @@ static int get_callout_opt_arg_num_by_name_id(int name_id) { return GlobalCallou
 static uint get_callout_arg_type_by_name_id(int name_id, int index) { return GlobalCalloutNameList->v[name_id].arg_types[index]; }
 static OnigValue get_callout_opt_default_by_name_id(int name_id, int index) { return GlobalCalloutNameList->v[name_id].opt_defaults[index]; }
 
-extern uchar * onig_get_callout_name_by_name_id(int name_id)
+uchar * onig_get_callout_name_by_name_id(int name_id)
 {
 	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
 		return 0;
 	return GlobalCalloutNameList->v[name_id].name;
 }
 
-extern int onig_global_callout_names_free(void)
+int onig_global_callout_names_free(void)
 {
 	free_callout_func_list(GlobalCalloutNameList);
 	GlobalCalloutNameList = 0;
@@ -1595,15 +1581,12 @@ static int setup_ext_callout_list_values(regex_t* reg)
 	return ONIG_NORMAL;
 }
 
-extern int onig_callout_tag_is_exist_at_callout_num(regex_t* reg, int callout_num)
+int onig_callout_tag_is_exist_at_callout_num(regex_t* reg, int callout_num)
 {
 	RegexExt* ext = reg->extp;
-
 	if(IS_NULL(ext) || IS_NULL(ext->callout_list)) return 0;
 	if(callout_num > ext->callout_num) return 0;
-
-	return (ext->callout_list[callout_num].flag &
-	       CALLOUT_TAG_LIST_FLAG_TAG_EXIST) != 0;
+	return (ext->callout_list[callout_num].flag & CALLOUT_TAG_LIST_FLAG_TAG_EXIST) != 0;
 }
 
 static int i_free_callout_tag_entry(uchar * key, CalloutTagVal e, void* arg ARG_UNUSED)
@@ -1620,7 +1603,7 @@ static int callout_tag_table_clear(CalloutTagTable* t)
 	return 0;
 }
 
-extern int onig_callout_tag_table_free(void * table)
+int onig_callout_tag_table_free(void * table)
 {
 	if(table) {
 		CalloutTagTable * t = (CalloutTagTable *)table;
@@ -1631,7 +1614,7 @@ extern int onig_callout_tag_table_free(void * table)
 	return 0;
 }
 
-extern int onig_get_callout_num_by_tag(regex_t* reg, const uchar * tag, const uchar * tag_end)
+int onig_get_callout_num_by_tag(regex_t* reg, const uchar * tag, const uchar * tag_end)
 {
 	int r;
 	RegexExt* ext;
@@ -1867,7 +1850,7 @@ static void node_free_body(Node * node)
 	}
 }
 
-extern void FASTCALL onig_node_free(Node * node)
+void FASTCALL onig_node_free(Node * node)
 {
 	if(node) {
 	#ifdef DEBUG_NODE_FREE
@@ -1896,7 +1879,7 @@ static Node* node_new(void)
 	return node;
 }
 
-extern int onig_node_copy(Node ** rcopy, Node* from)
+int onig_node_copy(Node ** rcopy, Node* from)
 {
 	int r;
 	Node* copy;
@@ -2025,12 +2008,12 @@ static Node* node_new_list(Node* left, Node* right)
 	return node;
 }
 
-extern Node* onig_node_new_list(Node* left, Node* right)
+Node* onig_node_new_list(Node* left, Node* right)
 {
 	return node_new_list(left, right);
 }
 
-extern Node* onig_node_new_alt(Node* left, Node* right)
+Node* onig_node_new_alt(Node* left, Node* right)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
@@ -2264,7 +2247,7 @@ static Node* node_new_bag(enum BagType type)
 	return node;
 }
 
-extern Node* onig_node_new_bag(enum BagType type)
+Node* onig_node_new_bag(enum BagType type)
 {
 	return node_new_bag(type);
 }
@@ -2337,7 +2320,7 @@ static int node_new_fail(Node ** node, ScanEnv* env)
 	return node_set_fail(*node);
 }
 
-extern int onig_node_reset_fail(Node * node)
+int onig_node_reset_fail(Node * node)
 {
 	node_free_body(node);
 	return node_set_fail(node);
@@ -2387,13 +2370,12 @@ static int node_new_keep(Node ** node, ScanEnv* env)
 
 #ifdef USE_CALLOUT
 
-extern void onig_free_reg_callout_list(int n, CalloutListEntry* list)
+void onig_free_reg_callout_list(int n, CalloutListEntry* list)
 {
 	int i;
 	int j;
-
-	if(IS_NULL(list)) return;
-
+	if(IS_NULL(list)) 
+		return;
 	for(i = 0; i < n; i++) {
 		if(list[i].of == ONIG_CALLOUT_OF_NAME) {
 			for(j = 0; j < list[i].u.arg.passed_num; j++) {
@@ -2413,7 +2395,7 @@ extern void onig_free_reg_callout_list(int n, CalloutListEntry* list)
 	SAlloc::F(list);
 }
 
-extern CalloutListEntry * onig_reg_callout_list_at(regex_t* reg, int num)
+CalloutListEntry * onig_reg_callout_list_at(regex_t* reg, int num)
 {
 	RegexExt* ext = reg->extp;
 	CHECK_NULL_RETURN(ext);
@@ -2917,7 +2899,7 @@ err:
 	return r;
 }
 
-extern int onig_node_str_cat(Node * node, const uchar * s, const uchar * end)
+int onig_node_str_cat(Node * node, const uchar * s, const uchar * end)
 {
 	int addlen = (int)(end - s);
 	if(addlen > 0) {
@@ -2948,7 +2930,7 @@ extern int onig_node_str_cat(Node * node, const uchar * s, const uchar * end)
 	return 0;
 }
 
-extern int onig_node_str_set(Node * node, const uchar * s, const uchar * end, int need_free)
+int onig_node_str_set(Node * node, const uchar * s, const uchar * end, int need_free)
 {
 	onig_node_str_clear(node, need_free);
 	return onig_node_str_cat(node, s, end);
@@ -2961,7 +2943,7 @@ static int node_str_cat_char(Node * node, uchar c)
 	return onig_node_str_cat(node, s, s + 1);
 }
 
-extern void onig_node_str_clear(Node * node, int need_free)
+void onig_node_str_clear(Node * node, int need_free)
 {
 	if(need_free != 0 &&
 	    STR_(node)->capacity != 0 && IS_NOT_NULL(STR_(node)->s) && STR_(node)->s != STR_(node)->buf) {
@@ -3003,12 +2985,12 @@ static int node_reset_str(Node * node, const uchar * s, const uchar * end)
 	return node_set_str(node, s, end);
 }
 
-extern int onig_node_reset_empty(Node * node)
+int onig_node_reset_empty(Node * node)
 {
 	return node_reset_str(node, NULL, NULL);
 }
 
-extern Node* onig_node_new_str(const uchar * s, const uchar * end)
+Node* onig_node_new_str(const uchar * s, const uchar * end)
 {
 	return node_new_str(s, end);
 }
@@ -3826,7 +3808,7 @@ static enum ReduceType ReduceTypeTable[6][6] = {
 	{RQ_ASIS, RQ_A,    RQ_P,   RQ_AQ,   RQ_AQ,   RQ_DEL}/* '+?' */
 };
 
-extern int onig_reduce_nested_quantifier(Node* pnode)
+int onig_reduce_nested_quantifier(Node* pnode)
 {
 	Node * cnode = NODE_BODY(pnode);
 	QuantNode * p = QUANT_(pnode);
@@ -7724,24 +7706,18 @@ static int clear_not_flag_cclass(CClassNode* cc, OnigEncoding enc)
 		} \
 } while(0)
 
-extern int onig_new_cclass_with_code_list(Node ** rnode, OnigEncoding enc,
-    int n, OnigCodePoint codes[])
+int onig_new_cclass_with_code_list(Node ** rnode, OnigEncoding enc, int n, OnigCodePoint codes[])
 {
 	int i;
 	Node * node;
 	CClassNode* cc;
-
 	*rnode = NULL_NODE;
-
 	node = node_new_cclass();
 	CHECK_NULL_RETURN_MEMERR(node);
-
 	cc = CCLASS_(node);
-
 	for(i = 0; i < n; i++) {
 		ADD_CODE_INTO_CC(cc, codes[i], enc);
 	}
-
 	*rnode = node;
 	return 0;
 }
@@ -8357,7 +8333,7 @@ static int prs_regexp(Node ** top, uchar ** src, uchar * end, ScanEnv* env)
 	}
 #endif
 
-extern int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env)
+int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env)
 {
 	int r;
 	uchar * p;
@@ -8406,7 +8382,7 @@ extern int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * en
 	return r;
 }
 
-extern void onig_scan_env_set_error_string(ScanEnv* env, int ecode ARG_UNUSED, uchar * arg, uchar * arg_end)
+void onig_scan_env_set_error_string(ScanEnv* env, int ecode ARG_UNUSED, uchar * arg, uchar * arg_end)
 {
 	env->error     = arg;
 	env->error_end = arg_end;

@@ -84,7 +84,9 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 			if(p_v->P_BObj->FetchExt(bill_rec.ID, &bext) < 0 || bext.AgentID != p_v->Filt.AgentID)
 				return 1;
 		}
-		double amt = BR2(bill_rec.Amount), paym = 0.0, debt = 0.0;
+		double amt = BR2(bill_rec.Amount);
+		double paym = 0.0;
+		double debt = 0.0;
 		{
 			uint pos = 0;
 			const LDATE last_date = (p_v->Filt.Flags & PaymPlanFilt::fCurrentDebt) ? ZERODATE : plusdate(p->Period.low, -1);

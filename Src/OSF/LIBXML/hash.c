@@ -537,7 +537,7 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 	ulong key;
 	xmlHashEntry * entry;
 	xmlHashEntry * insert;
-	if((table == NULL) || name == NULL)
+	if(table == NULL || name == NULL)
 		return -1;
 	/*
 	 * If using a dict internalize if needed
@@ -548,12 +548,12 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 			if(!name)
 				return -1;
 		}
-		if(name2 && (!xmlDictOwns(table->dict, name2))) {
+		if(name2 && !xmlDictOwns(table->dict, name2)) {
 			name2 = xmlDictLookupSL(table->dict, name2);
 			if(name2 == NULL)
 				return -1;
 		}
-		if(name3 && (!xmlDictOwns(table->dict, name3))) {
+		if(name3 && !xmlDictOwns(table->dict, name3)) {
 			name3 = xmlDictLookupSL(table->dict, name3);
 			if(name3 == NULL)
 				return -1;

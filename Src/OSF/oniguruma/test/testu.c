@@ -123,7 +123,7 @@ static void x2(char* pattern, char* str, int from, int to) { xx(pattern, str, fr
 static void x3(char* pattern, char* str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
 static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
 
-extern int OnigTestU_main(FILE * fOut)
+int OnigTestU_main(FILE * fOut)
 {
 	OnigTB.out_file = NZOR(fOut, stdout);
 	OnigTB.err_file = NZOR(fOut, stdout);

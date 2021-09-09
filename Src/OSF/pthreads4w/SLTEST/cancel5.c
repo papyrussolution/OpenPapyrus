@@ -31,52 +31,24 @@
  *
  * --------------------------------------------------------------------------
  *
- * Test Synopsis: Test calling pthread_cancel from the main thread
- *                without calling pthread_self() in main.
- *
- * Test Method (Validation or Falsification):
- * -
- *
- * Requirements Tested:
- * -
- *
- * Features Tested:
- * -
- *
- * Cases Tested:
- * -
- *
- * Description:
- * -
- *
- * Environment:
- * -
- *
- * Input:
- * - None.
- *
+ * Test Synopsis: Test calling pthread_cancel from the main thread without calling pthread_self() in main.
  * Output:
  * - File name, Line number, and failed expression on failure.
  * - No output on success.
- *
  * Assumptions:
  * - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
  *   pthread_testcancel, pthread_cancel, pthread_join
- *
  * Pass Criteria:
  * - Process returns zero exit status.
- *
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-/*
- * Create NUMTHREADS threads in addition to the Main thread.
- */
+
 enum {
-	NUMTHREADS = 4
+	NUMTHREADS = 4 // Create NUMTHREADS threads in addition to the Main thread.
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
@@ -102,6 +74,9 @@ static void * mythread(void * arg)
 
 int PThr4wTest_Cancel5()
 {
+	class InnerBlock {
+	public:
+	};
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];

@@ -661,9 +661,24 @@ SBinaryChunk::SBinaryChunk(const SBinaryChunk & rS) : L(0)
 	Put(rS.PtrC(), rS.Len());
 }
 
+SBinaryChunk & SBinaryChunk::Randomize(size_t len)
+{
+	if(len && Ensure(len))
+		SLS.GetTLA().Rg.ObfuscateBuffer(P_Buf, Len());
+	else
+		Z();
+	return *this;
+}
+
 int FASTCALL SBinaryChunk::IsEqual(const SBinaryChunk & rS) const
 {
-	return (Len() == rS.Len() && memcmp(P_Buf, rS.P_Buf, Len()) == 0);
+	const size_t _len = Len();
+	return (_len == rS.Len() && (!_len || memcmp(P_Buf, rS.P_Buf, _len) == 0));
+}
+
+int FASTCALL SBinaryChunk::IsEqual(const void * pData, size_t len) const
+{
+	return (Len() == len && (!len || memcmp(P_Buf, pData, len) == 0));
 }
 
 bool FASTCALL SBinaryChunk::operator == (const SBinaryChunk & rS) const

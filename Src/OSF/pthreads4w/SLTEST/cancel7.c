@@ -76,21 +76,17 @@
 	#include <process.h>
 #endif
 
-/*
- * Create NUMTHREADS threads in addition to the Main thread.
- */
 enum {
-	NUMTHREADS = 4
+	NUMTHREADS = 4 // Create NUMTHREADS threads in addition to the Main thread.
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
 
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-static uint __stdcall
+static uint __stdcall Win32thread(void * arg)
 #else
-static void
+static void Win32thread(void * arg)
 #endif
-Win32thread(void * arg)
 {
 	int i;
 	bag_t * bag = static_cast<bag_t *>(arg);
@@ -110,6 +106,9 @@ Win32thread(void * arg)
 
 int PThr4wTest_Cancel7()
 {
+	class InnerBlock {
+	public:
+	};
 	int failed = 0;
 	int i;
 	HANDLE h[NUMTHREADS + 1];

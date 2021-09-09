@@ -1,7 +1,5 @@
 /*
  * File: cancel6a.c
- *
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -29,34 +27,10 @@
  *
  * --------------------------------------------------------------------------
  *
- * Test Synopsis: Test double cancellation - asynchronous.
- * Second attempt should fail (ESRCH).
- *
- * Test Method (Validation or Falsification):
- * -
- *
- * Requirements Tested:
- * -
- *
- * Features Tested:
- * -
- *
- * Cases Tested:
- * -
- *
- * Description:
- * -
- *
- * Environment:
- * -
- *
- * Input:
- * - None.
- *
+ * Test Synopsis: Test double cancellation - asynchronous. Second attempt should fail (ESRCH).
  * Output:
  * - File name, Line number, and failed expression on failure.
  * - No output on success.
- *
  * Assumptions:
  * - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
  *   pthread_testcancel, pthread_cancel, pthread_join
@@ -70,36 +44,33 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-/*
- * Create NUMTHREADS threads in addition to the Main thread.
- */
-enum {
-	NUMTHREADS = 4
-};
-
-static bag_t threadbag[NUMTHREADS + 1];
-
-static void * mythread(void * arg)
-{
-	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
-	bag_t * bag = static_cast<bag_t *>(arg);
-	assert(bag == &threadbag[bag->threadnum]);
-	assert(bag->started == 0);
-	bag->started = 1;
-	/* Set to known state and type */
-	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-	/*
-	 * We wait up to 10 seconds, waking every 0.1 seconds,
-	 * for a cancellation to be applied to us.
-	 */
-	for(bag->count = 0; bag->count < 100; bag->count++)
-		Sleep(100);
-	return result;
-}
 
 int PThr4wTest_Cancel6a()
 {
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+			/*
+			 * We wait up to 10 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 100; bag->count++)
+				Sleep(100);
+			return result;
+		}
+	};
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];
@@ -109,7 +80,7 @@ int PThr4wTest_Cancel6a()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.

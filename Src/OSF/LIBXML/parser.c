@@ -11656,7 +11656,6 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	xmlFreeDoc(newDoc);
 	return ret;
 }
-
 /**
  * xmlParseInNodeContext:
  * @node:  the context node
@@ -11676,7 +11675,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
  * Returns XML_ERR_OK if the chunk is well balanced, and the parser
  * error code otherwise
  */
-xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int datalen, int options, xmlNode ** lst)
+xmlParserErrors xmlParseInNodeContext(xmlNode * pNode, const char * data, int datalen, int options, xmlNode ** lst)
 {
 #ifdef SAX2
 	xmlParserCtxt * ctxt;
@@ -11688,9 +11687,9 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	/*
 	 * check all input parameters, grab the document
 	 */
-	if(!lst || !P_Node || !data || (datalen < 0))
+	if(!lst || !pNode || !data || (datalen < 0))
 		return XML_ERR_INTERNAL_ERROR;
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:
 		case XML_TEXT_NODE:
@@ -11704,11 +11703,11 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 		default:
 		    return XML_ERR_INTERNAL_ERROR;
 	}
-	while(P_Node && !oneof3(P_Node->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
-		P_Node = P_Node->P_ParentNode;
-	if(!P_Node)
+	while(pNode && !oneof3(pNode->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
+		pNode = pNode->P_ParentNode;
+	if(!pNode)
 		return XML_ERR_INTERNAL_ERROR;
-	doc = (P_Node->type == XML_ELEMENT_NODE) ? P_Node->doc : (xmlDoc *)P_Node;
+	doc = (pNode->type == XML_ELEMENT_NODE) ? pNode->doc : (xmlDoc *)pNode;
 	if(!doc)
 		return XML_ERR_INTERNAL_ERROR;
 	/*
@@ -11727,7 +11726,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	else
 		return XML_ERR_INTERNAL_ERROR;
 	if(!ctxt)
-		return (XML_ERR_NO_MEMORY);
+		return XML_ERR_NO_MEMORY;
 	/*
 	 * Use input doc's dict if present, else assure XML_PARSE_NODICT is set.
 	 * We need a dictionary for xmlDetectSAX2, so if there's no doc dict
@@ -11759,13 +11758,13 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 		xmlFreeParserCtxt(ctxt);
 		return XML_ERR_NO_MEMORY;
 	}
-	xmlAddChild(P_Node, fake);
-	if(P_Node->type == XML_ELEMENT_NODE) {
-		nodePush(ctxt, P_Node);
-		/*
-		 * initialize the SAX2 namespaces stack
-		 */
-		cur = P_Node;
+	xmlAddChild(pNode, fake);
+	if(pNode->type == XML_ELEMENT_NODE) {
+		nodePush(ctxt, pNode);
+		//
+		// initialize the SAX2 namespaces stack
+		//
+		cur = pNode;
 		while(cur && (cur->type == XML_ELEMENT_NODE)) {
 			xmlNs * ns = cur->nsDef;
 			const xmlChar * iprefix, * ihref;
@@ -11806,7 +11805,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	else if(RAW != 0) {
 		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
-	if(ctxt->P_Node && (ctxt->P_Node != P_Node)) {
+	if(ctxt->P_Node && (ctxt->P_Node != pNode)) {
 		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 		ctxt->wellFormed = 0;
 	}
@@ -11819,7 +11818,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	//
 	cur = fake->next;
 	fake->next = NULL;
-	P_Node->last = fake;
+	pNode->last = fake;
 	if(cur) {
 		cur->prev = NULL;
 	}

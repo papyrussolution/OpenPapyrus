@@ -4099,18 +4099,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							if(gcsb.ChZnSerial[0])
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
 							pgsb.ChZnMark = gcsb.Code; // @v10.6.10
-							// @v11.1.10 @debug {
-							/*
-							int chzn_check_result = 0;
-							int chzn_reason = 0;
-							int chzn_prc_result = 0;
-							int chzn_prc_code = 0;
-							int chzn_status = 0;
-							if(InitCashMachine() && P_CM) {
-								P_CM->SyncPreprocessChZnCode(0, pgsb.ChZnMark, 1.0, &chzn_check_result, &chzn_reason, &chzn_prc_result, &chzn_prc_code, &chzn_status);
-							}
-							*/
-							// } @v11.1.10 @debug 
 						}
 						// } @v10.4.12
 						if(PreprocessGoodsSelection(goods_id, loc_id, pgsb) > 0)
@@ -6749,20 +6737,16 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				{
 					SString mark;
 					if(PPChZnPrcssr::InputMark(mark, 0) > 0) {
-						int chzn_check_result = 0;
-						int chzn_reason = 0;
-						int chzn_prc_result = 0;
-						int chzn_prc_code = 0;
-						int chzn_status = 0;
+						CCheckPacket::PreprocessChZnCodeResult chzn_result;
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
-							int r = P_CM->SyncPreprocessChZnCode(0, mark, 1.0, &chzn_check_result, &chzn_reason, &chzn_prc_result, &chzn_prc_code, &chzn_status);
+							int r = P_CM->SyncPreprocessChZnCode(0, mark, 1.0, chzn_result);
 							msg_buf.CatEq("SyncPreprocessChZnCode-result", (long)r).CR();
-							msg_buf.CatEq("check-result", (long)chzn_check_result).CR();
-							msg_buf.CatEq("reason", (long)chzn_reason).CR();
-							msg_buf.CatEq("processing-result", (long)chzn_prc_result).CR();
-							msg_buf.CatEq("processing-code", (long)chzn_prc_code).CR();
-							msg_buf.CatEq("status", (long)chzn_status).CR();
+							msg_buf.CatEq("check-result", (long)chzn_result.CheckResult).CR();
+							msg_buf.CatEq("reason", (long)chzn_result.Reason).CR();
+							msg_buf.CatEq("processing-result", (long)chzn_result.ProcessingResult).CR();
+							msg_buf.CatEq("processing-code", (long)chzn_result.ProcessingCode).CR();
+							msg_buf.CatEq("status", (long)chzn_result.Status).CR();
 							PPChZnPrcssr::InputMark(mark, msg_buf);
 						}						
 					}

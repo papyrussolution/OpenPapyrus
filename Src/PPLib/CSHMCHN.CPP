@@ -1032,9 +1032,12 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 			flags |= PRNCHK_BANKING;
 		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
 		THROW(UpdateNode(1));
-		ok = SyncSetPrintErrCode(P_SyncIntrf->PrintCheck(pCcPack, flags), 1);
-		if(ok > 0 && NodeRec.Flags & CASHF_AUTO_PRINTCOPY)
-			ok = SyncPrintCheckCopy(pCcPack, 0);
+		{
+			const int spcr = P_SyncIntrf->PrintCheck(pCcPack, flags);
+			ok = SyncSetPrintErrCode(spcr, 1);
+			if(ok > 0 && NodeRec.Flags & CASHF_AUTO_PRINTCOPY)
+				ok = SyncPrintCheckCopy(pCcPack, 0);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1225,12 +1228,12 @@ int PPCashMachine::SyncPrintIncasso()
 	return ok;
 }
 
-int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
 	THROW(GetNode() > 0);
 	if(GetSyncIntrf()) {
-		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, pCheckResult, pReason, pPrcResult, pPrcCode, pStatus);
+		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, rResult);
 	}
 	CATCHZOK
 	return ok;
@@ -1440,13 +1443,16 @@ IMPL_HANDLE_EVENT(CSPanel)
 	}
 }
 
+AsyncPosPrepParam::AsyncPosPrepParam() : CashNodeID(0), Flags(0)
+{
+}
+
 int AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 {
 	int    ok = -1, valid_data = 0;
 	PPObjCashNode::SelFilt f;
 	AsyncPosPrepParam param;
-	if(!RVALUEPTR(param, pParam))
-		MEMSZERO(param);
+	RVALUEPTR(param, pParam);
 	TDialog * dlg = new TDialog(DLG_CASHNPAR);
 	THROW_MEM(dlg);
 	THROW(CheckDialogPtr(&dlg));

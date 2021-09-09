@@ -95,7 +95,7 @@ class SCS_SYNCCASH : public PPSyncCashSession {
 public:
 	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	~SCS_SYNCCASH();
-	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus);
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	virtual int PrintCheck(CCheckPacket *, uint flags);
 	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -434,65 +434,67 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	return ok;
 }
 
-int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
-	ASSIGN_PTR(pCheckResult, 0);
-	ASSIGN_PTR(pReason, 0);
-	ASSIGN_PTR(pPrcResult, 0);
-	ASSIGN_PTR(pPrcCode, 0);
-	ASSIGN_PTR(pStatus, 0);
-	if(!isempty(pCode)) {
-		GtinStruc gts;
-		if(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0) > 0) {
-			SString temp_buf;
-			if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-				SString serial;
-				SString partn;
-				SString result_chzn_code;
-				SString left, right;
-				SString gtin(temp_buf);
-				result_chzn_code.Cat(temp_buf);
-				if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+	if(op == 0) {
+		rResult.CheckResult = 0;
+		rResult.Reason = 0;
+		rResult.ProcessingResult = 0;
+		rResult.ProcessingCode = 0;
+		rResult.Status = 0;
+		if(!isempty(pCode)) {
+			GtinStruc gts;
+			if(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0) > 0) {
+				SString temp_buf;
+				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+					SString serial;
+					SString partn;
+					SString result_chzn_code;
+					SString left, right;
+					SString gtin(temp_buf);
 					result_chzn_code.Cat(temp_buf);
-					serial = temp_buf;
-				}
-				if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
-					if(serial.IsEmpty())
+					if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 						result_chzn_code.Cat(temp_buf);
-					partn = temp_buf; 
-				}
-				THROW(Connect());
-				Arr_In.Z();
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
-				THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
-				THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
-				for(uint i = 0; i < Arr_Out.getCount(); i++) {
-					StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
-					if(!isempty(item.Txt)) {
-						if((temp_buf = item.Txt).Divide('=', left, right) > 0) {
-							left.Strip();
-							if(left.IsEqiAscii("CheckResult")) {
-								ASSIGN_PTR(pCheckResult, right.ToLong());
-							}
-							else if(left.IsEqiAscii("Reason")) {
-								ASSIGN_PTR(pReason, right.ToLong());
-							}
-							else if(left.IsEqiAscii("ProcessingResult")) {
-								ASSIGN_PTR(pPrcResult, right.ToLong());
-							}
-							else if(left.IsEqiAscii("ProcessingCode")) {
-								ASSIGN_PTR(pPrcCode, right.ToLong());
-							}
-							else if(left.IsEqiAscii("Status")) {
-								ASSIGN_PTR(pStatus, right.ToLong());
+						serial = temp_buf;
+					}
+					if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
+						if(serial.IsEmpty())
+							result_chzn_code.Cat(temp_buf);
+						partn = temp_buf; 
+					}
+					THROW(Connect());
+					Arr_In.Z();
+					THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
+					THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
+					THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
+					for(uint i = 0; i < Arr_Out.getCount(); i++) {
+						StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
+						if(!isempty(item.Txt)) {
+							if((temp_buf = item.Txt).Divide('=', left, right) > 0) {
+								left.Strip();
+								if(left.IsEqiAscii("CheckResult"))
+									rResult.CheckResult = right.ToLong();
+								else if(left.IsEqiAscii("Reason")) 
+									rResult.Reason = right.ToLong();
+								else if(left.IsEqiAscii("ProcessingResult"))
+									rResult.ProcessingResult = right.ToLong();
+								else if(left.IsEqiAscii("ProcessingCode"))
+									rResult.ProcessingCode = right.ToLong();
+								else if(left.IsEqiAscii("Status"))
+									rResult.Status = right.ToLong();
 							}
 						}
 					}
+					ok = 1;
 				}
-				ok = 1;
 			}
 		}
+	}
+	else if(oneof2(op, 1, 2)) {
+		THROW(Connect());
+		Arr_In.Z();
+		THROW(ExecOper((op == 2) ? DVCCMD_REJECTCHZNCODE : DVCCMD_ACCEPTCHZNCODE, Arr_In, Arr_Out));
 	}
 	CATCHZOK
 	return ok;
@@ -649,9 +651,32 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		// } @v10.8.12 
 		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
 		THROW(Connect());
-		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
-			THROW(AnnulateCheck());
-		// @v10.1.0 }
+		THROW(AnnulateCheck());
+		// @v11.1.11 {
+		{
+			SVerT vofd;
+			if(ofd_ver.NotEmptyS() && vofd.FromStr(ofd_ver) && vofd.IsGe(1, 2, 0)) {
+				CCheckLineTbl::Rec ccl;
+				SString chzn_code;
+				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+					pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
+					if(chzn_code.NotEmptyS()) {
+						GtinStruc gts;
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
+						if(pczcr > 0) {
+							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+							if(PreprocessChZnCode(0, chzn_code, fabs(ccl.Quantity), chzn_pp_result) > 0) {
+								chzn_pp_result.LineIdx = pos;
+								if(PreprocessChZnCode(1/*accept*/, chzn_code, fabs(ccl.Quantity), chzn_pp_result) > 0) {
+									pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v11.1.11 
 		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));

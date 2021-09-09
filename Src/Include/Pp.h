@@ -6186,6 +6186,7 @@ public:
 		SString ExchangeName;
 		SString RoutingKey;
 		SString CorrelationId;
+		SString ConsumeTag; // @v11.1.11 Тег, идентифицирующий подписку на QueueName. Может быть использован для отмены подписки
 	};
 	struct InitParam : public LoginParam {
 		InitParam();
@@ -14586,6 +14587,47 @@ public:
 		lnextChZnGtin           = 5, // @v10.4.12 GTIN считанный из кода 'честный знак'
 		lnextChZnMark           = 6, // @v10.6.9 Марка 'честный знак'
 	};
+	struct PreprocessChZnCodeResult { // @flat
+		PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
+		{
+		}
+		uint   LineIdx;          // [1..] Индекс строки в чеке  
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
+			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+			// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
+			//   "1" - код маркировки проверен
+			// 1 "0" - результат проверки КП КМ отрицательный или код маркировки не был проверен
+			//   "1" - результат проверки КП КМ положительный
+			// 2 "0" - сведения о статусе товара от ОИСМ не получены
+			//   "1" - проверка статуса ОИСМ выполнена
+			// 3 "0" - от ОИСМ получены сведения, что планируемый статус товара некорректен или сведения о статусе товара от ОИСМ не получены
+			//   "1" - от ОИСМ получены сведения, что планируемый статус товара корректен
+			// 4 "0" - результат проверки КП КМ и статуса товара сформирован ККТ, работающей в режиме передачи данных
+			//   "1" - результат проверки КП КМ сформирован ККТ, работающей в автономном режиме
+			//
+		int    Reason;           // Причина того, что КМ не проверен в ФН
+			// 0 - КМ проверен в ФН;
+			// 1 - КМ данного типа не подлежит проверке в ФН;
+			// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
+			// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
+			// 4 - внутренняя ошибка в ФН при проверке этого КМ.
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (тег 2005)
+			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+			// 1 "0" - результат проверки КП КМ отрицательный
+			//   "1" - результат проверки КП КМ положительный
+			// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (тег 2109) принимает значение "2" или "3")
+			//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (тег 2109) принимает значение "1")
+			// 0, 2    Заполняются единицами
+			// 4 - 7   Заполняются нулями
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
+			// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
+			// 1 Запрос имеет некорректный формат
+			// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
+		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
+			// 1 Планируемый статус товара корректен
+			// 2 Планируемый статус товара некорректен
+			// 3 Оборот товара приостановлен
+	};
 	//
 	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
 	// для сериализации объекта CCheckPacket
@@ -14633,6 +14675,8 @@ public:
 	int    GetLineTextExt(int pos /*[1..]*/, int lnextId, SString & rBuf) const;
 	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
 	int    GetLineExt(int pos /*[1..]*/, LineExt & rExt) const;
+	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult); // @v11.1.11
+	const  PreprocessChZnCodeResult * GetLineChZnPreprocessResult(int pos /*[1..]*/) const; // @v11.1.11
 	//
 	// Descr: Объединяет позиции, у которых одинаковые идентификаторы товаров
 	// Note: В дальнейшем критерии объединения будут усложнены.
@@ -14716,6 +14760,7 @@ private:
 	StrAssocArray LnTextList;
 	LocationTbl::Rec * P_DlvrAddr; // @transient
 	void * P_Stirb; // @v10.9.0 @transient (SCardSpecialTreatment::IdentifyReplyBlock *)
+	TSVector <PreprocessChZnCodeResult> * P_PpChZnCodeResultList; // @v11.1.11 @transient
 };
 //
 // Классы, управляющие кассовыми чеками
@@ -18166,7 +18211,7 @@ private:
 	};
 	int    MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	int    MakeArVectors2(const STimeSeries & rTs, const LongArray & rFrameSizeList, const PPTssModelPacket * pTssModel, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
-	int    MakeTrendEntry(const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List);
+	int    MakeTrendEntry(const DateTimeArray * pTimeVec, const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List);
 	enum {
 		esfDontFinish = 0x0001 // Не сохранять стратегии
 	};
@@ -18739,7 +18784,7 @@ struct PPOprKind2 {        // @persistent @store(Reference2Tbl+)
 #define INVOPF_ACCELADDITEMS     0x0080L // Ускоренное добавление позиций по штрихкоду
 #define INVOPF_ASSET             0x0100L // Инвентаризация по основным средствам (в обычную инвентаризацию основные средства не входят)
 #define INVOPF_USESERIAL         0x0200L // Использовать серийные номера в строках инвентаризации
-#define INVOPF_ACCELADDITEMSQTTY 0x0400L // @v9.7.6 Ускоренное добавление позиций по штрихкоду с количеством
+#define INVOPF_ACCELADDITEMSQTTY 0x0400L // Ускоренное добавление позиций по штрихкоду с количеством
 
 struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 	PPInventoryOpEx();
@@ -18963,6 +19008,7 @@ public:
 	virtual int  Edit(PPID*, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
+	// @v11.1.11 (@construction) virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	int    Edit(PPID *, long opTypeID, long linkOpID);
 	//
 	// Descr: Вызывает диалог редактирования пакета вида операции.
@@ -19012,7 +19058,7 @@ private:
 		PPID   OpID;
 		PPID   OpTypeID;
 		uint   NameTxtId;
-		PPID   AccSheetID; // @v9.4.8
+		PPID   AccSheetID;
 		long   Flags;
 		const char * P_Symb;
 		const char * P_CodeTempl;
@@ -19029,6 +19075,7 @@ private:
 	int    SetDraftExData(PPID id, const PPDraftOpEx * pData);
 	int    Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta);
 	int    Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList);
+	// @v11.1.11 (@construction) int    AssignImages(ListBoxDef * pDef);
 };
 //
 // @ModuleDecl(PPObjBillStatus)
@@ -20488,6 +20535,7 @@ private:
 typedef PPCashMachine * (* RegCashMachineFunc)(PPID cashID);
 
 struct AsyncPosPrepParam {
+	AsyncPosPrepParam();
 	enum {
 		fUpdateOnly = 0x00000001L
 	};
@@ -20576,7 +20624,7 @@ public:
 	int    SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SyncPrintIncasso();
 	int    SyncAllowPrint();
-	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus);
+	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	int    SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
 	int    SyncLockCashKeyb();
 	int    SyncUnlockCashKeyb();
@@ -21365,9 +21413,17 @@ public:
 		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
 	*/
 	//
-	// Descr: Функция реализует препоцессинг кодов маркировки товаров в соответствии с российскими правилами ОФД 1.2
+	// Descr: Функция реализует препроцессинг кодов маркировки товаров в соответствии с российскими правилами ОФД 1.2
+	// ARG(op IN): 
+	//   0 - проверка марки
+	//   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...) 
+	//   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+	// Returns:
+	//  <0 - функция не поддерживается либо pCode не является валидным кодом честный знак
+	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
+	//   0 - ошибка при выполнении запроса
 	//
-	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
 	{
 		return -1;
 	}
@@ -45827,6 +45883,9 @@ public:
 	StyloQCore();
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
+	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
+	int    PutDocument(PPID * pID, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
+	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk & rIdent, LongArray & rIdList);
 	//
 	// OwnPeerEntry содержит следующие теги: 
 	//    SSecretTagPool::tagPrimaryRN - первичный ключ (длинное случайное число)
@@ -45835,7 +45894,7 @@ public:
 	//    SSecretTagPool::tagFPI
 	//
 	int    GetOwnPeerEntry(StoragePacket * pPack);
-	int    SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StoragePacket * pPack);
+	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
 };
 
@@ -45924,7 +45983,7 @@ public:
 		fsksSessionBySvcId  // Найдена сессия, соответствующая серверному ид rForeignIdent
 	};
 
-	int    FetchSessionKeys(SSecretTagPool & rSessCtx, const SBinaryChunk & rForeignIdent);
+	int    FetchSessionKeys(int kind, SSecretTagPool & rSessCtx, const SBinaryChunk & rForeignIdent);
 	//
 	// Descr: Генерирует публичный и приватный ключи для обмена с контрагентом с целью формирования общего секрета шифрования //
 	//   В случае успеха функция в аргумент rSessCtx заносит атрибуты SSecretTagPool::tagSessionPrivateKey и SSecretTagPool::tagSessionPublicKey.
@@ -45975,7 +46034,7 @@ public:
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StyloQCore::StoragePacket * pPack);
 	int    Command_ClientRequest(RoundTripBlock & rB, const char * pCmdJson, SString & rReply);
 	int    GetOwnPeerEntry(StyloQCore::StoragePacket * pPack);
-	int    SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
+	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
 	//
 	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы 
 	//   быстро установить соединение с противоположной стороной.
@@ -45990,6 +46049,7 @@ public:
 	int    StoreSession(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta);
 	int    ExecuteInvitationDialog(Invitation & rData);
 	int    Dump();
+	int    TestDatabase();
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	enum {
@@ -46109,6 +46169,10 @@ public:
 		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
 		PPNamedFilt::ViewDefinition Vd;
 	};
+	//
+	// Descr: Возвращает регулярное имя файла, в котором хранится список команд
+	//
+	static int GetCanonicalFileName(SString & rFileName);
 	static SString & GetBaseCommandName(int cmdId, SString & rBuf);
 	StyloQCommandList();
 	~StyloQCommandList();
@@ -46120,7 +46184,19 @@ public:
 	int    Store(const char * pFileName) const;
 	int    Load(const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
-	SJson * CreateJsonForClient(long expirationSec) const;
+	//
+	// Descr: Формирует json-объект по списку команд для передачи клиенту.
+	//   Если pParent == 0, то формирует автономный безымянный json-объект,
+	//   в противном случае вставляет объект с именем pName в родительский json-контейнер.
+	//   Если pParent != 0, то для аргумента pName должно выполнятся условие isempty(pName) == false
+	// ARG(expirationSec IN): если > 0, то в json-описание вставляется параметр expiration_period_sec=expirationSec.
+	// Returns: 
+	//   0 - ошибка
+	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть 
+	//      разрушен вызывающей функцией.
+	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
+	//
+	SJson * CreateJsonForClient(SJson * pParent, const char * pName, long expirationSec) const;
 private:
 	TSCollection <Item> L;
 };

@@ -1681,7 +1681,7 @@ STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint
 {
 }
 
-/*static*/int STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+/*static*/int STimeSeries::AnalyzeFit(const DateTimeArray * pTimeVec, const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
 	RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11)
 {
 	CALLPTRMEMB(pTrendList, clear());
@@ -1695,6 +1695,8 @@ STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint
 	//THROW(p_vec);
 	{
 		const  uint _c = rData.getCount();
+		pTimeVec = 0; // @debug С целью сравнить результаты
+		assert(!pTimeVec || pTimeVec->getCount() == _c); // @v11.1.11
 		if(_c && rP.FirstIdx < _c) {
 			const  uint ic = (rP.IdxCount == 0) ? _c : MIN(rP.FirstIdx + rP.IdxCount, _c);
 			const  uint distance = rP.Distance;
@@ -1707,8 +1709,10 @@ STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint
 			double cov01_chunk[chunk_size];
 			double cov11_chunk[chunk_size];
 			size_t chunk_p = 0;
-			for(uint i = 0; i < distance; i++) {
-				THROW(lss_rv_x.add(static_cast<double>(i+1)));
+			if(!pTimeVec) {
+				for(uint i = 0; i < distance; i++) {
+					THROW(lss_rv_x.add(static_cast<double>(i+1)));
+				}
 			}
 			// THROW(lss_rv_y.dim(distance));
 			//int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
@@ -1722,10 +1726,20 @@ STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint
 					LssLin lss;
 					//int gvr = GetRealArray(vec_idx, j-distance+1, distance, lss_rv_y);
 					//assert(gvr > 0);
-					assert(lss_rv_x.getCount() == distance);
 					//assert(lss_rv_y.getCount() == distance);
 					//lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
-					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), &rData.at(j-distance+1));
+					const uint _first_idx = j-distance+1;
+					if(pTimeVec) { // @construction
+						lss_rv_x.clear();
+						const LDATETIME first_dtm = pTimeVec->at(_first_idx);
+						for(uint i = _first_idx; i < _first_idx+distance; i++) {
+							const LDATETIME dtm = pTimeVec->at(i);
+							double _xval = static_cast<double>(diffdatetimesec(dtm, first_dtm));
+							THROW(lss_rv_x.add(_xval));
+						}
+					}
+					assert(lss_rv_x.getCount() == distance);
+					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), &rData.at(_first_idx));
 					trend = lss.B;
 					sumsq = lss.SumSq;
 					cov00 = lss.Cov00;
@@ -1784,8 +1798,11 @@ int STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, R
 		if(_c && rP.FirstIdx < _c) {
 			const  uint ic = (rP.IdxCount == 0) ? _c : MIN(rP.FirstIdx + rP.IdxCount, _c);
 			RealArray lss_rv_y;
+			DateTimeArray lss_tv_x;
+			int gtr = GetTimeArray(0, ic, lss_tv_x); // @v11.1.11
 			int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
-			THROW(STimeSeries::AnalyzeFit(lss_rv_y, rP, pTrendList, pSumSqList, pCov00, pCov01, pCov11));
+			assert(lss_tv_x.getCount() == lss_rv_y.getCount()); // @v11.1.11
+			THROW(STimeSeries::AnalyzeFit(&lss_tv_x, lss_rv_y, rP, pTrendList, pSumSqList, pCov00, pCov01, pCov11));
 		}
 	}
 	CATCHZOK

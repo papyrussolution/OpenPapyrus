@@ -43,6 +43,13 @@ int FASTCALL strtorrng(const char * pBuf, RealRange & rRng)
 //
 //
 //
+IntRange & IntRange::Z()
+{
+	low = 0;
+	upp = 0;
+	return *this;
+}
+
 int IntRange::IsZero() const
 {
 	return BIN(low == 0 && upp == 0);

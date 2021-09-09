@@ -66,7 +66,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 				if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
 					char   name_buf[256];
 					PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
-					if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {					
+					if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {
 						temp_buf = name_buf;
 						StrPool.AddS(temp_buf, &new_entry.ObjNameP);
 					}
@@ -75,7 +75,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					uint32  face_tag_id = 0;
 					if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
 						face_tag_id = SSecretTagPool::tagFace;
-					else 
+					else
 						face_tag_id = SSecretTagPool::tagSelfyFace;
 					face_chunk.Z();
 					if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk) > 0) {
@@ -128,6 +128,8 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						case StyloQCore::kClient: p_sign = "styloq_binderykind_client"; break;
 						case StyloQCore::kSession: p_sign = "styloq_binderykind_session"; break;
 						case StyloQCore::kFace: p_sign = "styloq_binderykind_face"; break;
+						case StyloQCore::kDocIncoming: p_sign = "styloq_binderykind_docincoming"; break;
+						case StyloQCore::kDocOutcominig: p_sign = "styloq_binderykind_docoutcominig"; break;
 					}
 					pBlk->TempBuf.CatChar('(').Cat(p_item->Kind).CatChar(')');
 					if(p_sign) {
@@ -227,7 +229,7 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 	}
 	return ok;
 }
-	
+
 /*virtual*/void PPViewStyloQBindery::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
@@ -236,12 +238,12 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 		//pBrw->Helper_SetAllColumnsSortable();
 	}
 }
-	
+
 /*virtual*/int PPViewStyloQBindery::OnExecBrowser(PPViewBrowser *)
 {
 	return -1;
 }
-	
+
 /*virtual*/int PPViewStyloQBindery::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
@@ -322,19 +324,6 @@ PPViewStyloQCommand::~PPViewStyloQCommand()
 {
 }
 
-static int GetStyloQCommandFileName(SString & rFileName)
-{
-	rFileName.Z();
-	int    ok = 1;
-	PPGetFilePath(PPPATH_WORKSPACE, "styloqcommands", rFileName);
-	if(::IsDirectory(rFileName) || ::createDir(rFileName)) {
-		rFileName.SetLastSlash().Cat("stqc").Dot().Cat("xml");
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
 int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
@@ -356,7 +345,7 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 	int    ok = 1;
 	SString file_name;
 	CALLPTRMEMB(P_DsList, freeAll());
-	if(GetStyloQCommandFileName(file_name)) {
+	if(StyloQCommandList::GetCanonicalFileName(file_name)) {
 		List.Load(file_name);
 	}
 	THROW(MakeList(0));
@@ -698,15 +687,15 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 				break;
 			case PPVCMD_EDITITEM:
 				ok = EditItem(cur_idx);
-				break;				
+				break;
 			case PPVCMD_DELETEITEM:
 				ok = DeleteItem(cur_idx);
-				break;			
+				break;
 			case PPVCMD_SAVE:
 				ok = -1;
 				{
 					SString file_name;
-					if(GetStyloQCommandFileName(file_name)) {
+					if(StyloQCommandList::GetCanonicalFileName(file_name)) {
 						if(List.Store(file_name)) {
 							;
 						}

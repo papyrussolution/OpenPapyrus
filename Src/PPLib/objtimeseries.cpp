@@ -341,7 +341,52 @@ public:
 			temp_buf.Z();
 			if(Data.Rec.Flags & PPTssModel::fSeparateInpFrameSizes)
 				temp_buf.CatChar('[');
-			SForEachVectorItem(temp_list, i) { temp_buf.CatDivConditionally(',', 0, LOGIC(i)).Cat(temp_list.get(i)); }
+			// @v11.1.11 {
+			{
+				bool   is_first_term = true;
+				IntRange cur_range;
+				cur_range.Z();
+				for(uint i = 0; i < temp_list.getCount(); i++) {
+					long v = temp_list.get(i);
+					if(v > 0) {
+						if(i == 0) {
+							cur_range.Set(v);
+						}
+						else {
+							if(v == (cur_range.upp+1))
+								cur_range.upp = v;
+							else if(cur_range.upp > cur_range.low) {
+								temp_buf.CatDivConditionally(',', 0, !is_first_term).Cat(cur_range.low).Cat("..").Cat(cur_range.upp);
+								is_first_term = false;
+								cur_range.Set(v);
+							}
+							else if(cur_range.upp == cur_range.low) {
+								temp_buf.CatDivConditionally(',', 0, !is_first_term).Cat(cur_range.low);
+								is_first_term = false;
+								cur_range.Set(v);
+							}
+							else {
+								assert(0); // sortAndUndup above
+							}
+						}
+					}
+				}
+				if(!cur_range.IsZero()) {
+					if(cur_range.upp > cur_range.low) {
+						temp_buf.CatDivConditionally(',', 0, !is_first_term).Cat(cur_range.low).Cat("..").Cat(cur_range.upp);
+					}
+					else if(cur_range.upp == cur_range.low) {
+						temp_buf.CatDivConditionally(',', 0, !is_first_term).Cat(cur_range.low);
+					}
+					else {
+						assert(0); // sortAndUndup above
+					}
+				}
+			}
+			// } @v11.1.11 
+			{
+				// @v11.1.11 SForEachVectorItem(temp_list, i) { temp_buf.CatDivConditionally(',', 0, LOGIC(i)).Cat(temp_list.get(i)); }
+			}
 			if(Data.Rec.Flags & PPTssModel::fSeparateInpFrameSizes)
 				temp_buf.CatChar(']');
 			setCtrlString(CTL_TSSMODEL_IFSL, temp_buf);
@@ -353,8 +398,7 @@ public:
 			temp_buf.Z();
 			for(uint sblidx = 0; sblidx < Data.StakeBoundList.getCount(); sblidx++) {
 				const LAssoc & r_sbl_item = Data.StakeBoundList.at(sblidx);
-				if(sblidx)
-					temp_buf.CatDiv(';', 2);
+				temp_buf.CatDivConditionally(';', 2, sblidx);
 				temp_buf.Cat(r_sbl_item.Key).CatDiv(',', 0).Cat(r_sbl_item.Val);
 			}
 			setCtrlString(CTL_TSSMODEL_SBL, temp_buf);
@@ -449,7 +493,17 @@ public:
 			}
 			StringSet ss(',', temp_buf);
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				Data.InputFrameSizeList.addnz(inrangeordefault(temp_buf.ToLong(), 1L, (1440L*180L), 0L));
+				// @v11.1.11 {
+				IntRange range;
+				if(temp_buf.ToIntRange(range.Z(), SString::torfAny) > 0) {
+					if(range.low <= range.upp) {
+						for(long ri = range.low; ri <= range.upp; ri++) {
+							Data.InputFrameSizeList.addnz(inrangeordefault(ri, 1L, (1440L*180L), 0L));
+						}
+					}
+				}
+				// } @v11.1.11 
+				// @v11.1.11 Data.InputFrameSizeList.addnz(inrangeordefault(temp_buf.ToLong(), 1L, (1440L*180L), 0L));
 			}
 			Data.InputFrameSizeList.sortAndUndup();
 		}
@@ -5706,14 +5760,14 @@ void PPObjTimeSeries::TrendEntry::SqrtErrList(StatBase * pS)
 	}
 }
 
-int PrcssrTsStrategyAnalyze::MakeTrendEntry(const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List)
+int PrcssrTsStrategyAnalyze::MakeTrendEntry(const DateTimeArray * pTimeVec, const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List)
 {
 	int    ok = 1;
 	const  uint tsc = rValueList.getCount();
 	RealArray temp_real_list;
 	STimeSeries::AnalyzeFitParam afp(pEntry->Stride, 0, 0);
 	SETIFZ(pTempCov00List, &temp_real_list);
-	THROW(STimeSeries::AnalyzeFit(rValueList, afp, &pEntry->TL, 0, pTempCov00List, 0, 0));
+	THROW(STimeSeries::AnalyzeFit(pTimeVec, rValueList, afp, &pEntry->TL, 0, pTempCov00List, 0, 0));
 	assert(pEntry->TL.getCount() == tsc);
 	assert(pTempCov00List->getCount() == tsc);
 	{
@@ -5752,14 +5806,15 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 	public:
 		struct InitBlock {
 			InitBlock(const STimeSeries * pTs, uint inputFrameSize, long flags, double partitialTrendErrLimit, PPObjTimeSeries::TrendEntry * pResult) :
-				P_Ts(pTs), P_ValueList(0), InputFrameSize(inputFrameSize), Flags(flags), PartitialTrendErrLimit(partitialTrendErrLimit), P_Result(pResult)
+				P_Ts(pTs), P_TimeList(0), P_ValueList(0), InputFrameSize(inputFrameSize), Flags(flags), PartitialTrendErrLimit(partitialTrendErrLimit), P_Result(pResult)
 			{
 			}
-			InitBlock(const RealArray * pValueList, uint inputFrameSize, long flags, double partitialTrendErrLimit, PPObjTimeSeries::TrendEntry * pResult) :
-				P_Ts(0), P_ValueList(pValueList), InputFrameSize(inputFrameSize), Flags(flags), PartitialTrendErrLimit(partitialTrendErrLimit), P_Result(pResult)
+			InitBlock(const DateTimeArray * pTimeList, const RealArray * pValueList, uint inputFrameSize, long flags, double partitialTrendErrLimit, PPObjTimeSeries::TrendEntry * pResult) :
+				P_Ts(0), P_TimeList(pTimeList), P_ValueList(pValueList), InputFrameSize(inputFrameSize), Flags(flags), PartitialTrendErrLimit(partitialTrendErrLimit), P_Result(pResult)
 			{
 			}
 			const STimeSeries * P_Ts;
+			const DateTimeArray * P_TimeList; // @v11.1.11
 			const RealArray * P_ValueList;
 			const uint InputFrameSize;
 			const long Flags;
@@ -5778,8 +5833,9 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 			int afr = 0;
 			if(B.P_Ts)
 				afr = B.P_Ts->AnalyzeFit("close", afp, &B.P_Result->TL, 0, &error_list, 0, 0);
-			else if(B.P_ValueList) 
-				afr = STimeSeries::AnalyzeFit(*B.P_ValueList, afp, &B.P_Result->TL, 0, &error_list, 0, 0);
+			else if(B.P_ValueList) {
+				afr = STimeSeries::AnalyzeFit(B.P_TimeList, *B.P_ValueList, afp, &B.P_Result->TL, 0, &error_list, 0, 0);
+			}
 			if(afr) {
 				assert(B.P_Result->TL.getCount() == tsc);
 				assert(error_list.getCount() == tsc);
@@ -5830,6 +5886,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 	SString msg_buf;
 	RealArray temp_real_list;
 	RealArray value_list;
+	DateTimeArray time_list; // @v11.1.11
 	rTrendListSet.freeAll();
 
 	const size_t thread_limit = 32;
@@ -5840,8 +5897,10 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 
 	uint   vec_idx = 0;
 	rTs.GetValueVecIndex("close", &vec_idx);
+	const int gtr = rTs.GetTimeArray(0, tsc, time_list); // @v11.1.11
 	const int gvr = rTs.GetRealArray(vec_idx, 0, tsc, value_list);
-	THROW(gvr);
+	THROW(gtr && gvr);
+	assert(time_list.getCount() == value_list.getCount()); // @v11.1.11
 	memzero(thread_result_list, sizeof(thread_result_list));
 	memzero(thread_inpfrmsz_list, sizeof(thread_inpfrmsz_list));
 	for(uint ifsidx = 0; ifsidx < rFrameSizeList.getCount(); ifsidx++) {
@@ -5879,7 +5938,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 					trls.Finish();
 					p_new_trend_entry->ErrAvg = trls.GetExp();
 				}*/
-				THROW(MakeTrendEntry(value_list, flags, p_new_trend_entry, &temp_real_list));
+				THROW(MakeTrendEntry(&time_list, value_list, flags, p_new_trend_entry, &temp_real_list));
 				{
 					PPWaitStop();
 				}
@@ -5894,7 +5953,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 				size_t objs_to_wait_count = 0;
 				{
 					for(uint i = 0; i < thr_idx; i++) {
-						MakeArVectorTask::InitBlock tb(/*&rTs*/&value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
+						MakeArVectorTask::InitBlock tb(&time_list, &value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
 						MakeArVectorTask * p_thread = new MakeArVectorTask(&tb);
 						THROW_S(p_thread, SLERR_NOMEM);
 						p_thread->Start(1/*0*/);
@@ -5922,7 +5981,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 		size_t objs_to_wait_count = 0;
 		{
 			for(uint i = 0; i < thr_idx; i++) {
-				MakeArVectorTask::InitBlock tb(/*&rTs*/&value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
+				MakeArVectorTask::InitBlock tb(&time_list, &value_list, thread_inpfrmsz_list[i], flags, partitialTrendErrLimit, thread_result_list[i]);
 				MakeArVectorTask * p_thread = new MakeArVectorTask(&tb);
 				THROW_S(p_thread, SLERR_NOMEM);
 				p_thread->Start(1/*0*/);
@@ -8232,12 +8291,10 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 				TryStrategyContainerResult * p_result_entry = 0;
 				THROW_SL(p_result_entry = rResultCollection.CreateNewItem());
 				p_result_entry->TsID = tsID;
-				if(pSc) {
+				if(pSc)
 					p_result_entry->Sc = *pSc;
-				}
-				else {
+				else
 					TsObj.GetStrategies(tsID, PPObjTimeSeries::sstSelection, p_result_entry->Sc);
-				}
 				{
 					uint  max_opt_delta2_stride = 0;
 					PPObjTimeSeries::CommonTsParamBlock ctspb;
@@ -8303,17 +8360,39 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 							assert(ctspb.TmList.getCount() == tsc);
 							assert(ctspb.ValList.getCount() == tsc);
 						}
+						int16 single_InputFrameSize = 0;
+						int16 single_MainFrameSize = 0;
+						int16 single_TargetQuant = 0;
+						int16 single_MaxDuckQuant = 0;
 						{
 							int do_store_sc = 0;
 							for(uint sidx = 0; sidx < p_result_entry->Sc.getCount(); sidx++) {
 								PPObjTimeSeries::Strategy & r_s = p_result_entry->Sc.at(sidx);
-								if(r_s.MainFrameSize > 0 && r_s.MainTrendErrAvg == 0.0) {
-									for(uint tlsidx = 0; tlsidx < ctspb.TrendList.getCount(); tlsidx++) {
-										PPObjTimeSeries::TrendEntry * p_trend_entry = ctspb.TrendList.at(tlsidx);
-										assert(p_trend_entry);
-										if(p_trend_entry && p_trend_entry->Stride == r_s.MainFrameSize) {
-											r_s.MainTrendErrAvg = p_trend_entry->ErrAvg;
-											do_store_sc = 1;
+								if(single_InputFrameSize == 0)
+									single_InputFrameSize = r_s.InputFrameSize;
+								else if(single_InputFrameSize > 0 && single_InputFrameSize != r_s.InputFrameSize)
+									single_InputFrameSize = -1;
+								if(single_TargetQuant == 0)
+									single_TargetQuant = r_s.TargetQuant;
+								else if(single_TargetQuant > 0 && single_TargetQuant != r_s.TargetQuant)
+									single_TargetQuant = -1;
+								if(single_MaxDuckQuant == 0)
+									single_MaxDuckQuant = r_s.MaxDuckQuant;
+								else if(single_MaxDuckQuant > 0 && single_MaxDuckQuant != r_s.MaxDuckQuant)
+									single_MaxDuckQuant = -1;
+								if(r_s.MainFrameSize > 0) {
+									if(single_MainFrameSize == 0)
+										single_MainFrameSize = r_s.MainFrameSize;
+									else if(single_MainFrameSize > 0 && single_MainFrameSize != r_s.MainFrameSize)
+										single_MainFrameSize = -1;
+									if(r_s.MainTrendErrAvg == 0.0) {
+										for(uint tlsidx = 0; tlsidx < ctspb.TrendList.getCount(); tlsidx++) {
+											PPObjTimeSeries::TrendEntry * p_trend_entry = ctspb.TrendList.at(tlsidx);
+											assert(p_trend_entry);
+											if(p_trend_entry && p_trend_entry->Stride == r_s.MainFrameSize) {
+												r_s.MainTrendErrAvg = p_trend_entry->ErrAvg;
+												do_store_sc = 1;
+											}
 										}
 									}
 								}
@@ -8386,6 +8465,21 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 									if(rResultCollection.Atdr.StakeCount)
 										f_out.WriteLine(rResultCollection.Atdr.ToString(msg_buf).CR());
 									f_out.Flush();
+								}
+								if(rResultCollection.Atdr.StakeCount && single_MainFrameSize >= 0 && single_InputFrameSize > 0 && single_TargetQuant > 0 && single_MaxDuckQuant > 0) {
+									(temp_buf = "tsscsim").CatChar('-').Cat("result-after-till-date").CatChar('-').Cat(ts_pack.Rec.Symb);
+									PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+									SFile f_out_ratd(out_file_name, SFile::mAppend);
+									msg_buf.Z();
+									if(single_MainFrameSize > 0)
+										msg_buf.Cat(single_MainFrameSize).Space();
+									msg_buf.Cat(single_InputFrameSize).CatChar('/').Cat(single_MaxDuckQuant).CatChar(':').Cat(single_TargetQuant).Space().
+										CatEq("StakeCount", rResultCollection.Atdr.StakeCount).Space().
+										CatEq("WinCount", rResultCollection.Atdr.WinCount).Space().
+										CatEq("LossCount", rResultCollection.Atdr.LossCount).Space().
+										CatEq("WinCountRate", fdivui(rResultCollection.Atdr.WinCount, rResultCollection.Atdr.StakeCount), MKSFMTD(0, 5, 0));
+									msg_buf.Space().Cat(static_cast<double>(single_TargetQuant) / static_cast<double>(single_InputFrameSize), MKSFMTD(0, 5, 0));
+									f_out_ratd.WriteLine(msg_buf.CR());
 								}
 							}
 							ok = 1;

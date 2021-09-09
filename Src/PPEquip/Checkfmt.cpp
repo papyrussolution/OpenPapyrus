@@ -1573,20 +1573,21 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							if(temp_buf.NotEmptyS()) {
 								GtinStruc gts;
 								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0) > 0) {
-									SString result_chzn_code;
+									// @v11.1.11 SString result_chzn_code;
+									STRNSCPY(pIter->ChZnCode, temp_buf); // @v11.1.11
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 										STRNSCPY(pIter->ChZnGTIN, temp_buf); // @v10.7.2
-										result_chzn_code.Cat(temp_buf);
+										// @v11.1.11 result_chzn_code.Cat(temp_buf);
 										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-											result_chzn_code.Cat(temp_buf);
-											STRNSCPY(pIter->ChZnCode, result_chzn_code);
+											// @v11.1.11 result_chzn_code.Cat(temp_buf);
+											// @v11.1.11 STRNSCPY(pIter->ChZnCode, result_chzn_code);
 											STRNSCPY(pIter->ChZnSerial, temp_buf); // @v10.7.2
 										}
 										// @v10.7.8 {
 										if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
 											if(isempty(pIter->ChZnSerial)) {
-												result_chzn_code.Cat(temp_buf);
-												STRNSCPY(pIter->ChZnCode, result_chzn_code);
+												// @v11.1.11 result_chzn_code.Cat(temp_buf);
+												// @v11.1.11 STRNSCPY(pIter->ChZnCode, result_chzn_code);
 											}
 											STRNSCPY(pIter->ChZnPartN, temp_buf); 
 										}

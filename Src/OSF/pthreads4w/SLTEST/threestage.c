@@ -39,9 +39,9 @@
 #pragma hdrstop
 #include "test.h"
 #define sleep(i) Sleep(i*1000)
-#ifndef max
-	#define max(a, b) ((a) > (b) ? (a) : (b))
-#endif
+//#ifndef max
+	//#define max(a, b) ((a) > (b) ? (a) : (b))
+//#endif
 
 #define DATA_SIZE 256
 typedef struct msg_block_tag { /* Message block */
@@ -54,20 +54,20 @@ typedef struct msg_block_tag { /* Message block */
 	 * as Program 10-3, 4, 5 (the multi-stage pipeline) as the messages
 	 * are part of a protected queue
 	 */
-	volatile unsigned int source; /* Creating producer identity     */
-	volatile unsigned int destination;/* Identity of receiving thread*/
+	volatile uint source; /* Creating producer identity     */
+	volatile uint destination;/* Identity of receiving thread*/
 
-	volatile unsigned int f_consumed;
-	volatile unsigned int f_ready;
-	volatile unsigned int f_stop;
+	volatile uint f_consumed;
+	volatile uint f_ready;
+	volatile uint f_stop;
 	/* Consumed & ready state flags, stop flag      */
-	volatile unsigned int sequence; /* Message block sequence number        */
+	volatile uint sequence; /* Message block sequence number        */
 	time_t timestamp;
-	unsigned int checksum; /* Message contents checksum             */
-	unsigned int data[DATA_SIZE]; /* Message Contents               */
+	uint checksum; /* Message contents checksum             */
+	uint data[DATA_SIZE]; /* Message Contents               */
 } msg_block_t;
 
-void message_fill(msg_block_t *, unsigned int, unsigned int, unsigned int);
+void message_fill(msg_block_t *, uint, uint, uint);
 void message_display(msg_block_t *);
 
 #define CV_TIMEOUT 5  /* tunable parameter for the CV model */
@@ -88,27 +88,23 @@ typedef struct queue_tag {      /* General purpose queue        */
 	pthread_cond_t q_nf; /* Event: Queue is not full                     */
 	/* These two events are manual-reset for the broadcast model
 	 * and auto-reset for the signal model */
-	volatile unsigned int q_size; /* Queue max size size          */
-	volatile unsigned int q_first; /* Index of oldest message      */
-	volatile unsigned int q_last; /* Index of youngest msg        */
-	volatile unsigned int q_destroyed;/* Q receiver has terminated  */
+	volatile uint q_size; /* Queue max size size          */
+	volatile uint q_first; /* Index of oldest message      */
+	volatile uint q_last; /* Index of youngest msg        */
+	volatile uint q_destroyed;/* Q receiver has terminated  */
 	void *  msg_array;/* array of q_size messages     */
 } queue_t;
 
 /* Queue management functions */
-unsigned int q_initialize(queue_t *, unsigned int, unsigned int);
-unsigned int q_destroy(queue_t *);
-unsigned int q_destroyed(queue_t *);
-unsigned int q_empty(queue_t *);
-unsigned int q_full(queue_t *);
-unsigned int q_get(queue_t *, void *, unsigned int, unsigned int);
-unsigned int q_put(queue_t *, void *, unsigned int, unsigned int);
-unsigned int q_remove(queue_t *, void *, unsigned int);
-unsigned int q_insert(queue_t *, void *, unsigned int);
-
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <time.h>
+uint q_initialize(queue_t *, uint, uint);
+uint q_destroy(queue_t *);
+uint q_destroyed(queue_t *);
+uint q_empty(queue_t *);
+uint q_full(queue_t *);
+uint q_get(queue_t *, void *, uint, uint);
+uint q_put(queue_t *, void *, uint, uint);
+uint q_remove(queue_t *, void *, uint);
+uint q_insert(queue_t *, void *, uint);
 
 #define DELAY_COUNT 1000
 #define MAX_THREADS 1024
@@ -123,8 +119,7 @@ unsigned int q_insert(queue_t *, void *, unsigned int);
 #define MAX_RETRY 5  /* Number of q_get retries before quitting */
 #define P2T_QLEN 10     /* Producer to Transmitter queue length */
 #define T2R_QLEN 4      /* Transmitter to Receiver queue length */
-#define R2C_QLEN 4      /* Receiver to Consumer queue length - there is one
-	                 * such queue for each consumer */
+#define R2C_QLEN 4      /* Receiver to Consumer queue length - there is one such queue for each consumer */
 
 void * producer(void *);
 void * consumer(void *);
@@ -132,28 +127,28 @@ void * transmitter(void *);
 void * receiver(void *);
 
 typedef struct _THARG {
-	volatile unsigned int thread_number;
-	volatile unsigned int work_goal; /* used by producers */
-	volatile unsigned int work_done; /* Used by producers and consumers */
+	volatile uint thread_number;
+	volatile uint work_goal; /* used by producers */
+	volatile uint work_done; /* Used by producers and consumers */
 } THARG;
 
 /* Grouped messages sent by the transmitter to receiver         */
 typedef struct T2R_MSG_TYPEag {
-	volatile unsigned int num_msgs; /* Number of messages contained */
+	volatile uint num_msgs; /* Number of messages contained */
 	msg_block_t messages [TBLOCK_SIZE];
 } T2R_MSG_TYPE;
 
 static queue_t p2tq, t2rq, * r2cq_array;
 
 /* ShutDown, AllProduced are global flags to shut down the system & transmitter */
-static volatile unsigned int ShutDown = 0;
-static volatile unsigned int AllProduced = 0;
-static unsigned int DisplayMessages = 0;
+static volatile uint ShutDown = 0;
+static volatile uint AllProduced = 0;
+static uint DisplayMessages = 0;
 
 //int main(int argc, char * argv[])
 int PThr4wTest_ThreeStage(int argc, char * argv[])
 {
-	unsigned int tstatus = 0, nthread, ithread, goal, thid;
+	uint tstatus = 0, nthread, ithread, goal, thid;
 	pthread_t * producer_th, * consumer_th, transmitter_th, receiver_th;
 	THARG * producer_arg, * consumer_arg;
 	if(argc < 3) {
@@ -251,7 +246,7 @@ int PThr4wTest_ThreeStage(int argc, char * argv[])
 void * producer(void * arg)
 {
 	THARG * parg;
-	unsigned int ithread, tstatus = 0;
+	uint ithread, tstatus = 0;
 	msg_block_t msg;
 	parg = (THARG*)arg;
 	ithread = parg->thread_number;
@@ -261,7 +256,6 @@ void * producer(void * arg)
 		/* the same in this case but could, in general, be different. */
 		sleep(rand()/100000000);
 		message_fill(&msg, ithread, ithread, parg->work_done);
-
 		/* put the message in the queue - Use an infinite timeout to assure
 		 * that the message is inserted, even if consumers are delayed */
 		tstatus = q_put(&p2tq, &msg, sizeof(msg), INFINITE);
@@ -269,18 +263,16 @@ void * producer(void * arg)
 			parg->work_done++;
 		}
 	}
-
 	return 0;
 }
 
 void * consumer(void * arg)
 {
-	THARG * carg;
-	unsigned int tstatus = 0, ithread, Retries = 0;
+	uint tstatus = 0, Retries = 0;
 	msg_block_t msg;
 	queue_t * pr2cq;
-	carg = (THARG*)arg;
-	ithread = carg->thread_number;
+	THARG * carg = (THARG*)arg;
+	uint ithread = carg->thread_number;
 	carg = (THARG*)arg;
 	pr2cq = &r2cq_array[ithread];
 	while(carg->work_done < carg->work_goal && Retries < MAX_RETRY && !ShutDown) {
@@ -305,7 +297,7 @@ void * transmitter(void * arg)
 {
 	/* Obtain multiple producer messages, combining into a single   */
 	/* compound message for the receiver */
-	unsigned int tstatus = 0, im, Retries = 0;
+	uint tstatus = 0, im, Retries = 0;
 	T2R_MSG_TYPE t2r_msg = {0};
 	msg_block_t p2t_msg;
 	while(!ShutDown && !AllProduced) {
@@ -334,11 +326,9 @@ void * receiver(void * arg)
 {
 	/* Obtain compound messages from the transmitter and unblock them       */
 	/* and transmit to the designated consumer.                             */
-
-	unsigned int tstatus = 0, im, ic, Retries = 0;
+	uint tstatus = 0, im, ic, Retries = 0;
 	T2R_MSG_TYPE t2r_msg;
 	msg_block_t r2c_msg;
-
 	while(!ShutDown && Retries < MAX_RETRY) {
 		tstatus = q_get(&t2rq, &t2r_msg, sizeof(t2r_msg), Q_TIMEOUT);
 		if(tstatus != 0) { /* Timeout - Have the producers shut down? */
@@ -365,13 +355,13 @@ void * receiver(void * arg)
    Finite bounded queue management functions
    q_get, q_put timeouts (max_wait) are in ms - convert to sec, rounding up
  */
-unsigned int q_get(queue_t * q, void * msg, unsigned int msize, unsigned int MaxWait)
+uint q_get(queue_t * q, void * msg, uint msize, uint MaxWait)
 {
 	int tstatus = 0, got_msg = 0, time_inc = (MaxWait + 999) /1000;
 	struct timespec timeout;
 	timeout.tv_nsec = 0;
-
-	if(q_destroyed(q)) return 1;
+	if(q_destroyed(q)) 
+		return 1;
 	pthread_mutex_lock(&q->q_guard);
 	while(q_empty(q) && 0 == tstatus) {
 		if(MaxWait != INFINITE) {
@@ -390,16 +380,16 @@ unsigned int q_get(queue_t * q, void * msg, unsigned int msize, unsigned int Max
 		pthread_cond_broadcast(&q->q_nf);
 	}
 	pthread_mutex_unlock(&q->q_guard);
-	return (0 == tstatus && got_msg == 1 ? 0 : max(1, tstatus)); /* 0 indicates success */
+	return (0 == tstatus && got_msg == 1 ? 0 : MAX(1, tstatus)); /* 0 indicates success */
 }
 
-unsigned int q_put(queue_t * q, void * msg, unsigned int msize, unsigned int MaxWait)
+uint q_put(queue_t * q, void * msg, uint msize, uint MaxWait)
 {
 	int tstatus = 0, put_msg = 0, time_inc = (MaxWait + 999) /1000;
 	struct timespec timeout;
 	timeout.tv_nsec = 0;
-
-	if(q_destroyed(q)) return 1;
+	if(q_destroyed(q)) 
+		return 1;
 	pthread_mutex_lock(&q->q_guard);
 	while(q_full(q) && 0 == tstatus) {
 		if(MaxWait != INFINITE) {
@@ -418,27 +408,25 @@ unsigned int q_put(queue_t * q, void * msg, unsigned int msize, unsigned int Max
 		pthread_cond_broadcast(&q->q_ne);
 	}
 	pthread_mutex_unlock(&q->q_guard);
-	return (0 == tstatus && put_msg == 1 ? 0 : max(1, tstatus)); /* 0 indictates success */
+	return (0 == tstatus && put_msg == 1 ? 0 : MAX(1, tstatus)); /* 0 indictates success */
 }
 
-unsigned int q_initialize(queue_t * q, unsigned int msize, unsigned int nmsgs)
+uint q_initialize(queue_t * q, uint msize, uint nmsgs)
 {
 	/* Initialize queue, including its mutex and events */
 	/* Allocate storage for all messages. */
-
 	q->q_first = q->q_last = 0;
 	q->q_size = nmsgs;
 	q->q_destroyed = 0;
-
 	pthread_mutex_init(&q->q_guard, NULL);
 	pthread_cond_init(&q->q_ne, NULL);
 	pthread_cond_init(&q->q_nf, NULL);
-
-	if((q->msg_array = calloc(nmsgs, msize)) == NULL) return 1;
+	if((q->msg_array = calloc(nmsgs, msize)) == NULL) 
+		return 1;
 	return 0; /* No error */
 }
 
-unsigned int q_destroy(queue_t * q)
+uint q_destroy(queue_t * q)
 {
 	if(q_destroyed(q)) return 1;
 	/* Free all the resources created by q_initialize */
@@ -449,29 +437,27 @@ unsigned int q_destroy(queue_t * q)
 	pthread_cond_destroy(&q->q_nf);
 	pthread_mutex_unlock(&q->q_guard);
 	pthread_mutex_destroy(&q->q_guard);
-
 	return 0;
 }
 
-unsigned int q_destroyed(queue_t * q)
+uint q_destroyed(queue_t * q)
 {
 	return (q->q_destroyed);
 }
 
-unsigned int q_empty(queue_t * q)
+uint q_empty(queue_t * q)
 {
 	return (q->q_first == q->q_last);
 }
 
-unsigned int q_full(queue_t * q)
+uint q_full(queue_t * q)
 {
 	return ((q->q_first - q->q_last) == 1 || (q->q_last == q->q_size-1 && q->q_first == 0));
 }
 
-unsigned int q_remove(queue_t * q, void * msg, unsigned int msize)
+uint q_remove(queue_t * q, void * msg, uint msize)
 {
-	char * pm;
-	pm = (char*)q->msg_array;
+	char * pm = (char*)q->msg_array;
 	/* Remove oldest ("first") message */
 	memcpy(msg, pm + (q->q_first * msize), msize);
 	// Invalidate the message
@@ -479,41 +465,36 @@ unsigned int q_remove(queue_t * q, void * msg, unsigned int msize)
 	return 0; /* no error */
 }
 
-unsigned int q_insert(queue_t * q, void * msg, unsigned int msize)
+uint q_insert(queue_t * q, void * msg, uint msize)
 {
-	char * pm;
-
-	pm = (char*)q->msg_array;
+	char * pm = (char*)q->msg_array;
 	/* Add a new youngest ("last") message */
-	if(q_full(q)) return 1; /* Error - Q is full */
+	if(q_full(q)) 
+		return 1; /* Error - Q is full */
 	memcpy(pm + (q->q_last * msize), msg, msize);
 	q->q_last = ((q->q_last + 1) % q->q_size);
-
 	return 0;
 }
 
-unsigned int compute_checksum(void * msg, unsigned int length)
+uint compute_checksum(void * msg, uint length)
 {
 	/* Computer an xor checksum on the entire message of "length"
 	 * integers */
-	unsigned int i, cs = 0, * pint;
-
-	pint = (unsigned int*)msg;
-	for(i = 0; i < length; i++) {
+	uint cs = 0;
+	uint * pint = (uint *)msg;
+	for(uint i = 0; i < length; i++) {
 		cs = (cs ^ *pint);
 		pint++;
 	}
 	return cs;
 }
 
-void  message_fill(msg_block_t * mblock, unsigned int src, unsigned int dest, unsigned int seqno)
+void  message_fill(msg_block_t * mblock, uint src, uint dest, uint seqno)
 {
 	/* Fill the message buffer, and include checksum and timestamp  */
 	/* This function is called from the producer thread while it    */
 	/* owns the message block mutex                                 */
-
-	unsigned int i;
-
+	uint i;
 	mblock->checksum = 0;
 	for(i = 0; i < DATA_SIZE; i++) {
 		mblock->data[i] = rand();
@@ -522,7 +503,7 @@ void  message_fill(msg_block_t * mblock, unsigned int src, unsigned int dest, un
 	mblock->destination = dest;
 	mblock->sequence = seqno;
 	mblock->timestamp = time(NULL);
-	mblock->checksum = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(unsigned int));
+	mblock->checksum = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(uint));
 	/*      printf ("Generated message: %d %d %d %d %x %x\n",
 	              src, dest, seqno, mblock->timestamp,
 	              mblock->data[0], mblock->data[DATA_SIZE-1]);  */
@@ -534,19 +515,12 @@ void  message_display(msg_block_t * mblock)
 	/* Display message buffer and timestamp, validate checksum      */
 	/* This function is called from the consumer thread while it    */
 	/* owns the message block mutex                                 */
-	unsigned int tcheck = 0;
-
-	tcheck = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(unsigned int));
-	printf("\nMessage number %d generated at: %s",
-	    mblock->sequence, ctime(&(mblock->timestamp)));
-	printf("Source and destination: %d %d\n",
-	    mblock->source, mblock->destination);
-	printf("First and last entries: %x %x\n",
-	    mblock->data[0], mblock->data[DATA_SIZE-1]);
+	uint tcheck = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(uint));
+	printf("\nMessage number %d generated at: %s", mblock->sequence, ctime(&(mblock->timestamp)));
+	printf("Source and destination: %d %d\n", mblock->source, mblock->destination);
+	printf("First and last entries: %x %x\n", mblock->data[0], mblock->data[DATA_SIZE-1]);
 	if(tcheck == 0 /*mblock->checksum was 0 when CS first computed */)
 		printf("GOOD ->Checksum was validated.\n");
 	else
 		printf("BAD  ->Checksum failed. message was corrupted\n");
-
-	return;
 }

@@ -906,11 +906,11 @@ toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,     "@{doupdateall}\tCtrl-F8"
 	separator
 	EDTILINKOBJ   : kbF2,     PPDV_LINK01,          "@{linkobject}\tF2"
-	VIEWBILLS     : kbF3,     PPDV_DOCUMENT_PL02,   "Документы по статье\tF3"
+	VIEWBILLS     : kbF3,     PPDV_DOCUMENT_PL02,   "@{doshowdocsbyar}\tF3"
 	EDITAGREEMENT : kbF4,     TBBM_HANDSHAKE,       "@{agreement}\tF4"
 	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,          "Ограничения по долговым размерностям\tCtrl-D"
 	VIEWQUOT      : kbCtrlQ,  TBBM_QUOTATION,       "@{quotes}\tCtrl-Q"
-	VIEWGOODS     : kbF5,     PPDV_WARESINGLE01,     "Товары, связанные со статьей кодом\tF5"
+	VIEWGOODS     : kbF5,     PPDV_WARESINGLE01,    "Товары, связанные со статьей кодом\tF5"
 	separator
 	SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 	TRANSMIT      : kbCtrlH,  PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
@@ -1261,13 +1261,13 @@ browser ARTICLE_AGTSUPPL north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@{closed_mas}", 3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
-		"@beginning",         6, notype, 0,            6
-		"@ending",            7, notype, 0,            6
-		"@{paymentterm}, @{days}", 8, notype, NMBF_NOZERO,  6
-		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
-		"@agent",             10, notype, 0,           12
-		"Автозаказ",          17, notype, 0,           6
-		"Символ провайдера",  20, notype, 0,           6  // @v8.3.6 @fix 19-->20
+		"@beginning",                 6, notype, 0,            6
+		"@ending",                    7, notype, 0,            6
+		"@{paymentterm}, @{days}",    8, notype, NMBF_NOZERO,  6
+		"@cfgsuppldeal_defdlvrterm",  9, notype, NMBF_NOZERO,  6
+		"@agent",                    10, notype, 0,           12
+		"Автозаказ",                 17, notype, 0,           6
+		"Символ провайдера",         20, notype, 0,           6  // @v8.3.6 @fix 19-->20
 	}
 	toolbar ARTICLE
 }
@@ -1280,11 +1280,11 @@ browser ARTICLE_AGTCLI north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@{closed_mas}", 3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
-		"@number",           15, notype, 0,  8
-		"@beginning",         6, notype, 0,  6
-		"@ending",            7, notype, 0,  6
+		"@number",                   15, notype, 0,  8
+		"@beginning",                 6, notype, 0,  6
+		"@ending",                    7, notype, 0,  6
 		"@{paymentterm}, @{days}",    8, notype, NMBF_NOZERO,  6
-		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
+		"@cfgsuppldeal_defdlvrterm",  9, notype, NMBF_NOZERO,  6
 		"@agent",            10, notype, 0, 12
 		"@discount",         11, notype, NMBF_NOZERO, 6.1
 		"Макс скидка",       12, notype, NMBF_NOZERO, 6.1
@@ -4448,11 +4448,11 @@ browser SCARDCRD_TRNOVR north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 
 browser PAYMPLAN north(100), 1, 1, "@{paymplan}", OWNER|GRID, 0
 {
-	"@daterange",   7, notype, 0, 8
-	"@contractor",  3, notype, 0, 40
-	"@shipped",     4, notype, NMBF_NOZERO, 10.2
-	"@paid",        5, notype, NMBF_NOZERO, 10.2
-	"Ожидаемый платеж", 6, notype, NMBF_NOZERO, 10.2
+	"@daterange",       7, notype, 0, 8
+	"@contractor",      3, notype, 0, 40
+	"@shipped",         4, notype, NMBF_NOZERO, 10.2
+	"@paid",            5, notype, NMBF_NOZERO, 10.2
+	"@expectedpayment", 6, notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,   PPDV_LINS01,    "@{detail}\tEnter"
 		//EDITARTICLE : kbF2,      PPDV_LINS02,  "@{analyticalarticle}\tF2"
@@ -4470,7 +4470,7 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 	"@contractor",  2, notype, 0, 40
 	crosstab "@shipped", notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	crosstab "@paid",    notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
-	crosstab "Ожидаемый платеж", notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+	crosstab "@expectedpayment", notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,   PPDV_LINS01,    "@{detail}\tEnter"
 		//EDITARTICLE : kbF2,      PPDV_LINS02,  "@{analyticalarticle}\tF2"
@@ -4538,7 +4538,7 @@ browser SCARDOP north(100), 1, 1, "@{view_scardop} {%s}", OWNER|GRID, 0
 	"@time",                 2, notype, TIMF_HMS,     8
 	"@amount",               3, notype, NMBF_NOZERO, 10.2
 	"@rest",                 4, notype, NMBF_NOZERO, 10.2
-	"Чек (документ)",        5, notype, 0, 20
+	"@{check}/@{document}",  5, notype, 0, 20
 	"Приостановка действия", 8, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -4589,8 +4589,8 @@ browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16
 	"@receiptdate",               4, notype, DATF_DMY, 8
-	"Дата ввода в эксплуатацию",  5, notype, DATF_DMY, 8
-	"Срок списания, мес",         6, notype, ALIGN_RIGHT|NMBF_NOZERO, 8
+	"@commissioningdate",         5, notype, DATF_DMY, 8
+	"@assetwroffgrp_wroffterm_s", 6, notype, ALIGN_RIGHT|NMBF_NOZERO, 8
 	"Первоначальная стоимость",   7, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
 	"@rest",                      8, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
 	"@amortization",              9, notype, ALIGN_RIGHT|NMBF_NOZERO, 12.2
@@ -4612,8 +4612,8 @@ browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 	"@appellation",               2, notype, 0, 40
 	"Инв номер",                  3, notype, 0, 16
 	"@receiptdate",               4, notype, DATF_DMY, 8
-	"Дата ввода в эксплуатацию",  5, notype, DATF_DMY, 8
-	"Срок списания, мес",         6, notype, NMBF_NOZERO, 8
+	"@commissioningdate",         5, notype, DATF_DMY, 8
+	"@assetwroffgrp_wroffterm_s", 6, notype, NMBF_NOZERO, 8
 	group "На начало периода" {
 		"@balance",      10, notype, NMBF_NOZERO, 12.2
 		"@rest",         11, notype, NMBF_NOZERO, 12.2
@@ -4659,7 +4659,7 @@ browser SSTAT north(100), 3, 1, "@{view_sstat} {%s}", OWNER|GRID, 0
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
-		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
+		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		VIEWLOTS      : kbF3,     PPDV_LOTS,           "@{dobrowselotsbycurware}\tF3"
 		PUTTOBASKET   : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		separator
@@ -5091,7 +5091,7 @@ browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 		ADDBYSAMPLE    : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		separator
 		VIEWLINKOPS    : kbAltF3, PPDV_LINK01,            "@{oprkind_linkop_pl}\tAlt-F3"
-		VIEWBILLS      : kbF3,    PPDV_DOCUMENT_PL02,     "Документы по операции\tF3"
+		VIEWBILLS      : kbF3,    PPDV_DOCUMENT_PL02,     "@{doshowdocsbyop}\tF3"
 		separator
 		PRINT          : kbF7,    PPDV_PRINTER01,         "@{print}\tF7"
 		SYSJ           : kbCtrlJ, PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
@@ -5767,7 +5767,7 @@ browser BIZSCORE north(100), 1, 1, "@bizscore_pl", OWNER|GRID, 0
 	}
 }
 
-browser BIZSCOREVAL north(100), 3, 1, "Значения бизнес-показателей", OWNER|GRID, 0
+browser BIZSCOREVAL north(100), 3, 1, "@{view_bizscoreval}", OWNER|GRID, 0
 {
 	"@calculationdate",  1, notype, DATF_DMY, 8
 	group "Точка актуальности" {
@@ -5934,13 +5934,13 @@ browser PALM north(100), 1, 1, "КПК", OWNER|GRID, 0
 	}
 }
 
-browser BBOARD north(100), 1, 1, "Задачи запущенные на сервере", OWNER|GRID, 0
-{
-	"Описание задачи сервера",    1, notype, 0, 100
-	toolbar TB_FIRST_TOOLBAR {
-		REFRESH : kbCtrlV, PPDV_REFRESH01, "@{refresh}\tCtrl-V"
-	}
-}
+// @v11.1.11 (unused) browser BBOARD north(100), 1, 1, "Задачи запущенные на сервере", OWNER|GRID, 0
+// {
+// 	"Описание задачи сервера",    1, notype, 0, 100
+// 	toolbar TB_FIRST_TOOLBAR {
+// 		REFRESH : kbCtrlV, PPDV_REFRESH01, "@{refresh}\tCtrl-V"
+// 	}
+// }
 
 browser SERVERSTAT north(100), 1, 1, "@{view_serverstat} %s", OWNER|GRID, 0
 {
@@ -5951,8 +5951,8 @@ browser SERVERSTAT north(100), 1, 1, "@{view_serverstat} %s", OWNER|GRID, 0
 	"@appellation",        4, zstring(256), 0,  40, BCO_USERPROC
 	"Последнее сообщение", 5, zstring(512), 0,  60, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		DELETEITEM   : kbDel,   PPDV_DELETEFILE02, "Остановить поток\tDelete"
-		RESETCACHE   : kbCtrlR, PPDV_NOICON,       "Сбросить кэш\tCtrl-R"
+		DELETEITEM   : kbDel,   PPDV_DELETEFILE02, "@{dostopthread}\tDelete"
+		RESETCACHE   : kbCtrlR, PPDV_NOICON,       "@{doresetcache}\tCtrl-R"
 		LOGLOCKSTACK : kbCtrlL, PPDV_NOICON,       "Вывод стека блокировок потоков (отладка)\tCtrl-L"
 		separator
 		REFRESH      : kbCtrlV, PPDV_REFRESH01, "@{refresh}\tCtrl-V"
@@ -6088,7 +6088,7 @@ browser BIZSCTEMPL north(100), 1, 1, "@{view_bizsctempl}", OWNER|GRID, 0
 	}
 }
 
-browser BIZSCVALBYTEMPL north(100), 1, 1, "Значения бизнес-показателей по шаблону {%s}", OWNER|GRID, 0
+browser BIZSCVALBYTEMPL north(100), 1, 1, "@{view_bizscvalbytempl} {%s}", OWNER|GRID, 0
 {
 	"@appellation",    1, zstring(32), 0, 30, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
@@ -6881,7 +6881,7 @@ cmd SearchDlvrAddr        { "@{cmd_searchdlvraddr}"                        none 
 cmd GoodsValRestr         { "@{cmd_goodsvalrestr}"                         none                  none cmGoodsValRestr }
 cmd CreateTechSess        { "@{createtsess}"                               ICON_TSESS            none cmCreateTechSess }
 cmd ConstructionTest      { "В разработке"                                 none                  none cmConstructionTest }
-cmd SCardPane             { "Информация о персональной карте"              none                  none cmSCardPane }
+cmd SCardPane             { "@{cmd_scardpane}"                             none                  none cmSCardPane }
 cmd CreateDraftBySupplOrder {"@{cmd_createdraftbysupplorder}"              none                  none cmCreateDraftBySupplOrder }
 cmd Budget                { "@{cmd_budgeting}"                             none                  none cmBudgeting }
 cmd BizScTempl            { "@{cmd_viewbizsctempl}"                        none                  none cmViewBizScTempl }
@@ -6891,7 +6891,7 @@ cmd Pallet                { "@{cmd_pallet}"                                none 
 cmd InfoKiosk             { "@{cmd_viewgoodsinfo}"                         ICON_INFOKIOSK        none cmViewGoodsInfo }
 cmd CTblOrdCreate         { "Заказ стола в ресторане"                      ICON_CTBLORD          none cmCTblOrdCreate }
 cmd CTblOrdGraph          { "Диаграмма заказов столов в ресторане"         ICON_CTBLORD          none cmCTblOrdTimeGraph }
-cmd SearchBillByCtx       { "Поиск документа по контексту"                 none                  none cmSearchBillByCtx }
+cmd SearchBillByCtx       { "@{cmd_searchbillbyctx}"                       none                  none cmSearchBillByCtx }
 cmd StockOpt              { "Оптимизация запасов (construction)"           none                  none cmStockOpt view = StockOpt }
 cmd StockOptCfg           { "@{cmd_stockoptcfg}"                           none                  none cmStockOptCfg }
 cmd RFIDDevice            { "@{cmd_rfiddevice}"                            none                  none cmRFIDDevice }
@@ -6915,7 +6915,7 @@ cmd ExportGoodsRestUhtt   { "@{cmd_exportgoodsrestuhtt}"                   none 
 cmd GenericDevice         { "@{cmd_genericdevice}"                         none                  none cmGenericDevice }
 cmd IndexTextObjects      { "Индексация текстовых объектов (construction)" none                  none cmIndexTextObjects }
 cmd OpenTextFile          { "@{cmd_opentextfile}"                          ICON_OPENTEXTFILE     none cmOpenTextFile }
-cmd ProcessObjText        { "Обработка текстовых объектов"                 none                  none cmProcessObjText }
+cmd ProcessObjText        { "@{cmd_processobjtext}"                        none                  none cmProcessObjText }
 cmd PersonEventByReader   { "Персональное событие по считыванию с устройства" none               none cmPersonEventByReader }
 cmd TestReconnect         { "Тест реконнекта серверной сессии"             PPDV_TEST01           none cmTestReconnect }
 cmd TSessAutoSms          { "Рассылка смс на основе технологических сессий" none                  none cmTSessAutoSms }
@@ -7865,7 +7865,7 @@ record SBIIBillRow {
 	GoodsID  long                  "@{goodsid}";
 	StorageP long                  "@{storageplace}";
 	Number   long                  "@{number}";
-	Serial   zstring(16)           "Серийный номер/штрихкод";
+	Serial   zstring(16)           "@{serial}/@{barcode}";
 	Expiry   date                  "@{expirationdate}";
 	Time     zstring(6)            "@{creationtime}";
 	Qtty     double format(10.4)   "@{qtty}";
@@ -7881,14 +7881,14 @@ record QuotVal {
 	LocCode      zstring(20)         "@{warehousesymb}";
 	CurrencyID   long  format(10)    "@{currencyid}";
 	CurrencySymb zstring(20)         "@{currencysymb}";
-	CurrencyCode long  format(10)    "Цифровой код валюты";
+	CurrencyCode long  format(10)    "@{currencydigitalcode}";
 	ArID         long  format(10)    "ИД статьи привязки";
 	ArCode       zstring(20)         "Код статьи привязки";
-	DateLow      date                "Дата начала периода действия";
-	DateUpp      date                "Дата окончания периода действия";
+	DateLow      date                "@{quot_period_lowdate}";
+	DateUpp      date                "@{quot_period_uppdate}";
 	Value        double format(15.5) "@{quot_valuegeneric}";
-	ValueFlags   long   format(10)   "Флаги значения котировки";
-	ValueText    zstring(32)         "Текстовое представление значения котировки";
+	ValueFlags   long   format(10)   "@{quot_flags_amp}";
+	ValueText    zstring(32)         "@{quot_valuetext}";
 }
 
 record Goods2 {
@@ -7905,7 +7905,7 @@ record Goods2 {
 	Abbr           zstring(128)        "@{shortappellation}";
 	UnitName       zstring(48)         "@{munitname}";
 	UnitCode       zstring(20)         "@{munitcode}"; // @v8.1.1
-	PhUnitName     zstring(48)         "Наименование физической единицы измерения";
+	PhUnitName     zstring(48)         "@{munitphname}";
 	PhUPerU        zstring(48)         "Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}";
 	UnitsPerPack   double format(10.6) "Емкость упаковки лота";
 	Cost           double format(10.2) "@{termcost}";
@@ -7986,15 +7986,15 @@ record Person {
 	CategoryCode       zstring(20)     "Код категории";
 	CategoryName       zstring(48)     "Наименование категории";
 	MainAddrCode       zstring(20)     "Код адреса";
-	MainAddrCityName   zstring(48)     "Город адреса";
+	MainAddrCityName   zstring(48)     "@{cityofaddress}";
 	MainAddrZIP        zstring(20)     "@{mainaddrpostzip}";
 	MainAddrText       zstring(256)    "Текст адреса";
 	RAddrCode          zstring(20)     "Код фактического адреса";
-	RAddrCityName      zstring(48)     "Город фактического адреса";
+	RAddrCityName      zstring(48)     "@{cityofpaddress}";
 	RAddrZIP           zstring(20)     "@{realaddrpostzip}";
 	RAddrText          zstring(256)    "Текст фактического адреса";
 	DlvrAddrCode       zstring(20)     "@{daddresscode}";
-	DlvrAddrCityName   zstring(48)     "Город адреса доставки";
+	DlvrAddrCityName   zstring(48)     "@{cityofdaddress}";
 	DlvrAddrSubCity    zstring(48)     "Населенный пункт, подчиненный городу адреса доставки";
 	DlvrAddrZIP        zstring(20)     "@{dlvraddrpostzip}";
 	DlvrAddrText       zstring(256)    "Текст адреса доставки";
@@ -8491,7 +8491,7 @@ reportstub GoodsBillWpGGrp  { dl600data=GoodsBillWpG,    "Накладная с сортировко
 reportstub SalaryCt         { dl600data=Salary,          "@{view_salary} с кросстабуляцией" }
 reportstub GOA_ZEROOP       { dl600data=GoodsOpAnlz,     "Отчет о товарах, по которым не было операций, но были остатки" }
 reportstub GOA_LOSS         { dl600data=GoodsOpAnlz,     "Отчет по убыточным товарам" }
-reportstub BizScoreValView  { dl600data=BizScoreValView, "Величины бизнес-показателей" }
+reportstub BizScoreValView  { dl600data=BizScoreValView, "@{view_bizscoreval}" }
 reportstub StaffCalDtGrpng  { dl600data=StaffCalView,    "@{view_staffcal} с группировкой по дате" }
 reportstub DebtorStat       { dl600data=DebtorStat,      "@{view_debtorstat}" }
 reportstub DispatchOrder    { dl600data=PsnEventItem,    "Приказ о командировке" }
@@ -8719,7 +8719,7 @@ reportstub GoodsBillLosses	{ dl600data=GoodsBillData,		"Акт о порче, бое, ломе"}
 reportstub QCertListG		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах с наименованиями товаров (приложение к накладной)"}
 reportstub QCertList		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах (приложение к накладной)"}
 reportstub GoodsLadingBill	{ dl600data=LadingBillData,		"@{pb_ladingbill}"}
-reportstub GoodsLadingBack	{ dl600data=LadingBillData,		"Товарно-транспортная накладная (транспортный раздел)"}
+reportstub GoodsLadingBack	{ dl600data=LadingBillData,		"@{pb_ladingbill_frght}"}
 reportstub ServiceAct		{ dl600data=InvoiceData,		"@{pb_srvcact}"}
 reportstub PLabel			{ dl600data=PLabelBillData,		"Ценник (WIN32 only)"}
 reportstub CashPayOrder		{ dl600data=PayCashOrder,		"@{cashorder_expend}"}
@@ -9090,6 +9090,10 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_MATCH01
 	PPDV_FACEPROFILE01
 	PPDV_UNMATCH01
+	PPDV_OP_GOODSRECEIPT
+	PPDV_OP_GOODSEXPEND
+	PPDV_OP_GOODSMODIF
+	PPDV_OP_GOODSRETURN
 }
 //
 // Следующие изображения используются без замещения цвета

@@ -9,6 +9,8 @@
  * Hammer on a bunch of rwlocks to test robustness and fairness.
  * Printed stats should be roughly even for each thread.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define THREADS         5
@@ -35,56 +37,59 @@ typedef struct data_tag {
 	int updates;
 } data_t;
 
-static thread_t threads[THREADS];
-static data_t data[DATASIZE];
-
-/*
- * Thread start routine that uses read-write locks
- */
-void * thread_routine(void * arg)
+//int main(int argc, char * argv[])
+int PThr4wTest_Reinit1()
 {
-	thread_t * self = (thread_t*)arg;
-	int iteration;
-	int element = 0;
-	int seed = self->seed;
-	int interval = 1 + rand_r(&seed) % 71;
-	self->changed = 0;
-	assert(pthread_getunique_np(self->thread_id) == (unsigned __int64)(self->thread_num + 2));
-	for(iteration = 0; iteration < ITERATIONS; iteration++) {
-		/*
-		 * Each "self->interval" iterations, perform an
-		 * update operation (write lock instead of read
-		 * lock).
-		 */
-		if((iteration % interval) == 0) {
-			assert(pthread_rwlock_wrlock(&data[element].lock) == 0);
-			data[element].data = self->thread_num;
-			data[element].updates++;
-			self->updates++;
-			interval = 1 + rand_r(&seed) % 71;
-			assert(pthread_rwlock_unlock(&data[element].lock) == 0);
-		}
-		else {
-			/*
-			 * Look at the current data element to see whether
-			 * the current thread last updated it. Count the
-			 * times, to report later.
-			 */
-			assert(pthread_rwlock_rdlock(&data[element].lock) == 0);
-			self->reads++;
-			if(data[element].data != self->thread_num) {
-				self->changed++;
-				interval = 1 + self->changed % 71;
+	static thread_t threads[THREADS];
+	static data_t data[DATASIZE];
+
+	class InnerBlock {
+	public:
+		//
+		// Thread start routine that uses read-write locks
+		//
+		static void * thread_routine(void * arg)
+		{
+			thread_t * self = (thread_t*)arg;
+			int iteration;
+			int element = 0;
+			int seed = self->seed;
+			int interval = 1 + rand_r(&seed) % 71;
+			self->changed = 0;
+			assert(pthread_getunique_np(self->thread_id) == (unsigned __int64)(self->thread_num + 2));
+			for(iteration = 0; iteration < ITERATIONS; iteration++) {
+				/*
+				 * Each "self->interval" iterations, perform an
+				 * update operation (write lock instead of read
+				 * lock).
+				 */
+				if((iteration % interval) == 0) {
+					assert(pthread_rwlock_wrlock(&data[element].lock) == 0);
+					data[element].data = self->thread_num;
+					data[element].updates++;
+					self->updates++;
+					interval = 1 + rand_r(&seed) % 71;
+					assert(pthread_rwlock_unlock(&data[element].lock) == 0);
+				}
+				else {
+					/*
+					 * Look at the current data element to see whether
+					 * the current thread last updated it. Count the
+					 * times, to report later.
+					 */
+					assert(pthread_rwlock_rdlock(&data[element].lock) == 0);
+					self->reads++;
+					if(data[element].data != self->thread_num) {
+						self->changed++;
+						interval = 1 + self->changed % 71;
+					}
+					assert(pthread_rwlock_unlock(&data[element].lock) == 0);
+				}
+				element = (element + 1) % DATASIZE;
 			}
-			assert(pthread_rwlock_unlock(&data[element].lock) == 0);
+			return NULL;
 		}
-		element = (element + 1) % DATASIZE;
-	}
-	return NULL;
-}
-
-int main(int argc, char * argv[])
-{
+	};
 	int count;
 	int data_count;
 	int reinit_count;
@@ -106,7 +111,7 @@ int main(int argc, char * argv[])
 			threads[count].updates = 0;
 			threads[count].reads = 0;
 			threads[count].seed = 1 + rand_r(&seed) % 71;
-			assert(pthread_create(&threads[count].thread_id, NULL, thread_routine, (void*)(size_t)&threads[count]) == 0);
+			assert(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
 		}
 		/*
 		 * Wait for all threads to complete, and collect

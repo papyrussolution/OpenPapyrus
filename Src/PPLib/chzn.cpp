@@ -634,7 +634,7 @@ public:
 			SString SubjectIdent;
 			SString Code;
 		};
-		explicit Packet(int docType) : DocType(docType), Flags(0), P_Data(0)
+		explicit Packet(int docType) : DocType(docType), Flags(0), P_Data(0), ChZnProdType(0)
 		{
 			switch(DocType) {
 				case doctypMdlpResult: P_Data = new OperationResult(); break;
@@ -674,6 +674,7 @@ public:
 		}
 		const  int DocType;
 		long   Flags;
+		long   ChZnProdType; // @v11.1.11 GTCHZNPT_XXX
 		void * P_Data;
 	};
 	
@@ -681,8 +682,6 @@ public:
 	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
 	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
-	//SString & MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
-	//SString & MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	SString & MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
 		mhffTokenOnly  = 0x0001,
@@ -2280,6 +2279,25 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 
 int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply)
 {
+	/* 
+	Товарные группы:
+		Код в БД  Наименование  Описание 
+		1  lp  Предметы одежды, бельё постельное, столовое, туалетное и кухонное 
+		2  shoes  Обувные товары 
+		3  tobacco  Табачная продукция 
+		4  perfumery  Духи и туалетная вода 
+		5  tires  Шины и покрышки пневматические резиновые новые 
+		6  electronics  Фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки 
+		8  milk  Молочная продукция 
+		9  bicycle  Велосипеды и велосипедные рамы 
+		10  wheelchairs  Кресла-коляски 
+		12  otp  Альтернативная табачная продукция 
+		13  water  Упакованная вода 
+		14  furs  Товары из натурального меха 
+		15  beer  Пиво, напитки, изготавливаемые на основе пива, слабоалкогольные напитки 
+		16  ncp  Никотиносодержащая продукция 
+		17  bio  Биологические активные добавки к пище
+	*/
 	rReply.Z();
 	int    ok = -1;
 	SString data_buf;
@@ -2356,7 +2374,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 					}
 					else if(rIb.ProtocolId == rIb.protidGisMt) { // @v10.9.9
 						ScURL c;
-						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf);
+						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf); // @v11.1.11
 						/*
 								document_format:
 									MANUAL - json
@@ -2386,6 +2404,25 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 								}
 						*/
 						{
+							// @v11.1.11 {
+							if(rPack.ChZnProdType > 0) {
+								const char * p_chzn_prodtype_symb = 0;
+								switch(rPack.ChZnProdType) {
+									case GTCHZNPT_FUR: p_chzn_prodtype_symb = ""; break;
+									case GTCHZNPT_TOBACCO: p_chzn_prodtype_symb = "tobacco"; break;
+									case GTCHZNPT_SHOE: p_chzn_prodtype_symb = "shoes"; break;
+									case GTCHZNPT_MEDICINE: p_chzn_prodtype_symb = 0; break;
+									case GTCHZNPT_CARTIRE: p_chzn_prodtype_symb = "tires"; break;
+									case GTCHZNPT_TEXTILE: p_chzn_prodtype_symb = "lp"; break;
+									case GTCHZNPT_PERFUMERY: p_chzn_prodtype_symb = "perfumery"; break;
+									case GTCHZNPT_MILK: p_chzn_prodtype_symb = "milk"; break;
+								}
+								if(!isempty(p_chzn_prodtype_symb)) {
+									temp_buf.Z().CatEq("pg", p_chzn_prodtype_symb);
+									url.SetComponent(InetUrl::cQuery, temp_buf);
+								}
+							}
+							// } @v11.1.11 
 							SBuffer ack_buf;
 							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
@@ -2760,73 +2797,6 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 	return ok;
 }
 
-#if 0 // @v10.8.0 {
-int ChZnInterface::Connect2(InitBlock & rIb)
-{
-	int    ok = -1;
-	int    wininet_err = 0;
-	WinInternetHandleStack hstk;
-	HINTERNET h_inet_sess = 0;
-	HINTERNET h_connection = 0;
-	HINTERNET h_req = 0;
-	SString temp_buf;
-	SString result_code;
-	SString req_buf;
-	InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, temp_buf));
-	THROW(MakeAuthRequest(rIb, req_buf));
-	THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
-	THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
-	{
-		const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
-		THROW(h_req = hstk.PushHttpRequestPost(h_connection, url, p_types));
-		MakeHeaderFields(0, 0, 0, temp_buf);
-		if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
-			SString wi_msg;
-			uint  wi_code = GetLastWinInternetResponse(wi_msg);
-			ReadReply(h_req, temp_buf);
-			if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0) {
-				ok = 1;
-			}
-		}
-		else {
-			wininet_err = GetLastError();
-		}
-	}
-	if(ok > 0) {
-		hstk.Destroy();
-		THROW(GetToken2(result_code, rIb));
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v10.8.0
-
-#if 0 // @v10.9.6 {
-int ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg)
-{
-	int    ok = 1;
-	SString file_name;
-	PPGetFilePath(PPPATH_LOG, PPFILNAM_CHZNTALK_LOG, file_name);
-	SFile  f_log(file_name, SFile::mAppend);
-	if(f_log.IsValid()) {
-		if(!isempty(pPrefix)) {
-			SString temp_buf;
-			temp_buf.Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CatDiv(':', 2);
-			if(!isempty(pTargetUrl)) {
-				temp_buf.Space().CatEq("url", pTargetUrl);
-			}
-			f_log.WriteLine(temp_buf.CR());
-		}
-		if(rMsg.NotEmpty())
-			f_log.WriteLine(rMsg);
-		f_log.WriteLine(0);
-	}
-	else
-		ok = 0;
-	return ok;
-}
-#endif // } 0 @v10.9.6
-
 int ChZnInterface::Connect(InitBlock & rIb)
 {
 	int    ok = -1;
@@ -3090,11 +3060,25 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 	ChZnInterface::Packet * p_chzn_packet = static_cast<ChZnInterface::Packet *>(pChZnPacket);
 	PPObjBill * p_bobj = BillObj;
 	PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_chzn_packet->P_Data);
+	long chzn_prod_type = 0; // @v11.1.11
+	PPObjGoods goods_obj; // @v11.1.11
+	Goods2Tbl::Rec goods_rec; // @v11.1.11
+	PPGoodsType2 gt_rec; // @v11.1.11
 	if(p_bobj->ExtractPacket(billID, p_bp) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
 		for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
 			const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
+			// @v11.1.11 {
+			if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+				if(gt_rec.ChZnProdType) {
+					if(!chzn_prod_type)
+						chzn_prod_type = gt_rec.ChZnProdType;
+					else if(chzn_prod_type != gt_rec.ChZnProdType)
+						chzn_prod_type = -1;
+				}
+			}
+			// } @v11.1.11 
 			p_bp->XcL.Get(tidx+1, 0, lotxcode_set);
 			for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
 				if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
@@ -3106,6 +3090,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 			}
 		}
 	}
+	p_chzn_packet->ChZnProdType = chzn_prod_type; // @v11.1.11
 	return suited ? 1 : -1;
 }
 

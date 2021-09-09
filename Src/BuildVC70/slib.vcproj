@@ -720,9 +720,6 @@
 				RelativePath="..\SLib\Makepath.c">
 			</File>
 			<File
-				RelativePath="..\SLib\Md5.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\Mkstring.cpp">
 			</File>
 			<File

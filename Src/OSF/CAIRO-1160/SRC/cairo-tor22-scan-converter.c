@@ -433,7 +433,6 @@ struct cell_pair {
 struct active_list {
 	/* Leftmost edge on the current scan line. */
 	struct edge head, tail;
-
 	/* A lower bound on the height of the active edges is used to
 	 * estimate how soon some active edge ends.	 We can't advance the
 	 * scan conversion by a full pixel row if an edge ends somewhere
@@ -446,17 +445,15 @@ struct glitter_scan_converter {
 	struct polygon polygon[1];
 	struct active_list active[1];
 	struct cell_list coverages[1];
-
 	cairo_half_open_span_t * spans;
 	cairo_half_open_span_t spans_embedded[64];
-
 	/* Clip box. */
 	grid_scaled_x_t xmin, xmax;
 	grid_scaled_y_t ymin, ymax;
 };
-
-/* Compute the floored division a/b. Assumes / and % perform symmetric
- * division. */
+// 
+// Compute the floored division a/b. Assumes / and % perform symmetric division. 
+// 
 inline static struct quorem floored_divrem(int a, int b)                            
 {
 	struct quorem qr;
@@ -468,9 +465,9 @@ inline static struct quorem floored_divrem(int a, int b)
 	}
 	return qr;
 }
-
-/* Compute the floored division (x*a)/b. Assumes / and % perform symmetric
- * division. */
+// 
+// Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
+// 
 static struct quorem floored_muldivrem(int x, int a, int b)                     
 {
 	struct quorem qr;

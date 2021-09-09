@@ -1036,6 +1036,18 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, pInputData);
 			THROW(ExecCmd("34", str, out_data, r_error));
 		}
+		else if(cmd.IsEqiAscii("ACCEPTCHZNCODE")) { // @v11.1.11
+			str.Z();
+			CreateStr(2, str);
+			CreateStr(1, str);
+			THROW(ExecCmd("79", str, out_data, r_error));
+		}
+		else if(cmd.IsEqiAscii("REJECTCHZNCODE")) { // @v11.1.11
+			str.Z();
+			CreateStr(2, str);
+			CreateStr(static_cast<int>(0), str);
+			THROW(ExecCmd("79", str, out_data, r_error));
+		}
 		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
 			double qtty = 1.0;
 			SString result_buf;
@@ -2318,7 +2330,8 @@ int PiritEquip::RunCheck(int opertype)
 							// 
 							// --> 79/15
 						}
-						PreprocessChZnMark(str, 1, 0, &pczcr);
+						PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
+						//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
 					}
 					else {
 					}

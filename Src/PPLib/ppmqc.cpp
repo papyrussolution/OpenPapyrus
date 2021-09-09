@@ -934,13 +934,12 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 /*static*/PPMqbClient * PPMqbClient::CreateInstance(const PPMqbClient::InitParam & rP)
 {
 	PPMqbClient * p_cli = 0;
-	SString consumer_tag;
 	THROW_PP(rP.Host.NotEmpty()/*&& rP.ConsumeParamList.getCount()*/, PPERR_MQBC_HOSTEMPTY);
 	THROW_SL(p_cli = new PPMqbClient);
 	THROW(PPMqbClient::InitClient(*p_cli, rP));
 	for(uint i = 0; i < rP.ConsumeParamList.getCount(); i++) {
-		const PPMqbClient::RoutingParamEntry * p_rpe = rP.ConsumeParamList.at(i);
-		p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
+		/*const*/PPMqbClient::RoutingParamEntry * p_rpe = rP.ConsumeParamList.at(i);
+		p_cli->Consume(p_rpe->QueueName, &p_rpe->ConsumeTag.Z(), 0);
 	}
 	CATCH
 		ZDELETE(p_cli);

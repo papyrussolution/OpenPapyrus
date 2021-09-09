@@ -28,72 +28,59 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * --------------------------------------------------------------------------
- *
- * Test Synopsis:
- * - Test that thread validation works.
- *
- * Test Method (Validation or Falsification):
- * -
- *
- * Requirements Tested:
- * -
- *
- * Features Tested:
- * -
- *
- * Cases Tested:
- * -
- *
- * Description:
- * -
- *
- * Environment:
- * -
- *
- * Input:
- * - None.
- *
- * Output:
- * - File name, Line number, and failed expression on failure.
- * - No output on success.
- *
- * Assumptions:
- * -
- *
- * Pass Criteria:
- * - Process returns zero exit status.
- *
- * Fail Criteria:
- * - Process returns non-zero exit status.
- */
+*/
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-
-enum {
-	NUMTHREADS = 1
-};
-
-static int washere = 0;
-
-static void * func(void * arg)
-{
-	washere = 1;
-	return (void*)0;
-}
-
+// 
+// Test Synopsis:
+// - Test that thread validation works.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
 int PThr4wTest_Valid1()
 {
+	const int NUMTHREADS = 1;
+	static int washere = 0;
+
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			washere = 1;
+			return (void*)0;
+		}
+	};
 	pthread_t t;
 	void * result = NULL;
 	washere = 0;
-	assert(pthread_create(&t, NULL, func, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
 	assert(pthread_join(t, &result) == 0);
 	assert((int)(size_t)result == 0);
 	assert(washere == 1);
 	sched_yield();
 	assert(pthread_kill(t, 0) == ESRCH);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Confirm that thread validation fails for garbage thread ID.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Valid2()
+{
+	pthread_t NullThread =  __PTW32_THREAD_NULL_ID;
+	assert(pthread_kill(NullThread, 0) == ESRCH);
 	return 0;
 }

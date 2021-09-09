@@ -1892,7 +1892,8 @@ int BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray * pRe
 	const  int round_prec = GObj.CheckFlag(goodsID, GF_INTVAL) ? 0 : 6;
 	const  LocPeriod * p_lc = GetLocPeriod(locID);
 	int    zero_deficit = 0;
-	double rest = 0.0, partitial_rest = 0.0;
+	double rest = 0.0;
+	double partitial_rest = 0.0;
 	TempDeficitTbl::Rec * p_rec;
 	DateRange lot_period;
 	THROW(p_lc);

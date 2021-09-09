@@ -29,7 +29,6 @@
     <ClCompile Include="..\Slib\macaddr.cpp" />
     <ClCompile Include="..\SLib\mailsess.cpp" />
     <ClCompile Include="..\SLib\Makepath.c" />
-    <ClCompile Include="..\SLib\Md5.cpp" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />

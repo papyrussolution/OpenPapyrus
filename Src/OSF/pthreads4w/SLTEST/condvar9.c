@@ -33,50 +33,24 @@
  *
  * Test Synopsis:
  * - Test multiple pthread_cond_broadcasts with thread cancellation.
- *
  * Test Method (Validation or Falsification):
  * - Validation
- *
- * Requirements Tested:
- * -
- *
- * Features Tested:
- * -
- *
- * Cases Tested:
- * -
- *
  * Description:
- * - Make NUMTHREADS threads wait on CV, cancel one, broadcast signal them,
- *   and then repeat.
- *
- * Environment:
- * -
- *
- * Input:
- * - None.
- *
+ * - Make NUMTHREADS threads wait on CV, cancel one, broadcast signal them, and then repeat.
  * Output:
  * - File name, Line number, and failed expression on failure.
  * - No output on success.
- *
- * Assumptions:
- * -
- *
  * Pass Criteria:
  * - Process returns zero exit status.
- *
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-/*
- * Create NUMTHREADS threads in addition to the Main thread.
- */
+
 enum {
-	NUMTHREADS = 9
+	NUMTHREADS = 9 // Create NUMTHREADS threads in addition to the Main thread.
 };
 
 static bag_t threadbag[NUMTHREADS + 1];

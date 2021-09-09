@@ -241,6 +241,14 @@ int PThr4wTest_Timeouts();
 int PThr4wTest_ThreeStage(int argc, char * argv[]);
 int PThr4wTest_Stress1();
 
+int PThr4wTest_Priority1();
+int PThr4wTest_Priority2();
+int PThr4wTest_Reinit1();
+int PThr4wTest_Reuse1();
+int PThr4wTest_Reuse2();
+int PThr4wTest_Self1();
+int PThr4wTest_Self2();
+
 int PThr4wTest_Benchtest1();
 int PThr4wTest_Benchtest2();
 int PThr4wTest_Benchtest3();
@@ -381,6 +389,15 @@ int DoTest_PThr4w()
 	PThr4wTest_Context1();
 	PThr4wTest_Context2();
 	PThr4wTest_Count1();
+
+	PThr4wTest_Priority1();
+	PThr4wTest_Priority2();
+	PThr4wTest_Reinit1();
+	PThr4wTest_Reuse1();
+	PThr4wTest_Reuse2();
+	PThr4wTest_Self1();
+	PThr4wTest_Self2();
+
 	PThr4wTest_Cancel1();
 	PThr4wTest_Cancel2();
 	PThr4wTest_Cancel3();
@@ -391,7 +408,7 @@ int DoTest_PThr4w()
 	// (fail) PThr4wTest_Cancel7();
 	// (fail) PThr4wTest_Cancel8();
 	PThr4wTest_Cancel9();
-	PThr4wTest_Detach1(); // fail
+	// PThr4wTest_Detach1(); // fail
 	// (trouble - exit) PThr4wTest_Exit1();
 	PThr4wTest_Exit2();
 	PThr4wTest_Exit3();

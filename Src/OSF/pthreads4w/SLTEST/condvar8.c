@@ -71,11 +71,9 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-/*
- * Create NUMTHREADS threads in addition to the Main thread.
- */
+
 enum {
-	NUMTHREADS = 5
+	NUMTHREADS = 5 // Create NUMTHREADS threads in addition to the Main thread.
 };
 
 static bag_t threadbag[NUMTHREADS + 1];

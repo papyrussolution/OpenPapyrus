@@ -1713,9 +1713,9 @@ char * FASTCALL stpcpy(char *to, const char *from)
 //
 //
 //
-int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
+bool   FASTCALL isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
+bool   FASTCALL isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
+bool   FASTCALL isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
 size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
 size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
@@ -1786,59 +1786,59 @@ uchar * FASTCALL sstrdup(const uchar * pStr)
 		return 0;
 }
 
-int FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2)
+bool FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2)
 {
 	if(pS1 != pS2)
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || wcscmp(pS1, pS2) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || wcscmp(pS1, pS2) == 0) : false;
 		else
-			return 0;
+			return false;
 	else
-		return 1;
+		return true;
 }
 
-int FASTCALL sstreq(const char * pS1, const char * pS2)
+bool FASTCALL sstreq(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2)
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0) : false;
 		else
-			return 0;
+			return false;
 	else
-		return 1;
+		return true;
 }
 
-int FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
+bool FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 {
 	if(pS1 != pS2)
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), reinterpret_cast<const char *>(pS2)) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), reinterpret_cast<const char *>(pS2)) == 0) : false;
 		else
-			return 0;
+			return false;
 	else
-		return 1;
+		return true;
 }
 
-int FASTCALL sstreq(const uchar * pS1, const char * pS2)
+bool FASTCALL sstreq(const uchar * pS1, const char * pS2)
 {
 	if(pS1 != reinterpret_cast<const uchar *>(pS2))
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), pS2) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), pS2) == 0) : false;
 		else
-			return 0;
+			return false;
 	else
-		return 1;
+		return true;
 }
 
 // @construction
-int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
+bool FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
 {
 	if(len == 0)
-		return 1;
+		return true;
 	else if(pS1 != pS2) {
 		if(pS1 && pS2) {
 			switch(len) {
-				case 1: return BIN(*pS1 == *pS2);
+				case 1: return (*pS1 == *pS2);
 				//
 				// Строго говоря, следующие 3 case'а - опасные: если строки pS1 или pS2 заканчиваются раньше чем соответствующий
 				// байт будет достигнут и плюс к тому данные по указателям обрываются на границе сегмента то мы
@@ -1846,9 +1846,9 @@ int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
 				// Однако, я думаю что вероятность такого события может быть проигнорирована.
 				// Тем не менее, следует сделать тест на предмет такого развития событий.
 				//
-				case 2: return BIN(*PTR16C(pS1) == *PTR16C(pS2));
-				case 4: return BIN(*PTR32C(pS1) == *PTR32C(pS2));
-				case 8: return BIN(*PTR64C(pS1) == *PTR64C(pS2));
+				case 2: return (*PTR16C(pS1) == *PTR16C(pS2));
+				case 4: return (*PTR32C(pS1) == *PTR32C(pS2));
+				case 8: return (*PTR64C(pS1) == *PTR64C(pS2));
 				default: 
 					{
 						uint x = 0;
@@ -1858,27 +1858,27 @@ int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
 								pS2 += 4;
 								uint8 c1 = *(pS1-4);
 								if(c1 != *(pS2-4))
-									return 0;
+									return false;
 								else if(c1 == 0)
-									return 1;
+									return true;
 								else {
 									c1 = *(pS1-3);
 									if(c1 != *(pS2-3))
-										return 0;
+										return false;
 									else if(c1 == 0)
-										return 1;
+										return true;
 									else {
 										c1 = *(pS1-2);
 										if(c1 != *(pS2-2))
-											return 0;
+											return false;
 										else if(c1 == 0)
-											return 1;
+											return true;
 										else {
 											c1 = *(pS1-1);
 											if(c1 != *(pS2-1))
-												return 0;
+												return false;
 											else if(c1 == 0)
-												return 1;
+												return true;
 										}
 									}
 								}
@@ -1886,24 +1886,24 @@ int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
 						}
 						for(; x < len; x++) {
 							if(*pS1 != *pS2)
-								return 0;
+								return false;
 							else if(*pS1 == 0)
-								return 1;
+								return true;
 							else {
 								pS1++;
 								pS2++;
 							}
 						}
-						return 0;
+						return false;
 					}
 					break;
 			}
 		}
 		else
-			return 0;
+			return false;
 	}
 	else
-		return 1;
+		return true;
 }
 
 bool FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)

@@ -527,7 +527,7 @@
 	#define HELP_BROWSER_CASHNODE                               241
 #define BROWSER_BIZSCORE                               242 // @bizscore_pl
 	#define HELP_BROWSER_BIZSCORE                               242
-#define BROWSER_BIZSCOREVAL                            243 // Значения бизнес-показателей
+#define BROWSER_BIZSCOREVAL                            243 // @{view_bizscoreval}
 	#define HELP_BROWSER_BIZSCOREVAL                            243
 #define BROWSER_DEBTORSTAT                             244 // @{view_debtorstat}
 	#define HELP_BROWSER_DEBTORSTAT                             244
@@ -541,76 +541,74 @@
 	#define HELP_BROWSER_LOCTRANSF_DISP                         248
 #define BROWSER_PALM                                   249 // КПК
 	#define HELP_BROWSER_PALM                                   249
-#define BROWSER_BBOARD                                 250 // Задачи запущенные на сервере
-	#define HELP_BROWSER_BBOARD                                 250
-#define BROWSER_SERVERSTAT                             251 // @{view_serverstat} %s
-	#define HELP_BROWSER_SERVERSTAT                             251
-#define BROWSER_AMOUNTTYPE                             252 // @{view_amounttype}
-	#define HELP_BROWSER_AMOUNTTYPE                             252
-#define BROWSER_REGISTERTYPE                           253 // @{view_registertype}
-	#define HELP_BROWSER_REGISTERTYPE                           253
-#define BROWSER_BUDGET                                 254 // Бюджеты
-	#define HELP_BROWSER_BUDGET                                 254
-#define BROWSER_BUDGETITEMS_CROSSTAB                   255 // @{budgetitem_pl}
-	#define HELP_BROWSER_BUDGETITEMS_CROSSTAB                   255
-#define BROWSER_BUDGET_ITEMS                           256 // @{budgetitem_pl}
-	#define HELP_BROWSER_BUDGET_ITEMS                           256
-#define BROWSER_BIZSCTEMPL                             257 // @{view_bizsctempl}
-	#define HELP_BROWSER_BIZSCTEMPL                             257
-#define BROWSER_BIZSCVALBYTEMPL                        258 // Значения бизнес-показателей по шаблону {%s}
-	#define HELP_BROWSER_BIZSCVALBYTEMPL                        258
-#define BROWSER_CHKOPJ                                 259 // @{view_checkopjrnl}
-	#define HELP_BROWSER_CHKOPJ                                 259
-#define BROWSER_STOCKOPT_ITEMS                         260 // @view_stockopt
-	#define HELP_BROWSER_STOCKOPT_ITEMS                         260
-#define BROWSER_STOCKOPT_RESULT                        261 // Результат оптимизации товарных запасов
-	#define HELP_BROWSER_STOCKOPT_RESULT                        261
-#define BROWSER_DIALOG                                 262 // @{view_dialog}
-	#define HELP_BROWSER_DIALOG                                 262
-#define BROWSER_SPECSERIES                             263 // @{view_specseries}
-	#define HELP_BROWSER_SPECSERIES                             263
-#define BROWSER_GLOBALUSERACC                          264 // @{globaluseracc_pl}
-	#define HELP_BROWSER_GLOBALUSERACC                          264
-#define BROWSER_DBDIV                                  265 // @{dbdiv_pl}
-	#define HELP_BROWSER_DBDIV                                  265
-#define BROWSER_TIMESERIES                             266 // @{timeseries_p}
-	#define HELP_BROWSER_TIMESERIES                             266
-#define BROWSER_TIMSERDETAIL                           267 // @{timeseries_p}
-	#define HELP_BROWSER_TIMSERDETAIL                           267
-#define BROWSER_TIMSERSTRATEGIES                       268 // @{timeseries_p}
-	#define HELP_BROWSER_TIMSERSTRATEGIES                       268
-#define BROWSER_EVENT                                  269 // Events
-	#define HELP_BROWSER_EVENT                                  269
-#define BROWSER_USERMENU                               270 // UserMenu
-	#define HELP_BROWSER_USERMENU                               270
-#define BROWSER_DBMONITOR                              271 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                              271
-#define BROWSER_SUPRWARE                               272 // @{view_suprware}
-	#define HELP_BROWSER_SUPRWARE                               272
-#define BROWSER_USERPROFILE                            273 // @{view_userprofile}
-	#define HELP_BROWSER_USERPROFILE                            273
-#define BROWSER_JOB                                    274 // @{jobtask_pl}
-	#define HELP_BROWSER_JOB                                    274
-#define BROWSER_PHNSVCMONITOR                          275 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                          275
-#define BROWSER_TSSTKENVMONITOR                        276 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR                        276
-#define BROWSER_VETISDOCUMENT                          277 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                          277
-#define BROWSER_QUOTEREQANALYZE                        278 // @{view_quotereqanalyze}
-	#define HELP_BROWSER_QUOTEREQANALYZE                        278
-#define BROWSER_FILESYSTEM                             279 // 
-	#define HELP_BROWSER_FILESYSTEM                             279
-#define BROWSER_ALCODECLRU_MOV                         280 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_MOV                         280
-#define BROWSER_ALCODECLRU_RCPT                        281 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_RCPT                        281
-#define BROWSER_ALCODECLRU_DETAIL                      282 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_DETAIL                      282
-#define BROWSER_STYLOQBINDERY                          283 // @{view_styloqbindery}
-	#define HELP_BROWSER_STYLOQBINDERY                          283
-#define BROWSER_STYLOQCOMMANDS                         284 // @{view_styloqcommands}
-	#define HELP_BROWSER_STYLOQCOMMANDS                         284
+#define BROWSER_SERVERSTAT                             250 // @{view_serverstat} %s
+	#define HELP_BROWSER_SERVERSTAT                             250
+#define BROWSER_AMOUNTTYPE                             251 // @{view_amounttype}
+	#define HELP_BROWSER_AMOUNTTYPE                             251
+#define BROWSER_REGISTERTYPE                           252 // @{view_registertype}
+	#define HELP_BROWSER_REGISTERTYPE                           252
+#define BROWSER_BUDGET                                 253 // Бюджеты
+	#define HELP_BROWSER_BUDGET                                 253
+#define BROWSER_BUDGETITEMS_CROSSTAB                   254 // @{budgetitem_pl}
+	#define HELP_BROWSER_BUDGETITEMS_CROSSTAB                   254
+#define BROWSER_BUDGET_ITEMS                           255 // @{budgetitem_pl}
+	#define HELP_BROWSER_BUDGET_ITEMS                           255
+#define BROWSER_BIZSCTEMPL                             256 // @{view_bizsctempl}
+	#define HELP_BROWSER_BIZSCTEMPL                             256
+#define BROWSER_BIZSCVALBYTEMPL                        257 // @{view_bizscvalbytempl} {%s}
+	#define HELP_BROWSER_BIZSCVALBYTEMPL                        257
+#define BROWSER_CHKOPJ                                 258 // @{view_checkopjrnl}
+	#define HELP_BROWSER_CHKOPJ                                 258
+#define BROWSER_STOCKOPT_ITEMS                         259 // @view_stockopt
+	#define HELP_BROWSER_STOCKOPT_ITEMS                         259
+#define BROWSER_STOCKOPT_RESULT                        260 // Результат оптимизации товарных запасов
+	#define HELP_BROWSER_STOCKOPT_RESULT                        260
+#define BROWSER_DIALOG                                 261 // @{view_dialog}
+	#define HELP_BROWSER_DIALOG                                 261
+#define BROWSER_SPECSERIES                             262 // @{view_specseries}
+	#define HELP_BROWSER_SPECSERIES                             262
+#define BROWSER_GLOBALUSERACC                          263 // @{globaluseracc_pl}
+	#define HELP_BROWSER_GLOBALUSERACC                          263
+#define BROWSER_DBDIV                                  264 // @{dbdiv_pl}
+	#define HELP_BROWSER_DBDIV                                  264
+#define BROWSER_TIMESERIES                             265 // @{timeseries_p}
+	#define HELP_BROWSER_TIMESERIES                             265
+#define BROWSER_TIMSERDETAIL                           266 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERDETAIL                           266
+#define BROWSER_TIMSERSTRATEGIES                       267 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERSTRATEGIES                       267
+#define BROWSER_EVENT                                  268 // Events
+	#define HELP_BROWSER_EVENT                                  268
+#define BROWSER_USERMENU                               269 // UserMenu
+	#define HELP_BROWSER_USERMENU                               269
+#define BROWSER_DBMONITOR                              270 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                              270
+#define BROWSER_SUPRWARE                               271 // @{view_suprware}
+	#define HELP_BROWSER_SUPRWARE                               271
+#define BROWSER_USERPROFILE                            272 // @{view_userprofile}
+	#define HELP_BROWSER_USERPROFILE                            272
+#define BROWSER_JOB                                    273 // @{jobtask_pl}
+	#define HELP_BROWSER_JOB                                    273
+#define BROWSER_PHNSVCMONITOR                          274 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                          274
+#define BROWSER_TSSTKENVMONITOR                        275 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR                        275
+#define BROWSER_VETISDOCUMENT                          276 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                          276
+#define BROWSER_QUOTEREQANALYZE                        277 // @{view_quotereqanalyze}
+	#define HELP_BROWSER_QUOTEREQANALYZE                        277
+#define BROWSER_FILESYSTEM                             278 // 
+	#define HELP_BROWSER_FILESYSTEM                             278
+#define BROWSER_ALCODECLRU_MOV                         279 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_MOV                         279
+#define BROWSER_ALCODECLRU_RCPT                        280 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_RCPT                        280
+#define BROWSER_ALCODECLRU_DETAIL                      281 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_DETAIL                      281
+#define BROWSER_STYLOQBINDERY                          282 // @{view_styloqbindery}
+	#define HELP_BROWSER_STYLOQBINDERY                          282
+#define BROWSER_STYLOQCOMMANDS                         283 // @{view_styloqcommands}
+	#define HELP_BROWSER_STYLOQCOMMANDS                         283
 
 //
 // PPVIEW COMMAND definitions
@@ -4969,9 +4967,13 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MATCH01                         32964
 #define PPDV_FACEPROFILE01                   32965
 #define PPDV_UNMATCH01                       32966
-#define PPDV_LOGOPAPYRUS                     32967
-#define PPDV_LOGOUDS                         32968
-#define PPDV_LOGOVK                          32969
-#define PPDV_LOGOVETIS                       32970
-#define PPDV_LOGOCHZN                        32971
+#define PPDV_OP_GOODSRECEIPT                 32967
+#define PPDV_OP_GOODSEXPEND                  32968
+#define PPDV_OP_GOODSMODIF                   32969
+#define PPDV_OP_GOODSRETURN                  32970
+#define PPDV_LOGOPAPYRUS                     32971
+#define PPDV_LOGOUDS                         32972
+#define PPDV_LOGOVK                          32973
+#define PPDV_LOGOVETIS                       32974
+#define PPDV_LOGOCHZN                        32975
 

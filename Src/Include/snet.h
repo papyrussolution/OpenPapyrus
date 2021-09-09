@@ -125,6 +125,7 @@ public:
 		prot_p_MYSQL  = 40, // @v10.9.2 private: идентифицирует url доступа к серверу MySQL
 		prot_p_SQLITE = 41, // @v10.9.2 private: идентифицирует url доступа к базе данных SQLite
 		prot_p_ORACLE = 42, // @v10.9.2 private: идентифицирует url доступа к серверу базы данных ORACLE
+		protGit       = 43, // @v11.1.11 
 	};
 	//
 	// Descr: Компоненты URL
@@ -595,7 +596,7 @@ public:
 		hdrAuthToken,        // authorization-token
 		hdrAuthSecret,       // authorization-secret
 		hdrXOriginRequestId, // X-Origin-Request-Id
-		hdrXTimestamp        // X-Timestamp
+		hdrXTimestamp,       // X-Timestamp
 	};
 	enum AuthType {
 		authtUnkn = 0,

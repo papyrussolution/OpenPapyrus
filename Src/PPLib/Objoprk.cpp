@@ -382,6 +382,43 @@ static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 	return p_list;
 }
 
+#if 0 // @v11.1.11 @construction {
+/*virtual*/ListBoxDef * PPObjOprKind::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
+{
+	ListBoxDef * p_def = PPObjReference::Selector(pOrgDef, flags, extraPtr);
+	AssignImages(p_def);
+	return p_def;
+}
+
+int PPObjOprKind::AssignImages(ListBoxDef * pDef)
+{
+	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+		LongArray list;
+		pDef->ClearImageAssocList();
+		if(pDef->getIdList(list) > 0) {
+			PPOprKind rec;
+			for(uint i = 0; i < list.getCount(); i++) {
+				PPID id = list.at(i);
+				if(GetOpData(id, &rec) > 0) {
+					long   img_id = 0;
+					if(rec.OpTypeID == PPOPT_GOODSRECEIPT)
+						img_id = PPDV_OP_GOODSRECEIPT;
+					else if(rec.OpTypeID == PPOPT_GOODSEXPEND)
+						img_id = PPDV_OP_GOODSEXPEND;
+					else if(rec.OpTypeID == PPOPT_GOODSMODIF)
+						img_id = PPDV_OP_GOODSMODIF;
+					else 
+						img_id = PPDV_MAIL01;
+					if(img_id)
+						pDef->AddVecImageAssoc(id, img_id);
+				}
+			}
+		}
+	}
+	return 1;	
+}
+#endif // } @v11.1.11 @construction
+
 int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
 {
 	int    ok = 0;
@@ -447,6 +484,7 @@ PPID SLAPIV SelectOprKind(uint opklFlags, PPID linkOpID, ...)
 //
 PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extraPtr)
 {
+	// @v11.1.11 (@construction) ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
 /*static*/int PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)

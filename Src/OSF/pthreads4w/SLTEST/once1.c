@@ -1,9 +1,5 @@
 /*
  * once1.c
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors

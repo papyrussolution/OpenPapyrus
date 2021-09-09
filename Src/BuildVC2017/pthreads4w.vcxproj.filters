@@ -70,39 +70,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1e.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1n.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1r.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2e.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2r.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3e.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3r.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex4.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex5.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6.c">
       <Filter>Test</Filter>
     </ClCompile>
@@ -149,12 +116,6 @@
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel3.c">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel4.c">
@@ -229,21 +190,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore1.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore4.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore4t.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore5.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1.c">
       <Filter>Test</Filter>
     </ClCompile>
@@ -292,15 +238,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin1.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin4.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup0.c">
       <Filter>Test</Filter>
     </ClCompile>
@@ -310,22 +247,7 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\join0.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\join1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\join2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\join3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\join4.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\delay1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\delay2.c">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\detach1.c">
@@ -334,43 +256,13 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\equal0.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\equal1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\errno0.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\errno1.c">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception1.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception3_0.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit4.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit5.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit6.c">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\eyal1.c">
@@ -385,16 +277,7 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd1.c">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd2.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd3.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\valid1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\valid2.c">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\once1.c">
@@ -473,6 +356,18 @@
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest5.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\priority1.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\reinit1.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\reuse1.c">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\self1.c">
       <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>

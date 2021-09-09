@@ -2674,6 +2674,7 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 	int    ok = 1, r = 1;
 	if(p && p->Data) {
 		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
+		Reference * p_ref = PPRef;
 		if(stream == 0) {
 			PPID   same_id = 0;
 			LocationTbl::Rec same_rec;
@@ -2692,7 +2693,6 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 			else if(Search(*pID, &same_rec) > 0) {
 				p_pack->ID = *pID;
 				p_pack->Counter = same_rec.Counter;
-				// @v9.6.2 {
 				if(p_pack->OwnerID != same_rec.OwnerID && p_pack->OwnerID && same_rec.OwnerID) {
 					//
 					// Потенциально конфликтная ситуация: пришедшая локация имеет отличное от
@@ -2715,7 +2715,17 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 						}
 					}
 				}
-				// } @v9.6.2
+				// @v11.1.11 {
+				if(p_pack->Type == LOCTYP_WAREHOUSE) {
+					//
+					// Специальный случай: нельзя менять тег ВЕТИС-идентификатора склада - они редактируются локально для каждого раздела
+					//
+					ObjTagList ex_tag_list;
+					p_ref->Ot.GetList(Obj, *pID, &ex_tag_list);
+					const ObjTagItem * p_vetis_uuid_tag = ex_tag_list.GetItem(PPTAG_LOC_VETIS_GUID);
+					p_pack->TagL.PutItem(PPTAG_LOC_VETIS_GUID, p_vetis_uuid_tag);
+				}
+				// } @v11.1.11 
 				r = PutPacket(pID, p_pack, 1);
 			}
 			else {
@@ -4872,10 +4882,10 @@ int PPLocAddrStruc::Recognize(const char * pText)
 			int    last_t = 0;
 			uint   i;
 			for(i = 0; i < c; i++) {
-				/* @v7.8.5 const*/ AddrTok * p_tok = TokList.at(i);
+				AddrTok * p_tok = TokList.at(i);
 				if(!(p_tok->Flags & AddrTok::fUsed)) {
-					/* @v7.8.5 const*/ AddrTok * p_next_tok = (i < (c-1)) ? TokList.at(i+1) : 0;
-					/* @v7.8.5 const*/ AddrTok * p_prev_tok = (i > 0) ? TokList.at(i-1) : 0;
+					AddrTok * p_next_tok = (i < (c-1)) ? TokList.at(i+1) : 0;
+					AddrTok * p_prev_tok = (i > 0) ? TokList.at(i-1) : 0;
 					if(p_prev_tok && p_prev_tok->Flags & AddrTok::fUsed)
 						p_prev_tok = 0;
 					if(p_next_tok && p_next_tok->Flags & AddrTok::fUsed)

@@ -1209,9 +1209,9 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
+		int    r = 0;
 		AsyncPosPrepParam param;
-		MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = AsyncCashnPrepDialog(&param);

@@ -240,7 +240,6 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 		default:
 		    return true;
 	}
-
 	// Calculate the sizes of mf->hash and mf->son and check that
 	// nice_len is big enough for the selected match finder.
 	const uint32_t hash_bytes = lz_options->match_finder & 0x0F;

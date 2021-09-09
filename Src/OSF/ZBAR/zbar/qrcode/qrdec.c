@@ -2815,8 +2815,10 @@ static void qr_data_mask_fill(uint * _mask, int _dim, int _pattern)
 		case 5: {
 		    for(j = 0; j<_dim; j++) {
 			    uint m = 0;
-			    for(i = 0; i<6; i++) m |= !((i*j)%6)<<i;
-			    for(i = 6; i<QR_INT_BITS; i <<= 1) m |= m<<i;
+			    for(i = 0; i<6; i++) 
+					m |= !((i*j)%6)<<i;
+			    for(i = 6; i<QR_INT_BITS; i <<= 1) 
+					m |= m<<i;
 			    for(i = 0; i<stride; i++) {
 				    _mask[j*stride+i] = m;
 				    m = m>>QR_INT_BITS%6|m<<6-QR_INT_BITS%6;

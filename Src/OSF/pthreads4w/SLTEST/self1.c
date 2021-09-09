@@ -28,26 +28,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * --------------------------------------------------------------------------
- *
- * Test for pthread_self().
- *
- * Depends on API functions:
- *	pthread_self()
- *
- * Implicitly depends on:
- *	pthread_getspecific()
- *	pthread_setspecific()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-
-int main(int argc, char * argv[])
+// 
+// Test for pthread_self().
+// Depends on API functions: pthread_self()
+// Implicitly depends on: pthread_getspecific(), pthread_setspecific()
+// 
+int PThr4wTest_Self1()
 {
-	/*
-	 * This should always succeed unless the system has no
-	 * resources (memory) left.
-	 */
+	// 
+	// This should always succeed unless the system has no resources (memory) left.
+	// 
 	pthread_t self;
 #if defined (__PTW32_STATIC_LIB) && !(defined(_MSC_VER) || defined(__MINGW32__))
 	pthread_win32_process_attach_np();
@@ -58,4 +52,26 @@ int main(int argc, char * argv[])
 	pthread_win32_process_detach_np();
 #endif
 	return 0;
+}
+// 
+// Test for pthread_self().
+// Depends on API functions: pthread_create(), pthread_self()
+// Implicitly depends on: pthread_getspecific(), pthread_setspecific()
+// 
+int PThr4wTest_Self2()
+{
+	static pthread_t me;
+	class InnerBlock {
+	public:
+		static void * entry(void * arg)
+		{
+			me = pthread_self();
+			return arg;
+		}
+	};
+	pthread_t t;
+	assert(pthread_create(&t, NULL, InnerBlock::entry, NULL) == 0);
+	Sleep(100);
+	assert(pthread_equal(t, me) != 0);
+	return 0; // Success
 }

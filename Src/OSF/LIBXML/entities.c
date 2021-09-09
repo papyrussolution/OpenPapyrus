@@ -49,15 +49,15 @@ static void FASTCALL xmlFreeEntity(xmlEntity * entity)
 		if(dict) {
 			if(entity->name && !xmlDictOwns(dict, entity->name))
 				SAlloc::F((char *)entity->name);
-			if(entity->ExternalID && (!xmlDictOwns(dict, entity->ExternalID)))
+			if(entity->ExternalID && !xmlDictOwns(dict, entity->ExternalID))
 				SAlloc::F((char *)entity->ExternalID);
-			if(entity->SystemID && (!xmlDictOwns(dict, entity->SystemID)))
+			if(entity->SystemID && !xmlDictOwns(dict, entity->SystemID))
 				SAlloc::F((char *)entity->SystemID);
-			if(entity->URI && (!xmlDictOwns(dict, entity->URI)))
+			if(entity->URI && !xmlDictOwns(dict, entity->URI))
 				SAlloc::F((char *)entity->URI);
-			if(entity->content && (!xmlDictOwns(dict, entity->content)))
+			if(entity->content && !xmlDictOwns(dict, entity->content))
 				SAlloc::F((char *)entity->content);
-			if(entity->orig && (!xmlDictOwns(dict, entity->orig)))
+			if(entity->orig && !xmlDictOwns(dict, entity->orig))
 				SAlloc::F((char *)entity->orig);
 		}
 		else {

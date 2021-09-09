@@ -3046,6 +3046,7 @@ struct SFormatParam {
 // Descr: Представление целочисленного диапазона (low..upp).
 //
 struct IntRange { // @persistent @size=8
+	IntRange & Z();
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)
 	//
@@ -4509,9 +4510,9 @@ uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
 char * FASTCALL trimleft(char * pStr);
 char * FASTCALL trimright(char * pStr);
-int    FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
-int    FASTCALL isempty(const uchar * pStr); // BIN(pStr || pStr[0])
-int    FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
+bool   FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
+bool   FASTCALL isempty(const uchar * pStr); // BIN(pStr || pStr[0])
+bool   FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
 size_t FASTCALL sstrlen(const char * pStr);
 size_t FASTCALL sstrlen(const uchar * pStr);
 size_t FASTCALL sstrlen(const wchar_t * pStr);
@@ -4529,18 +4530,18 @@ uchar * FASTCALL sstrdup(const uchar * pStr);
 // Descr: определяет эквивалентность строк pS1 и pS2.
 //   Если pS1 == pS2, то результат !0
 // Returns:
-//   !0 - строки эквивалентны
-//   0  - строки не эквивалентны
+//   true - строки эквивалентны
+//   false - строки не эквивалентны
 //
-int    FASTCALL sstreq(const char * pS1, const char * pS2);
-int    FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
-int    FASTCALL sstrneq(const char * pS1, const char * pS2, uint len);
-int    FASTCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
+bool   FASTCALL sstreq(const char * pS1, const char * pS2);
+bool   FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
+bool   FASTCALL sstrneq(const char * pS1, const char * pS2, uint len);
+bool   FASTCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 // Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
 //
-int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
-int    FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
+bool   FASTCALL sstreq(const uchar * pS1, const char * pS2);
+bool   FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
 
 inline bool chreqi_ascii(int c1, int c2)
 {
@@ -5639,6 +5640,14 @@ public:
 	~SBinaryChunk();
 	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
 	int    FASTCALL IsEqual(const SBinaryChunk & rS) const;
+	//
+	// Descr: Сравнивает на равенство экземпляр this с участком памяти pData длиной len.
+	//   Для выполнения равенства len должна быть равна this->Len() и данные pData должны
+	//   быть эквивалентны данным по указателю this->P_Buf.
+	//   Если len == 0 и this->Len() == 0, то равенство выполняется независимо от значений
+	//   pData, this->P_Buf и данных по этим указателям.
+	//
+	int    FASTCALL IsEqual(const void * pData, size_t len) const;
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
 	int   operator !() const { return Len() == 0; }
@@ -5647,6 +5656,14 @@ public:
 	const void * PtrC(size_t offs) const;
 	void * Ptr();
 	void * Ptr(size_t offs);
+	//
+	// Descr: Генерирует отрезок случайных данных длиной len.
+	//   Если произошла ошибка (например, недостаточно памяти), то обнуляет длину отрезка.
+	//   Использует штатный генератор случайных чисел из текущего потока (SLS.GetTLA().Rg)
+	// Returns:
+	//   *this
+	//
+	SBinaryChunk & Randomize(size_t len);
 	//
 	// Descr: Кодирует содержимое буфера в формате mime64 и результат вносит в строку rBuf.
 	//
@@ -6355,29 +6372,17 @@ public:
 		//
 		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
 		//
-		/*Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
-			const uchar * pBytesS, int lenS, const uchar * pBytesV, int lenV, const uchar * pBytesA, int lenA,
-			const uchar ** ppBytesB, int * pLenB, const char * pNHex, const char * pGHex);*/
 		Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
 			const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex);
 		~Verifier();
-		//int    IsAuthenticated() const;
 		const char * GetName() const;
 		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size
 		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
 		const  uchar * GetSessionKey(int * pKeyLength) const;
 		int    GetSessionKeyLength() const;
 	private:
-		//HashAlgorithm HashAlg;
-		//NGConstant * P_Ng;
-		//const char * P_UserName;
-		//const uchar * P_BytesB;
 		SString UserName;
 		SBinaryChunk BytesB;
-		//int    Authenticated;
-		//uchar  M[SHA512_DIGEST_LENGTH];
-		//uchar  H_AMK[SHA512_DIGEST_LENGTH];
-		//uchar  SessionKey[SHA512_DIGEST_LENGTH];
 	};
 
 	class User : public VerifierBase {
@@ -6399,8 +6404,6 @@ public:
 		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
 		void   ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM);
 	private:
-		//HashAlgorithm HashAlg;
-		//NGConstant * P_ng;
 		/*BIGNUM*/void * P_a;
 		/*BIGNUM*/void * P_A;
 		/*BIGNUM*/void * P_S;
@@ -6409,10 +6412,6 @@ public:
 		char * P_UserName;
 		uchar * P_Password;
 		int    PasswordLen;
-		//int    authenticated;
-		//uchar M[SHA512_DIGEST_LENGTH];
-		//uchar H_AMK[SHA512_DIGEST_LENGTH];
-		//uchar SessionKey[SHA512_DIGEST_LENGTH];
 	};
 
 	//static void CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
@@ -6467,94 +6466,6 @@ char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca);
 int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
 
 #endif // } _WIN32_WCE
-//
-// IDEA
-//
-// Определен в md5.h
-//class MD5 {
-//public:
-//	MD5() { init(); }
-//	void   init();
-//	void   update(uchar * bug, uint len);
-//	void   final(uchar digest[16]);
-//private:
-//	uint32 buf[4]; // scratch buffer
-//	uint32 i[2];   // number of _bits_ handled mod 2^64
-//	uchar  in[64]; // input buffer
-//};
-
-
-//#ifndef MD5_H_INCLUDED
-//#define MD5_H_INCLUDED
-
-//#include "base_types.h"
-
-class S_MD5 {
-public:
-	S_MD5();
-	~S_MD5();
-	void   Init();
-	void   Update(const void *data, uint32 len);
-	void   Final(uint8 digest[16]);
-	/* internal function */
-	static void Transform(uint32 buf[4], uint32 in_data[16]);
-	static void Calc(const void *data, uint32 length, uint8 digest[16]);
-private:
-	void   reverse_u32(uint8 *buf, int n_u32);
-
-	uint32 m_buf[4];
-	uint32 m_bits[2];
-	uint8  m_in[64];
-	bool   m_need_byteswap;
-	//bool   m_big_endian;
-	uint8  Reserve[3]; // @alignment
-};
-
-//#endif /* MD5_H_INCLUDED */
-
-void Transform(uint32 *buf, uint32 *in);
-
-#define IDEAKEYSIZE 16
-#define IDEABLOCKSIZE 8
-
-// hashpass - Hash pass phrase down to 128 bits (16 bytes).
-void hashpass(char *keystring, int keylen, uint8 *hash);
-
-#define IDEA_ROUNDS	8            // Don't change this value, should be 8
-#define IDEA_KEYLEN	(6*IDEA_ROUNDS+4) // length of key schedule */
-
-typedef uint16 IDEAkey[IDEA_KEYLEN];
-
-class IDEACFB {
-public:
-	IDEACFB();
-	IDEACFB(uint16 iv0[4], uint8 key[16], int decryp);
-	~IDEACFB();
-	void   init(uint16 iv0[4], uint8 key[16], int decryp);
-	void   close();
-	void   run(uint8 * buf, int count);
-private:
-	// Key schedules for IDEA encryption and decryption
-	IDEAkey  Z;
-	uint16 * iv_idea;     // pointer to IV for CFB or CBC
-	int      cfb_dc_idea; // TRUE iff CFB decrypting
-};
-
-class IDEARAND {
-public:
-	IDEARAND();
-	IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp);
-	~IDEARAND();
-	void   init(uint8 key[16], uint8 seed[8], uint32 tstamp);
-	uint8  rand();
-	void   close();
-private:
-	uint16 dtbuf[4];        // buffer for enciphered timestamp
-	uint16 randseed[4];     // seed for IDEA random # generator
-	uint16 randbuf[4];      // buffer for IDEA random # generator
-	uint8  randbuf_counter; // # of random bytes left in randbuf
-	IDEAkey randkey;         // Expanded key for IDEA random # generator
-};
 
 void IdeaEncrypt(const char * password, void * buf, size_t len);
 void IdeaDecrypt(const char * password, void * buf, size_t len);
@@ -6562,7 +6473,6 @@ void IdeaDecrypt(const char * password, void * buf, size_t len);
 //
 // Math
 //
-
 //
 // Descr: Округляет n с точностью prec знаков после точки.
 //
@@ -11107,6 +11017,7 @@ struct SJson {
 		tFALSE,
 		tNULL
 	};
+	static SJson * FASTCALL Parse(const char * pText);
 	static bool FASTCALL IsObject(const SJson * pN) { return (pN && pN->Type == SJson::tOBJECT); }
 	static bool FASTCALL IsArray(const SJson * pN) { return (pN && pN->Type == SJson::tARRAY); }
 	static bool FASTCALL IsString(const SJson * pN) { return (pN && pN->Type == SJson::tSTRING); }
@@ -11116,6 +11027,16 @@ struct SJson {
 	static bool FASTCALL IsFalse(const SJson * pN) { return (pN && pN->Type == SJson::tFALSE); }
 	explicit SJson(int aType);
 	~SJson();
+	bool   IsValid() const;
+	bool   IsObject() const { return (Type == SJson::tOBJECT); }
+	bool   IsArray() const { return (Type == SJson::tARRAY); }
+	bool   IsString() const { return (Type == SJson::tSTRING); }
+	bool   IsNumber() const { return (Type == SJson::tNUMBER); }
+	bool   IsNull() const { return (Type == SJson::tNULL); }
+	bool   IsTrue() const { return (Type == SJson::tTRUE); }
+	bool   IsFalse() const { return (Type == SJson::tFALSE); }
+	const SJson * FASTCALL FindChildByKey(const char * pKey) const;
+	int    FASTCALL ToString(SString & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
 	int    FASTCALL Insert(const char * pTextLabel, SJson * pValue);
 	int    FASTCALL InsertString(const char * pTextLabel, const char * pStr);
@@ -11124,6 +11045,7 @@ struct SJson {
 	int    FASTCALL InsertInt64(const char * pTextLabel, int64 val);
 	int    FASTCALL InsertBool(const char * pTextLabel, bool val);
 	int    FASTCALL InsertNull(const char * pTextLabel);
+	int    FASTCALL InsertChild(SJson * pChild);
 
 	int    Type; // the type of node
 	SString Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the SJson::tSTRING and JSON_NUMBER node types
@@ -11135,6 +11057,8 @@ struct SJson {
 	SJson * P_Parent;    // The pointer pointing to the parent node in the document tree
 	SJson * P_Child;     // The pointer pointing to the first child node in the document tree
 	SJson * P_ChildEnd;  // The pointer pointing to the last child node in the document tree
+private:
+	uint   State;
 };
 //
 // The structure which holds the pointers to the functions that will be called by the saxy parser whenever their evens are triggered
@@ -11824,7 +11748,7 @@ public:
 		long   Flags;
 	};
 
-	static int AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+	static int AnalyzeFit(const DateTimeArray * pTimeVec, const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11);
 	int    AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const;

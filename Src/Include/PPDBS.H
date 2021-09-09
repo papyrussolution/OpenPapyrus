@@ -6341,17 +6341,15 @@ public:
 		int32  ID;
 	};
 	struct Key1 {
-		uint8  BI[20];
-	};
-	struct Key2 {
 		int32  Kind;
 		uint8  BI[20];
+		int64  TimeStamp;
 	};
-	struct Key3 {
+	struct Key2 {
 		int32  CorrespondID;
 		uint8  BI[20];
 	};
-	struct Key4 {
+	struct Key3 {
 		int32  DocType;
 		uint8  BI[20];
 		int64  TimeStamp;

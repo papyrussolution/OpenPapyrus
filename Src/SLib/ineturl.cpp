@@ -306,6 +306,7 @@ InetUrl & InetUrl::Z()
 	return *this;
 }
 
+#if 0 // @v11.1.11 {
 static const char * SchemeMnem[] = {
 	"",          // #0
 	"http",      // #1
@@ -350,20 +351,71 @@ static const char * SchemeMnem[] = {
 	"mysql",    // #40 private // @v10.9.2
 	"sqlite",   // #41 private // @v10.9.2
 	"oracle",   // #42 private // @v10.9.2
+	"git",      // #43 @v11.1.11
+};
+#endif // } 0 @v11.1.11
+
+static const SIntToSymbTabEntry InetUrlSchemeList[] = {
+	{ InetUrl::protUnkn,         "" },          // #0
+	{ InetUrl::protHttp,         "http" },      // #1
+	{ InetUrl::protHttps,        "https" },     // #2
+	{ InetUrl::protFtp,          "ftp" },       // #3
+	{ InetUrl::protGopher,		 "gopher" },    // #4
+	{ InetUrl::protMailto,		 "mailto" },    // #5
+	{ InetUrl::protNews,		 "news" },      // #6
+	{ InetUrl::protNntp,         "nntp" },      // #7
+	{ InetUrl::protIrc,          "irc" },       // #8
+	{ InetUrl::protProspero,     "prospero" },  // #9
+	{ InetUrl::protTelnet,		 "telnet" },  // #10
+	{ InetUrl::protWais,		 "wais" },    // #11
+	{ InetUrl::protXmpp,		 "xmpp" },    // #12
+	{ InetUrl::protFile,         "file" },    // #13
+	{ InetUrl::protData,         "data" },    // #14
+	{ InetUrl::protSvn,          "svn" },     // #15
+	{ InetUrl::protSocks4,		 "socks4" },  // #16
+	{ InetUrl::protSocks5,		 "socks5" },  // #17
+	{ InetUrl::protSMTP,		 "smtp" },    // #18
+	{ InetUrl::protSMTPS,		 "smtps" },   // #19
+	{ InetUrl::protPOP3,		 "pop3" },    // #20
+	{ InetUrl::protPOP3S,		 "pop3s" },   // #21
+	{ InetUrl::protIMAP,		 "imap" },    // #22
+	{ InetUrl::protIMAPS,		 "imaps" },   // #23
+	{ InetUrl::protFtps,		 "ftps" },    // #24
+	{ InetUrl::protTFtp,		 "tftp" },    // #25
+	{ InetUrl::protDict,		 "dict" },    // #26
+	{ InetUrl::protSSH,          "ssh" },     // #27
+	{ InetUrl::protSMB,          "smb" },     // #28
+	{ InetUrl::protSMBS,         "smbs" },    // #29
+	{ InetUrl::protRTSP,         "rtsp" },    // #30
+	{ InetUrl::protRTMP,         "rtmp" },    // #31
+	{ InetUrl::protRTMPT,        "rtmpt" },   // #32
+	{ InetUrl::protRTMPS,        "rtmps" },   // #33
+	{ InetUrl::protLDAP,         "ldap" },    // #34
+	{ InetUrl::protLDAPS,        "ldaps" },   // #35
+	{ InetUrl::protMailFrom,     "mailfrom" }, // #36 fixion
+	{ InetUrl::prot_p_PapyrusServer, "" },         // #37 private PapyrusServer
+	{ InetUrl::protAMQP,         "amqp" },     // #38
+	{ InetUrl::protAMQPS,        "amqps" },    // #39
+	{ InetUrl::prot_p_MYSQL,     "mysql" },    // #40 private // @v10.9.2
+	{ InetUrl::prot_p_SQLITE,    "sqlite" },   // #41 private // @v10.9.2
+	{ InetUrl::prot_p_ORACLE,    "oracle" },   // #42 private // @v10.9.2
+	{ InetUrl::protGit,          "git" },      // #43 // @v11.1.11
 };
 
 /*static*/const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
 {
-	return (schemeId >= 0 && schemeId < SIZEOFARRAY(SchemeMnem)) ? SchemeMnem[schemeId] : SchemeMnem[0];
+	// @v11.1.11 return (schemeId >= 0 && schemeId < SIZEOFARRAY(SchemeMnem)) ? SchemeMnem[schemeId] : SchemeMnem[0];
+	return SIntToSymbTab_GetSymbPtr(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), schemeId); // @v11.1.11
 }
 
 /*static*/int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 {
-	for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
+	/* @v11.1.11 for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
 		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i]))
 			return static_cast<int>(i);
 	}
-	return protUnkn;
+	return protUnkn;*/
+	return SIntToSymbTab_GetId(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), pSchemeMnem); // @v11.1.11
 }
 
 int InetUrl::Parse(const char * pUrl)

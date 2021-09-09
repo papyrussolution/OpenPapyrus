@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -644,11 +644,11 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-CCheckPacket::CCheckPacket() : UpdFlags(0), PrintPtt(pttUndef), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0)
+CCheckPacket::CCheckPacket() : UpdFlags(0), PrintPtt(pttUndef), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0), P_PpChZnCodeResultList(0)
 {
 }
 
-CCheckPacket::CCheckPacket(const CCheckPacket & rS) : P_DlvrAddr(0), P_Stirb(0)
+CCheckPacket::CCheckPacket(const CCheckPacket & rS) : P_DlvrAddr(0), P_Stirb(0), P_PpChZnCodeResultList(0)
 {
 	Copy(rS);
 }
@@ -663,6 +663,7 @@ CCheckPacket::~CCheckPacket()
 {
 	ZDELETE(P_DlvrAddr);
 	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb); // @v10.9.0
+	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
 }
 
 CCheckPacket & CCheckPacket::Z()
@@ -682,6 +683,7 @@ CCheckPacket & CCheckPacket::Z()
 	ZDELETE(P_DlvrAddr);
 	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb); // @v10.9.0
 	P_Stirb = 0; // @v10.9.0
+	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
 	CcAl.clear();
 	return *this;
 }
@@ -710,6 +712,17 @@ int CCheckPacket::Copy(const CCheckPacket & rS)
 		ZDELETE(P_DlvrAddr);
 	}
 	P_Stirb = 0;
+	// @v11.1.11 {
+	if(rS.P_PpChZnCodeResultList) {
+		if(P_PpChZnCodeResultList)
+			*P_PpChZnCodeResultList = *rS.P_PpChZnCodeResultList;
+		else
+			P_PpChZnCodeResultList = new TSVector <PreprocessChZnCodeResult>(*rS.P_PpChZnCodeResultList);
+	}
+	else if(P_PpChZnCodeResultList) {
+		ZDELETE(P_PpChZnCodeResultList);
+	}
+	// } @v11.1.11 
 	return ok;
 }
 
@@ -1128,6 +1141,65 @@ int CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
 	else
 		MEMSZERO(rExt);
 	return ok;
+}
+
+int CCheckPacket::SetLineChZnPreprocessResult(int pos /*[1..]*/, const CCheckPacket::PreprocessChZnCodeResult * pResult)
+{
+	int    ok = 1;
+	if(pos > 0 && pos <= Items_.getCount()) {
+		if(pResult) {
+			bool found = false;
+			if(P_PpChZnCodeResultList) {
+				for(uint i = 0; i < P_PpChZnCodeResultList->getCount(); i++) {
+					if(P_PpChZnCodeResultList->at(i).LineIdx == pos) {
+						if(found) {
+							P_PpChZnCodeResultList->atFree(i);
+							assert(i > 0); // Иначе found не мог бы быть true.
+							i--;
+						}
+						else {
+							P_PpChZnCodeResultList->at(i) = *pResult;
+							P_PpChZnCodeResultList->at(i).LineIdx = pos;
+							found = true;
+						}
+					}
+				}
+			}
+			else {
+				P_PpChZnCodeResultList = new TSVector <PreprocessChZnCodeResult>();
+			}
+			if(!found) {
+				P_PpChZnCodeResultList->insert(pResult);
+				P_PpChZnCodeResultList->at(P_PpChZnCodeResultList->getCount()-1).LineIdx = pos;
+			}
+		}
+		else if(P_PpChZnCodeResultList) {
+			uint i = P_PpChZnCodeResultList->getCount();
+			if(i) do {
+				PreprocessChZnCodeResult & r_item = P_PpChZnCodeResultList->at(--i);
+				if(r_item.LineIdx == pos) {
+					P_PpChZnCodeResultList->atFree(i);
+				}
+			} while(i);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+const CCheckPacket::PreprocessChZnCodeResult * CCheckPacket::GetLineChZnPreprocessResult(int pos /*[1..]*/) const
+{
+	PreprocessChZnCodeResult * p_result = 0;
+	if(SVector::GetCount(P_PpChZnCodeResultList)) {
+		if(pos >= 1 && pos <= Items_.getCount()) {
+			for(uint i = 0; !p_result && i < P_PpChZnCodeResultList->getCount(); i++) {
+				if(P_PpChZnCodeResultList->at(i).LineIdx == pos)
+					p_result = &P_PpChZnCodeResultList->at(i);
+			}
+		}
+	}
+	return p_result;
 }
 
 int CCheckPacket::MergeLines(long /*options*/)

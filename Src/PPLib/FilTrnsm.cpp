@@ -377,7 +377,7 @@ int PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailC
 		if(port)
 			url.SetPort_(port);
 		rAcc.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-		enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+		enc_buf.EncodeUrl(temp_buf, 0);
 		url.SetComponent(url.cUserName, enc_buf);
 		{
 			char pw[128];

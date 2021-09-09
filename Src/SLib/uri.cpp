@@ -18,12 +18,6 @@ static const char * const UriConstParent = _UT("..");
 //
 //
 //
-struct UriIp4Parser {
-	uchar stackCount;
-	uchar stackOne;
-	uchar stackTwo;
-	uchar stackThree;
-};
 //
 //
 //
@@ -90,37 +84,6 @@ static int FASTCALL uriIsUnreserved(int code)
 			return TRUE;
 	    default:
 			return FALSE;
-	}
-}
-
-static void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet)
-{
-	switch(parser->stackCount) {
-	    case 1: *octet = parser->stackOne; break;
-	    case 2: *octet = (parser->stackOne*10 + parser->stackTwo); break;
-	    case 3: *octet = (parser->stackOne*100 + parser->stackTwo*10 + parser->stackThree); break;
-	    default: break;
-	}
-	parser->stackCount = 0;
-}
-
-static void FASTCALL uriPushToStack(UriIp4Parser * parser, uchar digit)
-{
-	switch(parser->stackCount) {
-	    case 0:
-			parser->stackOne = digit;
-			parser->stackCount = 1;
-			break;
-	    case 1:
-			parser->stackTwo = digit;
-			parser->stackCount = 2;
-			break;
-	    case 2:
-			parser->stackThree = digit;
-			parser->stackCount = 3;
-			break;
-	    default:
-			break;
 	}
 }
 //
@@ -2232,198 +2195,229 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	}
 	return SLERR_SUCCESS;
 }
-//
-// Prototypes
-//
-static const char * UriParseDecOctet(UriIp4Parser * parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetOne(UriIp4Parser * parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetTwo(UriIp4Parser * parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetThree(UriIp4Parser * parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetFour(UriIp4Parser * parser, const char * first, const char * afterLast);
-/*
- * [ipFourAddress]->[decOctet]<.>[decOctet]<.>[decOctet]<.>[decOctet]
- */
-int UriParseIpFourAddress(uchar * octetOutput, const char * first, const char * afterLast)
+// 
+// [ipFourAddress]->[decOctet]<.>[decOctet]<.>[decOctet]<.>[decOctet]
+// 
+int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char * pAfterLast)
 {
-	const char * after;
-	UriIp4Parser parser;
-	/* Essential checks */
-	if(!octetOutput || !first || (afterLast <= first)) {
-		SLS.SetError(SLERR_URI_SYNTAX, first);
-		return SLERR_URI_SYNTAX;
-	}
-	/* Reset parser */
-	parser.stackCount = 0;
-	/* Octet #1 */
-	after = UriParseDecOctet(&parser, first, afterLast);
-	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
-		SLS.SetError(SLERR_URI_SYNTAX, first);
-		return SLERR_URI_SYNTAX;
-	}
-	uriStackToOctet(&parser, octetOutput);
-	/* Octet #2 */
-	after = UriParseDecOctet(&parser, after+1, afterLast);
-	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
-		SLS.SetError(SLERR_URI_SYNTAX, first);
-		return SLERR_URI_SYNTAX;
-	}
-	uriStackToOctet(&parser, octetOutput+1);
-	/* Octet #3 */
-	after = UriParseDecOctet(&parser, after+1, afterLast);
-	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
-		SLS.SetError(SLERR_URI_SYNTAX, first);
-		return SLERR_URI_SYNTAX;
-	}
-	uriStackToOctet(&parser, octetOutput+2);
-	/* Octet #4 */
-	after = UriParseDecOctet(&parser, after+1, afterLast);
-	if(after != afterLast) {
-		SLS.SetError(SLERR_URI_SYNTAX, first);
-		return SLERR_URI_SYNTAX;
-	}
-	uriStackToOctet(&parser, octetOutput+3);
-	return SLERR_SUCCESS;
-}
-/*
- * [decOctet]-><0>
- * [decOctet]-><1>[decOctetOne]
- * [decOctet]-><2>[decOctetTwo]
- * [decOctet]-><3>[decOctetThree]
- * [decOctet]-><4>[decOctetThree]
- * [decOctet]-><5>[decOctetThree]
- * [decOctet]-><6>[decOctetThree]
- * [decOctet]-><7>[decOctetThree]
- * [decOctet]-><8>[decOctetThree]
- * [decOctet]-><9>[decOctetThree]
- */
-static const char * UriParseDecOctet(UriIp4Parser*parser, const char * first, const char * afterLast)
-{
-	if(first >= afterLast)
-		return NULL;
-	else {
-		switch(*first) {
-			case _UT('0'):
-				uriPushToStack(parser, 0);
-				return first+1;
-			case _UT('1'):
-				uriPushToStack(parser, 1);
-				return UriParseDecOctetOne(parser, first+1, afterLast);
-			case _UT('2'):
-				uriPushToStack(parser, 2);
-				return UriParseDecOctetTwo(parser, first+1, afterLast);
-			case _UT('3'):
-			case _UT('4'):
-			case _UT('5'):
-			case _UT('6'):
-			case _UT('7'):
-			case _UT('8'):
-			case _UT('9'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return UriParseDecOctetThree(parser, first+1, afterLast);
-			default:
+	class UriIp4Parser {
+	public:
+		UriIp4Parser() : stackCount(0), stackOne(0), stackTwo(0), stackThree(0)
+		{
+		}
+		// 
+		// [decOctet]-><0>
+		// [decOctet]-><1>[decOctetOne]
+		// [decOctet]-><2>[decOctetTwo]
+		// [decOctet]-><3>[decOctetThree]
+		// [decOctet]-><4>[decOctetThree]
+		// [decOctet]-><5>[decOctetThree]
+		// [decOctet]-><6>[decOctetThree]
+		// [decOctet]-><7>[decOctetThree]
+		// [decOctet]-><8>[decOctetThree]
+		// [decOctet]-><9>[decOctetThree]
+		// 
+		const char * UriParseDecOctet(const char * pFirst, const char * pAfterLast)
+		{
+			if(pFirst >= pAfterLast)
 				return NULL;
+			else {
+				switch(*pFirst) {
+					case _UT('0'):
+						uriPushToStack(0);
+						return pFirst+1;
+					case _UT('1'):
+						uriPushToStack(1);
+						return UriParseDecOctetOne(pFirst+1, pAfterLast);
+					case _UT('2'):
+						uriPushToStack(2);
+						return UriParseDecOctetTwo(pFirst+1, pAfterLast);
+					case _UT('3'):
+					case _UT('4'):
+					case _UT('5'):
+					case _UT('6'):
+					case _UT('7'):
+					case _UT('8'):
+					case _UT('9'):
+						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+						return UriParseDecOctetThree(pFirst+1, pAfterLast);
+					default:
+						return NULL;
+				}
+			}
 		}
+		void FASTCALL uriStackToOctet(uchar * pOctet)
+		{
+			switch(stackCount) {
+				case 1: *pOctet = stackOne; break;
+				case 2: *pOctet = (stackOne*10 + stackTwo); break;
+				case 3: *pOctet = (stackOne*100 + stackTwo*10 + stackThree); break;
+				default: break;
+			}
+			stackCount = 0;
+		}
+	private:
+		void FASTCALL uriPushToStack(uchar digit)
+		{
+			switch(stackCount) {
+				case 0:
+					stackOne = digit;
+					stackCount = 1;
+					break;
+				case 1:
+					stackTwo = digit;
+					stackCount = 2;
+					break;
+				case 2:
+					stackThree = digit;
+					stackCount = 3;
+					break;
+				default:
+					break;
+			}
+		}
+		// 
+		// [decOctetThree]-><NULL>
+		// [decOctetThree]->[DIGIT]
+		// 
+		const char * UriParseDecOctetThree(const char * first, const char * afterLast)
+		{
+			if(first >= afterLast) {
+				return afterLast;
+			}
+			else {
+				switch(*first) {
+					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+						uriPushToStack((uchar)(9+*first-_UT('9')));
+						return first+1;
+					default:
+						return first;
+				}
+			}
+		}
+		// 
+		// [decOctetOne]-><NULL>
+		// [decOctetOne]->[DIGIT][decOctetThree]
+		// 
+		const char * UriParseDecOctetOne(const char * pFirst, const char * pAfterLast)
+		{
+			if(pFirst >= pAfterLast)
+				return pAfterLast;
+			else {
+				switch(*pFirst) {
+					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
+					case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+						return UriParseDecOctetThree(pFirst+1, pAfterLast);
+					default:
+						return pFirst;
+				}
+			}
+		}
+		// 
+		// [decOctetFour]-><NULL>
+		// [decOctetFour]-><0>
+		// [decOctetFour]-><1>
+		// [decOctetFour]-><2>
+		// [decOctetFour]-><3>
+		// [decOctetFour]-><4>
+		// [decOctetFour]-><5>
+		// 
+		const char * UriParseDecOctetFour(const char * first, const char * afterLast)
+		{
+			if(first >= afterLast)
+				return afterLast;
+			else {
+				switch(*first) {
+					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'):
+						uriPushToStack((uchar)(9+*first-_UT('9')));
+						return first+1;
+					default:
+						return first;
+				}
+			}
+		}
+		// 
+		// [decOctetTwo]-><NULL>
+		// [decOctetTwo]-><0>[decOctetThree]
+		// [decOctetTwo]-><1>[decOctetThree]
+		// [decOctetTwo]-><2>[decOctetThree]
+		// [decOctetTwo]-><3>[decOctetThree]
+		// [decOctetTwo]-><4>[decOctetThree]
+		// [decOctetTwo]-><5>[decOctetFour]
+		// [decOctetTwo]-><6>
+		// [decOctetTwo]-><7>
+		// [decOctetTwo]-><8>
+		// [decOctetTwo]-><9>
+		// 
+		const char * UriParseDecOctetTwo(const char * pFirst, const char * pAfterLast)
+		{
+			if(pFirst >= pAfterLast)
+				return pAfterLast;
+			else {
+				switch(*pFirst) {
+					case _UT('0'):
+					case _UT('1'):
+					case _UT('2'):
+					case _UT('3'):
+					case _UT('4'):
+						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+						return UriParseDecOctetThree(pFirst+1, pAfterLast);
+					case _UT('5'):
+						uriPushToStack(5);
+						return UriParseDecOctetFour(pFirst+1, pAfterLast);
+					case _UT('6'):
+					case _UT('7'):
+					case _UT('8'):
+					case _UT('9'):
+						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+						return (pFirst+1);
+					default:
+						return pFirst;
+				}
+			}
+		}
+		uchar stackCount;
+		uchar stackOne;
+		uchar stackTwo;
+		uchar stackThree;
+	};
+	// Essential checks 
+	if(!pOctetOutput || !pFirst || (pAfterLast <= pFirst)) {
+		SLS.SetError(SLERR_URI_SYNTAX, pFirst);
+		return SLERR_URI_SYNTAX;
 	}
-}
-/*
- * [decOctetOne]-><NULL>
- * [decOctetOne]->[DIGIT][decOctetThree]
- */
-static const char * UriParseDecOctetOne(UriIp4Parser*parser, const char * first, const char * afterLast)
-{
-	if(first >= afterLast)
-		return afterLast;
 	else {
-		switch(*first) {
-			case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
-			case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return UriParseDecOctetThree(parser, first+1, afterLast);
-			default:
-				return first;
+		UriIp4Parser parser;
+		// Octet #1 
+		const char * p_after = parser.UriParseDecOctet(pFirst, pAfterLast);
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
+			return SLERR_URI_SYNTAX;
 		}
-	}
-}
-/*
- * [decOctetTwo]-><NULL>
- * [decOctetTwo]-><0>[decOctetThree]
- * [decOctetTwo]-><1>[decOctetThree]
- * [decOctetTwo]-><2>[decOctetThree]
- * [decOctetTwo]-><3>[decOctetThree]
- * [decOctetTwo]-><4>[decOctetThree]
- * [decOctetTwo]-><5>[decOctetFour]
- * [decOctetTwo]-><6>
- * [decOctetTwo]-><7>
- * [decOctetTwo]-><8>
- * [decOctetTwo]-><9>
- */
-static const char * UriParseDecOctetTwo(UriIp4Parser * parser, const char * first, const char * afterLast)
-{
-	if(first >= afterLast)
-		return afterLast;
-	else {
-		switch(*first) {
-			case _UT('0'):
-			case _UT('1'):
-			case _UT('2'):
-			case _UT('3'):
-			case _UT('4'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return UriParseDecOctetThree(parser, first+1, afterLast);
-			case _UT('5'):
-				uriPushToStack(parser, 5);
-				return UriParseDecOctetFour(parser, first+1, afterLast);
-			case _UT('6'):
-			case _UT('7'):
-			case _UT('8'):
-			case _UT('9'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return first+1;
-			default:
-				return first;
+		parser.uriStackToOctet(pOctetOutput);
+		// Octet #2 
+		p_after = parser.UriParseDecOctet(p_after+1, pAfterLast);
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
+			return SLERR_URI_SYNTAX;
 		}
-	}
-}
-/*
- * [decOctetThree]-><NULL>
- * [decOctetThree]->[DIGIT]
- */
-static const char * UriParseDecOctetThree(UriIp4Parser * parser, const char * first, const char * afterLast)
-{
-	if(first >= afterLast) {
-		return afterLast;
-	}
-	else {
-		switch(*first) {
-			case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return first+1;
-			default:
-				return first;
+		parser.uriStackToOctet(pOctetOutput+1);
+		// Octet #3 
+		p_after = parser.UriParseDecOctet(p_after+1, pAfterLast);
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
+			return SLERR_URI_SYNTAX;
 		}
-	}
-}
-/*
- * [decOctetFour]-><NULL>
- * [decOctetFour]-><0>
- * [decOctetFour]-><1>
- * [decOctetFour]-><2>
- * [decOctetFour]-><3>
- * [decOctetFour]-><4>
- * [decOctetFour]-><5>
- */
-static const char * UriParseDecOctetFour(UriIp4Parser * parser, const char * first, const char * afterLast)
-{
-	if(first >= afterLast)
-		return afterLast;
-	else {
-		switch(*first) {
-			case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'):
-				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return first+1;
-			default:
-				return first;
+		parser.uriStackToOctet(pOctetOutput+2);
+		// Octet #4 
+		p_after = parser.UriParseDecOctet(p_after+1, pAfterLast);
+		if(p_after != pAfterLast) {
+			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
+			return SLERR_URI_SYNTAX;
 		}
+		parser.uriStackToOctet(pOctetOutput+3);
+		return SLERR_SUCCESS;
 	}
 }
 //
@@ -3257,37 +3251,37 @@ int FASTCALL UriParserState::OnExitOwnPortUserInfo(const char * pFirst)
  * [ownPortUserInfo]-><@>[ownHost]
  * [ownPortUserInfo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * first, const char * afterLast)
+const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, const char * afterLast)
 {
 	const char * p_ret = 0;
-	if(first >= afterLast) {
-		if(!OnExitOwnPortUserInfo(first))
+	if(pFirst >= afterLast) {
+		if(!OnExitOwnPortUserInfo(pFirst))
 			StopMalloc();
 		else
 			p_ret = afterLast;
 	}
 	else {
-		switch(*first) {
+		switch(*pFirst) {
 			case _UT('.'): case _UT('_'): case _UT('~'): case _UT('-'): case URI_SET_ALPHA:
 				P_Uri->HostText.P_AfterLast = NULL; // Not a host, reset 
 				P_Uri->PortText.P_First = NULL; // Not a port, reset 
-				p_ret = ParseOwnUserInfo(first+1, afterLast);
+				p_ret = ParseOwnUserInfo(pFirst+1, afterLast);
 				break;
 			case URI_SET_DIGIT:
-				p_ret = ParseOwnPortUserInfo(first+1, afterLast); // @recursion
+				p_ret = ParseOwnPortUserInfo(pFirst+1, afterLast); // @recursion
 				break;
 			case _UT('@'):
-				P_Uri->HostText.P_AfterLast = NULL; /* Not a host, reset */
-				P_Uri->PortText.P_First = NULL; /* Not a port, reset */
-				P_Uri->UserInfo.P_AfterLast = first; /* USERINFO END */
-				P_Uri->HostText.P_First = first+1;   /* HOST BEGIN */
-				p_ret = ParseOwnHost(first+1, afterLast);
+				P_Uri->HostText.P_AfterLast = NULL; // Not a host, reset 
+				P_Uri->PortText.P_First = NULL; // Not a port, reset 
+				P_Uri->UserInfo.P_AfterLast = pFirst; // USERINFO END 
+				P_Uri->HostText.P_First = pFirst+1; // HOST BEGIN 
+				p_ret = ParseOwnHost(pFirst+1, afterLast);
 				break;
 			default:
-				if(!OnExitOwnPortUserInfo(first))
+				if(!OnExitOwnPortUserInfo(pFirst))
 					StopMalloc();
 				else
-					p_ret = first;
+					p_ret = pFirst;
 				break;
 		}
 	}
@@ -3359,76 +3353,77 @@ const char * FASTCALL UriParserState::ParsePartHelperTwo(const char * pFirst, co
 	}
 	return p_ret;
 }
-/*
- * [pathAbsEmpty]-></>[segment][pathAbsEmpty]
- * [pathAbsEmpty]-><NULL>
- */
-const char * FASTCALL UriParserState::ParsePathAbsEmpty(const char * first, const char * afterLast)
+// 
+// [pathAbsEmpty]-></>[segment][pathAbsEmpty]
+// [pathAbsEmpty]-><NULL>
+// 
+const char * FASTCALL UriParserState::ParsePathAbsEmpty(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
-	if(first >= afterLast)
-		p_ret = afterLast;
-	else if(*first == _UT('/')) {
-		const char * const afterSegment = ParseSegment(first+1, afterLast);
-		if(afterSegment) {
-			if(!PushPathSegment(first+1, afterSegment)) // SEGMENT BOTH
+	if(pFirst >= pAfterLast)
+		p_ret = pAfterLast;
+	else if(*pFirst == _UT('/')) {
+		const char * const p_after_segment = ParseSegment(pFirst+1, pAfterLast);
+		if(p_after_segment) {
+			if(!PushPathSegment(pFirst+1, p_after_segment)) // SEGMENT BOTH
 				StopMalloc();
 			else
-				p_ret = ParsePathAbsEmpty(afterSegment, afterLast); // @recursion
+				p_ret = ParsePathAbsEmpty(p_after_segment, pAfterLast); // @recursion
 		}
 	}
 	else
-		p_ret = first;
+		p_ret = pFirst;
 	return p_ret;
 }
 /*
  * [pathAbsNoLeadSlash]->[segmentNz][zeroMoreSlashSegs]
  * [pathAbsNoLeadSlash]-><NULL>
  */
-const char * FASTCALL UriParserState::ParsePathAbsNoLeadSlash(const char * first, const char * afterLast)
+const char * FASTCALL UriParserState::ParsePathAbsNoLeadSlash(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
-	if(first >= afterLast)
-		p_ret = afterLast;
+	if(pFirst >= pAfterLast)
+		p_ret = pAfterLast;
 	else {
-		switch(*first) {
+		switch(*pFirst) {
 			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
 			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
 			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
 			case _UT('~'): case _UT('+'): case _UT('='):
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
-				{
-					const char * const afterSegmentNz = ParseSegmentNz(first, afterLast);
-					if(afterSegmentNz) {
-						if(!PushPathSegment(first, afterSegmentNz)) // SEGMENT BOTH
+				/* @v11.1.11 {
+					const char * const p_after_segment_nz = ParseSegmentNz(pFirst, pAfterLast);
+					if(p_after_segment_nz) {
+						if(!PushPathSegment(pFirst, p_after_segment_nz)) // SEGMENT BOTH
 							StopMalloc();
 						else
-							p_ret = ParseZeroMoreSlashSegs(afterSegmentNz, afterLast);
+							p_ret = ParseZeroMoreSlashSegs(p_after_segment_nz, pAfterLast);
 					}
-				}
+				}*/
+				p_ret = ParsePathRootless(pFirst, pAfterLast); // @v11.1.11
 				break;
 			default:
-				p_ret = first;
+				p_ret = pFirst;
 				break;
 		}
 	}
 	return p_ret;
 }
-/*
- * [pathRootless]->[segmentNz][zeroMoreSlashSegs]
- */
-const char * FASTCALL UriParserState::ParsePathRootless(const char * first, const char * afterLast)
+// 
+// [pathRootless]->[segmentNz][zeroMoreSlashSegs]
+// 
+const char * FASTCALL UriParserState::ParsePathRootless(const char * pFirst, const char * pAfterLast)
 {
-	const char * const afterSegmentNz = ParseSegmentNz(first, afterLast);
-	if(afterSegmentNz == NULL)
-		return NULL;
-	else if(!PushPathSegment(first, afterSegmentNz)) { // SEGMENT BOTH 
-		StopMalloc();
-		return NULL;
+	const char * p_result = 0;
+	const char * const p_after_segment_nz = ParseSegmentNz(pFirst, pAfterLast);
+	if(p_after_segment_nz) {
+		if(!PushPathSegment(pFirst, p_after_segment_nz)) // SEGMENT BOTH 
+			StopMalloc();
+		else
+			p_result = ParseZeroMoreSlashSegs(p_after_segment_nz, pAfterLast);
 	}
-	else
-		return ParseZeroMoreSlashSegs(afterSegmentNz, afterLast);
+	return p_result;
 }
 /*
  * [pchar]->[pctEncoded]

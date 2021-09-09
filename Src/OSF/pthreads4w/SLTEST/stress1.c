@@ -77,108 +77,104 @@
 #pragma hdrstop
 #include "test.h"
 
-static const unsigned int ITERATIONS = 1000;
-static pthread_t master, slave;
-
-typedef struct {
-	int value;
-	pthread_cond_t cv;
-	pthread_mutex_t mx;
-} mysig_t;
-
-static int allExit;
-static mysig_t control = {0, PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
-static pthread_barrier_t startBarrier, readyBarrier, holdBarrier;
-static int timeoutCount = 0;
-static int signalsTakenCount = 0;
-static int signalsSent = 0;
-static int bias = 0;
-static int timeout = 10; // Must be > 0
-static const long NANOSEC_PER_MILLISEC = 1000000;
-
-enum {
-	CTL_STOP     = -1
-};
-
-static void * masterThread(void * arg)
-{
-	int dither = (int)(size_t)arg;
-	timeout = (int)(size_t)arg;
-	pthread_barrier_wait(&startBarrier);
-	do {
-		int sleepTime;
-		assert(pthread_mutex_lock(&control.mx) == 0);
-		control.value = timeout;
-		assert(pthread_mutex_unlock(&control.mx) == 0);
-		/*
-		 * We are attempting to send the signal close to when the slave
-		 * is due to timeout. We feel around by adding some [non-random] dither.
-		 *
-		 * dither is in the range 2*timeout peak-to-peak
-		 * sleep time is the average of timeout plus dither.
-		 * e.g.
-		 * if timeout = 10 then dither = 20 and
-		 * sleep millisecs is: 5 <= ms <= 15
-		 *
-		 * The bias value attempts to apply some negative feedback to keep
-		 * the ratio of timeouts to signals taken close to 1:1.
-		 * bias changes more slowly than dither so as to average more.
-		 *
-		 * Finally, if abs(bias) exceeds timeout then timeout is incremented.
-		 */
-		if(signalsSent % timeout == 0) {
-			if(timeoutCount > signalsTakenCount) {
-				bias++;
-			}
-			else if(timeoutCount < signalsTakenCount) {
-				bias--;
-			}
-			if(bias < -timeout || bias > timeout) {
-				timeout++;
-			}
-		}
-		dither = (dither + 1 ) % (timeout * 2);
-		sleepTime = (timeout - bias + dither) / 2;
-		Sleep(sleepTime);
-		assert(pthread_cond_signal(&control.cv) == 0);
-		signalsSent++;
-		pthread_barrier_wait(&holdBarrier);
-		pthread_barrier_wait(&readyBarrier);
-	} while(!allExit);
-	return NULL;
-}
-
-static void * slaveThread(void * arg)
-{
-	struct timespec abstime, reltime;
-	pthread_barrier_wait(&startBarrier);
-	do {
-		assert(pthread_mutex_lock(&control.mx) == 0);
-		reltime.tv_sec = (control.value / 1000);
-		reltime.tv_nsec = (control.value % 1000) * NANOSEC_PER_MILLISEC;
-		if(pthread_cond_timedwait(&control.cv,
-		    &control.mx,
-		    pthread_win32_getabstime_np(&abstime, &reltime)) == ETIMEDOUT) {
-			timeoutCount++;
-		}
-		else {
-			signalsTakenCount++;
-		}
-		assert(pthread_mutex_unlock(&control.mx) == 0);
-		pthread_barrier_wait(&holdBarrier);
-		pthread_barrier_wait(&readyBarrier);
-	} while(!allExit);
-	return NULL;
-}
-
 int PThr4wTest_Stress1()
 {
-	unsigned int i;
+	typedef struct {
+		int value;
+		pthread_cond_t cv;
+		pthread_mutex_t mx;
+	} mysig_t;
+	static const uint ITERATIONS = 1000;
+	static pthread_t master;
+	static pthread_t slave;
+	static int allExit;
+	static mysig_t control = {0, PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
+	static pthread_barrier_t startBarrier, readyBarrier, holdBarrier;
+	static int timeoutCount = 0;
+	static int signalsTakenCount = 0;
+	static int signalsSent = 0;
+	static int bias = 0;
+	static int timeout = 10; // Must be > 0
+	static const long NANOSEC_PER_MILLISEC = 1000000;
+
+	class InnerBlock {
+	public:
+		static void * masterThread(void * arg)
+		{
+			int dither = (int)(size_t)arg;
+			timeout = (int)(size_t)arg;
+			pthread_barrier_wait(&startBarrier);
+			do {
+				int sleepTime;
+				assert(pthread_mutex_lock(&control.mx) == 0);
+				control.value = timeout;
+				assert(pthread_mutex_unlock(&control.mx) == 0);
+				/*
+				 * We are attempting to send the signal close to when the slave
+				 * is due to timeout. We feel around by adding some [non-random] dither.
+				 *
+				 * dither is in the range 2*timeout peak-to-peak
+				 * sleep time is the average of timeout plus dither.
+				 * e.g.
+				 * if timeout = 10 then dither = 20 and
+				 * sleep millisecs is: 5 <= ms <= 15
+				 *
+				 * The bias value attempts to apply some negative feedback to keep
+				 * the ratio of timeouts to signals taken close to 1:1.
+				 * bias changes more slowly than dither so as to average more.
+				 *
+				 * Finally, if abs(bias) exceeds timeout then timeout is incremented.
+				 */
+				if(signalsSent % timeout == 0) {
+					if(timeoutCount > signalsTakenCount) {
+						bias++;
+					}
+					else if(timeoutCount < signalsTakenCount) {
+						bias--;
+					}
+					if(bias < -timeout || bias > timeout) {
+						timeout++;
+					}
+				}
+				dither = (dither + 1 ) % (timeout * 2);
+				sleepTime = (timeout - bias + dither) / 2;
+				Sleep(sleepTime);
+				assert(pthread_cond_signal(&control.cv) == 0);
+				signalsSent++;
+				pthread_barrier_wait(&holdBarrier);
+				pthread_barrier_wait(&readyBarrier);
+			} while(!allExit);
+			return NULL;
+		}
+		static void * slaveThread(void * arg)
+		{
+			pthread_barrier_wait(&startBarrier);
+			do {
+				struct timespec abstime;
+				struct timespec reltime;
+				assert(pthread_mutex_lock(&control.mx) == 0);
+				reltime.tv_sec = (control.value / 1000);
+				reltime.tv_nsec = (control.value % 1000) * NANOSEC_PER_MILLISEC;
+				if(pthread_cond_timedwait(&control.cv, &control.mx,
+					pthread_win32_getabstime_np(&abstime, &reltime)) == ETIMEDOUT) {
+					timeoutCount++;
+				}
+				else {
+					signalsTakenCount++;
+				}
+				assert(pthread_mutex_unlock(&control.mx) == 0);
+				pthread_barrier_wait(&holdBarrier);
+				pthread_barrier_wait(&readyBarrier);
+			} while(!allExit);
+			return NULL;
+		}
+	};
+	uint i;
 	assert(pthread_barrier_init(&startBarrier, NULL, 3) == 0);
 	assert(pthread_barrier_init(&readyBarrier, NULL, 3) == 0);
 	assert(pthread_barrier_init(&holdBarrier, NULL, 3) == 0);
-	assert(pthread_create(&master, NULL, masterThread, (void*)(size_t)timeout) == 0);
-	assert(pthread_create(&slave, NULL, slaveThread, NULL) == 0);
+	assert(pthread_create(&master, NULL, InnerBlock::masterThread, (void*)(size_t)timeout) == 0);
+	assert(pthread_create(&slave, NULL, InnerBlock::slaveThread, NULL) == 0);
 	allExit = FALSE;
 	pthread_barrier_wait(&startBarrier);
 	for(i = 1; !allExit; i++) {

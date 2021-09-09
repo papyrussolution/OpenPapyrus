@@ -2243,7 +2243,7 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	{ SHttpProtocol::hdrAuthToken, "authorization-token" },
 	{ SHttpProtocol::hdrAuthSecret, "authorization-secret" },
 	{ SHttpProtocol::hdrXOriginRequestId, "X-Origin-Request-Id" },
-	{ SHttpProtocol::hdrXTimestamp, "X-Timestamp" }
+	{ SHttpProtocol::hdrXTimestamp, "X-Timestamp" },
 };
 
 /*static*/int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)

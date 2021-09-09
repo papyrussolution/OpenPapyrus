@@ -774,11 +774,19 @@ IMPL_INVARIANT_C(LTIME)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
+FORCEINLINE void implement_decodetime(int * h, int * m, int * s, int * ts, const void * tm)
+{
+	ASSIGN_PTR(h,  static_cast<const char *>(tm)[3]);
+	ASSIGN_PTR(m,  static_cast<const char *>(tm)[2]);
+	ASSIGN_PTR(s,  static_cast<const char *>(tm)[1]);
+	ASSIGN_PTR(ts, static_cast<const char *>(tm)[0]);
+}
+
 int FASTCALL checktime(LTIME tm)
 {
 	int    err = SLERR_SUCCESS;
 	int    h, m, s, ts;
-	decodetime(&h, &m, &s, &ts, &tm);
+	implement_decodetime(&h, &m, &s, &ts, &tm);
 	if(h < 0 || h > 23)
 		err = SLERR_INVHOUR;
 	else if(m < 0 || m > 59)
@@ -842,7 +850,7 @@ long FASTCALL LTIME::settotalsec(long s)
 LTIME & FASTCALL LTIME::addhs(long n)
 {
 	int    h, m, s, hs;
-	decodetime(&h, &m, &s, &hs, this);
+	implement_decodetime(&h, &m, &s, &hs, this);
 	hs += n;
 	if(hs >= 100) {
 		s += (hs / 100);
@@ -888,18 +896,15 @@ LTIME FASTCALL encodetime(int h, int m, int s, int ts)
 
 void FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void * tm)
 {
-	ASSIGN_PTR(h,  static_cast<const char *>(tm)[3]);
-	ASSIGN_PTR(m,  static_cast<const char *>(tm)[2]);
-	ASSIGN_PTR(s,  static_cast<const char *>(tm)[1]);
-	ASSIGN_PTR(ts, static_cast<const char *>(tm)[0]);
+	implement_decodetime(h, m, s, ts, tm);
 }
 
 long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
 {
 	int    h1, m1, s1, ts1;
 	int    h2, m2, s2, ts2;
-	decodetime(&h1, &m1, &s1, &ts1, &t1);
-	decodetime(&h2, &m2, &s2, &ts2, &t2);
+	implement_decodetime(&h1, &m1, &s1, &ts1, &t1);
+	implement_decodetime(&h2, &m2, &s2, &ts2, &t2);
 	long   d = ((ts1-ts2) * 10) + 1000L * ((s1-s2) + 60L * ((m1-m2) + 60L * (h1-h2)));
 	if(dim == 1) // Hours
 		return (d / (3600L * 1000L));

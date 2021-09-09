@@ -1949,7 +1949,6 @@ static void cairo_ft_apply_variations(FT_Face face, cairo_ft_scaled_font_t * sca
 				end2++;
 			if(end2 && (*end2 != ',' && *end2 != '\0'))
 				goto skip;
-
 			for(i = 0; i < ft_mm_var->num_axis; i++) {
 				if(ft_mm_var->axis[i].tag == tag) {
 					coords[i] = (FT_Fixed)(value*65536);
@@ -1971,7 +1970,6 @@ skip:
 				goto done;
 		}
 #endif
-
 		FT_Set_Var_Design_Coordinates(face, ft_mm_var->num_axis, coords);
 done:
 		SAlloc::F(coords);

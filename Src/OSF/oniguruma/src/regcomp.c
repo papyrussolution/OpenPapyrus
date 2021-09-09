@@ -321,12 +321,12 @@ static int ops_make_string_pool(regex_t* reg)
 	return 0;
 }
 
-extern OnigCaseFoldType onig_get_default_case_fold_flag(void)
+OnigCaseFoldType onig_get_default_case_fold_flag(void)
 {
 	return OnigDefaultCaseFoldFlag;
 }
 
-extern int onig_set_default_case_fold_flag(OnigCaseFoldType case_fold_flag)
+int onig_set_default_case_fold_flag(OnigCaseFoldType case_fold_flag)
 {
 	OnigDefaultCaseFoldFlag = case_fold_flag;
 	return 0;
@@ -349,7 +349,7 @@ static int len_multiply_cmp(OnigLen x, int y, OnigLen v)
 		return v == INFINITE_LEN ? 0 : 1;
 }
 
-extern int onig_positive_int_multiply(int x, int y)
+int onig_positive_int_multiply(int x, int y)
 {
 	if(x == 0 || y == 0) 
 		return 0;
@@ -6278,7 +6278,7 @@ static void print_optimize_info(FILE* f, regex_t* reg)
 
 #endif
 
-extern RegexExt* onig_get_regex_ext(regex_t* reg)
+RegexExt* onig_get_regex_ext(regex_t* reg)
 {
 	if(IS_NULL(reg->extp)) {
 		RegexExt* ext = (RegexExt*)SAlloc::M(sizeof(*ext));
@@ -6310,7 +6310,7 @@ static void free_regex_ext(RegexExt * ext)
 	}
 }
 
-extern int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar * pattern_end)
+int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar * pattern_end)
 {
 	uchar * s;
 	RegexExt* ext = onig_get_regex_ext(reg);
@@ -6322,7 +6322,7 @@ extern int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar
 	return ONIG_NORMAL;
 }
 
-extern void onig_free_body(regex_t* reg)
+void onig_free_body(regex_t* reg)
 {
 	if(reg) {
 		ops_free(reg);
@@ -6340,7 +6340,7 @@ extern void onig_free_body(regex_t* reg)
 	}
 }
 
-extern void onig_free(regex_t* reg)
+void onig_free(regex_t* reg)
 {
 	if(reg) {
 		onig_free_body(reg);
@@ -6443,7 +6443,7 @@ err:
 	return r;
 }
 
-extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo)
+int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo)
 {
 	int r;
 	Node*  root;
@@ -6590,7 +6590,7 @@ err:
 
 static int onig_inited = 0;
 
-extern int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType case_fold_flag, OnigEncoding enc, OnigSyntaxType* syntax)
+int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType case_fold_flag, OnigEncoding enc, OnigSyntaxType* syntax)
 {
 	int r;
 	memzero(reg, sizeof(*reg));
@@ -6636,7 +6636,7 @@ extern int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType c
 	return 0;
 }
 
-extern int onig_new_without_alloc(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
+int onig_new_without_alloc(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
     OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo)
 {
 	int r = onig_reg_init(reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
@@ -6645,7 +6645,7 @@ extern int onig_new_without_alloc(regex_t* reg, const uchar * pattern, const uch
 	return r;
 }
 
-extern int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_end,
+int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_end,
     OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo)
 {
 	int r;
@@ -6666,7 +6666,7 @@ extern int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_
 	return r;
 }
 
-extern int onig_initialize(OnigEncoding encodings[], int n)
+int onig_initialize(OnigEncoding encodings[], int n)
 {
 	if(!onig_inited) {
 		onigenc_init();
@@ -6688,7 +6688,7 @@ typedef struct EndCallListItem {
 
 static EndCallListItemType* EndCallTop;
 
-extern void onig_add_end_call(void (*func)(void))
+void onig_add_end_call(void (*func)(void))
 {
 	EndCallListItemType * item = (EndCallListItemType*)SAlloc::M(sizeof(*item));
 	if(item == 0) return;
@@ -6710,7 +6710,7 @@ static void exec_end_call_list(void)
 	}
 }
 
-extern int onig_end(void)
+int onig_end(void)
 {
 	exec_end_call_list();
 #ifdef USE_CALLOUT
@@ -6721,7 +6721,7 @@ extern int onig_end(void)
 	return 0;
 }
 
-extern int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code)
+int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code)
 {
 	OnigCodePoint n;
 	OnigCodePoint low, high;
@@ -6738,7 +6738,7 @@ extern int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code)
 	return ((low < n && code >= data[low * 2]) ? 1 : 0);
 }
 
-extern int onig_is_code_in_cc_len(int elen, OnigCodePoint code, /* CClassNode* */ void* cc_arg)
+int onig_is_code_in_cc_len(int elen, OnigCodePoint code, /* CClassNode* */ void* cc_arg)
 {
 	int found;
 	CClassNode * cc = (CClassNode*)cc_arg;
@@ -6756,7 +6756,7 @@ extern int onig_is_code_in_cc_len(int elen, OnigCodePoint code, /* CClassNode* *
 		return found;
 }
 
-extern int onig_is_code_in_cc(OnigEncoding enc, OnigCodePoint code, CClassNode* cc)
+int onig_is_code_in_cc(OnigEncoding enc, OnigCodePoint code, CClassNode* cc)
 {
 	int len;
 	if(ONIGENC_MBC_MINLEN(enc) > 1) {
@@ -6890,7 +6890,7 @@ static int detect_can_be_slow(Node * node, SlowElementCount* ct, int ncall, int 
 	return r;
 }
 
-extern int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax)
+int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax)
 {
 	int r;
 	Node* root;
