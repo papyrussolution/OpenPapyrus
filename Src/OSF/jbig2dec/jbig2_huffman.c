@@ -21,10 +21,6 @@
     -- See Annex B of the JBIG2 specification */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_huffman.h"
-#include "jbig2_hufftab.h"
-//#include "jbig2_image.h"
-#include "jbig2_segment.h"
 
 #define JBIG2_HUFFMAN_FLAGS_ISOOB 1
 #define JBIG2_HUFFMAN_FLAGS_ISLOW 2

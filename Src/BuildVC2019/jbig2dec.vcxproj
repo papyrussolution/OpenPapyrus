@@ -237,7 +237,6 @@
     <ClCompile Include="..\OSF\jbig2dec\jbig2_segment.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_symbol_dict.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_text.c" />
-    <ClCompile Include="..\OSF\jbig2dec\memcmp.c" />
     <ClCompile Include="..\OSF\jbig2dec\memento.c" />
     <ClCompile Include="..\OSF\jbig2dec\pbm2png.c" />
     <ClCompile Include="..\OSF\jbig2dec\sha1.c" />

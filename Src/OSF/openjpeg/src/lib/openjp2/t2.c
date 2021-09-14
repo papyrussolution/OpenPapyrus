@@ -316,7 +316,7 @@ OPJ_BOOL opj_t2_encode_packets(opj_t2_t* p_t2,
 			/* One time use intended */
 			assert(p_marker_info->packet_count == 0);
 			assert(p_marker_info->p_packet_size == NULL);
-			p_marker_info->p_packet_size = (OPJ_UINT32*)opj_malloc(opj_get_encoding_packet_count(l_image, l_cp, p_tile_no) * sizeof(OPJ_UINT32));
+			p_marker_info->p_packet_size = (OPJ_UINT32*)SAlloc::M(opj_get_encoding_packet_count(l_image, l_cp, p_tile_no) * sizeof(OPJ_UINT32));
 			if(p_marker_info->p_packet_size == NULL) {
 				opj_pi_destroy(l_pi, l_nb_pocs);
 				return OPJ_FALSE;
@@ -433,7 +433,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 			return OPJ_FALSE;
 		}
 
-		first_pass_failed = (OPJ_BOOL*)opj_malloc(l_image->numcomps * sizeof(OPJ_BOOL));
+		first_pass_failed = (OPJ_BOOL*)SAlloc::M(l_image->numcomps * sizeof(OPJ_BOOL));
 		if(!first_pass_failed) {
 			opj_pi_destroy(l_pi, l_nb_pocs);
 			return OPJ_FALSE;
@@ -588,7 +588,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 opj_t2_t* opj_t2_create(opj_image_t * p_image, opj_cp_t * p_cp)
 {
 	/* create the t2 structure */
-	opj_t2_t * l_t2 = (opj_t2_t*)opj_calloc(1, sizeof(opj_t2_t));
+	opj_t2_t * l_t2 = (opj_t2_t*)SAlloc::C(1, sizeof(opj_t2_t));
 	if(!l_t2) {
 		return NULL;
 	}
@@ -1420,7 +1420,7 @@ static OPJ_BOOL opj_t2_read_packet_data(opj_t2_t* p_t2,
 				if(l_cblk->numchunks == l_cblk->numchunksalloc) {
 					OPJ_UINT32 l_numchunksalloc = l_cblk->numchunksalloc * 2 + 1;
 					opj_tcd_seg_data_chunk_t* l_chunks =
-					    (opj_tcd_seg_data_chunk_t*)opj_realloc(l_cblk->chunks,
+					    (opj_tcd_seg_data_chunk_t*)SAlloc::R(l_cblk->chunks,
 						l_numchunksalloc * sizeof(opj_tcd_seg_data_chunk_t));
 					if(l_chunks == NULL) {
 						opj_event_msg(p_manager, EVT_ERROR,
@@ -1578,7 +1578,7 @@ static OPJ_BOOL opj_t2_init_seg(opj_tcd_cblk_dec_t* cblk,
 	if(l_nb_segs > cblk->m_current_max_segs) {
 		opj_tcd_seg_t* new_segs;
 		OPJ_UINT32 l_m_current_max_segs = cblk->m_current_max_segs + OPJ_J2K_DEFAULT_NB_SEGS;
-		new_segs = (opj_tcd_seg_t*)opj_realloc(cblk->segs, l_m_current_max_segs * sizeof(opj_tcd_seg_t));
+		new_segs = (opj_tcd_seg_t*)SAlloc::R(cblk->segs, l_m_current_max_segs * sizeof(opj_tcd_seg_t));
 		if(!new_segs) {
 			/* opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to initialize segment %d\n",
 			   l_nb_segs); */

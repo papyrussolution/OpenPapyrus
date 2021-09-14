@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1401,11 +1401,11 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		//
 		ok = 1;
 		if(sstreqi_ascii(p_symb, "LastMonth"))
-			result = -30.;
+			result = -30.0;
 		else if(sstreqi_ascii(p_symb, "LastQuart"))
-			result = -90.;
+			result = -90.0;
 		else if(sstreqi_ascii(p_symb, "LastYear"))
-			result = -360.;
+			result = -360.0;
 		if(sstreqi_ascii(p_symb, "NextMonth"))
 			result = -30.25;
 		else if(sstreqi_ascii(p_symb, "NextQuart"))
@@ -1815,9 +1815,9 @@ int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList,
 		if(checkdate(dt)) {
 			double _v = 0.0;
 			switch(descr.FuncId) {
-				case funcLastMonth: _v = -30.; break;
-				case funcLastQuart: _v = -90.; break;
-				case funcLastYear:  _v = -360.; break;
+				case funcLastMonth: _v = -30.0; break;
+				case funcLastQuart: _v = -90.0; break;
+				case funcLastYear:  _v = -360.0; break;
 				case funcThisMonth: _v = -30.5; break;
 				case funcThisQuart: _v = -90.5; break;
 				case funcThisYear:  _v = -360.5; break;

@@ -1355,7 +1355,7 @@ static OPJ_BOOL opj_j2k_check_poc_val(const opj_poc_t * p_pocs, OPJ_UINT32 tilen
 	OPJ_UINT32 step_l = p_nb_resolutions * step_r;
 	OPJ_BOOL loss = OPJ_FALSE;
 	assert(p_nb_pocs > 0);
-	packet_array = (OPJ_UINT32*)opj_calloc(step_l * p_num_layers, sizeof(OPJ_UINT32));
+	packet_array = (OPJ_UINT32*)SAlloc::C(step_l * p_num_layers, sizeof(OPJ_UINT32));
 	if(packet_array == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory for checking the poc values.\n");
 		return OPJ_FALSE;
@@ -1523,7 +1523,7 @@ static OPJ_BOOL opj_j2k_calculate_tp(opj_j2k_t * p_j2k,
 	                        cur_totnum_tp += tp_num;
 	                }
 	                tcp->m_nb_tile_parts = cur_totnum_tp;
-	                l_info_tile_ptr->tp = (opj_tp_info_t *) opj_malloc(cur_totnum_tp * sizeof(opj_tp_info_t));
+	                l_info_tile_ptr->tp = (opj_tp_info_t *) SAlloc::M(cur_totnum_tp * sizeof(opj_tp_info_t));
 	                if (l_info_tile_ptr->tp == 00) {
 	                        return OPJ_FALSE;
 	                }
@@ -1635,8 +1635,7 @@ static OPJ_BOOL opj_j2k_write_siz(opj_j2k_t * p_j2k, opj_stream_private_t * p_st
 	l_img_comp = l_image->comps;
 
 	if(l_size_len > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_size_len);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_size_len);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -1872,7 +1871,7 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 	}
 #endif /* USE_JPWL */
 	/* Allocate the resulting image components */
-	l_image->comps = (opj_image_comp_t*)opj_calloc(l_image->numcomps, sizeof(opj_image_comp_t));
+	l_image->comps = (opj_image_comp_t*)SAlloc::C(l_image->numcomps, sizeof(opj_image_comp_t));
 	if(l_image->comps == 00) {
 		l_image->numcomps = 0;
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to take in charge SIZ marker\n");
@@ -2016,7 +2015,7 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 #endif /* USE_JPWL */
 
 	/* memory allocations */
-	l_cp->tcps = (opj_tcp_t*)opj_calloc(l_nb_tiles, sizeof(opj_tcp_t));
+	l_cp->tcps = (opj_tcp_t*)SAlloc::C(l_nb_tiles, sizeof(opj_tcp_t));
 	if(l_cp->tcps == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to take in charge SIZ marker\n");
 		return OPJ_FALSE;
@@ -2034,14 +2033,14 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 #endif /* USE_JPWL */
 
 	p_j2k->m_specific_param.m_decoder.m_default_tcp->tccps =
-	    (opj_tccp_t*)opj_calloc(l_image->numcomps, sizeof(opj_tccp_t));
+	    (opj_tccp_t*)SAlloc::C(l_image->numcomps, sizeof(opj_tccp_t));
 	if(p_j2k->m_specific_param.m_decoder.m_default_tcp->tccps  == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to take in charge SIZ marker\n");
 		return OPJ_FALSE;
 	}
 
 	p_j2k->m_specific_param.m_decoder.m_default_tcp->m_mct_records =
-	    (opj_mct_data_t*)opj_calloc(OPJ_J2K_MCT_DEFAULT_NB_RECORDS,
+	    (opj_mct_data_t*)SAlloc::C(OPJ_J2K_MCT_DEFAULT_NB_RECORDS,
 		sizeof(opj_mct_data_t));
 
 	if(!p_j2k->m_specific_param.m_decoder.m_default_tcp->m_mct_records) {
@@ -2053,7 +2052,7 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 
 	p_j2k->m_specific_param.m_decoder.m_default_tcp->m_mcc_records =
 	    (opj_simple_mcc_decorrelation_data_t*)
-	    opj_calloc(OPJ_J2K_MCC_DEFAULT_NB_RECORDS,
+	    SAlloc::C(OPJ_J2K_MCC_DEFAULT_NB_RECORDS,
 		sizeof(opj_simple_mcc_decorrelation_data_t));
 
 	if(!p_j2k->m_specific_param.m_decoder.m_default_tcp->m_mcc_records) {
@@ -2073,7 +2072,7 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 
 	l_current_tile_param = l_cp->tcps;
 	for(i = 0; i < l_nb_tiles; ++i) {
-		l_current_tile_param->tccps = (opj_tccp_t*)opj_calloc(l_image->numcomps,
+		l_current_tile_param->tccps = (opj_tccp_t*)SAlloc::C(l_image->numcomps,
 			sizeof(opj_tccp_t));
 		if(l_current_tile_param->tccps == 00) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to take in charge SIZ marker\n");
@@ -2110,8 +2109,7 @@ static OPJ_BOOL opj_j2k_write_com(opj_j2k_t * p_j2k,
 
 	if(l_total_com_size >
 	    p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_total_com_size);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_total_com_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -2193,8 +2191,7 @@ static OPJ_BOOL opj_j2k_write_cod(opj_j2k_t * p_j2k,
 	l_remaining_size = l_code_size;
 
 	if(l_code_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_code_size);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_code_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -2343,7 +2340,7 @@ static OPJ_BOOL opj_j2k_read_cod(opj_j2k_t * p_j2k,
 		/*opj_codestream_info_t *l_cstr_info = p_j2k->cstr_info;*/
 		p_j2k->cstr_info->prog = l_tcp->prg;
 		p_j2k->cstr_info->numlayers = l_tcp->numlayers;
-		p_j2k->cstr_info->numdecompos = (OPJ_INT32*)opj_malloc(l_image->numcomps * sizeof(OPJ_UINT32));
+		p_j2k->cstr_info->numdecompos = (OPJ_INT32*)SAlloc::M(l_image->numcomps * sizeof(OPJ_UINT32));
 		if(!p_j2k->cstr_info->numdecompos) {
 			return OPJ_FALSE;
 		}
@@ -2372,13 +2369,8 @@ static OPJ_BOOL opj_j2k_write_coc(opj_j2k_t * p_j2k, OPJ_UINT32 p_comp_no, opj_s
 
 	if(l_coc_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
 		OPJ_BYTE * new_header_tile_data;
-		/*p_j2k->m_specific_param.m_encoder.m_header_tile_data
-		        = (OPJ_BYTE*)opj_realloc(
-		                p_j2k->m_specific_param.m_encoder.m_header_tile_data,
-		                l_coc_size);*/
-
-		new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_coc_size);
+		/*p_j2k->m_specific_param.m_encoder.m_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_coc_size);*/
+		new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_coc_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -2556,8 +2548,7 @@ static OPJ_BOOL opj_j2k_write_qcd(opj_j2k_t * p_j2k, opj_stream_private_t * p_st
 	l_remaining_size = l_qcd_size;
 
 	if(l_qcd_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_qcd_size);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_qcd_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -2641,8 +2632,7 @@ static OPJ_BOOL opj_j2k_write_qcc(opj_j2k_t * p_j2k,
 	l_remaining_size = l_qcc_size;
 
 	if(l_qcc_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
-			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_qcc_size);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_qcc_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -2828,7 +2818,7 @@ static OPJ_BOOL opj_j2k_write_poc(opj_j2k_t * p_j2k, opj_stream_private_t * p_st
 	}
 	l_poc_size = 4 + (5 + 2 * l_poc_room) * l_nb_poc;
 	if(l_poc_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_poc_size);
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_poc_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data = NULL;
@@ -3292,7 +3282,7 @@ static OPJ_BOOL opj_j2k_read_ppm(opj_j2k_t * p_j2k,
 	if(l_cp->ppm_markers == NULL) { /* first PPM marker */
 		OPJ_UINT32 l_newCount = l_Z_ppm + 1U; /* can't overflow, l_Z_ppm is UINT8 */
 		assert(l_cp->ppm_markers_count == 0U);
-		l_cp->ppm_markers = (opj_ppx*)opj_calloc(l_newCount, sizeof(opj_ppx));
+		l_cp->ppm_markers = (opj_ppx*)SAlloc::C(l_newCount, sizeof(opj_ppx));
 		if(l_cp->ppm_markers == NULL) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPM marker\n");
 			return OPJ_FALSE;
@@ -3301,7 +3291,7 @@ static OPJ_BOOL opj_j2k_read_ppm(opj_j2k_t * p_j2k,
 	}
 	else if(l_cp->ppm_markers_count <= l_Z_ppm) {
 		OPJ_UINT32 l_newCount = l_Z_ppm + 1U; /* can't overflow, l_Z_ppm is UINT8 */
-		opj_ppx * new_ppm_markers = (opj_ppx*)opj_realloc(l_cp->ppm_markers, l_newCount * sizeof(opj_ppx));
+		opj_ppx * new_ppm_markers = (opj_ppx*)SAlloc::R(l_cp->ppm_markers, l_newCount * sizeof(opj_ppx));
 		if(new_ppm_markers == NULL) {
 			/* clean up to be done on l_cp destruction */
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPM marker\n");
@@ -3316,7 +3306,7 @@ static OPJ_BOOL opj_j2k_read_ppm(opj_j2k_t * p_j2k,
 		opj_event_msg(p_manager, EVT_ERROR, "Zppm %u already read\n", l_Z_ppm);
 		return OPJ_FALSE;
 	}
-	l_cp->ppm_markers[l_Z_ppm].m_data = (OPJ_BYTE*)opj_malloc(p_header_size);
+	l_cp->ppm_markers[l_Z_ppm].m_data = (OPJ_BYTE*)SAlloc::M(p_header_size);
 	if(l_cp->ppm_markers[l_Z_ppm].m_data == NULL) {
 		/* clean up to be done on l_cp destruction */
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPM marker\n");
@@ -3390,7 +3380,7 @@ static OPJ_BOOL opj_j2k_merge_ppm(opj_cp_t * p_cp, opj_event_mgr_t * p_manager)
 		opj_event_msg(p_manager, EVT_ERROR, "Corrupted PPM markers\n");
 		return OPJ_FALSE;
 	}
-	p_cp->ppm_buffer = (OPJ_BYTE*)opj_malloc(l_ppm_data_size);
+	p_cp->ppm_buffer = (OPJ_BYTE*)SAlloc::M(l_ppm_data_size);
 	if(p_cp->ppm_buffer == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPM marker\n");
 		return OPJ_FALSE;
@@ -3509,7 +3499,7 @@ static OPJ_BOOL opj_j2k_read_ppt(opj_j2k_t * p_j2k,
 		OPJ_UINT32 l_newCount = l_Z_ppt + 1U; /* can't overflow, l_Z_ppt is UINT8 */
 		assert(l_tcp->ppt_markers_count == 0U);
 
-		l_tcp->ppt_markers = (opj_ppx*)opj_calloc(l_newCount, sizeof(opj_ppx));
+		l_tcp->ppt_markers = (opj_ppx*)SAlloc::C(l_newCount, sizeof(opj_ppx));
 		if(l_tcp->ppt_markers == NULL) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPT marker\n");
 			return OPJ_FALSE;
@@ -3519,7 +3509,7 @@ static OPJ_BOOL opj_j2k_read_ppt(opj_j2k_t * p_j2k,
 	else if(l_tcp->ppt_markers_count <= l_Z_ppt) {
 		OPJ_UINT32 l_newCount = l_Z_ppt + 1U; /* can't overflow, l_Z_ppt is UINT8 */
 		opj_ppx * new_ppt_markers;
-		new_ppt_markers = (opj_ppx*)opj_realloc(l_tcp->ppt_markers,
+		new_ppt_markers = (opj_ppx*)SAlloc::R(l_tcp->ppt_markers,
 			l_newCount * sizeof(opj_ppx));
 		if(new_ppt_markers == NULL) {
 			/* clean up to be done on l_tcp destruction */
@@ -3535,7 +3525,7 @@ static OPJ_BOOL opj_j2k_read_ppt(opj_j2k_t * p_j2k,
 		opj_event_msg(p_manager, EVT_ERROR, "Zppt %u already read\n", l_Z_ppt);
 		return OPJ_FALSE;
 	}
-	l_tcp->ppt_markers[l_Z_ppt].m_data = (OPJ_BYTE*)opj_malloc(p_header_size);
+	l_tcp->ppt_markers[l_Z_ppt].m_data = (OPJ_BYTE*)SAlloc::M(p_header_size);
 	if(l_tcp->ppt_markers[l_Z_ppt].m_data == NULL) {
 		/* clean up to be done on l_tcp destruction */
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPT marker\n");
@@ -3575,7 +3565,7 @@ static OPJ_BOOL opj_j2k_merge_ppt(opj_tcp_t * p_tcp, opj_event_mgr_t * p_manager
 		    p_tcp->ppt_markers[i].m_data_size; /* can't overflow, max 256 markers of max 65536 bytes */
 	}
 
-	p_tcp->ppt_buffer = (OPJ_BYTE*)opj_malloc(l_ppt_data_size);
+	p_tcp->ppt_buffer = (OPJ_BYTE*)SAlloc::M(l_ppt_data_size);
 	if(p_tcp->ppt_buffer == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read PPT marker\n");
 		return OPJ_FALSE;
@@ -3621,7 +3611,7 @@ static OPJ_BOOL opj_j2k_write_tlm(opj_j2k_t * p_j2k,
 	l_tlm_size = 6 + (5 * p_j2k->m_specific_param.m_encoder.m_total_tile_parts);
 
 	if(l_tlm_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_tlm_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
@@ -3977,7 +3967,7 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 
 			if(!p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index) {
 				p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index =
-				    (opj_tp_index_t*)opj_calloc(l_num_parts, sizeof(opj_tp_index_t));
+				    (opj_tp_index_t*)SAlloc::C(l_num_parts, sizeof(opj_tp_index_t));
 				if(!p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index) {
 					opj_event_msg(p_manager, EVT_ERROR,
 					    "Not enough memory to read SOT marker. Tile index allocation failed\n");
@@ -3985,7 +3975,7 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 				}
 			}
 			else {
-				opj_tp_index_t * new_tp_index = (opj_tp_index_t*)opj_realloc(
+				opj_tp_index_t * new_tp_index = (opj_tp_index_t*)SAlloc::R(
 					p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index,
 					l_num_parts * sizeof(opj_tp_index_t));
 				if(!new_tp_index) {
@@ -4004,7 +3994,7 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 				if(!p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index) {
 					p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps = 10;
 					p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index =
-					    (opj_tp_index_t*)opj_calloc(p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps, sizeof(opj_tp_index_t));
+					    (opj_tp_index_t*)SAlloc::C(p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps, sizeof(opj_tp_index_t));
 					if(!p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index) {
 						p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps = 0;
 						opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to read SOT marker. Tile index allocation failed\n");
@@ -4014,7 +4004,7 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 				if(l_current_part >= p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps) {
 					opj_tp_index_t * new_tp_index;
 					p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps = l_current_part + 1;
-					new_tp_index = (opj_tp_index_t*)opj_realloc(p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index,
+					new_tp_index = (opj_tp_index_t*)SAlloc::R(p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index,
 						p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].current_nb_tps * sizeof(opj_tp_index_t));
 					if(!new_tp_index) {
 						SAlloc::F(p_j2k->cstr_index->tile_index[p_j2k->m_current_tile_number].tp_index);
@@ -4045,10 +4035,10 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 	   p_j2k->cstr_info->tile[tileno].num_tps = numparts;
 
 	   if (numparts) {
-	   p_j2k->cstr_info->tile[tileno].tp = (opj_tp_info_t *) opj_malloc(numparts * sizeof(opj_tp_info_t));
+	   p_j2k->cstr_info->tile[tileno].tp = (opj_tp_info_t *) SAlloc::M(numparts * sizeof(opj_tp_info_t));
 	   }
 	   else {
-	   p_j2k->cstr_info->tile[tileno].tp = (opj_tp_info_t *) opj_malloc(10 * sizeof(opj_tp_info_t)); // Fixme (10)
+	   p_j2k->cstr_info->tile[tileno].tp = (opj_tp_info_t *) SAlloc::M(10 * sizeof(opj_tp_info_t)); // Fixme (10)
 	   }
 	   }
 	   else {
@@ -4263,7 +4253,7 @@ static OPJ_BOOL opj_j2k_write_sod(opj_j2k_t * p_j2k,
 
 	if(p_j2k->m_specific_param.m_encoder.m_PLT) {
 		OPJ_UINT32 l_data_written_PLT = 0;
-		OPJ_BYTE* p_PLT_buffer = (OPJ_BYTE*)opj_malloc(p_j2k->m_specific_param.m_encoder.m_reserved_bytes_for_PLT);
+		OPJ_BYTE* p_PLT_buffer = (OPJ_BYTE*)SAlloc::M(p_j2k->m_specific_param.m_encoder.m_reserved_bytes_for_PLT);
 		if(!p_PLT_buffer) {
 			opj_event_msg(p_manager, EVT_ERROR, "Cannot allocate memory\n");
 			opj_tcd_marker_info_destroy(marker_info);
@@ -4359,7 +4349,7 @@ static OPJ_BOOL opj_j2k_read_sod(opj_j2k_t * p_j2k,
 			 * TODO: If this was consistent, we could simplify the code to only use realloc(), as
 			 *realloc(0,...) default to malloc(0,...).
 			 */
-			*l_current_data = (OPJ_BYTE*)opj_malloc(p_j2k->m_specific_param.m_decoder.m_sot_length + OPJ_COMMON_CBLK_DATA_EXTRA);
+			*l_current_data = (OPJ_BYTE*)SAlloc::M(p_j2k->m_specific_param.m_decoder.m_sot_length + OPJ_COMMON_CBLK_DATA_EXTRA);
 		}
 		else {
 			OPJ_BYTE * l_new_current_data;
@@ -4371,7 +4361,7 @@ static OPJ_BOOL opj_j2k_read_sod(opj_j2k_t * p_j2k,
 				return OPJ_FALSE;
 			}
 
-			l_new_current_data = (OPJ_BYTE*)opj_realloc(*l_current_data,
+			l_new_current_data = (OPJ_BYTE*)SAlloc::R(*l_current_data,
 				*l_tile_len + p_j2k->m_specific_param.m_decoder.m_sot_length +
 				OPJ_COMMON_CBLK_DATA_EXTRA);
 			if(!l_new_current_data) {
@@ -4783,14 +4773,14 @@ static OPJ_BOOL opj_j2k_update_rates(opj_j2k_t * p_j2k,
 		l_tile_size = UINT_MAX;
 	}
 	p_j2k->m_specific_param.m_encoder.m_encoded_tile_size = (OPJ_UINT32)l_tile_size;
-	p_j2k->m_specific_param.m_encoder.m_encoded_tile_data = (OPJ_BYTE*)opj_malloc(p_j2k->m_specific_param.m_encoder.m_encoded_tile_size);
+	p_j2k->m_specific_param.m_encoder.m_encoded_tile_data = (OPJ_BYTE*)SAlloc::M(p_j2k->m_specific_param.m_encoder.m_encoded_tile_size);
 	if(p_j2k->m_specific_param.m_encoder.m_encoded_tile_data == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to allocate m_encoded_tile_data. %u MB required\n",
 		    (OPJ_UINT32)(l_tile_size / 1024 / 1024));
 		return OPJ_FALSE;
 	}
 	if(OPJ_IS_CINEMA(l_cp->rsiz) || OPJ_IS_IMF(l_cp->rsiz)) {
-		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer = (OPJ_BYTE*)opj_malloc(5 * p_j2k->m_specific_param.m_encoder.m_total_tile_parts);
+		p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer = (OPJ_BYTE*)SAlloc::M(5 * p_j2k->m_specific_param.m_encoder.m_total_tile_parts);
 		if(!p_j2k->m_specific_param.m_encoder.m_tlm_sot_offsets_buffer) {
 			return OPJ_FALSE;
 		}
@@ -5106,7 +5096,7 @@ static OPJ_BOOL opj_j2k_write_mct_record(opj_j2k_t * p_j2k,
 	l_mct_size = 10 + p_mct_record->m_data_size;
 
 	if(l_mct_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_mct_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
@@ -5222,7 +5212,7 @@ static OPJ_BOOL opj_j2k_read_mct(opj_j2k_t * p_j2k,
 			opj_mct_data_t * new_mct_records;
 			l_tcp->m_nb_max_mct_records += OPJ_J2K_MCT_DEFAULT_NB_RECORDS;
 
-			new_mct_records = (opj_mct_data_t*)opj_realloc(l_tcp->m_mct_records,
+			new_mct_records = (opj_mct_data_t*)SAlloc::R(l_tcp->m_mct_records,
 				l_tcp->m_nb_max_mct_records * sizeof(opj_mct_data_t));
 			if(!new_mct_records) {
 				SAlloc::F(l_tcp->m_mct_records);
@@ -5279,7 +5269,7 @@ static OPJ_BOOL opj_j2k_read_mct(opj_j2k_t * p_j2k,
 
 	p_header_size -= 6;
 
-	l_mct_data->m_data = (OPJ_BYTE*)opj_malloc(p_header_size);
+	l_mct_data->m_data = (OPJ_BYTE*)SAlloc::M(p_header_size);
 	if(!l_mct_data->m_data) {
 		opj_event_msg(p_manager, EVT_ERROR, "Error reading MCT marker\n");
 		return OPJ_FALSE;
@@ -5319,7 +5309,7 @@ static OPJ_BOOL opj_j2k_write_mcc_record(opj_j2k_t * p_j2k,
 
 	l_mcc_size = p_mcc_record->m_nb_comps * 2 * l_nb_bytes_for_comp + 19;
 	if(l_mcc_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_mcc_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
@@ -5470,7 +5460,7 @@ static OPJ_BOOL opj_j2k_read_mcc(opj_j2k_t * p_j2k,
 		if(l_tcp->m_nb_mcc_records == l_tcp->m_nb_max_mcc_records) {
 			opj_simple_mcc_decorrelation_data_t * new_mcc_records;
 			l_tcp->m_nb_max_mcc_records += OPJ_J2K_MCC_DEFAULT_NB_RECORDS;
-			new_mcc_records = (opj_simple_mcc_decorrelation_data_t*)opj_realloc(
+			new_mcc_records = (opj_simple_mcc_decorrelation_data_t*)SAlloc::R(
 				l_tcp->m_mcc_records, l_tcp->m_nb_max_mcc_records * sizeof(opj_simple_mcc_decorrelation_data_t));
 			if(!new_mcc_records) {
 				SAlloc::F(l_tcp->m_mcc_records);
@@ -5658,7 +5648,7 @@ static OPJ_BOOL opj_j2k_write_mco(opj_j2k_t * p_j2k,
 
 	l_mco_size = 5 + l_tcp->m_nb_mcc_records;
 	if(l_mco_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_mco_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
@@ -5816,7 +5806,7 @@ static OPJ_BOOL opj_j2k_add_mct(opj_tcp_t * p_tcp, opj_image_t * p_image,
 
 		l_nb_elem = p_image->numcomps * p_image->numcomps;
 		l_mct_size = l_nb_elem * (OPJ_UINT32)sizeof(OPJ_FLOAT32);
-		p_tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)opj_malloc(l_mct_size);
+		p_tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)SAlloc::M(l_mct_size);
 
 		if(!p_tcp->m_mct_decoding_matrix) {
 			return OPJ_FALSE;
@@ -5837,7 +5827,7 @@ static OPJ_BOOL opj_j2k_add_mct(opj_tcp_t * p_tcp, opj_image_t * p_image,
 
 		l_nb_elem = p_image->numcomps;
 		l_offset_size = l_nb_elem * (OPJ_UINT32)sizeof(OPJ_UINT32);
-		l_offset_data = (OPJ_UINT32*)opj_malloc(l_offset_size);
+		l_offset_data = (OPJ_UINT32*)SAlloc::M(l_offset_size);
 
 		if(!l_offset_data) {
 			return OPJ_FALSE;
@@ -5879,7 +5869,7 @@ static OPJ_BOOL opj_j2k_write_cbd(opj_j2k_t * p_j2k,
 	l_cbd_size = 6 + p_j2k->m_private_image->numcomps;
 
 	if(l_cbd_size > p_j2k->m_specific_param.m_encoder.m_header_tile_data_size) {
-		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)opj_realloc(
+		OPJ_BYTE * new_header_tile_data = (OPJ_BYTE*)SAlloc::R(
 			p_j2k->m_specific_param.m_encoder.m_header_tile_data, l_cbd_size);
 		if(!new_header_tile_data) {
 			SAlloc::F(p_j2k->m_specific_param.m_encoder.m_header_tile_data);
@@ -6053,7 +6043,7 @@ static int opj_j2k_get_default_thread_count()
 
 opj_j2k_t* opj_j2k_create_compress(void)
 {
-	opj_j2k_t * l_j2k = (opj_j2k_t*)opj_calloc(1, sizeof(opj_j2k_t));
+	opj_j2k_t * l_j2k = (opj_j2k_t*)SAlloc::C(1, sizeof(opj_j2k_t));
 	if(!l_j2k) {
 		return NULL;
 	}
@@ -6061,7 +6051,7 @@ opj_j2k_t* opj_j2k_create_compress(void)
 	l_j2k->m_is_decoder = 0;
 	l_j2k->m_cp.m_is_decoder = 0;
 
-	l_j2k->m_specific_param.m_encoder.m_header_tile_data = (OPJ_BYTE*)opj_malloc(
+	l_j2k->m_specific_param.m_encoder.m_header_tile_data = (OPJ_BYTE*)SAlloc::M(
 		OPJ_J2K_DEFAULT_HEADER_SIZE);
 	if(!l_j2k->m_specific_param.m_encoder.m_header_tile_data) {
 		opj_j2k_destroy(l_j2k);
@@ -7205,7 +7195,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 	if(parameters->cp_fixed_alloc && parameters->cp_matrice) {
 		size_t array_size = (size_t)parameters->tcp_numlayers *
 		    (size_t)parameters->numresolution * 3 * sizeof(OPJ_INT32);
-		cp->m_specific_param.m_enc.m_matrice = (OPJ_INT32*)opj_malloc(array_size);
+		cp->m_specific_param.m_enc.m_matrice = (OPJ_INT32*)SAlloc::M(array_size);
 		if(!cp->m_specific_param.m_enc.m_matrice) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate copy of user encoding parameters matrix \n");
@@ -7225,7 +7215,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 
 	/* comment string */
 	if(parameters->cp_comment) {
-		cp->comment = (char *)opj_malloc(strlen(parameters->cp_comment) + 1U);
+		cp->comment = (char *)SAlloc::M(strlen(parameters->cp_comment) + 1U);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate copy of comment string\n");
@@ -7241,7 +7231,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 
 		/* UniPG>> */
 #ifdef USE_JPWL
-		cp->comment = (char *)opj_malloc(clen + strlen(version) + 11);
+		cp->comment = (char *)SAlloc::M(clen + strlen(version) + 11);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate comment string\n");
@@ -7249,7 +7239,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 		}
 		sprintf(cp->comment, "%s%s with JPWL", comment, version);
 #else
-		cp->comment = (char *)opj_malloc(clen + strlen(version) + 1);
+		cp->comment = (char *)SAlloc::M(clen + strlen(version) + 1);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate comment string\n");
@@ -7346,7 +7336,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 
 	/* initialize the mutiple tiles */
 	/* ---------------------------- */
-	cp->tcps = (opj_tcp_t*)opj_calloc(cp->tw * cp->th, sizeof(opj_tcp_t));
+	cp->tcps = (opj_tcp_t*)SAlloc::C(cp->tw * cp->th, sizeof(opj_tcp_t));
 	if(!cp->tcps) {
 		opj_event_msg(p_manager, EVT_ERROR,
 		    "Not enough memory to allocate tile coding parameters\n");
@@ -7424,7 +7414,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 			tcp->numpocs = 0;
 		}
 
-		tcp->tccps = (opj_tccp_t*)opj_calloc(image->numcomps, sizeof(opj_tccp_t));
+		tcp->tccps = (opj_tccp_t*)SAlloc::C(image->numcomps, sizeof(opj_tccp_t));
 		if(!tcp->tccps) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate tile component coding parameters\n");
@@ -7433,7 +7423,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 		if(parameters->mct_data) {
 			OPJ_UINT32 lMctSize = image->numcomps * image->numcomps * (OPJ_UINT32)sizeof(
 				OPJ_FLOAT32);
-			OPJ_FLOAT32 * lTmpBuf = (OPJ_FLOAT32*)opj_malloc(lMctSize);
+			OPJ_FLOAT32 * lTmpBuf = (OPJ_FLOAT32*)SAlloc::M(lMctSize);
 			OPJ_INT32 * l_dc_shift = (OPJ_INT32*)((OPJ_BYTE*)parameters->mct_data +
 			    lMctSize);
 
@@ -7444,7 +7434,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 			}
 
 			tcp->mct = 2;
-			tcp->m_mct_coding_matrix = (OPJ_FLOAT32*)opj_malloc(lMctSize);
+			tcp->m_mct_coding_matrix = (OPJ_FLOAT32*)SAlloc::M(lMctSize);
 			if(!tcp->m_mct_coding_matrix) {
 				SAlloc::F(lTmpBuf);
 				lTmpBuf = NULL;
@@ -7455,7 +7445,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 			memcpy(tcp->m_mct_coding_matrix, parameters->mct_data, lMctSize);
 			memcpy(lTmpBuf, parameters->mct_data, lMctSize);
 
-			tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)opj_malloc(lMctSize);
+			tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)SAlloc::M(lMctSize);
 			if(!tcp->m_mct_decoding_matrix) {
 				SAlloc::F(lTmpBuf);
 				lTmpBuf = NULL;
@@ -7473,7 +7463,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 			}
 
 			tcp->mct_norms = (OPJ_FLOAT64*)
-			    opj_malloc(image->numcomps * sizeof(OPJ_FLOAT64));
+			    SAlloc::M(image->numcomps * sizeof(OPJ_FLOAT64));
 			if(!tcp->mct_norms) {
 				SAlloc::F(lTmpBuf);
 				lTmpBuf = NULL;
@@ -7613,7 +7603,7 @@ static OPJ_BOOL opj_j2k_add_mhmarker(opj_codestream_index_t * cstr_index,
 		opj_marker_info_t * new_marker;
 		cstr_index->maxmarknum = (OPJ_UINT32)(100 + (OPJ_FLOAT32)
 		    cstr_index->maxmarknum);
-		new_marker = (opj_marker_info_t*)opj_realloc(cstr_index->marker,
+		new_marker = (opj_marker_info_t*)SAlloc::R(cstr_index->marker,
 			cstr_index->maxmarknum * sizeof(opj_marker_info_t));
 		if(!new_marker) {
 			SAlloc::F(cstr_index->marker);
@@ -7634,22 +7624,15 @@ static OPJ_BOOL opj_j2k_add_mhmarker(opj_codestream_index_t * cstr_index,
 	return OPJ_TRUE;
 }
 
-static OPJ_BOOL opj_j2k_add_tlmarker(OPJ_UINT32 tileno,
-    opj_codestream_index_t * cstr_index, OPJ_UINT32 type, OPJ_OFF_T pos,
-    OPJ_UINT32 len)
+static OPJ_BOOL opj_j2k_add_tlmarker(OPJ_UINT32 tileno, opj_codestream_index_t * cstr_index, OPJ_UINT32 type, OPJ_OFF_T pos, OPJ_UINT32 len)
 {
 	assert(cstr_index != 00);
 	assert(cstr_index->tile_index != 00);
-
 	/* expand the list? */
-	if((cstr_index->tile_index[tileno].marknum + 1) >
-	    cstr_index->tile_index[tileno].maxmarknum) {
+	if((cstr_index->tile_index[tileno].marknum + 1) > cstr_index->tile_index[tileno].maxmarknum) {
 		opj_marker_info_t * new_marker;
-		cstr_index->tile_index[tileno].maxmarknum = (OPJ_UINT32)(100 +
-		    (OPJ_FLOAT32)cstr_index->tile_index[tileno].maxmarknum);
-		new_marker = (opj_marker_info_t*)opj_realloc(
-			cstr_index->tile_index[tileno].marker,
-			cstr_index->tile_index[tileno].maxmarknum * sizeof(opj_marker_info_t));
+		cstr_index->tile_index[tileno].maxmarknum = (OPJ_UINT32)(100 + (OPJ_FLOAT32)cstr_index->tile_index[tileno].maxmarknum);
+		new_marker = (opj_marker_info_t*)SAlloc::R(cstr_index->tile_index[tileno].marker, cstr_index->tile_index[tileno].maxmarknum * sizeof(opj_marker_info_t));
 		if(!new_marker) {
 			SAlloc::F(cstr_index->tile_index[tileno].marker);
 			cstr_index->tile_index[tileno].marker = NULL;
@@ -7662,17 +7645,12 @@ static OPJ_BOOL opj_j2k_add_tlmarker(OPJ_UINT32 tileno,
 	}
 
 	/* add the marker */
-	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].type
-		= (OPJ_UINT16)type;
-	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].pos
-		= (OPJ_INT32)pos;
-	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].len
-		= (OPJ_INT32)len;
+	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].type = (OPJ_UINT16)type;
+	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].pos = (OPJ_INT32)pos;
+	cstr_index->tile_index[tileno].marker[cstr_index->tile_index[tileno].marknum].len = (OPJ_INT32)len;
 	cstr_index->tile_index[tileno].marknum++;
-
 	if(type == J2K_MS_SOT) {
 		OPJ_UINT32 l_current_tile_part = cstr_index->tile_index[tileno].current_tpsno;
-
 		if(cstr_index->tile_index[tileno].tp_index) {
 			cstr_index->tile_index[tileno].tp_index[l_current_tile_part].start_pos = pos;
 		}
@@ -7842,7 +7820,7 @@ OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image)
 			opj_mct_data_t * new_mct_records;
 			p_tcp->m_nb_max_mct_records += OPJ_J2K_MCT_DEFAULT_NB_RECORDS;
 
-			new_mct_records = (opj_mct_data_t*)opj_realloc(p_tcp->m_mct_records,
+			new_mct_records = (opj_mct_data_t*)SAlloc::R(p_tcp->m_mct_records,
 				p_tcp->m_nb_max_mct_records * sizeof(opj_mct_data_t));
 			if(!new_mct_records) {
 				SAlloc::F(p_tcp->m_mct_records);
@@ -7866,7 +7844,7 @@ OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image)
 		l_mct_deco_data->m_element_type = MCT_TYPE_FLOAT;
 		l_nb_elem = p_image->numcomps * p_image->numcomps;
 		l_mct_size = l_nb_elem * MCT_ELEMENT_SIZE[l_mct_deco_data->m_element_type];
-		l_mct_deco_data->m_data = (OPJ_BYTE*)opj_malloc(l_mct_size);
+		l_mct_deco_data->m_data = (OPJ_BYTE*)SAlloc::M(l_mct_size);
 		if(!l_mct_deco_data->m_data) {
 			return OPJ_FALSE;
 		}
@@ -7881,7 +7859,7 @@ OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image)
 	if(p_tcp->m_nb_mct_records == p_tcp->m_nb_max_mct_records) {
 		opj_mct_data_t * new_mct_records;
 		p_tcp->m_nb_max_mct_records += OPJ_J2K_MCT_DEFAULT_NB_RECORDS;
-		new_mct_records = (opj_mct_data_t*)opj_realloc(p_tcp->m_mct_records,
+		new_mct_records = (opj_mct_data_t*)SAlloc::R(p_tcp->m_mct_records,
 			p_tcp->m_nb_max_mct_records * sizeof(opj_mct_data_t));
 		if(!new_mct_records) {
 			SAlloc::F(p_tcp->m_mct_records);
@@ -7908,13 +7886,13 @@ OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image)
 	l_mct_offset_data->m_element_type = MCT_TYPE_FLOAT;
 	l_nb_elem = p_image->numcomps;
 	l_mct_size = l_nb_elem * MCT_ELEMENT_SIZE[l_mct_offset_data->m_element_type];
-	l_mct_offset_data->m_data = (OPJ_BYTE*)opj_malloc(l_mct_size);
+	l_mct_offset_data->m_data = (OPJ_BYTE*)SAlloc::M(l_mct_size);
 
 	if(!l_mct_offset_data->m_data) {
 		return OPJ_FALSE;
 	}
 
-	l_data = (OPJ_FLOAT32*)opj_malloc(l_nb_elem * sizeof(OPJ_FLOAT32));
+	l_data = (OPJ_FLOAT32*)SAlloc::M(l_nb_elem * sizeof(OPJ_FLOAT32));
 	if(!l_data) {
 		SAlloc::F(l_mct_offset_data->m_data);
 		l_mct_offset_data->m_data = 00;
@@ -7941,7 +7919,7 @@ OPJ_BOOL opj_j2k_setup_mct_encoding(opj_tcp_t * p_tcp, opj_image_t * p_image)
 	if(p_tcp->m_nb_mcc_records == p_tcp->m_nb_max_mcc_records) {
 		opj_simple_mcc_decorrelation_data_t * new_mcc_records;
 		p_tcp->m_nb_max_mcc_records += OPJ_J2K_MCT_DEFAULT_NB_RECORDS;
-		new_mcc_records = (opj_simple_mcc_decorrelation_data_t*)opj_realloc(
+		new_mcc_records = (opj_simple_mcc_decorrelation_data_t*)SAlloc::R(
 			p_tcp->m_mcc_records, p_tcp->m_nb_max_mcc_records * sizeof(
 				opj_simple_mcc_decorrelation_data_t));
 		if(!new_mcc_records) {
@@ -8176,7 +8154,7 @@ static OPJ_BOOL opj_j2k_read_header_procedure(opj_j2k_t * p_j2k,
 
 		/* Check if the marker size is compatible with the header data size */
 		if(l_marker_size > p_j2k->m_specific_param.m_decoder.m_header_data_size) {
-			OPJ_BYTE * new_header_data = (OPJ_BYTE*)opj_realloc(
+			OPJ_BYTE * new_header_data = (OPJ_BYTE*)SAlloc::R(
 				p_j2k->m_specific_param.m_decoder.m_header_data, l_marker_size);
 			if(!new_header_data) {
 				SAlloc::F(p_j2k->m_specific_param.m_decoder.m_header_data);
@@ -8345,7 +8323,7 @@ static OPJ_BOOL opj_j2k_copy_default_tcp_and_create_tcd(opj_j2k_t * p_j2k,
 
 		/* Get the mct_decoding_matrix of the dflt_tile_cp and copy them into the current tile cp*/
 		if(l_default_tcp->m_mct_decoding_matrix) {
-			l_tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)opj_malloc(l_mct_size);
+			l_tcp->m_mct_decoding_matrix = (OPJ_FLOAT32*)SAlloc::M(l_mct_size);
 			if(!l_tcp->m_mct_decoding_matrix) {
 				return OPJ_FALSE;
 			}
@@ -8356,7 +8334,7 @@ static OPJ_BOOL opj_j2k_copy_default_tcp_and_create_tcd(opj_j2k_t * p_j2k,
 		/* Get the mct_record of the dflt_tile_cp and copy them into the current tile cp*/
 		l_mct_records_size = l_default_tcp->m_nb_max_mct_records * (OPJ_UINT32)sizeof(
 			opj_mct_data_t);
-		l_tcp->m_mct_records = (opj_mct_data_t*)opj_malloc(l_mct_records_size);
+		l_tcp->m_mct_records = (opj_mct_data_t*)SAlloc::M(l_mct_records_size);
 		if(!l_tcp->m_mct_records) {
 			return OPJ_FALSE;
 		}
@@ -8368,7 +8346,7 @@ static OPJ_BOOL opj_j2k_copy_default_tcp_and_create_tcd(opj_j2k_t * p_j2k,
 
 		for(j = 0; j < l_default_tcp->m_nb_mct_records; ++j) {
 			if(l_src_mct_rec->m_data) {
-				l_dest_mct_rec->m_data = (OPJ_BYTE*)opj_malloc(l_src_mct_rec->m_data_size);
+				l_dest_mct_rec->m_data = (OPJ_BYTE*)SAlloc::M(l_src_mct_rec->m_data_size);
 				if(!l_dest_mct_rec->m_data) {
 					return OPJ_FALSE;
 				}
@@ -8385,7 +8363,7 @@ static OPJ_BOOL opj_j2k_copy_default_tcp_and_create_tcd(opj_j2k_t * p_j2k,
 		/* Get the mcc_record of the dflt_tile_cp and copy them into the current tile cp*/
 		l_mcc_records_size = l_default_tcp->m_nb_max_mcc_records * (OPJ_UINT32)sizeof(
 			opj_simple_mcc_decorrelation_data_t);
-		l_tcp->m_mcc_records = (opj_simple_mcc_decorrelation_data_t*)opj_malloc(
+		l_tcp->m_mcc_records = (opj_simple_mcc_decorrelation_data_t*)SAlloc::M(
 			l_mcc_records_size);
 		if(!l_tcp->m_mcc_records) {
 			return OPJ_FALSE;
@@ -8873,7 +8851,7 @@ OPJ_BOOL opj_j2k_read_tile_header(opj_j2k_t * p_j2k,
 					    "Marker size inconsistent with stream length\n");
 					return OPJ_FALSE;
 				}
-				new_header_data = (OPJ_BYTE*)opj_realloc(
+				new_header_data = (OPJ_BYTE*)SAlloc::R(
 					p_j2k->m_specific_param.m_decoder.m_header_data, l_marker_size);
 				if(!new_header_data) {
 					SAlloc::F(p_j2k->m_specific_param.m_decoder.m_header_data);
@@ -9454,7 +9432,7 @@ OPJ_BOOL opj_j2k_set_decoded_components(opj_j2k_t * p_j2k,
 		return OPJ_FALSE;
 	}
 
-	already_mapped = (OPJ_BOOL*)opj_calloc(sizeof(OPJ_BOOL),
+	already_mapped = (OPJ_BOOL*)SAlloc::C(sizeof(OPJ_BOOL),
 		p_j2k->m_private_image->numcomps);
 	if(already_mapped == NULL) {
 		return OPJ_FALSE;
@@ -9482,7 +9460,7 @@ OPJ_BOOL opj_j2k_set_decoded_components(opj_j2k_t * p_j2k,
 	SAlloc::F(p_j2k->m_specific_param.m_decoder.m_comps_indices_to_decode);
 	if(numcomps) {
 		p_j2k->m_specific_param.m_decoder.m_comps_indices_to_decode =
-		    (OPJ_UINT32*)opj_malloc(numcomps * sizeof(OPJ_UINT32));
+		    (OPJ_UINT32*)SAlloc::M(numcomps * sizeof(OPJ_UINT32));
 		if(p_j2k->m_specific_param.m_decoder.m_comps_indices_to_decode == NULL) {
 			p_j2k->m_specific_param.m_decoder.m_numcomps_to_decode = 0;
 			return OPJ_FALSE;
@@ -9662,7 +9640,7 @@ OPJ_BOOL opj_j2k_set_decode_area(opj_j2k_t * p_j2k,
 
 opj_j2k_t* opj_j2k_create_decompress(void)
 {
-	opj_j2k_t * l_j2k = (opj_j2k_t*)opj_calloc(1, sizeof(opj_j2k_t));
+	opj_j2k_t * l_j2k = (opj_j2k_t*)SAlloc::C(1, sizeof(opj_j2k_t));
 	if(!l_j2k) {
 		return 00;
 	}
@@ -9674,12 +9652,12 @@ opj_j2k_t* opj_j2k_create_decompress(void)
 #ifdef OPJ_DISABLE_TPSOT_FIX
 	l_j2k->m_specific_param.m_decoder.m_nb_tile_parts_correction_checked = 1;
 #endif
-	l_j2k->m_specific_param.m_decoder.m_default_tcp = (opj_tcp_t*)opj_calloc(1, sizeof(opj_tcp_t));
+	l_j2k->m_specific_param.m_decoder.m_default_tcp = (opj_tcp_t*)SAlloc::C(1, sizeof(opj_tcp_t));
 	if(!l_j2k->m_specific_param.m_decoder.m_default_tcp) {
 		opj_j2k_destroy(l_j2k);
 		return 00;
 	}
-	l_j2k->m_specific_param.m_decoder.m_header_data = (OPJ_BYTE*)opj_calloc(1, OPJ_J2K_DEFAULT_HEADER_SIZE);
+	l_j2k->m_specific_param.m_decoder.m_header_data = (OPJ_BYTE*)SAlloc::C(1, OPJ_J2K_DEFAULT_HEADER_SIZE);
 	if(!l_j2k->m_specific_param.m_decoder.m_header_data) {
 		opj_j2k_destroy(l_j2k);
 		return 00;
@@ -9722,7 +9700,7 @@ opj_j2k_t* opj_j2k_create_decompress(void)
 static opj_codestream_index_t* opj_j2k_create_cstr_index(void)
 {
 	opj_codestream_index_t* cstr_index = (opj_codestream_index_t*)
-	    opj_calloc(1, sizeof(opj_codestream_index_t));
+	    SAlloc::C(1, sizeof(opj_codestream_index_t));
 	if(!cstr_index) {
 		return NULL;
 	}
@@ -9730,7 +9708,7 @@ static opj_codestream_index_t* opj_j2k_create_cstr_index(void)
 	cstr_index->maxmarknum = 100;
 	cstr_index->marknum = 0;
 	cstr_index->marker = (opj_marker_info_t*)
-	    opj_calloc(cstr_index->maxmarknum, sizeof(opj_marker_info_t));
+	    SAlloc::C(cstr_index->maxmarknum, sizeof(opj_marker_info_t));
 	if(!cstr_index->marker) {
 		SAlloc::F(cstr_index);
 		return NULL;
@@ -10576,7 +10554,7 @@ opj_codestream_info_v2_t* j2k_get_cstr_info(opj_j2k_t* p_j2k)
 	OPJ_UINT32 compno;
 	OPJ_UINT32 numcomps = p_j2k->m_private_image->numcomps;
 	opj_tcp_t * l_default_tile;
-	opj_codestream_info_v2_t* cstr_info = (opj_codestream_info_v2_t*)opj_calloc(1, sizeof(opj_codestream_info_v2_t));
+	opj_codestream_info_v2_t* cstr_info = (opj_codestream_info_v2_t*)SAlloc::C(1, sizeof(opj_codestream_info_v2_t));
 	if(!cstr_info) {
 		return NULL;
 	}
@@ -10593,7 +10571,7 @@ opj_codestream_info_v2_t* j2k_get_cstr_info(opj_j2k_t* p_j2k)
 	cstr_info->m_default_tile_info.prg = l_default_tile->prg;
 	cstr_info->m_default_tile_info.numlayers = l_default_tile->numlayers;
 	cstr_info->m_default_tile_info.mct = l_default_tile->mct;
-	cstr_info->m_default_tile_info.tccp_info = (opj_tccp_info_t*)opj_calloc(cstr_info->nbcomps, sizeof(opj_tccp_info_t));
+	cstr_info->m_default_tile_info.tccp_info = (opj_tccp_info_t*)SAlloc::C(cstr_info->nbcomps, sizeof(opj_tccp_info_t));
 	if(!cstr_info->m_default_tile_info.tccp_info) {
 		opj_destroy_cstr_info(&cstr_info);
 		return NULL;
@@ -10631,7 +10609,7 @@ opj_codestream_info_v2_t* j2k_get_cstr_info(opj_j2k_t* p_j2k)
 
 opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 {
-	opj_codestream_index_t* l_cstr_index = (opj_codestream_index_t*)opj_calloc(1, sizeof(opj_codestream_index_t));
+	opj_codestream_index_t* l_cstr_index = (opj_codestream_index_t*)SAlloc::C(1, sizeof(opj_codestream_index_t));
 	if(!l_cstr_index) {
 		return NULL;
 	}
@@ -10639,7 +10617,7 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 	l_cstr_index->main_head_end = p_j2k->cstr_index->main_head_end;
 	l_cstr_index->codestream_size = p_j2k->cstr_index->codestream_size;
 	l_cstr_index->marknum = p_j2k->cstr_index->marknum;
-	l_cstr_index->marker = (opj_marker_info_t*)opj_malloc(l_cstr_index->marknum * sizeof(opj_marker_info_t));
+	l_cstr_index->marker = (opj_marker_info_t*)SAlloc::M(l_cstr_index->marknum * sizeof(opj_marker_info_t));
 	if(!l_cstr_index->marker) {
 		SAlloc::F(l_cstr_index);
 		return NULL;
@@ -10652,7 +10630,7 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 		l_cstr_index->marker = NULL;
 	}
 	l_cstr_index->nb_of_tiles = p_j2k->cstr_index->nb_of_tiles;
-	l_cstr_index->tile_index = (opj_tile_index_t*)opj_calloc(l_cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
+	l_cstr_index->tile_index = (opj_tile_index_t*)SAlloc::C(l_cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
 	if(!l_cstr_index->tile_index) {
 		SAlloc::F(l_cstr_index->marker);
 		SAlloc::F(l_cstr_index);
@@ -10667,7 +10645,7 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 		for(it_tile = 0; it_tile < l_cstr_index->nb_of_tiles; it_tile++) {
 			/* Tile Marker*/
 			l_cstr_index->tile_index[it_tile].marknum = p_j2k->cstr_index->tile_index[it_tile].marknum;
-			l_cstr_index->tile_index[it_tile].marker = (opj_marker_info_t*)opj_malloc(l_cstr_index->tile_index[it_tile].marknum * sizeof(opj_marker_info_t));
+			l_cstr_index->tile_index[it_tile].marker = (opj_marker_info_t*)SAlloc::M(l_cstr_index->tile_index[it_tile].marknum * sizeof(opj_marker_info_t));
 			if(!l_cstr_index->tile_index[it_tile].marker) {
 				OPJ_UINT32 it_tile_free;
 				for(it_tile_free = 0; it_tile_free < it_tile; it_tile_free++) {
@@ -10687,7 +10665,7 @@ opj_codestream_index_t* j2k_get_cstr_index(opj_j2k_t* p_j2k)
 			}
 			/* Tile part index*/
 			l_cstr_index->tile_index[it_tile].nb_tps = p_j2k->cstr_index->tile_index[it_tile].nb_tps;
-			l_cstr_index->tile_index[it_tile].tp_index = (opj_tp_index_t*)opj_malloc(l_cstr_index->tile_index[it_tile].nb_tps * sizeof(opj_tp_index_t));
+			l_cstr_index->tile_index[it_tile].tp_index = (opj_tp_index_t*)SAlloc::M(l_cstr_index->tile_index[it_tile].nb_tps * sizeof(opj_tp_index_t));
 			if(!l_cstr_index->tile_index[it_tile].tp_index) {
 				OPJ_UINT32 it_tile_free;
 				for(it_tile_free = 0; it_tile_free < it_tile; it_tile_free++) {
@@ -10719,14 +10697,14 @@ static OPJ_BOOL opj_j2k_allocate_tile_element_cstr_index(opj_j2k_t * p_j2k)
 {
 	OPJ_UINT32 it_tile = 0;
 	p_j2k->cstr_index->nb_of_tiles = p_j2k->m_cp.tw * p_j2k->m_cp.th;
-	p_j2k->cstr_index->tile_index = (opj_tile_index_t*)opj_calloc(p_j2k->cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
+	p_j2k->cstr_index->tile_index = (opj_tile_index_t*)SAlloc::C(p_j2k->cstr_index->nb_of_tiles, sizeof(opj_tile_index_t));
 	if(!p_j2k->cstr_index->tile_index) {
 		return OPJ_FALSE;
 	}
 	for(it_tile = 0; it_tile < p_j2k->cstr_index->nb_of_tiles; it_tile++) {
 		p_j2k->cstr_index->tile_index[it_tile].maxmarknum = 100;
 		p_j2k->cstr_index->tile_index[it_tile].marknum = 0;
-		p_j2k->cstr_index->tile_index[it_tile].marker = (opj_marker_info_t*)opj_calloc(p_j2k->cstr_index->tile_index[it_tile].maxmarknum, sizeof(opj_marker_info_t));
+		p_j2k->cstr_index->tile_index[it_tile].marker = (opj_marker_info_t*)SAlloc::C(p_j2k->cstr_index->tile_index[it_tile].maxmarknum, sizeof(opj_marker_info_t));
 		if(!p_j2k->cstr_index->tile_index[it_tile].marker) {
 			return OPJ_FALSE;
 		}
@@ -10965,7 +10943,7 @@ static OPJ_BOOL opj_j2k_move_data_from_codec_to_output_image(opj_j2k_t * p_j2k, 
 	OPJ_UINT32 compno;
 	/* Move data and copy one information from codec to output image*/
 	if(p_j2k->m_specific_param.m_decoder.m_numcomps_to_decode > 0) {
-		opj_image_comp_t* newcomps = (opj_image_comp_t*)opj_malloc(p_j2k->m_specific_param.m_decoder.m_numcomps_to_decode * sizeof(opj_image_comp_t));
+		opj_image_comp_t* newcomps = (opj_image_comp_t*)SAlloc::M(p_j2k->m_specific_param.m_decoder.m_numcomps_to_decode * sizeof(opj_image_comp_t));
 		if(newcomps == NULL) {
 			opj_image_destroy(p_j2k->m_private_image);
 			p_j2k->m_private_image = NULL;
@@ -11315,7 +11293,7 @@ OPJ_BOOL opj_j2k_encode(opj_j2k_t * p_j2k, opj_stream_private_t * p_stream, opj_
 		l_current_tile_size = opj_tcd_get_encoder_input_buffer_size(p_j2k->m_tcd);
 		if(!l_reuse_data) {
 			if(l_current_tile_size > l_max_tile_size) {
-				OPJ_BYTE * l_new_current_data = (OPJ_BYTE*)opj_realloc(l_current_data,
+				OPJ_BYTE * l_new_current_data = (OPJ_BYTE*)SAlloc::R(l_current_data,
 					l_current_tile_size);
 				if(!l_new_current_data) {
 					if(l_current_data) {
@@ -11889,7 +11867,7 @@ static OPJ_BOOL opj_j2k_init_info(opj_j2k_t * p_j2k, struct opj_stream_private *
 
 	   if (l_cstr_info)  {
 	        OPJ_UINT32 compno;
-	        l_cstr_info->tile = (opj_tile_info_t *) opj_malloc(p_j2k->m_cp.tw * p_j2k->m_cp.th *
+	        l_cstr_info->tile = (opj_tile_info_t *) SAlloc::M(p_j2k->m_cp.tw * p_j2k->m_cp.th *
 	           sizeof(opj_tile_info_t));
 
 	        l_cstr_info->image_w = p_j2k->m_image->x1 - p_j2k->m_image->x0;
@@ -11909,7 +11887,7 @@ static OPJ_BOOL opj_j2k_init_info(opj_j2k_t * p_j2k, struct opj_stream_private *
 
 	   l_cstr_info->numlayers = (&p_j2k->m_cp.tcps[0])->numlayers;
 
-	   l_cstr_info->numdecompos = (OPJ_INT32*) opj_malloc(p_j2k->m_image->numcomps * sizeof(OPJ_INT32));
+	   l_cstr_info->numdecompos = (OPJ_INT32*) SAlloc::M(p_j2k->m_image->numcomps * sizeof(OPJ_INT32));
 
 	   for (compno=0; compno < p_j2k->m_image->numcomps; compno++) {
 	        l_cstr_info->numdecompos[compno] = (&p_j2k->m_cp.tcps[0])->tccps->numresolutions - 1;
@@ -11920,7 +11898,7 @@ static OPJ_BOOL opj_j2k_init_info(opj_j2k_t * p_j2k, struct opj_stream_private *
 	/*l_cstr_info->main_head_start = opj_stream_tell(p_stream);*/ /* position of SOC */
 
 	/*l_cstr_info->maxmarknum = 100;
-	   l_cstr_info->marker = (opj_marker_info_t *) opj_malloc(l_cstr_info->maxmarknum * sizeof(opj_marker_info_t));
+	   l_cstr_info->marker = (opj_marker_info_t *) SAlloc::M(l_cstr_info->maxmarknum * sizeof(opj_marker_info_t));
 	   l_cstr_info->marknum = 0;
 	   }*/
 	return opj_j2k_calculate_tp(p_j2k, &(p_j2k->m_cp), &p_j2k->m_specific_param.m_encoder.m_total_tile_parts, p_j2k->m_private_image,

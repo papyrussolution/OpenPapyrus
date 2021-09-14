@@ -12,7 +12,6 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
@@ -22,13 +21,10 @@
 struct _Jbig2ArithState {
 	uint32_t C;
 	uint32_t A;
-
 	int CT;
-
 	uint32_t next_word;
 	size_t next_word_bytes;
 	int err;
-
 	Jbig2WordStream * ws;
 	size_t offset;
 };
@@ -381,14 +377,11 @@ static int test_get_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, 
 
 int main(int argc, char ** argv)
 {
-	Jbig2Ctx * ctx;
 	Jbig2WordStream ws;
 	Jbig2ArithState * as;
 	int i;
 	Jbig2ArithCx cx = 0;
-
-	ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
-
+	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
 	ws.get_next_word = test_get_word;
 	as = jbig2_arith_new(ctx, &ws);
 #ifdef JBIG2_DEBUG_ARITH

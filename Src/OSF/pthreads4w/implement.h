@@ -577,23 +577,21 @@ int __ptw32_robust_mutex_inherit(pthread_mutex_t * mutex);
 void __ptw32_robust_mutex_add(pthread_mutex_t* mutex, pthread_t self);
 void __ptw32_robust_mutex_remove(pthread_mutex_t* mutex, __ptw32_thread_t* otp);
 DWORD __ptw32_Registercancellation(PAPCFUNC callback, HANDLE threadH, DWORD callback_arg);
-int __ptw32_processInitialize(void);
-void __ptw32_processTerminate(void);
+int __ptw32_processInitialize();
+void __ptw32_processTerminate();
 void __ptw32_threadDestroy(pthread_t tid);
 void __ptw32_pop_cleanup_all(int execute);
-pthread_t __ptw32_new(void);
-pthread_t __ptw32_threadReusePop(void);
+pthread_t __ptw32_new();
+pthread_t __ptw32_threadReusePop();
 void __ptw32_threadReusePush(pthread_t thread);
 int __ptw32_getprocessors(int * count);
 int __ptw32_setthreadpriority(pthread_t thread, int policy, int priority);
 void __ptw32_rwlock_cancelwrwait(void * arg);
-
 #if !defined (__MINGW32__) || (defined (__MSVCRT__) && !defined (__DMC__))
-unsigned __stdcall
+	unsigned __stdcall __ptw32_threadStart(void * vthreadParms);
 #else
-void
+	void __ptw32_threadStart(void * vthreadParms);
 #endif
-__ptw32_threadStart(void * vthreadParms);
 void __ptw32_callUserDestroyRoutines(pthread_t thread);
 int __ptw32_tkAssocCreate(__ptw32_thread_t * thread, pthread_key_t key);
 void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc);

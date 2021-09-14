@@ -51,7 +51,7 @@ static pthread_mutexattr_t __ptw32_errorcheck_mutexattr = &__ptw32_errorcheck_mu
 	}
 #endif
 
-pthread_t __ptw32_new(void)
+pthread_t __ptw32_new()
 {
 	pthread_t nil = {NULL, 0};
 	__ptw32_thread_t * tp;
@@ -652,7 +652,7 @@ int __ptw32_processInitialize()
  *
  * ------------------------------------------------------
  */
-void __ptw32_processTerminate(void)
+void __ptw32_processTerminate()
 {
 	if(__ptw32_processInitialized) {
 		__ptw32_thread_t * tp, * tpNext;
@@ -800,7 +800,7 @@ struct timespec * pthread_win32_getabstime_np(struct timespec * abstime, const s
 /*
  * Pop a clean pthread_t struct off the reuse stack.
  */
-pthread_t __ptw32_threadReusePop(void)
+pthread_t __ptw32_threadReusePop()
 {
 	pthread_t t = {NULL, 0};
 	__ptw32_mcs_local_node_t node;
@@ -937,7 +937,7 @@ void __ptw32_pop_cleanup_all(int execute)
 	}
 }
 
-DWORD __ptw32_get_exception_services_code(void)
+DWORD __ptw32_get_exception_services_code()
 {
 #if defined(__PTW32_CLEANUP_SEH)
 	return EXCEPTION_PTW32_SERVICES;
@@ -1114,7 +1114,7 @@ __ptw32_threadStart(void * vthreadParms)
 				 * Some other exception occurred. Clean up while we have
 				 * the opportunity, and call the terminate handler.
 				 */
-				(void)pthread_win32_thread_detach_np();
+				pthread_win32_thread_detach_np();
 				terminate();
 			}
 		#else
@@ -1137,7 +1137,7 @@ __ptw32_threadStart(void * vthreadParms)
 	 * by calling pthread_exit().
 	 * For the dll, DllMain will do the cleanup automatically.
 	 */
-	(void)pthread_win32_thread_detach_np();
+	pthread_win32_thread_detach_np();
 #endif
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
 	_endthreadex((unsigned)(size_t)status);
@@ -1370,8 +1370,8 @@ void __ptw32_rwlock_cancelwrwait(void * arg)
 	pthread_rwlock_t rwl = (pthread_rwlock_t)arg;
 	rwl->nSharedAccessCount = -rwl->nCompletedSharedAccessCount;
 	rwl->nCompletedSharedAccessCount = 0;
-	(void)pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted));
-	(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+	pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted));
+	pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 }
 #if !defined(_UWIN)
 	//#include <process.h>

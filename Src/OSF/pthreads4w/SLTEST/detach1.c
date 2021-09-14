@@ -28,37 +28,34 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * --------------------------------------------------------------------------
- *
- * Depends on API functions: pthread_create(), pthread_detach(), pthread_exit().
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-
-enum {
-	NUMTHREADS = 100
-};
-
-static void * func(void * arg)
-{
-	int i = (int)(size_t)arg;
-	Sleep(i * 10);
-	pthread_exit(arg);
-	/* Never reached. */
-	exit(1);
-}
-
+//
+// Depends on API functions: pthread_create(), pthread_detach(), pthread_exit().
+//
 int PThr4wTest_Detach1()
 {
+	const int NUMTHREADS = 100;
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			int i = (int)(size_t)arg;
+			Sleep(i * 10);
+			pthread_exit(arg);
+			/* Never reached. */
+			exit(1);
+		}
+	};
 	pthread_t id[NUMTHREADS];
 	int i;
-	/* Create a few threads and then exit. */
+	// Create a few threads and then exit. 
 	for(i = 0; i < NUMTHREADS; i++) {
-		assert(pthread_create(&id[i], NULL, func, (void*)(size_t)i) == 0);
+		assert(pthread_create(&id[i], NULL, InnerBlock::func, (void*)(size_t)i) == 0);
 	}
-	/* Some threads will finish before they are detached, some after. */
+	// Some threads will finish before they are detached, some after. 
 	Sleep(NUMTHREADS/2 * 10 + 50);
 	for(i = 0; i < NUMTHREADS; i++) {
 		assert(pthread_detach(id[i]) == 0);

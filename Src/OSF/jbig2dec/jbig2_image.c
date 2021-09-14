@@ -17,7 +17,6 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_image.h"
 
 /* allocate a Jbig2Image structure and its associated bitmap */
 Jbig2Image * jbig2_image_new(Jbig2Ctx * ctx, uint32_t width, uint32_t height)
@@ -88,8 +87,7 @@ Jbig2Image * jbig2_image_resize(Jbig2Ctx * ctx, Jbig2Image * image, uint32_t wid
 		uint8_t * data;
 		/* check for integer multiplication overflow */
 		if(image->height > (INT32_MAX / image->stride)) {
-			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-			    "integer multiplication overflow during resize (stride=%u, height=%u)", image->stride, height);
+			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "integer multiplication overflow during resize (stride=%u, height=%u)", image->stride, height);
 			return NULL;
 		}
 		/* use the same stride, just change the length */
@@ -376,12 +374,9 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 	int late;
 	uint32_t bytewidth;
 	uint32_t syoffset = 0;
-
 	if(src == NULL)
 		return 0;
-
-	if((UINT32_MAX - src->width  < (uint32_t)(x > 0 ? x : -x)) ||
-	    (UINT32_MAX - src->height < (uint32_t)(y > 0 ? y : -y))) {
+	if((UINT32_MAX - src->width  < (uint32_t)(x > 0 ? x : -x)) || (UINT32_MAX - src->height < (uint32_t)(y > 0 ? y : -y))) {
 #ifdef JBIG2_DEBUG
 		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "overflow in compose_image");
 #endif

@@ -217,7 +217,7 @@ int old_mutex_destroy(old_mutex_t * mutex)
 		mx = *mutex;
 		if((result = old_mutex_trylock(&mx)) == 0) {
 			*mutex = NULL;
-			(void)old_mutex_unlock(&mx);
+			old_mutex_unlock(&mx);
 			if(mx->mutex == 0) {
 				DeleteCriticalSection(&mx->cs);
 			}
@@ -237,7 +237,7 @@ int old_mutex_destroy(old_mutex_t * mutex)
 		result = EINVAL;
 	}
 	if(__ptw32_try_enter_critical_section != NULL) {
-		(void)FreeLibrary(__ptw32_h_kernel32);
+		FreeLibrary(__ptw32_h_kernel32);
 		__ptw32_h_kernel32 = 0;
 	}
 	return(result);

@@ -537,12 +537,10 @@ static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft
 } static_ft_funcs;
 
 #if HB_USE_ATEXIT
-static
-void free_static_ft_funcs()
+static void free_static_ft_funcs()
 {
 	static_ft_funcs.free_instance();
 }
-
 #endif
 
 static hb_font_funcs_t * _hb_ft_get_font_funcs()
@@ -599,31 +597,21 @@ static hb_blob_t * _hb_ft_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t t
  *
  * Since: 0.9.2
  **/
-hb_face_t * hb_ft_face_create(FT_Face ft_face,
-    hb_destroy_func_t destroy)
+hb_face_t * hb_ft_face_create(FT_Face ft_face, hb_destroy_func_t destroy)
 {
 	hb_face_t * face;
-
 	if(!ft_face->stream->read) {
-		hb_blob_t * blob;
-
-		blob = hb_blob_create((const char *)ft_face->stream->base,
-			(unsigned int)ft_face->stream->size,
-			HB_MEMORY_MODE_READONLY,
-			ft_face, destroy);
+		hb_blob_t * blob = hb_blob_create((const char *)ft_face->stream->base, (unsigned int)ft_face->stream->size, HB_MEMORY_MODE_READONLY, ft_face, destroy);
 		face = hb_face_create(blob, ft_face->face_index);
 		hb_blob_destroy(blob);
 	}
 	else {
 		face = hb_face_create_for_tables(_hb_ft_reference_table, ft_face, destroy);
 	}
-
 	hb_face_set_index(face, ft_face->face_index);
 	hb_face_set_upem(face, ft_face->units_per_EM);
-
 	return face;
 }
-
 /**
  * hb_ft_face_create_referenced:
  * @ft_face: FT_Face to work upon
@@ -715,14 +703,10 @@ hb_face_t * hb_ft_face_create_cached(FT_Face ft_face)
  *
  * Since: 0.9.2
  **/
-hb_font_t * hb_ft_font_create(FT_Face ft_face,
-    hb_destroy_func_t destroy)
+hb_font_t * hb_ft_font_create(FT_Face ft_face, hb_destroy_func_t destroy)
 {
-	hb_font_t * font;
-	hb_face_t * face;
-
-	face = hb_ft_face_create(ft_face, destroy);
-	font = hb_font_create(face);
+	hb_face_t * face = hb_ft_face_create(ft_face, destroy);
+	hb_font_t * font = hb_font_create(face);
 	hb_face_destroy(face);
 	_hb_ft_font_set_funcs(font, ft_face, false);
 	hb_ft_font_changed(font);
@@ -743,11 +727,8 @@ void hb_ft_font_changed(hb_font_t * font)
 {
 	if(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy)
 		return;
-
 	hb_ft_font_t * ft_font = (hb_ft_font_t*)font->user_data;
-
 	FT_Face ft_face = ft_font->ft_face;
-
 	hb_font_set_scale(font,
 	    (int)(((uint64_t)ft_face->size->metrics.x_scale * (uint64_t)ft_face->units_per_EM + (1u<<15)) >> 16),
 	    (int)(((uint64_t)ft_face->size->metrics.y_scale * (uint64_t)ft_face->units_per_EM + (1u<<15)) >> 16));
@@ -819,39 +800,26 @@ hb_font_t * hb_ft_font_create_referenced(FT_Face ft_face)
 static void free_static_ft_library();
 #endif
 
-static struct hb_ft_library_lazy_loader_t : hb_lazy_loader_t<hb_remove_pointer<FT_Library>,
-	    hb_ft_library_lazy_loader_t>{
+static struct hb_ft_library_lazy_loader_t : hb_lazy_loader_t<hb_remove_pointer<FT_Library>, hb_ft_library_lazy_loader_t> {
 	static FT_Library create()
 	{
 		FT_Library l;
 		if(FT_Init_FreeType(&l))
 			return nullptr;
-
 #if HB_USE_ATEXIT
 		atexit(free_static_ft_library);
 #endif
-
 		return l;
 	}
-
-	static void destroy(FT_Library l)
-	{
-		FT_Done_FreeType(l);
-	}
-
-	static FT_Library get_null()
-	{
-		return nullptr;
-	}
+	static void destroy(FT_Library l) { FT_Done_FreeType(l); }
+	static FT_Library get_null() { return nullptr; }
 } static_ft_library;
 
 #if HB_USE_ATEXIT
-static
-void free_static_ft_library()
+static void free_static_ft_library()
 {
 	static_ft_library.free_instance();
 }
-
 #endif
 
 static FT_Library get_ft_library()

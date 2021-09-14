@@ -20,15 +20,8 @@
 /* symbol dictionary segment decode and support */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_arith_iaid.h"
-//#include "jbig2_generic.h"
-//#include "jbig2_huffman.h"
-//#include "jbig2_image.h"
-#include "jbig2_mmr.h"
-#include "jbig2_refinement.h"
-#include "jbig2_segment.h"
-#include "jbig2_symbol_dict.h"
-#include "jbig2_text.h"
+//#include "jbig2_symbol_dict.h"
+//#include "jbig2_text.h"
 
 /* Table 13 */
 typedef struct {
@@ -57,7 +50,6 @@ void jbig2_dump_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment * segment)
 	uint32_t index;
 	char filename[24];
 	int code;
-
 	if(dict == NULL)
 		return;
 	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "dumping symbol dictionary as %d individual png files", dict->n_symbols);
@@ -70,13 +62,7 @@ void jbig2_dump_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment * segment)
 		code = jbig2_image_write_pbm_file(dict->glyphs[index], filename);
 #endif
 		if(code < 0)
-			return jbig2_error(ctx,
-				   JBIG2_SEVERITY_WARNING,
-				   segment->number,
-				   "failed to dump symbol %d/%d as '%s'",
-				   index,
-				   dict->n_symbols,
-				   filename);
+			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to dump symbol %d/%d as '%s'", index, dict->n_symbols, filename);
 	}
 }
 
@@ -226,19 +212,14 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate word stream when decoding symbol dictionary");
 		return NULL;
 	}
-
 	as = jbig2_arith_new(ctx, ws);
 	if(as == NULL) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_WARNING,
-		    segment->number,
-		    "failed to allocate arithmetic coding state when decoding symbol dictionary");
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate arithmetic coding state when decoding symbol dictionary");
 		jbig2_word_stream_buf_free(ctx, ws);
 		return NULL;
 	}
-
-	for(SBSYMCODELEN = 0; ((uint64_t)1 << SBSYMCODELEN) < ((uint64_t)params->SDNUMINSYMS + params->SDNUMNEWSYMS); SBSYMCODELEN++);
-
+	for(SBSYMCODELEN = 0; ((uint64_t)1 << SBSYMCODELEN) < ((uint64_t)params->SDNUMINSYMS + params->SDNUMNEWSYMS); SBSYMCODELEN++)
+		;
 	if(params->SDHUFF) {
 		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "huffman coded symbol dictionary");
 		hs = jbig2_huffman_new(ctx, ws);
@@ -254,11 +235,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		if(!params->SDREFAGG) {
 			SDNEWSYMWIDTHS = jbig2_new(ctx, uint32_t, params->SDNUMNEWSYMS);
 			if(SDNEWSYMWIDTHS == NULL) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_FATAL,
-				    segment->number,
-				    "failed to allocate symbol widths (%u)",
-				    params->SDNUMNEWSYMS);
+				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate symbol widths (%u)", params->SDNUMNEWSYMS);
 				goto cleanup;
 			}
 		}
@@ -268,13 +245,8 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 			tparams.SBHUFFDT = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_K); /* Table B.11 */
 			tparams.SBHUFFRDW = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_O); /* Table B.15 */
 			tparams.SBHUFFRDH = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_O); /* Table B.15 */
-			if(tparams.SBHUFFFS == NULL || tparams.SBHUFFDS == NULL ||
-			    tparams.SBHUFFDT == NULL || tparams.SBHUFFRDW == NULL ||
-			    tparams.SBHUFFRDH == NULL) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "out of memory creating text region huffman decoder entries");
+			if(tparams.SBHUFFFS == NULL || tparams.SBHUFFDS == NULL || tparams.SBHUFFDT == NULL || tparams.SBHUFFRDW == NULL || tparams.SBHUFFRDH == NULL) {
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "out of memory creating text region huffman decoder entries");
 				goto cleanup;
 			}
 		}
@@ -291,12 +263,8 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		tparams.IAID = jbig2_arith_iaid_ctx_new(ctx, SBSYMCODELEN);
 		tparams.IARDX = jbig2_arith_int_ctx_new(ctx);
 		tparams.IARDY = jbig2_arith_int_ctx_new(ctx);
-		if(tparams.IAID == NULL || tparams.IARDX == NULL ||
-		    tparams.IARDY == NULL) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "failed to allocate text region arithmetic decoder contexts");
+		if(tparams.IAID == NULL || tparams.IARDX == NULL || tparams.IARDY == NULL) {
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region arithmetic decoder contexts");
 			goto cleanup;
 		}
 		if(params->SDREFAGG) {
@@ -309,14 +277,8 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 			tparams.IARI = jbig2_arith_int_ctx_new(ctx);
 			tparams.IARDW = jbig2_arith_int_ctx_new(ctx);
 			tparams.IARDH = jbig2_arith_int_ctx_new(ctx);
-			if(tparams.IADT == NULL || tparams.IAFS == NULL ||
-			    tparams.IADS == NULL || tparams.IAIT == NULL ||
-			    tparams.IARI == NULL || tparams.IARDW == NULL ||
-			    tparams.IARDH == NULL) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "failed to allocate text region arith decoder contexts");
+			if(tparams.IADT == NULL || tparams.IAFS == NULL || tparams.IADS == NULL || tparams.IAIT == NULL || tparams.IARI == NULL || tparams.IARDW == NULL || tparams.IARDH == NULL) {
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region arith decoder contexts");
 			}
 		}
 	}
@@ -329,14 +291,12 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 	tparams.REFCORNER = JBIG2_CORNER_TOPLEFT;
 	tparams.SBDSOFFSET = 0;
 	tparams.SBRTEMPLATE = params->SDRTEMPLATE;
-
 	/* 6.5.5 (1) */
 	SDNEWSYMS = jbig2_sd_new(ctx, params->SDNUMNEWSYMS);
 	if(SDNEWSYMS == NULL) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate new symbols (%u)", params->SDNUMNEWSYMS);
 		goto cleanup;
 	}
-
 	refagg_dicts = jbig2_new(ctx, Jbig2SymbolDict *, 2);
 	if(refagg_dicts == NULL) {
 		code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "Out of memory allocating dictionary array");
@@ -385,13 +345,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 #ifdef JBIG2_DEBUG
 		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "HCHEIGHT = %d", HCHEIGHT);
 #endif
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_DEBUG,
-		    segment->number,
-		    "decoding height class %d with %d syms decoded",
-		    HCHEIGHT,
-		    NSYMSDECODED);
-
+		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "decoding height class %d with %d syms decoded", HCHEIGHT, NSYMSDECODED);
 		for(;;) {
 			/* 6.5.7 */
 			if(params->SDHUFF) {
@@ -406,57 +360,28 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 			}
 			/* 6.5.5 (4c.i) */
 			if(code > 0) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_DEBUG,
-				    segment->number,
-				    "OOB when decoding DW signals end of height class %d",
-				    HCHEIGHT);
+				jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "OOB when decoding DW signals end of height class %d", HCHEIGHT);
 				break;
 			}
-
 			/* check for broken symbol table */
 			if(NSYMSDECODED >= params->SDNUMNEWSYMS) {
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_WARNING,
-				    segment->number,
-				    "no OOB signaling end of height class %d, continuing",
-				    HCHEIGHT);
+				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "no OOB signaling end of height class %d, continuing", HCHEIGHT);
 				break;
 			}
-
 			if(DW < 0 && SYMWIDTH < (uint32_t)-DW) {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_FATAL,
-					segment->number,
-					"DW value (%d) would make SYMWIDTH (%u) negative at symbol %u",
-					DW,
-					SYMWIDTH,
-					NSYMSDECODED + 1);
+				code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "DW value (%d) would make SYMWIDTH (%u) negative at symbol %u", DW, SYMWIDTH, NSYMSDECODED + 1);
 				goto cleanup;
 			}
 			if(DW > 0 && (uint32_t)DW > UINT32_MAX - SYMWIDTH) {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_FATAL,
-					segment->number,
-					"DW value (%d) would make SYMWIDTH (%u) too large at symbol %u",
-					DW,
-					SYMWIDTH,
-					NSYMSDECODED + 1);
+				code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "DW value (%d) would make SYMWIDTH (%u) too large at symbol %u", DW, SYMWIDTH, NSYMSDECODED + 1);
 				goto cleanup;
 			}
-
 			SYMWIDTH = SYMWIDTH + DW;
 			if(SYMWIDTH > UINT32_MAX - TOTWIDTH) {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_FATAL,
-					segment->number,
-					"SYMWIDTH value (%u) would make TOTWIDTH (%u) too large at symbol %u",
-					SYMWIDTH,
-					TOTWIDTH,
-					NSYMSDECODED + 1);
+				code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "SYMWIDTH value (%u) would make TOTWIDTH (%u) too large at symbol %u",
+					SYMWIDTH, TOTWIDTH, NSYMSDECODED + 1);
 				goto cleanup;
 			}
-
 			TOTWIDTH = TOTWIDTH + SYMWIDTH;
 #ifdef JBIG2_DEBUG
 			jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "SYMWIDTH = %u TOTWIDTH = %u", SYMWIDTH, TOTWIDTH);
@@ -464,18 +389,12 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 			/* 6.5.5 (4c.ii) */
 			if(!params->SDHUFF || params->SDREFAGG) {
 #ifdef JBIG2_DEBUG
-				jbig2_error(ctx,
-				    JBIG2_SEVERITY_DEBUG,
-				    segment->number,
-				    "SDHUFF = %d; SDREFAGG = %d",
-				    params->SDHUFF,
-				    params->SDREFAGG);
+				jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "SDHUFF = %d; SDREFAGG = %d", params->SDHUFF, params->SDREFAGG);
 #endif
 				/* 6.5.8 */
 				if(!params->SDREFAGG) {
 					Jbig2GenericRegionParams region_params;
 					int sdat_bytes;
-
 					/* Table 16 */
 					region_params.MMR = 0;
 					region_params.GBTEMPLATE = params->SDTEMPLATE;
@@ -483,28 +402,22 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 					region_params.USESKIP = 0;
 					sdat_bytes = params->SDTEMPLATE == 0 ? 8 : 2;
 					memcpy(region_params.gbat, params->sdat, sdat_bytes);
-
 					image = jbig2_image_new(ctx, SYMWIDTH, HCHEIGHT);
 					if(image == NULL) {
-						code =
-						    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate image");
+						code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate image");
 						goto cleanup;
 					}
-
 					code = jbig2_decode_generic_region(ctx, segment, &region_params, as, image, GB_stats);
 					if(code < 0) {
-						jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number,
-						    "failed to decode generic region");
+						jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode generic region");
 						goto cleanup;
 					}
-
 					SDNEWSYMS->glyphs[NSYMSDECODED] = image;
 					image = NULL;
 				}
 				else {
 					/* 6.5.8.2 refinement/aggregate symbol */
 					uint32_t REFAGGNINST;
-
 					if(params->SDHUFF) {
 						REFAGGNINST = jbig2_huffman_get(hs, params->SDHUFFAGGINST, &code);
 					}
@@ -512,65 +425,32 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 						code = jbig2_arith_int_decode(ctx, IAAI, as, (int32_t*)&REFAGGNINST);
 					}
 					if(code < 0) {
-						code = jbig2_error(ctx,
-							JBIG2_SEVERITY_WARNING,
-							segment->number,
-							"failed to decode number of symbols in aggregate glyph");
+						code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode number of symbols in aggregate glyph");
 						goto cleanup;
 					}
 					if(code > 0) {
-						code = jbig2_error(ctx,
-							JBIG2_SEVERITY_FATAL,
-							segment->number,
-							"OOB in number of symbols in aggregate glyph");
+						code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "OOB in number of symbols in aggregate glyph");
 						goto cleanup;
 					}
 					if((int32_t)REFAGGNINST <= 0) {
-						code = jbig2_error(ctx,
-							JBIG2_SEVERITY_FATAL,
-							segment->number,
-							"invalid number of symbols in aggregate glyph");
+						code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "invalid number of symbols in aggregate glyph");
 						goto cleanup;
 					}
-
-					jbig2_error(ctx,
-					    JBIG2_SEVERITY_DEBUG,
-					    segment->number,
-					    "aggregate symbol coding (%d instances)",
-					    REFAGGNINST);
-
+					jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "aggregate symbol coding (%d instances)", REFAGGNINST);
 					if(REFAGGNINST > 1) {
 						tparams.SBNUMINSTANCES = REFAGGNINST;
-
 						image = jbig2_image_new(ctx, SYMWIDTH, HCHEIGHT);
 						if(image == NULL) {
-							code = jbig2_error(ctx,
-								JBIG2_SEVERITY_WARNING,
-								segment->number,
-								"failed to allocate symbol image");
+							code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate symbol image");
 							goto cleanup;
 						}
-
 						/* multiple symbols are handled as a text region */
-						code = jbig2_decode_text_region(ctx,
-							segment,
-							&tparams,
-							(const Jbig2SymbolDict* const*)refagg_dicts,
-							2,
-							image,
-							data,
-							size,
-							GR_stats,
-							as,
-							ws);
+						code = jbig2_decode_text_region(ctx, segment, &tparams, (const Jbig2SymbolDict* const*)refagg_dicts, 2, image,
+							data, size, GR_stats, as, ws);
 						if(code < 0) {
-							jbig2_error(ctx,
-							    JBIG2_SEVERITY_WARNING,
-							    segment->number,
-							    "failed to decode text region");
+							jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode text region");
 							goto cleanup;
 						}
-
 						SDNEWSYMS->glyphs[NSYMSDECODED] = image;
 						image = NULL;
 					}

@@ -6,9 +6,6 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_image.h"
-#include "jbig2_page.h"
-#include "jbig2_segment.h"
 
 static void * jbig2_default_alloc(Jbig2Allocator * allocator, size_t size)
 {
@@ -132,33 +129,33 @@ Jbig2Ctx * jbig2_ctx_new_imp(Jbig2Allocator * allocator, Jbig2Options options,
 
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-int16_t jbig2_get_int16(const byte * bptr)
+int16_t FASTCALL jbig2_get_int16(const byte * bptr)
 {
 	return get_int16(bptr);
 }
 
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-uint16_t jbig2_get_uint16(const byte * bptr)
+uint16_t FASTCALL jbig2_get_uint16(const byte * bptr)
 {
 	return get_uint16(bptr);
 }
 
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-int32_t jbig2_get_int32(const byte * bptr)
+int32_t FASTCALL jbig2_get_int32(const byte * bptr)
 {
 	return ((int32_t)get_int16(bptr) << 16) | get_uint16(bptr + 2);
 }
 
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-uint32_t jbig2_get_uint32(const byte * bptr)
+uint32_t FASTCALL jbig2_get_uint32(const byte * bptr)
 {
 	return ((uint32_t)get_uint16(bptr) << 16) | get_uint16(bptr + 2);
 }
 
-static size_t jbig2_find_buffer_size(size_t desired)
+static size_t FASTCALL jbig2_find_buffer_size(size_t desired)
 {
 	const size_t initial_buf_size = 1024;
 	size_t size = initial_buf_size;
@@ -448,7 +445,7 @@ Jbig2WordStream * jbig2_word_stream_buf_new(Jbig2Ctx * ctx, const byte * data, s
 	}
 }
 
-void jbig2_word_stream_buf_free(Jbig2Ctx * ctx, Jbig2WordStream * ws)
+void FASTCALL jbig2_word_stream_buf_free(Jbig2Ctx * ctx, Jbig2WordStream * ws)
 {
 	jbig2_free(ctx->allocator, ws);
 }

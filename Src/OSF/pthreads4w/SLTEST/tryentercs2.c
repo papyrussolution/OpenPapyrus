@@ -37,12 +37,8 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-//#include <windows.h>
-//#include <process.h>
-//#include <stdio.h>
 /*
- * Function pointer to TryEnterCriticalSection if it exists
- * - otherwise NULL
+ * Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
  */
 static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
 

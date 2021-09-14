@@ -412,7 +412,7 @@ static struct {
 #define MEMBLK_FROMBLK(B)   (&((Memento_BlkHeader*)(void*)(B))[-1])
 #define MEMBLK_TOBLK(B)     ((void*)(&((Memento_BlkHeader*)(void*)(B))[1]))
 #define MEMBLK_POSTPTR(B) \
-	(&((unsigned char*)(void*)(B))[(B)->rawsize + sizeof(Memento_BlkHeader)])
+	(&((uchar *)(void*)(B))[(B)->rawsize + sizeof(Memento_BlkHeader)])
 
 enum {
 	SkipStackBackTraceLevels = 4
@@ -621,7 +621,7 @@ static void print_stack_default(void * addr)
 	else {
 		fprintf(stderr, "    %s\n", strings[0]);
 	}
-	free(strings);
+	SAlloc::F(strings);
 }
 
 static void Memento_initStacktracer(void)
@@ -826,16 +826,13 @@ static int Memento_getStacktrace(void ** stack, int * skip)
 	_Unwind_Backtrace(unwind_populate_callback, &uw);
 	if(uw.count <= SkipStackBackTraceLevels)
 		return 0;
-
 	*skip = SkipStackBackTraceLevels;
 	return uw.count-SkipStackBackTraceLevels;
 }
 
 static void Memento_showStacktrace(void ** stack, int numberOfFrames)
 {
-	int i;
-
-	for(i = 0; i < numberOfFrames; i++) {
+	for(int i = 0; i < numberOfFrames; i++) {
 		Dl_info info;
 		if(dladdr(stack[i], &info)) {
 			int status = 0;
@@ -843,7 +840,7 @@ static void Memento_showStacktrace(void ** stack, int numberOfFrames)
 			char * demangled = __cxa_demangle(sym, NULL, 0, &status);
 			int offset = stack[i] - info.dli_saddr;
 			fprintf(stderr, "    ["FMTP "]%s(+0x%x)\n", stack[i], demangled && status == 0 ? demangled : sym, offset);
-			free(demangled);
+			SAlloc::F(demangled);
 		}
 		else {
 			fprintf(stderr, "    ["FMTP "]\n", stack[i]);

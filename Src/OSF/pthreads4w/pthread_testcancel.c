@@ -53,7 +53,7 @@
  *
  * ------------------------------------------------------
  */
-void pthread_testcancel(void)
+void pthread_testcancel()
 {
 	__ptw32_mcs_local_node_t stateLock;
 	pthread_t self = pthread_self();

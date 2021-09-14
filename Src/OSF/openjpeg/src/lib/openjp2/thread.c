@@ -65,7 +65,7 @@ struct opj_mutex_t {
 
 opj_mutex_t* opj_mutex_create(void)
 {
-	opj_mutex_t * mutex = (opj_mutex_t*)opj_malloc(sizeof(opj_mutex_t));
+	opj_mutex_t * mutex = (opj_mutex_t*)SAlloc::M(sizeof(opj_mutex_t));
 	if(!mutex) {
 		return NULL;
 	}
@@ -110,7 +110,7 @@ static volatile int TLSKeyInit = OPJ_FALSE;
 
 opj_cond_t* opj_cond_create(void)
 {
-	opj_cond_t* cond = (opj_cond_t*)opj_malloc(sizeof(opj_cond_t));
+	opj_cond_t* cond = (opj_cond_t*)SAlloc::M(sizeof(opj_cond_t));
 	if(!cond) {
 		return NULL;
 	}
@@ -164,7 +164,7 @@ void opj_cond_wait(opj_cond_t* cond, opj_mutex_t* mutex)
 	/* Insert the waiter into the waiter list of the condition */
 	opj_mutex_lock(cond->internal_mutex);
 
-	item = (opj_cond_waiter_list_t*)opj_malloc(sizeof(opj_cond_waiter_list_t));
+	item = (opj_cond_waiter_list_t*)SAlloc::M(sizeof(opj_cond_waiter_list_t));
 	assert(item != NULL);
 
 	item->hEvent = hEvent;
@@ -250,7 +250,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 
 	assert(thread_fn);
 
-	thread = (opj_thread_t*)opj_malloc(sizeof(opj_thread_t));
+	thread = (opj_thread_t*)SAlloc::M(sizeof(opj_thread_t));
 	if(!thread) {
 		return NULL;
 	}
@@ -305,7 +305,7 @@ struct opj_mutex_t {
 
 opj_mutex_t* opj_mutex_create(void)
 {
-	opj_mutex_t* mutex = (opj_mutex_t*)opj_calloc(1U, sizeof(opj_mutex_t));
+	opj_mutex_t* mutex = (opj_mutex_t*)SAlloc::C(1U, sizeof(opj_mutex_t));
 	if(mutex != NULL) {
 		if(pthread_mutex_init(&mutex->mutex, NULL) != 0) {
 			SAlloc::F(mutex);
@@ -340,7 +340,7 @@ struct opj_cond_t {
 
 opj_cond_t* opj_cond_create(void)
 {
-	opj_cond_t* cond = (opj_cond_t*)opj_malloc(sizeof(opj_cond_t));
+	opj_cond_t* cond = (opj_cond_t*)SAlloc::M(sizeof(opj_cond_t));
 	if(!cond) {
 		return NULL;
 	}
@@ -392,7 +392,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 
 	assert(thread_fn);
 
-	thread = (opj_thread_t*)opj_malloc(sizeof(opj_thread_t));
+	thread = (opj_thread_t*)SAlloc::M(sizeof(opj_thread_t));
 	if(!thread) {
 		return NULL;
 	}
@@ -499,7 +499,7 @@ struct opj_tls_t {
 
 static opj_tls_t* opj_tls_new(void)
 {
-	return (opj_tls_t*)opj_calloc(1, sizeof(opj_tls_t));
+	return (opj_tls_t*)SAlloc::C(1, sizeof(opj_tls_t));
 }
 
 static void opj_tls_destroy(opj_tls_t* tls)
@@ -545,8 +545,7 @@ OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void* value, opj_tls_free_func opj
 			return OPJ_TRUE;
 		}
 	}
-	new_key_val = (opj_tls_key_val_t*)opj_realloc(tls->key_val,
-		((size_t)tls->key_val_count + 1U) * sizeof(opj_tls_key_val_t));
+	new_key_val = (opj_tls_key_val_t*)SAlloc::R(tls->key_val, ((size_t)tls->key_val_count + 1U) * sizeof(opj_tls_key_val_t));
 	if(!new_key_val) {
 		return OPJ_FALSE;
 	}
@@ -615,7 +614,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads)
 {
 	opj_thread_pool_t* tp;
 
-	tp = (opj_thread_pool_t*)opj_calloc(1, sizeof(opj_thread_pool_t));
+	tp = (opj_thread_pool_t*)SAlloc::C(1, sizeof(opj_thread_pool_t));
 	if(!tp) {
 		return NULL;
 	}
@@ -682,7 +681,7 @@ static OPJ_BOOL opj_thread_pool_setup(opj_thread_pool_t* tp, int num_threads)
 		return OPJ_FALSE;
 	}
 
-	tp->worker_threads = (opj_worker_thread_t*)opj_calloc((size_t)num_threads,
+	tp->worker_threads = (opj_worker_thread_t*)SAlloc::C((size_t)num_threads,
 		sizeof(opj_worker_thread_t));
 	if(tp->worker_threads == NULL) {
 		return OPJ_FALSE;
@@ -784,7 +783,7 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 			tp->waiting_worker_thread_count++;
 			assert(tp->waiting_worker_thread_count <= tp->worker_threads_count);
 
-			item = (opj_worker_thread_list_t*)opj_malloc(sizeof(opj_worker_thread_list_t));
+			item = (opj_worker_thread_list_t*)SAlloc::M(sizeof(opj_worker_thread_list_t));
 			if(item == NULL) {
 				tp->state = OPJWTS_ERROR;
 				opj_cond_signal(tp->cond);
@@ -824,14 +823,14 @@ OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
 		return OPJ_TRUE;
 	}
 
-	job = (opj_worker_thread_job_t*)opj_malloc(sizeof(opj_worker_thread_job_t));
+	job = (opj_worker_thread_job_t*)SAlloc::M(sizeof(opj_worker_thread_job_t));
 	if(job == NULL) {
 		return OPJ_FALSE;
 	}
 	job->job_fn = job_fn;
 	job->user_data = user_data;
 
-	item = (opj_job_list_t*)opj_malloc(sizeof(opj_job_list_t));
+	item = (opj_job_list_t*)SAlloc::M(sizeof(opj_job_list_t));
 	if(item == NULL) {
 		SAlloc::F(job);
 		return OPJ_FALSE;

@@ -29,6 +29,7 @@ SlipLineParam & SlipLineParam::Z()
 	BarcodeWd = 0;
 	BarcodeHt = 0;
 	ChZnProductType = 0; // @v10.7.2
+	PpChZnR.Z(); // @v11.1.11
 	Text.Z();
 	Code.Z();
 	ChZnCode.Z(); // @v10.6.8
@@ -2481,6 +2482,18 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.ChZnSerial = CurIter.ChZnSerial; // @v10.6.12
 			sl_param.ChZnPartN = CurIter.ChZnPartN; // @v10.7.8
 			sl_param.ChZnProductType = CurIter.ChZnProductType; // @v10.7.2
+			// @v11.1.11 {
+			if(P_CcPack && sl_param.ChZnCode.NotEmpty()) {
+				// CurIter.SrcItemNo - увеличен на единицу методом NextIteration
+				const CCheckPacket::PreprocessChZnCodeResult * p_ppr = P_CcPack->GetLineChZnPreprocessResult(CurIter.SrcItemNo); 
+				if(p_ppr) {
+					sl_param.PpChZnR = *p_ppr;
+					sl_param.PpChZnR.LineIdx = CurIter.SrcItemNo; // @paranoic
+				}
+				else
+					sl_param.PpChZnR.Z(); // @paranoic
+			}
+			// } @v11.1.11 
 			{
 				const  long font_id = sl_param.Font;
 				uint   font_pos = 0;

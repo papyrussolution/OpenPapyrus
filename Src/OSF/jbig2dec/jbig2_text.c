@@ -12,22 +12,11 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_arith_iaid.h"
-//#include "jbig2_generic.h"
-//#include "jbig2_huffman.h"
-//#include "jbig2_image.h"
-#include "jbig2_page.h"
-#include "jbig2_refinement.h"
-#include "jbig2_segment.h"
-#include "jbig2_symbol_dict.h"
-#include "jbig2_text.h"
-
 /**
  * jbig2_decode_text_region: decode a text region segment
  *
@@ -71,7 +60,6 @@ int jbig2_decode_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	Jbig2HuffmanTable * SBSYMCODES = NULL;
 	int code = 0;
 	int RI;
-
 	SBNUMSYMS = 0;
 	for(index = 0; index < n_dicts; index++) {
 		SBNUMSYMS += dicts[index]->n_symbols;
@@ -880,11 +868,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    code = jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "custom RDW huffman table not found (%d)",
-					    table_index);
+				    code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom RDW huffman table not found (%d)", table_index);
 				    goto cleanup1;
 			    }
 			    params.SBHUFFRDW = jbig2_build_huffman_table(ctx, huffman_params);
@@ -892,19 +876,14 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			    break;
 			case 2: /* invalid */
 			default:
-			    code =
-				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDW huffman table");
+			    code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDW huffman table");
 			    goto cleanup1;
 			    break;
 		}
 		if(params.SBHUFFRDW == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate text region specified RDW huffman table");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region specified RDW huffman table");
 			goto cleanup1;
 		}
-
 		switch((huffman_flags & 0x0300) >> 8) {
 			case 0: /* Table B.14 */
 			    params.SBHUFFRDH = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_N);
@@ -915,11 +894,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    code = jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "custom RDH huffman table not found (%d)",
-					    table_index);
+				    code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom RDH huffman table not found (%d)", table_index);
 				    goto cleanup1;
 			    }
 			    params.SBHUFFRDH = jbig2_build_huffman_table(ctx, huffman_params);
@@ -927,19 +902,14 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			    break;
 			case 2: /* invalid */
 			default:
-			    code =
-				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDH huffman table");
+			    code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDH huffman table");
 			    goto cleanup1;
 			    break;
 		}
 		if(params.SBHUFFRDH == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate text region specified RDH huffman table");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region specified RDH huffman table");
 			goto cleanup1;
 		}
-
 		switch((huffman_flags & 0x0c00) >> 10) {
 			case 0: /* Table B.14 */
 			    params.SBHUFFRDX = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_N);
@@ -950,11 +920,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    code = jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "custom RDX huffman table not found (%d)",
-					    table_index);
+				    code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom RDX huffman table not found (%d)", table_index);
 				    goto cleanup1;
 			    }
 			    params.SBHUFFRDX = jbig2_build_huffman_table(ctx, huffman_params);
@@ -962,19 +928,14 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			    break;
 			case 2: /* invalid */
 			default:
-			    code =
-				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDX huffman table");
+			    code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDX huffman table");
 			    goto cleanup1;
 			    break;
 		}
 		if(params.SBHUFFRDX == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate text region specified RDX huffman table");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region specified RDX huffman table");
 			goto cleanup1;
 		}
-
 		switch((huffman_flags & 0x3000) >> 12) {
 			case 0: /* Table B.14 */
 			    params.SBHUFFRDY = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_N);
@@ -985,11 +946,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			case 3: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    code = jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "custom RDY huffman table not found (%d)",
-					    table_index);
+				    code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom RDY huffman table not found (%d)", table_index);
 				    goto cleanup1;
 			    }
 			    params.SBHUFFRDY = jbig2_build_huffman_table(ctx, huffman_params);
@@ -997,19 +954,14 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			    break;
 			case 2: /* invalid */
 			default:
-			    code =
-				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDY huffman table");
+			    code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "text region specified invalid RDY huffman table");
 			    goto cleanup1;
 			    break;
 		}
 		if(params.SBHUFFRDY == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate text region specified RDY huffman table");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region specified RDY huffman table");
 			goto cleanup1;
 		}
-
 		switch((huffman_flags & 0x4000) >> 14) {
 			case 0: /* Table B.1 */
 			    params.SBHUFFRSIZE = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_A);
@@ -1017,11 +969,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			case 1: /* Custom table from referred segment */
 			    huffman_params = jbig2_find_table(ctx, segment, table_index);
 			    if(huffman_params == NULL) {
-				    code = jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "custom RSIZE huffman table not found (%d)",
-					    table_index);
+				    code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "custom RSIZE huffman table not found (%d)", table_index);
 				    goto cleanup1;
 			    }
 			    params.SBHUFFRSIZE = jbig2_build_huffman_table(ctx, huffman_params);
@@ -1029,34 +977,17 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			    break;
 		}
 		if(params.SBHUFFRSIZE == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_WARNING,
-				segment->number,
-				"failed to allocate text region specified RSIZE huffman table");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region specified RSIZE huffman table");
 			goto cleanup1;
 		}
-
 		if(huffman_flags & 0x8000) {
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_WARNING,
-			    segment->number,
-			    "text region huffman flags bit 15 is set, contrary to spec");
+			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "text region huffman flags bit 15 is set, contrary to spec");
 		}
-
 		/* 7.4.3.1.7 */
 		/* For convenience this is done in the body decoder routine */
 	}
-
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_INFO,
-	    segment->number,
-	    "text region: %d x %d @ (%d,%d) %d symbols",
-	    region_info.width,
-	    region_info.height,
-	    region_info.x,
-	    region_info.y,
-	    params.SBNUMINSTANCES);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "text region: %d x %d @ (%d,%d) %d symbols",
+	    region_info.width, region_info.height, region_info.x, region_info.y, params.SBNUMINSTANCES);
 	/* 7.4.3.2 (2) - compose the list of symbol dictionaries */
 	n_dicts = jbig2_sd_count_referred(ctx, segment);
 	if(n_dicts == 0) {
@@ -1065,33 +996,22 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 	else {
 		dicts = jbig2_sd_list_referred(ctx, segment);
 		if(dicts == NULL) {
-			code = jbig2_error(ctx,
-				JBIG2_SEVERITY_FATAL,
-				segment->number,
-				"unable to retrieve symbol dictionaries! previous parsing error?");
+			code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "unable to retrieve symbol dictionaries! previous parsing error?");
 			goto cleanup1;
 		}
 		else {
 			uint32_t index;
-
 			if(dicts[0] == NULL) {
-				code = jbig2_error(ctx,
-					JBIG2_SEVERITY_WARNING,
-					segment->number,
-					"unable to find first referenced symbol dictionary");
+				code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to find first referenced symbol dictionary");
 				goto cleanup1;
 			}
 			for(index = 1; index < n_dicts; index++)
 				if(dicts[index] == NULL) {
-					jbig2_error(ctx,
-					    JBIG2_SEVERITY_WARNING,
-					    segment->number,
-					    "unable to find all referenced symbol dictionaries");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to find all referenced symbol dictionaries");
 					n_dicts = index;
 				}
 		}
 	}
-
 	/* 7.4.3.2 (3) */
 	{
 		int stats_size = params.SBRTEMPLATE ? 1 << 10 : 1 << 13;
@@ -1107,38 +1027,27 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region image");
 		goto cleanup2;
 	}
-
 	if(offset >= segment->data_length) {
 		code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
 		goto cleanup2;
 	}
 	ws = jbig2_word_stream_buf_new(ctx, segment_data + offset, segment->data_length - offset);
 	if(ws == NULL) {
-		code = jbig2_error(ctx,
-			JBIG2_SEVERITY_WARNING,
-			segment->number,
-			"failed to allocate word stream when handling text region image");
+		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate word stream when handling text region image");
 		goto cleanup2;
 	}
-
 	as = jbig2_arith_new(ctx, ws);
 	if(as == NULL) {
-		code = jbig2_error(ctx,
-			JBIG2_SEVERITY_WARNING,
-			segment->number,
-			"failed to allocate arithmetic coding context when handling text region image");
+		code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate arithmetic coding context when handling text region image");
 		goto cleanup3;
 	}
-
 	if(!params.SBHUFF) {
 		uint8_t SBSYMCODELEN;
 		uint32_t index;
 		uint32_t SBNUMSYMS = 0;
-
 		for(index = 0; index < n_dicts; index++) {
 			SBNUMSYMS += dicts[index]->n_symbols;
 		}
-
 		params.IADT = jbig2_arith_int_ctx_new(ctx);
 		params.IAFS = jbig2_arith_int_ctx_new(ctx);
 		params.IADS = jbig2_arith_int_ctx_new(ctx);
@@ -1147,45 +1056,34 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region image data");
 			goto cleanup4;
 		}
-
 		/* Table 31 */
-		for(SBSYMCODELEN = 0; ((uint64_t)1 << SBSYMCODELEN) < (uint64_t)SBNUMSYMS; SBSYMCODELEN++);
-
+		for(SBSYMCODELEN = 0; ((uint64_t)1 << SBSYMCODELEN) < (uint64_t)SBNUMSYMS; SBSYMCODELEN++)
+			;
 		params.IAID = jbig2_arith_iaid_ctx_new(ctx, SBSYMCODELEN);
 		params.IARI = jbig2_arith_int_ctx_new(ctx);
 		params.IARDW = jbig2_arith_int_ctx_new(ctx);
 		params.IARDH = jbig2_arith_int_ctx_new(ctx);
 		params.IARDX = jbig2_arith_int_ctx_new(ctx);
 		params.IARDY = jbig2_arith_int_ctx_new(ctx);
-		if(params.IAID == NULL || params.IARI == NULL ||
-		    params.IARDW == NULL || params.IARDH == NULL || params.IARDX == NULL || params.IARDY == NULL) {
+		if(params.IAID == NULL || params.IARI == NULL || params.IARDW == NULL || params.IARDH == NULL || params.IARDX == NULL || params.IARDY == NULL) {
 			code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to allocate text region image data");
 			goto cleanup5;
 		}
 	}
-
-	code = jbig2_decode_text_region(ctx, segment, &params,
-		(const Jbig2SymbolDict* const*)dicts, n_dicts, image,
+	code = jbig2_decode_text_region(ctx, segment, &params, (const Jbig2SymbolDict* const*)dicts, n_dicts, image,
 		segment_data + offset, segment->data_length - offset, GR_stats, as, ws);
 	if(code < 0) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to decode text region image data");
 		goto cleanup5;
 	}
-
 	if((segment->flags & 63) == 4) {
 		/* we have an intermediate region here. save it for later */
 		segment->result = jbig2_image_reference(ctx, image);
 	}
 	else {
 		/* otherwise composite onto the page */
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_DEBUG,
-		    segment->number,
-		    "composing %dx%d decoded text region onto page at (%d, %d)",
-		    region_info.width,
-		    region_info.height,
-		    region_info.x,
-		    region_info.y);
+		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "composing %dx%d decoded text region onto page at (%d, %d)",
+		    region_info.width, region_info.height, region_info.x, region_info.y);
 		code = jbig2_page_add_result(ctx, &ctx->pages[ctx->current_page], image, region_info.x, region_info.y, region_info.op);
 		if(code < 0)
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to add text region to page");
@@ -1229,6 +1127,5 @@ cleanup1:
 		jbig2_release_huffman_table(ctx, params.SBHUFFRSIZE);
 	}
 	jbig2_free(ctx->allocator, dicts);
-
 	return code;
 }

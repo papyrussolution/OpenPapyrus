@@ -1028,7 +1028,7 @@ static opj_pi_iterator_t * opj_pi_create(const opj_image_t * image,
 	l_poc_bound = tcp->numpocs + 1;
 
 	/* memory allocations*/
-	l_pi = (opj_pi_iterator_t*)opj_calloc((l_poc_bound),
+	l_pi = (opj_pi_iterator_t*)SAlloc::C((l_poc_bound),
 		sizeof(opj_pi_iterator_t));
 	if(!l_pi) {
 		return NULL;
@@ -1037,7 +1037,7 @@ static opj_pi_iterator_t * opj_pi_create(const opj_image_t * image,
 	l_current_pi = l_pi;
 	for(pino = 0; pino < l_poc_bound; ++pino) {
 		l_current_pi->manager = manager;
-		l_current_pi->comps = (opj_pi_comp_t*)opj_calloc(image->numcomps, sizeof(opj_pi_comp_t));
+		l_current_pi->comps = (opj_pi_comp_t*)SAlloc::C(image->numcomps, sizeof(opj_pi_comp_t));
 		if(!l_current_pi->comps) {
 			opj_pi_destroy(l_pi, l_poc_bound);
 			return NULL;
@@ -1046,7 +1046,7 @@ static opj_pi_iterator_t * opj_pi_create(const opj_image_t * image,
 		for(compno = 0; compno < image->numcomps; ++compno) {
 			opj_pi_comp_t * comp = &l_current_pi->comps[compno];
 			tccp = &tcp->tccps[compno];
-			comp->resolutions = (opj_pi_resolution_t*)opj_calloc(tccp->numresolutions, sizeof(opj_pi_resolution_t));
+			comp->resolutions = (opj_pi_resolution_t*)SAlloc::C(tccp->numresolutions, sizeof(opj_pi_resolution_t));
 			if(!comp->resolutions) {
 				opj_pi_destroy(l_pi, l_poc_bound);
 				return 00;
@@ -1385,11 +1385,11 @@ opj_pi_iterator_t * opj_pi_create_decode(opj_image_t * p_image,
 	l_bound = l_tcp->numpocs + 1;
 
 	l_data_stride = 4 * OPJ_J2K_MAXRLVLS;
-	l_tmp_data = (OPJ_UINT32*)opj_malloc(l_data_stride * numcomps * sizeof(OPJ_UINT32));
+	l_tmp_data = (OPJ_UINT32*)SAlloc::M(l_data_stride * numcomps * sizeof(OPJ_UINT32));
 	if(!l_tmp_data) {
 		return 00;
 	}
-	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(numcomps * sizeof(OPJ_UINT32 *));
+	l_tmp_ptr = (OPJ_UINT32**)SAlloc::M(numcomps * sizeof(OPJ_UINT32 *));
 	if(!l_tmp_ptr) {
 		SAlloc::F(l_tmp_data);
 		return 00;
@@ -1428,7 +1428,7 @@ opj_pi_iterator_t * opj_pi_create_decode(opj_image_t * p_image,
 	l_current_pi->include = 00;
 	if(l_step_l <= (UINT_MAX / (l_tcp->numlayers + 1U))) {
 		l_current_pi->include_size = (l_tcp->numlayers + 1U) * l_step_l;
-		l_current_pi->include = (OPJ_INT16*)opj_calloc(
+		l_current_pi->include = (OPJ_INT16*)SAlloc::C(
 			l_current_pi->include_size, sizeof(OPJ_INT16));
 	}
 
@@ -1601,11 +1601,11 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 	l_tcp = &p_cp->tcps[p_tile_no];
 	l_bound = l_tcp->numpocs + 1;
 	l_data_stride = 4 * OPJ_J2K_MAXRLVLS;
-	l_tmp_data = (OPJ_UINT32*)opj_malloc(l_data_stride * numcomps * sizeof(OPJ_UINT32));
+	l_tmp_data = (OPJ_UINT32*)SAlloc::M(l_data_stride * numcomps * sizeof(OPJ_UINT32));
 	if(!l_tmp_data) {
 		return 00;
 	}
-	l_tmp_ptr = (OPJ_UINT32**)opj_malloc(numcomps * sizeof(OPJ_UINT32 *));
+	l_tmp_ptr = (OPJ_UINT32**)SAlloc::M(numcomps * sizeof(OPJ_UINT32 *));
 	if(!l_tmp_ptr) {
 		SAlloc::F(l_tmp_data);
 		return 00;
@@ -1640,7 +1640,7 @@ opj_pi_iterator_t * opj_pi_initialise_encode(const opj_image_t * p_image,
 
 	/* memory allocation for include*/
 	l_current_pi->include_size = l_tcp->numlayers * l_step_l;
-	l_current_pi->include = (OPJ_INT16*)opj_calloc(l_current_pi->include_size,
+	l_current_pi->include = (OPJ_INT16*)SAlloc::C(l_current_pi->include_size,
 		sizeof(OPJ_INT16));
 	if(!l_current_pi->include) {
 		SAlloc::F(l_tmp_data);

@@ -239,8 +239,7 @@ int PThr4wTest_Mutex3r()
 }
 // 
 // Thread A locks mutex - thread B tries to unlock.
-// Depends on API functions:
-//  pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
 // 
 int PThr4wTest_Mutex4()
 {
@@ -321,4 +320,628 @@ int PThr4wTest_Mutex5()
 	assert(mxType == PTHREAD_MUTEX_NORMAL);
 	return 0;
 	#undef FOIL
+}
+// 
+// Test the default (type not set) mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks mutex twice (recursive lock).
+// Locking thread should deadlock on second attempt.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			/* Should wait here (deadlocked) */
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	// Should succeed even though we don't own the lock because FAST mutexes don't check ownership.
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type.
+// Thread locks mutex twice (recursive lock).
+// This should fail with an EDEADLK error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == EDEADLK);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == EPERM);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK static mutex type.
+// Thread locks mutex twice (recursive lock).
+// This should fail with an EDEADLK error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype()
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6es()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == EDEADLK);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == EPERM);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type.
+// Thread locks mutex twice (recursive lock).
+// The thread should deadlock.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_settype(), pthread_mutexattr_gettype(), pthread_mutex_init()
+//   pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			// Should wait here (deadlocked) 
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == (IS_ROBUST ? EPERM : 0));
+	while(lockCount < (IS_ROBUST ? 1 : 2)) {
+		Sleep(1);
+	}
+	assert(lockCount == (IS_ROBUST ? 1 : 2));
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type.
+// Thread locks mutex twice (recursive lock).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE static mutex type.
+// Thread locks mutex twice (recursive lock).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype()
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6rs()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	assert(mutex == PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Test the default (type not set) static mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks mutex twice (recursive lock).
+// Locking thread should deadlock on second attempt.
+// 
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+//
+int PThr4wTest_Mutex6s()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			/* Should wait here (deadlocked) */
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(mutex == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	/*
+	 * Should succeed even though we don't own the lock
+	 * because FAST mutexes don't check ownership.
+	 */
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Test the default (type not set) mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks then trylocks mutex (attempted recursive lock).
+// The thread should lock first time and EBUSY second time.
+// 
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type.
+// Thread locks and then trylocks mutex (attempted recursive lock).
+// Trylock should fail with an EBUSY error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(), 
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type.
+// Thread locks then trylocks mutex (attempted recursive lock).
+// The thread should lock first time and EBUSY second time.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_settype(), pthread_mutexattr_gettype(), pthread_mutex_init(),
+// pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type.
+// Thread locks mutex then trylocks mutex (recursive lock twice).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Test the default (type not set) mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// 
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	Sleep(2000);
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	Sleep(2000);
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
 }

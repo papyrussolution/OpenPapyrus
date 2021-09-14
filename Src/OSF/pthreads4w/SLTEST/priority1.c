@@ -79,7 +79,7 @@ int PThr4wTest_Priority1()
 				validPriorities[prioSet+(PTW32TEST_MAXPRIORITIES/2)] = GetThreadPriority(threadH);
 				printf("%10d %10d\n", prioSet, validPriorities[prioSet+(PTW32TEST_MAXPRIORITIES/2)]);
 			}
-			return (void*)0;
+			return 0;
 		}
 	};
 	pthread_t t;
@@ -161,7 +161,7 @@ int PThr4wTest_Priority2()
 				assert(pthread_setschedparam(thread, SCHED_OTHER, &param) == 0);
 				validPriorities[prioSet+(PTW32TEST_MAXPRIORITIES/2)] = GetThreadPriority(threadH);
 			}
-			return (void*)0;
+			return 0;
 		}
 	};
 	pthread_t t;

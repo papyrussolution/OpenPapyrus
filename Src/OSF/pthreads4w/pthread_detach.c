@@ -83,21 +83,18 @@ int pthread_detach(pthread_t thread)
 			}
 		}
 		else if(tp->detachState != PTHREAD_CREATE_DETACHED) {
-			/*
-			 * Thread is joinable and has exited or is exiting.
-			 */
+			// Thread is joinable and has exited or is exiting.
 			destroyIt =  __PTW32_TRUE;
 		}
 		__ptw32_mcs_lock_release(&stateLock);
 	}
 	__ptw32_mcs_lock_release(&reuseLock);
 	if(result == 0) {
-		/* Thread is joinable */
+		// Thread is joinable 
 		if(destroyIt) {
-			/* The thread has exited or is exiting but has not been joined or
-			 * detached. Need to wait in case it's still exiting.
-			 */
-			(void)WaitForSingleObject(tp->threadH, INFINITE);
+			// The thread has exited or is exiting but has not been joined or
+			// detached. Need to wait in case it's still exiting.
+			::WaitForSingleObject(tp->threadH, INFINITE);
 			__ptw32_threadDestroy(thread);
 		}
 	}

@@ -439,17 +439,19 @@ IMPL_HANDLE_EVENT(DebtLimListDialog)
 int DebtLimListDialog::setupList()
 {
 	int    ok = -1;
+	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.getCount(); i++) {
-		StringSet ss(SLBColumnDelim);
-		SString temp_buf;
-		PPClientAgreement::DebtLimit debt_lim = Data.at(i);
-		GetObjectName(PPOBJ_DEBTDIM, debt_lim.DebtDimID, temp_buf);
+		const PPClientAgreement::DebtLimit & r_debt_lim = Data.at(i);
+		temp_buf.Z();
+		ss.Z();	
+		GetObjectName(PPOBJ_DEBTDIM, r_debt_lim.DebtDimID, temp_buf);
 		ss.add(temp_buf);
-		temp_buf.Z().Cat(debt_lim.Limit, SFMT_MONEY);
+		temp_buf.Z().Cat(r_debt_lim.Limit, SFMT_MONEY);
 		ss.add(temp_buf);
-		temp_buf.Z().CatChar((debt_lim.Flags & PPClientAgreement::DebtLimit::fStop) ? 'X' : ' ');
+		temp_buf.Z().CatChar((r_debt_lim.Flags & PPClientAgreement::DebtLimit::fStop) ? 'X' : ' ');
 		ss.add(temp_buf);
-		if(!addStringToList(debt_lim.DebtDimID, ss.getBuf()))
+		if(!addStringToList(r_debt_lim.DebtDimID, ss.getBuf()))
 			ok = PPErrorZ();
 	}
 	return ok;

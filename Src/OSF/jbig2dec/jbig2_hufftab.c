@@ -21,8 +21,6 @@
     -- See Annex B of the JBIG2 specification */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_huffman.h"
-#include "jbig2_hufftab.h"
 
 #define JBIG2_COUNTOF(x) (sizeof((x)) / sizeof((x)[0]))
 

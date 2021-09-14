@@ -1,9 +1,5 @@
 /*
  * affinity1.c
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -254,7 +250,7 @@ int PThr4wTest_Affinity5()
 			b.cpuset = threadCpus;
 			/* Violates opacity */
 			printf("CPU affinity: Parent/Thread = 0x%lx/0x%lx\n", a.bits, b.bits);
-			return (void*)0;
+			return 0;
 		}
 	};
 	uint cpu;
@@ -297,7 +293,7 @@ int PThr4wTest_Affinity6()
 			assert(pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &threadCpus) == 0);
 			assert(pthread_attr_getaffinity_np(attrPtr, sizeof(cpu_set_t), &attrCpus) == 0);
 			assert(CPU_EQUAL(&attrCpus, &threadCpus));
-			return (void*)0;
+			return 0;
 		}
 	};
 	uint cpu;

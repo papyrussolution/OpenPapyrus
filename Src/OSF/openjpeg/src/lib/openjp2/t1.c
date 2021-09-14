@@ -1488,7 +1488,7 @@ opj_t1_t* opj_t1_create(OPJ_BOOL isEncoder)
 {
 	opj_t1_t * l_t1 = 00;
 
-	l_t1 = (opj_t1_t*)opj_calloc(1, sizeof(opj_t1_t));
+	l_t1 = (opj_t1_t*)SAlloc::C(1, sizeof(opj_t1_t));
 	if(!l_t1) {
 		return 00;
 	}
@@ -1832,7 +1832,7 @@ void opj_t1_decode_cblks(opj_tcd_t* tcd, volatile OPJ_BOOL* pret, opj_tcd_tileco
 #endif
 					}
 
-					job = (opj_t1_cblk_decode_processing_job_t*)opj_calloc(1,
+					job = (opj_t1_cblk_decode_processing_job_t*)SAlloc::C(1,
 						sizeof(opj_t1_cblk_decode_processing_job_t));
 					if(!job) {
 						*pret = OPJ_FALSE;
@@ -1930,7 +1930,7 @@ static OPJ_BOOL opj_t1_decode_cblk(opj_t1_t * t1,
 
 		/* Allocate temporary memory if needed */
 		if(cblk_len + OPJ_COMMON_CBLK_DATA_EXTRA > t1->cblkdatabuffersize) {
-			cblkdata = (OPJ_BYTE*)opj_realloc(t1->cblkdatabuffer,
+			cblkdata = (OPJ_BYTE*)SAlloc::R(t1->cblkdatabuffer,
 				cblk_len + OPJ_COMMON_CBLK_DATA_EXTRA);
 			if(cblkdata == NULL) {
 				return OPJ_FALSE;
@@ -2248,7 +2248,7 @@ OPJ_BOOL opj_t1_encode_cblks(opj_tcd_t* tcd,
 						opj_tcd_cblk_enc_t* cblk = &prc->cblks.enc[cblkno];
 
 						opj_t1_cblk_encode_processing_job_t* job =
-						    (opj_t1_cblk_encode_processing_job_t*)opj_calloc(1,
+						    (opj_t1_cblk_encode_processing_job_t*)SAlloc::C(1,
 							sizeof(opj_t1_cblk_encode_processing_job_t));
 						if(!job) {
 							ret = OPJ_FALSE;

@@ -50,7 +50,7 @@ opj_sparse_array_int32_t* opj_sparse_array_int32_create(OPJ_UINT32 width, OPJ_UI
 	if(block_width > ((OPJ_UINT32) ~0U) / block_height / sizeof(OPJ_INT32)) {
 		return NULL;
 	}
-	sa = (opj_sparse_array_int32_t*)opj_calloc(1, sizeof(opj_sparse_array_int32_t));
+	sa = (opj_sparse_array_int32_t*)SAlloc::C(1, sizeof(opj_sparse_array_int32_t));
 	sa->width = width;
 	sa->height = height;
 	sa->block_width = block_width;
@@ -61,7 +61,7 @@ opj_sparse_array_int32_t* opj_sparse_array_int32_create(OPJ_UINT32 width, OPJ_UI
 		SAlloc::F(sa);
 		return NULL;
 	}
-	sa->data_blocks = (OPJ_INT32**)opj_calloc(sizeof(OPJ_INT32*), sa->block_count_hor * sa->block_count_ver);
+	sa->data_blocks = (OPJ_INT32**)SAlloc::C(sizeof(OPJ_INT32*), sa->block_count_hor * sa->block_count_ver);
 	if(sa->data_blocks == NULL) {
 		SAlloc::F(sa);
 		return NULL;
@@ -211,7 +211,7 @@ static OPJ_BOOL opj_sparse_array_int32_read_or_write(const opj_sparse_array_int3
 			}
 			else {
 				if(src_block == NULL) {
-					src_block = (OPJ_INT32*)opj_calloc(1, sa->block_width * sa->block_height * sizeof(OPJ_INT32));
+					src_block = (OPJ_INT32*)SAlloc::C(1, sa->block_width * sa->block_height * sizeof(OPJ_INT32));
 					if(src_block == NULL) {
 						return OPJ_FALSE;
 					}

@@ -757,7 +757,6 @@ static void output_skeleton()
 		if(fseek(m4_in, 0, SEEK_SET))
 			error(EXIT_FAILURE, get_errno(), "fseek");
 	}
-
 	/* Read and process m4's output.  */
 	timevar_push(tv_m4);
 	{
@@ -765,14 +764,11 @@ static void output_skeleton()
 		if(!m4_out)
 			error(EXIT_FAILURE, get_errno(), "fopen");
 	}
-
 	if(main_m4(i-1, (char * const *)argv, m4_in, m4_out))
 		error(EXIT_FAILURE, get_errno(), "m4 failed");
-
 	fflush(m4_out);
 	if(fseek(m4_out, 0, SEEK_SET))
-		error(EXIT_FAILURE, get_errno(),
-		    "fseek");
+		error(EXIT_FAILURE, get_errno(), "fseek");
 //FILE *in = xfdopen (filter_fd[0], "r");
 	scan_skel(m4_out);
 	/* scan_skel should have read all of M4's output.  Otherwise, when we

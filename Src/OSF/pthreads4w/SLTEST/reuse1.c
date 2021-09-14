@@ -106,7 +106,7 @@ int PThr4wTest_Reuse2()
 		{
 			sched_yield();
 			InterlockedIncrement(&done);
-			return (void*)0;
+			return 0;
 		}
 	};
 	pthread_t t[NUMTHREADS];

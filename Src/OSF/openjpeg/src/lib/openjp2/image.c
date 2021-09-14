@@ -33,19 +33,19 @@
 
 opj_image_t* opj_image_create0(void)
 {
-	opj_image_t * image = (opj_image_t*)opj_calloc(1, sizeof(opj_image_t));
+	opj_image_t * image = (opj_image_t*)SAlloc::C(1, sizeof(opj_image_t));
 	return image;
 }
 
 opj_image_t* OPJ_CALLCONV opj_image_create(OPJ_UINT32 numcmpts, opj_image_cmptparm_t * cmptparms, OPJ_COLOR_SPACE clrspc)
 {
 	OPJ_UINT32 compno;
-	opj_image_t * image = (opj_image_t*)opj_calloc(1, sizeof(opj_image_t));
+	opj_image_t * image = (opj_image_t*)SAlloc::C(1, sizeof(opj_image_t));
 	if(image) {
 		image->color_space = clrspc;
 		image->numcomps = numcmpts;
 		/* allocate memory for the per-component information */
-		image->comps = (opj_image_comp_t*)opj_calloc(image->numcomps,
+		image->comps = (opj_image_comp_t*)SAlloc::C(image->numcomps,
 			sizeof(opj_image_comp_t));
 		if(!image->comps) {
 			/* TODO replace with event manager, breaks API */
@@ -166,7 +166,7 @@ void opj_copy_image_header(const opj_image_t* p_image_src, opj_image_t* p_image_
 		p_image_dest->comps = NULL;
 	}
 	p_image_dest->numcomps = p_image_src->numcomps;
-	p_image_dest->comps = (opj_image_comp_t*)opj_malloc(p_image_dest->numcomps * sizeof(opj_image_comp_t));
+	p_image_dest->comps = (opj_image_comp_t*)SAlloc::M(p_image_dest->numcomps * sizeof(opj_image_comp_t));
 	if(!p_image_dest->comps) {
 		p_image_dest->comps = NULL;
 		p_image_dest->numcomps = 0;
@@ -179,7 +179,7 @@ void opj_copy_image_header(const opj_image_t* p_image_src, opj_image_t* p_image_
 	p_image_dest->color_space = p_image_src->color_space;
 	p_image_dest->icc_profile_len = p_image_src->icc_profile_len;
 	if(p_image_dest->icc_profile_len) {
-		p_image_dest->icc_profile_buf = (OPJ_BYTE*)opj_malloc(p_image_dest->icc_profile_len);
+		p_image_dest->icc_profile_buf = (OPJ_BYTE*)SAlloc::M(p_image_dest->icc_profile_len);
 		if(!p_image_dest->icc_profile_buf) {
 			p_image_dest->icc_profile_buf = NULL;
 			p_image_dest->icc_profile_len = 0;
@@ -198,13 +198,13 @@ opj_image_t* OPJ_CALLCONV opj_image_tile_create(OPJ_UINT32 numcmpts,
 	OPJ_UINT32 compno;
 	opj_image_t * image = 00;
 
-	image = (opj_image_t*)opj_calloc(1, sizeof(opj_image_t));
+	image = (opj_image_t*)SAlloc::C(1, sizeof(opj_image_t));
 	if(image) {
 		image->color_space = clrspc;
 		image->numcomps = numcmpts;
 
 		/* allocate memory for the per-component information */
-		image->comps = (opj_image_comp_t*)opj_calloc(image->numcomps,
+		image->comps = (opj_image_comp_t*)SAlloc::C(image->numcomps,
 			sizeof(opj_image_comp_t));
 		if(!image->comps) {
 			opj_image_destroy(image);

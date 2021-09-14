@@ -26,8 +26,8 @@
 #define cmGoodsGroup                   118 // Группы товаров
 #define cmGoods                        119 // Товары
 #define cmLocation                     120 // Склады
-#define cmAccTurnList                  121 // Опись бух. проводок
-#define cmAccTurn                      122 // Общая бух. проводка
+#define cmAccTurnList                  121 // Реестр бухгалтерских проводок
+#define cmAccTurn                      122 // Общая бухгалтерская проводка
 #define cmAccAnalyze                   123 // Анализ счета
 #define cmBalance                      124 // Балансы (оборотная ведомость)
 #define cmAmountType                   125 // Типы сумм документов

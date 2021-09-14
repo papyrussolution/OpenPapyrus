@@ -596,6 +596,16 @@ int CCheckPacket::LineExt::IsEmpty() const
 {
 	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice))); // @v10.1.7 fFixedPrice
 }
+
+CCheckPacket::PreprocessChZnCodeResult::PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
+{
+}
+
+CCheckPacket::PreprocessChZnCodeResult & CCheckPacket::PreprocessChZnCodeResult::Z()
+{
+	THISZERO();
+	return *this;
+}
 //
 //
 //
@@ -1146,7 +1156,7 @@ int CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
 int CCheckPacket::SetLineChZnPreprocessResult(int pos /*[1..]*/, const CCheckPacket::PreprocessChZnCodeResult * pResult)
 {
 	int    ok = 1;
-	if(pos > 0 && pos <= Items_.getCount()) {
+	if(pos > 0 && pos <= Items_.getCountI()) {
 		if(pResult) {
 			bool found = false;
 			if(P_PpChZnCodeResultList) {
@@ -1192,7 +1202,7 @@ const CCheckPacket::PreprocessChZnCodeResult * CCheckPacket::GetLineChZnPreproce
 {
 	PreprocessChZnCodeResult * p_result = 0;
 	if(SVector::GetCount(P_PpChZnCodeResultList)) {
-		if(pos >= 1 && pos <= Items_.getCount()) {
+		if(pos >= 1 && pos <= Items_.getCountI()) {
 			for(uint i = 0; !p_result && i < P_PpChZnCodeResultList->getCount(); i++) {
 				if(P_PpChZnCodeResultList->at(i).LineIdx == pos)
 					p_result = &P_PpChZnCodeResultList->at(i);

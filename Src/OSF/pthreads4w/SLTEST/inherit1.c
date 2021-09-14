@@ -107,7 +107,7 @@ static void * getValidPriorities(void * arg)
 		assert(pthread_setschedparam(thread, SCHED_OTHER, &param) == 0);
 		validPriorities[prioSet+(PTW32TEST_MAXPRIORITIES/2)] = GetThreadPriority(threadH);
 	}
-	return (void*)0;
+	return 0;
 }
 
 int PThr4wTest_Inherit1()

@@ -622,7 +622,6 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 
 	return 1;
 }
-
 /*
  * Encode a strip of pixels.  We break it into rows to
  * avoid encoding runs across row boundaries.
@@ -656,11 +655,9 @@ static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	}
 	return (cc == 0);
 }
-
 /*
  * Encode/Decode functions for converting to and from user formats.
  */
-
 #include "uvcode.h"
 
 #ifndef UVSCALE
@@ -691,7 +688,7 @@ LOGLUV_FUNC_QUALIF double LogL16toY(int p16)              /* compute luminance f
 	int Le = p16 & 0x7fff;
 	double Y;
 	if(!Le)
-		return (0.);
+		return 0.0;
 	Y = exp(M_LN2/256.*(Le+.5) - M_LN2*64.);
 	return (!(p16 & 0x8000) ? Y : -Y);
 }
@@ -711,8 +708,8 @@ LOGLUV_FUNC_QUALIF int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y
 
 static void L16toY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = reinterpret_cast<int16 *>(sp->tbuf);
-	float* yp = reinterpret_cast<float *>(op);
+	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
+	float * yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*yp++ = (float)LogL16toY(*l16++);
 }
@@ -729,8 +726,8 @@ static void L16toGry(LogLuvState* sp, uint8 * op, tmsize_t n)
 
 static void L16fromY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = reinterpret_cast<int16 *>(sp->tbuf);
-	float* yp = reinterpret_cast<float *>(op);
+	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
+	float * yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*l16++ = (int16)(LogL16fromY(*yp++, sp->encode_meth));
 }
@@ -743,26 +740,26 @@ LOGLUV_FUNC_QUALIF void XYZtoRGB24(float xyz[3], uint8 rgb[3])
 	double b =  0.061*xyz[0] + -0.224*xyz[1] +  1.163*xyz[2];
 	/* assume 2.0 gamma for speed */
 	/* could use integer sqrt approx., but this is probably faster */
-	rgb[0] = (uint8)((r<=0.) ? 0 : (r >= 1.) ? 255 : (int)(256.*sqrt(r)));
-	rgb[1] = (uint8)((g<=0.) ? 0 : (g >= 1.) ? 255 : (int)(256.*sqrt(g)));
-	rgb[2] = (uint8)((b<=0.) ? 0 : (b >= 1.) ? 255 : (int)(256.*sqrt(b)));
+	rgb[0] = (uint8)((r<=0.0) ? 0 : (r >= 1.0) ? 255 : (int)(256.*sqrt(r)));
+	rgb[1] = (uint8)((g<=0.0) ? 0 : (g >= 1.0) ? 255 : (int)(256.*sqrt(g)));
+	rgb[2] = (uint8)((b<=0.0) ? 0 : (b >= 1.0) ? 255 : (int)(256.*sqrt(b)));
 }
 
 LOGLUV_FUNC_QUALIF double LogL10toY(int p10)              /* compute luminance from 10-bit LogL */
 {
 	if(p10 == 0)
-		return (0.);
-	return (exp(M_LN2/64.*(p10+.5) - M_LN2*12.));
+		return 0.0;
+	return (exp(M_LN2/64.0*(p10+0.5) - M_LN2*12.0));
 }
 
 LOGLUV_FUNC_QUALIF int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */
 {
 	if(Y >= 15.742)
 		return (0x3ff);
-	else if(Y <= .00024283)
+	else if(Y <= 0.00024283)
 		return 0;
 	else
-		return itrunc(64.*(log2(Y) + 12.), em);
+		return itrunc(64.0 * (log2(Y) + 12.0), em);
 }
 
 #define NANGLES         100
@@ -784,10 +781,10 @@ static int oog_encode(double u, double v)          /* encode out-of-gamut chroma
 			if(vi == UV_NVS-1 || vi == 0 || ustep <= 0)
 				ustep = 1;
 			for(ui = uv_row[vi].nus-1; ui >= 0; ui -= ustep) {
-				ua = uv_row[vi].ustart + (ui+.5)*UV_SQSIZ;
+				ua = uv_row[vi].ustart + (ui+0.5)*UV_SQSIZ;
 				ang = uv2ang(ua, va);
 				i = (int)ang;
-				epsa = fabs(ang - (i+.5));
+				epsa = fabs(ang - (i+0.5));
 				if(epsa < eps[i]) {
 					oog_table[i] = uv_row[vi].ncum + ui;
 					eps[i] = epsa;
@@ -804,11 +801,9 @@ static int oog_encode(double u, double v)          /* encode out-of-gamut chroma
 					if(eps[(i+NANGLES-i2)%NANGLES] < 1.5)
 						break;
 				if(i1 < i2)
-					oog_table[i] =
-					    oog_table[(i+i1)%NANGLES];
+					oog_table[i] = oog_table[(i+i1)%NANGLES];
 				else
-					oog_table[i] =
-					    oog_table[(i+NANGLES-i2)%NANGLES];
+					oog_table[i] = oog_table[(i+NANGLES-i2)%NANGLES];
 			}
 		initialized = 1;
 	}
@@ -832,7 +827,6 @@ LOGLUV_FUNC_QUALIF int uv_encode(double u, double v, int em)   /* encode (u',v')
 	ui = itrunc((u - uv_row[vi].ustart)*(1./UV_SQSIZ), em);
 	if(ui >= uv_row[vi].nus)
 		return oog_encode(u, v);
-
 	return (uv_row[vi].ncum + ui);
 }
 
@@ -842,7 +836,7 @@ LOGLUV_FUNC_QUALIF int uv_decode(double * up, double * vp, int c)        /* deco
 	int ui, vi;
 	if(c < 0 || c >= UV_NDIVS)
 		return -1;
-	lower = 0;                              /* binary search */
+	lower = 0; /* binary search */
 	upper = UV_NVS;
 	while(upper - lower > 1) {
 		vi = (lower + upper) >> 1;
@@ -865,48 +859,48 @@ LOGLUV_FUNC_QUALIF int uv_decode(double * up, double * vp, int c)        /* deco
 
 LOGLUV_FUNC_QUALIF void LogLuv24toXYZ(uint32 p, float XYZ[3])
 {
-	int Ce;
-	double u, v, s, x, y;
-	/* decode luminance */
-	double L = LogL10toY(p>>14 & 0x3ff);
-	if(L <= 0.) {
-		XYZ[0] = XYZ[1] = XYZ[2] = 0.;
-		return;
+	// decode luminance 
+	const double L = LogL10toY(p>>14 & 0x3ff);
+	if(L <= 0.0) {
+		XYZ[0] = XYZ[1] = XYZ[2] = 0.0;
 	}
-	/* decode color */
-	Ce = p & 0x3fff;
-	if(uv_decode(&u, &v, Ce) < 0) {
-		u = U_NEU; v = V_NEU;
+	else {
+		// decode color 
+		const int Ce = p & 0x3fff;
+		double u, v, s, x, y;
+		if(uv_decode(&u, &v, Ce) < 0) {
+			u = U_NEU; v = V_NEU;
+		}
+		s = 1.0/(6.0*u - 16.0*v + 12.0);
+		x = 9.0*u * s;
+		y = 4.0*v * s;
+		/* convert to XYZ */
+		XYZ[0] = (float)(x/y * L);
+		XYZ[1] = (float)L;
+		XYZ[2] = (float)((1.0-x-y)/y * L);
 	}
-	s = 1./(6.*u - 16.*v + 12.);
-	x = 9.*u * s;
-	y = 4.*v * s;
-	/* convert to XYZ */
-	XYZ[0] = (float)(x/y * L);
-	XYZ[1] = (float)L;
-	XYZ[2] = (float)((1.-x-y)/y * L);
 }
 
 LOGLUV_FUNC_QUALIF uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 {
 	int Ce;
 	double u, v;
-	/* encode luminance */
+	// encode luminance 
 	int Le = LogL10fromY(XYZ[1], em);
-	/* encode color */
+	// encode color 
 	double s = XYZ[0] + 15.*XYZ[1] + 3.*XYZ[2];
-	if(!Le || s <= 0.) {
+	if(!Le || s <= 0.0) {
 		u = U_NEU;
 		v = V_NEU;
 	}
 	else {
-		u = 4.*XYZ[0] / s;
-		v = 9.*XYZ[1] / s;
+		u = 4.0 * XYZ[0] / s;
+		v = 9.0 * XYZ[1] / s;
 	}
 	Ce = uv_encode(u, v, em);
-	if(Ce < 0)                      /* never happens */
+	if(Ce < 0) // never happens 
 		Ce = uv_encode(U_NEU, V_NEU, SGILOGENCODE_NODITHER);
-	/* combine encodings */
+	// combine encodings 
 	return (Le << 14 | Ce);
 }
 

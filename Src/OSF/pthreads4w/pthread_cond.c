@@ -89,9 +89,9 @@ int pthread_cond_init(pthread_cond_t * cond, const pthread_condattr_t * attr)
 	 * -------------
 	 */
 FAIL2:
-	(void)sem_destroy(&(cv->semBlockQueue));
+	sem_destroy(&(cv->semBlockQueue));
 FAIL1:
-	(void)sem_destroy(&(cv->semBlockLock));
+	sem_destroy(&(cv->semBlockLock));
 FAIL0:
 	SAlloc::F(cv);
 	cv = NULL;
@@ -209,7 +209,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
 			 * signal/broadcast.
 			 */
 			if((result = pthread_mutex_trylock(&(cv->mtxUnblockLock))) != 0) {
-				(void)sem_post(&(cv->semBlockLock));
+				sem_post(&(cv->semBlockLock));
 			}
 		}
 		if(result != 0) {
@@ -787,7 +787,7 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
 		/* Use the non-cancellable version of sem_wait() */
 		if(__ptw32_semwait(&(cv->semBlockLock)) != 0) {
 			result =  __PTW32_GET_ERRNO();
-			(void)pthread_mutex_unlock(&(cv->mtxUnblockLock));
+			pthread_mutex_unlock(&(cv->mtxUnblockLock));
 			return result;
 		}
 		if(0 != cv->nWaitersGone) {

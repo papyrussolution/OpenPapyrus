@@ -20,7 +20,6 @@
 /* Annex A.3 */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_arith_iaid.h"
 
 struct _Jbig2ArithIaidCtx {
 	uint8_t SBSYMCODELEN;

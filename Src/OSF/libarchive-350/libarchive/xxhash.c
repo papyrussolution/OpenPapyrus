@@ -361,28 +361,23 @@ static FORCE_INLINE XXH_errorcode XXH32_update_endian(void* state_in, const void
 		state->v3 = v3;
 		state->v4 = v4;
 	}
-
 	if(p < bEnd) {
 		XXH_memcpy(state->memory, p, bEnd-p);
 		state->memsize = (int)(bEnd-p);
 	}
-
 	return XXH_OK;
 }
 
-static
-XXH_errorcode XXH32_update(void* state_in, const void* input, unsigned int len)
+static XXH_errorcode XXH32_update(void* state_in, const void* input, unsigned int len)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
 		return XXH32_update_endian(state_in, input, len, XXH_littleEndian);
 	else
 		return XXH32_update_endian(state_in, input, len, XXH_bigEndian);
 }
 
-static
-FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endianess endian)
+static FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endianess endian)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	const BYTE * p = (const BYTE*)state->memory;
@@ -403,45 +398,36 @@ FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endianess e
 		h32  = XXH_rotl32(h32, 17) * PRIME32_4;
 		p += 4;
 	}
-
 	while(p<bEnd) {
 		h32 += (*p) * PRIME32_5;
 		h32 = XXH_rotl32(h32, 11) * PRIME32_1;
 		p++;
 	}
-
 	h32 ^= h32 >> 15;
 	h32 *= PRIME32_2;
 	h32 ^= h32 >> 13;
 	h32 *= PRIME32_3;
 	h32 ^= h32 >> 16;
-
 	return h32;
 }
 
-static
-U32 XXH32_intermediateDigest(void* state_in)
+static U32 XXH32_intermediateDigest(void* state_in)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
-
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
 		return XXH32_intermediateDigest_endian(state_in, XXH_littleEndian);
 	else
 		return XXH32_intermediateDigest_endian(state_in, XXH_bigEndian);
 }
 
-static
-U32 XXH32_digest(void* state_in)
+static U32 XXH32_digest(void* state_in)
 {
 	U32 h32 = XXH32_intermediateDigest(state_in);
-
 	XXH_free(state_in);
-
 	return h32;
 }
 
-const
-struct archive_xxhash __archive_xxhash = {
+const struct archive_xxhash __archive_xxhash = {
 	XXH32,
 	XXH32_init,
 	XXH32_update,

@@ -115,8 +115,8 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0), 
-		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0) //@erik v10.4.12 add "Stt(0),"
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0),
+		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0) //@erik v10.4.12 add "Stt(0),"
 	{
 	}
 	CheckStruct & Z()
@@ -140,6 +140,8 @@ struct CheckStruct {
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
 		ChZnProdType = 0; // @v10.7.2
+		ChZnPpResult = 0; // @v11.1.11
+		ChZnPpStatus = 0; // @v11.1.11
 		return *this;
 	}
 	int    CheckType;
@@ -148,7 +150,7 @@ struct CheckStruct {
 	double Quantity;
 	double Price;
 	int    Department;
-	// 
+	//
 	// Система налогообложения
 	// 0 	Основная
 	// 1 	Упрощенная Доход
@@ -156,7 +158,7 @@ struct CheckStruct {
 	// 3 	Единый налог на вмененный доход
 	// 4 	Единый сельскохозяйственный налог
 	// 5 	Патентная система налогообложения
-	// 
+	//
 	int    TaxSys;       // @v10.6.3 Система налогообложения
 	int    Tax;          //
 	int    Ptt;          // @v10.4.1 // CCheckPacket::PaymentTermTag
@@ -166,6 +168,8 @@ struct CheckStruct {
 	double PaymBank;
 	double PaymCCrdCard;
 	double IncassAmt;
+	int    ChZnPpResult; // @v11.1.11
+	int    ChZnPpStatus; // @v11.1.11
 	SString Text;
 	SString Code;        //
 	SString ChZnCode;    // @v10.6.12
@@ -186,7 +190,7 @@ public:
 			cpt.Get_Delay = 20;
 			CommPort.SetTimeouts(&cpt);
 		}
-		// } @v10.0.12 
+		// } @v10.0.12
 		Check.Z();
 		{
 			SString exe_file_name = SLS.GetExePath();
@@ -222,7 +226,7 @@ public:
 	//
 	// Для получения ответа при выполнении длинных операций (аннулирование, открытие, закрытие, внесение/изъятие наличности, открыть ящик)
 	//
-	int    GetWhile(SString & rOutData, SString & rError); 
+	int    GetWhile(SString & rOutData, SString & rError);
 	void   GetGlobalErrCode(); // Сделано для ошибок ЭКЛЗ
 	int    OpenBox();
 	int    GetStatus(SString & rStatus); // Возвращает статус ККМ (состояние принтера, статус документа)
@@ -247,7 +251,7 @@ public:
 	int    LastError;
 	int    FatalFlags;	// Флаги фатального сотояния. Нужно для возвращения значения в сообщении об ошибке.
 	int    LastStatus;  // Последний статус ККМ или документа
-	SVerT  OfdVer;      // @v11.1.9  
+	SVerT  OfdVer;      // @v11.1.9
 	SString OrgAddr;	// Адрес организации
 	SString CshrName;	// Имя кассира
 	SString LastStr;	// Содержит строку, которая не поместилась в выходной буфер
@@ -403,7 +407,7 @@ static const SIntToSymbTabEntry Pirit_ErrMsg[] = {
 	0x12 	Ошибка посылки данных в ОФД
 
 	Фатальные ошибки
-	0x20 	Фатальная ошибка ККТ. Причины возникновения данной ошибки можно уточнить в ”Статусе фатальных ошибок ККТ” 
+	0x20 	Фатальная ошибка ККТ. Причины возникновения данной ошибки можно уточнить в ”Статусе фатальных ошибок ККТ”
 
 	Ошибки ФН
 	0x41 	Некорректный формат или параметр команды ФН
@@ -430,16 +434,16 @@ static const SIntToSymbTabEntry Pirit_ErrMsg[] = {
 
 int	FASTCALL SetError(int errCode);
 int	FASTCALL SetError(char * pErrCode);
-int FASTCALL SetError(int errCode) 
-{ 
-	ErrorCode = errCode; 
-	return 1; 
+int FASTCALL SetError(int errCode)
+{
+	ErrorCode = errCode;
+	return 1;
 }
 
-int FASTCALL SetError(SString & rErrCode) 
-{ 
-	ErrorCode = rErrCode.ToLong(); 
-	return 1; 
+int FASTCALL SetError(SString & rErrCode)
+{
+	ErrorCode = rErrCode.ToLong();
+	return 1;
 }
 
 int Init()
@@ -501,8 +505,8 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 		// Освобожденные от НДС продавцы передают признак VATFREE но таблица не предусматривает такого элемента.
 		// По этому, используя эмпирическое правило, считаем, что второй элемент таблицы, имеющий нулевую
 		// ставку относится к VATFREE-продажам.
-		uint   zero_entry_1 = 0; 
-		uint   zero_entry_2 = 0; 
+		uint   zero_entry_1 = 0;
+		uint   zero_entry_2 = 0;
 		for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
 			if(DvcTaxArray[tidx].Name[0] || tidx == 3) { // @v10.0.0 (|| tidx == 3) костыль - это "освобожден от ндс" в трактовке Дрим Касс
 				const double entry_rate = DvcTaxArray[tidx].Rate;
@@ -572,7 +576,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 			(temp_buf = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
 		SLS.LogMessage(LogFileName, temp_buf);
 	}
-	// } @debug 
+	// } @debug
 	return tax_entry_n;
 }
 
@@ -623,7 +627,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Cfg.Port = param_val.ToLong();
 			if(pb.Get("BAUDRATE", param_val) > 0)
 				Cfg.BaudRate = param_val.ToLong();
-			// } @v10.8.10 
+			// } @v10.8.10
 			/* @v10.8.10 for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("PORT"))
@@ -662,7 +666,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				CshrName = param_val;
 			if(pb.Get("PRINTLOGO", param_val) > 0)
 				Cfg.Logo.Print = param_val.ToLong();
-			// } @v10.8.10 
+			// } @v10.8.10
 			/* @v10.8.10 for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("LOGNUM"))
@@ -692,21 +696,21 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		else if(cmd.IsEqiAscii("DIAGNOSTICS")) { // @v11.1.9
 			/*
 				Номер запроса (DEC) 	Наименование Запроса 	Формат возвращаемых данных 	Комментарии
-				1 	Вернуть заводской номер ККТ 	Строка 	
-				2 	Вернуть идентификатор прошивки 	Целое число 	
-				3 	Вернуть ИНН 	Строка 	
-				4 	Вернуть регистрационный номер ККТ 	Строка 	
-				5 	Вернуть дату и время последней фискальной операции 	Дата, Время 	
-				6 	Вернуть дату регистрации / перерегистрации 	Дата 	
-				7 	Вернуть сумму наличных в денежном ящике 	Дробное число 	
-				8 	Вернуть номер следующего документа 	Целое число 	
-				9 	Вернуть номер смены регистрации 	Целое число 	
-				10 	Вернуть номер следующего X отчета 	Целое число 	
-				11 	Вернуть текущий операционный счетчик 	Строка 	
+				1 	Вернуть заводской номер ККТ 	Строка
+				2 	Вернуть идентификатор прошивки 	Целое число
+				3 	Вернуть ИНН 	Строка
+				4 	Вернуть регистрационный номер ККТ 	Строка
+				5 	Вернуть дату и время последней фискальной операции 	Дата, Время
+				6 	Вернуть дату регистрации / перерегистрации 	Дата
+				7 	Вернуть сумму наличных в денежном ящике 	Дробное число
+				8 	Вернуть номер следующего документа 	Целое число
+				9 	Вернуть номер смены регистрации 	Целое число
+				10 	Вернуть номер следующего X отчета 	Целое число
+				11 	Вернуть текущий операционный счетчик 	Строка
 				12 	Вернуть нарастающий итог 	Дробное число, Дробное число, Дробное число, Дробное число 	Продажа (приход), Возврат (возврат прихода), Покупка (расход), Возврат покупки (возврат расхода)
 				15 	Вернуть тип прошивки 	Целое число 	0 - стандартная прошивка, 1 - отладочный комплект
 				16 	Вернуть размер бумаги текущего дизайна 	Целое число 	0 - 80мм, 1 - 57мм
-				17 	Вернуть дату и время открытия смены 	Дата, Время 	
+				17 	Вернуть дату и время открытия смены 	Дата, Время
 				18 	Вернуть количество символов в строке 	Целое число 	Для этого запроса можно вводить дополнительный входной параметр – номер шрифта. По умолчанию номер шрифта = 0
 				19 	Вернуть содержание регистра CID SD карты 	Строка 	Возвращается 16 байт регистра CID в HEX виде, начиная со старшего
 				20 	Вернуть содержание регистра CSD SD карты 	Строка 	Возвращается 16 байт регистра CSD в HEX виде, начиная со старшего
@@ -722,7 +726,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			StringSet dataset(FS, 0);
 			{
 				CreateStr(1, str.Z());
-				ExecCmd("02", str, out_data, r_error); // заводской номер ККТ / Строка 	
+				ExecCmd("02", str, out_data, r_error); // заводской номер ККТ / Строка
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 1) {
@@ -734,7 +738,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			{
 				CreateStr(2, str.Z());
-				ExecCmd("02", str, out_data, r_error); // идентификатор прошивки / Целое число 	
+				ExecCmd("02", str, out_data, r_error); // идентификатор прошивки / Целое число
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 1) {
@@ -746,7 +750,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			{
 				CreateStr(3, str.Z());
-				ExecCmd("02", str, out_data, r_error); // ИНН / Строка 	
+				ExecCmd("02", str, out_data, r_error); // ИНН / Строка
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 1) {
@@ -758,7 +762,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			{
 				CreateStr(4, str.Z());
-				ExecCmd("02", str, out_data, r_error); // регистрационный номер ККТ / Строка 
+				ExecCmd("02", str, out_data, r_error); // регистрационный номер ККТ / Строка
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 1) {
@@ -770,7 +774,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			{
 				CreateStr(5, str.Z());
-				ExecCmd("02", str, out_data, r_error); // дату и время последней фискальной операции / Дата, Время 	
+				ExecCmd("02", str, out_data, r_error); // дату и время последней фискальной операции / Дата, Время
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 2) {
@@ -786,7 +790,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			{
 				CreateStr(6, str.Z());
-				ExecCmd("02", str, out_data, r_error); // дату регистрации/перерегистрации / Дата 	
+				ExecCmd("02", str, out_data, r_error); // дату регистрации/перерегистрации / Дата
 				dataset.setBuf(out_data);
 				const uint dsc = dataset.getCount();
 				if(dsc > 1) {
@@ -1131,7 +1135,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			if(pb.Get("OFDVER", param_val) > 0) {
 				OfdVer.FromStr(param_val);
 			}
-			// } @v11.1.9 
+			// } @v11.1.9
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -1149,7 +1153,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// @v10.8.12 {
 			if(pb.Get("CHZNCID", param_val) > 0)
 				Check.ChZnCid = param_val;
-			// } @v10.8.12 
+			// } @v10.8.12
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
@@ -1205,7 +1209,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				blk.VatRate = R2(param_val.ToReal());
 			}
 			if(pb.Get("VATFREE", param_val) > 0) {
-				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
+				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1")
 					blk.IsVatFree = 1;
 			}
 			if(pb.Get("VATAMOUNT20", param_val) > 0) {
@@ -1248,15 +1252,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				blk.Dt = getcurdate_();
 			{
 				int    correction_type = 0;
-				// 
+				//
 				// Тип коррекции
 				// Номер бита 	Пояснение
 				// 0 	0 - самостоятельная коррекция, 1 - коррекция по предписанию
 				// 1 	0 - приход, 1 - расход
 				// 2..4 	Система налогообложения (см. ниже)
-				// 5 	Если бит = 0, то вместо суммы налога в поле "Сумма налога по ставке 18%" 
+				// 5 	Если бит = 0, то вместо суммы налога в поле "Сумма налога по ставке 18%"
 				//   передается номер ставки налога, по которой исчисляется сумма налога, остальные суммы налогов не воспринимаются
-				// 
+				//
 				// Система налогообложения
 				// Значение 	Пояснение
 				// 0 	Основная
@@ -1265,7 +1269,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				// 3 	Единый налог на вмененный доход
 				// 4 	Единый сельскохозяйственный налог
 				// 5 	Патентная система налогообложения
-				// 
+				//
 				int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : -1;
 				if(vat_entry_n >= 0)
 					correction_type &= ~0x10;
@@ -1277,7 +1281,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					correction_type &= ~0x02;
 
 				SString in_data;
-				// 
+				//
 				// CMD 0x58
 				// Parameters:
 				//   (Имя оператора) Имя оператора
@@ -1287,7 +1291,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				//   (Дробное число) Сумма постоплатой              "POSTPAY"
 				//   (Дробное число) Сумма встречным представлением "RECKONPAY"
 				//   (Число) Тип коррекции
-				//   (Дата) Дата документа основания коррекции           "DATE" 
+				//   (Дата) Дата документа основания коррекции           "DATE"
 				//   (Строка[1..32]) Номер документа основания коррекции "CODE"
 				//   (Строка[1..64]) Наименование основания коррекции    "TEXT"
 				//   (Дробное число) Сумма налога по ставке 18%          "VATAMOUNT18"
@@ -1296,7 +1300,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				//   (Дробное число) Сумма расчета без налога            "VATFREEAMOUNT"
 				//   (Дробное число) Сумма расчета по расч. ставке 18/118
 				//   (Дробное число) Сумма расчета по расч. ставке 10/110
-				//   
+				//
 				CreateStr(CshrName, in_data);
 				CreateStr(fabs(blk.CashAmt), in_data);
 				CreateStr(fabs(blk.BankAmt), in_data);
@@ -1317,7 +1321,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 				else {
 					// @v10.4.8 CreateStr(fabs(blk.Vat18Amt), in_data);
-					CreateStr(fabs(blk.Vat20Amt), in_data); // @v10.4.8 
+					CreateStr(fabs(blk.Vat20Amt), in_data); // @v10.4.8
 					CreateStr(fabs(blk.Vat10Amt), in_data);
 					CreateStr(fabs(blk.Vat0Amt), in_data);
 					CreateStr(fabs(blk.VatFreeAmt), in_data);
@@ -1344,7 +1348,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.Price = param_val.ToReal();
 			if(pb.Get("DEPARTMENT", param_val) > 0)
 				Check.Department = param_val.ToLong();
-			if(pb.Get("TEXT", param_val) > 0) 
+			if(pb.Get("TEXT", param_val) > 0)
 				Check.Text = param_val;
 			if(pb.Get("CODE", param_val) > 0)
 				Check.Code = param_val;
@@ -1358,11 +1362,17 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.ChZnPartN = param_val;
 			if(pb.Get("CHZNPRODTYPE", param_val) > 0) // @v10.7.2
 				Check.ChZnProdType = param_val.ToLong();
+			// @v11.1.11 {
+			if(pb.Get("CHZNPPRESULT", param_val) > 0)
+				Check.ChZnPpResult = param_val.ToLong();
+			if(pb.Get("CHZNPPSTATUS", param_val) > 0) 
+				Check.ChZnPpStatus = param_val.ToLong();
+			// } @v11.1.11
 			if(pb.Get("VATRATE", param_val) > 0) {
 				_vat_rate = R2(param_val.ToReal());
 			}
 			if(pb.Get("VATFREE", param_val) > 0) {
-				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
+				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1")
 					is_vat_free = 1;
 			}
 			if(pb.Get("PAYMENTTERMTAG", param_val) > 0) { // @v10.4.1
@@ -1442,7 +1452,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// @v11.0.9 {
 			else
 				Check.Text.Space();
-			// } @v11.0.9 
+			// } @v11.0.9
 			THROW(RunCheck(3));
 		}
 		else if(cmd.IsEqiAscii("PRINTBARCODE")) {
@@ -1550,7 +1560,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			memcpy(pOutputData, str, outSize);
 			//CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
 		}
-		// } @v10.8.1 
+		// } @v10.8.1
 		else if(cmd.IsEqiAscii("GETECRSTATUS")) {
 			THROW(GetStatus(str));
 			if(outSize < str.BufSize()) {
@@ -1863,7 +1873,7 @@ int PiritEquip::SetCfg()
 		CreateStr(0, in_data);
 		THROW(ExecCmd("11", in_data, out_data, r_error)); // Получаем параметры чека
 		*/
-		THROW(ReadConfigTab(2, 0, out_data, r_error)); 
+		THROW(ReadConfigTab(2, 0, out_data, r_error));
 		flag = out_data.ToLong();
 		flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
 		//
@@ -2002,7 +2012,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags
 		//
 			// --> 79/1
 			// --> 79/2
-			// 
+			//
 			// --> 79/15
 		//
 		//
@@ -2058,17 +2068,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags
 		*/
 		in_data.Z();
 		CreateStr(1, in_data);
-		{
-			_code.Z();
-			const size_t rl = strlen(pMarkCode);
-			for(size_t si = 0; si < rl; si++) {
-				if(si < 8)
-					_code.CatChar('$').CatHex(static_cast<uchar>(pMarkCode[si]));
-				else
-					_code.CatChar(pMarkCode[si]);
-			}
-			CreateStr(_code, in_data);
-		}
+		CreateStr(pMarkCode, in_data);
 		CreateStr(0, in_data);
 		int   ps = 1; // Планируемый статус товара(тег 2003)
 		if(flags & pchznmfReturn)
@@ -2127,7 +2127,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
 			CreateStr(Check.CheckNum, in_data);
-			if(Check.TaxSys >= 0 && Check.TaxSys <= 5) // @v10.6.4 
+			if(Check.TaxSys >= 0 && Check.TaxSys <= 5) // @v10.6.4
 				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data); // @v10.6.3
 			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
@@ -2163,7 +2163,7 @@ int PiritEquip::RunCheck(int opertype)
 						CreateStr("", in_data);
 						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
-					// } @v10.4.6 
+					// } @v10.4.6
 				}
 				/*
 					(Целое число) Флаг отрезки
@@ -2199,7 +2199,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				// } @v10.8.12
 				THROW(ExecCmd("31", in_data, out_data, r_error));
-				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug 
+				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug
 			}
 			// new {
 			else {
@@ -2249,7 +2249,7 @@ int PiritEquip::RunCheck(int opertype)
 			/*
 				Установить дополнительные реквизиты позиции (0x24)
 
-				Команда вызывается перед командой добавления товарной позиции и устанавливает дополнительные реквизиты. 
+				Команда вызывается перед командой добавления товарной позиции и устанавливает дополнительные реквизиты.
 				Действие команды распространяется на одну товарную позицию в открытом документе.
 
 				Каждый номер телефона должен начинаться с символа "+" и не должен превышать ограничение длины в 19 символов (включая "+").
@@ -2275,8 +2275,8 @@ int PiritEquip::RunCheck(int opertype)
 
 				Код товарной номенклатуры
 
-				В поле «Код товарной номенклатуры» могут быть переданы шестнадцатеричные данные, каждый такой байт имеет вид: 
-				$xy, где x и y – шестнадцатиричные цифры, например $C5 соответствует значению 0xC5. Количество предмет расчёта, 
+				В поле «Код товарной номенклатуры» могут быть переданы шестнадцатеричные данные, каждый такой байт имеет вид:
+				$xy, где x и y – шестнадцатиричные цифры, например $C5 соответствует значению 0xC5. Количество предмет расчёта,
 				для которого задан код товарной номенклатуры, должно равняться единице. Поле передается в ФН без изменений. Структура его определяется ФФД.
 
 				Начиная с версии 665.2.29, допустимы лишь кода, первые 2 байта которых соответствуют таблице:
@@ -2302,9 +2302,8 @@ int PiritEquip::RunCheck(int opertype)
 					5 	Комиссионер
 					6 	Агент
 			*/
-			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up) 
-			// @v10.6.12 @construction {
-			if(/*Check.ChZnProdType &&*/Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
+			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up)
+			if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
 				in_data.Z();
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
@@ -2312,8 +2311,8 @@ int PiritEquip::RunCheck(int opertype)
 					case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
 					case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
 					case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
-					case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
-					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+					case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
+					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
 					default: product_type_bytes = 0x444D; break; // @v11.0.5
 				}
 				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
@@ -2327,54 +2326,56 @@ int PiritEquip::RunCheck(int opertype)
 						{
 							// --> 79/1
 							// --> 79/2
-							// 
+							//
 							// --> 79/15
 						}
-						PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
+						//PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
 						//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
+						// 79
+						in_data.Z();
+						CreateStr(15, in_data);
+						CreateStr(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
+						CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (тег 2110)
+						CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (тег 2102) = 0
+						CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (тег 2106)
+						CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
+						THROW(ExecCmd("79", in_data, out_data, r_error));
 					}
 					else {
-					}
 					// } @v11.1.10
-					//
-					// @v11.1.9 {
-					if(OfdVer.IsGe(1, 2, 0)) {
-						str.CatChar('@'); 
-					}
-					// } @v11.1.9 
-					for(int si = 0; si < rl; si++) {
-						if(si < 8)
-							str.CatChar('$').CatHex(chzn_1162_bytes[si]);
-						else
-							str.CatChar(chzn_1162_bytes[si]);
-						//str.CatHex(chzn_1162_bytes[si]);
-					}
-					//str.Trim(32);
-					//(str = Check.ChZnCode).Trim(32); // [1..32]
-					CreateStr(str, in_data); // Код товарной номенклатуры
-					if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
-						CreateStr("mdlp", in_data); 
-					else
-						CreateStr("[M]", in_data); 
-					{
-						const int do_check_ret = 1;
-						OpLogBlock __oplb(LogFileName, "24", str);
-						THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
-						if(do_check_ret) {
-							THROW(GetWhile(out_data, r_error));
+						for(int si = 0; si < rl; si++) {
+							if(si < 8)
+								str.CatChar('$').CatHex(chzn_1162_bytes[si]);
+							else
+								str.CatChar(chzn_1162_bytes[si]);
+							//str.CatHex(chzn_1162_bytes[si]);
 						}
-						else {
-							out_data.Z();
-							r_error = "00";
+						//str.Trim(32);
+						//(str = Check.ChZnCode).Trim(32); // [1..32]
+						CreateStr(str, in_data); // Код товарной номенклатуры
+						if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
+							CreateStr("mdlp", in_data);
+						else
+							CreateStr("[M]", in_data);
+						{
+							const int do_check_ret = 1;
+							OpLogBlock __oplb(LogFileName, "24", str);
+							THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
+							if(do_check_ret) {
+								THROW(GetWhile(out_data, r_error));
+							}
+							else {
+								out_data.Z();
+								r_error = "00";
+							}
 						}
 					}
 				}
 			}
-			// } @v10.6.12 
 			// @v10.7.9 (moved up) THROW(GetCurFlags(3, flag));
 			in_data.Z();
 			(str = Check.Text).Trim(220); // [0..224]
-			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
+			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text
 			(str = Check.Code).Trim(13); // [0..18]
 			CreateStr(str, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
 			CreateStr(Check.Quantity, in_data);
@@ -2426,7 +2427,7 @@ int PiritEquip::RunCheck(int opertype)
 							6 – Шрифт 24х45 жирный
 						4	Печать двойной высоты текста
 						5	Печать двойной ширины текста
-						6	Не используется 
+						6	Не используется
 						7	Не используется
 					*/
 					if(oneof2(Check.FontSize, 1, 2))
@@ -2545,7 +2546,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 					(str = "AMOUNT (Cmd=03 Arg=1)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
 				}
-				// } @v10.1.6 
+				// } @v10.1.6
 				uint k = 0;
 				dataset.get(&k, str); // Номер запроса
 				dataset.get(&k, str);
@@ -2562,7 +2563,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 					(str = "CHECKNUM (Cmd=03 Arg=2)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
 				}
-				// } @v10.1.5 
+				// } @v10.1.5
 				uint   k = 0;
 				// Возвращаемые значения (в порядке следования в буфере ответа) {
 				int    cc_type = 0; // Тип чека
@@ -2608,7 +2609,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 					}
 				}
 			}
-			if(!succs) 
+			if(!succs)
 				s_output.CatEq("CASHAMOUNT", "0.0").Semicol();
 		}
 	}
@@ -2858,7 +2859,7 @@ int PiritEquip::GetStatus(SString & rStatus)
 	LastStatus = status;
 	if(status == CHECKCLOSED) // Этот статус не надо передавать во внешнюю программу
 		status = 0;
-	// @v9.6.9 rStatus.CatEq("STATUS", status); 
+	// @v9.6.9 rStatus.CatEq("STATUS", status);
 	CATCHZOK
 	rStatus.CatEq("STATUS", status);
 	return ok;
@@ -2933,7 +2934,7 @@ int PiritEquip::PrintLogo(int print)
 		THROW(GetWhile(out_data, r_error));
 	}
 	*/
-	THROW(ReadConfigTab(1, 0, out_data, r_error)); 
+	THROW(ReadConfigTab(1, 0, out_data, r_error));
 	flag = out_data.ToLong();
 	SETFLAG(flag, 0x04, print);
 	/*

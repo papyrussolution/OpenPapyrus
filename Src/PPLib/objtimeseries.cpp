@@ -3828,7 +3828,7 @@ PPObjTimeSeries::OptimalFactorRange_WithPositions & PPObjTimeSeries::OptimalFact
 PPObjTimeSeries::Strategy::Strategy() : ID(0), InputFrameSize(0), MainFrameSize(0), Prec(0), TargetQuant(0), MaxDuckQuant(0), OptDelta2Stride(0), StakeMode(0),
 	StakeCloseMode(0), BaseFlags(0), PeakAvgQuant(0), BottomAvgQuant(0), PeakMaxQuant(0), GenSeq(0), GenPtCount(0), StakeCount(0), WinCount(0), StakeCountAtFinalSimulation(0),
 	Margin(0.0), SpikeQuant_s(0.0), SpreadAvg(0.0), TrendErrAvg(0.0), TrendErrLim(0.0), TrendErrLowLim(0.0f), MainTrendErrAvg(0.0), MainTrendErrLim(0.0), ADF(0.0f), UEF(0.0f),
-	GenTEA(0.0f), GenTED(0.0f), CADF(0.0f), MRSF(0.0f)
+	GenTEA(0.0f), GenTED(0.0f), CADF(0.0f), MRSF(0.0f), ATWC(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -3837,6 +3837,10 @@ void PPObjTimeSeries::Strategy::Reset()
 {
 	SpikeQuant_s = 0.0;
 	MaxDuckQuant = 0;
+}
+
+PPObjTimeSeries::StrategyContainer::CriterionRange::CriterionRange() : Crit(0), Side(-1), low(0.0f), upp(0.0f)
+{
 }
 
 PPObjTimeSeries::StrategyContainer::FlatBlock::FlatBlock() : MainTrendErrAvg(0.0), AvgLocalDeviation(0.0), 
@@ -7881,6 +7885,7 @@ int PrcssrTsStrategyAnalyze::Run()
 								if(tss_model.Rec.Flags & PPTssModel::fSeparateInpFrameSizes && tss_model.InputFrameSizeList.getCount() > 1) {
 									PPObjTimeSeries::StrategyContainer * p_best_container = 0;
 									PPObjTimeSeries::StrategyContainer aggregated_container; // @v10.8.9
+									PPObjTimeSeries::StrategyContainer gathered_container; // @v11.1.11 Контейнер, в которые собираются стратегии, безукоризненно отработавшие в форвардном периоде
 									TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
 									TSVector <ForwardResultEntry> forward_result_list;
 									PPObjTimeSeries::TsDensityMap dmap;
@@ -7892,6 +7897,7 @@ int PrcssrTsStrategyAnalyze::Run()
 									}
 									else 
 										local_input_frame_size_list = tss_model.InputFrameSizeList;
+									gathered_container.Setup(ts_pack, &tss_model, ctspb.GetLastValTime(), date_till); // @v11.1.11
 									for(uint ifsidx = 0; ifsidx < local_input_frame_size_list.getCount(); ifsidx++) {
 										PPObjTimeSeries::StrategyContainer * p_scontainer = container_list.CreateNewItem();
 										PPObjTimeSeries::StrategyResultEntry sre;
@@ -7918,6 +7924,13 @@ int PrcssrTsStrategyAnalyze::Run()
 														if(TryStrategyContainer(config, ts_pack.Rec.ID, &ts_2, &temp_sc, tscfSkipOutput, result_collection)) {
 															PPObjTimeSeries::StrategyToString(temp_sc, 0, 0, 0, ts_buf);
 															if(result_collection.Atdr.StakeCount) {
+																// @v11.1.11 {
+																if(result_collection.Atdr.LossCount == 0 && result_collection.Atdr.WinCount >= 2) {
+																	PPObjTimeSeries::Strategy s_copy(r_s);
+																	s_copy.ATWC = result_collection.Atdr.WinCount;
+																	gathered_container.insert(&s_copy);
+																}
+																// } @v11.1.11 
 																result_collection.MakeIndex();
 																for(uint rcidx = 0; rcidx < result_collection.GetIndexCount(); rcidx++) {
 																	uint   dlidx = 0;
@@ -7979,11 +7992,9 @@ int PrcssrTsStrategyAnalyze::Run()
 										PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total-single-2.txt", temp_buf);
 										SFile f_out_total_single(temp_buf, SFile::mAppend);
 										if(f_out_total_single.IsValid()) {
-											dmap.EntryToStr(0, 0, temp_buf);
-											f_out_total_single.WriteLine(temp_buf.CR());
+											f_out_total_single.WriteLine(dmap.EntryToStr(0, 0, temp_buf).CR());
 											for(uint adsi = 0; adsi < dmap.getCount(); adsi++) {
-												dmap.EntryToStr(&dmap.at(adsi), ts_pack.Rec.Symb, temp_buf);
-												f_out_total_single.WriteLine(temp_buf.CR());
+												f_out_total_single.WriteLine(dmap.EntryToStr(&dmap.at(adsi), ts_pack.Rec.Symb, temp_buf).CR());
 											}
 											f_out_total_single.WriteBlancLine();
 										}
@@ -8083,6 +8094,16 @@ int PrcssrTsStrategyAnalyze::Run()
 											f_out_total_single.Flush();
 										}
 									}
+									// @v11.1.11 {
+									if(!p_best_container && gathered_container.getCount()) {
+										LAssocArray count_assoc;
+										for(uint gcidx = 0; gcidx < gathered_container.getCount(); gcidx++) {
+											count_assoc.IncrementValueByKey(gathered_container.at(gcidx).ATWC);
+										}
+										count_assoc.SortByVal();
+										p_best_container = &gathered_container;
+									}
+									// } @v11.1.11 
 									if(!p_best_container && forward_result_list.getCount()) {
 										//
 										// Если существует более одного контейнера с вероятностью выигрыша более или равной 0.8
@@ -9095,9 +9116,8 @@ PPObjTimeSeries::TsDensityMap::TsDensityMap() : TSVector <TsDensityMapEntry>(), 
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pEntry, const char * pSymb, SString & rBuf) const
+SString & PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pEntry, const char * pSymb, SString & rBuf) const
 {
-	int    ok = 1;
 	rBuf.Z();
 	if(!pEntry) {
 		//symb;side;frame;count;ADF;UEF;GenTEA;GenTED;CADF;ErrRel;Angle.lo;Angle.up;stake;win;loss
@@ -9130,7 +9150,7 @@ int PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pEntry, 
 			Semicol().Cat(pEntry->WinCount).
 			Semicol().Cat(pEntry->LossCount);
 	}
-	return ok;
+	return rBuf;
 }
 
 int PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
@@ -9550,8 +9570,7 @@ int TestTsDensityMap() // @debug
 						if(r_entry.TsID == ts_id) {
 							if(dmap.SearchKNN(i, K, /*PPObjTimeSeries::TsDensityMap::knnfSameTS*/0, knn_list) > 0) {
 								knn_result_buf.Z();
-								dmap.EntryToStr(&r_entry, ts_rec.Symb, line_buf);
-								f_out_knn.WriteLine(line_buf.CR());
+								f_out_knn.WriteLine(dmap.EntryToStr(&r_entry, ts_rec.Symb, line_buf).CR());
 								knn_result_buf.CatChar('[').Cat(r_entry.WinCount).CatChar('|');
 								enum {
 									_knncase_skip = 0,
@@ -9570,8 +9589,7 @@ int TestTsDensityMap() // @debug
 										knn_result_buf.Space();
 									knn_result_buf.Cat(r_knn_entry.WinCount);
 									knn_win_count += r_knn_entry.WinCount;
-									dmap.EntryToStr(&r_knn_entry, 0, temp_buf);
-									line_buf.Z().Tab(2).Cat(knn_list.at(j).Val, MKSFMTD(0, 5, 0)).Space().Cat(temp_buf);
+									line_buf.Z().Tab(2).Cat(knn_list.at(j).Val, MKSFMTD(0, 5, 0)).Space().Cat(dmap.EntryToStr(&r_knn_entry, 0, temp_buf));
 									f_out_knn.WriteLine(line_buf.CR());
 								}
 								if(knn_win_count == (K-1)) {

@@ -139,7 +139,7 @@ const char* OPJ_CALLCONV opj_version(void)
 
 opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 {
-	opj_codec_private_t * l_codec = (opj_codec_private_t*)opj_calloc(1, sizeof(opj_codec_private_t));
+	opj_codec_private_t * l_codec = (opj_codec_private_t*)SAlloc::C(1, sizeof(opj_codec_private_t));
 	if(!l_codec) {
 		return 00;
 	}
@@ -532,7 +532,7 @@ opj_codec_t* OPJ_CALLCONV opj_create_compress(OPJ_CODEC_FORMAT p_format)
 {
 	opj_codec_private_t * l_codec = 00;
 
-	l_codec = (opj_codec_private_t*)opj_calloc(1, sizeof(opj_codec_private_t));
+	l_codec = (opj_codec_private_t*)SAlloc::C(1, sizeof(opj_codec_private_t));
 	if(!l_codec) {
 		return 00;
 	}
@@ -781,7 +781,7 @@ OPJ_BOOL OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters,
 
 	/* use array based MCT */
 	parameters->tcp_mct = 2;
-	parameters->mct_data = opj_malloc(l_mct_total_size);
+	parameters->mct_data = SAlloc::M(l_mct_total_size);
 	if(!parameters->mct_data) {
 		return OPJ_FALSE;
 	}

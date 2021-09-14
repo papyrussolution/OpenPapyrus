@@ -72,7 +72,7 @@ int PThr4wTest_Create2()
 		static void * func(void * arg)
 		{
 			washere = 1;
-			return (void*)0;
+			return 0;
 		}
 	};
 	const int NUMTHREADS = 10000;
@@ -109,7 +109,7 @@ int PThr4wTest_Create3()
 		static void * func(void * arg)
 		{
 			washere = (int)(size_t)arg;
-			return (void*)0;
+			return 0;
 		}
 	};
 	const int NUMTHREADS = 10000;

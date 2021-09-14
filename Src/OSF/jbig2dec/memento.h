@@ -184,21 +184,21 @@
 
 #ifndef MEMENTO_H
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #define MEMENTO_H
 
 #ifndef MEMENTO_UNDERLYING_MALLOC
-#define MEMENTO_UNDERLYING_MALLOC malloc
+#define MEMENTO_UNDERLYING_MALLOC SAlloc::M
 #endif
 #ifndef MEMENTO_UNDERLYING_FREE
-#define MEMENTO_UNDERLYING_FREE free
+#define MEMENTO_UNDERLYING_FREE SAlloc::F
 #endif
 #ifndef MEMENTO_UNDERLYING_REALLOC
-#define MEMENTO_UNDERLYING_REALLOC realloc
+#define MEMENTO_UNDERLYING_REALLOC SAlloc::R
 #endif
 #ifndef MEMENTO_UNDERLYING_CALLOC
-#define MEMENTO_UNDERLYING_CALLOC calloc
+#define MEMENTO_UNDERLYING_CALLOC SAlloc::C
 #endif
 
 #ifndef MEMENTO_MAXALIGN
@@ -215,7 +215,6 @@
 int Memento_checkBlock(void *);
 int Memento_checkAllMemory(void);
 int Memento_check(void);
-
 int Memento_setParanoia(int);
 int Memento_paranoidAt(int);
 int Memento_breakAt(int);
@@ -250,34 +249,25 @@ void *Memento_takeRef(void *blk);
 void *Memento_dropRef(void *blk);
 void *Memento_adjustRef(void *blk, int adjust);
 void *Memento_reference(void *blk);
-
 int Memento_checkPointerOrNull(void *blk);
 int Memento_checkBytePointerOrNull(void *blk);
 int Memento_checkShortPointerOrNull(void *blk);
 int Memento_checkIntPointerOrNull(void *blk);
-
 void Memento_startLeaking(void);
 void Memento_stopLeaking(void);
-
 int Memento_sequence(void);
-
 int Memento_squeezing(void);
-
 void Memento_fin(void);
-
 void Memento_bt(void);
 
 #ifdef MEMENTO
-
-#ifndef COMPILING_MEMENTO_C
-#define malloc  Memento_malloc
-#define free    Memento_free
-#define realloc Memento_realloc
-#define calloc  Memento_calloc
-#endif
-
+	#ifndef COMPILING_MEMENTO_C
+		#define malloc  Memento_malloc
+		#define free    Memento_free
+		#define realloc Memento_realloc
+		#define calloc  Memento_calloc
+	#endif
 #else
-
 #define Memento_malloc  MEMENTO_UNDERLYING_MALLOC
 #define Memento_free    MEMENTO_UNDERLYING_FREE
 #define Memento_realloc MEMENTO_UNDERLYING_REALLOC

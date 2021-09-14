@@ -295,8 +295,7 @@ uint64_t lzma_memusage(const lzma_stream *strm)
 {
 	uint64_t memusage;
 	uint64_t old_memlimit;
-	if(strm == NULL || strm->internal == NULL || strm->internal->next.memconfig == NULL || 
-		strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
+	if(!strm || !strm->internal || !strm->internal->next.memconfig || strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
 		return 0;
 	return memusage;
 }
@@ -305,8 +304,7 @@ uint64_t lzma_memlimit_get(const lzma_stream *strm)
 {
 	uint64_t old_memlimit;
 	uint64_t memusage;
-	if(strm == NULL || strm->internal == NULL || strm->internal->next.memconfig == NULL || 
-		strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
+	if(!strm || !strm->internal || !strm->internal->next.memconfig || strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
 		return 0;
 	return old_memlimit;
 }

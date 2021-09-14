@@ -23,10 +23,6 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_generic.h"
-//#include "jbig2_image.h"
-#include "jbig2_mmr.h"
-#include "jbig2_segment.h"
 
 typedef struct {
 	uint32_t width;
@@ -1029,8 +1025,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 			b1 = jbig2_find_changing_element_of_color(ref, a0, mmr->width, !c);
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative V(0) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative V(0) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1048,8 +1043,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 += 1;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VR(1) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VR(1) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1067,8 +1061,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 += 2;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VR(2) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VR(2) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1086,8 +1079,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 += 3;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VR(3) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VR(3) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1105,8 +1097,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 -= 1;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VL(1) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VL(1) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1124,8 +1115,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 -= 2;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VL(2) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VL(2) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)
@@ -1143,8 +1133,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 				b1 -= 3;
 			if(c) {
 				if(b1 < a0) {
-					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER,
-					    "ignoring negative VL(3) run");
+					jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ignoring negative VL(3) run");
 					b1 = a0;
 				}
 				if(a0 < mmr->width)

@@ -511,7 +511,7 @@ static bool math_PI(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 r
 static bool math_E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 	{ return vm->ReturnValue(GravityValue::from_float(/*2.718281828459045*/SMathConst::E), rindex); }
 static bool math_LN2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
-	{ return vm->ReturnValue(GravityValue::from_float(0.6931471805599453), rindex); }
+	{ return vm->ReturnValue(GravityValue::from_float(/*0.6931471805599453*/SMathConst::Ln2), rindex); }
 static bool math_LN10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 	{ return vm->ReturnValue(GravityValue::from_float(2.302585092994046), rindex); }
 static bool math_LOG2E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 

@@ -564,33 +564,26 @@ int main_m4(int argc, char * const * argv, FILE* in, FILE* out)
 		SAlloc::F(defines);
 		defines = next;
 	}
-
 	/* Handle remaining input files.  Each file is pushed on the input,
 	   and the input read.  Wrapup text is handled separately later.  */
-
 	if(optind == argc && !seen_file)
 		process_file("-", in);
 	else
 		for(; optind < argc; optind++)
 			process_file(argv[optind], in);
-
 	/* Now handle wrapup text.  */
-
 	while(pop_wrapup())
 		expand_input();
-
 	/* Change debug stream back to stderr, to force flushing the debug
 	   stream and detect any errors it might have encountered.  The
 	   three standard streams are closed by close_stdin.  */
 	debug_set_output(NULL);
-
 	if(frozen_file_to_write)
 		produce_frozen_state(frozen_file_to_write);
 	else {
 		make_diversion(0);
 		undivert_all();
 	}
-
 	output_exit();
 	free_macro_sequence();
 //  exit (retcode);

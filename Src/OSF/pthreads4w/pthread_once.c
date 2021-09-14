@@ -30,7 +30,7 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-int pthread_once(pthread_once_t * once_control, void(__PTW32_CDECL * init_routine) (void))
+int pthread_once(pthread_once_t * once_control, void(__PTW32_CDECL * init_routine)())
 {
 	if(once_control == NULL || init_routine == NULL) {
 		return EINVAL;

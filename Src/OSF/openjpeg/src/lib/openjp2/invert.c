@@ -66,9 +66,7 @@ static void opj_lupInvert(OPJ_FLOAT32 * pSrcMatrix,
 /**
  * Matrix inversion.
  */
-OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix,
-    OPJ_FLOAT32 * pDestMatrix,
-    OPJ_UINT32 nb_compo)
+OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix, OPJ_FLOAT32 * pDestMatrix, OPJ_UINT32 nb_compo)
 {
 	OPJ_BYTE * l_data = 00;
 	OPJ_UINT32 l_permutation_size = nb_compo * (OPJ_UINT32)sizeof(OPJ_UINT32);
@@ -76,8 +74,7 @@ OPJ_BOOL opj_matrix_inversion_f(OPJ_FLOAT32 * pSrcMatrix,
 	OPJ_UINT32 l_total_size = l_permutation_size + 3 * l_swap_size;
 	OPJ_UINT32 * lPermutations = 00;
 	OPJ_FLOAT32 * l_double_data = 00;
-
-	l_data = (OPJ_BYTE*)opj_malloc(l_total_size);
+	l_data = (OPJ_BYTE*)SAlloc::M(l_total_size);
 	if(l_data == 0) {
 		return OPJ_FALSE;
 	}

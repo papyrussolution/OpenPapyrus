@@ -32,23 +32,16 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *   This function returns a reference to the current running
- *   thread.
- *
+ *   This function returns a reference to the current running thread.
  * PARAMETERS
  *   N/A
- *
- *
  * DESCRIPTION
- *   This function returns a reference to the current running
- *   thread.
- *
+ *   This function returns a reference to the current running thread.
  * RESULTS
  *           pthread_t       reference to the current thread
- *
  * ------------------------------------------------------
  */
-pthread_t pthread_self(void)
+pthread_t pthread_self()
 {
 	pthread_t self;
 	pthread_t nil = {NULL, 0};
@@ -63,10 +56,7 @@ pthread_t pthread_self(void)
 	}
 	else {
 		int fail =  __PTW32_FALSE;
-		/*
-		 * Need to create an implicit 'self' for the currently
-		 * executing thread.
-		 */
+		// Need to create an implicit 'self' for the currently executing thread.
 		self = __ptw32_new();
 		sp = (__ptw32_thread_t *)self.p;
 		if(sp != NULL) {
@@ -97,12 +87,11 @@ pthread_t pthread_self(void)
 #endif
 			if(!fail) {
 #if defined(HAVE_CPU_AFFINITY)
-
-				/*
-				 * Get this threads CPU affinity by temporarily setting the threads
-				 * affinity to that of the process to get the old thread affinity,
-				 * then reset to the old affinity.
-				 */
+				// 
+				// Get this threads CPU affinity by temporarily setting the threads
+				// affinity to that of the process to get the old thread affinity,
+				// then reset to the old affinity.
+				// 
 				DWORD_PTR vThreadMask, vProcessMask, vSystemMask;
 				if(GetProcessAffinityMask(GetCurrentProcess(), &vProcessMask, &vSystemMask)) {
 					vThreadMask = SetThreadAffinityMask(sp->threadH, vProcessMask);
@@ -121,24 +110,23 @@ pthread_t pthread_self(void)
 			}
 		}
 		if(fail) {
-			/*
-			 * Thread structs are never freed but are reused so if this
-			 * continues to fail at least we don't leak memory.
-			 */
+			// 
+			// Thread structs are never freed but are reused so if this
+			// continues to fail at least we don't leak memory.
+			// 
 			__ptw32_threadReusePush(self);
-			/*
-			 * As this is a win32 thread calling us and we have failed,
-			 * return a value that makes sense to win32.
-			 */
+			// 
+			// As this is a win32 thread calling us and we have failed, return a value that makes sense to win32.
+			// 
 			return nil;
 		}
 		else {
-			/*
-			 * This implicit POSIX thread is running (it called us).
-			 * No other thread can reference us yet because all API calls
-			 * passing a pthread_t should recognise an invalid thread id
-			 * through the reuse counter inequality.
-			 */
+			// 
+			// This implicit POSIX thread is running (it called us).
+			// No other thread can reference us yet because all API calls
+			// passing a pthread_t should recognise an invalid thread id
+			// through the reuse counter inequality.
+			// 
 			sp->state = PThreadStateRunning;
 		}
 	}

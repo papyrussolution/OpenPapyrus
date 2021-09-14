@@ -14588,9 +14588,8 @@ public:
 		lnextChZnMark           = 6, // @v10.6.9 Марка 'честный знак'
 	};
 	struct PreprocessChZnCodeResult { // @flat
-		PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
-		{
-		}
+		PreprocessChZnCodeResult();
+		PreprocessChZnCodeResult & Z();
 		uint   LineIdx;          // [1..] Индекс строки в чеке  
 		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
 			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
@@ -17583,7 +17582,7 @@ public:
 			double Prob;
 		};
 		TsDensityMap();
-		int    EntryToStr(const TsDensityMapEntry * pEntry, const char * pSymb, SString & rBuf) const;
+		SString & EntryToStr(const TsDensityMapEntry * pEntry, const char * pSymb, SString & rBuf) const;
 		int    Import(const char * pFileName);
 		// ARG(edge IN): 0 - from low edge, 1 - from upp edge, <0 - no matter
 		int    SearchBestRange(PPID tsID, int side, int edge, int factor, double minProb, ResultEntry & rResult) const;
@@ -17673,7 +17672,8 @@ public:
 		float  GenTED;           // @v10.8.10 Trend-Err-Deviation at generating phase
 		float  CADF;             // @v10.8.12 Core-Angular-Deviation-Factor фактор отклонения протестированных результатов стратегии от центральной линии канала
 		float  MRSF;             // @v10.8.12 Most-Recently-Stake-Factor фактор близости к текущему моменту последних расчетных ставок
-		uint8  Reserve[16];      // @v10.8.10 // @v10.8.12 [24]-->[20]
+		uint16 ATWC;             // @v11.1.11 Количество выигрышных срабатываний при тестировании после расчетного периода
+		uint8  Reserve[14];      // @v10.8.10 // @v10.8.12 [24]-->[20] // @v11.1.11 [16]-->[14]
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
@@ -17857,9 +17857,7 @@ public:
 		LDATETIME LastValTm;
 	public:
 		struct CriterionRange { // @persistent @flat
-			CriterionRange() : Crit(0), Side(-1), low(0.0f), upp(0.0f)
-			{
-			}
+			CriterionRange();
 			uint8 Crit; // 0 - nothing, 1 - ADF, 2 - TrendErrRel
 			int8  Side; // -1 - any, 0 - buy only, 1 - sell only
 			float low;
@@ -21277,21 +21275,6 @@ public:
 	Balance     BalTurn;
 };
 //
-//
-//
-/* @v9.0.0
-class FormattedCheck {
-public:
-	static FormattedCheck * CreateInstance(uint chkStrlen);
-	FormattedCheck(uint chkStrlen);
-	virtual ~FormattedCheck() {}
-	virtual int SetPacket(const CCheckPacket * pPack, uint flags) = 0;
-	virtual int GetCheckLine(int * pUseJrnlRbn, SString &rBuf) = 0;
-protected:
-	uint   ChkStrLen;
-};
-*/
-//
 // PPSlipFormatter
 //
 struct SlipLineParam {
@@ -21333,6 +21316,7 @@ struct SlipLineParam {
 	int    BarcodeHt;     // Высота штрихкода (в точках)
 	int    ChZnProductType; // @v10.7.2
 	TRect  PictCoord;     // Координаты изображения
+	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // @v11.1.11 Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
 	SString Text;         // @v9.5.7
@@ -46021,7 +46005,7 @@ public:
 	//   0 - error
 	//   !0 - статус, который был возвращен внутренним вызовом FetchSessionKeys
 	//
-	int    KexServiceReply(SSecretTagPool & rSessCtx, SSecretTagPool & rCli, BIGNUM * pDebugPubX, BIGNUM * pDebugPubY);
+	int    KexServiceReply(SSecretTagPool & rSessCtx, const SSecretTagPool & rCli, BIGNUM * pDebugPubX, BIGNUM * pDebugPubY);
 	//
 	// Descr: Акцепт приглашения сервиса клиентом
 	//
@@ -46180,6 +46164,7 @@ public:
 	uint   GetCount() const;
 	Item * Get(uint idx);
 	const  Item * GetC(uint idx) const;
+	const  Item * GetByUuid(const S_GUID & rUuid) const;
 	int    Set(uint idx, const Item * pItem);
 	int    Store(const char * pFileName) const;
 	int    Load(const char * pFileName);

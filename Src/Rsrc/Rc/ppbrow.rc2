@@ -908,9 +908,9 @@ toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	EDTILINKOBJ   : kbF2,     PPDV_LINK01,          "@{linkobject}\tF2"
 	VIEWBILLS     : kbF3,     PPDV_DOCUMENT_PL02,   "@{doshowdocsbyar}\tF3"
 	EDITAGREEMENT : kbF4,     TBBM_HANDSHAKE,       "@{agreement}\tF4"
-	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,          "Ограничения по долговым размерностям\tCtrl-D"
+	EDITDEBTLIMS  : kbCtrlD,  PPDV_NOICON,          "@{cfgclientdealdebtlimit}\tCtrl-D"
 	VIEWQUOT      : kbCtrlQ,  TBBM_QUOTATION,       "@{quotes}\tCtrl-Q"
-	VIEWGOODS     : kbF5,     PPDV_WARESINGLE01,    "Товары, связанные со статьей кодом\tF5"
+	VIEWGOODS     : kbF5,     PPDV_WARESINGLE01,    "@{doshowarrelatedgoods}\tF5"
 	separator
 	SYSJ          : kbCtrlJ,  PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 	TRANSMIT      : kbCtrlH,  PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
@@ -1491,7 +1491,7 @@ browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
 		UNITEOBJ                : kbCtrlU, PPDV_MERGE01,      "@{cmd_replacebrand}\tCtrl-U"
-		VIEWGOODS               : kbF5,    PPDV_WARESINGLE01, "Товары, связанные с брэндом\tF5"
+		VIEWGOODS               : kbF5,    PPDV_WARESINGLE01, "@{doshowbrandrelatedgoods}\tF5"
 		PRINT                   : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
@@ -1502,7 +1502,7 @@ browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
 	}
 }
 
-browser ATURNLIST north(100), 1, 0, "Опись проводок {%s}", OWNER|GRID, 0
+browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 {
 	"@date",    1, notype, DATF_DMY, 8
 	"@billno",  3, notype, 0,        8
@@ -1595,7 +1595,7 @@ toolbar export DEBTTRNOVR TB_FIRST_TOOLBAR {
 	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02, "@{debtdocument_pl}\tF5"
 	EDITARTICLE: kbF2,    PPDV_LINS02,        "@{analyticalarticle}\tF2"
 	EDITPERSON : kbF4,    TBBM_PERSONS,       "@{person}\tF4"
-	DEBTCARD   : kbF3,    TBBM_DEBTCARD,      "Долговая карточка клиента\tF3"
+	DEBTCARD   : kbF3,    TBBM_DEBTCARD,      "@{view_debtcard}\tF3"
 	RECKONBILLS: kbF6,    TBBM_RECKONBILLS,   "@{reckondocument_pl}\tF6"
 	separator
 	PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
@@ -1642,7 +1642,7 @@ browser SELLTRNOVR_EXT_EXPPART north(100), 2, 1, "Доля просроченных долгов {%s}"
 	toolbar DEBTTRNOVR
 }
 
-browser SELLTRNOVR_EXT_TRUNOVER north(100), 2, 1, "Оборачиваемость дебиторской задолженности {%s}", OWNER|GRID, 0
+browser SELLTRNOVR_EXT_TRUNOVER north(100), 2, 1, "@{view_debttrnovr_turnover} {%s}", OWNER|GRID, 0
 {
 	"@appellation", 4, notype, 0, 20
 	"#",            3, notype, 0, 4
@@ -1871,7 +1871,7 @@ browser GOODSBILLCUR north(100), 1, 0, "@{commoditydocument_pl} {%s}", OWNER|GRI
 	toolbar GOODSBILL
 }
 
-browser DEBTCARD north(100), 1, 2, "Долговая карточка {%s}", OWNER|GRID, 0
+browser DEBTCARD north(100), 1, 2, "@{view_debtcard} {%s}", OWNER|GRID, 0
 {
 	"@date",          1, notype, DATF_DMY, 8
 	"@billno",        2, notype, 0,  8
@@ -1937,14 +1937,14 @@ browser INVNTRYLINESSUBST north(100), 1, 1, "Группировка строк инвентаризации {%
 	}
 }
 
-browser CASHNODEBILL north(100), 1, 2, "Товарные чеки {%s}", OWNER|GRID, 0
+browser CASHNODEBILL north(100), 1, 2, "@{poscheck_pl} {%s}", OWNER|GRID, 0
 {
 	"@billno", 2, notype, 0, 8
 	"@amount", 3, notype, NMBF_DELCOMMA | NMBF_NOZERO, 13.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM:    kbEnter,   PPDV_LINS02,        "Просмотр текущего чека\tEnter"
 		ADDITEM:     kbIns,     PPDV_ADDFILE02,     "Панель ввода\tInsert"
-		DELETEITEM:  kbDel,     PPDV_DELETEFILE02,  "Удаление текущего чека\tDelete"
+		DELETEITEM:  kbDel,     PPDV_DELETEFILE02,  "@{doremovebill}\tDelete"
 		TOTAL:       kbF9,      PPDV_SIGMA02,       "Итоги по выборке чеков\tF9"
 		CHECKSTAT:   kbCtrlF9,  TBBM_CHECKSTAT,     "Почасовые итоги по выборке чеков\tCtrl-F9"
 	}
@@ -5305,7 +5305,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		//ADDSUPERSESS : kbAltIns,   PPDV_NOICON,      "Добавить суперсессию\tAlt-Insert"
 		DELETEITEM  : kbDel,     PPDV_DELETEFILE02,    "@{delete}\tDelete"
 		DETAIL      : kbF3,      PPDV_LINS02,          "@{sessitem_pl}\tF3"
-		VIEWSUBSESS : kbAltF3,   PPDV_NOICON,          "Вложенные сессии\tAlt-F3"
+		VIEWSUBSESS : kbAltF3,   PPDV_NOICON,          "@{doshownestedsessions}\tAlt-F3"
 		GOODSREST   : kbF6,      PPDV_NOICON,          "@{doshowfixedstock}\tF6"
 		EDITPRC     : kbF2,      TBBM_PRC,             "@{processor}\tF2"
 		EDITTECH    : kbF4,      TBBM_TECH,            "@{tech}\tF4"
@@ -5331,7 +5331,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GRID, 0
+browser TSUBSESSION north(100), 3, 1, "@{tsubsession_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",                    0, notype, 0,  3
 	"@number",                1, notype, 0,  5
@@ -5362,7 +5362,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		//ADDSUPERSESS : kbAltIns,   PPDV_NOICON,    "Добавить суперсессию\tAlt-Insert"
 		DELETEITEM  : kbDel,     PPDV_DELETEFILE02,  "@{delete}\tDelete"
 		DETAIL      : kbF3,      PPDV_LINS02,        "@{sessitem_pl}\tF3"
-		VIEWSUBSESS : kbAltF3,   PPDV_NOICON,        "Вложенные сессии\tAlt-F3"
+		VIEWSUBSESS : kbAltF3,   PPDV_NOICON,        "@{doshownestedsessions}\tAlt-F3"
 		GOODSREST   : kbF6,      PPDV_NOICON,        "@{doshowfixedstock}\tF6"
 		EDITPRC     : kbF2,      TBBM_PRC,           "@{processor}\tF2"
 		EDITTECH    : kbF4,      TBBM_TECH,          "@{tech}\tF4"
@@ -7176,23 +7176,23 @@ record CliBnkData {
 	Date             date         format(DATF_DMY|DATF_CENTURY) "Дата платежного документа";
 	Code             zstring(24)  "Номер платежного документа";
 	Sequence         int16        format(4)    "@{bill_bnkqueueing}";
-	Purpose          zstring(160) "Назначение платежа";
+	Purpose          zstring(160) "@{paymentpurpose}";
 	Amount           double       format(10.2) "@{paymentamount}";
 	PayerID          long         format(10)   "ИД персоналии плательщика";
 	PayerName        zstring(255) "Наименование плательщика"; // @v8.6.4 (128)-->(255)
 	PayerINN         zstring(24)  "@{payersinn}";
 	PayerKPP         zstring(24)  "@{payerskpp}"; // @v7.4.5
 	PayerBankAcc     zstring(32)  "@{payersbankaccount}";
-	PayerBankName    zstring(128) "Наименование банка плательщика";
-	PayerBankCode    zstring(24)  "БИК банка плательщика";
+	PayerBankName    zstring(128) "@{payersbankname}";
+	PayerBankCode    zstring(24)  "@{payersbankbic}";
 	PayerBankCorr    zstring(32)  "Корр счет банка плательщика";
 	ReceiverID       long         format(10)   "ИД персоналии получателя";
 	ReceiverName     zstring(255) "Наименование получателя"; // @v8.6.4 (128)-->(255)
 	ReceiverINN      zstring(24)  "@{receiversinn}";
 	ReceiverKPP      zstring(24)  "@{receiverskpp}"; // @v7.4.5
 	ReceiverBankAcc  zstring(32)  "@{receiversbankaccount}";
-	ReceiverBankName zstring(128) "Наименование банка получателя";
-	ReceiverBankCode zstring(24)  "БИК банка получателя";
+	ReceiverBankName zstring(128) "@{receiversbankname}";
+	ReceiverBankCode zstring(24)  "@{receiversbankbic}";
 	ReceiverBankCorr zstring(32)  "Корр счет банка получателя";
 	Obj2Name         zstring(48)  "@{docextobjname}";
 	Obj2INN          zstring(24)  "@{docextobjinn}";
@@ -7305,7 +7305,7 @@ record Bill {
 record BRow {
 	BillID        zstring(32)  "@{billid}";
 	LineId        long         "Уникальный ид строки (для внутреннего использования)"; // @v8.5.1
-	LineNo        long         "Номер строки";
+	LineNo        long         "@{documentitemnumber}";
 	GoodsID       long         "@{goodsid}";
 	LotID         long         "@{lotid}";
 	GoodsName     zstring(128) "@{goodsname}";
@@ -7538,7 +7538,7 @@ record CChecks {
 	CheckDate    date         "@{checkdate}";
 	CheckTime    zstring(10)  "@{checktime}";
 	TimeHSec     int16        "Сотые доли секунды во времени";
-	Amount       double       format(13.2) "Сумма чека без скидки";
+	Amount       double       format(13.2) "@{ccheck_nominalamount}";
 	Discount     double       format(13.2) "@{ccheck_discount_amp}";
 	CardNumber   zstring(32)  "@{cardno}";
 	IsRetCheck   int16        "@{checkrefundfeature}";
@@ -7569,7 +7569,7 @@ record CCLines {
 	CheckDate      date         "@{checkdate}";
 	CheckTime      zstring(10)  "@{checktime}";
 	TimeHSec       int16        "Сотые доли секунды во времени";
-	CheckAmt       double       format(13.2) "Сумма чека без скидки";
+	CheckAmt       double       format(13.2) "@{ccheck_nominalamount}";
 	CheckDscnt     double       format(13.2) "@{ccheck_discount_amp}";
 	CardNumber     zstring(32)  "@{cardno}";
 	IsRetCheck     int16        "@{checkrefundfeature}";
@@ -7592,7 +7592,7 @@ record CS_ZRep {
 	EndDate      zstring(20)  "@{csession_closedate}";
 	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
 	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
-	CheckStatus  long         format(6)    "Статус чека";
+	CheckStatus  long         format(6)    "@{ccheck_status}";
 }
 
 record CS_Chkhd {
@@ -7605,7 +7605,7 @@ record CS_Chkhd {
 }
 
 record CS_ChkLn {
-	CheckLineID  long         format(10)   "ИД строки чека";
+	CheckLineID  long         format(10)   "@{ccheckline_id}";
 	CheckNumber  long         format(10)   "@{checkno}";
 	CashNumber   long         format(10)   "@{posnodeno}";
 	SessNumber   long         format(10)   "@{sessionno}";
@@ -7621,7 +7621,7 @@ record CS_ChkLn {
 }
 
 record CS_Dscnt {
-	CheckLineID  long         format(10)   "ИД строки чека";
+	CheckLineID  long         format(10)   "@{ccheckline_id}";
 	DscntType    long         format(10)   "Тип скидки";
 	CardNumber   zstring(22)  "@{cardno}";
 }
@@ -7979,8 +7979,8 @@ record Person {
 	DblGisCode         long            "Код 2GIS";
 	Name               zstring(128)    "@{appellation}";
 	ExtName            zstring(256)    "@{person_extname}";
-	KindCode           zstring(20)     "Код вида персоналии";
-	KindName           zstring(48)     "Наименование вида персоналии";
+	KindCode           zstring(20)     "@{prsnkind_symb_amp}";
+	KindName           zstring(48)     "@{prsnkind_name_amp}";
 	StatusCode         zstring(20)     "Код юридического статуса";
 	StatusName         zstring(48)     "Наименование юридического статуса";
 	CategoryCode       zstring(20)     "Код категории";
@@ -8045,7 +8045,7 @@ record CSess_Front {
 	SessNumber   long         format(10)   "@{sessionno}";
 	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
 	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
-	CheckStatus  long         format(6)    "Статус чека";
+	CheckStatus  long         format(6)    "@{ccheck_status}";
 	Amount       double       format(13.2) "@{poschecksamountwodiscount}";
 	Discount     double       format(13.2) "@{csesstotal_discount}";
 	RetAmount    double       format(13.2) "@{refundamount}";
@@ -8060,7 +8060,7 @@ record CCheck_Front {
 	OperDate     date         "@{checkdate}";
 	OperTime     zstring(10)  "@{checktime}";
 	Operation    zstring(1)   "@{selling}/@{return}";
-	CheckLineID  long         format(10)   "ИД строки чека";
+	CheckLineID  long         format(10)   "@{ccheckline_id}";
 	Division     long         format(4)    "@{departmentno}";
 	Article      long         format(20)   "@{goodsarcode}";
 	Quantity     double       format(10.3) "@{qtty}";
@@ -8076,7 +8076,7 @@ record CCheck_Front {
 	SessNumber   long         format(10)   "@{sessionno}";
 	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
 	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
-	CheckStatus  long         format(6)    "Статус чека";
+	CheckStatus  long         format(6)    "@{ccheck_status}";
 	RetAmount    double       format(13.2) "@{refundamount}";
 	BnkAmount    double       format(13.2) "@{cashlesspaymentwodiscount}";
 	BnkDscnt     double       format(13.2) "@{cashlessdiscount}";
@@ -8164,7 +8164,7 @@ record SBIIBillRowWithCells {
 	Serial        zstring(16)         "@{serial}";
 	Qtty          double format(10.3) "@{qttytrunit}";
 	Cost          double format(10.2) "@{price}";
-	RByBill       long                "Номер строки в документе";
+	RByBill       long                "@{documentitemnumber}";
 	Expended      long                "Товар частично израсходован";
 	Name          zstring(48)         "Наименование места хранения";
 	LocID         long                "@{storageplace}";
@@ -8234,7 +8234,7 @@ record Workbook {
 
 record BaltikaSaldoWare {
 	Date          date                "Дата обмена";
-	CompanyId     zstring(24)         "Код компании";
+	CompanyId     zstring(24)         "@{enterprisecode}";
 	AddressId     zstring(24)         "@{clientcode}";
 	WareId        zstring(24)         "Код тары";
 	FACode        zstring(32)         "Инвентарный номер оборудования";
@@ -8244,7 +8244,7 @@ record BaltikaSaldoWare {
 
 record BaltikaSaldoAggregate {
 	SaldoDate            date                "Дата, за которую экспортируются данные"; // @v9.1.4
-	CompanyId            zstring(24)         "Код компании";
+	CompanyId            zstring(24)         "@{enterprisecode}";
 	AddressId            zstring(24)         "@{clientcode}";
 	ProductId            zstring(24)         "@{goodscode}";
 	ProductName          zstring(128)        "@{goodsname}";
@@ -8264,7 +8264,7 @@ record BaltikaSaldoAggregate {
 }
 
 record BaltikaSaldoDoc {
-	CompanyId        zstring(24)         "Код компании";
+	CompanyId        zstring(24)         "@{enterprisecode}";
 	AddressId        zstring(24)         "@{clientcode}";
 	ProductId        zstring(24)         "@{goodscode}";
 	ProductName      zstring(128)        "@{goodsname}";
@@ -8386,14 +8386,14 @@ record FiasRawHouseObj {
 	TERRIFNSUL   zstring(16)  "@{ru_iftsterrareacode} @{civillawsubj_legal_ss}"; // [4]
 	OKATO        zstring(16)  "OKATO";
 	OKTMO        zstring(16)  "OKTMO";
-	UPDATEDATE   date         "Дата время внесения записи";
-	HOUSENUM     zstring(24)  "Номер дома";
+	UPDATEDATE   date         "@{fias_recupdatetime}";
+	HOUSENUM     zstring(24)  "@{housenumber}";
 	ESTSTATUS    int32        "Признак владения"; // bool
 	BUILDNUM     zstring(16)  "Номер корпуса";
 	STRUCNUM     zstring(16)  "Номер строения";
 	STRSTATUS    int32        "Признак строения";
-	HOUSEID      guid         "Уникальный идентификатор записи дома";
-	HOUSEGUID    guid         "Глобальный уникальный идентификатор дома";
+	HOUSEID      guid         "GUID записи дома";
+	HOUSEGUID    guid         "GUID дома";
 	AOGUID       guid         "@{fias_parentguid}";
 	STARTDATE    date         "@{recordstartdate}";
 	ENDDATE      date         "@{recordexpirationdate}";
@@ -8412,11 +8412,11 @@ record FiasRawHouseIntObj {
 	TERRIFNSUL   zstring(16)  "@{ru_iftsterrareacode} @{civillawsubj_legal_ss}"; // [4]
 	OKATO        zstring(16)  "OKATO";
 	OKTMO        zstring(16)  "OKTMO";
-	UPDATEDATE   date         "Дата время внесения записи";
+	UPDATEDATE   date         "@{fias_recupdatetime}";
 	INTSTART     int32        "Значение начала интервала";
 	INTEND       int32        "Значение окончания интервала";
 	HOUSEINTID   guid         "Идентификатор записи интервала домов";
-	INTGUID      guid         "Глобальный уникальный идентификатор интервала домов";
+	INTGUID      guid         "GUID интервала домов";
 	AOGUID       guid         "@{fias_parentguid}";
 	STARTDATE    date         "@{recordstartdate}";
 	ENDDATE      date         "@{recordexpirationdate}";
@@ -8641,11 +8641,11 @@ reportstub FreightLaggLoc	{ dl600data=FreightList,		"Фрахт с локацией по каждой 
 reportstub FreightLagg		{ dl600data=FreightList,		"@{freight}"}
 reportstub DebtTrnovr_Ct	{ dl600data=DebtTrnovr,			"@{view_debttrnovr} (кросстаб)"}
 reportstub DebtTrnovr_ExpiryPart { dl600data=DebtTrnovr,	"@{view_debttrnovr} (Доля просроченных долгов)"}
-reportstub DebtTrnovr_Turnover { dl600data=DebtTrnovr,		"@{view_debttrnovr} (Оборачиваемость дебиторской задолженности)"}
+reportstub DebtTrnovr_Turnover { dl600data=DebtTrnovr,		"@{view_debttrnovr} (@{view_debttrnovr_turnover})"}
 reportstub SellTrnovrExt	{ dl600data=DebtTrnovr,			"Долговая ведомость с документами"}
 reportstub SellTrnovr2		{ dl600data=DebtTrnovr,			"Расширенная долговая ведомость"}
 reportstub SellTrnovr		{ dl600data=DebtTrnovr,			"@{view_debttrnovr}"}
-reportstub DebtAck1			{ dl600data=DebtAck1,			"Акт сверки дебиторской задолженности (Меню Расчеты с дебиторами и кредиторами)"}
+reportstub DebtAck1			{ dl600data=DebtAck1,			"@{view_accanlz_accrcvblreconcstatement}"}
 reportstub CSessViewExt		{ dl600data=CSessionView,		"@{view_csessext}"}
 reportstub CSessView		{ dl600data=CSessionView,		"@{csession_pl}"}
 reportstub CSessExcAlt		{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
@@ -8661,7 +8661,7 @@ reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"@{view_ccheck} с группировк
 reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по товару и дате"}
 reportstub CCheckView_G		{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по часам (аппаратам, карточкам)"}
 reportstub AccountView		{ dl600data=AccountView,		"@{view_account}"}
-reportstub DebtCard			{ dl600data=DebtCard,			"Долговая карточка контрагента"}
+reportstub DebtCard			{ dl600data=DebtCard,			"@{view_debtcard}"}
 reportstub BillList			{ dl600data=BillList,			"Общий реестр документов"}
 reportstub ExtIntrBillList	{ dl600data=ContentBList,		"Реестр документов по межскладской операции с содержанием"}
 reportstub IntrBillList		{ dl600data=IntrBillList,		"Реестр документов по межскладской операции"}
@@ -8689,7 +8689,7 @@ reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"@{view_accanlz_suppltrnovr}"}
 reportstub AccTrnovr		{ dl600data=AccAnlz,			"Оборотка по аналитическим статьям"}
 reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountsreceivable}"}
 reportstub CrdtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountspayable}"}
-reportstub DebtAck			{ dl600data=DebtAck,			"Акт сверки дебиторской задолженности"}
+reportstub DebtAck			{ dl600data=DebtAck,			"@{view_accanlz_accrcvblreconcstatement}"}
 reportstub CashBook2		{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
 reportstub CashBook			{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
 reportstub AccAnlz			{ dl600data=AccAnlz,			"@{view_accanlz}"}
@@ -8805,14 +8805,14 @@ ctrlmenu TI_Goods {
 	("@{docancelquote}\tShift-F3" kbShiftF3)
 }
 ctrlmenu TI_Packs {
-	("Количество по лоту\tF2" kbF2)
-	("Количество по остаткам товара\tShift-F2" kbShiftF2)
+	("@{dosetupqttybylot}\tF2" kbF2)
+	("@{dosetupqttybytotalrest}\tShift-F2" kbShiftF2)
 	("@{dosetupquote}\tF3" kbF3)
 	("@{docancelquote}\tShift-F3" kbShiftF3)
 }
 ctrlmenu TI_Quantity {
-	("Количество по лоту\tF2" kbF2)
-	("Количество по остаткам товара\tShift-F2" kbShiftF2)
+	("@{dosetupqttybylot}\tF2" kbF2)
+	("@{dosetupqttybytotalrest}\tShift-F2" kbShiftF2)
 	("@{dosetupquote}\tF3" kbF3)
 	("@{docancelquote}\tShift-F3" kbShiftF3)
 	("Расчет количества по физическим единицам\tF4" kbF4)

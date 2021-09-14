@@ -38,13 +38,13 @@
 opj_procedure_list_t *  opj_procedure_list_create()
 {
 	/* memory allocation */
-	opj_procedure_list_t * l_validation = (opj_procedure_list_t*)opj_calloc(1, sizeof(opj_procedure_list_t));
+	opj_procedure_list_t * l_validation = (opj_procedure_list_t*)SAlloc::C(1, sizeof(opj_procedure_list_t));
 	if(!l_validation) {
 		return 00;
 	}
 	/* initialization */
 	l_validation->m_nb_max_procedures = OPJ_VALIDATION_SIZE;
-	l_validation->m_procedures = (opj_procedure*)opj_calloc(OPJ_VALIDATION_SIZE,
+	l_validation->m_procedures = (opj_procedure*)SAlloc::C(OPJ_VALIDATION_SIZE,
 		sizeof(opj_procedure));
 	if(!l_validation->m_procedures) {
 		SAlloc::F(l_validation);
@@ -55,14 +55,13 @@ opj_procedure_list_t *  opj_procedure_list_create()
 
 void  opj_procedure_list_destroy(opj_procedure_list_t * p_list)
 {
-	if(!p_list) {
-		return;
+	if(p_list) {
+		/* initialization */
+		if(p_list->m_procedures) {
+			SAlloc::F(p_list->m_procedures);
+		}
+		SAlloc::F(p_list);
 	}
-	/* initialization */
-	if(p_list->m_procedures) {
-		SAlloc::F(p_list->m_procedures);
-	}
-	SAlloc::F(p_list);
 }
 
 OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager)
@@ -71,7 +70,7 @@ OPJ_BOOL FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_vali
 	if(p_validation_list->m_nb_max_procedures == p_validation_list->m_nb_procedures) {
 		opj_procedure * new_procedures;
 		p_validation_list->m_nb_max_procedures += OPJ_VALIDATION_SIZE;
-		new_procedures = (opj_procedure*)opj_realloc(p_validation_list->m_procedures, p_validation_list->m_nb_max_procedures * sizeof(opj_procedure));
+		new_procedures = (opj_procedure*)SAlloc::R(p_validation_list->m_procedures, p_validation_list->m_nb_max_procedures * sizeof(opj_procedure));
 		if(!new_procedures) {
 			SAlloc::F(p_validation_list->m_procedures);
 			p_validation_list->m_nb_max_procedures = 0;

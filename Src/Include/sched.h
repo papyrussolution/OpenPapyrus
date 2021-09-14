@@ -141,7 +141,7 @@ typedef union {
 } cpu_set_t;
 
 __PTW32_BEGIN_C_DECLS
-	__PTW32_DLLPORT int __PTW32_CDECL sched_yield(void);
+	__PTW32_DLLPORT int __PTW32_CDECL sched_yield();
 	__PTW32_DLLPORT int __PTW32_CDECL sched_get_priority_min(int policy);
 	__PTW32_DLLPORT int __PTW32_CDECL sched_get_priority_max(int policy);
 	/* FIXME: this declaration of sched_setscheduler() is NOT as prescribed

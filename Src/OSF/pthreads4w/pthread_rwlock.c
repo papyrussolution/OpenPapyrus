@@ -64,9 +64,9 @@ int pthread_rwlock_init(pthread_rwlock_t * rwlock, const pthread_rwlockattr_t * 
 	result = 0;
 	goto DONE;
 FAIL2:
-	(void)pthread_mutex_destroy(&(rwl->mtxSharedAccessCompleted));
+	pthread_mutex_destroy(&(rwl->mtxSharedAccessCompleted));
 FAIL1:
-	(void)pthread_mutex_destroy(&(rwl->mtxExclusiveAccess));
+	pthread_mutex_destroy(&(rwl->mtxExclusiveAccess));
 FAIL0:
 	SAlloc::F(rwl);
 	rwl = NULL;
@@ -90,7 +90,7 @@ int pthread_rwlock_destroy(pthread_rwlock_t * rwlock)
 			return result;
 		}
 		if((result = pthread_mutex_lock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 		/*
@@ -176,13 +176,13 @@ int pthread_rwlock_rdlock(pthread_rwlock_t * rwlock)
 	}
 	if(++rwl->nSharedAccessCount == INT_MAX) {
 		if((result = pthread_mutex_lock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 		rwl->nSharedAccessCount -= rwl->nCompletedSharedAccessCount;
 		rwl->nCompletedSharedAccessCount = 0;
 		if((result = pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 	}
@@ -216,7 +216,7 @@ int pthread_rwlock_wrlock(pthread_rwlock_t * rwlock)
 		return result;
 	}
 	if((result = pthread_mutex_lock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-		(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+		pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 		return result;
 	}
 	if(rwl->nExclusiveAccessCount == 0) {
@@ -281,13 +281,13 @@ int pthread_rwlock_tryrdlock(pthread_rwlock_t * rwlock)
 	}
 	if(++rwl->nSharedAccessCount == INT_MAX) {
 		if((result = pthread_mutex_lock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 		rwl->nSharedAccessCount -= rwl->nCompletedSharedAccessCount;
 		rwl->nCompletedSharedAccessCount = 0;
 		if((result = pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 	}
@@ -331,7 +331,7 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t * rwlock)
 		}
 		if(rwl->nSharedAccessCount > 0) {
 			if((result = pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-				(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+				pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 				return result;
 			}
 			if((result = pthread_mutex_unlock(&(rwl->mtxExclusiveAccess))) == 0) {
@@ -379,13 +379,13 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock, const struct timespec 
 			if(result == ETIMEDOUT) {
 				++rwl->nCompletedSharedAccessCount;
 			}
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 		rwl->nSharedAccessCount -= rwl->nCompletedSharedAccessCount;
 		rwl->nCompletedSharedAccessCount = 0;
 		if((result = pthread_mutex_unlock(&(rwl->mtxSharedAccessCompleted))) != 0) {
-			(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+			pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 			return result;
 		}
 	}
@@ -419,7 +419,7 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock, const struct timespec 
 		return result;
 	}
 	if((result = pthread_mutex_timedlock(&(rwl->mtxSharedAccessCompleted), abstime)) != 0) {
-		(void)pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
+		pthread_mutex_unlock(&(rwl->mtxExclusiveAccess));
 		return result;
 	}
 	if(rwl->nExclusiveAccessCount == 0) {

@@ -320,7 +320,7 @@
 /* #undef HAVE_LIBCRYPTO */ /* Define to 1 if you have the `crypto' library (-lcrypto). */
 /* #undef HAVE_LIBEXPAT */ /* Define to 1 if you have the `expat' library (-lexpat). */
 /* #undef HAVE_LIBGCC */ /* Define to 1 if you have the `gcc' library (-lgcc). */
-/* #undef HAVE_LIBLZ4 */ /* Define to 1 if you have the `lz4' library (-llz4). */
+#define HAVE_LIBLZ4 /* #undef HAVE_LIBLZ4 */ /* Define to 1 if you have the `lz4' library (-llz4). */
 /* #undef HAVE_LIBLZMA */ /* Define to 1 if you have the `lzma' library (-llzma). */
 /* #undef HAVE_LIBLZMADEC */ /* Define to 1 if you have the `lzmadec' library (-llzmadec). */
 /* #undef HAVE_LIBLZO2 */ /* Define to 1 if you have the `lzo2' library (-llzo2). */

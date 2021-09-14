@@ -3793,8 +3793,8 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 #endif
 #define BOBJEN_HASHSTATE 1
 #define BOBJEN_HASHLEN   1
-#define BOBJEN_MAXPAIR 60
-#define BOBJEN_MAXLEN  70
+#define BOBJEN_MAXPAIR  60
+#define BOBJEN_MAXLEN   70
 
 //#define DISPLAY(...) fprintf(stderr, __VA_ARGS__)
 //#define DISPLAYLEVEL(l, ...) do { if(g_displayLevel>=l) DISPLAY(__VA_ARGS__); } while(0)
@@ -3820,7 +3820,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			size_t total_size = 0;
 			rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_key_buf, key_size));
 			size_t actual_size = 0;
-			rCase.SLTEST_CHECK_NZ(cs.Encrypt(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
+			rCase.SLTEST_CHECK_NZ(cs.Encrypt_(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
 			total_size += actual_size;
 			rCase.SLTEST_CHECK_LE(static_cast<ulong>(pattern_size), static_cast<ulong>(total_size));
 			rCase.SLTEST_CHECK_Z(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size));
@@ -3844,7 +3844,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
 				work_offs = 0;
 				actual_size = 0;
-				rCase.SLTEST_CHECK_NZ(cs.Encrypt(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
+				rCase.SLTEST_CHECK_NZ(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
 				total_encr_size += pattern_work_size;
 			}
@@ -3853,7 +3853,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
 				work_offs = 0;
 				actual_size = 0;
-				rCase.SLTEST_CHECK_NZ(cs.Decrypt(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
+				rCase.SLTEST_CHECK_NZ(cs.Decrypt_(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
 				total_decr_size += total_encr_size;
 			}
@@ -3961,7 +3961,7 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				uint8 result_buf[128];
+				//uint8 result_buf[128];
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				{
 					binary128 md5 = SlHash::Md5(0, p_src_buf, src_size);
@@ -3988,7 +3988,7 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				uint8 result_buf[128];
+				//uint8 result_buf[128];
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				{
 					binary160 s1 = SlHash::Sha1(0, p_src_buf, src_size);
@@ -4005,6 +4005,40 @@ SLTEST_R(BDT)
 					binary160 s1 = SlHash::Sha1(&st, 0, 0); // finalize
 					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
+			}
+		}
+		{ // SHA-1 Дополнительный тест по образцам библиотеки jbig2dec для элиминации локальной реализации
+			static char * jbig2dec_test_data[] = {
+				"abc",
+				"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+				"A million repetitions of 'a'"
+			};
+			static char * jbig2dec_test_results[] = {
+				"A9993E364706816ABA3E25717850C26C9CD0D89D",
+				"84983E441C3BD26EBAAE4AA1F95129E5E54670F1",
+				"34AA973CD4C4DAA4F61EEB2BDBAD27316534016F"
+			};	
+			char hex_outp[256];
+			binary160 s1;
+			SString hex;
+			assert(SIZEOFARRAY(jbig2dec_test_data) == SIZEOFARRAY(jbig2dec_test_results));
+			for(uint i = 0; i < SIZEOFARRAY(jbig2dec_test_data); i++) {
+				if(i == 2) { // A million repetitions of 'a'
+					SlHash::State st;
+					for(uint j = 0; j < 1000000; j++)
+						SlHash::Sha1(&st, &"a", 1);
+					s1 = SlHash::Sha1(&st, 0, 0); // finalize
+				}
+				else {
+					const char * p_data = jbig2dec_test_data[i];
+					s1 = SlHash::Sha1(0, p_data, strlen(p_data));
+				}
+				hex.Z();
+				for(uint j = 0; j < sizeof(s1); j++)
+					hex.CatHexUpper(reinterpret_cast<const uint8 *>(&s1)[j]);
+				//InnerBlock::digest_to_hex(reinterpret_cast<const uint8 *>(&s1), hex_outp);
+				//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
+				SLTEST_CHECK_NZ(hex.IsEqual(jbig2dec_test_results[i]));
 			}
 		}
 	}

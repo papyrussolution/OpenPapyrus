@@ -439,7 +439,7 @@ int sched_get_priority_max(int policy)
  *
  * ------------------------------------------------------
  */
-int sched_yield(void)
+int sched_yield()
 {
 	Sleep(0);
 	return 0;

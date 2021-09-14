@@ -58,7 +58,7 @@ BOOL pthread_win32_process_attach_np()
 	 */
 #if defined(__GNUC__) || defined(__PTW32_CONFIG_MSVC7)
 	if(GetSystemDirectory(QuserExDLLPathBuf, sizeof(QuserExDLLPathBuf))) {
-		(void)strncat(QuserExDLLPathBuf, "\\QUSEREX.DLL", sizeof(QuserExDLLPathBuf) - strlen(QuserExDLLPathBuf) - 1);
+		strncat(QuserExDLLPathBuf, "\\QUSEREX.DLL", sizeof(QuserExDLLPathBuf) - strlen(QuserExDLLPathBuf) - 1);
 		__ptw32_h_quserex = LoadLibrary(QuserExDLLPathBuf);
 	}
 #else
@@ -134,9 +134,9 @@ BOOL pthread_win32_process_detach_np()
 			    GetProcAddress(__ptw32_h_quserex, (LPCSTR)"QueueUserAPCEx_Fini");
 #endif
 			if(queue_user_apc_ex_fini) {
-				(void)queue_user_apc_ex_fini();
+				queue_user_apc_ex_fini();
 			}
-			(void)FreeLibrary(__ptw32_h_quserex);
+			::FreeLibrary(__ptw32_h_quserex);
 		}
 	}
 	return TRUE;
@@ -171,7 +171,7 @@ BOOL pthread_win32_thread_detach_np()
 			while(sp->robustMxList) {
 				pthread_mutex_t mx = sp->robustMxList->mx;
 				__ptw32_robust_mutex_remove(&mx, sp);
-				(void)__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->robustNode->stateInconsistent, (__PTW32_INTERLOCKED_LONG)-1);
+				__PTW32_INTERLOCKED_EXCHANGE_LONG((__PTW32_INTERLOCKED_LONGPTR)&mx->robustNode->stateInconsistent, (__PTW32_INTERLOCKED_LONG)-1);
 				/*
 				 * If there are no waiters then the next thread to block will
 				 * sleep, wake up immediately and then go back to sleep.

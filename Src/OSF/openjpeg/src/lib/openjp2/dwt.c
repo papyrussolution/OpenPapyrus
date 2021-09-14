@@ -1194,19 +1194,15 @@ typedef struct {
 
 static void opj_dwt_encode_h_func(void* user_data, opj_tls_t* tls)
 {
-	OPJ_UINT32 j;
-	opj_dwt_encode_h_job_t* job;
-	(void)tls;
-
-	job = (opj_dwt_encode_h_job_t*)user_data;
-	for(j = job->min_j; j < job->max_j; j++) {
+	opj_dwt_encode_h_job_t* job = (opj_dwt_encode_h_job_t*)user_data;
+	for(OPJ_UINT32 j = job->min_j; j < job->max_j; j++) {
 		OPJ_INT32* OPJ_RESTRICT aj = job->tiledp + j * job->w;
 		(*job->p_function)(aj, job->h.mem, job->rw,
 		    job->h.cas == 0 ? OPJ_TRUE : OPJ_FALSE);
 	}
-
 	opj_aligned_free(job->h.mem);
 	SAlloc::F(job);
+	(void)tls;
 }
 
 typedef struct {
@@ -1819,7 +1815,7 @@ static INLINE OPJ_BOOL opj_dwt_encode_procedure(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt_encode_v_job_t* job;
 
-				job = (opj_dwt_encode_v_job_t*)opj_malloc(sizeof(opj_dwt_encode_v_job_t));
+				job = (opj_dwt_encode_v_job_t*)SAlloc::M(sizeof(opj_dwt_encode_v_job_t));
 				if(!job) {
 					opj_thread_pool_wait_completion(tp, 0);
 					opj_aligned_free(bj);
@@ -1869,7 +1865,7 @@ static INLINE OPJ_BOOL opj_dwt_encode_procedure(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt_encode_h_job_t* job;
 
-				job = (opj_dwt_encode_h_job_t*)opj_malloc(sizeof(opj_dwt_encode_h_job_t));
+				job = (opj_dwt_encode_h_job_t*)SAlloc::M(sizeof(opj_dwt_encode_h_job_t));
 				if(!job) {
 					opj_thread_pool_wait_completion(tp, 0);
 					opj_aligned_free(bj);
@@ -2150,7 +2146,7 @@ static OPJ_BOOL opj_dwt_decode_tile(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt_decode_h_job_t* job;
 
-				job = (opj_dwt_decode_h_job_t*)opj_malloc(sizeof(opj_dwt_decode_h_job_t));
+				job = (opj_dwt_decode_h_job_t*)SAlloc::M(sizeof(opj_dwt_decode_h_job_t));
 				if(!job) {
 					/* It would be nice to fallback to single thread case, but */
 					/* unfortunately some jobs may be launched and have modified */
@@ -2206,7 +2202,7 @@ static OPJ_BOOL opj_dwt_decode_tile(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt_decode_v_job_t* job;
 
-				job = (opj_dwt_decode_v_job_t*)opj_malloc(sizeof(opj_dwt_decode_v_job_t));
+				job = (opj_dwt_decode_v_job_t*)SAlloc::M(sizeof(opj_dwt_decode_v_job_t));
 				if(!job) {
 					/* It would be nice to fallback to single thread case, but */
 					/* unfortunately some jobs may be launched and have modified */
@@ -3400,7 +3396,7 @@ OPJ_BOOL opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt97_decode_h_job_t* job;
 
-				job = (opj_dwt97_decode_h_job_t*)opj_malloc(sizeof(opj_dwt97_decode_h_job_t));
+				job = (opj_dwt97_decode_h_job_t*)SAlloc::M(sizeof(opj_dwt97_decode_h_job_t));
 				if(!job) {
 					opj_thread_pool_wait_completion(tp, 0);
 					opj_aligned_free(h.wavelet);
@@ -3480,7 +3476,7 @@ OPJ_BOOL opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 			for(j = 0; j < num_jobs; j++) {
 				opj_dwt97_decode_v_job_t* job;
 
-				job = (opj_dwt97_decode_v_job_t*)opj_malloc(sizeof(opj_dwt97_decode_v_job_t));
+				job = (opj_dwt97_decode_v_job_t*)SAlloc::M(sizeof(opj_dwt97_decode_v_job_t));
 				if(!job) {
 					opj_thread_pool_wait_completion(tp, 0);
 					opj_aligned_free(h.wavelet);

@@ -339,7 +339,7 @@ int PThr4wTest_Exception3()
 			set_terminate(&terminateFunction);
 		#endif
 			throw dummy;
-			return (void*)0;
+			return 0;
 		}
 	};
 	pthread_t mt;

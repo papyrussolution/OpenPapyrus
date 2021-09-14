@@ -553,7 +553,7 @@ struct __ptw32_cleanup_t {
 	 * C implementation of PThreads cancel cleanup
 	 */
 	#define pthread_cleanup_push(_rout, _arg) { __ptw32_cleanup_t _cleanup; __ptw32_push_cleanup(&_cleanup, (__ptw32_cleanup_callback_t)(_rout), (_arg) );
-	#define pthread_cleanup_pop(_execute)     (void)__ptw32_pop_cleanup(_execute); }
+	#define pthread_cleanup_pop(_execute)     __ptw32_pop_cleanup(_execute); }
 #else /* __PTW32_CLEANUP_C */
 
 #if defined(__PTW32_CLEANUP_CXX)
@@ -596,7 +596,7 @@ public:
 	~PThreadCleanup()
 	{
 		if(executeIt && ((void*)cleanUpRout != (void*)0) ) {
-			(void)(*cleanUpRout)(obj);
+			(*cleanUpRout)(obj);
 		}
 	}
 	void execute(int exec)
@@ -650,12 +650,12 @@ __PTW32_DLLPORT int __PTW32_CDECL pthread_detach(pthread_t tid);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_equal(pthread_t t1, pthread_t t2);
 __PTW32_DLLPORT void __PTW32_CDECL pthread_exit(void * value_ptr);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_join(pthread_t thread, void ** value_ptr);
-__PTW32_DLLPORT pthread_t __PTW32_CDECL pthread_self(void);
+__PTW32_DLLPORT pthread_t __PTW32_CDECL pthread_self();
 __PTW32_DLLPORT int __PTW32_CDECL pthread_cancel(pthread_t thread);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_setcancelstate(int state, int * oldstate);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_setcanceltype(int type, int * oldtype);
-__PTW32_DLLPORT void __PTW32_CDECL pthread_testcancel(void);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_once(pthread_once_t * once_control, void (__PTW32_CDECL * init_routine)(void));
+__PTW32_DLLPORT void __PTW32_CDECL pthread_testcancel();
+__PTW32_DLLPORT int __PTW32_CDECL pthread_once(pthread_once_t * once_control, void (__PTW32_CDECL * init_routine)());
 #if __PTW32_LEVEL >= __PTW32_LEVEL_MAX
 __PTW32_DLLPORT __ptw32_cleanup_t *  __PTW32_CDECL __ptw32_pop_cleanup(int execute);
 __PTW32_DLLPORT void __PTW32_CDECL __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_t routine, void * arg);
@@ -731,7 +731,7 @@ __PTW32_DLLPORT int __PTW32_CDECL pthread_cond_broadcast(pthread_cond_t * cond);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_setschedparam(pthread_t thread, int policy, const struct sched_param * param);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_getschedparam(pthread_t thread, int * policy, struct sched_param * param);
 __PTW32_DLLPORT int __PTW32_CDECL pthread_setconcurrency(int);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_getconcurrency(void);
+__PTW32_DLLPORT int __PTW32_CDECL pthread_getconcurrency();
 /*
  * Read-Write Lock Functions
  */
@@ -772,16 +772,16 @@ __PTW32_DLLPORT int __PTW32_CDECL pthread_getaffinity_np(pthread_t thread, size_
  * Possibly supported by other POSIX threads implementations
  */
 __PTW32_DLLPORT int __PTW32_CDECL pthread_delay_np(struct timespec * interval);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_num_processors_np(void);
+__PTW32_DLLPORT int __PTW32_CDECL pthread_num_processors_np();
 __PTW32_DLLPORT unsigned __int64 __PTW32_CDECL pthread_getunique_np(pthread_t thread);
 /*
  * Useful if an application wants to statically link
  * the lib rather than load the DLL at run-time.
  */
-__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_process_attach_np(void);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_process_detach_np(void);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_thread_attach_np(void);
-__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_thread_detach_np(void);
+__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_process_attach_np();
+__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_process_detach_np();
+__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_thread_attach_np();
+__PTW32_DLLPORT int __PTW32_CDECL pthread_win32_thread_detach_np();
 /*
  * Returns the first parameter "abstime" modified to represent the current system time.
  * If "relative" is not NULL it represents an interval to add to "abstime".
@@ -873,7 +873,7 @@ __PTW32_DLLPORT int __PTW32_CDECL pthreadCancelableTimedWait(void * waitHandle, 
 	/*
 	 * Get internal SEH tag
 	 */
-	__PTW32_DLLPORT unsigned long __PTW32_CDECL __ptw32_get_exception_services_code(void);
+	__PTW32_DLLPORT unsigned long __PTW32_CDECL __ptw32_get_exception_services_code();
 #endif /* __PTW32_LEVEL >= __PTW32_LEVEL_MAX */
 #if !defined (__PTW32_BUILD)
 	#if defined(__PTW32_CLEANUP_SEH)

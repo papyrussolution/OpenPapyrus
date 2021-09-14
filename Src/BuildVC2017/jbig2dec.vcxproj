@@ -649,10 +649,8 @@
     <ClCompile Include="..\OSF\jbig2dec\jbig2_segment.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_symbol_dict.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2_text.c" />
-    <ClCompile Include="..\OSF\jbig2dec\memcmp.c" />
     <ClCompile Include="..\OSF\jbig2dec\memento.c" />
     <ClCompile Include="..\OSF\jbig2dec\pbm2png.c" />
-    <ClCompile Include="..\OSF\jbig2dec\sha1.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\jbig2dec\config_win32.h" />
@@ -676,7 +674,6 @@
     <ClInclude Include="..\OSF\jbig2dec\jbig2_text.h" />
     <ClInclude Include="..\OSF\jbig2dec\memento.h" />
     <ClInclude Include="..\OSF\jbig2dec\os_types.h" />
-    <ClInclude Include="..\OSF\jbig2dec\sha1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

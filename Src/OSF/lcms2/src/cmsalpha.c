@@ -328,8 +328,7 @@ static int FormatterPos(cmsUInt32Number frm)
 }
 
 // Obtains an alpha-to-alpha function formatter
-static
-cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, cmsUInt32Number in, cmsUInt32Number out)
+static cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, cmsUInt32Number in, cmsUInt32Number out)
 {
 	static cmsFormatterAlphaFn FormattersAlpha[6][6] = {
 		/* from 8 */ { copy8,       from8to16,   from8to16SE,   from8toHLF,   from8toFLT,    from8toDBL    },
@@ -339,15 +338,12 @@ cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, cmsUInt32Number in, cms
 		/* from FLT*/ { fromFLTto8,  fromFLTto16, fromFLTto16SE, fromFLTtoHLF, copy32,        fromFLTtoDBL  },
 		/* from DBL*/ { fromDBLto8,  fromDBLto16, fromDBLto16SE, fromDBLtoHLF, fromDBLtoFLT,  copy64 }
 	};
-
 	int in_n  = FormatterPos(in);
 	int out_n = FormatterPos(out);
-
 	if(in_n < 0 || out_n < 0 || in_n > 5 || out_n > 5) {
 		cmsSignalError(id, cmsERROR_UNKNOWN_EXTENSION, "Unrecognized alpha channel width");
 		return NULL;
 	}
-
 	return FormattersAlpha[in_n][out_n];
 }
 

@@ -11,33 +11,28 @@
    Refer to licensing information at http://www.artifex.com or contact
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
-*/
+ */
 
 /*
     jbig2dec
-*/
+ */
 
 #ifndef _JBIG2_REFINEMENT_H
 #define _JBIG2_REFINEMENT_H
 
 /* 6.3 Table 6 */
 typedef struct {
-    /* GRW */
-    /* GRH */
-    boolint GRTEMPLATE;
-    Jbig2Image *GRREFERENCE;
-    int32_t GRREFERENCEDX, GRREFERENCEDY;
-    boolint TPGRON;
-    int8_t grat[4];
+	/* GRW */
+	/* GRH */
+	boolint GRTEMPLATE;
+	Jbig2Image * GRREFERENCE;
+	int32_t GRREFERENCEDX, GRREFERENCEDY;
+	boolint TPGRON;
+	int8_t grat[4];
 } Jbig2RefinementRegionParams;
 
-int
-jbig2_decode_refinement_region(Jbig2Ctx *ctx,
-                               Jbig2Segment *segment,
-                               const Jbig2RefinementRegionParams *params, Jbig2ArithState *as, Jbig2Image *image, Jbig2ArithCx *GB_stats);
-
+int jbig2_decode_refinement_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const Jbig2RefinementRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GB_stats);
 /* 7.4 */
-int jbig2_refinement_region(Jbig2Ctx *ctx, Jbig2Segment *segment, const byte *segment_data);
+int jbig2_refinement_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_data);
 
 #endif /* _JBIG2_REFINEMENT_H */
-

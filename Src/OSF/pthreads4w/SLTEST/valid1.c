@@ -1,9 +1,5 @@
 /*
  * File: valid1.c
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -53,7 +49,7 @@ int PThr4wTest_Valid1()
 		static void * func(void * arg)
 		{
 			washere = 1;
-			return (void*)0;
+			return 0;
 		}
 	};
 	pthread_t t;

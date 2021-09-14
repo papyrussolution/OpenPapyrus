@@ -171,7 +171,7 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 	return r_ptr;
 }
 
-void * FASTCALL opj_malloc(size_t size)
+void * opj_malloc_Removed(size_t size)
 {
 	if(size == 0U) { // prevent implementation defined behavior of realloc 
 		return NULL;
@@ -179,7 +179,7 @@ void * FASTCALL opj_malloc(size_t size)
 	return malloc(size);
 }
 
-void * FASTCALL opj_calloc(size_t num, size_t size)
+void * opj_calloc_Removed(size_t num, size_t size)
 {
 	if(num == 0 || size == 0) { // prevent implementation defined behavior of realloc 
 		return NULL;
@@ -199,14 +199,14 @@ void opj_aligned_free(void* ptr)
 #elif defined(OPJ_HAVE__ALIGNED_MALLOC)
 	_aligned_free(ptr);
 #else
-	/* Generic implementation has malloced pointer stored in front of used area */
+	// Generic implementation has malloced pointer stored in front of used area 
 	if(ptr != NULL) {
 		free(((void**)ptr)[-1]);
 	}
 #endif
 }
 
-void * FASTCALL opj_realloc(void * ptr, size_t new_size)
+void * opj_realloc_Removed(void * ptr, size_t new_size)
 {
 	if(new_size == 0U) { /* prevent implementation defined behavior of realloc */
 		return NULL;

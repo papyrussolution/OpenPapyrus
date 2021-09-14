@@ -603,7 +603,7 @@ static OPJ_BOOL opj_jp2_read_ihdr(opj_jp2_t * jp2,
 	}
 
 	/* allocate memory for components */
-	jp2->comps = (opj_jp2_comps_t*)opj_calloc(jp2->numcomps,
+	jp2->comps = (opj_jp2_comps_t*)SAlloc::C(jp2->numcomps,
 		sizeof(opj_jp2_comps_t));
 	if(jp2->comps == 0) {
 		opj_event_msg(p_manager, EVT_ERROR,
@@ -637,105 +637,70 @@ static OPJ_BOOL opj_jp2_read_ihdr(opj_jp2_t * jp2,
 	return OPJ_TRUE;
 }
 
-static OPJ_BYTE * opj_jp2_write_ihdr(opj_jp2_t * jp2,
-    OPJ_UINT32 * p_nb_bytes_written
-    )
+static OPJ_BYTE * opj_jp2_write_ihdr(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_written)
 {
 	OPJ_BYTE * l_ihdr_data, * l_current_ihdr_ptr;
-
 	/* preconditions */
 	assert(jp2 != 00);
 	assert(p_nb_bytes_written != 00);
-
 	/* default image header is 22 bytes wide */
-	l_ihdr_data = (OPJ_BYTE*)opj_calloc(1, 22);
+	l_ihdr_data = (OPJ_BYTE*)SAlloc::C(1, 22);
 	if(l_ihdr_data == 00) {
 		return 00;
 	}
-
 	l_current_ihdr_ptr = l_ihdr_data;
-
 	opj_write_bytes(l_current_ihdr_ptr, 22, 4);         /* write box size */
 	l_current_ihdr_ptr += 4;
-
 	opj_write_bytes(l_current_ihdr_ptr, JP2_IHDR, 4);   /* IHDR */
 	l_current_ihdr_ptr += 4;
-
 	opj_write_bytes(l_current_ihdr_ptr, jp2->h, 4); /* HEIGHT */
 	l_current_ihdr_ptr += 4;
-
 	opj_write_bytes(l_current_ihdr_ptr, jp2->w, 4); /* WIDTH */
 	l_current_ihdr_ptr += 4;
-
 	opj_write_bytes(l_current_ihdr_ptr, jp2->numcomps, 2);  /* NC */
 	l_current_ihdr_ptr += 2;
-
 	opj_write_bytes(l_current_ihdr_ptr, jp2->bpc, 1);   /* BPC */
 	++l_current_ihdr_ptr;
-
 	opj_write_bytes(l_current_ihdr_ptr, jp2->C, 1); /* C : Always 7 */
 	++l_current_ihdr_ptr;
-
-	opj_write_bytes(l_current_ihdr_ptr, jp2->UnkC,
-	    1);              /* UnkC, colorspace unknown */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->UnkC, 1);              /* UnkC, colorspace unknown */
 	++l_current_ihdr_ptr;
-
-	opj_write_bytes(l_current_ihdr_ptr, jp2->IPR,
-	    1);               /* IPR, no intellectual property */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->IPR, 1);               /* IPR, no intellectual property */
 	++l_current_ihdr_ptr;
-
 	*p_nb_bytes_written = 22;
-
 	return l_ihdr_data;
 }
 
-static OPJ_BYTE * opj_jp2_write_bpcc(opj_jp2_t * jp2,
-    OPJ_UINT32 * p_nb_bytes_written
-    )
+static OPJ_BYTE * opj_jp2_write_bpcc(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_written)
 {
 	OPJ_UINT32 i;
 	/* room for 8 bytes for box and 1 byte for each component */
 	OPJ_UINT32 l_bpcc_size;
 	OPJ_BYTE * l_bpcc_data, * l_current_bpcc_ptr;
-
 	/* preconditions */
 	assert(jp2 != 00);
 	assert(p_nb_bytes_written != 00);
 	l_bpcc_size = 8 + jp2->numcomps;
-
-	l_bpcc_data = (OPJ_BYTE*)opj_calloc(1, l_bpcc_size);
+	l_bpcc_data = (OPJ_BYTE*)SAlloc::C(1, l_bpcc_size);
 	if(l_bpcc_data == 00) {
 		return 00;
 	}
-
 	l_current_bpcc_ptr = l_bpcc_data;
-
-	opj_write_bytes(l_current_bpcc_ptr, l_bpcc_size,
-	    4);                    /* write box size */
+	opj_write_bytes(l_current_bpcc_ptr, l_bpcc_size, 4);                    /* write box size */
 	l_current_bpcc_ptr += 4;
-
 	opj_write_bytes(l_current_bpcc_ptr, JP2_BPCC, 4);           /* BPCC */
 	l_current_bpcc_ptr += 4;
-
 	for(i = 0; i < jp2->numcomps; ++i) {
-		opj_write_bytes(l_current_bpcc_ptr, jp2->comps[i].bpcc,
-		    1);     /* write each component information */
+		opj_write_bytes(l_current_bpcc_ptr, jp2->comps[i].bpcc, 1);     /* write each component information */
 		++l_current_bpcc_ptr;
 	}
-
 	*p_nb_bytes_written = l_bpcc_size;
-
 	return l_bpcc_data;
 }
 
-static OPJ_BOOL opj_jp2_read_bpcc(opj_jp2_t * jp2,
-    OPJ_BYTE * p_bpc_header_data,
-    OPJ_UINT32 p_bpc_header_size,
-    opj_event_mgr_t * p_manager
-    )
+static OPJ_BOOL opj_jp2_read_bpcc(opj_jp2_t * jp2, OPJ_BYTE * p_bpc_header_data, OPJ_UINT32 p_bpc_header_size, opj_event_mgr_t * p_manager)
 {
 	OPJ_UINT32 i;
-
 	/* preconditions */
 	assert(p_bpc_header_data != 00);
 	assert(jp2 != 00);
@@ -781,7 +746,7 @@ static OPJ_BYTE * opj_jp2_write_cdef(opj_jp2_t * jp2,
 
 	l_cdef_size += 6U * jp2->color.jp2_cdef->n;
 
-	l_cdef_data = (OPJ_BYTE*)opj_malloc(l_cdef_size);
+	l_cdef_data = (OPJ_BYTE*)SAlloc::M(l_cdef_size);
 	if(l_cdef_data == 00) {
 		return 00;
 	}
@@ -839,7 +804,7 @@ static OPJ_BYTE * opj_jp2_write_colr(opj_jp2_t * jp2,
 		    return 00;
 	}
 
-	l_colr_data = (OPJ_BYTE*)opj_calloc(1, l_colr_size);
+	l_colr_data = (OPJ_BYTE*)SAlloc::C(1, l_colr_size);
 	if(l_colr_data == 00) {
 		return 00;
 	}
@@ -962,7 +927,7 @@ static OPJ_BOOL opj_jp2_check_color(opj_image_t * image, opj_jp2_color_t * color
 			}
 		}
 
-		pcol_usage = (OPJ_BOOL*)opj_calloc(nr_channels, sizeof(OPJ_BOOL));
+		pcol_usage = (OPJ_BOOL*)SAlloc::C(nr_channels, sizeof(OPJ_BOOL));
 		if(!pcol_usage) {
 			opj_event_msg(p_manager, EVT_ERROR, "Unexpected OOM.\n");
 			return OPJ_FALSE;
@@ -1074,7 +1039,7 @@ static OPJ_BOOL opj_jp2_apply_pclr(opj_image_t * image,
 
 	old_comps = image->comps;
 	new_comps = (opj_image_comp_t*)
-	    opj_malloc(nr_channels * sizeof(opj_image_comp_t));
+	    SAlloc::M(nr_channels * sizeof(opj_image_comp_t));
 	if(!new_comps) {
 		opj_event_msg(p_manager, EVT_ERROR,
 		    "Memory allocation failure in opj_jp2_apply_pclr().\n");
@@ -1199,23 +1164,23 @@ static OPJ_BOOL opj_jp2_read_pclr(opj_jp2_t * jp2, OPJ_BYTE * p_pclr_header_data
 	if(p_pclr_header_size < 3 + (OPJ_UINT32)nr_channels) {
 		return OPJ_FALSE;
 	}
-	entries = (OPJ_UINT32*)opj_malloc(sizeof(OPJ_UINT32) * nr_channels * nr_entries);
+	entries = (OPJ_UINT32*)SAlloc::M(sizeof(OPJ_UINT32) * nr_channels * nr_entries);
 	if(!entries) {
 		return OPJ_FALSE;
 	}
-	channel_size = (OPJ_BYTE*)opj_malloc(nr_channels);
+	channel_size = (OPJ_BYTE*)SAlloc::M(nr_channels);
 	if(!channel_size) {
 		SAlloc::F(entries);
 		return OPJ_FALSE;
 	}
-	channel_sign = (OPJ_BYTE*)opj_malloc(nr_channels);
+	channel_sign = (OPJ_BYTE*)SAlloc::M(nr_channels);
 	if(!channel_sign) {
 		SAlloc::F(entries);
 		SAlloc::F(channel_size);
 		return OPJ_FALSE;
 	}
 
-	jp2_pclr = (opj_jp2_pclr_t*)opj_malloc(sizeof(opj_jp2_pclr_t));
+	jp2_pclr = (opj_jp2_pclr_t*)SAlloc::M(sizeof(opj_jp2_pclr_t));
 	if(!jp2_pclr) {
 		SAlloc::F(entries);
 		SAlloc::F(channel_size);
@@ -1285,7 +1250,7 @@ static OPJ_BOOL opj_jp2_read_cmap(opj_jp2_t * jp2, OPJ_BYTE * p_cmap_header_data
 		opj_event_msg(p_manager, EVT_ERROR, "Insufficient data for CMAP box.\n");
 		return OPJ_FALSE;
 	}
-	cmap = (opj_jp2_cmap_comp_t*)opj_malloc(nr_channels * sizeof(opj_jp2_cmap_comp_t));
+	cmap = (opj_jp2_cmap_comp_t*)SAlloc::M(nr_channels * sizeof(opj_jp2_cmap_comp_t));
 	if(!cmap) {
 		return OPJ_FALSE;
 	}
@@ -1412,11 +1377,11 @@ static OPJ_BOOL opj_jp2_read_cdef(opj_jp2_t * jp2,
 		opj_event_msg(p_manager, EVT_ERROR, "Insufficient data for CDEF box.\n");
 		return OPJ_FALSE;
 	}
-	cdef_info = (opj_jp2_cdef_info_t*)opj_malloc(l_value * sizeof(opj_jp2_cdef_info_t));
+	cdef_info = (opj_jp2_cdef_info_t*)SAlloc::M(l_value * sizeof(opj_jp2_cdef_info_t));
 	if(!cdef_info) {
 		return OPJ_FALSE;
 	}
-	jp2->color.jp2_cdef = (opj_jp2_cdef_t*)opj_malloc(sizeof(opj_jp2_cdef_t));
+	jp2->color.jp2_cdef = (opj_jp2_cdef_t*)SAlloc::M(sizeof(opj_jp2_cdef_t));
 	if(!jp2->color.jp2_cdef) {
 		SAlloc::F(cdef_info);
 		return OPJ_FALSE;
@@ -1499,7 +1464,7 @@ static OPJ_BOOL opj_jp2_read_colr(opj_jp2_t * jp2,
 			OPJ_UINT32 * cielab;
 			OPJ_UINT32 rl, ol, ra, oa, rb, ob, il;
 
-			cielab = (OPJ_UINT32*)opj_malloc(9 * sizeof(OPJ_UINT32));
+			cielab = (OPJ_UINT32*)SAlloc::M(9 * sizeof(OPJ_UINT32));
 			if(cielab == NULL) {
 				opj_event_msg(p_manager, EVT_ERROR, "Not enough memory for cielab\n");
 				return OPJ_FALSE;
@@ -1552,7 +1517,7 @@ static OPJ_BOOL opj_jp2_read_colr(opj_jp2_t * jp2,
 		OPJ_INT32 icc_len = (OPJ_INT32)p_colr_header_size - 3;
 
 		jp2->color.icc_profile_len = (OPJ_UINT32)icc_len;
-		jp2->color.icc_profile_buf = (OPJ_BYTE*)opj_calloc(1, (size_t)icc_len);
+		jp2->color.icc_profile_buf = (OPJ_BYTE*)SAlloc::C(1, (size_t)icc_len);
 		if(!jp2->color.icc_profile_buf) {
 			jp2->color.icc_profile_len = 0;
 			return OPJ_FALSE;
@@ -1771,7 +1736,7 @@ static OPJ_BOOL opj_jp2_write_ftyp(opj_jp2_t * jp2,
 	assert(p_manager != 00);
 	l_ftyp_size = 16 + 4 * jp2->numcl;
 
-	l_ftyp_data = (OPJ_BYTE*)opj_calloc(1, l_ftyp_size);
+	l_ftyp_data = (OPJ_BYTE*)SAlloc::C(1, l_ftyp_size);
 
 	if(l_ftyp_data == 00) {
 		opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to handle ftyp data\n");
@@ -1937,7 +1902,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 	jp2->brand = JP2_JP2; /* BR */
 	jp2->minversion = 0; /* MinV */
 	jp2->numcl = 1;
-	jp2->cl = (OPJ_UINT32*)opj_malloc(jp2->numcl * sizeof(OPJ_UINT32));
+	jp2->cl = (OPJ_UINT32*)SAlloc::M(jp2->numcl * sizeof(OPJ_UINT32));
 	if(!jp2->cl) {
 		opj_event_msg(p_manager, EVT_ERROR,
 		    "Not enough memory when setup the JP2 encoder\n");
@@ -1948,7 +1913,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 	/* Image Header box */
 
 	jp2->numcomps = image->numcomps; /* NC */
-	jp2->comps = (opj_jp2_comps_t*)opj_malloc(jp2->numcomps * sizeof(
+	jp2->comps = (opj_jp2_comps_t*)SAlloc::M(jp2->numcomps * sizeof(
 			opj_jp2_comps_t));
 	if(!jp2->comps) {
 		opj_event_msg(p_manager, EVT_ERROR,
@@ -2040,7 +2005,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 		    "Multiple alpha channels specified. No cdef box will be created.\n");
 	}
 	if(alpha_count == 1U) { /* if here, we know what we can do */
-		jp2->color.jp2_cdef = (opj_jp2_cdef_t*)opj_malloc(sizeof(opj_jp2_cdef_t));
+		jp2->color.jp2_cdef = (opj_jp2_cdef_t*)SAlloc::M(sizeof(opj_jp2_cdef_t));
 		if(!jp2->color.jp2_cdef) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to setup the JP2 encoder\n");
@@ -2049,7 +2014,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 		/* no memset needed, all values will be overwritten except if jp2->color.jp2_cdef->info allocation
 		   fails, */
 		/* in which case jp2->color.jp2_cdef->info will be NULL => valid for destruction */
-		jp2->color.jp2_cdef->info = (opj_jp2_cdef_info_t*)opj_malloc(image->numcomps * sizeof(opj_jp2_cdef_info_t));
+		jp2->color.jp2_cdef->info = (opj_jp2_cdef_info_t*)SAlloc::M(image->numcomps * sizeof(opj_jp2_cdef_info_t));
 		if(!jp2->color.jp2_cdef->info) {
 			/* memory will be freed by opj_jp2_destroy */
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to setup the JP2 encoder\n");
@@ -2255,7 +2220,7 @@ static OPJ_BOOL opj_jp2_read_header_procedure(opj_jp2_t * jp2,
 	assert(jp2 != 00);
 	assert(p_manager != 00);
 
-	l_current_data = (OPJ_BYTE*)opj_calloc(1, l_last_data_size);
+	l_current_data = (OPJ_BYTE*)SAlloc::C(1, l_last_data_size);
 
 	if(l_current_data == 00) {
 		opj_event_msg(p_manager, EVT_ERROR,
@@ -2331,7 +2296,7 @@ static OPJ_BOOL opj_jp2_read_header_procedure(opj_jp2_t * jp2,
 				return OPJ_FALSE;
 			}
 			if(l_current_data_size > l_last_data_size) {
-				OPJ_BYTE* new_current_data = (OPJ_BYTE*)opj_realloc(l_current_data,
+				OPJ_BYTE* new_current_data = (OPJ_BYTE*)SAlloc::R(l_current_data,
 					l_current_data_size);
 				if(!new_current_data) {
 					SAlloc::F(l_current_data);
@@ -2607,7 +2572,7 @@ static OPJ_BOOL opj_jp2_read_ftyp(opj_jp2_t * jp2,
 	/* div by 4 */
 	jp2->numcl = l_remaining_bytes >> 2;
 	if(jp2->numcl) {
-		jp2->cl = (OPJ_UINT32*)opj_calloc(jp2->numcl, sizeof(OPJ_UINT32));
+		jp2->cl = (OPJ_UINT32*)SAlloc::C(jp2->numcl, sizeof(OPJ_UINT32));
 		if(jp2->cl == 00) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory with FTYP Box\n");
 			return OPJ_FALSE;
@@ -3151,7 +3116,7 @@ OPJ_BOOL opj_jp2_get_tile(opj_jp2_t * p_jp2,
 
 opj_jp2_t* opj_jp2_create(OPJ_BOOL p_is_decoder)
 {
-	opj_jp2_t * jp2 = (opj_jp2_t*)opj_calloc(1, sizeof(opj_jp2_t));
+	opj_jp2_t * jp2 = (opj_jp2_t*)SAlloc::C(1, sizeof(opj_jp2_t));
 	if(jp2) {
 		/* create the J2K codec */
 		if(!p_is_decoder) {

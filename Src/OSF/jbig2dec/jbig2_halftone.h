@@ -11,49 +11,47 @@
    Refer to licensing information at http://www.artifex.com or contact
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
-*/
+ */
 
 /*
     jbig2dec
-*/
-
+ */
 #ifndef _JBIG2_HALFTONE_H
 #define _JBIG2_HALFTONE_H
 
 typedef struct {
-    int n_patterns;
-    Jbig2Image **patterns;
-    uint32_t HPW, HPH;
+	int n_patterns;
+	Jbig2Image ** patterns;
+	uint32_t HPW, HPH;
 } Jbig2PatternDict;
 
 /* Table 24 */
 typedef struct {
-    boolint HDMMR;
-    uint32_t HDPW;
-    uint32_t HDPH;
-    uint32_t GRAYMAX;
-    int HDTEMPLATE;
+	boolint HDMMR;
+	uint32_t HDPW;
+	uint32_t HDPH;
+	uint32_t GRAYMAX;
+	int HDTEMPLATE;
 } Jbig2PatternDictParams;
 
 /* Table 33 */
 typedef struct {
-    byte flags;
-    uint32_t HGW;
-    uint32_t HGH;
-    int32_t HGX;
-    int32_t HGY;
-    uint16_t HRX;
-    uint16_t HRY;
-    boolint HMMR;
-    int HTEMPLATE;
-    boolint HENABLESKIP;
-    Jbig2ComposeOp HCOMBOP;
-    boolint HDEFPIXEL;
+	byte flags;
+	uint32_t HGW;
+	uint32_t HGH;
+	int32_t HGX;
+	int32_t HGY;
+	uint16_t HRX;
+	uint16_t HRY;
+	boolint HMMR;
+	int HTEMPLATE;
+	boolint HENABLESKIP;
+	Jbig2ComposeOp HCOMBOP;
+	boolint HDEFPIXEL;
 } Jbig2HalftoneRegionParams;
 
-void jbig2_hd_release(Jbig2Ctx *ctx, Jbig2PatternDict *dict);
-
-int jbig2_halftone_region(Jbig2Ctx *ctx, Jbig2Segment *segment, const byte *segment_data);
-int jbig2_pattern_dictionary(Jbig2Ctx *ctx, Jbig2Segment *segment, const byte *segment_data);
+void jbig2_hd_release(Jbig2Ctx * ctx, Jbig2PatternDict * dict);
+int jbig2_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_data);
+int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_data);
 
 #endif /* _JBIG2_HALFTONE_H */

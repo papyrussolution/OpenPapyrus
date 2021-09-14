@@ -38,15 +38,13 @@
 #pragma hdrstop
 #include "test.h"
 //
-// Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
-static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
-/*
- * Handle to kernel32.dll
- */
-static HINSTANCE _h_kernel32;
 
 int PThr4wTest_TryEnterCs1()
 {
+	// Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
+	static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+	static HINSTANCE _h_kernel32; // Handle to kernel32.dll
+
 	CRITICAL_SECTION cs;
 	SetLastError(0);
 	printf("Last Error [main enter] %ld\n", (long)GetLastError());

@@ -85,7 +85,7 @@
 	#define HELP_BROWSER_TRANSPORT                               23
 #define BROWSER_BRAND                                   24 // @{view_brand}
 	#define HELP_BROWSER_BRAND                                   24
-#define BROWSER_ATURNLIST                               25 // Опись проводок {%s}
+#define BROWSER_ATURNLIST                               25 // @{view_accturn} {%s}
 	#define HELP_BROWSER_ATURNLIST                               25
 #define BROWSER_ATURNGRPNG                              26 // Группировка проводок {%s}
 	#define HELP_BROWSER_ATURNGRPNG                              26
@@ -102,7 +102,7 @@
 	#define HELP_BROWSER_SELLTRNOVR                              31
 #define BROWSER_SELLTRNOVR_EXT_EXPPART                  32 // Доля просроченных долгов {%s}
 	#define HELP_BROWSER_SELLTRNOVR_EXT_EXPPART                  32
-#define BROWSER_SELLTRNOVR_EXT_TRUNOVER                 33 // Оборачиваемость дебиторской задолженности {%s}
+#define BROWSER_SELLTRNOVR_EXT_TRUNOVER                 33 // @{view_debttrnovr_turnover} {%s}
 	#define HELP_BROWSER_SELLTRNOVR_EXT_TRUNOVER                 33
 #define BROWSER_SELLTRNOVR_E                            34 // @{view_debttrnovr} {%s}
 	#define HELP_BROWSER_SELLTRNOVR_E                            34
@@ -134,13 +134,13 @@
 	#define HELP_BROWSER_INVENTORYBILL                           47
 #define BROWSER_GOODSBILLCUR                            48 // @{commoditydocument_pl} {%s}
 	#define HELP_BROWSER_GOODSBILLCUR                            48
-#define BROWSER_DEBTCARD                                49 // Долговая карточка {%s}
+#define BROWSER_DEBTCARD                                49 // @{view_debtcard} {%s}
 	#define HELP_BROWSER_DEBTCARD                                49
 #define BROWSER_INVNTRYLINES                            50 // @{view_inventory} {%s}
 	#define HELP_BROWSER_INVNTRYLINES                            50
 #define BROWSER_INVNTRYLINESSUBST                       51 // Группировка строк инвентаризации {%s}
 	#define HELP_BROWSER_INVNTRYLINESSUBST                       51
-#define BROWSER_CASHNODEBILL                            52 // Товарные чеки {%s}
+#define BROWSER_CASHNODEBILL                            52 // @{poscheck_pl} {%s}
 	#define HELP_BROWSER_CASHNODEBILL                            52
 #define BROWSER_GOODSITEM_W2                            53 // @{view_billitem_goods} {%s}
 	#define HELP_BROWSER_GOODSITEM_W2                            53
@@ -491,7 +491,7 @@
 	#define HELP_BROWSER_TECHTOOLING                            223
 #define BROWSER_TSESSION                               224 // @{tsession_pl} {%s}
 	#define HELP_BROWSER_TSESSION                               224
-#define BROWSER_TSUBSESSION                            225 // Технологические субсессии {%s}
+#define BROWSER_TSUBSESSION                            225 // @{tsubsession_pl} {%s}
 	#define HELP_BROWSER_TSUBSESSION                            225
 #define BROWSER_TSESS_MANUFPLAN                        226 // @{productionplan_pl} {%s}
 	#define HELP_BROWSER_TSESS_MANUFPLAN                        226

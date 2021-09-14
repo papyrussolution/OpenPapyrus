@@ -9,10 +9,7 @@
 //  version of the SHA-256 found from Crypto++ <http://www.cryptopp.com/>.
 //  The code was modified a little to fit into liblzma.
 //
-//  Authors:    Kevin Springle
-//              Wei Dai
-//              Igor Pavlov
-//              Lasse Collin
+//  Authors:    Kevin Springle, Wei Dai, Igor Pavlov, Lasse Collin
 //
 //  This file has been put into the public domain. You can do whatever you want with this file.
 //

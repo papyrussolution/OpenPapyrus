@@ -1,9 +1,5 @@
 /*
  * robust2.c
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -38,17 +34,8 @@
  * Thread B awakes and inherits mutex and unlocks
  * Main attempts to lock mutex with unrecovered state.
  *
- * Depends on API functions:
- *      pthread_create()
- *      pthread_join()
- *	pthread_mutex_init()
- *	pthread_mutex_lock()
- *	pthread_mutex_unlock()
- *	pthread_mutex_destroy()
- *	pthread_mutexattr_init()
- *	pthread_mutexattr_setrobust()
- *	pthread_mutexattr_settype()
- *	pthread_mutexattr_destroy()
+ * Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(),
+ *	pthread_mutex_destroy(), pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop

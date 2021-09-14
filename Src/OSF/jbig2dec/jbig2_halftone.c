@@ -20,13 +20,6 @@
 /* JBIG2 Pattern Dictionary and Halftone Region decoding */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_generic.h"
-//#include "jbig2_image.h"
-#include "jbig2_halftone.h"
-#include "jbig2_mmr.h"
-#include "jbig2_page.h"
-#include "jbig2_segment.h"
-
 /**
  * jbig2_hd_new: create a new dictionary from a collective bitmap
  */
@@ -39,7 +32,7 @@ static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictPar
 	int code;
 	uint32_t i, j;
 	if(N == 0) {
-		/* We've wrapped. */
+		// We've wrapped. 
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "params->GRAYMAX out of range");
 		return NULL;
 	}
@@ -55,7 +48,7 @@ static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictPar
 		p_new->n_patterns = N;
 		p_new->HPW = HPW;
 		p_new->HPH = HPH;
-		/* 6.7.5(4) - copy out the individual pattern images */
+		// 6.7.5(4) - copy out the individual pattern images 
 		for(i = 0; i < N; i++) {
 			p_new->patterns[i] = jbig2_image_new(ctx, HPW, HPH);
 			if(p_new->patterns[i] == NULL) {
@@ -65,10 +58,8 @@ static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictPar
 				jbig2_free(ctx->allocator, p_new);
 				return NULL;
 			}
-			/* compose with the REPLACE operator; the source
-			   will be clipped to the destination, selecting the
-			   proper sub image */
-			code = jbig2_image_compose(ctx, p_new->patterns[i], image, -i * (int32_t)HPW, 0, JBIG2_COMPOSE_REPLACE);
+			// compose with the REPLACE operator; the source will be clipped to the destination, selecting the proper sub image 
+			code = jbig2_image_compose(ctx, p_new->patterns[i], image, -static_cast<int>(i) * (int32_t)HPW, 0, JBIG2_COMPOSE_REPLACE);
 			if(code < 0) {
 				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to compose image into collective bitmap dictionary");
 				for(j = 0; j < i; j++)
@@ -472,14 +463,14 @@ static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 		for(ng = 0; ng < params->HGW; ++ng) {
 			int64_t x = ((int64_t)params->HGX + mg * params->HRY + ng * params->HRX) >> 8;
 			int64_t y = ((int64_t)params->HGY + mg * params->HRX - ng * params->HRY) >> 8;
-			/* prevent pattern index >= HNUMPATS */
+			// prevent pattern index >= HNUMPATS 
 			gray_val = GI[ng][mg];
 			if(gray_val >= HNUMPATS) {
 				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "gray-scale index %d out of range, using largest index", gray_val);
 				/* use highest available pattern */
 				gray_val = HNUMPATS - 1;
 			}
-			code = jbig2_image_compose(ctx, image, HPATS->patterns[gray_val], x, y, params->HCOMBOP);
+			code = jbig2_image_compose(ctx, image, HPATS->patterns[gray_val], static_cast<int>(x), static_cast<int>(y), params->HCOMBOP);
 			if(code < 0) {
 				code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "failed to compose pattern with gray-scale image");
 				goto cleanup;

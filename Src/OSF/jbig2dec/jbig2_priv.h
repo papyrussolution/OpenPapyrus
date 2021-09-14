@@ -40,8 +40,8 @@ typedef uint8_t byte;
 #define bool_Removed int // @sobolev bool-->bool_Removed
 
 #ifdef __cplusplus
-#define template template_C
-#define new new_C
+// @sobolev #define template template_C
+// @sobolev #define new new_C
 #endif
 
 //#ifndef TRUE
@@ -104,14 +104,14 @@ struct _Jbig2Ctx {
     Jbig2Page *pages;
 };
 
-uint32_t jbig2_get_uint32(const byte *bptr);
-int32_t jbig2_get_int32(const byte *buf);
-uint16_t jbig2_get_uint16(const byte *bptr);
-int16_t jbig2_get_int16(const byte *buf);
+uint32_t FASTCALL jbig2_get_uint32(const byte *bptr);
+int32_t  FASTCALL jbig2_get_int32(const byte *buf);
+uint16_t FASTCALL jbig2_get_uint16(const byte *bptr);
+int16_t  FASTCALL jbig2_get_int16(const byte *buf);
 /* dynamic memory management */
-void *jbig2_alloc(Jbig2Allocator *allocator, size_t size, size_t num);
+void * jbig2_alloc(Jbig2Allocator *allocator, size_t size, size_t num);
 void FASTCALL jbig2_free(Jbig2Allocator *allocator, void *p);
-void *jbig2_realloc(Jbig2Allocator *allocator, void *p, size_t size, size_t num);
+void * jbig2_realloc(Jbig2Allocator *allocator, void *p, size_t size, size_t num);
 
 #define jbig2_new(ctx, t, size) ((t *)jbig2_alloc(ctx->allocator, size, sizeof(t)))
 #define jbig2_renew(ctx, p, t, size) ((t *)jbig2_realloc(ctx->allocator, (p), size, sizeof(t)))
@@ -134,8 +134,7 @@ struct _Jbig2WordStream {
 };
 
 Jbig2WordStream *jbig2_word_stream_buf_new(Jbig2Ctx *ctx, const byte *data, size_t size);
-
-void jbig2_word_stream_buf_free(Jbig2Ctx *ctx, Jbig2WordStream *ws);
+void FASTCALL jbig2_word_stream_buf_free(Jbig2Ctx *ctx, Jbig2WordStream *ws);
 
 /* restrict is standard in C99, but not in all C++ compilers. */
 #if defined (__STDC_VERSION_) && (__STDC_VERSION__ >= 199901L) /* C99 */

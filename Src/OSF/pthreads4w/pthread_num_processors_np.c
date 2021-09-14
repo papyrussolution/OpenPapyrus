@@ -29,12 +29,10 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-/*
- * pthread_num_processors_np()
- *
- * Get the number of CPUs available to the process.
- */
-int pthread_num_processors_np(void)
+//
+// Descr: Get the number of CPUs available to the process.
+//
+int pthread_num_processors_np()
 {
 	int count;
 	if(__ptw32_getprocessors(&count) != 0)

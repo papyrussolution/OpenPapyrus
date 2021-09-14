@@ -12,22 +12,13 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_arith_iaid.h"
-//#include "jbig2_generic.h"
-//#include "jbig2_image.h"
-#include "jbig2_halftone.h"
-//#include "jbig2_huffman.h"
-#include "jbig2_page.h"
-#include "jbig2_refinement.h"
-#include "jbig2_segment.h"
-#include "jbig2_symbol_dict.h"
-#include "jbig2_text.h"
+//#include "jbig2_symbol_dict.h"
+//#include "jbig2_text.h"
 
 Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t buf_size, size_t * p_header_size)
 {
@@ -39,17 +30,14 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 	uint32_t referred_to_segment_size;
 	uint32_t pa_size;
 	uint32_t offset;
-
-	/* minimum possible size of a jbig2 segment header */
+	// minimum possible size of a jbig2 segment header 
 	if(buf_size < 11)
 		return NULL;
-
 	result = jbig2_new(ctx, Jbig2Segment, 1);
 	if(result == NULL) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate segment");
 		return NULL;
 	}
-
 	/* 7.2.2 */
 	result->number = jbig2_get_uint32(buf);
 	if(result->number == JBIG2_UNKNOWN_SEGMENT_NUMBER) {
@@ -78,43 +66,29 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 	referred_to_segment_size = result->number <= 256 ? 1 : result->number <= 65536 ? 2 : 4; /* 7.2.5 */
 	pa_size = result->flags & 0x40 ? 4 : 1; /* 7.2.6 */
 	if(offset + referred_to_segment_count * referred_to_segment_size + pa_size + 4 > buf_size) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_DEBUG,
-		    result->number,
-		    "attempted to parse segment header with insufficient data, asking for more data");
+		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, result->number, "attempted to parse segment header with insufficient data, asking for more data");
 		jbig2_free(ctx->allocator, result);
 		return NULL;
 	}
-
 	/* 7.2.5 */
 	if(referred_to_segment_count) {
 		uint32_t i;
-
 		referred_to_segments = jbig2_new(ctx, uint32_t, referred_to_segment_count * referred_to_segment_size);
 		if(referred_to_segments == NULL) {
 			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, result->number, "failed to allocate referred to segments");
 			jbig2_free(ctx->allocator, result);
 			return NULL;
 		}
-
 		for(i = 0; i < referred_to_segment_count; i++) {
-			referred_to_segments[i] =
-			    (referred_to_segment_size == 1) ? buf[offset] :
-			    (referred_to_segment_size == 2) ? jbig2_get_uint16(buf + offset) : jbig2_get_uint32(buf + offset);
+			referred_to_segments[i] = (referred_to_segment_size == 1) ? buf[offset] : (referred_to_segment_size == 2) ? jbig2_get_uint16(buf + offset) : jbig2_get_uint32(buf + offset);
 			offset += referred_to_segment_size;
-			jbig2_error(ctx,
-			    JBIG2_SEVERITY_DEBUG,
-			    result->number,
-			    "segment %d refers to segment %d",
-			    result->number,
-			    referred_to_segments[i]);
+			jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, result->number, "segment %d refers to segment %d", result->number, referred_to_segments[i]);
 		}
 		result->referred_to_segments = referred_to_segments;
 	}
 	else {                  /* no referred-to segments */
 		result->referred_to_segments = NULL;
 	}
-
 	/* 7.2.6 */
 	if(pa_size == 4) {
 		result->page_association = jbig2_get_uint32(buf + offset);
@@ -123,21 +97,13 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 	else {
 		result->page_association = buf[offset++];
 	}
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_DEBUG,
-	    result->number,
-	    "segment %d is associated with page %d",
-	    result->number,
-	    result->page_association);
-
+	jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, result->number, "segment %d is associated with page %d", result->number, result->page_association);
 	/* 7.2.7 */
 	result->rows = UINT32_MAX;
 	result->data_length = jbig2_get_uint32(buf + offset);
 	*p_header_size = offset + 4;
-
 	/* no body parsing results yet */
 	result->result = NULL;
-
 	return result;
 }
 
@@ -220,14 +186,9 @@ static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	   dependent = type & 0x40000000;
 	 */
 	necessary = type & 0x80000000;
-
 	if(necessary && !reserved) {
-		jbig2_error(ctx,
-		    JBIG2_SEVERITY_WARNING,
-		    segment->number,
-		    "extension segment is marked 'necessary' but not 'reserved' contrary to spec");
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "extension segment is marked 'necessary' but not 'reserved' contrary to spec");
 	}
-
 	switch(type) {
 		case 0x20000000:
 		    jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "ignoring ASCII comment");
@@ -237,18 +198,12 @@ static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment,
 		    break;
 		default:
 		    if(necessary) {
-			    return jbig2_error(ctx,
-				       JBIG2_SEVERITY_FATAL,
-				       segment->number,
-				       "unhandled necessary extension segment type 0x%08x",
-				       type);
+			    return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "unhandled necessary extension segment type 0x%08x", type);
 		    }
 		    else {
-			    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number,
-				"unhandled non-necessary extension segment, skipping");
+			    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unhandled non-necessary extension segment, skipping");
 		    }
 	}
-
 	return 0;
 }
 
@@ -264,21 +219,17 @@ static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, c
 	const char * refinement_region;
 	const char * halftone_region;
 	const char * numerical_data;
-
 	if(segment->data_length < 4)
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "Segment too short");
 	index = 0;
-
 	profiles = jbig2_get_uint32(&segment_data[index]);
 	index += 4;
 
 	for(i = 0; i < profiles; i++) {
 		if(segment->data_length - index < 4)
 			return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short to store profile");
-
 		profile = jbig2_get_uint32(&segment_data[index]);
 		index += 4;
-
 		switch(profile) {
 			case 0x00000001:
 			    requirements = "All JBIG2 capabilities";
@@ -323,7 +274,6 @@ static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, c
 			    numerical_data = "Unknown";
 			    break;
 		}
-
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "Supported profile: 0x%08x", profile);
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "  Requirements: %s", requirements);
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "  Generic region coding: %s", generic_region);
@@ -331,21 +281,14 @@ static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, c
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "  Halftone region coding: %s", halftone_region);
 		jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "  Numerical data: %s", numerical_data);
 	}
-
 	return 0;
 }
 
 /* general segment parsing dispatch */
 int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
 {
-	jbig2_error(ctx,
-	    JBIG2_SEVERITY_INFO,
-	    segment->number,
-	    "segment %d, flags=%x, type=%d, data_length=%ld",
-	    segment->number,
-	    segment->flags,
-	    segment->flags & 63,
-	    (long)segment->data_length);
+	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "segment %d, flags=%x, type=%d, data_length=%ld",
+	    segment->number, segment->flags, segment->flags & 63, (long)segment->data_length);
 	switch(segment->flags & 63) {
 		case 0:
 		    return jbig2_symbol_dictionary(ctx, segment, segment_data);
@@ -360,10 +303,7 @@ int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * 
 		case 23:       /* immediate lossless halftone region */
 		    return jbig2_halftone_region(ctx, segment, segment_data);
 		case 36:
-		    return jbig2_error(ctx,
-			       JBIG2_SEVERITY_FATAL,
-			       segment->number,
-			       "unhandled segment type 'intermediate generic region' (NYI)");
+		    return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "unhandled segment type 'intermediate generic region' (NYI)");
 		case 38:       /* immediate generic region */
 		case 39:       /* immediate lossless generic region */
 		    return jbig2_immediate_generic_region(ctx, segment, segment_data);

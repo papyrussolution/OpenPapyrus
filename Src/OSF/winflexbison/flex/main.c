@@ -846,10 +846,10 @@ void flexend(int exit_status)
 			putc('v', stderr);      /* always true! */
 		if(nowarn)
 			putc('w', stderr);
-		if(interactive == false)
-			putc('B', stderr);
-		if(interactive == true)
+		if(interactive == 1)
 			putc('I', stderr);
+		else if(interactive == 0)
+			putc('B', stderr);
 		if(!gen_line_dirs)
 			putc('L', stderr);
 		if(trace)
@@ -1279,13 +1279,13 @@ void readin()
 	}
 	else
 		backing_up_file = NULL;
-	if(yymore_really_used == true)
+	if(yymore_really_used == 1)
 		yymore_used = true;
-	else if(yymore_really_used == false)
+	else if(yymore_really_used == 0)
 		yymore_used = false;
-	if(reject_really_used == true)
+	if(reject_really_used == 1)
 		reject = true;
-	else if(reject_really_used == false)
+	else if(reject_really_used == 0)
 		reject = false;
 	if(performance_report > 0) {
 		if(lex_compat) {
@@ -1303,7 +1303,6 @@ void readin()
 		}
 		if(reject)
 			fprintf(stderr, _("REJECT entails a large performance penalty\n"));
-
 		if(variable_trailing_context_rules)
 			fprintf(stderr, _("Variable trailing context rules entail a large performance penalty\n"));
 	}

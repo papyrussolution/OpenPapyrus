@@ -22,12 +22,6 @@
  **/
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_generic.h"
-//#include "jbig2_image.h"
-#include "jbig2_mmr.h"
-#include "jbig2_page.h"
-#include "jbig2_segment.h"
-
 /*
    This is an explanation of the unoptimized and optimized generic
    region decoder implementations below, wherein we try to explain
@@ -337,9 +331,9 @@ static inline int jbig2_image_get_pixel_fast(Jbig2Image * image, int x, int y)
 }
 
 /* return the appropriate context size for the given template */
-int jbig2_generic_stats_size(Jbig2Ctx * ctx, int template)
+int jbig2_generic_stats_size(Jbig2Ctx * ctx, int _template)
 {
-	int stats_size = template == 0 ? 1 << 16 : template == 1 ? 1 << 13 : 1 << 10;
+	int stats_size = (_template == 0) ? (1 << 16) : (_template == 1) ? (1 << 13) : (1 << 10);
 	return stats_size;
 }
 

@@ -30,7 +30,7 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-int pthread_getconcurrency(void)
+int pthread_getconcurrency()
 {
 	return __ptw32_concurrency;
 }

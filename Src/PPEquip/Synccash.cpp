@@ -60,7 +60,7 @@ public:
 	Sync_BillTaxEntry & at(uint p);
 };
 
-IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2) 
+IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const Sync_BillTaxEntry *>(i1), static_cast<const Sync_BillTaxEntry *>(i2), VAT, SalesTax); }
 
 int Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
@@ -142,7 +142,7 @@ private:
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfKeepAlive     = 0x0080, // @v10.0.12 Держать установленное соединение с аппаратом
-		sfSkipAfVerif   = 0x0100  // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков 
+		sfSkipAfVerif   = 0x0100  // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков
 	};
 	static int RefToIntrf;
 	int	   Port;            // Номер порта
@@ -461,7 +461,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CC
 					if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
 						if(serial.IsEmpty())
 							result_chzn_code.Cat(temp_buf);
-						partn = temp_buf; 
+						partn = temp_buf;
 					}
 					THROW(Connect());
 					Arr_In.Z();
@@ -475,7 +475,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CC
 								left.Strip();
 								if(left.IsEqiAscii("CheckResult"))
 									rResult.CheckResult = right.ToLong();
-								else if(left.IsEqiAscii("Reason")) 
+								else if(left.IsEqiAscii("Reason"))
 									rResult.Reason = right.ToLong();
 								else if(left.IsEqiAscii("ProcessingResult"))
 									rResult.ProcessingResult = right.ToLong();
@@ -495,6 +495,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CC
 		THROW(Connect());
 		Arr_In.Z();
 		THROW(ExecOper((op == 2) ? DVCCMD_REJECTCHZNCODE : DVCCMD_ACCEPTCHZNCODE, Arr_In, Arr_Out));
+		ok = 1;
 	}
 	CATCHZOK
 	return ok;
@@ -629,7 +630,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
 		SString ofd_ver; // @v11.1.9
-		
+
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
@@ -648,7 +649,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SString chzn_sid;
 		if(SCn.LocID)
 			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
-		// } @v10.8.12 
+		// } @v10.8.12
 		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
 		THROW(Connect());
 		THROW(AnnulateCheck());
@@ -676,7 +677,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 			}
 		}
-		// } @v11.1.11 
+		// } @v11.1.11
 		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
 			int    is_cash;
 			THROW(is_cash = CheckForCash(amt));
@@ -749,6 +750,12 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial)); // @v10.7.2
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN)); // @v10.7.8
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType)); // @v10.7.2
+							// @v11.1.11 {
+							if(sl_param.PpChZnR.LineIdx > 0) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
+							}
+							// } @v11.1.11
 						}
 						// @v10.4.1 {
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
@@ -767,7 +774,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_PAYMENTTERMTAG, temp_buf));
 							}
 						}
-						// } @v10.4.1 
+						// } @v10.4.1
 						// @erikJ v10.4.12 {
 						if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
 							uint   str_id = 0;
@@ -797,7 +804,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_SUBJTERMTAG, temp_buf));
 							}
 						}
-						// } @erik v10.4.12 
+						// } @erik v10.4.12
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;
@@ -912,8 +919,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		{
 			// @v10.8.12 {
 			if(chzn_sid.NotEmpty())
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_sid)); 
-			// } @v10.8.12 
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_sid));
+			// } @v10.8.12
 		}
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
 		Flags &= ~sfOpenCheck;
@@ -1037,7 +1044,7 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		// @v10.4.9 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
 		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, word_buf); // СУММА БЕЗ СКИДКИ
-		prn_str = word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+		prn_str = word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		Arr_In.Z();
@@ -1047,14 +1054,14 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 			Arr_In.Z();
 			// @v10.4.9 {
 			PPLoadText(PPTXT_CCFMT_CARD, word_buf); // КАРТА
-			word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+			word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			// } @v10.4.9
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = word_buf).Space().Cat(scc.data.Code)));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_buf) > 0) { // @v6.0.9 GetObjectName-->GetPersonName
 				// @v10.4.9 {
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, word_buf); // ВЛАДЕЛЕЦ
-				word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+				word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				// } @v10.4.9
 				(prn_str = word_buf).Space().Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #2
 				CutLongTail(prn_str);
@@ -1066,7 +1073,7 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		temp_buf.Z().Cat(dscnt, SFMT_MONEY);
 		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_DISCOUNT, word_buf); // СКИДКА
-		word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		(prn_str = word_buf).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
@@ -1224,14 +1231,14 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 		Arr_In.Z();
 		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_CHKCOPY, word_buf); // КОПИЯ ЧЕКА
-		word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, word_buf));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		Arr_In.Z();
 		// @v10.4.9 {
 		PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, word_buf); // "ВОЗВРАТ ПРОДАЖИ" : "ПРОДАЖА"
-		word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, word_buf));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
@@ -1261,7 +1268,7 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 		temp_str.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_TOTAL, word_buf); // ИТОГ
-		word_buf.Transf(CTRANSF_INNER_TO_OUTER); 
+		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		prn_str = word_buf; // @cstr #12
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_str.Len()).Cat(temp_str);
@@ -1693,9 +1700,9 @@ int SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArra
 		// @v10.8.0 {
 		if(Flags & sfSkipAfVerif)
 			r = 1;
-		else 
+		else
 			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : AllowPrintOper(); // @v10.1.2
-		// } @v10.8.0 
+		// } @v10.8.0
 		//
 		// Если выдана ошибка, не описанная в протоколе, то выходим для получения текста ошибки
 		//
@@ -1839,12 +1846,12 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else { // } @v10.7.6 
+				else { // } @v10.7.6
 					// @v11.0.9 {
 					if(str.IsEmpty()) {
 						str.Space();
 					}
-					// } @v11.0.9 
+					// } @v11.0.9
 					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));

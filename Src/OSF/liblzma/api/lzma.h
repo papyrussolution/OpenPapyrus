@@ -241,7 +241,7 @@
 // Subheaders
 // 
 #ifdef __cplusplus
-extern "C" {
+// @sobolev extern "C" {
 #endif
 // Basic features 
 //#include "version.h"
@@ -3982,7 +3982,7 @@ uint64_t lzma_physmem(void);
 uint32_t lzma_cputhreads(void);
 //
 #ifdef __cplusplus
-}
+// @sobolev }
 #endif
 
 #endif /* ifndef LZMA_H */

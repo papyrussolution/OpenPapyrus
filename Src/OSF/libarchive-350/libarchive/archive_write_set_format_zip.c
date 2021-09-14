@@ -1502,7 +1502,6 @@ static int trad_enc_init(struct trad_enc_ctx * ctx, const char * pw, size_t pw_l
 static int is_traditional_pkware_encryption_supported(void)
 {
 	uint8_t key[TRAD_HEADER_SIZE];
-
 	if(archive_random(key, sizeof(key)-1) != ARCHIVE_OK)
 		return 0;
 	return 1;
@@ -1563,16 +1562,13 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't generate random number for encryption");
 		return ARCHIVE_FATAL;
 	}
-	archive_pbkdf2_sha1(passphrase, strlen(passphrase),
-	    salt, salt_len, 1000, derived_key, key_len * 2 + 2);
-
+	archive_pbkdf2_sha1(passphrase, strlen(passphrase), salt, salt_len, 1000, derived_key, key_len * 2 + 2);
 	ret = archive_encrypto_aes_ctr_init(&zip->cctx, derived_key, key_len);
 	if(ret != 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 		return ARCHIVE_FAILED;
 	}
-	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len,
-		key_len);
+	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len, key_len);
 	if(ret != 0) {
 		archive_encrypto_aes_ctr_release(&zip->cctx);
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize HMAC-SHA1");
@@ -1599,7 +1595,6 @@ static int is_winzip_aes_encryption_supported(int encryption)
 	archive_crypto_ctx cctx;
 	archive_hmac_sha1_ctx hctx;
 	int ret;
-
 	if(encryption == ENCRYPTION_WINZIP_AES128) {
 		salt_len = 8;
 		key_len = 16;
@@ -1611,8 +1606,7 @@ static int is_winzip_aes_encryption_supported(int encryption)
 	}
 	if(archive_random(salt, salt_len) != ARCHIVE_OK)
 		return 0;
-	ret = archive_pbkdf2_sha1("p", 1, salt, salt_len, 1000,
-		derived_key, key_len * 2 + 2);
+	ret = archive_pbkdf2_sha1("p", 1, salt, salt_len, 1000, derived_key, key_len * 2 + 2);
 	if(ret != 0)
 		return 0;
 

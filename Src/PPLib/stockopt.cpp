@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -234,7 +234,7 @@ int PPStockOpt::Test()
 			double v;
 			param_tab.GetRow(0, row);
 			if(row.Get(0, v))
-				cfg.RateOfRet = v / 100.;
+				cfg.RateOfRet = v / 100.0;
 			if(row.Get(1, v) && v >= 0.0 && v < 1.0)
 				cfg.ExpirySafetyFactor = v;
 			if(row.Get(2, v))
