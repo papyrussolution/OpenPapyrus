@@ -2254,7 +2254,7 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 			pS->Flags &= ~pS->fEmpty;
 		}
 		if(pData && dataLen) {
-			const uint32 avail = sizeof(r_ctx.Data) - (r_ctx.Count & 0x3f);
+			const uint32 avail = sizeof(r_ctx.Data) - static_cast<uint32>(r_ctx.Count & 0x3f);
 			r_ctx.Count += dataLen;
 			if(avail > dataLen) {
 				memcpy((char *)r_ctx.Data + (sizeof(r_ctx.Data) - avail), pData, dataLen);
@@ -2277,7 +2277,7 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 			}
 		}
 		else { // final
-			const  uint offset = r_ctx.Count & 0x3f;
+			const  uint offset = static_cast<uint>(r_ctx.Count & 0x3f);
 			uint8 * p = reinterpret_cast<uint8 *>(r_ctx.Data) + offset;
 			int padding = 56 - (offset + 1);
 			*p++ = 0x80;

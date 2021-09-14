@@ -12028,12 +12028,12 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 int    FASTCALL smin(int a, int b);
 int    FASTCALL smax(int a, int b);
-int    FASTCALL smin(int64 a, int64 b);
-int    FASTCALL smax(int64 a, int64 b);
-int    FASTCALL smin(uint a, uint b);
-int    FASTCALL smax(uint a, uint b);
-int    FASTCALL smin(uint64 a, uint64 b);
-int    FASTCALL smax(uint64 a, uint64 b);
+int64  FASTCALL smin(int64 a, int64 b);
+int64  FASTCALL smax(int64 a, int64 b);
+uint   FASTCALL smin(uint a, uint b);
+uint   FASTCALL smax(uint a, uint b);
+uint64 FASTCALL smin(uint64 a, uint64 b);
+uint64 FASTCALL smax(uint64 a, uint64 b);
 double FASTCALL smin(double a, double b);
 double FASTCALL smax(double a, double b);
 float  FASTCALL smax(float a, float b);
