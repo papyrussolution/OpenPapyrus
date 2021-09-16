@@ -1477,7 +1477,8 @@ int LAssocArray::SearchByVal(long val, long * pKey, uint * pPos) const
 int LAssocArray::SearchPair(long key, long val, uint * pPos) const
 {
 	LAssoc k(key, val);
-	return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
+	// @v11.1.12 return lsearch(&k, pPos, PTR_CMPFUNC(_2long));
+	return lsearch(&k, pPos, CMPF_INT64); // @v11.1.12
 }
 
 IMPL_CMPFUNC(LAssoc_Val, i1, i2)
@@ -2377,24 +2378,15 @@ int StrAssocArray::Remove(long id)
 
 StrAssocArray & StrAssocArray::Z()
 {
-	//
-	// @v9.8.0 Теперь память, занятая массивами не освобождается (freeAll-->clear)
-	//
-	// @v9.8.0 Assoc.freeAll();
-	// @v9.8.0 ParentList.freeAll();
-	LAssocArray::clear(); // @v9.8.0
-	ParentList.clear(); // @v9.8.0
+	LAssocArray::clear();
+	ParentList.clear();
 	ClearS();
 	return *this;
 }
 
 void StrAssocArray::ClearParents()
 {
-	//
-	// @v9.8.0 Теперь память, занятая массивами не освобождается (freeAll-->clear)
-	//
-	// @v9.8.0 ParentList.freeAll();
-	ParentList.clear(); // @v9.8.0
+	ParentList.clear();
 }
 
 int StrAssocArray::Pack()
@@ -2491,6 +2483,11 @@ int StrAssocArray::GetTextByPos(uint textPos, SString & rBuf) const
 		ok = 0;
 	}
 	return ok;
+}
+
+long FASTCALL StrAssocArray::GetKeyByIdx(uint pos) const
+{
+	return (pos < LAssocArray::getCount()) ? LAssocArray::at(pos).Key : 0;
 }
 
 StrAssocArray::Item FASTCALL StrAssocArray::Get(uint pos) const
@@ -2787,8 +2784,10 @@ void StrAssocArray::Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & 
 	GetListByParent(parentId, 0, child_list);
 	child_list.sort();
 	for(uint i = 0; i < getCount(); i++) {
-		StrAssocArray::Item item = Get(i);
-		if(child_list.bsearch(item.Id)) {
+		const long key = GetKeyByIdx(i);
+		if(child_list.bsearch(key)) {
+			StrAssocArray::Item item = Get(i);
+			assert(item.Id == key);
 			assert(item.ParentId == parentId);
 			rTempList.AddFast(item.Id, item.ParentId, item.Txt);
 			if(HasChild(item.Id)) {

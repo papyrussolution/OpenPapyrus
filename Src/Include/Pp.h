@@ -23539,7 +23539,7 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 #define GSIF_GOODSGROUP  0x0100L // Вместо товара в поле PPGoodsStrucItem::GoodsID установлена
 	// товарная группа. Это необходимо для специальных подарков, распространяемых на целую товарную группу.
 #define GSIF_IDENTICAL   0x0200L // Для подарочных структур: заданное количество применимо только для одинаковых позиций.
-#define GSIF_QUERYEXPLOT 0x0400L // @v9.0.4 При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
+#define GSIF_QUERYEXPLOT 0x0400L // При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	//
@@ -30875,6 +30875,7 @@ private:
 	int    Recover();
 	int    MakeList(PPViewBrowser * pBrw);
 	int    SortList(PPViewBrowser * pBrw);
+	int    MakeTreeListView(); // @v11.1.12 @construction
 
 	uint    IterIdx;
 	IterOrder CurrentViewOrder;
@@ -30885,7 +30886,7 @@ private:
 	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
 	TSArray  <ItemEntry> * P_DsList__; // @v10.7.5
 	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
-	SStrGroup StrPool; // @v9.9.3 Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
 };
 //
 // @ModuleDecl(PPViewGoodsToObjAssoc)
@@ -44254,7 +44255,7 @@ public:
 
 	class Locking {
 	public:
-		Locking(PPID id = 0);
+		explicit Locking(PPID id = 0);
 		~Locking();
 		int    Lock(PPID);
 		int    Unlock();
@@ -44263,7 +44264,7 @@ public:
 		int    L;
 	};
 
-	PPObjGoodsBasket(void * extraPtr = 0);
+	explicit PPObjGoodsBasket(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr /*goodsID*/);
 	virtual int  Browse(void * extraPtr);
 	int    Select(PPID * pID, const char * pMsg);

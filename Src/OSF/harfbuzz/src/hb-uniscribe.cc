@@ -472,33 +472,27 @@ hb_uniscribe_font_data_t * _hb_uniscribe_shaper_font_data_create(hb_font_t * fon
 	/* No idea if the following is even a good idea. */
 	if(font->y_ppem)
 		font_size = font->y_ppem;
-
 	if(font_size < 0)
 		font_size = -font_size;
 	data->x_mult = (double)font->x_scale / font_size;
 	data->y_mult = (double)font->y_scale / font_size;
-
 	data->hdc = GetDC(nullptr);
-
 	if(UNLIKELY(!populate_log_font(&data->log_font, font, font_size))) {
 		DEBUG_MSG(UNISCRIBE, font, "Font populate_log_font() failed");
 		_hb_uniscribe_shaper_font_data_destroy(data);
 		return nullptr;
 	}
-
 	data->hfont = CreateFontIndirectW(&data->log_font);
 	if(UNLIKELY(!data->hfont)) {
 		DEBUG_MSG(UNISCRIBE, font, "Font CreateFontIndirectW() failed");
 		_hb_uniscribe_shaper_font_data_destroy(data);
 		return nullptr;
 	}
-
 	if(!SelectObject(data->hdc, data->hfont)) {
 		DEBUG_MSG(UNISCRIBE, font, "Font SelectObject() failed");
 		_hb_uniscribe_shaper_font_data_destroy(data);
 		return nullptr;
 	}
-
 	return data;
 }
 
@@ -512,7 +506,6 @@ void _hb_uniscribe_shaper_font_data_destroy(hb_uniscribe_font_data_t * data)
 		ScriptFreeCache(&data->script_cache);
 	SAlloc::F(data);
 }
-
 /**
  * hb_uniscribe_font_get_logfontw:
  * @font: The #hb_font_t to work upon

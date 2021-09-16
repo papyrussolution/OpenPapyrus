@@ -119,6 +119,268 @@ int PThr4wTest_Sizes()
 	InnerBlock::PrintTaggedSize(0, 0);
 	return 0;
 }
+//
+// Test for pthread_equal
+// Depends on functions: pthread_self().
+//
+int PThr4wTest_Equal0()
+{
+	pthread_t t1 = pthread_self();
+	assert(pthread_equal(t1, pthread_self()) != 0);
+	return 0; // Success
+}
+//
+// Test for pthread_equal
+// Depends on functions: pthread_create().
+//
+int PThr4wTest_Equal1()
+{
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			Sleep(2000);
+			return 0;
+		}
+	};
+	pthread_t t1, t2;
+	assert(pthread_create(&t1, NULL, InnerBlock::func, (void*)1) == 0);
+	assert(pthread_create(&t2, NULL, InnerBlock::func, (void*)2) == 0);
+	assert(pthread_equal(t1, t2) == 0);
+	assert(pthread_equal(t1, t1) != 0);
+	// This is a hack. We don't want to rely on pthread_join yet if we can help it. 
+	Sleep(4000);
+	return 0; // Success
+}
+// 
+// Test Synopsis:
+// - pthread_kill() does not support non zero signals..
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Kill1()
+{
+	assert(pthread_kill(pthread_self(), 1) == EINVAL);
+	return 0;
+}
+//
+// Descr: Test some basic assertions about the number of threads at runtime.
+//
+int PThr4wTest_Count1()
+{
+	static const int NUMTHREADS = 30;
+	static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+	static pthread_t threads[NUMTHREADS];
+	static uint numThreads = 0;
+
+	class InnerBlock {
+	public:
+		static void * myfunc(void * arg)
+		{
+			pthread_mutex_lock(&lock);
+			numThreads++;
+			pthread_mutex_unlock(&lock);
+			Sleep(1000);
+			return 0;
+		}
+	};
+	size_t i;
+	//
+	// Spawn NUMTHREADS threads. Each thread should increment the
+	// numThreads variable, sleep for one second.
+	//
+	for(i = 0; i < SIZEOFARRAY(threads); i++) {
+		assert(pthread_create(&threads[i], NULL, InnerBlock::myfunc, 0) == 0);
+	}
+	// Wait for all the threads to exit.
+	for(i = 0; i < SIZEOFARRAY(threads); i++) {
+		assert(pthread_join(threads[i], NULL) == 0);
+	}
+	// Check the number of threads created.
+	assert((int)numThreads == SIZEOFARRAY(threads));
+	return 0; // Success
+}
+//
+// Depends on API functions: pthread_delay_np
+//
+int PThr4wTest_Delay1()
+{
+	struct timespec interval = {1L, 500000000L};
+	assert(pthread_delay_np(&interval) == 0);
+	return 0;
+}
+//
+// Depends on API functions: pthread_delay_np
+//
+int PThr4wTest_Delay2()
+{
+	static pthread_mutex_t mx = PTHREAD_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			struct timespec interval = {5, 500000000L};
+			assert(pthread_mutex_lock(&mx) == 0);
+		#ifdef _MSC_VER
+			#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(pthread_mutex_unlock, &mx);
+			assert(pthread_delay_np(&interval) == 0);
+			pthread_cleanup_pop(1);
+		#ifdef _MSC_VER
+			#pragma inline_depth()
+		#endif
+			return (void*)(size_t)1;
+		}
+	};
+	pthread_t t;
+	void * result = (void*)0;
+	assert(pthread_mutex_lock(&mx) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_cancel(t) == 0);
+	assert(pthread_mutex_unlock(&mx) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert(result == (void*)PTHREAD_CANCELED);
+	return 0;
+}
+//
+// Depends on API functions: pthread_create(), pthread_detach(), pthread_exit().
+//
+int PThr4wTest_Detach1()
+{
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			int i = reinterpret_cast<int>(arg);
+			Sleep(i * 10);
+			pthread_exit(arg);
+			exit(1); // Never reached
+		}
+	};
+	const int NUMTHREADS = 100;
+	pthread_t id[NUMTHREADS];
+	int i;
+	// Create a few threads and then exit. 
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&id[i], NULL, InnerBlock::func, reinterpret_cast<void *>(i)) == 0);
+	}
+	// Some threads will finish before they are detached, some after. 
+	Sleep(NUMTHREADS/2 * 10 + 50);
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_detach(id[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 10 + 100);
+	// 
+	// Check that all threads are now invalid.
+	// This relies on unique thread IDs - e.g. works with
+	// pthreads-w32 or Solaris, but may not work for Linux, BSD etc.
+	// 
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_kill(id[i], 0) == ESRCH);
+	}
+	return 0; // Success
+}
+// 
+// Test for pthread_self().
+// Depends on API functions: pthread_self()
+// Implicitly depends on: pthread_getspecific(), pthread_setspecific()
+// 
+int PThr4wTest_Self1()
+{
+	// 
+	// This should always succeed unless the system has no resources (memory) left.
+	// 
+	pthread_t self;
+#if defined (__PTW32_STATIC_LIB) && !(defined(_MSC_VER) || defined(__MINGW32__))
+	pthread_win32_process_attach_np();
+#endif
+	self = pthread_self();
+	assert(self.p != NULL);
+#if defined (__PTW32_STATIC_LIB) && !(defined(_MSC_VER) || defined(__MINGW32__))
+	pthread_win32_process_detach_np();
+#endif
+	return 0;
+}
+// 
+// Test for pthread_self().
+// Depends on API functions: pthread_create(), pthread_self()
+// Implicitly depends on: pthread_getspecific(), pthread_setspecific()
+// 
+int PThr4wTest_Self2()
+{
+	static pthread_t me;
+	class InnerBlock {
+	public:
+		static void * entry(void * arg)
+		{
+			me = pthread_self();
+			return arg;
+		}
+	};
+	pthread_t t;
+	assert(pthread_create(&t, NULL, InnerBlock::entry, NULL) == 0);
+	Sleep(100);
+	assert(pthread_equal(t, me) != 0);
+	return 0; // Success
+}
+// 
+// Test Synopsis:
+// - Test that thread validation works.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Valid1()
+{
+	static int washere = 0;
+
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			washere = 1;
+			return 0;
+		}
+	};
+	pthread_t t;
+	void * result = NULL;
+	washere = 0;
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 0);
+	assert(washere == 1);
+	sched_yield();
+	assert(pthread_kill(t, 0) == ESRCH);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Confirm that thread validation fails for garbage thread ID.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Valid2()
+{
+	pthread_t NullThread =  __PTW32_THREAD_NULL_ID;
+	assert(pthread_kill(NullThread, 0) == ESRCH);
+	return 0;
+}
 
 int PThr4wTest_Affinity1();
 int PThr4wTest_Affinity2();
@@ -184,14 +446,9 @@ int PThr4wTest_Join1();
 int PThr4wTest_Join2();
 int PThr4wTest_Join3();
 int PThr4wTest_Join4();
-
 int PThr4wTest_Tsd1();
 int PThr4wTest_Tsd2();
 int PThr4wTest_Tsd3();
-
-int PThr4wTest_Valid1();
-int PThr4wTest_Valid2();
-
 int PThr4wTest_RwLock1();
 int PThr4wTest_RwLock2();
 int PThr4wTest_RwLock2t();
@@ -231,18 +488,21 @@ int PThr4wTest_CondVar6();
 int PThr4wTest_CondVar7();
 int PThr4wTest_CondVar8();
 int PThr4wTest_CondVar9();
-
 int PThr4wTest_Spin1();
 int PThr4wTest_Spin2();
 int PThr4wTest_Spin3();
 int PThr4wTest_Spin4();
-
-int PThr4wTest_Delay1();
-int PThr4wTest_Delay2();
-int PThr4wTest_Detach1();
-
-int PThr4wTest_Equal0();
-int PThr4wTest_Equal1();
+// (definition above) int PThr4wTest_Valid1();
+// (definition above) int PThr4wTest_Valid2();
+// (definition above) int PThr4wTest_Detach1();
+// (definition above) int PThr4wTest_Delay1();
+// (definition above) int PThr4wTest_Delay2();
+// (definition above) int PThr4wTest_Equal0();
+// (definition above) int PThr4wTest_Equal1();
+// (definition above) int PThr4wTest_Kill1();
+// (definition above) int PThr4wTest_Count1();
+// (definition above) int PThr4wTest_Self1();
+// (definition above) int PThr4wTest_Self2();
 int PThr4wTest_Errno0();
 int PThr4wTest_Errno1();
 int PThr4wTest_Exception1();
@@ -256,7 +516,6 @@ int PThr4wTest_Exit4();
 int PThr4wTest_Exit5();
 int PThr4wTest_Exit6();
 int PThr4wTest_Inherit1();
-int PThr4wTest_Kill1();
 int PThr4wTest_Once1();
 int PThr4wTest_Once2();
 int PThr4wTest_Once3();
@@ -266,7 +525,6 @@ int PThr4wTest_NameNp2();
 
 int PThr4wTest_Context1();
 int PThr4wTest_Context2();
-int PThr4wTest_Count1();
 int PThr4wTest_Robust1();
 int PThr4wTest_Robust2();
 int PThr4wTest_Robust3();
@@ -283,8 +541,6 @@ int PThr4wTest_Priority2();
 int PThr4wTest_Reinit1();
 int PThr4wTest_Reuse1();
 int PThr4wTest_Reuse2();
-int PThr4wTest_Self1();
-int PThr4wTest_Self2();
 int PThr4wTest_Eyal1();
 int PThr4wTest_Sequence1();
 

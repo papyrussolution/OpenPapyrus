@@ -21,8 +21,6 @@ extern uint64_t tuklib_physmem(void);
 ///<
 /// \brief      Get the amount of physical memory in bytes
 ///
-/// \return     Amount of physical memory in bytes. On error, zero is
-///             returned.
-
+/// \return     Amount of physical memory in bytes. On error, zero is returned.
 TUKLIB_DECLS_END
 #endif

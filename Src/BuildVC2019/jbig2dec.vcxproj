@@ -239,7 +239,6 @@
     <ClCompile Include="..\OSF\jbig2dec\jbig2_text.c" />
     <ClCompile Include="..\OSF\jbig2dec\memento.c" />
     <ClCompile Include="..\OSF\jbig2dec\pbm2png.c" />
-    <ClCompile Include="..\OSF\jbig2dec\sha1.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\jbig2dec\config_win32.h" />

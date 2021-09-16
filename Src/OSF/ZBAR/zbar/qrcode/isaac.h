@@ -1,7 +1,9 @@
-/*Written by Timothy B. Terriberry (tterribe@xiph.org) 1999-2009 public domain.
-   Based on the public domain implementation by Robert J. Jenkins Jr.*/
+// ISAAC.H
+// Written by Timothy B. Terriberry (tterribe@xiph.org) 1999-2009 public domain.
+// Based on the public domain implementation by Robert J. Jenkins Jr.
+//
 #if !defined(_isaac_H)
-	#define _isaac_H (1)
+#define _isaac_H (1)
 
 // @sobolev typedef struct isaac_ctx isaac_ctx;
 
@@ -28,7 +30,6 @@ struct isaac_ctx {
 };
 
 void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed);
-
 uint isaac_next_uint32(isaac_ctx * _ctx);
 uint isaac_next_uint(isaac_ctx * _ctx, uint _n);
 

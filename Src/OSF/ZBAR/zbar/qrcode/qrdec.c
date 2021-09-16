@@ -76,8 +76,9 @@ qr_reader * _zbar_qr_create(void)
 	qr_reader_init(reader);
 	return (reader);
 }
-
-/*Frees a client reader handle.*/
+//
+// Frees a client reader handle.
+//
 void _zbar_qr_destroy(qr_reader * reader)
 {
 	zprintf(1, "max finder lines = %dx%d\n", reader->finder_lines[0].clines, reader->finder_lines[1].clines);
@@ -85,8 +86,9 @@ void _zbar_qr_destroy(qr_reader * reader)
 	SAlloc::F(reader->finder_lines[1].lines);
 	SAlloc::F(reader);
 }
-
-/* reset finder state between scans */
+//
+// reset finder state between scans 
+//
 void _zbar_qr_reset(qr_reader * reader)
 {
 	reader->finder_lines[0].nlines = 0;
@@ -816,16 +818,15 @@ static void qr_finder_edge_pts_aff_classify(qr_finder * _f, const qr_aff * _aff)
    by extent.*/
 static void qr_finder_edge_pts_hom_classify(qr_finder * _f, const qr_hom * _hom)
 {
-	qr_finder_center * c;
 	int i;
 	int e;
-	c = _f->c;
-	for(e = 0; e<4; e++) _f->nedge_pts[e] = 0;
+	qr_finder_center * c = _f->c;
+	for(e = 0; e < 4; e++) 
+		_f->nedge_pts[e] = 0;
 	for(i = 0; i<c->nedge_pts; i++) {
 		qr_point q;
 		int d;
-		if(qr_hom_unproject(q, _hom,
-			    c->edge_pts[i].pos[0], c->edge_pts[i].pos[1])>=0) {
+		if(qr_hom_unproject(q, _hom, c->edge_pts[i].pos[0], c->edge_pts[i].pos[1])>=0) {
 			qr_point_translate(q, -_f->o[0], -_f->o[1]);
 			d = abs(q[1])>abs(q[0]);
 			e = d<<1|(q[d]>=0);

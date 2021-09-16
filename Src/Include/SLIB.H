@@ -7888,6 +7888,7 @@ public:
 	uint   getPointer() const;
 	uint   setPointer(uint p);
 	uint   incPointer();
+	long   FASTCALL GetKeyByIdx(uint pos) const;
 	Item   FASTCALL Get(uint pos) const;
 	//
 	// Descr: То же, что и StrAssocArray::at, только не пытается инициализировать

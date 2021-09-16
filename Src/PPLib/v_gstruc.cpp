@@ -802,6 +802,10 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				ViewTotal();
 				break;
+			case PPVCMD_TEST: // @v11.1.12 @construction
+				ok = -1;
+				MakeTreeListView();
+				break;
 			case PPVCMD_NEXTPROBLEM:
 				if(brw_hdr.GStrucID && Problems.getCount()) {
 					for(uint i = 0; i < Problems.getCount(); i++) {
@@ -901,6 +905,108 @@ void PPViewGoodsStruc::ViewTotal()
 		p_dlg->setCtrlLong(CTL_TGSTRUC_GOODS, goods_count);
 		ExecViewAndDestroy(p_dlg);
 	}
+}
+
+int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
+{
+	class GoodsStrucTreeListViewBlock : public StrAssocArray {
+	public:
+		GoodsStrucTreeListViewBlock(const TSVector <StrucEntry> & rStrucList, const TSArray <ItemEntry> & rItemList) :
+			StrucList(rStrucList), ItemList(rItemList)
+		{
+			Make();
+		}
+	private:
+		void Make()
+		{
+			const long item_offset = 0x70000000L;
+			LongArray absence_struc_item_list;
+			SString temp_buf;
+			SString title_buf;
+			Goods2Tbl::Rec goods_rec;
+			PPGoodsStrucHeader gs_rec;
+			StrAssocArray::Z();
+			for(uint sidx = 0; sidx < StrucList.getCount(); sidx++) {
+				const StrucEntry & r_se = StrucList.at(sidx);
+				title_buf.Z();
+				if(r_se.PrmrGoodsID)
+					if(GObj.Fetch(r_se.PrmrGoodsID, &goods_rec) > 0)
+						title_buf = goods_rec.Name;
+					else
+						ideqvalstr(r_se.PrmrGoodsID, title_buf);
+				else
+					title_buf = "#npg";
+				temp_buf.Z();
+				if(r_se.GStrucID) {
+					if(GsObj.Fetch(r_se.GStrucID, &gs_rec) > 0) {
+						if(gs_rec.Name[0])
+							temp_buf = gs_rec.Name;
+						else
+							(temp_buf = "gs").CatLongZ(r_se.GStrucID, 6);
+					}
+					else
+						(temp_buf = "#gs").CatLongZ(r_se.GStrucID, 6);
+				}
+				title_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+				StrAssocArray::Add(r_se.GStrucID, r_se.ParentStrucID, title_buf);
+			}
+			for(uint iidx = 0; iidx < ItemList.getCount(); iidx++) {
+				const ItemEntry & r_ie = ItemList.at(iidx);
+				if(r_ie.GStrucID) {
+					title_buf.Z();
+					if(r_ie.GoodsID) {
+						if(GObj.Fetch(r_ie.GoodsID, &goods_rec) > 0)
+							title_buf = goods_rec.Name;
+						else
+							ideqvalstr(r_ie.GoodsID, title_buf);
+					}
+					else
+						title_buf = "#ng";
+					StrAssocArray::Add(iidx + item_offset, r_ie.GStrucID, title_buf);
+					/*{
+						uint inner_gl_idx = 0;
+						while(StrucList.lsearch(&r_ie.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID))) {
+							const StrucEntry & r_se = StrucList.at(inner_gl_idx);
+							assert(r_se.PrmrGoodsID == r_ie.GoodsID);
+							if(r_se.Flags & (GSF_COMPL|GSF_DECOMPL)) {
+								
+							}
+						}
+					}*/
+				}
+			}
+			//StrAssocArray::SortByTextInTreeOrder();
+		}
+		TSVector <StrucEntry> StrucList;
+		TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
+		PPObjGoods GObj;
+		PPObjGoodsStruc GsObj;
+	};
+	class GStrucListWindow : public ListWindow {
+	public:
+		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk) : P_Blk(pBlk), ListWindow(new StdTreeListBoxDef(pBlk, lbtDblClkNotify, 0), "", 0)
+		{
+		}
+		~GStrucListWindow()
+		{
+			delete P_Blk;
+		}
+	private:
+		GoodsStrucTreeListViewBlock * P_Blk;
+	};
+	int    ok = 1;
+	{
+		GoodsStrucTreeListViewBlock * p_blk = new GoodsStrucTreeListViewBlock(StrucList, ItemList);
+		GStrucListWindow * p_lw = new GStrucListWindow(p_blk);
+		if(p_lw && APPL->AddListToTree(9459, "", p_lw) > 0) {
+			ok = 1;
+		}
+		else {
+			ok = 0;
+			ZDELETE(p_lw);
+		}
+	}
+	return ok;
 }
 //
 // Implementation of PPALDD_GoodsStrucList

@@ -574,7 +574,7 @@ int SlCrypto::Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t da
 		THROW_S(!r_iv.Size || r_iv.Size == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE);
 		THROW_S(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
 			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf)), SLERR_CRYPTO_OPENSSL); // Initialise key and IV 
-		EVP_CIPHER_CTX_set_padding(p_ctx, 0); // @v11.1.11
+		EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
 		State &= ~stInitDecr;
 		State |= stInitEncr;
 		if(pResult) {
@@ -649,7 +649,7 @@ int SlCrypto::Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t da
 		THROW(r_iv.Size == Cp.IvSize);
 		THROW(EVP_DecryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
 			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf))); // Initialise key and IV 
-		EVP_CIPHER_CTX_set_padding(p_ctx, 0); // @v11.1.11
+		EVP_CIPHER_CTX_set_padding(p_ctx, 1); // @v11.1.11
 		State |= stInitDecr;
 		State &= ~stInitEncr;
 		if(pResult) {

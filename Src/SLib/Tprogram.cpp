@@ -232,7 +232,7 @@ int TProgram::AddListToTree(long cmd, const char * pTitle, ListWindow * pLw)
 	return ok;
 }
 
-int TProgram::DelItemFromMenu(void * ptr)
+void TProgram::DelItemFromMenu(void * ptr)
 {
 	if(ptr) {
 		HMENU  h_menu = GetMenu(H_MainWnd);
@@ -241,7 +241,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 			CALLPTRMEMB(P_TreeWnd, DelItemCmdList(ptr));
 			if(H_ShortcutsWnd) {
 				int     i;
-				char    tooltip[80];
+				//char    tooltip[80];
 				RECT    rc_item;
 				TCITEM tci;
 				HWND   hwnd_tab = GetDlgItem(H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS);
@@ -253,7 +253,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						MEMSZERO(rc_item);
 						TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 						TabCtrl_DeleteItem(hwnd_tab, i);
-						memzero(tooltip, sizeof(tooltip));
+						//memzero(tooltip, sizeof(tooltip));
 						TOOLINFO t_i;
 						INITWINAPISTRUCT(t_i);
 						t_i.uFlags      = TTF_SUBCLASS;
@@ -273,7 +273,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						tci.mask = TCIF_PARAM;
 						if(TabCtrl_GetItem(hwnd_tab, i, &tci)) {
 							TOOLINFO t_i;
-							memzero(tooltip, sizeof(tooltip));
+							//memzero(tooltip, sizeof(tooltip));
 							TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 							INITWINAPISTRUCT(t_i);
 							t_i.uFlags = TTF_SUBCLASS;
@@ -290,7 +290,6 @@ int TProgram::DelItemFromMenu(void * ptr)
 			DeleteMenu(h_menu, (UINT)ptr, MF_BYCOMMAND);
 		}
 	}
-	return 1;
 }
 
 int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
@@ -2457,7 +2456,7 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return ok;
 }
 
-int TProgram::CloseAllBrowsers()
+void TProgram::CloseAllBrowsers()
 {
 	HWND   hw = 0;
 	do {
@@ -2474,7 +2473,6 @@ int TProgram::CloseAllBrowsers()
 		}
 	} while(hw);
 	ZDELETE(P_TreeWnd);
-	return 1;
 }
 
 void TProgram::GotoSite()

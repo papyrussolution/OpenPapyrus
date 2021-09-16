@@ -4481,7 +4481,7 @@ public:
 	// ARG(kind IN): 0 - BrowserWindow, 1 - STimeChunkBrowser
 	//
 	TBaseBrowserWindow * FindBrowser(uint resID, int kind, const char * pFileName = 0);
-	int    CloseAllBrowsers();
+	void   CloseAllBrowsers();
 	HWND   CreateDlg(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
 	INT_PTR DlgBoxParam(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
 	HBITMAP FASTCALL LoadBitmap_(uint bmID);
@@ -4490,7 +4490,7 @@ public:
 	int    AddListToTree(long cmd, const char * pTitle, ListWindow * pLw);
 	int    AddItemToMenu(const char * pTitle, void * ptr);
 	int    UpdateItemInMenu(const char * pTitle, void * ptr);
-	int    DelItemFromMenu(void * ptr);
+	void   DelItemFromMenu(void * ptr);
 	int    SelectTabItem(const void * ptr);
 	int    SetWindowViewByKind(HWND hWnd, int wndType);
 	int    DrawControl(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

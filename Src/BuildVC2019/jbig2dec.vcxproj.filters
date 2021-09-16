@@ -27,7 +27,6 @@
     <ClCompile Include="..\OSF\jbig2dec\jbig2dec.c" />
     <ClCompile Include="..\OSF\jbig2dec\memento.c" />
     <ClCompile Include="..\OSF\jbig2dec\pbm2png.c" />
-    <ClCompile Include="..\OSF\jbig2dec\sha1.c" />
     <ClCompile Include="..\OSF\jbig2dec\jbig2dec-pch.cpp" />
   </ItemGroup>
   <ItemGroup>
