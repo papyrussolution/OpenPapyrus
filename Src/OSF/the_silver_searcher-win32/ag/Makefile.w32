@@ -1,0 +1,35 @@
+SED=sed
+VERSION:=$(shell "$(SED)" -n "s/[^[]*\[\([0-9]\+\.[0-9]\+\.[0-9]\+\)\],/\1/p" configure.ac)
+
+CC=gcc
+RM=/bin/rm
+
+SRCS = \
+	src/decompress.c \
+	src/ignore.c \
+	src/lang.c \
+	src/log.c \
+	src/main.c \
+	src/options.c \
+	src/print.c \
+	src/scandir.c \
+	src/search.c \
+	src/util.c \
+	src/print_w32.c
+OBJS = $(subst .c,.o,$(SRCS))
+
+CFLAGS = -O2 -Isrc/win32 -DPACKAGE_VERSION=\"$(VERSION)\"
+LIBS = -lz -lpthread -lpcre -llzma -lshlwapi
+TARGET = ag.exe
+
+all : $(TARGET)
+
+# depend on configure.ac to account for version changes
+$(TARGET) : $(OBJS) configure.ac
+	$(CC) -o $@ $(OBJS) $(LIBS)
+
+.c.o :
+	$(CC) -c $(CFLAGS) -Isrc $< -o $@
+
+clean :
+	$(RM) -f src/*.o $(TARGET)

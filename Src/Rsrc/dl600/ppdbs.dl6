@@ -426,7 +426,7 @@ table FiasAddrObj {
     long   OktmoTRef;       //
     long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
     long   KladrCodeTRef;   // Ссылка на код КЛАДР (без суффиксного признака актуальности)
-    date   UpdateDt;        // Дата  внесения записи
+    date   UpdateDt;        // Дата внесения записи
     date   StartDt;         // Начало действия записи
     date   EndDt;           // Окончание действия записи
 index:
@@ -456,7 +456,7 @@ table FiasHouseObj {
     long   OkatoTRef;       //
     long   OktmoTRef;       //
     long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
-    date   UpdateDt;        // Дата  внесения записи
+    date   UpdateDt;        // Дата внесения записи
     date   StartDt;         // Начало действия записи
     date   EndDt;           // Окончание действия записи
 index:

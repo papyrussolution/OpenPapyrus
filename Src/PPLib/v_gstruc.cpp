@@ -912,30 +912,68 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 	class GoodsStrucTreeListViewBlock : public StrAssocArray {
 	public:
 		GoodsStrucTreeListViewBlock(const TSVector <StrucEntry> & rStrucList, const TSArray <ItemEntry> & rItemList) :
-			StrucList(rStrucList), ItemList(rItemList)
+			StrucList(rStrucList), ItemList(rItemList), ItemOffset(0x70000000L)
 		{
 			Make();
 		}
 	private:
+		const long ItemOffset;
+		SString TitleBuf;
+		void AddEntry(uint level, uint idx, const ItemEntry & rEntry, long parentID, LongArray & rRecurList)
+		{
+			assert(level <= 255);
+			if(rEntry.GStrucID && !rRecurList.lsearch(rEntry.GoodsID)) {
+				LongArray seen_entry_list;
+				TitleBuf.Z();
+				if(rEntry.GoodsID) {
+					Goods2Tbl::Rec goods_rec;
+					if(GObj.Fetch(rEntry.GoodsID, &goods_rec) > 0)
+						TitleBuf = goods_rec.Name;
+					else
+						ideqvalstr(rEntry.GoodsID, TitleBuf);
+				}
+				else
+					TitleBuf = "#ng";
+				const long _ident = (idx | ((level + 1) << 24));
+				StrAssocArray::Add(_ident, parentID/*rEntry.GStrucID*/, TitleBuf);
+				rRecurList.add(rEntry.GoodsID);
+				for(uint inner_gl_idx = 0; StrucList.lsearch(&rEntry.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID)); inner_gl_idx++) {
+					const StrucEntry & r_se = StrucList.at(inner_gl_idx);
+					assert(r_se.PrmrGoodsID == rEntry.GoodsID);
+					if(r_se.Flags & (GSF_COMPL|GSF_DECOMPL)) {
+						seen_entry_list.Z();
+						for(uint i = 0; i < ItemList.getCount(); i++) {
+							const ItemEntry & r_ie = ItemList.at(i);
+							if(r_ie.GStrucID == r_se.GStrucID) {
+								if(!seen_entry_list.lsearch(r_ie.GoodsID)) {
+									AddEntry(level+1, i, r_ie, _ident, rRecurList); // @recursion
+									seen_entry_list.add(r_ie.GoodsID);
+								}
+							}
+						}
+						break; // Пока добавим лишь одну найденную подструктуру
+					}
+				}
+			}
+		}
 		void Make()
 		{
-			const long item_offset = 0x70000000L;
 			LongArray absence_struc_item_list;
 			SString temp_buf;
-			SString title_buf;
 			Goods2Tbl::Rec goods_rec;
 			PPGoodsStrucHeader gs_rec;
 			StrAssocArray::Z();
+			LongArray gstruc_id_list;
 			for(uint sidx = 0; sidx < StrucList.getCount(); sidx++) {
 				const StrucEntry & r_se = StrucList.at(sidx);
-				title_buf.Z();
+				TitleBuf.Z();
 				if(r_se.PrmrGoodsID)
 					if(GObj.Fetch(r_se.PrmrGoodsID, &goods_rec) > 0)
-						title_buf = goods_rec.Name;
+						TitleBuf = goods_rec.Name;
 					else
-						ideqvalstr(r_se.PrmrGoodsID, title_buf);
+						ideqvalstr(r_se.PrmrGoodsID, TitleBuf);
 				else
-					title_buf = "#npg";
+					TitleBuf = "#npg";
 				temp_buf.Z();
 				if(r_se.GStrucID) {
 					if(GsObj.Fetch(r_se.GStrucID, &gs_rec) > 0) {
@@ -947,35 +985,28 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 					else
 						(temp_buf = "#gs").CatLongZ(r_se.GStrucID, 6);
 				}
-				title_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
-				StrAssocArray::Add(r_se.GStrucID, r_se.ParentStrucID, title_buf);
+				TitleBuf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+				StrAssocArray::Add(r_se.GStrucID, r_se.ParentStrucID, TitleBuf);
+				gstruc_id_list.add(r_se.GStrucID);
 			}
-			for(uint iidx = 0; iidx < ItemList.getCount(); iidx++) {
-				const ItemEntry & r_ie = ItemList.at(iidx);
-				if(r_ie.GStrucID) {
-					title_buf.Z();
-					if(r_ie.GoodsID) {
-						if(GObj.Fetch(r_ie.GoodsID, &goods_rec) > 0)
-							title_buf = goods_rec.Name;
-						else
-							ideqvalstr(r_ie.GoodsID, title_buf);
-					}
-					else
-						title_buf = "#ng";
-					StrAssocArray::Add(iidx + item_offset, r_ie.GStrucID, title_buf);
-					/*{
-						uint inner_gl_idx = 0;
-						while(StrucList.lsearch(&r_ie.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID))) {
-							const StrucEntry & r_se = StrucList.at(inner_gl_idx);
-							assert(r_se.PrmrGoodsID == r_ie.GoodsID);
-							if(r_se.Flags & (GSF_COMPL|GSF_DECOMPL)) {
-								
-							}
+			{
+				gstruc_id_list.sortAndUndup();
+				LongArray seen_list;
+				LongArray recur_list;
+				for(uint gsidx = 0; gsidx < gstruc_id_list.getCount(); gsidx++) {
+					const PPID gs_id = gstruc_id_list.get(gsidx);
+					seen_list.Z();
+					recur_list.Z();
+					for(uint iidx = 0; iidx < ItemList.getCount(); iidx++) {
+						const ItemEntry & r_ie = ItemList.at(iidx);
+						if(r_ie.GStrucID == gs_id && !seen_list.lsearch(r_ie.GoodsID)) {
+							AddEntry(0, iidx, r_ie, r_ie.GStrucID, recur_list);
+							seen_list.add(r_ie.GoodsID);
 						}
-					}*/
+					}
 				}
 			}
-			//StrAssocArray::SortByTextInTreeOrder();
+			StrAssocArray::SortByText();
 		}
 		TSVector <StrucEntry> StrucList;
 		TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef

@@ -54,13 +54,11 @@ size_t FASTCALL StringStore2::Hash::GetHash(long id) const
 
 int StringStore2::Hash::Add(long id, long value)
 {
-	int    c = 1;
-	THROW(InitTab());
-	size_t h = GetHash(id);
-	c = P_Tab[h].SetVal(id, value);
-	CATCH
-		c = 0;
-	ENDCATCH
+	int    c = 0;
+	if(InitTab()) {
+		const size_t h = GetHash(id);
+		c = P_Tab[h].SetVal(id, value);
+	}
 	return c;
 }
 
@@ -68,7 +66,7 @@ int StringStore2::Hash::Get(long id, long * pValue) const
 {
 	int    ok = 0;
 	if(P_Tab) {
-		size_t h = GetHash(id);
+		const  size_t h = GetHash(id);
 		const  Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
 			if(r_entry.Val.Key == id) {
@@ -818,6 +816,8 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
+	SProfile prfl; // @v11.1.11
+	const  uint64 _ptstart = prfl.GetAbsTimeMicroseconds(); // @v11.1.11
 	int    ok = 1;
 	StrAssocArray file_lang_list;
 	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
@@ -1160,6 +1160,13 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 		SFile::Remove(test_file_name);
 #endif // } 0
 	}
+	// @v11.1.11 {
+	{
+		const  uint64 _ptend = prfl.GetAbsTimeMicroseconds();
+		temp_buf.Z().Cat("Execution time").CatDiv(':', 2).Cat(_ptend-_ptstart).Cat("mks").CR();
+		puts(temp_buf);
+	}
+	// } @v11.1.11 
 	CATCH
 		ok = Error(ErrCode, 0);
 	ENDCATCH
@@ -1642,13 +1649,13 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 								c = '\n';
 							else if(c == 't')
 								c = '\t';
-							else if(c == 'x' || c == 'X') {
+							else if(oneof2(c, 'x', 'X')) {
 								uchar hex[4];
 								THROW_V(len > i+2, sc2eInvSlashX);
 								hex[0] = TempBuf.C(++i);
 								hex[1] = TempBuf.C(++i);
 								hex[2] = 0;
-								sscanf(strupr((char *)hex), "%X", &c);
+								sscanf(_strupr(reinterpret_cast<char *>(hex)), "%X", &c);
 							}
 							else if(isdec(c)) {
 								uchar oct[4];
@@ -1657,7 +1664,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 								oct[1] = TempBuf.C(++i);
 								oct[2] = TempBuf.C(++i);
 								oct[3] = 0;
-								sscanf((char *)oct, "%o", &c);
+								sscanf(reinterpret_cast<const char *>(oct), "%o", &c);
 							}
 						}
 						rItem.Str.CatChar(c);
@@ -1799,7 +1806,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 	}
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
 		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
-		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0) {
+		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb)) {
 			//gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 			// public static final int DDD = val;
 			temp_buf.Z().Cat("public").Space().Cat("static").Space().Cat("final").Space().Cat("int").Space();
@@ -1812,7 +1819,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
 		StrAssocArray::Item item = P_Pb->StrSymbList.Get(i);
 		const long grp = static_cast<long>(HiWord(item.Id));
-		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0) {
+		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb)) {
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
@@ -1860,13 +1867,13 @@ int StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFi
 	P_Pb->StrSymbList.SortByID();
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
 		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
-		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0)
+		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb))
 			gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 	}
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
 		StrAssocArray::Item item = P_Pb->StrSymbList.Get(i);
 		long grp = (long)HiWord(item.Id);
-		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0) {
+		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb)) {
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);

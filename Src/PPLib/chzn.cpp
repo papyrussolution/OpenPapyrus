@@ -1033,7 +1033,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			const PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
 			SString sender_inn;
 			SString receiver_inn;
+			SString doc_date_text;
 			PPID   subj_psn_id = main_org_id;
+			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY);
 			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
 			if(rcvr_psn_id)
 				psn_obj.GetRegNumber(rcvr_psn_id, PPREGT_TPID, receiver_inn);
@@ -1046,7 +1048,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("primary_document_type", "OTHER");
 			BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 			nh.PutInner("primary_document_number", temp_buf);
-			nh.PutInner("primary_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+			nh.PutInner("primary_document_date", doc_date_text);
 			// @v11.1.10 {
 			PPLoadString("document_upd_s", temp_buf); // УПД
 			nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
@@ -1083,7 +1085,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 									//
 									np.PutInner("primary_document_type", "OTHER");
 									np.PutInner("primary_document_number", "PDN");
-									np.PutInner("primary_document_date", "08.10.2020");
+									np.PutInner("primary_document_date", doc_date_text);
 									PPLoadString("document_upd_s", temp_buf); // @v11.1.10 УПД
 									np.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 								}

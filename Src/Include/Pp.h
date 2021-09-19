@@ -46182,7 +46182,7 @@ public:
 	//      разрушен вызывающей функцией.
 	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
 	//
-	SJson * CreateJsonForClient(SJson * pParent, const char * pName, long expirationSec) const;
+	static SJson * CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec);
 private:
 	TSCollection <Item> L;
 };

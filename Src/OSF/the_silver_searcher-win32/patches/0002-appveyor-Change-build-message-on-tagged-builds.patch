@@ -1,0 +1,27 @@
+From f400d1977ae570c04ddda6117502b9467bef9b10 Mon Sep 17 00:00:00 2001
+From: "K.Takata" <kentkt@csc.jp>
+Date: Thu, 20 Jul 2017 14:34:06 +0900
+Subject: [PATCH] appveyor: Change build message on tagged builds
+
+---
+ win32/appveyor.bat | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/win32/appveyor.bat b/win32/appveyor.bat
+index 856f969..45c2023 100755
+--- a/win32/appveyor.bat
++++ b/win32/appveyor.bat
+@@ -20,6 +20,10 @@ exit 1
+ @echo on
+ PATH C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
+ set CHERE_INVOKING=yes
++if not "%APPVEYOR_REPO_TAG_NAME%"=="" (
++  @rem Change build message: "Daily build: YYYY-MM-DD"
++  for /f "tokens=2-4 delims=/ " %%i in ('date /t') do appveyor UpdateBuild -Message "Daily build: %%k-%%i-%%j"
++)
+ bash -lc 'if [ "x$(checkupdates)" != x ]; then exit 1; fi'
+ if ERRORLEVEL 1 (
+ 	@rem Update found
+-- 
+2.13.2
+

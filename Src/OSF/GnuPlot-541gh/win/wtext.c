@@ -36,10 +36,10 @@ static LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam,
 static LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 static void CreateTextClass(TW * lptw);
-static void TextToCursor(TW * lptw);
-static void NewLine(TW * lptw);
+//static void TextToCursor(TW * lptw);
+//static void NewLine(TW * lptw);
 static void UpdateScrollBars(TW * lptw);
-static void UpdateText(TW *, int);
+//static void UpdateText(TW *, int);
 static void TextPutStr(TW * lptw, LPSTR str);
 static void LimitMark(TW * lptw, POINT * lppt);
 static void ClearMark(TW * lptw, POINT pt);
@@ -229,7 +229,7 @@ int TextInit(TW * lptw)
 	AppendMenu(sysmenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(sysmenu, MF_POPUP, (UINT_PTR)lptw->hPopMenu, TEXT("&Options"));
 	AppendMenu(sysmenu, MF_STRING, M_ABOUT, TEXT("&About"));
-	if(lptw->lpmw)
+	if(lptw->P_LpMw)
 		LoadMacros(lptw);
 	ShowWindow(lptw->hWndText, SW_SHOWNORMAL);
 	ShowWindow(lptw->hWndToolbar, SW_SHOWNOACTIVATE);
@@ -253,7 +253,7 @@ void TextClose(TW * lptw)
 		GlobalUnlock(hglobal);
 		GlobalFree(hglobal);
 	}
-	if(lptw->lpmw)
+	if(lptw->P_LpMw)
 		CloseMacros(lptw);
 	lptw->hWndParent = (HWND)NULL;
 }
@@ -262,7 +262,7 @@ void TextClose(TW * lptw)
 //
 void TextShow(TW * lptw)
 {
-	ShowWindow(_WinM.textwin.hWndParent, _WinM.textwin.nCmdShow);
+	ShowWindow(_WinM.TxtWin.hWndParent, _WinM.TxtWin.nCmdShow);
 	ShowWindow(lptw->hWndText, SW_SHOWNORMAL);
 	BringWindowToTop(lptw->hWndText);
 	SetFocus(lptw->hWndText);
@@ -270,74 +270,74 @@ void TextShow(TW * lptw)
 //
 // Bring Cursor into text window 
 //
-static void TextToCursor(TW * lptw)
+void TW::TextToCursor()
 {
-	int nXinc = 0;
-	int nYinc = 0;
-	int cxCursor;
-	int cyCursor;
-	if(lptw->bWrap)
-		cyCursor = (lptw->CursorPos.y + (lptw->CursorPos.x / lptw->ScreenBuffer.wrap_at)) * lptw->CharSize.y;
+	int n_x_inc = 0;
+	int n_y_inc = 0;
+	int c_x_cursor;
+	int c_y_cursor;
+	if(bWrap)
+		c_y_cursor = (CursorPos.y + (CursorPos.x / ScreenBuffer.wrap_at)) * CharSize.y;
 	else
-		cyCursor = lptw->CursorPos.y * lptw->CharSize.y;
-	if((cyCursor + lptw->CharSize.y > lptw->ScrollPos.y + lptw->ClientSize.y) || (cyCursor < lptw->ScrollPos.y)) {
-		nYinc = smax(0, cyCursor + lptw->CharSize.y - lptw->ClientSize.y) - lptw->ScrollPos.y;
-		nYinc = smin(nYinc, lptw->ScrollMax.y - lptw->ScrollPos.y);
+		c_y_cursor = CursorPos.y * CharSize.y;
+	if((c_y_cursor + CharSize.y > ScrollPos.y + ClientSize.y) || (c_y_cursor < ScrollPos.y)) {
+		n_y_inc = smax(0, c_y_cursor + CharSize.y - ClientSize.y) - ScrollPos.y;
+		n_y_inc = smin(n_y_inc, ScrollMax.y - ScrollPos.y);
 	}
-	if(lptw->bWrap)
-		cxCursor = (lptw->CursorPos.x % lptw->ScreenBuffer.wrap_at) * lptw->CharSize.x;
+	if(bWrap)
+		c_x_cursor = (CursorPos.x % ScreenBuffer.wrap_at) * CharSize.x;
 	else
-		cxCursor = lptw->CursorPos.x * lptw->CharSize.x;
-	if((cxCursor + lptw->CharSize.x > lptw->ScrollPos.x + lptw->ClientSize.x) || (cxCursor < lptw->ScrollPos.x)) {
-		nXinc = smax(0, cxCursor + lptw->CharSize.x - lptw->ClientSize.x/2) - lptw->ScrollPos.x;
-		nXinc = smin(nXinc, lptw->ScrollMax.x - lptw->ScrollPos.x);
+		c_x_cursor = CursorPos.x * CharSize.x;
+	if((c_x_cursor + CharSize.x > ScrollPos.x + ClientSize.x) || (c_x_cursor < ScrollPos.x)) {
+		n_x_inc = smax(0, c_x_cursor + CharSize.x - ClientSize.x/2) - ScrollPos.x;
+		n_x_inc = smin(n_x_inc, ScrollMax.x - ScrollPos.x);
 	}
-	if(nYinc || nXinc) {
-		lptw->ScrollPos.y += nYinc;
-		lptw->ScrollPos.x += nXinc;
-		ScrollWindow(lptw->hWndText, -nXinc, -nYinc, NULL, NULL);
-		SetScrollPos(lptw->hWndText, SB_VERT, lptw->ScrollPos.y, TRUE);
-		SetScrollPos(lptw->hWndText, SB_HORZ, lptw->ScrollPos.x, TRUE);
-		UpdateWindow(lptw->hWndText);
+	if(n_y_inc || n_x_inc) {
+		ScrollPos.y += n_y_inc;
+		ScrollPos.x += n_x_inc;
+		ScrollWindow(hWndText, -n_x_inc, -n_y_inc, NULL, NULL);
+		SetScrollPos(hWndText, SB_VERT, ScrollPos.y, TRUE);
+		SetScrollPos(hWndText, SB_HORZ, ScrollPos.x, TRUE);
+		UpdateWindow(hWndText);
 	}
 }
 
-void NewLine(TW * lptw)
+void TW::NewLine()
 {
 	LB lb;
 	int ycorr;
 	int last_lines;
 	// append an empty line buffer, dismiss previous lines if necessary 
-	LB * lplb = sb_get_last(&(lptw->ScreenBuffer));
+	LB * lplb = sb_get_last(&ScreenBuffer);
 	lb_set_attr(lplb, NOTEXT);
 	lb_init(&lb);
 	lb_set_attr(&lb, NOTEXT);
 	// return value is the number of lines which got dismissed 
-	ycorr = sb_append(&(lptw->ScreenBuffer), &lb);
-	last_lines = sb_lines(&(lptw->ScreenBuffer), lplb);
-	lptw->CursorPos.x = 0;
-	lptw->CursorPos.y += last_lines - ycorr;
+	ycorr = sb_append(&(ScreenBuffer), &lb);
+	last_lines = sb_lines(&(ScreenBuffer), lplb);
+	CursorPos.x = 0;
+	CursorPos.y += last_lines - ycorr;
 	// did we dismiss some lines ? 
 	if(ycorr != 0) {
 		if(ycorr > 1)
 			ycorr = ycorr +1 -1;
 		// make room for new last line 
-		ScrollWindow(lptw->hWndText, 0, -last_lines * lptw->CharSize.y, NULL, NULL);
-		lptw->ScrollPos.y -= (ycorr - last_lines) * lptw->CharSize.y;
-		lptw->MarkBegin.y -= ycorr;
-		lptw->MarkEnd.y -= ycorr;
-		LimitMark(lptw, &lptw->MarkBegin);
-		LimitMark(lptw, &lptw->MarkEnd);
-		UpdateWindow(lptw->hWndText);
+		ScrollWindow(hWndText, 0, -last_lines * CharSize.y, NULL, NULL);
+		ScrollPos.y -= (ycorr - last_lines) * CharSize.y;
+		MarkBegin.y -= ycorr;
+		MarkEnd.y -= ycorr;
+		LimitMark(this, &MarkBegin);
+		LimitMark(this, &MarkEnd);
+		UpdateWindow(hWndText);
 	}
 	// maximum line size may have changed, so update scroll bars 
-	UpdateScrollBars(lptw);
-	if(lptw->bFocus && lptw->bGetCh) {
-		UpdateCaretPos(lptw);
-		ShowCaret(lptw->hWndText);
+	UpdateScrollBars(this);
+	if(bFocus && bGetCh) {
+		UpdateCaretPos(this);
+		ShowCaret(hWndText);
 	}
-	if(lptw->CursorFlag)
-		TextToCursor(lptw);
+	if(CursorFlag)
+		TextToCursor();
 	TextMessage();
 }
 
@@ -398,33 +398,33 @@ static void UpdateScrollBars(TW * lptw)
 // Update count characters in window at cursor position */
 // Updates cursor position 
 // 
-static void UpdateText(TW * lptw, int count)
+void TW::UpdateText(int count)
 {
-	if(lptw->bSuspend > 0) {
-		lptw->CursorPos.x += count; // track cursor position only 
-		SETMAX(lptw->MaxCursorPos, lptw->CursorPos.x); // track maximum cursor position 
+	if(bSuspend > 0) {
+		CursorPos.x += count; // track cursor position only 
+		SETMAX(MaxCursorPos, CursorPos.x); // track maximum cursor position 
 	}
 	else {
-		if(lptw->CursorPos.x + count > lptw->ScreenSize.x)
-			UpdateScrollBars(lptw);
-		HDC hdc = GetDC(lptw->hWndText);
-		if(lptw->bSysColors) {
+		if(CursorPos.x + count > ScreenSize.x)
+			UpdateScrollBars(this);
+		HDC hdc = GetDC(hWndText);
+		if(bSysColors) {
 			SetTextColor(hdc, GetSysColor(COLOR_WINDOWTEXT));
 			SetBkColor(hdc, GetSysColor(COLOR_WINDOW));
 		}
 		else {
-			SetTextColor(hdc, TextFore(lptw->Attr));
-			SetBkColor(hdc, TextBack(lptw->Attr));
+			SetTextColor(hdc, TextFore(Attr));
+			SetBkColor(hdc, TextBack(Attr));
 		}
-		SelectObject(hdc, lptw->hfont);
-		if(lptw->bWrap) {
+		SelectObject(hdc, hfont);
+		if(bWrap) {
 			int n, yofs;
-			uint x = lptw->CursorPos.x;
-			uint y = lptw->CursorPos.y;
+			uint x = CursorPos.x;
+			uint y = CursorPos.y;
 			// Always draw complete lines to avoid character overlap when using Cleartype. 
 			// When we do not need to draw everything because we use suspend/resume,
 			// we only would need to (re)draw the last one or two lines.
-			int width = lptw->ScreenBuffer.wrap_at;
+			int width = ScreenBuffer.wrap_at;
 			if(count == 0) { /* redraw all */
 				yofs = 0;
 				n = x / width + 1;
@@ -434,21 +434,21 @@ static void UpdateText(TW * lptw, int count)
 				n    = (x + count - 1) / width + 1 - yofs;/* number of lines */
 			}
 			for(; n > 0; y++, n--) {
-				int ypos = (y + yofs) * lptw->CharSize.y - lptw->ScrollPos.y;
-				DoLine(lptw, hdc, 0, ypos, 0, y + yofs, width);
+				int ypos = (y + yofs) * CharSize.y - ScrollPos.y;
+				DoLine(this, hdc, 0, ypos, 0, y + yofs, width);
 			}
 		}
 		else {
-			LB * lb = sb_get_last(&(lptw->ScreenBuffer));
-			int width = lptw->ScreenSize.x + 1;
-			LPWSTR wstr = lb_substr(lb, lptw->ScrollPos.x / lptw->CharSize.x, width);
-			int ypos = lptw->CursorPos.y * lptw->CharSize.y - lptw->ScrollPos.y;
+			LB * lb = sb_get_last(&(ScreenBuffer));
+			int width = ScreenSize.x + 1;
+			LPWSTR wstr = lb_substr(lb, ScrollPos.x / CharSize.x, width);
+			int ypos = CursorPos.y * CharSize.y - ScrollPos.y;
 			if(ypos > 0)
 				TextOutW(hdc, 0, ypos, wstr, width);
 			SAlloc::F(wstr);
 		}
-		lptw->CursorPos.x += count;
-		ReleaseDC(lptw->hWndText, hdc);
+		CursorPos.x += count;
+		ReleaseDC(hWndText, hdc);
 	}
 }
 
@@ -463,10 +463,10 @@ void TextResume(TW * lptw)
 	if(lptw->bSuspend == 0) {
 		int cursor = lptw->CursorPos.x;
 		lptw->CursorPos.x = lptw->MaxCursorPos;
-		UpdateText(lptw, 0);
+		lptw->UpdateText(0);
 		lptw->CursorPos.x = cursor;
 		UpdateScrollBars(lptw);
-		TextToCursor(lptw);
+		lptw->TextToCursor();
 		lptw->MaxCursorPos = 0;
 	}
 }
@@ -478,56 +478,56 @@ int TextPutCh(TW * lptw, BYTE ch)
 	MultiByteAccumulate(ch, w, &count);
 	if(count == 1) {
 		// FIXME: we only handle UCS-2: one double-byte only 
-		TextPutChW(lptw, w[0]);
+		lptw->TextPutChW(w[0]);
 	}
 	return ch;
 }
 
-int TextPutChW(TW * lptw, WCHAR ch)
+int TW::TextPutChW(WCHAR ch)
 {
 	switch(ch) {
 		case '\r':
-		    lptw->CursorPos.x = 0;
-		    if(lptw->CursorFlag)
-			    TextToCursor(lptw);
+		    CursorPos.x = 0;
+		    if(CursorFlag)
+			    TextToCursor();
 		    break;
 		case '\n':
-		    NewLine(lptw);
+		    NewLine();
 		    break;
 		case 7:
 		    MessageBeep(0xFFFFFFFF);
-		    if(lptw->CursorFlag)
-			    TextToCursor(lptw);
+		    if(CursorFlag)
+			    TextToCursor();
 		    break;
 		case '\t': 
 			{
-				uint tab = 8 - (lptw->CursorPos.x  % 8);
-				lb_set_attr(sb_get_last(&(lptw->ScreenBuffer)), lptw->Attr);
-				sb_last_insert_str(&(lptw->ScreenBuffer), lptw->CursorPos.x, L"         ", tab);
-				UpdateText(lptw, tab);
-				if(lptw->bSuspend == 0) {
-					UpdateScrollBars(lptw);
-					TextToCursor(lptw);
+				uint tab = 8 - (CursorPos.x  % 8);
+				lb_set_attr(sb_get_last(&(ScreenBuffer)), Attr);
+				sb_last_insert_str(&(ScreenBuffer), CursorPos.x, L"         ", tab);
+				UpdateText(tab);
+				if(bSuspend == 0) {
+					UpdateScrollBars(this);
+					TextToCursor();
 				}
 			}
 			break;
 		case 0x08:
 		case 0x7f:
-		    lptw->CursorPos.x--;
-		    if(lptw->CursorPos.x < 0) {
-			    lptw->CursorPos.x = lptw->ScreenSize.x - 1;
-			    lptw->CursorPos.y--;
+		    CursorPos.x--;
+		    if(CursorPos.x < 0) {
+			    CursorPos.x = ScreenSize.x - 1;
+			    CursorPos.y--;
 		    }
-			SETMAX(lptw->CursorPos.y, 0);
+			SETMAX(CursorPos.y, 0);
 		    break;
 		default:
-		    lb_set_attr(sb_get_last(&(lptw->ScreenBuffer)), lptw->Attr);
-		    sb_last_insert_str(&(lptw->ScreenBuffer), lptw->CursorPos.x, &ch, 1);
-		    UpdateText(lptw, 1);
-		    if(lptw->bSuspend == 0) {
+		    lb_set_attr(sb_get_last(&(ScreenBuffer)), Attr);
+		    sb_last_insert_str(&(ScreenBuffer), CursorPos.x, &ch, 1);
+		    UpdateText(1);
+		    if(bSuspend == 0) {
 			    // maximum line size may have changed, so update scroll bars 
-			    UpdateScrollBars(lptw);
-			    TextToCursor(lptw);
+			    UpdateScrollBars(this);
+			    TextToCursor();
 		    }
 	}
 	return ch;
@@ -559,14 +559,14 @@ void TextPutStr(TW * lptw, LPSTR str)
 			count += n;
 		}
 		if(count > 0)
-			UpdateText(lptw, count);
+			lptw->UpdateText(count);
 		if(*w == L'\n') {
-			NewLine(lptw);
+			lptw->NewLine();
 			w++;
 			n = 0;
 		}
 		else if(*w && !iswprint(*w) && (*w != L'\t')) {
-			TextPutChW(lptw, *w++);
+			lptw->TextPutChW(*w++);
 		}
 	}
 	SAlloc::F(w_save);
@@ -1255,8 +1255,9 @@ LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 	}
 	return DefWindowProcW(hwnd, message, wParam, lParam);
 }
-
-/* child toolbar window */
+//
+// child toolbar window 
+//
 LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TW * lptw = (TW *)GetWindowLongPtrW(hwnd, 0);
@@ -1267,7 +1268,7 @@ LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 		    lptw->hWndText = hwnd;
 		    break;
 		case WM_SIZE:
-		    SendMessage(lptw->lpmw->hToolbar, WM_SIZE, wParam, lParam);
+		    SendMessage(lptw->P_LpMw->hToolbar, WM_SIZE, wParam, lParam);
 		    break;
 		case WM_ERASEBKGND:
 		    return 1;
@@ -1898,7 +1899,7 @@ void DockedUpdateLayout(TW * lptw)
 static uint NumberOfDockedWindows(TW * lptw)
 {
 	uint n = 0;
-	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.P_ListGraphs; lpgw; lpgw = lpgw->next) {
 		if(lpgw->bDocked && GraphHasWindow(lpgw))
 			n++;
 	}
@@ -1942,7 +1943,7 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 	if(layout == DOCKED_LAYOUT_NONE) {
 		// no docked graph windows:  resize text and toolbar windows
 		SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight, width, height - lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-		if(lptw->lpmw)
+		if(lptw->P_LpMw)
 			SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, width, lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 		SetWindowPos(lptw->hWndSeparator, NULL, width, 0, width, 0, SWP_NOZORDER | SWP_NOACTIVATE);
 		ShowWindow(lptw->hWndSeparator, SW_HIDE);
@@ -1958,7 +1959,7 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 			SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight,
 			    MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, height - lptw->ButtonHeight,
 			    SWP_NOZORDER | SWP_NOACTIVATE);
-			if(lptw->lpmw)
+			if(lptw->P_LpMw)
 				SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, lptw->ButtonHeight,
 				    SWP_NOZORDER | SWP_NOACTIVATE);
 			SetWindowPos(lptw->hWndSeparator, NULL, MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, 0,
@@ -1968,7 +1969,7 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 			// split window vertically
 			SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight, width,
 			    MulDiv(height, lptw->VertFracDock, 1000) - lptw->SeparatorWidth / 2 - lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-			if(lptw->lpmw)
+			if(lptw->P_LpMw)
 				SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, width, lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 			SetWindowPos(lptw->hWndSeparator, NULL, 0, MulDiv(height, lptw->VertFracDock, 1000) - lptw->SeparatorWidth / 2,
 			    width, lptw->SeparatorWidth, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -1980,7 +1981,7 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 		rows = (m + cols - 1) / cols;
 		// Resize graph windows
 		n = 0;
-		lpgw = _WinM.listgraphs;
+		lpgw = _WinM.P_ListGraphs;
 		DockedGraphSize(lptw, &size, FALSE);
 		while(lpgw) {
 			if(lpgw->bDocked && GraphHasWindow(lpgw)) {
@@ -2005,14 +2006,14 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 	}
 }
 
-void TextStartEditing(TW * lptw)
+void TW::TextStartEditing()
 {
-	TextToCursor(lptw);
-	if(lptw->bFocus && !lptw->bGetCh) {
-		UpdateCaretPos(lptw);
-		ShowCaret(lptw->hWndText);
+	TextToCursor();
+	if(bFocus && !bGetCh) {
+		UpdateCaretPos(this);
+		ShowCaret(hWndText);
 	}
-	lptw->bGetCh = TRUE;
+	bGetCh = TRUE;
 }
 
 void TextStopEditing(TW * lptw)
@@ -2025,38 +2026,39 @@ void TextStopEditing(TW * lptw)
 /* ================================== */
 /* replacement stdio routines */
 
-/* TRUE if key hit, FALSE if no key */
-int TextKBHit(TW * lptw)
+// TRUE if key hit, FALSE if no key 
+int TW::TextKBHit() const
 {
-	return (lptw->KeyBufIn != lptw->KeyBufOut);
+	return (KeyBufIn != KeyBufOut);
 }
-
-/* get character from keyboard, no echo */
-/* need to add extended codes */
-int TextGetCh(TW * lptw)
+//
+// get character from keyboard, no echo 
+// need to add extended codes 
+//
+int TW::TextGetCh()
 {
 	int ch;
-	TextStartEditing(lptw);
-	while(!TextKBHit(lptw)) {
-		/* CMW: can't use TextMessage here as it does not idle properly */
+	TextStartEditing();
+	while(!TextKBHit()) {
+		// CMW: can't use TextMessage here as it does not idle properly 
 		MSG msg;
 		GetMessage(&msg, 0, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	ch = *lptw->KeyBufOut++;
+	ch = *KeyBufOut++;
 	if(ch == '\r')
 		ch = '\n';
-	if((lptw->KeyBufOut - lptw->KeyBuf) >= static_cast<ssize_t>(lptw->KeyBufSize))
-		lptw->KeyBufOut = lptw->KeyBuf; // wrap around 
-	TextStopEditing(lptw);
+	if((KeyBufOut - KeyBuf) >= static_cast<ssize_t>(KeyBufSize))
+		KeyBufOut = KeyBuf; // wrap around 
+	TextStopEditing(this);
 	return ch;
 }
 
 /* get character from keyboard, with echo */
 int TextGetChE(TW * lptw)
 {
-	int ch = TextGetCh(lptw);
+	int ch = lptw->TextGetCh();
 	TextPutCh(lptw, (BYTE)ch);
 	return ch;
 }

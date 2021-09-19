@@ -122,17 +122,17 @@ int GpValue::GetDatablockSize() const
 //
 // resize or allocate a datablock; allocate memory in chunks 
 //
-static int enlarge_datablock(GpValue * datablock_value, int extra)
+static int enlarge_datablock(GpValue * pDatablockValue, int extra)
 {
 	const int blocksize = 512;
-	int nlines = datablock_value->GetDatablockSize();
+	int nlines = pDatablockValue->GetDatablockSize();
 	// reserve space in multiples of blocksize 
 	int osize = ((nlines+1 + blocksize-1) / blocksize) * blocksize;
 	int nsize = ((nlines+1 + extra + blocksize-1) / blocksize) * blocksize;
 	// only resize if necessary 
 	if(osize != nsize || !extra || !nlines) {
-		datablock_value->v.data_array = (char **)SAlloc::R(datablock_value->v.data_array,  nsize * sizeof(char *));
-		datablock_value->v.data_array[nlines] = NULL;
+		pDatablockValue->v.data_array = (char **)SAlloc::R(pDatablockValue->v.data_array,  nsize * sizeof(char *));
+		pDatablockValue->v.data_array[nlines] = NULL;
 	}
 	return nlines;
 }

@@ -401,31 +401,31 @@ void GnuPlot::MultiplotReset()
 //static void mp_layout_size_and_offset()
 void GnuPlot::MpLayoutSizeAndOffset()
 {
-	if(!MpLo.auto_layout) 
-		return;
-	// fprintf(stderr,"col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
-	// the 'set size' command 
-	V.Size.x = static_cast<float>(MpLo.xscale / MpLo.num_cols);
-	V.Size.y = static_cast<float>(MpLo.yscale / MpLo.num_rows);
-	// the 'set origin' command 
-	V.Offset.x = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
-	if(MpLo.downwards)
-		V.Offset.y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
-	else
-		V.Offset.y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
-	// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
-	// Allow a little space at the top for a title 
-	if(MpLo.title.text) {
-		V.Size.y   *= (1.0 - MpLo.title_height);
-		V.Offset.y *= (1.0 - MpLo.title_height);
+	if(MpLo.auto_layout) {
+		// fprintf(stderr,"col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
+		// the 'set size' command 
+		V.Size.x = static_cast<float>(MpLo.xscale / MpLo.num_cols);
+		V.Size.y = static_cast<float>(MpLo.yscale / MpLo.num_rows);
+		// the 'set origin' command 
+		V.Offset.x = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
+		if(MpLo.downwards)
+			V.Offset.y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
+		else
+			V.Offset.y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
+		// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
+		// Allow a little space at the top for a title 
+		if(MpLo.title.text) {
+			V.Size.y   *= (1.0 - MpLo.title_height);
+			V.Offset.y *= (1.0 - MpLo.title_height);
+		}
+		// corrected for x/y-scaling factors and user defined offsets 
+		V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);
+		V.Offset.y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
+		// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
+		V.Offset.x += MpLo.Offset.x;
+		V.Offset.y += MpLo.Offset.y;
+		// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 	}
-	// corrected for x/y-scaling factors and user defined offsets 
-	V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);
-	V.Offset.y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
-	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
-	V.Offset.x += MpLo.Offset.x;
-	V.Offset.y += MpLo.Offset.y;
-	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 }
 // 
 // Helper function for multiplot auto layout to set the explicit plot margins,
@@ -437,70 +437,52 @@ void GnuPlot::MpLayoutMarginsAndSpacing(GpTermEntry * pTerm)
 	// width and height of a single sub plot. 
 	double tmp_width, tmp_height;
 	double leftmargin, rightmargin, topmargin, bottommargin, xspacing, yspacing;
-	if(!MpLo.auto_layout_margins) 
-		return;
-	if(MpLo.lmargin.scalex == screen)
-		leftmargin = MpLo.lmargin.x;
-	else
-		leftmargin = (MpLo.lmargin.x * pTerm->ChrH) / pTerm->MaxX;
-	if(MpLo.rmargin.scalex == screen)
-		rightmargin = MpLo.rmargin.x;
-	else
-		rightmargin = 1 - (MpLo.rmargin.x * pTerm->ChrH) / pTerm->MaxX;
-	if(MpLo.tmargin.scalex == screen)
-		topmargin = MpLo.tmargin.x;
-	else
-		topmargin = 1 - (MpLo.tmargin.x * pTerm->ChrV) / pTerm->MaxY;
-	if(MpLo.bmargin.scalex == screen)
-		bottommargin = MpLo.bmargin.x;
-	else
-		bottommargin = (MpLo.bmargin.x * pTerm->ChrV) / pTerm->MaxY;
-	if(MpLo.xspacing.scalex == screen)
-		xspacing = MpLo.xspacing.x;
-	else
-		xspacing = (MpLo.xspacing.x * pTerm->ChrH) / pTerm->MaxX;
-	if(MpLo.yspacing.scalex == screen)
-		yspacing = MpLo.yspacing.x;
-	else
-		yspacing = (MpLo.yspacing.x * pTerm->ChrV) / pTerm->MaxY;
-	tmp_width = (rightmargin - leftmargin - (MpLo.num_cols - 1) * xspacing) / MpLo.num_cols;
-	tmp_height = (topmargin - bottommargin - (MpLo.num_rows - 1) * yspacing) / MpLo.num_rows;
-	V.MarginL.x = leftmargin + MpLo.act_col * (tmp_width + xspacing);
-	V.MarginL.scalex = screen;
-	V.MarginR.x = V.MarginL.x + tmp_width;
-	V.MarginR.scalex = screen;
-	if(MpLo.downwards) {
-		V.MarginB.x = bottommargin + (MpLo.num_rows - MpLo.act_row - 1) * (tmp_height + yspacing);
+	if(MpLo.auto_layout_margins) {
+		leftmargin   = (MpLo.lmargin.scalex == screen) ? MpLo.lmargin.x : ((MpLo.lmargin.x * pTerm->ChrH) / pTerm->MaxX);
+		rightmargin  = (MpLo.rmargin.scalex == screen) ? MpLo.rmargin.x : (1 - (MpLo.rmargin.x * pTerm->ChrH) / pTerm->MaxX);
+		topmargin    = (MpLo.tmargin.scalex == screen) ? MpLo.tmargin.x : (1 - (MpLo.tmargin.x * pTerm->ChrV) / pTerm->MaxY);
+		bottommargin = (MpLo.bmargin.scalex == screen) ? MpLo.bmargin.x : ((MpLo.bmargin.x * pTerm->ChrV) / pTerm->MaxY);
+		xspacing     = (MpLo.xspacing.scalex == screen) ? MpLo.xspacing.x : ((MpLo.xspacing.x * pTerm->ChrH) / pTerm->MaxX);
+		yspacing     = (MpLo.yspacing.scalex == screen) ? MpLo.yspacing.x : (MpLo.yspacing.x * pTerm->ChrV) / pTerm->MaxY;
+		tmp_width  = (rightmargin - leftmargin - (MpLo.num_cols - 1) * xspacing) / MpLo.num_cols;
+		tmp_height = (topmargin - bottommargin - (MpLo.num_rows - 1) * yspacing) / MpLo.num_rows;
+		V.MarginL.x = leftmargin + MpLo.act_col * (tmp_width + xspacing);
+		V.MarginL.scalex = screen;
+		V.MarginR.x = V.MarginL.x + tmp_width;
+		V.MarginR.scalex = screen;
+		if(MpLo.downwards) {
+			V.MarginB.x = bottommargin + (MpLo.num_rows - MpLo.act_row - 1) * (tmp_height + yspacing);
+		}
+		else {
+			V.MarginB.x = bottommargin + MpLo.act_row * (tmp_height + yspacing);
+		}
+		V.MarginB.scalex = screen;
+		V.MarginT.x = V.MarginB.x + tmp_height;
+		V.MarginT.scalex = screen;
 	}
-	else {
-		V.MarginB.x = bottommargin + MpLo.act_row * (tmp_height + yspacing);
-	}
-	V.MarginB.scalex = screen;
-	V.MarginT.x = V.MarginB.x + tmp_height;
-	V.MarginT.scalex = screen;
 }
 
 //static void mp_layout_set_margin_or_spacing(GpPosition * pMargin)
 void GnuPlot::MpLayoutSetMarginOrSpacing(GpPosition * pMargin)
 {
 	pMargin->x = -1;
-	if(Pgm.EndOfCommand())
-		return;
-	if(Pgm.AlmostEqualsCur("sc$reen")) {
-		pMargin->scalex = screen;
-		Pgm.Shift();
-	}
-	else if(Pgm.AlmostEqualsCur("char$acter")) {
-		pMargin->scalex = character;
-		Pgm.Shift();
-	}
-	pMargin->x = RealExpression();
-	if(pMargin->x < 0)
-		pMargin->x = -1;
-	if(pMargin->scalex == screen) {
+	if(!Pgm.EndOfCommand()) {
+		if(Pgm.AlmostEqualsCur("sc$reen")) {
+			pMargin->scalex = screen;
+			Pgm.Shift();
+		}
+		else if(Pgm.AlmostEqualsCur("char$acter")) {
+			pMargin->scalex = character;
+			Pgm.Shift();
+		}
+		pMargin->x = RealExpression();
 		if(pMargin->x < 0)
-			pMargin->x = 0;
-		if(pMargin->x > 1)
-			pMargin->x = 1;
+			pMargin->x = -1;
+		if(pMargin->scalex == screen) {
+			if(pMargin->x < 0)
+				pMargin->x = 0;
+			if(pMargin->x > 1)
+				pMargin->x = 1;
+		}
 	}
 }

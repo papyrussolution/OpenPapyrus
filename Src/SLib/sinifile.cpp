@@ -24,8 +24,25 @@ public:
 	SIniFileBuffer();
 	SIniSectBuffer * GetSect(const char * pName, uint * pPos = 0);
 	int    EnumSections(uint * pPos, SIniSectBuffer ** pSectBuf) const;
-	int    AddSect(SIniSectBuffer *);
-	int    AddSect(const char * pSectName);
+	//
+	// Descr: Вставляет в буфер секцию pNewSect. Если в буфере уже есть секция с таким же именем,
+	//   то дополняет параметры существующей секции теми, что включены в pNewSect.
+	//   Если такой секции в буфере не было, то просто включает все секцию pNewSect в общую коллекцию.
+	//   Объект по указателю pNewSect передается в собственность this.
+	// Return: 
+	//   !0 - Указатель на экземпляр SIniSectBuffer, включенный в коллекцию this. Результат не всегда
+	//     равен указателю, переданному параметром pNewSect: если в коллекции уже была секция //
+	//     с таким же именем, то пары {key; value} переносятся из pNewSect в существующую секцию,
+	//     pNewSect разрушается и возвращается указатель на существующую секцию.
+	//   0 - Ошибка. При этом функция самостоятельно разрушит pNewSect.
+	//
+	SIniSectBuffer * AddSect(SIniSectBuffer * pNewSect);
+	//
+	// Descr: Вставляет в буфер секцию с именем pSectName и возвращает указатель на включенную секцию.
+	//   Если в буфере уже была секция с таким именем, то возвращается указатель на нее, в противном
+	//   случае создается новая секция и возвращается указатель на нее.
+	//
+	SIniSectBuffer * AddSect(const char * pSectName);
 	int    RemoveSect(const char * pSectName);
 	int    ClearSect(const char * pSectName);
 	int    SetParam(const char * pSectName, const char * pParam, const char * pVal, int overwrite);
@@ -86,33 +103,31 @@ int SIniFileBuffer::RemoveParam(const char * pSectName, const char * pParam)
 	return p_sect_buf ? p_sect_buf->RemoveParam(pParam) : -1;
 }
 
-int SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
+SIniSectBuffer * SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
 {
-	int    ok = -1;
+	SIniSectBuffer * p_result = 0;
 	if(pSectBuf) {
 		SIniSectBuffer * p_sect_buf = GetSect(pSectBuf->Name);
-		if(!p_sect_buf)
-            ok = insert(pSectBuf);
+		if(!p_sect_buf) {
+            if(!insert(pSectBuf)) {
+				ZDELETE(pSectBuf);
+			}
+			p_result = pSectBuf;
+		}
 		else {
 			SString par, val;
 			for(uint pos = 0; pSectBuf->EnumParams(&pos, &par, &val) > 0;)
 				p_sect_buf->SetParam(par, val, 1);
 			delete pSectBuf;
-			ok = 1;
+			p_result = p_sect_buf;
 		}
 	}
-	return ok;
+	return p_result;
 }
 
-int SIniFileBuffer::AddSect(const char * pSectName)
+SIniSectBuffer * SIniFileBuffer::AddSect(const char * pSectName)
 {
-	int    ok = -1;
-	if(pSectName) {
-		SIniSectBuffer * p_sect_buf = new SIniSectBuffer(pSectName);
-		if(p_sect_buf)
-			ok = AddSect(p_sect_buf);
-	}
-	return ok;
+	return isempty(pSectName) ? 0 : AddSect(new SIniSectBuffer(pSectName));
 }
 
 int SIniFileBuffer::RemoveSect(const char * pSectName)
@@ -269,8 +284,9 @@ int SIniFile::Init(const char * pFileName, int fcreate, int winCoding, int useIn
 			ok = Create(FileName);
 		else
 			ok = Open(FileName);
-		if(P_IniBuf)
-			InitIniBuf();
+		if(P_IniBuf) {
+			InitIniBuf2(); // @v11.1.11 InitIniBuf-->InitIniBuf2
+		}
 	}
 	else
 		ok = -1;
@@ -378,6 +394,39 @@ int SIniFile::InitIniBuf()
 	CATCHZOK
 	return ok;
 }
+
+int SIniFile::InitIniBuf2()
+{
+	int    ok = 1;
+	THROW(File.IsValid());
+	if(P_IniBuf) {
+		SString temp_buf;
+		SString line_buf;
+		SString val;
+		SIniSectBuffer * p_current_sect_buf = 0;
+		for(File.Seek(0); File.ReadLine(line_buf);) {
+			if(IsSection(line_buf, 0, &temp_buf) > 0) {
+				p_current_sect_buf = P_IniBuf->AddSect(temp_buf);
+			}
+			else if(p_current_sect_buf) {
+				Scan.Set(line_buf.Chomp().Strip(), 0);
+				Scan.Skip();
+				if(*Scan && *Scan != ';') {
+					if(line_buf.Divide('=', temp_buf, val) <= 0)
+						temp_buf.Z();
+					if(temp_buf.NotEmptyS()) {
+						DecodeText(temp_buf);
+						DecodeText(val);
+						p_current_sect_buf->SetParam(temp_buf, val, 0);
+					}
+				}
+			}
+		}
+		Flags |= fIniBufInited;
+	}
+	CATCHZOK
+	return ok;
+}
 // } AHTOXA
 
 int SIniFile::Open(const char * pFileName)
@@ -433,12 +482,12 @@ int SIniFile::Create(const char * pFileName)
 int SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
 {
 	int    ok = -1;
-	SString sect_name;
 	Scan.Set(rLineBuf, 0);
 	Scan.Skip();
 	if(*Scan == '[') {
 		Scan.Incr(1);
 		if(Scan.SearchChar(']')) {
+			SString sect_name;
 			Scan.Get(sect_name);
 			if(sect_name.NotEmptyS()) {
 				//if(Flags & fWinCoding) sect_name.Transf(CTRANSF_OUTER_TO_INNER);

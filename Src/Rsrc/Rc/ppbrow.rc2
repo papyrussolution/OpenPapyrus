@@ -757,7 +757,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
 	VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "Просмотр персональных карт\tCtrl-S"
 	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
-	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "Редактировать фиксированную должность\tCtrl-Q"
+	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
 	STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
 	TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,       "@{doshowownedvehicles}\tCtrl-R"
 	TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
@@ -1227,9 +1227,9 @@ browser PERSONATTR_TAG north(100), 1, 0, "@{persontag_pl} {%s}", OWNER|GRID, 0
 
 browser PERSONREL north(100), 1, 0, "@{personrelation_pl}", OWNER|GRID, 0
 {
-	"@person",              4, notype, 0, 30
-	"Связанная персоналия", 5, notype, 0, 10
-	"@personreltype_s",     6, notype, 0, 40
+	"@person",                 4, notype, 0, 30
+	"@personrel_linkedperson", 5, notype, 0, 10
+	"@personreltype_s",        6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDREVERSEITEM: kbCtrlA,  PPDV_ADDFILE02,    "Добавить обратное отношение\tInsert"
@@ -1430,7 +1430,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		// @debug TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
+		TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}
@@ -2226,7 +2226,7 @@ browser OPSBYLOT_WT south(60), 3, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser ZEROLOTOPS north(100), 1, 3, "Операции с нулевым лотом", OWNER|GRID, 0
+browser ZEROLOTOPS north(100), 1, 3, "@{view_lotop_zerolots}", OWNER|GRID, 0
 {
 	"@date",       0, notype, DATF_DMY, 8
 	"@billno",     2, notype, 0, 7
@@ -2759,7 +2759,7 @@ browser TRFRANLZ_GC north(100), 1, 2, "@{view_trfranlz}", OWNER|GRID, 0
 browser GOODSTURNOVER_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
 	"@date", 0, zstring(12), 0, 8
-	group "Поступление" {
+	group "@goodsreceipt" {
 		"@supplier",               12, double, NMBF_NOZERO, 9.2
 		"@oprcategory_intrrcpt_2", 20, double, NMBF_NOZERO, 9.2
 	}
@@ -2783,8 +2783,8 @@ browser GOODSTURNOVER_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID,
 
 browser GOODSTURNOVER north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
-	"@date",                    0, zstring(12), 0, 8
-	"Поступление\nот поставщ", 12, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+	"@date",                      0, zstring(12), 0, 8
+	"@oprcategory_rcptsupplier", 12, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	group "@return" {
 		"@selling_retail", 28, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 		"@client",         36, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
@@ -2884,7 +2884,7 @@ browser GOODSREST_PRGN north(100), 3, 1, "@{view_goodsrest} с прогнозом продаж з
 	group "@rest" {
 		"@munit_tr_sfx_s",    10, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 		"@munit_ph_sfx_s",     6, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
-		"В днях",             16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
+		"@munit_in_days",     16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
 	}
 	"@avgdaylysales", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 	"@salesforecast",         11, notype, ALIGN_RIGHT | NMBF_NOZERO, 8
@@ -2906,7 +2906,7 @@ browser GOODSRESTORDER_PRGN north(100), 3, 1, "@{view_goodsrest} с заказами и пр
 	group "@rest" {
 		"@munit_tr_sfx_s", 10, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 		"@munit_ph_sfx_s",  6, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
-		"В днях",          16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
+		"@munit_in_days",  16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
 	}
 	"@avgdaylysales", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 	"@salesforecast",     11, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 8
@@ -3080,7 +3080,7 @@ browser OPGRPNGCYCLE north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNG north(100), 3, 1, "Группировка документов {%s}", OWNER|GRID, 0
+browser BILLOPGRPNG north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0
 {
 	"@oprkind",                3, notype, 0, 30
 	"@documentcount",          9, notype, NMBF_NOZERO, 10
@@ -3109,7 +3109,7 @@ browser BILLOPGRPNGCYCLE north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0
 	toolbar OPGRPNG
 }
 
-browser BILLOPGRPNGEXT north(100), 3, 1, "Группировка документов {%s}", OWNER|GRID, 0
+browser BILLOPGRPNGEXT north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID, 0
 {
 	"@oprkind",                3, notype, 0, 30
 	"@documentcount",          9, notype, NMBF_NOZERO, 10
@@ -4080,7 +4080,7 @@ browser PERSONPOST south(65), 1, 0, "@{view_staffpost} {%s}", OWNER|GRID, 0
 	"@code",              1, notype, 0,  6
 	"@person_position",   4, notype, 0, 10
 	"@person",            5, notype, 0, 30
-	"Дата приема",        2, notype, DATF_DMY, 10
+	"@personpost_dt",     2, notype, DATF_DMY, 10
 	"@salarychargegroup", 8, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -4587,7 +4587,7 @@ browser SYNCCMP north(100), 3, 1, "Сравнение синхронизации объектов", OWNER|GRID
 browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
-	"Инв номер",                  3, notype, 0, 16
+	"@inventorynumber",           3, notype, 0, 16
 	"@receiptdate",               4, notype, DATF_DMY, 8
 	"@commissioningdate",         5, notype, DATF_DMY, 8
 	"@assetwroffgrp_wroffterm_s", 6, notype, ALIGN_RIGHT|NMBF_NOZERO, 8
@@ -4610,7 +4610,7 @@ browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 {
 	"@appellation",               2, notype, 0, 40
-	"Инв номер",                  3, notype, 0, 16
+	"@inventorynumber",           3, notype, 0, 16
 	"@receiptdate",               4, notype, DATF_DMY, 8
 	"@commissioningdate",         5, notype, DATF_DMY, 8
 	"@assetwroffgrp_wroffterm_s", 6, notype, NMBF_NOZERO, 8
@@ -4776,16 +4776,16 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 
 browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
-	"@shipped",         12, notype, 0, 2
-	"@billdate",         1, notype, DATF_DMY, 8
-	"@billno",           2, notype, 0, 9
-	"@contractor",       3, notype, 0, 20
-	"@agent",           14, notype, 0, 20
-	"Дата доставки",     4, notype, DATF_DMY, 8
-	"@transport",        5, notype, 0, 20
-	"Город назначения",  6, notype, 0, 20
-	"@daddress",         7, notype, 0, 30
-	"@memo",            15, notype, 0, 60
+	"@shipped",               12, notype, 0, 2
+	"@billdate",               1, notype, DATF_DMY, 8
+	"@billno",                 2, notype, 0, 9
+	"@contractor",             3, notype, 0, 20
+	"@agent",                 14, notype, 0, 20
+	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
+	"@transport",              5, notype, 0, 20
+	"Город назначения",        6, notype, 0, 20
+	"@daddress",               7, notype, 0, 30
+	"@memo",                  15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,  "@{document}\tEnter"
 		EDITBILLFREIGHT   : kbCtrlF4, PPDV_FREIGHT02,      "@{freight}\tCtrl-F4"
@@ -4813,20 +4813,20 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 
 browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
-	"@shipped",        12, notype, 0, 2
-	"@billdate",        1, notype, DATF_DMY, 8
-	"@billno",          2, notype, 0, 9
-	"@contractor",      3, notype, 0, 20
-	"@agent",          14, notype, 0, 20
-	"Дата доставки",    4, notype, DATF_DMY, 8
-	"@transport",       5, notype, 0, 20
-	"Город назначения", 6, notype, 0, 20
-	"@daddress",        7, notype, 0, 30
-	"@amount",          8, notype, 0, 10.2
-	"@cargobrutto",     9, notype, NMBF_NOTRAILZ, 8.3
-	"@volume",         10, notype, NMBF_NOTRAILZ, 8.3
-	"Мест",            11, notype, 0, 8
-	"@memo",           15, notype, 0, 60
+	"@shipped",               12, notype, 0, 2
+	"@billdate",               1, notype, DATF_DMY, 8
+	"@billno",                 2, notype, 0, 9
+	"@contractor",             3, notype, 0, 20
+	"@agent",                 14, notype, 0, 20
+	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
+	"@transport",              5, notype, 0, 20
+	"Город назначения",        6, notype, 0, 20
+	"@daddress",               7, notype, 0, 30
+	"@amount",                 8, notype, 0, 10.2
+	"@cargobrutto",            9, notype, NMBF_NOTRAILZ, 8.3
+	"@volume",                10, notype, NMBF_NOTRAILZ, 8.3
+	"Мест",                   11, notype, 0, 8
+	"@memo",                  15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,  "@{document}\tEnter"
 		EDITBILLFREIGHT   : kbCtrlF4, PPDV_FREIGHT02,      "@{freight}\tCtrl-F4"
@@ -5648,7 +5648,7 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		WROFFBILLS     : kbF5,      PPDV_DOCUMENT_PL02, "@{document_wroff_pl}\tF5"
 		DFCTBILLS      : kbShiftF5, TBBM_DFCTBILLS,     "@{shortagecoveragedocument_pl}\tShift-F5"
 		CHECKPAN       : kbF8,      TBBM_CCHECKS,       "@{doloadsesstoccpane}\tF8"
-		VIEWTSESS      : kbCtrlS,   TBBM_TSESS,         "Все сессии процессора\tCtrl-S"
+		VIEWTSESS      : kbCtrlS,   TBBM_TSESS,         "@{doshowallprcsessions}\tCtrl-S"
 		separator
 		PRINT          : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
 		separator
@@ -5668,7 +5668,7 @@ browser PRCFREE north(100), 3, 1, "@{freeprocessor_pl} {%s}", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM    : kbIns,    PPDV_ADDFILE02,   "@{createtsess}\tInsert"
 		EDITPRC    : kbF2,     TBBM_PRC,         "@{processor}\tF2"
-		VIEWTSESS  : kbCtrlS,  TBBM_TSESS,       "Все сессии процессора\tCtrl-S"
+		VIEWTSESS  : kbCtrlS,  TBBM_TSESS,       "@{doshowallprcsessions}\tCtrl-S"
 		separator
 		PRINT      : kbF7,     PPDV_PRINTER01,   "@{print}\tF7"
 		separator
@@ -5747,7 +5747,7 @@ browser CASHNODE north(100), 1, 1, "@{view_cashnode}", OWNER|GRID, 0
 
 browser BIZSCORE north(100), 1, 1, "@bizscore_pl", OWNER|GRID, 0
 {
-	"ID",              0, notype, 0,  6
+	"@id",             0, notype, 0,  6
 	"@appellation",    1, notype, 0, 30
 	"@symbol",         2, notype, 0, 10
 	"@user",           3, notype, 0, 10
@@ -5805,7 +5805,7 @@ browser DEBTORSTAT north(100), 3, 1, "@{view_debtorstat}", OWNER|GRID, 0
 		"@daterange",             6, notype, NMBF_NOZERO, 4
 	}
 	"Сигма-\nфактор",            11, notype, 0, 10.8
-	"Рейтинг",                    7, notype, 0, 6
+	"@rating",                    7, notype, 0, 6
 	"Расчетный лимит",            8, notype, NMBF_NOZERO | NMBF_DELSPACE, 8.2
 	"Стоимость кредита",          9, notype, NMBF_NOZERO, 8.6
 	toolbar TB_FIRST_TOOLBAR {
@@ -5913,14 +5913,14 @@ browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}",
 
 browser PALM north(100), 1, 1, "КПК", OWNER|GRID, 0
 {
-	"@appellation",    1, notype, 0, 10
-	"@symbol",         8, notype, 0, 10
-	"@warehouse",      2, notype, 0, 20
-	"@goodsgroup",     3, notype, 0, 20
-	"@agent",          4, notype, 0, 20
-	"@group",          5, notype, 0, 10
-	"@path",           6, notype, 0, 20
-	"Путь на FTP",     7, notype, 0, 20
+	"@appellation",         1, notype, 0, 10
+	"@symbol",              8, notype, 0, 10
+	"@warehouse",           2, notype, 0, 20
+	"@goodsgroup",          3, notype, 0, 20
+	"@agent",               4, notype, 0, 20
+	"@group",               5, notype, 0, 10
+	"@path",                6, notype, 0, 20
+	"@stylopalm_ixftppath", 7, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -5944,12 +5944,12 @@ browser PALM north(100), 1, 1, "КПК", OWNER|GRID, 0
 
 browser SERVERSTAT north(100), 1, 1, "@{view_serverstat} %s", OWNER|GRID, 0
 {
-	"@systhreadid",        0, int32,        0,   6, BCO_USERPROC
-	"@systhreadkind",      1, zstring(64),  0,  20, BCO_USERPROC
-	"Время запуска",       2, zstring(32),  0,  12, BCO_USERPROC
-	"Время работы",        3, time,         TIMF_HMS, 16, BCO_USERPROC
-	"@appellation",        4, zstring(256), 0,  40, BCO_USERPROC
-	"Последнее сообщение", 5, zstring(512), 0,  60, BCO_USERPROC
+	"@systhreadid",            0, int32,        0,   6, BCO_USERPROC
+	"@systhreadkind",          1, zstring(64),  0,  20, BCO_USERPROC
+	"@serverstat_startmoment", 2, zstring(32),  0,  12, BCO_USERPROC
+	"@serverstat_elapsedtime", 3, time,         TIMF_HMS, 16, BCO_USERPROC
+	"@appellation",            4, zstring(256), 0,  40, BCO_USERPROC
+	"@serverstat_lastmessage", 5, zstring(512), 0,  60, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		DELETEITEM   : kbDel,   PPDV_DELETEFILE02, "@{dostopthread}\tDelete"
 		RESETCACHE   : kbCtrlR, PPDV_NOICON,       "@{doresetcache}\tCtrl-R"
@@ -7286,7 +7286,7 @@ record Bill {
 	AgentName     zstring(128) "@{agentname}";
 	AgentINN      zstring(32)  "@{agentinn}";
 	AgentGLN      zstring(16)  "GLN агента";          // @v7.1.12
-	AgentPersonID long         "ИД персоналии агента"; // @v9.8.7
+	AgentPersonID long         "@{agentpersonid}"; // @v9.8.7
 
 	CostWithSTax  int16        format(4)   "Цены включают налог с продаж";
 	XmlPrefix     zstring(16)  "Префикс XML-документа (dll)";
@@ -7376,7 +7376,7 @@ record BRow {
 	DlvrAddr      zstring(255)    "@{daddress}";
 	AgentName     zstring(128)    "@{agentname}";
 	AgentINN      zstring(32)     "@{agentinn}";
-	AgentPersonID long            "ИД персоналии агента"; // @v9.8.7
+	AgentPersonID long            "@{agentpersonid}"; // @v9.8.7
 	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
 	GoodKindCode  long	          "Код вида товара (dll)";
 	GoodGrpID     long	          "Ид группы товара (dll)";
@@ -7417,7 +7417,7 @@ record GoodsGroup {
 record Goods {
 	Article      long         format(10)   "@{goodsarcode}";
 	GoodsName    zstring(128)  "@{goodsname}";
-	Abbr         zstring(128)  "Сокращенное наименование товара";
+	Abbr         zstring(128)  "@{goods_abbr_amp}";
 	UnitName     zstring(16)   "@{munitname}";
 	GroupName    zstring(128)  "Наименование группы товаров";
 	Price        double       format(10.2) "@{price}";
@@ -7537,7 +7537,7 @@ record CChecks {
 	SessNumber   long         format(8)    "@{sessionno}";
 	CheckDate    date         "@{checkdate}";
 	CheckTime    zstring(10)  "@{checktime}";
-	TimeHSec     int16        "Сотые доли секунды во времени";
+	TimeHSec     int16        "@{munit_handredsofsecond}";
 	Amount       double       format(13.2) "@{ccheck_nominalamount}";
 	Discount     double       format(13.2) "@{ccheck_discount_amp}";
 	CardNumber   zstring(32)  "@{cardno}";
@@ -7568,7 +7568,7 @@ record CCLines {
 	SessNumber     long         format(8)    "@{sessionno}";
 	CheckDate      date         "@{checkdate}";
 	CheckTime      zstring(10)  "@{checktime}";
-	TimeHSec       int16        "Сотые доли секунды во времени";
+	TimeHSec       int16        "@{munit_handredsofsecond}";
 	CheckAmt       double       format(13.2) "@{ccheck_nominalamount}";
 	CheckDscnt     double       format(13.2) "@{ccheck_discount_amp}";
 	CardNumber     zstring(32)  "@{cardno}";
@@ -7981,10 +7981,10 @@ record Person {
 	ExtName            zstring(256)    "@{person_extname}";
 	KindCode           zstring(20)     "@{prsnkind_symb_amp}";
 	KindName           zstring(48)     "@{prsnkind_name_amp}";
-	StatusCode         zstring(20)     "Код юридического статуса";
-	StatusName         zstring(48)     "Наименование юридического статуса";
-	CategoryCode       zstring(20)     "Код категории";
-	CategoryName       zstring(48)     "Наименование категории";
+	StatusCode         zstring(20)     "@{person_statuscode}";
+	StatusName         zstring(48)     "@{person_statusname}";
+	CategoryCode       zstring(20)     "@{categorycode}";
+	CategoryName       zstring(48)     "@{categoryname}";
 	MainAddrCode       zstring(20)     "Код адреса";
 	MainAddrCityName   zstring(48)     "@{cityofaddress}";
 	MainAddrZIP        zstring(20)     "@{mainaddrpostzip}";
@@ -8000,9 +8000,9 @@ record Person {
 	DlvrAddrText       zstring(256)    "Текст адреса доставки";
 	DlvrAddrLongitude  double          "GPS-долгота адреса доставки";
 	DlvrAddrLatitude   double          "GPS-широта адреса доставки";
-	Phone              zstring(64)     "Основной телефон";
-	Phone2             zstring(64)     "Дополнительный телефон";
-	PhoneMobile        zstring(64)     "Мобильный телефон";
+	Phone              zstring(64)     "@{phonemain}";
+	Phone2             zstring(64)     "@{phoneadditional}";
+	PhoneMobile        zstring(64)     "@{phonemobile}";
 	EMail              zstring(64)     "@{email}";
 	HTTP               zstring(64)     "WEB-адрес";
 	ComplELink         zstring(256)    "Комплексная строка электронных адресов";
@@ -8447,7 +8447,7 @@ record FiasRawAddrObj {
 	TERRIFNSUL   zstring(16)  "@{ru_iftsterrareacode} @{civillawsubj_legal_ss}"; // [4]
 	OKATO        zstring(16)  "OKATO"; // [11]
 	OKTMO        zstring(16)  "OKTMO";
-	UPDATEDATE   date         "Дата  внесения записи";
+	UPDATEDATE   date         "@{fias_recupdatetime}";
 	SHORTNAME    zstring(16)  "Краткое наименование типа объекта";
 	AOLEVEL      zstring(16)  "Уровень адресного объекта"; // 10 digits
 	PARENTGUID   guid         "Идентификатор объекта родительского объекта";

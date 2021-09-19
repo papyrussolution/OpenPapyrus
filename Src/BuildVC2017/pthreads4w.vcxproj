@@ -1260,36 +1260,19 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchlib.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup0.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\context1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\create1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\errno0.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\eyal1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\inherit1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\join0.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\name_np1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\once1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\priority1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\pthread4w-test.cpp" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\reuse1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\robust1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\rwlock1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\sequence1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\stress1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\threestage.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\timeouts.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tryentercs.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tryentercs2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd1.c" />
     <ClCompile Include="..\OSF\pthreads4w\sl_pthreads4w.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>

@@ -1,0 +1,15 @@
+Setup:
+
+  $ . $TESTDIR/setup.sh
+  $ mkdir -p ./a/bomb
+  $ printf 'whatever\n' > ./a/bomb/foo.yml
+  $ printf '*b/foo.yml\n' > ./.gitignore
+
+Ignore foo.yml but not blah.yml:
+
+  $ ag whatever .
+
+Dont ignore anything (unrestricted search):
+
+  $ ag -u whatever .
+  a/bomb/foo.yml:1:whatever

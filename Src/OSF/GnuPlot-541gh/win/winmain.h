@@ -49,14 +49,17 @@
 #endif
 
 struct GpWinMainBlock {
-	GpWinMainBlock() : graphwin(0), listgraphs(0), help_window(0), winhelpname(0), szMenuName(0), szLanguageCode(0),
-		szModuleName(0), szPackageDir(0)
+	GpWinMainBlock() : P_GraphWin(0), P_ListGraphs(0), help_window(0), winhelpname(0), szMenuName(0), szLanguageCode(0),
+		szModuleName(0), szPackageDir(0), hDevNames(0), hDevMode(0)
 	{
 	}
-	TW   textwin;
-	MW   menuwin;
-	GW * graphwin;
-	GW * listgraphs;
+	void WinCloseHelp();
+	LPTSTR LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultname);
+	void   ReadMainIni(LPTSTR file, LPTSTR section);
+	TW   TxtWin/*textwin*/;
+	MW   MnuWin/*menuwin*/;
+	GW * P_GraphWin/*graphwin*/;
+	GW * P_ListGraphs/*listgraphs*/;
 	PW   pausewin;
 	HWND   help_window;
 	LPTSTR winhelpname;
@@ -64,6 +67,8 @@ struct GpWinMainBlock {
 	LPTSTR szModuleName;
 	LPTSTR szPackageDir;
 	LPTSTR szLanguageCode;
+	HGLOBAL hDevNames; // Printer setup and dump
+	HGLOBAL hDevMode;
 };
 
 extern GpWinMainBlock _WinM;

@@ -111,7 +111,6 @@
 	static volatile int tls_ ## name ## _initialized = 0;               \
 	static void * tls_ ## name ## _mutex = NULL;                         \
 	static unsigned tls_ ## name ## _index;                             \
-                                                                        \
 	static type * tls_ ## name ## _alloc(void)                                       \
 	{                                                                   \
 		type * value = SAlloc::C(1, sizeof(type));                        \
@@ -119,7 +118,6 @@
 			TlsSetValue(tls_ ## name ## _index, value);                \
 		return value;                                                   \
 	}                                                                   \
-                                                                        \
 	static force_inline type * tls_ ## name ## _get(void) \
 	{                                                                   \
 		type * value;                                                    \
@@ -157,17 +155,14 @@
 #define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                        \
 	static pthread_once_t tls_ ## name ## _once_control = PTHREAD_ONCE_INIT; \
 	static pthread_key_t tls_ ## name ## _key;                          \
-                                                                        \
 	static void tls_ ## name ## _destroy_value(void * value) \
 	{                                                                   \
 		SAlloc::F(value);                                                   \
 	}                                                                   \
-                                                                        \
 	static void tls_ ## name ## _make_key(void) \
 	{                                                                   \
 		pthread_key_create(&tls_ ## name ## _key, tls_ ## name ## _destroy_value); \
 	}                                                                   \
-                                                                        \
 	static type * tls_ ## name ## _alloc(void) \
 	{                                                                   \
 		type * value = SAlloc::C(1, sizeof(type));                        \
@@ -175,12 +170,10 @@
 			pthread_setspecific(tls_ ## name ## _key, value);          \
 		return value;                                                   \
 	}                                                                   \
-                                                                        \
 	static force_inline type * tls_ ## name ## _get(void) \
 	{                                                                   \
 		type * value = NULL;                                             \
-		if(pthread_once(&tls_ ## name ## _once_control, tls_ ## name ## _make_key) == 0) \
-		{                                                               \
+		if(pthread_once(&tls_ ## name ## _once_control, tls_ ## name ## _make_key) == 0) { \
 			value = pthread_getspecific(tls_ ## name ## _key);         \
 			if(!value)                                                 \
 				value = tls_ ## name ## _alloc();                      \
@@ -188,8 +181,7 @@
 		return value;                                                   \
 	}
 
-#define PIXMAN_GET_THREAD_LOCAL(name)                                \
-	tls_ ## name ## _get()
+#define PIXMAN_GET_THREAD_LOCAL(name) tls_ ## name ## _get()
 
 #else
 

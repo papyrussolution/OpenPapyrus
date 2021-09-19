@@ -593,10 +593,12 @@ const StyloQCommandList::Item * StyloQCommandList::GetByUuid(const S_GUID & rUui
 	if(!rUuid.IsZero()) {
 		for(uint i = 0; !p_result && i < L.getCount(); i++) {
 			const Item * p_item = L.at(i);
-			if(p_item && p_item->Uuid == rUuid) {
+			if(p_item && p_item->Uuid == rUuid)
 				p_result = p_item;
-			}
 		}
+	}
+	if(!p_result) {
+		PPSetError(PPERR_SQ_UNKNCMD);
 	}
 	return p_result;
 }
@@ -738,7 +740,7 @@ int StyloQCommandList::Load(const char * pFileName)
 	return ok;
 }
 
-SJson * StyloQCommandList::CreateJsonForClient(SJson * pParent, const char * pName, long expirationSec) const
+/*static*/SJson * StyloQCommandList::CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec)
 {
 	assert(!pParent || !isempty(pName));
 	SString temp_buf;
@@ -752,17 +754,19 @@ SJson * StyloQCommandList::CreateJsonForClient(SJson * pParent, const char * pNa
 	}
 	{
 		SJson * p_array = new SJson(SJson::tARRAY);
-		for(uint i = 0; i < L.getCount(); i++) {
-			const Item * p_item = L.at(i);
-			if(p_item) {
-				SJson * p_jitem = new SJson(SJson::tOBJECT);
-				p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(p_item->Uuid)));
-				p_jitem->Insert("name", json_new_string(p_item->Name));
-				if(p_item->Description.NotEmpty()) {
-					p_jitem->Insert("descr", json_new_string(p_item->Description));
+		if(pSelf) {
+			for(uint i = 0; i < pSelf->L.getCount(); i++) {
+				const Item * p_item = pSelf->L.at(i);
+				if(p_item) {
+					SJson * p_jitem = new SJson(SJson::tOBJECT);
+					p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(p_item->Uuid)));
+					p_jitem->Insert("name", json_new_string(p_item->Name));
+					if(p_item->Description.NotEmpty()) {
+						p_jitem->Insert("descr", json_new_string(p_item->Description));
+					}
+					// @todo transmit image
+					json_insert_child(p_array, p_jitem);
 				}
-				// @todo transmit image
-				json_insert_child(p_array, p_jitem);
 			}
 		}
 		p_result->Insert("item_list", p_array);
@@ -3704,47 +3708,44 @@ public:
 			SSerializeContext sctx;
 			const LDATETIME _now = getcurdatetime_();
 			const PPObjID oid(rCliPack.Rec.LinkObjType, rCliPack.Rec.LinkObjID);
+			PPObjPersonEvent psnevobj;
+			PPPsnEventPacket pe_pack;
 			THROW(rCmdItem.Param.GetAvailableSize());
-			{
-				PPObjPersonEvent psnevobj;
-				PPPsnEventPacket pe_pack;
-				if(psnevobj.SerializePacket(-1, &pe_pack, rCmdItem.Param, &sctx)) {
-					pe_pack.Rec.Dt = _now.d;
-					pe_pack.Rec.Tm = _now.t;
-					THROW(pe_pack.Rec.OpID);
-					if(pe_pack.Rec.PersonID == ROBJID_CONTEXT) {
-						THROW(oid.Obj && oid.Id);
-						if(oid.Obj == PPOBJ_PERSON) {
-							pe_pack.Rec.PersonID = oid.Id;
-						}
-						else if(oid.Obj == PPOBJ_USR) {
-							PPObjSecur sec_obj(PPOBJ_USR, 0);
-							PPSecur sec_rec;
-							THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
-							pe_pack.Rec.PersonID = sec_rec.PersonID;
-						}
-						else {
-							CALLEXCEPT();
-						}
-					}
-					if(pe_pack.Rec.SecondID == ROBJID_CONTEXT) {
-						THROW(oid.Obj && oid.Id);
-						if(oid.Obj == PPOBJ_PERSON) {
-							pe_pack.Rec.SecondID = oid.Id;
-						}
-						else if(oid.Obj == PPOBJ_USR) {
-							PPObjSecur sec_obj(PPOBJ_USR, 0);
-							PPSecur sec_rec;
-							THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
-							pe_pack.Rec.SecondID = sec_rec.PersonID;
-						}
-						else {
-							CALLEXCEPT();
-						}
-					}
-					THROW(psnevobj.PutPacket(&new_id, &pe_pack, 1));
+			THROW(psnevobj.SerializePacket(-1, &pe_pack, rCmdItem.Param, &sctx));
+			pe_pack.Rec.Dt = _now.d;
+			pe_pack.Rec.Tm = _now.t;
+			THROW(pe_pack.Rec.OpID);
+			if(pe_pack.Rec.PersonID == ROBJID_CONTEXT) {
+				THROW(oid.Obj && oid.Id);
+				if(oid.Obj == PPOBJ_PERSON) {
+					pe_pack.Rec.PersonID = oid.Id;
+				}
+				else if(oid.Obj == PPOBJ_USR) {
+					PPObjSecur sec_obj(PPOBJ_USR, 0);
+					PPSecur sec_rec;
+					THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
+					pe_pack.Rec.PersonID = sec_rec.PersonID;
+				}
+				else {
+					CALLEXCEPT();
 				}
 			}
+			if(pe_pack.Rec.SecondID == ROBJID_CONTEXT) {
+				THROW(oid.Obj && oid.Id);
+				if(oid.Obj == PPOBJ_PERSON) {
+					pe_pack.Rec.SecondID = oid.Id;
+				}
+				else if(oid.Obj == PPOBJ_USR) {
+					PPObjSecur sec_obj(PPOBJ_USR, 0);
+					PPSecur sec_rec;
+					THROW(sec_obj.Fetch(oid.Id, &sec_rec) > 0 && sec_rec.PersonID);
+					pe_pack.Rec.SecondID = sec_rec.PersonID;
+				}
+				else {
+					CALLEXCEPT();
+				}
+			}
+			THROW(psnevobj.PutPacket(&new_id, &pe_pack, 1));
 		}
 		CATCHZOK
 		return ok;
@@ -3753,186 +3754,195 @@ public:
 	{
 		int    ok = 1;
 		SString temp_buf;
-		bool   cmd_reply_ok = true;
+		bool   cmd_reply_ok = false;
+		bool   do_reply = false; // Если true, то следует ответить клиенту даже в случае ошибки, если false, то ответа не будет 
 		SBinaryChunk cmd_bch;
 		SBinaryChunk reply_config;
 		SBinaryChunk reply_face;
 		SString cmd_buf;
+		SString command;
+		SString reply_text_buf;
+		SGeoPosLL geopos;
+		SJson * p_js_reply = 0;
+		SJson * p_js_cmd = 0;
 		THROW_PP(CliIdent.Len(), PPERR_SQ_UNDEFCLIID);
-		if(rRcvPack.P.Get(SSecretTagPool::tagRawData, &cmd_bch)) {
-			//ProcessCommand(cmd_bch, sess_secret);
-			SJson * p_js_cmd = 0;
-			SJson * p_js_reply = 0;
-			SString command;
-			SGeoPosLL geopos;
-			cmd_buf.CatN(static_cast<const char *>(cmd_bch.PtrC()), cmd_bch.Len());
-			if(json_parse_document(&p_js_cmd, cmd_buf.cptr()) == JSON_OK) {
-				for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Type == SJson::tOBJECT) {								
-						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-							if(p_obj->Text.IsEqiAscii("cmd")) {
-								command = p_obj->P_Child->Text;
-								//p_js_reply->InsertString("reply", command);
-							}
-							else if(p_obj->Text.IsEqiAscii("latitude")) {
-								geopos.Lat = p_obj->P_Child->Text.ToReal();
-							}
-							else if(p_obj->Text.IsEqiAscii("longitude")) {
-								geopos.Lon = p_obj->P_Child->Text.ToReal();
-							}
-							else {
-								if(p_obj->Text.NotEmpty() && p_obj->P_Child && p_obj->P_Child->Text.NotEmpty()) {
-									//p_js_reply->InsertString(p_obj->Text, p_obj->P_Child->Text);
-								}
-							}
+		do_reply = true;
+		THROW_PP(rRcvPack.P.Get(SSecretTagPool::tagRawData, &cmd_bch), PPERR_SQ_UNDEFCMDBODY);
+		//ProcessCommand(cmd_bch, sess_secret);
+		cmd_buf.CatN(static_cast<const char *>(cmd_bch.PtrC()), cmd_bch.Len());
+		if(json_parse_document(&p_js_cmd, cmd_buf.cptr()) == JSON_OK) {
+			for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {								
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("cmd")) {
+							command = p_obj->P_Child->Text;
+							//p_js_reply->InsertString("reply", command);
 						}
-					}
-				}
-				if(command.NotEmptyS()) {
-					if(command.IsEqiAscii("register")) {
-						// Регистрация //
-						p_js_reply = new SJson(SJson::tOBJECT);
-						p_js_reply->InsertString("reply", "hello");
-					}
-					else if(command.IsEqiAscii("quit") || command.IsEqiAscii("bye")) {
-						// Завершение сеанса
-						p_js_reply = new SJson(SJson::tOBJECT);
-						p_js_reply->InsertString("reply", "bye");
-					}
-					else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
-						bool local_ok = false;
-						if(B.StP.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
-							assert(reply_config.Len());
-							StyloQConfig cfg_pack;
-							temp_buf.Z().CatN(static_cast<const char *>(reply_config.PtrC()), reply_config.Len());
-							if(cfg_pack.FromJson(temp_buf)) {
-								// Здесь можно удалить те компоненты конфигурации, которые передавать клиенту не следует
-								cfg_pack.ToJson(temp_buf);
-								reply_config.Z().Put(temp_buf.cptr(), temp_buf.Len());
-								local_ok = true;
+						else if(p_obj->Text.IsEqiAscii("latitude")) {
+							geopos.Lat = p_obj->P_Child->Text.ToReal();
+						}
+						else if(p_obj->Text.IsEqiAscii("longitude")) {
+							geopos.Lon = p_obj->P_Child->Text.ToReal();
+						}
+						else {
+							if(p_obj->Text.NotEmpty() && p_obj->P_Child && p_obj->P_Child->Text.NotEmpty()) {
+								//p_js_reply->InsertString(p_obj->Text, p_obj->P_Child->Text);
 							}
-							else
-								reply_config.Z();
-						}
-						if(B.StP.Pool.Get(SSecretTagPool::tagSelfyFace, &reply_face)) {
-							assert(reply_face.Len());
-							StyloQFace face_pack;
-							temp_buf.Z().CatN(static_cast<const char *>(reply_face.PtrC()), reply_face.Len());
-							if(face_pack.FromJson(temp_buf))
-								local_ok = true;
-							else
-								reply_face.Z();
-						}
-						if(!local_ok)
-							cmd_reply_ok = false;
-					}
-					else if(command.IsEqiAscii("getcommandlist")) {
-						// Клиент запрашивает список доступных для него команд
-						//SBinaryChunk cli_ident;
-						bool local_ok = false;
-						StyloQCore::StoragePacket cli_pack;
-						if(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0) {
-							StyloQCommandList full_cmd_list;
-							if(full_cmd_list.Load(0)) {
-								PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
-								StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
-								if(p_target_cmd_list) {
-									p_js_reply = p_target_cmd_list->CreateJsonForClient(0, 0, 4 * 3600);
-									ZDELETE(p_target_cmd_list);
-									local_ok = true;
-								}
-							}
-						}
-						if(!local_ok)
-							cmd_reply_ok = false;
-					}
-					else if(command.IsEqiAscii("dtlogin")) {
-						// Десктоп-логин (экспериментальная функция)
-						bool local_ok = false;
-						StyloQCore::StoragePacket cli_pack;
-						if(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0) {
-							if(cli_pack.Rec.Kind == StyloQCore::kClient && cli_pack.Rec.LinkObjType == PPOBJ_USR && cli_pack.Rec.LinkObjID) {
-								PPObjSecur sec_obj(PPOBJ_USR, 0);
-								PPSecur sec_rec;
-								if(sec_obj.Search(cli_pack.Rec.LinkObjID, &sec_rec) > 0) {
-									if(!sstreqi_ascii(sec_rec.Name, PPSession::P_JobLogin) && !sstreqi_ascii(sec_rec.Name, PPSession::P_EmptyBaseCreationLogin)) {
-										if(OnetimePass(sec_rec.ID) > 0) {
-											p_js_reply = new SJson(SJson::tOBJECT);
-											p_js_reply->InsertString("reply", "Your request for login is accepted :)");
-											local_ok = true;
-										}
-									}
-								}
-							}
-						}
-						if(!local_ok) {
-							p_js_reply = new SJson(SJson::tOBJECT);
-							p_js_reply->InsertString("reply", "Your request for login is not accepted :(");
-							cmd_reply_ok = false;
-						}
-					}
-					else {
-						bool is_unkn_cmd = true;
-						S_GUID cmd_uuid;
-						if(cmd_uuid.FromStr(command)) {
-							bool local_ok = false;
-							StyloQCore::StoragePacket cli_pack;
-							if(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0) {
-								StyloQCommandList full_cmd_list;
-								if(full_cmd_list.Load(0)) {
-									PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
-									const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(cmd_uuid);
-									if(p_item) {
-										is_unkn_cmd = false;
-										StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
-										if(p_target_cmd_list) {
-											const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list->GetByUuid(cmd_uuid);
-											//p_js_reply = p_target_cmd_list->CreateJsonForClient(0, 0, 4 * 3600);
-											//ZDELETE(p_target_cmd_list);
-											local_ok = true;
-										}
-										{
-											StyloQCommandList::Item temp_item = *p_item;
-											switch(temp_item.BaseCmdId) {
-												case StyloQCommandList::Item::sqbcPersonEvent:
-													if(ProcessCommand_PersonEvent(temp_item, cli_pack, geopos)) {
-													}
-													else {
-													}
-													break;
-												case StyloQCommandList::Item::sqbcReport:
-													break;
-											}
-										}
-									}
-								}
-							}
-							if(!local_ok)
-								cmd_reply_ok = false;
-						}
-						if(is_unkn_cmd) {
-							// ProcessCommand
-							p_js_reply = new SJson(SJson::tOBJECT);
-							(temp_buf = "Unknown command").Space().CatChar('\'').Cat(command).CatChar('\'');
-							p_js_reply->InsertString("reply", temp_buf);
-							cmd_reply_ok = false;
 						}
 					}
 				}
 			}
+			if(command.NotEmptyS()) {
+				if(command.IsEqiAscii("register")) {
+					// Регистрация //
+					//p_js_reply = new SJson(SJson::tOBJECT);
+					//p_js_reply->InsertString("reply", "Hello");
+					PPLoadText(PPTXT_SQ_HELLO, reply_text_buf);
+				}
+				else if(command.IsEqiAscii("quit") || command.IsEqiAscii("bye")) {
+					// Завершение сеанса
+					//p_js_reply = new SJson(SJson::tOBJECT);
+					//p_js_reply->InsertString("reply", "Bye");
+					PPLoadText(PPTXT_SQ_GOODBYE, reply_text_buf);
+				}
+				else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
+					if(B.StP.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
+						assert(reply_config.Len());
+						StyloQConfig cfg_pack;
+						temp_buf.Z().CatN(static_cast<const char *>(reply_config.PtrC()), reply_config.Len());
+						if(cfg_pack.FromJson(temp_buf)) {
+							// Здесь можно удалить те компоненты конфигурации, которые передавать клиенту не следует
+							cfg_pack.ToJson(temp_buf);
+							reply_config.Z().Put(temp_buf.cptr(), temp_buf.Len());
+							cmd_reply_ok = true;
+						}
+						else
+							reply_config.Z();
+					}
+					if(B.StP.Pool.Get(SSecretTagPool::tagSelfyFace, &reply_face)) {
+						assert(reply_face.Len());
+						StyloQFace face_pack;
+						temp_buf.Z().CatN(static_cast<const char *>(reply_face.PtrC()), reply_face.Len());
+						if(face_pack.FromJson(temp_buf)) {
+							cmd_reply_ok = true;
+						}
+						else
+							reply_face.Z();
+					}
+				}
+				else if(command.IsEqiAscii("getcommandlist")) {
+					// Клиент запрашивает список доступных для него команд
+					//SBinaryChunk cli_ident;
+					StyloQCore::StoragePacket cli_pack;
+					StyloQCommandList full_cmd_list;
+					StyloQCommandList * p_target_cmd_list = 0;
+					THROW(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0);
+					if(full_cmd_list.Load(0)) {
+						PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+						p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
+					}
+					p_js_reply = StyloQCommandList::CreateJsonForClient(p_target_cmd_list, 0, 0, 4 * 3600);
+					ZDELETE(p_target_cmd_list);
+					cmd_reply_ok = true;
+				}
+				else if(command.IsEqiAscii("dtlogin")) {
+					// Десктоп-логин (экспериментальная функция)
+					StyloQCore::StoragePacket cli_pack;
+					if(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0) {
+						if(cli_pack.Rec.Kind == StyloQCore::kClient && cli_pack.Rec.LinkObjType == PPOBJ_USR && cli_pack.Rec.LinkObjID) {
+							PPObjSecur sec_obj(PPOBJ_USR, 0);
+							PPSecur sec_rec;
+							if(sec_obj.Search(cli_pack.Rec.LinkObjID, &sec_rec) > 0) {
+								if(!sstreqi_ascii(sec_rec.Name, PPSession::P_JobLogin) && !sstreqi_ascii(sec_rec.Name, PPSession::P_EmptyBaseCreationLogin)) {
+									if(OnetimePass(sec_rec.ID) > 0) {
+										PPLoadText(PPTXT_SQ_CMDSUCCESS_DTLOGIN, reply_text_buf);
+										reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										//p_js_reply = new SJson(SJson::tOBJECT);
+										//p_js_reply->InsertString("reply", "Your request for login is accepted :)");
+										cmd_reply_ok = true;
+									}
+								}
+							}
+						}
+					}
+					if(!cmd_reply_ok) {
+						PPSetError(PPERR_SQ_CMDFAULT_DTLOGIN);
+						//p_js_reply = new SJson(SJson::tOBJECT);
+						//p_js_reply->InsertString("reply", "Your request for login is not accepted :(");
+					}
+				}
+				else {
+					//bool is_unkn_cmd = true;
+					//bool local_ok = false;
+					S_GUID cmd_uuid;
+					StyloQCore::StoragePacket cli_pack;
+					if(cmd_uuid.FromStr(command) && P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, CliIdent, &cli_pack) > 0) {
+						StyloQCommandList full_cmd_list;
+						if(full_cmd_list.Load(0)) {
+							PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+							const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(cmd_uuid);
+							if(p_item) {
+								//is_unkn_cmd = false;
+								StyloQCommandList * p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
+								const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list ? p_target_cmd_list->GetByUuid(cmd_uuid) : 0;
+								if(p_targeted_item) {
+									StyloQCommandList::Item temp_item = *p_targeted_item;
+									switch(temp_item.BaseCmdId) {
+										case StyloQCommandList::Item::sqbcPersonEvent:
+											if(ProcessCommand_PersonEvent(temp_item, cli_pack, geopos)) {
+												PPLoadText(PPTXT_SQ_CMDSUCCESS_PSNEV, reply_text_buf);
+												reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+												cmd_reply_ok = true;
+											}
+											else {
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+												PPSetError(PPERR_SQ_CMDFAULT_PSNEV);
+											}
+											break;
+										case StyloQCommandList::Item::sqbcReport:
+											PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
+											break;
+										default:
+											PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
+											break;
+									}
+								}
+								else {
+									PPSetError(PPERR_SQ_UNTARGETEDCMD);
+								}
+							}
+						}
+						else {
+							// Сохраняем детализированную ошибку в логе а клиенту передаем обобщенное сообщение об ошибке
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+							PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
+						}
+					}
+				}
+			}
+		}
+		CATCH
+			ok = 0;
+		ENDCATCH
+		if(do_reply) {
+			StyloQProtocol reply_tp;
 			if(p_js_reply) {
 				json_tree_to_string(p_js_reply, cmd_buf);
 			}
-			ZDELETE(p_js_cmd);
-			ZDELETE(p_js_reply);
-		}
-		else {
-			cmd_reply_ok = false;
-			cmd_buf = "Error";
-		}
-		{
-			StyloQProtocol reply_tp;
-			reply_tp.Z();
+			else {
+				p_js_reply = new SJson(SJson::tOBJECT);
+				p_js_reply->InsertString("result", cmd_reply_ok ? "ok" : "error");
+				if(!cmd_reply_ok) {
+					PPGetLastErrorMessage(1, temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					p_js_reply->InsertInt("errcode", PPErrCode);
+					p_js_reply->InsertString("errmsg", temp_buf);
+				}
+				if(reply_text_buf.NotEmpty()) {
+					p_js_reply->InsertString("msg", reply_text_buf);
+				}
+				json_tree_to_string(p_js_reply, cmd_buf);
+			}
 			reply_tp.StartWriting(PPSCMD_SQ_COMMAND, cmd_reply_ok ? StyloQProtocol::psubtypeReplyOk : StyloQProtocol::psubtypeReplyError);
 			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
 			if(reply_config.Len())
@@ -3951,7 +3961,8 @@ public:
 				// } @debug
 			}
 		}
-		CATCHZOK
+		ZDELETE(p_js_cmd);
+		ZDELETE(p_js_reply);
 	}
 	virtual void Run()
 	{

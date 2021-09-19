@@ -1,0 +1,50 @@
+language: c
+dist: xenial
+sudo: false
+
+branches:
+  only:
+    - master
+    - ppc64le
+arch:
+  - amd64
+  - ppc64le
+
+compiler:
+  - clang
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - automake
+      - liblzma-dev
+      - libpcre3-dev
+      - pkg-config
+      - zlib1g-dev
+
+env:
+  global:
+    - LLVM_VERSION=6.0.1
+    - LLVM_PATH=$HOME/clang+llvm
+    - CLANG_FORMAT=$LLVM_PATH/bin/clang-format
+
+before_install:
+  - wget http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04.tar.xz -O $LLVM_PATH.tar.xz
+  - mkdir $LLVM_PATH
+  - tar xf $LLVM_PATH.tar.xz -C $LLVM_PATH --strip-components=1
+  - export PATH=$HOME/.local/bin:$PATH
+
+install:
+  - pip install --user cram
+
+script:
+  - ./build.sh && make test
+
+notifications:
+  irc: 'chat.freenode.net#ag'
+  on_success: change
+  on_failure: always
+  use_notice: true

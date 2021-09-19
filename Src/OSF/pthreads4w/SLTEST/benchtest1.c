@@ -28,8 +28,241 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "test.h"
-#include "benchtest.h"
 
+enum {
+	OLD_WIN32CS,
+	OLD_WIN32MUTEX
+};
+
+struct old_mutex_t_ {
+	HANDLE mutex;
+	CRITICAL_SECTION cs;
+};
+
+struct old_mutexattr_t_ {
+	int pshared;
+};
+
+typedef struct old_mutex_t_ * old_mutex_t;
+typedef struct old_mutexattr_t_ * old_mutexattr_t;
+
+// @sobolev (yet defined at implement.h) #define  __PTW32_OBJECT_AUTO_INIT ((void*)-1)
+// 
+// Dummy use of j, otherwise the loop may be removed by the optimiser
+// when doing the overhead timing with an empty loop.
+// 
+#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for(i = 0; i < ITERATIONS; i++) { j++;
+#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if(j + k == i) j++; }
+
+static int old_mutex_use = OLD_WIN32CS;
+static BOOL (WINAPI *__ptw32_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+static HINSTANCE __ptw32_h_kernel32;
+
+static void dummy_call(int * a)
+{
+}
+
+static void interlocked_inc_with_conditionals(int * a)
+{
+	if(a)
+		if(InterlockedIncrement((long*)a) == -1) {
+			*a = 0;
+		}
+}
+
+static void interlocked_dec_with_conditionals(int * a)
+{
+	if(a)
+		if(InterlockedDecrement((long*)a) == -1) {
+			*a = 0;
+		}
+}
+
+static int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
+{
+	int result = 0;
+	old_mutex_t mx;
+	if(mutex == NULL) {
+		return EINVAL;
+	}
+	mx = (old_mutex_t)SAlloc::C(1, sizeof(*mx));
+	if(mx == NULL) {
+		result = ENOMEM;
+		goto FAIL0;
+	}
+	mx->mutex = 0;
+	if(attr != NULL && *attr != NULL && (*attr)->pshared == PTHREAD_PROCESS_SHARED) {
+		result = ENOSYS;
+	}
+	else {
+		CRITICAL_SECTION cs;
+		/*
+		 * Load KERNEL32 and try to get address of TryEnterCriticalSection
+		 */
+		__ptw32_h_kernel32 = LoadLibrary(TEXT("KERNEL32.DLL"));
+		__ptw32_try_enter_critical_section = (BOOL(WINAPI *)(LPCRITICAL_SECTION))
+#if defined(NEED_UNICODE_CONSTS)
+		    GetProcAddress(__ptw32_h_kernel32, (const TCHAR*)TEXT("TryEnterCriticalSection"));
+#else
+		    GetProcAddress(__ptw32_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
+#endif
+		if(__ptw32_try_enter_critical_section != NULL) {
+			InitializeCriticalSection(&cs);
+			if((*__ptw32_try_enter_critical_section)(&cs)) {
+				LeaveCriticalSection(&cs);
+			}
+			else {
+				/*
+				 * Not really supported (Win98?).
+				 */
+				__ptw32_try_enter_critical_section = NULL;
+			}
+			DeleteCriticalSection(&cs);
+		}
+		if(__ptw32_try_enter_critical_section == NULL) {
+			::FreeLibrary(__ptw32_h_kernel32);
+			__ptw32_h_kernel32 = 0;
+		}
+		if(old_mutex_use == OLD_WIN32CS) {
+			InitializeCriticalSection(&mx->cs);
+		}
+		else if(old_mutex_use == OLD_WIN32MUTEX) {
+			mx->mutex = CreateMutex(NULL, FALSE, NULL);
+			if(mx->mutex == 0) {
+				result = EAGAIN;
+			}
+		}
+		else {
+			result = EINVAL;
+		}
+	}
+	if(result != 0 && mx != NULL) {
+		ZFREE(mx);
+	}
+FAIL0:
+	*mutex = mx;
+	return(result);
+}
+
+static int old_mutex_lock(old_mutex_t * mutex)
+{
+	int result = 0;
+	old_mutex_t mx;
+	if(mutex == NULL || *mutex == NULL) {
+		return EINVAL;
+	}
+	if(*mutex == (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
+		/*
+		 * Don't use initialisers when benchtesting.
+		 */
+		result = EINVAL;
+	}
+	mx = *mutex;
+	if(result == 0) {
+		if(mx->mutex == 0) {
+			EnterCriticalSection(&mx->cs);
+		}
+		else {
+			result = (WaitForSingleObject(mx->mutex, INFINITE) == WAIT_OBJECT_0) ? 0 : EINVAL;
+		}
+	}
+	return(result);
+}
+
+static int old_mutex_unlock(old_mutex_t * mutex)
+{
+	int result = 0;
+	old_mutex_t mx;
+	if(mutex == NULL || *mutex == NULL) {
+		return EINVAL;
+	}
+	mx = *mutex;
+	if(mx != (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
+		if(mx->mutex == 0) {
+			LeaveCriticalSection(&mx->cs);
+		}
+		else {
+			result = (ReleaseMutex(mx->mutex) ? 0 : EINVAL);
+		}
+	}
+	else {
+		result = EINVAL;
+	}
+	return(result);
+}
+
+static int old_mutex_trylock(old_mutex_t * mutex)
+{
+	int result = 0;
+	old_mutex_t mx;
+	if(mutex == NULL || *mutex == NULL) {
+		return EINVAL;
+	}
+	if(*mutex == (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
+		/*
+		 * Don't use initialisers when benchtesting.
+		 */
+		result = EINVAL;
+	}
+	mx = *mutex;
+	if(result == 0) {
+		if(mx->mutex == 0) {
+			if(__ptw32_try_enter_critical_section == NULL) {
+				result = 0;
+			}
+			else if((*__ptw32_try_enter_critical_section)(&mx->cs) != TRUE) {
+				result = EBUSY;
+			}
+		}
+		else {
+			DWORD status = WaitForSingleObject(mx->mutex, 0);
+			if(status != WAIT_OBJECT_0) {
+				result = ((status == WAIT_TIMEOUT) ? EBUSY : EINVAL);
+			}
+		}
+	}
+	return(result);
+}
+
+static int old_mutex_destroy(old_mutex_t * mutex)
+{
+	int result = 0;
+	old_mutex_t mx;
+	if(mutex == NULL || *mutex == NULL) {
+		return EINVAL;
+	}
+	if(*mutex != (old_mutex_t)__PTW32_OBJECT_AUTO_INIT) {
+		mx = *mutex;
+		if((result = old_mutex_trylock(&mx)) == 0) {
+			*mutex = NULL;
+			old_mutex_unlock(&mx);
+			if(mx->mutex == 0) {
+				DeleteCriticalSection(&mx->cs);
+			}
+			else {
+				result = (CloseHandle(mx->mutex) ? 0 : EINVAL);
+			}
+			if(result == 0) {
+				mx->mutex = 0;
+				SAlloc::F(mx);
+			}
+			else {
+				*mutex = mx;
+			}
+		}
+	}
+	else {
+		result = EINVAL;
+	}
+	if(__ptw32_try_enter_critical_section != NULL) {
+		FreeLibrary(__ptw32_h_kernel32);
+		__ptw32_h_kernel32 = 0;
+	}
+	return(result);
+}
+//
+//
+//
 #define  __PTW32_MUTEX_TYPES
 #define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 // 
@@ -59,9 +292,7 @@ int PThr4wTest_Benchtest1()
 			assert(pthread_mutexattr_settype(&ma, mType) == 0);
 		#endif
 			assert(pthread_mutex_init(&mx, &ma) == 0);
-			TESTSTART assert((pthread_mutex_lock(&mx), 1) == one);
-			assert((pthread_mutex_unlock(&mx), 2) == two);
-			TESTSTOP assert(pthread_mutex_destroy(&mx) == 0);
+			TESTSTART assert((pthread_mutex_lock(&mx), 1) == one); assert((pthread_mutex_unlock(&mx), 2) == two); TESTSTOP assert(pthread_mutex_destroy(&mx) == 0);
 			durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 			printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 		}
@@ -74,17 +305,13 @@ int PThr4wTest_Benchtest1()
 	printf("\nLock plus unlock on an unlocked mutex.\n%ld iterations\n\n", ITERATIONS);
 	printf("%-45s %15s %15s\n", "Test", "Total(msec)", "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-	/*
-	 * Time the loop overhead so we can subtract it from the actual test times.
-	 */
-	TESTSTART assert(1 == one);
-	assert(2 == two);
-	TESTSTOP
+	// 
+	// Time the loop overhead so we can subtract it from the actual test times.
+	// 
+	TESTSTART assert(1 == one); assert(2 == two); TESTSTOP
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
-	TESTSTART assert((dummy_call(&i), 1) == one);
-	assert((dummy_call(&i), 2) == two);
-	TESTSTOP
+	TESTSTART assert((dummy_call(&i), 1) == one); assert((dummy_call(&i), 2) == two); TESTSTOP
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", "Dummy call x 2", durationMilliSecs, (float)(durationMilliSecs * 1E3 / ITERATIONS));
 	TESTSTART assert((interlocked_inc_with_conditionals(&i), 1) == one);
@@ -109,8 +336,7 @@ int PThr4wTest_Benchtest1()
 	assert(old_mutex_unlock(&ox) == zero);
 	TESTSTOP assert(old_mutex_destroy(&ox) == 0);
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
-	printf("%-45s %15ld %15.3f\n", "Old PT Mutex using a Critical Section (WNT)",
-	    durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
+	printf("%-45s %15ld %15.3f\n", "Old PT Mutex using a Critical Section (WNT)", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	old_mutex_use = OLD_WIN32MUTEX;
 	assert(old_mutex_init(&ox, NULL) == 0);
 	TESTSTART assert(old_mutex_lock(&ox) == zero);
@@ -119,9 +345,9 @@ int PThr4wTest_Benchtest1()
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", "Old PT Mutex using a Win32 Mutex (W9x)", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	printf(".............................................................................\n");
-	/*
-	 * Now we can start the actual tests
-	 */
+	// 
+	// Now we can start the actual tests
+	// 
 #ifdef  __PTW32_MUTEX_TYPES
 	InnerBlock::runTest("PTHREAD_MUTEX_DEFAULT", PTHREAD_MUTEX_DEFAULT);
 	InnerBlock::runTest("PTHREAD_MUTEX_NORMAL", PTHREAD_MUTEX_NORMAL);
@@ -377,23 +603,19 @@ int PThr4wTest_Benchtest3()
 	public:
 		static void * trylockThread(void * arg)
 		{
-			TESTSTART
-				(void) pthread_mutex_trylock(&mx);
-			TESTSTOP
+			TESTSTART pthread_mutex_trylock(&mx); TESTSTOP
 			return NULL;
 		}
 		static void * oldTrylockThread(void * arg)
 		{
-			TESTSTART
-				(void) old_mutex_trylock(&ox);
-			TESTSTOP
+			TESTSTART old_mutex_trylock(&ox); TESTSTOP
 			return NULL;
 		}
 		static void runTest(char * testNameString, int mType)
 		{
 			pthread_t t;
 		#ifdef  __PTW32_MUTEX_TYPES
-			(void)pthread_mutexattr_settype(&ma, mType);
+			pthread_mutexattr_settype(&ma, mType);
 		#endif
 			assert(pthread_mutex_init(&mx, &ma) == 0);
 			assert(pthread_mutex_lock(&mx) == 0);
@@ -412,12 +634,10 @@ int PThr4wTest_Benchtest3()
 	printf("%ld iterations.\n\n", ITERATIONS);
 	printf("%-45s %15s %15s\n", "Test", "Total(msec)", "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-	/*
-	 * Time the loop overhead so we can subtract it from the actual test times.
-	 */
-	TESTSTART
-	TESTSTOP
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	// 
+	// Time the loop overhead so we can subtract it from the actual test times.
+	// 
+	TESTSTART TESTSTOP durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
 	old_mutex_use = OLD_WIN32CS;
 	assert(old_mutex_init(&ox, NULL) == 0);
@@ -493,10 +713,7 @@ int PThr4wTest_Benchtest4()
 			pthread_mutexattr_settype(&ma, mType);
 		#endif
 			pthread_mutex_init(&mx, &ma);
-			TESTSTART
-				(void) pthread_mutex_trylock(&mx);
-			(void)pthread_mutex_unlock(&mx);
-			TESTSTOP pthread_mutex_destroy(&mx);
+			TESTSTART pthread_mutex_trylock(&mx); pthread_mutex_unlock(&mx); TESTSTOP pthread_mutex_destroy(&mx);
 			durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 			printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 		}
@@ -507,33 +724,25 @@ int PThr4wTest_Benchtest4()
 	printf("%ld iterations.\n\n", ITERATIONS);
 	printf("%-45s %15s %15s\n", "Test", "Total(msec)", "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-	/*
-	 * Time the loop overhead so we can subtract it from the actual test times.
-	 */
-	TESTSTART
-	TESTSTOP
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+	// 
+	// Time the loop overhead so we can subtract it from the actual test times.
+	// 
+	TESTSTART TESTSTOP durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
 	old_mutex_use = OLD_WIN32CS;
 	assert(old_mutex_init(&ox, NULL) == 0);
-	TESTSTART
-		(void) old_mutex_trylock(&ox);
-	(void)old_mutex_unlock(&ox);
-	TESTSTOP assert(old_mutex_destroy(&ox) == 0);
+	TESTSTART old_mutex_trylock(&ox); old_mutex_unlock(&ox); TESTSTOP assert(old_mutex_destroy(&ox) == 0);
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", "Old PT Mutex using a Critical Section (WNT)", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	old_mutex_use = OLD_WIN32MUTEX;
 	assert(old_mutex_init(&ox, NULL) == 0);
-	TESTSTART
-		(void) old_mutex_trylock(&ox);
-	(void)old_mutex_unlock(&ox);
-	TESTSTOP assert(old_mutex_destroy(&ox) == 0);
+	TESTSTART old_mutex_trylock(&ox); old_mutex_unlock(&ox); TESTSTOP assert(old_mutex_destroy(&ox) == 0);
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", "Old PT Mutex using a Win32 Mutex (W9x)", durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 	printf(".............................................................................\n");
-	/*
-	 * Now we can start the actual tests
-	 */
+	// 
+	// Now we can start the actual tests
+	// 
 #ifdef  __PTW32_MUTEX_TYPES
 	InnerBlock::runTest("PTHREAD_MUTEX_DEFAULT", PTHREAD_MUTEX_DEFAULT);
 	InnerBlock::runTest("PTHREAD_MUTEX_NORMAL", PTHREAD_MUTEX_NORMAL);
@@ -553,9 +762,9 @@ int PThr4wTest_Benchtest4()
 	InnerBlock::runTest("Non-blocking lock", 0);
 #endif
 	printf("=============================================================================\n");
-	/*
-	 * End of tests.
-	 */
+	// 
+	// End of tests.
+	// 
 	pthread_mutexattr_destroy(&ma);
 	return 0;
 }
@@ -588,16 +797,15 @@ int PThr4wTest_Benchtest5()
 	printf("\nOperations on a semaphore.\n%ld iterations\n\n", ITERATIONS);
 	printf("%-45s %15s %15s\n", "Test", "Total(msec)", "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-	/*
-	 * Time the loop overhead so we can subtract it from the actual test times.
-	 */
-	TESTSTART assert(1 == one);
-	TESTSTOP
+	// 
+	// Time the loop overhead so we can subtract it from the actual test times.
+	// 
+	TESTSTART assert(1 == one); TESTSTOP
     durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
-	/*
-	 * Now we can start the actual tests
-	 */
+	// 
+	// Now we can start the actual tests
+	// 
 	assert((w32sema = CreateSemaphore(NULL, (long)0, (long)ITERATIONS, NULL)) != 0);
 	TESTSTART assert((ReleaseSemaphore(w32sema, 1, NULL), 1) == one);
 	TESTSTOP assert(CloseHandle(w32sema) != 0);
@@ -615,8 +823,8 @@ int PThr4wTest_Benchtest5()
 	TESTSTOP assert(sem_destroy(&sema) == 0);
 	InnerBlock::reportTest("POSIX Wait without blocking");
 	printf("=============================================================================\n");
-	/*
-	 * End of tests.
-	 */
+	// 
+	// End of tests.
+	// 
 	return 0;
 }

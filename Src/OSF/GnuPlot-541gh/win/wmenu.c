@@ -103,7 +103,7 @@ static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM p
 
 static BYTE MacroCommand(TW * lptw, UINT m)
 {
-	BYTE * s = lptw->lpmw->macro[m];
+	BYTE * s = lptw->P_LpMw->macro[m];
 	while(s && *s) {
 		if((*s >= CMDMIN) && (*s <= CMDMAX))
 			return *s;
@@ -116,7 +116,7 @@ static BYTE MacroCommand(TW * lptw, UINT m)
 //
 void SendMacro(TW * lptw, UINT m)
 {
-	MW * lpmw = lptw->lpmw;
+	MW * lpmw = lptw->P_LpMw;
 	BOOL flag = TRUE;
 	int i;
 	LPWSTR buf = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR));
@@ -441,7 +441,7 @@ void LoadMacros(TW * lptw)
 	int ButtonSize = 16;
 	UINT dpi = GetDPI();
 	TBADDBITMAP bitmap = {0};
-	MW * lpmw = lptw->lpmw;
+	MW * lpmw = lptw->P_LpMw;
 	// mark all buffers and menu file as unused 
 	buf = NULL;
 	hmacro = 0;
@@ -751,7 +751,7 @@ cleanup:
 
 void CloseMacros(TW * lptw)
 {
-	MW * lpmw = lptw->lpmw;
+	MW * lpmw = lptw->P_LpMw;
 	HGLOBAL hglobal = (HGLOBAL)GlobalHandle(lpmw->macro);
 	if(hglobal) {
 		GlobalUnlock(hglobal);
@@ -775,7 +775,7 @@ void CloseMacros(TW * lptw)
 INT_PTR CALLBACK InputBoxDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TW * lptw = (TW *)GetWindowLongPtr(GetParent(hDlg), 0);
-	MW * lpmw = lptw->lpmw;
+	MW * lpmw = lptw->P_LpMw;
 	switch(message) {
 		case WM_INITDIALOG:
 		    SetDlgItemTextW(hDlg, ID_PROMPT, lpmw->szPrompt);

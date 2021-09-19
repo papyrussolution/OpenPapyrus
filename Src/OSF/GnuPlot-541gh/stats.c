@@ -145,7 +145,7 @@ static TwoColumnStats analyze_two_columns(double * x, double * y, SglColumnStats
 {
 	TwoColumnStats res;
 	long i;
-	double s = 0;
+	double s = 0.0;
 	double ssyy, ssxx, ssxy;
 	for(i = 0; i<n; i++) {
 		s += x[i] * y[i];

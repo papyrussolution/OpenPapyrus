@@ -93,8 +93,8 @@ void CloseMacros(TW * lptw);
 #endif
 
 /* wprinter.c - Printer setup and dump */
-extern HGLOBAL hDevNames;
-extern HGLOBAL hDevMode;
+//extern HGLOBAL hDevNames;
+//extern HGLOBAL hDevMode;
 
 void PrintingCleanup();
 void * PrintingCallbackCreate(GP_PRINT * lpr);

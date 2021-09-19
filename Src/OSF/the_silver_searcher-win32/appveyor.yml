@@ -1,0 +1,58 @@
+version: "1.0.{build}"
+
+environment:
+  global:
+    DEPLOY_USER_NAME: 'ag-win32 CI'
+    DEPLOY_USER_EMAIL: 'k-takata@users.noreply.github.com'
+    CI_KEY:
+      secure: tKQqD1VjZhwScTAeX7yLT5rWJleMtcFXpFE3fhZjg5Sj8Np01+Ixc38rAKK309jw
+
+  matrix:
+    - compiler: msys2
+      ARCH: x64
+      MSYS2_ARCH: x86_64
+      MSYS2_DIR: msys64
+      MSYSTEM: MINGW64
+    - compiler: msys2
+      ARCH: x86
+      MSYS2_ARCH: i686
+      MSYS2_DIR: msys64
+      MSYSTEM: MINGW32
+
+matrix:
+  fast_finish: true
+
+build_script:
+  - '%APPVEYOR_BUILD_FOLDER%\scripts\appveyor.bat build'
+
+after_build:
+  - '%APPVEYOR_BUILD_FOLDER%\scripts\appveyor.bat package'
+
+test_script:
+  - '%APPVEYOR_BUILD_FOLDER%\scripts\appveyor.bat test'
+
+
+artifacts:
+  - path: ag\ag-*.zip
+
+
+before_deploy:
+  - for /f "delims=" %%i in (%APPVEYOR_BUILD_FOLDER%\gitlog.txt) do set GITLOG=%%i
+
+deploy:
+  - provider: GitHub
+    description: |
+      The silver searcher Win32 unofficial daily builds.
+
+      ### Changes:
+
+      $(GITLOG)
+
+    auth_token:
+      secure: iQ9mJz+iGRN80TcqCyoPU43RrE6a86cK7YKDYLV1IsHebSvubmQIKUTxciYemg0Q
+    artifact: /ag/
+    prerelease: true
+    on:
+      appveyor_repo_tag: true
+
+# vim: ts=2 sw=2 et

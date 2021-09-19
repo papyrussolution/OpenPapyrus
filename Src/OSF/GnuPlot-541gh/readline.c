@@ -209,8 +209,8 @@ static int ansi_getc(GpTermEntry * pTerm);
 		// The wgnuplot text window will suppress intermediate
 		// screen updates in 'suspend' mode and only redraw the
 	    // input line after 'resume'. 
-		#define SUSPENDOUTPUT TextSuspend(&_WinM.textwin)
-		#define RESUMEOUTPUT  TextResume(&_WinM.textwin)
+		#define SUSPENDOUTPUT TextSuspend(&_WinM.TxtWin)
+		#define RESUMEOUTPUT  TextResume(&_WinM.TxtWin)
 		#define special_getc(t) MsDosGetch(t)
 		//static int msdos_getch();
 	#endif /* WGP_CONSOLE */
@@ -247,11 +247,11 @@ static int user_putc(int ch)
 {
 	int rv;
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&_WinM.textwin, TEXTUSER);
+	TextAttr(&_WinM.TxtWin, TEXTUSER);
 #endif
 	rv = fputc(ch, stderr);
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&_WinM.textwin, TEXTGNUPLOT);
+	TextAttr(&_WinM.TxtWin, TEXTGNUPLOT);
 #endif
 	return rv;
 }
@@ -260,11 +260,11 @@ static int user_puts(const char * str)
 {
 	int rv;
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&_WinM.textwin, TEXTUSER);
+	TextAttr(&_WinM.TxtWin, TEXTUSER);
 #endif
 	rv = fputs(str, stderr);
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&_WinM.textwin, TEXTGNUPLOT);
+	TextAttr(&_WinM.TxtWin, TEXTGNUPLOT);
 #endif
 	return rv;
 }

@@ -1,9 +1,5 @@
 /*
  * Test for pthread_exit().
- *
- *
- * --------------------------------------------------------------------------
- *
  *      Pthreads4w - POSIX Threads for Windows
  *      Copyright 1998 John E. Bossom
  *      Copyright 1999-2018, Pthreads4w contributors
@@ -269,7 +265,7 @@ int PThr4wTest_Exit6()
 	public:
 		static unsigned __stdcall start_routine(void * arg)
 		{
-			int * val = (int*)malloc(4);
+			int * val = (int *)SAlloc::M(4);
 			where = 2;
 			//printf("start_routine: native thread\n");
 			*val = 48;
@@ -283,7 +279,7 @@ int PThr4wTest_Exit6()
 				printf("Library has thread exit POSIX cleanup for native threads.\n");
 			else
 				printf("Library has process exit POSIX cleanup for native threads.\n");
-			free(arg);
+			SAlloc::F(arg);
 		}
 	};
 	HANDLE hthread;

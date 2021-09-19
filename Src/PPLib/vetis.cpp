@@ -8,6 +8,8 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
+#define FOREACHXMLCHILD(_parent_, _node_) for(const xmlNode * _node_ = (_parent_) ? (_parent_)->children : 0; _node_; _node_ = _node_->next)
+
 // ModifyActivityLocationsOperation
 // ResolveDiscrepancyOperation
 // RegisterProductionOperation
@@ -3469,37 +3471,37 @@ private:
 	int    MakeAuthField(SString & rBuf);
 	int    ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
 	int    ParseError(const xmlNode * pNode, VetisErrorEntry & rResult);
-	int    ParseFault(xmlNode * pParentNode, VetisFault & rResult);
-	int    ParseDocument(xmlNode * pParentNode, VetisDocument & rResult);
-	int    ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult);
-	int    ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult);
-	int    ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult);
-	int    ParseCountry(xmlNode * pParentNode, VetisCountry & rResult);
-	int    ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult);
-	int    ParseAddress(xmlNode * pParentNode, VetisAddress & rResult);
-	int    ParseLocation(xmlNode * pParentNode, VetisLocation & rResult);
-	int    ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult);
-	int    ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult);
-	int    ParseProducer(xmlNode * pParentNode, VetisProducer & rResult);
-	int    ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult);
-	int    ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult);
-	int    ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult);
-	int    ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult);
-	int    ParseBatch(xmlNode * pParentNode, VetisBatch & rResult);
-	int    ParseProduct(xmlNode * pParentNode, VetisProduct & rResult);
-	int    ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult);
-	int    ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult);
-	int    ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult);
-	int    ParsePackage(xmlNode * pParentNode, VetisPackage & rResult);
-	int    ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult);
-	int    ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult);
-	int    ParseUnit(xmlNode * pParentNode, VetisUnit & rResult);
-	int    ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult);
+	int    ParseFault(const xmlNode * pParentNode, VetisFault & rResult);
+	int    ParseDocument(const xmlNode * pParentNode, VetisDocument & rResult);
+	int    ParseVetDocument(const xmlNode * pParentNode, VetisVetDocument * pResult);
+	int    ParseCertifiedConsignment(const xmlNode * pParentNode, VetisCertifiedConsignment & rResult);
+	int    ParseLocality(const xmlNode * pParentNode, VetisAddress::VetisLocality & rResult);
+	int    ParseCountry(const xmlNode * pParentNode, VetisCountry & rResult);
+	int    ParseRegion(const xmlNode * pParentNode, VetisAddressObjectView & rResult);
+	int    ParseAddress(const xmlNode * pParentNode, VetisAddress & rResult);
+	int    ParseLocation(const xmlNode * pParentNode, VetisLocation & rResult);
+	int    ParseBusinessMember(const xmlNode * pParentNode, VetisBusinessMember & rResult);
+	int    ParseEnterprise(const xmlNode * pParentNode, VetisEnterprise * pResult);
+	int    ParseProducer(const xmlNode * pParentNode, VetisProducer & rResult);
+	int    ParseBusinessEntity(const xmlNode * pParentNode, VetisBusinessEntity & rResult);
+	int    ParseGenericVersioningEntity(const xmlNode * pParentNode, VetisGenericVersioningEntity & rResult);
+	int    ParseNamedGenericVersioningEntity(const xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult);
+	int    ParseCertifiedBatch(const xmlNode * pParentNode, VetisCertifiedBatch & rResult);
+	int    ParseBatch(const xmlNode * pParentNode, VetisBatch & rResult);
+	int    ParseProduct(const xmlNode * pParentNode, VetisProduct & rResult);
+	int    ParseSubProduct(const xmlNode * pParentNode, VetisSubProduct & rResult);
+	int    ParseProductItem(const xmlNode * pParentNode, VetisProductItem * pResult);
+	int    ParsePackingType(const xmlNode * pParentNode, VetisPackingType & rResult);
+	int    ParsePackage(const xmlNode * pParentNode, VetisPackage & rResult);
+	int    ParseComplexDate(const xmlNode * pParentNode, SUniTime & rResult);
+	int    ParseGoodsDate(const xmlNode * pParentNode, VetisGoodsDate & rResult);
+	int    ParseUnit(const xmlNode * pParentNode, VetisUnit & rResult);
+	int    ParseTransportInfo(const xmlNode * pParentNode, VetisTransportInfo & rResult);
 	void   ParseListResult(const xmlNode * pNode, VetisApplicationBlock::ReplyListValues & rResult);
 	void   PutListAttributes(SXml::WNode & rN, long count, long offset, long total);
 	void   PutListOptionsParam(xmlTextWriter * pWriter, uint offs, uint count);
 	int    PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt);
-	int    ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult);
+	int    ParseStockEntry(const xmlNode * pParentNode, VetisStockEntry * pResult);
 	int    Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags);
 	int    SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest);
 	int    PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq);
@@ -3750,14 +3752,14 @@ int PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & rResul
 	return ok;
 }
 
-int PPVetisInterface::ParseFault(xmlNode * pParentNode, VetisFault & rResult)
+int PPVetisInterface::ParseFault(const xmlNode * pParentNode, VetisFault & rResult)
 {
 	int    ok = 1;
 	if(pParentNode) {
 		SString temp_buf;
 		VetisErrorEntry err;
 		VetisErrorEntry single_err;
-		for(xmlNode * p_i2 = pParentNode->children; p_i2; p_i2 = p_i2->next) {
+		for(const xmlNode * p_i2 = pParentNode->children; p_i2; p_i2 = p_i2->next) {
 			if(SXml::GetContentByName(p_i2, "message", temp_buf))
 				rResult.Message = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			else if(SXml::GetContentByName(p_i2, "errorCode", temp_buf))
@@ -3853,11 +3855,11 @@ static const SIntToSymbTabEntry VetisRegisterModificationType_SymbTab[] = {
 	{ vetisrmtFORK, "FORK" }
 };
 
-int PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
+int PPVetisInterface::ParseGenericVersioningEntity(const xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "uuid", temp_buf))
 			rResult.Uuid.FromStr(temp_buf);
 		else if(SXml::GetContentByName(p_a, "guid", temp_buf))
@@ -3882,36 +3884,36 @@ int PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisG
 	return ok;
 }
 
-int PPVetisInterface::ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult)
+int PPVetisInterface::ParseNamedGenericVersioningEntity(const xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "name", temp_buf))
 			rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 	}
 	return ok;
 }
 
-int PPVetisInterface::ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult)
+int PPVetisInterface::ParsePackingType(const xmlNode * pParentNode, VetisPackingType & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "globalID", temp_buf))
 			rResult.GlobalID = temp_buf;
 	}
 	return ok;
 }
 
-int PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & rResult)
+int PPVetisInterface::ParsePackage(const xmlNode * pParentNode, VetisPackage & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	SString attr_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "level", temp_buf)) {
 			rResult.Level = temp_buf.ToLong();
 		}
@@ -3935,11 +3937,11 @@ int PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & rResult
 	return ok;
 }
 
-int PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult)
+int PPVetisInterface::ParseLocality(const xmlNode * pParentNode, VetisAddress::VetisLocality & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "regionGUID", temp_buf))
 			rResult.RegionGUID.FromStr(temp_buf);
 		else if(SXml::GetContentByName(p_a, "districtGUID", temp_buf))
@@ -3950,12 +3952,12 @@ int PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLo
 	return ok;
 }
 
-int PPVetisInterface::ParseCountry(xmlNode * pParentNode, VetisCountry & rResult)
+int PPVetisInterface::ParseCountry(const xmlNode * pParentNode, VetisCountry & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "fullName", temp_buf))
 			rResult.FullName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::GetContentByName(p_a, "englishName", temp_buf))
@@ -3968,13 +3970,13 @@ int PPVetisInterface::ParseCountry(xmlNode * pParentNode, VetisCountry & rResult
 	return ok;
 }
 
-int PPVetisInterface::ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult)
+int PPVetisInterface::ParseRegion(const xmlNode * pParentNode, VetisAddressObjectView & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	rResult.Flags &= ~rResult.fHasStreets;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "englishName", temp_buf))
 			rResult.EnglishName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::GetContentByName(p_a, "view", temp_buf))
@@ -3991,11 +3993,11 @@ int PPVetisInterface::ParseRegion(xmlNode * pParentNode, VetisAddressObjectView 
 	return ok;
 }
 
-int PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & rResult)
+int PPVetisInterface::ParseAddress(const xmlNode * pParentNode, VetisAddress & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::IsName(p_a, "country")) {
 		}
 		else if(SXml::IsName(p_a, "region")) {
@@ -4016,28 +4018,26 @@ int PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & rResult
 	return ok;
 }
 
-int PPVetisInterface::ParseLocation(xmlNode * pParentNode, VetisLocation & rResult)
+int PPVetisInterface::ParseLocation(const xmlNode * pParentNode, VetisLocation & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
-		if(SXml::GetContentByName(p_a, "name", temp_buf)) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
+		if(SXml::GetContentByName(p_a, "name", temp_buf))
 			rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		}
-		else if(SXml::IsName(p_a, "address")) {
+		else if(SXml::IsName(p_a, "address"))
 			ParseAddress(p_a, rResult.Address);
-		}
 	}
 	return ok;
 }
 
-int PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult)
+int PPVetisInterface::ParseEnterprise(const xmlNode * pParentNode, VetisEnterprise * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	THROW_MEM(pResult);
 	ParseNamedGenericVersioningEntity(pParentNode, *pResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "type", temp_buf)) {
 		}
 		else if(SXml::IsName(p_a, "address")) {
@@ -4050,11 +4050,11 @@ int PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * p
 	return ok;
 }
 
-int PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer & rResult)
+int PPVetisInterface::ParseProducer(const xmlNode * pParentNode, VetisProducer & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::IsName(p_a, "enterprise")) {
 			ParseEnterprise(p_a, &rResult);
 		}
@@ -4068,13 +4068,13 @@ int PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer & rResu
 	return ok;
 }
 
-int PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult)
+int PPVetisInterface::ParseBusinessEntity(const xmlNode * pParentNode, VetisBusinessEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	SString firm_name;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "fio", temp_buf)) {
 			rResult.Fio = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
@@ -4108,10 +4108,10 @@ int PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEn
 	return ok;
 }
 
-int PPVetisInterface::ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult)
+int PPVetisInterface::ParseBusinessMember(const xmlNode * pParentNode, VetisBusinessMember & rResult)
 {
 	int    ok = 1;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::IsName(p_a, "businessEntity"))
 			ParseBusinessEntity(p_a, rResult.BusinessEntity);
 		else if(SXml::IsName(p_a, "enterprise"))
@@ -4120,12 +4120,12 @@ int PPVetisInterface::ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMe
 	return ok;
 }
 
-int PPVetisInterface::ParseProduct(xmlNode * pParentNode, VetisProduct & rResult)
+int PPVetisInterface::ParseProduct(const xmlNode * pParentNode, VetisProduct & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "productType", temp_buf))
 			rResult.ProductType = temp_buf.ToLong();
 		else if(SXml::GetContentByName(p_a, "code", temp_buf))
@@ -4134,12 +4134,12 @@ int PPVetisInterface::ParseProduct(xmlNode * pParentNode, VetisProduct & rResult
 	return ok;
 }
 
-int PPVetisInterface::ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult)
+int PPVetisInterface::ParseSubProduct(const xmlNode * pParentNode, VetisSubProduct & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "code", temp_buf))
 			rResult.Code = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		else if(SXml::GetContentByName(p_a, "productGuid", temp_buf))
@@ -4148,13 +4148,13 @@ int PPVetisInterface::ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & r
 	return ok;
 }
 
-int PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult)
+int PPVetisInterface::ParseProductItem(const xmlNode * pParentNode, VetisProductItem * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	THROW_MEM(pResult);
 	ParseNamedGenericVersioningEntity(pParentNode, *pResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "correspondsToGost", temp_buf)) {
 			SETFLAG(pResult->Flags, VetisProductItem::fCorrespondsToGost, temp_buf.IsEqiAscii("true"));
 		}
@@ -4172,7 +4172,7 @@ int PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProductItem *
 			THROW(ParseBusinessEntity(p_a, pResult->Producer));
 		}
 		else if(SXml::GetContentByName(p_a, "producing", temp_buf)) {
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "location")) {
 					ParseEnterprise(p_p, pResult->Producing.CreateNewItem());
 				}
@@ -4191,12 +4191,12 @@ int PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProductItem *
 	return ok;
 }
 
-int PPVetisInterface::ParseUnit(xmlNode * pParentNode, VetisUnit & rResult)
+int PPVetisInterface::ParseUnit(const xmlNode * pParentNode, VetisUnit & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	ParseNamedGenericVersioningEntity(pParentNode, rResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "commonUnitGuid", temp_buf)) {
 			rResult.CommonUnitGuid.FromStr(temp_buf);
 		}
@@ -4207,7 +4207,7 @@ int PPVetisInterface::ParseUnit(xmlNode * pParentNode, VetisUnit & rResult)
 	return ok;
 }
 
-int PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult)
+int PPVetisInterface::ParseComplexDate(const xmlNode * pParentNode, SUniTime & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -4216,7 +4216,7 @@ int PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult
 	int    day = 0;
 	int    hour = -1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "year", temp_buf))
 			year = temp_buf.ToLong();
 		else if(SXml::GetContentByName(p_a, "month", temp_buf))
@@ -4247,10 +4247,10 @@ int PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult
 	return ok;
 }
 
-int PPVetisInterface::ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult)
+int PPVetisInterface::ParseGoodsDate(const xmlNode * pParentNode, VetisGoodsDate & rResult)
 {
 	int    ok = 1;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::IsName(p_a, "firstDate"))
 			ParseComplexDate(p_a, rResult.FirstDate);
 		else if(SXml::IsName(p_a, "secondDate"))
@@ -4259,7 +4259,7 @@ int PPVetisInterface::ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rRe
 	return ok;
 }
 
-int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
+int PPVetisInterface::ParseBatch(const xmlNode * pParentNode, VetisBatch & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4267,7 +4267,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 	STokenRecognizer tr;
 	SNaturalTokenArray nta;
 	rResult.Flags &= ~rResult.fPerishable;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "productType", temp_buf))
 			rResult.ProductType = temp_buf.ToLong();
 		else if(SXml::IsName(p_a, "product"))
@@ -4301,7 +4301,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 		else if(SXml::IsName(p_a, "countryOfOrigin"))
 			ParseCountry(p_a, rResult.Origin.Country);
 		else if(SXml::IsName(p_a, "origin")) { // @v10.5.4 BatchOrigin
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "country")) {
 					ParseCountry(p_p, rResult.Origin.Country);
 				}
@@ -4313,7 +4313,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 			}
 		}
 		else if(SXml::IsName(p_a, "packageList")) { // @v10.4.0
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "package")) {
 					VetisPackage * p_new_package = rResult.PackageList.CreateNewItem();
 					THROW_SL(p_new_package);
@@ -4322,7 +4322,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 			}
 		}
 		else if(SXml::IsName(p_a, "packingList")) {
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "packingForm")) {
 					VetisNamedGenericVersioningEntity * p_new_pf = rResult.PackingList.CreateNewItem();
 					THROW_SL(p_new_pf);
@@ -4331,7 +4331,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 			}
 		}
 		else if(SXml::IsName(p_a, "producerList")) {
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "producer")) {
 					VetisProducer * p_new_p = rResult.Origin.Producer.CreateNewItem();
 					THROW_SL(p_new_p);
@@ -4346,7 +4346,7 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 					<ns2:productMarking class="BN">X167</ns2:productMarking>
 				</ns2:productMarkingList>
 			*/
-			for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
+			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::GetContentByName(p_p, "productMarking", temp_buf)) {
 					if(temp_buf.NotEmptyS()) {
 						VetisProductMarks * p_new_mark = rResult.ProductMarkingList.CreateNewItem();
@@ -4370,16 +4370,16 @@ int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 	return ok;
 }
 
-int PPVetisInterface::ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult)
+int PPVetisInterface::ParseTransportInfo(const xmlNode * pParentNode, VetisTransportInfo & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "transportType", temp_buf)) {
 			rResult.TransportType = temp_buf.ToLong();
 		}
 		else if(SXml::IsName(p_a, "transportNumber")) {
-			for(xmlNode * p_tn = p_a->children; p_tn; p_tn = p_tn->next) {
+			for(const xmlNode * p_tn = p_a->children; p_tn; p_tn = p_tn->next) {
 				if(SXml::GetContentByName(p_tn, "vehicleNumber", temp_buf))
 					rResult.TransportNumber.VehicleNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER).Strip();
 				else if(SXml::GetContentByName(p_tn, "trailerNumber", temp_buf))
@@ -4398,26 +4398,24 @@ int PPVetisInterface::ParseTransportInfo(xmlNode * pParentNode, VetisTransportIn
 	return ok;
 }
 
-int PPVetisInterface::ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult)
+int PPVetisInterface::ParseCertifiedBatch(const xmlNode * pParentNode, VetisCertifiedBatch & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
-		if(SXml::IsName(p_a, "producer")) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
+		if(SXml::IsName(p_a, "producer"))
 			ParseBusinessMember(p_a, rResult.Producer);
-		}
-		else if(SXml::IsName(p_a, "batch")) {
+		else if(SXml::IsName(p_a, "batch"))
 			ParseBatch(p_a, rResult);
-		}
 	}
 	return ok;
 }
 
-int PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult)
+int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, VetisCertifiedConsignment & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		int    r = 1;
 		if(SXml::IsName(p_a, "consignor"))
 			r = ParseBusinessMember(p_a, rResult.Consignor);
@@ -4433,16 +4431,22 @@ int PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCert
 			rResult.TransportStorageType = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
 		// @v10.5.4 {
 		else if(SXml::IsName(p_a, "cargoReloadingPointList")) {
-			for(xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
+			for(const xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
 				if(SXml::IsName(p_b, "cargoReloadingPoint")) {
 					VetisCargoReloadingPoint * p_new_point = rResult.CargoReloadingPointList.CreateNewItem();
 					THROW_SL(p_new_point);
-					for(xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
+					for(const xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
 						if(SXml::GetContentByName(p_c, "name", temp_buf)) {
 							p_new_point->Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						}
 						else if(SXml::IsName(p_c, "nextTransport")) {
 							THROW(ParseTransportInfo(p_c, p_new_point->NextTransport));
+							// @v11.1.11 { (может случиться, что NextTransport заявлен, но номера не определены - тогда наследуем из основной записи)
+							if(p_new_point->NextTransport.TransportType == rResult.TransportInfo.TransportType) {
+								if(p_new_point->NextTransport.TransportNumber.IsEmpty())
+									p_new_point->NextTransport.TransportNumber = rResult.TransportInfo.TransportNumber;
+							}
+							// } @v11.1.11 
 						}
 					}
 				}
@@ -4450,11 +4454,11 @@ int PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCert
 		}
 		// } @v10.5.4
 		else if(SXml::IsName(p_a, "shipmentRoute")) {
-			for(xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
+			for(const xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
 				if(SXml::IsName(p_b, "routePoint")) {
 					VetisShipmentRoutePoint * p_new_point = rResult.RoutePointList.CreateNewItem();
 					if(p_new_point) {
-						for(xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
+						for(const xmlNode * p_c = p_b ? p_b->children : 0; p_c; p_c = p_c->next) {
 							if(SXml::GetContentByName(p_c, "uuid", temp_buf))
 								p_new_point->Uuid.FromStr(temp_buf);
 							else if(SXml::GetContentByName(p_c, "sqnId", temp_buf))
@@ -4488,11 +4492,11 @@ int PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCert
 	return ok;
 }
 
-int PPVetisInterface::ParseDocument(xmlNode * pParentNode, VetisDocument & rResult)
+int PPVetisInterface::ParseDocument(const xmlNode * pParentNode, VetisDocument & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "uuid", temp_buf))
 			rResult.Uuid.FromStr(temp_buf);
 		else if(SXml::GetContentByName(p_a, "name", temp_buf))
@@ -4513,13 +4517,13 @@ int PPVetisInterface::ParseDocument(xmlNode * pParentNode, VetisDocument & rResu
 	return ok;
 }
 
-int PPVetisInterface::ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult)
+int PPVetisInterface::ParseStockEntry(const xmlNode * pParentNode, VetisStockEntry * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
 	THROW_MEM(pResult);
 	ParseGenericVersioningEntity(pParentNode, *pResult);
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "entryNumber", temp_buf)) { pResult->EntryNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); }
 		else if(SXml::IsName(p_a, "batch")) { THROW(ParseBatch(p_a, pResult->Batch)); }
 		else if(SXml::IsName(p_a, "vetDocument")) { THROW(ParseVetDocument(p_a, pResult->VetDocumentList.CreateNewItem())); }
@@ -4528,7 +4532,7 @@ int PPVetisInterface::ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * p
 	return ok;
 }
 
-int PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult)
+int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocument * pResult)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4537,7 +4541,7 @@ int PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocument *
 	VetisCertifiedConsignment & r_crtc = pResult->CertifiedConsignment;
 	THROW(ParseDocument(pParentNode, *pResult));
 	THROW(ParseCertifiedConsignment(pParentNode, r_crtc));
-	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
+	FOREACHXMLCHILD(pParentNode, p_a) {
 		if(SXml::GetContentByName(p_a, "form", temp_buf) || SXml::GetContentByName(p_a, "vetDForm", temp_buf))
 			pResult->VetDForm = SIntToSymbTab_GetId(VetisVetDocFormat_SymbTab, SIZEOFARRAY(VetisVetDocFormat_SymbTab), temp_buf);
 		else if(SXml::GetContentByName(p_a, "type", temp_buf) || SXml::GetContentByName(p_a, "vetDType", temp_buf))
@@ -4572,7 +4576,7 @@ int PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocument *
 		else if(SXml::IsName(p_a, "referencedDocument")) { // ver2
 			VetisVetDocument::ReferencedDocument * p_rd = pResult->ReferencedDocumentList.CreateNewItem();
 			if(p_rd) {
-				for(xmlNode * p_c = p_a ? p_a->children : 0; p_c; p_c = p_c->next) {
+				for(const xmlNode * p_c = p_a ? p_a->children : 0; p_c; p_c = p_c->next) {
 					if(SXml::GetContentByName(p_c, "issueSeries", temp_buf))           { p_rd->IssueSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); }
 					else if(SXml::GetContentByName(p_c, "issueNumber", temp_buf))      { p_rd->IssueNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); }
 					else if(SXml::GetContentByName(p_c, "issueDate", temp_buf))        { p_rd->IssueDate = strtodate_(temp_buf, DATF_ISO8601); }
@@ -4668,13 +4672,13 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 	THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, rReply, rReply.Len(), 0, 0, XML_PARSE_NOENT), p_ctx);
 	THROW(p_root = xmlDocGetRootElement(p_doc));
 	if(SXml::IsName(p_root, "Envelope")) {
-		for(xmlNode * p_env = p_root->children; p_env; p_env = p_env->next) {
+		for(const xmlNode * p_env = p_root->children; p_env; p_env = p_env->next) {
 			if(SXml::IsName(p_env, "Body")) {
-				for(xmlNode * p_b = p_env->children; p_b; p_b = p_b->next) {
+				for(const xmlNode * p_b = p_env->children; p_b; p_b = p_b->next) {
 					if(SXml::IsName(p_b, "receiveApplicationResultResponse") || SXml::IsName(p_b, "submitApplicationResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "application")) {
-								for(xmlNode * p_a = p_i ? p_i->children : 0; p_a; p_a = p_a->next) {
+								for(const xmlNode * p_a = p_i ? p_i->children : 0; p_a; p_a = p_a->next) {
 									if(SXml::GetContentByName(p_a, "applicationId", temp_buf))
 										rResult.ApplicationId.FromStr(temp_buf);
 									else if(SXml::GetContentByName(p_a, "status", temp_buf))
@@ -4690,19 +4694,19 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 									else if(SXml::GetContentByName(p_a, "prdcRsltDate", temp_buf))
 										strtodatetime(temp_buf, &rResult.PrdcRsltDate, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::IsName(p_a, "result")) {
-										for(xmlNode * p_r = p_a->children; p_r; p_r = p_r->next) {
+										for(const xmlNode * p_r = p_a->children; p_r; p_r = p_r->next) {
 											if(SXml::IsName(p_r, "checkShipmentRegionalizationResponse")) { // @v11.0.11
-												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "r13nRouteSection")) {
 														VetisRouteSectionR13nRules * p_r13rules = rResult.R13RulesList.CreateNewItem();
 														THROW_SL(p_r13rules);
-														for(xmlNode * p_rs = p_l->children; p_rs; p_rs = p_rs->next) {
+														for(const xmlNode * p_rs = p_l->children; p_rs; p_rs = p_rs->next) {
 															if(SXml::GetContentByName(p_rs, "sqnId", temp_buf)) {
 																p_r13rules->SqnId = temp_buf.ToLong();
 															}
 															else if(SXml::IsName(p_rs, "appliedR13nRule")) {
 																VetisRegionalizationShippingRule * p_rule = p_r13rules->RuleList.CreateNewItem();
-																for(xmlNode * p_rn = p_rs->children; p_rn; p_rn = p_rn->next) {
+																for(const xmlNode * p_rn = p_rs->children; p_rn; p_rn = p_rn->next) {
 																	if(SXml::IsName(p_rn, "cargoType")) {
 																		VetisSubProduct * p_sp = p_rule->CargoTypeList.CreateNewItem();
 																		THROW_SL(p_sp);
@@ -4714,7 +4718,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 																	else if(SXml::IsName(p_rn, "requirement")) {
 																		VetisRegionalizationRequirement * p_req = p_rule->ReqList.CreateNewItem();
 																		THROW_SL(p_req);
-																		for(xmlNode * p_reqn = p_rn->children; p_reqn; p_reqn = p_reqn->next) {
+																		for(const xmlNode * p_reqn = p_rn->children; p_reqn; p_reqn = p_reqn->next) {
 																			if(SXml::IsName(p_reqn, "relatedDisease")) {
 																				ParseNamedGenericVersioningEntity(p_reqn, p_req->AnimalDisease);
 																			}
@@ -4723,12 +4727,12 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 																			}
 																			else if(SXml::IsName(p_reqn, "conditionGroup")) {
 																				TSCollection <VetisRegionalizationCondition> * p_cndgrp = &p_req->ConditionGroup;
-																				for(xmlNode * p_cg = p_reqn->children; p_cg; p_cg = p_cg->next) {
+																				for(const xmlNode * p_cg = p_reqn->children; p_cg; p_cg = p_cg->next) {
 																					if(SXml::IsName(p_cg, "condition")) {
 																						VetisRegionalizationCondition * p_condition = p_cndgrp->CreateNewItem();
 																						THROW_SL(p_condition);
 																						ParseGenericVersioningEntity(p_cg, *p_condition);
-																						for(xmlNode * p_cnd = p_cg->children; p_cnd; p_cnd = p_cnd->next) {
+																						for(const xmlNode * p_cnd = p_cg->children; p_cnd; p_cnd = p_cnd->next) {
 																							if(SXml::GetContentByName(p_cnd, "referenceNumber", temp_buf)) {
 																								p_condition->RefNumber = temp_buf;
 																							}
@@ -4757,7 +4761,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "processIncomingConsignmentResponse")) { // @v10.5.6
-												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "vetDocument")) {
 														THROW(ParseVetDocument(p_l, rResult.VetDocList.CreateNewItem()));
 													}
@@ -4767,10 +4771,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "registerProductionOperationResponse")) { // @v10.6.10 
-												for(xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
+												for(const xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
-														for(xmlNode * p_pr = p_si->children; p_pr; p_pr = p_pr->next) {
+														for(const xmlNode * p_pr = p_si->children; p_pr; p_pr = p_pr->next) {
 															if(SXml::IsName(p_pr, "stockEntry")) {
 																THROW(ParseStockEntry(p_pr, rResult.VetStockList.CreateNewItem()));
 															}
@@ -4782,17 +4786,17 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "getStockEntryByUuidResponse") || SXml::IsName(p_r, "getStockEntryByGuidResponse")) {
-												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "stockEntry")) {
 														THROW(ParseStockEntry(p_l, rResult.VetStockList.CreateNewItem()));
 													}
 												}
 											}
 											else if(SXml::IsName(p_r, "getVetDocumentListResponse") || SXml::IsName(p_r, "getVetDocumentChangesListResponse")) {
-												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "vetDocumentList")) {
 														ParseListResult(p_l, rResult.ListResult);
-														for(xmlNode * p_doci = p_l->children; p_doci; p_doci = p_doci->next) {
+														for(const xmlNode * p_doci = p_l->children; p_doci; p_doci = p_doci->next) {
 															if(SXml::IsName(p_doci, "vetDocument")) {
 																THROW(ParseVetDocument(p_doci, rResult.VetDocList.CreateNewItem()));
 															}
@@ -4801,10 +4805,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "modifyProducerStockListResponse")) { // @v10.5.2
-												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "productItemList")) {
 														ParseListResult(p_l, rResult.ListResult);
-														for(xmlNode * p_li = p_l->children; p_li; p_li = p_li->next) {
+														for(const xmlNode * p_li = p_l->children; p_li; p_li = p_li->next) {
 															if(SXml::IsName(p_li, "productItem")) {
 																THROW(ParseProductItem(p_li, rResult.ProductItemList.CreateNewItem()));
 															}
@@ -4813,7 +4817,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "getVetDocumentByUuidResponse")) {
-												for(xmlNode * p_doci = p_r->children; p_doci; p_doci = p_doci->next) {
+												for(const xmlNode * p_doci = p_r->children; p_doci; p_doci = p_doci->next) {
 													if(SXml::IsName(p_doci, "vetDocument")) {
 														THROW(ParseVetDocument(p_doci, rResult.VetDocList.CreateNewItem()));
 													}
@@ -4821,10 +4825,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 											}
 											else if(SXml::IsName(p_r, "getStockEntryListResponse") || SXml::IsName(p_r, "getStockEntryChangesListResponse") ||
 												SXml::IsName(p_r, "resolveDiscrepancyResponse")) { // @v10.5.11 resolveDiscrepancyResponse
-												for(xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
+												for(const xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
-														for(xmlNode * p_pr = p_si->children; p_pr; p_pr = p_pr->next) {
+														for(const xmlNode * p_pr = p_si->children; p_pr; p_pr = p_pr->next) {
 															if(SXml::IsName(p_pr, "stockEntry")) {
 																THROW(ParseStockEntry(p_pr, rResult.VetStockList.CreateNewItem()));
 															}
@@ -4833,7 +4837,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "prepareOutcomingConsignmentResponse") || SXml::IsName(p_r, "prepareOutgoingConsignmentResponse")) {
-												for(xmlNode * p_r2 = p_r->children; p_r2; p_r2 = p_r2->next) {
+												for(const xmlNode * p_r2 = p_r->children; p_r2; p_r2 = p_r2->next) {
 													if(SXml::IsName(p_r2, "stockEntry")) {
 														THROW(ParseStockEntry(p_r2, rResult.VetStockList.CreateNewItem()));
 													}
@@ -4843,7 +4847,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "modifyEnterpriseResponse")) {
-												for(xmlNode * p_r2 = p_r->children; p_r2; p_r2 = p_r2->next) {
+												for(const xmlNode * p_r2 = p_r->children; p_r2; p_r2 = p_r2->next) {
 													if(SXml::IsName(p_r2, "enterprise")) {
 														THROW(ParseEnterprise(p_r2, rResult.EntItemList.CreateNewItem()));
 													}
@@ -4852,7 +4856,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 										}
 									}
 									else if(SXml::IsName(p_a, "errors")) {
-										for(xmlNode * p_nerr = p_a->children; p_nerr; p_nerr = p_nerr->next) {
+										for(const xmlNode * p_nerr = p_a->children; p_nerr; p_nerr = p_nerr->next) {
 											if(SXml::GetContentByName(p_nerr, "error", temp_buf)) {
 												VetisErrorEntry * p_err = rResult.ErrList.CreateNewItem();
 												THROW_SL(p_err);
@@ -4867,10 +4871,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getProductChangesListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "productList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "product")) {
 										VetisProduct * p_new_item = rResult.ProductList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -4881,7 +4885,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getProductByGuidResponse")) {
-						for(xmlNode * p_pr = p_b->children; p_pr; p_pr = p_pr->next) {
+						for(const xmlNode * p_pr = p_b->children; p_pr; p_pr = p_pr->next) {
 							if(SXml::IsName(p_pr, "product")) {
 								VetisProduct * p_new_item = rResult.ProductList.CreateNewItem();
 								THROW_SL(p_new_item);
@@ -4890,10 +4894,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getSubProductChangesListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "subProductList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "subProduct")) {
 										VetisSubProduct * p_new_item = rResult.SubProductList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -4904,7 +4908,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getSubProductByGuidResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "subProduct")) {
 								VetisSubProduct * p_new_item = rResult.SubProductList.CreateNewItem();
 								THROW_SL(p_new_item);
@@ -4913,10 +4917,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getLocalityListByRegionResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "localityList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "locality")) {
 										VetisAddressObjectView * p_new_item = rResult.RegionList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -4927,10 +4931,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getRegionListByCountryResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "regionList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "region")) {
 										VetisAddressObjectView * p_new_item = rResult.RegionList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -4941,10 +4945,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getAllCountryListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "countryList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "country")) {
 										VetisCountry * p_new_item = rResult.CountryList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -4955,10 +4959,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getProductItemListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "productItemList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "productItem")) {
 										THROW(ParseProductItem(p_pr, rResult.ProductItemList.CreateNewItem()));
 									}
@@ -4967,17 +4971,17 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getProductItemByGuidResponse") || SXml::IsName(p_b, "getProductItemByUuidResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "productItem")) {
 								THROW(ParseProductItem(p_i, rResult.ProductItemList.CreateNewItem()));
 							}
 						}
 					}
 					else if(SXml::IsName(p_b, "getRussianEnterpriseListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "enterpriseList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "enterprise")) {
 										THROW(ParseEnterprise(p_pr, rResult.EntItemList.CreateNewItem()));
 									}
@@ -4986,17 +4990,17 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getEnterpriseByGuidResponse") || SXml::IsName(p_b, "getEnterpriseByUuidResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "enterprise")) {
 								THROW(ParseEnterprise(p_i, rResult.EntItemList.CreateNewItem()));
 							}
 						}
 					}
 					else if(SXml::IsName(p_b, "getBusinessEntityListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "businessEntityList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "businessEntity")) {
 										VetisBusinessEntity * p_new_item = rResult.BEntList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -5007,7 +5011,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getBusinessEntityByGuidResponse") || SXml::IsName(p_b, "getBusinessEntityByUuidResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "businessEntity")) {
 								VetisBusinessEntity * p_new_item = rResult.BEntList.CreateNewItem();
 								THROW_SL(p_new_item);
@@ -5016,10 +5020,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getUnitListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "unitList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "unit")) {
 										VetisUnit * p_new_item = rResult.UnitList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -5030,10 +5034,10 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 						}
 					}
 					else if(SXml::IsName(p_b, "getPurposeListResponse")) {
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::IsName(p_i, "purposeList")) {
 								ParseListResult(p_i, rResult.ListResult);
-								for(xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
+								for(const xmlNode * p_pr = p_i->children; p_pr; p_pr = p_pr->next) {
 									if(SXml::IsName(p_pr, "purpose")) {
 										VetisPurpose * p_new_item = rResult.PurposeList.CreateNewItem();
 										THROW_SL(p_new_item);
@@ -5045,7 +5049,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 					}
 					else if(SXml::IsName(p_b, "Fault")) {
 						VetisFault single_fault;
-						for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
+						for(const xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 							if(SXml::GetContentByName(p_i, "faultcode", temp_buf)) {
 							}
 							else if(SXml::GetContentByName(p_i, "faultstring", temp_buf)) {
@@ -5063,7 +5067,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 									{ VetisFault::tUnknownServiceId, "unknownServiceIdFault" },
 									{ VetisFault::tUnsupportedApplicationDataType, "unsupportedApplicationDataTypeFault" },
 								};
-								for(xmlNode * p_d = p_i->children; p_d; p_d = p_d->next) {
+								for(const xmlNode * p_d = p_i->children; p_d; p_d = p_d->next) {
 									for(uint f = 0; f < SIZEOFARRAY(fault_tab); f++) {
 										if(SXml::GetContentByName(p_d, fault_tab[f].P_Symb, temp_buf)) {
 											VetisFault * p_fault = rResult.FaultList.CreateNewItem();

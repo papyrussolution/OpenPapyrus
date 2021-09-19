@@ -149,8 +149,10 @@
 	#define MAXPATH 261
 #endif
 // } @v5.0.4 AHTOXA
-#undef min // @v9.8.11
-#undef max // @v9.8.11
+#ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
+	#undef min // @v9.8.11
+	#undef max // @v9.8.11
+#endif 
 
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
@@ -13195,6 +13197,7 @@ private:
 	int    Create(const char * pFileName);
 	int    SearchParam(const char * pSect, const char * pParam, SString & rVal);
 	int    InitIniBuf();
+	int    InitIniBuf2();
 	int    IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet);
 	//
 	// Descr: intermediate-функция, реализующая вставку, удаление параметра, а также удаление целой секции.

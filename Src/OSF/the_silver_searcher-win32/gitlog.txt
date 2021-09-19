@@ -1,0 +1,1 @@
+* Merge pull request [#1424](https://github.com/ggreer/the_silver_searcher/issues/1424) from sanjaymsh/ppc64le\n

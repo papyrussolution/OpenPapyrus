@@ -1,0 +1,33 @@
+From f0f7f08ff604b9c0d0c627cd08d2fc88e41a8954 Mon Sep 17 00:00:00 2001
+From: "K.Takata" <kentkt@csc.jp>
+Date: Thu, 1 Jun 2017 22:56:02 +0900
+Subject: [PATCH 2/2] Exclude iscygpty.[ch] from formatting
+
+---
+ format.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/format.sh b/format.sh
+index 0df3ef3..5776d74 100755
+--- a/format.sh
++++ b/format.sh
+@@ -22,7 +22,7 @@ then
+     exit 1
+ fi
+ 
+-SOURCE_FILES=$(git ls-files src/)
++SOURCE_FILES=$(git ls-files src/ | grep -v 'iscygpty\.[ch]')
+ 
+ if [ "$1" == "reformat" ]
+ then
+@@ -45,6 +45,7 @@ then
+         echo "Suggested change:"
+         cp -r src clang_format_src
+         $CLANG_FORMAT -style=file -i clang_format_src/*.c clang_format_src/*.h
++        cp src/iscygpty.[ch] clang_format_src
+         diff -ur src clang_format_src
+         rm -r clang_format_src
+         echo "Run '$0 reformat' to fix formatting"
+-- 
+2.13.2
+

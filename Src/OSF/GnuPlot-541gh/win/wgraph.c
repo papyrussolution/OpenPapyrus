@@ -47,22 +47,26 @@ static const LPTSTR szGraphParentClass = TEXT("wgnuplot_graphwindow");
 //
 static struct Ruler {
 	bool on; // ruler active ? 
-	int x, y; // ruler position 
+	int x;
+	int y; // ruler position 
 } ruler = {FALSE, 0, 0, };
 //
 // Status of the line from ruler to cursor 
 //
 static struct RulerLineTo {
 	bool on; // ruler line active ? 
-	int x, y; // ruler line end position (previous cursor position) 
+	int x;
+	int y; // ruler line end position (previous cursor position) 
 } ruler_lineto = {FALSE, 0, 0, };
 //
 // Status of zoom box 
 //
 static struct Zoombox {
 	bool on;        /* set to TRUE during zooming */
-	POINT from, to;         /* corners of the zoom box */
-	LPCSTR text1, text2;    /* texts in the corners (i.e. positions) */
+	POINT from;
+	POINT to;         /* corners of the zoom box */
+	LPCSTR text1;
+	LPCSTR text2;    /* texts in the corners (i.e. positions) */
 } zoombox = { FALSE, {0, 0}, {0, 0}, NULL, NULL };
 
 // Pointer definitions 
@@ -113,8 +117,6 @@ COLORREF wginitcolor[WGDEFCOLOR] =  {
 };
 #define WGDEFSTYLE 5
 int wginitstyle[WGDEFSTYLE] = {PS_SOLID, PS_DASH, PS_DOT, PS_DASHDOT, PS_DASHDOTDOT};
-
-#define MINMAX(a, val, b) (((val) <= (a)) ? (a) : ((val) <= (b) ? (val) : (b)))
 
 #ifdef USE_WINGDI
 /* bitmaps for filled boxes (ULIG) */
@@ -309,10 +311,10 @@ void GraphInitStruct(GW * lpgw)
 		int i;
 #endif
 		lpgw->initialized = TRUE;
-		if(lpgw != _WinM.listgraphs) {
+		if(lpgw != _WinM.P_ListGraphs) {
 			TCHAR titlestr[100];
 			// copy important fields from window #0 
-			GW * graph0 = _WinM.listgraphs;
+			GW * graph0 = _WinM.P_ListGraphs;
 			lpgw->IniFile = graph0->IniFile;
 			lpgw->hInstance = graph0->hInstance;
 			lpgw->hPrevInstance = graph0->hPrevInstance;
@@ -385,12 +387,12 @@ void GraphInit(GW * lpgw)
 		RECT rect;
 		SIZE size;
 		// Note: whatever we set here as initial window size will be overridden by DockedUpdateLayout() below.
-		GetClientRect(_WinM.textwin.hWndParent, &rect);
+		GetClientRect(_WinM.TxtWin.hWndParent, &rect);
 		DockedGraphSize(lpgw->lptw, &size, TRUE);
-		lpgw->Origin_.Set(rect.right - 200, _WinM.textwin.ButtonHeight);
+		lpgw->Origin_.Set(rect.right - 200, _WinM.TxtWin.ButtonHeight);
 		lpgw->Size_.Set(size.cx, size.cy);
 		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_CHILD, lpgw->Origin_.x, lpgw->Origin_.y,
-			lpgw->Size_.x, lpgw->Size_.y, _WinM.textwin.hWndParent, NULL, lpgw->hInstance, lpgw);
+			lpgw->Size_.x, lpgw->Size_.y, _WinM.TxtWin.hWndParent, NULL, lpgw->hInstance, lpgw);
 	}
 #endif
 	if(lpgw->hWndGraph)
@@ -2127,94 +2129,88 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				    }
 				    break;
 #endif
-
 				case W_fillstyle:
-				    /* HBB 20010916: new entry, needed to squeeze the many
-				     * parameters of a filled box call through the bottleneck
-				     * of the fixed number of parameters in GraphOp() and
-				     * struct GWOP, respectively. */
+				    // HBB 20010916: new entry, needed to squeeze the many
+				    // parameters of a filled box call through the bottleneck
+				    // of the fixed number of parameters in GraphOp() and struct GWOP, respectively. 
 				    fillstyle = curptr->x;
 				    transparent = FALSE;
 				    alpha = 0.;
-				    /* FIXME: This shouldn't be necessary... */
+				    // FIXME: This shouldn't be necessary...
 				    polyi = 0;
 				    switch(fillstyle & 0x0f) {
 					    case FS_TRANSPARENT_SOLID:
-						alpha = (fillstyle >> 4) / 100.;
-						if((shadedblendcaps & SB_CONST_ALPHA) != 0) {
-							transparent = TRUE;
-							/* we already have a brush with that color */
-						}
-						else {
-							/* Printer does not support AlphaBlend() */
-							COLORREF color =
-							    RGB(255 - alpha * (255 - GetRValue(last_color)),
-								255 - alpha * (255 - GetGValue(last_color)),
-								255 - alpha * (255 - GetBValue(last_color)));
-							solid_brush = lpgw->hcolorbrush;
-							fill_color = color;
-							draw_new_brush(lpgw, hdc, fill_color);
-							fillstyle = (fillstyle & 0xfffffff0) | FS_SOLID;
-							if(warn_no_transparent) {
-								fprintf(stderr, "Warning: Transparency not supported on this device.\n");
-								warn_no_transparent = FALSE; /* Warn only once */
+							alpha = (fillstyle >> 4) / 100.;
+							if((shadedblendcaps & SB_CONST_ALPHA) != 0) {
+								transparent = TRUE;
+								/* we already have a brush with that color */
 							}
-						}
-						break;
+							else {
+								/* Printer does not support AlphaBlend() */
+								COLORREF color =
+									RGB(255 - alpha * (255 - GetRValue(last_color)),
+									255 - alpha * (255 - GetGValue(last_color)),
+									255 - alpha * (255 - GetBValue(last_color)));
+								solid_brush = lpgw->hcolorbrush;
+								fill_color = color;
+								draw_new_brush(lpgw, hdc, fill_color);
+								fillstyle = (fillstyle & 0xfffffff0) | FS_SOLID;
+								if(warn_no_transparent) {
+									fprintf(stderr, "Warning: Transparency not supported on this device.\n");
+									warn_no_transparent = FALSE; /* Warn only once */
+								}
+							}
+							break;
 					    case FS_SOLID: {
-						if(alpha_c < 1.) {
-							alpha = alpha_c;
-							fill_color = last_color;
-						}
-						else if((int)(fillstyle >> 4) == 100) {
-							/* special case this common choice */
-							// FIXME: we should already have that!
-							fill_color = last_color;
-						}
-						else {
-							double density = MINMAX(0, (int)(fillstyle >> 4), 100) * 0.01;
-							COLORREF color =
-							    RGB(255 - density * (255 - GetRValue(last_color)),
-								255 - density * (255 - GetGValue(last_color)),
-								255 - density * (255 - GetBValue(last_color)));
-							fill_color = color;
-						}
-						draw_new_brush(lpgw, hdc, fill_color);
-						solid_brush = lpgw->hcolorbrush;
-						break;
+							if(alpha_c < 1.0) {
+								alpha = alpha_c;
+								fill_color = last_color;
+							}
+							else if((int)(fillstyle >> 4) == 100) {
+								// special case this common choice 
+								// FIXME: we should already have that!
+								fill_color = last_color;
+							}
+							else {
+								const int _fs = static_cast<int>(fillstyle >> 4);
+								double density = MINMAX(_fs, 0, 100) * 0.01;
+								COLORREF color = RGB(255 - density * (255 - GetRValue(last_color)),
+									255 - density * (255 - GetGValue(last_color)), 255 - density * (255 - GetBValue(last_color)));
+								fill_color = color;
+							}
+							draw_new_brush(lpgw, hdc, fill_color);
+							solid_brush = lpgw->hcolorbrush;
+							break;
 					}
 					    case FS_TRANSPARENT_PATTERN:
-						if((shadedblendcaps & SB_CONST_ALPHA) != 0) {
-							transparent = TRUE;
-							alpha = 1.;
-						}
-						else {
-							/* Printers do not support AlphaBlend() */
-							fillstyle = (fillstyle & 0xfffffff0) | FS_PATTERN;
-							if(warn_no_transparent) {
-								fprintf(stderr, "Warning: Transparency not supported on this device.\n");
-								warn_no_transparent = FALSE; /* Warn only once */
+							if((shadedblendcaps & SB_CONST_ALPHA) != 0) {
+								transparent = TRUE;
+								alpha = 1.;
 							}
-						}
-					    /* intentionally fall through */
+							else {
+								/* Printers do not support AlphaBlend() */
+								fillstyle = (fillstyle & 0xfffffff0) | FS_PATTERN;
+								if(warn_no_transparent) {
+									fprintf(stderr, "Warning: Transparency not supported on this device.\n");
+									warn_no_transparent = FALSE; /* Warn only once */
+								}
+							}
+							/* intentionally fall through */
 					    case FS_PATTERN:
-						/* style == 2 --> use fill pattern according to
-						 * fillpattern. Pattern number is enumerated */
-						pattern = MAX(fillstyle >> 4, 0) % pattern_num;
-						SelectObject(hdc, pattern_brush[pattern]);
-						break;
+							// style == 2 --> use fill pattern according to fillpattern. Pattern number is enumerated 
+							pattern = MAX(fillstyle >> 4, 0) % pattern_num;
+							SelectObject(hdc, pattern_brush[pattern]);
+							break;
 					    case FS_EMPTY:
-						/* FIXME: Instead of filling with background color, we should not fill
-						   at all in this case! */
-						/* fill with background color */
-						SelectObject(hdc, lpgw->hbrush);
-						fill_color = lpgw->background;
-						solid_brush = lpgw->hbrush;
-						break;
+							// FIXME: Instead of filling with background color, we should not fill at all in this case! 
+							// fill with background color 
+							SelectObject(hdc, lpgw->hbrush);
+							fill_color = lpgw->background;
+							solid_brush = lpgw->hbrush;
+							break;
 					    case FS_DEFAULT:
 					    default:
-						/* Leave the current brush and color in place */
-						break;
+							break; // Leave the current brush and color in place 
 				    }
 				    break;
 				case W_move:
@@ -2908,8 +2904,8 @@ static void CopyPrint(GW * lpgw)
 	pd.lStructSize = sizeof(pd);
 	pd.hwndOwner = hwnd;
 	pd.Flags = PD_NOPAGENUMS | PD_NOSELECTION | PD_NOCURRENTPAGE | PD_USEDEVMODECOPIESANDCOLLATE;
-	pd.hDevNames = hDevNames;
-	pd.hDevMode = hDevMode;
+	pd.hDevNames = _WinM.hDevNames;
+	pd.hDevMode = _WinM.hDevMode;
 	pd.nCopies = 1;
 	pd.nPropertyPages = 1;
 	pd.lphPropertyPages = &hpsp;
@@ -2917,7 +2913,7 @@ static void CopyPrint(GW * lpgw)
 	pd.lpCallback = (LPUNKNOWN)PrintingCallbackCreate(&pr);
 	// remove the lower part of the "general" property sheet 
 	pd.lpPrintTemplateName = TEXT("PrintDlgExEmpty");
-	pd.hInstance = _WinM.graphwin->hInstance;
+	pd.hInstance = _WinM.P_GraphWin->hInstance;
 	pd.Flags |= PD_ENABLEPRINTTEMPLATE;
 	if(PrintDlgEx(&pd) != S_OK) {
 		DWORD error = CommDlgExtendedError();
@@ -3045,9 +3041,8 @@ cleanup:
 	   GlobalFree(pd.hDevMode);
 	   GlobalFree(pd.hDevNames);
 	 */
-	hDevNames = pd.hDevNames;
-	hDevMode = pd.hDevMode;
-
+	_WinM.hDevNames = pd.hDevNames;
+	_WinM.hDevMode = pd.hDevMode;
 	/* make certain that the screen pen set is restored */
 	SendMessage(lpgw->hGraph, WM_COMMAND, M_REBUILDTOOLS, 0L);
 }
@@ -3566,7 +3561,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 	bool old = FALSE;
 	const int par2 = (type != GE_keypress/*no timestamp for key events*/) ? (thisTimestamp - lastTimestamp) : 0;
 	// map events from inactive graph windows 
-	if(lpgw != _WinM.graphwin) {
+	if(lpgw != _WinM.P_GraphWin) {
 		switch(type) {
 			case GE_keypress:
 			    type = GE_keypress_old;
@@ -3582,7 +3577,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 			    break;
 		}
 	}
-	if(term && sstreq(term->name, "windows") && ((lpgw == _WinM.graphwin) || old)) {
+	if(term && sstreq(term->name, "windows") && ((lpgw == _WinM.P_GraphWin) || old)) {
 		GetMousePosViewport(lpgw, &mx, &my);
 		gp_exec_event(type, mx, my, par1, par2, 0);
 		lastTimestamp = thisTimestamp;
@@ -3597,58 +3592,6 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 		paused_for_mouse = 0;
 	}
 }
-
-#if 0 // @inlined
-static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
-{
-	if(lpgw == _WinM.graphwin) {
-		int mx, my;
-		GetMousePosViewport(lpgw, &mx, &my);
-		DrawZoomBox(lpgw); /*  erase current zoom box */
-		zoombox.to.x = mx; 
-		zoombox.to.y = my;
-		DrawZoomBox(lpgw); /*  draw new zoom box */
-	}
-}
-
-static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
-{
-	if(lpgw == _WinM.graphwin) {
-		int mx, my;
-		GetMousePosViewport(lpgw, &mx, &my);
-		DrawRulerLineTo(lpgw); /*  erase current line */
-		ruler_lineto.x = mx; 
-		ruler_lineto.y = my;
-		DrawRulerLineTo(lpgw); /*  draw new line box */
-	}
-}
-
-static void track_tooltip(GW * lpgw, int x, int y)
-{
-	static POINT p = {0, 0};
-	// only update if mouse position changed 
-	if(p.x != x || p.y != y) {
-		p.x = x; p.y = y;
-		for(uint i = 0; i < lpgw->numtooltips; i++) {
-			if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
-				TOOLINFO ti;
-				int width;
-				INITWINAPISTRUCT(ti);
-				ti.hwnd     = lpgw->hGraph;
-				ti.hinst    = lpgw->hInstance;
-				ti.rect     = lpgw->tooltips[i].rect;
-				ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
-				SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
-				SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
-				// Multi-line tooltip. 
-				width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
-				SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
-			}
-		}
-	}
-}
-#endif // } 0
-
 #endif /* USE_MOUSE */
 
 /* ================================== */
@@ -3876,14 +3819,14 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	GW * lpgw = (GW *)GetWindowLongPtr(hwnd, 0);
 #ifdef USE_MOUSE
 	// mouse events first 
-	if(lpgw == _WinM.graphwin && mouse_setting.on) {
+	if(lpgw == _WinM.P_GraphWin && mouse_setting.on) {
 		switch(message) {
 			case WM_MOUSEMOVE:
 			    SetCursor(lpgw->hptrCurrent);
 			    if(zoombox.on) {
 				    //Wnd_refresh_zoombox(lpgw, lParam);
 					//static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
-					if(lpgw == _WinM.graphwin) {
+					if(lpgw == _WinM.P_GraphWin) {
 						int mx, my;
 						GetMousePosViewport(lpgw, &mx, &my);
 						DrawZoomBox(lpgw); // erase current zoom box 
@@ -3895,7 +3838,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    if(ruler.on && ruler_lineto.on) {
 				    //Wnd_refresh_ruler_lineto(lpgw, lParam);
 					//static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
-					if(lpgw == _WinM.graphwin) {
+					if(lpgw == _WinM.P_GraphWin) {
 						int mx, my;
 						GetMousePosViewport(lpgw, &mx, &my);
 						DrawRulerLineTo(lpgw); // erase current line 
@@ -4000,7 +3943,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    // register input focus
 			    lpgw->lptw->hWndFocus = hwnd;
 			    DrawFocusIndicator(lpgw);
-			    if(lpgw != _WinM.graphwin) {
+			    if(lpgw != _WinM.P_GraphWin) {
 				    sprintf(status, "(inactive, window number %i)", lpgw->Id);
 				    UpdateStatusLine(lpgw, status);
 			    }
@@ -4065,7 +4008,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				    case VK_END:
 						// use CTRL-END as break key 
 						GPO._Plt.ctrlc_flag = true;
-						PostMessage(_WinM.graphwin->hWndGraph, WM_NULL, 0, 0);
+						PostMessage(_WinM.P_GraphWin->hWndGraph, WM_NULL, 0, 0);
 						break;
 			    }
 		    }
@@ -4112,7 +4055,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    case VK_F12: Wnd_exec_event(lpgw, lParam, GE_keypress, GP_F12); break;
 			    case VK_CANCEL: 
 					GPO._Plt.ctrlc_flag = TRUE;
-					PostMessage(_WinM.graphwin->hWndGraph, WM_NULL, 0, 0);
+					PostMessage(_WinM.P_GraphWin->hWndGraph, WM_NULL, 0, 0);
 					break;
 		    }     /* switch (wParam) */
 		    return 0L;

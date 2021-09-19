@@ -166,21 +166,21 @@ int PThr4wTest_ThreeStage(int argc, char * argv[])
 		printf("Maximum number of producers or consumers is %d.\n", MAX_THREADS);
 		return 2;
 	}
-	producer_th = (pthread_t*)malloc(nthread * sizeof(pthread_t));
-	producer_arg = (THARG*)calloc(nthread, sizeof(THARG));
-	consumer_th = (pthread_t*)malloc(nthread * sizeof(pthread_t));
-	consumer_arg = (THARG*)calloc(nthread, sizeof(THARG));
+	producer_th = (pthread_t *)SAlloc::M(nthread * sizeof(pthread_t));
+	producer_arg = (THARG *)SAlloc::C(nthread, sizeof(THARG));
+	consumer_th = (pthread_t *)SAlloc::M(nthread * sizeof(pthread_t));
+	consumer_arg = (THARG *)SAlloc::C(nthread, sizeof(THARG));
 	if(producer_th == NULL || producer_arg == NULL || consumer_th == NULL || consumer_arg == NULL)
 		perror("Cannot allocate working memory for threads.");
 	q_initialize(&p2tq, sizeof(msg_block_t), P2T_QLEN);
 	q_initialize(&t2rq, sizeof(T2R_MSG_TYPE), T2R_QLEN);
 	/* Allocate and initialize Receiver to Consumer queue for each consumer */
-	r2cq_array = (queue_t*)calloc(nthread, sizeof(queue_t));
+	r2cq_array = (queue_t*)SAlloc::C(nthread, sizeof(queue_t));
 	if(r2cq_array == NULL) perror("Cannot allocate memory for r2c queues");
 	for(ithread = 0; ithread < nthread; ithread++) {
-		/* Initialize r2c queue for this consumer thread */
+		// Initialize r2c queue for this consumer thread 
 		q_initialize(&r2cq_array[ithread], sizeof(msg_block_t), R2C_QLEN);
-		/* Fill in the thread arg */
+		// Fill in the thread arg 
 		consumer_arg[ithread].thread_number = ithread;
 		consumer_arg[ithread].work_goal = goal;
 		consumer_arg[ithread].work_done = 0;
@@ -234,11 +234,11 @@ int PThr4wTest_ThreeStage(int argc, char * argv[])
 	q_destroy(&t2rq);
 	for(ithread = 0; ithread < nthread; ithread++)
 		q_destroy(&r2cq_array[ithread]);
-	free(r2cq_array);
-	free(producer_th);
-	free(consumer_th);
-	free(producer_arg);
-	free(consumer_arg);
+	SAlloc::F(r2cq_array);
+	SAlloc::F(producer_th);
+	SAlloc::F(consumer_th);
+	SAlloc::F(producer_arg);
+	SAlloc::F(consumer_arg);
 	printf("System has finished. Shutting down\n");
 	return 0;
 }
@@ -421,7 +421,7 @@ uint q_initialize(queue_t * q, uint msize, uint nmsgs)
 	pthread_mutex_init(&q->q_guard, NULL);
 	pthread_cond_init(&q->q_ne, NULL);
 	pthread_cond_init(&q->q_nf, NULL);
-	if((q->msg_array = calloc(nmsgs, msize)) == NULL) 
+	if((q->msg_array = SAlloc::C(nmsgs, msize)) == NULL) 
 		return 1;
 	return 0; /* No error */
 }
@@ -432,7 +432,7 @@ uint q_destroy(queue_t * q)
 	/* Free all the resources created by q_initialize */
 	pthread_mutex_lock(&q->q_guard);
 	q->q_destroyed = 1;
-	free(q->msg_array);
+	SAlloc::F(q->msg_array);
 	pthread_cond_destroy(&q->q_ne);
 	pthread_cond_destroy(&q->q_nf);
 	pthread_mutex_unlock(&q->q_guard);

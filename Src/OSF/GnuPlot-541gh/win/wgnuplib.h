@@ -150,11 +150,18 @@ struct TW {
 	{
 		THISZERO();
 	}
-	GP_PRINT * lpr;          // must be first 
+	int    TextKBHit() const;
+	int    TextGetCh();
+	void   TextStartEditing();
+	void   TextToCursor();
+	void   NewLine();
+	void   UpdateText(int count);
+	int    TextPutChW(WCHAR ch);
+	GP_PRINT * P_Lpr;        // must be first 
 	HINSTANCE hInstance;     // required 
 	HINSTANCE hPrevInstance; // required 
 	LPWSTR Title;            // required 
-	MW   * lpmw;             // optional 
+	MW   * P_LpMw;           // optional 
 	POINT  ScreenSize;       // optional // size of the visible screen in characters */
 	uint   KeyBufSize;       // optional 
 	LPTSTR IniFile;          // optional 
@@ -221,14 +228,14 @@ struct TW {
 void   TextMessage();
 int    TextInit(TW * lptw);
 void   TextClose(TW * lptw);
-int    TextKBHit(TW *);
-int    TextGetCh(TW *);
+//int    TextKBHit(const TW *);
+//int    TextGetCh(TW *);
 int    TextGetChE(TW *);
 LPSTR  TextGetS(TW * lptw, LPSTR str, uint size);
 int    TextPutCh(TW *, BYTE);
-int    TextPutChW(TW * lptw, WCHAR ch);
+//int    TextPutChW(TW * lptw, WCHAR ch);
 int    TextPutS(TW * lptw, LPSTR str);
-void   TextStartEditing(TW * lptw);
+//void   TextStartEditing(TW * lptw);
 void   TextStopEditing(TW * lptw);
 #if 0
 	// The new screen buffer currently does not support these 

@@ -1,11 +1,7 @@
 /*
  * pthread_setaffinity.c
- *
- * Description:
- * This translation unit implements thread cpu affinity setting.
- *
+ * Description: This translation unit implements thread cpu affinity setting.
  * --------------------------------------------------------------------------
- *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom
  *   Copyright 1999-2018, Pthreads4w contributors

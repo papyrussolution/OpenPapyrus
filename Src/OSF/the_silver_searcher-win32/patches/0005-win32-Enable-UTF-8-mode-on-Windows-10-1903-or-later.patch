@@ -1,0 +1,269 @@
+From cc5842e3e1c8937d54b624dae9718a17573c630c Mon Sep 17 00:00:00 2001
+From: "K.Takata" <kentkt@csc.jp>
+Date: Wed, 26 Feb 2020 20:43:57 +0900
+Subject: [PATCH] win32: Enable UTF-8 mode on Windows 10 1903 or later
+
+Also define `__USE_MINGW_ANSI_STDIO` so that `%zu` can be used.
+---
+ Makefile.am               |  11 ++++
+ configure.ac              |   3 ++
+ src/main.c                |  17 ++++++
+ src/win32/ag.exe.manifest |  30 +++++++++++
+ src/win32/ag.rc           | 107 ++++++++++++++++++++++++++++++++++++++
+ src/win32/resource.h      |  14 +++++
+ 6 files changed, 182 insertions(+)
+ create mode 100644 src/win32/ag.exe.manifest
+ create mode 100644 src/win32/ag.rc
+ create mode 100644 src/win32/resource.h
+
+diff --git a/Makefile.am b/Makefile.am
+index ead4a80..e4d71c0 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -12,6 +12,7 @@ zshcompdir = $(datadir)/zsh/site-functions
+ dist_zshcomp_DATA = _the_silver_searcher
+ 
+ EXTRA_DIST = Makefile.w32 LICENSE NOTICE the_silver_searcher.spec README.md
++MOSTLYCLEANFILES =
+ 
+ all:
+ 	@$(MAKE) ag -r
+@@ -24,6 +25,16 @@ else
+ 	@echo "clang-format is not available. Skipped clang-format test."
+ endif
+ 
++if HOST_MINGW
++WINDRES = windres
++RES_OBJ = src/win32/ag.res.o
++ag_LDADD += $(RES_OBJ)
++$(RES_OBJ): src/win32/ag.rc src/win32/ag.exe.manifest src/win32/resource.h
++	@mkdir -p $(builddir)/src/win32
++	$(WINDRES) -o $@ -O coff $<
++MOSTLYCLEANFILES += $(RES_OBJ)
++endif
++
+ test_big: ag
+ 	cram -v tests/big/*.t
+ 
+diff --git a/configure.ac b/configure.ac
+index bf2b7d8..269eac1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -35,9 +35,12 @@ LDFLAGS="$LDFLAGS"
+ 
+ case $host in
+ *mingw*)
++    host_mingw=yes
+     AC_CHECK_LIB(shlwapi, main,, AC_MSG_ERROR(libshlwapi missing))
+     CFLAGS="$CFLAGS -D_WIN32_WINNT=0x0600"
++    CFLAGS="$CFLAGS -D__USE_MINGW_ANSI_STDIO"
+ esac
++AM_CONDITIONAL([HOST_MINGW], [test "x${host_mingw}" = "xyes"])
+ 
+ LIBS="$PTHREAD_LIBS $LIBS"
+ 
+diff --git a/src/main.c b/src/main.c
+index 6de2038..d707c7b 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -72,11 +72,28 @@ int main(int argc, char **argv) {
+ #endif
+ 
+ #ifdef _WIN32
++#define MAKE_VER(major, minor, build) \
++    (((major) << 24) | ((minor) << 16) | (build))
+     {
+         SYSTEM_INFO si;
++        OSVERSIONINFO ovi;
++        DWORD ver;
++
+         GetSystemInfo(&si);
+         num_cores = si.dwNumberOfProcessors;
++
++        // Use UTF-8 mode on Windows 10 1903 or later.
++        ovi.dwOSVersionInfoSize = sizeof(ovi);
++        GetVersionEx(&ovi);
++        ver = MAKE_VER(min(ovi.dwMajorVersion, 255),
++                       min(ovi.dwMinorVersion, 255),
++                       min(ovi.dwBuildNumber, 36767));
++        if (ver >= MAKE_VER(10, 0, 18362)) {
++            SetConsoleCP(CP_UTF8);
++            SetConsoleOutputCP(CP_UTF8);
++        }
+     }
++#undef MAKE_VER
+ #else
+     num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
+ #endif
+diff --git a/src/win32/ag.exe.manifest b/src/win32/ag.exe.manifest
+new file mode 100644
+index 0000000..dd75735
+--- /dev/null
++++ b/src/win32/ag.exe.manifest
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
++<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
++  <assemblyIdentity type="win32" name="The Silver Searcher" version="2.2.0.0" />
++  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
++    <security>
++      <requestedPrivileges>
++        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
++      </requestedPrivileges>
++    </security>
++  </trustInfo>
++  <application>
++    <windowsSettings>
++      <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
++    </windowsSettings>
++  </application>
++  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
++    <application>
++      <!--The ID below indicates application support for Windows Vista -->
++      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/>
++      <!--The ID below indicates application support for Windows 7 -->
++      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
++      <!--The ID below indicates application support for Windows 8 -->
++      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
++      <!--The ID below indicates application support for Windows 8.1 -->
++      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
++      <!--The ID below indicates application support for Windows 10 -->
++      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
++    </application>
++  </compatibility>
++</assembly>
+diff --git a/src/win32/ag.rc b/src/win32/ag.rc
+new file mode 100644
+index 0000000..d1fc191
+--- /dev/null
++++ b/src/win32/ag.rc
+@@ -0,0 +1,107 @@
++// Microsoft Visual C++ generated resource script.
++//
++#include "resource.h"
++
++#define APSTUDIO_READONLY_SYMBOLS
++/////////////////////////////////////////////////////////////////////////////
++//
++// Generated from the TEXTINCLUDE 2 resource.
++//
++#include "winresrc.h"
++
++/////////////////////////////////////////////////////////////////////////////
++#undef APSTUDIO_READONLY_SYMBOLS
++
++/////////////////////////////////////////////////////////////////////////////
++// English (United States) resources
++
++#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
++LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
++#pragma code_page(1252)
++
++#ifdef APSTUDIO_INVOKED
++/////////////////////////////////////////////////////////////////////////////
++//
++// TEXTINCLUDE
++//
++
++1 TEXTINCLUDE 
++BEGIN
++    "resource.h\0"
++END
++
++2 TEXTINCLUDE 
++BEGIN
++    "#include ""winres.h""\r\n"
++    "\0"
++END
++
++3 TEXTINCLUDE 
++BEGIN
++    "\r\n"
++    "\0"
++END
++
++#endif    // APSTUDIO_INVOKED
++
++
++/////////////////////////////////////////////////////////////////////////////
++//
++// RT_MANIFEST
++//
++
++1                       RT_MANIFEST             "ag.exe.manifest"
++
++/////////////////////////////////////////////////////////////////////////////
++//
++// Version
++//
++
++VS_VERSION_INFO VERSIONINFO
++ FILEVERSION 2,2,0,0
++ PRODUCTVERSION 2,2,0,0
++ FILEFLAGSMASK 0x3fL
++#ifdef _DEBUG
++ FILEFLAGS 0x1L
++#else
++ FILEFLAGS 0x0L
++#endif
++ FILEOS 0x40004L
++ FILETYPE 0x1L
++ FILESUBTYPE 0x0L
++BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++        BLOCK "040904b0"
++        BEGIN
++            VALUE "CompanyName", "Geoff Greer"
++            VALUE "FileDescription", "The Silver Searcher"
++            VALUE "FileVersion", "2.2.0.0"
++            VALUE "InternalName", "ag.exe"
++            VALUE "LegalCopyright", "Copyright 2011-2016 Geoff Greer"
++            VALUE "OriginalFilename", "ag.exe"
++            VALUE "ProductName", "The Silver Searcher"
++            VALUE "ProductVersion", "2.2.0.0"
++        END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++        VALUE "Translation", 0x409, 1200
++    END
++END
++
++#endif    // English (United States) resources
++/////////////////////////////////////////////////////////////////////////////
++
++
++
++#ifndef APSTUDIO_INVOKED
++/////////////////////////////////////////////////////////////////////////////
++//
++// Generated from the TEXTINCLUDE 3 resource.
++//
++
++
++/////////////////////////////////////////////////////////////////////////////
++#endif    // not APSTUDIO_INVOKED
++
+diff --git a/src/win32/resource.h b/src/win32/resource.h
+new file mode 100644
+index 0000000..2012d73
+--- /dev/null
++++ b/src/win32/resource.h
+@@ -0,0 +1,14 @@
++//{{NO_DEPENDENCIES}}
++// Microsoft Visual C++ generated include file.
++// Used by ag.rc
++
++// Next default values for new objects
++//
++#ifdef APSTUDIO_INVOKED
++#ifndef APSTUDIO_READONLY_SYMBOLS
++#define _APS_NEXT_RESOURCE_VALUE        101
++#define _APS_NEXT_COMMAND_VALUE         40001
++#define _APS_NEXT_CONTROL_VALUE         1001
++#define _APS_NEXT_SYMED_VALUE           101
++#endif
++#endif
+-- 
+2.21.0
+

@@ -17,8 +17,8 @@
 #include "wcommon.h"
 
 static GP_PRINT * prlist = NULL;
-HGLOBAL hDevNames = NULL;
-HGLOBAL hDevMode = NULL;
+//HGLOBAL hDevNames = NULL;
+//HGLOBAL hDevMode = NULL;
 
 static GP_PRINT * PrintFind(HDC hdc);
 // 
@@ -174,30 +174,30 @@ static HRESULT STDMETHODCALLTYPE GetSite(IObjectWithSite * This, REFIID riid, vo
 	};
 #endif // __cplusplus
 
-static void PrintingCallbackInit(PrintingCallbackHandler * This, GP_PRINT * lpr)
+static void PrintingCallbackInit(PrintingCallbackHandler * pThis, GP_PRINT * lpr)
 {
-	memzero(This, sizeof(PrintingCallbackHandler));
+	memzero(pThis, sizeof(PrintingCallbackHandler));
 #ifndef __cplusplus
-	This->callback.lpVtbl = &IPrintDialogCallback_Vtbl;
-	This->site.lpVtbl = &IObjectWithSite_Vtbl;
+	pThis->callback.lpVtbl = &IPrintDialogCallback_Vtbl;
+	pThis->site.lpVtbl = &IObjectWithSite_Vtbl;
 #endif
-	This->lpr_ = lpr;
+	pThis->lpr_ = lpr;
 }
 
-static void PrintingCallbackFini(PrintingCallbackHandler * This)
+static void PrintingCallbackFini(PrintingCallbackHandler * pThis)
 {
-	if(This->services_) {
+	if(pThis->services_) {
 #ifdef __cplusplus
-		This->services_->Release();
+		pThis->services_->Release();
 #else
-		This->services_->lpVtbl->Release(This->services_);
+		pThis->services_->lpVtbl->Release(This->services_);
 #endif
 	}
 }
 
 void * PrintingCallbackCreate(GP_PRINT * lpr)
 {
-	PrintingCallbackHandler * callback = (PrintingCallbackHandler*)SAlloc::M(sizeof(PrintingCallbackHandler));
+	PrintingCallbackHandler * callback = (PrintingCallbackHandler *)SAlloc::M(sizeof(PrintingCallbackHandler));
 	// initialize COM object for the printing dialog callback 
 	PrintingCallbackInit(callback, lpr);
 	return callback;
@@ -205,14 +205,20 @@ void * PrintingCallbackCreate(GP_PRINT * lpr)
 
 void PrintingCallbackFree(void * callback)
 {
-	PrintingCallbackFini((PrintingCallbackHandler*)callback);
+	PrintingCallbackFini((PrintingCallbackHandler *)callback);
 	SAlloc::F(callback);
 }
 
 void PrintingCleanup(void)
 {
-	if(hDevNames) GlobalFree(hDevNames);
-	if(hDevMode) GlobalFree(hDevMode);
+	if(_WinM.hDevNames) {
+		GlobalFree(_WinM.hDevNames);
+		_WinM.hDevNames = 0;
+	}
+	if(_WinM.hDevMode) {
+		GlobalFree(_WinM.hDevMode);
+		_WinM.hDevMode = 0;
+	}
 }
 
 INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam)
@@ -476,8 +482,8 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 	pd.lStructSize = sizeof(pd);
 	pd.hwndOwner = hwnd;
 	pd.Flags = PD_NOPAGENUMS | PD_NOSELECTION | PD_NOCURRENTPAGE | PD_USEDEVMODECOPIESANDCOLLATE;
-	pd.hDevNames = hDevNames;
-	pd.hDevMode = hDevMode;
+	pd.hDevNames = _WinM.hDevNames;
+	pd.hDevMode = _WinM.hDevMode;
 	pd.hDevNames = NULL;
 	pd.hDevMode = NULL;
 	pd.nCopies = 1;
@@ -487,7 +493,7 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 	// a hint to change print options via terminal options.
 	//
 	pd.lpPrintTemplateName = TEXT("PrintDlgExSelect");
-	pd.hInstance = _WinM.graphwin->hInstance;
+	pd.hInstance = _WinM.P_GraphWin->hInstance;
 	pd.Flags |= PD_ENABLEPRINTTEMPLATE;
 	if((hr = PrintDlgEx(&pd)) != S_OK) {
 		DWORD error = CommDlgExtendedError();
@@ -503,8 +509,8 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 		   GlobalFree(pd.hDevMode);
 		   GlobalFree(pd.hDevNames);
 		 */
-		hDevNames = pd.hDevNames;
-		hDevMode = pd.hDevMode;
+		_WinM.hDevNames = pd.hDevNames;
+		_WinM.hDevMode = pd.hDevMode;
 		if(printer == NULL)
 			return; /* abort */
 		pr.hdcPrn = (HDC)printer;

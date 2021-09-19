@@ -780,31 +780,30 @@ void GnuPlot::RecheckRanges(curve_points * pPlot)
 //
 void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y)
 {
-	int x, y;
 	// Displace overlapping impulses if "set jitter" is in effect.
 	// This operation loads jitter offsets into xhigh and yhigh.
 	if(Jitter.spread > 0)
 		JitterPoints(pTerm, pPlot);
 	for(int i = 0; i < pPlot->p_count; i++) {
-		if(pPlot->points[i].type == UNDEFINED)
-			continue;
-		if(!Gg.Polar && !AxS.__X().InRange(pPlot->points[i].Pt.x))
-			continue;
-		// This catches points that are outside trange[theta_min:theta_max] 
-		if(Gg.Polar && (pPlot->points[i].type == EXCLUDEDRANGE))
-			continue;
-		x = MapiX(pPlot->points[i].Pt.x);
-		y = MapiY(pPlot->points[i].Pt.y);
-		// The jitter x offset is a scaled multiple of character width. 
-		if(!Gg.Polar && Jitter.spread > 0.0)
-			x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
-		if(invalid_coordinate(x, y))
-			continue;
-		CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
-		if(Gg.Polar)
-			DrawClipLine(pTerm, yaxis_x, xaxis_y, x, y);
-		else
-			DrawClipLine(pTerm, x, xaxis_y, x, y);
+		if(pPlot->points[i].type != UNDEFINED) {
+			if(!Gg.Polar && !AxS.__X().InRange(pPlot->points[i].Pt.x))
+				continue;
+			// This catches points that are outside trange[theta_min:theta_max] 
+			if(Gg.Polar && (pPlot->points[i].type == EXCLUDEDRANGE))
+				continue;
+			int x = MapiX(pPlot->points[i].Pt.x);
+			int y = MapiY(pPlot->points[i].Pt.y);
+			// The jitter x offset is a scaled multiple of character width. 
+			if(!Gg.Polar && Jitter.spread > 0.0)
+				x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
+			if(!invalid_coordinate(x, y)) {
+				CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
+				if(Gg.Polar)
+					DrawClipLine(pTerm, yaxis_x, xaxis_y, x, y);
+				else
+					DrawClipLine(pTerm, x, xaxis_y, x, y);
+			}
+		}
 	}
 }
 // 

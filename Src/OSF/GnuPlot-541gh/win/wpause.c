@@ -99,7 +99,7 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 	// only pause-for-mouse when a window is open 
 	// FIXME: we might want to have a terminal entry for that 
 	if(pTerm) {
-		if(sstreq(pTerm->name, "windows") && GraphHasWindow(_WinM.graphwin))
+		if(sstreq(pTerm->name, "windows") && GraphHasWindow(_WinM.P_GraphWin))
 			result = TRUE;
 #ifdef WXWIDGETS
 		// FIXME: this does not test if the current window is open 
@@ -134,7 +134,7 @@ int PauseBox(GpTermEntry * pTerm, PW * lppw)
 	RECT rect;
 	SIZE size;
 #ifndef WGP_CONSOLE
-	TextUpdateStatus(&_WinM.textwin);
+	TextUpdateStatus(&_WinM.TxtWin);
 #endif
 #ifdef USE_MOUSE
 	// Do not try to wait for mouse events when there's no graph window open. 

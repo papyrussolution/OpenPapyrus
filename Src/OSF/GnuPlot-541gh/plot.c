@@ -52,7 +52,7 @@ static RETSIGTYPE inter(int /*anint*/)
 	// events asynchronously.
 	ctrlc_flag = TRUE;
 	// Interrupt ConsoleGetch. 
-	SendMessage(graphwin->hWndGraph, WM_NULL, 0, 0);
+	SendMessage(P_GraphWin->hWndGraph, WM_NULL, 0, 0);
 	SendMessage(GetConsoleWindow(), WM_CHAR, 0x20, 0);
 #else
 	{
@@ -330,7 +330,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		}
 		else if(sstreq(*argv, "-")) {
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-			TextShow(&_WinM.textwin);
+			TextShow(&_WinM.TxtWin);
 			_Plt.interactive = true;
 #else
 			_Plt.interactive = isatty(fileno(stdin));
