@@ -72,7 +72,7 @@ int CallTip::NextTabPos(int x) const
 
 // Draw a section of the call tip that does not include \n in one colour.
 // The text may include up to numEnds tabs or arrow characters.
-void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
+void CallTip::DrawChunk(SciSurface * surface, int &x, const char * s,
     int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw)
 {
 	s += posStart;
@@ -110,18 +110,18 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 					PRectangle rcClientInner(rcClient.left + 1, rcClient.top + 1, rcClient.right - 2, rcClient.bottom - 1);
 					surface->FillRectangle(rcClientInner, colourUnSel);
 					if(upArrow) {       // Up arrow
-						Point pts[] = {
-							Point::FromInts(centreX - halfWidth, centreY + quarterWidth),
-							Point::FromInts(centreX + halfWidth, centreY + quarterWidth),
-							Point::FromInts(centreX, centreY - halfWidth + quarterWidth),
+						SciPoint pts[] = {
+							SciPoint::FromInts(centreX - halfWidth, centreY + quarterWidth),
+							SciPoint::FromInts(centreX + halfWidth, centreY + quarterWidth),
+							SciPoint::FromInts(centreX, centreY - halfWidth + quarterWidth),
 						};
 						surface->Polygon(pts, SIZEOFARRAY(pts), colourBG, colourBG);
 					}
 					else {              // Down arrow
-						Point pts[] = {
-							Point::FromInts(centreX - halfWidth, centreY - quarterWidth),
-							Point::FromInts(centreX + halfWidth, centreY - quarterWidth),
-							Point::FromInts(centreX, centreY + halfWidth - quarterWidth),
+						SciPoint pts[] = {
+							SciPoint::FromInts(centreX - halfWidth, centreY - quarterWidth),
+							SciPoint::FromInts(centreX + halfWidth, centreY - quarterWidth),
+							SciPoint::FromInts(centreX, centreY + halfWidth - quarterWidth),
 						};
 						surface->Polygon(pts, SIZEOFARRAY(pts), colourBG, colourBG);
 					}
@@ -153,7 +153,7 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 	}
 }
 
-int CallTip::PaintContents(Surface * surfaceWindow, bool draw)
+int CallTip::PaintContents(SciSurface * surfaceWindow, bool draw)
 {
 	PRectangle rcClientPos = wCallTip.GetClientPosition();
 	PRectangle rcClientSize(0.0f, 0.0f, rcClientPos.right - rcClientPos.left, rcClientPos.bottom - rcClientPos.top);
@@ -199,7 +199,7 @@ int CallTip::PaintContents(Surface * surfaceWindow, bool draw)
 	return maxWidth;
 }
 
-void CallTip::PaintCT(Surface * surfaceWindow)
+void CallTip::PaintCT(SciSurface * surfaceWindow)
 {
 	//if(!val.empty()) {
 	if(Text.NotEmpty()) {
@@ -223,7 +223,7 @@ void CallTip::PaintCT(Surface * surfaceWindow)
 	}
 }
 
-void CallTip::MouseClick(Point pt)
+void CallTip::MouseClick(SciPoint pt)
 {
 	clickPlace = 0;
 	if(rectUp.Contains(pt))
@@ -232,14 +232,14 @@ void CallTip::MouseClick(Point pt)
 		clickPlace = 2;
 }
 
-PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char * defn,
-    const char * faceName, int size, int codePage_, int characterSet, int technology, Window &wParent)
+PRectangle CallTip::CallTipStart(int pos, SciPoint pt, int textHeight, const char * defn,
+    const char * faceName, int size, int codePage_, int characterSet, int technology, SciWindow &wParent)
 {
 	clickPlace = 0;
 	//val = defn;
 	Text = defn;
 	codePage = codePage_;
-	Surface * surfaceMeasure = Surface::Allocate(technology);
+	SciSurface * surfaceMeasure = SciSurface::Allocate(technology);
 	if(!surfaceMeasure)
 		return PRectangle();
 	surfaceMeasure->Init(wParent.GetID());

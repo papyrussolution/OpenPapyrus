@@ -375,6 +375,7 @@ static const SIntToSymbTabEntry Pirit_ErrMsg[] = {
 	{ 0x61, "Нет связи с ФН" },
 	{ 0x62, "Ошибка обмена с ФН" },
 	{ 0x63, "Слишком длинная команда для посылки в ФН" },
+	{ 0x7E, "В реквизите 2007 содержится КМ, который ранее не проверялся в ФН" },
 };
 /*
 	0x00 	Команда выполнена без ошибок
@@ -2315,14 +2316,13 @@ int PiritEquip::RunCheck(int opertype)
 					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
 					default: product_type_bytes = 0x444D; break; // @v11.0.5
 				}
-				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
 				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
 				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 				if(rl > 0) {
 					PreprocessChZnCodeResult pczcr;
 					str.Z();
 					// @v11.1.10 {
-					if(OfdVer.IsGe(1, 2, 0)) {
+					if(OfdVer.IsGe(1, 2, 0) && Check.ChZnPpStatus > 0) {
 						{
 							// --> 79/1
 							// --> 79/2
@@ -2343,6 +2343,9 @@ int PiritEquip::RunCheck(int opertype)
 					}
 					else {
 					// } @v11.1.10
+						if(OfdVer.IsGe(1, 2, 0)) {
+							str.CatChar('@');
+						}
 						for(int si = 0; si < rl; si++) {
 							if(si < 8)
 								str.CatChar('$').CatHex(chzn_1162_bytes[si]);

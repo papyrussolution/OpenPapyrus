@@ -500,7 +500,6 @@ public:
 	virtual void Init();
 	virtual void InsertLine(int line);
 	virtual void RemoveLine(int line);
-
 	bool   FASTCALL MultipleStyles(int line) const;
 	int    FASTCALL Style(int line) const;
 	const  char  * FASTCALL Text(int line) const;
@@ -538,11 +537,11 @@ class CallTip {
 public:
 	CallTip();
 	~CallTip();
-	void PaintCT(Surface *surfaceWindow);
-	void MouseClick(Point pt);
+	void PaintCT(SciSurface *surfaceWindow);
+	void MouseClick(SciPoint pt);
 	/// Setup the calltip and return a rectangle of the area required.
-	PRectangle CallTipStart(int pos, Point pt, int textHeight, const char *defn,
-		const char *faceName, int size, int codePage_, int characterSet, int technology, Window &wParent);
+	PRectangle CallTipStart(int pos, SciPoint pt, int textHeight, const char *defn,
+		const char *faceName, int size, int codePage_, int characterSet, int technology, SciWindow &wParent);
 	void CallTipCancel();
 	/// Set a range of characters to be displayed in a highlight style.
 	/// Commonly used to highlight the current parameter.
@@ -557,8 +556,8 @@ public:
 	void SetForeBack(const ColourDesired &fore, const ColourDesired &back);
 	bool IsInCollTipMode() const { return BIN(Flags & fInCallTipMode); }
 
-	Window wCallTip;
-	Window wDraw;
+	SciWindow wCallTip;
+	SciWindow wDraw;
 	int posStartCallTip;
 	ColourDesired colourBG;
 	ColourDesired colourUnSel;
@@ -575,8 +574,8 @@ private:
 	// Private so CallTip objects can not be copied
 	CallTip(const CallTip &);
 	CallTip & FASTCALL operator = (const CallTip &);
-	void   DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
-	int    PaintContents(Surface *surfaceWindow, bool draw);
+	void   DrawChunk(SciSurface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
+	int    PaintContents(SciSurface *surfaceWindow, bool draw);
 	bool   IsTabCharacter(char c) const;
 	int    NextTabPos(int x) const;
 
@@ -584,7 +583,7 @@ private:
 	int endHighlight;      // ...end of highlighted text
 	//std::string val;
 	SString Text;
-	Font font;
+	SciFont font;
 	PRectangle rectUp;      // rectangle of last up angle in the tip
 	PRectangle rectDown;    // rectangle of last down arrow in the tip
 	int lineHeight;         // vertical line spacing
@@ -1285,8 +1284,8 @@ public:
 	explicit PointDocument(double x_ = 0, double y_ = 0) : x(x_), y(y_)
 	{
 	}
-	// Conversion from Point.
-	explicit PointDocument(Point pt) : x(pt.x), y(pt.y)
+	// Conversion from SciPoint.
+	explicit PointDocument(SciPoint pt) : x(pt.x), y(pt.y)
 	{
 	}
 	double x;
@@ -1326,7 +1325,7 @@ public:
 	void   RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle);
 	int    FindBefore(XYPOSITION x, int lower, int upper) const;
 	int    FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
-	Point  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
+	SciPoint  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
 	int    EndLineStyle() const;
 
 	enum { 
@@ -1365,10 +1364,10 @@ class FontRealised : public FontMeasurements {
 	FontRealised(const FontRealised &);
 	FontRealised & operator = (const FontRealised &);
 public:
-	Font font;
+	SciFont font;
 	FontRealised();
 	virtual ~FontRealised();
-	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
+	void Realise(SciSurface &surface, int zoomLevel, int technology, const FontSpecification &fs);
 };
 
 enum IndentView {
@@ -1420,7 +1419,7 @@ public:
 	~ViewStyle();
 	void   CalculateMarginWidthAndMask();
 	void   Init(size_t stylesSize_=256);
-	void   Refresh(Surface &surface, int tabInChars);
+	void   Refresh(SciSurface &surface, int tabInChars);
 	void   ReleaseAllExtendedStyles();
 	int    FASTCALL AllocateExtendedStyles(int numberStyles);
 	void   EnsureStyle(size_t index);
@@ -1429,7 +1428,7 @@ public:
 	void   SetStyleFontName(int styleIndex, const char *name);
 	bool   ProtectionActive() const;
 	int    ExternalMarginWidth() const;
-	int    MarginFromLocation(Point pt) const;
+	int    MarginFromLocation(SciPoint pt) const;
 	bool   ValidStyle(size_t styleIndex) const;
 	void   CalcLargestMarkerHeight();
 	ColourOptional Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const;
@@ -1547,7 +1546,7 @@ public:
 	bool   braceBadLightIndicatorSet;
 	uint8  Reserve; // @alignment
 
-	std::vector <Style> styles;
+	std::vector <SciStyle> styles;
 	std::vector <MarginStyle> ms;
 	std::vector <EdgeProperties> theMultiEdge;
 private:
@@ -1834,7 +1833,7 @@ public:
 	{
 		return pces.size();
 	}
-	void MeasureWidths(Surface * surface, const ViewStyle &vstyle, uint styleNumber, const char * s, uint len, XYPOSITION * positions, Document * pdoc);
+	void MeasureWidths(SciSurface * surface, const ViewStyle &vstyle, uint styleNumber, const char * s, uint len, XYPOSITION * positions, Document * pdoc);
 private:
 	// Private so PositionCache objects can not be copied
 	PositionCache(const PositionCache &);
@@ -1910,13 +1909,13 @@ public:
 	void Init(const char *textForm);
 	void Init(const char *const *linesForm);
 	/// Decompose image into runs and use FillRectangle for each run
-	void Draw(Surface *surface, const PRectangle &rc);
+	void Draw(SciSurface *surface, const PRectangle &rc);
 	int GetHeight() const { return height; }
 	int GetWidth() const { return width; }
 	void PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const;
 private:
 	ColourDesired ColourFromCode(int ch) const;
-	void FillRun(Surface *surface, int code, int startX, int y, int x) const;
+	void FillRun(SciSurface *surface, int code, int startX, int y, int x) const;
 	static std::vector<const char *>LinesFormFromTextForm(const char *textForm);
 
 	std::vector <uchar> Pixels; // @firstmember
@@ -1984,7 +1983,7 @@ public:
 	EditModel();
 	virtual ~EditModel();
 	virtual int TopLineOfMain() const = 0;
-	virtual Point GetVisibleOriginInMain() const = 0;
+	virtual SciPoint GetVisibleOriginInMain() const = 0;
 	virtual int LinesOnScreen() const = 0;
 	virtual Range GetHotSpotRange() const = 0;
 	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const;
@@ -2040,9 +2039,9 @@ private:
 //
 //
 //
-void DrawWrapMarker(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
+void DrawWrapMarker(SciSurface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
 
-typedef void (*DrawWrapMarkerFn)(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
+typedef void (*DrawWrapMarkerFn)(SciSurface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
 /**
 * The view may be drawn in separate phases.
 */
@@ -2060,11 +2059,11 @@ enum DrawPhase {
 };
 
 bool   ValidStyledText(const ViewStyle &vs, size_t styleOffset, const Document::StyledText &st);
-int    WidestLineWidth(Surface *surface, const ViewStyle &vs, int styleOffset, const Document::StyledText &st);
-void   DrawTextNoClipPhase(Surface *surface, PRectangle rc, const Style &style, XYPOSITION ybase, const char *s, int len, DrawPhase phase);
-void   DrawStyledText(Surface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const Document::StyledText &st, size_t start, size_t length, DrawPhase phase);
+int    WidestLineWidth(SciSurface *surface, const ViewStyle &vs, int styleOffset, const Document::StyledText &st);
+void   DrawTextNoClipPhase(SciSurface *surface, PRectangle rc, const SciStyle & style, XYPOSITION ybase, const char *s, int len, DrawPhase phase);
+void   DrawStyledText(SciSurface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const Document::StyledText &st, size_t start, size_t length, DrawPhase phase);
 
-typedef void (*DrawTabArrowFn)(Surface *surface, PRectangle rcTab, int ymid);
+typedef void (*DrawTabArrowFn)(SciSurface *surface, PRectangle rcTab, int ymid);
 // 
 // Descr: EditView draws the main text area.
 // 
@@ -2118,15 +2117,15 @@ public:
 		fImeCaretBlockOverride   = 0x0020,
 	};
 	uint   EditViewFlags;
-	Surface * pixmapLine;
-	Surface * pixmapIndentGuide;
-	Surface * pixmapIndentGuideHighlight;
+	SciSurface * pixmapLine;
+	SciSurface * pixmapIndentGuide;
+	SciSurface * pixmapIndentGuideHighlight;
 	LineLayoutCache llc;
 	PositionCache posCache;
 	int tabArrowHeight; // draw arrow heads this many pixels above/below line midpoint
 	/** Some platforms, notably PLAT_CURSES, do not support Scintilla's native
 	 * DrawTabArrow function for drawing tab characters. Allow those platforms to
-	 * override it instead of creating a new method in the Surface class that
+	 * override it instead of creating a new method in the SciSurface class that
 	 * existing platforms must implement as empty. */
 	DrawTabArrowFn customDrawTabArrow;
 	DrawWrapMarkerFn customDrawWrapMarker;
@@ -2144,37 +2143,37 @@ public:
 	void LinesAddedOrRemoved(int lineOfPos, int linesAdded);
 	void DropGraphics(bool freeObjects);
 	void AllocateGraphics(const ViewStyle &vsDraw);
-	void RefreshPixMaps(Surface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
+	void RefreshPixMaps(SciSurface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
 	LineLayout *RetrieveLineLayout(int lineNumber, const EditModel &model);
-	void LayoutLine(const EditModel &model, int line, Surface *surface, const ViewStyle &vstyle,
+	void LayoutLine(const EditModel &model, int line, SciSurface *surface, const ViewStyle &vstyle,
 		LineLayout *ll, int width = LineLayout::wrapWidthInfinite);
-	Point LocationFromPosition(Surface *surface, const EditModel &model, SelectionPosition pos, int topLine, const ViewStyle &vs, PointEnd pe);
-	Range RangeDisplayLine(Surface *surface, const EditModel &model, int lineVisible, const ViewStyle &vs);
-	SelectionPosition SPositionFromLocation(Surface *surface, const EditModel &model, const PointDocument & rPt, bool canReturnInvalid,
+	SciPoint LocationFromPosition(SciSurface *surface, const EditModel &model, SelectionPosition pos, int topLine, const ViewStyle &vs, PointEnd pe);
+	Range RangeDisplayLine(SciSurface *surface, const EditModel &model, int lineVisible, const ViewStyle &vs);
+	SelectionPosition SPositionFromLocation(SciSurface *surface, const EditModel &model, const PointDocument & rPt, bool canReturnInvalid,
 		bool charPosition, bool virtualSpace, const ViewStyle &vs);
-	SelectionPosition SPositionFromLineX(Surface *surface, const EditModel &model, int lineDoc, int x, const ViewStyle &vs);
-	int DisplayFromPosition(Surface *surface, const EditModel &model, int pos, const ViewStyle &vs);
-	int StartEndDisplayLine(Surface *surface, const EditModel &model, int pos, bool start, const ViewStyle &vs);
-	void DrawIndentGuide(Surface *surface, int lineVisible, int lineHeight, int start, PRectangle rcSegment, bool highlight);
-	void DrawEOL(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, PRectangle rcLine,
+	SelectionPosition SPositionFromLineX(SciSurface *surface, const EditModel &model, int lineDoc, int x, const ViewStyle &vs);
+	int DisplayFromPosition(SciSurface *surface, const EditModel &model, int pos, const ViewStyle &vs);
+	int StartEndDisplayLine(SciSurface *surface, const EditModel &model, int pos, bool start, const ViewStyle &vs);
+	void DrawIndentGuide(SciSurface *surface, int lineVisible, int lineHeight, int start, PRectangle rcSegment, bool highlight);
+	void DrawEOL(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, PRectangle rcLine,
 		int line, int lineEnd, int xStart, int subLine, XYACCUMULATOR subLineStart, ColourOptional background);
-	void DrawFoldDisplayText(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
+	void DrawFoldDisplayText(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
 		int line, int xStart, PRectangle rcLine, int subLine, XYACCUMULATOR subLineStart, DrawPhase phase);
-	void DrawAnnotation(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
+	void DrawAnnotation(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
 		int line, int xStart, PRectangle rcLine, int subLine, DrawPhase phase);
-	void DrawCarets(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line,
+	void DrawCarets(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line,
 		int xStart, PRectangle rcLine, int subLine) const;
-	void DrawBackground(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, PRectangle rcLine,
+	void DrawBackground(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, PRectangle rcLine,
 		Range lineRange, int posLineStart, int xStart, int subLine, ColourOptional background) const;
-	void DrawForeground(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int lineVisible,
+	void DrawForeground(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int lineVisible,
 		PRectangle rcLine, Range lineRange, int posLineStart, int xStart, int subLine, ColourOptional background);
-	void DrawIndentGuidesOverEmpty(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
+	void DrawIndentGuidesOverEmpty(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll,
 		int line, int lineVisible, PRectangle rcLine, int xStart, int subLine);
-	void DrawLine(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line,
+	void DrawLine(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line,
 		int lineVisible, int xStart, PRectangle rcLine, int subLine, DrawPhase phase);
-	void PaintText(Surface *surfaceWindow, const EditModel &model, PRectangle rcArea, PRectangle rcClient, const ViewStyle &vsDraw);
-	void FillLineRemainder(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line, PRectangle rcArea, int subLine) const;
-	long FormatRange(bool draw, Sci_RangeToFormat *pfr, Surface *surface, Surface *surfaceMeasure, const EditModel &model, const ViewStyle &vs);
+	void PaintText(SciSurface *surfaceWindow, const EditModel &model, PRectangle rcArea, PRectangle rcClient, const ViewStyle &vsDraw);
+	void FillLineRemainder(SciSurface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line, PRectangle rcArea, int subLine) const;
+	long FormatRange(bool draw, Sci_RangeToFormat *pfr, SciSurface *surface, SciSurface *surfaceMeasure, const EditModel &model, const ViewStyle &vs);
 };
 // 
 // Descr: Convenience class to ensure LineLayout objects are always disposed.
@@ -2231,7 +2230,7 @@ public:
 	long   GetFlags() const { return Flags; }
 	void   SetFlag(long f, int doSet);
 	/// Display the auto completion list positioned to be near a character position
-	void Start(Window &parent, int ctrlID, int position, Point location, int startLen_, int lineHeight, bool unicodeMode, int technology);
+	void Start(SciWindow &parent, int ctrlID, int position, SciPoint location, int startLen_, int lineHeight, bool unicodeMode, int technology);
 	/// The stop chars are characters which, when typed, cause the auto completion list to disappear
 	void SetStopChars(const char *stopChars_);
 	bool IsStopChar(char ch);
@@ -2384,29 +2383,29 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		MarginView();
 		void DropGraphics(bool freeObjects);
 		void AllocateGraphics(const ViewStyle &vsDraw);
-		void RefreshPixMaps(Surface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
-		void PaintMargin(Surface *surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs);
+		void RefreshPixMaps(SciSurface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
+		void PaintMargin(SciSurface *surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs);
 
-		Surface * pixmapSelMargin;
-		Surface * pixmapSelPattern;
-		Surface * pixmapSelPatternOffset1;
+		SciSurface * pixmapSelMargin;
+		SciSurface * pixmapSelPattern;
+		SciSurface * pixmapSelPatternOffset1;
 		Document::HighlightDelimiter highlightDelimiter; // Highlight current folding block
 		int    wrapMarkerPaddingRight; // right-most pixel padding of wrap markers
 		// 
 		// Descr: Some platforms, notably PLAT_CURSES, do not support Scintilla's native
 		//   DrawWrapMarker function for drawing wrap markers. Allow those platforms to
-		//   override it instead of creating a new method in the Surface class that
+		//   override it instead of creating a new method in the SciSurface class that
 		//   existing platforms must implement as empty. 
 		// 
 		DrawWrapMarkerFn customDrawWrapMarker;
 	};
 	// On GTK+, Scintilla is a container widget holding two scroll bars
 	// whereas on Windows there is just one window with both scroll bars turned on.
-	Window wMain;   ///< The Scintilla parent window
-	Window wMargin; ///< May be separate when using a scroll view for wMain
+	SciWindow wMain;   ///< The Scintilla parent window
+	SciWindow wMargin; ///< May be separate when using a scroll view for wMain
 	ViewStyle vs;
 	int    technology;
-	Point  sizeRGBAImage;
+	SciPoint  sizeRGBAImage;
 	float  scaleRGBAImage;
 	MarginView marginView;
 	EditView view;
@@ -2425,9 +2424,9 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	};
 
 	Idler  idler;
-	Point  lastClick;
+	SciPoint  lastClick;
 	uint   lastClickTime;
-	Point  doubleClickCloseThreshold;
+	SciPoint  doubleClickCloseThreshold;
 	int    dwellDelay;
 	int    ticksToDwell;
 	enum {
@@ -2437,7 +2436,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		selWholeLine
 	} selectionType;
 
-	Point ptMouseLast;
+	SciPoint ptMouseLast;
 	enum {
 		ddNone,
 		ddInitial,
@@ -2541,7 +2540,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	// The top left visible point in main window coordinates. Will be 0,0 except for
 	// scroll views where it will be equivalent to the current scroll position.
 	//
-	virtual Point GetVisibleOriginInMain() const;
+	virtual SciPoint GetVisibleOriginInMain() const;
 	virtual PRectangle GetClientRectangle() const;
 	virtual PRectangle GetClientDrawingRectangle();
 	virtual int LinesOnScreen() const;
@@ -2568,20 +2567,20 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	virtual int GetCtrlID() { return ctrlID; }
 	virtual void NotifyParent(SCNotification & rScn) = 0; // @sobolev SCNotification-->SCNotification &
 	virtual void NotifyStyleToNeeded(int endStyleNeeded);
-	virtual void NotifyDoubleClick(Point pt, int modifiers);
-	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
+	virtual void NotifyDoubleClick(SciPoint pt, int modifiers);
+	virtual void NotifyDoubleClick(SciPoint pt, bool shift, bool ctrl, bool alt);
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
 	virtual void CancelModes();
 	virtual int KeyCommand(uint iMessage);
 	virtual int KeyDefault(int /* key */, int /*modifiers*/);
 	virtual CaseFolder * CaseFolderForEncoding();
 	virtual void CopyToClipboard(const SelectionText &selectedText) = 0;
-	virtual void DisplayCursor(Window::Cursor c);
-	virtual bool DragThreshold(Point ptStart, Point ptNow);
+	virtual void DisplayCursor(SciWindow::Cursor c);
+	virtual bool DragThreshold(SciPoint ptStart, SciPoint ptNow);
 	virtual void StartDrag();
-	virtual void ButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
-	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
-	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
+	virtual void ButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers);
+	virtual void RightButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers);
+	virtual void ButtonDown(SciPoint pt, uint curTime, bool shift, bool ctrl, bool alt);
 	virtual void SetTicking(bool on);
 	virtual void TickFor(TickReason reason);
 	virtual bool FineTickerAvailable();
@@ -2610,21 +2609,21 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   SetRepresentations();
 	void   DropGraphics(bool freeObjects);
 	void   AllocateGraphics();
-	PointDocument FASTCALL DocumentPointFromView(const Point & rPtView) const;  // Convert a point from view space to document
+	PointDocument FASTCALL DocumentPointFromView(const SciPoint & rPtView) const;  // Convert a point from view space to document
 	int    TopLineOfMain() const;   // Return the line at Main's y coordinate 0
 	PRectangle GetTextRectangle() const;
 	int    LinesToScroll() const;
 	int    MaxScrollPos() const;
 	SelectionPosition ClampPositionIntoDocument(SelectionPosition sp) const;
-	Point  LocationFromPosition(SelectionPosition pos, PointEnd pe = peDefault);
-	Point  LocationFromPosition(int pos, PointEnd pe = peDefault);
+	SciPoint  LocationFromPosition(SelectionPosition pos, PointEnd pe = peDefault);
+	SciPoint  LocationFromPosition(int pos, PointEnd pe = peDefault);
 	int    XFromPosition(int pos);
 	int    XFromPosition(SelectionPosition sp);
-	SelectionPosition SPositionFromLocation(const Point & rPt, bool canReturnInvalid = false, bool charPosition = false, bool virtualSpace = true);
-	int    PositionFromLocation(const Point & rPt, bool canReturnInvalid = false, bool charPosition = false);
+	SelectionPosition SPositionFromLocation(const SciPoint & rPt, bool canReturnInvalid = false, bool charPosition = false, bool virtualSpace = true);
+	int    PositionFromLocation(const SciPoint & rPt, bool canReturnInvalid = false, bool charPosition = false);
 	SelectionPosition SPositionFromLineX(int lineDoc, int x);
 	int    PositionFromLineX(int line, int x);
-	int    LineFromLocation(Point pt) const;
+	int    LineFromLocation(SciPoint pt) const;
 	void   SetTopLine(int topLineNew);
 	void   RedrawSelMargin(int line = -1, bool allAfter = false);
 	PRectangle RectangleFromRange(Range r, int overlap);
@@ -2663,7 +2662,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   MovePositionTo(int newPos, Selection::selTypes selt = Selection::noSel, bool ensureVisible = true);
 	SelectionPosition MovePositionSoVisible(SelectionPosition pos, int moveDir);
 	SelectionPosition MovePositionSoVisible(int pos, int moveDir);
-	Point PointMainCaret();
+	SciPoint PointMainCaret();
 	void   SetLastXChosen();
 	void   ScrollTo(int line, bool moveThumb = true);
 	void   HorizontalScrollTo(int xPos);
@@ -2699,7 +2698,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   InvalidateCaret();
 	bool   Wrapping() const;
 	void   NeedWrapping(int docLineStart = 0, int docLineEnd = WrapPending::lineLarge);
-	bool   WrapOneLine(Surface * surface, int lineToWrap);
+	bool   WrapOneLine(SciSurface * surface, int lineToWrap);
 	enum wrapScope {
 		wsAll, 
 		wsVisible, 
@@ -2708,9 +2707,9 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	bool   WrapLines(enum wrapScope ws);
 	void   LinesJoin();
 	void   LinesSplit(int pixelWidth);
-	void   PaintSelMargin(Surface * surface, const PRectangle & rc);
-	void   RefreshPixMaps(Surface * surfaceWindow);
-	void   Paint(Surface * surfaceWindow, PRectangle rcArea);
+	void   PaintSelMargin(SciSurface * surface, const PRectangle & rc);
+	void   RefreshPixMaps(SciSurface * surfaceWindow);
+	void   Paint(SciSurface * surfaceWindow, PRectangle rcArea);
 	long   FormatRange(bool draw, Sci_RangeToFormat * pfr);
 	int    TextWidth(int style, const char * text);
 	void   SetScrollBars();
@@ -2752,11 +2751,11 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   NotifyPainted();
 	void   NotifyIndicatorClick(bool click, int position, int modifiers);
 	void   NotifyIndicatorClick(bool click, int position, bool shift, bool ctrl, bool alt);
-	bool   NotifyMarginClick(Point pt, int modifiers);
-	bool   NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt);
-	bool   NotifyMarginRightClick(Point pt, int modifiers);
+	bool   NotifyMarginClick(SciPoint pt, int modifiers);
+	bool   NotifyMarginClick(SciPoint pt, bool shift, bool ctrl, bool alt);
+	bool   NotifyMarginRightClick(SciPoint pt, int modifiers);
 	void   NotifyNeedShown(int pos, int len);
-	void   NotifyDwelling(Point pt, bool state);
+	void   NotifyDwelling(SciPoint pt, bool state);
 	void   NotifyZoom();
 	void   NotifyModifyAttempt(Document * document, void * userData);
 	void   NotifySavePoint(Document * document, void * userData, bool atSavePoint);
@@ -2805,17 +2804,17 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   DropAt(SelectionPosition position, const char * value, bool moving, bool rectangular);
 	/** PositionInSelection returns true if position in selection. */
 	bool   PositionInSelection(int pos);
-	bool   PointInSelection(Point pt);
-	bool   PointInSelMargin(Point pt) const;
-	Window::Cursor GetMarginCursor(Point pt) const;
+	bool   PointInSelection(SciPoint pt);
+	bool   PointInSelMargin(SciPoint pt) const;
+	SciWindow::Cursor GetMarginCursor(SciPoint pt) const;
 	void   TrimAndSetSelection(int currentPos_, int anchor_);
 	void   LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine);
 	void   WordSelection(int pos);
 	void   DwellEnd(bool mouseMoved);
 	void   MouseLeave();
-	void   ButtonMoveWithModifiers(Point pt, int modifiers);
-	void   ButtonMove(Point pt);
-	void   ButtonUp(Point pt, uint curTime, bool ctrl);
+	void   ButtonMoveWithModifiers(SciPoint pt, int modifiers);
+	void   ButtonMove(SciPoint pt);
+	void   ButtonUp(SciPoint pt, uint curTime, bool ctrl);
 	void   Tick();
 	bool   Idle();
 	void   SetFocusState(bool focusState);
@@ -2842,11 +2841,11 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	int    GetTag(char * tagValue, int tagNumber);
 	int    ReplaceTarget(bool replacePatterns, const char * text, int length = -1);
 	bool   PositionIsHotspot(int position) const;
-	bool   PointIsHotspot(Point pt);
-	void   SetHotSpotRange(const Point * pt);
+	bool   PointIsHotspot(SciPoint pt);
+	void   SetHotSpotRange(const SciPoint * pt);
 	Range  GetHotSpotRange() const;
 	void   SetHoverIndicatorPosition(int position);
-	void   SetHoverIndicatorPoint(Point pt);
+	void   SetHoverIndicatorPoint(SciPoint pt);
 	int    CodePage() const;
 	int    WrapCount(int line);
 	void   AddStyledText(const char * buffer, int appendLength);
@@ -2867,10 +2866,10 @@ public:
 	AutoSurface(Editor * ed, int technology = -1);
 	AutoSurface(SurfaceID sid, Editor * ed, int technology = -1);
 	~AutoSurface();
-	Surface * operator->() const { return surf; }
-	operator Surface *() const { return surf; }
+	SciSurface * operator->() const { return surf; }
+	operator SciSurface *() const { return surf; }
 private:
-	Surface * surf;
+	SciSurface * surf;
 };
 //
 //
@@ -2896,9 +2895,9 @@ protected:
 	virtual int  KeyCommand(uint iMessage);
 	virtual void CreateCallTipWindow(PRectangle rc) = 0;
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true) = 0;
-	virtual void ButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
-	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
-	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
+	virtual void ButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers);
+	virtual void ButtonDown(SciPoint pt, uint curTime, bool shift, bool ctrl, bool alt);
+	virtual void RightButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers);
 
 	void   FASTCALL Command(int cmdId);
 	void   AutoCompleteInsert(Position startPos, int removeLen, const char *text, int textLen);
@@ -2912,9 +2911,9 @@ protected:
 	void   AutoCompleteCompleted(char ch, uint completionMethod);
 	void   AutoCompleteMoveToCurrentWord();
 	void   CallTipClick();
-	void   CallTipShow(Point pt, const char *defn);
-	bool   ShouldDisplayPopup(Point ptInWindowCoordinates) const;
-	void   ContextMenu(Point pt);
+	void   CallTipShow(SciPoint pt, const char *defn);
+	bool   ShouldDisplayPopup(SciPoint ptInWindowCoordinates) const;
+	void   ContextMenu(SciPoint pt);
 	void   NotifyStyleToNeeded(int endStyleNeeded);
 	void   NotifyLexerChanged(Document *doc, void *userData);
 	//
@@ -2936,7 +2935,7 @@ protected:
 		maxLenInputIME = 200 
 	};
 
-	Menu popup;
+	SciMenu popup;
 	AutoComplete ac;
 	CallTip ct;
 	int displayPopupMenu;

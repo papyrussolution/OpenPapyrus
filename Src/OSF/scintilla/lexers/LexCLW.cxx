@@ -100,7 +100,7 @@ static void FASTCALL StringUpper(char * szString)
 // Set the correct numeric constant state
 /*inline*/ bool FASTCALL SetNumericConstantState(StyleContext &scDoc)
 {
-	int iPoints = 0;                        // Point counter
+	int iPoints = 0;                        // SciPoint counter
 	char cNumericString[512];       // Numeric string buffer
 
 	// Buffer the current numberic string
@@ -537,7 +537,7 @@ static void FillBuffer(Sci_PositionU uiStart, Sci_PositionU uiEnd, Accessor &acc
 	szBuffer[uiPos] = '\0';
 }
 
-// Classify Clarion Fold Point
+// Classify Clarion Fold SciPoint
 
 static int ClassifyClarionFoldPoint(int iLevel, const char* szString)
 {

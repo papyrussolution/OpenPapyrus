@@ -43,7 +43,7 @@ ColourDesired XPM::ColourFromCode(int ch) const
 	return colourCodeTable[ch];
 }
 
-void XPM::FillRun(Surface * surface, int code, int startX, int y, int x) const
+void XPM::FillRun(SciSurface * surface, int code, int startX, int y, int x) const
 {
 	if((code != codeTransparent) && (startX != x)) {
 		PRectangle rc = PRectangle::FromInts(startX, y, x, y + 1);
@@ -121,7 +121,7 @@ void XPM::Init(const char * const * linesForm)
 	}
 }
 
-void XPM::Draw(Surface * surface, const PRectangle &rc)
+void XPM::Draw(SciSurface * surface, const PRectangle &rc)
 {
 	if(!Pixels.empty()) {
 		// Centre the pixmap

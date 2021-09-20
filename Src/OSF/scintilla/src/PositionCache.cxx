@@ -168,9 +168,9 @@ int LineLayout::FindPositionFromX(XYPOSITION x, Range range, bool charPosition) 
 	return range.end;
 }
 
-Point LineLayout::PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const
+SciPoint LineLayout::PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const
 {
-	Point pt;
+	SciPoint pt;
 	// In case of very long line put x at arbitrary large position
 	if(posInLine > maxLineLength) {
 		pt.x = positions[maxLineLength] - positions[LineStart(lines)];
@@ -620,7 +620,7 @@ void PositionCache::SetSize(size_t size_)
 	pces.resize(size_);
 }
 
-void PositionCache::MeasureWidths(Surface * surface, const ViewStyle &vstyle, uint styleNumber,
+void PositionCache::MeasureWidths(SciSurface * surface, const ViewStyle &vstyle, uint styleNumber,
     const char * s, uint len, XYPOSITION * positions, Document * pdoc)
 {
 	allClear = false;

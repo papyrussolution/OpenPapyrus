@@ -1121,7 +1121,7 @@ namespace Scintilla {
 #endif
 	typedef float XYPOSITION;
 	typedef double XYACCUMULATOR;
-	class Font;
+	class SciFont;
 	class Accessor;
 	class WordList;
 	class PropSetSimple;
@@ -1146,26 +1146,26 @@ namespace Scintilla {
 	}
 	// 
 	// A geometric point class.
-	// Point is similar to the Win32 POINT and GTK+ GdkPoint types.
+	// SciPoint is similar to the Win32 POINT and GTK+ GdkPoint types.
 	// 
-	class Point {
+	class SciPoint {
 	public:
-		explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
+		explicit SciPoint(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
 		{
 		}
-		static Point FASTCALL FromInts(int x_, int y_);
+		static SciPoint FASTCALL FromInts(int x_, int y_);
 		//
 		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
 		//
-		static Point FASTCALL FromLong(long lpoint);
+		static SciPoint FASTCALL FromLong(long lpoint);
 		XYPOSITION x;
 		XYPOSITION y;
 	};
-	/**
-	 * A geometric rectangle class.
-	 * PRectangle is similar to the Win32 RECT.
-	 * PRectangles contain their top and left sides, but not their right and bottom sides.
-	 */
+	// 
+	// A geometric rectangle class.
+	// PRectangle is similar to the Win32 RECT.
+	// PRectangles contain their top and left sides, but not their right and bottom sides.
+	// 
 	class PRectangle {
 	public:
 		explicit PRectangle(XYPOSITION left_/*= 0*/, XYPOSITION top_/*= 0*/, XYPOSITION right_/*= 0*/, XYPOSITION bottom_/*= 0*/);
@@ -1173,8 +1173,8 @@ namespace Scintilla {
 		static PRectangle FromInts(int left_, int top_, int right_, int bottom_);
 		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
 		bool FASTCALL operator == (const PRectangle & rc) const;
-		bool FASTCALL Contains(const Point & pt) const;
-		bool FASTCALL ContainsWholePixel(const Point & pt) const;
+		bool FASTCALL Contains(const SciPoint & pt) const;
+		bool FASTCALL ContainsWholePixel(const SciPoint & pt) const;
 		bool FASTCALL Contains(const PRectangle & rc) const;
 		bool FASTCALL Intersects(const PRectangle & other) const;
 		void Move(XYPOSITION xDelta, XYPOSITION yDelta);
@@ -1233,29 +1233,27 @@ namespace Scintilla {
 	// 
 	// A surface abstracts a place to draw.
 	// 
-	class Surface {
+	class SciSurface {
 	private:
-		// Private so Surface objects can not be copied
-		Surface(const Surface &)
+		// Private so SciSurface objects can not be copied
+		SciSurface(const SciSurface &)
 		{
 		}
-		Surface & operator= (const Surface &)
+		SciSurface & operator= (const SciSurface &)
 		{
 			return *this;
 		}
 	public:
-		Surface()
+		static SciSurface * FASTCALL Allocate(int technology);
+		SciSurface()
 		{
 		}
-		virtual ~Surface()
+		virtual ~SciSurface()
 		{
 		}
-		static Surface * FASTCALL Allocate(int technology);
-
 		virtual void Init(WindowID wid) = 0;
 		virtual void Init(SurfaceID sid, WindowID wid) = 0;
-		virtual void InitPixMap(int width, int height, Surface * surface_, WindowID wid) = 0;
-
+		virtual void InitPixMap(int width, int height, SciSurface * surface_, WindowID wid) = 0;
 		virtual void Release() = 0;
 		virtual bool Initialised() = 0;
 		virtual void PenColour(ColourDesired fore) = 0;
@@ -1263,32 +1261,29 @@ namespace Scintilla {
 		virtual int DeviceHeightFont(int points) = 0;
 		virtual void MoveTo(int x_, int y_) = 0;
 		virtual void LineTo(int x_, int y_) = 0;
-		virtual void Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back) = 0;
+		virtual void Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDesired back) = 0;
 		virtual void RectangleDraw(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 		virtual void FillRectangle(PRectangle rc, ColourDesired back) = 0;
-		virtual void FillRectangle(PRectangle rc, Surface &surfacePattern) = 0;
+		virtual void FillRectangle(PRectangle rc, SciSurface &surfacePattern) = 0;
 		virtual void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 		virtual void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags) = 0;
 		virtual void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage) = 0;
 		virtual void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
-		virtual void Copy(PRectangle rc, Point from, Surface &surfaceSource) = 0;
-
-		virtual void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
-		virtual void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
-		virtual void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore) = 0;
-		virtual void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions) = 0;
-		virtual XYPOSITION WidthText(Font &font_, const char * s, int len) = 0;
-		virtual XYPOSITION WidthChar(Font &font_, char ch) = 0;
-		virtual XYPOSITION Ascent(Font &font_) = 0;
-		virtual XYPOSITION Descent(Font &font_) = 0;
-		virtual XYPOSITION InternalLeading(Font &font_) = 0;
-		virtual XYPOSITION ExternalLeading(Font &font_) = 0;
-		virtual XYPOSITION Height(Font &font_) = 0;
-		virtual XYPOSITION AverageCharWidth(Font &font_) = 0;
-
+		virtual void Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource) = 0;
+		virtual void DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
+		virtual void DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
+		virtual void DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore) = 0;
+		virtual void MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITION * positions) = 0;
+		virtual XYPOSITION WidthText(SciFont &font_, const char * s, int len) = 0;
+		virtual XYPOSITION WidthChar(SciFont &font_, char ch) = 0;
+		virtual XYPOSITION Ascent(SciFont &font_) = 0;
+		virtual XYPOSITION Descent(SciFont &font_) = 0;
+		virtual XYPOSITION InternalLeading(SciFont &font_) = 0;
+		virtual XYPOSITION ExternalLeading(SciFont &font_) = 0;
+		virtual XYPOSITION Height(SciFont &font_) = 0;
+		virtual XYPOSITION AverageCharWidth(SciFont &font_) = 0;
 		virtual void SetClip(PRectangle rc) = 0;
 		virtual void FlushCachedState() = 0;
-
 		virtual void SetUnicodeMode(bool unicodeMode_) = 0;
 		virtual void SetDBCSMode(int codePage) = 0;
 	};
@@ -1300,13 +1295,13 @@ namespace Scintilla {
 	// Class to hide the details of window manipulation.
 	// Does not own the window which will normally have a longer life than this object.
 	// 
-	class Window {
+	class SciWindow {
 	public:
-		Window();
-		Window(const Window &source);
-		virtual ~Window();
-		virtual void SetFont(Font &font);
-		Window & operator = (WindowID wid_)
+		SciWindow();
+		SciWindow(const SciWindow &source);
+		virtual ~SciWindow();
+		virtual void SetFont(SciFont &font);
+		SciWindow & operator = (WindowID wid_)
 		{
 			wid = wid_;
 			return *this;
@@ -1317,7 +1312,7 @@ namespace Scintilla {
 		bool   HasFocus();
 		PRectangle GetPosition();
 		void   SetPosition(PRectangle rc);
-		void   SetPositionRelative(PRectangle rc, Window relativeTo);
+		void   SetPositionRelative(PRectangle rc, SciWindow relativeTo);
 		PRectangle GetClientPosition();
 		void   Show(bool show = true);
 		void   InvalidateAll();
@@ -1335,7 +1330,7 @@ namespace Scintilla {
 		};
 		void SetCursor(Cursor curs);
 		void SetTitle(const char * s);
-		PRectangle GetMonitorRect(Point pt);
+		PRectangle GetMonitorRect(SciPoint pt);
 	protected:
 		WindowID wid;
 	private:
@@ -1344,14 +1339,14 @@ namespace Scintilla {
 	// 
 	// Listbox management.
 	// 
-	class ListBox : public Window {
+	class ListBox : public SciWindow {
 	public:
 		ListBox();
 		virtual ~ListBox();
 		static ListBox * Allocate();
 
-		virtual void SetFont(Font &font) = 0;
-		virtual void Create(Window &parent, int ctrlID, Point location, int lineHeight_, bool unicodeMode_, int technology_) = 0;
+		virtual void SetFont(SciFont &font) = 0;
+		virtual void Create(SciWindow &parent, int ctrlID, SciPoint location, int lineHeight_, bool unicodeMode_, int technology_) = 0;
 		virtual void SetAverageCharWidth(int width) = 0;
 		virtual void SetVisibleRows(int rows) = 0;
 		virtual int GetVisibleRows() const = 0;
@@ -1371,15 +1366,15 @@ namespace Scintilla {
 		virtual void SetList(const char* list, char separator, char typesep) = 0;
 	};
 	// 
-	// Menu management.
+	// SciMenu management.
 	// 
-	class Menu {
+	class SciMenu {
 	public:
-		Menu();
+		SciMenu();
 		MenuID GetID() const { return mid; }
 		void   CreatePopUp();
 		void   Destroy();
-		void   Show(Point pt, Window &w);
+		void   Show(SciPoint pt, SciWindow &w);
 	private:
 		MenuID mid;
 	};
@@ -1479,7 +1474,7 @@ namespace Scintilla {
 		#endif
 	#endif
 	// 
-	// Font management.
+	// SciFont management.
 	// 
 	struct FontParameters {
 		FontParameters(const char * faceName_, float size_ = 10, int weight_ = 400, bool italic_ = false, int extraFontFlag_ = 0, int technology_ = 0, int characterSet_ = 0);
@@ -1494,22 +1489,22 @@ namespace Scintilla {
 		uint8  Reserve[3]; // @alignment
 	};
 
-	class Font {
+	class SciFont {
 	public:
-		friend class Surface;
+		friend class SciSurface;
 		friend class SurfaceImpl;
 
-		Font();
-		virtual ~Font();
+		SciFont();
+		virtual ~SciFont();
 		virtual void Create(const FontParameters &fp);
 		virtual void Release();
 		FontID GetID() { return fid; }
 		// Alias another font - caller guarantees not to Release
 		void SetID(FontID fid_) { fid = fid_; }
 	protected:
-		// Private so Font objects can not be copied
-		Font(const Font &);
-		Font & operator = (const Font &);
+		// Private so SciFont objects can not be copied
+		SciFont(const SciFont &);
+		SciFont & operator = (const SciFont &);
 
 		FontID fid;
 	};
@@ -1936,14 +1931,14 @@ namespace Scintilla {
 		uint8  Reserve[3]; // @alignment
 	};
 	//
-	// Just like Font but only has a copy of the FontID so should not delete it
+	// Just like SciFont but only has a copy of the FontID so should not delete it
 	//
-	class FontAlias : public Font {
+	class FontAlias : public SciFont {
 	public:
 		FontAlias();
 		FontAlias(const FontAlias &);
 		virtual ~FontAlias();
-		void   MakeAlias(Font &fontOrigin);
+		void   MakeAlias(SciFont &fontOrigin);
 		void   ClearFont();
 	private:
 		// Private so FontAlias objects can not be assigned except for intiialization
@@ -1963,7 +1958,7 @@ namespace Scintilla {
 	//
 	//
 	//
-	class Style : public FontSpecification, public FontMeasurements {
+	class SciStyle : public FontSpecification, public FontMeasurements {
 	public:
 		ColourDesired fore;
 		ColourDesired back;
@@ -1988,18 +1983,17 @@ namespace Scintilla {
 			fHotspot    = 0x0010
 		};
 		long   Flags;
-		
 		FontAlias font;
 
-		Style();
-		Style(const Style &source);
-		~Style();
-		Style &operator=(const Style &source);
+		SciStyle();
+		SciStyle(const SciStyle &source);
+		~SciStyle();
+		SciStyle & operator=(const SciStyle &source);
 		//void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char *fontName_, int characterSet_,
 		//	int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_);
 		void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_, int weight_, bool italic_, ecaseForced caseForce_, long flags);
-		void ClearTo(const Style &source);
-		void Copy(Font &font_, const FontMeasurements &fm_);
+		void ClearTo(const SciStyle & source);
+		void Copy(SciFont &font_, const FontMeasurements &fm_);
 		bool IsProtected() const 
 		{ 
 			//return !(changeable && visible);
@@ -2034,7 +2028,7 @@ namespace Scintilla {
 		};
 		Indicator();
 		Indicator(int style_, ColourDesired fore_=ColourDesired(0,0,0), bool under_=false, int fillAlpha_=30, int outlineAlpha_=50);
-		void Draw(Surface *surface, const PRectangle &rc, const PRectangle &rcLine, const PRectangle &rcCharacter, DrawState drawState, int value) const;
+		void Draw(SciSurface *surface, const PRectangle &rc, const PRectangle &rcLine, const PRectangle &rcCharacter, DrawState drawState, int value) const;
 		bool IsDynamic() const { return !(sacNormal == sacHover); }
 		bool OverridesTextFore() const { return (sacNormal.style == INDIC_TEXTFORE || sacHover.style == INDIC_TEXTFORE); }
 		int Flags() const { return attributes; }
@@ -2051,7 +2045,7 @@ namespace Scintilla {
 	//
 	// #include "LineMarker.h"
 	//
-	typedef void (*DrawLineMarkerFn)(Surface *surface, PRectangle &rcWhole, Font &fontForCharacter, int tFold, int marginStyle, const void *lineMarker);
+	typedef void (*DrawLineMarkerFn)(SciSurface *surface, PRectangle &rcWhole, SciFont &fontForCharacter, int tFold, int marginStyle, const void *lineMarker);
 	//
 	//
 	//
@@ -2073,7 +2067,7 @@ namespace Scintilla {
 		RGBAImage * image;
 		/** Some platforms, notably PLAT_CURSES, do not support Scintilla's native
 		 * Draw function for drawing line markers. Allow those platforms to override
-		 * it instead of creating a new method(s) in the Surface class that existing
+		 * it instead of creating a new method(s) in the SciSurface class that existing
 		 * platforms must implement as empty. */
 		DrawLineMarkerFn customDraw;
 
@@ -2083,8 +2077,8 @@ namespace Scintilla {
 		LineMarker & FASTCALL operator = (const LineMarker &other);
 		void FASTCALL SetXPM(const char * textForm);
 		void FASTCALL SetXPM(const char * const * linesForm);
-		void SetRGBAImage(Point sizeRGBAImage, float scale, const uchar *pixelsRGBAImage);
-		void Draw(Surface *surface, PRectangle &rc, Font &fontForCharacter, typeOfFold tFold, int marginStyle) const;
+		void SetRGBAImage(SciPoint sizeRGBAImage, float scale, const uchar *pixelsRGBAImage);
+		void Draw(SciSurface *surface, PRectangle &rc, SciFont &fontForCharacter, typeOfFold tFold, int marginStyle) const;
 	};
 	//
 	// #include "UniConversion.h"

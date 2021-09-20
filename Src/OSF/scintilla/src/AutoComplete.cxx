@@ -54,7 +54,7 @@ void AutoComplete::SetFlag(long f, int doSet)
 	SETFLAG(Flags, f, doSet);
 }
 
-void AutoComplete::Start(Window &parent, int ctrlID, int position, Point location, int startLen_, int lineHeight, bool unicodeMode, int technology)
+void AutoComplete::Start(SciWindow &parent, int ctrlID, int position, SciPoint location, int startLen_, int lineHeight, bool unicodeMode, int technology)
 {
 	if(/*active*/Flags & fActive) {
 		Cancel();

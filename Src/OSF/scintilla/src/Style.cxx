@@ -18,7 +18,7 @@ FontAlias::FontAlias()
 {
 }
 
-FontAlias::FontAlias(const FontAlias &other) : Font()
+FontAlias::FontAlias(const FontAlias &other) : SciFont()
 {
 	SetID(other.fid);
 }
@@ -26,10 +26,10 @@ FontAlias::FontAlias(const FontAlias &other) : Font()
 FontAlias::~FontAlias()
 {
 	SetID(0);
-	// ~Font will not release the actual font resource since it is now 0
+	// ~SciFont will not release the actual font resource since it is now 0
 }
 
-void FontAlias::MakeAlias(Font &fontOrigin)
+void FontAlias::MakeAlias(SciFont &fontOrigin)
 {
 	SetID(fontOrigin.GetID());
 }
@@ -81,7 +81,7 @@ void FontMeasurements::Clear()
 	sizeZoomed = 2;
 }
 
-Style::Style() : FontSpecification()
+SciStyle::SciStyle() : FontSpecification()
 {
 	//Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
 	//    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
@@ -91,7 +91,7 @@ Style::Style() : FontSpecification()
 		SC_WEIGHT_NORMAL, false, caseMixed, fVisible|fChangeable);
 }
 
-Style::Style(const Style &source) : FontSpecification(), FontMeasurements()
+SciStyle::SciStyle(const SciStyle & source) : FontSpecification(), FontMeasurements()
 {
 	//Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), 0, 0, 0, SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), 0, 0, 0, SC_WEIGHT_NORMAL, false, caseMixed, fVisible|fChangeable);
@@ -111,11 +111,11 @@ Style::Style(const Style &source) : FontSpecification(), FontMeasurements()
 	//hotspot = source.hotspot;
 }
 
-Style::~Style()
+SciStyle::~SciStyle()
 {
 }
 
-Style & Style::operator = (const Style & source)
+SciStyle & SciStyle::operator = (const SciStyle & source)
 {
 	if(this == &source)
 		return *this;
@@ -138,9 +138,9 @@ Style & Style::operator = (const Style & source)
 	return *this;
 }
 
-//void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_,
+//void SciStyle::Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_,
 //    int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_)
-void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_,
+void SciStyle::Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_,
     int weight_, bool italic_, ecaseForced caseForce_, long flags)
 {
 	fore = fore_;
@@ -161,7 +161,7 @@ void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_, const cha
 	FontMeasurements::Clear();
 }
 
-void Style::ClearTo(const Style & source)
+void SciStyle::ClearTo(const SciStyle & source)
 {
 	//Clear(source.fore, source.back, source.size, source.fontName, source.characterSet, source.weight, 
 	//	source.italic, source.eolFilled, source.underline, source.caseForce, source.visible, source.changeable, source.hotspot);
@@ -169,9 +169,8 @@ void Style::ClearTo(const Style & source)
 		source.italic, source.caseForce, source.Flags);
 }
 
-void Style::Copy(Font &font_, const FontMeasurements &fm_)
+void SciStyle::Copy(SciFont &font_, const FontMeasurements &fm_)
 {
 	font.MakeAlias(font_);
 	(FontMeasurements &)(*this) = fm_;
 }
-

@@ -1414,7 +1414,7 @@ int DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 //#if 1
-	//TestGtinStruc();
+	TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();

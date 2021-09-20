@@ -1080,14 +1080,14 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 
 									SXml::WNode np(rX, "product");
 									XMLReplaceSpecSymb(mark_buf, "&<>\'");
-									np.PutInner("ki", mark_buf);
-									np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+									np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
+									np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
 									//
-									np.PutInner("primary_document_type", "OTHER");
-									np.PutInner("primary_document_number", "PDN");
-									np.PutInner("primary_document_date", doc_date_text);
-									PPLoadString("document_upd_s", temp_buf); // @v11.1.10 УПД
-									np.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+									// @v11.1.11 np.PutInner("primary_document_type", "OTHER");
+									// @v11.1.11 np.PutInner("primary_document_number", "PDN");
+									// @v11.1.11 np.PutInner("primary_document_date", doc_date_text);
+									// @v11.1.11 PPLoadString("document_upd_s", temp_buf); // @v11.1.10 УПД
+									// @v11.1.11 np.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 								}
 							}
 						}

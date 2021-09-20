@@ -79,7 +79,7 @@ void Partitioning::SetPartitionStartPosition(int partition, int pos)
 
 void Partitioning::InsertText(int partitionInsert, int delta)
 {
-	// Point all the partitions after the insertion point further along in the buffer
+	// SciPoint all the partitions after the insertion point further along in the buffer
 	if(stepLength) {
 		if(partitionInsert >= stepPartition) {
 			// Fill in up to the new insertion point

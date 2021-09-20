@@ -29,7 +29,7 @@ Indicator::Indicator(int style_, ColourDesired fore_/*=ColourDesired(0,0,0)*/, b
 {
 }
 
-void Indicator::Draw(Surface * surface, const PRectangle &rc, const PRectangle &rcLine, 
+void Indicator::Draw(SciSurface * surface, const PRectangle &rc, const PRectangle &rcLine, 
 	const PRectangle &rcCharacter, DrawState drawState, int value) const
 {
 	StyleAndColour sacDraw = sacNormal;
@@ -200,10 +200,10 @@ void Indicator::Draw(Surface * surface, const PRectangle &rc, const PRectangle &
 			    (sacDraw.style == INDIC_POINT) ? (rcCharacter.left) : ((rcCharacter.right + rcCharacter.left) / 2);
 			const int ix = static_cast<int>(x + 0.5f);
 			const int iy = static_cast<int>(rc.top + 1.0f);
-			Point pts[] = {
-				Point::FromInts(ix - pixelHeight, iy + pixelHeight),    // Left
-				Point::FromInts(ix + pixelHeight, iy + pixelHeight),    // Right
-				Point::FromInts(ix, iy)                                                                 // Top
+			SciPoint pts[] = {
+				SciPoint::FromInts(ix - pixelHeight, iy + pixelHeight),    // Left
+				SciPoint::FromInts(ix + pixelHeight, iy + pixelHeight),    // Right
+				SciPoint::FromInts(ix, iy)                                                                 // Top
 			};
 			surface->Polygon(pts, 3, sacDraw.fore, sacDraw.fore);
 		}

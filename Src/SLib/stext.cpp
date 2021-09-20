@@ -3065,17 +3065,16 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 	return ok;
 }
 
-int STextEncodingStat::Finish()
+void STextEncodingStat::Finish()
 {
 	if(P_UcdHandle) {
 		uchardet_data_end(static_cast<uchardet_t>(P_UcdHandle));
 		const char * p_cp_symb = uchardet_get_charset(static_cast<uchardet_t>(P_UcdHandle));
 		if(p_cp_symb) {
 			STRNSCPY(CpName, p_cp_symb);
-			Flags |= fUCarDetWorked;
+			Flags |= fUCharDetWorked;
 		}
 	}
-	return 1;
 }
 
 SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
@@ -3182,7 +3181,7 @@ SLTEST_R(STextEncodingStat)
 				}
 				tes.Finish();
 				ps.Split(in_file_name);
-				SLTEST_CHECK_NZ(tes.CheckFlag(tes.fUCarDetWorked));
+				SLTEST_CHECK_NZ(tes.CheckFlag(tes.fUCharDetWorked));
 				SLTEST_CHECK_Z(ps.Nam.CmpNC(tes.GetCpName()));
 				temp_buf.Z().Cat(in_file_name).Tab().Cat(tes.GetCpName()).CR();
 				f_out.WriteLine(temp_buf);

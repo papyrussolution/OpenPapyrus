@@ -95,9 +95,9 @@ static void SetWindowID(HWND hWnd, int identifier)
 	::SetWindowLongPtr(hWnd, GWLP_ID, identifier);
 }
 
-static Point PointFromPOINT(POINT pt)
+static SciPoint PointFromPOINT(POINT pt)
 {
-	return Point::FromInts(pt.x, pt.y);
+	return SciPoint::FromInts(pt.x, pt.y);
 }
 
 typedef void VFunction(void);
@@ -228,7 +228,7 @@ private:
 		fineTimerStart 
 	};
 
-	virtual bool DragThreshold(Point ptStart, Point ptNow);
+	virtual bool DragThreshold(SciPoint ptStart, SciPoint ptNow);
 	virtual void StartDrag();
 	int TargetAsUTF8(char * text);
 	void AddCharUTF16(wchar_t const * wcs, uint wclen);
@@ -270,7 +270,7 @@ private:
 	virtual void SetCtrlID(int identifier);
 	virtual int GetCtrlID();
 	virtual void NotifyParent(SCNotification & rScn);
-	virtual void NotifyDoubleClick(Point pt, int modifiers);
+	virtual void NotifyDoubleClick(SciPoint pt, int modifiers);
 	virtual CaseFolder * CaseFolderForEncoding();
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
 	virtual void Copy();
@@ -507,7 +507,7 @@ HWND ScintillaWin::MainHWND()
 	return static_cast<HWND>(wMain.GetID());
 }
 
-bool ScintillaWin::DragThreshold(Point ptStart, Point ptNow)
+bool ScintillaWin::DragThreshold(SciPoint ptStart, SciPoint ptNow)
 {
 	int xMove = static_cast<int>(std::abs(ptStart.x - ptNow.x));
 	int yMove = static_cast<int>(std::abs(ptStart.y - ptNow.y));
@@ -792,7 +792,7 @@ sptr_t ScintillaWin::HandleCompositionWindowed(uptr_t wParam, sptr_t lParam)
 		if(imc.hIMC) {
 			AddWString(imc.GetCompositionString(GCS_RESULTSTR));
 			// Set new position after converted
-			Point pos = PointMainCaret();
+			SciPoint pos = PointMainCaret();
 			COMPOSITIONFORM CompForm;
 			CompForm.dwStyle = CFS_POINT;
 			CompForm.ptCurrentPos.x = static_cast<int>(pos.x);
@@ -839,7 +839,7 @@ void ScintillaWin::SetCandidateWindowPos()
 {
 	IMContext imc(MainHWND());
 	if(imc.hIMC) {
-		Point pos = PointMainCaret();
+		SciPoint pos = PointMainCaret();
 		CANDIDATEFORM CandForm;
 		CandForm.dwIndex = 0;
 		CandForm.dwStyle = CFS_CANDIDATEPOS;
@@ -1261,13 +1261,13 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 					//	Platform::IsKeyDown(VK_CONTROL),
 					//	Platform::IsKeyDown(VK_MENU));
 					::SetFocus(MainHWND());
-					ButtonDown(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(),
+					ButtonDown(SciPoint::FromLong(static_cast<long>(lParam)), ::GetMessageTime(),
 						(wParam & MK_SHIFT) != 0, (wParam & MK_CONTROL) != 0, Platform::IsKeyDown(VK_MENU));
 				}
 				break;
 			case WM_MOUSEMOVE: 
 				{
-					const Point pt = Point::FromLong(static_cast<long>(lParam));
+					const SciPoint pt = SciPoint::FromLong(static_cast<long>(lParam));
 					// Windows might send WM_MOUSEMOVE even though the mouse has not been moved:
 					// http://blogs.msdn.com/b/oldnewthing/archive/2003/10/01/55108.aspx
 					if(ptMouseLast.x != pt.x || ptMouseLast.y != pt.y) {
@@ -1282,24 +1282,24 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    MouseLeave();
 			    return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 			case WM_LBUTTONUP:
-			    ButtonUp(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(), (wParam & MK_CONTROL) != 0);
+			    ButtonUp(SciPoint::FromLong(static_cast<long>(lParam)), ::GetMessageTime(), (wParam & MK_CONTROL) != 0);
 			    break;
 			case WM_RBUTTONDOWN: 
 				{
 					::SetFocus(MainHWND());
-					Point pt = Point::FromLong(static_cast<long>(lParam));
+					SciPoint pt = SciPoint::FromLong(static_cast<long>(lParam));
 					if(!PointInSelection(pt)) {
 						CancelModes();
-						SetEmptySelection(PositionFromLocation(Point::FromLong(static_cast<long>(lParam))));
+						SetEmptySelection(PositionFromLocation(SciPoint::FromLong(static_cast<long>(lParam))));
 					}
 					RightButtonDownWithModifiers(pt, ::GetMessageTime(), ModifierFlags((wParam & MK_SHIFT) != 0, (wParam & MK_CONTROL) != 0, Platform::IsKeyDown(VK_MENU)));
 				}
 				break;
 			case WM_SETCURSOR:
 			    if(_LoWord(lParam) == HTCLIENT) {
-					Window::Cursor cur = Window::cursorText;
+					SciWindow::Cursor cur = SciWindow::cursorText;
 				    if(inDragDrop == ddDragging)
-						cur = Window::cursorUp;
+						cur = SciWindow::cursorUp;
 				    else {
 					    // Display regular (drag) cursor over selection
 					    POINT pt;
@@ -1308,11 +1308,11 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 						    if(PointInSelMargin(PointFromPOINT(pt)))
 								cur = GetMarginCursor(PointFromPOINT(pt));
 						    else if(PointInSelection(PointFromPOINT(pt)) && !SelectionEmpty())
-								cur = Window::cursorArrow;
+								cur = SciWindow::cursorArrow;
 						    else if(PointIsHotspot(PointFromPOINT(pt)))
-								cur = Window::cursorHand;
+								cur = SciWindow::cursorHand;
 						    else
-								cur = Window::cursorText;
+								cur = SciWindow::cursorText;
 					    }
 				    }
 					DisplayCursor(cur);
@@ -1427,10 +1427,10 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    }
 			case WM_CONTEXTMENU: 
 				{
-					Point pt = Point::FromLong(static_cast<long>(lParam));
+					SciPoint pt = SciPoint::FromLong(static_cast<long>(lParam));
 					POINT rpt = {static_cast<int>(pt.x), static_cast<int>(pt.y)};
 					::ScreenToClient(MainHWND(), &rpt);
-					const Point ptClient = PointFromPOINT(rpt);
+					const SciPoint ptClient = PointFromPOINT(rpt);
 					if(ShouldDisplayPopup(ptClient)) {
 						if((pt.x == -1) && (pt.y == -1)) {
 							// Caused by keyboard so display menu near caret
@@ -1691,7 +1691,7 @@ void ScintillaWin::UpdateSystemCaret()
 			DestroySystemCaret();
 			CreateSystemCaret();
 		}
-		Point pos = PointMainCaret();
+		SciPoint pos = PointMainCaret();
 		::SetCaretPos(static_cast<int>(pos.x), static_cast<int>(pos.y));
 	}
 }
@@ -1799,7 +1799,7 @@ void ScintillaWin::NotifyParent(SCNotification & rScn)
 	::SendMessage(::GetParent(hw_main), WM_NOTIFY, ctrl_id, reinterpret_cast<LPARAM>(&rScn));
 }
 
-void ScintillaWin::NotifyDoubleClick(Point pt, int modifiers)
+void ScintillaWin::NotifyDoubleClick(SciPoint pt, int modifiers)
 {
 	//Platform::DebugPrintf("ScintillaWin Double click 0\n");
 	ScintillaBase::NotifyDoubleClick(pt, modifiers);
@@ -2444,14 +2444,14 @@ DropTarget::DropTarget() : vtbl(vtDropTarget), sci(0)
 }
 /**
  * DBCS: support Input Method Editor (IME).
- * Called when IME Window opened.
+ * Called when IME SciWindow opened.
  */
 void ScintillaWin::ImeStartComposition()
 {
 	if(caret.Flags & Caret::fActive) {
-		// Move IME Window to current caret position
+		// Move IME SciWindow to current caret position
 		IMContext imc(MainHWND());
-		Point pos = PointMainCaret();
+		SciPoint pos = PointMainCaret();
 		COMPOSITIONFORM CompForm;
 		CompForm.dwStyle = CFS_POINT;
 		CompForm.ptCurrentPos.x = static_cast<int>(pos.x);
@@ -2488,7 +2488,7 @@ void ScintillaWin::ImeStartComposition()
 	}
 }
 
-/** Called when IME Window closed. */
+/** Called when IME SciWindow closed. */
 void ScintillaWin::ImeEndComposition()
 {
 	ShowCaretAtCurrentPosition();
@@ -3052,7 +3052,7 @@ LRESULT PASCAL ScintillaWin::CTWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, 
 			else if(iMessage == WM_PAINT) {
 				PAINTSTRUCT ps;
 				::BeginPaint(hWnd, &ps);
-				Surface * surfaceWindow = Surface::Allocate(sciThis->technology);
+				SciSurface * surfaceWindow = SciSurface::Allocate(sciThis->technology);
 				if(surfaceWindow) {
 #if defined(USE_D2D)
 					ID2D1HwndRenderTarget * pCTRenderTarget = 0;
@@ -3113,7 +3113,7 @@ LRESULT PASCAL ScintillaWin::CTWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, 
 			}
 			else if(iMessage == WM_LBUTTONDOWN) {
 				// This does not fire due to the hit test code
-				sciThis->ct.MouseClick(Point::FromLong(static_cast<long>(lParam)));
+				sciThis->ct.MouseClick(SciPoint::FromLong(static_cast<long>(lParam)));
 				sciThis->CallTipClick();
 				return 0;
 			}

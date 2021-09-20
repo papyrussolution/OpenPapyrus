@@ -2484,11 +2484,10 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.ChZnProductType = CurIter.ChZnProductType; // @v10.7.2
 			// @v11.1.11 {
 			if(P_CcPack && sl_param.ChZnCode.NotEmpty()) {
-				// CurIter.SrcItemNo - увеличен на единицу методом NextIteration
-				const CCheckPacket::PreprocessChZnCodeResult * p_ppr = P_CcPack->GetLineChZnPreprocessResult(CurIter.SrcItemNo); 
+				const CCheckPacket::PreprocessChZnCodeResult * p_ppr = P_CcPack->GetLineChZnPreprocessResult(CurIter.SrcItemNo+1); 
 				if(p_ppr) {
 					sl_param.PpChZnR = *p_ppr;
-					sl_param.PpChZnR.LineIdx = CurIter.SrcItemNo; // @paranoic
+					sl_param.PpChZnR.LineIdx = CurIter.SrcItemNo+1; // @paranoic
 				}
 				else
 					sl_param.PpChZnR.Z(); // @paranoic

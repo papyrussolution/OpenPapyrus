@@ -1701,7 +1701,7 @@ int SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArra
 		if(Flags & sfSkipAfVerif)
 			r = 1;
 		else
-			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : AllowPrintOper(); // @v10.1.2
+			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : 1/*AllowPrintOper()*/; // @v10.1.2
 		// } @v10.8.0
 		//
 		// Если выдана ошибка, не описанная в протоколе, то выходим для получения текста ошибки

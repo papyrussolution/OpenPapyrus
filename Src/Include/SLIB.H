@@ -9941,12 +9941,12 @@ public:
 	// Descr: Флаги состояния объекта
 	//
 	enum {
-		fEmpty         = 0x0001,
-		fAsciiOnly     = 0x0002,
-		fLegalUtf8Only = 0x0004,
-		fMiscEolf      = 0x0008,
-		fUseUCharDet   = 0x0010, // Декларативный флаг: предписывает использовать библиотеку uchardet для идентификации кодировки
-		fUCarDetWorked = 0x0020  // Признак того, что модуль uchardet смог идентифицировать кодовую страницу текста
+		fEmpty          = 0x0001,
+		fAsciiOnly      = 0x0002,
+		fLegalUtf8Only  = 0x0004,
+		fMiscEolf       = 0x0008,
+		fUseUCharDet    = 0x0010, // Декларативный флаг: предписывает использовать библиотеку uchardet для идентификации кодировки
+		fUCharDetWorked = 0x0020  // Признак того, что модуль uchardet смог идентифицировать кодовую страницу текста
 	};
 	//
 	// Descr: @ctr
@@ -9961,7 +9961,7 @@ public:
 	//
 	STextEncodingStat & Init(long options = 0);
 	int    Add(const void * pData, size_t size);
-	int    Finish();
+	void   Finish();
 	SEOLFormat GetEolFormat() const { return Eolf; }
 	SCodepageIdent GetCp() const { return Cp; }
 	const char * GetCpName() const { return CpName; }

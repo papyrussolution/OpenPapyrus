@@ -8,7 +8,6 @@
 **
 ** Copyright (c) 1991-1998  Seagate Software, Inc.
 */
-
 #if !defined (CRPE_H)
 #define CRPE_H
 
@@ -23,7 +22,7 @@
 #elif defined (_MSC_VER)                 // Microsoft Visual C++
   #if _MSC_VER >= 900                    // MSVC 2.x and later
     #pragma pack (push)
-    #pragma comment (lib, "crpe32m.lib") // Point to Microsoft Lib File
+    // @v11.1.11 #pragma comment (lib, "crpe32m.lib") // Point to Microsoft Lib File
   #endif
   #pragma pack (1)
 #endif
@@ -36,10 +35,9 @@
 extern "C"
 {
 #endif
-
-/*********************************************/
+// 
 // CRPE error code
-/*********************************************/
+// 
 #define PE_ERR_NOERROR                      0
 
 #define PE_ERR_NOTENOUGHMEMORY              500
@@ -625,36 +623,16 @@ BOOL CRPE_API PESetGraphData(short printJob,
     short graphN,
     PEGraphDataInfo FAR * graphDataInfo);
 
-BOOL CRPE_API PESetGraphText(short printJob,
-    short sectionCode,
-    short graphN,
-    PEGraphTextInfo FAR * graphTextInfo);
-
-BOOL CRPE_API PESetGraphOptions(short printJob,
-    short sectionCode,
-    short graphN,
-    PEGraphOptions FAR * graphOptions);
+BOOL CRPE_API PESetGraphText(short printJob, short sectionCode, short graphN, PEGraphTextInfo FAR * graphTextInfo);
+BOOL CRPE_API PESetGraphOptions(short printJob, short sectionCode, short graphN, PEGraphOptions FAR * graphOptions);
 
 /*******************************************/
 // formula operations
 /********************************************/
 short CRPE_API PEGetNFormulas(short printJob);
-
-BOOL CRPE_API PEGetNthFormula(short printJob,
-    short formulaN,
-    HANDLE FAR * nameHandle,
-    short FAR * nameLength,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PEGetFormula(short printJob,
-    const char FAR * formulaName,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PESetFormula(short printJob,
-    const char FAR * formulaName,
-    const char FAR * formulaString);
+BOOL CRPE_API PEGetNthFormula(short printJob, short formulaN, HANDLE FAR * nameHandle, short FAR * nameLength, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PEGetFormula(short printJob, const char FAR * formulaName, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PESetFormula(short printJob, const char FAR * formulaName, const char FAR * formulaString);
 
 // Format formula name
 // Old naming convention
@@ -687,67 +665,25 @@ BOOL CRPE_API PEGetAreaFormatFormula(short printJob,
     short formulaName,                                   // an area PE_FFN_ constant
     HANDLE FAR * textHandle,
     short FAR * textLength);
-
-BOOL CRPE_API PESetAreaFormatFormula(short printJob,
-    short areaCode,
-    short formulaName,                                   // an area PE_FFN_ constant
-    const char FAR * formulaString);
-
-BOOL CRPE_API PEGetSectionFormatFormula(short printJob,
-    short sectionCode,
-    short formulaName,                                      // a section PE_FFN_ constant
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PESetSectionFormatFormula(short printJob,
-    short sectionCode,
-    short formulaName,                                      // a section PE_FFN_ constant
-    const char FAR * formulaString);
-
-BOOL CRPE_API PECheckFormula(short printJob,
-    const char FAR * formulaName);
-
-BOOL CRPE_API PEGetSelectionFormula(short printJob,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PESetSelectionFormula(short printJob,
-    const char FAR * formulaString);
-
+BOOL CRPE_API PESetAreaFormatFormula(short printJob, short areaCode, short formulaName/*an area PE_FFN_ constant*/, const char FAR * formulaString);
+BOOL CRPE_API PEGetSectionFormatFormula(short printJob, short sectionCode, short formulaName/*a section PE_FFN_ constant*/, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PESetSectionFormatFormula(short printJob, short sectionCode, short formulaName/* a section PE_FFN_ constant*/, const char FAR * formulaString);
+BOOL CRPE_API PECheckFormula(short printJob, const char FAR * formulaName);
+BOOL CRPE_API PEGetSelectionFormula(short printJob, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PESetSelectionFormula(short printJob, const char FAR * formulaString);
 BOOL CRPE_API PECheckSelectionFormula(short printJob);
-
-BOOL CRPE_API PEGetGroupSelectionFormula(short printJob,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PESetGroupSelectionFormula(short printJob,
-    const char FAR * formulaString);
-
+BOOL CRPE_API PEGetGroupSelectionFormula(short printJob, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PESetGroupSelectionFormula(short printJob, const char FAR * formulaString);
 BOOL CRPE_API PECheckGroupSelectionFormula(short printJob);
 
 /* ************************************ */
 /*          SQL Expressions             */
 /* ************************************ */
 short CRPE_API PEGetNSQLExpressions(short printJob);
-
-BOOL CRPE_API PEGetNthSQLExpression(short printJob,
-    short expressionN,
-    HANDLE FAR * nameHandle,
-    short FAR * nameLength,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PEGetSQLExpression(short printJob,
-    const char FAR * expressionName,
-    HANDLE FAR * textHandle,
-    short FAR * textLength);
-
-BOOL CRPE_API PESetSQLExpression(short printJob,
-    const char FAR * expressionName,
-    const char FAR * expressionString);
-
-BOOL CRPE_API PECheckSQLExpression(short printJob,
-    const char FAR * expressionName);
+BOOL CRPE_API PEGetNthSQLExpression(short printJob, short expressionN, HANDLE FAR * nameHandle, short FAR * nameLength, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PEGetSQLExpression(short printJob, const char FAR * expressionName, HANDLE FAR * textHandle, short FAR * textLength);
+BOOL CRPE_API PESetSQLExpression(short printJob, const char FAR * expressionName, const char FAR * expressionString);
+BOOL CRPE_API PECheckSQLExpression(short printJob, const char FAR * expressionName);
 
 /********************************************************************************/
 // NOTE : Stored Procedures
@@ -840,14 +776,8 @@ typedef struct PEParameterFieldInfo {
 #define PE_SIZEOF_PARAMETER_FIELD_INFO (sizeof(PEParameterFieldInfo))
 
 short CRPE_API PEGetNParameterFields(short printJob);
-
-BOOL CRPE_API PEGetNthParameterField(short printJob,
-    short parameterN,
-    PEParameterFieldInfo FAR * parameterInfo);
-
-BOOL CRPE_API PESetNthParameterField(short printJob,
-    short parameterN,
-    PEParameterFieldInfo FAR * parameterInfo);
+BOOL CRPE_API PEGetNthParameterField(short printJob, short parameterN, PEParameterFieldInfo FAR * parameterInfo);
+BOOL CRPE_API PESetNthParameterField(short printJob, short parameterN, PEParameterFieldInfo FAR * parameterInfo);
 
 // define value type
 #define PE_VI_NUMBER       0
@@ -990,16 +920,9 @@ BOOL CRPE_API PEGetNthSortField(short printJob, short sortFieldN, HANDLE FAR * n
 BOOL CRPE_API PESetNthSortField(short printJob, short sortFieldN, const char FAR * name/* formula form a PE_SF_ constant*/, short direction);                               
 BOOL CRPE_API PEDeleteNthSortField(short printJob, short sortFieldN);
 short CRPE_API PEGetNGroupSortFields(short printJob);
-BOOL CRPE_API PEGetNthGroupSortField(short printJob, short sortFieldN, HANDLE FAR * nameHandle,
-    short FAR * nameLength, short FAR * direction /* a PE_SF_ constant */);                                   
-
-BOOL CRPE_API PESetNthGroupSortField(short printJob,
-    short sortFieldN,
-    const char FAR * name,
-    short direction);
-
-BOOL CRPE_API PEDeleteNthGroupSortField(short printJob,
-    short sortFieldN);
+BOOL CRPE_API PEGetNthGroupSortField(short printJob, short sortFieldN, HANDLE FAR * nameHandle, short FAR * nameLength, short FAR * direction /* a PE_SF_ constant */);                                   
+BOOL CRPE_API PESetNthGroupSortField(short printJob, short sortFieldN, const char FAR * name, short direction);
+BOOL CRPE_API PEDeleteNthGroupSortField(short printJob, short sortFieldN);
 
 /********************************************/
 // Controlling databases
@@ -1040,20 +963,15 @@ short CRPE_API PEGetNTables(short printJob);
 #define PE_DT_SQL_STORED_PROCEDURE   3
 
 typedef struct PETableType {
-	// Initialize to PE_SIZEOF_TABLE_TYPE.
-	WORD StructSize;
-
+	WORD StructSize; // Initialize to PE_SIZEOF_TABLE_TYPE.
 	// All strings are null-terminated.
 	char DLLName [PE_DLL_NAME_LEN];
 	char DescriptiveName [PE_FULL_NAME_LEN];
-
 	WORD DBType;
 }PETableType;
 #define PE_SIZEOF_TABLE_TYPE (sizeof(PETableType))
 
-BOOL CRPE_API PEGetNthTableType(short printJob,
-    short tableN,
-    PETableType FAR * tableType);
+BOOL CRPE_API PEGetNthTableType(short printJob, short tableN, PETableType FAR * tableType);
 
 // The functions PEGetNthTableSessionInfo and PESetNthTableSessionInfo
 // are only used when connecting to MS Access databases (which require a
@@ -1064,15 +982,9 @@ BOOL CRPE_API PEGetNthTableType(short printJob,
 #define PE_SESS_PASSWORD_LEN 128
 
 typedef struct PESessionInfo {
-	// Initialize to PE_SIZEOF_SESSION_INFO.
-	WORD StructSize;
-
-	// All strings are null-terminated.
-	char UserID [PE_SESS_PASSWORD_LEN];
-
-	// Password is undefined when getting information from report.
-	char Password [PE_SESS_PASSWORD_LEN];
-
+	WORD StructSize; // Initialize to PE_SIZEOF_SESSION_INFO.
+	char UserID[PE_SESS_PASSWORD_LEN]; // All strings are null-terminated.
+	char Password [PE_SESS_PASSWORD_LEN]; // Password is undefined when getting information from report.
 	// SessionHandle is undefined when getting information from report.
 	// When setting information, if it is = 0 the UserID and Password
 	// settings are used, otherwise the SessionHandle is used.
@@ -1108,9 +1020,7 @@ BOOL CRPE_API PESetNthTableSessionInfo(short printJob,
 #define PE_PASSWORD_LEN      128
 
 typedef struct PELogOnInfo {
-	// Initialize to PE_SIZEOF_LOGON_INFO.
-	WORD StructSize;
-
+	WORD StructSize; // Initialize to PE_SIZEOF_LOGON_INFO.
 	// For any of the following values an empty string ("") means to use
 	// the value already set in the report.  To override a value in the
 	// report use a non-empty string (e.g. "Server A").  All strings are
@@ -1121,19 +1031,12 @@ typedef struct PELogOnInfo {
 	char ServerName [PE_SERVERNAME_LEN];
 	char DatabaseName [PE_DATABASENAME_LEN];
 	char UserID [PE_USERID_LEN];
-
-	// Password is undefined when getting information from report.
-	char Password [PE_PASSWORD_LEN];
+	char Password[PE_PASSWORD_LEN]; // Password is undefined when getting information from report.
 }PELogOnInfo;
 #define PE_SIZEOF_LOGON_INFO (sizeof(PELogOnInfo))
 
-BOOL CRPE_API PEGetNthTableLogOnInfo(short printJob,
-    short tableN,
-    PELogOnInfo FAR * logOnInfo);
-BOOL CRPE_API PESetNthTableLogOnInfo(short printJob,
-    short tableN,
-    PELogOnInfo FAR * logOnInfo,
-    BOOL propagateAcrossTables);
+BOOL CRPE_API PEGetNthTableLogOnInfo(short printJob, short tableN, PELogOnInfo FAR * logOnInfo);
+BOOL CRPE_API PESetNthTableLogOnInfo(short printJob, short tableN, PELogOnInfo FAR * logOnInfo, BOOL propagateAcrossTables);
 
 // A table's location is fetched and set using PEGetNthTableLocation and
 // PESetNthTableLocation.  This name is database-dependent, and must be
@@ -1144,20 +1047,13 @@ BOOL CRPE_API PESetNthTableLogOnInfo(short printJob,
 #define PE_TABLE_LOCATION_LEN      256
 
 typedef struct PETableLocation {
-	// Initialize to PE_SIZEOF_TABLE_LOCATION.
-	WORD StructSize;
-
-	// String is null-terminated.
-	char Location [PE_TABLE_LOCATION_LEN];
+	WORD StructSize; // Initialize to PE_SIZEOF_TABLE_LOCATION.
+	char Location [PE_TABLE_LOCATION_LEN]; // String is null-terminated.
 }PETableLocation;
 #define PE_SIZEOF_TABLE_LOCATION (sizeof(PETableLocation))
 
-BOOL CRPE_API PEGetNthTableLocation(short printJob,
-    short tableN,
-    PETableLocation FAR * location);
-BOOL CRPE_API PESetNthTableLocation(short printJob,
-    short tableN,
-    PETableLocation FAR * location);
+BOOL CRPE_API PEGetNthTableLocation(short printJob, short tableN, PETableLocation FAR * location);
+BOOL CRPE_API PESetNthTableLocation(short printJob, short tableN, PETableLocation FAR * location);
 // Table Private Info
 
 typedef struct PETablePrivateInfo {
@@ -1168,13 +1064,8 @@ typedef struct PETablePrivateInfo {
 } PETablePrivateInfo;
 #define PE_SIZEOF_TABLE_PRIVATE_INFO (sizeof(PETablePrivateInfo))
 
-BOOL CRPE_API PEGetNthTablePrivateInfo(short printJob,
-    short tableN,
-    PETablePrivateInfo FAR * privateInfo);
-
-BOOL CRPE_API PESetNthTablePrivateInfo(short printJob,
-    short tableN,
-    PETablePrivateInfo FAR * privateInfo);
+BOOL CRPE_API PEGetNthTablePrivateInfo(short printJob, short tableN, PETablePrivateInfo FAR * privateInfo);
+BOOL CRPE_API PESetNthTablePrivateInfo(short printJob, short tableN, PETablePrivateInfo FAR * privateInfo);
 
 // The function PETestNthTableConnectivity tests whether a database
 // table's settings are valid and ready to be reported on.  It returns
@@ -1278,7 +1169,6 @@ BOOL CRPE_API PEOutputToWindow(short printJob, const char FAR * title, int left,
 
 typedef struct PEWindowOptions {
 	WORD StructSize;            // initialize to PE_SIZEOF_WINDOW_OPTIONS
-
 	short hasGroupTree;         // BOOL value, except use PE_UNCHANGED for no change
 	short canDrillDown;         // BOOL value, except use PE_UNCHANGED for no change
 	short hasNavigationControls; // BOOL value, except use PE_UNCHANGED for no change
@@ -1317,26 +1207,16 @@ BOOL CRPE_API PEShowNthPage(short printJob, short pageN/* start from 1*/);
 #define PE_ZOOM_SIZE_FIT_ONE_SIDE   1
 #define PE_ZOOM_SIZE_FIT_BOTH_SIDES 2
 
-BOOL CRPE_API PEZoomPreviewWindow(short printJob,
-    short level);                                // a percent from 25 to 400
-                                                 // or a PE_ZOOM_ constant
+BOOL CRPE_API PEZoomPreviewWindow(short printJob, short level); // a percent from 25 to 400 or a PE_ZOOM_ constant
 
 /*************************************************************/
 // Controlling print window when print control buttons hidden
 /*************************************************************/
 
-BOOL CRPE_API PEShowPrintControls(short printJob,
-    BOOL showPrintControls);
-BOOL CRPE_API PEPrintControlsShowing(short printJob,
-    BOOL FAR * controlsShowing);
-
-BOOL CRPE_API PEPrintWindow(short printJob,
-    BOOL waitUntilDone);
-
-BOOL CRPE_API PEExportPrintWindow(short printJob,
-    BOOL toMail,
-    BOOL waitUntilDone);
-
+BOOL CRPE_API PEShowPrintControls(short printJob, BOOL showPrintControls);
+BOOL CRPE_API PEPrintControlsShowing(short printJob, BOOL FAR * controlsShowing);
+BOOL CRPE_API PEPrintWindow(short printJob, BOOL waitUntilDone);
+BOOL CRPE_API PEExportPrintWindow(short printJob, BOOL toMail, BOOL waitUntilDone);
 BOOL CRPE_API PENextPrintWindowMagnification(short printJob);
 
 /********************************/
@@ -1346,10 +1226,7 @@ BOOL CRPE_API PENextPrintWindowMagnification(short printJob);
 // Windows API has different DEVMODE structure definitions.
 // If UNICODE is defined, DEVMODEA is used.
 
-BOOL CRPE_API PESelectPrinter(short printJob,
-    const char FAR * driverName,
-    const char FAR * printerName,
-    const char FAR * portName,
+BOOL CRPE_API PESelectPrinter(short printJob, const char FAR * driverName, const char FAR * printerName, const char FAR * portName,
 #if defined (WIN32)
     DEVMODEA FAR * mode
 #else
@@ -1357,13 +1234,8 @@ BOOL CRPE_API PESelectPrinter(short printJob,
 #endif
     );
 
-BOOL CRPE_API PEGetSelectedPrinter(short printJob,
-    HANDLE FAR * driverHandle,
-    short FAR * driverLength,
-    HANDLE FAR * printerHandle,
-    short FAR * printerLength,
-    HANDLE FAR * portHandle,
-    short FAR * portLength,
+BOOL CRPE_API PEGetSelectedPrinter(short printJob, HANDLE FAR * driverHandle, short FAR * driverLength, HANDLE FAR * printerHandle,
+    short FAR * printerLength, HANDLE FAR * portHandle, short FAR * portLength,
 #if defined (WIN32)
     DEVMODEA FAR * FAR * mode
 #else
@@ -1388,24 +1260,19 @@ BOOL CRPE_API PEGetNDetailCopies(short printJob, short FAR * nDetailCopies);
 // null pointer and then calling PEPrintWindow.
 
 #define PE_MAXPAGEN  65535
-
 #define PE_FILE_PATH_LEN     512
-
 #define PE_UNCOLLATED       0
 #define PE_COLLATED         1
 #define PE_DEFAULTCOLLATION 2
 
 typedef struct PEPrintOptions {
 	WORD StructSize;        // initialize to PE_SIZEOF_PRINT_OPTIONS
-
 	// page and copy numbers are 1-origin
 	// use 0 to preserve the existing settings
-	unsigned short startPageN,
-	    stopPageN;
-
+	unsigned short startPageN;
+	unsigned short stopPageN;
 	unsigned short nReportCopies;
 	unsigned short collation;
-
 	char outputFileName[PE_FILE_PATH_LEN];
 }
 

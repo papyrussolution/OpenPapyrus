@@ -61,7 +61,7 @@ FontRealised::~FontRealised()
 	font.Release();
 }
 
-void FontRealised::Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs)
+void FontRealised::Realise(SciSurface &surface, int zoomLevel, int technology, const FontSpecification &fs)
 {
 	PLATFORM_ASSERT(fs.fontName);
 	sizeZoomed = fs.size + zoomLevel * SC_FONT_SIZE_MULTIPLIER;
@@ -314,7 +314,7 @@ void ViewStyle::Init(size_t stylesSize_)
 	wrapIndentMode = SC_WRAPINDENT_FIXED;
 }
 
-void ViewStyle::Refresh(Surface &surface, int tabInChars)
+void ViewStyle::Refresh(SciSurface &surface, int tabInChars)
 {
 	for(FontMap::iterator it = fonts.begin(); it != fonts.end(); ++it) {
 		delete it->second;
@@ -359,7 +359,7 @@ void ViewStyle::Refresh(Surface &surface, int tabInChars)
 		if(styles[l].IsProtected()) {
 			someStylesProtected = true;
 		}
-		if(styles[l].caseForce != Style::caseMixed) {
+		if(styles[l].caseForce != SciStyle::caseMixed) {
 			someStylesForceCase = true;
 		}
 	}
@@ -403,10 +403,10 @@ void ViewStyle::ResetDefaultStyle()
 {
 	/*styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, fontNames.Save(Platform::DefaultFont()),
-	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, Style::caseMixed, true, true, false);*/
+	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, SciStyle::caseMixed, true, true, false);*/
 	styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, fontNames.Save(Platform::DefaultFont()),
-	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, Style::caseMixed, Style::fVisible|Style::fChangeable);
+	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, SciStyle::caseMixed, SciStyle::fVisible|SciStyle::fChangeable);
 }
 
 void ViewStyle::ClearStyles()
@@ -438,7 +438,7 @@ int ViewStyle::ExternalMarginWidth() const
 	return marginInside ? 0 : fixedColumnWidth;
 }
 
-int ViewStyle::MarginFromLocation(Point pt) const
+int ViewStyle::MarginFromLocation(SciPoint pt) const
 {
 	int margin = -1;
 	int x = textStart - fixedColumnWidth;

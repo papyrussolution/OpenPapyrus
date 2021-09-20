@@ -607,7 +607,7 @@ void Document::CellBuffer::BasicInsertString(int position, const char * s, int i
 		style.InsertValue(position, insertLength, 0);
 		int lineInsert = lv.LineFromPosition(position) + 1;
 		bool atLineStart = lv.LineStart(lineInsert-1) == position;
-		// Point all the lines after the insertion point further along in the buffer
+		// SciPoint all the lines after the insertion point further along in the buffer
 		lv.InsertText(lineInsert-1, insertLength);
 		uchar chBeforePrev = substance.ValueAt(position - 2);
 		uchar chPrev = substance.ValueAt(position - 1);

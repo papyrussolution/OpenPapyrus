@@ -17,7 +17,7 @@
 	namespace Scintilla {
 #endif
 
-void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour)
+void DrawWrapMarker(SciSurface * surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour)
 {
 	surface->PenColour(wrapColour);
 	enum { xa = 1 }; // gap before start
@@ -37,7 +37,7 @@ void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, Col
 		{
 			surface->LineTo(xBase + xDir * xRelative, yBase + yDir * yRelative);
 		}
-		Surface * surface;
+		SciSurface * surface;
 		int xBase;
 		int xDir;
 		int yBase;
@@ -103,12 +103,12 @@ void Editor::MarginView::DropGraphics(bool freeObjects)
 
 void Editor::MarginView::AllocateGraphics(const ViewStyle &vsDraw)
 {
-	SETIFZ(pixmapSelMargin, Surface::Allocate(vsDraw.technology));
-	SETIFZ(pixmapSelPattern, Surface::Allocate(vsDraw.technology));
-	SETIFZ(pixmapSelPatternOffset1, Surface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapSelMargin, SciSurface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapSelPattern, SciSurface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapSelPatternOffset1, SciSurface::Allocate(vsDraw.technology));
 }
 
-void Editor::MarginView::RefreshPixMaps(Surface * surfaceWindow, WindowID wid, const ViewStyle &vsDraw)
+void Editor::MarginView::RefreshPixMaps(SciSurface * surfaceWindow, WindowID wid, const ViewStyle &vsDraw)
 {
 	if(!pixmapSelPattern->Initialised()) {
 		const int patternSize = 8;
@@ -149,12 +149,12 @@ static int SubstituteMarkerIfEmpty(int markerCheck, int markerDefault, const Vie
 	return (vs.markers[markerCheck].markType == SC_MARK_EMPTY) ? markerDefault : markerCheck;
 }
 
-void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs)
+void Editor::MarginView::PaintMargin(SciSurface * surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs)
 {
 	PRectangle rcSelMargin = rcMargin;
 	rcSelMargin.right = rcMargin.left;
 	SETMAX(rcSelMargin.bottom, rc.bottom);
-	Point ptOrigin = model.GetVisibleOriginInMain();
+	SciPoint ptOrigin = model.GetVisibleOriginInMain();
 	FontAlias fontLineNumber = vs.styles[STYLE_LINENUMBER].font;
 	for(size_t margin = 0; margin < vs.ms.size(); margin++) {
 		if(vs.ms[margin].width > 0) {

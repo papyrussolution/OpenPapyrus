@@ -63,14 +63,14 @@ namespace Scintilla {
 #endif
 
 //static 
-Point FASTCALL Point::FromInts(int x_, int y_)
+SciPoint FASTCALL SciPoint::FromInts(int x_, int y_)
 {
-	return Point(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
+	return SciPoint(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
 }
 
-Point FASTCALL Point::FromLong(long lpoint)
+SciPoint FASTCALL SciPoint::FromLong(long lpoint)
 {
-	return Point(static_cast<short>(LOWORD(lpoint)), static_cast<short>(HIWORD(lpoint)));
+	return SciPoint(static_cast<short>(LOWORD(lpoint)), static_cast<short>(HIWORD(lpoint)));
 }
 
 static RECT RectFromPRectangle(PRectangle prc)
@@ -257,7 +257,7 @@ static int HashFont(const FontParameters &fp)
 		fp.faceName[0];
 }
 
-class FontCached : Font {
+class FontCached : SciFont {
 public:
 	static FontID FindOrCreate(const FontParameters &fp);
 	static void ReleaseId(FontID fid_);
@@ -402,25 +402,25 @@ FontParameters::FontParameters(const char * faceName_, float size_, int weight_,
 {
 }
 
-Font::Font()
+SciFont::SciFont()
 {
 	fid = 0;
 }
 
-Font::~Font()
+SciFont::~SciFont()
 {
 }
 
 #define FONTS_CACHED
 
-void Font::Create(const FontParameters &fp)
+void SciFont::Create(const FontParameters &fp)
 {
 	Release();
 	if(fp.faceName)
 		fid = FontCached::FindOrCreate(fp);
 }
 
-void Font::Release()
+void SciFont::Release()
 {
 	if(fid)
 		FontCached::ReleaseId(fid);
@@ -469,7 +469,7 @@ public:
 
 typedef VarBuffer<XYPOSITION, stackBufferLength> TextPositions;
 
-class SurfaceGDI : public Surface {
+class SurfaceGDI : public SciSurface {
 	bool unicodeMode;
 	HDC hdc;
 	bool hdcOwned;
@@ -485,7 +485,7 @@ class SurfaceGDI : public Surface {
 	int maxLenText;
 	int codePage;
 	void BrushColor(ColourDesired back);
-	void SetFont(Font &font_);
+	void SetFont(SciFont &font_);
 	// Private so SurfaceGDI objects can not be copied
 	SurfaceGDI(const SurfaceGDI &);
 	SurfaceGDI & operator = (const SurfaceGDI &);
@@ -495,7 +495,7 @@ public:
 
 	void Init(WindowID wid);
 	void Init(SurfaceID sid, WindowID wid);
-	void InitPixMap(int width, int height, Surface * surface_, WindowID wid);
+	void InitPixMap(int width, int height, SciSurface * surface_, WindowID wid);
 
 	void Release();
 	bool Initialised();
@@ -504,29 +504,29 @@ public:
 	int DeviceHeightFont(int points);
 	void MoveTo(int x_, int y_);
 	void LineTo(int x_, int y_);
-	void Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back);
+	void Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDesired back);
 	void RectangleDraw(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void FillRectangle(PRectangle rc, ColourDesired back);
-	void FillRectangle(PRectangle rc, Surface &surfacePattern);
+	void FillRectangle(PRectangle rc, SciSurface &surfacePattern);
 	void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags);
 	void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage);
 	void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back);
-	void Copy(PRectangle rc, Point from, Surface &surfaceSource);
+	void Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource);
 
-	void DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
-	void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
-	void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
-	void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore);
-	void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions);
-	XYPOSITION WidthText(Font &font_, const char * s, int len);
-	XYPOSITION WidthChar(Font &font_, char ch);
-	XYPOSITION Ascent(Font &font_);
-	XYPOSITION Descent(Font &font_);
-	XYPOSITION InternalLeading(Font &font_);
-	XYPOSITION ExternalLeading(Font &font_);
-	XYPOSITION Height(Font &font_);
-	XYPOSITION AverageCharWidth(Font &font_);
+	void DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
+	void DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
+	void DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
+	void DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore);
+	void MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITION * positions);
+	XYPOSITION WidthText(SciFont &font_, const char * s, int len);
+	XYPOSITION WidthChar(SciFont &font_, char ch);
+	XYPOSITION Ascent(SciFont &font_);
+	XYPOSITION Descent(SciFont &font_);
+	XYPOSITION InternalLeading(SciFont &font_);
+	XYPOSITION ExternalLeading(SciFont &font_);
+	XYPOSITION Height(SciFont &font_);
+	XYPOSITION AverageCharWidth(SciFont &font_);
 
 	void SetClip(PRectangle rc);
 	void FlushCachedState();
@@ -563,7 +563,7 @@ void SurfaceGDI::Release()
 	}
 	brush = 0;
 	if(fontOld) {
-		// Fonts are not deleted as they are owned by a Font object
+		// Fonts are not deleted as they are owned by a SciFont object
 		::SelectObject(hdc, fontOld);
 		fontOld = 0;
 	}
@@ -601,7 +601,7 @@ void SurfaceGDI::Init(SurfaceID sid, WindowID)
 	::SetTextAlign(hdc, TA_BASELINE);
 }
 
-void SurfaceGDI::InitPixMap(int width, int height, Surface * surface_, WindowID)
+void SurfaceGDI::InitPixMap(int width, int height, SciSurface * surface_, WindowID)
 {
 	Release();
 	SurfaceGDI * psurfOther = static_cast<SurfaceGDI *>(surface_);
@@ -640,7 +640,7 @@ void SurfaceGDI::BrushColor(ColourDesired back)
 	brushOld = static_cast<HBRUSH>(::SelectObject(hdc, brush));
 }
 
-void SurfaceGDI::SetFont(Font &font_)
+void SurfaceGDI::SetFont(SciFont &font_)
 {
 	if(font_.GetID() != font) {
 		FormatAndMetrics * pfm = static_cast<FormatAndMetrics *>(font_.GetID());
@@ -675,7 +675,7 @@ void SurfaceGDI::LineTo(int x_, int y_)
 	::LineTo(hdc, x_, y_);
 }
 
-void SurfaceGDI::Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back)
+void SurfaceGDI::Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDesired back)
 {
 	PenColour(fore);
 	BrushColor(back);
@@ -704,7 +704,7 @@ void SurfaceGDI::FillRectangle(PRectangle rc, ColourDesired back)
 	::ExtTextOut(hdc, rcw.left, rcw.top, ETO_OPAQUE, &rcw, TEXT(""), 0, 0);
 }
 
-void SurfaceGDI::FillRectangle(PRectangle rc, Surface &surfacePattern)
+void SurfaceGDI::FillRectangle(PRectangle rc, SciSurface &surfacePattern)
 {
 	HBRUSH br;
 	if(static_cast<SurfaceGDI &>(surfacePattern).bitmap)
@@ -856,7 +856,7 @@ void SurfaceGDI::Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back)
 	::Ellipse(hdc, rcw.left, rcw.top, rcw.right, rcw.bottom);
 }
 
-void SurfaceGDI::Copy(PRectangle rc, Point from, Surface &surfaceSource)
+void SurfaceGDI::Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource)
 {
 	::BitBlt(hdc, static_cast<int>(rc.left), static_cast<int>(rc.top),
 	    static_cast<int>(rc.Width()), static_cast<int>(rc.Height()),
@@ -865,7 +865,7 @@ void SurfaceGDI::Copy(PRectangle rc, Point from, Surface &surfaceSource)
 
 typedef VarBuffer<int, stackBufferLength> TextPositionsI;
 
-void SurfaceGDI::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions)
+void SurfaceGDI::DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions)
 {
 	SetFont(font_);
 	const RECT rcw = RectFromPRectangle(rc);
@@ -880,21 +880,21 @@ void SurfaceGDI::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, co
 	}
 }
 
-void SurfaceGDI::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
+void SurfaceGDI::DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
 {
 	::SetTextColor(hdc, fore.AsLong());
 	::SetBkColor(hdc, back.AsLong());
 	DrawTextCommon(rc, font_, ybase, s, len, ETO_OPAQUE);
 }
 
-void SurfaceGDI::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
+void SurfaceGDI::DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
 {
 	::SetTextColor(hdc, fore.AsLong());
 	::SetBkColor(hdc, back.AsLong());
 	DrawTextCommon(rc, font_, ybase, s, len, ETO_OPAQUE | ETO_CLIPPED);
 }
 
-void SurfaceGDI::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
+void SurfaceGDI::DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len,
     ColourDesired fore)
 {
 	// Avoid drawing spaces in transparent mode
@@ -909,7 +909,7 @@ void SurfaceGDI::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybas
 	}
 }
 
-XYPOSITION SurfaceGDI::WidthText(Font &font_, const char * s, int len)
+XYPOSITION SurfaceGDI::WidthText(SciFont &font_, const char * s, int len)
 {
 	SetFont(font_);
 	SIZE sz = {0, 0};
@@ -923,7 +923,7 @@ XYPOSITION SurfaceGDI::WidthText(Font &font_, const char * s, int len)
 	return static_cast<XYPOSITION>(sz.cx);
 }
 
-void SurfaceGDI::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions)
+void SurfaceGDI::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITION * positions)
 {
 	// Zero positions to avoid random behaviour on failure.
 	std::fill(positions, positions + len, 0.0f);
@@ -965,7 +965,7 @@ void SurfaceGDI::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION 
 	std::fill(positions+i, positions + len, lastPos);
 }
 
-XYPOSITION SurfaceGDI::WidthChar(Font &font_, char ch)
+XYPOSITION SurfaceGDI::WidthChar(SciFont &font_, char ch)
 {
 	SetFont(font_);
 	SIZE sz;
@@ -973,7 +973,7 @@ XYPOSITION SurfaceGDI::WidthChar(Font &font_, char ch)
 	return static_cast<XYPOSITION>(sz.cx);
 }
 
-XYPOSITION SurfaceGDI::Ascent(Font &font_)
+XYPOSITION SurfaceGDI::Ascent(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -981,7 +981,7 @@ XYPOSITION SurfaceGDI::Ascent(Font &font_)
 	return static_cast<XYPOSITION>(tm.tmAscent);
 }
 
-XYPOSITION SurfaceGDI::Descent(Font &font_)
+XYPOSITION SurfaceGDI::Descent(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -989,7 +989,7 @@ XYPOSITION SurfaceGDI::Descent(Font &font_)
 	return static_cast<XYPOSITION>(tm.tmDescent);
 }
 
-XYPOSITION SurfaceGDI::InternalLeading(Font &font_)
+XYPOSITION SurfaceGDI::InternalLeading(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -997,7 +997,7 @@ XYPOSITION SurfaceGDI::InternalLeading(Font &font_)
 	return static_cast<XYPOSITION>(tm.tmInternalLeading);
 }
 
-XYPOSITION SurfaceGDI::ExternalLeading(Font &font_)
+XYPOSITION SurfaceGDI::ExternalLeading(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -1005,7 +1005,7 @@ XYPOSITION SurfaceGDI::ExternalLeading(Font &font_)
 	return static_cast<XYPOSITION>(tm.tmExternalLeading);
 }
 
-XYPOSITION SurfaceGDI::Height(Font &font_)
+XYPOSITION SurfaceGDI::Height(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -1013,7 +1013,7 @@ XYPOSITION SurfaceGDI::Height(Font &font_)
 	return static_cast<XYPOSITION>(tm.tmHeight);
 }
 
-XYPOSITION SurfaceGDI::AverageCharWidth(Font &font_)
+XYPOSITION SurfaceGDI::AverageCharWidth(SciFont &font_)
 {
 	SetFont(font_);
 	TEXTMETRIC tm;
@@ -1047,14 +1047,14 @@ void SurfaceGDI::SetDBCSMode(int codePage_)
 
 #if defined(USE_D2D)
 
-class SurfaceD2D : public Surface {
+class SurfaceD2D : public SciSurface {
 public:
 	SurfaceD2D();
 	virtual ~SurfaceD2D();
 	void SetScale();
 	void Init(WindowID wid);
 	void Init(SurfaceID sid, WindowID wid);
-	void InitPixMap(int width, int height, Surface * surface_, WindowID wid);
+	void InitPixMap(int width, int height, SciSurface * surface_, WindowID wid);
 	void Release();
 	bool Initialised();
 	HRESULT FlushDrawing();
@@ -1064,28 +1064,28 @@ public:
 	int DeviceHeightFont(int points);
 	void MoveTo(int x_, int y_);
 	void LineTo(int x_, int y_);
-	void Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back);
+	void Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDesired back);
 	void RectangleDraw(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void FillRectangle(PRectangle rc, ColourDesired back);
-	void FillRectangle(PRectangle rc, Surface &surfacePattern);
+	void FillRectangle(PRectangle rc, SciSurface &surfacePattern);
 	void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags);
 	void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage);
 	void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back);
-	void Copy(PRectangle rc, Point from, Surface &surfaceSource);
-	void DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
-	void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
-	void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
-	void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore);
-	void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions);
-	XYPOSITION WidthText(Font &font_, const char * s, int len);
-	XYPOSITION WidthChar(Font &font_, char ch);
-	XYPOSITION Ascent(Font &font_);
-	XYPOSITION Descent(Font &font_);
-	XYPOSITION InternalLeading(Font &font_);
-	XYPOSITION ExternalLeading(Font &font_);
-	XYPOSITION Height(Font &font_);
-	XYPOSITION AverageCharWidth(Font &font_);
+	void Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource);
+	void DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
+	void DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
+	void DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
+	void DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore);
+	void MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITION * positions);
+	XYPOSITION WidthText(SciFont &font_, const char * s, int len);
+	XYPOSITION WidthChar(SciFont &font_, char ch);
+	XYPOSITION Ascent(SciFont &font_);
+	XYPOSITION Descent(SciFont &font_);
+	XYPOSITION InternalLeading(SciFont &font_);
+	XYPOSITION ExternalLeading(SciFont &font_);
+	XYPOSITION Height(SciFont &font_);
+	XYPOSITION AverageCharWidth(SciFont &font_);
 	void SetClip(PRectangle rc);
 	void FlushCachedState();
 	void SetUnicodeMode(bool unicodeMode_);
@@ -1108,7 +1108,7 @@ private:
 	bool ownRenderTarget;
 	uint8 Reserve[2]; // @alignment
 
-	void SetFont(Font &font_);
+	void SetFont(SciFont &font_);
 	// Private so SurfaceD2D objects can not be copied
 	SurfaceD2D(const SurfaceD2D &);
 	SurfaceD2D &operator=(const SurfaceD2D &);
@@ -1174,7 +1174,7 @@ void SurfaceD2D::Init(SurfaceID sid, WindowID)
 	pRenderTarget = static_cast<ID2D1RenderTarget *>(sid);
 }
 
-void SurfaceD2D::InitPixMap(int width, int height, Surface * surface_, WindowID)
+void SurfaceD2D::InitPixMap(int width, int height, SciSurface * surface_, WindowID)
 {
 	Release();
 	SetScale();
@@ -1225,7 +1225,7 @@ void SurfaceD2D::D2DPenColour(ColourDesired fore, int alpha)
 	}
 }
 
-void SurfaceD2D::SetFont(Font &font_)
+void SurfaceD2D::SetFont(SciFont &font_)
 {
 	FormatAndMetrics * pfm = static_cast<FormatAndMetrics *>(font_.GetID());
 	PLATFORM_ASSERT(pfm->technology == SCWIN_TECH_DIRECTWRITE);
@@ -1315,7 +1315,7 @@ void SurfaceD2D::LineTo(int x_, int y_)
 	}
 }
 
-void SurfaceD2D::Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back)
+void SurfaceD2D::Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDesired back)
 {
 	if(pRenderTarget) {
 		ID2D1Factory * pFactory = 0;
@@ -1365,7 +1365,7 @@ void SurfaceD2D::FillRectangle(PRectangle rc, ColourDesired back)
 	}
 }
 
-void SurfaceD2D::FillRectangle(PRectangle rc, Surface &surfacePattern)
+void SurfaceD2D::FillRectangle(PRectangle rc, SciSurface &surfacePattern)
 {
 	SurfaceD2D &surfOther = static_cast<SurfaceD2D &>(surfacePattern);
 	surfOther.FlushDrawing();
@@ -1497,7 +1497,7 @@ void SurfaceD2D::Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back)
 	}
 }
 
-void SurfaceD2D::Copy(PRectangle rc, Point from, Surface &surfaceSource)
+void SurfaceD2D::Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource)
 {
 	SurfaceD2D &surfOther = static_cast<SurfaceD2D &>(surfaceSource);
 	surfOther.FlushDrawing();
@@ -1518,7 +1518,7 @@ void SurfaceD2D::Copy(PRectangle rc, Point from, Surface &surfaceSource)
 	}
 }
 
-void SurfaceD2D::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions)
+void SurfaceD2D::DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions)
 {
 	SetFont(font_);
 
@@ -1546,7 +1546,7 @@ void SurfaceD2D::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, co
 	}
 }
 
-void SurfaceD2D::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
+void SurfaceD2D::DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len,
     ColourDesired fore, ColourDesired back)
 {
 	if(pRenderTarget) {
@@ -1556,7 +1556,7 @@ void SurfaceD2D::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, co
 	}
 }
 
-void SurfaceD2D::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
+void SurfaceD2D::DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len,
     ColourDesired fore, ColourDesired back)
 {
 	if(pRenderTarget) {
@@ -1566,7 +1566,7 @@ void SurfaceD2D::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, c
 	}
 }
 
-void SurfaceD2D::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore)
+void SurfaceD2D::DrawTextTransparent(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore)
 {
 	// Avoid drawing spaces in transparent mode
 	for(int i = 0; i < len; i++) {
@@ -1580,7 +1580,7 @@ void SurfaceD2D::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybas
 	}
 }
 
-XYPOSITION SurfaceD2D::WidthText(Font &font_, const char * s, int len)
+XYPOSITION SurfaceD2D::WidthText(SciFont &font_, const char * s, int len)
 {
 	FLOAT width = 1.0;
 	SetFont(font_);
@@ -1599,7 +1599,7 @@ XYPOSITION SurfaceD2D::WidthText(Font &font_, const char * s, int len)
 	return width;
 }
 
-void SurfaceD2D::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions)
+void SurfaceD2D::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITION * positions)
 {
 	SetFont(font_);
 	const TextWide tbuf(s, len, unicodeMode, codePageText);
@@ -1687,7 +1687,7 @@ void SurfaceD2D::MeasureWidths(Font &font_, const char * s, int len, XYPOSITION 
 	}
 }
 
-XYPOSITION SurfaceD2D::WidthChar(Font &font_, char ch)
+XYPOSITION SurfaceD2D::WidthChar(SciFont &font_, char ch)
 {
 	FLOAT width = 1.0;
 	SetFont(font_);
@@ -1706,36 +1706,36 @@ XYPOSITION SurfaceD2D::WidthChar(Font &font_, char ch)
 	return width;
 }
 
-XYPOSITION SurfaceD2D::Ascent(Font &font_)
+XYPOSITION SurfaceD2D::Ascent(SciFont &font_)
 {
 	SetFont(font_);
 	return ceil(yAscent);
 }
 
-XYPOSITION SurfaceD2D::Descent(Font &font_)
+XYPOSITION SurfaceD2D::Descent(SciFont &font_)
 {
 	SetFont(font_);
 	return ceil(yDescent);
 }
 
-XYPOSITION SurfaceD2D::InternalLeading(Font &font_)
+XYPOSITION SurfaceD2D::InternalLeading(SciFont &font_)
 {
 	SetFont(font_);
 	return floor(yInternalLeading);
 }
 
-XYPOSITION SurfaceD2D::ExternalLeading(Font &)
+XYPOSITION SurfaceD2D::ExternalLeading(SciFont &)
 {
 	// Not implemented, always return one
 	return 1;
 }
 
-XYPOSITION SurfaceD2D::Height(Font &font_)
+XYPOSITION SurfaceD2D::Height(SciFont &font_)
 {
 	return Ascent(font_) + Descent(font_);
 }
 
-XYPOSITION SurfaceD2D::AverageCharWidth(Font &font_)
+XYPOSITION SurfaceD2D::AverageCharWidth(SciFont &font_)
 {
 	FLOAT width = 1.0;
 	SetFont(font_);
@@ -1781,7 +1781,7 @@ void SurfaceD2D::SetDBCSMode(int codePage_)
 
 #endif
 
-Surface * FASTCALL Surface::Allocate(int technology)
+SciSurface * FASTCALL SciSurface::Allocate(int technology)
 {
 #if defined(USE_D2D)
 	if(technology == SCWIN_TECH_GDI)
@@ -1793,37 +1793,37 @@ Surface * FASTCALL Surface::Allocate(int technology)
 #endif
 }
 
-Window::Window() : wid(0), cursorLast(cursorInvalid)
+SciWindow::SciWindow() : wid(0), cursorLast(cursorInvalid)
 {
 }
 
-Window::Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid)
+SciWindow::SciWindow(const SciWindow &source) : wid(source.wid), cursorLast(cursorInvalid)
 {
 }
 
-Window::~Window()
+SciWindow::~SciWindow()
 {
 }
 
-void Window::Destroy()
+void SciWindow::Destroy()
 {
 	::DestroyWindow(static_cast<HWND>(wid));
 	wid = 0;
 }
 
-bool Window::HasFocus()
+bool SciWindow::HasFocus()
 {
 	return ::GetFocus() == wid;
 }
 
-PRectangle Window::GetPosition()
+PRectangle SciWindow::GetPosition()
 {
 	RECT rc;
 	::GetWindowRect(static_cast<HWND>(wid), &rc);
 	return PRectangle::FromInts(rc.left, rc.top, rc.right, rc.bottom);
 }
 
-void Window::SetPosition(PRectangle rc)
+void SciWindow::SetPosition(PRectangle rc)
 {
 	::SetWindowPos(static_cast<HWND>(wid),
 	    0, static_cast<int>(rc.left), static_cast<int>(rc.top),
@@ -1848,7 +1848,7 @@ static RECT RectFromMonitor(HMONITOR hMonitor)
 	return rc;
 }
 
-void Window::SetPositionRelative(PRectangle rc, Window w)
+void SciWindow::SetPositionRelative(PRectangle rc, SciWindow w)
 {
 	LONG style = ::GetWindowLong(static_cast<HWND>(wid), GWL_STYLE);
 	if(style & WS_POPUP) {
@@ -1866,7 +1866,7 @@ void Window::SetPositionRelative(PRectangle rc, Window w)
 		if(rcWork.left < rcWork.right) {
 			// Now clamp our desired rectangle to fit inside the work area
 			// This way, the menu will fit wholly on one screen. An improvement even
-			// if you don't have a second monitor on the left... Menu's appears half on
+			// if you don't have a second monitor on the left... SciMenu's appears half on
 			// one screen and half on the other are just U.G.L.Y.!
 			if(rc.right > rcWork.right)
 				rc.Move(rcWork.right - rc.right, 0);
@@ -1881,7 +1881,7 @@ void Window::SetPositionRelative(PRectangle rc, Window w)
 	SetPosition(rc);
 }
 
-PRectangle Window::GetClientPosition()
+PRectangle SciWindow::GetClientPosition()
 {
 	RECT rc = {0, 0, 0, 0};
 	if(wid)
@@ -1889,28 +1889,28 @@ PRectangle Window::GetClientPosition()
 	return PRectangle::FromInts(rc.left, rc.top, rc.right, rc.bottom);
 }
 
-void Window::Show(bool show)
+void SciWindow::Show(bool show)
 {
 	::ShowWindow(static_cast<HWND>(wid), show ? SW_SHOWNOACTIVATE : SW_HIDE);
 }
 
-void Window::InvalidateAll()
+void SciWindow::InvalidateAll()
 {
 	::InvalidateRect(static_cast<HWND>(wid), NULL, FALSE);
 }
 
-void Window::InvalidateRectangle(PRectangle rc)
+void SciWindow::InvalidateRectangle(PRectangle rc)
 {
 	RECT rcw = RectFromPRectangle(rc);
 	::InvalidateRect(static_cast<HWND>(wid), &rcw, FALSE);
 }
 
-static LRESULT Window_SendMessage(Window * w, UINT msg, WPARAM wParam = 0, LPARAM lParam = 0)
+static LRESULT Window_SendMessage(SciWindow * w, UINT msg, WPARAM wParam = 0, LPARAM lParam = 0)
 {
 	return ::SendMessage(static_cast<HWND>(w->GetID()), msg, wParam, lParam);
 }
 
-void Window::SetFont(Font &font)
+void SciWindow::SetFont(SciFont &font)
 {
 	Window_SendMessage(this, WM_SETFONT, reinterpret_cast<WPARAM>(font.GetID()), 0);
 }
@@ -1955,7 +1955,7 @@ static HCURSOR GetReverseArrowCursor()
 	return cursor;
 }
 
-void Window::SetCursor(Cursor curs)
+void SciWindow::SetCursor(Cursor curs)
 {
 	switch(curs) {
 		case cursorText:
@@ -1986,14 +1986,14 @@ void Window::SetCursor(Cursor curs)
 	}
 }
 
-void Window::SetTitle(const char * s)
+void SciWindow::SetTitle(const char * s)
 {
 	::SetWindowTextA(static_cast<HWND>(wid), s);
 }
 //
-// Returns rectangle of monitor pt is on, both rect and pt are in Window's coordinates 
+// Returns rectangle of monitor pt is on, both rect and pt are in SciWindow's coordinates 
 //
-PRectangle Window::GetMonitorRect(Point pt)
+PRectangle SciWindow::GetMonitorRect(SciPoint pt)
 {
 	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 and NT 4.
 	PRectangle rcPosition = GetPosition();
@@ -2083,8 +2083,8 @@ public:
 			fontCopy = 0;
 		}
 	}
-	virtual void SetFont(Font &font);
-	virtual void Create(Window &parent_, int ctrlID_, Point location_, int lineHeight_, bool unicodeMode_, int technology_);
+	virtual void SetFont(SciFont &font);
+	virtual void Create(SciWindow &parent_, int ctrlID_, SciPoint location_, int lineHeight_, bool unicodeMode_, int technology_);
 	virtual void SetAverageCharWidth(int width);
 	virtual void SetVisibleRows(int rows);
 	virtual int GetVisibleRows() const;
@@ -2120,7 +2120,7 @@ private:
 	int desiredVisibleRows;
 	uint maxItemCharacters;
 	uint aveCharWidth;
-	Window * parent;
+	SciWindow * parent;
 	int ctrlID;
 	CallBackAction doubleClickAction;
 	void * doubleClickActionData;
@@ -2128,8 +2128,8 @@ private:
 	uint maxCharWidth;
 	int resizeHit;
 	PRectangle rcPreSize;
-	Point dragOffset;
-	Point location; // Caret location at which the list is opened
+	SciPoint dragOffset;
+	SciPoint location; // Caret location at which the list is opened
 	int wheelDelta; // mouse wheel residue
 
 	HWND GetHWND() const;
@@ -2150,14 +2150,14 @@ private:
 	void Paint(HDC);
 	static LRESULT PASCAL ControlWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-	static const Point ItemInset;   // Padding around whole item
-	static const Point TextInset;   // Padding around text
-	static const Point ImageInset;  // Padding around image
+	static const SciPoint ItemInset;   // Padding around whole item
+	static const SciPoint TextInset;   // Padding around text
+	static const SciPoint ImageInset;  // Padding around image
 };
 
-const Point ListBoxX::ItemInset(0, 0);
-const Point ListBoxX::TextInset(2, 0);
-const Point ListBoxX::ImageInset(1, 0);
+const SciPoint ListBoxX::ItemInset(0, 0);
+const SciPoint ListBoxX::TextInset(2, 0);
+const SciPoint ListBoxX::ImageInset(1, 0);
 
 ListBox * ListBox::Allocate()
 {
@@ -2165,7 +2165,7 @@ ListBox * ListBox::Allocate()
 	return lb;
 }
 
-void ListBoxX::Create(Window &parent_, int ctrlID_, Point location_, int lineHeight_, bool unicodeMode_, int technology_)
+void ListBoxX::Create(SciWindow &parent_, int ctrlID_, SciPoint location_, int lineHeight_, bool unicodeMode_, int technology_)
 {
 	parent = &parent_;
 	ctrlID = ctrlID_;
@@ -2175,15 +2175,15 @@ void ListBoxX::Create(Window &parent_, int ctrlID_, Point location_, int lineHei
 	technology = technology_;
 	HWND hwndParent = static_cast<HWND>(parent->GetID());
 	HINSTANCE hinstanceParent = GetWindowInstance(hwndParent);
-	// Window created as popup so not clipped within parent client area
+	// SciWindow created as popup so not clipped within parent client area
 	wid = ::CreateWindowEx(WS_EX_WINDOWEDGE, ListBoxX_ClassName, TEXT(""),
 	    WS_POPUP | WS_THICKFRAME, 100, 100, 150, 80, hwndParent, NULL, hinstanceParent, this);
 	POINT locationw = {static_cast<LONG>(location.x), static_cast<LONG>(location.y)};
 	::MapWindowPoints(hwndParent, NULL, &locationw, 1);
-	location = Point::FromInts(locationw.x, locationw.y);
+	location = SciPoint::FromInts(locationw.x, locationw.y);
 }
 
-void ListBoxX::SetFont(Font &font)
+void ListBoxX::SetFont(SciFont &font)
 {
 	if(font.GetID()) {
 		if(fontCopy) {
@@ -2376,7 +2376,7 @@ void ListBoxX::Draw(DRAWITEMSTRUCT * pDrawItem)
 		// Draw the image, if any
 		RGBAImage * pimage = images.Get(pixId);
 		if(pimage) {
-			Surface * surfaceItem = Surface::Allocate(technology);
+			SciSurface * surfaceItem = SciSurface::Allocate(technology);
 			if(surfaceItem) {
 				if(technology == SCWIN_TECH_GDI) {
 					surfaceItem->Init(pDrawItem->hDC, pDrawItem->hwndItem);
@@ -2554,7 +2554,7 @@ void ListBoxX::ResizeToCursor()
 	PRectangle rc = GetPosition();
 	POINT ptw;
 	::GetCursorPos(&ptw);
-	Point pt = Point::FromInts(ptw.x, ptw.y);
+	SciPoint pt = SciPoint::FromInts(ptw.x, ptw.y);
 	pt.x += dragOffset.x;
 	pt.y += dragOffset.y;
 	switch(resizeHit) {
@@ -2640,7 +2640,7 @@ void ListBoxX::StartResize(WPARAM hitCode)
 
 LRESULT ListBoxX::NcHitTest(WPARAM wParam, LPARAM lParam) const
 {
-	Window win = *this;     // Copy HWND to avoid const problems
+	SciWindow win = *this;     // Copy HWND to avoid const problems
 	const PRectangle rc = win.GetPosition();
 	LRESULT hit = ::DefWindowProc(GetHWND(), WM_NCHITTEST, wParam, lParam);
 	// There is an apparent bug in the DefWindowProc hit test code whereby it will
@@ -2689,7 +2689,7 @@ void ListBoxX::OnDoubleClick()
 
 POINT ListBoxX::GetClientExtent() const
 {
-	Window win = *this;     // Copy HWND to avoid const problems
+	SciWindow win = *this;     // Copy HWND to avoid const problems
 	const PRectangle rc = win.GetPosition();
 	POINT ret;
 	ret.x = static_cast<LONG>(rc.Width());
@@ -2932,24 +2932,24 @@ bool ListBoxX_Unregister()
 	return ::UnregisterClass(ListBoxX_ClassName, hinstPlatformRes) != 0;
 }
 
-Menu::Menu() : mid(0)
+SciMenu::SciMenu() : mid(0)
 {
 }
 
-void Menu::CreatePopUp()
+void SciMenu::CreatePopUp()
 {
 	Destroy();
 	mid = ::CreatePopupMenu();
 }
 
-void Menu::Destroy()
+void SciMenu::Destroy()
 {
 	if(mid)
 		::DestroyMenu(static_cast<HMENU>(mid));
 	mid = 0;
 }
 
-void Menu::Show(Point pt, Window &w)
+void SciMenu::Show(SciPoint pt, SciWindow &w)
 {
 	::TrackPopupMenu(static_cast<HMENU>(mid), TPM_RIGHTBUTTON, static_cast<int>(pt.x - 4), static_cast<int>(pt.y), 0, static_cast<HWND>(w.GetID()), 0);
 	Destroy();

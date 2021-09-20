@@ -36,12 +36,12 @@ bool FASTCALL PRectangle::operator == (const PRectangle & rc) const
 	return (rc.left == left) && (rc.right == right) && (rc.top == top) && (rc.bottom == bottom);
 }
 	
-bool FASTCALL PRectangle::Contains(const Point & pt) const
+bool FASTCALL PRectangle::Contains(const SciPoint & pt) const
 {
 	return (pt.x >= left) && (pt.x <= right) && (pt.y >= top) && (pt.y <= bottom);
 }
 	
-bool FASTCALL PRectangle::ContainsWholePixel(const Point & pt) const
+bool FASTCALL PRectangle::ContainsWholePixel(const SciPoint & pt) const
 {
 	// Does the rectangle contain all of the pixel to left/below the point
 	return (pt.x >= left) && ((pt.x+1) <= right) && (pt.y >= top) && ((pt.y+1) <= bottom);
@@ -213,7 +213,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 	}
 	ac.Start(wMain, idAutoComplete, Sel.MainCaret(), PointMainCaret(), lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
 	PRectangle rcClient = GetClientRectangle();
-	Point pt = LocationFromPosition(Sel.MainCaret() - lenEntered);
+	SciPoint pt = LocationFromPosition(Sel.MainCaret() - lenEntered);
 	PRectangle rcPopupBounds = wMain.GetMonitorRect(pt);
 	if(rcPopupBounds.Height() == 0)
 		rcPopupBounds = rcClient;
@@ -225,7 +225,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 		pt = PointMainCaret();
 	}
 	if(wMargin.GetID()) {
-		Point ptOrigin = GetVisibleOriginInMain();
+		SciPoint ptOrigin = GetVisibleOriginInMain();
 		pt.x += ptOrigin.x;
 		pt.y += ptOrigin.y;
 	}
@@ -384,7 +384,7 @@ int ScintillaBase::AutoCompleteGetCurrentText(char * buffer) const
 	return 0;
 }
 
-void ScintillaBase::CallTipShow(Point pt, const char * defn)
+void ScintillaBase::CallTipShow(SciPoint pt, const char * defn)
 {
 	ac.Cancel();
 	// If container knows about STYLE_CALLTIP then use it in place of the
@@ -395,7 +395,7 @@ void ScintillaBase::CallTipShow(Point pt, const char * defn)
 		ct.SetForeBack(vs.styles[STYLE_CALLTIP].fore, vs.styles[STYLE_CALLTIP].back);
 	}
 	if(wMargin.GetID()) {
-		Point ptOrigin = GetVisibleOriginInMain();
+		SciPoint ptOrigin = GetVisibleOriginInMain();
 		pt.x += ptOrigin.x;
 		pt.y += ptOrigin.y;
 	}
@@ -429,12 +429,12 @@ void ScintillaBase::CallTipClick()
 	NotifyParent(scn);
 }
 
-bool ScintillaBase::ShouldDisplayPopup(Point ptInWindowCoordinates) const
+bool ScintillaBase::ShouldDisplayPopup(SciPoint ptInWindowCoordinates) const
 {
 	return (displayPopupMenu == SC_POPUP_ALL || (displayPopupMenu == SC_POPUP_TEXT && !PointInSelMargin(ptInWindowCoordinates)));
 }
 
-void ScintillaBase::ContextMenu(Point pt)
+void ScintillaBase::ContextMenu(SciPoint pt)
 {
 	if(displayPopupMenu) {
 		bool writable = !WndProc(SCI_GETREADONLY, 0, 0);
@@ -459,18 +459,18 @@ void ScintillaBase::CancelModes()
 	Editor::CancelModes();
 }
 
-void ScintillaBase::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
+void ScintillaBase::ButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers)
 {
 	CancelModes();
 	Editor::ButtonDownWithModifiers(pt, curTime, modifiers);
 }
 
-void ScintillaBase::ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt)
+void ScintillaBase::ButtonDown(SciPoint pt, uint curTime, bool shift, bool ctrl, bool alt)
 {
 	ButtonDownWithModifiers(pt, curTime, ModifierFlags(shift, ctrl, alt));
 }
 
-void ScintillaBase::RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
+void ScintillaBase::RightButtonDownWithModifiers(SciPoint pt, uint curTime, int modifiers)
 {
 	CancelModes();
 	Editor::RightButtonDownWithModifiers(pt, curTime, modifiers);

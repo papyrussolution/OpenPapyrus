@@ -1430,7 +1430,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
+		//TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}
