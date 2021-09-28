@@ -98,27 +98,27 @@ int PPNamedFilt::Write2(xmlTextWriter * pXmlWriter)
 	assert(pXmlWriter);
 	THROW(pXmlWriter);
 	{
-	SXml::WNode pp_nfilt_node(pXmlWriter, "NamedFilt");
-	pp_nfilt_node.PutInner("ID", temp_buf.Z().Cat(ID));
-	pp_nfilt_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
-	pp_nfilt_node.PutInner("ViewID", temp_buf.Z().Cat(ViewID));
-	pp_nfilt_node.PutInner("Flags", temp_buf.Z().Cat(Flags));
-	XMLReplaceSpecSymb(temp_buf.Z().Cat(Name), "&<>\'");
-	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-	pp_nfilt_node.PutInner("Name", temp_buf);
-	XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
-	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-	pp_nfilt_node.PutInner("DbSymb", temp_buf);
-	XMLReplaceSpecSymb(temp_buf.Z().Cat(Symb), "&<>\'");
-	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-	pp_nfilt_node.PutInner("Symb", temp_buf);
-	XMLReplaceSpecSymb(temp_buf.Z().Cat(ViewSymb), "&<>\'");
-	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-	pp_nfilt_node.PutInner("ViewSymb", temp_buf);
-	temp_buf.Z().EncodeMime64(static_cast<const char *>(Param.GetBuf(Param.GetRdOffs())), Param.GetAvailableSize());
-	pp_nfilt_node.PutInner("Param", temp_buf);
-	THROW(VD.XmlWrite(pXmlWriter));
-	THROW(XmlWriteGuaList(pXmlWriter));
+		SXml::WNode pp_nfilt_node(pXmlWriter, "NamedFilt");
+		pp_nfilt_node.PutInner("ID", temp_buf.Z().Cat(ID));
+		pp_nfilt_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
+		pp_nfilt_node.PutInner("ViewID", temp_buf.Z().Cat(ViewID));
+		pp_nfilt_node.PutInner("Flags", temp_buf.Z().Cat(Flags));
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(Name), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		pp_nfilt_node.PutInner("Name", temp_buf);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		pp_nfilt_node.PutInner("DbSymb", temp_buf);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(Symb), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		pp_nfilt_node.PutInner("Symb", temp_buf);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(ViewSymb), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		pp_nfilt_node.PutInner("ViewSymb", temp_buf);
+		temp_buf.Z().EncodeMime64(static_cast<const char *>(Param.GetBuf(Param.GetRdOffs())), Param.GetAvailableSize());
+		pp_nfilt_node.PutInner("Param", temp_buf);
+		THROW(VD.XmlWrite(pXmlWriter));
+		THROW(XmlWriteGuaList(pXmlWriter));
 	}
 	CATCHZOK
 	return ok;
@@ -342,7 +342,7 @@ PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
 	//@erik v10.7.5
 	GetXmlPoolDir(XmlFilePath);
-	XmlFilePath.SetLastSlash().Cat("namedfiltpool").Dot().Cat("xml");
+	XmlFilePath.SetLastSlash().Cat("namedfiltpool").DotCat("xml");
 	// } @erik
 }
 

@@ -118,7 +118,7 @@ int PPCustDisp::SetCurTime()
 		minute.Z().Cat(m);
 		if(minute.Len() == 1)
 			minute.PadLeft(1, '0');
-		time_str.CatChar('T').Cat(h).CatChar(':').Cat(minute);
+		time_str.CatChar('T').Cat(h).Colon().Cat(minute);
 		THROW(PutString(time_str, ALIGN_LEFT, down));
 		ok = 1;
 	}

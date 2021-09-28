@@ -96,10 +96,10 @@ void __xmlLoaderErr(void *ctx, const char *msg, const char *filename);
 // 
 // internal global initialization critical section routines.
 // 
-void __xmlGlobalInitMutexLock(void);
-void __xmlGlobalInitMutexUnlock(void);
-void __xmlGlobalInitMutexDestroy(void);
-int __xmlInitializeDict(void);
+void __xmlGlobalInitMutexLock();
+void __xmlGlobalInitMutexUnlock();
+void __xmlGlobalInitMutexDestroy();
+int __xmlInitializeDict();
 #if defined(HAVE_RAND) && defined(HAVE_SRAND) && defined(HAVE_TIME)
 	//
 	// Descr: internal thread safe random function
@@ -271,10 +271,10 @@ int xmlNop(void);
 		// The POSIX like API
 		// 
 		XMLPUBFUN xmlRegexp * XMLCALL xmlRegexpCompile(const xmlChar *regexp);
-		XMLPUBFUN void XMLCALL xmlRegFreeRegexp(xmlRegexp * regexp);
-		XMLPUBFUN int XMLCALL xmlRegexpExec(xmlRegexp * comp, const xmlChar *value);
+		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRegFreeRegexp(xmlRegexp * regexp);
+		XMLPUBFUN int  XMLCALL xmlRegexpExec(xmlRegexp * comp, const xmlChar *value);
 		XMLPUBFUN void XMLCALL xmlRegexpPrint(FILE *output, xmlRegexp * regexp);
-		XMLPUBFUN int XMLCALL xmlRegexpIsDeterminist(xmlRegexp * comp);
+		XMLPUBFUN int  XMLCALL xmlRegexpIsDeterminist(xmlRegexp * comp);
 		// 
 		// Descr: Callback function when doing a transition in the automata
 		// @exec: the regular expression context
@@ -288,10 +288,10 @@ int xmlNop(void);
 		// 
 		XMLPUBFUN xmlRegExecCtxtPtr XMLCALL xmlRegNewExecCtxt(xmlRegexp * comp, xmlRegExecCallbacks callback, void *data);
 		XMLPUBFUN void XMLCALL xmlRegFreeExecCtxt(xmlRegExecCtxtPtr exec); 
-		XMLPUBFUN int XMLCALL xmlRegExecPushString(xmlRegExecCtxtPtr exec, const xmlChar *value, void *data);
-		XMLPUBFUN int XMLCALL xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar *value, const xmlChar *value2, void *data);
-		XMLPUBFUN int XMLCALL xmlRegExecNextValues(xmlRegExecCtxtPtr exec, int *nbval, int *nbneg, xmlChar **values, int *terminal);
-		XMLPUBFUN int XMLCALL xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar **string, int *nbval, int *nbneg, xmlChar **values, int *terminal);
+		XMLPUBFUN int  XMLCALL xmlRegExecPushString(xmlRegExecCtxtPtr exec, const xmlChar *value, void *data);
+		XMLPUBFUN int  XMLCALL xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar *value, const xmlChar *value2, void *data);
+		XMLPUBFUN int  XMLCALL xmlRegExecNextValues(xmlRegExecCtxtPtr exec, int *nbval, int *nbneg, xmlChar **values, int *terminal);
+		XMLPUBFUN int  XMLCALL xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar **string, int *nbval, int *nbneg, xmlChar **values, int *terminal);
 		#ifdef LIBXML_EXPR_ENABLED
 			// 
 			// Formal regular expression handling

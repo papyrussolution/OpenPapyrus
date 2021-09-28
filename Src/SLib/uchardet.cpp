@@ -5398,7 +5398,7 @@ public:
 	{
 		SAlloc::F(m_charset);
 	}
-	virtual void Report(const char* charset)
+	virtual void Report(const char * charset)
 	{
 		SAlloc::F(m_charset);
 		m_charset = sstrdup(charset);

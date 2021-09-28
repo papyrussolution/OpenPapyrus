@@ -2207,7 +2207,7 @@ int PPApp::RegisterComServer()
 		{
 			SString reg_path;
 			for(uint i = 14; XLARegKeyDir.Len() == 0 && i > 8; i--) {
-				(reg_path = "Software\\Microsoft\\Office\\").Cat(i).Dot().Cat("0").Cat("\\Excel");
+				(reg_path = "Software\\Microsoft\\Office\\").Cat(i).DotCat("0").Cat("\\Excel");
 				WinRegKey reg_key;
 				if(reg_key.Open(HKEY_CURRENT_USER, reg_path, 1, 1) > 0)
 					XLARegKeyDir = reg_path;

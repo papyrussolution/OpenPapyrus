@@ -471,6 +471,13 @@ int FASTCALL BrowserWindow::CellStyle::SetRightFigCircleColor(COLORREF c) // ret
 	return 1; // @necessarily
 }
 
+int FASTCALL BrowserWindow::CellStyle::SetRightFigTriangleColor(COLORREF c) // returns strictly 1
+{
+	RightFigColor = c;
+	Flags |= fRightFigTriangle;
+	return 1; // @necessarily
+}
+
 int FASTCALL BrowserWindow::CellStyle::SetLeftBottomCornerColor(COLORREF c) // returns strictly 1
 {
 	Color2 = c;
@@ -1515,7 +1522,7 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				ZDeleteWinGdiObject(&br);
 			}
 			// } 
-			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle)) {
+			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle|CellStyle::fRightFigTriangle)) {
 				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
 					if(paintAction == BrowserWindow::paintClear)
 						ClearFocusRect(&r);
@@ -1586,6 +1593,33 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
+				}
+				else if(style.Flags & CellStyle::fRightFigTriangle) { // @v11.1.12
+					COLORREF color = style.RightFigColor;
+					pen = CreatePen(/*PS_SOLID*/PS_NULL, 1, color);
+					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
+					br = CreateSolidBrush(color);
+					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+
+					const int _diam = 6;
+					int   _right = r.right - 6;
+					int   _left = _right - _diam;
+					int   _top = r.top + 4;
+					int   _bottom = _top + _diam + 2;
+					//Ellipse(hdc, _left, _top, _right, _bottom);
+					//
+					points[0].x = _left;
+					points[0].y = _top;
+					points[1].x = _right;
+					points[1].y = _top;
+					points[2].x = (_left + _right) / 2;
+					points[2].y = _bottom;
+					Polygon(hdc, points, 3);
+					//
+					SelectObject(hdc, oldpen);
+					SelectObject(hdc, oldbr);
+					ZDeleteWinGdiObject(&pen);
+					ZDeleteWinGdiObject(&br);					
 				}
 			}
 		}
@@ -2842,6 +2876,16 @@ HWND GetNextBrowser(HWND hw)
 					e.message.command = LOWORD(wParam);
 					p_view->handleEvent(e);
 				}
+			}
+			return 0;
+		case WM_USER_NOTIFYOTHERWNDEVNT: // @v11.1.12
+			if(p_view) {
+				RECT rc_client;
+				GetClientRect(hWnd, &rc_client); // @debug				
+				e.what = TEvent::evCommand;
+				e.message.command = cmNotifyForeignFocus;
+				e.message.infoPtr = (void *)lParam;
+				p_view->handleEvent(e);
 			}
 			return 0;
 		case WM_GETMINMAXINFO:

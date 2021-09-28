@@ -955,13 +955,13 @@ AsteriskAmiClient::Message & AsteriskAmiClient::Message::Z()
 int AsteriskAmiClient::Message::Add(const char * pTag, const char * pValue)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
-	return add((r_temp_buf = pTag).CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
+	return add((r_temp_buf = pTag).Colon().Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
 int AsteriskAmiClient::Message::AddAction(const char * pValue)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
-	return add((r_temp_buf = "Action").CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
+	return add((r_temp_buf = "Action").Colon().Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
 int AsteriskAmiClient::Message::Convert(SString & rBuf) const
@@ -1068,7 +1068,7 @@ int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 		scan.IncrLen(2);
 		if(temp_buf.Len()) {
 			if(temp_buf.Strip().Divide(':', left, right) > 0) {
-				temp_buf.Z().Cat(left.Strip()).CatChar(':').Cat(right.Strip());
+				temp_buf.Z().Cat(left.Strip()).Colon().Cat(right.Strip());
 				add(temp_buf);
 			}
 		}

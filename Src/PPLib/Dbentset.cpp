@@ -199,7 +199,7 @@ int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) co
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
 	server_type = GetSqlServerTypeBySymb(temp_buf);
 	if(server_type != sqlstNone) {
-		rBuf.Cat(temp_buf).CatChar(':');
+		rBuf.Cat(temp_buf).Colon();
 	}
 	pBlk->GetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
 	rBuf.Cat(temp_buf).Comma();
@@ -219,7 +219,7 @@ int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) co
 			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
 			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
-			rBuf.CatChar(':').Cat(temp_buf);
+			rBuf.Colon().Cat(temp_buf);
 		}
 	}
 	else {

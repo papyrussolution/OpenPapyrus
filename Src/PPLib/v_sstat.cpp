@@ -1417,7 +1417,8 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 			SString temp_buf, memo_buf;
 			PPLoadString("autoorder", temp_buf);
 			memo_buf.Z().CatChar('#').Cat(temp_buf).Space().Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS);
-			STRNSCPY(pPack->Rec.Memo, memo_buf);
+			// @v11.1.12 STRNSCPY(pPack->Rec.Memo, memo_buf);
+			pPack->SMemo = memo_buf; // @v11.1.12
 		}
 		for(InitIteration(); NextIteration(&ss_item) > 0;) {
 			const PPID goods_id = ss_item.GoodsID;

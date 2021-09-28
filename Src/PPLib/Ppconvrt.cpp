@@ -137,14 +137,61 @@ int proc_name() \
 }
 
 class PPTableConversion {
+	enum {
+		stCommonRefFlagsUpdated = 0x0001 // Устанавливается если в таблице PPRef и ее членах был установлен флаг XTF_DISABLEOUTOFTAMSG
+	};
+	uint   State;
 public:
 	int    Convert();
 protected:
+	PPTableConversion() : State(0)
+	{
+	}
 	virtual DBTable * CreateTableInstance(int * pNeedConversion) = 0;
 	virtual void DestroyTable(DBTable * pTbl);
 	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen) = 0;
 	virtual int Final(DBTable * pTbl) { return -1; }
 	PPLogger Logger;
+	void   RestoreCommonRefFlags()
+	{
+		if(State & stCommonRefFlagsUpdated) {
+			Reference * p_ref = PPRef;
+			if(p_ref) {
+				p_ref->ResetFlag(XTF_DISABLEOUTOFTAMSG);
+				p_ref->Ot.ResetFlag(XTF_DISABLEOUTOFTAMSG);
+				p_ref->UtrC.ResetFlag(XTF_DISABLEOUTOFTAMSG);
+			}
+		}
+	}
+	Reference * GetReferenceInstance(Reference ** ppMemberPtr)
+	{
+		Reference * p_ref = 0;
+		assert(ppMemberPtr);
+		if(ppMemberPtr) {
+			if(*ppMemberPtr) {
+				p_ref = *ppMemberPtr;
+			}
+			else if(PPRef) {
+				p_ref = PPRef;
+				if(!(State & stCommonRefFlagsUpdated)) {
+					p_ref->SetFlag(XTF_DISABLEOUTOFTAMSG);
+					p_ref->Ot.SetFlag(XTF_DISABLEOUTOFTAMSG);
+					p_ref->UtrC.SetFlag(XTF_DISABLEOUTOFTAMSG);
+					State |= stCommonRefFlagsUpdated;
+				}
+			}
+			else {
+				*ppMemberPtr = new Reference;
+				if(*ppMemberPtr) {
+					p_ref = *ppMemberPtr;
+					p_ref->SetFlag(XTF_DISABLEOUTOFTAMSG);
+					p_ref->Ot.SetFlag(XTF_DISABLEOUTOFTAMSG);
+					p_ref->UtrC.SetFlag(XTF_DISABLEOUTOFTAMSG);
+				}
+			}
+		}
+		return p_ref;
+	}
 };
 
 void PPTableConversion::DestroyTable(DBTable * pTbl)
@@ -1456,6 +1503,7 @@ CONVERT_PROC(Convert31110, PPCvtCCheck31110);
 //
 //
 //
+#if 0 // moved to PPCvtBill11112 {
 class PPCvtBill4108 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -1465,7 +1513,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = tbl->getRecSize();
-			if(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)))
+			if(recsz < (sizeof(BillTbl::Rec) - sizeof(((BillTbl::Rec*)0)->Memo)))
 				*pNeedConversion = 1;
 			else
 				*pNeedConversion = 0;
@@ -1517,9 +1565,9 @@ public:
 		return 1;
 	}
 };
+#endif // } 0 moved to PPCvtBill11112
 
 #if 0 // { Перенесено в PPCvtCCheckLine5207
-
 class PPCvtCCheckLine4108 : public PPTableConversion {
 public:
 	DBTable * CreateTableInstance(int * pNeedConversion);
@@ -1597,10 +1645,10 @@ int Convert4108()
 {
 	int    ok = 1;
 	PPWaitStart();
-	if(ok) {
+	/* moved to PPCvtBill11112 @v11.1.12 if(ok) {
 		PPCvtBill4108 cvt;
 		ok = cvt.Convert() ? 1 : PPErrorZ();
-	}
+	}*/
 	/* @v5.2.7
 	if(ok) {
 		PPCvtCCheckLine4108 cvt2;
@@ -2234,6 +2282,7 @@ public:
 };
 
 CONVERT_PROC(Convert4805, PPCvtDlsObj4805);
+#if 0 // moved to PPCvtBill11112 {
 //
 // Conversion 4.9.11
 // Bill, PayPlan, Transfer
@@ -2247,7 +2296,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = tbl->getRecSize();
-			*pNeedConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
+			*pNeedConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof(((BillTbl::Rec*)0)->Memo)));
 		}
 		return tbl;
 	}
@@ -2296,6 +2345,7 @@ public:
 		return 1;
 	}
 };
+#endif // } 0 moved to PPCvtBill11112
 
 class PPCvtPayPlan4911 : public PPTableConversion {
 public:
@@ -2512,7 +2562,7 @@ static CONVERT_PROC(_ConvertCGoodsLine4911, PPCvtCGoodsLine4911);
 
 #endif // } 0 Перенесено в Convert5810
 
-static CONVERT_PROC(_ConvertBill4911,       PPCvtBill4911);
+// moved to PPCvtBill11112 static CONVERT_PROC(_ConvertBill4911,       PPCvtBill4911);
 static CONVERT_PROC(_ConvertPayPlan4911,    PPCvtPayPlan4911);
 static CONVERT_PROC(_ConvertTransfer4911,   PPCvtTransfer4911);
 static CONVERT_PROC(_ConvertCpTransf4911,   PPCvtCpTransf4911);
@@ -2520,7 +2570,7 @@ static CONVERT_PROC(_ConvertTSession4911,   PPCvtTSession4911);
 
 int Convert4911()
 {
-	return (_ConvertBill4911() && _ConvertPayPlan4911() && _ConvertCpTransf4911() &&
+	return (/*(moved to PPCvtBill11112) _ConvertBill4911() &&*/_ConvertPayPlan4911() && _ConvertCpTransf4911() &&
 		_ConvertTransfer4911() && _ConvertTSession4911() /*&& _ConvertCGoodsLine4911()*/);
 }
 //
@@ -4239,6 +4289,7 @@ public:
 	}
 };
 
+#if 0 // (moved to PPCvtPerson11112) {
 class PPCvtPerson6202 : public PPTableConversion {
 public:
 	struct Person_Before6202 {
@@ -4285,6 +4336,7 @@ public:
 		return 1;
 	}
 };
+#endif // } 0 (moved to PPCvtPerson11112)
 
 class PPCvtPersonKind6202 : public PPTableConversion {
 public:
@@ -4819,8 +4871,8 @@ int Convert6202()
 		THROW(cvt05.Convert());
 	}
 	{
-		PPCvtPerson6202 cvt06;
-		THROW(cvt06.Convert());
+		// @v11.1.12 PPCvtPerson6202 cvt06;
+		// @v11.1.12 THROW(cvt06.Convert());
 	}
 	{
 		PPCvtPersonKind6202 cvt07;
@@ -5434,6 +5486,7 @@ CONVERT_PROC(Convert7311, PPCvtVatBook7311);
 //
 //
 //
+#if 0 // @v11.1.12 moved to PPCvtTech11112 {
 class PPCvtTech7506 : public PPTableConversion {
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
@@ -5460,6 +5513,7 @@ class PPCvtTech7506 : public PPTableConversion {
 };
 
 CONVERT_PROC(Convert7506, PPCvtTech7506);
+#endif // } 0 @v11.1.12 moved to PPCvtTech11112
 //
 //
 //
@@ -7265,6 +7319,7 @@ public:
 	}
 	~PPCvtPrjTask10702()
 	{
+		RestoreCommonRefFlags();
 		ZDELETE(P_Ref);
 	}
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -7299,17 +7354,7 @@ public:
 		SString descr_buf;
 		SString memo_buf;
 		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
-		Reference * p_ref = 0;
-		if(P_Ref) {
-			p_ref = P_Ref;
-		}
-		else if(PPRef)
-			p_ref = PPRef;
-		else {
-			P_Ref = new Reference;
-			if(P_Ref)
-				p_ref = P_Ref;
-		}
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		if(Before6202) {
 			PrjTask_Before6202 * p_old_rec = static_cast<PrjTask_Before6202 *>(pOldRec);
 	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
@@ -7446,6 +7491,7 @@ public:
 	}
 	~PPCvtProject10702()
 	{
+		RestoreCommonRefFlags();
 		delete P_Ref;
 	}
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -7480,17 +7526,7 @@ public:
 		SString descr_buf;
 		SString memo_buf;
 		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
-		Reference * p_ref = 0;
-		if(P_Ref) {
-			p_ref = P_Ref;
-		}
-		else if(PPRef)
-			p_ref = PPRef;
-		else {
-			P_Ref = new Reference;
-			if(P_Ref)
-				p_ref = P_Ref;
-		}
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		if(Before6202) {
 			const Project_Before6202 * p_old_rec = static_cast<const Project_Before6202 *>(pOldRec);
 	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
@@ -7817,6 +7853,7 @@ public:
 	}
 	~PPCvtTSession11004()
 	{
+		RestoreCommonRefFlags();
 		ZDELETE(P_Ref);
 	}
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -7864,17 +7901,7 @@ public:
 		TSessionTbl::Rec * p_data = static_cast<TSessionTbl::Rec *>(pNewTbl->getDataBuf());
 		TSessionTblRec_Before11004 * p_old_rec = static_cast<TSessionTblRec_Before11004 *>(pOldRec);
 		const PPID id = p_old_rec->ID;
-		Reference * p_ref = 0;
-		if(P_Ref) {
-			p_ref = P_Ref;
-		}
-		else if(PPRef)
-			p_ref = PPRef;
-		else {
-			P_Ref = new Reference;
-			if(P_Ref)
-				p_ref = P_Ref;
-		}
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		PPObjTSession::Implement_GetExtention(p_ref, id, &ext);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
@@ -7985,6 +8012,577 @@ int Convert11004()
 	{
 		PPCvtTSession11004 cvt02;
 		THROW(cvt02.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class PPCvtBill11112 : public PPTableConversion {
+	enum {
+		billrecfmtCurrent = 0,
+		billrecfmtBefore4108,
+		billrecfmtBefore4911,
+		billrecfmtBefore11112,
+	};
+	int   RecFmt;
+	Reference * P_Ref;
+	struct BillRec_Before4108 { // Size = 76+160
+		long   ID;       // Ид. документа
+		char   Code[10];    // Код документа
+		LDATE  Dt;          // Дата документа
+		long   BillNo;      // Номер документа за день
+		long   OprKind;     // Вид операции          ->Ref(PPOBJ_OPRKIND)
+		long   UserID;      // Пользователь          ->Ref(PPOBJ_USR)
+		long   Location;    // Позиция               ->Location.ID
+		long   Object;      // Контрагент            ->Article.ID
+		long   Object2;     // Дополнительный объект ->Article.ID
+		long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
+		double CRate;       // Курс валюты для пересчета в базовую валюту
+		char   Amount[8];   // Номинальная сумма (в единицах CurID)
+		long   LinkBillID;  // Связанный документ    ->Bill.ID
+		long   Flags;       // Флаги
+		int16  AccessLevel; // Уровень доступа к документу
+		char   Memo[160];   // Примечание
+	};
+	struct BillRec_Before4911 { // Size = 76+160
+		long   ID;       // Ид. документа
+		char   Code[10];    // Код документа
+		LDATE  Dt;          // Дата документа
+		long   BillNo;      // Номер документа за день
+		long   OprKind;     // Вид операции          ->Ref(PPOBJ_OPRKIND)
+		long   UserID;      // Пользователь          ->Ref(PPOBJ_USR)
+		long   Location;    // Позиция               ->Location.ID
+		long   Object;      // Контрагент            ->Article.ID
+		long   Object2;     // Дополнительный объект ->Article.ID
+		long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
+		double CRate;       // Курс валюты для пересчета в базовую валюту
+		char   Amount[8];   // Номинальная сумма (в единицах CurID)
+		long   LinkBillID;  // Связанный документ    ->Bill.ID
+		long   Flags;       // Флаги
+		int16  AccessLevel; // Уровень доступа к документу
+		long   SCardID;     // @v4.1.8 ->SCard.ID
+		char   Memo[160];   // Примечание
+	};
+	struct BillRec_Before11112 {
+		long   ID;
+		char   Code[24];
+		LDATE  Dt;
+		long   BillNo;
+		LDATE  DueDate;
+		long   OpID;
+		long   StatusID;
+		long   UserID;
+		long   MainOrgID;
+		long   LocID;
+		long   Object;
+		long   Object2;
+		long   CurID;
+		double CRate;
+		double Amount;
+		long   LinkBillID;
+		long   Flags;
+		long   Flags2;
+		long   SCardID;
+		LDATE  PeriodLow;
+		LDATE  PeriodUpp;
+		int16  LastRByBill; 
+		int16  EdiOp;
+		double PaymAmount;
+		long   AgtBillID;
+		char   Memo[512];
+	};
+public:
+	PPCvtBill11112() : RecFmt(0), P_Ref(0)
+	{
+	}
+	~PPCvtBill11112()
+	{
+		RestoreCommonRefFlags();
+		ZDELETE(P_Ref);
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * tbl = new BillTbl;
+		if(!tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			const RECORDSIZE recsz = tbl->getRecSize();
+			if(recsz < (sizeof(BillRec_Before4108) - sizeof(((BillRec_Before4108 *)0)->Memo)))
+				RecFmt = billrecfmtBefore4108;
+			else if(recsz < (sizeof(BillRec_Before4911) - sizeof(((BillRec_Before4911 *)0)->Memo)))
+				RecFmt = billrecfmtBefore4911;
+			else if(recsz < sizeof(BillTbl::Rec))
+				RecFmt = billrecfmtBefore11112;
+			else
+				RecFmt = 0;
+			if(RecFmt)
+				*pNeedConversion = 1;
+		}
+		return tbl;
+	}
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	{
+		#define CF(f) p_data->f = p_old_rec->f
+		int    ok = 1;
+		SString memo_buf;
+		SString code_buf;
+		BillTbl::Rec * p_data = static_cast<BillTbl::Rec *>(tbl->getDataBuf());
+		tbl->clearDataBuf();
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
+		THROW(p_ref);
+		THROW(oneof3(RecFmt, billrecfmtBefore4108, billrecfmtBefore4911, billrecfmtBefore11112));
+		const PPID id = *static_cast<const long *>(rec); // Идент записи в любом случае - самое первое поле 
+		if(RecFmt == billrecfmtBefore4108) {
+			const BillRec_Before4108 * p_old_rec = static_cast<const BillRec_Before4108 *>(rec);
+			CF(ID);
+			//char   Code[24];
+			CF(Dt);
+			CF(BillNo);
+			//CF(DueDate);
+			//CF(OpID);
+			p_data->OpID = p_old_rec->OprKind;
+			//CF(StatusID);
+			CF(UserID);
+			//long   MainOrgID;
+			//CF(LocID);
+			p_data->LocID = p_old_rec->Location;
+			CF(Object);
+			CF(Object2);
+			CF(CurID);
+			CF(CRate);
+			//CF(Amount);
+			p_data->Amount = MONEYTOLDBL(p_old_rec->Amount);
+			CF(LinkBillID);
+			CF(Flags);
+			//CF(Flags2);
+			//CF(SCardID);
+			//CF(PeriodLow);
+			//CF(PeriodUpp);
+			//CF(LastRByBill); 
+			//CF(EdiOp);
+			//CF(PaymAmount);
+			//CF(AgtBillID);
+			//char   Memo[512];
+			//STRNSCPY(p_data->Code, p_old_rec->Code);
+			code_buf = p_old_rec->Code;
+			memo_buf = p_old_rec->Memo;
+			*pNewRecLen = -1;
+		}
+		else if(RecFmt == billrecfmtBefore4911) {
+			const BillRec_Before4911 * p_old_rec = static_cast<const BillRec_Before4911 *>(rec);
+			CF(ID);
+			//char   Code[24];
+			CF(Dt);
+			CF(BillNo);
+			//CF(DueDate);
+			//CF(OpID);
+			p_data->OpID = p_old_rec->OprKind;
+			//CF(StatusID);
+			CF(UserID);
+			//long   MainOrgID;
+			//CF(LocID);
+			p_data->LocID = p_old_rec->Location;
+			CF(Object);
+			CF(Object2);
+			CF(CurID);
+			CF(CRate);
+			//CF(Amount);
+			p_data->Amount = MONEYTOLDBL(p_old_rec->Amount);
+			CF(LinkBillID);
+			CF(Flags);
+			//CF(Flags2);
+			CF(SCardID);
+			//CF(PeriodLow);
+			//CF(PeriodUpp);
+			//CF(LastRByBill); 
+			//CF(EdiOp);
+			//CF(PaymAmount);
+			//CF(AgtBillID);
+			//char   Memo[512];
+			//STRNSCPY(p_data->Code, p_old_rec->Code);
+			code_buf = p_old_rec->Code;
+			memo_buf = p_old_rec->Memo;
+		}
+		else if(RecFmt == billrecfmtBefore11112) {
+			const BillRec_Before11112 * p_old_rec = static_cast<const BillRec_Before11112 *>(rec);
+			CF(ID);
+			//char   Code[24];
+			CF(Dt);
+			CF(BillNo);
+			CF(DueDate);
+			CF(OpID);
+			CF(StatusID);
+			CF(UserID);
+			//long   MainOrgID;
+			CF(LocID);
+			CF(Object);
+			CF(Object2);
+			CF(CurID);
+			CF(CRate);
+			CF(Amount);
+			CF(LinkBillID);
+			CF(Flags);
+			CF(Flags2);
+			CF(SCardID);
+			CF(PeriodLow);
+			CF(PeriodUpp);
+			CF(LastRByBill); 
+			CF(EdiOp);
+			CF(PaymAmount);
+			CF(AgtBillID);
+			//char   Memo[512];
+			//STRNSCPY(p_data->Code, p_old_rec->Code);
+			code_buf = p_old_rec->Code;
+			memo_buf = p_old_rec->Memo;
+		}
+		else {
+			assert(0);
+		}
+		{
+			code_buf.Strip();
+			if(code_buf.C(0) == '!' && p_data->Flags & BILLF_WHITELABEL) {
+				code_buf.ShiftLeft();
+			}
+			{
+				SString long_code_buf;
+				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, id, PPTAG_BILL_LONGCODE, long_code_buf) > 0) {
+					if(long_code_buf.HasPrefix(code_buf) && long_code_buf.Len() < sizeof(p_data->Code)) {
+						code_buf = long_code_buf;
+						THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, id, PPTAG_BILL_LONGCODE, 0));
+					}
+				}
+			}
+			STRNSCPY(p_data->Code, code_buf);
+			if(memo_buf == "N2") {
+				p_data->Flags2 |= BILLF2_FORCEDRECEIPT;
+				memo_buf.Z();
+			}
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		}
+		CATCHZOK
+		return ok;
+		#undef CF
+	}
+};
+
+class PPCvtTech11112 : public PPTableConversion {
+	enum {
+		recfmtCurrent = 0,
+		recfmtBefore7506,
+		recfmtBefore11112,
+	};
+	int    RecFmt;
+	long   OrderN_Counter;
+	Reference * P_Ref;
+	struct TechRec_Before11112 {
+		int32  ID;
+		char   Code[24];
+		int32  PrcID;
+		int32  GoodsID;
+		int32  GStrucID;
+		int32  Flags;
+		int16  Sign;
+		int16  Kind;
+		int32  PrevGoodsID;
+		int32  Duration;
+		double Cost;
+		double Capacity;
+		double Rounding;
+		int32  TransClsID;
+		int32  TransMask;
+		float  InitQtty;
+		int32  ParentID;
+		int32  OrderN;
+		int16  CipMax;
+		uint8  Reserve3[2]; // raw
+		char   Memo[512];  // note
+	};
+public:
+	PPCvtTech11112() : PPTableConversion(), P_Ref(0), RecFmt(0), OrderN_Counter(0)
+	{
+	}
+	~PPCvtTech11112()
+	{
+		RestoreCommonRefFlags();
+		delete P_Ref;
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		TechTbl * p_tbl = new TechTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			int16  num_keys = 0;
+			const RECORDSIZE recsz = p_tbl->getRecSize();
+			p_tbl->getNumKeys(&num_keys);
+			if(num_keys < 6)
+				RecFmt = recfmtBefore7506;
+			else if(recsz < sizeof(TechTbl::Rec))
+				RecFmt = recfmtBefore11112;
+			else
+				RecFmt = recfmtCurrent;
+			*pNeedConversion = BIN(RecFmt != recfmtCurrent);
+		}
+		OrderN_Counter = 0;
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		#define CF(f) p_data->f = p_old_rec->f
+		int    ok = 1;
+		SString memo_buf;
+		TechTbl::Rec * p_data = static_cast<TechTbl::Rec *>(pNewTbl->getDataBuf());
+		const TechRec_Before11112 * p_old_rec = static_cast<TechRec_Before11112 *>(pOldRec);
+		pNewTbl->clearDataBuf();
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
+		THROW(p_ref);
+		assert(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
+		THROW(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
+		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		{
+			CF(ID);
+			CF(PrcID);
+			CF(GoodsID);
+			CF(GStrucID);
+			CF(Flags);
+			CF(Sign);
+			CF(Kind);
+			CF(PrevGoodsID);
+			CF(Duration);
+			CF(Cost);
+			CF(Capacity);
+			CF(Rounding);
+			CF(TransClsID);
+			CF(TransMask);
+			CF(InitQtty);
+			CF(ParentID);
+			CF(OrderN);
+			CF(CipMax);
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+			//uint8  Reserve3[2]; // raw
+			//char   Memo[512];  // note
+		}
+		(memo_buf = p_old_rec->Memo).Strip();
+		if(RecFmt == recfmtBefore7506) {
+			p_data->ParentID = 0;
+			p_data->OrderN = ++OrderN_Counter;
+		}
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_TECH, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		CATCHZOK
+		return ok;
+		#undef CF
+	}
+};
+
+class PPCvtPerson11112 : public PPTableConversion {
+	enum {
+		recfmtCurrent = 0,
+		recfmtBefore6202,
+		recfmtBefore11112,
+	};
+	int    RecFmt;
+	Reference * P_Ref;
+public:
+	struct Person_Before6202 {
+		long   ID;
+		char   Name[48];
+		long   Status;
+		long   MainLoc;
+		long   Flags;
+		long   RLoc;
+		long   Division;
+		long   Position;
+		long   CatID;
+		char   Memo[128];
+	};
+	struct Person_Before11112 {
+		int32  ID;
+		char   Name[128];
+		int32  Status;
+		int32  MainLoc;
+		int32  RLoc;
+		int32  CatID;
+		int32  Flags;
+		int32  Division;
+		int32  Position;
+		char   Memo[512];
+	};
+	PPCvtPerson11112() : P_Ref(0), RecFmt(recfmtCurrent)
+	{
+	}
+	~PPCvtPerson11112()
+	{
+		RestoreCommonRefFlags();
+		delete P_Ref;
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * tbl = new PersonTbl;
+		if(!tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			//int16 flags = 0;
+			tbl->GetFileStat(-1, &stat);
+			//tbl->getTabFlags(&flags);
+			//*pNeedConversion = (flags & XTF_VLR) ? 0 : 1;
+			if(stat.FixRecSize < offsetof(Person_Before11112, Memo))
+				RecFmt = recfmtBefore6202;
+			else if(stat.Flags & XTF_VLR) // В версии v11.1.12 убрали поле Memo и таблица более не использует записи переменной длины (VLR)
+				RecFmt = recfmtBefore11112;
+			else
+				RecFmt = 0;
+			*pNeedConversion = BIN(RecFmt != 0);
+		}
+		return tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		#define CF(f) p_data->f = p_old_rec->f
+		int    ok = 1;
+		SString memo_buf;
+		pNewTbl->clearDataBuf();
+		PersonTbl::Rec * p_data = static_cast<PersonTbl::Rec *>(pNewTbl->getDataBuf());
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
+		THROW(p_ref);
+		assert(oneof2(RecFmt, recfmtBefore6202, recfmtBefore11112));
+		THROW(oneof2(RecFmt, recfmtBefore6202, recfmtBefore11112));
+		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		if(RecFmt == recfmtBefore6202) {
+			const Person_Before6202 * p_old_rec = static_cast<const Person_Before6202 *>(pOldRec);
+			CF(ID);
+			CF(Status);
+			CF(MainLoc);
+			CF(Flags);
+			CF(RLoc);
+			CF(Division);
+			CF(Position);
+			CF(CatID);
+			STRNSCPY(p_data->Name, p_old_rec->Name);
+			//STRNSCPY(p_data->Memo, p_old_rec->Memo);
+			(memo_buf = p_old_rec->Memo).Strip();
+		}
+		else if(RecFmt == recfmtBefore11112) {
+			const Person_Before11112 * p_old_rec = static_cast<const Person_Before11112 *>(pOldRec);
+			CF(ID);
+			CF(Status);
+			CF(MainLoc);
+			CF(RLoc);
+			CF(CatID);
+			CF(Flags);
+			CF(Division);
+			CF(Position);
+			//char   Memo[512];
+			STRNSCPY(p_data->Name, p_old_rec->Name);
+			(memo_buf = p_old_rec->Memo).Strip();
+		}
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		CATCHZOK
+		return ok;
+		#define CF(f) p_data->f = p_old_rec->f
+	}
+};
+
+
+class PPCvtPersonEvent11112 : public PPTableConversion {
+	Reference * P_Ref;
+public:
+	struct PersonEvent_Before11112 {
+		int32  ID;
+		LDATE  Dt;
+		int32  OprNo;
+		int32  OpID;
+		int32  PersonID;
+		int32  SecondID;
+		int32  LocationID;
+		int32  Extra;
+		int32  Flags;
+		int32  LinkBillID;
+		LTIME  Tm;
+		int16  EstDuration;
+		uint8  Reserve[18]; // raw
+		int32  PrmrSCardID;
+		int32  ScndSCardID;
+		char   Memo[512];  // note
+	};
+	PPCvtPersonEvent11112() : P_Ref(0)
+	{
+	}
+	~PPCvtPersonEvent11112()
+	{
+		RestoreCommonRefFlags();
+		delete P_Ref;
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * tbl = new PersonEventTbl;
+		if(!tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			tbl->GetFileStat(-1, &stat);
+			*pNeedConversion = (stat.Flags & XTF_VLR) ? 1 : 0; // В версии v11.1.12 убрали поле Memo и таблица более не использует записи переменной длины (VLR)
+		}
+		return tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		#define CF(f) p_data->f = p_old_rec->f
+		int    ok = 1;
+		SString memo_buf;
+		pNewTbl->clearDataBuf();
+		PersonEventTbl::Rec * p_data = static_cast<PersonEventTbl::Rec *>(pNewTbl->getDataBuf());
+		Reference * p_ref = GetReferenceInstance(&P_Ref);
+		THROW(p_ref);
+		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		{
+			const PersonEvent_Before11112 * p_old_rec = static_cast<const PersonEvent_Before11112 *>(pOldRec);
+			CF(ID);
+			CF(Dt);
+			CF(OprNo);
+			CF(OpID);
+			CF(PersonID);
+			CF(SecondID);
+			CF(LocationID);
+			CF(Extra);
+			CF(Flags);
+			CF(LinkBillID);
+			CF(Tm);
+			CF(EstDuration);
+			//uint8  Reserve[18]; // raw
+			CF(PrmrSCardID);
+			CF(ScndSCardID);
+			(memo_buf = p_old_rec->Memo).Strip();
+		}
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		CATCHZOK
+		return ok;
+		#define CF(f) p_data->f = p_old_rec->f
+	}
+};
+
+int Convert11112()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtBill11112 cvt01;
+		THROW(cvt01.Convert());
+	}
+	{
+		PPCvtTech11112 cvt02;
+		THROW(cvt02.Convert());
+	}
+	{
+		PPCvtPerson11112 cvt03;
+		THROW(cvt03.Convert());
+	}
+	{
+		PPCvtPersonEvent11112 cvt04;
+		THROW(cvt04.Convert());
 	}
 	PPWaitStop();
 	CATCHZOK

@@ -1204,7 +1204,7 @@ void GoodsDialog::setupInhTaxGrpName()
 	}
 }
 
-static int __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound)
+int PPObjGoods::__Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound)
 {
 	int    ok = -1;
 	rBound = 0.0;
@@ -1271,9 +1271,9 @@ void GoodsDialog::SetupAddedInfo()
 					RealRange range;
 					int   pr = 0;
 					if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
-						if(__Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, &Data, range.low) > 0)
+						if(GObj.__Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, &Data, range.low) > 0)
 							pr = 1;
-						if(__Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, &Data, range.upp) > 0)
+						if(GObj.__Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, &Data, range.upp) > 0)
 							pr = 1;
 						(title_buf = "price restriction").CatDiv(':', 2);
 						if(range.low > 0.0)

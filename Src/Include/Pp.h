@@ -1127,6 +1127,7 @@ struct GdsClsCalcExprContext {
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci; // @v10.7.6
 	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
+	const  ReceiptTbl::Rec * P_LotRec; // @v11.1.12
 	PPID   TSessID;
 	double Par1;
 	double Par2;
@@ -1391,6 +1392,8 @@ public:
 	static int IdUnxText;           // @v10.7.2 (fldObjType, fldObjID, fldTxtProp)
 	static int IdIsTxtUuidEq;       // @v10.9.10 (fldUUID_s, GUID) Определяет эксвивалентность строкового представления GUID значению второго аргумента
 	static int IdArIsCatPerson;     // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
+	static int IdObjMemoPerson;     // @v11.1.12 (fldPersonID)
+	static int IdObjMemoPersonEvent; // @v11.1.12 (fldPersonEventID)
 
 	static int Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -1642,6 +1645,7 @@ public:
 	PPSync();
 	~PPSync();
 	int    Init(const char * pDataPath);
+	bool   IsValid() const;
 	//
 	// Descr: Closes file. If database don't locked, then removes sync file.
 	// Returns:
@@ -5259,7 +5263,7 @@ struct PPAccTurn { // @persistent
 	AcctID CrdID;
 	PPID   CrdSheet;
 	LDATE  Date;
-	char   BillCode[24];   // Код документа
+	char   BillCode[48];   // Код документа // @v11.1.12 [24]-->[48]
 	PPID   BillID;         // Идентификатор документа
 	int16  RByBill;        // Номер проводки по документу
 	int16  Reserve;        // @alignment
@@ -7255,7 +7259,7 @@ protected:
 		stLoggedIn  = 0x0001,
 		stDebugMode = 0x0002  // Отладочный режим (вывод дополнительных данных в журналы)
 	};
-	long   State;   //
+	long   State_PPws; //
 	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
 		// можно синхронизировать действия с клиентом
 	CPosNodeBlock * P_CPosBlk;
@@ -8380,6 +8384,50 @@ struct PPObjPack {
 //
 class PPObject {
 public:
+	//
+	// Descr: Сигнатура сериализации для объектных пакетов. Вводится начиная с версии @v11.1.12
+	//   для обратной совместимости при считывании старых версий пакетов. Важный элемент применения 
+	//   заключается в том, чтобы можно было отличить пакеты, которые не имеют такой сигнатуры.
+	//
+	struct SerializeSignature { // @v11.1.12
+		//
+		// Descr: Конструктор, создающий пустую сигнатуру (S == 0 && V == 0)
+		//
+		SerializeSignature();
+		//
+		// Descr: Конструктор, создающий экземпляр с заданным типом объекта objType 
+		//   и текущим номером версии.
+		//
+		explicit SerializeSignature(PPID objType);
+		//
+		// Descr: Комплексный конструктор, реализующий логику препроцессинга
+		//   сериализации общего пакета объекта.
+		// ARG(objType  IN): Тип объекта данных
+		// ARG(dir      IN): Направление сериализации #{-1||+1}
+		// ARG(rBuf IN/OUT): Буфер сериализации.
+		//
+		SerializeSignature(PPID objType, int dir, SBuffer & rBuf);
+		bool   IsValid() const;
+		//
+		// Descr: Пытается считать из буфера rBuf предполагаемую сигнатуру. Если
+		//   сигнатура является валидной, то возвращает >0. Если нет, то
+		//   откатывает текущую позицию чтения буфера назад и возвращает 0.
+		//   В случае неудачи содержимое this обнуляется - то есть становится инвалидным.
+		//
+		int    Read(SBuffer & rBuf);
+		//
+		// Descr: Записывает содержимое экземпляра this в буфер сериализации rBuf.
+		//   Если содержимое this инвалидно, то в возвращает 0. В отладочном
+		//   варианте сборки в этом случае возникает исключение assert.
+		// Returns:
+		//   >0 - запись осуществлена успешно
+		//    0 - ошибка. 
+		//
+		int    Write(SBuffer & rBuf) const;
+
+		uint32 S; // (0xaaaa & ObjType)
+		SVerT  V; // Версия Papyrus, создавшая пакет
+	};
 	static int ReplaceObj(PPID objType, PPID dest, PPID src, uint options /*= user_request*/);
 	//
 	// Descr: Открывает диалог объединения объектов типа objType.
@@ -8932,6 +8980,7 @@ public:
 	int    GetRelList(PPID relTypeID, PPIDArray * pList) const;
 
 	PersonTbl::Rec Rec;
+	SString SMemo; // @v11.1.12
 	PPIDArray Kinds;
 private:
 	//
@@ -8975,6 +9024,7 @@ public:
 	int    Search(PPID id, PersonTbl::Rec * pRec = 0);
 	int    SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec = 0);
 	int    SearchByName(const char * pName, PPIDArray & rList);
+	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
 	int    SearchMainOrg(PersonTbl::Rec * pRec);
 	int    GetKindList(PPID personID, PPIDArray * pList);
 	int    AddKind(PPID id, PPID kind, int use_ta);
@@ -10172,6 +10222,8 @@ struct ILTI { // @persistent(DBX) @size=80
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
 #define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
+#define BILLF2_FORCEDRECEIPT 0x00002000L // @v11.1.12 Документ прихода товара, сформированный с целью форсированной компенсанции дефицита
+	// при приеме данных из другого раздела. До версии 11.1.12 такие документы индицировались специальным примечанием N2. Далее это примечание использоваться не будет.
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_EXTRA)
@@ -10648,7 +10700,8 @@ public:
 	PPID   GetDlvrAddrID() const;
 
 	BillTbl::Rec Rec;
-	AmtList      Amounts;
+	SString SMemo; // @v11.1.12 replacemnt for the BillTbl::Rec::Memo
+	AmtList Amounts;
 	PayPlanArray Pays;
 	PPBillExt    Ext;
 	PPRentCondition  Rent;
@@ -10763,7 +10816,7 @@ public:
 //
 struct PPCurTransit {      // @transient
 	PPID   BillID;         // Идентификатор документа
-	char   BillCode[24];   // Код документа
+	char   BillCode[48];   // Код документа // @v11.1.12 [24]--[48]
 	LDATE  Date;
 	PPID   OpID;
 	PPID   AccSheetID;
@@ -11717,9 +11770,9 @@ class BillCore : public BillTbl {
 public:
 	friend class PPTblEnum <BillCore>;
 
-	static char * FASTCALL SetCode(char * code, long f);
-	static char * FASTCALL GetCode(char * code);
-	static SString & FASTCALL GetCode(SString & rCode);
+	// @v11.1.12 static char * FASTCALL SetCode(char * code, long f);
+	// @v11.1.12 static char * FASTCALL GetCode(char * code);
+	// @v11.1.12 static SString & FASTCALL GetCode(SString & rCode);
 	static double GetQttyEpsilon();
 	//
 	// Descr: Возвращает значение статуса ответа (RECADV) на уведомление об отгрузке (DESADV)
@@ -11733,6 +11786,8 @@ public:
 
 	BillCore();
 	int    Search(PPID id, BillTbl::Rec * pRec = 0);
+	int    PutItemMemo(PPID id, SString * pBuf, int use_ta); // @v11.1.12
+	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
 	int    GetAmountList(PPID billID, AmtList * pList);
 	int    GetAmount(PPID, PPID amtTypeID, PPID curID, double *);
 	//
@@ -23683,11 +23738,11 @@ public:
 	// заботится об инициализации этого поля.
 	//
 	PPID   GoodsID; // @transient
-	const  PPComplBlock * P_Cb; // @v9.3.3 @transient Предварительный массив товарных строк для вставки в документа.
+	const  PPComplBlock * P_Cb; // @transient Предварительный массив товарных строк для вставки в документа.
 		// Необходим для обсчета компонентов по формулам.
 	PPGoodsStrucHeader Rec;
 	TSVector <PPGoodsStrucItem> Items;  //
-	TSCollection <PPGoodsStruc> Childs; // Используется только если (Flags & GSF_FOLDER)
+	TSCollection <PPGoodsStruc> Children; // Используется только если (Flags & GSF_FOLDER)
 private:
 	int    SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const;
 		// @<<PPGoodsStruc::EnumItemsExt
@@ -25637,7 +25692,7 @@ struct PersonReq { // @flat
 		// Если персоналия относится к нескольким видам, то тип поискового регистра берется из первого
 		// встреченного вида, которому принадлежит персоналия и для которого определен тип поискового регистра.
 	BnkAcctData BnkAcct;
-	char   Memo[128];     // @memo
+	char   Memo[256];     // @memo // @v11.1.12 [128]-->[256]
 };
 //
 //
@@ -27055,6 +27110,7 @@ struct PPPsnEventPacket {
 
 	PersonEventTbl::Rec Rec;
 	RegisterTbl::Rec Reg;
+	SString SMemo; // @v11.1.12
 	ObjTagList   TagL;
 	ObjLinkFiles LinkFiles; // Связанные файлы
 	//
@@ -27079,6 +27135,7 @@ public:
 
 	PersonEventCore();
 	int    Search(PPID id, PersonEventTbl::Rec * pRec = 0);
+	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
 	//
 	// Descr: Блок, управляющий поиском парной или аналогичной операции PersonEventCore::SearchPair()
 	//
@@ -27152,9 +27209,8 @@ private:
 
 class PPObjPersonEvent : public PPObject {
 public:
-	static SString & FASTCALL MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf);
-
-	PPObjPersonEvent(void * extraPtr = 0);
+	// @v11.1.12 (no more used) static SString & FASTCALL MakeCodeString_(const PersonEventTbl::Rec * pRec, int options, SString & rBuf);
+	explicit PPObjPersonEvent(void * extraPtr = 0);
 	~PPObjPersonEvent();
 	virtual int  Search(PPID, void * = 0);
 	virtual int  DeleteObj(PPID);
@@ -27285,6 +27341,7 @@ struct PersonEventFilt : public PPBaseFilt {
 struct PersonEventViewItem : public PersonEventTbl::Rec {
 	PersonEventViewItem();
 	PersonEventViewItem & Z();
+	SString SMemo; // @v11.1.12
 	SString GrpText1;
 	SString GrpText2;
 	SString AvgEvTime;
@@ -28324,7 +28381,7 @@ struct RetailGoodsInfo {   // @transient
 	//
 	PPID   LotID;
 	LDATE  BillDate;       // Дата прихода (для техн сессий - дата производства)
-	char   BillCode[24];   // Номер документа прихода (для техн сессий - номер сессии)
+	char   BillCode[48];   // Номер документа прихода (для техн сессий - номер сессии) // @v11.1.12 [24]--[48]
 	char   Serial[32];     // Серийный номер лота
 	int16  LabelCount;     // Количество этикеток, которое требуется напечатать. [1..999], default=1
 	int16  Reserve;        // @alignment
@@ -29375,6 +29432,7 @@ public:
 	int    GetTagList(PPID goodsID, ObjTagList * pTagList);
 	int    SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta);
 	int    SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
+	int    __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound);
 
 	struct ProcessNameBlock {
 		long   Flags;
@@ -30870,23 +30928,35 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	//int    UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
-	int    AddItem(PPID goodsID, PPID strucID, int checkExistance);
+	//int    AddItem(PPID goodsID, PPID strucID, int checkExistance);
 	int    Transmit(PPID /*id*/);
 	int    Recover();
 	int    MakeList(PPViewBrowser * pBrw);
 	int    SortList(PPViewBrowser * pBrw);
-	int    MakeTreeListView(); // @v11.1.12 @construction
+	int    MakeTreeListView(PPViewBrowser * pBrw); // @v11.1.12 @construction
+
+	struct CommonProcessingBlock {
+		CommonProcessingBlock();
+		CommonProcessingBlock(const CommonProcessingBlock & rS);
+		int    CommonProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndID, int checkExistance);
+		PPObjGoodsStruc GSObj;
+		PPObjGoods GObj;
+		TSVector <StrucEntry> StrucList;
+		TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
+		SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
+	};
 
 	uint    IterIdx;
 	IterOrder CurrentViewOrder;
 	GoodsStrucFilt Filt;
-	PPObjGoodsStruc GSObj;
-	PPObjGoods GObj;
-	TSVector <StrucEntry> StrucList;
-	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
+	//PPObjGoodsStruc GSObj;
+	//PPObjGoods GObj;
+	//TSVector <StrucEntry> StrucList;
+	//TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
+	CommonProcessingBlock Cb;
 	TSArray  <ItemEntry> * P_DsList__; // @v10.7.5
 	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
-	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
+	void * H_AsideListWindow; // @v11.1.12 Список иерархии структур
 };
 //
 // @ModuleDecl(PPViewGoodsToObjAssoc)
@@ -33955,7 +34025,8 @@ private:
 	int    Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills);
 	int    Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta);
 	int    Helper_PutBillToMrpTab(PPID billID, MrpTabPacket *, const PPDraftOpEx *, int use_ta);
-	int    InitDraftWrOffPacket(const PPDraftOpEx *, const BillTbl::Rec *, PPBillPacket *, int use_ta);
+	// @v11.1.12 int    InitDraftWrOffPacket(const PPDraftOpEx *, const BillTbl::Rec *, PPBillPacket *, int use_ta);
+	int    InitDraftWrOffPacket(const PPDraftOpEx *, const PPBillPacket * pDraftPack, PPBillPacket *, int use_ta); // @v11.1.12
 	int    RemoveTransferItem(PPID billID, int rByBill, int force = 0);
 	int    ProcessLink(BillTbl::Rec & rRec, PPID paymLinkID, const BillTbl::Rec * pOrgRec);
 	int    ProcessShadowPacket(PPBillPacket *, int update);
@@ -36087,7 +36158,6 @@ private:
 //
 // @ModuleDecl(PPObjTech)
 //
-
 //
 // Descr: Класс, управляющий списком товаров, которые могут быть обработаны технологической
 //   сессией, использующей заданную технологию.
@@ -36157,6 +36227,7 @@ struct PPTechPacket {
 	PPTechPacket();
 	TechTbl::Rec Rec;
 	SString ExtString;
+	SString SMemo; // @v11.1.12
 };
 
 class PPObjTech : public PPObject {
@@ -36170,6 +36241,7 @@ public:
 	virtual int Browse(void * extraPtr);
 	int    InitPacket(PPTechPacket *, long extraData, int use_ta);
 	int    SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
 	int    Fetch(PPID id, TechTbl::Rec * pRec);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	int    SearchByCode(const char * pCode, TechTbl::Rec * pRec);
@@ -38289,10 +38361,8 @@ struct PrcssrUnifyPriceFilt : public PPBaseFilt { // @persistent
 	enum {
 		//fUnify    = 0x0001,
 		fConfirm  = 0x0002,
-		fCostBase = 0x0004, // При изменении цены по коэффициенту за
-		//                     базу принимать цену поступления //
-		// Этот флаг может быть установлен только тогда, когда pctVal != 0.
-		// Если это не так, то возможны проблемы.
+		fCostBase = 0x0004, // При изменении цены по коэффициенту за базу принимать цену поступления //
+			// Этот флаг может быть установлен только тогда, когда pctVal != 0. Если это не так, то возможны проблемы.
 		fAverageCost     = 0x0008, // Усреднение цен поступления //
 		fExcludeGoodsGrp = 0x0010, // Исключить указанную группу
 		fAbsVal          = 0x0020, // При изменении цены, AbsVal - сумма наценки, иначе процент наценки
@@ -38306,9 +38376,19 @@ struct PrcssrUnifyPriceFilt : public PPBaseFilt { // @persistent
 		mUnify   = 2, // Унифицировать цены по всем лота, опираясь на цену последнего
 		mEachLot = 3  // Переоценить каждый лот
 	};
-	uint8  ReserveStart[28]; // @anchor @reserve
-	long   Mode;       // Режим унификации PrcssrUnifyPriceFilt::mXXX
-	int    CostReval;  // Изменение цен поступления по поставщику
+	//
+	// Descr: Варианты источников новых цен
+	//
+	enum {
+		psrcImplicit = 0,
+		psrcQuot,
+		psrcGtPriceRestrLow, // Нижнее ограничение цены из товарного типа
+		psrcGtPriceRestrUpp, // Верхнее ограничение цены из товарного типа
+	};
+	uint8  ReserveStart[24]; // @anchor @reserve // @v11.1.12 [28]-->[24]
+	long   PriceSource; // @v11.1.12 Источник формирования цены
+	long   Mode;        // Режим унификации PrcssrUnifyPriceFilt::mXXX
+	int    CostReval;   // Изменение цен поступления по поставщику
 	PPID   OpKindID;
 	PPID   LocID;
 	PPID   GoodsGrpID;
@@ -38334,6 +38414,7 @@ private:
 	int    InitBillPack();
 	int    TurnBillPack();
 	int    CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPrice);
+	int    Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, const ReceiptTbl::Rec & rLotRec, double & rBound);
 
 	PrcssrUnifyPriceFilt P;
 	PPObjBill * P_BObj;
@@ -38499,6 +38580,7 @@ struct BillViewItem : public BillTbl::Rec {
 	double Credit;
 	double Saldo;
 	LDATE  LastPaymDate; // Дата последнего платежа по документу
+	char   SMemo[512];   // @v11.1.12 
 };
 
 typedef int (*BillViewEnumProc)(const BillViewItem * pItem, void * pExtraPtr);
@@ -38730,6 +38812,7 @@ struct LinkedBillViewItem : public BillTbl::Rec {
 	int16  Pad;        // @alignment
 	PPID   LinkBillID__; // @v10.3.2 @fix LinkBillID-->LinkBillID__ (дублирует BillTbl::Rec::LinkBillID)
 	PPID   RcknBillID; //
+	char   _Memo[512]; // @v11.1.12
 };
 
 class PPViewLinkedBill : public PPView {
@@ -39535,7 +39618,7 @@ public:
 struct FreightViewItem {
 	PPID   BillID;        // -> Bill.ID
 	LDATE  BillDate;      // = Bill.ID.Dt
-	char   Code[24];      // = Bill.ID.Code
+	char   Code[48];      // = Bill.ID.Code // @v11.1.12 [24]-->[48]
 	PPID   ObjectID;      // = Bill.ID.ObjectID
 	PPID   AgentID;       // Ид агента по документу
 	double Amount;        // = Bill.ID.Amount
@@ -45897,6 +45980,7 @@ public:
 	int    FinishWriting(const SBinaryChunk * pCryptoKey);
 	int    Read(SBuffer & rMsgBuf, const SBinaryChunk * pCryptoKey);
 	int    Read(PPMqbClient::Message & rMsg, const SBinaryChunk * pCryptoKey);
+	int    ReadMime64(const SString & rSrcMime64, const SBinaryChunk * pCryptoKey);
 	static int Test();
 
 	SSecretTagPool P;
@@ -56057,7 +56141,7 @@ int Convert6611();
 int Convert7311();
 int ConvertQuot720();
 int Convert7305();
-int Convert7506();
+// @v11.1.12 moved to PPCvtTech11112 int Convert7506();
 int Convert7601();
 // @v9.4.0 int Convert7702();
 int Convert7708();
@@ -56083,6 +56167,7 @@ int Convert10703(); // @erik @v10.7.2 desktops
 int Convert10903(); // @v10.9.3
 int Convert10905(); // @v10.9.5 EgaisRefA
 int Convert11004(); // @v11.0.4 TSessLine
+int Convert11112(); // @v11.1.12 Bill
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

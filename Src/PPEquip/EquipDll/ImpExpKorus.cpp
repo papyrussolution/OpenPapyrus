@@ -668,7 +668,7 @@ public:
 	~ExportCls();
 	void   CreateFileName(uint num)
 	{
-		ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+		ExpFileName.Z().Cat(PathStruct.Drv).Colon().Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 	}
 	int    OrderHeader();
 	int    RecadvHeader();
@@ -1693,7 +1693,7 @@ public:
 	}
 	void   CreateFileName(uint num)
 	{
-		ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+		ImpFileName.Z().Cat(PathStruct.Drv).Colon().Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 	}
 	int    ReceiveDoc(uint messageType);
 	int    ListMessageBox(uint messageType);

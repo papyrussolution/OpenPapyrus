@@ -1286,7 +1286,7 @@ int PPViewAlcoDeclRu::Export()
 	temp_buf.CatChar('_').Cat(_now.d, DATF_DMY|DATF_CENTURY|DATF_NODIV);
 	temp_buf.CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
 	PPGetPath(PPPATH_OUT, file_name);
-	file_name.SetLastSlash().Cat(temp_buf).Dot().Cat("xml");
+	file_name.SetLastSlash().Cat(temp_buf).DotCat("xml");
 	{
 		THROW(g.StartDocument(file_name));
 		//
@@ -1541,8 +1541,10 @@ int PPViewAlcoDeclRu::Export()
 											if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
 												if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
 													bill_code_buf = billext.InvoiceCode;
-												else
-													BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
+												else {
+													// @v11.1.12 BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
+													bill_code_buf = suppl_bill_rec.Code; // @v11.1.12 
+												}
 												bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
 												assert(suppl_bill_rec.Dt == r_entry.BillDt);
 												if(r_entry.ItemKind == 0) {

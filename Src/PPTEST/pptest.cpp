@@ -1014,7 +1014,8 @@ int GenerateGoodsBills()
 						//
 						// примечание у генерируемого документа
 						//
-						sprintf(bpack.Rec.Memo, "//@autogen");
+						// @v11.1.12 sprintf(bpack.Rec.Memo, "//@autogen");
+						bpack.SMemo = "//@autogen"; // @v11.1.12
 						//
 						// кол-во строк в генерируемом документе
 						//
@@ -1387,7 +1388,7 @@ int  TestAddressRecognition();
 int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
-int  Test_PPStyloQInterchange_Invitation();
+int  Test_PPStyloQInterchange();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1414,11 +1415,11 @@ int DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 //#if 1
-	TestGtinStruc();
+	//TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	Test_PPStyloQInterchange_Invitation();
+	Test_PPStyloQInterchange();
 	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);

@@ -1407,7 +1407,7 @@ SOAP_FMAC1 soap_wchar /*SOAP_FMAC2*/FASTCALL soap_get(struct soap * soap)
 			    do {
 				    c = soap_get1(soap);
 				} while(soap_blank(c));
-			    if(c == '!' || c == '?' || c == '%') {
+			    if(oneof3(c, '!', '?', '%')) {
 				    int k = 1;
 				    if(c == '!') {
 					    c = soap_get1(soap);

@@ -2164,10 +2164,8 @@ void WriteTextIni(TW * lptw)
 		WritePrivateProfileString(section, TEXT("DockVerticalTextFrac"), profile, file);
 		wsprintf(profile, TEXT("%d"), lptw->HorzFracDock);
 		WritePrivateProfileString(section, TEXT("DockHorizontalTextFrac"), profile, file);
-		if(iconic)
-			ShowWindow(lptw->hWndParent, SW_SHOWMINIMIZED);
-		if(zoomed)
-			ShowWindow(lptw->hWndParent, SW_SHOWMAXIMIZED);
+		if(iconic || zoomed)
+			ShowWindow(lptw->hWndParent, iconic ? SW_SHOWMINIMIZED : SW_SHOWMAXIMIZED);
 	}
 }
 
@@ -2228,7 +2226,7 @@ void ReadTextIni(TW * lptw)
 			else {
 				/* select a default type face depending on the OS version */
 				OSVERSIONINFO versionInfo;
-				ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+				memzero(&versionInfo, sizeof(OSVERSIONINFO));
 				versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 				GetVersionEx(&versionInfo);
 				if(versionInfo.dwMajorVersion >= 6) /* Vista or later */

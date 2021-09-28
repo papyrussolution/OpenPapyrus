@@ -32,31 +32,27 @@
  */
 #undef _WIN32_WINNT
 #ifdef HAVE_WSPIAPI_H
-#define _WIN32_WINNT 0x0500 /* _WIN32_WINNT_WIN2K */
-#undef NTDDI_VERSION
-#define NTDDI_VERSION 0x05000400 /* NTDDI_WIN2KSP4 */
+	#define _WIN32_WINNT 0x0500 /* _WIN32_WINNT_WIN2K */
+	#undef NTDDI_VERSION
+	#define NTDDI_VERSION 0x05000400 /* NTDDI_WIN2KSP4 */
 #else
-#define _WIN32_WINNT 0x0501 /* _WIN32_WINNT_WINXP */
-#undef NTDDI_VERSION
-#define NTDDI_VERSION 0x05010000 /* NTDDI_WINXP */
+	#define _WIN32_WINNT 0x0501 /* _WIN32_WINNT_WINXP */
+	#undef NTDDI_VERSION
+	#define NTDDI_VERSION 0x05010000 /* NTDDI_WINXP */
 #endif
-
 #if _MSC_VER >= 1400
-#include <io.h>
-#undef close
-#define close _close
+	#include <io.h>
+	#undef close
+	#define close _close
 #endif /* _MSC_VER */
 #include <winsock2.h>
 #include <ws2tcpip.h>
-
-/* <wspiapi.h> is necessary for getaddrinfo before Windows XP, but it isn't
- * available on some platforms like MinGW. */
+// <wspiapi.h> is necessary for getaddrinfo before Windows XP, but it isn't available on some platforms like MinGW. 
 #ifdef HAVE_WSPIAPI_H
-#include <wspiapi.h>
+	#include <wspiapi.h>
 #endif
-
 #ifndef EINPROGRESS
-#define EINPROGRESS WSAEINPROGRESS
+	#define EINPROGRESS WSAEINPROGRESS
 #endif
 
 #else /* _WIN32 */

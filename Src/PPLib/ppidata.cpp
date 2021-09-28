@@ -67,7 +67,7 @@ int PpyInetDataPrcssr::Init()
 	Uninit();
 	THROW(GetCfg(&IConnCfg));
 	//sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
-	proxi.Cat(IConnCfg.ProxyHost).CatChar(':').Cat(IConnCfg.ProxyPort);
+	proxi.Cat(IConnCfg.ProxyHost).Colon().Cat(IConnCfg.ProxyPort);
 	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
 		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
 	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
@@ -425,7 +425,7 @@ int WinInetFTP::Init(const PPInetConnConfig * pCfg)
 		access_type = INTERNET_OPEN_TYPE_DIRECT;
 	else if(IConnCfg.AccessType == PPINETCONN_PROXY) {
 		access_type = INTERNET_OPEN_TYPE_PROXY;
-		p_proxy_name = proxy_buf.Z().Cat(IConnCfg.ProxyHost).CatChar(':').Cat(IConnCfg.ProxyPort);
+		p_proxy_name = proxy_buf.Z().Cat(IConnCfg.ProxyHost).Colon().Cat(IConnCfg.ProxyPort);
 	}
 	else
 		access_type = INTERNET_OPEN_TYPE_PRECONFIG;

@@ -885,6 +885,7 @@ SString & SString::Space()   { return CatChar(' ');  }
 SString & SString::Dot()     { return CatChar('.');  }
 SString & SString::Comma()   { return CatChar(',');  }
 SString & SString::Semicol() { return CatChar(';');  }
+SString & SString::Colon()   { return CatChar(':');  } 
 SString & SString::Eq()      { return CatChar('=');  }
 SString & SString::CR()      { return CatChar('\n'); }
 SString & SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
@@ -2514,6 +2515,11 @@ SString & FASTCALL SString::Cat(const char * pS)
 		}
 	}
 	return *this;
+}
+
+SString & FASTCALL SString::DotCat(const char * pS)
+{
+	return Dot().Cat(pS);
 }
 
 SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
@@ -4606,7 +4612,7 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	if(last) {
 		rBuf.Cat(Drv);
 		if(!(Flags & fUNC) && last != ':')
-			rBuf.CatChar(':');
+			rBuf.Colon();
 	}
 	last = Dir.Last();
 	if(last) {
@@ -4634,7 +4640,7 @@ int FASTCALL SPathStruc::Merge(long mergeFlags, SString & rBuf) const
 		if(last) {
 			rBuf.Cat(Drv);
 			if(!(Flags & fUNC) && last != ':')
-				rBuf.CatChar(':');
+				rBuf.Colon();
 		}
 	}
 	if(!mergeFlags || mergeFlags & fDir) {

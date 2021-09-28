@@ -1668,7 +1668,7 @@ int PPViewGeoTracking::Export()
 		if(fn_suffix.NotEmptyS()) {
 			out_file_name.CatChar('-').Cat(fn_suffix.Transf(CTRANSF_INNER_TO_OUTER));
 		}
-		out_file_name.Dot().Cat("gpx");
+		out_file_name.DotCat("gpx");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{

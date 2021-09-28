@@ -1668,8 +1668,14 @@ int PPBillImporter::RunUhttImport()
 								cc_pack.Ext.AddrID = dlvr_loc_id;
 							{
 								temp_buf = "UHTT";
+								/* @v11.1.12
 								if(pack.Rec.Memo[0])
 									temp_buf.Space().Cat(pack.Rec.Memo);
+								*/
+								// @v11.1.12 {
+								if(pack.SMemo.NotEmpty())
+									temp_buf.Space().Cat(pack.SMemo);
+								// } @v11.1.12 
 								temp_buf.CopyTo(cc_pack.Ext.Memo, sizeof(cc_pack.Ext.Memo));
 							}
 							PPTransferItem * p_ti;
@@ -3614,7 +3620,8 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 			pPack->Rec.CRate   = pBill->CRate;
 			if(checkdate(pBill->PaymDate) && pBill->Amount)
 				pPack->SetPayDate(pBill->PaymDate, pBill->Amount);
-			STRNSCPY(pPack->Rec.Memo, (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER));
+			// @v11.1.12 STRNSCPY(pPack->Rec.Memo, (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER));
+			pPack->SMemo = (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER); // @v11.1.12
 			// @v10.9.6 (temp_buf = pPack->Rec.Code).Transf(CTRANSF_OUTER_TO_INNER);
 			// @v10.9.6 STRNSCPY(pPack->Rec.Code, temp_buf);
 			(temp_buf = pPack->Ext.InvoiceCode).Transf(CTRANSF_OUTER_TO_INNER);
@@ -4928,7 +4935,8 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 			GetReg(pPack->Rec.Object2, PPREGT_GLN, temp_buf);
 			temp_buf.CopyTo(pBill->Obj2GLN, sizeof(pBill->Obj2GLN));
 		}
-		(temp_buf = pPack->Rec.Memo).Transf(CTRANSF_INNER_TO_OUTER);
+		// @v11.1.12 (temp_buf = pPack->Rec.Memo).Transf(CTRANSF_INNER_TO_OUTER);
+		(temp_buf = pPack->SMemo).Transf(CTRANSF_INNER_TO_OUTER); // @v11.1.12
 		STRNSCPY(pBill->Memo, temp_buf);
 		if(LocObj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
 			ltoa(loc_rec.ID, pBill->LocID, 10);
@@ -5293,7 +5301,8 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 DocNalogRu_Generator::Invoice::Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_INVOICEHEADER))
 {
 	SString temp_buf;
-	BillCore::GetCode(temp_buf = rBp.Rec.Code);
+	// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
+	temp_buf = rBp.Rec.Code; // @v11.1.12 
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_INVOICENUMBER), rG.EncText(temp_buf));
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_INVOICEDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CODEOKV), "643");
@@ -5879,7 +5888,8 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 					n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC2), temp_buf);
 					n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC), g.EncText(temp_buf = op_rec.Name));
 					SXml::WNode n_3(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCIDENT));
-					BillCore::GetCode(temp_buf = rBp.Rec.Code);
+					// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
+					temp_buf = rBp.Rec.Code; // @v11.1.12 
 					n_3.PutAttrib("ÍîìÄîêÏÐÓ", g.EncText(temp_buf));
 					n_3.PutAttrib("ÄàòàÄîêÏÐÓ", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 					// SXml::WNode n_3(g.P_X, "ÈñïðÄîêÏÐÓ");
@@ -6161,8 +6171,14 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 						}
 						// @v11.0.2 {
+						/* @v11.1.12 
 						if(!isempty(rBp.Rec.Memo))
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf.Z().Cat(rBp.Rec.Memo)));
+						*/
+						// @v11.1.12 {
+						if(rBp.SMemo.NotEmpty())
+							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf = rBp.SMemo));
+						// } @v11.1.12 
 						// } @v11.0.2
 					}
 					{
@@ -6413,7 +6429,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOC));
 					temp_buf = g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAME), temp_buf);
-					BillCore::GetCode(temp_buf = rBp.Rec.Code);
+					// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
+					temp_buf = rBp.Rec.Code; // @v11.1.12 
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 				}
@@ -6469,8 +6486,14 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 						}
 						// @v11.0.2 {
+						/* @v11.1.12 
 						if(!isempty(rBp.Rec.Memo))
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf.Z().Cat(rBp.Rec.Memo)));
+						*/
+						// @v11.1.12 {
+						if(rBp.SMemo.NotEmpty())
+							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER), g.EncText(temp_buf = rBp.SMemo));
+						// } @v11.1.12 
 						// } @v11.0.2
 					}
 					{

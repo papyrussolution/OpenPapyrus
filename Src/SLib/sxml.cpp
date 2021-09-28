@@ -111,7 +111,7 @@ int XMLWriteSpecSymbEntities(void * pWriter)
 {
 	assert(/*!isempty(pNs) &&*/ !isempty(pT));
 	SString & r_buf = SLS.AcquireRvlStr();
-	return isempty(pNs) ? r_buf.Cat(pT) : r_buf.Cat(pNs).CatChar(':').Cat(pT);
+	return isempty(pNs) ? r_buf.Cat(pT) : r_buf.Cat(pNs).Colon().Cat(pT);
 }
 
 SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
@@ -1721,10 +1721,10 @@ int SoapPacket::Write(const char * pUrn, const char * pMethodName, void ** ppXml
 		xmlNs * p_ns_inner = xmlNewNs(0, 0, (const xmlChar *)p_nss_inner);
 		THROW(p_ns_inner);
 		THROW(p_method_node = xmlNewDocNode(p_doc, p_ns_inner, (const xmlChar *)pMethodName, 0));
-		(temp_buf = p_nss_env).CatChar(':').Cat("encodingStyle");
+		(temp_buf = p_nss_env).Colon().Cat("encodingStyle");
 		xmlNewProp(p_method_node, temp_buf.ucptr(), (const xmlChar *)"http://schemas.xmlsoap.org/soap/envelope/");
 		if(pUrn) {
-			(temp_buf = "xmlns").CatChar(':').Cat(p_nss_inner);
+			(temp_buf = "xmlns").Colon().Cat(p_nss_inner);
 			xmlNewProp(p_method_node, temp_buf.ucptr(), (const xmlChar *)pUrn);
 		}
 		xmlAddChild(p_body_node, p_method_node);
@@ -1746,8 +1746,8 @@ int SoapPacket::Write(const char * pUrn, const char * pMethodName, void ** ppXml
 						// <token xsi:type="xsd:string">AuthToken</token>
 						xmlNode * p_node = xmlNewDocNode(p_doc, 0, spi.Name.ucptr(), spi.Value.ucptr());
 						THROW(p_node);
-						temp_buf.Z().Cat(p_nss_xsi).CatChar(':').Cat("type");
-						type_buf.Z().Cat(p_nss_xsd).CatChar(':').Cat(spi.TypeName);
+						temp_buf.Z().Cat(p_nss_xsi).Colon().Cat("type");
+						type_buf.Z().Cat(p_nss_xsd).Colon().Cat(spi.TypeName);
 						xmlNewProp(p_node, temp_buf.ucptr(), type_buf.ucptr());
 						xmlAddChild(p_method_node, p_node);
 					}

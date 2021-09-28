@@ -531,7 +531,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 	int    ok = 1;
 	PPGetFilePath(PPPATH_WORKSPACE, "styloqcommands", rFileName);
 	if(::IsDirectory(rFileName) || ::createDir(rFileName)) {
-		rFileName.SetLastSlash().Cat("stqc").Dot().Cat("xml");
+		rFileName.SetLastSlash().Cat("stqc").DotCat("xml");
 	}
 	else
 		ok = 0;
@@ -1672,6 +1672,25 @@ int StyloQProtocol::Read(SBuffer & rMsgBuf, const SBinaryChunk * pCryptoKey)
 int StyloQProtocol::Read(PPMqbClient::Message & rMsg, const SBinaryChunk * pCryptoKey)
 {
 	return Read(rMsg.Body, pCryptoKey);
+}
+
+int StyloQProtocol::ReadMime64(const SString & rSrcMime64, const SBinaryChunk * pCryptoKey)
+{
+	int    ok = 1;
+	Z();
+	if(rSrcMime64.Len()) {
+		SBuffer temp_sbuf;
+		size_t real_size = 0;
+		STempBuffer tbuf((rSrcMime64.Len() * 3) / 2);
+		THROW_SL(rSrcMime64.DecodeMime64(tbuf, tbuf.GetSize(), &real_size));
+		THROW_SL(temp_sbuf.Write(tbuf.cptr(), real_size));
+		THROW(Read(temp_sbuf, pCryptoKey));
+	}
+	else {
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*static*/int StyloQProtocol::Test()
@@ -3184,8 +3203,34 @@ int PPStyloQInterchange::SetupMqbParam(const StyloQCore::StoragePacket & rOwnPac
 	return ok;
 }
 
-int Test_PPStyloQInterchange_Invitation()
+int Test_PPStyloQInterchange()
 {
+	class TcpClientSession {
+	public:
+		TcpClientSession()
+		{
+		}
+		void DoRequest()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			ScURL  c;
+			InetUrl url("http://localhost/styloq");
+			SBuffer reply_buf;
+			StyloQProtocol tp;
+			SFile wr_stream(reply_buf, SFile::mWrite);
+			temp_buf.Z().EncodeMime64(tp.constptr(), tp.GetAvailableSize());
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, 0/*header*/, temp_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					THROW(tp.ReadMime64(temp_buf, /*pCryptoKey*/0));
+				}
+			}
+			CATCHZOK
+		}
+	};
 	int    ok = 1;
 	int    debug_flag = 0;
 	PPID   own_peer_id = 0;

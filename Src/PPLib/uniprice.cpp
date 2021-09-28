@@ -1,5 +1,5 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 // Унификация цен реализации товара
 //
@@ -120,6 +120,31 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 		}
 		DECL_DIALOG_SETDTS()
 		{
+			// @v11.1.12 {
+			bool allow_psrcGtPriceRestrLow = false;
+			bool allow_psrcGtPriceRestrUpp = false;
+			{
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				PPIDArray restr_id_list;
+				for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
+					restr_id_list.addnz(gt_rec.PriceRestrID);
+				}
+				if(restr_id_list.getCount()) {
+					restr_id_list.sortAndUndup();
+					PPObjGoodsValRestr gvr_obj;
+					PPGoodsValRestrPacket gvr_pack;
+					for(uint i = 0; i < restr_id_list.getCount(); i++) {
+						if(gvr_obj.GetPacket(restr_id_list.get(i), &gvr_pack) > 0) {
+							if(gvr_pack.LowBoundFormula.NotEmpty())
+								allow_psrcGtPriceRestrLow = true;
+							if(gvr_pack.UppBoundFormula.NotEmpty())
+								allow_psrcGtPriceRestrUpp = true;
+						}
+					}
+				}
+			}
+			// } @v11.1.12 
 			RVALUEPTR(Data, pData);
 			size_t spctval_len = 0;
 			char   spctval[64];
@@ -132,7 +157,15 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_QUOTK,   PPOBJ_QUOTKIND,   Data.QuotKindID, 0);
 			AddClusterAssoc(CTL_UNIPRICE_EXCLGGRPF, 0, PrcssrUnifyPriceFilt::fExcludeGoodsGrp);
 			SetClusterData(CTL_UNIPRICE_EXCLGGRPF, Data.Flags);
-
+			// @v11.1.12 {
+			AddClusterAssocDef(CTL_UNIPRICE_PSRC, 0, PrcssrUnifyPriceFilt::psrcImplicit);
+			AddClusterAssoc(CTL_UNIPRICE_PSRC, 1, PrcssrUnifyPriceFilt::psrcQuot);
+			AddClusterAssoc(CTL_UNIPRICE_PSRC, 2, PrcssrUnifyPriceFilt::psrcGtPriceRestrLow);
+			AddClusterAssoc(CTL_UNIPRICE_PSRC, 3, PrcssrUnifyPriceFilt::psrcGtPriceRestrUpp);
+			SetClusterData(CTL_UNIPRICE_PSRC, Data.PriceSource);
+			DisableClusterItem(CTL_UNIPRICE_PSRC, 2, !allow_psrcGtPriceRestrLow);
+			DisableClusterItem(CTL_UNIPRICE_PSRC, 3, !allow_psrcGtPriceRestrUpp);
+			// } @v11.1.12 
 			AddClusterAssoc(CTL_UNIPRICE_FLAGS, 0, PrcssrUnifyPriceFilt::fConfirm);
 			SetClusterData(CTL_UNIPRICE_FLAGS, Data.Flags);
 
@@ -165,6 +198,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			setCtrlData(CTL_UNIPRICE_PREC,     &Data.RoundPrec);
 			setCtrlData(CTL_UNIPRICE_OLDPRICE, &Data.OldPrice);
 			disableCtrl(CTL_UNIPRICE_PCT, BIN(Data.QuotKindID));
+			SetupPriceSource(); // @v11.1.12
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -183,6 +217,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			getCtrlData(CTLSEL_UNIPRICE_QUOTK,   &Data.QuotKindID);
 			THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 			Data.GoodsGrpID = gf_rec.GoodsGrpID;
+			GetClusterData(CTL_UNIPRICE_PSRC, &Data.PriceSource); // @v11.1.12
 			GetClusterData(CTL_UNIPRICE_EXCLGGRPF, &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_FLAGS,     &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_MODE,      &Data.Mode);
@@ -229,8 +264,18 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			if(event.isCbSelected(CTLSEL_UNIPRICE_QUOTK)) {
 				PPID   qk_id = getCtrlLong(CTLSEL_UNIPRICE_QUOTK);
 				disableCtrl(CTL_UNIPRICE_PCT, BIN(qk_id));
-				clearEvent(event);
 			}
+			else if(event.isClusterClk(CTL_UNIPRICE_PSRC)) {
+				SetupPriceSource();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void SetupPriceSource() // @v11.1.12
+		{
+			GetClusterData(CTL_UNIPRICE_PSRC, &Data.PriceSource); 
+			disableCtrl(CTLSEL_UNIPRICE_QUOTK, oneof2(Data.PriceSource, Data.psrcGtPriceRestrLow, Data.psrcGtPriceRestrUpp));
 		}
 	};
 	DIALOG_PROC_BODY_P1(UnifyPriceDialog, pParam->CostReval ? DLG_UNICOST : DLG_UNIPRICE, pParam);
@@ -382,104 +427,228 @@ int PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPr
 	return ok ? (dbl_cmp(price, new_price) ? 1 : -1) : 0;
 }
 
-int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
+int PrcssrUnifyPrice::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, const ReceiptTbl::Rec & rLotRec, double & rBound)
 {
-	int    ok = 1, r;
-	LotArray lot_list, unify_lot_list;
-	PPIDArray pos_to_del;
-	ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
-	int    count = 0, diff = 0;
-	double last_price = 0.0, price = 0.0, cost = 0.0;
-	for(DateIter diter; (r = rcpt.EnumLots(pGoodsRec->ID, P.LocID, &diter)) > 0;) {
-		if(R6(rcpt.data.Rest) > 0.0) {
-			price = R5(rcpt.data.Price);
-			cost  = R5(rcpt.data.Cost);
-			if(count && last_price != price)
-				diff = 1;
-			last_price = price;
-			count++;
-			if(!P.OldPrice || price == P.OldPrice)
-				THROW_SL(lot_list.insert(&rcpt.data));
-			if(P.OldPrice)
-				THROW_SL(unify_lot_list.insert(&rcpt.data));
+	int    ok = -1;
+	rBound = 0.0;
+	if(pPack && rFormula.NotEmptyS()) {
+		double bound = 0.0;
+		PPGdsClsPacket gc_pack;
+		PPGdsClsPacket * p_gc_pack = 0;
+		if(pPack->Rec.GdsClsID) {
+			PPObjGoodsClass gc_obj;
+			if(gc_obj.Fetch(pPack->Rec.GdsClsID, &gc_pack) > 0)
+				p_gc_pack = &gc_pack;
+		}
+		GdsClsCalcExprContext ctx(p_gc_pack, pPack);
+		ctx.P_LotRec = &rLotRec;
+		if(PPCalcExpression(rFormula, &bound, &ctx) && bound > 0.0) {
+			rBound = bound;
+			ok = 1;
 		}
 	}
-	THROW(r);
-	{
-		const uint lc = lot_list.getCount();
-		if(lc) {
-			int    ir = 0;
-			int    last_lot_only = 0;
-			double new_last_price = 0.0;
-			double new_price = 0.0;
-			ReceiptTbl::Rec & r_last_lot_rec = lot_list.at(lc-1);
-			const int lr = CalcNewPrice(r_last_lot_rec, &new_last_price);
-			if(lr) {
-                if(P.Mode == PrcssrUnifyPriceFilt::mUnify) {
-					for(uint i = 0; i < lc; i++) {
-						const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-						const double lot_price = R5(r_lot_rec.Price);
-						new_price = new_last_price;
-						if(dbl_cmp(lot_price, new_price) != 0) {
-							THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
-							if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-								PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
-								THROW(ti.SetupGoods(pGoodsRec->ID));
-								THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
-								ti.Suppl    = r_lot_rec.SupplID;
-								ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
-								ti.Price    = new_price;
-								ti.Discount = lot_price;
-								ti.Rest_    = r_lot_rec.Rest;
-								THROW(BPack.InsertRow(&ti, 0));
+	return ok;
+}
+
+int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
+{
+	int    ok = 1;
+	int    r;
+	LotArray lot_list;
+	LotArray unify_lot_list;
+	PPIDArray pos_to_del;
+	ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
+	int    count = 0;
+	int    diff = 0;
+	double last_price = 0.0;
+	// @v11.1.12 {
+	bool   skip_this_goods = false;
+	bool   use_price_restr_limit = false;
+	SString price_restr_formula;
+	PPGoodsPacket goods_pack;
+	//double price_restr_limit = 0.0;
+	if(oneof2(P.PriceSource, P.psrcGtPriceRestrLow, P.psrcGtPriceRestrUpp)) {
+		skip_this_goods = true;
+		PPGoodsType gt_rec;
+		if(pGoodsRec->GoodsTypeID && GObj.FetchGoodsType(pGoodsRec->GoodsTypeID, &gt_rec) > 0) {
+			if(gt_rec.PriceRestrID) {
+				PPObjGoodsValRestr gvr_obj;
+				PPGoodsValRestrPacket gvr_pack;
+				if(gvr_obj.GetPacket(gt_rec.PriceRestrID, &gvr_pack) > 0) {
+					if(GObj.GetPacket(pGoodsRec->ID, &goods_pack, 0) > 0) {
+						if(P.PriceSource == P.psrcGtPriceRestrLow && gvr_pack.LowBoundFormula.NotEmpty()) {
+							skip_this_goods = false;
+							use_price_restr_limit = true;
+							price_restr_formula = gvr_pack.LowBoundFormula;
+							/*
+							if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, &goods_pack, price_restr_limit) > 0) {
+								assert(price_restr_limit > 0.0); // __Helper_GetPriceRestrictions_ByFormula guarantees!
+								if(price_restr_limit > 0.0)
+									skip_this_goods = false;
 							}
+							*/
 						}
-					}
-                }
-                else if(P.Mode == PrcssrUnifyPriceFilt::mEachLot) {
-					for(uint i = 0; i < lc; i++) {
-						const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-						const double lot_price = R5(r_lot_rec.Price);
-						if(CalcNewPrice(r_lot_rec, &new_price) > 0) {
-							THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
-							if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-								PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
-								THROW(ti.SetupGoods(pGoodsRec->ID));
-								THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
-								ti.Suppl    = r_lot_rec.SupplID;
-								ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
-								ti.Price    = new_price;
-								ti.Discount = lot_price;
-								ti.Rest_    = r_lot_rec.Rest;
-								THROW(BPack.InsertRow(&ti, 0));
+						else if(P.PriceSource == P.psrcGtPriceRestrUpp && gvr_pack.UppBoundFormula.NotEmpty()) {
+							skip_this_goods = false;
+							use_price_restr_limit = true;
+							price_restr_formula = gvr_pack.UppBoundFormula;
+							/*
+							if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, &goods_pack, price_restr_limit) > 0) {
+								assert(price_restr_limit > 0.0); // __Helper_GetPriceRestrictions_ByFormula guarantees!
+								if(price_restr_limit > 0.0)
+									skip_this_goods = false;
 							}
+							*/
 						}
 					}
-                }
-                else { // P.Mode == PrcssrUnifyPriceFilt::mLastLot
-					if(lr > 0) {
-						const ReceiptTbl::Rec & r_lot_rec = r_last_lot_rec;
-						const double lot_price = R5(r_lot_rec.Price);
-						new_price = new_last_price;
-						THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
-						if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-							PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
-							THROW(ti.SetupGoods(pGoodsRec->ID));
-							THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
-							ti.Suppl    = r_lot_rec.SupplID;
-							ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
-							ti.Price    = new_price;
-							ti.Discount = lot_price;
-							ti.Rest_    = r_lot_rec.Rest;
-							THROW(BPack.InsertRow(&ti, 0));
-						}
-					}
-                }
+				}
 			}
-			if(BPack.CheckLargeBill(0)) {
-				THROW(TurnBillPack());
-				ASSIGN_PTR(pTurnedBillID, BPack.Rec.ID);
-				THROW(InitBillPack());
+		}
+	}
+	// } @v11.1.12 
+	if(!skip_this_goods) {
+		for(DateIter diter; (r = rcpt.EnumLots(pGoodsRec->ID, P.LocID, &diter)) > 0;) {
+			if(R6(rcpt.data.Rest) > 0.0) {
+				double price = R5(rcpt.data.Price);
+				double cost  = R5(rcpt.data.Cost);
+				if(count && last_price != price)
+					diff = 1;
+				last_price = price;
+				count++;
+				if(P.OldPrice == 0.0 || feqeps(price, P.OldPrice, 1e-6))
+					THROW_SL(lot_list.insert(&rcpt.data));
+				if(P.OldPrice != 0.0)
+					THROW_SL(unify_lot_list.insert(&rcpt.data));
+			}
+		}
+		THROW(r);
+		{
+			const uint lc = lot_list.getCount();
+			if(lc) {
+				int    ir = 0;
+				int    last_lot_only = 0;
+				double new_last_price = 0.0;
+				double new_price = 0.0;
+				ReceiptTbl::Rec & r_last_lot_rec = lot_list.at(lc-1);
+				int lr = 0;
+				if(use_price_restr_limit) {
+					lr = 1;
+				}
+				else {
+					lr = CalcNewPrice(r_last_lot_rec, &new_last_price);
+				}
+				if(lr) {
+					if(P.Mode == PrcssrUnifyPriceFilt::mUnify) {
+						for(uint i = 0; i < lc; i++) {
+							const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+							const double lot_price = R5(r_lot_rec.Price);
+							new_price = new_last_price;
+							double price_restr_limit = 0.0;
+							if(use_price_restr_limit) {
+								assert(price_restr_formula.NotEmpty());
+								assert(goods_pack.Rec.ID == pGoodsRec->ID);
+								if(price_restr_formula.NotEmpty() && goods_pack.Rec.ID == pGoodsRec->ID &&
+									Helper_GetPriceRestrictions_ByFormula(price_restr_formula, &goods_pack, r_lot_rec, price_restr_limit) > 0) {
+									assert(price_restr_limit > 0.0); // Helper_GetPriceRestrictions_ByFormula guarantees!
+									new_price = price_restr_limit;
+								}
+								else
+									new_price = 0.0;
+							}
+							if(new_price > 0.0 && dbl_cmp(lot_price, new_price) != 0) {
+								THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
+								if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
+									PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
+									THROW(ti.SetupGoods(pGoodsRec->ID));
+									THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
+									ti.Suppl    = r_lot_rec.SupplID;
+									ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
+									ti.Price    = new_price;
+									ti.Discount = lot_price;
+									ti.Rest_    = r_lot_rec.Rest;
+									THROW(BPack.InsertRow(&ti, 0));
+								}
+							}
+						}
+					}
+					else if(P.Mode == PrcssrUnifyPriceFilt::mEachLot) {
+						for(uint i = 0; i < lc; i++) {
+							const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+							const double lot_price = R5(r_lot_rec.Price);
+							int   cnpr = 0;
+							if(use_price_restr_limit) {
+								double price_restr_limit = 0.0;
+								assert(price_restr_formula.NotEmpty());
+								assert(goods_pack.Rec.ID == pGoodsRec->ID);
+								if(price_restr_formula.NotEmpty() && goods_pack.Rec.ID == pGoodsRec->ID &&
+									Helper_GetPriceRestrictions_ByFormula(price_restr_formula, &goods_pack, r_lot_rec, price_restr_limit) > 0) {
+									assert(price_restr_limit > 0.0); // Helper_GetPriceRestrictions_ByFormula guarantees!
+									new_price = price_restr_limit;
+									cnpr = 1;
+								}
+								else
+									new_price = 0.0;
+							}
+							else {
+								cnpr = CalcNewPrice(r_lot_rec, &new_price);
+							}
+							if(cnpr > 0) {
+								THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
+								if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
+									PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
+									THROW(ti.SetupGoods(pGoodsRec->ID));
+									THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
+									ti.Suppl    = r_lot_rec.SupplID;
+									ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
+									ti.Price    = new_price;
+									ti.Discount = lot_price;
+									ti.Rest_    = r_lot_rec.Rest;
+									THROW(BPack.InsertRow(&ti, 0));
+								}
+							}
+						}
+					}
+					else { // P.Mode == PrcssrUnifyPriceFilt::mLastLot
+						if(lr > 0) {
+							const ReceiptTbl::Rec & r_lot_rec = r_last_lot_rec;
+							const double lot_price = R5(r_lot_rec.Price);
+							if(use_price_restr_limit) {
+								double price_restr_limit = 0.0;
+								assert(price_restr_formula.NotEmpty());
+								assert(goods_pack.Rec.ID == pGoodsRec->ID);
+								if(price_restr_formula.NotEmpty() && goods_pack.Rec.ID == pGoodsRec->ID &&
+									Helper_GetPriceRestrictions_ByFormula(price_restr_formula, &goods_pack, r_lot_rec, price_restr_limit) > 0) {
+									assert(price_restr_limit > 0.0); // Helper_GetPriceRestrictions_ByFormula guarantees!
+									new_price = price_restr_limit;
+									//cnpr = 1;
+								}
+								else
+									new_price = 0.0;
+							}
+							else
+								new_price = new_last_price;
+							if(new_price > 0.0) {
+								THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
+								if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
+									PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
+									THROW(ti.SetupGoods(pGoodsRec->ID));
+									THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
+									ti.Suppl    = r_lot_rec.SupplID;
+									ti.Cost     = ti.RevalCost = R5(r_lot_rec.Cost);
+									ti.Price    = new_price;
+									ti.Discount = lot_price;
+									ti.Rest_    = r_lot_rec.Rest;
+									THROW(BPack.InsertRow(&ti, 0));
+								}
+							}
+						}
+					}
+				}
+				if(BPack.CheckLargeBill(0)) {
+					THROW(TurnBillPack());
+					ASSIGN_PTR(pTurnedBillID, BPack.Rec.ID);
+					THROW(InitBillPack());
+				}
 			}
 		}
 	}
@@ -492,7 +661,8 @@ int PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	int    ok = 1;
 	uint   i;
 	PPID   turned_bill_id;
-	PPID   goodsgrp_id = 0, excl_goodsgrp_id = 0;
+	PPID   goodsgrp_id = 0;
+	PPID   excl_goodsgrp_id = 0;
 	PPIDArray    turned_bill_list;
 	PPObjGoods   gobj;
 	Goods2Tbl::Rec grec;
@@ -510,12 +680,12 @@ int PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	for(iter.Init(goodsgrp_id, GoodsIterator::ordByName); iter.Next(&grec) > 0;) {
 		Goods2Tbl::Rec temp_grec;
 		THROW(PPCheckUserBreak());
-		if(gobj.Fetch(grec.ID, &temp_grec) > 0 && !(temp_grec.Flags & GF_UNLIM) && !gobj.IsAsset(grec.ID))
+		if(gobj.Fetch(grec.ID, &temp_grec) > 0 && !(temp_grec.Flags & GF_UNLIM) && !gobj.IsAsset(grec.ID)) {
 			if(!excl_goodsgrp_id || gobj.BelongToGroup(grec.ID, excl_goodsgrp_id) <= 0) {
 				THROW(ProcessGoods2(&grec, &(turned_bill_id = 0)));
-				if(turned_bill_id)
-					turned_bill_list.add(turned_bill_id);
+				turned_bill_list.addnz(turned_bill_id);
 			}
+		}
 		PPWaitPercent(iter.GetIterCounter());
 	}
 	THROW(TurnBillPack());

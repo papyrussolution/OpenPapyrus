@@ -4987,7 +4987,7 @@ int xmlRegexpIsDeterminist(xmlRegexp * comp)
  * @regexp:  the regexp
  * Free a regexp
  */
-void xmlRegFreeRegexp(xmlRegexp * regexp)
+void FASTCALL xmlRegFreeRegexp(xmlRegexp * regexp)
 {
 	if(regexp) {
 		SAlloc::F(regexp->string);
@@ -5150,7 +5150,7 @@ xmlAutomataState * xmlAutomataNewTransition(xmlAutomata * am, xmlAutomataState *
 xmlAutomataState * xmlAutomataNewTransition2(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, const xmlChar * token2, void * data) 
 {
 	xmlRegAtom * atom;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	atom = xmlRegNewAtom(am, XML_REGEXP_STRING);
 	if(atom == NULL)
@@ -5228,17 +5228,13 @@ xmlAutomataState * xmlAutomataNewNegTrans(xmlAutomata * am, xmlAutomataState * f
 	snprintf((char *)err_msg, 199, "not %s", (const char *)atom->valuep);
 	err_msg[199] = 0;
 	atom->valuep2 = sstrdup(err_msg);
-
 	if(xmlFAGenerateTransitions(am, from, to, atom) < 0) {
 		xmlRegFreeAtom(atom);
 		return 0;
 	}
 	am->negs++;
-	if(to == NULL)
-		return (am->state);
-	return to;
+	return to ? to : (am->state);
 }
-
 /**
  * xmlAutomataNewCountTrans2:
  * @am: an automata
@@ -5262,7 +5258,7 @@ xmlAutomataState * xmlAutomataNewCountTrans2(xmlAutomata * am, xmlAutomataState 
 {
 	xmlRegAtom * atom;
 	int counter;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	if(min < 0)
 		return 0;
@@ -5286,14 +5282,10 @@ xmlAutomataState * xmlAutomataNewCountTrans2(xmlAutomata * am, xmlAutomataState 
 		str[lenp] = '|';
 		memcpy(&str[lenp + 1], token2, lenn);
 		str[lenn + lenp + 1] = 0;
-
 		atom->valuep = str;
 	}
 	atom->data = data;
-	if(min == 0)
-		atom->min = 1;
-	else
-		atom->min = min;
+	atom->min = (min == 0) ? 1 : min;
 	atom->max = max;
 	/*
 	 * associate a counter to the transition.
@@ -5338,7 +5330,7 @@ xmlAutomataState * xmlAutomataNewCountTrans(xmlAutomata * am, xmlAutomataState *
 {
 	xmlRegAtom * atom;
 	int counter;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	if(min < 0)
 		return 0;
@@ -5349,10 +5341,7 @@ xmlAutomataState * xmlAutomataNewCountTrans(xmlAutomata * am, xmlAutomataState *
 		return 0;
 	atom->valuep = sstrdup(token);
 	atom->data = data;
-	if(min == 0)
-		atom->min = 1;
-	else
-		atom->min = min;
+	atom->min = (min == 0) ? 1 : min;
 	atom->max = max;
 	/*
 	 * associate a counter to the transition.
@@ -5360,7 +5349,6 @@ xmlAutomataState * xmlAutomataNewCountTrans(xmlAutomata * am, xmlAutomataState *
 	counter = xmlRegGetCounter(am);
 	am->counters[counter].min = min;
 	am->counters[counter].max = max;
-
 	/* xmlFAGenerateTransitions(am, from, to, atom); */
 	if(to == NULL) {
 		to = xmlRegNewState(am);
@@ -5369,8 +5357,7 @@ xmlAutomataState * xmlAutomataNewCountTrans(xmlAutomata * am, xmlAutomataState *
 	xmlRegStateAddTrans(am, from, atom, to, counter, -1);
 	xmlRegAtomPush(am, atom);
 	am->state = to;
-	if(to == NULL)
-		to = am->state;
+	SETIFZ(to, am->state);
 	if(to == NULL)
 		return 0;
 	if(min == 0)
@@ -5400,7 +5387,7 @@ xmlAutomataState * xmlAutomataNewOnceTrans2(xmlAutomata * am, xmlAutomataState *
 {
 	xmlRegAtom * atom;
 	int counter;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	if(min < 1)
 		return 0;
@@ -5447,7 +5434,6 @@ xmlAutomataState * xmlAutomataNewOnceTrans2(xmlAutomata * am, xmlAutomataState *
 	am->state = to;
 	return to;
 }
-
 /**
  * xmlAutomataNewOnceTrans:
  * @am: an automata
@@ -5470,7 +5456,7 @@ xmlAutomataState * xmlAutomataNewOnceTrans(xmlAutomata * am, xmlAutomataState * 
 {
 	xmlRegAtom * atom;
 	int counter;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	if(min < 1)
 		return 0;
@@ -5554,7 +5540,7 @@ xmlAutomataState * FASTCALL xmlAutomataNewEpsilon(xmlAutomata * am, xmlAutomataS
  */
 xmlAutomataState * xmlAutomataNewAllTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, int lax)
 {
-	if((am == NULL) || (from == NULL))
+	if(!am || !from)
 		return 0;
 	xmlFAGenerateAllTransition(am, from, to, lax);
 	return to ? to : am->state;
@@ -5571,14 +5557,16 @@ xmlAutomataState * xmlAutomataNewAllTrans(xmlAutomata * am, xmlAutomataState * f
  */
 int xmlAutomataNewCounter(xmlAutomata * am, int min, int max)
 {
-	int ret;
-	if(am == NULL)
-		return -1;
-	ret = xmlRegGetCounter(am);
-	if(ret < 0)
-		return -1;
-	am->counters[ret].min = min;
-	am->counters[ret].max = max;
+	int ret = -1;
+	if(am) {
+		ret = xmlRegGetCounter(am);
+		if(ret < 0)
+			ret = -1;
+		else {
+			am->counters[ret].min = min;
+			am->counters[ret].max = max;
+		}
+	}
 	return ret;
 }
 /**
@@ -5616,7 +5604,7 @@ xmlAutomataState * FASTCALL xmlAutomataNewCountedTrans(xmlAutomata * am, xmlAuto
  */
 xmlAutomataState * xmlAutomataNewCounterTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, int counter)
 {
-	if((am == NULL) || (from == NULL) || (counter < 0))
+	if(!am || !from || (counter < 0))
 		return 0;
 	xmlFAGenerateCountedTransition(am, from, to, counter);
 	return to ? to : am->state;
@@ -5632,12 +5620,12 @@ xmlAutomataState * xmlAutomataNewCounterTrans(xmlAutomata * am, xmlAutomataState
  */
 xmlRegexp * xmlAutomataCompile(xmlAutomata * am)
 {
-	xmlRegexp * ret;
-	if((am == NULL) || (am->error != 0)) 
-		return 0;
-	xmlFAEliminateEpsilonTransitions(am);
-	/* xmlFAComputesDeterminism(am); */
-	ret = xmlRegEpxFromParse(am);
+	xmlRegexp * ret = 0;
+	if(am && !am->error) {
+		xmlFAEliminateEpsilonTransitions(am);
+		// xmlFAComputesDeterminism(am); 
+		ret = xmlRegEpxFromParse(am);
+	}
 	return ret;
 }
 /**
@@ -5650,13 +5638,8 @@ xmlRegexp * xmlAutomataCompile(xmlAutomata * am)
  */
 int xmlAutomataIsDeterminist(xmlAutomata * am)
 {
-	int ret;
-	if(am == NULL)
-		return -1;
-	ret = xmlFAComputesDeterminism(am);
-	return ret;
+	return am ? xmlFAComputesDeterminism(am) : -1;
 }
-
 #endif /* LIBXML_AUTOMATA_ENABLED */
 
 #ifdef LIBXML_EXPR_ENABLED
@@ -5690,32 +5673,32 @@ xmlExpCtxtPtr xmlExpNewCtxt(int maxNodes, xmlDict * dict)
 {
 	xmlExpCtxtPtr ret;
 	int size = 256;
-	if(maxNodes <= 4096)
-		maxNodes = 4096;
+	SETMAX(maxNodes, 4096);
 	ret = (xmlExpCtxtPtr)SAlloc::M(sizeof(xmlExpCtxt));
-	if(!ret)
-		return 0;
-	memzero(ret, sizeof(xmlExpCtxt));
-	ret->size = size;
-	ret->nbElems = 0;
-	ret->maxNodes = maxNodes;
-	ret->table = (xmlExpNodePtr *)SAlloc::M(size * sizeof(xmlExpNodePtr));
-	if(ret->table == NULL) {
-		SAlloc::F(ret);
-		return 0;
-	}
-	memzero(ret->table, size * sizeof(xmlExpNodePtr));
-	if(!dict) {
-		ret->dict = xmlDictCreate();
-		if(ret->dict == NULL) {
-			SAlloc::F(ret->table);
-			SAlloc::F(ret);
-			return 0;
+	if(ret) {
+		memzero(ret, sizeof(xmlExpCtxt));
+		ret->size = size;
+		ret->nbElems = 0;
+		ret->maxNodes = maxNodes;
+		ret->table = (xmlExpNodePtr *)SAlloc::M(size * sizeof(xmlExpNodePtr));
+		if(ret->table == NULL) {
+			ZFREE(ret);
 		}
-	}
-	else {
-		ret->dict = dict;
-		xmlDictReference(ret->dict);
+		else {
+			memzero(ret->table, size * sizeof(xmlExpNodePtr));
+			if(!dict) {
+				ret->dict = xmlDictCreate();
+				if(ret->dict == NULL) {
+					SAlloc::F(ret->table);
+					SAlloc::F(ret);
+					return 0;
+				}
+			}
+			else {
+				ret->dict = dict;
+				xmlDictReference(ret->dict);
+			}
+		}
 	}
 	return ret;
 }
@@ -5894,14 +5877,11 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			xmlExpFree(ctxt, left);
 			return (forbiddenExp);
 		}
-		if(max == -1)
-			kbase = min + 79;
-		else
-			kbase = max - min;
+		kbase = (max == -1) ? (min + 79) : (max - min);
 		kbase += left->key;
 	}
 	else if(type == XML_EXP_OR) {
-		/* Forbid reduction rules */
+		// Forbid reduction rules 
 		if(left->type == XML_EXP_FORBID) {
 			xmlExpFree(ctxt, left);
 			return (right);
@@ -5910,7 +5890,6 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			xmlExpFree(ctxt, right);
 			return (left);
 		}
-
 		/* OR reduction rule 1 */
 		/* a | a reduced to a */
 		if(left == right) {
@@ -5953,9 +5932,8 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			/* Ordering in the tree */
 			/* C | (A | B) -> A | (B | C) */
 			if(left->key > right->exp_right->key) {
-				xmlExpNodePtr tmp;
 				right->exp_right->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_right, left, NULL, 0, 0);
+				xmlExpNodePtr tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_right, left, NULL, 0, 0);
 				right->exp_left->ref++;
 				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left, tmp, NULL, 0, 0);
 				xmlExpFree(ctxt, right);
@@ -5964,9 +5942,8 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			/* Ordering in the tree */
 			/* B | (A | C) -> A | (B | C) */
 			if(left->key > right->exp_left->key) {
-				xmlExpNodePtr tmp;
 				right->exp_right->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right->exp_right, NULL, 0, 0);
+				xmlExpNodePtr tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right->exp_right, NULL, 0, 0);
 				right->exp_left->ref++;
 				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left, tmp, NULL, 0, 0);
 				xmlExpFree(ctxt, right);
@@ -6084,7 +6061,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
  */
 void FASTCALL xmlExpFree(xmlExpCtxt * ctxt, xmlExpNode * pExp)
 {
-	if(pExp && (pExp != forbiddenExp) && (pExp != emptyExp)) {
+	if(pExp && pExp != forbiddenExp && pExp != emptyExp) {
 		pExp->ref--;
 		if(pExp->ref == 0) {
 			// Unlink it first from the hash table
@@ -6160,7 +6137,7 @@ xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr 
 {
 	if(!ctxt)
 		return 0;
-	if((left == NULL) || (right == NULL)) {
+	if(!left || !right) {
 		xmlExpFree(ctxt, left);
 		xmlExpFree(ctxt, right);
 		return 0;
@@ -6184,14 +6161,13 @@ xmlExpNodePtr xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr
 {
 	if(!ctxt)
 		return 0;
-	if((left == NULL) || (right == NULL)) {
+	if(!left || !right) {
 		xmlExpFree(ctxt, left);
 		xmlExpFree(ctxt, right);
 		return 0;
 	}
 	return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, left, right, NULL, 0, 0));
 }
-
 /**
  * xmlExpNewRange:
  * @ctxt: the expression context
@@ -6216,13 +6192,9 @@ xmlExpNodePtr xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, 
 	}
 	return xmlExpHashGetEntry(ctxt, XML_EXP_COUNT, subset, NULL, NULL, min, max);
 }
-
-/************************************************************************
-*									*
-*		Public API for operations on expressions		*
-*									*
-************************************************************************/
-
+// 
+// Public API for operations on expressions
+// 
 static int xmlExpGetLanguageInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** list, int len, int nb)
 {
 	int tmp, tmp2;
@@ -6254,7 +6226,6 @@ tail:
 	}
 	return -1;
 }
-
 /**
  * xmlExpGetLanguage:
  * @ctxt: the expression context
@@ -6269,9 +6240,7 @@ tail:
  */
 int xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** langList, int len)
 {
-	if(!ctxt || (exp == NULL) || (langList == NULL) || (len <= 0))
-		return -1;
-	return (xmlExpGetLanguageInt(ctxt, exp, langList, len, 0));
+	return (ctxt && exp && langList && (len > 0)) ? xmlExpGetLanguageInt(ctxt, exp, langList, len, 0) : -1;
 }
 
 static int xmlExpGetStartInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** list, int len, int nb)
@@ -6279,10 +6248,8 @@ static int xmlExpGetStartInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlCha
 	int tmp, tmp2;
 tail:
 	switch(exp->type) {
-		case XML_EXP_FORBID:
-		    return 0;
-		case XML_EXP_EMPTY:
-		    return 0;
+		case XML_EXP_FORBID: return 0;
+		case XML_EXP_EMPTY:  return 0;
 		case XML_EXP_ATOM:
 		    for(tmp = 0; tmp < nb; tmp++)
 			    if(list[tmp] == exp->exp_str)
@@ -6318,7 +6285,6 @@ tail:
 	}
 	return -1;
 }
-
 /**
  * xmlExpGetStart:
  * @ctxt: the expression context
@@ -6335,11 +6301,8 @@ tail:
  */
 int xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** tokList, int len)
 {
-	if(!ctxt || !exp || !tokList || (len <= 0))
-		return -1;
-	return xmlExpGetStartInt(ctxt, exp, tokList, len, 0);
+	return (ctxt && exp && tokList && (len > 0)) ? xmlExpGetStartInt(ctxt, exp, tokList, len, 0) : -1;
 }
-
 /**
  * xmlExpIsNillable:
  * @exp: the expression
@@ -6356,12 +6319,9 @@ int xmlExpIsNillable(xmlExpNodePtr exp)
 static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar * str)
 {
 	xmlExpNodePtr ret;
-
 	switch(exp->type) {
-		case XML_EXP_EMPTY:
-		    return (forbiddenExp);
-		case XML_EXP_FORBID:
-		    return (forbiddenExp);
+		case XML_EXP_EMPTY: return (forbiddenExp);
+		case XML_EXP_FORBID: return (forbiddenExp);
 		case XML_EXP_ATOM:
 		    if(exp->exp_str == str) {
 #ifdef DEBUG_DERIV
@@ -6379,7 +6339,6 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		    return ret;
 		case XML_EXP_OR: {
 		    xmlExpNodePtr tmp;
-
 #ifdef DEBUG_DERIV
 		    printf("deriv or: => or(derivs)\n");
 #endif
@@ -6437,14 +6396,8 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		    }
 		    if(exp->exp_max == 1)
 			    return ret;
-		    if(exp->exp_max < 0) /* unbounded */
-			    max = -1;
-		    else
-			    max = exp->exp_max - 1;
-		    if(exp->exp_min > 0)
-			    min = exp->exp_min - 1;
-		    else
-			    min = 0;
+		    max = (exp->exp_max < 0) /* unbounded */ ? -1 : (exp->exp_max - 1);
+		    min = (exp->exp_min > 0) ? (exp->exp_min - 1) : 0;
 		    exp->exp_left->ref++;
 		    tmp = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT, exp->exp_left, NULL, NULL, min, max);
 		    if(ret == emptyExp) {
@@ -6461,7 +6414,6 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 	}
 	return 0;
 }
-
 /**
  * xmlExpStringDerive:
  * @ctxt: the expression context
@@ -6476,18 +6428,16 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
  */
 xmlExpNodePtr xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar * str, int len)
 {
-	const xmlChar * input;
 	if(!exp || !ctxt || !str)
 		return 0;
-	/*
-	 * check the string is in the dictionnary, if yes use an interned
-	 * copy, otherwise we know it's not an acceptable input
-	 */
-	input = xmlDictExists(ctxt->dict, str, len);
-	if(!input) {
-		return (forbiddenExp);
+	else {
+		// 
+		// check the string is in the dictionnary, if yes use an interned
+		// copy, otherwise we know it's not an acceptable input
+		// 
+		const xmlChar * input = xmlDictExists(ctxt->dict, str, len);
+		return input ? xmlExpStringDeriveInt(ctxt, exp, input) : (forbiddenExp);
 	}
-	return (xmlExpStringDeriveInt(ctxt, exp, input));
 }
 
 static int xmlExpCheckCard(xmlExpNodePtr exp, xmlExpNodePtr sub)
@@ -6695,13 +6645,12 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 				    printf("Seq trying left only worked\n");
 #endif
-				    /*
-				 * @todo assumption here that we are determinist
-				 *  i.e. we won't get to a nillable exp left
-				 *  subset which could be matched by the right
-				 *  part too.
-				 * e.g.: (a | b)+,(a | c) and 'a+,a'
-				     */
+					// 
+					// @todo assumption here that we are determinist
+					// i.e. we won't get to a nillable exp left
+					// subset which could be matched by the right part too.
+					// e.g.: (a | b)+,(a | c) and 'a+,a'
+					// 
 				    exp->exp_right->ref++;
 				    return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret, exp->exp_right, NULL, 0, 0));
 			    }
@@ -6711,10 +6660,9 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    printf("Seq: left too short\n");
 #endif
 		    }
-		    /* Try instead to decompose */
+		    // Try instead to decompose 
 		    if(sub->type == XML_EXP_COUNT) {
 			    int min, max;
-
 #ifdef DEBUG_DERIV
 			    printf("Seq: sub is a count\n");
 #endif
@@ -6725,20 +6673,13 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 				    printf("Seq , Count match on left\n");
 #endif
-				    if(sub->exp_max < 0)
-					    max = -1;
-				    else
-					    max = (sub->exp_max -1);
-				    if(sub->exp_min > 0)
-					    min = (sub->exp_min -1);
-				    else
-					    min = 0;
+				    max = (sub->exp_max < 0) ? -1 : (sub->exp_max -1);
+				    min = (sub->exp_min > 0) ? (sub->exp_min -1) : 0;
 				    exp->exp_right->ref++;
 				    tmp = xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
 				    exp->exp_right, NULL, 0, 0);
 				    if(!tmp)
 					    return 0;
-
 				    sub->exp_left->ref++;
 				    tmp2 = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT,
 				    sub->exp_left, NULL, NULL, min, max);
@@ -6769,11 +6710,10 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		    return (xmlExpHashGetEntry(ctxt, XML_EXP_OR, ret, tmp, NULL, 0, 0));
 		case XML_EXP_COUNT: {
 		    int min, max;
-
 		    if(sub->type == XML_EXP_COUNT) {
-			    /*
-			 * Try to see if the loop is completely subsumed
-			     */
+			    //
+				// Try to see if the loop is completely subsumed
+				//
 			    tmp = xmlExpExpDeriveInt(ctxt, exp->exp_left, sub->exp_left);
 			    if(!tmp)
 				    return 0;
@@ -6793,10 +6733,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    if(sub->exp_max == -1) {
 					    max = -1;
 					    if(exp->exp_max == -1) {
-						    if(exp->exp_min <= sub->exp_min * mult)
-							    min = 0;
-						    else
-							    min = (exp->exp_min - sub->exp_min * mult);
+						    min = (exp->exp_min <= sub->exp_min * mult) ? 0 : (exp->exp_min - sub->exp_min * mult);
 					    }
 					    else {
 #ifdef DEBUG_DERIV
@@ -6828,19 +6765,15 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 							    xmlExpFree(ctxt, tmp);
 							    return (forbiddenExp);
 						    }
-						    if(sub->exp_max * mult > exp->exp_min)
-							    min = 0;
-						    else
-							    min = exp->exp_min - sub->exp_max * mult;
+						    min = (sub->exp_max * mult > exp->exp_min) ? 0 : (exp->exp_min - sub->exp_max * mult);
 						    max = exp->exp_max - sub->exp_max * mult;
 					    }
 				    }
 			    }
 			    else if(!IS_NILLABLE(tmp)) {
-				    /*
-				 * @todo loop here to try to grow if working on finite
-				 *  blocks.
-				     */
+				    // 
+				    // @todo loop here to try to grow if working on finite blocks.
+				    // 
 #ifdef DEBUG_DERIV
 				    printf("Count, Count remain not nillable => forbidden\n");
 #endif
@@ -6898,10 +6831,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 						    xmlExpFree(ctxt, tmp);
 						    return (forbiddenExp);
 					    }
-					    if(sub->exp_max > exp->exp_min)
-						    min = 0;
-					    else
-						    min = exp->exp_min - sub->exp_max;
+					    min = (sub->exp_max > exp->exp_min) ? 0 : (exp->exp_min - sub->exp_max);
 					    max = exp->exp_max - sub->exp_max;
 				    }
 			    }
@@ -6925,15 +6855,8 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #endif
 			    return (forbiddenExp);
 		    }
-		    if(exp->exp_min > 0)
-			    min = exp->exp_min - 1;
-		    else
-			    min = 0;
-		    if(exp->exp_max < 0)
-			    max = -1;
-		    else
-			    max = exp->exp_max - 1;
-
+		    min = (exp->exp_min > 0) ? (exp->exp_min - 1) : 0;
+		    max = (exp->exp_max < 0) ? -1 : (exp->exp_max - 1);
 #ifdef DEBUG_DERIV
 		    printf("loop match => SEQ(COUNT())\n");
 #endif
@@ -6945,7 +6868,6 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		    return ret;
 	    }
 	}
-
 #ifdef DEBUG_DERIV
 	printf("Fallback to derivative\n");
 #endif
@@ -6957,19 +6879,18 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	}
 	else
 		ret = NULL;
-	/*
-	 * here the structured derivation made no progress so
-	 * we use the default token based derivation to force one more step
-	 */
-	if(ctxt->tabSize == 0)
-		ctxt->tabSize = 40;
+	// 
+	// here the structured derivation made no progress so
+	// we use the default token based derivation to force one more step
+	// 
+	SETIFZ(ctxt->tabSize, 40);
 	tab = static_cast<const xmlChar **>(SAlloc::M(ctxt->tabSize * sizeof(const xmlChar *)));
 	if(tab == NULL) {
 		return 0;
 	}
-	/*
-	 * collect all the strings accepted by the subexpression on input
-	 */
+	// 
+	// collect all the strings accepted by the subexpression on input
+	// 
 	len = xmlExpGetStartInt(ctxt, sub, tab, ctxt->tabSize, 0);
 	while(len < 0) {
 		const xmlChar ** temp = static_cast<const xmlChar **>(SAlloc::R((xmlChar **)tab, ctxt->tabSize * 2 * sizeof(const xmlChar *)));
@@ -6998,13 +6919,11 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		tmp3 = xmlExpExpDeriveInt(ctxt, tmp, tmp2);
 		xmlExpFree(ctxt, tmp);
 		xmlExpFree(ctxt, tmp2);
-
 		if((tmp3 == NULL) || (tmp3 == forbiddenExp)) {
 			xmlExpFree(ctxt, ret);
 			SAlloc::F((xmlChar **)tab);
 			return (tmp3);
 		}
-
 		if(!ret)
 			ret = tmp3;
 		else {
@@ -7068,7 +6987,7 @@ xmlExpNodePtr xmlExpExpDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodeP
 int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 {
 	xmlExpNodePtr tmp;
-	if((exp == NULL) || (ctxt == NULL) || (sub == NULL))
+	if(!exp || (ctxt == NULL) || (sub == NULL))
 		return -1;
 	/*
 	 * @todo speedup by checking the language of sub is a subset of the

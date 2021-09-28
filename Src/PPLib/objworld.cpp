@@ -1695,8 +1695,8 @@ SString & FASTCALL FiasObjCore::HouseCode::Encode(SString & rBuf) const
 	SString temp_buf;
 	rBuf.Z();
 	rBuf.Cat((temp_buf = HseNum).Strip());
-	rBuf.CatChar(':').Cat((temp_buf = BldNum).Strip());
-	rBuf.CatChar(':').Cat((temp_buf = StrNum).Strip());
+	rBuf.Colon().Cat((temp_buf = BldNum).Strip());
+	rBuf.Colon().Cat((temp_buf = StrNum).Strip());
 	return rBuf;
 }
 

@@ -5416,8 +5416,8 @@ SLTEST_R(FANN2)
 			SString test_input_file_name;
 			for(uint ap = 0; EnumArg(&ap, test_item_name);) {
 				float local_err = 0.0f;
-				input_file_name = MakeInputFilePath((temp_buf = test_item_name).Dot().Cat("train"));
-				test_input_file_name = MakeInputFilePath((temp_buf = test_item_name).Dot().Cat("test"));
+				input_file_name = MakeInputFilePath((temp_buf = test_item_name).DotCat("train"));
+				test_input_file_name = MakeInputFilePath((temp_buf = test_item_name).DotCat("test"));
 				if(fileExists(input_file_name) && fileExists(test_input_file_name)) {
 					Fann::TrainData train_data;
 					Fann::TrainData test_data;

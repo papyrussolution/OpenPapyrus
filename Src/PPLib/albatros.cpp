@@ -335,7 +335,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 			xmlTextWriterFlush(p_x);
 			temp_buf.CatN(reinterpret_cast<char *>(p_x_buf->content), p_x_buf->use);
 		}
-		//temp_buf.Z().Cat(host).CatChar(':').Cat(user).CatChar(':').Cat(secret);
+		//temp_buf.Z().Cat(host).Colon().Cat(user).Colon().Cat(secret);
 		size_t len = ALIGNSIZE(temp_buf.Len()+1, 4); // Размер блока AES 128 bit (16 bytes = 2^4)
 		STempBuffer cbuf(len + 64); // 64 ensurance
 		STempBuffer cbuf2(len + 64); // 64 ensurance

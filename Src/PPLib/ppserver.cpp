@@ -2027,7 +2027,7 @@ PPWorkerSession::FTB::~FTB()
 	delete P_F;
 }
 
-PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State(0), Counter(0), P_TxtCmdTerminal(0)
+PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State_PPws(0), Counter(0), P_TxtCmdTerminal(0)
 {
 }
 
@@ -2472,20 +2472,20 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			pEv->GetParam(2, name); // PPGetExtStrData(2, pEv->Params, name);
 			pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
 			THROW(DS.Login(db_symb, name, temp_buf, PPSession::loginfSkipLicChecking) > 0);
-			State |= stLoggedIn;
+			State_PPws |= stLoggedIn;
 			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
 			{
-				(temp_buf = db_symb).CatChar(':').Cat(name);
+				(temp_buf = db_symb).Colon().Cat(name);
 				DS.SetThreadNotification(PPSession::stntText, temp_buf);
 			}
 			break;
 		case PPSCMD_LOGOUT:
-			State &= ~stLoggedIn;
+			State_PPws &= ~stLoggedIn;
 			rReply.SetAck();
 			ok = cmdretQuit;
 			break;
 		case PPSCMD_RESETCACHE:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				PPID   obj_type = 0;
 				long   obj_type_ext = 0;
@@ -2513,7 +2513,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			}
 			break;
 		case PPSCMD_SOBLK:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			THROW_INVARG(pEv->P_SoBlk);
 			THROW(r = pEv->P_SoBlk->Execute(rReply));
 			break;
@@ -2595,7 +2595,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_EXECVIEWNF:
 			// EXECVIEW named_filt_name [dl600_data_name]
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				SString nf_symb, dl600_name, file_name;
 				pEv->GetParam(1, nf_symb); // PPGetExtStrData(1, pEv->Params, nf_symb);
@@ -2606,7 +2606,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_SETIMAGEMIME:
 			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				SString content_type, img_mime, file_name, file_ext;
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
@@ -2659,7 +2659,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_GETIMAGE:
 			// GETIMAGE goods 52103
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				long   obj_type_ext = 0;
@@ -3119,9 +3119,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			}
 			break;
 		case PPSCMD_GETWORKBOOKCONTENT:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
-				// @v8.3.5 MemLeakTracer mlt;
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				PPID    obj_id = temp_buf.ToLong();
 				SString path;
@@ -3135,7 +3134,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				PPID   qk_id = 0;
 				PPGetExtStrData(1, pEv->Params, temp_buf);
@@ -3178,7 +3177,7 @@ PPServerSession::PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, Inet
 	SuspendTimeout(rBlk.SuspTimeout), CloseSocketTimeout(rBlk.ClosedSockTimeout), SleepTimeout(rBlk.SleepTimeout), P_SbiiBlk(0), Addr(rAddr)
 {
 	if(rBlk.Flags & rBlk.fDebugMode)
-		State |= stDebugMode;
+		State_PPws |= stDebugMode;
 	SetupTxtCmdTerm(rBlk.TxtCmdTerminalCode);
 	rSock.MoveToS(So);
 }
@@ -3779,7 +3778,7 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 				break;
 			case PPSCMD_SETIMAGE:
-				THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+				THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 				THROW(ReceiveFile(tfvStart, temp_buf.Z(), rReply));
 				break;
 			case PPSCMD_PUTFILE:
@@ -4088,14 +4087,14 @@ void PPServerSession::Run()
 										else
 											s.Chomp();
 									}
-									if(cmd.ParseLine(s, (State & stLoggedIn) ? cmd.plfLoggedIn : 0)) {
+									if(cmd.ParseLine(s, (State_PPws & stLoggedIn) ? cmd.plfLoggedIn : 0)) {
 										int    log_level = 1;
 										const  int is_login_cmd = BIN(cmd.GetH().Type == PPSCMD_LOGIN);
 										if(cmd.GetH().Type == PPSCMD_HELLO)
 											log_level = 0;
 										else if(is_login_cmd)
 											log_level = 2;
-										if(State & stDebugMode) {
+										if(State_PPws & stDebugMode) {
 											Addr.ToStr(0, log_buf);
 											log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2);
 											if(is_login_cmd) {
@@ -4125,7 +4124,7 @@ void PPServerSession::Run()
 										reply.SetError();
 										reply.FinishWriting();
 									}
-									if(State & stDebugMode) {
+									if(State_PPws & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REP").CatDiv(':', 2).Cat(reply.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
@@ -4134,13 +4133,13 @@ void PPServerSession::Run()
 								break;
 							case 1: // Бинарная команда
 								{
-									if(State & stDebugMode) {
+									if(State_PPws & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2).Cat(cmd.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 									}
 									cmdret = ProcessCommand_(&cmd, reply);
-									if(State & stDebugMode) {
+									if(State_PPws & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REP").CatDiv(':', 2).Cat(reply.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);

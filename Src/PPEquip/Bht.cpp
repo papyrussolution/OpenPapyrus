@@ -3989,7 +3989,6 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 			}
 		}
 		else {
-			// @v8.0.9 {
 			long   uc = 0;
 			int    new_code = 0;
 			do {
@@ -3997,7 +3996,7 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 				for(DateIter di(inv_dt, inv_dt); !new_code && P_BObj->P_Tbl->EnumByOpr(opID, &di, &bill_rec) > 0;) {
 					if(bill_code.CmpNC(bill_rec.Code) == 0) {
 						__RemoveUndupNameSuffix(bill_code);
-						bill_code.Strip().Space().Cat('#').Cat(++uc);
+						bill_code.Strip().Space().CatChar('#').Cat(++uc); // @v11.1.12 @fix Cat('#')-->CatChar('#')
 						new_code = 1;
 					}
 				}
@@ -4009,7 +4008,6 @@ int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec *
 					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INVDUPFOUND, fmt_buf), bill_code.cptr()));
 				}
 			}
-			// } @v8.0.9
 		}
 		if(!dup_found) {
 			if(!inv_id) {

@@ -3491,7 +3491,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							SString name;
 							int   mj, mn, rv;
 							rVer.Get(&mj, &mn, &rv);
-							name.Z().Cat("dbr").CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).Dot().Cat("signal");
+							name.Z().Cat("dbr").CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).DotCat("signal");
 							(FileName = pPath).SetLastSlash().Cat(name);
 							(Direc = pPath).SetLastSlash().Cat("signal");
 							(FileName2 = Direc).SetLastSlash().Cat(name);
@@ -3516,7 +3516,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						int   mj, mn, rv;
 						this_ver.Get(&mj, &mn, &rv);
                         (dbr_signal_file_name = data_path).SetLastSlash().Cat("dbr").
-							CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).Dot().Cat("signal");
+							CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).DotCat("signal");
 					}
 					if(!::fileExists(dbr_signal_file_name)) { */
 					DbrSignalFile dbr_signal(data_path, this_ver); // @v10.6.2
@@ -3565,7 +3565,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						// @v7.3.11 Конвертация перенесена в Convert7311() THROW(Convert7208()); // @v7.2.8
 						THROW(Convert7305()); // @v7.3.5
 						THROW(Convert7311()); // @v7.3.11
-						THROW(Convert7506()); // @v7.5.6
+						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506()); // @v7.5.6
 						THROW(Convert7601()); // @v7.6.1
 						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702()); // @v7.7.2
 						THROW(Convert7708()); // @v7.7.8
@@ -3588,6 +3588,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10903()); // @v10.9.3 конвертация ссылок на рабочие столы и меню в группах и пользователях
 						THROW(Convert10905()); // @v10.9.5
 						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
+						THROW(Convert11112()); // @v11.1.12 Bill
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -4431,8 +4432,17 @@ int PPSession::Logout()
 
 SVerT PPSession::GetVersion() const
 {
-	PPVersionInfo _ver = GetVersionInfo();
-	return _ver.GetVersion(0);
+	// @v11.1.12 Так как номер версии не меняется в течении жизни сессии, то нет смысла 
+	// при каждом вызове совершать тяжелые операции по извечении оной.
+	// Увы, придется "доплатить" критической секцией.
+	static SVerT sv;
+	ENTER_CRITICAL_SECTION
+	if(static_cast<uint32>(sv) == 0) {
+		PPVersionInfo _ver = GetVersionInfo();
+		sv = _ver.GetVersion(0);
+	}
+	LEAVE_CRITICAL_SECTION
+	return sv;
 }
 
 int PPSession::SetLocation(PPID locID, int notInteractive /*= 0*/)

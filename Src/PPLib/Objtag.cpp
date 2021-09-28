@@ -43,7 +43,7 @@ const char * P_ListTagValRestrict = "#LIST";
 		ok = 1;
 	}
 	else if(_c > 1) {
-		rRestrictionBuf.Cat(P_ListTagValRestrict).CatChar(':');
+		rRestrictionBuf.Cat(P_ListTagValRestrict).Colon();
 		for(uint i = 0; i < _c; i++) {
 			if(i)
 				rRestrictionBuf.Semicol();

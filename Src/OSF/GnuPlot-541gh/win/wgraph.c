@@ -436,7 +436,7 @@ void GraphInit(GW * lpgw)
 		SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
 
 		/* create buttons */
-		ZeroMemory(&button, sizeof(button));
+		memzero(&button, sizeof(button));
 		button.fsState = TBSTATE_ENABLED;
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX;
 		button.iString = 0;

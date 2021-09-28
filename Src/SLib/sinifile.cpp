@@ -240,13 +240,11 @@ int SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up 
 				ok = 1;
 			}
 		}
-		else {
-			if(pos < (getCount()-1)) {
-				StringSet * p_temp_ss = new StringSet(*at(pos));
-				atFree(pos);
-				atInsert(pos+1, p_temp_ss);
-				ok = 1;
-			}
+		else if(pos < (getCount()-1)) {
+			StringSet * p_temp_ss = new StringSet(*at(pos));
+			atFree(pos);
+			atInsert(pos+1, p_temp_ss);
+			ok = 1;
 		}
 	}
 	return ok;

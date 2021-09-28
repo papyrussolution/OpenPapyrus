@@ -1103,7 +1103,7 @@ int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 											size_t hash_len = 0;
 											//PTR32(hash)[0] = 0;
 											PTR32(cmd_hash)[0] = 0;
-											temp_buf.Z().Cat(login).CatChar(':').Cat(password);
+											temp_buf.Z().Cat(login).Colon().Cat(password);
 											binary160 hash = SlHash::Sha1(0, temp_buf, temp_buf.Len());
 											temp_buf.Z().Cat(cmd.Hash);
 											hash_len = 0;

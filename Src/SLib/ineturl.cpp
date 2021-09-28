@@ -94,7 +94,7 @@ SString & InetAddr::ToStr(long flags, SString & rBuf) const
 			rBuf.Cat(V4 & 0xff).Dot().Cat((V4 >> 8) & 0xff).Dot().Cat((V4 >> 16) & 0xff).Dot().Cat((V4 >> 24) & 0xff);
 	}
 	if(flags & fmtPort && Port > 0)
-		rBuf.CatChar(':').Cat(Port);
+		rBuf.Colon().Cat(Port);
 	return rBuf;
 }
 
@@ -252,7 +252,7 @@ int InetAddr::Set(const char * pHostName, int port)
 	const char * p_scheme = protocol ? GetSchemeMnem(protocol) : "";
 	SString & r_buf = SLS.AcquireRvlStr();
 	if(p_scheme)
-		r_buf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
+		r_buf.Cat(p_scheme).Colon().CatCharN('/', 2);
 	r_buf.Cat(pHost);
 	if(!isempty(pPath)) {
 		if(pPath[0] != '/')
@@ -686,24 +686,24 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 		if(_f & stScheme) {
 			if(GetComponent(cScheme, 0, temp_buf)) {
 				if(sstreqi_ascii(temp_buf, "file"))
-					rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
+					rBuf.Cat(temp_buf).Colon().CatCharN('/', 3);
 				else if(sstreqi_ascii(temp_buf, "mailto"))
-					rBuf.Cat(temp_buf).CatChar(':');
+					rBuf.Cat(temp_buf).Colon();
 				else if(sstreqi_ascii(temp_buf, "mailfrom"))
-					rBuf.Cat(temp_buf).CatChar(':');
+					rBuf.Cat(temp_buf).Colon();
 				else
-					rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 2);
+					rBuf.Cat(temp_buf).Colon().CatCharN('/', 2);
 				result |= cScheme;
 			}
 			else if(Protocol) {
 				const char * p_scheme = GetSchemeMnem(Protocol);
 				if(p_scheme) {
 					if(Protocol == protFile)
-						rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
+						rBuf.Cat(temp_buf).Colon().CatCharN('/', 3);
 					else if(Protocol == protMailto)
-						rBuf.Cat(temp_buf).CatChar(':');
+						rBuf.Cat(temp_buf).Colon();
 					else
-						rBuf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
+						rBuf.Cat(p_scheme).Colon().CatCharN('/', 2);
 					result |= cScheme;
 				}
 			}
@@ -713,7 +713,7 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 			result |= cUserName;
 		}
 		if(_f & stPassword && GetComponent(cPassword, 0, temp_buf)) {
-			rBuf.CatChar(':').Cat(temp_buf);
+			rBuf.Colon().Cat(temp_buf);
 			result |= cPassword;
 		}
 		if(result & (stUserName|stPassword))
@@ -722,7 +722,7 @@ int InetUrl::Composite(long flags, SString & rBuf) const
             rBuf.Cat(temp_buf);
             result |= cHost;
             if(_f & stPort && GetComponent(cPort, 0, temp_buf)) {
-				rBuf.CatChar(':').Cat(temp_buf);
+				rBuf.Colon().Cat(temp_buf);
 				result |= cPort;
             }
 		}

@@ -1044,10 +1044,12 @@ private:
 		SString temp_buf;
 		if(Data.GetPerson()) {
 			PPObjPerson psn_obj;
+			/* @v11.1.12
 			PersonTbl::Rec psn_rec;
 			if(psn_obj.Search(Data.GetPerson(), &psn_rec) > 0) {
 				temp_buf = psn_rec.Memo;
-			}
+			}*/
+			psn_obj.P_Tbl->GetItemMemo(Data.GetPerson(), temp_buf); // @v11.1.12
 		}
 		setStaticText(CTL_CHKINP_ST_PSNMEMO, temp_buf);
 		SetupPinCode();
@@ -1232,7 +1234,7 @@ private:
 							//
 							item_.ID = Data.Get(pos).ID;
 							//
-							(init_str = "CHKINP").Cat(item_.ID).CatChar(':').Cat(Cfg.GoodsID).CatChar(':').Cat(NZOR(item_.CiCount, 1));
+							(init_str = "CHKINP").Cat(item_.ID).Colon().Cat(Cfg.GoodsID).Colon().Cat(NZOR(item_.CiCount, 1));
 							THROW(p_cm->SyncBrowseCheckList(init_str, cchkpanfOnce));
 							{
 								PPCheckInPersonItem cip_item;

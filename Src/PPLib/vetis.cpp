@@ -3245,7 +3245,7 @@ public:
 		SString & DebugOutput(SString & rBuf) const
 		{
 			rBuf.Cat(PrepEntityID).Space().Cat(OrgDocEntityID).Space().
-				Cat(LinkBillID).CatChar(':').Cat(LinkBillRow).Space().Cat(LinkGoodsID).Space().
+				Cat(LinkBillID).Colon().Cat(LinkBillRow).Space().Cat(LinkGoodsID).Space().
 				CatChar('[').Cat(QueueN).CatChar('/').Cat(State).CatChar('/').Cat(AppId, S_GUID::fmtIDL).CatChar(']');
 			return rBuf;
 		}
@@ -3677,7 +3677,7 @@ int PPVetisInterface::MakeAuthField(SString & rBuf)
 	SString temp_buf;
 	P.GetExtStrData(extssUser, login);
 	P.GetExtStrData(extssPassword, pwd);
-	login.CatChar(':').Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
+	login.Colon().Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
 	temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
 	rBuf.Cat("Basic").Space().Cat(temp_buf);
 	pwd.Obfuscate();
@@ -7406,7 +7406,7 @@ int PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk
 	rBlk.User = temp_buf;
 	rBlk.ServiceId = "mercury-g2b.service";
 	if(rBlk.VetisSvcVer == 2)
-		rBlk.ServiceId.CatChar(':').Cat("2.0");
+		rBlk.ServiceId.Colon().Cat("2.0");
 	rBlk.IssuerId = P.IssuerUUID;
 	rBlk.EnterpriseId = P.EntUUID;
 	rBlk.IssueDate = getcurdatetime_();
@@ -8957,7 +8957,8 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 			VetisDocumentTbl::Rec rec;
 			{
 				// @v10.6.4 MEMSZERO(rec);
-				BillCore::GetCode(temp_buf = rBp.Rec.Code);
+				// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
+				temp_buf = rBp.Rec.Code; // @v11.1.12 
 				rec.IssueDate = getcurdate_();
 				STRNSCPY(rec.IssueNumber, temp_buf);
 				rec.WayBillDate = rBp.Rec.Dt;
@@ -12414,7 +12415,8 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							}
 						}
 						{
-							BillCore::GetCode(temp_buf = bp.Rec.Code);
+							// @v11.1.12 BillCore::GetCode(temp_buf = bp.Rec.Code);
+							temp_buf = bp.Rec.Code; // @v11.1.12 
 							(slp.Title = temp_buf).Space().Cat(bp.Rec.Dt, DATF_DMY).CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD(0, 3, 0));
 							if(VetisEntityCore::GetProductItemName(rRec.EntityID, rRec.ProductItemID, rRec.SubProductID, rRec.ProductID, temp_buf) > 0)
 								slp.Title.CatDiv('-', 1).Cat(temp_buf);
@@ -12659,7 +12661,8 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(rcvr_ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!loc_id || bill_rec.LocID == loc_id)) {
 											temp_id_list.add(bill_rec.ID);
-											BillCore::GetCode(temp_buf = bill_rec.Code);
+											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
+											temp_buf = bill_rec.Code; // @v11.1.12 
 											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 										}
 									}
@@ -12672,7 +12675,8 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!Filt.LocID || bill_rec.LocID == Filt.LocID)) {
 											temp_id_list.add(bill_rec.ID);
-											BillCore::GetCode(temp_buf = bill_rec.Code);
+											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
+											temp_buf = bill_rec.Code; // @v11.1.12 
 											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 										}
 									}
@@ -12683,7 +12687,8 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 								if((!Filt.LocID || bill_rec.LocID == Filt.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
 									temp_id_list.add(bill_rec.ID);
-									BillCore::GetCode(temp_buf = bill_rec.Code);
+									// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
+									temp_buf = bill_rec.Code; // @v11.1.12 
 									mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 								}
 							}

@@ -3913,7 +3913,7 @@ GeoNameAlt & GeoNameAlt::Reset()
 
 static SString & FASTCALL _CatSartrEntityPrefix(const char * pEntity, SString & rBuf)
 {
-	return rBuf.CatChar(':').Cat(pEntity).CatChar('_');
+	return rBuf.Colon().Cat(pEntity).CatChar('_');
 }
 
 int Process_geonames(const char * pPath, const char * pOutFileName)
@@ -3948,10 +3948,10 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					}
 				}
 				entry.Code.ReplaceChar('.', '_');
-				out_buf.Z().Tab().CatChar(':').Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
+				out_buf.Z().Tab().Colon().Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
 				outf.WriteLine(out_buf);
 			}
-			outf.WriteLine(out_buf.Z().CatChar('}').CatChar(':').Cat("geoloctype").CR());
+			outf.WriteLine(out_buf.Z().CatChar('}').Colon().Cat("geoloctype").CR());
 		}
 		{
 			LongArray ling_list;
@@ -3959,7 +3959,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			for(uint i = 0; i < ling_list.getCount(); i++) {
 				GetLinguaCode(ling_list.get(i), temp_buf);
 				temp_buf.ToUtf8().ToLower();
-				(in_file_name = pPath).SetLastSlash().Cat("featureCodes").CatChar('_').Cat(temp_buf).Dot().Cat("txt");
+				(in_file_name = pPath).SetLastSlash().Cat("featureCodes").CatChar('_').Cat(temp_buf).DotCat("txt");
 				if(fileExists(in_file_name)) {
 					SFile inf(in_file_name, SFile::mRead);
 					THROW(inf.IsValid());
@@ -4033,7 +4033,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 				}
 			}
 			_CatSartrEntityPrefix("geoloc", out_buf.Z()).Cat(entry.ID);
-			out_buf.CatChar(':').Cat("geoloc");
+			out_buf.Colon().Cat("geoloc");
 			out_buf.CatChar('(');
 				if(entry.FeatureClass[0] && entry.FeatureCode[0]) {
 					_CatSartrEntityPrefix("geoloct", out_buf).Cat(entry.FeatureClass).CatChar('_').Cat(entry.FeatureCode).CatDiv(',', 2);
@@ -4435,7 +4435,7 @@ int SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) cons
 				GetS(rI.VarP, var_buf);
 				temp_buf.CatChar('/').Cat(var_buf);
 			}
-			rBuf.CatChar(':').Cat(temp_buf).Space();
+			rBuf.Colon().Cat(temp_buf).Space();
 			break;
 		case kConceptInstance:
 			if(rI.SymbP)

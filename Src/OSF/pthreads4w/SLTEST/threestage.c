@@ -138,9 +138,10 @@ typedef struct T2R_MSG_TYPEag {
 	msg_block_t messages [TBLOCK_SIZE];
 } T2R_MSG_TYPE;
 
-static queue_t p2tq, t2rq, * r2cq_array;
-
-/* ShutDown, AllProduced are global flags to shut down the system & transmitter */
+static queue_t p2tq;
+static queue_t t2rq;
+static queue_t * r2cq_array;
+// ShutDown, AllProduced are global flags to shut down the system & transmitter 
 static volatile uint ShutDown = 0;
 static volatile uint AllProduced = 0;
 static uint DisplayMessages = 0;
@@ -241,6 +242,40 @@ int PThr4wTest_ThreeStage(int argc, char * argv[])
 	SAlloc::F(consumer_arg);
 	printf("System has finished. Shutting down\n");
 	return 0;
+}
+
+uint compute_checksum(void * msg, uint length)
+{
+	/* Computer an xor checksum on the entire message of "length"
+	 * integers */
+	uint cs = 0;
+	uint * pint = (uint *)msg;
+	for(uint i = 0; i < length; i++) {
+		cs = (cs ^ *pint);
+		pint++;
+	}
+	return cs;
+}
+
+void  message_fill(msg_block_t * mblock, uint src, uint dest, uint seqno)
+{
+	/* Fill the message buffer, and include checksum and timestamp  */
+	/* This function is called from the producer thread while it    */
+	/* owns the message block mutex                                 */
+	uint i;
+	mblock->checksum = 0;
+	for(i = 0; i < DATA_SIZE; i++) {
+		mblock->data[i] = rand();
+	}
+	mblock->source = src;
+	mblock->destination = dest;
+	mblock->sequence = seqno;
+	mblock->timestamp = time(NULL);
+	mblock->checksum = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(uint));
+	/*      printf ("Generated message: %d %d %d %d %x %x\n",
+	              src, dest, seqno, mblock->timestamp,
+	              mblock->data[0], mblock->data[DATA_SIZE-1]);  */
+	return;
 }
 
 void * producer(void * arg)
@@ -474,40 +509,6 @@ uint q_insert(queue_t * q, void * msg, uint msize)
 	memcpy(pm + (q->q_last * msize), msg, msize);
 	q->q_last = ((q->q_last + 1) % q->q_size);
 	return 0;
-}
-
-uint compute_checksum(void * msg, uint length)
-{
-	/* Computer an xor checksum on the entire message of "length"
-	 * integers */
-	uint cs = 0;
-	uint * pint = (uint *)msg;
-	for(uint i = 0; i < length; i++) {
-		cs = (cs ^ *pint);
-		pint++;
-	}
-	return cs;
-}
-
-void  message_fill(msg_block_t * mblock, uint src, uint dest, uint seqno)
-{
-	/* Fill the message buffer, and include checksum and timestamp  */
-	/* This function is called from the producer thread while it    */
-	/* owns the message block mutex                                 */
-	uint i;
-	mblock->checksum = 0;
-	for(i = 0; i < DATA_SIZE; i++) {
-		mblock->data[i] = rand();
-	}
-	mblock->source = src;
-	mblock->destination = dest;
-	mblock->sequence = seqno;
-	mblock->timestamp = time(NULL);
-	mblock->checksum = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(uint));
-	/*      printf ("Generated message: %d %d %d %d %x %x\n",
-	              src, dest, seqno, mblock->timestamp,
-	              mblock->data[0], mblock->data[DATA_SIZE-1]);  */
-	return;
 }
 
 void  message_display(msg_block_t * mblock)

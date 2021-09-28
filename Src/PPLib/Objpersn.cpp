@@ -296,7 +296,7 @@ int SlVCard::PutProp(Property prop, const void * pData, PropAttribute attrib)
 				if(str_attr.Len())
 					temp_buf.Semicol().Cat(str_attr);
 			}
-			temp_buf.CatChar(':').Cat(val).CR().Transf(CTRANSF_INNER_TO_OUTER);
+			temp_buf.Colon().Cat(val).CR().Transf(CTRANSF_INNER_TO_OUTER);
 			ok = P_Stream->WriteLine(temp_buf);
 		}
 	}
@@ -1154,6 +1154,8 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 	int    eq = 1;
 	if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec))
 		eq = 0;
+	else if(rS1.SMemo != rS2.SMemo) // @v11.1.12
+		eq = 0;
 	else if(rS1.Kinds != rS2.Kinds)
 		eq = 0;
 	else if(!rS1.Regs.IsEqual(rS2.Regs))
@@ -1844,7 +1846,8 @@ int PPObjPerson::GetPersonReq(PPID id, PersonReq * pPersonReq)
 			temp_buf.CopyTo(pPersonReq->ExtName, sizeof(pPersonReq->ExtName));
 		else
 			STRNSCPY(pPersonReq->ExtName, pack.Rec.Name);
-		STRNSCPY(pPersonReq->Memo, pack.Rec.Memo);
+		// @v11.1.12 STRNSCPY(pPersonReq->Memo, pack.Rec.Memo);
+		STRNSCPY(pPersonReq->Memo, pack.SMemo); // @v11.1.12
 		pPersonReq->AddrID = pack.Rec.MainLoc;
 		pPersonReq->RAddrID = pack.Rec.RLoc;
 		pack.GetAddress(0, temp_buf);  temp_buf.CopyTo(pPersonReq->Addr, sizeof(pPersonReq->Addr));
@@ -2448,7 +2451,13 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	SString ext_name;
 	PPIDArray addr_id_list;
 	LAssocArray rel_list;
+	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	// @v11.1.12 {
+	if(srzs.V.IsGe(11, 1, 12)) {
+		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
+	}
+	// } @v11.1.12
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Kinds, rBuf));
 	if(dir > 0) {
 		pPack->GetExtName(ext_name);
@@ -2462,7 +2471,6 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	THROW_SL(pSCtx->Serialize(dir, &rel_list, rBuf));
 	THROW(pPack->ELA.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(RegObj.P_Tbl->SerializeArrayOfRecords(dir, &pPack->Regs, rBuf, pSCtx));
-	// @v9.0.4 THROW_SL(BaObj.P_Tbl->SerializeArrayOfRecords(dir, &pPack->BAA, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & PPPersonConfig::fSendAttachment) ? 0 : 1, rBuf, pSCtx));
@@ -2475,10 +2483,6 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 		}
 		for(i = 0; i < rel_list.getCount(); i++)
 			pPack->AddRelation(rel_list.at(i).Key, rel_list.at(i).Val, 0);
-		/* @v9.0.4
-		for(i = 0; i < pPack->BAA.getCount(); i++)
-			pPack->BAA.at(i).ID = 0;
-		*/
 	}
 	CATCHZOK
 	return ok;
@@ -4053,7 +4057,8 @@ public:
 		AddClusterAssoc(CTL_PERSON_FLAGS, 1, PSNF_NONOTIFICATIONS);
 		SetClusterData(CTL_PERSON_FLAGS, Data.Rec.Flags);
 		//
-		setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		// @v11.1.12 setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		setCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT);
 		SetupGender(); // @v10.9.0
 		SetClusterData(CTL_PERSON_GENDER, PersonCore::GetGender(Data.Rec)); // @v10.9.0
@@ -4083,8 +4088,10 @@ public:
 		getCtrlString(CTL_PERSON_EXTNAME, temp_buf);
 		Data.SetExtName(temp_buf.Strip());
 		GetClusterData(CTL_PERSON_FLAGS, &Data.Rec.Flags);
-		getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-		strip(Data.Rec.Memo);
+		// @v11.1.12 getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		// @v11.1.12 strip(Data.Rec.Memo);
+		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
+		Data.SMemo.Strip(); // @v11.1.12 
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
 		// @v10.9.0 {
 		if(getCtrlView(CTL_PERSON_GENDER))
@@ -4219,7 +4226,8 @@ public:
 		setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
-		setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		// @v11.1.12 setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		setCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
 		// @v10.0.01 {
 		if(InitPhone.NotEmpty()) {
 			PPELink el;
@@ -4283,7 +4291,8 @@ public:
 		getCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
-		getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		// @v11.1.12 getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
 		getCtrlString(CTL_PERSON_PHONE, temp_buf);
 		if(PhonePos >= 0) {
 			if(temp_buf.NotEmptyS()) {
@@ -5447,13 +5456,12 @@ int MainOrg2Dialog::setDTS()
 	//
 	// Set Memo
 	//
-	setCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
+	// @v11.1.12 setCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
+	setCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12
 	//
 	// Set Phone
 	//
-	P_Pack->ELA.GetItem(PPELK_WORKPHONE, temp_buf) > 0 ||
-	P_Pack->ELA.GetItem(PPELK_ALTPHONE, temp_buf) > 0 ||
-	P_Pack->ELA.GetItem(PPELK_HOMEPHONE, temp_buf) > 0;
+	P_Pack->ELA.GetItem(PPELK_WORKPHONE, temp_buf) > 0 || P_Pack->ELA.GetItem(PPELK_ALTPHONE, temp_buf) > 0 || P_Pack->ELA.GetItem(PPELK_HOMEPHONE, temp_buf) > 0;
 	setCtrlString(CTL_MAINORG2_PHONE, temp_buf);
 	CATCHZOKPPERR
 	return ok;
@@ -5661,8 +5669,10 @@ int MainOrg2Dialog::getDTS()
 	// Get Director and Accountant
 
 	// Get Memo
-	getCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
-	strip(P_Pack->Rec.Memo);
+	// @v11.1.12 getCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
+	// @v11.1.12 strip(P_Pack->Rec.Memo);
+	getCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12 
+	P_Pack->SMemo.Strip(); // @v11.1.12 
 	// Get Memo
 
 	// Get Phone
@@ -6976,7 +6986,8 @@ int PPALDD_PersonReq::InitData(PPFilt & rFilt, long rsrv)
 			H.BankID = pr.BnkAcct.Bnk.ID;
 			STRNSCPY(H.Name,    rec.Name);
 			STRNSCPY(H.ExtName, pr.ExtName);
-			STRNSCPY(H.Memo,    rec.Memo);
+			// @v11.1.12 STRNSCPY(H.Memo,    rec.Memo);
+			STRNSCPY(H.Memo,    pr.Memo); // @v11.1.12
 			pobj.FormatRegister(rFilt.ID, PPREGT_PASSPORT, H.Passport, sizeof(H.Passport));
 			STRNSCPY(H.Address,  pr.Addr);
 			STRNSCPY(H.RAddr,    pr.RAddr);
@@ -7062,13 +7073,18 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 		PersonTbl::Rec rec;
 		RegisterTbl::Rec reg_rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
+			SString temp_buf;
 			H.ID = H.ReqID = rec.ID;
 			H.LocID    = rec.MainLoc;
 			H.RLocID   = rec.RLoc;
 			H.Status   = rec.Status;
 			H.Category = rec.CatID;
 			STRNSCPY(H.Name, rec.Name);
-			STRNSCPY(H.Memo, rec.Memo);
+			{
+				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
+				p_obj->P_Tbl->GetItemMemo(rFilt.ID, temp_buf); // @v11.1.12
+				STRNSCPY(H.Memo, temp_buf); // @v11.1.12
+			}
 			{
 				const PPPersonConfig & r_cfg = p_obj->GetConfig();
 				if(r_cfg.TradeLicRegTypeID && p_obj->GetRegister(rec.ID, r_cfg.TradeLicRegTypeID, &reg_rec) > 0)
@@ -7076,7 +7092,6 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 			}
 			H.Flags = rec.Flags;
 			{
-				SString temp_buf;
 				PPObjWorld::GetNativeCountryName(temp_buf);
 				H.fNativeLand = BIN((rec.Status == PPPRS_COUNTRY) && temp_buf.CmpNC(rec.Name) == 0);
 			}
@@ -7318,7 +7333,8 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = r_blk.Pack.Rec.ID;
 		H.PsnID = H.ID;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
-		STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
+		// @v11.1.12 STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
+		STRNSCPY(H.Memo, r_blk.Pack.SMemo); // @v11.1.12
 		H.CategoryID = r_blk.Pack.Rec.CatID;
 		H.StatusID = r_blk.Pack.Rec.Status;
 		r_blk.Pack.GetSrchRegNumber(0, temp_buf);

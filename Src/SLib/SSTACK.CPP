@@ -1,5 +1,5 @@
 // SSTACK.CPP
-// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -20,16 +20,15 @@ SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
 	// } @v9.8.1 
 }
 
-int FASTCALL SStack::push(const void * pItem)
+void * FASTCALL SStack::push(const void * pItem)
 {
-	int    ok = 0;
+	void * p_result = 0;
 	if(pointer < count) {
 		if(VFlags & aryEachItem) {
 			void * p_item = _BDATA + pointer * isize;
 			freeItem(_USERPTR(p_item));
 		}
-		atPut(pointer++, pItem);
-		ok = 1;
+		p_result = atPut(pointer++, pItem);
 	}
 	else if(VFlags & aryRing && Limit && count >= Limit) {
 		//
@@ -41,15 +40,15 @@ int FASTCALL SStack::push(const void * pItem)
 			void * p_item = _BDATA + pointer * isize;
 			freeItem(_USERPTR(p_item));
 		}
-		atPut(0, pItem);
+		p_result = atPut(0, pItem);
 		pointer = 1;
-		ok = 2;
 	}
 	else if(insert(pItem)) {
 		pointer++;
-		ok = 1;
+		assert(count > 0);
+		p_result = at(count-1);
 	}
-	return ok;
+	return p_result;
 }
 
 void * SStack::pop()

@@ -2273,7 +2273,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 						temp_buf = P_SetBlk->Memo;
 						if(temp_buf.NotEmptyS()) {
-							temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+							// @v11.1.12 temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+							pack.SMemo = temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v11.1.12
 						}
 						pack.GenerateGuid(0);
 						THROW(p_bobj->GetCrBillEntry(temp_bill_id, &pack));
@@ -2314,7 +2315,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									if(temp_buf.IsEmpty()) {
 										temp_buf.Cat("TSES#").Cat(P_SetBlk->U.B.TSessID);
 										if(P_SetBlk->U.B.PlaceCode[0])
-											temp_buf.CatChar(':').Cat("PLACE#").Cat(P_SetBlk->U.B.PlaceCode);
+											temp_buf.Colon().Cat("PLACE#").Cat(P_SetBlk->U.B.PlaceCode);
 									}
 								}
 								THROW(pack.LoadTItem(&ti, 0, temp_buf.Strip().ToOem()));

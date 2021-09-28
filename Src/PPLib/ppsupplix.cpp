@@ -1439,8 +1439,9 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 							ord_dt = bill_rec.Dt;
 						}
 					}
-					else
-						GetInfoFromMemo(item.Memo, &ord_dt, ord_num, 1);
+					else {
+						GetInfoFromMemo(item.SMemo, &ord_dt, ord_num, 1); // @v11.1.12 item.Memo-->item.SMemo
+					}
 				}
 				else if(oneof2(doc_type_idx, BALTIKA_DOCTYPES_MOVINGTO, BALTIKA_DOCTYPES_MOVINGFROM)) {
 					ord_num = bpack.Rec.Code;
@@ -1922,8 +1923,9 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 											STRNSCPY(sdr_saldo_doc.CompanyId, temp_buf);
 											temp_buf.Z().Cat(loc_id);
 											STRNSCPY(sdr_saldo_doc.AddressId, temp_buf);
-											BillCore::GetCode(temp_buf = bill_rec.Code);
-											STRNSCPY(sdr_saldo_doc.DocumentNumber, temp_buf);
+											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
+											// @v11.1.12 STRNSCPY(sdr_saldo_doc.DocumentNumber, temp_buf);
+											STRNSCPY(sdr_saldo_doc.DocumentNumber, bill_rec.Code); // @v11.1.12 
 											sdr_saldo_doc.DocumentDate = bill_rec.Dt;
 											sdr_saldo_doc.ActionDate = bill_rec.Dt;
 											{
@@ -2052,7 +2054,7 @@ int PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, PPID c
 	if(pItem && consigLocGrpID) {
 		PPObjLocation obj_loc;
 		if(obj_loc.IsMemberOfGroup(pItem->LocID, consigLocGrpID) > 0)
-			ok = GetInfoFromMemo(pItem->Memo, pParentDt, rParentCode);
+			ok = GetInfoFromMemo(pItem->SMemo, pParentDt, rParentCode); // @v11.1.12 item.Memo-->item.SMemo
 	}
 	return ok;
 }
@@ -3040,7 +3042,8 @@ int iSalesPepsi::ReceiveReceipts()
 					pack.SetupObject(ar_id, sob);
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
-					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 						;
 					}
@@ -3199,7 +3202,8 @@ int iSalesPepsi::ReceiveVDocs()
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
 					// } @v10.8.11 
-					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					{
 						PPID   local_psn_id = _src_psn_id;
 						if(_src_dlvrloc_id && LocObj.Search(_src_dlvrloc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS && 
@@ -3363,7 +3367,8 @@ int iSalesPepsi::ReceiveOrders()
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
 					// } @v10.8.11 
-					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					{
 						PPID   local_psn_id = _src_psn_id;
 						if(_src_dlvrloc_id && LocObj.Search(_src_dlvrloc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS && 
@@ -3606,7 +3611,8 @@ int iSalesPepsi::SendDebts()
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
 						if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER && !processed_id_list.lsearch(bill_rec.ID)) {
 							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, bill_ack_tag_id, temp_buf) > 0) { // @v10.9.0
-								BillCore::GetCode(temp_buf = bill_rec.Code);
+								// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
+								temp_buf = bill_rec.Code; // @v11.1.12 
 								int    found = 0;
 								for(uint j = first_idx_by_date; !found && j < i; j++) {
 									const iSalesBillDebt * p_temp_item = outer_debt_list.at(j);
@@ -3866,8 +3872,8 @@ int iSalesPepsi::SendStocks()
 			SString line_buf;
 			temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("stock");
 			if(P.Flags & P.fTestMode)
-				temp_buf.CatChar('-').Cat('t');
-			temp_buf.Dot().Cat("csv");
+				temp_buf.CatChar('-').Cat('t'); // ! don't correct the Cat('t') error - users are accustomed to it
+			temp_buf.DotCat("csv");
 			PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
 			SFile f_check(check_file_name, SFile::mWrite);
 			//№ п/п	Наименование поля	Комментарии
@@ -3936,8 +3942,9 @@ int iSalesPepsi::SendStocks()
 
 void iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const
 {
-	rIdent.Z();
-	BillCore::GetCode(rIdent = rRec.Code);
+	// @v11.1.12 rIdent.Z();
+	// @v11.1.12 BillCore::GetCode(rIdent = rRec.Code);
+	rIdent = rRec.Code; // @v11.1.12 
 	rIdent.Space().Cat(rRec.Dt, DATF_GERMAN|DATF_CENTURY).Space().Cat(labs(outerDocType));
 }
 
@@ -4066,12 +4073,14 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			p_new_pack->ExtCode.Z();
 			p_new_pack->ExtDtm.Z();
 			//
-			BillCore::GetCode(p_new_pack->Code = pBp->Rec.Code);
+			// @v11.1.12 BillCore::GetCode(p_new_pack->Code = pBp->Rec.Code);
+			p_new_pack->Code = pBp->Rec.Code; // @v11.1.12 
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 			p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
 			if(outerDocType == 6 && pBp->Rec.LinkBillID) {
 				if(link_bill_rec.ID && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT) {
-					BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
+					// @v11.1.12 BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
+					p_new_pack->Code = link_bill_rec.Code; // @v11.1.12 
 					p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_pack->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
@@ -4110,7 +4119,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 13;
-					BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
+					// @v11.1.12 BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
+					p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code); // @v11.1.12 
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_ref->Dtm.Z();
 				}
@@ -4127,7 +4137,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 1;
-					BillCore::GetCode(p_new_ref->Code = link_bill_rec.Code);
+					// @v11.1.12 BillCore::GetCode(p_new_ref->Code = link_bill_rec.Code);
+					p_new_ref->Code = link_bill_rec.Code; // @v11.1.12 
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_ref->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
@@ -4156,7 +4167,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 								THROW_SL(p_new_ref);
 								p_new_ref->DocType = 13;
-								BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
+								// @v11.1.12 BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
+								p_new_ref->Code = ord_rec.Code; // @v11.1.12 
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 								p_new_ref->Dtm.Z();
 							}
@@ -4666,8 +4678,8 @@ int iSalesPepsi::SendInvoices()
 		SString line_buf;
 		temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("invoices");
 		if(P.Flags & P.fTestMode)
-			temp_buf.CatChar('-').Cat('t');
-		temp_buf.Dot().Cat("csv");
+			temp_buf.CatChar('-').Cat('t'); // ! don't correct the Cat('t') error - users are accustomed to it
+		temp_buf.DotCat("csv");
 		PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
 		SFile f_check(check_file_name, SFile::mWrite);
 		SString own_code;
@@ -5181,7 +5193,8 @@ int SapEfes::ReceiveOrders()
 								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_AGENTNCODE, &msg_buf, (const char *)pack.Rec.Code, p_src_pack->TerrIdent.cptr()));
 							}
 						}
-						STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+						// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+						pack.SMemo = p_src_pack->Memo; // @v11.1.12
 						if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
 							PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName, temp_buf).Quot('(', ')');
 							if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
@@ -5522,17 +5535,20 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 							}
 							p_new_item->Date = pack.Rec.Dt;
 							p_new_item->DocType = SapEfesBillPacket::tRetail;
-							BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
+							// @v11.1.12 BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
+							p_new_item->NativeCode = pack.Rec.Code; // @v11.1.12 
 							p_new_item->DueDate = (is_own_order && ord_rec.DueDate) ? ord_rec.DueDate : pack.Rec.Dt;
 							p_new_item->BuyerCode = cli_code;
 							p_new_item->DlvrLocCode = loc_code;
 							if(is_own_order) {
-								BillCore::GetCode(p_new_item->OrderCode = ord_rec.Code);
+								// @v11.1.12 BillCore::GetCode(p_new_item->OrderCode = ord_rec.Code);
+								p_new_item->OrderCode = ord_rec.Code; // @v11.1.12 
 								p_new_item->Flags |= p_new_item->fHasOrderRef;
 							}
 							else
 								p_new_item->Flags &= ~p_new_item->fHasOrderRef;
-							p_new_item->Memo = pack.Rec.Memo;
+							// @v11.1.12 p_new_item->Memo = pack.Rec.Memo;
+							p_new_item->Memo = pack.SMemo; // @v11.1.12
 							{
 								long   tiiterpos = 0;
 								for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS|ETIEF_FORCEUNITEGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
@@ -5629,7 +5645,7 @@ int SapEfes::SendInvoices()
 					SString * p_new_code = to_cancel_code_list.CreateNewItem();
 					THROW_SL(p_new_code);
 					*p_new_code = bill_rec.Code;
-					BillCore::GetCode(*p_new_code);
+					// @v11.1.12 BillCore::GetCode(*p_new_code);
 				}
 			}
 		}
@@ -6223,7 +6239,8 @@ int SfaHeineken::ReceiveOrders()
 								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD, &msg_buf, temp_buf.cptr()));
 							}
 						}
-						STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+						// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+						pack.SMemo = p_src_pack->Memo; // @v11.1.12
 						//if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
 						if(p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_uuid_text, &ex_bill_id_list) > 0) {
 							;
@@ -6385,9 +6402,11 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 		SString bill_code;
 		SString bill_ack_tag_value;
 		pack.BTagL.GetItemStr(bill_ack_tag_id, bill_ack_tag_value);
-		BillCore::GetCode(bill_code = pack.Rec.Code);
+		// @v11.1.12 BillCore::GetCode(bill_code = pack.Rec.Code);
+		bill_code = pack.Rec.Code; // @v11.1.12 
 		bill_code.Transf(CTRANSF_INNER_TO_UTF8);
-		if(strstr(pack.Rec.Memo, "#heineken-delete")) {
+		// @v11.1.12 if(strstr(pack.Rec.Memo, "#heineken-delete")) {
+		if(pack.SMemo.Search("#heineken-delete", 0, 1, 0)) { // @v11.1.12
 			SfaHeinekenInvoice * p_new_entry = rToDeleteList.CreateNewItem();
 			THROW_SL(p_new_entry);
 			p_new_entry->Code = bill_code;
@@ -6416,7 +6435,8 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 							is_own_order = 1;
 					}
 					if(!is_own_order) {
-						BillCore::GetCode(inner_order_code = ord_rec.Code);
+						// @v11.1.12 BillCore::GetCode(inner_order_code = ord_rec.Code);
+						inner_order_code = ord_rec.Code; // @v11.1.12 
 					}
 				}
 			}

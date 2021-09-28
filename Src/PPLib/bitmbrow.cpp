@@ -4574,8 +4574,11 @@ SArray * CompleteBrowser::MakeList()
 		entry.Cost = p_item->Cost;
 		entry.Price = p_item->Price;
 		entry.Flags = p_item->Flags;
-		if(P_BObj->Search(p_item->BillID, &bill_rec) > 0)
-			STRNSCPY(entry.Memo, bill_rec.Memo);
+		if(P_BObj->Search(p_item->BillID, &bill_rec) > 0) {
+			// @v11.1.12 STRNSCPY(entry.Memo, bill_rec.Memo);
+			P_BObj->P_Tbl->GetItemMemo(p_item->BillID, temp_buf); // @v11.1.12
+			STRNSCPY(entry.Memo, temp_buf); // @v11.1.12
+		}
 		THROW_SL(p_list->insert(&entry));
 	}
 	CATCH

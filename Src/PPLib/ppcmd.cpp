@@ -1759,7 +1759,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		if(pCmdGrp->DbSymb.NotEmpty() || pCmdGrp->Type == cmdgrpcMenu) { // @v11.0.1 (pCmdGrp->Type == cmdgrpcMenu)
 			if(pCmdGrp->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
-				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Dot().Cat("xml");
+				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
 				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 				xmlTextWriterSetIndent(p_xml_writer, 1);
 				xmlTextWriterSetIndentTab(p_xml_writer);
@@ -1777,7 +1777,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 					//PPCommandGroup cg = *static_cast<const PPCommandGroup *>(p_item->Dup());
 					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
 					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
-						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Dot().Cat("xml");
+						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
 						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 						xmlTextWriterSetIndent(p_xml_writer, 1);
 						xmlTextWriterSetIndentTab(p_xml_writer);
@@ -2002,8 +2002,8 @@ int PPCommandMngr::DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID &
 			PPCommandMngr::GetMenuDir(path);
 		if(path.NotEmpty()) {
 			SString temp_buf(path);
-			path.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).Dot().Cat("xml");
-			temp_buf.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).Cat("_deleted").Dot().Cat("txt");
+			path.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).DotCat("xml");
+			temp_buf.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).Cat("_deleted").DotCat("txt");
 			ok = file.Rename(path, temp_buf);
 		}
 	}

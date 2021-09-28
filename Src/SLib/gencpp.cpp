@@ -160,7 +160,7 @@ int Generator_CPP::Wr_StartIdlCoClassDecl(const char * pName)
 int Generator_CPP::Wr_ClassAcsZone(int acs)
 {
 	TempBuf.Z();
-	CatAcs(acs, TempBuf).CatChar(':').CR();
+	CatAcs(acs, TempBuf).Colon().CR();
 	return WriteLine(TempBuf);
 }
 

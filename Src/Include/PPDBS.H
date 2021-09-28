@@ -859,7 +859,6 @@ public:
 		int32  Flags;
 		int32  Division;
 		int32  Position;
-		char   Memo[512];  // note
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -886,7 +885,6 @@ public:
 	DBField Flags;
 	DBField Division;
 	DBField Position;
-	DBField Memo;
 };
 
 class BankAccount_Pre9004Tbl : public DBTable {
@@ -1026,7 +1024,6 @@ public:
 		uint8  Reserve[18]; // raw
 		int32  PrmrSCardID;
 		int32  ScndSCardID;
-		char   Memo[512];  // note
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -1045,6 +1042,11 @@ public:
 		LDATE  Dt;
 		int32  OprNo;
 	};
+	struct Key4 {
+		int32  SecondID;
+		LDATE  Dt;
+		int32  OprNo;
+	};
 	DBField ID;
 	DBField Dt;
 	DBField OprNo;
@@ -1060,7 +1062,6 @@ public:
 	DBField Reserve;
 	DBField PrmrSCardID;
 	DBField ScndSCardID;
-	DBField Memo;
 };
 
 class StaffList_Pre9003Tbl : public DBTable {
@@ -1875,14 +1876,13 @@ public:
 	struct Rec {
 		Rec();
 		int32  ID;
-		char   Code[24];
+		char   Code[48];
 		LDATE  Dt;
 		int32  BillNo;
 		LDATE  DueDate;
 		int32  OpID;
 		int32  StatusID;
 		int32  UserID;
-		int32  MainOrgID;
 		int32  LocID;
 		int32  Object;
 		int32  Object2;
@@ -1899,7 +1899,7 @@ public:
 		int16  EdiOp;
 		double PaymAmount;
 		int32  AgtBillID;
-		char   Memo[512];  // note
+		uint8  Reserve[16]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -1934,7 +1934,7 @@ public:
 		int32  BillNo;
 	};
 	struct Key7 {
-		int32  MainOrgID;
+		char   Code[48];
 		LDATE  Dt;
 		int32  BillNo;
 	};
@@ -1946,7 +1946,6 @@ public:
 	DBField OpID;
 	DBField StatusID;
 	DBField UserID;
-	DBField MainOrgID;
 	DBField LocID;
 	DBField Object;
 	DBField Object2;
@@ -1963,7 +1962,7 @@ public:
 	DBField EdiOp;
 	DBField PaymAmount;
 	DBField AgtBillID;
-	DBField Memo;
+	DBField Reserve;
 };
 
 class HistBillTbl : public DBTable {
@@ -5711,7 +5710,7 @@ public:
 	struct Rec {
 		Rec();
 		int32  ID;
-		char   Code[24];
+		char   Code[48];
 		int32  PrcID;
 		int32  GoodsID;
 		int32  GStrucID;
@@ -5729,14 +5728,13 @@ public:
 		int32  ParentID;
 		int32  OrderN;
 		int16  CipMax;
-		uint8  Reserve3[2]; // raw
-		char   Memo[512];  // note
+		uint8  Reserve3[10]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
 	};
 	struct Key1 {
-		char   Code[24];
+		char   Code[48];
 	};
 	struct Key2 {
 		int32  PrcID;
@@ -5777,7 +5775,6 @@ public:
 	DBField OrderN;
 	DBField CipMax;
 	DBField Reserve3;
-	DBField Memo;
 };
 
 class TSessionTbl : public DBTable {
@@ -7306,7 +7303,7 @@ public:
 		LDATE  Dt;
 		int32  OprNo;
 		int32  BillID;
-		char   BillCode[24];
+		char   BillCode[48];
 		int32  LocID;
 		int32  ArticleID;
 		int32  OpID;
@@ -7739,7 +7736,6 @@ public:
 		uint32 ShipNameP;
 		char   PortName[48];
 		char   DlvrAddr[64];
-		uint32 MemoP;
 	} data;
 	struct Key0 {
 		int32  BillID;
@@ -7780,7 +7776,6 @@ public:
 	DBField ShipNameP;
 	DBField PortName;
 	DBField DlvrAddr;
-	DBField MemoP;
 };
 
 class TempLotTbl : public DBTable {

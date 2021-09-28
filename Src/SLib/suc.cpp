@@ -2363,7 +2363,7 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
                     }
                     assert(acs_ptr == 265);
                     {
-                    	(temp_buf = map.Name).Dot().Cat("acs");
+                    	(temp_buf = map.Name).DotCat("acs");
                     	PPGetFilePath(PPPATH_OUT, temp_buf, line_buf);
                     	SFile f_acs(line_buf, SFile::mWrite|SFile::mBinary);
                     	if(f_acs.IsValid()) {

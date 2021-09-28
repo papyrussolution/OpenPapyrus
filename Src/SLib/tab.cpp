@@ -402,7 +402,7 @@ int STabFile::LoadTab(const char * pTabName, STab & rTab)
 		}
 	}
 	if(ok < 0) {
-		(temp_buf = F.GetName()).CatChar(':').Cat(pTabName);
+		(temp_buf = F.GetName()).Colon().Cat(pTabName);
 		SLS.SetError(SLERR_TAB_NFOUND, temp_buf);
 	}
 	CATCH

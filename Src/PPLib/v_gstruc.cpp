@@ -6,23 +6,32 @@
 #include <pp.h>
 #pragma hdrstop
 
+PPViewGoodsStruc::CommonProcessingBlock::CommonProcessingBlock()
+{
+}
+
+PPViewGoodsStruc::CommonProcessingBlock::CommonProcessingBlock(const CommonProcessingBlock & rS) : 
+	StrucList(rS.StrucList), ItemList(rS.ItemList), StrPool(rS.StrPool)
+{
+}
+
 /*static*/int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
 {
 	int    si = 0;
 	if(pView && i1 && i2) {
 		const ItemEntry * p1 = static_cast<const ItemEntry *>(i1);
 		const ItemEntry * p2 = static_cast<const ItemEntry *>(i2);
-		const uint slc = pView->StrucList.getCount();
+		const uint slc = pView->Cb.StrucList.getCount();
 		SString n1, n2;
 		switch(order) {
 			default: // @fallthrough
 			case OrdByPrmrGoodsName:
 				{
 					if(p1->StrucEntryP < slc) {
-						GetGoodsName(pView->StrucList.at(p1->StrucEntryP).PrmrGoodsID, n1);
+						GetGoodsName(pView->Cb.StrucList.at(p1->StrucEntryP).PrmrGoodsID, n1);
 					}
 					if(p2->StrucEntryP < slc) {
-						GetGoodsName(pView->StrucList.at(p2->StrucEntryP).PrmrGoodsID, n2);
+						GetGoodsName(pView->Cb.StrucList.at(p2->StrucEntryP).PrmrGoodsID, n2);
 					}
 					si = n1.CmpNC(n2);
 					SETIFZ(si, CMPSIGN(p1->ItemNo, p2->ItemNo));
@@ -37,11 +46,11 @@
 						n1.Z();
 						n2.Z();
 						if(p1->StrucEntryP < slc) {
-							const StrucEntry & r_entry = pView->StrucList.at(p1->StrucEntryP);
+							const StrucEntry & r_entry = pView->Cb.StrucList.at(p1->StrucEntryP);
 							GetGoodsName(r_entry.PrmrGoodsID, n1);
 						}
 						if(p2->StrucEntryP < slc) {
-							const StrucEntry & r_entry = pView->StrucList.at(p2->StrucEntryP);
+							const StrucEntry & r_entry = pView->Cb.StrucList.at(p2->StrucEntryP);
 							GetGoodsName(r_entry.PrmrGoodsID, n2);
 						}
 						si = n1.CmpNC(n2);
@@ -56,11 +65,11 @@
 					si = CMPSIGN(k1, k2);
 					if(!si) {
 						if(p1->StrucEntryP < slc) {
-							const StrucEntry & r_entry = pView->StrucList.at(p1->StrucEntryP);
+							const StrucEntry & r_entry = pView->Cb.StrucList.at(p1->StrucEntryP);
 							GetGoodsName(r_entry.PrmrGoodsID, n1);
 						}
 						if(p2->StrucEntryP < slc) {
-							const StrucEntry & r_entry = pView->StrucList.at(p2->StrucEntryP);
+							const StrucEntry & r_entry = pView->Cb.StrucList.at(p2->StrucEntryP);
 							GetGoodsName(r_entry.PrmrGoodsID, n2);
 						}
 						si = n1.CmpNC(n2);
@@ -163,7 +172,8 @@ IMPLEMENT_PPFILT_FACTORY(GoodsStruc); GoodsStrucFilt::GoodsStrucFilt() : PPBaseF
 }
 
 PPViewGoodsStruc::PPViewGoodsStruc() : 
-	PPView(0, &Filt, PPVIEW_GOODSSTRUC, implBrowseArray, REPORT_GOODSSTRUCLIST), CurrentViewOrder(OrdByDefault), IterIdx(0), P_DsList__(0)
+	PPView(0, &Filt, PPVIEW_GOODSSTRUC, implBrowseArray, REPORT_GOODSSTRUCLIST), CurrentViewOrder(OrdByDefault), IterIdx(0), P_DsList__(0),
+	H_AsideListWindow(0)
 {
 }
 
@@ -197,7 +207,7 @@ int PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
 	int    ok = 1;
 	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	if(is_sorting_needed) {
-		ItemList.sort(PTR_CMPFUNC(ViewGoodsStruc_ItemEntry), pBrw);
+		Cb.ItemList.sort(PTR_CMPFUNC(ViewGoodsStruc_ItemEntry), pBrw);
 	}
 	return ok;
 }
@@ -205,15 +215,15 @@ int PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
 int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 {
 	Problems.freeAll();
-	StrucList.clear();
-	ItemList.clear();
-	StrPool.ClearS();
+	Cb.StrucList.clear();
+	Cb.ItemList.clear();
+	Cb.StrPool.ClearS();
 	int    ok = 1;
 	// @v10.8.2 const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
-		if(GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
-			THROW(AddItem(grec.ID, grec.StrucID, 0));
+		if(Cb.GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
+			THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsID, 0));
 		}
 	}
 	else {
@@ -222,7 +232,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 		goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
 			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
-				THROW(AddItem(grec.ID, grec.StrucID, 0));
+				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsID, 0));
 			}
 			PPWaitPercent(gi.GetIterCounter());
 		}
@@ -231,23 +241,23 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			uint   p = 0;
 			PPIDArray owner_list;
 			PPGoodsStrucHeader gsh;
-			for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0;)
+			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0;)
 				t++;
-			for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
+			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
 				const PPID gs_id = gsh.ID;
 				owner_list.clear();
-				GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+				Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
 				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
 					uint   ex_spos = 0;
-					if(!StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID))) {
-						THROW(AddItem(0, gs_id, 0));
+					if(!Cb.StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID))) {
+						THROW(Cb.AddItem(0, gs_id, Filt.ScndGoodsID, 0));
 					}
 				}
 				PPWaitPercent(p, t);
 			}
 		}
 	}
-	ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+	Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 	// @v10.7.5 {
 	if(pBrw) {
 		pBrw->Helper_SetAllColumnsSortable();
@@ -270,7 +280,7 @@ int PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
+int PPViewGoodsStruc::CommonProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndID, int checkExistance)
 {
 	int    ok = 1;
 	PPGoodsStruc struc;
@@ -294,25 +304,26 @@ int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
 				ex_goods_list.atFree(p);
 			for(p = 0; p < ex_goods_list.getCount(); p++) {
 				const PPID ex_goods_id = ex_goods_list.get(p);
-				THROW(AddItem(ex_goods_id, strucID, 0)); // @recursion
+				THROW(AddItem(ex_goods_id, strucID, filtScndID, 0)); // @recursion
 			}
 		}
 	}
 	if(GSObj.Get(strucID, &struc) > 0) {
 		const  int  folder = BIN(struc.Rec.Flags & GSF_FOLDER);
-		const  uint count  = folder ? struc.Childs.getCount() : struc.Items.getCount();
+		const  uint count  = folder ? struc.Children.getCount() : struc.Items.getCount();
 		if(count) {
 			SString temp_buf;
 			SString struc_name;
 			uint    struc_entry_pplus1 = 0;
 			for(uint i = 0; i < count; i++) {
 				if(folder) {
-					PPGoodsStruc * p_struc = struc.Childs.at(i);
-					THROW(AddItem(goodsID, p_struc->Rec.ID, checkExistance)); // @recursion
+					const PPGoodsStruc * p_struc = struc.Children.at(i);
+					THROW(AddItem(goodsID, p_struc->Rec.ID, filtScndID, checkExistance)); // @recursion
 				}
 				else {
 					const PPGoodsStrucItem & r_i = struc.Items.at(i);
-					if((!Filt.ScndGoodsID || r_i.GoodsID == Filt.ScndGoodsID) && (!Filt.ScndGoodsGrpID || GObj.BelongToGroup(r_i.GoodsID, Filt.ScndGoodsGrpID, 0))) {
+					//if((!Filt.ScndGoodsID || r_i.GoodsID == Filt.ScndGoodsID) && (!Filt.ScndGoodsGrpID || GObj.BelongToGroup(r_i.GoodsID, Filt.ScndGoodsGrpID, 0))) {
+					if((!filtScndID || r_i.GoodsID == filtScndID) && (!filtScndID || GObj.BelongToGroup(r_i.GoodsID, filtScndID, 0))) {
 						if(!struc_entry_pplus1) {
 							StrucEntry new_entry;
 							MEMSZERO(new_entry);
@@ -366,9 +377,107 @@ int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
 	return ok;
 }
 
+#if 0 // {
+int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
+{
+	int    ok = 1;
+	PPGoodsStruc struc;
+	if(checkExistance) {
+		PPIDArray ex_goods_list; // Список товаров, с которыми была связана структура strucID в списках
+		for(uint ex_spos = 0; Cb.StrucList.lsearch(&strucID, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID)); ex_spos++) {
+			const StrucEntry & r_entry = Cb.StrucList.at(ex_spos);
+			uint  item_pos = Cb.ItemList.getCount();		
+			if(item_pos) do {
+				ItemEntry * p_item = &Cb.ItemList.at(--item_pos);
+				if(p_item->StrucEntryP == ex_spos) {
+					ex_goods_list.add(r_entry.PrmrGoodsID);
+					Cb.ItemList.atFree(item_pos);
+				}
+			} while(item_pos);
+		}
+		{
+			ex_goods_list.sortAndUndup();
+			uint p = 0;
+			if(ex_goods_list.bsearch(goodsID, &p))
+				ex_goods_list.atFree(p);
+			for(p = 0; p < ex_goods_list.getCount(); p++) {
+				const PPID ex_goods_id = ex_goods_list.get(p);
+				THROW(AddItem(ex_goods_id, strucID, 0)); // @recursion
+			}
+		}
+	}
+	if(Cb.GSObj.Get(strucID, &struc) > 0) {
+		const  int  folder = BIN(struc.Rec.Flags & GSF_FOLDER);
+		const  uint count  = folder ? struc.Children.getCount() : struc.Items.getCount();
+		if(count) {
+			SString temp_buf;
+			SString struc_name;
+			uint    struc_entry_pplus1 = 0;
+			for(uint i = 0; i < count; i++) {
+				if(folder) {
+					const PPGoodsStruc * p_struc = struc.Children.at(i);
+					THROW(AddItem(goodsID, p_struc->Rec.ID, checkExistance)); // @recursion
+				}
+				else {
+					const PPGoodsStrucItem & r_i = struc.Items.at(i);
+					if((!Filt.ScndGoodsID || r_i.GoodsID == Filt.ScndGoodsID) && (!Filt.ScndGoodsGrpID || Cb.GObj.BelongToGroup(r_i.GoodsID, Filt.ScndGoodsGrpID, 0))) {
+						if(!struc_entry_pplus1) {
+							StrucEntry new_entry;
+							MEMSZERO(new_entry);
+							new_entry.PrmrGoodsID = goodsID;
+							new_entry.GStrucID = struc.Rec.ID;
+							new_entry.ParentStrucID = struc.Rec.ParentID;
+							new_entry.Flags = struc.Rec.Flags;
+							new_entry.CommDenom = struc.Rec.CommDenom;
+							new_entry.GiftQuotKindID = struc.Rec.GiftQuotKindID;
+							new_entry.Period = struc.Rec.Period;
+							new_entry.GiftAmtRestrict = struc.Rec.GiftAmtRestrict;
+							new_entry.GiftLimit = struc.Rec.GiftLimit;
+							new_entry.VariedPropObjType = struc.Rec.VariedPropObjType;
+							{
+								if(struc.Rec.ParentID) {
+									PPGoodsStrucHeader hdr_rec;
+									if(Cb.GSObj.Fetch(struc.Rec.ParentID, &hdr_rec) > 0)
+										struc_name = hdr_rec.Name;
+									else
+										ideqvalstr(struc.Rec.ParentID, struc_name.Z());
+								}
+								else
+									struc_name = struc.Rec.Name;
+								if(struc_name.IsEmpty())
+									ideqvalstr(struc.Rec.ID, struc_name).Quot('[', ']');
+								Cb.StrPool.AddS(struc_name, &new_entry.NameP);
+							}
+							Cb.StrPool.AddS(struc.Rec.Symb, &new_entry.SymbP);
+							THROW_SL(Cb.StrucList.insert(&new_entry));
+							struc_entry_pplus1 = Cb.StrucList.getCount();
+						}
+						assert(struc_entry_pplus1 > 0 && struc_entry_pplus1 <= Cb.StrucList.getCount());
+						ItemEntry new_item;
+						MEMSZERO(new_item);
+						new_item.StrucEntryP = struc_entry_pplus1-1;
+						new_item.ItemNo   = i+1;
+						new_item.GStrucID = struc.Rec.ID;
+						new_item.GoodsID = r_i.GoodsID;
+						new_item.Flags = r_i.Flags;
+						new_item.StrucFlags = struc.Rec.Flags;
+						new_item.Median = r_i.Median;
+						new_item.Denom = r_i.Denom;
+						new_item.Netto = r_i.Netto;
+						THROW_SL(Cb.ItemList.insert(&new_item));
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0
+
 int PPViewGoodsStruc::InitIteration()
 {
-	Counter.Init(ItemList.getCount());
+	Counter.Init(Cb.ItemList.getCount());
 	IterIdx = 0;
 	return 1;
 }
@@ -376,13 +485,13 @@ int PPViewGoodsStruc::InitIteration()
 int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem && IterIdx < ItemList.getCount()) {
+	if(pItem && IterIdx < Cb.ItemList.getCount()) {
 		memzero(pItem, sizeof(*pItem));
-		const ItemEntry & r_item = ItemList.at(IterIdx);
+		const ItemEntry & r_item = Cb.ItemList.at(IterIdx);
 		pItem->GStrucID = r_item.GStrucID;
-		if(r_item.StrucEntryP < StrucList.getCount()) {
+		if(r_item.StrucEntryP < Cb.StrucList.getCount()) {
 			SString temp_buf;
-			const StrucEntry & r_struc_entry = StrucList.at(r_item.StrucEntryP);
+			const StrucEntry & r_struc_entry = Cb.StrucList.at(r_item.StrucEntryP);
 			pItem->PrmrGoodsID = r_struc_entry.PrmrGoodsID;
 			pItem->CommDenom = r_struc_entry.CommDenom;
 			pItem->GiftAmtRestrict = r_struc_entry.GiftAmtRestrict;
@@ -392,9 +501,9 @@ int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 			pItem->Period = r_struc_entry.Period;
 			pItem->StrucFlags = r_struc_entry.Flags;
 			pItem->VariedPropObjType = r_struc_entry.VariedPropObjType;
-			StrPool.GetS(r_struc_entry.NameP, temp_buf);
+			Cb.StrPool.GetS(r_struc_entry.NameP, temp_buf);
 			STRNSCPY(pItem->StrucName, temp_buf);
-			StrPool.GetS(r_struc_entry.SymbP, temp_buf);
+			Cb.StrPool.GetS(r_struc_entry.SymbP, temp_buf);
 			STRNSCPY(pItem->StrucSymb, temp_buf);
 		}
 		pItem->GoodsID = r_item.GoodsID;
@@ -420,8 +529,8 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->GStrucID); break; // @id
 			case 1: // Primary goods name
-				if(p_item->StrucEntryP < StrucList.getCount())
-					pBlk->Set(GetGoodsName(StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
+				if(p_item->StrucEntryP < Cb.StrucList.getCount())
+					pBlk->Set(GetGoodsName(Cb.StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
 				break;
 			case 2: pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); break; // Secondary goods name
 			case 3: // Simple representation of component qtty per one primary ware item
@@ -432,8 +541,8 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				}
 				break;
 			case 4: // Text representation of flags
-				if(p_item->StrucEntryP < StrucList.getCount()) {
-					const StrucEntry & r_entry = StrucList.at(p_item->StrucEntryP);
+				if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+					const StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
 					PPGoodsStruc::MakeTypeString(r_entry.GStrucID, r_entry.Flags, r_entry.ParentStrucID, temp_buf);
 				}
 				else
@@ -442,8 +551,8 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				break;
 			case 5: pBlk->Set(p_item->Netto); break; // Netto
 			case 6: // Общий делитель структуры
-				if(p_item->StrucEntryP < StrucList.getCount()) {
-					const StrucEntry & r_entry = StrucList.at(p_item->StrucEntryP);
+				if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+					const StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
 					pBlk->Set(r_entry.CommDenom);
 				}
 				else
@@ -454,9 +563,9 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				{
 					temp_buf.Z();
 					PPGoodsStrucHeader rec;
-					if(GSObj.Fetch(p_item->GStrucID, &rec) > 0)
+					if(Cb.GSObj.Fetch(p_item->GStrucID, &rec) > 0)
 						temp_buf = rec.Name;
-					pBlk->Set(temp_buf); break;
+					pBlk->Set(temp_buf);
 				}
 				break;
 		}
@@ -508,9 +617,9 @@ int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintActi
 			}
 			// @v10.4.6 {
 			else if(r_col.OrgOffs == 6) { // common denomitator
-				if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
-					if(p_item->GStrucID && p_item->StrucEntryP < StrucList.getCount()) {
-						const StrucEntry & r_struc_entry = StrucList.at(p_item->StrucEntryP);
+				if(Cb.GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
+					if(p_item->GStrucID && p_item->StrucEntryP < Cb.StrucList.getCount()) {
+						const StrucEntry & r_struc_entry = Cb.StrucList.at(p_item->StrucEntryP);
 						if((r_struc_entry.Flags & GSF_DECOMPL) && !(r_struc_entry.Flags & GSF_COMPL)) {
 							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0)
 								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrBrown));
@@ -535,7 +644,7 @@ void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewGoodsStruc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = new SArray(ItemList);
+	SArray * p_array = new SArray(Cb.ItemList);
 	uint   brw_id = BROWSER_GOODSSTRUC2;
 	ASSIGN_PTR(pBrwId, brw_id);
 	return p_array;
@@ -610,9 +719,9 @@ int PPViewGoodsStruc::Recover()
 					PPGoodsStruc gs;
 					PPIDArray struct_ids;
 					PPIDArray goods_ids;
-					GObj.P_Tbl->SearchGListByStruc(id, &goods_ids);
-					THROW(GSObj.Get(id, &gs));
-					THROW(GSObj.CheckStruct(&goods_ids, &struct_ids, &gs, &Problems, &logger));
+					Cb.GObj.P_Tbl->SearchGListByStruc(id, &goods_ids);
+					THROW(Cb.GSObj.Get(id, &gs));
+					THROW(Cb.GSObj.CheckStruct(&goods_ids, &struct_ids, &gs, &Problems, &logger));
 				}
 				PPWaitPercent(i+1, uniq_struc_list.getCount());
 			}
@@ -632,7 +741,7 @@ int PPViewGoodsStruc::Recover()
 					PPGoodsStrucHeader gs_rec;
 					PPIDArray gs_id_list;
 					const size_t spl = sstrlen(p_surrogate_prefix);
-					for(SEnum en = GSObj.Enum(0); en.Next(&gs_rec) > 0;) {
+					for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gs_rec) > 0;) {
 						if(gs_rec.Flags & GSF_NAMED && strncmp(gs_rec.Name, p_surrogate_prefix, spl) == 0) {
 							gs_id_list.add(gs_rec.ID);
 						}
@@ -644,16 +753,16 @@ int PPViewGoodsStruc::Recover()
 						for(uint i = 0; i < gs_id_list.getCount(); i++) {
 							const PPID gs_id = gs_id_list.get(i);
 							owner_list.clear();
-							GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+							Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
 							if(owner_list.getCount()) {
 								for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
 									PPID goods_id = owner_list.get(oidx);
 									PPGoodsPacket goods_pack;
-									THROW(GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
+									THROW(Cb.GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
 									if(goods_pack.Rec.StrucID == gs_id) {
 										goods_pack.Rec.StrucID = 0;
 										goods_pack.GS.Rec.ID = 0;
-										THROW(GObj.PutPacket(&goods_id, &goods_pack, 0));
+										THROW(Cb.GObj.PutPacket(&goods_id, &goods_pack, 0));
 									}
 								}
 							}
@@ -671,26 +780,26 @@ int PPViewGoodsStruc::Recover()
 						const PPID gs_id = nna_gs_list.get(k);
 						{
 							owner_list.clear();
-							GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+							Cb.GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
 							if(owner_list.getCount() > 1) {
 								PPGoodsStrucHeader gsh;
-								if(GSObj.Search(gs_id, &gsh) > 0) {
+								if(Cb.GSObj.Search(gs_id, &gsh) > 0) {
 									if(!(gsh.Flags & GSF_NAMED) && !(gsh.Flags & GSF_CHILD)) {
 										PPGoodsStruc gs;
-										THROW(GSObj.Get(gs_id, &gs) > 0);
+										THROW(Cb.GSObj.Get(gs_id, &gs) > 0);
 										{
 											long   nn = 0;
 											PPID   n_gs_id = 0;
 											surrogate_name = p_surrogate_prefix;
 											STRNSCPY(gs.Rec.Name, surrogate_name);
-											while(GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
+											while(Cb.GSObj.SearchByName(gs.Rec.Name, &n_gs_id, 0) > 0 && n_gs_id != gs_id) {
 												(surrogate_name = p_surrogate_prefix).Space().Cat(++nn);
 												STRNSCPY(gs.Rec.Name, surrogate_name);
 											}
 										}
 										gs.Rec.Flags |= GSF_NAMED;
 										PPID   temp_id = gs_id;
-										THROW(GSObj.Put(&temp_id, &gs, 0));
+										THROW(Cb.GSObj.Put(&temp_id, &gs, 0));
 										assert(temp_id == gs_id);
 										//
 										// Снимаем ссылку на структуру со всех товаров // (@v10.0.12 отменено) кроме последнего (с наибольшим идентификатором)
@@ -698,16 +807,15 @@ int PPViewGoodsStruc::Recover()
 										for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
 											PPID goods_id = owner_list.get(oidx);
 											PPGoodsPacket goods_pack;
-											THROW(GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
+											THROW(Cb.GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
 											if(goods_pack.Rec.StrucID == gs_id) {
 												goods_pack.Rec.StrucID = 0;
 												goods_pack.GS.Rec.ID = 0;
-												THROW(GObj.PutPacket(&goods_id, &goods_pack, 0));
+												THROW(Cb.GObj.PutPacket(&goods_id, &goods_pack, 0));
 											}
 										}
 									}
 								}
-								
 							}
 						}
 					}
@@ -728,7 +836,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	PPID   parent_struc_id = 0;
 	ItemEntry brw_hdr;
 	if(ok == -2) {
-		if(pHdr)
+		if(pHdr && ppvCmd != PPVCMD_FOREIGNFOCUCNOTIFICATION) // @v11.1.12 PPVCMD_FOREIGNFOCUCNOTIFICATION
 			brw_hdr = *static_cast<const ItemEntry *>(pHdr);
 		else
 			MEMSZERO(brw_hdr);
@@ -737,28 +845,28 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			case PPVCMD_EDITITEM:
 			case PPVCMD_EDITGOODS:
 			case PPVCMD_EDITITEMGOODS:
-				if(brw_hdr.GStrucID && brw_hdr.StrucEntryP < StrucList.getCount()) {
+				if(brw_hdr.GStrucID && brw_hdr.StrucEntryP < Cb.StrucList.getCount()) {
 					PPGoodsStruc gs;
-					const StrucEntry & r_struc_entry = StrucList.at(brw_hdr.StrucEntryP);
-					if(GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
+					const StrucEntry & r_struc_entry = Cb.StrucList.at(brw_hdr.StrucEntryP);
+					if(Cb.GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
 						int r = 0;
 						if(gs.Rec.ParentID != 0) {
 							parent_struc_id = gs.Rec.ParentID;
-							r = GSObj.Get(parent_struc_id, &gs);
+							r = Cb.GSObj.Get(parent_struc_id, &gs);
 						}
 						else
 							r = 1;
 						gs.GoodsID = r_struc_entry.PrmrGoodsID;
 						if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_EDITITEMGOODS)) {
 							PPID   goods_id = (ppvCmd == PPVCMD_EDITGOODS) ? r_struc_entry.PrmrGoodsID : brw_hdr.GoodsID;
-							ok = (GObj.Edit(&goods_id, 0) == cmOK) ? 1 : -1;
+							ok = (Cb.GObj.Edit(&goods_id, 0) == cmOK) ? 1 : -1;
 						}
-						else if(r > 0 && GSObj.EditDialog(&gs) > 0) {
+						else if(r > 0 && Cb.GSObj.EditDialog(&gs) > 0) {
 							PPID   struc_id = parent_struc_id ? parent_struc_id : brw_hdr.GStrucID;
-							int r = GSObj.Put(&struc_id, &gs, 1);
+							int r = Cb.GSObj.Put(&struc_id, &gs, 1);
 							if(r > 0) {
-								AddItem(r_struc_entry.PrmrGoodsID, struc_id, 1);
-								ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+								Cb.AddItem(r_struc_entry.PrmrGoodsID, struc_id, Filt.ScndGoodsID, 1);
+								Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 								ok = 1;
 							}
 							else if(r == 0)
@@ -768,10 +876,10 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				}
 				break;
 			case PPVCMD_VIEWGOODSOPANLZ:
-				if(brw_hdr.GStrucID && brw_hdr.StrucEntryP < StrucList.getCount()) {
+				if(brw_hdr.GStrucID && brw_hdr.StrucEntryP < Cb.StrucList.getCount()) {
 					PPGoodsStruc gs;
-					const StrucEntry & r_struc_entry = StrucList.at(brw_hdr.StrucEntryP);
-					if(GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
+					const StrucEntry & r_struc_entry = Cb.StrucList.at(brw_hdr.StrucEntryP);
+					if(Cb.GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
 						const PPID  goods_id = r_struc_entry.PrmrGoodsID;
 						GoodsOpAnalyzeFilt filt;
 						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
@@ -804,7 +912,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_TEST: // @v11.1.12 @construction
 				ok = -1;
-				MakeTreeListView();
+				MakeTreeListView(pBrw);
 				break;
 			case PPVCMD_NEXTPROBLEM:
 				if(brw_hdr.GStrucID && Problems.getCount()) {
@@ -844,28 +952,43 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					}
 				}
 				break;
+			case PPVCMD_FOREIGNFOCUCNOTIFICATION: // @v11.1.12
+				{
+					ok = -1;
+					const ForeignFocusEvent * p_ev_data = static_cast<const ForeignFocusEvent *>(pHdr);
+					if(p_ev_data->P_SrcView && p_ev_data->FocusedItemIdent) {
+						if(p_ev_data->FocusedItemIdent & 0xff000000) {
+							pBrw->go((p_ev_data->FocusedItemIdent & ~0xff000000));
+						}
+						else {
+							long gstruc_id = p_ev_data->FocusedItemIdent;
+							pBrw->search2(&gstruc_id, CMPF_LONG, srchFirst, 0);
+						}
+					}
+				}
+				break;
 		}
 	}
 	if(ok > 0) {
 		if(ppvCmd == PPVCMD_EDITITEM) {
 			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
-				p_def->setArray(new SArray(ItemList), 0, 1);
+				p_def->setArray(new SArray(Cb.ItemList), 0, 1);
 				pBrw->search2(&brw_hdr.GStrucID, CMPF_LONG, srchFirst, 0);
 			}
 		}
 		else if(ppvCmd == PPVCMD_USERSORT) {
 			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
-				SArray * p_array = new SArray(ItemList);
+				SArray * p_array = new SArray(Cb.ItemList);
 				p_def->setArray(p_array, 0, 1);
 				if(p_array) {
 					pBrw->setRange(p_array->getCount());
 					uint   temp_pos = 0;
 					long   update_pos = -1;
 					if(pHdr) {
-						for(uint i = 0; i < ItemList.getCount(); i++) {
-							const ItemEntry & r_entry = ItemList.at(i);
+						for(uint i = 0; i < Cb.ItemList.getCount(); i++) {
+							const ItemEntry & r_entry = Cb.ItemList.at(i);
 							if(r_entry.GStrucID == brw_hdr.GStrucID && r_entry.ItemNo == brw_hdr.ItemNo) {
 								update_pos = static_cast<long>(i);
 								break;
@@ -907,19 +1030,15 @@ void PPViewGoodsStruc::ViewTotal()
 	}
 }
 
-int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
+int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12 @construction
 {
-	class GoodsStrucTreeListViewBlock : public StrAssocArray {
+	class GoodsStrucTreeListViewBlock {
 	public:
-		GoodsStrucTreeListViewBlock(const TSVector <StrucEntry> & rStrucList, const TSArray <ItemEntry> & rItemList) :
-			StrucList(rStrucList), ItemList(rItemList), ItemOffset(0x70000000L)
+		GoodsStrucTreeListViewBlock(const PPViewGoodsStruc::CommonProcessingBlock & rCb) : Cb(rCb), ItemOffset(0x70000000L)
 		{
-			Make();
+			//Make();
 		}
-	private:
-		const long ItemOffset;
-		SString TitleBuf;
-		void AddEntry(uint level, uint idx, const ItemEntry & rEntry, long parentID, LongArray & rRecurList)
+		void AddEntry(StrAssocArray * pList, uint level, uint idx, const ItemEntry & rEntry, long parentID, LongArray & rRecurList)
 		{
 			assert(level <= 255);
 			if(rEntry.GStrucID && !rRecurList.lsearch(rEntry.GoodsID)) {
@@ -927,7 +1046,7 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 				TitleBuf.Z();
 				if(rEntry.GoodsID) {
 					Goods2Tbl::Rec goods_rec;
-					if(GObj.Fetch(rEntry.GoodsID, &goods_rec) > 0)
+					if(Cb.GObj.Fetch(rEntry.GoodsID, &goods_rec) > 0)
 						TitleBuf = goods_rec.Name;
 					else
 						ideqvalstr(rEntry.GoodsID, TitleBuf);
@@ -935,18 +1054,18 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 				else
 					TitleBuf = "#ng";
 				const long _ident = (idx | ((level + 1) << 24));
-				StrAssocArray::Add(_ident, parentID/*rEntry.GStrucID*/, TitleBuf);
+				pList->Add(_ident, parentID/*rEntry.GStrucID*/, TitleBuf);
 				rRecurList.add(rEntry.GoodsID);
-				for(uint inner_gl_idx = 0; StrucList.lsearch(&rEntry.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID)); inner_gl_idx++) {
-					const StrucEntry & r_se = StrucList.at(inner_gl_idx);
+				for(uint inner_gl_idx = 0; Cb.StrucList.lsearch(&rEntry.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID)); inner_gl_idx++) {
+					const StrucEntry & r_se = Cb.StrucList.at(inner_gl_idx);
 					assert(r_se.PrmrGoodsID == rEntry.GoodsID);
 					if(r_se.Flags & (GSF_COMPL|GSF_DECOMPL)) {
 						seen_entry_list.Z();
-						for(uint i = 0; i < ItemList.getCount(); i++) {
-							const ItemEntry & r_ie = ItemList.at(i);
+						for(uint i = 0; i < Cb.ItemList.getCount(); i++) {
+							const ItemEntry & r_ie = Cb.ItemList.at(i);
 							if(r_ie.GStrucID == r_se.GStrucID) {
 								if(!seen_entry_list.lsearch(r_ie.GoodsID)) {
-									AddEntry(level+1, i, r_ie, _ident, rRecurList); // @recursion
+									AddEntry(pList, level+1, i, r_ie, _ident, rRecurList); // @recursion
 									seen_entry_list.add(r_ie.GoodsID);
 								}
 							}
@@ -956,66 +1075,69 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 				}
 			}
 		}
-		void Make()
+		StrAssocArray * Make()
 		{
-			LongArray absence_struc_item_list;
-			SString temp_buf;
-			Goods2Tbl::Rec goods_rec;
-			PPGoodsStrucHeader gs_rec;
-			StrAssocArray::Z();
-			LongArray gstruc_id_list;
-			for(uint sidx = 0; sidx < StrucList.getCount(); sidx++) {
-				const StrucEntry & r_se = StrucList.at(sidx);
-				TitleBuf.Z();
-				if(r_se.PrmrGoodsID)
-					if(GObj.Fetch(r_se.PrmrGoodsID, &goods_rec) > 0)
-						TitleBuf = goods_rec.Name;
-					else
-						ideqvalstr(r_se.PrmrGoodsID, TitleBuf);
-				else
-					TitleBuf = "#npg";
-				temp_buf.Z();
-				if(r_se.GStrucID) {
-					if(GsObj.Fetch(r_se.GStrucID, &gs_rec) > 0) {
-						if(gs_rec.Name[0])
-							temp_buf = gs_rec.Name;
+			StrAssocArray * p_list = new StrAssocArray;
+			if(p_list) {
+				LongArray absence_struc_item_list;
+				SString temp_buf;
+				Goods2Tbl::Rec goods_rec;
+				PPGoodsStrucHeader gs_rec;
+				LongArray gstruc_id_list;
+				for(uint sidx = 0; sidx < Cb.StrucList.getCount(); sidx++) {
+					const StrucEntry & r_se = Cb.StrucList.at(sidx);
+					TitleBuf.Z();
+					if(r_se.PrmrGoodsID)
+						if(Cb.GObj.Fetch(r_se.PrmrGoodsID, &goods_rec) > 0)
+							TitleBuf = goods_rec.Name;
 						else
-							(temp_buf = "gs").CatLongZ(r_se.GStrucID, 6);
-					}
+							ideqvalstr(r_se.PrmrGoodsID, TitleBuf);
 					else
-						(temp_buf = "#gs").CatLongZ(r_se.GStrucID, 6);
+						TitleBuf = "#npg";
+					temp_buf.Z();
+					if(r_se.GStrucID) {
+						if(Cb.GSObj.Fetch(r_se.GStrucID, &gs_rec) > 0) {
+							if(gs_rec.Name[0])
+								temp_buf = gs_rec.Name;
+							else
+								(temp_buf = "gs").CatLongZ(r_se.GStrucID, 6);
+						}
+						else
+							(temp_buf = "#gs").CatLongZ(r_se.GStrucID, 6);
+					}
+					TitleBuf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+					p_list->Add(r_se.GStrucID, r_se.ParentStrucID, TitleBuf);
+					gstruc_id_list.add(r_se.GStrucID);
 				}
-				TitleBuf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
-				StrAssocArray::Add(r_se.GStrucID, r_se.ParentStrucID, TitleBuf);
-				gstruc_id_list.add(r_se.GStrucID);
-			}
-			{
-				gstruc_id_list.sortAndUndup();
-				LongArray seen_list;
-				LongArray recur_list;
-				for(uint gsidx = 0; gsidx < gstruc_id_list.getCount(); gsidx++) {
-					const PPID gs_id = gstruc_id_list.get(gsidx);
-					seen_list.Z();
-					recur_list.Z();
-					for(uint iidx = 0; iidx < ItemList.getCount(); iidx++) {
-						const ItemEntry & r_ie = ItemList.at(iidx);
-						if(r_ie.GStrucID == gs_id && !seen_list.lsearch(r_ie.GoodsID)) {
-							AddEntry(0, iidx, r_ie, r_ie.GStrucID, recur_list);
-							seen_list.add(r_ie.GoodsID);
+				{
+					gstruc_id_list.sortAndUndup();
+					LongArray seen_list;
+					LongArray recur_list;
+					for(uint gsidx = 0; gsidx < gstruc_id_list.getCount(); gsidx++) {
+						const PPID gs_id = gstruc_id_list.get(gsidx);
+						seen_list.Z();
+						recur_list.Z();
+						for(uint iidx = 0; iidx < Cb.ItemList.getCount(); iidx++) {
+							const ItemEntry & r_ie = Cb.ItemList.at(iidx);
+							if(r_ie.GStrucID == gs_id && !seen_list.lsearch(r_ie.GoodsID)) {
+								AddEntry(p_list, 0, iidx, r_ie, r_ie.GStrucID, recur_list);
+								seen_list.add(r_ie.GoodsID);
+							}
 						}
 					}
 				}
+				p_list->SortByText();
 			}
-			StrAssocArray::SortByText();
+			return p_list;
 		}
-		TSVector <StrucEntry> StrucList;
-		TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
-		PPObjGoods GObj;
-		PPObjGoodsStruc GsObj;
+		const long ItemOffset;
+		SString TitleBuf;
+		PPViewGoodsStruc::CommonProcessingBlock Cb;
 	};
 	class GStrucListWindow : public ListWindow {
 	public:
-		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk) : P_Blk(pBlk), ListWindow(new StdTreeListBoxDef(pBlk, lbtDblClkNotify, 0), "", 0)
+		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), 
+			ListWindow(new StdTreeListBoxDef(pBlk ? pBlk->Make() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), "", 0), FfeRing(64)
 		{
 		}
 		~GStrucListWindow()
@@ -1023,19 +1145,99 @@ int PPViewGoodsStruc::MakeTreeListView() // @v11.1.12 @construction
 			delete P_Blk;
 		}
 	private:
+		DECL_HANDLE_EVENT
+		{
+			if(event.isCmd(cmLBDblClk))
+				TVCMD = cmaEdit;
+			else if(TVKEYDOWN && TVKEY == kbEnter) {
+				event.what = TEvent::evCommand;
+				TVCMD = cmaEdit;
+			}
+			ListWindow::handleEvent(event);
+			if(event.isCmd(cmLBItemFocused)) {
+				if(H_MainBrwWindow) {
+					long   ident = 0;
+					if(getResult(&ident)) {
+						ForeignFocusEvent ev_data;
+						ev_data.P_SrcView = this;
+						ev_data.FocusedItemIdent = ident;
+						ForeignFocusEvent & r_p = FfeRing.push(ev_data);
+						::PostMessage(static_cast<HWND>(H_MainBrwWindow), WM_USER_NOTIFYOTHERWNDEVNT, cmNotifyForeignFocus, reinterpret_cast<LPARAM>(&r_p));
+					}
+				}
+			}
+			else if(event.isCmd(cmaEdit)) {
+				long   ident = 0;
+				if(getResult(&ident)) {
+					if(ident & 0xff000000) {
+						const uint pos = static_cast<uint>(ident & ~0xff000000);
+						if(pos < P_Blk->Cb.ItemList.getCount()) {
+							const ItemEntry & r_entry = P_Blk->Cb.ItemList.at(pos);
+							uint  struc_entry_pos = 0;
+							PPID  temp_id = r_entry.GStrucID;
+							PPID  parent_struc_id = 0;
+							if(P_Blk->Cb.StrucList.lsearch(&temp_id, &struc_entry_pos, CMPF_LONG)) {
+								PPGoodsStruc gs;
+								const StrucEntry & r_struc_entry = P_Blk->Cb.StrucList.at(struc_entry_pos);
+								if(GsObj.Get(r_entry.GStrucID, &gs) > 0) {
+									int r = 0;
+									if(gs.Rec.ParentID != 0) {
+										parent_struc_id = gs.Rec.ParentID;
+										r = GsObj.Get(parent_struc_id, &gs);
+									}
+									else
+										r = 1;
+									gs.GoodsID = r_struc_entry.PrmrGoodsID;
+									if(r > 0 && GsObj.EditDialog(&gs) > 0) {
+									//if(GsObj.Edit(&temp_id, 0) > 0) {
+										PPID   struc_id = parent_struc_id ? parent_struc_id : r_entry.GStrucID;
+										r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);
+										if(r > 0) {
+											P_Blk->Cb.AddItem(r_struc_entry.PrmrGoodsID, struc_id, /*Filt.ScndGoodsID*/0, 1);
+											P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+											//ok = 1;
+										}
+										else if(r == 0) {
+											//ok = PPErrorZ();
+										}
+									}
+								}
+							}
+						}
+					}
+					else {
+						PPID temp_id = ident;
+						if(GsObj.Edit(&temp_id, 0) > 0) {
+							;
+						}
+					}
+				}
+			}
+		}
+		TSRingStack <ForeignFocusEvent> FfeRing;
 		GoodsStrucTreeListViewBlock * P_Blk;
+		void * H_MainBrwWindow;
+		PPObjGoodsStruc GsObj;
 	};
 	int    ok = 1;
 	{
-		GoodsStrucTreeListViewBlock * p_blk = new GoodsStrucTreeListViewBlock(StrucList, ItemList);
-		GStrucListWindow * p_lw = new GStrucListWindow(p_blk);
-		if(p_lw && APPL->AddListToTree(9459, "", p_lw) > 0) {
-			ok = 1;
+		GoodsStrucTreeListViewBlock * p_blk = new GoodsStrucTreeListViewBlock(Cb);
+		GStrucListWindow * p_lw = new GStrucListWindow(p_blk, pBrw ? pBrw->H() : 0);
+		if(p_lw) {
+			SString temp_buf;
+			p_lw->SetToolbar(TOOLBAR_LIST_GOODSSTRUC);
+			PPLoadString("view_goodsstruc", temp_buf);
+			if(APPL->AddListToTree(9459, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), p_lw) > 0) {
+				H_AsideListWindow = p_lw->H();
+				ok = 1;
+			}
+			else {
+				ok = 0;
+				ZDELETE(p_lw);
+			}
 		}
-		else {
+		else
 			ok = 0;
-			ZDELETE(p_lw);
-		}
 	}
 	return ok;
 }

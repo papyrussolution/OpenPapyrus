@@ -1064,7 +1064,7 @@ int SOraDbProvider::GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal)
 		// здесь мы создадим локальный Generator_SQL (не будем пользоваться SqlGen).
 	// SELECT secXXX.nextval FROM DUAL;
 	sg.GetSequenceNameOnField(rTbl, fldN, seq_name);
-	seq_name.Dot().Cat("nextval");
+	seq_name.DotCat("nextval");
 	sg.Reset().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Sp().From("DUAL");
 	SSqlStmt stmt(this, static_cast<const SString &>(sg));
 	THROW(stmt.Exec(0, OCI_DEFAULT));
@@ -1984,7 +1984,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
 	//
 	let_buf.NumberToLat(subst_no++);
-	temp_buf.Z().CatChar(':').Cat(let_buf);
+	temp_buf.Z().Colon().Cat(let_buf);
 	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
 	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
 		map_ret_key = 1;
@@ -1994,7 +1994,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 			const BNField & r_fld = pTbl->indexes.field(idx, i);
 			SqlGen.Com().Text(r_fld.Name);
 			let_buf.NumberToLat(subst_no++);
-			temp_buf.CatDiv(',', 0).CatChar(':').Cat(let_buf);
+			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
 			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
 		}
 	}

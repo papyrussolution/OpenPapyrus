@@ -368,7 +368,7 @@ void LogMessage(const char * pMsg)
 		SString str;
 		const LDATETIME curdtm = getcurdatetime_();
 		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
-			CatChar(':').Cat(curdtm.t.minut()).CatChar(':').Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+			Colon().Cat(curdtm.t.minut()).Colon().Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
 		file.WriteLine(str);
 	}
 }
@@ -380,7 +380,7 @@ void SysLogMessage(const char * pMsg)
 		SString str;
 		const LDATETIME curdtm = getcurdatetime_();
 		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
-			CatChar(':').Cat(curdtm.t.minut()).CatChar(':').Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+			Colon().Cat(curdtm.t.minut()).Colon().Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
 		file.WriteLine(str);
 	}
 }
@@ -582,7 +582,7 @@ ExportCls::~ExportCls()
 
 void ExportCls::CreateFileName(uint num)
 {
-	ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ExpFileName.Z().Cat(PathStruct.Drv).Colon().Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 //
 // –абота с форматами документов и сообщений
@@ -1413,7 +1413,7 @@ ImportCls::~ImportCls()
 
 void ImportCls::CreateFileName(uint num)
 {
-	ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ImpFileName.Z().Cat(PathStruct.Drv).Colon().Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)

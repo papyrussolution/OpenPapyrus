@@ -3503,7 +3503,8 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 						if(!p_pack) {
 							THROW_MEM(p_pack = new PPBillPacket);
 							THROW(p_pack->CreateBlank2(op_id, pDfctList->Dt, loc_id, 0));
-							PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+							// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+							PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo); // @v11.1.12
 							p_pack->SetPoolMembership(PPBillPacket::bpkTSessDfct, sessID);
 							THROW_SL(pack_list.insert(p_pack));
 						}
@@ -3994,10 +3995,14 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 				}
 				if(p_bobj->SubstMemo(&bill_pack) < 0) {
 					tses_pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
-					if(temp_buf.NotEmptyS())
-						STRNSCPY(bill_pack.Rec.Memo, temp_buf);
-					else if(p_link_bill_pack)
-						STRNSCPY(bill_pack.Rec.Memo, p_link_bill_pack->Rec.Memo);
+					if(temp_buf.NotEmptyS()) {
+						// @v11.1.12 STRNSCPY(bill_pack.Rec.Memo, temp_buf);
+						bill_pack.SMemo = temp_buf; // @v11.1.12 
+					}
+					else if(p_link_bill_pack) {
+						// @v11.1.12 STRNSCPY(bill_pack.Rec.Memo, p_link_bill_pack->Rec.Memo);
+						bill_pack.SMemo = p_link_bill_pack->SMemo; // @v11.1.12
+					}
 				}
 				{
 					int    turn_result = 0;

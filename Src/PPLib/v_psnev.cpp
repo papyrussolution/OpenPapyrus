@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -54,6 +54,7 @@ PersonEventViewItem::PersonEventViewItem() : GrpCount(0)
 PersonEventViewItem & PersonEventViewItem::Z()
 {
 	memzero(this, sizeof(PersonEventTbl::Rec));
+	SMemo.Z(); // @v11.1.12
 	GrpText1.Z();
 	GrpText2.Z();
 	AvgEvTime.Z();
@@ -323,7 +324,8 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 				pItem->GrpCount = r_rec.Count;
 				pItem->GrpText1 = r_rec.Name;
 				pItem->GrpText2 = r_rec.DtSubst;
-				(buf = r_rec.Name).CR().Cat(r_rec.DtSubst).CopyTo(pItem->Memo, sizeof(pItem->Memo));
+				// @v11.1.12 (buf = r_rec.Name).CR().Cat(r_rec.DtSubst).CopyTo(pItem->Memo, sizeof(pItem->Memo));
+				(pItem->SMemo = r_rec.Name).CR().Cat(r_rec.DtSubst); // @v11.1.12
 				{
 					LDATETIME dtm = ZERODATETIME;
 					const long days = dtm.settotalsec(r_rec.AvgEvTime);
@@ -384,6 +386,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_avg_tm;
 	DBE    dbe_extreg; // @v10.8.12
 	DBE    dbe_exttag; // @v10.8.12
+	DBE    dbe_memo;   // @v11.1.12
 	if(P_TempGrpTbl) {
 		brw_id = BROWSER_PSNEVSUBST;
 		THROW(CheckTblPtr(P_TempGrpTbl));
@@ -412,6 +415,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_prmr, PPDbqFuncPool::IdObjNamePerson, pe->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_scnd, PPDbqFuncPool::IdObjNamePerson, pe->SecondID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNamePsnOpKind, pe->OpID);
+		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoPersonEvent, pe->ID); // @v11.1.12
 		q = & select(
 			pe->ID,       // #0
 			pe->Flags,    // #1 
@@ -420,7 +424,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbe_psn_prmr, // #4
 			dbe_op,       // #5
 			dbe_psn_scnd, // #6
-			pe->Memo,     // #7
+			dbe_memo,     // #7 // @v11.1.12 pe->Memo-->dbe_memo
 			0L).from(pe, 0L);
 		{
 			dbe_extreg.init();
@@ -779,10 +783,17 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 			CPY_FLD(Extra);
 			CPY_FLD(Flags);
 			CPY_FLD(EstDuration);
-			CPY_FLD(PrmrSCardID); // @v9.5.7
-			CPY_FLD(ScndSCardID); // @v9.5.7
+			CPY_FLD(PrmrSCardID);
+			CPY_FLD(ScndSCardID);
 			#undef CPY_FLD
-			STRNSCPY(H.Memo, rec.Memo);
+			{
+				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
+				// @v11.1.12 {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				p_obj->P_Tbl->GetItemMemo(H.ID, r_temp_buf);
+				STRNSCPY(H.Memo, r_temp_buf);
+				// } @v11.1.12 
+			}
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

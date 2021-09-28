@@ -378,7 +378,7 @@ SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
 				rBuf.CatChar('-');
 			rBuf.CatLongZ(tz / 60, 2);
 			if(flags & tzfmtColon)
-				rBuf.CatChar(':');
+				rBuf.Colon();
 			rBuf.CatLongZ(tz % 60, 2);
 		}
 	}

@@ -1,0 +1,2544 @@
+// NPP.RC
+//
+// This file is part of Notepad++ project
+// Copyright (C)2021 Don HO <don.h@free.fr>
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// at your option any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#include <windows.h>
+#include "npp-resource.h"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    VERSION_DIGITALVALUE
+PRODUCTVERSION    VERSION_DIGITALVALUE
+FILEFLAGSMASK    0x3fL
+FILEFLAGS 0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK    "VarFileInfo"
+    BEGIN
+        VALUE    "Translation",    0x409,    1200
+    END
+    BLOCK    "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE    "CompanyName",        "Don HO don.h@free.fr\0"
+            VALUE    "FileDescription",    "Notepad++ : a free (GPL) source code editor\0"
+            VALUE    "FileVersion",        VERSION_VALUE
+            VALUE    "InternalName",       "notepad++.exe\0"
+            VALUE    "LegalCopyright",     "Copyleft 1998-2021 by Don HO\0"
+            VALUE    "OriginalFilename",   "notepad++.exe\0"
+            VALUE    "ProductName",        "Notepad++\0"
+            VALUE    "ProductVersion",     VERSION_VALUE
+        END
+    END
+END
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_M30ICON                     ICON      "icons/npp.ico"
+IDI_CHAMELEON                   ICON      "icons/chameleon.ico"
+IDI_CHAMELEON_DM                ICON      "icons/darkMode/about/chameleon.ico"
+//IDI_JESUISCHARLIE             ICON      "icons/Je_suis_Charlie.ico"
+//IDI_GILETJAUNE                ICON      "icons/giletJaune.ico"
+//IDI_SAMESEXMARRIAGE           ICON      "icons/same-sexMarriageTaiwan.ico"
+IDI_ICONABSENT                  ICON      "icons/iconAbsent.ico"
+
+//
+// TOOLBAR ICO - set 1
+//
+IDI_NEW_ICON                    ICON      "icons/new_off.ico"
+IDI_OPEN_ICON                   ICON      "icons/open_off.ico"
+IDI_CLOSE_ICON                  ICON      "icons/supp_off.ico"
+IDI_CLOSEALL_ICON               ICON      "icons/suppall_off.ico"
+IDI_SAVE_ICON                   ICON      "icons/save_off.ico"
+IDI_SAVEALL_ICON                ICON      "icons/saveall_off.ico"
+IDI_CUT_ICON                    ICON      "icons/cut_off.ico"
+IDI_COPY_ICON                   ICON      "icons/dupli_off.ico"
+IDI_PASTE_ICON                  ICON      "icons/paste_off.ico"
+IDI_UNDO_ICON                   ICON      "icons/undo_off.ico"
+IDI_REDO_ICON                   ICON      "icons/redo_off.ico"
+IDI_FIND_ICON                   ICON      "icons/find_off.ico"
+IDI_REPLACE_ICON                ICON      "icons/findrep_off.ico"
+IDI_ZOOMIN_ICON                 ICON      "icons/zoomIn_off.ico"
+IDI_ZOOMOUT_ICON                ICON      "icons/zoomOut_off.ico"
+IDI_VIEW_UD_DLG_ICON            ICON      "icons/userDefineDlg_off.ico"
+IDI_PRINT_ICON                  ICON      "icons/imprim_off.ico"
+IDI_STARTRECORD_ICON            ICON      "icons/startrecord_off.ico"
+IDI_STARTRECORD_DISABLE_ICON    ICON      "icons/startrecord_dis.ico"
+IDI_STOPRECORD_ICON             ICON      "icons/stoprecord_off.ico"
+IDI_STOPRECORD_DISABLE_ICON     ICON      "icons/stoprecord_dis.ico"
+IDI_PLAYRECORD_ICON             ICON      "icons/playrecord_off.ico"
+IDI_PLAYRECORD_DISABLE_ICON     ICON      "icons/playrecord_dis.ico"
+IDI_SAVERECORD_ICON             ICON      "icons/saverecord_off.ico"
+IDI_SAVERECORD_DISABLE_ICON     ICON      "icons/saverecord_dis.ico"
+IDI_MMPLAY_DIS_ICON             ICON      "icons/playrecord_m_dis.ico"
+IDI_MMPLAY_ICON                 ICON      "icons/playrecord_m_off.ico"
+IDI_VIEW_ALL_CHAR_ICON          ICON      "icons/allChars_off.ico"
+IDI_VIEW_INDENT_ICON            ICON      "icons/indentGuide_off.ico"
+IDI_VIEW_WRAP_ICON              ICON      "icons/wrap_off.ico"
+IDI_SAVE_DISABLE_ICON           ICON      "icons/save_dis.ico"
+IDI_SAVEALL_DISABLE_ICON        ICON      "icons/saveall_dis.ico"
+IDI_CUT_DISABLE_ICON            ICON      "icons/cut_dis.ico"
+IDI_COPY_DISABLE_ICON           ICON      "icons/dupli_dis.ico"
+IDI_PASTE_DISABLE_ICON          ICON      "icons/paste_dis.ico"
+IDI_UNDO_DISABLE_ICON           ICON      "icons/undo_dis.ico"
+IDI_REDO_DISABLE_ICON           ICON      "icons/redo_dis.ico"
+IDI_SYNCV_ICON                  ICON      "icons/syncV_off.ico"
+IDI_SYNCV_DISABLE_ICON          ICON      "icons/syncV_dis.ico"
+IDI_SYNCH_ICON                  ICON      "icons/syncH_off.ico"
+IDI_SYNCH_DISABLE_ICON          ICON      "icons/syncH_dis.ico"
+IDI_VIEW_DOC_MAP_ICON           ICON      "icons/docMap_off.ico" 
+IDI_VIEW_DOCLIST_ICON           ICON      "icons/docList_off.ico" 
+IDI_VIEW_FUNCLIST_ICON          ICON      "icons/funcList_off.ico" 
+IDI_VIEW_FILEBROWSER_ICON       ICON      "icons/fileBrowser_off.ico" 
+IDI_VIEW_MONITORING_ICON        ICON      "icons/monitoring_off.ico"
+
+//
+// TOOLBAR ICO - set 2
+//
+IDI_NEW_ICON2                   ICON      "icons/filledFluentUI/new_off.ico"
+IDI_OPEN_ICON2                  ICON      "icons/filledFluentUI/open_off.ico"
+IDI_CLOSE_ICON2                 ICON      "icons/filledFluentUI/supp_off.ico"
+IDI_CLOSEALL_ICON2              ICON      "icons/filledFluentUI/suppall_off.ico"
+IDI_SAVE_ICON2                  ICON      "icons/filledFluentUI/save_off.ico"
+IDI_SAVEALL_ICON2               ICON      "icons/filledFluentUI/saveall_off.ico"
+IDI_CUT_ICON2                   ICON      "icons/filledFluentUI/cut_off.ico"
+IDI_COPY_ICON2                  ICON      "icons/filledFluentUI/dupli_off.ico"
+IDI_PASTE_ICON2                 ICON      "icons/filledFluentUI/paste_off.ico"
+IDI_UNDO_ICON2                  ICON      "icons/filledFluentUI/undo_off.ico"
+IDI_REDO_ICON2                  ICON      "icons/filledFluentUI/redo_off.ico"
+IDI_FIND_ICON2                  ICON      "icons/filledFluentUI/find_off.ico"
+IDI_REPLACE_ICON2               ICON      "icons/filledFluentUI/findrep_off.ico"
+IDI_ZOOMIN_ICON2                ICON      "icons/filledFluentUI/zoomIn_off.ico"
+IDI_ZOOMOUT_ICON2               ICON      "icons/filledFluentUI/zoomOut_off.ico"
+IDI_VIEW_UD_DLG_ICON2           ICON      "icons/filledFluentUI/userDefineDlg_off.ico"
+IDI_PRINT_ICON2                 ICON      "icons/filledFluentUI/imprim_off.ico"
+IDI_STARTRECORD_ICON2           ICON      "icons/filledFluentUI/startrecord_off.ico"
+IDI_STARTRECORD_DISABLE_ICON2   ICON      "icons/filledFluentUI/startrecord_dis.ico"
+IDI_STOPRECORD_ICON2            ICON      "icons/filledFluentUI/stoprecord_off.ico"
+IDI_STOPRECORD_DISABLE_ICON2    ICON      "icons/filledFluentUI/stoprecord_dis.ico"
+IDI_PLAYRECORD_ICON2            ICON      "icons/filledFluentUI/playrecord_off.ico"
+IDI_PLAYRECORD_DISABLE_ICON2    ICON      "icons/filledFluentUI/playrecord_dis.ico"
+IDI_SAVERECORD_ICON2            ICON      "icons/filledFluentUI/saverecord_off.ico"
+IDI_SAVERECORD_DISABLE_ICON2    ICON      "icons/filledFluentUI/saverecord_dis.ico"
+IDI_MMPLAY_DIS_ICON2            ICON      "icons/filledFluentUI/playrecord_m_dis.ico"
+IDI_MMPLAY_ICON2                ICON      "icons/filledFluentUI/playrecord_m_off.ico"
+IDI_VIEW_ALL_CHAR_ICON2         ICON      "icons/filledFluentUI/allChars_off.ico"
+IDI_VIEW_INDENT_ICON2           ICON      "icons/filledFluentUI/indentGuide_off.ico"
+IDI_VIEW_WRAP_ICON2             ICON      "icons/filledFluentUI/wrap_off.ico"
+IDI_SAVE_DISABLE_ICON2          ICON      "icons/filledFluentUI/save_dis.ico"
+IDI_SAVEALL_DISABLE_ICON2       ICON      "icons/filledFluentUI/saveall_dis.ico"
+IDI_CUT_DISABLE_ICON2           ICON      "icons/filledFluentUI/cut_dis.ico"
+IDI_COPY_DISABLE_ICON2          ICON      "icons/filledFluentUI/dupli_dis.ico"
+IDI_PASTE_DISABLE_ICON2         ICON      "icons/filledFluentUI/paste_dis.ico"
+IDI_UNDO_DISABLE_ICON2          ICON      "icons/filledFluentUI/undo_dis.ico"
+IDI_REDO_DISABLE_ICON2          ICON      "icons/filledFluentUI/redo_dis.ico"
+IDI_SYNCV_ICON2                 ICON      "icons/filledFluentUI/syncV_off.ico"
+IDI_SYNCV_DISABLE_ICON2         ICON      "icons/filledFluentUI/syncV_dis.ico"
+IDI_SYNCH_ICON2                 ICON      "icons/filledFluentUI/syncH_off.ico"
+IDI_SYNCH_DISABLE_ICON2         ICON      "icons/filledFluentUI/syncH_dis.ico"
+IDI_VIEW_DOC_MAP_ICON2          ICON      "icons/filledFluentUI/docMap_off.ico" 
+IDI_VIEW_DOCLIST_ICON2          ICON      "icons/filledFluentUI/docList_off.ico" 
+IDI_VIEW_FUNCLIST_ICON2         ICON      "icons/filledFluentUI/funcList_off.ico" 
+IDI_VIEW_FILEBROWSER_ICON2      ICON      "icons/filledFluentUI/fileBrowser_off.ico" 
+IDI_VIEW_MONITORING_ICON2       ICON      "icons/filledFluentUI/monitoring_off.ico"
+
+//
+// TOOLBAR ICO - set 1 Dark Mode
+//
+IDI_NEW_ICON_DM                    ICON      "icons/darkMode/toolbar/FluentUI/new_off.ico"
+IDI_OPEN_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/open_off.ico"
+IDI_CLOSE_ICON_DM                  ICON      "icons/darkMode/toolbar/FluentUI/supp_off.ico"
+IDI_CLOSEALL_ICON_DM               ICON      "icons/darkMode/toolbar/FluentUI/suppall_off.ico"
+IDI_SAVE_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/save_off.ico"
+IDI_SAVEALL_ICON_DM                ICON      "icons/darkMode/toolbar/FluentUI/saveall_off.ico"
+IDI_CUT_ICON_DM                    ICON      "icons/darkMode/toolbar/FluentUI/cut_off.ico"
+IDI_COPY_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/dupli_off.ico"
+IDI_PASTE_ICON_DM                  ICON      "icons/darkMode/toolbar/FluentUI/paste_off.ico"
+IDI_UNDO_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/undo_off.ico"
+IDI_REDO_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/redo_off.ico"
+IDI_FIND_ICON_DM                   ICON      "icons/darkMode/toolbar/FluentUI/find_off.ico"
+IDI_REPLACE_ICON_DM                ICON      "icons/darkMode/toolbar/FluentUI/findrep_off.ico"
+IDI_ZOOMIN_ICON_DM                 ICON      "icons/darkMode/toolbar/FluentUI/zoomIn_off.ico"
+IDI_ZOOMOUT_ICON_DM                ICON      "icons/darkMode/toolbar/FluentUI/zoomOut_off.ico"
+IDI_VIEW_UD_DLG_ICON_DM            ICON      "icons/darkMode/toolbar/FluentUI/userDefineDlg_off.ico"
+IDI_PRINT_ICON_DM                  ICON      "icons/darkMode/toolbar/FluentUI/imprim_off.ico"
+IDI_STARTRECORD_ICON_DM            ICON      "icons/darkMode/toolbar/FluentUI/startrecord_off.ico"
+IDI_STARTRECORD_DISABLE_ICON_DM    ICON      "icons/darkMode/toolbar/FluentUI/startrecord_dis.ico"
+IDI_STOPRECORD_ICON_DM             ICON      "icons/darkMode/toolbar/FluentUI/stoprecord_off.ico"
+IDI_STOPRECORD_DISABLE_ICON_DM     ICON      "icons/darkMode/toolbar/FluentUI/stoprecord_dis.ico"
+IDI_PLAYRECORD_ICON_DM             ICON      "icons/darkMode/toolbar/FluentUI/playrecord_off.ico"
+IDI_PLAYRECORD_DISABLE_ICON_DM     ICON      "icons/darkMode/toolbar/FluentUI/playrecord_dis.ico"
+IDI_SAVERECORD_ICON_DM             ICON      "icons/darkMode/toolbar/FluentUI/saverecord_off.ico"
+IDI_SAVERECORD_DISABLE_ICON_DM     ICON      "icons/darkMode/toolbar/FluentUI/saverecord_dis.ico"
+IDI_MMPLAY_DIS_ICON_DM             ICON      "icons/darkMode/toolbar/FluentUI/playrecord_m_dis.ico"
+IDI_MMPLAY_ICON_DM                 ICON      "icons/darkMode/toolbar/FluentUI/playrecord_m_off.ico"
+IDI_VIEW_ALL_CHAR_ICON_DM          ICON      "icons/darkMode/toolbar/FluentUI/allChars_off.ico"
+IDI_VIEW_INDENT_ICON_DM            ICON      "icons/darkMode/toolbar/FluentUI/indentGuide_off.ico"
+IDI_VIEW_WRAP_ICON_DM              ICON      "icons/darkMode/toolbar/FluentUI/wrap_off.ico"
+IDI_SAVE_DISABLE_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/save_dis.ico"
+IDI_SAVEALL_DISABLE_ICON_DM        ICON      "icons/darkMode/toolbar/FluentUI/saveall_dis.ico"
+IDI_CUT_DISABLE_ICON_DM            ICON      "icons/darkMode/toolbar/FluentUI/cut_dis.ico"
+IDI_COPY_DISABLE_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/dupli_dis.ico"
+IDI_PASTE_DISABLE_ICON_DM          ICON      "icons/darkMode/toolbar/FluentUI/paste_dis.ico"
+IDI_UNDO_DISABLE_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/undo_dis.ico"
+IDI_REDO_DISABLE_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/redo_dis.ico"
+IDI_SYNCV_ICON_DM                  ICON      "icons/darkMode/toolbar/FluentUI/syncV_off.ico"
+IDI_SYNCV_DISABLE_ICON_DM          ICON      "icons/darkMode/toolbar/FluentUI/syncV_dis.ico"
+IDI_SYNCH_ICON_DM                  ICON      "icons/darkMode/toolbar/FluentUI/syncH_off.ico"
+IDI_SYNCH_DISABLE_ICON_DM          ICON      "icons/darkMode/toolbar/FluentUI/syncH_dis.ico"
+IDI_VIEW_DOC_MAP_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/docMap_off.ico" 
+IDI_VIEW_DOCLIST_ICON_DM           ICON      "icons/darkMode/toolbar/FluentUI/docList_off.ico" 
+IDI_VIEW_FUNCLIST_ICON_DM          ICON      "icons/darkMode/toolbar/FluentUI/funcList_off.ico" 
+IDI_VIEW_FILEBROWSER_ICON_DM       ICON      "icons/darkMode/toolbar/FluentUI/fileBrowser_off.ico" 
+IDI_VIEW_MONITORING_ICON_DM        ICON      "icons/darkMode/toolbar/FluentUI/monitoring_off.ico"
+
+//
+// TOOLBAR ICO - set 2 Dark Mode
+//
+IDI_NEW_ICON_DM2                   ICON      "icons/darkMode/toolbar/filledFluentUI/new_off.ico"
+IDI_OPEN_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/open_off.ico"
+IDI_CLOSE_ICON_DM2                 ICON      "icons/darkMode/toolbar/filledFluentUI/supp_off.ico"
+IDI_CLOSEALL_ICON_DM2              ICON      "icons/darkMode/toolbar/filledFluentUI/suppall_off.ico"
+IDI_SAVE_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/save_off.ico"
+IDI_SAVEALL_ICON_DM2               ICON      "icons/darkMode/toolbar/filledFluentUI/saveall_off.ico"
+IDI_CUT_ICON_DM2                   ICON      "icons/darkMode/toolbar/filledFluentUI/cut_off.ico"
+IDI_COPY_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/dupli_off.ico"
+IDI_PASTE_ICON_DM2                 ICON      "icons/darkMode/toolbar/filledFluentUI/paste_off.ico"
+IDI_UNDO_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/undo_off.ico"
+IDI_REDO_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/redo_off.ico"
+IDI_FIND_ICON_DM2                  ICON      "icons/darkMode/toolbar/filledFluentUI/find_off.ico"
+IDI_REPLACE_ICON_DM2               ICON      "icons/darkMode/toolbar/filledFluentUI/findrep_off.ico"
+IDI_ZOOMIN_ICON_DM2                ICON      "icons/darkMode/toolbar/filledFluentUI/zoomIn_off.ico"
+IDI_ZOOMOUT_ICON_DM2               ICON      "icons/darkMode/toolbar/filledFluentUI/zoomOut_off.ico"
+IDI_VIEW_UD_DLG_ICON_DM2           ICON      "icons/darkMode/toolbar/filledFluentUI/userDefineDlg_off.ico"
+IDI_PRINT_ICON_DM2                 ICON      "icons/darkMode/toolbar/filledFluentUI/imprim_off.ico"
+IDI_STARTRECORD_ICON_DM2           ICON      "icons/darkMode/toolbar/filledFluentUI/startrecord_off.ico"
+IDI_STARTRECORD_DISABLE_ICON_DM2   ICON      "icons/darkMode/toolbar/filledFluentUI/startrecord_dis.ico"
+IDI_STOPRECORD_ICON_DM2            ICON      "icons/darkMode/toolbar/filledFluentUI/stoprecord_off.ico"
+IDI_STOPRECORD_DISABLE_ICON_DM2    ICON      "icons/darkMode/toolbar/filledFluentUI/stoprecord_dis.ico"
+IDI_PLAYRECORD_ICON_DM2            ICON      "icons/darkMode/toolbar/filledFluentUI/playrecord_off.ico"
+IDI_PLAYRECORD_DISABLE_ICON_DM2    ICON      "icons/darkMode/toolbar/filledFluentUI/playrecord_dis.ico"
+IDI_SAVERECORD_ICON_DM2            ICON      "icons/darkMode/toolbar/filledFluentUI/saverecord_off.ico"
+IDI_SAVERECORD_DISABLE_ICON_DM2    ICON      "icons/darkMode/toolbar/filledFluentUI/saverecord_dis.ico"
+IDI_MMPLAY_DIS_ICON_DM2            ICON      "icons/darkMode/toolbar/filledFluentUI/playrecord_m_dis.ico"
+IDI_MMPLAY_ICON_DM2                ICON      "icons/darkMode/toolbar/filledFluentUI/playrecord_m_off.ico"
+IDI_VIEW_ALL_CHAR_ICON_DM2         ICON      "icons/darkMode/toolbar/filledFluentUI/allChars_off.ico"
+IDI_VIEW_INDENT_ICON_DM2           ICON      "icons/darkMode/toolbar/filledFluentUI/indentGuide_off.ico"
+IDI_VIEW_WRAP_ICON_DM2             ICON      "icons/darkMode/toolbar/filledFluentUI/wrap_off.ico"
+IDI_SAVE_DISABLE_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/save_dis.ico"
+IDI_SAVEALL_DISABLE_ICON_DM2       ICON      "icons/darkMode/toolbar/filledFluentUI/saveall_dis.ico"
+IDI_CUT_DISABLE_ICON_DM2           ICON      "icons/darkMode/toolbar/filledFluentUI/cut_dis.ico"
+IDI_COPY_DISABLE_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/dupli_dis.ico"
+IDI_PASTE_DISABLE_ICON_DM2         ICON      "icons/darkMode/toolbar/filledFluentUI/paste_dis.ico"
+IDI_UNDO_DISABLE_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/undo_dis.ico"
+IDI_REDO_DISABLE_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/redo_dis.ico"
+IDI_SYNCV_ICON_DM2                 ICON      "icons/darkMode/toolbar/filledFluentUI/syncV_off.ico"
+IDI_SYNCV_DISABLE_ICON_DM2         ICON      "icons/darkMode/toolbar/filledFluentUI/syncV_dis.ico"
+IDI_SYNCH_ICON_DM2                 ICON      "icons/darkMode/toolbar/filledFluentUI/syncH_off.ico"
+IDI_SYNCH_DISABLE_ICON_DM2         ICON      "icons/darkMode/toolbar/filledFluentUI/syncH_dis.ico"
+IDI_VIEW_DOC_MAP_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/docMap_off.ico" 
+IDI_VIEW_DOCLIST_ICON_DM2          ICON      "icons/darkMode/toolbar/filledFluentUI/docList_off.ico" 
+IDI_VIEW_FUNCLIST_ICON_DM2         ICON      "icons/darkMode/toolbar/filledFluentUI/funcList_off.ico" 
+IDI_VIEW_FILEBROWSER_ICON_DM2      ICON      "icons/darkMode/toolbar/filledFluentUI/fileBrowser_off.ico" 
+IDI_VIEW_MONITORING_ICON_DM2       ICON      "icons/darkMode/toolbar/filledFluentUI/monitoring_off.ico"
+
+
+
+
+
+
+IDI_SAVED_ICON                  ICON      "icons/saved.ico"
+IDI_SAVED_DM_ICON               ICON      "icons/darkMode/tabbar/saved.ico"
+IDI_SAVED_ALT_ICON              ICON      "icons/saved_alt.ico"
+IDI_UNSAVED_ICON                ICON      "icons/unsaved.ico"
+IDI_UNSAVED_DM_ICON             ICON      "icons/darkMode/tabbar/unsaved.ico"
+IDI_UNSAVED_ALT_ICON            ICON      "icons/unsaved_alt.ico"
+IDI_READONLY_ICON               ICON      "icons/readonly.ico"
+IDI_READONLY_DM_ICON            ICON      "icons/darkMode/tabbar/readonly.ico"
+IDI_READONLY_ALT_ICON           ICON      "icons/readonly_alt.ico"
+IDI_MONITORING_ICON             ICON      "icons/monitoring.ico"
+IDI_MONITORING_DM_ICON          ICON      "icons/darkMode/tabbar/monitoring.ico"
+IDI_DELETE_ICON                 ICON      "icons/delete.ico"
+IDI_FIND_RESULT_ICON            ICON      "icons/findResult.ico"
+
+IDC_DRAG_TAB                    CURSOR    "cursors/drag.cur"
+IDC_DRAG_INTERDIT_TAB           CURSOR    "cursors/drag_interdit.cur"
+IDC_DRAG_PLUS_TAB               CURSOR    "cursors/drag_plus.cur"
+IDC_DRAG_OUT_TAB                CURSOR    "cursors/drag_out.cur"
+
+IDR_FILENEW                     BITMAP    "icons/newFile.bmp"
+IDR_FILEOPEN                    BITMAP    "icons/openFile.bmp"
+IDR_FILESAVE                    BITMAP    "icons/saveFile.bmp"
+IDR_SAVEALL                     BITMAP    "icons/saveAll.bmp"
+IDR_CLOSEFILE                   BITMAP    "icons/closeFile.bmp"
+IDR_CLOSEALL                    BITMAP    "icons/closeAll.bmp"
+IDR_FIND                        BITMAP    "icons/find.bmp"
+IDR_REPLACE                     BITMAP    "icons/findReplace.bmp"
+IDR_ZOOMIN                      BITMAP    "icons/zoomIn.bmp"
+IDR_ZOOMOUT                     BITMAP    "icons/zoomOut.bmp"
+IDR_WRAP                        BITMAP    "icons/wrap.bmp"
+IDR_INVISIBLECHAR               BITMAP    "icons/invisibleChar.bmp"
+IDR_INDENTGUIDE                 BITMAP    "icons/indentGuide.bmp"
+IDR_SHOWPANNEL                  BITMAP    "icons/showPannel.bmp"
+IDR_STARTRECORD                 BITMAP    "icons/startRecord.bmp"
+IDR_STOPRECORD                  BITMAP    "icons/stopRecord.bmp"
+IDR_PLAYRECORD                  BITMAP    "icons/playRecord.bmp"
+IDR_M_PLAYRECORD                BITMAP    "icons/playRecord_m.bmp"
+IDR_SAVERECORD                  BITMAP    "icons/saveRecord.bmp"
+IDR_CUT                         BITMAP    "icons/cut.bmp"
+IDR_COPY                        BITMAP    "icons/copy.bmp"
+IDR_PASTE                       BITMAP    "icons/paste.bmp"
+IDR_UNDO                        BITMAP    "icons/undo.bmp"
+IDR_REDO                        BITMAP    "icons/redo.bmp"
+IDR_SYNCV                       BITMAP    "icons/syncV.bmp"
+IDR_SYNCH                       BITMAP    "icons/syncH.bmp"
+IDR_PRINT                       BITMAP    "icons/print.bmp"
+IDR_CLOSETAB                    BITMAP    "icons/closeTabButton.bmp"
+IDR_CLOSETAB_INACT              BITMAP    "icons/closeTabButton_inact.bmp"
+IDR_CLOSETAB_HOVER              BITMAP    "icons/closeTabButton_hover.bmp"
+IDR_CLOSETAB_PUSH               BITMAP    "icons/closeTabButton_push.bmp"
+IDR_CLOSETAB_DM                 BITMAP    "icons/darkMode/tabbar/closeTabButton.bmp"
+IDR_CLOSETAB_INACT_DM           BITMAP    "icons/darkMode/tabbar/closeTabButton_inact.bmp"
+IDR_CLOSETAB_HOVER_DM           BITMAP    "icons/darkMode/tabbar/closeTabButton_hover.bmp"
+IDR_CLOSETAB_PUSH_DM            BITMAP    "icons/darkMode/tabbar/closeTabButton_push.bmp"
+IDR_DOCMAP                      BITMAP    "icons/docMap.bmp"
+IDR_DOCLIST                     BITMAP    "icons/docList.bmp"
+IDR_FUNC_LIST                   BITMAP    "icons/functionList.bmp"
+IDR_FILEBROWSER                 BITMAP    "icons/fileBrowser.bmp"
+IDR_FILEMONITORING              BITMAP    "icons/fileMonitoring.bmp"
+
+IDR_DOCMAP_ICO                  ICON      "icons/docMap.ico"
+IDR_DOCMAP_ICO2                 ICON      "icons/docMap2.ico"
+IDR_DOCMAP_ICO_DM               ICON      "icons/darkMode/panels/docMap.ico"
+IDR_DOCLIST_ICO                 ICON      "icons/docList.ico"
+IDR_DOCLIST_ICO2                ICON      "icons/docList2.ico"
+IDR_DOCLIST_ICO_DM              ICON      "icons/darkMode/panels/docList.ico"
+IDR_FUNC_LIST_ICO               ICON      "icons/functionList.ico"
+IDR_FUNC_LIST_ICO2              ICON      "icons/functionList2.ico"
+IDR_FUNC_LIST_ICO_DM            ICON      "icons/darkMode/panels/functionList.ico"
+IDR_PROJECTPANEL_ICO            ICON      "icons/projectPanel.ico"
+IDR_PROJECTPANEL_ICO2           ICON      "icons/projectPanel2.ico"
+IDR_PROJECTPANEL_ICO_DM         ICON      "icons/darkMode/panels/projectPanel.ico"
+IDR_FILEBROWSER_ICO             ICON      "icons/fileBrowser.ico"
+IDR_FILEBROWSER_ICO2            ICON      "icons/fileBrowser2.ico"
+IDR_FILEBROWSER_ICO_DM          ICON      "icons/darkMode/panels/fileBrowser.ico"
+IDR_CLIPBOARDPANEL_ICO          ICON      "icons/clipboardPanel.ico"
+IDR_CLIPBOARDPANEL_ICO2         ICON      "icons/clipboardPanel2.ico"
+IDR_CLIPBOARDPANEL_ICO_DM       ICON      "icons/darkMode/panels/clipboardPanel.ico"
+IDR_ASCIIPANEL_ICO              ICON      "icons/asciiPanel.ico"
+IDR_ASCIIPANEL_ICO2             ICON      "icons/asciiPanel2.ico"
+IDR_ASCIIPANEL_ICO_DM           ICON      "icons/darkMode/panels/asciiPanel.ico"
+
+
+IDI_PROJECT_WORKSPACE           BITMAP      "icons/project_work_space.bmp"
+IDI_PROJECT_WORKSPACEDIRTY      BITMAP      "icons/project_work_space_dirty.bmp"
+IDI_PROJECT_PROJECT             BITMAP      "icons/project_root.bmp"
+IDI_PROJECT_FOLDEROPEN          BITMAP      "icons/project_folder_open.bmp"
+IDI_PROJECT_FOLDERCLOSE         BITMAP      "icons/project_folder_close.bmp"
+IDI_PROJECT_FILE                BITMAP      "icons/project_file.bmp"
+IDI_PROJECT_FILEINVALID         BITMAP      "icons/project_file_invalid.bmp"
+IDI_FB_ROOTOPEN                 BITMAP      "icons/fb_root_open.bmp"
+IDI_FB_ROOTCLOSE                BITMAP      "icons/fb_root_close.bmp"
+
+IDI_FB_SELECTCURRENTFILE        BITMAP      "icons/fb_select_current_file.bmp"
+IDI_FB_FOLDALL                  BITMAP      "icons/fb_fold_all.bmp"
+IDI_FB_EXPANDALL                BITMAP      "icons/fb_expand_all.bmp"
+IDI_FB_SELECTCURRENTFILE_DM     BITMAP      "icons/darkMode/panels/fb_select_current_file.bmp"
+IDI_FB_FOLDALL_DM               BITMAP      "icons/darkMode/panels/fb_fold_all.bmp"
+IDI_FB_EXPANDALL_DM             BITMAP      "icons/darkMode/panels/fb_expand_all.bmp"
+
+IDI_FUNCLIST_ROOT               BITMAP      "icons/project_file.bmp"
+IDI_FUNCLIST_NODE               BITMAP      "icons/funcList_node.bmp"
+IDI_FUNCLIST_LEAF               BITMAP      "icons/funcList_leaf.bmp"
+
+IDI_FUNCLIST_SORTBUTTON         BITMAP      "icons/funclstSort.bmp"
+IDI_FUNCLIST_RELOADBUTTON       BITMAP      "icons/funclstReload.bmp"
+IDI_FUNCLIST_SORTBUTTON_DM      BITMAP      "icons/darkMode/panels/funclstSort.bmp"
+IDI_FUNCLIST_RELOADBUTTON_DM    BITMAP      "icons/darkMode/panels/funclstReload.bmp"
+
+
+IDI_GET_INFO_FROM_TOOLTIP       ICON        "icons/MoreOnTooltip.ico"
+
+IDR_M30_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New",                             IDM_FILE_NEW
+        MENUITEM "&Open...",                         IDM_FILE_OPEN
+        POPUP "Open Containing &Folder"
+        BEGIN
+            MENUITEM "Explorer",       IDM_FILE_OPEN_FOLDER
+            MENUITEM "cmd",            IDM_FILE_OPEN_CMD
+			MENUITEM SEPARATOR
+            MENUITEM "Folder as Workspace", IDM_FILE_CONTAININGFOLDERASWORKSPACE
+        END
+        MENUITEM "Open in &Default Viewer",          IDM_FILE_OPEN_DEFAULT_VIEWER
+        MENUITEM "Open Folder as &Workspace...",     IDM_FILE_OPENFOLDERASWORSPACE
+        MENUITEM "Re&load from Disk",                IDM_FILE_RELOAD
+        MENUITEM "&Save",                            IDM_FILE_SAVE
+        MENUITEM "Save &As...",                      IDM_FILE_SAVEAS
+        MENUITEM "Save a Cop&y As...",               IDM_FILE_SAVECOPYAS
+        MENUITEM "Sa&ve All",                        IDM_FILE_SAVEALL
+        MENUITEM "&Rename...",                       IDM_FILE_RENAME
+        MENUITEM "&Close",                           IDM_FILE_CLOSE
+        MENUITEM "Clos&e All",                       IDM_FILE_CLOSEALL
+        POPUP "Close &More"
+        BEGIN
+            MENUITEM "Close All but Active Document",    IDM_FILE_CLOSEALL_BUT_CURRENT
+            MENUITEM "Close All to the Left",            IDM_FILE_CLOSEALL_TOLEFT
+            MENUITEM "Close All to the Right",           IDM_FILE_CLOSEALL_TORIGHT
+            MENUITEM "Close All Unchanged",              IDM_FILE_CLOSEALL_UNCHANGED
+        END
+        MENUITEM "Move to Recycle &Bin",             IDM_FILE_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Load Sess&ion...",                 IDM_FILE_LOADSESSION
+        MENUITEM "Save Sess&ion...",                 IDM_FILE_SAVESESSION
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...",                        IDM_FILE_PRINT
+        MENUITEM "Print No&w",                       IDM_FILE_PRINTNOW
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                            IDM_FILE_EXIT
+    END
+
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo",                            IDM_EDIT_UNDO
+        MENUITEM "&Redo",                            IDM_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t",                             IDM_EDIT_CUT
+        MENUITEM "&Copy",                            IDM_EDIT_COPY
+        MENUITEM "&Paste",                           IDM_EDIT_PASTE
+        MENUITEM "&Delete",                          IDM_EDIT_DELETE
+        MENUITEM "&Select All",                      IDM_EDIT_SELECTALL
+        MENUITEM "Begin/End &Select",                IDM_EDIT_BEGINENDSELECT
+        MENUITEM SEPARATOR
+        POPUP "Insert"
+        BEGIN
+                MENUITEM "Date Time (short)",        IDM_EDIT_INSERT_DATETIME_SHORT
+                MENUITEM "Date Time (long)",         IDM_EDIT_INSERT_DATETIME_LONG
+                MENUITEM "Date Time (customized)",   IDM_EDIT_INSERT_DATETIME_CUSTOMIZED
+        END
+        POPUP "Cop&y to Clipboard"
+        BEGIN
+                MENUITEM "Current Full File path to Clipboard",    IDM_EDIT_FULLPATHTOCLIP
+                MENUITEM "Current Filename to Clipboard",          IDM_EDIT_FILENAMETOCLIP
+                MENUITEM "Current Dir. Path to Clipboard",         IDM_EDIT_CURRENTDIRTOCLIP
+        END
+        POPUP "&Indent"
+        BEGIN
+            MENUITEM "Increase Line Indent",    IDM_EDIT_INS_TAB
+            MENUITEM "Decrease Line Indent",    IDM_EDIT_RMV_TAB
+        END
+        POPUP "Con&vert Case to"
+        BEGIN
+            MENUITEM "&UPPERCASE",              IDM_EDIT_UPPERCASE
+            MENUITEM "&lowercase",              IDM_EDIT_LOWERCASE
+            MENUITEM "&Proper Case",            IDM_EDIT_PROPERCASE_FORCE
+            MENUITEM "Proper Case (blend)",      IDM_EDIT_PROPERCASE_BLEND
+            MENUITEM "&Sentence case",          IDM_EDIT_SENTENCECASE_FORCE
+            MENUITEM "Sentence case (blend)",   IDM_EDIT_SENTENCECASE_BLEND
+            MENUITEM "&iNVERT cASE",             IDM_EDIT_INVERTCASE
+            MENUITEM "&ranDOm CasE",             IDM_EDIT_RANDOMCASE
+        END
+        POPUP "&Line Operations"
+        BEGIN
+            MENUITEM "Duplicate Current Line",                           IDM_EDIT_DUP_LINE
+            MENUITEM "Remove Duplicate Lines",                           IDM_EDIT_REMOVE_ANY_DUP_LINES
+            MENUITEM "Remove Consecutive Duplicate Lines",               IDM_EDIT_REMOVE_CONSECUTIVE_DUP_LINES
+            MENUITEM "Split Lines",                                      IDM_EDIT_SPLIT_LINES
+            MENUITEM "Join Lines",                                       IDM_EDIT_JOIN_LINES
+            MENUITEM "Move Up Current Line",                             IDM_EDIT_LINE_UP
+            MENUITEM "Move Down Current Line",                           IDM_EDIT_LINE_DOWN
+            MENUITEM "Remove Empty Lines",                               IDM_EDIT_REMOVEEMPTYLINES
+            MENUITEM "Remove Empty Lines (Containing Blank characters)", IDM_EDIT_REMOVEEMPTYLINESWITHBLANK
+            MENUITEM "Insert Blank Line Above Current",                  IDM_EDIT_BLANKLINEABOVECURRENT
+            MENUITEM "Insert Blank Line Below Current",                  IDM_EDIT_BLANKLINEBELOWCURRENT
+            MENUITEM "Reverse Line Order",                               IDM_EDIT_SORTLINES_REVERSE_ORDER
+            MENUITEM "Randomize Line Order",                             IDM_EDIT_SORTLINES_RANDOMLY
+            MENUITEM SEPARATOR
+            MENUITEM "Sort Lines Lexicographically Ascending",           IDM_EDIT_SORTLINES_LEXICOGRAPHIC_ASCENDING
+            MENUITEM "Sort Lines Lex. Ascending Ignoring Case",          IDM_EDIT_SORTLINES_LEXICO_CASE_INSENS_ASCENDING
+            MENUITEM "Sort Lines As Integers Ascending",                 IDM_EDIT_SORTLINES_INTEGER_ASCENDING
+            MENUITEM "Sort Lines As Decimals (Comma) Ascending",         IDM_EDIT_SORTLINES_DECIMALCOMMA_ASCENDING
+            MENUITEM "Sort Lines As Decimals (Dot) Ascending",           IDM_EDIT_SORTLINES_DECIMALDOT_ASCENDING
+            MENUITEM SEPARATOR
+            MENUITEM "Sort Lines Lexicographically Descending",          IDM_EDIT_SORTLINES_LEXICOGRAPHIC_DESCENDING
+            MENUITEM "Sort Lines Lex. Descending Ignoring Case",         IDM_EDIT_SORTLINES_LEXICO_CASE_INSENS_DESCENDING
+            MENUITEM "Sort Lines As Integers Descending",                IDM_EDIT_SORTLINES_INTEGER_DESCENDING
+            MENUITEM "Sort Lines As Decimals (Comma) Descending",        IDM_EDIT_SORTLINES_DECIMALCOMMA_DESCENDING
+            MENUITEM "Sort Lines As Decimals (Dot) Descending",          IDM_EDIT_SORTLINES_DECIMALDOT_DESCENDING
+        END
+        POPUP "Co&mment/Uncomment"
+        BEGIN
+            MENUITEM "Toggle Single Line Comment",    IDM_EDIT_BLOCK_COMMENT
+            MENUITEM "Single Line Comment",           IDM_EDIT_BLOCK_COMMENT_SET
+            MENUITEM "Single Line Uncomment",         IDM_EDIT_BLOCK_UNCOMMENT
+            MENUITEM "Block Comment",          IDM_EDIT_STREAM_COMMENT
+            MENUITEM "Block Uncomment",        IDM_EDIT_STREAM_UNCOMMENT
+        END
+        POPUP "&Auto-Completion"
+        BEGIN
+            MENUITEM "Function Completion",         IDM_EDIT_AUTOCOMPLETE
+            MENUITEM "Word Completion",             IDM_EDIT_AUTOCOMPLETE_CURRENTFILE
+            MENUITEM "Function Parameters Hint",    IDM_EDIT_FUNCCALLTIP
+            MENUITEM "Path Completion",             IDM_EDIT_AUTOCOMPLETE_PATH
+        END
+        POPUP "&EOL Conversion"
+        BEGIN
+            MENUITEM "Windows (CR LF)",             IDM_FORMAT_TODOS
+            MENUITEM "Unix (LF)",                   IDM_FORMAT_TOUNIX
+            MENUITEM "Macintosh (CR)",              IDM_FORMAT_TOMAC
+        END
+        POPUP "&Blank Operations"
+        BEGIN
+            MENUITEM "Trim Trailing Space",                IDM_EDIT_TRIMTRAILING
+            MENUITEM "Trim Leading Space",                 IDM_EDIT_TRIMLINEHEAD
+            MENUITEM "Trim Leading and Trailing Space",    IDM_EDIT_TRIM_BOTH
+            MENUITEM "EOL to Space",                       IDM_EDIT_EOL2WS
+            MENUITEM "Remove Unnecessary Blank and EOL",   IDM_EDIT_TRIMALL
+            MENUITEM SEPARATOR
+            MENUITEM "TAB to Space",                       IDM_EDIT_TAB2SW
+            MENUITEM "Space to TAB (All)",                 IDM_EDIT_SW2TAB_ALL
+            MENUITEM "Space to TAB (Leading)",             IDM_EDIT_SW2TAB_LEADING
+        END
+        POPUP "&Paste Special"
+        BEGIN
+            MENUITEM "Paste HTML Content",                 IDM_EDIT_PASTE_AS_HTML
+            MENUITEM "Paste RTF Content",                  IDM_EDIT_PASTE_AS_RTF
+            MENUITEM SEPARATOR
+            MENUITEM "Copy Binary Content",                IDM_EDIT_COPY_BINARY
+            MENUITEM "Cut Binary Content",                 IDM_EDIT_CUT_BINARY
+            MENUITEM "Paste Binary Content",               IDM_EDIT_PASTE_BINARY
+        END
+        POPUP "&On Selection"
+        BEGIN
+            MENUITEM "Open File",           IDM_EDIT_OPENASFILE
+            MENUITEM "Open Containing Folder in Explorer",         IDM_EDIT_OPENINFOLDER
+            MENUITEM SEPARATOR
+            MENUITEM "Search on Internet",     IDM_EDIT_SEARCHONINTERNET
+            MENUITEM "Change Search Engine...", IDM_EDIT_CHANGESEARCHENGINE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Column Mode...",        IDM_EDIT_COLUMNMODETIP
+        MENUITEM "Colum&n Editor...",        IDM_EDIT_COLUMNMODE
+        MENUITEM "Character &Panel",        IDM_EDIT_CHAR_PANEL
+        MENUITEM "Clipboard &History",      IDM_EDIT_CLIPBOARDHISTORY_PANEL
+        MENUITEM SEPARATOR
+        MENUITEM "&Set Read-Only",           IDM_EDIT_SETREADONLY
+        MENUITEM "Clear Read-Only Flag",    IDM_EDIT_CLEARREADONLY
+    END
+
+    POPUP "&Search"
+    BEGIN
+        MENUITEM "&Find...",                    IDM_SEARCH_FIND
+        MENUITEM "Find in Fi&les...",           IDM_SEARCH_FINDINFILES
+        MENUITEM "Find &Next",                  IDM_SEARCH_FINDNEXT
+        MENUITEM "Find &Previous",              IDM_SEARCH_FINDPREV
+        MENUITEM "&Select and Find Next",       IDM_SEARCH_SETANDFINDNEXT
+        MENUITEM "&Select and Find Previous",   IDM_SEARCH_SETANDFINDPREV
+        MENUITEM "Find (&Volatile) Next",       IDM_SEARCH_VOLATILE_FINDNEXT
+        MENUITEM "Find (&Volatile) Previous",   IDM_SEARCH_VOLATILE_FINDPREV
+        MENUITEM "&Replace...",                 IDM_SEARCH_REPLACE
+        MENUITEM "&Incremental Search",         IDM_SEARCH_FINDINCREMENT
+        MENUITEM "Search Results &Window",      IDM_FOCUS_ON_FOUND_RESULTS
+        MENUITEM "Next Search Resul&t",         IDM_SEARCH_GOTONEXTFOUND
+        MENUITEM "Previous Search Resul&t",     IDM_SEARCH_GOTOPREVFOUND
+        MENUITEM "&Go to...",                   IDM_SEARCH_GOTOLINE
+        MENUITEM "Go to &Matching Brace",       IDM_SEARCH_GOTOMATCHINGBRACE
+        MENUITEM "Select All Between &Matching Braces", IDM_SEARCH_SELECTMATCHINGBRACES
+        MENUITEM "Mar&k...",                    IDM_SEARCH_MARK
+        MENUITEM SEPARATOR
+
+        POPUP "Style &All Occurrences of Token"
+        BEGIN
+            MENUITEM "Using 1st Style",    IDM_SEARCH_MARKALLEXT1
+            MENUITEM "Using 2nd Style",    IDM_SEARCH_MARKALLEXT2
+            MENUITEM "Using 3rd Style",    IDM_SEARCH_MARKALLEXT3
+            MENUITEM "Using 4th Style",    IDM_SEARCH_MARKALLEXT4
+            MENUITEM "Using 5th Style",    IDM_SEARCH_MARKALLEXT5
+        END
+        POPUP "Style &One Token"
+        BEGIN
+            MENUITEM "Using 1st Style",    IDM_SEARCH_MARKONEEXT1
+            MENUITEM "Using 2nd Style",    IDM_SEARCH_MARKONEEXT2
+            MENUITEM "Using 3rd Style",    IDM_SEARCH_MARKONEEXT3
+            MENUITEM "Using 4th Style",    IDM_SEARCH_MARKONEEXT4
+            MENUITEM "Using 5th Style",    IDM_SEARCH_MARKONEEXT5
+        END
+        POPUP "Clear Style"
+        BEGIN
+            MENUITEM "Clear 1st Style",     IDM_SEARCH_UNMARKALLEXT1
+            MENUITEM "Clear 2nd Style",     IDM_SEARCH_UNMARKALLEXT2
+            MENUITEM "Clear 3rd Style",     IDM_SEARCH_UNMARKALLEXT3
+            MENUITEM "Clear 4th Style",     IDM_SEARCH_UNMARKALLEXT4
+            MENUITEM "Clear 5th Style",     IDM_SEARCH_UNMARKALLEXT5
+            MENUITEM "Clear all Styles",    IDM_SEARCH_CLEARALLMARKS
+        END
+        POPUP "&Jump Up"
+        BEGIN
+            MENUITEM "1st Style",     IDM_SEARCH_GOPREVMARKER1
+            MENUITEM "2nd Style",     IDM_SEARCH_GOPREVMARKER2
+            MENUITEM "3rd Style",     IDM_SEARCH_GOPREVMARKER3
+            MENUITEM "4th Style",     IDM_SEARCH_GOPREVMARKER4
+            MENUITEM "5th Style",     IDM_SEARCH_GOPREVMARKER5
+            MENUITEM "Find Mark Style",    IDM_SEARCH_GOPREVMARKER_DEF
+        END
+        POPUP "Jump &Down"
+        BEGIN
+            MENUITEM "1st Style",      IDM_SEARCH_GONEXTMARKER1
+            MENUITEM "2nd Style",      IDM_SEARCH_GONEXTMARKER2
+            MENUITEM "3rd Style",      IDM_SEARCH_GONEXTMARKER3
+            MENUITEM "4th Style",      IDM_SEARCH_GONEXTMARKER4
+            MENUITEM "5th Style",      IDM_SEARCH_GONEXTMARKER5
+            MENUITEM "Find Mark Style",     IDM_SEARCH_GONEXTMARKER_DEF
+        END
+        POPUP "&Copy Styled Text"
+        BEGIN
+            MENUITEM "1st Style",               IDM_SEARCH_STYLE1TOCLIP
+            MENUITEM "2nd Style",               IDM_SEARCH_STYLE2TOCLIP
+            MENUITEM "3rd Style",               IDM_SEARCH_STYLE3TOCLIP
+            MENUITEM "4th Style",               IDM_SEARCH_STYLE4TOCLIP
+            MENUITEM "5th Style",               IDM_SEARCH_STYLE5TOCLIP
+            MENUITEM "All Styles",              IDM_SEARCH_ALLSTYLESTOCLIP
+            MENUITEM "Find Mark Style",     IDM_SEARCH_MARKEDTOCLIP
+        END
+        MENUITEM SEPARATOR
+        POPUP "&Bookmark"
+        BEGIN
+            MENUITEM "Toggle Bookmark" ,                       IDM_SEARCH_TOGGLE_BOOKMARK
+            MENUITEM "Next Bookmark",                          IDM_SEARCH_NEXT_BOOKMARK
+            MENUITEM "Previous Bookmark",                      IDM_SEARCH_PREV_BOOKMARK
+            MENUITEM "Clear All Bookmarks",                    IDM_SEARCH_CLEAR_BOOKMARKS
+            MENUITEM "Cut Bookmarked Lines",                   IDM_SEARCH_CUTMARKEDLINES
+            MENUITEM "Copy Bookmarked Lines",                  IDM_SEARCH_COPYMARKEDLINES
+            MENUITEM "Paste to (Replace) Bookmarked Lines",    IDM_SEARCH_PASTEMARKEDLINES
+            MENUITEM "Remove Bookmarked Lines",                IDM_SEARCH_DELETEMARKEDLINES
+            MENUITEM "Remove Unmarked Lines",                  IDM_SEARCH_DELETEUNMARKEDLINES
+            MENUITEM "Inverse Bookmark",                       IDM_SEARCH_INVERSEMARKS
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Find characters in rang&e...",       IDM_SEARCH_FINDCHARINRANGE
+    END
+
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Always on Top",              IDM_VIEW_ALWAYSONTOP
+        MENUITEM "Toggle Full Screen Mode",    IDM_VIEW_FULLSCREENTOGGLE
+        MENUITEM "Post-It",                    IDM_VIEW_POSTIT
+        MENUITEM "Distraction Free Mode",      IDM_VIEW_DISTRACTIONFREE
+
+        MENUITEM SEPARATOR
+        POPUP "View Current File in"
+        BEGIN
+            MENUITEM "Firefox", IDM_VIEW_IN_FIREFOX
+            MENUITEM "Chrome", IDM_VIEW_IN_CHROME
+            MENUITEM "Edge", IDM_VIEW_IN_EDGE
+            MENUITEM "IE", IDM_VIEW_IN_IE
+        END
+        MENUITEM SEPARATOR
+        POPUP "Show Symbol"
+        BEGIN
+            MENUITEM "Show White Space and TAB",    IDM_VIEW_TAB_SPACE
+            MENUITEM "Show End of Line",            IDM_VIEW_EOL
+            MENUITEM "Show All Characters",         IDM_VIEW_ALL_CHARACTERS
+            MENUITEM SEPARATOR
+            MENUITEM "Show Indent Guide",           IDM_VIEW_INDENT_GUIDE
+            MENUITEM "Show Wrap Symbol",            IDM_VIEW_WRAP_SYMBOL
+        END
+        POPUP "Zoom"
+        BEGIN
+            MENUITEM "Zoom &In (Ctrl+Mouse Wheel Up)",       IDM_VIEW_ZOOMIN
+            MENUITEM "Zoom &Out (Ctrl+Mouse Wheel Down)",    IDM_VIEW_ZOOMOUT
+            MENUITEM "Restore Default Zoom",                 IDM_VIEW_ZOOMRESTORE
+        END
+        POPUP "Move/Clone Current Document"
+        BEGIN
+            MENUITEM "Move to Other View",      IDM_VIEW_GOTO_ANOTHER_VIEW
+            MENUITEM "Clone to Other View",     IDM_VIEW_CLONE_TO_ANOTHER_VIEW
+            MENUITEM "Move to New Instance",    IDM_VIEW_GOTO_NEW_INSTANCE
+            MENUITEM "Open in New Instance",    IDM_VIEW_LOAD_IN_NEW_INSTANCE
+        END
+        
+        POPUP "Tab"
+        BEGIN
+            MENUITEM "1st Tab",                 IDM_VIEW_TAB1
+            MENUITEM "2nd Tab",                 IDM_VIEW_TAB2
+            MENUITEM "3rd Tab",                 IDM_VIEW_TAB3
+            MENUITEM "4th Tab",                 IDM_VIEW_TAB4
+            MENUITEM "5th Tab",                 IDM_VIEW_TAB5
+            MENUITEM "6th Tab",                 IDM_VIEW_TAB6
+            MENUITEM "7th Tab",                 IDM_VIEW_TAB7
+            MENUITEM "8th Tab",                 IDM_VIEW_TAB8
+            MENUITEM "9th Tab",                 IDM_VIEW_TAB9
+            MENUITEM SEPARATOR
+            MENUITEM "Next Tab",                IDM_VIEW_TAB_NEXT
+            MENUITEM "Previous Tab",            IDM_VIEW_TAB_PREV
+            MENUITEM SEPARATOR
+            MENUITEM "Move Tab Forward",        IDM_VIEW_TAB_MOVEFORWARD
+            MENUITEM "Move Tab Backward",       IDM_VIEW_TAB_MOVEBACKWARD
+        END
+        MENUITEM "Word wrap",                   IDM_VIEW_WRAP
+        MENUITEM "Focus on Another View",         IDM_VIEW_SWITCHTO_OTHER_VIEW
+        MENUITEM "Hide Lines",                  IDM_VIEW_HIDELINES
+        MENUITEM SEPARATOR
+        MENUITEM "Fold All",                    IDM_VIEW_TOGGLE_FOLDALL
+        MENUITEM "Unfold All",                  IDM_VIEW_TOGGLE_UNFOLDALL
+        MENUITEM "Collapse Current Level",      IDM_VIEW_FOLD_CURRENT
+        MENUITEM "Uncollapse Current Level",    IDM_VIEW_UNFOLD_CURRENT
+        POPUP "Collapse Level"
+        BEGIN
+            MENUITEM "1",   IDM_VIEW_FOLD_1
+            MENUITEM "2",   IDM_VIEW_FOLD_2
+            MENUITEM "3",   IDM_VIEW_FOLD_3
+            MENUITEM "4",   IDM_VIEW_FOLD_4
+            MENUITEM "5",   IDM_VIEW_FOLD_5
+            MENUITEM "6",   IDM_VIEW_FOLD_6
+            MENUITEM "7",   IDM_VIEW_FOLD_7
+            MENUITEM "8",   IDM_VIEW_FOLD_8
+        END
+        POPUP "Uncollapse Level"
+        BEGIN
+            MENUITEM "1",    IDM_VIEW_UNFOLD_1
+            MENUITEM "2",    IDM_VIEW_UNFOLD_2
+            MENUITEM "3",    IDM_VIEW_UNFOLD_3
+            MENUITEM "4",    IDM_VIEW_UNFOLD_4
+            MENUITEM "5",    IDM_VIEW_UNFOLD_5
+            MENUITEM "6",    IDM_VIEW_UNFOLD_6
+            MENUITEM "7",    IDM_VIEW_UNFOLD_7
+            MENUITEM "8",    IDM_VIEW_UNFOLD_8
+        END
+
+        MENUITEM SEPARATOR
+            MENUITEM "Summary...",  IDM_VIEW_SUMMARY
+        MENUITEM SEPARATOR
+            POPUP "Project Panels"
+            BEGIN
+                MENUITEM "Project Panel 1",          IDM_VIEW_PROJECT_PANEL_1
+                MENUITEM "Project Panel 2",          IDM_VIEW_PROJECT_PANEL_2
+                MENUITEM "Project Panel 3",          IDM_VIEW_PROJECT_PANEL_3
+            END
+        MENUITEM "Folder as Workspace",   IDM_VIEW_FILEBROWSER
+        MENUITEM "Document Map",          IDM_VIEW_DOC_MAP
+        MENUITEM "Document List",         IDM_VIEW_DOCLIST
+        MENUITEM "Function List",         IDM_VIEW_FUNC_LIST
+        MENUITEM SEPARATOR
+        MENUITEM "Synchronize Vertical Scrolling",      IDM_VIEW_SYNSCROLLV
+        MENUITEM "Synchronize Horizontal Scrolling",    IDM_VIEW_SYNSCROLLH
+        MENUITEM SEPARATOR
+        MENUITEM "Text Direction RTL",                  IDM_EDIT_RTL
+        MENUITEM "Text Direction LTR",                  IDM_EDIT_LTR
+        MENUITEM SEPARATOR
+        MENUITEM "Monitoring (tail -f)",    IDM_VIEW_MONITORING
+    END
+
+    POPUP "E&ncoding"
+    BEGIN
+        MENUITEM "ANSI",                    IDM_FORMAT_ANSI
+        MENUITEM "UTF-8",                   IDM_FORMAT_AS_UTF_8
+        MENUITEM "UTF-8-BOM",               IDM_FORMAT_UTF_8
+        MENUITEM "UTF-16 BE BOM",           IDM_FORMAT_UTF_16BE
+        MENUITEM "UTF-16 LE BOM",           IDM_FORMAT_UTF_16LE
+        POPUP "Character sets"
+        BEGIN
+            POPUP "Arabic"
+            BEGIN
+                MENUITEM "ISO 8859-6",          IDM_FORMAT_ISO_8859_6
+                MENUITEM "OEM 720",             IDM_FORMAT_DOS_720
+                MENUITEM "Windows-1256",        IDM_FORMAT_WIN_1256
+            END
+
+            POPUP "Baltic"
+            BEGIN
+                MENUITEM "ISO 8859-4",          IDM_FORMAT_ISO_8859_4
+                MENUITEM "ISO 8859-13",         IDM_FORMAT_ISO_8859_13
+                MENUITEM "OEM 775",             IDM_FORMAT_DOS_775
+                MENUITEM "Windows-1257",        IDM_FORMAT_WIN_1257
+            END
+            POPUP "Celtic"
+            BEGIN
+                MENUITEM "ISO 8859-14",               IDM_FORMAT_ISO_8859_14
+            END
+            POPUP "Cyrillic"
+            BEGIN
+                MENUITEM "ISO 8859-5",          IDM_FORMAT_ISO_8859_5
+                MENUITEM "KOI8-R",              IDM_FORMAT_KOI8R_CYRILLIC
+                MENUITEM "KOI8-U",              IDM_FORMAT_KOI8U_CYRILLIC
+                MENUITEM "Macintosh",           IDM_FORMAT_MAC_CYRILLIC
+                MENUITEM "OEM 855",             IDM_FORMAT_DOS_855
+                MENUITEM "OEM 866",             IDM_FORMAT_DOS_866
+                MENUITEM "Windows-1251",        IDM_FORMAT_WIN_1251
+            END
+
+            POPUP "Central European"
+            BEGIN
+                MENUITEM "OEM 852",             IDM_FORMAT_DOS_852
+                MENUITEM "Windows-1250",        IDM_FORMAT_WIN_1250
+            END
+
+            POPUP "Chinese"
+            BEGIN
+                MENUITEM "Big5 (Traditional)",  IDM_FORMAT_BIG5
+                MENUITEM "GB2312 (Simplified)",     IDM_FORMAT_GB2312
+            END
+
+            POPUP "Eastern European"
+            BEGIN
+                MENUITEM "ISO 8859-2",          IDM_FORMAT_ISO_8859_2
+            END
+
+            POPUP "Greek"
+            BEGIN
+                MENUITEM "ISO 8859-7",          IDM_FORMAT_ISO_8859_7
+                MENUITEM "OEM 737",             IDM_FORMAT_DOS_737
+                MENUITEM "OEM 869",             IDM_FORMAT_DOS_869
+                MENUITEM "Windows-1253",        IDM_FORMAT_WIN_1253
+            END
+
+            POPUP "Hebrew"
+            BEGIN
+                MENUITEM "ISO 8859-8",          IDM_FORMAT_ISO_8859_8
+                MENUITEM "OEM 862",             IDM_FORMAT_DOS_862
+                MENUITEM "Windows-1255",        IDM_FORMAT_WIN_1255
+            END
+
+            POPUP "Japanese"
+            BEGIN
+                MENUITEM "Shift-JIS",           IDM_FORMAT_SHIFT_JIS
+            END
+
+            POPUP "Korean"
+            BEGIN
+                MENUITEM "Windows 949",              IDM_FORMAT_KOREAN_WIN
+                MENUITEM "EUC-KR",              IDM_FORMAT_EUC_KR
+            END
+
+            POPUP "North European"
+            BEGIN
+                MENUITEM "OEM 861 : Icelandic",   IDM_FORMAT_DOS_861
+                MENUITEM "OEM 865 : Nordic",   IDM_FORMAT_DOS_865
+            END
+
+            POPUP "Thai"
+            BEGIN
+                MENUITEM "TIS-620",                 IDM_FORMAT_TIS_620
+            END
+
+            POPUP "Turkish"
+            BEGIN
+                MENUITEM "ISO 8859-3",          IDM_FORMAT_ISO_8859_3
+                MENUITEM "ISO 8859-9",          IDM_FORMAT_ISO_8859_9
+                MENUITEM "OEM 857",             IDM_FORMAT_DOS_857
+                MENUITEM "Windows-1254",        IDM_FORMAT_WIN_1254
+            END
+
+            POPUP "Western European"
+            BEGIN
+                MENUITEM "ISO 8859-1",          IDM_FORMAT_ISO_8859_1
+                //MENUITEM "ISO 8859-10",         IDM_FORMAT_ISO_8859_10
+                MENUITEM "ISO 8859-15",         IDM_FORMAT_ISO_8859_15
+                MENUITEM "OEM 850",             IDM_FORMAT_DOS_850
+                MENUITEM "OEM 858",             IDM_FORMAT_DOS_858
+                MENUITEM "OEM 860 : Portuguese",  IDM_FORMAT_DOS_860
+                MENUITEM "OEM 863 : French",      IDM_FORMAT_DOS_863
+                MENUITEM "OEM-US",              IDM_FORMAT_DOS_437
+                MENUITEM "Windows-1252",        IDM_FORMAT_WIN_1252
+            END
+
+            POPUP "Vietnamese"
+            BEGIN
+                MENUITEM "Windows-1258",        IDM_FORMAT_WIN_1258
+            END
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Convert to ANSI",            IDM_FORMAT_CONV2_ANSI
+        MENUITEM "Convert to UTF-8",           IDM_FORMAT_CONV2_AS_UTF_8
+        MENUITEM "Convert to UTF-8-BOM",       IDM_FORMAT_CONV2_UTF_8
+        MENUITEM "Convert to UTF-16 BE BOM",   IDM_FORMAT_CONV2_UTF_16BE
+        MENUITEM "Convert to UTF-16 LE BOM",   IDM_FORMAT_CONV2_UTF_16LE
+    END
+
+    POPUP "&Language"
+    BEGIN
+        MENUITEM "None (Normal Text)",      IDM_LANG_TEXT
+        MENUITEM SEPARATOR
+        MENUITEM "ActionScript",            IDM_LANG_FLASH
+        MENUITEM "Ada",                     IDM_LANG_ADA
+        MENUITEM "ASN.1",                   IDM_LANG_ASN1
+        MENUITEM "ASP",                     IDM_LANG_ASP
+        MENUITEM "Assembly",                IDM_LANG_ASM
+        MENUITEM "AutoIt",                  IDM_LANG_AU3
+        MENUITEM "AviSynth",                IDM_LANG_AVS
+        MENUITEM "BaanC",                   IDM_LANG_BAANC
+        MENUITEM "Batch",                   IDM_LANG_BATCH
+        MENUITEM "Blitzbasic",              IDM_LANG_BLITZBASIC
+        MENUITEM "C",                       IDM_LANG_C
+        MENUITEM "C#",                      IDM_LANG_CS
+        MENUITEM "C++",                     IDM_LANG_CPP
+        MENUITEM "Caml",                    IDM_LANG_CAML
+        MENUITEM "CMake",                   IDM_LANG_CMAKE
+        MENUITEM "COBOL",                   IDM_LANG_COBOL
+        MENUITEM "CSound",                  IDM_LANG_CSOUND
+        MENUITEM "CoffeeScript",            IDM_LANG_COFFEESCRIPT
+        MENUITEM "CSS",                     IDM_LANG_CSS
+        MENUITEM "D",                       IDM_LANG_D
+        MENUITEM "Diff",                    IDM_LANG_DIFF
+        MENUITEM "Erlang",                  IDM_LANG_ERLANG
+        MENUITEM "ESCRIPT",                 IDM_LANG_ESCRIPT
+        MENUITEM "Forth",                   IDM_LANG_FORTH
+        MENUITEM "Fortran (free form)",     IDM_LANG_FORTRAN
+        MENUITEM "Fortran (fixed form)",    IDM_LANG_FORTRAN_77
+        MENUITEM "Freebasic",               IDM_LANG_FREEBASIC
+        MENUITEM "Gui4Cli",                 IDM_LANG_GUI4CLI
+        MENUITEM "Haskell",                 IDM_LANG_HASKELL
+        MENUITEM "HTML",                    IDM_LANG_HTML
+        MENUITEM "INI file",                IDM_LANG_INI
+        MENUITEM "Inno Setup",              IDM_LANG_INNO
+        MENUITEM "Intel HEX",               IDM_LANG_IHEX
+        MENUITEM "Java",                    IDM_LANG_JAVA
+        MENUITEM "JavaScript",              IDM_LANG_JS
+        MENUITEM "JSON",                    IDM_LANG_JSON
+        MENUITEM "JSP",                     IDM_LANG_JSP
+        MENUITEM "KIXtart",                 IDM_LANG_KIX
+        MENUITEM "LISP",                    IDM_LANG_LISP
+        MENUITEM "LaTeX",                   IDM_LANG_LATEX
+        MENUITEM "Lua",                     IDM_LANG_LUA
+        MENUITEM "Makefile",                IDM_LANG_MAKEFILE
+        MENUITEM "Matlab",                  IDM_LANG_MATLAB
+        MENUITEM "MMIXAL",                  IDM_LANG_MMIXAL
+        MENUITEM "MS-DOS Style",            IDM_LANG_ASCII
+        MENUITEM "Nim",                     IDM_LANG_NIM
+        MENUITEM "Nncrontab",               IDM_LANG_NNCRONTAB
+        MENUITEM "NSIS",                    IDM_LANG_NSIS
+        MENUITEM "Objective-C",             IDM_LANG_OBJC
+        MENUITEM "OScript",                 IDM_LANG_OSCRIPT
+        MENUITEM "Pascal",                  IDM_LANG_PASCAL
+        MENUITEM "Perl",                    IDM_LANG_PERL
+        MENUITEM "PHP",                     IDM_LANG_PHP
+        MENUITEM "PostScript",              IDM_LANG_PS
+        MENUITEM "PowerShell",              IDM_LANG_POWERSHELL
+        MENUITEM "Properties",              IDM_LANG_PROPS
+        MENUITEM "Purebasic",               IDM_LANG_PUREBASIC
+        MENUITEM "Python",                  IDM_LANG_PYTHON
+        MENUITEM "R",                       IDM_LANG_R
+        MENUITEM "REBOL",                   IDM_LANG_REBOL
+        MENUITEM "Registry",                IDM_LANG_REGISTRY
+        MENUITEM "Resource file",           IDM_LANG_RC
+        MENUITEM "Ruby",                    IDM_LANG_RUBY
+        MENUITEM "Rust",                    IDM_LANG_RUST
+        MENUITEM "Shell",                   IDM_LANG_BASH
+        MENUITEM "Scheme",                  IDM_LANG_SCHEME
+        MENUITEM "Smalltalk",               IDM_LANG_SMALLTALK
+        MENUITEM "Spice",                   IDM_LANG_SPICE
+        MENUITEM "SQL",                     IDM_LANG_SQL
+        MENUITEM "Swift",                  IDM_LANG_SWIFT
+        MENUITEM "S-Record",                IDM_LANG_SREC
+        MENUITEM "TCL",                     IDM_LANG_TCL
+        MENUITEM "Tektronix extended HEX",  IDM_LANG_TEHEX
+        MENUITEM "TeX",                     IDM_LANG_TEX
+        MENUITEM "txt2tags",                IDM_LANG_TXT2TAGS
+        MENUITEM "TypeScript",              IDM_LANG_TYPESCRIPT
+        MENUITEM "Verilog",                 IDM_LANG_VERILOG
+        MENUITEM "VHDL",                    IDM_LANG_VHDL
+        MENUITEM "Visual Basic",            IDM_LANG_VB
+        MENUITEM "Visual Prolog",           IDM_LANG_VISUALPROLOG
+        MENUITEM "XML",                     IDM_LANG_XML
+        MENUITEM "YAML",                    IDM_LANG_YAML
+        MENUITEM SEPARATOR
+        MENUITEM "Define your language...", IDM_LANG_USER_DLG
+        MENUITEM "Open User Defined Language folder...",      IDM_LANG_OPENUDLDIR
+        MENUITEM "User-Defined",            IDM_LANG_USER
+    END
+
+    POPUP "&Language"
+    BEGIN
+    MENUITEM "None (Normal Text)",        IDM_LANG_TEXT
+    MENUITEM SEPARATOR
+    POPUP "A"
+    BEGIN
+        MENUITEM "ActionScript",          IDM_LANG_FLASH
+        MENUITEM "Ada",                   IDM_LANG_ADA
+        MENUITEM "ASN.1",                 IDM_LANG_ASN1
+        MENUITEM "ASP",                   IDM_LANG_ASP
+        MENUITEM "Assembly",              IDM_LANG_ASM
+        MENUITEM "AutoIt",                IDM_LANG_AU3
+        MENUITEM "AviSynth",              IDM_LANG_AVS
+    END
+    POPUP "B"
+    BEGIN
+        MENUITEM "BaanC",                 IDM_LANG_BAANC
+        MENUITEM "Batch",                 IDM_LANG_BATCH
+        MENUITEM "Blitzbasic",            IDM_LANG_BLITZBASIC
+    END
+    POPUP "C"
+    BEGIN
+        MENUITEM "C",                     IDM_LANG_C
+        MENUITEM "C#",                    IDM_LANG_CS
+        MENUITEM "C++",                   IDM_LANG_CPP
+        MENUITEM "Caml",                  IDM_LANG_CAML
+        MENUITEM "CMake",                 IDM_LANG_CMAKE
+        MENUITEM "COBOL",                 IDM_LANG_COBOL
+        MENUITEM "CSound",                IDM_LANG_CSOUND
+        MENUITEM "CoffeeScript",          IDM_LANG_COFFEESCRIPT
+        MENUITEM "CSS",                   IDM_LANG_CSS
+    END
+    POPUP "D"
+    BEGIN
+        MENUITEM "D",                     IDM_LANG_D
+        MENUITEM "Diff",                  IDM_LANG_DIFF
+    END
+    POPUP "E"
+    BEGIN
+        MENUITEM "Erlang",                IDM_LANG_ERLANG
+        MENUITEM "ESCRIPT",               IDM_LANG_ESCRIPT
+    END
+    POPUP "F"
+    BEGIN
+        MENUITEM "Forth",                 IDM_LANG_FORTH
+        MENUITEM "Fortran (free form)",   IDM_LANG_FORTRAN
+        MENUITEM "Fortran (fixed form)",  IDM_LANG_FORTRAN_77
+        MENUITEM "Freebasic",             IDM_LANG_FREEBASIC
+    END
+    MENUITEM "Gui4Cli",                   IDM_LANG_GUI4CLI
+    POPUP "H"
+    BEGIN
+        MENUITEM "Haskell",               IDM_LANG_HASKELL
+        MENUITEM "HTML",                  IDM_LANG_HTML
+    END
+    POPUP "I"
+    BEGIN
+        MENUITEM "INI file",              IDM_LANG_INI
+        MENUITEM "Inno Setup",            IDM_LANG_INNO
+        MENUITEM "Intel HEX",             IDM_LANG_IHEX
+    END
+    POPUP "J"
+    BEGIN
+        MENUITEM "Java",                  IDM_LANG_JAVA
+        MENUITEM "JavaScript",            IDM_LANG_JS
+        MENUITEM "JSON",                  IDM_LANG_JSON
+        MENUITEM "JSP",                   IDM_LANG_JSP
+    END
+    MENUITEM "KIXtart",                   IDM_LANG_KIX
+    POPUP "L"
+    BEGIN
+        MENUITEM "LaTeX",                 IDM_LANG_LATEX
+        MENUITEM "LISP",                  IDM_LANG_LISP
+        MENUITEM "Lua",                   IDM_LANG_LUA
+    END
+     POPUP "M"
+    BEGIN
+        MENUITEM "Makefile",              IDM_LANG_MAKEFILE
+        MENUITEM "Matlab",                IDM_LANG_MATLAB
+        MENUITEM "MMIXAL",                IDM_LANG_MMIXAL
+        MENUITEM "MS-DOS Style",          IDM_LANG_ASCII
+    END
+    POPUP "N"
+    BEGIN
+        MENUITEM "Nim",                   IDM_LANG_NIM
+        MENUITEM "Nncrontab",             IDM_LANG_NNCRONTAB
+        MENUITEM "NSIS",                  IDM_LANG_NSIS
+    END
+    POPUP "O"
+    BEGIN
+        MENUITEM "Objective-C",           IDM_LANG_OBJC
+        MENUITEM "OScript",               IDM_LANG_OSCRIPT
+    END
+    POPUP "P"
+    BEGIN
+        MENUITEM "Pascal",                IDM_LANG_PASCAL
+        MENUITEM "Perl",                  IDM_LANG_PERL
+        MENUITEM "PHP",                   IDM_LANG_PHP
+        MENUITEM "PostScript",            IDM_LANG_PS
+        MENUITEM "PowerShell",            IDM_LANG_POWERSHELL
+        MENUITEM "Properties",            IDM_LANG_PROPS
+        MENUITEM "Purebasic",             IDM_LANG_PUREBASIC
+        MENUITEM "Python",                IDM_LANG_PYTHON
+    END
+    POPUP "R"
+    BEGIN
+        MENUITEM "R",                     IDM_LANG_R
+        MENUITEM "REBOL",                 IDM_LANG_REBOL
+        MENUITEM "Registry",              IDM_LANG_REGISTRY
+        MENUITEM "Resource file",         IDM_LANG_RC
+        MENUITEM "Ruby",                  IDM_LANG_RUBY
+        MENUITEM "Rust",                  IDM_LANG_RUST
+    END
+    POPUP "S"
+    BEGIN
+        MENUITEM "Shell",                 IDM_LANG_BASH
+        MENUITEM "Scheme",                IDM_LANG_SCHEME
+        MENUITEM "Smalltalk",             IDM_LANG_SMALLTALK
+        MENUITEM "Spice",                 IDM_LANG_SPICE
+        MENUITEM "SQL",                   IDM_LANG_SQL
+        MENUITEM "Swift",                IDM_LANG_SWIFT
+        MENUITEM "S-Record",              IDM_LANG_SREC
+    END
+    POPUP "T"
+    BEGIN
+        MENUITEM "TCL",                   IDM_LANG_TCL
+        MENUITEM "Tektronix extended HEX",IDM_LANG_TEHEX
+        MENUITEM "TeX",                   IDM_LANG_TEX
+        MENUITEM "txt2tags",              IDM_LANG_TXT2TAGS
+        MENUITEM "TypeScript",            IDM_LANG_TYPESCRIPT
+    END
+    POPUP "V"
+    BEGIN
+        MENUITEM "Visual Basic",          IDM_LANG_VB
+        MENUITEM "Visual Prolog",         IDM_LANG_VISUALPROLOG
+        MENUITEM "VHDL",                  IDM_LANG_VHDL
+        MENUITEM "Verilog",               IDM_LANG_VERILOG
+    END
+    MENUITEM "XML",                       IDM_LANG_XML
+    MENUITEM "YAML",                      IDM_LANG_YAML
+    MENUITEM SEPARATOR
+    POPUP "User Defined Language"
+    BEGIN
+        MENUITEM "Define your language...",   IDM_LANG_USER_DLG
+        MENUITEM "Open User Defined Language folder...",        IDM_LANG_OPENUDLDIR
+    END
+    MENUITEM "User-Defined",              IDM_LANG_USER
+    END
+
+    POPUP "Se&ttings"
+    BEGIN
+        MENUITEM "Preferences...",          IDM_SETTING_PREFERENCE
+        MENUITEM "Style Configurator...",   IDM_LANGSTYLE_CONFIG_DLG
+        MENUITEM "Shortcut Mapper...",      IDM_SETTING_SHORTCUT_MAPPER
+        MENUITEM SEPARATOR
+        POPUP "Import"
+        BEGIN
+            MENUITEM "Import plugin(s)...",         IDM_SETTING_IMPORTPLUGIN
+            MENUITEM "Import style theme(s)...",    IDM_SETTING_IMPORTSTYLETHEMS
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Edit Popup ContextMenu",      IDM_SETTING_EDITCONTEXTMENU
+    END
+
+    POPUP "T&ools"
+    BEGIN
+        POPUP "MD5"
+        BEGIN
+            MENUITEM "Generate...",                            IDM_TOOL_MD5_GENERATE
+            MENUITEM "Generate from files...",                 IDM_TOOL_MD5_GENERATEFROMFILE
+            MENUITEM "Generate from selection into clipboard", IDM_TOOL_MD5_GENERATEINTOCLIPBOARD
+        END
+        POPUP "SHA-256"
+        BEGIN
+            MENUITEM "Generate...", IDM_TOOL_SHA256_GENERATE
+            MENUITEM "Generate from files...", IDM_TOOL_SHA256_GENERATEFROMFILE
+            MENUITEM "Generate from selection into clipboard", IDM_TOOL_SHA256_GENERATEINTOCLIPBOARD
+        END
+    END
+    
+    POPUP "&Macro"
+    BEGIN
+        MENUITEM "Start Re&cording",                   IDM_MACRO_STARTRECORDINGMACRO
+        MENUITEM "S&top Recording",                    IDM_MACRO_STOPRECORDINGMACRO
+        MENUITEM "&Playback",                          IDM_MACRO_PLAYBACKRECORDEDMACRO
+        MENUITEM "&Save Current Recorded Macro...",    IDM_MACRO_SAVECURRENTMACRO
+        MENUITEM "&Run a Macro Multiple Times...",     IDM_MACRO_RUNMULTIMACRODLG
+    END
+
+    POPUP "&Run"
+    BEGIN
+        MENUITEM "&Run...",    IDM_EXECUTE
+    END
+
+    POPUP "&?"
+    BEGIN
+        MENUITEM "Command Line Arguments...",      IDM_CMDLINEARGUMENTS
+        MENUITEM SEPARATOR
+        MENUITEM "Notepad++ Home",                 IDM_HOMESWEETHOME
+        MENUITEM "Notepad++ Project Page",         IDM_PROJECTPAGE
+        MENUITEM "Notepad++ Online User Manual",   IDM_ONLINEDOCUMENT
+        MENUITEM "Notepad++ Community (Forum)",    IDM_FORUM
+        MENUITEM SEPARATOR
+        MENUITEM "Update Notepad++",               IDM_UPDATE_NPP
+        MENUITEM "Set Updater Proxy...",           IDM_CONFUPDATERPROXY
+        MENUITEM SEPARATOR
+        MENUITEM "Debug Info...",                  IDM_DEBUGINFO
+        MENUITEM "About Notepad++",                IDM_ABOUT
+    END
+
+    MENUITEM "X",    IDM_FILE_CLOSE, HELP
+END
+
+IDR_SYSTRAYPOPUP_MENU MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "Activate",            IDM_SYSTRAYPOPUP_ACTIVATE
+        MENUITEM SEPARATOR
+        MENUITEM "New",                 IDM_SYSTRAYPOPUP_NEWDOC
+        MENUITEM "New and Paste",       IDM_SYSTRAYPOPUP_NEW_AND_PASTE
+        MENUITEM "Open...",             IDM_SYSTRAYPOPUP_OPENFILE
+        MENUITEM "Find in Files...",    IDM_SEARCH_FINDINFILES
+        MENUITEM SEPARATOR
+        MENUITEM "Close Tray Icon",     IDM_SYSTRAYPOPUP_CLOSE
+    END
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 271, 240
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_BORDER | WS_SYSMENU
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_BUILD_DATETIME,150,2,150,10, ES_READONLY | NOT WS_BORDER
+    CONTROL         "", IDI_NPPABOUT_LOGO,"Static",SS_OWNERDRAW,10,5,128,128
+    LTEXT           NOTEPAD_PLUS_VERSION, IDC_STATIC,85,25,140,11
+    LTEXT           "bit",IDC_VERSION_BIT,160,25,140,11
+    //LTEXT           "Author :",IDC_STATIC,21,45,31,8
+    //LTEXT           "FREE UYGHUR",IDC_AUTHOR_NAME,70,32,70,8
+    //LTEXT           "Stand with Hong Kong",IDC_AUTHOR_NAME,70,32,80,8
+    //LTEXT           "pour Samuel Paty",IDC_AUTHOR_NAME,70,32,80,8
+    LTEXT           "Home:",IDC_STATIC,21,58,47,8
+    LTEXT           "https://notepad-plus-plus.org/",IDC_HOME_ADDR,50,58,126,8
+    GROUPBOX        "GNU General Public Licence",IDC_STATIC,19,75,231,131,BS_CENTER
+    DEFPUSHBUTTON   "OK",IDOK,106,215,50,14,BS_FLAT
+    // IDC_LICENCE_EDIT should be the last line, don't know why
+    EDITTEXT        IDC_LICENCE_EDIT,31,99,209,96,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
+END
+
+IDD_DEBUGINFOBOX DIALOGEX 0, 0, 271, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Debug Info"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_DEBUGINFO_EDIT,31,20,220,96,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
+    LTEXT           "Copy debug info into clipboard",IDC_DEBUGINFO_COPYLINK,31,120,126,8
+    DEFPUSHBUTTON   "OK",IDOK,106,160,50,14,BS_FLAT
+END
+
+IDD_DOSAVEORNOTBOX DIALOGEX 0, 0, 310, 80
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Save"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    LTEXT           "",IDC_DOSAVEORNOTTEXT,7,10,290,40,SS_EDITCONTROL
+    DEFPUSHBUTTON   "&Yes",IDYES,10,60,50,14,BS_FLAT
+    PUSHBUTTON   "&No",IDNO,65,60,50,14,BS_FLAT
+    PUSHBUTTON   "&Cancel",IDCANCEL,120,60,50,14,BS_FLAT
+    PUSHBUTTON   "Yes to &all",IDRETRY,175,60,60,14,BS_FLAT
+    PUSHBUTTON   "N&o to all",IDIGNORE,240,60,60,14,BS_FLAT
+END
+
+IDD_DOSAVEALLBOX DIALOGEX 0, 0, 260, 100
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Save"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    LTEXT           "",IDC_DOSAVEALLTEXT,7,10,250,70,SS_EDITCONTROL
+    DEFPUSHBUTTON   "&Yes",IDYES,47,75,50,14,BS_FLAT
+    PUSHBUTTON   "Always Yes", IDRETRY, 102, 75, 60, 14, BS_FLAT
+    PUSHBUTTON   "&No",IDNO,167,75,50,14,BS_FLAT
+END
+
+IDD_GOLINE DIALOGEX 26, 41, 261, 88
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Go To..."
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x0
+BEGIN
+    CONTROL         "&Line",IDC_RADIO_GOTOLINE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,5,9,80,10
+    CONTROL         "&Offset",IDC_RADIO_GOTOOFFSET,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,98,9,80,10
+    LTEXT           "You are here :",ID_URHERE_STATIC,5,34,95,8,NOT WS_GROUP
+    LTEXT           "0123456789",ID_CURRLINE,100,34,45,8,NOT WS_GROUP
+    LTEXT           "You want to &go to :",ID_UGO_STATIC,5,51,95,8
+    EDITTEXT        ID_GOLINE_EDIT,98,49,71,12,ES_NUMBER
+    LTEXT           "You can't go further than :",ID_NOMORETHAN_STATIC,5,68,92,8,NOT WS_GROUP
+    LTEXT           "0123456789",ID_LASTLINE,100,68,45,8,NOT WS_GROUP
+    DEFPUSHBUTTON   "Go",IDOK,181,48,70,14,BS_NOTIFY
+    PUSHBUTTON      "I'm going nowhere",IDCANCEL,181,66,70,14,BS_NOTIFY
+END
+
+IDD_VALUE_DLG DIALOGEX 0, 0, 74, 17
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    LTEXT             "STATIC :",IDC_VALUE_STATIC,6,4,45,8
+    EDITTEXT        IDC_VALUE_EDIT,49,3,18,11,ES_NUMBER
+END
+
+IDD_BUTTON_DLG DIALOGEX 0, 0, 12, 10
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "+",IDC_RESTORE_BUTTON,0,0,12,10
+END
+
+IDD_HASHFROMFILES_DLG DIALOGEX 0, 0, 357, 213
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Generate MD5 digest from files"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Choose files to generate MD5...",IDC_HASH_FILEBROWSER_BUTTON,9,4,131,14
+    EDITTEXT        IDC_HASH_PATH_EDIT,9,21,340,64,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL,WS_EX_CLIENTEDGE
+    EDITTEXT        IDC_HASH_RESULT_EDIT,9,105,340,64,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Copy to Clipboard",IDC_HASH_TOCLIPBOARD_BUTTON,259,172,90,14
+    PUSHBUTTON      "Close",IDCANCEL,148,190,60,14
+END
+
+IDD_HASHFROMTEXT_DLG DIALOGEX 0, 0, 357, 213
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Generate MD5 digest"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Treat each line as a separate string",IDC_HASH_EACHLINE_CHECK,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,9,3,179,16
+    EDITTEXT        IDC_HASH_TEXT_EDIT, 9, 21, 340, 64, ES_MULTILINE | ES_AUTOVSCROLL | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL | ES_WANTRETURN,WS_EX_CLIENTEDGE
+    EDITTEXT        IDC_HASH_RESULT_FOMTEXT_EDIT,9,105,340,64,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Copy to Clipboard",IDC_HASH_FROMTEXT_TOCLIPBOARD_BUTTON,259,172,90,14
+    PUSHBUTTON      "Close",IDCANCEL,148,190,60,14
+END
+
+IDD_FUNCLIST_PANEL DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Function List"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    //PUSHBUTTON      "Reload",IDC_RELOADBUTTON_FUNCLIST, 3,3,38,14
+	//LISTBOX         IDC_LIST_FUNCLIST,50,44,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_FILEBROWSER DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "File Browser"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+
+END
+
+
+IDD_FINDCHARACTERS DIALOGEX 26, 41, 263, 126
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Find Characters in Range..."
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL         "Non-ASCII Characters (128-255)",IDC_NONASCCI_RADIO,"Button",BS_AUTORADIOBUTTON,22,13,146,10
+    CONTROL         "ASCII Characters (0 - 127)",IDC_ASCCI_RADIO,"Button",BS_AUTORADIOBUTTON,22,32,151,10
+    CONTROL         "My Range:",IDC_MYRANGE_RADIO,"Button",BS_AUTORADIOBUTTON,22,51,67,10
+    EDITTEXT        IDC_RANGESTART_EDIT,91,49,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "-",IDC_STATIC,122,52,8,8
+    EDITTEXT        IDC_RANGEEND_EDIT,129,49,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "&Up",ID_FINDCHAR_DIRUP,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,25,91,64,12
+    CONTROL         "&Down",ID_FINDCHAR_DIRDOWN,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,25,103,63,12
+    GROUPBOX        "Direction",IDC_FINDCHAR_DIR_STATIC,19,79,74,42,WS_GROUP
+    CONTROL         "Wra&p around",ID_FINDCHAR_WRAP,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,105,102,110,15
+    DEFPUSHBUTTON   "Find",ID_FINDCHAR_NEXT,182,8,70,14,BS_NOTIFY
+    PUSHBUTTON      "Close",IDCANCEL,181,27,70,14,BS_NOTIFY
+END
+
+IDD_DOCUMENTMAP DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Document Map"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+END
+
+IDD_VIEWZONE DIALOGEX 26, 41, 200, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+	CONTROL "",IDC_VIEWZONECANVAS,"Static",SS_OWNERDRAW,0,0,50,14
+END
+
+IDD_VIEWZONE_CLASSIC DIALOGEX 0, 0, 0, 0
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+	CONTROL "",IDC_VIEWZONECANVAS,"Static",SS_OWNERDRAW,0,0,50,14
+END
+
+IDD_DOCUMENTSNAPSHOT DIALOGEX 26, 41, 140, 140
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_BORDER | WS_SYSMENU | WS_DISABLED
+EXSTYLE WS_EX_NOACTIVATE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+END
+
+IDD_PLUGINSADMIN_DLG DIALOGEX 36, 44, 500, 300
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Plugins Admin"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	RTEXT           "Search: ",IDC_PLUGINADM_SEARCH_STATIC,50,38,50,8
+	EDITTEXT        IDC_PLUGINADM_SEARCH_EDIT,160,35,150,14,ES_AUTOHSCROLL
+	PUSHBUTTON      "Next", IDC_PLUGINADM_RESEARCH_NEXT,332,35,57,14
+	PUSHBUTTON      "Install", IDC_PLUGINADM_INSTALL,432,35,57,14
+	PUSHBUTTON      "Update", IDC_PLUGINADM_UPDATE,432,35,57,14
+	PUSHBUTTON      "Remove", IDC_PLUGINADM_REMOVE,432,35,57,14
+	//LISTBOX         IDC_PLUGINADM_LISTVIEW,30,20,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+	EDITTEXT        IDC_PLUGINADM_EDIT,30,160,220,80,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL
+	
+	PUSHBUTTON      "Close", IDCANCEL, 225, 270, 57, 14
+
+	//PUSHBUTTON      "Close", IDCANCEL,332,270,57,14
+    //PUSHBUTTON      "Settings",IDC_PLUGINADM_SETTINGS_BUTTON,255,270,69,14
+END
+
+IDD_CONTAINER_DLG DIALOGEX 0, 0, 186, 103
+STYLE DS_SETFONT | DS_SETFOREGROUND | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Selected Tab"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    CONTROL         "Caption",IDC_BTN_CAPTION,"Button",BS_OWNERDRAW | NOT 
+                    WS_VISIBLE,0,0,186,10
+    LTEXT           "",IDC_CLIENT_TAB,16,28,156,50,NOT WS_GROUP
+    CONTROL         "Tab1",IDC_TAB_CONT,"SysTabControl32",TCS_BOTTOM | 
+                    TCS_OWNERDRAWFIXED | NOT WS_VISIBLE,0,14,185,88
+END
+
+IDB_CLOSE_DOWN          BITMAP                  "CloseDown.bmp"
+IDB_CLOSE_UP            BITMAP                  "CloseUp.bmp"
+
+IDD_COLOUR_POPUP DIALOGEX 0, 0, 132, 113
+STYLE DS_SETFONT | WS_POPUP | WS_BORDER
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x0
+BEGIN
+    LISTBOX         IDC_COLOUR_LIST,7,7,117,79,
+                    LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | 
+                    LBS_MULTICOLUMN | NOT WS_BORDER | WS_TABSTOP
+    DEFPUSHBUTTON   "More Colours...",IDOK,39,92,55,14
+END
+
+IDD_CLIPBOARDHISTORY_PANEL DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Clipboard History"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+	LISTBOX         IDC_LIST_CLIPBOARD,50,44,78,120,LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP | NOT WS_BORDER
+END
+
+IDD_ANSIASCII_PANEL DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "ASCII Codes Insertion Panel"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+	//LISTBOX         IDC_LIST_ANSICHAR,50,44,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PREFERENCE_BOX DIALOGEX 0, 0, 560, 235
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Preferences"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LISTBOX         IDC_LIST_DLGTITLE,10,10,80,185,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Close",IDC_BUTTON_CLOSE,255,215,45,14
+END
+
+
+IDD_PREFERENCE_SUB_GENRAL DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    RTEXT           "Localization:",IDC_LOCALIZATION_GB_STATIC,2,7,78,8
+    COMBOBOX        IDC_COMBO_LOCALIZATION,83,5,119,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Toolbar",IDC_TOOLBAR_GB_STATIC,57,22,147,97,BS_CENTER
+    CONTROL         "Hide",IDC_CHECK_HIDE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,30,94,10
+    CONTROL         "Fluent UI: small",IDC_RADIO_SMALLICON,"Button",BS_AUTORADIOBUTTON,64,45,114,10
+    CONTROL         "Fluent UI: large",IDC_RADIO_BIGICON,"Button",BS_AUTORADIOBUTTON,64,59,109,10
+    CONTROL         "Filled Fluent UI: small",IDC_RADIO_SMALLICON2,"Button",BS_AUTORADIOBUTTON,64,73,114,10
+    CONTROL         "Filled Fluent UI: large",IDC_RADIO_BIGICON2,"Button",BS_AUTORADIOBUTTON,64,87,109,10
+    CONTROL         "Standard icons: small",IDC_RADIO_STANDARD,"Button",BS_AUTORADIOBUTTON,64,101,119,10
+    GROUPBOX        "Tab Bar",IDC_TABBAR_GB_STATIC,223,6,176,156,BS_CENTER
+    CONTROL         "Hide",IDC_CHECK_TAB_HIDE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,15,108,10
+    CONTROL         "Multi-line",IDC_CHECK_TAB_MULTILINE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,29,134,10
+    CONTROL         "Vertical",IDC_CHECK_TAB_VERTICAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,41,134,10
+    CONTROL         "Reduce",IDC_CHECK_REDUCE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,54,108,10
+    CONTROL         "Alternate icons",IDC_CHECK_TAB_ALTICONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,67,164,10
+    CONTROL         "Lock (no drag and drop)",IDC_CHECK_LOCK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,80,134,10
+    CONTROL         "Darken inactive tabs",IDC_CHECK_DRAWINACTIVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,93,134,10
+    CONTROL         "Draw a coloured bar on active tab",IDC_CHECK_ORANGE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,106,137,10
+    CONTROL         "Show close button on each tab",IDC_CHECK_ENABLETABCLOSE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,119,133,10
+    CONTROL         "Double click to close document",IDC_CHECK_DBCLICK2CLOSE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,132,133,10
+    CONTROL         "Exit on close the last tab",IDC_CHECK_TAB_LAST_EXIT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,145,165,10
+    CONTROL         "Show status bar",IDC_CHECK_SHOWSTATUSBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,132,130,10
+    CONTROL         "Hide menu bar (use Alt or F10 key to toggle)",IDC_CHECK_HIDEMENUBAR,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,223,169,218,10
+END
+
+
+
+IDD_PREFERENCE_SUB_EDITING DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Caret Settings",IDC_CARETSETTING_STATIC,53,6,186,67,BS_CENTER
+    LTEXT           "Width :",IDC_WIDTH_STATIC,81,27,37,8,0,WS_EX_RIGHT
+    COMBOBOX        IDC_WIDTH_COMBO,125,25,40,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Blink rate :",IDC_BLINKRATE_STATIC,57,52,60,8
+    CONTROL         "",IDC_CARETBLINKRATE_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | WS_TABSTOP,134,52,67,13
+    LTEXT           "S",IDC_CARETBLINKRATE_S_STATIC,203,52,12,8
+    LTEXT           "F",IDC_CARETBLINKRATE_F_STATIC,122,52,12,8,0,WS_EX_RIGHT
+    GROUPBOX        "Line Wrap",IDC_LW_GB_STATIC,265,6,92,66,BS_CENTER
+    CONTROL         "Default",IDC_RADIO_LWDEF,"Button",BS_AUTORADIOBUTTON | WS_GROUP,275,21,59,10
+    CONTROL         "Aligned",IDC_RADIO_LWALIGN,"Button",BS_AUTORADIOBUTTON,275,36,60,10
+    CONTROL         "Indent",IDC_RADIO_LWINDENT,"Button",BS_AUTORADIOBUTTON,275,51,62,10
+    CONTROL         "Enable Multi-Editing (Ctrl+Mouse click/selection)",IDC_CHECK_MULTISELECTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,90,270,10
+    CONTROL         "Enable current line highlighting",IDC_CHECK_CURRENTLINEHILITE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,103,270,10
+    CONTROL         "Enable smooth font",IDC_CHECK_SMOOTHFONT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,116,250,10
+    CONTROL         "Enable scrolling beyond last line",IDC_CHECK_SCROLLBEYONDLASTLINE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,129,270,10
+    CONTROL         "Keep selection when right-click outside of selection",IDC_CHECK_RIGHTCLICKKEEPSSELECTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,142,270,10
+    CONTROL         "Disable advanced scrolling feature due to touchpad issue",IDC_CHECK_DISABLEADVANCEDSCROLL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,155,270,10
+END
+
+IDD_PREFERENCE_SUB_DARKMODE DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "Enable &dark mode",IDC_CHECK_DARKMODE_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,20,150,10
+    CONTROL         "Black tone",IDC_RADIO_DARKMODE_BLACK, "Button",BS_AUTORADIOBUTTON | WS_GROUP,35,40,90,10
+    CONTROL         "Red tone",IDC_RADIO_DARKMODE_RED,     "Button",BS_AUTORADIOBUTTON ,35,55,90,10
+    CONTROL         "Green tone",IDC_RADIO_DARKMODE_GREEN, "Button",BS_AUTORADIOBUTTON ,35,70,90,10
+    CONTROL         "Blue tone",IDC_RADIO_DARKMODE_BLUE,   "Button",BS_AUTORADIOBUTTON ,35,85,90,10
+    CONTROL         "Purple tone",IDC_RADIO_DARKMODE_PURPLE,   "Button",BS_AUTORADIOBUTTON ,35,100,90,10
+    CONTROL         "Cyan tone",IDC_RADIO_DARKMODE_CYAN,   "Button",BS_AUTORADIOBUTTON ,35,115,90,10
+    CONTROL         "Olive tone",IDC_RADIO_DARKMODE_OLIVE,   "Button",BS_AUTORADIOBUTTON ,35,130,90,10
+    CONTROL         "Customized tone",IDC_RADIO_DARKMODE_CUSTOMIZED, "Button",BS_AUTORADIOBUTTON,135,40,120,10
+    LTEXT           "Top", IDD_CUSTOMIZED_COLOR1_STATIC,165,60,100,8
+    LTEXT           "Menu hot track", IDD_CUSTOMIZED_COLOR2_STATIC,165,80,100,8
+    LTEXT           "Active", IDD_CUSTOMIZED_COLOR3_STATIC,165,100,100,8
+    LTEXT           "Main", IDD_CUSTOMIZED_COLOR4_STATIC,165,120,100,8
+    LTEXT           "Error", IDD_CUSTOMIZED_COLOR5_STATIC,165,140,100,8
+    LTEXT           "Text", IDD_CUSTOMIZED_COLOR6_STATIC,280,60,100,8
+    LTEXT           "Darker text", IDD_CUSTOMIZED_COLOR7_STATIC,280,80,100,8
+    LTEXT           "Disabled text", IDD_CUSTOMIZED_COLOR8_STATIC,280,100,100,8
+    LTEXT           "Edge", IDD_CUSTOMIZED_COLOR9_STATIC,280,120,100,8
+    LTEXT           "Link", IDD_CUSTOMIZED_COLOR10_STATIC,280,140,100,8
+    PUSHBUTTON      "Reset",IDD_CUSTOMIZED_RESET_BUTTON,360,140,45,14
+END
+
+IDD_PREFERENCE_SUB_MARGING_BORDER_EDGE DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Folder Margin Style",IDC_FMS_GB_STATIC,22,21,83,89,BS_CENTER
+    CONTROL         "Simple",IDC_RADIO_SIMPLE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,31,34,59,10
+    CONTROL         "Arrow",IDC_RADIO_ARROW,"Button",BS_AUTORADIOBUTTON,31,48,60,10
+    CONTROL         "Circle tree",IDC_RADIO_CIRCLE,"Button",BS_AUTORADIOBUTTON,31,63,62,10
+    CONTROL         "None",IDC_RADIO_FOLDMARGENONE,"Button",BS_AUTORADIOBUTTON,31,92,61,10
+    CONTROL         "Box tree",IDC_RADIO_BOX,"Button",BS_AUTORADIOBUTTON,31,77,61,10
+    GROUPBOX        "Vertical Edge Settings",IDC_VES_GB_STATIC,116,21,148,136,BS_CENTER
+    LTEXT           "Add your column marker by indicating its position with a decimal number.\nYou can define several column markers by using white space to separate the different numbers.",IDC_STATIC_MULTILNMODE_TIP,124,36,134,55
+    EDITTEXT        IDC_COLUMNPOS_EDIT,126,93,125,36,ES_MULTILINE
+    CONTROL         "Background mode",IDC_CHECK_EDGEBGMODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,127,138,122,10
+    GROUPBOX        "Border Width",IDC_BORDERWIDTH_STATIC,22,112,83,45,BS_CENTER
+    CONTROL         "",IDC_BORDERWIDTH_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | WS_TABSTOP,24,125,67,13
+    LTEXT           "0",IDC_BORDERWIDTHVAL_STATIC,92,126,12,8
+    CONTROL         "No edge",IDC_CHECK_NOEDGE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,29,142,60,10
+    GROUPBOX        "Line Number",IDC_LINENUMBERMARGE_GB_STATIC,274,21,135,66,BS_CENTER
+    CONTROL         "Display",IDC_CHECK_LINENUMBERMARGE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,281,35,85,10
+    CONTROL         "Dynamic width",IDC_RADIO_DYNAMIC,"Button",BS_AUTORADIOBUTTON | WS_GROUP,293,51,110,10
+    CONTROL         "Constant width",IDC_RADIO_CONSTANT,"Button",BS_AUTORADIOBUTTON,293,65,108,10
+    CONTROL         "Display bookmark",IDC_CHECK_BOOKMARKMARGE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,281,163,150,10
+    GROUPBOX        "Padding",IDC_PADDING_STATIC,274,94,135,63,BS_CENTER
+    RTEXT           "Left",IDC_PADDINGLEFT_STATIC,280,108,45,8
+    CONTROL         "",IDC_PADDINGLEFT_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | WS_TABSTOP,328,107,67,13
+    LTEXT           "0",IDC_PADDINGLEFTVAL_STATIC,396,108,12,8
+    RTEXT           "Right",IDC_PADDINGRIGHT_STATIC,282,124,43,8
+    CONTROL         "",IDC_PADDINGRIGHT_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | WS_TABSTOP,328,123,67,13
+    LTEXT           "0",IDC_PADDINGRIGHTVAL_STATIC,396,124,12,8
+    RTEXT           "Distraction Free",IDC_DISTRACTIONFREE_STATIC,275,140,72,8
+    CONTROL         "",IDC_DISTRACTIONFREE_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | WS_TABSTOP,348,139,47,13
+    LTEXT           "0",IDC_DISTRACTIONFREEVAL_STATIC,396,140,12,8
+END
+
+
+
+IDD_PREFERENCE_SUB_NEWDOCUMENT DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "New Document",IDC_NEWDOCUMENT_GR_STATIC,15,8,424,161,BS_CENTER
+    GROUPBOX        "Format (Line ending)",IDC_FORMAT_GB_STATIC,58,29,129,79,BS_CENTER
+    CONTROL         "Windows (CR LF)",IDC_RADIO_F_WIN,"Button",BS_AUTORADIOBUTTON | WS_GROUP,65,48,70,10
+    CONTROL         "Unix (LF)",IDC_RADIO_F_UNIX,"Button",BS_AUTORADIOBUTTON,65,64,70,10
+    CONTROL         "Macintosh (CR)",IDC_RADIO_F_MAC,"Button",BS_AUTORADIOBUTTON,65,80,70,10
+    GROUPBOX        "Encoding",IDC_ENCODING_STATIC,232,28,175,122,BS_CENTER
+    CONTROL         "ANSI",IDC_RADIO_ANSI,"Button",BS_AUTORADIOBUTTON | WS_GROUP,242,39,80,10
+    CONTROL         "UTF-8",IDC_RADIO_UTF8SANSBOM,"Button",BS_AUTORADIOBUTTON,242,53,128,10
+    CONTROL         "Apply to opened ANSI files",IDC_CHECK_OPENANSIASUTF8, "Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,65,144,10
+    CONTROL         "UTF-8 with BOM",IDC_RADIO_UTF8,"Button",BS_AUTORADIOBUTTON,242,79,62,10
+    CONTROL         "UTF-16 Big Endian with BOM",IDC_RADIO_UTF16BIG,"Button",BS_AUTORADIOBUTTON,242,95,110,10
+    CONTROL         "UTF-16 Little Endian with BOM",IDC_RADIO_UTF16SMALL,"Button",BS_AUTORADIOBUTTON,242,111,110,10
+    CONTROL         "",IDC_RADIO_OTHERCP,"Button",BS_AUTORADIOBUTTON,242,126,10,10
+    COMBOBOX        IDC_COMBO_OTHERCP,257,125,100,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Default language :",IDC_DEFAULTLANG_STATIC,16,130,77,8
+    COMBOBOX        IDC_COMBO_DEFAULTLANG,98,128,100,140,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+
+IDD_PREFERENCE_SUB_DEFAULTDIRECTORY DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Default Open/Save file Directory",IDC_OPENSAVEDIR_GR_STATIC,110,29,232,101,BS_CENTER
+    CONTROL         "Follow current document",IDC_OPENSAVEDIR_FOLLOWCURRENT_RADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,118,60,200,10
+    CONTROL         "Remember last used directory",IDC_OPENSAVEDIR_REMEMBERLAST_RADIO,"Button",BS_AUTORADIOBUTTON,118,75,217,10
+    CONTROL         "",IDC_OPENSAVEDIR_ALWAYSON_RADIO,"Button",BS_AUTORADIOBUTTON,118,89,11,10
+    EDITTEXT        IDC_OPENSAVEDIR_ALWAYSON_EDIT,134,88,179,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDD_OPENSAVEDIR_ALWAYSON_BROWSE_BUTTON,320,87,16,14
+    CONTROL         "Open all files of folder instead of launching Folder as Workspace on folder dropping",IDC_OPENSAVEDIR_CHECK_DRROPFOLDEROPENFILES, "Button",BS_AUTOCHECKBOX | WS_TABSTOP,110, 145,342,10
+END
+
+
+IDD_PREFERENCE_SUB_RECENTFILESHISTORY DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Recent Files History",IDC_HISTORY_GB_STATIC,104,25,260,126,BS_CENTER
+    RTEXT           "Max. number of entries :",IDC_MAXNBFILE_STATIC,108,52,112,8
+    LTEXT           "0",IDC_MAXNBFILEVAL_STATIC,229,52,15,8,WS_TABSTOP
+    CONTROL         "Don't check at launch time",IDC_CHECK_DONTCHECKHISTORY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,39,140,10
+    GROUPBOX        "Display",IDC_DISPLAY_STATIC,121,65,225,73,BS_CENTER
+    CONTROL         "In Submenu",IDC_CHECK_INSUBMENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,132,76,79,10
+    CONTROL         "Only File Name",IDC_RADIO_ONLYFILENAME,"Button",BS_AUTORADIOBUTTON | WS_GROUP,133,92,170,10
+    CONTROL         "Full File Name Path",IDC_RADIO_FULLFILENAMEPATH,"Button",BS_AUTORADIOBUTTON,133,106,170,10
+    CONTROL         "Customize Maximum Length:",IDC_RADIO_CUSTOMIZELENTH,"Button",BS_AUTORADIOBUTTON,133,120,120,10
+    LTEXT           "0",IDC_CUSTOMIZELENGTHVAL_STATIC,255,120,18,8,WS_TABSTOP
+END
+
+
+IDD_PREFERENCE_SUB_LANGUAGE DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Language Menu",IDC_CHECK_LANGMENU_GR_STATIC,34,0,220,172,BS_CENTER
+    CONTROL         "Make language menu compact",IDC_CHECK_LANGMENUCOMPACT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,48,14,174,10
+    CTEXT           "Available items",IDC_ENABLEDITEMS_STATIC,52,31,72,8
+    LISTBOX         IDC_LIST_ENABLEDLANG,47,44,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "->",IDC_BUTTON_REMOVE,132,76,25,14
+    PUSHBUTTON      "<-",IDC_BUTTON_RESTORE,132,107,25,14
+    CTEXT           "Disabled items",IDC_DISABLEDITEMS_STATIC,167,31,72,8
+    LISTBOX         IDC_LIST_DISABLEDLANG,164,44,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Tab Settings",IDC_TABSETTING_GB_STATIC,275,0,130,172,BS_CENTER
+    LISTBOX         IDC_LIST_TABSETTNG,297,18,84,100,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_GR_TABVALUE_STATIC,287,125,110,42,BS_CENTER
+    CONTROL         "Use default value",IDC_CHECK_DEFAULTTABVALUE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,283,125,85,10
+    RTEXT           "Tab size : ",IDC_TABSIZE_STATIC,288,138,58,8
+    LTEXT           "0",IDC_TABSIZEVAL_STATIC,348,138,18,8,WS_TABSTOP
+    LTEXT           "0",IDC_TABSIZEVAL_DISABLE_STATIC,348,138,18,8
+    CONTROL         "Replace by space",IDC_CHECK_REPLACEBYSPACE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,295,149,100,10
+    CONTROL         "Treat backslash as escape character for SQL",IDC_CHECK_BACKSLASHISESCAPECHARACTERFORSQL, "Button",BS_AUTOCHECKBOX | WS_TABSTOP,37,175,217,10
+END
+
+
+IDD_PREFERENCE_SUB_HIGHLIGHTING DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Style All Occurrences of Token",IDC_MARKALL_STATIC,62,29,155,45,BS_CENTER
+    CONTROL         "Match case",IDC_CHECK_MARKALLCASESENSITIVE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,70,42,142,10
+    CONTROL         "Match whole word only",IDC_CHECK_MARKALLWHOLEWORDONLY,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,70,55,142,10
+    GROUPBOX        "Smart Highlighting",IDC_SMARTHILITING_STATIC,226,29,172,108,BS_CENTER
+    CONTROL         "Enable",IDC_CHECK_ENABLSMARTHILITE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,234,39,142,10
+    CONTROL         "Highlight another view",IDC_CHECK_SMARTHILITEANOTHERRVIEW,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,234,55,142,10
+    GROUPBOX        "Matching", IDC_SMARTHILITEMATCHING_STATIC,233,74,155,55,BS_CENTER
+    CONTROL         "Match case",IDC_CHECK_SMARTHILITECASESENSITIVE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,241,86,142,10
+    CONTROL         "Match whole word only",IDC_CHECK_SMARTHILITEWHOLEWORDONLY,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,241,99,142,10
+    CONTROL         "Use Find dialog settings",IDC_CHECK_SMARTHILITEUSEFINDSETTINGS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,241,113,142,10
+    GROUPBOX        "Highlight Matching Tags",IDC_TAGMATCHEDHILITE_STATIC,62,82,155,55,BS_CENTER
+    CONTROL         "Enable",IDC_CHECK_ENABLTAGSMATCHHILITE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,71,92,140,10
+    CONTROL         "Highlight tag attributes",IDC_CHECK_ENABLTAGATTRHILITE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,71,106,140,10
+    CONTROL         "Highlight comment/php/asp zone",IDC_CHECK_HIGHLITENONEHTMLZONE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,71,120,140,10
+END
+
+
+IDD_PREFERENCE_SUB_PRINT DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "WYSIWYG",IDC_RADIO_WYSIWYG,"Button",BS_AUTORADIOBUTTON,12,30,123,10
+    CONTROL         "Invert",IDC_RADIO_INVERT,"Button",BS_AUTORADIOBUTTON,12,45,90,10
+    CONTROL         "Black on white",IDC_RADIO_BW,"Button",BS_AUTORADIOBUTTON,12,60,90,10
+    CONTROL         "No background colour",IDC_RADIO_NOBG,"Button",BS_AUTORADIOBUTTON,12,76,123,10
+    GROUPBOX        "Colour Options",IDC_COLOUROPT_STATIC,6,20,133,73,BS_CENTER
+    CONTROL         "Print line number",IDC_CHECK_PRINTLINENUM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,6,133,10
+    EDITTEXT        IDC_EDIT_ML,42,136,17,14,ES_NUMBER
+    EDITTEXT        IDC_EDIT_MT,59,120,17,14,ES_NUMBER
+    EDITTEXT        IDC_EDIT_MR,77,136,17,14,ES_NUMBER
+    EDITTEXT        IDC_EDIT_MB,59,152,17,14,ES_NUMBER
+    RTEXT           "Left",IDC_ML_STATIC,9,139,30,8
+    CTEXT           "Top",IDC_MT_STATIC,41,110,54,8
+    LTEXT           "Right",IDC_MR_STATIC,99,139,29,8
+    CTEXT           "Bottom",IDC_MB_STATIC,41,167,54,8
+    GROUPBOX        "Margin Setting (Unit:mm)",IDC_MARGESETTINGS_STATIC,6,98,133,82,BS_CENTER
+    EDITTEXT        IDC_EDIT_HLEFT,166,58,83,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_HMIDDLE,256,58,83,14,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_HRIGHT,346,58,83,14,ES_RIGHT | ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_HFONTNAME,166,76,84,104,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_HFONTSIZE,256,76,31,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Bold",IDC_CHECK_HBOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,296,76,46,10
+    CONTROL         "Italic",IDC_CHECK_HITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,356,76,43,10
+    GROUPBOX        "Header",IDC_HGB_STATIC,158,39,279,56,BS_CENTER
+    CTEXT           "Left part",IDC_HL_STATIC,168,49,79,8
+    CTEXT           "Middle part",IDC_HM_STATIC,260,49,75,8
+    CTEXT           "Right part",IDC_HR_STATIC,348,49,78,8
+    EDITTEXT        IDC_EDIT_FLEFT,166,116,83,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_FMIDDLE,257,116,83,14,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_FRIGHT,346,116,83,14,ES_RIGHT | ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_FFONTNAME,166,134,84,119,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_FFONTSIZE,258,134,31,71,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Bold",IDC_CHECK_FBOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,297,136,46,10
+    CONTROL         "Italic",IDC_CHECK_FITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,356,136,47,10
+    GROUPBOX        "Footer",IDC_FGB_STATIC,158,97,279,58,BS_CENTER
+    CTEXT           "Left part",IDC_FL_STATIC,168,107,78,8
+    CTEXT           "Middle part",IDC_FM_STATIC,257,107,82,8
+    CTEXT           "Right part",IDC_FR_STATIC,348,107,79,8
+    COMBOBOX        IDC_COMBO_VARLIST,259,24,70,58,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_BUTTON_ADDVAR,337,24,44,12
+    RTEXT           "Variable :",IDC_VAR_STATIC,198,26,59,8
+    RTEXT           "Here display your variable settings",IDC_WHICHPART_STATIC,155,161,120,8
+    LTEXT           "",IDC_VIEWPANEL_STATIC,277,161,180,8
+    GROUPBOX        "Header and Footer",IDC_HEADERFPPTER_GR_STATIC,150,7,296,172,BS_CENTER
+END
+
+
+IDD_PREFERENCE_SUB_SEARCHING DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "Don't fill find field in Find dialog with selected word", IDC_CHECK_STOPFILLINGFINDFIELD, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,37,10,350,10
+    CONTROL         "Use Monospaced font in Find dialog (Need to restart Notepad++)",IDC_CHECK_MONOSPACEDFONT_FINDDLG, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,37,25,350,10
+    CONTROL         "Find dialog remains open after search that outputs to results window",IDC_CHECK_FINDDLG_ALWAYS_VISIBLE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,37,40,350,10
+    CONTROL         "Confirm Replace All in All Opened Documents",IDC_CHECK_CONFIRMREPLOPENDOCS, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,37,55,350,10
+    CONTROL         "Replace: Don't move to the following occurrence", IDC_CHECK_REPLACEANDSTOP, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 37, 70, 350, 10
+    END
+
+
+IDD_PREFERENCE_SUB_BACKUP DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Session snapshot and periodic backup",IDC_BACKUPDIR_RESTORESESSION_GRP_STATIC,79,1,289,75,BS_CENTER
+    CONTROL         "Remember current session for next launch",IDC_CHECK_REMEMBERSESSION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,90,10,270,10
+    CONTROL         "Enable session snapshot and periodic backup",IDC_BACKUPDIR_RESTORESESSION_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,90,25,270,10
+    EDITTEXT        IDC_BACKUPDIR_RESTORESESSION_EDIT,164,40,21,14,ES_NUMBER
+    RTEXT           "Backup in every",IDD_BACKUPDIR_RESTORESESSION_STATIC1,82,42,78,8
+    LTEXT           "seconds",IDD_BACKUPDIR_RESTORESESSION_STATIC2,190,42,66,8
+    GROUPBOX        "Backup on save",IDC_BACKUPDIR_GRP_STATIC,79,81,289,101,BS_CENTER
+    CONTROL         "None",IDC_RADIO_BKNONE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,104,90,87,10
+    CONTROL         "Simple backup",IDC_RADIO_BKSIMPLE,"Button",BS_AUTORADIOBUTTON,104,104,111,10
+    CONTROL         "Verbose backup",IDC_RADIO_BKVERBOSE,"Button",BS_AUTORADIOBUTTON,104,117,111,10
+    GROUPBOX        "Custom Backup Directory",IDC_BACKUPDIR_USERCUSTOMDIR_GRPSTATIC,95,135,260,40
+    CONTROL         "",IDC_BACKUPDIR_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,91,135,8,10
+    RTEXT           "Directory :",IDD_BACKUPDIR_STATIC,99,152,40,8
+    EDITTEXT        IDC_BACKUPDIR_EDIT,146,150,179,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDD_BACKUPDIR_BROWSE_BUTTON,332,150,16,14
+    RTEXT           "Backup path:",IDD_BACKUPDIR_RESTORESESSION_PATHLABEL_STATIC,85,60,61,8
+    EDITTEXT        IDD_BACKUPDIR_RESTORESESSION_PATH_EDIT,153,58,208,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+
+IDD_PREFERENCE_SUB_AUTOCOMPLETION DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "Auto-indent",IDC_CHECK_MAINTAININDENT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,100,10
+
+    GROUPBOX        "Auto-Completion",IDD_AUTOC_GRPSTATIC,131,4,289,84,BS_CENTER
+    CONTROL         "Enable auto-completion on each input",IDD_AUTOC_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,136,15,150,10
+    CONTROL         "Function completion",IDD_AUTOC_FUNCRADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,163,27,145,10
+    CONTROL         "Word completion",IDD_AUTOC_WORDRADIO,"Button",BS_AUTORADIOBUTTON,163,41,145,10
+    CONTROL         "Function and word completion",IDD_AUTOC_BOTHRADIO,"Button",BS_AUTORADIOBUTTON,163,55,145,10
+    RTEXT           "From",IDD_AUTOC_STATIC_FROM,293,15,47,8
+    CTEXT           "1",IDD_AUTOC_STATIC_N,344,15,8,8,WS_TABSTOP
+    LTEXT           "th character",IDD_AUTOC_STATIC_CHAR,358,15,57,8
+    LTEXT           "Valid value : 1 - 9",IDD_AUTOC_STATIC_NOTE,323,25,93,8
+    CONTROL         "Ignore numbers",IDD_AUTOC_IGNORENUMBERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,323,55,80,10
+    CONTROL         "Function parameters hint on input",IDD_FUNC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,136,72,160,10
+    GROUPBOX        "Auto-Insert",IDD_AUTOCINSERT_GRPSTATIC,131,94,289,84,BS_CENTER
+    CONTROL         " (",IDD_AUTOCPARENTHESES_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,146,115,24,10
+    CONTROL         " [",IDD_AUTOCBRACKET_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,146,133,24,10
+    CONTROL         " {",IDD_AUTOCCURLYBRACKET_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,146,152,24,10
+    CONTROL         " """,IDD_AUTOC_DOUBLEQUOTESCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,116,24,10
+    CONTROL         " '",IDD_AUTOC_QUOTESCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,133,24,10
+    CONTROL         " html/xml close tag",IDD_AUTOCTAG_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,152,76,10
+    RTEXT           "Open",IDC_MACHEDPAIROPEN_STATIC,352,103,25,8
+    LTEXT           "Close",IDC_MACHEDPAIRCLOSE_STATIC,390,103,25,8
+    RTEXT           "Matched pair 1:",IDC_MACHEDPAIR_STATIC1,293,117,70,8
+    EDITTEXT        IDC_MACHEDPAIROPEN_EDIT1,365,115,14,14
+    EDITTEXT        IDC_MACHEDPAIRCLOSE_EDIT1,393,115,14,14
+    RTEXT           "Matched pair 2:",IDC_MACHEDPAIR_STATIC2,293,137,70,8
+    EDITTEXT        IDC_MACHEDPAIROPEN_EDIT2,365,135,14,14
+    EDITTEXT        IDC_MACHEDPAIRCLOSE_EDIT2,393,135,14,14
+    RTEXT           "Matched pair 3:",IDC_MACHEDPAIR_STATIC3,293,157,70,8
+    EDITTEXT        IDC_MACHEDPAIROPEN_EDIT3,365,155,14,14
+    EDITTEXT        IDC_MACHEDPAIRCLOSE_EDIT3,393,155,14,14
+END
+
+
+IDD_PREFERENCE_SUB_MULTIINSTANCE DIALOGEX 0, 0, 455, 210
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Multi-instance settings",IDC_MULTIINST_GB_STATIC,89,3,268,89,BS_CENTER
+    CONTROL         "Open session in a new instance of Notepad++",IDC_SESSIONININST_RADIO,"Button",BS_AUTORADIOBUTTON,122,17,226,10
+    CONTROL         "Always in multi-instance mode",IDC_MULTIINST_RADIO,"Button",BS_AUTORADIOBUTTON,122,34,218,10
+    CONTROL         "Default (mono-instance)",IDC_MONOINST_RADIO,"Button",BS_AUTORADIOBUTTON,122,51,196,10
+    LTEXT           "* The modification of this setting needs to restart Notepad++",IDD_STATIC_RESTARTNOTE,110,70,239,20
+    GROUPBOX        "Customize insert Date Time",IDC_DATETIMEFORMAT_GB_STATIC,90,97,268,105,BS_CENTER
+    CONTROL         "Reverse default date time order (short && long formats)",IDD_DATETIMEFORMAT_REVERSEORDER_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,103,113,241,10
+    RTEXT           "yyyy-MM-dd HH:mm:ss\nH:m d/M/yyyy\nMMM d, yyyy  tt h:m",IDC_STATIC,134,142,77,25
+    LTEXT           "1985-10-26 16:24:42\n16:24 26/10/1985\nOct 26, 1985  PM 4:24",IDC_STATIC,234,142,94,25
+    RTEXT           "Custom format:",IDD_DATETIMEFORMAT_STATIC,92,172,77,8
+    EDITTEXT        IDC_DATETIMEFORMAT_EDIT,170,170,182,14,ES_AUTOHSCROLL
+    LTEXT           "",IDD_DATETIMEFORMAT_RESULT_STATIC,172,187,180,8
+
+END
+
+
+IDD_PREFERENCE_SUB_DELIMITER DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Word character list",IDC_WORDCHARLIST_GB_STATIC,89,2,268,93,BS_CENTER
+    CONTROL         "Use default Word character list as it is",IDC_RADIO_WORDCHAR_DEFAULT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,100,18,250,10
+    CONTROL         "Add your character as part of word\r(don't choose it unless you know what you're doing)",IDC_RADIO_WORDCHAR_CUSTOM,"Button",BS_AUTORADIOBUTTON | BS_MULTILINE | WS_GROUP,100,32,250,20
+    EDITTEXT        IDC_WORDCHAR_CUSTOM_EDIT,111,54,180,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "?",IDD_WORDCHAR_QUESTION_BUTTON,303,53,16,14
+    LTEXT           "",IDD_STATIC_WORDCHAR_WARNING,111,70,210,8
+	
+    GROUPBOX        "Delimiter selection settings (Ctrl + Mouse double click)",IDC_DELIMITERSETTINGS_GB_STATIC,89,113,268,70,BS_CENTER
+    RTEXT           "Open",IDD_STATIC_OPENDELIMITER,117,128,34,8
+    EDITTEXT        IDC_EDIT_OPENDELIMITER,156,126,14,14
+    LTEXT           "bla bla bla bla bla bla",IDD_STATIC_BLABLA,172,128,56,8
+    LTEXT           "bla bla bla bla bla bla bla bla bla bla bla bla",IDD_STATIC_BLABLA2NDLINE,132,148,126,8
+    EDITTEXT        IDC_EDIT_CLOSEDELIMITER,237,126,14,14
+    LTEXT           "Close",IDD_STATIC_CLOSEDELIMITER,252,128,47,8
+    CONTROL         "Allow on several lines",IDD_SEVERALLINEMODEON_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,166,160,10
+END
+
+
+IDD_PREFERENCE_SUB_CLOUD_LINK DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Settings on cloud",IDC_SETTINGSONCLOUD_GB_STATIC,89,2,268,88,BS_CENTER
+    CONTROL         "No Cloud",IDC_NOCLOUD_RADIO,"Button",BS_AUTORADIOBUTTON,125,13,180,10
+    CONTROL         "Set your cloud location path here:",IDC_WITHCLOUD_RADIO,"Button",BS_AUTORADIOBUTTON,125,28,180,10
+    EDITTEXT        IDC_CLOUDPATH_EDIT,134,44,179,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDD_CLOUDPATH_BROWSE_BUTTON,320,44,16,14
+    LTEXT           "",IDC_SETTINGSONCLOUD_WARNING_STATIC,131,67,220,16
+
+    GROUPBOX        "Clickable Link Settings",IDC_CLICKABLELINK_STATIC,89,95,268,90,BS_CENTER
+    CONTROL         "Enable",IDC_CHECK_CLICKABLELINK_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,123,108,83,10
+    CONTROL         "No underline",IDC_CHECK_CLICKABLELINK_NOUNDERLINE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,108,140,10
+    CONTROL         "Enable fullbox mode",IDC_CHECK_CLICKABLELINK_FULLBOXMODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,122,140,10
+    LTEXT           "URI customized schemes:",IDC_URISCHEMES_STATIC,107,137,120,8
+    EDITTEXT        IDC_URISCHEMES_EDIT,106,148,238,30,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+END
+
+
+IDD_PREFERENCE_SUB_SEARCHENGINE DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Search Engine (for command ""Search on Internet"")",IDC_SEARCHENGINES_GB_STATIC,74,24,297,145,BS_CENTER
+    CONTROL         "DuckDuckGo",IDC_SEARCHENGINE_DUCKDUCKGO_RADIO,"Button",BS_AUTORADIOBUTTON,105,43,180,10
+    CONTROL         "Google",IDC_SEARCHENGINE_GOOGLE_RADIO,"Button",BS_AUTORADIOBUTTON,105,58,180,10
+    CONTROL         "Yahoo!",IDC_SEARCHENGINE_YAHOO_RADIO,"Button",BS_AUTORADIOBUTTON,105,73,180,10
+    CONTROL         "Stack Overflow",IDC_SEARCHENGINE_STACKOVERFLOW_RADIO,"Button",BS_AUTORADIOBUTTON,105,88,180,10
+    CONTROL         "Set your search engine here:",IDC_SEARCHENGINE_CUSTOM_RADIO,"Button",BS_AUTORADIOBUTTON,105,103,180,10
+    EDITTEXT        IDC_SEARCHENGINE_EDIT,114,119,179,14,ES_AUTOHSCROLL
+    LTEXT           "Example: https://www.google.com/search?q=$(CURRENT_WORD)",IDD_SEARCHENGINE_NOTE_STATIC,114,134,245,20
+END
+
+
+IDD_PREFERENCE_SUB_MISC DIALOGEX 0, 0, 455, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "Enable",IDC_CHECK_ENABLEDOCSWITCHER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,269,15,140,10
+    CONTROL         "Enable MRU behaviour",IDC_CHECK_STYLEMRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,269,28,140,10
+    CONTROL         "Peek on tab",IDC_CHECK_ENABLEDOCPEEKER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,269,58,140,10
+    CONTROL         "Peek on document map",IDC_CHECK_ENABLEDOCPEEKONMAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,269,71,140,10
+
+	// "Enable Notepad++ auto-updater" should be always the 1st item, because it'll be hidden if GUP.exe is absent
+    CONTROL         "Enable Notepad++ auto-updater",IDC_CHECK_AUTOUPDATE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 37, 94, 210, 10
+    CONTROL         "Mute all sounds", IDC_CHECK_MUTE_SOUNDS, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 37, 109, 217, 10
+    CONTROL         "Autodetect character encoding",IDC_CHECK_DETECTENCODING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,37,124,217,10
+    CONTROL         "Minimize to system tray",IDC_CHECK_MIN2SYSTRAY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,37,139,217,10
+    CONTROL         "Show only filename in title bar",IDC_CHECK_SHORTTITLE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,37,154,217,10
+    CONTROL         "Use DirectWrite (May improve rendering special characters, need to restart Notepad++)",IDC_CHECK_DIRECTWRITE_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,37,169,377,10
+    CONTROL         "Enable Save All confirm dialog", IDC_CHECK_SAVEALLCONFIRM, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 37, 184, 217, 10
+    COMBOBOX        IDC_COMBO_FILEUPDATECHOICE,44,16,140,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Update silently",IDC_CHECK_UPDATESILENTLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,44,32,140,10
+    CONTROL         "Scroll to the last line after update",IDC_CHECK_UPDATEGOTOEOF,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,44,44,140,10
+    EDITTEXT        IDC_EDIT_SESSIONFILEEXT,380,127,34,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_WORKSPACEFILEEXT,380,144,34,14,ES_AUTOHSCROLL
+    GROUPBOX        "Document Switcher (Ctrl+TAB)",IDC_DOCUMENTSWITCHER_STATIC,261,4,155,39,BS_CENTER
+    GROUPBOX        "Document Peeker",IDC_DOCUMENTPEEK_STATIC,261,47,155,39,BS_CENTER
+    GROUPBOX        "File Status Auto-Detection",IDC_FILEAUTODETECTION_STATIC,36,4,155,60,BS_CENTER
+    RTEXT           "Session file ext.:",IDC_SESSIONFILEEXT_STATIC,270,130,108,8
+    RTEXT           "Workspace file ext.:",IDC_WORKSPACEFILEEXT_STATIC,270,147,108,8
+END
+
+IDD_PROJECTPANEL DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Project"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+
+END
+
+IDD_FILERELOCALIZER_DIALOG DIALOGEX 0, 0, 350, 48
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Change file full path name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,235,27,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,290,27,50,14
+    EDITTEXT        IDC_EDIT_FILEFULLPATHNAME,7,7,335,14,ES_AUTOHSCROLL
+END
+
+IDD_REGEXT_BOX DIALOGEX 0, 0, 370, 180
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | DS_CONTROL
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+    LTEXT           "Please exit Notepad++ and relaunch Notepad++ in Administrator mode to use this feature.",IDC_ADMINMUSTBEONMSG_STATIC,20,0,300,16
+    LTEXT           "Supported extensions:",IDC_SUPPORTEDEXTS_STATIC,70,18,80,8
+    LISTBOX         IDC_REGEXT_LANG_LIST,70,30,100,125,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    LISTBOX         IDC_REGEXT_LANGEXT_LIST,175,30,80,125,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CUSTOMEXT_EDIT,175,75,80,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    PUSHBUTTON      "->",IDC_ADDFROMLANGEXT_BUTTON,265,76,25,14
+    PUSHBUTTON      "<-",IDC_REMOVEEXT_BUTTON,265,96,25,14
+    LTEXT           "Registered extensions:",IDC_REGISTEREDEXTS_STATIC,300,18,80,8
+    LISTBOX         IDC_REGEXT_REGISTEREDEXTS_LIST,300,30,80,125,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+END
+
+IDD_RUN_DLG DIALOGEX 0, 0, 196, 100
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Run..."
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Run",IDOK,16,74,47,14
+    PUSHBUTTON      "Cancel",IDCANCEL, 121,74,48,14
+    PUSHBUTTON      "...",IDC_BUTTON_FILE_BROWSER,154,30,16,14
+    COMBOBOX        IDC_COMBO_RUN_PATH,14,31,136,71,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "The Program to Run",IDC_MAINTEXT_STATIC,7,10,
+                    172,49,BS_CENTER
+    PUSHBUTTON      "Save...",IDC_BUTTON_SAVE,68,74,50,14
+END
+
+IDD_RUN_MACRO_DLG DIALOGEX 0, 0, 168, 110
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Run a Macro Multiple Times"
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "&Run",IDOK,27,82,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,91,82,50,14
+    CONTROL         "Run",IDC_M_RUN_MULTI,"Button",BS_AUTORADIOBUTTON,18,38,47,10
+    CONTROL         "Run until the &end of file", IDC_M_RUN_EOF,"Button", BS_AUTORADIOBUTTON,18,56,140,10
+    EDITTEXT        IDC_M_RUN_TIMES,67,35,25,14,ES_AUTOHSCROLL | ES_NUMBER | WS_EX_DLGMODALFRAME
+    COMBOBOX        IDC_MACRO_COMBO,67,10,96,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Macro to run :",IDC_MACRO2RUN_STATIC,5,12,59,8
+    LTEXT           "times",IDC_TIMES_STATIC,97,38,65,8
+END
+
+IDD_SHORTCUT_DLG DIALOGEX 0, 0, 180, 105
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Shortcut"
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    CONTROL         "CTRL",IDC_CTRL_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,30,33,10
+    CONTROL         "ALT",IDC_ALT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,51,28,10
+    CONTROL         "SHIFT",IDC_SHIFT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,57,42,35,10
+    COMBOBOX        IDC_KEY_COMBO,110,40,64,270,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "OK",IDOK,32,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,103,73,50,14
+    LTEXT           "+",IDC_STATIC,45,42,8,8
+    LTEXT           "+",IDC_STATIC,96,42,8,8
+    EDITTEXT        IDC_NAME_EDIT,56,9,118,14,ES_AUTOHSCROLL
+    LTEXT           "Name :",IDC_NAME_STATIC,15,12,34,8,0,WS_EX_RIGHT
+	LTEXT           "This will disable the accelerator",IDC_WARNING_STATIC,6,93,170,8
+	LTEXT           "CONFLICT FOUND!",IDC_CONFLICT_STATIC,6,93,170,8
+END
+
+IDD_SHORTCUTSCINT_DLG DIALOGEX 0, 0, 286, 114
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Shortcut"
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    CONTROL         "CTRL",IDC_CTRL_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,27,33,10
+    CONTROL         "ALT",IDC_ALT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,48,28,10
+    CONTROL         "SHIFT",IDC_SHIFT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,159,39,35,10
+    COMBOBOX        IDC_KEY_COMBO,212,37,64,270,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+	PUSHBUTTON      "Apply", IDC_BUTTON_APPLY, 210, 66, 48, 14
+    PUSHBUTTON      "OK",IDOK,144,84,48,14
+    PUSHBUTTON      "Cancel",IDCANCEL,210,84,48,14
+    LTEXT           "+",IDC_STATIC,147,39,8,8
+    LTEXT           "+",IDC_STATIC,198,39,8,8
+    EDITTEXT        IDC_NAME_EDIT,158,6,118,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Name :",IDC_NAME_STATIC,117,9,34,8,0,WS_EX_RIGHT
+    LTEXT           "This will remove shortcut from this command",IDC_WARNING_STATIC,6,101,162,8
+    LTEXT           "CONFLICT FOUND!",IDC_CONFLICT_STATIC,6,101,162,8
+    LISTBOX         IDC_LIST_KEYS,6,6,90,72,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_BUTTON_ADD,6,84,42,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_RMVE,56,84,40,14
+END
+
+IDD_SHORTCUTMAPPER_DLG DIALOGEX 0, 0, 450, 355
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_MAXIMIZEBOX | WS_THICKFRAME
+CAPTION "Shortcut mapper"
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_BABYGRID_TABBAR,"SysTabControl32",WS_TABSTOP,4,6,384,12
+    EDITTEXT        IDC_BABYGRID_INFO, 4, 281, 440, 29, ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
+    RTEXT           "Filter :", IDC_BABYGRID_STATIC, 4, 313, 25, 12
+    EDITTEXT        IDC_BABYGRID_FILTER, 30, 312, 415, 12, ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_BORDER, WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "Modify",IDM_BABYGRID_MODIFY,118,330,47,14
+    DEFPUSHBUTTON   "Clear",IDM_BABYGRID_CLEAR,172,330,47,14
+    DEFPUSHBUTTON   "Delete",IDM_BABYGRID_DELETE,226,330,47,14
+    DEFPUSHBUTTON   "Close",IDOK,280,330,47,14
+END
+
+IDD_TASKLIST_DLG DIALOGEX DISCARDABLE 0, 0, 300, 300
+STYLE WS_POPUP | WS_VISIBLE | WS_THICKFRAME
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x1
+BEGIN
+END
+
+IDD_DOCLIST DIALOGEX 26, 41, 142, 324
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Document List"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+	//LISTBOX         IDC_LIST_DOCLIST,50,44,78,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_WINDOWS DIALOGEX 0, 0, 450, 300
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | DS_MODALFRAME
+CAPTION "Windows"
+FONT 8, TEXT("MS Shell Dlg"), 400, 0, 0x1
+BEGIN
+    CONTROL         "", IDC_WINDOWS_LIST, TEXT("SysListView32"), LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP, 7, 7, 206, 160
+    DEFPUSHBUTTON   "&Activate",IDOK,219,7,60,14
+    PUSHBUTTON      "&Save",IDC_WINDOWS_SAVE,219,26,60,14
+    PUSHBUTTON      "&Close window(s)",IDC_WINDOWS_CLOSE,219,44,60,14
+    PUSHBUTTON      "Sort &tabs",IDC_WINDOWS_SORT,219,60,60,14
+    PUSHBUTTON      "&OK",IDCANCEL,219,169,60,14
+END
+
+IDR_WINDOWS_MENU MENU
+BEGIN
+	MENUITEM "Recent Window",              IDM_WINDOW_MRU_FIRST, GRAYED
+	MENUITEM "&Windows...",               	IDM_WINDOW_WINDOWS
+END
+
+
+STRINGTABLE
+BEGIN
+	IDR_WINDOWS_MENU "&Window"
+END
+
+IDD_STYLER_DLG DIALOGEX 36, 44, 500, 246
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Style Configurator"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	LTEXT           "Select theme : ",IDC_SWITCH2THEME_STATIC,6,9,83,8,0,WS_EX_RIGHT
+    COMBOBOX        IDC_SWITCH2THEME_COMBO,95,7,104,78,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Foreground colour",IDC_FG_STATIC,203,72,59,8,0,WS_EX_RIGHT
+    LTEXT           "Background colour",IDC_BG_STATIC,203,99,59,8,0,WS_EX_RIGHT
+    COMBOBOX        IDC_FONT_COMBO,371,68,104,78,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONTSIZE_COMBO,442,95,33,82,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Bold",IDC_BOLD_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,327,88,63,10
+    CONTROL         "Italic",IDC_ITALIC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,327,100,62,10
+    GROUPBOX        "Font Style",IDC_FONTGROUP_STATIC,311,52,169,77
+    GROUPBOX        "Colour Style",IDC_COLOURGROUP_STATIC,191,52,111,77
+    LTEXT           "Font name :",IDC_FONTNAME_STATIC,315,71,52,8,0,WS_EX_RIGHT
+    LTEXT           "Font size :",IDC_FONTSIZE_STATIC,388,97,51,8,0,WS_EX_RIGHT
+    LTEXT           "Style :",IDC_STYLEDESC_STATIC,87,34,68,8
+    LTEXT           "                                                                                                                      ",IDC_STYLEDESCRIPTION_STATIC,190,30,295,22
+    EDITTEXT        IDC_DEF_EXT_EDIT,17,215,61,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Default ext. : ",IDC_DEF_EXT_STATIC,20,203,61,8
+    EDITTEXT        IDC_USER_EXT_EDIT,93,215,71,14,ES_AUTOHSCROLL
+    LTEXT           "User ext. :",IDC_USER_EXT_STATIC,95,204,71,8
+    CONTROL         "Underline",IDC_UNDERLINE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,327,112,80,10
+    EDITTEXT        IDC_DEF_KEYWORDS_EDIT,191,151,136,43,ES_MULTILINE | ES_READONLY | WS_VSCROLL
+    EDITTEXT        IDC_USER_KEYWORDS_EDIT,347,150,134,43,ES_MULTILINE | WS_VSCROLL
+    LTEXT           "Default keywords",IDC_DEF_KEYWORDS_STATIC,193,141,122,8
+    LTEXT           "User-defined keywords",IDC_USER_KEYWORDS_STATIC,349,140,126,8
+    LTEXT           "+",IDC_PLUSSYMBOL_STATIC,335,166,8,8
+    PUSHBUTTON      "Cancel",IDCANCEL,332,222,57,14
+    PUSHBUTTON      "Save && Close",IDC_SAVECLOSE_BUTTON,255,222,69,14
+    CONTROL         "",IDC_SC_PERCENTAGE_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | NOT WS_VISIBLE | WS_TABSTOP,441,235,53,10
+    CONTROL         "Transparency",IDC_SC_TRANSPARENT_CHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,431,221,63,10
+    LISTBOX         IDC_LANGUAGES_LIST,17,46,59,146,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_STYLES_LIST,87,46,76,146,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,7,24,166,212
+    LTEXT           "Language :",IDC_LANGDESC_STATIC,19,34,61,8
+    GROUPBOX        "",IDC_STATIC,181,24,310,184
+    LTEXT           "+",IDC_PLUSSYMBOL2_STATIC,83,217,8,8
+    CONTROL         "Enable global foreground colour",IDC_GLOBAL_FG_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,138,132,10
+    CONTROL         "Enable global background colour",IDC_GLOBAL_BG_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,153,131,10
+    CONTROL         "Enable global font",IDC_GLOBAL_FONT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,327,134,153,10
+    CONTROL         "Enable global font size",IDC_GLOBAL_FONTSIZE_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,327,149,135,10
+    CONTROL         "Enable global bold font style",IDC_GLOBAL_BOLD_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,328,164,135,10
+    CONTROL         "Enable global italic font style",IDC_GLOBAL_ITALIC_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,328,179,135,10
+    CONTROL         "Enable global underline font style",IDC_GLOBAL_UNDERLINE_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,328,194,135,10
+END
+
+IDD_COLUMNEDIT DIALOGEX 26, 41, 223, 221
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+		CAPTION "Column / Multi-Selection Editor"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x0
+BEGIN
+    GROUPBOX        "",IDC_COL_TEXT_GRP_STATIC,12,14,124,50
+    GROUPBOX        "",IDC_COL_NUM_GRP_STATIC,12,79,204,135
+    CONTROL         "&Text to Insert",IDC_COL_TEXT_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP | WS_GROUP,7,5,124,9
+    CONTROL         "&Number to Insert",IDC_COL_NUM_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP | WS_GROUP, 7,70,204,9
+    EDITTEXT        IDC_COL_TEXT_EDIT,25,32,97,14,ES_AUTOHSCROLL     
+    RTEXT           "&Initial number :",IDC_COL_INITNUM_STATIC,15,91,76,8
+    EDITTEXT        IDC_COL_INITNUM_EDIT,95,89,38,12,ES_NUMBER
+	
+    RTEXT           "Increase b&y :",IDC_COL_INCRNUM_STATIC,16,112,75,8
+    EDITTEXT        IDC_COL_INCREASENUM_EDIT,95,110,38,12,ES_NUMBER
+
+	RTEXT           "&Repeat :",IDC_COL_REPEATNUM_STATIC,16,133,75,8
+	EDITTEXT        IDC_COL_REPEATNUM_EDIT,95,131,38,12,ES_NUMBER
+
+	CONTROL         "Leading &zeros", IDC_COL_LEADZERO_CHECK,"Button", BS_AUTOCHECKBOX | WS_TABSTOP,140,133,70,10
+	
+    CONTROL         "&Dec",IDC_COL_DEC_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,30,169,70,10
+    CONTROL         "&Hex",IDC_COL_HEX_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,124,169,70,10
+    CONTROL         "&Oct",IDC_COL_OCT_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,30,188,70,10
+    CONTROL         "&Bin",IDC_COL_BIN_RADIO,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,124,188,70,10
+    GROUPBOX        "Format",IDC_COL_FORMAT_GRP_STATIC,20,153,188,54,BS_CENTER
+    DEFPUSHBUTTON   "OK",IDOK,145,13,70,14,BS_NOTIFY
+    PUSHBUTTON      "Cancel",IDCANCEL,145,36,70,14,BS_NOTIFY
+END
+
+IDD_FIND_REPLACE_DLG DIALOGEX 36, 44, 382, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Replace"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    RTEXT           "&Find what :",IDFINDWHAT_STATIC,6,22,75,8
+    COMBOBOX        IDFINDWHAT,83,20,178,150,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_TABSTOP
+    RTEXT           "Rep&lace with :",ID_STATICTEXT_REPLACE,6,40,75,8
+    COMBOBOX        IDREPLACEWITH,83,38,178,50,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_TABSTOP
+    RTEXT           "Filter&s :",IDD_FINDINFILES_FILTERS_STATIC,27,58,53,8, SS_NOTIFY
+    COMBOBOX        IDD_FINDINFILES_FILTERS_COMBO,83,56,178,150,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_TABSTOP
+    RTEXT           "Dir&ectory :",IDD_FINDINFILES_DIR_STATIC,7,76,40,8
+    COMBOBOX        IDD_FINDINFILES_DIR_COMBO,49,74,190,150,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDD_FINDINFILES_BROWSE_BUTTON,245,74,15,13
+    CONTROL         "Follow current doc.",IDD_FINDINFILES_FOLDERFOLLOWSDOC_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,73,94,15
+    CONTROL         "In all su&b-folders",IDD_FINDINFILES_RECURSIVE_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,87,94,15
+    CONTROL         "In &hidden folders",IDD_FINDINFILES_INHIDDENDIR_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,101,94,15
+    CONTROL         "Project Panel 1",IDD_FINDINFILES_PROJECT1_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,73,94,15
+    CONTROL         "Project Panel 2",IDD_FINDINFILES_PROJECT2_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,87,94,15
+    CONTROL         "Project Panel 3",IDD_FINDINFILES_PROJECT3_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,101,94,15
+    CONTROL         "Book&mark line",IDC_MARKLINE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,52,140,15
+    CONTROL         "Purge for each search",IDC_PURGE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,64,140,15
+    PUSHBUTTON      "Mark All",IDCMARKALL,268,20,91,14
+    GROUPBOX        "",IDC_REPLACEINSELECTION,192,50,170,23
+    CONTROL         "In select&ion",IDC_IN_SELECTION_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,200,58,59,10
+    PUSHBUTTON      "Clear all marks",IDC_CLEAR_ALL,268,38,91,14
+    CONTROL         "Backward direction", IDC_BACKWARDDIRECTION, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 12, 76, 140, 15
+    CONTROL         "Match &whole word only",IDWHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,88,140,15
+    CONTROL         "Match &case",IDMATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,100,140,15
+    CONTROL         "Wra&p around",IDWRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,112,140,15
+    GROUPBOX        "Search Mode",IDC_MODE_STATIC,6,131,159,48
+    CONTROL         "&Normal",IDNORMAL,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,143,126,10
+    CONTROL         "E&xtended (\\n, \\r, \\t, \\0, \\x...)",IDEXTENDED,
+                    "Button",BS_AUTORADIOBUTTON,12,155,145,10
+    CONTROL         "Re&gular expression",IDREGEXP,"Button",BS_AUTORADIOBUTTON,12,167,78,10
+    CONTROL         "&. matches newline",IDREDOTMATCHNL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,167,68,9
+    PUSHBUTTON      "", IDC_FINDPREV, 268, 20, 18, 14, WS_GROUP | BS_MULTILINE
+    PUSHBUTTON      "", IDC_FINDNEXT, 289, 20, 70, 14, WS_GROUP | BS_MULTILINE
+    PUSHBUTTON      "Find Next",IDOK,268,20,91,14,WS_GROUP
+    CONTROL         "", IDC_2_BUTTONS_MODE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 363, 20, 15, 15
+    PUSHBUTTON      "Coun&t",IDCCOUNTALL,268,38,91,14
+    PUSHBUTTON      "Find All in Current &Document",IDC_FINDALL_CURRENTFILE,268,56,91,21,BS_MULTILINE
+    PUSHBUTTON      "Find All in All &Opened Documents",IDC_FINDALL_OPENEDFILES,268,80,91,21,BS_MULTILINE
+    PUSHBUTTON      "&Replace",IDREPLACE,268,38,91,14
+    PUSHBUTTON      "Replace &All",IDREPLACEALL,268,56,91,14
+    PUSHBUTTON      "Replace All in All Opened Doc&uments",IDC_REPLACE_OPENEDFILES,268,74,91,21,BS_MULTILINE
+    PUSHBUTTON      "Find All",IDD_FINDINFILES_FIND_BUTTON,268,20,91,14,WS_GROUP
+    PUSHBUTTON      "Replace in Files",IDD_FINDINFILES_REPLACEINFILES,268,38,91,14
+    PUSHBUTTON      "Replace in Projects",IDD_FINDINFILES_REPLACEINPROJECTS,268,38,91,14
+    PUSHBUTTON      "Copy Marked Text",IDC_COPY_MARKED_TEXT,268,56,91,14
+    PUSHBUTTON      "Close",IDCANCEL,268,98,91,14
+    GROUPBOX        "",IDC_TRANSPARENT_GRPBOX,258,131,99,48
+    CONTROL         "Transparenc&y",IDC_TRANSPARENT_CHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,254,131,80,10
+    CONTROL         "On losing focus",IDC_TRANSPARENT_LOSSFOCUS_RADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,268,143,85,10
+    CONTROL         "Always",IDC_TRANSPARENT_ALWAYS_RADIO,"Button",BS_AUTORADIOBUTTON ,268,155,85,10
+    CONTROL         "",IDC_PERCENTAGE_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | NOT WS_VISIBLE | WS_TABSTOP,265,166,85,10
+END
+
+IDB_INCREMENTAL_BG          BITMAP                  "icons/incrementalBg.bmp"
+
+IDD_INCREMENT_FIND DIALOGEX 0, 0, 680, 20
+STYLE DS_SYSMODAL | DS_CONTROL | DS_FIXEDSYS | WS_CHILD | WS_CLIPCHILDREN
+FONT 8, TEXT("MS Shell Dlg")
+BEGIN
+	PUSHBUTTON   "X",IDCANCEL,2,3,16,14
+	RTEXT           "Find:",IDC_INCSTATIC,18,6,46,12
+    EDITTEXT        IDC_INCFINDTEXT,65,6,175,10,ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_BORDER | WS_TABSTOP
+	PUSHBUTTON   "<",IDC_INCFINDPREVOK,243,3,16,14, WS_TABSTOP
+	PUSHBUTTON   ">",IDC_INCFINDNXTOK,263,3,16,14, WS_TABSTOP
+	CONTROL         "Match &case", IDC_INCFINDMATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,290,5,100,12 
+	CONTROL         "&Highlight all", IDC_INCFINDHILITEALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,400,5,100,12
+	LTEXT           "",IDC_INCFINDSTATUS,520,6,180,12
+END
+
+IDD_FINDRESULT DIALOGEX 26, 41, 223, 67
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
+CAPTION "Search results"
+FONT 8, TEXT("MS Shell Dlg"), 0, 0, 0x0
+BEGIN
+DEFPUSHBUTTON   ">",IDC_INCFINDNXTOK,243,0,16,14, NOT WS_VISIBLE
+END
+
+IDD_FINDINFINDER_DLG DIALOGEX 36, 44, 367, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE
+CAPTION "Find in search results"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    RTEXT           "&Find what :",IDFINDWHAT_STATIC_FIFOLDER,6,22,75,8
+    COMBOBOX        IDFINDWHAT_FIFOLDER,83,20,178,150,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_TABSTOP
+	CONTROL         "Search only in found lines",IDC_MATCHLINENUM_CHECK_FIFOLDER,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,12,66,99,16
+	CONTROL         "Match &whole word only",IDWHOLEWORD_FIFOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,88,140,15
+    CONTROL         "Match &case",IDMATCHCASE_FIFOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,100,140,15
+
+    GROUPBOX        "Search Mode",IDC_MODE_STATIC_FIFOLDER,6,131,159,48
+    CONTROL         "&Normal",IDNORMAL_FIFOLDER,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,143,126,10
+    CONTROL         "E&xtended (\\n, \\r, \\t, \\0, \\x...)",IDEXTENDED_FIFOLDER, "Button",BS_AUTORADIOBUTTON,12,155,145,10
+    CONTROL         "Re&gular expression",IDREGEXP_FIFOLDER,"Button",BS_AUTORADIOBUTTON,12,167,78,10
+	CONTROL         "&. matches newline",IDREDOTMATCHNL_FIFOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,167,68,9
+    PUSHBUTTON      "Find All",IDOK,268,20,90,14,WS_GROUP
+	PUSHBUTTON      "Close",IDCANCEL,268,38,90,14
+END
+
+IDD_FOLDER_STYLE_DLG DIALOGEX 36, 44, 466, 415
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "https://ivan-radic.github.io/udl-documentation/",IDC_WEB_HELP_LINK,40,45,160,13
+    LTEXT           "Temporary doc site:",IDC_WEB_HELP_STATIC,40,31,160,13
+    GROUPBOX        "Documentation:",IDC_WEB_HELP_DESCGROUP_STATIC,12,14,210,49
+    PUSHBUTTON      "Styler",IDC_DEFAULT_STYLER,87,94,54,13
+    GROUPBOX        "Default style:",IDC_DEFAULT_DESCGROUP_STATIC,12,71,210,49
+    CONTROL         "Fold &compact (fold empty lines too)",IDC_FOLDER_FOLD_COMPACT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,143,152,11
+    EDITTEXT        IDC_FOLDER_IN_COMMENT_OPEN_EDIT,252,62,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_COMMENT_MIDDLE_EDIT,252,99,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_COMMENT_CLOSE_EDIT,252,137,190,22,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_FOLDER_IN_COMMENT_STYLER,252,30,54,13
+    LTEXT           "Open:",IDC_FOLDER_IN_COMMENT_OPEN_STATIC,252,53,113,8
+    LTEXT           "Middle:",IDC_FOLDER_IN_COMMENT_MIDDLE_STATIC,252,89,113,9
+    LTEXT           "Close:",IDC_FOLDER_IN_COMMENT_CLOSE_STATIC,252,126,113,9
+    GROUPBOX        "Folding in comment style:",IDC_FOLDER_IN_COMMENT_DESCGROUP_STATIC,241,14,210,156,BS_CENTER
+    EDITTEXT        IDC_FOLDER_IN_CODE1_OPEN_EDIT,22,236,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_CODE1_MIDDLE_EDIT,22,273,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_CODE1_CLOSE_EDIT,22,311,190,22,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_FOLDER_IN_CODE1_STYLER,22,203,54,13
+    LTEXT           "Open:",IDC_FOLDER_IN_CODE1_OPEN_STATIC,23,224,113,9
+    LTEXT           "Middle:",IDC_FOLDER_IN_CODE1_MIDDLE_STATIC,23,262,113,9
+    LTEXT           "Close:",IDC_FOLDER_IN_CODE1_CLOSE_STATIC,23,299,113,9
+    GROUPBOX        "Folding in code 1 style:",IDC_FOLDER_IN_CODE1_DESCGROUP_STATIC,12,186,210,156,BS_CENTER
+    EDITTEXT        IDC_FOLDER_IN_CODE2_OPEN_EDIT,253,236,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_CODE2_MIDDLE_EDIT,253,273,190,22,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_FOLDER_IN_CODE2_CLOSE_EDIT,253,311,190,22,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_FOLDER_IN_CODE2_STYLER,253,202,54,13
+    LTEXT           "Open:",IDC_FOLDER_IN_CODE2_OPEN_STATIC,253,224,113,9
+    LTEXT           "Middle:",IDC_FOLDER_IN_CODE2_MIDDLE_STATIC,253,261,113,9
+    LTEXT           "Close:",IDC_FOLDER_IN_CODE2_CLOSE_STATIC,253,298,113,9
+    GROUPBOX        "Folding in code 2 style (separators needed):",IDC_FOLDER_IN_CODE2_DESCGROUP_STATIC,242,186,210,156,BS_CENTER
+END
+
+IDD_SYMBOL_STYLE_DLG DIALOGEX 36, 44, 466, 415
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_OPERATOR1_EDIT,15,31,205,19,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_OPERATOR2_EDIT,247,31,206,19,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_OPERATOR_STYLER,14,12,54,13
+    GROUPBOX        "Operators style",IDC_OPERATOR_DESCGROUP_STATIC,8,3,451,55,BS_CENTER
+    RTEXT           "Operators 1",IDC_OPERATOR1_STATIC,142,20,75,10,0,WS_EX_RIGHT
+    RTEXT           "Operators 2 (separators required)",IDC_OPERATOR2_STATIC,328,20,124,10,0,WS_EX_RIGHT
+    EDITTEXT        IDC_DELIMITER1_BOUNDARYOPEN_EDIT,72,88,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER1_ESCAPE_EDIT,72,108,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER1_BOUNDARYCLOSE_EDIT,72,126,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER1_STYLER,162,71,54,13
+    RTEXT           "Open: ",IDC_DELIMITER1_BOUNDARYOPEN_STATIC,12,90,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER1_ESCAPE_STATIC,12,109,56,8
+    RTEXT           "Close: ",IDC_DELIMITER1_BOUNDARYCLOSE_STATIC,12,127,56,8
+    GROUPBOX        "Delimiter 1 style",IDC_DELIMITER1_DESCGROUP_STATIC,8,63,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER2_BOUNDARYOPEN_EDIT,309,88,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER2_ESCAPE_EDIT,309,107,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER2_BOUNDARYCLOSE_EDIT,309,125,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER2_STYLER,399,71,54,13
+    RTEXT           "Open: ",IDC_DELIMITER2_BOUNDARYOPEN_STATIC,251,90,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER2_ESCAPE_STATIC,251,109,56,8
+    RTEXT           "Close: ",IDC_DELIMITER2_BOUNDARYCLOSE_STATIC,251,127,56,8
+    GROUPBOX        "Delimiter 2 style",IDC_DELIMITER2_DESCGROUP_STATIC,245,63,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER3_BOUNDARYOPEN_EDIT,72,174,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER3_ESCAPE_EDIT,72,193,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER3_BOUNDARYCLOSE_EDIT,72,212,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER3_STYLER,162,156,54,13
+    RTEXT           "Open: ",IDC_DELIMITER3_BOUNDARYOPEN_STATIC,12,176,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER3_ESCAPE_STATIC,12,195,56,8
+    RTEXT           "Close: ",IDC_DELIMITER3_BOUNDARYCLOSE_STATIC,12,214,56,8
+    GROUPBOX        "Delimiter 3 style",IDC_DELIMITER3_DESCGROUP_STATIC,8,148,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER4_BOUNDARYOPEN_EDIT,309,174,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER4_ESCAPE_EDIT,309,193,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER4_BOUNDARYCLOSE_EDIT,309,212,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER4_STYLER,399,156,54,13
+    RTEXT           "Open: ",IDC_DELIMITER4_BOUNDARYOPEN_STATIC,251,176,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER4_ESCAPE_STATIC,251,195,56,8
+    RTEXT           "Close: ",IDC_DELIMITER4_BOUNDARYCLOSE_STATIC,251,214,56,8
+    GROUPBOX        "Delimiter 4 style",IDC_DELIMITER4_DESCGROUP_STATIC,245,148,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER5_BOUNDARYOPEN_EDIT,72,259,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER5_ESCAPE_EDIT,72,278,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER5_BOUNDARYCLOSE_EDIT,72,298,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER5_STYLER,162,242,54,13
+    RTEXT           "Open: ",IDC_DELIMITER5_BOUNDARYOPEN_STATIC,12,260,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER5_ESCAPE_STATIC,12,279,56,8
+    RTEXT           "Close: ",IDC_DELIMITER5_BOUNDARYCLOSE_STATIC,12,299,56,8
+    GROUPBOX        "Delimiter 5 style",IDC_DELIMITER5_DESCGROUP_STATIC,8,234,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER6_BOUNDARYOPEN_EDIT,309,259,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER6_ESCAPE_EDIT,309,278,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER6_BOUNDARYCLOSE_EDIT,309,297,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER6_STYLER,399,242,54,13
+    RTEXT           "Open: ",IDC_DELIMITER6_BOUNDARYOPEN_STATIC,251,261,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER6_ESCAPE_STATIC,251,280,56,8
+    RTEXT           "Close: ",IDC_DELIMITER6_BOUNDARYCLOSE_STATIC,251,299,56,8
+    GROUPBOX        "Delimiter 6 style",IDC_DELIMITER6_DESCGROUP_STATIC,245,234,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER7_BOUNDARYOPEN_EDIT,72,345,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER7_ESCAPE_EDIT,72,364,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER7_BOUNDARYCLOSE_EDIT,72,383,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER7_STYLER,162,328,54,13
+    RTEXT           "Open: ",IDC_DELIMITER7_BOUNDARYOPEN_STATIC,251,347,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER7_ESCAPE_STATIC,251,365,56,8
+    RTEXT           "Close: ",IDC_DELIMITER7_BOUNDARYCLOSE_STATIC,251,384,56,8
+    GROUPBOX        "Delimiter 7 style",IDC_DELIMITER7_DESCGROUP_STATIC,8,320,212,82,BS_LEFT
+    EDITTEXT        IDC_DELIMITER8_BOUNDARYOPEN_EDIT,309,345,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER8_ESCAPE_EDIT,309,364,144,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_DELIMITER8_BOUNDARYCLOSE_EDIT,309,383,144,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_DELIMITER8_STYLER,399,328,54,13
+    RTEXT           "Open: ",IDC_DELIMITER8_BOUNDARYOPEN_STATIC,12,346,56,8
+    RTEXT           "Escape: ",IDC_DELIMITER8_ESCAPE_STATIC,12,365,56,8
+    RTEXT           "Close: ",IDC_DELIMITER8_BOUNDARYCLOSE_STATIC,12,385,56,8
+    GROUPBOX        "Delimiter 8 style",IDC_DELIMITER8_DESCGROUP_STATIC,245,320,212,82,BS_LEFT
+END
+
+IDD_KEYWORD_STYLE_DLG DIALOGEX 36, 44, 466, 415
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_KEYWORD1_EDIT,19,44,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "1st group",IDC_KEYWORD1_DESCGROUP_STATIC,9,17,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD1_STYLER,19,27,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD1_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,31,68,13
+    EDITTEXT        IDC_KEYWORD2_EDIT,262,44,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "2nd group",IDC_KEYWORD2_DESCGROUP_STATIC,252,17,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD2_STYLER,262,26,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD2_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,332,31,68,13
+    EDITTEXT        IDC_KEYWORD3_EDIT,19,138,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "3rd group",IDC_KEYWORD3_DESCGROUP_STATIC,10,111,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD3_STYLER,19,120,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD3_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,125,68,13
+    EDITTEXT        IDC_KEYWORD4_EDIT,262,138,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "4th group",IDC_KEYWORD4_DESCGROUP_STATIC,252,111,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD4_STYLER,262,120,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD4_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,332,125,68,13
+    EDITTEXT        IDC_KEYWORD5_EDIT,19,233,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "5th group",IDC_KEYWORD5_DESCGROUP_STATIC,10,206,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD5_STYLER,19,215,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD5_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,220,68,13
+    EDITTEXT        IDC_KEYWORD6_EDIT,262,233,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "6th group",IDC_KEYWORD6_DESCGROUP_STATIC,252,206,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD6_STYLER,262,215,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD6_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,332,220,68,13
+    EDITTEXT        IDC_KEYWORD7_EDIT,19,329,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "7th group",IDC_KEYWORD7_DESCGROUP_STATIC,10,302,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD7_STYLER,19,311,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD7_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,315,72,13
+    EDITTEXT        IDC_KEYWORD8_EDIT,262,329,180,50,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL
+    GROUPBOX        "8th group",IDC_KEYWORD8_DESCGROUP_STATIC,252,302,200,85,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_KEYWORD8_STYLER,262,311,53,13
+    CONTROL         "Prefix mode",IDC_KEYWORD8_PREFIX_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,332,315,72,13
+END
+
+IDD_COMMENT_STYLE_DLG DIALOGEX 36, 44, 466, 415
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "Line comment position",IDC_COMMENTLINE_POSITION_STATIC,11,7,156,57
+    CONTROL         "Allow folding of comments",IDC_FOLDING_OF_COMMENTS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,188,14,131,8
+    CONTROL         "Allow anywhere",IDC_ALLOW_ANYWHERE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,33,22,121,8
+    CONTROL         "Force at beginning of line",IDC_FORCE_AT_BOL,"Button",BS_AUTORADIOBUTTON,33,34,121,8
+    CONTROL         "Allow preceding whitespace",IDC_ALLOW_WHITESPACE,
+                    "Button",BS_AUTORADIOBUTTON,33,46,121,8
+    EDITTEXT        IDC_COMMENTLINE_OPEN_EDIT,85,105,138,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_COMMENTLINE_CONTINUE_EDIT,85,124,138,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_COMMENTLINE_CLOSE_EDIT,85,144,138,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_COMMENTLINE_STYLER,169,85,54,13
+    RTEXT           "Open:",IDC_COMMENTLINE_OPEN_STATIC,12,105,71,9
+    RTEXT           "Continue character:",IDC_COMMENTLINE_CONTINUE_STATIC,12,126,71,9
+    RTEXT           "Close:",IDC_COMMENTLINE_CLOSE_STATIC,12,145,71,9
+    GROUPBOX        "Comment line style",IDC_COMMENTLINE_DESCGROUP_STATIC,10,71,219,94,BS_CENTER
+    EDITTEXT        IDC_COMMENT_OPEN_EDIT,312,112,138,12,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_COMMENT_CLOSE_EDIT,312,140,138,12,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "Styler",IDC_COMMENT_STYLER,396,85,54,13
+    RTEXT           "Open:",IDC_COMMENT_OPEN_STATIC,242,113,67,9
+    RTEXT           "Close:",IDC_COMMENT_CLOSE_STATIC,242,141,68,9
+    GROUPBOX        "Comment style",IDC_COMMENT_DESCGROUP_STATIC,238,71,219,94,BS_CENTER
+    GROUPBOX        "Number style",IDC_NUMBER_DESCGROUP_STATIC,10,174,447,190,BS_CENTER
+    PUSHBUTTON      "Styler",IDC_NUMBER_STYLER,376,185,54,13
+    RTEXT           "Prefix 1:",IDC_NUMBER_PREFIX1_STATIC,14,204,45,13
+    RTEXT           "Prefix 2:",IDC_NUMBER_PREFIX2_STATIC,245,204,45,13
+    RTEXT           "Extras 1:",IDC_NUMBER_EXTRAS1_STATIC,14,235,45,13
+    RTEXT           "Extras 2:",IDC_NUMBER_EXTRAS2_STATIC,245,235,45,13
+    RTEXT           "Suffix 1:",IDC_NUMBER_SUFFIX1_STATIC,14,266,45,13
+    RTEXT           "Suffix 2:",IDC_NUMBER_SUFFIX2_STATIC,245,266,45,13
+    RTEXT           "Range: ",IDC_NUMBER_RANGE_STATIC,14,298,45,13
+    EDITTEXT        IDC_NUMBER_PREFIX1_EDIT,63,204,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_PREFIX2_EDIT,294,204,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_EXTRAS1_EDIT,63,235,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_EXTRAS2_EDIT,295,235,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_SUFFIX1_EDIT,63,266,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_SUFFIX2_EDIT,295,266,136,21,ES_MULTILINE | WS_VSCROLL
+    EDITTEXT        IDC_NUMBER_RANGE_EDIT,63,298,136,21,ES_MULTILINE | WS_VSCROLL
+    GROUPBOX        "Decimal separator",IDC_DECIMAL_SEPARATOR_STATIC,295,299,136,53,BS_CENTER
+    CONTROL         "Dot",IDC_DOT_RADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,319,310,59,8
+    CONTROL         "Comma",IDC_COMMA_RADIO,"Button",BS_AUTORADIOBUTTON,319,322,59,8
+    CONTROL         "Both",IDC_BOTH_RADIO,"Button",BS_AUTORADIOBUTTON,319,335,59,8
+END
+
+IDD_GLOBAL_USERDEFINE_DLG DIALOGEX 36, 44, 490, 470
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_VSCROLL | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "User Defined Language v2.1"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    LTEXT           "User language : ",IDC_LANGNAME_STATIC,0,3,63,8,0,WS_EX_RIGHT
+    COMBOBOX        IDC_LANGNAME_COMBO,64,1,90,58,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Transparency",IDC_UD_TRANSPARENT_CHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,408,22,66,10
+    CONTROL         "",IDC_UD_PERCENTAGE_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TRANSPARENTBKGND | NOT WS_VISIBLE | WS_TABSTOP,422,33,53,10
+    PUSHBUTTON      "Dock",IDC_DOCK_BUTTON,425,1,50,14,BS_FLAT
+    PUSHBUTTON      "Create New...",IDC_ADDNEW_BUTTON,161,1,62,14
+    PUSHBUTTON      "Save As...",IDC_SAVEAS_BUTTON,226,1,62,14
+    CONTROL         "Ignore case",IDC_LANGNAME_IGNORECASE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,186,24,76,10
+    RTEXT           "Ext. :",IDC_EXT_STATIC,259,25,33,8,0,WS_EX_RIGHT
+    EDITTEXT        IDC_EXT_EDIT,293,23,33,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Import...",IDC_IMPORT_BUTTON,23,21,62,14
+    PUSHBUTTON      "Export...",IDC_EXPORT_BUTTON,93,21,62,14
+    PUSHBUTTON      "Rename",IDC_RENAME_BUTTON,290,1,62,14
+    PUSHBUTTON      "Remove",IDC_REMOVELANG_BUTTON,354,1,62,14
+END
+
+IDD_STRING_DLG DIALOGEX 0, 0, 151, 52
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "STATIC :",IDC_STRING_STATIC,6,4,42,8,0,WS_EX_RIGHT
+    EDITTEXT        IDC_STRING_EDIT,49,2,88,14
+    PUSHBUTTON      "OK",IDOK,20,26,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,87,26,50,14
+END
+
+IDD_STYLER_POPUP_DLG DIALOGEX 100, 50, 324, 305
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
+CAPTION "Styler Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,100,280,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,172,280,50,14
+    CONTROL         "Bold",IDC_STYLER_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,201,31,90,13
+    CONTROL         "Italic",IDC_STYLER_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,201,45,90,13
+    CONTROL         "Underline",IDC_STYLER_CHECK_UNDERLINE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,201,59,90,13
+    COMBOBOX        IDC_STYLER_COMBO_FONT_NAME,65,32,104,80,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_STYLER_COMBO_FONT_SIZE,65,53,104,77,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Foreground color:",IDC_STYLER_FG_STATIC,14,85,75,11
+    RTEXT           "Background color:",IDC_STYLER_BG_STATIC,153,86,75,11
+    CONTROL         "Delimiter 1",IDC_STYLER_CHECK_NESTING_DELIMITER1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,132,76,13
+    CONTROL         "Delimiter 2",IDC_STYLER_CHECK_NESTING_DELIMITER2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,149,76,13
+    CONTROL         "Delimiter 3",IDC_STYLER_CHECK_NESTING_DELIMITER3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,166,76,13
+    CONTROL         "Comment",IDC_STYLER_CHECK_NESTING_COMMENT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,132,76,13
+    CONTROL         "Comment line",IDC_STYLER_CHECK_NESTING_COMMENT_LINE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,149,76,13
+    CONTROL         "Keyword 1",IDC_STYLER_CHECK_NESTING_KEYWORD1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,132,76,13
+    CONTROL         "Keyword 2",IDC_STYLER_CHECK_NESTING_KEYWORD2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,149,76,13
+    CONTROL         "Keyword 3",IDC_STYLER_CHECK_NESTING_KEYWORD3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,166,76,13
+    CONTROL         "Keyword 4",IDC_STYLER_CHECK_NESTING_KEYWORD4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,183,76,13
+    GROUPBOX        "Nesting:",IDC_STYLER_STATIC_NESTING_GROUP,14,116,295,157
+    GROUPBOX        "Font options:",IDC_STYLER_STATIC_FONT_OPTIONS,14,15,295,95
+    CONTROL         "Delimiter 4",IDC_STYLER_CHECK_NESTING_DELIMITER4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,183,76,13
+    CONTROL         "Delimiter 5",IDC_STYLER_CHECK_NESTING_DELIMITER5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,200,76,13
+    CONTROL         "Delimiter 6",IDC_STYLER_CHECK_NESTING_DELIMITER6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,217,76,13
+    CONTROL         "Delimiter 7",IDC_STYLER_CHECK_NESTING_DELIMITER7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,234,76,13
+    CONTROL         "Delimiter 8",IDC_STYLER_CHECK_NESTING_DELIMITER8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,251,76,13
+    CONTROL         "Keyword 5",IDC_STYLER_CHECK_NESTING_KEYWORD5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,200,76,13
+    CONTROL         "Keyword 6",IDC_STYLER_CHECK_NESTING_KEYWORD6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,217,76,13
+    CONTROL         "Keyword 7",IDC_STYLER_CHECK_NESTING_KEYWORD7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,234,76,13
+    CONTROL         "Keyword 8",IDC_STYLER_CHECK_NESTING_KEYWORD8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,251,76,13
+    RTEXT           "Name:",IDC_STYLER_NAME_STATIC,23,32,36,12
+    RTEXT           "Size:",IDC_STYLER_SIZE_STATIC,22,53,36,12
+    CONTROL         "Operators 1",IDC_STYLER_CHECK_NESTING_OPERATORS1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,166,76,13
+    CONTROL         "Operators 2",IDC_STYLER_CHECK_NESTING_OPERATORS2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,183,76,13
+    CONTROL         "Numbers",IDC_STYLER_CHECK_NESTING_NUMBERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,200,76,13
+END

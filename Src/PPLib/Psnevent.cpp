@@ -23,7 +23,28 @@ int PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
 int PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
 	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
 int PersonEventCore::Remove(PPID id, int use_ta)
-	{ return RemoveByID(this, id, use_ta); }
+{ 
+	int   ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(RemoveByID(this, id, 0)); 
+		PPRef->UtrC.SetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), static_cast<const wchar_t *>(0), 0);
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+SString & PersonEventCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+{
+	rBuf.Z();
+	if(id) {
+		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), rBuf);
+		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	}
+	return rBuf;	
+}
 
 int PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEventTbl::Rec * pRec)
 {
@@ -160,6 +181,7 @@ void PPPsnEventPacket::Destroy()
 {
 	MEMSZERO(Rec);
 	MEMSZERO(Reg);
+	SMemo.Z();
 	TagL.Destroy();
 	LinkFiles.Clear();
 	Otb.Z();
@@ -175,14 +197,15 @@ void FASTCALL PPPsnEventPacket::Init(PPID op)
 	LinkFiles.Clear();
 }
 
-int FASTCALL PPPsnEventPacket::Copy(const PPPsnEventPacket & src)
+int FASTCALL PPPsnEventPacket::Copy(const PPPsnEventPacket & rS)
 {
 	Destroy();
-	Rec = src.Rec;
-	Reg = src.Reg;
-	TagL.Copy(src.TagL);
-	LinkFiles = src.LinkFiles;
-	Otb = src.Otb;
+	Rec = rS.Rec;
+	Reg = rS.Reg;
+	SMemo = rS.SMemo;
+	TagL.Copy(rS.TagL);
+	LinkFiles = rS.LinkFiles;
+	Otb = rS.Otb;
 	return 1;
 }
 
@@ -195,8 +218,14 @@ PPPsnEventPacket & FASTCALL PPPsnEventPacket::operator = (const PPPsnEventPacket
 int PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
+	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(RegObj.P_Tbl->SerializeRecord(dir, &pPack->Reg, rBuf, pSCtx));
+	// @v11.1.12 {
+	if(srzs.V.IsGe(11, 1, 12)) {
+		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
+	}
+	// } @v11.1.12 
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -218,7 +247,8 @@ PPObjPersonEvent::~PPObjPersonEvent()
 	delete P_ScObj;
 }
 
-/*static*/SString & FASTCALL PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
+#if 0 // @v11.1.12 (no more used) {
+/*static*/SString & FASTCALL PPObjPersonEvent::MakeCodeString_(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
 {
 	rBuf.Z();
 	if(pRec) {
@@ -231,20 +261,49 @@ PPObjPersonEvent::~PPObjPersonEvent()
 			rBuf.CatDiv('-', 1);
 			GetObjectName(PPOBJ_PERSON, pRec->SecondID, rBuf, 1);
 		}
-		if(pRec->Memo[0]) {
-			rBuf.CatDiv('-', 1).Cat(pRec->Memo);
+		{
+			if(pRec->Memo[0]) {
+				rBuf.CatDiv('-', 1).Cat(pRec->Memo);
+			}
 		}
-		rBuf.Trim(63);
+		rBuf.Trim(127); // @v11.1.12 (63)-->(127)
 	}
 	return rBuf;
 }
+#endif // } @v11.1.12 
 
 int PPObjPersonEvent::Search(PPID id, void * b)
 	{ return P_Tbl->Search(id, (PersonEventTbl::Rec *)b); }
-const char * PPObjPersonEvent::GetNamePtr()
-	{ return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); }
 int PPObjPersonEvent::DeleteObj(PPID id)
 	{ return PutPacket(&id, 0, 0); }
+
+const char * PPObjPersonEvent::GetNamePtr()
+{ 
+	// @v11.1.12 return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); 
+	// @v11.1.12 {
+	const PersonEventTbl::Rec & r_rec = P_Tbl->data;
+	{
+		NameBuf.Z();
+		NameBuf.Cat(r_rec.Dt).Space().Cat(r_rec.Tm);
+		if(r_rec.PersonID) {
+			NameBuf.CatDiv('-', 1);
+			GetObjectName(PPOBJ_PERSON, r_rec.PersonID, NameBuf, 1);
+		}
+		else if(r_rec.SecondID) {
+			NameBuf.CatDiv('-', 1);
+			GetObjectName(PPOBJ_PERSON, r_rec.SecondID, NameBuf, 1);
+		}
+		{
+			SString r_temp_buf = SLS.AcquireRvlStr();
+			P_Tbl->GetItemMemo(r_rec.ID, r_temp_buf);
+			if(r_temp_buf.NotEmptyS())
+				NameBuf.CatDiv('-', 1).Cat(r_temp_buf);
+		}
+		NameBuf.Trim(127); // @v11.1.12 (63)-->(127)
+	}
+	return NameBuf;
+	// } @v11.1.12 
+}
 
 int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -544,6 +603,7 @@ int PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 	THROW_INVARG(pPack);
 	pPack->Init(0);
 	THROW(Search(id, &pPack->Rec) > 0);
+	P_Tbl->GetItemMemo(id, pPack->SMemo); // @v11.1.12
 	THROW(RegObj.P_Tbl->GetByEvent(id, &regary));
 	if(regary.getCount())
 		pPack->Reg = regary.at(0);
@@ -1325,6 +1385,7 @@ int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, const PP
 int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	uint   i, j;
 	LDATE  op_dt = ZERODATE;
 	long   op_no = 0;
@@ -1367,7 +1428,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 				}
 				THROW(P_Tbl->Remove(id, 0));
 				THROW(RegObj.P_Tbl->PutByEvent(id, 0, 0));
-				THROW(PPRef->Ot.PutList(Obj, id, 0, 0));
+				THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
 				THROW(StcObj.RemoveEntriesByPsnEvent(id, 0));
 				{
 					ObjLinkFiles _lf(Obj);
@@ -1383,6 +1444,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 					THROW(IncDateKey(P_Tbl, 1, pPack->Rec.Dt, &pPack->Rec.OprNo));
 				}
 				THROW(P_Tbl->Update(id, &pPack->Rec, 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
 				log_action_id = PPACN_OBJUPD;
 				THROW(Helper_PutPacket(id, log_action_id, pPack, &pok_pack));
 			}
@@ -1423,6 +1485,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 			if(log_action_id != PPACN_PERSONEVENTREDO) {
 				pPack->Rec.OprNo = 0;
 				THROW(P_Tbl->Add(&id, &pPack->Rec, 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
 				pPack->Rec.ID = id;
 			}
 			op_dt = pPack->Rec.Dt;
@@ -1852,7 +1915,8 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 		setupPost(0);
 	}
 	setCtrlDatetime(CTL_PSNEVNT_DATE, CTL_PSNEVNT_TIME, Pack.Rec.Dt, Pack.Rec.Tm);
-	setCtrlData(CTL_PSNEVNT_MEMO, Pack.Rec.Memo);
+	// @v11.1.12 setCtrlData(CTL_PSNEVNT_MEMO, Pack.Rec.Memo);
+	setCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo); // @v11.1.12
 	disableCtrl(CTL_PSNEVNT_TAGLIST, disable_taglist);
 	enableCommand(cmaInsert, !disable_taglist);
 	enableCommand(cmaEdit,   !disable_taglist);
@@ -1906,7 +1970,8 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 	getCtrlData(CTL_PSNEVNT_DATE,    &Pack.Rec.Dt);
 	getCtrlData(CTL_PSNEVNT_TIME,    &Pack.Rec.Tm);
 	THROW_SL(checkdate(Pack.Rec.Dt));
-	getCtrlData(CTL_PSNEVNT_MEMO,    Pack.Rec.Memo);
+	// @v11.1.12 getCtrlData(CTL_PSNEVNT_MEMO,    Pack.Rec.Memo);
+	getCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo); // @v11.1.12
 	if(P.ExValGrp == POKEVG_POST)
 		getCtrlData(CTLSEL_PSNEVNT_POST, &Pack.Rec.Extra);
 	else
@@ -2192,7 +2257,8 @@ int PPALDD_PsnEventItem::InitData(PPFilt & rFilt, long rsrv)
 				H.Duration = 0;
 		}
 		H.OprNo      = p_pack->Rec.OprNo;
-		STRNSCPY(H.Memo, p_pack->Rec.Memo);
+		// @v11.1.12 STRNSCPY(H.Memo, p_pack->Rec.Memo);
+		STRNSCPY(H.Memo, p_pack->SMemo); // @v11.1.12
 	}
 	return DlRtm::InitData(rFilt, rsrv);
 }

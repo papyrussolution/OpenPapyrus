@@ -9,6 +9,18 @@
 // Следующие 900 номеров зарезервированы для сторонних приложений.
 // Пользовательские типы и идентификаторы начинаются с 1001.
 //
+// План конвертации v11.2.0
+//   @done -- Bill: Code[24]-->Code[48]; Memo move to UnxTextRef; убрать индекс #7; ? добавить индекс {Code, Dt, OprNo}
+//   @done -- Tech: Code[24]-->Code[48]; Memo move to UnxTextRef
+//   @done -- Person: Memo move to UnxTextRef
+//   @done -- PersonEvent: Memo move to UnxTextRef
+//   -- AdvBillItem: AdvCode[24]-->AdvCode[48]; Memo move to UnxTextRef
+//   -- CCheckExt: Memo move to UnxTextRef
+//   -- BudgetItem: Memo move to UnxTextRef
+//   -- BizScore: Str move to UnxTextRef
+//   -- GlobalBizScore: ScoreDescr && Str move to UnxTextRef
+//   -- UserFuncPrfSess: DbUUID_s и SessUUID_s преобразовать в guid; DbName, UserName, MachineName перенести в UnxTextRef
+//
 table Reference_ {         // size=88
 	long   ObjType;        // Тип объекта
 	long   ObjID;          // Ид. объекта
@@ -493,7 +505,7 @@ file:
 }
 //
 // Персоналии
-// @todo Memo перенести в UnxTextRef
+// @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
 table Person {           // size=80+128
 	autolong ID;         // @id
@@ -512,11 +524,11 @@ table Person {           // size=80+128
 	// Следующие два поля используются для кадрового учета. Не очень
 	// удачно они сюда вписываются, тем более, что эта же информация //
 	// по начальному замыслу должна вводиться через теги. В дальнейшем
-	// их нахождение здесь возможно будет пересмотрено.
+	// их нахождение здесь, возможно, будет пересмотрено.
 	//
 	long   Division;    // Подразделение        ->Location.ID
 	long   Position;    // Должность            ->?
-	note   Memo[512];   // Примечание @v6.2.2 [128]-->[252] @v7.0.0 [252]-->[512]
+	// @v11.1.12 note   Memo[512];   // Примечание @v6.2.2 [128]-->[252] @v7.0.0 [252]-->[512]
 index:
 	ID (unique);
 	Name acs (dup mod);
@@ -525,7 +537,7 @@ index:
 	RLoc (anysegnull dup mod);         // @v6.2.2
 file:
 	"person.btr";
-	vlr;
+	// @v11.1.12 vlr;
 	acstable = "rusncase.alt";
 	balanced;
 	access=3;
@@ -613,8 +625,8 @@ index:
 	// сочетания {RegTypeID, Serial, Num}.
 	// } @v4.4.5
 	//
-	RegTypeID, Serial, Num, UniqCntr (unique mod);                                             // #3
-	RegTypeID, Num, Serial, UniqCntr (unique mod); // @v8.2.3                                  // #4
+	RegTypeID, Serial, Num, UniqCntr (unique mod);            // #3
+	RegTypeID, Num, Serial, UniqCntr (unique mod); // @v8.2.3 // #4
 file:
 	"register.btr";
 	balanced;
@@ -623,7 +635,7 @@ file:
 }
 //
 // Персональные события //
-// @todo Memo перенести в UnxTextRef
+// @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
 table PersonEvent {
 	autolong ID;        // Ид
@@ -653,15 +665,16 @@ table PersonEvent {
 	raw    Reserve[18]; // @reserve
 	long   PrmrSCardID; // @v7.7.12 ->SCard.ID @#{SCardID.PersonID==PersonID}
 	long   ScndSCardID; // @v7.7.12 ->SCard.ID @#{SCardID.PersonID==SecondID}
-	note   Memo[512];   // Примечание @v5.2.8 [128]-->[240] @v7.0.0 [240]-->[512]
+	// @v11.1.12 note   Memo[512];   // Примечание @v5.2.8 [128]-->[240] @v7.0.0 [240]-->[512]
 index:
-	ID (unique);                        // #0
-	Dt, OprNo (unique mod);             // #1
-	OpID, Dt, OprNo (unique mod);       // #2
-	PersonID, Dt, OprNo (unique mod);   // #3
+	ID (unique);                                 // #0
+	Dt, OprNo (unique mod);                      // #1
+	OpID, Dt, OprNo (unique mod);                // #2
+	PersonID, Dt, OprNo (unique mod);            // #3
+	SecondID, Dt, OprNo (anysegnull unique mod); // #4 @v11.1.12
 file:
 	"psnevent.btr";
-	vlr;
+	// @v11.1.12 vlr;
 	balanced;
 	access=1;
 }
@@ -1131,18 +1144,18 @@ file:
 //
 // Универсальная таблица для накладных, проводок и прочих
 // документов. Конкретная характеристика документа определяется полем Bill.OpID.
-// @todo Memo перенести в UnxTextRef
+// @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
 table Bill {            // size=128+160
 	autolong  ID;       // @id
-	string Code[24];    // Код документа
+	string Code[48];    // Код документа // @v11.1.12 [24]-->[48]
 	date   Dt;          // Дата документа
 	long   BillNo;      // Номер документа за день
 	date   DueDate;     // Срок исполнения (заказа, заявки поставщику и т.д.)
 	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
 	long   StatusID;    // Статус документа      ->Ref(PPOBJ_BILLSTATUS)
 	long   UserID;      // Пользователь          ->Ref(PPOBJ_USR)
-	long   MainOrgID;   // Организация           ->Person.ID
+	// @v11.1.12 long   MainOrgID;   // Организация           ->Person.ID
 	long   LocID;       // Позиция               ->Location.ID
 	long   Object;      // Контрагент            ->Article.ID
 	long   Object2;     // Дополнительный объект ->Article.ID
@@ -1164,7 +1177,8 @@ table Bill {            // size=128+160
 	int16  EdiOp;       // @v8.5.5 Тип EDI-операции, которой соответствует документ
 	double PaymAmount;  // @v8.5.7 Для ускорения расчета долга по документу сумму оплаты будем дублировать в записи документа.
 	long   AgtBillID;   // @v8.7.2 Ссылка на соглашение с контрагентом (договор). Если 0, то применяется общее соглашение.
-	note   Memo[512];   // Примечание // @v7.0.0 [160]-->[512]
+	raw    Reserve[16]; // @v11.1.12
+	// @v11.1.12 note   Memo[512];   // Примечание // @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                                                   // #0
 	Dt, BillNo (unique mod);                                       // #1
@@ -1173,14 +1187,17 @@ index:
 	LinkBillID, Dt, BillNo (anysegnull unique mod);                // #4
 	LocID, Dt, BillNo (unique mod);                                // #5 @v4.1.08
 	SCardID, Dt, BillNo (anysegnull unique mod);                   // #6 @v4.1.08
-	MainOrgID, Dt, BillNo (anysegnull unique mod);                 // #7 @v4.9.10
+	// @v11.1.12 MainOrgID, Dt, BillNo (anysegnull unique mod);                 // #7 @v4.9.10
+	Code acs, Dt, BillNo (anysegnull unique mod); // #7 @v11.1.12
 	//
 	// При изменении структуры или порядка следования индексов
 	// аналогичные изменения необходимо сделать в таблице TempBill
 	//
 file:
 	"bill.btr";
-	vlr;
+	// @v11.1.12 vlr;
+	compress; // @v11.1.12
+	acstable = "rusncase.alt"; // @v11.1.12
 	access=1;
 }
 //
@@ -3341,11 +3358,11 @@ file:
 //
 // Технологии. Таблица, связывающая процессоры с обрабатываемыми на них
 // (производимыми или расходуемыми) товарами и, возможно, структурами этих товаров.
-// @todo Memo перенести в UnxTextRef
+// @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
 table Tech {               // size=104+160
 	autolong ID;           // @id
-	string Code[24];       // Код технологии
+	string Code[48];       // Код технологии // @v11.1.12 [24]-->[48]
 	long   PrcID;          // ->Processor.ID
 	long   GoodsID;        // ->Goods.ID
 	long   GStrucID;       // ->Ref(PPOBJ_GOODSSTRUC)
@@ -3367,20 +3384,21 @@ table Tech {               // size=104+160
 	long   ParentID;       // @v7.5.6 Родительская технология //
 	long   OrderN;         // @v7.5.6 Счетчик, обеспечивающий уникальность по родительской технологии.
 		// Кроме того, этот счетчик управляет порядком следования технологий внутри родительской технологии.
-	int16  CipMax;         // @v7.7.2 Максимальное количество персоналий, которое может быть загеристрировано на
-		// тех сессии процессора.
-	raw    Reserve3[2];    // @reserve
-	note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
+	int16  CipMax;         // @v7.7.2 Максимальное количество персоналий, которое может быть загеристрировано на тех сессии процессора.
+	raw    Reserve3[10];   // @reserve  // @v11.1.12 [2]-->[10]
+	// @v11.1.12 note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                           // #0
-	Code (anysegnull unique mod);          // #1
+	Code acs (anysegnull unique mod);      // #1
 	PrcID, GoodsID, GStrucID (unique mod); // #2
 	GoodsID, GStrucID, PrcID (unique mod); // #3
 	GStrucID, GoodsID, PrcID (unique mod); // #4
 	ParentID, OrderN (unique mod);         // #5 @v7.5.6
 file:
 	"tech.btr";
-	vlr;
+	compress; // @v11.1.12
+	acstable = "rusncase.alt"; // @v11.1.12
+	// @v11.1.12 vlr;
 }
 //
 // Технологические сессии
@@ -4223,7 +4241,7 @@ table TempTrfrAnlz {       //
 	date   Dt;             //
 	long   OprNo;          //
 	long   BillID;         // ->Bill.ID
-	string BillCode[24];   //
+	string BillCode[48];   // @v11.1.12 [24]-->[48]
 	long   LocID;          // ->Location.ID
 	long   ArticleID;      // ->Article.ID
 	long   OpID;           //
@@ -4472,7 +4490,7 @@ table TempFreight {
 	string PortName[48];  // Наименование порта назначения // @v6.9.2 [30]-->[48]
 	string DlvrAddr[64];  // Наименование адреса доставки
 	// @v9.8.4 note   Memo[512];     // @v6.9.7 Примечание к документу
-	uint   MemoP;         // @v9.8.4 Ссылка на примечание к документу
+	// @v11.1.12 uint   MemoP;       // @v9.8.4 Ссылка на примечание к документу
 index:
 	BillID (unique mod);
 	BillDate, Code (dup mod);

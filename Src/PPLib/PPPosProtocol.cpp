@@ -887,7 +887,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 								temp_buf.CatChar('-').Cat(pInfix);
 							if(_seq)
 								temp_buf.CatChar('-').Cat(_seq);
-							temp_buf.Dot().Cat("ppyp");
+							temp_buf.DotCat("ppyp");
 							_seq++;
 						} while(sfp.SearchName(temp_buf, 0));
 						//c.FtpDelete(url, ScURL::mfVerbose);
@@ -909,7 +909,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 									temp_buf.CatChar('-').Cat(pInfix);
 								if(_seq)
 									temp_buf.CatChar('-').Cat(_seq);
-								temp_buf.Dot().Cat("ppyp");
+								temp_buf.DotCat("ppyp");
 								(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
 								_seq++;
 							} while(::fileExists(temp_result_buf));
@@ -5196,7 +5196,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 			SPathStruc ps;
 			SString dest_file_name;
 			SString filt_filename;
-			(filt_filename = "*").Dot().Cat("ppyp");
+			(filt_filename = "*").DotCat("ppyp");
 			for(uint ffidx = 0; ffidx < ftp_file_list.GetCount(); ffidx++) {
 				SFileEntryPool::Entry fe;
 				if(ftp_file_list.Get(ffidx, &fe, 0)) {
@@ -5298,12 +5298,12 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		{
 			SDirEntry de;
 			SString done_plus_xml_suffix;
-			(done_plus_xml_suffix = p_done_suffix).Dot().Cat("ppyp");
+			(done_plus_xml_suffix = p_done_suffix).DotCat("ppyp");
 			uint   prev_ssp_pos = 0;
 			for(uint ssp_pos = prev_ssp_pos; ss_paths.get(&ssp_pos, in_path); prev_ssp_pos = ssp_pos) {
 				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
 				if(IsDirectory(in_path)) {
-					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').Dot().Cat("ppyp");
+					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').DotCat("ppyp");
 					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 						if(de.IsFile()) {
 							const size_t fnl = sstrlen(de.FileName);
@@ -5737,7 +5737,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 						temp_buf.CatChar('-').Cat(pInfix);
 					if(_seq)
 						temp_buf.CatChar('-').Cat(_seq);
-					temp_buf.Dot().Cat("ppyp");
+					temp_buf.DotCat("ppyp");
 					(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
 					_seq++;
 				} while(::fileExists(temp_result_buf));

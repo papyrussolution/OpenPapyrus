@@ -2952,7 +2952,8 @@ int PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPac
 		{
 			THROW(Write_MessageHeader(_doc, edi_op, bill_ident)); // "UNH" Message header
 			seg_count++;
-			BillCore::GetCode(temp_buf = rPack.Rec.Code);
+			// @v11.1.12 BillCore::GetCode(temp_buf = rPack.Rec.Code);
+			temp_buf = rPack.Rec.Code; // @v11.1.12 
 			THROW(Write_BeginningOfMessage(_doc, "351", temp_buf, fmsgcodeOriginal)); // "BGM" Beginning of message
 			seg_count++;
 			dtm.Set(rPack.Rec.Dt, ZEROTIME);
@@ -2986,7 +2987,8 @@ int PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPac
 					const PPID ord_id = order_id_list.get(ordidx);
 					BillTbl::Rec ord_rec;
 					if(ord_id && BillObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
-						BillCore::GetCode(temp_buf = ord_rec.Code);
+						// @v11.1.12 BillCore::GetCode(temp_buf = ord_rec.Code);
+						temp_buf = ord_rec.Code; // @v11.1.12 
 						LDATETIME ord_dtm;
 						ord_dtm.Set(ord_rec.Dt, ZEROTIME);
 						{
@@ -3081,7 +3083,8 @@ int PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPac
 		{
 			THROW(Write_MessageHeader(_doc, edi_op, bill_ident)); // "UNH" Message header
 			seg_count++;
-			BillCore::GetCode(temp_buf = rPack.Rec.Code);
+			// @v11.1.12 BillCore::GetCode(temp_buf = rPack.Rec.Code);
+			temp_buf = rPack.Rec.Code; // @v11.1.12 
 			THROW(Write_BeginningOfMessage(_doc, "220", temp_buf, fmsgcodeOriginal)); // "BGM" Beginning of message
 			seg_count++;
 			dtm.Set(rPack.Rec.Dt, ZEROTIME);
@@ -3733,7 +3736,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 	}
 	{
 		SXml::WNode n_b(_doc, "order"); // <order number="OR012012552011" date="2014-02-07" status="Replace" revisionNumber="02">
-		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		n_b.PutAttrib("status", "Original");
 		{
@@ -3767,7 +3771,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -3859,7 +3864,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 	}
 	{
 		SXml::WNode n_b(_doc, "orderResponse"); // <order number="OR012012552011" date="2014-02-07" status="Replace" revisionNumber="02">
-		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		{
 			int ordrsp_status = IdentifyOrderRspStatus(rBp, pExtBp);
@@ -3874,7 +3880,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 		}
 		{
 			SXml::WNode n_i(_doc, "originOrder");
-			n_i.PutAttrib("number", BillCore::GetCode(temp_buf = r_org_pack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			// @v11.1.12 n_i.PutAttrib("number", BillCore::GetCode(temp_buf = r_org_pack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_i.PutAttrib("number", (temp_buf = r_org_pack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 			n_i.PutAttrib("date", temp_buf.Z().Cat(r_org_pack.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
 		{
@@ -3916,7 +3923,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 				THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.Rec.LocID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -3978,7 +3986,8 @@ void EdiProviderImplementation_Kontur::Write_OwnFormat_OriginOrder_Tag(SXml::WDo
 {
 	SString temp_buf;
 	SXml::WNode n_i(rDoc, "originOrder"); // <originOrder number="ORSP0012" date="2014-02-07"/>
-	n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rOrderBillRec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+	// @v11.1.12 n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rOrderBillRec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+	n_i.PutAttrib("number", (temp_buf = rOrderBillRec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 	n_i.PutAttrib("date", temp_buf.Z().Cat(rOrderBillRec.Dt, DATF_ISO8601|DATF_CENTURY));
 }
 
@@ -4006,7 +4015,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 		BillTbl::Rec order_bill_rec;
 		// @v10.6.4 MEMSZERO(order_bill_rec);
 		SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
-		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		n_b.PutAttrib("status", "Original");
 		{
@@ -4059,7 +4069,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции--> // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -4156,7 +4167,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 	}
 	{
 		SXml::WNode n_b(_doc, "alcoholReport"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
-		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		// @v11.1.12 n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_b.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		n_b.PutAttrib("status", "Original");
 		{
@@ -4197,7 +4209,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 			{
 				//<waybill number="382419/40000" date="2013-02-22"/>
 				SXml::WNode n_i2(_doc, "waybill");
-				n_i2.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+				// @v11.1.12 n_i2.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+				n_i2.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 				n_i2.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			}
 			{
@@ -4209,7 +4222,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции--> // @v11.1.12
 		{
 			const int use_refc_data = Arp.UseOwnEgaisObjects();
 			SString goods_code;
@@ -4349,9 +4363,11 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 	{
 		SXml::WNode n_b(_doc, "invoice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
 		if(rBp.Ext.InvoiceCode[0])
-			(temp_buf = rBp.Ext.InvoiceCode);
-		else
-			BillCore::GetCode(temp_buf = rBp.Rec.Code);
+			temp_buf = rBp.Ext.InvoiceCode;
+		else {
+			// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
+			temp_buf = rBp.Rec.Code; // @v11.1.12 
+		}
 		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 		n_b.PutAttrib("number", temp_buf);
 		if(checkdate(rBp.Ext.InvoiceDate, 0))
@@ -4370,7 +4386,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		{
 			//<despatchIdentificator number="DES003" date="2014-02-07"/>
 			SXml::WNode n_i(_doc, "despatchIdentificator");
-			n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			// @v11.1.12 n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_i.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 			n_i.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
 		if(rBp.BTagL.GetItemStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0 && temp_buf.NotEmpty()) {
@@ -4410,7 +4427,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->
+		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(temp_buf = rBp.SMemo)); // <!--номер промоакции--> // @v11.1.12
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -4787,7 +4805,8 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 					PPBillPacket order_bp;
 					PPIDArray wroff_bill_list;
 					BillTbl::Rec wroff_bill_rec;
-					BillCore::GetCode(p_recadv_pack->DesadvBillCode = p_recadv_pack->ABp.Rec.Code);
+					// @v11.1.12 BillCore::GetCode(p_recadv_pack->DesadvBillCode = p_recadv_pack->ABp.Rec.Code);
+					p_recadv_pack->DesadvBillCode = p_recadv_pack->ABp.Rec.Code; // @v11.1.12 
 					p_recadv_pack->DesadvBillDate = p_recadv_pack->ABp.Rec.Dt;
 					if(p_recadv_pack->ABp.Rec.LinkBillID) {
 						BillTbl::Rec order_bill_rec;
@@ -5149,7 +5168,8 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 					else if(SXml::GetContentByName(p_n2, "blanketOrderIdentificator", temp_buf)) {
 					}
 					else if(SXml::GetContentByName(p_n2, "comment", temp_buf)) {
-						STRNSCPY(p_bpack->Rec.Memo, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+						// @v11.1.12 STRNSCPY(p_bpack->Rec.Memo, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+						p_bpack->SMemo = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // @v11.1.12
 					}
 					else if(SXml::IsName(p_n2, "seller")) {
 						THROW(ReadOwnFormatContractor(p_n2->children, contractor));
@@ -5772,7 +5792,7 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
 		path.SetLastSlash().Cat(temp_buf);
 		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-		path.CatChar('_').Cat(temp_buf).Dot().Cat("xml");
+		path.CatChar('_').Cat(temp_buf).DotCat("xml");
 		//
 		THROW(p_x = xmlNewTextWriterFilename(path, 0));
 		Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
@@ -6221,7 +6241,7 @@ int EdiProviderImplementation_Exite::ResolveContractor(const char * pText, int p
 int EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec)
 {
 	int    ok = -1;
-	char   scode[32];
+	char   scode[64]; // @v11.1.12 [32]-->[64]
 	BillCore * p_bt = P_BObj->P_Tbl;
 	Reference * p_ref = PPRef;
 	DBQ  * dbq = 0;
@@ -6232,7 +6252,7 @@ int EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE 
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pCode);
-	BillCore::GetCode(scode);
+	// @v11.1.12 BillCore::GetCode(scode);
 	MEMSZERO(k);
 	if(arID) {
 		k.k3.Object = arID;
@@ -6250,7 +6270,7 @@ int EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE 
 	q.select(p_bt->ID, p_bt->Dt, p_bt->Code, p_bt->EdiOp, 0L).where(*dbq);
 	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 		temp_buf = p_bt->data.Code;
-		BillCore::GetCode(temp_buf);
+		// @v11.1.12 BillCore::GetCode(temp_buf);
 		if(temp_buf.NotEmptyS() && stricmp866(temp_buf, scode) == 0) {
 			const PPID bill_id = p_bt->data.ID;
 			S_GUID sent_guid;
@@ -6672,7 +6692,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 									else if(p_bf->Text.IsEqiAscii("TOTALPACKAGES")) {
 									}
 									else if(p_bf->Text.IsEqiAscii("INFO")) {
-										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										// @v11.1.12 temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										p_bpack->SMemo = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER); // @v11.1.12
 									}
 									else if(p_bf->Text.IsEqiAscii("SHIPMENTS")) {
 									}
@@ -6934,7 +6955,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 									else if(p_bf->Text.IsEqiAscii("ORDRTYPE")) { // Тип заказа: поле O - оригинал R - корректировка, D - отмена
 									}
 									else if(p_bf->Text.IsEqiAscii("INFO")) {
-										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										// @v11.1.12 temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										p_bpack->SMemo = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER); // @v11.1.12
 									}
 									else if(p_bf->Text.IsEqiAscii("TYPE")) {
 									}
@@ -7144,7 +7166,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 									else if(p_bf->Text.IsEqiAscii("TOTALPACKAGESSPACE")) {
 									}
 									else if(p_bf->Text.IsEqiAscii("INFO")) {
-										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										// @v11.1.12 temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
+										p_bpack->SMemo = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER); // @v11.1.12
 									}
 									else if(p_bf->Text.IsEqiAscii("REASONDECREACEQUANTITYALL")) {
 									}
@@ -7213,7 +7236,7 @@ int EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo *
 		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
 		path.SetLastSlash().Cat(temp_buf);
 		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-		path.CatChar('_').Cat(temp_buf).Dot().Cat("xml");
+		path.CatChar('_').Cat(temp_buf).DotCat("xml");
 		//
 		THROW(p_xml_buf = xmlBufferCreate());
 		THROW(p_x = xmlNewTextWriterMemory(p_xml_buf, 0));
@@ -7279,7 +7302,8 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 	THROW(GetArticleGLN(rBp.Rec.Object, contractor_gln));
 	{
 		n_docs.PutInner("DOCUMENTNAME", "220"); // 218 order // во всех документах 220
-		n_docs.PutInner("NUMBER", EncXmlText(BillCore::GetCode(temp_buf = rBp.Rec.Code)));
+		// @v11.1.12 n_docs.PutInner("NUMBER", EncXmlText(BillCore::GetCode(temp_buf = rBp.Rec.Code)));
+		n_docs.PutInner("NUMBER", EncXmlText(temp_buf = rBp.Rec.Code)); // @v11.1.12 
 		n_docs.PutInner("DATE", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		//n_docs.PutInner("PROMO", 0);
 		n_docs.PutInner("DELIVERYDATE", temp_buf.Z().Cat(NZOR(rBp.Rec.DueDate, rBp.Rec.Dt), DATF_ISO8601|DATF_CENTURY));
@@ -7309,7 +7333,8 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 		//n_docs.PutInner("SUPORDER", 0);
 		//n_docs.PutInner("KDKNUM", 0);
 		//n_docs.PutInner("ORDRTYPE", "O"); // Тип заказа: поле O - оригинал R - корректировка, D - отмена
-		n_docs.PutInner("INFO", EncXmlText(rBp.Rec.Memo));
+		// @V11.1.12 n_docs.PutInner("INFO", EncXmlText(rBp.Rec.Memo));
+		n_docs.PutInner("INFO", EncXmlText(temp_buf = rBp.SMemo)); // @v11.1.12
 		// n_docs.PutInner("TYPE", 0); // 1 - Оборудование, 2 - Расходные материалы, 3 - Оборудование и услуга.
 		//n_docs.PutInner("EARLIESTDELIVERYDATE", 0);
 		//n_docs.PutInner("PRODUCTTYPE", 0); // 1 - Оборудование, 2 - Услуга
@@ -7644,9 +7669,11 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 	THROW(GetArticleGLN(rRaPack.ABp.Rec.Object, contractor_gln));
 	{
 		SString desadv_code;
-		BillCore::GetCode(desadv_code = rRaPack.ABp.Rec.Code);
+		// @v11.1.12 BillCore::GetCode(desadv_code = rRaPack.ABp.Rec.Code);
+		desadv_code = rRaPack.ABp.Rec.Code; // @v11.1.12 
 		if(rRaPack.WrOffBillID && P_BObj->Fetch(rRaPack.WrOffBillID, &wroff_bill_rec) > 0) {
-			BillCore::GetCode(temp_buf = wroff_bill_rec.Code);
+			// @v11.1.12 BillCore::GetCode(temp_buf = wroff_bill_rec.Code);
+			temp_buf = wroff_bill_rec.Code; // @v11.1.12 
 			n_docs.PutInner("NUMBER", temp_buf);
 			n_docs.PutInner("DATE", temp_buf.Z().Cat(wroff_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			n_docs.PutInner("RECEPTIONDATE", temp_buf.Z().Cat(wroff_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
@@ -7658,7 +7685,8 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 			n_docs.PutInner("RECEPTIONDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
 		if(rRaPack.OrderBillID && P_BObj->Fetch(rRaPack.OrderBillID, &order_bill_rec) > 0) {
-			BillCore::GetCode(temp_buf = order_bill_rec.Code);
+			// @v11.1.12 BillCore::GetCode(temp_buf = order_bill_rec.Code);
+			temp_buf = order_bill_rec.Code; // @v11.1.12 
 			n_docs.PutInner("ORDERNUMBER", EncXmlText(temp_buf));
 			n_docs.PutInner("ORDERDATE", temp_buf.Z().Cat(order_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
@@ -7700,7 +7728,8 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 2, 0)));
 		}
 		n_docs.PutInner("DOCTYPE", "O");
-		n_docs.PutInner("INFO", EncXmlText(rRaPack.RBp.Rec.Memo));
+		// @v11.1.12 n_docs.PutInner("INFO", EncXmlText(rRaPack.RBp.Rec.Memo));
+		n_docs.PutInner("INFO", EncXmlText(temp_buf = rRaPack.RBp.SMemo)); // @v11.1.12
 		{
 			SXml::WNode n_inner(_doc, "HEAD");
 			{

@@ -231,7 +231,8 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 						new_pack.Rec.Capacity = capacity;
 					}
 				}
-				STRNSCPY(new_pack.Rec.Memo, pack.Rec.Memo);
+				// @v11.1.12 STRNSCPY(new_pack.Rec.Memo, pack.Rec.Memo);
+				new_pack.SMemo = pack.SMemo; // @v11.1.12
 				THROW(PutPacket(&tech_id, &new_pack, 0));
 				THROW(tra.Commit());
 				ASSIGN_PTR(pTechID, tech_id);
@@ -250,6 +251,14 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 
 /*virtual*/int PPObjTech::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 /*virtual*/const char * PPObjTech::GetNamePtr() { return P_Tbl->data.Code; }
+
+SString & PPObjTech::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+{
+	rBuf.Z();
+	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	return rBuf;
+}
 
 int PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
 {
@@ -431,6 +440,7 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 	THROW_INVARG(pPack);
 	if(Search(id, &pPack->Rec) > 0) {
 		THROW(PPRef->GetPropVlrString(Obj, id, TECPRP_EXTSTR, pPack->ExtString));
+		GetItemMemo(id, pPack->SMemo); // @v11.1.12
 		ok = 1;
 	}
 	CATCHZOK
@@ -440,8 +450,10 @@ int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPID   log_action_id = 0;
 	TechTbl::Rec rec;
+	SString ext_buffer;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -467,7 +479,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 					}
 				}
 				THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
-				THROW(PPRef->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
+				THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
 				log_action_id = PPACN_OBJUPD;
 			}
 			Dirty(*pID);
@@ -484,9 +496,18 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 			}
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, pPack, 0));
 			pPack->Rec.ID = *pID;
-			THROW(PPRef->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
+			THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
 			log_action_id = PPACN_OBJADD;
 		}
+		// @v11.1.12 {
+		{
+			if(pPack)
+				(ext_buffer = pPack->SMemo).Strip();
+			else
+				ext_buffer.Z();
+			THROW(p_ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		}
+		// } @v11.1.12 
 		DS.LogAction(log_action_id, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
 	}
@@ -860,7 +881,8 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	SetClusterData (CTL_TECH_FLAGS, Data.Rec.Flags);
 	setCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
 	setCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
-	setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+	// @v11.1.12 setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+	setCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
 	setCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
 	SetupCtrls();
 	return 1;
@@ -907,7 +929,8 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	getCtrlData(CTL_TECH_ROUNDING, &Data.Rec.Rounding);
 	getCtrlData(CTL_TECH_INITQTTY, &Data.Rec.InitQtty);
 	getCtrlData(CTL_TECH_CIPMAX, &Data.Rec.CipMax);
-	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+	// @v11.1.12 getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+	getCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
 	ASSIGN_PTR(pData, Data);
 	CATCHZOKPPERRBYDLG
 	return ok;
@@ -957,7 +980,8 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					SString form_cond;
 					PPGetExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond);
 					setCtrlString(CTL_TECH_TRANSCOND, form_cond);
-					setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					// @v11.1.12 setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					setCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
 					return 1;
 				}
 				DECL_DIALOG_GETDTS()
@@ -999,7 +1023,8 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 						getCtrlString(CTL_TECH_TRANSCOND, form_cond);
 						PPPutExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond.Strip());
 					}
-					getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					// @v11.1.12 getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					getCtrlString(CTL_TECH_MEMO, Data.SMemo); // @v11.1.12
 					ASSIGN_PTR(pData, Data);
 					CATCHZOKPPERRBYDLG
 					return ok;
@@ -1295,8 +1320,14 @@ IMPL_DESTROY_OBJ_PACK(PPObjTech, PPTechPacket);
 int PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
+	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
+	// @v11.1.12 {
+	if(srzs.V.IsGe(11, 1, 12)) {
+		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
+	}
+	// } @v11.1.12
 	CATCHZOK
 	return ok;
 }
@@ -1834,7 +1865,8 @@ int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		TechTbl::Rec rec;
-		if(static_cast<PPObjTech *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
+		PPObjTech * p_obj = static_cast<PPObjTech *>(Extra[0].Ptr);
+		if(p_obj->Search(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Code, rec.Code);
 			H.PrcID    = rec.PrcID;
@@ -1847,7 +1879,14 @@ int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)
 			H.Sign     = rec.Sign;
 			H.Cost     = rec.Cost;
 			H.Capacity = rec.Capacity;
-			STRNSCPY(H.Memo, rec.Memo);
+			{
+				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
+				// @v11.1.12 {
+				SString r_temp_buf = SLS.AcquireRvlStr();
+				p_obj->GetItemMemo(rFilt.ID, r_temp_buf);
+				STRNSCPY(H.Memo, r_temp_buf); 
+				// } @v11.1.12 
+			}
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

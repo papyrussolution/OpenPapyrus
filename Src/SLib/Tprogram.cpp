@@ -633,7 +633,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			RECT rc;
 			::GetClientRect(hWnd, &rc);
 			if(checkirange(LOWORD(lParam), 0, rc.right) && checkirange(HIWORD(lParam), 0, rc.bottom))
-				SendMessage(p_pgm->GetFrameWindow(), WM_USER_CLOSEBROWSER, 0, 0);
+				::SendMessage(p_pgm->GetFrameWindow(), WM_USER_CLOSEBROWSER, 0, 0);
 			SetFocus(p_pgm->H_MainWnd);
 			break;
 	}
@@ -643,7 +643,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 {
 	if(GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
-		SendMessage(hwnd, WM_USER_MAINWND_MOVE_SIZE, 0, 0);
+		::SendMessage(hwnd, WM_USER_MAINWND_MOVE_SIZE, 0, 0);
 	return TRUE;
 }
 
@@ -688,7 +688,6 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				HWND   hb = ::GetTopWindow(hWnd);
 				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = ::GetNextWindow(hb, GW_HWNDNEXT);
-				//if(hb == h_close_wnd) hb = ::GetNextWindow(hb, GW_HWNDNEXT);
 				SString main_text_buf;
 				TView::SGetWindowText(APPL->H_MainWnd, main_text_buf);
 				size_t div_pos = 0;
@@ -711,7 +710,6 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_USER_CLOSEBROWSER:
 			{
 				HWND hb = GetTopWindow(hWnd);
-				//if(hb == h_close_wnd) hb = GetNextWindow(hb, GW_HWNDNEXT);
 				while(hb && oneof2(hb, h_close_wnd, h_tree_wnd))
 					hb = GetNextWindow(hb, GW_HWNDNEXT);
 				if(!is_desktop)

@@ -761,7 +761,7 @@ void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAcceptCharset, "utf-8");
 	{
 		SString login;
-		login.Z().Cat(Ib.CliIdent).CatChar(':').Cat(Ib.CliAccsKey).Transf(CTRANSF_INNER_TO_UTF8);
+		login.Z().Cat(Ib.CliIdent).Colon().Cat(Ib.CliAccsKey).Transf(CTRANSF_INNER_TO_UTF8);
 		temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAuthorization, login.Z().Cat("Basic").Space().Cat(temp_buf));
 	}

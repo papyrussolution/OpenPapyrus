@@ -14,7 +14,7 @@ SVerT PPSession::GetMinCompatVersion() const
 	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
-	static const SVerT __MinCompatVer(11, 0, 4);
+	static const SVerT __MinCompatVer(11, 1, 12);
 		// @v6.4.7  6.2.2-->6.4.7
 		// @v7.0.0  6.4.7-->6.9.10
 		// @v7.0.7  6.9.10-->7.0.7
@@ -39,6 +39,7 @@ SVerT PPSession::GetMinCompatVersion() const
 		// @v10.7.2 10.2.9-->10.7.2
 		// @v10.9.2 10.7.2-->10.9.2
 		// @v11.0.4 10.9.2-->11.0.4
+		// @v11.1.12 11.0.4-->11.1.12
 	return __MinCompatVer;
 }
 //

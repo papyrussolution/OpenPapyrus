@@ -249,11 +249,12 @@ int PPObjBill::GetGuid(PPID id, S_GUID * pUuid)
 
 /*static*/SString & FASTCALL PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options, SString & rBuf)
 {
-	char   code[64];
+	// @v11.1.12 char   code[64];
 	SString name;
-	STRNSCPY(code, pRec->Code);
+	// @v11.1.12 STRNSCPY(code, pRec->Code);
 	rBuf.Z();
-	rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(BillCore::GetCode(code));
+	// @v11.1.12 rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(BillCore::GetCode(code));
+	rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(pRec->Code); // @v11.1.12
 	if(options == 1 || options & mcsAddOpName) {
 		GetOpName(pRec->OpID, name.Z());
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
@@ -419,7 +420,8 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 						if(GetOpData(pPack->Rec.OpID, &op_rec) > 0)
 							THROW_PP(op_rec.AccSheet2ID == 0, PPERR_BILLSTCHECKFLD_OBJECT2);
 					}
-                    BillCore::GetCode(temp_buf = pPack->Rec.Code);
+                    // @v11.1.12 BillCore::GetCode(temp_buf = pPack->Rec.Code);
+					temp_buf = pPack->Rec.Code; // @v11.1.12 
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CODE) || temp_buf.NotEmpty(), PPERR_BILLSTCHECKFLD_CODE);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_AGENT) || pPack->Ext.AgentID, PPERR_BILLSTCHECKFLD_AGENT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
@@ -1046,8 +1048,9 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				if(_mode == 2) { // correction
 					PPCashMachine::FiscalCorrection fc;
 					fc.Dt = pack.Rec.Dt;
-					BillCore::GetCode(fc.Code = pack.Rec.Code);
-					fc.Reason = pack.Rec.Memo;
+					// @v11.1.12 BillCore::GetCode(fc.Code = pack.Rec.Code);
+					fc.Code = pack.Rec.Code; // @v11.1.12 
+					fc.Reason = pack.SMemo; // @v11.1.12 pack.Rec.Memo-->pack.SMemo
 					fc.AmtCash = pack.Amounts.Get(PPAMT_CS_CASH, 0);
 					fc.AmtBank = pack.Amounts.Get(PPAMT_CS_BANK, 0);
 					if((fc.AmtBank * fc.AmtCash) >= 0.0) {
@@ -1109,8 +1112,14 @@ int PPObjBill::PosPrintByBill(PPID billID)
 						}
 					}
 					// } @v11.0.4 
+					/* @v11.1.12 
 					if(pack.Rec.Memo[0])
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
+					*/
+					// @v11.1.12 {
+					if(pack.SMemo.NotEmpty())
+						STRNSCPY(cp.Ext.Memo, pack.SMemo);
+					// } @v11.1.12 
 					PPWaitStart();
 					if(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft()) {
 						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
@@ -1569,7 +1578,8 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		}
 		if(sample_pack.Ext.AgentID)
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
-		STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
+		// @v11.1.12 STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
+		pack.SMemo = sample_pack.SMemo; // @v11.1.12
 		if(sample_pack.Rec.EdiOp == PPEDIOP_SALESORDER && sample_pack.BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("STYLOAGENT")) {
 			PPStyloPalmConfig sp_cfg;
 			PPObjStyloPalm::ReadConfig(&sp_cfg);
@@ -1613,10 +1623,11 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 				}
 				THROW(rcpt_bpack.SetupObject(rcpt_ar_id, rcpt_sob));
 				{
-					SString memo_buf;
+					// @v11.1.12 SString memo_buf;
 					PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
-					(memo_buf = "@autoreceipt").Space().Cat(temp_buf);
-					STRNSCPY(rcpt_bpack.Rec.Memo, memo_buf);
+					// @v11.1.12 (memo_buf = "@autoreceipt").Space().Cat(temp_buf);
+					// @v11.1.12 STRNSCPY(rcpt_bpack.Rec.Memo, memo_buf);
+					(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
 				}
 				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
 					const PPTransferItem & r_src_ti = sample_pack.ConstTI(i);
@@ -1753,7 +1764,8 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 			THROW(pack.SetFreight(sample_pack.P_Freight));
 		if(sample_pack.Ext.AgentID && op_type == PPOPT_DRAFTEXPEND)
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
-		STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
+		// @v11.1.12 STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
+		pack.SMemo = sample_pack.SMemo; // @v11.1.12
 		{
 			pack.Rec.LinkBillID = sample_pack.Rec.ID; // Сохраняем привязку драфт-документа к документу заказа.
 				// По этой привязке при списании драфт-документа мы учтем исполнение заказа.
@@ -2336,7 +2348,8 @@ int PPObjBill::EditAccTurn(PPID id)
 	THROW(ExtractPacketWithFlags(id, &pack, BPLD_LOCK));
 	org_amt_list.copy(pack.Amounts);
 	org_loc_id = pack.Rec.LocID;
-	org_mem = pack.Rec.Memo;
+	// @v11.1.12 org_mem = pack.Rec.Memo;
+	org_mem = pack.SMemo; // @v11.1.12
 	if(pack.Turns.getCount())
 		at = pack.Turns.at(0);
 	THROW(PPObjOprKind::GetATTemplList(pack.Rec.OpID, &att_list));
@@ -2345,7 +2358,7 @@ int PPObjBill::EditAccTurn(PPID id)
 	flags |= (ATDF_DSBLDACC | ATDF_DSBLDART | ATDF_DSBLCACC | ATDF_DSBLCART);
 	THROW(r = EditGenericAccTurn(&pack, flags));
 	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEqual(&org_amt_list) || pack.Rec.LocID != org_loc_id ||
-		org_mem.Cmp(pack.Rec.Memo, 0) != 0)) {
+		org_mem != pack.SMemo)) { // @v11.1.12 (org_mem.Cmp(pack.Rec.Memo, 0) != 0)--->(org_mem != pack.SMemo)
 		THROW(UpdatePacket(&pack, 1));
 	}
 	else
@@ -3026,7 +3039,8 @@ int PPObjBill::GetLabelLotInfo(PPID lotID, RetailGoodsInfo * pData)
 		//rgi.Price  = R5(lot_rec.Price);
 		if(Search(lot_rec.BillID, &bill_rec) > 0) {
 			rgi.BillDate = bill_rec.Dt;
-			P_Tbl->GetCode(STRNSCPY(rgi.BillCode, bill_rec.Code));
+			// @v11.1.12 P_Tbl->GetCode(STRNSCPY(rgi.BillCode, bill_rec.Code));
+			STRNSCPY(rgi.BillCode, bill_rec.Code); // @v11.1.12 
 			if(bill_rec.Object) {
 				GetArticleName(bill_rec.Object, temp_buf);
 				temp_buf.CopyTo(rgi.ArName, sizeof(rgi.ArName));
@@ -5289,7 +5303,7 @@ int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 
 			MultTextBlock b;
 			b.Add(rec.Code);
-			b.Add(rec.Memo);
+			// @v11.1.12 b.Add(rec.Memo);
 			ok = PutTextBlock(b, p_cache_rec);
 		}
 	}
@@ -5320,7 +5334,7 @@ void BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	#undef FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
-	b.Get(p_data_rec->Memo, sizeof(p_data_rec->Memo));
+	// @v11.1.12 b.Get(p_data_rec->Memo, sizeof(p_data_rec->Memo));
 }
 
 int BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
@@ -6505,7 +6519,8 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	Reference * p_ref = PPRef;
 	PPObjTag * p_tag_obj = 0;
 	const  int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
-	const  int do_force_unmirr = BIN(strstr(pPack->Rec.Memo, "#MIRROR-REFAB")); // @v9.5.5
+	// @v11.1.12 const  int do_force_unmirr = BIN(strstr(pPack->Rec.Memo, "#MIRROR-REFAB"));
+	const  int do_force_unmirr = pPack->SMemo.Search("#MIRROR-REFAB", 0, 0, 0); // @v11.1.12
 	SString img_path;
 	SString img_tag_addendum;
 	SString fname;
@@ -8435,7 +8450,9 @@ int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 
 int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList)
 {
-	int    ok = 1, r, rbybill = 0;
+	int    ok = 1;
+	int    r;
+	int    rbybill = 0;
 	uint   i;
 	SString msg_buf;
 	SString fmt_buf, temp_buf;
@@ -9215,7 +9232,10 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 					}
 					subst_buf.Z();
 					switch(sym) {
-						case PPSYM_BILLNO: BillCore::GetCode(subst_buf = pk->Rec.Code); break;
+						case PPSYM_BILLNO: 
+							// @v11.1.12 BillCore::GetCode(subst_buf = pk->Rec.Code); 
+							subst_buf = pk->Rec.Code; // @v11.1.12 
+							break;
 						case PPSYM_DATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY); break;
 						case PPSYM_DUEDATE: // @v10.4.8
 							if(checkdate(pk->Rec.DueDate))
@@ -9241,8 +9261,10 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 						case PPSYM_INVOICENO:
 							if(pk->Ext.InvoiceCode[0])
 								subst_buf = pk->Ext.InvoiceCode;
-							else
-								BillCore::GetCode(subst_buf = pk->Rec.Code);
+							else {
+								// @v11.1.12 BillCore::GetCode(subst_buf = pk->Rec.Code);
+								subst_buf = pk->Rec.Code; // @v11.1.12 
+							}
 							break;
 						case PPSYM_AMOUNT: subst_buf.Cat(pk->GetAmount(), MKSFMTD(0, 0, NMBF_TRICOMMA)); break;
 						case PPSYM_LOCCODE:
@@ -9315,7 +9337,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							// @fallthrough
 						case PPSYM_BILLMEMO:
-							subst_buf = pk->Rec.Memo;
+							// @v11.1.12 subst_buf = pk->Rec.Memo;
+							subst_buf = pk->SMemo; // @v11.1.12
 							break;
 						case PPSYM_CLIENTADDR:
 							{
@@ -9406,9 +9429,11 @@ int PPObjBill::SubstMemo(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	SString temp_buf, result_buf;
-	if(pPack->Rec.Memo[0] == 0 && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) {
+	// @v11.1.12 if(pPack->Rec.Memo[0] == 0 && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) {
+	if(pPack->SMemo.IsEmpty() && P_OpObj->GetExtStrData(pPack->Rec.OpID, OPKEXSTR_MEMO, temp_buf) > 0) { // @v11.1.12
         THROW(SubstText(pPack, temp_buf.Strip(), result_buf));
-		STRNSCPY(pPack->Rec.Memo, result_buf);
+		// @v11.1.12 STRNSCPY(pPack->Rec.Memo, result_buf);
+		pPack->SMemo = result_buf; // @v11.1.12
 	}
 	else
 		ok = -1;
@@ -9455,7 +9480,8 @@ int PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const C
 		dest_pack.Rec.Dt = src_pack.Rec.Dt;
 		STRNSCPY(dest_pack.Rec.Code, src_pack.Rec.Code);
 		dest_pack.Rec.LocID = pParam->LocID ? pParam->LocID : src_pack.Rec.LocID;
-		STRNSCPY(dest_pack.Rec.Memo, src_pack.Rec.Memo);
+		// @v11.1.12 STRNSCPY(dest_pack.Rec.Memo, src_pack.Rec.Memo);
+		dest_pack.SMemo = src_pack.SMemo; // @v11.1.12
 		amt = (pParam->Flags & CvtAt2Ab_Param::fNegAmount) ? -p_at->Amount : p_at->Amount;
 		dest_pack.Rec.Amount = BR2(amt);
 		dest_pack.Amounts.Put(PPAMT_MAIN, 0L, amt, 0, 1);

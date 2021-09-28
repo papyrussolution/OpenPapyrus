@@ -55,8 +55,10 @@ static const char * P_TempOutputDirName = "temp-query";
 
 static SString & Egais_GetBillCode(const BillTbl::Rec & rRec, SString & rBuf)
 {
-	rBuf.Z();
-	BillCore::GetCode(rBuf = rRec.Code);
+	// Since v11.1.12 эта функция устарела. Теперь длина номера документа вполне достаточна, тем не менее, пока оставляем ее "в живых"
+	// @v11.1.12 rBuf.Z();
+	// @v11.1.12 BillCore::GetCode(rBuf = rRec.Code);
+	rBuf = rRec.Code; // @v11.1.12 
 	if(rBuf.Len() >= (sizeof(rRec.Code)-4)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(PPRef->Ot.GetTagStr(PPOBJ_BILL, rRec.ID, PPTAG_BILL_LONGCODE, r_temp_buf) > 0) {
@@ -73,7 +75,8 @@ static SString & Egais_GetBillCode(const PPBillPacket & rPack, SString & rBuf)
 		;
 	}
 	else {
-		BillCore::GetCode(rBuf = rPack.Rec.Code);
+		// @v11.1.12 BillCore::GetCode(rBuf = rPack.Rec.Code);
+		rBuf = rPack.Rec.Code; // @v11.1.12 
 	}
 	return rBuf;
 }
@@ -1897,16 +1900,16 @@ int PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, ch
 		SString temp_buf;
 		if(oneof2(docType, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) { // @v11.0.12 PPEDIOP_EGAIS_WAYBILL_V4
 			if(informKind == 'A') {
-				(temp_buf = pNs).CatChar(':').Cat("FARegId");
+				(temp_buf = pNs).Colon().Cat("FARegId");
 				SXml::WNode w_s(rXmlDoc, temp_buf, EncText(rCode));
 				done = 1;
 			}
 			else if(informKind == 'B') {
-				(temp_buf = pNs).CatChar(':').Cat("Inform").Cat("F2");
+				(temp_buf = pNs).Colon().Cat("Inform").Cat("F2");
 			}
 		}
 		else {
-			(temp_buf = pNs).CatChar(':').Cat("Inform");
+			(temp_buf = pNs).Colon().Cat("Inform");
 			if(docType == PPEDIOP_EGAIS_WAYBILL_V2) {
 				if(informKind == 'A')
 					temp_buf.Cat("F1");
@@ -2215,7 +2218,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						case 35: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V4); break; // "wb"
 					}
 					if(!skip) {
-						bill_text.Z().Cat("xmlns").CatChar(':').Cat(r_entry.P_Ns); // bill_text as temporary buffer
+						bill_text.Z().Cat("xmlns").Colon().Cat(r_entry.P_Ns); // bill_text as temporary buffer
 						n_docs.PutAttrib(bill_text, (temp_buf = fsrar_url_prefix).Cat(r_entry.P_Sub));
 					}
 				}
@@ -2227,7 +2230,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 			{
 				SXml::WNode n_d(_doc, SXml::nst("ns", "Document"));
 				{
-					(temp_buf = "ns").CatChar(':').Cat(doc_type_tag);
+					(temp_buf = "ns").Colon().Cat(doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
 					if(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
 						const  PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
@@ -4722,10 +4725,14 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						p_bp->BTagL.PutItemStr(PPTAG_BILL_LONGCODE, bill_code);
 					}
 					// } @v11.0.12 
-					if(memo_note.NotEmptyS())
-						STRNSCPY(p_bp->Rec.Memo, memo_note);
-					else if(memo_base.NotEmptyS())
-						STRNSCPY(p_bp->Rec.Memo, memo_base);
+					if(memo_note.NotEmptyS()) {
+						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_note);
+						p_bp->SMemo = memo_note; // @v11.1.12
+					}
+					else if(memo_base.NotEmptyS()) {
+						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_base);
+						p_bp->SMemo = memo_base; // @v11.1.12
+					}
 					//
 					// Приоритет применения контрагента в качестве поставщика:
 					// ранее приоритет был у psn_suppl, однако выяснилось что некоторые поставщики
@@ -4758,10 +4765,14 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						p_bp->BTagL.PutItemStr(PPTAG_BILL_LONGCODE, bill_code);
 					}
 					// } @v11.0.12 
-					if(memo_note.NotEmptyS())
-						STRNSCPY(p_bp->Rec.Memo, memo_note);
-					else if(memo_base.NotEmptyS())
-						STRNSCPY(p_bp->Rec.Memo, memo_base);
+					if(memo_note.NotEmptyS()) {
+						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_note);
+						p_bp->SMemo = memo_note; // @v11.1.12
+					}
+					else if(memo_base.NotEmptyS()) {
+						// @v11.1.12 STRNSCPY(p_bp->Rec.Memo, memo_base);
+						p_bp->SMemo = memo_base; // @v11.1.12
+					}
 					//
 					// @v9.2.10 Изменен приоритет идентификации контрагента: сначала по грузоотправителю, потом - по поставщику,
 					// поскольку некоторые покупатели отгружают возврат с указанием получателя как поставщика
@@ -6696,7 +6707,7 @@ int PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & r
 	_up.GetComponent(InetUrl::cPath, 0, temp_buf);
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
 	SPathStruc ps(rFileName);
-	(temp_buf = ps.Nam).Dot().Cat("xml");
+	(temp_buf = ps.Nam).DotCat("xml");
 	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rFileName);
 	THROW_SL(::createDir(rFileName));
 	rFileName.SetLastSlash().Cat(temp_buf);
@@ -6850,15 +6861,15 @@ int PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const 
 			SString prefix_buf;
 			StringSet ss_prefix;
 			if(conclusion == 0) {
-				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_UtmRejPfx).CatChar(':'));
-				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_EgaisRejPfx).CatChar(':'));
+				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_UtmRejPfx).Colon());
+				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_EgaisRejPfx).Colon());
 				if(ticketType == 1 && pT->R.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(_PPConst.P_ObjMemo_UtmRejPfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					temp_buf.Z().Cat(_PPConst.P_ObjMemo_UtmRejPfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).Colon();
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->R.Comment);
 				}
 				else if(ticketType == 2 && pT->OpR.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(_PPConst.P_ObjMemo_EgaisRejPfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					temp_buf.Z().Cat(_PPConst.P_ObjMemo_EgaisRejPfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).Colon();
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->OpR.Comment);
 				}

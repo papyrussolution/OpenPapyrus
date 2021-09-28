@@ -5325,11 +5325,11 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						temp_buf.Z();
 						if(GetText(tHouse, temp_buf2) > 0) {
                             (temp_buf = temp_buf2).ToLower1251();
-                            temp_buf.CatChar(':');
+                            temp_buf.Colon();
 							if(GetText(tHouseAddendum, temp_buf2) > 0) {
 								temp_buf.Cat(temp_buf2);
 							}
-							temp_buf.CatChar(':');
+							temp_buf.Colon();
 							P_Fr->IdentifyHouse(FiasStreetID, temp_buf, &FiasHouseID);
 						}
 					}

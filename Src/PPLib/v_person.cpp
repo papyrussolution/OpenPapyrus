@@ -876,7 +876,7 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 			SString    fname, path, temp_buf;
 			SlVCard::Rec rec;
 			SlVCard      vcard;
-			fname.Cat(id).Dot().Cat("vcf");
+			fname.Cat(id).DotCat("vcf");
 			PPGetFilePath(PPPATH_OUT, fname, path);
 			THROW(vcard.Open(path, 1));
 			rec.Name = pack.Rec.Name;
@@ -2204,7 +2204,6 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		DBE    dbe_raddr;
 		DBE    dbe_bnkacct;
 		DBE    dbe_bnkname;
-		//DBE    dbe_regnum;
 		DBE    dbe_regser;
 		DBE    dbe_fiasadrguid;
 		DBE    dbe_fiashseguid;
@@ -2286,20 +2285,19 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr, tmp_pt->AddressP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
-					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
 					q = & select(
 						p->ID,                // #0
 						tmp_pt->TabID,        // #1 ИД адреса
 						p->Name,              // #2 Наименование персоналии
-						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
-						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
+						dbe_addr,             // #3 Строка адреса
+						dbe_bnkacct,          // #4 Код из адреса доставки
 						tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
 						dbe_city,             // #6
 						p->Flags,             // #7
-						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8
-						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9
+						dbe_fiasadrguid,      // #8
+						dbe_fiashseguid,      // #9
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				}
 				break;
@@ -2309,19 +2307,18 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr, tmp_pt->AddressP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
-					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 					q = & select(
 						tmp_pt->ID,        // #0
 						tmp_pt->TabID,     // #1 ИД адреса
 						tmp_pt->Name,      // #2 Наименование персоналии
-						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
-						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
+						dbe_addr,          // #3 Строка адреса
+						dbe_bnkacct,       // #4 Код из адреса доставки
 						tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
 						dbe_city,          // #6
-						/*tmp_pt->Phone*/dbe_phone,      // #7 Телефон (ассоциированный с адресом)
-						/*tmp_pt->BnkName*/dbe_bnkname,  // #8 Контакт (ассоциированный с адресом)
+						dbe_phone,         // #7 Телефон (ассоциированный с адресом)
+						dbe_bnkname,       // #8 Контакт (ассоциированный с адресом)
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				}
 				break;
@@ -2329,29 +2326,27 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				{
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
-					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 					q = & select(
 						p->ID,               // #0
 						tmp_pt->TabID,       // #1
 						p->Name,             // #2
-						/*tmp_pt->BnkName*/dbe_bnkname,     // #3
-						/*tmp_pt->BnkAcct*/dbe_bnkacct,     // #4
-						tmp_pt->RegNumber,    // #5 Тип счета
-						tmp_pt->RegInitDate,        // #6 Дата открытия //
-						/*tmp_pt->Phone*/dbe_phone, // #7 БИК банка
-						p->Flags,                   // #8
+						dbe_bnkname,         // #3
+						dbe_bnkacct,         // #4
+						tmp_pt->RegNumber,   // #5 Тип счета
+						tmp_pt->RegInitDate, // #6 Дата открытия //
+						dbe_phone,           // #7 БИК банка
+						p->Flags,            // #8
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 				}
 				break;
 			case PPPSNATTR_REGISTER:
 				{
 					PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
-					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
 					q = & select(
 						p->ID,
 						p->Name,
-						/*tmp_pt->RegSerial*/dbe_regser,
+						dbe_regser,
 						tmp_pt->RegNumber,
 						tmp_pt->RegInitDate,
 						tmp_pt->RegExpiry,
@@ -2361,7 +2356,6 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				break;
 			case PPPSNATTR_TAG:
 				{
-					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
 					q = & select(
 						p->ID,
 						p->Name,
@@ -2374,14 +2368,16 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				{
 					DBE    dbe_status;
 					DBE    dbe_cat;
+					DBE    dbe_memo; // @v11.1.12
 					PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNamePersonStatus, p->Status);
 					PPDbqFuncPool::InitObjNameFunc(dbe_cat,    PPDbqFuncPool::IdObjNamePersonCat,    p->CatID);
+					PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID); // @v11.1.12
 					q = & select(
 						p->ID,
 						p->Name,
 						dbe_status,
 						dbe_cat,
-						p->Memo,
+						dbe_memo, // @v11.1.12 p->Memo-->dbe_memo
 						p->Flags,
 						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 				}

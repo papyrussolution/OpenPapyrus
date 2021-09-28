@@ -579,7 +579,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
 	//
 	let_buf.NumberToLat(subst_no++);
-	temp_buf.Z().CatChar(':').Cat(let_buf);
+	temp_buf.Z().Colon().Cat(let_buf);
 	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
 	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
 		map_ret_key = 1;
@@ -589,7 +589,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			const BNField & r_fld = pTbl->indexes.field(idx, i);
 			SqlGen.Com().Text(r_fld.Name);
 			let_buf.NumberToLat(subst_no++);
-			temp_buf.CatDiv(',', 0).CatChar(':').Cat(let_buf);
+			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
 			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
 		}
 	}

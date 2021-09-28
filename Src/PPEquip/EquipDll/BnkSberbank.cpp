@@ -600,7 +600,7 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).Colon().Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Addition message").CatDiv(':', 2).Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
@@ -641,7 +641,7 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).Colon().Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Addition message").CatDiv(':', 2).Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
@@ -680,7 +680,7 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code").Space().Cat(/*auth_answr.Rcode*/result).Colon().Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Addition message").CatDiv(':', 2).Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);

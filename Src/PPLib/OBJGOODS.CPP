@@ -3024,7 +3024,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options
 				q.Cat("GENERIC").CatParStr("no").Space();
 			// } @v10.7.7 
 			q.Cat("LOCATION").CatParStr(loc_id).Space();
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
+			q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				reply.StartReading(0);

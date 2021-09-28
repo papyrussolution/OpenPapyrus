@@ -611,7 +611,7 @@ SString & Profile::GetUserProfileFileName(int fk, SString & rBuf)
 		else {
 			assert(0);
 		}
-		fname.Dot().Cat("log");
+		fname.DotCat("log");
 		PPGetFilePath(PPPATH_LOG, fname, rBuf);
 	}
 	return rBuf;

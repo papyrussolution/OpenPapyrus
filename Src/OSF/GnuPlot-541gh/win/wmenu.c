@@ -669,11 +669,10 @@ void LoadMacros(TW * lptw)
 		bitmap.nID = (dpi > 96)  ? IDB_VIEW_LARGE_COLOR : IDB_VIEW_SMALL_COLOR;
 		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, (LPARAM)&bitmap);
 	}
-
 	/* create buttons */
 	for(i = 0; i < lpmw->nButton; i++) {
 		TBBUTTON button;
-		ZeroMemory(&button, sizeof(button));
+		memzero(&button, sizeof(button));
 		button.iBitmap = ButtonIcon[i];
 		if(ButtonIconFile[i]) {
 #ifdef HAVE_GDIPLUS

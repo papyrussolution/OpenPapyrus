@@ -1,5 +1,5 @@
 // PPSYNC.CPP
-// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020
+// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021
 // Database lock file implementation
 //
 #include <pp.h>
@@ -20,6 +20,11 @@ PPSync::~PPSync()
 {
 	if(Handle >= 0)
 		close(Handle);
+}
+
+bool PPSync::IsValid() const
+{
+	return (Handle >= 0);
 }
 
 int FASTCALL PPSync::CheckOffset(ulong offs) const
@@ -47,7 +52,7 @@ int PPSync::Release()
 
 SString & PPSync::GetFileName(SString & rBuf) const
 {
-	return (rBuf = DataPath).SetLastSlash().Cat("ppsync").Dot().Cat("bin");
+	return (rBuf = DataPath).SetLastSlash().Cat("ppsync").DotCat("bin");
 }
 
 int PPSync::Init(const char * pDataPath)
@@ -137,7 +142,7 @@ int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	long   numrecs = 0;
 	PPSyncItem item;
 	CALLPTRMEMB(pList, freeAll());
-	if(GetInitPosition(&o, &numrecs) > 0) {
+	if(IsValid() && GetInitPosition(&o, &numrecs) > 0) { // @v11.1.12 IsValid()
 		if(pList)
 			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++)
 				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o) > 0)

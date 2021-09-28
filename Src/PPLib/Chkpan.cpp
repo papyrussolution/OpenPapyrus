@@ -3596,7 +3596,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 			//@erik v10.4.9{
 			if (tag_name.Len()) {
 				if (tag_value.Len()) {
-					(out_msg = (tag_name.CatChar(':'))).CR();
+					(out_msg = (tag_name.Colon())).CR();
 					(out_msg.Cat(tag_value)).CR().CR();
 				}
 				else {
@@ -3605,7 +3605,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 			}//}@erik
 			if(loc_name.Len()) {
 				SString buf;
-				PPLoadStringS("storageplace", buf).CatChar(':');
+				PPLoadStringS("storageplace", buf).Colon();
 				out_msg.Cat(buf).CR();
 				out_msg.Cat(loc_name);
 			}
@@ -8195,8 +8195,8 @@ int CheckPaneDialog::RemoveRow()
 			SString buf;
 			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(cct.Amount, MKSFMTD(0, 2, NMBF_NOZERO)));
 			if(cct.Discount != 0.0) {
-				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 0, buf).CatChar(':').Cat(discount, SFMT_MONEY);
-				PPLoadStringS("discount", buf).CatChar(':').Cat(cct.Discount, SFMT_MONEY); // @v10.7.11
+				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 0, buf).Colon().Cat(discount, SFMT_MONEY);
+				PPLoadStringS("discount", buf).Colon().Cat(cct.Discount, SFMT_MONEY); // @v10.7.11
 			}
 			else
 				buf.Z();
@@ -8539,7 +8539,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 														CCheckTbl::Rec cc_rec;
 														if(r_cc.Search(cc_id, &cc_rec) > 0) {
 															// @v10.7.9 {
-															debug_msg_buf.Z().Cat("egais-mark").CatChar(':').Cat(egais_mark).Space().
+															debug_msg_buf.Z().Cat("egais-mark").Colon().Cat(egais_mark).Space().
 																Cat("is found at").Space().Cat(cc_rec.Dt, DATF_YMD).Space().Cat(cc_rec.Tm, TIMF_HMS).Space().Cat(cc_rec.Code).Space().
 																CatHex(cc_rec.Flags);
 															PPLogMessage(PPFILNAM_DEBUG_LOG, debug_msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);

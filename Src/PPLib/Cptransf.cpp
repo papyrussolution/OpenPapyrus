@@ -311,24 +311,25 @@ int CpTransfCore::ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_ta)
 //
 //
 //
-int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillTbl::Rec * pDraftRec, PPBillPacket * pPack, int use_ta)
+// @v11.1.12 int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillTbl::Rec * pDraftRec, PPBillPacket * pPack, int use_ta)
+int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const PPBillPacket * pDraftPack, PPBillPacket * pPack, int use_ta) // @v11.1.12
 {
 	int    ok = 1;
 	PPOprKind wroff_op_rec;
 	PPBillExt bill_ext;
 	ArticleTbl::Rec ar_rec;
-	THROW(pPack->CreateBlank_WithoutCode(pWrOffParam->WrOffOpID, 0, pDraftRec->LocID, use_ta));
+	THROW(pPack->CreateBlank_WithoutCode(pWrOffParam->WrOffOpID, 0, pDraftPack->Rec.LocID, use_ta));
 	THROW(GetOpData(pWrOffParam->WrOffOpID, &wroff_op_rec) > 0);
-	STRNSCPY(pPack->Rec.Code, pDraftRec->Code);
-	pPack->Rec.Dt = (pWrOffParam->Flags & DROXF_WROFFCURDATE) ? getcurdate_() : pDraftRec->Dt;
-	if(P_Tbl->GetExtraData(pDraftRec->ID, &bill_ext) > 0)
+	STRNSCPY(pPack->Rec.Code, pDraftPack->Rec.Code);
+	pPack->Rec.Dt = (pWrOffParam->Flags & DROXF_WROFFCURDATE) ? getcurdate_() : pDraftPack->Rec.Dt;
+	if(P_Tbl->GetExtraData(pDraftPack->Rec.ID, &bill_ext) > 0)
 		pPack->Ext.AgentID = bill_ext.AgentID;
 	{
 		PPID   ar_id = 0;
 		if(pWrOffParam->WrOffObjID)
 			ar_id = pWrOffParam->WrOffObjID;
-		else if(ArObj.Fetch(pDraftRec->Object, &ar_rec) > 0 && ar_rec.AccSheetID == wroff_op_rec.AccSheetID)
-			ar_id = pDraftRec->Object;
+		else if(ArObj.Fetch(pDraftPack->Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == wroff_op_rec.AccSheetID)
+			ar_id = pDraftPack->Rec.Object;
 		if(ar_id) {
 			PPBillPacket::SetupObjectBlock sob;
 			THROW(pPack->SetupObject(ar_id, sob));
@@ -344,28 +345,28 @@ int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillT
 			}
 		}
 	}
-	if(ArObj.Fetch(pDraftRec->Object2, &ar_rec) > 0 && ar_rec.AccSheetID == wroff_op_rec.AccSheet2ID)
-		pPack->Rec.Object2 = pDraftRec->Object2;
-	pPack->Rec.LocID = pDraftRec->LocID;
-	pPack->Rec.CurID = pDraftRec->CurID;
+	if(ArObj.Fetch(pDraftPack->Rec.Object2, &ar_rec) > 0 && ar_rec.AccSheetID == wroff_op_rec.AccSheet2ID)
+		pPack->Rec.Object2 = pDraftPack->Rec.Object2;
+	pPack->Rec.LocID = pDraftPack->Rec.LocID;
+	pPack->Rec.CurID = pDraftPack->Rec.CurID;
 	if(pPack->Rec.CurID) {
 		LDATE  temp_dt = pPack->Rec.Dt;
 		double rate = 1.0;
 		GetCurRate(pPack->Rec.CurID, &temp_dt, &rate);
 		pPack->Rec.CRate = rate;
 	}
-	pPack->Rec.LinkBillID = pDraftRec->ID;
-	STRNSCPY(pPack->Rec.Memo, pDraftRec->Memo);
-	if(pDraftRec->Flags & BILLF_FREIGHT && CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
+	pPack->Rec.LinkBillID = pDraftPack->Rec.ID;
+	// @v11.1.12 STRNSCPY(pPack->Rec.Memo, pDraftRec->Memo);
+	pPack->SMemo = pDraftPack->SMemo; // @v11.1.12
+	if(pDraftPack->Rec.Flags & BILLF_FREIGHT && CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 		PPFreight freight;
-		if(P_Tbl->GetFreight(pDraftRec->ID, &freight) > 0) {
+		if(P_Tbl->GetFreight(pDraftPack->Rec.ID, &freight) > 0) {
 			freight.ID = 0;
 			pPack->SetFreight(&freight);
 		}
 	}
-	if(pDraftRec->Flags & BILLF_SHIPPED) {
+	if(pDraftPack->Rec.Flags & BILLF_SHIPPED)
 		pPack->Rec.Flags |= BILLF_SHIPPED;
-	}
 	CATCHZOK
 	return ok;
 }
@@ -454,9 +455,12 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 	// то вносим это наименование в примечание к документу
 	//
 	if(pPugl->getCount() == 1) {
+		/* @v11.1.12
 		SString memo_buf;
 		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, memo_buf);
 		memo_buf.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+		*/
+		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, pack.SMemo); // @v11.1.12
 	}
 	for(i = 0; i < pPugl->getCount();) {
 		PUGI   pugi = *static_cast<const PUGI *>(pPugl->at(i++));
@@ -553,7 +557,7 @@ int PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 	PPComplBlock compl_list;
 	LongArray rows;
 	THROW_MEM(p_pack = new PPBillPacket);
-	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
+	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0/*use_ta*/));
 	for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 		const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
 		ILTI ilti(&r_src_ti);
@@ -617,7 +621,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 		THROW(tra);
 		THROW_MEM(p_pack = new PPBillPacket);
 		do {
-			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, 0));
+			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0));
 			for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 				const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
 				// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
@@ -711,9 +715,10 @@ int PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 	const  PPID src_bill_id = rBlk.SrcDraftPack.Rec.ID;
 	PPBillPacket * p_pack = 0;
 	THROW_MEM(p_pack = new PPBillPacket);
-	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, use_ta));
+	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, use_ta));
 	{
-		p_pack->Rec.Memo[0] = 0;
+		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
+		p_pack->SMemo.Z(); // @v11.1.12
 		THROW(p_pack->InitAmounts(0));
 		p_pack->Rec.Amount = rBlk.SrcDraftPack.Rec.Amount;
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
@@ -745,7 +750,7 @@ int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 	MrpTabPacket mrp_pack;
 	PPBillPacket * p_pack = 0;
 	THROW_MEM(p_pack = new PPBillPacket);
-	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, use_ta));
+	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, use_ta));
 	{
 		LongArray rows;
 		mrp_pack.Init(PPOBJ_BILL, src_bill_id, "temp-#");
@@ -835,7 +840,8 @@ int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 		}
 	}
 	if(ok > 0) {
-		p_pack->Rec.Memo[0] = 0;
+		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
+		p_pack->SMemo.Z(); // @v11.1.12
 		THROW(p_pack->InitAmounts(0));
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
 		p_pack->Rec.Flags |= BILLF_FIXEDAMOUNTS;
@@ -867,9 +873,9 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 		for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 			const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
 			PPComplBlock compl_list;
-			rBlk.SrcDraftPack.LTagL.GetTagStr(i, PPTAG_LOT_SOURCESERIAL, src_serial); // @v9.4.1
+			rBlk.SrcDraftPack.LTagL.GetTagStr(i, PPTAG_LOT_SOURCESERIAL, src_serial);
 			THROW_MEM(p_pack = new PPBillPacket);
-			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
+			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0/*use_ta*/));
 			ti.Init(&p_pack->Rec, 0, +1);
 			THROW(ti.SetupGoods(r_src_ti.GoodsID));
 			ti.UnitPerPack = r_src_ti.UnitPerPack;
@@ -926,7 +932,7 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 	else {
 		PPComplBlock compl_list;
 		THROW_MEM(p_pack = new PPBillPacket);
-		THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
+		THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0/*use_ta*/));
 		for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 			const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
 			ti.Init(&p_pack->Rec, 0, +1);
@@ -1084,7 +1090,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 						break;
 					case PPOPT_GOODSORDER:
 						THROW_MEM(p_pack = new PPBillPacket);
-						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0));
+						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack, p_pack, 0));
 						for(uint i = 0; i < blk.SrcDraftPack.GetTCount(); i++) {
 							const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
 							ILTI ilti(&r_src_ti);
@@ -1109,7 +1115,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 						break;
 					case PPOPT_DRAFTRECEIPT:
 						THROW_MEM(p_pack = new PPBillPacket);
-						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0 /*use_ta*/));
+						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack, p_pack, 0 /*use_ta*/));
 						if(!(blk.P_WrOffParam->Flags & DROXF_CREMPTYBILL)) {
 							for(uint i = 0; i < blk.SrcDraftPack.GetTCount(); i++) {
 								const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
@@ -1157,7 +1163,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 						break;
 					case PPOPT_GOODSRECEIPT:
 						THROW_MEM(p_pack = new PPBillPacket);
-						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
+						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack, p_pack, 0/*use_ta*/));
 						if(!(blk.P_WrOffParam->Flags & DROXF_CREMPTYBILL)) {
 							for(uint i = 0; i < blk.SrcDraftPack.GetTCount(); i++) {
 								const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
@@ -1220,7 +1226,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 						break;
 					case PPOPT_GOODSORDER:
 						THROW_MEM(p_pack = new PPBillPacket);
-						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
+						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack, p_pack, 0/*use_ta*/));
 						//for(rbybill = 0; P_CpTrfr->EnumItems(billID, &rbybill, &src_ti, &cpext) > 0;) {
 						for(uint i = 0; i < blk.SrcDraftPack.GetTCount(); i++) {
 							const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
@@ -1409,7 +1415,8 @@ int PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, 
 					PUGI * p_item;
 					THROW(pack.CreateBlank2(compOpID, pPugl->Dt, loc_id, 0));
 					pack.Rec.Object = comp_ar_id;
-					PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo); // @v11.1.12
 					for(i = 0; pPugl->enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 						if(p_item->DeficitQty > 0.0 && p_item->LocID == loc_id) {
 							int do_suppl_subst = BIN(op_rec.OpTypeID == PPOPT_GOODSRECEIPT && pPugl->GetSupplSubstList(i, suppl_subst_list) > 0);

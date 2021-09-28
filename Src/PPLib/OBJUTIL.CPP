@@ -254,6 +254,56 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return p;
 }
 
+PPObject::SerializeSignature::SerializeSignature() : S(0), V(0)
+{
+}
+
+PPObject::SerializeSignature::SerializeSignature(PPID objType) : S(0xAAAA0000 | objType), V(DS.GetVersion())
+{
+	assert(objType < 0x0000ffff);
+}
+
+PPObject::SerializeSignature::SerializeSignature(PPID objType, int dir, SBuffer & rBuf) : S(0xAAAA0000 | objType), V(DS.GetVersion())
+{
+	if(dir < 0) {
+		Read(rBuf);
+	}
+	else if(dir > 0) {
+		Write(rBuf);
+	}
+}
+
+bool PPObject::SerializeSignature::IsValid() const
+{
+	return (((S & 0xffff0000) == 0xAAAA0000) && ((S & 0x0000ffff) <= 2000) && (V.GetMajor() <= 30) && (V.GetMinor() <= 20) && (V.GetRevision() <= 20));
+}
+
+int PPObject::SerializeSignature::Read(SBuffer & rBuf)
+{
+	int    ok = 1;
+	SerializeSignature temp_signature;
+	if(rBuf.ReadV(&temp_signature, sizeof(temp_signature)) && temp_signature.IsValid()) {
+		*this = temp_signature;
+	}
+	else {
+		S = 0;
+		V.Set(0);
+		rBuf.Unread(sizeof(temp_signature));
+		ok = 0;
+	}
+	return ok;
+}
+
+int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
+{
+	int    ok = 1;
+	assert(IsValid());
+	THROW(IsValid());
+	THROW_SL(rBuf.Write(this, sizeof(*this)));
+	CATCHZOK
+	return ok;
+}
+
 /*static*/void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
 	{ DS.GetTLA().LastErrObj.Set(objType, objID); }
 /*static*/int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)

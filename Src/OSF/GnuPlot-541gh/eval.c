@@ -1421,7 +1421,7 @@ void GnuPlot::FillGpValSysInfo()
 	SYSTEM_INFO stInfo;
 	OSVERSIONINFO osvi;
 	char s[30];
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	memzero(&osvi, sizeof(osvi));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osvi);
 	snprintf(s, 30, "Windows_NT-%ld.%ld", osvi.dwMajorVersion, osvi.dwMinorVersion);

@@ -816,8 +816,9 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
-	SProfile prfl; // @v11.1.11
-	const  uint64 _ptstart = prfl.GetAbsTimeMicroseconds(); // @v11.1.11
+	//SProfile prfl; // @v11.1.11
+	//const  uint64 _ptstart = prfl.GetAbsTimeMicroseconds(); // @v11.1.11
+	const  int64 _clk_start = clock(); // @v11.1.11
 	int    ok = 1;
 	StrAssocArray file_lang_list;
 	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
@@ -1162,8 +1163,9 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 	}
 	// @v11.1.11 {
 	{
-		const  uint64 _ptend = prfl.GetAbsTimeMicroseconds();
-		temp_buf.Z().Cat("Execution time").CatDiv(':', 2).Cat(_ptend-_ptstart).Cat("mks").CR();
+		//const  uint64 _ptend = prfl.GetAbsTimeMicroseconds();
+		const  int64 _clk_end = clock(); // @v11.1.11
+		temp_buf.Z().Cat("Execution time").CatDiv(':', 2).Cat(_clk_end-_clk_start).Cat("ms").CR();
 		puts(temp_buf);
 	}
 	// } @v11.1.11 

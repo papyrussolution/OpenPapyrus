@@ -1642,7 +1642,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			pTcpExch->QuitSess();
 #endif // } 0
 		RemoveDir(temp_path);
-		(msg_buf = "Directory deleted").CatDiv(':', 2).Cat(temp_path).Space().CatChar(':');
+		(msg_buf = "Directory deleted").CatDiv(':', 2).Cat(temp_path).Space().Colon();
 		SyncTable::LogMessage(ctx.LogFile, msg_buf);
 	}
 	SyncTable::LogMessage(ctx.LogFile, "SPII Finish:");

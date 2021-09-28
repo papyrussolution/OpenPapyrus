@@ -884,7 +884,7 @@ void PPViewTSession::ViewTotal()
 				long   h = total.Duration / 3600;
 				long   m = (total.Duration % 3600) / 60;
 				long   s = (total.Duration % 60);
-				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).Colon().CatLongZ(m, 2).Colon().CatLongZ(s, 2);
 			}
 			dlg->setCtrlString(CTL_TSESSTOTAL_DURATION, temp_buf);
 		}
@@ -2030,7 +2030,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				h = pack.Rec.PlannedTiming / 3600;
 				m = (pack.Rec.PlannedTiming % 3600) / 60;
 				s = (pack.Rec.PlannedTiming % 60);
-				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).Colon().CatLongZ(m, 2).Colon().CatLongZ(s, 2);
 			}
 			else
 				temp_buf.Z();
@@ -2039,7 +2039,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				h = act_timing / 3600;
 				m = (act_timing % 3600) / 60;
 				s = (act_timing % 60);
-				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).Colon().CatLongZ(m, 2).Colon().CatLongZ(s, 2);
 			}
 			else
 				temp_buf.Z();

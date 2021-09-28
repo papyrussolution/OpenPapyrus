@@ -2539,9 +2539,9 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 	THROW(PPGetFileName(subStrId, PathRpt[filTyp]));
 	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
 	if(sigNum == 18 && ModuleVer == 5 && ModuleSubVer >= 9)
-		sig_num_file.Cat("all").Dot().Cat("dbf");
+		sig_num_file.Cat("all").DotCat("dbf");
 	else
-		sig_num_file.Cat(sigNum).Dot().Cat("txt");
+		sig_num_file.Cat(sigNum).DotCat("txt");
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat(sig_num_file);
 	CATCHZOK
 	return ok;
@@ -2553,7 +2553,7 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 	PathRpt[filTyp] = pName;
 	// } @v8.9.11 {
 	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
-	sig_num_file.Cat(sigNum).Dot().Cat("txt");
+	sig_num_file.Cat(sigNum).DotCat("txt");
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat(sig_num_file);
 	// } @v8.9.11
 	// @v8.9.11 strcat(setLastSlash(STRNSCPY(PathQue[filTyp], pPath)), replaceExt(itoa(sigNum, sig_num_file, 10), "txt", 1));

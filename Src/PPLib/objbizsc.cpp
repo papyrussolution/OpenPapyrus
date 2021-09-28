@@ -1090,7 +1090,7 @@ int CreateBizScGlblUserAcct()
 
 		CurDict->GetDbUUID(&dbuuid);
 		dbuuid.ToStr(S_GUID::fmtIDL, sguid);
-		(file_name = data.UserName).CatChar('@').Cat(sguid).Dot().Cat("acc");
+		(file_name = data.UserName).CatChar('@').Cat(sguid).DotCat("acc");
 		PPGetFilePath(PPPATH_OUT, file_name, path);
 		THROW(file.Open(path, SFile::mWrite) && file.IsValid());
 
@@ -1192,7 +1192,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 			SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
 			THROW(rpt.IsValid());
 			rpt_name = rpt.getDataName();
-			bizsc_path.Cat(rpt_name).Dot().Cat("xml");
+			bizsc_path.Cat(rpt_name).DotCat("xml");
 			if(fileExists(bizsc_path)) {
 				long   numrecs = 0;
 				PPImpExpParam imp_exp_par;
@@ -1910,7 +1910,7 @@ int PrcssrBizScore::Run()
 				SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
 				THROW_SL(rpt.IsValid());
 				file_name = rpt.getDataName();
-				file_name.Dot().Cat("xml");
+				file_name.DotCat("xml");
 				PPGetFilePath(PPPATH_OUT, file_name, path);
 				THROW(view.SendXml(P.FtpAcctID, path));
 			}

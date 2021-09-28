@@ -2726,7 +2726,7 @@ int ScURL::Execute()
 					fld_buf.Cat(temp_buf);
 				}
 				else {
-					fld_buf.CatChar(':');
+					fld_buf.Colon();
 				}
 				p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
                 flds_count++;
@@ -2983,7 +2983,7 @@ int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
     int    ok = 1;
     SString temp_buf;
     THROW_S(auth == authServer, SLERR_INVPARAM);
-    temp_buf.Cat(pUser).CatChar(':').Cat(pPassword);
+    temp_buf.Cat(pUser).Colon().Cat(pPassword);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERPWD, temp_buf.cptr())));
     CATCHZOK
     return ok;
@@ -4185,7 +4185,7 @@ SLTEST_R(ScURL_Mail)
 			for(uint i = 0; i < mail_list.getCount(); i++) {
 				SMailMessage msg;
 				if(curl.Pop3Top(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, 0, msg)) {
-					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).Dot().Cat("output"));
+					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).DotCat("output"));
 					msg.DebugOutput(temp_buf.Z());
 					SFile f_output(output_path, SFile::mWrite);
 					if(f_output.IsValid())
@@ -4199,7 +4199,7 @@ SLTEST_R(ScURL_Mail)
 				SMailMessage msg;
 				//THROW(SLTEST_CHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)));
 				if(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg, 0, 0)) {
-					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).Dot().Cat("output"));
+					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).DotCat("output"));
 					msg.DebugOutput(temp_buf.Z());
 					SFile f_output(output_path, SFile::mWrite);
 					if(f_output.IsValid())

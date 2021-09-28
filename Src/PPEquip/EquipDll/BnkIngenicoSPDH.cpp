@@ -393,7 +393,7 @@ int PPDrvIngenicoTrmnl::Init(const char * pLibName, SString & rOutput)
 	//THROW(SETIFZ(P_BnkIngVtb, new PPDrvIngenicoTrmnl));
 	path_struct.Split(pLibName);
 	path_struct.Dir.ReplaceStr("DLL\\", "INI\\", 1);
-	IniPath.Z().Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat("cashreg.ini");
+	IniPath.Z().Cat(path_struct.Drv).Colon().Cat(path_struct.Dir).Cat("cashreg.ini");
 	{
 		size_t pos = 0;
 		int exit = 0;
@@ -408,7 +408,7 @@ int PPDrvIngenicoTrmnl::Init(const char * pLibName, SString & rOutput)
 			}
 		}
 		path_struct.Dir.ReplaceStr("INI\\", "\\", 1);
-		OutPath.Z().Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat(/*"cheq.out"*/r_str);
+		OutPath.Z().Cat(path_struct.Drv).Colon().Cat(path_struct.Dir).Cat(/*"cheq.out"*/r_str);
 	}
 	CATCH
 		ZDELETE(P_Lib);

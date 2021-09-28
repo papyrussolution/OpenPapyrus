@@ -263,6 +263,13 @@ struct DragndropEvent {
 	};
 	int    Action;
 };
+//
+// Descr: Блок данных, посылаемый с сообщением cmNotifyForeignFocus
+//
+struct ForeignFocusEvent {
+	TView * P_SrcView;
+	long   FocusedItemIdent;
+};
 
 struct TEvent {
 	//
@@ -5016,12 +5023,14 @@ public:
 	public:
 		int    FASTCALL SetFullCellColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetRightFigCircleColor(COLORREF c); // returns strictly 1
+		int    FASTCALL SetRightFigTriangleColor(COLORREF c); // @v11.1.12 returns strictly 1
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
-			fRightFigCircle   = 0x0004
+			fRightFigCircle   = 0x0004,
+			fRightFigTriangle = 0x0008 // @v11.1.12
 		};
 
 		COLORREF Color;
@@ -5596,6 +5605,14 @@ public:
 	~SScEditorBase();
 	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
 protected:
+	//
+	// Descr: Константы для полей редактирования
+	//
+	enum {
+		scmargeLineNumber = 0,
+		scmargeSymbole    = 1,
+		scmargeFolder     = 2,
+	};
 	void   Init(HWND hScW, int preserveFileName);
 	int    Release();
 	intptr_t CallFunc(uint msg);
@@ -5604,7 +5621,6 @@ protected:
 	int    SetLexer(const char * pLexerName);
 	void   SetSpecialStyle(const SScEditorStyleSet::Style & rStyle);
 	void   ClearIndicator(int indicatorNumber);
-
 	int32  GetCurrentPos();
 	int32  FASTCALL SetCurrentPos(int32 pos);
 	int    FASTCALL GetSelection(IntRange & rR);
@@ -5699,6 +5715,11 @@ private:
 	int    InsertWorkbookLink();
 	int    BraceHtmlTag();
 	int    UpdateIndicators();
+	bool   IsFolded(size_t line);
+	void   Fold(size_t line, bool mode);
+	void   Expand(size_t & rLine, bool doExpand, bool force, int visLevels, int level);
+	void   MarginClick(/*Sci_Position*/int position, int modifiers);
+	void   RunMarkers(bool doHide, size_t searchStart, bool endOfDoc, bool doDelete);
 	int    Run();
 
 	enum {

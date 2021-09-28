@@ -47,7 +47,8 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 			P_BObj->SubstMemo(P_Pack);
 		if(op_obj.Search(P_Pack->Rec.OpID, &op_rec) > 0)
 			setTitle(op_rec.Name);
-		setCtrlData(CTL_ATURN_MEMO, P_Pack->Rec.Memo);
+		// @v11.1.12 setCtrlData(CTL_ATURN_MEMO, P_Pack->Rec.Memo);
+		setCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo); // @v11.1.12
 		SetupPPObjCombo(this, CTLSEL_ATURN_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
 	}
 	if(pData) {
@@ -174,7 +175,8 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 		P_Pack->Rec.CRate  = Data.CRate;
 		if(Data.CurID)
 			P_Pack->Amounts.Put(PPAMT_CRATE, Data.CurID, Data.CRate, 0, 1);
-		getCtrlData(CTL_ATURN_MEMO, P_Pack->Rec.Memo);
+		// @v11.1.12 getCtrlData(CTL_ATURN_MEMO, P_Pack->Rec.Memo);
+		getCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo); // @v11.1.12 
 	}
 	ASSIGN_PTR(pData, Data);
 	CATCHZOKPPERRBYDLG
@@ -512,9 +514,8 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				dlg->getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &pData->GoodsGroupID); // @v11.0.11
 				dlg->getCtrlData(CTLSEL_BILLEXTFLT_CLICAT, &pData->CliPsnCategoryID); // @v11.1.9
 				// @v11.1.8 {
-				if(pData->OrderFulfillmentStatus >= 0 && dlg->getCtrlView(CTL_BILLEXTFLT_ORDFFST)) {
-					pData->OrderFulfillmentStatus = dlg->GetClusterData(CTL_BILLEXTFLT_ORDFFST);
-				}
+				if(pData->OrderFulfillmentStatus >= 0 && dlg->getCtrlView(CTL_BILLEXTFLT_ORDFFST))
+					pData->OrderFulfillmentStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_ORDFFST));
 				// } @v11.1.8 
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {
 					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD);
@@ -657,8 +658,9 @@ private:
 	PPObjArticle ArObj;
 	PPObjBill    * P_BObj;
 	PPBillPacket * P_Pack;
-	BillTbl::Rec   Pattern;
-	PPIDArray      ExtAmtIDList;
+	BillTbl::Rec Pattern;
+	SString   PatternMemo; // @v11.1.12
+	PPIDArray ExtAmtIDList;
 	PPClientAgreement CliAgt;
 	double CurrDebt;
 	RAssocArray CDebtList; // Текущий долг с разбивкой по долговым размерностям.
@@ -797,9 +799,10 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		TInputLine * p_memo_input = static_cast<TInputLine *>(getCtrlView(CTL_BILL_MEMO));
 		if(p_memo_input) {
 			PPSetupCtrlMenu(this, CTL_BILL_MEMO, CTLMNU_BILL_MEMO, CTRLMENU_BILLMEMO);
-			p_memo_input->setFormat(MKSFMT(sizeof(pPack->Rec.Memo), 0));
-			p_memo_input->setType(MKSTYPE(S_ZSTRING, sizeof(pPack->Rec.Memo)));
-			p_memo_input->setMaxLen(sizeof(pPack->Rec.Memo));
+			const uint max_memo_text_size = 512; // @v11.1.12
+			p_memo_input->setFormat(MKSFMT(max_memo_text_size, 0)); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
+			p_memo_input->setType(MKSTYPE(S_ZSTRING, max_memo_text_size)); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
+			p_memo_input->setMaxLen(max_memo_text_size); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
 			// (не понравилось пользователям) SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 		}
 	}
@@ -1882,10 +1885,13 @@ IMPL_HANDLE_EVENT(BillDialog)
 											if(paym < bill_rec.Amount)
 												setCtrlReal(CTL_BILL_AMOUNT, bill_rec.Amount - paym);
 										}
-										getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
-										P_Pack->Rec.Memo[0] = 0;
+										// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+										// @v11.1.12 P_Pack->Rec.Memo[0] = 0;
+										getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
+										P_Pack->SMemo.Z(); // @v11.1.12
 										P_BObj->SubstMemo(P_Pack);
-										setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+										// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+										setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12 
 										{
 											SString text;
 											setButtonText(cmLinkedBill, PPLoadStringS("but_linkbill", text).Transf(CTRANSF_INNER_TO_OUTER));
@@ -1953,7 +1959,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 									SString msg_buf, debt_dim_name;
 									GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
 									GetArticleName(CliAgt.ClientID, msg_buf);
-									msg_buf.CatChar(':').Cat(debt_dim_name);
+									msg_buf.Colon().Cat(debt_dim_name);
 									PPError(PPERR_DENYSTOPPEDAR, msg_buf);
 									P_Pack->Ext.AgentID = prev_agent_id;
 									r = 0;
@@ -2109,7 +2115,8 @@ IMPL_HANDLE_EVENT(BillDialog)
 						case CTL_BILL_MEMO:
 							getDTS(0);
 							P_BObj->SubstMemo(P_Pack);
-							setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+							// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+							setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
 							break;
 						case CTL_BILL_LNKFILELIST:
 							if(P_Pack && P_Pack->LnkFiles.getCount() && P_Box && P_Box->def && P_Pack->LnkFiles.EditDescr(P_Box->def->_curItem()))
@@ -2522,6 +2529,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	SString temp_buf;
 	P_Pack   = pPack;
 	Pattern  = pPack->Rec;
+	PatternMemo = pPack->SMemo; // @v11.1.12
 	Flags &= ~(fModified|fCheckCreditLim|fCheckRetLim);
 	THROW(opkobj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
 	{
@@ -2646,7 +2654,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		disableCtrls(1, CTLSEL_BILL_OBJECT, CTL_BILL_AMOUNT, CTL_BILL_PAYDATE, CTLCAL_BILL_PAYDATE, 0);
 	if(!(Flags & fEditMode))
 		P_BObj->SubstMemo(P_Pack);
-	setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
 	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
 		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
@@ -2903,7 +2912,9 @@ int BillDialog::getCurGroupData()
 
 int BillDialog::getDTS(int onCancel)
 {
-	int    ok = 1, intr = 0, r;
+	int    ok = 1;
+	int    intr = 0;
+	int    r;
 	double amt = 0.0;
 	LDATE  dt;
 	PPObjOprKind op_obj;
@@ -2944,7 +2955,8 @@ int BillDialog::getDTS(int onCancel)
 			P_Pack->AddPayDate(dt, amt);
 		}
 	}
-	getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
+	getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
 	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
 		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
@@ -2997,8 +3009,14 @@ int BillDialog::getDTS(int onCancel)
 		memcpy(Pattern.Code, P_Pack->Rec.Code, sizeof(Pattern.Code));
 	if(P_Pack->GetAmount() == BR2(Pattern.Amount))
 		Pattern.Amount = BR2(P_Pack->Rec.Amount);
+	/* @v11.1.12
 	if(strcmp(strip(P_Pack->Rec.Memo), strip(Pattern.Memo)) == 0)
 		memcpy(Pattern.Memo, P_Pack->Rec.Memo, sizeof(Pattern.Memo));
+	*/
+	// @v11.1.12 {
+	if(P_Pack->SMemo.Strip() == PatternMemo.Strip())
+		PatternMemo = P_Pack->SMemo;
+	// } @v11.1.12 
 	if((Flags & fModified) || memcmp(&P_Pack->Rec, &Pattern, sizeof(Pattern)) != 0)
 		Flags |= fModified;
 	return ok;

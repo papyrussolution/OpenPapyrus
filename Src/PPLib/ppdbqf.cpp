@@ -936,7 +936,7 @@ static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 
 static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 {
-	char   name_buf[24];
+	char   name_buf[48]; // @v11.1.12 [24]-->[48]
 	BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
@@ -951,12 +951,54 @@ static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 {
 	char   name_buf[512];
-	BillTbl::Rec rec;
+	// @v11.1.12 BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
-			BillObj->Fetch(id, &rec);
-			STRNSCPY(name_buf, rec.Memo);
+			// @v11.1.12 BillObj->Fetch(id, &rec);
+			// @v11.1.12 STRNSCPY(name_buf, rec.Memo);
+			// @v11.1.12 {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			if(id) {
+				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
+				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			STRNSCPY(name_buf, r_temp_buf);
+			// } @v11.1.12 
+		}
+		result->init(name_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_objmemo_person_i) // @v11.1.12
+{
+	char   name_buf[512];
+	if(!DbeInitSize(option, result, sizeof(name_buf))) {
+		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		if(id) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			if(id) {
+				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), r_temp_buf);
+				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			STRNSCPY(name_buf, r_temp_buf);
+		}
+		result->init(name_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_objmemo_personevent_i) // @v11.1.12
+{
+	char   name_buf[512];
+	if(!DbeInitSize(option, result, sizeof(name_buf))) {
+		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		if(id) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			if(id) {
+				PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSONEVENT, id, PPTRPROP_MEMO), r_temp_buf);
+				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			STRNSCPY(name_buf, r_temp_buf);
 		}
 		result->init(name_buf);
 	}
@@ -1273,6 +1315,8 @@ int PPDbqFuncPool::IdBillDate            = 0; // @v10.0.03
 int PPDbqFuncPool::IdUnxText             = 0; // @v10.7.2  
 int PPDbqFuncPool::IdIsTxtUuidEq         = 0; // @v10.9.10
 int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
+int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
+int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1503,6 +1547,8 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBillCmplx,    BTS_STRING, dbqf_objcodecmplx_bill_i,    1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBill,         BTS_STRING, dbqf_objcode_bill_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoBill,         BTS_STRING, dbqf_objmemo_bill_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPerson,       BTS_STRING, dbqf_objmemo_person_i,       1, BTS_INT)); // @v11.1.12
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPersonEvent,  BTS_STRING, dbqf_objmemo_personevent_i,  1, BTS_INT)); // @v11.1.12
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     BTS_STRING, dbqf_objname_scardser_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      BTS_STRING, dbqf_objname_debtdim_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        BTS_STRING, dbqf_objcode_scard_i,        1, BTS_INT));

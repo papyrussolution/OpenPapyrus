@@ -6522,7 +6522,6 @@ int FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len)
 	buf->content[buf->use] = 0;
 	return 0;
 }
-
 /**
  * xmlBufferAddHead:
  * @buf:  the buffer
@@ -8105,7 +8104,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 	xmlNs * cloneNs = NULL;
 	xmlNs ** cloneNsDefSlot = NULL;
 	xmlDict * dict; /* The destination dict */
-	if(!P_Node || (resNode == NULL) || (destDoc == NULL))
+	if(!P_Node || !resNode || !destDoc)
 		return -1;
 	/*
 	 * @todo Initially we support only element-nodes.
@@ -8238,7 +8237,6 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 		else if(cur->name) {
 			DICT_CONST_COPY(cur->name, clone->name);
 		}
-
 		switch(cur->type) {
 			case XML_XINCLUDE_START:
 			case XML_XINCLUDE_END:
@@ -8247,28 +8245,20 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 			case XML_ELEMENT_NODE:
 			    curElem = cur;
 			    depth++;
-			    /*
-			 * Namespace declarations.
-			     */
+				// Namespace declarations.
 			    if(cur->nsDef) {
 				    if(!parnsdone) {
 					    if(destParent && (ctxt == NULL)) {
-						    /*
-						 * Gather @parent's in-scope ns-decls.
-						     */
+							// Gather @parent's in-scope ns-decls.
 						    if(xmlDOMWrapNSNormGatherInScopeNs(&nsMap, destParent) == -1)
 							    goto internal_error;
 					    }
 					    parnsdone = 1;
 				    }
-				    /*
-				 * Clone namespace declarations.
-				     */
+					// Clone namespace declarations.
 				    cloneNsDefSlot = &(clone->nsDef);
 				    for(ns = cur->nsDef; ns; ns = ns->next) {
-					    /*
-					 * Create a new xmlNs.
-					     */
+						// Create a new xmlNs.
 					    cloneNs = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
 					    if(cloneNs == NULL) {
 						    xmlTreeErrMemory("xmlDOMWrapCloneNode(): allocating namespace");
@@ -8280,15 +8270,13 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 					    cloneNs->prefix = sstrdup(ns->prefix);
 					    *cloneNsDefSlot = cloneNs;
 					    cloneNsDefSlot = &(cloneNs->next);
-					    /*
-					 * Note that for custom handling of ns-references,
-					 * the ns-decls need not be stored in the ns-map,
-					 * since they won't be referenced by node->ns.
-					     */
+						// 
+						// Note that for custom handling of ns-references,
+						// the ns-decls need not be stored in the ns-map,
+						// since they won't be referenced by node->ns.
+						// 
 					    if(!ctxt || (ctxt->getNsForNodeFunc == NULL)) {
-						    /*
-						 * Does it shadow any ns-decl?
-						     */
+							// Does it shadow any ns-decl?
 						    if(XML_NSMAP_NOTEMPTY(nsMap)) {
 							    XML_NSMAP_FOREACH(nsMap, mi) {
 								    if((mi->depth >= XML_TREE_NSMAP_PARENT) && (mi->shadowDepth == -1) && ((ns->prefix == mi->newNs->prefix) || sstreq(ns->prefix, mi->newNs->prefix))) {
@@ -8296,36 +8284,30 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 								    }
 							    }
 						    }
-						    /*
-						 * Push mapping.
-						     */
+							// Push mapping.
 						    if(xmlDOMWrapNsMapAddItem(&nsMap, -1, ns, cloneNs, depth) == NULL)
 							    goto internal_error;
 					    }
 				    }
 			    }
-			    /* cur->ns will be processed further down. */
+			    // cur->ns will be processed further down. 
 			    break;
 			case XML_ATTRIBUTE_NODE:
-			    /* IDs will be processed further down. */
-			    /* cur->ns will be processed further down. */
+			    // IDs will be processed further down. 
+			    // cur->ns will be processed further down. 
 			    break;
 			case XML_TEXT_NODE:
 			case XML_CDATA_SECTION_NODE:
-			    /*
-			 * Note that this will also cover the values of attributes.
-			     */
+				// Note that this will also cover the values of attributes.
 			    DICT_COPY(cur->content, clone->content);
 			    goto leave_node;
 			case XML_ENTITY_NODE:
-			    /* @todo What to do here? */
+			    // @todo What to do here? 
 			    goto leave_node;
 			case XML_ENTITY_REF_NODE:
 			    if(sourceDoc != destDoc) {
 				    if((destDoc->intSubset) || (destDoc->extSubset)) {
-					    /*
-					 * Different doc: Assign new entity-node if available.
-					     */
+						// Different doc: Assign new entity-node if available.
 					    xmlEntity * ent = xmlGetDocEntity(destDoc, cur->name);
 					    if(ent) {
 						    clone->content = const_cast<xmlChar *>(ent->content); // @badcast
@@ -8335,10 +8317,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 				    }
 			    }
 			    else {
-				    /*
-				 * Same doc: Use the current node's entity declaration
-				 * and value.
-				     */
+					// Same doc: Use the current node's entity declaration and value.
 				    clone->content = cur->content;
 				    clone->children = cur->children;
 				    clone->last = cur->last;
@@ -8353,7 +8332,6 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_
 			default:
 			    goto internal_error;
 		}
-
 		if(cur->ns == NULL)
 			goto end_ns_reference;
 
@@ -8567,7 +8545,7 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAt
 {
 	xmlNode * cur;
 	int adoptStr = 1;
-	if(!attr || (destDoc == NULL))
+	if(!attr || !destDoc)
 		return -1;
 	attr->doc = destDoc;
 	if(attr->ns) {
@@ -8682,7 +8660,7 @@ internal_error:
  */
 int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlDoc * destDoc, xmlNode * destParent, int options)
 {
-	if(!pNode || (pNode->type == XML_NAMESPACE_DECL) || (destDoc == NULL) || (destParent && (destParent->doc != destDoc)))
+	if(!pNode || (pNode->type == XML_NAMESPACE_DECL) || !destDoc || (destParent && (destParent->doc != destDoc)))
 		return -1;
 	/*
 	 * Check node->doc sanity.

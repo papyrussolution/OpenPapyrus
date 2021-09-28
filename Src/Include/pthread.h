@@ -285,33 +285,14 @@ enum { /* Boolean values to make us independent of system includes. */
 /*
  * POSIX 1003.1-2001 Limits
  * ===========================
- *
  * These limits are normally set in <limits.h>, which is not provided with
  * pthreads-win32.
- *
- * PTHREAD_DESTRUCTOR_ITERATIONS
- *                      Maximum number of attempts to destroy
- *                      a thread's thread-specific data on
- *                      termination (must be at least 4)
- *
- * PTHREAD_KEYS_MAX
- *                      Maximum number of thread-specific data keys
- *                      available per process (must be at least 128)
- *
- * PTHREAD_STACK_MIN
- *                      Minimum supported stack size for a thread
- *
- * PTHREAD_THREADS_MAX
- *                      Maximum number of threads supported per
- *                      process (must be at least 64).
- *
- * SEM_NSEMS_MAX
- *                      The maximum number of semaphores a process can have.
- *                      (must be at least 256)
- *
- * SEM_VALUE_MAX
- *                      The maximum value a semaphore can have.
- *                      (must be at least 32767)
+ * PTHREAD_DESTRUCTOR_ITERATIONS // Maximum number of attempts to destroy a thread's thread-specific data on termination (must be at least 4)
+ * PTHREAD_KEYS_MAX    // Maximum number of thread-specific data keys available per process (must be at least 128)
+ * PTHREAD_STACK_MIN   // Minimum supported stack size for a thread
+ * PTHREAD_THREADS_MAX // Maximum number of threads supported per process (must be at least 64).
+ * SEM_NSEMS_MAX       // The maximum number of semaphores a process can have. (must be at least 256)
+ * SEM_VALUE_MAX       // The maximum value a semaphore can have. (must be at least 32767)
  *
  */
 #undef  _POSIX_THREAD_DESTRUCTOR_ITERATIONS

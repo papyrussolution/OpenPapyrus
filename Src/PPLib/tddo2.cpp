@@ -229,7 +229,7 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 				THROW(p_scope);
 				rR.RefType = ret_t.Link;
 				rR.RefID = rR.S.ToLong();
-				(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+				(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 			}
 		}
 		else {
@@ -273,7 +273,7 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 		{
 			rR.RefType = p_scope->GetId();
 			rR.RefID = NZOR(temp_result.RefID, temp_result.S.ToLong());
-			(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+			(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 		}
 		c = rScan.Skip()[0];
 		THROW_PP_S(c == ')', PPERR_TDDO_SYMBEXPECTED, "')'");
@@ -502,7 +502,7 @@ int Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 			THROW(p_scope);
 			rR.RefType = fld.T.Link;
 			rR.RefID = rR.S.ToLong();
-			(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+			(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 		}
 		else {
 			if(oneof3(Cp, cp1251, cpUndef, cpANSI))
@@ -696,7 +696,7 @@ int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langI
 		(sect_buf = pTextIdent).Strip();
 		if(temp_buf.NotEmpty()) {
 			defsect_buf = sect_buf;
-			sect_buf.CatChar(':').Cat(temp_buf);
+			sect_buf.Colon().Cat(temp_buf);
 		}
 		while(in_file.ReadLine(temp_buf)) {
 			int    s = IsTextSection(temp_buf, sect_buf, 0);
@@ -2308,7 +2308,7 @@ void TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) const
 			if(p_expr->Flags) {
 				rBuf.Space().CatEq("Flags", p_expr->Flags);
 			}
-			rBuf.CatChar(':');
+			rBuf.Colon();
 			for(uint i = 0; i < p_expr->ES.getPointer(); i++) {
 				const Item & r_item = p_expr->ES.Get(i);
 				rBuf.Space();
@@ -3088,15 +3088,15 @@ int TestTddo2()
 	id_list.addUnique(3);
 	PPGetPath(PPPATH_TESTROOT, inp_file_name);
 	const char * p_file_name = "tddo2-test-02";
-	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat((temp_buf = p_file_name).Dot().Cat("tddo"));
+	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat((temp_buf = p_file_name).DotCat("tddo"));
 	SFile in_file(inp_file_name, SFile::mRead);
 	//
 	PPGetPath(PPPATH_TESTROOT, debug_file_name);
-	debug_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("debug").Dot().Cat("tddo"));
+	debug_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("debug").DotCat("tddo"));
 	SFile debug_file(debug_file_name, SFile::mWrite);
 	//
 	PPGetPath(PPPATH_TESTROOT, out_file_name);
-	out_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("out").Dot().Cat("tddo"));
+	out_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("out").DotCat("tddo"));
 	SFile out_file(out_file_name, SFile::mWrite);
 
 	THROW_SL(in_file.IsValid());

@@ -37,7 +37,7 @@ Generator_SQL & FASTCALL Generator_SQL::QText(const char * pName)
 
 Generator_SQL & FASTCALL Generator_SQL::Param(const char * pParam)
 {
-	Buf.CatChar(':').Cat(pParam);
+	Buf.Colon().Cat(pParam);
 	return *this;
 }
 

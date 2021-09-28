@@ -3087,13 +3087,13 @@ private:
 					case PPUhttStoreSelDescr::attrPeriod: PPLoadString("daterange", temp_buf); break;
 					case PPUhttStoreSelDescr::attrClass:
 						PPLoadString("class", temp_buf);
-						temp_buf.CatChar(':');
+						temp_buf.Colon();
 						{
 							PPGdsClsPacket gc_pack;
 							if(GcObj.GetPacket(entry.ClsID, &gc_pack) > 0) {
 								temp_buf.Cat(gc_pack.Rec.Name);
 								if(gc_pack.GetPropName(entry.GcClsf, name_buf))
-									temp_buf.CatChar(':').Cat(name_buf);
+									temp_buf.Colon().Cat(name_buf);
 							}
 							else
 								gc_pack.Rec.ID = 0;
@@ -3101,7 +3101,7 @@ private:
 						break;
 					case PPUhttStoreSelDescr::attrTag:
 						PPLoadString("tag", temp_buf);
-						temp_buf.CatChar(':');
+						temp_buf.Colon();
 						{
 							PPObjectTag tag_rec;
 							if(TagObj.Fetch(entry.TagID, &tag_rec) > 0)

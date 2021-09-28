@@ -566,10 +566,10 @@ int Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(prop == 0) {
-			THROW_DB(deleteFrom(&Prop, 0, (Prop.ObjType == obj && Prop.ObjID == id))); // @v6.1.6
+			THROW_DB(deleteFrom(&Prop, 0, (Prop.ObjType == obj && Prop.ObjID == id)));
 		}
 		else {
-			THROW_DB(deleteFrom(&Prop, 0, (Prop.ObjType == obj && Prop.ObjID == id && Prop.Prop == prop))); // @v6.1.6
+			THROW_DB(deleteFrom(&Prop, 0, (Prop.ObjType == obj && Prop.ObjID == id && Prop.Prop == prop)));
 		}
 		THROW(tra.Commit());
 	}

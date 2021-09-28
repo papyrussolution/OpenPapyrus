@@ -10,6 +10,11 @@
 //
 //
 //
+const int MARK_BOOKMARK           = 24;
+const int MARK_HIDELINESBEGIN     = 23;
+const int MARK_HIDELINESEND       = 22;
+const int MARK_HIDELINESUNDERLINE = 21;
+
 static const SIntToSymbTabEntry SScLangEntryList[] = {
 	{   SCLEX_NULL,         "normal"       },
 	{   SCLEX_HTML,         "php"          },
@@ -549,9 +554,7 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 		int lexer_model = SScGetLexerModelById(lexer_id);
 		SScEditorStyleSet::LangModel model;
 		if(p_ss->GetModel(lexer_model, &model)) {
-
 			CallFunc(SCI_SETLEXER, lexer_model);
-
 			TSCollection <SScEditorStyleSet::LangModelKeywords> kw_list;
 			TSCollection <SScEditorStyleSet::Style> style_list;
 			p_ss->GetStyles(SScEditorStyleSet::sgLexer, lexer_id, &style_list);
@@ -584,6 +587,23 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 				// Disable track preprocessor to avoid incorrect detection.
 				// In the most of cases, the symbols are defined outside of file.
 				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("lexer.cpp.track.preprocessor"), reinterpret_cast<intptr_t>("0"));
+				// @v11.1.12 {
+				CallFunc(SCI_SETMARGINWIDTHN, scmargeFolder, 0);
+				CallFunc(SCI_SETMARGINTYPEN,  scmargeFolder, SC_MARGIN_SYMBOL);
+				CallFunc(SCI_SETMARGINMASKN,  scmargeFolder, SC_MASK_FOLDERS);
+				CallFunc(SCI_SETMARGINMASKN, scmargeFolder, SC_MASK_FOLDERS);
+				CallFunc(SCI_SETMARGINWIDTHN, scmargeFolder, 20);
+				//CallFunc(SCI_SETMARGINMASKN, scmargeSymbole, (1<<MARK_BOOKMARK) | (1<<MARK_HIDELINESBEGIN) | (1<<MARK_HIDELINESEND) | (1<<MARK_HIDELINESUNDERLINE));
+
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_PLUS);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY);
+				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY);
+				CallFunc(SCI_SETFOLDFLAGS, 16, 0); // 16 Draw line below if not expande
+				// } @v11.1.12 
 			}
 			ok = 1;
 		}
@@ -978,6 +998,211 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	return RegisterClassEx(&wc);
 }
 
+bool STextBrowser::IsFolded(size_t line) 
+{ 
+	return (CallFunc(SCI_GETFOLDEXPANDED, line) != 0); 
+}
+//
+// Run through full document. When switching in or opening folding
+// hide is false only when user click on margin
+//
+void STextBrowser::RunMarkers(bool doHide, size_t searchStart, bool endOfDoc, bool doDelete)
+{
+	//Removes markers if opening
+	/*
+	   AllLines = (start,ENDOFDOCUMENT)
+	   Hide:
+	        Run through all lines.
+	                Find open hiding marker:
+	                        set hiding start
+	                Find closing:
+	                        if (hiding):
+	                                Hide lines between now and start
+	                                if (endOfDoc = false)
+	                                        return
+	                                else
+	                                        search for other hidden sections
+
+	   Show:
+	        Run through all lines
+	                Find open hiding marker
+	                        set last start
+	                Find closing:
+	                        Show from last start. Stop.
+	                Find closed folding header:
+	                        Show from last start to folding header
+	                        Skip to LASTCHILD
+	                        Set last start to lastchild
+	 */
+	size_t max_lines = CallFunc(SCI_GETLINECOUNT);
+	if(doHide) {
+		size_t start_hiding = searchStart;
+		bool   is_in_section = false;
+		for(size_t i = searchStart; i < max_lines; ++i) {
+			uint state = CallFunc(SCI_MARKERGET, i);
+			if(((state & (1 << MARK_HIDELINESEND)) != 0) ) {
+				if(is_in_section) {
+					CallFunc(SCI_HIDELINES, start_hiding, i-1);
+					if(!endOfDoc) {
+						return; // done, only single section requested
+					}       //otherwise keep going
+				}
+				is_in_section = false;
+			}
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0)) {
+				is_in_section = true;
+				start_hiding = i+1;
+			}
+		}
+	}
+	else {
+		size_t startShowing = searchStart;
+		bool   is_in_section = false;
+		for(size_t i = searchStart; i < max_lines; ++i) {
+			uint state = CallFunc(SCI_MARKERGET, i);
+			if(((state & (1 << MARK_HIDELINESEND)) != 0)) {
+				if(doDelete) {
+					CallFunc(SCI_MARKERDELETE, i, MARK_HIDELINESEND);
+					if(!endOfDoc) {
+						return; // done, only single section requested
+					} // otherwise keep going
+				}
+				else if(is_in_section) {
+					if(startShowing >= i) { //because of fold skipping, we passed the close tag. In that case we cant do anything
+						if(!endOfDoc) {
+							return;
+						}
+						else {
+							continue;
+						}
+					}
+					CallFunc(SCI_SHOWLINES, startShowing, i-1);
+					if(!endOfDoc) {
+						return; //done, only single section requested
+					}       //otherwise keep going
+					is_in_section = false;
+				}
+			}
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0)) {
+				if(doDelete) {
+					CallFunc(SCI_MARKERDELETE, i, MARK_HIDELINESBEGIN);
+					CallFunc(SCI_MARKERDELETE, i, MARK_HIDELINESUNDERLINE);
+				}
+				else {
+					is_in_section = true;
+					startShowing = i+1;
+				}
+			}
+			int level_line = CallFunc(SCI_GETFOLDLEVEL, i, 0);
+			if(level_line & SC_FOLDLEVELHEADERFLAG) { //fold section. Dont show lines if fold is closed
+				if(is_in_section && !IsFolded(i)) {
+					CallFunc(SCI_SHOWLINES, startShowing, i);
+					//startShowing = execute(SCI_GETLASTCHILD, i, (levelLine &
+					// SC_FOLDLEVELNUMBERMASK));
+				}
+			}
+		}
+	}
+}
+
+void STextBrowser::Expand(size_t & rLine, bool doExpand, bool force, int visLevels, int level)
+{
+	//void expand(size_t& line, bool doExpand, bool force = false, int visLevels = 0, int level = -1);
+	size_t line_max_subord = CallFunc(SCI_GETLASTCHILD, rLine, level & SC_FOLDLEVELNUMBERMASK);
+	++rLine;
+	while(rLine <= line_max_subord) {
+		if(force) {
+			CallFunc(((visLevels > 0) ? SCI_SHOWLINES : SCI_HIDELINES), rLine, rLine);
+		}
+		else {
+			if(doExpand)
+				CallFunc(SCI_SHOWLINES, rLine, rLine);
+		}
+		int level_line = level;
+		if(level_line == -1)
+			level_line = int(CallFunc(SCI_GETFOLDLEVEL, rLine, 0));
+		if(level_line & SC_FOLDLEVELHEADERFLAG) {
+			if(force) {
+				if(visLevels > 1)
+					CallFunc(SCI_SETFOLDEXPANDED, rLine, 1);
+				else
+					CallFunc(SCI_SETFOLDEXPANDED, rLine, 0);
+				Expand(rLine, doExpand, force, visLevels-1, -1); // @recursion
+			}
+			else {
+				if(doExpand) {
+					if(!IsFolded(rLine))
+						CallFunc(SCI_SETFOLDEXPANDED, rLine, 1);
+					Expand(rLine, true, force, visLevels-1, -1); // @recursion
+				}
+				else
+					Expand(rLine, false, force, visLevels-1, -1); // @recursion
+			}
+		}
+		else
+			++rLine;
+	}
+	RunMarkers(true, 0, true, false);
+}
+
+void STextBrowser::Fold(size_t line, bool mode)
+{
+	int    end_styled = CallFunc(SCI_GETENDSTYLED);
+	int    len = CallFunc(SCI_GETTEXTLENGTH);
+	if(end_styled < len)
+		CallFunc(SCI_COLOURISE, 0, -1);
+	int32 header_line;
+	int   level = CallFunc(SCI_GETFOLDLEVEL, line);
+	if(level & SC_FOLDLEVELHEADERFLAG)
+		header_line = static_cast<int32>(line);
+	else {
+		header_line = static_cast<int32>(CallFunc(SCI_GETFOLDPARENT, line));
+		if(header_line == -1)
+			return;
+	}
+	if(IsFolded(header_line) != mode) {
+		CallFunc(SCI_TOGGLEFOLD, header_line);
+		SCNotification scnN;
+		scnN.nmhdr.code = SCN_FOLDINGSTATECHANGED;
+		scnN.nmhdr.hwndFrom = /*_hSelf*/HwndSci;
+		scnN.nmhdr.idFrom = 0;
+		scnN.line = header_line;
+		scnN.foldLevelNow = IsFolded(header_line) ? 1 : 0; // folded:1, unfolded:0
+		::SendMessage(/*_hParent*/GetParent(HwndSci), WM_NOTIFY, 0, reinterpret_cast<LPARAM>(&scnN));
+	}
+}
+
+void STextBrowser::MarginClick(/*Sci_Position*/int position, int modifiers)
+{
+	size_t line_click = CallFunc(SCI_LINEFROMPOSITION, position, 0);
+	int level_click = int(CallFunc(SCI_GETFOLDLEVEL, line_click, 0));
+	if(level_click & SC_FOLDLEVELHEADERFLAG) {
+		if(modifiers & SCMOD_SHIFT) {
+			// Ensure all children visible
+			CallFunc(SCI_SETFOLDEXPANDED, line_click, 1);
+			Expand(line_click, true, true, 100, level_click);
+		}
+		else if(modifiers & SCMOD_CTRL) {
+			if(IsFolded(line_click)) {
+				// Contract this line and all children
+				CallFunc(SCI_SETFOLDEXPANDED, line_click, 0);
+				Expand(line_click, false, true, 0, level_click);
+			}
+			else {
+				// Expand this line and all children
+				CallFunc(SCI_SETFOLDEXPANDED, line_click, 1);
+				Expand(line_click, true, true, 100, level_click);
+			}
+		}
+		else {
+			// Toggle this line
+			bool mode = IsFolded(line_click);
+			Fold(line_click, !mode);
+			RunMarkers(true, line_click, true, false);
+		}
+	}
+}
+
 /*static*/LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CREATESTRUCT * p_init_data;
@@ -1091,7 +1316,7 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 		case WM_NOTIFY:
 			{
 				//LPNMHDR lpnmhdr = (LPNMHDR)lParam;
-				const SCNotification * p_scn = (const SCNotification *)lParam;
+				const SCNotification * p_scn = reinterpret_cast<const SCNotification *>(lParam);
 				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view && p_scn->nmhdr.hwndFrom == p_view->GetSciWnd()) {
 					int    test_value = 0; // @debug
@@ -1103,6 +1328,29 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 						case SCN_MODIFIED:
 							if(p_scn->modificationType & (SC_MOD_DELETETEXT|SC_MOD_INSERTTEXT|SC_PERFORMED_UNDO|SC_PERFORMED_REDO)) {
 								p_view->Doc.SetState(Document::stDirty, 1);
+							}
+							break;
+						case SCN_MARGINCLICK: // @v11.1.12
+							{
+								/*
+								if(p_scn->nmhdr.hwndFrom == _mainEditView.getHSelf())
+									switchEditViewTo(MAIN_VIEW);
+								else if(p_scn->nmhdr.hwndFrom == _subEditView.getHSelf())
+									switchEditViewTo(SUB_VIEW);
+								*/
+								int line_click = static_cast<int>(p_view->CallFunc(SCI_LINEFROMPOSITION, p_scn->position));
+								if(p_scn->margin == scmargeFolder) {
+									p_view->MarginClick(p_scn->position, p_scn->modifiers);
+									/*
+									if(_pDocMap)
+										_pDocMap->fold(line_click, p_view->IsFolded(line_click));
+									ScintillaEditView * unfocusView = isFromPrimary ? &_subEditView : &_mainEditView;
+									_smartHighlighter.highlightView(p_view, unfocusView);
+									*/
+								}
+								else if(p_scn->margin == scmargeSymbole && !p_scn->modifiers) {
+									// toggle bookmark
+								}
 							}
 							break;
 						case SCN_DWELLSTART:
@@ -1388,6 +1636,7 @@ int STextBrowser::WMHCreate()
 	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
 	//
 	CallFunc(SCI_SETMOUSEDWELLTIME, 500);
+	CallFunc(SCI_SETMARGINSENSITIVEN, scmargeFolder, true); // @v11.1.12
 	//
 	{
 		KeyAccel.clear();

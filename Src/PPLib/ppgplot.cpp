@@ -152,7 +152,7 @@ int PPGpPlotItem::ToStr(SString & rBuf) const
 			long idx = IdxList.get(i);
 			assert(idx != 0);
 			if(i)
-				rBuf.CatChar(':');
+				rBuf.Colon();
 			if(idx > 0)
 				rBuf.Cat(idx);
 			else {
@@ -558,7 +558,7 @@ int Generator_GnuPlot::SetAxisRange(int axis, double lo, double hi)
 	if(oneof3(axis, axX, axY, axZ)) {
 		Set();
 		AxisLetter(axis).Cat("range").Space().CatChar('[').
-			Cat(lo, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar(':').Cat(hi, MKSFMTD(0, 3, NMBF_NOTRAILZ)).
+			Cat(lo, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Colon().Cat(hi, MKSFMTD(0, 3, NMBF_NOTRAILZ)).
 			CatChar(']').CR();
 		return PutLine();
 	}
@@ -719,7 +719,7 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 					if(i)
 						LineBuf.CatDiv(',', 2);
 					LineBuf.CatQStr((i == 0) ? data_file_name : "").Space(); // data source
-					LineBuf.Cat("using").Space().Cat(Param.Legend.Get(i).Id).CatChar(':').Cat("xtic(1)");
+					LineBuf.Cat("using").Space().Cat(Param.Legend.Get(i).Id).Colon().Cat("xtic(1)");
 					temp_buf.Z().Cat(Param.Legend.Get(i).Id);
 					LineBuf.Space().Cat("title").Space().CatQStr(temp_buf); // title
 				}
@@ -729,7 +729,7 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 					if(i)
 						LineBuf.CatDiv(',', 2);
 					LineBuf.CatQStr((i == 0) ? data_file_name : "").Space(); // data source
-					LineBuf.Cat("using").Space().Cat(1).CatChar(':').Cat(Param.Legend.Get(i).Id);
+					LineBuf.Cat("using").Space().Cat(1).Colon().Cat(Param.Legend.Get(i).Id);
 					LineBuf.Space().Cat("title").Space().CatQStr(Param.Legend.Get(i).Txt); // title
 					if(Param.Flags & PlotParam::fLines)
 						LineBuf.Space().Cat("with").Space().Cat("lines");

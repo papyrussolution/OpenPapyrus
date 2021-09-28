@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2996,20 +2996,16 @@ int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 		H.KeywordDilute = r_blk.Pack.Rec.KeywordDilute;
 		H.Dt = r_blk.Pack.Rec.Dt;
 		H.Tm = r_blk.Pack.Rec.Tm;
-		// @v9.3.8 {
 		{
 			LDATETIME mod_dtm = r_blk.WbObj.GetLastModifTime(rFilt.ID);
 			H.ModifDt = mod_dtm.d;
 			H.ModifTm = mod_dtm.t;
 		}
-		// } @v9.3.8
-		// @v9.3.7 {
 		{
 			LDATETIME mod_dtm = r_blk.WbObj.GetContentLastModifTime(r_blk.Pack.Rec.ID);
 			H.ContentModifDt = mod_dtm.d;
 			H.ContentModifTm = mod_dtm.t;
 		}
-		// } @v9.3.7
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
 		STRNSCPY(H.Version, r_blk.Pack.Rec.Version);

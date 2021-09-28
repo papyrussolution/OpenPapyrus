@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -2348,7 +2348,8 @@ int RecoverTransfer()
 					if(!p_pack) {
 						THROW_SL(p_pack = pack_list.CreateNewItem());
 						THROW(p_pack->CreateBlank2(CConfig.ReceiptOp, first_date, loc_id, 0));
-						PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+						// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+						PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo); // @v11.1.12
 					}
 					THROW(ti.Init(&p_pack->Rec));
 					ti.GoodsID  = goods_id;

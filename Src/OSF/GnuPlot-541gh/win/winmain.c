@@ -161,7 +161,7 @@ BOOL IsWindowsXPorLater()
 {
 	OSVERSIONINFO versionInfo;
 	// get Windows version 
-	ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+	memzero(&versionInfo, sizeof(OSVERSIONINFO));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&versionInfo);
 	return ((versionInfo.dwMajorVersion > 5) || ((versionInfo.dwMajorVersion == 5) && (versionInfo.dwMinorVersion >= 1)));
@@ -1015,7 +1015,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 		    terminate_flag = TRUE;
 		    // send ^D to main thread input queue
 		    h = GetStdHandle(STD_INPUT_HANDLE);
-		    ZeroMemory(&rec, sizeof(rec));
+		    memzero(&rec, sizeof(rec));
 		    rec.EventType = KEY_EVENT;
 		    rec.Event.KeyEvent.bKeyDown = TRUE;
 		    rec.Event.KeyEvent.wRepeatCount = 1;

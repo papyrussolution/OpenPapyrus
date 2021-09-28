@@ -164,11 +164,13 @@ int SVectorBase::Shrink()
 	// } @v10.7.3 
 }
 
-void SVectorBase::atPut(uint idx, const void * pItem)
+void * SVectorBase::atPut(uint idx, const void * pItem)
 {
 	assert(idx < count);
-	memmove(P_VData + idx * isize, _INTRPTR(pItem), isize);
+	void * p_dest_ptr = P_VData + idx * isize;
+	memmove(p_dest_ptr, _INTRPTR(pItem), isize);
 	VFlags &= ~arySorted;
+	return _USERPTR(p_dest_ptr);
 }
 //
 // Descr: Вставляет в середину блока памяти pDest новый блок pSrc.

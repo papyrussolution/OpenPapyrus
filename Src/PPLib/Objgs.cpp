@@ -43,18 +43,18 @@ void PPGoodsStruc::Init()
 	P_Cb = 0;
 	MEMSZERO(Rec);
 	Items.clear();
-	Childs.freeAll();
+	Children.freeAll();
 }
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { return Copy(rS); }
-int    PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
+int    PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Children.getCount()) ? 0 : 1; }
 int    PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
 int    PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
-int    PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1); }
+int    PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Children.getCount() <= 1); }
 double PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
 int    PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
-	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
+	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Children.getCount()+1); }
 int    PPGoodsStruc::GetKind() const
 	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
@@ -90,13 +90,13 @@ int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 			}
 		}
 		if(eq) {
-			const uint c = Childs.getCount();
-			if(c != rS.Childs.getCount())
+			const uint c = Children.getCount();
+			if(c != rS.Children.getCount())
 				eq = 0;
 			else {
 				for(uint i = 0; eq && i < c; i++) {
-					const PPGoodsStruc * p_child = Childs.at(i);
-					const PPGoodsStruc * p_s_child = rS.Childs.at(i);
+					const PPGoodsStruc * p_child = Children.at(i);
+					const PPGoodsStruc * p_s_child = rS.Children.at(i);
 					if(p_child && p_s_child) {
 						if(!p_child->IsEqual(*p_s_child))
 							eq = 0;
@@ -190,8 +190,8 @@ int PPGoodsStruc::SetKind(int kind)
 int PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 {
 	if(Rec.Flags & GSF_FOLDER) {
-		for(uint i = 0; i < Childs.getCount(); i++) {
-			const PPGoodsStruc * p_child = Childs.at(i);
+		for(uint i = 0; i < Children.getCount(); i++) {
+			const PPGoodsStruc * p_child = Children.at(i);
 			if(p_child && p_child->Select(pIdent, pGs)) // @recursion
 				return 1;
 		}
@@ -218,8 +218,8 @@ int PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc
 {
 	int    ok = -1;
 	if(Rec.Flags & GSF_FOLDER) {
-		for(uint i = 0; i < Childs.getCount(); i++) {
-			const PPGoodsStruc * p_child = Childs.at(i);
+		for(uint i = 0; i < Children.getCount(); i++) {
+			const PPGoodsStruc * p_child = Children.at(i);
 			if(p_child) {
 				int    r = p_child->Helper_Select(pIdent, rList); // @recursion
 				THROW(r);
@@ -280,10 +280,10 @@ PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 	GoodsID = rS.GoodsID;
 	Rec = rS.Rec;
 	Items.copy(rS.Items);
-	for(uint i = 0; i < rS.Childs.getCount(); i++) {
+	for(uint i = 0; i < rS.Children.getCount(); i++) {
 		PPGoodsStruc * p_child = new PPGoodsStruc;
-		*p_child = *rS.Childs.at(i);
-		Childs.insert(p_child);
+		*p_child = *rS.Children.at(i);
+		Children.insert(p_child);
 	}
 	return *this;
 }
@@ -570,7 +570,7 @@ int PPGoodsStruc::Expand()
 			MakeChildDefaultName(name_buf).CopyTo(p_child->Rec.Name, sizeof(p_child->Rec.Name));
 		}
 		Items.freeAll();
-		Childs.insert(p_child);
+		Children.insert(p_child);
 	}
 	else
 		ok = -1;
@@ -586,8 +586,8 @@ int PPGoodsStruc::Reduce()
 {
 	int    ok = 1;
 	if(Rec.Flags & GSF_FOLDER && !(Rec.Flags & GSF_CHILD)) {
-		PPGoodsStruc * p_child = Childs.getCount() ? Childs.at(0) : 0;
-		THROW_PP(Childs.getCount() <= 1, PPERR_REDUCEMULTGSTRUCFOLDER);
+		PPGoodsStruc * p_child = Children.getCount() ? Children.at(0) : 0;
+		THROW_PP(Children.getCount() <= 1, PPERR_REDUCEMULTGSTRUCFOLDER);
 		if(p_child) {
 			Rec.Flags |= (p_child->Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_OUTPWOVAT));
 			Rec.Period = p_child->Rec.Period;
@@ -595,7 +595,7 @@ int PPGoodsStruc::Reduce()
 			Rec.VariedPropObjType = p_child->Rec.VariedPropObjType;
 			THROW(CopyItemsFrom(p_child));
 		}
-		Childs.freeAll();
+		Children.freeAll();
 		Rec.Flags &= ~GSF_FOLDER;
 	}
 	else
@@ -1792,7 +1792,7 @@ int GSExtDialog::setDTS(const PPGoodsStruc * pData)
 int GSExtDialog::getDTS(PPGoodsStruc * pData)
 {
 	char   buf[64];
-	buf[0] = 0;
+	PTR32(buf)[0] = 0;
 	getCtrlData(CTL_GSTRUC_NAME, buf);
 	if(*strip(buf) == 0) {
 		if(Data.Rec.Flags & GSF_NAMED)
@@ -1876,7 +1876,7 @@ void GSExtDialog::selNamedGS()
 int GSExtDialog::setupList()
 {
 	PPGoodsStruc * p_item = 0;
-	for(uint i = 0; Data.Childs.enumItems(&i, (void **)&p_item);) {
+	for(uint i = 0; Data.Children.enumItems(&i, (void **)&p_item);) {
 		char   sub[128];
 		StringSet ss(SLBColumnDelim);
 		ss.add(STRNSCPY(sub, p_item->Rec.Name));
@@ -1891,7 +1891,7 @@ int GSExtDialog::delItem(long pos, long)
 {
 	if(pos >= 0) {
 		if(CONFIRM(PPCFM_DELETE)) {
-			Data.Childs.atFree(static_cast<uint>(pos));
+			Data.Children.atFree(static_cast<uint>(pos));
 			enableCommand(cmGStrucExpandReduce, Data.CanReduce());
 			return 1;
 		}
@@ -1909,9 +1909,9 @@ int GSExtDialog::addItem(long * pPos, long * pID)
 	Data.MakeChildDefaultName(name_buf).CopyTo(item.Rec.Name, sizeof(item.Rec.Name));
 	if(PPObjGoodsStruc::EditDialog(&item) > 0) {
 		PPGoodsStruc * p_child = new PPGoodsStruc(item);
-		if(Data.Childs.insert(p_child)) {
-			ASSIGN_PTR(pPos, Data.Childs.getCount()-1);
-			ASSIGN_PTR(pID, Data.Childs.getCount());
+		if(Data.Children.insert(p_child)) {
+			ASSIGN_PTR(pPos, Data.Children.getCount()-1);
+			ASSIGN_PTR(pID, Data.Children.getCount());
 			enableCommand(cmGStrucExpandReduce, Data.CanReduce());
 			return 1;
 		}
@@ -1924,8 +1924,8 @@ int GSExtDialog::addItem(long * pPos, long * pID)
 
 int GSExtDialog::editItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.Childs.getCount()) {
-		PPGoodsStruc * p_child = Data.Childs.at(pos);
+	if(pos >= 0 && pos < Data.Children.getCountI()) {
+		PPGoodsStruc * p_child = Data.Children.at(pos);
 		SETIFZ(p_child->GoodsID, Data.GoodsID);
 		if(PPObjGoodsStruc::EditDialog(p_child) > 0)
 			return 1;
@@ -2053,8 +2053,8 @@ int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 	int    ok = 1, r = 0;
 	THROW(r = P_Ref->GetItem(Obj, id, &pData->Rec));
 	if(r > 0) {
-		pData->Items.freeAll();
-		pData->Childs.freeAll();
+		pData->Items.clear(); // @v11.1.12 freeAll()-->clear()
+		pData->Children.freeAll();
 		if(pData->Rec.Flags & GSF_FOLDER) {
 			PPIDArray child_idlist;
 			THROW(GetChildIDList(id, &child_idlist));
@@ -2063,7 +2063,7 @@ int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 				THROW_MEM(p_child);
 				THROW(r = Get(child_idlist.at(i), p_child)); // @recursion
 				if(r > 0)
-					THROW_SL(pData->Childs.insert(p_child));
+					THROW_SL(pData->Children.insert(p_child));
 			}
 		}
 		else {
@@ -2109,8 +2109,8 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				pData->Rec.ID = *pID;
 			}
 			if(pData->Rec.Flags & GSF_FOLDER) {
-				for(uint i = 0; i < pData->Childs.getCount(); i++) {
-					PPGoodsStruc * p_child = pData->Childs.at(i);
+				for(uint i = 0; i < pData->Children.getCount(); i++) {
+					PPGoodsStruc * p_child = pData->Children.at(i);
 					if(p_child) {
 						p_child->Rec.ParentID = *pID;
 						p_child->Rec.Flags |= GSF_CHILD;
@@ -2366,8 +2366,8 @@ int PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		PPGoodsStrucItem * p_gsi;
 		for(i = 0; p_gs->Items.enumItems(&i, (void **)&p_gsi);)
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS, &p_gsi->GoodsID, ary, replace));
-		for(i = 0; i < p_gs->Childs.getCount(); i++)
-			THROW(ProcessObjRefInArray(PPOBJ_GOODSSTRUC, &p_gs->Childs.at(i)->Rec.ID, ary, replace));
+		for(i = 0; i < p_gs->Children.getCount(); i++)
+			THROW(ProcessObjRefInArray(PPOBJ_GOODSSTRUC, &p_gs->Children.at(i)->Rec.ID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSSTRUC, &p_gs->Rec.ParentID, ary, replace));
 		ok = 1;
 	}

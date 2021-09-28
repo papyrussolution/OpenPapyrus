@@ -2560,7 +2560,7 @@ int PPObjTimeSeries::Export(PPID id)
 		SString temp_buf;
 		SString file_name;
 		SString line_buf;
-		temp_buf.Z().Cat("ts-raw").CatChar('-').Cat(ts_rec.Symb).Dot().Cat("txt").ToLower();
+		temp_buf.Z().Cat("ts-raw").CatChar('-').Cat(ts_rec.Symb).DotCat("txt").ToLower();
 		PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
 		SFile f_out(file_name, SFile::mWrite);
 		if(f_out.IsValid()) {
@@ -4992,7 +4992,7 @@ void PPObjTimeSeries::TrainNnParam::Reset()
 
 SString & PPObjTimeSeries::TrainNnParam::MakeFileName(SString & rBuf) const
 {
-	return rBuf.Z().Cat(Symb).CatChar('-').Cat(InputFrameSize).CatChar('-').Cat(MaxDuckQuant).Dot().Cat("fann").ToLower();
+	return rBuf.Z().Cat(Symb).CatChar('-').Cat(InputFrameSize).CatChar('-').Cat(MaxDuckQuant).DotCat("fann").ToLower();
 }
 
 bool FASTCALL PPObjTimeSeries::Strategy::IsStakeSideEq(const Strategy & rS) const
@@ -5262,7 +5262,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 		rBuf.Dot().CatLongZ(rS.GenSeq, 3);*/
 	rBuf.CatChar(')');
 	rBuf.CatDiv(':', 2).Cat((rS.BaseFlags & rS.bfShort) ? "S" : "B").CatChar('/');
-	rBuf.CatLongZ(rS.InputFrameSize, 3).CatChar('/').Cat(rS.MaxDuckQuant).CatChar(':').Cat(rS.TargetQuant)/*.CatChar('/').Cat(rS.StakeMode)*/;
+	rBuf.CatLongZ(rS.InputFrameSize, 3).CatChar('/').Cat(rS.MaxDuckQuant).Colon().Cat(rS.TargetQuant)/*.CatChar('/').Cat(rS.StakeMode)*/;
 	rBuf.Space().Cat("Potential").CatDiv(':', 2).
 		Cat(rS.V.GetResultPerDay(), MKSFMTD(0, 2, 0)).CatChar('/'). // @v10.7.3 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 2, 0)
 		Cat(rS.V.Result, MKSFMTD(5, 1, 0)).CatChar('/'); // @v10.7.3
@@ -5278,7 +5278,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 	if(rS.BaseFlags & Strategy::bfBrokenRow)
 		rBuf.CatChar('*');
 	if(rS.StakeCountAtFinalSimulation > 0)
-		rBuf.CatChar(':').Cat(rS.StakeCountAtFinalSimulation);
+		rBuf.Colon().Cat(rS.StakeCountAtFinalSimulation);
 	/* @20200716 if(rS.GenPtCount > 0) // @v10.7.11
 		rBuf.CatChar('^').CatLongZ(R0i(rS.CalcConfidenceFactor()), 3);*/
 	// @v10.7.9 {
@@ -5380,7 +5380,7 @@ SString & PPObjTimeSeries::StrategyOutput(const char * pSymb, const PPObjTimeSer
 		rBuf.Space().
 			CatLongZ(pSre->ID, 4).Space().
 			Cat(pSre->SpikeQuant_s, MKSFMTD(15, 8, 0)).Space().
-			Cat(pSre->MaxDuckQuant).CatChar(':').Cat(pSre->TargetQuant).Space().
+			Cat(pSre->MaxDuckQuant).Colon().Cat(pSre->TargetQuant).Space().
 			Cat(pSre->InputFrameSize).Space();
 		if(pSre->MainFrameSize) {
 			rBuf.Cat("MF").Cat(pSre->MainFrameSize).CatChar('[').Cat(pSre->OptDelta2Range, MKSFMTD(0, 12, 0)).CatChar(']').Space();
@@ -5394,7 +5394,7 @@ SString & PPObjTimeSeries::StrategyOutput(const char * pSymb, const PPObjTimeSer
 			//Cat(pSre->V.TmCount).Space().
 		rBuf.Cat(pSre->V.TmSec / 3600.0, MKSFMTD(9, 1, 0)).Space().
 			Cat(pSre->V.GetResultPerDay(), MKSFMTD(9, 6, 0)).Space().
-			CatLongZ(pSre->PeakAvgQuant, 2).CatChar(':').CatLongZ(pSre->PeakMaxQuant, 2).CatChar(':').CatLongZ(pSre->BottomAvgQuant, 2).Space();
+			CatLongZ(pSre->PeakAvgQuant, 2).Colon().CatLongZ(pSre->PeakMaxQuant, 2).Colon().CatLongZ(pSre->BottomAvgQuant, 2).Space();
 		{
 			rBuf.CatChar('[').Cat(pSre->OptDeltaRange, MKSFMTD(0, 12, NMBF_FORCEPOS)).
 				CatChar('/').Cat(pSre->OptDeltaRange.Count).
@@ -8494,7 +8494,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 									msg_buf.Z();
 									if(single_MainFrameSize > 0)
 										msg_buf.Cat(single_MainFrameSize).Space();
-									msg_buf.Cat(single_InputFrameSize).CatChar('/').Cat(single_MaxDuckQuant).CatChar(':').Cat(single_TargetQuant).Space().
+									msg_buf.Cat(single_InputFrameSize).CatChar('/').Cat(single_MaxDuckQuant).Colon().Cat(single_TargetQuant).Space().
 										CatEq("StakeCount", rResultCollection.Atdr.StakeCount).Space().
 										CatEq("WinCount", rResultCollection.Atdr.WinCount).Space().
 										CatEq("LossCount", rResultCollection.Atdr.LossCount).Space().
@@ -9500,9 +9500,9 @@ int TestTsDensityMap() // @debug
 	out_file_name = inp_file_name;
 	out_knn_file_name = inp_file_name;
 	const char * p_file_name = "tss-analyze-densitystat";
-	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat((temp_buf = p_file_name).Dot().Cat("csv"));
-	out_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("out").Dot().Cat("txt"));
-	out_knn_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("knn").Dot().Cat("txt"));
+	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat((temp_buf = p_file_name).DotCat("csv"));
+	out_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("out").DotCat("txt"));
+	out_knn_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("knn").DotCat("txt"));
 	if(dmap.Import(inp_file_name)) {
 		PPIDArray ts_list;
 		for(uint i = 0; i < dmap.getCount(); i++) {

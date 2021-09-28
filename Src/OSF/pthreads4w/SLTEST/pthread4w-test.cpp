@@ -3,10 +3,25 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #include "sltest/test.h"
-
+#if defined(_MSC_VER)
+	#include <eh.h>
+#else
+	#if !defined(_MSC_VER) && defined(__cplusplus)
+		#include <exception>
+	#endif
+	#if defined(__GNUC__) && __GNUC__ < 3
+		#include <new.h>
+	#else
+		#include <new>
+		using std::set_terminate;
+	#endif
+#endif
+//
 static const int PTW32TEST_THREAD_INIT_PRIO = 0;
 static const int PTW32TEST_MAXPRIORITIES = 512;
 #define SEMAPHORE_MAX_COUNT 100
+
+#define GetDurationMilliSecs(_TStart, _TStop) ((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm))
 
 int assertE;
 
@@ -121,6 +136,70 @@ int PThr4wTest_Sizes()
 	InnerBlock::PrintTaggedSize("__ptw32_mcs_node_t_", sizeof(struct __ptw32_mcs_node_t_));
 	InnerBlock::PrintTaggedSize("sched_param", sizeof(struct sched_param));
 	InnerBlock::PrintTaggedSize(0, 0);
+	return 0;
+}
+//
+// See if we have the TryEnterCriticalSection function.
+// Does not use any part of pthreads.
+// 
+int PThr4wTest_TryEnterCs1()
+{
+	// Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
+	static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+	static HINSTANCE _h_kernel32; // Handle to kernel32.dll
+
+	CRITICAL_SECTION cs;
+	SetLastError(0);
+	printf("Last Error [main enter] %ld\n", (long)GetLastError());
+	/*
+	 * Load KERNEL32 and try to get address of TryEnterCriticalSection
+	 */
+	_h_kernel32 = LoadLibrary(_T("KERNEL32.DLL"));
+	_try_enter_critical_section = (BOOL (WINAPI *)(LPCRITICAL_SECTION))GetProcAddress(_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
+	if(_try_enter_critical_section != NULL) {
+		InitializeCriticalSection(&cs);
+		SetLastError(0);
+		if((*_try_enter_critical_section)(&cs) != 0) {
+			LeaveCriticalSection(&cs);
+		}
+		else {
+			printf("Last Error [try enter] %ld\n", (long)GetLastError());
+			_try_enter_critical_section = NULL;
+		}
+		DeleteCriticalSection(&cs);
+	}
+	FreeLibrary(_h_kernel32);
+	printf("This system %s TryEnterCriticalSection.\n", (_try_enter_critical_section == NULL) ? "DOES NOT SUPPORT" : "SUPPORTS");
+	printf("POSIX Mutexes will be based on Win32 %s.\n", (_try_enter_critical_section == NULL) ? "Mutexes" : "Critical Sections");
+	return 0;
+}
+// 
+// See if we have the TryEnterCriticalSection function.
+// Does not use any part of pthreads.
+// 
+int PThr4wTest_TryEnterCs2()
+{
+	// Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
+	static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+	// @sobolev LPCRITICAL_SECTION lpcs = NULL;
+	SetLastError(0);
+	printf("Last Error [main enter] %ld\n", (long)GetLastError());
+	{
+		CRITICAL_SECTION cs; // @sobolev
+		InitializeCriticalSection(&cs); // @sobolev
+		// Load KERNEL32 and try to get address of TryEnterCriticalSection
+		HINSTANCE _h_kernel32 = LoadLibrary(_T("KERNEL32.DLL"));
+		_try_enter_critical_section = (BOOL (WINAPI *)(LPCRITICAL_SECTION))GetProcAddress(_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
+		if(_try_enter_critical_section != NULL) {
+			SetLastError(0);
+			(*_try_enter_critical_section)(&cs); // @sobolev lpcs-->&cs
+			printf("Last Error [try enter] %ld\n", (long)GetLastError());
+		}
+		FreeLibrary(_h_kernel32);
+		DeleteCriticalSection(&cs); // @sobolev
+	}
+	printf("This system %s TryEnterCriticalSection.\n", (_try_enter_critical_section == NULL) ? "DOES NOT SUPPORT" : "SUPPORTS");
+	printf("POSIX Mutexes will be based on Win32 %s.\n", (_try_enter_critical_section == NULL) ? "Mutexes" : "Critical Sections");
 	return 0;
 }
 //
@@ -3660,76 +3739,5357 @@ int PThr4wTest_Reinit1()
 	}
 	return 0;
 }
+//
+// Create a simple mutex object, lock it, and then unlock it again.
+// This is the simplest test of the pthread mutex family that we can do.
+// 
+// Depends on API functions: pthread_mutex_init(),  pthread_mutex_lock(), pthread_mutex_unlock(), pthread_mutex_destroy()
+// 
+int PThr4wTest_Mutex1()
+{
+	static pthread_mutex_t mutex = NULL;
+	assert(mutex == NULL);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(mutex != NULL);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	return 0;
+}
+//
+// As for mutex1.c but with type set to PTHREAD_MUTEX_ERRORCHECK.
+// Create a simple mutex object, lock it, unlock it, then destroy it.
+// This is the simplest test of the pthread mutex family that we can do.
+// Depends on API functions: pthread_mutexattr_settype(), pthread_mutex_init(), pthread_mutex_destroy()
+// 
+int PThr4wTest_Mutex1e()
+{
+	static pthread_mutex_t mutex = NULL;
+	static pthread_mutexattr_t mxAttr;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(mutex == NULL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(mutex != NULL);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// As for mutex1.c but with type set to PTHREAD_MUTEX_NORMAL.
+// Create a simple mutex object, lock it, unlock it, then destroy it.
+// This is the simplest test of the pthread mutex family that we can do.
+// Depends on API functions: pthread_mutexattr_settype(), pthread_mutex_init(), pthread_mutex_destroy()
+// 
+int PThr4wTest_Mutex1n()
+{
+	static pthread_mutex_t mutex = NULL;
+	static pthread_mutexattr_t mxAttr;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(mutex == NULL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(mutex != NULL);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// As for mutex1.c but with type set to PTHREAD_MUTEX_RECURSIVE.
+// Create a simple mutex object, lock it, unlock it, then destroy it.
+// This is the simplest test of the pthread mutex family that we can do.
+// Depends on API functions: pthread_mutexattr_settype(), pthread_mutex_init(), pthread_mutex_destroy()
+// 
+int PThr4wTest_Mutex1r()
+{
+	static pthread_mutex_t mutex = NULL;
+	static pthread_mutexattr_t mxAttr;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(mutex == NULL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(mutex != NULL);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex2()
+{
+	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	assert(mutex == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(mutex != PTHREAD_MUTEX_INITIALIZER);
+	assert(mutex != NULL);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex2e()
+{
+	static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+	assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(mutex != PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
+	assert(mutex != NULL);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex2r()
+{
+	static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+	assert(mutex == PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(mutex != PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
+	assert(mutex != NULL);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(mutex == NULL);
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, trylock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex3()
+{
+	static pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+	static int washere = 0;
+	
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			assert(pthread_mutex_trylock(&mutex1) == EBUSY);
+			washere = 1;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(washere == 1);
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, trylock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex3e()
+{
+	static pthread_mutex_t mutex1 = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+	static int washere = 0;
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			assert(pthread_mutex_trylock(&mutex1) == EBUSY);
+			washere = 1;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(washere == 1);
+	return 0;
+}
+// 
+// Declare a static mutex object, lock it, trylock it, and then unlock it again.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex3r()
+{
+	static pthread_mutex_t mutex1 = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+	static int washere = 0;
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			assert(pthread_mutex_trylock(&mutex1) == EBUSY);
+			washere = 1;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(washere == 1);
+	return 0;
+}
+// 
+// Thread A locks mutex - thread B tries to unlock.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex4()
+{
+	static int wasHere = 0;
+	static pthread_mutex_t mutex1;
 
-int PThr4wTest_Affinity1();
-int PThr4wTest_Affinity2();
-int PThr4wTest_Affinity3();
-int PThr4wTest_Affinity4();
-int PThr4wTest_Affinity5();
-int PThr4wTest_Affinity6();
-int PThr4wTest_Mutex1();
-int PThr4wTest_Mutex1e();
-int PThr4wTest_Mutex1n();
-int PThr4wTest_Mutex1r();
-int PThr4wTest_Mutex2();
-int PThr4wTest_Mutex2e();
-int PThr4wTest_Mutex2r();
-int PThr4wTest_Mutex3();
-int PThr4wTest_Mutex3e();
-int PThr4wTest_Mutex3r();
-int PThr4wTest_Mutex4();
-int PThr4wTest_Mutex5();
-int PThr4wTest_Mutex6();
-int PThr4wTest_Mutex6e();
-int PThr4wTest_Mutex6es();
-int PThr4wTest_Mutex6n();
-int PThr4wTest_Mutex6r();
-int PThr4wTest_Mutex6rs();
-int PThr4wTest_Mutex6s();
-int PThr4wTest_Mutex7();
-int PThr4wTest_Mutex7e();
-int PThr4wTest_Mutex7n();
-int PThr4wTest_Mutex7r();
-int PThr4wTest_Mutex8();
-int PThr4wTest_Mutex8e();
-int PThr4wTest_Mutex8n();
-int PThr4wTest_Mutex8r();
-int PThr4wTest_CleanUp0();
-int PThr4wTest_CleanUp1();
-int PThr4wTest_CleanUp2();
-int PThr4wTest_CleanUp3();
-int PThr4wTest_Cancel1();
-int PThr4wTest_Cancel2();
-int PThr4wTest_Cancel3();
-int PThr4wTest_Cancel4();
-int PThr4wTest_Cancel5();
-int PThr4wTest_Cancel6a();
-int PThr4wTest_Cancel6d();
-int PThr4wTest_Cancel7();
-int PThr4wTest_Cancel8();
-int PThr4wTest_Cancel9();
-int PThr4wTest_Tsd1();
-int PThr4wTest_Tsd2();
-int PThr4wTest_Tsd3();
-int PThr4wTest_CondVar1();
-int PThr4wTest_CondVar11();
-int PThr4wTest_CondVar12();
-int PThr4wTest_CondVar2();
-int PThr4wTest_CondVar21();
-int PThr4wTest_CondVar3();
-int PThr4wTest_CondVar31();
-int PThr4wTest_CondVar32();
-int PThr4wTest_CondVar33();
-int PThr4wTest_CondVar4();
-int PThr4wTest_CondVar5();
-int PThr4wTest_CondVar6();
-int PThr4wTest_CondVar7();
-int PThr4wTest_CondVar8();
-int PThr4wTest_CondVar9();
-int PThr4wTest_Spin1();
-int PThr4wTest_Spin2();
-int PThr4wTest_Spin3();
-int PThr4wTest_Spin4();
+	class InnerBlock {
+	public:
+		static void * unlocker(void * arg)
+		{
+			int expectedResult = (int)(size_t)arg;
+			wasHere++;
+			assert(pthread_mutex_unlock(&mutex1) == expectedResult);
+			wasHere++;
+			return NULL;
+		}
+	};
+	pthread_t t;
+	pthread_mutexattr_t ma;
+	assert(pthread_mutexattr_init(&ma) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(ma)
+	wasHere = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_DEFAULT) == 0);
+	assert(pthread_mutex_init(&mutex1, &ma) == 0);
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(wasHere == 2);
+
+	wasHere = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutex_init(&mutex1, &ma) == 0);
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(wasHere == 2);
+
+	wasHere = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&mutex1, &ma) == 0);
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)EPERM) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(wasHere == 2);
+
+	wasHere = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutex_init(&mutex1, &ma) == 0);
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)EPERM) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	assert(wasHere == 2);
+	END_MUTEX_STALLED_ROBUST(ma)
+	return 0;
+}
+//
+// Confirm the equality/inequality of the various mutex types, and the default not-set value.
+//
+int PThr4wTest_Mutex5()
+{
+	static pthread_mutexattr_t mxAttr;
+	static int _optimiseFoil; // Prevent optimiser from removing dead or obvious asserts. 
+	#define FOIL(x) (_optimiseFoil = x)
+	int mxType = -1;
+	assert(FOIL(PTHREAD_MUTEX_DEFAULT) == PTHREAD_MUTEX_NORMAL);
+	assert(FOIL(PTHREAD_MUTEX_DEFAULT) != PTHREAD_MUTEX_ERRORCHECK);
+	assert(FOIL(PTHREAD_MUTEX_DEFAULT) != PTHREAD_MUTEX_RECURSIVE);
+	assert(FOIL(PTHREAD_MUTEX_RECURSIVE) != PTHREAD_MUTEX_ERRORCHECK);
+	assert(FOIL(PTHREAD_MUTEX_NORMAL) == PTHREAD_MUTEX_FAST_NP);
+	assert(FOIL(PTHREAD_MUTEX_RECURSIVE) == PTHREAD_MUTEX_RECURSIVE_NP);
+	assert(FOIL(PTHREAD_MUTEX_ERRORCHECK) == PTHREAD_MUTEX_ERRORCHECK_NP);
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	return 0;
+	#undef FOIL
+}
+// 
+// Test the default (type not set) mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks mutex twice (recursive lock).
+// Locking thread should deadlock on second attempt.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			/* Should wait here (deadlocked) */
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	// Should succeed even though we don't own the lock because FAST mutexes don't check ownership.
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type.
+// Thread locks mutex twice (recursive lock).
+// This should fail with an EDEADLK error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == EDEADLK);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == EPERM);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK static mutex type.
+// Thread locks mutex twice (recursive lock).
+// This should fail with an EDEADLK error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype()
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6es()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == EDEADLK);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == EPERM);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type.
+// Thread locks mutex twice (recursive lock).
+// The thread should deadlock.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_settype(), pthread_mutexattr_gettype(), pthread_mutex_init()
+//   pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			// Should wait here (deadlocked) 
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == (IS_ROBUST ? EPERM : 0));
+	while(lockCount < (IS_ROBUST ? 1 : 2)) {
+		Sleep(1);
+	}
+	assert(lockCount == (IS_ROBUST ? 1 : 2));
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type.
+// Thread locks mutex twice (recursive lock).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE static mutex type.
+// Thread locks mutex twice (recursive lock).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype()
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex6rs()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	assert(mutex == PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Test the default (type not set) static mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks mutex twice (recursive lock).
+// Locking thread should deadlock on second attempt.
+// 
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+//
+int PThr4wTest_Mutex6s()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			/* Should wait here (deadlocked) */
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(mutex == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	/*
+	 * Should succeed even though we don't own the lock
+	 * because FAST mutexes don't check ownership.
+	 */
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Test the default (type not set) mutex type.
+// Should be the same as PTHREAD_MUTEX_NORMAL.
+// Thread locks then trylocks mutex (attempted recursive lock).
+// The thread should lock first time and EBUSY second time.
+// 
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_trylock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type.
+// Thread locks and then trylocks mutex (attempted recursive lock).
+// Trylock should fail with an EBUSY error.
+// The second unlock attempt should fail with an EPERM error.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(), 
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type.
+// Thread locks then trylocks mutex (attempted recursive lock).
+// The thread should lock first time and EBUSY second time.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_settype(), pthread_mutexattr_gettype(), pthread_mutex_init(),
+// pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == EBUSY);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 2) {
+		Sleep(1);
+	}
+	assert(lockCount == 2);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type.
+// Thread locks mutex then trylocks mutex (recursive lock twice).
+// Both locks and unlocks should succeed.
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex7r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_trylock(&mutex) == 0);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return (void*)555;
+		}
+	};
+	pthread_t t;
+	void* result = (void*)0;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result == 555);
+	assert(lockCount == 2);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	assert(pthread_mutexattr_destroy(&mxAttr) == 0);
+	return 0;
+}
+// 
+// Test the default (type not set) mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8()
+{
+	static int lockCount = 0;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_ERRORCHECK mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// 
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8e()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_ERRORCHECK);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	Sleep(2000);
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_NORMAL mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8n()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_NORMAL);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	while(lockCount < 1) {
+		Sleep(1);
+	}
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+// 
+// Tests PTHREAD_MUTEX_RECURSIVE mutex type exercising timedlock.
+// Thread locks mutex, another thread timedlocks the mutex.
+// Timed thread should timeout.
+// Depends on API functions: pthread_create(), pthread_mutexattr_init(), pthread_mutexattr_destroy(), pthread_mutexattr_settype(),
+//   pthread_mutexattr_gettype(), pthread_mutex_init(), pthread_mutex_destroy(), pthread_mutex_lock(), pthread_mutex_timedlock(), pthread_mutex_unlock()
+// 
+int PThr4wTest_Mutex8r()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	static pthread_mutexattr_t mxAttr;
+
+	class InnerBlock {
+	public:
+		static void * locker(void * arg)
+		{
+			struct timespec abstime, reltime = { 1, 0 };
+			(void)pthread_win32_getabstime_np(&abstime, &reltime);
+			assert(pthread_mutex_timedlock(&mutex, &abstime) == ETIMEDOUT);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t t;
+	int mxType = -1;
+	assert(pthread_mutexattr_init(&mxAttr) == 0);
+	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutexattr_gettype(&mxAttr, &mxType) == 0);
+	assert(mxType == PTHREAD_MUTEX_RECURSIVE);
+	assert(pthread_mutex_init(&mutex, &mxAttr) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
+	Sleep(2000);
+	assert(lockCount == 1);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	END_MUTEX_STALLED_ROBUST(mxAttr)
+	return 0;
+}
+//
+// Descr: Create a simple spinlock object, lock it, and then unlock it again.
+//   This is the simplest test of the pthread mutex family that we can do
+//
+int PThr4wTest_Spin1()
+{
+	static pthread_spinlock_t lock;
+	assert(pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE) == 0);
+	assert(pthread_spin_lock(&lock) == 0);
+	assert(pthread_spin_unlock(&lock) == 0);
+	assert(pthread_spin_destroy(&lock) == 0);
+	assert(pthread_spin_lock(&lock) == EINVAL);
+	return 0;
+}
+//
+// Descr: Declare a spinlock object, lock it, trylock it, and then unlock it again.
+//
+int PThr4wTest_Spin2()
+{
+	static pthread_spinlock_t lock = NULL;
+	static int washere = 0;
+
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			assert(pthread_spin_trylock(&lock) == EBUSY);
+			washere = 1;
+			return 0;
+		}
+	};
+	pthread_t t;
+	assert(pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE) == 0);
+	assert(pthread_spin_lock(&lock) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	assert(pthread_spin_unlock(&lock) == 0);
+	assert(pthread_spin_destroy(&lock) == 0);
+	assert(washere == 1);
+	return 0;
+}
+//
+// Thread A locks spin - thread B tries to unlock. This should succeed, but it's undefined behaviour.
+//
+int PThr4wTest_Spin3()
+{
+	static int wasHere = 0;
+	static pthread_spinlock_t spin;
+
+	class InnerBlock {
+	public:
+		static void * unlocker(void * arg)
+		{
+			int expectedResult = (int)(size_t)arg;
+			wasHere++;
+			assert(pthread_spin_unlock(&spin) == expectedResult);
+			wasHere++;
+			return NULL;
+		}
+	};
+	pthread_t t;
+	wasHere = 0;
+	assert(pthread_spin_init(&spin, PTHREAD_PROCESS_PRIVATE) == 0);
+	assert(pthread_spin_lock(&spin) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)0) == 0);
+	assert(pthread_join(t, NULL) == 0);
+	// 
+	// Our spinlocks don't record the owner thread so any thread can unlock the spinlock,
+	// but nor is it an error for any thread to unlock a spinlock that is not locked.
+	// 
+	assert(pthread_spin_unlock(&spin) == 0);
+	assert(pthread_spin_destroy(&spin) == 0);
+	assert(wasHere == 2);
+	return 0;
+}
+
+int PThr4wTest_Spin4()
+{
+	static pthread_spinlock_t lock = PTHREAD_SPINLOCK_INITIALIZER;
+	static __PTW32_STRUCT_TIMEB currSysTimeStart;
+	static __PTW32_STRUCT_TIMEB currSysTimeStop;
+	static int washere = 0;
+
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			__PTW32_FTIME(&currSysTimeStart);
+			washere = 1;
+			assert(pthread_spin_lock(&lock) == 0);
+			assert(pthread_spin_unlock(&lock) == 0);
+			__PTW32_FTIME(&currSysTimeStop);
+			return (void*)(size_t)GetDurationMilliSecs(currSysTimeStart, currSysTimeStop);
+		}
+	};
+	void * result = (void*)0;
+	pthread_t t;
+	int CPUs;
+	__PTW32_STRUCT_TIMEB sysTime;
+	if((CPUs = pthread_num_processors_np()) == 1) {
+		printf("Test not run - it requires multiple CPUs.\n");
+		exit(0);
+	}
+	assert(pthread_spin_lock(&lock) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
+	while(washere == 0) {
+		sched_yield();
+	}
+	do {
+		sched_yield();
+		__PTW32_FTIME(&sysTime);
+	} while(GetDurationMilliSecs(currSysTimeStart, sysTime) <= 1000);
+	assert(pthread_spin_unlock(&lock) == 0);
+	assert(pthread_join(t, &result) == 0);
+	assert((int)(size_t)result > 1000);
+	assert(pthread_spin_destroy(&lock) == 0);
+	assert(washere == 1);
+	return 0;
+}
+//
+// Test for pthread_exit()
+//
+int PThr4wTest_Exit1()
+{
+	// A simple test first. 
+	pthread_exit((void*)0);
+	return 1; // Not reached 
+}
+
+int PThr4wTest_Exit2()
+{
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			int failed = (int)arg;
+			pthread_exit(arg);
+			/* Never reached. */
+			/*
+			 * Trick gcc compiler into not issuing a warning here
+			 */
+			assert(failed - (int)arg);
+			return NULL;
+		}
+	};
+	pthread_t t;
+	assert(pthread_create(&t, NULL, InnerBlock::func, (void*)NULL) == 0);
+	Sleep(100);
+	return 0;
+}
+
+int PThr4wTest_Exit3()
+{
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			int failed = (int)arg;
+			pthread_exit(arg);
+			/* Never reached. */
+			/*
+			 * assert(0) in a way to prevent warning or optimising away.
+			 */
+			assert(failed - (int)arg);
+			return NULL;
+		}
+	};
+	pthread_t id[4];
+	int i;
+	/* Create a few threads and then exit. */
+	for(i = 0; i < 4; i++) {
+		assert(pthread_create(&id[i], NULL, InnerBlock::func, (void*)(size_t)i) == 0);
+	}
+	Sleep(400);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test calling pthread_exit from a Win32 thread without having created an implicit POSIX handle for it.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exit4()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+			static uint __stdcall Win32thread(void * arg)
+		#else
+			static void Win32thread(void * arg)
+		#endif
+		{
+			int result = 1;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			// Doesn't return and doesn't create an implicit POSIX handle.
+			pthread_exit((void*)(size_t)result);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	HANDLE h[NUMTHREADS + 1];
+	uint thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+#else
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+#endif
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		int result = 0;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		assert(GetExitCodeThread(h[i], (LPDWORD)&result) == TRUE);
+#else
+		// Can't get a result code.
+		result = 1;
+#endif
+		fail = (result != 1);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test calling pthread_exit from a Win32 thread having created an implicit POSIX handle for it.
+// Test Method (Validation or Falsification):
+// - Validate return value and that POSIX handle is created and destroyed.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exit5()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		static uint __stdcall Win32thread(void * arg)
+		#else
+		static void Win32thread(void * arg)
+		#endif
+		{
+			int result = 1;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			assert((bag->self = pthread_self()).p != NULL);
+			assert(pthread_kill(bag->self, 0) == 0);
+			// Doesn't return.
+			pthread_exit((void*)(size_t)result);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	HANDLE h[NUMTHREADS + 1];
+	unsigned thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+#else
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+#endif
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		int result = 0;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		assert(GetExitCodeThread(h[i], (LPDWORD)&result) == TRUE);
+#else
+		result = 1; // Can't get a result code.
+#endif
+		assert(threadbag[i].self.p != NULL);
+		assert(pthread_kill(threadbag[i].self, 0) == ESRCH);
+		fail = (result != 1);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+
+int PThr4wTest_Exit6()
+{
+	static pthread_key_t key;
+	static int where;
+
+	class InnerBlock {
+	public:
+		static unsigned __stdcall start_routine(void * arg)
+		{
+			int * val = (int *)SAlloc::M(4);
+			where = 2;
+			//printf("start_routine: native thread\n");
+			*val = 48;
+			pthread_setspecific(key, val);
+			return 0;
+		}
+		static void key_dtor(void * arg)
+		{
+			//printf("key_dtor: %d\n", *(int*)arg);
+			if(where == 2)
+				printf("Library has thread exit POSIX cleanup for native threads.\n");
+			else
+				printf("Library has process exit POSIX cleanup for native threads.\n");
+			SAlloc::F(arg);
+		}
+	};
+	HANDLE hthread;
+	where = 1;
+	pthread_key_create(&key, InnerBlock::key_dtor);
+	hthread = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::start_routine, NULL, 0, NULL);
+	WaitForSingleObject(hthread, INFINITE);
+	CloseHandle(hthread);
+	where = 3;
+	pthread_key_delete(key);
+	//printf("main: exiting\n");
+	return 0;
+}
+// 
+// Basic test of CPU_*() support routines.
+// Have the process switch CPUs.
+// Have the thread switch CPUs.
+// Test thread CPU affinity setting.
+// Test thread CPU affinity inheritance.
+// Test thread CPU affinity from thread attributes.
+// 
+int PThr4wTest_Affinity1()
+{
+	uint cpu;
+	cpu_set_t newmask;
+	cpu_set_t src1mask;
+	cpu_set_t src2mask;
+	cpu_set_t src3mask;
+	CPU_ZERO(&newmask);
+	CPU_ZERO(&src1mask);
+	memzero(&src2mask, sizeof(cpu_set_t));
+	assert(memcmp(&src1mask, &src2mask, sizeof(cpu_set_t)) == 0);
+	assert(CPU_EQUAL(&src1mask, &src2mask));
+	assert(CPU_COUNT(&src1mask) == 0);
+	CPU_ZERO(&src1mask);
+	CPU_ZERO(&src2mask);
+	CPU_ZERO(&src3mask);
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &src1mask);                                /* 0b01010101010101010101010101010101 */
+	}
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*4; cpu++) {
+		CPU_SET(cpu, &src2mask);                                /* 0b00000000000000001111111111111111 */
+	}
+	for(cpu = sizeof(cpu_set_t)*4; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &src2mask);                                /* 0b01010101010101011111111111111111 */
+	}
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &src3mask);                                /* 0b01010101010101010101010101010101 */
+	}
+	assert(CPU_COUNT(&src1mask) == (sizeof(cpu_set_t)*4));
+	assert(CPU_COUNT(&src2mask) == ((sizeof(cpu_set_t)*4 + (sizeof(cpu_set_t)*2))));
+	assert(CPU_COUNT(&src3mask) == (sizeof(cpu_set_t)*4));
+	CPU_SET(0, &newmask);
+	CPU_SET(1, &newmask);
+	CPU_SET(3, &newmask);
+	assert(CPU_ISSET(1, &newmask));
+	CPU_CLR(1, &newmask);
+	assert(!CPU_ISSET(1, &newmask));
+	CPU_OR(&newmask, &src1mask, &src2mask);
+	assert(CPU_EQUAL(&newmask, &src2mask));
+	CPU_AND(&newmask, &src1mask, &src2mask);
+	assert(CPU_EQUAL(&newmask, &src1mask));
+	CPU_XOR(&newmask, &src1mask, &src3mask);
+	memzero(&src2mask, sizeof(cpu_set_t));
+	assert(memcmp(&newmask, &src2mask, sizeof(cpu_set_t)) == 0);
+	/*
+	* Need to confirm the bitwise logical right-shift in CpuCount().
+	* i.e. zeros inserted into MSB on shift because cpu_set_t is unsigned.
+	*/
+	CPU_ZERO(&src1mask);
+	for(cpu = 1; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &src1mask);                                /* 0b10101010101010101010101010101010 */
+	}
+	assert(CPU_ISSET(sizeof(cpu_set_t)*8-1, &src1mask));
+	assert(CPU_COUNT(&src1mask) == (sizeof(cpu_set_t)*4));
+	return 0;
+}
+
+int PThr4wTest_Affinity2()
+{
+	uint cpu;
+	int result;
+	cpu_set_t newmask;
+	cpu_set_t mask;
+	cpu_set_t switchmask;
+	cpu_set_t flipmask;
+	CPU_ZERO(&mask);
+	CPU_ZERO(&switchmask);
+	CPU_ZERO(&flipmask);
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &switchmask);                      /* 0b01010101010101010101010101010101 */
+	}
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu++) {
+		CPU_SET(cpu, &flipmask);                                /* 0b11111111111111111111111111111111 */
+	}
+	assert(sched_getaffinity(0, sizeof(cpu_set_t), &newmask) == 0);
+	assert(!CPU_EQUAL(&newmask, &mask));
+	result = sched_setaffinity(0, sizeof(cpu_set_t), &newmask);
+	if(result != 0) {
+		int err =
+#if defined (__PTW32_USES_SEPARATE_CRT)
+		    GetLastError();
+#else
+		    errno;
+#endif
+		assert(err != ESRCH);
+		assert(err != EFAULT);
+		assert(err != EPERM);
+		assert(err != EINVAL);
+		assert(err != EAGAIN);
+		assert(err == ENOSYS);
+		assert(CPU_COUNT(&mask) == 1);
+	}
+	else {
+		if(CPU_COUNT(&mask) > 1) {
+			CPU_AND(&newmask, &mask, &switchmask); /* Remove every other CPU */
+			assert(sched_setaffinity(0, sizeof(cpu_set_t), &newmask) == 0);
+			assert(sched_getaffinity(0, sizeof(cpu_set_t), &mask) == 0);
+			CPU_XOR(&newmask, &mask, &flipmask); /* Switch to all alternative CPUs */
+			assert(sched_setaffinity(0, sizeof(cpu_set_t), &newmask) == 0);
+			assert(sched_getaffinity(0, sizeof(cpu_set_t), &mask) == 0);
+			assert(!CPU_EQUAL(&newmask, &mask));
+		}
+	}
+	return 0;
+}
+
+int PThr4wTest_Affinity3()
+{
+	int result;
+	uint cpu;
+	cpu_set_t newmask;
+	cpu_set_t processCpus;
+	cpu_set_t mask;
+	cpu_set_t switchmask;
+	cpu_set_t flipmask;
+	pthread_t self = pthread_self();
+	CPU_ZERO(&mask);
+	CPU_ZERO(&switchmask);
+	CPU_ZERO(&flipmask);
+	if(pthread_getaffinity_np(self, sizeof(cpu_set_t), &processCpus) == ENOSYS) {
+		printf("pthread_get/set_affinity_np API not supported for this platform: skipping test.");
+		return 0;
+	}
+	assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &processCpus) == 0);
+	printf("This thread has a starting affinity with %d CPUs\n", CPU_COUNT(&processCpus));
+	assert(!CPU_EQUAL(&mask, &processCpus));
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &switchmask);                      /* 0b01010101010101010101010101010101 */
+	}
+	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu++) {
+		CPU_SET(cpu, &flipmask);                                /* 0b11111111111111111111111111111111 */
+	}
+	result = pthread_setaffinity_np(self, sizeof(cpu_set_t), &processCpus);
+	if(result != 0) {
+		assert(result != ESRCH);
+		assert(result != EFAULT);
+		assert(result != EPERM);
+		assert(result != EINVAL);
+		assert(result != EAGAIN);
+		assert(result == ENOSYS);
+		assert(CPU_COUNT(&mask) == 1);
+	}
+	else {
+		if(CPU_COUNT(&mask) > 1) {
+			CPU_AND(&newmask, &processCpus, &switchmask); /* Remove every other CPU */
+			assert(pthread_setaffinity_np(self, sizeof(cpu_set_t), &newmask) == 0);
+			assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &mask) == 0);
+			assert(CPU_EQUAL(&mask, &newmask));
+			CPU_XOR(&newmask, &mask, &flipmask); /* Switch to all alternative CPUs */
+			assert(!CPU_EQUAL(&mask, &newmask));
+			assert(pthread_setaffinity_np(self, sizeof(cpu_set_t), &newmask) == 0);
+			assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &mask) == 0);
+			assert(CPU_EQUAL(&mask, &newmask));
+		}
+	}
+	return 0;
+}
+
+int PThr4wTest_Affinity4()
+{
+	uint cpu;
+	cpu_set_t threadCpus;
+	DWORD_PTR vThreadMask;
+	cpu_set_t keepCpus;
+	pthread_t self = pthread_self();
+	if(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == ENOSYS) {
+		printf("pthread_get/set_affinity_np API not supported for this platform: skipping test.");
+		return 0;
+	}
+	CPU_ZERO(&keepCpus);
+	for(cpu = 1; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &keepCpus); // 0b10101010101010101010101010101010
+	}
+	assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
+	if(CPU_COUNT(&threadCpus) > 1) {
+		CPU_AND(&threadCpus, &threadCpus, &keepCpus);
+		vThreadMask = SetThreadAffinityMask(GetCurrentThread(), (*(PDWORD_PTR)&threadCpus) /* Violating Opacity*/);
+		assert(pthread_setaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
+		vThreadMask = SetThreadAffinityMask(GetCurrentThread(), vThreadMask);
+		assert(vThreadMask != 0);
+		assert(memcmp(&vThreadMask, &threadCpus, sizeof(DWORD_PTR)) == 0);
+	}
+	return 0;
+}
+
+int PThr4wTest_Affinity5()
+{
+	typedef union {
+		// Violates opacity 
+		cpu_set_t cpuset;
+		ulong bits;  /* To stop GCC complaining about %lx args to printf */
+	} cpuset_to_ulint;
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			HANDLE threadH = GetCurrentThread();
+			cpu_set_t * parentCpus = (cpu_set_t*)arg;
+			cpu_set_t threadCpus;
+			DWORD_PTR vThreadMask;
+			cpuset_to_ulint a, b;
+			assert(pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &threadCpus) == 0);
+			assert(CPU_EQUAL(parentCpus, &threadCpus));
+			vThreadMask = SetThreadAffinityMask(threadH, (*(PDWORD_PTR)&threadCpus) /* Violating Opacity */);
+			assert(vThreadMask != 0);
+			assert(memcmp(&vThreadMask, &threadCpus, sizeof(DWORD_PTR)) == 0);
+			a.cpuset = *parentCpus;
+			b.cpuset = threadCpus;
+			/* Violates opacity */
+			printf("CPU affinity: Parent/Thread = 0x%lx/0x%lx\n", a.bits, b.bits);
+			return 0;
+		}
+	};
+	uint cpu;
+	pthread_t tid;
+	cpu_set_t threadCpus;
+	DWORD_PTR vThreadMask;
+	cpu_set_t keepCpus;
+	pthread_t self = pthread_self();
+	if(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == ENOSYS) {
+		printf("pthread_get/set_affinity_np API not supported for this platform: skipping test.");
+		return 0;
+	}
+	CPU_ZERO(&keepCpus);
+	for(cpu = 1; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &keepCpus);                                /* 0b10101010101010101010101010101010 */
+	}
+	assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
+	if(CPU_COUNT(&threadCpus) > 1) {
+		assert(pthread_create(&tid, NULL, InnerBlock::mythread, (void*)&threadCpus) == 0);
+		assert(pthread_join(tid, NULL) == 0);
+		CPU_AND(&threadCpus, &threadCpus, &keepCpus);
+		assert(pthread_setaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
+		vThreadMask = SetThreadAffinityMask(GetCurrentThread(), (*(PDWORD_PTR)&threadCpus) /* Violating Opacity*/);
+		assert(vThreadMask != 0);
+		assert(memcmp(&vThreadMask, &threadCpus, sizeof(DWORD_PTR)) == 0);
+		assert(pthread_create(&tid, NULL, InnerBlock::mythread, (void*)&threadCpus) == 0);
+		assert(pthread_join(tid, NULL) == 0);
+	}
+	return 0;
+}
+
+int PThr4wTest_Affinity6()
+{
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			pthread_attr_t * attrPtr = (pthread_attr_t*)arg;
+			cpu_set_t threadCpus, attrCpus;
+			assert(pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &threadCpus) == 0);
+			assert(pthread_attr_getaffinity_np(attrPtr, sizeof(cpu_set_t), &attrCpus) == 0);
+			assert(CPU_EQUAL(&attrCpus, &threadCpus));
+			return 0;
+		}
+	};
+	uint cpu;
+	pthread_t tid;
+	pthread_attr_t attr1, attr2;
+	cpu_set_t threadCpus;
+	cpu_set_t keepCpus;
+	pthread_t self = pthread_self();
+	if(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == ENOSYS) {
+		printf("pthread_get/set_affinity_np API not supported for this platform: skipping test.");
+		return 0;
+	}
+	assert(pthread_attr_init(&attr1) == 0);
+	assert(pthread_attr_init(&attr2) == 0);
+	CPU_ZERO(&keepCpus);
+	for(cpu = 1; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
+		CPU_SET(cpu, &keepCpus);                                /* 0b10101010101010101010101010101010 */
+	}
+	assert(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
+	if(CPU_COUNT(&threadCpus) > 1) {
+		assert(pthread_attr_setaffinity_np(&attr1, sizeof(cpu_set_t), &threadCpus) == 0);
+		CPU_AND(&threadCpus, &threadCpus, &keepCpus);
+		assert(pthread_attr_setaffinity_np(&attr2, sizeof(cpu_set_t), &threadCpus) == 0);
+		assert(pthread_create(&tid, &attr1, InnerBlock::mythread, (void*)&attr1) == 0);
+		assert(pthread_join(tid, NULL) == 0);
+		assert(pthread_create(&tid, &attr2, InnerBlock::mythread, (void*)&attr2) == 0);
+		assert(pthread_join(tid, NULL) == 0);
+	}
+	assert(pthread_attr_destroy(&attr1) == 0);
+	assert(pthread_attr_destroy(&attr2) == 0);
+	return 0;
+}
+// 
+// Test Synopsis: Test setting cancel state and cancel type.
+// Test Method (Validation or Falsification): -
+// Requirements Tested:
+// - pthread_setcancelstate function
+// - pthread_setcanceltype function
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - pthread_create, pthread_self work.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_Cancel1()
+{
+	const int NUMTHREADS = 2; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* ... */
+			{
+				int oldstate;
+				int oldtype;
+				assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) == 0);
+				assert(oldstate == PTHREAD_CANCEL_ENABLE); /* Check default */
+				assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+				assert(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL) == 0);
+				assert(pthread_setcancelstate(oldstate, &oldstate) == 0);
+				assert(oldstate == PTHREAD_CANCEL_DISABLE); /* Check setting */
+				assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype) == 0);
+				assert(oldtype == PTHREAD_CANCEL_DEFERRED); /* Check default */
+				assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
+				assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+				assert(pthread_setcanceltype(oldtype, &oldtype) == 0);
+				assert(oldtype == PTHREAD_CANCEL_ASYNCHRONOUS); /* Check setting */
+			}
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		failed = !threadbag[i].started;
+		if(failed) {
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		/* ... */
+	}
+	assert(!failed);
+	return 0; // Success
+}
+
+#if defined(__cplusplus) // Don't know how to identify if we are using SEH so it's only C++ for now
+// 
+// Test Synopsis: Test SEH or C++ cancel exception handling within application exception blocks.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel2()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static pthread_barrier_t go = NULL;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
+			result = 1;
+		#if !defined(__cplusplus)
+			__try
+		#else
+			try
+		#endif
+			{
+				/* Wait for go from main */
+				pthread_barrier_wait(&go);
+				pthread_barrier_wait(&go);
+				pthread_testcancel();
+			}
+		#if !defined(__cplusplus)
+			__except(EXCEPTION_EXECUTE_HANDLER)
+		#else
+		#if defined(__PtW32CatchAll)
+			__PtW32CatchAll
+		#else
+			catch(...)
+		#endif
+		#endif
+			{
+				/*
+				 * Should not get into here.
+				 */
+				result += 100;
+			}
+			/*
+			 * Should not get to here either.
+			 */
+			result += 1000;
+			return (void*)(size_t)result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(pthread_barrier_init(&go, NULL, NUMTHREADS + 1) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	pthread_barrier_wait(&go);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
+	pthread_barrier_wait(&go);
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: location %d\n", i, threadbag[i].started, (int)(size_t)result);
+		}
+		failed |= fail;
+	}
+	assert(!failed);
+	assert(pthread_barrier_destroy(&go) == 0);
+	return 0; // Success
+}
+
+#else /* defined(__cplusplus) */
+	int PThr4wTest_Cancel2()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
+#endif /* defined(__cplusplus) */
+// 
+// Test Synopsis: Test asynchronous cancellation (alertable or non-alertable).
+// Requirements Tested:
+// - Async cancel if thread is not blocked (i.e. voluntarily resumes if blocked).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join.
+// - quserex.dll and alertdrv.sys are not available.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel3()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			// Set to known state and type 
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+			// We wait up to 10 seconds, waking every 0.1 seconds, for a cancellation to be applied to us.
+			for(bag->count = 0; bag->count < 100; bag->count++)
+				Sleep(100);
+			return result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(NUMTHREADS * 100);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to complete.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		/*
+		 * The thread does not contain any cancellation points, so
+		 * a return value of PTHREAD_CANCELED confirms that async
+		 * cancellation succeeded.
+		 */
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test cancellation does not occur in deferred cancellation threads with no cancellation points.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions: pthread_create, pthread_self, pthread_cancel, pthread_join, pthread_setcancelstate, pthread_setcanceltype
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel4()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void * result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
+			/*
+			 * We wait up to 2 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 20; bag->count++)
+				Sleep(100);
+			return result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		/*
+		 * The thread does not contain any cancellation points, so
+		 * a return value of PTHREAD_CANCELED indicates that async
+		 * cancellation occurred.
+		 */
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result == PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test calling pthread_cancel from the main thread without calling pthread_self() in main.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel5()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+			/*
+			 * We wait up to 10 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 100; bag->count++)
+				Sleep(100);
+			return result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+		/*
+		 * The thread does not contain any cancellation points, so
+		 * a return value of PTHREAD_CANCELED confirms that async
+		 * cancellation succeeded.
+		 */
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test double cancellation - asynchronous. Second attempt should fail (ESRCH).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel6a()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+			/*
+			 * We wait up to 10 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 100; bag->count++)
+				Sleep(100);
+			return result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+		assert(pthread_cancel(t[i]) == ESRCH);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		/*
+		 * The thread does not contain any cancellation points, so
+		 * a return value of PTHREAD_CANCELED confirms that async
+		 * cancellation succeeded.
+		 */
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test double cancellation - deferred.
+//   Second attempt should succeed (unless the canceled thread has started
+//   cancellation already - not tested here).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel6d()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) == 0);
+			/*
+			 * We wait up to 10 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 100; bag->count++) {
+				Sleep(100);
+				pthread_testcancel();
+			}
+			return result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+		if(pthread_cancel(t[i]) != 0) {
+			printf("Second cancellation failed but this is expected sometimes.\n");
+		}
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test canceling a Win32 thread having created an implicit POSIX handle for it.
+// Test Method (Validation or Falsification):
+// - Validate return value and that POSIX handle is created and destroyed.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel7()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+
+	class InnerBlock {
+	public:
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		static uint __stdcall Win32thread(void * arg)
+		#else
+		static void Win32thread(void * arg)
+		#endif
+		{
+			int i;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			assert((bag->self = pthread_self()).p != NULL);
+			assert(pthread_kill(bag->self, 0) == 0);
+			for(i = 0; i < 100; i++) {
+				Sleep(100);
+				pthread_testcancel();
+			}
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+			return 0;
+		#endif
+		}
+	};
+	int failed = 0;
+	int i;
+	HANDLE h[NUMTHREADS + 1];
+	uint thrAddr; // Dummy variable to pass a valid location to _beginthreadex (Win98). 
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+#else
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+#endif
+	}
+	// 
+	// Code to control or manipulate child threads should probably go here.
+	// 
+	Sleep(500);
+	// 
+	// Cancel all threads.
+	// 
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_kill(threadbag[i].self, 0) == 0);
+		assert(pthread_cancel(threadbag[i].self) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		int result = 0;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		assert(GetExitCodeThread(h[i], (LPDWORD)&result) == TRUE);
+#else
+		// Can't get a result code.
+		result = (int)(size_t)PTHREAD_CANCELED;
+#endif
+		assert(threadbag[i].self.p != NULL);
+		assert(pthread_kill(threadbag[i].self, 0) == ESRCH);
+		fail = (result != (int)(size_t)PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test cancelling a blocked Win32 thread having created an implicit POSIX handle for it.
+// Test Method (Validation or Falsification):
+// - Validate return value and that POSIX handle is created and destroyed.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel8()
+{
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static pthread_cond_t CV = PTHREAD_COND_INITIALIZER;
+	static pthread_mutex_t CVLock = PTHREAD_MUTEX_INITIALIZER;
+
+	class InnerBlock {
+	public:
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		static uint __stdcall Win32thread(void * arg)
+		#else
+		static void Win32thread(void * arg)
+		#endif
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			assert((bag->self = pthread_self()).p != NULL);
+			assert(pthread_kill(bag->self, 0) == 0);
+			assert(pthread_mutex_lock(&CVLock) == 0);
+			pthread_cleanup_push(pthread_mutex_unlock, &CVLock);
+			pthread_cond_wait(&CV, &CVLock);
+			pthread_cleanup_pop(1);
+		#if !defined (__MINGW32__) || defined (__MSVCRT__)
+			return 0;
+		#endif
+		}
+	};
+	int failed = 0;
+	int i;
+	HANDLE h[NUMTHREADS + 1];
+	uint thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+#else
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+#endif
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	/*
+	 * Cancel all threads.
+	 */
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_kill(threadbag[i].self, 0) == 0);
+		assert(pthread_cancel(threadbag[i].self) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		int result = 0;
+#if !defined (__MINGW32__) || defined (__MSVCRT__)
+		assert(GetExitCodeThread(h[i], (LPDWORD)&result) == TRUE);
+#else
+		// Can't get a result code.
+		result = (int)(size_t)PTHREAD_CANCELED;
+#endif
+		assert(threadbag[i].self.p != NULL);
+		assert(pthread_kill(threadbag[i].self, 0) == ESRCH);
+		fail = (result != (int)(size_t)PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: count %d\n", i, threadbag[i].started, threadbag[i].count);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test true asynchronous cancellation with Alert driver.
+// Requirements Tested:
+// - Cancel threads, including those blocked on system recources such as network I/O.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Cancel9()
+{
+	class InnerBlock {
+	public:
+		static void * test_udp(void * arg)
+		{
+			struct sockaddr_in serverAddress;
+			struct sockaddr_in clientAddress;
+			SOCKET UDPSocket;
+			int addr_len;
+			int nbyte;
+			char buffer[4096];
+			WORD wsaVersion = MAKEWORD(2, 2);
+			WSADATA wsaData;
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+			if(WSAStartup(wsaVersion, &wsaData) != 0) {
+				return NULL;
+			}
+			UDPSocket = socket(AF_INET, SOCK_DGRAM, 0);
+			if((int)UDPSocket == -1) {
+				printf("Server: socket ERROR \n");
+				exit(-1);
+			}
+			serverAddress.sin_family = AF_INET;
+			serverAddress.sin_addr.s_addr = INADDR_ANY;
+			serverAddress.sin_port = htons(9003);
+			if(bind(UDPSocket, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in))) {
+				printf("Server: ERROR can't bind UDPSocket");
+				exit(-1);
+			}
+			addr_len = sizeof(struct sockaddr);
+			nbyte = 512;
+			(void)recvfrom(UDPSocket, (char*)buffer, nbyte, 0, (struct sockaddr *)&clientAddress, &addr_len);
+			closesocket(UDPSocket);
+			WSACleanup();
+			return NULL;
+		}
+		static void * test_sleep(void * arg)
+		{
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+			Sleep(1000);
+			return NULL;
+		}
+		static void * test_wait(void * arg)
+		{
+			HANDLE hEvent;
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+			hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+			(void)WaitForSingleObject(hEvent, 1000); /* WAIT_IO_COMPLETION */
+			return NULL;
+		}
+	};
+	pthread_t t;
+	void * result;
+	if(pthread_win32_test_features_np(__PTW32_ALERTABLE_ASYNC_CANCEL)) {
+		printf("Cancel sleeping thread.\n");
+		assert(pthread_create(&t, NULL, InnerBlock::test_sleep, NULL) == 0);
+		/* Sleep for a while; then cancel */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_sleep");
+
+		printf("Cancel waiting thread.\n");
+		assert(pthread_create(&t, NULL, InnerBlock::test_wait, NULL) == 0);
+		/* Sleep for a while; then cancel. */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_wait");
+
+		printf("Cancel blocked thread (blocked on network I/O).\n");
+		assert(pthread_create(&t, NULL, InnerBlock::test_udp, NULL) == 0);
+		/* Sleep for a while; then cancel. */
+		Sleep(100);
+		assert(pthread_cancel(t) == 0);
+		assert(pthread_join(t, &result) == 0);
+		assert(result == PTHREAD_CANCELED && "test_udp");
+	}
+	else {
+		printf("Alertable async cancel not available.\n");
+	}
+	return 0; // Success
+}
+// 
+// Test Thread Specific Data (TSD) key creation and destruction.
+// Test Method (validation or falsification):
+// - validation
+// Requirements Tested:
+// - keys are created for each existing thread including the main thread
+// - keys are created for newly created threads
+// - keys are thread specific
+// - destroy routine is called on each thread exit including the main thread
+// Output:
+// - text to stdout
+// Assumptions:
+// - already validated:     pthread_create(), pthread_once()
+// - main thread also has a POSIX thread identity
+// 
+int PThr4wTest_Tsd1()
+{
+	const int NUM_THREADS = 100;
+	static pthread_key_t key = NULL;
+	static int accesscount[NUM_THREADS];
+	static int thread_set[NUM_THREADS];
+	static int thread_destroyed[NUM_THREADS];
+	static pthread_barrier_t startBarrier;
+
+	class InnerBlock {
+	public:
+		static void destroy_key(void * arg)
+		{
+			int * j = static_cast<int *>(arg);
+			(*j)++;
+			assert(*j == 2);
+			thread_destroyed[j - accesscount] = 1;
+		}
+		static void setkey(void * arg)
+		{
+			int * j = static_cast<int *>(arg);
+			thread_set[j - accesscount] = 1;
+			assert(*j == 0);
+			assert(pthread_getspecific(key) == NULL);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_getspecific(key) == arg);
+			(*j)++;
+			assert(*j == 1);
+		}
+		static void * mythread(void * arg)
+		{
+			(void)pthread_barrier_wait(&startBarrier);
+			setkey(arg);
+			return 0;
+			/* Exiting the thread will call the key destructor. */
+		}
+	};
+	int i;
+	int fail = 0;
+	pthread_t thread[NUM_THREADS];
+	assert(pthread_barrier_init(&startBarrier, NULL, NUM_THREADS/2) == 0);
+	for(i = 1; i < NUM_THREADS/2; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	/*
+	 * Here we test that existing threads will get a key created
+	 * for them.
+	 */
+	assert(pthread_key_create(&key, InnerBlock::destroy_key) == 0);
+	(void)pthread_barrier_wait(&startBarrier);
+	/*
+	 * Test main thread key.
+	 */
+	accesscount[0] = 0;
+	InnerBlock::setkey((void*)&accesscount[0]);
+	/*
+	 * Here we test that new threads will get a key created
+	 * for them.
+	 */
+	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	/*
+	 * Wait for all threads to complete.
+	 */
+	for(i = 1; i < NUM_THREADS; i++) {
+		assert(pthread_join(thread[i], NULL) == 0);
+	}
+	assert(pthread_key_delete(key) == 0);
+	assert(pthread_barrier_destroy(&startBarrier) == 0);
+	for(i = 1; i < NUM_THREADS; i++) {
+		/*
+		 * The counter is incremented once when the key is set to
+		 * a value, and again when the key is destroyed. If the key
+		 * doesn't get set for some reason then it will still be
+		 * NULL and the destroy function will not be called, and
+		 * hence accesscount will not equal 2.
+		 */
+		if(accesscount[i] != 2) {
+			fail++;
+			fprintf(stderr, "Thread %d key, set = %d, destroyed = %d\n",
+			    i, thread_set[i], thread_destroyed[i]);
+		}
+	}
+	fflush(stderr);
+	return (fail);
+}
+// 
+// Test Thread Specific Data (TSD) key creation and destruction.
+// Test Method (validation or falsification):
+// - validation
+// Requirements Tested:
+// - keys are created for each existing thread including the main thread
+// - keys are created for newly created threads
+// - keys are thread specific
+// - destroy routine is called on each thread exit including the main thread
+// Output:
+// - text to stdout
+// Assumptions:
+// - already validated:     pthread_create(), pthread_once()
+// - main thread also has a POSIX thread identity
+// 
+int PThr4wTest_Tsd2()
+{
+	const int NUM_THREADS = 100;
+	static pthread_key_t key = NULL;
+	static int accesscount[NUM_THREADS];
+	static int thread_set[NUM_THREADS];
+	static int thread_destroyed[NUM_THREADS];
+	static pthread_barrier_t startBarrier;
+
+	class InnerBlock {
+	public:
+		static void destroy_key(void * arg)
+		{
+			int * j = static_cast<int *>(arg);
+			(*j)++;
+			/*
+			 * Set TSD key from the destructor to test destructor iteration.
+			 * The key value will have been set to NULL by the library before
+			 * calling the destructor (with the value that the key had). We
+			 * reset the key value here which should cause the destructor to be
+			 * called a second time.
+			 */
+			if(*j == 2)
+				assert(pthread_setspecific(key, arg) == 0);
+			else
+				assert(*j == 3);
+			thread_destroyed[j - accesscount] = 1;
+		}
+		static void setkey(void * arg)
+		{
+			int * j = static_cast<int *>(arg);
+			thread_set[j - accesscount] = 1;
+			assert(*j == 0);
+			assert(pthread_getspecific(key) == NULL);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_getspecific(key) == arg);
+			(*j)++;
+			assert(*j == 1);
+		}
+		static void * mythread(void * arg)
+		{
+			(void)pthread_barrier_wait(&startBarrier);
+			setkey(arg);
+			return 0;
+			/* Exiting the thread will call the key destructor. */
+		}
+	};
+	int i;
+	int fail = 0;
+	pthread_t thread[NUM_THREADS];
+	assert(pthread_barrier_init(&startBarrier, NULL, NUM_THREADS/2) == 0);
+	for(i = 1; i < NUM_THREADS/2; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	/*
+	 * Here we test that existing threads will get a key created for them.
+	 */
+	assert(pthread_key_create(&key, InnerBlock::destroy_key) == 0);
+	(void)pthread_barrier_wait(&startBarrier);
+	/*
+	 * Test main thread key.
+	 */
+	accesscount[0] = 0;
+	InnerBlock::setkey((void*)&accesscount[0]);
+	/*
+	 * Here we test that new threads will get a key created for them.
+	 */
+	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	/*
+	 * Wait for all threads to complete.
+	 */
+	for(i = 1; i < NUM_THREADS; i++) {
+		assert(pthread_join(thread[i], NULL) == 0);
+	}
+	assert(pthread_key_delete(key) == 0);
+	assert(pthread_barrier_destroy(&startBarrier) == 0);
+	for(i = 1; i < NUM_THREADS; i++) {
+		/*
+		 * The counter is incremented once when the key is set to
+		 * a value, and again when the key is destroyed. If the key
+		 * doesn't get set for some reason then it will still be
+		 * NULL and the destroy function will not be called, and
+		 * hence accesscount will not equal 2.
+		 */
+		if(accesscount[i] != 3) {
+			fail++;
+			fprintf(stderr, "Thread %d key, set = %d, destroyed = %d\n", i, thread_set[i], thread_destroyed[i]);
+		}
+	}
+	fflush(stderr);
+	return (fail);
+}
+// 
+// Test Method (validation or falsification):
+// - validation
+// Requirements Tested:
+// - keys are created for each existing thread including the main thread
+// - keys are created for newly created threads
+// - keys are thread specific
+// - key is deleted before threads exit
+// - key destructor function is not called
+// Output:
+// - text to stdout
+// Assumptions:
+// - already validated:     pthread_create(), pthread_once()
+// - main thread also has a POSIX thread identity
+// 
+int PThr4wTest_Tsd3()
+{
+	const int NUM_THREADS = 100;
+	static pthread_key_t key = NULL;
+	static int accesscount[NUM_THREADS];
+	static int thread_set[NUM_THREADS];
+	static int thread_destroyed[NUM_THREADS];
+	static pthread_barrier_t startBarrier;
+	static pthread_barrier_t progressSyncBarrier;
+
+	class InnerBlock {
+	public:
+		static void destroy_key(void * arg)
+		{
+			// The destructor function should not be called if the key is deleted before the thread exits.
+			fprintf(stderr, "The key destructor was called but should not have been.\n");
+			exit(1);
+		}
+		static void setkey(void * arg)
+		{
+			int * j = static_cast<int *>(arg);
+			thread_set[j - accesscount] = 1;
+			assert(*j == 0);
+			assert(pthread_getspecific(key) == NULL);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_setspecific(key, arg) == 0);
+			assert(pthread_getspecific(key) == arg);
+			(*j)++;
+			assert(*j == 1);
+		}
+		static void * mythread(void * arg)
+		{
+			(void)pthread_barrier_wait(&startBarrier);
+			setkey(arg);
+			(void)pthread_barrier_wait(&progressSyncBarrier);
+			(void)pthread_barrier_wait(&progressSyncBarrier);
+			return 0;
+		}
+	};
+	int i;
+	int fail = 0;
+	pthread_t thread[NUM_THREADS];
+	assert(pthread_barrier_init(&startBarrier, NULL, NUM_THREADS/2) == 0);
+	assert(pthread_barrier_init(&progressSyncBarrier, NULL, NUM_THREADS) == 0);
+	for(i = 1; i < NUM_THREADS/2; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	// Here we test that existing threads will get a key created for them.
+	assert(pthread_key_create(&key, InnerBlock::destroy_key) == 0);
+	(void)pthread_barrier_wait(&startBarrier);
+	// Test main thread key.
+	accesscount[0] = 0;
+	InnerBlock::setkey((void*)&accesscount[0]);
+	// Here we test that new threads will get a key created for them.
+	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
+		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
+		assert(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+	}
+	(void)pthread_barrier_wait(&progressSyncBarrier);
+	// Deleting the key should not call the key destructor.
+	assert(pthread_key_delete(key) == 0);
+	(void)pthread_barrier_wait(&progressSyncBarrier);
+	// Wait for all threads to complete.
+	for(i = 1; i < NUM_THREADS; i++) {
+		assert(pthread_join(thread[i], NULL) == 0);
+	}
+	assert(pthread_barrier_destroy(&startBarrier) == 0);
+	assert(pthread_barrier_destroy(&progressSyncBarrier) == 0);
+	for(i = 1; i < NUM_THREADS; i++) {
+		// The counter is incremented once when the key is set to a value.
+		if(accesscount[i] != 1) {
+			fail++;
+			fprintf(stderr, "Thread %d key, set = %d, destroyed = %d\n", i, thread_set[i], thread_destroyed[i]);
+		}
+	}
+	fflush(stderr);
+	return (fail);
+}
+
+#if defined(_MSC_VER) || defined(__cplusplus)
+//
+// Test Synopsis: Test cleanup handler executes (when thread is not canceled).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_CleanUp0()
+{
+	static const int NUMTHREADS = 10;
+	static bag_t threadbag[NUMTHREADS + 1];
+	static sharedInt_t pop_count;
+	class InnerBlock {
+		static void increment_pop_count(void * arg)
+		{
+			sharedInt_t * sI = (sharedInt_t*)arg;
+			EnterCriticalSection(&sI->cs);
+			sI->i++;
+			LeaveCriticalSection(&sI->cs);
+		}
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+		#ifdef _MSC_VER
+		#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			Sleep(100);
+			pthread_cleanup_pop(1);
+		#ifdef _MSC_VER
+		#pragma inline_depth()
+		#endif
+			return (void*)(size_t)result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	memzero(&pop_count, sizeof(sharedInt_t));
+	InitializeCriticalSection(&pop_count.cs);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result == PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: result %d\n", i, threadbag[i].started, (int)(size_t)result);
+			fflush(stderr);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	assert(pop_count.i == NUMTHREADS);
+	DeleteCriticalSection(&pop_count.cs);
+	return 0; // Success
+}
+//
+// Test Synopsis: Test cleanup handler executes (when thread is canceled).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_CleanUp1()
+{
+	static const int NUMTHREADS = 10;
+	static bag_t threadbag[NUMTHREADS + 1];
+	static sharedInt_t pop_count;
+	class InnerBlock {
+		static void
+		#ifdef __PTW32_CLEANUP_C
+		__cdecl
+		#endif
+		increment_pop_count(void * arg)
+		{
+			sharedInt_t * sI = (sharedInt_t*)arg;
+			EnterCriticalSection(&sI->cs);
+			sI->i++;
+			LeaveCriticalSection(&sI->cs);
+		}
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Set to known state and type */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+		#ifdef _MSC_VER
+		#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			/*
+			 * We don't have true async cancellation - it relies on the thread
+			 * at least re-entering the run state at some point.
+			 * We wait up to 10 seconds, waking every 0.1 seconds,
+			 * for a cancellation to be applied to us.
+			 */
+			for(bag->count = 0; bag->count < 100; bag->count++)
+				Sleep(100);
+
+			pthread_cleanup_pop(0);
+		#ifdef _MSC_VER
+		#pragma inline_depth()
+		#endif
+			return (void*)(size_t)result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	memzero(&pop_count, sizeof(sharedInt_t));
+	InitializeCriticalSection(&pop_count.cs);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(500);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_cancel(t[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = (result != PTHREAD_CANCELED);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: result %d\n", i, threadbag[i].started, (int)(size_t)result);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	assert(pop_count.i == NUMTHREADS);
+	DeleteCriticalSection(&pop_count.cs);
+	return 0; // Success
+}
+//
+// Test Synopsis: Test cleanup handler executes (when thread is not canceled).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_CleanUp2()
+{
+	static const int NUMTHREADS = 10;
+	static bag_t threadbag[NUMTHREADS + 1];
+	static sharedInt_t pop_count;
+	class InnerBlock {
+		static void increment_pop_count(void * arg)
+		{
+			sharedInt_t * sI = (sharedInt_t*)arg;
+			EnterCriticalSection(&sI->cs);
+			sI->i++;
+			LeaveCriticalSection(&sI->cs);
+		}
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+		#ifdef _MSC_VER
+			#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			sched_yield();
+			pthread_cleanup_pop(1);
+		#ifdef _MSC_VER
+			#pragma inline_depth()
+		#endif
+			return (void*)(size_t)result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	memzero(&pop_count, sizeof(sharedInt_t));
+	InitializeCriticalSection(&pop_count.cs);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	// 
+	// Code to control or manipulate child threads should probably go here.
+	// 
+	Sleep(1000);
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = ((int)(size_t)result != 0);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: result: %d\n", i, threadbag[i].started, (int)(size_t)result);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	assert(pop_count.i == NUMTHREADS);
+	DeleteCriticalSection(&pop_count.cs);
+	return 0; // Success
+}
+//
+// Test Synopsis: Test cleanup handler does not execute (when thread is not canceled).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_CleanUp3()
+{
+	static const int NUMTHREADS = 10;
+	static bag_t threadbag[NUMTHREADS + 1];
+	static sharedInt_t pop_count;
+	class InnerBlock {
+		static void increment_pop_count(void * arg)
+		{
+			sharedInt_t * sI = (sharedInt_t*)arg;
+			EnterCriticalSection(&sI->cs);
+			sI->i++;
+			LeaveCriticalSection(&sI->cs);
+		}
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+		#ifdef _MSC_VER
+			#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			sched_yield();
+			EnterCriticalSection(&pop_count.cs);
+			pop_count.i--;
+			LeaveCriticalSection(&pop_count.cs);
+			pthread_cleanup_pop(0);
+		#ifdef _MSC_VER
+			#pragma inline_depth()
+		#endif
+			return (void*)(size_t)result;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	memzero(&pop_count, sizeof(sharedInt_t));
+	InitializeCriticalSection(&pop_count.cs);
+	assert((t[0] = pthread_self()).p != NULL);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(1000);
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		if(!threadbag[i].started) {
+			failed |= !threadbag[i].started;
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		assert(pthread_join(t[i], &result) == 0);
+		fail = ((int)(size_t)result != 0);
+		if(fail) {
+			fprintf(stderr, "Thread %d: started %d: result: %d\n", i, threadbag[i].started, (int)(size_t)result);
+		}
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	assert(pop_count.i == -(NUMTHREADS));
+	DeleteCriticalSection(&pop_count.cs);
+	return 0; // Success
+}
+
+#else /* defined(_MSC_VER) || defined(__cplusplus) */
+	int PThr4wTest_CleanUp0() { return 0; }
+	int PThr4wTest_CleanUp1() { return 0; }
+	int PThr4wTest_CleanUp2() { return 0; }
+	int PThr4wTest_CleanUp3() { return 0; }
+#endif /* defined(_MSC_VER) || defined(__cplusplus) */
+// 
+// Test Synopsis:
+// - Test initialisation and destruction of a CV.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Creates and then imediately destroys a CV. Does not test the CV.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_init returns 0, and
+// - pthread_cond_destroy returns 0.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_init returns non-zero, or
+// - pthread_cond_destroy returns non-zero.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar1()
+{
+	static pthread_cond_t cv = NULL;
+	assert(cv == NULL);
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(cv != NULL);
+	assert(pthread_cond_destroy(&cv) == 0);
+	assert(cv == NULL);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test CV linked list management.
+// Test Method (Validation or Falsification):
+// - Validation:
+//   Initiate and destroy several CVs in random order.
+// Description:
+// - Creates and then imediately destroys a CV. Does not test the CV.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - All initialised CVs destroyed without segfault.
+// - Successfully broadcasts all remaining CVs after each CV is removed.
+// 
+int PThr4wTest_CondVar11()
+{
+	//static const int NUM_CV = 100;
+	static pthread_cond_t cv[100];
+
+	int i, j;
+	for(i = 0; i < SIZEOFARRAY(cv); i++) {
+		/* Traverse the list before every init of a CV. */
+		assert(pthread_timechange_handler_np(NULL) == (void*)0);
+		assert(pthread_cond_init(&cv[i], NULL) == 0);
+	}
+	j = SIZEOFARRAY(cv);
+	srand((unsigned)time(NULL));
+	do {
+		i = (SIZEOFARRAY(cv) - 1) * rand() / RAND_MAX;
+		if(cv[i] != NULL) {
+			j--;
+			assert(pthread_cond_destroy(&cv[i]) == 0);
+			/* Traverse the list every time we remove a CV. */
+			assert(pthread_timechange_handler_np(NULL) == (void*)0);
+		}
+	} while(j > 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test CV linked list management and serialisation.
+// Test Method (Validation or Falsification):
+// - Validation:
+//   Initiate and destroy several CVs in random order.
+//   Asynchronously traverse the CV list and broadcast.
+// Description:
+// - Creates and then imediately destroys a CV. Does not test the CV.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - All initialised CVs destroyed without segfault.
+// - Successfully broadcasts all remaining CVs after each CV is removed.
+// 
+int PThr4wTest_CondVar12()
+{
+	//static const int NUM_CV = 5;
+	const int NUM_LOOPS = 5;
+	static pthread_cond_t cv[5];
+
+	int i, j;
+	void * result = (void*)-1;
+	pthread_t t;
+	for(int k = 0; k < NUM_LOOPS; k++) {
+		for(i = 0; i < SIZEOFARRAY(cv); i++) {
+			assert(pthread_cond_init(&cv[i], NULL) == 0);
+		}
+		j = SIZEOFARRAY(cv);
+		(void)srand((unsigned)time(NULL));
+		// Traverse the list asynchronously. 
+		assert(pthread_create(&t, NULL, pthread_timechange_handler_np, NULL) == 0);
+		do {
+			i = (SIZEOFARRAY(cv) - 1) * rand() / RAND_MAX;
+			if(cv[i] != NULL) {
+				j--;
+				assert(pthread_cond_destroy(&cv[i]) == 0);
+			}
+		} while(j > 0);
+		assert(pthread_join(t, &result) == 0);
+		assert((int)(size_t)result == 0);
+	}
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test timed wait on a CV.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Because the CV is never signaled, we expect the wait to time out.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait does not return ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar2()
+{
+	static pthread_cond_t cv;
+	static pthread_mutex_t mutex;
+
+	struct timespec abstime = { 0, 0 }, reltime = { 1, 0 };
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == ETIMEDOUT);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test timeout of multiple waits on a CV with no signal/broadcast.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Because the CV is never signaled, we expect the waits to time out.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait does not return ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar21()
+{
+	const int NUMTHREADS = 30;
+	static pthread_cond_t cv;
+	static pthread_mutex_t mutex;
+	static struct timespec abstime = { 0, 0 };
+	static struct timespec reltime = { 5, 0 };
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == ETIMEDOUT);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return arg;
+		}
+	};
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	void* result = (void*)0;
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+	}
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_join(t[i], &result) == 0);
+		assert((int)(size_t)result == i);
+	}
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test basic function of a CV
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - The primary thread takes the lock before creating any threads.
+//   The secondary thread blocks on the lock allowing the primary
+//   thread to enter the cv wait state which releases the lock.
+//   The secondary thread then takes the lock and signals the waiting primary thread.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns 0.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar3()
+{
+	static pthread_cond_t cv;
+	static pthread_mutex_t mutex;
+	static int shared = 0;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			int result = 0;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			shared++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			if((result = pthread_cond_signal(&cv)) != 0) {
+				printf("Error = %s\n", PThr4wErrorString[result]);
+			}
+			assert(result == 0);
+			return 0;
+		}
+	};
+	const int NUMTHREADS = 2; // Including the primary thread
+	pthread_t t[NUMTHREADS];
+	struct timespec abstime, reltime = { 5, 0 };
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	while(!(shared > 0))
+		assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == 0);
+	assert(shared > 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_join(t[1], NULL) == 0);
+	assert(pthread_cond_destroy(&cv) == 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test timeout of multiple waits on a CV with some signaled.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Because some CVs are never signaled, we expect their waits to time out.
+//   Some are signaled, the rest time out. Pthread_cond_destroy() will fail
+//   unless all are accounted for, either signaled or timedout.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait does not return ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar31()
+{
+	static const int NUMTHREADS = 30;
+	static pthread_cond_t cv;
+	static pthread_cond_t cv1;
+	static pthread_mutex_t mutex;
+	static pthread_mutex_t mutex1;
+	static struct timespec abstime = { 0, 0 }, reltime = { 5, 0 };
+	static int timedout = 0;
+	static int signaled = 0;
+	static int awoken = 0;
+	static int waiting = 0;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			int result;
+			assert(pthread_mutex_lock(&mutex1) == 0);
+			++waiting;
+			assert(pthread_mutex_unlock(&mutex1) == 0);
+			assert(pthread_cond_signal(&cv1) == 0);
+			assert(pthread_mutex_lock(&mutex) == 0);
+			result = pthread_cond_timedwait(&cv, &mutex, &abstime);
+			if(result == ETIMEDOUT) {
+				timedout++;
+			}
+			else {
+				awoken++;
+			}
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return arg;
+		}
+	};
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	void * result = (void*)0;
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_cond_init(&cv1, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	assert(pthread_mutex_init(&mutex1, NULL) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_mutex_lock(&mutex1) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+	}
+	do {
+		assert(pthread_cond_wait(&cv1, &mutex1) == 0);
+	} while(NUMTHREADS > waiting);
+	assert(pthread_mutex_unlock(&mutex1) == 0);
+	for(i = NUMTHREADS/3; i <= 2*NUMTHREADS/3; i++) {
+//      assert(pthread_mutex_lock(&mutex) == 0);
+		assert(pthread_cond_signal(&cv) == 0);
+//      assert(pthread_mutex_unlock(&mutex) == 0);
+		signaled++;
+	}
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_join(t[i], &result) == 0);
+		assert((int)(size_t)result == i);
+	}
+	fprintf(stderr, "awk = %d\n", awoken);
+	fprintf(stderr, "sig = %d\n", signaled);
+	fprintf(stderr, "tot = %d\n", timedout);
+	assert(signaled == awoken);
+	assert(timedout == NUMTHREADS - signaled);
+	assert(pthread_cond_destroy(&cv1) == 0);
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
+	assert(pthread_mutex_destroy(&mutex1) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test timeout of multiple waits on a CV with remainder broadcast awoken.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Because some CVs are never signaled, we expect their waits to time out.
+//   Some time out, the rest are broadcast signaled. Pthread_cond_destroy() will fail
+//   unless all are accounted for, either signaled or timedout.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait does not return ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar32()
+{
+	static const int NUMTHREADS = 30;
+	static pthread_cond_t cv;
+	static pthread_mutex_t mutex;
+	static struct timespec abstime, abstime2;
+	static struct timespec reltime = { 5, 0 };
+	static int timedout = 0;
+	static int awoken = 0;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			int result;
+			assert(pthread_mutex_lock(&mutex) == 0);
+			abstime2.tv_sec = abstime.tv_sec;
+			if((int)(size_t)arg % 3 == 0) {
+				abstime2.tv_sec += 2;
+			}
+			result = pthread_cond_timedwait(&cv, &mutex, &abstime2);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			if(result == ETIMEDOUT) {
+				InterlockedIncrement((LPLONG)&timedout);
+			}
+			else {
+				InterlockedIncrement((LPLONG)&awoken);
+			}
+			return arg;
+		}
+	};
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	void* result = (void*)0;
+	assert(pthread_cond_init(&cv, NULL) == 0);
+	assert(pthread_mutex_init(&mutex, NULL) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	abstime2.tv_sec = abstime.tv_sec;
+	abstime2.tv_nsec = abstime.tv_nsec;
+	assert(pthread_mutex_lock(&mutex) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+	}
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_join(t[i], &result) == 0);
+		assert((int)(size_t)result == i);
+		/*
+		 * Approximately 2/3rds of the threads are expected to time out.
+		 * Signal the remainder after some threads have woken up and exited
+		 * and while some are still waking up after timeout.
+		 * Also tests that redundant broadcasts don't return errors.
+		 */
+		// assert(pthread_mutex_lock(&mutex) == 0);
+		if(InterlockedExchangeAdd((LPLONG)&awoken, 0L) > NUMTHREADS/3) {
+			assert(pthread_cond_broadcast(&cv) == 0);
+		}
+		// assert(pthread_mutex_unlock(&mutex) == 0);
+	}
+	assert(awoken == NUMTHREADS - timedout);
+	{
+		int result = pthread_cond_destroy(&cv);
+		if(result != 0) {
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
+			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
+			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
+			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
+			fflush(stderr);
+		}
+		assert(result == 0);
+	}
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test timeouts and lost signals on a CV.
+// Test Method (Validation or Falsification):
+// - Validation
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait does not return ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar33()
+{
+	static pthread_cond_t cnd;
+	static pthread_mutex_t mtx;
+	static const long NANOSEC_PER_SEC = 1000000000L;
+
+	int rc;
+	struct timespec abstime, reltime = { 0, NANOSEC_PER_SEC/2 };
+	assert(pthread_cond_init(&cnd, 0) == 0);
+	assert(pthread_mutex_init(&mtx, 0) == 0);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	/* Here pthread_cond_timedwait should time out after one second. */
+	assert(pthread_mutex_lock(&mtx) == 0);
+	assert((rc = pthread_cond_timedwait(&cnd, &mtx, &abstime)) == ETIMEDOUT);
+	assert(pthread_mutex_unlock(&mtx) == 0);
+	/* Here, the condition variable is signalled, but there are no
+	   threads waiting on it. The signal should be lost and
+	   the next pthread_cond_timedwait should time out too. */
+	assert((rc = pthread_cond_signal(&cnd)) == 0);
+	assert(pthread_mutex_lock(&mtx) == 0);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	assert((rc = pthread_cond_timedwait(&cnd, &mtx, &abstime)) == ETIMEDOUT);
+	assert(pthread_mutex_unlock(&mtx) == 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test PTHREAD_COND_INITIALIZER.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Test basic CV function but starting with a static initialised CV.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns 0.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar4()
+{
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+	static const int NUMTHREADS = 2;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+			cvthing.shared++;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			assert(pthread_cond_signal(&cvthing.notbusy) == 0);
+			return 0;
+		}
+	};
+	pthread_t t[NUMTHREADS];
+	struct timespec abstime, reltime = { 5, 0 };
+	cvthing.shared = 0;
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&cvthing.lock) == 0);
+	assert(cvthing.lock != PTHREAD_MUTEX_INITIALIZER);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == ETIMEDOUT);
+	assert(cvthing.notbusy != PTHREAD_COND_INITIALIZER);
+	assert(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	while(!(cvthing.shared > 0))
+		assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+	assert(cvthing.shared > 0);
+	assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+	assert(pthread_join(t[1], NULL) == 0);
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert(pthread_cond_destroy(&cvthing.notbusy) == 0);
+	assert(cvthing.notbusy == NULL);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test pthread_cond_broadcast.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Test broadcast with one waiting CV.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - pthread_cond_timedwait returns 0.
+// - Process returns zero exit status.
+// Fail Criteria:
+// - pthread_cond_timedwait returns ETIMEDOUT.
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar5()
+{
+	static const int NUMTHREADS = 2;
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+			cvthing.shared++;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			assert(pthread_cond_broadcast(&cvthing.notbusy) == 0);
+			return 0;
+		}
+	};
+	pthread_t t[NUMTHREADS];
+	struct timespec abstime, reltime = { 5, 0 };
+	cvthing.shared = 0;
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&cvthing.lock) == 0);
+	assert(cvthing.lock != PTHREAD_MUTEX_INITIALIZER);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == ETIMEDOUT);
+	assert(cvthing.notbusy != PTHREAD_COND_INITIALIZER);
+	assert(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	while(!(cvthing.shared > 0))
+		assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+	assert(cvthing.shared > 0);
+	assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+	assert(pthread_join(t[1], NULL) == 0);
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert(pthread_cond_destroy(&cvthing.notbusy) == 0);
+	assert(cvthing.notbusy == NULL);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Test pthread_cond_broadcast.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Test broadcast with NUMTHREADS (=5) waiting CVs.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar6()
+{
+	static const int NUMTHREADS = 5; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+	static pthread_mutex_t start_flag = PTHREAD_MUTEX_INITIALIZER;
+	static struct timespec abstime, reltime = { 5, 0 };
+	static int awoken;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Wait for the start gun */
+			assert(pthread_mutex_lock(&start_flag) == 0);
+			assert(pthread_mutex_unlock(&start_flag) == 0);
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+			while(!(cvthing.shared > 0))
+				assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+			assert(cvthing.shared > 0);
+			awoken++;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	cvthing.shared = 0;
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&start_flag) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert((t[0] = pthread_self()).p != NULL);
+	awoken = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	assert(pthread_mutex_unlock(&start_flag) == 0);
+	Sleep(1000); // Give threads time to start.
+	assert(pthread_mutex_lock(&cvthing.lock) == 0);
+	cvthing.shared++;
+	assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+	assert(pthread_cond_broadcast(&cvthing.notbusy) == 0);
+	// Give threads time to complete.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		assert(pthread_join(t[i], NULL) == 0);
+	}
+	/*
+	 * Cleanup the CV.
+	 */
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert(pthread_cond_destroy(&cvthing.notbusy) == 0);
+	assert(cvthing.notbusy == NULL);
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		failed = !threadbag[i].started;
+		if(failed) {
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here.
+	assert(awoken == NUMTHREADS);
+	return 0; // Success
+}
+// 
+// Test Synopsis:
+// - Test pthread_cond_broadcast with thread cancellation.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Test broadcast with NUMTHREADS (=5) waiting CVs, one is canceled while waiting.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar7()
+{
+	static const int NUMTHREADS = 5; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+	static pthread_mutex_t start_flag = PTHREAD_MUTEX_INITIALIZER;
+	static struct timespec abstime, reltime = { 10, 0 };
+	static int awoken;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Wait for the start gun */
+			assert(pthread_mutex_lock(&start_flag) == 0);
+			assert(pthread_mutex_unlock(&start_flag) == 0);
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+		#ifdef _MSC_VER
+		#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			while(!(cvthing.shared > 0))
+				assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+			pthread_cleanup_pop(0);
+		#ifdef _MSC_VER
+		#pragma inline_depth()
+		#endif
+			assert(cvthing.shared > 0);
+			awoken++;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	pthread_t t[NUMTHREADS + 1];
+	cvthing.shared = 0;
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	assert(pthread_mutex_lock(&start_flag) == 0);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert((t[0] = pthread_self()).p != NULL);
+	awoken = 0;
+	for(i = 1; i <= NUMTHREADS; i++) {
+		threadbag[i].started = 0;
+		threadbag[i].threadnum = i;
+		assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	assert(pthread_mutex_unlock(&start_flag) == 0);
+	Sleep(1000); // Give threads time to start.
+	/*
+	 * Cancel one of the threads.
+	 */
+	assert(pthread_cancel(t[1]) == 0);
+	assert(pthread_join(t[1], NULL) == 0);
+	assert(pthread_mutex_lock(&cvthing.lock) == 0);
+	cvthing.shared++;
+	assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+	/*
+	 * Signal all remaining waiting threads.
+	 */
+	assert(pthread_cond_broadcast(&cvthing.notbusy) == 0);
+	/*
+	 * Wait for all threads to complete.
+	 */
+	for(i = 2; i <= NUMTHREADS; i++)
+		assert(pthread_join(t[i], NULL) == 0);
+	/*
+	 * Cleanup the CV.
+	 */
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert(pthread_cond_destroy(&cvthing.notbusy) == 0);
+	assert(cvthing.notbusy == NULL);
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		failed = !threadbag[i].started;
+		if(failed) {
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	assert(!failed);
+	// Check any results here.
+	assert(awoken == (NUMTHREADS - 1));
+	return 0; // Success
+}
+// 
+// Test Synopsis:
+// - Test multiple pthread_cond_broadcasts.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Make NUMTHREADS threads wait on CV, broadcast signal them, and then repeat.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_CondVar8()
+{
+	static const int NUMTHREADS = 5; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+	static pthread_mutex_t start_flag = PTHREAD_MUTEX_INITIALIZER;
+	static struct timespec abstime, reltime = { 10, 0 };
+	static int awoken;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Wait for the start gun */
+			assert(pthread_mutex_lock(&start_flag) == 0);
+			assert(pthread_mutex_unlock(&start_flag) == 0);
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+		#ifdef _MSC_VER
+		#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			while(!(cvthing.shared > 0))
+				assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+			pthread_cleanup_pop(0);
+		#ifdef _MSC_VER
+		#pragma inline_depth()
+		#endif
+			assert(cvthing.shared > 0);
+			awoken++;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	int first, last;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	pthread_win32_getabstime_np(&abstime, &reltime);
+	assert((t[0] = pthread_self()).p != NULL);
+	awoken = 0;
+	for(first = 1, last = NUMTHREADS / 2;
+	    first < NUMTHREADS;
+	    first = last + 1, last = NUMTHREADS) {
+		assert(pthread_mutex_lock(&start_flag) == 0);
+		for(i = first; i <= last; i++) {
+			threadbag[i].started = 0;
+			threadbag[i].threadnum = i;
+			assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		}
+		/*
+		 * Code to control or manipulate child threads should probably go here.
+		 */
+		cvthing.shared = 0;
+		assert(pthread_mutex_unlock(&start_flag) == 0);
+		Sleep(100); // Give threads time to start.
+		assert(pthread_mutex_lock(&cvthing.lock) == 0);
+		cvthing.shared++;
+		assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+		assert(pthread_cond_broadcast(&cvthing.notbusy) == 0);
+		// Give threads time to complete.
+		for(i = first; i <= last; i++) {
+			assert(pthread_join(t[i], NULL) == 0);
+		}
+		assert(awoken == (i - 1));
+	}
+	// Standard check that all threads started.
+	for(i = 1; i <= NUMTHREADS; i++) {
+		failed = !threadbag[i].started;
+		if(failed) {
+			fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+		}
+	}
+	/*
+	 * Cleanup the CV.
+	 */
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert(pthread_cond_destroy(&cvthing.notbusy) == 0);
+	assert(cvthing.notbusy == NULL);
+	assert(!failed);
+	// Check any results here.
+	assert(awoken == NUMTHREADS);
+	return 0; // Success
+}
+// 
+// Test Synopsis:
+// - Test multiple pthread_cond_broadcasts with thread cancellation.
+// Test Method (Validation or Falsification):
+// - Validation
+// Description:
+// - Make NUMTHREADS threads wait on CV, cancel one, broadcast signal them, and then repeat.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+//
+int PThr4wTest_CondVar9()
+{
+	static const int NUMTHREADS = 9; // Create NUMTHREADS threads in addition to the Main thread.
+	static bag_t threadbag[NUMTHREADS + 1];
+	static cvthing_t cvthing = { PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, 0 };
+	static pthread_mutex_t start_flag = PTHREAD_MUTEX_INITIALIZER;
+	static struct timespec abstime, reltime = { 5, 0 };
+	static int awoken;
+
+	class InnerBlock {
+	public:
+		static void * mythread(void * arg)
+		{
+			bag_t * bag = static_cast<bag_t *>(arg);
+			assert(bag == &threadbag[bag->threadnum]);
+			assert(bag->started == 0);
+			bag->started = 1;
+			/* Wait for the start gun */
+			assert(pthread_mutex_lock(&start_flag) == 0);
+			assert(pthread_mutex_unlock(&start_flag) == 0);
+			assert(pthread_mutex_lock(&cvthing.lock) == 0);
+			/*
+			 * pthread_cond_timedwait is a cancellation point and we're
+			 * going to cancel some threads deliberately.
+			 */
+		#ifdef _MSC_VER
+		#pragma inline_depth(0)
+		#endif
+			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			while(!(cvthing.shared > 0))
+				assert(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
+			pthread_cleanup_pop(0);
+		#ifdef _MSC_VER
+		#pragma inline_depth()
+		#endif
+			assert(cvthing.shared > 0);
+			awoken++;
+			bag->finished = 1;
+			assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+			return 0;
+		}
+	};
+	int failed = 0;
+	int i;
+	int first, last;
+	int canceledThreads = 0;
+	pthread_t t[NUMTHREADS + 1];
+	assert((t[0] = pthread_self()).p != NULL);
+	assert(cvthing.notbusy == PTHREAD_COND_INITIALIZER);
+	assert(cvthing.lock == PTHREAD_MUTEX_INITIALIZER);
+	(void)pthread_win32_getabstime_np(&abstime, &reltime);
+	assert((t[0] = pthread_self()).p != NULL);
+	awoken = 0;
+	for(first = 1, last = NUMTHREADS / 2; first < NUMTHREADS; first = last + 1, last = NUMTHREADS) {
+		int ct;
+		assert(pthread_mutex_lock(&start_flag) == 0);
+		for(i = first; i <= last; i++) {
+			threadbag[i].started = threadbag[i].finished = 0;
+			threadbag[i].threadnum = i;
+			assert(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		}
+		/*
+		 * Code to control or manipulate child threads should probably go here.
+		 */
+		cvthing.shared = 0;
+		assert(pthread_mutex_unlock(&start_flag) == 0);
+		Sleep(1000); // Give threads time to start.
+		ct = (first + last) / 2;
+		assert(pthread_cancel(t[ct]) == 0);
+		canceledThreads++;
+		assert(pthread_join(t[ct], NULL) == 0);
+		assert(pthread_mutex_lock(&cvthing.lock) == 0);
+		cvthing.shared++;
+		assert(pthread_mutex_unlock(&cvthing.lock) == 0);
+		assert(pthread_cond_broadcast(&cvthing.notbusy) == 0);
+		/*
+		 * Standard check that all threads started - and wait for them to finish.
+		 */
+		for(i = first; i <= last; i++) {
+			failed = !threadbag[i].started;
+			if(failed) {
+				fprintf(stderr, "Thread %d: started %d\n", i, threadbag[i].started);
+			}
+			else {
+				assert(pthread_join(t[i], NULL) == 0 || threadbag[i].finished == 0);
+//	      fprintf(stderr, "Thread %d: finished %d\n", i, threadbag[i].finished);
+			}
+		}
+	}
+	/*
+	 * Cleanup the CV.
+	 */
+	assert(pthread_mutex_destroy(&cvthing.lock) == 0);
+	assert(cvthing.lock == NULL);
+	assert_e(pthread_cond_destroy(&cvthing.notbusy), ==, 0);
+	assert(cvthing.notbusy == NULL);
+	assert(!failed);
+	// Check any results here.
+	assert(awoken == NUMTHREADS - canceledThreads);
+	return 0; // Success
+}
+// 
+// For all robust mutex types.
+// Thread A locks mutex
+// Thread A terminates with no threads waiting on robust mutex
+// Thread B acquires (inherits) mutex and unlocks
+// Main attempts to lock mutex with unrecovered state.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(),
+//   pthread_mutex_destroy(), pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
+// 
+int PThr4wTest_Robust1()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	//
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	//
+	pthread_t to, ti;
+	pthread_mutexattr_t ma;
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_setrobust(&ma, PTHREAD_MUTEX_ROBUST) == 0);
+	// Default (NORMAL) type 
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	Sleep(100); // @sobolev
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_unlock(&mutex) == EPERM);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	// NORMAL type 
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_unlock(&mutex) == EPERM);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* ERRORCHECK type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_unlock(&mutex) == EPERM);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* RECURSIVE type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_unlock(&mutex) == EPERM);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	return 0;
+}
+// 
+// For all robust mutex types.
+// Thread A locks mutex
+// Thread B blocks on mutex
+// Thread A terminates with threads waiting on robust mutex
+// Thread B awakes and inherits mutex and unlocks
+// Main attempts to lock mutex with unrecovered state.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(),
+//   pthread_mutex_destroy(), pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
+// 
+int PThr4wTest_Robust2()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			Sleep(200);
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t to, ti;
+	pthread_mutexattr_t ma;
+
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_setrobust(&ma, PTHREAD_MUTEX_ROBUST) == 0);
+
+	/* Default (NORMAL) type */
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* NORMAL type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* ERRORCHECK type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* RECURSIVE type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	return 0;
+}
+// 
+// For all robust mutex types.
+// Thread A locks mutex
+// Thread B blocks on mutex
+// Thread A terminates with threads waiting on robust mutex
+// Thread B awakes and inherits mutex, sets consistent and unlocks
+// Main acquires mutex with recovered state.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(), pthread_mutex_consistent(), 
+//   pthread_mutex_destroy(), pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
+// 
+int PThr4wTest_Robust3()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex;
+
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			Sleep(200);
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_consistent(&mutex) == 0);
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
+	pthread_t to, ti;
+	pthread_mutexattr_t ma;
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_setrobust(&ma, PTHREAD_MUTEX_ROBUST) == 0);
+	/* Default (NORMAL) type */
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* NORMAL type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* ERRORCHECK type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+
+	/* RECURSIVE type */
+	lockCount = 0;
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
+	assert(pthread_mutex_init(&mutex, &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 2);
+	assert(pthread_mutex_lock(&mutex) == 0);
+	assert(pthread_mutex_unlock(&mutex) == 0);
+	assert(pthread_mutex_destroy(&mutex) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	return 0;
+}
+// 
+// Thread A locks multiple robust mutexes
+// Thread B blocks on same mutexes in different orderings
+// Thread A terminates with thread waiting on mutexes
+// Thread B awakes and inherits each mutex in turn, sets consistent and unlocks
+// Main acquires mutexes with recovered state.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(), pthread_mutex_destroy(),
+//   pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
+// 
+int PThr4wTest_Robust4()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex[3];
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == 0);
+			lockCount++;
+			Sleep(200);
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			int * o = static_cast<int *>(arg);
+			assert(pthread_mutex_lock(&mutex[o[0]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[o[1]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[o[2]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_consistent(&mutex[o[2]]) == 0);
+			assert(pthread_mutex_consistent(&mutex[o[1]]) == 0);
+			assert(pthread_mutex_consistent(&mutex[o[0]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[2]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[1]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[0]]) == 0);
+			return 0;
+		}
+	};
+	pthread_t to, ti;
+	pthread_mutexattr_t ma;
+	int order[3];
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_setrobust(&ma, PTHREAD_MUTEX_ROBUST) == 0);
+	order[0] = 0;
+	order[1] = 1;
+	order[2] = 2;
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 6);
+	assert(pthread_mutex_lock(&mutex[0]) == 0);
+	assert(pthread_mutex_unlock(&mutex[0]) == 0);
+	assert(pthread_mutex_destroy(&mutex[0]) == 0);
+	assert(pthread_mutex_lock(&mutex[1]) == 0);
+	assert(pthread_mutex_unlock(&mutex[1]) == 0);
+	assert(pthread_mutex_destroy(&mutex[1]) == 0);
+	assert(pthread_mutex_lock(&mutex[2]) == 0);
+	assert(pthread_mutex_unlock(&mutex[2]) == 0);
+	assert(pthread_mutex_destroy(&mutex[2]) == 0);
+
+	order[0] = 1;
+	order[1] = 0;
+	order[2] = 2;
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 6);
+	assert(pthread_mutex_lock(&mutex[0]) == 0);
+	assert(pthread_mutex_unlock(&mutex[0]) == 0);
+	assert(pthread_mutex_destroy(&mutex[0]) == 0);
+	assert(pthread_mutex_lock(&mutex[1]) == 0);
+	assert(pthread_mutex_unlock(&mutex[1]) == 0);
+	assert(pthread_mutex_destroy(&mutex[1]) == 0);
+	assert(pthread_mutex_lock(&mutex[2]) == 0);
+	assert(pthread_mutex_unlock(&mutex[2]) == 0);
+	assert(pthread_mutex_destroy(&mutex[2]) == 0);
+
+	order[0] = 0;
+	order[1] = 2;
+	order[2] = 1;
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 6);
+	assert(pthread_mutex_lock(&mutex[0]) == 0);
+	assert(pthread_mutex_unlock(&mutex[0]) == 0);
+	assert(pthread_mutex_destroy(&mutex[0]) == 0);
+	assert(pthread_mutex_lock(&mutex[1]) == 0);
+	assert(pthread_mutex_unlock(&mutex[1]) == 0);
+	assert(pthread_mutex_destroy(&mutex[1]) == 0);
+	assert(pthread_mutex_lock(&mutex[2]) == 0);
+	assert(pthread_mutex_unlock(&mutex[2]) == 0);
+	assert(pthread_mutex_destroy(&mutex[2]) == 0);
+
+	order[0] = 2;
+	order[1] = 1;
+	order[2] = 0;
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	Sleep(100);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 6);
+	assert(pthread_mutex_lock(&mutex[0]) == 0);
+	assert(pthread_mutex_unlock(&mutex[0]) == 0);
+	assert(pthread_mutex_destroy(&mutex[0]) == 0);
+	assert(pthread_mutex_lock(&mutex[1]) == 0);
+	assert(pthread_mutex_unlock(&mutex[1]) == 0);
+	assert(pthread_mutex_destroy(&mutex[1]) == 0);
+	assert(pthread_mutex_lock(&mutex[2]) == 0);
+	assert(pthread_mutex_unlock(&mutex[2]) == 0);
+	assert(pthread_mutex_destroy(&mutex[2]) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	return 0;
+}
+// 
+// Thread A locks multiple robust mutexes
+// Thread B blocks on same mutexes
+// Thread A terminates with thread waiting on mutexes
+// Thread B awakes and inherits each mutex in turn
+// Thread B terminates leaving orphaned mutexes
+// Main inherits mutexes, sets consistent and unlocks.
+// 
+// Depends on API functions: pthread_create(), pthread_join(), pthread_mutex_init(), pthread_mutex_lock(), pthread_mutex_unlock(), pthread_mutex_destroy(),
+//   pthread_mutexattr_init(), pthread_mutexattr_setrobust(), pthread_mutexattr_settype(), pthread_mutexattr_destroy()
+// 
+int PThr4wTest_Robust5()
+{
+	static int lockCount;
+	static pthread_mutex_t mutex[3];
+
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == 0);
+			lockCount++;
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == EOWNERDEAD);
+			lockCount++;
+			return 0;
+		}
+	};
+	pthread_t to, ti;
+	pthread_mutexattr_t ma;
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_setrobust(&ma, PTHREAD_MUTEX_ROBUST) == 0);
+	lockCount = 0;
+	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
+	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
+	assert(pthread_join(to, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
+	assert(pthread_join(ti, NULL) == 0);
+	assert(lockCount == 6);
+	assert(pthread_mutex_lock(&mutex[0]) == EOWNERDEAD);
+	assert(pthread_mutex_consistent(&mutex[0]) == 0);
+	assert(pthread_mutex_unlock(&mutex[0]) == 0);
+	assert(pthread_mutex_destroy(&mutex[0]) == 0);
+	assert(pthread_mutex_lock(&mutex[1]) == EOWNERDEAD);
+	assert(pthread_mutex_consistent(&mutex[1]) == 0);
+	assert(pthread_mutex_unlock(&mutex[1]) == 0);
+	assert(pthread_mutex_destroy(&mutex[1]) == 0);
+	assert(pthread_mutex_lock(&mutex[2]) == EOWNERDEAD);
+	assert(pthread_mutex_consistent(&mutex[2]) == 0);
+	assert(pthread_mutex_unlock(&mutex[2]) == 0);
+	assert(pthread_mutex_destroy(&mutex[2]) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	return 0;
+}
+// 
+// Test Synopsis:
+// - Stress test condition variables, mutexes, semaphores.
+// Test Method (Validation or Falsification):
+// - Validation
+// Requirements Tested:
+// - Correct accounting of semaphore and condition variable waiters.
+// Description:
+// Attempting to expose race conditions in cond vars, semaphores etc.
+// - Master attempts to signal slave close to when timeout is due.
+// - Master and slave do battle continuously until main tells them to stop.
+// - Afterwards, the CV must be successfully destroyed (will return an
+// error if there are waiters (including any internal semaphore waiters,
+// which, if there are, cannot be real waiters).
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Pass Criteria:
+// - CV is successfully destroyed.
+// Fail Criteria:
+// - CV destroy fails.
+// 
+int PThr4wTest_Stress1()
+{
+	typedef struct {
+		int value;
+		pthread_cond_t cv;
+		pthread_mutex_t mx;
+	} mysig_t;
+	static const uint ITERATIONS = 1000;
+	static pthread_t master;
+	static pthread_t slave;
+	static int allExit;
+	static mysig_t control = {0, PTHREAD_COND_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
+	static pthread_barrier_t startBarrier, readyBarrier, holdBarrier;
+	static int timeoutCount = 0;
+	static int signalsTakenCount = 0;
+	static int signalsSent = 0;
+	static int bias = 0;
+	static int timeout = 10; // Must be > 0
+	static const long NANOSEC_PER_MILLISEC = 1000000;
+
+	class InnerBlock {
+	public:
+		static void * masterThread(void * arg)
+		{
+			int dither = (int)(size_t)arg;
+			timeout = (int)(size_t)arg;
+			pthread_barrier_wait(&startBarrier);
+			do {
+				int sleepTime;
+				assert(pthread_mutex_lock(&control.mx) == 0);
+				control.value = timeout;
+				assert(pthread_mutex_unlock(&control.mx) == 0);
+				/*
+				 * We are attempting to send the signal close to when the slave
+				 * is due to timeout. We feel around by adding some [non-random] dither.
+				 *
+				 * dither is in the range 2*timeout peak-to-peak
+				 * sleep time is the average of timeout plus dither.
+				 * e.g.
+				 * if timeout = 10 then dither = 20 and
+				 * sleep millisecs is: 5 <= ms <= 15
+				 *
+				 * The bias value attempts to apply some negative feedback to keep
+				 * the ratio of timeouts to signals taken close to 1:1.
+				 * bias changes more slowly than dither so as to average more.
+				 *
+				 * Finally, if abs(bias) exceeds timeout then timeout is incremented.
+				 */
+				if(signalsSent % timeout == 0) {
+					if(timeoutCount > signalsTakenCount) {
+						bias++;
+					}
+					else if(timeoutCount < signalsTakenCount) {
+						bias--;
+					}
+					if(bias < -timeout || bias > timeout) {
+						timeout++;
+					}
+				}
+				dither = (dither + 1 ) % (timeout * 2);
+				sleepTime = (timeout - bias + dither) / 2;
+				Sleep(sleepTime);
+				assert(pthread_cond_signal(&control.cv) == 0);
+				signalsSent++;
+				pthread_barrier_wait(&holdBarrier);
+				pthread_barrier_wait(&readyBarrier);
+			} while(!allExit);
+			return NULL;
+		}
+		static void * slaveThread(void * arg)
+		{
+			pthread_barrier_wait(&startBarrier);
+			do {
+				struct timespec abstime;
+				struct timespec reltime;
+				assert(pthread_mutex_lock(&control.mx) == 0);
+				reltime.tv_sec = (control.value / 1000);
+				reltime.tv_nsec = (control.value % 1000) * NANOSEC_PER_MILLISEC;
+				if(pthread_cond_timedwait(&control.cv, &control.mx,
+					pthread_win32_getabstime_np(&abstime, &reltime)) == ETIMEDOUT) {
+					timeoutCount++;
+				}
+				else {
+					signalsTakenCount++;
+				}
+				assert(pthread_mutex_unlock(&control.mx) == 0);
+				pthread_barrier_wait(&holdBarrier);
+				pthread_barrier_wait(&readyBarrier);
+			} while(!allExit);
+			return NULL;
+		}
+	};
+	uint i;
+	assert(pthread_barrier_init(&startBarrier, NULL, 3) == 0);
+	assert(pthread_barrier_init(&readyBarrier, NULL, 3) == 0);
+	assert(pthread_barrier_init(&holdBarrier, NULL, 3) == 0);
+	assert(pthread_create(&master, NULL, InnerBlock::masterThread, (void*)(size_t)timeout) == 0);
+	assert(pthread_create(&slave, NULL, InnerBlock::slaveThread, NULL) == 0);
+	allExit = FALSE;
+	pthread_barrier_wait(&startBarrier);
+	for(i = 1; !allExit; i++) {
+		pthread_barrier_wait(&holdBarrier);
+		if(i >= ITERATIONS) {
+			allExit = TRUE;
+		}
+		pthread_barrier_wait(&readyBarrier);
+	}
+	assert(pthread_join(slave, NULL) == 0);
+	assert(pthread_join(master, NULL) == 0);
+	printf("Signals sent = %d\nWait timeouts = %d\nSignals taken = %d\nBias = %d\nTimeout = %d\n",
+	    signalsSent, timeoutCount, signalsTakenCount, (int)bias, timeout);
+	/* Cleanup */
+	assert(pthread_barrier_destroy(&holdBarrier) == 0);
+	assert(pthread_barrier_destroy(&readyBarrier) == 0);
+	assert(pthread_barrier_destroy(&startBarrier) == 0);
+	assert(pthread_cond_destroy(&control.cv) == 0);
+	assert(pthread_mutex_destroy(&control.mx) == 0);
+	return 0; // Success
+}
+#if defined(_MSC_VER) || defined(__cplusplus)
+// 
+// Test Synopsis: Test passing of exceptions back to the application.
+// Input:
+//  - None.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock
+//   pthread_testcancel, pthread_cancel, pthread_join
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exception1()
+{
+	class InnerBlock {
+	public:
+		static void * exceptionedThread(void * arg)
+		{
+			int dummy = 0;
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			/* Set to async cancelable */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+			Sleep(100);
+		#if defined(_MSC_VER) && !defined(__cplusplus)
+			__try {
+				int zero = (int)(size_t)arg; /* Passed in from arg to avoid compiler error */
+				int one = 1;
+				/*
+				 * The deliberate exception condition (zero divide) is
+				 * in an "if" to avoid being optimised out.
+				 */
+				if(dummy == one/zero)
+					Sleep(0);
+			}
+			__except(EXCEPTION_EXECUTE_HANDLER)
+			{
+				/* Should get into here. */
+				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+			}
+		#elif defined(__cplusplus)
+			try
+			{
+				/*
+				 * I had a zero divide exception here but it
+				 * wasn't being caught by the catch(...)
+				 * below under Mingw32. That could be a problem.
+				 */
+				throw dummy;
+			}
+		#if defined(__PtW32CatchAll)
+			__PtW32CatchAll
+		#else
+			catch(...)
+		#endif
+			{
+				/* Should get into here. */
+				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+			}
+		#endif
+			return (void*)(size_t)result;
+		}
+
+		static void * canceledThread(void * arg)
+		{
+			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			int count;
+			/* Set to async cancelable */
+			assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
+			assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
+		#if defined(_MSC_VER) && !defined(__cplusplus)
+			__try
+			{
+				/*
+				 * We wait up to 10 seconds, waking every 0.1 seconds,
+				 * for a cancellation to be applied to us.
+				 */
+				for(count = 0; count < 100; count++)
+					Sleep(100);
+			}
+			__except(EXCEPTION_EXECUTE_HANDLER)
+			{
+				/* Should NOT get into here. */
+				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+			}
+		#elif defined(__cplusplus)
+			try
+			{
+				/*
+				 * We wait up to 10 seconds, waking every 0.1 seconds,
+				 * for a cancellation to be applied to us.
+				 */
+				for(count = 0; count < 100; count++)
+					Sleep(100);
+			}
+		#if defined(__PtW32CatchAll)
+			__PtW32CatchAll
+		#else
+			catch(...)
+		#endif
+			{
+				/* Should NOT get into here. */
+				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+			}
+		#endif
+			return (void*)(size_t)result;
+		}
+	};
+	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
+	int failed = 0;
+	int i;
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
+	pthread_t ct[NUMTHREADS];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	assert((mt = pthread_self()).p != NULL);
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, (void*)0) == 0);
+		assert(pthread_create(&ct[i], NULL, InnerBlock::canceledThread, NULL) == 0);
+	}
+	/*
+	 * Code to control or manipulate child threads should probably go here.
+	 */
+	Sleep(100);
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_cancel(ct[i]) == 0);
+	}
+	Sleep(NUMTHREADS * 100); // Give threads time to run.
+	// Check any results here. Set "failed" and only print output on failure.
+	failed = 0;
+	for(i = 0; i < NUMTHREADS; i++) {
+		int fail = 0;
+		void* result = (void*)0;
+		/* Canceled thread */
+		assert(pthread_join(ct[i], &result) == 0);
+		assert(!(fail = (result != PTHREAD_CANCELED)));
+		failed = (failed || fail);
+		/* Exceptioned thread */
+		assert(pthread_join(et[i], &result) == 0);
+		assert(!(fail = (result != (void*)((int)(size_t)PTHREAD_CANCELED + 2))));
+		failed = (failed || fail);
+	}
+	assert(!failed);
+	return 0; // Success
+}
+// 
+// Test Synopsis: Test passing of exceptions out of thread scope.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exception2(int argc, char* argv[])
+{
+	class InnerBlock {
+	public:
+		static void * exceptionedThread(void * arg)
+		{
+			int dummy = 0x1;
+		#if defined(_MSC_VER) && !defined(__cplusplus)
+			RaiseException(dummy, 0, 0, NULL);
+		#elif defined(__cplusplus)
+			throw dummy;
+		#endif
+			return (void*)100;
+		}
+	};
+	const int NUMTHREADS = 1; // Create NUMTHREADS threads in addition to the Main thread.
+	int i;
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	if(argc <= 1) {
+		int result;
+		printf("You should see an \"abnormal termination\" message\n");
+		fflush(stdout);
+		result = system("exception2.exe die");
+		printf("\"exception2.exe die\" returned status %d\n", result);
+		/*
+		 * result should be 0, 1 or 3 depending on build settings
+		 */
+		exit((result == 0 || result == 1 || result == 3) ? 0 : 1);
+	}
+#if defined(NO_ERROR_DIALOGS)
+	SetErrorMode(SEM_NOGPFAULTERRORBOX);
+#endif
+	assert((mt = pthread_self()).p != NULL);
+	for(i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, NULL) == 0);
+	}
+	Sleep(100);
+	return 0; // Success
+}
+
+#else /* defined(_MSC_VER) || defined(__cplusplus) */
+	int PThr4wTest_Exception1()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
+	int PThr4wTest_Exception2(int argc, char* argv[])
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
+#endif /* defined(_MSC_VER) || defined(__cplusplus) */
+// 
+// Note: Due to a buggy C++ runtime in Visual Studio 2005, when we are
+// built with /MD and an unhandled exception occurs, the runtime does not
+// properly call the terminate handler specified by set_terminate().
+// 
+#if defined(__cplusplus) && !(defined(_MSC_VER) && _MSC_VER == 1400 && defined(_DLL) && !defined(_DEBUG))
+// 
+// Test Synopsis: Test running of user supplied terminate() function.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exception3()
+{
+	static const int NUMTHREADS = 10; // Create NUMTHREADS threads in addition to the Main thread.
+	static int caught = 0;
+	static pthread_mutex_t caughtLock;
+
+	class InnerBlock {
+	public:
+		static void terminateFunction()
+		{
+			assert(pthread_mutex_lock(&caughtLock) == 0);
+			caught++;
+		#if 0
+			{
+				FILE * fp = fopen("pthread.log", "a");
+				fprintf(fp, "Caught = %d\n", caught);
+				fclose(fp);
+			}
+		#endif
+			assert_e(pthread_mutex_unlock(&caughtLock), ==, 0);
+			/*
+			 * Notes from the MSVC++ manual:
+			 *       1) A term_func() should call exit(), otherwise
+			 *          abort() will be called on return to the caller.
+			 *          abort() raises SIGABRT. The default signal handler
+			 *          for all signals terminates the calling program with
+			 *          exit code 3.
+			 *       2) A term_func() must not throw an exception. Dev: Therefore
+			 *          term_func() should not call pthread_exit() if an
+			 *          exception-using version of pthreads-win32 library
+			 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+			 */
+			/*
+			 * Allow time for all threads to reach here before exit, otherwise
+			 * threads will be terminated while holding the lock and cause
+			 * the next unlock to return EPERM (we're using ERRORCHECK mutexes).
+			 * Perhaps this would be a good test for robust mutexes.
+			 */
+			Sleep(20);
+			exit(0);
+		}
+		static void wrongTerminateFunction()
+		{
+			fputs("This is not the termination routine that should have been called!\n", stderr);
+			exit(1);
+		}
+		static void * exceptionedThread(void * arg)
+		{
+			int dummy = 0x1;
+		#if defined (__PTW32_USES_SEPARATE_CRT) && (defined(__PTW32_CLEANUP_CXX) || defined(__PTW32_CLEANUP_SEH))
+			printf("PTW32_USES_SEPARATE_CRT is defined\n");
+			pthread_win32_set_terminate_np(&terminateFunction);
+			set_terminate(&wrongTerminateFunction);
+		#else
+			set_terminate(&terminateFunction);
+		#endif
+			throw dummy;
+			return 0;
+		}
+	};
+	pthread_t mt;
+	pthread_t et[NUMTHREADS];
+	pthread_mutexattr_t ma;
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	assert((mt = pthread_self()).p != NULL);
+	printf("See the notes inside of exception3.c re term_funcs.\n");
+	assert(pthread_mutexattr_init(&ma) == 0);
+	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
+	assert(pthread_mutex_init(&caughtLock, &ma) == 0);
+	assert(pthread_mutexattr_destroy(&ma) == 0);
+	for(int i = 0; i < NUMTHREADS; i++) {
+		assert(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, NULL) == 0);
+	}
+	while(true);
+	/*
+	 * Should never be reached.
+	 */
+	return 1;
+}
+// 
+// Test Synopsis: Test running of user supplied terminate() function.
+// Output:
+// - File name, Line number, and failed expression on failure.
+// - No output on success.
+// Assumptions:
+// - have working pthread_create, pthread_self, pthread_mutex_lock/unlock pthread_testcancel, pthread_cancel
+// Pass Criteria:
+// - Process returns zero exit status.
+// Fail Criteria:
+// - Process returns non-zero exit status.
+// 
+int PThr4wTest_Exception30()
+{
+	const int NUMTHREADS = 10; // Create NUMTHREADS threads in addition to the Main thread.
+	static int caught = 0;
+	static CRITICAL_SECTION caughtLock;
+
+	class InnerBlock {
+	public:
+		static void terminateFunction()
+		{
+			EnterCriticalSection(&caughtLock);
+			caught++;
+		#if 0
+			{
+				FILE * fp = fopen("pthread.log", "a");
+				fprintf(fp, "Caught = %d\n", caught);
+				fclose(fp);
+			}
+		#endif
+			LeaveCriticalSection(&caughtLock);
+
+			/*
+			 * Notes from the MSVC++ manual:
+			 *       1) A term_func() should call exit(), otherwise
+			 *          abort() will be called on return to the caller.
+			 *          abort() raises SIGABRT. The default signal handler
+			 *          for all signals terminates the calling program with
+			 *          exit code 3.
+			 *       2) A term_func() must not throw an exception. Dev: Therefore
+			 *          term_func() should not call pthread_exit() if an
+			 *          exception-using version of pthreads-win32 library
+			 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+			 */
+			exit(0);
+		}
+		static void * exceptionedThread(void * arg)
+		{
+			int dummy = 0x1;
+			set_terminate(&terminateFunction);
+			assert(set_terminate(&terminateFunction) == &terminateFunction);
+			throw dummy;
+			return (void*)2;
+		}
+	};
+	DWORD et[NUMTHREADS];
+	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+	InitializeCriticalSection(&caughtLock);
+	for(int i = 0; i < NUMTHREADS; i++) {
+		CreateThread(NULL, //Choose default security
+		    0, //Default stack size
+		    (LPTHREAD_START_ROUTINE)&InnerBlock::exceptionedThread, //Routine to execute
+		    NULL, //Thread parameter
+		    0, //Immediately run the thread
+		    &et[i] //Thread Id
+		    );
+	}
+	Sleep(NUMTHREADS * 10);
+	DeleteCriticalSection(&caughtLock);
+	return 1; // Fail. Should never be reached.
+}
+#else /* defined(__cplusplus) */
+	int PThr4wTest_Exception3()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
+	int PThr4wTest_Exception30()
+	{
+		fprintf(stderr, "Test N/A for this compiler environment.\n");
+		return 0;
+	}
+#endif /* defined(__cplusplus) */
+//
+//
+//
+// (definition above) int PThr4wTest_CondVar1();
+// (definition above) int PThr4wTest_CondVar11();
+// (definition above) int PThr4wTest_CondVar12();
+// (definition above) int PThr4wTest_CondVar2();
+// (definition above) int PThr4wTest_CondVar21();
+// (definition above) int PThr4wTest_CondVar3();
+// (definition above) int PThr4wTest_CondVar31();
+// (definition above) int PThr4wTest_CondVar32();
+// (definition above) int PThr4wTest_CondVar33();
+// (definition above) int PThr4wTest_CondVar4();
+// (definition above) int PThr4wTest_CondVar5();
+// (definition above) int PThr4wTest_CondVar6();
+// (definition above) int PThr4wTest_CondVar7();
+// (definition above) int PThr4wTest_CondVar8();
+// (definition above) int PThr4wTest_CondVar9();
+// (definition above) int PThr4wTest_CleanUp0();
+// (definition above) int PThr4wTest_CleanUp1();
+// (definition above) int PThr4wTest_CleanUp2();
+// (definition above) int PThr4wTest_CleanUp3();
+// (definition above) int PThr4wTest_Tsd1();
+// (definition above) int PThr4wTest_Tsd2();
+// (definition above) int PThr4wTest_Tsd3();
+// (definition above) int PThr4wTest_Cancel1();
+// (definition above) int PThr4wTest_Cancel2();
+// (definition above) int PThr4wTest_Cancel3();
+// (definition above) int PThr4wTest_Cancel4();
+// (definition above) int PThr4wTest_Cancel5();
+// (definition above) int PThr4wTest_Cancel6a();
+// (definition above) int PThr4wTest_Cancel6d();
+// (definition above) int PThr4wTest_Cancel7();
+// (definition above) int PThr4wTest_Cancel8();
+// (definition above) int PThr4wTest_Cancel9();
+// (definition above) int PThr4wTest_Affinity1();
+// (definition above) int PThr4wTest_Affinity2();
+// (definition above) int PThr4wTest_Affinity3();
+// (definition above) int PThr4wTest_Affinity4();
+// (definition above) int PThr4wTest_Affinity5();
+// (definition above) int PThr4wTest_Affinity6();
+// (definition above) int PThr4wTest_Spin1();
+// (definition above) int PThr4wTest_Spin2();
+// (definition above) int PThr4wTest_Spin3();
+// (definition above) int PThr4wTest_Spin4();
+// (definition above) int PThr4wTest_Mutex1();
+// (definition above) int PThr4wTest_Mutex1e();
+// (definition above) int PThr4wTest_Mutex1n();
+// (definition above) int PThr4wTest_Mutex1r();
+// (definition above) int PThr4wTest_Mutex2();
+// (definition above) int PThr4wTest_Mutex2e();
+// (definition above) int PThr4wTest_Mutex2r();
+// (definition above) int PThr4wTest_Mutex3();
+// (definition above) int PThr4wTest_Mutex3e();
+// (definition above) int PThr4wTest_Mutex3r();
+// (definition above) int PThr4wTest_Mutex4();
+// (definition above) int PThr4wTest_Mutex5();
+// (definition above) int PThr4wTest_Mutex6();
+// (definition above) int PThr4wTest_Mutex6e();
+// (definition above) int PThr4wTest_Mutex6es();
+// (definition above) int PThr4wTest_Mutex6n();
+// (definition above) int PThr4wTest_Mutex6r();
+// (definition above) int PThr4wTest_Mutex6rs();
+// (definition above) int PThr4wTest_Mutex6s();
+// (definition above) int PThr4wTest_Mutex7();
+// (definition above) int PThr4wTest_Mutex7e();
+// (definition above) int PThr4wTest_Mutex7n();
+// (definition above) int PThr4wTest_Mutex7r();
+// (definition above) int PThr4wTest_Mutex8();
+// (definition above) int PThr4wTest_Mutex8e();
+// (definition above) int PThr4wTest_Mutex8n();
+// (definition above) int PThr4wTest_Mutex8r();
 // (definition above) int PThr4wTest_RwLock1();
 // (definition above) int PThr4wTest_RwLock2();
 // (definition above) int PThr4wTest_RwLock2t();
@@ -3795,26 +9155,26 @@ int PThr4wTest_Spin4();
 // (definition above) int PThr4wTest_Timeouts();
 // (definition above) int PThr4wTest_NameNp1();
 // (definition above) int PThr4wTest_NameNp2();
-int PThr4wTest_Exception1();
-int PThr4wTest_Exception2(int argc, char* argv[]);
-int PThr4wTest_Exception3();
-int PThr4wTest_Exception30();
-int PThr4wTest_Exit1();
-int PThr4wTest_Exit2();
-int PThr4wTest_Exit3();
-int PThr4wTest_Exit4();
-int PThr4wTest_Exit5();
-int PThr4wTest_Exit6();
-int PThr4wTest_Robust1();
-int PThr4wTest_Robust2();
-int PThr4wTest_Robust3();
-int PThr4wTest_Robust4();
-int PThr4wTest_Robust5();
-int PThr4wTest_TryEnterCs1();
-int PThr4wTest_TryEnterCs2();
+// (definition above) int PThr4wTest_TryEnterCs1();
+// (definition above) int PThr4wTest_TryEnterCs2();
+// (definition above) int PThr4wTest_Exit1();
+// (definition above) int PThr4wTest_Exit2();
+// (definition above) int PThr4wTest_Exit3();
+// (definition above) int PThr4wTest_Exit4();
+// (definition above) int PThr4wTest_Exit5();
+// (definition above) int PThr4wTest_Exit6();
+// (definition above) int PThr4wTest_Robust1();
+// (definition above) int PThr4wTest_Robust2();
+// (definition above) int PThr4wTest_Robust3();
+// (definition above) int PThr4wTest_Robust4();
+// (definition above) int PThr4wTest_Robust5();
+// (definition above) int PThr4wTest_Reinit1();
+// (definition above) int PThr4wTest_Stress1();
+// (definition above) int PThr4wTest_Exception1();
+// (definition above) int PThr4wTest_Exception2(int argc, char* argv[]);
+// (definition above) int PThr4wTest_Exception3();
+// (definition above) int PThr4wTest_Exception30();
 int PThr4wTest_ThreeStage(int argc, char * argv[]);
-int PThr4wTest_Stress1();
-int PThr4wTest_Reinit1();
 int PThr4wTest_Benchtest1();
 int PThr4wTest_Benchtest2();
 int PThr4wTest_Benchtest3();

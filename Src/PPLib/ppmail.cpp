@@ -1442,7 +1442,7 @@ int PPMailSmtp::MakeMessageID(SString & rBuf)
 		if(uuid.Generate())
 			uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		else
-			temp_buf.Cat("sl").Dot().Cat("msg").Dot().Cat("id").Dot().Cat("stb");
+			temp_buf.Cat("sl").DotCat("msg").DotCat("id").DotCat("stb");
 		p = temp_buf;
 	}
 	else

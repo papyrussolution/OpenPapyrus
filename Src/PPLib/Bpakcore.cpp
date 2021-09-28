@@ -621,6 +621,7 @@ void PPBill::BaseDestroy()
 {
 	Pays.clear();
 	Amounts.clear();
+	SMemo.Z(); // @v11.1.12
 	MEMSZERO(Rec);
 	MEMSZERO(Rent);
 	MEMSZERO(Ext);
@@ -649,7 +650,9 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 	else if(memcmp(&Rec, &rS.Rec, sizeof(Rec)) != 0)
 		yes = 0;
 	if(yes) {
-		if(!Amounts.IsEqual(&rS.Amounts))
+		if(SMemo != rS.SMemo) // @v11.1.12
+			yes = 0;
+		else if(!Amounts.IsEqual(&rS.Amounts))
 			yes = 0;
 		else if(!Pays.IsEqual(rS.Pays))
 			yes = 0;
@@ -1845,44 +1848,44 @@ SString & PPTaxPeriod::Format(SString & rBuf) const
 		switch(P) {
 			case eYear:
 				// ГД
-				//rBuf.Cat("ГД").Dot().Cat("00");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_GD, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("00");
+				//rBuf.Cat("ГД").DotCat("00");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_GD, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("00");
 				//buf[p++] = 'ѓ'; buf[p++] = '„'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '0';
 				break;
 			case eSemiyear1:
 				// ПЛ
-				//rBuf.Cat("ПЛ").Dot().Cat("01");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_PL, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("01");
+				//rBuf.Cat("ПЛ").DotCat("01");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_PL, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("01");
 				//buf[p++] = 'Џ'; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
 				break;
 			case eSemiyear2:
 				// ПЛ
-				//rBuf.Cat("ПЛ").Dot().Cat("02");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_PL, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("02");
+				//rBuf.Cat("ПЛ").DotCat("02");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_PL, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("02");
 				//buf[p++] = 'Џ'; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
 				break;
 			case eQuart1:
 				// КВ
-				//rBuf.Cat("КВ").Dot().Cat("01");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("01");
+				//rBuf.Cat("КВ").DotCat("01");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("01");
 				//buf[p++] = 'Љ'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
 				break;
 			case eQuart2:
 				// КВ
-				//rBuf.Cat("КВ").Dot().Cat("02");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("02");
+				//rBuf.Cat("КВ").DotCat("02");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("02");
 				//buf[p++] = 'Љ'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
 				break;
 			case eQuart3:
 				// КВ
-				//rBuf.Cat("КВ").Dot().Cat("03");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("03");
+				//rBuf.Cat("КВ").DotCat("03");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("03");
 				//buf[p++] = 'Љ'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '3';
 				break;
 			case eQuart4:
 				// КВ
-				//rBuf.Cat("КВ").Dot().Cat("04");
-				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).Dot().Cat("04");
+				//rBuf.Cat("КВ").DotCat("04");
+				PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_PERIOD_KV, rBuf).Transf(CTRANSF_INNER_TO_OUTER).DotCat("04");
 				//buf[p++] = 'Љ'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '4';
 				break;
 			case eMonth:
@@ -2226,7 +2229,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 						if(is_stopped > 0) { // @v9.5.10 !(rRet.Flags & SetupObjectBlock::fEnableStop)
 							SString debt_dim_name;
 							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
-							stop_err_addedmsg.CatChar(':').Cat(debt_dim_name);
+							stop_err_addedmsg.Colon().Cat(debt_dim_name);
 						}
 					}
 					if(is_stopped < 0)
@@ -2964,7 +2967,8 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 			}
 			break;
 	}
-	STRNSCPY(Rec.Memo, rec.Memo);
+	// @v11.1.12 STRNSCPY(Rec.Memo, rec.Memo);
+	P_BObj->P_Tbl->GetItemMemo(sampleBillID, SMemo); // @v11.1.12
 	CATCHZOK
 	return ok;
 }
@@ -3158,7 +3162,9 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 {
 	int    ok = 1;
 	PPOprKind opk;
-	double scale, in_tran_crate, out_tran_crate;
+	double scale;
+	double in_tran_crate;
+	double out_tran_crate;
 	THROW_PP(pTrans->InCurID != pTrans->OutCurID, PPERR_EQCTCUR);
 	THROW_PP(pTrans->InCurID != 0,  PPERR_UNDEFCTINCUR);
 	THROW_PP(pTrans->OutCurID != 0, PPERR_UNDEFCTOUTCUR);
@@ -3174,7 +3180,8 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 	Rec.OpID    = pTrans->OpID;
 	Rec.Object  = pTrans->ObjectID;
 	Rec.Flags   = pTrans->Flags;
-	STRNSCPY(Rec.Memo, pTrans->Memo);
+	// @v11.1.12 STRNSCPY(Rec.Memo, pTrans->Memo);
+	SMemo = pTrans->Memo; // @v11.1.12
 	Rec.CRate   = pTrans->TransitCRate;
 	if(opk.Flags & OPKF_SELLING) {
 		Rec.CurID  = pTrans->OutCurID;
@@ -3219,7 +3226,8 @@ int PPBillPacket::GetCurTransit(PPCurTransit * pTrans) const
 	pTrans->Flags      = Rec.Flags;
 	pTrans->AccSheetID = AccSheetID;
 	STRNSCPY(pTrans->BillCode, Rec.Code);
-	STRNSCPY(pTrans->Memo, Rec.Memo);
+	// @v11.1.12 STRNSCPY(pTrans->Memo, Rec.Memo);
+	STRNSCPY(pTrans->Memo, SMemo); // @v11.1.12
 	pTrans->TransitCRate = Rec.CRate;
 	Amounts.GetCurList(PPAMT_BUYING, &cur_list);
 	if(Rec.ID) {

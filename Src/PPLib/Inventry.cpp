@@ -68,7 +68,8 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, P_Data->Rec.LocID);
 		SetupLocationCombo(this, CTLSEL_BILL_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 	}
-	setCtrlData(CTL_BILL_MEMO,   P_Data->Rec.Memo);
+	// @v11.1.12 setCtrlData(CTL_BILL_MEMO,   P_Data->Rec.Memo);
+	setCtrlString(CTL_BILL_MEMO,   P_Data->SMemo); // @v11.1.12
 	setCtrlReal(CTL_BILL_AMOUNT, P_Data->GetAmount());
 	setCtrlData(CTL_BILL_SELEXSGOODS, &selExistsGoodsOnly);
 	disableCtrls(1, CTL_BILL_AMOUNT, CTL_BILL_STOCKAMT, 0);
@@ -120,7 +121,8 @@ int InventoryDialog::getDTS(PPBillPacket * /*_data*/)
 		getCtrlData(CTLSEL_BILL_STRGLOC, &freight.StorageLocID);
 		P_Data->SetFreight(&freight);
 	}
-	getCtrlData(CTL_BILL_MEMO, P_Data->Rec.Memo);
+	// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Data->Rec.Memo);
+	getCtrlString(CTL_BILL_MEMO, P_Data->SMemo); // @v11.1.12
 	return 1;
 }
 

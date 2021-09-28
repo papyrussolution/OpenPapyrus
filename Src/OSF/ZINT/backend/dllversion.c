@@ -19,16 +19,14 @@ __declspec(dllexport) HRESULT DllGetVersion (DLLVERSIONINFO2* pdvi);
 
 HRESULT DllGetVersion (DLLVERSIONINFO2* pdvi)
 {
-	if (!pdvi || (sizeof(*pdvi) != pdvi->info1.cbSize))
+	if(!pdvi || (sizeof(*pdvi) != pdvi->info1.cbSize))
 		return (E_INVALIDARG);
-
 	pdvi->info1.dwMajorVersion = 2;
 	pdvi->info1.dwMinorVersion = 2;
 	pdvi->info1.dwBuildNumber = 1;
 	pdvi->info1.dwPlatformID = DLLVER_PLATFORM_WINDOWS;
-	if (sizeof(DLLVERSIONINFO2) == pdvi->info1.cbSize)
+	if(sizeof(DLLVERSIONINFO2) == pdvi->info1.cbSize)
 		pdvi->ullVersion = MAKEDLLVERULL(2, 2, 1, 0);
-
 	return S_OK;
 }
 #endif /* _WIN32 */

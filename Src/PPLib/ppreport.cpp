@@ -829,7 +829,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			THROW(std_ini_file.IsValid());
 			{
 				if(ContextSymb.NotEmpty()) {
-					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
+					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);
 					std_ini_file.GetEntries(section_name, &std_ss);
 				}
 				if(std_ss.getCount() == 0) {
@@ -900,7 +900,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			THROW(ini_file.IsValid());
 			{
 				if(ContextSymb.NotEmpty()) {
-					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
+					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);
 					ini_file.GetEntries(section_name, &ss);
 				}
 				if(ss.getCount() == 0) {
@@ -2509,7 +2509,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						THROW_SL(::createDir(out_file_name));
 						ep.DestPath = out_file_name;
 						ep.OutputFormat = SFileFormat(SFileFormat::Latex);
-						out_file_name.SetLastSlash().Cat(nam).Dot().Cat("tex");
+						out_file_name.SetLastSlash().Cat(nam).DotCat("tex");
 					}
 					else {
 						ps.Ext = "txt";

@@ -328,7 +328,7 @@ int PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 		SString msg;
 		msg.Cat(ac).Dot().Cat(sb);
 		if(curID)
-			msg.CatChar(':').Cat(curID);
+			msg.Colon().Cat(curID);
 		PPSetError(PPERR_ACCNFOUND, msg);
 	}
 	CATCHZOK

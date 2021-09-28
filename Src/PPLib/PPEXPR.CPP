@@ -1709,6 +1709,13 @@ int PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext 
 {
 	GoodsContext * p_ctx = (pCtx && (pCtx->P_GPack || pCtx->P_GsPack ||
 		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti || pCtx->P_Ci || pCtx->P_TslRec)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
+	if(p_ctx && pCtx->P_LotRec) {
+		GoodsContext::Param param(p_ctx->GetParam());
+		param.Cost = pCtx->P_LotRec->Cost;
+		param.Price = pCtx->P_LotRec->Price;
+		param.Flags |= (GoodsContext::Param::fCostSettled|GoodsContext::Param::fPriceSettled);
+		p_ctx->SetParam(param);
+	}
 	int    ok = PPExprParser::CalcExpression(pStr, pResult, 0, p_ctx);
 	delete p_ctx;
 	return ok;

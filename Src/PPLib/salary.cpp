@@ -1108,7 +1108,8 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 					THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, LConfig.Location, 0));
 					pack.Rec.Amount = s_rec.Amount; //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 's_rec.Amount' used.
 					pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
-					STRNSCPY(pack.Rec.Memo, memo_buf);
+					// @v11.1.12 STRNSCPY(pack.Rec.Memo, memo_buf);
+					pack.SMemo = memo_buf; // @v11.1.12
 					THROW(p_bobj->FillTurnList(&pack));
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					bill_id_list.addUnique(pack.Rec.ID);
@@ -1171,7 +1172,8 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 						}
 						pack.Rec.Amount = s_rec.Amount;
 						pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
-						STRNSCPY(pack.Rec.Memo, memo_buf);
+						// @v11.1.12 STRNSCPY(pack.Rec.Memo, memo_buf);
+						pack.SMemo = memo_buf; // @v11.1.12
 						THROW(p_bobj->FillTurnList(&pack));
 						THROW(p_bobj->TurnPacket(&pack, 0));
 						bill_id_list.addUnique(pack.Rec.ID);

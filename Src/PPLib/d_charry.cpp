@@ -822,7 +822,8 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 			}
 			pack.Rec.Dt = Data.Rec.Dt;
 			STRNSCPY(pack.Rec.Code, Data.Rec.Code);
-			STRNSCPY(pack.Rec.Memo, Data.Rec.Memo);
+			// @v11.1.12 STRNSCPY(pack.Rec.Memo, Data.Rec.Memo);
+			pack.SMemo = Data.SMemo; // @v11.1.12
 			pack.Pays.copy(Data.Pays);
 			if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) <= 0) {
 				int    skip = 0;
@@ -872,7 +873,10 @@ int PPDS_CrrBill::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBu
 		case DSF_CRRBILL_ID:   ok = TransferData(&Data.Rec.ID, dir, rBuf); break;
 		case DSF_CRRBILL_DATE: ok = TransferData(&Data.Rec.Dt, dir, rBuf); break;
 		case DSF_CRRBILL_CODE: ok = TransferData(Data.Rec.Code, sizeof(Data.Rec.Code), dir, rBuf); break;
-		case DSF_CRRBILL_MEMO: ok = TransferData(Data.Rec.Memo, sizeof(Data.Rec.Memo), dir, rBuf); break;
+		case DSF_CRRBILL_MEMO: 
+			// @v11.1.12 ok = TransferData(Data.Rec.Memo, sizeof(Data.Rec.Memo), dir, rBuf); 
+			ok = TransferData(Data.SMemo, dir, rBuf); // @v11.1.12
+			break;
 		case DSF_CRRBILL_PAYMENTDATE:
 			{
 				LDATE dt;

@@ -581,7 +581,7 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	THROW(CheckTblPtr(p_tbl = new DvcLoadingStatTbl(DlsT.GetName())));
 	if(Filt.DvcID && pSubTitle) {
 		pSubTitle->CatChar(0xa0);
-		pSubTitle->CatChar(':');
+		pSubTitle->Colon();
 		pSubTitle->Space();
 		GetDvcName(Filt.DvcType, pSubTitle);
 		pSubTitle->Space();

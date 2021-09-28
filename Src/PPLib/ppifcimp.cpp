@@ -4544,7 +4544,8 @@ void FillPersonRec(const PPPersonPacket * pInner, SPpyO_Person * pOuter)
 	pOuter->UpdFlags = static_cast<PpyOPsnUpdateFlags>(pInner->UpdFlags);
 	#undef FLD
 	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
-	(temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
+	// @v11.1.12 (temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo); // @v11.1.12
 	{
 		pInner->GetExtName(temp_buf);
 		temp_buf.CopyToOleStr(&pOuter->ExtString);
@@ -5041,7 +5042,8 @@ static void FASTCALL FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOute
 	FLD(OpID);
 	FLD(StatusID);
 	FLD(UserID);
-	FLD(MainOrgID);
+	// @v11.1.12 FLD(MainOrgID);
+	pOuter->MainOrgID = 0; // @v11.1.12
 	FLD(LocID);
 	FLD(Object);
 	FLD(Object2);
@@ -5056,7 +5058,8 @@ static void FASTCALL FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOute
         temp_buf = pInner->Rec.Code;
 		temp_buf.CopyToOleStr(&pOuter->Code);
 	}
-	(temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
+	// @v11.1.12 (temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo); // @v11.1.12
 #undef FLD
 	//
 	// Дополнительные поля документа
@@ -5112,7 +5115,7 @@ static void FASTCALL FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pO
 	FLD(OpID);
 	FLD(StatusID);
 	FLD(UserID);
-	FLD(MainOrgID);
+	// @v11.1.12 FLD(MainOrgID);
 	FLD(LocID);
 	FLD(Object);
 	FLD(Object2);
@@ -5130,8 +5133,10 @@ static void FASTCALL FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pO
 	if(temp_buf.Len() || fillNotZero == 0)
 		temp_buf.CopyTo(pOuter->Rec.Code, sizeof(pOuter->Rec.Code));
 	temp_buf.CopyFromOleStr(pInner->Memo);
-	if(temp_buf.Len() || fillNotZero == 0)
-		temp_buf.CopyTo(pOuter->Rec.Memo, sizeof(pOuter->Rec.Memo));
+	if(temp_buf.Len() || fillNotZero == 0) {
+		// @v11.1.12 temp_buf.CopyTo(pOuter->Rec.Memo, sizeof(pOuter->Rec.Memo));
+		pOuter->SMemo = temp_buf; // @v11.1.12
+	}
 	#undef FLD
 	// Дополнительные поля документа
 	#define FLD(f) pOuter->Ext.f = pInner->f;
@@ -8553,7 +8558,8 @@ int32 DL6ICLS_PPViewBill::NextIteration(PPYVIEWITEM item)
 		FLD(OpID);
 		FLD(StatusID);
 		FLD(UserID);
-		FLD(MainOrgID);
+		// @v11.1.12 FLD(MainOrgID);
+		p_item->MainOrgID = 0; // @v11.1.12
 		FLD(LocID);
 		FLD(Object);
 		FLD(Object2);
@@ -8565,7 +8571,7 @@ int32 DL6ICLS_PPViewBill::NextIteration(PPYVIEWITEM item)
 		FLD(Flags2);
 		FLD(SCardID);
 		(temp_buf = inner_item.Code).CopyToOleStr(&p_item->Code);
-		(temp_buf = inner_item.Memo).CopyToOleStr(&p_item->Memo);
+		(temp_buf = inner_item.SMemo).CopyToOleStr(&p_item->Memo); // @v11.1.12 item.Memo-->item.SMemo
 		FLD(Debit);
 		FLD(Credit);
 		FLD(Saldo);

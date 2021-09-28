@@ -1098,7 +1098,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space().Cat("SUBNAME").CatParStr(pSubstr).Space();
 			if(skip_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
+			q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				THROW(reply.StartReading(0));
@@ -3734,7 +3734,7 @@ int GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 	if(p_cli && !(CConfig.Flags2 & CCFLG2_DONTUSE3TIERGMTX)) {
 		SString q;
 		q.Cat("GETGOODSMATRIX").Space().Cat("LOCATION").CatChar('(').Cat(locID).CatChar(')').Space();
-		q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
+		q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 		PPJobSrvReply reply;
 		if(p_cli->Exec(q, reply)) {
 			THROW(reply.StartReading(0));

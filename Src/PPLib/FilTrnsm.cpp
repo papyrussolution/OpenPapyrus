@@ -159,7 +159,7 @@ static int IsRemovableDrive(const char drive)
 	int    ok = 0;
 	uint   drive_type = 0;
 	SString s_drive;
-	s_drive.CatChar(drive).CatChar(':').SetLastSlash().ToUpper();
+	s_drive.CatChar(drive).Colon().SetLastSlash().ToUpper();
 	drive_type = GetDriveType(SUcSwitch(s_drive));
 	if(oneof3(drive_type, DRIVE_REMOVABLE, DRIVE_CDROM, DRIVE_RAMDISK))
 		ok = 1;
@@ -193,8 +193,8 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 static int GetFilesFromMailServerProgressProc(const SDataMoveProgressInfo * pInfo)
 {
 	SString & r_msg_buf = SLS.AcquireRvlStr();
-	r_msg_buf.Cat(pInfo->OverallItemsDone).CatChar(':').Cat(pInfo->OverallSizeDone).CatChar('/').
-		Cat(pInfo->OverallItemsCount).CatChar(':').Cat(pInfo->OverallSizeTotal);
+	r_msg_buf.Cat(pInfo->OverallItemsDone).Colon().Cat(pInfo->OverallSizeDone).CatChar('/').
+		Cat(pInfo->OverallItemsCount).Colon().Cat(pInfo->OverallSizeTotal);
 	PPWaitPercent(pInfo->OverallItemsDone, pInfo->OverallItemsCount, r_msg_buf);
 	return 0;
 }
@@ -656,7 +656,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 				THROW_PP(driveValid(src), PPERR_NEXISTPATH);
 				removable_drive = IsRemovableDrive(toupper(drive));
 				if(removable_drive > 0) {
-					file_path.Z().CatChar(drive).CatChar(':').CatChar('\\');
+					file_path.Z().CatChar(drive).Colon().CatChar('\\');
 					PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
 					while(::access(file_path, 0) != 0)
 						THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
@@ -734,7 +734,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	THROW_PP_S(driveValid(pDestPath), PPERR_NEXISTPATH, pDestPath);
 	removable_drive = (ps.Drv.Len() == 1) ? IsRemovableDrive(ps.Drv.C(0)) : 0;
 	if(removable_drive > 0) {
-		dest_dir.Z().CatChar(ps.Drv.C(0)).CatChar(':').CatChar('\\');
+		dest_dir.Z().CatChar(ps.Drv.C(0)).Colon().CatChar('\\');
 		PPSetAddedMsgString(ps.Drv);
 		while(::access(dest_dir, 0))
 			THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);

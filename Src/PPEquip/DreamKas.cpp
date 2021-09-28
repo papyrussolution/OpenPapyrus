@@ -172,7 +172,7 @@ int ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 					else
 						login = gua_rec.Name;
 					if(login.NotEmptyS()) {
-						login.CatChar(':').Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
+						login.Colon().Cat(pwd).Transf(CTRANSF_INNER_TO_UTF8);
 						temp_buf.Z().EncodeMime64(login.cptr(), login.Len());
 						SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAuthorization, login.Z().Cat("Basic").Space().Cat(temp_buf));
 						pwd.Obfuscate();

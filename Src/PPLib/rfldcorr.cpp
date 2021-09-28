@@ -263,12 +263,12 @@ int SdFieldCorrListDialog::setupList()
 		ss.clear();
 		sub.Z();
 		if(fld.T.Flags & STypEx::fFormula)
-			sub.CatChar('F').CatChar(':').Cat(fld.InnerFormula);
+			sub.CatChar('F').Colon().Cat(fld.InnerFormula);
 		else if(P_Rec->GetFieldByID(fld.ID, 0, &inner_fld) > 0)
 			sub = inner_fld.Name;
 		ss.add(sub);
 		if(fld.OuterFormula.NotEmpty()) // @v10.9.1
-			ss.add(sub.Z().CatChar('F').CatChar(':').Cat(fld.OuterFormula).Transf(CTRANSF_OUTER_TO_INNER));
+			ss.add(sub.Z().CatChar('F').Colon().Cat(fld.OuterFormula).Transf(CTRANSF_OUTER_TO_INNER));
 		else
 			ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));

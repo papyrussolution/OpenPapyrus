@@ -35,7 +35,7 @@ extern int rl_complete_with_tilde_expansion;
 	// 
 	static char * expanded_history_filename;
 	static void wrapper_for_write_history();
-#endif                          /* GNUPLOT_HISTORY */
+#endif
 
 static RETSIGTYPE inter(int anint);
 #ifdef X11

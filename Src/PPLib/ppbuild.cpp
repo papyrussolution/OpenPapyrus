@@ -426,12 +426,12 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 			int    msvs_ver_minor = (item.Id & 0xffff);
 			if(prefMsvsVerMajor) {
 				if(msvs_ver_major == prefMsvsVerMajor) {
-					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").Dot().Cat("exe");
+					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").DotCat("exe");
 					ok = 2;
 				}
 			}
 			else if(msvs_ver_major == 7 && msvs_ver_minor == 1) {
-				(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").Dot().Cat("exe");
+				(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").DotCat("exe");
 				ok = 2;
 			}
 		}
@@ -503,7 +503,7 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 		if(P.Flags & r_sln_entry.Flag && (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)) { // @v10.6.1 (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)
 			PPGetPath(PPPATH_LOG, build_log_path);
 			const char * p_log_build_text = supplementalConfig ? "build_xp" : "build";
-			build_log_path.SetLastSlash().Cat(p_log_build_text).CatChar('-').Cat(r_sln_entry.P_Name).Dot().Cat("log");
+			build_log_path.SetLastSlash().Cat(p_log_build_text).CatChar('-').Cat(r_sln_entry.P_Name).DotCat("log");
 			//D:\msvs70\common7\ide\devenv.exe papyrus.sln /rebuild "Release" /out %BUILDLOG%\client.log
 			{
 				STARTUPINFO si;
@@ -666,9 +666,9 @@ int	PrcssrBuild::Run()
 				si.cb = sizeof(si);
 				MEMSZERO(pi);
 				target_file_name = (P.Flags & Param::fOpenSource) ? "OPpy" : "Ppy";
-				target_file_name.Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).Dot().Cat("exe");
+				target_file_name.Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).DotCat("exe");
 				PPGetPath(PPPATH_LOG, build_log_path);
-				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).Dot().Cat("log");
+				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).DotCat("log");
 				temp_buf.Z().CatQStr(p_config_entry->NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
 					CatEq("/DSRC_ROOT", p_config_entry->RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
 				if(r_nsis_entry.P_Config)

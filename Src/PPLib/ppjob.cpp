@@ -89,7 +89,7 @@ PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
 //@erik v10.7.4
 	GetXmlPoolDir(XmlFilePath);
 	Sync.Init(XmlFilePath);
-	XmlFilePath.SetLastSlash().Cat("ppjobpool").Dot().Cat("xml");
+	XmlFilePath.SetLastSlash().Cat("ppjobpool").DotCat("xml");
 // } @erik
 }
 

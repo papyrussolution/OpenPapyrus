@@ -4332,6 +4332,7 @@
 	#define CTLSEL_UNIPRICE_QUOTK       (14 + WINDOWS_ID_BIAS)
 	#define CTL_UNIPRICE_OLDPRICE       (15 + WINDOWS_ID_BIAS)
 	#define CTL_UNIPRICE_MODE           (16 + WINDOWS_ID_BIAS)
+	#define CTL_UNIPRICE_PSRC           (17 + WINDOWS_ID_BIAS)
 #define DLG_QUOTUPD               326 // QUOTUPD Массовое изменение котировок
 	#define cmQuotUpdSetQuot             101 // Установка значения котировки
 	#define CTL_QUOTUPD_KIND             (1 + WINDOWS_ID_BIAS)

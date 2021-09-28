@@ -1981,7 +1981,8 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				double mult = 0.0;
 				PPBillPacket reckon_pack;
 				THROW(P_BObj->ExtractPacket(paym_pack.PaymBillID, &reckon_pack));
-				bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : BillCore::GetCode(reckon_pack.Rec.Code);
+				// @v11.1.12 bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : BillCore::GetCode(reckon_pack.Rec.Code);
+				bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : reckon_pack.Rec.Code; // @v11.1.12 
 				mult = paym_pack.GetBaseAmount() / reckon_pack.GetBaseAmount();
 				reckon_pack.Rec.Amount = BR2(paym_pack.Rec.Amount);
 				for(i = 0; reckon_pack.Amounts.enumItems(&i, (void **)&p_ae);)
@@ -2052,8 +2053,10 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				bill_code.CopyTo(rec.Code, sizeof(rec.Code));
 			else if(pack.Ext.InvoiceCode[0])
 				STRNSCPY(rec.Code, pack.Ext.InvoiceCode);
-			else
-				BillCore::GetCode(STRNSCPY(rec.Code, pack.Rec.Code));
+			else {
+				// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.Code, pack.Rec.Code));
+				STRNSCPY(rec.Code, pack.Rec.Code); // @v11.1.12 
+			}
 			if(pack.Ext.InvoiceDate) {
 				rec.InvcDt = pack.Ext.InvoiceDate;
 				if(!pPaymRec || !pPaymRec->Dt) {
@@ -2067,13 +2070,16 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				rec.InvcDt = pack.Rec.Dt;
 			// @v10.3.10 {
 			if(pack.OpTypeID == PPOPT_CORRECTION) {
-				BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
+				// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
+				STRNSCPY(rec.CBillCode, pack.Rec.Code); // @v11.1.12 
 				rec.CBillDt = pack.Rec.Dt;
 				if(pack.P_LinkPack) {
 					if(pack.P_LinkPack->Ext.InvoiceCode[0])
 						STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
-					else
-						BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
+					else {
+						// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
+						STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code); // @v11.1.12 
+					}
 					if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
 						rec.InvcDt = pack.P_LinkPack->Rec.Dt;
 						if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
@@ -3069,13 +3075,13 @@ int PPViewVatBook::Export()
 		if(Filt.Kind == PPVTB_BUY) {
 			p_ledger_title = "КнигаПокуп";
 			p_ledger_line_title = "КнПокСтр";
-			id_file.Cat("NO_NDS").Dot().Cat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
+			id_file.Cat("NO_NDS").DotCat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 		else if(Filt.Kind == PPVTB_SELL) {
 			p_ledger_title = "КнигаПрод";
 			p_ledger_line_title = "КнПродСтр";
-			id_file.Cat("NO_NDS").Dot().Cat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
+			id_file.Cat("NO_NDS").DotCat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 	}
@@ -3090,7 +3096,7 @@ int PPViewVatBook::Export()
 			}
 			left = 0;
 		}
-		out_file_name.Z().Cat(id_file).Dot().Cat("xml");
+		out_file_name.Z().Cat(id_file).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{

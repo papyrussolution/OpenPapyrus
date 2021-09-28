@@ -209,7 +209,7 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 				THROW(p_scope);
 				rR.RefType = ret_t.Link;
 				rR.RefID = rR.S.ToLong();
-				(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+				(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 			}
 		}
 		else {
@@ -253,7 +253,7 @@ int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, 
 		{
 			rR.RefType = p_scope->GetId();
 			rR.RefID = NZOR(temp_result.RefID, temp_result.S.ToLong());
-			(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+			(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 		}
 		c = rScan.Skip()[0];
 		THROW_PP_S(c == ')', PPERR_TDDO_SYMBEXPECTED, "')'");
@@ -623,7 +623,7 @@ int Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 			THROW(p_scope);
 			rR.RefType = fld.T.Link;
 			rR.RefID = rR.S.ToLong();
-			(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
+			(rR.S = p_scope->GetName()).Colon().Cat(rR.RefID);
 		}
 		else {
 			if(oneof3(Cp, cp1251, cpUndef, cpANSI))
@@ -816,7 +816,7 @@ int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langI
 		(sect_buf = pTextIdent).Strip();
 		if(temp_buf.NotEmpty()) {
 			defsect_buf = sect_buf;
-			sect_buf.CatChar(':').Cat(temp_buf);
+			sect_buf.Colon().Cat(temp_buf);
 		}
 		while(in_file.ReadLine(temp_buf)) {
 			int    s = IsTextSection(temp_buf, sect_buf, 0);

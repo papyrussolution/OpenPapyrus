@@ -685,12 +685,12 @@ int SlThread::InitStartupSignal()
 
 int  SlThread::IsConsistent() const { return BIN(Sign == SIGN_SLTHREAD); }
 int  SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
-void SlThread::SetIdleState() { State |= stIdle; }
-void SlThread::ResetIdleState() { State &= ~stIdle; }
+void SlThread::SetIdleState() { State_Slt |= stIdle; }
+void SlThread::ResetIdleState() { State_Slt &= ~stIdle; }
 
 void SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 {
-	State  = 0;
+	State_Slt = 0;
 	Handle = 0;
 	ID     = 0;
 	StopTimeout	= stopTimeout;
@@ -703,14 +703,14 @@ void SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 //
 int FASTCALL SlThread::Start(int waitOnStartup)
 {
-	if(!(State & stRunning)) {
+	if(!(State_Slt & stRunning)) {
 		P_Creation = new Evnt;
 		uint   tmp_id;
 		Handle = reinterpret_cast<ThreadHandle>(_beginthreadex(0, 0, _Exec, this, 0, &tmp_id));
 		ID = static_cast<ThreadID>(tmp_id);
-		SETFLAG(State, stRunning, Handle);
+		SETFLAG(State_Slt, stRunning, Handle);
 		// Now the new thread may run
-		if(State & stRunning) {
+		if(State_Slt & stRunning) {
 			CALLPTRMEMB(P_Creation, Signal());
 		}
 	}
@@ -720,12 +720,12 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 		P_StartupSignal->Wait();
 		ZDELETE(P_StartupSignal);
 	}
-	return BIN(State & stRunning);
+	return BIN(State_Slt & stRunning);
 }
 
 void SlThread::Stop(long timeout)
 {
-	if(State & stRunning) {
+	if(State_Slt & stRunning) {
 		if(WaitForSingleObject(Handle, NZOR(timeout, StopTimeout)) == WAIT_TIMEOUT)
 			Terminate();
 	}
@@ -736,13 +736,13 @@ void SlThread::Stop(long timeout)
 int SlThread::Terminate()
 {
 	int    ok = BIN(TerminateThread(Handle, static_cast<DWORD>(-1)));
-	State &= ~stRunning;
+	State_Slt &= ~stRunning;
 	return ok;
 }
 
 int SlThread::WaitUntilFinished()
 {
-	int    ok = (State & stRunning) ? 0 : 1;
+	int    ok = (State_Slt & stRunning) ? 0 : 1;
 	if(!ok)
 		ok = (WaitForSingleObject(Handle, INFINITE) == WAIT_OBJECT_0);
 	return ok;
@@ -757,23 +757,23 @@ void FASTCALL SlThread::Sleep(uint milliseconds)
 
 void SlThread::SetStopState()
 {
-	State |= stLocalStop;
+	State_Slt |= stLocalStop;
 	EvLocalStop.Signal();
 }
 
 int SlThread::IsRunning() const
 {
-	return BIN(State & stRunning);
+	return BIN(State_Slt & stRunning);
 }
 
 int SlThread::IsIdle() const
 {
-	return BIN(State & stIdle);
+	return BIN(State_Slt & stIdle);
 }
 
 int SlThread::IsStopping() const
 {
-	return BIN(State & stLocalStop);
+	return BIN(State_Slt & stLocalStop);
 }
 //
 // This method is invoked on behalf of the new thread before Run()

@@ -4769,7 +4769,8 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 							if(!p_pack) {
 								THROW_SL(p_pack = pack_list.CreateNewItem());
 								THROW(p_pack->CreateBlank2(op_id, date, loc_id, 0));
-								PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+								// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
+								PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo); // @v11.1.12
 								p_pack->SetPoolMembership(PPBillPacket::bpkCSessDfct, sessID);
 							}
 							if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
@@ -5207,7 +5208,8 @@ int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locI
 					SString serial_buf;
 					const LDATE  dt = cg_list.GetMaxDate();
 					THROW(pack.CreateBlank2(r_eq_cfg.OpOnTempSess, dt, locID, 0));
-					PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo); // @v11.1.12
 					for(i = 0; i < cg_list.getCount(); i++) {
 						const CCheckGoodsEntry & r_entry = cg_list.at(i);
 						PPTransferItem ti;

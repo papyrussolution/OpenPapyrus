@@ -489,7 +489,7 @@ void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 				for(uint j = 0; j < p_fblk->TrendList.getCount(); j++) {
 					const PPObjTimeSeries::TrendEntry * p_iter = p_fblk->TrendList.at(j);
 					if(p_iter && p_iter->TL.getCount()) {
-						temp_buf.CatLongZ(p_iter->Stride, 3).CatChar(':');
+						temp_buf.CatLongZ(p_iter->Stride, 3).Colon();
 						temp_buf.Cat(p_iter->TL[p_iter->TL.getCount()-1], MKSFMTD(14, 10, 0)).CatChar('|');
 						/*for(uint k = 0; k < p_iter->TL.getCount(); k++) {
 							temp_buf.Cat(p_iter->TL[k], MKSFMTD(14, 10, 0)).CatChar('|');
@@ -1075,8 +1075,8 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 								Cat(is_short ? "S" : "B").CatChar('/').
 								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
 								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
-								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-								log_msg.CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Space();
+								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+								log_msg.Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Space();
 								log_msg.CatEq("Profit", rStk.Profit, MKSFMTD(0, 2, 0)).Space().
 									CatEq("local_current_price", local_current_price, MKSFMTD(0, 5, 0)).Space().
 									CatEq("vsl", vsl, MKSFMTD(0, 5, 0));
@@ -1095,8 +1095,8 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 					Cat(is_short ? "S" : "B").CatChar('/').
 					Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
 					Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
-					Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-					log_msg.CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+					Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+					log_msg.Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 					log_msg.CatEq("Profit", rStk.Profit);
 				/*if(p_st && (!external_sl_used || !external_tp_used)) {
 					log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(*p_st, &_best_result, temp_buf));
@@ -1195,12 +1195,12 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 								Cat(is_short ? "S" : "B").CatChar('/').
 								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
 								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
-								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).
+								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).
 								Cat(" >> ").
 								Cat(eff_sl, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 								if(external_sl_used)
 									log_msg.Cat("[*]");
-								log_msg.CatChar(':');
+								log_msg.Colon();
 								log_msg.Cat(eff_tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 								if(external_tp_used)
 									log_msg.Cat("[*]");
@@ -1490,7 +1490,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 	TSVector <PotentialStakeEntry> potential_stake_list;
 	const uint current_stake_count = StkEnv.SL.getCount();
 	const double evaluated_used_margin = EvaluateUsedMargin();
-	PPGetFilePath(PPPATH_LOG, (temp_buf = "EvaluateStakes").Dot().Cat("log"), log_file_name);
+	PPGetFilePath(PPPATH_LOG, (temp_buf = "EvaluateStakes").DotCat("log"), log_file_name);
 	for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 		const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 		const long max_diff_sec = UseRegularValuesOnlyForStakes ? 130 : 40;
@@ -1582,7 +1582,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 								}
 							}
 						}
-						(temp_buf = "tst").CatChar('-').Cat(tk_symb).Dot().Cat("log");
+						(temp_buf = "tst").CatChar('-').Cat(tk_symb).DotCat("log");
 						PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
 						PPLogMessage(log_file_name, log_msg, 0);
 					}*/
@@ -1905,7 +1905,7 @@ TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::InitBlock(PPObjTimeSeries & 
 			SString temp_buf;
 			SString file_name;
 			SString line_buf;
-			temp_buf.Z().Cat("ts-raw-work").CatChar('-').Cat(ts_pack.GetSymb()).Dot().Cat("txt").ToLower();
+			temp_buf.Z().Cat("ts-raw-work").CatChar('-').Cat(ts_pack.GetSymb()).DotCat("txt").ToLower();
 			PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
 			SFile f_out(file_name, SFile::mWrite);
 			if(f_out.IsValid()) {

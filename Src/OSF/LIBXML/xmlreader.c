@@ -844,7 +844,7 @@ static void FASTCALL xmlTextReaderValidatePop(xmlTextReader * reader)
 		else {
 			// @todo use the BuildQName interface 
 			SString qname_buf;
-			(qname_buf = (const char *)p_node->ns->prefix).CatChar(':').Cat(PTRCHRC_(p_node->name));
+			(qname_buf = (const char *)p_node->ns->prefix).Colon().Cat(PTRCHRC_(p_node->name));
 			//xmlChar * qname = sstrdup(p_node->ns->prefix);
 			//qname = xmlStrcat(qname, reinterpret_cast<const xmlChar *>(":"));
 			//qname = xmlStrcat(qname, p_node->name);

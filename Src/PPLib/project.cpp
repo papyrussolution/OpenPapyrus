@@ -2166,13 +2166,13 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 					tr.Run(temp_buf.Strip().ucptr(), -1, nta.Z(), 0);
 					if(nta.Has(SNTOK_EMAIL)) {
 						VCalendar::PreprocessText(temp_buf);
-						rBuf.CatChar(':').Cat("mailto").CatChar(':').Cat(temp_buf);
+						rBuf.Colon().Cat("mailto").Colon().Cat(temp_buf);
 						is_there_email = true;
 					}
 				}
 			}
 			if(!is_there_email)
-				rBuf.CatChar(':').Cat("none");
+				rBuf.Colon().Cat("none");
 		}
 		rBuf.CRB();
 		ok = 1;
@@ -2198,7 +2198,7 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 			//
 			{
 				VCalendar::WriteToken(VCalendar::tokUID, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				rBuf.Cat(pPack->Rec.ID);
 				rBuf.CRB();
 			}
@@ -2226,35 +2226,35 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 			assert(checkdate(sj_cr_dtm.d));
 			{
 				VCalendar::WriteToken(VCalendar::tokDTSTAMP, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				VCalendar::WriteDatetime(sj_cr_dtm, rBuf);
 				rBuf.CRB();
 			}
 			if(checkdate(sj_mod_dtm.d) && cmp(sj_mod_dtm, sj_cr_dtm) > 0) {
 				VCalendar::WriteToken(VCalendar::tokLASTMODIFIED, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				VCalendar::WriteDatetime(sj_mod_dtm, rBuf);
 				rBuf.CRB();
 			}
 			VCalendar::WriteToken(VCalendar::tokCREATED, rBuf);
-			rBuf.CatChar(':');
+			rBuf.Colon();
 			VCalendar::WriteDatetime(dtm.Set(pPack->Rec.Dt, pPack->Rec.Tm), rBuf);
 			rBuf.CRB();
 			if(checkdate(pPack->Rec.FinishDt)) {
 				VCalendar::WriteToken(VCalendar::tokCOMPLETED, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				VCalendar::WriteDatetime(dtm.Set(pPack->Rec.FinishDt, pPack->Rec.FinishTm), rBuf);
 				rBuf.CRB();
 			}
 			if(checkdate(pPack->Rec.StartDt)) {
 				VCalendar::WriteToken(VCalendar::tokDTSTART, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				VCalendar::WriteDatetime(dtm.Set(pPack->Rec.StartDt, pPack->Rec.StartTm), rBuf);
 				rBuf.CRB();
 			}
 			if(checkdate(pPack->Rec.EstFinishDt)) {
 				VCalendar::WriteToken(VCalendar::tokDUE, rBuf);
-				rBuf.CatChar(':');
+				rBuf.Colon();
 				VCalendar::WriteDatetime(dtm.Set(pPack->Rec.EstFinishDt, pPack->Rec.EstFinishTm), rBuf);
 				rBuf.CRB();
 			}
@@ -2269,13 +2269,13 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 				}
 				if(tok_status) {
 					VCalendar::WriteToken(VCalendar::tokSTATUS, rBuf);
-					rBuf.CatChar(':');
+					rBuf.Colon();
 					VCalendar::WriteToken(tok_status, rBuf);
 					rBuf.CRB();
 				}
 				{
 					VCalendar::WriteToken(VCalendar::tokPRIORITY, rBuf); // [0..9]
-					rBuf.CatChar(':');
+					rBuf.Colon();
 					// В Papyrus'е штатный диапазон приоритетов задач [1..5] - транслируем значение в диапазон [0..9]
 					int ical_priority = pPack->Rec.Priority;
 					if(ical_priority >= 1 && ical_priority <= 5)
@@ -2308,11 +2308,11 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 						LocationCore::GetAddress(loc_pack, 0, temp_buf);
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 						VCalendar::PreprocessText(temp_buf);
-						rBuf.CatChar(':').Cat(temp_buf);
+						rBuf.Colon().Cat(temp_buf);
 						rBuf.CRB();
 						if(loc_pack.Latitude != 0.0 && loc_pack.Longitude != 0.0) {
 							VCalendar::WriteToken(VCalendar::tokGEO, rBuf);
-							rBuf.CatChar(':').Cat(loc_pack.Latitude, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Semicol().Cat(loc_pack.Longitude, MKSFMTD(0, 8, NMBF_NOTRAILZ));
+							rBuf.Colon().Cat(loc_pack.Latitude, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Semicol().Cat(loc_pack.Longitude, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 							rBuf.CRB();
 						}
 					}
@@ -2321,24 +2321,24 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 					VCalendar::WriteToken(VCalendar::tokDESCRIPTION, rBuf);
 					(temp_buf = pPack->SDescr).Transf(CTRANSF_INNER_TO_UTF8);
 					VCalendar::PreprocessText(temp_buf);
-					rBuf.CatChar(':').Cat(temp_buf);
+					rBuf.Colon().Cat(temp_buf);
 					rBuf.CRB();
 				}
 				if(pPack->SMemo.NotEmpty()) {
 					VCalendar::WriteToken(VCalendar::tokCOMMENT, rBuf);
 					(temp_buf = pPack->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
 					VCalendar::PreprocessText(temp_buf);
-					rBuf.CatChar(':').Cat(temp_buf);
+					rBuf.Colon().Cat(temp_buf);
 					rBuf.CRB();
 				}
 				VCalendar::WriteToken(VCalendar::tokXPAPYRUSID, rBuf);
-				rBuf.CatChar(':').Cat(pPack->Rec.ID);
+				rBuf.Colon().Cat(pPack->Rec.ID);
 				rBuf.CRB();
 				if(!isempty(pPack->Rec.Code)) {
 					VCalendar::WriteToken(VCalendar::tokXPAPYRUSCODE, rBuf);
 					(temp_buf = pPack->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 					VCalendar::PreprocessText(temp_buf);
-					rBuf.CatChar(':').Cat(temp_buf);
+					rBuf.Colon().Cat(temp_buf);
 					rBuf.CRB();
 				}
 			}

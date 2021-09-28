@@ -1762,7 +1762,7 @@ int SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 	PPLoadString("relation", word_rel); // @v10.5.9
 	for(id = 0; relt_obj.EnumItems(&id, &item) > 0;)
 		if(item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
-			(buf = word_rel).CatChar(':').Cat(item.Name);
+			(buf = word_rel).Colon().Cat(item.Name);
 			ary.Add(id + (long)sgpFirstRelation, buf);
 		}
 	init_id = (long)sgp;

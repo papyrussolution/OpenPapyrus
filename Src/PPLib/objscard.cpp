@@ -1890,7 +1890,7 @@ int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, v
 			if(seriesID) {
 				q.Cat("SERIES").CatParStr(temp_buf.Z().Cat(seriesID)).Space();
 			}
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
+			q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				THROW(reply.StartReading(0));

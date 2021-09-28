@@ -1,5 +1,5 @@
 // BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -8,10 +8,11 @@
 //
 // BillCore
 //
-#define WHITE_LABEL_SIGN '!'
-#define BILLCODE_SIZ     sizeof(static_cast<BillTbl::Rec *>(0)->Code)
+// @v11.1.12 (более не используется) #define WHITE_LABEL_SIGN '!'
+// @v11.1.12 #define BILLCODE_SIZ     sizeof(static_cast<BillTbl::Rec *>(0)->Code)
 
-/*static*/char * FASTCALL BillCore::SetCode(char * code, long f)
+#if 0 // @v11.1.12 {
+/*static*/char * FASTCALL BillCore::SetCode(char * pCode, long f)
 {
 	char   temp[BILLCODE_SIZ];
 	strip(code);
@@ -26,6 +27,7 @@
 		strcpy(code, code+1);
 	return code;
 }
+#endif // } 0 @v11.1.12
 
 /*static*/double BillCore::GetQttyEpsilon()
 {
@@ -108,8 +110,8 @@
 	return ok;
 }
 
-/*static*/char * FASTCALL BillCore::GetCode(char * code) { return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
-/*static*/SString & FASTCALL BillCore::GetCode(SString & rCode) { return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
+// @v11.1.12 /*static*/char * FASTCALL BillCore::GetCode(char * code) { return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
+// @v11.1.12 /*static*/SString & FASTCALL BillCore::GetCode(SString & rCode) { return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
 
 BillCore::BillCore() : BillTbl()
 {
@@ -117,6 +119,29 @@ BillCore::BillCore() : BillTbl()
 
 int BillCore::Search(PPID id, BillTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_BILL, id, pRec); }
+
+int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta) // @v11.1.12
+{
+	int    ok = 1;
+	SString ext_buffer;
+	if(pBuf)
+		(ext_buffer = *pBuf).Strip();
+	else
+		ext_buffer.Z();
+	THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), use_ta));
+	CATCHZOK
+	return ok;
+}
+
+SString & BillCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+{
+	rBuf.Z();
+	if(id) {
+		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), rBuf);
+		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	}
+	return rBuf;
+}
 
 int BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
 {
@@ -585,7 +610,8 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 	Reference * p_ref = PPRef;
 	pInfo->BaseDestroy();
 	THROW(Search(id, &pInfo->Rec) > 0);
-	BillCore::GetCode(pInfo->Rec.Code);
+	// @v11.1.12 BillCore::GetCode(pInfo->Rec.Code);
+	BillCore::GetItemMemo(id, pInfo->SMemo); // @v11.1.12
 	if(pInfo->Rec.Flags & BILLF_EXTRA)
 		THROW(GetExtraData(id, &pInfo->Ext));
 	if(pInfo->Rec.Flags & BILLF_RENT) {
@@ -645,6 +671,7 @@ int BillCore::Remove(PPID id, int use_ta)
 		THROW(UpdateAmount(id, 0, 0)); // Удаляем все суммы для документа id
 		THROW(PutPayPlan(id, 0, 0));
 		THROW(PPRef->RemoveProperty(PPOBJ_BILL, id, 0, 0));
+		THROW(PutItemMemo(id, 0, 0)); // @v11.1.12
 		THROW_DB(deleteFrom(this, 0, (this->ID == id)));
 		THROW(tra.Commit());
 	}
@@ -655,14 +682,15 @@ int BillCore::Remove(PPID id, int use_ta)
 void BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 {
 	copyBufFrom(pRec);
-	BillCore::SetCode(data.Code, data.Flags);
+	// @v11.1.12 BillCore::SetCode(data.Code, data.Flags);
 	data.Flags &= ~BILLF_NOLOADTRFR;
 	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
 }
 
 int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, is_new = (*pID == 0);
+	int    ok = 1;
+	const  int is_new = (*pID == 0);
 	uint   i;
 	long   billno;
 	THROW_PP(pRec->LocID != 0, PPERR_ZEROBILLLOC);
@@ -742,6 +770,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		SETFLAG(pInfo->Rec.Flags, BILLF_BANKING, pInfo->P_PaymOrder);
 		SETFLAG(pInfo->Rec.Flags, BILLF_FREIGHT, pInfo->P_Freight);
 		THROW(EditRec(pID, &pInfo->Rec, 0));
+		THROW(PutItemMemo(*pID, &pInfo->SMemo, 0)); // @v11.1.12
 		THROW(PutExtraData(*pID, ((pInfo->Rec.Flags & BILLF_EXTRA) ? &pInfo->Ext : 0), 0));
 		if(pInfo->Rec.Flags & BILLF_RENT) {
 			PropertyTbl::Rec prp_rec;
@@ -1043,7 +1072,7 @@ int BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long
 	int    idx = 2;
 	BExtQuery * q = new BExtQuery(this, idx);
 	q->select(this->ID, this->Code, this->Dt, this->BillNo, this->DueDate, this->OpID, this->StatusID, this->UserID,
-		this->MainOrgID, this->LocID, this->Object, this->Object2, this->CurID, this->CRate,
+		/* @v11.1.12 this->MainOrgID,*/this->LocID, this->Object, this->Object2, this->CurID, this->CRate,
 		this->Amount, this->LinkBillID, this->Flags, this->Flags2, this->SCardID, 0L);
 	q->where(this->OpID == opID && daterange(this->Dt, pPeriod));
 	BillTbl::Key2 k2;
@@ -1134,7 +1163,7 @@ int BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
 {
 	int    ok = -1;
-	char   scode[32];
+	char   scode[64]; // @v11.1.12 [32]-->[64]
 	DBQ  * dbq = 0;
 	union {
 		BillTbl::Key1 k1;
@@ -1143,7 +1172,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pSample->Code);
-	GetCode(scode);
+	// @v11.1.12 GetCode(scode);
 	MEMSZERO(k);
 	if(pSample->Object) {
 		k.k3.Object = pSample->Object;
@@ -1168,7 +1197,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 	q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
 	for(q.initIteration(0, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 		if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
-			GetCode(data.Code);
+			// @v11.1.12 GetCode(data.Code);
 			if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
 				const PPID bill_id = data.ID;
 				if(!pRec || Search(bill_id, pRec) > 0) {

@@ -936,7 +936,7 @@ int DlRtm::Export(ExportParam & rParam)
 			else if(p_child->Name.Divide('@', left, suffix) > 0) {
 				left.Z().CatChar('_').Cat(suffix);
 				suffix = left;
-				(fname = suffix).Dot().Cat("btr");
+				(fname = suffix).DotCat("btr");
 				if(rParam.Flags & ExportParam::fDiff_ID_ByScope) {
 					++idn_iter_inc;
 					idn = (10+idn_iter_inc);
@@ -944,7 +944,7 @@ int DlRtm::Export(ExportParam & rParam)
 			}
 			else {
 				suffix = p_child->Name;
-				(fname = suffix).Dot().Cat("btr");
+				(fname = suffix).DotCat("btr");
 				if(rParam.Flags & ExportParam::fDiff_ID_ByScope) {
 					++idn_iter_inc;
 					idn = (10+idn_iter_inc);
@@ -1080,7 +1080,7 @@ int DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	rBuf.Z();
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	head_name = data_name;
-	data_name.Dot().Cat("xml");
+	data_name.DotCat("xml");
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	if(rParam.P_F && p_writer) {
@@ -1205,7 +1205,7 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	rOutFileName.Z();
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	head_name = data_name;
-	data_name.Dot().Cat("xml");
+	data_name.DotCat("xml");
 	PPGetFilePath(PPPATH_OUT, data_name, path);
 	p_writer = xmlNewTextWriterFilename(path, (rParam.Flags & ExportParam::fCompressXml) ? 9 : 0); // @v10.6.0 0-->((rParam.Flags & ExportParam::fCompressXml) ? 9 : 0)
 	if(rParam.P_F && p_writer) {

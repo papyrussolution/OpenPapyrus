@@ -128,7 +128,7 @@ static cairo_status_t _wgl_dummy_ctx(cairo_wgl_context_t * ctx)
 	RegisterClassExA(&wincl);
 	ctx->dummy_wnd = CreateWindowA("cairo_wgl_context_dummy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	ctx->dummy_dc = GetDC(ctx->dummy_wnd);
-	ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
+	memzero(&pfd, sizeof(pfd));
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion = 1;
 	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;

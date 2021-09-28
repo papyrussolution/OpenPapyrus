@@ -1623,7 +1623,8 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 				b_pack.Ext.InvoiceDate = bill_dt;
 				PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
 				memo_buf.Z().CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
-				memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+				// @v11.1.12 memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+				b_pack.SMemo = memo_buf; // @v11.1.12
 				for(uint p = 0; goods.enumItems(&p, (void **)&p_e) > 0;) {
 					int    new_doc_by_loc = 0;
 					long   cost_alg  = rule.Rec.CostAlg;
@@ -1720,7 +1721,8 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 						b_pack.Ext.InvoiceDate = bill_dt;
 						PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
 						memo_buf.Z().CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
-						memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+						// @v11.1.12 memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+						b_pack.SMemo = memo_buf; // @v11.1.12
 						pos = 0;
 						sum = 0;
 					}

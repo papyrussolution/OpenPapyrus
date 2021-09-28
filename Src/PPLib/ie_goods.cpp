@@ -2936,10 +2936,10 @@ int ExportUhttForGitHub()
     BarcodeArray codes;
 	const SString title_line("ID\tUPCEAN\tName\tCategoryID\tCategoryName\tBrandID\tBrandName\n");
 	long   file_no = 1;
-	(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+	(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).DotCat("csv");
     PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
     SFile f_out(out_file_name, SFile::mWrite);
-	(temp_buf = "uhtt_barcode_ref_all").Dot().Cat("csv");
+	(temp_buf = "uhtt_barcode_ref_all").DotCat("csv");
     PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 	SFile f_out_all(out_file_name, SFile::mWrite);
 	f_out.WriteLine(title_line);
@@ -3015,7 +3015,7 @@ int ExportUhttForGitHub()
 					if(bytes_part >= SKILOBYTE(1024-1)) {
 						f_out.Close();
 						file_no++;
-						(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
+						(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).DotCat("csv");
 						PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 						f_out.Open(out_file_name, SFile::mWrite);
 						f_out.WriteLine(title_line);
@@ -3029,7 +3029,7 @@ int ExportUhttForGitHub()
     }
 	if(brand_concord.getCount()) {
 		brand_concord.sort(PTR_CMPFUNC(CategoryConcordAssoc_ByText), &brand_obj);
-		(temp_buf = "uhtt_barcode_ref_brand_concord").Dot().Cat("csv");
+		(temp_buf = "uhtt_barcode_ref_brand_concord").DotCat("csv");
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 		SFile f_out_brand(out_file_name, SFile::mWrite);
 		line_buf.Z().Cat("BrandID").Tab().Cat("BrandName").Tab().Cat("Count").CR();
@@ -3047,7 +3047,7 @@ int ExportUhttForGitHub()
 	}
 	if(categ_concord.getCount()) {
 		categ_concord.sort(PTR_CMPFUNC(CategoryConcordAssoc_ByText), &goods_obj);
-		(temp_buf = "uhtt_barcode_ref_category_concord").Dot().Cat("csv");
+		(temp_buf = "uhtt_barcode_ref_category_concord").DotCat("csv");
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 		SFile f_out_categ(out_file_name, SFile::mWrite);
 		line_buf.Z().Cat("CategoryID").Tab().Cat("CategoryName").Tab().Cat("Count").CR();
@@ -3075,7 +3075,7 @@ int ExportUhttForGitHub()
 			}
 		}
 		{
-			(temp_buf = "uhtt_barcode_ref_word_concord_bytext").Dot().Cat("csv");
+			(temp_buf = "uhtt_barcode_ref_word_concord_bytext").DotCat("csv");
 			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 			SFile f_out_word(out_file_name, SFile::mWrite);
 			line_buf.Z().Cat("Word").Tab().Cat("Count").CR();
@@ -3092,7 +3092,7 @@ int ExportUhttForGitHub()
 			}
 		}
 		{
-			(temp_buf = "uhtt_barcode_ref_word_concord_byfreq").Dot().Cat("csv");
+			(temp_buf = "uhtt_barcode_ref_word_concord_byfreq").DotCat("csv");
 			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 			SFile f_out_word(out_file_name, SFile::mWrite);
 			line_buf.Z().Cat("Word").Tab().Cat("Count").CR();
@@ -3116,7 +3116,7 @@ int ExportUhttForGitHub()
 			f_out_word.WriteLine(line_buf);
 		}*/
 		{
-			(temp_buf = "uhtt_barcode_ref_stat").Dot().Cat("txt");
+			(temp_buf = "uhtt_barcode_ref_stat").DotCat("txt");
 			PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 			SFile f_out_stat(out_file_name, SFile::mWrite);
 			f_out_stat.WriteLine(line_buf.Z().CatEq("barcode-count", stat.BarcodeCount).CR());

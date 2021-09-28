@@ -1848,7 +1848,7 @@ static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 				// @todo Определять локальность диска через IP
 			}
 			else {
-				(disk = ps.Drv).CatChar(':').CatChar('\\');
+				(disk = ps.Drv).Colon().CatChar('\\');
 				r = BIN(dbentry_id && GetDriveType(SUcSwitch(disk)) == DRIVE_FIXED); // @unicodeproblem
 			}
 		}

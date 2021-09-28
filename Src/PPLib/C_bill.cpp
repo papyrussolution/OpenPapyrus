@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Корректировка документов
 //
@@ -528,7 +528,9 @@ private:
 
 int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 {
-	int    ok = -1, valid_data = 0, stop = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    stop = 0;
 	AbsBillDialog * dlg = 0;
 	PPTransferItem ti;
 	int    rbybill = 0;
@@ -554,13 +556,14 @@ int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 		if(dlg->getDTS(&rabd))
 			valid_data = 1;
 	stop = BIN(dlg->getCtrlUInt16(CTL_ABSBILL_STOP));
-	delete dlg;
-	dlg = 0;
+	ZDELETE(dlg);
 	if(valid_data) {
 		if(rabd.Stop) {
 			ok = -2;
 		}
 		else {
+			PPID   new_id = 0;
+			SString temp_buf;
 			BillTbl::Rec bill_rec;
 			PPBillPacket temp_pack;
 			PPTransaction tra(1);
@@ -574,9 +577,15 @@ int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 			bill_rec.Object = rabd.ObjectID;
 			bill_rec.Flags = temp_pack.Rec.Flags;
 			STRNSCPY(bill_rec.Code, "ABSRCVR");
-			STRNSCPY(bill_rec.Memo, "Absent recovered");
+			// @v11.1.12 STRNSCPY(bill_rec.Memo, "Absent recovered");
 			THROW(P_BObj->P_Tbl->_GetBillNo(bill_rec.Dt, &bill_rec.BillNo));
-			THROW_DB(P_BObj->P_Tbl->insertRecBuf(&bill_rec));
+			THROW_DB(P_BObj->P_Tbl->insertRecBuf(&bill_rec, 0, &new_id));
+			// @v11.1.12 {
+			{
+				temp_buf = "Absent recovered";
+				THROW(P_BObj->P_Tbl->PutItemMemo(new_id, &temp_buf, 0));
+			}
+			// } @v11.1.12 
 			THROW(tra.Commit());
 			ok = 1;
 		}

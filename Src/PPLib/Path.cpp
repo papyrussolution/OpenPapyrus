@@ -238,11 +238,11 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 	rBuf.Strip();
 	if(pathID == PPPATH_DRIVE) {
 		if(rBuf.IsEmpty()) {
-			// @v5.5.9 rBuf.CatChar('A'+getdisk()).CatChar(':');
+			// @v5.5.9 rBuf.CatChar('A'+getdisk()).Colon();
 			; // @v5.5.9 Видимо, не следует подставлять текущий диск, ибо возможно указание относительных каталогов
 		}
 		else if(rBuf.Len() == 1)
-			rBuf.CatChar(':');
+			rBuf.Colon();
 	}
 	else {
 		ps.Split(rBuf.SetLastSlash());

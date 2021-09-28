@@ -1259,21 +1259,11 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup0.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\exception1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\exit1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\pthread4w-test.cpp" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\robust1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\stress1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\threestage.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tryentercs.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd1.c" />
     <ClCompile Include="..\OSF\pthreads4w\sl_pthreads4w.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>

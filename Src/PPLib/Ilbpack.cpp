@@ -1279,9 +1279,10 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		}
 		{
 			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0));
-			char   bill_code[64];
-			STRNSCPY(bill_code, Rec.Code);
-			STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
+			// @v11.1.12 char   bill_code[64];
+			// @v11.1.12 STRNSCPY(bill_code, Rec.Code);
+			// @v11.1.12 STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
+			STRNSCPY(bpack.Rec.Code, Rec.Code); // @v11.1.12 
 		}
 		bpack.Rec.ID         = Rec.ID;
 		bpack.Rec.Dt         = Rec.Dt;
@@ -1289,14 +1290,15 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		bpack.Rec.DueDate    = Rec.DueDate;
 		bpack.Rec.StatusID   = Rec.StatusID;
 		bpack.Rec.UserID     = Rec.UserID;
-		bpack.Rec.MainOrgID  = Rec.MainOrgID;
+		// @v11.1.12 bpack.Rec.MainOrgID  = Rec.MainOrgID;
 		bpack.Rec.CurID      = Rec.CurID;
 		bpack.Rec.CRate      = Rec.CRate;
 		bpack.Rec.SCardID    = Rec.SCardID;
 		if(dest_ar_id)
 			bpack.Rec.Object = dest_ar_id;
 		SETFLAG(bpack.Rec.Flags, BILLF_FIXEDAMOUNTS, Rec.Flags & BILLF_FIXEDAMOUNTS);
-		STRNSCPY(bpack.Rec.Memo, Rec.Memo);
+		// @v11.1.12 STRNSCPY(bpack.Rec.Memo, Rec.Memo);
+		bpack.SMemo = SMemo; // @v11.1.12
 		bpack.Amounts        = Amounts;
 		bpack.Rec.Amount     = Rec.Amount;
 		*static_cast<PPBill *>(this) = *static_cast<const PPBill *>(&bpack);
@@ -1523,7 +1525,8 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	//
 	SETFLAG(rPack.Rec.Flags, BILLF_WHITELABEL, Rec.Flags & BILLF_WHITELABEL);
 	STRNSCPY(rPack.Rec.Code, Rec.Code);
-	STRNSCPY(rPack.Rec.Memo, Rec.Memo);
+	// @v11.1.12 STRNSCPY(rPack.Rec.Memo, Rec.Memo);
+	rPack.SMemo = SMemo; // @v11.1.12
 	rPack.BTagL = BTagL;
 	rPack.Ext = Ext;
 	op_type_id = GetOpType(rPack.Rec.OpID);
@@ -2102,9 +2105,13 @@ int BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind, LDATE
 	if(pPack->CreateBlank(oprKind, 0, locID, 1)) {
 		pPack->Rec.Dt     = dt;
 		pPack->Rec.Object = supplID;
+		/* @v11.1.12 
 		pPack->Rec.Memo[0] = 'N';
 		pPack->Rec.Memo[1] = '2';
 		pPack->Rec.Memo[2] = 0;
+		*/
+		// pPack->SMemo = "N2"; // @v11.1.12
+		pPack->Rec.Flags2 |= BILLF2_FORCEDRECEIPT; // @v11.1.12
 		return 1;
 	}
 	else
@@ -2389,6 +2396,11 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 	int    ok = 1;
 	THROW_SL(pPack->Ver.Serialize(dir, rBuf, pSCtx)); // Номер версии идет самым первым сериализируемым объектом
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	// @v11.1.12 {
+	if(dir > 0 || pPack->Ver.IsGe(11, 1, 12)) {
+		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
+	}
+	// } @v11.1.12 
 	THROW(pPack->Ext.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Pays, rBuf));
@@ -2900,7 +2912,7 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 		THROW(ProcessObjRefInArray(PPOBJ_CURRENCY, &p_pack->Rec.CurID,       ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILL,     &p_pack->Rec.LinkBillID,  ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace));
+		// @v11.1.12 THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace));
 		for(i = 0; p_pack->Turns.enumItems(&i, (void **)&at);) {
 			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace));

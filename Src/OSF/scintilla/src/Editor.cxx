@@ -2530,17 +2530,12 @@ bool Editor::NotifyMarginClick(SciPoint pt, int modifiers)
 			else {
 				int levelClick = pdoc->GetLevel(lineClick);
 				if(levelClick & SC_FOLDLEVELHEADERFLAG) {
-					if(shift) {
-						// Ensure all children visible
-						FoldExpand(lineClick, SC_FOLDACTION_EXPAND, levelClick);
-					}
-					else if(ctrl) {
+					if(shift)
+						FoldExpand(lineClick, SC_FOLDACTION_EXPAND, levelClick); // Ensure all children visible
+					else if(ctrl)
 						FoldExpand(lineClick, SC_FOLDACTION_TOGGLE, levelClick);
-					}
-					else {
-						// Toggle this line
-						FoldLine(lineClick, SC_FOLDACTION_TOGGLE);
-					}
+					else
+						FoldLine(lineClick, SC_FOLDACTION_TOGGLE); // Toggle this line
 				}
 			}
 		}

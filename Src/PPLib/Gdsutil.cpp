@@ -3145,7 +3145,7 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
     	else {
 			SString file_name;
 			if(isempty(rParam.OutputFileName)) {
-				PPGetFilePath(PPPATH_OUT, (temp_buf = rParam.Code).Dot().Cat("png"), file_name);
+				PPGetFilePath(PPPATH_OUT, (temp_buf = rParam.Code).DotCat("png"), file_name);
 			}
 			else
 				file_name = rParam.OutputFileName;
@@ -3400,7 +3400,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					// PNG
 					//
 					bip.OutputFormat = SFileFormat::Png;
-					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).Dot().Cat("png");
+					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("png");
 					if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
 						if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
@@ -3418,7 +3418,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					// SVG
 					//
 					bip.OutputFormat = SFileFormat::Svg;
-					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).Dot().Cat("svg");
+					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("svg");
 					if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
 						if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {

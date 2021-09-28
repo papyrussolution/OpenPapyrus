@@ -75,7 +75,7 @@ struct NgxModule_Papyrus {
 		ngx_str_t DbSymb;
 		ngx_str_t UserName;
 		ngx_str_t Password;
-		ngx_str_t Query;
+		//ngx_str_t Query;
 	};
 	static const char * SetHandler(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf)
 	{
@@ -131,15 +131,11 @@ struct NgxModule_Papyrus {
 };
 
 static ngx_command_t ngx_http_papyrus_test_commands[] = {
-	{ ngx_string("papyrus_test"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, NgxModule_Papyrus::SetHandler, 0, 0, NULL },
-	{ ngx_string("papyrus_dbsymb"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 
-		ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, DbSymb), NULL },
-	{ ngx_string("papyrus_username"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 
-		ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, UserName), NULL },
-	{ ngx_string("papyrus_password"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 
-		ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, Password), NULL },
-	{ ngx_string("papyrus_query"), NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, 
-		ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, Query), NULL },
+	{ ngx_string("papyrus"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, NgxModule_Papyrus::SetHandler, 0, 0, NULL },
+	{ ngx_string("papyrus_dbsymb"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, DbSymb), NULL },
+	{ ngx_string("papyrus_username"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, UserName), NULL },
+	{ ngx_string("papyrus_password"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, Password), NULL },
+	//{ ngx_string("papyrus_query"), NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(NgxModule_Papyrus::Config, Query), NULL },
 	ngx_null_command // command termination 
 };
 //
@@ -152,8 +148,8 @@ static ngx_http_module_t ngx_http_papyrus_test_module_ctx = {
 	NULL, // init main configuration 
 	NULL, // create server configuration
 	NULL, // merge server configuration 
-	NgxModule_Papyrus::Config::CreateLocConf, /* create location configuration */
-	NgxModule_Papyrus::Config::MergeLocConf /* merge location configuration */
+	NgxModule_Papyrus::Config::CreateLocConf, // create location configuration 
+	NgxModule_Papyrus::Config::MergeLocConf // merge location configuration 
 };
 //
 // Module definition
@@ -290,9 +286,8 @@ private:
 				DblBlk.GetAttr(DbLoginBlock::attrPassword, temp_buf);
 				login_result = DS.Login(db_symb, user_name, temp_buf, PPSession::loginfSkipLicChecking);
 				temp_buf.Obfuscate();
-				if(login_result) {
-					State |= stLoggedIn;
-				}
+				if(login_result)
+					State_PPws |= stLoggedIn;
 				else {
 					PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
 				}
@@ -415,7 +410,6 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 		SString out_buf;
 		SString temp_buf;
 		SString cmd_buf;
-		//char   sb[256];
 		int    do_preprocess_content = 0;
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 		if(r_tla.State & r_tla.stAuth) {
@@ -433,7 +427,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 					}
 				}
 				rCmd.Z();
-				if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
+				if(rCmd.ParseLine(cmd_buf, (State_PPws & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
 					cmdret = ProcessCommand_(&rCmd, rReply);
 				}
 			}
@@ -445,7 +439,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 				if(wb_obj.SearchBySymb("PETROGLIF", &wb_id, &wb_rec) > 0) {
 					cmd_buf.Z().Cat("GETWORKBOOKCONTENT").Space().Cat(wb_id);
 					rCmd.Z();
-					if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
+					if(rCmd.ParseLine(cmd_buf, (State_PPws & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
 						cmdret = ProcessCommand_(&rCmd, rReply);
 					}
 				}
@@ -466,6 +460,12 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 						PreprocessContent(temp_buf, rReply);
 						reply_size = rReply.GetAvailableSize();
 					}
+					// @v11.1.12 {
+					if(reply_size == 0) {
+						rReply.WriteString(SString("Nothing to transmit :("));
+						reply_size = rReply.GetAvailableSize();
+					}
+					// } @v11.1.12 
 					b = ngx_create_temp_buf(pReq->pool, reply_size);
 					ngx_chain_t out(b, 0/*just one buffer*/);
 					rReply.Read(b->pos, reply_size);
@@ -577,9 +577,7 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 			}
 		};
 		P_Queue->Push(static_cast<ngx_http_request_t *>(pReq));
-		if(p_thread) {
-			p_thread->WakeUp();
-		}
+		CALLPTRMEMB(p_thread, WakeUp());
 	}
 	LEAVE_CRITICAL_SECTION
 	return ok;

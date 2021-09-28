@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -408,7 +408,7 @@ private:
 			PPLoadString("relation", word_rel); // @v10.5.9
 			for(PPID rel_id = 0; rel_obj.EnumItems(&rel_id, &rel_item) > 0;)
 				if(rel_item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
-					(buf = word_rel).CatChar(':').Cat(rel_item.Name);
+					(buf = word_rel).Colon().Cat(rel_item.Name);
 					list.Add(rel_id + (long)AccAnlzFilt::aafgFirstRelation, buf);
 				}
 		}
@@ -910,8 +910,10 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	trec.Rest = p.InRest.Get(0, cur_id);
 	if(p.Filt->InitOrder == PPViewAccAnlz::OrdByBillCode_Date) {
 		BillTbl::Rec bill_rec;
-		if(p.P_BObj->Fetch(trec.BillID, &bill_rec) > 0)
-			STRNSCPY(trec.OrdData, p.P_BObj->P_Tbl->GetCode(bill_rec.Code));
+		if(p.P_BObj->Fetch(trec.BillID, &bill_rec) > 0) {
+			// @v11.1.12 STRNSCPY(trec.OrdData, p.P_BObj->P_Tbl->GetCode(bill_rec.Code));
+			STRNSCPY(trec.OrdData, bill_rec.Code); // @v11.1.12 
+		}
 	}
 	else if(p.Filt->InitOrder == PPViewAccAnlz::OrdByCorrAcc_Date) {
 		SString temp_buf;

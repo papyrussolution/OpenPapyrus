@@ -69,11 +69,12 @@ declare command RECEIVEDFOCUS   // Получение контролом фокуса. Параметром pHdr п
 	// функции ProcessCommand передается строка, содержащая один введенный пользователем символ.
 declare command TB_CBX_SELECTED // выбор строки из комбо-бокса. Комбик рисуется на toolbar'е
 declare command GRAPH           // kbCtrlN
-declare command MOUSEHOVER            // Курсор мыши задержался в одном месте на определенное время.
-declare command REFRESHBYPERIOD       // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
-declare command SEARCHNEXT            // @v8.1.6
-declare command SETUPSARTREINDICATORS // @v10.2.0 @internal
-declare command USERSORT              // @v10.6.4 @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
+declare command MOUSEHOVER               // Курсор мыши задержался в одном месте на определенное время.
+declare command REFRESHBYPERIOD          // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
+declare command SEARCHNEXT               // @v8.1.6
+declare command SETUPSARTREINDICATORS    // @v10.2.0 @internal
+declare command USERSORT                 // @v10.6.4 @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
+declare command FOREIGNFOCUCNOTIFICATION // @v11.1.12 Вызывается базовым классом PPViewBrowser в ответ на cmNotifyForeignFocus
 //
 // Список изображений для иконок тулбаров
 // (текст после TBBM_ должен с точностью до регистра совпадать с наименованием соответствующего файла в каталоге)
@@ -1108,6 +1109,14 @@ toolbar export LIST_WORKBOOK TB_FIRST_TOOLBAR {
 	cmExport,          "@{export}",                   PPDV_EXPORT01
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  PPDV_SYSJOURNAL
 }
+
+toolbar export LIST_GOODSSTRUC TB_FIRST_TOOLBAR {
+	cmaEdit,           "@{edit}\tEnter",              PPDV_EDITFILE02
+	cmaInsert,         "@{add}\tInsert",              PPDV_ADDFILE02
+	cmaDelete,         "@{delete}\tDelete",           PPDV_DELETEFILE02
+	separator
+	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  PPDV_SYSJOURNAL
+}
 //
 //
 //
@@ -1430,7 +1439,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		//TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
+		TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}
@@ -1516,7 +1525,7 @@ browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE             : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
-		PRINT                   : kbF7,    PPDV_PRINTER01,         "Печать ордера\tF7"
+		PRINT                   : kbF7,    PPDV_PRINTER01,         "@{printcashorder}\tF7"
 		ALTPRINT                : kbAltF7, TBBM_PRINTLIST,         "Печать описи\tAlt-F7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
@@ -6749,8 +6758,8 @@ cmd MakeCRptFiles         { "@{cmd_makecrptfiles}"                         none 
 cmd Registration          { "@{cmd_registration}"                          none                  none cmRegistration }
 cmd UpdateLicense         { "@{cmd_updatelicense}"                         none                  none cmUpdateLicense }
 cmd WoodBreed             { "@{cmd_woodbreed}"                             none                  none cmWoodBreed }
-cmd TransportCar          { "Автотранспорт"                                ICON_TRANSPORTCAR     none cmTransportCar }
-cmd TransportShip         { "Торговые суда"                                ICON_TRANSPORTSHIP    none cmTransportShip }
+cmd TransportCar          { "@{cmd_transport_car}"                         ICON_TRANSPORTCAR     none cmTransportCar }
+cmd TransportShip         { "@{cmd_transport_ship}"                        ICON_TRANSPORTSHIP    none cmTransportShip }
 cmd Quit                  { "@{cmd_quit}"                                  ICON_EXIT             none cmQuit }
 cmd CashNodePanel         { "@{cmd_cashnodepanel}"                         ICON_CASHMCHN         none cmCashNodePanel }
 cmd ViewCSess             { "@{cmd_viewcsess}"                             ICON_CSESS            none cmViewCSess  view = CSess }
@@ -6833,7 +6842,7 @@ cmd DutySched             { "@{cmd_dutysched}"                             none 
 cmd LocPrinter            { "@{cmd_locprinter}"                            none                  none cmLocPrinter     }
 cmd CfgImpSpecSeries      { "@{cmd_cfgimpspecseries}"                      none                  none cmCfgImpSpecSeries }
 cmd EditWorld             { "@{cmd_editworld}"                             ICON_WORLD            none cmEditWorld      }
-cmd AddPerson             { "Добавить персоналию"                          ICON_ADDPERSON        none cmAddPerson      }
+cmd AddPerson             { "@{doaddperson}"                               ICON_ADDPERSON        none cmAddPerson      }
 cmd AddTask               { "@{doaddtodo}"                                 ICON_ADDTASK          none cmAddTask        }
 cmd ViewGoodsStruc        { "@{cmd_viewgoodsstruc}"                        none                  none cmViewGoodsStruc view = GoodsStruc }
 cmd ViewLogs              { "@{cmd_viewlogs}"                              none                  none cmViewLogs       }
@@ -6842,7 +6851,7 @@ cmd SupplGoodsImport      { "@{cmd_supplgoodsimport}"                      none 
 cmd ExportDataForSuppl    { "@{cmd_exportdataforsuppl}"                    none                  none cmSupplInterchange }
 cmd SCardCfg              { "@{cmd_scardcfg}"                              none                  none cmSCardCfg       }
 cmd ViewStaffCalendar     { "@{cmd_staffcalendar}"                         ICON_STAFFCAL         none cmStaffCalendar  }
-cmd AddPersonEvent        { "Добавить персональное событие"                ICON_PERSONEVENT_ADD  none cmAddPersonEvent }
+cmd AddPersonEvent        { "@{doaddpersonevent}"                          ICON_PERSONEVENT_ADD  none cmAddPersonEvent }
 cmd EditGoodsInfo         { "@{cmd_editgoodsinfo}"                         none                  none cmEditGoodsInfo  }
 cmd PersonCfg             { "@{cmd_personcfg}"                             ICON_PERSONCFG        none cmPersonCfg      }
 cmd ViewSalary            { "@{cmd_viewsalary}"                            ICON_ANLZSALCHARGE    none cmViewSalary     view = Salary}
@@ -6880,7 +6889,7 @@ cmd BcPrinterLoadFonts    { "@{cmd_loadfonts}"                             ICON_
 cmd SearchDlvrAddr        { "@{cmd_searchdlvraddr}"                        none                  none cmSearchDlvrAddr }
 cmd GoodsValRestr         { "@{cmd_goodsvalrestr}"                         none                  none cmGoodsValRestr }
 cmd CreateTechSess        { "@{createtsess}"                               ICON_TSESS            none cmCreateTechSess }
-cmd ConstructionTest      { "В разработке"                                 none                  none cmConstructionTest }
+cmd ConstructionTest      { "@{cmd_underconstruction}"                     none                  none cmConstructionTest }
 cmd SCardPane             { "@{cmd_scardpane}"                             none                  none cmSCardPane }
 cmd CreateDraftBySupplOrder {"@{cmd_createdraftbysupplorder}"              none                  none cmCreateDraftBySupplOrder }
 cmd Budget                { "@{cmd_budgeting}"                             none                  none cmBudgeting }
@@ -6924,7 +6933,7 @@ cmd WorkbookConfig        { "@{cmd_workbookcfg}"                           none 
 cmd ConvertLatexToHtml    { "@{cmd_convertlatextohtml}"                    none                   none cmConvertLatexToHtml }
 cmd GenerateKeywordSeq    { "Генерация последовательностей слов (тест)"    none                   none cmGenerateKeywordSeq }
 cmd TestUhttGetLocByPhone { "Тест SOAP-функции получения адресов по номеру телефона" PPDV_TEST01  none cmTestUhttGetLocByPhone }
-cmd GoodsMovOld           { "Движение товаров (старая версия)"             ICON_GOODSMOV          none cmGoodsMov view=GoodsMov }
+cmd GoodsMovOld           { "@{view_goodsmov_oldver}"                      ICON_GOODSMOV          none cmGoodsMov view=GoodsMov }
 cmd TestUhttGetQuotByLoc  { "Тест SOAP-функции получения котировок по коду локации"  PPDV_TEST01  none cmTestUhttGetQuotByLoc }
 cmd LocationTag           { "@{cmd_locationtag}"                           PPDV_TAGS01            none cmLocationTag }
 cmd ConvertVersionToHtml  { "@{cmd_convertversiontohtml}"                  none                   none cmConvertVersionToHtml }
@@ -7253,9 +7262,9 @@ record Bill {
 	MainGLN       zstring(16)  "GLN главной организации";                   // @v7.1.12
 	INN           zstring(32)  "@{contractorinn}";
 	GLN           zstring(16)  "GLN контрагента";                           // @v7.1.12
-	CntragID      long         "ИД статьи контрагента";
+	CntragID      long         "@{contractorarid}";
 	CntragName    zstring(128) "@{contractorname}";
-	CntragNo      long         "Номер статьи контрагента";
+	CntragNo      long         "@{contractorarcode}";
 	RegistryCode  zstring(32)  "@{contractorcode}";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(48)  "@{docextobjname}";
@@ -7348,9 +7357,9 @@ record BRow {
 	InvcCode      zstring(24)  "@{bill_invoicecode}";
 	InvcDate      date         "@{bill_invoicedate}";
 	INN           zstring(32)  "@{contractorinn}";
-	CntragID      long         "ИД статьи контрагента";
+	CntragID      long         "@{contractorarid}";
 	CntragName    zstring(128) "@{contractorname}";
-	CntragNo      long         "Номер статьи контрагента";
+	CntragNo      long         "@{contractorarcode}";
 	RegistryCode  zstring(32)  "@{contractorcode}";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(128) "@{docextobjname}"; // @v8.9.12 (48)-->(128)
@@ -8551,7 +8560,7 @@ reportstub SStatSupplOrd	{ dl600data=SStatView,			"Заказ поставщику статистика п
 reportstub SStatGGroup		{ dl600data=SStatView,			"@{view_sstat} [с группировкой по группе товара]"}
 reportstub ShipmAnlzByBill	{ dl600data=ShipmAnlz,			"Анализ отгрузки с разбивкой по документам"}
 reportstub ShipmAnlz		{ dl600data=ShipmAnlz,			"@{view_shipmanalyze}"}
-reportstub PSalesView		{ dl600data=PredictSales,		"Продажи товаров"}
+reportstub PSalesView		{ dl600data=PredictSales,		"@{view_predictsales}"}
 reportstub SCardList		{ dl600data=SCardList,			"@{scard_pl}"}
 reportstub SCardOpList		{ dl600data=SCardOpList,		"@{view_scardop}"}
 reportstub RptInfo			{ dl600data=RptInfo,			"Сведения об отчетах Сравнительный анализ цен"}
@@ -8579,7 +8588,7 @@ reportstub PsnAttrRegister	{ dl600data=PersonList,			"@{view_person} с атрибутом
 reportstub PsnAttrTag		{ dl600data=PersonList,			"@{view_person} с атрибутом тэг"}
 reportstub PersonList		{ dl600data=PersonList,			"@{view_person}"}
 reportstub PaymPlan			{ dl600data=PaymPlan,			"@{paymplan}"}
-reportstub PriceAnlz		{ dl600data=PriceAnlz,			"Сравнительный анализ цен"}
+reportstub PriceAnlz		{ dl600data=PriceAnlz,			"@{view_priceanlz}"}
 reportstub OprKindList		{ dl600data=OprKindList,		"@{oprkindlist}"}
 reportstub OpGrpngBList		{ dl600data=OpGrouping,			"Группировка операций c реестром документов"}
 reportstub OpGrpng			{ dl600data=OpGrouping,			"@{opgrouping}"}
@@ -8599,7 +8608,7 @@ reportstub Invent			{ dl600data=Invent,				"@{inventory}"}
 reportstub GTaxAnlz_PrpRcpt	{ dl600data=GoodsTaxAnlz,		"@{view_goodstaxanalyze_indledger_ru} (по операциям прихода товаров)"}
 reportstub GTaxAnlz_PrpExpnd { dl600data=GoodsTaxAnlz,		"@{view_goodstaxanalyze_indledger_ru} (по операциям расхода товаров)"}
 reportstub GTaxAnlz			{ dl600data=GoodsTaxAnlz,		"Налоговый анализ товарооборота (по товарам)"}
-reportstub GTaxAnlzTotal	{ dl600data=GTaxAnlzTotal,		"Итоги налогового анализа товарооборота"}
+reportstub GTaxAnlzTotal	{ dl600data=GTaxAnlzTotal,		"@{goodstaxanalyzetotal}"}
 reportstub GoodsStrucList	{ dl600data=GoodsStrucList,		"@{view_goodsstruc}"}
 reportstub GoodsRest		{ dl600data=GoodsRest,			"@{view_goodsrest}"}
 reportstub GoodsRestTotal	{ dl600data=GoodsRestTotal,		"@{goodsresttotal}"}

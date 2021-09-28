@@ -2249,11 +2249,14 @@ private:
 #define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
 #define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
 #define oneof12(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12))
+#define oneof13(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13))
 #define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
 #define NZOR(v,a)                   ((v)?(v):(a))
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
-// @v8.6.8 #define SETIFZ(v,a)                 if(!v) {(v)=(a);}
-#define SETIFZ(v,a)                 (!!(v) || !!((v)=(a))) // @v8.6.8
+// Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
+// Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
+#define SETIFZ(v,a)                 (!!(v) || !!((v)=(a)))
+#define SETIFZQ(v,a)                {if(!(v)) (v)=(a);} // @v11.1.12
 #define SETMAX(v,b)                 {if((v)<(b)) (v)=(b);}
 #define SETMIN(v,b)                 {if((v)>(b)) (v)=(b);}
 #define SETMINMAX(v,i,x)            {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
@@ -3929,6 +3932,10 @@ public:
 	SString & FASTCALL SetInt(int val);
 	SString & FASTCALL Cat(const SString &);
 	SString & FASTCALL Cat(const char *);
+	//
+	// Descr: Эквивалент Dot().Cat(const char *)
+	//
+	SString & FASTCALL DotCat(const char *);
 	SString & FASTCALL CatN(const char * pS, size_t maxLen);
 	//
 	// Descr: Дополняет текущую строку еще не считанными символами из
@@ -3952,6 +3959,7 @@ public:
 	SString & Dot();     // @>>CatChar('.')
 	SString & Comma();   // @>>CatChar(',')
 	SString & Semicol(); // @>>CatChar(';')
+	SString & Colon();   // @v11.1.12 @>>CatChar(':')
 	SString & Eq();      // @>>CatChar('=')
 	SString & CR();      // @>>CatChar('\n')
 	SString & CRB();     // "\xD\xA"
@@ -6838,7 +6846,7 @@ public:
 	//
 	void * next();
 	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
-	void   atPut(uint, const void *);
+	void * atPut(uint, const void *);
 	int    FASTCALL atInsert(uint, const void *);
 	int    FASTCALL insert(const void * pItem);
 	//
@@ -7149,7 +7157,8 @@ protected:
 class SStack : public SArray {
 public:
 	SStack(uint itemSize, /*uint aDelta = 8,*/ uint o = O_ARRAY); // @v8.9.12 aDelta 1-->8
-	int    FASTCALL push(const void *);
+	// @v11.1.12 int    FASTCALL push(const void *);
+	void * FASTCALL push(const void *); // @v11.1.12 returns result item's ptr now
 	int    FASTCALL pop(void *);
 	void * pop();
 	int    undo(uint savedPos);
@@ -7293,7 +7302,7 @@ public:
 		assert(cycle > 1);
 		expand(cycle);
 	}
-	void   FASTCALL push(const T & t) { SStack::push(&t); }
+	T &    FASTCALL push(const T & t) { return *static_cast<T *>(SStack::push(&t)); }
 	int    FASTCALL pop(T & t)  { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *static_cast<T *>(SStack::peek()); }
 };
@@ -14270,7 +14279,7 @@ private:
 		stLocalStop = 0x0004  // Поток получил установку на завершение. Функции, выполняющиеся долгое
 			// время могут проверять этот флаг с помощью SlThread::IsStopping()
 	};
-	volatile long State;
+	volatile long State_Slt;
 	volatile long StopTimeout; // Таймаут на остановку потока (ms)
 	volatile ThreadHandle Handle;
 	volatile ThreadID ID;

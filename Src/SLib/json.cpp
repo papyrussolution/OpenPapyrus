@@ -473,13 +473,13 @@ state1: // open value
 				if(cursor->P_Parent->Type == SJson::tOBJECT)	{ // cursor is label in label:value pair
 					// error checking: if parent is object and cursor is string then cursor must have a single child
 					THROW_S(cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
-					rBuf.CatChar(':');
+					rBuf.Colon();
 				}
 			}
 			else {	// does not have a parent
 				// is root label in label:value pair
 				THROW_S(cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
-				rBuf.CatChar(':');
+				rBuf.Colon();
 			}
 			break;
 		case SJson::tNUMBER: // must not have any children
@@ -573,14 +573,14 @@ state1: // open value
 			if(cursor->P_Parent) {
 				if(cursor->P_Parent->Type == SJson::tOBJECT) { // cursor is label in label:value pair
 					if(cursor->P_Child) // error checking: if parent is object and cursor is string then cursor must have a single child
-						rBuf.CatChar(':');
+						rBuf.Colon();
 					else // malformed document tree: label without value in label:value pair
 						return JSON_BAD_TREE_STRUCTURE;
 				}
 			}
 			else { // does not have a parent
 				if(cursor->P_Child) // is root label in label:value pair
-					rBuf.CatChar(':');
+					rBuf.Colon();
 				else // malformed document tree: label without value in label:value pair
 					return JSON_BAD_TREE_STRUCTURE;
 			}

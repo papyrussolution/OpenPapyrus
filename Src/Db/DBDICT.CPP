@@ -107,7 +107,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 	if(DataPath.NotEmpty()) {
 		SDirEntry de;
 		SString wc;
-		(wc = DataPath).SetLastSlash().CatChar('*').Dot().Cat("^^^");
+		(wc = DataPath).SetLastSlash().CatChar('*').DotCat("^^^");
 		for(SDirec sd(wc); sd.Next(&de) > 0;) {
 			if(de.IsFile()) {
 				state |= dbstContinuous;

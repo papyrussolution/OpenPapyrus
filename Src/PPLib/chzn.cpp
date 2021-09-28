@@ -982,7 +982,7 @@ static void _PutOperationDate(SXml::WNode & rN, SString & rTempBuf)
 static void _PutDocDateAndNum(const BillTbl::Rec & rBillRec, SXml::WNode & rN, SString & rTempBuf)
 {
 	rTempBuf = rBillRec.Code;
-	BillCore::GetCode(rTempBuf);
+	// @v11.1.12 BillCore::GetCode(rTempBuf);
 	rTempBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	rN.PutInner("doc_num", rTempBuf);
 	rN.PutInner("doc_date", rTempBuf.Z().Cat(rBillRec.Dt, DATF_GERMAN|DATF_CENTURY));
@@ -1046,7 +1046,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("withdrawal_type", "RETAIL");
 			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 			nh.PutInner("primary_document_type", "OTHER");
-			BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+			// @v11.1.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
 			nh.PutInner("primary_document_number", temp_buf);
 			nh.PutInner("primary_document_date", doc_date_text);
 			// @v11.1.10 {
@@ -1141,7 +1142,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("trade_participant_inn_sender", sender_inn);
 			nh.PutInner("trade_participant_inn_receiver", receiver_inn);
 			nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
-			BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+			// @v11.1.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
+			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
 			nh.PutInner("move_document_number", temp_buf);
 			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 			nh.PutInner("turnover_type", "SELLING");
@@ -1442,8 +1444,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					wd.PutInner("subject_id", subj_ident);
 					_PutOperationDate(wd, temp_buf);
 					wd.PutInner("shipper_id", shipper_ident);
-					if(!isempty(p_bp->Rec.Memo)) {
-						(temp_buf = p_bp->Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
+					// @v11.1.12 if(!isempty(p_bp->Rec.Memo)) {
+					if(p_bp->SMemo.NotEmpty()) {
+						// @v11.1.12 (temp_buf = p_bp->Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
+						(temp_buf = p_bp->SMemo).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12
 					}
 					else
 						temp_buf = "refusal-receiver";
@@ -1646,19 +1650,19 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 	else {
 		switch(rIb.ProtocolId) {
 			case InitBlock::protidEdoLtMdlp:
-				(rResult = "https").Cat("://").Cat("mdlp").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				(rResult = "https").Cat("://").Cat("mdlp").DotCat("edo").DotCat("crpt").DotCat("tech");
 				break;
 			case InitBlock::protidEdoLtInt:
-				(rResult = "https").Cat("://").Cat("int").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				(rResult = "https").Cat("://").Cat("int").DotCat("edo").DotCat("crpt").DotCat("tech");
 				break;
 			case InitBlock::protidEdoLtElk:
-				(rResult = "https").Cat("://").Cat("elk").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				(rResult = "https").Cat("://").Cat("elk").DotCat("edo").DotCat("crpt").DotCat("tech");
 				break;
 			case InitBlock::protidGisMt:
 				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
-					(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
+					(rResult = "https").Cat("://").Cat("demo").DotCat("lp").DotCat("crpt").DotCat("tech");
 				else 
-					(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
+					(rResult = "https").Cat("://").Cat("ismp").DotCat("crpt").DotCat("ru");
 				break;
 			case InitBlock::protidMdlp:
 			default:
@@ -1802,9 +1806,9 @@ SString & ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum, const
 	if(rIb.EndPoint.NotEmpty())
 		rResult = rIb.EndPoint;
 	else if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
-		(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
+		(rResult = "https").Cat("://").Cat("demo").DotCat("lp").DotCat("crpt").DotCat("tech");
 	else 
-		(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
+		(rResult = "https").Cat("://").Cat("ismp").DotCat("crpt").DotCat("ru");
 	rResult.SetLastDSlash().Cat("api/v3").SetLastDSlash();
 	switch(query) {
 		case qAuth:  rResult.Cat("auth/cert/key"); break;

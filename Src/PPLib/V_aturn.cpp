@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -798,7 +798,9 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	DBE    dbe_cur;
 	DBE    dbe_oprkind;
 	DBE    dbe_rel_restrict;
-	DBE    dbe_acc_dbt, dbe_acc_crd;
+	DBE    dbe_acc_dbt;
+	DBE    dbe_acc_crd;
+	DBE    dbe_memo; // @v11.1.12
 	if(Filt.GrpAco) {
 		THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
 		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
@@ -822,7 +824,9 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			0L).from(p_grp_tbl, 0L).orderBy(p_grp_tbl->Dt, p_grp_tbl->DbtAc, p_grp_tbl->DbtSb, p_grp_tbl->DbtAr, 0L);
 	}
 	else {
-		double  ip, min_amt = Filt.AmtR.low, max_amt = Filt.AmtR.upp;
+		double ip;
+		double min_amt = Filt.AmtR.low;
+		double max_amt = Filt.AmtR.upp;
 		DBFieldList fld_list;
 		DBQ  * dbq = 0;
 		bll = new BillTbl;
@@ -834,6 +838,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_dbt, PPDbqFuncPool::IdObjNameAcctRel, at->Acc);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_crd, PPDbqFuncPool::IdObjNameAcctRel, at->CorrAcc);
+		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, at->Bill); // @v11.1.12
 		{
 			dbe_rel_restrict.init();
 			dbe_rel_restrict.push(at->Acc);
@@ -851,7 +856,8 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_acc_dbt,            // #04
 			dbe_acc_crd,            // #05
 			at->Amount,             // #06
-			bll->Memo,              // #07
+			// @v11.1.12 bll->Memo,              // #07
+			dbe_memo,               // #07 @v11.1.12
 			dbe_cur,                // #08
 			dbe_oprkind,            // #09
 			0L);

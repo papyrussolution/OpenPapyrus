@@ -1564,7 +1564,8 @@ int PPObjPerson::Import(int specKind, int use_ta)
 							if(temp_buf.ToLong() == 1 || temp_buf.IsEqiAscii("Yes") || temp_buf.IsEqiAscii("Y"))
 								pack.Rec.Flags |= PSNF_NOVATAX;
 						rec.get(fldn_memo, temp_buf);
-						temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+						// @v11.1.12 temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+						pack.SMemo = temp_buf.Strip(); // @v11.1.12
 						if(reg_type_id) {
 							rec.get(fldn_code, temp_buf);
 							if(codetohex) {
@@ -3591,7 +3592,8 @@ int PrcssrPersonImport::Run()
 						else if(IeParam.DefCategoryID && pc_obj.Fetch(IeParam.DefCategoryID, &pc_rec) > 0)
 							pack.Rec.CatID = IeParam.DefCategoryID;
 					}
-					(temp_buf = rec.Memo).Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					// @v11.1.12 (temp_buf = rec.Memo).Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+					(pack.SMemo = rec.Memo).Strip(); // @v11.1.12
 					{
 						SString accno;
 						PPBank bnk_rec;
@@ -4439,7 +4441,7 @@ int FiasImporter::StartDocument()
 				const ProcessState::Item & r_state = Ps.L.at(CurPsPos);
 				if(r_state.Phase == phaseCount) {
 					SString debug_output_fname;
-					(debug_output_fname = P.Path).SetLastSlash().Cat(debug_file_name).Dot().Cat("txt");
+					(debug_output_fname = P.Path).SetLastSlash().Cat(debug_file_name).DotCat("txt");
 					P_DebugOutput = new SFile(debug_output_fname, SFile::mWrite);
 				}
 			}
@@ -4940,12 +4942,12 @@ int FiasImporter::Import(int inpObject)
 	SString dest_file_obj_name;
 	if(inpObject == inpAddrObj) {
 		// 	RawRecN	2489624
-		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_ADDROBJ").CatChar('*').Dot().Cat("xml");
+		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_ADDROBJ").CatChar('*').DotCat("xml");
 		dest_file_obj_name = "ADDROBJ";
 	}
 	else if(inpObject == inpHouse) {
 		// RawRecN 35979557
-		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_HOUSE").CatChar('*').Dot().Cat("xml");
+		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_HOUSE").CatChar('*').DotCat("xml");
 		dest_file_obj_name = "HOUSE";
 	}
 	if(wildcard.NotEmpty()) {

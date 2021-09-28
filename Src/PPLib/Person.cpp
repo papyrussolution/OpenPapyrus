@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 // @Kernel
 //
@@ -14,17 +14,19 @@ PPPerson::PPPerson()
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
-PPPerson & FASTCALL PPPerson::operator = (const PPPerson & s)
+PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 {
-	Rec = s.Rec;
-	Kinds.copy(s.Kinds);
-	RelList.copy(s.RelList);
+	Rec = rS.Rec;
+	SMemo = rS.SMemo; // @v11.1.12
+	Kinds.copy(rS.Kinds);
+	RelList.copy(rS.RelList);
 	return *this;
 }
 
 void PPPerson::destroy()
 {
 	MEMSZERO(Rec);
+	SMemo.Z(); // @v11.1.12
 	Kinds.clear(); // @v10.6.12 freeAll()-->clear()
 	RelList.clear(); // @v10.6.12 freeAll()-->clear()
 }
@@ -978,6 +980,16 @@ int PersonCore::Search(PPID id, PersonTbl::Rec * pRec)
 	return SearchByID(this, PPOBJ_PERSON, id, pRec);
 }
 
+SString & PersonCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+{
+	rBuf.Z();
+	if(id) {
+		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_PERSON, id, PPTRPROP_MEMO), rBuf);
+		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	}
+	return rBuf;
+}
+
 int PersonCore::SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec)
 {
 	PersonTbl::Key1 k1;
@@ -1071,21 +1083,27 @@ int PersonCore::PutKinds(PPID id, PPPerson * pPack)
 int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
+	SString memo_buf_utf8;
+	if(pPack) {
+		(memo_buf_utf8 = pPack->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
+	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			// @v7.6.9 THROW(Search(*pID) > 0);
-			THROW(SearchByID_ForUpdate(this, PPOBJ_PERSON, *pID, 0) > 0); // @v7.6.9
+			THROW(SearchByID_ForUpdate(this, PPOBJ_PERSON, *pID, 0) > 0);
 			if(pPack) {
 				strip(pPack->Rec.Name);
 				pPack->Rec.ID = *pID;
 				THROW_DB(updateRecBuf(&pPack->Rec)); // @sfu
+				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 				THROW(PutKinds(*pID, pPack));
 				THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 			}
 			else {
 				THROW_DB(deleteRec()); // @sfu
+				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), static_cast<const wchar_t *>(0), 0)); // @v11.1.12
 				THROW(RemoveKind(*pID, 0, 0));
 				THROW(PutRelList(*pID, 0, 0));
 			}
@@ -1096,6 +1114,7 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 			copyBufFrom(&pPack->Rec);
 			THROW_DB(insertRec(0, pID));
 			pPack->Rec.ID = *pID;
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
 			THROW(PutKinds(*pID, pPack));
 			THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 		}
@@ -1112,13 +1131,14 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 	return ok;
 }
 
-int PersonCore::Get(PPID id, PPPerson * pack)
+int PersonCore::Get(PPID id, PPPerson * pPack)
 {
-	int    ok = 1;
-	if((ok = Search(id, &pack->Rec)) > 0) {
-		pack->Kinds.clear();
-		THROW(GetKindList(id, &pack->Kinds));
-		THROW(GetRelList(id, &pack->RelList, 0));
+	int    ok = Search(id, pPack ? &pPack->Rec : 0);
+	if(ok > 0 && pPack) {
+		GetItemMemo(id, pPack->SMemo); // @v11.1.12
+		pPack->Kinds.clear();
+		THROW(GetKindList(id, &pPack->Kinds));
+		THROW(GetRelList(id, &pPack->RelList, 0));
 		ok = 1;
 	}
 	CATCHZOK
@@ -1440,7 +1460,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz));
 	if(r > 0) {
 		size_t i = sz;
-		sz = (size_t)p_buf->Val2 + PROPRECFIXSIZE;
+		sz = static_cast<size_t>(p_buf->Val2 + PROPRECFIXSIZE);
 		if(i < sz) {
 			THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::R(p_buf, sz)));
 			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz) > 0);
@@ -1470,7 +1490,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 				if(entry->KindID && *strip(entry->Addr))
 					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 			THROW_MEM(b = static_cast<PropertyTbl::Rec *>(SAlloc::C(1, sz)));
-			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
+			b->Val2 = static_cast<int32>(sz - PROPRECFIXSIZE);
 			for(p = reinterpret_cast<char *>(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
 					size_t s = (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);

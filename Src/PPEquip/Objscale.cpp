@@ -2939,7 +2939,7 @@ int DIGI::SetConnection()
 		//THROW(PPGetFileName(PPFILNAM_DIGI_IMPORT_DAT, fname));
 		SString fname;
 		THROW_PP(Data.Rec.LogNum > 0 && Data.Rec.LogNum < 255, PPERR_SCALE_INVLOGNUM);
-		(fname = "dgimp").CatLongZ(Data.Rec.LogNum, 3).Dot().Cat("dat");
+		(fname = "dgimp").CatLongZ(Data.Rec.LogNum, 3).DotCat("dat");
 		PPGetFilePath(PPPATH_OUT, fname, ScalePath);
 		THROW_PP(P_ScaleData = fopen(ScalePath, "w"), PPERR_CANTOPENFILE);
 		IntGrpCode = Data.Rec.ID % 10000L;
@@ -4867,7 +4867,7 @@ int PPObjScale::GetListWithBcPrefix(LAssocArray * pList)
 static int GetOutputFileName(PPID id, SString & rBuf)
 {
 	SString path;
-	path.Cat("SC").CatLongZ(id, 6).Dot().Cat("PLU");
+	path.Cat("SC").CatLongZ(id, 6).DotCat("PLU");
 	return BIN(PPGetFilePath(PPPATH_OUT, path, rBuf));
 }
 

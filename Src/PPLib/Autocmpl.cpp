@@ -35,7 +35,7 @@ int PUGL::SetLotManufTimeParam::FixedTimeToString(SString & rBuf) const
 	rBuf.Z();
 	int    ok = 1;
 	if(FixedTime > 0 && FixedTime < (60*24))
-		rBuf.Cat(FixedTime / 60).CatChar(':').Cat(FixedTime % 60);
+		rBuf.Cat(FixedTime / 60).Colon().Cat(FixedTime % 60);
 	else
 		ok = 0;
 	return ok;

@@ -1407,11 +1407,11 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 									PPSCardSeries ser_rec;
 									THROW_MEM(SETIFZ(p_serobj, new PPObjSCardSeries));
 									if(p_serobj->Fetch(crd_rec.SeriesID, &ser_rec) > 0)
-										temp_buf.Cat(ser_rec.Name).CatChar(':');
+										temp_buf.Cat(ser_rec.Name).Colon();
 									temp_buf.Cat(crd_rec.Code);
 									if(crd_rec.PersonID) {
 										GetPersonName(crd_rec.PersonID, name_buf);
-										temp_buf.CatChar(':').Cat(name_buf);
+										temp_buf.Colon().Cat(name_buf);
 									}
 								}
 							}
@@ -1558,7 +1558,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								THROW_MEM(SETIFZ(p_serobj, new PPObjSCardSeries));
 								if(p_serobj->Fetch(crd_rec.SeriesID, &ser_rec) > 0)
 									temp_buf.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
-								temp_buf.CatChar(':').Cat(crd_rec.Code);
+								temp_buf.Colon().Cat(crd_rec.Code);
 							}
 							break;
 						// } @erik
@@ -4240,7 +4240,8 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 				}
 			}
 			pack.InitAmounts();
-			bill_memo.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+			// @v11.1.12 bill_memo.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
+			pack.SMemo = bill_memo; // @v11.1.12
 			THROW(p_bobj->FillTurnList(&pack));
 			if(p_bobj->TurnPacket(&pack, 1) <= 0)
 				p_bobj->DiagGoodsTurnError(&pack);

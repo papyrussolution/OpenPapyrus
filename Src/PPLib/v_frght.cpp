@@ -369,7 +369,7 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			pRec->BillID     = pBillRec->ID;
 			pRec->BillDate   = pBillRec->Dt;
 			STRNSCPY(pRec->Code, pBillRec->Code);
-			StrPool.AddS(pBillRec->Memo, &pRec->MemoP);
+			// @v11.1.12 StrPool.AddS(pBillRec->Memo, &pRec->MemoP);
 			pRec->LocID      = pBillRec->LocID;
 			pRec->ObjectID   = pBillRec->Object;
 			pRec->Amount     = BR2(pBillRec->Amount);
@@ -536,7 +536,8 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
-	PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool);
+	// @v11.1.12 PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool);
+	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID); // @v11.1.12
 	q = & select(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1

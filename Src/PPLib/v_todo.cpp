@@ -95,17 +95,17 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 /*static*/int VCalendar::WriteComponentProlog(int tok, const char * pProduct, const SVerT * pVer, SString & rBuf) // BEGIN:tok
 {
 	WriteToken(tokBEGIN, rBuf);
-	rBuf.CatChar(':');
+	rBuf.Colon();
 	if(WriteToken(tok, rBuf)) {
 		rBuf.CRB();
 		if(!isempty(pProduct)) {
 			WriteToken(tokPRODID, rBuf);
-			rBuf.CatChar(':').Cat(pProduct);
+			rBuf.Colon().Cat(pProduct);
 			rBuf.CRB();
 			if(pVer) {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				WriteToken(tokVERSION, rBuf);
-				rBuf.CatChar(':').Cat("2.0");
+				rBuf.Colon().Cat("2.0");
 				rBuf.CRB();
 			}
 		}
@@ -118,7 +118,7 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 /*static*/int VCalendar::WriteComponentEpilog(int tok, SString & rBuf) // END:tok
 {
 	WriteToken(tokEND, rBuf);
-	rBuf.CatChar(':');
+	rBuf.Colon();
 	if(WriteToken(tok, rBuf)) {
 		rBuf.CRB();
 		return 1;
@@ -399,10 +399,10 @@ int VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long addedP
 				SString role_owner;
 				role_owner.GetSubFrom(PropAttrib, ';', prpatrRoleOwner);
 				// @v10.6.10 buf.Semicol().Cat(role_owner);
-				buf.CatChar(':').Cat(temp_buf).Semicol().Cat(role_owner).Transf(CTRANSF_INNER_TO_UTF8).CR(); // @v10.6.10
+				buf.Colon().Cat(temp_buf).Semicol().Cat(role_owner).Transf(CTRANSF_INNER_TO_UTF8).CR(); // @v10.6.10
 			}
 			else { // @v10.6.10 (else)
-				buf.CatChar(':').Cat(temp_buf).Transf(CTRANSF_INNER_TO_UTF8).CR();
+				buf.Colon().Cat(temp_buf).Transf(CTRANSF_INNER_TO_UTF8).CR();
 			}
 			P_Stream->WriteLine(buf);
 		}
@@ -2161,7 +2161,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 								if(pt_pack.SMemo.Len()) {
 									SString word, memo;
 									PPLoadString("memo", word);
-									word.CatChar(':').CatChar('\n');
+									word.Colon().CatChar('\n');
 									(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 									buf.CatChar('\n').CatChar('\n').Cat(word).Cat(memo);
 								}

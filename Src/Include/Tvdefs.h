@@ -1,5 +1,5 @@
 // TVDEFS.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #ifndef __TVDEFS_H
@@ -303,39 +303,41 @@
 //
 //  TListViewer messages
 //
-#define cmLBItemSelected     71
-#define cmLBItemUnselected   72
-#define cmLBItemFocused      73
-#define cmLBDblClk           74
-#define cmLBEmpty            75
-#define cmClusterClk         76 // evCommand TCluster message
-#define cmLBLoadDef          77 //
-#define cmGetHelpContext     78 //
-#define cmBrwsSrchPreprocess 81 // evCommand Browser message
-#define cmSetFont            82 // Посылается экземпляру TWindowBase при установке шрифта. В infoPtr передается указатель на структуру SetFontEvent
-#define cmSize               83 // Посылается экземпляру TWindowBase после изменения размера окна. В infoPtr передается указатель на структуру SizeEvent
-#define cmPaint              84 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
-#define cmMouse              85 // Посылается экземпляру TWindowBase в ответ на одно из
+#define cmLBItemSelected         71
+#define cmLBItemUnselected   	 72
+#define cmLBItemFocused      	 73
+#define cmLBDblClk           	 74
+#define cmLBEmpty            	 75
+#define cmClusterClk         	 76 // evCommand TCluster message
+#define cmLBLoadDef          	 77 //
+#define cmGetHelpContext     	 78 //
+#define cmBrwsSrchPreprocess 	 81 // evCommand Browser message
+#define cmSetFont            	 82 // Посылается экземпляру TWindowBase при установке шрифта. В infoPtr передается указатель на структуру SetFontEvent
+#define cmSize               	 83 // Посылается экземпляру TWindowBase после изменения размера окна. В infoPtr передается указатель на структуру SizeEvent
+#define cmPaint              	 84 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
+#define cmMouse                  85 // Посылается экземпляру TWindowBase в ответ на одно из
 	// следующих сообщений Windows:
 	// WM_LBUTTONDOWN, WM_LBUTTONUP, WM_LBUTTONDBLCLK, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK,
 	// WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK, WM_MOUSEMOVE, WM_MOUSEWHEEL, WM_MOUSEHOVER
-#define cmScroll             86 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_HSCROLL, WM_VSCROLL
-#define cmMove               87 // Посылается экземпляру TWindowBase в ответ сообщение WM_MOVE
-#define cmSetBounds          88 // Императивное сообщение. Посылается экземпляру TView для того, чтобы он
+#define cmScroll                 86 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_HSCROLL, WM_VSCROLL
+#define cmMove                   87 // Посылается экземпляру TWindowBase в ответ сообщение WM_MOVE
+#define cmSetBounds              88 // Императивное сообщение. Посылается экземпляру TView для того, чтобы он
 	// изменил свои координаты и (или) размер. TEvent.message.infoPtr указывает на TRect.
-#define cmDragndropObj       89 // Посылается окном, получившим в распоряжение курсор
+#define cmDragndropObj           89 // Посылается окном, получившим в распоряжение курсор
 	// с перетаскиваемым объектом. Вместе с сообщение посылается структура DragndropEvent
-#define cmEndModal           90 // @construction @v6.9.9 evCommand Посылается для остановки режима модальности окна.
+#define cmEndModal               90 // @construction @v6.9.9 evCommand Посылается для остановки режима модальности окна.
 	// Используется для замещения виртуальной функции TView::endModal.
 	// TEvent::message::infoWord содержит команду, по которой осуществляется завершение режима.
-#define cmExecute            91 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
+#define cmExecute                91 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
 	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
-#define cmImageDblClk        92 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
-#define cmModalPostCreate    93 // @v10.3.1 Посылается экземпляру TView после "физического" создания окна
+#define cmImageDblClk            92 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
+#define cmModalPostCreate        93 // @v10.3.1 Посылается экземпляру TView после "физического" создания окна
 	// (рекурсивно из функции обработки событий базового экземпляра, создающей "физического" окно)
-#define cmSetItemSelected    94 // @v10.3.4 Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
-#define cmIsItemSelected     95 // @v10.3.4 Сообщение посылается для получения информации является ли заданный элемент выбранным
-#define cmNotifyCommit       96 // @v10.7.7 Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
+#define cmSetItemSelected        94 // @v10.3.4 Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
+#define cmIsItemSelected         95 // @v10.3.4 Сообщение посылается для получения информации является ли заданный элемент выбранным
+#define cmNotifyCommit           96 // @v10.7.7 Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
+#define cmNotifyForeignFocus     97 // @v11.1.12 Сообщение посылается окну для извещения о том, что в другом окне изменился фокус данных (не путать с фокусом мыши)
+	// С командой передается блок типа ForeignFocusEvent (tv.h)
 //
 // StdDlg commands & messages
 //
@@ -365,10 +367,11 @@
 #define WM_USER_MAINWND_MOVE_SIZE    WM_USER+12 // Команда изменения размеров или положения главного окна, посылается дочерним окнам
 #define WM_USER_CLOSE_TOOLTIPMSGWIN  WM_USER+13 // Команда действительна только для диалога DLG_TOOLTIP, закрывает данный диалог.
 #define WM_USER_GETLIST              WM_USER+14 // Извлекает список StrAssocArray из ListWindow, SmartListBox по подстроке
-#define WM_USER_SHOWTREEWNDITEM      WM_USER+15 // Выбирает и отображает один из списков бокового онка
+#define WM_USER_SHOWTREEWNDITEM      WM_USER+15 // Выбирает и отображает один из списков бокового окна
 #define WM_USER_CLOSETREEWNDITEM     WM_USER+16 // Закрывает один из списков бокового окна
-#define WM_USER_NOTIFYBRWFRAME       WM_USER+0  // Извещение фрэйма об изменении стека окон
-#define WM_USER_CLOSEBROWSER         WM_USER+1  // Команда закрытия немодального броузера. Генерируется служебным окном CloseWndProc (TProgram.cpp)
+#define WM_USER_NOTIFYBRWFRAME       WM_USER+00 // Извещение фрэйма об изменении стека окон
+#define WM_USER_CLOSEBROWSER         WM_USER+01 // Команда закрытия немодального броузера. Генерируется служебным окном CloseWndProc (TProgram.cpp)
+#define WM_USER_NOTIFYOTHERWNDEVNT   WM_USER+17 // @v11.1.12 Адресное извещение, передаваемое от одного окна другому. Payload передается в по указателю LPARAM
 //
 // Button types
 //
