@@ -5,6 +5,51 @@
 //
 //
 //
+void DPIManager::init() 
+{
+	HDC hdc = GetDC(NULL);
+	if(hdc) {
+		// Initialize the DPIManager member variable
+		// This will correspond to the DPI setting
+		// With all Windows OS's to date the X and Y DPI will be identical
+		_dpiX = GetDeviceCaps(hdc, LOGPIXELSX);
+		_dpiY = GetDeviceCaps(hdc, LOGPIXELSY);
+		ReleaseDC(NULL, hdc);
+	}
+}
+
+int FASTCALL DPIManager::scaledSystemMetricX(int nIndex) const { return MulDiv(GetSystemMetrics(nIndex), 96, _dpiX); }
+int FASTCALL DPIManager::scaledSystemMetricY(int nIndex) const { return MulDiv(GetSystemMetrics(nIndex), 96, _dpiY); }
+int FASTCALL DPIManager::scaleX(int x) const { return MulDiv(x, _dpiX, 96); }
+int FASTCALL DPIManager::scaleY(int y) const { return MulDiv(y, _dpiY, 96); }
+int FASTCALL DPIManager::unscaleX(int x) const { return MulDiv(x, 96, _dpiX); }
+int FASTCALL DPIManager::unscaleY(int y) const { return MulDiv(y, 96, _dpiY); }
+int DPIManager::scaledScreenWidth() const { return scaledSystemMetricX(SM_CXSCREEN); }
+int DPIManager::scaledScreenHeight() const { return scaledSystemMetricY(SM_CYSCREEN); }
+int FASTCALL DPIManager::pointsToPixels(int pt) const { return MulDiv(pt, _dpiY, 72); };
+
+void FASTCALL DPIManager::scaleRect(__inout RECT * pRect) const
+{
+	pRect->left = scaleX(pRect->left);
+	pRect->right = scaleX(pRect->right);
+	pRect->top = scaleY(pRect->top);
+	pRect->bottom = scaleY(pRect->bottom);
+}
+
+void FASTCALL DPIManager::scalePoint(__inout POINT * pPoint) const
+{
+	pPoint->x = scaleX(pPoint->x);
+	pPoint->y = scaleY(pPoint->y);
+}
+
+void FASTCALL DPIManager::scaleSize(__inout SIZE * pSize) const
+{
+	pSize->cx = scaleX(pSize->cx);
+	pSize->cy = scaleY(pSize->cy);
+}
+//
+//
+//
 CReadFileChanges::CReadFileChanges()
 {
 	_szFile = NULL;
@@ -70,13 +115,11 @@ namespace ReadDirectoryChangesPrivate
 		m_Buffer.resize(size);
 		m_BackupBuffer.resize(size);
 	}
-
 	CReadChangesRequest::~CReadChangesRequest()
 	{
 		// RequestTermination() must have been called successfully.
 		assert(m_hDirectory == NULL);
 	}
-
 	bool CReadChangesRequest::OpenDirectory()
 	{
 		// Allow this routine to be called redundantly.
@@ -92,30 +135,20 @@ namespace ReadDirectoryChangesPrivate
 			FILE_FLAG_BACKUP_SEMANTICS                      // file attributes
 			| FILE_FLAG_OVERLAPPED,
 			NULL);                              // file with attributes to copy
-
 		if(m_hDirectory == INVALID_HANDLE_VALUE) {
 			return false;
 		}
-
 		return true;
 	}
-
 	void CReadChangesRequest::BeginRead()
 	{
 		DWORD dwBytes = 0;
-
 		// This call needs to be reissued after every APC.
-		::ReadDirectoryChangesW(
-			m_hDirectory,                                           // handle to directory
-			&m_Buffer[0],                       // read results buffer
-			static_cast<DWORD>(m_Buffer.size()),                    // length of buffer
-			m_bIncludeChildren,                 // monitoring option
-			m_dwFilterFlags,                    // filter conditions
-			&dwBytes,                           // bytes returned
-			&m_Overlapped,                      // overlapped buffer
-			&NotificationCompletion);           // completion routine
+		::ReadDirectoryChangesW(m_hDirectory/*handle to directory*/, &m_Buffer[0]/*read results buffer*/,
+			static_cast<DWORD>(m_Buffer.size())/*length of buffer*/, m_bIncludeChildren/*monitoring option*/,
+			m_dwFilterFlags/*filter conditions*/, &dwBytes/*bytes returned*/, &m_Overlapped/*overlapped buffer*/,
+			&NotificationCompletion/*completion routine*/);
 	}
-
 	//static
 	VOID CALLBACK CReadChangesRequest::NotificationCompletion(DWORD dwErrorCode, // completion code
 		DWORD dwNumberOfBytesTransfered, // number of bytes transferred

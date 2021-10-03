@@ -146,7 +146,7 @@ cairo_status_t _cairo_gl_context_init_shaders(cairo_gl_context_t * ctx)
 	}
 	else {
 		ctx->has_shader_support = FALSE;
-		fprintf(stderr, "Error: The cairo gl backend requires shader support!\n");
+		slfprintf_stderr("Error: The cairo gl backend requires shader support!\n");
 		return CAIRO_STATUS_DEVICE_ERROR;
 	}
 	memzero(ctx->vertex_shaders, sizeof(ctx->vertex_shaders));

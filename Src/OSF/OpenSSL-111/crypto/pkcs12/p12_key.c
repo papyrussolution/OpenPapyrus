@@ -93,11 +93,11 @@ int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
 		goto err;
 
 #ifdef  OPENSSL_DEBUG_KEYGEN
-	fprintf(stderr, "KEYGEN DEBUG\n");
-	fprintf(stderr, "ID %d, ITER %d\n", id, iter);
-	fprintf(stderr, "Password (length %d):\n", passlen);
+	slfprintf_stderr("KEYGEN DEBUG\n");
+	slfprintf_stderr("ID %d, ITER %d\n", id, iter);
+	slfprintf_stderr("Password (length %d):\n", passlen);
 	h__dump(pass, passlen);
-	fprintf(stderr, "Salt (length %d):\n", saltlen);
+	slfprintf_stderr("Salt (length %d):\n", saltlen);
 	h__dump(salt, saltlen);
 #endif
 	v = EVP_MD_block_size(md_type);
@@ -138,7 +138,7 @@ int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
 		memcpy(out, Ai, min(n, u));
 		if(u >= n) {
 #ifdef OPENSSL_DEBUG_KEYGEN
-			fprintf(stderr, "Output KEY (length %d)\n", tmpn);
+			slfprintf_stderr("Output KEY (length %d)\n", tmpn);
 			h__dump(tmpout, tmpn);
 #endif
 			ret = 1;
@@ -178,8 +178,8 @@ end:
 void h__dump(uchar * p, int len)
 {
 	for(; len--; p++)
-		fprintf(stderr, "%02X", *p);
-	fprintf(stderr, "\n");
+		slfprintf_stderr("%02X", *p);
+	slfprintf_stderr("\n");
 }
 
 #endif

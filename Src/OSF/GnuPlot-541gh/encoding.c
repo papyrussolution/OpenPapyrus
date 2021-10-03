@@ -12,19 +12,19 @@
 #if defined(_WIN32)
 	static enum set_encoding_id map_codepage_to_encoding(uint cp);
 #endif
-static const char * encoding_micro();
-static const char * encoding_minus();
+//static const char * encoding_micro();
+//static const char * encoding_minus();
 //static void set_degreesign(char *);
-static bool utf8_getmore(ulong * wch, const char ** str, int nbytes);
+//static bool utf8_getmore(ulong * wch, const char ** str, int nbytes);
 //
 // encoding functions
 //
 //void init_encoding()
 void GnuPlot::InitEncoding()
 {
-	encoding = encoding_from_locale();
-	if(encoding == S_ENC_INVALID)
-		encoding = S_ENC_DEFAULT;
+	GPT._Encoding = encoding_from_locale();
+	if(GPT._Encoding == S_ENC_INVALID)
+		GPT._Encoding = S_ENC_DEFAULT;
 	InitSpecialChars();
 }
 
@@ -82,19 +82,6 @@ enum set_encoding_id encoding_from_locale()
 #endif
 	return encoding;
 }
-
-//void init_special_chars()
-void GnuPlot::InitSpecialChars()
-{
-	// Set degree sign to match encoding 
-	char * l = NULL;
-#ifdef HAVE_LOCALE_H
-	l = setlocale(LC_CTYPE, "");
-#endif
-	SetDegreeSign(l);
-	GpU.minus_sign = encoding_minus(); // Set minus sign to match encoding 
-	GpU.micro = encoding_micro(); // Set micro character to match encoding 
-}
 //
 // Encoding-specific character enabled by "set micro" 
 //
@@ -104,7 +91,7 @@ static const char * encoding_micro()
 	static const char micro_437[2]     = { '\xE6', '\x00' };
 	static const char micro_latin1[2]  = { '\xB5', '\x00' };
 	static const char micro_default[2] = { 'u',  '\x00' };
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8:        return micro_utf8;
 		case S_ENC_CP1250:
 		case S_ENC_CP1251:
@@ -125,14 +112,26 @@ static const char * encoding_minus()
 {
 	static const char minus_utf8[4] = { '\xE2', '\x88', '\x92', '\x00' };
 	static const char minus_1252[2] = { '\x96', '\x00' };
-	/* NB: This SJIS character is correct, but produces bad spacing if used	*/
-	/*     static const char minus_sjis[4] = {0x81, 0x7c, 0x0, 0x0};		*/
-	switch(encoding) {
+	// NB: This SJIS character is correct, but produces bad spacing if used
+	//  static const char minus_sjis[4] = {0x81, 0x7c, 0x0, 0x0};
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8:        return minus_utf8;
 		case S_ENC_CP1252:      return minus_1252;
 		case S_ENC_SJIS:
 		default:                return NULL;
 	}
+}
+//void init_special_chars()
+void GnuPlot::InitSpecialChars()
+{
+	// Set degree sign to match encoding 
+	char * l = NULL;
+#ifdef HAVE_LOCALE_H
+	l = setlocale(LC_CTYPE, "");
+#endif
+	SetDegreeSign(l);
+	GpU.minus_sign = encoding_minus(); // Set minus sign to match encoding 
+	GpU.micro = encoding_micro(); // Set micro character to match encoding 
 }
 
 //static void set_degreesign(char * locale)
@@ -170,7 +169,7 @@ void GnuPlot::SetDegreeSign(char * locale)
 #endif
 	// These are the internally-known encodings 
 	memzero(GpU.degree_sign, sizeof(GpU.degree_sign));
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8:    GpU.degree_sign[0] = '\302'; GpU.degree_sign[1] = '\260'; break;
 		case S_ENC_KOI8_R:
 		case S_ENC_KOI8_U:  GpU.degree_sign[0] = '\234'; break;
@@ -188,10 +187,9 @@ void GnuPlot::SetDegreeSign(char * locale)
 static enum set_encoding_id map_codepage_to_encoding(uint cp)                            
 {
 	enum set_encoding_id encoding;
-	/* The code below is the inverse to the code found in WinGetCodepage().
-	   For a list of code page identifiers see
-	   http://msdn.microsoft.com/en-us/library/dd317756%28v=vs.85%29.aspx
-	 */
+	// The code below is the inverse to the code found in WinGetCodepage().
+	// For a list of code page identifiers see
+	// http://msdn.microsoft.com/en-us/library/dd317756%28v=vs.85%29.aspx
 	switch(cp) {
 		case 437:   encoding = S_ENC_CP437; break;
 		case 850:
@@ -254,17 +252,15 @@ bool contains8bit(const char * s)
  * UTF-8 functions
  */
 #define INVALID_UTF8 0xFFFDul
-
-/* Read from second byte to end of UTF-8 sequence.
- * used by utf8toulong()
- */
+//
+// Read from second byte to end of UTF-8 sequence.
+// used by utf8toulong()
+//
 static bool utf8_getmore(ulong * wch, const char ** str, int nbytes)
 {
-	int i;
-	uchar c;
-	ulong minvalue[] = {0x80, 0x800, 0x10000, 0x200000, 0x4000000};
-	for(i = 0; i < nbytes; i++) {
-		c = (uchar)**str;
+	const ulong minvalue[] = {0x80, 0x800, 0x10000, 0x200000, 0x4000000};
+	for(int i = 0; i < nbytes; i++) {
+		uchar c = (uchar)**str;
 		if((c & 0xc0) != 0x80) {
 			*wch = INVALID_UTF8;
 			return FALSE;
@@ -272,7 +268,7 @@ static bool utf8_getmore(ulong * wch, const char ** str, int nbytes)
 		*wch = (*wch << 6) | (c & 0x3f);
 		(*str)++;
 	}
-	/* check for overlong UTF-8 sequences */
+	// check for overlong UTF-8 sequences 
 	if(*wch < minvalue[nbytes-1]) {
 		*wch = INVALID_UTF8;
 		return FALSE;
@@ -294,17 +290,14 @@ bool utf8toulong(ulong * wch, const char ** str)
 		*wch = c & 0x1f;
 		return utf8_getmore(wch, str, 1);
 	}
-
 	if((c & 0xf0) == 0xe0) {
 		*wch = c & 0x0f;
 		return utf8_getmore(wch, str, 2);
 	}
-
 	if((c & 0xf8) == 0xf0) {
 		*wch = c & 0x07;
 		return utf8_getmore(wch, str, 3);
 	}
-
 	/* Note: 5 and 6 byte UTF8 sequences are no longer valid
 	 *       according to RFC 3629 (Nov 2003)
 	 */
@@ -313,13 +306,11 @@ bool utf8toulong(ulong * wch, const char ** str)
 		*wch = c & 0x03;
 		return utf8_getmore(wch, str, 4);
 	}
-
 	if((c & 0xfe) == 0xfc) {
 		*wch = c & 0x01;
 		return utf8_getmore(wch, str, 5);
 	}
 #endif
-
 	*wch = INVALID_UTF8;
 	return FALSE;
 }

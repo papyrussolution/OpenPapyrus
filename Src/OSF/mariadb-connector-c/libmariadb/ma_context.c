@@ -57,7 +57,7 @@ int i0, i1;
 	(*c->user_func)(c->user_data);
 	c->active = 0;
 	err = setcontext(&c->base_context);
-	fprintf(stderr, "Aieie, setcontext() failed: %d (errno=%d)\n", err, errno);
+	slfprintf_stderr("Aieie, setcontext() failed: %d (errno=%d)\n", err, errno);
 }
 
 int my_context_continue(struct my_context * c)
@@ -69,7 +69,7 @@ int my_context_continue(struct my_context * c)
 
 	err = swapcontext(&c->base_context, &c->spawned_context);
 	if(err) {
-		fprintf(stderr, "Aieie, swapcontext() failed: %d (errno=%d)\n",
+		slfprintf_stderr("Aieie, swapcontext() failed: %d (errno=%d)\n",
 		    err, errno);
 		return -1;
 	}

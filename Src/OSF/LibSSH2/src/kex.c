@@ -2014,7 +2014,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int metho
 		char * p = sstrchr(s, ',');
 		int method_len = p ? (p - s) : (int)strlen(s);
 		if(!kex_get_method_by_name(s, method_len, mlist)) {
-			/* Strip out unsupported method */
+			// Strip out unsupported method 
 			if(p) {
 				memcpy(s, p + 1, strlen(s) - method_len);
 			}
@@ -2029,7 +2029,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int metho
 		}
 		s = p ? (p + 1) : NULL;
 	}
-	if(strlen(newprefs) == 0) {
+	if(isempty(newprefs)) {
 		LIBSSH2_FREE(session, newprefs);
 		return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "The requested method(s) are not currently supported");
 	}

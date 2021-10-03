@@ -75,13 +75,13 @@ static void ssh_log_stderr(int verbosity,
 
 	rc = current_timestring(1, date, sizeof(date));
 	if(rc == 0) {
-		fprintf(stderr, "[%s, %d] %s:", date, verbosity, function);
+		slfprintf_stderr("[%s, %d] %s:", date, verbosity, function);
 	}
 	else {
-		fprintf(stderr, "[%d] %s", verbosity, function);
+		slfprintf_stderr("[%d] %s", verbosity, function);
 	}
 
-	fprintf(stderr, "  %s\n", buffer);
+	slfprintf_stderr("  %s\n", buffer);
 }
 
 void ssh_log_function(int verbosity,

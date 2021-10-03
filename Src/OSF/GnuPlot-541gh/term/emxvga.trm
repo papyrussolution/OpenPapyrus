@@ -385,7 +385,7 @@ TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
 		GpValue a;
 		emx_vesamode = (int)pGp->Real(pGp->ConstExpress(&a));
 	}
-	sprintf(term_options, "%d", emx_vesamode);
+	sprintf(GPT.TermOptions, "%d", emx_vesamode);
 }
 
 TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis)

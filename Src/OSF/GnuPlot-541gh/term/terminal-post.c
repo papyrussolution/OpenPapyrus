@@ -315,7 +315,7 @@ static void PS_RememberFont(GpTermEntry * pThis, char * fname)
 	fnp->name = sstrdup(myfname);
 	fnp->next = PS_DocFonts;
 	PS_DocFonts = fnp;
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_ISO8859_1:
 		case S_ENC_UTF8: recode = "reencodeISO def\n"; break;
 		case S_ENC_ISO8859_2: recode = "reencodeISO2 def\n"; break;
@@ -1014,16 +1014,14 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			}
 		}
 	}
-
-	/* HBB 19990823: fixed the options string. It violated the 'save
-	 * loadable output' rule */
+	// HBB 19990823: fixed the options string. It violated the 'save loadable output' rule 
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)
-		sprintf(term_options, "%s %s %s \\\n", pGp->TPsB.P_Params->psformat==PSTERM_EPS ? "eps" : (pGp->TPsB.P_Params->psformat==PSTERM_PORTRAIT ? "portrait" : "landscape"),
+		sprintf(GPT.TermOptions, "%s %s %s \\\n", pGp->TPsB.P_Params->psformat==PSTERM_EPS ? "eps" : (pGp->TPsB.P_Params->psformat==PSTERM_PORTRAIT ? "portrait" : "landscape"),
 		    pThis->put_text == ENHPS_put_text ? "enhanced" : "noenhanced", pGp->TPsB.P_Params->duplex_option ? (pGp->TPsB.P_Params->duplex_state ? "duplex" : "simplex") : "defaultplex");
 	else if(pGp->TPsB.P_Params->terminal != PSTERM_EPSLATEX)
-		sprintf(term_options, "%s%s", pGp->TPsB.P_Params->rotate ? "rotate" : "norotate", pGp->TPsB.P_Params->useauxfile ? " auxfile" : "");
+		sprintf(GPT.TermOptions, "%s%s", pGp->TPsB.P_Params->rotate ? "rotate" : "norotate", pGp->TPsB.P_Params->useauxfile ? " auxfile" : "");
 	else
-		term_options[0] = '\0';
+		PTR32(GPT.TermOptions)[0] = 0;
 	sprintf(tmp_term_options, "   %s %s %s \\\n\
    dashlength %.1f linewidth %.1f pointscale %.1f %s %s \\\n",
 	    pGp->TPsB.P_Params->level1 ? "level1" : (pGp->TPsB.P_Params->level3 ? "level3" : "leveldefault"),
@@ -1034,22 +1032,21 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	    pGp->TPsB.P_Params->pointscale_factor,
 	    pGp->TPsB.P_Params->rounded ? "rounded" : "butt",
 	    pGp->TPsB.P_Params->clipped ? "clip" : "noclip");
-	strcat(term_options, tmp_term_options);
-
+	strcat(GPT.TermOptions, tmp_term_options);
 	if(pGp->TPsB.P_Params->background.r >= 0) {
 		sprintf(tmp_term_options, "   background \"#%02x%02x%02x\" \\\n",
 		    (int)(255 * pGp->TPsB.P_Params->background.r),
 		    (int)(255 * pGp->TPsB.P_Params->background.g),
 		    (int)(255 * pGp->TPsB.P_Params->background.b));
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 	else {
-		strcat(term_options, "   nobackground \\\n");
+		strcat(GPT.TermOptions, "   nobackground \\\n");
 	}
 
 	sprintf(tmp_term_options, "   palfuncparam %d,%g \\\n   ",
 	    pGp->TPsB.P_Params->palfunc_samples, pGp->TPsB.P_Params->palfunc_deviation);
-	strcat(term_options, tmp_term_options);
+	strcat(GPT.TermOptions, tmp_term_options);
 
 #ifdef PSLATEX_DRIVER
 	if((pGp->TPsB.P_Params->terminal == PSTERM_PSTEX) ||
@@ -1057,26 +1054,26 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		sprintf(tmp_term_options, "%s %s ",
 		    pGp->TPsB.P_Params->rotate ? "rotate" : "norotate",
 		    pGp->TPsB.P_Params->useauxfile ? "auxfile" : "noauxfile");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 
 	if(pGp->TPsB.P_Params->terminal == PSTERM_EPSLATEX) {
 		sprintf(tmp_term_options, "%s ",
 		    pGp->TPsB.P_Params->epslatex_standalone ? "standalone" : "input");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 #endif
 
-	if((encoding == S_ENC_UTF8) && (pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)) {
+	if((GPT._Encoding == S_ENC_UTF8) && (pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)) {
 		sprintf(tmp_term_options, " %sadobeglyphnames \\\n   ", pGp->TPsB.P_Params->adobeglyphnames ? "" : "no");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 	if(ps_explicit_size) {
 		if(ps_explicit_units == CM)
 			sprintf(tmp_term_options, "size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(72.*PS_SC), 2.54*(float)pThis->MaxY/(72.*PS_SC));
 		else
 			sprintf(tmp_term_options, "size %.2fin, %.2fin ", (float)pThis->MaxX/(72.*PS_SC), (float)pThis->MaxY/(72.*PS_SC));
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)
 		sprintf(tmp_term_options, "\"%s\" %g%s ", pGp->TPsB.P_Params->font, pGp->TPsB.P_Params->fontsize, ps_fontfile_char ? ps_fontfile_char : "");
@@ -1087,9 +1084,9 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	else
 		tmp_term_options[0] = '\0';
 	SAlloc::F(ps_fontfile_char);
-	strcat(term_options, tmp_term_options);
+	strcat(GPT.TermOptions, tmp_term_options);
 	sprintf(tmp_term_options, " fontscale %3.1f ", pGp->TPsB.P_Params->fontscale);
-	strcat(term_options, tmp_term_options);
+	strcat(GPT.TermOptions, tmp_term_options);
 	return;
 PS_options_error:
 	pGp->IntErrorCurToken("extraneous argument in set terminal %s", pThis->name);
@@ -1162,7 +1159,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 #if defined(PIPES)
 	}
 #endif
-		if(strlen(ext) == 0) {
+		if(isempty(ext)) {
 #if defined(PIPES)
 			// Pipe is given 
 			p_gp->RestrictPOpen();
@@ -1183,7 +1180,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 				sprintf(cmd, envcmd, current_ps_fontfile->fontfile_fullname);
 			else
 				sprintf(cmd, "ttf2pt1 -a -e -W 0 %s -", current_ps_fontfile->fontfile_fullname);
-			if(strlen(cmd) == 0)
+			if(isempty(cmd))
 				p_gp->IntError(NO_CARET, "No command for automatic font conversion ttf->pfa defined");
 			else {
 				ffont = popen(cmd, "r");
@@ -1204,7 +1201,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 				sprintf(cmd, envcmd, current_ps_fontfile->fontfile_fullname);
 			else
 				sprintf(cmd, "pfbtops %s", current_ps_fontfile->fontfile_fullname);
-			if(strlen(cmd) == 0)
+			if(isempty(cmd))
 				p_gp->IntError(NO_CARET, "No command for automatic font conversion pfb->pfa defined");
 			else {
 				ffont = popen(cmd, "r");
@@ -1401,8 +1398,8 @@ end\n\
 		fputs("%!PS-Adobe-2.0 EPSF-2.0\n", gppsfile);
 	else
 		fputs("%!PS-Adobe-2.0\n", gppsfile);
-	if(outstr)
-		fprintf(gppsfile, "%%%%Title: %s\n", outstr); /*  JFi  */
+	if(GPT.P_OutStr)
+		fprintf(gppsfile, "%%%%Title: %s\n", GPT.P_OutStr); // JFi
 	fprintf(gppsfile, psi1, gnuplot_version, gnuplot_patchlevel, timedate, uses_fonts ? "(atend)" : "");
 	fprintf(gppsfile, "%%%%BoundingBox: %d %d %d %d\n", xoff + bb_xmin, yoff + bb_ymin, xoff + bb_xmax, yoff + bb_ymax);
 	if((p_gp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) && (p_gp->TPsB.P_Params->psformat != PSTERM_EPS))
@@ -1443,7 +1440,7 @@ end\n\
 	PS_dump_prologue_file(pThis, "prologue.ps");
 	// insert font encoding vector 
 	if(uses_fonts) {
-		switch(encoding) {
+		switch(GPT._Encoding) {
 			case S_ENC_ISO8859_1:   PS_dump_prologue_file(pThis, "8859-1.ps"); break;
 			case S_ENC_ISO8859_2:   PS_dump_prologue_file(pThis, "8859-2.ps"); break;
 			case S_ENC_CP1254:
@@ -1504,7 +1501,7 @@ end\n\
 
 	/* HH: print pdf information interpreted by ghostscript/acrobat */
 	{
-		char * outstr2 = PS_escape_string(outstr, "()\\");
+		char * outstr2 = PS_escape_string(GPT.P_OutStr, "()\\");
 		fprintf(gppsfile, psi3, outstr2 ? outstr2 : "", gnuplot_version, gnuplot_patchlevel, timedate);
 		if(outstr2)
 			SAlloc::F(outstr2);
@@ -1568,7 +1565,7 @@ void PS_init(GpTermEntry * pThis)
 	p_gp->TPsB.EnhFontSize = p_gp->TPsB.FontSize;
 	switch(p_gp->TPsB.P_Params->terminal) {
 		case PSTERM_POSTSCRIPT:
-		    gppsfile = gpoutfile;
+		    gppsfile = GPT.P_GpOutFile;
 		    break;
 		default:
 #ifdef PSLATEX_DRIVER
@@ -1642,7 +1639,7 @@ void PS_text(GpTermEntry * pThis)
 {
 	pThis->P_Gp->TPsB.PathCount = 0;
 	fputs("stroke\ngrestore\nend\nshowpage\n", gppsfile);
-	/* fprintf(stderr,"taken %d times\n",PS_taken); */
+	/* fprintf(stderr, "taken %d times\n",PS_taken); */
 	/* informational:  tells how many times it was "cheaper"
 	 * to do a relative moveto or lineto rather than an
 	 * absolute one */
@@ -1864,7 +1861,7 @@ TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 #define PS_TEXT 1
 #define PS_GLYPH 2
 	ulong ch;
-	if(!str || !strlen(str))
+	if(isempty(str))
 		return;
 	if(PS_in_textbox > 0) {
 		int save_ang = p_gp->TPsB.Ang;
@@ -1884,21 +1881,17 @@ TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 		fprintf(gppsfile, "currentpoint gsave translate %d rotate 0 0 M\n", p_gp->TPsB.Ang);
 	else if(PS_in_textbox > 0)
 		fprintf(gppsfile, "gsave currentpoint translate\n");
-
-	if(encoding == S_ENC_UTF8 && contains8bit(str)) {
-		/* UTF-8 encoding with multibyte characters present */
-		/* Note: uses an intermediate array rather than direct output via fputs so
-		 * that the bounding box (used by boxed text) can be calculated in 2 passes:
-		 *   [char sequence] GLwidth [char sequence] GLwidth2
-		 * First pass updates height, second pass updates width.
-		 * There must surely be some some way to do this in one pass!
-		 */
+	if(GPT._Encoding == S_ENC_UTF8 && contains8bit(str)) {
+		// UTF-8 encoding with multibyte characters present 
+		// Note: uses an intermediate array rather than direct output via fputs so
+		// that the bounding box (used by boxed text) can be calculated in 2 passes:
+		//   [char sequence] GLwidth [char sequence] GLwidth2
+		// First pass updates height, second pass updates width.
+		// There must surely be some some way to do this in one pass!
 		char strarray[MAX_LINE_LEN];
 		int mode = PS_NONE;
 		char * c = strarray;
-
 		*c++ = '[';
-
 		for(utf8toulong(&ch, &str); ch != '\0'; utf8toulong(&ch, &str)) {
 			if(ch < 0x100) {
 				if(mode != PS_TEXT)
@@ -2242,7 +2235,7 @@ TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry * pThis, int c)
 	static char utf8[6]; /* holds the multibyte sequence being accumulated   */
 	static int nbytes = 0; /* number of bytes expected in the sequence */
 	// UTF-8 Encoding 
-	if(encoding == S_ENC_UTF8 && (c & 0x80) != 0) {
+	if(GPT._Encoding == S_ENC_UTF8 && (c & 0x80) != 0) {
 		if(in_utf8 == 0) {
 			nbytes = (c & 0xE0) == 0xC0 ? 2 : (c & 0xF0) == 0xE0 ? 3 : (c & 0xF8) == 0xF0 ? 4 : 0;
 			if(!nbytes) /* Illegal UTF8 char; hope it's printable  */
@@ -2289,11 +2282,11 @@ TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry * pThis, int c)
 		}
 		/* shige jan 2011 */
 	}
-	else if(encoding == S_ENC_SJIS) {
+	else if(GPT._Encoding == S_ENC_SJIS) {
 		static bool in_sjis = FALSE;
 		fputc(c, gppsfile);
 		if(in_sjis || (c & 0x80)) {
-			/* shige: This may remain original string instead octal bytes. */
+			// shige: This may remain original string instead octal bytes. 
 			if(in_sjis) {
 				in_sjis = 0;
 				if((uint)(c) == '\\')
@@ -2325,7 +2318,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 		return;
 	}
 	// flush any pending graphics (all the XShow routines do this...) 
-	if(!strlen(str))
+	if(isempty(str))
 		return;
 	PsFlashPath(pThis);
 	if(PS_in_textbox > 0) {
@@ -3331,7 +3324,7 @@ static char * PS_encode_image(GpTermEntry * pThis, uint M, uint N, coordval * im
 	return encoded_image;
 }
 
-static void print_five_operand_image(GpTermEntry * pThis, uint M, uint N, gpiPoint * corner, t_imagecolor color_mode, ushort bits_per_component)
+static void print_five_operand_image(GpTermEntry * pThis, uint M, uint N, const gpiPoint * corner, t_imagecolor color_mode, ushort bits_per_component)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * space = p_gp->TPsB.P_Params->level1 ? "" : "  ";
@@ -3360,7 +3353,7 @@ static void print_five_operand_image(GpTermEntry * pThis, uint M, uint N, gpiPoi
 		fprintf(gppsfile, "%simage\n", space);
 }
 
-void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * encoded_image;
@@ -3422,7 +3415,7 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * 
 #endif
 	encoded_image = PS_encode_image(pThis, M, N, image, color_mode, bits_per_component, max_colors, cscale, (p_gp->TPsB.P_Params->level1 ? PS_ASCII_HEX : PS_ASCII85), &num_encoded_bytes);
 	fputs("%%%%BeginImage\n", gppsfile);
-	/* Clip image to requested bounding box */
+	// Clip image to requested bounding box 
 	fprintf(gppsfile, "gsave %d %d N %d %d L %d %d L %d %d L Z clip\n", corner[2].x, corner[2].y, corner[2].x, corner[3].y, corner[3].x, corner[3].y, corner[3].x, corner[2].y);
 	/* Color and gray scale images do not need a palette and can use
 	 * the 5 operand form of the image routine.  For other types of

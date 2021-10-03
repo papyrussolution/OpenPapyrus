@@ -1843,27 +1843,21 @@ INT_PTR CALLBACK StylerDlg::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 		    if(i == CB_ERR)
 			    i = 0;
 		    ::SendMessage(hFontNameCombo, CB_SETCURSEL, i, 0);
-
 		    if(style._fgColor == COLORREF(-1))
-			    style._fgColor = black;
-
+			    style._fgColor = GetColorRef(SClrBlack); // black
 		    if(style._bgColor == COLORREF(-1))
-			    style._bgColor = white;
-
+			    style._bgColor = GetColorRef(SClrWhite); // white
 		    dlg->_pFgColour->init(dlg->_hInst, hwnd);
 		    dlg->_pFgColour->setColour(style._fgColor);
 		    dlg->_pBgColour->init(dlg->_hInst, hwnd);
 		    dlg->_pBgColour->setColour(style._bgColor);
 
-		    int w = nppParam._dpiManager.scaleX(25);
-		    int h = nppParam._dpiManager.scaleY(25);
-
+		    const int w = nppParam._dpiManager.scaleX(25);
+		    const int h = nppParam._dpiManager.scaleY(25);
 		    dlg->move2CtrlRight(hwnd, IDC_STYLER_FG_STATIC, dlg->_pFgColour->getHSelf(), w, h);
 		    dlg->move2CtrlRight(hwnd, IDC_STYLER_BG_STATIC, dlg->_pBgColour->getHSelf(), w, h);
-
 		    dlg->_pFgColour->display();
 		    dlg->_pBgColour->display();
-
 		    unordered_map<int, int>::iterator iter = globalMappper().nestingMapper.begin();
 		    for(; iter != globalMappper().nestingMapper.end(); ++iter) {
 			    ::SendDlgItemMessage(hwnd, iter->first, BM_SETCHECK, style._nesting & iter->second, 0);

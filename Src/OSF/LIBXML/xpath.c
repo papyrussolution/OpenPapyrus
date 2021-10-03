@@ -13305,7 +13305,7 @@ xmlXPathCompExprPtr xmlXPathCompile(const xmlChar * str)
 #ifdef DEBUG_EVAL_COUNTS
 		comp->nb++;
 		if(comp->string && (comp->nb > 100)) {
-			fprintf(stderr, "100 x %s\n", comp->string);
+			slfprintf_stderr("100 x %s\n", comp->string);
 			comp->nb = 0;
 		}
 #endif

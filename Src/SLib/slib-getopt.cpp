@@ -484,7 +484,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 					SAlloc::F(buf);
 				}
 #else
-				fprintf(stderr, _("%s: option '%s' is ambiguous\n"), argv[0], argv[d->optind]);
+				slfprintf_stderr(_("%s: option '%s' is ambiguous\n"), argv[0], argv[d->optind]);
 #endif
 			}
 			d->__nextchar += strlen(d->__nextchar);
@@ -510,7 +510,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 #if defined _LIBC && defined USE_IN_LIBIO
 							n = __asprintf(&buf, _("%s: option '--%s' doesn't allow an argument\n"), argv[0], pfound->name);
 #else
-							fprintf(stderr, _("%s: option '--%s' doesn't allow an argument\n"), argv[0], pfound->name);
+							slfprintf_stderr(_("%s: option '--%s' doesn't allow an argument\n"), argv[0], pfound->name);
 #endif
 						}
 						else {
@@ -518,7 +518,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 #if defined _LIBC && defined USE_IN_LIBIO
 							n = __asprintf(&buf, _("%s: option '%c%s' doesn't allow an argument\n"), argv[0], argv[d->optind - 1][0], pfound->name);
 #else
-							fprintf(stderr, _("%s: option '%c%s' doesn't allow an argument\n"), argv[0], argv[d->optind - 1][0], pfound->name);
+							slfprintf_stderr(_("%s: option '%c%s' doesn't allow an argument\n"), argv[0], argv[d->optind - 1][0], pfound->name);
 #endif
 						}
 #if defined _LIBC && defined USE_IN_LIBIO
@@ -555,7 +555,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 							SAlloc::F(buf);
 						}
 #else
-						fprintf(stderr, _("%s: option '--%s' requires an argument\n"), argv[0], pfound->name);
+						slfprintf_stderr(_("%s: option '--%s' requires an argument\n"), argv[0], pfound->name);
 #endif
 					}
 					d->__nextchar += strlen(d->__nextchar);
@@ -585,7 +585,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 #if defined _LIBC && defined USE_IN_LIBIO
 					n = __asprintf(&buf, _("%s: unrecognized option '--%s'\n"), argv[0], d->__nextchar);
 #else
-					fprintf(stderr, _("%s: unrecognized option '--%s'\n"), argv[0], d->__nextchar);
+					slfprintf_stderr(_("%s: unrecognized option '--%s'\n"), argv[0], d->__nextchar);
 #endif
 				}
 				else {
@@ -593,7 +593,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 #if defined _LIBC && defined USE_IN_LIBIO
 					n = __asprintf(&buf, _("%s: unrecognized option '%c%s'\n"), argv[0], argv[d->optind][0], d->__nextchar);
 #else
-					fprintf(stderr, _("%s: unrecognized option '%c%s'\n"), argv[0], argv[d->optind][0], d->__nextchar);
+					slfprintf_stderr(_("%s: unrecognized option '%c%s'\n"), argv[0], argv[d->optind][0], d->__nextchar);
 #endif
 				}
 #if defined _LIBC && defined USE_IN_LIBIO
@@ -630,7 +630,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 #if defined _LIBC && defined USE_IN_LIBIO
 				n = __asprintf(&buf, _("%s: invalid option -- '%c'\n"), argv[0], c);
 #else
-				fprintf(stderr, _("%s: invalid option -- '%c'\n"), argv[0], c);
+				slfprintf_stderr(_("%s: invalid option -- '%c'\n"), argv[0], c);
 #endif
 #if defined _LIBC && defined USE_IN_LIBIO
 				if(n >= 0) {
@@ -676,7 +676,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 						SAlloc::F(buf);
 					}
 #else
-					fprintf(stderr, _("%s: option requires an argument -- '%c'\n"), argv[0], c);
+					slfprintf_stderr(_("%s: option requires an argument -- '%c'\n"), argv[0], c);
 #endif
 				}
 				d->optopt = c;
@@ -721,7 +721,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 						SAlloc::F(buf);
 					}
 #else
-					fprintf(stderr, _("%s: option '-W %s' is ambiguous\n"), argv[0], d->optarg);
+					slfprintf_stderr(_("%s: option '-W %s' is ambiguous\n"), argv[0], d->optarg);
 #endif
 				}
 				d->__nextchar += strlen(d->__nextchar);
@@ -748,7 +748,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 								SAlloc::F(buf);
 							}
 #else
-							fprintf(stderr, _("%s: option '-W %s' doesn't allow an argument\n"), argv[0], pfound->name);
+							slfprintf_stderr(_("%s: option '-W %s' doesn't allow an argument\n"), argv[0], pfound->name);
 #endif
 						}
 						d->__nextchar += strlen(d->__nextchar);
@@ -772,7 +772,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 								SAlloc::F(buf);
 							}
 #else
-							fprintf(stderr, _("%s: option '-W %s' requires an argument\n"), argv[0], pfound->name);
+							slfprintf_stderr(_("%s: option '-W %s' requires an argument\n"), argv[0], pfound->name);
 #endif
 						}
 						d->__nextchar += strlen(d->__nextchar);
@@ -824,7 +824,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 							SAlloc::F(buf);
 						}
 #else
-						fprintf(stderr, _("%s: option requires an argument -- '%c'\n"), argv[0], c);
+						slfprintf_stderr(_("%s: option requires an argument -- '%c'\n"), argv[0], c);
 #endif
 					}
 					d->optopt = c;

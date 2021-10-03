@@ -194,7 +194,7 @@ static const xmlChar * xmlDictAddString(xmlDict * dict, const xmlChar * name, ui
 	size_t size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
 	size_t limit = 0;
 #ifdef DICT_DEBUG_PATTERNS
-	fprintf(stderr, "-");
+	slfprintf_stderr("-");
 #endif
 	pool = dict->strings;
 	while(pool) {
@@ -227,7 +227,7 @@ static const xmlChar * xmlDictAddString(xmlDict * dict, const xmlChar * name, ui
 		pool->next = dict->strings;
 		dict->strings = pool;
 #ifdef DICT_DEBUG_PATTERNS
-		fprintf(stderr, "+");
+		slfprintf_stderr("+");
 #endif
 	}
 found_pool:
@@ -259,7 +259,7 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 	if(prefix == NULL)
 		return xmlDictAddString(dict, name, namelen);
 #ifdef DICT_DEBUG_PATTERNS
-	fprintf(stderr, "=");
+	slfprintf_stderr("=");
 #endif
 	pool = dict->strings;
 	while(pool != NULL) {
@@ -293,7 +293,7 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 		pool->next = dict->strings;
 		dict->strings = pool;
 #ifdef DICT_DEBUG_PATTERNS
-		fprintf(stderr, "+");
+		slfprintf_stderr("+");
 #endif
 	}
 found_pool:
@@ -466,7 +466,7 @@ xmlDict * xmlDictCreate()
 		if(!__xmlInitializeDict())
 			return 0;
 #ifdef DICT_DEBUG_PATTERNS
-	fprintf(stderr, "C");
+	slfprintf_stderr("C");
 #endif
 	dict = static_cast<xmlDict *>(SAlloc::M(sizeof(xmlDict)));
 	if(dict) {
@@ -506,7 +506,7 @@ xmlDict * xmlDictCreateSub(xmlDict * sub)
 	xmlDict * dict = xmlDictCreate();
 	if(dict && sub) {
 #ifdef DICT_DEBUG_PATTERNS
-		fprintf(stderr, "R");
+		slfprintf_stderr("R");
 #endif
 		dict->seed = sub->seed;
 		dict->subdict = sub;
@@ -559,7 +559,7 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 	if(size > 8 * 2048)
 		return -1;
 #ifdef DICT_DEBUG_PATTERNS
-	fprintf(stderr, "*");
+	slfprintf_stderr("*");
 #endif
 	oldsize = dict->size;
 	olddict = dict->dict;

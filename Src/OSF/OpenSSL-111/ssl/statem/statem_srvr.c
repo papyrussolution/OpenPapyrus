@@ -1785,12 +1785,12 @@ static int tls_early_post_process_client_hello(SSL * s)
 		id = s->session->cipher->id;
 
 #ifdef CIPHER_DEBUG
-		fprintf(stderr, "client sent %d ciphers\n", sk_SSL_CIPHER_num(ciphers));
+		slfprintf_stderr("client sent %d ciphers\n", sk_SSL_CIPHER_num(ciphers));
 #endif
 		for(i = 0; i < sk_SSL_CIPHER_num(ciphers); i++) {
 			c = sk_SSL_CIPHER_value(ciphers, i);
 #ifdef CIPHER_DEBUG
-			fprintf(stderr, "client [%2d of %2d]:%s\n",
+			slfprintf_stderr("client [%2d of %2d]:%s\n",
 			    i, sk_SSL_CIPHER_num(ciphers), SSL_CIPHER_get_name(c));
 #endif
 			if(c->id == id) {

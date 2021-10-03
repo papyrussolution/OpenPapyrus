@@ -368,7 +368,7 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 		snprintf(size_str, sizeof(size_str), "size %.2fcm, %.2fcm", _TD.Size.x * 2.54, _TD.Size.y * 2.54);
 	// update terminal option string
 	bg = static_cast<int>(_TD.TEXDRAW_background * 255);
-	snprintf(term_options, MAX_LINE_LEN + 1,
+	snprintf(GPT.TermOptions, MAX_LINE_LEN + 1,
 	    "%s linewidth %.1f pointscale %.1f %stext "
 	    "background \"#%02x%02x%02x\" "
 	    "%sarrows %spoints %s",
@@ -383,7 +383,7 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
 {
-	fputs("%% GNUPLOT: LaTeX using TEXDRAW macros\n", gpoutfile);
+	fputs("%% GNUPLOT: LaTeX using TEXDRAW macros\n", GPT.P_GpOutFile);
 	if(_TD.TEXDRAW_standalone) {
 		fputs(
 			"\\documentclass[a4paper,10pt]{article}\n" \
@@ -392,7 +392,7 @@ TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
 			"\\usepackage{amssymb}\n" \
 			"\\usepackage{xcolor}\n"
 			"\\begin{document}\n",
-			gpoutfile);
+			GPT.P_GpOutFile);
 	}
 }
 
@@ -413,14 +413,14 @@ TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
 \\writeps{%d setlinecap} \\writeps{%d setlinejoin}\n";
 
 	if(_TD.TEXDRAW_standalone)
-		fputs("\\begin{figure}\n", gpoutfile);
-	fprintf(gpoutfile, tdg1, _TD.TEXDRAW_scalefactor, TEXDRAW_lines[2], _TD.TEXDRAW_rounded ? 1 : 0, _TD.TEXDRAW_rounded ? 1 : 0);
+		fputs("\\begin{figure}\n", GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, tdg1, _TD.TEXDRAW_scalefactor, TEXDRAW_lines[2], _TD.TEXDRAW_rounded ? 1 : 0, _TD.TEXDRAW_rounded ? 1 : 0);
 	if(_TD.TEXDRAW_background == 1.) {
 		/* enforce bounding box */
-		fprintf(gpoutfile, "\\move (0 0) \\rmove (%d %d)\n", pThis->MaxX, pThis->MaxY);
+		fprintf(GPT.P_GpOutFile, "\\move (0 0) \\rmove (%d %d)\n", pThis->MaxX, pThis->MaxY);
 	}
 	else {
-		fprintf(gpoutfile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n", pThis->MaxX, pThis->MaxY, -pThis->MaxX, _TD.TEXDRAW_background);
+		fprintf(GPT.P_GpOutFile, "\\move (0 0) \\rlvec (%d 0) \\rlvec (0 %d) \\rlvec (%d 0) \\ifill f:%0.2f\n", pThis->MaxX, pThis->MaxY, -pThis->MaxX, _TD.TEXDRAW_background);
 	}
 	_TD.TEXDRAW_last_type = 0;
 	_TD.TEXDRAW_type = 0;
@@ -436,10 +436,10 @@ TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis)
 {
 	TEXDRAW_endline();
-	// fputs("\\drawbb\n", gpoutfile);
-	fputs("\\etexdraw\n", gpoutfile);
+	// fputs("\\drawbb\n", GPT.P_GpOutFile);
+	fputs("\\etexdraw\n", GPT.P_GpOutFile);
 	if(_TD.TEXDRAW_standalone)
-		fputs("\\end{figure}\n\n", gpoutfile);
+		fputs("\\end{figure}\n\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis)
@@ -447,7 +447,7 @@ TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis)
 	TEXDRAW_endline();
 	_TD.Pos.Z();
 	if(_TD.TEXDRAW_standalone)
-		fputs("\\end{document}\n", gpoutfile);
+		fputs("\\end{document}\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype)
@@ -477,18 +477,18 @@ TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * cust
 	if(dt == _TD.TEXDRAW_dt)
 		return;
 	if(dt == 0) {
-		fputs("\\lpatt ()\n", gpoutfile);
+		fputs("\\lpatt ()\n", GPT.P_GpOutFile);
 		_TD.TEXDRAW_dt = 0;
 	}
 	else if(dt > 0) {
 		int i;
-		fputs("\\lpatt (", gpoutfile);
+		fputs("\\lpatt (", GPT.P_GpOutFile);
 		for(i = 0; i < 6; i++) {
 			if(TEXDRAW_dashpat[dt-1][i] == 0)
 				break;
-			fprintf(gpoutfile, "%d ", (int)(TEXDRAW_dashpat[dt-1][i] * _TD.TEXDRAW_lw));
+			fprintf(GPT.P_GpOutFile, "%d ", (int)(TEXDRAW_dashpat[dt-1][i] * _TD.TEXDRAW_lw));
 		}
-		fputs(")\n", gpoutfile);
+		fputs(")\n", GPT.P_GpOutFile);
 		_TD.TEXDRAW_dt = dt;
 	}
 	else if(dt == DASHTYPE_CUSTOM) {
@@ -523,19 +523,19 @@ TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 	/* Print the character defined by 'number'; number < 0 means
 	 * to use a dot, otherwise one of the defined points. */
-	fprintf(gpoutfile, "\\move (%d %d)\n", (int)((double)x * _TD.Scale.x), (int)((double)y * _TD.Scale.y));
+	fprintf(GPT.P_GpOutFile, "\\move (%d %d)\n", (int)((double)x * _TD.Scale.x), (int)((double)y * _TD.Scale.y));
 	if(_TD.TEXDRAW_last_justify != CENTRE) {
-		fprintf(gpoutfile, "\\textref h:C v:C ");
+		fprintf(GPT.P_GpOutFile, "\\textref h:C v:C ");
 		_TD.TEXDRAW_last_justify = CENTRE;
 	}
 	if(_TD.TEXDRAW_colortext && _TD.TEXDRAW_gray != 0)
 		snprintf(colorstr, sizeof(colorstr), "\\color{black!%d!}", 100 - (int)(_TD.TEXDRAW_gray * 100));
 	if(number < 0) {
-		fprintf(gpoutfile, "%s\n", TEXDRAW_TINY_DOT);
+		fprintf(GPT.P_GpOutFile, "%s\n", TEXDRAW_TINY_DOT);
 	}
 	else {
-		fprintf(gpoutfile, TEXDRAW_points[number % TEXDRAW_POINT_TYPES], colorstr);
-		fputc('\n', gpoutfile);
+		fprintf(GPT.P_GpOutFile, TEXDRAW_points[number % TEXDRAW_POINT_TYPES], colorstr);
+		fputc('\n', GPT.P_GpOutFile);
 	}
 }
 
@@ -546,15 +546,15 @@ TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy)
 		// Start a new line. This depends on line type 
 		if((_TD.TEXDRAW_type != _TD.TEXDRAW_last_type) || (_TD.TEXDRAW_last_lw != _TD.TEXDRAW_lw)) {
 			if(TEXDRAW_lines[_TD.TEXDRAW_type + 2] * _TD.TEXDRAW_lw != TEXDRAW_lines[_TD.TEXDRAW_last_type + 2] * _TD.TEXDRAW_last_lw)
-				fprintf(gpoutfile, "\\linewd %d\n", (int)(TEXDRAW_lines[_TD.TEXDRAW_type + 2] * _TD.TEXDRAW_lw + 0.5));
+				fprintf(GPT.P_GpOutFile, "\\linewd %d\n", (int)(TEXDRAW_lines[_TD.TEXDRAW_type + 2] * _TD.TEXDRAW_lw + 0.5));
 			_TD.TEXDRAW_last_type = _TD.TEXDRAW_type;
 			_TD.TEXDRAW_last_lw = _TD.TEXDRAW_lw;
 		}
 		if(_TD.TEXDRAW_gray != _TD.TEXDRAW_last_gray) {
-			fprintf(gpoutfile, "\\setgray %0.2f\n", _TD.TEXDRAW_gray);
+			fprintf(GPT.P_GpOutFile, "\\setgray %0.2f\n", _TD.TEXDRAW_gray);
 			_TD.TEXDRAW_last_gray = _TD.TEXDRAW_gray;
 		}
-		fprintf(gpoutfile, "\\path (%d %d)", (int)((double)_TD.Pos.x * _TD.Scale.x), (int)((double)_TD.Pos.y * _TD.Scale.y));
+		fprintf(GPT.P_GpOutFile, "\\path (%d %d)", (int)((double)_TD.Pos.x * _TD.Scale.x), (int)((double)_TD.Pos.y * _TD.Scale.y));
 		_TD.TEXDRAW_linecount = 1;
 	}
 	else {
@@ -563,18 +563,18 @@ TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy)
 		 * If they are too long then latex will choke.
 		 */
 		if(_TD.TEXDRAW_linecount++ >= TEXDRAW_LINEMAX) {
-			fputs("\n\\cpath ", gpoutfile);
+			fputs("\n\\cpath ", GPT.P_GpOutFile);
 			_TD.TEXDRAW_linecount = 1;
 		}
 	}
-	fprintf(gpoutfile, "(%d %d)", (int)((double)ux * _TD.Scale.x), (int)((double)uy * _TD.Scale.y));
+	fprintf(GPT.P_GpOutFile, "(%d %d)", (int)((double)ux * _TD.Scale.x), (int)((double)uy * _TD.Scale.y));
 	_TD.Pos.Set(ux, uy);
 }
 
 static void TEXDRAW_endline()
 {
 	if(_TD.TEXDRAW_inline) {
-		putc('\n', gpoutfile);
+		putc('\n', GPT.P_GpOutFile);
 		_TD.TEXDRAW_inline = FALSE;
 	}
 }
@@ -591,7 +591,7 @@ TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, u
 		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 		return;
 	}
-	switch(curr_arrow_headfilled) {
+	switch(GPT.CArw.HeadFilled) {
 		case AS_NOFILL:
 		    type = 'V'; // open V-shape
 		    break;
@@ -603,18 +603,18 @@ TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, u
 		    type = 'W'; // white filled triangle
 		    break;
 	}
-	if(curr_arrow_headlength > 0) {
-		width  = static_cast<int>(sin(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength);
-		tiplen = static_cast<int>(cos(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength);
-		if((curr_arrow_headbackangle - curr_arrow_headangle) <= 15)
+	if(GPT.CArw.HeadLength > 0) {
+		width  = static_cast<int>(sin(GPT.CArw.HeadAngle * SMathConst::PiDiv180) * GPT.CArw.HeadLength);
+		tiplen = static_cast<int>(cos(GPT.CArw.HeadAngle * SMathConst::PiDiv180) * GPT.CArw.HeadLength);
+		if((GPT.CArw.HeadBackAngle - GPT.CArw.HeadAngle) <= 15)
 			type = 'V'; // open V-shape
 	}
 	if(_TD.TEXDRAW_arrow_type != type) {
-		fprintf(gpoutfile, "\\arrowheadtype t:%c\n", type);
+		fprintf(GPT.P_GpOutFile, "\\arrowheadtype t:%c\n", type);
 		_TD.TEXDRAW_arrow_type = type;
 	}
 	if((_TD.TEXDRAW_arrow_length != tiplen) || (_TD.TEXDRAW_arrow_width != width)) {
-		fprintf(gpoutfile, "\\arrowheadsize l:%d w:%d\n", tiplen, width);
+		fprintf(GPT.P_GpOutFile, "\\arrowheadsize l:%d w:%d\n", tiplen, width);
 		_TD.TEXDRAW_arrow_length = tiplen;
 		_TD.TEXDRAW_arrow_width = width;
 	}
@@ -623,12 +623,12 @@ TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, u
 	else
 		text = 'l'; // simple line
 	if((head & END_HEAD) != 0 || (head & BOTH_HEADS) == 0) {
-		fprintf(gpoutfile, "\\move (%d %d)\\%cvec (%d %d)\n", (int)((double)sx * _TD.Scale.x), (int)((double)sy * _TD.Scale.y),
+		fprintf(GPT.P_GpOutFile, "\\move (%d %d)\\%cvec (%d %d)\n", (int)((double)sx * _TD.Scale.x), (int)((double)sy * _TD.Scale.y),
 		    text, (int)((double)ex * _TD.Scale.x), (int)((double)ey * _TD.Scale.y));
 	}
 	/* draw back-heads by drawing an arrow in the opposite direction */
 	if((head & BACKHEAD) != 0) {
-		fprintf(gpoutfile, "\\move (%d %d)\\%cvec (%d %d)\n", (int)((double)ex * _TD.Scale.x), (int)((double)ey * _TD.Scale.y),
+		fprintf(GPT.P_GpOutFile, "\\move (%d %d)\\%cvec (%d %d)\n", (int)((double)ex * _TD.Scale.x), (int)((double)ey * _TD.Scale.y),
 		    text, (int)((double)sx * _TD.Scale.x), (int)((double)sy * _TD.Scale.y));
 	}
 	_TD.Pos.Set(ex, ey);
@@ -638,25 +638,25 @@ TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 {
 	char colorstr[80] = "";
 	TEXDRAW_endline();
-	fprintf(gpoutfile, "\\move (%d %d)", (int)((double)x * _TD.Scale.x), (int)((double)y * _TD.Scale.y));
+	fprintf(GPT.P_GpOutFile, "\\move (%d %d)", (int)((double)x * _TD.Scale.x), (int)((double)y * _TD.Scale.y));
 	if(_TD.TEXDRAW_last_justify != _TD.TEXDRAW_justify) {
 		_TD.TEXDRAW_last_justify = _TD.TEXDRAW_justify;
 		if(_TD.TEXDRAW_justify == LEFT)
-			fputs("\\textref h:L v:C ", gpoutfile);
+			fputs("\\textref h:L v:C ", GPT.P_GpOutFile);
 		else if(_TD.TEXDRAW_justify == CENTRE)
-			fputs("\\textref h:C v:C ", gpoutfile);
+			fputs("\\textref h:C v:C ", GPT.P_GpOutFile);
 		else if(_TD.TEXDRAW_justify == RIGHT)
-			fputs("\\textref h:R v:C ", gpoutfile);
+			fputs("\\textref h:R v:C ", GPT.P_GpOutFile);
 	}
 
 	if(_TD.TEXDRAW_colortext && _TD.TEXDRAW_gray != 0)
 		snprintf(colorstr, sizeof(colorstr), "\\color{black!%d!}", 100 - (int)(_TD.TEXDRAW_gray * 100));
 	if(_TD.TEXDRAW_angle == 0)
-		fprintf(gpoutfile, "\\htext{%s%s}\n", colorstr, str);
+		fprintf(GPT.P_GpOutFile, "\\htext{%s%s}\n", colorstr, str);
 	else if(_TD.TEXDRAW_angle == 90)
-		fprintf(gpoutfile, "\\vtext{%s%s}\n", colorstr, str);
+		fprintf(GPT.P_GpOutFile, "\\vtext{%s%s}\n", colorstr, str);
 	else
-		fprintf(gpoutfile, "\\rtext td:%d {%s%s}\n", _TD.TEXDRAW_angle, colorstr, str);
+		fprintf(GPT.P_GpOutFile, "\\rtext td:%d {%s%s}\n", _TD.TEXDRAW_angle, colorstr, str);
 }
 
 TERM_PUBLIC int TEXDRAW_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
@@ -734,12 +734,12 @@ TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y
 	TEXDRAW_endline();
 	gray = TEXDRAW_fill_gray(style);
 	// outline box using relative moves
-	fprintf(gpoutfile, "\\move (%d %d)", x1, y1);
-	fprintf(gpoutfile, "\\rlvec (%d %d)", width, 0);
-	fprintf(gpoutfile, "\\rlvec (%d %d)", 0, height);
-	fprintf(gpoutfile, "\\rlvec (%d %d)", -width, 0);
+	fprintf(GPT.P_GpOutFile, "\\move (%d %d)", x1, y1);
+	fprintf(GPT.P_GpOutFile, "\\rlvec (%d %d)", width, 0);
+	fprintf(GPT.P_GpOutFile, "\\rlvec (%d %d)", 0, height);
+	fprintf(GPT.P_GpOutFile, "\\rlvec (%d %d)", -width, 0);
 	// the polygon is closed automatically by fill
-	fprintf(gpoutfile, "\\ifill f:%0.2f\n", gray);
+	fprintf(GPT.P_GpOutFile, "\\ifill f:%0.2f\n", gray);
 }
 
 TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
@@ -749,11 +749,11 @@ TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoin
 	TEXDRAW_endline();
 	gray = TEXDRAW_fill_gray(corners->style);
 	// outline polygon
-	fprintf(gpoutfile, "\\move (%d %d)", corners[0].x, corners[0].y);
+	fprintf(GPT.P_GpOutFile, "\\move (%d %d)", corners[0].x, corners[0].y);
 	for(i = 1; i < points; i++)
-		fprintf(gpoutfile, "\\lvec (%d %d)", corners[i].x, corners[i].y);
+		fprintf(GPT.P_GpOutFile, "\\lvec (%d %d)", corners[i].x, corners[i].y);
 	// fill polygon
-	fprintf(gpoutfile, "\\ifill f:%0.2f\n", gray);
+	fprintf(GPT.P_GpOutFile, "\\ifill f:%0.2f\n", gray);
 }
 
 #endif /* TERM_BODY */

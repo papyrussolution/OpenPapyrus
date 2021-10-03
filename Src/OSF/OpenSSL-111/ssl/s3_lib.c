@@ -4047,17 +4047,17 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 	 */
 
 #ifdef CIPHER_DEBUG
-	fprintf(stderr, "Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr),
+	slfprintf_stderr("Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr),
 	    (void *)srvr);
 	for(i = 0; i < sk_SSL_CIPHER_num(srvr); ++i) {
 		c = sk_SSL_CIPHER_value(srvr, i);
-		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
+		slfprintf_stderr("%p:%s\n", (void *)c, c->name);
 	}
-	fprintf(stderr, "Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt),
+	slfprintf_stderr("Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt),
 	    (void *)clnt);
 	for(i = 0; i < sk_SSL_CIPHER_num(clnt); ++i) {
 		c = sk_SSL_CIPHER_value(clnt, i);
-		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
+		slfprintf_stderr("%p:%s\n", (void *)c, c->name);
 	}
 #endif
 
@@ -4177,7 +4177,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 
 			ok = (alg_k & mask_k) && (alg_a & mask_a);
 #ifdef CIPHER_DEBUG
-			fprintf(stderr, "%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n", ok, alg_k,
+			slfprintf_stderr("%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n", ok, alg_k,
 			    alg_a, mask_k, mask_a, (void *)c, c->name);
 #endif
 

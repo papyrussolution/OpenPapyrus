@@ -597,7 +597,7 @@ int HarfBuzzTestNumber() // ###
 /*static void test(hb_codepoint_t cp, unsigned int bit)
 {
 	if(OT::_hb_ot_os2_get_unicode_range_bit(cp) != bit) {
-		fprintf(stderr, "got incorrect bit (%d) for cp 0x%X. Should have been %d.", OT::_hb_ot_os2_get_unicode_range_bit(cp), cp, bit);
+		slfprintf_stderr("got incorrect bit (%d) for cp 0x%X. Should have been %d.", OT::_hb_ot_os2_get_unicode_range_bit(cp), cp, bit);
 		abort();
 	}
 }*/
@@ -727,7 +727,7 @@ int HarfBuzzTestCommon(const char * pFileName) // ###
 {
 	int    ok = 1;
 	/*if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file.ttf\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file.ttf\n", argv[0]);
 		exit(1);
 	}*/
 	hb_blob_t * blob = hb_blob_create_from_file(pFileName);
@@ -768,7 +768,7 @@ int HarfBuzzTestBufferSerialize(const char * pFileName) // ###
 	int    ok = 1;
 #ifndef HB_NO_BUFFER_SERIALIZE
 	/*if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
 		exit(1);
 	}*/
 	hb_blob_t * blob = hb_blob_create_from_file(pFileName);
@@ -807,7 +807,7 @@ int HarfBuzzTestGPosSizeParams(const char * pFileName) // ###
 {
 	int    ok = 1;
 	/*if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
 		exit(1);
 	}*/
 	// Create the face 
@@ -830,7 +830,7 @@ int HarfBuzzTestOtGlyphName(const char * pFileName) // ###
 {
 	int    ok = 1;
 	/*if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
 		exit(1);
 	}*/
 	hb_blob_t * blob = hb_blob_create_from_file(pFileName);
@@ -874,7 +874,7 @@ int HarfBuzzTestOtMeta(const char * pFileName) // ###
 {
 	int    ok = 1;
 	/*if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
 		exit(1);
 	}*/
 	hb_blob_t * blob = hb_blob_create_from_file(pFileName);

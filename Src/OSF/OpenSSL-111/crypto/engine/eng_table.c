@@ -201,7 +201,7 @@ ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char * f, i
 
 	if(!(*table)) {
 #ifdef ENGINE_TABLE_DEBUG
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, nothing registered!\n", f, l, nid);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, nothing registered!\n", f, l, nid);
 #endif
 		return NULL;
 	}
@@ -219,7 +219,7 @@ ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char * f, i
 		goto end;
 	if(fnd->funct && engine_unlocked_init(fnd->funct)) {
 #ifdef ENGINE_TABLE_DEBUG
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, using ENGINE '%s' cached\n", f, l, nid, fnd->funct->id);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, using ENGINE '%s' cached\n", f, l, nid, fnd->funct->id);
 #endif
 		ret = fnd->funct;
 		goto end;
@@ -232,7 +232,7 @@ trynext:
 	ret = sk_ENGINE_value(fnd->sk, loop++);
 	if(!ret) {
 #ifdef ENGINE_TABLE_DEBUG
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, no registered implementations would initialise\n", f, l, nid);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, no registered implementations would initialise\n", f, l, nid);
 #endif
 		goto end;
 	}
@@ -249,11 +249,11 @@ trynext:
 				engine_unlocked_finish(fnd->funct, 0);
 			fnd->funct = ret;
 #ifdef ENGINE_TABLE_DEBUG
-			fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, setting default to '%s'\n", f, l, nid, ret->id);
+			slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, setting default to '%s'\n", f, l, nid, ret->id);
 #endif
 		}
 #ifdef ENGINE_TABLE_DEBUG
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, using newly initialised '%s'\n", f, l, nid, ret->id);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, using newly initialised '%s'\n", f, l, nid, ret->id);
 #endif
 		goto end;
 	}
@@ -267,9 +267,9 @@ end:
 		fnd->uptodate = 1;
 #ifdef ENGINE_TABLE_DEBUG
 	if(ret)
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, caching ENGINE '%s'\n", f, l, nid, ret->id);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, caching ENGINE '%s'\n", f, l, nid, ret->id);
 	else
-		fprintf(stderr, "engine_table_dbg: %s:%d, nid=%d, caching 'no matching ENGINE'\n", f, l, nid);
+		slfprintf_stderr("engine_table_dbg: %s:%d, nid=%d, caching 'no matching ENGINE'\n", f, l, nid);
 #endif
 	CRYPTO_THREAD_unlock(global_engine_lock);
 	/*

@@ -136,8 +136,8 @@ public:
 		cPassword,   // Пароль доступа
 		cHost,       // Наименование хоста https://(twitter.com)
 		cPort,       // ip-port http://192.168.0.100:(8080)
-		cPath,       // Путь   http://192.168.0.100:8080(/index)?parav=value
-		cQuery,      // Запрос http://192.168.0.100:8080/index(?parav=value)
+		cPath,       // Путь   http://192.168.0.100:8080(/index)?param=value
+		cQuery,      // Запрос http://192.168.0.100:8080/index(?param=value)
 		cRef         // Ссылка http://192.168.0.100:8080/index#(15)
 	};
 	enum {

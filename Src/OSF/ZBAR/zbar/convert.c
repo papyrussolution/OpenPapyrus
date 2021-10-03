@@ -162,7 +162,7 @@ static inline int verify_format_sort(void)
 	if(i == num_format_defs)
 		return 0;
 	/* spew correct order for fix */
-	fprintf(stderr, "ERROR: image format list is not sorted!?\n");
+	slfprintf_stderr("ERROR: image format list is not sorted!?\n");
 #ifdef DEBUG_CONVERT
 	assert(num_format_defs);
 	uint32 sorted[num_format_defs];
@@ -190,10 +190,10 @@ static inline int verify_format_sort(void)
 		}
 		ordered[i] = sorted[j];
 	}
-	fprintf(stderr, "correct sort order is:");
+	slfprintf_stderr("correct sort order is:");
 	for(i = 0; i < num_format_defs; i++)
-		fprintf(stderr, " %4.4s", (char *)&ordered[i]);
-	fprintf(stderr, "\n");
+		slfprintf_stderr(" %4.4s", (char *)&ordered[i]);
+	slfprintf_stderr("\n");
 #endif
 	return -1;
 }
@@ -972,14 +972,14 @@ int _zbar_best_format(uint32 src, uint32 * dst, const uint32 * dsts)
 		else
 			cost = conversions[srcfmt->group][dstfmt->group].cost;
 		if(_zbar_verbosity >= 8)
-			fprintf(stderr, " %.4s(%08" PRIx32 ")=%d", (char *)dsts, *dsts, cost);
+			slfprintf_stderr(" %.4s(%08" PRIx32 ")=%d", (char *)dsts, *dsts, cost);
 		if(cost >= 0 && (int)min_cost > cost) {
 			min_cost = cost;
 			ASSIGN_PTR(dst, *dsts);
 		}
 	}
 	if(_zbar_verbosity >= 8)
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 	return (min_cost);
 }
 

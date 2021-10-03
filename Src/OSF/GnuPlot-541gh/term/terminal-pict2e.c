@@ -349,28 +349,28 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// is about half the text pointsize
 	pThis->ChrV = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 72);
 	pThis->ChrH = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 144);
-	sprintf(term_options, "font \"%s,%d\"", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
+	sprintf(GPT.TermOptions, "font \"%s,%d\"", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
 	if(_Pict2E.pict2e_explicit_size) {
 		if(_Pict2E.pict2e_explicit_units == CM)
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
+			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
 		else
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
+			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
 	}
-	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_use_color ? " color" : " monochrome");
-	sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", _Pict2E.pict2e_lw_scale);
-	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_points ? " texpoints" : " gppoints");
-	sprintf(term_options + strlen(term_options), _Pict2E.pict2e_pointsize == 1 ? " smallpoints" : (_Pict2E.pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
-	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_arrows ? " texarrows" : " gparrows");
+	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_use_color ? " color" : " monochrome");
+	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %.1f", _Pict2E.pict2e_lw_scale);
+	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_points ? " texpoints" : " gppoints");
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), _Pict2E.pict2e_pointsize == 1 ? " smallpoints" : (_Pict2E.pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
+	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_arrows ? " texarrows" : " gparrows");
 }
 
 TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile,
+	fprintf(GPT.P_GpOutFile,
 	    "%% GNUPLOT: LaTeX2e picture (pict2e)\n" \
 	    "\\setlength{\\unitlength}{%fpt}\n",
 	    PICT2E_UNIT);
 	fputs("\\ifx\\plotpoint\\undefined\\newsavebox{\\plotpoint}\\fi\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 #ifdef PICT2E_TRANSPARENT
 	fputs(// test if command \transparent is available
 		"\\ifx\\transparent\\undefined%\n"
@@ -380,7 +380,7 @@ TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
 		"    \\providecommand{\\gpopaque}{\\transparent{1.0}}%\n"
 		"    \\providecommand{\\gptransparent}[2]{\\transparent{#1}}%\n"
 		"\\fi%\n",
-		gpoutfile);
+		GPT.P_GpOutFile);
 #endif
 }
 
@@ -391,14 +391,14 @@ TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 		pThis->MaxX = PICT2E_XMAX;
 		pThis->MaxY = PICT2E_YMAX;
 	}
-	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n", pThis->MaxX, pThis->MaxY);
+	fprintf(GPT.P_GpOutFile, "\\begin{picture}(%d,%d)(0,0)\n", pThis->MaxX, pThis->MaxY);
 	if(_Pict2E.pict2e_font[0] != NUL) {
-		fprintf(gpoutfile, "\\font\\gnuplot=%s10 at %dpt\n\\gnuplot\n", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
+		fprintf(GPT.P_GpOutFile, "\\font\\gnuplot=%s10 at %dpt\n\\gnuplot\n", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
 	}
 	if(_Pict2E.pict2e_rounded)
-		fputs("\\roundjoin\\roundcap\n", gpoutfile);
+		fputs("\\roundjoin\\roundcap\n", GPT.P_GpOutFile);
 	else
-		fputs("\\miterjoin\\buttcap\n", gpoutfile);
+		fputs("\\miterjoin\\buttcap\n", GPT.P_GpOutFile);
 	_Pict2E.pict2e_lw = _Pict2E.pict2e_lw_scale;
 	_Pict2E.pict2e_size = 0;
 	_Pict2E.pict2e_color[0] = 0;
@@ -411,7 +411,7 @@ TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis)
 {
 	PICT2E_endline();
-	fputs("\\end{picture}\n", gpoutfile);
+	fputs("\\end{picture}\n", GPT.P_GpOutFile);
 	_Pict2E.Pos.Z(); // current position 
 	_Pict2E.pict2e_moved = TRUE; // pen is up after move 
 }
@@ -430,8 +430,8 @@ static void PICT2E_linesize()
 	size = _Pict2E.pict2e_lw * 0.4f;
 	// If different from current size, redefine \plotpoint 
 	if(size != _Pict2E.pict2e_size) {
-		fprintf(gpoutfile, "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n", -size / 2, size, size);
-		fprintf(gpoutfile, "\\linethickness{%.1fpt}%%\n", size);
+		fprintf(GPT.P_GpOutFile, "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n", -size / 2, size, size);
+		fprintf(GPT.P_GpOutFile, "\\linethickness{%.1fpt}%%\n", size);
 	}
 	_Pict2E.pict2e_size = size;
 	_Pict2E.pict2e_dotsize = static_cast<float>(size / PICT2E_UNIT);
@@ -493,7 +493,7 @@ TERM_PUBLIC void PICT2E_point(GpTermEntry * pThis, uint x, uint y, int number)
 		// Print the character defined by 'number'; number < 0 means to use a dot, otherwise one of the defined points. 
 		if(number >= 0)
 			snprintf(point, sizeof(point), pict2e_point_type[number % PICT2E_POINT_TYPES], size[_Pict2E.pict2e_pointsize]);
-		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", x, y, (number < 0 ? PICT2E_TINY_DOT : point));
+		fprintf(GPT.P_GpOutFile, "\\put(%d,%d){%s}\n", x, y, (number < 0 ? PICT2E_TINY_DOT : point));
 	}
 	else {
 		GnuPlot::DoPoint(pThis, x, y, number);
@@ -539,7 +539,7 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 	if(x1 == x2 && y1 == y2) {
 		if(_Pict2E.pict2e_moved)
 			// plot a dot 
-			fprintf(gpoutfile, "\\put(%u,%u){%s}\n", x1, y1, PICT2E_DOT);
+			fprintf(GPT.P_GpOutFile, "\\put(%u,%u){%s}\n", x1, y1, PICT2E_DOT);
 	}
 	else {
 		float dotspace = static_cast<float>(_Pict2E.pict2e_dotspace / PICT2E_UNIT);
@@ -566,9 +566,9 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 		    lastx = x, x += xinc, lasty = y, y += yinc)
 			numdots++;
 		if(numdots == 1)
-			fprintf(gpoutfile, "\\put(%.2f,%.2f){%s}\n", lastx, lasty, PICT2E_DOT);
+			fprintf(GPT.P_GpOutFile, "\\put(%.2f,%.2f){%s}\n", lastx, lasty, PICT2E_DOT);
 		else if(numdots > 0)
-			fprintf(gpoutfile, "\\multiput(%u,%u)(%.3f,%.3f){%u}{%s}\n", x1, y1, xinc, yinc, numdots, PICT2E_DOT);
+			fprintf(GPT.P_GpOutFile, "\\multiput(%u,%u)(%.3f,%.3f){%u}{%s}\n", x1, y1, xinc, yinc, numdots, PICT2E_DOT);
 		// how much is left over, as a fraction of dotspace? 
 		if(xinc != 0.0) { /* xinc must be nonzero */
 			if(lastx >= 0)
@@ -588,7 +588,7 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 static void PICT2E_flushdot()
 {
 	if(_Pict2E.pict2e_needsdot)
-		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", _Pict2E.Pos.x, _Pict2E.Pos.y, PICT2E_DOT);
+		fprintf(GPT.P_GpOutFile, "\\put(%d,%d){%s}\n", _Pict2E.Pos.x, _Pict2E.Pos.y, PICT2E_DOT);
 	_Pict2E.pict2e_needsdot = FALSE;
 }
 
@@ -627,14 +627,14 @@ static void PICT2E_do_arrow(int sx, int sy, int ex, int ey/* start and end point
 	// TODO: divide by GCD
 	if((head & HEADS_ONLY) != 0) {
 		if((head & END_HEAD) != 0) {
-			fprintf(gpoutfile, "\\put(%d,%d){\\vector(%d,%d){0}}\n", ex, ey, dx, dy);
+			fprintf(GPT.P_GpOutFile, "\\put(%d,%d){\\vector(%d,%d){0}}\n", ex, ey, dx, dy);
 		}
 	}
 	else {
-		fprintf(gpoutfile, "\\put(%d,%d){\\%s(%d,%d){%d}}\n", sx, sy, head ? "vector" : "line", dx, dy, dx != 0 ? ABS(ex - sx) : ABS(ey - sy));
+		fprintf(GPT.P_GpOutFile, "\\put(%d,%d){\\%s(%d,%d){%d}}\n", sx, sy, head ? "vector" : "line", dx, dy, dx != 0 ? ABS(ex - sx) : ABS(ey - sy));
 	}
 	if((head & BACKHEAD) != 0) {
-		fprintf(gpoutfile, "\\put(%d,%d){\\vector(%d,%d){0}}\n", sx, sy, -dx, -dy);
+		fprintf(GPT.P_GpOutFile, "\\put(%d,%d){\\vector(%d,%d){0}}\n", sx, sy, -dx, -dy);
 	}
 }
 
@@ -647,13 +647,13 @@ TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	PICT2E_endline();
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
-	fprintf(gpoutfile, "\\put(%d,%d)", x, y);
+	fprintf(GPT.P_GpOutFile, "\\put(%d,%d)", x, y);
 	if(_Pict2E.pict2e_angle != 0)
-		fprintf(gpoutfile, "{\\rotatebox{%d}", _Pict2E.pict2e_angle);
-	fprintf(gpoutfile, "{\\makebox(0,0)%s{%s}}", justify[_Pict2E.pict2e_justify], str);
+		fprintf(GPT.P_GpOutFile, "{\\rotatebox{%d}", _Pict2E.pict2e_angle);
+	fprintf(GPT.P_GpOutFile, "{\\makebox(0,0)%s{%s}}", justify[_Pict2E.pict2e_justify], str);
 	if(_Pict2E.pict2e_angle != 0)
-		fputs("}", gpoutfile);
-	fputs("\n", gpoutfile);
+		fputs("}", GPT.P_GpOutFile);
+	fputs("\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC int PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
@@ -678,7 +678,7 @@ static void PICT2E_apply_color()
 	if(strcmp(_Pict2E.pict2e_new_color, _Pict2E.pict2e_color) != 0) {
 		strcpy(_Pict2E.pict2e_color, _Pict2E.pict2e_new_color);
 		if(_Pict2E.pict2e_use_color) {
-			fputs(_Pict2E.pict2e_new_color, gpoutfile);
+			fputs(_Pict2E.pict2e_new_color, GPT.P_GpOutFile);
 			_Pict2E.pict2e_have_color = TRUE;
 		}
 	}
@@ -692,11 +692,11 @@ static void PICT2E_apply_opacity()
 	if(_Pict2E.pict2e_opacity != _Pict2E.pict2e_new_opacity) {
 		_Pict2E.pict2e_opacity = _Pict2E.pict2e_new_opacity;
 		if(!_Pict2E.pict2e_have_color)
-			fputs(_Pict2E.pict2e_color, gpoutfile);
+			fputs(_Pict2E.pict2e_color, GPT.P_GpOutFile);
 		if(_Pict2E.pict2e_opacity != 100)
-			fprintf(gpoutfile, "\\gptransparent{%.2f}{%d}\n", _Pict2E.pict2e_opacity / 100.0, _Pict2E.pict2e_opacity);
+			fprintf(GPT.P_GpOutFile, "\\gptransparent{%.2f}{%d}\n", _Pict2E.pict2e_opacity / 100.0, _Pict2E.pict2e_opacity);
 		else
-			fputs("\\gpopaque\n", gpoutfile);
+			fputs("\\gpopaque\n", GPT.P_GpOutFile);
 		_Pict2E.pict2e_have_color = FALSE;
 	}
 #endif
@@ -744,20 +744,20 @@ static void PICT2E_flushline()
 		if(_Pict2E.pict2e_linecount >= 2) {
 			if(_Pict2E.pict2e_linecount == 2) {
 				// short line segment
-				fputs("\\Line", gpoutfile);
+				fputs("\\Line", GPT.P_GpOutFile);
 			}
 			else if((_Pict2E.pict2e_path[0][0] == _Pict2E.pict2e_path[_Pict2E.pict2e_linecount-1][0]) && (_Pict2E.pict2e_path[0][1] == _Pict2E.pict2e_path[_Pict2E.pict2e_linecount-1][1])) {
 				// closed path
-				fputs("\\polygon", gpoutfile);
+				fputs("\\polygon", GPT.P_GpOutFile);
 				_Pict2E.pict2e_linecount--;
 			}
 			else {
 				// multiple connected line segments
-				fputs("\\polyline", gpoutfile);
+				fputs("\\polyline", GPT.P_GpOutFile);
 			}
 			for(i = 0; i < _Pict2E.pict2e_linecount; i++)
-				fprintf(gpoutfile, "(%d,%d)", _Pict2E.pict2e_path[i][0], _Pict2E.pict2e_path[i][1]);
-			fputs("\n", gpoutfile);
+				fprintf(GPT.P_GpOutFile, "(%d,%d)", _Pict2E.pict2e_path[i][0], _Pict2E.pict2e_path[i][1]);
+			fputs("\n", GPT.P_GpOutFile);
 		}
 		_Pict2E.pict2e_inline = FALSE;
 		_Pict2E.pict2e_linecount = 0;
@@ -786,7 +786,7 @@ static int PICT2E_fill(int style)
 		    if(_Pict2E.pict2e_use_color) {
 			    if(opt != 100) {
 				    _Pict2E.pict2e_color[0] = NUL;
-				    fprintf(gpoutfile, "\\color{.!%d}\n", opt);
+				    fprintf(GPT.P_GpOutFile, "\\color{.!%d}\n", opt);
 				    fill = pict2e_fill_and_restore;
 			    }
 			    else {
@@ -805,7 +805,7 @@ static int PICT2E_fill(int style)
 				    fill = pict2e_fill_transparent;
 #else
 				    pict2e_color[0] = NUL;
-				    fprintf(gpoutfile, "\\color{.!%d}\n", opt);
+				    fprintf(GPT.P_GpOutFile, "\\color{.!%d}\n", opt);
 				    fill = pict2e_fill_and_restore;
 #endif
 			    }
@@ -822,14 +822,14 @@ static int PICT2E_fill(int style)
 		    if(_Pict2E.pict2e_use_color) {
 			    opt %= 4;
 			    if(opt == 0)
-				    fputs("\\color{white}\n", gpoutfile);
+				    fputs("\\color{white}\n", GPT.P_GpOutFile);
 			    else if(opt == 1)
-				    fputs("\\color{.!50}\n", gpoutfile);
+				    fputs("\\color{.!50}\n", GPT.P_GpOutFile);
 			    else if(opt == 2)
-				    fputs("\\color{.!20}\n", gpoutfile);
+				    fputs("\\color{.!20}\n", GPT.P_GpOutFile);
 			    else if(opt == 3)
 				    if(strcmp(_Pict2E.pict2e_color, "\\color{black}\n") != 0) {
-					    fputs("\\color{black}\n", gpoutfile);
+					    fputs("\\color{black}\n", GPT.P_GpOutFile);
 					    _Pict2E.pict2e_color[0] = NUL;
 				    }
 			    if(opt != 3)
@@ -846,7 +846,7 @@ static int PICT2E_fill(int style)
 		case FS_EMPTY:
 		    if(_Pict2E.pict2e_use_color) {
 			    _Pict2E.pict2e_color[0] = NUL;
-			    fputs("\\color{white}\n", gpoutfile);
+			    fputs("\\color{white}\n", GPT.P_GpOutFile);
 			    fill = pict2e_fill_and_restore;
 		    }
 		    else {
@@ -872,7 +872,7 @@ TERM_PUBLIC void PICT2E_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1
 		return;
 	PICT2E_apply_opacity();
 	// outline box
-	fprintf(gpoutfile, "\\polygon*(%d,%d)(%d,%d)(%d,%d)(%d,%d)\n", x1, y1, x1 + width, y1, x1 + width, y1 + height, x1, y1 + height);
+	fprintf(GPT.P_GpOutFile, "\\polygon*(%d,%d)(%d,%d)(%d,%d)(%d,%d)\n", x1, y1, x1 + width, y1, x1 + width, y1 + height, x1, y1 + height);
 #ifdef PICT2E_TRANSPARENT
 	_Pict2E.pict2e_new_opacity = 100;
 #endif
@@ -893,10 +893,10 @@ TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 	// need at least 3 unique points
 	if(points < 3)
 		return;
-	fprintf(gpoutfile, "\\polygon*(%d,%d)", corners[0].x, corners[0].y);
+	fprintf(GPT.P_GpOutFile, "\\polygon*(%d,%d)", corners[0].x, corners[0].y);
 	for(i = 0; i < points; i++)
-		fprintf(gpoutfile, "(%d,%d)", corners[i].x, corners[i].y);
-	fputs("\n", gpoutfile);
+		fprintf(GPT.P_GpOutFile, "(%d,%d)", corners[i].x, corners[i].y);
+	fputs("\n", GPT.P_GpOutFile);
 #ifdef PICT2E_TRANSPARENT
 	_Pict2E.pict2e_new_opacity = 100;
 #endif

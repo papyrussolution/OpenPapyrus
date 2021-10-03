@@ -619,7 +619,7 @@ int main(int _argc, char ** _argv)
 	int x;
 	int y;
 	if(_argc<2) {
-		fprintf(stderr, "usage: %s <image>.png\n", _argv[0]);
+		slfprintf_stderr("usage: %s <image>.png\n", _argv[0]);
 		return EXIT_FAILURE;
 	}
 	/*width=1182;

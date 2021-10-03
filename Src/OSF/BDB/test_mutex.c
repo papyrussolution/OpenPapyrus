@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
 				nthreads = 1;
 #if !defined(MUTEX_THREAD_TEST)
 			if(nthreads != 1) {
-				fprintf(stderr, "%s: thread support not available or not compiled for this platform.\n", progname);
+				slfprintf_stderr("%s: thread support not available or not compiled for this platform.\n", progname);
 				return EXIT_FAILURE;
 			}
 #endif
@@ -180,7 +180,7 @@ int main(int argc, char * argv[])
 	 * a multi-thread test.
 	 */
 	if(nprocs == 1 && nthreads == 1) {
-		fprintf(stderr, "%s: running in a single process requires multiple threads\n", progname);
+		slfprintf_stderr("%s: running in a single process requires multiple threads\n", progname);
 		return EXIT_FAILURE;
 	}
 	len = sizeof(TM)*(1+nthreads*nprocs+maxlocks);
@@ -231,37 +231,37 @@ int main(int argc, char * argv[])
 	if(nprocs > 1) {                /* Run the multi-process test. */
 		/* Allocate array of locker process IDs. */
 		if((pids = (os_pid_t *)calloc(nprocs, sizeof(os_pid_t))) == NULL) {
-			fprintf(stderr, "%s: %s\n", progname, strerror(errno));
+			slfprintf_stderr("%s: %s\n", progname, strerror(errno));
 			goto fail;
 		}
 		/* Spawn locker processes and threads. */
 		for(i = 0; i < nprocs; ++i) {
 			if((pids[i] = spawn_proc(id, tmpath, "locker")) == OS_BAD_PID) {
-				fprintf(stderr, "%s: failed to spawn a locker\n", progname);
+				slfprintf_stderr("%s: failed to spawn a locker\n", progname);
 				goto fail;
 			}
 			id += nthreads;
 		}
 		/* Spawn wakeup process/thread. */
 		if((wakeup_pid = spawn_proc(id, tmpath, "wakeup")) == OS_BAD_PID) {
-			fprintf(stderr, "%s: failed to spawn waker\n", progname);
+			slfprintf_stderr("%s: failed to spawn waker\n", progname);
 			goto fail;
 		}
 		++id;
 		// Wait for all lockers to exit
 		if((err = os_wait(pids, nprocs)) != 0) {
-			fprintf(stderr, "%s: locker wait failed with %d\n", progname, err);
+			slfprintf_stderr("%s: locker wait failed with %d\n", progname, err);
 			goto fail;
 		}
 		// Signal wakeup process to exit
 		if((err = __os_open(env, MT_FILE_QUIT, 0, DB_OSO_CREATE, 0664, &fhp)) != 0) {
-			fprintf(stderr, "%s: open %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: open %s\n", progname, db_strerror(err));
 			goto fail;
 		}
 		__os_closehandle(env, fhp);
 		// Wait for wakeup process/thread
 		if((err = os_wait(&wakeup_pid, 1)) != 0) {
-			fprintf(stderr, "%s: %lu: exited %d\n", progname, (ulong)wakeup_pid, err);
+			slfprintf_stderr("%s: %lu: exited %d\n", progname, (ulong)wakeup_pid, err);
 			goto fail;
 		}
 	}
@@ -277,7 +277,7 @@ int main(int argc, char * argv[])
 			goto fail;
 		// Signal wakeup process to exit
 		if((err = __os_open(env, MT_FILE_QUIT, 0, DB_OSO_CREATE, 0664, &fhp)) != 0) {
-			fprintf(stderr, "%s: open %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: open %s\n", progname, db_strerror(err));
 			goto fail;
 		}
 		__os_closehandle(env, fhp);
@@ -306,12 +306,12 @@ int locker_start(ulong id)
 	 * sleep, and one other thread cycling through and waking them up.
 	 */
 	if((kidsp = (os_thread_t *)calloc(sizeof(os_thread_t), nthreads)) == NULL) {
-		fprintf(stderr, "%s: %s\n", progname, strerror(errno));
+		slfprintf_stderr("%s: %s\n", progname, strerror(errno));
 		return 1;
 	}
 	for(i = 0; i < nthreads; i++)
 		if((err = os_thread_create(&kidsp[i], NULL, run_lthread, (void *)(id+i))) != 0) {
-			fprintf(stderr, "%s: failed spawning thread: %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: failed spawning thread: %s\n", progname, db_strerror(err));
 			return 1;
 		}
 	return 0;
@@ -328,7 +328,7 @@ int locker_wait()
 		void * retp = 0;
 		os_thread_join(kidsp[i], &retp);
 		if(retp) {
-			fprintf(stderr, "%s: thread exited with error\n", progname);
+			slfprintf_stderr("%s: thread exited with error\n", progname);
 			return 1;
 		}
 	}
@@ -358,11 +358,11 @@ void * run_lthread(void * arg)
 		if(verbose)
 			printf("%03lu: lock %d (mtx: %lu)\n", id, lock, (ulong)mp->mutex);
 		if((err = dbenv->mutex_lock(dbenv, mp->mutex)) != 0) {
-			fprintf(stderr, "%s: %03lu: never got lock %d: %s\n", progname, id, lock, db_strerror(err));
+			slfprintf_stderr("%s: %03lu: never got lock %d: %s\n", progname, id, lock, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		if(mp->id != 0) {
-			fprintf(stderr, "%s: RACE! (%03lu granted lock %d held by %03lu)\n", progname, id, lock, mp->id);
+			slfprintf_stderr("%s: RACE! (%03lu granted lock %d held by %03lu)\n", progname, id, lock, mp->id);
 			return reinterpret_cast<void *>(1);
 		}
 		mp->id = id;
@@ -372,7 +372,7 @@ void * run_lthread(void * arg)
 		for(i = 0; i < 3; ++i) {
 			__os_yield(env, 0, (ulong)rand()%3);
 			if(mp->id != id) {
-				fprintf(stderr, "%s: RACE! (%03lu stole lock %d from %03lu)\n", progname, mp->id, lock, id);
+				slfprintf_stderr("%s: RACE! (%03lu stole lock %d from %03lu)\n", progname, mp->id, lock, id);
 				return reinterpret_cast<void *>(1);
 			}
 		}
@@ -387,32 +387,32 @@ void * run_lthread(void * arg)
 		 * The wakeup thread will wake us up.
 		 */
 		if((err = dbenv->mutex_lock(dbenv, gp->mutex)) != 0) {
-			fprintf(stderr, "%s: %03lu: global lock: %s\n", progname, id, db_strerror(err));
+			slfprintf_stderr("%s: %03lu: global lock: %s\n", progname, id, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		if(tp->id != 0 && tp->id != id) {
-			fprintf(stderr, "%s: %03lu: per-thread mutex isn't mine, owned by %03lu\n", progname, id, tp->id);
+			slfprintf_stderr("%s: %03lu: per-thread mutex isn't mine, owned by %03lu\n", progname, id, tp->id);
 			return reinterpret_cast<void *>(1);
 		}
 		tp->id = id;
 		if(verbose)
 			printf("%03lu: self-blocking (mtx: %lu)\n", id, (ulong)tp->mutex);
 		if(tp->wakeme) {
-			fprintf(stderr, "%s: %03lu: wakeup flag incorrectly set\n", progname, id);
+			slfprintf_stderr("%s: %03lu: wakeup flag incorrectly set\n", progname, id);
 			return reinterpret_cast<void *>(1);
 		}
 		tp->wakeme = 1;
 		if((err = dbenv->mutex_unlock(dbenv, gp->mutex)) != 0) {
-			fprintf(stderr, "%s: %03lu: global unlock: %s\n", progname, id, db_strerror(err));
+			slfprintf_stderr("%s: %03lu: global unlock: %s\n", progname, id, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		if((err = dbenv->mutex_lock(dbenv, tp->mutex)) != 0) {
-			fprintf(stderr, "%s: %03lu: per-thread lock: %s\n", progname, id, db_strerror(err));
+			slfprintf_stderr("%s: %03lu: per-thread lock: %s\n", progname, id, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		/* Time passes... */
 		if(tp->wakeme) {
-			fprintf(stderr, "%s: %03lu: wakeup flag not cleared\n", progname, id);
+			slfprintf_stderr("%s: %03lu: wakeup flag not cleared\n", progname, id);
 			return reinterpret_cast<void *>(1);
 		}
 		if(verbose)
@@ -420,7 +420,7 @@ void * run_lthread(void * arg)
 		/* Release the data lock. */
 		mp->id = 0;
 		if((err = dbenv->mutex_unlock(dbenv, mp->mutex)) != 0) {
-			fprintf(stderr, "%s: %03lu: lock release: %s\n", progname, id, db_strerror(err));
+			slfprintf_stderr("%s: %03lu: lock release: %s\n", progname, id, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		if(--nl%1000 == 0)
@@ -437,7 +437,7 @@ int wakeup_start(ulong id)
 	 * Spawn off wakeup thread.
 	 */
 	if((err = os_thread_create(&wakep, NULL, run_wthread, (void *)id)) != 0) {
-		fprintf(stderr, "%s: failed spawning wakeup thread: %s\n", progname, db_strerror(err));
+		slfprintf_stderr("%s: failed spawning wakeup thread: %s\n", progname, db_strerror(err));
 		return 1;
 	}
 	return 0;
@@ -453,7 +453,7 @@ int wakeup_wait()
 	// A file is created when the wakeup thread is no longer needed.
 	os_thread_join(wakep, &retp);
 	if(retp != NULL) {
-		fprintf(stderr, "%s: wakeup thread exited with error\n", progname);
+		slfprintf_stderr("%s: wakeup thread exited with error\n", progname);
 		return 1;
 	}
 #endif
@@ -498,16 +498,16 @@ void * run_wthread(void * arg)
 		}
 		/* Acquire the global lock. */
 		if((err = dbenv->mutex_lock(dbenv, gp->mutex)) != 0) {
-			fprintf(stderr, "%s: wakeup: global lock: %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: wakeup: global lock: %s\n", progname, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		tp->wakeme = 0;
 		if((err = dbenv->mutex_unlock(dbenv, tp->mutex)) != 0) {
-			fprintf(stderr, "%s: wakeup: unlock: %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: wakeup: unlock: %s\n", progname, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		if((err = dbenv->mutex_unlock(dbenv, gp->mutex)) != 0) {
-			fprintf(stderr, "%s: wakeup: global unlock: %s\n", progname, db_strerror(err));
+			slfprintf_stderr("%s: wakeup: global unlock: %s\n", progname, db_strerror(err));
 			return reinterpret_cast<void *>(1);
 		}
 		__os_yield(env, 0, (ulong)rand()%3);
@@ -528,7 +528,7 @@ int tm_env_init()
 	// Create an environment object and initialize it for error reporting.
 	//
 	if((ret = db_env_create(&dbenv, 0)) != 0) {
-		fprintf(stderr, "%s: %s\n", progname, db_strerror(ret));
+		slfprintf_stderr("%s: %s\n", progname, db_strerror(ret));
 		return 1;
 	}
 	env = dbenv->env;
@@ -577,7 +577,7 @@ void tm_mutex_init()
 		printf("Allocate the global mutex: ");
 	mp = (TM *)gm_addr;
 	if((err = dbenv->mutex_alloc(dbenv, 0, &mp->mutex)) != 0) {
-		fprintf(stderr, "%s: DB_ENV->mutex_alloc (global): %s\n", progname, db_strerror(err));
+		slfprintf_stderr("%s: DB_ENV->mutex_alloc (global): %s\n", progname, db_strerror(err));
 		exit(EXIT_FAILURE);
 	}
 	if(verbose) {
@@ -587,11 +587,11 @@ void tm_mutex_init()
 	for(i = 0; i < nthreads*nprocs; ++i) {
 		mp = (TM *)(tm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_alloc(dbenv, DB_MUTEX_SELF_BLOCK, &mp->mutex)) != 0) {
-			fprintf(stderr, "%s: DB_ENV->mutex_alloc (per-thread %d): %s\n", progname, i, db_strerror(err));
+			slfprintf_stderr("%s: DB_ENV->mutex_alloc (per-thread %d): %s\n", progname, i, db_strerror(err));
 			exit(EXIT_FAILURE);
 		}
 		if((err = dbenv->mutex_lock(dbenv, mp->mutex)) != 0) {
-			fprintf(stderr, "%s: DB_ENV->mutex_lock (per-thread %d): %s\n", progname, i, db_strerror(err));
+			slfprintf_stderr("%s: DB_ENV->mutex_lock (per-thread %d): %s\n", progname, i, db_strerror(err));
 			exit(EXIT_FAILURE);
 		}
 		if(verbose)
@@ -604,7 +604,7 @@ void tm_mutex_init()
 	for(i = 0; i < maxlocks; ++i) {
 		mp = (TM *)(lm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_alloc(dbenv, 0, &mp->mutex)) != 0) {
-			fprintf(stderr, "%s: DB_ENV->mutex_alloc (per-lock: %d): %s\n", progname, i, db_strerror(err));
+			slfprintf_stderr("%s: DB_ENV->mutex_alloc (per-lock: %d): %s\n", progname, i, db_strerror(err));
 			exit(EXIT_FAILURE);
 		}
 		if(verbose)
@@ -626,7 +626,7 @@ void tm_mutex_destroy()
 		printf("Destroy the global mutex.\n");
 	gp = (TM *)gm_addr;
 	if((err = dbenv->mutex_free(dbenv, gp->mutex)) != 0) {
-		fprintf(stderr, "%s: DB_ENV->mutex_free (global): %s\n", progname, db_strerror(err));
+		slfprintf_stderr("%s: DB_ENV->mutex_free (global): %s\n", progname, db_strerror(err));
 		exit(EXIT_FAILURE);
 	}
 	if(verbose)
@@ -634,7 +634,7 @@ void tm_mutex_destroy()
 	for(i = 0; i < nthreads*nprocs; ++i) {
 		mp = (TM *)(tm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_free(dbenv, mp->mutex)) != 0) {
-			fprintf(stderr, "%s: DB_ENV->mutex_free (per-thread %d): %s\n", progname, i, db_strerror(err));
+			slfprintf_stderr("%s: DB_ENV->mutex_free (per-thread %d): %s\n", progname, i, db_strerror(err));
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -643,7 +643,7 @@ void tm_mutex_destroy()
 	for(i = 0; i < maxlocks; ++i) {
 		mp = (TM *)(lm_addr+i*sizeof(TM));
 		if((err = dbenv->mutex_free(dbenv, mp->mutex)) != 0) {
-			fprintf(stderr, "%s: DB_ENV->mutex_free (per-lock: %d): %s\n", progname, i, db_strerror(err));
+			slfprintf_stderr("%s: DB_ENV->mutex_free (per-lock: %d): %s\n", progname, i, db_strerror(err));
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -685,7 +685,7 @@ void data_on(uint8 ** gm_addrp, uint8 ** tm_addrp, uint8 ** lm_addrp, DB_FH ** f
 				exit(EXIT_FAILURE);
 		}
 		else {
-			fprintf(stderr, "%s: init should be set for single process call\n", progname);
+			slfprintf_stderr("%s: init should be set for single process call\n", progname);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -694,11 +694,11 @@ void data_on(uint8 ** gm_addrp, uint8 ** tm_addrp, uint8 ** lm_addrp, DB_FH ** f
 			if(verbose)
 				printf("Create the backing file.\n");
 			if((err = __os_open(env, MT_FILE, 0, DB_OSO_CREATE|DB_OSO_TRUNC, 0666, &fhp)) == -1) {
-				fprintf(stderr, "%s: %s: open: %s\n", progname, MT_FILE, db_strerror(err));
+				slfprintf_stderr("%s: %s: open: %s\n", progname, MT_FILE, db_strerror(err));
 				exit(EXIT_FAILURE);
 			}
 			if((err = __os_seek(env, fhp, 0, 0, (uint32)len)) != 0 || (err = __os_write(env, fhp, &err, 1, &nwrite)) != 0 || nwrite != 1) {
-				fprintf(stderr, "%s: %s: seek/write: %s\n", progname, MT_FILE, db_strerror(err));
+				slfprintf_stderr("%s: %s: seek/write: %s\n", progname, MT_FILE, db_strerror(err));
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -736,7 +736,7 @@ void data_off(uint8 * addr, DB_FH * fhp)
  */
 int usage()
 {
-	fprintf(stderr, "usage: %s %s\n\t%s\n", progname, "[-v] [-l maxlocks]",
+	slfprintf_stderr("usage: %s %s\n\t%s\n", progname, "[-v] [-l maxlocks]",
 		"[-n locks] [-p procs] [-T locker=ID|wakeup=ID] [-t threads]");
 	return EXIT_FAILURE;
 }
@@ -811,7 +811,7 @@ os_pid_t os_spawn(const char * path, char * const argv[])
 	COMPQUIET(pid, 0);
 	COMPQUIET(status, 0);
 #ifdef HAVE_VXWORKS
-	fprintf(stderr, "%s: os_spawn not supported for VxWorks.\n", progname);
+	slfprintf_stderr("%s: os_spawn not supported for VxWorks.\n", progname);
 	return OS_BAD_PID;
 #elif defined(HAVE_QNX)
 	/*

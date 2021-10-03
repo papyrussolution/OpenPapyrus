@@ -441,6 +441,7 @@ public:
 		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
 		Signature_PPView(0x099A099BUL),
 		Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
+		Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
@@ -480,6 +481,7 @@ public:
 	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
 	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
 	const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
+	const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -7166,7 +7168,7 @@ public:
 		LDATETIME StartMoment; // Время запуска
 		SString Text;          // Текстовое обозначение потока (зависит от Kind)
 		SString LastMsg;       //
-		int32   UniqueSessID;  //
+		int32   UniqueSessID;  // 
 	};
 	//
 	// Descr: Вид потоков
@@ -7196,6 +7198,7 @@ public:
 	void   FASTCALL GetInfo(PPThread::Info & rInfo) const;
 	void   FASTCALL LockStackToStr(SString & rBuf) const;
 	int32  GetUniqueSessID() const { return UniqueSessID; }
+	const  SString & GetOuterSignature() const; // @v11.1.12
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply) { return -1; }
 protected:
 	//
@@ -7212,15 +7215,22 @@ protected:
 	};
 	virtual void Startup();
 	void   FASTCALL SetJobID(PPID jobID);
+	void   FASTCALL SetOuterSignature(const char * pSignature); // @v11.1.12
 public: // Метод Shutdown вызывается из функции DllMain
 	virtual void Shutdown();
 private:
 	int    Kind;
 	PPID   JobID;
+	int32  UniqueSessID; // Фактически, идентификатор потока. Инициируется функцией PPThread::Startup() как {UniqueSessID = DS.GetTLA().GetId();}
 	LDATETIME StartMoment;
+	mutable SMtLock Lck_OuterSignature; // @v11.1.12 Блокировка для OuterSignature
+	SString OuterSignature; // @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
+		// повторном обращении с этой же сигнатурой можно было бы найти поток, который "занимался вопросом" ранее.
+		// Текущая мотивация заключается в асинхронной обработке запросов к серверу.
+		// Важно: в общем случае нелья гарантировать, что эта сигнатура уникальна, поскольку эмитирована
+		// актором, который нами не контролируется.
 	SString Text;
 	SString LastMsg_;
-	int32  UniqueSessID;
 };
 
 class PPWorkerSession : public PPThread {
@@ -7490,7 +7500,7 @@ public:
 		lodfStyloQCore = 0x0004
 	};
 	//
-	// Descr: Специальная функция, откраывающая базу данных с символом pDbSymb в ограниченном режиме без авторизации.
+	// Descr: Специальная функция, открывающая базу данных с символом pDbSymb в ограниченном режиме без авторизации.
 	//   Фактически, открывается несколько таблиц для сервисного доступа на чтение.
 	//
 	LimitedDatabaseBlock * LimitedOpenDatabase(const char * pDbSymb, long flags);
@@ -29543,6 +29553,7 @@ public:
 		PPID   LocID;
 		PPID   ArID;
 		PPID   CurID;
+		PPID   LotID; // @v11.1.12
 		long   Flags; // @v10.7.3
 		double Qtty;
 		double Cost;  // @v10.7.3
@@ -45921,6 +45932,37 @@ private:
 class StyloQCore : public StyloQSecTbl {
 public:
 	//
+	// Карта соответствия идентификатора сервиса символу базы данных.
+	// Необходима для того, чтобы можно было понять в какой базе данных авторизоваться серверу
+	// для обработки запроса к сервису.
+	//
+	struct SvcDbSymbMapEntry {
+		SvcDbSymbMapEntry();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		enum {
+			fHasUserAssocEntries = 0x0001
+		};
+		SBinaryChunk SvcIdent;
+		SString DbSymb;
+		uint32 Flags;
+	};
+
+	class SvcDbSymbMap : public TSCollection <SvcDbSymbMapEntry> {
+	public:
+		SvcDbSymbMap();
+		SvcDbSymbMap(const SvcDbSymbMap & rS);
+		SvcDbSymbMap & FASTCALL operator = (const SvcDbSymbMap & rS);
+		int    FASTCALL Copy(const SvcDbSymbMap & rS);
+		int    Store(const char * pFilePath);
+		int    Read(const char * pFilePath);
+		bool   FindSvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags) const;
+		bool   HasDbUserAssocEntries(const char * pDbSymb) const;
+		static int Dump(const char * pInputFileName, const char * pDumpFileName);
+	private:
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		SString & InitFilePath(const char * pOuterPath, SString & rResultBuf);
+	};
+	//
 	// Descr: Виды записей реестра объектов Stylo-Q
 	//
 	enum { // @persistent
@@ -45947,6 +45989,7 @@ public:
 	};
 
 	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
+	static int BuildSvcDbSymbMap();
 
 	StyloQCore();
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
@@ -46079,6 +46122,9 @@ public:
 		PPID   InnerSessID;
 		PPID   InnerCliID;
 		uint   State;
+		S_GUID Uuid; // Идентификатор текущего сеанса обмена. Не путать с сессией, которая может сохраняться:
+			// сеанс обмена обрабатывает одинарную серию запросов-ответов. Идентификатор нужен для правильной
+			// обработки сообщений при асинхронном режиме.
 	};
 	int    InitRoundTripBlock(RoundTripBlock & rB);
 	//

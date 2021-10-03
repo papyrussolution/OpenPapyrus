@@ -662,7 +662,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					found += 8;
 				}
 				else { // Other file
-					fprintf(stderr, "Unexpected file %s\n", ent->d_name);
+					slfprintf_stderr("Unexpected file %s\n", ent->d_name);
 					abort();
 				}
 			}
@@ -1570,7 +1570,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	path[k] = '\0';
 	dir = opendir(path);
 	if(dir == NULL) {
-		fprintf(stderr, "Cannot open directory %s\n", path);
+		slfprintf_stderr("Cannot open directory %s\n", path);
 		abort();
 	}
 	/* Read through entries */
@@ -1600,12 +1600,12 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 		/* Open file for read */
 		fp = fopen(path, "r");
 		if(!fp) {
-			fprintf(stderr, "Cannot open file %s\n", path);
+			slfprintf_stderr("Cannot open file %s\n", path);
 			abort();
 		}
 		/* Read data from file */
 		if(fgets(buffer, sizeof(buffer), fp) == NULL) {
-			fprintf(stderr, "Cannot read file %s\n", path);
+			slfprintf_stderr("Cannot read file %s\n", path);
 			abort();
 		}
 		/* Make sure that we got the file contents right */
@@ -1647,7 +1647,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	printf("Creating %s\n", path);
 	fp = fopen(path, "w");
 	if(!fp) {
-		fprintf(stderr, "Cannot open file %s\n", path);
+		slfprintf_stderr("Cannot open file %s\n", path);
 		abort();
 	}
 	fputs("hep\n", fp);
@@ -1656,7 +1656,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	path[k] = '\0';
 	dir = opendir(path);
 	if(dir == NULL) {
-		fprintf(stderr, "Cannot open directory %s\n", path);
+		slfprintf_stderr("Cannot open directory %s\n", path);
 		abort();
 	}
 	/* Read through entries */
@@ -1693,12 +1693,12 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 		/* Open file for read */
 		fp = fopen(path, "r");
 		if(!fp) {
-			fprintf(stderr, "Cannot open file %s\n", path);
+			slfprintf_stderr("Cannot open file %s\n", path);
 			abort();
 		}
 		/* Read data from file */
 		if(fgets(buffer, sizeof(buffer), fp) == NULL) {
-			fprintf(stderr, "Cannot read file %s\n", path);
+			slfprintf_stderr("Cannot read file %s\n", path);
 			abort();
 		}
 		/* Make sure that we got the file contents right */

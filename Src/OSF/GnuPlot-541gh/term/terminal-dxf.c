@@ -159,27 +159,27 @@ TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
  49\n0.0\n 49\n-0.25\n\
   0\nENDTAB\n";
 
-	fprintf(gpoutfile, dxfi1, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT,
+	fprintf(GPT.P_GpOutFile, dxfi1, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT,
 	    text_style, DXF_TEXTHEIGHT / DXF_UNIT, LINEWIDTH, (double)LT_SCALE, layer_colour[0]);
 	/* the linetype table */
-	fprintf(gpoutfile, dxfi2, DXF_LINE_TYPES);
+	fprintf(GPT.P_GpOutFile, dxfi2, DXF_LINE_TYPES);
 	/* the layer table */
-	fprintf(gpoutfile, "  0\nTABLE\n  2\nLAYER\n 70\n   %-d\n", MAX_LAYER);
+	fprintf(GPT.P_GpOutFile, "  0\nTABLE\n  2\nLAYER\n 70\n   %-d\n", MAX_LAYER);
 	for(i = 1; i <= MAX_LAYER; i++)
-		fprintf(gpoutfile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n", layer_name[i-1], layer_colour[i-1], layer_lines[i-1]);
+		fprintf(GPT.P_GpOutFile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n", layer_name[i-1], layer_colour[i-1], layer_lines[i-1]);
 	/* no blocks for insertion */
 	/* start the entity section */
 	fputs("  0\nENDTAB\n0\nENDSEC\n\
   0\nSECTION\n  2\nBLOCKS\n  0\nENDSEC\n\
   0\nSECTION\n\
-  2\nENTITIES\n", gpoutfile);
+  2\nENTITIES\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void DXF_text(GpTermEntry * pThis)
 {
 	if(vector_was_last)
-		fputs("  0\nSEQEND\n", gpoutfile);
-	fputs("  0\nENDSEC\n  0\nEOF\n", gpoutfile);
+		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);
+	fputs("  0\nENDSEC\n  0\nEOF\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype)
@@ -194,9 +194,9 @@ TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y)
 	DXF_posx = x;
 	DXF_posy = y;
 	if(vector_was_last)
-		fputs("  0\nSEQEND\n", gpoutfile);
+		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);
 	vector_was_last = FALSE;
-	fprintf(gpoutfile,
+	fprintf(GPT.P_GpOutFile,
 	    "\
   0\nPOLYLINE\n  8\n%s\n 66\n   1\n\
   6\n%s\n\
@@ -211,7 +211,7 @@ TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy)
 	DXF_posx = ux;
 	DXF_posy = uy;
 	vector_was_last = TRUE;
-	fprintf(gpoutfile, "\
+	fprintf(GPT.P_GpOutFile, "\
   0\nVERTEX\n  8\n%s\n\
   6\n%s\n\
   10\n%-6.3f\n  20\n%-6.3f\n  30\n0.000\n", layer_name[dxf_linetype], layer_lines[dxf_linetype], DXF_posx / DXF_UNIT, DXF_posy / DXF_UNIT);
@@ -230,9 +230,9 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	while(str[stl] != NUL)
 		++stl;          /* get string length */
 	if(vector_was_last)
-		fputs("  0\nSEQEND\n", gpoutfile);
+		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);
 	vector_was_last = FALSE;
-	fprintf(gpoutfile, "  0\nTEXT\n  8\n%s\n", layer_name[TEXT_LAYER]);
+	fprintf(GPT.P_GpOutFile, "  0\nTEXT\n  8\n%s\n", layer_name[TEXT_LAYER]);
 	if(dxf_angle != 90.0) {
 		switch(dxf_justify) {
 			case LEFT:
@@ -278,7 +278,7 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		}
 	}
 
-	fprintf(gpoutfile, "\
+	fprintf(GPT.P_GpOutFile, "\
  10\n%-6.3f\n 20\n%-6.3f\n 30\n0.000\n\
  40\n%-6.3f\n  1\n%s\n 50\n%-6.3f\n\
   7\n%s\n",
@@ -287,7 +287,7 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	    text_style);
 
 	if(dxf_justify != LEFT) {
-		fprintf(gpoutfile, " 72\n%d\n\
+		fprintf(GPT.P_GpOutFile, " 72\n%d\n\
  11\n%-6.3f\n 21\n%-6.3f\n 31\n0.000\n",
 		    dxf_justify,
 		    xrightpos / DXF_UNIT, yrightpos / DXF_UNIT);

@@ -1665,7 +1665,7 @@ static cairo_status_t egl_create_target(cairo_vg_context_t * context,
 	    attribs,
 	    &config, 1, &num_configs) ||
 	    num_configs != 1) {
-		fprintf(stderr, "Error: eglChooseConfig() failed.\n");
+		slfprintf_stderr("Error: eglChooseConfig() failed.\n");
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 

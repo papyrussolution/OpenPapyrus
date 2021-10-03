@@ -405,7 +405,7 @@ int Rows2Columns(CharacterSetTable * T, uchar * data, int dataLength,
 	rowsRequested = *pRows;
 
     #ifdef _DEBUG
-	fprintf(stderr, "Optimizer : Searching <%i> rows\n", rowsRequested);
+	slfprintf_stderr("Optimizer : Searching <%i> rows\n", rowsRequested);
     #endif
 
 	if(rowsRequested==1)

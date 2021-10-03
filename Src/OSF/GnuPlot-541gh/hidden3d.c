@@ -172,13 +172,8 @@ void GnuPlot::SetHidden3DOptions()
 void GnuPlot::ShowHidden3DOptions()
 {
 	fprintf(stderr, "\t  Hidden3d elements will be drawn in %s of non-hidden3d elements\n", (_3DBlk.hidden3d_layer == LAYER_BACK) ? "back" : "front");
-	fprintf(stderr,
-	    "\
-\t  Back side of surfaces has linestyle offset of %d\n\
-\t  Bit-Mask of Lines to draw in each triangle is %ld\n\
-\t  %d: ",
+	fprintf(stderr, "\t  Back side of surfaces has linestyle offset of %d\n\t  Bit-Mask of Lines to draw in each triangle is %ld\n\t  %d: ",
 	    _Plt.hiddenBacksideLinetypeOffset, _Plt.hiddenTriangleLinesdrawnPattern, _Plt.hiddenHandleUndefinedPoints);
-
 	switch(_Plt.hiddenHandleUndefinedPoints) {
 		case OUTRANGE: fputs("Outranged and undefined datapoints are omitted from the surface.\n", stderr); break;
 		case UNDEFINED: fputs("Only undefined datapoints are omitted from the surface.\n", stderr); break;

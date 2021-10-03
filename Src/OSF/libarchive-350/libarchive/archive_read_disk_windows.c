@@ -1641,7 +1641,7 @@ static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int rest
 				t->direct_io = 0;
 			else
 				t->direct_io = 1;
-			fprintf(stderr, "LIBARCHIVE_DIRECT_IO=%s\n",
+			slfprintf_stderr("LIBARCHIVE_DIRECT_IO=%s\n",
 			    (t->direct_io) ? "Enabled" : "Disabled");
 		}
 		else
@@ -1651,7 +1651,7 @@ static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int rest
 				t->async_io = 0;
 			else
 				t->async_io = 1;
-			fprintf(stderr, "LIBARCHIVE_ASYNC_IO=%s\n",
+			slfprintf_stderr("LIBARCHIVE_ASYNC_IO=%s\n",
 			    (t->async_io) ? "Enabled" : "Disabled");
 		}
 		else

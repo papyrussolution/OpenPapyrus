@@ -335,9 +335,9 @@ static struct gen_table cairotrm_opts[] = {
 };
 //
 // "Called when terminal type is selected. This procedure should parse options on the command line.
-// A list of the currently selected options should be stored in term_options[],
+// A list of the currently selected options should be stored in GPT.TermOptions[],
 // in a form suitable for use with the set term command.
-// term_options[] is used by the save command.  Use options_null() if no options are available." */
+// GPT.TermOptions[] is used by the save command.  Use options_null() if no options are available." */
 //
 TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
@@ -636,62 +636,62 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case CAIROLATEX_PNG: output = "png"; break;
 		}
 		sprintf(tmp_term_options, " %s %s", output, ps_params->epslatex_standalone ? "standalone" : "input");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 		if(epslatex_header)
 			sprintf(tmp_term_options, " header \"%s\"", epslatex_header);
 		else
 			sprintf(tmp_term_options, " noheader");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 		sprintf(tmp_term_options, " %s", ps_params->blacktext ? "blacktext" : "colortext");
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 #endif
 	// Save options back into options string in normalized format 
 	if(cairo_params->transparent)
-		strncat(term_options, ISCAIROLATEX ? " nobackground" : " transparent", sizeof(term_options) - strlen(term_options)-1);
+		strncat(GPT.TermOptions, ISCAIROLATEX ? " nobackground" : " transparent", sizeof(GPT.TermOptions) - strlen(GPT.TermOptions)-1);
 	else {
 		sprintf(tmp_term_options, " background \"#%02x%02x%02x\"", (int)(255 * cairo_params->background.r), (int)(255 * cairo_params->background.g), (int)(255 * cairo_params->background.b));
-		strcat(term_options, tmp_term_options);
+		strcat(GPT.TermOptions, tmp_term_options);
 	}
 	if(cairo_params->crop)
-		strncat(term_options, " crop", sizeof(term_options)-strlen(term_options)-1);
-	strncat(term_options, cairo_params->enhanced ? " enhanced" : " noenhanced", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, " crop", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+	strncat(GPT.TermOptions, cairo_params->enhanced ? " enhanced" : " noenhanced", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_font) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " font \"%s\"", font_setting);
 		SAlloc::F(font_setting);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
-	/* if (set_fontscale) */
+	// if(set_fontscale) 
 	{
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " fontscale %.1f", cairo_params->fontscale);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(cairo_params->mono)
-		strncat(term_options, " monochrome", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, " monochrome", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(1 || set_size) {
 		if(cairo_params->explicit_units == CM)
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fcm, %.2fcm ", 2.54*cairo_params->width/72., 2.54*cairo_params->height/72.0);
 		else if(cairo_params->explicit_units == PIXELS)
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d ", (int)cairo_params->width, (int)cairo_params->height);
 		else
-			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fin, %.2fin ", cairo_params->width/72., cairo_params->height/72.0);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fin, %.2fin ", cairo_params->width/72.0, cairo_params->height/72.0);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(set_capjoin) {
-		strncat(term_options, cairo_params->linecap == ROUNDED ? " rounded" : cairo_params->linecap == BUTT ? " butt" : " square", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, cairo_params->linecap == ROUNDED ? " rounded" : cairo_params->linecap == BUTT ? " butt" : " square", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(cairo_params->lw != cairo_params_default->lw) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " linewidth %g", cairo_params->lw);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(cairo_params->ps != 1.0) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " pointscale %g", cairo_params->ps);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 
 	if(cairo_params->dash_length != cairo_params_default->dash_length) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", cairo_params->dash_length);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	// sync settings with ps_params for latex terminal 
 #ifdef PSLATEX_DRIVER
@@ -736,7 +736,7 @@ void cairotrm_init(GpTermEntry * pThis)
 	if(!sstreq(pThis->name, "epscairo") && !sstreq(pThis->name, "cairolatex") && !sstreq(pThis->name, "pdfcairo") && !sstreq(pThis->name, "pngcairo"))
 		p_gp->IntErrorCurToken("Unrecognized cairo terminal");
 	// cairolatex requires a file 
-	if(ISCAIROLATEX && !outstr)
+	if(ISCAIROLATEX && !GPT.P_OutStr)
 		p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
 	// We no longer rely on this having been done in cairotrm_reset() 
 	if(plot.cr)
@@ -749,7 +749,7 @@ void cairotrm_init(GpTermEntry * pThis)
 	if(sstreq(pThis->name, "pdfcairo")) {
 		// Output can either be a file or stdout 
 #ifndef _WIN32
-		if(!outstr) {
+		if(!GPT.P_OutStr) {
 #endif
 		// Redirection to a printer on Windows requires the use of gpoutfile via the cairostream_write callback.
 		surface = cairo_pdf_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
@@ -757,7 +757,7 @@ void cairotrm_init(GpTermEntry * pThis)
 #ifndef _WIN32
 	}
 	else {
-		surface = cairo_pdf_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
+		surface = cairo_pdf_surface_create(GPT.P_OutStr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 	}
 #endif
 		// it is up to the pdf viewer to do the hinting 
@@ -776,12 +776,12 @@ void cairotrm_init(GpTermEntry * pThis)
 #ifdef HAVE_CAIROEPS
 	else if(sstreq(pThis->name, "epscairo")) {
 		// Output can either be a file or stdout 
-		if(!outstr) {
+		if(!GPT.P_OutStr) {
 			surface = cairo_ps_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
 				plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		}
 		else {
-			surface = cairo_ps_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
+			surface = cairo_ps_surface_create(GPT.P_OutStr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		}
 		cairo_ps_surface_set_eps(surface, TRUE);
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 11, 1)
@@ -904,7 +904,7 @@ void cairotrm_graphics(GpTermEntry * pThis)
 	plot.xmax = (uint)plot.device_xmax*plot.oversampling_scale;
 	plot.ymax = (uint)plot.device_ymax*plot.oversampling_scale;
 	// initialize encoding 
-	plot.encoding = encoding;
+	plot.encoding = GPT._Encoding;
 	// Adjust for the mismatch of floating point coordinate range 0->max	
 	// and integer terminal pixel coordinates [0:max-1].			
 	pThis->MaxX = (plot.device_xmax - 1) * plot.oversampling_scale;
@@ -942,7 +942,7 @@ void cairotrm_graphics(GpTermEntry * pThis)
 cairo_status_t cairostream_write(void * closure, uchar * data, uint length)
 {
 	// in case of a cairolatex terminal, output is redirected to a secondary file 
-	if(length != fwrite(data, 1, length, (ISCAIROLATEX) ? gppsfile : gpoutfile))
+	if(length != fwrite(data, 1, length, (ISCAIROLATEX) ? gppsfile : GPT.P_GpOutFile))
 		return CAIRO_STATUS_WRITE_ERROR;
 	return CAIRO_STATUS_SUCCESS;
 }

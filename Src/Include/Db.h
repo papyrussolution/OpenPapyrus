@@ -2039,7 +2039,7 @@ public:
 	DbLoginBlock(const DbLoginBlock & rS);
 	~DbLoginBlock();
 	DbLoginBlock & FASTCALL operator = (const DbLoginBlock & rS);
-	void   Clear();
+	DbLoginBlock & Z();
 	int    FASTCALL Copy(const DbLoginBlock & rS);
 	int    SetAttr(int attr, const char * pVal);
 	int    GetAttr(int attr, SString & rVal) const;

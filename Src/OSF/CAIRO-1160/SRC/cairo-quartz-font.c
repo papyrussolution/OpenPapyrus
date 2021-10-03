@@ -441,7 +441,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_metrics(cairo_quartz_scaled_f
 #endif
 
 #if 0
-	fprintf(stderr, "[0x%04x] bbox: %f %f %f %f\n", glyph,
+	slfprintf_stderr("[0x%04x] bbox: %f %f %f %f\n", glyph,
 	    bbox.origin.x / emscale, bbox.origin.y / emscale,
 	    bbox.size.width / emscale, bbox.size.height / emscale);
 #endif
@@ -460,7 +460,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_metrics(cairo_quartz_scaled_f
 	extents.y_advance = 0.0;
 
 #if 0
-	fprintf(stderr, "[0x%04x] extents: bearings: %f %f dim: %f %f adv: %f\n\n", glyph,
+	slfprintf_stderr("[0x%04x] extents: bearings: %f %f dim: %f %f adv: %f\n\n", glyph,
 	    extents.x_bearing, extents.y_bearing, extents.width, extents.height, extents.x_advance);
 #endif
 
@@ -636,9 +636,9 @@ static cairo_int_status_t _cairo_quartz_init_glyph_surface(cairo_quartz_scaled_f
 	glyphRectInt = CGRectIntegral(glyphRect);
 
 #if 0
-	fprintf(stderr, "glyphRect[o]: %f %f %f %f\n",
+	slfprintf_stderr("glyphRect[o]: %f %f %f %f\n",
 	    glyphRect.origin.x, glyphRect.origin.y, glyphRect.size.width, glyphRect.size.height);
-	fprintf(stderr, "glyphRectInt: %f %f %f %f\n",
+	slfprintf_stderr("glyphRectInt: %f %f %f %f\n",
 	    glyphRectInt.origin.x, glyphRectInt.origin.y, glyphRectInt.size.width, glyphRectInt.size.height);
 #endif
 

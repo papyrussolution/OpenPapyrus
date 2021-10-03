@@ -67,19 +67,19 @@ int jbig2_image_write_png(Jbig2Image * image, FILE * out)
 	png_bytep rowpointer;
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if(png == NULL) {
-		fprintf(stderr, "unable to create png structure\n");
+		slfprintf_stderr("unable to create png structure\n");
 		return 2;
 	}
 	info = png_create_info_struct(png);
 	if(info == NULL) {
-		fprintf(stderr, "unable to create png info structure\n");
+		slfprintf_stderr("unable to create png info structure\n");
 		png_destroy_write_struct(&png, (png_infopp)NULL);
 		return 3;
 	}
 	/* set/check error handling */
 	if(setjmp(png_jmpbuf(png))) {
 		/* we've returned here after an internal error */
-		fprintf(stderr, "internal error in libpng saving file\n");
+		slfprintf_stderr("internal error in libpng saving file\n");
 		png_destroy_write_struct(&png, &info);
 		return 4;
 	}
@@ -118,7 +118,7 @@ int jbig2_image_write_png_file(Jbig2Image * image, char * filename)
 	FILE * out;
 	int code;
 	if((out = fopen(filename, "wb")) == NULL) {
-		fprintf(stderr, "unable to open '%s' for writing\n", filename);
+		slfprintf_stderr("unable to open '%s' for writing\n", filename);
 		return 1;
 	}
 	code = jbig2_image_write_png(image, out);

@@ -22,7 +22,7 @@ static int ssl_base_inited = 0;
 DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 {
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_ssl_base: Adding SSL ciphers and digests\n");
+	slfprintf_stderr("OPENSSL_INIT: ossl_init_ssl_base: Adding SSL ciphers and digests\n");
 #endif
 #ifndef OPENSSL_NO_DES
 	EVP_add_cipher(EVP_des_cbc());
@@ -84,7 +84,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 	EVP_add_digest(EVP_sha512());
 #ifndef OPENSSL_NO_COMP
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_ssl_base: SSL_COMP_get_compression_methods()\n");
+	slfprintf_stderr("OPENSSL_INIT: ossl_init_ssl_base: SSL_COMP_get_compression_methods()\n");
 #endif
 	/*
 	 * This will initialise the built-in compression algorithms. The value
@@ -96,7 +96,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 	if(!ssl_load_ciphers())
 		return 0;
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_ssl_base: SSL_add_ssl_module()\n");
+	slfprintf_stderr("OPENSSL_INIT: ossl_init_ssl_base: SSL_add_ssl_module()\n");
 #endif
 	/*
 	 * We ignore an error return here. Not much we can do - but not that bad
@@ -117,7 +117,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_ssl_strings)
 	 */
 #if !defined(OPENSSL_NO_ERR) && !defined(OPENSSL_NO_AUTOERRINIT)
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_ssl_strings: "
+	slfprintf_stderr("OPENSSL_INIT: ossl_init_load_ssl_strings: "
 	    "ERR_load_SSL_strings()\n");
 #endif
 	ERR_load_SSL_strings();
@@ -143,7 +143,7 @@ static void ssl_library_stop(void)
 	if(ssl_base_inited) {
 #ifndef OPENSSL_NO_COMP
 #ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: ssl_comp_free_compression_methods_int()\n");
+		slfprintf_stderr("OPENSSL_INIT: ssl_library_stop: ssl_comp_free_compression_methods_int()\n");
 #endif
 		ssl_comp_free_compression_methods_int();
 #endif
@@ -151,7 +151,7 @@ static void ssl_library_stop(void)
 
 	if(ssl_strings_inited) {
 #ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: err_free_strings_int()\n");
+		slfprintf_stderr("OPENSSL_INIT: ssl_library_stop: err_free_strings_int()\n");
 #endif
 		/*
 		 * If both crypto and ssl error strings are inited we will end up

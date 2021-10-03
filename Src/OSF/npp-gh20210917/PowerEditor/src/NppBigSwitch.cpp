@@ -2129,7 +2129,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    _mainEditView.execute(SCI_MULTIEDGECLEARALL);
 		    _subEditView.execute(SCI_MULTIEDGECLEARALL);
 		    ScintillaViewParams &svp = const_cast<ScintillaViewParams &>(nppParam.getSVP());
-		    COLORREF multiEdgeColor = liteGrey;
+		    COLORREF multiEdgeColor = GetColorRef(SClrSilver); //liteGrey
 		    const NppStyle * pStyle = NppParameters::getInstance().getMiscStylerArray().findByName(TEXT("Edge colour"));
 		    if(pStyle) {
 			    multiEdgeColor = pStyle->_fgColor;

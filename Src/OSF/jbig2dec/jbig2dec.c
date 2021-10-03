@@ -157,7 +157,7 @@ static void hash_init(jbig2dec_params_t * params)
 	//params->hash_ctx = (SHA1_CTX *)SAlloc::M(sizeof(SHA1_CTX));
 	params->P_HashCtx = new SlHash::State;
 	if(!params->P_HashCtx) {
-		fprintf(stderr, "unable to allocate hash state\n");
+		slfprintf_stderr("unable to allocate hash state\n");
 		params->hash = 0;
 		return;
 	}
@@ -274,11 +274,11 @@ static int parse_options(int argc, char * argv[], jbig2dec_params_t * params)
 			case 'M':
 			    ret = sscanf(optarg, "%zu", &params->memory_limit);
 			    if(ret != 1)
-				    fprintf(stderr, "could not parse memory limit argument\n");
+				    slfprintf_stderr("could not parse memory limit argument\n");
 			    break;
 			default:
 			    if(!params->verbose)
-				    fprintf(stderr, "unrecognized option: -%c\n", option);
+				    slfprintf_stderr("unrecognized option: -%c\n", option);
 			    break;
 		}
 	}
@@ -293,7 +293,7 @@ static int print_version(void)
 
 static int print_usage(void)
 {
-	fprintf(stderr,
+	slfprintf_stderr(
 	    "Usage: jbig2dec [options] <file.jbig2>\n"
 	    "   or  jbig2dec [options] <global_stream> <page_stream>\n"
 	    "\n"
@@ -362,21 +362,21 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 	if(state->last_message != NULL && !strcmp(message, state->last_message) && state->severity == severity && state->type == type) {
 		state->repeats++;
 		if(state->repeats % 1000000 == 0) {
-			ret = fprintf(stderr, "jbig2dec %s last message repeated %ld times so far\n", state->type, state->repeats);
+			ret = slfprintf_stderr("jbig2dec %s last message repeated %ld times so far\n", state->type, state->repeats);
 			if(ret < 0)
 				goto printerror;
 		}
 	}
 	else {
 		if(state->repeats > 1) {
-			ret = fprintf(stderr, "jbig2dec %s last message repeated %ld times\n", state->type, state->repeats);
+			ret = slfprintf_stderr("jbig2dec %s last message repeated %ld times\n", state->type, state->repeats);
 			if(ret < 0)
 				goto printerror;
 		}
 		if(seg_idx == JBIG2_UNKNOWN_SEGMENT_NUMBER)
-			ret = fprintf(stderr, "jbig2dec %s %s\n", type, message);
+			ret = slfprintf_stderr("jbig2dec %s %s\n", type, message);
 		else
-			ret = fprintf(stderr, "jbig2dec %s %s (segment 0x%08x)\n", type, message, seg_idx);
+			ret = slfprintf_stderr("jbig2dec %s %s (segment 0x%08x)\n", type, message, seg_idx);
 		if(ret < 0)
 			goto printerror;
 		state->repeats = 0;
@@ -387,7 +387,7 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 		if(message) {
 			state->last_message = _strdup(message);
 			if(state->last_message == NULL) {
-				ret = fprintf(stderr, "jbig2dec WARNING could not duplicate message\n");
+				ret = slfprintf_stderr("jbig2dec WARNING could not duplicate message\n");
 				if(ret < 0)
 					goto printerror;
 			}
@@ -395,7 +395,7 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 	}
 	return;
 printerror:
-	fprintf(stderr, "jbig2dec WARNING could not print message\n");
+	slfprintf_stderr("jbig2dec WARNING could not print message\n");
 	state->repeats = 0;
 	SAlloc::F(state->last_message);
 	state->last_message = NULL;
@@ -404,7 +404,7 @@ printerror:
 static void flush_errors(jbig2dec_error_callback_state_t * state)
 {
 	if(state->repeats > 1) {
-		fprintf(stderr, "jbig2dec last message repeated %ld times\n", state->repeats);
+		slfprintf_stderr("jbig2dec last message repeated %ld times\n", state->repeats);
 	}
 }
 
@@ -414,7 +414,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 	const char * c, * e;
 	size_t extlen, len;
 	if(extension == NULL) {
-		fprintf(stderr, "no filename extension; cannot create output filename!\n");
+		slfprintf_stderr("no filename extension; cannot create output filename!\n");
 		exit(1);
 	}
 	if(input_filename == NULL)
@@ -441,7 +441,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 	// allocate enough space for the base + ext 
 	output_filename = (char *)SAlloc::M(len + extlen + 1);
 	if(output_filename == NULL) {
-		fprintf(stderr, "failed to allocate memory for output filename\n");
+		slfprintf_stderr("failed to allocate memory for output filename\n");
 		exit(1);
 	}
 	memcpy(output_filename, c, len);
@@ -461,7 +461,7 @@ static int write_page_image(jbig2dec_params_t * params, FILE * out, Jbig2Image *
 		case jbig2dec_format_pbm:
 		    return jbig2_image_write_pbm(image, out);
 		default:
-		    fprintf(stderr, "unsupported output format.\n");
+		    slfprintf_stderr("unsupported output format.\n");
 		    return 1;
 	}
 
@@ -518,7 +518,7 @@ int main(int argc, char ** argv)
 		    exit(0);
 		    break;
 		case dump:
-		    fprintf(stderr, "Sorry, segment dump not yet implemented\n");
+		    slfprintf_stderr("Sorry, segment dump not yet implemented\n");
 		    break;
 		case render:
 		    if((argc - filearg) == 1) {
@@ -526,7 +526,7 @@ int main(int argc, char ** argv)
 			    char * fn = argv[filearg];
 			    f = fopen(fn, "rb");
 			    if(f == NULL) {
-				    fprintf(stderr, "error opening %s\n", fn);
+				    slfprintf_stderr("error opening %s\n", fn);
 				    goto cleanup;
 			    }
 		    }
@@ -536,13 +536,13 @@ int main(int argc, char ** argv)
 			    char * fn_page = argv[filearg + 1];
 			    f = fopen(fn, "rb");
 			    if(f == NULL) {
-				    fprintf(stderr, "error opening %s\n", fn);
+				    slfprintf_stderr("error opening %s\n", fn);
 				    goto cleanup;
 			    }
 			    f_page = fopen(fn_page, "rb");
 			    if(f_page == NULL) {
 				    fclose(f);
-				    fprintf(stderr, "error opening %s\n", fn_page);
+				    slfprintf_stderr("error opening %s\n", fn_page);
 				    goto cleanup;
 			    }
 		    }
@@ -638,7 +638,7 @@ int main(int argc, char ** argv)
 						params.output_filename = make_output_filename(argv[filearg], ".pbm");
 						break;
 					    default:
-						fprintf(stderr, "unsupported output format: %d\n", params.output_format);
+						slfprintf_stderr("unsupported output format: %d\n", params.output_format);
 						goto cleanup;
 				    }
 			    }
@@ -653,9 +653,9 @@ int main(int argc, char ** argv)
 			    }
 			    else {
 				    if(params.verbose > 1)
-					    fprintf(stderr, "saving decoded page as '%s'\n", params.output_filename);
+					    slfprintf_stderr("saving decoded page as '%s'\n", params.output_filename);
 				    if((out = fopen(params.output_filename, "wb")) == NULL) {
-					    fprintf(stderr, "unable to open '%s' for writing\n", params.output_filename);
+					    slfprintf_stderr("unable to open '%s' for writing\n", params.output_filename);
 					    goto cleanup;
 				    }
 			    }

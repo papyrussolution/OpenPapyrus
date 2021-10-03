@@ -622,37 +622,41 @@ int InetUrl::SetComponent(int c, const char * pBuf)
 int InetUrl::SetQueryParam(const char * pParam, const char * pValue)
 {
 	int    ok = -1;
-	SString temp_buf;
-	SString org_query;
-	GetComponent(cQuery, /*urlDecode*/0, org_query);
-	StringSet ss('&', org_query);
-	StringSet ss_new("&");
-	SString left, right;
-	int    is_found = 0;
-	for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-		if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(pParam) == 0) {
-			is_found = 1;
-			if(right == pValue)
-				ss_new.add(temp_buf);
-			else {
-				right = pValue;
-				temp_buf.Z().CatEq(left, right);
-				ss_new.add(temp_buf);
-				ok = 1;
+	if(!isempty(pParam)) {
+		SString temp_buf;
+		SString org_query;
+		GetComponent(cQuery, /*urlDecode*/0, org_query);
+		StringSet ss('&', org_query);
+		StringSet ss_new("&");
+		SString left, right;
+		int    is_found = 0;
+		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+			if(temp_buf.NotEmptyS()) {
+				if(temp_buf.Divide('=', left, right) > 0 && left.Strip().IsEqiAscii(pParam)) {
+					is_found = 1;
+					if(right == pValue)
+						ss_new.add(temp_buf);
+					else {
+						right = pValue;
+						temp_buf.Z().CatEq(left, right);
+						ss_new.add(temp_buf);
+						ok = 1;
+					}
+				}
+				else
+					ss_new.add(temp_buf);
 			}
 		}
-		else
+		if(!is_found) {
+			left = pParam;
+			right = pValue;
+			temp_buf.Z().CatEq(left, right);
 			ss_new.add(temp_buf);
+			ok = 1;
+		}
+		if(ok > 0)
+			SetComponent(cQuery, ss_new.getBuf());
 	}
-	if(!is_found) {
-		left = pParam;
-		right = pValue;
-		temp_buf.Z().CatEq(left, right);
-		ss_new.add(temp_buf);
-		ok = 1;
-	}
-	if(ok > 0)
-		SetComponent(cQuery, ss_new.getBuf());
 	return ok;
 }
 

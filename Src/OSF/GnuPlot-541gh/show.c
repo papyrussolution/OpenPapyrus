@@ -23,6 +23,20 @@ void GnuPlot::ShowAllNl()
 }
 
 #define PROGRAM "G N U P L O T"
+
+bool GnuPlot::CheckTagGtZero(int * pTag, const char ** ppErrMessage)
+{
+	assert(pTag);
+	if(!Pgm.EndOfCommand()) {
+		*pTag = IntExpression();
+		if(*pTag <= 0) {
+			*ppErrMessage =  "tag must be > zero";
+			return false;
+		}
+	}
+	putc('\n', stderr);
+	return true;
+}
 //
 // The 'show' command 
 //
@@ -31,7 +45,7 @@ void GnuPlot::ShowCommand()
 {
 	enum set_id token_found;
 	int tag = 0;
-	char * error_message = NULL;
+	const char * error_message = NULL;
 	Pgm.Shift();
 	token_found = (enum set_id)Pgm.LookupTableForCurrentToken(&set_tbl[0]);
 	// rationalize c_token advancement stuff a bit: 
@@ -82,7 +96,7 @@ void GnuPlot::ShowCommand()
 		case S_X2ZEROAXIS: ShowZeroAxis(SECOND_X_AXIS); break;
 		case S_Y2ZEROAXIS: ShowZeroAxis(SECOND_Y_AXIS); break;
 		case S_ZZEROAXIS: ShowZeroAxis(FIRST_Z_AXIS); break;
-
+/* (replaced wiht CheckTagGtZero(&tag, &error_message)
 #define CHECK_TAG_GT_ZERO                                       \
 	if(!Pgm.EndOfCommand()) {                                  \
 		tag = IntExpression();                             \
@@ -92,34 +106,41 @@ void GnuPlot::ShowCommand()
 		}                                               \
 	}                                                       \
 	putc('\n', stderr);
-
+*/
 		case S_LABEL:
-		    CHECK_TAG_GT_ZERO;
-		    ShowLabel(tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				ShowLabel(tag);
 		    break;
 		case S_ARROW:
-		    CHECK_TAG_GT_ZERO;
-		    ShowArrow(tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				ShowArrow(tag);
 		    break;
 		case S_LINESTYLE:
-		    CHECK_TAG_GT_ZERO;
-		    ShowLineStyle(tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				ShowLineStyle(tag);
 		    break;
 		case S_LINETYPE:
-		    CHECK_TAG_GT_ZERO;
-		    ShowLineType(Gg.P_FirstPermLineStyle, tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				ShowLineType(Gg.P_FirstPermLineStyle, tag);
 		    break;
 		case S_MONOCHROME:
-		    fprintf(stderr, "monochrome mode is %s\n", monochrome ? "active" : "not active");
+		    fprintf(stderr, "monochrome mode is %s\n", (GPT.Flags & GpTerminalBlock::fMonochrome) ? "active" : "not active");
 		    if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
 			    Pgm.Shift();
-			    CHECK_TAG_GT_ZERO;
+			    //CHECK_TAG_GT_ZERO;
+				if(!CheckTagGtZero(&tag, &error_message))
+					break;
 		    }
 		    ShowLineType(Gg.P_FirstMonoLineStyle, tag);
 		    break;
 		case S_DASHTYPE:
-		    CHECK_TAG_GT_ZERO;
-		    ShowDashType(tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				ShowDashType(tag);
 		    break;
 		case S_LINK: ShowLink(); break;
 		case S_NONLINEAR: ShowNonLinear(); break;
@@ -161,8 +182,9 @@ void GnuPlot::ShowCommand()
 		case S_OBJECT:
 		    if(Pgm.AlmostEqualsCur("rect$angle"))
 			    Pgm.Shift();
-		    CHECK_TAG_GT_ZERO;
-		    SaveObject(stderr, tag);
+		    //CHECK_TAG_GT_ZERO;
+			if(CheckTagGtZero(&tag, &error_message))
+				SaveObject(stderr, tag);
 		    break;
 		case S_WALL: SaveWalls(stderr); break;
 		case S_ANGLES: ShowAngles(); break;
@@ -172,9 +194,7 @@ void GnuPlot::ShowCommand()
 		case S_ISOSURFACE: ShowIsoSurface(); break;
 		case S_JITTER: ShowJitter(); break;
 		case S_VIEW: ShowView(); break;
-		case S_DATA:
-		    error_message = "keyword 'data' deprecated, use 'show style data'";
-		    break;
+		case S_DATA: error_message = "keyword 'data' deprecated, use 'show style data'"; break;
 		case S_STYLE: ShowStyle(); break;
 		case S_SURFACE: ShowSurface(); break;
 		case S_HIDDEN3D: ShowHidden3D(); break;
@@ -267,10 +287,10 @@ void GnuPlot::ShowCommand()
 		case S_Y2DTICS:
 		case S_Y2MTICS: ShowTics(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE); break;
 		case S_MULTIPLOT:
-		    fprintf(stderr, "multiplot mode is %s\n", multiplot ? "on" : "off");
+		    fprintf(stderr, "multiplot mode is %s\n", (GPT.Flags & GpTerminalBlock::fMultiplot) ? "on" : "off");
 		    break;
 		case S_TERMOPTIONS:
-		    fprintf(stderr, "Terminal options are '%s'\n", (*term_options) ? term_options : "[none]");
+		    fprintf(stderr, "Terminal options are '%s'\n", GPT.TermOptions[0] ? GPT.TermOptions : "[none]");
 		    break;
 		case S_THETA:
 		    fprintf(stderr, "Theta increases %s with origin at %s of plot\n",
@@ -1386,12 +1406,8 @@ void GnuPlot::ShowKey()
 		    putc('\n', stderr);
 		    break;
 	}
-	fprintf(stderr, "\
-\tkey is %s justified, %sreversed, %sinverted, %senhanced and ",
-	    key->just == GPKEY_LEFT ? "left" : "right",
-	    key->reverse ? "" : "not ",
-	    key->invert ? "" : "not ",
-	    key->enhanced ? "" : "not ");
+	fprintf(stderr, "\tkey is %s justified, %sreversed, %sinverted, %senhanced and ",
+	    key->just == GPKEY_LEFT ? "left" : "right", key->reverse ? "" : "not ", key->invert ? "" : "not ", key->enhanced ? "" : "not ");
 	if(key->box.l_type > LT_NODRAW) {
 		fprintf(stderr, "boxed\n\twith ");
 		save_linetype(stderr, &(key->box), FALSE);
@@ -1405,8 +1421,7 @@ void GnuPlot::ShowKey()
 			save_pm3dcolor(stderr, &key->fillcolor);
 		fprintf(stderr, " \n");
 	}
-	fprintf(stderr,
-	    "\
+	fprintf(stderr, "\
 \tsample length is %g characters\n\
 \tvertical spacing is %g characters\n\
 \twidth adjustment is %g characters\n\
@@ -1525,8 +1540,8 @@ void GnuPlot::ShowMargin()
 void GnuPlot::ShowOutput()
 {
 	ShowAllNl();
-	if(outstr)
-		fprintf(stderr, "\toutput is sent to '%s'\n", outstr);
+	if(GPT.P_OutStr)
+		fprintf(stderr, "\toutput is sent to '%s'\n", GPT.P_OutStr);
 	else
 		fputs("\toutput is sent to STDOUT\n", stderr);
 }
@@ -2016,7 +2031,7 @@ void GnuPlot::ShowRgbMax()
 void GnuPlot::ShowEncoding()
 {
 	ShowAllNl();
-	fprintf(stderr, "\tnominal character encoding is %s\n", encoding_names[encoding]);
+	fprintf(stderr, "\tnominal character encoding is %s\n", encoding_names[GPT._Encoding]);
 #ifdef HAVE_LOCALE_H
 	fprintf(stderr, "\thowever LC_CTYPE in current locale is %s\n", setlocale(LC_CTYPE, NULL));
 #endif
@@ -2279,8 +2294,9 @@ void GnuPlot::ShowOrigin()
 void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 {
 	ShowAllNl();
-	if(pTerm)
-		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, term_options);
+	if(pTerm) {
+		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, GPT.TermOptions);
+	}
 	else
 		fputs("\tterminal type is unknown\n", stderr);
 }
@@ -2884,7 +2900,7 @@ const char * FASTCALL conv_text(const char * t)
 					*s++ = *t;
 					break;
 				default:
-					if(encoding == S_ENC_UTF8)
+					if(GPT._Encoding == S_ENC_UTF8)
 						*s++ = *t;
 					else if(isprint((uchar)*t))
 						*s++ = *t;

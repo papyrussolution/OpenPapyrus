@@ -50,9 +50,7 @@ static void MD5_Init(MD5_CTX * ctx)
 	md5_init(ctx);
 }
 
-static void MD5_Update(MD5_CTX * ctx,
-    const uchar * input,
-    unsigned int inputLen)
+static void MD5_Update(MD5_CTX * ctx, const uchar * input, unsigned int inputLen)
 {
 	md5_update(ctx, inputLen, input);
 }
@@ -136,12 +134,9 @@ static void MD5_Final(uchar * digest, MD5_CTX * ctx)
 #endif
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-	(__MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) && \
-	defined(__MAC_OS_X_VERSION_MIN_ALLOWED) && \
-	(__MAC_OS_X_VERSION_MIN_ALLOWED < 101500)) || \
-	(defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
-	(__IPHONE_OS_VERSION_MAX_ALLOWED >= 20000))
+#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && (__MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) && \
+	defined(__MAC_OS_X_VERSION_MIN_ALLOWED) && (__MAC_OS_X_VERSION_MIN_ALLOWED < 101500)) || \
+	(defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 20000))
 
 /* For Apple operating systems: CommonCrypto has the functions we need.
    These functions are available on Tiger and later, as well as iOS 2.0
@@ -327,24 +322,18 @@ static void MD5_Final(uchar * result, MD5_CTX * ctx);
  */
 static const void * body(MD5_CTX * ctx, const void * data, ulong size)
 {
-	const uchar * ptr;
 	MD5_u32plus a, b, c, d;
-
-	ptr = (const uchar *)data;
-
+	const uchar * ptr = (const uchar *)data;
 	a = ctx->a;
 	b = ctx->b;
 	c = ctx->c;
 	d = ctx->d;
-
 	do {
 		MD5_u32plus saved_a, saved_b, saved_c, saved_d;
-
 		saved_a = a;
 		saved_b = b;
 		saved_c = c;
 		saved_d = d;
-
 /* Round 1 */
 		STEP(F, a, b, c, d, SET(0), 0xd76aa478, 7)
 		STEP(F, d, a, b, c, SET(1), 0xe8c7b756, 12)
@@ -416,20 +405,16 @@ static const void * body(MD5_CTX * ctx, const void * data, ulong size)
 		STEP(I, d, a, b, c, GET(11), 0xbd3af235, 10)
 		STEP(I, c, d, a, b, GET(2), 0x2ad7d2bb, 15)
 		STEP(I, b, c, d, a, GET(9), 0xeb86d391, 21)
-
 		a += saved_a;
 		b += saved_b;
 		c += saved_c;
 		d += saved_d;
-
 		ptr += 64;
 	} while(size -= 64);
-
 	ctx->a = a;
 	ctx->b = b;
 	ctx->c = c;
 	ctx->d = d;
-
 	return ptr;
 }
 
@@ -439,7 +424,6 @@ static void MD5_Init(MD5_CTX * ctx)
 	ctx->b = 0xefcdab89;
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
-
 	ctx->lo = 0;
 	ctx->hi = 0;
 }
@@ -448,15 +432,12 @@ static void MD5_Update(MD5_CTX * ctx, const void * data, ulong size)
 {
 	MD5_u32plus saved_lo;
 	ulong used;
-
 	saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
 	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD5_u32plus)size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
 		ulong available = 64 - used;
 

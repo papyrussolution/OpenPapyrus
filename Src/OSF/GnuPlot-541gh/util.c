@@ -511,7 +511,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 							    }
 						    }
 						    else { 
-								switch(encoding) {
+								switch(GPT._Encoding) {
 								    case S_ENC_UTF8:
 										strcpy(&tmp2[j], "\xc3\x97"); // UTF character '×' 
 										j += 2;
@@ -1153,7 +1153,7 @@ char * getusername()
 
 size_t gp_strlen(const char * s)
 {
-	return (encoding == S_ENC_UTF8) ? strlen_utf8(s) : ((encoding == S_ENC_SJIS) ? strlen_sjis(s) : strlen(s));
+	return (GPT._Encoding == S_ENC_UTF8) ? strlen_utf8(s) : ((GPT._Encoding == S_ENC_SJIS) ? strlen_sjis(s) : strlen(s));
 }
 /*
  * Returns a pointer to the Nth character of s
@@ -1176,7 +1176,7 @@ static char * utf8_strchrn(const char * s, int N)
 
 char * gp_strchrn(const char * s, int N)
 {
-	if(encoding == S_ENC_UTF8)
+	if(GPT._Encoding == S_ENC_UTF8)
 		return utf8_strchrn(s, N);
 	else
 		return (char *)&s[N];

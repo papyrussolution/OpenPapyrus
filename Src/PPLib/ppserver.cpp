@@ -72,6 +72,22 @@ void FASTCALL PPThread::SetJobID(PPID jobID)
 		JobID = jobID;
 }
 
+const SString & PPThread::GetOuterSignature() const // @v11.1.12
+{ 
+	const SString * p_result = 0;
+	Lck_OuterSignature.Lock();
+	p_result = &OuterSignature; 
+	Lck_OuterSignature.Unlock();
+	return *p_result;
+}
+
+void FASTCALL PPThread::SetOuterSignature(const char * pSignature) // @v11.1.12
+{
+	Lck_OuterSignature.Lock();
+	OuterSignature = pSignature;
+	Lck_OuterSignature.Unlock();
+}
+
 void FASTCALL PPThread::SetText(const char * pTxt) { Text = pTxt; }
 void FASTCALL PPThread::SetMessage(const char * pMsg) { LastMsg_ = pMsg; }
 

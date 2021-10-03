@@ -459,7 +459,6 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    (void)Curl_setstropt(&data->set.str[STRING_COPYPOSTFIELDS], NULL);
 		    data->set.method = HTTPREQ_POST;
 		    break;
-
 		case CURLOPT_POSTFIELDSIZE:
 		    /*
 		     * The size of the POSTFIELD data to prevent libcurl to do strlen() to

@@ -74,8 +74,8 @@ struct GpSurfacePoints;
 struct GpMeshTriangle;
 
 //#include <gp_types.h>
-	#define MAX_ID_LEN 50           /* max length of an identifier */
-	#define MAX_LINE_LEN 1024       /* maximum number of chars allowed on line */
+	#define MAX_ID_LEN 50     // max length of an identifier 
+	#define MAX_LINE_LEN 1024 // maximum number of chars allowed on line 
 	//#define DEG2RAD_Removed (SMathConst::Pi / 180.0)
 	//
 	// type_udv() will return 0 rather than type if udv does not exist 
@@ -1116,26 +1116,55 @@ enum t_fillstyle {
 
 	enum set_palette_id {
 		S_PALETTE_INVALID,
-		S_PALETTE_POSITIVE, S_PALETTE_NEGATIVE,
-		S_PALETTE_GRAY, S_PALETTE_COLOR, S_PALETTE_RGBFORMULAE,
-		S_PALETTE_NOPS_ALLCF, S_PALETTE_PS_ALLCF, S_PALETTE_MAXCOLORS,
-		S_PALETTE_COLORMAP, S_PALETTE_DEFINED, S_PALETTE_FILE, S_PALETTE_FUNCTIONS,
-		S_PALETTE_MODEL, S_PALETTE_GAMMA, S_PALETTE_CUBEHELIX
+		S_PALETTE_POSITIVE, 
+		S_PALETTE_NEGATIVE,
+		S_PALETTE_GRAY, 
+		S_PALETTE_COLOR, 
+		S_PALETTE_RGBFORMULAE,
+		S_PALETTE_NOPS_ALLCF, 
+		S_PALETTE_PS_ALLCF, 
+		S_PALETTE_MAXCOLORS,
+		S_PALETTE_COLORMAP, 
+		S_PALETTE_DEFINED, 
+		S_PALETTE_FILE, 
+		S_PALETTE_FUNCTIONS,
+		S_PALETTE_MODEL, 
+		S_PALETTE_GAMMA, 
+		S_PALETTE_CUBEHELIX
 	};
 
 	enum set_pm3d_id {
 		S_PM3D_INVALID,
 		S_PM3D_AT,
 		S_PM3D_INTERPOLATE,
-		S_PM3D_SCANSFORWARD, S_PM3D_SCANSBACKWARD, S_PM3D_SCANS_AUTOMATIC,
+		S_PM3D_SCANSFORWARD, 
+		S_PM3D_SCANSBACKWARD, 
+		S_PM3D_SCANS_AUTOMATIC,
 		S_PM3D_DEPTH,
-		S_PM3D_FLUSH, S_PM3D_FTRIANGLES, S_PM3D_NOFTRIANGLES,
-		S_PM3D_CLIP_Z, S_PM3D_CLIP_1IN, S_PM3D_CLIP_4IN, S_PM3D_CLIPCB, S_PM3D_NOCLIPCB,
-		S_PM3D_MAP, S_PM3D_BORDER, S_PM3D_NOBORDER, S_PM3D_HIDDEN, S_PM3D_NOHIDDEN,
-		S_PM3D_SOLID, S_PM3D_NOTRANSPARENT, S_PM3D_NOSOLID, S_PM3D_TRANSPARENT,
-		S_PM3D_IMPLICIT, S_PM3D_NOEXPLICIT, S_PM3D_NOIMPLICIT, S_PM3D_EXPLICIT,
+		S_PM3D_FLUSH, 
+		S_PM3D_FTRIANGLES, 
+		S_PM3D_NOFTRIANGLES,
+		S_PM3D_CLIP_Z, 
+		S_PM3D_CLIP_1IN, 
+		S_PM3D_CLIP_4IN, 
+		S_PM3D_CLIPCB, 
+		S_PM3D_NOCLIPCB,
+		S_PM3D_MAP, 
+		S_PM3D_BORDER, 
+		S_PM3D_NOBORDER, 
+		S_PM3D_HIDDEN, 
+		S_PM3D_NOHIDDEN,
+		S_PM3D_SOLID, 
+		S_PM3D_NOTRANSPARENT, 
+		S_PM3D_NOSOLID, 
+		S_PM3D_TRANSPARENT,
+		S_PM3D_IMPLICIT, 
+		S_PM3D_NOEXPLICIT, 
+		S_PM3D_NOIMPLICIT, 
+		S_PM3D_EXPLICIT,
 		S_PM3D_WHICH_CORNER,
-		S_PM3D_LIGHTING_MODEL, S_PM3D_NOLIGHTING_MODEL
+		S_PM3D_LIGHTING_MODEL, 
+		S_PM3D_NOLIGHTING_MODEL
 	};
 
 	enum test_id {
@@ -1357,11 +1386,11 @@ enum t_fillstyle {
 		/* head options */
 		t_arrow_head head;           /* arrow head choice */
 		/* struct GpPosition headsize; */  /* x = length, y = angle [deg] */
-		double head_length;          /* length of head, 0 = default */
-		int head_lengthunit;         /* unit (x1, x2, screen, graph) */
-		double head_angle;           /* front angle / deg */
-		double head_backangle;       /* back angle / deg */
-		arrowheadfill headfill;      /* AS_FILLED etc */
+		double head_length;     // length of head, 0 = default
+		int head_lengthunit;    // unit (x1, x2, screen, graph)
+		double head_angle;      // front angle / deg 
+		double head_backangle;  // back angle / deg
+		arrowheadfill headfill; // AS_FILLED etc
 		bool head_fixedsize;     /* Adapt the head size for short arrow shafts? */
 		/* ... more to come ? */
 	};
@@ -1540,7 +1569,7 @@ enum t_fillstyle {
 		// EAM November 2004 - revised to take a pointer to struct rgb_color,
 		// so that a palette gray value is not the only option for specifying color.
 		void  (*filled_polygon)(GpTermEntry * pThis, int points, gpiPoint *corners);
-		void  (*image)(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+		void  (*image)(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint * pCorners, t_imagecolor);
 		// Enhanced text mode driver call-backs 
 		void  (*enhanced_open)(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 		void  (*enhanced_flush)(GpTermEntry * pThis);
@@ -1565,6 +1594,92 @@ enum t_fillstyle {
 		GnuPlot * P_Gp;
 	};
 
+	class GpTerminalBase { // @construction
+	public:
+		GpTerminalBase();
+		virtual ~GpTerminalBase()
+		{
+		}
+		virtual void Options(GnuPlot * pGp);
+		virtual void Init();
+		virtual void Reset();
+		virtual void Text();
+		virtual int  Scale(double, double);
+		virtual void Graphics();
+		virtual void Move(uint, uint);
+		virtual void Vector(uint, uint);
+		virtual void LineType(int);
+		virtual void PutText(uint, uint, const char *);
+		// the following are optional. set term ensures they are not NULL 
+		virtual int  TextAngle(int);
+		virtual int  JustifyText(enum JUSTIFY);
+		virtual void Point(uint, uint, int);
+		virtual void Arrow(uint, uint, uint, uint, int headstyle);
+		virtual int  SetFont(const char * font);
+		virtual void PointSize(double); // change pointsize 
+		virtual void Suspend(); // called after one plot of multiplot 
+		virtual void Resume();  // called before plots of multiplot 
+		virtual void FillBox(int, uint, uint, uint, uint); // clear in multiplot mode 
+		virtual void LineWidth(double linewidth);
+	#ifdef USE_MOUSE
+		virtual int  WaitForInput(int); // used for mouse and hotkey input 
+		virtual void PutTmpText(int, const char []); // draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point 
+		virtual void SetRuler(int, int); // set ruler location; x<0 switches ruler off 
+		virtual void SetCursor(int, int, int); // set cursor style and corner of rubber band 
+		virtual void SetClipboard(const char[]); // write text into cut&paste buffer (clipboard) 
+	#endif
+		virtual int  MakePalette(t_sm_palette * pPalette);
+		// 
+		// 1. if palette==NULL, then return nice/suitable
+		// maximal number of colours supported by this terminal.
+		// Returns 0 if it can make colours without palette (like postscript).
+		// 2. if palette!=NULL, then allocate its own palette return value is undefined
+		// 3. available: some negative values of max_colors for whatever can be useful
+		// 
+		virtual void  PreviousPalette();
+		// 
+		// release the palette that the above routine allocated and get
+		// back the palette that was active before.
+		// Some terminals, like displays, may draw parts of the figure
+		// using their own palette. Those terminals that possess only
+		// one palette for the whole plot don't need this routine.
+		// 
+		virtual void  SetColor(const t_colorspec *);
+		// EAM November 2004 - revised to take a pointer to struct rgb_color,
+		// so that a palette gray value is not the only option for specifying color.
+		virtual void  FilledPolygon(int points, gpiPoint *corners);
+		virtual void  Image(uint, uint, coordval *, const gpiPoint * pCorners, t_imagecolor);
+		// Enhanced text mode driver call-backs 
+		virtual void  EnhancedOpen(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+		virtual void  EnhancedFlush();
+		virtual void  EnhancedWriteC(int c);
+		// Driver-specific synchronization or other layering commands.
+		// Introduced as an alternative to the ugly sight of
+		// driver-specific code strewn about in the core routines.
+		// As of this point (July 2005) used only by pslatex.trm
+		virtual void  Layer(t_termlayer);
+		// Begin/End path control.
+		// Needed by PostScript-like devices in order to join the endpoints of a polygon cleanly.
+		virtual void  Path(int p);
+		// Pass hypertext for inclusion in the output plot 
+		virtual void Hypertext(int type, const char * text);
+		virtual void BoxedText(uint, uint, int);
+		virtual void ModifyPlots(uint operations, int plotno); // ! no pThis
+		virtual void DashType(int type, t_dashtype * custom_dash_pattern);
+	protected:
+		uint  MaxX;
+		uint  MaxY;
+		uint  ChrV;
+		uint  ChrH;
+		uint  TicV;
+		uint  TicH;
+		int   Flags;
+		double TScale; // Scale factor for converting terminal coordinates to output pixel coordinates.  Used to provide data for external mousing code.
+		SString Name;
+		SString Descr;
+		GnuPlot * P_Gp;
+	};
+
 	enum set_encoding_id {
 		S_ENC_DEFAULT, 
 		S_ENC_ISO8859_1, 
@@ -1585,54 +1700,94 @@ enum t_fillstyle {
 		S_ENC_UTF8,
 		S_ENC_INVALID
 	};
-
-	/* options handling */
+	//
+	// options handling 
+	//
 	enum { 
 		UNSET = -1, 
 		no = 0, 
 		yes = 1 
 	};
 	//
+	//
+	//
+	struct GpArrow {
+		int    HeadLength;        // access head length + angle without changing API
+		double HeadAngle;         // angle in degrees 
+		double HeadBackAngle;     // angle in degrees 
+		arrowheadfill HeadFilled; // arrow head filled or not 
+		bool   HeadFixedSize;     // Adapt the head size for short arrows or not 
+	};
+
+	class GpTerminalBlock {
+	public:
+		GpTerminalBlock() : P_Term(0), P_OutStr(0), P_GpOutFile(0), P_GpPsFile(0), P_PS_PsDir(0), P_PS_FontPath(0), P_TermInterlock(0),
+			Flags(0), MultiplotCount(0), _Encoding(S_ENC_DEFAULT)
+		{
+			memzero(TermOptions, sizeof(TermOptions));
+		}
+		struct GpTermEntry * P_Term;  // unknown 
+		char   TermOptions[MAX_LINE_LEN+1]; // ... and its options string 
+		// the 'output' file name and handle 
+		char * P_OutStr; // means "STDOUT" 
+		FILE * P_GpOutFile;
+		// Output file where the PostScript output goes to. See term_api.h for more details. 
+		FILE * P_GpPsFile;
+		char * P_PS_PsDir;
+		char * P_PS_FontPath;
+		//bool term_initialised; // true if terminal has been initialized 
+		// The qt and wxt terminals cannot be used in the same session. 
+		// Whichever one is used first to plot, this locks out the other. 
+		void * P_TermInterlock;
+		enum {
+			fTermInitialised = 0x0001, // true if terminal has been initialized 
+			fMonochrome      = 0x0002, // true if "set monochrome"
+			fMultiplot       = 0x0004  // // true if in multiplot mode 
+		};
+		uint   Flags;
+		//bool monochrome; // true if "set monochrome"
+		//bool multiplot;  // true if in multiplot mode 
+		int  MultiplotCount;
+		enum set_encoding_id _Encoding; // text output encoding, for terminals that support it 
+		GpArrow CArw;
+	};
+
+	extern GpTerminalBlock GPT; // @global
+	//
 	// Variables of term.c needed by other modules: 
 	//
-	extern GpTermEntry * term; /* the terminal info structure, being the heart of the whole module */
-	extern char term_options[MAX_LINE_LEN+1]; // Options string of the currently used terminal driver 
-	extern int curr_arrow_headlength; /* access head length + angle without changing API */
-	// angle in degrees 
-	extern double curr_arrow_headangle;
-	extern double curr_arrow_headbackangle;
-	extern arrowheadfill curr_arrow_headfilled;
-	extern bool curr_arrow_headfixedsize;
-
+	extern GpTermEntry * term; // the terminal info structure, being the heart of the whole module 
+	// extern char term_options[MAX_LINE_LEN+1]; // Options string of the currently used terminal driver 
+	//extern int curr_arrow_headlength; // access head length + angle without changing API 
+	//extern double curr_arrow_headangle; // angle in degrees 
+	//extern double curr_arrow_headbackangle; // angle in degrees 
+	//extern arrowheadfill curr_arrow_headfilled;
+	//extern bool curr_arrow_headfixedsize;
 	// Recycle count for user-defined linetypes 
 	extern int linetype_recycle_count;
 	extern int mono_recycle_count;
-
 	// Current 'output' file: name and open filehandle 
-	extern char * outstr;
-	extern FILE * gpoutfile;
-
-	/* Output file where postscript terminal output goes to.
-	   In particular:
-			gppsfile == gpoutfile
-					for 'set term': postscript, pstex
-			gppsfile == PSLATEX_auxfile
-					for 'set term': pslatex, cairolatex
-			gppsfile == 0
-					for all other terminals
-	 */
+	//extern char * outstr;
+	//extern FILE * gpoutfile;
+	// 
+	// Output file where postscript terminal output goes to.
+	// In particular:
+	//   gppsfile == gpoutfile       - for 'set term': postscript, pstex
+	//   gppsfile == PSLATEX_auxfile - for 'set term': pslatex, cairolatex
+	//   gppsfile == 0               - for all other terminals
+	// 
 	extern FILE * gppsfile;
 	extern char * PS_psdir;
-	extern char * PS_fontpath;       /* just a directory name */
-	extern bool monochrome;
-	extern bool multiplot;
-	extern int multiplot_count;
-	extern enum set_encoding_id encoding; /* 'set encoding' support: index of current encoding ... */
-	extern const char * encoding_names[]; /* ... in table of encoding names: */
+	extern char * PS_fontpath; // just a directory name 
+	//extern bool monochrome;
+	//extern bool multiplot;
+	//extern int multiplot_count;
+	//extern enum set_encoding_id encoding; // 'set encoding' support: index of current encoding ... 
+	extern const char * encoding_names[]; // ... in table of encoding names: 
 	extern const gen_table set_encoding_tbl[]; /* parsing table for encodings */
 	// The qt and wxt terminals cannot be used in the same session. 
 	// Whichever one is used first to plot, this locks out the other. 
-	extern void * term_interlock;
+	//extern void * term_interlock;
 	//void init_monochrome();
 	//void write_multiline(GpTermEntry * pTerm, int, int, char *, JUSTIFY, VERT_JUSTIFY, int, const char *);
 	//int estimate_strlen(const char * length, double * estimated_fontheight);
@@ -6074,6 +6229,7 @@ public:
 	GpView V;
 	GpGadgets Gg;
 private:
+	bool   CheckTagGtZero(int * pTag, const char ** ppErrMessage);
 	GpStack EvStk;
 	//
 	// Copy of palette previously in use.

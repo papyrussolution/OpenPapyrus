@@ -435,25 +435,25 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 static void xmlTextReaderDebug(xmlTextReader * reader)
 {
 	if(!reader || !reader->ctxt) {
-		fprintf(stderr, "xmlTextReader NULL\n");
+		slfprintf_stderr("xmlTextReader NULL\n");
 		return;
 	}
-	fprintf(stderr, "xmlTextReader: state %d depth %d ", reader->state, reader->depth);
+	slfprintf_stderr("xmlTextReader: state %d depth %d ", reader->state, reader->depth);
 	if(reader->node == NULL) {
-		fprintf(stderr, "node = NULL\n");
+		slfprintf_stderr("node = NULL\n");
 	}
 	else {
-		fprintf(stderr, "node %s\n", reader->node->name);
+		slfprintf_stderr("node %s\n", reader->node->name);
 	}
-	fprintf(stderr, "  input: base %d, cur %d, depth %d: ", reader->base, reader->cur, reader->ctxt->nodeNr);
+	slfprintf_stderr("  input: base %d, cur %d, depth %d: ", reader->base, reader->cur, reader->ctxt->nodeNr);
 	if(reader->input->buffer == NULL) {
-		fprintf(stderr, "buffer is NULL\n");
+		slfprintf_stderr("buffer is NULL\n");
 	}
 	else {
 #ifdef LIBXML_DEBUG_ENABLED
 		xmlDebugDumpString(stderr, &reader->input->buffer->content[reader->cur]);
 #endif
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 	}
 }
 
@@ -1086,7 +1086,7 @@ int FASTCALL xmlTextReaderRead(xmlTextReader * reader)
 	if(!reader->ctxt)
 		return -1;
 #ifdef DEBUG_READER
-	fprintf(stderr, "\nREAD ");
+	slfprintf_stderr("\nREAD ");
 	DUMP_READER
 #endif
 	if(reader->mode == XML_TEXTREADER_MODE_INITIAL) {

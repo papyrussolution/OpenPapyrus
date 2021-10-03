@@ -128,7 +128,7 @@ typedef volatile int CRYPTO_REF_COUNT;
 	#define REF_ASSERT_ISNT(i)
 #endif
 #ifdef REF_PRINT
-	#define REF_PRINT_COUNT(a, b) fprintf(stderr, "%p:%4d:%s\n", b, b->references, a)
+	#define REF_PRINT_COUNT(a, b) slfprintf_stderr("%p:%4d:%s\n", b, b->references, a)
 #else
 	#define REF_PRINT_COUNT(a, b)
 #endif

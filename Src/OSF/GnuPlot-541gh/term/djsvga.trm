@@ -296,7 +296,7 @@ TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf(term_options, "font \"%s\" %senhanced background rgb \"#%06lx\" linewidth %.1f pointscale %.1f fontscale %.1f",
+	sprintf(GPT.TermOptions, "font \"%s\" %senhanced background rgb \"#%06lx\" linewidth %.1f pointscale %.1f fontscale %.1f",
 	    DJSVGA_default_fontname, pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", dj_background, dj_lwscale, dj_pointscale, dj_fontscale);
 }
 
@@ -313,7 +313,7 @@ static GP_INLINE char mgrx_default_encoding()
 
 static GP_INLINE char mgrx_encoding()
 {
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_CP437: return GRENC_CP437;
 		case S_ENC_CP850: return GRENC_CP850;
 		case S_ENC_CP1252: return GRENC_CP1252;
@@ -422,9 +422,7 @@ TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)
 	GrSetUserEncoding(mgrx_encoding() & 0x7f);
 	/* Do not do any conversion if encoding is S_ENC_DEFAULT or unknown to MGRX. */
-	DJSVGA_TextOption.txo_chrtype =
-	    ((encoding != S_ENC_DEFAULT) && ((mgrx_encoding() & 0x80) == 0)) ?
-	    GrGetChrtypeForUserEncoding() : GR_BYTE_TEXT;
+	DJSVGA_TextOption.txo_chrtype = ((GPT._Encoding != S_ENC_DEFAULT) && ((mgrx_encoding() & 0x80) == 0)) ? GrGetChrtypeForUserEncoding() : GR_BYTE_TEXT;
 	DJSVGA_TextOption.txo_bgcolor = GrNOCOLOR;
 	FPRINTF((stderr, "user encoding: %i chartype: %i\n", GrGetUserEncoding(), DJSVGA_TextOption.txo_chrtype));
 #else
@@ -1001,7 +999,7 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 		/* Select font */
 		// FIMXE: why not simply call set_font() here?
 		// DJSVGA_set_font(fontname);
-		if((fontname != NULL) && (strlen(fontname) > 0)) {
+		if(!isempty(fontname)) {
 			DJSVGA_trim_font_string(fontname, filename, sizeof(filename));
 			if(filename[0] == NUL)
 				strnzcpy(filename, DJSVGA_fontname, sizeof(filename));

@@ -1014,7 +1014,7 @@ static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxt * ctxt, xmlNode * c
 static void xmlSchematronReportOutput(xmlSchematronValidCtxt * ctxt ATTRIBUTE_UNUSED, xmlNode * cur ATTRIBUTE_UNUSED, const char * msg) 
 {
 	/* @todo */
-	fprintf(stderr, "%s", msg);
+	slfprintf_stderr("%s", msg);
 }
 /**
  * xmlSchematronFormatReport:
@@ -1397,23 +1397,23 @@ int main()
 	xmlSchematron * schema = NULL;
 	xmlSchematronParserCtxt * pctxt = xmlSchematronNewParserCtxt("tst.sct");
 	if(pctxt == NULL) {
-		fprintf(stderr, "failed to build schematron parser\n");
+		slfprintf_stderr("failed to build schematron parser\n");
 	}
 	else {
 		schema = xmlSchematronParse(pctxt);
 		if(schema == NULL) {
-			fprintf(stderr, "failed to compile schematron\n");
+			slfprintf_stderr("failed to compile schematron\n");
 		}
 		xmlSchematronFreeParserCtxt(pctxt);
 	}
 	instance = xmlReadFile("tst.sct", NULL, XML_PARSE_NOENT | XML_PARSE_NOCDATA);
 	if(instance == NULL) {
-		fprintf(stderr, "failed to parse instance\n");
+		slfprintf_stderr("failed to parse instance\n");
 	}
 	if((schema != NULL) && (instance != NULL)) {
 		vctxt = xmlSchematronNewValidCtxt(schema);
 		if(vctxt == NULL) {
-			fprintf(stderr, "failed to build schematron validator\n");
+			slfprintf_stderr("failed to build schematron validator\n");
 		}
 		else {
 			ret = xmlSchematronValidateDoc(vctxt, instance);

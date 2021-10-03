@@ -278,14 +278,14 @@ TERM_PUBLIC void AQUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	if(AQUA_title[0]=='\0') /* always set title */
 		sprintf(AQUA_title, "Figure %d", AQUA_plotRef);
-	/* Save options back into options string in normalized format */
-	sprintf(term_options, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s", AQUA_plotRef, AQUA_title,
+	// Save options back into options string in normalized format 
+	sprintf(GPT.TermOptions, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s", AQUA_plotRef, AQUA_title,
 	    (uint)(AQUA_xSize/AQUA_RESOLUTION), (uint)(AQUA_ySize/AQUA_RESOLUTION), AQUA_fontNameCur, AQUA_fontSizeCur,
 	    term->put_text == ENHAQUA_put_text ? "enhanced" : "noenhanced", AQUA_dashedlines ? "dashed" : "solid");
 	if(AQUA_dashedlines)
-		sprintf(&(term_options[strlen(term_options)]), " dl %3.1f", AQUA_dashlength_factor);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " dl %3.1f", AQUA_dashlength_factor);
 	if(AQUA_LineWidth != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " linewidth %3.1f", AQUA_LineWidth);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %3.1f", AQUA_LineWidth);
 }
 
 static NSString* AQUA_convert_using_encoding(const char * string)
@@ -294,30 +294,19 @@ static NSString* AQUA_convert_using_encoding(const char * string)
 	static bool hasStringEncodingSupport = false;
 	NSStringEncoding currentEncoding;
 	NSString * translatedString;
-
 	/* Check encoding support in system on first call */
 	if(!didCheckEncodingSupport) {
 		didCheckEncodingSupport = true;
 		hasStringEncodingSupport = [NSString respondsToSelector:@selector(stringWithCString:encoding:)];
 	}
 	/* Set encoding as requested by user via "set encoding" */
-	switch(encoding) {
-		case S_ENC_ISO8859_1:
-		    currentEncoding = NSISOLatin1StringEncoding;
-		    break;
-		case S_ENC_ISO8859_2:
-		    currentEncoding = NSISOLatin2StringEncoding;
-		    break;
-		case S_ENC_ISO8859_9:
-		    currentEncoding = NSWindowsCP1254StringEncoding;
-		    break;
-		case S_ENC_CP1250:
-		    currentEncoding = NSWindowsCP1250StringEncoding;
-		    break;
-		case S_ENC_CP1252:
-		    currentEncoding = NSWindowsCP1252StringEncoding;
-		    break;
-		/* FIXME: Add more encodings... */
+	switch(GPT._Encoding) {
+		case S_ENC_ISO8859_1: currentEncoding = NSISOLatin1StringEncoding; break;
+		case S_ENC_ISO8859_2: currentEncoding = NSISOLatin2StringEncoding; break;
+		case S_ENC_ISO8859_9: currentEncoding = NSWindowsCP1254StringEncoding; break;
+		case S_ENC_CP1250: currentEncoding = NSWindowsCP1250StringEncoding; break;
+		case S_ENC_CP1252: currentEncoding = NSWindowsCP1252StringEncoding; break;
+		// FIXME: Add more encodings... 
 		case S_ENC_DEFAULT: // @fallthrough
 		default:
 		    /* UTF8 is 'default' */
@@ -524,7 +513,7 @@ TERM_PUBLIC void AQUA_dashtype(int type, t_dashtype * custom_dash_type)
 
 TERM_PUBLIC void AQUA_put_text(uint x, uint y, const char * str)
 {
-	if(!strlen(str))
+	if(isempty(str))
 		return;
 	[adapter addLabel: AQUA_convert_using_encoding(str)
 atPoint: NSMakePoint(x/AQUA_RESOLUTION, y/AQUA_RESOLUTION)
@@ -844,7 +833,7 @@ static NSMutableDictionary * attributes;
 TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	if(!strlen(str))
+	if(isempty(str))
 		return;
 	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		AQUA_put_text(x, y, str);

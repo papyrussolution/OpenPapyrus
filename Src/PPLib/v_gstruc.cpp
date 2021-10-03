@@ -910,7 +910,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				ViewTotal();
 				break;
-			case PPVCMD_TEST: // @v11.1.12 @construction
+			case PPVCMD_TREEVIEW: // @v11.1.12 @construction
 				ok = -1;
 				MakeTreeListView(pBrw);
 				break;

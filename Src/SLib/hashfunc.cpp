@@ -3796,7 +3796,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 #define BOBJEN_MAXPAIR  60
 #define BOBJEN_MAXLEN   70
 
-//#define DISPLAY(...) fprintf(stderr, __VA_ARGS__)
+//#define DISPLAY(...) slfprintf_stderr(__VA_ARGS__)
 //#define DISPLAYLEVEL(l, ...) do { if(g_displayLevel>=l) DISPLAY(__VA_ARGS__); } while(0)
 //static int g_displayLevel = 2;
 
@@ -3834,7 +3834,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			size_t work_offs = 0;
 			size_t total_decr_size = 0;
 			size_t actual_size = 0;
-			STempBuffer dest_buf(pattern_buf_size);
+			STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // @v11.1.12 (+ SKILOBYTE(512)) из-за 'padding' результат может быть длиннее, чем оригинал
 			STempBuffer pattern_buf(pattern_buf_size);
 			STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 			SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
@@ -3846,7 +3846,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 				actual_size = 0;
 				rCase.SLTEST_CHECK_NZ(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
-				total_encr_size += pattern_work_size;
+				total_encr_size += actual_size; // @v11.1.12 @fix pattern_work_size-->actual_size
 			}
 			{
 				SlCrypto cs(alg, kbl, algmod);

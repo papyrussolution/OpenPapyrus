@@ -219,7 +219,7 @@ char * GnuPlot::LocaleHandler(int action, char * newlocale)
 		case ACTION_SHOW:
 #ifdef HAVE_LOCALE_H
 		    fprintf(stderr, "\tgnuplot LC_CTYPE   %s\n", setlocale(LC_CTYPE, NULL));
-		    fprintf(stderr, "\tgnuplot encoding   %s\n", encoding_names[encoding]);
+		    fprintf(stderr, "\tgnuplot encoding   %s\n", encoding_names[GPT._Encoding]);
 		    fprintf(stderr, "\tgnuplot LC_TIME    %s\n", setlocale(LC_TIME, NULL));
 		    fprintf(stderr, "\tgnuplot LC_NUMERIC %s\n", NZOR(GpU.numeric_locale, "C"));
 #else

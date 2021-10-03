@@ -89,7 +89,7 @@ void jbig2_huffman_free(Jbig2Ctx * ctx, Jbig2HuffmanState * hs)
 /** print current huffman state */
 void jbig2_dump_huffman_state(Jbig2HuffmanState * hs)
 {
-	fprintf(stderr, "huffman state %08x %08x offset %d.%d\n", hs->this_word, hs->next_word, hs->offset, hs->offset_bits);
+	slfprintf_stderr("huffman state %08x %08x offset %d.%d\n", hs->this_word, hs->next_word, hs->offset, hs->offset_bits);
 }
 
 /** print the binary string we're reading from */
@@ -97,10 +97,10 @@ void jbig2_dump_huffman_binary(Jbig2HuffmanState * hs)
 {
 	const uint32_t word = hs->this_word;
 	int i;
-	fprintf(stderr, "huffman binary ");
+	slfprintf_stderr("huffman binary ");
 	for(i = 31; i >= 0; i--)
-		fprintf(stderr, ((word >> i) & 1) ? "1" : "0");
-	fprintf(stderr, "\n");
+		slfprintf_stderr(((word >> i) & 1) ? "1" : "0");
+	slfprintf_stderr("\n");
 }
 
 /** print huffman table */
@@ -108,39 +108,39 @@ void jbig2_dump_huffman_table(const Jbig2HuffmanTable * table)
 {
 	int i;
 	int table_size = (1 << table->log_table_size);
-	fprintf(stderr, "huffman table %p (log_table_size=%d, %d entries, entries=%p):\n",
+	slfprintf_stderr("huffman table %p (log_table_size=%d, %d entries, entries=%p):\n",
 	    table, table->log_table_size, table_size, table->entries);
 	for(i = 0; i < table_size; i++) {
-		fprintf(stderr, "%6d: PREFLEN=%d, RANGELEN=%d, ", i, table->entries[i].PREFLEN, table->entries[i].RANGELEN);
+		slfprintf_stderr("%6d: PREFLEN=%d, RANGELEN=%d, ", i, table->entries[i].PREFLEN, table->entries[i].RANGELEN);
 		if(table->entries[i].flags & JBIG2_HUFFMAN_FLAGS_ISEXT) {
-			fprintf(stderr, "ext=%p", table->entries[i].u.ext_table);
+			slfprintf_stderr("ext=%p", table->entries[i].u.ext_table);
 		}
 		else {
-			fprintf(stderr, "RANGELOW=%d", table->entries[i].u.RANGELOW);
+			slfprintf_stderr("RANGELOW=%d", table->entries[i].u.RANGELOW);
 		}
 		if(table->entries[i].flags) {
 			int need_comma = 0;
-			fprintf(stderr, ", flags=0x%x(", table->entries[i].flags);
+			slfprintf_stderr(", flags=0x%x(", table->entries[i].flags);
 			if(table->entries[i].flags & JBIG2_HUFFMAN_FLAGS_ISOOB) {
-				fprintf(stderr, "OOB");
+				slfprintf_stderr("OOB");
 				need_comma = 1;
 			}
 			if(table->entries[i].flags & JBIG2_HUFFMAN_FLAGS_ISLOW) {
 				if(need_comma)
-					fprintf(stderr, ",");
-				fprintf(stderr, "LOW");
+					slfprintf_stderr(",");
+				slfprintf_stderr("LOW");
 				need_comma = 1;
 			}
 			if(table->entries[i].flags & JBIG2_HUFFMAN_FLAGS_ISEXT) {
 				if(need_comma)
-					fprintf(stderr, ",");
-				fprintf(stderr, "EXT");
+					slfprintf_stderr(",");
+				slfprintf_stderr("EXT");
 			}
-			fprintf(stderr, ")");
+			slfprintf_stderr(")");
 		}
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 
 #endif /* JBIG2_DEBUG */
@@ -665,7 +665,7 @@ static int test1()
 	int success = 0;
 	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
 	if(ctx == NULL) {
-		fprintf(stderr, "Failed to allocate jbig2 context\n");
+		slfprintf_stderr("Failed to allocate jbig2 context\n");
 		goto cleanup;
 	}
 
@@ -675,14 +675,14 @@ static int test1()
 	tables[3] = NULL;
 	tables[4] = jbig2_build_huffman_table(ctx, &jbig2_huffman_params_D);
 	if(tables[1] == NULL || tables[2] == NULL || tables[4] == NULL) {
-		fprintf(stderr, "Failed to build huffman tables");
+		slfprintf_stderr("Failed to build huffman tables");
 		goto cleanup;
 	}
 
 	ws.get_next_word = test_get_word1;
 	hs = jbig2_huffman_new(ctx, &ws);
 	if(hs == NULL) {
-		fprintf(stderr, "Failed to allocate huffman state");
+		slfprintf_stderr("Failed to allocate huffman state");
 		goto cleanup;
 	}
 
@@ -1966,7 +1966,7 @@ static int test2()
 	int i;
 	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
 	if(ctx == NULL) {
-		fprintf(stderr, "Failed to allocate jbig2 context\n");
+		slfprintf_stderr("Failed to allocate jbig2 context\n");
 		return 0;
 	}
 	for(i = 0; i < (int)countof(tests); i++) {
@@ -1981,14 +1981,14 @@ static int test2()
 		printf("testing Standard Huffman table %s: ", st.h->name);
 		table = jbig2_build_huffman_table(ctx, st.h->params);
 		if(table == NULL) {
-			fprintf(stderr, "jbig2_build_huffman_table() returned NULL!\n");
+			slfprintf_stderr("jbig2_build_huffman_table() returned NULL!\n");
 			jbig2_ctx_free(ctx);
 			return 0;
 		}
 		/* jbig2_dump_huffman_table(table); */
 		hs = jbig2_huffman_new(ctx, &st.ws);
 		if(hs == NULL) {
-			fprintf(stderr, "jbig2_huffman_new() returned NULL!\n");
+			slfprintf_stderr("jbig2_huffman_new() returned NULL!\n");
 			jbig2_release_huffman_table(ctx, table);
 			jbig2_ctx_free(ctx);
 			return 0;

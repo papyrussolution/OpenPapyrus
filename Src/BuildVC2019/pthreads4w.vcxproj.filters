@@ -58,12 +58,6 @@
     <ClCompile Include="..\Osf\pthreads4w\signal.c" />
     <ClCompile Include="..\OSF\pthreads4w\sl_pthreads4w.c" />
     <ClCompile Include="..\Osf\pthreads4w\w32_CancelableWait.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\threestage.c">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\pthread4w-test.cpp">
       <Filter>Test</Filter>
     </ClCompile>

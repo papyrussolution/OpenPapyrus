@@ -112,7 +112,7 @@ TERM_PUBLIC int  CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palett
 /* TERM_PUBLIC void CONTEXT_previous_palette(); do we need it? */
 TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
-TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 
 /* Metapost < 1.750 can only deal with numbers between 2^{-16} and 2^12=4069 */
 /* scale is 1cm = 1000 units */
@@ -410,7 +410,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    CONTEXT_params.header = NULL;
 				    }
 				    // and set the new one if nonempty; empty header will be treated as 'noheader' 
-				    if(strlen(tmp_string) > 0) {
+				    if(!isempty(tmp_string)) {
 					    CONTEXT_params.header = tmp_string;
 				    }
 				    else {
@@ -552,56 +552,49 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		    }
 			case CONTEXT_OPT_OTHER:
-			default:
-			    /* error */
+			default: // error 
 			    pGp->IntErrorCurToken("extraneous argument in set terminal %s", pThis->name);
 			    break;
 		}
 	}
 	CONTEXT_fontsize = CONTEXT_params.fontsize; // current font size in pt (to be used in CONTEXT_adjust_dimensions) 
 	CONTEXT_adjust_dimensions(pThis); // sets pThis->MaxX, ymax, vchar, hchar 
-	snprintf(term_options, sizeof(term_options),
-	    "size %g%s,%g%s %s %s %s",
-	    CONTEXT_params.xsize,
-	    (CONTEXT_params.unit == INCHES) ? "in" : "cm",
-	    CONTEXT_params.ysize,
-	    (CONTEXT_params.unit == INCHES) ? "in" : "cm",
-	    CONTEXT_params.standalone ? "standalone" : "input",
-	    CONTEXT_params.timestamp ? "timestamp" : "notimestamp",
-	    CONTEXT_params.header == NULL ? "noheader \\\n   " : "\\\n   header ");
-
+	snprintf(GPT.TermOptions, sizeof(GPT.TermOptions), "size %g%s,%g%s %s %s %s",
+	    CONTEXT_params.xsize, (CONTEXT_params.unit == INCHES) ? "in" : "cm", CONTEXT_params.ysize,
+	    (CONTEXT_params.unit == INCHES) ? "in" : "cm", CONTEXT_params.standalone ? "standalone" : "input",
+	    CONTEXT_params.timestamp ? "timestamp" : "notimestamp", CONTEXT_params.header == NULL ? "noheader \\\n   " : "\\\n   header ");
 	if(CONTEXT_params.header != NULL) {
-		strncat(term_options, "\"",                  sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, CONTEXT_params.header, sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, "\" \\\n   ",          sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, "\"",                  sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, CONTEXT_params.header, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, "\" \\\n   ",          sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
-	strncat(term_options, CONTEXT_params.color ? "color " : "monochrome ", sizeof(term_options)-strlen(term_options)-1);
+	strncat(GPT.TermOptions, CONTEXT_params.color ? "color " : "monochrome ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	switch(CONTEXT_params.linejoin) {
 		case LINEJOIN_MITER:
-		    strncat(term_options, "mitered ",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "mitered ",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case LINEJOIN_ROUND:
-		    strncat(term_options, "rounded ",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "rounded ",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case LINEJOIN_BEVEL:
-		    strncat(term_options, "beveled ",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "beveled ",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 	}
 	switch(CONTEXT_params.linecap) {
 		case LINECAP_BUTT:
-		    strncat(term_options, "butt",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "butt",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case LINECAP_ROUND:
-		    strncat(term_options, "round",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "round",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case LINECAP_SQUARE:
-		    strncat(term_options, "squared",
-			sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "squared",
+			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 	}
 
@@ -612,27 +605,27 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 	    CONTEXT_params.scale_linewidth,
 	    CONTEXT_params.scale_text
 	    );
-	strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+	strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	switch(CONTEXT_params.points) {
 		case CONTEXT_POINTS_WITH_TEX:
-		    strncat(term_options, "texpoints ", sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "texpoints ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case CONTEXT_POINTS_WITH_METAPOST:
-		    strncat(term_options, "mppoints ", sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "mppoints ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 	}
 #ifdef WRITE_PNG_IMAGE
 	switch(CONTEXT_params.images) {
 		case CONTEXT_IMAGES_INLINE:
-		    strncat(term_options, "inlineimages ", sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "inlineimages ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 		case CONTEXT_IMAGES_EXTERNAL:
-		    strncat(term_options, "externalimages ", sizeof(term_options)-strlen(term_options)-1);
+		    strncat(GPT.TermOptions, "externalimages ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		    break;
 	}
 #endif
 	snprintf(tmp_term_options, sizeof(tmp_term_options), "font \"%s,%g\"", CONTEXT_params.font, CONTEXT_params.fontsize);
-	strncat(term_options, tmp_term_options, sizeof(term_options) - strlen(term_options)-1);
+	strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions) - strlen(GPT.TermOptions)-1);
 }
 
 /* **************
@@ -676,21 +669,19 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 #ifdef WRITE_PNG_IMAGE
 	if(CONTEXT_params.images == CONTEXT_IMAGES_EXTERNAL) {
 		CONTEXT_images = CONTEXT_IMAGES_EXTERNAL;
-
-		/* but only if 'set output' was set because we use that string as base for image names */
-		if(outstr) {
-			CONTEXT_image_filename_length = strlen(outstr);
-			CONTEXT_image_filename_start  = strlen(outstr) - strlen(gp_basename(outstr));
-			/* we will cut off the last .tex ending if present */
-			/* find the last dot if present */
-			for(i = CONTEXT_image_filename_length - 1; i >= 0 && outstr[i] != '.'; i--);
-			if(outstr[i] == '.')
+		// but only if 'set output' was set because we use that string as base for image names 
+		if(GPT.P_OutStr) {
+			CONTEXT_image_filename_length = strlen(GPT.P_OutStr);
+			CONTEXT_image_filename_start  = strlen(GPT.P_OutStr) - strlen(gp_basename(GPT.P_OutStr));
+			// we will cut off the last .tex ending if present 
+			// find the last dot if present 
+			for(i = CONTEXT_image_filename_length - 1; i >= 0 && GPT.P_OutStr[i] != '.'; i--);
+			if(GPT.P_OutStr[i] == '.')
 				CONTEXT_image_filename_length = i;
-			/* it would also be very nice to do some sanity checks on filenames */
-
-			/* <name>.xx.png; must be at least 7 characters long */
+			// it would also be very nice to do some sanity checks on filenames 
+			// <name>.xx.png; must be at least 7 characters long 
 			CONTEXT_image_filename = (char *)SAlloc::M(CONTEXT_image_filename_length + 10);
-			strncpy(CONTEXT_image_filename, outstr, CONTEXT_image_filename_length);
+			strncpy(CONTEXT_image_filename, GPT.P_OutStr, CONTEXT_image_filename_length);
 			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
 		}
 		else {
@@ -704,15 +695,15 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 	}
 #endif
 
-	fprintf(gpoutfile, "%% Written by ConTeXt terminal for GNUPLOT");
+	fprintf(GPT.P_GpOutFile, "%% Written by ConTeXt terminal for GNUPLOT");
 	if(CONTEXT_params.timestamp) {
 		if(strftime(timebuffer, 100, "%Y-%m-%d %H:%M %Z", localtime(&now)) != 0)
-			fprintf(gpoutfile, " on: %s", timebuffer);
+			fprintf(GPT.P_GpOutFile, " on: %s", timebuffer);
 	}
-	fprintf(gpoutfile, "\n");
-	fprintf(gpoutfile, "%% GNUPLOT version: %s.%s, terminal version: %s.%s (%s)\n",
+	fprintf(GPT.P_GpOutFile, "\n");
+	fprintf(GPT.P_GpOutFile, "%% GNUPLOT version: %s.%s, terminal version: %s.%s (%s)\n",
 	    gnuplot_version, gnuplot_patchlevel, CONTEXT_term_version, CONTEXT_term_patch, CONTEXT_term_date);
-	fprintf(gpoutfile, "%% See also http://wiki.contextgarden.net/Gnuplot\n%%\n");
+	fprintf(GPT.P_GpOutFile, "%% See also http://wiki.contextgarden.net/Gnuplot\n%%\n");
 
 	/* place the header first if this is a standalone graphic */
 	if(CONTEXT_params.standalone) {
@@ -724,28 +715,28 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 		 * - ConTeXt doesn't support all encodings supported by Gnuplot.
 		 * - In LuaTeX and XeTeX one should not use any other encoding anyway.
 		 * - pdfTeX users are free to use "header '\enableregime[...]'" */
-		switch(encoding) {
+		switch(GPT._Encoding) {
 			case S_ENC_UTF8:
-			    fputs("\\enableregime\n   [utf-8]\n", gpoutfile);
+			    fputs("\\enableregime\n   [utf-8]\n", GPT.P_GpOutFile);
 			    break;
 			default:
 			    /* do nothing */
 			    break;
 		}
 		/* load the gnuplot module */
-		fputs("\\usemodule\n   [gnuplot]\n", gpoutfile);
+		fputs("\\usemodule\n   [gnuplot]\n", GPT.P_GpOutFile);
 		/* enable or disable color (the only place where "color" is indeed used so far) */
-		fprintf(gpoutfile, "\\setupcolors\n   [state=%s]\n", CONTEXT_params.color ? "start" : "stop");
+		fprintf(GPT.P_GpOutFile, "\\setupcolors\n   [state=%s]\n", CONTEXT_params.color ? "start" : "stop");
 		/* additional user-provided header information (if available) */
 		if(CONTEXT_params.header)
-			fprintf(gpoutfile, "%s\n", CONTEXT_params.header);
+			fprintf(GPT.P_GpOutFile, "%s\n", CONTEXT_params.header);
 		/* for some reason setting \bodyfontenvironment is needed,
 		 * otherwise \switchtobodyfont[name] doesn't work OK */
 		if(!(CONTEXT_params.fontsize == CONTEXT_FONTSIZE))
-			fprintf(gpoutfile, "\\definebodyfontenvironment\n   [%gpt]\n",
+			fprintf(GPT.P_GpOutFile, "\\definebodyfontenvironment\n   [%gpt]\n",
 			    CONTEXT_params.fontsize);
 		/* set the proper font: \setupbodyfont[{fontname,}fontsize sizeunit] */
-		fprintf(gpoutfile, "\\setupbodyfont\n   [%s%s%gpt]\n",
+		fprintf(GPT.P_GpOutFile, "\\setupbodyfont\n   [%s%s%gpt]\n",
 		    CONTEXT_params.font,
 		    /* write a comma only if the last string was non-empty */
 		    ((strlen(CONTEXT_params.font)>0) ? "," : ""),
@@ -754,57 +745,57 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 		/*---------*
 		* options *
 		*---------*/
-		fprintf(gpoutfile, "\\setupGNUPLOTterminal\n   [context]\n   [");
+		fprintf(GPT.P_GpOutFile, "\\setupGNUPLOTterminal\n   [context]\n   [");
 
 		/* color (gp_use_color): yes/no (true/false)
 		 * default: yes
 		 * - doesn't do anything useful yet;
 		 *   and besides that, it's already set in \setupcolors[state=start] */
-		/* fprintf(gpoutfile, "    color=%s, %% *yes* | no\n", CONTEXT_params.color ? "yes" : "no"); */
+		/* fprintf(GPT.P_GpOutFile, "    color=%s, %% *yes* | no\n", CONTEXT_params.color ? "yes" : "no"); */
 
 		/* linejoin: mitered/rounded/beveled
 		 * default: mitered */
-		fprintf(gpoutfile, "linejoin=");
+		fprintf(GPT.P_GpOutFile, "linejoin=");
 		switch(CONTEXT_params.linejoin) {
-			case LINEJOIN_MITER: fprintf(gpoutfile, "mitered"); break;
-			case LINEJOIN_ROUND: fprintf(gpoutfile, "rounded"); break;
-			case LINEJOIN_BEVEL: fprintf(gpoutfile, "beveled"); break;
+			case LINEJOIN_MITER: fprintf(GPT.P_GpOutFile, "mitered"); break;
+			case LINEJOIN_ROUND: fprintf(GPT.P_GpOutFile, "rounded"); break;
+			case LINEJOIN_BEVEL: fprintf(GPT.P_GpOutFile, "beveled"); break;
 		}
-		fprintf(gpoutfile, ", %% *mitered* | rounded | beveled\n");
+		fprintf(GPT.P_GpOutFile, ", %% *mitered* | rounded | beveled\n");
 
 		/* linecap: butt/rounded/squared
 		 * default: butt */
-		fprintf(gpoutfile, "    linecap=");
+		fprintf(GPT.P_GpOutFile, "    linecap=");
 		switch(CONTEXT_params.linecap) {
-			case LINECAP_BUTT: fprintf(gpoutfile, "butt"); break;
-			case LINECAP_ROUND: fprintf(gpoutfile, "rounded"); break;
-			case LINECAP_SQUARE: fprintf(gpoutfile, "squared"); break;
+			case LINECAP_BUTT: fprintf(GPT.P_GpOutFile, "butt"); break;
+			case LINECAP_ROUND: fprintf(GPT.P_GpOutFile, "rounded"); break;
+			case LINECAP_SQUARE: fprintf(GPT.P_GpOutFile, "squared"); break;
 		}
-		fprintf(gpoutfile, ", %% *butt* | rounded | squared\n");
+		fprintf(GPT.P_GpOutFile, ", %% *butt* | rounded | squared\n");
 
 		/* dashed (gp_use_dashed): yes/no (true/false)
 		 * default: yes */
-		fprintf(gpoutfile, "    dashed=%s, %% *yes* | no\n", CONTEXT_params.dashed ? "yes" : "no");
+		fprintf(GPT.P_GpOutFile, "    dashed=%s, %% *yes* | no\n", CONTEXT_params.dashed ? "yes" : "no");
 		/* dashlength (gp_scale_dashlength): 1.0 */
-		fprintf(gpoutfile, "    dashlength=%g, %% scaling factor for dash lengths\n", CONTEXT_params.scale_dashlength);
+		fprintf(GPT.P_GpOutFile, "    dashlength=%g, %% scaling factor for dash lengths\n", CONTEXT_params.scale_dashlength);
 
 		/* linewidth (gp_scale_linewidth): 1.0 */
-		fprintf(gpoutfile, "    linewidth=%g, %% scaling factor for line widths (1.0 means 0.5bp)\n",
+		fprintf(GPT.P_GpOutFile, "    linewidth=%g, %% scaling factor for line widths (1.0 means 0.5bp)\n",
 		    CONTEXT_params.scale_linewidth);
 
 		/* fontscale (gp_scale_text): 1.0 */
 		/* written out just for reference - it's commented out since it needs to be part of graphic
 		   and affects estimation of label sizes */
-		fprintf(gpoutfile, "    %%fontscale=%g, %% scaling factor for text labels\n", CONTEXT_params.scale_text);
+		fprintf(GPT.P_GpOutFile, "    %%fontscale=%g, %% scaling factor for text labels\n", CONTEXT_params.scale_text);
 
 		/* points (gp_points_with): metapost/tex (gp_points_with_metapost/gp_points_with_tex)
 		 * default: metapost */
-		fprintf(gpoutfile, "    points=%s, %% *metapost* | tex (Should points be drawn with MetaPost or TeX?)\n",
+		fprintf(GPT.P_GpOutFile, "    points=%s, %% *metapost* | tex (Should points be drawn with MetaPost or TeX?)\n",
 		    CONTEXT_params.points == CONTEXT_POINTS_WITH_METAPOST ? "metapost" : "tex");
 
 		/* images
 		 * default: inline */
-		fprintf(gpoutfile,
+		fprintf(GPT.P_GpOutFile,
 		    "    images=%s] %% *inline* | external (inline only works in MKIV, external requires png support in gnuplot)\n",
 		    CONTEXT_images == CONTEXT_IMAGES_INLINE ? "inline" : "external");
 
@@ -812,7 +803,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 		* end of options *
 		*----------------*/
 
-		fputs("\n\\starttext\n\n", gpoutfile);
+		fputs("\n\\starttext\n\n", GPT.P_GpOutFile);
 	}
 	else {
 		/* Sorry, nothing! In non-standalone graphic, parameters make no sense.
@@ -827,7 +818,7 @@ TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis)
 {
 	/* we only have to end the document if this is a stand-alone graphic */
 	if(CONTEXT_params.standalone) {
-		fputs("\\stoptext\n", gpoutfile);
+		fputs("\\stoptext\n", GPT.P_GpOutFile);
 	}
 	else {
 		/* This means that any subsequent plots to the same file will be ignored.
@@ -835,7 +826,7 @@ TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis)
 		 * just as it does in case of PNG or PDF -
 		 * but it will be at least consistent with standalone graphics that way
 		 */
-		fputs("\\endinput\n", gpoutfile);
+		fputs("\\endinput\n", GPT.P_GpOutFile);
 	}
 	/* deallocate image name if present */
 	if(CONTEXT_image_filename) {
@@ -854,14 +845,14 @@ TERM_PUBLIC void CONTEXT_text(GpTermEntry * pThis)
 	/* close and draw the current path first */
 	if(CONTEXT_path_count > 0)
 		CONTEXT_endpath();
-	fprintf(gpoutfile, "setbounds currentpicture to unitsquare xyscaled (w,h);\n");
+	fprintf(GPT.P_GpOutFile, "setbounds currentpicture to unitsquare xyscaled (w,h);\n");
 	/* standalone graphic is a whole-page graphic */
 	if(CONTEXT_params.standalone) {
-		fputs("\\stopGNUPLOTpage\n", gpoutfile);
+		fputs("\\stopGNUPLOTpage\n", GPT.P_GpOutFile);
 		/* otherwise we define a MPgraphic to be included later */
 	}
 	else {
-		fputs("\\stopGNUPLOTgraphic\n", gpoutfile);
+		fputs("\\stopGNUPLOTgraphic\n", GPT.P_GpOutFile);
 	}
 }
 //
@@ -871,48 +862,48 @@ TERM_PUBLIC void CONTEXT_graphics(GpTermEntry * pThis)
 {
 	/* standalone graphic is a whole-page graphic */
 	if(CONTEXT_params.standalone) {
-		fprintf(gpoutfile, "\\startGNUPLOTpage %% Graphic Nr. %d\n", ++CONTEXT_counter);
+		fprintf(GPT.P_GpOutFile, "\\startGNUPLOTpage %% Graphic Nr. %d\n", ++CONTEXT_counter);
 		/* otherwise we define a MPgraphic to be included later */
 	}
 	else {
 		/* the first parameter holds the graphic number */
-		fprintf(gpoutfile, "\\startGNUPLOTgraphic[%d]\n", ++CONTEXT_counter);
+		fprintf(GPT.P_GpOutFile, "\\startGNUPLOTgraphic[%d]\n", ++CONTEXT_counter);
 	}
 
-	fprintf(gpoutfile, "string gnuplotversion; gnuplotversion := \"%s\";\n", gnuplot_version);
-	fprintf(gpoutfile, "string termversion;    termversion    := \"%s\";\n", CONTEXT_term_version);
+	fprintf(GPT.P_GpOutFile, "string gnuplotversion; gnuplotversion := \"%s\";\n", gnuplot_version);
+	fprintf(GPT.P_GpOutFile, "string termversion;    termversion    := \"%s\";\n", CONTEXT_term_version);
 	/*
 	 * MetaPost can only handle numbers up to 4096. Too high resolution
 	 * would thus result in number overflow, that's why we scale down all the
 	 * integers from gnuplot by 1000 and multiply those numbers later by
 	 * appropriate scaling factor 'a' to get the proper dimensions.
 	 */
-	fprintf(gpoutfile, "%% scaling factor, width and height of the figure\na := 1cm; w := %.3fa; h := %.3fa; %% (%g%s, %g%s)\n",
+	fprintf(GPT.P_GpOutFile, "%% scaling factor, width and height of the figure\na := 1cm; w := %.3fa; h := %.3fa; %% (%g%s, %g%s)\n",
 	    CONTEXT_params.xsize * ((CONTEXT_params.unit == INCHES) ? 2.54 : 1),     /* cm */
 	    CONTEXT_params.ysize * ((CONTEXT_params.unit == INCHES) ? 2.54 : 1),     /* cm */
 	    CONTEXT_params.xsize, (CONTEXT_params.unit == INCHES) ? "in" : "cm",
 	    CONTEXT_params.ysize, (CONTEXT_params.unit == INCHES) ? "in" : "cm");
 	/* TODO: the following if-else could be slightly nicer */
 	if(CONTEXT_images == CONTEXT_IMAGES_INLINE) {
-		fprintf(gpoutfile, "%% temporary variable for storing the path and images\nsave p, img, ima; path p; string img, ima;\n");
+		fprintf(GPT.P_GpOutFile, "%% temporary variable for storing the path and images\nsave p, img, ima; path p; string img, ima;\n");
 	}
 	else {
-		fprintf(gpoutfile, "%% temporary variable for storing the path\nsave p; path p;\n");
+		fprintf(GPT.P_GpOutFile, "%% temporary variable for storing the path\nsave p; path p;\n");
 	}
-	fprintf(gpoutfile, "%% -------------------------\n");
-	fprintf(gpoutfile, "%% Different initialisations\n");
-	fprintf(gpoutfile, "%% -------------------------\n");
-	fprintf(gpoutfile, "%% for additional user-defined settings\ngp_setup_before;\n");
+	fprintf(GPT.P_GpOutFile, "%% -------------------------\n");
+	fprintf(GPT.P_GpOutFile, "%% Different initialisations\n");
+	fprintf(GPT.P_GpOutFile, "%% -------------------------\n");
+	fprintf(GPT.P_GpOutFile, "%% for additional user-defined settings\ngp_setup_before;\n");
 	/* needed (depends on terminal settings & needs to be passed) */
-	fprintf(gpoutfile, "%% text scaling factor for the whole figure\n");
-	fprintf(gpoutfile, "gp_scale_text := %g;\n", CONTEXT_params.scale_text);
-	fprintf(gpoutfile, "%% pointsize scaling factor\n");
-	fprintf(gpoutfile, "gp_set_pointsize(%g);\n", CONTEXT_old_pointsize);
+	fprintf(GPT.P_GpOutFile, "%% text scaling factor for the whole figure\n");
+	fprintf(GPT.P_GpOutFile, "gp_scale_text := %g;\n", CONTEXT_params.scale_text);
+	fprintf(GPT.P_GpOutFile, "%% pointsize scaling factor\n");
+	fprintf(GPT.P_GpOutFile, "gp_set_pointsize(%g);\n", CONTEXT_old_pointsize);
 	/* needed (provided by terminal) */
-	fprintf(gpoutfile, "%% linewidth scaling factor for individual lines\n");
-	fprintf(gpoutfile, "gp_set_linewidth(%g);\n", CONTEXT_old_linewidth);
-	fprintf(gpoutfile, "%% for additional user-defined settings\ngp_setup_after;\n");
-	fprintf(gpoutfile, "%% -------------------------\n");
+	fprintf(GPT.P_GpOutFile, "%% linewidth scaling factor for individual lines\n");
+	fprintf(GPT.P_GpOutFile, "gp_set_linewidth(%g);\n", CONTEXT_old_linewidth);
+	fprintf(GPT.P_GpOutFile, "%% for additional user-defined settings\ngp_setup_after;\n");
+	fprintf(GPT.P_GpOutFile, "%% -------------------------\n");
 	// since palette is initialized only once, subsequent plots wouldn't see it
 	// unless we write it on the top of relevant plots explicitly 
 	if(pThis->P_Gp->IsPlotWithPalette()) {
@@ -939,18 +930,18 @@ static void CONTEXT_endpath()
 {
 	/* if we have a dot, draw only the dot */
 	if(CONTEXT_path_is_dot) {
-		fprintf(gpoutfile, "gp_dot(%.3fa,%.3fa);\n", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
+		fprintf(GPT.P_GpOutFile, "gp_dot(%.3fa,%.3fa);\n", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
 		CONTEXT_path_is_dot = 0;
 
 		/* cyclic path, so let's end it with "--cycle" */
 	}
 	else if((CONTEXT_posx == CONTEXT_path_start_x) && (CONTEXT_posy == CONTEXT_path_start_y)) {
-		fputs("--cycle;\ngp_draw(p);\n", gpoutfile);
+		fputs("--cycle;\ngp_draw(p);\n", GPT.P_GpOutFile);
 
 		/* regular non-cyclic path */
 	}
 	else {
-		fprintf(gpoutfile, "--(%.3fa,%.3fa);\ngp_draw(p);\n", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
+		fprintf(GPT.P_GpOutFile, "--(%.3fa,%.3fa);\ngp_draw(p);\n", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
 	}
 
 	/* we're not inside path any more */
@@ -987,7 +978,7 @@ static void CONTEXT_startpath()
 	CONTEXT_path_start_y = CONTEXT_posy;
 	CONTEXT_path_count = 2;
 
-	fprintf(gpoutfile, "p := (%.3fa,%.3fa)", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
+	fprintf(GPT.P_GpOutFile, "p := (%.3fa,%.3fa)", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
 }
 /*
  * Prolongs the current path for an additional line (from the last point to (x,y))
@@ -1024,11 +1015,11 @@ TERM_PUBLIC void CONTEXT_vector(GpTermEntry * pThis, uint x, uint y)
 	else {
 		/* or prevent too long lines if you're in the middle of a path */
 		if((CONTEXT_path_count % CONTEXT_LINEMAX) == 2) {
-			fputs("\n  ", gpoutfile);
+			fputs("\n  ", GPT.P_GpOutFile);
 			CONTEXT_path_count = 2;
 		}
 		/* and output the previous point */
-		fprintf(gpoutfile, "--(%.3fa,%.3fa)", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
+		fprintf(GPT.P_GpOutFile, "--(%.3fa,%.3fa)", 0.001*CONTEXT_posx, 0.001*CONTEXT_posy);
 	}
 
 	CONTEXT_posx = x;
@@ -1047,7 +1038,7 @@ TERM_PUBLIC void CONTEXT_linetype(GpTermEntry * pThis, int lt)
 		// close and draw the current path first 
 		if(CONTEXT_path_count > 0)
 			CONTEXT_endpath();
-		fprintf(gpoutfile, "gp_set_linetype(%d);\n", lt);
+		fprintf(GPT.P_GpOutFile, "gp_set_linetype(%d);\n", lt);
 		CONTEXT_old_linetype = lt;
 		CONTEXT_color_changed = FALSE;
 	}
@@ -1081,16 +1072,16 @@ TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 		 * if we had a space in front, positive numbers would be "centered" in a weird way */
 		for(s = str; s[0] == ' '; s++);
 		// label position 
-		fprintf(gpoutfile, "gp_put_text((%.3fa, %.3fa), ", 0.001*x, 0.001*y);
+		fprintf(GPT.P_GpOutFile, "gp_put_text((%.3fa, %.3fa), ", 0.001*x, 0.001*y);
 		// angle of rotation - optional and needed only if it's different from 0 
 		if(CONTEXT_ang != 0)
-			fprintf(gpoutfile, "angle(%d), ", CONTEXT_ang);
+			fprintf(GPT.P_GpOutFile, "angle(%d), ", CONTEXT_ang);
 		// alignment - "center" is optional, but we'll add it anyway 
-		fprintf(gpoutfile, "align(%s), \\sometxt[gp]", alignments[alignment]);
+		fprintf(GPT.P_GpOutFile, "align(%s), \\sometxt[gp]", alignments[alignment]);
 		// fontface/fontsize - optional second argument 
 		if(CONTEXT_font_explicit[0] != 0)
-			fprintf(gpoutfile, "[%s]", CONTEXT_font_explicit);
-		fprintf(gpoutfile, "{%s});\n", s); // finally the text label itself 
+			fprintf(GPT.P_GpOutFile, "[%s]", CONTEXT_font_explicit);
+		fprintf(GPT.P_GpOutFile, "{%s});\n", s); // finally the text label itself 
 	}
 }
 
@@ -1136,7 +1127,7 @@ TERM_PUBLIC void CONTEXT_point(GpTermEntry * pThis, uint x, uint y, int number)
 	if(CONTEXT_path_count > 0)
 		CONTEXT_endpath();
 
-	fprintf(gpoutfile, "gp_point(%.3fa,%.3fa,%d);\n", 0.001*x, 0.001*y, number);
+	fprintf(GPT.P_GpOutFile, "gp_point(%.3fa,%.3fa,%d);\n", 0.001*x, 0.001*y, number);
 }
 /*
  * ConTeXt could draw nice arrows on its own and in such a way that user could
@@ -1275,7 +1266,7 @@ TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize)
 		/* close and draw the current path first */
 		if(CONTEXT_path_count > 0)
 			CONTEXT_endpath();
-		fprintf(gpoutfile, "gp_set_pointsize(%.3f);\n", pointsize);
+		fprintf(GPT.P_GpOutFile, "gp_set_pointsize(%.3f);\n", pointsize);
 		CONTEXT_old_pointsize = pointsize;
 	}
 }
@@ -1289,9 +1280,9 @@ TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y
 	if(CONTEXT_path_count > 0)
 		CONTEXT_endpath();
 	/* create a new path */
-	fprintf(gpoutfile, "p := unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n", 0.001*width, 0.001*height, 0.001*x1,
+	fprintf(GPT.P_GpOutFile, "p := unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n", 0.001*width, 0.001*height, 0.001*x1,
 	    0.001*y1);
-	/* fprintf(gpoutfile, "p := gp_rect ((%.3fa,%.3fa),(%.3fa,%.3fa));\n", 0.001*x1, 0.001*y1, 0.001*width,
+	/* fprintf(GPT.P_GpOutFile, "p := gp_rect ((%.3fa,%.3fa),(%.3fa,%.3fa));\n", 0.001*x1, 0.001*y1, 0.001*width,
 	   0.001*height); */
 	/* fills the box according to the "style"
 	 * the code went out of this routine because of undocumented behaviour
@@ -1327,7 +1318,7 @@ TERM_PUBLIC void CONTEXT_fill(int style)
 		density = 0;
 	if(density > 100)
 		density = 100;
-	fputs("gp_fill(p", gpoutfile);
+	fputs("gp_fill(p", GPT.P_GpOutFile);
 	/* do some strange trickery */
 	switch(style & 0xf) {
 		case FS_DEFAULT:
@@ -1335,30 +1326,30 @@ TERM_PUBLIC void CONTEXT_fill(int style)
 
 		case FS_TRANSPARENT_SOLID:
 		    /* just a flag to tell the terminal that density() should be used to interpret transparency */
-		    fprintf(gpoutfile, ",transparent");
+		    fprintf(GPT.P_GpOutFile, ",transparent");
 		case FS_SOLID:
 		    /* fill the box with density "density": if no parameter density is specified,
 		       it implies 100% density by default */
 		    if(density < 100)
-			    fprintf(gpoutfile, ",density(%.2f)", 0.01*density);
+			    fprintf(GPT.P_GpOutFile, ",density(%.2f)", 0.01*density);
 		    break;
 
 		case FS_TRANSPARENT_PATTERN:
 		    /* just a flag that should be interpreted in metapost,
 		       non-transparent patterns have to fill with background color before drawing the pattern */
-		    fprintf(gpoutfile, ",transparent");
+		    fprintf(GPT.P_GpOutFile, ",transparent");
 		case FS_PATTERN:
 		    pattern = (style >> 4);
-		    fprintf(gpoutfile, ",pattern(%d)", pattern);
+		    fprintf(GPT.P_GpOutFile, ",pattern(%d)", pattern);
 		    break;
 
 		default: /* style == 0 (FS_EMPTY) or unknown --> fill with background color */
-		    fprintf(gpoutfile, ",density(0)");
+		    fprintf(GPT.P_GpOutFile, ",density(0)");
 	}
 	/* TODO: FS_DEFAULT is missing; what should that one do? */
 
 	/* gp_fill(p,...); */
-	fputs(");\n", gpoutfile);
+	fputs(");\n", GPT.P_GpOutFile);
 }
 
 /* *******************
@@ -1376,7 +1367,7 @@ TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth)
 		// close and draw the current path first 
 		if(CONTEXT_path_count > 0)
 			CONTEXT_endpath();
-		fprintf(gpoutfile, "gp_set_linewidth(%.3f);\n", linewidth);
+		fprintf(GPT.P_GpOutFile, "gp_set_linewidth(%.3f);\n", linewidth);
 		CONTEXT_old_linewidth = linewidth;
 	}
 }
@@ -1391,20 +1382,20 @@ static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt)
 {
 	int i;
 	/* i-th color */
-	fprintf(gpoutfile, "colors(");
+	fprintf(GPT.P_GpOutFile, "colors(");
 	for(i = 0; i < cnt; i++) {
 		if(i > 0)
-			fprintf(gpoutfile, ",");
-		fprintf(gpoutfile, "(%.3g,%.3g,%.3g)", gradient[i].col.r, gradient[i].col.g, gradient[i].col.b);
+			fprintf(GPT.P_GpOutFile, ",");
+		fprintf(GPT.P_GpOutFile, "(%.3g,%.3g,%.3g)", gradient[i].col.r, gradient[i].col.g, gradient[i].col.b);
 	}
 	/* position of the i-th color */
-	fprintf(gpoutfile, ");positions(");
+	fprintf(GPT.P_GpOutFile, ");positions(");
 	for(i = 0; i < cnt; i++) {
 		if(i > 0)
-			fprintf(gpoutfile, ",");
-		fprintf(gpoutfile, "%.4g", gradient[i].pos);
+			fprintf(GPT.P_GpOutFile, ",");
+		fprintf(GPT.P_GpOutFile, "%.4g", gradient[i].pos);
 	}
-	fprintf(gpoutfile, ")");
+	fprintf(GPT.P_GpOutFile, ")");
 }
 
 /* ---------------------
@@ -1429,23 +1420,23 @@ static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette)
         // http://www.cs.rit.edu/~ncs/color/glossary.htm
         // http://cs.fit.edu/wds/classes/cse5255/cse5255/davis/index.html
  */
-	fprintf(gpoutfile, "gp_make_palette(");
+	fprintf(GPT.P_GpOutFile, "gp_make_palette(");
 	switch(p_gp->SmPltt.colorMode) {
 		/* grayscale only */
 		case SMPAL_COLOR_MODE_GRAY:
-		    fprintf(gpoutfile, "color_mode(gray)");
+		    fprintf(GPT.P_GpOutFile, "color_mode(gray)");
 		    break;
 		/* one of several fixed transformations */
 		case SMPAL_COLOR_MODE_RGB:
-		    fprintf(gpoutfile, "color_mode(rgb);formulae(%d,%d,%d)", p_gp->SmPltt.formulaR, p_gp->SmPltt.formulaG, p_gp->SmPltt.formulaB);
+		    fprintf(GPT.P_GpOutFile, "color_mode(rgb);formulae(%d,%d,%d)", p_gp->SmPltt.formulaR, p_gp->SmPltt.formulaG, p_gp->SmPltt.formulaB);
 		    break;
 		/* user defined transforms */
 		case SMPAL_COLOR_MODE_FUNCTIONS:
-		    fprintf(gpoutfile, "color_mode(functions)");
+		    fprintf(GPT.P_GpOutFile, "color_mode(functions)");
 		    break;
 		/* interpolated table: explicitly defined or read from file */
 		case SMPAL_COLOR_MODE_GRADIENT:
-		    fprintf(gpoutfile, "color_mode(gradient);");
+		    fprintf(GPT.P_GpOutFile, "color_mode(gradient);");
 		    CONTEXT_write_palette_gradient(palette->P_Gradient, palette->GradientNum);
 		    break;
 		case SMPAL_COLOR_MODE_NONE:
@@ -1453,7 +1444,7 @@ static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette)
 		default:
 		    break;
 	}
-	fprintf(gpoutfile, ");\n");
+	fprintf(GPT.P_GpOutFile, ");\n");
 }
 
 /* *********************
@@ -1520,7 +1511,7 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
 		/* TC_DEFAULT, TC_CB, TC_Z: probably unused; what about linestyle? */
 		/* color equal as that of linetype in colorspec->lt */
 		case TC_LT:
-		    fprintf(gpoutfile, "gp_set_color(lt(%d));\n", colorspec->lt);
+		    fprintf(GPT.P_GpOutFile, "gp_set_color(lt(%d));\n", colorspec->lt);
 		    CONTEXT_color_changed = TRUE;
 		    break;
 		/* rgb color */
@@ -1528,7 +1519,7 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
 		    r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
 		    g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
 		    b = (double)(colorspec->lt & 255) / 255.0;
-		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", r, g, b);
+		    fprintf(GPT.P_GpOutFile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", r, g, b);
 		    CONTEXT_color_changed = TRUE;
 		    break;
 		/* map [0:1] to gray colors or to the corresponding color from the palette */
@@ -1538,10 +1529,10 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
 		    if(gray < 0) gray = 0;
 		    if(gray > 1) gray = 1;
 		    /* TODO: if ConTeXt start supporting palettes, we'll uncomment the following: */
-		    fprintf(gpoutfile, "%%gp_set_color(frac(%.4f));\n", gray);
+		    fprintf(GPT.P_GpOutFile, "%%gp_set_color(frac(%.4f));\n", gray);
 		    /* but now it doesn't, so let's use the fallback instead: */
 		    p_gp->Rgb1MaxColorsFromGray(gray, &rgb1);
-		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", rgb1.r, rgb1.g, rgb1.b);
+		    fprintf(GPT.P_GpOutFile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", rgb1.r, rgb1.g, rgb1.b);
 		    CONTEXT_color_changed = TRUE;
 		    break;
 		default:
@@ -1570,15 +1561,15 @@ TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoin
 	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 	/* create new path with corners */
-	fputs("p := ", gpoutfile);
-	fprintf(gpoutfile, "(%.3fa,%.3fa)", 0.001*corners[0].x, 0.001*corners[0].y);
+	fputs("p := ", GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, "(%.3fa,%.3fa)", 0.001*corners[0].x, 0.001*corners[0].y);
 	for(i = 1; i < points; i++) {
 		if(i % CONTEXT_LINEMAX == 0)
-			fputs("\n  ", gpoutfile);
-		fprintf(gpoutfile, "--(%.3fa,%.3fa)", 0.001*corners[i].x, 0.001*corners[i].y);
+			fputs("\n  ", GPT.P_GpOutFile);
+		fprintf(GPT.P_GpOutFile, "--(%.3fa,%.3fa)", 0.001*corners[i].x, 0.001*corners[i].y);
 	}
 	/* and fill it */
-	fprintf(gpoutfile, "--cycle;\n");
+	fprintf(GPT.P_GpOutFile, "--cycle;\n");
 
 	/* fill the polygon
 	 * undocumented gnuplot behaviour, copied from PostScript terminal
@@ -1636,7 +1627,7 @@ TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoin
  *            two possible approaches: drawing rectangles & creating proper image
  *            it might require one additional level of abstraction like gp_image(...)
  */
-TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	int i, k, line_length, components_per_color;
 	rgb_color color;
@@ -1650,16 +1641,12 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 			sprintf(CONTEXT_image_filename + CONTEXT_image_filename_length, "_%02d.png", ++CONTEXT_image_counter);
 		write_png_image(pThis, M, N, image, color_mode, CONTEXT_image_filename);
 		if(is_clipped)
-			fprintf(gpoutfile, "draw image(\n  ");
-		fprintf(gpoutfile,
-		    "externalfigure \"%s\" xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n",
-		    CONTEXT_image_filename + CONTEXT_image_filename_start,
-		    0.001*(corner[1].x-corner[0].x),
-		    0.001*(corner[0].y-corner[1].y),
-		    0.001*corner[0].x,
-		    0.001*corner[1].y);
+			fprintf(GPT.P_GpOutFile, "draw image(\n  ");
+		fprintf(GPT.P_GpOutFile, "externalfigure \"%s\" xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n",
+		    CONTEXT_image_filename + CONTEXT_image_filename_start, 0.001*(corner[1].x-corner[0].x),
+		    0.001*(corner[0].y-corner[1].y), 0.001*corner[0].x, 0.001*corner[1].y);
 		if(is_clipped) {
-			fprintf(gpoutfile, "  clip currentpicture to unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa););\n",
+			fprintf(GPT.P_GpOutFile, "  clip currentpicture to unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa););\n",
 			    0.001*(corner[3].x-corner[2].x), 0.001*(corner[2].y-corner[3].y), 0.001*corner[2].x, 0.001*corner[3].y);
 		}
 #endif
@@ -1668,17 +1655,17 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 		// Palette colors have to be converted into RGB first 
 		if(color_mode == IC_PALETTE) {
 			// write the image data 
-			fprintf(gpoutfile, "img := \"%%\n");
+			fprintf(GPT.P_GpOutFile, "img := \"%%\n");
 			line_length = 0;
 			for(i = 0; i < static_cast<int>(M * N); i++) {
 				if(line_length++ >= 16) {
 					line_length = 1;
-					fprintf(gpoutfile, "%%\n");
+					fprintf(GPT.P_GpOutFile, "%%\n");
 				}
 				pThis->P_Gp->Rgb1MaxColorsFromGray(image[i], &color);
-				fprintf(gpoutfile, "%02x%02x%02x", (uchar)(255*color.r), (uchar)(255*color.g), (uchar)(255*color.b));
+				fprintf(GPT.P_GpOutFile, "%02x%02x%02x", (uchar)(255*color.r), (uchar)(255*color.g), (uchar)(255*color.b));
 			}
-			fprintf(gpoutfile, "\";\n");
+			fprintf(GPT.P_GpOutFile, "\";\n");
 			/* IC_RGB or IC_RGBA */
 		}
 		else {
@@ -1689,46 +1676,46 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 				components_per_color = 3;
 			}
 			// write the image data 
-			fprintf(gpoutfile, "img := \"%%\n");
+			fprintf(GPT.P_GpOutFile, "img := \"%%\n");
 			line_length = 0;
 			for(i = 0; i < static_cast<int>(M * N); i++) {
 				if(line_length++ >= 16) {
 					line_length = 1;
-					fprintf(gpoutfile, "%%\n");
+					fprintf(GPT.P_GpOutFile, "%%\n");
 				}
 				for(k = 0; k < 3; k++) {
-					fprintf(gpoutfile, "%02x", (uchar)(image[i*components_per_color+k]*255));
+					fprintf(GPT.P_GpOutFile, "%02x", (uchar)(image[i*components_per_color+k]*255));
 				}
 			}
-			fprintf(gpoutfile, "\";\n");
+			fprintf(GPT.P_GpOutFile, "\";\n");
 			/* transparency mask */
 			if(color_mode == IC_RGBA) {
-				fprintf(gpoutfile, "ima := \"%%\n");
+				fprintf(GPT.P_GpOutFile, "ima := \"%%\n");
 				line_length = 0;
 				for(i = 0; i < static_cast<int>(M * N); i++) {
 					if(line_length++ >= 3*16) {
 						line_length = 1;
-						fprintf(gpoutfile, "%%\n");
+						fprintf(GPT.P_GpOutFile, "%%\n");
 					}
-					fprintf(gpoutfile, "%02x", (uchar)(image[i*components_per_color+3]*255));
+					fprintf(GPT.P_GpOutFile, "%02x", (uchar)(image[i*components_per_color+3]*255));
 				}
-				fprintf(gpoutfile, "\";\n");
+				fprintf(GPT.P_GpOutFile, "\";\n");
 			}
 		}
 		/* TODO: transparency handling is not yet supported in ConTeXt */
 		if(is_clipped)
-			fprintf(gpoutfile, "draw image(\n  ");
-		fprintf(gpoutfile, "draw bitmapimage (%u,%u,img) xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n",
+			fprintf(GPT.P_GpOutFile, "draw image(\n  ");
+		fprintf(GPT.P_GpOutFile, "draw bitmapimage (%u,%u,img) xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa);\n",
 		    N, M, 0.001*(corner[1].x-corner[0].x), 0.001*(corner[0].y-corner[1].y), 0.001*corner[0].x, 0.001*corner[1].y);
 		if(is_clipped) {
-			fprintf(gpoutfile, "  clip currentpicture to unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa););\n",
+			fprintf(GPT.P_GpOutFile, "  clip currentpicture to unitsquare xyscaled (%.3fa,%.3fa) shifted (%.3fa,%.3fa););\n",
 			    0.001*(corner[3].x-corner[2].x), 0.001*(corner[2].y-corner[3].y), 0.001*corner[2].x, 0.001*corner[3].y);
 		}
 		/* (alternative implementation) *
-		   fprintf(gpoutfile, "gp_image_rgb");
+		   fprintf(GPT.P_GpOutFile, "gp_image_rgb");
 		   if (color_mode == IC_RGB)
-		        fprintf(gpoutfile, "_alpha");
-		   fprintf(gpoutfile, "((%u,%u),(%.3fa,%.3fa),(%.3fa,%.3fa));\n",
+		        fprintf(GPT.P_GpOutFile, "_alpha");
+		   fprintf(GPT.P_GpOutFile, "((%u,%u),(%.3fa,%.3fa),(%.3fa,%.3fa));\n",
 		        N, M, 0.001*corner[0].x, 0.001*corner[1].y, 0.001*corner[1].x, 0.001*corner[0].y);
 		 */
 	}

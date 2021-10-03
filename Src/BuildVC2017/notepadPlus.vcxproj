@@ -138,7 +138,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
@@ -192,7 +192,7 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
@@ -241,7 +241,7 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
@@ -292,7 +292,7 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -349,7 +349,7 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -405,7 +405,7 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\npp-gh20210917\scintilla\include;..\OSF\npp-gh20210917\PowerEditor\include;..\OSF\npp-gh20210917\PowerEditor\src;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml;..\OSF\npp-gh20210917\PowerEditor\src\Win32Explr;..\OSF\npp-gh20210917\PowerEditor\src\tinyxml\tinyXmlA;..\OSF\npp-gh20210917\PowerEditor\src\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>

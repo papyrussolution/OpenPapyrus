@@ -96,7 +96,7 @@ static bool countcheck(const char * func, int line, const char * source)
 				curl_dbg_log("LIMIT %s:%d %s reached memlimit\n",
 				    source, line, func);
 				/* log to stderr also */
-				fprintf(stderr, "LIMIT %s:%d %s reached memlimit\n",
+				slfprintf_stderr("LIMIT %s:%d %s reached memlimit\n",
 				    source, line, func);
 				fflush(curl_dbg_logfile); /* because it might crash now */
 			}

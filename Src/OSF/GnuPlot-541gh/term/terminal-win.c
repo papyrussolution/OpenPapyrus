@@ -68,7 +68,7 @@ TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int, uint, uint, uint, uint);
 TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void WIN_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint);
 TERM_PUBLIC void WIN_hypertext(GpTermEntry * pThis, int type, const char * text);
 TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno);
@@ -525,25 +525,22 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 #endif
 	if(set_title) {
 		SAlloc::F(r_winm.P_GraphWin->Title);
-#ifdef UNICODE
-		r_winm.P_GraphWin->Title = (title) ?  UnicodeText(title, encoding) : _tcsdup(WINGRAPHTITLE);
-#else
-		r_winm.P_GraphWin->Title = (title) ?  title : sstrdup(WINGRAPHTITLE);
-#endif
+		r_winm.P_GraphWin->Title = title ? sstrdup(SUcSwitch(title)) : sstrdup(WINGRAPHTITLE);
+//#ifdef UNICODE
+		//r_winm.P_GraphWin->Title = (title) ?  UnicodeText(title, encoding) : _tcsdup(WINGRAPHTITLE);
+//#else
+		//r_winm.P_GraphWin->Title = (title) ?  title : sstrdup(WINGRAPHTITLE);
+//#endif
 		GraphChangeTitle(r_winm.P_GraphWin);
 	}
 	if(set_fontsize)
 		r_winm.P_GraphWin->deffontsize = r_winm.P_GraphWin->fontsize = fontsize;
 	if(set_font) {
-#ifdef UNICODE
-		LPWSTR wfontname = UnicodeText(fontname, encoding);
-		wcscpy(r_winm.P_GraphWin->fontname, wfontname);
-		wcscpy(r_winm.P_GraphWin->deffontname, wfontname);
-		SAlloc::F(wfontname);
-#else
-		strcpy(r_winm.P_GraphWin->fontname, fontname);
-		strcpy(r_winm.P_GraphWin->deffontname, fontname);
-#endif
+		//LPWSTR wfontname = UnicodeText(fontname, encoding);
+		const wchar_t * p_u_fontname = SUcSwitch(fontname);
+		wcscpy(r_winm.P_GraphWin->fontname, p_u_fontname);
+		wcscpy(r_winm.P_GraphWin->deffontname, p_u_fontname);
+		//SAlloc::F(wfontname);
 	}
 	// font initialization 
 	WIN_set_font(pThis, NULL);
@@ -570,14 +567,14 @@ void WIN_update_options()
 {
 	bool set_font = FALSE, set_fontsize = FALSE;
 	// update term_options 
-	sprintf(term_options, "%i %s %s %s %s %s", _WinM.P_GraphWin->Id, _WinM.P_GraphWin->color ? "color" : "monochrome",
+	sprintf(GPT.TermOptions, "%i %s %s %s %s %s", _WinM.P_GraphWin->Id, _WinM.P_GraphWin->color ? "color" : "monochrome",
 	    _WinM.P_GraphWin->dashed ? "dashed" : "solid", _WinM.P_GraphWin->rounded ? "rounded" : "butt",
 	    term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", _WinM.P_GraphWin->bDocked ? "docked" : "standalone");
 #ifndef WGP_CONSOLE
 	if(_WinM.P_GraphWin->bDocked) {
 		char buf[128];
 		sprintf(buf, " layout %i,%i", _WinM.TxtWin.nDockRows, _WinM.TxtWin.nDockCols);
-		strcat(term_options, buf);
+		strcat(GPT.TermOptions, buf);
 	}
 #endif
 	set_fontsize = (_WinM.P_GraphWin->deffontsize != WIN_inifontsize);
@@ -590,23 +587,23 @@ void WIN_update_options()
 		else {
 			sprintf(fontstring, " font \"" TCHARFMT ", %d\"", set_font ? _WinM.P_GraphWin->deffontname : TEXT(""), _WinM.P_GraphWin->deffontsize);
 		}
-		strcat(term_options, fontstring);
+		strcat(GPT.TermOptions, fontstring);
 		SAlloc::F(fontstring);
 	}
 	if(_WinM.P_GraphWin->background != RGB(255, 255, 255))
-		sprintf(&(term_options[strlen(term_options)]), " background \"#%0x%0x%0x\"", GetRValue(_WinM.P_GraphWin->background),
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " background \"#%0x%0x%0x\"", GetRValue(_WinM.P_GraphWin->background),
 		    GetGValue(_WinM.P_GraphWin->background), GetBValue(_WinM.P_GraphWin->background));
 	if(_WinM.P_GraphWin->fontscale != 1)
-		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", _WinM.P_GraphWin->fontscale);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " fontscale %.1f", _WinM.P_GraphWin->fontscale);
 	if(_WinM.P_GraphWin->linewidth != 1)
-		sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", _WinM.P_GraphWin->linewidth);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %.1f", _WinM.P_GraphWin->linewidth);
 	if(_WinM.P_GraphWin->pointscale != 1)
-		sprintf(&(term_options[strlen(term_options)]), " pointscale %.1f", _WinM.P_GraphWin->pointscale);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " pointscale %.1f", _WinM.P_GraphWin->pointscale);
 	if(!_WinM.P_GraphWin->bDocked) {
 		if(_WinM.P_GraphWin->Canvas_.x)
-			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", _WinM.P_GraphWin->Canvas_.x, _WinM.P_GraphWin->Canvas_.y);
+			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " size %li,%li", _WinM.P_GraphWin->Canvas_.x, _WinM.P_GraphWin->Canvas_.y);
 		else if(_WinM.P_GraphWin->Size_.x != CW_USEDEFAULT)
-			sprintf(&(term_options[strlen(term_options)]), " wsize %li,%li", _WinM.P_GraphWin->Size_.x, _WinM.P_GraphWin->Size_.y);
+			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " wsize %li,%li", _WinM.P_GraphWin->Size_.x, _WinM.P_GraphWin->Size_.y);
 	}
 }
 
@@ -641,7 +638,7 @@ TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 	pThis->TicV = _WinM.P_GraphWin->TicS.y;
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	// Save current text encoding 
-	_WinM.P_GraphWin->Op(W_text_encoding, encoding, 0, NULL);
+	_WinM.P_GraphWin->Op(W_text_encoding, GPT._Encoding, 0, NULL);
 }
 
 TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
@@ -774,10 +771,10 @@ TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char s[])
 	}
 #endif /* WGP_CONSOLE */
 #endif /* USE_MOUSE */
-
-/* Note: this used to be a verbatim copy of PM_image (pm.trm) with only minor changes */
-
-TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+//
+// Note: this used to be a verbatim copy of PM_image (pm.trm) with only minor changes
+//
+TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	PBYTE rgb_image;
 	uint image_size;
@@ -790,7 +787,7 @@ TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 	    - 24bits RGB  for IC_PALETTE and IC_RGB
 	    - 32bits RGBA for IC_RGBA
 	 */
-	if((color_mode == IC_PALETTE) || (color_mode == IC_RGB)) {
+	if(oneof2(color_mode, IC_PALETTE, IC_RGB)) {
 		pad_bytes = (4 - (3 * M) % 4) % 4; /* scan lines start on ULONG boundaries */
 		image_size = (3 * M + pad_bytes) * N;
 	}
@@ -879,13 +876,14 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	// TODO: color caching
 	WIN_flush_line(&WIN_poly);
 	switch(colorspec->type) {
-		case TC_FRAC: {
-		    // Immediately translate palette index to RGB colour 
-		    rgb255_color rgb255;
-		    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
-		    _WinM.P_GraphWin->Op(W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
-		    break;
-	    }
+		case TC_FRAC: 
+			{
+				// Immediately translate palette index to RGB colour 
+				rgb255_color rgb255;
+				pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+				_WinM.P_GraphWin->Op(W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
+			}
+			break;
 		case TC_RGB:
 		    // highest byte of colorspec->lt contains alpha 
 		    _WinM.P_GraphWin->Op(W_setcolor, (colorspec->lt) & 0xffff, (colorspec->lt >> 16) & 0xffff, NULL);
@@ -901,12 +899,11 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 
 TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
-	int i;
 	_WinM.P_GraphWin->Op(W_fillstyle, corners->style, 0, NULL);
 	// Eliminate duplicate polygon points. 
 	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
-	for(i = 0; i < points; i++)
+	for(int i = 0; i < points; i++)
 		_WinM.P_GraphWin->Op(W_filled_polygon_pt, corners[i].x, corners[i].y, NULL);
 	_WinM.P_GraphWin->Op(W_filled_polygon_draw, points, 0, NULL);
 }
@@ -966,7 +963,7 @@ TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	WIN_flush_line(&WIN_poly);
 	// ignore LAYER_RESET in multiplot mode 
-	if(oneof2(syncpoint, TERM_LAYER_RESET, TERM_LAYER_RESET_PLOTNO) && multiplot)
+	if(oneof2(syncpoint, TERM_LAYER_RESET, TERM_LAYER_RESET_PLOTNO) && GPT.Flags & GpTerminalBlock::fMultiplot)
 		return;
 	_WinM.P_GraphWin->Op(W_layer, syncpoint, 0, NULL);
 }

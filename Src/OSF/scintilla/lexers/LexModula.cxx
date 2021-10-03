@@ -19,7 +19,7 @@ using namespace Scintilla;
 #endif
 
 #ifdef DEBUG_LEX_MODULA
-	#define DEBUG_STATE(p, c) fprintf(stderr, "Unknown state: currentPos = %ud, char = '%c'\n", p, c)
+	#define DEBUG_STATE(p, c) slfprintf_stderr("Unknown state: currentPos = %ud, char = '%c'\n", p, c)
 #else
 	#define DEBUG_STATE(p, c)
 #endif

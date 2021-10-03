@@ -61,12 +61,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\pthread4w-test.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\threestage.c">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest1.c">
-      <Filter>Test</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\pthreads4w\_ptw32.h">
@@ -94,9 +88,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\pthread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\pthreads4w\SLTEST\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

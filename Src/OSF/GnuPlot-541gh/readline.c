@@ -341,7 +341,7 @@ int GnuPlot::IsDoubleWidth(size_t pos)
 //static int char_seqlen()
 int GnuPlot::CharSeqLen()
 {
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8: {
 		    size_t i = RlB_.CurPos;
 		    do {
@@ -362,7 +362,7 @@ int GnuPlot::CharSeqLen()
 //static int backspace()
 int GnuPlot::BackSpace()
 {
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8: {
 		    int seqlen = 0;
 		    do {
@@ -405,7 +405,7 @@ int GnuPlot::BackSpace()
 void GnuPlot::StepForward()
 {
 	int i, seqlen;
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_UTF8:
 		case S_ENC_SJIS:
 		    seqlen = CharSeqLen();
@@ -679,7 +679,7 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 			RlB_.MaxPos += 1;
 			RlB_.P_CurLine[RlB_.MaxPos] = '\0';
 			if(RlB_.CurPos < RlB_.MaxPos) {
-				switch(encoding) {
+				switch(GPT._Encoding) {
 					case S_ENC_UTF8:
 					    if((cur_char & 0xc0) == 0) {
 						    next_verbatim = FALSE;
@@ -731,9 +731,9 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 				if(RlB_.SearchMode) {
 					// Only update the search at the end of a multi-byte sequence. 
 					if(mbwait == 0) {
-						if(encoding == S_ENC_SJIS)
+						if(GPT._Encoding == S_ENC_SJIS)
 							mbwait = is_sjis_lead_byte(cur_char) ? 1 : 0;
-						if(encoding == S_ENC_UTF8) {
+						if(GPT._Encoding == S_ENC_UTF8) {
 							char ch = cur_char;
 							if(ch & 0x80)
 								while((ch = (ch << 1)) & 0x80)

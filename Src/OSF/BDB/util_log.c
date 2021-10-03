@@ -26,6 +26,6 @@ int __db_util_logset(const char * progname, char * fname)
 		goto err;
 	return 0;
 err:
-	fprintf(stderr, "%s: %s: %s\n", progname, fname, strerror(errno));
+	slfprintf_stderr("%s: %s: %s\n", progname, fname, strerror(errno));
 	return 1;
 }

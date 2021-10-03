@@ -4469,6 +4469,12 @@ int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, Vet
 							else if(SXml::GetContentByName(p_c, "nextTransport", temp_buf)) {
 								if(SETIFZ(p_new_point->P_NextTransport, new VetisTransportInfo)) {
 									THROW(ParseTransportInfo(p_c, *p_new_point->P_NextTransport));
+									// @v11.1.12 { (может случиться, что NextTransport заявлен, но номера не определены - тогда наследуем из основной записи)
+									if(p_new_point->P_NextTransport->TransportType == rResult.TransportInfo.TransportType) {
+										if(p_new_point->P_NextTransport->TransportNumber.IsEmpty())
+											p_new_point->P_NextTransport->TransportNumber = rResult.TransportInfo.TransportNumber;
+									}
+									// } @v11.1.12 
 								}
 							}
 							else if(SXml::IsName(p_c, "location")) {

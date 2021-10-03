@@ -281,9 +281,9 @@ typedef enum zbar_modifier_e {
 		#endif
 	#else
 		#ifdef __GNUC__
-			#define dbprintf(level, args...) do { if((level) <= DEBUG_LEVEL) fprintf(stderr, args); } while(0)
+			#define dbprintf(level, args...) do { if((level) <= DEBUG_LEVEL) slfprintf_stderr(args); } while(0)
 		#else
-			#define dbprintf(level, ...) do { if((level) <= DEBUG_LEVEL) fprintf(stderr, __VA_ARGS__); } while(0)
+			#define dbprintf(level, ...) do { if((level) <= DEBUG_LEVEL) slfprintf_stderr(__VA_ARGS__); } while(0)
 		#endif
 	#endif /* DEBUG_LEVEL */
 #endif // } @sobolev
@@ -301,7 +301,7 @@ void cdecl dbprintf(int level, const char * pFormat, ...);
 	/*
 	#define zassert__(condition, retval, format, ...) do {                   \
         if(!(condition)) {                                              \
-            fprintf(stderr, "WARNING: %s:%d: %s: Assertion \"%s\" failed.\n\t" format, __FILE__, __LINE__, __FUNCTION__, #condition , ##__VA_ARGS__);                                     \
+            slfprintf_stderr("WARNING: %s:%d: %s: Assertion \"%s\" failed.\n\t" format, __FILE__, __LINE__, __FUNCTION__, #condition , ##__VA_ARGS__);                                     \
             return (retval);                                             \
         }                                                               \
     } while(0)

@@ -640,7 +640,7 @@ OPJ_BOOL opj_alloc_tile_component_data(opj_tcd_tilecomp_t * l_tilec)
 		if(!l_tilec->data && l_tilec->data_size_needed != 0) {
 			return OPJ_FALSE;
 		}
-		/*fprintf(stderr, "tAllocate data of tilec (int): %d x OPJ_UINT32n",l_data_size);*/
+		/*slfprintf_stderr("tAllocate data of tilec (int): %d x OPJ_UINT32n",l_data_size);*/
 		l_tilec->data_size = l_tilec->data_size_needed;
 		l_tilec->ownsData = OPJ_TRUE;
 	}
@@ -654,7 +654,7 @@ OPJ_BOOL opj_alloc_tile_component_data(opj_tcd_tilecomp_t * l_tilec)
 			l_tilec->ownsData = OPJ_FALSE;
 			return OPJ_FALSE;
 		}
-		/*fprintf(stderr, "tReallocate data of tilec (int): from %d to %d x OPJ_UINT32n", l_tilec->data_size,
+		/*slfprintf_stderr("tReallocate data of tilec (int): from %d to %d x OPJ_UINT32n", l_tilec->data_size,
 		   l_data_size);*/
 		l_tilec->data_size = l_tilec->data_size_needed;
 		l_tilec->ownsData = OPJ_TRUE;
@@ -708,7 +708,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 
 	p = p_tile_no % l_cp->tw;   /* tile coordinates */
 	q = p_tile_no / l_cp->tw;
-	/*fprintf(stderr, "Tile coordinate = %d,%d\n", p, q);*/
+	/*slfprintf_stderr("Tile coordinate = %d,%d\n", p, q);*/
 
 	/* 4 borders of the tile rescale on the image if necessary */
 	l_tx0 = l_cp->tx0 + p *
@@ -737,11 +737,11 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 		opj_event_msg(manager, EVT_ERROR, "tiles require at least one resolution\n");
 		return OPJ_FALSE;
 	}
-	/*fprintf(stderr, "Tile border = %d,%d,%d,%d\n", l_tile->x0, l_tile->y0,l_tile->x1,l_tile->y1);*/
+	/*slfprintf_stderr("Tile border = %d,%d,%d,%d\n", l_tile->x0, l_tile->y0,l_tile->x1,l_tile->y1);*/
 
 	/*tile->numcomps = image->numcomps; */
 	for(compno = 0; compno < l_tile->numcomps; ++compno) {
-		/*fprintf(stderr, "compno = %d/%d\n", compno, l_tile->numcomps);*/
+		/*slfprintf_stderr("compno = %d/%d\n", compno, l_tile->numcomps);*/
 		l_image_comp->resno_decoded = 0;
 		/* border of each l_tile component (global) */
 		l_tilec->x0 = opj_int_ceildiv(l_tile->x0, (OPJ_INT32)l_image_comp->dx);
@@ -749,7 +749,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 		l_tilec->x1 = opj_int_ceildiv(l_tile->x1, (OPJ_INT32)l_image_comp->dx);
 		l_tilec->y1 = opj_int_ceildiv(l_tile->y1, (OPJ_INT32)l_image_comp->dy);
 		l_tilec->compno = compno;
-		/*fprintf(stderr, "\tTile compo border = %d,%d,%d,%d\n", l_tilec->x0,
+		/*slfprintf_stderr("\tTile compo border = %d,%d,%d,%d\n", l_tilec->x0,
 		   l_tilec->y0,l_tilec->x1,l_tilec->y1);*/
 
 		l_tilec->numresolutions = l_tccp->numresolutions;
@@ -795,7 +795,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 			if(!l_tilec->resolutions) {
 				return OPJ_FALSE;
 			}
-			/*fprintf(stderr, "\tAllocate resolutions of tilec (opj_tcd_resolution_t): %d\n",l_data_size);*/
+			/*slfprintf_stderr("\tAllocate resolutions of tilec (opj_tcd_resolution_t): %d\n",l_data_size);*/
 			l_tilec->resolutions_size = l_data_size;
 			memzero(l_tilec->resolutions, l_data_size);
 		}
@@ -809,7 +809,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 				return OPJ_FALSE;
 			}
 			l_tilec->resolutions = new_resolutions;
-			/*fprintf(stderr, "\tReallocate data of tilec (int): from %d to %d x OPJ_UINT32\n",
+			/*slfprintf_stderr("\tReallocate data of tilec (int): from %d to %d x OPJ_UINT32\n",
 			   l_tilec->resolutions_size, l_data_size);*/
 			memzero(((OPJ_BYTE*)l_tilec->resolutions) + l_tilec->resolutions_size, l_data_size - l_tilec->resolutions_size);
 			l_tilec->resolutions_size = l_data_size;
@@ -818,10 +818,10 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 		l_level_no = l_tilec->numresolutions;
 		l_res = l_tilec->resolutions;
 		l_step_size = l_tccp->stepsizes;
-		/*fprintf(stderr, "\tlevel_no=%d\n",l_level_no);*/
+		/*slfprintf_stderr("\tlevel_no=%d\n",l_level_no);*/
 
 		for(resno = 0; resno < l_tilec->numresolutions; ++resno) {
-			/*fprintf(stderr, "\t\tresno = %d/%d\n", resno, l_tilec->numresolutions);*/
+			/*slfprintf_stderr("\t\tresno = %d/%d\n", resno, l_tilec->numresolutions);*/
 			OPJ_INT32 tlcbgxstart, tlcbgystart /*, brcbgxend, brcbgyend*/;
 			OPJ_UINT32 cbgwidthexpn, cbgheightexpn;
 			OPJ_UINT32 cblkwidthexpn, cblkheightexpn;
@@ -834,12 +834,12 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 			l_res->x1 = opj_int_ceildivpow2(l_tilec->x1, (OPJ_INT32)l_level_no);
 			l_res->y1 = opj_int_ceildivpow2(l_tilec->y1, (OPJ_INT32)l_level_no);
 
-			/*fprintf(stderr, "\t\t\tres_x0= %d, res_y0 =%d, res_x1=%d, res_y1=%d\n", l_res->x0, l_res->y0,
+			/*slfprintf_stderr("\t\t\tres_x0= %d, res_y0 =%d, res_x1=%d, res_y1=%d\n", l_res->x0, l_res->y0,
 			   l_res->x1, l_res->y1);*/
 			/* p. 35, table A-23, ISO/IEC FDIS154444-1 : 2000 (18 august 2000) */
 			l_pdx = l_tccp->prcw[resno];
 			l_pdy = l_tccp->prch[resno];
-			/*fprintf(stderr, "\t\t\tpdx=%d, pdy=%d\n", l_pdx, l_pdy);*/
+			/*slfprintf_stderr("\t\t\tpdx=%d, pdy=%d\n", l_pdx, l_pdy);*/
 			/* p. 64, B.6, ISO/IEC FDIS15444-1 : 2000 (18 august 2000)  */
 			l_tl_prc_x_start = opj_int_floordivpow2(l_res->x0, (OPJ_INT32)l_pdx) << l_pdx;
 			l_tl_prc_y_start = opj_int_floordivpow2(l_res->y0, (OPJ_INT32)l_pdy) << l_pdy;
@@ -861,14 +861,14 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 				}
 				l_br_prc_y_end = (OPJ_INT32)tmp;
 			}
-			/*fprintf(stderr, "\t\t\tprc_x_start=%d, prc_y_start=%d, br_prc_x_end=%d, br_prc_y_end=%d \n",
+			/*slfprintf_stderr("\t\t\tprc_x_start=%d, prc_y_start=%d, br_prc_x_end=%d, br_prc_y_end=%d \n",
 			   l_tl_prc_x_start, l_tl_prc_y_start, l_br_prc_x_end ,l_br_prc_y_end );*/
 
 			l_res->pw = (l_res->x0 == l_res->x1) ? 0U : (OPJ_UINT32)((
 				    l_br_prc_x_end - l_tl_prc_x_start) >> l_pdx);
 			l_res->ph = (l_res->y0 == l_res->y1) ? 0U : (OPJ_UINT32)((
 				    l_br_prc_y_end - l_tl_prc_y_start) >> l_pdy);
-			/*fprintf(stderr, "\t\t\tres_pw=%d, res_ph=%d\n", l_res->pw, l_res->ph );*/
+			/*slfprintf_stderr("\t\t\tres_pw=%d, res_ph=%d\n", l_res->pw, l_res->ph );*/
 
 			if((l_res->pw != 0U) && ((((OPJ_UINT32)-1) / l_res->pw) < l_res->ph)) {
 				opj_event_msg(manager, EVT_ERROR, "Size of tile data exceeds system limits\n");
@@ -907,7 +907,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 			l_band = l_res->bands;
 
 			for(bandno = 0; bandno < l_res->numbands; ++bandno, ++l_band, ++l_step_size) {
-				/*fprintf(stderr, "\t\t\tband_no=%d/%d\n", bandno, l_res->numbands );*/
+				/*slfprintf_stderr("\t\t\tband_no=%d/%d\n", bandno, l_res->numbands );*/
 
 				if(resno == 0) {
 					l_band->bandno = 0;
@@ -971,7 +971,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 						    "Not enough memory to handle band precints\n");
 						return OPJ_FALSE;
 					}
-					/*fprintf(stderr, "\t\t\t\tAllocate precincts of a band (opj_tcd_precinct_t):
+					/*slfprintf_stderr("\t\t\t\tAllocate precincts of a band (opj_tcd_precinct_t):
 					   %d\n",l_nb_precinct_size);     */
 					memzero(l_band->precincts, l_nb_precinct_size);
 					l_band->precincts_data_size = l_nb_precinct_size;
@@ -988,7 +988,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 						return OPJ_FALSE;
 					}
 					l_band->precincts = new_precincts;
-					/*fprintf(stderr, "\t\t\t\tReallocate precincts of a band (opj_tcd_precinct_t):
+					/*slfprintf_stderr("\t\t\t\tReallocate precincts of a band (opj_tcd_precinct_t):
 					   from %d to %d\n",l_band->precincts_data_size, l_nb_precinct_size);*/
 					memzero(((OPJ_BYTE*)l_band->precincts) + l_band->precincts_data_size, l_nb_precinct_size - l_band->precincts_data_size);
 					l_band->precincts_data_size = l_nb_precinct_size;
@@ -1003,42 +1003,42 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 					    (1 << cbgheightexpn);
 					OPJ_INT32 cbgxend = cbgxstart + (1 << cbgwidthexpn);
 					OPJ_INT32 cbgyend = cbgystart + (1 << cbgheightexpn);
-					/*fprintf(stderr, "\t precno=%d; bandno=%d, resno=%d; compno=%d\n", precno,
+					/*slfprintf_stderr("\t precno=%d; bandno=%d, resno=%d; compno=%d\n", precno,
 					   bandno , resno, compno);*/
-					/*fprintf(stderr, "\t tlcbgxstart(=%d) + (precno(=%d) percent res->pw(=%d)) * (1
+					/*slfprintf_stderr("\t tlcbgxstart(=%d) + (precno(=%d) percent res->pw(=%d)) * (1
 					   << cbgwidthexpn(=%d)) \n",tlcbgxstart,precno,l_res->pw,cbgwidthexpn);*/
 
 					/* precinct size (global) */
-					/*fprintf(stderr, "\t cbgxstart=%d, l_band->x0 = %d \n",cbgxstart,
+					/*slfprintf_stderr("\t cbgxstart=%d, l_band->x0 = %d \n",cbgxstart,
 					   l_band->x0);*/
 
 					l_current_precinct->x0 = opj_int_max(cbgxstart, l_band->x0);
 					l_current_precinct->y0 = opj_int_max(cbgystart, l_band->y0);
 					l_current_precinct->x1 = opj_int_min(cbgxend, l_band->x1);
 					l_current_precinct->y1 = opj_int_min(cbgyend, l_band->y1);
-					/*fprintf(stderr, "\t prc_x0=%d; prc_y0=%d, prc_x1=%d;
+					/*slfprintf_stderr("\t prc_x0=%d; prc_y0=%d, prc_x1=%d;
 					   prc_y1=%d\n",l_current_precinct->x0, l_current_precinct->y0
 					   ,l_current_precinct->x1, l_current_precinct->y1);*/
 
 					tlcblkxstart = opj_int_floordivpow2(l_current_precinct->x0,
 						(OPJ_INT32)cblkwidthexpn) << cblkwidthexpn;
-					/*fprintf(stderr, "\t tlcblkxstart =%d\n",tlcblkxstart );*/
+					/*slfprintf_stderr("\t tlcblkxstart =%d\n",tlcblkxstart );*/
 					tlcblkystart = opj_int_floordivpow2(l_current_precinct->y0,
 						(OPJ_INT32)cblkheightexpn) << cblkheightexpn;
-					/*fprintf(stderr, "\t tlcblkystart =%d\n",tlcblkystart );*/
+					/*slfprintf_stderr("\t tlcblkystart =%d\n",tlcblkystart );*/
 					brcblkxend = opj_int_ceildivpow2(l_current_precinct->x1,
 						(OPJ_INT32)cblkwidthexpn) << cblkwidthexpn;
-					/*fprintf(stderr, "\t brcblkxend =%d\n",brcblkxend );*/
+					/*slfprintf_stderr("\t brcblkxend =%d\n",brcblkxend );*/
 					brcblkyend = opj_int_ceildivpow2(l_current_precinct->y1,
 						(OPJ_INT32)cblkheightexpn) << cblkheightexpn;
-					/*fprintf(stderr, "\t brcblkyend =%d\n",brcblkyend );*/
+					/*slfprintf_stderr("\t brcblkyend =%d\n",brcblkyend );*/
 					l_current_precinct->cw = (OPJ_UINT32)((brcblkxend - tlcblkxstart) >>
 					    cblkwidthexpn);
 					l_current_precinct->ch = (OPJ_UINT32)((brcblkyend - tlcblkystart) >>
 					    cblkheightexpn);
 
 					l_nb_code_blocks = l_current_precinct->cw * l_current_precinct->ch;
-					/*fprintf(stderr, "\t\t\t\t precinct_cw = %d x recinct_ch =
+					/*slfprintf_stderr("\t\t\t\t precinct_cw = %d x recinct_ch =
 					   %d\n",l_current_precinct->cw, l_current_precinct->ch);      */
 					if((((OPJ_UINT32)-1) / (OPJ_UINT32)sizeof_block) <
 					    l_nb_code_blocks) {
@@ -1053,7 +1053,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 						if(!l_current_precinct->cblks.blocks) {
 							return OPJ_FALSE;
 						}
-						/*fprintf(stderr, "\t\t\t\tAllocate cblks of a precinct
+						/*slfprintf_stderr("\t\t\t\tAllocate cblks of a precinct
 						   (opj_tcd_cblk_dec_t): %d\n",l_nb_code_blocks_size);*/
 						memzero(l_current_precinct->cblks.blocks, l_nb_code_blocks_size);
 						l_current_precinct->block_size = l_nb_code_blocks_size;
@@ -1069,7 +1069,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 							return OPJ_FALSE;
 						}
 						l_current_precinct->cblks.blocks = new_blocks;
-						/*fprintf(stderr, "\t\t\t\tReallocate cblks of a precinct
+						/*slfprintf_stderr("\t\t\t\tReallocate cblks of a precinct
 						   (opj_tcd_cblk_dec_t): from %d to
 						   %d\n",l_current_precinct->block_size, l_nb_code_blocks_size);     */
 						memzero(((OPJ_BYTE*)l_current_precinct->cblks.blocks) + l_current_precinct->block_size, l_nb_code_blocks_size - l_current_precinct->block_size);
@@ -1234,11 +1234,11 @@ static OPJ_BOOL opj_tcd_code_block_dec_allocate(opj_tcd_cblk_dec_t *
 		if(!p_code_block->segs) {
 			return OPJ_FALSE;
 		}
-		/*fprintf(stderr, "Allocate %d elements of code_block->data\n", OPJ_J2K_DEFAULT_NB_SEGS *
+		/*slfprintf_stderr("Allocate %d elements of code_block->data\n", OPJ_J2K_DEFAULT_NB_SEGS *
 		   sizeof(opj_tcd_seg_t));*/
 
 		p_code_block->m_current_max_segs = OPJ_J2K_DEFAULT_NB_SEGS;
-		/*fprintf(stderr, "m_current_max_segs of code_block->data = %d\n", p_code_block->m_current_max_segs);*/
+		/*slfprintf_stderr("m_current_max_segs of code_block->data = %d\n", p_code_block->m_current_max_segs);*/
 	}
 	else {
 		/* sanitize */
@@ -2200,10 +2200,10 @@ static void opj_tcd_code_block_dec_deallocate(opj_tcd_precinct_t * p_precinct)
 
 	opj_tcd_cblk_dec_t * l_code_block = p_precinct->cblks.dec;
 	if(l_code_block) {
-		/*fprintf(stderr,"deallocate codeblock:{\n");*/
-		/*fprintf(stderr,"\t x0=%d, y0=%d, x1=%d, y1=%d\n",l_code_block->x0, l_code_block->y0, l_code_block->x1,
+		/*slfprintf_stderr("deallocate codeblock:{\n");*/
+		/*slfprintf_stderr("\t x0=%d, y0=%d, x1=%d, y1=%d\n",l_code_block->x0, l_code_block->y0, l_code_block->x1,
 		   l_code_block->y1);*/
-		/*fprintf(stderr,"\t numbps=%d, numlenbits=%d, len=%d, numnewpasses=%d, real_num_segs=%d,
+		/*slfprintf_stderr("\t numbps=%d, numlenbits=%d, len=%d, numnewpasses=%d, real_num_segs=%d,
 		   m_current_max_segs=%d\n ",
 		                l_code_block->numbps, l_code_block->numlenbits, l_code_block->len,
 		                   l_code_block->numnewpasses, l_code_block->real_num_segs,
@@ -2211,7 +2211,7 @@ static void opj_tcd_code_block_dec_deallocate(opj_tcd_precinct_t * p_precinct)
 
 		l_nb_code_blocks = p_precinct->block_size / (OPJ_UINT32)sizeof(
 			opj_tcd_cblk_dec_t);
-		/*fprintf(stderr,"nb_code_blocks =%d\t}\n", l_nb_code_blocks);*/
+		/*slfprintf_stderr("nb_code_blocks =%d\t}\n", l_nb_code_blocks);*/
 
 		for(cblkno = 0; cblkno < l_nb_code_blocks; ++cblkno) {
 			if(l_code_block->segs) {

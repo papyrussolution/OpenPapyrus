@@ -1271,7 +1271,7 @@ uLong ZEXPORT zlibCompileFlags()
 	int ZLIB_INTERNAL z_verbose = verbose;
 	void ZLIB_INTERNAL z_error(char * m)
 	{
-		fprintf(stderr, "%s\n", m);
+		slfprintf_stderr("%s\n", m);
 		exit(1);
 	}
 #endif
@@ -5136,14 +5136,14 @@ static void check_match(deflate_state * s, IPos start, IPos match, int length)
 {
 	/* check that the match is indeed a match */
 	if(zmemcmp(s->window + match, s->window + start, length) != EQUAL) {
-		fprintf(stderr, " start %u, match %u, length %d\n", start, match, length);
+		slfprintf_stderr(" start %u, match %u, length %d\n", start, match, length);
 		do {
-			fprintf(stderr, "%c%c", s->window[match++], s->window[start++]);
+			slfprintf_stderr("%c%c", s->window[match++], s->window[start++]);
 		} while(--length != 0);
 		z_error("invalid match");
 	}
 	if(z_verbose > 1) {
-		fprintf(stderr, "\\[%d,%d]", start-match, length);
+		slfprintf_stderr("\\[%d,%d]", start-match, length);
 		do { putc(s->window[start++], stderr); } while(--length != 0);
 	}
 }
@@ -5981,7 +5981,7 @@ void ZLIB_INTERNAL _tr_flush_bits(deflate_state * s)
 #ifndef ZLIB_DEBUG
 	#define send_code(s, c, tree) send_bits(s, tree[c].Code, tree[c].Len) // Send a code of the given tree. c and tree must not have side effects 
 #else /* !ZLIB_DEBUG */
-	#define send_code(s, c, tree) { if(z_verbose>2) fprintf(stderr, "\ncd %3d ", (c)); send_bits(s, tree[c].Code, tree[c].Len); }
+	#define send_code(s, c, tree) { if(z_verbose>2) slfprintf_stderr("\ncd %3d ", (c)); send_bits(s, tree[c].Code, tree[c].Len); }
 #endif
 // 
 // Output a short LSB first on the stream.
@@ -6397,7 +6397,7 @@ static void build_tree(deflate_state * s, tree_desc * desc)
 		tree[n].Dad = tree[m].Dad = (ushort)node;
 #ifdef DUMP_BL_TREE
 		if(tree == s->bl_tree) {
-			fprintf(stderr, "\nnode %d(%d), sons %d(%d) %d(%d)", node, tree[node].Freq, n, tree[n].Freq, m, tree[m].Freq);
+			slfprintf_stderr("\nnode %d(%d), sons %d(%d) %d(%d)", node, tree[node].Freq, n, tree[n].Freq, m, tree[m].Freq);
 		}
 #endif
 		/* and insert the new node in the heap */

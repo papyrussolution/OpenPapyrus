@@ -247,36 +247,22 @@ typedef unsigned char uint8_t;
 
 
 /* convenience forms of HASH_FIND/HASH_ADD/HASH_DEL */
-#define HASH_FIND_STR(head, findstr, out) \
-    HASH_FIND(hh, head, findstr, strlen(findstr), out)
-#define HASH_ADD_STR(head, strfield, add) \
-    HASH_ADD(hh, head, strfield[0], strlen(add->strfield), add)
-#define HASH_REPLACE_STR(head, strfield, add, replaced) \
-    HASH_REPLACE(hh, head, strfield[0], strlen(add->strfield), add, replaced)
-#define HASH_FIND_INT(head, findint, out) \
-    HASH_FIND(hh, head, findint, sizeof(int), out)
-#define HASH_ADD_INT(head, intfield, add) \
-    HASH_ADD(hh, head, intfield, sizeof(int), add)
-#define HASH_REPLACE_INT(head, intfield, add, replaced) \
-    HASH_REPLACE(hh, head, intfield, sizeof(int), add, replaced)
-#define HASH_FIND_PTR(head, findptr, out) \
-    HASH_FIND(hh, head, findptr, sizeof(void *), out)
-#define HASH_ADD_PTR(head, ptrfield, add) \
-    HASH_ADD(hh, head, ptrfield, sizeof(void *), add)
-#define HASH_REPLACE_PTR(head, ptrfield, add, replaced) \
-    HASH_REPLACE(hh, head, ptrfield, sizeof(void *), add, replaced)
-#define HASH_DEL(head, delptr) \
-    HASH_DELETE(hh, head, delptr)
+#define HASH_FIND_STR(head, findstr, out) HASH_FIND(hh, head, findstr, strlen(findstr), out)
+#define HASH_ADD_STR(head, strfield, add) HASH_ADD(hh, head, strfield[0], strlen(add->strfield), add)
+#define HASH_REPLACE_STR(head, strfield, add, replaced) HASH_REPLACE(hh, head, strfield[0], strlen(add->strfield), add, replaced)
+#define HASH_FIND_INT(head, findint, out) HASH_FIND(hh, head, findint, sizeof(int), out)
+#define HASH_ADD_INT(head, intfield, add) HASH_ADD(hh, head, intfield, sizeof(int), add)
+#define HASH_REPLACE_INT(head, intfield, add, replaced) HASH_REPLACE(hh, head, intfield, sizeof(int), add, replaced)
+#define HASH_FIND_PTR(head, findptr, out) HASH_FIND(hh, head, findptr, sizeof(void *), out)
+#define HASH_ADD_PTR(head, ptrfield, add) HASH_ADD(hh, head, ptrfield, sizeof(void *), add)
+#define HASH_REPLACE_PTR(head, ptrfield, add, replaced) HASH_REPLACE(hh, head, ptrfield, sizeof(void *), add, replaced)
+#define HASH_DEL(head, delptr) HASH_DELETE(hh, head, delptr)
 
 /* HASH_FSCK checks hash integrity on every add/delete when HASH_DEBUG is defined.
  * This is for uthash developer only; it compiles away if HASH_DEBUG isn't defined.
  */
 #ifdef HASH_DEBUG
-#define HASH_OOPS(...)                \
-    do {                              \
-        fprintf(stderr, __VA_ARGS__); \
-        exit(-1);                     \
-    } while (0)
+#define HASH_OOPS(...) do { slfprintf_stderr(__VA_ARGS__); exit(-1); } while (0)
 #define HASH_FSCK(hh, head)                                                                                               \
     do {                                                                                                                  \
         unsigned _bkt_i;                                                                                                  \

@@ -1839,13 +1839,13 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * 
 	xmlRelaxNGSetValidErrors(vctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 	ret = xmlRelaxNGValidateDoc(vctxt, sctxt->doc);
 	if(!ret) {
-		fprintf(stderr, "%s validates\n", sctxt->filename);
+		slfprintf_stderr("%s validates\n", sctxt->filename);
 	}
 	else if(ret > 0) {
-		fprintf(stderr, "%s fails to validate\n", sctxt->filename);
+		slfprintf_stderr("%s fails to validate\n", sctxt->filename);
 	}
 	else {
-		fprintf(stderr, "%s validation generated an internal error\n", sctxt->filename);
+		slfprintf_stderr("%s validation generated an internal error\n", sctxt->filename);
 	}
 	xmlRelaxNGFreeValidCtxt(vctxt);
 	xmlRelaxNGFree(relaxngschemas);

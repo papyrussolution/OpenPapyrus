@@ -334,7 +334,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 			OPJ_UINT32 ctxt1 = opj_t1_getctxno_zc(mqc, flags >> (ci * 3U)); \
 			v = (opj_smr_abs(*l_datap) & (OPJ_UINT32)one) ? 1 : 0; \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*        fprintf(stderr, "   ctxt1=%d\n", ctxt1); */ \
+/*        slfprintf_stderr("   ctxt1=%d\n", ctxt1); */ \
 /* #endif */ \
 			opj_t1_setcurctx(curctx, ctxt1); \
 			if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -352,7 +352,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 				*nmsedec += opj_t1_getnmsedec_sig(opj_smr_abs(*l_datap), \
 					(OPJ_UINT32)bpno); \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*            fprintf(stderr, "   ctxt2=%d\n", ctxt2); */ \
+/*            slfprintf_stderr("   ctxt2=%d\n", ctxt2); */ \
 /* #endif */ \
 				opj_t1_setcurctx(curctx, ctxt2); \
 				if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -360,7 +360,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 				} else { \
 					OPJ_UINT32 spb = opj_t1_getspb(lu); \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*                fprintf(stderr, "   spb=%d\n", spb); */ \
+/*                slfprintf_stderr("   spb=%d\n", spb); */ \
 /* #endif */ \
 					opj_mqc_encode_macro(mqc, curctx, a, c, ct, v ^ spb); \
 				} \
@@ -452,16 +452,16 @@ static void opj_t1_enc_sigpass(opj_t1_t * t1,
 
 	*nmsedec = 0;
 #ifdef DEBUG_ENC_SIG
-	fprintf(stderr, "enc_sigpass: bpno=%d\n", bpno);
+	slfprintf_stderr("enc_sigpass: bpno=%d\n", bpno);
 #endif
 	for(k = 0; k < (t1->h & ~3U); k += 4, f += extra) {
 		const OPJ_UINT32 w = t1->w;
 #ifdef DEBUG_ENC_SIG
-		fprintf(stderr, " k=%d\n", k);
+		slfprintf_stderr(" k=%d\n", k);
 #endif
 		for(i = 0; i < w; ++i, ++f, datap += 4) {
 #ifdef DEBUG_ENC_SIG
-			fprintf(stderr, " i=%d\n", i);
+			slfprintf_stderr(" i=%d\n", i);
 #endif
 			if(*f == 0U) {
 				/* Nothing to do for any of the 4 data points */
@@ -509,11 +509,11 @@ static void opj_t1_enc_sigpass(opj_t1_t * t1,
 	if(k < t1->h) {
 		OPJ_UINT32 j;
 #ifdef DEBUG_ENC_SIG
-		fprintf(stderr, " k=%d\n", k);
+		slfprintf_stderr(" k=%d\n", k);
 #endif
 		for(i = 0; i < t1->w; ++i, ++f) {
 #ifdef DEBUG_ENC_SIG
-			fprintf(stderr, " i=%d\n", i);
+			slfprintf_stderr(" i=%d\n", i);
 #endif
 			if(*f == 0U) {
 				/* Nothing to do for any of the 4 data points */
@@ -707,7 +707,7 @@ static void opj_t1_dec_sigpass_mqc(opj_t1_t * t1,
 				(OPJ_UINT32)bpno); \
 			v = ((OPJ_INT32)abs_data & one) ? 1 : 0; \
 /* #ifdef DEBUG_ENC_REF */ \
-/*        fprintf(stderr, "  ctxt=%d\n", ctxt); */ \
+/*        slfprintf_stderr("  ctxt=%d\n", ctxt); */ \
 /* #endif */ \
 			opj_t1_setcurctx(curctx, ctxt); \
 			if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -779,17 +779,17 @@ static void opj_t1_enc_refpass(opj_t1_t * t1,
 
 	*nmsedec = 0;
 #ifdef DEBUG_ENC_REF
-	fprintf(stderr, "enc_refpass: bpno=%d\n", bpno);
+	slfprintf_stderr("enc_refpass: bpno=%d\n", bpno);
 #endif
 	for(k = 0; k < (t1->h & ~3U); k += 4, f += extra) {
 #ifdef DEBUG_ENC_REF
-		fprintf(stderr, " k=%d\n", k);
+		slfprintf_stderr(" k=%d\n", k);
 #endif
 		for(i = 0; i < t1->w; ++i, f++, datap += 4) {
 			const OPJ_UINT32 flags = *f;
 			OPJ_UINT32 flagsUpdated = flags;
 #ifdef DEBUG_ENC_REF
-			fprintf(stderr, " i=%d\n", i);
+			slfprintf_stderr(" i=%d\n", i);
 #endif
 			if((flags & (T1_SIGMA_4 | T1_SIGMA_7 | T1_SIGMA_10 | T1_SIGMA_13)) == 0) {
 				/* none significant */
@@ -845,11 +845,11 @@ static void opj_t1_enc_refpass(opj_t1_t * t1,
 		OPJ_UINT32 j;
 		const OPJ_UINT32 remaining_lines = t1->h - k;
 #ifdef DEBUG_ENC_REF
-		fprintf(stderr, " k=%d\n", k);
+		slfprintf_stderr(" k=%d\n", k);
 #endif
 		for(i = 0; i < t1->w; ++i, ++f) {
 #ifdef DEBUG_ENC_REF
-			fprintf(stderr, " i=%d\n", i);
+			slfprintf_stderr(" i=%d\n", i);
 #endif
 			if((*f & (T1_SIGMA_4 | T1_SIGMA_7 | T1_SIGMA_10 | T1_SIGMA_13)) == 0) {
 				/* none significant */

@@ -251,7 +251,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 			if(IterationEarlyExit())
 				continue;
 			// process line 
-			if(strlen(Pgm.P_InputLine) > 0) {
+			if(!isempty(Pgm.P_InputLine)) {
 				GpU.screen_ok = FALSE; // make sure command line is echoed on error 
 				if(DoLine())
 					stop = TRUE;
@@ -479,7 +479,7 @@ void GnuPlot::PushTerminal(int isInteractive)
 		SAlloc::F(P_PushTermName);
 		SAlloc::F(P_PushTermOpts);
 		P_PushTermName = sstrdup(term->name);
-		P_PushTermOpts = sstrdup(term_options);
+		P_PushTermOpts = sstrdup(GPT.TermOptions);
 		if(isInteractive)
 			fprintf(stderr, "   pushed terminal %s %s\n", P_PushTermName, P_PushTermOpts);
 	}
@@ -512,7 +512,7 @@ void GnuPlot::PopTerminal()
 		DoStringAndFree(s);
 		_Plt.interactive = LOGIC(i);
 		if(_Plt.interactive)
-			fprintf(stderr, "   restored terminal is %s %s\n", term->name, ((*term_options) ? term_options : ""));
+			fprintf(stderr, "   restored terminal is %s %s\n", term->name, (GPT.TermOptions[0] ? GPT.TermOptions : ""));
 	}
 	else
 		fprintf(stderr, "No terminal has been pushed yet\n");

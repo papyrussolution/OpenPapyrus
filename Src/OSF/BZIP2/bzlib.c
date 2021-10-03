@@ -34,7 +34,7 @@
 #ifndef BZ_NO_STDIO
 void BZ2_bz__AssertH__fail(int errcode)
 {
-	fprintf(stderr, "\n\nbzip2/libbzip2: internal error number %d.\n"
+	slfprintf_stderr("\n\nbzip2/libbzip2: internal error number %d.\n"
 	    "This is a bug in bzip2/libbzip2, %s.\n"
 	    "Please report it to me at: jseward@bzip.org.  If this happened\n"
 	    "when you were using some program which uses libbzip2 as a\n"
@@ -44,7 +44,7 @@ void BZ2_bz__AssertH__fail(int errcode)
 	    "quality software.  Thanks.  Julian Seward, 10 December 2007.\n\n", errcode, BZ2_bzlibVersion());
 
 	if(errcode == 1007) {
-		fprintf(stderr, "\n*** A special note about internal error number 1007 ***\n"
+		slfprintf_stderr("\n*** A special note about internal error number 1007 ***\n"
 		    "\n"
 		    "Experience suggests that a common cause of i.e. 1007\n"
 		    "is unreliable memory or other hardware.  The 1007 assertion\n"

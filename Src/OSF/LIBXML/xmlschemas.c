@@ -3866,9 +3866,9 @@ exit:
 #ifdef DEBUG
 	if(!ret) {
 		if(nsName == NULL)
-			fprintf(stderr, "Unable to lookup element decl. %s", name);
+			slfprintf_stderr("Unable to lookup element decl. %s", name);
 		else
-			fprintf(stderr, "Unable to lookup element decl. %s:%s", name, nsName);
+			slfprintf_stderr("Unable to lookup element decl. %s:%s", name, nsName);
 	}
 #endif
 	return ret;
@@ -3907,9 +3907,9 @@ exit:
 #ifdef DEBUG
 	if(!ret) {
 		if(nsName == NULL)
-			fprintf(stderr, "Unable to lookup type %s", name);
+			slfprintf_stderr("Unable to lookup type %s", name);
 		else
-			fprintf(stderr, "Unable to lookup type %s:%s", name, nsName);
+			slfprintf_stderr("Unable to lookup type %s:%s", name, nsName);
 	}
 #endif
 	return ret;
@@ -3937,9 +3937,9 @@ exit:
 #ifdef DEBUG
 	if(!ret) {
 		if(nsName == NULL)
-			fprintf(stderr, "Unable to lookup attribute %s", name);
+			slfprintf_stderr("Unable to lookup attribute %s", name);
 		else
-			fprintf(stderr, "Unable to lookup attribute %s:%s", name, nsName);
+			slfprintf_stderr("Unable to lookup attribute %s:%s", name, nsName);
 	}
 #endif
 	return ret;
@@ -3970,9 +3970,9 @@ exit:
 #ifdef DEBUG
 	if(!ret) {
 		if(nsName == NULL)
-			fprintf(stderr, "Unable to lookup attribute group %s", name);
+			slfprintf_stderr("Unable to lookup attribute group %s", name);
 		else
-			fprintf(stderr, "Unable to lookup attribute group %s:%s", name, nsName);
+			slfprintf_stderr("Unable to lookup attribute group %s:%s", name, nsName);
 	}
 #endif
 	return ret;
@@ -4000,9 +4000,9 @@ exit:
 #ifdef DEBUG
 	if(!ret) {
 		if(nsName == NULL)
-			fprintf(stderr, "Unable to lookup group %s", name);
+			slfprintf_stderr("Unable to lookup group %s", name);
 		else
-			fprintf(stderr, "Unable to lookup group %s:%s", name, nsName);
+			slfprintf_stderr("Unable to lookup group %s:%s", name, nsName);
 	}
 #endif
 	return ret;
@@ -4470,7 +4470,7 @@ static xmlSchemaParticlePtr xmlSchemaAddParticle(xmlSchemaParserCtxtPtr ctxt, xm
 	if(!ctxt)
 		return 0;
 #ifdef DEBUG
-	fprintf(stderr, "Adding particle component\n");
+	slfprintf_stderr("Adding particle component\n");
 #endif
 	ret = (xmlSchemaParticlePtr)SAlloc::M(sizeof(xmlSchemaParticle));
 	if(!ret) {

@@ -596,12 +596,12 @@ int64_t number_from_bin(const char * s, uint32 len)
 }
 /*
         if(!(condition)) { \
-            fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", __FILE__, __LINE__, __func__, message); \
+            slfprintf_stderr("[%s:%d] Assert failed in %s(): %s\n", __FILE__, __LINE__, __func__, message); \
             abort(); \
         } \
 */
 void Gravity_Implement_DebugAssert(const char * pFile, int line, const char * pFunc, const char * pMessage)
 {
-    fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", pFile, line, pFunc, pMessage);
+    slfprintf_stderr("[%s:%d] Assert failed in %s(): %s\n", pFile, line, pFunc, pMessage);
     abort();
 }

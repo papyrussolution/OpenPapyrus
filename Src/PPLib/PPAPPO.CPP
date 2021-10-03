@@ -1044,9 +1044,10 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			}
 			return ok;
 		}
-		void SetStyloQDbSymbSet(const StringSet & rSs)
+		void SetStyloQDbSymbSet(/*const StringSet & rSs*/const StyloQCore::SvcDbSymbMap & rMap)
 		{
-			SsStyloQDbSymb = rSs;
+			//SsStyloQDbSymb = rSs;
+			StqSvcDbMap = rMap;
 		}
 		PPID GetOnetimePassResult() const
 		{
@@ -1077,7 +1078,8 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				}
 				else {
 					// @v11.1.8 @experimental {
-					if(SsStyloQDbSymb.getCount()) {
+					//if(SsStyloQDbSymb.getCount()) {
+					if(StqSvcDbMap.getCount()) {
 						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
 						if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 							SString inv_text;
@@ -1088,8 +1090,11 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 								P_Dbes->SetSelection(dbid);
 								if(P_Dbes->GetByID(dbid, &dlb)) {
 									SString dbsymb;
-									if(dlb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty() && SsStyloQDbSymb.search(dbsymb, 0, 1))
-										StyloQLoginInvitation(dlb, inv_text);
+									if(dlb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty()) {
+										//if(SsStyloQDbSymb.search(dbsymb, 0, 1))
+										if(StqSvcDbMap.HasDbUserAssocEntries(dbsymb))
+											StyloQLoginInvitation(dlb, inv_text);
+									}
 								}
 							}
 							if(inv_text.NotEmpty()) {
@@ -1139,7 +1144,8 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		int    SystemAccountLogin;
 		bool   DoCheckOnetimePass; // @v11.1.8 @experimental
 		PPID   OnetimePassResult;  // @v11.1.8 @experimental
-		StringSet SsStyloQDbSymb;  // @v11.1.8 @experimental
+		//StringSet SsStyloQDbSymb;  // @v11.1.8 @experimental
+		StyloQCore::SvcDbSymbMap StqSvcDbMap; // @v11.1.12 
 		SCycleTimer IdleTimer;     // @v11.1.8 @experimental
 		PPDbEntrySet2 * P_Dbes;
 	};
@@ -1173,18 +1179,9 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		LoginDialog * dlg = new LoginDialog(rezID, BIN(rParam.Flags & rParam.fSysAccLogin), &rParam.Dbes);
 		if(CheckDialogPtrErr(&dlg)) {
 			// @v11.1.8 { @experimental
-			StringSet styloq_dbsymb_list;
-			{
-				SString file_name;
-				PPGetFilePath(PPPATH_WORKSPACE, "styloq-la", file_name);
-				SFile f(file_name, SFile::mRead);
-				if(f.IsValid()) {
-					while(f.ReadLine(temp_buf)) {
-						temp_buf.Chomp().Strip();
-						styloq_dbsymb_list.add(temp_buf);
-					}
-				}
-			}
+			//StringSet styloq_dbsymb_list;
+			StyloQCore::SvcDbSymbMap stq_svcdb_map;
+			stq_svcdb_map.Read(0);
 			// } @experimental @v11.1.8 
 			if(!(rParam.Flags & rParam.fProtect)) {
 				PPLoadText(PPTXT_GREETING, title_buf);
@@ -1200,7 +1197,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			dlg->setCtrlString(CTL_LOGIN_NAME, rParam.UserName);
 			dlg->setCtrlString(CTL_LOGIN_PASSWORD, rParam.Passw);
 			dlg->setCtrlData(CTL_LOGIN_DATE, &rParam.OperDate);
-			dlg->SetStyloQDbSymbSet(styloq_dbsymb_list); // @v11.1.9 @experimental
+			dlg->SetStyloQDbSymbSet(stq_svcdb_map); // @v11.1.9 @experimental // @v11.1.12
 			if(usedbsel)
 				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, &rParam.Dbes);
 			if(rParam.UserName.NotEmpty() && !usedbsel)

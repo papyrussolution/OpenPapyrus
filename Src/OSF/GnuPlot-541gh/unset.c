@@ -564,7 +564,7 @@ void GnuPlot::UnsetDummy()
 //
 static void unset_encoding()
 {
-	encoding = S_ENC_DEFAULT;
+	GPT._Encoding = S_ENC_DEFAULT;
 }
 //
 // process 'unset decimalsign' command 
@@ -939,7 +939,7 @@ void GnuPlot::UnsetMonthDayTics(AXIS_INDEX axIdx)
 //void unset_monochrome()
 void GnuPlot::UnsetMonochrome()
 {
-	monochrome = FALSE;
+	GPT.Flags &= ~GpTerminalBlock::fMonochrome;
 	if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
 		Pgm.Shift();
 		if(!Pgm.EndOfCommand())
@@ -967,13 +967,11 @@ void GnuPlot::UnsetOrigin()
 //
 void GnuPlot::UnsetOutput()
 {
-	if(multiplot) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		IntErrorCurToken("you can't change the output in multiplot mode");
-		return;
-	}
 	else {
 		TermSetOutput(term, NULL);
-		ZFREE(outstr); // means STDOUT 
+		ZFREE(GPT.P_OutStr); // means STDOUT 
 	}
 }
 //
@@ -1227,7 +1225,7 @@ void GnuPlot::UnsetTable()
 void GnuPlot::UnsetTerminal()
 {
 	udvt_entry * original_terminal = Ev.GetUdvByName("GNUTERM");
-	if(multiplot)
+	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		TermEndMultiplot(term);
 	TermReset(term);
 	// FIXME: change is correct but reported result is truncated 
@@ -1235,7 +1233,7 @@ void GnuPlot::UnsetTerminal()
 		char * termname = sstrdup(original_terminal->udv_value.v.string_val);
 		if(strchr(termname, ' '))
 			*strchr(termname, ' ') = '\0';
-		*term_options = '\0';
+		PTR32(GPT.TermOptions)[0] = 0;
 		term = ChangeTerm(termname, strlen(termname));
 		SAlloc::F(termname);
 	}
@@ -1524,7 +1522,7 @@ void GnuPlot::ResetCommand()
 			mouse_setting = default_mouse_setting;
 		#endif
 			// restore previous multiplot offset and margins 
-			if(multiplot)
+			if(GPT.Flags & GpTerminalBlock::fMultiplot)
 				MultiplotReset();
 			UnsetMissing();
 			ZFREE(_Df.df_separators);
@@ -1533,7 +1531,7 @@ void GnuPlot::ResetCommand()
 			DfInit();
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
 				verbosity_level save_verbosity = _Fit.fit_verbosity;
-				bool save_errorscaling = _Fit.fit_errorscaling;
+				const bool save_errorscaling = _Fit.fit_errorscaling;
 				UnsetFit();
 				_Fit.fit_verbosity = save_verbosity;
 				_Fit.fit_errorscaling = save_errorscaling;

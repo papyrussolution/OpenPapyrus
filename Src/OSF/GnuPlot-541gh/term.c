@@ -43,14 +43,15 @@
 
 static int termcomp(const generic * a, const generic * b);
 
+GpTerminalBlock GPT; // @global
+
 // Externally visible variables 
 // the central instance: the current terminal's interface structure 
 struct GpTermEntry * term = NULL;  /* unknown */
-char term_options[MAX_LINE_LEN+1] = ""; /* ... and its options string */
-
+// char term_options[MAX_LINE_LEN+1] = ""; /* ... and its options string */
 // the 'output' file name and handle 
-char * outstr = NULL;            /* means "STDOUT" */
-FILE * gpoutfile;
+//char * outstr = NULL; // means "STDOUT" 
+//FILE * gpoutfile;
 // Output file where the PostScript output goes to. See term_api.h for more details. 
 FILE * gppsfile = 0;
 char * PS_psdir = NULL;
@@ -58,11 +59,11 @@ char * PS_fontpath = NULL;
 //bool term_initialised; /* true if terminal has been initialized */
 // The qt and wxt terminals cannot be used in the same session. 
 // Whichever one is used first to plot, this locks out the other. 
-void * term_interlock = NULL;
-bool monochrome = FALSE; /* true if "set monochrome" */
-bool multiplot = FALSE; /* true if in multiplot mode */
-int multiplot_count = 0;
-enum set_encoding_id encoding; /* text output encoding, for terminals that support it */
+//void * term_interlock = NULL;
+//bool monochrome = FALSE; // true if "set monochrome"
+//bool multiplot = FALSE; // true if in multiplot mode 
+//int  multiplot_count = 0;
+//enum set_encoding_id encoding; // text output encoding, for terminals that support it 
 // table of encoding names, for output of the setting 
 const char * encoding_names[] = {
 	"default", "iso_8859_1", "iso_8859_2", "iso_8859_9", "iso_8859_15",
@@ -92,7 +93,10 @@ const struct gen_table set_encoding_tbl[] = {
 
 const char * arrow_head_names[4] = {"nohead", "head", "backhead", "heads"};
 
-enum { IPC_BACK_UNUSABLE = -2, IPC_BACK_CLOSED = -1 };
+enum { 
+	IPC_BACK_UNUSABLE = -2, 
+	IPC_BACK_CLOSED = -1 
+};
 //
 // Support for enhanced text mode. Declared extern in term_api.h 
 //
@@ -152,23 +156,23 @@ void GnuPlot::TermCloseOutput(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_close_output\n"));
 	TermOpenedBinary = false;
-	if(outstr) { // ie using stdout 
+	if(GPT.P_OutStr) { // ie using stdout 
 	#if defined(PIPES)
 		if(output_pipe_open) {
-			pclose(gpoutfile);
+			pclose(GPT.P_GpOutFile);
 			output_pipe_open = FALSE;
 		}
 		else
 	#endif
 	#ifdef _WIN32
-		if(sstreqi_ascii(outstr, "PRN"))
-			ClosePrinter(pTerm, gpoutfile);
+		if(sstreqi_ascii(GPT.P_OutStr, "PRN"))
+			ClosePrinter(pTerm, GPT.P_GpOutFile);
 		else
 	#endif
-		if(gpoutfile != gppsfile)
-			fclose(gpoutfile);
-		gpoutfile = stdout;     /* Don't dup... */
-		ZFREE(outstr);
+		if(GPT.P_GpOutFile != gppsfile)
+			fclose(GPT.P_GpOutFile);
+		GPT.P_GpOutFile = stdout; // Don't dup...
+		ZFREE(GPT.P_OutStr);
 		SFile::ZClose(&gppsfile);
 	}
 }
@@ -181,8 +185,8 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 {
 	FILE * f = NULL;
 	FPRINTF((stderr, "term_set_output\n"));
-	assert(pDest == NULL || pDest != outstr);
-	if(multiplot) {
+	assert(pDest == NULL || pDest != GPT.P_OutStr);
+	if(GPT.Flags & GpTerminalBlock::fMultiplot) {
 		fputs("In multiplot mode you can't change the output\n", stderr);
 		return;
 	}
@@ -216,12 +220,12 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 		else {
 #endif /* PIPES */
 #ifdef _WIN32
-		if(outstr && sstreqi_ascii(outstr, "PRN")) {
+		if(sstreqi_ascii(GPT.P_OutStr, "PRN")) {
 			// we can't call open_printer() while printer is open, so 
-			ClosePrinter(pTerm, gpoutfile); /* close printer immediately if open */
-			gpoutfile = stdout; /* and reset output to stdout */
-			SAlloc::F(outstr);
-			outstr = NULL;
+			ClosePrinter(pTerm, GPT.P_GpOutFile); // close printer immediately if open 
+			GPT.P_GpOutFile = stdout; // and reset output to stdout 
+			SAlloc::F(GPT.P_OutStr);
+			GPT.P_OutStr = NULL;
 		}
 		if(sstreqi_ascii(pDest, "PRN")) {
 			if((f = open_printer()) == (FILE*)NULL)
@@ -241,8 +245,8 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 	}
 #endif
 		TermCloseOutput(pTerm);
-		gpoutfile = f;
-		outstr = pDest;
+		GPT.P_GpOutFile = f;
+		GPT.P_OutStr = pDest;
 		TermOpenedBinary = (pTerm && (pTerm->flags & TERM_BINARY));
 	}
 }
@@ -257,24 +261,24 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 	// (text/binary), if set term comes after set output
 	// This was originally done in change_term, but that
 	// resulted in output files being truncated
-	if(outstr && (pTerm->flags & TERM_NO_OUTPUTFILE)) {
+	if(GPT.P_OutStr && (pTerm->flags & TERM_NO_OUTPUTFILE)) {
 		if(_Plt.interactive)
-			fprintf(stderr, "Closing %s\n", outstr);
+			fprintf(stderr, "Closing %s\n", GPT.P_OutStr);
 		TermCloseOutput(pTerm);
 	}
-	if(outstr && (((pTerm->flags & TERM_BINARY) && !TermOpenedBinary) || ((!(pTerm->flags & TERM_BINARY) && TermOpenedBinary)))) {
+	if(GPT.P_OutStr && (((pTerm->flags & TERM_BINARY) && !TermOpenedBinary) || ((!(pTerm->flags & TERM_BINARY) && TermOpenedBinary)))) {
 		// this is nasty - we cannot just term_set_output(outstr)
 		// since term_set_output will first free outstr and we
 		// end up with an invalid pointer. I think I would
 		// prefer to defer opening output file until first plot.
-		char * temp = (char *)SAlloc::M(strlen(outstr) + 1);
+		char * temp = (char *)SAlloc::M(strlen(GPT.P_OutStr) + 1);
 		if(temp) {
-			FPRINTF((stderr, "term_initialise: reopening \"%s\" as %s\n", outstr, pTerm->flags & TERM_BINARY ? "binary" : "text"));
-			strcpy(temp, outstr);
-			TermSetOutput(pTerm, temp); /* will free outstr */
-			if(temp != outstr) {
+			FPRINTF((stderr, "term_initialise: reopening \"%s\" as %s\n", GPT.P_OutStr, pTerm->flags & TERM_BINARY ? "binary" : "text"));
+			strcpy(temp, GPT.P_OutStr);
+			TermSetOutput(pTerm, temp); // will free GPT.P_OutStr 
+			if(temp != GPT.P_OutStr) {
 				SAlloc::F(temp);
-				temp = outstr;
+				temp = GPT.P_OutStr;
 			}
 		}
 		else
@@ -283,16 +287,16 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 	}
 #if defined(_WIN32)
 #ifdef _WIN32
-	else if(!outstr && (pTerm->flags & TERM_BINARY))
+	else if(!GPT.P_OutStr && (pTerm->flags & TERM_BINARY))
 #else
-	else if(!outstr && !interactive && (pTerm->flags & TERM_BINARY))
+	else if(!GPT.P_OutStr && !interactive && (pTerm->flags & TERM_BINARY))
 #endif
 	{
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
 #ifdef PIPES
 		if(!output_pipe_open)
 #endif
-		if(!outstr && !(pTerm->flags & TERM_NO_OUTPUTFILE))
+		if(!GPT.P_OutStr && !(pTerm->flags & TERM_NO_OUTPUTFILE))
 			IntErrorCurToken("cannot output binary data to wgnuplot text window");
 #endif
 		// binary to stdout in non-interactive session... 
@@ -326,15 +330,15 @@ void GnuPlot::TermStartPlot(GpTermEntry * pTerm)
 		(pTerm->graphics)(pTerm);
 		TermGraphics = true;
 	}
-	else if(multiplot && TermSuspended) {
+	else if(GPT.Flags & GpTerminalBlock::fMultiplot && TermSuspended) {
 		if(pTerm->resume) {
 			FPRINTF((stderr, "- calling term->resume()\n"));
 			(pTerm->resume)(pTerm);
 		}
 		TermSuspended = false;
 	}
-	if(multiplot)
-		multiplot_count++;
+	if(GPT.Flags & GpTerminalBlock::fMultiplot)
+		GPT.MultiplotCount++;
 	(pTerm->layer)(pTerm, TERM_LAYER_RESET); // Sync point for epslatex text positioning 
 	// Because PostScript plots may be viewed out of order, make sure 
 	// Each new plot makes no assumption about the previous palette.
@@ -354,7 +358,7 @@ void GnuPlot::TermEndPlot(GpTermEntry * pTerm)
 	if(TermInitialised) {
 		// Sync point for epslatex text positioning 
 		(pTerm->layer)(pTerm, TERM_LAYER_END_TEXT);
-		if(!multiplot) {
+		if(!(GPT.Flags & GpTerminalBlock::fMultiplot)) {
 			FPRINTF((stderr, "- calling term->text()\n"));
 			(pTerm->text)(pTerm);
 			TermGraphics = FALSE;
@@ -362,7 +366,7 @@ void GnuPlot::TermEndPlot(GpTermEntry * pTerm)
 		else {
 			MultiplotNext();
 		}
-		fflush(gpoutfile);
+		fflush(GPT.P_GpOutFile);
 #ifdef USE_MOUSE
 		if(pTerm->set_ruler) {
 			RecalcStatusLine();
@@ -491,7 +495,7 @@ void GnuPlot::TermStartMultiplot(GpTermEntry * pTerm)
 void GnuPlot::TermEndMultiplot(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_end_multiplot()\n"));
-	if(multiplot) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot) {
 		if(TermSuspended) {
 			if(pTerm->resume)
 				(pTerm->resume)(pTerm);
@@ -516,7 +520,7 @@ void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 		//   the terminal supports interactive multiplot, or
 		//   we are not writing to stdout and terminal doesn't
 		//   refuse multiplot outright
-		if(!fInteractive || (term->flags & TERM_CAN_MULTIPLOT) || ((gpoutfile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))) {
+		if(!fInteractive || (term->flags & TERM_CAN_MULTIPLOT) || ((GPT.P_GpOutFile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))) {
 			// it's okay to use multiplot here, but suspend first 
 			TermSuspend(term);
 		}
@@ -706,21 +710,17 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
  *            Yasu-hiro Yamazaki(hiro@rainbow.physics.utoronto.ca)
  *            Jul 1, 1993
  */
+#define COS15 (0.96593)         // cos of 15 degree
+#define SIN15 (0.25882)         // sin of 15 degree
+#define HEAD_LONG_LIMIT  (2.0)  // long  limit of arrowhead length 
+#define HEAD_SHORT_LIMIT (0.3)  // short limit of arrowhead length their units are the "tic" length 
+#define HEAD_COEFF  (0.3)       // default value of head/line length ratio 
 
-#define COS15 (0.96593)         /* cos of 15 degree */
-#define SIN15 (0.25882)         /* sin of 15 degree */
-
-#define HEAD_LONG_LIMIT  (2.0)  /* long  limit of arrowhead length */
-#define HEAD_SHORT_LIMIT (0.3)  /* short limit of arrowhead length */
-                                /* their units are the "tic" length */
-
-#define HEAD_COEFF  (0.3)       /* default value of head/line length ratio */
-
-int curr_arrow_headlength; /* access head length + angle without changing API */
-double curr_arrow_headangle;    /* angle in degrees */
-double curr_arrow_headbackangle;  /* angle in degrees */
-arrowheadfill curr_arrow_headfilled;      /* arrow head filled or not */
-bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or not */
+//int curr_arrow_headlength; // access head length + angle without changing API
+//double curr_arrow_headangle; // angle in degrees 
+//double curr_arrow_headbackangle; // angle in degrees 
+//arrowheadfill curr_arrow_headfilled; // arrow head filled or not 
+//bool curr_arrow_headfixedsize; // Adapt the head size for short arrows or not 
 
 void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle)
 {
@@ -747,7 +747,7 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 	// length < DBL_EPSILON, because len_arrow will almost always be != 0.
 	if((headstyle & BOTH_HEADS) != NOHEAD && fabs(len_arrow) >= DBL_EPSILON) {
 		int x1, y1, x2, y2;
-		if(curr_arrow_headlength <= 0) {
+		if(GPT.CArw.HeadLength <= 0) {
 			// An arrow head with the default size and angles 
 			double coeff_shortest = len_tic * HEAD_SHORT_LIMIT / len_arrow;
 			double coeff_longest = len_tic * HEAD_LONG_LIMIT / len_arrow;
@@ -765,16 +765,16 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 			// An arrow head with the length + angle specified explicitly.	
 			// Assume that if the arrow is shorter than the arrowhead, this is	
 			// because of foreshortening in a 3D plot.                      
-			double alpha = curr_arrow_headangle * SMathConst::PiDiv180;
-			double beta = curr_arrow_headbackangle * SMathConst::PiDiv180;
+			double alpha = GPT.CArw.HeadAngle * SMathConst::PiDiv180;
+			double beta = GPT.CArw.HeadBackAngle * SMathConst::PiDiv180;
 			double phi = atan2(-dy, -dx); /* azimuthal angle of the vector */
 			double backlen;
 			double dx2, dy2;
-			double effective_length = curr_arrow_headlength;
-			if(!curr_arrow_headfixedsize && (curr_arrow_headlength > len_arrow/2.)) {
+			double effective_length = GPT.CArw.HeadLength;
+			if(!GPT.CArw.HeadFixedSize && (GPT.CArw.HeadLength > len_arrow/2.0)) {
 				effective_length = len_arrow/2.;
-				alpha = atan(tan(alpha)*((double)curr_arrow_headlength/effective_length));
-				beta = atan(tan(beta)*((double)curr_arrow_headlength/effective_length));
+				alpha = atan(tan(alpha)*((double)GPT.CArw.HeadLength/effective_length));
+				beta = atan(tan(beta)*((double)GPT.CArw.HeadLength/effective_length));
 			}
 			backlen = sin(alpha) / sin(beta);
 			// anticlock-wise head segment 
@@ -801,16 +801,16 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 			head_points[4].x = ex + xm;
 			head_points[4].y = ey + ym;
 			if(!((headstyle & SHAFT_ONLY))) {
-				if(curr_arrow_headfilled >= AS_FILLED) {
+				if(GPT.CArw.HeadFilled >= AS_FILLED) {
 					// draw filled forward arrow head 
 					head_points->style = FS_OPAQUE;
 					if(pThis->filled_polygon)
 						(pThis->filled_polygon)(pThis, 5, head_points);
 				}
 				// draw outline of forward arrow head 
-				if(curr_arrow_headfilled == AS_NOFILL)
+				if(GPT.CArw.HeadFilled == AS_NOFILL)
 					DrawClipPolygon(pThis, 3, head_points+1);
-				else if(curr_arrow_headfilled != AS_NOBORDER)
+				else if(GPT.CArw.HeadFilled != AS_NOBORDER)
 					DrawClipPolygon(pThis, 5, head_points);
 			}
 		}
@@ -827,26 +827,26 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 			head_points[4].x = sx - xm;
 			head_points[4].y = sy - ym;
 			if(!((headstyle & SHAFT_ONLY))) {
-				if(curr_arrow_headfilled >= AS_FILLED) {
+				if(GPT.CArw.HeadFilled >= AS_FILLED) {
 					// draw filled backward arrow head 
 					head_points->style = FS_OPAQUE;
 					if(pThis->filled_polygon)
 						(pThis->filled_polygon)(pThis, 5, head_points);
 				}
 				// draw outline of backward arrow head 
-				if(curr_arrow_headfilled == AS_NOFILL)
+				if(GPT.CArw.HeadFilled == AS_NOFILL)
 					DrawClipPolygon(pThis, 3, head_points+1);
-				else if(curr_arrow_headfilled != AS_NOBORDER)
+				else if(GPT.CArw.HeadFilled != AS_NOBORDER)
 					DrawClipPolygon(pThis, 5, head_points);
 			}
 		}
 	}
 	// Adjust the length of the shaft so that it doesn't overlap the head 
-	if((headstyle & BACKHEAD) && (fabs(len_arrow) >= DBL_EPSILON) && (curr_arrow_headfilled != AS_NOFILL) ) {
+	if((headstyle & BACKHEAD) && (fabs(len_arrow) >= DBL_EPSILON) && (GPT.CArw.HeadFilled != AS_NOFILL) ) {
 		sx -= xm;
 		sy -= ym;
 	}
-	if((headstyle & END_HEAD) && (fabs(len_arrow) >= DBL_EPSILON) && (curr_arrow_headfilled != AS_NOFILL) ) {
+	if((headstyle & END_HEAD) && (fabs(len_arrow) >= DBL_EPSILON) && (GPT.CArw.HeadFilled != AS_NOFILL) ) {
 		ex += xm;
 		ey += ym;
 	}
@@ -968,7 +968,7 @@ static void null_layer(GpTermEntry * pThis, t_termlayer layer)
 //static void options_null()
 /*static*/void GnuPlot::OptionsNull(GpTermEntry * pThis, GnuPlot * pGp)
 {
-	term_options[0] = '\0'; /* we have no options */
+	PTR32(GPT.TermOptions)[0] = 0; // we have no options
 }
 
 static void Func_Init_Null(GpTermEntry * pThis)
@@ -1542,14 +1542,14 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 	y = y0 + ymax_t/2;
 	xl = pTerm->TicH * 7;
 	yl = pTerm->TicV * 7;
-	i = curr_arrow_headfilled;
-	curr_arrow_headfilled = AS_NOBORDER;
+	i = GPT.CArw.HeadFilled;
+	GPT.CArw.HeadFilled = AS_NOBORDER;
 	pTerm->arrow(pTerm, x, y-yl, x, y+yl, BOTH_HEADS);
-	curr_arrow_headfilled = AS_EMPTY;
+	GPT.CArw.HeadFilled = AS_EMPTY;
 	pTerm->arrow(pTerm, x, y, x + xl, y + yl, END_HEAD);
-	curr_arrow_headfilled = AS_NOFILL;
+	GPT.CArw.HeadFilled = AS_NOFILL;
 	pTerm->arrow(pTerm, x, y, x + xl, y - yl, END_HEAD);
-	curr_arrow_headfilled = (arrowheadfill)i;
+	GPT.CArw.HeadFilled = (arrowheadfill)i;
 	// test text angle (should match arrows) 
 	pTerm->linetype(pTerm, 0);
 	str = "rotated ce+ntred text";
@@ -1754,7 +1754,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 		// Gnuplot's other defined encodings are all single-byte; for those we
 		// really do want to treat one byte at a time.
 		// 
-		if((*p & 0x80) && (encoding == S_ENC_DEFAULT || encoding == S_ENC_UTF8)) {
+		if((*p & 0x80) && oneof2(GPT._Encoding, S_ENC_DEFAULT, S_ENC_UTF8)) {
 			ulong utf8char;
 			const char * nextchar = p;
 			(pTerm->enhanced_open)(pTerm, fontname, fontsize, base, widthflag, showflag, overprint);
@@ -1768,7 +1768,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 			}
 /* shige : for Shift_JIS */
 		}
-		else if((*p & 0x80) && (encoding == S_ENC_SJIS)) {
+		else if((*p & 0x80) && (GPT._Encoding == S_ENC_SJIS)) {
 			(pTerm->enhanced_open)(pTerm, fontname, fontsize, base, widthflag, showflag, overprint);
 			(pTerm->enhanced_writec)(pTerm, *(p++));
 			(pTerm->enhanced_writec)(pTerm, *p);
@@ -1972,7 +1972,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 				     *     output the bytes one by one.
 				     */
 				    if(p[1] == 'U' && p[2] == '+') {
-					    if(encoding == S_ENC_UTF8) {
+					    if(GPT._Encoding == S_ENC_UTF8) {
 						    uint32_t codepoint;
 						    uchar utf8char[8];
 						    int i, length;
@@ -2041,7 +2041,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 				    }
 				    // SVG requires an escaped '&' to be passed as something else 
 				    // FIXME: terminal-dependent code does not belong here 
-				    if(*p == '&' && encoding == S_ENC_DEFAULT && sstreq(pTerm->name, "svg")) {
+				    if(*p == '&' && GPT._Encoding == S_ENC_DEFAULT && sstreq(pTerm->name, "svg")) {
 					    (pTerm->enhanced_writec)(pTerm, '\376');
 					    break;
 				    }
@@ -2137,7 +2137,7 @@ int GnuPlot::EstimateStrlen(const char * pText, double * pHeight)
 		FPRINTF((stderr, "Estimating length %d height %g for enhanced text \"%s\"", len, estimated_fontheight, pText));
 		FPRINTF((stderr, "  plain text \"%s\"\n", ENHest_plaintext));
 	}
-	else if(encoding == S_ENC_UTF8)
+	else if(GPT._Encoding == S_ENC_UTF8)
 		len = strwidth_utf8(pText);
 	else
 #endif
@@ -2311,7 +2311,7 @@ void GnuPlot::LoadLineType(GpTermEntry * pTerm, lp_style_type * pLp, int tag)
 	linestyle_def * p_this;
 	bool recycled = false;
 recycle:
-	if((tag > 0) && (monochrome || (pTerm && (pTerm->flags & TERM_MONOCHROME)))) {
+	if((tag > 0) && ((GPT.Flags & GpTerminalBlock::fMonochrome) || (pTerm && (pTerm->flags & TERM_MONOCHROME)))) {
 		for(p_this = Gg.P_FirstMonoLineStyle; p_this; p_this = p_this->next) {
 			if(tag == p_this->tag) {
 				*pLp = p_this->lp_properties;
@@ -2494,4 +2494,172 @@ char * escape_reserved_chars(const char * str, const char * reserved)
 	}
 	escaped_str[newsize] = '\0';
 	return escaped_str;
+}
+//
+//
+//
+GpTerminalBase::GpTerminalBase() : MaxX(0), MaxY(0), ChrV(0), ChrH(0),  TicV(0), TicH(0), Flags(0), TScale(1.0), P_Gp(0)
+{
+}
+
+void GpTerminalBase::Options(GnuPlot * pGp)
+{
+}
+
+void GpTerminalBase::Init()
+{
+}
+
+void GpTerminalBase::Reset()
+{
+}
+
+void GpTerminalBase::Text()
+{
+}
+
+int  GpTerminalBase::Scale(double, double)
+{
+	return 0;
+}
+
+void GpTerminalBase::Graphics()
+{
+}
+
+void GpTerminalBase::Move(uint, uint)
+{
+}
+
+void GpTerminalBase::Vector(uint, uint)
+{
+}
+
+void GpTerminalBase::LineType(int)
+{
+}
+
+void GpTerminalBase::PutText(uint, uint, const char *)
+{
+}
+
+int  GpTerminalBase::TextAngle(int)
+{
+	return 0;
+}
+
+int  GpTerminalBase::JustifyText(enum JUSTIFY)
+{
+	return 0;
+}
+
+void GpTerminalBase::Point(uint, uint, int)
+{
+}
+
+void GpTerminalBase::Arrow(uint, uint, uint, uint, int headstyle)
+{
+}
+
+int  GpTerminalBase::SetFont(const char * font)
+{
+	return 0;
+}
+
+void GpTerminalBase::PointSize(double)
+{
+}
+
+void GpTerminalBase::Suspend()
+{
+}
+
+void GpTerminalBase::Resume()
+{
+}
+
+void GpTerminalBase::FillBox(int, uint, uint, uint, uint)
+{
+}
+
+void GpTerminalBase::LineWidth(double linewidth)
+{
+}
+
+int  GpTerminalBase::WaitForInput(int)
+{
+	return 0;
+}
+
+void GpTerminalBase::PutTmpText(int, const char [])
+{
+}
+
+void GpTerminalBase::SetRuler(int, int)
+{
+}
+
+void GpTerminalBase::SetCursor(int, int, int)
+{
+}
+
+void GpTerminalBase::SetClipboard(const char[])
+{
+}
+
+int  GpTerminalBase::MakePalette(t_sm_palette * pPalette)
+{
+	return 0;
+}
+
+void  GpTerminalBase::PreviousPalette()
+{
+}
+
+void  GpTerminalBase::SetColor(const t_colorspec *)
+{
+}
+
+void  GpTerminalBase::FilledPolygon(int points, gpiPoint *corners)
+{
+}
+
+void  GpTerminalBase::Image(uint, uint, coordval *, const gpiPoint * pCorners, t_imagecolor)
+{
+}
+
+void  GpTerminalBase::EnhancedOpen(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+{
+}
+
+void  GpTerminalBase::EnhancedFlush()
+{
+}
+
+void  GpTerminalBase::EnhancedWriteC(int c)
+{
+}
+
+void  GpTerminalBase::Layer(t_termlayer)
+{
+}
+
+void  GpTerminalBase::Path(int p)
+{
+}
+
+void  GpTerminalBase::Hypertext(int type, const char * text)
+{
+}
+
+void  GpTerminalBase::BoxedText(uint, uint, int)
+{
+}
+
+void  GpTerminalBase::ModifyPlots(uint operations, int plotno)
+{
+}
+
+void  GpTerminalBase::DashType(int type, t_dashtype * custom_dash_pattern)
+{
 }

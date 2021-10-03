@@ -1235,11 +1235,11 @@ int main()
 	}
 
 	if(memcmp(out, result, sizeof(out))) {
-		fprintf(stderr, "failure\n");
+		slfprintf_stderr("failure\n");
 		return 1;
 	}
 	else {
-		fprintf(stderr, "success\n");
+		slfprintf_stderr("success\n");
 		return 0;
 	}
 }

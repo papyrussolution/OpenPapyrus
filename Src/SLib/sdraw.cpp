@@ -3018,7 +3018,7 @@ int SImageBuffer::LoadGif(SFile & rF)
 				height = p_gf->Image.Height;
 				//GifQprintf("\n%s: Image %d at (%d, %d) [%dx%d]:     ", PROGRAM_NAME, ++ImageNum, Col, Row, Width, Height);
 				THROW((p_gf->Image.Left + p_gf->Image.Width) <= p_gf->SWidth && (p_gf->Image.Top + p_gf->Image.Height) <= p_gf->SHeight);
-					//fprintf(stderr, "Image %d is not confined to screen dimension, aborted.\n",ImageNum);
+					//slfprintf_stderr("Image %d is not confined to screen dimension, aborted.\n",ImageNum);
 				if(p_gf->Image.Interlace) {
 					// Need to perform 4 passes on the images:
 					for(count = i = 0; i < 4; i++)

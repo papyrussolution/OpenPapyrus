@@ -465,29 +465,24 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->MaxX = CGM_LARGE - CGM_MARGIN;
 		pThis->MaxY = CGM_SMALL - CGM_MARGIN;
 	}
-	{ /* cgm_font, cgm_fontsize, and/or pThis->ChrV may have changed */
+	{ // cgm_font, cgm_fontsize, and/or pThis->ChrV may have changed 
 		double w;
 		CGM_find_font(cgm_font, strlen(cgm_font), &w);
 		pThis->ChrV = (uint)(cgm_fontsize*CGM_PT);
 		pThis->ChrH = (uint)(cgm_fontsize*CGM_PT*.527*w);
 	}
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
-	/* CGM_default_font holds the font and size set at 'set term' */
-	sprintf(term_options, "%s %s %s %s %s width %d linewidth %d font \"%s, %d\"",
-	    cgm_portrait ? "portrait" : "landscape",
-	    cgm_monochrome ? "monochrome" : "color",
-	    cgm_rotate ? "rotate" : "norotate",
-	    cgm_dashed ? "dashed" : "solid",
-	    cgm_nofontlist_mode ? "nofontlist" : "",
-	    cgm_plotwidth,
-	    cgm_linewidth_pt,
-	    cgm_font, cgm_fontsize);
+	// CGM_default_font holds the font and size set at 'set term' 
+	sprintf(GPT.TermOptions, "%s %s %s %s %s width %d linewidth %d font \"%s, %d\"",
+	    cgm_portrait ? "portrait" : "landscape", cgm_monochrome ? "monochrome" : "color",
+	    cgm_rotate ? "rotate" : "norotate", cgm_dashed ? "dashed" : "solid",
+	    cgm_nofontlist_mode ? "nofontlist" : "", cgm_plotwidth, cgm_linewidth_pt, cgm_font, cgm_fontsize);
 	if(cgm_user_color_count) {
-		for(int i = 0; i < cgm_user_color_count && (strlen(term_options) + 9 < MAX_LINE_LEN); i++) {
+		for(int i = 0; i < cgm_user_color_count && (strlen(GPT.TermOptions) + 9 < MAX_LINE_LEN); i++) {
 			int red = cgm_user_color_table[1 + 3*i];
 			int green = cgm_user_color_table[2 + 3*i];
 			int blue = cgm_user_color_table[3 + 3*i];
-			sprintf(term_options + strlen(term_options), " x%02x%02x%02x", red, green, blue);
+			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " x%02x%02x%02x", red, green, blue);
 		}
 	}
 	if(cgm_user_color_count < CGM_COLORS) {
@@ -632,10 +627,10 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 	if(!cgm_initialized)
 		pThis->P_Gp->IntError(NO_CARET, "cgm terminal initialization failed");
 	// metafile description (_cls 1), including filename if available 
-	if(!outstr)
-		CGM_write_char_record(0, 1, 1, outstr);
+	if(!GPT.P_OutStr)
+		CGM_write_char_record(0, 1, 1, GPT.P_OutStr);
 	else
-		CGM_write_char_record(0, 1, strlen(outstr) + 1, outstr);
+		CGM_write_char_record(0, 1, strlen(GPT.P_OutStr) + 1, GPT.P_OutStr);
 	CGM_write_int_record(1, 1, 2, version_data);
 	{
 		char description_data[256];
@@ -726,12 +721,10 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
    set *relwidth to 1.0 and return 0. */
 static int CGM_find_font(const char * name, int numchar, double * relwidth)
 {
-	int i;
 	*relwidth = 1.0;
-	for(i = 0; cgm_font_data[i].name; i++)
+	for(int i = 0; cgm_font_data[i].name; i++)
 		// strncasecmp is not standard, but defined by stdfn.c if not available 
-		if(strlen(cgm_font_data[i].name) == numchar &&
-		    strncasecmp(name, cgm_font_data[i].name, numchar) == 0) {
+		if(strlen(cgm_font_data[i].name) == numchar && strncasecmp(name, cgm_font_data[i].name, numchar) == 0) {
 			*relwidth = cgm_font_data[i].width;
 			return i+1;
 		}
@@ -1044,19 +1037,19 @@ static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, char * dat
 	CGM_write_code(_cls, cgm_id, length);
 	if(numbytes < 255) {
 		short_len = (char)numbytes;
-		fwrite(&short_len, 1, 1, gpoutfile); /* write true length */
+		fwrite(&short_len, 1, 1, GPT.P_GpOutFile); /* write true length */
 	}
 	else {
-		fwrite(&flag, 1, 1, gpoutfile);
+		fwrite(&flag, 1, 1, GPT.P_GpOutFile);
 		CGM_write_int(numbytes);
 	}
 	if(data)
-		fwrite(data, 1, numbytes, gpoutfile);   /* write string */
+		fwrite(data, 1, numbytes, GPT.P_GpOutFile);   /* write string */
 	else
 		for(i = 0; i<numbytes+pad; i++)
-			fputc('\0', gpoutfile);         /* write null bytes */
+			fputc('\0', GPT.P_GpOutFile);         /* write null bytes */
 	if(pad)
-		fwrite(&paddata, 1, 1, gpoutfile);
+		fwrite(&paddata, 1, 1, GPT.P_GpOutFile);
 }
 
 static void CGM_write_byte_record(int _cls, int cgm_id, int numbytes, char * data)
@@ -1066,9 +1059,9 @@ static void CGM_write_byte_record(int _cls, int cgm_id, int numbytes, char * dat
 
 	pad = numbytes & 1;
 	CGM_write_code(_cls, cgm_id, numbytes);
-	fwrite(data, 1, numbytes, gpoutfile);           /* write string */
+	fwrite(data, 1, numbytes, GPT.P_GpOutFile);           /* write string */
 	if(pad)
-		fwrite(&paddata, 1, 1, gpoutfile);
+		fwrite(&paddata, 1, 1, GPT.P_GpOutFile);
 }
 
 static void CGM_write_int_record(int _cls, int cgm_id, int numbytes, int * data)
@@ -1097,15 +1090,15 @@ static void CGM_write_mixed_record(int _cls, int cgm_id, int numint, int * int_d
 		CGM_write_int(int_data[i]); /* write integers */
 	if(numchar < 255) {
 		short_len = (char)numchar;
-		fwrite(&short_len, 1, 1, gpoutfile); /* write string length */
+		fwrite(&short_len, 1, 1, GPT.P_GpOutFile); /* write string length */
 	}
 	else {
-		fwrite(&flag, 1, 1, gpoutfile);
+		fwrite(&flag, 1, 1, GPT.P_GpOutFile);
 		CGM_write_int(numchar);
 	}
-	fwrite(char_data, 1, numchar, gpoutfile); /* write string */
+	fwrite(char_data, 1, numchar, GPT.P_GpOutFile); /* write string */
 	if(pad)
-		fwrite(&paddata, 1, 1, gpoutfile);
+		fwrite(&paddata, 1, 1, GPT.P_GpOutFile);
 }
 /*
    Write the code word that starts a CGM record.
@@ -1144,7 +1137,7 @@ static void CGM_write_int(int value)
 	assert(value <= 32767);
 	u.c[0] = (value >> 8) & 255;    /* convert to network order */
 	u.c[1] = value & 255;
-	fwrite(&u.s, 1, 2, gpoutfile);
+	fwrite(&u.s, 1, 2, GPT.P_GpOutFile);
 }
 //
 // Draw a dashed line to (ux,uy).  CGM has linestyles, but they are

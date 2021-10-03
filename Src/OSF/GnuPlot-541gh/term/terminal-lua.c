@@ -44,7 +44,7 @@ TERM_PUBLIC int  LUA_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int p);
 TERM_PUBLIC void LUA_boxed_text(GpTermEntry * pThis, uint, uint, int);
 
@@ -149,8 +149,9 @@ static int LUA_GP_get_boundingbox(lua_State * pL)
 	lua_rawset(pL, -3);
 	return 1;
 }
-
-/* gp.term_options(char *str) */
+//
+// gp.term_options(char *str) 
+//
 static int LUA_GP_term_options(lua_State * pL) 
 {
 	int n = lua_gettop(pL); // Number of arguments 
@@ -161,8 +162,8 @@ static int LUA_GP_term_options(lua_State * pL)
 	n = strlen(opt_str);
 	if(n > MAX_LINE_LEN)
 		return luaL_error(pL, "Option string consists of %d characters but only %d are allowed", n, MAX_LINE_LEN);
-	strncpy(term_options, opt_str, MAX_LINE_LEN);
-	term_options[MAX_LINE_LEN] = '\0';
+	strncpy(GPT.TermOptions, opt_str, MAX_LINE_LEN);
+	GPT.TermOptions[MAX_LINE_LEN] = 0;
 	return 0;
 }
 
@@ -185,7 +186,7 @@ static int LUA_GP_write(lua_State * pL)
 	if(n != 1)
 		return luaL_error(pL, "Got %d arguments expected 1", n);
 	out_str = luaL_checkstring(pL, 1);
-	fputs(out_str, gpoutfile);
+	fputs(out_str, GPT.P_GpOutFile);
 	return 0;
 }
 /*
@@ -288,13 +289,12 @@ static int LUA_GP_term_out(lua_State * pL)
 		fputs(last, stderr);
 	return 0;
 }
-/*
-   gp.is_multiplot()
-
- */
+//
+// gp.is_multiplot()
+//
 static int LUA_GP_is_multiplot(lua_State * pL) 
 {
-	lua_pushboolean(pL, multiplot);
+	lua_pushboolean(pL, BIN(GPT.Flags & GpTerminalBlock::fMultiplot));
 	return 1;
 }
 /*
@@ -751,18 +751,18 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	LUA_get_term_vars(pThis);
 	// Treat "set term tikz mono" as "set term tikz; set mono" 
-	if(strstr(term_options, "monochrome")) {
-		monochrome = TRUE;
+	if(strstr(GPT.TermOptions, "monochrome")) {
+		GPT.Flags |= GpTerminalBlock::fMonochrome;
 		pGp->InitMonochrome();
 	}
 }
 
 TERM_PUBLIC void LUA_init(GpTermEntry * pThis)
 {
-	if(gpoutfile != stdout) {
-		fseek(gpoutfile, 0, SEEK_SET);
+	if(GPT.P_GpOutFile != stdout) {
+		fseek(GPT.P_GpOutFile, 0, SEEK_SET);
 		// ignore compiler warnings here, because `gpoutfile' is already open 
-		if(fflush(gpoutfile) || ftruncate(_fileno(gpoutfile), 0))
+		if(fflush(GPT.P_GpOutFile) || ftruncate(_fileno(GPT.P_GpOutFile), 0))
 			pThis->P_Gp->IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
 	}
 	image_cnt = 0; // reset image counter 
@@ -874,10 +874,8 @@ TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy)
 
 TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
-	/*
-	   if the script does not provide an `arrow' functions
-	   or if it returns `0' we fall back to `do_arrow'
-	 */
+	// if the script does not provide an `arrow' functions
+	// or if it returns `0' we fall back to `do_arrow'
 	lua_term_result = 0;
 	if(LUA_init_luaterm_function(pThis, "arrow")) {
 		lua_pushinteger(P_LuaS, (int)sx);
@@ -885,14 +883,14 @@ TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint 
 		lua_pushinteger(P_LuaS, (int)ex);
 		lua_pushinteger(P_LuaS, (int)ey);
 		// hidden3d uses a non-standard method of indicating NOHEAD 
-		if(curr_arrow_headangle == 0 && curr_arrow_headlength > 0)
+		if(GPT.CArw.HeadAngle == 0 && GPT.CArw.HeadLength > 0)
 			head = NOHEAD;
 		lua_pushinteger(P_LuaS, head);
 		// additional vars  
-		lua_pushinteger(P_LuaS, curr_arrow_headlength); /* access head length + angle (int) */
-		lua_pushnumber(P_LuaS, curr_arrow_headangle); /* angle in degrees (double)        */
-		lua_pushnumber(P_LuaS, curr_arrow_headbackangle); /* angle in degrees (double)        */
-		lua_pushinteger(P_LuaS, curr_arrow_headfilled); /* arrow head filled or not         */
+		lua_pushinteger(P_LuaS, GPT.CArw.HeadLength); // access head length + angle (int)
+		lua_pushnumber(P_LuaS, GPT.CArw.HeadAngle); // angle in degrees (double)
+		lua_pushnumber(P_LuaS, GPT.CArw.HeadBackAngle); // angle in degrees (double)
+		lua_pushinteger(P_LuaS, GPT.CArw.HeadFilled); // arrow head filled or not
 		LUA_call_report(lua_pcall(P_LuaS, 9, 1, tb));
 		lua_term_result = (int)lua_tonumber(P_LuaS, -1);
 		lua_pop(P_LuaS, 1);
@@ -1105,11 +1103,11 @@ TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int path)
 		lua_pop(P_LuaS, 1);
 	}
 }
-/*
-   Lua table structure for the image pixel:
-   pixel = {{r, g, b, [, a]}, {r, g, b [, a]}, ... , {r, g, b [, a]}}
- */
-TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode) 
+// 
+// Lua table structure for the image pixel:
+// pixel = {{r, g, b, [, a]}, {r, g, b [, a]}, ... , {r, g, b [, a]}}
+// 
+TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image, const gpiPoint * corner, t_imagecolor color_mode) 
 {
 	if(LUA_init_luaterm_function(pThis, "image")) {
 		int i;
@@ -1118,14 +1116,14 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 		char * image_file = NULL;
 #ifdef LUA_EXTERNAL_IMAGES
 		// "externalize" if transparent images are used or on user request 
-		if(outstr && ((color_mode == IC_RGBA) || image_extern)) {
+		if(GPT.P_OutStr && ((color_mode == IC_RGBA) || image_extern)) {
 			char * idx;
 			// cairo based png images with alpha channel 
-			if((idx = strrchr(outstr, '.')) == NULL)
-				idx = strchr(outstr, '\0');
-			image_file = (char *)SAlloc::M((idx-outstr)+10);
-			strncpy(image_file, outstr, (idx-outstr) + 1);
-			snprintf(image_file+(idx-outstr), 9, ".%03d.png", (uchar)(++image_cnt));
+			if((idx = strrchr(GPT.P_OutStr, '.')) == NULL)
+				idx = strchr(GPT.P_OutStr, '\0');
+			image_file = (char *)SAlloc::M((idx-GPT.P_OutStr)+10);
+			strncpy(image_file, GPT.P_OutStr, (idx-GPT.P_OutStr) + 1);
+			snprintf(image_file+(idx-GPT.P_OutStr), 9, ".%03d.png", (uchar)(++image_cnt));
 			write_png_image(pThis, m, n, image, color_mode, image_file);
 		}
 #endif

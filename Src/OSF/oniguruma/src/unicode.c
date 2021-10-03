@@ -1135,7 +1135,7 @@ extern int onigenc_unicode_property_name_to_ctype(OnigEncoding enc, uchar * name
 	}
 	pc = unicode_lookup_property_name(buf, len);
 	if(pc != 0) {
-		/* fprintf(stderr, "LOOKUP: %s: %d\n", buf, pc->ctype); */
+		/* slfprintf_stderr("LOOKUP: %s: %d\n", buf, pc->ctype); */
 #ifndef USE_UNICODE_PROPERTIES
 		if(pc->ctype > ONIGENC_MAX_STD_CTYPE)
 			return ONIGERR_INVALID_CHAR_PROPERTY_NAME;

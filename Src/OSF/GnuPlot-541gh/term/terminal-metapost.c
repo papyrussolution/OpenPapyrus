@@ -291,14 +291,14 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 	SETMAX(_MP.MP_fontsize, 5.0);
 	SETMIN(_MP.MP_fontsize, 99.99);
 	pThis->ChrV = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 11 / 720);
-	if(_MP.MP_tex == MP_NO_TEX) { /* Courier is a little wider than cmtt */
+	if(_MP.MP_tex == MP_NO_TEX) { // Courier is a little wider than cmtt 
 		pThis->ChrH = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 6.0 / 720 + 0.5);
 	}
 	else {
 		pThis->ChrH = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 5.3 / 720 + 0.5);
 	}
-	if(_MP.MP_psnfss == MP_PSNFSS_NONE) { /* using the normal font scheme */
-		sprintf(term_options, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
+	if(_MP.MP_psnfss == MP_PSNFSS_NONE) { // using the normal font scheme 
+		sprintf(GPT.TermOptions, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
 		    _MP.MP_color ? "color" : "monochrome",
 		    _MP.MP_solid ? "solid" : "dashed",
 		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",
@@ -307,8 +307,8 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 		    _MP.MP_textmag,
 		    _MP.MP_fontname, _MP.MP_fontsize, (_MP.MP_prologues > -1) ? "" : "no", _MP.MP_prologues);
 	}
-	else { /* using postscript fonts */
-		sprintf(term_options, "%s %s %stex%s%s mag %.3f %s %sprologues(%d)",
+	else { // using postscript fonts 
+		sprintf(GPT.TermOptions, "%s %s %stex%s%s mag %.3f %s %sprologues(%d)",
 		    _MP.MP_color ? "color" : "monochrome",
 		    _MP.MP_solid ? "solid" : "dashed",
 		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",
@@ -323,9 +323,9 @@ TERM_PUBLIC void MP_init(GpTermEntry * pThis)
 	time_t now;
 	time(&now);
 	_MP.Pos.Z();
-	fprintf(gpoutfile, "%%GNUPLOT Metapost output: %s\n", asctime(localtime(&now)));
+	fprintf(GPT.P_GpOutFile, "%%GNUPLOT Metapost output: %s\n", asctime(localtime(&now)));
 	if(_MP.MP_prologues > -1) {
-		fprintf(gpoutfile, "prologues:=%d;\n", _MP.MP_prologues);
+		fprintf(GPT.P_GpOutFile, "prologues:=%d;\n", _MP.MP_prologues);
 	}
 	if(_MP.MP_tex == MP_LATEX) {
 		fputs("\n\
@@ -337,12 +337,12 @@ TERM_PUBLIC void MP_init(GpTermEntry * pThis)
 \n\
 % BEGPRE\n\
 verbatimtex\n",
-		    gpoutfile);
+		    GPT.P_GpOutFile);
 		if(_MP.MP_a4paper) {
-			fputs("\\documentclass[a4paper]{article}\n", gpoutfile);
+			fputs("\\documentclass[a4paper]{article}\n", GPT.P_GpOutFile);
 		}
 		else {
-			fputs("\\documentclass{article}\n", gpoutfile);
+			fputs("\\documentclass{article}\n", GPT.P_GpOutFile);
 		}
 		switch(_MP.MP_psnfss) {
 			case MP_PSNFSS_7: {
@@ -351,7 +351,7 @@ verbatimtex\n",
 \\usepackage{times,mathptmx}\n\
 \\usepackage{helvet}\n\
 \\usepackage{courier}\n",
-				gpoutfile);
+				GPT.P_GpOutFile);
 		    }
 		    break;
 			case MP_PSNFSS_8: {
@@ -362,17 +362,17 @@ verbatimtex\n",
 \\usepackage[scaled=.92]{helvet}\n\
 \\usepackage{courier}\n\
 \\usepackage{latexsym}\n",
-				gpoutfile);
+				GPT.P_GpOutFile);
 		    }
 		    break;
 		}
 		if(_MP.MP_amstex) {
 			fputs("\\usepackage[intlimits]{amsmath}\n\
-\\usepackage{amsfonts}\n", gpoutfile);
+\\usepackage{amsfonts}\n", GPT.P_GpOutFile);
 		}
 		;
 		fputs("\\begin{document}\n\
-etex\n% ENDPRE\n", gpoutfile);
+etex\n% ENDPRE\n", GPT.P_GpOutFile);
 	}
 
 	fputs("\n\
@@ -386,8 +386,8 @@ linejoin:=mitered;\n\
 def scalepen expr n = pickup pencircle scaled (n*th) enddef;\n\
 def ptsize expr n = mpt:=n*defaultmpt enddef;\n\
 \n",
-	    gpoutfile);
-	fprintf(gpoutfile, "\ntextmag:=%6.3f;\n", _MP.MP_textmag);
+	    GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, "\ntextmag:=%6.3f;\n", _MP.MP_textmag);
 	fputs("\
 vardef makepic(expr str) =\n\
   if picture str : str scaled textmag\n\
@@ -399,9 +399,9 @@ enddef;\n\
 def infontsize(expr str, size) =\n\
   infont str scaled (size / fontsize str)\n\
 enddef;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 	if(_MP.MP_tex == MP_NO_TEX) {
-		fprintf(gpoutfile, "\n\
+		fprintf(GPT.P_GpOutFile, "\n\
 defaultfont:= \"%s\";\n\
 defaultscale := %6.3f/fontsize defaultfont;\n", _MP.MP_fontname, _MP.MP_fontsize);
 	}
@@ -412,8 +412,8 @@ defaultscale := %6.3f/fontsize defaultfont;\n", _MP.MP_fontname, _MP.MP_fontsize
 verbatimtex\n\
 \\def\\setfont#1#2{%.\n\
   \\font\\gpfont=#1 at #2pt\n\
-\\gpfont}\n", gpoutfile);
-			fprintf(gpoutfile, "\\setfont{%s}{%5.2f}\netex\n", _MP.MP_fontname, _MP.MP_fontsize);
+\\gpfont}\n", GPT.P_GpOutFile);
+			fprintf(GPT.P_GpOutFile, "\\setfont{%s}{%5.2f}\netex\n", _MP.MP_fontname, _MP.MP_fontsize);
 		}
 	}
 	fputs("\n\
@@ -421,18 +421,18 @@ color currentcolor; currentcolor:=black;\n\
 picture currentdash; currentdash:=dashpattern(on 1);\n\
 color fillcolor;\n\
 boolean colorlines,dashedlines;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 	if(_MP.MP_color) {
-		fputs("colorlines:=true;\n", gpoutfile);
+		fputs("colorlines:=true;\n", GPT.P_GpOutFile);
 	}
 	else {
-		fputs("colorlines:=false;\n", gpoutfile);
+		fputs("colorlines:=false;\n", GPT.P_GpOutFile);
 	}
 	if(_MP.MP_solid) {
-		fputs("dashedlines:=false;\n", gpoutfile);
+		fputs("dashedlines:=false;\n", GPT.P_GpOutFile);
 	}
 	else {
-		fputs("dashedlines:=true;\n", gpoutfile);
+		fputs("dashedlines:=true;\n", GPT.P_GpOutFile);
 	}
 	fputs("\n\
 def _wc = withpen currentpen withcolor currentcolor dashed currentdash enddef;\n\
@@ -511,7 +511,7 @@ def put_text(expr pic, x, y, r, j) =\n\
     rotated r;\n\
   addto currentpicture also GPtext shifted (x,y)\n\
 enddef;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void MP_graphics(GpTermEntry * pThis)
@@ -521,13 +521,13 @@ TERM_PUBLIC void MP_graphics(GpTermEntry * pThis)
 	_MP.MP_oldline = -2;
 	_MP.MP_oldpen = 1.0;
 	_MP.MP_oldptsize = p_gp->Gg.PointSize;
-	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n", _MP.MP_char_code, _MP.MP_xsize, _MP.MP_ysize);
+	fprintf(GPT.P_GpOutFile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n", _MP.MP_char_code, _MP.MP_xsize, _MP.MP_ysize);
 	// MetaPost can only handle numbers up to 4096. When MP_DPI
 	// is larger than 819, this is exceeded by (pThis->MaxX). So we
 	// scale it and all coordinates down by factor of 10.0. And
 	// compensate by scaling a and b up.
-	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (pThis->MaxX) / 10.0, (pThis->MaxY) / 10.0);
-	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", p_gp->Gg.PointSize);
+	fprintf(GPT.P_GpOutFile, "a:=w/%.1f;b:=h/%.1f;\n", (pThis->MaxX) / 10.0, (pThis->MaxY) / 10.0);
+	fprintf(GPT.P_GpOutFile, "scalepen 1; ptsize %.3f;linetype -2;\n", p_gp->Gg.PointSize);
 	_MP.MP_char_code++;
 	// reset MP_color_changed 
 	_MP.MP_color_changed = 0;
@@ -538,7 +538,7 @@ TERM_PUBLIC void MP_text(GpTermEntry * pThis)
 {
 	if(_MP.MP_inline)
 		MP_endline();
-	fputs("endfig;\n", gpoutfile);
+	fputs("endfig;\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int lt)
@@ -555,7 +555,7 @@ TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int lt)
 		_MP.MP_dash_changed = 0;
 	}
 	if(_MP.MP_oldline != linetype) {
-		fprintf(gpoutfile, "linetype %d;\n", linetype);
+		fprintf(GPT.P_GpOutFile, "linetype %d;\n", linetype);
 		_MP.MP_oldline = linetype;
 	}
 }
@@ -578,7 +578,7 @@ TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int pt)
 	if(pointtype >= MP_POINT_TYPES)
 		pointtype %= MP_POINT_TYPES;
 	// Change %d to %f, divide x,y by 10 
-	fprintf(gpoutfile, "gpdraw(%d,%.1fa,%.1fb);\n", pointtype, x / 10.0, y / 10.0);
+	fprintf(GPT.P_GpOutFile, "gpdraw(%d,%.1fa,%.1fb);\n", pointtype, x / 10.0, y / 10.0);
 }
 
 TERM_PUBLIC void MP_pointsize(GpTermEntry * pThis, double ps)
@@ -588,7 +588,7 @@ TERM_PUBLIC void MP_pointsize(GpTermEntry * pThis, double ps)
 	if(_MP.MP_oldptsize != ps) {
 		if(_MP.MP_inline)
 			MP_endline();
-		fprintf(gpoutfile, "ptsize %.3f;\n", ps);
+		fprintf(GPT.P_GpOutFile, "ptsize %.3f;\n", ps);
 		_MP.MP_oldptsize = ps;
 	}
 }
@@ -598,7 +598,7 @@ TERM_PUBLIC void MP_linewidth(GpTermEntry * pThis, double lw)
 	if(_MP.MP_oldpen != lw) {
 		if(_MP.MP_inline)
 			MP_endline();
-		fprintf(gpoutfile, "scalepen %.3f;\n", lw);
+		fprintf(GPT.P_GpOutFile, "scalepen %.3f;\n", lw);
 		_MP.MP_oldpen = lw;
 	}
 }
@@ -609,44 +609,44 @@ TERM_PUBLIC void MP_vector(GpTermEntry * pThis, uint ux, uint uy)
 		return; // Zero length line 
 	if(_MP.MP_inline) {
 		if(_MP.MP_linecount++ >= MP_LINEMAX) {
-			fputs("\n", gpoutfile);
+			fputs("\n", GPT.P_GpOutFile);
 			_MP.MP_linecount = 1;
 		}
 	}
 	else {
 		_MP.MP_inline = TRUE;
-		fprintf(gpoutfile, "draw (%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
+		fprintf(GPT.P_GpOutFile, "draw (%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
 		_MP.MP_linecount = 2;
 	}
 	_MP.Pos.Set(ux, uy);
-	fprintf(gpoutfile, "--(%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
+	fprintf(GPT.P_GpOutFile, "--(%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
 }
 
 static void MP_endline()
 {
 	_MP.MP_inline = FALSE;
-	fprintf(gpoutfile, ";\n");
+	fprintf(GPT.P_GpOutFile, ";\n");
 }
 
 TERM_PUBLIC void MP_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	MP_move(pThis, sx, sy);
 	if((head & HEADS_ONLY))
-		fprintf(gpoutfile, "currentdash:=lt[%d];\n", LT_NODRAW);
+		fprintf(GPT.P_GpOutFile, "currentdash:=lt[%d];\n", LT_NODRAW);
 	if((head & BOTH_HEADS) == BOTH_HEADS) {
-		fprintf(gpoutfile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawdblarrow", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
+		fprintf(GPT.P_GpOutFile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawdblarrow", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
 	}
 	else if((head & END_HEAD)) {
-		fprintf(gpoutfile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawarrow", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
+		fprintf(GPT.P_GpOutFile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawarrow", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
 	}
 	else if((head & BACKHEAD)) {
-		fprintf(gpoutfile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawarrow", ex / 10.0, ey / 10.0, sx / 10.0, sy / 10.0);
+		fprintf(GPT.P_GpOutFile, "%s (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", "drawarrow", ex / 10.0, ey / 10.0, sx / 10.0, sy / 10.0);
 	}
 	else if(!(head & HEADS_ONLY) && ((sx != ex) || (sy != ey))) {
-		fprintf(gpoutfile, "draw (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
+		fprintf(GPT.P_GpOutFile, "draw (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
 	}
 	if((head & HEADS_ONLY))
-		fprintf(gpoutfile, "currentdash:=lt[%d];\n", _MP.MP_oldline);
+		fprintf(GPT.P_GpOutFile, "currentdash:=lt[%d];\n", _MP.MP_oldline);
 	_MP.Pos.Set(ex, ey);
 }
 
@@ -670,26 +670,26 @@ TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str
 			if(text[i] == '"')
 				text[i] = '\''; /* Replace " with ' */
 		if(_MP.MP_fontchanged) {
-			fprintf(gpoutfile, "\
+			fprintf(GPT.P_GpOutFile, "\
 put_text(\"%s\" infontsize(\"%s\",%5.2f), %.1fa, %.1fb, %d, %d);\n",
 			    text, _MP.MP_fontname, _MP.MP_fontsize, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 		else {
-			fprintf(gpoutfile, "put_text(\"%s\", %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
+			fprintf(GPT.P_GpOutFile, "put_text(\"%s\", %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 	}
 	else if(_MP.MP_fontchanged) {
 		if(_MP.MP_tex != MP_LATEX) {
-			fprintf(gpoutfile, "\
+			fprintf(GPT.P_GpOutFile, "\
 put_text( btex \\setfont{%s}{%5.2f} %s etex, %.1fa, %.1fb, %d, %d);\n",
 			    _MP.MP_fontname, _MP.MP_fontsize, text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 		else {
-			fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
+			fprintf(GPT.P_GpOutFile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 	}
 	else {
-		fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
+		fprintf(GPT.P_GpOutFile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 	}
 	SAlloc::F(text);
 }
@@ -730,14 +730,14 @@ TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font)
 TERM_PUBLIC void MP_reset(GpTermEntry * pThis)
 {
 	if(_MP.MP_tex == MP_LATEX) {
-		fputs("% BEGPOST\n", gpoutfile);
-		fputs("verbatimtex\n", gpoutfile);
-		fputs(" \\end{document}\n", gpoutfile);
-		fputs("etex\n", gpoutfile);
-		fputs("% ENDPOST\n", gpoutfile);
+		fputs("% BEGPOST\n", GPT.P_GpOutFile);
+		fputs("verbatimtex\n", GPT.P_GpOutFile);
+		fputs(" \\end{document}\n", GPT.P_GpOutFile);
+		fputs("etex\n", GPT.P_GpOutFile);
+		fputs("% ENDPOST\n", GPT.P_GpOutFile);
 	}
 	;
-	fputs("end.\n", gpoutfile);
+	fputs("end.\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint wd, uint ht)
@@ -752,7 +752,7 @@ TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, ui
 		MP_endline();
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
-		    fprintf(gpoutfile, "\
+		    fprintf(GPT.P_GpOutFile, "\
 fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withcolor background;\n",
 			x1 / 10.0, y1 / 10.0, (x1 + wd) / 10.0, y1 / 10.0,
 			(x1 + wd) / 10.0, (y1 + ht) / 10.0, x1 / 10.0,
@@ -769,12 +769,12 @@ fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withcolor
 		case FS_TRANSPARENT_SOLID:
 		    if(fillpar < 100) {
 			    double density = (100-fillpar) * 0.01;
-			    fprintf(gpoutfile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n", 1.0-density, density);
+			    fprintf(GPT.P_GpOutFile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n", 1.0-density, density);
 			    _MP.MP_color_changed = 1;
 		    }
 		    else
-			    fprintf(gpoutfile, "fillcolor:=currentcolor;\n");
-		    fprintf(gpoutfile,
+			    fprintf(GPT.P_GpOutFile, "fillcolor:=currentcolor;\n");
+		    fprintf(GPT.P_GpOutFile,
 			"\
 fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withpen (pencircle scaled 0pt) withcolor fillcolor;\n",
 			x1 / 10.0,
@@ -806,7 +806,7 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 		MP_endline();
 	if(!_MP.MP_color) {         /* gray mode */
 		if(gray < 1e-3) gray = 0;
-		fprintf(gpoutfile, "currentcolor:=%.3gwhite;\n", gray);
+		fprintf(GPT.P_GpOutFile, "currentcolor:=%.3gwhite;\n", gray);
 	}
 	else {                  /* color mode */
 		if(colorspec->type == TC_LT) {
@@ -814,9 +814,9 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 			if(linecolor >= MP_LINE_TYPES)
 				linecolor %= MP_LINE_TYPES;
 			if(linecolor == -1)
-				fprintf(gpoutfile, "currentcolor:=black;\n");
+				fprintf(GPT.P_GpOutFile, "currentcolor:=black;\n");
 			else if(linecolor >= 0)
-				fprintf(gpoutfile, "currentcolor:=col%d;\n", linecolor);
+				fprintf(GPT.P_GpOutFile, "currentcolor:=col%d;\n", linecolor);
 		}
 		if(colorspec->type == TC_FRAC) {
 			if(p_gp->SmPltt.Colors) /* finite nb of colors explicitly requested */
@@ -833,7 +833,7 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 		if(color.r < 1e-4) color.r = 0.0;
 		if(color.g < 1e-4) color.g = 0.0;
 		if(color.b < 1e-4) color.b = 0.0;
-		fprintf(gpoutfile, "currentcolor:=%.4g*red+%.4g*green+%.4g*blue;\n", color.r, color.g, color.b);
+		fprintf(GPT.P_GpOutFile, "currentcolor:=%.4g*red+%.4g*green+%.4g*blue;\n", color.r, color.g, color.b);
 	}
 }
 
@@ -846,7 +846,7 @@ TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 		MP_endline();
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
-		    fprintf(gpoutfile, "fillcolor:=background;\n");
+		    fprintf(GPT.P_GpOutFile, "fillcolor:=background;\n");
 		    break;
 		case FS_PATTERN: /* pattern fill implemented as partial density */
 		case FS_TRANSPARENT_PATTERN:
@@ -855,57 +855,57 @@ TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 		case FS_TRANSPARENT_SOLID:
 		    if(fillpar < 100) {
 			    double density = (100-fillpar) * 0.01;
-			    fprintf(gpoutfile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n",
+			    fprintf(GPT.P_GpOutFile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n",
 				1.0-density, density);
 		    }
 		    else {
-			    fprintf(gpoutfile, "fillcolor:=currentcolor;\n");
+			    fprintf(GPT.P_GpOutFile, "fillcolor:=currentcolor;\n");
 		    }
 		default:
 		    break;
 	}
 
-	fprintf(gpoutfile, "fill ");
+	fprintf(GPT.P_GpOutFile, "fill ");
 	for(i = 0; i < points; i++)
-		fprintf(gpoutfile, "(%.1fa,%.1fb)%s",
+		fprintf(GPT.P_GpOutFile, "(%.1fa,%.1fb)%s",
 		    corners[i].x / 10.0, corners[i].y / 10.0,
 		    (i < points - 1 && (i + 1) % MP_LINEMAX == 0) ? "\n--" : "--");
-	fprintf(gpoutfile, "cycle withcolor fillcolor;\n");
+	fprintf(GPT.P_GpOutFile, "cycle withcolor fillcolor;\n");
 }
 
 TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 {
 	switch(type) {
 		case DASHTYPE_SOLID:
-		    fprintf(gpoutfile, "%%MP_dashtype%% DASHTYPE_SOLID\n");
+		    fprintf(GPT.P_GpOutFile, "%%MP_dashtype%% DASHTYPE_SOLID\n");
 		    break;
 		case DASHTYPE_AXIS:
-		    fprintf(gpoutfile, "%%MP_dashtype%% DASHTYPE_AXIS\n");
+		    fprintf(GPT.P_GpOutFile, "%%MP_dashtype%% DASHTYPE_AXIS\n");
 		    /* Currently handled elsewhere? */
 		    break;
 		case DASHTYPE_CUSTOM:
-		    fprintf(gpoutfile, "%%MP_dashtype%% DASHTYPE_CUSTOM: ");
+		    fprintf(GPT.P_GpOutFile, "%%MP_dashtype%% DASHTYPE_CUSTOM: ");
 		    if(custom_dash_type) {
 			    int i;
 			    if(custom_dash_type->dstring[0] != '\0')
-				    fprintf(gpoutfile, "\"%s\"; ", custom_dash_type->dstring);
-			    fprintf(gpoutfile, "[");
+				    fprintf(GPT.P_GpOutFile, "\"%s\"; ", custom_dash_type->dstring);
+			    fprintf(GPT.P_GpOutFile, "[");
 			    for(i = 0; i < DASHPATTERN_LENGTH && custom_dash_type->pattern[i] > 0; i++)
-				    fprintf(gpoutfile, i ? ", %.2f" : "%.2f", custom_dash_type->pattern[i]);
-			    fprintf(gpoutfile, "]");
-			    fprintf(gpoutfile, "\n");
+				    fprintf(GPT.P_GpOutFile, i ? ", %.2f" : "%.2f", custom_dash_type->pattern[i]);
+			    fprintf(GPT.P_GpOutFile, "]");
+			    fprintf(GPT.P_GpOutFile, "\n");
 			    _MP.MP_dash_changed = 1;
-			    fprintf(gpoutfile, "currentdash:=dashpattern(");
+			    fprintf(GPT.P_GpOutFile, "currentdash:=dashpattern(");
 			    for(i = 0; i < DASHPATTERN_LENGTH && custom_dash_type->pattern[i] > 0; i++)
-				    fprintf(gpoutfile, "%s %.2f ", i%2 ? "off" : "on", custom_dash_type->pattern[i]);
-			    fprintf(gpoutfile, ");\n");
+				    fprintf(GPT.P_GpOutFile, "%s %.2f ", i%2 ? "off" : "on", custom_dash_type->pattern[i]);
+			    fprintf(GPT.P_GpOutFile, ");\n");
 		    }
 		    else {
-			    fprintf(gpoutfile, "\n");
+			    fprintf(GPT.P_GpOutFile, "\n");
 		    }
 		    break;
 		default:
-		    fprintf(gpoutfile, "%%MP_dashtype%% type = %i\n", type);
+		    fprintf(GPT.P_GpOutFile, "%%MP_dashtype%% type = %i\n", type);
 		    if(type>0)
 			    MP_linetype(pThis, type);
 		    break;

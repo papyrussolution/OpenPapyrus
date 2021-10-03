@@ -2448,7 +2448,7 @@ void quartz_image_to_png(CGImageRef imgref, char * dest)
 	static int sctr = 0;
 	char sptr[] = "/Users/vladimir/Desktop/barXXXXX.png";
 	if(dest == NULL) {
-		fprintf(stderr, "** Writing %p to bar%d\n", imgref, sctr);
+		slfprintf_stderr("** Writing %p to bar%d\n", imgref, sctr);
 		sprintf(sptr, "/Users/vladimir/Desktop/bar%d.png", sctr);
 		sctr++;
 		dest = sptr;
@@ -2461,18 +2461,18 @@ void quartz_surface_to_png(cairo_quartz_surface_t * nq, char * dest)
 	static int sctr = 0;
 	char sptr[] = "/Users/vladimir/Desktop/fooXXXXX.png";
 	if(nq->base.type != CAIRO_SURFACE_TYPE_QUARTZ) {
-		fprintf(stderr, "** quartz_surface_to_png: surface %p isn't quartz!\n", nq);
+		slfprintf_stderr("** quartz_surface_to_png: surface %p isn't quartz!\n", nq);
 		return;
 	}
 	if(dest == NULL) {
-		fprintf(stderr, "** Writing %p to foo%d\n", nq, sctr);
+		slfprintf_stderr("** Writing %p to foo%d\n", nq, sctr);
 		sprintf(sptr, "/Users/vladimir/Desktop/foo%d.png", sctr);
 		sctr++;
 		dest = sptr;
 	}
 	CGImageRef imgref = CGBitmapContextCreateImage(nq->cgContext);
 	if(imgref == NULL) {
-		fprintf(stderr, "quartz surface at %p is not a bitmap context!\n", nq);
+		slfprintf_stderr("quartz surface at %p is not a bitmap context!\n", nq);
 		return;
 	}
 	ExportCGImageToPNGFile(imgref, dest);

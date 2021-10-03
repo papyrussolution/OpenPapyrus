@@ -94,14 +94,14 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 		}
 	}
 	else {
-		/* set rb->rest */
+		// set rb->rest 
 		if(ngx_http_request_body_filter(pReq, NULL) != NGX_OK) {
 			rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 			goto done;
 		}
 	}
 	if(rb->rest == 0) {
-		/* the whole request body was pre-read */
+		// the whole request body was pre-read 
 		pReq->request_body_no_buffering = 0;
 		post_handler(pReq);
 		return NGX_OK;
@@ -114,7 +114,7 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_core_module);
 	size = clcf->client_body_buffer_size;
 	size += size >> 2;
-	/* @todo honor r->request_body_in_single_buf */
+	// @todo honor r->request_body_in_single_buf 
 	if(!pReq->headers_in.chunked && rb->rest < size) {
 		size = (ssize_t)rb->rest;
 		if(pReq->request_body_in_single_buf) {

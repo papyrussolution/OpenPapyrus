@@ -81,8 +81,8 @@ int archive_read_support_format_xar(struct archive * _a)
 		unsigned char * x = (uchar *)(uintptr_t)d;       \
 		unsigned char c = x[outbytes-1];                        \
 		x[outbytes - 1] = 0;                                    \
-		fprintf(stderr, "%s", x);                               \
-		fprintf(stderr, "%c", c);                               \
+		slfprintf_stderr("%s", x);                               \
+		slfprintf_stderr("%c", c);                               \
 		x[outbytes - 1] = c;                                    \
 } while(0)
 #else
@@ -1851,7 +1851,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 	archive_strcpy(&(tag->name), name);
 	if(xar->unknowntags == NULL) {
 #if DEBUG
-		fprintf(stderr, "UNKNOWNTAG_START:%s\n", name);
+		slfprintf_stderr("UNKNOWNTAG_START:%s\n", name);
 #endif
 		xar->xmlsts_unknown = xar->xmlsts;
 		xar->xmlsts = UNKNOWN;
@@ -1873,7 +1873,7 @@ static void unknowntag_end(struct xar * xar, const char * name)
 		free(tag);
 		if(xar->unknowntags == NULL) {
 #if DEBUG
-			fprintf(stderr, "UNKNOWNTAG_END:%s\n", name);
+			slfprintf_stderr("UNKNOWNTAG_END:%s\n", name);
 #endif
 			xar->xmlsts = xar->xmlsts_unknown;
 		}
@@ -1888,9 +1888,9 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 	xar = (struct xar *)(a->format->data);
 
 #if DEBUG
-	fprintf(stderr, "xml_sta:[%s]\n", name);
+	slfprintf_stderr("xml_sta:[%s]\n", name);
 	for(attr = list->first; attr != NULL; attr = attr->next)
-		fprintf(stderr, "    attr:\"%s\"=\"%s\"\n",
+		slfprintf_stderr("    attr:\"%s\"=\"%s\"\n",
 		    attr->name, attr->value);
 #endif
 	xar->base64text = 0;
@@ -2163,7 +2163,7 @@ static void xml_end(void * userData, const char * name)
 	xar = (struct xar *)(a->format->data);
 
 #if DEBUG
-	fprintf(stderr, "xml_end:[%s]\n", name);
+	slfprintf_stderr("xml_end:[%s]\n", name);
 #endif
 	switch(xar->xmlsts) {
 		case INIT:
@@ -2592,7 +2592,7 @@ static void xml_data(void * userData, const char * s, int len)
 			len = (int)(sizeof(buff)-1);
 		strncpy(buff, s, len);
 		buff[len] = 0;
-		fprintf(stderr, "\tlen=%d:\"%s\"\n", len, buff);
+		slfprintf_stderr("\tlen=%d:\"%s\"\n", len, buff);
 	}
 #endif
 	switch(xar->xmlsts) {

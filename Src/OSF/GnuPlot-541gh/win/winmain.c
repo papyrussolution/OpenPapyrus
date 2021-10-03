@@ -68,9 +68,10 @@ static void CheckMemory(LPTSTR str)
 
 int Pause(GpTermEntry * pTerm, LPSTR str)
 {
-	_WinM.pausewin.Message = UnicodeText(str, encoding);
+	//_WinM.pausewin.Message = UnicodeText(str, encoding);
+	_WinM.pausewin.Message = sstrdup(SUcSwitch(str));
 	int rc = PauseBox(pTerm, &_WinM.pausewin) == IDOK;
-	SAlloc::F(_WinM.pausewin.Message);
+	ZFREE(_WinM.pausewin.Message);
 	return rc;
 }
 
@@ -198,7 +199,7 @@ char * appdata_directory()
 LPSTR RelativePathToGnuplot(const char * path)
 {
 #ifdef UNICODE
-	LPSTR ansi_dir = AnsiText(_WinM.szPackageDir, encoding);
+	LPSTR ansi_dir = AnsiText(_WinM.szPackageDir, GPT._Encoding);
 	LPSTR rel_path = (char *)SAlloc::R(ansi_dir, strlen(ansi_dir) + strlen(path) + 1);
 	if(rel_path == NULL) {
 		SAlloc::F(ansi_dir);
@@ -307,6 +308,7 @@ int _tmain(int argc, TCHAR ** argv)
 {
 	LPTSTR tail;
 	int i;
+	SLS.Init("GnuPlot"); // @v11.1.12
 #ifdef WGP_CONSOLE
 	HINSTANCE hInstance = GetModuleHandle(NULL), hPrevInstance = NULL;
 #endif
@@ -491,9 +493,9 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 		mbwait = mbcount = 0;
 		mbstr[0] = NUL;
 	}
-	if(encoding == S_ENC_UTF8) { /* combine UTF8 byte sequences */
+	if(GPT._Encoding == S_ENC_UTF8) { // combine UTF8 byte sequences
 		if(mbwait == 0) {
-			/* first byte */
+			// first byte 
 			mbcount = 0;
 			mbstr[mbcount] = ch;
 			if((ch & 0xE0) == 0xC0) {
@@ -524,9 +526,9 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 			*count = MultiByteToWideChar(CP_UTF8, 0, mbstr, mbcount + 1, wstr, 2);
 		}
 	}
-	else if(encoding == S_ENC_SJIS) { /* combine S-JIS sequences */
+	else if(GPT._Encoding == S_ENC_SJIS) { // combine S-JIS sequences 
 		if(mbwait == 0) {
-			/* first or single byte */
+			// first or single byte 
 			mbcount = 0;
 			mbstr[mbcount] = ch;
 			if(is_sjis_lead_byte(ch)) {
@@ -551,7 +553,7 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 		mbcount = 0;
 		mbwait = 0;
 		mbstr[0] = (char)ch;
-		*count = MultiByteToWideChar(WinGetCodepage(encoding), 0, mbstr, mbcount + 1, wstr, 2);
+		*count = MultiByteToWideChar(WinGetCodepage(GPT._Encoding), 0, mbstr, mbcount + 1, wstr, 2);
 	}
 }
 
@@ -930,7 +932,7 @@ int ConsoleReadCh()
 			}
 			else {
 				char mbchar[8];
-				const int count = WideCharToMultiByte(WinGetCodepage(encoding), 0, &rec.Event.KeyEvent.uChar.UnicodeChar, 1, mbchar, sizeof(mbchar), NULL, NULL);
+				const int count = WideCharToMultiByte(WinGetCodepage(GPT._Encoding), 0, &rec.Event.KeyEvent.uChar.UnicodeChar, 1, mbchar, sizeof(mbchar), NULL, NULL);
 				for(int i = 1; i < count; i++) {
 					console_input[last_input_char] = mbchar[i];
 					last_input_char++;
@@ -951,7 +953,6 @@ int ConsoleReadCh()
 			}
 		}
 	}
-
 	/* Error reading event or, key up or, one of the following event records:
 	    MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_RECORD, MENU_EVENT_RECORD, FOCUS_EVENT_RECORD */
 	return NUL;
@@ -1063,11 +1064,11 @@ void GnuPlot::ClosePrinter(GpTermEntry * pTerm, FILE * outfile)
 {
 	HWND hwnd;
 	TCHAR title[100];
-#ifdef UNICODE
-	LPTSTR fname = UnicodeText(win_prntmp, S_ENC_DEFAULT);
-#else
-	LPTSTR fname = win_prntmp;
-#endif
+//#ifdef UNICODE
+	//LPTSTR fname = UnicodeText(win_prntmp, S_ENC_DEFAULT);
+//#else
+	//LPTSTR fname = win_prntmp;
+//#endif
 	fclose(outfile);
 #ifndef WGP_CONSOLE
 	hwnd = _WinM.TxtWin.hWndParent;
@@ -1078,10 +1079,10 @@ void GnuPlot::ClosePrinter(GpTermEntry * pTerm, FILE * outfile)
 		wsprintf(title, TEXT("gnuplot graph (%hs)"), pTerm->name);
 	else
 		_tcscpy(title, TEXT("gnuplot graph"));
-	DumpPrinter(hwnd, title, fname);
-#ifdef UNICODE
-	SAlloc::F(fname);
-#endif
+	DumpPrinter(hwnd, title, SUcSwitch(win_prntmp));
+//#ifdef UNICODE
+	//SAlloc::F(fname);
+//#endif
 }
 
 //void screen_dump()
@@ -1284,11 +1285,11 @@ LPSTR AnsiText(LPCWSTR strw,  enum set_encoding_id encoding)
 
 FILE * win_fopen(const char * filename, const char * mode)
 {
-	LPWSTR wfilename = UnicodeText(filename, encoding);
-	LPWSTR wmode = UnicodeText(mode, encoding);
+	LPWSTR wfilename = UnicodeText(filename, GPT._Encoding);
+	LPWSTR wmode = UnicodeText(mode, GPT._Encoding);
 	FILE * file = _wfopen(wfilename, wmode);
 	if(file == NULL) {
-		/* "encoding" didn't work, try UTF-8 instead */
+		// "encoding" didn't work, try UTF-8 instead 
 		SAlloc::F(wfilename);
 		wfilename = UnicodeText(filename, S_ENC_UTF8);
 		file = _wfopen(wfilename, wmode);
@@ -1301,11 +1302,11 @@ FILE * win_fopen(const char * filename, const char * mode)
 #ifndef USE_FAKEPIPES
 	FILE * win_popen(const char * filename, const char * mode)
 	{
-		LPWSTR wfilename = UnicodeText(filename, encoding);
-		LPWSTR wmode = UnicodeText(mode, encoding);
-		FILE * file = _wpopen(wfilename, wmode);
-		SAlloc::F(wfilename);
-		SAlloc::F(wmode);
+		//LPWSTR wfilename = UnicodeText(filename, encoding);
+		//LPWSTR wmode = UnicodeText(mode, encoding);
+		FILE * file = _wpopen(SUcSwitch(filename), SUcSwitch(mode));
+		//SAlloc::F(wfilename);
+		//SAlloc::F(wmode);
 		return file;
 	}
 #endif

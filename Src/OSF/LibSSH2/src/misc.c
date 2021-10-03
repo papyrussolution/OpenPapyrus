@@ -382,7 +382,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format,
 	if(session->tracehandler)
 		(session->tracehandler)(session, session->tracehandler_context, buffer, msglen);
 	else
-		fprintf(stderr, "%s\n", buffer);
+		slfprintf_stderr("%s\n", buffer);
 }
 
 #else

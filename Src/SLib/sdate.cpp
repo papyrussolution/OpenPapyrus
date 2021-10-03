@@ -509,7 +509,7 @@ static void CLALongToDate(long off, SDosDate * d)
 
 /* @v10.3.0 static void formatNotSupported(const char * pFormatName)
 {
-	fprintf(stderr, "%s date format not supported", pFormatName);
+	slfprintf_stderr("%s date format not supported", pFormatName);
 	exit(-1);
 }*/
 

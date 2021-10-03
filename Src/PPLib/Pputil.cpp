@@ -2746,10 +2746,10 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 					file_test_out.Close();
 					THROW_SL(SFile::Remove(file_name));
 					THROW_SL(SFile::Rename(temp_file_name, file_name));
-					fprintf(stderr, "File '%s' was converted\n", (const char *)file_name);
+					slfprintf_stderr("File '%s' was converted\n", (const char *)file_name);
 				}
 				else {
-					fprintf(stderr, "Error comparing original file '%s' with converted file '%s'\n",
+					slfprintf_stderr("Error comparing original file '%s' with converted file '%s'\n",
 						(const char *)file_name, (const char *)temp_file_name);
 				}
 			}
@@ -2757,12 +2757,12 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 		else {
 			PPSetErrorSLib();
 			PPGetLastErrorMessage(1, msg_buf);
-			fprintf(stderr, msg_buf);
+			slfprintf_stderr(msg_buf);
 		}
 	}
 	CATCH
 		PPGetLastErrorMessage(1, msg_buf);
-		fprintf(stderr, msg_buf);
+		slfprintf_stderr(msg_buf);
 		ok = 0;
 	ENDCATCH
 	return ok;

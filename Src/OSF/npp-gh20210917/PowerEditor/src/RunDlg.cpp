@@ -117,9 +117,7 @@ void expandNppEnvironmentStrs(const TCHAR * strSrc, TCHAR * stringDest, size_t s
 						wsprintf(expandedStr, TEXT("%d"), lineNumber);
 					}
 					else
-						::SendMessage(hWnd, RUNCOMMAND_USER + internalVar, CURRENTWORD_MAXLENGTH,
-						    reinterpret_cast<LPARAM>(expandedStr));
-
+						::SendMessage(hWnd, RUNCOMMAND_USER + internalVar, CURRENTWORD_MAXLENGTH, reinterpret_cast<LPARAM>(expandedStr));
 					for(size_t p = 0, len3 = size_t(lstrlen(expandedStr)); p < len3; ++p) {
 						if(j < (strDestLen-1))
 							stringDest[j++] = expandedStr[p];
@@ -153,35 +151,28 @@ HINSTANCE Command::run(HWND hWnd, const TCHAR* cwd)
 {
 	const int argsIntermediateLen = MAX_PATH*2;
 	const int args2ExecLen = CURRENTWORD_MAXLENGTH+MAX_PATH*2;
-
 	TCHAR cmdPure[MAX_PATH];
 	TCHAR cmdIntermediate[MAX_PATH];
 	TCHAR cmd2Exec[MAX_PATH];
 	TCHAR args[MAX_PATH];
 	TCHAR argsIntermediate[argsIntermediateLen];
 	TCHAR args2Exec[args2ExecLen];
-
 	extractArgs(cmdPure, MAX_PATH, args, MAX_PATH, _cmdLine.c_str());
 	int nbTchar = ::ExpandEnvironmentStrings(cmdPure, cmdIntermediate, MAX_PATH);
 	if(!nbTchar)
 		wcscpy_s(cmdIntermediate, cmdPure);
 	else if(nbTchar >= MAX_PATH)
 		cmdIntermediate[MAX_PATH-1] = '\0';
-
 	nbTchar = ::ExpandEnvironmentStrings(args, argsIntermediate, argsIntermediateLen);
 	if(!nbTchar)
 		wcscpy_s(argsIntermediate, args);
 	else if(nbTchar >= argsIntermediateLen)
 		argsIntermediate[argsIntermediateLen-1] = '\0';
-
 	expandNppEnvironmentStrs(cmdIntermediate, cmd2Exec, MAX_PATH, hWnd);
 	expandNppEnvironmentStrs(argsIntermediate, args2Exec, args2ExecLen, hWnd);
-
 	TCHAR cwd2Exec[MAX_PATH];
 	expandNppEnvironmentStrs(cwd, cwd2Exec, MAX_PATH, hWnd);
-
 	HINSTANCE res = ::ShellExecute(hWnd, TEXT("open"), cmd2Exec, args2Exec, cwd2Exec, SW_SHOW);
-
 	// As per MSDN (https://msdn.microsoft.com/en-us/library/windows/desktop/bb762153(v=vs.85).aspx)
 	// If the function succeeds, it returns a value greater than 32.
 	// If the function fails, it returns an error value that indicates the cause of the failure.
@@ -198,7 +189,6 @@ HINSTANCE Command::run(HWND hWnd, const TCHAR* cwd)
 		errorMsg += TEXT("\nError Code: ");
 		errorMsg += intToString(retResult);
 		errorMsg += TEXT("\n----------------------------------------------------------");
-
 		::MessageBox(hWnd, errorMsg.c_str(), TEXT("ShellExecute - ERROR"), MB_ICONINFORMATION | MB_APPLMODAL);
 	}
 
@@ -247,7 +237,6 @@ INT_PTR CALLBACK RunDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 						TCHAR cmd[MAX_PATH];
 						::GetDlgItemText(_hSelf, IDC_COMBO_RUN_PATH, cmd, MAX_PATH);
 						_cmdLine = cmd;
-
 						HINSTANCE hInst = run(_hParent);
 						if(reinterpret_cast<INT_PTR>(hInst) > 32) {
 							addTextToCombo(_cmdLine.c_str());
@@ -330,9 +319,8 @@ void RunDlg::removeTextFromCombo(const TCHAR * txt2Remove) const
 {
 	HWND handle = ::GetDlgItem(_hSelf, IDC_COMBO_RUN_PATH);
 	auto i = ::SendMessage(handle, CB_FINDSTRINGEXACT, static_cast<WPARAM>(-1), reinterpret_cast<LPARAM>(txt2Remove));
-	if(i == CB_ERR)
-		return;
-	::SendMessage(handle, CB_DELETESTRING, i, 0);
+	if(i != CB_ERR)
+		::SendMessage(handle, CB_DELETESTRING, i, 0);
 }
 
 void RunDlg::doDialog(bool isRTL)

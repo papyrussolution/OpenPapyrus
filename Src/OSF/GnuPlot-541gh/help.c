@@ -401,7 +401,7 @@ static bool Ambiguous(KEY * key, size_t len)
 				/* yup, this is different up to the next space */
 				if(!status) {
 					/* first one we have printed is special */
-					fprintf(stderr,
+					fprintf(stderr, 
 					    "Ambiguous request '%.*s'; possible matches:\n",
 					    (int)len, first);
 					fprintf(stderr, "\t%s\n", prev);

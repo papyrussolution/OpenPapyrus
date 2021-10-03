@@ -68,14 +68,14 @@ int jbig2_arith_iaid_decode(Jbig2Ctx * ctx, Jbig2ArithIaidCtx * actx, Jbig2Arith
 		if(D < 0)
 			return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode IAIDx code");
 #ifdef VERBOSE
-		fprintf(stderr, "IAID%x: D = %d\n", PREV, D);
+		slfprintf_stderr("IAID%x: D = %d\n", PREV, D);
 #endif
 		PREV = (PREV << 1) | D;
 	}
 	/* A.3 (3) */
 	PREV -= 1 << SBSYMCODELEN;
 #ifdef VERBOSE
-	fprintf(stderr, "IAID result: %d\n", PREV);
+	slfprintf_stderr("IAID result: %d\n", PREV);
 #endif
 	*p_result = PREV;
 	return 0;

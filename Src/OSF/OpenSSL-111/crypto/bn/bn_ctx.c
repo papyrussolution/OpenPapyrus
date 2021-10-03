@@ -94,32 +94,32 @@ static void ctxdbg(BN_CTX * ctx)
 	uint bnidx = 0, fpidx = 0;
 	BN_POOL_ITEM * item = ctx->pool.head;
 	BN_STACK * stack = &ctx->stack;
-	fprintf(stderr, "(%16p): ", ctx);
+	slfprintf_stderr("(%16p): ", ctx);
 	while(bnidx < ctx->used) {
-		fprintf(stderr, "%03x ", item->vals[bnidx++ % BN_CTX_POOL_SIZE].dmax);
+		slfprintf_stderr("%03x ", item->vals[bnidx++ % BN_CTX_POOL_SIZE].dmax);
 		if(!(bnidx % BN_CTX_POOL_SIZE))
 			item = item->next;
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 	bnidx = 0;
-	fprintf(stderr, "          : ");
+	slfprintf_stderr("          : ");
 	while(fpidx < stack->depth) {
 		while(bnidx++ < stack->indexes[fpidx])
-			fprintf(stderr, "    ");
-		fprintf(stderr, "^^^ ");
+			slfprintf_stderr("    ");
+		slfprintf_stderr("^^^ ");
 		bnidx++;
 		fpidx++;
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 
 #define CTXDBG_ENTRY(str, ctx)  do { \
 		ctxdbg_cur = (str); \
-		fprintf(stderr, "Starting %s\n", ctxdbg_cur); \
+		slfprintf_stderr("Starting %s\n", ctxdbg_cur); \
 		ctxdbg(ctx); \
 } while(0)
 #define CTXDBG_EXIT(ctx)        do { \
-		fprintf(stderr, "Ending %s\n", ctxdbg_cur); \
+		slfprintf_stderr("Ending %s\n", ctxdbg_cur); \
 		ctxdbg(ctx); \
 } while(0)
 #define CTXDBG_RET(ctx, ret)
@@ -156,15 +156,15 @@ void FASTCALL BN_CTX_free(BN_CTX * ctx)
 #ifdef BN_CTX_DEBUG
 		{
 			BN_POOL_ITEM * pool = ctx->pool.head;
-			fprintf(stderr, "BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
-			fprintf(stderr, "dmaxs: ");
+			slfprintf_stderr("BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
+			slfprintf_stderr("dmaxs: ");
 			while(pool) {
 				unsigned loop = 0;
 				while(loop < BN_CTX_POOL_SIZE)
-					fprintf(stderr, "%02x ", pool->vals[loop++].dmax);
+					slfprintf_stderr("%02x ", pool->vals[loop++].dmax);
 				pool = pool->next;
 			}
-			fprintf(stderr, "\n");
+			slfprintf_stderr("\n");
 		}
 #endif
 		BN_STACK_finish(&ctx->stack);

@@ -201,7 +201,7 @@ TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 		}
 	}
-	sprintf(term_options, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
+	sprintf(GPT.TermOptions, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
 }
 
 TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)
@@ -215,13 +215,13 @@ TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)
 	IMAGEN_ymax = IMAGEN_winy = (int)(IMAGEN_Ymax / IM_win_verti);
 	t->MaxX = (uint)(IMAGEN_xmax);
 	t->MaxY = (uint)(IMAGEN_ymax);
-	fputs("@document(language impress, paper a4)", gpoutfile);
+	fputs("@document(language impress, paper a4)", GPT.P_GpOutFile);
 	if(IMAGEN_portrait) {
-		putc(imP_SET_ABS_V, gpoutfile);
+		putc(imP_SET_ABS_V, GPT.P_GpOutFile);
 		IMAGEN_putwd(3520);
 	}
-	putc(imP_SET_HV_SYSTEM, gpoutfile);
-	putc(((IMAGEN_portrait ? 3 : 0) << 5) | (3 << 3) | (IMAGEN_portrait ? 0 : 5), gpoutfile);
+	putc(imP_SET_HV_SYSTEM, GPT.P_GpOutFile);
+	putc(((IMAGEN_portrait ? 3 : 0) << 5) | (3 << 3) | (IMAGEN_portrait ? 0 : 5), GPT.P_GpOutFile);
 
 	/* sprintf(font, "cour%02d", IMAGEN_FONTSIZE); */
 	IMAGEN_mapsinit();
@@ -229,9 +229,9 @@ TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)
 	/* IMAGEN_createfamily(font, IMAGEN_FONTSIZE); */
 	IMAGEN_setfont(IMAGEN_fontsize);
 	IMAGEN_text_angle(0);
-	putc(imP_SET_ABS_H, gpoutfile);
+	putc(imP_SET_ABS_H, GPT.P_GpOutFile);
 	IMAGEN_putwd(0);
-	putc(imP_SET_ABS_V, gpoutfile);
+	putc(imP_SET_ABS_V, GPT.P_GpOutFile);
 	IMAGEN_putwd(0);
 	IMAGEN_linetype(LT_AXIS);
 	/*
@@ -251,10 +251,10 @@ TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)
 static void IM_page()
 {
 	if(IM_vecpos) {
-		/* fprintf(stderr,"graphics, draw path\n"); */
+		/* fprintf(stderr, "graphics, draw path\n"); */
 		IMAGEN_draw_path();
 	}
-	putc(imP_ENDPAGE, gpoutfile);
+	putc(imP_ENDPAGE, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void IMAGEN_graphics()
@@ -262,7 +262,7 @@ TERM_PUBLIC void IMAGEN_graphics()
 	int tmpx, tmpy;
 /*    int xoff, yoff; */
 	if(IM_vecpos) {
-		/* fprintf(stderr,"graphics, draw path\n"); */
+		/* fprintf(stderr, "graphics, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	if(IM_plot_nr >= (IM_win_horiz * IM_win_verti)) {
@@ -288,7 +288,7 @@ TERM_PUBLIC void IMAGEN_linetype(int lt)
 	int pen /*, pattern */;
 
 	if(IM_vecpos) {
-		/* fprintf(stderr,"move, draw path\n"); */
+		/* fprintf(stderr, "move, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	if(lt < -2)
@@ -307,20 +307,20 @@ TERM_PUBLIC void IMAGEN_linetype(int lt)
 
 	lastlinetype = lt;
 
-	putc(imP_SET_PEN, gpoutfile);
-	putc(pen, gpoutfile);
+	putc(imP_SET_PEN, GPT.P_GpOutFile);
+	putc(pen, GPT.P_GpOutFile);
 	IMP_set_draw_pattern(lt, pen);
 }
 
 TERM_PUBLIC void IMAGEN_move(uint x, uint y)
 {
 	if(IM_vecpos) {
-		/* fprintf(stderr,"move, draw path\n"); */
+		/* fprintf(stderr, "move, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	IM_xvector[0] = x + IMAGEN_orgx;
 	IM_yvector[0] = y + IMAGEN_orgy;
-	/* fprintf(stderr,"Ny vector: startpos: %1d %1d\n",IM_xvector[0],IM_yvector[0]); */
+	/* fprintf(stderr, "Ny vector: startpos: %1d %1d\n",IM_xvector[0],IM_yvector[0]); */
 	IM_vecpos = 1;
 	/*
 	   IMAGEN_posx = x;
@@ -335,7 +335,7 @@ TERM_PUBLIC void IMAGEN_vector(uint ux, uint uy)
 	/* Store path. */
 	IM_xvector[IM_vecpos] = ux + IMAGEN_orgx;
 	IM_yvector[IM_vecpos] = uy + IMAGEN_orgy;
-	/* fprintf(stderr,"Ny node: nr: %1d; %1d %1d\n",IM_vecpos,IM_xvector[IM_vecpos],IM_yvector[IM_vecpos]);  */
+	/* fprintf(stderr, "Ny node: nr: %1d; %1d %1d\n",IM_vecpos,IM_xvector[IM_vecpos],IM_yvector[IM_vecpos]);  */
 	IM_vecpos++;
 	if(IM_vecpos >= IM_veclen) {
 		IMAGEN_draw_path();
@@ -349,7 +349,7 @@ static void IMAGEN_draw_path()
 {
 /*    uint pos; */
 	int i;
-	putc(imP_CREATE_PATH, gpoutfile);
+	putc(imP_CREATE_PATH, GPT.P_GpOutFile);
 	IMAGEN_putwd(IM_vecpos);
 	for(i = 0; i < IM_vecpos; i++) {
 		/*
@@ -362,8 +362,8 @@ static void IMAGEN_draw_path()
 	IM_vecpos = 0;
 	/* Draw path with black pen. */
 
-	putc(imP_DRAW_PATH, gpoutfile);
-	putc(15, gpoutfile);
+	putc(imP_DRAW_PATH, GPT.P_GpOutFile);
+	putc(15, GPT.P_GpOutFile);
 
 	/* Set current position to end of line. */
 
@@ -374,11 +374,11 @@ static void IMAGEN_setpos(int ux, int uy)
 {
 	/* Set x and y position (for text), also set beginning-of-line. */
 
-	putc(imP_SET_ABS_H, gpoutfile);
+	putc(imP_SET_ABS_H, GPT.P_GpOutFile);
 	IMAGEN_putwd(ux + IMAGEN_orgx);
-	putc(imP_SET_ABS_V, gpoutfile);
+	putc(imP_SET_ABS_V, GPT.P_GpOutFile);
 	IMAGEN_putwd(uy + IMAGEN_orgy);
-	putc(imP_SET_BOL, gpoutfile);
+	putc(imP_SET_BOL, GPT.P_GpOutFile);
 	if(IMAGEN_angle == 1)
 		IMAGEN_putwd(uy + IMAGEN_orgx); /* vertical */
 	else
@@ -388,13 +388,13 @@ static void IMAGEN_setpos(int ux, int uy)
 TERM_PUBLIC int IMAGEN_text_angle(int ang)
 {
 	if(IM_vecpos) {
-		/* fprintf(stderr,"text_angle, draw path\n"); */
+		/* fprintf(stderr, "text_angle, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	if(IMAGEN_angle != ang) {
 		IMAGEN_angle = ang; /* record for later use */
-		putc(imP_SET_ADV_DIRS, gpoutfile);
-		putc(ang == 0 ? 0 : 7, gpoutfile); /* 0=>horiz : 7=>vert */
+		putc(imP_SET_ADV_DIRS, GPT.P_GpOutFile);
+		putc(ang == 0 ? 0 : 7, GPT.P_GpOutFile); /* 0=>horiz : 7=>vert */
 	}
 	return TRUE;
 }
@@ -402,7 +402,7 @@ TERM_PUBLIC int IMAGEN_text_angle(int ang)
 TERM_PUBLIC int IMAGEN_justify_text(enum JUSTIFY mode)
 {
 	if(IM_vecpos) {
-		/* fprintf(stderr,"justify_text, draw path\n"); */
+		/* fprintf(stderr, "justify_text, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	IMAGEN_justify = mode;
@@ -481,7 +481,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 	int sx, sy;
 
 	if(IM_vecpos) {
-		/* fprintf(stderr,"put_text, draw path\n"); */
+		/* fprintf(stderr, "put_text, draw path\n"); */
 		IMAGEN_draw_path();
 	}
 	cvstr = IMAGEN_cvts((uchar *)str, &width, &height);
@@ -529,7 +529,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 		}
 
 		IMAGEN_setpos(sx, sy);
-		fputs((char *)cvstr, gpoutfile);
+		fputs((char *)cvstr, GPT.P_GpOutFile);
 		cvstr = ++p;
 		if(IMAGEN_angle) { /* vertical */
 			x += IMAGEN_hchar;
@@ -543,28 +543,28 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 TERM_PUBLIC void IMAGEN_reset()
 {
 	if(IM_vecpos) {
-		/* fprintf(stderr,"reset, draw path\n"); */
+		/* fprintf(stderr, "reset, draw path\n"); */
 		IMAGEN_draw_path();
 	}
-	putc(imP_EOF, gpoutfile);
+	putc(imP_EOF, GPT.P_GpOutFile);
 }
 
 static void IMAGEN_putwd(uint w)
 {
-	/* fprintf(stderr,"%1u\n",w); */
-	putc(w >> 8, gpoutfile);
-	putc(w, gpoutfile);
+	/* fprintf(stderr, "%1u\n",w); */
+	putc(w >> 8, GPT.P_GpOutFile);
+	putc(w, GPT.P_GpOutFile);
 }
 
 static void IMAGEN_createfamily(char * c, int sz)
 {
-	putc(imP_CREATE_FAMILY_TABLE, gpoutfile);
-	putc(sz, gpoutfile);
-	putc(1, gpoutfile);
-	putc(1, gpoutfile);
-	/* putc(0, gpoutfile); */
-	fputs(c, gpoutfile);
-	putc(0, gpoutfile);
+	putc(imP_CREATE_FAMILY_TABLE, GPT.P_GpOutFile);
+	putc(sz, GPT.P_GpOutFile);
+	putc(1, GPT.P_GpOutFile);
+	putc(1, GPT.P_GpOutFile);
+	/* putc(0, GPT.P_GpOutFile); */
+	fputs(c, GPT.P_GpOutFile);
+	putc(0, GPT.P_GpOutFile);
 }
 
 static void IMAGEN_setfont(GpTermEntry * pThis, int sz)
@@ -580,25 +580,25 @@ static void IMAGEN_setfont(GpTermEntry * pThis, int sz)
 	IMAGEN_blofs = IMAGEN_hchar / 3;
 	pThis->ChrV = IMAGEN_hchar;
 	pThis->ChrH = IMAGEN_wchar;
-	putc(imP_SET_FAMILY, gpoutfile);
-	putc(sz, gpoutfile);
-	putc(imP_SET_SP, gpoutfile);
+	putc(imP_SET_FAMILY, GPT.P_GpOutFile);
+	putc(sz, GPT.P_GpOutFile);
+	putc(imP_SET_SP, GPT.P_GpOutFile);
 	IMAGEN_putwd(IMAGEN_wchar);
-	putc(imP_SET_IL, gpoutfile);
+	putc(imP_SET_IL, GPT.P_GpOutFile);
 	IMAGEN_putwd(IMAGEN_hchar);
 }
 
 static void IMP_set_draw_pattern(int pattern, int sz)
 {
 	int i /*,j */;
-	putc(imP_SET_DRAW_PATTERN, gpoutfile);
-	putc(0, gpoutfile);
-	putc(imP_SET_DRAW_PATTERN, gpoutfile);
+	putc(imP_SET_DRAW_PATTERN, GPT.P_GpOutFile);
+	putc(0, GPT.P_GpOutFile);
+	putc(imP_SET_DRAW_PATTERN, GPT.P_GpOutFile);
 	/* if ( strlen(IMPdrpattern[pattern]) == 1 ) {
-	   putc(type,gpoutfile);
+	   putc(type,GPT.P_GpOutFile);
 	   return;
 	   } */
-	putc(strlen(IMPdrpattern[pattern]), gpoutfile);
+	putc(strlen(IMPdrpattern[pattern]), GPT.P_GpOutFile);
 	for(i = 0; i < strlen(IMPdrpattern[pattern]); i++) {
 		IMAGEN_putwd(IMPdrpattern[pattern][i] * sz);
 	}
@@ -647,7 +647,7 @@ static void IMAGEN_mapsinit()
 	IMP_gmap[39] = 185;
 	IMP_gmap[127] = 61286;
 
-	/* for (i=1;i<127;i++) fprintf(stderr,"%d -> %d\n",i,IMP_gmap[i]); */
+	/* for (i=1;i<127;i++) fprintf(stderr, "%d -> %d\n",i,IMP_gmap[i]); */
 
 	for(i = 32; i <= 127; i++) {
 		IMP_chmap[i] = i;
@@ -767,7 +767,7 @@ static void IMAGEN_createmap(int name, ushort * map)
 	}
 	*p = j;
 	for(i = 0; i < 3; i++)
-		putc(s[i], gpoutfile);
+		putc(s[i], GPT.P_GpOutFile);
 
 	s[3] = 1;
 	for(j = 0; j < 127; j++) {
@@ -777,7 +777,7 @@ static void IMAGEN_createmap(int name, ushort * map)
 			*p++ = map[j] >> 8;
 			*p = map[j] & 255;
 			for(i = 0; i < 4; i++)
-				putc(s[i], gpoutfile);
+				putc(s[i], GPT.P_GpOutFile);
 		}
 	}
 }

@@ -35,20 +35,20 @@ int main(int argc, char * argv[])
 	/* we need a context for the allocators */
 	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, (Jbig2Options)0, NULL, NULL, NULL);
 	if(argc != 3) {
-		fprintf(stderr, "usage: %s <in.pbm> <out.png>\n\n", argv[0]);
+		slfprintf_stderr("usage: %s <in.pbm> <out.png>\n\n", argv[0]);
 		return 1;
 	}
 	image = jbig2_image_read_pbm_file(ctx, argv[1]);
 	if(image == NULL) {
-		fprintf(stderr, "error reading pbm file '%s'\n", argv[1]);
+		slfprintf_stderr("error reading pbm file '%s'\n", argv[1]);
 		return 1;
 	}
 	else {
-		fprintf(stderr, "converting %dx%d image to png format\n", image->width, image->height);
+		slfprintf_stderr("converting %dx%d image to png format\n", image->width, image->height);
 	}
 	code = jbig2_image_write_png_file(image, argv[2]);
 	if(code) {
-		fprintf(stderr, "error writing png file '%s' error %d\n", argv[2], code);
+		slfprintf_stderr("error writing png file '%s' error %d\n", argv[2], code);
 	}
 
 	return (code);

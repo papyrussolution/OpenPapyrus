@@ -907,10 +907,8 @@ NppParameters::~NppParameters()
 		delete _userLangArray[i];
 	if(_hUXTheme)
 		FreeLibrary(_hUXTheme);
-
 	for(std::vector<TiXmlDocument *>::iterator it = _pXmlExternalLexerDoc.begin(), end = _pXmlExternalLexerDoc.end(); it != end; ++it)
 		delete (*it);
-
 	_pXmlExternalLexerDoc.clear();
 }
 
@@ -3385,8 +3383,8 @@ void StyleArray::addStyler(int styleID, const generic_string & styleName)
 	NppStyle & s = _styleVect.back();
 	s._styleID = styleID;
 	s._styleDesc = styleName;
-	s._fgColor = black;
-	s._bgColor = white;
+	s._fgColor = GetColorRef(SClrBlack); // black
+	s._bgColor = GetColorRef(SClrWhite); // white
 }
 
 NppStyle * StyleArray::findByID(int id)
@@ -6347,9 +6345,7 @@ bool NppParameters::insertTabInfo(const TCHAR * langName, int tabInfo)
 {
 	if(_pXmlDoc) {
 		TiXmlNode * langRoot = (_pXmlDoc->FirstChild(TEXT("NotepadPlus")))->FirstChildElement(TEXT("Languages"));
-		for(TiXmlNode * childNode = langRoot->FirstChildElement(TEXT("Language"));
-			childNode;
-			childNode = childNode->NextSibling(TEXT("Language"))) {
+		for(TiXmlNode * childNode = langRoot->FirstChildElement(TEXT("Language")); childNode; childNode = childNode->NextSibling(TEXT("Language"))) {
 			TiXmlElement * element = childNode->ToElement();
 			const TCHAR * nm = element->Attribute(TEXT("name"));
 			if(nm && lstrcmp(langName, nm) == 0) {
@@ -6556,7 +6552,6 @@ void NppParameters::setUdlXmlDirtyFromIndex(size_t i)
 		}
 	}
 }
-
 /*
    Considering we have done:
    load default UDL:  3 languges
@@ -6593,10 +6588,8 @@ void NppParameters::removeIndexFromXmlUdls(size_t i)
 			if(uxfs._indexRange.second > 0)
 				uxfs._indexRange.second -= 1;
 			uxfs._isDirty = true;
-
 			isUpdateBegin = true;
 		}
-
 		// Update
 		else if(isUpdateBegin) {
 			if(uxfs._indexRange.first > 0)
@@ -6655,10 +6648,9 @@ NppDate::NppDate(int nbDaysFromNow)
 {
 	const time_t oneDay = (60 * 60 * 24);
 	time_t rawtime;
-	tm* timeinfo;
 	time(&rawtime);
 	rawtime += (nbDaysFromNow * oneDay);
-	timeinfo = localtime(&rawtime);
+	const tm * timeinfo = localtime(&rawtime);
 	if(timeinfo) {
 		_year = timeinfo->tm_year + 1900;
 		_month = timeinfo->tm_mon + 1;
@@ -6669,9 +6661,8 @@ NppDate::NppDate(int nbDaysFromNow)
 void NppDate::now()
 {
 	time_t rawtime;
-	tm* timeinfo;
 	time(&rawtime);
-	timeinfo = localtime(&rawtime);
+	const tm * timeinfo = localtime(&rawtime);
 	if(timeinfo) {
 		_year = timeinfo->tm_year + 1900;
 		_month = timeinfo->tm_mon + 1;
@@ -6690,36 +6681,40 @@ bool NppDate::operator <(const NppDate & compare) const
 {
 	if(this->_year != compare._year)
 		return (this->_year < compare._year);
-	if(this->_month != compare._month)
+	else if(this->_month != compare._month)
 		return (this->_month < compare._month);
-	return (this->_day < compare._day);
+	else
+		return (this->_day < compare._day);
 }
 
 bool NppDate::operator >(const NppDate & compare) const
 {
 	if(this->_year != compare._year)
 		return (this->_year > compare._year);
-	if(this->_month != compare._month)
+	else if(this->_month != compare._month)
 		return (this->_month > compare._month);
-	return (this->_day > compare._day);
+	else
+		return (this->_day > compare._day);
 }
 
 bool NppDate::operator ==(const NppDate & compare) const
 {
 	if(this->_year != compare._year)
 		return false;
-	if(this->_month != compare._month)
+	else if(this->_month != compare._month)
 		return false;
-	return (this->_day == compare._day);
+	else
+		return (this->_day == compare._day);
 }
 
 bool NppDate::operator !=(const NppDate & compare) const
 {
 	if(this->_year != compare._year)
 		return true;
-	if(this->_month != compare._month)
+	else if(this->_month != compare._month)
 		return true;
-	return (this->_day != compare._day);
+	else
+		return (this->_day != compare._day);
 }
 
 EolType convertIntToFormatType(int value, EolType defvalue)

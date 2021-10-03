@@ -1301,6 +1301,233 @@ private:
 	}
 };
 
+StyloQCore::SvcDbSymbMapEntry::SvcDbSymbMapEntry() : Flags(0)
+{
+}
+
+int StyloQCore::SvcDbSymbMapEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, SvcIdent, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DbSymb, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+StyloQCore::SvcDbSymbMap::SvcDbSymbMap() : TSCollection <StyloQCore::SvcDbSymbMapEntry>()
+{
+}
+
+int FASTCALL StyloQCore::SvcDbSymbMap::Copy(const SvcDbSymbMap & rS)
+{
+	return TSCollection_Copy(*this, rS);
+}
+
+StyloQCore::SvcDbSymbMap::SvcDbSymbMap(const SvcDbSymbMap & rS)
+{
+	Copy(rS);
+}
+
+StyloQCore::SvcDbSymbMap & FASTCALL StyloQCore::SvcDbSymbMap::operator = (const SvcDbSymbMap & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool StyloQCore::SvcDbSymbMap::HasDbUserAssocEntries(const char * pDbSymb) const
+{
+	bool ok = false;
+	if(!isempty(pDbSymb)) {
+		for(uint i = 0; i < getCount(); i++) {
+			const StyloQCore::SvcDbSymbMapEntry * p_entry = at(i);
+			if(p_entry && p_entry->DbSymb.IsEqiAscii(pDbSymb)) {
+				if(p_entry->Flags & StyloQCore::SvcDbSymbMapEntry::fHasUserAssocEntries)
+					ok = true;
+				break;
+			}
+		}
+	}
+	return ok;
+}
+
+bool StyloQCore::SvcDbSymbMap::FindSvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags) const
+{
+	bool ok = false;
+	for(uint i = 0; !ok && i < getCount(); i++) {
+		const StyloQCore::SvcDbSymbMapEntry * p_entry = at(i);
+		if(p_entry && p_entry->SvcIdent == rIdent) {
+			ASSIGN_PTR(pDbSymb, p_entry->DbSymb);
+			ASSIGN_PTR(pFlags, p_entry->Flags);
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+SString & StyloQCore::SvcDbSymbMap::InitFilePath(const char * pOuterPath, SString & rResultBuf)
+{
+	(rResultBuf = pOuterPath).Strip();
+	if(rResultBuf.IsEmpty()) {
+		PPGetFilePath(PPPATH_WORKSPACE, "styloq-sidsmap", rResultBuf);
+	}
+	return rResultBuf;
+}
+
+int StyloQCore::SvcDbSymbMap::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	const SVerT cur_ver = DS.GetVersion();
+	if(dir > 0) {
+		THROW_SL(rBuf.Write(&_PPConst.Signature_StqDbSymbToSvcIdMap, sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)));
+		THROW_SL(rBuf.Write(&cur_ver, sizeof(cur_ver)));
+	}
+	else if(dir < 0) {
+		SVerT ver;
+		uint8 signature[sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)];
+		THROW_SL(rBuf.Read(signature, sizeof(signature)));
+		THROW(memcmp(signature, &_PPConst.Signature_StqDbSymbToSvcIdMap, sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)) == 0);
+		THROW_SL(rBuf.Read(&ver, sizeof(ver)));
+	}
+	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int StyloQCore::SvcDbSymbMap::Store(const char * pFilePath)
+{
+	int    ok = 1;
+	SString file_path;
+	InitFilePath(pFilePath, file_path);
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	THROW(Serialize(+1, sbuf, &sctx));
+	{
+		SFile f(file_path, SFile::mWrite|SFile::mBinary);
+		THROW_SL(f.IsValid());
+		THROW_SL(f.Write(sbuf.constptr(), sbuf.GetAvailableSize()));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath)
+{
+	freeAll();
+	int    ok = 1;
+	SString file_path;
+	InitFilePath(pFilePath, file_path);
+	if(fileExists(file_path)) {
+		SSerializeContext sctx;
+		SBuffer sbuf;
+		SFile f(file_path, SFile::mRead|SFile::mBinary);
+		THROW_SL(f.IsValid());
+		{
+			uint8 interm_buf[1024];
+			size_t actual_size = 0;
+			while(f.Read(interm_buf, sizeof(interm_buf), &actual_size) > 0) {
+				if(actual_size) {
+					THROW_SL(sbuf.Write(interm_buf, actual_size));
+				}
+				else
+					break;
+			}
+		}
+		THROW(Serialize(-1, sbuf, &sctx));
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int StyloQCore::SvcDbSymbMap::Dump(const char * pInputFileName, const char * pDumpFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	StyloQCore::SvcDbSymbMap map;
+	map.InitFilePath(pInputFileName, temp_buf);
+	THROW(map.Read(temp_buf));
+	(temp_buf = pDumpFileName).Strip();
+	if(temp_buf.IsEmpty()) {
+		PPGetFilePath(PPPATH_OUT, "styloq-sidsmap.dump", temp_buf);
+	}
+	{
+		SFile f_dump(temp_buf, SFile::mWrite);
+		SString mime_buf;
+		THROW_SL(f_dump.IsValid());
+		for(uint i = 0; i < map.getCount(); i++) {
+			const StyloQCore::SvcDbSymbMapEntry * p_entry = map.at(i);
+			if(p_entry) {
+				mime_buf.EncodeMime64(p_entry->SvcIdent.PtrC(), p_entry->SvcIdent.Len());
+				temp_buf.Z().Cat(p_entry->DbSymb).Tab().Cat(mime_buf).Tab().CatHex(p_entry->Flags).CR();
+				f_dump.WriteLine(temp_buf);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int StyloQCore::BuildSvcDbSymbMap()
+{
+	int    ok = 1;
+	SString db_symb;
+	SBinaryChunk bc;
+	SSerializeContext sctx;
+	PPDbEntrySet2 dbes;
+	PPIniFile ini_file;
+	DbLoginBlock dlb;
+	PPSession::LimitedDatabaseBlock * p_ldb = 0;
+	StyloQCore::SvcDbSymbMap map;
+	dbes.ReadFromProfile(&ini_file, 1, 1);
+	for(uint i = 0; i < dbes.GetCount(); i++) {
+		if(dbes.GetByPos(i, &dlb)) {
+			if(dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
+				p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
+				if(p_ldb) {
+					if(p_ldb->P_Sqc) {
+						StyloQCore::StoragePacket sp;
+						if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) > 0) {
+							if(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc) > 0) {
+								assert(bc.Len() > 0);
+								StyloQCore::SvcDbSymbMapEntry * p_entry = map.CreateNewItem();
+								THROW_SL(p_entry);
+								p_entry->DbSymb = db_symb;
+								p_entry->SvcIdent = bc;
+								{
+									//
+									// Выясняем существует ли хоть одна клиентская запись, ассоциированная с пользователем.
+									// Эта информация понадобиться для принятия решения при выборе базы данных пользователем:
+									// нужно ли отображать QR-код для авторизации с помощью смартфона.
+									//
+									StyloQSecTbl::Key1 k1;
+									MEMSZERO(k1);
+									k1.Kind = StyloQCore::kClient;
+									if(p_ldb->P_Sqc->search(1, &k1, spGe) && p_ldb->P_Sqc->data.Kind == StyloQCore::kClient) do {
+										StyloQSecTbl::Rec rec;
+										p_ldb->P_Sqc->copyBufTo(&rec);
+										if(rec.Kind == StyloQCore::kClient && rec.LinkObjType == PPOBJ_USR && rec.LinkObjID > 0) {
+											p_entry->Flags |= StyloQCore::SvcDbSymbMapEntry::fHasUserAssocEntries;
+											break;
+										}
+									} while(p_ldb->P_Sqc->search(1, &k1, spNext) && p_ldb->P_Sqc->data.Kind == StyloQCore::kClient);
+								}
+							}
+						}
+					}
+					ZDELETE(p_ldb);
+				}
+			}
+		}
+	}
+	THROW(map.Store(0));
+	StyloQCore::SvcDbSymbMap::Dump(0, 0);
+	CATCHZOK
+	delete p_ldb;
+	return ok;
+}
+
 int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 {
 	int    ok = -1;
@@ -1314,48 +1541,8 @@ int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 			if(PPDialogProcBody <StyloQAssignObjDialog, StyloQAssignObjParam> (&param) > 0) {
 				pack.Rec.LinkObjType = param.Oid.Obj;
 				pack.Rec.LinkObjID = param.Oid.Id;
-				if(P_Tbl->PutPeerEntry(&id, &pack, 1)) {
-					// @v11.1.8 {
-					if(pack.Rec.LinkObjType == PPOBJ_USR && pack.Rec.LinkObjID != 0) {
-						DbProvider * p_dict = CurDict;
-						if(p_dict) {
-							SString db_symb;
-							p_dict->GetDbSymb(db_symb);
-							if(db_symb.NotEmpty()) {
-								bool found = false;
-								StringSet dbsymb_list;
-								SString temp_buf;
-								SString file_name;
-								PPGetFilePath(PPPATH_WORKSPACE, "styloq-la", file_name);
-								{
-									SFile f(file_name, SFile::mRead);
-									if(f.IsValid()) {
-										while(f.ReadLine(temp_buf)) {
-											temp_buf.Chomp().Strip();
-											dbsymb_list.add(temp_buf);
-											if(temp_buf.IsEqiAscii(db_symb))
-												found = true;
-										}
-									}
-								}
-								if(!found) {
-									SFile f(file_name, SFile::mWrite);
-									if(f.IsValid()) {
-										dbsymb_list.add(db_symb);
-										dbsymb_list.sortAndUndup();
-										for(uint ssp = 0; dbsymb_list.get(&ssp, temp_buf);) {
-											temp_buf.Strip().CR();
-											f.WriteLine(temp_buf);
-										}
-										f.Close();
-									}
-								}
-							}
-						}
-					}
-					// } @v11.1.8
+				if(P_Tbl->PutPeerEntry(&id, &pack, 1))
 					ok = 1;
-				}
 				else
 					ok = PPErrorZ();
 			}
@@ -1723,11 +1910,13 @@ int StyloQProtocol::ReadMime64(const SString & rSrcMime64, const SBinaryChunk * 
 	return ok;
 }
 
-PPStyloQInterchange::RoundTripBlock::RoundTripBlock() : P_Mqbc(0), P_MqbRpe(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0)
+PPStyloQInterchange::RoundTripBlock::RoundTripBlock() : 
+	P_Mqbc(0), P_MqbRpe(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0)
 {
 }
 		
-PPStyloQInterchange::RoundTripBlock::RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint) : P_Mqbc(0), P_MqbRpe(0), InnerSessID(0), InnerCliID(0), State(0)
+PPStyloQInterchange::RoundTripBlock::RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint) : 
+	P_Mqbc(0), P_MqbRpe(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0)
 {
 	if(pSvcIdent && svcIdentLen)
 		Other.Put(SSecretTagPool::tagSvcIdent, pSvcIdent, svcIdentLen);
@@ -2122,59 +2311,86 @@ int PPStyloQInterchange::KexClientRequest(RoundTripBlock & rB)
 		InetUrl url(temp_buf);
 		SString host;
 		THROW(url.GetComponent(InetUrl::cHost, 0, host));
-		if(oneof2(url.GetProtocol(), InetUrl::protAMQP, InetUrl::protAMQPS)) {
-			SBinaryChunk sess_pub_key;
+		{
 			SBinaryChunk own_ident;
+			SBinaryChunk sess_pub_key;
 			SBinaryChunk other_sess_public;
 			StyloQProtocol tp;
-			PPMqbClient::RoutingParamEntry rpe; // маршрут до очереди, в которой сервис ждет новых клиентов
-			PPMqbClient::RoutingParamEntry rpe_regular; // маршрут до очереди, в которой сервис будет с нами общаться
-			PPMqbClient::MessageProperties props;
-			PPMqbClient::Envelope env;
-			PPMqbClient::InitParam mqip;
-			THROW(PPMqbClient::SetupInitParam(mqip, "styloq", 0));
 			int  fsks = FetchSessionKeys(StyloQCore::kForeignService, rB.Sess, svc_ident);
 			THROW(fsks);
 			THROW(KexGenerateKeys(rB.Sess, 0, 0));
 			THROW_PP(rB.Sess.Get(SSecretTagPool::tagClientIdent, &own_ident), PPERR_SQ_UNDEFCLIID); // !
-			//if(fsks == fsksNewSession) 
 			THROW(rB.Sess.Get(SSecretTagPool::tagSessionPublicKey, &sess_pub_key));
-			tp.StartWriting(PPSCMD_SQ_ACQUAINTANCE, StyloQProtocol::psubtypeForward);
-			tp.P.Put(SSecretTagPool::tagClientIdent, own_ident);
-			tp.P.Put(SSecretTagPool::tagSessionPublicKey, sess_pub_key);
-			THROW(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem()));
-			THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
-			THROW(tp.FinishWriting(0));
-			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
-			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 			{
-				const clock_t _c = clock();
+				tp.StartWriting(PPSCMD_SQ_ACQUAINTANCE, StyloQProtocol::psubtypeForward);
+				tp.P.Put(SSecretTagPool::tagClientIdent, own_ident);
+				tp.P.Put(SSecretTagPool::tagSessionPublicKey, sess_pub_key);
+				THROW(tp.FinishWriting(0));
+			}
+			if(oneof2(url.GetProtocol(), InetUrl::protHttp, InetUrl::protHttp)) {
+				ScURL  c;
+				SString content_buf;
+				SBuffer reply_buf;
+				SFile wr_stream(reply_buf, SFile::mWrite);
+				StrStrAssocArray hdr_flds;
+				url.SetQueryParam("rtsid", SLS.AcquireRvlStr().Cat(rB.Uuid, S_GUID::fmtIDL|S_GUID::fmtPlain|S_GUID::fmtLower));
+				content_buf.Z().EncodeMime64(tp.constptr(), tp.GetAvailableSize());
+				SFileFormat::GetMime(SFileFormat::Unkn, temp_buf);
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentLen, temp_buf.Z().Cat(content_buf.Len()));
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, temp_buf);
+				SFileFormat::GetContentTransferEncName(/*P_Cb->ContentTransfEnc*/SFileFormat::cteBase64, temp_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, content_buf, &wr_stream));
 				{
-					const int cmr = p_mqbc->ConsumeMessage(env, cmto);
-					THROW(cmr);
-					THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOKEXQUERY, cmto);
-				}
-				p_mqbc->Ack(env.DeliveryTag, 0);
-				THROW(tp.Read(env.Msg, 0));
-				if(!tp.CheckRepError()) {
-					// @todo Инициализировать ошибку для информирования caller
-					ok = 0;
-				}
-				else {
-					THROW(tp.GetH().Type == PPSCMD_SQ_ACQUAINTANCE && tp.GetH().Flags & tp.hfAck);
-					tp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_sess_public);
-					THROW(KexGenerageSecret(rB.Sess, tp.P));
-					// Теперь ключ шифрования сессии есть и у нас и у сервиса!
-					THROW(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0));
-					// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
-					if(SetRoundTripBlockReplyValues(rB, p_mqbc, rpe_regular)) {
-						p_mqbc = 0;
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						THROW(tp.ReadMime64(temp_buf, /*pCryptoKey*/0));
 					}
-					ok = 1;
 				}
 			}
-			//else if(fsks == fsksSessionBySvcId) {
-			//}
+			else if(oneof2(url.GetProtocol(), InetUrl::protAMQP, InetUrl::protAMQPS)) {
+				PPMqbClient::RoutingParamEntry rpe; // маршрут до очереди, в которой сервис ждет новых клиентов
+				PPMqbClient::RoutingParamEntry rpe_regular; // маршрут до очереди, в которой сервис будет с нами общаться
+				PPMqbClient::MessageProperties props;
+				PPMqbClient::Envelope env;
+				PPMqbClient::InitParam mqip;
+				THROW(PPMqbClient::SetupInitParam(mqip, "styloq", 0));
+				//
+				//if(fsks == fsksNewSession) 
+				THROW(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem()));
+				THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
+				const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+				THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+				{
+					const clock_t _c = clock();
+					{
+						const int cmr = p_mqbc->ConsumeMessage(env, cmto);
+						THROW(cmr);
+						THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOKEXQUERY, cmto);
+					}
+					p_mqbc->Ack(env.DeliveryTag, 0);
+					THROW(tp.Read(env.Msg, 0));
+					if(!tp.CheckRepError()) {
+						// @todo Инициализировать ошибку для информирования caller
+						ok = 0;
+					}
+					else {
+						THROW(tp.GetH().Type == PPSCMD_SQ_ACQUAINTANCE && tp.GetH().Flags & tp.hfAck);
+						tp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_sess_public);
+						THROW(KexGenerageSecret(rB.Sess, tp.P));
+						// Теперь ключ шифрования сессии есть и у нас и у сервиса!
+						THROW(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0));
+						// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
+						if(SetRoundTripBlockReplyValues(rB, p_mqbc, rpe_regular)) {
+							p_mqbc = 0;
+						}
+						ok = 1;
+					}
+				}
+				//else if(fsks == fsksSessionBySvcId) {
+				//}
+			}
 		}
 	}
 	CATCHZOK
@@ -3129,6 +3345,15 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 		else {
 			THROW(GeneratePublicIdent(rB.StP.Pool, svc_ident, SSecretTagPool::tagClientIdent, gcisfMakeSecret, rB.Sess));
 		}
+		// @v11.1.12 {
+		{
+			rB.Uuid.Generate();
+			// Включение этого идентификатора в общий пул сомнительно. Дело в том, что
+			// этот идентификатор обрабатывается на ранней фазе получения сообщения стороной диалога
+			// когда общий пакет сообщения еще не распакован (не расшифрован и т.д.)
+			rB.Sess.Put(SSecretTagPool::tagRoundTripIdent, &rB.Uuid, sizeof(rB.Uuid)); // ? 
+		}
+		// } @v11.1.12 
 	}
 	CATCHZOK
 	return ok;
@@ -3215,11 +3440,12 @@ int Test_PPStyloQInterchange()
 			int    ok = 1;
 			SString temp_buf;
 			ScURL  c;
-			InetUrl url("http://localhost/styloq");
+			InetUrl url("http://192.168.0.205/styloq");
 			SBuffer reply_buf;
 			StyloQProtocol tp;
 			SFile wr_stream(reply_buf, SFile::mWrite);
 			temp_buf.Z().EncodeMime64(tp.constptr(), tp.GetAvailableSize());
+			temp_buf = "Hello, world!"; // @debug
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, 0/*header*/, temp_buf, &wr_stream));
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
@@ -3238,6 +3464,11 @@ int Test_PPStyloQInterchange()
 	PPStyloQInterchange ic;
 	PPStyloQInterchange::RunServerParam rsparam;
 	StyloQCore::StoragePacket sp;
+	StyloQCore::BuildSvcDbSymbMap();
+	if(0) {
+		TcpClientSession clisess;
+		clisess.DoRequest();
+	}
 	/*{
 		int local_result = StyloQProtocol::Test();
 		assert(local_result);
@@ -3248,7 +3479,10 @@ int Test_PPStyloQInterchange()
 	int    spir = ic.SetupPeerInstance(&own_peer_id, 1);
 	THROW(spir);
 	THROW(ic.GetOwnPeerEntry(&sp) > 0);
-	{
+	if(0) { 
+		//
+		// Инициализация сервера для обработки AMQ-запросов
+		//
 		THROW(ic.SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint, rsparam));
 		//sp.Pool.Get(SSecretTagPool::tagSvcIdent, &rsparam.SvcIdent);
 		//THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, "styloq", 0));
@@ -3279,7 +3513,7 @@ int Test_PPStyloQInterchange()
 		}
 	}
 	//
-	if(0) {
+	if(1) {
 		PPIniFile ini_file;
 		temp_buf.Z();
 		ini_file.Get(PPINISECT_CONFIG, "styloqtestside", temp_buf);
@@ -3299,12 +3533,14 @@ int Test_PPStyloQInterchange()
 			ic.RunStyloQServer(rsparam, 0);
 		}
 		else if(temp_buf.IsEqiAscii("client")) {
-			const char * p_svc_ident_mime = "Lkekoviu1J2nw1O7/R66LYvpAtA="; // pft
+			const char * p_svc_ident_mime = "/TV5LgPLqvrjL7kAaMnt8a1Kjt8="; // pft
 			SBinaryChunk svc_ident;
 			if(svc_ident.FromMime64(p_svc_ident_mime)) {
 				//SSecretTagPool svc_pool;
 				//SSecretTagPool sess_pool;
-				PPStyloQInterchange::RoundTripBlock rtb(svc_ident.PtrC(), svc_ident.Len(), "amqp://213.166.70.221");
+				const char * p_amq_server = "amqp://213.166.70.221";
+				const char * p_http_server = "http://192.168.0.205/styloq";
+				PPStyloQInterchange::RoundTripBlock rtb(svc_ident.PtrC(), svc_ident.Len(), p_http_server);
 				if(ic.InitRoundTripBlock(rtb)) {
 					//svc_pool.Put(SSecretTagPool::tagSvcIdent, svc_ident);
 					//const char * p_accsp = "amqp://213.166.70.221";

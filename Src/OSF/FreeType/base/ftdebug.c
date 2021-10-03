@@ -74,7 +74,7 @@ FT_BASE_DEF(int) FT_Throw(FT_Error error, int line, const char*  file)
 {
 #if 0
 	/* activating the code in this block makes FreeType very chatty */
-	fprintf(stderr, "%s:%d: error 0x%02x: %s\n", file, line, error, FT_Error_String(error) );
+	slfprintf_stderr("%s:%d: error 0x%02x: %s\n", file, line, error, FT_Error_String(error) );
 #else
 	FT_UNUSED(error);
 	FT_UNUSED(line);

@@ -40,7 +40,7 @@
 #define OPTIONS 134
 #define ABOUT 135
 #define CMDMAX 135
-static char * keyword[] = {
+static const char * keyword[] = {
 	"[INPUT]", "[EOS]", "[OPEN]", "[SAVE]", "[DIRECTORY]",
 	"[OPTIONS]", "[ABOUT]",
 	"{ENTER}", "{ESC}", "{TAB}",
@@ -50,7 +50,7 @@ static char * keyword[] = {
 	"{^Y}", "{^Z}", "{^[}", "{^\\}", "{^]}", "{^^}", "{^_}",
 	NULL
 };
-static BYTE keyeq[] = {
+static const BYTE keyeq[] = {
 	INPUT, EOS, OPEN, SAVE, DIRECTORY,
 	OPTIONS, ABOUT,
 	13, 27, 9,
@@ -371,29 +371,29 @@ static int Gfgets(LPSTR lp, int size, GFILE * gfile)
 		*lp++ = NUL;
 	return i;
 }
-
-/* Get a line from the menu file */
-/* Return number of lines read from file including comment lines */
+//
+// Get a line from the menu file 
+// Return number of lines read from file including comment lines 
+//
 static int GetLine(char * buffer, int len, GFILE * gfile)
 {
 	int nLine = 0;
 	BOOL status = (Gfgets(buffer, len, gfile) != 0);
 	nLine++;
 	while(status && (buffer[0] == 0 || buffer[0] == '\n' || buffer[0] == ';')) {
-		/* blank line or comment - ignore */
+		// blank line or comment - ignore 
 		status = (Gfgets(buffer, len, gfile) != 0);
 		nLine++;
 	}
-	if(strlen(buffer) > 0)
-		buffer[strlen(buffer)-1] = NUL; /* remove trailing \n */
-
+	if(!isempty(buffer))
+		buffer[strlen(buffer)-1] = NUL; // remove trailing \n
 	if(!status)
-		nLine = 0; /* zero lines if file error */
-
+		nLine = 0; // zero lines if file error
 	return nLine;
 }
-
-/* Left justify string */
+//
+// Left justify string 
+//
 static void LeftJustify(char * d, char * s)
 {
 	while(*s && (*s == ' ' || *s == '\t'))
@@ -705,17 +705,18 @@ void LoadMacros(TW * lptw)
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_NOPREFIX;
 		if(MacroCommand(lptw, lpmw->hButtonID[i]) == OPTIONS)
 			button.fsStyle |= BTNS_WHOLEDROPDOWN;
-#ifdef UNICODE
-		button.iString = (UINT_PTR)UnicodeText(ButtonText[i], S_ENC_DEFAULT);
-#else
-		button.iString = (UINT_PTR)ButtonText[i];
-#endif
+//#ifdef UNICODE
+		//button.iString = (UINT_PTR)UnicodeText(ButtonText[i], S_ENC_DEFAULT);
+//#else
+		//button.iString = (UINT_PTR)ButtonText[i];
+//#endif
+		button.iString = (INT_PTR)SUcSwitch(ButtonText[i]);
 		SendMessage(lpmw->hToolbar, TB_INSERTBUTTON, (WPARAM)i + 1, (LPARAM)&button);
-#ifdef UNICODE
-		SAlloc::F((LPWSTR)button.iString);
-#endif
+//#ifdef UNICODE
+		//SAlloc::F((LPWSTR)button.iString);
+//#endif
 	}
-	/* auto-resize and show */
+	// auto-resize and show 
 	SendMessage(lpmw->hToolbar, TB_AUTOSIZE, (WPARAM)0, (LPARAM)0);
 	ShowWindow(lpmw->hToolbar, SW_SHOWNOACTIVATE);
 	/* move top of client text window down to allow space for toolbar */

@@ -1012,7 +1012,7 @@ void GnuPlot::F_Strstrt(union argument * /*arg*/)
 	if(start == 0) {
 		hit = -1;
 	}
-	else if(encoding == S_ENC_UTF8) {
+	else if(GPT._Encoding == S_ENC_UTF8) {
 		char * utfstring = haystack.v.string_val;
 		while(utfstring < start) {
 			advance_one_utf8_char(utfstring);

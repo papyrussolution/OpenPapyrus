@@ -5,8 +5,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static int    compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2);
-static int    histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
+//static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2);
+//static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 // 
 // for plotting error bars half the width of error bar tic mark
 // 
@@ -156,64 +156,63 @@ void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 //void place_pixmaps(int layer, int dimensions)
 void GnuPlot::PlacePixmaps(GpTermEntry * pTerm, int layer, int dimensions)
 {
-	t_pixmap * pixmap;
-	gpiPoint corner[4];
-	int x, y, dx, dy;
-	if(!pTerm->image)
-		return;
-	for(pixmap = Gg.P_PixmapListHead; pixmap; pixmap = pixmap->next) {
-		if(layer != pixmap->layer)
-			continue;
-		// ignore zero-size pixmap from read failure 
-		if(!pixmap->nrows || !pixmap->ncols)
-			continue;
-		// Allow a single backing pixmap behind multiple multiplot panels 
-		if(layer == LAYER_BEHIND && multiplot_count > 1)
-			continue;
-		if(dimensions == 3)
-			Map3DPosition(pTerm, &pixmap->pin, &x, &y, "pixmap");
-		else
-			MapPosition(pTerm, &pixmap->pin, &x, &y, "pixmap");
-		// dx = dy = 0 means 1-to-1 representation of pixels 
-		if(pixmap->extent.x == 0 && pixmap->extent.y == 0) {
-			dx = static_cast<int>(pixmap->ncols * pTerm->tscale);
-			dy = static_cast<int>(pixmap->ncols * pTerm->tscale);
+	if(pTerm->image) {
+		for(t_pixmap * pixmap = Gg.P_PixmapListHead; pixmap; pixmap = pixmap->next) {
+			int x, y, dx, dy;
+			if(layer != pixmap->layer)
+				continue;
+			if(!pixmap->nrows || !pixmap->ncols) // ignore zero-size pixmap from read failure 
+				continue;
+			if(layer == LAYER_BEHIND && GPT.MultiplotCount > 1) // Allow a single backing pixmap behind multiple multiplot panels 
+				continue;
+			if(dimensions == 3)
+				Map3DPosition(pTerm, &pixmap->pin, &x, &y, "pixmap");
+			else
+				MapPosition(pTerm, &pixmap->pin, &x, &y, "pixmap");
+			// dx = dy = 0 means 1-to-1 representation of pixels 
+			if(pixmap->extent.x == 0 && pixmap->extent.y == 0) {
+				dx = static_cast<int>(pixmap->ncols * pTerm->tscale);
+				dy = static_cast<int>(pixmap->ncols * pTerm->tscale);
+			}
+			else if(dimensions == 3) {
+				Map3DPositionR(pTerm, &pixmap->extent, &dx, &dy, "pixmap");
+				if(pixmap->extent.scalex == first_axes)
+					dx = static_cast<int>(pixmap->extent.x * _3DBlk.radius_scaler);
+				if(pixmap->extent.scaley == first_axes)
+					dy = static_cast<int>(pixmap->extent.y * _3DBlk.radius_scaler);
+			}
+			else {
+				double _Dx, _Dy;
+				MapPositionR(pTerm, &pixmap->extent, &_Dx, &_Dy, "pixmap");
+				dx = static_cast<int>(fabs(_Dx));
+				dy = static_cast<int>(fabs(_Dy));
+			}
+			// default is to keep original aspect ratio 
+			if(pixmap->extent.y == 0)
+				dy = static_cast<int>(dx * (double)(pixmap->nrows) / (double)(pixmap->ncols));
+			if(pixmap->extent.x == 0)
+				dx = static_cast<int>(dy * (double)(pixmap->ncols) / (double)(pixmap->nrows));
+			if(pixmap->center) {
+				x -= dx/2;
+				y -= dy/2;
+			}
+			{
+				const gpiPoint corner[4] = { {x, y + dy}, {x + dx, y}, {0/* no clipping */, static_cast<int>(pTerm->MaxY)}, {static_cast<int>(pTerm->MaxX), 0}};
+				//corner[0].x = x;
+				//corner[0].y = y + dy;
+				//corner[1].x = x + dx;
+				//corner[1].y = y;
+				//corner[2].x = 0; /* no clipping */
+				//corner[2].y = pTerm->MaxY;
+				//corner[3].x = pTerm->MaxX;
+				//corner[3].y = 0;
+				// Check for horizontal named palette colorbox 
+				if(!pixmap->filename && dx > dy*2)
+					pTerm->image(pTerm, pixmap->nrows, pixmap->ncols, pixmap->image_data, corner, IC_RGBA);
+				else
+					pTerm->image(pTerm, pixmap->ncols, pixmap->nrows, pixmap->image_data, corner, IC_RGBA);
+			}
 		}
-		else if(dimensions == 3) {
-			Map3DPositionR(pTerm, &pixmap->extent, &dx, &dy, "pixmap");
-			if(pixmap->extent.scalex == first_axes)
-				dx = static_cast<int>(pixmap->extent.x * _3DBlk.radius_scaler);
-			if(pixmap->extent.scaley == first_axes)
-				dy = static_cast<int>(pixmap->extent.y * _3DBlk.radius_scaler);
-		}
-		else {
-			double Dx, Dy;
-			MapPositionR(pTerm, &pixmap->extent, &Dx, &Dy, "pixmap");
-			dx = static_cast<int>(fabs(Dx));
-			dy = static_cast<int>(fabs(Dy));
-		}
-		// default is to keep original aspect ratio 
-		if(pixmap->extent.y == 0)
-			dy = static_cast<int>(dx * (double)(pixmap->nrows) / (double)(pixmap->ncols));
-		if(pixmap->extent.x == 0)
-			dx = static_cast<int>(dy * (double)(pixmap->ncols) / (double)(pixmap->nrows));
-		if(pixmap->center) {
-			x -= dx/2;
-			y -= dy/2;
-		}
-		corner[0].x = x;
-		corner[0].y = y + dy;
-		corner[1].x = x + dx;
-		corner[1].y = y;
-		corner[2].x = 0;        /* no clipping */
-		corner[2].y = pTerm->MaxY;
-		corner[3].x = pTerm->MaxX;
-		corner[3].y = 0;
-		// Check for horizontal named palette colorbox 
-		if(!pixmap->filename && dx > dy*2)
-			pTerm->image(pTerm, pixmap->nrows, pixmap->ncols, pixmap->image_data, corner, IC_RGBA);
-		else
-			pTerm->image(pTerm, pixmap->ncols, pixmap->nrows, pixmap->image_data, corner, IC_RGBA);
 	}
 }
 //
@@ -240,18 +239,14 @@ void GnuPlot::PlaceLabels(GpTermEntry * pTerm, text_label * pListHead, int layer
 			if(invalid_coordinate(x, y))
 				continue;
 			if(clip) {
-				if(this_label->place.scalex == first_axes)
-					if(!AxS[FIRST_X_AXIS].InRange(this_label->place.x))
-						continue;
-				if(this_label->place.scalex == second_axes)
-					if(!AxS[SECOND_X_AXIS].InRange(this_label->place.x))
-						continue;
-				if(this_label->place.scaley == first_axes)
-					if(!AxS[FIRST_Y_AXIS].InRange(this_label->place.y))
-						continue;
-				if(this_label->place.scaley == second_axes)
-					if(!AxS[SECOND_Y_AXIS].InRange(this_label->place.y))
-						continue;
+				if(this_label->place.scalex == first_axes && !AxS[FIRST_X_AXIS].InRange(this_label->place.x))
+					continue;
+				if(this_label->place.scalex == second_axes && !AxS[SECOND_X_AXIS].InRange(this_label->place.x))
+					continue;
+				if(this_label->place.scaley == first_axes && !AxS[FIRST_Y_AXIS].InRange(this_label->place.y))
+					continue;
+				if(this_label->place.scaley == second_axes && !AxS[SECOND_Y_AXIS].InRange(this_label->place.y))
+					continue;
 			}
 			WriteLabel(pTerm, x, y, this_label);
 		}
@@ -336,9 +331,8 @@ void GnuPlot::PlaceObjects(GpTermEntry * pTerm, GpObject * pListHead, int layer,
 		    }
 			case OBJ_POLYGON:
 		    {
-			    /* Polygons have an extra option LAYER_FRONTBACK that matches
-			     * FRONT or BACK depending on which way the polygon faces
-			     */
+			    // Polygons have an extra option LAYER_FRONTBACK that matches
+			    // FRONT or BACK depending on which way the polygon faces
 			    int facing = LAYER_BEHIND; /* This will be ignored */
 			    if(this_object->layer == LAYER_FRONTBACK) {
 				    if(oneof2(layer, LAYER_FRONT, LAYER_BACK))
@@ -977,9 +971,7 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 				break;
 		}
 		// Check for request to fill only on one side of a bounding line 
-		if(filledcurves_options->oneside > 0 && side < 0)
-			return;
-		if(filledcurves_options->oneside < 0 && side > 0)
+		if((filledcurves_options->oneside > 0 && side < 0) || (filledcurves_options->oneside < 0 && side > 0))
 			return;
 		// EAM Apr 2013 - Use new polygon clipping code 
 		clipcorners = (gpiPoint *)SAlloc::R(clipcorners, 2*points*sizeof(gpiPoint));
@@ -992,11 +984,11 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 
 void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 {
-	int x, y;               /* point in terminal coordinates */
-	enum coord_type prev = UNDEFINED; /* type of previous point */
-	int points = 0;                 /* how many corners */
-	static gpiPoint * corners = 0;  /* array of corners */
-	static int corners_allocated = 0; /* how many allocated */
+	int x, y; // point in terminal coordinates 
+	enum coord_type prev = UNDEFINED; // type of previous point 
+	int points = 0; // how many corners 
+	static gpiPoint * corners = 0; // array of corners 
+	static int corners_allocated = 0; // how many allocated 
 	if(!pTerm->filled_polygon) { // filled polygons are not available 
 		PlotLines(pTerm, pPlot);
 	}
@@ -1066,7 +1058,11 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 	double x1, x2, yl1, yu1, yl2, yu2, dy;
 	double xmid = 0, ymid = 0;
 	double xu1, xu2; // For polar plots 
-	int i, j, istart = 0, finish = 0, points = 0, max_corners_needed;
+	int i, j;
+	int istart = 0;
+	int finish = 0;
+	int points = 0;
+	int max_corners_needed;
 	static gpiPoint * corners = 0;
 	static int corners_allocated = 0;
 	// If terminal doesn't support filled polygons, approximate with bars 
@@ -1275,10 +1271,11 @@ void GnuPlot::PlotFSteps(GpTermEntry * pTerm, curve_points * pPlot)
 		prev = pPlot->points[i].type;
 	}
 }
-
-/* HBB 20010625: replaced homegrown bubblesort in plot_histeps() by
- * call of standard routine qsort(). Need to tell the compare function
- * about the plotted dataset via this file scope variable: */
+// 
+// HBB 20010625: replaced homegrown bubblesort in plot_histeps() by
+// call of standard routine qsort(). Need to tell the compare function
+// about the plotted dataset via this file scope variable: 
+// 
 static curve_points * histeps_current_plot;
 
 static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)

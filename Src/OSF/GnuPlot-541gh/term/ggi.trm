@@ -355,12 +355,11 @@ TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
 		ggiPanic("*** ggiInit() failed *** \n");
 	}
 	if(NULL == (GGIvisual = ggiOpen(NULL))) {
-		/* TODO: abort a bit more gracefully */
+		// TODO: abort a bit more gracefully 
 		ggiPanic("(GGI_init() unable to open default\n");
 	}
-
-	if(strlen(GGI_mode_spec)) {
-		/* user specified mode */
+	if(!isempty(GGI_mode_spec)) {
+		// user specified mode 
 		if(!ggiParseMode(GGI_mode_spec, &mode)) {
 			mode.frames = GGI_frames;
 			if(!ggiSetMode(GGIvisual, &mode)) {
@@ -368,16 +367,15 @@ TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
 			}
 		}
 	}
-
 	if(!success) {
-		/* try the default mode */
+		// try the default mode 
 		if(ggiSetSimpleMode(GGIvisual, GGI_AUTO, GGI_AUTO, GGI_frames, GT_AUTO)) {
 			ggiPanic("(GGI_init() unable to set default mode\n");
 			GGIvisual = (ggi_visual_t)0;
 		}
 	}
 	ggiGetMode(GGIvisual, &mode);
-	/* print the mode only once if it has changed */
+	// print the mode only once if it has changed 
 	if(GGI_mode_changed) {
 		GGI_mode_changed = 0;
 		ggiFPrintMode(stderr, &mode);
@@ -503,7 +501,7 @@ TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
 		    }
 			case GGI_MODE:
 			    pGp->Pgm.Shift();
-			/* fallthru */
+			// fallthru 
 			default:
 			    if(!pGp->Pgm.EndOfCommand()) {
 				    pGp->Pgm.CopyStr(GGI_mode_spec, c_token, 0xfe);
@@ -512,19 +510,19 @@ TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 		pGp->Pgm.Shift();
-	} /* while(command) */
+	}
 	if(*GGI_mode_spec) {
-		sprintf(term_options, "mode %s acceleration %d", GGI_mode_spec, GGI_acceleration);
+		sprintf(GPT.TermOptions, "mode %s acceleration %d", GGI_mode_spec, GGI_acceleration);
 	}
 	else {
-		sprintf(term_options, "acceleration %d", GGI_acceleration);
+		sprintf(GPT.TermOptions, "acceleration %d", GGI_acceleration);
 	}
 }
 
 TERM_PUBLIC void GGI_close()
 {
 	ggiFlush(GGIvisual);
-	/* DETACH EXTENSIONS */
+	// DETACH EXTENSIONS 
 #if HAVE_WMH_H
 	if(GGI_use_whm) {
 		ggiWmhDetach(GGIvisual);

@@ -84,7 +84,7 @@ TERM_PUBLIC void HP2648reset();
 TERM_PUBLIC void
 HP2648init(GpTermEntry * pThis)
 {
-    fprintf(gpoutfile, "\033*m1m1n136,1cZ");
+    fprintf(GPT.P_GpOutFile, "\033*m1m1n136,1cZ");
 /*                   1     2 3     4
 	1. mode
 	2. textsize=1
@@ -97,7 +97,7 @@ HP2648init(GpTermEntry * pThis)
 TERM_PUBLIC void
 HP2648graphics()
 {
-    fprintf(gpoutfile, "\033*dacZ");
+    fprintf(GPT.P_GpOutFile, "\033*dacZ");
 /*                   1     23
 	1. mode
 	2. clear graphics screen
@@ -116,14 +116,14 @@ TERM_PUBLIC void
 HP2648linetype(int linetype)
 {
     static int hpline[] = { 1, 7, 1, 4, 5, 6, 8, 9, 10, 7, 2 };
-    fprintf(gpoutfile, "\033*m%dbZ", hpline[(linetype + 2) % 11]);
+    fprintf(GPT.P_GpOutFile, "\033*m%dbZ", hpline[(linetype + 2) % 11]);
 }
 
 
 TERM_PUBLIC void
 HP2648move(uint x, uint y)
 {
-    fprintf(gpoutfile, "\033*paf%d,%dZ", x, y);
+    fprintf(GPT.P_GpOutFile, "\033*paf%d,%dZ", x, y);
     /*               1     23     4
        1        plot mode
        2        "pen up"
@@ -136,7 +136,7 @@ HP2648move(uint x, uint y)
 TERM_PUBLIC void
 HP2648vector(uint x, uint y)
 {
-    fprintf(gpoutfile, "\033*pbf%d,%dZ", x, y);
+    fprintf(GPT.P_GpOutFile, "\033*pbf%d,%dZ", x, y);
     /*                     1
        1        "pen down"
      */
@@ -147,7 +147,7 @@ TERM_PUBLIC void
 HP2648put_text(uint x, uint y, const char *str)
 {
     HP2648move(x, y - HP2648VCHAR / 2 + 1);
-    fprintf(gpoutfile, "\033*l%s\n", str);
+    fprintf(GPT.P_GpOutFile, "\033*l%s\n", str);
 }
 
 
@@ -156,7 +156,7 @@ HP2648_text_angle(int ang)
 {
 int hp_ang = (ang ? 1 : 0);
 
-    fprintf(gpoutfile, "\033*m%dnZ\n", hp_ang+1);
+    fprintf(GPT.P_GpOutFile, "\033*m%dnZ\n", hp_ang+1);
     return TRUE;
 }
 

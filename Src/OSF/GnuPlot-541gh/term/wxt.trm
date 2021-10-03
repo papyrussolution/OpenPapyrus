@@ -140,11 +140,12 @@ static struct gen_table wxt_opts[] = {
 	{"noback$ground", WXT_NOBACKGROUND},
 	{NULL, WXT_OTHER}
 };
-
-/* "Called when terminal type is selected. This procedure should parse options on the command line.
- * A list of the currently selected options should be stored in term_options[],
- * in a form suitable for use with the set term command.
- * term_options[] is used by the save command.  Use GnuPlot::OptionsNull() if no options are available." */
+//
+// "Called when terminal type is selected. This procedure should parse options on the command line.
+// A list of the currently selected options should be stored in term_options[],
+// in a form suitable for use with the set term command.
+// term_options[] is used by the save command.  Use GnuPlot::OptionsNull() if no options are available." 
+//
 TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s = NULL;
@@ -157,7 +158,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 	bool set_capjoin = FALSE, set_size = FALSE;
 	bool set_position = FALSE;
 #ifndef _WIN32
-	if(term_interlock != NULL && term_interlock != (void*)wxt_init) {
+	if(GPT.P_TermInterlock && GPT.P_TermInterlock != (void*)wxt_init) {
 		term = NULL;
 		pGp->IntError(NO_CARET, "The wxt terminal cannot be used in a qt session");
 	}
@@ -337,62 +338,62 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	// Save options back into options string in normalized format 
-	snprintf(term_options, sizeof(term_options)-strlen(term_options), "%d", wxt_window_number);
+	snprintf(GPT.TermOptions, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions), "%d", wxt_window_number);
 	if(set_title) {
-		strncat(term_options, " title \"", sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, wxt_title, sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, " title \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, wxt_title, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		wxt_update_title(wxt_window_number);
 	}
 	if(wxt_dashlength != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", wxt_dashlength);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(wxt_lw != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " lw %g", wxt_lw);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(wxt_background != 0xffffff) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " background '#%06x'", wxt_background);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 
 	if(set_size) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d", wxt_width, wxt_height);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		wxt_update_size(wxt_window_number);
 	}
 	if(set_position) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " position %d, %d", wxt_posx, wxt_posy);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		wxt_update_position(wxt_window_number);
 	}
-	strncat(term_options, wxt_enhanced_enabled ? " enhanced" : " noenhanced", sizeof(term_options)-strlen(term_options)-1);
+	strncat(GPT.TermOptions, wxt_enhanced_enabled ? " enhanced" : " noenhanced", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_font) {
-		strncat(term_options, " font \"", sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, font_setting, sizeof(term_options)-strlen(term_options)-1);
-		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, " font \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, font_setting, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		SAlloc::F(font_setting);
 	}
 	SETIFZ(wxt_set_fontname, sstrdup(""));
 	if(wxt_set_fontscale != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " fontscale %.1f", wxt_set_fontscale);
-		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	}
 	if(set_capjoin)
-		strncat(term_options, wxt_linecap == ROUNDED ? " rounded" : wxt_linecap == SQUARE ? " square" : " butt", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, wxt_linecap == ROUNDED ? " rounded" : wxt_linecap == SQUARE ? " square" : " butt", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_persist)
-		strncat(term_options, (wxt_persist==yes) ? " persist" : " nopersist", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, (wxt_persist==yes) ? " persist" : " nopersist", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_raise)
-		strncat(term_options, (wxt_raise==yes) ? " raise" : " noraise", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, (wxt_raise==yes) ? " raise" : " noraise", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_ctrl)
-		strncat(term_options, (wxt_ctrl==yes) ? " ctrl" : " noctrl", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, (wxt_ctrl==yes) ? " ctrl" : " noctrl", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 	if(set_close)
 		wxt_close_terminal_window(wxt_window_number);
 }

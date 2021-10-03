@@ -2694,7 +2694,7 @@ static void FASTCALL xmlFARegExecRollBack(xmlRegExecCtxtPtr exec)
 	exec->transno = exec->rollbacks[exec->nbRollbacks].nextbranch;
 	if(exec->comp->nbCounters > 0) {
 		if(exec->rollbacks[exec->nbRollbacks].counts == NULL) {
-			fprintf(stderr, "exec save: allocation failed");
+			slfprintf_stderr("exec save: allocation failed");
 			exec->status = -6;
 			return;
 		}
@@ -2794,7 +2794,7 @@ static int xmlFARegExec(xmlRegexp * comp, const xmlChar * content)
 					deter = 0;
 			}
 			else if(atom == NULL) {
-				fprintf(stderr, "epsilon transition left at runtime\n");
+				slfprintf_stderr("epsilon transition left at runtime\n");
 				exec->status = -2;
 				break;
 			}
@@ -3380,7 +3380,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 				ret = ((count >= counter->min) && (count <= counter->max));
 			}
 			else if(atom == NULL) {
-				fprintf(stderr, "epsilon transition left at runtime\n");
+				slfprintf_stderr("epsilon transition left at runtime\n");
 				exec->status = -2;
 				break;
 			}
@@ -3896,7 +3896,7 @@ static int xmlRegExecPushChar(xmlRegExecCtxtPtr exec, int UCS) {
 				ret = ((count >= counter->min) && (count <= counter->max));
 			}
 			else if(atom == NULL) {
-				fprintf(stderr, "epsilon transition left at runtime\n");
+				slfprintf_stderr("epsilon transition left at runtime\n");
 				exec->status = -2;
 				break;
 			}
@@ -7068,7 +7068,7 @@ static xmlExpNodePtr xmlExpParseOr(xmlExpCtxtPtr ctxt)
 		    ret = xmlExpParseExpr(ctxt);
 		SKIP_BLANKS
 		if(*ctxt->cur != ')') {
-			fprintf(stderr, "unbalanced '(' : %s\n", base);
+			slfprintf_stderr("unbalanced '(' : %s\n", base);
 			xmlExpFree(ctxt, ret);
 			return 0;
 		}
@@ -7266,7 +7266,7 @@ static void FASTCALL xmlExpDumpInt(xmlBuffer * buf, xmlExpNodePtr expr, int glob
 		    break;
 	    }
 		default:
-		    fprintf(stderr, "Error in tree\n");
+		    slfprintf_stderr("Error in tree\n");
 	}
 	if(glob)
 		xmlBufferWriteChar(buf, ")");

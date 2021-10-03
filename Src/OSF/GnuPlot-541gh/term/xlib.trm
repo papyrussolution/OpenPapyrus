@@ -37,7 +37,7 @@ TERM_PUBLIC void Xlib_init(GpTermEntry * pThis)
 	// x11.trm thinks it is writing to a private pipe, but here we 
 	// set it to use the channel opened by 'set output <file>'     
 	X11_save_ipc = X11_ipc;
-	X11_ipc = gpoutfile;
+	X11_ipc = GPT.P_GpOutFile;
 	// There is, of course, no mouse feedback 
 	ipc_back_fd = IPC_BACK_UNUSABLE;
 	GPO.TermInitialised = true;

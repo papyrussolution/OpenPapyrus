@@ -472,7 +472,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			return ARCHIVE_FAILED;
 		}
 #ifdef DEBUG
-		fprintf(stderr, "Header id 0x%04x, length %d\n",
+		slfprintf_stderr("Header id 0x%04x, length %d\n",
 		    headerid, datasize);
 #endif
 		switch(headerid) {
@@ -524,7 +524,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 					archive_le16dec(p + offset + 4);
 				    int flags =
 					archive_le16dec(p + offset + 6);
-				    fprintf(stderr, "algId=0x%04x, bitLen=%u, "
+				    slfprintf_stderr("algId=0x%04x, bitLen=%u, "
 					"flgas=%d\n", algId, bitLen, flags);
 			    }
 			    break;
@@ -544,7 +544,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			    /* Flag bits indicate which dates are present. */
 			    if(flags & 0x01) {
 #ifdef DEBUG
-				    fprintf(stderr, "mtime: %lld -> %d\n",
+				    slfprintf_stderr("mtime: %lld -> %d\n",
 					(long long)zip_entry->mtime,
 					archive_le32dec(p + offset));
 #endif
@@ -731,30 +731,20 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			    if(!zip->ignore_crc32) {
 				    const char * cp = archive_entry_pathname(entry);
 				    if(cp) {
-					    unsigned long file_crc =
-						zip->crc32func(0, cp, strlen(cp));
-					    unsigned long utf_crc =
-						archive_le32dec(p + offset - 4);
+					    unsigned long file_crc = zip->crc32func(0, cp, strlen(cp));
+					    unsigned long utf_crc = archive_le32dec(p + offset - 4);
 					    if(file_crc != utf_crc) {
 #ifdef DEBUG
-						    fprintf(stderr,
-							"CRC filename mismatch; "
-							"CDE is %lx, but UTF8 "
-							"is outdated with %lx\n",
-							file_crc, utf_crc);
+						    slfprintf_stderr("CRC filename mismatch; CDE is %lx, but UTF8 is outdated with %lx\n", file_crc, utf_crc);
 #endif
 						    break;
 					    }
 				    }
 			    }
-
-			    if(archive_entry_copy_pathname_l(entry,
-				p + offset, datasize, zip->sconv_utf8) != 0) {
-				    /* Ignore the error, and fallback to the path
-				     * name from the main field. */
+			    if(archive_entry_copy_pathname_l(entry, p + offset, datasize, zip->sconv_utf8) != 0) {
+				    /* Ignore the error, and fallback to the path name from the main field. */
 #ifdef DEBUG
-				    fprintf(stderr, "Failed to read the ZIP "
-					"0x7075 extra field path.\n");
+				    slfprintf_stderr("Failed to read the ZIP 0x7075 extra field path.\n");
 #endif
 			    }
 			    break;
@@ -762,9 +752,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 			case 0x7855:
 			    /* Info-ZIP Unix Extra Field (type 2) "Ux". */
 #ifdef DEBUG
-			    fprintf(stderr, "uid %d gid %d\n",
-				archive_le16dec(p + offset),
-				archive_le16dec(p + offset + 2));
+			    slfprintf_stderr("uid %d gid %d\n", archive_le16dec(p + offset), archive_le16dec(p + offset + 2));
 #endif
 			    if(datasize >= 2)
 				    zip_entry->uid = archive_le16dec(p + offset);
@@ -776,34 +764,25 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 		    {
 			    /* Info-Zip Unix Extra Field (type 3) "ux". */
 			    int uidsize = 0, gidsize = 0;
-
 			    /* TODO: support arbitrary uidsize/gidsize. */
 			    if(datasize >= 1 && p[offset] == 1) {/* version=1 */
 				    if(datasize >= 4) {
 					    /* get a uid size. */
 					    uidsize = 0xff & (int)p[offset+1];
 					    if(uidsize == 2)
-						    zip_entry->uid =
-							archive_le16dec(
-							    p + offset + 2);
+						    zip_entry->uid = archive_le16dec(p + offset + 2);
 					    else if(uidsize == 4 && datasize >= 6)
-						    zip_entry->uid =
-							archive_le32dec(
-							    p + offset + 2);
+						    zip_entry->uid = archive_le32dec(p + offset + 2);
 				    }
 				    if(datasize >= (2 + uidsize + 3)) {
 					    /* get a gid size. */
 					    gidsize = 0xff &
 						(int)p[offset+2+uidsize];
 					    if(gidsize == 2)
-						    zip_entry->gid =
-							archive_le16dec(
-							    p+offset+2+uidsize+1);
+						    zip_entry->gid = archive_le16dec(p+offset+2+uidsize+1);
 					    else if(gidsize == 4 &&
 						datasize >= (2 + uidsize + 5))
-						    zip_entry->gid =
-							archive_le32dec(
-							    p+offset+2+uidsize+1);
+						    zip_entry->gid = archive_le32dec(p+offset+2+uidsize+1);
 				    }
 			    }
 			    break;
@@ -1273,18 +1252,14 @@ static int check_authentication_code(struct archive_read * a, const void * _p)
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * zip->end_of_entry if it consumes all of the data.
  */
-static int zip_read_data_none(struct archive_read * a, const void ** _buff,
-    size_t * size, int64_t * offset)
+static int zip_read_data_none(struct archive_read * a, const void ** _buff, size_t * size, int64_t * offset)
 {
 	struct zip * zip;
 	const char * buff;
 	ssize_t bytes_avail;
 	int r;
-
 	(void)offset; /* UNUSED */
-
 	zip = (struct zip *)(a->format->data);
-
 	if(zip->entry->zip_flags & ZIP_LENGTH_AT_END) {
 		const char * p;
 		ssize_t grabbing_bytes = 24;
@@ -1306,12 +1281,8 @@ static int zip_read_data_none(struct archive_read * a, const void ** _buff,
 		p = buff;
 		if(zip->hctx_valid)
 			p += AUTH_CODE_SIZE;
-		if(p[0] == 'P' && p[1] == 'K'
-		    && p[2] == '\007' && p[3] == '\010'
-		    && (archive_le32dec(p + 4) == zip->entry_crc32
-		    || zip->ignore_crc32
-		    || (zip->hctx_valid
-		    && zip->entry->aes_extra.vendor == AES_VENDOR_AE_2))) {
+		if(p[0] == 'P' && p[1] == 'K' && p[2] == '\007' && p[3] == '\010' && (archive_le32dec(p + 4) == zip->entry_crc32 || 
+			zip->ignore_crc32 || (zip->hctx_valid && zip->entry->aes_extra.vendor == AES_VENDOR_AE_2))) {
 			if(zip->entry->flags & LA_USED_ZIP64) {
 				uint64_t compressed, uncompressed;
 				zip->entry->crc32 = archive_le32dec(p + 4);
@@ -1328,10 +1299,8 @@ static int zip_read_data_none(struct archive_read * a, const void ** _buff,
 			}
 			else {
 				zip->entry->crc32 = archive_le32dec(p + 4);
-				zip->entry->compressed_size =
-				    archive_le32dec(p + 8);
-				zip->entry->uncompressed_size =
-				    archive_le32dec(p + 12);
+				zip->entry->compressed_size = archive_le32dec(p + 8);
+				zip->entry->uncompressed_size = archive_le32dec(p + 12);
 				zip->unconsumed = 16;
 			}
 			if(zip->hctx_valid) {
@@ -3523,8 +3492,7 @@ static ssize_t zip_get_local_file_header_size(struct archive_read * a, size_t ex
 	return (30 + filename_length + extra_length);
 }
 
-static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry * entry,
-    struct zip_entry * rsrc)
+static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry * entry, struct zip_entry * rsrc)
 {
 	struct zip * zip = (struct zip *)a->format->data;
 	unsigned char * metadata, * mp;
@@ -3532,7 +3500,6 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 	size_t remaining_bytes, metadata_bytes;
 	ssize_t hsize;
 	int ret = ARCHIVE_OK, eof;
-
 	switch(rsrc->compression) {
 		case 0: /* No compression. */
 		    if(rsrc->uncompressed_size != rsrc->compressed_size) {
@@ -3577,10 +3544,9 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 	mp = metadata;
 	eof = 0;
 	while(!eof && remaining_bytes) {
-		const uchar * p;
 		ssize_t bytes_avail;
 		size_t bytes_used;
-		p = static_cast<const uchar *>(__archive_read_ahead(a, 1, &bytes_avail));
+		const uchar * p = static_cast<const uchar *>(__archive_read_ahead(a, 1, &bytes_avail));
 		if(!p) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated ZIP file header");
 			ret = ARCHIVE_WARN;
@@ -3603,7 +3569,6 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 			case 8: /* Deflate compression. */
 		    {
 			    int r;
-
 			    ret = zip_deflate_init(a, zip);
 			    if(ret != ARCHIVE_OK)
 				    goto exit_mac_metadata;
@@ -3614,22 +3579,18 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 			    zip->stream.next_out = mp;
 			    zip->stream.avail_out = (uInt)metadata_bytes;
 			    zip->stream.total_out = 0;
-
 			    r = inflate(&zip->stream, 0);
 			    switch(r) {
-				    case Z_OK:
-					break;
-				    case Z_STREAM_END:
-					eof = 1;
-					break;
+				    case Z_OK: break;
+				    case Z_STREAM_END: eof = 1; break;
 				    case Z_MEM_ERROR:
-					archive_set_error(&a->archive, ENOMEM, "Out of memory for ZIP decompression");
-					ret = ARCHIVE_FATAL;
-					goto exit_mac_metadata;
+						archive_set_error(&a->archive, ENOMEM, "Out of memory for ZIP decompression");
+						ret = ARCHIVE_FATAL;
+						goto exit_mac_metadata;
 				    default:
-					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "ZIP decompression failed (%d)", r);
-					ret = ARCHIVE_FATAL;
-					goto exit_mac_metadata;
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "ZIP decompression failed (%d)", r);
+						ret = ARCHIVE_FATAL;
+						goto exit_mac_metadata;
 			    }
 			    bytes_used = zip->stream.total_in;
 			    metadata_bytes -= zip->stream.total_out;
@@ -3644,9 +3605,7 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 		__archive_read_consume(a, bytes_used);
 		remaining_bytes -= bytes_used;
 	}
-	archive_entry_copy_mac_metadata(entry, metadata,
-	    (size_t)rsrc->uncompressed_size - metadata_bytes);
-
+	archive_entry_copy_mac_metadata(entry, metadata, (size_t)rsrc->uncompressed_size - metadata_bytes);
 exit_mac_metadata:
 	__archive_read_seek(a, offset, SEEK_SET);
 	zip->decompress_init = 0;
@@ -3669,38 +3628,29 @@ static int archive_read_format_zip_seekable_read_header(struct archive_read * a,
 	 * archive_read_data(), so be it. We'll do the same check there
 	 * as well.
 	 */
-	if(zip->has_encrypted_entries ==
-	    ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
+	if(zip->has_encrypted_entries == ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
 		zip->has_encrypted_entries = 0;
-
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
 	if(a->archive.archive_format_name == NULL)
 		a->archive.archive_format_name = "ZIP";
-
 	if(zip->zip_entries == NULL) {
 		r = slurp_central_directory(a, entry, zip);
 		if(r != ARCHIVE_OK)
 			return r;
 		/* Get first entry whose local header offset is lower than
 		 * other entries in the archive file. */
-		zip->entry =
-		    (struct zip_entry *)ARCHIVE_RB_TREE_MIN(&zip->tree);
+		zip->entry = (struct zip_entry *)ARCHIVE_RB_TREE_MIN(&zip->tree);
 	}
 	else if(zip->entry != NULL) {
 		/* Get next entry in local header offset order. */
-		zip->entry = (struct zip_entry *)__archive_rb_tree_iterate(
-			&zip->tree, &zip->entry->node, ARCHIVE_RB_DIR_RIGHT);
+		zip->entry = (struct zip_entry *)__archive_rb_tree_iterate(&zip->tree, &zip->entry->node, ARCHIVE_RB_DIR_RIGHT);
 	}
-
 	if(zip->entry == NULL)
 		return ARCHIVE_EOF;
-
 	if(zip->entry->rsrcname.s)
-		rsrc = (struct zip_entry *)__archive_rb_tree_find_node(
-			&zip->tree_rsrc, zip->entry->rsrcname.s);
+		rsrc = (struct zip_entry *)__archive_rb_tree_find_node(&zip->tree_rsrc, zip->entry->rsrcname.s);
 	else
 		rsrc = NULL;
-
 	if(zip->cctx_valid)
 		archive_decrypto_aes_ctr_release(&zip->cctx);
 	if(zip->hctx_valid)

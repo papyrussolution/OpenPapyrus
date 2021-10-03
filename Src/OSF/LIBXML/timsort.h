@@ -306,7 +306,7 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T * store, const /*size_t*/int64_t new_
 	if(store->alloc < new_size) {
 		SORT_TYPE * tempstore = static_cast<SORT_TYPE *>(SAlloc::R(store->storage, ((size_t)new_size) * sizeof(SORT_TYPE)));
 		if(tempstore == NULL) {
-			fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", (ulong)(sizeof(SORT_TYPE) * new_size));
+			slfprintf_stderr("Error allocating temporary storage for tim sort: need %lu bytes", (ulong)(sizeof(SORT_TYPE) * new_size));
 			exit(1);
 		}
 		store->storage = tempstore;

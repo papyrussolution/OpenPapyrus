@@ -199,7 +199,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 	// EAM - Jan 2013 YES.
 	setvbuf(stdin, (char *)NULL, _IONBF, 0);
 #endif
-	gpoutfile = stdout;
+	GPT.P_GpOutFile = stdout;
 	// Initialize pre-loaded user variables 
 	// "pi" is hard-wired as the first variable 
 	Ev.AddUdvByName("GNUTERM");

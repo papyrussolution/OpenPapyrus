@@ -723,7 +723,7 @@ void ssh_print_hash(enum ssh_publickey_hash_type type, uchar * hash, size_t len)
 {
 	char * fingerprint = ssh_get_fingerprint_hash(type, hash, len);
 	if(fingerprint) {
-		fprintf(stderr, "%s\n", fingerprint);
+		slfprintf_stderr("%s\n", fingerprint);
 		SAFE_FREE(fingerprint);
 	}
 }

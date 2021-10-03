@@ -145,8 +145,8 @@ void ClipboardHistoryPanel::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	if(lpDrawItemStruct->itemID >= _clipboardDataVector.size())
 		return;
 	//printStr(TEXT("OK"));
-	COLORREF fgColor = _lbFgColor == -1 ? black : _lbFgColor; // fg black by default
-	COLORREF bgColor = _lbBgColor == -1 ? white : _lbBgColor; // bg white by default
+	COLORREF fgColor = _lbFgColor == -1 ? GetColorRef(SClrBlack) : _lbFgColor; // fg black by default
+	COLORREF bgColor = _lbBgColor == -1 ? GetColorRef(SClrWhite) : _lbBgColor; // bg white by default
 	StringArray sa(_clipboardDataVector[lpDrawItemStruct->itemID], MAX_DISPLAY_LENGTH);
 	TCHAR * ptStr = (TCHAR*)sa.getPointer();
 	//printStr(ptStr);

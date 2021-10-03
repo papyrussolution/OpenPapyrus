@@ -67,7 +67,7 @@
 
 #if DEBUG_GL && __GNUC__
 #define UNSUPPORTED(reason) ({ \
-		fprintf(stderr, "cairo-gl: hit unsupported operation in %s(), line %d: %s\n", __FUNCTION__, __LINE__, reason); \
+		slfprintf_stderr("cairo-gl: hit unsupported operation in %s(), line %d: %s\n", __FUNCTION__, __LINE__, reason); \
 		CAIRO_INT_STATUS_UNSUPPORTED; \
 	})
 #else

@@ -54,7 +54,7 @@ int openssl_config_int(const OPENSSL_INIT_SETTINGS * settings)
 	flags = settings ? settings->flags : DEFAULT_CONF_MFLAGS;
 
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: openssl_config_int(%s, %s, %lu)\n",
+	slfprintf_stderr("OPENSSL_INIT: openssl_config_int(%s, %s, %lu)\n",
 	    filename, appname, flags);
 #endif
 

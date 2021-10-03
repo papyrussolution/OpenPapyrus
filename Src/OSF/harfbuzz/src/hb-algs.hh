@@ -454,24 +454,21 @@ static inline HB_CONST_FUNC unsigned int hb_bit_storage(T v)
 	assert(0);
 	return 0; /* Shut up stupid compiler. */
 }
-
-/* Returns the number of zero bits in the least significant side of v */
-template <typename T>
-static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
+//
+// Returns the number of zero bits in the least significant side of v 
+//
+template <typename T> static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
 {
-	if(UNLIKELY(!v)) return 8 * sizeof(T);
-
+	if(UNLIKELY(!v)) 
+		return 8 * sizeof(T);
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(unsigned int))
 		return __builtin_ctz(v);
-
 	if(sizeof(T) <= sizeof(unsigned long))
 		return __builtin_ctzl(v);
-
 	if(sizeof(T) <= sizeof(unsigned long long))
 		return __builtin_ctzll(v);
 #endif
-
 #if (defined(_MSC_VER) && _MSC_VER >= 1500) || (defined(__MINGW32__) && (__GNUC__ < 4))
 	if(sizeof(T) <= sizeof(unsigned int)) {
 		unsigned long where;

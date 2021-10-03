@@ -29,7 +29,7 @@ extern CRYPTO_RWLOCK * global_engine_lock;
 #ifdef ENGINE_REF_COUNT_DEBUG
 
 #define engine_ref_debug(e, isfunct, diff) \
-	fprintf(stderr, "engine: %08x %s from %d to %d (%s:%d)\n", \
+	slfprintf_stderr("engine: %08x %s from %d to %d (%s:%d)\n", \
 	    (uint)(e), (isfunct ? "funct" : "struct"), \
 	    ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
 	    ((isfunct) ? (e)->funct_ref : (e)->struct_ref), \

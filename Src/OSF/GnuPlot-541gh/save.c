@@ -169,12 +169,12 @@ void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 	// reset the options to startup defaults. This may have to be
 	// changed on a per-terminal driver basis... 
 	if(pTerm)
-		fprintf(fp, "set terminal %s %s\n", pTerm->name, term_options);
+		fprintf(fp, "set terminal %s %s\n", pTerm->name, GPT.TermOptions);
 	else
 		fputs("set terminal unknown\n", fp);
 	// output will still be written in commented form.  Otherwise, the risk of overwriting files is just too high */
-	if(outstr)
-		fprintf(fp, "# set output '%s'\n", outstr);
+	if(GPT.P_OutStr)
+		fprintf(fp, "# set output '%s'\n", GPT.P_OutStr);
 	else
 		fputs("# set output\n", fp);
 	FPutsEof(fp);
@@ -229,11 +229,11 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	// opinions are split as to whether we save term and outfile
 	// as a compromise, we output them as comments !
 	if(term)
-		fprintf(fp, "# set terminal %s %s\n", term->name, term_options);
+		fprintf(fp, "# set terminal %s %s\n", term->name, GPT.TermOptions);
 	else
 		fputs("# set terminal unknown\n", fp);
-	if(outstr)
-		fprintf(fp, "# set output '%s'\n", outstr);
+	if(GPT.P_OutStr)
+		fprintf(fp, "# set output '%s'\n", GPT.P_OutStr);
 	else
 		fputs("# set output\n", fp);
 	fprintf(fp, "%sset clip points\n%sset clip one\n%sset clip two\n%sset clip radial\n", (Gg.ClipPoints ? "" : "un"), (Gg.ClipLines1 ? "" : "un"),
@@ -506,7 +506,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	SaveStyleTextBox(fp);
 	SaveOffsets(fp, "set offsets");
 	fprintf(fp, "set pointsize %g\nset pointintervalbox %g\nset encoding %s\n%sset polar\n%sset parametric\n", Gg.PointSize, Gg.PointIntervalBox,
-	    encoding_names[encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
+	    encoding_names[GPT._Encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
 	if(Gg.SpiderPlot) {
 		fprintf(fp, "set spiderplot\n");
 		SaveStyleSpider(fp);

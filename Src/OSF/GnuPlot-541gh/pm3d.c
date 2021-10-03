@@ -24,20 +24,20 @@ const lp_style_type default_pm3d_border(lp_style_type::defCommon); // = DEFAULT_
 #define PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY -12347
 
 // Internal prototypes for this module 
-static double geomean4(double, double, double, double);
-static double harmean4(double, double, double, double);
-static double median4(double, double, double, double);
-static double rms4(double, double, double, double);
-/*
- * Utility routines.
- */
-/* Geometrical mean = pow( prod(x_i > 0) x_i, 1/N )
- * In order to facilitate plotting surfaces with all color coords negative,
- * All 4 corners positive - return positive geometric mean
- * All 4 corners negative - return negative geometric mean
- * otherwise return 0
- * EAM Oct 2012: This is a CHANGE
- */
+//static double geomean4(double, double, double, double);
+//static double harmean4(double, double, double, double);
+//static double median4(double, double, double, double);
+//static double rms4(double, double, double, double);
+// 
+// Utility routines.
+// 
+// Geometrical mean = pow( prod(x_i > 0) x_i, 1/N )
+// In order to facilitate plotting surfaces with all color coords negative,
+// All 4 corners positive - return positive geometric mean
+// All 4 corners negative - return negative geometric mean
+// otherwise return 0
+// EAM Oct 2012: This is a CHANGE
+// 
 static double geomean4(double x1, double x2, double x3, double x4)
 {
 	int neg = (x1 < 0) + (x2 < 0) + (x3 < 0) + (x4 < 0);
@@ -54,10 +54,7 @@ static double geomean4(double x1, double x2, double x3, double x4)
 
 static double harmean4(double x1, double x2, double x3, double x4)
 {
-	if(x1 <= 0 || x2 <= 0 || x3 <= 0 || x4 <= 0)
-		return fgetnan();
-	else
-		return 4 / ((1/x1) + (1/x2) + (1/x3) + (1/x4));
+	return (x1 <= 0.0 || x2 <= 0.0 || x3 <= 0.0 || x4 <= 0.0) ? fgetnan() : (4.0 / ((1.0/x1) + (1.0/x2) + (1.0/x3) + (1.0/x4)));
 }
 //
 // Median: sort values, and then: for N odd, it is the middle value; for N even,
@@ -73,17 +70,15 @@ static double median4(double x1, double x2, double x3, double x4)
 	tmp += (x2 < x4) ? x2 : x4;
 	return tmp * 0.5;
 }
-
+//
 // The root mean square of the 4 numbers 
+//
 static double rms4(double x1, double x2, double x3, double x4)
 {
 	return 0.5*sqrt(x1*x1 + x2*x2 + x3*x3 + x4*x4);
 }
-
-/*
- * Now the routines which are really just those for pm3d.c
- */
-
+//
+// Now the routines which are really just those for pm3d.c
 // 
 // Rescale cb (color) value into the interval of grays [0,1], taking care
 // of palette being positive or negative.

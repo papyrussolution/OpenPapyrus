@@ -213,7 +213,7 @@ static ucl_bool __ucl_assert_fail(const char * s, unsigned line)
  #if defined(__palmos__)
 	printf("UCL assertion failed in line %u: '%s'\n", line, s);
  #else
-	fprintf(stderr, "UCL assertion failed in line %u: '%s'\n", line, s);
+	slfprintf_stderr("UCL assertion failed in line %u: '%s'\n", line, s);
  #endif
 	return 0;
 }

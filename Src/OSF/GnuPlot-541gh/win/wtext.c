@@ -535,7 +535,7 @@ int TW::TextPutChW(WCHAR ch)
 
 void TextPutStr(TW * lptw, LPSTR str)
 {
-	LPWSTR w = UnicodeText(str, encoding);
+	LPWSTR w = UnicodeText(str, GPT._Encoding);
 	LPWSTR w_save = w;
 	while(*w) {
 		uint idx = lptw->CursorPos.x;
@@ -942,9 +942,9 @@ static void TextSelectFont(TW * lptw)
 void TextUpdateStatus(TW * lptw)
 {
 	static enum set_encoding_id enc = S_ENC_INVALID;
-	if(enc != encoding) { /* only update when changed */
+	if(enc != GPT._Encoding) { // only update when changed 
 		WCHAR buf[256];
-		enc = encoding;
+		enc = GPT._Encoding;
 		swprintf_s(buf, sizeof(buf)/sizeof(WCHAR), L"encoding: %hs", encoding_names[enc]);
 		SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)0, (LPARAM)buf);
 	}
@@ -1147,7 +1147,7 @@ static void UpdateCaretPos(TW * lptw)
 		start = 0;
 		len = lptw->CursorPos.x;
 	}
-	if(oneof2(encoding, S_ENC_UTF8, S_ENC_SJIS)) {
+	if(oneof2(GPT._Encoding, S_ENC_UTF8, S_ENC_SJIS)) {
 		// determine actual text size 
 		hdc = GetDC(lptw->hWndText);
 		SelectObject(hdc, lptw->hfont);
@@ -1636,7 +1636,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 				// convert UTF16 code to current encoding which may be a multi-byte encoding like utf8 or sjis 
 				char_utf16[0] = key;
 				char_utf16[1] = 0;
-				count_mb = WideCharToMultiByte(WinGetCodepage(encoding), 0, char_utf16, 1, char_mb, sizeof(char_mb), NULL, NULL);
+				count_mb = WideCharToMultiByte(WinGetCodepage(GPT._Encoding), 0, char_utf16, 1, char_mb, sizeof(char_mb), NULL, NULL);
 				// store sequence in circular buffer 
 				count  = lptw->KeyBufIn - lptw->KeyBufOut;
 				if(count < 0)

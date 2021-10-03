@@ -390,9 +390,9 @@ TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		sprintf(text_flags, "%s%s%s", (FIG_text_flags & FIG_TEXT_SPECIAL) ? " textspecial" : "",
 		    (FIG_text_flags & FIG_TEXT_HIDDEN) ? " texthidden" : "", (FIG_text_flags & FIG_TEXT_RIGID) ? " textrigid" : "");
 	}
-	sprintf(term_options, "%s %s %s %s \"%s,%d\" linewidth %.1f", FIG_use_color ? "color" : "monochrome", FIG_portrait ? "portrait" : "landscape",
+	sprintf(GPT.TermOptions, "%s %s %s %s \"%s,%d\" linewidth %.1f", FIG_use_color ? "color" : "monochrome", FIG_portrait ? "portrait" : "landscape",
 	    text_flags, "font", FIG_fonts[FIG_font_id].key, FIG_font_s, FIG_linewidth_factor);
-	/* Normalize and print size */
+	// Normalize and print size 
 	if(FIG_portrait && FIG_width > FIG_height) {
 		float tmp = static_cast<float>(FIG_width);
 		FIG_width = FIG_height;
@@ -401,13 +401,13 @@ TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(FIG_size_units == CM)
 		sprintf(tmp_term_options, " size %.2fcm, %.2fcm ", 2.54*FIG_width/FIG_IRES, 2.54*FIG_height/FIG_IRES);
 #if 0
-	/* Not supported; convert to inches instead */
+	// Not supported; convert to inches instead 
 	else if(FIG_size_units == PIXELS)
 		sprintf(tmp_term_options, " size %d, %d ", FIG_width, FIG_height);
 #endif
 	else
 		sprintf(tmp_term_options, " size %.2fin, %.2fin ", (double)FIG_width/FIG_IRES, (double)FIG_height/FIG_IRES);
-	strncat(term_options, tmp_term_options, /*sizeof(term_options)*/(MAX_LINE_LEN+1)-strlen(term_options)-1);
+	strncat(GPT.TermOptions, tmp_term_options, /*sizeof(GPT.TermOptions)*/(MAX_LINE_LEN+1)-strlen(GPT.TermOptions)-1);
 	pThis->MaxX = FIG_width;
 	pThis->MaxY = FIG_height;
 	pThis->TicV = FIG_VTIC;
@@ -426,7 +426,7 @@ static void FIG_poly_clean(enum FIG_poly_stat fig_stat)
 	int cap_style;
 	if(fig_stat == FIG_poly_part) {
 		cap_style = (FIG_line.style==DOTTED_LINE) ? CAP_ROUND : FIG_line.cap_style;
-		fprintf(gpoutfile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %ld\n\t",
+		fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %ld\n\t",
 		    O_POLYLINE, FIG_line.type, FIG_line.style, FIG_line.thickness,
 		    FIG_line.pen_color, FIG_line.fill_color, FIG_line.depth,
 		    FIG_line.pen_style, FIG_line.fill_style, FIG_line.style_val,
@@ -435,14 +435,14 @@ static void FIG_poly_clean(enum FIG_poly_stat fig_stat)
 
 		j = 0;
 		for(i = 0; i < FIG_poly_vec_cnt; i++) {
-			fprintf(gpoutfile, " %d %d", FIG_points[i].x, FIG_points[i].y);
+			fprintf(GPT.P_GpOutFile, " %d %d", FIG_points[i].x, FIG_points[i].y);
 			if(j++ > 4 && i != FIG_poly_vec_cnt - 1) {
-				fputs("\n\t", gpoutfile);
+				fputs("\n\t", GPT.P_GpOutFile);
 				j = 0; /* JFS */
 			}
 		}
 		if(j != 0) {
-			putc('\n', gpoutfile);
+			putc('\n', GPT.P_GpOutFile);
 		}
 		/* Give the memory back to the system because we are done with this
 		 * polyline. Make sure FIG_points contains NULL afterwards!
@@ -477,11 +477,11 @@ TERM_PUBLIC void FIG_init(GpTermEntry * pThis)
 	FIG_line.pic = NULL;
 	FIG_line.next = NULL;
 	/* Fig 3.2 is the only version of fig output supported */
-	fprintf(gpoutfile, "#FIG 3.2\n%s\n%s\n%s\n%s\n%6.2f\n%s\n%d\n",
+	fprintf(GPT.P_GpOutFile, "#FIG 3.2\n%s\n%s\n%s\n%s\n%6.2f\n%s\n%d\n",
 	    FIG_ORIENT, FIG_JUST, FIG_size_units == INCHES ? "Inches" : "Metric", FIG_PAPER,
 	    FIG_MAGNIFICATION, FIG_MULTIPAGE, FIG_TRANSCOLOR);
-	fprintf(gpoutfile, "# Produced by gnuplot version %s\n", gnuplot_version);
-	fprintf(gpoutfile, "%d %d\n", FIG_IRES, FIG_COORD_SYS);
+	fprintf(GPT.P_GpOutFile, "# Produced by gnuplot version %s\n", gnuplot_version);
+	fprintf(GPT.P_GpOutFile, "%d %d\n", FIG_IRES, FIG_COORD_SYS);
 }
 
 TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
@@ -502,7 +502,7 @@ TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
 				FIG_RGB_colors[ncolors] = p_this->lp_properties.pm3d_color.lt;
 				FIG_RGB_colors[ncolors] &= 0xffffff; /* No alpha channel */
 				/* Write it to the output file */
-				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
+				fprintf(GPT.P_GpOutFile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
 					(FIG_RGB_colors[ncolors] >> 16) & 0xff, (FIG_RGB_colors[ncolors] >> 8)  & 0xff, (FIG_RGB_colors[ncolors]) & 0xff);
 				ncolors++;
 			}
@@ -514,7 +514,7 @@ TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
 			int colorval = default_color_names_tbl[i].value;
 			if(FIG_rgb_color_offset + ncolors >= 128)
 				break;
-			fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
+			fprintf(GPT.P_GpOutFile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
 				(colorval >> 16) & 0xff, (colorval >> 8)  & 0xff, (colorval) & 0xff);
 			FIG_RGB_colors[ncolors] = colorval;
 			if(colorval == 0x7f7f7f)
@@ -534,7 +534,7 @@ TERM_PUBLIC void FIG_text(GpTermEntry * pThis)
 	// FIXME: The existence of a header keyword "multiple-page" suggests otherwise!
 	FIG_poly_clean(FIG_polyvec_stat);
 	FIG_posx = FIG_posy = 0;
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 /* mapping of fig color codes to color sequence as in the postscript terminal */
@@ -653,7 +653,7 @@ TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy/* start coord *
 		arrow_depth -= 2;
 	FIG_poly_clean(FIG_polyvec_stat);
 	cap_style = (FIG_line.style==DOTTED_LINE) ? CAP_ROUND : FIG_line.cap_style;
-	fprintf(gpoutfile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %d\n",
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %d\n",
 	    O_POLYLINE, FIG_line.type, FIG_type,
 	    (head & HEADS_ONLY) ? 0 : FIG_thickness,
 	    FIG_color, FIG_color, arrow_depth,
@@ -665,31 +665,31 @@ TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy/* start coord *
 		uint headbackangleparameter = 0;
 		uint headfillparameter = 0;
 		// arrow head size 
-		if(curr_arrow_headlength == 0) {
+		if(GPT.CArw.HeadLength == 0) {
 			awidth  = (double)(pThis->TicH / 2 + 1);
 			aheight = (double)pThis->TicH;
 		}
 		else {
-			awidth  = (double)curr_arrow_headlength * 2*sin(curr_arrow_headangle * SMathConst::PiDiv180);
-			aheight = (double)curr_arrow_headlength * cos(curr_arrow_headangle * SMathConst::PiDiv180);
+			awidth  = (double)GPT.CArw.HeadLength * 2*sin(GPT.CArw.HeadAngle * SMathConst::PiDiv180);
+			aheight = (double)GPT.CArw.HeadLength * cos(GPT.CArw.HeadAngle * SMathConst::PiDiv180);
 		}
 		// arrow head geometry 
-		if(curr_arrow_headbackangle < 70)
+		if(GPT.CArw.HeadBackAngle < 70.0)
 			headbackangleparameter = 2;
-		else if(curr_arrow_headbackangle > 110)
+		else if(GPT.CArw.HeadBackAngle > 110.0)
 			headbackangleparameter = 3;
 		else
 			headbackangleparameter = 1;
-		headfillparameter = (curr_arrow_headfilled==2) ? 1 : 0;
+		headfillparameter = (GPT.CArw.HeadFilled == 2) ? 1 : 0;
 		// forward head 
 		if((head & END_HEAD))
-			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter, headfillparameter, 1.0, awidth, aheight);
+			fprintf(GPT.P_GpOutFile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter, headfillparameter, 1.0, awidth, aheight);
 		/* backward head */
 		if((head & BACKHEAD))
-			fprintf(gpoutfile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter,  headfillparameter, 1.0, awidth, aheight);
+			fprintf(GPT.P_GpOutFile, "%d %d %.3f %.3f %.3f\n", headbackangleparameter,  headfillparameter, 1.0, awidth, aheight);
 	}
 	/* arrow line */
-	fprintf(gpoutfile, "%d %d %d %d\n", FIG_xoff + sx, FIG_yoff + pThis->MaxY - sy, FIG_yoff + ex, FIG_yoff + pThis->MaxY - ey);
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d\n", FIG_xoff + sx, FIG_yoff + pThis->MaxY - sy, FIG_yoff + ex, FIG_yoff + pThis->MaxY - ey);
 	FIG_posx = ex;
 	FIG_posy = ey;
 }
@@ -698,7 +698,7 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 {
 	char * s1, * s2, * output_string;
 	int text_depth = FIG_linedepth;
-	if(strlen(str) == 0)
+	if(isempty(str))
 		return;
 	output_string = (char *)SAlloc::M(2*strlen(str)+1);
 	s1 = (char *)str;
@@ -717,7 +717,7 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	/* Adjust depth so that labels are drawn after objects */
 	if(FIG_current_layer != LAYER_PLOT)
 		text_depth -= 1;
-	fprintf(gpoutfile, "%d %d %d %d %d %d %6.3f %6.3f %d %6.3f %6.3f %d %d %s\\001\n",
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %6.3f %6.3f %d %6.3f %6.3f %d %d %s\\001\n",
 	    OBJ_TEXT, FIG_justify, FIG_color, text_depth, FIG_DEFAULT,
 	    FIG_font_id, (float)FIG_font_s,
 	    FIG_angle, FIG_text_flags, (float)pThis->ChrV,
@@ -771,30 +771,30 @@ TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
 		ypc = pThis->MaxY + FIG_yoff - y;
 		if(tnum == 0) { /* circle */
 			r = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 4 + 1);
-			fprintf(gpoutfile, "1 3 %d %d %d %d %d %d %d %6.3f 1 0.000 %d %d %d %d %d %d %d %d\n",
+			fprintf(GPT.P_GpOutFile, "1 3 %d %d %d %d %d %d %d %6.3f 1 0.000 %d %d %d %d %d %d %d %d\n",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing, xpc, ypc, r, r, xpc, ypc, xpc, ypc - r);
 		}
 		else {
-			fprintf(gpoutfile, "2 3 %d %d %d %d %d %d %d %6.3f 0 0 0 0 0 ",
+			fprintf(GPT.P_GpOutFile, "2 3 %d %d %d %d %d %d %d %6.3f 0 0 0 0 0 ",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing);
 			if(tnum == 1) { /* square */
 				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 4 + 1);
-				fprintf(gpoutfile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n",
+				fprintf(GPT.P_GpOutFile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - d, xpc - d, ypc + d, xpc + d, ypc + d, xpc + d, ypc - d, xpc - d, ypc - d);
 			}
 			else if(tnum == 2) { /* diamond */
 				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
-				fprintf(gpoutfile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n", xpc - d, ypc, xpc, ypc + d, xpc + d, ypc, xpc, ypc - d, xpc - d, ypc);
+				fprintf(GPT.P_GpOutFile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n", xpc - d, ypc, xpc, ypc + d, xpc + d, ypc, xpc, ypc - d, xpc - d, ypc);
 			}
 			else if(tnum == 3) { /* triangle up */
 				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
 				h = d * 4 / 7; /* About d times one 3rd of sqrt(3) */
-				fprintf(gpoutfile, "4\n\t%d %d %d %d %d %d %d %d\n", xpc - d, ypc + h, xpc, ypc - 2 * h, xpc + d, ypc + h, xpc - d, ypc + h);
+				fprintf(GPT.P_GpOutFile, "4\n\t%d %d %d %d %d %d %d %d\n", xpc - d, ypc + h, xpc, ypc - 2 * h, xpc + d, ypc + h, xpc - d, ypc + h);
 			}
 			else if(tnum == 4) { /* triangle down */
 				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
 				h = d * 4 / 7;
-				fprintf(gpoutfile, "4\n\t%d %d %d %d %d %d %d %d\n",
+				fprintf(GPT.P_GpOutFile, "4\n\t%d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - h, xpc, ypc + 2 * h, xpc + d, ypc - h, xpc - d, ypc - h);
 			}
 		}
@@ -833,7 +833,7 @@ TERM_PUBLIC void FIG_reset(GpTermEntry * pThis)
 {
 	FIG_poly_clean(FIG_polyvec_stat);
 	FIG_posx = FIG_posy = 0;
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
@@ -880,7 +880,7 @@ TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uin
 	x = FIG_xoff + x;
 	y = pThis->MaxY + FIG_yoff - y;
 
-	fprintf(gpoutfile, "%d %d %d %d %d %d %d %d %d %6.3f %d %d %d %d %d %d\n"
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %6.3f %d %d %d %d %d %d\n"
 	    "  %d %d %d %d %d %d %d %d %d %d\n",
 	    O_POLYLINE, T_BOX, FIG_line.style, FIG_line.thickness,
 	    pen_color, fill_color, FIG_linedepth, FIG_line.pen_style,
@@ -905,13 +905,13 @@ TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 				fprintf(stderr, "Monochrome fig file: using gray palette instead of color\n");
 			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
 				int j = (int)(i * 255.0 / (p_gp->SmPltt.Colors-1) + 0.5);
-				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst), j, j, j);
+				fprintf(GPT.P_GpOutFile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst), j, j, j);
 			}
 		}
 		else {
 			// Create colour/normal palette 
 			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
-				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst),
+				fprintf(GPT.P_GpOutFile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst),
 				    (int)(palette->P_Color[i].r * 255 + 0.5), (int)(palette->P_Color[i].g * 255 + 0.5), (int)(palette->P_Color[i].b * 255 + 0.5));
 				FIG_RGB_colors[FIG_palette_offst - FIG_rgb_color_offset + i] = (int)(palette->P_Color[i].r * 255 + 0.5) << 16 |
 				    (int)(palette->P_Color[i].g * 255 + 0.5) << 8  | (int)(palette->P_Color[i].b * 255 + 0.5); 
@@ -986,7 +986,7 @@ TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 {
 	int i, j;
 	FIG_poly_clean(FIG_polyvec_stat); /* Clean up current data */
-	fprintf(gpoutfile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %ld\n\t",
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %9.3f %d %d %d %d %d %ld\n\t",
 	    O_POLYLINE, T_POLYGON, FIG_line.style, 0,
 	    FIG_color, FIG_color, FIG_linedepth,
 	    FIG_line.pen_style, FIG_fill_style, FIG_line.style_val,
@@ -995,16 +995,16 @@ TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	/* set thickness (arg 4) to 0 */
 	j = 0;
 	for(i = 0; i < points; i++) {
-		fprintf(gpoutfile, " %d %d", FIG_xoff + corners[i].x, pThis->MaxY + FIG_yoff - corners[i].y);
+		fprintf(GPT.P_GpOutFile, " %d %d", FIG_xoff + corners[i].x, pThis->MaxY + FIG_yoff - corners[i].y);
 		if(j++ > 4 && i != points - 1) {
-			fputs("\n\t", gpoutfile);
+			fputs("\n\t", GPT.P_GpOutFile);
 			j = 0;  /* JFS */
 		}
 	}
-	fprintf(gpoutfile, " %d %d", FIG_xoff + corners[0].x, pThis->MaxY + FIG_yoff - corners[0].y);
+	fprintf(GPT.P_GpOutFile, " %d %d", FIG_xoff + corners[0].x, pThis->MaxY + FIG_yoff - corners[0].y);
 	j++;
 	if(j != 0) {
-		putc('\n', gpoutfile);
+		putc('\n', GPT.P_GpOutFile);
 	}
 }
 
@@ -1018,23 +1018,23 @@ TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    break;
 		case TERM_LAYER_BEFORE_PLOT:
 		    FIG_poly_clean(FIG_polyvec_stat);
-		    fputs("6", gpoutfile);
+		    fputs("6", GPT.P_GpOutFile);
 		    /* Bounding box?  Give it the entire plot area */
-		    fprintf(gpoutfile, " %d %d %d %d\n", FIG_xoff + p_gp->V.BbPlot.xleft,
+		    fprintf(GPT.P_GpOutFile, " %d %d %d %d\n", FIG_xoff + p_gp->V.BbPlot.xleft,
 				pThis->MaxY + FIG_yoff - p_gp->V.BbPlot.ytop, FIG_xoff + p_gp->V.BbPlot.xright, pThis->MaxY + FIG_yoff - p_gp->V.BbPlot.ybot);
-		    fprintf(gpoutfile, "# Begin plot #%d\n", ++FIG_plotno);
+		    fprintf(GPT.P_GpOutFile, "# Begin plot #%d\n", ++FIG_plotno);
 		    FIG_current_layer = LAYER_PLOT;
 		    FIG_linedepth = 700 - FIG_plotno;
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
 		    FIG_poly_clean(FIG_polyvec_stat);
-		    fprintf(gpoutfile, "# End plot #%d\n", FIG_plotno);
-		    fputs("-6\n", gpoutfile);
+		    fprintf(GPT.P_GpOutFile, "# End plot #%d\n", FIG_plotno);
+		    fputs("-6\n", GPT.P_GpOutFile);
 		    FIG_current_layer = LAYER_FRONT;
 		    FIG_linedepth = 200;
 		    break;
 		case TERM_LAYER_RESET:
-		    if(!multiplot)
+		    if(!(GPT.Flags & GpTerminalBlock::fMultiplot))
 			    FIG_plotno = 0;
 		    FIG_current_layer = LAYER_BEHIND;
 		    FIG_linedepth = 900;

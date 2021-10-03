@@ -10295,7 +10295,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 						    }
 						    if(!found) {
 #if 0
-							    fprintf(stderr, "unfinished comment\n");
+							    slfprintf_stderr("unfinished comment\n");
 #endif
 							    break; /* for */
 						    }
@@ -10312,7 +10312,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    }
 				    if(buf[base] == ']') {
 #if 0
-					    fprintf(stderr, "%c%c%c%c: ", buf[base], buf[base + 1], buf[base + 2], buf[base + 3]);
+					    slfprintf_stderr("%c%c%c%c: ", buf[base], buf[base + 1], buf[base + 2], buf[base + 3]);
 #endif
 					    if((uint)base +1 >= use)
 						    break;
@@ -10324,19 +10324,19 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 					    for(i = 1; (uint)base + i < use; i++) {
 						    if(buf[base + i] == '>') {
 #if 0
-							    fprintf(stderr, "found\n");
+							    slfprintf_stderr("found\n");
 #endif
 							    goto found_end_int_subset;
 						    }
 						    if(!IS_BLANK_CH(buf[base + i])) {
 #if 0
-							    fprintf(stderr, "not found\n");
+							    slfprintf_stderr("not found\n");
 #endif
 							    goto not_end_of_int_subset;
 						    }
 					    }
 #if 0
-					    fprintf(stderr, "end of stream\n");
+					    slfprintf_stderr("end of stream\n");
 #endif
 					    break;
 				    }

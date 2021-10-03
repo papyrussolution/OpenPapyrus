@@ -2765,10 +2765,10 @@ static void get_surface_cbminmax(const GpSurfacePoints * pPlot, double * cbmin, 
 	*cbmin = VERYLARGE;
 	*cbmax = -VERYLARGE;
 	for(int curve = 0; icrvs && curve < pPlot->num_iso_read;) {
-		// fprintf(stderr,"**** NEW ISOCURVE - nb of pts: %i ****\n", icrvs->p_count); 
+		// fprintf(stderr, "**** NEW ISOCURVE - nb of pts: %i ****\n", icrvs->p_count); 
 		GpCoordinate * points = icrvs->points;
 		for(int i = 0; i < icrvs->p_count; i++) {
-			// fprintf(stderr,"  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
+			// fprintf(stderr, "  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
 			if(points[i].type == INRANGE) {
 				// ?? if (!clip_point(x, y)) ... 
 				const coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].Pt.z;

@@ -1854,7 +1854,7 @@ void FASTCALL onig_node_free(Node * node)
 {
 	if(node) {
 	#ifdef DEBUG_NODE_FREE
-		fprintf(stderr, "onig_node_free: %p\n", node);
+		slfprintf_stderr("onig_node_free: %p\n", node);
 	#endif
 		node_free_body(node);
 		SAlloc::F(node);
@@ -1874,7 +1874,7 @@ static Node* node_new(void)
 	CHECK_NULL_RETURN(node);
 	memzero(node, sizeof(*node));
 #ifdef DEBUG_NODE_FREE
-	fprintf(stderr, "node_new: %p\n", node);
+	slfprintf_stderr("node_new: %p\n", node);
 #endif
 	return node;
 }

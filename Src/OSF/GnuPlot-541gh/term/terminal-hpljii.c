@@ -68,11 +68,11 @@ static int hplj_dpp = 4; // note: c is char, but must be declared int due to an 
 static uint HPLJII_XMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.x*1920/HPLJII_DPP/8.0+0.9)); }
 static uint HPLJII_YMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.y*1920/HPLJII_DPP/8.0+0.9)); }
 
-#define HPLJII_VCHAR (HPLJII_PPI/6) /* Courier font with 6 lines per inch */
-#define HPLJII_HCHAR (HPLJII_PPI/10) /* Courier font with 10 characters per inch */
-#define HPLJII_PUSH_CURSOR fputs("\033&f0S", gpoutfile) /* Save current cursor position */
-#define HPLJII_POP_CURSOR fputs("\033&f1S", gpoutfile) /* Restore cursor position */
-#define HPLJII_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", gpoutfile) /* be sure to use courier font with 6lpi and 10cpi */
+#define HPLJII_VCHAR (HPLJII_PPI/6) // Courier font with 6 lines per inch 
+#define HPLJII_HCHAR (HPLJII_PPI/10) // Courier font with 10 characters per inch 
+#define HPLJII_PUSH_CURSOR fputs("\033&f0S", GPT.P_GpOutFile) // Save current cursor position 
+#define HPLJII_POP_CURSOR fputs("\033&f1S", GPT.P_GpOutFile) // Restore cursor position 
+#define HPLJII_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", GPT.P_GpOutFile) // be sure to use courier font with 6lpi and 10cpi 
 
 static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int ang);
 // bm_pattern not appropriate for 300ppi graphics 
@@ -86,7 +86,7 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 	char opt[4];
 	int parse_error = 0;
 	if(pGp->Pgm.EndOfCommand()) {
-		term_options[0] = NUL;
+		PTR32(GPT.TermOptions)[0] = 0;
 	}
 	else {
 		if(pGp->Pgm.GetCurTokenLength() > 3) {
@@ -118,22 +118,22 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->MaxY = HPLJII_YMAX_(pGp);
 	switch(hplj_dpp) {
 		case 1:
-		    strcpy(term_options, "300");
+		    strcpy(GPT.TermOptions, "300");
 		    pThis->TicV = 15;
 		    pThis->TicH = 15;
 		    break;
 		case 2:
-		    strcpy(term_options, "150");
+		    strcpy(GPT.TermOptions, "150");
 		    pThis->TicV = 8;
 		    pThis->TicH = 8;
 		    break;
 		case 3:
-		    strcpy(term_options, "100");
+		    strcpy(GPT.TermOptions, "100");
 		    pThis->TicV = 6;
 		    pThis->TicH = 6;
 		    break;
 		case 4:
-		    strcpy(term_options, "75");
+		    strcpy(GPT.TermOptions, "75");
 		    pThis->TicV = 5;
 		    pThis->TicH = 5;
 		    break;
@@ -163,20 +163,20 @@ TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	fprintf(gpoutfile, "\033*t%dR", HPLJII_PPI);
+	fprintf(GPT.P_GpOutFile, "\033*t%dR", HPLJII_PPI);
 	HPLJII_POP_CURSOR;
-	fputs("\033*r1A", gpoutfile);
+	fputs("\033*r1A", GPT.P_GpOutFile);
 	// dump bitmap in raster mode 
 	for(int x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
 		const int row = (p_gp->_Bmp.b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b0m%dW", p_gp->_Bmp.b_ysize / 8);
+		fprintf(GPT.P_GpOutFile, "\033*b0m%dW", p_gp->_Bmp.b_ysize / 8);
 		for(int j = row; j >= 0; j--) {
-			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), GPT.P_GpOutFile);
 		}
 	}
-	fputs("\033*rB", gpoutfile);
+	fputs("\033*rB", GPT.P_GpOutFile);
 	p_gp->BmpFreeBitmap();
-	putc('\f', gpoutfile);
+	putc('\f', GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
@@ -203,8 +203,8 @@ TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		    HPLJII_POP_CURSOR;
 		    HPLJII_PUSH_CURSOR;
 		    // (0,0) is the upper left point of the paper 
-		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(p_gp) - y - 1) * HPLJII_DPP);
-		    fputs(str, gpoutfile);
+		    fprintf(GPT.P_GpOutFile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(p_gp) - y - 1) * HPLJII_DPP);
+		    fputs(str, GPT.P_GpOutFile);
 			// for (; *str; ++str, x += HPLJII_HCHAR)
 				//HPLJII_putc (x, y, *str, p_gp->_Bmp.b_angle);
 		    break;
@@ -222,8 +222,8 @@ static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int/*ang*/)
 	HPLJII_POP_CURSOR;
 	HPLJII_PUSH_CURSOR;
 	// (0,0) is the upper left point of the paper 
-	fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(pThis->P_Gp) - y - 1) * HPLJII_DPP);
-	fputc(c, gpoutfile);
+	fprintf(GPT.P_GpOutFile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(pThis->P_Gp) - y - 1) * HPLJII_DPP);
+	fputc(c, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void HPLJII_reset(GpTermEntry * pThis)
@@ -270,18 +270,18 @@ TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
-	fprintf(gpoutfile, "\033*b0M\033*t%dR\033*r1A", HPLJII_PPI);
+	fprintf(GPT.P_GpOutFile, "\033*b0M\033*t%dR\033*r1A", HPLJII_PPI);
 	// dump bitmap in raster mode 
 	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
 		row = (p_gp->_Bmp.b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b%dW", p_gp->_Bmp.b_ysize / 8);
+		fprintf(GPT.P_GpOutFile, "\033*b%dW", p_gp->_Bmp.b_ysize / 8);
 		for(j = row; j >= 0; j--) {
-			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), GPT.P_GpOutFile);
 		}
 	}
-	fputs("\033*rbC", gpoutfile);
+	fputs("\033*rbC", GPT.P_GpOutFile);
 	p_gp->BmpFreeBitmap();
-	putc('\f', gpoutfile);
+	putc('\f', GPT.P_GpOutFile);
 }
 
 #endif

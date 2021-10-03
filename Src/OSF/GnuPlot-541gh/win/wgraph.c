@@ -4607,16 +4607,16 @@ static void Draw_XOR_Text(GW * lpgw, const char * text, size_t length, int x, in
 static void UpdateStatusLine(GW * lpgw, const char text[])
 {
 	if(lpgw) {
-		LPWSTR wtext = UnicodeText(text, encoding);
+		//LPWSTR wtext = UnicodeText(text, encoding);
 		if(!lpgw->bDocked) {
 			if(lpgw->hStatusbar)
-				SendMessageW(lpgw->hStatusbar, SB_SETTEXTW, (WPARAM)0, (LPARAM)wtext);
+				SendMessageW(lpgw->hStatusbar, SB_SETTEXTW, (WPARAM)0, (LPARAM)SUcSwitch(text));
 		}
 		else {
 			if(lpgw->lptw && lpgw->lptw->hStatusbar)
-				SendMessageW(lpgw->lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)wtext);
+				SendMessageW(lpgw->lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)SUcSwitch(text));
 		}
-		SAlloc::F(wtext);
+		//SAlloc::F(wtext);
 	}
 }
 /*

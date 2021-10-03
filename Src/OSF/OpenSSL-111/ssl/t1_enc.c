@@ -476,7 +476,7 @@ int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p,
 			return 0;
 		}
 #ifdef SSL_DEBUG
-		fprintf(stderr, "Handshake hashes:\n");
+		slfprintf_stderr("Handshake hashes:\n");
 		BIO_dump_fp(stderr, (char *)hash, hashlen);
 #endif
 		if(!tls1_PRF(s,
@@ -506,13 +506,13 @@ int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p,
 		}
 	}
 #ifdef SSL_DEBUG
-	fprintf(stderr, "Premaster Secret:\n");
+	slfprintf_stderr("Premaster Secret:\n");
 	BIO_dump_fp(stderr, (char *)p, len);
-	fprintf(stderr, "Client Random:\n");
+	slfprintf_stderr("Client Random:\n");
 	BIO_dump_fp(stderr, (char *)s->s3->client_random, SSL3_RANDOM_SIZE);
-	fprintf(stderr, "Server Random:\n");
+	slfprintf_stderr("Server Random:\n");
 	BIO_dump_fp(stderr, (char *)s->s3->server_random, SSL3_RANDOM_SIZE);
-	fprintf(stderr, "Master Secret:\n");
+	slfprintf_stderr("Master Secret:\n");
 	BIO_dump_fp(stderr, (char *)s->session->master_key,
 	    SSL3_MASTER_SECRET_SIZE);
 #endif

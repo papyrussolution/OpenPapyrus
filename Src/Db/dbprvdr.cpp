@@ -61,10 +61,11 @@ DbLoginBlock & FASTCALL DbLoginBlock::operator = (const DbLoginBlock & rS)
 	return *this;
 }
 
-void DbLoginBlock::Clear()
+DbLoginBlock & DbLoginBlock::Z()
 {
 	End = 0;
 	Items.clear();
+	return *this;
 }
 
 int FASTCALL DbLoginBlock::Copy(const DbLoginBlock & rS)
@@ -223,7 +224,7 @@ int DbLoginBlockArray::GetByID(long id, DbLoginBlock * pBlk) const
 {
 	int    ok = 0;
 	SString symb;
-	CALLPTRMEMB(pBlk, Clear());
+	CALLPTRMEMB(pBlk, Z());
 	//
 	if(id > 0 && id <= static_cast<long>(getCount())) {
 		const DbLoginBlock * p_blk = at(id-1);
@@ -246,7 +247,7 @@ int DbLoginBlockArray::GetBySymb(const char * pSymb, DbLoginBlock * pBlk) const
 {
 	int    ok = 0;
 	SString symb;
-	CALLPTRMEMB(pBlk, Clear());
+	CALLPTRMEMB(pBlk, Z());
 	for(uint i = 0; !ok && i < getCount(); i++) {
 		const DbLoginBlock * p_blk = at(i);
 		if(p_blk->GetAttr(DbLoginBlock::attrDbSymb, symb) > 0 && symb.CmpNC(pSymb) == 0) {
@@ -262,7 +263,7 @@ int DbLoginBlockArray::GetBySymb(const char * pSymb, DbLoginBlock * pBlk) const
 int DbLoginBlockArray::GetByPos(uint pos, DbLoginBlock * pBlk) const
 {
 	int    ok = 0;
-	CALLPTRMEMB(pBlk, Clear());
+	CALLPTRMEMB(pBlk, Z());
 	if(pos < getCount()) {
 		ASSIGN_PTR(pBlk, *at(pos));
 		ok = (pos+1);

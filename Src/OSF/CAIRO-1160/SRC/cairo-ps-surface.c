@@ -72,7 +72,7 @@
 
 #if DEBUG_PS
 #define DEBUG_FALLBACK(s) \
-	fprintf(stderr, "%s::%d -- %s\n", __FUNCTION__, __LINE__, (s))
+	slfprintf_stderr("%s::%d -- %s\n", __FUNCTION__, __LINE__, (s))
 #else
 #define DEBUG_FALLBACK(s)
 #endif

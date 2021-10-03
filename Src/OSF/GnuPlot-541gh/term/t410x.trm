@@ -96,8 +96,8 @@ static int T410X_angle = 0;
 
 TERM_PUBLIC void T410X_init(GpTermEntry * pThis)
 {
-	fputs("\033%%!0\033MN0\033MCB7C;\033MQ1\033MT1", gpoutfile);
-	fputs("\033MG1\033RK!\033SK!\033LZ\033%%!1", gpoutfile);
+	fputs("\033%%!0\033MN0\033MCB7C;\033MQ1\033MT1", GPT.P_GpOutFile);
+	fputs("\033MG1\033RK!\033SK!\033LZ\033%%!1", GPT.P_GpOutFile);
 /*
          1. set tek mode
          2. set character path to 0 (characters placed equal to rotation)
@@ -110,62 +110,62 @@ TERM_PUBLIC void T410X_init(GpTermEntry * pThis)
          9. clear the dialog buffer
         10. set ansi mode
  */
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_reset()
 {
-	fputs("\033%%!0\033LZ\033%%!1", gpoutfile);
+	fputs("\033%%!0\033LZ\033%%!1", GPT.P_GpOutFile);
 /*
         1. set tek mode
         2. clear the dialog buffer
         3. set ansi mode
  */
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_graphics()
 {
-	fputs("\033%%!0\033\014\033LV0", gpoutfile);
+	fputs("\033%%!0\033\014\033LV0", GPT.P_GpOutFile);
 /*
         1. set tek mode
         2. clear the screen
         3. set dialog area invisible
  */
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_text(GpTermEntry * pThis)
 {
-	fputs("\033LV1\033%%!1", gpoutfile);
+	fputs("\033LV1\033%%!1", GPT.P_GpOutFile);
 /*
         1. set dialog area visible
         2. set ansi mode
  */
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_move(uint x, uint y)
 {
-	fputs("\033LF", gpoutfile);
+	fputs("\033LF", GPT.P_GpOutFile);
 	T410X_encode_x_y(x, y);
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_vector(uint x, uint y)
 {
-	fputs("\033LG", gpoutfile);
+	fputs("\033LG", GPT.P_GpOutFile);
 	T410X_encode_x_y(x, y);
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_point(uint x, uint y, int number)
 {
-	fputs("\033MM", gpoutfile);
+	fputs("\033MM", GPT.P_GpOutFile);
 	T410X_encode_int(MAX(number, 0) % 11);
-	fputs("\033LH", gpoutfile);
+	fputs("\033LH", GPT.P_GpOutFile);
 	T410X_encode_x_y(x, y);
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_linetype(int linetype)
@@ -174,35 +174,35 @@ TERM_PUBLIC void T410X_linetype(int linetype)
 		linetype = LT_BLACK;
 	switch(linetype) {
 		case LT_AXIS:
-		    fputs("\033ML5", gpoutfile);
+		    fputs("\033ML5", GPT.P_GpOutFile);
 		    break;
 		case LT_BLACK:
-		    fputs("\033ML?", gpoutfile);
+		    fputs("\033ML?", GPT.P_GpOutFile);
 		    break;
 		default:
-		    fputs("\033ML", gpoutfile);
+		    fputs("\033ML", GPT.P_GpOutFile);
 		    T410X_encode_int(linetype % 14 + 2);
 		    break;
 	}
-	fputs("\033MV", gpoutfile);
+	fputs("\033MV", GPT.P_GpOutFile);
 	T410X_encode_int(MAX(linetype, 0) % 8);
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void T410X_put_text(uint x, uint y, const char str[])
 {
 	if(T410X_angle == 0) {
 		T410X_move(x, y - T410XVCHAR / 2 + 6);
-		fputs("\033MR00", gpoutfile);
+		fputs("\033MR00", GPT.P_GpOutFile);
 	}
 	else {
 		T410X_move(x + T410XHCHAR / 2 - 6, y);
-		fputs("\033MRE:0", gpoutfile);
+		fputs("\033MRE:0", GPT.P_GpOutFile);
 	}
-	fputs("\033LT", gpoutfile);
+	fputs("\033LT", GPT.P_GpOutFile);
 	T410X_encode_int(strlen(str));
-	fputs(str, gpoutfile);
-	fflush(gpoutfile);
+	fputs(str, GPT.P_GpOutFile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC int T410X_text_angle(int ang)
@@ -229,14 +229,14 @@ static void T410X_encode_x_y(uint x, uint y)
 	eb = (ly % 4) * 4 + lx % 4 + 96;
 
 	if(chiy != hiy)
-		putc(hiy, gpoutfile);
+		putc(hiy, GPT.P_GpOutFile);
 	if(ceb != eb)
-		putc(eb, gpoutfile);
+		putc(eb, GPT.P_GpOutFile);
 	if((cloy != loy) || (ceb != eb) || (chix != hix))
-		putc(loy, gpoutfile);
+		putc(loy, GPT.P_GpOutFile);
 	if(chix != hix)
-		putc(hix, gpoutfile);
-	putc(lox, gpoutfile);
+		putc(hix, GPT.P_GpOutFile);
+	putc(lox, GPT.P_GpOutFile);
 
 	chix = hix;
 	chiy = hiy;
@@ -254,10 +254,10 @@ static void T410X_encode_int(int number)
 	if(number >= 0)
 		lo += 16;
 	if(hi1 != 64)
-		putc(hi1, gpoutfile);
+		putc(hi1, GPT.P_GpOutFile);
 	if((hi2 != 64) || (hi1 != 64))
-		putc(hi2, gpoutfile);
-	putc(lo, gpoutfile);
+		putc(hi2, GPT.P_GpOutFile);
+	putc(lo, GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

@@ -262,7 +262,6 @@ generic_string ScintillaKeyMap::toString(size_t index) const
 	generic_string sc = TEXT("");
 	if(!isEnabled())
 		return sc;
-
 	KeyCombo kc = _keyCombos[index];
 	if(kc._isCtrl)
 		sc += TEXT("Ctrl+");
@@ -270,11 +269,15 @@ generic_string ScintillaKeyMap::toString(size_t index) const
 		sc += TEXT("Alt+");
 	if(kc._isShift)
 		sc += TEXT("Shift+");
-
 	generic_string keyString;
 	getKeyStrFromVal(kc._key, keyString);
 	sc += keyString;
 	return sc;
+}
+
+INT_PTR ScintillaKeyMap::doDialog()
+{
+	return ::DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_SHORTCUTSCINT_DLG), _hParent, dlgProc, reinterpret_cast<LPARAM>(this));
 }
 
 static size_t FASTCALL keyTranslate(size_t keyIn) 

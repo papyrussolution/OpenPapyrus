@@ -193,7 +193,7 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 	{
 		const char * mode_strings[] = { "dot", "half", "halfh", "quadrants", "sextants", "braille" };
 		const char * color_strings[] = {"mono", "ansi", "ansi256", "ansirgb"};
-		sprintf(term_options, "%s %s %soptimize %senhanced size %d,%d", mode_strings[BLOCK_mode],
+		sprintf(GPT.TermOptions, "%s %s %soptimize %senhanced size %d,%d", mode_strings[BLOCK_mode],
 		    color_strings[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1],
 		    (BLOCK_optimize ? "" : "no"), (pThis->flags & TERM_ENHANCED_TEXT) ? "" : "no", BLOCK_xchars, BLOCK_ychars);
 	}
@@ -404,7 +404,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	const  int * pattern;
 	size_t bufsiz;
 	if(p_gp->TDumbB.ColorMode > 0) {
-		fputs("\033[0;39m", gpoutfile); /* reset colors to default */
+		fputs("\033[0;39m", GPT.P_GpOutFile); /* reset colors to default */
 		memzero(&p_gp->TDumbB.PrevColor, sizeof(t_colorspec));
 	}
 #endif
@@ -624,13 +624,13 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 		}
 		*s++ = '\n';
 		*s = NUL;
-		fputs(line, gpoutfile);
+		fputs(line, GPT.P_GpOutFile);
 	}
 	// printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
 
 #ifndef NO_DUMB_COLOR_SUPPORT
 	if(p_gp->TDumbB.ColorMode > 0) {
-		fputs("\033[0;39;49m", gpoutfile); /* reset colors to default */
+		fputs("\033[0;39;49m", GPT.P_GpOutFile); /* reset colors to default */
 	}
 #ifdef DEBUG_BLOCK_OPTI
 	printf("full cells : %u (%3.1f\%)\n", nfullcells, 100 * ((float)nfullcells) / BLOCK_xchars / BLOCK_ychars);
@@ -639,7 +639,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 #endif
 #endif
 	SAlloc::F(line);
-	fflush(gpoutfile); /* finish the graphics */
+	fflush(GPT.P_GpOutFile); /* finish the graphics */
 }
 
 TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)

@@ -71,9 +71,9 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis);
 
 #define HP500C_VCHAR (HP500C_PPI/6) // Courier font with 6 lines per inch 
 #define HP500C_HCHAR (HP500C_PPI/10) // Courier font with 10 characters per inch 
-#define HP500C_PUSH_CURSOR fputs("\033&f0S", gpoutfile) // Save current cursor position 
-#define HP500C_POP_CURSOR fputs("\033&f1S", gpoutfile) // Restore cursor position 
-#define HP500C_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", gpoutfile) // be sure to use courier font with 6lpi and 10cpi 
+#define HP500C_PUSH_CURSOR fputs("\033&f0S", GPT.P_GpOutFile) // Save current cursor position 
+#define HP500C_POP_CURSOR fputs("\033&f1S", GPT.P_GpOutFile) // Restore cursor position 
+#define HP500C_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", GPT.P_GpOutFile) // be sure to use courier font with 6lpi and 10cpi 
 
 static int HP_compress(uchar * op, uchar * oe, uchar * cp);
 static uchar HP_complement(int c);
@@ -136,38 +136,38 @@ TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->MaxY = Get_HP500C_YMAX(pGp);
 	switch(hpdj_dpp) {
 		case 1:
-		    strcpy(term_options, "300");
+		    strcpy(GPT.TermOptions, "300");
 		    pThis->TicV = 15;
 		    pThis->TicH = 15;
 		    break;
 		case 2:
-		    strcpy(term_options, "150");
+		    strcpy(GPT.TermOptions, "150");
 		    pThis->TicV = 8;
 		    pThis->TicH = 8;
 		    break;
 		case 3:
-		    strcpy(term_options, "100");
+		    strcpy(GPT.TermOptions, "100");
 		    pThis->TicV = 6;
 		    pThis->TicH = 6;
 		    break;
 		case 4:
-		    strcpy(term_options, "75");
+		    strcpy(GPT.TermOptions, "75");
 		    pThis->TicV = 5;
 		    pThis->TicH = 5;
 		    break;
 	}
 	switch(HP_COMP_MODE) {
 		case 0:
-		    strcat(term_options, " no comp");
+		    strcat(GPT.TermOptions, " no comp");
 		    break;
 		case 1:
-		    strcat(term_options, " RLE");
+		    strcat(GPT.TermOptions, " RLE");
 		    break;
 		case 2:
-		    strcat(term_options, " TIFF");
+		    strcat(GPT.TermOptions, " TIFF");
 		    break;
 		case 3:         /* not implemented yet */
-		    strcat(term_options, " Delta Row");
+		    strcat(GPT.TermOptions, " Delta Row");
 		    break;
 	}
 }
@@ -327,7 +327,7 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 	if((cbuf = (uchar *)malloc(400 * p_gp->_Bmp.b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for cbuf");
 	oe = obuf;
-	fprintf(gpoutfile, "\
+	fprintf(GPT.P_GpOutFile, "\
 \033*t%dR\
 \033*r1A\
 \033*b%1dM\
@@ -344,10 +344,10 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 			case 1: count = HP_compress(obuf, oe, cbuf); break;
 			case 0: count = HP_nocompress(obuf, oe, cbuf); break;
 		}
-		fprintf(gpoutfile, "\033*b%dV", count);
+		fprintf(GPT.P_GpOutFile, "\033*b%dV", count);
 		ce = cbuf;
 		while(count--)
-			fputc(*ce++, gpoutfile);
+			fputc(*ce++, GPT.P_GpOutFile);
 		oe = obuf;
 		for(j = row; j >= 0; j--) {
 			*oe++ = (char)(*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize] + x));
@@ -357,10 +357,10 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 			case 1: count = HP_compress(obuf, oe, cbuf); break;
 			case 0: count = HP_nocompress(obuf, oe, cbuf); break;
 		}
-		fprintf(gpoutfile, "\033*b%dV", count);
+		fprintf(GPT.P_GpOutFile, "\033*b%dV", count);
 		ce = cbuf;
 		while(count--)
-			fputc(*ce++, gpoutfile);
+			fputc(*ce++, GPT.P_GpOutFile);
 		oe = obuf;
 		for(j = row; j >= 0; j--) {
 			*oe++ = (char)(*((*p_gp->_Bmp.b_p)[j + (2 * p_gp->_Bmp.b_psize)] + x));
@@ -370,17 +370,17 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 			case 1: count = HP_compress(obuf, oe, cbuf); break;
 			case 0: count = HP_nocompress(obuf, oe, cbuf); break;
 		}
-		fprintf(gpoutfile, "\033*b%dW", count);
+		fprintf(GPT.P_GpOutFile, "\033*b%dW", count);
 		ce = cbuf;
 		while(count--)
-			fputc(*ce++, gpoutfile);
+			fputc(*ce++, GPT.P_GpOutFile);
 		oe = obuf;
 	}
-	fputs("\033*rbC", gpoutfile);
+	fputs("\033*rbC", GPT.P_GpOutFile);
 	SAlloc::F(cbuf);
 	SAlloc::F(obuf);
 	p_gp->BmpFreeBitmap();
-	putc('\f', gpoutfile);
+	putc('\f', GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

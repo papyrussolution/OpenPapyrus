@@ -234,23 +234,20 @@ static void SVG_GroupOpen()
 {
 	SVG_GroupFilledClose();
 	if(!SVG_groupIsOpen) {
-		fprintf(gpoutfile, "<g fill=\"none\" color=\"%s\" stroke=\"",
-		    SVG_pens[SVG_Pen_RealID(SVG_LineType)].color);
-
+		fprintf(GPT.P_GpOutFile, "<g fill=\"none\" color=\"%s\" stroke=\"", SVG_pens[SVG_Pen_RealID(SVG_LineType)].color);
 		if(SVG_color_mode == TC_RGB)
-			fprintf(gpoutfile, "rgb(%3d, %3d, %3d)", SVG_red, SVG_green, SVG_blue);
+			fprintf(GPT.P_GpOutFile, "rgb(%3d, %3d, %3d)", SVG_red, SVG_green, SVG_blue);
 		else if(SVG_color_mode == TC_LT)
-			fprintf(gpoutfile, "%s", SVG_linecolor);
+			fprintf(GPT.P_GpOutFile, "%s", SVG_linecolor);
 		else
-			fprintf(gpoutfile, "currentColor");
-
-		fprintf(gpoutfile, "\" ");
-		fprintf(gpoutfile, "stroke-width=\"%.2f\" stroke-linecap=\"%s\" stroke-linejoin=\"%s\"",
+			fprintf(GPT.P_GpOutFile, "currentColor");
+		fprintf(GPT.P_GpOutFile, "\" ");
+		fprintf(GPT.P_GpOutFile, "stroke-width=\"%.2f\" stroke-linecap=\"%s\" stroke-linejoin=\"%s\"",
 		    SVG_pens[SVG_Pen_RealID(SVG_LineType)].width * SVG_linewidth_factor,
 		    SVG_linecap == ROUNDED ? "round" : SVG_linecap == SQUARE ? "square" : "butt",
 		    SVG_linecap == ROUNDED ? "round" : "miter");
 
-		fprintf(gpoutfile, ">\n");
+		fprintf(GPT.P_GpOutFile, ">\n");
 
 		SVG_groupIsOpen = TRUE;
 	}
@@ -262,7 +259,7 @@ static void SVG_GroupClose()
 {
 	SVG_GroupFilledClose();
 	if(SVG_groupIsOpen) {
-		fputs("</g>\n", gpoutfile);
+		fputs("</g>\n", GPT.P_GpOutFile);
 		SVG_groupIsOpen = FALSE;
 		SVG_fillPattern = -1;
 	}
@@ -274,33 +271,33 @@ static void SVG_PathOpen()
 {
 	if(!SVG_pathIsOpen) {
 		SVG_GroupFilledClose();
-		fputs("\t<path ", gpoutfile);
+		fputs("\t<path ", GPT.P_GpOutFile);
 		/* Line color */
 		if(SVG_LineType == LT_NODRAW)
-			fprintf(gpoutfile, "stroke='none' ");
+			fprintf(GPT.P_GpOutFile, "stroke='none' ");
 		else if(SVG_color_mode == TC_RGB)
-			fprintf(gpoutfile, "stroke='rgb(%3d, %3d, %3d)' ",
+			fprintf(GPT.P_GpOutFile, "stroke='rgb(%3d, %3d, %3d)' ",
 			    SVG_red, SVG_green, SVG_blue);
 		else if(SVG_color_mode == TC_LT)
-			fprintf(gpoutfile, "stroke='%s' ", SVG_linecolor);
+			fprintf(GPT.P_GpOutFile, "stroke='%s' ", SVG_linecolor);
 
 		/* Axis is always dotted */
 		if(SVG_LineType == LT_AXIS)
-			fprintf(gpoutfile, "stroke-dasharray='2,4' ");
+			fprintf(GPT.P_GpOutFile, "stroke-dasharray='2,4' ");
 
 		/* Other patterns were selected by a previous call to SVG_dashtype */
 		else if(SVG_dashpattern)
-			fprintf(gpoutfile, "stroke-dasharray='%s' ", SVG_dashpattern);
+			fprintf(GPT.P_GpOutFile, "stroke-dasharray='%s' ", SVG_dashpattern);
 
 		/* RGBA */
 		if(SVG_alpha != 0.0)
-			fprintf(gpoutfile, "opacity='%4.2f' ", 1.0 - SVG_alpha);
+			fprintf(GPT.P_GpOutFile, "opacity='%4.2f' ", 1.0 - SVG_alpha);
 
 		/* Mark grid lines so that we can toggle them on/off */
 		if(SVG_gridline)
-			fprintf(gpoutfile, "class=\"gridline\" ");
+			fprintf(GPT.P_GpOutFile, "class=\"gridline\" ");
 
-		fputs(" d='", gpoutfile);
+		fputs(" d='", GPT.P_GpOutFile);
 
 		SVG_pathIsOpen = TRUE;
 	}
@@ -313,7 +310,7 @@ static void SVG_PathClose()
 {
 	if(SVG_pathIsOpen) {
 		SVG_GroupFilledClose();
-		fprintf(gpoutfile, " '/>");
+		fprintf(GPT.P_GpOutFile, " '/>");
 		SVG_path_count = 0;
 		SVG_pathIsOpen = FALSE;
 	}
@@ -325,9 +322,9 @@ static void SVG_PathClose()
 static void SVG_AddSpaceOrNewline()
 {
 	if(SVG_path_count % 8 == 0)     /* avoid excessive line length*/
-		fputs("\n\t\t", gpoutfile);
+		fputs("\n\t\t", GPT.P_GpOutFile);
 	else
-		fputs(" ", gpoutfile);
+		fputs(" ", GPT.P_GpOutFile);
 }
 
 static void SVG_SetFont(GpTermEntry * pThis, const char * name, double size)
@@ -354,7 +351,7 @@ static void SVG_GroupFilledOpen()
 {
 	if(!SVG_groupFilledIsOpen) {
 		SVG_PathClose();
-		fputs("\t<g stroke='none' shape-rendering='crispEdges'>\n", gpoutfile);
+		fputs("\t<g stroke='none' shape-rendering='crispEdges'>\n", GPT.P_GpOutFile);
 		SVG_groupFilledIsOpen = TRUE;
 	}
 }
@@ -362,7 +359,7 @@ static void SVG_GroupFilledOpen()
 static void SVG_GroupFilledClose()
 {
 	if(SVG_groupFilledIsOpen) {
-		fputs("\t</g>\n", gpoutfile);
+		fputs("\t</g>\n", GPT.P_GpOutFile);
 		SVG_groupFilledIsOpen = FALSE;
 	}
 }
@@ -370,11 +367,11 @@ static void SVG_GroupFilledClose()
 static void SVG_StyleColor(const char* paint)
 {
 	if(SVG_color_mode == TC_RGB)
-		fprintf(gpoutfile, "%s = 'rgb(%3d, %3d, %3d)'", paint, SVG_red, SVG_green, SVG_blue);
+		fprintf(GPT.P_GpOutFile, "%s = 'rgb(%3d, %3d, %3d)'", paint, SVG_red, SVG_green, SVG_blue);
 	else if(SVG_color_mode == TC_LT)
-		fprintf(gpoutfile, "%s = '%s'", paint, SVG_linecolor);
+		fprintf(GPT.P_GpOutFile, "%s = '%s'", paint, SVG_linecolor);
 	else
-		fprintf(gpoutfile, "%s = 'currentColor'", paint);
+		fprintf(GPT.P_GpOutFile, "%s = 'currentColor'", paint);
 }
 
 static void SVG_StyleFillColor()
@@ -391,7 +388,7 @@ static void SVG_DefineFillPattern(int fillpat)
 		SVG_fillPattern = fillpat;
 		SVG_PathClose();
 		SVG_fillPatternIndex++;
-		fprintf(gpoutfile, "\t<defs>\n\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n", SVG_fillPatternIndex);
+		fprintf(GPT.P_GpOutFile, "\t<defs>\n\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n", SVG_fillPatternIndex);
 		switch(fillpat) {
 			default:
 			case 0:
@@ -425,13 +422,13 @@ static void SVG_DefineFillPattern(int fillpat)
 			if(sstreq(style, "fill")) 
 				figure = "stroke:none;";
 			if(SVG_color_mode == TC_RGB)
-				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n", figure, style, SVG_red, SVG_green, SVG_blue, path);
+				fprintf(GPT.P_GpOutFile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n", figure, style, SVG_red, SVG_green, SVG_blue, path);
 			else if(SVG_color_mode == TC_LT)
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n", figure, style, SVG_linecolor, path);
+				fprintf(GPT.P_GpOutFile, "\t\t\t<path style = '%s %s:%s' d= '%s'/>\n", figure, style, SVG_linecolor, path);
 			else
-				fprintf(gpoutfile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n", figure, style, path);
+				fprintf(GPT.P_GpOutFile, "\t\t\t<path style = '%s %s:currentColor' d='%s'/>\n", figure, style, path);
 		}
-		fputs("\t\t</pattern>\n" "\t</defs>\n", gpoutfile);
+		fputs("\t\t</pattern>\n" "\t</defs>\n", GPT.P_GpOutFile);
 	}
 }
 
@@ -440,7 +437,7 @@ static void SVG_MoveForced(GpTermEntry * pThis, uint x, uint y)
 	if(SVG_path_count > 512)
 		SVG_PathClose();
 	SVG_PathOpen();
-	fprintf(gpoutfile, "M%.*f,%.*f", PREC, X(x), PREC, Y(y));
+	fprintf(GPT.P_GpOutFile, "M%.*f,%.*f", PREC, X(x), PREC, Y(y));
 	SVG_path_count++;
 	SVG_AddSpaceOrNewline();
 	SVG_xLast = x;
@@ -622,27 +619,27 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// I don't think any error checks on font name are possible; just set it 
 	SVG_set_font(pThis, "");
 	// Save options back into options string in normalized format 
-	sprintf(term_options, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
+	sprintf(GPT.TermOptions, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
 	    SVG_fixed_size ? " fixed" : " dynamic", pThis->put_text == ENHsvg_put_text ? "enhanced" : "", SVG_fontNameCur, SVG_fontSizeCur);
 	if(SVG_mouseable) {
-		sprintf(term_options + strlen(term_options), "mousing ");
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "mousing ");
 	}
 	if(SVG_standalone) {
-		sprintf(term_options + strlen(term_options), "standalone ");
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "standalone ");
 	}
 	if(SVG_name) {
-		sprintf(term_options + strlen(term_options), "name \"%s\" ", SVG_name);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "name \"%s\" ", SVG_name);
 	}
-	sprintf(term_options + strlen(term_options), SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
-	sprintf(term_options + strlen(term_options), "dashlength %.1f ", SVG_dashlength);
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "dashlength %.1f ", SVG_dashlength);
 	if(SVG_linewidth_factor != 1.0) {
-		sprintf(term_options + strlen(term_options), "linewidth %3.1f ", SVG_linewidth_factor);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "linewidth %3.1f ", SVG_linewidth_factor);
 	}
 	if(SVG_background >= 0) {
-		sprintf(term_options + strlen(term_options), "background \"#%06x\" ", SVG_background);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "background \"#%06x\" ", SVG_background);
 	}
 	if(SVG_animate) {
-		sprintf(term_options + strlen(term_options), "animate ");
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "animate ");
 	}
 }
 
@@ -723,7 +720,7 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	int len;
 	double stroke_width;
 	char * svg_encoding = "";
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_ISO8859_1:   svg_encoding = "encoding=\"iso-8859-1\" "; break;
 		case S_ENC_ISO8859_2:   svg_encoding = "encoding=\"iso-8859-2\" "; break;
 		case S_ENC_ISO8859_9:   svg_encoding = "encoding=\"iso-8859-9\" "; break;
@@ -745,27 +742,27 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	if(SVG_domterm) {
 		// Erase all off-screen lines in terminal buffer 
 		if(SVG_animate)
-			fprintf(gpoutfile, "\033[3J");
-		fprintf(gpoutfile, "\033]72;");
+			fprintf(GPT.P_GpOutFile, "\033[3J");
+		fprintf(GPT.P_GpOutFile, "\033]72;");
 	}
 	if(SVG_emit_doctype)
-		fprintf(gpoutfile, "<?xml version=\"1.0\" %s standalone=\"no\"?>\n", svg_encoding);
-	fprintf(gpoutfile, "<svg ");
+		fprintf(GPT.P_GpOutFile, "<?xml version=\"1.0\" %s standalone=\"no\"?>\n", svg_encoding);
+	fprintf(GPT.P_GpOutFile, "<svg ");
 	if(SVG_mouseable)
-		fprintf(gpoutfile, " onload=\"if (typeof(gnuplot_svg)!='undefined') gnuplot_svg.Init(evt)\" ");
+		fprintf(GPT.P_GpOutFile, " onload=\"if (typeof(gnuplot_svg)!='undefined') gnuplot_svg.Init(evt)\" ");
 	if(SVG_fixed_size)
-		fprintf(gpoutfile, "\n width=\"%u\" height=\"%u\"", (uint)(pThis->MaxX / SVG_SCALE), (uint)(pThis->MaxY / SVG_SCALE));
-	fprintf(gpoutfile, "\n viewBox=\"0 0 %u %u\"\n", (uint)(pThis->MaxX / SVG_SCALE), (uint)(pThis->MaxY / SVG_SCALE));
-	fprintf(gpoutfile, " xmlns=\"http://www.w3.org/2000/svg\"\n");
-	fprintf(gpoutfile, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
+		fprintf(GPT.P_GpOutFile, "\n width=\"%u\" height=\"%u\"", (uint)(pThis->MaxX / SVG_SCALE), (uint)(pThis->MaxY / SVG_SCALE));
+	fprintf(GPT.P_GpOutFile, "\n viewBox=\"0 0 %u %u\"\n", (uint)(pThis->MaxX / SVG_SCALE), (uint)(pThis->MaxY / SVG_SCALE));
+	fprintf(GPT.P_GpOutFile, " xmlns=\"http://www.w3.org/2000/svg\"\n");
+	fprintf(GPT.P_GpOutFile, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
 #if (0)
 	/* This should be required, but Firefox gets it totally wrong */
-	fprintf(gpoutfile, " xml:space=\"preserve\"\n");
+	fprintf(GPT.P_GpOutFile, " xml:space=\"preserve\"\n");
 #endif
-	fprintf(gpoutfile, ">\n\n");
+	fprintf(GPT.P_GpOutFile, ">\n\n");
 	/* TODO: It would be nice to print the actual plot title here */
-	fprintf(gpoutfile, "<title>%s</title>\n", SVG_name ? SVG_name : "Gnuplot");
-	fprintf(gpoutfile, "<desc>Produced by GNUPLOT %s patchlevel %s </desc>\n\n", gnuplot_version, gnuplot_patchlevel);
+	fprintf(GPT.P_GpOutFile, "<title>%s</title>\n", SVG_name ? SVG_name : "Gnuplot");
+	fprintf(GPT.P_GpOutFile, "<desc>Produced by GNUPLOT %s patchlevel %s </desc>\n\n", gnuplot_version, gnuplot_patchlevel);
 
 /*
  * FIXME: This code could be shared with canvas.trm
@@ -800,7 +797,7 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	if(SVG_mouseable) {
 		/* Inclusion of gnuplot_svg.js is sufficient to support toggling plots on/off */
 		if(!SVG_standalone) {
-			fprintf(gpoutfile, "<script type=\"text/javascript\" xlink:href=\"%sgnuplot_svg.js\"/>\n", SVG_scriptdir);
+			fprintf(GPT.P_GpOutFile, "<script type=\"text/javascript\" xlink:href=\"%sgnuplot_svg.js\"/>\n", SVG_scriptdir);
 		}
 		else {
 			/* "standalone" option includes the mousing code in the file itself */
@@ -815,10 +812,10 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 			if(!svg_js_fd)
 				p_gp->IntWarn(NO_CARET, "Failed to insert javascript file %s\n", fullname);
 			else {
-				fprintf(gpoutfile, "<script type=\"text/javascript\" > <![CDATA[\n");
+				fprintf(GPT.P_GpOutFile, "<script type=\"text/javascript\" > <![CDATA[\n");
 				while(fgets(buf, sizeof(buf), svg_js_fd))
-					fputs(buf, gpoutfile);
-				fprintf(gpoutfile, "]]>\n</script>\n");
+					fputs(buf, GPT.P_GpOutFile);
+				fprintf(GPT.P_GpOutFile, "]]>\n</script>\n");
 				fclose(svg_js_fd);
 			}
 			SAlloc::F(fullname);
@@ -826,26 +823,26 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	}
 	if(SVG_mouseable) { /* FIXME: Should only do this for 2D plots */
 		/* This is extra code to support tracking the mouse coordinates */
-		fprintf(gpoutfile, "\n<!-- Tie mousing to entire bounding box of the plot -->\n");
-		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(pThis->MaxX/SVG_SCALE), (int)(pThis->MaxY/SVG_SCALE));
-		fprintf(gpoutfile, " fill=\"#%06x\" stroke=\"black\" stroke-width=\"1\"\n", SVG_background >= 0 ? SVG_background : 0xffffff);
-		fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleCoordBox(evt)\"  onmousemove=\"gnuplot_svg.moveCoordBox(evt)\"/>\n");
-		fprintf(gpoutfile, "\n<!-- Also track mouse when it is on a plot element -->\n");
-		fprintf(gpoutfile, "<g id=\"gnuplot_canvas\" onclick=\"gnuplot_svg.toggleCoordBox(evt)\" onmousemove=\"gnuplot_svg.moveCoordBox(evt)\">\n\n");
+		fprintf(GPT.P_GpOutFile, "\n<!-- Tie mousing to entire bounding box of the plot -->\n");
+		fprintf(GPT.P_GpOutFile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(pThis->MaxX/SVG_SCALE), (int)(pThis->MaxY/SVG_SCALE));
+		fprintf(GPT.P_GpOutFile, " fill=\"#%06x\" stroke=\"black\" stroke-width=\"1\"\n", SVG_background >= 0 ? SVG_background : 0xffffff);
+		fprintf(GPT.P_GpOutFile, "onclick=\"gnuplot_svg.toggleCoordBox(evt)\"  onmousemove=\"gnuplot_svg.moveCoordBox(evt)\"/>\n");
+		fprintf(GPT.P_GpOutFile, "\n<!-- Also track mouse when it is on a plot element -->\n");
+		fprintf(GPT.P_GpOutFile, "<g id=\"gnuplot_canvas\" onclick=\"gnuplot_svg.toggleCoordBox(evt)\" onmousemove=\"gnuplot_svg.moveCoordBox(evt)\">\n\n");
 	}
 	else {
-		fprintf(gpoutfile, "<g id=\"gnuplot_canvas\">\n\n");
-		fprintf(gpoutfile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(pThis->MaxX/SVG_SCALE), (int)(pThis->MaxY/SVG_SCALE));
+		fprintf(GPT.P_GpOutFile, "<g id=\"gnuplot_canvas\">\n\n");
+		fprintf(GPT.P_GpOutFile, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"", 0, 0, (int)(pThis->MaxX/SVG_SCALE), (int)(pThis->MaxY/SVG_SCALE));
 		if(SVG_background >= 0)
-			fprintf(gpoutfile, " fill=\"#%06x\"", SVG_background);
+			fprintf(GPT.P_GpOutFile, " fill=\"#%06x\"", SVG_background);
 		else
-			fprintf(gpoutfile, " fill=\"none\"");
-		fprintf(gpoutfile, "/>\n");
+			fprintf(GPT.P_GpOutFile, " fill=\"none\"");
+		fprintf(GPT.P_GpOutFile, "/>\n");
 	}
 
 	/* Start prologue section of output file, and load fonts if requested */
 
-	fprintf(gpoutfile, "<defs>\n");
+	fprintf(GPT.P_GpOutFile, "<defs>\n");
 
 	/* definitions of point symbols */
 	/* FIXME: SVG scales linewidth along with the marker itself, and
@@ -854,7 +851,7 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	 * defined one :-( That would make for much larger files */
 	/* "\t<path id='gpPt3' stroke-width='%.3f' d='M-1,-1 h2 v2 h-2 z'/>\n" */
 	stroke_width = 2.0 *SVG_SCALE / pThis->TicH;
-	fprintf(gpoutfile,
+	fprintf(GPT.P_GpOutFile,
 	    "\n"
 	    /* dot: */
 	    "\t<circle id='gpDot' r='0.5' stroke-width='0.5' stroke='currentColor'/>\n"
@@ -926,12 +923,12 @@ static void svg_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js
 	udvt_entry * udv;
 	if((udv = p_gp->Ev.AddUdvByName(gp_name))) {
 		if(udv->udv_value.Type == INTGR) {
-			fprintf(gpoutfile, "gnuplot_svg.%s = ", js_name);
-			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
-			fprintf(gpoutfile, "\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.%s = ", js_name);
+			fprintf(GPT.P_GpOutFile, PLD, udv->udv_value.v.int_val);
+			fprintf(GPT.P_GpOutFile, "\n");
 		}
 		else if(udv->udv_value.Type == CMPLX) {
-			fprintf(gpoutfile, "gnuplot_svg.%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
 		}
 	}
 }
@@ -943,16 +940,16 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 	SVG_GroupClose();
 	if(SVG_mouseable) {
 		GpAxis * this_axis;
-		fprintf(gpoutfile, "\n<script type=\"text/javascript\"><![CDATA[\n");
-		fprintf(gpoutfile, "// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(pThis->MaxX / SVG_SCALE));
-		fprintf(gpoutfile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(pThis->MaxY / SVG_SCALE));
-		fprintf(gpoutfile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)p_gp->V.BbPlot.xleft / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)p_gp->V.BbPlot.xright / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ybot) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ytop) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / SVG_SCALE);
-		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "\n<script type=\"text/javascript\"><![CDATA[\n");
+		fprintf(GPT.P_GpOutFile, "// plot boundaries and axis scaling information for mousing \n");
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_term_xmax = %d;\n", (int)(pThis->MaxX / SVG_SCALE));
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_term_ymax = %d;\n", (int)(pThis->MaxY / SVG_SCALE));
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_xmin = %.1f;\n", (double)p_gp->V.BbPlot.xleft / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_xmax = %.1f;\n", (double)p_gp->V.BbPlot.xright / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_ybot = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ybot) / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_ytop = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ytop) / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / SVG_SCALE);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / SVG_SCALE);
 		// Get true axis ranges as used in the plot 
 		p_gp->UpdateGpvalVariables(pThis, 1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) svg_mouse_param(pThis, GP_NAME, js_NAME)
@@ -969,25 +966,25 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymax");
 		}
-		fprintf(gpoutfile, "gnuplot_svg.polar_mode = %s;\n", p_gp->Gg.Polar ? "true" : "false");
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.polar_mode = %s;\n", p_gp->Gg.Polar ? "true" : "false");
 		if(p_gp->Gg.Polar) {
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
-			fprintf(gpoutfile, "gnuplot_svg.polar_theta0 = %d;\n", (int)p_gp->AxS.ThetaOrigin);
-			fprintf(gpoutfile, "gnuplot_svg.polar_sense = %d;\n", (int)p_gp->AxS.ThetaDirection);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.polar_theta0 = %d;\n", (int)p_gp->AxS.ThetaOrigin);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.polar_sense = %d;\n", (int)p_gp->AxS.ThetaDirection);
 		}
 		if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "plot_axis_x2min");
 			MOUSE_PARAM("GPVAL_X2_MAX", "plot_axis_x2max");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_x2min = \"none\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_x2min = \"none\";\n");
 		if((p_gp->AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_Y2_MIN", "plot_axis_y2min");
 			MOUSE_PARAM("GPVAL_Y2_MAX", "plot_axis_y2max");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_y2min = \"none\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_y2min = \"none\";\n");
 #undef MOUSE_PARAM
 		/*
 		 * Note:
@@ -1006,88 +1003,88 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		#define is_nonlinear(axis) ((axis)->linked_to_primary && (axis)->link_udf->at && (axis)->index == -((axis)->linked_to_primary->index))
 
 		this_axis = &p_gp->AxS[FIRST_X_AXIS];
-		fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		this_axis = &p_gp->AxS[FIRST_Y_AXIS];
-		fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		if(p_gp->Gg.Polar)
-			fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
 		if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
-			fprintf(gpoutfile, "gnuplot_svg.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
-			fprintf(gpoutfile, "gnuplot_svg.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
 		}
 		else if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_DMS) {
-			fprintf(gpoutfile, "gnuplot_svg.plot_timeaxis_x = \"DMS\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_timeaxis_x = \"DMS\";\n");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot_svg.plot_timeaxis_x = \"\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_timeaxis_x = \"\";\n");
 		if(p_gp->AxS[FIRST_Y_AXIS].datatype == DT_DMS)
-			fprintf(gpoutfile, "gnuplot_svg.plot_timeaxis_y = \"DMS\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_timeaxis_y = \"DMS\";\n");
 		else
-			fprintf(gpoutfile, "gnuplot_svg.plot_timeaxis_y = \"\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_timeaxis_y = \"\";\n");
 
 		/* Hypertext font properties
 		 * NB: These will apply to all hypertext in the plot
 		 *     separate font for individual labels would require additional code
 		 */
-		fprintf(gpoutfile, "gnuplot_svg.hypertext_fontSize = %.1g;\n", SVG_hypertext_fontSize);
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontSize = %.1g;\n", SVG_hypertext_fontSize);
 		if(SVG_hypertext_fontName)
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontName = \"%s\";\n", SVG_hypertext_fontName);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontName = \"%s\";\n", SVG_hypertext_fontName);
 		else
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontName = null;\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontName = null;\n");
 		if(SVG_hypertext_fontStyle)
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontStyle = \"%s\";\n", SVG_hypertext_fontStyle);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontStyle = \"%s\";\n", SVG_hypertext_fontStyle);
 		else
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontStyle = null;\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontStyle = null;\n");
 		if(SVG_hypertext_fontWeight)
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontWeight = \"%s\";\n", SVG_hypertext_fontWeight);
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontWeight = \"%s\";\n", SVG_hypertext_fontWeight);
 		else
-			fprintf(gpoutfile, "gnuplot_svg.hypertext_fontWeight = null;\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot_svg.hypertext_fontWeight = null;\n");
 
-		fprintf(gpoutfile, "]]>\n</script>\n");
+		fprintf(GPT.P_GpOutFile, "]]>\n</script>\n");
 	} /* End of section writing out variables for mousing */
 
 	/* Close off the group with id=gnuplot_canvas that wraps the entire plot */
-	fprintf(gpoutfile, "</g>\n");
+	fprintf(GPT.P_GpOutFile, "</g>\n");
 
 	/* Now create a text element to hold the mouse-tracking text. */
 	/* It comes _after_ the plot group so that it floats on top.  */
 	if(SVG_mouseable) {
-		fprintf(gpoutfile, "\n  <text id=\"coord_text\" text-anchor=\"start\" pointer-events=\"none\"\n");
-		fprintf(gpoutfile, "  font-size=\"12\" font-family=\"Arial\"\n");
-		fprintf(gpoutfile, "  visibility=\"hidden\"> </text>\n");
+		fprintf(GPT.P_GpOutFile, "\n  <text id=\"coord_text\" text-anchor=\"start\" pointer-events=\"none\"\n");
+		fprintf(GPT.P_GpOutFile, "  font-size=\"12\" font-family=\"Arial\"\n");
+		fprintf(GPT.P_GpOutFile, "  visibility=\"hidden\"> </text>\n");
 	}
 
 	/* Add a box and a text element to hold mouseover hypertext */
 	if(SVG_mouseable) {
-		fprintf(gpoutfile, "\n  <rect id=\"hypertextbox\" class=\"hypertextbox\" pointer-events=\"none\"\n");
-		fprintf(gpoutfile, "  fill=\"white\" stroke=\"black\" opacity=\"0.8\"\n");
-		fprintf(gpoutfile, "  height=\"16\" visibility=\"hidden\" />\n");
-		fprintf(gpoutfile, "\n  <text id=\"hypertext\" class=\"hypertext\" pointer-events=\"none\"\n");
-		fprintf(gpoutfile, "  font-size=\"12\" font-family=\"Arial\"\n");
-		fprintf(gpoutfile, "  visibility=\"hidden\"> </text>\n");
+		fprintf(GPT.P_GpOutFile, "\n  <rect id=\"hypertextbox\" class=\"hypertextbox\" pointer-events=\"none\"\n");
+		fprintf(GPT.P_GpOutFile, "  fill=\"white\" stroke=\"black\" opacity=\"0.8\"\n");
+		fprintf(GPT.P_GpOutFile, "  height=\"16\" visibility=\"hidden\" />\n");
+		fprintf(GPT.P_GpOutFile, "\n  <text id=\"hypertext\" class=\"hypertext\" pointer-events=\"none\"\n");
+		fprintf(GPT.P_GpOutFile, "  font-size=\"12\" font-family=\"Arial\"\n");
+		fprintf(GPT.P_GpOutFile, "  visibility=\"hidden\"> </text>\n");
 	}
 
 	/* Add a placeholder for an image linked to mouseover hypertext */
 	if(SVG_mouseable) {
-		fprintf(gpoutfile, "\n  <image id=\"hyperimage\" class=\"hyperimage\" pointer-events=\"none\"\n");
-		fprintf(gpoutfile, "  fill=\"white\" stroke=\"black\" opacity=\"0.8\"\n");
-		fprintf(gpoutfile, "  height=\"200\" width=\"300\" visibility=\"hidden\" />\n");
+		fprintf(GPT.P_GpOutFile, "\n  <image id=\"hyperimage\" class=\"hyperimage\" pointer-events=\"none\"\n");
+		fprintf(GPT.P_GpOutFile, "  fill=\"white\" stroke=\"black\" opacity=\"0.8\"\n");
+		fprintf(GPT.P_GpOutFile, "  height=\"200\" width=\"300\" visibility=\"hidden\" />\n");
 	}
 
 	/* If there were any grid lines in this plot, add a button to toggle them */
 	if(SVG_mouseable && SVG_hasgrid) {
-		fprintf(gpoutfile, "\n  <image x='10' y='%d' width='16' height='16' ", (int)(pThis->MaxY/SVG_SCALE)-26);
-		fprintf(gpoutfile,
+		fprintf(GPT.P_GpOutFile, "\n  <image x='10' y='%d' width='16' height='16' ", (int)(pThis->MaxY/SVG_SCALE)-26);
+		fprintf(GPT.P_GpOutFile,
 		    "\n    xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABmJLR0QA/wD/AP+gvaeTAAAAM0lEQVQokWP8//8/AymACc5iZGQkyEDRQCwgyUn///9nhGtgZISy8TBGnTSCnMRIavIGAGPTWfVV7DcfAAAAAElFTkSuQmCC'");
-		fprintf(gpoutfile, "\n    onclick='gnuplot_svg.toggleGrid();'/>\n");
+		fprintf(GPT.P_GpOutFile, "\n    onclick='gnuplot_svg.toggleGrid();'/>\n");
 	}
 
-	fputs("</svg>\n\n", gpoutfile);
+	fputs("</svg>\n\n", GPT.P_GpOutFile);
 
 	if(SVG_domterm) {
-		fprintf(gpoutfile, "\007");
-		fflush(gpoutfile);
+		fprintf(GPT.P_GpOutFile, "\007");
+		fflush(GPT.P_GpOutFile);
 	}
 }
 
@@ -1195,7 +1192,7 @@ TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y)
 			// The SVG 'path' MUST have a 'moveto' as first command. 
 			SVG_MoveForced(pThis, SVG_xLast, SVG_yLast);
 		}
-		fprintf(gpoutfile, "L%.*f,%.*f", PREC, X(x), PREC, Y(y));
+		fprintf(GPT.P_GpOutFile, "L%.*f,%.*f", PREC, X(x), PREC, Y(y));
 		SVG_path_count++;
 		SVG_AddSpaceOrNewline();
 		SVG_xLast = x;
@@ -1220,24 +1217,24 @@ TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
 		*color_spec = '\0';
 	SVG_PathClose();
 	if(SVG_hypertext_text) {
-		fprintf(gpoutfile, "\t<g onmousemove=\"gnuplot_svg.showHypertext(evt,'%s')\" onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n",
+		fprintf(GPT.P_GpOutFile, "\t<g onmousemove=\"gnuplot_svg.showHypertext(evt,'%s')\" onmouseout=\"gnuplot_svg.hideHypertext()\"><title> </title>\n",
 		    SVG_hypertext_text);
 	}
 	if(number < 0) {        /* do dot */
-		fprintf(gpoutfile, "\t<use xlink:href='#gpDot' x='%.*f' y='%.*f'%s/>\n", PREC, X(x), PREC, Y(y), color_spec);
+		fprintf(GPT.P_GpOutFile, "\t<use xlink:href='#gpDot' x='%.*f' y='%.*f'%s/>\n", PREC, X(x), PREC, Y(y), color_spec);
 	}
 	else {                  /* draw a point symbol */
-		fprintf(gpoutfile, "\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
+		fprintf(GPT.P_GpOutFile, "\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
 		    number % 15, PREC, X(x), PREC, Y(y), p_gp->TermPointSize * pThis->TicH / (2 * SVG_SCALE), color_spec);
 	}
 	SVG_xLast = x;
 	SVG_yLast = y;
 	if(SVG_hypertext_text) {
-		fprintf(gpoutfile, "</g>\n");
+		fprintf(GPT.P_GpOutFile, "</g>\n");
 		ZFREE(SVG_hypertext_text);
 	}
 	else {
-		fprintf(gpoutfile, "\n");
+		fprintf(GPT.P_GpOutFile, "\n");
 	}
 }
 
@@ -1276,53 +1273,53 @@ TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 
 /* define text position and attributes */
 
-	fprintf(gpoutfile, "\t<g transform=\"translate(%.*f,%.*f)", PREC, X(h), PREC, Y(v));
+	fprintf(GPT.P_GpOutFile, "\t<g transform=\"translate(%.*f,%.*f)", PREC, X(h), PREC, Y(v));
 	if(SVG_TextAngle)
-		fprintf(gpoutfile, " rotate(%i)", -SVG_TextAngle);
-	fprintf(gpoutfile, "\" stroke=\"none\" fill=\"");
+		fprintf(GPT.P_GpOutFile, " rotate(%i)", -SVG_TextAngle);
+	fprintf(GPT.P_GpOutFile, "\" stroke=\"none\" fill=\"");
 
 	if(SVG_color_mode == TC_RGB)
-		fprintf(gpoutfile, "rgb(%d,%d,%d)", SVG_red, SVG_green, SVG_blue);
+		fprintf(GPT.P_GpOutFile, "rgb(%d,%d,%d)", SVG_red, SVG_green, SVG_blue);
 	else if(SVG_color_mode == TC_LT)
-		fprintf(gpoutfile, "%s", SVG_linecolor);
+		fprintf(GPT.P_GpOutFile, "%s", SVG_linecolor);
 	else
-		fprintf(gpoutfile, "%s", SVG_pens[SVG_Pen_RealID(SVG_LineType)].color);
-	fprintf(gpoutfile, "\" font-family=\"%s\" font-size=\"%.2f\" ",
+		fprintf(GPT.P_GpOutFile, "%s", SVG_pens[SVG_Pen_RealID(SVG_LineType)].color);
+	fprintf(GPT.P_GpOutFile, "\" font-family=\"%s\" font-size=\"%.2f\" ",
 	    SVG_fontNameCur, SVG_fontSizeCur * SVG_fontscale);
 	if(SVG_fontWeightCur && strcmp(SVG_fontWeightCur, "normal"))
-		fprintf(gpoutfile, " font-weight=\"%s\" ", SVG_fontWeightCur);
+		fprintf(GPT.P_GpOutFile, " font-weight=\"%s\" ", SVG_fontWeightCur);
 	if(SVG_fontStyleCur && strcmp(SVG_fontStyleCur, "normal"))
-		fprintf(gpoutfile, " font-style=\"%s\" ", SVG_fontStyleCur);
-	fprintf(gpoutfile, " text-anchor=\"%s\"", alignment);
+		fprintf(GPT.P_GpOutFile, " font-style=\"%s\" ", SVG_fontStyleCur);
+	fprintf(GPT.P_GpOutFile, " text-anchor=\"%s\"", alignment);
 	if(SVG_inTextBox)
-		fprintf(gpoutfile, " style='filter:url(#textbox)'");
-	fprintf(gpoutfile, ">\n");
+		fprintf(GPT.P_GpOutFile, " style='filter:url(#textbox)'");
+	fprintf(GPT.P_GpOutFile, ">\n");
 	// output text (unless the enhanced_text processing is in action) 
 	if(strstr(str, "  "))
-		fputs("\t\t<text xml:space=\"preserve\">", gpoutfile);
+		fputs("\t\t<text xml:space=\"preserve\">", GPT.P_GpOutFile);
 	else
-		fputs("\t\t<text>", gpoutfile);
+		fputs("\t\t<text>", GPT.P_GpOutFile);
 	if(!ENHsvg_string_state) {
 		while(*str) {
 			/* Escape SVG reserved characters */
 			switch(*str) {
 				case '<':
-				    fputs("&lt;", gpoutfile);
+				    fputs("&lt;", GPT.P_GpOutFile);
 				    break;
 				case '&':
 				    if(str[1] == '#' && str[2] == 'x')
-					    fputc(*str, gpoutfile);
+					    fputc(*str, GPT.P_GpOutFile);
 				    else
-					    fputs("&amp;", gpoutfile);
+					    fputs("&amp;", GPT.P_GpOutFile);
 				    break;
 				default:
-				    fputc(*str, gpoutfile);
+				    fputc(*str, GPT.P_GpOutFile);
 				    break;
 			}
 
 			str++;
 		}
-		fputs("</text>\n\t</g>\n", gpoutfile);
+		fputs("</text>\n\t</g>\n", GPT.P_GpOutFile);
 	}
 }
 
@@ -1440,32 +1437,32 @@ TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* c
 		SVG_DefineFillPattern(fillpar);
 	}
 	SVG_GroupFilledOpen();
-	fputs("\t\t<polygon ", gpoutfile);
+	fputs("\t\t<polygon ", GPT.P_GpOutFile);
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
-		    fprintf(gpoutfile, " fill = '%s'", SVG_pens[0].color);
+		    fprintf(GPT.P_GpOutFile, " fill = '%s'", SVG_pens[0].color);
 		    break;
 		case FS_SOLID: /* solid fill */
 		case FS_TRANSPARENT_SOLID:
 		    SVG_StyleFillColor();
 		    if(SVG_alpha != 0.0)
-			    fprintf(gpoutfile, " fill-opacity='%4.2f' ", 1.0 - SVG_alpha);
+			    fprintf(GPT.P_GpOutFile, " fill-opacity='%4.2f' ", 1.0 - SVG_alpha);
 		    else if(fillpar >= 0 && fillpar < 100)
-			    fprintf(gpoutfile, " fill-opacity = '%f'", fillpar * 0.01);
+			    fprintf(GPT.P_GpOutFile, " fill-opacity = '%f'", fillpar * 0.01);
 		    break;
 		case FS_PATTERN: /* pattern fill */
 		case FS_TRANSPARENT_PATTERN:
-		    fprintf(gpoutfile, " fill = 'url(#gpPat%d)'",
+		    fprintf(GPT.P_GpOutFile, " fill = 'url(#gpPat%d)'",
 			SVG_fillPatternIndex);
 		    break;
 		default:
 		    SVG_StyleFillColor();
 		    break;
 	}
-	fputs(" points = '", gpoutfile);
+	fputs(" points = '", GPT.P_GpOutFile);
 	for(i = 0; i < points; i++)
-		fprintf(gpoutfile, "%.*f,%.*f%s", PREC, X(corners[i].x), PREC, Y(corners[i].y), i % 16 == 15 ? "\n" : " ");
-	fputs("'/>\n", gpoutfile);
+		fprintf(GPT.P_GpOutFile, "%.*f,%.*f%s", PREC, X(corners[i].x), PREC, Y(corners[i].y), i % 16 == 15 ? "\n" : " ");
+	fputs("'/>\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
@@ -1482,20 +1479,20 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    SVG_GroupClose();
 		    ++SVG_plotno;
 		    name = (SVG_name) ? SVG_name : "gnuplot";
-		    if(multiplot && p_gp->GetMultiplotCurrentPanel() < 26)
+		    if(GPT.Flags & GpTerminalBlock::fMultiplot && p_gp->GetMultiplotCurrentPanel() < 26)
 			    panel[0] = 'a' + p_gp->GetMultiplotCurrentPanel();
-		    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s\" ", name, SVG_plotno, panel);
+		    fprintf(GPT.P_GpOutFile, "\t<g id=\"%s_plot_%d%s\" ", name, SVG_plotno, panel);
 		    if(SVG_hypertext_text && *SVG_hypertext_text)
-			    fprintf(gpoutfile, "><title>%s</title>\n", SVG_hypertext_text);
+			    fprintf(GPT.P_GpOutFile, "><title>%s</title>\n", SVG_hypertext_text);
 		    else
-			    fprintf(gpoutfile, "><title>%s_plot_%d%s</title>\n", name, SVG_plotno, panel);
+			    fprintf(GPT.P_GpOutFile, "><title>%s_plot_%d%s</title>\n", name, SVG_plotno, panel);
 		    ZFREE(SVG_hypertext_text);
 		    SVG_LineType = LT_UNDEFINED; /* Force a new group on next stroke */
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
 		    SVG_PathClose();
 		    SVG_GroupClose();
-		    fprintf(gpoutfile, "\t</g>\n");
+		    fprintf(GPT.P_GpOutFile, "\t</g>\n");
 		    SVG_LineType = LT_UNDEFINED; /* Force a new group on next stroke */
 		    break;
 		case TERM_LAYER_BEGIN_GRID:
@@ -1510,18 +1507,18 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 			    SVG_PathClose();
 			    SVG_GroupFilledClose();
 			    name = (SVG_name) ? SVG_name : "gnuplot";
-			    if(multiplot && p_gp->GetMultiplotCurrentPanel() < 26)
+			    if(GPT.Flags & GpTerminalBlock::fMultiplot && p_gp->GetMultiplotCurrentPanel() < 26)
 				    panel[0] = 'a' + p_gp->GetMultiplotCurrentPanel();
-			    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s_keyentry\" visibility=\"visible\" ", name, SVG_plotno, panel);
-			    fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleVisibility(evt,'%s_plot_%d%s')\"", name, SVG_plotno, panel);
-			    fprintf(gpoutfile, ">\n");
+			    fprintf(GPT.P_GpOutFile, "\t<g id=\"%s_plot_%d%s_keyentry\" visibility=\"visible\" ", name, SVG_plotno, panel);
+			    fprintf(GPT.P_GpOutFile, "onclick=\"gnuplot_svg.toggleVisibility(evt,'%s_plot_%d%s')\"", name, SVG_plotno, panel);
+			    fprintf(GPT.P_GpOutFile, ">\n");
 		    }
 		    break;
 		case TERM_LAYER_END_KEYSAMPLE:
 		    if(SVG_mouseable) {
 			    SVG_PathClose();
 			    SVG_GroupFilledClose();
-			    fprintf(gpoutfile, "\t</g>\n");
+			    fprintf(GPT.P_GpOutFile, "\t</g>\n");
 		    }
 		    break;
 		case TERM_LAYER_RESET:
@@ -1540,15 +1537,15 @@ TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 	GnuPlot * p_gp = pThis->P_Gp;
 	SVG_PathClose();
 	// Map image onto the terminal's coordinate system. 
-	fprintf(gpoutfile, "<image x='%.*f' y='%.*f' width='%.*f' height='%.*f' preserveAspectRatio='none' ",
+	fprintf(GPT.P_GpOutFile, "<image x='%.*f' y='%.*f' width='%.*f' height='%.*f' preserveAspectRatio='none' ",
 	    PREC, X(corner[0].x), PREC, Y(corner[0].y), PREC, X(corner[1].x) - X(corner[0].x), PREC, Y(corner[1].y) - Y(corner[0].y));
 	// Feb 2017 - always embed images 
 	if(TRUE || SVG_standalone || SVG_domterm) {
 		/* Embed the PNG file in SVG by converting to base64 */
-		fprintf(gpoutfile, "xlink:href='data:image/png;base64,");
-		if(write_png_base64_image(m, n, image, color_mode, gpoutfile))
+		fprintf(GPT.P_GpOutFile, "xlink:href='data:image/png;base64,");
+		if(write_png_base64_image(m, n, image, color_mode, GPT.P_GpOutFile))
 			p_gp->OsError(NO_CARET, "SVG_image: could not write to gnuplot output file.");
-		fprintf(gpoutfile, "'/>\n");
+		fprintf(GPT.P_GpOutFile, "'/>\n");
 	}
 	else {
 		// Write the image to a png file 
@@ -1558,7 +1555,7 @@ TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 		sprintf(image_file, "%s_image_%02d.png", base_name, ++SVG_imageno);
 		wpiresult = write_png_image(pThis, m, n, image, color_mode, image_file);
 		// Reference the png image file 
-		fprintf(gpoutfile, "xlink:href='%s_image_%02d.png'/>\n", base_name, SVG_imageno);
+		fprintf(GPT.P_GpOutFile, "xlink:href='%s_image_%02d.png'/>\n", base_name, SVG_imageno);
 		SAlloc::F(image_file);
 		if(wpiresult != 0)
 			p_gp->OsError(NO_CARET, "SVG_image: could not write to PNG reference file.");
@@ -1588,7 +1585,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		     *        they all get piled on top of one another.
 		     */
 		    ENHsvg_FLUSH(pThis);
-		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
+		    fprintf(GPT.P_GpOutFile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
 		    ENHsvg_base = base;
 		    ENHsvg_x_offset = 0.0;
 		    p_gp->Enht.P_CurText = p_gp->Enht.Text;
@@ -1611,7 +1608,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		ENHsvg_opened_string = TRUE;
 		p_gp->Enht.P_CurText = p_gp->Enht.Text;
 		// Start a new textspan fragment 
-		fputs("<tspan", gpoutfile);
+		fputs("<tspan", GPT.P_GpOutFile);
 		if(!fontname)
 			fprintf(stderr, "ENHsvg_OPEN: null fontname\n");
 		else {
@@ -1626,31 +1623,31 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 			else {
 				SAlloc::F(family);
 			}
-			fprintf(gpoutfile, " font-family=\"%s\" ", SVG_fontNameCur);
+			fprintf(GPT.P_GpOutFile, " font-family=\"%s\" ", SVG_fontNameCur);
 			if(strstr(fontname, ":Bold"))
-				fprintf(gpoutfile, " font-weight=\"bold\" ");
+				fprintf(GPT.P_GpOutFile, " font-weight=\"bold\" ");
 			if(strstr(fontname, ":Italic"))
-				fprintf(gpoutfile, " font-style=\"italic\" ");
+				fprintf(GPT.P_GpOutFile, " font-style=\"italic\" ");
 		}
 		if(SVG_fontSizeCur != fontsize) {
 			SVG_fontSizeCur = fontsize;
-			fprintf(gpoutfile, " font-size=\"%.1f\"", SVG_fontSizeCur * SVG_fontscale);
+			fprintf(GPT.P_GpOutFile, " font-size=\"%.1f\"", SVG_fontSizeCur * SVG_fontscale);
 		}
 		if(ENHsvg_x_offset != 0) {
-			fprintf(gpoutfile, " dx=\"%.2fem\"", ENHsvg_x_offset);
+			fprintf(GPT.P_GpOutFile, " dx=\"%.2fem\"", ENHsvg_x_offset);
 			ENHsvg_x_offset = 0.0;
 		}
 		if(ENHsvg_base != base) {
-			fprintf(gpoutfile, " dy=\"%.2fpx\"", ENHsvg_base-base);
+			fprintf(GPT.P_GpOutFile, " dy=\"%.2fpx\"", ENHsvg_base-base);
 			ENHsvg_base = base;
 		}
 		if(!showflag) {
-			fprintf(gpoutfile, " fill=\"none\"");
+			fprintf(GPT.P_GpOutFile, " fill=\"none\"");
 		}
 		if(ENHsvg_preserve_spaces) {
-			fprintf(gpoutfile, " xml:space=\"preserve\"");
+			fprintf(GPT.P_GpOutFile, " xml:space=\"preserve\"");
 		}
-		fputs(">", gpoutfile);
+		fputs(">", GPT.P_GpOutFile);
 	}
 }
 
@@ -1675,20 +1672,20 @@ TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 		 */
 		while((s = strstr(p_gp->Enht.P_CurText, "\\U+")) != NULL) {
 			*s = '\0';
-			fputs(p_gp->Enht.P_CurText, gpoutfile); /* everything up to the escape */
-			fputs("&#x", gpoutfile);        /* xml escape sequence */
+			fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile); /* everything up to the escape */
+			fputs("&#x", GPT.P_GpOutFile);        /* xml escape sequence */
 			s += 3;                         /* start of hex codepoint */
 			for(i = 0; i<5; i++, s++) {     /* copy up to 5 hex characters */
 				if(isxdigit(*s))
-					fputc(*s, gpoutfile);
+					fputc(*s, GPT.P_GpOutFile);
 				else
 					break;
 			}
-			fputs(";", gpoutfile);          /* end of xml escape sequence */
+			fputs(";", GPT.P_GpOutFile);          /* end of xml escape sequence */
 			p_gp->Enht.P_CurText = s;
 		}
-		fputs(p_gp->Enht.P_CurText, gpoutfile);    /* everything after the escape[s] */
-		fputs("</tspan>", gpoutfile);
+		fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile);    /* everything after the escape[s] */
+		fputs("</tspan>", GPT.P_GpOutFile);
 	}
 }
 
@@ -1735,13 +1732,13 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	SVG_fontNameCur = fontname;
 	fontname = NULL;
 	if(SVG_fontSizeCur != fontsize || ENHsvg_base != 0) {
-		fprintf(gpoutfile, "<tspan font-size=\"%.1f\" dy=\"%.2f\"></tspan>", fontsize * SVG_fontscale, ENHsvg_base);
+		fprintf(GPT.P_GpOutFile, "<tspan font-size=\"%.1f\" dy=\"%.2f\"></tspan>", fontsize * SVG_fontscale, ENHsvg_base);
 		SVG_fontSizeCur = fontsize;
 		ENHsvg_base = 0;
 	}
 	ENHsvg_preserve_spaces = FALSE;
 	/* Close the text section */
-	fputs("</text>\n\t</g>\n", gpoutfile);
+	fputs("</text>\n\t</g>\n", GPT.P_GpOutFile);
 	return;
 }
 
@@ -1771,7 +1768,7 @@ TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int c)
 		    break;
 		case '\376':
 		    // This is an illegal UTF-8 byte; we use it to escape the reserved '&' 
-		    if(encoding == S_ENC_DEFAULT) {
+		    if(GPT._Encoding == S_ENC_DEFAULT) {
 			    *p_gp->Enht.P_CurText++ = '&';
 			    break;
 		    } /* else fall through */
@@ -1788,7 +1785,7 @@ TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p)
 {
 	switch(p) {
 		case 1: // Close path 
-		    fputs("Z ", gpoutfile);
+		    fputs("Z ", GPT.P_GpOutFile);
 		    SVG_PathClose();
 		    break;
 		case 0:

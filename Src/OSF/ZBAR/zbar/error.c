@@ -74,7 +74,7 @@ int _zbar_error_spew(const void * container, int verbosity)
 {
 	const errinfo_t * err = static_cast<const errinfo_t *>(container);
 	assert(err->magic == ERRINFO_MAGIC);
-	fprintf(stderr, "%s", _zbar_error_string(err, verbosity));
+	slfprintf_stderr("%s", _zbar_error_string(err, verbosity));
 	return (-err->sev);
 }
 
@@ -165,7 +165,7 @@ void cdecl zprintf(int level, const char * pFormat, ...)
 	if(_zbar_verbosity >= level) {
 		va_list argptr;
 		va_start(argptr, pFormat);
-		fprintf(stderr, pFormat, argptr);
+		slfprintf_stderr(pFormat, argptr);
 	}
 }
 

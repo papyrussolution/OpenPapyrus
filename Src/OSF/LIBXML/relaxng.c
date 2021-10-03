@@ -2503,7 +2503,7 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 		case XML_RELAXNG_PARAM:
 		case XML_RELAXNG_VALUE:
 		    // This should not happen and generate an internal error 
-		    fprintf(stderr, "RNG internal error trying to compile %s\n", xmlRelaxNGDefName(def));
+		    slfprintf_stderr("RNG internal error trying to compile %s\n", xmlRelaxNGDefName(def));
 		    break;
 	}
 	return ret;
@@ -6404,25 +6404,25 @@ static void xmlRelaxNGValidateCompiledCallback(xmlRegExecCtxtPtr exec ATTRIBUTE_
 	xmlGenericError(0, "Compiled callback for: '%s'\n", token);
 #endif
 	if(!ctxt) {
-		fprintf(stderr, "callback on %s missing context\n", token);
+		slfprintf_stderr("callback on %s missing context\n", token);
 		return;
 	}
 	if(define == NULL) {
 		if(token[0] == '#')
 			return;
-		fprintf(stderr, "callback on %s missing define\n", token);
+		slfprintf_stderr("callback on %s missing define\n", token);
 		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		return;
 	}
 	if(!ctxt || (define == NULL)) {
-		fprintf(stderr, "callback on %s missing info\n", token);
+		slfprintf_stderr("callback on %s missing info\n", token);
 		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		return;
 	}
 	else if(define->type != XML_RELAXNG_ELEMENT) {
-		fprintf(stderr, "callback on %s define is not element\n", token);
+		slfprintf_stderr("callback on %s define is not element\n", token);
 		if(ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		return;
@@ -6592,7 +6592,7 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
 	xmlGenericError(0, "Progressive callback for: '%s'\n", token);
 #endif
 	if(!ctxt) {
-		fprintf(stderr, "callback on %s missing context\n", token);
+		slfprintf_stderr("callback on %s missing context\n", token);
 		return;
 	}
 	p_node = ctxt->pnode;
@@ -6600,21 +6600,21 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
 	if(!p_define) {
 		if(token[0] == '#')
 			return;
-		fprintf(stderr, "callback on %s missing define\n", token);
+		slfprintf_stderr("callback on %s missing define\n", token);
 		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		ctxt->pstate = -1;
 		return;
 	}
 	if(!ctxt || !p_define) {
-		fprintf(stderr, "callback on %s missing info\n", token);
+		slfprintf_stderr("callback on %s missing info\n", token);
 		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		ctxt->pstate = -1;
 		return;
 	}
 	else if(p_define->type != XML_RELAXNG_ELEMENT) {
-		fprintf(stderr, "callback on %s define is not element\n", token);
+		slfprintf_stderr("callback on %s define is not element\n", token);
 		if(ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		ctxt->pstate = -1;

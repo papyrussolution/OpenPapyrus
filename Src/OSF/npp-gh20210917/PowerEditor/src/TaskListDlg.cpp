@@ -190,34 +190,26 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	int nItem = lpDrawItemStruct->itemID;
 	const TCHAR * label = _taskListInfo._tlfsLst[nItem]._fn.c_str();
 	int iImage = _taskListInfo._tlfsLst[nItem]._status;
-
 	const int aSpaceWidth = ListView_GetStringWidth(_taskList.getHSelf(), TEXT(" "));
-
-	COLORREF textColor = NppDarkMode::isEnabled() ? NppDarkMode::getDarkerTextColor() : darkGrey;
+	COLORREF textColor = NppDarkMode::isEnabled() ? NppDarkMode::getDarkerTextColor() : GetColorRef(SClrDarkgrey_npp); //darkGrey;
 	int imgStyle = ILD_SELECTED;
-
 	if(lpDrawItemStruct->itemState & ODS_SELECTED) {
 		imgStyle = ILD_TRANSPARENT;
-		textColor = NppDarkMode::isEnabled() ? NppDarkMode::getTextColor() : black;
+		textColor = NppDarkMode::isEnabled() ? NppDarkMode::getTextColor() : GetColorRef(SClrBlack);
 		::SelectObject(hDC, _taskList.GetFontSelected());
 	}
-
 	//
 	// DRAW IMAGE
 	//
 	HIMAGELIST hImgLst = _taskList.getImgLst();
-
 	IMAGEINFO info;
 	::ImageList_GetImageInfo(hImgLst, iImage, &info);
-
 	RECT & imageRect = info.rcImage;
 	// center icon position, prefer bottom orientation
 	imageRect.top = ((rect.bottom - rect.top) - (imageRect.bottom - imageRect.top) + 1) / 2;
-
 	rect.left += aSpaceWidth;
 	::ImageList_Draw(hImgLst, iImage, hDC, rect.left, rect.top + imageRect.top, imgStyle);
 	rect.left += imageRect.right - imageRect.left + aSpaceWidth * 2;
-
 	//
 	// DRAW TEXT
 	//

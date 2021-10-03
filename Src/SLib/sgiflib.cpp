@@ -2723,7 +2723,7 @@ int GifQuantizeBuffer(uint Width, uint Height, int * pColorMapSize, GifByteType 
 			MaxRGBError[2] = ABS(OutputColorMap[Index].B - BlueInput[i]);
 	}
 #ifdef DEBUG
-	fprintf(stderr, "Quantization L(0) errors: Red = %d, Green = %d, Blue = %d.\n", MaxRGBError[0], MaxRGBError[1], MaxRGBError[2]);
+	slfprintf_stderr("Quantization L(0) errors: Red = %d, Green = %d, Blue = %d.\n", MaxRGBError[0], MaxRGBError[1], MaxRGBError[2]);
 #endif /* DEBUG */
 	SAlloc::F((char *)ColorArrayEntries);
 	*pColorMapSize = NewColorMapSize;

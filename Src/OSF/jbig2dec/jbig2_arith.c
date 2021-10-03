@@ -95,7 +95,7 @@ static int jbig2_arith_bytein(Jbig2Ctx * ctx, Jbig2ArithState * as)
 			B1 = (byte)((as->next_word >> 24) & 0xFF);
 			if(B1 > 0x8F) {
 #ifdef JBIG2_DEBUG_ARITH
-				fprintf(stderr, "read %02x (aa)\n", B);
+				slfprintf_stderr("read %02x (aa)\n", B);
 #endif
 				as->CT = 8;
 				as->next_word = 0xFF000000 | (as->next_word >> 8);
@@ -104,7 +104,7 @@ static int jbig2_arith_bytein(Jbig2Ctx * ctx, Jbig2ArithState * as)
 			}
 			else {
 #ifdef JBIG2_DEBUG_ARITH
-				fprintf(stderr, "read %02x (a)\n", B);
+				slfprintf_stderr("read %02x (a)\n", B);
 #endif
 				as->C += 0xFE00 - (B1 << 9);
 				as->CT = 7;
@@ -114,7 +114,7 @@ static int jbig2_arith_bytein(Jbig2Ctx * ctx, Jbig2ArithState * as)
 			B1 = (byte)((as->next_word >> 16) & 0xFF);
 			if(B1 > 0x8F) {
 #ifdef JBIG2_DEBUG_ARITH
-				fprintf(stderr, "read %02x (ba)\n", B);
+				slfprintf_stderr("read %02x (ba)\n", B);
 #endif
 				as->CT = 8;
 			}
@@ -122,7 +122,7 @@ static int jbig2_arith_bytein(Jbig2Ctx * ctx, Jbig2ArithState * as)
 				as->next_word_bytes--;
 				as->next_word <<= 8;
 #ifdef JBIG2_DEBUG_ARITH
-				fprintf(stderr, "read %02x (b)\n", B);
+				slfprintf_stderr("read %02x (b)\n", B);
 #endif
 
 				as->C += 0xFE00 - (B1 << 9);
@@ -132,7 +132,7 @@ static int jbig2_arith_bytein(Jbig2Ctx * ctx, Jbig2ArithState * as)
 	}
 	else {
 #ifdef JBIG2_DEBUG_ARITH
-		fprintf(stderr, "read %02x\n", B);
+		slfprintf_stderr("read %02x\n", B);
 #endif
 		as->next_word <<= 8;
 		as->next_word_bytes--;
@@ -341,7 +341,7 @@ static const byte test_stream[] = {
 #if defined(JBIG2_DEBUG) || defined(JBIG2_DEBUG_ARITH)
 static void jbig2_arith_trace(Jbig2ArithState * as, Jbig2ArithCx cx)
 {
-	fprintf(stderr, "I = %2d, MPS = %d, A = %04x, CT = %2d, C = %08x\n", cx & 0x7f, cx >> 7, as->A, as->CT, as->C);
+	slfprintf_stderr("I = %2d, MPS = %d, A = %04x, CT = %2d, C = %08x\n", cx & 0x7f, cx >> 7, as->A, as->CT, as->C);
 }
 #endif
 
@@ -397,7 +397,7 @@ int main(int argc, char ** argv)
 		    jbig2_arith_decode(ctx, as, &cx);
 
 #ifdef JBIG2_DEBUG_ARITH
-		fprintf(stderr, "%3d: D = %d, ", i, D);
+		slfprintf_stderr("%3d: D = %d, ", i, D);
 		jbig2_arith_trace(as, cx);
 #endif
 	}

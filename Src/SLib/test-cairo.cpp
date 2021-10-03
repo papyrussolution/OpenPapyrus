@@ -118,7 +118,7 @@ static void _cairo_test_init(cairo_test_context_t * ctx, const cairo_test_contex
 	_xunlink(NULL, log_name);
 	ctx->log_file = fopen(log_name, "a");
 	if(ctx->log_file == NULL) {
-		fprintf(stderr, "Error opening log file: %s\n", log_name);
+		slfprintf_stderr("Error opening log file: %s\n", log_name);
 		ctx->log_file = stderr;
 	}
 	free(log_name);
@@ -1352,7 +1352,7 @@ cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ct
 			    fflush(stdout);
 		    }
 		    cairo_test_log(ctx, "CRASHED\n");
-		    fprintf(stderr, "%s.%s.%s [%dx%d]%s:\t%s!!!CRASHED!!!%s\n",
+		    slfprintf_stderr("%s.%s.%s [%dx%d]%s:\t%s!!!CRASHED!!!%s\n",
 		    ctx->test_name, target->name,
 		    cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
 		    fail_face, normal_face);
@@ -1368,7 +1368,7 @@ cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ct
 			    fflush(stdout);
 		    }
 		    cairo_test_log(ctx, "ERROR\n");
-		    fprintf(stderr, "%s.%s.%s [%dx%d]%s:\t%s!!!ERROR!!!%s\n",
+		    slfprintf_stderr("%s.%s.%s [%dx%d]%s:\t%s!!!ERROR!!!%s\n",
 		    ctx->test_name, target->name,
 		    cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
 		    fail_face, normal_face);
@@ -1383,7 +1383,7 @@ cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ct
 			    printf("\r");
 			    fflush(stdout);
 		    }
-		    fprintf(stderr, "%s.%s.%s [%dx%d]%s:\t%sXFAIL%s\n",
+		    slfprintf_stderr("%s.%s.%s [%dx%d]%s:\t%sXFAIL%s\n",
 		    ctx->test_name, target->name,
 		    cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
 		    xfail_face, normal_face);
@@ -1399,10 +1399,9 @@ cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ct
 			    printf("\r");
 			    fflush(stdout);
 		    }
-		    fprintf(stderr, "%s.%s.%s [%dx%d]%s:\t%sNEW%s\n",
-		    ctx->test_name, target->name,
-		    cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
-		    fail_face, normal_face);
+		    slfprintf_stderr("%s.%s.%s [%dx%d]%s:\t%sNEW%s\n", ctx->test_name, target->name,
+				cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
+				fail_face, normal_face);
 		    cairo_test_log(ctx, "NEW\n");
 		    break;
 
@@ -1416,10 +1415,9 @@ cairo_test_status_t _cairo_test_context_run_for_target(cairo_test_context_t * ct
 			    printf("\r");
 			    fflush(stdout);
 		    }
-		    fprintf(stderr, "%s.%s.%s [%dx%d]%s:\t%sFAIL%s\n",
-		    ctx->test_name, target->name,
-		    cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
-		    fail_face, normal_face);
+		    slfprintf_stderr("%s.%s.%s [%dx%d]%s:\t%sFAIL%s\n", ctx->test_name, target->name,
+				cairo_boilerplate_content_name(target->content), dev_offset, dev_scale, similar ? " (similar)" : "",
+				fail_face, normal_face);
 		    cairo_test_log(ctx, "FAIL\n");
 		    break;
 	}

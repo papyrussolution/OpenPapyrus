@@ -546,7 +546,7 @@ static void * la_GetFunctionKernel32(const char * name)
 		lib = LoadLibrary(TEXT("kernel32.dll"));
 	}
 	if(lib == NULL) {
-		fprintf(stderr, "Can't load kernel32.dll?!\n");
+		slfprintf_stderr("Can't load kernel32.dll?!\n");
 		exit(1);
 	}
 	return (void*)GetProcAddress(lib, name);

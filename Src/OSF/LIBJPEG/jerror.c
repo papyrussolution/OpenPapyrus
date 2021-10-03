@@ -93,7 +93,7 @@ METHODDEF(void) output_message(j_common_ptr cinfo)
 	MessageBox(GetActiveWindow(), buffer, "JPEG Library Error", MB_OK | MB_ICONERROR);
 #else
 	/* Send it to stderr, adding a newline */
-	fprintf(stderr, "%s\n", buffer);
+	slfprintf_stderr("%s\n", buffer);
 #endif
 }
 

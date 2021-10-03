@@ -254,7 +254,7 @@ void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double 
 			return;
 		// If the head size is fixed we are free to change the length of 
 		// very short vectors so that the orientation is accurate.	 
-		if(curr_arrow_headfixedsize) {
+		if(GPT.CArw.HeadFixedSize) {
 			// Direction vector in (dex,dey). I need to convert this to integers
 			// with a scale that's large-enough to give me good angular resolution,
 			// but small-enough to not overflow the data type.
@@ -708,9 +708,9 @@ void default_arrow_style(struct arrow_style_type * arrow)
 //void apply_head_properties(const arrow_style_type * pArrowProperties)
 void GnuPlot::ApplyHeadProperties(GpTermEntry * pTerm, const arrow_style_type * pArrowProperties)
 {
-	curr_arrow_headfilled = pArrowProperties->headfill;
-	curr_arrow_headfixedsize = pArrowProperties->head_fixedsize;
-	curr_arrow_headlength = 0;
+	GPT.CArw.HeadFilled = pArrowProperties->headfill;
+	GPT.CArw.HeadFixedSize = pArrowProperties->head_fixedsize;
+	GPT.CArw.HeadLength = 0;
 	if(pArrowProperties->head_length > 0) {
 		// set head length+angle for term->arrow 
 		double xtmp, ytmp;
@@ -718,9 +718,9 @@ void GnuPlot::ApplyHeadProperties(GpTermEntry * pTerm, const arrow_style_type * 
 		headsize.x = pArrowProperties->head_length;
 		headsize.scalex = (position_type)pArrowProperties->head_lengthunit;
 		MapPositionR(pTerm, &headsize, &xtmp, &ytmp, "arrow");
-		curr_arrow_headangle = pArrowProperties->head_angle;
-		curr_arrow_headbackangle = pArrowProperties->head_backangle;
-		curr_arrow_headlength = static_cast<int>(xtmp);
+		GPT.CArw.HeadAngle = pArrowProperties->head_angle;
+		GPT.CArw.HeadBackAngle = pArrowProperties->head_backangle;
+		GPT.CArw.HeadLength = static_cast<int>(xtmp);
 	}
 }
 

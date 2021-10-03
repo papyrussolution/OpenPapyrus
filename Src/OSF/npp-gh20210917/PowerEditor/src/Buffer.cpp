@@ -48,19 +48,15 @@ Buffer::Buffer(FileManager * pManager, BufferID id, Document doc, DocFileStatus 
 {
 	NppParameters& nppParamInst = NppParameters::getInstance();
 	const NewDocDefaultSettings& ndds = (nppParamInst.getNppGUI()).getNewDocDefaultSettings();
-
 	_eolFormat = ndds._format;
 	_unicodeMode = ndds._unicodeMode;
 	_encoding = ndds._codepage;
 	if(_encoding != -1)
 		_unicodeMode = uniCookie;
-
 	_currentStatus = type;
-
 	setFileName(fileName, ndds._lang);
 	updateTimeStamp();
 	checkFileState();
-
 	// reset after initialization
 	_isDirty   = false;
 	_canNotify = true;
@@ -97,11 +93,9 @@ void Buffer::setLangType(LangType lang, const TCHAR* userLangName)
 {
 	if(lang == _lang && lang != L_USER)
 		return;
-
 	_lang = lang;
 	if(_lang == L_USER)
 		_userLangExt = userLangName;
-
 	_needLexer = true;      //change of lang means lexern needs updating
 	doNotify(BufferChangeLanguage|BufferChangeLexing);
 }
@@ -113,7 +107,6 @@ void Buffer::updateTimeStamp()
 	if(GetFileAttributesEx(_fullPathName.c_str(), GetFileExInfoStandard, &attributes) != 0) {
 		timeStamp = attributes.ftLastWriteTime;
 	}
-
 	if(CompareFileTime(&_timeStamp, &timeStamp) != 0) {
 		_timeStamp = timeStamp;
 		doNotify(BufferChangeTimestamp);
@@ -131,16 +124,13 @@ void Buffer::setFileName(const TCHAR * fn, LangType defaultLang)
 		doNotify(BufferChangeTimestamp);
 		return;
 	}
-
 	_fullPathName = fn;
 	_fileName = PathFindFileName(_fullPathName.c_str());
-
 	// for _lang
 	LangType newLang = defaultLang;
 	TCHAR * ext = PathFindExtension(_fullPathName.c_str());
 	if(*ext == '.') { // extension found
 		ext += 1;
-
 		// Define User Lang firstly
 		const TCHAR* langName = nppParamInst.getUserDefinedLangNameFromExt(ext, _fileName);
 		if(langName) {
@@ -152,31 +142,23 @@ void Buffer::setFileName(const TCHAR * fn, LangType defaultLang)
 			newLang = nppParamInst.getLangFromExt(ext);
 		}
 	}
-
 	if(newLang == defaultLang || newLang == L_TEXT) {       //language can probably be refined
-		if((OrdinalIgnoreCaseCompareStrings(_fileName,
-		    TEXT("makefile")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("GNUmakefile")) == 0))
+		if((OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("makefile")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("GNUmakefile")) == 0))
 			newLang = L_MAKEFILE;
 		else if(OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("CmakeLists.txt")) == 0)
 			newLang = L_CMAKE;
-		else if((OrdinalIgnoreCaseCompareStrings(_fileName,
-		    TEXT("SConstruct")) == 0) ||
-		    (OrdinalIgnoreCaseCompareStrings(_fileName,
-		    TEXT("SConscript")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("wscript")) == 0))
+		else if((OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("SConstruct")) == 0) || 
+			(OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("SConscript")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("wscript")) == 0))
 			newLang = L_PYTHON;
-		else if((OrdinalIgnoreCaseCompareStrings(_fileName,
-		    TEXT("Rakefile")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("Vagrantfile")) == 0))
+		else if((OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("Rakefile")) == 0) || (OrdinalIgnoreCaseCompareStrings(_fileName, TEXT("Vagrantfile")) == 0))
 			newLang = L_RUBY;
 	}
-
 	updateTimeStamp();
-
 	if(!_hasLangBeenSetFromMenu && (newLang != _lang || _lang == L_USER)) {
 		_lang = newLang;
 		doNotify(BufferChangeFilename | BufferChangeLanguage | BufferChangeTimestamp);
 		return;
 	}
-
 	doNotify(BufferChangeFilename | BufferChangeTimestamp);
 }
 
@@ -207,14 +189,11 @@ bool Buffer::checkFileState() // returns true if the status has been changed (it
 		doNotify(BufferChangeStatus | BufferChangeReadonly | BufferChangeTimestamp);
 		isOK = true;
 	}
-	else if(_currentStatus == DOC_DELETED && PathFileExists(_fullPathName.c_str())) { //document has returned from
-		                                                                          // its grave
+	else if(_currentStatus == DOC_DELETED && PathFileExists(_fullPathName.c_str())) { //document has returned from its grave
 		if(GetFileAttributesEx(_fullPathName.c_str(), GetFileExInfoStandard, &attributes) != 0) {
 			_isFileReadOnly = attributes.dwFileAttributes & FILE_ATTRIBUTE_READONLY;
-
 			_currentStatus = DOC_MODIFIED;
 			_timeStamp = attributes.ftLastWriteTime;
-
 			if(_reloadFromDiskRequestGuard.try_lock()) {
 				doNotify(BufferChangeStatus | BufferChangeReadonly | BufferChangeTimestamp);
 				_reloadFromDiskRequestGuard.unlock();
@@ -235,17 +214,13 @@ bool Buffer::checkFileState() // returns true if the status has been changed (it
 			_currentStatus = DOC_MODIFIED;
 			mask |= BufferChangeStatus;     //status always 'changes', even if from modified to modified
 		}
-
 		if(mask != 0) {
 			if(_reloadFromDiskRequestGuard.try_lock()) {
 				doNotify(mask);
-
 				_reloadFromDiskRequestGuard.unlock();
-
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -267,15 +242,14 @@ void Buffer::reload()
 
 int64_t Buffer::getFileLength() const
 {
-	if(_currentStatus == DOC_UNNAMED)
-		return -1;
-
-	WIN32_FILE_ATTRIBUTE_DATA attributes;
-	if(GetFileAttributesEx(_fullPathName.c_str(), GetFileExInfoStandard, &attributes) != 0) {
-		LARGE_INTEGER size;
-		size.LowPart = attributes.nFileSizeLow;
-		size.HighPart = attributes.nFileSizeHigh;
-		return size.QuadPart;
+	if(_currentStatus != DOC_UNNAMED) {
+		WIN32_FILE_ATTRIBUTE_DATA attributes;
+		if(GetFileAttributesEx(_fullPathName.c_str(), GetFileExInfoStandard, &attributes) != 0) {
+			LARGE_INTEGER size;
+			size.LowPart = attributes.nFileSizeLow;
+			size.HighPart = attributes.nFileSizeHigh;
+			return size.QuadPart;
+		}
 	}
 	return -1;
 }
@@ -313,9 +287,8 @@ generic_string Buffer::getFileTime(fileTimeType ftt) const
 void Buffer::setPosition(const Position & pos, ScintillaEditView * identifier)
 {
 	int index = indexOfReference(identifier);
-	if(index == -1)
-		return;
-	_positions[index] = pos;
+	if(index >= 0)
+		_positions[index] = pos;
 }
 
 Position& Buffer::getPosition(ScintillaEditView* identifier)
@@ -327,15 +300,14 @@ Position& Buffer::getPosition(ScintillaEditView* identifier)
 void Buffer::setHeaderLineState(const std::vector<size_t> & folds, ScintillaEditView * identifier)
 {
 	int index = indexOfReference(identifier);
-	if(index == -1)
-		return;
-
-	//deep copy
-	std::vector<size_t> & local = _foldStates[index];
-	local.clear();
-	size_t size = folds.size();
-	for(size_t i = 0; i < size; ++i)
-		local.push_back(folds[i]);
+	if(index >= 0) {
+		//deep copy
+		std::vector<size_t> & local = _foldStates[index];
+		local.clear();
+		size_t size = folds.size();
+		for(size_t i = 0; i < size; ++i)
+			local.push_back(folds[i]);
+	}
 }
 
 const std::vector<size_t> & Buffer::getHeaderLineState(const ScintillaEditView * identifier) const
@@ -353,7 +325,6 @@ Lang * Buffer::getCurrentLang() const
 	while(l) {
 		if(l->_langID == _lang)
 			return l;
-
 		l = nppParam.getLangFromIndex(i);
 		++i;
 	}
@@ -387,7 +358,6 @@ int Buffer::removeReference(ScintillaEditView * identifier)
 	int indexToPop = indexOfReference(identifier);
 	if(indexToPop == -1)
 		return _references;
-
 	_referees.erase(_referees.begin() + indexToPop);
 	_positions.erase(_positions.begin() + indexToPop);
 	_foldStates.erase(_foldStates.begin() + indexToPop);
@@ -400,7 +370,6 @@ void Buffer::setHideLineChanged(bool isHide, int location)
 	//First run through all docs without removing markers
 	for(int i = 0; i < _references; ++i)
 		_referees.at(i)->notifyMarkers(this, isHide, location, false); // (i == _references-1));
-
 	if(!isHide) { // no deleting if hiding lines
 		//Then all docs to remove markers.
 		for(int i = 0; i < _references; ++i)

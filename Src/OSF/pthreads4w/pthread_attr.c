@@ -36,20 +36,14 @@
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
- *   Initializes a thread attributes object with default
- *   attributes.
- *
+ *   Initializes a thread attributes object with default attributes.
  * PARAMETERS
  *   attr
  *           pointer to an instance of pthread_attr_t
- *
- *
  * DESCRIPTION
  *   Initializes a thread attributes object with default attributes.
- *
  *   NOTES:
  *           1)      Used to define thread attributes
- *
  * RESULTS
  *           0               successfully initialized attr,
  *           ENOMEM          insufficient memory for attr.
@@ -339,19 +333,20 @@ int pthread_attr_getschedpolicy(const pthread_attr_t * attr, int * policy)
 	if(__ptw32_is_attr(attr) != 0 || policy == NULL) {
 		return EINVAL;
 	}
-	*policy = SCHED_OTHER;
-	return 0;
+	else {
+		*policy = SCHED_OTHER;
+		return 0;
+	}
 }
 
 int pthread_attr_setschedpolicy(pthread_attr_t * attr, int policy)
 {
-	if(__ptw32_is_attr(attr) != 0) {
+	if(__ptw32_is_attr(attr) != 0)
 		return EINVAL;
-	}
-	if(policy != SCHED_OTHER) {
+	else if(policy != SCHED_OTHER)
 		return ENOTSUP;
-	}
-	return 0;
+	else
+		return 0;
 }
 
 int pthread_attr_getscope(const pthread_attr_t * attr, int * contentionscope)

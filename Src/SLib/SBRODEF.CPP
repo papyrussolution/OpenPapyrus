@@ -330,7 +330,7 @@ SString & BrowserDef::getFullText(const void * pRowData, int column, SString & r
 			}
 			if(r) {
 				char   dest_text[1024];
-				dest_text[0] = 0;
+				PTR32(dest_text)[0] = 0;
 				long   fmt = r_c.format;
 				SETSFMTLEN(fmt, 0);
 				sttostr(r_c.T, p_bin_data, fmt, dest_text);

@@ -437,14 +437,14 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 			ColorComponentsFromGray(gray, colors + j);
 			// test for extremum 
 			if(is_extremum(colors[j - 2], colors[j-1], colors[j])) {
-				/* fprintf(stderr,"Extremum at %g\n", gray); */
+				/* fprintf(stderr, "Extremum at %g\n", gray); */
 				/* ++extrema; */
 				break;
 			}
 			// to big deviation 
 			max_dev = get_max_dev(colors, j, allowedDeviation);
 			if(max_dev > allowedDeviation) {
-				// fprintf(stderr,"Control Point at %.3g\n",gray); 
+				// fprintf(stderr, "Control Point at %.3g\n",gray); 
 				break;
 			}
 		}
@@ -463,7 +463,7 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 	gradient[cnt].col = color;
 	++cnt;
 	/***********
-	   fprintf(stderr,
+	   fprintf(stderr, 
 	         "PS interpolation table: %d samples, allowed deviation %.2f%%:\n",
 	         samples, 100*allowed_deviation);
 

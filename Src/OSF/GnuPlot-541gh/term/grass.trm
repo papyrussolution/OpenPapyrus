@@ -301,12 +301,10 @@ TERM_PUBLIC void GRASS_put_text(uint x, uint y, const char * str)
 	extern int R_text();
 	extern int R_flush();
 	extern int R_stabilize();
-
-	if(strlen(str) == 0)
+	if(isempty(str))
 		return;
-
 	GRASS_move(x, y);
-	/* R_standard_color (D_translate_color ("white")); */
+	// R_standard_color (D_translate_color ("white")); 
 	R_text(str);
 	R_flush();
 	R_stabilize();

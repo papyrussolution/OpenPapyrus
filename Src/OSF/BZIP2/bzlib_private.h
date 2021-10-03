@@ -37,19 +37,19 @@ extern void BZ2_bz__AssertH__fail(int errcode);
 #if BZ_DEBUG
 #define AssertD(cond, msg) \
 	{ if(!(cond)) {	      \
-		  fprintf(stderr, "\n\nlibbzip2(debug build): internal error\n\t%s\n", msg); \
+		  slfprintf_stderr("\n\nlibbzip2(debug build): internal error\n\t%s\n", msg); \
 		  exit(1); \
 	  }}
 #else
 #define AssertD(cond, msg) /* */
 #endif
 
-#define VPrintf0(zf) fprintf(stderr, zf)
-#define VPrintf1(zf, za1) fprintf(stderr, zf, za1)
-#define VPrintf2(zf, za1, za2) fprintf(stderr, zf, za1, za2)
-#define VPrintf3(zf, za1, za2, za3) fprintf(stderr, zf, za1, za2, za3)
-#define VPrintf4(zf, za1, za2, za3, za4) fprintf(stderr, zf, za1, za2, za3, za4)
-#define VPrintf5(zf, za1, za2, za3, za4, za5) fprintf(stderr, zf, za1, za2, za3, za4, za5)
+#define VPrintf0(zf) slfprintf_stderr(zf)
+#define VPrintf1(zf, za1) slfprintf_stderr(zf, za1)
+#define VPrintf2(zf, za1, za2) slfprintf_stderr(zf, za1, za2)
+#define VPrintf3(zf, za1, za2, za3) slfprintf_stderr(zf, za1, za2, za3)
+#define VPrintf4(zf, za1, za2, za3, za4) slfprintf_stderr(zf, za1, za2, za3, za4)
+#define VPrintf5(zf, za1, za2, za3, za4, za5) slfprintf_stderr(zf, za1, za2, za3, za4, za5)
 
 #else
 

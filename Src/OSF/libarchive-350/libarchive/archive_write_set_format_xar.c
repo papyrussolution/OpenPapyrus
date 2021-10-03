@@ -1625,7 +1625,7 @@ static int make_toc(struct archive_write * a)
 		goto exit_toc;
 	}
 #if DEBUG_PRINT_TOC
-	fprintf(stderr, "\n---TOC-- %d bytes --\n%s\n",
+	slfprintf_stderr("\n---TOC-- %d bytes --\n%s\n",
 	    strlen((const char *)bp->content), bp->content);
 #endif
 

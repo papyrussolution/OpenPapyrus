@@ -65,7 +65,7 @@
 
 /* ================================== */
 /* wprinter.c - windows printer routines */
-void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName);
+void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPCTSTR szFileName);
 
 struct GP_PRINT {
 	GP_PRINT() : hdcPrn(0), hDlgPrint(0), bUserAbort(FALSE), szTitle(0), bDriverChanged(FALSE), services(0), next(0)
@@ -455,9 +455,9 @@ struct GW {
 	int    angle;              /* text angle */
 	BOOL   rotate;            /* can text be rotated? */
 	int    justify;            /* text justification */
-	int    encoding_error;     /* last unknown encoding */
-	enum   set_encoding_id encoding;  /* text encoding */
-	LONG   tmHeight;          /* text metric of current font */
+	int    encoding_error; // last unknown encoding 
+	enum   set_encoding_id encoding; // text encoding 
+	LONG   tmHeight; // text metric of current font 
 	LONG   tmAscent;
 	LONG   tmDescent;
 	HCURSOR hptrDefault;

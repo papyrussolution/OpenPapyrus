@@ -1,0 +1,634 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppDarkMode.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\AutoCompletion.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Buffer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\columnEditor.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DocTabView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\EncodingMapper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FindReplaceDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FunctionCallTip.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\GoToLineDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\lastRecentFileList.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\lesDlgs.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\localization.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus_Window.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppBigSwitch.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppCommands.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppIO.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\NppNotification.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Parameters.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Printer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ScintillaEditView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\SmartHighlighter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinystr.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinystrA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxml.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlerrorA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlparserA.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\UserDefineDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8_16.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\winmain.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\xmlMatchedTagsHighlighter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-pch.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\AboutDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ansiCharPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\asciiListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\BabyGrid.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\clipboardHistoryPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ColourPicker.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ColourPopup.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ContextMenu.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\CustomFileDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingCont.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingManager.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DockingSplitter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\documentMap.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\documentSnapshot.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\fileBrowser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\FindCharsInRange.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\functionListPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\functionParser.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Gripper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ImageListSet.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\pluginsAdmin.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\preferenceDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ProjectPanel.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\RunDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\RunMacroDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\shortcut.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ShortcutMapper.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Splitter.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\SplitterContainer.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\StaticDialog.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\StatusBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TabBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TaskList.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TaskListDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\ToolBar.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\trayIconControler.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\TreeView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\URLCtrl.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\VerticalFileSwitcher.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\VerticalFileSwitcherListView.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WindowsDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WinMgr.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\WordStyleDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Common.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\IDAllocator.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\md5Dlgs.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginsManager.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\regExtDlg.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\sha-256.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\verifySignedfile.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsBig5Prober.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCharSetProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscCharsetProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscSM.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCJPProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCKRProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCTWProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsGB2312Prober.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsHebrewProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsLatin1Prober.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSGroupProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSSM.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCharSetProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCSGroupProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSJISProber.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUniversalDetector.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUTF8Prober.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\JpCntx.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\CharDistribution.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangBulgarianModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangCyrillicModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangGreekModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangHebrewModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangHungarianModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\LangThaiModel.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\uchardet.cpp">
+      <Filter>uchardet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\DarkMode.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Sorters.cpp" />
+    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-etc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\CharDistribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\JpCntx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsBig5Prober.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCharSetProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsCodingStateMachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nscore.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEscCharsetProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCJPProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCKRProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsEUCTWProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsGB2312Prober.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsHebrewProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsLatin1Prober.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsMBCSGroupProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsPkgInt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCharSetProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSBCSGroupProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsSJISProber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUniversalDetector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsUTF8Prober.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\prmem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\rgba_icons.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinystr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinystrA.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyxml.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\TinyXml\tinyXmlA\tinyxmlA.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\uchardet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Utf8_16.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Docking.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Crc16.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\Notepad_plus_msgs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginInterface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-resource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\allChars_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\allChars_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeAll.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closefile.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_hover.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_inact.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\closeTabButton_push.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\copy.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\cut_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\delete.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\dupli_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\find_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\imprim_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\imprim_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\indentGuide_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\invisibleChar.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findResult.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findReplace.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findrep_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\findrep_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\new_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\new_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\newFile.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\npp.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\paste_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playRecord.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playRecord_m.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_m_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\playrecord_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\openFile.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\open_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\open_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\save_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveAll.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveall_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saved.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveFile.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saveRecord.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\saverecord_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\readonly.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\redo_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\print.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\showPannel.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startRecord.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\startrecord_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stopRecord.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\stoprecord_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\supp_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\supp_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\suppall_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\suppall_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncH_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\syncV_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomIn_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\zoomOut_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\wrap.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\userDefineDlg_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\userDefineDlg_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\unsaved.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_on.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_off.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo_dis.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\icons\undo.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\CloseDown.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\OSF\npp-gh20210917\PowerEditor\src\CloseUp.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag.cur">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag_interdit.cur">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\OSF\npp-gh20210917\PowerEditor\src\cursors\drag_plus.cur">
+      <Filter>Resource</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{40f4b4c7-5859-48a3-a0fc-171e1f6d6eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{f92f1a42-f91b-403d-b0db-8afc741aa29b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uchardet">
+      <UniqueIdentifier>{f6c80a79-8055-4f64-8e19-9c4e4e426d95}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\OSF\npp-gh20210917\PowerEditor\src\notepad++.exe.manifest">
+      <Filter>Resource</Filter>
+    </Manifest>
+  </ItemGroup>
+</Project>

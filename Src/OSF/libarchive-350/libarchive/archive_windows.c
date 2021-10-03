@@ -843,7 +843,7 @@ void __la_dosmaperr(unsigned long e)
 		}
 	}
 
-	/* fprintf(stderr, "unrecognized win32 error code: %lu", e); */
+	/* slfprintf_stderr("unrecognized win32 error code: %lu", e); */
 	errno = EINVAL;
 	return;
 }

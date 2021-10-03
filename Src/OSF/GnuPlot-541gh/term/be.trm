@@ -132,22 +132,21 @@ TERM_PUBLIC void BE_options(GpTermEntry * pThis, GnuPlot * pGp)
 		switch(pGp->Pgm.LookupTableForCurrentToken(&BE_opts[0])) {
 			case BE_RESET:
 			    pGp->Pgm.Shift();
-			    BE_atexit(); /* tell gnuplot_be to shut down */
+			    BE_atexit(); // tell gnuplot_be to shut down 
 			    break;
 			case BE_OTHER:
 			default:
 			    BE_plot_number = (int)pGp->Real(pGp->ConstExpress(&a));
-			    /* let gnuplot_be check range */
+			    // let gnuplot_be check range 
 			    break;
 		}
 	}
-	sprintf(term_options, "%d", BE_plot_number);
+	sprintf(GPT.TermOptions, "%d", BE_plot_number);
 }
-
-/* BE_args - scan gnuplot command line for standard Toolkit options (to be
- * done) called from plot.c so must not be TERM_PUBLIC (which may be static)
- */
-
+//
+// BE_args - scan gnuplot command line for standard Toolkit options (to be
+// done) called from plot.c so must not be TERM_PUBLIC (which may be static)
+//
 int BE_args(int argc, char * argv[])
 {
 	int nbe = 0, i = 0, n;

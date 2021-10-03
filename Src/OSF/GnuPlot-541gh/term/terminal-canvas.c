@@ -205,7 +205,7 @@ static struct gen_table CANVAS_opts[] = {
 static void CANVAS_start(void)
 {
 	if(!canvas_in_a_path) {
-		fprintf(gpoutfile, "ctx.beginPath();\n");
+		fprintf(GPT.P_GpOutFile, "ctx.beginPath();\n");
 		canvas_in_a_path = TRUE;
 		already_closed = FALSE;
 	}
@@ -214,9 +214,9 @@ static void CANVAS_start(void)
 static void CANVAS_finish(void)
 {
 	if(canvas_in_a_path) {
-		fprintf(gpoutfile, "ctx.stroke();\n");
+		fprintf(GPT.P_GpOutFile, "ctx.stroke();\n");
 		if(!already_closed)
-			fprintf(gpoutfile, "ctx.closePath();\n");
+			fprintf(GPT.P_GpOutFile, "ctx.closePath();\n");
 		canvas_in_a_path = FALSE;
 		already_closed = TRUE;
 	}
@@ -344,24 +344,24 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
 	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	if(canvas_dashlength_factor != 1.0)
-		sprintf(term_options + strlen(term_options), " dashlength %3.1f", canvas_dashlength_factor);
-	sprintf(term_options + strlen(term_options), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
-	sprintf(term_options + strlen(term_options), " size %d,%d", (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
-	sprintf(term_options + strlen(term_options), "%s fsize %g lw %g", pThis->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
-	sprintf(term_options + strlen(term_options), " fontscale %g", canvas_fontscale);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " dashlength %3.1f", canvas_dashlength_factor);
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "%s fsize %g lw %g", pThis->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " fontscale %g", canvas_fontscale);
 	if(*CANVAS_background)
-		sprintf(term_options + strlen(term_options), " background \"#%06x\"", canvas_background);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " background \"#%06x\"", canvas_background);
 	if(CANVAS_name)
-		sprintf(term_options + strlen(term_options), " name \"%s\"", CANVAS_name);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " name \"%s\"", CANVAS_name);
 	else {
-		sprintf(term_options + strlen(term_options), " standalone");
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " standalone");
 		if(CANVAS_mouseable)
-			sprintf(term_options + strlen(term_options), " mousing");
+			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " mousing");
 		if(CANVAS_title)
-			sprintf(term_options + strlen(term_options), " title \"%s\"", CANVAS_title);
+			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " title \"%s\"", CANVAS_title);
 	}
 	if(CANVAS_scriptdir)
-		sprintf(term_options + strlen(term_options), " jsdir \"%s\"", CANVAS_scriptdir);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " jsdir \"%s\"", CANVAS_scriptdir);
 }
 
 TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis)
@@ -413,22 +413,22 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	}
 #endif
 	if(CANVAS_standalone) {
-		fprintf(gpoutfile, "<!DOCTYPE HTML>\n<html>\n<head>\n<title>%s</title>\n", CANVAS_title ? CANVAS_title : "Gnuplot Canvas Graph");
-		if(encoding == S_ENC_UTF8 || encoding == S_ENC_DEFAULT)
-			fprintf(gpoutfile, "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n");
-		fprintf(gpoutfile, "<!--[if IE]><script type=\"text/javascript\" src=\"excanvas.js\"></script><![endif]-->\n"
+		fprintf(GPT.P_GpOutFile, "<!DOCTYPE HTML>\n<html>\n<head>\n<title>%s</title>\n", CANVAS_title ? CANVAS_title : "Gnuplot Canvas Graph");
+		if(oneof2(GPT._Encoding, S_ENC_UTF8, S_ENC_DEFAULT))
+			fprintf(GPT.P_GpOutFile, "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n");
+		fprintf(GPT.P_GpOutFile, "<!--[if IE]><script type=\"text/javascript\" src=\"excanvas.js\"></script><![endif]-->\n"
 		    "<script src=\"%s%s.js\"></script>\n"
-		    "<script src=\"%sgnuplot_common.js\"></script>\n", CANVAS_scriptdir, (encoding == S_ENC_UTF8) ? "canvasmath" : "canvastext", CANVAS_scriptdir);
+		    "<script src=\"%sgnuplot_common.js\"></script>\n", CANVAS_scriptdir, (GPT._Encoding == S_ENC_UTF8) ? "canvasmath" : "canvastext", CANVAS_scriptdir);
 		if(canvas_dashed)
-			fprintf(gpoutfile, "<script src=\"%sgnuplot_dashedlines.js\"></script>\n", CANVAS_scriptdir);
+			fprintf(GPT.P_GpOutFile, "<script src=\"%sgnuplot_dashedlines.js\"></script>\n", CANVAS_scriptdir);
 		if(CANVAS_mouseable) {
-			fprintf(gpoutfile, "<script src=\"%sgnuplot_mouse.js\"></script>\n", CANVAS_scriptdir);
-			fprintf(gpoutfile, "<script type=\"text/javascript\"> gnuplot.help_URL = \"%s/canvas_help.html\"; </script>\n", CANVAS_scriptdir);
+			fprintf(GPT.P_GpOutFile, "<script src=\"%sgnuplot_mouse.js\"></script>\n", CANVAS_scriptdir);
+			fprintf(GPT.P_GpOutFile, "<script type=\"text/javascript\"> gnuplot.help_URL = \"%s/canvas_help.html\"; </script>\n", CANVAS_scriptdir);
 		}
 		else {
-			fprintf(gpoutfile, "<script type=\"text/javascript\">gnuplot.init = function() {};</script>\n");
+			fprintf(GPT.P_GpOutFile, "<script type=\"text/javascript\">gnuplot.init = function() {};</script>\n");
 		}
-		fprintf(gpoutfile, "<script type=\"text/javascript\">\n"
+		fprintf(GPT.P_GpOutFile, "<script type=\"text/javascript\">\n"
 		    "var canvas, ctx;\n"
 		    "gnuplot.grid_lines = true;\n"
 		    "gnuplot.zoomed = false;\n"
@@ -438,14 +438,14 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		    "ctx = canvas.getContext(\"2d\");\n");
 	}
 	else {
-		fprintf(gpoutfile, "function %s() {\n"
+		fprintf(GPT.P_GpOutFile, "function %s() {\n"
 		    "canvas = document.getElementById(\"%s\");\n"
 		    "ctx = canvas.getContext(\"2d\");\n",
 		    CANVAS_name, CANVAS_name);
-		fprintf(gpoutfile, "// Suppress refresh on mouseover if this was the plot we just left\n"
+		fprintf(GPT.P_GpOutFile, "// Suppress refresh on mouseover if this was the plot we just left\n"
 		    "if ((gnuplot.active_plot == %s && gnuplot.display_is_uptodate)) return;\n"
 		    "else gnuplot.display_is_uptodate = true;\n", CANVAS_name);
-		fprintf(gpoutfile, "// Reinitialize mouse tracking and zoom for this particular plot\n"
+		fprintf(GPT.P_GpOutFile, "// Reinitialize mouse tracking and zoom for this particular plot\n"
 		    "if ((typeof(gnuplot.active_plot) == \"undefined\" || gnuplot.active_plot != %s) && typeof(gnuplot.mouse_update) != \"undefined\") {\n"
 		    "  gnuplot.active_plot_name = \"%s\";\n"
 		    "  gnuplot.active_plot = %s;\n"
@@ -458,11 +458,11 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		    "  gnuplot.zoomed = false;\n"
 		    "  gnuplot.zoom_axis_width = 0;\n"
 		    "  gnuplot.zoom_in_progress = false;\n", CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
-		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
+		fprintf(GPT.P_GpOutFile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
 		    (pThis->P_Gp->Gg.Polar ? "true" : "false"), (int)pThis->P_Gp->AxS.ThetaOrigin, (int)pThis->P_Gp->AxS.ThetaDirection, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
-	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
-	fprintf(gpoutfile, "// short forms of commands provided by gnuplot_common.js\n"
+	fprintf(GPT.P_GpOutFile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
+	fprintf(GPT.P_GpOutFile, "// short forms of commands provided by gnuplot_common.js\n"
 	    "function DT  (dt)  {gnuplot.dashtype(dt);};\n"
 	    "function DS  (x,y) {gnuplot.dashstart(x,y);};\n"
 	    "function DL  (x,y) {gnuplot.dashstep(x,y);};\n"
@@ -477,21 +477,21 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	    "function cfp () {gnuplot.cfp();};\n"
 	    "function cfsp() {gnuplot.cfsp();};\n"
 	    "\n");
-	fprintf(gpoutfile, "gnuplot.hypertext_list = [];\n"
+	fprintf(GPT.P_GpOutFile, "gnuplot.hypertext_list = [];\n"
 	    "gnuplot.on_hypertext = -1;\n"
 	    "function Hypertext(x,y,w,text) {\n"
 	    "    newtext = {x:x, y:y, w:w, text:text};\n"
 	    "    gnuplot.hypertext_list.push(newtext);\n"
 	    "}\n");
-	fprintf(gpoutfile, "gnuplot.dashlength = %d;\n", (int)(400 * canvas_dashlength_factor));
-	fprintf(gpoutfile, "ctx.lineCap = \"%s\"; ctx.lineJoin = \"%s\";\n",
+	fprintf(GPT.P_GpOutFile, "gnuplot.dashlength = %d;\n", (int)(400 * canvas_dashlength_factor));
+	fprintf(GPT.P_GpOutFile, "ctx.lineCap = \"%s\"; ctx.lineJoin = \"%s\";\n",
 	    canvas_linecap == ROUNDED ? "round" : canvas_linecap == SQUARE ? "square" : "butt",
 	    canvas_linecap == ROUNDED ? "round" : "miter");
 	if(*CANVAS_background) {
-		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\nctx.fillRect(0,0,%d,%d);\n",
+		fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\nctx.fillRect(0,0,%d,%d);\n",
 		    CANVAS_background, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
-	fprintf(gpoutfile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
+	fprintf(GPT.P_GpOutFile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
 }
 
 static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js_name)
@@ -499,12 +499,12 @@ static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char *
 	struct udvt_entry * udv;
 	if((udv = pThis->P_Gp->Ev.AddUdvByName(gp_name)) != 0) {
 		if(udv->udv_value.Type == INTGR) {
-			fprintf(gpoutfile, "%s = ", js_name);
-			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
-			fprintf(gpoutfile, "\n");
+			fprintf(GPT.P_GpOutFile, "%s = ", js_name);
+			fprintf(GPT.P_GpOutFile, PLD, udv->udv_value.v.int_val);
+			fprintf(GPT.P_GpOutFile, "\n");
 		}
 		else if(udv->udv_value.Type == CMPLX) {
-			fprintf(gpoutfile, "%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
+			fprintf(GPT.P_GpOutFile, "%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
 		}
 	}
 }
@@ -518,15 +518,15 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 	// same, so that they are re-used by all plots in a document, or whether  
 	// they should be tied to the function name and hence private.            
 	if(TRUE) {
-		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
-		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(pThis->MaxX / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)p_gp->V.BbPlot.xleft / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)p_gp->V.BbPlot.xright / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "\n// plot boundaries and axis scaling information for mousing \n");
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_term_xmax = %d;\n", (int)(pThis->MaxX / CANVAS_OVERSAMPLE));
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_term_ymax = %d;\n", (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_xmin = %.1f;\n", (double)p_gp->V.BbPlot.xleft / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_xmax = %.1f;\n", (double)p_gp->V.BbPlot.xright / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_ybot = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_ytop = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
 		p_gp->UpdateGpvalVariables(pThis, 1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(pThis, GP_NAME, js_NAME)
@@ -544,28 +544,28 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymax");
 		}
 		if(p_gp->Gg.Polar) {
-			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
-			fprintf(gpoutfile, "gnuplot.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
 		}
 		if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "gnuplot.plot_axis_x2min");
 			MOUSE_PARAM("GPVAL_X2_MAX", "gnuplot.plot_axis_x2max");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot.plot_axis_x2min = \"none\"\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_x2min = \"none\"\n");
 		if(p_gp->AxS[SECOND_X_AXIS].linked_to_primary && p_gp->AxS[FIRST_X_AXIS].link_udf->at) {
-			fprintf(gpoutfile, "gnuplot.x2_mapping = function(x) { return x; };");
-			fprintf(gpoutfile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_X_AXIS].link_udf->definition);
+			fprintf(GPT.P_GpOutFile, "gnuplot.x2_mapping = function(x) { return x; };");
+			fprintf(GPT.P_GpOutFile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_X_AXIS].link_udf->definition);
 		}
 		if((p_gp->AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_Y2_MIN", "gnuplot.plot_axis_y2min");
 			MOUSE_PARAM("GPVAL_Y2_MAX", "gnuplot.plot_axis_y2max");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot.plot_axis_y2min = \"none\"\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_y2min = \"none\"\n");
 		if(p_gp->AxS[SECOND_Y_AXIS].linked_to_primary && p_gp->AxS[FIRST_Y_AXIS].link_udf->at) {
-			fprintf(gpoutfile, "gnuplot.y2_mapping = function(y) { return y; };");
-			fprintf(gpoutfile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_Y_AXIS].link_udf->definition);
+			fprintf(GPT.P_GpOutFile, "gnuplot.y2_mapping = function(y) { return y; };");
+			fprintf(GPT.P_GpOutFile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_Y_AXIS].link_udf->definition);
 		}
 #undef MOUSE_PARAM
 		/*
@@ -585,32 +585,32 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		#define is_nonlinear(axis) ((axis)->linked_to_primary && (axis)->link_udf->at && (axis)->index == -((axis)->linked_to_primary->index))
 
 		this_axis = &p_gp->AxS[FIRST_X_AXIS];
-		fprintf(gpoutfile, "gnuplot.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		this_axis = &p_gp->AxS[FIRST_Y_AXIS];
-		fprintf(gpoutfile, "gnuplot.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
 		if(p_gp->Gg.Polar)
-			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
 		if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
 			// May need to reconstruct time to millisecond precision 
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
 		}
 		else if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_DMS) {
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"\";\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_x = \"\";\n");
 		if(p_gp->AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_y = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
-			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"\";\n");
-		fprintf(gpoutfile, "gnuplot.plot_axis_width = gnuplot.plot_axis_xmax - gnuplot.plot_axis_xmin;\n");
-		fprintf(gpoutfile, "gnuplot.plot_axis_height = gnuplot.plot_axis_ymax - gnuplot.plot_axis_ymin;\n");
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_y = \"\";\n");
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_width = gnuplot.plot_axis_xmax - gnuplot.plot_axis_xmin;\n");
+		fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_height = gnuplot.plot_axis_ymax - gnuplot.plot_axis_ymin;\n");
 	} /* End of section writing out variables for mousing */
 	// This is the end of the javascript plot 
-	fprintf(gpoutfile, "}\n");
+	fprintf(GPT.P_GpOutFile, "}\n");
 #ifdef WRITE_PNG_IMAGE
 	// Link internal image structures to external PNG files 
 	if(imagelist) {
@@ -618,8 +618,8 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		char * base_name = CANVAS_name ? CANVAS_name : "gp";
 		while(thisimage) {
 			fprintf(stderr, " linking image %d to external file %s\n", thisimage->imageno, thisimage->filename);
-			fprintf(gpoutfile, "  var %s_image_%02d = new Image();", base_name, thisimage->imageno);
-			fprintf(gpoutfile, "  %s_image_%02d.src = \"%s\";\n", base_name, thisimage->imageno, thisimage->filename);
+			fprintf(GPT.P_GpOutFile, "  var %s_image_%02d = new Image();", base_name, thisimage->imageno);
+			fprintf(GPT.P_GpOutFile, "  %s_image_%02d.src = \"%s\";\n", base_name, thisimage->imageno, thisimage->filename);
 			imagelist = thisimage->next;
 			SAlloc::F(thisimage->filename);
 			SAlloc::F(thisimage);
@@ -628,7 +628,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 	}
 #endif
 	if(CANVAS_standalone) {
-		fprintf(gpoutfile, "</script>\n"
+		fprintf(GPT.P_GpOutFile, "</script>\n"
 		    "<link type=\"text/css\" href=\"%sgnuplot_mouse.css\" rel=\"stylesheet\">\n"
 		    "</head>\n"
 		    "<body onload=\"gnuplot_canvas(); gnuplot.init();\" oncontextmenu=\"return false;\">\n\n"
@@ -636,7 +636,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		    CANVAS_scriptdir ? CANVAS_scriptdir : "");
 		// Pattern-fill requires having a canvas element to hold a template
 		// pattern tile.  Define it here but try to hide it (may not work in IE?)
-		fprintf(gpoutfile, "<canvas id=\"Tile\" width=\"32\" height=\"32\" hidden></canvas>\n");
+		fprintf(GPT.P_GpOutFile, "<canvas id=\"Tile\" width=\"32\" height=\"32\" hidden></canvas>\n");
 		// The format of the plot box and in particular the mouse tracking box
 		// are determined by the CSS specs in customizable file gnuplot_mouse.css
 		// We could make this even more customizable by providing an external HTML
@@ -644,7 +644,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		// file and provide his own wrapping HTML document.
 		if(CANVAS_mouseable) {
 			int i;
-			fprintf(gpoutfile, "<table class=\"mbleft\"><tr><td class=\"mousebox\">\n"
+			fprintf(GPT.P_GpOutFile, "<table class=\"mbleft\"><tr><td class=\"mousebox\">\n"
 			    "<table class=\"mousebox\" border=0>\n"
 			    "  <tr><td class=\"mousebox\">\n"
 			    "    <table class=\"mousebox\" id=\"gnuplot_mousebox\" border=0>\n"
@@ -665,27 +665,27 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			/* Table row of plot toggle icons goes here */
 			for(i = 1; i<=6*((canvas_state.plotno+5)/6); i++) {
 				if((i%6) == 1)
-					fprintf(gpoutfile, "	<tr>\n");
+					fprintf(GPT.P_GpOutFile, "	<tr>\n");
 				if(i<=canvas_state.plotno)
-					fprintf(gpoutfile, "	  <td class=\"icon\" onclick=gnuplot.toggle_plot(\"gp_plot_%d\")>%d</td>\n", i, i);
+					fprintf(GPT.P_GpOutFile, "	  <td class=\"icon\" onclick=gnuplot.toggle_plot(\"gp_plot_%d\")>%d</td>\n", i, i);
 				else
-					fprintf(gpoutfile, "	  <td class=\"icon\" > </td>\n");
+					fprintf(GPT.P_GpOutFile, "	  <td class=\"icon\" > </td>\n");
 				if((i%6) == 0)
-					fprintf(gpoutfile, "	</tr>\n");
+					fprintf(GPT.P_GpOutFile, "	</tr>\n");
 			}
-			fprintf(gpoutfile, "      </table>\n  </td></tr>\n</table></td></tr><tr><td class=\"mousebox\">\n");
-			fprintf(gpoutfile, "<table class=\"mousebox\" id=\"gnuplot_mousebox\" border=1>\n"
+			fprintf(GPT.P_GpOutFile, "      </table>\n  </td></tr>\n</table></td></tr><tr><td class=\"mousebox\">\n");
+			fprintf(GPT.P_GpOutFile, "<table class=\"mousebox\" id=\"gnuplot_mousebox\" border=1>\n"
 			    "<tr> <td class=\"mb0\">x&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x\">&nbsp;</span></td> </tr>\n"
 			    "<tr> <td class=\"mb0\">y&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y\">&nbsp;</span></td> </tr>\n");
 
 			if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS)
-				fprintf(gpoutfile, "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
+				fprintf(GPT.P_GpOutFile, "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
 			if((p_gp->AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS)
-				fprintf(gpoutfile, "<tr> <td class=\"mb0\">y2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y2\">&nbsp;</span></td> </tr>\n");
-			fprintf(gpoutfile, "</table></td></tr>\n</table>\n");
-			fprintf(gpoutfile, "</td><td>\n");
+				fprintf(GPT.P_GpOutFile, "<tr> <td class=\"mb0\">y2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y2\">&nbsp;</span></td> </tr>\n");
+			fprintf(GPT.P_GpOutFile, "</table></td></tr>\n</table>\n");
+			fprintf(GPT.P_GpOutFile, "</td><td>\n");
 		} /* End if (CANVAS_mouseable) */
-		fprintf(gpoutfile, "<table class=\"plot\">\n"
+		fprintf(GPT.P_GpOutFile, "<table class=\"plot\">\n"
 		    "<tr><td>\n"
 		    "    <canvas id=\"gnuplot_canvas\" width=\"%d\" height=\"%d\" tabindex=\"0\">\n"
 		    "	Sorry, your browser seems not to support the HTML 5 canvas element\n"
@@ -694,11 +694,11 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		    "</table>\n",
 		    (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
 		if(CANVAS_mouseable) {
-			fprintf(gpoutfile, "</td></tr></table>\n");
+			fprintf(GPT.P_GpOutFile, "</td></tr></table>\n");
 		}
-		fprintf(gpoutfile, "</div>\n\n</body>\n</html>\n");
+		fprintf(GPT.P_GpOutFile, "</div>\n\n</body>\n</html>\n");
 	}
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis)
@@ -741,7 +741,7 @@ TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype)
 	else
 		strcpy(canvas_state.color, pen_type[linetype + 3]);
 	if(strcmp(canvas_state.color, canvas_state.previous_color)) {
-		fprintf(gpoutfile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
+		fprintf(GPT.P_GpOutFile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_color, canvas_state.color);
 	}
 	if(canvas_line_type == LT_NODRAW)
@@ -756,19 +756,19 @@ TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * cus
 		type = DASHTYPE_AXIS;
 	switch(type) {
 		case DASHTYPE_AXIS:
-		    fprintf(gpoutfile, "DT(gnuplot.dashpattern3);\n");
+		    fprintf(GPT.P_GpOutFile, "DT(gnuplot.dashpattern3);\n");
 		    break;
 		case DASHTYPE_SOLID:
 		    if(canvas_dash_type != DASHTYPE_SOLID)
-			    fprintf(gpoutfile, "DT(gnuplot.solid);\n");
+			    fprintf(GPT.P_GpOutFile, "DT(gnuplot.solid);\n");
 		    break;
 		case DASHTYPE_NODRAW:
-		    fprintf(gpoutfile, "DT([0.0,1.0]);\n");
+		    fprintf(GPT.P_GpOutFile, "DT([0.0,1.0]);\n");
 		    break;
 		default:
 		    type = type % 5;
 		    if(canvas_dash_type != type)
-			    fprintf(gpoutfile, "DT(gnuplot.dashpattern%1d);\n", type + 1);
+			    fprintf(GPT.P_GpOutFile, "DT(gnuplot.dashpattern%1d);\n", type + 1);
 		    break;
 		case DASHTYPE_CUSTOM:
 		    if(custom_dash_type) {
@@ -777,12 +777,12 @@ TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * cus
 			    int i;
 			    for(i = 0; i < DASHPATTERN_LENGTH && custom_dash_type->pattern[i] > 0; i++)
 				    length += custom_dash_type->pattern[i];
-			    fprintf(gpoutfile, "DT([");
+			    fprintf(GPT.P_GpOutFile, "DT([");
 			    for(i = 0; i < DASHPATTERN_LENGTH && custom_dash_type->pattern[i] > 0; i++) {
 				    cumulative += custom_dash_type->pattern[i];
-				    fprintf(gpoutfile, " %4.2f,", cumulative / length);
+				    fprintf(GPT.P_GpOutFile, " %4.2f,", cumulative / length);
 			    }
-			    fprintf(gpoutfile, " 0]);\n");
+			    fprintf(GPT.P_GpOutFile, " 0]);\n");
 		    }
 		    break;
 	}
@@ -795,7 +795,7 @@ TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint arg_x, uint arg_y)
 		return;
 	}
 	CANVAS_start();
-	fprintf(gpoutfile, "M(%u,%u);\n", arg_x, canvas_ymax - arg_y);
+	fprintf(GPT.P_GpOutFile, "M(%u,%u);\n", arg_x, canvas_ymax - arg_y);
 	canvas_x = arg_x;
 	canvas_y = arg_y;
 }
@@ -808,7 +808,7 @@ TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 		// Force a new path 
 		CANVAS_move(pThis, canvas_x, canvas_y);
 	}
-	fprintf(gpoutfile, "L(%u,%u);\n", arg_x, canvas_ymax - arg_y);
+	fprintf(GPT.P_GpOutFile, "L(%u,%u);\n", arg_x, canvas_ymax - arg_y);
 	canvas_x = arg_x;
 	canvas_y = arg_y;
 }
@@ -834,13 +834,13 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 	CANVAS_finish();
 	switch(pt) {
 		default:
-		    fprintf(gpoutfile, "Dot(%d,%d);\n", x, (canvas_ymax-y));
+		    fprintf(GPT.P_GpOutFile, "Dot(%d,%d);\n", x, (canvas_ymax-y));
 		    break;
 		case 4:
 		case 6:
 		case 8:
 		    if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
-			    fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+			    fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 			    strcpy(canvas_state.previous_fill, canvas_state.color);
 		    }
 		// @fallthrough
@@ -850,7 +850,7 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 		case 3:
 		case 5:
 		case 7:
-		    fprintf(gpoutfile, "Pt(%d,%d,%d,%.1f);\n", pt, x, (canvas_ymax-y), width);
+		    fprintf(GPT.P_GpOutFile, "Pt(%d,%d,%d,%.1f);\n", pt, x, (canvas_ymax-y), width);
 		    break;
 	}
 	/* Hypertext support */
@@ -858,7 +858,7 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 		/* EAM DEBUG: embedded \n produce illegal javascript output */
 		while(strchr(CANVAS_hypertext_text, '\n'))
 			*strchr(CANVAS_hypertext_text, '\n') = '\v';
-		fprintf(gpoutfile, "Hypertext(%d,%d,%.1f,\"%s\");\n", x, (canvas_ymax-y), width, CANVAS_hypertext_text);
+		fprintf(GPT.P_GpOutFile, "Hypertext(%d,%d,%.1f,\"%s\");\n", x, (canvas_ymax-y), width, CANVAS_hypertext_text);
 		ZFREE(CANVAS_hypertext_text);
 	}
 }
@@ -880,24 +880,24 @@ TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		CANVAS_finish();
 		// ctx.fillText uses fillStyle rather than strokeStyle 
 		if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
-			fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+			fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 			strcpy(canvas_state.previous_fill, canvas_state.color);
 		}
 		if(0 != canvas_text_angle) {
-			fprintf(gpoutfile, "TR(%d,%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
+			fprintf(GPT.P_GpOutFile, "TR(%d,%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
 				canvas_text_angle, canvas_font_size * canvas_fontscale, canvas_justify);
 		}
 		else {
-			fprintf(gpoutfile, "T(%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
+			fprintf(GPT.P_GpOutFile, "T(%d,%d,%.1f,\"%s\",\"", x, (int)(canvas_ymax + 5*CANVAS_OVERSAMPLE - y),
 				canvas_font_size * canvas_fontscale, canvas_justify);
 		}
 		// Sanitize string by escaping quote characters 
 		do {
 			if(*str == '"' || *str == '\\')
-				fputc('\\', gpoutfile);
-			fputc(*str++, gpoutfile);
+				fputc('\\', GPT.P_GpOutFile);
+			fputc(*str++, GPT.P_GpOutFile);
 		} while(*str);
-		fprintf(gpoutfile, "\");\n");
+		fprintf(GPT.P_GpOutFile, "\");\n");
 	}
 }
 
@@ -905,7 +905,7 @@ TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	CANVAS_finish();
 	if(canvas_state.previous_linewidth != linewidth) {
-		fprintf(gpoutfile, "ctx.lineWidth = %g;\n", linewidth * canvas_linewidth);
+		fprintf(GPT.P_GpOutFile, "ctx.lineWidth = %g;\n", linewidth * canvas_linewidth);
 		canvas_state.previous_linewidth = static_cast<int>(linewidth);
 	}
 }
@@ -934,8 +934,8 @@ TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * color
 	sprintf(canvas_state.color, "rgba(%03d,%03d,%03d,%4.2f)", rgb255.r, rgb255.g, rgb255.b, 1.0 - canvas_state.alpha);
 	// Jan 2017: Apply color to BOTH strokeStyle and fillStyle 
 	if(strcmp(canvas_state.color, canvas_state.previous_color)) {
-		fprintf(gpoutfile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
-		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+		fprintf(GPT.P_GpOutFile, "ctx.strokeStyle = \"%s\";\n", canvas_state.color);
+		fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_color, canvas_state.color);
 		strcpy(canvas_state.previous_fill, canvas_state.color);
 	}
@@ -969,20 +969,20 @@ static char * CANVAS_fillstyle(int style)
 			    break;
 		    }
 		    /* Write one copy of the pattern into the Tile element. */
-		    fprintf(gpoutfile, "var template = document.getElementById('Tile');\nvar tile = template.getContext('2d');\ntile.clearRect(0,0,32,32);\n");
+		    fprintf(GPT.P_GpOutFile, "var template = document.getElementById('Tile');\nvar tile = template.getContext('2d');\ntile.clearRect(0,0,32,32);\n");
 		    if(!transparent_pattern)
-			    fprintf(gpoutfile, "tile.fillStyle = \"%s\"; tile.fillRect(0,0,32,32);\n", (*CANVAS_background) ? CANVAS_background : "white");
-		    fprintf(gpoutfile, "tile.beginPath();\n");
+			    fprintf(GPT.P_GpOutFile, "tile.fillStyle = \"%s\"; tile.fillRect(0,0,32,32);\n", (*CANVAS_background) ? CANVAS_background : "white");
+		    fprintf(GPT.P_GpOutFile, "tile.beginPath();\n");
 		    switch(pattern%6) {
-			    case 1: fprintf(gpoutfile, "%s %s\n", PATTERN1, PATTERN2); break;
-			    case 2: fprintf(gpoutfile, "%s %s %s\n", PATTERN1, PATTERN2, PATTERN3); break;
-			    case 4: fprintf(gpoutfile, "%s\n", PATTERN1); break;
-			    case 5: fprintf(gpoutfile, "%s\n", PATTERN2); break;
+			    case 1: fprintf(GPT.P_GpOutFile, "%s %s\n", PATTERN1, PATTERN2); break;
+			    case 2: fprintf(GPT.P_GpOutFile, "%s %s %s\n", PATTERN1, PATTERN2, PATTERN3); break;
+			    case 4: fprintf(GPT.P_GpOutFile, "%s\n", PATTERN1); break;
+			    case 5: fprintf(GPT.P_GpOutFile, "%s\n", PATTERN2); break;
 			    default: break;
 		    }
-		    fprintf(gpoutfile, "tile.strokeStyle=\"%s\"; tile.lineWidth=\"2\"; tile.stroke();\n", canvas_state.color);
+		    fprintf(GPT.P_GpOutFile, "tile.strokeStyle=\"%s\"; tile.lineWidth=\"2\"; tile.stroke();\n", canvas_state.color);
 		    // Then load it as a fill style 
-		    fprintf(gpoutfile, "ctx.fillStyle = ctx.createPattern(template,\"repeat\");\n");
+		    fprintf(GPT.P_GpOutFile, "ctx.fillStyle = ctx.createPattern(template,\"repeat\");\n");
 		    strcpy(fillcolor, "pattern");
 		    break;
 		case FS_SOLID:
@@ -1014,25 +1014,25 @@ TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 	CANVAS_finish();
 	// FIXME: I do not understand why this is necessary, but without it  a dashed line followed by a filled area fails to fill.
 	if(canvas_dashed) {
-		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
+		fprintf(GPT.P_GpOutFile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
 	}
 	if(corners->style != FS_OPAQUE && corners->style != FS_DEFAULT) {
 		char * fillcolor = CANVAS_fillstyle(corners->style);
 		if(strcmp(fillcolor, "pattern"))
 			if(strcmp(canvas_state.previous_fill, fillcolor)) {
-				fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", fillcolor);
+				fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", fillcolor);
 				strcpy(canvas_state.previous_fill, fillcolor);
 			}
 	}
-	fprintf(gpoutfile, "bp(%d, %d);\n", corners[0].x, canvas_ymax - corners[0].y);
+	fprintf(GPT.P_GpOutFile, "bp(%d, %d);\n", corners[0].x, canvas_ymax - corners[0].y);
 	for(i = 1; i < points; i++) {
-		fprintf(gpoutfile, "L(%d, %d);\n", corners[i].x, canvas_ymax - corners[i].y);
+		fprintf(GPT.P_GpOutFile, "L(%d, %d);\n", corners[i].x, canvas_ymax - corners[i].y);
 	}
 	if(corners->style != FS_OPAQUE && corners->style != FS_DEFAULT)
-		fprintf(gpoutfile, "cfp();\n"); // Fill with separate fillStyle color 
+		fprintf(GPT.P_GpOutFile, "cfp();\n"); // Fill with separate fillStyle color 
 	else
-		fprintf(gpoutfile, "cfsp();\n"); // Fill with stroke color 
+		fprintf(GPT.P_GpOutFile, "cfsp();\n"); // Fill with stroke color 
 }
 
 TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
@@ -1040,17 +1040,17 @@ TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1
 	char * fillcolor = CANVAS_fillstyle(style);
 	// FIXME: I do not understand why this is necessary, but without it a dashed line followed by a filled area fails to fill. 
 	if(canvas_dashed) {
-		fprintf(gpoutfile, "DT(gnuplot.solid);\n");
+		fprintf(GPT.P_GpOutFile, "DT(gnuplot.solid);\n");
 		canvas_line_type = LT_UNDEFINED;
 	}
 	/* Since filled-rectangle is a primitive operation for the canvas element */
 	/* it's worth making this a special case rather than using filled_polygon */
 	if(strcmp(fillcolor, "pattern"))
 		if(strcmp(canvas_state.previous_fill, fillcolor)) {
-			fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", fillcolor);
+			fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", fillcolor);
 			strcpy(canvas_state.previous_fill, fillcolor);
 		}
-	fprintf(gpoutfile, "R(%d,%d,%d,%d);\n", x1, canvas_ymax - (y1+height), width, height);
+	fprintf(GPT.P_GpOutFile, "R(%d,%d,%d,%d);\n", x1, canvas_ymax - (y1+height), width, height);
 }
 
 TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
@@ -1060,12 +1060,12 @@ TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
 		case TERM_LAYER_BEFORE_PLOT:
 		    canvas_state.plotno++;
 		    CANVAS_finish();
-		    fprintf(gpoutfile, "if (typeof(gnuplot.hide_%s_plot_%d) == \"undefined\"|| !gnuplot.hide_%s_plot_%d) {\n",
+		    fprintf(GPT.P_GpOutFile, "if (typeof(gnuplot.hide_%s_plot_%d) == \"undefined\"|| !gnuplot.hide_%s_plot_%d) {\n",
 				basename, canvas_state.plotno, basename, canvas_state.plotno);
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
 		    CANVAS_finish();
-		    fprintf(gpoutfile, "} // End %s_plot_%d \n", basename, canvas_state.plotno);
+		    fprintf(GPT.P_GpOutFile, "} // End %s_plot_%d \n", basename, canvas_state.plotno);
 		    canvas_line_type = LT_UNDEFINED;
 		    canvas_dash_type = LT_UNDEFINED;
 		    canvas_state.previous_linewidth = -1;
@@ -1074,10 +1074,10 @@ TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
 		    break;
 
 		case TERM_LAYER_BEGIN_GRID:
-		    fprintf(gpoutfile, "if (gnuplot.grid_lines) {\nvar saveWidth = ctx.lineWidth;\nctx.lineWidth = ctx.lineWidth * 0.5;\n");
+		    fprintf(GPT.P_GpOutFile, "if (gnuplot.grid_lines) {\nvar saveWidth = ctx.lineWidth;\nctx.lineWidth = ctx.lineWidth * 0.5;\n");
 		    break;
 		case TERM_LAYER_END_GRID:
-		    fprintf(gpoutfile, "ctx.lineWidth = saveWidth;\n} // grid_lines\n");
+		    fprintf(GPT.P_GpOutFile, "ctx.lineWidth = saveWidth;\n} // grid_lines\n");
 		    break;
 		case TERM_LAYER_RESET:
 		case TERM_LAYER_RESET_PLOTNO:
@@ -1092,7 +1092,7 @@ TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int p)
 {
 	switch(p) {
 		case 1: // Close path 
-		    fprintf(gpoutfile, "ctx.closePath();\n");
+		    fprintf(GPT.P_GpOutFile, "ctx.closePath();\n");
 		    already_closed = TRUE;
 		    break;
 		case 0:
@@ -1197,7 +1197,7 @@ static int canvas_strwidth(char * s)
 			s++;
 			continue;
 		}
-		else if(encoding != S_ENC_UTF8) s++;
+		else if(GPT._Encoding != S_ENC_UTF8) s++;
 		else if((*s & 0xE0) == 0xC0) s += 2;
 		else if((*s & 0xF0) == 0xE0) s += 3;
 		else s += 4;
@@ -1242,7 +1242,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	// Save starting font properties 
 	double fontsize = canvas_font_size;
 	char * fontname = "";
-	if(!strlen(str))
+	if(isempty(str))
 		return;
 	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		CANVAS_put_text(pThis, x, y, str);
@@ -1250,7 +1250,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	}
 	// ctx.fillText uses fillStyle rather than strokeStyle 
 	if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
-		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+		fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 		strcpy(canvas_state.previous_fill, canvas_state.color);
 	}
 	CANVAS_move(pThis, x, y);
@@ -1300,7 +1300,7 @@ TERM_PUBLIC void CANVAS_image(GpTermEntry * pThis, uint m, uint n, coordval * im
 	sprintf(image_file, "%s_image_%02d.png", base_name, ++CANVAS_imageno);
 	write_png_image(pThis, m, n, image, color_mode, image_file);
 	// Map it onto the terminals coordinate system. 
-	fprintf(gpoutfile, "gnuplot.ZI(%s_image_%02d, %d, %d, %d, %d, %d, %d);\n", base_name, CANVAS_imageno, m, n,
+	fprintf(GPT.P_GpOutFile, "gnuplot.ZI(%s_image_%02d, %d, %d, %d, %d, %d, %d);\n", base_name, CANVAS_imageno, m, n,
 	    corner[0].x, canvas_ymax - corner[0].y, corner[1].x, canvas_ymax - corner[1].y);
 	// Maintain a linked list of imageno|filename pairs 
 	// so that we can load them at the end of the plot. 

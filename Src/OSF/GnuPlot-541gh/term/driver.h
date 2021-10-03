@@ -18,7 +18,7 @@ static void UNKNOWN_null(GpTermEntry * pThis);
 #define set_font_null NULL
 #define fflush_binary()
 
-extern FILE * gpoutfile;
+//extern FILE * gpoutfile;
 extern GpTermEntry * term;
 
 #define sign(x) ((x) >= 0 ? 1 : -1) // for use by all drivers 
@@ -84,7 +84,7 @@ int  PS_make_palette(GpTermEntry * pThis, t_sm_palette *);
 void PS_previous_palette(GpTermEntry * pThis);
 void PS_set_color(GpTermEntry * pThis, const t_colorspec *);
 void PS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-void PS_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+void PS_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 // To support "set term post enhanced" 
 void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 int  ENHPS_set_font(GpTermEntry * pThis, const char * font);

@@ -100,7 +100,7 @@ void GpProgram::ExtendTokenTable()
 int GnuPlot::ComLine()
 {
 	const char * p_prompt = PROMPT;
-	if(multiplot) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot) {
 		TermCheckMultiplotOkay(_Plt.interactive); // calls IntError() if it is not happy 
 		p_prompt = "multiplot> ";
 	}
@@ -839,7 +839,7 @@ void GnuPlot::ChangeDirCommand(GpTermEntry * pTerm)
 void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 {
 	TermStartPlot(pTerm);
-	if(multiplot && pTerm->fillbox) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot && pTerm->fillbox) {
 		int xx1 = static_cast<int>(V.Offset.x * pTerm->MaxX);
 		int yy1 = static_cast<int>(V.Offset.y * pTerm->MaxY);
 		uint width  = static_cast<uint>(V.Size.x * pTerm->MaxX);
@@ -2231,9 +2231,9 @@ void GnuPlot::InvalidCommand()
 static int changedir(char * path)
 {
 #if defined(_WIN32)
-	LPWSTR pathw = UnicodeText(path, encoding);
-	int ret = !SetCurrentDirectoryW(pathw);
-	SAlloc::F(pathw);
+	//LPWSTR pathw = UnicodeText(path, encoding);
+	int ret = !SetCurrentDirectoryW(SUcSwitch(path));
+	//SAlloc::F(pathw);
 	return ret;
 #elif defined(__EMX__) && defined(OS2)
 	return _chdir2(path);
@@ -2333,7 +2333,7 @@ void GnuPlot::HelpCommand()
 		link.cbStruct =     sizeof(HH_AKLINK);
 		link.fReserved =    FALSE;
 #ifdef UNICODE
-		MultiByteToWideChar(WinGetCodepage(encoding), 0, buf, sizeof(buf), wbuf, sizeof(wbuf) / sizeof(WCHAR));
+		MultiByteToWideChar(WinGetCodepage(GPT._Encoding), 0, buf, sizeof(buf), wbuf, SIZEOFARRAY(wbuf));
 		link.pszKeywords =  wbuf;
 #else
 		link.pszKeywords =  buf;
@@ -2398,7 +2398,7 @@ void GnuPlot::HelpCommand()
 #else
 		// try whether we can find the helpfile via shell_find. If not, just use the default. (tnx Andreas) 
 		if(!strchr(HELPFILE, ':') && !strchr(HELPFILE, '/') && !strchr(HELPFILE, '\\')) {
-			if(strlen(help_fname) == 0) {
+			if(isempty(help_fname)) {
 				strcpy(help_fname, HELPFILE);
 				if(shel_find(help_fname) == 0)
 					strcpy(help_fname, HELPFILE);
@@ -2508,9 +2508,9 @@ void GnuPlot::DoSystem(const char * cmd)
 #endif
 #if defined(_WIN32) && !defined(HAVE_BROKEN_WSYSTEM)
 		{
-			LPWSTR wcmd = UnicodeText(cmd, encoding);
-			ierr = _wsystem(wcmd);
-			SAlloc::F(wcmd);
+			//LPWSTR wcmd = UnicodeText(cmd, GPT._Encoding);
+			ierr = _wsystem(SUcSwitch(cmd));
+			//SAlloc::F(wcmd);
 		}
 #else
 		ierr = system(cmd);

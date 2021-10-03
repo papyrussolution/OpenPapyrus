@@ -1961,7 +1961,7 @@ SString & SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 SString & SString::Utf8ToLower()
 {
 	if(L > 1) {
-		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
+		SStringU & r_us = SLS.AcquireRvlStrU();
 		if(r_us.CopyFromUtf8Strict(P_Buf, L-1)) {
 			r_us.ToLower();
 			r_us.CopyToUtf8(*this, 1);
@@ -1973,7 +1973,7 @@ SString & SString::Utf8ToLower()
 SString & SString::Utf8ToUpper()
 {
 	if(L > 1) {
-		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
+		SStringU & r_us = SLS.AcquireRvlStrU();
 		if(r_us.CopyFromUtf8Strict(P_Buf, L-1)) {
 			r_us.ToUpper();
 			r_us.CopyToUtf8(*this, 1);
@@ -2088,11 +2088,11 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 		return ignoreCase ? stricmp866(P_Buf, pS) : strcmp(P_Buf, pS);
 }
 
-bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
+bool FASTCALL SString::Helper_IsEqiAscii(const char * pS, size_t slen) const
 {
 	if(P_Buf != pS) {
         const size_t len = Len();
-        if(len != sstrlen(pS))
+        if(len != slen)
 			return false;
 		else if(len) {
             for(size_t i = 0; i < len; i++) {
@@ -2110,6 +2110,36 @@ bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
 		}
 	}
 	return true;
+}
+
+bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
+{
+	return Helper_IsEqiAscii(pS, sstrlen(pS));
+}
+
+bool FASTCALL SString::IsEqiUtf8(const char * pS) const
+{
+	bool   yes = false;
+	const  size_t s_len = sstrlen(pS);
+	if(s_len == Len()) {
+		if(s_len == 0)
+			yes = true;
+		else if(memcmp(P_Buf, pS, s_len) == 0)
+			yes = true;
+		else if(sisascii(P_Buf, s_len)) {
+			yes = Helper_IsEqiAscii(pS, s_len);
+		}
+		else {
+			SStringU & r_us_this = SLS.AcquireRvlStrU();
+			SStringU & r_us_s = SLS.AcquireRvlStrU();
+			if(r_us_this.CopyFromUtf8Strict(P_Buf, L-1) && r_us_s.CopyFromUtf8Strict(pS, s_len)) {
+				r_us_this.ToLower();
+				r_us_s.ToLower();
+				yes = r_us_this.IsEqual(r_us_s);
+			}
+		}
+	}
+	return yes;
 }
 
 int FASTCALL SString::HasAt(uint pos, const char * pPattern) const
@@ -2696,6 +2726,14 @@ SString & FASTCALL SString::CatHexUpper(uint8 val)
 	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
 	dig = (val & 0x0f);
 	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
+	return *this;
+}
+
+SString & FASTCALL SString::CatHex(const void * pBinary, size_t size)
+{
+	for(size_t i = 0; i < size; i++) {
+		CatHex(PTR8C(pBinary)[i]);
+	}
 	return *this;
 }
 
@@ -6903,8 +6941,8 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
-					const int is_hex_c = ishex(c);
-					const int is_dec_c = isdec(c);
+					const bool is_hex_c = ishex(c);
+					const bool is_dec_c = isdec(c);
 					if(is_dec_c) {
 						has_dec = 1;
 						dec_count += ccnt;
@@ -7748,6 +7786,35 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_EQ((str = "\"abc\"").StripQuotes(), "abc");
 			SLTEST_CHECK_EQ((str = " \"abc\"" ).StripQuotes(), "abc");
 			SLTEST_CHECK_EQ((str = "abc").StripQuotes(), "abc");
+		}
+		{
+			//
+			// Тестирование IsEqiAscii
+			//
+			SLTEST_CHECK_NZ((str = "").IsEqiAscii(0));
+			SLTEST_CHECK_NZ((str = "").IsEqiAscii(""));
+			SLTEST_CHECK_NZ((str = " ").IsEqiAscii(" "));
+			SLTEST_CHECK_NZ((str = "abc").IsEqiAscii("abc"));
+			SLTEST_CHECK_NZ((str = "abc").IsEqiAscii("aBc"));
+			SLTEST_CHECK_NZ((str = "городовой").IsEqiAscii("городовой"));
+			SLTEST_CHECK_Z((str = "городовой").IsEqiAscii("гороДовой"));
+		}
+		{
+			//
+			// Тестирование IsEqiUtf8 (не забываем, что кодировка исходного файла UTF8)
+			//
+			SLTEST_CHECK_NZ((str = "").IsEqiUtf8(0));
+			SLTEST_CHECK_NZ((str = "").IsEqiUtf8(""));
+			SLTEST_CHECK_NZ((str = " ").IsEqiUtf8(" "));
+			SLTEST_CHECK_NZ((str = "abc").IsEqiUtf8("abc"));
+			SLTEST_CHECK_NZ((str = "abc").IsEqiUtf8("aBc"));
+			SLTEST_CHECK_NZ((str = "городовой").IsEqiUtf8("городОвой"));
+			SLTEST_CHECK_NZ((str = "штрихкод").IsEqiUtf8("Штрихкод"));
+			SLTEST_CHECK_NZ((str = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя").IsEqiUtf8("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"));
+			SLTEST_CHECK_NZ((str = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ").IsEqiUtf8("абвгдеёжзийклмнопрстуфхцчшщъыьэюя"));
+			SLTEST_CHECK_Z((str = "городовой").IsEqiUtf8("городОвой-"));
+			SLTEST_CHECK_Z((str = "городовой").IsEqiUtf8("городoвой")); // во втором слове русская 'о' заменена на латинскую 'o'
+			SLTEST_CHECK_Z((str = "").IsEqiUtf8(" "));
 		}
 		//
 		// Тестирование функций EncodeMime64 и DecodeMime64

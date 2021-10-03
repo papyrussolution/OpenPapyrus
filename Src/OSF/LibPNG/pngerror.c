@@ -615,19 +615,19 @@ static PNG_NORETURN void /* PRIVATE */ png_default_error(png_const_structrp png_
 		}
 		if((offset > 1) && (offset < 15)) {
 			error_number[offset - 1] = '\0';
-			fprintf(stderr, "libpng error no. %s: %s", error_number, error_message + offset + 1);
-			fprintf(stderr, PNG_STRING_NEWLINE);
+			slfprintf_stderr("libpng error no. %s: %s", error_number, error_message + offset + 1);
+			slfprintf_stderr(PNG_STRING_NEWLINE);
 		}
 		else {
-			fprintf(stderr, "libpng error: %s, offset=%d", error_message, offset);
-			fprintf(stderr, PNG_STRING_NEWLINE);
+			slfprintf_stderr("libpng error: %s, offset=%d", error_message, offset);
+			slfprintf_stderr(PNG_STRING_NEWLINE);
 		}
 	}
 	else
 #endif
 	{
-		fprintf(stderr, "libpng error: %s", error_message ? error_message : "undefined");
-		fprintf(stderr, PNG_STRING_NEWLINE);
+		slfprintf_stderr("libpng error: %s", error_message ? error_message : "undefined");
+		slfprintf_stderr(PNG_STRING_NEWLINE);
 	}
 #else
 	PNG_UNUSED(error_message) /* Make compiler happy */
@@ -673,19 +673,19 @@ static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const 
 		}
 		if((offset > 1) && (offset < 15)) {
 			warning_number[offset + 1] = '\0';
-			fprintf(stderr, "libpng warning no. %s: %s", warning_number, warning_message + offset);
-			fprintf(stderr, PNG_STRING_NEWLINE);
+			slfprintf_stderr("libpng warning no. %s: %s", warning_number, warning_message + offset);
+			slfprintf_stderr(PNG_STRING_NEWLINE);
 		}
 		else {
-			fprintf(stderr, "libpng warning: %s", warning_message);
-			fprintf(stderr, PNG_STRING_NEWLINE);
+			slfprintf_stderr("libpng warning: %s", warning_message);
+			slfprintf_stderr(PNG_STRING_NEWLINE);
 		}
 	}
 	else
 #endif
 	{
-		fprintf(stderr, "libpng warning: %s", warning_message);
-		fprintf(stderr, PNG_STRING_NEWLINE);
+		slfprintf_stderr("libpng warning: %s", warning_message);
+		slfprintf_stderr(PNG_STRING_NEWLINE);
 	}
 #else
 	PNG_UNUSED(warning_message) /* Make compiler happy */

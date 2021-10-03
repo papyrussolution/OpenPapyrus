@@ -127,8 +127,8 @@ void PSLATEX_reset(GpTermEntry * pThis)
 		case PSTERM_EPSLATEX:
 		    if(!ISCAIROTERMINAL)
 			    PS_reset(pThis);
-		    if(gpoutfile) {
-			    fprintf(gpoutfile,
+		    if(GPT.P_GpOutFile) {
+			    fprintf(GPT.P_GpOutFile,
 				"\
     \\gplbacktext\n\
     \\put(0,0){\\includegraphics[width={%.2fbp},height={%.2fbp}]{%s}}%%\n\
@@ -136,25 +136,25 @@ void PSLATEX_reset(GpTermEntry * pThis)
   \\end{picture}%%\n\
 \\endgroup\n", PSLATEX_pagesize_x / (2.0*PS_SC), PSLATEX_pagesize_y / (2.0*PS_SC), p_gp->TPsB.PsLatexAuxname);
 			    if(p_gp->TPsB.P_Params->epslatex_standalone)
-				    fputs("\\end{document}\n", gpoutfile);
+				    fputs("\\end{document}\n", GPT.P_GpOutFile);
 		    }
 		    break;
 		case PSTERM_PSLATEX:
 		    fputs("\
 \\end{picture}%\n\
 \\endgroup\n\
-\\endinput\n", gpoutfile);
+\\endinput\n", GPT.P_GpOutFile);
 		    break;
 		case PSTERM_PSTEX:
 		    fputs("\
 \\endGNUPLOTpicture\n\
 \\endgroup\n\
-\\endinput\n", gpoutfile);
+\\endinput\n", GPT.P_GpOutFile);
 		    break;
 		default:; /* do nothing, just avoid a compiler warning */
 	}
 	ZFREE(p_gp->TPsB.PsLatexAuxname);
-	if(gppsfile && (gppsfile != gpoutfile)) {
+	if(gppsfile && gppsfile != GPT.P_GpOutFile) {
 		fclose(gppsfile);
 		gppsfile = NULL;
 	}
@@ -165,46 +165,45 @@ void PSLATEX_reset(GpTermEntry * pThis)
 void PSTEX_reopen_output(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	if(outstr) {
+	if(GPT.P_OutStr) {
 		char * dotIndex;
 		// if there's no extension, append ".ps" 
-		if((dotIndex = strrchr(outstr, '.')) == NULL)
-			dotIndex = strchr(outstr, NUL);
+		if((dotIndex = strrchr(GPT.P_OutStr, '.')) == NULL)
+			dotIndex = strchr(GPT.P_OutStr, NUL);
 		// try to open the auxiliary file for the postscript parts. 
 		if(p_gp->TPsB.P_Params->useauxfile) {
 			// length of outstr plus ('.' or '\0') plus "eps" plus '\0' 
-			p_gp->TPsB.PsLatexAuxname = (char *)SAlloc::R(p_gp->TPsB.PsLatexAuxname, dotIndex - outstr + 5);
+			p_gp->TPsB.PsLatexAuxname = (char *)SAlloc::R(p_gp->TPsB.PsLatexAuxname, dotIndex - GPT.P_OutStr + 5);
 			if(p_gp->TPsB.PsLatexAuxname) {
 				// include period or '\0' 
-				strncpy(p_gp->TPsB.PsLatexAuxname, outstr, (dotIndex - outstr) + 1);
+				strncpy(p_gp->TPsB.PsLatexAuxname, GPT.P_OutStr, (dotIndex - GPT.P_OutStr) + 1);
 				// period or '\0' is overwritten with period, and "ps" appended 
-				strcpy(p_gp->TPsB.PsLatexAuxname + (dotIndex - outstr), ".ps");
+				strcpy(p_gp->TPsB.PsLatexAuxname + (dotIndex - GPT.P_OutStr), ".ps");
 				gppsfile = fopen(p_gp->TPsB.PsLatexAuxname, "w");
 				if(gppsfile  == (FILE*)NULL) {
 					fprintf(stderr, "Cannot open aux file %s for output. Switching off auxfile option.\n", p_gp->TPsB.PsLatexAuxname);
 					SAlloc::F(p_gp->TPsB.PsLatexAuxname);
 					p_gp->TPsB.PsLatexAuxname = NULL;
 					p_gp->TPsB.P_Params->useauxfile = FALSE;
-					gppsfile = gpoutfile;
+					gppsfile = GPT.P_GpOutFile;
 				}
 			}
 			else {
-				fprintf(stderr, "Cannot make PostScript file name from %s\n",
-				    outstr);
+				fprintf(stderr, "Cannot make PostScript file name from %s\n", GPT.P_OutStr);
 				fprintf(stderr, "Turning off auxfile option\n");
 				p_gp->TPsB.P_Params->useauxfile = FALSE;
-				gppsfile = gpoutfile;
+				gppsfile = GPT.P_GpOutFile;
 			}
 		}
 		else
-			gppsfile = gpoutfile;
+			gppsfile = GPT.P_GpOutFile;
 	}
 	else {
 		if(p_gp->TPsB.P_Params->useauxfile) {
 			fprintf(stderr, "Cannot use aux file on stdout. Switching off auxfile option.\n");
 			p_gp->TPsB.P_Params->useauxfile = FALSE;
 		}
-		gppsfile = gpoutfile;
+		gppsfile = GPT.P_GpOutFile;
 	}
 }
 
@@ -215,18 +214,18 @@ void PSTEX_common_init(GpTermEntry * pThis)
 	PSLATEX_pagesize_y = pThis->MaxY * p_gp->V.Size.y;
 	switch(p_gp->TPsB.P_Params->terminal) {
 		case PSTERM_PSLATEX:
-		    fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n\
+		    fprintf(GPT.P_GpOutFile, "%% GNUPLOT: LaTeX picture with Postscript\n\
 \\begingroup%%\n\
 \\makeatletter%%\n\
 \\newcommand{\\GNUPLOTspecial}{%%\n\
   \\@sanitize\\catcode`\\%%=14\\relax\\special}%%\n\
 \\setlength{\\unitlength}{%.4fbp}%%\n",
 			1.0 / (2*PS_SC));
-		    fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)%%\n", (int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
+		    fprintf(GPT.P_GpOutFile, "\\begin{picture}(%d,%d)(0,0)%%\n", (int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
 		    break;
 		case PSTERM_PSTEX:
 		    /* write plain TeX header */
-		    fprintf(gpoutfile,
+		    fprintf(GPT.P_GpOutFile,
 			"\
 %% GNUPLOT: plain TeX with Postscript\n\
 \\begingroup\n\
@@ -251,12 +250,11 @@ void PSTEX_common_init(GpTermEntry * pThis)
   \\gdef\\endGNUPLOTpicture{\\hss\\egroup\\egroup}%%\n\
 \\fi\n\
 \\GNUPLOTunit=%.4fbp\n", 1.0 / (2*PS_SC));
-		    fprintf(gpoutfile, "\\GNUPLOTpicture(%d,%d)\n", (int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
+		    fprintf(GPT.P_GpOutFile, "\\GNUPLOTpicture(%d,%d)\n", (int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
 		    break;
 		default:; /* do nothing, just avoid a compiler warning */
 	}
-
-	if(gppsfile != gpoutfile) {
+	if(gppsfile != GPT.P_GpOutFile) {
 		// these are taken from the post.trm file computation of the bounding box, but without the X_OFF and Y_OFF 
 		int urx = (int)(PSLATEX_pagesize_x / (2*PS_SC) + 0.5);
 		int ury = (int)(PSLATEX_pagesize_y / (2*PS_SC) + 0.5);
@@ -266,10 +264,10 @@ void PSTEX_common_init(GpTermEntry * pThis)
 		 * because tex file and ps aux file end up in the same directory! */
 		char * psfile_basename = gp_basename(p_gp->TPsB.PsLatexAuxname);
 		// generate special which xdvi and dvips can handle 
-		fprintf(gpoutfile, "  \\special{psfile=%s llx=0 lly=0 urx=%d ury=%d rwi=%d}\n", psfile_basename, urx, ury, 10 * urx);
+		fprintf(GPT.P_GpOutFile, "  \\special{psfile=%s llx=0 lly=0 urx=%d ury=%d rwi=%d}\n", psfile_basename, urx, ury, 10 * urx);
 	}
 	else
-		fputs("  {\\GNUPLOTspecial{\"\n", gpoutfile);
+		fputs("  {\\GNUPLOTspecial{\"\n", GPT.P_GpOutFile);
 	/* HH: really necessary?
 	   p_gp->TPsB.Ang = 0;
 	   p_gp->TPsB.Justify = 0;
@@ -300,35 +298,35 @@ TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 	GnuPlot * p_gp = pThis->P_Gp;
 	struct pstex_text_command * tc;
 	PS_text(pThis);
-	if(gppsfile == gpoutfile)
-		fputs("  }}%\n", gpoutfile);
+	if(gppsfile == GPT.P_GpOutFile)
+		fputs("  }}%\n", GPT.P_GpOutFile);
 	if(p_gp->TPsB.P_Params->fontsize) {
 		if(p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX)
-			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", p_gp->TPsB.P_Params->fontsize);
+			fprintf(GPT.P_GpOutFile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", p_gp->TPsB.P_Params->fontsize);
 		// Should have an else clause here to handle pstex equivalent 
 	}
 	for(tc = pstex_labels; tc != (struct pstex_text_command *)NULL; tc = tc->next) {
-		fprintf(gpoutfile, "  \\put(%d,%d){", tc->x, tc->y);
+		fprintf(GPT.P_GpOutFile, "  \\put(%d,%d){", tc->x, tc->y);
 		if((p_gp->TPsB.P_Params->rotate) && (tc->angle != 0))
-			fprintf(gpoutfile, "%%\n  \\special{ps: gsave currentpoint currentpoint translate\n%d rotate neg exch neg exch translate}%%\n  ", 360 - tc->angle);
+			fprintf(GPT.P_GpOutFile, "%%\n  \\special{ps: gsave currentpoint currentpoint translate\n%d rotate neg exch neg exch translate}%%\n  ", 360 - tc->angle);
 		if((p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX) && ((tc->label[0] == '{') || (tc->label[0] == '['))) {
-			fprintf(gpoutfile, "\\makebox(0,0)%s", tc->label);
+			fprintf(GPT.P_GpOutFile, "\\makebox(0,0)%s", tc->label);
 		}
 		else
 			switch(tc->justify) {
 				case LEFT: 
-					fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[l]{\\strut{}%s}" : "\\ljust{\\strut{}%s}"), tc->label);
+					fprintf(GPT.P_GpOutFile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[l]{\\strut{}%s}" : "\\ljust{\\strut{}%s}"), tc->label);
 				    break;
 				case CENTRE:
-				    fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0){\\strut{}%s}" : "\\cjust{\\strut{}%s}"), tc->label);
+				    fprintf(GPT.P_GpOutFile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0){\\strut{}%s}" : "\\cjust{\\strut{}%s}"), tc->label);
 				    break;
 				case RIGHT:
-				    fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[r]{\\strut{}%s}" : "\\rjust{\\strut{}%s}"), tc->label);
+				    fprintf(GPT.P_GpOutFile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[r]{\\strut{}%s}" : "\\rjust{\\strut{}%s}"), tc->label);
 				    break;
 			}
 		if((p_gp->TPsB.P_Params->rotate) && (tc->angle != 0))
-			fputs("%\n  \\special{ps: currentpoint grestore moveto}%\n  ", gpoutfile);
-		fputs("}%\n", gpoutfile);
+			fputs("%\n  \\special{ps: currentpoint grestore moveto}%\n  ", GPT.P_GpOutFile);
+		fputs("}%\n", GPT.P_GpOutFile);
 	}
 	while(pstex_labels) {
 		tc = pstex_labels->next;
@@ -356,24 +354,24 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 		PSLATEX_pagesize_x += 2*PS_SC * p_gp->V.Size.x;
 		PSLATEX_pagesize_y += 2*PS_SC * p_gp->V.Size.y;
 	}
-	if(!gpoutfile) {
-		char * temp = (char *)SAlloc::M(strlen(outstr) + 1);
+	if(!GPT.P_GpOutFile) {
+		char * temp = (char *)SAlloc::M(strlen(GPT.P_OutStr) + 1);
 		if(temp) {
-			strcpy(temp, outstr);
-			p_gp->TermSetOutput(pThis, temp); /* will free outstr */
-			if(temp != outstr) {
+			strcpy(temp, GPT.P_OutStr);
+			p_gp->TermSetOutput(pThis, temp); // will free outstr 
+			if(temp != GPT.P_OutStr) {
 				SAlloc::F(temp);
-				temp = outstr;
+				temp = GPT.P_OutStr;
 			}
 		}
 		else
 			p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "Cannot reopen output files");
 	}
-	if(!outstr)
+	if(!GPT.P_OutStr)
 		p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
-	if(gpoutfile) {
-		const char * inputenc = p_gp->LatexInputEncoding(encoding);
-		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");
+	if(GPT.P_GpOutFile) {
+		const char * inputenc = p_gp->LatexInputEncoding(GPT._Encoding);
+		fprintf(GPT.P_GpOutFile, "%% GNUPLOT: LaTeX picture with Postscript\n");
 		tex_previous_colorspec.type = (colortype)-1; // Clear previous state 
 		EPSLATEX_layer(pThis, TERM_LAYER_RESET); // Clear any leftover text-layering state 
 		// Analyse LaTeX font name 'family,series,shape' 
@@ -395,7 +393,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 			}
 		}
 		if(p_gp->TPsB.P_Params->epslatex_standalone) {
-			fprintf(gpoutfile,
+			fprintf(GPT.P_GpOutFile,
 			    "\
 \\documentclass{minimal}\n\
 %% Set font size\n\
@@ -411,22 +409,22 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
   \\input{size10.clo}%%\n\
 }%%\n\
 \\makeatother\n", (int)(p_gp->TPsB.P_Params->fontsize-10), (int)(p_gp->TPsB.P_Params->fontsize), (int)(p_gp->TPsB.P_Params->fontsize));
-			if(fontfamily && strlen(fontfamily) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\rmdefault{%s}%%\n", fontfamily);
-			if(fontseries && strlen(fontseries) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\mddefault{%s}%%\n", fontseries);
-			if(fontshape && strlen(fontshape) > 0)
-				fprintf(gpoutfile, "\\renewcommand*\\updefault{%s}%%\n", fontshape);
+			if(!isempty(fontfamily))
+				fprintf(GPT.P_GpOutFile, "\\renewcommand*\\rmdefault{%s}%%\n", fontfamily);
+			if(!isempty(fontseries))
+				fprintf(GPT.P_GpOutFile, "\\renewcommand*\\mddefault{%s}%%\n", fontseries);
+			if(!isempty(fontshape))
+				fprintf(GPT.P_GpOutFile, "\\renewcommand*\\updefault{%s}%%\n", fontshape);
 			fputs("\
 % Load packages\n\
 \\usepackage{calc}\n\
 \\usepackage{graphicx}\n\
-\\usepackage{color}\n", gpoutfile);
+\\usepackage{color}\n", GPT.P_GpOutFile);
 			if(ISCAIROTERMINAL)
-				fprintf(gpoutfile, "\\usepackage{transparent}\n");
+				fprintf(GPT.P_GpOutFile, "\\usepackage{transparent}\n");
 			if(inputenc)
-				fprintf(gpoutfile, "\\usepackage[%s]{inputenc}\n", inputenc);
-			fprintf(gpoutfile,
+				fprintf(GPT.P_GpOutFile, "\\usepackage[%s]{inputenc}\n", inputenc);
+			fprintf(GPT.P_GpOutFile,
 			    "\
 \\makeatletter\n\
 %% Select an appropriate default driver (from TeXLive graphics.cfg)\n\
@@ -475,10 +473,10 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 			    epslatex_header ? epslatex_header : "%");
 		}
 
-		fputs("\\begingroup\n", gpoutfile);
+		fputs("\\begingroup\n", GPT.P_GpOutFile);
 
-		if(inputenc && encoding != S_ENC_UTF8)
-			fprintf(gpoutfile,
+		if(inputenc && GPT._Encoding != S_ENC_UTF8)
+			fprintf(GPT.P_GpOutFile,
 			    "\
   %% Encoding inside the plot.  In the header of your document, this encoding\n\
   %% should to defined, e.g., by using\n\
@@ -486,18 +484,18 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
   \\inputencoding{%s}%%\n",
 			    inputenc, inputenc);
 		if(!p_gp->TPsB.P_Params->epslatex_standalone) {
-			if(fontfamily && strlen(fontfamily) > 0)
-				fprintf(gpoutfile, "  \\fontfamily{%s}%%\n", fontfamily);
-			if(fontseries && strlen(fontseries) > 0)
-				fprintf(gpoutfile, "  \\fontseries{%s}%%\n", fontseries);
-			if(fontshape && strlen(fontshape) > 0)
-				fprintf(gpoutfile, "  \\fontshape{%s}%%\n", fontshape);
+			if(!isempty(fontfamily))
+				fprintf(GPT.P_GpOutFile, "  \\fontfamily{%s}%%\n", fontfamily);
+			if(!isempty(fontseries))
+				fprintf(GPT.P_GpOutFile, "  \\fontseries{%s}%%\n", fontseries);
+			if(!isempty(fontshape))
+				fprintf(GPT.P_GpOutFile, "  \\fontshape{%s}%%\n", fontshape);
 			if(fontfamily || fontseries || fontshape)
-				fputs("  \\selectfont\n", gpoutfile);
+				fputs("  \\selectfont\n", GPT.P_GpOutFile);
 			if(epslatex_header)
-				fprintf(gpoutfile, "%s\n", epslatex_header);
+				fprintf(GPT.P_GpOutFile, "%s\n", epslatex_header);
 		}
-		fprintf(gpoutfile,
+		fprintf(GPT.P_GpOutFile,
 		    "\
   \\makeatletter\n\
   \\providecommand\\color[2][]{%%\n\
@@ -550,14 +548,14 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
       \\expandafter\\def\\csname LTw\\endcsname{\\color{white}}%\n\
       \\expandafter\\def\\csname LTb\\endcsname{\\color{black}}%\n\
       \\expandafter\\def\\csname LTa\\endcsname{\\color{black}}%\n",
-		    gpoutfile);
+		    GPT.P_GpOutFile);
 		if(p_gp->TPsB.P_Params->oldstyle) {
 			fputs("\
       \\expandafter\\def\\csname LT0\\endcsname{\\color[rgb]{1,0,0}}%\n\
       \\expandafter\\def\\csname LT1\\endcsname{\\color[rgb]{0,0,1}}%\n\
       \\expandafter\\def\\csname LT2\\endcsname{\\color[rgb]{0,1,1}}%\n\
       \\expandafter\\def\\csname LT3\\endcsname{\\color[rgb]{1,0,1}}%\n",
-			    gpoutfile);
+			    GPT.P_GpOutFile);
 		}
 		else {
 			fputs("\
@@ -570,7 +568,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
       \\expandafter\\def\\csname LT6\\endcsname{\\color[rgb]{0,0,0}}%\n\
       \\expandafter\\def\\csname LT7\\endcsname{\\color[rgb]{1,0.3,0}}%\n\
       \\expandafter\\def\\csname LT8\\endcsname{\\color[rgb]{0.5,0.5,0.5}}%\n",
-			    gpoutfile);
+			    GPT.P_GpOutFile);
 		}
 		fputs("\
     \\else\n\
@@ -591,18 +589,18 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
       \\expandafter\\def\\csname LT8\\endcsname{\\color{black}}%\n\
     \\fi\n\
   \\fi\n",
-		    gpoutfile);
+		    GPT.P_GpOutFile);
 
-		fprintf(gpoutfile, "\\setlength{\\unitlength}{%.4fbp}%%\n", 1.0 / (2*PS_SC));
-		fprintf(gpoutfile, "\\ifx\\gptboxheight\\undefined%%\n\\newlength{\\gptboxheight}%%\n\\newlength{\\gptboxwidth}%%\n\\newsavebox{\\gptboxtext}%%\n\
+		fprintf(GPT.P_GpOutFile, "\\setlength{\\unitlength}{%.4fbp}%%\n", 1.0 / (2*PS_SC));
+		fprintf(GPT.P_GpOutFile, "\\ifx\\gptboxheight\\undefined%%\n\\newlength{\\gptboxheight}%%\n\\newlength{\\gptboxwidth}%%\n\\newsavebox{\\gptboxtext}%%\n\
     \\fi%%\n\
     \\setlength{\\fboxrule}{0.5pt}%%\n\
     \\setlength{\\fboxsep}{1pt}%%\n");
-		fprintf(gpoutfile, "\\begin{picture}(%.2f,%.2f)%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
+		fprintf(GPT.P_GpOutFile, "\\begin{picture}(%.2f,%.2f)%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
 	if(p_gp->TPsB.P_Params->background.r >= 0) {
-		fprintf(gpoutfile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n", p_gp->TPsB.P_Params->background.r, p_gp->TPsB.P_Params->background.g, p_gp->TPsB.P_Params->background.b);
-		fprintf(gpoutfile, "\\put(0,0){\\colorbox{gpBackground}{\\makebox(%.2f,%.2f)[]{}}}%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
+		fprintf(GPT.P_GpOutFile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n", p_gp->TPsB.P_Params->background.r, p_gp->TPsB.P_Params->background.g, p_gp->TPsB.P_Params->background.b);
+		fprintf(GPT.P_GpOutFile, "\\put(0,0){\\colorbox{gpBackground}{\\makebox(%.2f,%.2f)[]{}}}%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
 	SAlloc::F(fontfamily);
 	SAlloc::F(fontseries);
@@ -612,40 +610,40 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	if(gpoutfile) {
+	if(GPT.P_GpOutFile) {
 		if(!tex_color_synced) {
-			fputs(tex_current_color, gpoutfile);
-			fputs("%%\n", gpoutfile);
+			fputs(tex_current_color, GPT.P_GpOutFile);
+			fputs("%%\n", GPT.P_GpOutFile);
 			tex_color_synced = TRUE;
 		}
 		if(PSLATEX_inbox) {
 			if(PSLATEX_saved)
 				return;
-			fprintf(gpoutfile, "      \\settowidth{\\gptboxwidth}{\\widthof{%s}}\n", str);
-			fprintf(gpoutfile, "\t\\advance\\gptboxwidth by %d\\fboxsep\n", (int)(2. * PSLATEX_xmargin + 0.5));
-			fprintf(gpoutfile, "      \\savebox{\\gptboxtext}{\\parbox[c][\\totalheight+%d\\fboxsep]{\\gptboxwidth}{\\centering{%s}}}\n",
+			fprintf(GPT.P_GpOutFile, "      \\settowidth{\\gptboxwidth}{\\widthof{%s}}\n", str);
+			fprintf(GPT.P_GpOutFile, "\t\\advance\\gptboxwidth by %d\\fboxsep\n", (int)(2. * PSLATEX_xmargin + 0.5));
+			fprintf(GPT.P_GpOutFile, "      \\savebox{\\gptboxtext}{\\parbox[c][\\totalheight+%d\\fboxsep]{\\gptboxwidth}{\\centering{%s}}}\n",
 			    (int)(2. * PSLATEX_ymargin + 0.5), str);
 			PSLATEX_xbox = x;
 			PSLATEX_ybox = y;
 			PSLATEX_saved = TRUE;
 		}
 		else {
-			fprintf(gpoutfile, "      \\put(%d,%d){", x, y);
+			fprintf(GPT.P_GpOutFile, "      \\put(%d,%d){", x, y);
 			if(p_gp->TPsB.Ang)
-				fprintf(gpoutfile, "\\rotatebox{%d}{", p_gp->TPsB.Ang);
+				fprintf(GPT.P_GpOutFile, "\\rotatebox{%d}{", p_gp->TPsB.Ang);
 			if(((str[0] == '{') || (str[0] == '['))) {
-				fprintf(gpoutfile, "\\makebox(0,0)%s", str);
+				fprintf(GPT.P_GpOutFile, "\\makebox(0,0)%s", str);
 			}
 			else {
 				switch(p_gp->TPsB.Justify) {
-					case LEFT: fprintf(gpoutfile, "\\makebox(0,0)[l]{\\strut{}%s}", str); break;
-					case CENTRE: fprintf(gpoutfile, "\\makebox(0,0){\\strut{}%s}", str); break;
-					case RIGHT: fprintf(gpoutfile, "\\makebox(0,0)[r]{\\strut{}%s}", str); break;
+					case LEFT: fprintf(GPT.P_GpOutFile, "\\makebox(0,0)[l]{\\strut{}%s}", str); break;
+					case CENTRE: fprintf(GPT.P_GpOutFile, "\\makebox(0,0){\\strut{}%s}", str); break;
+					case RIGHT: fprintf(GPT.P_GpOutFile, "\\makebox(0,0)[r]{\\strut{}%s}", str); break;
 				}
 			}
 			if(p_gp->TPsB.Ang)
-				fputs("}", gpoutfile);
-			fputs("}%\n", gpoutfile);
+				fputs("}", GPT.P_GpOutFile);
+			fputs("}%\n", GPT.P_GpOutFile);
 		}
 	}
 }
@@ -657,24 +655,24 @@ void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * psoutstr = NULL;
-	if(outstr) {
-		uint outstrlen = strlen(outstr);
-		if(strrchr(outstr, '.') != &outstr[outstrlen-4]) {
+	if(GPT.P_OutStr) {
+		uint outstrlen = strlen(GPT.P_OutStr);
+		if(strrchr(GPT.P_OutStr, '.') != &GPT.P_OutStr[outstrlen-4]) {
 			p_gp->IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
 		}
 		// copy filename to postsript output 
 		psoutstr = (char *)SAlloc::M(outstrlen+5);
-		strcpy(psoutstr, outstr);
-		if((!strncmp(&outstr[outstrlen-4], ".eps", 4)) || (!strncmp(&outstr[outstrlen-4], ".EPS", 4))) {
+		strcpy(psoutstr, GPT.P_OutStr);
+		if((!strncmp(&GPT.P_OutStr[outstrlen-4], ".eps", 4)) || (!strncmp(&GPT.P_OutStr[outstrlen-4], ".EPS", 4))) {
 			if(p_gp->TPsB.P_Params->epslatex_standalone)
 				p_gp->IntError(NO_CARET, "For epslatex standalone mode, you have to %s", "give the tex filename as output");
 			// rename primary output (tex) 
-			strncpy(&outstr[outstrlen-4], ".tex", 5);
+			strncpy(&GPT.P_OutStr[outstrlen-4], ".tex", 5);
 			// redirect FILE stream 
-			gppsfile = gpoutfile;
-			gpoutfile = fopen(outstr, "w");
-			p_gp->IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", outstr, psoutstr);
-			if(!gpoutfile)
+			gppsfile = GPT.P_GpOutFile;
+			GPT.P_GpOutFile = fopen(GPT.P_OutStr, "w");
+			p_gp->IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", GPT.P_OutStr, psoutstr);
+			if(!GPT.P_GpOutFile)
 				p_gp->IntError(NO_CARET, "--- reopen failed");
 		}
 		else {
@@ -797,36 +795,36 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    if(epslatex_text_layer == 1)
 			    break;
 		    if(epslatex_text_layer == 2)
-			    fputs("    }%\n", gpoutfile);
+			    fputs("    }%\n", GPT.P_GpOutFile);
 		    epslatex_text_layer = 1;
-		    fputs("    \\gplgaddtomacro\\gplbacktext{%\n", gpoutfile);
+		    fputs("    \\gplgaddtomacro\\gplbacktext{%\n", GPT.P_GpOutFile);
 		    tex_color_synced = FALSE;
 		    break;
 		case TERM_LAYER_FRONTTEXT:/* Start of "front" text layer */
 		    if(epslatex_text_layer == 2)
 			    break;
 		    if(epslatex_text_layer == 1)
-			    fputs("    }%\n", gpoutfile);
+			    fputs("    }%\n", GPT.P_GpOutFile);
 		    epslatex_text_layer = 2;
-		    fputs("    \\gplgaddtomacro\\gplfronttext{%\n", gpoutfile);
+		    fputs("    \\gplgaddtomacro\\gplfronttext{%\n", GPT.P_GpOutFile);
 		    tex_color_synced = FALSE;
 		    break;
 
 		case TERM_LAYER_END_TEXT: /* Close off front or back macro before leaving */
 		    if(epslatex_text_layer == 1 || epslatex_text_layer == 2)
-			    fputs("    }%\n", gpoutfile);
+			    fputs("    }%\n", GPT.P_GpOutFile);
 		    epslatex_text_layer = 0;
 		    break;
 
 		case TERM_LAYER_BEGIN_PM3D_MAP:
 		    if(!ISCAIROTERMINAL)
-			    if(gppsfile && (gppsfile != gpoutfile))
+			    if(gppsfile && gppsfile != GPT.P_GpOutFile)
 				    fprintf(gppsfile, "%%pm3d_map_begin\n");
 		    break;
 
 		case TERM_LAYER_END_PM3D_MAP:
 		    if(!ISCAIROTERMINAL)
-			    if(gppsfile && (gppsfile != gpoutfile))
+			    if(gppsfile && gppsfile != GPT.P_GpOutFile)
 				    fprintf(gppsfile, "%%pm3d_map_end\n");
 		    break;
 
@@ -838,7 +836,7 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 void EPSLATEX_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	if(gpoutfile) {
+	if(GPT.P_GpOutFile) {
 		switch(option) {
 			case TEXTBOX_INIT:
 				// Initialize bounding box for this text string 
@@ -849,21 +847,21 @@ void EPSLATEX_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 				PSLATEX_inbox = FALSE;
 				break;
 			case TEXTBOX_OUTLINE:
-				fputs("\t\\settowidth{\\gptboxwidth}{\\usebox{\\gptboxtext}}\n", gpoutfile);
-				fputs("\t\\advance\\gptboxwidth by 2\\fboxsep\n", gpoutfile);
-				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
+				fputs("\t\\settowidth{\\gptboxwidth}{\\usebox{\\gptboxtext}}\n", GPT.P_GpOutFile);
+				fputs("\t\\advance\\gptboxwidth by 2\\fboxsep\n", GPT.P_GpOutFile);
+				fprintf(GPT.P_GpOutFile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
 				switch(p_gp->TPsB.Justify) {
 					case LEFT:
-						fputs("{\\makebox(0,0)[l]", gpoutfile);
-						fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						fputs("{\\makebox(0,0)[l]", GPT.P_GpOutFile);
+						fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", GPT.P_GpOutFile);
 						break;
 					case CENTRE:
-						fputs("{\\makebox(0,0)", gpoutfile);
-						fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						fputs("{\\makebox(0,0)", GPT.P_GpOutFile);
+						fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", GPT.P_GpOutFile);
 						break;
 					case RIGHT:
-						fputs("{\\makebox(0,0)[r]", gpoutfile);
-						fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						fputs("{\\makebox(0,0)[r]", GPT.P_GpOutFile);
+						fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", GPT.P_GpOutFile);
 						break;
 				}
 				PSLATEX_inbox = FALSE;
@@ -871,18 +869,18 @@ void EPSLATEX_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 			case TEXTBOX_BACKGROUNDFILL:
 				if(!tex_color_synced) {
 					// FIXME: sync tex_current_color also? 
-					fprintf(gpoutfile, "        %s\n", tex_rgb_colordef);
+					fprintf(GPT.P_GpOutFile, "        %s\n", tex_rgb_colordef);
 					tex_color_synced = TRUE;
 				}
-				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
+				fprintf(GPT.P_GpOutFile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
 				switch(p_gp->TPsB.Justify) {
-					case LEFT: fputs("{\\makebox(0,0)[l]{", gpoutfile); break;
-					case CENTRE: fputs("{\\makebox(0,0){", gpoutfile); break;
-					case RIGHT: fputs("{\\makebox(0,0)[r]{", gpoutfile); break;
+					case LEFT: fputs("{\\makebox(0,0)[l]{", GPT.P_GpOutFile); break;
+					case CENTRE: fputs("{\\makebox(0,0){", GPT.P_GpOutFile); break;
+					case RIGHT: fputs("{\\makebox(0,0)[r]{", GPT.P_GpOutFile); break;
 				}
 				if(PSLATEX_opacity < 1.0)
-					fprintf(gpoutfile, "\\transparent{%.2f}", PSLATEX_opacity);
-				fputs("\\colorbox{tbcol}{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+					fprintf(GPT.P_GpOutFile, "\\transparent{%.2f}", PSLATEX_opacity);
+				fputs("\\colorbox{tbcol}{\\usebox{\\gptboxtext}}}}\n", GPT.P_GpOutFile);
 				break;
 			case TEXTBOX_MARGINS:
 				PSLATEX_xmargin = (double)x / 100.0;

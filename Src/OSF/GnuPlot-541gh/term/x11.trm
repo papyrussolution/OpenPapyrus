@@ -637,55 +637,53 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 #endif
 		}
 	}
-
 #ifdef EXTERNAL_X11_WINDOW
 	if(set_window) {
-		sprintf(term_options, "XID 0x%lX", existing_X11_window_id);
+		sprintf(GPT.TermOptions, "XID 0x%lX", existing_X11_window_id);
 	}
 	else
 #endif
 	if(set_number && new_term_number >= 0) {
-		sprintf(term_options, "%d", new_term_number);
+		sprintf(GPT.TermOptions, "%d", new_term_number);
 	}
 	if(UNSET != do_raise) {
-		strcat(term_options, (yes == do_raise ? " raise" : " noraise"));
+		strcat(GPT.TermOptions, (yes == do_raise ? " raise" : " noraise"));
 	}
 	if(UNSET != replot_on_resize) {
-		strcat(term_options, (yes == replot_on_resize ? " replotonresize" : " noreplotonresize"));
+		strcat(GPT.TermOptions, (yes == replot_on_resize ? " replotonresize" : " noreplotonresize"));
 	}
 	if(UNSET != x11_persist) {
-		strcat(term_options, (yes == x11_persist ? " persist" : " nopersist"));
+		strcat(GPT.TermOptions, (yes == x11_persist ? " persist" : " nopersist"));
 	}
 	if(UNSET != ctrlq) {
-		strcat(term_options, (yes == ctrlq ? " ctrlq" : " noctrlq"));
+		strcat(GPT.TermOptions, (yes == ctrlq ? " ctrlq" : " noctrlq"));
 	}
 	if(pThis->put_text == ENHX11_put_text) {
-		strcat(term_options, " enhanced");
+		strcat(GPT.TermOptions, " enhanced");
 	}
 	if(X11_linewidth_multiplier != 1.0) {
-		sprintf(term_options + strlen(term_options), " linewidth %.2g", X11_linewidth_multiplier);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " linewidth %.2g", X11_linewidth_multiplier);
 	}
 	if(*X11_default_font) {
-		strcat(term_options, " font \"");
-		strcat(term_options, X11_default_font);
-		strcat(term_options, "\"");
+		strcat(GPT.TermOptions, " font \"");
+		strcat(GPT.TermOptions, X11_default_font);
+		strcat(GPT.TermOptions, "\"");
 	}
 	if(set_title) {
 		char * title;
 		int save_token = pGp->Pgm.GetCurTokenIdx();
 		pGp->Pgm.SetTokenIdx(c_title_token);
-		strncat(term_options, " title \"", sizeof(term_options)-strlen(term_options)-1);
-		title = term_options + strlen(term_options);
+		strncat(GPT.TermOptions, " title \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		title = GPT.TermOptions + strlen(GPT.TermOptions);
 		if(pGp->Pgm.IsStringValue(c_title_token) && (s = pGp->TryToGetString())) {
-			strncat(term_options, s, sizeof(term_options)-strlen(term_options)-1);
+			strncat(GPT.TermOptions, s, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 			SAlloc::F(s);
 		}
 		else
-			pGp->Pgm.CopyStr(term_options+strlen(term_options), c_title_token, MAX_LINE_LEN-strlen(term_options));
+			pGp->Pgm.CopyStr(GPT.TermOptions+strlen(GPT.TermOptions), c_title_token, MAX_LINE_LEN-strlen(GPT.TermOptions));
 		if(X11_ipc) {
-			/* Send up to maximum buffer length minus three characters of
-			 * title string to account for required 'n', '\0', '\n'.
-			 */
+			// Send up to maximum buffer length minus three characters of
+			// title string to account for required 'n', '\0', '\n'.
 			int i;
 			fputc('n', X11_ipc);
 			for(i = 0; i < X11_COMMAND_BUFFER_LENGTH-3 && title[i] != '\0'; i++)
@@ -694,13 +692,13 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			fputc('\n', X11_ipc);
 			fflush(X11_ipc);
 		}
-		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
+		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
 		pGp->Pgm.SetTokenIdx(save_token);
 	}
 	if(set_size != UNSET)
-		sprintf(term_options + strlen(term_options), " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
 	if(set_position != UNSET)
-		sprintf(term_options + strlen(term_options), " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
 	X11_update_opts();
 }
 
@@ -1314,18 +1312,17 @@ TERM_PUBLIC void X11_graphics(GpTermEntry * pThis)
 	}
 	PRINT1("G%lu\n", windowid);
 #endif /* USE_MOUSE */
-	if(encoding != last_encoding) {
-		PRINT1("QE%d\n", encoding);
-		last_encoding = encoding;
+	if(GPT._Encoding != last_encoding) {
+		PRINT1("QE%d\n", GPT._Encoding);
+		last_encoding = GPT._Encoding;
 	}
-
 #if defined(USE_MOUSE)
 	/* EAM Jan 2013 - multiplot is incompatible with replot_on_resize.	*/
 	/* FIXME: This disables replot_on_resize until the next 'set term'.	*/
 	/* A cleaner solution would be to have gnuplot_x11 itself track         */
 	/* whether the current window contains a multiplot, and not	send	*/
 	/* replot requests if it does.					*/
-	if(multiplot) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot) {
 		fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, no);
 		fflush(X11_ipc);
 	}
@@ -1885,7 +1882,7 @@ TERM_PUBLIC void ENHX11_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		X11_put_text(x, y, str);
 		return;
 	}
-	if(!strlen(str))
+	if(isempty(str))
 		return;
 	// if there are no magic characters, we should just be able
 	// punt the string to X11_put_text()
@@ -1964,7 +1961,7 @@ TERM_PUBLIC void X11_layer(t_termlayer syncpoint)
 	switch(syncpoint) {
 		case TERM_LAYER_RESET:
 		case TERM_LAYER_RESET_PLOTNO:
-		    if(multiplot)
+		    if(GPT.Flags & GpTerminalBlock::fMultiplot)
 			    break;
 		case TERM_LAYER_BEFORE_PLOT:
 		case TERM_LAYER_AFTER_PLOT:

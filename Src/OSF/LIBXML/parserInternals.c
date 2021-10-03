@@ -30,7 +30,7 @@ void xmlCheckVersion(int version)
 	xmlInitParser();
 	if((myversion / 10000) != (version / 10000)) {
 		xmlGenericError(0, "Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
-		fprintf(stderr, "Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
+		slfprintf_stderr("Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
 	}
 	if((myversion / 100) < (version / 100)) {
 		xmlGenericError(0, "Warning: program compiled against libxml %d using older %d\n", (version / 100), (myversion / 100));

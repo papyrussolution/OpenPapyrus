@@ -154,7 +154,7 @@ picture r[];\n\
 \ndef openit = openwindow currentwindow\n\
   from (0,0) to (400,800) at (-50,500) enddef;\n\
 \nmode_setup;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	fputs("\
 \n%Include next eight lines if you have problems with the mode on your system..\n\
@@ -166,7 +166,7 @@ picture r[];\n\
 %fillin:=.2;\n\
 %o_correction:=.6;\n\
 %fix_units;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	/* Next lines must be included if text support is needed (CM base used) */
 	fputs("\
@@ -214,7 +214,7 @@ picture r[];\n\
     endfor\n\
   endgroup \n\
 enddef;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	fputs("\
 \ndef endchar =\n\
@@ -226,7 +226,7 @@ enddef;\n\
 let endchar_ = endchar;\n\
 let generate = relax;\n\
 let roman = relax;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	fputs("\
 input cmr10.mf\n\
@@ -253,7 +253,7 @@ input punct.mf %Punctuation symbols.\n\
   draw z1--z2;	 % bar\n\
   labels(1,2); \n\
 endchar;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	fputs("\
 \ncmchar \"Period\";\n\
@@ -265,7 +265,7 @@ endchar;\n",
   lft x1l=hround(.5w-.5dot_diam); bot y2l=0; z1=z2; dot(1,2);	% dot\n\
   penlabels(1,2);\n\
 endchar;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	fputs("\
 \ndef endchar =\n\
@@ -285,7 +285,7 @@ enddef;\n\
 let endchar_ = endchar;\n\
 let generate = input;\n\
 let roman = roman;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 
 	/* font_size must be bigger than em#/16 by METAFONT rules.
 	 * Therefore make it pretty big so big figures will be
@@ -299,20 +299,20 @@ th#=0.4pt#; define_whole_pixels(th);\n\
 arrowhead = (-7pt,-2pt){dir30}..(-6pt,0pt)..\
 {dir150}(-7pt,2pt) &\n\
   (-7pt,2pt)--(0pt,0pt)--(-7pt,-2pt) & cycle;\n",
-	    gpoutfile);
+	    GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void MF_graphics(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
+	fprintf(GPT.P_GpOutFile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
 	MF_char_code++;
-	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", pThis->MaxX, pThis->MaxY);
+	fprintf(GPT.P_GpOutFile, "a:=w/%d;b:=h/%d;\n", pThis->MaxX, pThis->MaxY);
 	MF_picked_up_pen = 0;
 }
 
 TERM_PUBLIC void MF_text(GpTermEntry * pThis)
 {
-	fputs("endchar;\n", gpoutfile);
+	fputs("endchar;\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC int MF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
@@ -337,7 +337,7 @@ TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype)
 	/* Only output change in pens if it actually affects the pen used */
 	if((MF_lines[linetype].thickness != MF_lines[MF_line_type].thickness) ||
 	    (!MF_picked_up_pen)) {
-		fprintf(gpoutfile, "pickup pencircle scaled %gth;\n",
+		fprintf(GPT.P_GpOutFile, "pickup pencircle scaled %gth;\n",
 		    MF_lines[linetype].thickness);
 		MF_picked_up_pen = 1;
 	}
@@ -359,9 +359,9 @@ TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	if(MF_is_solid) {
 		if(x == MF_last_x && y == MF_last_y)
-			fprintf(gpoutfile, "drawdot (%da,%db);\n", x, y);
+			fprintf(GPT.P_GpOutFile, "drawdot (%da,%db);\n", x, y);
 		else
-			fprintf(gpoutfile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, x, y);
+			fprintf(GPT.P_GpOutFile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, x, y);
 	}
 	else {
 		double dist_to_go, delta_x, delta_y, inc_x, inc_y;
@@ -369,7 +369,7 @@ TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 		uint next_x, next_y;
 		if(x == MF_last_x && y == MF_last_y) {
 			if(!(MF_dash_index & 1))
-				fprintf(gpoutfile, "drawdot (%da,%db);\n", x, y);
+				fprintf(GPT.P_GpOutFile, "drawdot (%da,%db);\n", x, y);
 		}
 		else {
 			last_x_d = MF_last_x;
@@ -386,7 +386,7 @@ TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 				next_y = ffloori(next_y_d + 0.5);
 				// MF_dash_index & 1 == 0 means: draw a line; otherwise just move 
 				if(!(MF_dash_index & 1))
-					fprintf(gpoutfile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, next_x, next_y);
+					fprintf(GPT.P_GpOutFile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, next_x, next_y);
 				MF_last_x = next_x;
 				MF_last_y = next_y;
 				last_x_d = next_x_d;
@@ -400,9 +400,9 @@ TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 			MF_dist_left -= sqrt(delta_x * delta_x + delta_y * delta_y);
 			if(!(MF_dash_index & 1)) {
 				if(x == MF_last_x && y == MF_last_y)
-					fprintf(gpoutfile, "drawdot (%da,%db);\n", x, y);
+					fprintf(GPT.P_GpOutFile, "drawdot (%da,%db);\n", x, y);
 				else
-					fprintf(gpoutfile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, x, y);
+					fprintf(GPT.P_GpOutFile, "draw (%da,%db)--(%da,%db);\n", MF_last_x, MF_last_y, x, y);
 			}
 		}
 	}
@@ -418,7 +418,7 @@ TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint e
 	if(head) {
 		delta_x = ex - sx;
 		delta_y = ey - sy;
-		fprintf(gpoutfile, "fill arrowhead rotated angle(%d,%d) shifted (%da,%db);\n", delta_x, delta_y, ex, ey);
+		fprintf(GPT.P_GpOutFile, "fill arrowhead rotated angle(%d,%d) shifted (%da,%db);\n", delta_x, delta_y, ex, ey);
 	}
 }
 
@@ -440,14 +440,14 @@ TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 			case CENTRE: j = 2; break;
 			case RIGHT: j = 3; break;
 		}
-		fprintf(gpoutfile, "put_text(\"%s\",%da,%db,%d,%d);\n", text, x, y, MF_ang, j);
+		fprintf(GPT.P_GpOutFile, "put_text(\"%s\",%da,%db,%d,%d);\n", text, x, y, MF_ang, j);
 		SAlloc::F(text);
 	}
 }
 
 TERM_PUBLIC void MF_reset(GpTermEntry * pThis)
 {
-	fputs("end.\n", gpoutfile);
+	fputs("end.\n", GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

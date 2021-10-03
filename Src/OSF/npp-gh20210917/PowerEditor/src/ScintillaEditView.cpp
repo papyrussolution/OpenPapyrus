@@ -1171,17 +1171,17 @@ void ScintillaEditView::defineDocType(LangType typeDoc)
 	NppStyle defaultIndicatorStyle;
 	const NppStyle * pStyle;
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE;
-	defaultIndicatorStyle._bgColor = red;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrRed); // red
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_SMART;
-	defaultIndicatorStyle._bgColor = liteGreen;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrLime); //liteGreen
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_INC;
-	defaultIndicatorStyle._bgColor = blue;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrBlue); //blue;
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
@@ -1191,32 +1191,32 @@ void ScintillaEditView::defineDocType(LangType typeDoc)
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_TAGATTR;
-	defaultIndicatorStyle._bgColor = yellow;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrYellow); //yellow
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_EXT1;
-	defaultIndicatorStyle._bgColor = cyan;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrCyan); //cyan;
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_EXT2;
-	defaultIndicatorStyle._bgColor = orange;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrOrange_npp); //orange
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_EXT3;
-	defaultIndicatorStyle._bgColor = yellow;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrYellow); //yellow
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_EXT4;
-	defaultIndicatorStyle._bgColor = purple;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrPurple_npp); // purple
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
 	defaultIndicatorStyle._styleID = SCE_UNIVERSAL_FOUND_STYLE_EXT5;
-	defaultIndicatorStyle._bgColor = darkGreen;
+	defaultIndicatorStyle._bgColor = GetColorRef(SClrGreen); // darkGreen
 	pStyle = stylers.findByID(defaultIndicatorStyle._styleID);
 	setSpecialIndicator(pStyle ? *pStyle : defaultIndicatorStyle);
 
@@ -1230,54 +1230,31 @@ void ScintillaEditView::defineDocType(LangType typeDoc)
 				execute(SCI_SETCODEPAGE, _codepage);
 		}
 	}
-
 	ScintillaViewParams & svp = (ScintillaViewParams &)NppParameters::getInstance().getSVP();
 	if(svp._folderStyle != FOLDER_STYLE_NONE)
 		showMargin(_SC_MARGE_FOLDER, isNeededFolderMarge(typeDoc));
-
-	switch(typeDoc)
-	{
+	switch(typeDoc) {
 		case L_C:
 		case L_CPP:
 		case L_JAVA:
 		case L_RC:
 		case L_CS:
 		case L_FLASH:
-		case L_SWIFT:
-		    setCppLexer(typeDoc); break;
-
+		case L_SWIFT: setCppLexer(typeDoc); break;
 		case L_JS:
-		case L_JAVASCRIPT:
-		    setJsLexer(); break;
-
-		case L_TCL:
-		    setTclLexer(); break;
-
-		case L_OBJC:
-		    setObjCLexer(typeDoc); break;
-
+		case L_JAVASCRIPT: setJsLexer(); break;
+		case L_TCL: setTclLexer(); break;
+		case L_OBJC: setObjCLexer(typeDoc); break;
 		case L_PHP:
 		case L_ASP:
 		case L_JSP:
 		case L_HTML:
-		case L_XML:
-		    setXmlLexer(typeDoc); break;
-
-		case L_JSON:
-		    setJsonLexer(); break;
-
-		case L_CSS:
-		    setCssLexer(); break;
-
-		case L_LUA:
-		    setLuaLexer(); break;
-
-		case L_MAKEFILE:
-		    setMakefileLexer(); break;
-
-		case L_INI:
-		    setIniLexer(); break;
-
+		case L_XML: setXmlLexer(typeDoc); break;
+		case L_JSON: setJsonLexer(); break;
+		case L_CSS: setCssLexer(); break;
+		case L_LUA: setLuaLexer(); break;
+		case L_MAKEFILE: setMakefileLexer(); break;
+		case L_INI: setIniLexer(); break;
 		case L_USER: {
 		    const TCHAR * langExt = _currentBuffer->getUserDefineLangName();
 		    if(langExt[0])
@@ -1286,7 +1263,6 @@ void ScintillaEditView::defineDocType(LangType typeDoc)
 			    setUserLexer();
 		    break;
 	    }
-
 		case L_ASCII:
 	    {
 		    LexerStyler * pStyler = (NppParameters::getInstance().getLStylerArray()).getLexerStylerByName(TEXT("nfo"));
@@ -1356,55 +1332,22 @@ void ScintillaEditView::defineDocType(LangType typeDoc)
 		case L_BLITZBASIC: setBlitzBasicLexer(); break;
 		case L_PUREBASIC: setPureBasicLexer(); break;
 		case L_FREEBASIC: setFreeBasicLexer(); break;
-
-		case L_CSOUND:
-		    setCsoundLexer(); break;
-
-		case L_ERLANG:
-		    setErlangLexer(); break;
-
-		case L_ESCRIPT:
-		    setESCRIPTLexer(); break;
-
-		case L_FORTH:
-		    setForthLexer(); break;
-
-		case L_LATEX:
-		    setLatexLexer(); break;
-
-		case L_MMIXAL:
-		    setMMIXALLexer(); break;
-
-		case L_NIM:
-		    setNimrodLexer(); break;
-
-		case L_NNCRONTAB:
-		    setNncrontabLexer(); break;
-
-		case L_OSCRIPT:
-		    setOScriptLexer(); break;
-
-		case L_REBOL:
-		    setREBOLLexer(); break;
-
-		case L_REGISTRY:
-		    setRegistryLexer(); break;
-
-		case L_RUST:
-		    setRustLexer(); break;
-
-		case L_SPICE:
-		    setSpiceLexer(); break;
-
-		case L_TXT2TAGS:
-		    setTxt2tagsLexer(); break;
-
-		case L_VISUALPROLOG:
-		    setVisualPrologLexer(); break;
-
-		case L_TYPESCRIPT:
-		    setTypeScriptLexer(); break;
-
+		case L_CSOUND: setCsoundLexer(); break;
+		case L_ERLANG: setErlangLexer(); break;
+		case L_ESCRIPT: setESCRIPTLexer(); break;
+		case L_FORTH: setForthLexer(); break;
+		case L_LATEX: setLatexLexer(); break;
+		case L_MMIXAL: setMMIXALLexer(); break;
+		case L_NIM: setNimrodLexer(); break;
+		case L_NNCRONTAB: setNncrontabLexer(); break;
+		case L_OSCRIPT: setOScriptLexer(); break;
+		case L_REBOL: setREBOLLexer(); break;
+		case L_REGISTRY: setRegistryLexer(); break;
+		case L_RUST: setRustLexer(); break;
+		case L_SPICE: setSpiceLexer(); break;
+		case L_TXT2TAGS: setTxt2tagsLexer(); break;
+		case L_VISUALPROLOG: setVisualPrologLexer(); break;
+		case L_TYPESCRIPT: setTypeScriptLexer(); break;
 		case L_TEXT:
 		default:
 		    if(typeDoc >= L_EXTERNAL && typeDoc < NppParameters::getInstance().L_END)
@@ -2167,7 +2110,9 @@ void ScintillaEditView::setMakerStyle(folderStyle style)
 	else {
 		display = true;
 	}
-	COLORREF foldfgColor = white, foldbgColor = grey, activeFoldFgColor = red;
+	COLORREF foldfgColor = GetColorRef(SClrWhite); // white
+	COLORREF foldbgColor = GetColorRef(SClrGrey); // grey
+	COLORREF activeFoldFgColor = GetColorRef(SClrRed); //red
 	getFoldColor(foldfgColor, foldbgColor, activeFoldFgColor);
 	for(int i = 0; i < NB_FOLDER_STATE; ++i)
 		defineMarker(_markersArray[FOLDER_TYPE][i], _markersArray[style][i], foldfgColor, foldbgColor, activeFoldFgColor);
@@ -2233,8 +2178,8 @@ void ScintillaEditView::performGlobalStyles()
 	if(pStyle) {
 		execute(SCI_SETCARETLINEBACK, pStyle->_bgColor);
 	}
-	COLORREF selectColorBack = grey;
-	COLORREF selectColorFore = black;
+	COLORREF selectColorBack = GetColorRef(SClrGrey); // grey
+	COLORREF selectColorFore = GetColorRef(SClrBlack); // black
 	pStyle = stylers.findByName(TEXT("Selected text colour"));
 	if(pStyle) {
 		selectColorBack = pStyle->_bgColor;
@@ -2243,21 +2188,21 @@ void ScintillaEditView::performGlobalStyles()
 	execute(SCI_SETSELBACK, 1, selectColorBack);
 	if(nppParams.isSelectFgColorEnabled())
 		execute(SCI_SETSELFORE, 1, selectColorFore);
-	COLORREF caretColor = black;
+	COLORREF caretColor = GetColorRef(SClrBlack); // black
 	pStyle = stylers.findByID(SCI_SETCARETFORE);
 	if(pStyle) {
 		caretColor = pStyle->_fgColor;
 	}
 	execute(SCI_SETCARETFORE, caretColor);
-	COLORREF edgeColor = liteGrey;
+	COLORREF edgeColor = GetColorRef(SClrSilver); //liteGrey;
 	pStyle = stylers.findByName(TEXT("Edge colour"));
 	if(pStyle) {
 		edgeColor = pStyle->_fgColor;
 	}
 	execute(SCI_SETEDGECOLOUR, edgeColor);
 	::SendMessage(_hParent, NPPM_INTERNAL_EDGEMULTISETSIZE, 0, 0);
-	COLORREF foldMarginColor = grey;
-	COLORREF foldMarginHiColor = white;
+	COLORREF foldMarginColor = GetColorRef(SClrGrey); // grey
+	COLORREF foldMarginHiColor = GetColorRef(SClrWhite); // white
 	pStyle = stylers.findByName(TEXT("Fold margin"));
 	if(pStyle) {
 		foldMarginHiColor = pStyle->_fgColor;
@@ -2265,7 +2210,7 @@ void ScintillaEditView::performGlobalStyles()
 	}
 	execute(SCI_SETFOLDMARGINCOLOUR, true, foldMarginColor);
 	execute(SCI_SETFOLDMARGINHICOLOUR, true, foldMarginHiColor);
-	COLORREF bookmarkMarginColor = veryLiteGrey;
+	COLORREF bookmarkMarginColor = GetColorRef(SClrVeryLitegrey); //veryLiteGrey
 	pStyle = stylers.findByName(TEXT("Bookmark margin"));
 	if(!pStyle) {
 		pStyle = stylers.findByName(TEXT("Line number margin"));
@@ -2278,22 +2223,21 @@ void ScintillaEditView::performGlobalStyles()
 	}
 	execute(SCI_SETMARGINTYPEN, _SC_MARGE_SYBOLE, SC_MARGIN_COLOUR);
 	execute(SCI_SETMARGINBACKN, _SC_MARGE_SYBOLE, bookmarkMarginColor);
-
-	COLORREF urlHoveredFG = grey;
+	COLORREF urlHoveredFG = GetColorRef(SClrGrey); // grey
 	pStyle = stylers.findByName(TEXT("URL hovered"));
 	if(pStyle) {
 		urlHoveredFG = pStyle->_fgColor;
 	}
 	execute(SCI_INDICSETHOVERFORE, URL_INDIC, urlHoveredFG);
-
-	COLORREF foldfgColor = white, foldbgColor = grey, activeFoldFgColor = red;
+	COLORREF foldfgColor = GetColorRef(SClrWhite); // white
+	COLORREF foldbgColor = GetColorRef(SClrGrey); // grey
+	COLORREF activeFoldFgColor = GetColorRef(SClrRed); //red
 	getFoldColor(foldfgColor, foldbgColor, activeFoldFgColor);
-
 	ScintillaViewParams & svp = (ScintillaViewParams &)nppParams.getSVP();
 	for(int j = 0; j < NB_FOLDER_STATE; ++j)
 		defineMarker(_markersArray[FOLDER_TYPE][j], _markersArray[svp._folderStyle][j], foldfgColor, foldbgColor, activeFoldFgColor);
 	execute(SCI_MARKERENABLEHIGHLIGHT, true);
-	COLORREF wsSymbolFgColor = black;
+	COLORREF wsSymbolFgColor = GetColorRef(SClrBlack); // black
 	pStyle = stylers.findByName(TEXT("White space symbol"));
 	if(pStyle) {
 		wsSymbolFgColor = pStyle->_fgColor;

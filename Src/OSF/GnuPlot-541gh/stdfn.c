@@ -312,7 +312,7 @@ char * gp_getcwd(char * path, size_t len)
 {
 	wchar_t wpath[MAX_PATH + 1];
 	if(_wgetcwd(wpath, MAX_PATH)) {
-		WideCharToMultiByte(WinGetCodepage(encoding), 0, wpath, -1, path, len, NULL, 0);
+		WideCharToMultiByte(WinGetCodepage(GPT._Encoding), 0, wpath, -1, path, len, NULL, 0);
 		return path;
 	}
 	return NULL;
@@ -351,7 +351,7 @@ DIR * gp_opendir(const char * name)
 		dir = (DIR*)SAlloc::M(sizeof(*dir));
 		if(dir && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
-			dir->name = UnicodeText(mbname, encoding);
+			dir->name = UnicodeText(mbname, GPT._Encoding);
 			SAlloc::F(mbname);
 			if(dir->name && ((dir->handle = (long)_wfindfirst(dir->name, &dir->info)) != -1)) {
 				dir->result.d_name = NULL;
@@ -393,9 +393,8 @@ struct gp_dirent * gp_readdir(DIR * dir)
 	struct gp_dirent * result = 0;
 	if(dir && dir->handle != -1) {
 		if(!dir->result.d_name || _wfindnext(dir->handle, &dir->info) != -1) {
-			result         = &dir->result;
-			WideCharToMultiByte(WinGetCodepage(encoding), 0, dir->info.name, sizeof(dir->info.name) / sizeof(wchar_t),
-			    dir->info_mbname, sizeof(dir->info_mbname) / sizeof(char), NULL, 0);
+			result = &dir->result;
+			WideCharToMultiByte(WinGetCodepage(GPT._Encoding), 0, dir->info.name, SIZEOFARRAY(dir->info.name), dir->info_mbname, SIZEOFARRAY(dir->info_mbname), NULL, 0);
 			result->d_name = dir->info_mbname;
 		}
 	}

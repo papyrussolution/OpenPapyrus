@@ -40,10 +40,10 @@ static void jbig2_default_error(void * data, const char * msg, Jbig2Severity sev
 {
 	// report only fatal errors by default 
 	if(severity == JBIG2_SEVERITY_FATAL) {
-		fprintf(stderr, "jbig2 decoder FATAL ERROR: %s", msg);
+		slfprintf_stderr("jbig2 decoder FATAL ERROR: %s", msg);
 		if(seg_idx != JBIG2_UNKNOWN_SEGMENT_NUMBER)
-			fprintf(stderr, " (segment 0x%02x)", seg_idx);
-		fprintf(stderr, "\n");
+			slfprintf_stderr(" (segment 0x%02x)", seg_idx);
+		slfprintf_stderr("\n");
 		fflush(stderr);
 	}
 }

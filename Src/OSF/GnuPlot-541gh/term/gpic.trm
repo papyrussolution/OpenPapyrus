@@ -126,25 +126,25 @@ TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			GPIC_y = y;
 		}
 	}
-	sprintf(term_options, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
+	sprintf(GPT.TermOptions, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
 }
 
 TERM_PUBLIC void GPIC_init(GpTermEntry * pThis)
 {
 	GPIC_linetype(-1);
-	fputs(".\\\"GNUPLOT: GROFF picture using the gpic preprocessor\n", gpoutfile);
+	fputs(".\\\"GNUPLOT: GROFF picture using the gpic preprocessor\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile, ".PS %f %f\n", GPIC_coord(pThis->MaxX), GPIC_coord(pThis->MaxY));
-	fprintf(gpoutfile, "x=%f; y=%f\n", GPIC_x, GPIC_y);
+	fprintf(GPT.P_GpOutFile, ".PS %f %f\n", GPIC_coord(pThis->MaxX), GPIC_coord(pThis->MaxY));
+	fprintf(GPT.P_GpOutFile, "x=%f; y=%f\n", GPIC_x, GPIC_y);
 }
 
 TERM_PUBLIC void GPIC_text()
 {
 	GPIC_close_line();
-	fputs(".PE\n", gpoutfile);
+	fputs(".PE\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void GPIC_linetype(int linetype)
@@ -159,7 +159,7 @@ TERM_PUBLIC void GPIC_linetype(int linetype)
 static void GPIC_close_line()
 {
 	if(GPIC_linecount > 0) {
-		fputs("; reset linewid\n", gpoutfile);
+		fputs("; reset linewid\n", GPT.P_GpOutFile);
 		GPIC_linecount = 0;
 	}
 }
@@ -167,19 +167,19 @@ static void GPIC_close_line()
 TERM_PUBLIC void GPIC_move(uint x, uint y)
 {
 	GPIC_close_line();
-	fprintf(gpoutfile, "move to (x+%f,y+%f)\n", GPIC_coord(x), GPIC_coord(y));
+	fprintf(GPT.P_GpOutFile, "move to (x+%f,y+%f)\n", GPIC_coord(x), GPIC_coord(y));
 	GPIC_linecount = 1;
 }
 
 TERM_PUBLIC void GPIC_vector(uint ux, uint uy)
 {
 	if(GPIC_linecount == 1) {
-		fprintf(gpoutfile, "line %s to (x+%f,y+%f)",
+		fprintf(GPT.P_GpOutFile, "line %s to (x+%f,y+%f)",
 		    GPIC_lines[GPIC_ltype + 2],
 		    GPIC_coord(ux), GPIC_coord(uy));
 	}
 	else {
-		fprintf(gpoutfile, "\
+		fprintf(GPT.P_GpOutFile, "\
  \\\n\
    then to (x+%f,y+%f)",
 		    GPIC_coord(ux), GPIC_coord(uy));
@@ -191,23 +191,23 @@ TERM_PUBLIC void GPIC_arrow(uint sx, uint sy, uint ex, uint ey, int head)
 {
 	GPIC_close_line();
 	if(head) {
-		fprintf(gpoutfile, "arrowhead=7; arrow from x+%f,y+%f to x+%f,y+%f\n", GPIC_coord(sx), GPIC_coord(sy), GPIC_coord(ex), GPIC_coord(ey));
+		fprintf(GPT.P_GpOutFile, "arrowhead=7; arrow from x+%f,y+%f to x+%f,y+%f\n", GPIC_coord(sx), GPIC_coord(sy), GPIC_coord(ex), GPIC_coord(ey));
 	}
 	else {
-		fprintf(gpoutfile, "line from x+%f,y+%f to x+%f,y+%f\n", GPIC_coord(sx), GPIC_coord(sy), GPIC_coord(ex), GPIC_coord(ey));
+		fprintf(GPT.P_GpOutFile, "line from x+%f,y+%f to x+%f,y+%f\n", GPIC_coord(sx), GPIC_coord(sy), GPIC_coord(ex), GPIC_coord(ey));
 	}
 }
 
 TERM_PUBLIC void GPIC_put_text(uint x, uint y, const char str[])
 {
 	GPIC_close_line();
-	fprintf(gpoutfile, "\"%s\" ", str);
+	fprintf(GPT.P_GpOutFile, "\"%s\" ", str);
 	switch(GPIC_justify) {
-		case LEFT: fputs("ljust ", gpoutfile); break;
-		case CENTRE: fputs(" ", gpoutfile); break;
-		case RIGHT: fputs("rjust ", gpoutfile); break;
+		case LEFT: fputs("ljust ", GPT.P_GpOutFile); break;
+		case CENTRE: fputs(" ", GPT.P_GpOutFile); break;
+		case RIGHT: fputs("rjust ", GPT.P_GpOutFile); break;
 	}
-	fprintf(gpoutfile, "at x+%f,y+%f\n", GPIC_coord(x), GPIC_coord(y));
+	fprintf(GPT.P_GpOutFile, "at x+%f,y+%f\n", GPIC_coord(x), GPIC_coord(y));
 }
 
 TERM_PUBLIC int GPIC_justify_text(enum JUSTIFY mode)
@@ -225,7 +225,7 @@ TERM_PUBLIC int GPIC_text_angle(int ang)
 
 TERM_PUBLIC void GPIC_reset()
 {
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

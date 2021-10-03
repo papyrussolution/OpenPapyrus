@@ -1798,14 +1798,14 @@ int main(int argc, char ** argv)
 		else if(strcmp(argv[i], "--output") == 0) {
 			out = fopen(argv[++i], "wb");
 			if(out == NULL) {
-				fprintf(stderr, "cannot open %s\n", argv[i]);
+				slfprintf_stderr("cannot open %s\n", argv[i]);
 				return 1;
 			}
 		}
 		else {
 			in = fopen(argv[i], "rb");
 			if(in == NULL) {
-				fprintf(stderr, "cannot open %s\n", argv[i]);
+				slfprintf_stderr("cannot open %s\n", argv[i]);
 				return 1;
 			}
 			break;

@@ -428,7 +428,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
 	states->states[states->nbstates].step = step;
 	states->states[states->nbstates++].P_Node = P_Node;
 #if 0
-	fprintf(stderr, "Push: %d, %s\n", step, node->name);
+	slfprintf_stderr("Push: %d, %s\n", step, node->name);
 #endif
 	return 0;
 }
@@ -634,7 +634,7 @@ rollback:
 	i = states.states[states.nbstates].step;
 	P_Node = states.states[states.nbstates].P_Node;
 #if 0
-	fprintf(stderr, "Pop: %d, %s\n", i, node->name);
+	slfprintf_stderr("Pop: %d, %s\n", i, node->name);
 #endif
 	goto restart;
 }

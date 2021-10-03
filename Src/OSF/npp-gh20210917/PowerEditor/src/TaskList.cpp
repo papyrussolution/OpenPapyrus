@@ -34,48 +34,26 @@ void TaskList::init(HINSTANCE hInst, HWND parent, HIMAGELIST hImaLst, int nbItem
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	icex.dwICC  = ICC_LISTVIEW_CLASSES;
 	InitCommonControlsEx(&icex);
-
 	_nbItem = nbItem;
-
 	// Create the list-view window in report view with label editing enabled.
-	int listViewStyles = LVS_REPORT | LVS_OWNERDATA | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER \
-	    | /*LVS_NOSCROLL |*/ LVS_SINGLESEL | LVS_AUTOARRANGE | LVS_OWNERDRAWFIXED \
-	    | LVS_SHAREIMAGELISTS /* | WS_BORDER*/;
-
-	_hSelf = ::CreateWindow(WC_LISTVIEW,
-		TEXT(""),
-		WS_CHILD | listViewStyles,
-		0,
-		0,
-		0,
-		0,
-		_hParent,
-		NULL,
-		hInst,
-		NULL);
+	int listViewStyles = LVS_REPORT | LVS_OWNERDATA | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | /*LVS_NOSCROLL |*/ LVS_SINGLESEL | LVS_AUTOARRANGE | LVS_OWNERDRAWFIXED | LVS_SHAREIMAGELISTS /* | WS_BORDER*/;
+	_hSelf = ::CreateWindow(WC_LISTVIEW, TEXT(""), WS_CHILD | listViewStyles, 0, 0, 0, 0, _hParent, NULL, hInst, NULL);
 	if(!_hSelf) {
 		throw std::runtime_error("TaskList::init : CreateWindowEx() function return null");
 	}
-
 	::SetWindowLongPtr(_hSelf, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 	_defaultProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(_hSelf, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(staticProc)));
-
 	DWORD exStyle = ListView_GetExtendedListViewStyle(_hSelf);
 	exStyle |= LVS_EX_FULLROWSELECT | LVS_EX_BORDERSELECT | LVS_EX_DOUBLEBUFFER;
 	ListView_SetExtendedListViewStyle(_hSelf, exStyle);
-
 	LVCOLUMN lvColumn;
 	lvColumn.mask = LVCF_WIDTH;
-
 	lvColumn.cx = 500;
-
 	ListView_InsertColumn(_hSelf, 0, &lvColumn);
-
 	ListView_SetItemCountEx(_hSelf, _nbItem, LVSICF_NOSCROLL);
 	ListView_SetImageList(_hSelf, hImaLst, LVSIL_SMALL);
-
 	ListView_SetItemState(_hSelf, _currentIndex, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
-	ListView_SetBkColor(_hSelf, NppDarkMode::isEnabled() ? NppDarkMode::getBackgroundColor() : lightYellow);
+	ListView_SetBkColor(_hSelf, NppDarkMode::isEnabled() ? NppDarkMode::getBackgroundColor() : GetColorRef(SClrLightyellow_npp)/*lightYellow*/);
 }
 
 void TaskList::destroy()

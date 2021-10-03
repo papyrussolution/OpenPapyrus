@@ -154,7 +154,7 @@ typedef struct luaL_Stream {
 #endif
 /* print an error message */
 #if !defined(lua_writestringerror)
-	#define lua_writestringerror(s, p) (fprintf(stderr, (s), (p)), fflush(stderr))
+	#define lua_writestringerror(s, p) (slfprintf_stderr((s), (p)), fflush(stderr))
 #endif
 
 /* }================================================================== */

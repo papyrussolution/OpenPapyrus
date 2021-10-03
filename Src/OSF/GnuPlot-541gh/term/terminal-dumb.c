@@ -142,7 +142,7 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	{
 		const char * coloropts[] = {"mono", "ansi", "ansi256", "ansirgb"};
-		sprintf(term_options, "%sfeed %s size %d, %d aspect %i, %i %s", pGp->TDumbB.Feed ? "" : "no",
+		sprintf(GPT.TermOptions, "%sfeed %s size %d, %d aspect %i, %i %s", pGp->TDumbB.Feed ? "" : "no",
 		    pThis->put_text == ENHdumb_put_text ? "enhanced" : "", pGp->TDumbB.PtMax.x, pGp->TDumbB.PtMax.y,
 		    pThis->TicH, pThis->TicV, coloropts[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1]);
 	}
@@ -192,11 +192,11 @@ void DUMB_text(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, y, i;
-	putc('\f', gpoutfile);
+	putc('\f', GPT.P_GpOutFile);
 	for(y = p_gp->TDumbB.PtMax.y - 1; y >= 0; y--) {
 #ifndef NO_DUMB_COLOR_SUPPORT
 		if(p_gp->TDumbB.ColorMode > 0) {
-			fputs("\033[0;39m", gpoutfile); /* reset colors to default */
+			fputs("\033[0;39m", GPT.P_GpOutFile); /* reset colors to default */
 			memzero(&p_gp->TDumbB.PrevColor, sizeof(t_colorspec));
 		}
 #endif
@@ -206,23 +206,23 @@ void DUMB_text(GpTermEntry * pThis)
 			t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x*y + x];
 			const char * colorstring = p_gp->AnsiColorString(color, &p_gp->TDumbB.PrevColor);
 			if(colorstring[0] != NUL)
-				fputs(colorstring, gpoutfile);
+				fputs(colorstring, GPT.P_GpOutFile);
 			memcpy(&p_gp->TDumbB.PrevColor, color, sizeof(t_colorspec));
 #endif
 			c = (char *)(&p_gp->TDumbB.P_Matrix[p_gp->TDumbB.PtMax.x*y + x]);
 			// The UTF-8 character might be four bytes long and so there's no guarantee that the charcell ends in a NUL. 
 			for(i = 0; i < sizeof(charcell) && *c != NUL; i++, c++)
-				fputc(*c, gpoutfile);
+				fputc(*c, GPT.P_GpOutFile);
 		}
 		if(p_gp->TDumbB.Feed || y > 0)
-			putc('\n', gpoutfile);
+			putc('\n', GPT.P_GpOutFile);
 	}
 #ifndef NO_DUMB_COLOR_SUPPORT
 	if(p_gp->TDumbB.ColorMode > 0) {
-		fputs("\033[0;39;49m", gpoutfile); /* reset colors to default */
+		fputs("\033[0;39;49m", GPT.P_GpOutFile); /* reset colors to default */
 	}
 #endif
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 }
 
 void DUMB_reset(GpTermEntry * pThis)
@@ -355,7 +355,7 @@ static void utf8_copy_one(GpTermEntry * pThis, char * dest, const char * orig)
 	const char * nextchar = orig;
 	ulong wch;
 	*(charcell *)dest = 0; // zero-fill 
-	if(encoding != S_ENC_UTF8)
+	if(GPT._Encoding != S_ENC_UTF8)
 		*dest = *orig;
 	else {
 		// Valid UTF8 byte sequence 

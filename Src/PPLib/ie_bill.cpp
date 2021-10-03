@@ -186,20 +186,20 @@ public:
 										for(xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
 											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_TEXTINF))) {
 												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
-													if(extra_key.CmpNC(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_SUPPL)) == 0) {
+													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_SUPPL))) { // @v11.1.12 CmpNC-->IsEqiUtf8
 														Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_SELLER, true);
 														if(p_part)
 															p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
 													}
-													else if(extra_key.CmpNC(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_CONSIGNOR)) == 0) {
+													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_CONSIGNOR))) { // @v11.1.12 CmpNC-->IsEqiUtf8
 														Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, true);
 														if(p_part)
 															p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
 													}
-													else if(extra_key.CmpNC(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLCODE)) == 0) {
+													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
 														p_new_doc->Code = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
 													}
-													else if(extra_key.CmpNC(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLDATE)) == 0) {
+													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLDATE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
 														p_new_doc->Dt = strtodate_(extra_val, DATF_GERMAN|DATF_CENTURY);
 													}
 												}
@@ -254,7 +254,7 @@ public:
 											}
 											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXTRA2))) {
 												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
-													if(extra_key.CmpNC(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE)) == 0) {
+													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
 														p_item->GTIN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
 													}
 												}

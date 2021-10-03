@@ -443,7 +443,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
-		    DEBUG_OUT(fprintf(stderr, "**** Header %s\n ", *allocuserpwd));
+		    DEBUG_OUT(slfprintf_stderr("**** Header %s\n ", *allocuserpwd));
 		    Curl_safefree(ntlm->response);
 		    if(!*allocuserpwd)
 			    return CURLE_OUT_OF_MEMORY;
@@ -462,7 +462,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
-		    DEBUG_OUT(fprintf(stderr, "**** %s\n ", *allocuserpwd));
+		    DEBUG_OUT(slfprintf_stderr("**** %s\n ", *allocuserpwd));
 		    *state = NTLMSTATE_TYPE3; /* we sent a type-3 */
 		    authp->done = TRUE;
 		    Curl_http_auth_cleanup_ntlm_wb(conn);

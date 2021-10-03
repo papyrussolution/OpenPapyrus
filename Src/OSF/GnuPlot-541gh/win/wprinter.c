@@ -74,7 +74,7 @@ static ULONG STDMETHODCALLTYPE Release(IPrintDialogCallback * This)
 // IPrintDialogCallback
 static HRESULT STDMETHODCALLTYPE InitDone(IPrintDialogCallback * This)
 {
-	/* the general page is initialised, but not shown yet */
+	// the general page is initialised, but not shown yet 
 	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, callback));
 #if 0
 	IPrintDialogServices * services = Base->services_;
@@ -180,6 +180,9 @@ static void PrintingCallbackInit(PrintingCallbackHandler * pThis, GP_PRINT * lpr
 #ifndef __cplusplus
 	pThis->callback.lpVtbl = &IPrintDialogCallback_Vtbl;
 	pThis->site.lpVtbl = &IObjectWithSite_Vtbl;
+#else
+	pThis->callback = 0; // @todo initialize
+	pThis->site = 0;     // @todo initialize
 #endif
 	pThis->lpr_ = lpr;
 }
@@ -451,7 +454,7 @@ BOOL CALLBACK PrintAbortProc(HDC hdcPrn, int code)
 	return !lpr->bUserAbort;
 }
 
-void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
+void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPCTSTR szFileName)
 {
 	PRINTDLGEX pd;
 	DEVNAMES * pDevNames;

@@ -33,7 +33,7 @@
 int main(int argc, char ** argv)
 {
 	if(argc != 4 && argc != 5) {
-		fprintf(stderr, "usage: %s font-file lookup-index first-glyph [second-glyph]\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file lookup-index first-glyph [second-glyph]\n", argv[0]);
 		exit(1);
 	}
 	/* Create the face */

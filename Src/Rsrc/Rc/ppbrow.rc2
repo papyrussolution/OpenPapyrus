@@ -1112,10 +1112,10 @@ toolbar export LIST_WORKBOOK TB_FIRST_TOOLBAR {
 
 toolbar export LIST_GOODSSTRUC TB_FIRST_TOOLBAR {
 	cmaEdit,           "@{edit}\tEnter",              PPDV_EDITFILE02
-	cmaInsert,         "@{add}\tInsert",              PPDV_ADDFILE02
-	cmaDelete,         "@{delete}\tDelete",           PPDV_DELETEFILE02
-	separator
-	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  PPDV_SYSJOURNAL
+	//cmaInsert,         "@{add}\tInsert",              PPDV_ADDFILE02
+	//cmaDelete,         "@{delete}\tDelete",           PPDV_DELETEFILE02
+	//separator
+	//cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  PPDV_SYSJOURNAL
 }
 //
 //
@@ -1439,7 +1439,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		TEST            : kbCtrlT,   PPDV_TEST01,       "Tree\tCtrl-T" // @v11.1.12 @construction
+		TREEVIEW        : kbCtrlT,   PPDV_TREEVIEW,     "@{doviewtree}\tCtrl-T" // @v11.1.12 @construction
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}
@@ -1637,7 +1637,7 @@ browser SELLTRNOVR north(100), 1, 1, "@{view_debttrnovr} {%s}", OWNER|GRID, 0
 	"@shipped",     5, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	"@paid",        6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	"@debt",        7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
-	"@expirydebt", 12, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2 // @v9.1.8
+	"@expirydebt", 12, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	toolbar DEBTTRNOVR
 }
 
@@ -1663,20 +1663,20 @@ browser SELLTRNOVR_EXT_TRUNOVER north(100), 2, 1, "@{view_debttrnovr_turnover} {
 
 browser SELLTRNOVR_E north(100), 3, 1, "@{view_debttrnovr} {%s}", OWNER|GRID, 0
 {
-	"@appellation",  4, notype, 0, 20
-	"#",             3, notype, 0, 4
+	"@appellation",        4, notype, 0, 20
+	"#",                   3, notype, 0, 4
 	group "По отгрузке" {
-		"@shipped",  5, notype, NMBF_NOZERO, 10.2
-		"@paid",     6, notype, NMBF_NOZERO, 10.2
-		"@debt",     7, notype, NMBF_NOZERO, 10.2
+		"@shipped",        5, notype, NMBF_NOZERO, 10.2
+		"@paid",           6, notype, NMBF_NOZERO, 10.2
+		"@debt",           7, notype, NMBF_NOZERO, 10.2
 	}
 	group "По зачетам" {
-		"Платежи",   8, notype, NMBF_NOZERO, 10.2
-		"Зачтено",   9, notype, NMBF_NOZERO, 10.2
-		"@rest",    10, notype, NMBF_NOZERO, 10.2
+		"Платежи",         8, notype, NMBF_NOZERO, 10.2
+		"@setoffamount_s", 9, notype, NMBF_NOZERO, 10.2
+		"@rest",          10, notype, NMBF_NOZERO, 10.2
 	}
-	"@{debtgeneral}", 11, notype, NMBF_NOZERO, 10.2
-	"@expirydebt",    16, notype, NMBF_NOZERO, 10.2 // @v9.1.8
+	"@{debtgeneral}",     11, notype, NMBF_NOZERO, 10.2
+	"@expirydebt",        16, notype, NMBF_NOZERO, 10.2
 	toolbar DEBTTRNOVR
 }
 
@@ -2340,14 +2340,14 @@ browser PAYMENTS south(56), 1, 0, "@{doclink_payment} (%s)", OWNER|GRID, 0
 
 browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 {
-	"@date",      1, date, DATF_DMY,   8, BCO_USERPROC
-	"@billno",    2, zstring(24),  0,  7, BCO_USERPROC
-	"@status",    3, zstring(48),  0, 12, BCO_USERPROC
-	"@oprkind",   4, zstring(48),  0, 12, BCO_USERPROC
-	"@amount",    5, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Зачтено",    6, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
-	"@rest",      7, double,       0, 10.2, BCO_USERPROC
-	"@memo",      8, zstring(256), 0, 60, BCO_USERPROC
+	"@date",           1, date, DATF_DMY,   8, BCO_USERPROC
+	"@billno",         2, zstring(24),  0,  7, BCO_USERPROC
+	"@status",         3, zstring(48),  0, 12, BCO_USERPROC
+	"@oprkind",        4, zstring(48),  0, 12, BCO_USERPROC
+	"@amount",         5, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@setoffamount_s", 6, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@rest",           7, double,       0, 10.2, BCO_USERPROC
+	"@memo",           8, zstring(256), 0, 60, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,      "@{doeditdocument}\tEnter"
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
@@ -2433,7 +2433,7 @@ browser SHIPMANLZ north(100), 3, 1, "@view_shipmanalyze", OWNER|GRID, 0
 		"@qtty",   6, notype, NMBF_NOZERO, 6
 		"@amount", 7, notype, NMBF_NOZERO, 8.2
 	}
-	group "Принято" {
+	group "@accepted_neut" {
 		"@qtty",   8, notype, NMBF_NOZERO, 6
 		"@amount", 9, notype, NMBF_NOZERO, 8.2
 	}
@@ -2461,12 +2461,12 @@ browser SHIPMANLZBYBILL north(100), 3, 1, "@view_shipmanalyze", OWNER|GRID, 0
 		"@qtty",    6, notype, NMBF_NOZERO, 6
 		"@amount",  7, notype, NMBF_NOZERO, 8.2
 	}
-	group "Принято" {
+	group "@accepted_neut" {
 		"@qtty",    8, notype, NMBF_NOZERO, 6
 		"@amount",  9, notype, NMBF_NOZERO, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		EDITGOODS     : kbF2,      PPDV_WARESINGLE01,    "@{ware}\tF2"
+		EDITGOODS     : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
 		EDITBILL      : kbF3,      PPDV_DOCUMENT_PL02,  "@{document}\tF3"
 		separator
 		PRINT         : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
@@ -4248,13 +4248,13 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	CLOSESESS        : kbF8,      TBBM_CLOSECSESS,     "Закрыть последнюю сессию\tF8"
 	WROFFSESS        : kbCtrlF8,  TBBM_COMPLETECSESS,  "Завершить сессию\tCtrl-F8"
 	WROFFDRAFT       : kbShiftF8, TBBM_WROFFDRAFT,     "Списание драфт-документов дефицита по сессии\tShift-F8"
-	TRANSMIT         : kbCtrlH,   PPDV_SYNC01,         "Передать сессию\tCtrl-H"
+	TRANSMIT         : kbCtrlH,   PPDV_SYNC01,         "@{dotransmitsession}\tCtrl-H"
 	CREATEDRAFT      : kbCtrlC,   TBBM_EXTADDTI,       "Создать драфт-документ\tCtrl-C"
 	separator
 	SYSJ             : kbCtrlJ,   PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 	EXPORT           : kbCtrlE,   PPDV_EXPORT01,       "@{export}\tCtrl-E"
 	PRINT            : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
-	PRINTITEM        : kbCtrlF7,  PPDV_NOICON,         "Печать сессии\tCtrl-F7"
+	PRINTITEM        : kbCtrlF7,  PPDV_NOICON,         "@{printsession}\tCtrl-F7"
 	PRINTCHECK       : kbCtrlZ,   TBBM_POSPRINT,       "@{printcheck_toposregistrar}\tCtrl-Z"
 	TOTAL            : kbF9,      PPDV_SIGMA02,        "@{totals}\tF9"
 	CHANGEFILT       : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
@@ -4264,7 +4264,7 @@ browser CSESS north(100), 3, 1, "@{view_csess} {%s}", OWNER|GRID, 0
 {
 	"@id",                  0, notype, 0, 4
 	"@date",                1, notype, 0, 8
-	"Номер\nсмены",         2, notype, 0, 6
+	"@sessionno",           2, notype, 0, 6
 	"@posnode",            10, notype, 0, 8
 	"@posnodeno",           3, notype, NMBF_NOZERO, 6
 	"@csession_incomplete", 4, notype, 0, 9
@@ -4283,7 +4283,7 @@ browser CSESS_EXT north(100), 3, 1, "@{view_csessext}", OWNER|GRID, 0
 {
 	"@id",                  0, notype, 0, 4
 	"@date",                1, notype, 0, 8
-	"Номер\nсмены",         2, notype, 0, 6
+	"@sessionno",           2, notype, 0, 6
 	"@posnode",            16, notype, 0, 8
 	"@posnodeno",           3, notype, 0, 6
 	"@csession_incomplete", 4, notype, 0, 9
@@ -4936,14 +4936,14 @@ browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 		ADDBYSAMPLE : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
-		LINKTASKS   : kbF4,     TBBM_PRJTASK,      "Связанные задачи\tF4"
+		LINKTASKS   : kbF4,     TBBM_PRJTASK,      "@{prjtask_linktask_pl}\tF4"
 		EDITLINKTASK: kbCtrlL,  PPDV_LINK01,       "Просмотр связанной задачи\tCtrl-L"
 		EDITBILLPOOL: kbF5,     PPDV_DOCUMENT_PL02, "@{documents}\tF5"
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
+		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
 		separator
 		BUILD       : kbF6,     TBBM_CHARGE,       "@{domaketodobytemplate}\tF6"
 		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
-		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,       "Передать выборку задач в vCalendar\tCtrl-N"
+		EXPORTVCAL  : kbCtrlN,  PPDV_NOICON,       "@{dotransmittodolist_vcal}\tCtrl-N"
 		PRINT       : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL       : kbF9,     PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
@@ -7389,13 +7389,13 @@ record BRow {
 	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
 	GoodKindCode  long	          "Код вида товара (dll)";
 	GoodGrpID     long	          "Ид группы товара (dll)";
-	TTN	          zstring(32)     "Номер товарно-транспортной накладной (dll)";
-	GTD	          zstring(32)     "Номер грузовой таможенной декларации";
-	LicenseID     long	          "ИД лицензии (dll)";
+	TTN	          zstring(32)     "@{waybillno} (dll)";
+	GTD	          zstring(32)     "@{cargocustomsdeclarationno}";
+	LicenseID     long	          "@{licenseid} (dll)";
 	LicenseNum    zstring(32)     "Номер лицензии контрагента (dll)";
 	LicenseDate   date            "Дата начала лицензии (dll)";
 	LicenseExpiry date            "Дата окончания лицензии (dll)";
-	LicenseSerial zstring(32)     "Серия лицензии (dll)";
+	LicenseSerial zstring(32)     "@{licenseserial} (dll)";
 	RegAuthority  zstring(128)    "Регистрирующий орган (dll)";
 	LotManuf      zstring(128)    "Производитель-импортер из лота (dll)";
 	ManufINN      zstring(32)     "ИНН производителя-импортера из лота (dll)";
@@ -7408,8 +7408,8 @@ record BRow {
 	ManufStreet   zstring(48)     "Улица из адреса производителя-импортера (dll)";
 	ManufHouse    long	          "Номер дома из адреса производителя-импортера (dll)";
 	ManufHousing  long	          "Номер корпуса из адреса производителя-импортера (dll)";
-	ManufCountryName zstring(48)  "Наименование страны-производителя товара";
-	ManufCountryOKSM zstring(8)   "Код страны-производителя товара (ОКСМ)";
+	ManufCountryName zstring(48)  "@{countryoforgname}";
+	ManufCountryOKSM zstring(8)   "@{countryoforgcode} (ОКСМ)";
 	IsManuf       long            "Персоналия является производителем (dll)";
 	LotDocDate    date	          "Дата приходного документа из лота";
 	IsBeer	      long            "Товар относится к группе Пиво (dll)";
@@ -7933,7 +7933,7 @@ record Goods2 {
 	SalesTax       double format(10.2) "Ставка налога с продаж";
 	Vat            double format(10.2) "@{vatrate}";
 	Country        zstring(48)         "@{countryoforg}";
-	CountryCode    zstring(48)         "Код страны изготовителя";
+	CountryCode    zstring(48)         "@{countryoforgcode}";
 	Clb            zstring(32)         "@{custfrghtdecl}";
 	Serial         zstring(32)         "@{serial}";
 	Expiry         date                "@{expirationdate_amp}";
@@ -9103,6 +9103,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_OP_GOODSEXPEND
 	PPDV_OP_GOODSMODIF
 	PPDV_OP_GOODSRETURN
+	PPDV_TREEVIEW
 }
 //
 // Следующие изображения используются без замещения цвета

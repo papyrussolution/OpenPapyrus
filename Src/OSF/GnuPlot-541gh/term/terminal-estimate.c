@@ -127,8 +127,8 @@ void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	ENHest_plaintext_pos = 0;
 	// If no enhanced text processing is needed, strlen() is sufficient 
 	if(pThis->P_Gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
-		pThis->MaxX = (encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
-		pThis->MaxY = 10; /* 1 character height */
+		pThis->MaxX = (GPT._Encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
+		pThis->MaxY = 10; // 1 character height 
 		strcpy(ENHest_plaintext, str);
 	}
 	else {
@@ -157,12 +157,11 @@ void ENHest_writec(GpTermEntry * pThis, int c)
 		ENHest_base -= 1.0 * ENHest_fontsize;
 		ENHest_x = 0;
 	}
-	if(encoding == S_ENC_UTF8) {
-		/* Skip all but the first byte of UTF-8 multi-byte characters. */
+	if(GPT._Encoding == S_ENC_UTF8) {
+		// Skip all but the first byte of UTF-8 multi-byte characters. 
 		if((c & 0xc0) != 0x80) {
 			ENHest_fragment_width += 1;
-			/* [most] characters above 0x3000 are square CJK glyphs, */
-			/* which are wider than western characters.              */
+			// [most] characters above 0x3000 are square CJK glyphs, which are wider than western characters.
 			if((uchar)c >= 0xec)
 				ENHest_fragment_width += 1;
 		}

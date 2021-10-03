@@ -1344,9 +1344,9 @@ void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 			Ev.FillGpValString("GPVAL_TERM", "unknown");
 		else
 			Ev.FillGpValString("GPVAL_TERM", pTerm->name);
-		Ev.FillGpValString("GPVAL_TERMOPTIONS", term_options);
-		Ev.FillGpValString("GPVAL_OUTPUT", (outstr) ? outstr : "");
-		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
+		Ev.FillGpValString("GPVAL_TERMOPTIONS", GPT.TermOptions);
+		Ev.FillGpValString("GPVAL_OUTPUT", NZOR(GPT.P_OutStr, ""));
+		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[GPT._Encoding]);
 		Ev.FillGpValString("GPVAL_MINUS_SIGN", NZOR(GpU.minus_sign, "-"));
 		Ev.FillGpValString("GPVAL_MICRO", NZOR(GpU.micro, "u"));
 		Ev.FillGpValString("GPVAL_DEGREE_SIGN", GpU.degree_sign);
@@ -1373,7 +1373,7 @@ void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 		tmp = get_terminals_names();
 		Ev.FillGpValString("GPVAL_TERMINALS", tmp);
 		SAlloc::F(tmp);
-		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
+		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[GPT._Encoding]);
 		// Permanent copy of user-clobberable variables pi and NaN 
 		Ev.FillGpValFoat("GPVAL_pi", SMathConst::Pi);
 		Ev.FillGpValFoat("GPVAL_NaN", fgetnan());

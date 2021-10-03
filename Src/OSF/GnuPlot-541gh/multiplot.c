@@ -136,7 +136,7 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 	Pgm.Shift();
 	// Only a few options are possible if we are already in multiplot mode 
 	// So far we have "next".  Maybe also "previous", "clear"? 
-	if(multiplot) {
+	if(GPT.Flags & GpTerminalBlock::fMultiplot) {
 		if(Pgm.EqualsCur("next")) {
 			Pgm.Shift();
 			if(!MpLo.auto_layout)
@@ -329,8 +329,8 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 	// the wxt and qt terminals will reset the plot count to 0 before
 	// ignoring subsequent TERM_LAYER_RESET requests.
 	TermStartPlot(pTerm);
-	multiplot = TRUE;
-	multiplot_count = 0;
+	GPT.Flags |= GpTerminalBlock::fMultiplot;
+	GPT.MultiplotCount = 0;
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 1);
 	// Place overall title before doing anything else 
 	if(MpLo.title.text) {
@@ -361,8 +361,8 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 //void multiplot_end()
 void GnuPlot::MultiplotEnd()
 {
-	multiplot = FALSE;
-	multiplot_count = 0;
+	GPT.Flags &= ~GpTerminalBlock::fMultiplot;
+	GPT.MultiplotCount = 0;
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
 	// reset plot size, origin and margins to values before 'set multiplot layout' 
 	if(MpLo.auto_layout) {
@@ -402,7 +402,7 @@ void GnuPlot::MultiplotReset()
 void GnuPlot::MpLayoutSizeAndOffset()
 {
 	if(MpLo.auto_layout) {
-		// fprintf(stderr,"col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
+		// fprintf(stderr, "col==%d row==%d\n",MpLo.act_col,MpLo.act_row); 
 		// the 'set size' command 
 		V.Size.x = static_cast<float>(MpLo.xscale / MpLo.num_cols);
 		V.Size.y = static_cast<float>(MpLo.yscale / MpLo.num_rows);
@@ -412,7 +412,7 @@ void GnuPlot::MpLayoutSizeAndOffset()
 			V.Offset.y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
 		else
 			V.Offset.y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
-		// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
+		// fprintf(stderr, "xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 		// Allow a little space at the top for a title 
 		if(MpLo.title.text) {
 			V.Size.y   *= (1.0 - MpLo.title_height);
@@ -421,10 +421,10 @@ void GnuPlot::MpLayoutSizeAndOffset()
 		// corrected for x/y-scaling factors and user defined offsets 
 		V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);
 		V.Offset.y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
-		// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
+		// fprintf(stderr, "  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 		V.Offset.x += MpLo.Offset.x;
 		V.Offset.y += MpLo.Offset.y;
-		// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
+		// fprintf(stderr, "  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 	}
 }
 // 

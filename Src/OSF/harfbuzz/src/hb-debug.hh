@@ -100,7 +100,7 @@ static inline void _hb_print_func(const char * func)
 		const char * paren = strchr(func, '(');
 		if(paren)
 			func_len = paren - func;
-		fprintf(stderr, "%.*s", func_len, func);
+		slfprintf_stderr("%.*s", func_len, func);
 	}
 }
 
@@ -124,12 +124,12 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 	if(!_hb_debug(level, max_level))
 		return;
 
-	fprintf(stderr, "%-10s", what ? what : "");
+	slfprintf_stderr("%-10s", what ? what : "");
 
 	if(obj)
-		fprintf(stderr, "(%*p) ", (unsigned int)(2 * sizeof(void *)), obj);
+		slfprintf_stderr("(%*p) ", (unsigned int)(2 * sizeof(void *)), obj);
 	else
-		fprintf(stderr, " %*s  ", (unsigned int)(2 * sizeof(void *)), "");
+		slfprintf_stderr(" %*s  ", (unsigned int)(2 * sizeof(void *)), "");
 
 	if(indented) {
 #define VBAR    "\342\224\202"  /* U+2502 BOX DRAWINGS LIGHT VERTICAL */
@@ -143,22 +143,22 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
 		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
 		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR;
-		fprintf(stderr, "%2u %s" VRBAR "%s",
+		slfprintf_stderr("%2u %s" VRBAR "%s",
 		    level,
 		    bars + sizeof(bars) - 1 - hb_min((unsigned int)sizeof(bars) - 1, (unsigned int)(sizeof(VBAR) - 1) * level),
 		    level_dir ? (level_dir > 0 ? DLBAR : ULBAR) : LBAR);
 	}
 	else
-		fprintf(stderr, "   " VRBAR LBAR);
+		slfprintf_stderr("   " VRBAR LBAR);
 
 	_hb_print_func(func);
 
 	if(message) {
-		fprintf(stderr, ": ");
+		slfprintf_stderr(": ");
 		vfprintf(stderr, message, ap);
 	}
 
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 
 template <> inline void HB_PRINTF_FUNC(7, 0)
@@ -255,7 +255,7 @@ template <typename T>
 static inline void _hb_warn_no_return(bool returned)
 {
 	if(UNLIKELY(!returned)) {
-		fprintf(stderr, "OUCH, returned with no call to return_trace().  This is a bug, please report.\n");
+		slfprintf_stderr("OUCH, returned with no call to return_trace().  This is a bug, please report.\n");
 	}
 }
 
@@ -295,7 +295,7 @@ struct hb_auto_trace_t {
 	    unsigned int line = 0)
 	{
 		if(UNLIKELY(returned)) {
-			fprintf(stderr, "OUCH, double calls to return_trace().  This is a bug, please report.\n");
+			slfprintf_stderr("OUCH, double calls to return_trace().  This is a bug, please report.\n");
 			return hb_forward<T> (v);
 		}
 

@@ -27,7 +27,6 @@
 #include <console.h>            /* Think declares it here */
 #endif
 #endif
-
 /*
  * Argument-parsing code.
  * The switch parser is designed to be useful with DOS-style command line
@@ -35,7 +34,6 @@
  * to the left of a given file name affect processing of that file.
  * The main program in this file doesn't actually use this capability...
  */
-
 static const char * progname;   /* program name for error messages */
 static char * outfilename;      /* for -outfile switch */
 static char * scaleoption;      /* -scale switch */
@@ -45,49 +43,49 @@ static jpeg_transform_info transformoption; /* image transformation options */
 static void usage(void)
 /* complain about bad command line */
 {
-	fprintf(stderr, "usage: %s [switches] ", progname);
+	slfprintf_stderr("usage: %s [switches] ", progname);
 #ifdef TWO_FILE_COMMANDLINE
-	fprintf(stderr, "inputfile outputfile\n");
+	slfprintf_stderr("inputfile outputfile\n");
 #else
-	fprintf(stderr, "[inputfile]\n");
+	slfprintf_stderr("[inputfile]\n");
 #endif
 
-	fprintf(stderr, "Switches (names may be abbreviated):\n");
-	fprintf(stderr, "  -copy none     Copy no extra markers from source file\n");
-	fprintf(stderr, "  -copy comments Copy only comment markers (default)\n");
-	fprintf(stderr, "  -copy all      Copy all extra markers\n");
+	slfprintf_stderr("Switches (names may be abbreviated):\n");
+	slfprintf_stderr("  -copy none     Copy no extra markers from source file\n");
+	slfprintf_stderr("  -copy comments Copy only comment markers (default)\n");
+	slfprintf_stderr("  -copy all      Copy all extra markers\n");
 #ifdef ENTROPY_OPT_SUPPORTED
-	fprintf(stderr, "  -optimize      Optimize Huffman table (smaller file, but slow compression)\n");
+	slfprintf_stderr("  -optimize      Optimize Huffman table (smaller file, but slow compression)\n");
 #endif
 #ifdef C_PROGRESSIVE_SUPPORTED
-	fprintf(stderr, "  -progressive   Create progressive JPEG file\n");
+	slfprintf_stderr("  -progressive   Create progressive JPEG file\n");
 #endif
-	fprintf(stderr, "Switches for modifying the image:\n");
+	slfprintf_stderr("Switches for modifying the image:\n");
 #if TRANSFORMS_SUPPORTED
-	fprintf(stderr, "  -crop WxH+X+Y  Crop to a rectangular subarea\n");
-	fprintf(stderr, "  -flip [horizontal|vertical]  Mirror image (left-right or top-bottom)\n");
-	fprintf(stderr, "  -grayscale     Reduce to grayscale (omit color data)\n");
-	fprintf(stderr, "  -perfect       Fail if there is non-transformable edge blocks\n");
-	fprintf(stderr, "  -rotate [90|180|270]         Rotate image (degrees clockwise)\n");
+	slfprintf_stderr("  -crop WxH+X+Y  Crop to a rectangular subarea\n");
+	slfprintf_stderr("  -flip [horizontal|vertical]  Mirror image (left-right or top-bottom)\n");
+	slfprintf_stderr("  -grayscale     Reduce to grayscale (omit color data)\n");
+	slfprintf_stderr("  -perfect       Fail if there is non-transformable edge blocks\n");
+	slfprintf_stderr("  -rotate [90|180|270]         Rotate image (degrees clockwise)\n");
 #endif
-	fprintf(stderr, "  -scale M/N     Scale output image by fraction M/N, eg, 1/8\n");
+	slfprintf_stderr("  -scale M/N     Scale output image by fraction M/N, eg, 1/8\n");
 #if TRANSFORMS_SUPPORTED
-	fprintf(stderr, "  -transpose     Transpose image\n");
-	fprintf(stderr, "  -transverse    Transverse transpose image\n");
-	fprintf(stderr, "  -trim          Drop non-transformable edge blocks\n");
-	fprintf(stderr, "  -wipe WxH+X+Y  Wipe (gray out) a rectangular subarea\n");
+	slfprintf_stderr("  -transpose     Transpose image\n");
+	slfprintf_stderr("  -transverse    Transverse transpose image\n");
+	slfprintf_stderr("  -trim          Drop non-transformable edge blocks\n");
+	slfprintf_stderr("  -wipe WxH+X+Y  Wipe (gray out) a rectangular subarea\n");
 #endif
-	fprintf(stderr, "Switches for advanced users:\n");
+	slfprintf_stderr("Switches for advanced users:\n");
 #ifdef C_ARITH_CODING_SUPPORTED
-	fprintf(stderr, "  -arithmetic    Use arithmetic coding\n");
+	slfprintf_stderr("  -arithmetic    Use arithmetic coding\n");
 #endif
-	fprintf(stderr, "  -restart N     Set restart interval in rows, or in blocks with B\n");
-	fprintf(stderr, "  -maxmemory N   Maximum memory to use (in kbytes)\n");
-	fprintf(stderr, "  -outfile name  Specify name for output file\n");
-	fprintf(stderr, "  -verbose  or  -debug   Emit debug output\n");
-	fprintf(stderr, "Switches for wizards:\n");
+	slfprintf_stderr("  -restart N     Set restart interval in rows, or in blocks with B\n");
+	slfprintf_stderr("  -maxmemory N   Maximum memory to use (in kbytes)\n");
+	slfprintf_stderr("  -outfile name  Specify name for output file\n");
+	slfprintf_stderr("  -verbose  or  -debug   Emit debug output\n");
+	slfprintf_stderr("Switches for wizards:\n");
 #ifdef C_MULTISCAN_FILES_SUPPORTED
-	fprintf(stderr, "  -scans file    Create multi-scan JPEG per script file\n");
+	slfprintf_stderr("  -scans file    Create multi-scan JPEG per script file\n");
 #endif
 	exit(EXIT_FAILURE);
 }
@@ -103,35 +101,32 @@ static void select_transform(JXFORM_CODE transform)
 		transformoption.transform = transform;
 	}
 	else {
-		fprintf(stderr, "%s: can only do one image transformation at a time\n",
+		slfprintf_stderr("%s: can only do one image transformation at a time\n",
 		    progname);
 		usage();
 	}
 #else
-	fprintf(stderr, "%s: sorry, image transformation was not compiled\n",
+	slfprintf_stderr("%s: sorry, image transformation was not compiled\n",
 	    progname);
 	exit(EXIT_FAILURE);
 #endif
 }
-
-static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
-    int last_file_arg_seen, boolean for_real)
-/* Parse optional switches.
- * Returns argv[] index of first file-name argument (== argc if none).
- * Any file names with indexes <= last_file_arg_seen are ignored;
- * they have presumably been processed in a previous iteration.
- * (Pass 0 for last_file_arg_seen on the first or only iteration.)
- * for_real is FALSE on the first (dummy) pass; we may skip any expensive
- * processing.
- */
+// 
+// Parse optional switches.
+// Returns argv[] index of first file-name argument (== argc if none).
+// Any file names with indexes <= last_file_arg_seen are ignored;
+// they have presumably been processed in a previous iteration.
+// (Pass 0 for last_file_arg_seen on the first or only iteration.)
+// for_real is FALSE on the first (dummy) pass; we may skip any expensive
+// processing.
+// 
+static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last_file_arg_seen, boolean for_real)
 {
 	int argn;
 	char * arg;
-	boolean simple_progressive;
 	char * scansarg = NULL; /* saves -scans parm if any */
-
-	/* Set up default JPEG parameters. */
-	simple_progressive = FALSE;
+	// Set up default JPEG parameters. 
+	boolean simple_progressive = FALSE;
 	outfilename = NULL;
 	scaleoption = NULL;
 	copyoption = JCOPYOPT_DEFAULT;
@@ -141,9 +136,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 	transformoption.force_grayscale = FALSE;
 	transformoption.crop = FALSE;
 	cinfo->err->trace_level = 0;
-
-	/* Scan command line options, adjust parameters */
-
+	// Scan command line options, adjust parameters 
 	for(argn = 1; argn < argc; argn++) {
 		arg = argv[argn];
 		if(*arg != '-') {
@@ -161,7 +154,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 #ifdef C_ARITH_CODING_SUPPORTED
 			cinfo->arith_code = TRUE;
 #else
-			fprintf(stderr, "%s: sorry, arithmetic coding not supported\n",
+			slfprintf_stderr("%s: sorry, arithmetic coding not supported\n",
 			    progname);
 			exit(EXIT_FAILURE);
 #endif
@@ -189,7 +182,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 				usage();
 			if(transformoption.crop /* reject multiple crop/wipe requests */ ||
 			    !jtransform_parse_crop_spec(&transformoption, argv[argn])) {
-				fprintf(stderr, "%s: bogus -crop argument '%s'\n",
+				slfprintf_stderr("%s: bogus -crop argument '%s'\n",
 				    progname, argv[argn]);
 				exit(EXIT_FAILURE);
 			}
@@ -203,7 +196,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 			static boolean printed_version = FALSE;
 
 			if(!printed_version) {
-				fprintf(stderr, "Independent JPEG Group's JPEGTRAN, version %s\n%s\n",
+				slfprintf_stderr("Independent JPEG Group's JPEGTRAN, version %s\n%s\n",
 				    JVERSION, JCOPYRIGHT);
 				printed_version = TRUE;
 			}
@@ -246,7 +239,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 #ifdef ENTROPY_OPT_SUPPORTED
 			cinfo->optimize_coding = TRUE;
 #else
-			fprintf(stderr, "%s: sorry, entropy optimization was not compiled\n",
+			slfprintf_stderr("%s: sorry, entropy optimization was not compiled\n",
 			    progname);
 			exit(EXIT_FAILURE);
 #endif
@@ -268,7 +261,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 			simple_progressive = TRUE;
 			/* We must postpone execution until num_components is known. */
 #else
-			fprintf(stderr, "%s: sorry, progressive output was not compiled\n",
+			slfprintf_stderr("%s: sorry, progressive output was not compiled\n",
 			    progname);
 			exit(EXIT_FAILURE);
 #endif
@@ -321,7 +314,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 			scansarg = argv[argn];
 			/* We must postpone reading the file in case -progressive appears. */
 #else
-			fprintf(stderr, "%s: sorry, multi-scan output was not compiled\n",
+			slfprintf_stderr("%s: sorry, multi-scan output was not compiled\n",
 			    progname);
 			exit(EXIT_FAILURE);
 #endif
@@ -344,7 +337,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 				usage();
 			if(transformoption.crop /* reject multiple crop/wipe requests */ ||
 			    !jtransform_parse_crop_spec(&transformoption, argv[argn])) {
-				fprintf(stderr, "%s: bogus -wipe argument '%s'\n",
+				slfprintf_stderr("%s: bogus -wipe argument '%s'\n",
 				    progname, argv[argn]);
 				exit(EXIT_FAILURE);
 			}
@@ -426,21 +419,21 @@ int main(int argc, char ** argv)
 	/* Must have either -outfile switch or explicit output file name */
 	if(outfilename == NULL) {
 		if(file_index != argc-2) {
-			fprintf(stderr, "%s: must name one input and one output file\n", progname);
+			slfprintf_stderr("%s: must name one input and one output file\n", progname);
 			usage();
 		}
 		outfilename = argv[file_index+1];
 	}
 	else {
 		if(file_index != argc-1) {
-			fprintf(stderr, "%s: must name one input and one output file\n", progname);
+			slfprintf_stderr("%s: must name one input and one output file\n", progname);
 			usage();
 		}
 	}
 #else
 	/* Unix style: expect zero or one file name */
 	if(file_index < argc-1) {
-		fprintf(stderr, "%s: only one input file\n", progname);
+		slfprintf_stderr("%s: only one input file\n", progname);
 		usage();
 	}
 #endif /* TWO_FILE_COMMANDLINE */
@@ -448,7 +441,7 @@ int main(int argc, char ** argv)
 	/* Open the input file. */
 	if(file_index < argc) {
 		if((fp = fopen(argv[file_index], READ_BINARY)) == NULL) {
-			fprintf(stderr, "%s: can't open %s for reading\n", progname, argv[file_index]);
+			slfprintf_stderr("%s: can't open %s for reading\n", progname, argv[file_index]);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -477,7 +470,7 @@ int main(int argc, char ** argv)
 	/* Fail right away if -perfect is given and transformation is not perfect.
 	 */
 	if(!jtransform_request_workspace(&srcinfo, &transformoption)) {
-		fprintf(stderr, "%s: transformation is not perfect\n", progname);
+		slfprintf_stderr("%s: transformation is not perfect\n", progname);
 		exit(EXIT_FAILURE);
 	}
 #endif
@@ -506,7 +499,7 @@ int main(int argc, char ** argv)
 	/* Open the output file. */
 	if(outfilename) {
 		if((fp = fopen(outfilename, WRITE_BINARY)) == NULL) {
-			fprintf(stderr, "%s: can't open %s for writing\n", progname, outfilename);
+			slfprintf_stderr("%s: can't open %s for writing\n", progname, outfilename);
 			exit(EXIT_FAILURE);
 		}
 	}

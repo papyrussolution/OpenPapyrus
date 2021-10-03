@@ -275,7 +275,7 @@ TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf_s(term_options, sizeof(term_options), "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
+	sprintf_s(GPT.TermOptions, sizeof(GPT.TermOptions), "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
 	    pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
 }
 

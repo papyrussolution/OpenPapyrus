@@ -311,16 +311,16 @@ void Curl_hash_print(struct Curl_hash * h,
 	if(!h)
 		return;
 
-	fprintf(stderr, "=Hash dump=\n");
+	slfprintf_stderr("=Hash dump=\n");
 
 	Curl_hash_start_iterate(h, &iter);
 
 	he = Curl_hash_next_element(&iter);
 	while(he) {
 		if(iter.slot_index != last_index) {
-			fprintf(stderr, "index %d:", iter.slot_index);
+			slfprintf_stderr("index %d:", iter.slot_index);
 			if(last_index >= 0) {
-				fprintf(stderr, "\n");
+				slfprintf_stderr("\n");
 			}
 			last_index = iter.slot_index;
 		}
@@ -328,11 +328,11 @@ void Curl_hash_print(struct Curl_hash * h,
 		if(func)
 			func(he->ptr);
 		else
-			fprintf(stderr, " [%p]", (void*)he->ptr);
+			slfprintf_stderr(" [%p]", (void*)he->ptr);
 
 		he = Curl_hash_next_element(&iter);
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 
 #endif

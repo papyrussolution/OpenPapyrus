@@ -203,7 +203,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 
-			    DEBUG_OUT(fprintf(stderr, "**** Header %s\n ", *allocuserpwd));
+			    DEBUG_OUT(slfprintf_stderr("**** Header %s\n ", *allocuserpwd));
 		    }
 		    break;
 
@@ -223,7 +223,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 
-			    DEBUG_OUT(fprintf(stderr, "**** %s\n ", *allocuserpwd));
+			    DEBUG_OUT(slfprintf_stderr("**** %s\n ", *allocuserpwd));
 
 			    *state = NTLMSTATE_TYPE3; /* we send a type-3 */
 			    authp->done = TRUE;

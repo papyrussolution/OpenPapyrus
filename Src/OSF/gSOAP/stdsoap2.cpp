@@ -2959,11 +2959,11 @@ static int ssl_verify_callback(int ok, X509_STORE_CTX * store)
 	if(!ok) {
 		char buf[1024];
 		X509 * cert = X509_STORE_CTX_get_current_cert(store);
-		fprintf(stderr, "SSL verify error or warning with certificate at depth %d: %s\n", X509_STORE_CTX_get_error_depth(store), X509_verify_cert_error_string(X509_STORE_CTX_get_error(store)));
+		slfprintf_stderr("SSL verify error or warning with certificate at depth %d: %s\n", X509_STORE_CTX_get_error_depth(store), X509_verify_cert_error_string(X509_STORE_CTX_get_error(store)));
 		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
-		fprintf(stderr, "certificate issuer %s\n", buf);
+		slfprintf_stderr("certificate issuer %s\n", buf);
 		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
-		fprintf(stderr, "certificate subject %s\n", buf);
+		slfprintf_stderr("certificate subject %s\n", buf);
 	}
   #endif
 	/* Note: return 1 to continue, but unsafe progress will be terminated by OpenSSL */
@@ -2975,7 +2975,7 @@ static int ssl_verify_callback_allow_expired_certificate(int ok, X509_STORE_CTX 
 	ok = ssl_verify_callback(ok, store);
 	if(ok == 0 && X509_STORE_CTX_get_error(store) == X509_V_ERR_CERT_HAS_EXPIRED) {
   #ifdef SOAP_DEBUG
-		fprintf(stderr, "ignoring certificate expiration\n");
+		slfprintf_stderr("ignoring certificate expiration\n");
   #endif
 		X509_STORE_CTX_set_error(store, X509_V_OK);
 		ok = 1;
@@ -6585,7 +6585,7 @@ static void soap_free_mht(struct soap * soap)
 		for(mp = soap->mht[i]; mp; mp = mq) {
 			mq = mp->next;
 			if(mp->live)
-				fprintf(stderr, "%s(%d): SAlloc::M() = %p not freed (memory leak or forgot to call soap_end()?)\n", mp->file, mp->line, mp->ptr);
+				slfprintf_stderr("%s(%d): SAlloc::M() = %p not freed (memory leak or forgot to call soap_end()?)\n", mp->file, mp->line, mp->ptr);
 			SAlloc::F(mp);
 		}
 		soap->mht[i] = NULL;
@@ -6627,10 +6627,10 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_track_free(struct soap * soap, const char * file
 			mp->live = 0;
 		}
 		else
-			fprintf(stderr, "%s(%d): free(%p) double free of pointer malloced at %s(%d)\n", file, line, p, mp->file, mp->line);
+			slfprintf_stderr("%s(%d): free(%p) double free of pointer malloced at %s(%d)\n", file, line, p, mp->file, mp->line);
 	}
 	else
-		fprintf(stderr, "%s(%d): free(%p) pointer not malloced\n", file, line, p);
+		slfprintf_stderr("%s(%d): free(%p) pointer not malloced\n", file, line, p);
 }
 
 static void soap_track_unlink(struct soap * soap, const void * p)
@@ -6654,7 +6654,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap * soap, void * p)
 		for(char ** q = reinterpret_cast<char **>(&soap->alist); *q; q = *(char***)q) {
 			if(*(ushort *)(char *)(*q-sizeof(ushort)) != (ushort)SOAP_CANARY) {
  #ifdef SOAP_MEM_DEBUG
-				fprintf(stderr, "Data corruption in dynamic allocation (see logs)\n");
+				slfprintf_stderr("Data corruption in dynamic allocation (see logs)\n");
  #endif
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Data corruption:\n"));
 				DBGHEX(TEST, *q-200, 200);
@@ -6678,7 +6678,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap * soap, void * p)
 		      q = (char *)soap->alist;
 		      if(*(ushort *)(char *)(q-sizeof(ushort)) != (ushort)SOAP_CANARY) {
  #ifdef SOAP_MEM_DEBUG
-			      fprintf(stderr, "Data corruption in dynamic allocation (see logs)\n");
+			      slfprintf_stderr("Data corruption in dynamic allocation (see logs)\n");
  #endif
 			      DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Data corruption:\n"));
 			      DBGHEX(TEST, q-200, 200);
@@ -6719,7 +6719,7 @@ SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_delete(struct soap * soap, void * p)
 					if(q->fdelete(q)) {
 						DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Could not dealloc data %p: deletion callback failed for object type %d\n", q->ptr, q->type));
  #ifdef SOAP_MEM_DEBUG
-						fprintf(stderr, "new(object type = %d) = %p not freed: deletion callback failed\n", q->type, q->ptr);
+						slfprintf_stderr("new(object type = %d) = %p not freed: deletion callback failed\n", q->type, q->ptr);
  #endif
 					}
 					SOAP_FREE(soap, q);
@@ -6736,7 +6736,7 @@ SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_delete(struct soap * soap, void * p)
 				if(q->fdelete(q)) {
 					DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Could not dealloc data %p: deletion callback failed for object type %d\n", q->ptr, q->type));
  #ifdef SOAP_MEM_DEBUG
-					fprintf(stderr, "new(object type = %d) = %p not freed: deletion callback failed\n", q->type, q->ptr);
+					slfprintf_stderr("new(object type = %d) = %p not freed: deletion callback failed\n", q->type, q->ptr);
  #endif
 				}
 				SOAP_FREE(soap, q);
@@ -6759,7 +6759,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_delegate_deletion(struct soap * soap, struct soa
 	for(q = (char **)&soap->alist; *q; q = *(char***)q) {
 		if(*(ushort *)(char *)(*q-sizeof(ushort)) != (ushort)SOAP_CANARY) {
  #ifdef SOAP_MEM_DEBUG
-			fprintf(stderr, "Data corruption in dynamic allocation (see logs)\n");
+			slfprintf_stderr("Data corruption in dynamic allocation (see logs)\n");
  #endif
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Data corruption:\n"));
 			DBGHEX(TEST, *q-200, 200);

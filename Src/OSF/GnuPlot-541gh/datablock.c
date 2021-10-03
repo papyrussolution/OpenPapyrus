@@ -173,7 +173,7 @@ void append_multiline_to_datablock(GpValue * datablock_value, const char * lines
 		append_to_datablock(datablock_value, l);
 	}
 	else {
-		if(strlen(l) > 0) /* remainder after last line-break */
+		if(!isempty(l)) // remainder after last line-break 
 			append_to_datablock(datablock_value, sstrdup(l));
 		// we allocated new sub-strings, free the original 
 		SAlloc::F((char *)lines);

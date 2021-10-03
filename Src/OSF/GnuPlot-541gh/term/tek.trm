@@ -192,11 +192,11 @@ TERM_PUBLIC void TEK40graphics()
 #ifdef VMS
 	term_pasthru();
 #endif /* VMS */
-	fputs("\033\014", gpoutfile);
+	fputs("\033\014", GPT.P_GpOutFile);
 /*                   1
         1. clear screen
  */
-	fflush(gpoutfile);
+	fflush(GPT.P_GpOutFile);
 	sleep(1);
 	/* sleep 1 second to allow screen time to clear on real
 	   tektronix terminals */
@@ -205,7 +205,7 @@ TERM_PUBLIC void TEK40graphics()
 TERM_PUBLIC void TEK40text()
 {
 	TEK40move(0, 12);
-	fputs("\037", gpoutfile);
+	fputs("\037", GPT.P_GpOutFile);
 /*                   1
         1. into alphanumerics
  */
@@ -220,22 +220,22 @@ TERM_PUBLIC void TEK40linetype(int linetype)
 
 TERM_PUBLIC void TEK40move(uint x, uint y)
 {
-	putc('\035', gpoutfile);  /* into graphics */
+	putc('\035', GPT.P_GpOutFile);  /* into graphics */
 	TEK40vector(x, y);
 }
 
 TERM_PUBLIC void TEK40vector(uint x, uint y)
 {
-	putc((HY | (y & UPPER5) >> 5), gpoutfile);
-	putc((LY | (y & LOWER5)), gpoutfile);
-	putc((HX | (x & UPPER5) >> 5), gpoutfile);
-	putc((LX | (x & LOWER5)), gpoutfile);
+	putc((HY | (y & UPPER5) >> 5), GPT.P_GpOutFile);
+	putc((LY | (y & LOWER5)), GPT.P_GpOutFile);
+	putc((HX | (x & UPPER5) >> 5), GPT.P_GpOutFile);
+	putc((LX | (x & LOWER5)), GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void TEK40put_text(uint x, uint y, const char str[])
 {
 	TEK40move(x, y - 11);
-	fprintf(gpoutfile, "\037%s\n", str);
+	fprintf(GPT.P_GpOutFile, "\037%s\n", str);
 }
 
 TERM_PUBLIC void TEK40reset()
@@ -270,7 +270,7 @@ TERM_PUBLIC void TEK40reset()
 TERM_PUBLIC void BG_text(GpTermEntry * pThis)
 {
 	BG_move(0, BG_SCREEN_HEIGHT - 2 * BG_VCHAR);
-	fputs("\037", gpoutfile);
+	fputs("\037", GPT.P_GpOutFile);
 /*                   1
         1. into alphanumerics
  */
@@ -279,7 +279,7 @@ TERM_PUBLIC void BG_text(GpTermEntry * pThis)
 TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[])
 {
 	BG_move(x, y - 11);
-	fprintf(gpoutfile, "\037%s\n", str);
+	fprintf(GPT.P_GpOutFile, "\037%s\n", str);
 }
 
 #endif /* BITGRAPH */
@@ -293,7 +293,7 @@ TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[])
 
 TERM_PUBLIC void KTEK40graphics()
 {
-	fputs("\033\014", gpoutfile);
+	fputs("\033\014", GPT.P_GpOutFile);
 /*                   1
         1. clear screen
  */
@@ -323,7 +323,7 @@ TERM_PUBLIC void KTEK40Clinetype(int linetype)
 		linetype = LT_BLACK;
 	if(linetype >= 13)
 		linetype %= 13;
-	fprintf(gpoutfile, "%s", kermit_color[linetype + 2]);
+	fprintf(GPT.P_GpOutFile, "%s", kermit_color[linetype + 2]);
 }
 
 /* linetypes for MS-DOS Kermit v2.30 tektronix emulator */
@@ -337,12 +337,12 @@ TERM_PUBLIC void KTEK40Mlinetype(int linetype)
 		linetype = LT_BLACK;
 	if(linetype >= 6)
 		linetype %= 6;
-	fprintf(gpoutfile, "\033%c", kerm_linetype[linetype + 2]);
+	fprintf(GPT.P_GpOutFile, "\033%c", kerm_linetype[linetype + 2]);
 }
 
 TERM_PUBLIC void KTEK40reset()
 {
-	fputs("\030\n", gpoutfile); /* turn off Tek emulation */
+	fputs("\030\n", GPT.P_GpOutFile); /* turn off Tek emulation */
 }
 
 #endif /* KERMIT */
@@ -354,7 +354,7 @@ TERM_PUBLIC void KTEK40reset()
 
 TERM_PUBLIC void SEL_init(GpTermEntry * pThis)
 {
-	fputs("\033\062", gpoutfile);
+	fputs("\033\062", GPT.P_GpOutFile);
 /*					1
         1. set to ansi mode
  */
@@ -362,7 +362,7 @@ TERM_PUBLIC void SEL_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void SEL_graphics()
 {
-	fputs("\033[H\033[J\033\061\033\014", gpoutfile);
+	fputs("\033[H\033[J\033\061\033\014", GPT.P_GpOutFile);
 /*                   1           2       3
         1. clear ANSI screen
         2. set to TEK mode
@@ -373,7 +373,7 @@ TERM_PUBLIC void SEL_graphics()
 TERM_PUBLIC void SEL_text()
 {
 	TEK40move(0, 12);
-	fputs("\033\062", gpoutfile);
+	fputs("\033\062", GPT.P_GpOutFile);
 /*                   1
         1. into ANSI mode
  */
@@ -381,7 +381,7 @@ TERM_PUBLIC void SEL_text()
 
 TERM_PUBLIC void SEL_reset()
 {
-	fputs("\033\061\033\012\033\062\033[H\033[J", gpoutfile);
+	fputs("\033\061\033\012\033\062\033[H\033[J", GPT.P_GpOutFile);
 /*                   1        2       3      4
    1       set tek mode
    2       clear screen
@@ -547,15 +547,15 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->TicH = pThis->TicV;
 	/* setup options string */
 	switch(SIXEL_font) {
-		case 1: strcpy(term_options, "small"); break;
-		case 2: strcpy(term_options, "medium"); break;
-		case 3: strcpy(term_options, "large"); break;
+		case 1: strcpy(GPT.TermOptions, "small"); break;
+		case 2: strcpy(GPT.TermOptions, "medium"); break;
+		case 3: strcpy(GPT.TermOptions, "large"); break;
 	}
 	if(SIXEL_mode == 0)
-		strcat(term_options, " monochrome");
+		strcat(GPT.TermOptions, " monochrome");
 	else
-		sprintf(term_options + strlen(term_options), " colors %d", SIXEL_ncol);
-	sprintf(term_options + strlen(term_options), " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " colors %d", SIXEL_ncol);
+	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
 }
 
 TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)
@@ -586,11 +586,11 @@ TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
 	char c, pc;
 	uint * map;
 	// initialization to Sixel mode and pixel aspect ratio, but do not change the background 
-	fprintf(gpoutfile, "\033Pq\"1;1\n");
+	fprintf(GPT.P_GpOutFile, "\033Pq\"1;1\n");
 	/* output the actually used rgb colors */
 	for(k = 0; k < SIXEL_ncol; k++) {
 		if(SIXEL_palette[k].state == SIXEL_COL_USED)
-			fprintf(gpoutfile, "#%d;2;%d;%d;%d\n", k,
+			fprintf(GPT.P_GpOutFile, "#%d;2;%d;%d;%d\n", k,
 			    (int)(((SIXEL_palette[k].rgbval & 0xff0000) >> 16) * 100.0/255.0),
 			    (int)(((SIXEL_palette[k].rgbval & 0x00ff00) >> 8) * 100.0/255.0),
 			    (int)(((SIXEL_palette[k].rgbval & 0x0000ff) * 100.0/255.0)));
@@ -621,26 +621,26 @@ TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
 					if(n > 0 && pr == 0) {
 						pr++;
 						if(n < b_xsize-1 || pc != '?' || k == 1) { // do not output empty lines 
-							no += fprintf(gpoutfile, "#%d", k - 1);
+							no += fprintf(GPT.P_GpOutFile, "#%d", k - 1);
 							pr++;
 						}
 					}
 					if(pr == 2) {
 						if(i == b_xsize - 1 && c == pc) n++;
 						if(n > 3) {
-							no += fprintf(gpoutfile, "!%d%c", n, pc);
+							no += fprintf(GPT.P_GpOutFile, "!%d%c", n, pc);
 						}
 						else {
 							for(l = 1; l <= n; l++)
-								fputc(pc, gpoutfile);
+								fputc(pc, GPT.P_GpOutFile);
 							no += n;
 						}
 						if(i == b_xsize-1 && c != pc) {
-							fputc(c, gpoutfile);
+							fputc(c, GPT.P_GpOutFile);
 							no++;
 						}
 						if(no > 70 && i < b_xsize - 1) {
-							fprintf(gpoutfile, "\n");
+							fprintf(GPT.P_GpOutFile, "\n");
 							no = 0;
 						}
 					}
@@ -649,15 +649,15 @@ TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
 				pc = c;
 			}
 			if(k == SIXEL_ncol)
-				fputs("-\n", gpoutfile);
+				fputs("-\n", GPT.P_GpOutFile);
 			else if(pr == 2)
-				fputs("$\n", gpoutfile);
+				fputs("$\n", GPT.P_GpOutFile);
 		}
 	}
 	SAlloc::F(map);
 	// get out of Sixel mode 
-	fputs("\033\\\n", gpoutfile);
-	fflush(gpoutfile); /* finish the graphics */
+	fputs("\033\\\n", GPT.P_GpOutFile);
+	fflush(GPT.P_GpOutFile); /* finish the graphics */
 }
 
 static void SIXEL_setfont(GpTermEntry * pThis)
@@ -818,16 +818,16 @@ TERM_PUBLIC void SIXEL_filled_polygon(int points, gpiPoint * corners)
 
 TERM_PUBLIC void VTTEK40init()
 {
-	fputs("\033[?38h", gpoutfile);
-	fflush(gpoutfile);
+	fputs("\033[?38h", GPT.P_GpOutFile);
+	fflush(GPT.P_GpOutFile);
 	sleep(1);
 	/* sleep 1 second to allow screen time to clear on some terminals */
 }
 
 TERM_PUBLIC void VTTEK40reset()
 {
-	fputs("\033[?38l", gpoutfile);
-	fflush(gpoutfile);
+	fputs("\033[?38l", GPT.P_GpOutFile);
+	fflush(GPT.P_GpOutFile);
 	sleep(1);
 	/* sleep 1 second to allow screen time to clear on some terminals */
 }
@@ -845,7 +845,7 @@ TERM_PUBLIC void VTTEK40linetype(int linetype)
 		linetype = LT_BLACK;
 	if(linetype >= 10)
 		linetype %= 10;
-	fprintf(gpoutfile, "\033%c", vt_linetype[linetype + 2]);
+	fprintf(GPT.P_GpOutFile, "\033%c", vt_linetype[linetype + 2]);
 	last_vt_linetype = linetype;
 }
 
@@ -873,17 +873,17 @@ static const char * xt_tek_fontsize = "89:;";
 TERM_PUBLIC void XTERM_graphics()
 {
 	XTERM_resume();
-	fputs(XT_TEK_CLR, gpoutfile);
+	fputs(XT_TEK_CLR, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void XTERM_resume()
 {
-	fputs(XT_TEK_GFX, gpoutfile);
+	fputs(XT_TEK_GFX, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void XTERM_text()
 {
-	fputs(XT_TEK_ALPHA XT_TEK_ANSI, gpoutfile);
+	fputs(XT_TEK_ALPHA XT_TEK_ANSI, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC int XTERM_set_font(const char * fontname)
@@ -893,7 +893,7 @@ TERM_PUBLIC int XTERM_set_font(const char * fontname)
 		size_t lp = strlen(fontname);
 		if(lp>0) size = fontname[lp-1]-'1';
 	}
-	fprintf(gpoutfile, XT_TEK_ESC "%c",
+	fprintf(GPT.P_GpOutFile, XT_TEK_ESC "%c",
 	    xt_tek_fontsize[size>0&&size<4 ? size : 0]);
 
 	return(TRUE);
@@ -905,12 +905,12 @@ TERM_PUBLIC int XTERM_set_font(const char * fontname)
 
 TERM_PUBLIC void LN03Pinit()
 {
-	fputs("\033[?38h", gpoutfile);
+	fputs("\033[?38h", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void LN03Preset()
 {
-	fputs("\033[?38l", gpoutfile);
+	fputs("\033[?38l", GPT.P_GpOutFile);
 }
 
 #endif /* LN03P */

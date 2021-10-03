@@ -84,7 +84,7 @@ static int qms_line = 0;        /* to remember current line type */
 TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
 {
 	/* This was just ^IOL, but at Rutgers at least we need some more stuff */
-	fputs("^PY^-\n^IOL\n^ISYNTAX00000^F^IB11000^IJ00000^IT00000\n", gpoutfile);
+	fputs("^PY^-\n^IOL\n^ISYNTAX00000^F^IB11000^IJ00000^IT00000\n", GPT.P_GpOutFile);
 	/*     ^ QUIC on    ^set defaults  ^ set bottom,top,left margins
 	 *            ^landscape         ^free format
 	 */
@@ -97,7 +97,7 @@ TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void QMS_graphics()
 {
-	fputs("^IGV\n", gpoutfile);
+	fputs("^IGV\n", GPT.P_GpOutFile);
 	/*     ^enter graphics vector mode */
 }
 
@@ -105,7 +105,7 @@ TERM_PUBLIC void QMS_text(GpTermEntry * pThis)
 {
 /* added ^-, because ^, after an ^I command doesn't actually print a page */
 /* Did anybody try this code out?  [uhh...-cdk] */
-	fputs("^IGE\n^-^,", gpoutfile);
+	fputs("^IGE\n^-^,", GPT.P_GpOutFile);
 	/*     ^exit graphics vector mode
 	 *           ^pass terminator
 	 *             ^print page
@@ -129,38 +129,38 @@ TERM_PUBLIC void QMS_linetype(int linetype)
 	if(linetype >= 9)
 		linetype %= 9;
 
-	fprintf(gpoutfile, "^PW%02d\n", width[linetype + 2]);
+	fprintf(GPT.P_GpOutFile, "^PW%02d\n", width[linetype + 2]);
 /*	                 ^width in dots */
 
 	switch(type[linetype + 2]) {
 		case 1:         /* short dash */
-		    fputs("^PV102025^G\n^V1\n", gpoutfile);
+		    fputs("^PV102025^G\n^V1\n", GPT.P_GpOutFile);
 		    /* ^PV = define pattern vector, 1 = pattern number,
 		     * 02 = number of pen downs and ups, 025 = .025" length of ups/downs
 		     */
 		    break;
 		case 2:         /* medium dash */
-		    fputs("^PV202050^G\n^V2\n", gpoutfile);
+		    fputs("^PV202050^G\n^V2\n", GPT.P_GpOutFile);
 		    break;
 		case 3:         /* long dash */
-		    fputs("^PV302100^G\n^V3\n", gpoutfile);
+		    fputs("^PV302100^G\n^V3\n", GPT.P_GpOutFile);
 		    break;
 		default:
 		case 0:
-		    fputs("^V0\n", gpoutfile);
+		    fputs("^V0\n", GPT.P_GpOutFile);
 		    break;
 	}
 }
 
 TERM_PUBLIC void QMS_move(uint x, uint y)
 {
-	fprintf(gpoutfile, "^U%05d:%05d\n", 1000 + x, QMS_YLAST + 1000 - y);
+	fprintf(GPT.P_GpOutFile, "^U%05d:%05d\n", 1000 + x, QMS_YLAST + 1000 - y);
 	/*                   ^pen up vector*/
 }
 
 TERM_PUBLIC void QMS_vector(uint x2, uint y2)
 {
-	fprintf(gpoutfile, "^D%05d:%05d\n", 1000 + x2, QMS_YLAST + 1000 - y2);
+	fprintf(GPT.P_GpOutFile, "^D%05d:%05d\n", 1000 + x2, QMS_YLAST + 1000 - y2);
 	/*                  ^pen down vector*/
 }
 
@@ -168,21 +168,21 @@ TERM_PUBLIC void QMS_put_text(uint x, uint y, const char str[])
 {
 	char ch;
 	QMS_move(x, y + QMS_VCHAR / 3);
-	fputs("^IGE\n", gpoutfile);
+	fputs("^IGE\n", GPT.P_GpOutFile);
 	ch = *str++;
 	while(ch != NUL) {
 		if(ch == '^')
-			putc('^', gpoutfile);
-		putc(ch, gpoutfile);
+			putc('^', GPT.P_GpOutFile);
+		putc(ch, GPT.P_GpOutFile);
 		ch = *str++;
 	}
-	fputs("\n^IGV\n", gpoutfile);
+	fputs("\n^IGV\n", GPT.P_GpOutFile);
 	QMS_linetype(qms_line); /* restore line type */
 }
 
 TERM_PUBLIC void QMS_reset()
 {
-	fputs("^PN^-\n", gpoutfile);
+	fputs("^PN^-\n", GPT.P_GpOutFile);
 	/*     ^QUIC off */
 }
 

@@ -108,7 +108,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char *)SAlloc::M(size);
 	size_t len = 0;
-	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
+	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, GPT.P_GpOutFile);
 	for(int curve = 0; curve < plotNum; curve++, pPlot = pPlot->next) {
 		GpCoordinate * point = NULL;
 		// "with table" already wrote the output 
@@ -311,7 +311,7 @@ void GnuPlot::Print3DTable(int pcount)
 	size_t size = 2*BUFFERSIZE;
 	char * line = (char *)SAlloc::M(size);
 	size_t len = 0;
-	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
+	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, GPT.P_GpOutFile);
 	for(surface = 0, this_plot = _Plt.first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		PrintLine("");
 		snprintf(line, size, "# Surface %d of %d surfaces", surface, pcount);
@@ -449,7 +449,7 @@ void GnuPlot::Print3DTable(int pcount)
 bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncols)
 {
 	int col;
-	FILE * f_out = NZOR(Tab.P_TabOutFile, gpoutfile);
+	FILE * f_out = NZOR(Tab.P_TabOutFile, GPT.P_GpOutFile);
 	GpValue keep;
 	if(Tab.P_FilterAt) {
 		_Df.evaluate_inside_using = true;

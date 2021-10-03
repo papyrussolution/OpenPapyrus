@@ -1375,19 +1375,19 @@ int tls1_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 	EVP_MD_CTX_free(hmac);
 
 #ifdef SSL_DEBUG
-	fprintf(stderr, "seq=");
+	slfprintf_stderr("seq=");
 	{
 		int z;
 		for(z = 0; z < 8; z++)
-			fprintf(stderr, "%02X ", seq[z]);
-		fprintf(stderr, "\n");
+			slfprintf_stderr("%02X ", seq[z]);
+		slfprintf_stderr("\n");
 	}
-	fprintf(stderr, "rec=");
+	slfprintf_stderr("rec=");
 	{
 		size_t z;
 		for(z = 0; z < rec->length; z++)
-			fprintf(stderr, "%02X ", rec->data[z]);
-		fprintf(stderr, "\n");
+			slfprintf_stderr("%02X ", rec->data[z]);
+		slfprintf_stderr("\n");
 	}
 #endif
 
@@ -1402,8 +1402,8 @@ int tls1_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 	{
 		uint z;
 		for(z = 0; z < md_size; z++)
-			fprintf(stderr, "%02X ", md[z]);
-		fprintf(stderr, "\n");
+			slfprintf_stderr("%02X ", md[z]);
+		slfprintf_stderr("\n");
 	}
 #endif
 	return 1;

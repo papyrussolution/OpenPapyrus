@@ -260,6 +260,18 @@ void VCalendar::Todo::Init()
 	Descr.Z();
 }
 
+VCalendar::Entry::Entry() : Token(0)
+{
+}
+
+VCalendar::Entry & VCalendar::Entry::Z()
+{
+	Token = 0;
+	ParamList.Z();
+	Value.Z();
+	return *this;
+}
+
 VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) : P_Stream(0)
 {
 	PPLoadText(PPTXT_VCAL_PROPERTIES,     Properties);

@@ -89,14 +89,14 @@ int server_set_kex(ssh_session session)
 	}
 #endif
 	if(session->srv.rsa_key != NULL) {
-		/* We support also the SHA2 variants */
+		// We support also the SHA2 variants 
 		len = strlen(hostkeys);
 		snprintf(hostkeys + len, sizeof(hostkeys) - len, ",rsa-sha2-512,rsa-sha2-256");
 		len = strlen(hostkeys);
 		keytype = ssh_key_type(session->srv.rsa_key);
 		snprintf(hostkeys + len, sizeof(hostkeys) - len, ",%s", ssh_key_type_to_char(keytype));
 	}
-	if(strlen(hostkeys) == 0) {
+	if(isempty(hostkeys)) {
 		return -1;
 	}
 	if(session->opts.wanted_methods[SSH_HOSTKEYS]) {

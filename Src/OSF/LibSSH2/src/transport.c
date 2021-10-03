@@ -60,7 +60,7 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 	if(session->tracehandler)
 		(session->tracehandler)(session, session->tracehandler_context, buffer, used);
 	else
-		fprintf(stderr, "%s", buffer);
+		slfprintf_stderr("%s", buffer);
 	for(i = 0; i < size; i += width) {
 		used = _snprintf(buffer, sizeof(buffer), "%04lx: ", (long)i);
 		/* hex not disabled, show it */
@@ -87,7 +87,7 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 		if(session->tracehandler)
 			(session->tracehandler)(session, session->tracehandler_context, buffer, used);
 		else
-			fprintf(stderr, "%s", buffer);
+			slfprintf_stderr("%s", buffer);
 	}
 }
 #else

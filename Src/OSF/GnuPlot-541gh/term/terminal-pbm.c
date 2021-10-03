@@ -97,7 +97,7 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	GpValue a;
 	pbm_font = 1;
 	pbm_mode = 0;
-	term_options[0] = NUL;
+	PTR32(GPT.TermOptions)[0] = 0;
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&PBM_opts[0])) {
 			case PBM_SMALL:
@@ -160,17 +160,17 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->TicH = pThis->TicV;
 	// setup options string 
 	switch(pbm_font) {
-		case 1: strcat(term_options, "small"); break;
-		case 2: strcat(term_options, "medium"); break;
-		case 3: strcat(term_options, "large"); break;
+		case 1: strcat(GPT.TermOptions, "small"); break;
+		case 2: strcat(GPT.TermOptions, "medium"); break;
+		case 3: strcat(GPT.TermOptions, "large"); break;
 	}
 	switch(pbm_mode) {
-		case 0: strcat(term_options, " monochrome"); break;
-		case 1: strcat(term_options, " gray"); break;
-		case 2: strcat(term_options, " color"); break;
+		case 0: strcat(GPT.TermOptions, " monochrome"); break;
+		case 1: strcat(GPT.TermOptions, " gray"); break;
+		case 2: strcat(GPT.TermOptions, " color"); break;
 	}
 	if(PBM_explicit_size)
-		sprintf(term_options + strlen(term_options), " size %d,%d", pThis->MaxX, pThis->MaxY);
+		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", pThis->MaxX, pThis->MaxY);
 }
 
 TERM_PUBLIC void PBM_init(GpTermEntry * pThis)
@@ -236,13 +236,13 @@ static void PBM_monotext(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
-	fputs("P4\n", gpoutfile);
-	fprintf(gpoutfile, "%u %u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize);
+	fputs("P4\n", GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, "%u %u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize);
 	// dump bitmap in raster mode 
 	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
 		row = (p_gp->_Bmp.b_ysize / 8) - 1;
 		for(j = row; j >= 0; j--) {
-			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), GPT.P_GpOutFile);
 		}
 	}
 	p_gp->BmpFreeBitmap();
@@ -254,7 +254,7 @@ static void PBM_graytext(GpTermEntry * pThis)
 	int x, j, row;
 	int i, value;
 	int mask, plane1, plane2, plane3;
-	fprintf(gpoutfile, "P5\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
+	fprintf(GPT.P_GpOutFile, "P5\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
 	// dump bitmap in raster mode 
 	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
 		row = (p_gp->_Bmp.b_ysize / 8) - 1;
@@ -272,7 +272,7 @@ static void PBM_graytext(GpTermEntry * pThis)
 					value -= 73;
 				if(plane3 & mask)
 					value -= 146;
-				fputc((char)(value), gpoutfile);
+				fputc((char)(value), GPT.P_GpOutFile);
 				mask >>= 1;
 			}
 		}
@@ -283,7 +283,7 @@ static void PBM_graytext(GpTermEntry * pThis)
 static void PBM_colortext(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	fprintf(gpoutfile, "P6\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
+	fprintf(GPT.P_GpOutFile, "P6\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
 	// dump bitmap in raster mode 
 	for(int x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
 		int row = (p_gp->_Bmp.b_ysize / 8) - 1;
@@ -303,9 +303,9 @@ static void PBM_colortext(GpTermEntry * pThis)
 					blue--;
 				}
 				// HBB: '85' is exactly 255/3, so this spans the full range of colors in three steps: 
-				fputc((char)(red * 85), gpoutfile);
-				fputc((char)(green * 85), gpoutfile);
-				fputc((char)(blue * 85), gpoutfile);
+				fputc((char)(red * 85), GPT.P_GpOutFile);
+				fputc((char)(green * 85), GPT.P_GpOutFile);
+				fputc((char)(blue * 85), GPT.P_GpOutFile);
 				mask >>= 1;
 			}
 		}

@@ -355,7 +355,7 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// FIXME: enhanced text only available for Tcl 
 	if((pThis->flags & TERM_ENHANCED_TEXT) && (tk_script_language != TK_LANG_TCL))
 		pThis->flags &= ~TERM_ENHANCED_TEXT;
-	sprintf(term_options, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
+	sprintf(GPT.TermOptions, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
 	    tk_interactive ? " interactive" : "", tk_standalone ? "standalone" : "input",
 	    (tk_background[0] == NUL) ? "nobackground " : "background ", (tk_background[0] == NUL) ? "" : tk_background_opt,
 	    tk_rounded ? "rounded" : "butt", pThis->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
@@ -517,25 +517,25 @@ TERM_PUBLIC void TK_graphics(GpTermEntry * pThis)
 	 * using the `size` option.
 	 */
 	char * tk_function = "gnuplot";
-	/* Reset to start of output file.  If the user mistakenly tries to	*/
-	/* plot again into the same file, it will overwrite the original	*/
-	/* rather than corrupting it.					*/
-	if(gpoutfile != stdout) {
-		fseek(gpoutfile, 0L, SEEK_SET);
-		fflush(gpoutfile);
-		if(ftruncate(_fileno(gpoutfile), (off_t)0) != 0)
+	// Reset to start of output file.  If the user mistakenly tries to
+	// plot again into the same file, it will overwrite the original
+	// rather than corrupting it.
+	if(GPT.P_GpOutFile != stdout) {
+		fseek(GPT.P_GpOutFile, 0L, SEEK_SET);
+		fflush(GPT.P_GpOutFile);
+		if(ftruncate(_fileno(GPT.P_GpOutFile), (off_t)0) != 0)
 			pThis->P_Gp->IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
 	}
-	if(!tk_standalone && ((tk_script_language == TK_LANG_PERL) || (tk_script_language == TK_LANG_PERLTKX)))
+	if(!tk_standalone && oneof2(tk_script_language, TK_LANG_PERL, TK_LANG_PERLTKX))
 		tk_function = "";
 	if(tk_standalone && (tk_script_language == TK_LANG_REXX))
-		fprintf(gpoutfile, tk_standalone_init[tk_script_language], tk_width, tk_height);
-	fprintf(gpoutfile, tk_init_gnuplot[tk_script_language], tk_function, tk_function);
+		fprintf(GPT.P_GpOutFile, tk_standalone_init[tk_script_language], tk_width, tk_height);
+	fprintf(GPT.P_GpOutFile, tk_init_gnuplot[tk_script_language], tk_function, tk_function);
 	tk_angle = tk_lastx = tk_lasty = 0;
 	strnzcpy(tk_color, tk_colors[0], sizeof(tk_color));
 	// set background 
 	if(tk_background[0]) {
-		fprintf(gpoutfile, tk_set_background[tk_script_language], tk_background);
+		fprintf(GPT.P_GpOutFile, tk_set_background[tk_script_language], tk_background);
 	}
 }
 
@@ -902,15 +902,15 @@ static void TK_flush_line(GpTermEntry * pThis)
 	 */
 	/* prepare the binding mechanism */
 	if(tk_interactive && !p_gp->Gg.Is3DPlot)
-		fputs(tk_bind_init[tk_script_language], gpoutfile);
+		fputs(tk_bind_init[tk_script_language], GPT.P_GpOutFile);
 	// draw a line segment 
-	fputs(tk_line_segment_start[tk_script_language], gpoutfile);
+	fputs(tk_line_segment_start[tk_script_language], GPT.P_GpOutFile);
 	for(i = 0; i < tk_polygon_points; i++)
-		fprintf(gpoutfile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
-	fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
+		fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
+	fprintf(GPT.P_GpOutFile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
 	if(tk_dashpattern[0] != NUL)
-		fprintf(gpoutfile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
-	fputs(tk_line_segment_end[tk_script_language], gpoutfile);
+		fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
+	fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
 
 	/* finish the binding mechanism
 	 * (which calls 'gnuplot_xy' for the line segment pointed to by
@@ -919,7 +919,7 @@ static void TK_flush_line(GpTermEntry * pThis)
 	x = tk_path_x[tk_polygon_points -1];
 	y = tk_path_y[tk_polygon_points -1];
 	if(tk_interactive && !p_gp->Gg.Is3DPlot) {
-		fprintf(gpoutfile, tk_bind_main[tk_script_language],
+		fprintf(GPT.P_GpOutFile, tk_bind_main[tk_script_language],
 		    TkRealValue(pThis, TkValueX(pThis, tk_lastx), FIRST_X_AXIS),
 		    TkRealValue(pThis, TkValueY(pThis, tk_lasty), FIRST_Y_AXIS),
 		    TkRealValue(pThis, TkValueX(pThis, tk_lastx), SECOND_X_AXIS),
@@ -929,25 +929,25 @@ static void TK_flush_line(GpTermEntry * pThis)
 		    TkRealValue(pThis, TkValueX(pThis, x), SECOND_X_AXIS),
 		    TkRealValue(pThis, TkValueY(pThis, y), SECOND_Y_AXIS));
 		if(p_gp->AxS[FIRST_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), FIRST_X_AXIS));
+			fprintf(GPT.P_GpOutFile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), FIRST_X_AXIS));
 		else
-			fputs(tk_bind_nil[tk_script_language], gpoutfile);
+			fputs(tk_bind_nil[tk_script_language], GPT.P_GpOutFile);
 		if(p_gp->AxS[FIRST_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), FIRST_Y_AXIS));
+			fprintf(GPT.P_GpOutFile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), FIRST_Y_AXIS));
 		else
-			fputs(tk_bind_nil[tk_script_language], gpoutfile);
+			fputs(tk_bind_nil[tk_script_language], GPT.P_GpOutFile);
 		if(p_gp->AxS[SECOND_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), SECOND_X_AXIS));
+			fprintf(GPT.P_GpOutFile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), SECOND_X_AXIS));
 		else
-			fputs(tk_bind_nil[tk_script_language], gpoutfile);
+			fputs(tk_bind_nil[tk_script_language], GPT.P_GpOutFile);
 		if(p_gp->AxS[SECOND_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), SECOND_Y_AXIS));
+			fprintf(GPT.P_GpOutFile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), SECOND_Y_AXIS));
 		else
-			fputs(tk_bind_nil[tk_script_language], gpoutfile);
-		fputs(tk_bind_end[tk_script_language], gpoutfile);
+			fputs(tk_bind_nil[tk_script_language], GPT.P_GpOutFile);
+		fputs(tk_bind_end[tk_script_language], GPT.P_GpOutFile);
 	}
 	else {
-		fputs(tk_nobind[tk_script_language], gpoutfile);
+		fputs(tk_nobind[tk_script_language], GPT.P_GpOutFile);
 	}
 	tk_polygon_points = 0;
 	tk_in_path = FALSE;
@@ -1070,16 +1070,16 @@ static void TK_put_noenhanced_text(GpTermEntry * pThis, uint x, uint y, const ch
 		quoted_str[newsize] = '\0';
 	}
 	y = TK_YMAX - y;
-	fprintf(gpoutfile, tk_create_text_begin[tk_script_language], x, y, quoted_str, tk_color, tk_anchor);
+	fprintf(GPT.P_GpOutFile, tk_create_text_begin[tk_script_language], x, y, quoted_str, tk_color, tk_anchor);
 	if(tk_next_text_use_font) {
-		fputs(tk_create_text_font[tk_script_language], gpoutfile);
+		fputs(tk_create_text_font[tk_script_language], GPT.P_GpOutFile);
 		tk_next_text_use_font = FALSE;
 	}
 	if(tk_angle != 0)
-		fprintf(gpoutfile, tk_create_text_angle[tk_script_language], tk_angle);
+		fprintf(GPT.P_GpOutFile, tk_create_text_angle[tk_script_language], tk_angle);
 	if(tk_boxed)
-		fprintf(gpoutfile, tk_tag[tk_script_language], "boxedtext");
-	fputs(tk_create_text_end[tk_script_language], gpoutfile);
+		fprintf(GPT.P_GpOutFile, tk_tag[tk_script_language], "boxedtext");
+	fputs(tk_create_text_end[tk_script_language], GPT.P_GpOutFile);
 
 	if(quoted_str != str)
 		SAlloc::F(quoted_str);
@@ -1179,7 +1179,7 @@ TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(!font || *font == NUL) {
 		tk_next_text_use_font = FALSE;
-		fputs(tk_undef_font[tk_script_language], gpoutfile);
+		fputs(tk_undef_font[tk_script_language], GPT.P_GpOutFile);
 	}
 	else {
 		int size = 0;
@@ -1200,14 +1200,14 @@ TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 		if(sep1 < strlen(font))
 			sscanf(&(font[sep1 + 1]), "%d", &size);
 
-		fprintf(gpoutfile, tk_set_font[tk_script_language], name);
+		fprintf(GPT.P_GpOutFile, tk_set_font[tk_script_language], name);
 		if(size > 0)
-			fprintf(gpoutfile, tk_set_fsize[tk_script_language], size);
+			fprintf(GPT.P_GpOutFile, tk_set_fsize[tk_script_language], size);
 		if(isbold)
-			fputs(tk_set_fbold[tk_script_language], gpoutfile);
+			fputs(tk_set_fbold[tk_script_language], GPT.P_GpOutFile);
 		if(isitalic)
-			fputs(tk_set_fitalic[tk_script_language], gpoutfile);
-		fputs(tk_font_end[tk_script_language], gpoutfile);
+			fputs(tk_set_fitalic[tk_script_language], GPT.P_GpOutFile);
+		fputs(tk_font_end[tk_script_language], GPT.P_GpOutFile);
 		tk_next_text_use_font = TRUE;
 
 		SAlloc::F(name);
@@ -1219,11 +1219,11 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(overprint == 3) { /* save current position */
-		fprintf(gpoutfile, "set xenh_save $xenh; set yenh_save $yenh;\n");
+		fprintf(GPT.P_GpOutFile, "set xenh_save $xenh; set yenh_save $yenh;\n");
 		return;
 	}
 	else if(overprint == 4) { /* restore saved position */
-		fprintf(gpoutfile, "set xenh $xenh_save; set yenh $yenh_save;\n");
+		fprintf(GPT.P_GpOutFile, "set xenh $xenh_save; set yenh $yenh_save;\n");
 		return;
 	}
 	if(!tk_enhanced_opened_string) {
@@ -1246,14 +1246,14 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		ASSIGN_PTR(sep, NUL);
 		isbold = (strstr(fontname, ":Bold") != NULL);
 		isitalic = (strstr(fontname, ":Italic") != NULL);
-		fprintf(gpoutfile, tk_set_font[tk_script_language], family);
+		fprintf(GPT.P_GpOutFile, tk_set_font[tk_script_language], family);
 		if(fontsize > 0)
-			fprintf(gpoutfile, tk_set_fsize[tk_script_language], (int)(fontsize));
+			fprintf(GPT.P_GpOutFile, tk_set_fsize[tk_script_language], (int)(fontsize));
 		if(isbold)
-			fputs(tk_set_fbold[tk_script_language], gpoutfile);
+			fputs(tk_set_fbold[tk_script_language], GPT.P_GpOutFile);
 		if(isitalic)
-			fputs(tk_set_fitalic[tk_script_language], gpoutfile);
-		fputs(tk_font_end[tk_script_language], gpoutfile);
+			fputs(tk_set_fitalic[tk_script_language], GPT.P_GpOutFile);
+		fputs(tk_font_end[tk_script_language], GPT.P_GpOutFile);
 		tk_next_text_use_font = TRUE;
 		SAlloc::F(family);
 	}
@@ -1305,39 +1305,39 @@ TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 	*p_gp->Enht.P_CurText = NUL;
 	/* print the string fragment in any case */
 	/* NB: base expresses offset from current y pos */
-	fprintf(gpoutfile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * SMathConst::PiDiv180)));
-	fprintf(gpoutfile, "set xenh [expr int($xenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * sin(tk_angle * SMathConst::PiDiv180)));
-	fprintf(gpoutfile, tk_enhanced_text_begin[tk_script_language], "xenh", "yenh", str, tk_color, tk_anchor);
+	fprintf(GPT.P_GpOutFile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * SMathConst::PiDiv180)));
+	fprintf(GPT.P_GpOutFile, "set xenh [expr int($xenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * sin(tk_angle * SMathConst::PiDiv180)));
+	fprintf(GPT.P_GpOutFile, tk_enhanced_text_begin[tk_script_language], "xenh", "yenh", str, tk_color, tk_anchor);
 	if(tk_next_text_use_font) {
-		fputs(tk_create_text_font[tk_script_language], gpoutfile);
+		fputs(tk_create_text_font[tk_script_language], GPT.P_GpOutFile);
 		tk_next_text_use_font = FALSE;
 	}
 	if(!tk_boxed)
-		fprintf(gpoutfile, tk_tag[tk_script_language], "enhancedtext");
+		fprintf(GPT.P_GpOutFile, tk_tag[tk_script_language], "enhancedtext");
 	else
-		fprintf(gpoutfile, tk_tag[tk_script_language], "boxedtext");
-	fputs(tk_enhanced_text_end[tk_script_language], gpoutfile);
+		fprintf(GPT.P_GpOutFile, tk_tag[tk_script_language], "boxedtext");
+	fputs(tk_enhanced_text_end[tk_script_language], GPT.P_GpOutFile);
 	if(!tk_enhanced_widthflag)
 		
 		; // don't update position 
 	else if(tk_enhanced_overprint == 1) {
 		// First pass of overprint, leave position in center of fragment 
-		// fprintf(gpoutfile, "incr xenh [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0]) / 2]\n");
-		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
-		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180) / 2);
-		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180) / 2);
+		// fprintf(GPT.P_GpOutFile, "incr xenh [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0]) / 2]\n");
+		fprintf(GPT.P_GpOutFile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
+		fprintf(GPT.P_GpOutFile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180) / 2);
+		fprintf(GPT.P_GpOutFile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180) / 2);
 	}
 	else {
 		// Normal case is to update position to end of fragment 
-		// fprintf(gpoutfile, "set xenh [lindex [$cv bbox $et] 2]\n"); 
-		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
-		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180));
-		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180));
+		// fprintf(GPT.P_GpOutFile, "set xenh [lindex [$cv bbox $et] 2]\n"); 
+		fprintf(GPT.P_GpOutFile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
+		fprintf(GPT.P_GpOutFile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180));
+		fprintf(GPT.P_GpOutFile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180));
 	}
 	if(tk_angle != 0)
-		fprintf(gpoutfile, "$cv itemconfigure $et -angle %d\n", tk_angle);
+		fprintf(GPT.P_GpOutFile, "$cv itemconfigure $et -angle %d\n", tk_angle);
 	if(!tk_enhanced_show)
-		fprintf(gpoutfile, "$cv delete $et\n");
+		fprintf(GPT.P_GpOutFile, "$cv delete $et\n");
 	tk_enhanced_opened_string = FALSE;
 }
 
@@ -1350,9 +1350,9 @@ static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char
 	tk_enhanced_opened_string = FALSE;
 	tk_lastx = x;
 	tk_lasty = TK_YMAX - y;
-	fprintf(gpoutfile, "set xenh0 [expr $cmx * %d /1000]; set yenh0 [expr $cmy * %d /1000];\n", x, TK_YMAX - y);
-	fprintf(gpoutfile, "set xenh $xenh0; set yenh $yenh0;\n");
-	fprintf(gpoutfile, "set xenhb $xenh0; set yenhb $yenh0;\n");
+	fprintf(GPT.P_GpOutFile, "set xenh0 [expr $cmx * %d /1000]; set yenh0 [expr $cmy * %d /1000];\n", x, TK_YMAX - y);
+	fprintf(GPT.P_GpOutFile, "set xenh $xenh0; set yenh $yenh0;\n");
+	fprintf(GPT.P_GpOutFile, "set xenhb $xenh0; set yenhb $yenh0;\n");
 	strcpy(tk_anchor, "w");
 	// Set the recursion going. We say to keep going until a
 	// closing brace, but we don't really expect to find one.
@@ -1369,10 +1369,10 @@ static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char
 		// else carry on and process the rest of the string 
 	}
 	if(tk_justify == RIGHT)
-		fprintf(gpoutfile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)] [expr ($yenh0 - $yenhb)]\n");
+		fprintf(GPT.P_GpOutFile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)] [expr ($yenh0 - $yenhb)]\n");
 	else if(tk_justify == CENTRE)
-		fprintf(gpoutfile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)/2] [expr ($yenh0 - $yenhb)/2]\n");
-	fprintf(gpoutfile, "$cv dtag enhancedtext\n");
+		fprintf(GPT.P_GpOutFile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)/2] [expr ($yenh0 - $yenhb)/2]\n");
+	fprintf(GPT.P_GpOutFile, "$cv dtag enhancedtext\n");
 }
 
 TERM_PUBLIC void TK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
@@ -1468,25 +1468,24 @@ TERM_PUBLIC void TK_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uin
 	int ex = (int)uex;
 	int ey = (int)uey;
 	TK_flush_line();
-	if(curr_arrow_headfilled >= AS_FILLED) { /* AS_FILLED, AS_NOBORDER */
-		fputs(tk_line_segment_start[tk_script_language], gpoutfile);
-		fprintf(gpoutfile, tk_poly_point[tk_script_language], sx, TK_YMAX - sy);
-		fprintf(gpoutfile, tk_poly_point[tk_script_language], ex, TK_YMAX - ey);
-		fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
-		if(curr_arrow_headlength > 0) {
-			/* This should exactly mimic the behaviour of GnuPlot::DoArrow() */
-			int width   = sin(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength;
-			int tiplen  = cos(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength;
-			int backlen = width / tan(curr_arrow_headbackangle * SMathConst::PiDiv180);
+	if(GPT.CArw.HeadFilled >= AS_FILLED) { // AS_FILLED, AS_NOBORDER 
+		fputs(tk_line_segment_start[tk_script_language], GPT.P_GpOutFile);
+		fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], sx, TK_YMAX - sy);
+		fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], ex, TK_YMAX - ey);
+		fprintf(GPT.P_GpOutFile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
+		if(GPT.CArw.HeadLength > 0) {
+			// This should exactly mimic the behaviour of GnuPlot::DoArrow() 
+			int width   = sin(GPT.CArw.HeadAngle * SMathConst::PiDiv180) * GPT.CArw.HeadLength;
+			int tiplen  = cos(GPT.CArw.HeadAngle * SMathConst::PiDiv180) * GPT.CArw.HeadLength;
+			int backlen = width / tan(GPT.CArw.HeadBackAngle * SMathConst::PiDiv180);
 			int length  = tiplen - backlen;
-
-			/* impose lower limit on thickness of tips */
+			// impose lower limit on thickness of tips 
 			if(4 * length < tiplen) length = tiplen / 4;
 			if(length <= 1) length = 2;
 			if(tiplen < 1) tiplen = 1;
 
-			fprintf(gpoutfile, tk_line_arrow[tk_script_language], arrow[ (head & BOTH_HEADS) ]);
-			fprintf(gpoutfile, tk_line_arrowshape[tk_script_language], length, tiplen, width);
+			fprintf(GPT.P_GpOutFile, tk_line_arrow[tk_script_language], arrow[ (head & BOTH_HEADS) ]);
+			fprintf(GPT.P_GpOutFile, tk_line_arrowshape[tk_script_language], length, tiplen, width);
 		}
 		else if(head != NOHEAD) {
 			double dx = sx - ex;
@@ -1497,13 +1496,13 @@ TERM_PUBLIC void TK_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uin
 			int length = (int)(COS15 * head_coeff);
 			int width  = (int)(SIN15 * head_coeff);
 
-			fprintf(gpoutfile, tk_line_arrow[tk_script_language], arrow[ (head & BOTH_HEADS) ]);
-			fprintf(gpoutfile, tk_line_arrowshape[tk_script_language], length, length, width);
+			fprintf(GPT.P_GpOutFile, tk_line_arrow[tk_script_language], arrow[ (head & BOTH_HEADS) ]);
+			fprintf(GPT.P_GpOutFile, tk_line_arrowshape[tk_script_language], length, length, width);
 		}
 		if(tk_dashpattern[0] != NUL)
-			fprintf(gpoutfile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
-		fputs(tk_line_segment_end[tk_script_language], gpoutfile);
-		fputs(tk_nobind[tk_script_language], gpoutfile);
+			fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
+		fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
+		fputs(tk_nobind[tk_script_language], GPT.P_GpOutFile);
 	}
 	else { /* AS_NOFILL, AS_EMPTY */
 		/* fall back to internal routine since we cannot do non-filled arrows */
@@ -1690,17 +1689,17 @@ TERM_PUBLIC void TK_text(GpTermEntry * pThis)
 	 *     to standard output.
 	 */
 	TK_flush_line(pThis);
-	fputs(tk_endblock[tk_script_language], gpoutfile);
+	fputs(tk_endblock[tk_script_language], GPT.P_GpOutFile);
 	if(!p_gp->Gg.Is3DPlot)
-		fprintf(gpoutfile, tk_info_procs[tk_script_language],
+		fprintf(GPT.P_GpOutFile, tk_info_procs[tk_script_language],
 		    p_gp->V.BbPlot.xleft, p_gp->V.BbPlot.xright, TK_YMAX - p_gp->V.BbPlot.ytop, TK_YMAX - p_gp->V.BbPlot.ybot,
 		    p_gp->AxS[FIRST_X_AXIS].min,  p_gp->AxS[FIRST_X_AXIS].max, p_gp->AxS[FIRST_Y_AXIS].min,  p_gp->AxS[FIRST_Y_AXIS].max,
 		    p_gp->AxS[SECOND_X_AXIS].min, p_gp->AxS[SECOND_X_AXIS].max, p_gp->AxS[SECOND_Y_AXIS].min, p_gp->AxS[SECOND_Y_AXIS].max);
 	if(tk_interactive)
-		fputs(tk_gnuplot_xy[tk_script_language], gpoutfile);
+		fputs(tk_gnuplot_xy[tk_script_language], GPT.P_GpOutFile);
 	if(tk_standalone && (tk_script_language != TK_LANG_REXX))
-		fprintf(gpoutfile, tk_standalone_init[tk_script_language], tk_width, tk_height);
-	fflush(gpoutfile);
+		fprintf(GPT.P_GpOutFile, tk_standalone_init[tk_script_language], tk_width, tk_height);
+	fflush(GPT.P_GpOutFile);
 }
 
 static char * tk_rectangle[TK_LANG_MAX] = {
@@ -1734,7 +1733,7 @@ static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * st
 {
 	SETIFZ(color, "");
 	SETIFZ(stipple, "");
-	fprintf(gpoutfile, tk_rectangle[tk_script_language], x1, y1, x2, y2, color, stipple);
+	fprintf(GPT.P_GpOutFile, tk_rectangle[tk_script_language], x1, y1, x2, y2, color, stipple);
 }
 
 TERM_PUBLIC void TK_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
@@ -1812,10 +1811,10 @@ TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 	// avoid duplicate last point 
 	if((points > 2) && (corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
-	fputs(tk_poly_begin[tk_script_language], gpoutfile);
+	fputs(tk_poly_begin[tk_script_language], GPT.P_GpOutFile);
 	for(i = 0; i < points; i++)
-		fprintf(gpoutfile, tk_poly_point[tk_script_language], corners[i].x, TK_YMAX - corners[i].y);
-	fprintf(gpoutfile, tk_poly_end[tk_script_language], tk_color);
+		fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], corners[i].x, TK_YMAX - corners[i].y);
+	fprintf(GPT.P_GpOutFile, tk_poly_end[tk_script_language], tk_color);
 }
 
 TERM_PUBLIC void TK_path(GpTermEntry * pThis, int p)
@@ -1830,15 +1829,15 @@ TERM_PUBLIC void TK_path(GpTermEntry * pThis, int p)
 		int i;
 		FPRINTF((stderr, "tkcanvas: closepath: %i points\n", tk_polygon_points));
 		if(tk_polygon_points > 1) {
-			fputs(tk_line_segment_start[tk_script_language], gpoutfile);
+			fputs(tk_line_segment_start[tk_script_language], GPT.P_GpOutFile);
 			for(i = 0; i < tk_polygon_points; i++)
-				fprintf(gpoutfile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
-			fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
+				fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
+			fprintf(GPT.P_GpOutFile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
 			    tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
 			if(tk_dashpattern[0] != NUL)
-				fprintf(gpoutfile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
-			fputs(tk_line_segment_end[tk_script_language], gpoutfile);
-			fputs(tk_nobind[tk_script_language], gpoutfile);
+				fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
+			fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
+			fputs(tk_nobind[tk_script_language], GPT.P_GpOutFile);
 		}
 		tk_in_path = FALSE;
 		tk_polygon_points = 0;
@@ -1871,10 +1870,10 @@ TERM_PUBLIC void TK_image(GpTermEntry * pThis, uint m, uint n, coordval * image,
 	sprintf(fname, "%s_image_%02d.png", basename, ++tk_image_counter);
 	write_png_image(pThis, m, n, image, color_mode, fname);
 	// FIXME: Only Tcl support, needs external `rescale` command. 
-	fprintf(gpoutfile, "set image%d [image create photo -file {%s}]\n", tk_image_counter, fname);
-	fprintf(gpoutfile, "set image%dr [resize $image%d [expr $cmx*%d/1000] [expr $cmy*%d/1000]]\n",
+	fprintf(GPT.P_GpOutFile, "set image%d [image create photo -file {%s}]\n", tk_image_counter, fname);
+	fprintf(GPT.P_GpOutFile, "set image%dr [resize $image%d [expr $cmx*%d/1000] [expr $cmy*%d/1000]]\n",
 	    tk_image_counter, tk_image_counter, width, height);
-	fprintf(gpoutfile, "$cv create image [expr $cmx*%d/1000] [expr $cmy*%d/1000] -anchor nw -image $image%dr\n",
+	fprintf(GPT.P_GpOutFile, "$cv create image [expr $cmx*%d/1000] [expr $cmy*%d/1000] -anchor nw -image $image%dr\n",
 	    corner[0].x, TK_YMAX - corner[0].y, tk_image_counter);
 }
 #endif
@@ -1924,16 +1923,16 @@ TERM_PUBLIC void TK_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 		    tk_boxed = TRUE;
 		    break;
 		case TEXTBOX_BACKGROUNDFILL:
-		    fprintf(gpoutfile, tk_box[tk_script_language], tk_color, "");
+		    fprintf(GPT.P_GpOutFile, tk_box[tk_script_language], tk_color, "");
 		    break;
 		case TEXTBOX_GREY:
-		    fprintf(gpoutfile, tk_box[tk_script_language], "grey75", "");
+		    fprintf(GPT.P_GpOutFile, tk_box[tk_script_language], "grey75", "");
 		    break;
 		case TEXTBOX_OUTLINE:
-		    fprintf(gpoutfile, tk_box[tk_script_language], "", "black");
+		    fprintf(GPT.P_GpOutFile, tk_box[tk_script_language], "", "black");
 		// @fallthrough, this also ends text box mode 
 		case TEXTBOX_FINISH:
-		    fputs(tk_box_finish[tk_script_language], gpoutfile);
+		    fputs(tk_box_finish[tk_script_language], GPT.P_GpOutFile);
 		    tk_boxed = FALSE;
 		    break;
 		case TEXTBOX_MARGINS:

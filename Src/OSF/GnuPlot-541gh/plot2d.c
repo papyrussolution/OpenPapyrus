@@ -1151,7 +1151,7 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 		text_label * label, * prev_label, * new_label;
 		// Remove the trailing garbage, quotes etc. from the string 
 		char * trimmed_string = DfParseStringField(pString);
-		if(strlen(trimmed_string) > 0) {
+		if(!isempty(trimmed_string)) {
 			bool is_new = FALSE;
 			prev_label = pPlot->labels;
 			if(!prev_label)

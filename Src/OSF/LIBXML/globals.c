@@ -456,7 +456,7 @@ xmlSAXHandlerV1 docbDefaultSAXHandler = {
 void xmlInitializeGlobalState(xmlGlobalState * gs)
 {
 #ifdef DEBUG_GLOBALS
-	fprintf(stderr, "Initializing globals at %lu for thread %d\n", (ulong)gs, xmlGetThreadId());
+	slfprintf_stderr("Initializing globals at %lu for thread %d\n", (ulong)gs, xmlGetThreadId());
 #endif
 	/*
 	 * Perform initialization as required by libxml

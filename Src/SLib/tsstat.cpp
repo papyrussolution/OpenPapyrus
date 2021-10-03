@@ -319,8 +319,8 @@ static int real_kendall_tau(const RealArray & x, const RealArray & y, RPairArray
 	}
 	S = N0 - N1;
 #if 0
-	fprintf(stderr, "N0 = %d, N1 = %d, S = %d\n", N0, N1, S);
-	fprintf(stderr, "Tx = %d, Ty = %d\n", Tx, Ty);
+	slfprintf_stderr("N0 = %d, N1 = %d, S = %d\n", N0, N1, S);
+	slfprintf_stderr("Tx = %d, Ty = %d\n", Tx, Ty);
 #endif
 	nn1 = nn * (nn - 1.0);
 	//
@@ -437,7 +437,7 @@ static double Lockes_Z_Test(const RealArray & x)
 		}
 		z /= (double)nrepeat;
 #if LOCKE_DEBUG
-		fprintf(stderr, "Kendall's tau: average z = %g\n", z);
+		slfprintf_stderr("Kendall's tau: average z = %g\n", z);
 #endif
 	}
 	delete p_rng;

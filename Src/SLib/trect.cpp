@@ -1444,7 +1444,7 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 	}
 	else {
 		for(uint i = 0; !ok && i < SIZEOFARRAY(ColorNameList); i++) {
-			if(stricmp(pStr, ColorNameList[i].N) == 0) {
+			if(sstreqi_ascii(pStr, ColorNameList[i].N)) {
 				uint32 c = ColorNameList[i].C;
 				R = (uint8)((c & 0x00ff0000) >> 16);
 				G = (uint8)((c & 0x0000ff00) >> 8);

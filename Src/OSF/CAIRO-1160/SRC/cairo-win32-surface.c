@@ -92,10 +92,10 @@ cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context)
 	void * lpMsgBuf;
 	DWORD last_error = GetLastError();
 	if(!::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&lpMsgBuf, 0, 0)) {
-		fprintf(stderr, "%s: Unknown GDI error", context);
+		slfprintf_stderr("%s: Unknown GDI error", context);
 	}
 	else {
-		fprintf(stderr, "%s: %S", context, static_cast<wchar_t *>(lpMsgBuf));
+		slfprintf_stderr("%s: %S", context, static_cast<wchar_t *>(lpMsgBuf));
 		LocalFree(lpMsgBuf);
 	}
 	fflush(stderr);

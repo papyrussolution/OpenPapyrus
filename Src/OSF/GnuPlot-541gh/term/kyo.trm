@@ -80,24 +80,24 @@ enum JUSTIFY pre_justify = LEFT;        /* text is flush left */
 
 TERM_PUBLIC void PRE_init(GpTermEntry * pThis)
 {
-	fputs("!R! RES;\n", gpoutfile);
+	fputs("!R! RES;\n", GPT.P_GpOutFile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
 	/* SPO: landscape format */
 	/* STM, SLM set top, left margin */
 	/* Font: bold Helvetica (proportional font) */
-	fputs("PAGE; UNIT D; SPO L; STM 280; SLM 440;\n", gpoutfile);
-	fputs("FTMD 15; FONT 29; SCPI 9;\n", gpoutfile);
+	fputs("PAGE; UNIT D; SPO L; STM 280; SLM 440;\n", GPT.P_GpOutFile);
+	fputs("FTMD 15; FONT 29; SCPI 9;\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void KYO_init(GpTermEntry * pThis)
 {
-	fputs("!R! RES;\n", gpoutfile);
+	fputs("!R! RES;\n", GPT.P_GpOutFile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
 	/* SPO: landscape format */
 	/* STM, SLM set top, left margin */
 	/* Font: Courier (fixed width font) */
-	fputs("PAGE; UNIT D; SPO L; STM 280; SLM 440;\n", gpoutfile);
-	fputs("FTMD 15; FONT 17; SCPI 10;\n", gpoutfile);
+	fputs("PAGE; UNIT D; SPO L; STM 280; SLM 440;\n", GPT.P_GpOutFile);
+	fputs("FTMD 15; FONT 17; SCPI 10;\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void PRE_graphics()
@@ -106,7 +106,7 @@ TERM_PUBLIC void PRE_graphics()
 
 TERM_PUBLIC void PRE_text(GpTermEntry * pThis)
 {                               /* eject page after each plot */
-	fputs("PAGE;\n", gpoutfile);
+	fputs("PAGE;\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void PRE_linetype(int linetype)
@@ -116,17 +116,17 @@ TERM_PUBLIC void PRE_linetype(int linetype)
 		linetype = -linetype;
 	else
 		linetype = 3;
-	fprintf(gpoutfile, "SPD %d;\n", linetype);
+	fprintf(GPT.P_GpOutFile, "SPD %d;\n", linetype);
 }
 
 TERM_PUBLIC void PRE_move(uint x, uint y)
 {
-	fprintf(gpoutfile, "MAP %1d,%1d;\n", x, PRE_YMAX - y);
+	fprintf(GPT.P_GpOutFile, "MAP %1d,%1d;\n", x, PRE_YMAX - y);
 }
 
 TERM_PUBLIC void PRE_vector(uint x, uint y)
 {
-	fprintf(gpoutfile, "DAP %1d, %1d;\n", x, PRE_YMAX - y);
+	fprintf(GPT.P_GpOutFile, "DAP %1d, %1d;\n", x, PRE_YMAX - y);
 }
 
 TERM_PUBLIC void PRE_put_text(uint x, uint y, const char * str)
@@ -134,10 +134,10 @@ TERM_PUBLIC void PRE_put_text(uint x, uint y, const char * str)
 	PRE_move(x, y);
 	switch(pre_justify) {
 		case RIGHT:
-		    fprintf(gpoutfile, "RTXT \"%s\", B;\n", str);
+		    fprintf(GPT.P_GpOutFile, "RTXT \"%s\", B;\n", str);
 		    break;
 		default:
-		    fprintf(gpoutfile, "TEXT \"%s\", B;\n", str);
+		    fprintf(GPT.P_GpOutFile, "TEXT \"%s\", B;\n", str);
 	}
 }
 
@@ -155,7 +155,7 @@ TERM_PUBLIC int PRE_justify_text(enum JUSTIFY mode)
 
 TERM_PUBLIC void PRE_reset()
 {
-	fputs("PAGE; RES; EXIT;\n", gpoutfile);
+	fputs("PAGE; RES; EXIT;\n", GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

@@ -174,11 +174,11 @@ static void kbd_callback(const char * name, int name_len, const char * instructi
 	struct connectdata * conn = (struct connectdata *)*abstract;
 
 #ifdef CURL_LIBSSH2_DEBUG
-	fprintf(stderr, "name=%s\n", name);
-	fprintf(stderr, "name_len=%d\n", name_len);
-	fprintf(stderr, "instruction=%s\n", instruction);
-	fprintf(stderr, "instruction_len=%d\n", instruction_len);
-	fprintf(stderr, "num_prompts=%d\n", num_prompts);
+	slfprintf_stderr("name=%s\n", name);
+	slfprintf_stderr("name_len=%d\n", name_len);
+	slfprintf_stderr("instruction=%s\n", instruction);
+	slfprintf_stderr("instruction_len=%d\n", instruction_len);
+	slfprintf_stderr("num_prompts=%d\n", num_prompts);
 #else
 	(void)name;
 	(void)name_len;
@@ -3319,7 +3319,7 @@ CURLcode Curl_ssh_init(void)
 {
 #ifdef HAVE_LIBSSH2_INIT
 	if(libssh2_init(0)) {
-		DEBUGF(fprintf(stderr, "Error: libssh2_init failed\n"));
+		DEBUGF(slfprintf_stderr("Error: libssh2_init failed\n"));
 		return CURLE_FAILED_INIT;
 	}
 #endif

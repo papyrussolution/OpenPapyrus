@@ -2019,11 +2019,11 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 			case GE_replot:
 				// auto-generated replot (e.g. from replot-on-resize) 
 				// FIXME: more terminals should use this! 
-				if(Pgm.replot_line == NULL || Pgm.replot_line[0] == '\0')
+				if(isempty(Pgm.replot_line))
 					break;
 				if(!strncmp(Pgm.replot_line, "test", 4))
 					break;
-				if(multiplot)
+				if(GPT.Flags & GpTerminalBlock::fMultiplot)
 					break;
 				DoStringReplot(pTerm, "");
 				break;

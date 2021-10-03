@@ -25,7 +25,7 @@ void cdecl dbprintf(int level, const char * pFormat, ...)
 	if(level <= ZBarDebugLevel/*DEBUG_LEVEL*/) {
 		va_list argptr;
 		va_start(argptr, pFormat);
-		//fprintf(stderr, pFormat, argptr);
+		//slfprintf_stderr(pFormat, argptr);
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		r_temp_buf.VPrintf(pFormat, argptr);
 		if(ZBarDebugOutFileName.IsEmpty()) {

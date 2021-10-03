@@ -86,7 +86,7 @@ TERM_PUBLIC void DXY_init(GpTermEntry * pThis)
 TERM_PUBLIC void DXY_graphics()
 {
 	/* HOME, Character size 3 */
-	fputs("H\nS3\n", gpoutfile);
+	fputs("H\nS3\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void DXY_text(GpTermEntry * pThis)
@@ -97,27 +97,27 @@ TERM_PUBLIC void DXY_text(GpTermEntry * pThis)
 TERM_PUBLIC void DXY_linetype(int linetype)
 {
 	/* select pen */
-	fprintf(gpoutfile, "J%d\n", (linetype + 2) % 8 + 1);
+	fprintf(GPT.P_GpOutFile, "J%d\n", (linetype + 2) % 8 + 1);
 	switch(linetype) {
 		case LT_AXIS:
 		    /* use dotted line for axis */
-		    fputs("L1\nB50\n", gpoutfile);
+		    fputs("L1\nB50\n", GPT.P_GpOutFile);
 		    break;
 		default:
 		    /* use solid line for all others */
-		    fputs("L0\n", gpoutfile);
+		    fputs("L0\n", GPT.P_GpOutFile);
 		    break;
 	}
 }
 
 TERM_PUBLIC void DXY_move(uint x, uint y)
 {
-	fprintf(gpoutfile, "M%d,%d\n", x, y);
+	fprintf(GPT.P_GpOutFile, "M%d,%d\n", x, y);
 }
 
 TERM_PUBLIC void DXY_vector(uint x, uint y)
 {
-	fprintf(gpoutfile, "D%d,%d\n", x, y);
+	fprintf(GPT.P_GpOutFile, "D%d,%d\n", x, y);
 }
 
 TERM_PUBLIC void DXY_put_text(uint x, uint y, const char * str)
@@ -130,20 +130,20 @@ TERM_PUBLIC void DXY_put_text(uint x, uint y, const char * str)
 		/* horiz */
 		DXY_move(x, y - DXY_VCHAR / 4);
 	}
-	fprintf(gpoutfile, "P%s\n", str);
+	fprintf(GPT.P_GpOutFile, "P%s\n", str);
 }
 
 TERM_PUBLIC int DXY_text_angle(int ang)
 {
 	dxy_angle = (ang ? 1 : 0);
-	fprintf(gpoutfile, "Q%d\n", ang);
+	fprintf(GPT.P_GpOutFile, "Q%d\n", ang);
 	return TRUE;
 }
 
 TERM_PUBLIC void DXY_reset()
 {
 	/* Home pen */
-	fputs("H\n", gpoutfile);
+	fputs("H\n", GPT.P_GpOutFile);
 }
 
 #endif /* TERM_BODY */

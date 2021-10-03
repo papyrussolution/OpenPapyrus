@@ -1400,7 +1400,7 @@ static OPJ_BOOL opj_j2k_check_poc_val(const opj_poc_t * p_pocs, OPJ_UINT32 tilen
 				loss |= (packet_array[index] != 1);
 #ifdef DEBUG_VERBOSE
 				if(packet_array[index] != 1) {
-					fprintf(stderr,
+					slfprintf_stderr(
 					    "Missing packet in POC: layno=%d resno=%d compno=%d\n",
 					    layno, resno, compno);
 				}
@@ -3762,7 +3762,7 @@ static OPJ_BOOL opj_j2k_read_sot(opj_j2k_t * p_j2k, OPJ_BYTE * p_header_data, OP
 		return OPJ_FALSE;
 	}
 #ifdef DEBUG_VERBOSE
-	fprintf(stderr, "SOT %d %d %d %d\n", p_j2k->m_current_tile_number, l_tot_len, l_current_part, l_num_parts);
+	slfprintf_stderr("SOT %d %d %d %d\n", p_j2k->m_current_tile_number, l_tot_len, l_current_part, l_num_parts);
 #endif
 	l_cp = &(p_j2k->m_cp);
 	/* testcase 2.pdf.SIGFPE.706.1112 */

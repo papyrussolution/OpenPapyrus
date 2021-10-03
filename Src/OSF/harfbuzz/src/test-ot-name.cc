@@ -33,7 +33,7 @@
 int main(int argc, char ** argv)
 {
 	if(argc != 2) {
-		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
 		exit(1);
 	}
 	hb_blob_t * blob = hb_blob_create_from_file(argv[1]);

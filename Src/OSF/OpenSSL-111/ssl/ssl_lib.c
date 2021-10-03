@@ -3245,7 +3245,7 @@ void ssl_set_masks(SSL * s)
 	mask_a = 0;
 
 #ifdef CIPHER_DEBUG
-	fprintf(stderr, "dht=%d re=%d rs=%d ds=%d\n",
+	slfprintf_stderr("dht=%d re=%d rs=%d ds=%d\n",
 	    dh_tmp, rsa_enc, rsa_sign, dsa_sign);
 #endif
 

@@ -109,12 +109,12 @@ int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
 	HMAC_CTX_free(hctx);
 	HMAC_CTX_free(hctx_tpl);
 #ifdef OPENSSL_DEBUG_PKCS5V2
-	fprintf(stderr, "Password:\n");
+	slfprintf_stderr("Password:\n");
 	h__dump(pass, passlen);
-	fprintf(stderr, "Salt:\n");
+	slfprintf_stderr("Salt:\n");
 	h__dump(salt, saltlen);
-	fprintf(stderr, "Iteration count %d\n", iter);
-	fprintf(stderr, "Key:\n");
+	slfprintf_stderr("Iteration count %d\n", iter);
+	slfprintf_stderr("Key:\n");
 	h__dump(out, keylen);
 #endif
 	return 1;
@@ -249,8 +249,8 @@ err:
 static void h__dump(const uchar * p, int len)
 {
 	for(; len--; p++)
-		fprintf(stderr, "%02X ", *p);
-	fprintf(stderr, "\n");
+		slfprintf_stderr("%02X ", *p);
+	slfprintf_stderr("\n");
 }
 
 #endif

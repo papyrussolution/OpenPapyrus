@@ -531,7 +531,7 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
 static void debug_print_sock_hash(void * p)
 {
 	struct Curl_sh_entry * sh = (struct Curl_sh_entry *)p;
-	fprintf(stderr, " [easy %p/magic %x/socket %d]", (void*)sh->data, sh->data->magic, (int)sh->socket);
+	slfprintf_stderr(" [easy %p/magic %x/socket %d]", (void*)sh->data, sh->data->magic, (int)sh->socket);
 }
 
 #endif
@@ -3477,23 +3477,23 @@ void Curl_multi_dump(struct Curl_multi * multi)
 {
 	struct Curl_easy * data;
 	int i;
-	fprintf(stderr, "* Multi status: %d handles, %d alive\n", multi->num_easy, multi->num_alive);
+	slfprintf_stderr("* Multi status: %d handles, %d alive\n", multi->num_easy, multi->num_alive);
 	for(data = multi->easyp; data; data = data->next) {
 		if(data->mstate < CURLM_STATE_COMPLETED) {
 			/* only display handles that are not completed */
-			fprintf(stderr, "handle %p, state %s, %d sockets\n", (void*)data, statename[data->mstate], data->numsocks);
+			slfprintf_stderr("handle %p, state %s, %d sockets\n", (void*)data, statename[data->mstate], data->numsocks);
 			for(i = 0; i < data->numsocks; i++) {
 				curl_socket_t s = data->sockets[i];
 				struct Curl_sh_entry * entry = sh_getentry(&multi->sockhash, s);
-				fprintf(stderr, "%d ", (int)s);
+				slfprintf_stderr("%d ", (int)s);
 				if(!entry) {
-					fprintf(stderr, "INTERNAL CONFUSION\n");
+					slfprintf_stderr("INTERNAL CONFUSION\n");
 					continue;
 				}
-				fprintf(stderr, "[%s %s] ", (entry->action&CURL_POLL_IN) ? "RECVING" : "", (entry->action&CURL_POLL_OUT) ? "SENDING" : "");
+				slfprintf_stderr("[%s %s] ", (entry->action&CURL_POLL_IN) ? "RECVING" : "", (entry->action&CURL_POLL_OUT) ? "SENDING" : "");
 			}
 			if(data->numsocks)
-				fprintf(stderr, "\n");
+				slfprintf_stderr("\n");
 		}
 	}
 }

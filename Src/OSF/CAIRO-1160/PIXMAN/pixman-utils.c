@@ -236,7 +236,7 @@ void FASTCALL _pixman_log_error(const char * function, const char * message)
 {
 	static int n_messages = 0;
 	if(n_messages < 10) {
-		fprintf(stderr, "*** BUG ***\nIn %s: %s\nSet a breakpoint on '_pixman_log_error' to debug\n\n", function, message);
+		slfprintf_stderr("*** BUG ***\nIn %s: %s\nSet a breakpoint on '_pixman_log_error' to debug\n\n", function, message);
 		n_messages++;
 	}
 }

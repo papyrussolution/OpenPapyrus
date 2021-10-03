@@ -25,7 +25,7 @@ int jbig2_image_write_pbm_file(Jbig2Image * image, char * filename)
 	FILE * out;
 	int code;
 	if((out = fopen(filename, "wb")) == NULL) {
-		fprintf(stderr, "unable to open '%s' for writing", filename);
+		slfprintf_stderr("unable to open '%s' for writing", filename);
 		return 1;
 	}
 	code = jbig2_image_write_pbm(image, out);
@@ -53,7 +53,7 @@ Jbig2Image * jbig2_image_read_pbm_file(Jbig2Ctx * ctx, char * filename)
 	FILE * in;
 	Jbig2Image * image;
 	if((in = fopen(filename, "rb")) == NULL) {
-		fprintf(stderr, "unable to open '%s' for reading\n", filename);
+		slfprintf_stderr("unable to open '%s' for reading\n", filename);
 		return NULL;
 	}
 	image = jbig2_image_read_pbm(ctx, in);
@@ -75,7 +75,7 @@ Jbig2Image * jbig2_image_read_pbm(Jbig2Ctx * ctx, FILE * in)
 			return NULL;
 	}
 	if((c = fgetc(in)) != '4') {
-		fprintf(stderr, "not a binary pbm file.\n");
+		slfprintf_stderr("not a binary pbm file.\n");
 		return NULL;
 	}
 	/* read size. we must find two decimal numbers representing
@@ -96,21 +96,21 @@ Jbig2Image * jbig2_image_read_pbm(Jbig2Ctx * ctx, FILE * in)
 		}
 		/* report unexpected eof */
 		if(c == EOF) {
-			fprintf(stderr, "end-of-file parsing pbm header\n");
+			slfprintf_stderr("end-of-file parsing pbm header\n");
 			return NULL;
 		}
 		if(isdigit(c)) {
 			buf[i++] = c;
 			while(isdigit(c = fgetc(in))) {
 				if(i >= 32) {
-					fprintf(stderr, "pbm parsing error\n");
+					slfprintf_stderr("pbm parsing error\n");
 					return NULL;
 				}
 				buf[i++] = c;
 			}
 			buf[i] = '\0';
 			if(sscanf(buf, "%d", &dim[done]) != 1) {
-				fprintf(stderr, "failed to read pbm image dimensions\n");
+				slfprintf_stderr("failed to read pbm image dimensions\n");
 				return NULL;
 			}
 			i = 0;
@@ -120,14 +120,14 @@ Jbig2Image * jbig2_image_read_pbm(Jbig2Ctx * ctx, FILE * in)
 	/* allocate image structure */
 	image = jbig2_image_new(ctx, dim[0], dim[1]);
 	if(image == NULL) {
-		fprintf(stderr, "failed to allocate %dx%d image for pbm file\n", dim[0], dim[1]);
+		slfprintf_stderr("failed to allocate %dx%d image for pbm file\n", dim[0], dim[1]);
 		return NULL;
 	}
 	/* the pbm data is byte-aligned, so we can
 	   do a simple block read */
 	(void)fread(image->data, 1, image->height * image->stride, in);
 	if(feof(in)) {
-		fprintf(stderr, "unexpected end of pbm file.\n");
+		slfprintf_stderr("unexpected end of pbm file.\n");
 		jbig2_image_release(ctx, image);
 		return NULL;
 	}

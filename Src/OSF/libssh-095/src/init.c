@@ -87,7 +87,7 @@ void libssh_constructor()
 {
 	int rc = _ssh_init(1);
 	if(rc < 0) {
-		fprintf(stderr, "Error in auto_init()\n");
+		slfprintf_stderr("Error in auto_init()\n");
 	}
 	return;
 }
@@ -164,7 +164,7 @@ void libssh_destructor()
 {
 	int rc = _ssh_finalize(1);
 	if(rc < 0) {
-		fprintf(stderr, "Error in libssh_destructor()\n");
+		slfprintf_stderr("Error in libssh_destructor()\n");
 	}
 }
 /**
@@ -204,7 +204,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		case DLL_PROCESS_ATTACH:
 		    rc = _ssh_init(1);
 		    if(rc != 0) {
-			    fprintf(stderr, "DllMain: ssh_init failed!");
+			    slfprintf_stderr("DllMain: ssh_init failed!");
 			    return FALSE;
 		    }
 		    break;

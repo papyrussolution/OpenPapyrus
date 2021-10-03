@@ -1142,7 +1142,7 @@ size_t Curl_ssh_version(char * buffer, size_t buflen)
 CURLcode Curl_ssh_init(void)
 {
 	if(WS_SUCCESS != wolfSSH_Init()) {
-		DEBUGF(fprintf(stderr, "Error: wolfSSH_Init failed\n"));
+		DEBUGF(slfprintf_stderr("Error: wolfSSH_Init failed\n"));
 		return CURLE_FAILED_INIT;
 	}
 

@@ -2248,7 +2248,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 					RINOK(result);
 					PRF(printf("  OK "));
 				}
-				// fprintf(stderr, "\n %8X  %S", startArcPos, Path);
+				// slfprintf_stderr("\n %8X  %S", startArcPos, Path);
 				// printf("\nOpen OK: %S", ai.Name);
 				NArchive::NParser::CParseItem pi;
 				pi.Offset = startArcPos;

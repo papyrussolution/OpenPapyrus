@@ -723,7 +723,7 @@ void engine_load_devcrypto_int()
 #ifndef ENGINE_DEVCRYPTO_DEBUG
 		if(errno != ENOENT)
 #endif
-		fprintf(stderr, "Could not open /dev/crypto: %s\n", strerror(errno));
+		slfprintf_stderr("Could not open /dev/crypto: %s\n", strerror(errno));
 		return;
 	}
 	if((e = ENGINE_new()) == NULL || !ENGINE_set_destroy_function(e, devcrypto_unload)) {

@@ -149,13 +149,13 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		corel_lw = static_cast<float>(pGp->Real(pGp->ConstExpress(&a)) * COREL_SC);
 		pGp->Pgm.Shift();
 	}
-	sprintf(term_options, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,
+	sprintf(GPT.TermOptions, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,
 	    corel_fontsize, corel_xmax / 720.0, corel_ymax / 720.0, corel_lw / COREL_SC);
 }
 
 TERM_PUBLIC void COREL_init(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile,
+	fprintf(GPT.P_GpOutFile,
 	    "\
 %%!PS-Adobe-2.0 EPSF-1.2\n\
 %%%%BoundingBox: %d %d %d %d\n\
@@ -182,7 +182,7 @@ TERM_PUBLIC void COREL_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void COREL_text(GpTermEntry * pThis)
 {
 	if(corel_stroke) {
-		fputs("S\n", gpoutfile);
+		fputs("S\n", GPT.P_GpOutFile);
 		corel_stroke = FALSE;
 	}
 	corel_path_count = 0;
@@ -190,145 +190,145 @@ TERM_PUBLIC void COREL_text(GpTermEntry * pThis)
 
 TERM_PUBLIC void COREL_reset(GpTermEntry * pThis)
 {
-	fputs("%%Trailer\n", gpoutfile);
+	fputs("%%Trailer\n", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(corel_stroke) {
-		fputs("S\n", gpoutfile);
+		fputs("S\n", GPT.P_GpOutFile);
 		corel_stroke = FALSE;
 	}
 	switch(linetype) {
 		case LT_BLACK:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 0 0 1 K\n", gpoutfile);
+			    fputs("0 0 0 1 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [] 0 d\n\
-0 j\n0 G\n", gpoutfile);
+0 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case LT_AXIS:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 0 0 1 K\n", gpoutfile);
+			    fputs("0 0 0 1 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [1 2] 0 d\n\
-0 j\n0 G\n", gpoutfile);
+0 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 0:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("1 0 1 0 K\n", gpoutfile);
+			    fputs("1 0 1 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 1:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("1 1 0 0 K\n", gpoutfile);
+			    fputs("1 1 0 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [4 2] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 2:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 1 1 0 K\n", gpoutfile);
+			    fputs("0 1 1 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [2 3] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 3:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 1 0 0 K\n", gpoutfile);
+			    fputs("0 1 0 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [1 1.5] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 4:
-		    fprintf(gpoutfile, "%f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("1 0 0 0 K\n", gpoutfile);
+			    fputs("1 0 0 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [5 2 1 2] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 5:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 0 1 0 K\n", gpoutfile);
+			    fputs("0 0 1 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [4 3 1 3] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 6:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 0 0 1 K\n", gpoutfile);
+			    fputs("0 0 0 1 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [2 2 2 4] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 7:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0 0.7 1 0 K\n", gpoutfile);
+			    fputs("0 0.7 1 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [2 2 2 2 2 4] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 
 		case 8:
-		    fprintf(gpoutfile, "%.2f w\n", corel_lw / COREL_SC);
+		    fprintf(GPT.P_GpOutFile, "%.2f w\n", corel_lw / COREL_SC);
 		    if(corel_color) {
-			    fputs("0.5 0.5 0.5 0 K\n", gpoutfile);
+			    fputs("0.5 0.5 0.5 0 K\n", GPT.P_GpOutFile);
 		    }
 		    else {
 			    fputs("\
 [2 2 2 2 2 2 2 4] 0 d\n\
-2 j\n0 G\n", gpoutfile);
+2 j\n0 G\n", GPT.P_GpOutFile);
 		    }
 		    break;
 	}
@@ -338,19 +338,19 @@ TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype)
 TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y)
 {
 	if(corel_stroke)
-		fputs("S\n", gpoutfile);
-	fprintf(gpoutfile, "%0.2f %0.2f m\n", x / COREL_SC, y / COREL_SC);
+		fputs("S\n", GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, "%0.2f %0.2f m\n", x / COREL_SC, y / COREL_SC);
 	corel_path_count += 1;
 	corel_stroke = TRUE;
 }
 
 TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y)
 {
-	fprintf(gpoutfile, "%.2f %.2f l\n", x / COREL_SC, y / COREL_SC);
+	fprintf(GPT.P_GpOutFile, "%.2f %.2f l\n", x / COREL_SC, y / COREL_SC);
 	corel_path_count += 1;
 	corel_stroke = TRUE;
 	if(corel_path_count >= 400) {
-		fprintf(gpoutfile, "S\n%.2f %.2f m\n", x / COREL_SC, y / COREL_SC);
+		fprintf(GPT.P_GpOutFile, "S\n%.2f %.2f m\n", x / COREL_SC, y / COREL_SC);
 		corel_path_count = 0;
 	}
 }
@@ -359,38 +359,38 @@ TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 {
 	char ch;
 	if(corel_stroke) {
-		fputs("S\n", gpoutfile);
+		fputs("S\n", GPT.P_GpOutFile);
 		corel_stroke = FALSE;
 	}
 	switch(corel_justify) {
 		case LEFT:
-		    fprintf(gpoutfile, "/_%s %d %d 0 0 z\n",
+		    fprintf(GPT.P_GpOutFile, "/_%s %d %d 0 0 z\n",
 			corel_font, corel_fontsize, corel_fontsize);
 		    break;
 		case CENTRE:
-		    fprintf(gpoutfile, "/_%s %d %d 0 1 z\n",
+		    fprintf(GPT.P_GpOutFile, "/_%s %d %d 0 1 z\n",
 			corel_font, corel_fontsize, corel_fontsize);
 		    break;
 		case RIGHT:
-		    fprintf(gpoutfile, "/_%s %d %d 0 2 z\n",
+		    fprintf(GPT.P_GpOutFile, "/_%s %d %d 0 2 z\n",
 			corel_font, corel_fontsize, corel_fontsize);
 		    break;
 	}
 	if(corel_ang == 0) {
-		fprintf(gpoutfile, "[1 0 0 1 %.2f %.2f]e\n0 g\n", x / COREL_SC, y / COREL_SC - corel_fontsize / 3.0);
+		fprintf(GPT.P_GpOutFile, "[1 0 0 1 %.2f %.2f]e\n0 g\n", x / COREL_SC, y / COREL_SC - corel_fontsize / 3.0);
 	}
 	else {
-		fprintf(gpoutfile, "[0 1 -1 0 %.2f %.2f]e\n0 g\n", x / COREL_SC - corel_fontsize / 3.0, y / COREL_SC);
+		fprintf(GPT.P_GpOutFile, "[0 1 -1 0 %.2f %.2f]e\n0 g\n", x / COREL_SC - corel_fontsize / 3.0, y / COREL_SC);
 	}
-	putc('(', gpoutfile);
+	putc('(', GPT.P_GpOutFile);
 	ch = *str++;
 	while(ch != NUL) {
 		if((ch == '(') || (ch == ')') || (ch == '\\'))
-			putc('\\', gpoutfile);
-		putc(ch, gpoutfile);
+			putc('\\', GPT.P_GpOutFile);
+		putc(ch, GPT.P_GpOutFile);
 		ch = *str++;
 	}
-	fputs(")t\nT\n", gpoutfile);
+	fputs(")t\nT\n", GPT.P_GpOutFile);
 	corel_path_count = 0;
 }
 

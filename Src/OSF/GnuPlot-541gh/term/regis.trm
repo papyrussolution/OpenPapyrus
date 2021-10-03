@@ -56,7 +56,7 @@ static int REGISang = 0;
 
 TERM_PUBLIC void REGIS_init(GpTermEntry * pThis)
 {
-	fputs("\033[r\033[24;1H", gpoutfile);
+	fputs("\033[r\033[24;1H", GPT.P_GpOutFile);
 	/*     1     2
 	 * 1. reset scrolling region
 	 * 2. locate cursor on bottom line
@@ -66,7 +66,7 @@ TERM_PUBLIC void REGIS_init(GpTermEntry * pThis)
 /* thanks to calmasd!dko (Dan O'Neill) for adding S(E) for vt125s */
 TERM_PUBLIC void REGIS_graphics()
 {
-	fputs("\033[2J\033P1pS(C0)S(E)T(A0)\n", gpoutfile);
+	fputs("\033[2J\033P1pS(C0)S(E)T(A0)\n", GPT.P_GpOutFile);
 	/*     1      2      3    4   5
 	 * 1. clear screen
 	 * 2. enter ReGIS graphics
@@ -79,7 +79,7 @@ TERM_PUBLIC void REGIS_graphics()
 
 TERM_PUBLIC void REGIS_text(GpTermEntry * pThis)
 {
-	fputs("\033\\\033[24;1H", gpoutfile);
+	fputs("\033\\\033[24;1H", GPT.P_GpOutFile);
 	/*     1    2
 	 * 1. Leave ReGIS graphics mode
 	 * 2. locate cursor on last line of screen
@@ -101,14 +101,14 @@ TERM_PUBLIC void REGIS_linetype(int linetype)
 	if(!REGIS16color) {
 		if(linetype >= 9)
 			linetype %= 9;
-		fprintf(gpoutfile, "W(I%d)\n", in_map[linetype + 2]);
-		fprintf(gpoutfile, "W(P%d)\n", lt_map[linetype + 2]);
+		fprintf(GPT.P_GpOutFile, "W(I%d)\n", in_map[linetype + 2]);
+		fprintf(GPT.P_GpOutFile, "W(P%d)\n", lt_map[linetype + 2]);
 	}
 	else {
 		if(linetype >= 15)
 			linetype %= 15;
-		fprintf(gpoutfile, "W(I%d)\n", in_16_map[linetype + 2]);
-		fprintf(gpoutfile, "W(P%d)\n", lt_16_map[linetype + 2]);
+		fprintf(GPT.P_GpOutFile, "W(I%d)\n", in_16_map[linetype + 2]);
+		fprintf(GPT.P_GpOutFile, "W(P%d)\n", lt_16_map[linetype + 2]);
 	}
 }
 /*
@@ -122,12 +122,12 @@ TERM_PUBLIC void REGIS_linetype(int linetype)
 */
 TERM_PUBLIC void REGIS_move(uint x, uint y)
 {
-	fprintf(gpoutfile, "P[%d,%d]\n", x, REGISYLAST - y);
+	fprintf(GPT.P_GpOutFile, "P[%d,%d]\n", x, REGISYLAST - y);
 }
 
 TERM_PUBLIC void REGIS_vector(uint x, uint y)
 {
-	fprintf(gpoutfile, "v[]v[%d,%d]\n", x, REGISYLAST - y);
+	fprintf(GPT.P_GpOutFile, "v[]v[%d,%d]\n", x, REGISYLAST - y);
 	/* the initial v[] is needed to get the first pixel plotted */
 }
 
@@ -138,31 +138,31 @@ TERM_PUBLIC void REGIS_put_text(uint x, uint y, const char * str)
 		REGIS_move(x - REGISVCHAR / 2 - 1, y);
 	else
 		REGIS_move(x, y + REGISVCHAR / 2 - 1);
-	putc('T', gpoutfile);
-	putc('\'', gpoutfile);
+	putc('T', GPT.P_GpOutFile);
+	putc('\'', GPT.P_GpOutFile);
 	while(*str) {
-		putc(*str, gpoutfile);
+		putc(*str, GPT.P_GpOutFile);
 		if(*str == '\'')
-			putc('\'', gpoutfile); /* send out another one */
+			putc('\'', GPT.P_GpOutFile); /* send out another one */
 		str++;
 	}
-	putc('\'', gpoutfile);
-	putc('\n', gpoutfile);
+	putc('\'', GPT.P_GpOutFile);
+	putc('\n', GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC int REGIS_text_angle(int ang)
 {
 	REGISang = (ang ? 1 : 0);
 	if(REGISang == 1)
-		fputs("T(D90,S1)\n", gpoutfile);
+		fputs("T(D90,S1)\n", GPT.P_GpOutFile);
 	else
-		fputs("T(D0,S1)\n", gpoutfile);
+		fputs("T(D0,S1)\n", GPT.P_GpOutFile);
 	return TRUE;
 }
 
 TERM_PUBLIC void REGIS_reset()
 {
-	fputs("\033[2J\033[24;1H", gpoutfile);
+	fputs("\033[2J\033[24;1H", GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp)
@@ -173,7 +173,7 @@ TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		i = (int)pGp->Real(pGp->ConstExpress(&a));
 	}
 	REGIS16color = (i == 16);
-	sprintf(term_options, "%s", REGIS16color ? "16" : "4");
+	sprintf(GPT.TermOptions, "%s", REGIS16color ? "16" : "4");
 }
 
 #endif

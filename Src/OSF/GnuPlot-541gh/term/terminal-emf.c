@@ -518,7 +518,7 @@ static void EMF_setfont()
 	EMF_write_byte(underline);      /* underline */
 	EMF_write_byte(strikeout);      /* strikeout */
 	// charset: could be extended? 
-	switch(encoding) {
+	switch(GPT._Encoding) {
 		case S_ENC_CP1250:
 		case S_ENC_ISO8859_2:
 		    EMF_write_byte(EASTEUROPE_CHARSET);
@@ -608,7 +608,7 @@ static void EMF_flush_polyline(GpTermEntry * pThis)
 static void FASTCALL EMF_write_byte(int value)
 {
 	char c = value;
-	fwrite(&c, 1, 1, gpoutfile);
+	fwrite(&c, 1, 1, GPT.P_GpOutFile);
 }
 
 static void FASTCALL EMF_write_short(int value)
@@ -617,7 +617,7 @@ static void FASTCALL EMF_write_short(int value)
 	char c[2];
 	c[1] = (actual_value >> 8) & 255; /* convert to x86 order */
 	c[0] = actual_value & 255;
-	fwrite(c, 1, 2, gpoutfile);
+	fwrite(c, 1, 2, GPT.P_GpOutFile);
 }
 
 static void FASTCALL EMF_write_long(ulong value)
@@ -627,7 +627,7 @@ static void FASTCALL EMF_write_long(ulong value)
 	c[2] = (value >> 16) & 0xFFL;
 	c[1] = (value >> 8) & 0xFFL;
 	c[0] = value & 0xFFL;
-	fwrite(c, 1, 4, gpoutfile);
+	fwrite(c, 1, 4, GPT.P_GpOutFile);
 }
 //
 // FIXME HBB 20001103: this only works as given iff 'float' is the
@@ -645,7 +645,7 @@ static void EMF_write_float(double value)
 	c[2] = (u.l >> 16) & 0xFFL;
 	c[1] = (u.l >> 8) & 0xFFL;
 	c[0] = u.l & 0xFFL;
-	fwrite(c, 1, 4, gpoutfile);
+	fwrite(c, 1, 4, GPT.P_GpOutFile);
 }
 
 TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
@@ -786,19 +786,19 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	if(new_defaultfontsize > 0)
 		_EMF.emf_defaultfontsize = new_defaultfontsize;
-	sprintf(term_options, "%s %s font \"%s,%g\"", _EMF.emf_monochrome ? "monochrome" : "color", _EMF.emf_pentype ? "butt" : "rounded", _EMF.emf_defaultfontname, _EMF.emf_defaultfontsize);
+	sprintf(GPT.TermOptions, "%s %s font \"%s,%g\"", _EMF.emf_monochrome ? "monochrome" : "color", _EMF.emf_pentype ? "butt" : "rounded", _EMF.emf_defaultfontname, _EMF.emf_defaultfontsize);
 	if(pThis->flags & TERM_ENHANCED_TEXT)
-		strcat(term_options, " enhanced ");
+		strcat(GPT.TermOptions, " enhanced ");
 	if(_EMF.emf_fontscale != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", _EMF.emf_fontscale);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " fontscale %.1f", _EMF.emf_fontscale);
 	if(pThis->MaxX != (int)EMF_XMAX || pThis->MaxY != (int)EMF_YMAX)
-		sprintf(&(term_options[strlen(term_options)]), " size %d,%d ", (int)(0.5+pThis->MaxX/EMF_PX2HM), (int)(0.5+pThis->MaxY/EMF_PX2HM));
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " size %d,%d ", (int)(0.5+pThis->MaxX/EMF_PX2HM), (int)(0.5+pThis->MaxY/EMF_PX2HM));
 	if(_EMF.emf_linewidth_factor != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " lw %.1f", _EMF.emf_linewidth_factor);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " lw %.1f", _EMF.emf_linewidth_factor);
 	if(_EMF.emf_dashlength != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " dashlength %.1f", _EMF.emf_dashlength);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " dashlength %.1f", _EMF.emf_dashlength);
 	if(emf_bgnd_rgb)
-		sprintf(&(term_options[strlen(term_options)]), " background \"#%06x\"", emf_bgnd_rgb);
+		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " background \"#%06x\"", emf_bgnd_rgb);
 }
 
 TERM_PUBLIC void EMF_init(GpTermEntry * pThis)
@@ -913,13 +913,13 @@ TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 	EMF_DeleteObject(EMF_HANDLE_BRUSH);
 	EMF_EOF();
 	// update the header 
-	pos = static_cast<long>(ftell(gpoutfile));
+	pos = static_cast<long>(ftell(GPT.P_GpOutFile));
 	if(pos < 0) {
 		p_gp->TermGraphics = false;
 		p_gp->IntError(NO_CARET, "emf: cannot reset output file");
 	}
 	else {
-		fseek(gpoutfile, 48L, SEEK_SET);
+		fseek(GPT.P_GpOutFile, 48L, SEEK_SET);
 		EMF_write_long(pos);
 		EMF_write_long(_EMF.emf_record_count);
 	}
@@ -927,7 +927,7 @@ TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 	// plot again into the same file, it will overwrite the original	
 	// rather than corrupting it.					
 	// FIXME:  An alternative would be to open a new output file.   
-	fseek(gpoutfile, 0L, SEEK_SET);
+	fseek(GPT.P_GpOutFile, 0L, SEEK_SET);
 }
 
 TERM_PUBLIC void EMF_linetype(GpTermEntry * pThis, int linetype)
@@ -1257,7 +1257,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	int nchars = slen;
 #ifdef HAVE_ICONV
 	char * wstr = 0;
-	if(encoding == S_ENC_UTF8 || encoding == S_ENC_SJIS) {
+	if(oneof2(GPT._Encoding, S_ENC_UTF8, S_ENC_SJIS)) {
 		iconv_t cd;
 		size_t wsize, wlen, mblen;
 		const char * str_start = str;
@@ -1268,7 +1268,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		wlen = wsize = 2 * mblen + 2;
 		wstr = SAlloc::M(wlen);
 		wstr_start = wstr;
-		if(encoding == S_ENC_UTF8) 
+		if(GPT._Encoding == S_ENC_UTF8) 
 			FromEnc = "UTF-8";
 		else 
 			FromEnc = "Shift_JIS";
@@ -1295,7 +1295,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	if(alen % 4)
 		alen += 4 - (slen % 4); /* Structure must be long aligned! */
 #ifdef HAVE_ICONV
-	if(encoding == S_ENC_UTF8 || encoding == S_ENC_SJIS) {
+	if(oneof2(GPT._Encoding, S_ENC_UTF8, S_ENC_SJIS)) {
 		EMF_write_emr(84, 76 + alen + nchars * 4); /* ExtTextOutW, UTF16-LE version */
 	}
 	else
@@ -1319,7 +1319,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	                        /* about the font properties being used */
 
 #ifdef HAVE_ICONV
-	if(encoding == S_ENC_UTF8 || encoding == S_ENC_SJIS) {
+	if(oneof2(GPT._Encoding, S_ENC_UTF8, S_ENC_SJIS)) {
 		for(i = 0; i < alen; i++)
 			EMF_write_byte(i < slen ? wstr[i] : 0); /* writing text */
 		SAlloc::F(wstr);
@@ -1658,7 +1658,7 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 		y_offset = static_cast<int>(cos(_EMF.emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
 		if(ENHemf_show && !ENHemf_sizeonly)
 			EMF_put_text(pThis, x-x_offset, y+y_offset, str);
-		if(encoding == S_ENC_UTF8) {
+		if(GPT._Encoding == S_ENC_UTF8) {
 			// The strwidth_utf8() function approximates the space occupied 
 			// by a UTF8 string, taking into account that CJK characters    
 			// are rougnly twice as wide as a typical ascii character.      
@@ -1675,7 +1675,7 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 			// most EMF viewers don't implement this option (ETO_PDY).      
 			int thin = 0, wide = 0;
 			for(i = 0; i < sstrleni(str); i++) {
-				if((encoding == S_ENC_UTF8) && ((str[i] & 0x100)))
+				if((GPT._Encoding == S_ENC_UTF8) && ((str[i] & 0x100)))
 					continue;
 				if(strchr(" ijl.,;:|!()[]I-'", str[i]))
 					thin++;

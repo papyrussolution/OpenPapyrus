@@ -342,7 +342,7 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 		if(proc->window) {
 			retry = zbar_negotiate_format(proc->video, proc->window);
 			if(retry)
-				fprintf(stderr, "WARNING: no compatible input to output format\n...trying again with output disabled\n");
+				slfprintf_stderr("WARNING: no compatible input to output format\n...trying again with output disabled\n");
 		}
 		if(retry)
 			retry = zbar_negotiate_format(proc->video, 0);

@@ -358,7 +358,7 @@ int main(int argc, char ** argv)
 			del++;
 		}
 		else {
-			fprintf(stderr, "Unknown option %s\n", argv[i]);
+			slfprintf_stderr("Unknown option %s\n", argv[i]);
 			usage(argv[0]);
 			return 1;
 		}
@@ -376,7 +376,7 @@ int main(int argc, char ** argv)
 			i += 1;
 			/* No catalog entry specified */
 			if(i == argc || (sgml && i + 1 == argc)) {
-				fprintf(stderr, "No catalog entry specified to remove from\n");
+				slfprintf_stderr("No catalog entry specified to remove from\n");
 				usage(argv[0]);
 				return 1;
 			}
@@ -423,7 +423,7 @@ int main(int argc, char ** argv)
 					else
 						ret = -1;
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry from %s\n", argv[i+1]);
+						slfprintf_stderr("Failed to remove entry from %s\n", argv[i+1]);
 						exit_value = 1;
 					}
 					if((!no_super_update) && (noout) && (catal != NULL) && (xmlCatalogIsEmpty(catal))) {
@@ -431,7 +431,7 @@ int main(int argc, char ** argv)
 						if(super != NULL) {
 							ret = xmlACatalogRemove(super, BAD_CAST argv[i+1]);
 							if(ret < 0) {
-								fprintf(stderr, "Failed to remove entry from %s\n", XML_SGML_DEFAULT_CATALOG);
+								slfprintf_stderr("Failed to remove entry from %s\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 1;
 							}
 						}
@@ -445,7 +445,7 @@ int main(int argc, char ** argv)
 					else {
 						out = fopen(argv[i+1], "w");
 						if(out == NULL) {
-							fprintf(stderr, "could not open %s for saving\n", argv[i+1]);
+							slfprintf_stderr("could not open %s for saving\n", argv[i+1]);
 							exit_value = 2;
 							noout = 0;
 						}
@@ -461,7 +461,7 @@ int main(int argc, char ** argv)
 						else {
 							out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
 							if(out == NULL) {
-								fprintf(stderr, "could not open %s for saving\n", XML_SGML_DEFAULT_CATALOG);
+								slfprintf_stderr("could not open %s for saving\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 2;
 								noout = 0;
 							}
@@ -492,7 +492,7 @@ int main(int argc, char ** argv)
 				else if(sstreq(argv[i], "-del") || sstreq(argv[i], "--del")) {
 					ret = xmlCatalogRemove(BAD_CAST argv[i+1]);
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry %s\n", argv[i+1]);
+						slfprintf_stderr("Failed to remove entry %s\n", argv[i+1]);
 						exit_value = 1;
 					}
 					i += 1;
@@ -544,7 +544,7 @@ int main(int argc, char ** argv)
 		if(noout && filename && *filename) {
 			FILE * out = fopen(filename, "w");
 			if(out == NULL) {
-				fprintf(stderr, "could not open %s for saving\n", filename);
+				slfprintf_stderr("could not open %s for saving\n", filename);
 				exit_value = 2;
 				noout = 0;
 			}
@@ -567,7 +567,7 @@ int main(int argc, char ** argv)
 #else
 int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
 {
-	fprintf(stderr, "libxml was not compiled with catalog and output support\n");
+	slfprintf_stderr("libxml was not compiled with catalog and output support\n");
 	return 1;
 }
 #endif

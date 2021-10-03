@@ -1479,25 +1479,28 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				}
 			}
 			else if(spcref == spcrefLotTag) {
+				PPObjBill * p_bobj = BillObj;
 				PPObjTag tag_obj;
 				PPID   tag_id = 0;
+				ObjTagList tag_list;
+				const ObjTagItem * p_tag_item = 0;
 				THROW(tag_obj.SearchBySymb(ref, &tag_id, 0) > 0);
 				if(P_Ti) {
-					const ObjTagItem * p_tag_item = 0;
 					if(P_BillPack) {
 						int    row_pos = static_cast<int>(P_BillPack->GetTPointer());
 						ObjTagList * p_tag_list = P_BillPack->LTagL.Get(row_pos);
-						if(p_tag_list)
-							p_tag_item = p_tag_list->GetItem(tag_id);
+						p_tag_item = p_tag_list ? p_tag_list->GetItem(tag_id) : 0;
 					}
 					else if(P_Ti->LotID) {
-						ObjTagList tag_list;
-						BillObj->GetTagListByLot(P_Ti->LotID, 0, &tag_list);
+						p_bobj->GetTagListByLot(P_Ti->LotID, 0, &tag_list);
 						p_tag_item = tag_list.GetItem(tag_id);
 					}
-					if(p_tag_item)
-						p_tag_item->GetReal(&v);
 				}
+				else if(P.LotID) { // @v11.1.12
+					p_bobj->GetTagListByLot(P.LotID, 0, &tag_list);
+					p_tag_item = tag_list.GetItem(tag_id);
+				}
+				CALLPTRMEMB(p_tag_item, GetReal(&v));
 			}
 			else if(spcref == spcrefGoodsTag) {
 				PPObjTag tag_obj;
@@ -1713,6 +1716,7 @@ int PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext 
 		GoodsContext::Param param(p_ctx->GetParam());
 		param.Cost = pCtx->P_LotRec->Cost;
 		param.Price = pCtx->P_LotRec->Price;
+		param.LotID = pCtx->P_LotRec->ID;
 		param.Flags |= (GoodsContext::Param::fCostSettled|GoodsContext::Param::fPriceSettled);
 		p_ctx->SetParam(param);
 	}

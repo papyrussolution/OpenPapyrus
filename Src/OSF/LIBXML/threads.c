@@ -742,10 +742,10 @@ void xmlInitThreads()
 		    (pthread_equal != NULL) && (pthread_self != NULL) && (pthread_cond_signal != NULL)) {
 			libxml_is_threaded = 1;
 
-/* fprintf(stderr, "Running multithreaded\n"); */
+/* slfprintf_stderr("Running multithreaded\n"); */
 		}
 		else {
-/* fprintf(stderr, "Running without multithread\n"); */
+/* slfprintf_stderr("Running without multithread\n"); */
 			libxml_is_threaded = 0;
 		}
 	}

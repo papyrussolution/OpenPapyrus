@@ -551,7 +551,7 @@ static void print_leak(const MEM * m, MEM_LEAK * l)
 		size_t i;
 		char ** strings = backtrace_symbols(m->array, m->array_siz);
 		for(i = 0; i < m->array_siz; i++)
-			fprintf(stderr, "##> %s\n", strings[i]);
+			slfprintf_stderr("##> %s\n", strings[i]);
 		SAlloc::F(strings);
 	}
 #endif

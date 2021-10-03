@@ -1652,7 +1652,7 @@ FANN_EXTERNAL void FANN_API fann_set_error_log(struct fann_error *errdat, FILE *
 FANN_EXTERNAL void FANN_API fann_print_error(struct fann_error *errdat)
 {
 	if(errdat->errno_f != FANN_E_NO_ERROR && errdat->errstr != NULL) {
-		fprintf(stderr, "FANN Error %d: %s", errdat->errno_f, errdat->errstr);
+		slfprintf_stderr("FANN Error %d: %s", errdat->errno_f, errdat->errstr);
 	}
 }
 // 
@@ -1703,14 +1703,14 @@ void fann_error_2(struct fann_error *errdat, const enum fann_errno_enum errno_f,
 		}
 		/* allocation failed */
 		if(errdat->errstr == NULL) {
-			fprintf(stderr, "Unable to allocate memory.\n");
+			slfprintf_stderr("Unable to allocate memory.\n");
 			return;
 		}
 		strcpy(errdat->errstr, errstr);
 		error_log = errdat->error_log;
 	}
 	if(error_log == (FILE *)-1) { /* This is the default behavior and will give stderr */
-		fprintf(stderr, "FANN Error %d: %s", errno_f, errstr);
+		slfprintf_stderr("FANN Error %d: %s", errno_f, errstr);
 	}
 	else if(error_log != NULL) {
 		fprintf(error_log, "FANN Error %d: %s", errno_f, errstr);

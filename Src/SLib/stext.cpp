@@ -1411,10 +1411,10 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 //
 //
 //
-int    FASTCALL ishex(char c) { return BIN((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
-int    FASTCALL ishexw(wchar_t c) { return BIN((c >= L'0' && c <= L'9') || (c >= L'A' && c <= L'F') || (c >= L'a' && c <= L'f')); }
-int    FASTCALL isdec(char c) { return BIN(c >= '0' && c <= '9'); }
-int    FASTCALL isdecw(wchar_t c) { return BIN(c >= L'0' && c <= L'9'); }
+bool   FASTCALL ishex(char c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
+bool   FASTCALL ishexw(wchar_t c) { return ((c >= L'0' && c <= L'9') || (c >= L'A' && c <= L'F') || (c >= L'a' && c <= L'f')); }
+bool   FASTCALL isdec(char c) { return (c >= '0' && c <= '9'); }
+bool   FASTCALL isdecw(wchar_t c) { return (c >= L'0' && c <= L'9'); }
 uint   FASTCALL hex(char c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
 uint   FASTCALL hexw(wchar_t c) { return (c >= L'0' && c <= L'9') ? (c-L'0') : ((c >= L'A' && c <= L'F') ? (c-L'A'+10) : ((c >= L'a' && c <= L'f') ? (c-L'a'+10) : 0)); }
 
@@ -1786,6 +1786,17 @@ uchar * FASTCALL sstrdup(const uchar * pStr)
 		return 0;
 }
 
+wchar_t * FASTCALL sstrdup(const wchar_t * pStr)
+{
+	if(pStr) {
+		size_t len = implement_sstrlen(pStr) + 1;
+		wchar_t * p = static_cast<wchar_t *>(SAlloc::M(len * sizeof(wchar_t)));
+		return p ? static_cast<wchar_t *>(memcpy(p, pStr, len * sizeof(wchar_t))) : 0;
+	}
+	else
+		return 0;
+}
+
 bool FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2)
 {
 	if(pS1 != pS2)
@@ -1982,9 +1993,9 @@ bool FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
 	return true;
 }
 
-size_t FASTCALL sisascii(const char * pS, size_t len)
+bool FASTCALL sisascii(const char * pS, size_t len)
 {
-	int   yes = 1;
+	bool   yes = true;
 	if(pS && len) {
 		const size_t oct_count = len / 8;
 		size_t p = 0;
@@ -1995,7 +2006,7 @@ size_t FASTCALL sisascii(const char * pS, size_t len)
 		}
 		while(yes && p < len) {
 			if(_[p++] < 0)
-				yes = 0;
+				yes = false;
 		}
 	}
 	return yes;

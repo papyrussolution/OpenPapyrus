@@ -60,8 +60,8 @@ TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char opt[10];
 #define HPPJERROR "expecting font size FNT5X9, FNT9X17, or FNT13X25"
-	term_options[0] = NUL;  /* default to empty string and 9x17 font */
-	hppj_font = FNT9X17;    /* in case of error or empty options     */
+	PTR32(GPT.TermOptions)[0] = 0; // default to empty string and 9x17 font 
+	hppj_font = FNT9X17; // in case of error or empty options
 	if(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.GetCurTokenLength() > 8) {
 			pGp->IntErrorCurToken(HPPJERROR);
@@ -69,15 +69,15 @@ TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), /*4 */ 9); /* HBB 980226 */
 		if(sstreq(opt, "FNT5X9")) {
 			hppj_font = FNT5X9;
-			strcpy(term_options, "FNT5X9");
+			strcpy(GPT.TermOptions, "FNT5X9");
 		}
 		else if(sstreq(opt, "FNT9X17")) {
 			hppj_font = FNT9X17;
-			strcpy(term_options, "FNT9X17");
+			strcpy(GPT.TermOptions, "FNT9X17");
 		}
 		else if(sstreq(opt, "FNT13X25")) {
 			hppj_font = FNT13X25;
-			strcpy(term_options, "FNT13X25");
+			strcpy(GPT.TermOptions, "FNT13X25");
 		}
 		else {
 			pGp->IntErrorCurToken(HPPJERROR);
@@ -130,7 +130,7 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 	int minRow, maxRow;     /* loop bounds */
 	int numBytes;           /* Number of run-length coded bytes to output */
 	int numReps;            /* Number of times the current byte is repeated */
-	fprintf(gpoutfile,
+	fprintf(GPT.P_GpOutFile,
 	    "\
 \033E\033*t%dR\033*r%dS\
 \033*b0X\033*b0Y\033*r%dU\
@@ -157,14 +157,14 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 					numBytes += 2;
 				}
 			}
-			fprintf(gpoutfile, "\033*b%d", numBytes);
-			fputc((char)(plane < HPPJ_PLANES - 1 ? 'V' : 'W'), gpoutfile);
+			fprintf(GPT.P_GpOutFile, "\033*b%d", numBytes);
+			fputc((char)(plane < HPPJ_PLANES - 1 ? 'V' : 'W'), GPT.P_GpOutFile);
 			// Print remainder of column *
 			numReps = 0;
 			for(y = maxRow; y >= minRow; --y) {
 				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y-1] + x)) {
-					fputc((char)(numReps), gpoutfile);
-					fputc((char)(*((*p_gp->_Bmp.b_p)[y] + x)), gpoutfile);
+					fputc((char)(numReps), GPT.P_GpOutFile);
+					fputc((char)(*((*p_gp->_Bmp.b_p)[y] + x)), GPT.P_GpOutFile);
 					numReps = 0;
 				}
 				else {
@@ -173,7 +173,7 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 			}
 		}
 	}
-	fputs("\033*r1B\033E", gpoutfile);
+	fputs("\033*r1B\033E", GPT.P_GpOutFile);
 	p_gp->BmpFreeBitmap();
 }
 

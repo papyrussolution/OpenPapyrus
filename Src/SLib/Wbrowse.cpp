@@ -932,96 +932,107 @@ int BrowserWindow::CopyToClipboard()
 	int    ok = -1;
 	const  uint  cn_count = SelectedColumns.getCount();
 	BrowserDef * p_def_ = P_Def;
-	if(p_def_ && cn_count) {
-		uint   i, j;
-    	long   row = 0;
-		LongArray col_types;
-		const char * p_fontface_tnr = "Times New Roman";
-		LAssocArray width_ary;
-		SString val_buf, out_buf;
-		SString dec;
-		SylkWriter sw(0);
-		sw.PutRec("ID", "PPapyrus");
-		{
-			char   buf[64];
-			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
-			dec.Cat(buf);
-		}
-		for(j = 0; j < cn_count; j++) {
-			long cn = SelectedColumns.at(j);
-			if(cn >= 0 && cn < p_def_->getCountI())
-				col_types.add((long)GETSTYPE(p_def_->at(cn).T));
-		}
-		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-		sw.PutFont('F', p_fontface_tnr, 8,  0);
-		sw.PutRec('F', "G");
-		//
-		// Выводим название групп столбцов
-		//
-		for(i = 0; i < p_def_->GetGroupCount(); i++) {
-			uint   pos = 0;
-			const  BroGroup * p_grp = p_def_->GetGroup(i);
-			val_buf = p_grp->P_Text;
-			if(SelectedColumns.lsearch(p_grp->First, &pos) > 0) {
-				sw.PutFormat("FC0L", 1, pos + 1, 1);
-				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-				sw.PutVal(val_buf, 1);
+	if(p_def_) {
+		SString val_buf;
+		if(cn_count) {
+			uint   i, j;
+    		long   row = 0;
+			LongArray col_types;
+			const char * p_fontface_tnr = "Times New Roman";
+			LAssocArray width_ary;
+			SString out_buf;
+			SString dec;
+			SylkWriter sw(0);
+			sw.PutRec("ID", "PPapyrus");
+			{
+				char   buf[64];
+				::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+				dec.Cat(buf);
 			}
-		}
-		if(p_def_->GetGroupCount())
-			row++;
-		//
-		// Выводим название столбцов
-		//
-		for(i = 0; i < cn_count; i++) {
-			uint col_num = SelectedColumns.at(i);
-			if(col_num < p_def_->getCount()) {
-				const BroColumn & r_c = p_def_->at(col_num);
-				const long type = GETSTYPE(r_c.T);
-				val_buf = r_c.text;
-				sw.PutFormat("FC0L", 1, i + 1, row + 1);
-				sw.PutVal(val_buf.cptr(), 1);
-				width_ary.Add(col_num, (long)val_buf.Len(), 0);
-			}
-		}
-		row += 1;
-		p_def_->top();
-		do {
 			for(j = 0; j < cn_count; j++) {
-				long cn  = SelectedColumns.at(j);
-				if(cn >= 0 && cn < p_def_->getCountI()) {
-					long  len = 0;
-					uint  stype = col_types.at(j);
-					p_def_->getFullText(p_def_->_curItem(), cn, val_buf);
-					val_buf.Strip();
-					if(stype == S_FLOAT) {
-						val_buf.ReplaceChar('.', dec.C(0));
-						sw.PutFormat("FG0R", 2, j + 1, row + 1);
-						sw.PutVal(val_buf.ToReal());
-					}
-					else if(stype == S_INT) {
-						sw.PutFormat("FG0R", 2, j + 1, row + 1);
-						sw.PutVal(val_buf.ToLong());
-					}
-					else {
-						sw.PutFormat("FG0L", 2, j + 1, row + 1);
-						sw.PutVal(val_buf.cptr(), 1);
-					}
-					if(width_ary.BSearch(cn, &len, 0) > 0 && len < (long)val_buf.Len())
-						width_ary.Update(cn, (long)val_buf.Len(), 1);
+				long cn = SelectedColumns.at(j);
+				if(cn >= 0 && cn < p_def_->getCountI())
+					col_types.add((long)GETSTYPE(p_def_->at(cn).T));
+			}
+			sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+			sw.PutFont('F', p_fontface_tnr, 8,  0);
+			sw.PutRec('F', "G");
+			//
+			// Выводим название групп столбцов
+			//
+			for(i = 0; i < p_def_->GetGroupCount(); i++) {
+				uint   pos = 0;
+				const  BroGroup * p_grp = p_def_->GetGroup(i);
+				val_buf = p_grp->P_Text;
+				if(SelectedColumns.lsearch(p_grp->First, &pos) > 0) {
+					sw.PutFormat("FC0L", 1, pos + 1, 1);
+					sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+					sw.PutVal(val_buf, 1);
 				}
 			}
-			row++;
-		} while(p_def_->step(1) > 0);
-		for(i = 0; i < width_ary.getCount(); i++) {
-			LAssoc item = width_ary.at(i);
-			sw.PutColumnWidth(i + 1, i + 1, item.Val + 2);
+			if(p_def_->GetGroupCount())
+				row++;
+			//
+			// Выводим название столбцов
+			//
+			for(i = 0; i < cn_count; i++) {
+				uint col_num = SelectedColumns.at(i);
+				if(col_num < p_def_->getCount()) {
+					const BroColumn & r_c = p_def_->at(col_num);
+					const long type = GETSTYPE(r_c.T);
+					val_buf = r_c.text;
+					sw.PutFormat("FC0L", 1, i + 1, row + 1);
+					sw.PutVal(val_buf.cptr(), 1);
+					width_ary.Add(col_num, (long)val_buf.Len(), 0);
+				}
+			}
+			row += 1;
+			p_def_->top();
+			do {
+				for(j = 0; j < cn_count; j++) {
+					long cn  = SelectedColumns.at(j);
+					if(cn >= 0 && cn < p_def_->getCountI()) {
+						long  len = 0;
+						uint  stype = col_types.at(j);
+						p_def_->getFullText(p_def_->_curItem(), cn, val_buf);
+						val_buf.Strip();
+						if(stype == S_FLOAT) {
+							val_buf.ReplaceChar('.', dec.C(0));
+							sw.PutFormat("FG0R", 2, j + 1, row + 1);
+							sw.PutVal(val_buf.ToReal());
+						}
+						else if(stype == S_INT) {
+							sw.PutFormat("FG0R", 2, j + 1, row + 1);
+							sw.PutVal(val_buf.ToLong());
+						}
+						else {
+							sw.PutFormat("FG0L", 2, j + 1, row + 1);
+							sw.PutVal(val_buf.cptr(), 1);
+						}
+						if(width_ary.BSearch(cn, &len, 0) > 0 && len < (long)val_buf.Len())
+							width_ary.Update(cn, (long)val_buf.Len(), 1);
+					}
+				}
+				row++;
+			} while(p_def_->step(1) > 0);
+			for(i = 0; i < width_ary.getCount(); i++) {
+				LAssoc item = width_ary.at(i);
+				sw.PutColumnWidth(i + 1, i + 1, item.Val + 2);
+			}
+			WMHScroll(SB_VERT, SB_BOTTOM, 0);
+			sw.PutLine("E");
+			sw.GetBuf(&out_buf);
+			SClipboard::Copy_SYLK(out_buf);
+			ok = 1;
 		}
-		WMHScroll(SB_VERT, SB_BOTTOM, 0);
-		sw.PutLine("E");
-		sw.GetBuf(&out_buf);
-		SClipboard::Copy_SYLK(out_buf);
-		ok = 1;
+		// @v11.1.12 {
+		else {
+			p_def_->getFullText(p_def_->_curItem(), GetCurColumn(), val_buf);
+			SStringU val_buf_u;
+			val_buf_u.CopyFromMb_INNER(val_buf, val_buf.Len());
+			SClipboard::Copy_TextUnicode(val_buf_u, val_buf_u.Len());
+		}
+		// } @v11.1.12 
 	}
 	return ok;
 }
@@ -1044,7 +1055,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				{
 					double * p_number = static_cast<double *>(event.message.infoPtr);
 					if(p_number) {
-						char b[256];
+						char b[1024]; // @v11.1.12 [256]-->[1024]
 						P_Def->getText(P_Def->_curItem(), GetCurColumn(), b);
 						strtodoub(b, p_number);
 					}

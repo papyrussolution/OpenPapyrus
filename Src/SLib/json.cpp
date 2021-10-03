@@ -1633,7 +1633,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
+						//slfprintf_stderr("JSON: state %d: defaulted\n", pInfo->state);
 
 				}
 				break;
@@ -1645,7 +1645,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 					case LEX_NAME_SEPARATOR: pInfo->state = 6; break; /* label, pos label:value separator */
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
+						//slfprintf_stderr("JSON: state %d: defaulted\n", pInfo->state);
 				}
 				break;
 			case 6: // label, pos name separator
@@ -1713,7 +1713,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 						case LEX_MEMORY: CALLEXCEPT_S(SLERR_NOMEM);
 						case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 						default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-							//fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
+							//slfprintf_stderr("JSON: state %d: defaulted\n", pInfo->state);
 					}
 				}
 				break;
@@ -1788,7 +1788,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 					case LEX_MORE: CALLEXCEPT_S(SLERR_JSON_INCOMPLETE_DOCUMENT);
 					case LEX_INVALID_CHARACTER: CALLEXCEPT_S(SLERR_JSON_ILLEGAL_CHARACTER);
 					default: CALLEXCEPT_S(SLERR_JSON_MALFORMED_DOCUMENT);
-						// fprintf(stderr, "JSON: state %d: defaulted\n", pInfo->state);
+						// slfprintf_stderr("JSON: state %d: defaulted\n", pInfo->state);
 				}
 				break;
 			case 9: // followup to adding child to array

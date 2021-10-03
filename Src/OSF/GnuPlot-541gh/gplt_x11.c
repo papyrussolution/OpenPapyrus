@@ -5525,7 +5525,8 @@ static struct used_font fontlist = {NULL, NULL, NULL, 0, 12, 8, NULL};
 #endif
 
 /* Helper routine to clear the used font list */
-static void clear_used_font_list() {
+static void clear_used_font_list() 
+{
 	struct used_font * f;
 	while(fontlist.next) {
 		f = fontlist.next;
@@ -5539,8 +5540,7 @@ static void clear_used_font_list() {
 	}
 }
 
-static void pr_font(fontname)
-char * fontname;
+static void pr_font(char * fontname)
 {
 	char fontspec[128];
 	int fontsize = 0;

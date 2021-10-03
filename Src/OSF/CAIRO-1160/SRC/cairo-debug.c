@@ -162,7 +162,7 @@ void _cairo_image_surface_write_to_ppm(cairo_image_surface_t * isurf, const char
 		}
 	}
 	fclose(fp);
-	fprintf(stderr, "Wrote %s\n", fn);
+	slfprintf_stderr("Wrote %s\n", fn);
 }
 
 #endif

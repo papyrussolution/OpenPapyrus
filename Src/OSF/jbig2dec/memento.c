@@ -471,9 +471,9 @@ static void error2_cb(void * data, const char * msg, int errnum)
 static void syminfo_cb(void * data, uintptr_t pc, const char * symname, uintptr_t symval, uintptr_t symsize)
 {
 	if(sizeof(void *) == 4)
-		fprintf(stderr, "    0x%08lx %s\n", pc, symname ? symname : "?");
+		slfprintf_stderr("    0x%08lx %s\n", pc, symname ? symname : "?");
 	else
-		fprintf(stderr, "    0x%016lx %s\n", pc, symname ? symname : "?");
+		slfprintf_stderr("    0x%016lx %s\n", pc, symname ? symname : "?");
 }
 
 static void error_cb(void * data, const char * msg, int errnum)
@@ -488,9 +488,9 @@ static void error_cb(void * data, const char * msg, int errnum)
 static int full_cb(void * data, uintptr_t pc, const char * fname, int line, const char * fn)
 {
 	if(sizeof(void *) == 4)
-		fprintf(stderr, "    0x%08lx %s(%s:%d)\n", pc, fn ? fn : "?", fname ? fname : "?", line);
+		slfprintf_stderr("    0x%08lx %s(%s:%d)\n", pc, fn ? fn : "?", fname ? fname : "?", line);
 	else
-		fprintf(stderr, "    0x%016lx %s(%s:%d)\n", pc, fn ? fn : "?", fname ? fname : "?", line);
+		slfprintf_stderr("    0x%016lx %s(%s:%d)\n", pc, fn ? fn : "?", fname ? fname : "?", line);
 	return 0;
 }
 
@@ -534,12 +534,12 @@ static void print_stack_libbt_failed(void * addr)
 
 	if(strings == NULL || strings[0] == NULL) {
 		if(sizeof(void *) == 4)
-			fprintf(stderr, "    [0x%08lx]\n", (uintptr_t)addr);
+			slfprintf_stderr("    [0x%08lx]\n", (uintptr_t)addr);
 		else
-			fprintf(stderr, "    [0x%016lx]\n", (uintptr_t)addr);
+			slfprintf_stderr("    [0x%016lx]\n", (uintptr_t)addr);
 	}
 	else {
-		fprintf(stderr, "    %s\n", strings[0]);
+		slfprintf_stderr("    %s\n", strings[0]);
 	}
 	(free)(strings);
 }
@@ -567,28 +567,16 @@ static int init_libbt(void)
 	backtrace_create_state = dlsym(libbt, "backtrace_create_state");
 	backtrace_syminfo      = dlsym(libbt, "backtrace_syminfo");
 	backtrace_pcinfo       = dlsym(libbt, "backtrace_pcinfo");
-
-	if(backtrace_create_state == NULL ||
-	    backtrace_syminfo == NULL ||
-	    backtrace_pcinfo == NULL) {
+	if(backtrace_create_state == NULL || backtrace_syminfo == NULL || backtrace_pcinfo == NULL) {
 		goto fail;
 	}
-
-	my_backtrace_state = backtrace_create_state(backtrace_exe,
-		1 /*BACKTRACE_SUPPORTS_THREADS*/,
-		error_cb,
-		NULL);
+	my_backtrace_state = backtrace_create_state(backtrace_exe, 1 /*BACKTRACE_SUPPORTS_THREADS*/, error_cb, NULL);
 	if(my_backtrace_state == NULL)
 		goto fail;
-
 	print_stack_value = print_stack_libbt;
-
 	return 1;
-
 fail:
-	fprintf(stderr,
-	    "MEMENTO: libbacktrace.so failed to load; backtraces will be sparse.\n"
-	    "MEMENTO: See memento.h for how to rectify this.\n");
+	slfprintf_stderr("MEMENTO: libbacktrace.so failed to load; backtraces will be sparse.\nMEMENTO: See memento.h for how to rectify this.\n");
 	libbt = NULL;
 	backtrace_create_state = NULL;
 	backtrace_syminfo = NULL;
@@ -601,9 +589,8 @@ fail:
 static void print_stack_default(void * addr)
 {
 	char ** strings = backtrace_symbols(&addr, 1);
-
 	if(strings == NULL || strings[0] == NULL) {
-		fprintf(stderr, "    ["FMTP "]\n", addr);
+		slfprintf_stderr("    ["FMTP "]\n", addr);
 	}
 #ifdef HAVE_LIBDL
 	else if(strchr(strings[0], ':') == NULL) {
@@ -619,7 +606,7 @@ static void print_stack_default(void * addr)
 	}
 #endif
 	else {
-		fprintf(stderr, "    %s\n", strings[0]);
+		slfprintf_stderr("    %s\n", strings[0]);
 	}
 	SAlloc::F(strings);
 }
@@ -773,7 +760,7 @@ static void Memento_showStacktrace(void ** stack, int numberOfFrames)
 		DWORD dwDisplacement;
 		Memento_SymFromAddr(Memento_process, (DWORD64)(stack[i]), &dwDisplacement64, symbol);
 		Memento_SymGetLineFromAddr(Memento_process, (DWORD_NATIVESIZED)(stack[i]), &dwDisplacement, &line);
-		fprintf(stderr, "    %s in %s:%d\n", symbol->Name, line.FileName, line.LineNumber);
+		slfprintf_stderr("    %s in %s:%d\n", symbol->Name, line.FileName, line.LineNumber);
 	}
 }
 
@@ -839,11 +826,11 @@ static void Memento_showStacktrace(void ** stack, int numberOfFrames)
 			const char * sym = info.dli_sname ? info.dli_sname : "<unknown>";
 			char * demangled = __cxa_demangle(sym, NULL, 0, &status);
 			int offset = stack[i] - info.dli_saddr;
-			fprintf(stderr, "    ["FMTP "]%s(+0x%x)\n", stack[i], demangled && status == 0 ? demangled : sym, offset);
+			slfprintf_stderr("    ["FMTP "]%s(+0x%x)\n", stack[i], demangled && status == 0 ? demangled : sym, offset);
 			SAlloc::F(demangled);
 		}
 		else {
-			fprintf(stderr, "    ["FMTP "]\n", stack[i]);
+			slfprintf_stderr("    ["FMTP "]\n", stack[i]);
 		}
 	}
 }
@@ -1251,12 +1238,12 @@ static int showBlock(Memento_BlkHeader * b, int space)
 {
 	int seq;
 	VALGRIND_MAKE_MEM_DEFINED(b, sizeof(Memento_BlkHeader));
-	fprintf(stderr, FMTP ":(size=" FMTZ ",num=%d)",
+	slfprintf_stderr(FMTP ":(size=" FMTZ ",num=%d)",
 	    MEMBLK_TOBLK(b), (FMTZ_CAST)b->rawsize, b->sequence);
 	if(b->label)
-		fprintf(stderr, "%c(%s)", space, b->label);
+		slfprintf_stderr("%c(%s)", space, b->label);
 	if(b->flags & Memento_Flag_KnownLeak)
-		fprintf(stderr, "(Known Leak)");
+		slfprintf_stderr("(Known Leak)");
 	seq = b->sequence;
 	VALGRIND_MAKE_MEM_NOACCESS(b, sizeof(Memento_BlkHeader));
 	return seq;
@@ -1266,7 +1253,7 @@ static void blockDisplay(Memento_BlkHeader * b, int n)
 {
 	n++;
 	while(n > 40) {
-		fprintf(stderr, "*");
+		slfprintf_stderr("*");
 		n -= 40;
 	}
 	while(n > 0) {
@@ -1274,10 +1261,10 @@ static void blockDisplay(Memento_BlkHeader * b, int n)
 		if(i > 32)
 			i = 32;
 		n -= i;
-		fprintf(stderr, "%s", &"                                "[32-i]);
+		slfprintf_stderr("%s", &"                                "[32-i]);
 	}
 	showBlock(b, '\t');
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 
 static int Memento_listBlock(Memento_BlkHeader * b,
@@ -1414,8 +1401,8 @@ int Memento_listBlocksNested(void)
 		if((b->flags & Memento_Flag_HasParent) == 0)
 			doNestedDisplay(b, 0);
 	}
-	fprintf(stderr, " Total number of blocks = %d\n", count);
-	fprintf(stderr, " Total size of blocks = "FMTZ "\n", (FMTZ_CAST)size);
+	slfprintf_stderr(" Total number of blocks = %d\n", count);
+	slfprintf_stderr(" Total size of blocks = "FMTZ "\n", (FMTZ_CAST)size);
 
 	MEMENTO_UNDERLYING_FREE(blocks);
 
@@ -1438,14 +1425,14 @@ int Memento_listBlocksNested(void)
 void Memento_listBlocks(void)
 {
 	MEMENTO_LOCK();
-	fprintf(stderr, "Allocated blocks:\n");
+	slfprintf_stderr("Allocated blocks:\n");
 	if(Memento_listBlocksNested()) {
 		size_t counts[2];
 		counts[0] = 0;
 		counts[1] = 0;
 		Memento_appBlocks(&memento.used, Memento_listBlock, &counts[0]);
-		fprintf(stderr, " Total number of blocks = "FMTZ "\n", (FMTZ_CAST)counts[0]);
-		fprintf(stderr, " Total size of blocks = "FMTZ "\n", (FMTZ_CAST)counts[1]);
+		slfprintf_stderr(" Total number of blocks = "FMTZ "\n", (FMTZ_CAST)counts[0]);
+		slfprintf_stderr(" Total size of blocks = "FMTZ "\n", (FMTZ_CAST)counts[1]);
 	}
 	MEMENTO_UNLOCK();
 }
@@ -1465,27 +1452,27 @@ void Memento_listNewBlocks(void)
 	MEMENTO_LOCK();
 	counts[0] = 0;
 	counts[1] = 0;
-	fprintf(stderr, "Blocks allocated and still extant since last list:\n");
+	slfprintf_stderr("Blocks allocated and still extant since last list:\n");
 	Memento_appBlocks(&memento.used, Memento_listNewBlock, &counts[0]);
-	fprintf(stderr, "  Total number of blocks = "FMTZ "\n", (FMTZ_CAST)counts[0]);
-	fprintf(stderr, "  Total size of blocks = "FMTZ "\n", (FMTZ_CAST)counts[1]);
+	slfprintf_stderr("  Total number of blocks = "FMTZ "\n", (FMTZ_CAST)counts[0]);
+	slfprintf_stderr("  Total size of blocks = "FMTZ "\n", (FMTZ_CAST)counts[1]);
 	MEMENTO_UNLOCK();
 }
 
 static void Memento_endStats(void)
 {
-	fprintf(stderr, "Total memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.totalAlloc);
-	fprintf(stderr, "Peak memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.peakAlloc);
-	fprintf(stderr, FMTZ " mallocs, "FMTZ " frees, "FMTZ " reallocs\n", (FMTZ_CAST)memento.numMallocs,
+	slfprintf_stderr("Total memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.totalAlloc);
+	slfprintf_stderr("Peak memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.peakAlloc);
+	slfprintf_stderr(FMTZ " mallocs, "FMTZ " frees, "FMTZ " reallocs\n", (FMTZ_CAST)memento.numMallocs,
 	    (FMTZ_CAST)memento.numFrees, (FMTZ_CAST)memento.numReallocs);
-	fprintf(stderr, "Average allocation size "FMTZ " bytes\n", (FMTZ_CAST)
+	slfprintf_stderr("Average allocation size "FMTZ " bytes\n", (FMTZ_CAST)
 	    (memento.numMallocs != 0 ? memento.totalAlloc/memento.numMallocs : 0));
 }
 
 void Memento_stats(void)
 {
 	MEMENTO_LOCK();
-	fprintf(stderr, "Current memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.alloc);
+	slfprintf_stderr("Current memory malloced = "FMTZ " bytes\n", (FMTZ_CAST)memento.alloc);
 	Memento_endStats();
 	MEMENTO_UNLOCK();
 }
@@ -1494,13 +1481,13 @@ void Memento_stats(void)
 static int showInfo(Memento_BlkHeader * b, void * arg)
 {
 	Memento_BlkDetails * details;
-	fprintf(stderr, FMTP ":(size="FMTZ ",num=%d)", MEMBLK_TOBLK(b), (FMTZ_CAST)b->rawsize, b->sequence);
+	slfprintf_stderr(FMTP ":(size="FMTZ ",num=%d)", MEMBLK_TOBLK(b), (FMTZ_CAST)b->rawsize, b->sequence);
 	if(b->label)
-		fprintf(stderr, " (%s)", b->label);
-	fprintf(stderr, "\nEvents:\n");
+		slfprintf_stderr(" (%s)", b->label);
+	slfprintf_stderr("\nEvents:\n");
 	details = b->details;
 	while(details) {
-		fprintf(stderr, "  Event %d (%s)\n", details->sequence, eventType[(int)details->type]);
+		slfprintf_stderr("  Event %d (%s)\n", details->sequence, eventType[(int)details->type]);
 		Memento_showStacktrace(details->stack, details->count);
 		details = details->next;
 	}
@@ -1513,7 +1500,7 @@ void Memento_listBlockInfo(void)
 {
 #ifdef MEMENTO_DETAILS
 	MEMENTO_LOCK();
-	fprintf(stderr, "Details of allocated blocks:\n");
+	slfprintf_stderr("Details of allocated blocks:\n");
 	Memento_appBlocks(&memento.used, showInfo, NULL);
 	MEMENTO_UNLOCK();
 #endif
@@ -1544,7 +1531,7 @@ void Memento_fin(void)
 		if(Memento_nonLeakBlocksLeaked()) {
 			Memento_listBlocks();
 #ifdef MEMENTO_DETAILS
-			fprintf(stderr, "\n");
+			slfprintf_stderr("\n");
 			Memento_listBlockInfo();
 #endif
 			Memento_breakpoint();
@@ -1552,24 +1539,21 @@ void Memento_fin(void)
 	}
 	if(memento.squeezing) {
 		if(memento.pattern == 0)
-			fprintf(stderr, "Memory squeezing @ %d complete%s\n", memento.squeezeAt, memento.segv ? " (with SEGV)" : "");
+			slfprintf_stderr("Memory squeezing @ %d complete%s\n", memento.squeezeAt, memento.segv ? " (with SEGV)" : "");
 		else
-			fprintf(stderr,
-			    "Memory squeezing @ %d (%d) complete%s\n",
-			    memento.squeezeAt,
-			    memento.pattern,
-			    memento.segv ? " (with SEGV)" : "");
+			slfprintf_stderr("Memory squeezing @ %d (%d) complete%s\n",
+			    memento.squeezeAt, memento.pattern, memento.segv ? " (with SEGV)" : "");
 	}
 	else if(memento.segv) {
-		fprintf(stderr, "Memento completed (with SEGV)\n");
+		slfprintf_stderr("Memento completed (with SEGV)\n");
 	}
 	if(memento.failing) {
-		fprintf(stderr, "MEMENTO_FAILAT=%d\n", memento.failAt);
-		fprintf(stderr, "MEMENTO_PATTERN=%d\n", memento.pattern);
+		slfprintf_stderr("MEMENTO_FAILAT=%d\n", memento.failAt);
+		slfprintf_stderr("MEMENTO_PATTERN=%d\n", memento.pattern);
 	}
 	if(memento.nextFailAt != 0) {
-		fprintf(stderr, "MEMENTO_NEXTFAILAT=%d\n", memento.nextFailAt);
-		fprintf(stderr, "MEMENTO_NEXTPATTERN=%d\n", memento.nextPattern);
+		slfprintf_stderr("MEMENTO_NEXTFAILAT=%d\n", memento.nextFailAt);
+		slfprintf_stderr("MEMENTO_NEXTPATTERN=%d\n", memento.nextPattern);
 	}
 }
 
@@ -1683,7 +1667,7 @@ int stashed_map[OPEN_MAX];
 static void Memento_signal(int sig)
 {
 	(void)sig;
-	fprintf(stderr, "SEGV at:\n");
+	slfprintf_stderr("SEGV at:\n");
 	memento.segv = 1;
 	Memento_bt_internal(0);
 
@@ -1704,10 +1688,10 @@ static int squeeze(void)
 		memento.squeezeAt = memento.sequence;
 
 	if(!memento.squeezing) {
-		fprintf(stderr, "Memory squeezing @ %d\n", memento.squeezeAt);
+		slfprintf_stderr("Memory squeezing @ %d\n", memento.squeezeAt);
 	}
 	else
-		fprintf(stderr, "Memory squeezing @ %d (%x,%x)\n", memento.squeezeAt, memento.pattern, memento.patternBit);
+		slfprintf_stderr("Memory squeezing @ %d (%x,%x)\n", memento.squeezeAt, memento.pattern, memento.patternBit);
 
 	/* When we fork below, the child is going to snaffle all our file pointers
 	 * and potentially corrupt them. Let's make copies of all of them before
@@ -1719,7 +1703,7 @@ static int squeeze(void)
 		}
 	}
 
-	fprintf(stderr, "Failing at:\n");
+	slfprintf_stderr("Failing at:\n");
 	Memento_bt_internal(2);
 	pid = fork();
 	if(pid == 0) {
@@ -1752,7 +1736,7 @@ static int squeeze(void)
 				tm.tv_nsec = 999999999;
 			if(timeout <= 0) {
 				char text[32];
-				fprintf(stderr, "Child is taking a long time to die. Killing it.\n");
+				slfprintf_stderr("Child is taking a long time to die. Killing it.\n");
 				sprintf(text, "kill %d", pid);
 				system(text);
 				break;
@@ -1761,7 +1745,7 @@ static int squeeze(void)
 	}
 
 	if(status != 0) {
-		fprintf(stderr, "Child status=%d\n", status);
+		slfprintf_stderr("Child status=%d\n", status);
 	}
 
 	/* Put the files back */
@@ -1785,7 +1769,7 @@ static void Memento_signal(int sig)
 	memento.segv = 1;
 	/* If we just return from this function the SEGV will be unhandled, and
 	 * we'll launch into whatever JIT debugging system the OS provides. At
-	 * least fprintf(stderr, something useful first. If MEMENTO_NOJIT is set, then
+	 * least slfprintf_stderr(something useful first. If MEMENTO_NOJIT is set, then
 	 * just exit to avoid the JIT (and get the usual atexit handling). */
 	if(getenv("MEMENTO_NOJIT"))
 		exit(1);
@@ -1795,7 +1779,7 @@ static void Memento_signal(int sig)
 
 static int squeeze(void)
 {
-	fprintf(stderr, "Memento memory squeezing disabled as no fork!\n");
+	slfprintf_stderr("Memento memory squeezing disabled as no fork!\n");
 	return 0;
 }
 
@@ -1804,7 +1788,7 @@ static int squeeze(void)
 static void Memento_startFailing(void)
 {
 	if(!memento.failing) {
-		fprintf(stderr, "Starting to fail...\n");
+		slfprintf_stderr("Starting to fail...\n");
 		Memento_bt();
 		fflush(stderr);
 		memento.failing = 1;
@@ -1837,7 +1821,7 @@ static int Memento_event(void)
 	}
 
 	if(memento.sequence == memento.breakAt) {
-		fprintf(stderr, "Breaking at event %d\n", memento.breakAt);
+		slfprintf_stderr("Breaking at event %d\n", memento.breakAt);
 		return 1;
 	}
 	return 0;
@@ -2042,19 +2026,19 @@ int Memento_checkPointerOrNull(void * blk)
 	if(blk == NULL)
 		return 0;
 	if(blk == MEMENTO_PREFILL_PTR)
-		fprintf(stderr, "Prefill value found as pointer - buffer underrun?\n");
+		slfprintf_stderr("Prefill value found as pointer - buffer underrun?\n");
 	else if(blk == MEMENTO_POSTFILL_PTR)
-		fprintf(stderr, "Postfill value found as pointer - buffer overrun?\n");
+		slfprintf_stderr("Postfill value found as pointer - buffer overrun?\n");
 	else if(blk == MEMENTO_ALLOCFILL_PTR)
-		fprintf(stderr, "Allocfill value found as pointer - use of uninitialised value?\n");
+		slfprintf_stderr("Allocfill value found as pointer - use of uninitialised value?\n");
 	else if(blk == MEMENTO_FREEFILL_PTR)
-		fprintf(stderr, "Allocfill value found as pointer - use after free?\n");
+		slfprintf_stderr("Allocfill value found as pointer - use after free?\n");
 	else
 		return 0;
 #ifdef MEMENTO_DETAILS
-	fprintf(stderr, "Current backtrace:\n");
+	slfprintf_stderr("Current backtrace:\n");
 	Memento_bt();
-	fprintf(stderr, "History:\n");
+	slfprintf_stderr("History:\n");
 	Memento_info(blk);
 #endif
 	return 1;
@@ -2070,19 +2054,19 @@ int Memento_checkBytePointerOrNull(void * blk)
 	i = *(unsigned int*)blk;
 
 	if(i == MEMENTO_PREFILL_UBYTE)
-		fprintf(stderr, "Prefill value found - buffer underrun?\n");
+		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_UBYTE)
-		fprintf(stderr, "Postfill value found - buffer overrun?\n");
+		slfprintf_stderr("Postfill value found - buffer overrun?\n");
 	else if(i == MEMENTO_ALLOCFILL_UBYTE)
-		fprintf(stderr, "Allocfill value found - use of uninitialised value?\n");
+		slfprintf_stderr("Allocfill value found - use of uninitialised value?\n");
 	else if(i == MEMENTO_FREEFILL_UBYTE)
-		fprintf(stderr, "Allocfill value found - use after free?\n");
+		slfprintf_stderr("Allocfill value found - use after free?\n");
 	else
 		return 0;
 #ifdef MEMENTO_DETAILS
-	fprintf(stderr, "Current backtrace:\n");
+	slfprintf_stderr("Current backtrace:\n");
 	Memento_bt();
-	fprintf(stderr, "History:\n");
+	slfprintf_stderr("History:\n");
 	Memento_info(blk);
 #endif
 	Memento_breakpoint();
@@ -2099,19 +2083,19 @@ int Memento_checkShortPointerOrNull(void * blk)
 	i = *(unsigned short*)blk;
 
 	if(i == MEMENTO_PREFILL_USHORT)
-		fprintf(stderr, "Prefill value found - buffer underrun?\n");
+		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_USHORT)
-		fprintf(stderr, "Postfill value found - buffer overrun?\n");
+		slfprintf_stderr("Postfill value found - buffer overrun?\n");
 	else if(i == MEMENTO_ALLOCFILL_USHORT)
-		fprintf(stderr, "Allocfill value found - use of uninitialised value?\n");
+		slfprintf_stderr("Allocfill value found - use of uninitialised value?\n");
 	else if(i == MEMENTO_FREEFILL_USHORT)
-		fprintf(stderr, "Allocfill value found - use after free?\n");
+		slfprintf_stderr("Allocfill value found - use after free?\n");
 	else
 		return 0;
 #ifdef MEMENTO_DETAILS
-	fprintf(stderr, "Current backtrace:\n");
+	slfprintf_stderr("Current backtrace:\n");
 	Memento_bt();
-	fprintf(stderr, "History:\n");
+	slfprintf_stderr("History:\n");
 	Memento_info(blk);
 #endif
 	Memento_breakpoint();
@@ -2128,19 +2112,19 @@ int Memento_checkIntPointerOrNull(void * blk)
 	i = *(unsigned int*)blk;
 
 	if(i == MEMENTO_PREFILL_UINT)
-		fprintf(stderr, "Prefill value found - buffer underrun?\n");
+		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_UINT)
-		fprintf(stderr, "Postfill value found - buffer overrun?\n");
+		slfprintf_stderr("Postfill value found - buffer overrun?\n");
 	else if(i == MEMENTO_ALLOCFILL_UINT)
-		fprintf(stderr, "Allocfill value found - use of uninitialised value?\n");
+		slfprintf_stderr("Allocfill value found - use of uninitialised value?\n");
 	else if(i == MEMENTO_FREEFILL_UINT)
-		fprintf(stderr, "Allocfill value found - use after free?\n");
+		slfprintf_stderr("Allocfill value found - use after free?\n");
 	else
 		return 0;
 #ifdef MEMENTO_DETAILS
-	fprintf(stderr, "Current backtrace:\n");
+	slfprintf_stderr("Current backtrace:\n");
 	Memento_bt();
-	fprintf(stderr, "History:\n");
+	slfprintf_stderr("History:\n");
 	Memento_info(blk);
 #endif
 	Memento_breakpoint();
@@ -2323,23 +2307,23 @@ static int checkBlockUser(Memento_BlkHeader * memblk, const char * action)
 	    &data, memblk);
 	if(!data.found) {
 		/* Failure! */
-		fprintf(stderr, "Attempt to %s block ", action);
+		slfprintf_stderr("Attempt to %s block ", action);
 		showBlock(memblk, 32);
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		Memento_breakpointLocked();
 		return 1;
 	}
 	else if(data.preCorrupt || data.postCorrupt) {
-		fprintf(stderr, "Block ");
+		slfprintf_stderr("Block ");
 		showBlock(memblk, ' ');
-		fprintf(stderr, " found to be corrupted on %s!\n", action);
+		slfprintf_stderr(" found to be corrupted on %s!\n", action);
 		if(data.preCorrupt) {
-			fprintf(stderr, "Preguard corrupted\n");
+			slfprintf_stderr("Preguard corrupted\n");
 		}
 		if(data.postCorrupt) {
-			fprintf(stderr, "Postguard corrupted\n");
+			slfprintf_stderr("Postguard corrupted\n");
 		}
-		fprintf(stderr, "Block last checked OK at allocation %d. Now %d.\n",
+		slfprintf_stderr("Block last checked OK at allocation %d. Now %d.\n",
 		    memblk->lastCheckedOK, memento.sequence);
 		if((memblk->flags & Memento_Flag_Reported) == 0) {
 			memblk->flags |= Memento_Flag_Reported;
@@ -2358,9 +2342,9 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 #endif
 	if(memblk->child != MEMENTO_CHILD_MAGIC || memblk->sibling != MEMENTO_SIBLING_MAGIC) {
 		/* Failure! */
-		fprintf(stderr, "Attempt to %s invalid block ", action);
+		slfprintf_stderr("Attempt to %s invalid block ", action);
 		showBlock(memblk, 32);
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		Memento_breakpointLocked();
 		return 1;
 	}
@@ -2370,23 +2354,23 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 	    &data, memblk);
 	if(!data.found) {
 		/* Failure! */
-		fprintf(stderr, "Attempt to %s block ", action);
+		slfprintf_stderr("Attempt to %s block ", action);
 		showBlock(memblk, 32);
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		Memento_breakpointLocked();
 		return 1;
 	}
 	else if(data.preCorrupt || data.postCorrupt) {
-		fprintf(stderr, "Block ");
+		slfprintf_stderr("Block ");
 		showBlock(memblk, ' ');
-		fprintf(stderr, " found to be corrupted on %s!\n", action);
+		slfprintf_stderr(" found to be corrupted on %s!\n", action);
 		if(data.preCorrupt) {
-			fprintf(stderr, "Preguard corrupted\n");
+			slfprintf_stderr("Preguard corrupted\n");
 		}
 		if(data.postCorrupt) {
-			fprintf(stderr, "Postguard corrupted\n");
+			slfprintf_stderr("Postguard corrupted\n");
 		}
-		fprintf(stderr, "Block last checked OK at allocation %d. Now %d.\n",
+		slfprintf_stderr("Block last checked OK at allocation %d. Now %d.\n",
 		    memblk->lastCheckedOK, memento.sequence);
 		if((memblk->flags & Memento_Flag_Reported) == 0) {
 			memblk->flags |= Memento_Flag_Reported;
@@ -2558,19 +2542,19 @@ static int Memento_Internal_checkAllAlloced(Memento_BlkHeader * memblk, void * a
 	Memento_Internal_checkAllocedBlock(memblk, data);
 	if(data->preCorrupt || data->postCorrupt) {
 		if((data->found & 2) == 0) {
-			fprintf(stderr, "Allocated blocks:\n");
+			slfprintf_stderr("Allocated blocks:\n");
 			data->found |= 2;
 		}
-		fprintf(stderr, "  Block ");
+		slfprintf_stderr("  Block ");
 		showBlock(memblk, ' ');
 		if(data->preCorrupt) {
-			fprintf(stderr, " Preguard ");
+			slfprintf_stderr(" Preguard ");
 		}
 		if(data->postCorrupt) {
-			fprintf(stderr, "%s Postguard ",
+			slfprintf_stderr("%s Postguard ",
 			    (data->preCorrupt ? "&" : ""));
 		}
-		fprintf(stderr, "corrupted.\n    "
+		slfprintf_stderr("corrupted.\n    "
 		    "Block last checked OK at allocation %d. Now %d.\n",
 		    memblk->lastCheckedOK, memento.sequence);
 		data->preCorrupt  = 0;
@@ -2593,32 +2577,32 @@ static int Memento_Internal_checkAllFreed(Memento_BlkHeader * memblk, void * arg
 	Memento_Internal_checkFreedBlock(memblk, data);
 	if(data->preCorrupt || data->postCorrupt || data->freeCorrupt) {
 		if((data->found & 4) == 0) {
-			fprintf(stderr, "Freed blocks:\n");
+			slfprintf_stderr("Freed blocks:\n");
 			data->found |= 4;
 		}
-		fprintf(stderr, "  ");
+		slfprintf_stderr("  ");
 		showBlock(memblk, ' ');
 		if(data->freeCorrupt) {
-			fprintf(stderr, " index %d (address "FMTP ") onwards", (int)data->index,
+			slfprintf_stderr(" index %d (address "FMTP ") onwards", (int)data->index,
 			    &((char *)MEMBLK_TOBLK(memblk))[data->index]);
 			if(data->preCorrupt) {
-				fprintf(stderr, "+ preguard");
+				slfprintf_stderr("+ preguard");
 			}
 			if(data->postCorrupt) {
-				fprintf(stderr, "+ postguard");
+				slfprintf_stderr("+ postguard");
 			}
 		}
 		else {
 			if(data->preCorrupt) {
-				fprintf(stderr, " preguard");
+				slfprintf_stderr(" preguard");
 			}
 			if(data->postCorrupt) {
-				fprintf(stderr, "%s Postguard",
+				slfprintf_stderr("%s Postguard",
 				    (data->preCorrupt ? "+" : ""));
 			}
 		}
 		VALGRIND_MAKE_MEM_DEFINED(memblk, sizeof(Memento_BlkHeader));
-		fprintf(stderr, " corrupted.\n"
+		slfprintf_stderr(" corrupted.\n"
 		    "    Block last checked OK at allocation %d. Now %d.\n",
 		    memblk->lastCheckedOK, memento.sequence);
 		if((memblk->flags & Memento_Flag_Reported) == 0) {
@@ -2694,9 +2678,9 @@ int Memento_check(void)
 {
 	int result;
 
-	fprintf(stderr, "Checking memory\n");
+	slfprintf_stderr("Checking memory\n");
 	result = Memento_checkAllMemory();
-	fprintf(stderr, "Memory checked!\n");
+	slfprintf_stderr("Memory checked!\n");
 	return result;
 }
 
@@ -2711,12 +2695,12 @@ int Memento_find(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Address "FMTP " is in %sallocated block ",
+		slfprintf_stderr("Address "FMTP " is in %sallocated block ",
 		    data.addr,
 		    (data.flags == 1 ? "" : (data.flags == 2 ?
 		    "preguard of " : "postguard of ")));
 		s = showBlock(data.blk, ' ');
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		MEMENTO_UNLOCK();
 		return s;
 	}
@@ -2724,9 +2708,9 @@ int Memento_find(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Address "FMTP " is in %sfreed block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
+		slfprintf_stderr("Address "FMTP " is in %sfreed block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		s = showBlock(data.blk, ' ');
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		MEMENTO_UNLOCK();
 		return s;
 	}
@@ -2743,9 +2727,9 @@ void Memento_breakOnFree(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Will stop when address "FMTP " (in %sallocated block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
+		slfprintf_stderr("Will stop when address "FMTP " (in %sallocated block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
-		fprintf(stderr, ") is freed\n");
+		slfprintf_stderr(") is freed\n");
 		VALGRIND_MAKE_MEM_DEFINED(data.blk, sizeof(Memento_BlkHeader));
 		data.blk->flags |= Memento_Flag_BreakOnFree;
 		VALGRIND_MAKE_MEM_NOACCESS(data.blk, sizeof(Memento_BlkHeader));
@@ -2756,16 +2740,16 @@ void Memento_breakOnFree(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Can't stop on free; address "FMTP " is in %sfreed block ",
+		slfprintf_stderr("Can't stop on free; address "FMTP " is in %sfreed block ",
 		    data.addr,
 		    (data.flags == 1 ? "" : (data.flags == 2 ?
 		    "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		MEMENTO_UNLOCK();
 		return;
 	}
-	fprintf(stderr, "Can't stop on free; address "FMTP " is not in a known block.\n", a);
+	slfprintf_stderr("Can't stop on free; address "FMTP " is not in a known block.\n", a);
 	MEMENTO_UNLOCK();
 }
 
@@ -2779,12 +2763,12 @@ void Memento_breakOnRealloc(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Will stop when address "FMTP " (in %sallocated block ",
+		slfprintf_stderr("Will stop when address "FMTP " (in %sallocated block ",
 		    data.addr,
 		    (data.flags == 1 ? "" : (data.flags == 2 ?
 		    "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
-		fprintf(stderr, ") is freed (or realloced)\n");
+		slfprintf_stderr(") is freed (or realloced)\n");
 		VALGRIND_MAKE_MEM_DEFINED(data.blk, sizeof(Memento_BlkHeader));
 		data.blk->flags |= Memento_Flag_BreakOnFree | Memento_Flag_BreakOnRealloc;
 		VALGRIND_MAKE_MEM_NOACCESS(data.blk, sizeof(Memento_BlkHeader));
@@ -2795,14 +2779,14 @@ void Memento_breakOnRealloc(void * a)
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
 	if(data.blk != NULL) {
-		fprintf(stderr, "Can't stop on free/realloc; address "FMTP " is in %sfreed block ",
+		slfprintf_stderr("Can't stop on free/realloc; address "FMTP " is in %sfreed block ",
 		    data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 		MEMENTO_UNLOCK();
 		return;
 	}
-	fprintf(stderr, "Can't stop on free/realloc; address "FMTP " is not in a known block.\n", a);
+	slfprintf_stderr("Can't stop on free/realloc; address "FMTP " is not in a known block.\n", a);
 	MEMENTO_UNLOCK();
 }
 

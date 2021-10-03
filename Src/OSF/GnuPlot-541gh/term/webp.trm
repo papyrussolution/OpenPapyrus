@@ -153,10 +153,10 @@ void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int show)
 		if(webp_params.animate) {
 			char tmp_term_options[MAX_LINE_LEN] = "";
 			sprintf(tmp_term_options, " animate quality %d delay %d loop %d ", webp_params.quality, webp_params.delay, webp_params.loop);
-			strcat(term_options, tmp_term_options);
+			strcat(GPT.TermOptions, tmp_term_options);
 		}
 		else {
-			strcat(term_options, " noanimate");
+			strcat(GPT.TermOptions, " noanimate");
 		}
 	}
 }
@@ -181,7 +181,7 @@ void WEBP_init(GpTermEntry * pThis)
 static int WEBP_writer(const uint8_t* data, size_t data_size, const WebPPicture* const pic)
 {
 	if(data_size > 0)
-		return fwrite(data, data_size, 1, gpoutfile);
+		return fwrite(data, data_size, 1, GPT.P_GpOutFile);
 	else
 		return 1;
 }
@@ -316,7 +316,7 @@ TERM_PUBLIC void WEBP_reset()
 		fprintf(stderr, "%d frames in animation\n", webp_params.frame);
 		webp_params.frame = 0;
 
-		ierr = fwrite(webp_data.bytes, webp_data.size, 1, gpoutfile);
+		ierr = fwrite(webp_data.bytes, webp_data.size, 1, GPT.P_GpOutFile);
 		if(ierr != 1)
 			int_error(NO_CARET, "Cannot write animation to file");
 		WebPDataClear(&webp_data);

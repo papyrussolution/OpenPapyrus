@@ -2346,7 +2346,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		}
 #ifdef SSL_DEBUG
 		if(SSL_USE_SIGALGS(s))
-			fprintf(stderr, "USING TLSv1.2 HASH %s\n",
+			slfprintf_stderr("USING TLSv1.2 HASH %s\n",
 			    md == NULL ? "n/a" : EVP_MD_name(md));
 #endif
 

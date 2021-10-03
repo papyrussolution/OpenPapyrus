@@ -145,9 +145,9 @@ static void ntlm_print_hex(FILE * handle, const char * buf, size_t len)
 
 	(void)handle;
 
-	fprintf(stderr, "0x");
+	slfprintf_stderr("0x");
 	while(len-- > 0)
-		fprintf(stderr, "%02.2x", (uint)*p++);
+		slfprintf_stderr("%02.2x", (uint)*p++);
 }
 
 #else
@@ -325,12 +325,12 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	}
 
 	DEBUG_OUT({
-		fprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
+		slfprintf_stderr("**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
 		ntlm_print_flags(stderr, ntlm->flags);
-		fprintf(stderr, "\n                  nonce=");
+		slfprintf_stderr("\n                  nonce=");
 		ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
-		fprintf(stderr, "\n****\n");
-		fprintf(stderr, "**** Header %s\n ", header);
+		slfprintf_stderr("\n****\n");
+		slfprintf_stderr("**** Header %s\n ", header);
 	});
 
 	SAlloc::F(type2);
@@ -451,7 +451,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 	size = 32 + hostlen + domlen;
 
 	DEBUG_OUT({
-		fprintf(stderr, "* TYPE1 header flags=0x%02.2x%02.2x%02.2x%02.2x "
+		slfprintf_stderr("* TYPE1 header flags=0x%02.2x%02.2x%02.2x%02.2x "
 		"0x%08.8x ",
 		LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
 		NTLMFLAG_REQUEST_TARGET |
@@ -469,7 +469,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 		NTLMFLAG_NEGOTIATE_NTLM_KEY |
 		NTLM2FLAG |
 		NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
-		fprintf(stderr, "\n****\n");
+		slfprintf_stderr("\n****\n");
 	});
 
 	/* Return with binary blob encoded into base64 */
@@ -773,7 +773,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	}
 
 	DEBUG_OUT({
-		fprintf(stderr, "**** TYPE3 header lmresp=");
+		slfprintf_stderr("**** TYPE3 header lmresp=");
 		ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
 	});
 
@@ -788,7 +788,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	size += ntresplen;
 
 	DEBUG_OUT({
-		fprintf(stderr, "\n   ntresp=");
+		slfprintf_stderr("\n   ntresp=");
 		ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
 	});
 
@@ -797,10 +797,10 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 #endif
 
 	DEBUG_OUT({
-		fprintf(stderr, "\n   flags=0x%02.2x%02.2x%02.2x%02.2x 0x%08.8x ",
+		slfprintf_stderr("\n   flags=0x%02.2x%02.2x%02.2x%02.2x 0x%08.8x ",
 		LONGQUARTET(ntlm->flags), ntlm->flags);
 		ntlm_print_flags(stderr, ntlm->flags);
-		fprintf(stderr, "\n****\n");
+		slfprintf_stderr("\n****\n");
 	});
 
 	/* Make sure that the domain, user and host strings fit in the

@@ -2826,7 +2826,7 @@ static void sftp_quote_stat(struct connectdata * conn)
 CURLcode Curl_ssh_init(void)
 {
 	if(ssh_init()) {
-		DEBUGF(fprintf(stderr, "Error: libssh_init failed\n"));
+		DEBUGF(slfprintf_stderr("Error: libssh_init failed\n"));
 		return CURLE_FAILED_INIT;
 	}
 	return CURLE_OK;

@@ -188,7 +188,7 @@ typedef struct {
 static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 #ifdef TEST_ENG_OPENSSL_RC4_P_INIT
-	fprintf(stderr, "(TEST_ENG_OPENSSL_RC4) test_init_key() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_RC4) test_init_key() called\n");
 #endif
 	memcpy(&test(ctx)->key[0], key, EVP_CIPHER_CTX_key_length(ctx));
 	RC4_set_key(&test(ctx)->ks, EVP_CIPHER_CTX_key_length(ctx), test(ctx)->key);
@@ -198,7 +198,7 @@ static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const ucha
 static int test_rc4_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 #ifdef TEST_ENG_OPENSSL_RC4_P_CIPHER
-	fprintf(stderr, "(TEST_ENG_OPENSSL_RC4) test_cipher() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_RC4) test_cipher() called\n");
 #endif
 	RC4(&test(ctx)->ks, inl, in, out);
 	return 1;
@@ -285,7 +285,7 @@ static int openssl_ciphers(ENGINE * e, const EVP_CIPHER ** cipher,
 		*cipher = test_r4_40_cipher();
 	else {
 #ifdef TEST_ENG_OPENSSL_RC4_OTHERS
-		fprintf(stderr, "(TEST_ENG_OPENSSL_RC4) returning NULL for "
+		slfprintf_stderr("(TEST_ENG_OPENSSL_RC4) returning NULL for "
 		    "nid %d\n", nid);
 #endif
 		*cipher = NULL;
@@ -303,7 +303,7 @@ static int openssl_ciphers(ENGINE * e, const EVP_CIPHER ** cipher,
 static int test_sha1_init(EVP_MD_CTX * ctx)
 {
 #ifdef TEST_ENG_OPENSSL_SHA_P_INIT
-	fprintf(stderr, "(TEST_ENG_OPENSSL_SHA) test_sha1_init() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_SHA) test_sha1_init() called\n");
 #endif
 	return SHA1_Init(static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
@@ -311,7 +311,7 @@ static int test_sha1_init(EVP_MD_CTX * ctx)
 static int test_sha1_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 #ifdef TEST_ENG_OPENSSL_SHA_P_UPDATE
-	fprintf(stderr, "(TEST_ENG_OPENSSL_SHA) test_sha1_update() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_SHA) test_sha1_update() called\n");
 #endif
 	return SHA1_Update(static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
@@ -319,7 +319,7 @@ static int test_sha1_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 static int test_sha1_final(EVP_MD_CTX * ctx, uchar * md)
 {
 #ifdef TEST_ENG_OPENSSL_SHA_P_FINAL
-	fprintf(stderr, "(TEST_ENG_OPENSSL_SHA) test_sha1_final() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_SHA) test_sha1_final() called\n");
 #endif
 	return SHA1_Final(md, static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
@@ -382,7 +382,7 @@ static int openssl_digests(ENGINE * e, const EVP_MD ** digest,
 		*digest = test_sha_md();
 	else {
 #ifdef TEST_ENG_OPENSSL_SHA_OTHERS
-		fprintf(stderr, "(TEST_ENG_OPENSSL_SHA) returning NULL for "
+		slfprintf_stderr("(TEST_ENG_OPENSSL_SHA) returning NULL for "
 		    "nid %d\n", nid);
 #endif
 		*digest = NULL;
@@ -400,7 +400,7 @@ static EVP_PKEY * openssl_load_privkey(ENGINE * eng, const char * key_id,
 {
 	BIO * in;
 	EVP_PKEY * key;
-	fprintf(stderr, "(TEST_ENG_OPENSSL_PKEY)Loading Private key %s\n",
+	slfprintf_stderr("(TEST_ENG_OPENSSL_PKEY)Loading Private key %s\n",
 	    key_id);
 	in = BIO_new_file(key_id, "r");
 	if(!in)
@@ -444,7 +444,7 @@ static int ossl_hmac_init(EVP_PKEY_CTX * ctx)
 	EVP_PKEY_CTX_set_data(ctx, hctx);
 	EVP_PKEY_CTX_set0_keygen_info(ctx, NULL, 0);
 #ifdef TEST_ENG_OPENSSL_HMAC_INIT
-	fprintf(stderr, "(TEST_ENG_OPENSSL_HMAC) ossl_hmac_init() called\n");
+	slfprintf_stderr("(TEST_ENG_OPENSSL_HMAC) ossl_hmac_init() called\n");
 #endif
 	return 1;
 }

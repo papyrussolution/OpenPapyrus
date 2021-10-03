@@ -397,7 +397,7 @@ void ssh_print_hexa(const char * descr, const uchar * what, size_t len)
 	if(hexa == NULL) {
 		return;
 	}
-	fprintf(stderr, "%s: %s\n", descr, hexa);
+	slfprintf_stderr("%s: %s\n", descr, hexa);
 	SAlloc::F(hexa);
 }
 /**
@@ -604,7 +604,7 @@ error:
  *
  * @code
  *  if (ssh_version(SSH_VERSION_INT(0,2,1)) == NULL) {
- *    fprintf(stderr, "libssh version is too old!\n");
+ *    slfprintf_stderr("libssh version is too old!\n");
  *    exit(1);
  *  }
  *

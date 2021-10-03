@@ -377,40 +377,29 @@ static ngx_int_t ngx_http_scgi_handler(ngx_http_request_t * r)
 #if (NGX_HTTP_CACHE)
 	ngx_http_scgi_main_conf_t  * smcf;
 #endif
-
 	if(ngx_http_upstream_create(r) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	status = (ngx_http_status_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_status_t));
 	if(status == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	ngx_http_set_ctx(r, status, ngx_http_scgi_module);
-
 	scf = (ngx_http_scgi_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_scgi_module);
-
 	if(scf->scgi_lengths) {
 		if(ngx_http_scgi_eval(r, scf) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 	}
-
 	u = r->upstream;
-
 	ngx_str_set(&u->schema, "scgi://");
 	u->output.tag = (ngx_buf_tag_t)&ngx_http_scgi_module;
-
 	u->conf = &scf->upstream;
-
 #if (NGX_HTTP_CACHE)
 	smcf = (ngx_http_scgi_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_scgi_module);
-
 	u->caches = &smcf->caches;
 	u->create_key = ngx_http_scgi_create_key;
 #endif
-
 	u->create_request = ngx_http_scgi_create_request;
 	u->reinit_request = ngx_http_scgi_reinit_request;
 	u->process_header = ngx_http_scgi_process_status_line;

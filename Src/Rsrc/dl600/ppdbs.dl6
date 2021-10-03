@@ -93,8 +93,8 @@ table UuidRef {
 	autolong ID;
 	raw UUID[16];
 index:
-    ID (unique);
-    UUID (unique);
+	ID (unique);
+	UUID (unique);
 file:
 	"uuidref.btr";
 	balanced;
@@ -108,8 +108,8 @@ table TextRef {
 	int16  ObjType;
 	int16  Prop;
 	int16  Lang;
-    wstring Text[125];
-    blob   VT[2048];
+	wstring Text[125];
+	blob   VT[2048];
 index:
 	ObjType, Prop, Text ignorecase (dup mod);
 	ObjType, Prop, ObjID, Lang (unique mod);
@@ -127,7 +127,7 @@ table UnxTextRef {
 	int16  Prop;
 	int16  Lang;
 	long   Size; // Длина текста, содержащегося в VT
-    blob   VT[2048];
+	blob   VT[2048];
 index:
 	ObjType, Prop, ObjID, Lang (unique mod);
 file:
@@ -280,7 +280,7 @@ file:
 // Государство
 // @obsolete (moved to table World)
 //
-table Country {         // size=76
+table Country {         // 
 	autolong ID;        // Ид
 	string Name[30];    // Название
 	string Abbr[10];    // Сокращенное название
@@ -326,7 +326,7 @@ file:
 // Населенный пункт
 // @obsolete (moved to table World)
 //
-table City {            // size=66
+table City {            // 
 	autolong ID;        // Ид
 	long   Country;     // Государство ->Country.ID
 	long   Region;      // Регион      ->Region.ID
@@ -417,66 +417,66 @@ table FiasAddrObj {
 	//
 	// Официальное наименование, формальное наименование и planecode храняться в TextRef со ссылкой на идентификатор записи
 	//
-    long   RecUuID;
+	long   RecUuID;
 	long   IdUuRef;         // AOGUID
-    long   ParentUuRef;     // PARENTGUID
-    long   PrevRecUuRef;
-    long   NextRecUuRef;
-    long   NameTRef;       // Ссылка на формальное наименование
-    long   OfcNameTRef;    // Ссылка на официальное наименование
-    long   SnTRef;         // Ссылка на короткое обозначение типа объекта (ул, г и т.д.)
-    long   Flags;
-    int16  LevelStatus;
-    int16  CenterStatus;
-    int16  ActionStatus;
-    int16  KladrCurStatus;  // Статус актуальности КЛАДР (2 цифры)
-    int16  IfnsJ;           // Код ИФНС ЮЛ
-    int16  TerrIfnsJ;       // Код территориального участка ИФНС ЮЛ
-    int16  IfnsI;           // Код ИФНС ФЛ
-    int16  TerrIfnsI;       // Код территориального участка ИФНС ФЛ
-    long   OkatoTRef;       //
-    long   OktmoTRef;       //
-    long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
-    long   KladrCodeTRef;   // Ссылка на код КЛАДР (без суффиксного признака актуальности)
-    date   UpdateDt;        // Дата внесения записи
-    date   StartDt;         // Начало действия записи
-    date   EndDt;           // Окончание действия записи
+	long   ParentUuRef;     // PARENTGUID
+	long   PrevRecUuRef;
+	long   NextRecUuRef;
+	long   NameTRef;       // Ссылка на формальное наименование
+	long   OfcNameTRef;    // Ссылка на официальное наименование
+	long   SnTRef;         // Ссылка на короткое обозначение типа объекта (ул, г и т.д.)
+	long   Flags;
+	int16  LevelStatus;
+	int16  CenterStatus;
+	int16  ActionStatus;
+	int16  KladrCurStatus;  // Статус актуальности КЛАДР (2 цифры)
+	int16  IfnsJ;           // Код ИФНС ЮЛ
+	int16  TerrIfnsJ;       // Код территориального участка ИФНС ЮЛ
+	int16  IfnsI;           // Код ИФНС ФЛ
+	int16  TerrIfnsI;       // Код территориального участка ИФНС ФЛ
+	long   OkatoTRef;       //
+	long   OktmoTRef;       //
+	long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
+	long   KladrCodeTRef;   // Ссылка на код КЛАДР (без суффиксного признака актуальности)
+	date   UpdateDt;        // Дата внесения записи
+	date   StartDt;         // Начало действия записи
+	date   EndDt;           // Окончание действия записи
 index:
-    RecUuID (unique mod);           // #0
+	RecUuID (unique mod);           // #0
 	IdUuRef (dup mod);              // #1
-    ParentUuRef (dup mod);          // #2
-    NameTRef (dup mod);             // #3
-    KladrCodeTRef (dup mod);        // #4
-    PostalCode (dup mod);           // #5
+	ParentUuRef (dup mod);          // #2
+	NameTRef (dup mod);             // #3
+	KladrCodeTRef (dup mod);        // #4
+	PostalCode (dup mod);           // #5
 file:
 	"fiasaddr.btr";
 }
 
 table FiasHouseObj {
 	long   IdUuRef;         //
-    long   ParentUuRef;     //
-    int32  IntStart;        // Начальное значение инервала
-    int32  IntEnd;          // Конечное значение интервала
-    int16  IntStatus;       // FIASHSEINTSTATUS_XXX 0 - запись отдельного дома; 1 - обычный интервал, включающий четные и нечетные номера домов; 2 - только четные значения; 3 - только нечетные значения
-    int16  EstStatus;       // FIASHSEESTSTATUS_XXX 0 - для интервала; 1 - владение; 2 - дом; 3 - домовладение; 4 - участок
-    int16  BuildStatus;     // FIASHSEBLDSTATUS_XXX 0 - для интервала; 1 - строение; 2 - сооружение; 3 - литер
-    long   NumTRef;         // Строка "номер дома;номер корпуса;номер строения"
-    int16  IfnsJ;           // Код ИФНС ЮЛ
-    int16  TerrIfnsJ;       // Код территориального участка ИФНС ЮЛ
-    int16  IfnsI;           // Код ИФНС ФЛ
-    int16  TerrIfnsI;       // Код территориального участка ИФНС ФЛ
-    long   OkatoTRef;       //
-    long   OktmoTRef;       //
-    long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
-    date   UpdateDt;        // Дата внесения записи
-    date   StartDt;         // Начало действия записи
-    date   EndDt;           // Окончание действия записи
+	long   ParentUuRef;     //
+	int32  IntStart;        // Начальное значение инервала
+	int32  IntEnd;          // Конечное значение интервала
+	int16  IntStatus;       // FIASHSEINTSTATUS_XXX 0 - запись отдельного дома; 1 - обычный интервал, включающий четные и нечетные номера домов; 2 - только четные значения; 3 - только нечетные значения
+	int16  EstStatus;       // FIASHSEESTSTATUS_XXX 0 - для интервала; 1 - владение; 2 - дом; 3 - домовладение; 4 - участок
+	int16  BuildStatus;     // FIASHSEBLDSTATUS_XXX 0 - для интервала; 1 - строение; 2 - сооружение; 3 - литер
+	long   NumTRef;         // Строка "номер дома;номер корпуса;номер строения"
+	int16  IfnsJ;           // Код ИФНС ЮЛ
+	int16  TerrIfnsJ;       // Код территориального участка ИФНС ЮЛ
+	int16  IfnsI;           // Код ИФНС ФЛ
+	int16  TerrIfnsI;       // Код территориального участка ИФНС ФЛ
+	long   OkatoTRef;       //
+	long   OktmoTRef;       //
+	long   PostalCode;      // Числовое представление почтового индекса (длина индекса в России равна 6 десятичным знакам)
+	date   UpdateDt;        // Дата внесения записи
+	date   StartDt;         // Начало действия записи
+	date   EndDt;           // Окончание действия записи
 index:
 	IdUuRef (unique mod);                                // #0
-    ParentUuRef (dup mod);                               // #1
-    IntStart, IntEnd, ParentUuRef (anysegnull dup mod);  // #2
-    NumTRef, ParentUuRef          (anysegnull dup mod);  // #3
-    PostalCode, ParentUuRef (dup mod);                    // #4
+	ParentUuRef (dup mod);                               // #1
+	IntStart, IntEnd, ParentUuRef (anysegnull dup mod);  // #2
+	NumTRef, ParentUuRef          (anysegnull dup mod);  // #3
+	PostalCode, ParentUuRef (dup mod);                    // #4
 file:
 	"fiashouse.btr";
 	compress;
@@ -485,29 +485,29 @@ file:
 // Descr: Таблица регистрации событий гео-трекинга.
 //
 table GeoTrack {
-    int16  ObjType;    // Тип объекта, с которым связана регистрация положения
-    int16  ExtObjType; // Тип дополнительного объекта, с которым связана регистрация положения
-    long   ObjID;      // ИД объекта, с которым связана регистрация положения
-    long   ExtObjID;   // ИД дополнительного объекта, с которым связана регистрация положения
-    long   Flags;      // Флаги положения
-    int16  ExtEvent;   // Дополнительное значение, обеспечивающее привязку регистрации местоположения к некоторому событию
-    int16  Dts2010;    // Дата в формате количества дней, прошедших с 1/1/2010
-    time   Tm;         // Время
-    double Latitude;   // Географическая широта  (degree)
-    double Longitude;  // Географическая долгота (degree)
-    int16  Altitude;   // Высота, m
-    int16  Speed;      // Скорость, dm/sec
+	int16  ObjType;    // Тип объекта, с которым связана регистрация положения
+	int16  ExtObjType; // Тип дополнительного объекта, с которым связана регистрация положения
+	long   ObjID;      // ИД объекта, с которым связана регистрация положения
+	long   ExtObjID;   // ИД дополнительного объекта, с которым связана регистрация положения
+	long   Flags;      // Флаги положения
+	int16  ExtEvent;   // Дополнительное значение, обеспечивающее привязку регистрации местоположения к некоторому событию
+	int16  Dts2010;    // Дата в формате количества дней, прошедших с 1/1/2010
+	time   Tm;         // Время
+	double Latitude;   // Географическая широта  (degree)
+	double Longitude;  // Географическая долгота (degree)
+	int16  Altitude;   // Высота, m
+	int16  Speed;      // Скорость, dm/sec
 index:
-    ObjType, ObjID, Dts2010, Tm (unique);
-    ExtObjType, ExtObjID, Dts2010, Tm (anysegnull unique);
+	ObjType, ObjID, Dts2010, Tm (unique);
+	ExtObjType, ExtObjID, Dts2010, Tm (anysegnull unique);
 file:
-    "geotrack.btr";
+	"geotrack.btr";
 }
 //
 // Персоналии
 // @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
-table Person {           // size=80+128
+table Person {           //
 	autolong ID;         // @id
 	string Name[128];    // Наименование @v6.2.2 [48]-->[128]
 	long   Status;       // Юридический статус           ->Ref(PPOBJ_PRSNSTATUS)
@@ -548,7 +548,7 @@ file:
 // банка прописывается в этой таблице с полем BankID == 0 и AccType == PPBAC_NOSTRO
 // @obsolete (moved to table Register)
 //
-table BankAccount_Pre9004 { // size=64
+table BankAccount_Pre9004 { //
 	autolong ID;           // Ид счета
 	long   PersonID;       // Владелец счета ->Person.ID
 	long   BankID;         // Банк           ->Person.ID
@@ -681,7 +681,7 @@ file:
 //
 // @obsolete (moved to table Reference)
 //
-table StaffList_Pre9003 {  // size=112
+table StaffList_Pre9003 {  // 
 	autolong ID;           // @id
 	long   OrgID;          // ->Person.ID Работодатель
 	long   DivisionID;     // ->Location.ID (LOCTYP_DIVISION)
@@ -705,7 +705,7 @@ file:
 	access=1;
 }
 
-table PersonPost {         // size=80 /*84*/
+table PersonPost {         // 
 	// @# (Finish && Closed) || (!Finsh && !Closed)
 	autolong ID;           // @id
 	string Code[16];       // Personal Code
@@ -736,7 +736,7 @@ file:
 //
 // Элементы штатных календарей
 //
-table StaffCalendar {      // size=28 // @v5.4.6 [20]-->[28]
+table StaffCalendar {      // 
 	long   CalID;          // Ид календаря //
 	long   ObjID;          // Ид объекта, с которым связано создание этой записи
 		// Если Flags & STCALEF_BYPEVENT, то тип объекта - персональное событие (PPOBJ_PERSONEVENT)
@@ -793,7 +793,7 @@ file:
 // Так или иначе, в течении ближайшего года, видимо, конвертации не избежать (пока не все проблемы видны)
 //
 //
-table Salary {             // size=76
+table Salary {             // 
 	autolong ID;           // @id
 	date   Beg;            // Начало периода расчета
 	date   End;            // Окончание периода расчета
@@ -1146,7 +1146,7 @@ file:
 // документов. Конкретная характеристика документа определяется полем Bill.OpID.
 // @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
-table Bill {            // size=128+160
+table Bill {            // 
 	autolong  ID;       // @id
 	string Code[48];    // Код документа // @v11.1.12 [24]-->[48]
 	date   Dt;          // Дата документа
@@ -1436,12 +1436,12 @@ table EgaisPerson {
 	string RarIdent[16];
 	string INN[16];
 	string KPP[16];
-    string UNP[16];
-    string RNN[16];
-    int16  CountryCode;
-    int16  RegionCode;
-    long   Flags; // EgaisPersonCore::rolefXXX
-    date   ActualDate;
+	string UNP[16];
+	string RNN[16];
+	int16  CountryCode;
+	int16  RegionCode;
+	long   Flags; // EgaisPersonCore::rolefXXX
+	date   ActualDate;
 index:
 	ID (unique);
 	RarIdent (dup mod);
@@ -1495,7 +1495,7 @@ index:
 	ID (unique);               // #0
 	GuidRef, UuidRef (unique); // #1
 	UuidRef, GuidRef (unique); // #2
-    Kind (dup);                // #3
+	Kind (dup);                // #3
 file:
 	"vetisent.btr";
 	access=1;
@@ -1507,10 +1507,10 @@ table VetisProduct {
 	long   ProductType;
 	long   ProductID;    // для ProductItem
 	long   SubProductID; // для ProductItem
-    long   ProducerLocID;
-    long   GostTRef;     // @selfreftext
-    string GTIN[16];
-    string ArCode[24];   // Артикул
+	long   ProducerLocID;
+	long   GostTRef;     // @selfreftext
+	string GTIN[16];
+	string ArCode[24];   // Артикул
 	raw    Reserve[88];
 index:
 	EntityID (unique);
@@ -1546,45 +1546,45 @@ table VetisDocument {
 	long   EntityID;
 	long   LinkBillID;
 	int16  LinkBillRow;
-    int16  VetisDocForm;
-    int16  VetisDocType;
-    int16  VetisDocStatus;
-    date   IssueDate;         // Дата документа
-    string IssueNumber[64];   // Номер документа
-    date   WayBillDate;       // Дата транспортного документа
-    string WayBillNumber[64]; // Номер транспортного документа
-    long   FromEntityID;      // -->VetisEntity.ID
-    long   FromEnterpriseID;  // -->VetisEntity.ID
-    long   ToEntityID;        // -->VetisEntity.ID
-    long   ToEnterpriseID;    // -->VetisEntity.ID
-    long   ProductID;         // -->VetisEntity.ID Группа продукции
-    long   SubProductID;      // -->VetisEntity.ID Подгруппа продукции
-    long   ProductItemID;     // -->VetisEntity.ID Собственно, продукт. Может быть не идентифицирован, но содержать только имя, тогда это имя
+	int16  VetisDocForm;
+	int16  VetisDocType;
+	int16  VetisDocStatus;
+	date   IssueDate;         // Дата документа
+	string IssueNumber[64];   // Номер документа
+	date   WayBillDate;       // Дата транспортного документа
+	string WayBillNumber[64]; // Номер транспортного документа
+	long   FromEntityID;      // -->VetisEntity.ID
+	long   FromEnterpriseID;  // -->VetisEntity.ID
+	long   ToEntityID;        // -->VetisEntity.ID
+	long   ToEnterpriseID;    // -->VetisEntity.ID
+	long   ProductID;         // -->VetisEntity.ID Группа продукции
+	long   SubProductID;      // -->VetisEntity.ID Подгруппа продукции
+	long   ProductItemID;     // -->VetisEntity.ID Собственно, продукт. Может быть не идентифицирован, но содержать только имя, тогда это имя
 		// сохраняется в UnxTextRef с кодом (PPOBJ_VETISENTITY, EntityID, txtprpProductItemName).
-    long   OrgCountryID;      // -->VetisEntity.ID Страна происхождения продукта
-    long   UOMID;             // -->VetisEntity.ID
-    int16  ProductType;       //
-    int16  TranspStrgType;    // Тип траснпортного хранения
-    int16  TranspType;        // Тип транспорта
-    int16  Reserve;           // @alignment
-    long   Flags;
-    double Volume;
-    int64  ManufDateFrom;     // SUniTime
-    int64  ManufDateTo;       // SUniTime
-    int64  ExpiryFrom;        // SUniTime
-    int64  ExpiryTo;          // SUniTime
-    long   ConfirmNameTRef;
-    long   ConfirmPostTRef;
-    long   PackingAmount;     //
-    long   LinkGoodsID;       // Ид сопоставленного строке товара
-    long   LinkFromPsnID;     // Ид персоналии-отправителя, сопоставленной строке
-    long   LinkFromDlvrLocID; // Ид адреса доставки отправителя
-    long   LinkToPsnID;       // Ид персоналии-получателя, сопоставленной строке
-    long   LinkToDlvrLocID;   // Ид адреса доставки получателя
-    long   OrgDocEntityID;    // -->VetisDocument.EntityID Ссылка на документ, по которому товар появился у нас
-    double AckVolume;         // @v10.5.8 @duetoreserve
-    guid   AppReqId;          // @v10.5.9 Ид запроса, по которому еще не получен ответ
-    long   DepDocEntityID;    // @v10.6.3 Идентификатор записи, которая зависит от данной записи (для документов производства, например).
+	long   OrgCountryID;      // -->VetisEntity.ID Страна происхождения продукта
+	long   UOMID;             // -->VetisEntity.ID
+	int16  ProductType;       //
+	int16  TranspStrgType;    // Тип траснпортного хранения
+	int16  TranspType;        // Тип транспорта
+	int16  Reserve;           // @alignment
+	long   Flags;
+	double Volume;
+	int64  ManufDateFrom;     // SUniTime
+	int64  ManufDateTo;       // SUniTime
+	int64  ExpiryFrom;        // SUniTime
+	int64  ExpiryTo;          // SUniTime
+	long   ConfirmNameTRef;
+	long   ConfirmPostTRef;
+	long   PackingAmount;     //
+	long   LinkGoodsID;       // Ид сопоставленного строке товара
+	long   LinkFromPsnID;     // Ид персоналии-отправителя, сопоставленной строке
+	long   LinkFromDlvrLocID; // Ид адреса доставки отправителя
+	long   LinkToPsnID;       // Ид персоналии-получателя, сопоставленной строке
+	long   LinkToDlvrLocID;   // Ид адреса доставки получателя
+	long   OrgDocEntityID;    // -->VetisDocument.EntityID Ссылка на документ, по которому товар появился у нас
+	double AckVolume;         // @v10.5.8 @duetoreserve
+	guid   AppReqId;          // @v10.5.9 Ид запроса, по которому еще не получен ответ
+	long   DepDocEntityID;    // @v10.6.3 Идентификатор записи, которая зависит от данной записи (для документов производства, например).
 	raw    Reserve2[8];       // @v10.5.8 [36]-->[28] // @v10.5.9 [28]-->[12] // @v10.6.3 [12]-->[8]
 index:
 	EntityID (unique);                                 // #0
@@ -1593,10 +1593,10 @@ index:
 	WayBillDate, WayBillNumber (dup mod allsegnull);   // #3
 	FromEntityID (dup mod anysegnull);                 // #4
 	FromEnterpriseID (dup mod anysegnull);             // #5
-    ToEntityID (dup mod anysegnull);                   // #6
-    ToEnterpriseID (dup mod anysegnull);               // #7
-    ProductItemID (dup mod anysegnull);                // #8
-    OrgDocEntityID (dup mod anysegnull);               // #9
+	ToEntityID (dup mod anysegnull);                   // #6
+	ToEnterpriseID (dup mod anysegnull);               // #7
+	ProductItemID (dup mod anysegnull);                // #8
+	OrgDocEntityID (dup mod anysegnull);               // #9
 file:
 	"vetisdoc.btr";
 	access=1;
@@ -5212,7 +5212,7 @@ index:
 	SeqID, DbID, SessID (unique mod);
 	DbID, SessID, FuncID, Dt, Tm (dup mod);
 	DbSymb, Dt, Tm (dup mod);
-    Dt, Tm (dup mod);
+	Dt, Tm (dup mod);
 	FuncName (dup mod);
 file:
 	"tmp_uprf.btr";

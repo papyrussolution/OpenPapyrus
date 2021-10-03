@@ -734,7 +734,7 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 	const SSL_CIPHER * cp;
 	int reverse = 0;
 #ifdef CIPHER_DEBUG
-	fprintf(stderr, "Applying rule %d with %08x/%08x/%08x/%08x/%08x %08x (%d)\n",
+	slfprintf_stderr("Applying rule %d with %08x/%08x/%08x/%08x/%08x %08x (%d)\n",
 	    rule, alg_mkey, alg_auth, alg_enc, alg_mac, min_tls, algo_strength, strength_bits);
 #endif
 	if(rule == CIPHER_DEL || rule == CIPHER_BUMP)
@@ -773,7 +773,7 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 		}
 		else {
 #ifdef CIPHER_DEBUG
-			fprintf(stderr, "\nName: %s:\nAlgo = %08x/%08x/%08x/%08x/%08x Algo_strength = %08x\n",
+			slfprintf_stderr("\nName: %s:\nAlgo = %08x/%08x/%08x/%08x/%08x Algo_strength = %08x\n",
 			    cp->name, cp->algorithm_mkey, cp->algorithm_auth, cp->algorithm_enc, cp->algorithm_mac, cp->min_tls, cp->algo_strength);
 #endif
 			if(cipher_id != 0 && (cipher_id != cp->id))
@@ -797,7 +797,7 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 		}
 
 #ifdef CIPHER_DEBUG
-		fprintf(stderr, "Action = %d\n", rule);
+		slfprintf_stderr("Action = %d\n", rule);
 #endif
 
 		/* add the cipher if it has not been added yet. */
@@ -1566,7 +1566,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 				return NULL;
 			}
 #ifdef CIPHER_DEBUG
-			fprintf(stderr, "<%s>\n", curr->cipher->name);
+			slfprintf_stderr("<%s>\n", curr->cipher->name);
 #endif
 		}
 	}

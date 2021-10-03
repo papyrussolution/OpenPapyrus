@@ -34,7 +34,7 @@ bool TabBarPlus::_isCtrlMultiLine = false;
 COLORREF TabBarPlus::_activeTextColour = ::GetSysColor(COLOR_BTNTEXT);
 COLORREF TabBarPlus::_activeTopBarFocusedColour = RGB(250, 170, 60);
 COLORREF TabBarPlus::_activeTopBarUnfocusedColour = RGB(250, 210, 150);
-COLORREF TabBarPlus::_inactiveTextColour = grey;
+COLORREF TabBarPlus::_inactiveTextColour = GetColorRef(SClrGrey); //grey
 COLORREF TabBarPlus::_inactiveBgColour = RGB(192, 192, 192);
 
 HWND TabBarPlus::_hwndArray[nbCtrlMax] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};

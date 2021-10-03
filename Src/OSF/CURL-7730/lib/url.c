@@ -621,7 +621,7 @@ CURLcode Curl_open(struct Curl_easy ** curl)
 	data = (struct Curl_easy *)SAlloc::C(1, sizeof(struct Curl_easy));
 	if(!data) {
 		/* this is a very serious error */
-		DEBUGF(fprintf(stderr, "Error: calloc of Curl_easy failed\n"));
+		DEBUGF(slfprintf_stderr("Error: calloc of Curl_easy failed\n"));
 		return CURLE_OUT_OF_MEMORY;
 	}
 
@@ -629,7 +629,7 @@ CURLcode Curl_open(struct Curl_easy ** curl)
 
 	result = Curl_resolver_init(data, &data->state.resolver);
 	if(result) {
-		DEBUGF(fprintf(stderr, "Error: resolver_init failed\n"));
+		DEBUGF(slfprintf_stderr("Error: resolver_init failed\n"));
 		SAlloc::F(data);
 		return result;
 	}

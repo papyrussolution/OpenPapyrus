@@ -652,8 +652,8 @@ int main(void)
 		for(i = 0; i<ndata; i++) printf(" %i", data[i]);
 		printf(" 0\n");
 		/*Write the correct output to compare the decoder against.*/
-		fprintf(stderr, "Success!\n", nerrors);
-		for(i = 0; i<ndata; i++) fprintf(stderr, "%i%s", data[i], i+1<ndata ? " " : "\n");
+		slfprintf_stderr("Success!\n", nerrors);
+		for(i = 0; i<ndata; i++) slfprintf_stderr("%i%s", data[i], i+1<ndata ? " " : "\n");
 		if(npar>0) {
 			/*Corrupt it.*/
 			nerrors = rand()%(npar+1);
@@ -664,15 +664,15 @@ int main(void)
 				   the corrupt codeword, though, which is the very code we're trying to
 				   test.*/
 				if(nerrors<=npar>>1) {
-					fprintf(stderr, "Success!\n", nerrors);
+					slfprintf_stderr("Success!\n", nerrors);
 					for(i = 0; i<ndata; i++) {
-						fprintf(stderr, "%i%s", data[i], i+1<ndata ? " " : "\n");
+						slfprintf_stderr("%i%s", data[i], i+1<ndata ? " " : "\n");
 					}
 				}
-				else fprintf(stderr, "Failure.\n");
-				fprintf(stderr, "Success!\n", nerrors);
+				else slfprintf_stderr("Failure.\n");
+				slfprintf_stderr("Success!\n", nerrors);
 				for(i = 0; i<ndata; i++) 
-					fprintf(stderr, "%i%s", data[i], i+1<ndata ? " " : "\n");
+					slfprintf_stderr("%i%s", data[i], i+1<ndata ? " " : "\n");
 				for(i = 0; i<ndata; i++) 
 					epos[i] = i;
 				for(i = 0; i<nerrors; i++) {

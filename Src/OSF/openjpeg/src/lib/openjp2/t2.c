@@ -683,7 +683,7 @@ static OPJ_BOOL opj_t2_encode_packet(OPJ_UINT32 tileno,
 
 #ifdef DEBUG_VERBOSE
 	if(p_t2_mode == FINAL_PASS) {
-		fprintf(stderr,
+		slfprintf_stderr(
 		    "encode packet compono=%d, resno=%d, precno=%d, layno=%d\n",
 		    compno, resno, precno, layno);
 	}

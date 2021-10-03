@@ -324,22 +324,13 @@ ft_corner_is_flat(FT_Pos in_x,
 /*
  * Return the most significant bit index.
  */
-
 #ifndef  FT_CONFIG_OPTION_NO_ASSEMBLER
-
-#if defined( __GNUC__ )                                          && \
-	( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ) )
-
-#if FT_SIZEOF_INT == 4
-
-#define FT_MSB(x)  ( 31 - __builtin_clz(x) )
-
-#elif FT_SIZEOF_LONG == 4
-
-#define FT_MSB(x)  ( 31 - __builtin_clzl(x) )
-
-#endif /* __GNUC__ */
-
+#if defined( __GNUC__ ) && ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ) )
+	#if FT_SIZEOF_INT == 4
+		#define FT_MSB(x)  ( 31 - __builtin_clz(x) )
+	#elif FT_SIZEOF_LONG == 4
+		#define FT_MSB(x)  ( 31 - __builtin_clzl(x) )
+	#endif /* __GNUC__ */
 #elif defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
 
 #if FT_SIZEOF_INT == 4
@@ -350,9 +341,7 @@ ft_corner_is_flat(FT_Pos in_x,
 static __inline FT_Int32 FT_MSB_i386(FT_UInt32 x)
 {
 	unsigned long where;
-
 	_BitScanReverse(&where, x);
-
 	return (FT_Int32)where;
 }
 
@@ -439,25 +428,17 @@ FT_SqrtFixed(FT_Int32 x);
 #define NEG_LONG(a)                                \
 	(FT_Long)( (FT_ULong)0 - (FT_ULong)(a) )
 
-#define ADD_INT32(a, b)                               \
-	(FT_Int32)( (FT_UInt32)(a) + (FT_UInt32)(b) )
-#define SUB_INT32(a, b)                               \
-	(FT_Int32)( (FT_UInt32)(a) - (FT_UInt32)(b) )
-#define MUL_INT32(a, b)                               \
-	(FT_Int32)( (FT_UInt32)(a) * (FT_UInt32)(b) )
-#define NEG_INT32(a)                                  \
-	(FT_Int32)( (FT_UInt32)0 - (FT_UInt32)(a) )
+#define ADD_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) + (FT_UInt32)(b) )
+#define SUB_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) - (FT_UInt32)(b) )
+#define MUL_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) * (FT_UInt32)(b) )
+#define NEG_INT32(a)    (FT_Int32)( (FT_UInt32)0 - (FT_UInt32)(a) )
 
 #ifdef FT_LONG64
 
-#define ADD_INT64(a, b)                               \
-	(FT_Int64)( (FT_UInt64)(a) + (FT_UInt64)(b) )
-#define SUB_INT64(a, b)                               \
-	(FT_Int64)( (FT_UInt64)(a) - (FT_UInt64)(b) )
-#define MUL_INT64(a, b)                               \
-	(FT_Int64)( (FT_UInt64)(a) * (FT_UInt64)(b) )
-#define NEG_INT64(a)                                  \
-	(FT_Int64)( (FT_UInt64)0 - (FT_UInt64)(a) )
+#define ADD_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) + (FT_UInt64)(b) )
+#define SUB_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) - (FT_UInt64)(b) )
+#define MUL_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) * (FT_UInt64)(b) )
+#define NEG_INT64(a)    (FT_Int64)( (FT_UInt64)0 - (FT_UInt64)(a) )
 
 #endif /* FT_LONG64 */
 

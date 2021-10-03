@@ -257,17 +257,17 @@ static void ecc200placementbit(int * array, const int NR, const int NC, int r, i
 	// Necessary for 26x32,26x40,26x48,36x120,36x144,72x120,72x144
 	if(r >= NR) {
 #ifdef DEBUG
-		fprintf(stderr, "r >= NR:%i,%i at r=%i->", p, b, r);
+		slfprintf_stderr("r >= NR:%i,%i at r=%i->", p, b, r);
 #endif
 		r -= NR;
 #ifdef DEBUG
-		fprintf(stderr, "%i,c=%i\n", r, c);
+		slfprintf_stderr("%i,c=%i\n", r, c);
 #endif
 	}
 #ifdef DEBUG
 	if(0 != array[r * NC + c]) {
 		int a = array[r * NC + c];
-		fprintf(stderr, "Double:%i,%i->%i,%i at r=%i,c=%i\n", a >> 3, a & 7, p, b, r, c);
+		slfprintf_stderr("Double:%i,%i->%i,%i at r=%i,c=%i\n", a >> 3, a & 7, p, b, r, c);
 		return;
 	}
 #endif
@@ -1390,11 +1390,11 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 		for(y = NR - 1; y >= 0; y--) {
 			for(int x = 0; x < NC; x++) {
 				if(x != 0)
-					fprintf(stderr, "|");
+					slfprintf_stderr("|");
 				int v = places[(NR - y - 1) * NC + x];
-				fprintf(stderr, "%3d.%2d", (v >> 3), 8 - (v & 7));
+				slfprintf_stderr("%3d.%2d", (v >> 3), 8 - (v & 7));
 			}
-			fprintf(stderr, "\n");
+			slfprintf_stderr("\n");
 		}
 #endif
 		for(y = 0; y < NR; y++) {

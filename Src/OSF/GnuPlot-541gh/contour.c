@@ -54,9 +54,9 @@ static void calc_min_max(int numIsoLines/* number of iso-lines input */, const i
 		}
 		pIsoLines = pIsoLines->next;
 	}
-	// fprintf(stderr," x: %g, %g\n", (*xx_min), (*xx_max));
-	// fprintf(stderr," y: %g, %g\n", (*yy_min), (*yy_max));
-	// fprintf(stderr," z: %g, %g\n", (*zz_min), (*zz_max));
+	// fprintf(stderr, " x: %g, %g\n", (*xx_min), (*xx_max));
+	// fprintf(stderr, " y: %g, %g\n", (*yy_min), (*yy_max));
+	// fprintf(stderr, " z: %g, %g\n", (*zz_min), (*zz_max));
 }
 #endif // } 0
 static void calc_min_max(int numIsoLines/* number of iso-lines input */, const iso_curve * pIsoLines/* iso-lines input */, SPoint3R & rMin, SPoint3R & rMax/* min/max values in/out */)
@@ -79,9 +79,9 @@ static void calc_min_max(int numIsoLines/* number of iso-lines input */, const i
 		}
 		pIsoLines = pIsoLines->next;
 	}
-	// fprintf(stderr," x: %g, %g\n", (*xx_min), (*xx_max));
-	// fprintf(stderr," y: %g, %g\n", (*yy_min), (*yy_max));
-	// fprintf(stderr," z: %g, %g\n", (*zz_min), (*zz_max));
+	// fprintf(stderr, " x: %g, %g\n", (*xx_min), (*xx_max));
+	// fprintf(stderr, " y: %g, %g\n", (*yy_min), (*yy_max));
+	// fprintf(stderr, " z: %g, %g\n", (*zz_min), (*zz_max));
 }
 // 
 // Entry routine to this whole set of contouring module.

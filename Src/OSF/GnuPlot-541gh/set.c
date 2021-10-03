@@ -1260,7 +1260,7 @@ void GnuPlot::SetEncoding()
 	char * l = NULL;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		encoding = S_ENC_DEFAULT;
+		GPT._Encoding = S_ENC_DEFAULT;
 #ifdef HAVE_LOCALE_H
 	}
 	else if(Pgm.EqualsCur("locale")) {
@@ -1271,7 +1271,7 @@ void GnuPlot::SetEncoding()
 		if(newenc == S_ENC_INVALID)
 			IntWarn(NO_CARET, "Error converting locale \"%s\" to codepage number", l);
 		else
-			encoding = newenc;
+			GPT._Encoding = newenc;
 		Pgm.Shift();
 #endif
 	}
@@ -1290,7 +1290,7 @@ void GnuPlot::SetEncoding()
 		}
 		if(temp == S_ENC_INVALID)
 			IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
-		encoding = (set_encoding_id)temp;
+		GPT._Encoding = (set_encoding_id)temp;
 	}
 	InitSpecialChars();
 }
@@ -2491,7 +2491,7 @@ void GnuPlot::SetMissing()
 //static void set_monochrome()
 void GnuPlot::SetMonochrome()
 {
-	monochrome = TRUE;
+	GPT.Flags |= GpTerminalBlock::fMonochrome;
 	if(!Pgm.EndOfCommand())
 		Pgm.Shift();
 	if(Pgm.AlmostEqualsCur("def$ault")) {
@@ -2732,18 +2732,18 @@ void GnuPlot::SetOutput()
 {
 	char * testfile = 0;
 	Pgm.Shift();
-	if(multiplot)
+	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		IntErrorCurToken("you can't change the output in multiplot mode");
 	if(Pgm.EndOfCommand()) {    /* no file specified */
 		TermSetOutput(term, NULL);
-		ZFREE(outstr); // means STDOUT 
+		ZFREE(GPT.P_OutStr); // means STDOUT 
 	}
 	else if((testfile = TryToGetString())) {
 		GpExpandTilde(&testfile);
 		TermSetOutput(term, testfile);
-		if(testfile != outstr) {
+		if(testfile != GPT.P_OutStr) {
 			SAlloc::F(testfile);
-			testfile = outstr;
+			testfile = GPT.P_OutStr;
 		}
 		// if we get here then it worked, and outstr now = testfile 
 	}
@@ -4544,7 +4544,7 @@ void GnuPlot::SetTable()
 void GnuPlot::SetTerminal()
 {
 	Pgm.Shift();
-	if(multiplot)
+	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		IntErrorCurToken("You can't change the terminal in multiplot mode");
 	if(Pgm.EndOfCommand()) {
 		ListTerms();
@@ -4570,10 +4570,10 @@ void GnuPlot::SetTerminal()
 			// get optional mode parameters
 			// not all drivers reset the option string before
 			// strcat-ing to it, so we reset it for them
-			*term_options = 0;
+			PTR32(GPT.TermOptions)[0] = 0;
 			term->options(term, this);
-			if(_Plt.interactive && *term_options)
-				fprintf(stderr, "Options are '%s'\n", term_options);
+			if(_Plt.interactive && GPT.TermOptions[0])
+				fprintf(stderr, "Options are '%s'\n", GPT.TermOptions);
 			if(term->flags & TERM_MONOCHROME)
 				InitMonochrome();
 			// Sanity check:
@@ -4661,7 +4661,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 			IntErrorCurToken("This option cannot be changed using 'set termoption'");
 		}
 		if(ok_to_call_terminal) {
-			*term_options = 0;
+			PTR32(GPT.TermOptions)[0] = 0;
 			(pTerm->options)(pTerm, this);
 		}
 		Pgm.NumTokens = save_end_of_line;

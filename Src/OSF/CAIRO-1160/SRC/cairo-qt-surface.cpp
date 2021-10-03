@@ -380,7 +380,7 @@ static cairo_surface_t * _cairo_qt_surface_create_similar(void * abstract_surfac
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 	bool use_pixmap;
-	D(fprintf(stderr, "q[%p] create_similar: %d %d [%d] -> ", abstract_surface, width, height, content));
+	D(slfprintf_stderr("q[%p] create_similar: %d %d [%d] -> ", abstract_surface, width, height, content));
 	use_pixmap = qs->image == NULL;
 	if(use_pixmap) {
 		switch(content) {
@@ -401,7 +401,7 @@ static cairo_surface_t * _cairo_qt_surface_create_similar(void * abstract_surfac
 
 		/* XXX result->content is always content. ??? */
 		if(result->content == content) {
-			D(fprintf(stderr, "qpixmap content: %d\n", content));
+			D(slfprintf_stderr("qpixmap content: %d\n", content));
 			return result;
 		}
 
@@ -409,7 +409,7 @@ static cairo_surface_t * _cairo_qt_surface_create_similar(void * abstract_surfac
 		cairo_surface_destroy(result);
 	}
 
-	D(fprintf(stderr, "qimage\n"));
+	D(slfprintf_stderr("qimage\n"));
 	return cairo_qt_surface_create_with_qimage
 		       (_cairo_format_from_content(content), width, height);
 }
@@ -418,7 +418,7 @@ static cairo_status_t _cairo_qt_surface_finish(void * abstract_surface)
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] finish\n", abstract_surface));
+	D(slfprintf_stderr("q[%p] finish\n", abstract_surface));
 
 	/* Only delete p if we created it */
 	if(qs->image || qs->pixmap)
@@ -452,7 +452,7 @@ static cairo_status_t _cairo_qt_surface_acquire_source_image(void * abstract_sur
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] acquire_source_image\n", abstract_surface));
+	D(slfprintf_stderr("q[%p] acquire_source_image\n", abstract_surface));
 
 	*image_extra = NULL;
 
@@ -495,7 +495,7 @@ static void _cairo_qt_surface_release_source_image(void * abstract_surface,
 {
 	//cairo_qt_surface_t *qs = (cairo_qt_surface_t *) abstract_surface;
 
-	D(fprintf(stderr, "q[%p] release_source_image\n", abstract_surface));
+	D(slfprintf_stderr("q[%p] release_source_image\n", abstract_surface));
 
 	cairo_surface_destroy(&image->base);
 }
@@ -591,7 +591,7 @@ static cairo_image_surface_t * _cairo_qt_surface_map_to_image(void * abstract_su
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 	QImage * qimg = NULL;
 
-	D(fprintf(stderr, "q[%p] acquire_dest_image\n", abstract_surface));
+	D(slfprintf_stderr("q[%p] acquire_dest_image\n", abstract_surface));
 
 	if(qs->image_equiv)
 		return _cairo_image_surface_map_to_image(qs->image_equiv,
@@ -632,7 +632,7 @@ static cairo_int_status_t _cairo_qt_surface_unmap_image(void * abstract_surface,
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] release_dest_image\n", abstract_surface));
+	D(slfprintf_stderr("q[%p] release_dest_image\n", abstract_surface));
 
 	if(!qs->image_equiv) {
 		struct _qimage_surface * qimage = (struct _qimage_surface  *)image;
@@ -739,7 +739,7 @@ static cairo_int_status_t _cairo_qt_surface_set_clip(cairo_qt_surface_t * qs,
 {
 	cairo_int_status_t status;
 
-	D(fprintf(stderr, "q[%p] intersect_clip_path %s\n", abstract_surface, path ? "(path)" : "(clear)"));
+	D(slfprintf_stderr("q[%p] intersect_clip_path %s\n", abstract_surface, path ? "(path)" : "(clear)"));
 
 	if(clip == NULL) {
 		_cairo_surface_clipper_reset(&qs->clipper);
@@ -1213,7 +1213,7 @@ static cairo_int_status_t _cairo_qt_surface_paint(void * abstract_surface,
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 	cairo_int_status_t status;
 
-	D(fprintf(stderr, "q[%p] paint op:%s\n", abstract_surface, _opstr(op)));
+	D(slfprintf_stderr("q[%p] paint op:%s\n", abstract_surface, _opstr(op)));
 
 	if(!_op_is_supported(qs, op))
 		return _cairo_surface_fallback_paint(abstract_surface, op, source, clip);
@@ -1247,7 +1247,7 @@ static cairo_int_status_t _cairo_qt_surface_fill(void * abstract_surface,
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] fill op:%s\n", abstract_surface, _opstr(op)));
+	D(slfprintf_stderr("q[%p] fill op:%s\n", abstract_surface, _opstr(op)));
 
 	if(!_op_is_supported(qs, op))
 		return _cairo_surface_fallback_fill(abstract_surface, op,
@@ -1291,7 +1291,7 @@ static cairo_int_status_t _cairo_qt_surface_stroke(void * abstract_surface,
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] stroke op:%s\n", abstract_surface, _opstr(op)));
+	D(slfprintf_stderr("q[%p] stroke op:%s\n", abstract_surface, _opstr(op)));
 
 	if(!_op_is_supported(qs, op))
 		return _cairo_surface_fallback_stroke(abstract_surface, op,
@@ -1382,7 +1382,7 @@ static cairo_int_status_t _cairo_qt_surface_mask(void * abstract_surface,
 {
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
-	D(fprintf(stderr, "q[%p] mask op:%s\n", abstract_surface, _opstr(op)));
+	D(slfprintf_stderr("q[%p] mask op:%s\n", abstract_surface, _opstr(op)));
 
 	if(qs->p && mask->type == CAIRO_PATTERN_TYPE_SOLID) {
 		cairo_solid_pattern_t * solid_mask = (cairo_solid_pattern_t*)mask;
@@ -1466,7 +1466,7 @@ cairo_surface_t * cairo_qt_surface_create(QPainter * painter)
 	// Save so that we can always get back to the original state
 	qs->p->save();
 	qs->window = painter->window();
-	D(fprintf(stderr, "qpainter_surface_create: window: [%d %d %d %d] pd:%d\n", qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(), qs->supports_porter_duff));
+	D(slfprintf_stderr("qpainter_surface_create: window: [%d %d %d %d] pd:%d\n", qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(), qs->supports_porter_duff));
 	return &qs->base;
 }
 
@@ -1487,7 +1487,7 @@ cairo_surface_t * cairo_qt_surface_create_with_qimage(cairo_format_t format, int
 	}
 	qs->image_equiv = cairo_image_surface_create_for_data(image->bits(), format, width, height, image->bytesPerLine());
 	qs->window = QRect(0, 0, width, height);
-	D(fprintf(stderr, "qpainter_surface_create: qimage: [%d %d %d %d] pd:%d\n", qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(), qs->supports_porter_duff));
+	D(slfprintf_stderr("qpainter_surface_create: qimage: [%d %d %d %d] pd:%d\n", qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(), qs->supports_porter_duff));
 	return &qs->base;
 }
 
@@ -1522,7 +1522,7 @@ cairo_surface_t * cairo_qt_surface_create_with_qpixmap(cairo_content_t content, 
 
 	qs->window = QRect(0, 0, width, height);
 
-	D(fprintf(stderr, "qpainter_surface_create: qpixmap: [%d %d %d %d] pd:%d\n",
+	D(slfprintf_stderr("qpainter_surface_create: qpixmap: [%d %d %d %d] pd:%d\n",
 	    qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(),
 	    qs->supports_porter_duff));
 

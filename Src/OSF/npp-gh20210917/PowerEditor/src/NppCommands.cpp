@@ -943,10 +943,8 @@ void Notepad_plus::command(int id)
 			    // STOP !!!
 			    _mainEditView.execute(SCI_STOPRECORD);
 			    _subEditView.execute(SCI_STOPRECORD);
-
 			    _mainEditView.execute(SCI_SETCURSOR, static_cast<WPARAM>(SC_CURSORNORMAL));
 			    _subEditView.execute(SCI_SETCURSOR, static_cast<WPARAM>(SC_CURSORNORMAL));
-
 			    _recordingMacro = false;
 			    _runMacroDlg.initMacroList();
 		    }
@@ -954,7 +952,6 @@ void Notepad_plus::command(int id)
 			    _mainEditView.execute(SCI_SETCURSOR, 9);
 			    _subEditView.execute(SCI_SETCURSOR, 9);
 			    _macro.clear();
-
 			    // START !!!
 			    _mainEditView.execute(SCI_STARTRECORD);
 			    _subEditView.execute(SCI_STARTRECORD);
@@ -968,13 +965,11 @@ void Notepad_plus::command(int id)
 			    macroPlayback(_macro);
 		    }
 		    break;
-
 		case IDM_MACRO_RUNMULTIMACRODLG:
 	    {
 		    if(!_recordingMacro) {    // if we're not currently recording, then playback the recorded keystrokes
 			    bool isFirstTime = !_runMacroDlg.isCreated();
 			    _runMacroDlg.doDialog(_nativeLangSpeaker.isRTL());
-
 			    if(isFirstTime) {
 				    _nativeLangSpeaker.changeDlgLang(_runMacroDlg.getHSelf(), "MultiMacro");
 			    }
@@ -982,16 +977,13 @@ void Notepad_plus::command(int id)
 		    }
 	    }
 	    break;
-
 		case IDM_MACRO_SAVECURRENTMACRO:
-	    {
 		    if(addCurrentMacro()) {
 			    _recordingSaved = true;
 			    _runMacroDlg.initMacroList();
 			    checkMacroState();
 		    }
 		    break;
-	    }
 		case IDM_EDIT_FULLPATHTOCLIP:
 		case IDM_EDIT_CURRENTDIRTOCLIP:
 		case IDM_EDIT_FILENAMETOCLIP:
@@ -2596,19 +2588,22 @@ void Notepad_plus::command(int id)
 		    if(_pEditView->execute(SCI_GETSELECTIONS) == 1) {
 			    size_t selectionStart = _pEditView->execute(SCI_GETSELECTIONSTART);
 			    size_t selectionEnd = _pEditView->execute(SCI_GETSELECTIONEND);
-
 			    int32_t strLen = static_cast<int32_t>(selectionEnd - selectionStart);
 			    if(strLen) {
 				    int strSize = strLen + 1;
 				    char * selectedStr = new char[strSize];
 				    _pEditView->execute(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(selectedStr));
-
-				    MD5 md5;
-				    std::string md5ResultA = md5.digestString(selectedStr);
-				    std::wstring md5ResultW(md5ResultA.begin(), md5ResultA.end());
-				    str2Clipboard(md5ResultW, _pPublicInterface->getHSelf());
-
-				    delete [] selectedStr;
+					const binary128 __md5 = SlHash::Md5(0, selectedStr, sstrlen(selectedStr));
+					SString __md5_str;
+					__md5_str.CatHex(&__md5, sizeof(__md5));
+				    //MD5 md5;
+				    //std::string md5ResultA = md5.digestString(selectedStr);
+					//bool __debug_eq = __md5_str.IsEqual(md5ResultA.c_str());
+					std::string md5ResultA(__md5_str.cptr());
+					//
+					std::wstring md5ResultW(md5ResultA.begin(), md5ResultA.end());
+					str2Clipboard(md5ResultW, _pPublicInterface->getHSelf());
+					delete [] selectedStr;
 			    }
 		    }
 	    }

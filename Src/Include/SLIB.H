@@ -3634,6 +3634,7 @@ public:
 	int    FASTCALL IsEqNC(const SString & rS) const;
 	int    FASTCALL IsEqNC(const char * pS) const;
 	bool   FASTCALL IsEqiAscii(const char * pS) const;
+	bool   FASTCALL IsEqiUtf8(const char * pS) const;
 	//
 	// Descr: Возвращает !0 если начиная с позиции pos в строке содержится образец pPattern.
 	//   Если pos выходит за границу строки this, то результат всегда 0.
@@ -3994,6 +3995,7 @@ public:
 	SString & FASTCALL CatHex(uint64 val);
 	SString & FASTCALL CatHex(uint8 val);
 	SString & FASTCALL CatHexUpper(uint8 val);
+	SString & FASTCALL CatHex(const void * pBinary, size_t size);
 	//
 	// Descr: Конкатенация конструкции {"%d.%d.%d", ver, mjr, mnr}
 	//
@@ -4123,6 +4125,7 @@ private:
 	//   { prev_len = this->Len(); assert(this->Len() == this->CharToQp(c) + prev_len); }
 	//
 	size_t FASTCALL CharToQp(char c);
+	bool   FASTCALL Helper_IsEqiAscii(const char * pS, size_t slen) const;
 
 	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
@@ -4134,6 +4137,7 @@ int slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va);
 int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
 int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...);
 int cdecl slfprintf(FILE *, const char * pFormat, ...);
+int cdecl slfprintf_stderr(const char * pFormat, ...);
 //
 //
 //
@@ -4536,6 +4540,7 @@ const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
 wchar_t  * FASTCALL sstrchr(wchar_t * pStr, wchar_t c);
 char  * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
+wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2.
 //   Если pS1 == pS2, то результат !0
@@ -4592,7 +4597,7 @@ bool   FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen
 //   !0  - все len символов в pS находятся в диапазоне [0..0x7f]
 //    0  - как минимум один символ в pS - не ascii (вне диапазона [0..0x7f])
 //
-size_t FASTCALL sisascii(const char * pS, size_t len);
+bool   FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
 // @v10.0.0 const  char * skipws(const char * pStr, size_t * pPos);
@@ -4663,13 +4668,13 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 //
-int    FASTCALL ishex(char c);
-int    FASTCALL ishexw(wchar_t c);
+bool   FASTCALL ishex(char c);
+bool   FASTCALL ishexw(wchar_t c);
 //
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
-int    FASTCALL isdec(char c);
-int    FASTCALL isdecw(wchar_t c);
+bool   FASTCALL isdec(char c);
+bool   FASTCALL isdecw(wchar_t c);
 //
 // Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнацдатиричным знаком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
@@ -6024,7 +6029,7 @@ public:
 	{
 		memzero(D, sizeof(D));
 	}
-	TSBinary(TSBinary <BYTESIZE> & rS)
+	TSBinary(const TSBinary <BYTESIZE> & rS)
 	{
 		memcpy(D, rS.D, sizeof(D));
 	}
@@ -6188,7 +6193,17 @@ public:
 		static uint32 * P_Tab_Crc32;
 		static uint64 * P_Tab_Crc64;
 	};
-
+	//
+	// Общий подход к использованию следующих функций:
+	//  -- если надо получить хэш по фиксированному буферу за один проход, то вызываем 
+	//     result = Fun(0, pData, dataSize)
+	//  -- если необходимо получить хэш в несколько итераций, то делаем так:
+	//     SlHash hs;
+	//     while(isThereMoreDate) {
+	//       Func(&hs, data_chunk_ptr, data_chunk_size);
+	//     }
+	//     result = Func(&hs, 0, 0); // final
+	//
 	static uint8  FASTCALL CRC8(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
@@ -6236,7 +6251,9 @@ public:
 			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
 		tagFace                    = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
 		tagConfig                  = 29,  // json Конфигурация
-		tagPrivateConfig           = 30   // @reserve json Приватная конфигурация //
+		tagPrivateConfig           = 30,  // @reserve json Приватная конфигурация //
+		tagRoundTripIdent          = 31   // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
+			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -12634,144 +12651,149 @@ struct UiRelRect { // @noctr
 //
 //
 enum SColourCollection { // 0x00rrggbb
-	SClrAliceblue      = 0x00f0f8ff,
-	SClrAntiquewhite   = 0x00faebd7,
-	SClrAqua           = 0x0000ffff,
-	SClrAquamarine     = 0x007fffd4,
-	SClrAzure          = 0x00f0ffff,
-	SClrBeige          = 0x00f5f5dc,
-	SClrBisque         = 0x00ffe4c4,
-	SClrBlack          = 0x00000000,
-	SClrBlanchedalmond = 0x00ffebcd,
-	SClrBlue           = 0x000000ff,
-	SClrBlueviolet     = 0x008a2be2,
-	SClrBrown          = 0x00a52a2a,
-	SClrBurlywood      = 0x00deb887,
-	SClrCadetblue      = 0x005f9ea0,
-	SClrChartreuse     = 0x007fff00,
-	SClrChocolate      = 0x00d2691e,
-	SClrCoral          = 0x00ff7f50,
-	SClrCornflowerblue = 0x006495ed,
-	SClrCornsilk       = 0x00fff8dc,
-	SClrCrimson        = 0x00dc143c,
-	SClrCyan           = 0x0000ffff,
-	SClrDarkblue       = 0x0000008b,
-	SClrDarkcyan       = 0x00008b8b,
-	SClrDarkgoldenrod  = 0x00b8860b,
-	SClrDarkgrey       = 0x00555555,
-	SClrDarkgreen      = 0x00006400,
-	SClrDarkkhaki      = 0x00bdb76b,
-	SClrDarkmagenta    = 0x008b008b,
-	SClrDarkolivegreen = 0x00556b2f,
-	SClrDarkorange     = 0x00ff8c00,
-	SClrDarkorchid     = 0x009932cc,
-	SClrDarkred        = 0x008b0000,
-	SClrDarksalmon     = 0x00e9967a,
-	SClrDarkseagreen   = 0x008fbc8f,
-	SClrDarkslateblue  = 0x00483d8b,
-	SClrDarkslategrey  = 0x002f4f4f,
-	SClrDarkturquoise  = 0x0000ced1,
-	SClrDarkviolet     = 0x009400d3,
-	SClrDeeppink       = 0x00ff1493,
-	SClrDeepskyblue    = 0x0000bfff,
-	SClrDimgrey        = 0x00696969,
-	SClrDodgerblue     = 0x001e90ff,
-	SClrFirebrick      = 0x00b22222,
-	SClrFloralwhite    = 0x00fffaf0,
-	SClrForestgreen    = 0x00228b22,
-	SClrFuchsia        = 0x00ff00ff,
-	SClrGainsboro      = 0x00dcdcdc,
-	SClrGold           = 0x00ffd700,
-	SClrGoldenrod      = 0x00daa520,
-	SClrGrey           = 0x00808080,
-	SClrGreen          = 0x00008000,
-	SClrGreenyellow    = 0x00adff2f,
-	SClrHoneydew       = 0x00f0fff0,
-	SClrHotpink        = 0x00ff69b4,
-	SClrIndianred      = 0x00cd5c5c,
-	SClrIndigo         = 0x004b0082,
-	SClrIvory          = 0x00fffff0,
-	SClrKhaki          = 0x00f0e68c,
-	SClrLavender       = 0x00e6e6fa,
-	SClrLavenderblush  = 0x00fff0f5,
-	SClrLemonchiffon   = 0x00fffacd,
-	SClrLightblue      = 0x00add8e6,
-	SClrLightcoral     = 0x00f08080,
-	SClrLightcyan      = 0x00e0ffff,
+	SClrAliceblue            = 0x00f0f8ff,
+	SClrAntiquewhite   		 = 0x00faebd7,
+	SClrAqua           		 = 0x0000ffff,
+	SClrAquamarine     		 = 0x007fffd4,
+	SClrAzure          		 = 0x00f0ffff,
+	SClrBeige          		 = 0x00f5f5dc,
+	SClrBisque         		 = 0x00ffe4c4,
+	SClrBlack          		 = 0x00000000,
+	SClrBlanchedalmond 		 = 0x00ffebcd,
+	SClrBlue           		 = 0x000000ff,
+	SClrBlueviolet     		 = 0x008a2be2,
+	SClrBrown          		 = 0x00a52a2a,
+	SClrBurlywood      		 = 0x00deb887,
+	SClrCadetblue      		 = 0x005f9ea0,
+	SClrChartreuse     		 = 0x007fff00,
+	SClrChocolate      		 = 0x00d2691e,
+	SClrCoral          		 = 0x00ff7f50,
+	SClrCornflowerblue 		 = 0x006495ed,
+	SClrCornsilk       		 = 0x00fff8dc,
+	SClrCrimson        		 = 0x00dc143c,
+	SClrCyan           		 = 0x0000ffff,
+	SClrDarkblue       		 = 0x0000008b,
+	SClrDarkcyan       		 = 0x00008b8b,
+	SClrDarkgoldenrod  		 = 0x00b8860b,
+	SClrDarkgrey       		 = 0x00555555,
+	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++ 
+	SClrDarkgreen      		 = 0x00006400,
+	SClrDarkkhaki      		 = 0x00bdb76b,
+	SClrDarkmagenta    		 = 0x008b008b,
+	SClrDarkolivegreen 		 = 0x00556b2f,
+	SClrDarkorange     		 = 0x00ff8c00,
+	SClrDarkorchid     		 = 0x009932cc,
+	SClrDarkred        		 = 0x008b0000,
+	SClrDarksalmon     		 = 0x00e9967a,
+	SClrDarkseagreen   		 = 0x008fbc8f,
+	SClrDarkslateblue  		 = 0x00483d8b,
+	SClrDarkslategrey  		 = 0x002f4f4f,
+	SClrDarkturquoise  		 = 0x0000ced1,
+	SClrDarkviolet     		 = 0x009400d3,
+	SClrDeeppink       		 = 0x00ff1493,
+	SClrDeepskyblue    		 = 0x0000bfff,
+	SClrDimgrey        		 = 0x00696969,
+	SClrDodgerblue     		 = 0x001e90ff,
+	SClrFirebrick      		 = 0x00b22222,
+	SClrFloralwhite    		 = 0x00fffaf0,
+	SClrForestgreen    		 = 0x00228b22,
+	SClrFuchsia        		 = 0x00ff00ff,
+	SClrGainsboro      		 = 0x00dcdcdc,
+	SClrGold           		 = 0x00ffd700,
+	SClrGoldenrod      		 = 0x00daa520,
+	SClrGrey           		 = 0x00808080,
+	SClrGreen          		 = 0x00008000,
+	SClrGreenyellow    		 = 0x00adff2f,
+	SClrHoneydew       		 = 0x00f0fff0,
+	SClrHotpink        		 = 0x00ff69b4,
+	SClrIndianred      		 = 0x00cd5c5c,
+	SClrIndigo         		 = 0x004b0082,
+	SClrIvory          		 = 0x00fffff0,
+	SClrKhaki          		 = 0x00f0e68c,
+	SClrLavender       		 = 0x00e6e6fa,
+	SClrLavenderblush  		 = 0x00fff0f5,
+	SClrLemonchiffon   		 = 0x00fffacd,
+	SClrLightblue      		 = 0x00add8e6,
+	SClrLightcoral     		 = 0x00f08080,
+	SClrLightcyan      		 = 0x00e0ffff,
 	SClrLightgoldenrodyellow = 0x00fafad2,
-	SClrLightgreen     = 0x0090ee90,
-	SClrLightgrey      = 0x00d3d3d3,
-	SClrLightpink      = 0x00ffb6c1,
-	SClrLightsalmon    = 0x00ffa07a,
-	SClrLightseagreen  = 0x0020b2aa,
-	SClrLightskyblue   = 0x0087cefa,
-	SClrLightslategrey = 0x00778899,
-	SClrLightsteelblue = 0x00b0c4de,
-	SClrLightyellow    = 0x00ffffe0,
-	SClrLime           = 0x0000ff00,
-	SClrLimegreen      = 0x0032cd32,
-	SClrLinen          = 0x00faf0e6,
-	SClrMagenta        = 0x00ff00ff,
-	SClrMaroon         = 0x00800000,
-	SClrMediumaquamarine = 0x0066cdaa,
-	SClrMediumblue     = 0x000000cd,
-	SClrMediumorchid   = 0x00ba55d3,
-	SClrMediumpurple   = 0x009370db,
-	SClrMediumseagreen = 0x003cb371,
-	SClrMediumslateblue = 0x007b68ee,
-	SClrMediumspringgreen = 0x0000fa9a,
-	SClrMediumturquoise = 0x0048d1cc,
-	SClrMediumvioletred = 0x00c71585,
-	SClrMidnightblue  = 0x00191970,
-	SClrMintcream     = 0x00f5fffa, // Очень светло-голубой //
-	SClrMistyrose     = 0x00ffe4e1, // Нежно-розовый
-	SClrNavajowhite   = 0x00ffdead, // Телесный
-	SClrNavy          = 0x00000080, // Темно-синий
-	SClrOldlace       = 0x00fdf5e6,
-	SClrOlive         = 0x00808000, // ok Оливковый
-	SClrOlivedrab     = 0x006b8e23,
-	SClrOrange        = 0x00ffa500,
-	SClrOrangered     = 0x00ff4500,
-	SClrOrchid        = 0x00da70d6,
-	SClrPalegoldenrod = 0x00eee8aa,
-	SClrPalegreen     = 0x0098fb98,
-	SClrPaleturquoise = 0x00afeeee,
-	SClrPalevioletred = 0x00db7093,
-	SClrPapayawhip    = 0x00ffefd5,
-	SClrPeachpuff     = 0x00ffdab9,
-	SClrPeru          = 0x00cd853f,
-	SClrPink          = 0x00ffc0cb,
-	SClrPlum          = 0x00dda0dd,
-	SClrPowderblue    = 0x00b0e0e6,
-	SClrPurple        = 0x00800080,
-	SClrRed           = 0x00ff0000,
-	SClrRosybrown     = 0x00bc8f8f,
-	SClrRoyalblue     = 0x004169e1,
-	SClrSaddlebrown   = 0x008b4513,
-	SClrSalmon        = 0x00fa8072,
-	SClrSandybrown    = 0x00f4a460,
-	SClrSeagreen      = 0x002e8b57,
-	SClrSeashell      = 0x00fff5ee,
-	SClrSienna        = 0x00a0522d,
-	SClrSilver        = 0x00c0c0c0,
-	SClrSkyblue       = 0x0087ceeb,
-	SClrSlateblue     = 0x006a5acd,
-	SClrSlategrey     = 0x00708090,
-	SClrSnow          = 0x00fffafa,
-	SClrSpringgreen   = 0x0000ff7f,
-	SClrSteelblue     = 0x004682b4,
-	SClrSteelblue4    = 0x00306080,
-	SClrTan           = 0x00d2b48c,
-	SClrTeal          = 0x00008080,
-	SClrThistle       = 0x00d8bfd8,
-	SClrTomato        = 0x00ff6347,
-	SClrTurquoise     = 0x0040e0d0,
-	SClrViolet        = 0x00ee82ee,
-	SClrWheat         = 0x00f5deb3,
-	SClrWhite         = 0x00ffffff,
-	SClrWhitesmoke    = 0x00f5f5f5,
-	SClrYellow        = 0x00ffff00,
-	SClrYellowgreen   = 0x009acd32
+	SClrLightgreen           = 0x0090ee90,
+	SClrLightgrey       	 = 0x00d3d3d3,
+	SClrLightpink       	 = 0x00ffb6c1,
+	SClrLightsalmon     	 = 0x00ffa07a,
+	SClrLightseagreen   	 = 0x0020b2aa,
+	SClrLightskyblue    	 = 0x0087cefa,
+	SClrLightslategrey  	 = 0x00778899,
+	SClrLightsteelblue  	 = 0x00b0c4de,
+	SClrLightyellow     	 = 0x00ffffe0,
+	SClrLightyellow_npp 	 = 0x00ffffd5, // @v11.1.12 lightYellow according to notepad++
+	SClrLime            	 = 0x0000ff00,
+	SClrLimegreen       	 = 0x0032cd32,
+	SClrLinen           	 = 0x00faf0e6,
+	SClrMagenta         	 = 0x00ff00ff,
+	SClrMaroon          	 = 0x00800000,
+	SClrMediumaquamarine     = 0x0066cdaa,
+	SClrMediumblue        	 = 0x000000cd,
+	SClrMediumorchid      	 = 0x00ba55d3,
+	SClrMediumpurple      	 = 0x009370db,
+	SClrMediumseagreen    	 = 0x003cb371,
+	SClrMediumslateblue   	 = 0x007b68ee,
+	SClrMediumspringgreen 	 = 0x0000fa9a,
+	SClrMediumturquoise   	 = 0x0048d1cc,
+	SClrMediumvioletred   	 = 0x00c71585,
+	SClrMidnightblue         = 0x00191970,
+	SClrMintcream     		 = 0x00f5fffa, // Очень светло-голубой //
+	SClrMistyrose     		 = 0x00ffe4e1, // Нежно-розовый
+	SClrNavajowhite   		 = 0x00ffdead, // Телесный
+	SClrNavy          		 = 0x00000080, // Темно-синий
+	SClrOldlace       		 = 0x00fdf5e6,
+	SClrOlive         		 = 0x00808000, // ok Оливковый
+	SClrOlivedrab     		 = 0x006b8e23,
+	SClrOrange        		 = 0x00ffa500,
+	SClrOrange_npp    		 = 0x00ff8000, // @v11.1.12 orange according to notepad++
+	SClrOrangered     		 = 0x00ff4500,
+	SClrOrchid        		 = 0x00da70d6,
+	SClrPalegoldenrod 		 = 0x00eee8aa,
+	SClrPalegreen     		 = 0x0098fb98,
+	SClrPaleturquoise 		 = 0x00afeeee,
+	SClrPalevioletred 		 = 0x00db7093,
+	SClrPapayawhip    		 = 0x00ffefd5,
+	SClrPeachpuff     		 = 0x00ffdab9,
+	SClrPeru          		 = 0x00cd853f,
+	SClrPink          		 = 0x00ffc0cb,
+	SClrPlum          		 = 0x00dda0dd,
+	SClrPowderblue    		 = 0x00b0e0e6,
+	SClrPurple        		 = 0x00800080,
+	SClrPurple_npp    		 = 0x008000ff, // @v11.1.12 purple according to notepad++
+	SClrRed           		 = 0x00ff0000,
+	SClrRosybrown     		 = 0x00bc8f8f,
+	SClrRoyalblue     		 = 0x004169e1,
+	SClrSaddlebrown   		 = 0x008b4513,
+	SClrSalmon        		 = 0x00fa8072,
+	SClrSandybrown    		 = 0x00f4a460,
+	SClrSeagreen      		 = 0x002e8b57,
+	SClrSeashell      		 = 0x00fff5ee,
+	SClrSienna        		 = 0x00a0522d,
+	SClrSilver        		 = 0x00c0c0c0,
+	SClrSkyblue       		 = 0x0087ceeb,
+	SClrSlateblue     		 = 0x006a5acd,
+	SClrSlategrey     		 = 0x00708090,
+	SClrSnow          		 = 0x00fffafa,
+	SClrSpringgreen   		 = 0x0000ff7f,
+	SClrSteelblue     		 = 0x004682b4,
+	SClrSteelblue4    		 = 0x00306080,
+	SClrTan           		 = 0x00d2b48c,
+	SClrTeal          		 = 0x00008080,
+	SClrThistle       		 = 0x00d8bfd8,
+	SClrTomato        		 = 0x00ff6347,
+	SClrTurquoise     		 = 0x0040e0d0,
+	SClrViolet        		 = 0x00ee82ee,
+	SClrWheat         		 = 0x00f5deb3,
+	SClrWhite         		 = 0x00ffffff,
+	SClrWhitesmoke    		 = 0x00f5f5f5,
+	SClrYellow        		 = 0x00ffff00,
+	SClrYellowgreen   		 = 0x009acd32,
+	SClrVeryLitegrey  		 = 0x00e0e0e0, // @v11.1.12 according to notepad++
 };
 //
 // Descr: Структура для унификации сторонних библиотек
@@ -13756,8 +13778,8 @@ public:
 	// ARG(pName     IN): @#{vptr} Создает именованное событие
 	// ARG(mode      IN): modeXXX
 	//
-	Evnt(const char * pName, int mode = modeCreate);
-	Evnt(int mode = modeCreate);
+	explicit Evnt(const char * pName, int mode = modeCreate);
+	explicit Evnt(int mode = modeCreate);
 	//
 	// Descr: Переводит событие в занятое состояние
 	//
@@ -13776,8 +13798,8 @@ public:
 		modeCreate = 1,
 		modeOpen   = 3
 	};
-	Sem(const char * pName, int mode = modeCreate, int initVal = 0);
-	Sem(int initVal = 0);
+	explicit Sem(const char * pName, int mode = modeCreate, int initVal = 0);
+	explicit Sem(int initVal = 0);
 	int    Release(int count = 1);
 };
 //
@@ -15399,16 +15421,8 @@ public:
 		tokXPHONE          // X-PHONE
 	};
 	struct Entry {
-		Entry() : Token(0)
-		{
-		}
-		Entry & Z()
-		{
-			Token = 0;
-			ParamList.Z();
-			Value.Z();
-			return *this;
-		}
+		Entry();
+		Entry & Z();
 		int    Token;
 		StrAssocArray ParamList;
 		SString Value;
@@ -15453,7 +15467,7 @@ public:
 		SString Descr;
 		// @construction TSCollection <StrAssocArray> AttendeeList;
 	};
-	VCalendar(const char * pFileName = 0, int forExport = 1);
+	explicit VCalendar(const char * pFileName = 0, int forExport = 1);
 	~VCalendar();
 
 	static int GetToken(const char * pText);

@@ -426,7 +426,7 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
 static
 void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
 {
-	// fprintf(stderr, "[lcms]: %s\n", Text);
+	// slfprintf_stderr("[lcms]: %s\n", Text);
 	// fflush(stderr);
 
 	cmsUNUSED_PARAMETER(ContextID);

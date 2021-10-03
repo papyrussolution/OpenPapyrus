@@ -423,7 +423,7 @@ void _cairo_gl_ensure_framebuffer(cairo_gl_context_t * ctx,
 			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: str = "incomplete multiple"; break;
 			default: str = "unknown error"; break;
 		}
-		fprintf(stderr, "destination is framebuffer incomplete: %s [%#x]\n", str, status);
+		slfprintf_stderr("destination is framebuffer incomplete: %s [%#x]\n", str, status);
 	}
 }
 

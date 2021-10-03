@@ -21,10 +21,10 @@ void AsciiListView::resetValues(int codepage)
 {
 	if(codepage == -1)
 		codepage = 0;
-	if(_codepage == codepage)
-		return;
-	ListView_DeleteAllItems(_hSelf);
-	setValues(codepage);
+	if(_codepage != codepage) {
+		ListView_DeleteAllItems(_hSelf);
+		setValues(codepage);
+	}
 }
 
 generic_string AsciiListView::getAscii(uchar value)
@@ -112,146 +112,75 @@ generic_string AsciiListView::getHtmlName(uchar value)
 		case 185: return TEXT("&sup1;");
 		case 186: return TEXT("&ordm;");
 		case 187: return TEXT("&raquo;");
-		case 188:
-		    return TEXT("&frac14;");
-		case 189:
-		    return TEXT("&frac12;");
-		case 190:
-		    return TEXT("&frac34;");
-		case 191:
-		    return TEXT("&iquest;");
-		case 192:
-		    return TEXT("&Agrave;");
-		case 193:
-		    return TEXT("&Aacute;");
-		case 194:
-		    return TEXT("&Acirc;");
-		case 195:
-		    return TEXT("&Atilde;");
-		case 196:
-		    return TEXT("&Auml;");
-		case 197:
-		    return TEXT("&Aring;");
-		case 198:
-		    return TEXT("&AElig;");
-		case 199:
-		    return TEXT("&Ccedil;");
-		case 200:
-		    return TEXT("&Egrave;");
-		case 201:
-		    return TEXT("&Eacute;");
-		case 202:
-		    return TEXT("&Ecirc;");
-		case 203:
-		    return TEXT("&Euml;");
-		case 204:
-		    return TEXT("&Igrave;");
-		case 205:
-		    return TEXT("&Iacute;");
-		case 206:
-		    return TEXT("&Icirc;");
-		case 207:
-		    return TEXT("&Iuml;");
-		case 208:
-		    return TEXT("&ETH;");
-		case 209:
-		    return TEXT("&Ntilde;");
-		case 210:
-		    return TEXT("&Ograve;");
-		case 211:
-		    return TEXT("&Oacute;");
-		case 212:
-		    return TEXT("&Ocirc;");
-		case 213:
-		    return TEXT("&Otilde;");
-		case 214:
-		    return TEXT("&Ouml;");
-		case 215:
-		    return TEXT("&times;");
-		case 216:
-		    return TEXT("&Oslash;");
-		case 217:
-		    return TEXT("&Ugrave;");
-		case 218:
-		    return TEXT("&Uacute;");
-		case 219:
-		    return TEXT("&Ucirc;");
-		case 220:
-		    return TEXT("&Uuml;");
-		case 221:
-		    return TEXT("&Yacute;");
-		case 222:
-		    return TEXT("&THORN;");
-		case 223:
-		    return TEXT("&szlig;");
-		case 224:
-		    return TEXT("&agrave;");
-		case 225:
-		    return TEXT("&aacute;");
-		case 226:
-		    return TEXT("&acirc;");
-		case 227:
-		    return TEXT("&atilde;");
-		case 228:
-		    return TEXT("&auml;");
-		case 229:
-		    return TEXT("&aring;");
-		case 230:
-		    return TEXT("&aelig;");
-		case 231:
-		    return TEXT("&ccedil;");
-		case 232:
-		    return TEXT("&egrave;");
-		case 233:
-		    return TEXT("&eacute;");
-		case 234:
-		    return TEXT("&ecirc;");
-		case 235:
-		    return TEXT("&euml;");
-		case 236:
-		    return TEXT("&igrave;");
-		case 237:
-		    return TEXT("&iacute;");
-		case 238:
-		    return TEXT("&icirc;");
-		case 239:
-		    return TEXT("&iuml;");
-		case 240:
-		    return TEXT("&eth;");
-		case 241:
-		    return TEXT("&ntilde;");
-		case 242:
-		    return TEXT("&ograve;");
-		case 243:
-		    return TEXT("&oacute;");
-		case 244:
-		    return TEXT("&ocirc;");
-		case 245:
-		    return TEXT("&otilde;");
-		case 246:
-		    return TEXT("&ouml;");
-		case 247:
-		    return TEXT("&divide;");
-		case 248:
-		    return TEXT("&oslash;");
-		case 249:
-		    return TEXT("&ugrave;");
-		case 250:
-		    return TEXT("&uacute;");
-		case 251:
-		    return TEXT("&ucirc;");
-		case 252:
-		    return TEXT("&uuml;");
-		case 253:
-		    return TEXT("&yacute;");
-		case 254:
-		    return TEXT("&thorn;");
-		case 255:
-		    return TEXT("&yuml;");
-		default:
-	    {
-		    return TEXT("");
-	    }
+		case 188: return TEXT("&frac14;");
+		case 189: return TEXT("&frac12;");
+		case 190: return TEXT("&frac34;");
+		case 191: return TEXT("&iquest;");
+		case 192: return TEXT("&Agrave;");
+		case 193: return TEXT("&Aacute;");
+		case 194: return TEXT("&Acirc;");
+		case 195: return TEXT("&Atilde;");
+		case 196: return TEXT("&Auml;");
+		case 197: return TEXT("&Aring;");
+		case 198: return TEXT("&AElig;");
+		case 199: return TEXT("&Ccedil;");
+		case 200: return TEXT("&Egrave;");
+		case 201: return TEXT("&Eacute;");
+		case 202: return TEXT("&Ecirc;");
+		case 203: return TEXT("&Euml;");
+		case 204: return TEXT("&Igrave;");
+		case 205: return TEXT("&Iacute;");
+		case 206: return TEXT("&Icirc;");
+		case 207: return TEXT("&Iuml;");
+		case 208: return TEXT("&ETH;");
+		case 209: return TEXT("&Ntilde;");
+		case 210: return TEXT("&Ograve;");
+		case 211: return TEXT("&Oacute;");
+		case 212: return TEXT("&Ocirc;");
+		case 213: return TEXT("&Otilde;");
+		case 214: return TEXT("&Ouml;");
+		case 215: return TEXT("&times;");
+		case 216: return TEXT("&Oslash;");
+		case 217: return TEXT("&Ugrave;");
+		case 218: return TEXT("&Uacute;");
+		case 219: return TEXT("&Ucirc;");
+		case 220: return TEXT("&Uuml;");
+		case 221: return TEXT("&Yacute;");
+		case 222: return TEXT("&THORN;");
+		case 223: return TEXT("&szlig;");
+		case 224: return TEXT("&agrave;");
+		case 225: return TEXT("&aacute;");
+		case 226: return TEXT("&acirc;");
+		case 227: return TEXT("&atilde;");
+		case 228: return TEXT("&auml;");
+		case 229: return TEXT("&aring;");
+		case 230: return TEXT("&aelig;");
+		case 231: return TEXT("&ccedil;");
+		case 232: return TEXT("&egrave;");
+		case 233: return TEXT("&eacute;");
+		case 234: return TEXT("&ecirc;");
+		case 235: return TEXT("&euml;");
+		case 236: return TEXT("&igrave;");
+		case 237: return TEXT("&iacute;");
+		case 238: return TEXT("&icirc;");
+		case 239: return TEXT("&iuml;");
+		case 240: return TEXT("&eth;");
+		case 241: return TEXT("&ntilde;");
+		case 242: return TEXT("&ograve;");
+		case 243: return TEXT("&oacute;");
+		case 244: return TEXT("&ocirc;");
+		case 245: return TEXT("&otilde;");
+		case 246: return TEXT("&ouml;");
+		case 247: return TEXT("&divide;");
+		case 248: return TEXT("&oslash;");
+		case 249: return TEXT("&ugrave;");
+		case 250: return TEXT("&uacute;");
+		case 251: return TEXT("&ucirc;");
+		case 252: return TEXT("&uuml;");
+		case 253: return TEXT("&yacute;");
+		case 254: return TEXT("&thorn;");
+		case 255: return TEXT("&yuml;");
+		default: return TEXT("");
 	}
 }
 

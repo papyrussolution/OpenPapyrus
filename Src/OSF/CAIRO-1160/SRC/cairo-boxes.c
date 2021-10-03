@@ -379,7 +379,7 @@ void _cairo_debug_print_boxes(FILE * stream, const cairo_boxes_t * boxes)
 
 	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++) {
-			fprintf(stderr, "  box[%d]: (%f, %f), (%f, %f)\n", i,
+			slfprintf_stderr("  box[%d]: (%f, %f), (%f, %f)\n", i,
 			    _cairo_fixed_to_double(chunk->base[i].p1.x),
 			    _cairo_fixed_to_double(chunk->base[i].p1.y),
 			    _cairo_fixed_to_double(chunk->base[i].p2.x),

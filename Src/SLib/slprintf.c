@@ -533,12 +533,31 @@ int cdecl slfprintf(FILE * pStream, const char * pFormat, ...)
 		const int impl_ret = sl_printf_implementation(r_temp_buf, pFormat, va);
 		va_end(va);
 		const size_t tb_len = r_temp_buf.Len();
-		if(tb_len != 0) {
+		if(tb_len) {
 			const int fpr = fputs(r_temp_buf.cptr(), pStream);
-			if(fpr >= 0)
-				result = static_cast<int>(tb_len);
-			else
-				result = -1;
+			result = (fpr >= 0) ? static_cast<int>(tb_len) : -1;
+		}
+	}
+	return result;
+}
+
+int cdecl slfprintf_stderr(const char * pFormat, ...)
+{
+	int    result = 0;
+	if(!stderr || !pFormat) {
+		errno = EINVAL;
+		result = -1;
+	}
+	else {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		va_list va;
+		va_start(va, pFormat);
+		const int impl_ret = sl_printf_implementation(r_temp_buf, pFormat, va);
+		va_end(va);
+		const size_t tb_len = r_temp_buf.Len();
+		if(tb_len) {
+			const int fpr = fputs(r_temp_buf.cptr(), stderr);
+			result = (fpr >= 0) ? static_cast<int>(tb_len) : -1;
 		}
 	}
 	return result;

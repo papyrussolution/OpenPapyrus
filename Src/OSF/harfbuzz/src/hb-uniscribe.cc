@@ -866,7 +866,7 @@ retry_shape:
 			FAIL("ScriptPlaceOpenType() failed: 0x%08lx", hr);
 
 		if(DEBUG_ENABLED(UNISCRIBE))
-			fprintf(stderr, "Item %d RTL %d LayoutRTL %d LogicalOrder %d ScriptTag %c%c%c%c\n",
+			slfprintf_stderr("Item %d RTL %d LayoutRTL %d LogicalOrder %d ScriptTag %c%c%c%c\n",
 			    i,
 			    items[i].a.fRTL,
 			    items[i].a.fLayoutRTL,

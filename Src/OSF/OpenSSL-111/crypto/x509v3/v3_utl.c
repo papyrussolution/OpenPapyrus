@@ -155,7 +155,8 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 {
 	BIGNUM * bn = NULL;
 	ASN1_INTEGER * aint;
-	int isneg, ishex;
+	int isneg;
+	int ishex;
 	int ret;
 	if(value == NULL) {
 		X509V3err(X509V3_F_S2I_ASN1_INTEGER, X509V3_R_INVALID_NULL_VALUE);
