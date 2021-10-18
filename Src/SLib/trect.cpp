@@ -69,12 +69,17 @@ void FASTCALL SInflateRect(RECT & rRect, int cx, int cy)
 //
 // SPoint2I
 //
-SPoint2I::operator POINT() const
+/*SPoint2I::operator POINT() const
 {
 	POINT p;
 	p.x = x;
 	p.y = y;
 	return p;
+}*/
+
+SPoint2I::operator POINT & ()
+{
+	return *reinterpret_cast<POINT *>(this);
 }
 
 SPoint2I & SPoint2I::Z()
@@ -256,13 +261,21 @@ float  FRect::Width() const { return (b.x - a.x); }
 float  FRect::Height() const { return (b.y - a.y); }
 SPoint2F FRect::GetSize() const { return SPoint2F((b.x - a.x), (b.y - a.y)); }
 SPoint2F FRect::GetCenter() const { return SPoint2F((a.x + b.x) / 2.0f, (a.y + b.y) / 2.0f); }
-int    FRect::Contains(SPoint2F p) const { return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y); }
+int    FRect::Contains(SPoint2F p) const 
+{ 
+	return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y); 
+}
 int    FASTCALL FRect::Contains(const FRect & rR) const { return (Contains(rR.a) && Contains(rR.b)); }
 
 double FRect::Ratio() const
 {
 	double w = Width();
 	return (w != 0.0) ? (Height() / w) : SMathConst::Max;
+}
+
+double FRect::Square() const
+{
+	return (Width() * Height());
 }
 
 FRect & FRect::Around(SPoint2F center, SPoint2F size)
@@ -983,8 +996,8 @@ int TRect::IsDegenerated() const { return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CE
 
 TRect & TRect::Normalize()
 {
-	ExchangeToOrder(&a.x, &b.x);
-	ExchangeToOrder(&a.y, &b.y);
+	ExchangeForOrder(&a.x, &b.x);
+	ExchangeForOrder(&a.y, &b.y);
 	return *this;
 }
 //

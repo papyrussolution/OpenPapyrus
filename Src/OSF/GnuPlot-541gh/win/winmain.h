@@ -48,7 +48,7 @@
 // @sobolev extern "C" {
 #endif
 
-struct GpWinMainBlock {
+struct GpWinMainBlock : public GnuPlotHolder {
 	GpWinMainBlock() : P_GraphWin(0), P_ListGraphs(0), help_window(0), winhelpname(0), szMenuName(0), szLanguageCode(0),
 		szModuleName(0), szPackageDir(0), hDevNames(0), hDevMode(0)
 	{
@@ -56,6 +56,8 @@ struct GpWinMainBlock {
 	void WinCloseHelp();
 	LPTSTR LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultname);
 	void   ReadMainIni(LPTSTR file, LPTSTR section);
+	void   PrintingCleanup();
+
 	TW   TxtWin/*textwin*/;
 	MW   MnuWin/*menuwin*/;
 	GW * P_GraphWin/*graphwin*/;

@@ -186,10 +186,10 @@ void ssh_dh_cleanup(struct ssh_crypto_struct * crypto)
 
 /** @internal
  * @brief generates a secret DH parameter of at least DH_SECURITY_BITS
- *        security as well as the corresponding public key.
+ *  security as well as the corresponding public key.
  * @param[out] parms a dh_ctx that will hold the new keys.
  * @param peer Select either client or server key storage. Valid values are:
- *        DH_CLIENT_KEYPAIR or DH_SERVER_KEYPAIR
+ *  DH_CLIENT_KEYPAIR or DH_SERVER_KEYPAIR
  *
  * @return SSH_OK on success, SSH_ERROR on error
  */
@@ -209,10 +209,10 @@ int ssh_dh_keypair_gen_keys(struct dh_ctx * dh_ctx, int peer)
 
 /** @internal
  * @brief generates a shared secret between the local peer and the remote
- *        peer. The local peer must have been initialized using either the
- *        ssh_dh_keypair_gen_keys() function or by seetting manually both
- *        the private and public keys. The remote peer only needs to have
- *        the remote's peer public key set.
+ *  peer. The local peer must have been initialized using either the
+ *  ssh_dh_keypair_gen_keys() function or by seetting manually both
+ *  the private and public keys. The remote peer only needs to have
+ *  the remote's peer public key set.
  * @param[in] local peer identifier (DH_CLIENT_KEYPAIR or DH_SERVER_KEYPAIR)
  * @param[in] remote peer identifier (DH_CLIENT_KEYPAIR or DH_SERVER_KEYPAIR)
  * @param[out] dest a new bignum with the shared secret value is returned.

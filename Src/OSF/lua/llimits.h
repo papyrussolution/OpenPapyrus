@@ -25,7 +25,7 @@
 	typedef long l_mem;
 #endif                          /* } */
 
-typedef unsigned char lu_byte; // chars used as small naturals (so that 'char' is reserved for characters) 
+typedef uchar lu_byte; // chars used as small naturals (so that 'char' is reserved for characters) 
 #define MAX_SIZET ((size_t)(~(size_t)0)) // maximum value for size_t 
 #define MAX_SIZE (sizeof(size_t) < sizeof(lua_Integer) ? MAX_SIZET : (size_t)(LUA_MAXINTEGER)) // maximum size visible for Lua (must be representable in a lua_Integer 
 #define MAX_LUMEM       ((lu_mem)(~(lu_mem)0))
@@ -85,7 +85,7 @@ typedef LUAI_UACINT l_uacInt;
 #define cast_byte(i)    cast(lu_byte, (i))
 #define cast_num(i)     cast(lua_Number, (i))
 #define cast_int(i)     cast(int, (i))
-#define cast_uchar(i)   cast(unsigned char, (i))
+#define cast_uchar(i)   cast(uchar, (i))
 // cast a signed lua_Integer to lua_Unsigned 
 #if !defined(l_castS2U)
 	#define l_castS2U(i)    ((lua_Unsigned)(i))

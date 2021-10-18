@@ -183,17 +183,15 @@ static double eval_kdensity(curve_points * cp, int first_point/* where to start 
     //GpCoordinate * dest/* where to put the interpolated data */)
 void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in plot->points */, int num_points/* to determine end in plot->points */, GpCoordinate * dest/* where to put the interpolated data */)
 {
-	int i;
-	double sxmin, sxmax, step;
 	AxS.Idx_X = cp->AxIdx_X;
 	AxS.Idx_Y = cp->AxIdx_Y;
 	if(AxS.__X().log)
 		IntWarn(NO_CARET, "kdensity components are Gaussian on x, not log(x)");
-	sxmin = AxS.__X().min;
-	sxmax = AxS.__X().max;
-	step = (sxmax - sxmin) / (Gg.Samples1 - 1);
+	const double sxmin = AxS.__X().min;
+	const double sxmax = AxS.__X().max;
+	const double step = (sxmax - sxmin) / (Gg.Samples1 - 1);
 	stats_kdensity(cp, firstPoint, num_points);
-	for(i = 0; i < Gg.Samples1; i++) {
+	for(int i = 0; i < Gg.Samples1; i++) {
 		double x = sxmin + i * step;
 		double y = eval_kdensity(cp, firstPoint, num_points, x);
 		// now we have to store the points and adjust the ranges 
@@ -480,7 +478,7 @@ GpSplineCoeff * GnuPlot::CpApproxSpline(const GpCoordinate * pPoints, int numPoi
  *
  * Previous call to cp_tridiag(plot, start, n)
  *      becomes     cp_tridiag(&plot->points[start], n, 0, 1)
- *                                                      X  Y  <==
+ *                                                X  Y  <==
  * To create a spline for an arbitrary coordinate, e.g. x, as a function of PATH
  *	load path increments into points[i].CRD_PATH
  *      cp_tridiag(points, n, PATHCOORD, 0)

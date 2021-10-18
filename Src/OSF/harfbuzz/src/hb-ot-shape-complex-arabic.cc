@@ -90,7 +90,7 @@ static unsigned int get_joining_type(hb_codepoint_t u, hb_unicode_general_catego
 	       ) ?  JOINING_TYPE_T : JOINING_TYPE_U;
 }
 
-#define FEATURE_IS_SYRIAC(tag) hb_in_range<unsigned char> ((unsigned char)(tag), '2', '3')
+#define FEATURE_IS_SYRIAC(tag) hb_in_range<uchar> ((uchar)(tag), '2', '3')
 
 static const hb_tag_t arabic_features[] =
 {
@@ -190,7 +190,7 @@ static void collect_features_arabic(hb_ot_shape_planner_t * plan)
 
 	map->add_gsub_pause(nullptr);
 
-	for(unsigned int i = 0; i < ARABIC_NUM_FEATURES; i++) {
+	for(uint i = 0; i < ARABIC_NUM_FEATURES; i++) {
 		bool has_fallback = plan->props.script == HB_SCRIPT_ARABIC && !FEATURE_IS_SYRIAC(arabic_features[i]);
 		map->add_feature(arabic_features[i], has_fallback ? F_HAS_FALLBACK : F_NONE);
 		map->add_gsub_pause(nullptr);
@@ -245,7 +245,7 @@ void * data_create_arabic(const hb_ot_shape_plan_t * plan)
 
 	arabic_plan->do_fallback = plan->props.script == HB_SCRIPT_ARABIC;
 	arabic_plan->has_stch = !!plan->map.get_1_mask(HB_TAG('s', 't', 'c', 'h'));
-	for(unsigned int i = 0; i < ARABIC_NUM_FEATURES; i++) {
+	for(uint i = 0; i < ARABIC_NUM_FEATURES; i++) {
 		arabic_plan->mask_array[i] = plan->map.get_1_mask(arabic_features[i]);
 		arabic_plan->do_fallback = arabic_plan->do_fallback &&
 		    (FEATURE_IS_SYRIAC(arabic_features[i]) ||
@@ -271,7 +271,7 @@ static void arabic_joining(hb_buffer_t * buffer)
 	unsigned int prev = UINT_MAX, state = 0;
 
 	/* Check pre-context */
-	for(unsigned int i = 0; i < buffer->context_len[0]; i++) {
+	for(uint i = 0; i < buffer->context_len[0]; i++) {
 		unsigned int this_type = get_joining_type(buffer->context[0][i], buffer->unicode->general_category(buffer->context[0][i]));
 
 		if(UNLIKELY(this_type == JOINING_TYPE_T))
@@ -282,7 +282,7 @@ static void arabic_joining(hb_buffer_t * buffer)
 		break;
 	}
 
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		unsigned int this_type = get_joining_type(info[i].codepoint, _hb_glyph_info_get_general_category(&info[i]));
 
 		if(UNLIKELY(this_type == JOINING_TYPE_T)) {
@@ -303,7 +303,7 @@ static void arabic_joining(hb_buffer_t * buffer)
 		state = entry->next_state;
 	}
 
-	for(unsigned int i = 0; i < buffer->context_len[1]; i++) {
+	for(uint i = 0; i < buffer->context_len[1]; i++) {
 		unsigned int this_type = get_joining_type(buffer->context[1][i], buffer->unicode->general_category(buffer->context[1][i]));
 
 		if(UNLIKELY(this_type == JOINING_TYPE_T))
@@ -321,7 +321,7 @@ static void mongolian_variation_selectors(hb_buffer_t * buffer)
 	/* Copy arabic_shaping_action() from base to Mongolian variation selectors. */
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 1; i < count; i++)
+	for(uint i = 1; i < count; i++)
 		if(UNLIKELY(hb_in_range<hb_codepoint_t> (info[i].codepoint, 0x180Bu, 0x180Du)))
 			info[i].arabic_shaping_action() = info[i - 1].arabic_shaping_action();
 }
@@ -334,7 +334,7 @@ void setup_masks_arabic_plan(const arabic_shape_plan_t * arabic_plan, hb_buffer_
 		mongolian_variation_selectors(buffer);
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		info[i].mask |= arabic_plan->mask_array[info[i].arabic_shaping_action()];
 }
 
@@ -389,7 +389,7 @@ static void record_stch(const hb_ot_shape_plan_t * plan,
 
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if(UNLIKELY(_hb_glyph_info_multiplied(&info[i]))) {
 			unsigned int comp = _hb_glyph_info_get_lig_comp(&info[i]);
 			info[i].arabic_shaping_action() = comp % 2 ? STCH_REPEATING : STCH_FIXED;
@@ -423,7 +423,7 @@ static void apply_stch(const hb_ot_shape_plan_t * plan HB_UNUSED,
 		hb_glyph_position_t * pos = buffer->pos;
 		unsigned int new_len = count + extra_glyphs_needed; // write head during CUT
 		unsigned int j = new_len;
-		for(unsigned int i = count; i; i--) {
+		for(uint i = count; i; i--) {
 			if(!hb_in_range<uint8_t> (info[i - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING)) {
 				if(step == CUT) {
 					--j;
@@ -558,7 +558,7 @@ static hb_codepoint_t
 static inline bool info_is_mcm(const hb_glyph_info_t &info)
 {
 	hb_codepoint_t u = info.codepoint;
-	for(unsigned int i = 0; i < ARRAY_LENGTH(modifier_combining_marks); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(modifier_combining_marks); i++)
 		if(u == modifier_combining_marks[i])
 			return true;
 	return false;

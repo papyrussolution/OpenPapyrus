@@ -5,7 +5,7 @@
 #include <time.h>    /* for clock() */
 
 /* SunOS 4.1.* does not define CLOCKS_PER_SEC, so include <sys/param.h> */
-/* to get the HZ macro which is the equivalent.                         */
+/* to get the HZ macro which is the equivalent.      */
 #if defined(__sun__) && !defined(SVR4) && !defined(__SVR4)
 #include <sys/param.h>
 #define CLOCKS_PER_SEC HZ

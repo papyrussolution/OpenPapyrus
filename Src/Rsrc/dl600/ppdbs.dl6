@@ -73,13 +73,13 @@ table Property {           // size=84+2048
 	long   ObjType;        // ->Reference.ObjType Тип объекта
 	long   ObjID;          // ->Reference.ObjID   Ид. объекта
 	long   Prop;           // Ид. свойства
-	raw    Text[64];
+	raw    Text[64];       //
 	long   Val1;           // Значение 1
 	long   Val2;           // Значение 2
 	blob   VT[2048];
 index:
-	ObjType, ObjID, Prop (dup mod);
-	ObjType, Prop, ObjID (dup mod); // @v6.2.2
+	ObjType, ObjID, Prop (dup mod); // #0
+	ObjType, Prop, ObjID (dup mod); // #1 @v6.2.2
 file:
 	"prop.btr";
 	vlr;
@@ -280,7 +280,7 @@ file:
 // Государство
 // @obsolete (moved to table World)
 //
-table Country {         // 
+table Country {         //
 	autolong ID;        // Ид
 	string Name[30];    // Название
 	string Abbr[10];    // Сокращенное название
@@ -326,7 +326,7 @@ file:
 // Населенный пункт
 // @obsolete (moved to table World)
 //
-table City {            // 
+table City {            //
 	autolong ID;        // Ид
 	long   Country;     // Государство ->Country.ID
 	long   Region;      // Регион      ->Region.ID
@@ -681,7 +681,7 @@ file:
 //
 // @obsolete (moved to table Reference)
 //
-table StaffList_Pre9003 {  // 
+table StaffList_Pre9003 {  //
 	autolong ID;           // @id
 	long   OrgID;          // ->Person.ID Работодатель
 	long   DivisionID;     // ->Location.ID (LOCTYP_DIVISION)
@@ -705,7 +705,7 @@ file:
 	access=1;
 }
 
-table PersonPost {         // 
+table PersonPost {         //
 	// @# (Finish && Closed) || (!Finsh && !Closed)
 	autolong ID;           // @id
 	string Code[16];       // Personal Code
@@ -736,7 +736,7 @@ file:
 //
 // Элементы штатных календарей
 //
-table StaffCalendar {      // 
+table StaffCalendar {      //
 	long   CalID;          // Ид календаря //
 	long   ObjID;          // Ид объекта, с которым связано создание этой записи
 		// Если Flags & STCALEF_BYPEVENT, то тип объекта - персональное событие (PPOBJ_PERSONEVENT)
@@ -793,7 +793,7 @@ file:
 // Так или иначе, в течении ближайшего года, видимо, конвертации не избежать (пока не все проблемы видны)
 //
 //
-table Salary {             // 
+table Salary {             //
 	autolong ID;           // @id
 	date   Beg;            // Начало периода расчета
 	date   End;            // Окончание периода расчета
@@ -1146,7 +1146,7 @@ file:
 // документов. Конкретная характеристика документа определяется полем Bill.OpID.
 // @done @v11.1.12 @todo Memo перенести в UnxTextRef
 //
-table Bill {            // 
+table Bill {            //
 	autolong  ID;       // @id
 	string Code[48];    // Код документа // @v11.1.12 [24]-->[48]
 	date   Dt;          // Дата документа

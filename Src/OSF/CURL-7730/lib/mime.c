@@ -1135,7 +1135,7 @@ static void cleanup_part_content(curl_mimepart * part)
 	part->readfunc = NULL;
 	part->seekfunc = NULL;
 	part->freefunc = NULL;
-	part->arg = (void*)part;      /* Defaults to part itself. */
+	part->arg = (void *)part;      /* Defaults to part itself. */
 	part->data = NULL;
 	part->fp = NULL;
 	part->datasize = (curl_off_t)0; /* No size yet. */

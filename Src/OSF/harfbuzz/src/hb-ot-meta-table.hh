@@ -98,7 +98,7 @@ protected:
 		 * Per OT specification:
 		 * Reserved. Not used; should be set to 0. */
 		LArrayOf<DataMap>
-		dataMaps;/* Array of data map records. */
+		dataMaps; /* Array of data map records. */
 public:
 		DEFINE_SIZE_ARRAY(16, dataMaps);
 	};

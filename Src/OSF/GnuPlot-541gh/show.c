@@ -202,7 +202,7 @@ void GnuPlot::ShowCommand()
 		case S_HISTORY: ShowHistory(); break;
 		case S_SIZE: ShowSize(); break;
 		case S_ORIGIN: ShowOrigin(); break;
-		case S_TERMINAL: ShowTerm(term); break;
+		case S_TERMINAL: ShowTerm(GPT.P_Term); break;
 		case S_TICS:
 		case S_TICSLEVEL:
 		case S_TICSCALE: ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE); break;
@@ -259,7 +259,7 @@ void GnuPlot::ShowCommand()
 		    if(!Pgm.EndOfCommand()) {
 			    if(Pgm.AlmostEqualsCur("a$dd2history")) {
 				    Pgm.Shift();
-				    add_history(Pgm.replot_line);
+				    AddHistory(Pgm.replot_line);
 			    }
 		    }
 #endif
@@ -290,7 +290,7 @@ void GnuPlot::ShowCommand()
 		    fprintf(stderr, "multiplot mode is %s\n", (GPT.Flags & GpTerminalBlock::fMultiplot) ? "on" : "off");
 		    break;
 		case S_TERMOPTIONS:
-		    fprintf(stderr, "Terminal options are '%s'\n", GPT.TermOptions[0] ? GPT.TermOptions : "[none]");
+		    fprintf(stderr, "Terminal options are '%s'\n", GPT._TermOptions.NotEmpty() ? GPT._TermOptions.cptr() : "[none]");
 		    break;
 		case S_THETA:
 		    fprintf(stderr, "Theta increases %s with origin at %s of plot\n",
@@ -444,7 +444,7 @@ void GnuPlot::ShowAll()
 	ShowHistory();
 	ShowSize();
 	ShowOrigin();
-	ShowTerm(term);
+	ShowTerm(GPT.P_Term);
 	ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 	ShowMTics(&AxS[FIRST_X_AXIS]);
 	ShowMTics(&AxS[FIRST_Y_AXIS]);
@@ -1565,7 +1565,7 @@ void GnuPlot::ShowPsDir()
 {
 	ShowAllNl();
 	fprintf(stderr, "\tdirectory from 'set psdir': ");
-	fprintf(stderr, "%s\n", PS_psdir ? PS_psdir : "none");
+	fprintf(stderr, "%s\n", NZOR(GPT.P_PS_PsDir, "none"));
 	fprintf(stderr, "\tenvironment variable GNUPLOT_PS_DIR: ");
 	{
 		const char * p_env_ps_dir = getenv("GNUPLOT_PS_DIR");
@@ -2116,22 +2116,22 @@ void GnuPlot::ShowFit()
 			SAlloc::F(logfile);
 		}
 	}
-	v = Ev.GetUdvByName((char *)FITLIMIT);
+	v = Ev.GetUdvByName(FITLIMIT);
 	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
 	if(_Fit.epsilon_abs > 0.0)
 		fprintf(stderr, " + %g", _Fit.epsilon_abs);
 	fprintf(stderr, "\n");
-	v = Ev.GetUdvByName((char *)FITMAXITER);
+	v = Ev.GetUdvByName(FITMAXITER);
 	if(v && (v->udv_value.Type != NOTDEFINED) && (Real(&v->udv_value) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)Real(&v->udv_value));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
-	v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
+	v = Ev.GetUdvByName(FITSTARTLAMBDA);
 	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
-	v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
+	v = Ev.GetUdvByName(FITLAMBDAFACTOR);
 	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
@@ -2260,8 +2260,8 @@ void GnuPlot::ShowHistory()
 #ifndef GNUPLOT_HISTORY
 	fprintf(stderr, "\tThis copy of gnuplot was not built to use a command history file\n");
 #endif
-	fprintf(stderr, "\t history size %d%s,  %s,  %s\n", gnuplot_history_size, gnuplot_history_size<0 ? "(unlimited)" : "",
-	    history_quiet ? "quiet" : "numbers", history_full ? "full" : "suppress duplicates");
+	fprintf(stderr, "\t history size %d%s,  %s,  %s\n", Hist.HistorySize, (Hist.HistorySize < 0) ? "(unlimited)" : "",
+	    Hist.HistoryQuiet ? "quiet" : "numbers", Hist.HistoryFull ? "full" : "suppress duplicates");
 }
 //
 // process 'show size' command 
@@ -2294,9 +2294,8 @@ void GnuPlot::ShowOrigin()
 void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 {
 	ShowAllNl();
-	if(pTerm) {
-		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, GPT.TermOptions);
-	}
+	if(pTerm)
+		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, GPT._TermOptions.cptr());
 	else
 		fputs("\tterminal type is unknown\n", stderr);
 }
@@ -2482,8 +2481,8 @@ void GnuPlot::ShowFontPath()
 {
 	const char * env_fontpath = getenv("GNUPLOT_FONTPATH");
 	ShowAllNl();
-	fprintf(stderr, "\tdirectory from 'set fontpath': %s\n", PS_fontpath ? PS_fontpath : "none");
-	fprintf(stderr, "\tenvironmental variable GNUPLOT_FONTPATH: %s\n", env_fontpath ? env_fontpath : "none");
+	fprintf(stderr, "\tdirectory from 'set fontpath': %s\n", NZOR(GPT.P_PS_FontPath, "none"));
+	fprintf(stderr, "\tenvironmental variable GNUPLOT_FONTPATH: %s\n", NZOR(env_fontpath, "none"));
 }
 //
 // process 'show zero' command 
@@ -2709,9 +2708,9 @@ void GnuPlot::ShowLineType(linestyle_def * pListHead, int tag)
 	if(tag > 0 && !showed)
 		IntErrorCurToken("linetype not found");
 	if(pListHead == Gg.P_FirstPermLineStyle)
-		recycle_count = linetype_recycle_count;
+		recycle_count = GPT.LinetypeRecycleCount;
 	else if(pListHead == Gg.P_FirstMonoLineStyle)
-		recycle_count = mono_recycle_count;
+		recycle_count = GPT.MonoRecycleCount;
 	if(tag == 0 && recycle_count > 0)
 		fprintf(stderr, "\tLinetypes repeat every %d unless explicitly defined\n", recycle_count);
 }

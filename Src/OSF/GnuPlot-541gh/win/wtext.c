@@ -431,7 +431,7 @@ void TW::UpdateText(int count)
 			}
 			else {
 				yofs = x / width;
-				n    = (x + count - 1) / width + 1 - yofs;/* number of lines */
+				n    = (x + count - 1) / width + 1 - yofs; /* number of lines */
 			}
 			for(; n > 0; y++, n--) {
 				int ypos = (y + yofs) * CharSize.y - ScrollPos.y;
@@ -928,7 +928,7 @@ static void TextSelectFont(TW * lptw)
 		if(cf.nFontType & ITALIC_FONTTYPE)
 			_tcscat(lptw->fontname, TEXT(" Italic"));
 		TextMakeFont(lptw);
-		/* force a window update */
+		// force a window update 
 		GetClientRect(lptw->hWndText, &rect);
 		SendMessage(lptw->hWndText, WM_SIZE, SIZE_RESTORED, MAKELPARAM(rect.right - rect.left, rect.bottom - rect.top));
 		GetClientRect(lptw->hWndText, &rect);
@@ -936,16 +936,16 @@ static void TextSelectFont(TW * lptw)
 		UpdateWindow(lptw->hWndText);
 	}
 }
-/*
- * Update the status bar
- */
+//
+// Update the status bar
+//
 void TextUpdateStatus(TW * lptw)
 {
 	static enum set_encoding_id enc = S_ENC_INVALID;
 	if(enc != GPT._Encoding) { // only update when changed 
 		WCHAR buf[256];
 		enc = GPT._Encoding;
-		swprintf_s(buf, sizeof(buf)/sizeof(WCHAR), L"encoding: %hs", encoding_names[enc]);
+		swprintf_s(buf, SIZEOFARRAY(buf), L"encoding: %hs", encoding_names[enc]);
 		SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)0, (LPARAM)buf);
 	}
 }

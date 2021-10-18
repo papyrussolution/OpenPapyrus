@@ -181,7 +181,7 @@ struct hb_serialize_context_t {
 		DEBUG_MSG_LEVEL(SERIALIZE, this->start, 0, -1,
 		    "end [%p..%p] serialized %u bytes; %s",
 		    this->start, this->end,
-		    (unsigned)(this->head - this->start),
+		    (uint)(this->head - this->start),
 		    this->successful ? "successful" : "UNSUCCESSFUL");
 
 		propagate_error(packed, packed_map);
@@ -334,7 +334,7 @@ struct hb_serialize_context_t {
 
 		link.is_wide = sizeof(T) == 4;
 		link.is_signed = hb_is_signed(hb_unwrap_type(T));
-		link.whence = (unsigned)whence;
+		link.whence = (uint)whence;
 		link.position = (const char*)&ofs - current->head;
 		link.bias = bias;
 		link.objidx = objidx;
@@ -534,40 +534,32 @@ struct hb_serialize_context_t {
 			{
 			assert(this->successful);
 		        /* Copy both items from head side and tail side... */
-			unsigned int len = (this->head - this->start)
-			    + (this->end  - this->tail);
-
-			char * p = (char*)malloc(len);
-			if(UNLIKELY(!p)) return hb_bytes_t();
-
+			unsigned int len = (this->head - this->start) + (this->end  - this->tail);
+			char * p = (char*)SAlloc::M(len);
+			if(UNLIKELY(!p)) 
+				return hb_bytes_t();
 			memcpy(p, this->start, this->head - this->start);
 			memcpy(p + (this->head - this->start), this->tail, this->end - this->tail);
 			return hb_bytes_t(p, len);
 		}
-
-		template <typename Type>
-		Type * copy() const
-			{
+		template <typename Type> Type * copy() const 
+		{
 			return reinterpret_cast<Type *> ((char*)copy_bytes().arrayZ);
 		}
 
 		hb_blob_t * copy_blob() const
-			{
+		{
 			hb_bytes_t b = copy_bytes();
-			return hb_blob_create(b.arrayZ, b.length,
-				   HB_MEMORY_MODE_WRITABLE,
-				   (char*)b.arrayZ, free);
+			return hb_blob_create(b.arrayZ, b.length, HB_MEMORY_MODE_WRITABLE, (char*)b.arrayZ, free);
 		}
-
 		private:
 		template <typename T>
 		void assign_offset(const object_t* parent, const object_t::link_t &link, unsigned offset)
-			{
+		{
 			auto &off = *((BEInt<T, sizeof(T)> *)(parent->head + link.position));
 			assert(0 == off);
 			check_assign(off, offset);
 		}
-
 		public: /* TODO Make private. */
 		char * start, * head, * tail, * end;
 	unsigned int debug_depth;

@@ -1,7 +1,7 @@
 /*
  * Summary: interface for the memory allocator
  * Description: provides interfaces for the memory allocator,
- *         including debugging capabilities.
+ *   including debugging capabilities.
  *
  * Copy: See Copyright for the status of this software.
  *

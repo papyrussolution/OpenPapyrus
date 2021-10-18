@@ -3660,7 +3660,7 @@ int amqp_time_ms_until(amqp_time_t time)
 	}
 }
 
-int FASTCALL amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct timeval ** out) 
+int STDCALL amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct timeval ** out) 
 {
 	uint64 now_ns;
 	uint64 delta_ns;
@@ -4710,7 +4710,7 @@ int amqp_socket_get_sockfd(amqp_socket_t * self)
 	return self->klass->get_sockfd(self);
 }
 
-int FASTCALL amqp_poll(int fd, int event, amqp_time_t deadline) 
+int STDCALL amqp_poll(int fd, int event, amqp_time_t deadline) 
 {
 #ifdef HAVE_POLL
 	struct pollfd pfd;

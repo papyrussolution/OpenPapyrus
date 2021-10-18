@@ -94,7 +94,7 @@ static void checknext(LexState * ls, int c)
 	luaX_next(ls);
 }
 
-#define check_condition(ls, c, msg)       { if(!(c)) luaX_syntaxerror(ls, msg); }
+#define check_condition(ls, c, msg) { if(!(c)) luaX_syntaxerror(ls, msg); }
 
 static void check_match(LexState * ls, int what, int who, int where) 
 {
@@ -250,7 +250,7 @@ static void singlevaraux(FuncState * fs, TString * n, expdesc * var, int base)
 				if(var->k == VVOID) /* not found? */
 					return; /* it is a global */
 				/* else was LOCAL or UPVAL */
-				idx  = newupvalue(fs, n, var);/* will be a new upvalue */
+				idx  = newupvalue(fs, n, var); /* will be a new upvalue */
 			}
 			init_exp(var, VUPVAL, idx); /* new or old upvalue */
 		}

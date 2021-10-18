@@ -46,17 +46,17 @@ struct ae_xattr {
 struct ae_sparse {
 	struct ae_sparse *next;
 
-	int64_t	 offset;
-	int64_t	 length;
+	int64	 offset;
+	int64	 length;
 };
 
 struct ae_digest {
-	unsigned char md5[16];
-	unsigned char rmd160[20];
-	unsigned char sha1[20];
-	unsigned char sha256[32];
-	unsigned char sha384[48];
-	unsigned char sha512[64];
+	uchar md5[16];
+	uchar rmd160[20];
+	uchar sha1[20];
+	uchar sha256[32];
+	uchar sha384[48];
+	uchar sha512[64];
 };
 
 /*
@@ -106,19 +106,19 @@ struct archive_entry {
 	int  stat_valid; /* Set to 0 whenever a field in aest changes. */
 
 	struct aest {
-		int64_t		aest_atime;
-		uint32_t	aest_atime_nsec;
-		int64_t		aest_ctime;
-		uint32_t	aest_ctime_nsec;
-		int64_t		aest_mtime;
-		uint32_t	aest_mtime_nsec;
-		int64_t		aest_birthtime;
-		uint32_t	aest_birthtime_nsec;
-		int64_t		aest_gid;
-		int64_t		aest_ino;
-		uint32_t	aest_nlink;
-		uint64_t	aest_size;
-		int64_t		aest_uid;
+		int64		aest_atime;
+		uint32	aest_atime_nsec;
+		int64		aest_ctime;
+		uint32	aest_ctime_nsec;
+		int64		aest_mtime;
+		uint32	aest_mtime_nsec;
+		int64		aest_birthtime;
+		uint32	aest_birthtime_nsec;
+		int64		aest_gid;
+		int64		aest_ino;
+		uint32	aest_nlink;
+		uint64	aest_size;
+		int64		aest_uid;
 		/*
 		 * Because converting between device codes and
 		 * major/minor values is platform-specific and
@@ -195,6 +195,6 @@ struct archive_entry {
 
 int
 archive_entry_set_digest(struct archive_entry *entry, int type,
-    const unsigned char *digest);
+    const uchar *digest);
 
 #endif /* ARCHIVE_ENTRY_PRIVATE_H_INCLUDED */

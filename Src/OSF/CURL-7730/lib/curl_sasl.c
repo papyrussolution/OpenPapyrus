@@ -52,7 +52,7 @@
 
 /* Supported mechanisms */
 static const struct {
-	const char   * name;/* Name */
+	const char   * name; /* Name */
 	size_t len;    /* Name length */
 	unsigned int bit; /* Flag bit */
 } mechtable[] = {
@@ -211,7 +211,7 @@ static void state(struct SASL * sasl, struct connectdata * conn,
 
 	if(sasl->state != newstate)
 		infof(conn->data, "SASL %p state change from %s to %s\n",
-		    (void*)sasl, names[sasl->state], names[newstate]);
+		    (void *)sasl, names[sasl->state], names[newstate]);
 #else
 	(void)conn;
 #endif

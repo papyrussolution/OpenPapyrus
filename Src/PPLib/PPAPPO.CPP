@@ -1181,7 +1181,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			// @v11.1.8 { @experimental
 			//StringSet styloq_dbsymb_list;
 			StyloQCore::SvcDbSymbMap stq_svcdb_map;
-			stq_svcdb_map.Read(0);
+			stq_svcdb_map.Read(0, 0);
 			// } @experimental @v11.1.8 
 			if(!(rParam.Flags & rParam.fProtect)) {
 				PPLoadText(PPTXT_GREETING, title_buf);

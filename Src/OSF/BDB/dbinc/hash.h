@@ -78,8 +78,8 @@ typedef struct cursor_t {
 	db_indx_t	dup_len;	/* Length of current duplicate. */
 	db_indx_t	dup_tlen;	/* Total length of duplicate entry. */
 	uint32	seek_size;	/* Number of bytes we need for add. */
-	db_pgno_t	seek_found_page;/* Page on which we can insert. */
-	db_indx_t	seek_found_indx;/* Insert position for item. */
+	db_pgno_t	seek_found_page; /* Page on which we can insert. */
+	db_indx_t	seek_found_indx; /* Insert position for item. */
 	uint32	order;		/* Relative order among deleted curs. */
 
 #define	H_CONTINUE	0x0001		/* Join--search strictly fwd for data */

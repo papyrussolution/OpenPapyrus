@@ -232,11 +232,11 @@ unsigned TiXmlString::find(TCHAR tofind, unsigned offset) const
 	TCHAR * lookup;
 
 	if(offset >= length())
-		return (unsigned)notfound;
+		return (uint)notfound;
 	for(lookup = cstring + offset; *lookup; lookup++)
 		if(*lookup == tofind)
 			return lookup - cstring;
-	return (unsigned)notfound;
+	return (uint)notfound;
 }
 
 bool TiXmlString::operator ==(const TiXmlString & compare) const

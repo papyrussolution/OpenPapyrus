@@ -162,7 +162,7 @@ static void * data_create_khmer(const hb_ot_shape_plan_t * plan)
 
 	khmer_plan->virama_glyph = (hb_codepoint_t)-1;
 
-	for(unsigned int i = 0; i < ARRAY_LENGTH(khmer_plan->mask_array); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(khmer_plan->mask_array); i++)
 		khmer_plan->mask_array[i] = (khmer_features[i].flags & F_GLOBAL) ?
 		    0 : plan->map.get_1_mask(khmer_features[i].tag);
 
@@ -193,7 +193,7 @@ static void setup_masks_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		set_khmer_properties(info[i]);
 }
 
@@ -223,12 +223,12 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 		hb_mask_t mask = khmer_plan->mask_array[KHMER_BLWF] |
 		    khmer_plan->mask_array[KHMER_ABVF] |
 		    khmer_plan->mask_array[KHMER_PSTF];
-		for(unsigned int i = start + 1; i < end; i++)
+		for(uint i = start + 1; i < end; i++)
 			info[i].mask  |= mask;
 	}
 
 	unsigned int num_coengs = 0;
-	for(unsigned int i = start + 1; i < end; i++) {
+	for(uint i = start + 1; i < end; i++) {
 		/* """
 		 * When a COENG + (Cons | IndV) combination are found (and subscript count
 		 * is less than two) the character combination is handled according to the
@@ -312,7 +312,7 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
 	bool has_broken_syllables = false;
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == khmer_broken_cluster) {
 			has_broken_syllables = true;
 			break;

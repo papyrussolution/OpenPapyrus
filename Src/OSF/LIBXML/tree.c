@@ -564,7 +564,7 @@ try_complex:
  * Set the buffer allocation method.  Types are
  * XML_BUFFER_ALLOC_EXACT - use exact sizes, keeps memory usage down
  * XML_BUFFER_ALLOC_DOUBLEIT - double buffer when extra needed,
- *                        improves performance
+ *                  improves performance
  */
 void xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme) 
 {
@@ -577,10 +577,10 @@ void xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme)
  * Types are
  * XML_BUFFER_ALLOC_EXACT - use exact sizes, keeps memory usage down
  * XML_BUFFER_ALLOC_DOUBLEIT - double buffer when extra needed,
- *                        improves performance
+ *                  improves performance
  * XML_BUFFER_ALLOC_HYBRID - use exact sizes on small strings to keep memory usage tight
- *                       in normal usage, and doubleit on large strings to avoid
- *                       pathological performance.
+ *                 in normal usage, and doubleit on large strings to avoid
+ *                 pathological performance.
  *
  * Returns the current allocation scheme
  */

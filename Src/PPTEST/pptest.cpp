@@ -521,6 +521,16 @@ int Test_Alg_SS_Z(const char * pInputFileName);
 int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
 int DummyProc_dirent(); // @prototype @forcelink
+// @v11.2.0 {
+// ƒл€ сборки _MSC_VER менее чем 2015 мы не будем поддерживать LMDB. «десь включена пустышка дл€ пропуска соответствующего теста
+#if _MSC_VER >= 1900
+	int DummyProc_LMDB();   // @prototype @forcelink
+#else
+	#if SLTEST_RUNNING
+		SLTEST_R(LMDB) { return 1; }
+	#endif
+#endif
+// } @v11.2.0
 
 int TestNoLogin()
 {
@@ -528,6 +538,9 @@ int TestNoLogin()
 	STestSuite s;
 	SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
 	DummyProc_dirent(); // @v10.9.12 @forcelink
+#if _MSC_VER >= 1900
+	DummyProc_LMDB(); // @v11.2.0 @forcelink
+#endif
 	s.Run("\\papyrus\\src\\pptest\\testdef.ini");
 	//Test_Alg_SS_Z("c:\\papyrus\\src\\pptest\\words.");
 	//Test_InterfaceCall();
@@ -675,14 +688,14 @@ static inline uint MtGet (void * p_vstate);
 static double MtGetDouble (void * p_vstate);
 static void MtSet (void * p_state, uint s);
 
-#define N 624   //Period parameters
-#define M 397
+#define __N 624   //Period parameters
+#define __M 397
 
 static const ulong UPPER_MASK = 0x80000000UL; //most significant w-r bits
 static const ulong LOWER_MASK = 0x7fffffffUL; //least significant r bits
 
 typedef struct {
-	unsigned long mt[N];
+	unsigned long mt[__N];
 	int mti;
 } MtStateT;
 
@@ -692,20 +705,20 @@ static inline uint MtGet(void * p_vstate)
 	unsigned long k ;
 	ulong * const mt = p_state->mt;
 #define MAGIC_RNG(y) (((y)&0x1) ? 0x9908b0dfUL : 0)
-	if(p_state->mti >= N) {
+	if(p_state->mti >= __N) {
 		//generate N words at one time
 		int kk = 0;
-		for(kk = 0; kk < N - M; kk++) {
+		for(kk = 0; kk < __N - __M; kk++) {
 			unsigned long y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-			mt[kk] = mt[kk + M] ^ (y >> 1) ^ MAGIC_RNG(y);
+			mt[kk] = mt[kk + __M] ^ (y >> 1) ^ MAGIC_RNG(y);
 		}
-		for(; kk < N - 1; kk++) {
+		for(; kk < __N - 1; kk++) {
 			unsigned long y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-			mt[kk] = mt[kk + (M - N)] ^ (y >> 1) ^ MAGIC_RNG(y);
+			mt[kk] = mt[kk + (__M - __N)] ^ (y >> 1) ^ MAGIC_RNG(y);
 		}
 		{
-			unsigned long y = (mt[N - 1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
-			mt[N - 1] = mt[M - 1] ^ (y >> 1) ^ MAGIC_RNG(y);
+			unsigned long y = (mt[__N - 1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
+			mt[__N - 1] = mt[__M - 1] ^ (y >> 1) ^ MAGIC_RNG(y);
 		}
 		p_state->mti = 0;
 	}
@@ -728,7 +741,7 @@ static void MtSet(void * p_vstate, uint s)
 	if(s == 0)
 		s = 4357;   //the default seed is 4357
 	p_state->mt[0]= s & 0xffffffffUL;
-	for (i = 1; i < N; i++) {
+	for (i = 1; i < __N; i++) {
 		p_state->mt[i] = (1812433253UL * (p_state->mt[i-1] ^ (p_state->mt[i-1] >> 30)) + i);
 		p_state->mt[i] &= 0xffffffffUL;
 	}
@@ -755,11 +768,11 @@ void RngSet(const Rng * pR, uint seed) {(pR->P_Type->P_Set) (pR->P_State, seed);
 
 Rng * RngAlloc(const RngType * pT)
 {
-	Rng * pR = static_cast<Rng *>(malloc(sizeof(Rng)));
+	Rng * pR = static_cast<Rng *>(SAlloc::M(sizeof(Rng)));
 	/*if (pR == 0) {
 		ERROR_VAL ("failed to allocate space for rng struct", ENOMEM, 0);
     };*/
-	pR->P_State = malloc(pT->Size);
+	pR->P_State = SAlloc::M(pT->Size);
 	if (pR->P_State == 0) {
 		free (pR);		//exception in constructor, avoid memory leak
 		/*ERROR_VAL ("failed to allocate space for rng state", ENOMEM, 0);*/
@@ -817,8 +830,8 @@ void * RngState (const Rng * pR) {return pR->P_State;}
 void RngFree (Rng * pR)
 {
 	if(pR) {
-		free(pR->P_State);
-		free(pR);
+		SAlloc::F(pR->P_State);
+		SAlloc::F(pR);
 	}
 }
 //
@@ -1389,6 +1402,7 @@ int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
 int  Test_PPStyloQInterchange();
+int  Test_Launc_SCalendarPiker();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1407,18 +1421,59 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 	return BIN(path.NotEmpty());
 }*/
 
-// @v10.9.7 (Ёкпериментальное внедрение тестировани€ библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
+// @v10.9.7 (Ёкспериментальное внедрение тестировани€ библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
 int DoTest_PThr4w();
+
+//#include <memory>
+//#include <string>
 
 int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
 //#if 1
+	/*{
+		class Foo {
+		public:
+			Foo() : A(1), B(-1.0)
+			{
+			}
+			~Foo()
+			{
+				A = 0;
+				B = 0.0;
+			}
+			uint   A;
+			double B;
+		};
+		std::unique_ptr <Foo> ptr(new Foo);
+		std::unique_ptr <Foo> ptr2;
+		if(ptr->A != ptr->B) {
+			ptr2 = std::move(ptr);
+		}
+		char str_buf[128];
+		{
+			std::string s1;
+			s1 = "This is a sample string";
+			strcpy(str_buf, s1.c_str());
+		}
+		ptr = std::move(ptr2);
+	}*/
+	/*{
+		LARGE_INTEGER qpc1;
+		LARGE_INTEGER qpc2;
+		uint64 c1 = clock();
+		QueryPerformanceCounter(&qpc1);
+		SDelay(10000);
+		uint64 c2 = clock();
+		QueryPerformanceCounter(&qpc2);
+		SDelay(1);
+	}*/
 	//TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+	Test_Launc_SCalendarPiker();
 	Test_PPStyloQInterchange();
 	/*{
 		SSecretTagPool stp;

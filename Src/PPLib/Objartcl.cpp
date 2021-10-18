@@ -1304,7 +1304,7 @@ int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 				}
 				else if(acs_rec.Flags & ACSHF_USECLIAGT || pPack->Rec.AccSheetID == GetSellAccSheet()) {
 					PPClientAgreement agt;
-					THROW(r = GetClientAgreement(id, &agt, 0));
+					THROW(r = GetClientAgreement(id, agt, 0));
 					if(r > 0)
 						THROW(pPack->SetClientAgreement(&agt, 0));
 				}

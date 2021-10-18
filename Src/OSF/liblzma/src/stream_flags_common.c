@@ -15,7 +15,7 @@ lzma_ret lzma_stream_flags_compare(const lzma_stream_flags *a, const lzma_stream
 	if(a->version != 0 || b->version != 0)
 		return LZMA_OPTIONS_ERROR;
 	// Check type
-	if((unsigned int)(a->check) > LZMA_CHECK_ID_MAX || (unsigned int)(b->check) > LZMA_CHECK_ID_MAX)
+	if((uint)(a->check) > LZMA_CHECK_ID_MAX || (uint)(b->check) > LZMA_CHECK_ID_MAX)
 		return LZMA_PROG_ERROR;
 	if(a->check != b->check)
 		return LZMA_DATA_ERROR;

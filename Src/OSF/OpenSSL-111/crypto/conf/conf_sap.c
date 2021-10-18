@@ -32,7 +32,7 @@ void OPENSSL_config(const char * appname)
 	OPENSSL_INIT_SETTINGS settings;
 	memzero(&settings, sizeof(settings));
 	if(appname != NULL)
-		settings.appname = strdup(appname);
+		settings.appname = sstrdup(appname);
 	settings.flags = DEFAULT_CONF_MFLAGS;
 	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, &settings);
 }
@@ -45,19 +45,15 @@ int openssl_config_int(const OPENSSL_INIT_SETTINGS * settings)
 	const char * filename;
 	const char * appname;
 	ulong flags;
-
 	if(openssl_configured)
 		return 1;
-
 	filename = settings ? settings->filename : NULL;
 	appname = settings ? settings->appname : NULL;
 	flags = settings ? settings->flags : DEFAULT_CONF_MFLAGS;
-
 #ifdef OPENSSL_INIT_DEBUG
 	slfprintf_stderr("OPENSSL_INIT: openssl_config_int(%s, %s, %lu)\n",
 	    filename, appname, flags);
 #endif
-
 	OPENSSL_load_builtin_modules();
 #ifndef OPENSSL_NO_ENGINE
 	/* Need to load ENGINEs */

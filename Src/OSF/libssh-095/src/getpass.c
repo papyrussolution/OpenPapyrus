@@ -191,7 +191,7 @@ int ssh_getpass(const char * prompt,
  * @param[in]  prompt   The prompt to show to ask for the password.
  *
  * @param[out] buf    The buffer the password should be stored. It NEEDS to be
- *                      empty or filled out.
+ *                empty or filled out.
  *
  * @param[in]  len      The length of the buffer.
  *

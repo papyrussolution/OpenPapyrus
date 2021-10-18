@@ -21,7 +21,7 @@
 
 namespace Utf8 { // could be a static class, instead of a namespace, if it needs private members
 	// basic classification of UTF-8 bytes
-	inline static bool isSingleByte(UCHAR c)       { return c < 0x80; }
+	inline static bool isSingleByte(UCHAR c) { return c < 0x80; }
 	inline static bool isPartOfMultibyte(UCHAR c)  { return c >= 0x80; }
 	inline static bool isFirstOfMultibyte(UCHAR c) { return c >= 0xC2 && c < 0xF5; } // 0xF5 to 0xFD are defined by UTF-8, but are not currently valid Unicode
 	inline static bool isContinuation(UCHAR c)     { return (c & 0xC0) == 0x80; }

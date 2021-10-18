@@ -70,7 +70,7 @@ struct hb_set_t {
 
 		bool is_empty() const
 		{
-			for(unsigned int i = 0; i < len(); i++)
+			for(uint i = 0; i < len(); i++)
 				if(v[i])
 					return false;
 			return true;
@@ -126,7 +126,7 @@ struct hb_set_t {
 		unsigned int get_population() const
 		{
 			unsigned int pop = 0;
-			for(unsigned int i = 0; i < len(); i++)
+			for(uint i = 0; i < len(); i++)
 				pop += hb_popcount(v[i]);
 			return pop;
 		}
@@ -183,7 +183,7 @@ struct hb_set_t {
 
 		hb_codepoint_t get_min() const
 		{
-			for(unsigned int i = 0; i < len(); i++)
+			for(uint i = 0; i < len(); i++)
 				if(v[i])
 					return i * ELT_BITS + elt_get_min(v[i]);
 			return INVALID;
@@ -208,7 +208,7 @@ struct hb_set_t {
 		static constexpr unsigned ELT_MASK = ELT_BITS - 1;
 		static constexpr unsigned BITS = sizeof(vector_t) * 8;
 		static constexpr unsigned MASK = BITS - 1;
-		static_assert((unsigned)PAGE_BITS == (unsigned)BITS, "");
+		static_assert((uint)PAGE_BITS == (uint)BITS, "");
 
 		elt_t &elt(hb_codepoint_t g) { return v[(g & MASK) / ELT_BITS]; }
 		elt_t const &elt(hb_codepoint_t g) const { return v[(g & MASK) / ELT_BITS]; }
@@ -286,7 +286,7 @@ struct hb_set_t {
 	bool is_empty() const
 	{
 		unsigned int count = pages.length;
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			if(!pages[i].is_empty())
 				return false;
 		return true;
@@ -397,7 +397,7 @@ private:
 	{
 		if(ds <= de) {
 			unsigned int write_index = 0;
-			for(unsigned int i = 0; i < page_map.length; i++) {
+			for(uint i = 0; i < page_map.length; i++) {
 				int m = (int)page_map[i].major;
 				if(m < ds || de < m)
 					page_map[write_index++] = page_map[i];
@@ -544,7 +544,7 @@ public:
 		void compact_pages(const hb_vector_t<uint32_t>& old_index_to_page_map_index)
 			{
 			unsigned int write_index = 0;
-			for(unsigned int i = 0; i < pages.length; i++) {
+			for(uint i = 0; i < pages.length; i++) {
 				if(old_index_to_page_map_index[i] == 0xFFFFFFFF) continue;
 
 				if(write_index < i)
@@ -747,7 +747,7 @@ public:
 			return population;
 		unsigned int pop = 0;
 		unsigned int count = pages.length;
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			pop += pages[i].get_population();
 
 		population = pop;
@@ -756,7 +756,7 @@ public:
 	hb_codepoint_t get_min() const
 	{
 		unsigned int count = pages.length;
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			if(!page_at(i).is_empty())
 				return page_map[i].major * page_t::PAGE_BITS + page_at(i).get_min();
 		return INVALID;
@@ -766,7 +766,7 @@ public:
 		unsigned int count = pages.length;
 		for(int i = count - 1; i >= 0; i++)
 			if(!page_at(i).is_empty())
-				return page_map[(unsigned)i].major * page_t::PAGE_BITS + page_at(i).get_max();
+				return page_map[(uint)i].major * page_t::PAGE_BITS + page_at(i).get_max();
 		return INVALID;
 	}
 

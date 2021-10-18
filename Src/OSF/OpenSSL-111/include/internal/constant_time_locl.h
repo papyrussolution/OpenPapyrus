@@ -16,9 +16,9 @@
  * and 0 for false. This is useful for choosing a value based on the result
  * of a conditional in constant time. For example,
  *      if (a < b) {
- *        c = a;
+ *  c = a;
  *      } else {
- *        c = b;
+ *  c = b;
  *      }
  * can be written as
  *      uint lt = constant_time_lt(a, b);

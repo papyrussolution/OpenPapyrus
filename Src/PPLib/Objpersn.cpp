@@ -6494,7 +6494,7 @@ IMPL_OBJ_FETCH(PPObjPerson, PersonTbl::Rec, PersonCache)
 //
 //
 //
-int FASTCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
+int STDCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
 {
 	int    ok = 1;
 	// @v10.3.0 (never used) int    create_ctl_grp = 0;

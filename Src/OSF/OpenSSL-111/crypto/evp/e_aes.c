@@ -3360,14 +3360,14 @@ static int aes_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 			 * September 2004 paper:
 			 *
 			 *      "Efficient Instantiations of Tweakable Blockciphers and
-			 *       Refinements to Modes OCB and PMAC".
+			 * Refinements to Modes OCB and PMAC".
 			 *      (http://web.cs.ucdavis.edu/~rogaway/papers/offsets.pdf)
 			 *
 			 * FIPS 140-2 IG A.9 XTS-AES Key Generation Requirements states
 			 * that:
 			 *      "The check for Key_1 != Key_2 shall be done at any place
-			 *       BEFORE using the keys in the XTS-AES algorithm to process
-			 *       data with them."
+			 * BEFORE using the keys in the XTS-AES algorithm to process
+			 * data with them."
 			 */
 			if(enc && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
 				EVPerr(EVP_F_AES_XTS_INIT_KEY, EVP_R_XTS_DUPLICATED_KEYS);

@@ -275,7 +275,7 @@ TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf_s(GPT.TermOptions, sizeof(GPT.TermOptions), "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
+	slprintf(GPT._TermOptions, "%senhanced linewidth %.1f pointsize %.1f fontscale %.1f background \"#%02x%02x%02x\"",
 	    pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", pc_linewidth_scale, pc_pointscale, pc_fontscale, pc_background_rgb.r, pc_background_rgb.g, pc_background_rgb.b);
 }
 
@@ -648,23 +648,23 @@ static int PC_translate_key(int key, int * mod)
 {
 	int (*found)[2];
 	/* mapping of some special keys including modifiers */
-	found = bsearch((void*)&key,
+	found = bsearch((void *)&key,
 		pc_key_table, sizeof(pc_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 		&PC_int_compare);
 	if(found == NULL) {
-		found = bsearch((void*)&key,
+		found = bsearch((void *)&key,
 			pc_alt_key_table, sizeof(pc_alt_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 			&PC_int_compare);
 		if(found != NULL)
 			*mod = Mod_Alt;
 	}
 	if(found == NULL) {
-		found = bsearch((void*)&key, pc_control_key_table, sizeof(pc_control_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
+		found = bsearch((void *)&key, pc_control_key_table, sizeof(pc_control_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
 		if(found != NULL)
 			*mod = Mod_Ctrl;
 	}
 	if(found == NULL) {
-		found = bsearch((void*)&key, pc_shift_key_table, sizeof(pc_shift_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
+		found = bsearch((void *)&key, pc_shift_key_table, sizeof(pc_shift_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
 		if(found != NULL)
 			*mod = Mod_Shift;
 	}

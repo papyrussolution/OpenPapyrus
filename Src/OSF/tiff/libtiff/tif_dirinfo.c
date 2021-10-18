@@ -324,7 +324,7 @@ void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 	}
 }
 
-static int tagCompare(const void* a, const void* b)
+static int tagCompare(const void * a, const void * b)
 {
 	const TIFFField * ta = *static_cast<const TIFFField * const *>(a);
 	const TIFFField * tb = *static_cast<const TIFFField * const *>(b);
@@ -335,7 +335,7 @@ static int tagCompare(const void* a, const void* b)
 		return (ta->field_type == TIFF_ANY) ? 0 : ((int)tb->field_type - (int)ta->field_type);
 }
 
-static int tagNameCompare(const void* a, const void* b)
+static int tagNameCompare(const void * a, const void * b)
 {
 	const TIFFField * ta = *static_cast<const TIFFField * const *>(a);
 	const TIFFField * tb = *static_cast<const TIFFField * const *>(b);

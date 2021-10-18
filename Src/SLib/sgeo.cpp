@@ -1799,7 +1799,7 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 	// somg12 > 1 marks that it needs to be calculated
 	double omg12 = 0.0;
 	SinCosPair sc_omg12(2.0, 0.0);
-	unsigned outmask = (ps12 ? GEOD_DISTANCE : 0U) | (pm12 ? GEOD_REDUCEDLENGTH : 0U) | (pM12 || pM21 ? GEOD_GEODESICSCALE : 0U) | (pS12 ? GEOD_AREA : 0U);
+	uint   outmask = (ps12 ? GEOD_DISTANCE : 0U) | (pm12 ? GEOD_REDUCEDLENGTH : 0U) | (pM12 || pM21 ? GEOD_GEODESICSCALE : 0U) | (pS12 ? GEOD_AREA : 0U);
 	outmask &= OUT_ALL;
 	// Compute longitude difference (AngDiff does this carefully).  Result is
 	// in [-180, 180] but -180 is only for west-going geodesics.  180 is for

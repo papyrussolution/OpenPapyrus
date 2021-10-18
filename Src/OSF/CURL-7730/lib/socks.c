@@ -288,7 +288,7 @@ CONNECT_RESOLVED:
 			    if(hp->ai_family == AF_INET) {
 				    struct sockaddr_in * saddr_in;
 
-				    saddr_in = (struct sockaddr_in *)(void*)hp->ai_addr;
+				    saddr_in = (struct sockaddr_in *)(void *)hp->ai_addr;
 				    socksreq[4] = ((uchar *)&saddr_in->sin_addr.s_addr)[0];
 				    socksreq[5] = ((uchar *)&saddr_in->sin_addr.s_addr)[1];
 				    socksreq[6] = ((uchar *)&saddr_in->sin_addr.s_addr)[2];
@@ -810,7 +810,7 @@ CONNECT_RESOLVED:
 			    struct sockaddr_in * saddr_in;
 			    socksreq[len++] = 1; /* ATYP: IPv4 = 1 */
 
-			    saddr_in = (struct sockaddr_in *)(void*)hp->ai_addr;
+			    saddr_in = (struct sockaddr_in *)(void *)hp->ai_addr;
 			    for(i = 0; i < 4; i++) {
 				    socksreq[len++] = ((uchar *)&saddr_in->sin_addr.s_addr)[i];
 			    }
@@ -823,7 +823,7 @@ CONNECT_RESOLVED:
 			    struct sockaddr_in6 * saddr_in6;
 			    socksreq[len++] = 4; /* ATYP: IPv6 = 4 */
 
-			    saddr_in6 = (struct sockaddr_in6 *)(void*)hp->ai_addr;
+			    saddr_in6 = (struct sockaddr_in6 *)(void *)hp->ai_addr;
 			    for(i = 0; i < 16; i++) {
 				    socksreq[len++] =
 					((uchar *)&saddr_in6->sin6_addr.s6_addr)[i];

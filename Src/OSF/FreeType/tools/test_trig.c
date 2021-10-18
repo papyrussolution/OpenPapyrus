@@ -8,7 +8,7 @@
 #define  SPI  (PI/FT_ANGLE_PI)
 
 /* the precision in 16.16 fixed-point checks. Expect between 2 and 5 */
-/* noise LSB bits during operations, due to rounding errors..        */
+/* noise LSB bits during operations, due to rounding errors..  */
 #define  THRESHOLD  64
 
   static  error = 0;

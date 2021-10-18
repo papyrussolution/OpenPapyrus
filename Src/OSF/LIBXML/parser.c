@@ -1,6 +1,6 @@
 /*
  * parser.c : an XML 1.0 parser, namespaces and validity support are mostly
- *       implemented on top of the SAX interfaces
+ * implemented on top of the SAX interfaces
  *
  * References:
  * The XML specification:
@@ -1021,37 +1021,37 @@ static void FASTCALL xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
  *
  * http://www.rfc-editor.org/rfc/rfc5646.txt
  * langtag       = language
- *            ["-" script]
- *            ["-" region]
- *            *("-" variant)
- *            *("-" extension)
- *            ["-" privateuse]
+ *      ["-" script]
+ *      ["-" region]
+ *      *("-" variant)
+ *      *("-" extension)
+ *      ["-" privateuse]
  * language      = 2*3ALPHA            ; shortest ISO 639 code
- *            ["-" extlang]       ; sometimes followed by
- *                                ; extended language subtags
- *          / 4ALPHA              ; or reserved for future use
- *          / 5*8ALPHA            ; or registered language subtag
+ *      ["-" extlang]       ; sometimes followed by
+ *                          ; extended language subtags
+ *    / 4ALPHA              ; or reserved for future use
+ *    / 5*8ALPHA            ; or registered language subtag
  *
  * extlang       = 3ALPHA              ; selected ISO 639 codes
- *            *2("-" 3ALPHA)      ; permanently reserved
+ *      *2("-" 3ALPHA)      ; permanently reserved
  *
  * script        = 4ALPHA              ; ISO 15924 code
  *
  * region        = 2ALPHA              ; ISO 3166-1 code
- *          / 3DIGIT              ; UN M.49 code
+ *    / 3DIGIT              ; UN M.49 code
  *
  * variant       = 5*8alphanum         ; registered variants
- *          / (DIGIT 3alphanum)
+ *    / (DIGIT 3alphanum)
  *
  * extension     = singleton 1*("-" (2*8alphanum))
  *
- *                                ; Single alphanumerics
- *                                ; "x" reserved for private use
+ *                          ; Single alphanumerics
+ *                          ; "x" reserved for private use
  * singleton     = DIGIT               ; 0 - 9
- *          / %x41-57             ; A - W
- *          / %x59-5A             ; Y - Z
- *          / %x61-77             ; a - w
- *          / %x79-7A             ; y - z
+ *    / %x41-57             ; A - W
+ *    / %x59-5A             ; Y - Z
+ *    / %x61-77             ; a - w
+ *    / %x79-7A             ; y - z
  *
  * it sounds right to still allow Irregular i-xxx IANA and user codes too
  * The parser below doesn't try to cope with extension or privateuse
@@ -1562,7 +1562,7 @@ static int FASTCALL spacePop(xmlParserCtxt * ctxt)
  *      to the number of xmlChars used for the encoding [0-5].
  * CUR_SCHAR  same but operate on a string instead of the context
  * COPY_BUF  copy the current unicode char to the target buffer, increment
- *       the index
+ * the index
  * GROW, SHRINK  handling of input buffers
  */
 
@@ -1731,7 +1731,7 @@ xmlChar FASTCALL xmlPopInput(xmlParserCtxt * ctxt)
  * @input:  an XML parser input fragment (entity, XML fragment ...).
  *
  * xmlPushInput: switch to a new input stream which is stacked on top
- *          of the previous one(s).
+ *    of the previous one(s).
  * Returns -1 in case of error or the index in the input stack
  */
 int FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input)
@@ -2768,7 +2768,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
  * parse an XML name.
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *             CombiningChar | Extender
+ *       CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -2876,7 +2876,7 @@ static const xmlChar * xmlParseNCNameComplex(xmlParserCtxt * ctxt)
  * parse an XML name.
  *
  * [4NS] NCNameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                 CombiningChar | Extender
+ *           CombiningChar | Extender
  *
  * [5NS] NCName ::= (Letter | '_') (NCNameChar)*
  *
@@ -3501,7 +3501,7 @@ error:
  * will be handled later in xmlStringGetNodeList
  *
  * [10] AttValue ::= '"' ([^<&"] | Reference)* '"' |
- *              "'" ([^<&'] | Reference)* "'"
+ *        "'" ([^<&'] | Reference)* "'"
  *
  * 3.3.3 Attribute-Value Normalization:
  * Before the value of an attribute is passed to the application or
@@ -3984,13 +3984,13 @@ static void xmlParseCharDataComplex(xmlParserCtxt * ctxt, int cdata)
  *  'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [75] ExternalID ::= 'SYSTEM' S SystemLiteral
- *              | 'PUBLIC' S PubidLiteral S SystemLiteral
+ *        | 'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [83] PublicID ::= 'PUBLIC' S PubidLiteral
  *
  * Returns the function returns SystemLiteral and in the second
- *           case publicID receives PubidLiteral, is strict is off
- *           it is possible to return NULL and have publicID set.
+ *     case publicID receives PubidLiteral, is strict is off
+ *     it is possible to return NULL and have publicID set.
  */
 
 xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int strict)
@@ -5085,7 +5085,7 @@ int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree)
  * [55] StringType ::= 'CDATA'
  *
  * [56] TokenizedType ::= 'ID' | 'IDREF' | 'IDREFS' | 'ENTITY' |
- *                   'ENTITIES' | 'NMTOKEN' | 'NMTOKENS'
+ *             'ENTITIES' | 'NMTOKEN' | 'NMTOKENS'
  *
  * Validity constraints for attribute values syntax are checked in
  * xmlValidateAttributeValue()
@@ -5270,7 +5270,7 @@ void xmlParseAttributeListDecl(xmlParserCtxt * ctxt)
  * The leading '(' and spaces have been skipped in xmlParseElementContentDecl
  *
  * [51] Mixed ::= '(' S? '#PCDATA' (S? '|' S? Name)* S? ')*' |
- *           '(' S? '#PCDATA' S? ')'
+ *     '(' S? '#PCDATA' S? ')'
  *
  * [VC: Proper Group/PE Nesting] applies to [51] too (see [49])
  *
@@ -7103,7 +7103,7 @@ static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar
  * parse a DOCTYPE declaration
  *
  * [28] doctypedecl ::= '<!DOCTYPE' S Name (S ExternalID)? S?
- *                 ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
+ *           ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  *
  * [VC: Root Element Type]
  * The Name in the document type declaration must match the element
@@ -8971,7 +8971,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
  * parse the XML standalone declaration
  *
  * [32] SDDecl ::= S 'standalone' Eq
- *            (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no')'"'))
+ *      (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no')'"'))
  *
  * [VC: Standalone Document Declaration]
  * @todo The standalone document declaration must have the value "no"
@@ -9324,7 +9324,7 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
  * [78] extParsedEnt ::= TextDecl? content
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *           as a result of the parsing.
+ *     as a result of the parsing.
  */
 int xmlParseExtParsedEnt(xmlParserCtxt * ctxt)
 {
@@ -12183,7 +12183,7 @@ xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename)
  * @sax:  the SAX handler block
  * @filename:  the filename
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *        documents
+ *  documents
  * @data:  the userdata
  *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
@@ -12238,7 +12238,7 @@ xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int
  * @sax:  the SAX handler block
  * @filename:  the filename
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *        documents
+ *  documents
  *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
@@ -12411,7 +12411,7 @@ xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *        documents
+ *  documents
  * @data:  the userdata
  *
  * parse an XML in-memory block and use the given SAX function block
@@ -12457,7 +12457,7 @@ xmlDoc * xmlSAXParseMemoryWithData(xmlSAXHandler * sax, const char * buffer, int
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
  * @recovery:  work in recovery mode, i.e. tries to read not Well Formed
- *        documents
+ *  documents
  *
  * parse an XML in-memory block and use the given SAX function block
  * to handle the parsing callback. If sax is NULL, fallback to the default
@@ -12559,7 +12559,7 @@ xmlParserCtxt * xmlCreateDocParserCtxt(const xmlChar * cur)
  * @sax:  the SAX handler block
  * @cur:  a pointer to an array of xmlChar
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *        documents
+ *  documents
  *
  * parse an XML in-memory document and build a tree.
  * It use the given SAX function block to handle the parsing callback.

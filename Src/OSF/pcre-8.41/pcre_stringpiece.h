@@ -72,7 +72,7 @@ public:
 	StringPiece(const char* str) : ptr_(str), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
-	StringPiece(const unsigned char* str) : ptr_(reinterpret_cast<const char*>(str)), length_(static_cast<int>(strlen(ptr_))) 
+	StringPiece(const uchar* str) : ptr_(reinterpret_cast<const char*>(str)), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
 	StringPiece(const string& str) : ptr_(str.data()), length_(static_cast<int>(str.size())) 
@@ -112,7 +112,7 @@ public:
 		ptr_ = str;
 		length_ = static_cast<int>(strlen(str));
 	}
-	void set(const void* buffer, int len) 
+	void set(const void * buffer, int len) 
 	{
 		ptr_ = reinterpret_cast<const char*>(buffer);
 		length_ = len;

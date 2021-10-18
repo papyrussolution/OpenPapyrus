@@ -41,13 +41,13 @@
  *     macro) to `err`.  For example, in the BDF module the line
  *
  *     ```
- *       error = FT_ERR( Invalid_Outline );
+ * error = FT_ERR( Invalid_Outline );
  *     ```
  *
  *     expands to
  *
  *     ```
- *       error = BDF_Err_Invalid_Outline;
+ * error = BDF_Err_Invalid_Outline;
  *     ```
  *
  *     For simplicity, you can always use `FT_Err_Ok` directly instead of
@@ -60,8 +60,8 @@
  *     inequality, respectively.  Example:
  *
  *     ```
- *       if ( FT_ERR_EQ( error, Invalid_Outline ) )
- *         ...
+ * if ( FT_ERR_EQ( error, Invalid_Outline ) )
+ *   ...
  *     ```
  *
  *     Using this macro you don't have to think about error prefixes.  Of
@@ -69,8 +69,8 @@
  *     same as
  *
  *     ```
- *       if ( error == FT_Err_Invalid_Outline )
- *         ...
+ * if ( error == FT_Err_Invalid_Outline )
+ *   ...
  *     ```
  *
  *   FT_ERROR_BASE( errcode )

@@ -41,9 +41,9 @@ __FBSDID("$FreeBSD$");
 
 struct private_data {
 	ZSTD_DStream    * dstream;
-	unsigned char   * out_block;
+	uchar   * out_block;
 	size_t out_block_size;
-	int64_t total_out;
+	int64 total_out;
 	char in_frame;             /* True = in the middle of a zstd frame. */
 	char eof;             /* True = found end of compressed data. */
 };
@@ -92,7 +92,7 @@ int archive_read_support_filter_zstd(struct archive * _a)
  */
 static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	unsigned prefix;
 	/* Zstd frame magic values */
@@ -146,12 +146,12 @@ static int zstd_bidder_init(struct archive_read_filter * self)
 	ZSTD_DStream * dstream;
 	self->code = ARCHIVE_FILTER_ZSTD;
 	self->name = "zstd";
-	state = (struct private_data *)calloc(sizeof(*state), 1);
-	out_block = (uchar *)malloc(out_block_size);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	dstream = ZSTD_createDStream();
 	if(state == NULL || out_block == NULL || dstream == NULL) {
-		free(out_block);
-		free(state);
+		SAlloc::F(out_block);
+		SAlloc::F(state);
 		ZSTD_freeDStream(dstream); /* supports free on NULL */
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for zstd decompression");
 		return ARCHIVE_FATAL;
@@ -238,8 +238,8 @@ static int zstd_filter_close(struct archive_read_filter * self)
 	state = (struct private_data *)self->data;
 
 	ZSTD_freeDStream(state->dstream);
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 
 	return ARCHIVE_OK;
 }

@@ -1811,23 +1811,18 @@ const EC_METHOD * EC_GFp_nistp256_method(void)
 
 	return &ret;
 }
-
-/******************************************************************************/
+// 
 /*
  * FUNCTIONS TO MANAGE PRECOMPUTATION
  */
-
 static NISTP256_PRE_COMP * nistp256_pre_comp_new(void)
 {
 	NISTP256_PRE_COMP * ret = OPENSSL_zalloc(sizeof(*ret));
-
 	if(ret == NULL) {
 		ECerr(EC_F_NISTP256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}
-
 	ret->references = 1;
-
 	ret->lock = CRYPTO_THREAD_lock_new();
 	if(ret->lock == NULL) {
 		ECerr(EC_F_NISTP256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
@@ -1862,7 +1857,7 @@ void EC_nistp256_pre_comp_free(NISTP256_PRE_COMP * pre)
 	OPENSSL_free(pre);
 }
 
-/******************************************************************************/
+// 
 /*
  * OPENSSL EC_METHOD FUNCTIONS
  */

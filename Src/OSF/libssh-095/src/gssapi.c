@@ -639,7 +639,7 @@ static int ssh_gssapi_match(ssh_session session, gss_OID_set * valid_oids)
 
 	if(session->gssapi->client.client_deleg_creds == NULL) {
 		if(session->opts.gss_client_identity != NULL) {
-			namebuf.value = (void*)session->opts.gss_client_identity;
+			namebuf.value = (void *)session->opts.gss_client_identity;
 			namebuf.length = strlen(session->opts.gss_client_identity);
 
 			maj_stat = gss_import_name(&min_stat, &namebuf,
@@ -699,9 +699,9 @@ end:
 /**
  * @brief launches a gssapi-with-mic auth request
  * @returns SSH_AUTH_ERROR:   A serious error happened\n
- *          SSH_AUTH_DENIED:  Authentication failed : use another method\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  Authentication failed : use another method\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  */
 int ssh_gssapi_auth_mic(ssh_session session){
 	size_t i;

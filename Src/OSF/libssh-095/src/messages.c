@@ -513,10 +513,10 @@ static int ssh_message_termination(void * s)
  * @param[in]  session  The SSH session to get the message.
  *
  * @returns             The SSH message received, NULL in case of error, or timeout
- *                      elapsed.
+ *                elapsed.
  *
  * @warning This function blocks until a message has been received. Betterset up
- *          a callback if this behavior is unwanted.
+ *    a callback if this behavior is unwanted.
  */
 ssh_message ssh_message_get(ssh_session session) {
 	ssh_message msg = NULL;

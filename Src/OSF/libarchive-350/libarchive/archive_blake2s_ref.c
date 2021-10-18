@@ -17,13 +17,13 @@
 #include "archive_blake2.h"
 #include "archive_blake2_impl.h"
 
-static const uint32_t blake2s_IV[8] =
+static const uint32 blake2s_IV[8] =
 {
 	0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
 	0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
 
-static const uint8_t blake2s_sigma[10][16] =
+static const uint8 blake2s_sigma[10][16] =
 {
 	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
@@ -39,7 +39,7 @@ static const uint8_t blake2s_sigma[10][16] =
 
 static void blake2s_set_lastnode(blake2s_state * S)
 {
-	S->f[1] = (uint32_t)-1;
+	S->f[1] = (uint32)-1;
 }
 
 /* Some helper functions, not necessarily useful */
@@ -52,10 +52,10 @@ static void blake2s_set_lastblock(blake2s_state * S)
 {
 	if(S->last_node) blake2s_set_lastnode(S);
 
-	S->f[0] = (uint32_t)-1;
+	S->f[0] = (uint32)-1;
 }
 
-static void blake2s_increment_counter(blake2s_state * S, const uint32_t inc)
+static void blake2s_increment_counter(blake2s_state * S, const uint32 inc)
 {
 	S->t[0] += inc;
 	S->t[1] += ( S->t[0] < inc );
@@ -71,7 +71,7 @@ static void blake2s_init0(blake2s_state * S)
 /* init2 xors IV with input parameter block */
 int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 {
-	const unsigned char * p = (const unsigned char*)( P );
+	const uchar * p = (const uchar *)( P );
 	size_t i;
 	blake2s_init0(S);
 	/* IV XOR ParamBlock */
@@ -90,7 +90,7 @@ int blake2s_init(blake2s_state * S, size_t outlen)
 	/* Move interval verification here? */
 	if( ( !outlen ) || ( outlen > BLAKE2S_OUTBYTES ) ) return -1;
 
-	P->digest_length = (uint8_t)outlen;
+	P->digest_length = (uint8)outlen;
 	P->key_length    = 0;
 	P->fanout        = 1;
 	P->depth         = 1;
@@ -113,8 +113,8 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 
 	if(!key || !keylen || keylen > BLAKE2S_KEYBYTES) return -1;
 
-	P->digest_length = (uint8_t)outlen;
-	P->key_length    = (uint8_t)keylen;
+	P->digest_length = (uint8)outlen;
+	P->key_length    = (uint8)keylen;
 	P->fanout        = 1;
 	P->depth         = 1;
 	store32(&P->leaf_length, 0);
@@ -128,7 +128,7 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 	if(blake2s_init_param(S, P) < 0) 
 		return -1;
 	{
-		uint8_t block[BLAKE2S_BLOCKBYTES];
+		uint8 block[BLAKE2S_BLOCKBYTES];
 		memzero(block, BLAKE2S_BLOCKBYTES);
 		memcpy(block, key, keylen);
 		blake2s_update(S, block, BLAKE2S_BLOCKBYTES);
@@ -161,10 +161,10 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 		G(r, 7, v[ 3], v[ 4], v[ 9], v[14]); \
 	} while(0)
 
-static void blake2s_compress(blake2s_state * S, const uint8_t in[BLAKE2S_BLOCKBYTES])
+static void blake2s_compress(blake2s_state * S, const uint8 in[BLAKE2S_BLOCKBYTES])
 {
-	uint32_t m[16];
-	uint32_t v[16];
+	uint32 m[16];
+	uint32 v[16];
 	size_t i;
 
 	for(i = 0; i < 16; ++i) {
@@ -205,7 +205,7 @@ static void blake2s_compress(blake2s_state * S, const uint8_t in[BLAKE2S_BLOCKBY
 
 int blake2s_update(blake2s_state * S, const void * pin, size_t inlen)
 {
-	const unsigned char * in = (const unsigned char*)pin;
+	const uchar * in = (const uchar *)pin;
 	if(inlen > 0) {
 		size_t left = S->buflen;
 		size_t fill = BLAKE2S_BLOCKBYTES - left;
@@ -230,13 +230,13 @@ int blake2s_update(blake2s_state * S, const void * pin, size_t inlen)
 
 int blake2s_final(blake2s_state * S, void * out, size_t outlen)
 {
-	uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
+	uint8 buffer[BLAKE2S_OUTBYTES] = {0};
 	size_t i;
 	if(out == NULL || outlen < S->outlen)
 		return -1;
 	if(blake2s_is_lastblock(S) )
 		return -1;
-	blake2s_increment_counter(S, (uint32_t)S->buflen);
+	blake2s_increment_counter(S, (uint32)S->buflen);
 	blake2s_set_lastblock(S);
 	memzero(S->buf + S->buflen, BLAKE2S_BLOCKBYTES - S->buflen); /* Padding */
 	blake2s_compress(S, S->buf);
@@ -268,13 +268,13 @@ int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void
 		if(blake2s_init(S, outlen) < 0) return -1;
 	}
 
-	blake2s_update(S, (const uint8_t*)in, inlen);
+	blake2s_update(S, (const uint8*)in, inlen);
 	blake2s_final(S, out, outlen);
 	return 0;
 }
 
 #if defined(SUPERCOP)
-int crypto_hash(unsigned char * out, unsigned char * in, unsigned long long inlen)
+int crypto_hash(uchar * out, uchar * in, unsigned long long inlen)
 {
 	return blake2s(out, BLAKE2S_OUTBYTES, in, inlen, NULL, 0);
 }
@@ -286,19 +286,19 @@ int crypto_hash(unsigned char * out, unsigned char * in, unsigned long long inle
 #include "blake2-kat.h"
 int main(void)
 {
-	uint8_t key[BLAKE2S_KEYBYTES];
-	uint8_t buf[BLAKE2_KAT_LENGTH];
+	uint8 key[BLAKE2S_KEYBYTES];
+	uint8 buf[BLAKE2_KAT_LENGTH];
 	size_t i, step;
 
 	for(i = 0; i < BLAKE2S_KEYBYTES; ++i)
-		key[i] = (uint8_t)i;
+		key[i] = (uint8)i;
 
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i)
-		buf[i] = (uint8_t)i;
+		buf[i] = (uint8)i;
 
 	/* Test simple API */
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
-		uint8_t hash[BLAKE2S_OUTBYTES];
+		uint8 hash[BLAKE2S_OUTBYTES];
 		blake2s(hash, BLAKE2S_OUTBYTES, buf, i, key, BLAKE2S_KEYBYTES);
 
 		if(0 != memcmp(hash, blake2s_keyed_kat[i], BLAKE2S_OUTBYTES) ) {
@@ -309,9 +309,9 @@ int main(void)
 	/* Test streaming API */
 	for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
 		for(i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
-			uint8_t hash[BLAKE2S_OUTBYTES];
+			uint8 hash[BLAKE2S_OUTBYTES];
 			blake2s_state S;
-			uint8_t * p = buf;
+			uint8 * p = buf;
 			size_t mlen = i;
 			int err = 0;
 

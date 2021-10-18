@@ -27,9 +27,9 @@
 
 FT_BEGIN_HEADER
 
-/*************************************************************************/
+// 
 /***              REQUIRED TYPE1/TYPE2 TABLES DEFINITIONS              ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -112,9 +112,9 @@ typedef struct  CID_SubrsRec_ {
 	FT_Byte**  code;
 } CID_SubrsRec, * CID_Subrs;
 
-/*************************************************************************/
+// 
 /***                AFM FONT INFORMATION STRUCTURES                    ***/
-/*************************************************************************/
+// 
 
 typedef struct  AFM_TrackKernRec_ {
 	FT_Int degree;
@@ -142,9 +142,9 @@ typedef struct  AFM_FontInfoRec_ {
 	FT_UInt NumKernPair;
 } AFM_FontInfoRec, * AFM_FontInfo;
 
-/*************************************************************************/
+// 
 /***                ORIGINAL T1_FACE CLASS DEFINITION                  ***/
-/*************************************************************************/
+// 
 
 typedef struct T1_FaceRec_*   T1_Face;
 typedef struct CID_FaceRec_*  CID_Face;
@@ -152,9 +152,9 @@ typedef struct CID_FaceRec_*  CID_Face;
 typedef struct  T1_FaceRec_ {
 	FT_FaceRec root;
 	T1_FontRec type1;
-	const void*     psnames;
-	const void*     psaux;
-	const void*     afm_data;
+	const void * psnames;
+	const void * psaux;
+	const void * afm_data;
 	FT_CharMapRec charmaprecs[2];
 	FT_CharMap charmaps[2];
 
@@ -173,7 +173,7 @@ typedef struct  T1_FaceRec_ {
 	FT_Long*         buildchar;
 
 	/* since version 2.1 - interface to PostScript hinter */
-	const void*     pshinter;
+	const void * pshinter;
 } T1_FaceRec;
 
 typedef struct  CID_FaceRec_ {
@@ -191,7 +191,7 @@ typedef struct  CID_FaceRec_ {
 	void * pshinter;
 
 	/* since version 2.1.8, but was originally positioned after `afm_data' */
-	FT_Byte*         binary_data;/* used if hex data has been converted */
+	FT_Byte*         binary_data; /* used if hex data has been converted */
 	FT_Stream cid_stream;
 } CID_FaceRec;
 

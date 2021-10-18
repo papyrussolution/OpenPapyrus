@@ -619,27 +619,27 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// I don't think any error checks on font name are possible; just set it 
 	SVG_set_font(pThis, "");
 	// Save options back into options string in normalized format 
-	sprintf(GPT.TermOptions, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
+	slprintf(GPT._TermOptions, "size %d,%d%s %s font '%s,%g' ", (int)(SVG_xSize/SVG_SCALE), (int)(SVG_ySize/SVG_SCALE),
 	    SVG_fixed_size ? " fixed" : " dynamic", pThis->put_text == ENHsvg_put_text ? "enhanced" : "", SVG_fontNameCur, SVG_fontSizeCur);
 	if(SVG_mouseable) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "mousing ");
+		slprintf_cat(GPT._TermOptions, "mousing ");
 	}
 	if(SVG_standalone) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "standalone ");
+		slprintf_cat(GPT._TermOptions, "standalone ");
 	}
 	if(SVG_name) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "name \"%s\" ", SVG_name);
+		slprintf_cat(GPT._TermOptions, "name \"%s\" ", SVG_name);
 	}
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "dashlength %.1f ", SVG_dashlength);
+	slprintf_cat(GPT._TermOptions, SVG_linecap == ROUNDED ? "rounded " : SVG_linecap == SQUARE ? "square " : "butt ");
+	slprintf_cat(GPT._TermOptions, "dashlength %.1f ", SVG_dashlength);
 	if(SVG_linewidth_factor != 1.0) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "linewidth %3.1f ", SVG_linewidth_factor);
+		slprintf_cat(GPT._TermOptions, "linewidth %3.1f ", SVG_linewidth_factor);
 	}
 	if(SVG_background >= 0) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "background \"#%06x\" ", SVG_background);
+		slprintf_cat(GPT._TermOptions, "background \"#%06x\" ", SVG_background);
 	}
 	if(SVG_animate) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "animate ");
+		slprintf_cat(GPT._TermOptions, "animate ");
 	}
 }
 
@@ -995,7 +995,7 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		 *     Both of these states are noted by gnuplot_svg.plot_logaxis_* < 0
 		 *     Linked axes that happen to be nonlinear are incorrectly treated as linear
 		 * (3) generic user-specified coordinate format (mouse_alt_string)
-		 *              'set mouse mouseformat "foo"'
+		 *        'set mouse mouseformat "foo"'
 		 *     Special case mouse_alt_string formats recognized by gnuplot_svg.js are
 		 *     "Time", "Date", and "DateTime".
 		 * FIXME: This all needs to be documented somewhere!
@@ -1582,7 +1582,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 	switch(overprint) {
 		case 2:
 		    /* FIXME: If there are multiple overprint characters,
-		     *        they all get piled on top of one another.
+		     *  they all get piled on top of one another.
 		     */
 		    ENHsvg_FLUSH(pThis);
 		    fprintf(GPT.P_GpOutFile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);

@@ -83,7 +83,7 @@ void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfTriples)
-void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
+void TIFFSwabArrayOfTriples(register uint8 * tp, tmsize_t n)
 {
 	uchar* cp;
 	uchar t;

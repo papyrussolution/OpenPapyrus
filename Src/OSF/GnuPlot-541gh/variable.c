@@ -202,12 +202,12 @@ char * GnuPlot::LocaleHandler(int action, char * newlocale)
 		    // where available; create values on first use, etc
 		    memzero(&tm, sizeof(struct tm));
 		    for(i = 0; i < 7; ++i) {
-			    tm.tm_wday = i; /* hope this enough */
+			    tm.tm_wday = i; // hope this enough 
 			    strftime(full_day_names[i], sizeof(full_day_names[i]), "%A", &tm);
 			    strftime(abbrev_day_names[i], sizeof(abbrev_day_names[i]), "%a", &tm);
 		    }
 		    for(i = 0; i < 12; ++i) {
-			    tm.tm_mon = i; /* hope this enough */
+			    tm.tm_mon = i; // hope this enough 
 			    strftime(full_month_names[i], sizeof(full_month_names[i]), "%B", &tm);
 			    strftime(abbrev_month_names[i], sizeof(abbrev_month_names[i]), "%b", &tm);
 		    }

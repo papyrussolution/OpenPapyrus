@@ -44,7 +44,7 @@ struct lzx_dec {
 	int w_size;
 	int w_mask;
 	/* Window buffer, which is a loop buffer. */
-	unsigned char * w_buff;
+	uchar * w_buff;
 	/* The insert position to the window. */
 	int w_pos;
 	/* The position where we can copy decoded code from the window. */
@@ -54,7 +54,7 @@ struct lzx_dec {
 	int copy_len;
 	/* Translation reversal for x86 processor CALL byte sequence(E8).
 	 * This is used for LZX only. */
-	uint32_t translation_size;
+	uint32 translation_size;
 	char translation;
 	char block_type;
 #define VERBATIM_BLOCK          1
@@ -64,7 +64,7 @@ struct lzx_dec {
 	size_t block_bytes_avail;
 	/* Repeated offset. */
 	int r0, r1, r2;
-	unsigned char rbytes[4];
+	uchar rbytes[4];
 	int rbytes_avail;
 	int length_header;
 	int position_slot;
@@ -79,13 +79,13 @@ struct lzx_dec {
 	 * Bit stream reader.
 	 */
 	struct lzx_br {
-#define CACHE_TYPE              uint64_t
+#define CACHE_TYPE              uint64
 #define CACHE_BITS              (8 * sizeof(CACHE_TYPE))
 		/* Cache buffer. */
 		CACHE_TYPE cache_buffer;
 		/* Indicates how many bits avail in cache_buffer. */
 		int cache_avail;
-		unsigned char odd;
+		uchar odd;
 		char have_odd;
 	} br;
 
@@ -95,7 +95,7 @@ struct lzx_dec {
 	struct huffman {
 		int len_size;
 		int freq[17];
-		unsigned char   * bitlen;
+		uchar   * bitlen;
 
 		/*
 		 * Use a index table. It's faster than searching a huffman
@@ -120,12 +120,12 @@ static const int slots[] = {
 #define SLOT_MAX        21/*->25*/
 
 struct lzx_stream {
-	const unsigned char     * next_in;
-	int64_t avail_in;
-	int64_t total_in;
-	unsigned char * next_out;
-	int64_t avail_out;
-	int64_t total_out;
+	const uchar     * next_in;
+	int64 avail_in;
+	int64 total_in;
+	uchar * next_out;
+	int64 avail_out;
+	int64 total_out;
 	struct lzx_dec          * ds;
 };
 
@@ -174,7 +174,7 @@ static const char * const compression_name[] = {
 
 struct cfdata {
 	/* Sum value of this CFDATA. */
-	uint32_t sum;
+	uint32 sum;
 	uint16_t compressed_size;
 	uint16_t compressed_bytes_remaining;
 	uint16_t uncompressed_size;
@@ -183,19 +183,19 @@ struct cfdata {
 	uint16_t uncompressed_avail;
 	/* Offset from the beginning of compressed data of this CFDATA */
 	uint16_t read_offset;
-	int64_t unconsumed;
+	int64 unconsumed;
 	/* To keep memory image of this CFDATA to compute the sum. */
 	size_t memimage_size;
-	unsigned char * memimage;
+	uchar * memimage;
 	/* Result of calculation of sum. */
-	uint32_t sum_calculated;
-	unsigned char sum_extra[4];
+	uint32 sum_calculated;
+	uchar sum_extra[4];
 	int sum_extra_avail;
 	const void              * sum_ptr;
 };
 
 struct cffolder {
-	uint32_t cfdata_offset_in_cab;
+	uint32 cfdata_offset_in_cab;
 	uint16_t cfdata_count;
 	uint16_t comptype;
 #define COMPTYPE_NONE           0x0000
@@ -212,14 +212,14 @@ struct cffolder {
 };
 
 struct cffile {
-	uint32_t uncompressed_size;
-	uint32_t offset;
+	uint32 uncompressed_size;
+	uint32 offset;
 	time_t mtime;
 	uint16_t folder;
 #define iFoldCONTINUED_FROM_PREV        0xFFFD
 #define iFoldCONTINUED_TO_NEXT          0xFFFE
 #define iFoldCONTINUED_PREV_AND_NEXT    0xFFFF
-	unsigned char attr;
+	uchar attr;
 #define ATTR_RDONLY             0x01
 #define ATTR_NAME_IS_UTF        0x80
 	struct archive_string pathname;
@@ -227,8 +227,8 @@ struct cffile {
 
 struct cfheader {
 	/* Total bytes of all file size in a Cabinet. */
-	uint32_t total_bytes;
-	uint32_t files_offset;
+	uint32 total_bytes;
+	uint32 files_offset;
 	uint16_t folder_count;
 	uint16_t file_count;
 	uint16_t flags;
@@ -238,10 +238,10 @@ struct cfheader {
 	uint16_t setid;
 	uint16_t cabinet;
 	/* Version number. */
-	unsigned char major;
-	unsigned char minor;
-	unsigned char cffolder;
-	unsigned char cfdata;
+	uchar major;
+	uchar minor;
+	uchar cffolder;
+	uchar cfdata;
 	/* All folders in a cabinet. */
 	struct cffolder         * folder_array;
 	/* All files in a cabinet. */
@@ -251,17 +251,17 @@ struct cfheader {
 
 struct cab {
 	/* entry_bytes_remaining is the number of bytes we expect.	    */
-	int64_t entry_offset;
-	int64_t entry_bytes_remaining;
-	int64_t entry_unconsumed;
-	int64_t entry_compressed_bytes_read;
-	int64_t entry_uncompressed_bytes_read;
+	int64 entry_offset;
+	int64 entry_bytes_remaining;
+	int64 entry_unconsumed;
+	int64 entry_compressed_bytes_read;
+	int64 entry_uncompressed_bytes_read;
 	struct cffolder         * entry_cffolder;
 	struct cffile           * entry_cffile;
 	struct cfdata           * entry_cfdata;
 
 	/* Offset from beginning of a cabinet file. */
-	int64_t cab_offset;
+	int64 cab_offset;
 	struct cfheader cfheader;
 	struct archive_wstring ws;
 
@@ -271,9 +271,9 @@ struct cab {
 	char end_of_entry;
 	char end_of_entry_cleanup;
 	char read_data_invoked;
-	int64_t bytes_skipped;
+	int64 bytes_skipped;
 
-	unsigned char * uncompressed_buffer;
+	uchar * uncompressed_buffer;
 	size_t uncompressed_buffer_size;
 
 	int init_default_conversion;
@@ -295,17 +295,17 @@ static int      archive_read_format_cab_options(struct archive_read *,
 static int      archive_read_format_cab_read_header(struct archive_read *,
     struct archive_entry *);
 static int      archive_read_format_cab_read_data(struct archive_read *,
-    const void **, size_t *, int64_t *);
+    const void **, size_t *, int64 *);
 static int      archive_read_format_cab_read_data_skip(struct archive_read *);
 static int      archive_read_format_cab_cleanup(struct archive_read *);
 
 static int      cab_skip_sfx(struct archive_read *);
-static time_t   cab_dos_time(const unsigned char *);
+static time_t   cab_dos_time(const uchar *);
 static int      cab_read_data(struct archive_read *, const void **,
-    size_t *, int64_t *);
+    size_t *, int64 *);
 static int      cab_read_header(struct archive_read *);
-static uint32_t cab_checksum_cfdata_4(const void *, size_t bytes, uint32_t);
-static uint32_t cab_checksum_cfdata(const void *, size_t bytes, uint32_t);
+static uint32 cab_checksum_cfdata_4(const void *, size_t bytes, uint32);
+static uint32 cab_checksum_cfdata(const void *, size_t bytes, uint32);
 static void     cab_checksum_update(struct archive_read *, size_t);
 static int      cab_checksum_finish(struct archive_read *);
 static int      cab_next_cfdata(struct archive_read *);
@@ -315,13 +315,13 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read *,
     ssize_t *);
 static const void * cab_read_ahead_cfdata_lzx(struct archive_read *,
     ssize_t *);
-static int64_t  cab_consume_cfdata(struct archive_read *, int64_t);
-static int64_t  cab_minimum_consume_cfdata(struct archive_read *, int64_t);
+static int64  cab_consume_cfdata(struct archive_read *, int64);
+static int64  cab_minimum_consume_cfdata(struct archive_read *, int64);
 static int      lzx_decode_init(struct lzx_stream *, int);
 static int      lzx_read_blocks(struct lzx_stream *, int);
 static int      lzx_decode_blocks(struct lzx_stream *, int);
 static void     lzx_decode_free(struct lzx_stream *);
-static void     lzx_translation(struct lzx_stream *, void *, size_t, uint32_t);
+static void     lzx_translation(struct lzx_stream *, void *, size_t, uint32);
 static void     lzx_cleanup_bitstream(struct lzx_stream *);
 static int      lzx_decode(struct lzx_stream *, int);
 static int      lzx_read_pre_tree(struct lzx_stream *);
@@ -337,7 +337,7 @@ int archive_read_support_format_cab(struct archive * _a)
 	struct cab * cab;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cab");
-	cab = (struct cab *)calloc(1, sizeof(*cab));
+	cab = (struct cab *)SAlloc::C(1, sizeof(*cab));
 	if(cab == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate CAB data");
 		return ARCHIVE_FATAL;
@@ -348,7 +348,7 @@ int archive_read_support_format_cab(struct archive * _a)
 		archive_read_format_cab_options, archive_read_format_cab_read_header, archive_read_format_cab_read_data, archive_read_format_cab_read_data_skip,
 		NULL, archive_read_format_cab_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK)
-		free(cab);
+		SAlloc::F(cab);
 	return ARCHIVE_OK;
 }
 
@@ -486,7 +486,7 @@ static int truncated_error(struct archive_read * a)
 	return ARCHIVE_FATAL;
 }
 
-static ssize_t cab_strnlen(const unsigned char * p, size_t maxlen)
+static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
 {
 	size_t i;
 
@@ -514,7 +514,7 @@ static const void * cab_read_ahead_remaining(struct archive_read * a, size_t min
 }
 
 /* Convert a path separator '\' -> '/' */
-static int cab_convert_path_separator_1(struct archive_string * fn, unsigned char attr)
+static int cab_convert_path_separator_1(struct archive_string * fn, uchar attr)
 {
 	size_t i;
 	int mb;
@@ -570,10 +570,10 @@ static int cab_read_header(struct archive_read * a)
 	struct cfheader * hd;
 	size_t bytes, used;
 	ssize_t len;
-	int64_t skip;
+	int64 skip;
 	int err, i;
 	int cur_folder, prev_folder;
-	uint32_t offset32;
+	uint32 offset32;
 	a->archive.archive_format = ARCHIVE_FORMAT_CAB;
 	if(a->archive.archive_format_name == NULL)
 		a->archive.archive_format_name = "CAB";
@@ -621,8 +621,8 @@ static int cab_read_header(struct archive_read * a)
 			goto invalid;
 		hd->cffolder = p[CFHEADER_cbCFFolder];
 		hd->cfdata = p[CFHEADER_cbCFData];
-		used += 4;/* cbCFHeader, cbCFFolder and cbCFData */
-		used += cfheader;/* abReserve */
+		used += 4; /* cbCFHeader, cbCFFolder and cbCFData */
+		used += cfheader; /* abReserve */
 	}
 	else
 		hd->cffolder = 0; /* Avoid compiling warning. */
@@ -661,7 +661,7 @@ static int cab_read_header(struct archive_read * a)
 	/*
 	 * Read CFFOLDER.
 	 */
-	hd->folder_array = (struct cffolder *)calloc(
+	hd->folder_array = (struct cffolder *)SAlloc::C(
 		hd->folder_count, sizeof(struct cffolder));
 	if(hd->folder_array == NULL)
 		goto nomem;
@@ -691,7 +691,7 @@ static int cab_read_header(struct archive_read * a)
 		p += 8;
 		used += 8;
 		if(hd->flags & RESERVE_PRESENT) {
-			p += hd->cffolder;/* abReserve */
+			p += hd->cffolder; /* abReserve */
 			used += hd->cffolder;
 		}
 		/*
@@ -711,7 +711,7 @@ static int cab_read_header(struct archive_read * a)
 	 * Read CFFILE.
 	 */
 	/* Seek read pointer to the offset of CFFILE if needed. */
-	skip = (int64_t)hd->files_offset - cab->cab_offset;
+	skip = (int64)hd->files_offset - cab->cab_offset;
 	if(skip <  0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid offset of CFFILE %jd < %jd", (intmax_t)hd->files_offset, (intmax_t)cab->cab_offset);
 		return ARCHIVE_FATAL;
@@ -721,7 +721,7 @@ static int cab_read_header(struct archive_read * a)
 		cab->cab_offset += skip;
 	}
 	/* Allocate memory for CFDATA */
-	hd->file_array = (struct cffile *)calloc(
+	hd->file_array = (struct cffile *)SAlloc::C(
 		hd->file_count, sizeof(struct cffile));
 	if(hd->file_array == NULL)
 		goto nomem;
@@ -736,7 +736,7 @@ static int cab_read_header(struct archive_read * a)
 		file->offset = archive_le32dec(p + CFFILE_uoffFolderStart);
 		file->folder = archive_le16dec(p + CFFILE_iFolder);
 		file->mtime = cab_dos_time(p + CFFILE_date_time);
-		file->attr = (uint8_t)archive_le16dec(p + CFFILE_attribs);
+		file->attr = (uint8)archive_le16dec(p + CFFILE_attribs);
 		__archive_read_consume(a, 16);
 
 		cab->cab_offset += 16;
@@ -756,7 +756,7 @@ static int cab_read_header(struct archive_read * a)
 		 */
 		if(file->uncompressed_size > 0x7FFF8000)
 			goto invalid; /* Too large */
-		if((int64_t)file->offset + (int64_t)file->uncompressed_size
+		if((int64)file->offset + (int64)file->uncompressed_size
 		    > ARCHIVE_LITERAL_LL(0x7FFF8000))
 			goto invalid; /* Too large */
 		switch(file->folder) {
@@ -873,9 +873,7 @@ static int archive_read_format_cab_read_header(struct archive_read * a,
 	 * for UTF-8 and use it. */
 	if(file->attr & ATTR_NAME_IS_UTF) {
 		if(cab->sconv_utf8 == NULL) {
-			cab->sconv_utf8 =
-			    archive_string_conversion_from_charset(
-				&(a->archive), "UTF-8", 1);
+			cab->sconv_utf8 = archive_string_conversion_from_charset(&(a->archive), "UTF-8", 1);
 			if(cab->sconv_utf8 == NULL)
 				return ARCHIVE_FATAL;
 		}
@@ -930,7 +928,7 @@ static int archive_read_format_cab_read_header(struct archive_read * a,
 	return (err);
 }
 
-static int archive_read_format_cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
+static int archive_read_format_cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	int r;
@@ -981,12 +979,12 @@ static int archive_read_format_cab_read_data(struct archive_read * a, const void
 	return (cab_read_data(a, buff, size, offset));
 }
 
-static uint32_t cab_checksum_cfdata_4(const void * p, size_t bytes, uint32_t seed)
+static uint32 cab_checksum_cfdata_4(const void * p, size_t bytes, uint32 seed)
 {
-	const unsigned char * b;
+	const uchar * b;
 	unsigned u32num;
-	uint32_t sum;
-	u32num = (unsigned)bytes / 4;
+	uint32 sum;
+	u32num = (uint)bytes / 4;
 	sum = seed;
 	b = static_cast<const uchar *>(p);
 	for(; u32num > 0; --u32num) {
@@ -996,21 +994,21 @@ static uint32_t cab_checksum_cfdata_4(const void * p, size_t bytes, uint32_t see
 	return (sum);
 }
 
-static uint32_t cab_checksum_cfdata(const void * p, size_t bytes, uint32_t seed)
+static uint32 cab_checksum_cfdata(const void * p, size_t bytes, uint32 seed)
 {
-	const unsigned char * b;
-	uint32_t sum;
-	uint32_t t;
+	const uchar * b;
+	uint32 sum;
+	uint32 t;
 	sum = cab_checksum_cfdata_4(p, bytes, seed);
 	b = static_cast<const uchar *>(p);
 	b += bytes & ~3;
 	t = 0;
 	switch(bytes & 3) {
 		case 3:
-		    t |= ((uint32_t)(*b++)) << 16;
+		    t |= ((uint32)(*b++)) << 16;
 		// @fallthrough
 		case 2:
-		    t |= ((uint32_t)(*b++)) << 8;
+		    t |= ((uint32)(*b++)) << 8;
 		// @fallthrough
 		case 1:
 		    t |= *b;
@@ -1108,7 +1106,7 @@ static int cab_next_cfdata(struct archive_read * a)
 		return ARCHIVE_OK;
 
 	if(cfdata == NULL) {
-		int64_t skip;
+		int64 skip;
 
 		cab->entry_cffolder->cfdata_index = 0;
 
@@ -1196,8 +1194,8 @@ static int cab_next_cfdata(struct archive_read * a)
 		 * Save CFDATA image for sum check.
 		 */
 		if(cfdata->memimage_size < (size_t)l) {
-			free(cfdata->memimage);
-			cfdata->memimage = static_cast<uchar *>(malloc(l));
+			SAlloc::F(cfdata->memimage);
+			cfdata->memimage = static_cast<uchar *>(SAlloc::M(l));
 			if(cfdata->memimage == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for CAB data");
 				return ARCHIVE_FATAL;
@@ -1297,7 +1295,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(cab->uncompressed_buffer == NULL) {
 		cab->uncompressed_buffer_size = 0x8000;
-		cab->uncompressed_buffer = (uchar *)malloc(cab->uncompressed_buffer_size);
+		cab->uncompressed_buffer = (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
 		if(cab->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for CAB reader");
 			*avail = ARCHIVE_FATAL;
@@ -1506,7 +1504,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 	if(cab->uncompressed_buffer == NULL) {
 		cab->uncompressed_buffer_size = 0x8000;
 		cab->uncompressed_buffer
-			= (uchar *)malloc(cab->uncompressed_buffer_size);
+			= (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
 		if(cab->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for CAB reader");
 			*avail = ARCHIVE_FATAL;
@@ -1614,11 +1612,11 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
  * iFoldCONTINUED_FROM_PREV, we won't decompress because a CFDATA for
  * the CFFILE is remaining bytes of previous Multivolume CAB file.
  */
-static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_bytes)
+static int64 cab_consume_cfdata(struct archive_read * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
-	int64_t cbytes, rbytes;
+	int64 cbytes, rbytes;
 	int err;
 	rbytes = cab_minimum_consume_cfdata(a, consumed_bytes);
 	if(rbytes < 0)
@@ -1698,11 +1696,11 @@ static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_byte
  * Consume CFDATA as much as we have already gotten and
  * compute the sum of CFDATA.
  */
-static int64_t cab_minimum_consume_cfdata(struct archive_read * a, int64_t consumed_bytes)
+static int64 cab_minimum_consume_cfdata(struct archive_read * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
-	int64_t cbytes, rbytes;
+	int64 cbytes, rbytes;
 	int err;
 
 	cfdata = cab->entry_cfdata;
@@ -1754,7 +1752,7 @@ static int64_t cab_minimum_consume_cfdata(struct archive_read * a, int64_t consu
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * cab->end_of_entry if it consumes all of the data.
  */
-static int cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
+static int cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	ssize_t bytes_avail;
@@ -1802,7 +1800,7 @@ static int cab_read_data(struct archive_read * a, const void ** buff, size_t * s
 static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 {
 	struct cab * cab;
-	int64_t bytes_skipped;
+	int64 bytes_skipped;
 	int r;
 
 	cab = (struct cab *)(a->format->data);
@@ -1862,13 +1860,13 @@ static int archive_read_format_cab_cleanup(struct archive_read * a)
 
 	if(hd->folder_array != NULL) {
 		for(i = 0; i < hd->folder_count; i++)
-			free(hd->folder_array[i].cfdata.memimage);
-		free(hd->folder_array);
+			SAlloc::F(hd->folder_array[i].cfdata.memimage);
+		SAlloc::F(hd->folder_array);
 	}
 	if(hd->file_array != NULL) {
 		for(i = 0; i < cab->cfheader.file_count; i++)
 			archive_string_free(&(hd->file_array[i].pathname));
-		free(hd->file_array);
+		SAlloc::F(hd->file_array);
 	}
 #ifdef HAVE_ZLIB_H
 	if(cab->stream_valid)
@@ -1876,14 +1874,14 @@ static int archive_read_format_cab_cleanup(struct archive_read * a)
 #endif
 	lzx_decode_free(&cab->xstrm);
 	archive_wstring_free(&cab->ws);
-	free(cab->uncompressed_buffer);
-	free(cab);
+	SAlloc::F(cab->uncompressed_buffer);
+	SAlloc::F(cab);
 	(a->format->data) = NULL;
 	return ARCHIVE_OK;
 }
 
 /* Convert an MSDOS-style date/time into Unix-style time. */
-static time_t cab_dos_time(const unsigned char * p)
+static time_t cab_dos_time(const uchar * p)
 {
 	struct tm ts;
 	int msDate = archive_le16dec(p);
@@ -1920,7 +1918,7 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 	int base, footer;
 	int base_inc[18];
 	if(strm->ds == NULL) {
-		strm->ds = static_cast<struct lzx_dec *>(calloc(1, sizeof(*strm->ds)));
+		strm->ds = static_cast<struct lzx_dec *>(SAlloc::C(1, sizeof(*strm->ds)));
 		if(strm->ds == NULL)
 			return ARCHIVE_FATAL;
 	}
@@ -1938,12 +1936,12 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 	ds->w_size = 1U << w_bits;
 	ds->w_mask = ds->w_size -1;
 	if(ds->w_buff == NULL || w_size != ds->w_size) {
-		free(ds->w_buff);
-		ds->w_buff = static_cast<uchar *>(malloc(ds->w_size));
+		SAlloc::F(ds->w_buff);
+		ds->w_buff = static_cast<uchar *>(SAlloc::M(ds->w_size));
 		if(ds->w_buff == NULL)
 			return ARCHIVE_FATAL;
-		free(ds->pos_tbl);
-		ds->pos_tbl = static_cast<struct lzx_dec::lzx_pos_tbl *>(malloc(sizeof(ds->pos_tbl[0]) * w_slot));
+		SAlloc::F(ds->pos_tbl);
+		ds->pos_tbl = static_cast<struct lzx_dec::lzx_pos_tbl *>(SAlloc::M(sizeof(ds->pos_tbl[0]) * w_slot));
 		if(ds->pos_tbl == NULL)
 			return ARCHIVE_FATAL;
 		lzx_huffman_free(&(ds->mt));
@@ -2004,22 +2002,22 @@ static void lzx_decode_free(struct lzx_stream * strm)
 {
 	if(strm->ds == NULL)
 		return;
-	free(strm->ds->w_buff);
-	free(strm->ds->pos_tbl);
+	SAlloc::F(strm->ds->w_buff);
+	SAlloc::F(strm->ds->pos_tbl);
 	lzx_huffman_free(&(strm->ds->at));
 	lzx_huffman_free(&(strm->ds->pt));
 	lzx_huffman_free(&(strm->ds->mt));
 	lzx_huffman_free(&(strm->ds->lt));
-	free(strm->ds);
+	SAlloc::F(strm->ds);
 	strm->ds = NULL;
 }
 /*
  * E8 Call Translation reversal.
  */
-static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uint32_t offset)
+static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uint32 offset)
 {
 	struct lzx_dec * ds = strm->ds;
-	unsigned char * b, * end;
+	uchar * b, * end;
 	if(!ds->translation || size <= 10)
 		return;
 	b = static_cast<uchar *>(p);
@@ -2027,14 +2025,14 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
 	while(b < end && (b = static_cast<uchar *>(memchr(b, 0xE8, end - b))) != NULL) {
 		size_t i = b - (uchar *)p;
 		int32_t cp, displacement, value;
-		cp = (int32_t)(offset + (uint32_t)i);
+		cp = (int32_t)(offset + (uint32)i);
 		value = archive_le32dec(&b[1]);
 		if(value >= -cp && value < (int32_t)ds->translation_size) {
 			if(value >= 0)
 				displacement = value - cp;
 			else
 				displacement = value + ds->translation_size;
-			archive_le32enc(&b[1], (uint32_t)displacement);
+			archive_le32enc(&b[1], (uint32)displacement);
 		}
 		b += 5;
 	}
@@ -2046,21 +2044,21 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
 #define lzx_br_has(br, n)       ((br)->cache_avail >= n)
 /* Get compressed data by bit. */
 #define lzx_br_bits(br, n)                              \
-	(((uint32_t)((br)->cache_buffer >>              \
+	(((uint32)((br)->cache_buffer >>              \
 	((br)->cache_avail - (n)))) & cache_masks[n])
 #define lzx_br_bits_forced(br, n)                       \
-	(((uint32_t)((br)->cache_buffer <<              \
+	(((uint32)((br)->cache_buffer <<              \
 	((n) - (br)->cache_avail))) & cache_masks[n])
 /* Read ahead to make sure the cache buffer has enough compressed data we
  * will use.
  *  True  : completed, there is enough data in the cache buffer.
  *  False : we met that strm->next_in is empty, we have to get following
- *          bytes. */
+ *    bytes. */
 #define lzx_br_read_ahead_0(strm, br, n)        \
 	(lzx_br_has((br), (n)) || lzx_br_fillup(strm, br))
 /*  True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
- *          we have to get following bytes if we could. */
+ *    we have to get following bytes if we could. */
 #define lzx_br_read_ahead(strm, br, n)  \
 	(lzx_br_read_ahead_0((strm), (br), (n)) || lzx_br_has((br), (n)))
 
@@ -2070,7 +2068,7 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
 
 #define lzx_br_is_unaligned(br) ((br)->cache_avail & 0x0f)
 
-static const uint32_t cache_masks[] = {
+static const uint32 cache_masks[] = {
 	0x00000000, 0x00000001, 0x00000003, 0x00000007,
 	0x0000000F, 0x0000001F, 0x0000003F, 0x0000007F,
 	0x000000FF, 0x000001FF, 0x000003FF, 0x000007FF,
@@ -2100,14 +2098,14 @@ static int lzx_br_fillup(struct lzx_stream * strm, struct lzx_dec::lzx_br * br)
 			case 4:
 			    if(strm->avail_in >= 8) {
 				    br->cache_buffer =
-					((uint64_t)strm->next_in[1]) << 56 |
-					((uint64_t)strm->next_in[0]) << 48 |
-					((uint64_t)strm->next_in[3]) << 40 |
-					((uint64_t)strm->next_in[2]) << 32 |
-					((uint32_t)strm->next_in[5]) << 24 |
-					((uint32_t)strm->next_in[4]) << 16 |
-					((uint32_t)strm->next_in[7]) << 8 |
-					(uint32_t)strm->next_in[6];
+					((uint64)strm->next_in[1]) << 56 |
+					((uint64)strm->next_in[0]) << 48 |
+					((uint64)strm->next_in[3]) << 40 |
+					((uint64)strm->next_in[2]) << 32 |
+					((uint32)strm->next_in[5]) << 24 |
+					((uint32)strm->next_in[4]) << 16 |
+					((uint32)strm->next_in[7]) << 8 |
+					(uint32)strm->next_in[6];
 				    strm->next_in += 8;
 				    strm->avail_in -= 8;
 				    br->cache_avail += 8 * 8;
@@ -2118,12 +2116,12 @@ static int lzx_br_fillup(struct lzx_stream * strm, struct lzx_dec::lzx_br * br)
 			    if(strm->avail_in >= 6) {
 				    br->cache_buffer =
 					(br->cache_buffer << 48) |
-					((uint64_t)strm->next_in[1]) << 40 |
-					((uint64_t)strm->next_in[0]) << 32 |
-					((uint32_t)strm->next_in[3]) << 24 |
-					((uint32_t)strm->next_in[2]) << 16 |
-					((uint32_t)strm->next_in[5]) << 8 |
-					(uint32_t)strm->next_in[4];
+					((uint64)strm->next_in[1]) << 40 |
+					((uint64)strm->next_in[0]) << 32 |
+					((uint32)strm->next_in[3]) << 24 |
+					((uint32)strm->next_in[2]) << 16 |
+					((uint32)strm->next_in[5]) << 8 |
+					(uint32)strm->next_in[4];
 				    strm->next_in += 6;
 				    strm->avail_in -= 6;
 				    br->cache_avail += 6 * 8;
@@ -2211,7 +2209,7 @@ static void lzx_cleanup_bitstream(struct lzx_stream * strm)
 static int lzx_decode(struct lzx_stream * strm, int last)
 {
 	struct lzx_dec * ds = strm->ds;
-	int64_t avail_in;
+	int64 avail_in;
 	int r;
 
 	if(ds->error)
@@ -2223,7 +2221,7 @@ static int lzx_decode(struct lzx_stream * strm, int last)
 		if(ds->state < ST_MAIN)
 			r = lzx_read_blocks(strm, last);
 		else {
-			int64_t bytes_written = strm->avail_out;
+			int64 bytes_written = strm->avail_out;
 			r = lzx_decode_blocks(strm, last);
 			bytes_written -= strm->avail_out;
 			strm->next_out += bytes_written;
@@ -2282,7 +2280,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    case UNCOMPRESSED_BLOCK:
 					break;
 				    default:
-					goto failed;/* Invalid */
+					goto failed; /* Invalid */
 			    }
 			// @fallthrough
 			case ST_RD_BLOCK_SIZE:
@@ -2566,12 +2564,12 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 	struct lzx_dec::lzx_br bre = ds->br;
 	struct lzx_dec::huffman * at = &(ds->at), * lt = &(ds->lt), * mt = &(ds->mt);
 	const struct lzx_dec::lzx_pos_tbl * pos_tbl = ds->pos_tbl;
-	unsigned char * noutp = strm->next_out;
-	unsigned char * endp = noutp + strm->avail_out;
-	unsigned char * w_buff = ds->w_buff;
-	unsigned char * at_bitlen = at->bitlen;
-	unsigned char * lt_bitlen = lt->bitlen;
-	unsigned char * mt_bitlen = mt->bitlen;
+	uchar * noutp = strm->next_out;
+	uchar * endp = noutp + strm->avail_out;
+	uchar * w_buff = ds->w_buff;
+	uchar * at_bitlen = at->bitlen;
+	uchar * lt_bitlen = lt->bitlen;
+	uchar * mt_bitlen = mt->bitlen;
 	size_t block_bytes_avail = ds->block_bytes_avail;
 	int at_max_bits = at->max_bits;
 	int lt_max_bits = lt->max_bits;
@@ -2776,7 +2774,7 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 			     * into the output buffer.
 			     */
 			    for(;;) {
-				    const unsigned char * s;
+				    const uchar * s;
 				    int l;
 
 				    l = copy_len;
@@ -2797,7 +2795,7 @@ static int lzx_decode_blocks(struct lzx_stream * strm, int last)
 					    memcpy(noutp, s, l);
 				    }
 				    else {
-					    unsigned char * d;
+					    uchar * d;
 					    int li;
 
 					    d = w_buff + w_pos;
@@ -2941,8 +2939,8 @@ getdata:
 static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int tbl_bits)
 {
 	if(hf->bitlen == NULL || hf->len_size != (int)len_size) {
-		free(hf->bitlen);
-		hf->bitlen = static_cast<uchar *>(calloc(len_size,  sizeof(hf->bitlen[0])));
+		SAlloc::F(hf->bitlen);
+		hf->bitlen = static_cast<uchar *>(SAlloc::C(len_size,  sizeof(hf->bitlen[0])));
 		if(hf->bitlen == NULL)
 			return ARCHIVE_FATAL;
 		hf->len_size = (int)len_size;
@@ -2950,7 +2948,7 @@ static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int t
 	else
 		memzero(hf->bitlen, len_size *  sizeof(hf->bitlen[0]));
 	if(hf->tbl == NULL) {
-		hf->tbl = static_cast<uint16_t *>(malloc(((size_t)1 << tbl_bits) * sizeof(hf->tbl[0])));
+		hf->tbl = static_cast<uint16_t *>(SAlloc::M(((size_t)1 << tbl_bits) * sizeof(hf->tbl[0])));
 		if(hf->tbl == NULL)
 			return ARCHIVE_FATAL;
 		hf->tbl_bits = tbl_bits;
@@ -2960,8 +2958,8 @@ static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int t
 
 static void lzx_huffman_free(struct lzx_dec::huffman * hf)
 {
-	free(hf->bitlen);
-	free(hf->tbl);
+	SAlloc::F(hf->bitlen);
+	SAlloc::F(hf->tbl);
 }
 
 /*
@@ -2970,7 +2968,7 @@ static void lzx_huffman_free(struct lzx_dec::huffman * hf)
 static int lzx_make_huffman_table(struct lzx_dec::huffman * hf)
 {
 	uint16_t * tbl;
-	const unsigned char * bitlen;
+	const uchar * bitlen;
 	int bitptn[17], weight[17];
 	int i, maxbits = 0, tbl_size, w;
 	int len_avail;

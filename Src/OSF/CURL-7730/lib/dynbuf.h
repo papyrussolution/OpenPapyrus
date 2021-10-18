@@ -58,7 +58,7 @@ CURLcode Curl_dyn_vaddf(struct dynbuf * s, const char * fmt, va_list ap) CXX_WAR
 void FASTCALL Curl_dyn_reset(struct dynbuf * s);
 CURLcode Curl_dyn_tail(struct dynbuf * s, size_t trail);
 char * Curl_dyn_ptr(const struct dynbuf * s);
-unsigned char * Curl_dyn_uptr(const struct dynbuf * s);
+uchar * Curl_dyn_uptr(const struct dynbuf * s);
 size_t Curl_dyn_len(const struct dynbuf * s);
 
 /* returns 0 on success, -1 on error */

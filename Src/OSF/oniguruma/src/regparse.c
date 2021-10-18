@@ -582,7 +582,7 @@ typedef st_data_t HashDataType;   /* 1.6 st.h doesn't define st_data_t type */
 #define NAMEBUF_SIZE_1  25
 
 #ifdef ONIG_DEBUG
-static int i_print_name_entry(uchar * key, NameEntry* e, void* arg)
+static int i_print_name_entry(uchar * key, NameEntry* e, void * arg)
 {
 	int i;
 	FILE* fp = (FILE*)arg;
@@ -614,7 +614,7 @@ int onig_print_names(FILE* fp, regex_t* reg)
 
 #endif /* ONIG_DEBUG */
 
-static int i_free_name_entry(uchar * key, NameEntry* e, void* arg ARG_UNUSED)
+static int i_free_name_entry(uchar * key, NameEntry* e, void * arg ARG_UNUSED)
 {
 	SAlloc::F(e->name);
 	if(IS_NOT_NULL(e->back_refs)) 
@@ -642,7 +642,7 @@ int onig_names_free(regex_t* reg)
 	t = (NameTable *)reg->name_table;
 	if(IS_NOT_NULL(t)) 
 		onig_st_free_table(t);
-	reg->name_table = (void*)NULL;
+	reg->name_table = (void *)NULL;
 	return 0;
 }
 
@@ -651,7 +651,7 @@ static NameEntry* name_find(regex_t* reg, const uchar * name, const uchar * name
 	NameTable * t = (NameTable*)reg->name_table;
 	NameEntry * e = (NameEntry*)NULL;
 	if(IS_NOT_NULL(t)) {
-		onig_st_lookup_strend(t, name, name_end, (HashDataType*)((void*)(&e)));
+		onig_st_lookup_strend(t, name, name_end, (HashDataType*)((void *)(&e)));
 	}
 	return e;
 }
@@ -659,7 +659,7 @@ static NameEntry* name_find(regex_t* reg, const uchar * name, const uchar * name
 typedef struct {
 	int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*);
 	regex_t* reg;
-	void* arg;
+	void * arg;
 	int ret;
 	OnigEncoding enc;
 } INamesArg;
@@ -678,7 +678,7 @@ static int i_names(uchar * key ARG_UNUSED, NameEntry* e, INamesArg* arg)
 	return ST_CONTINUE;
 }
 
-int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void * arg)
 {
 	INamesArg narg;
 	NameTable* t = (NameTable*)reg->name_table;
@@ -687,7 +687,7 @@ int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, in
 		narg.func = func;
 		narg.reg  = reg;
 		narg.arg  = arg;
-		narg.enc  = reg->enc;/* should be pattern encoding. */
+		narg.enc  = reg->enc; /* should be pattern encoding. */
 		onig_st_foreach(t, (int (__cdecl *)(...))i_names, (HashDataType )&narg);
 	}
 	return narg.ret;
@@ -822,7 +822,7 @@ static NameEntry* name_find(regex_t* reg, uchar * name, uchar * name_end)
 	return (NameEntry*)NULL;
 }
 
-int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void* arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void * arg)
 {
 	int i, r;
 	NameEntry* e;
@@ -864,7 +864,7 @@ static int name_add(regex_t* reg, uchar * name, uchar * name_end, int backref, S
 		if(IS_NULL(t)) {
 			t = (NameTable *)onig_st_init_strend_table_with_size(INIT_NAMES_ALLOC_NUM);
 			CHECK_NULL_RETURN_MEMERR(t);
-			reg->name_table = (void*)t;
+			reg->name_table = (void *)t;
 		}
 		e = (NameEntry*)SAlloc::M(sizeof(NameEntry));
 		CHECK_NULL_RETURN_MEMERR(e);
@@ -1027,7 +1027,7 @@ typedef struct {
 	int opt_arg_num;
 	uint arg_types[ONIG_CALLOUT_MAX_ARGS_NUM];
 	OnigValue opt_defaults[ONIG_CALLOUT_MAX_ARGS_NUM];
-	uchar * name;/* reference to GlobalCalloutNameTable entry: e->name */
+	uchar * name; /* reference to GlobalCalloutNameTable entry: e->name */
 } CalloutNameListEntry;
 
 typedef struct {
@@ -1117,7 +1117,7 @@ static int CalloutNameIDCounter;
 
 #ifdef USE_ST_LIBRARY
 
-static int i_free_callout_name_entry(st_callout_name_key* key, CalloutNameEntry* e, void* arg ARG_UNUSED)
+static int i_free_callout_name_entry(st_callout_name_key* key, CalloutNameEntry* e, void * arg ARG_UNUSED)
 {
 	if(IS_NOT_NULL(e)) {
 		SAlloc::F(e->name);
@@ -1159,13 +1159,13 @@ static CalloutNameEntry* callout_name_find(OnigEncoding enc, int is_not_single,
 	e = (CalloutNameEntry*)NULL;
 	if(IS_NOT_NULL(t)) {
 		r = onig_st_lookup_callout_name_table(t, enc, is_not_single, name, name_end,
-			(HashDataType*)((void*)(&e)));
+			(HashDataType*)((void *)(&e)));
 		if(r == 0) { /* not found */
 			if(enc != ONIG_ENCODING_ASCII &&
 			    ONIGENC_IS_ASCII_COMPATIBLE_ENCODING(enc)) {
 				enc = ONIG_ENCODING_ASCII;
 				onig_st_lookup_callout_name_table(t, enc, is_not_single, name, name_end,
-				    (HashDataType*)((void*)(&e)));
+				    (HashDataType*)((void *)(&e)));
 			}
 		}
 	}
@@ -1545,7 +1545,7 @@ typedef intptr_t CalloutTagVal;
 
 #define CALLOUT_TAG_LIST_FLAG_TAG_EXIST     (1<<0)
 
-static int i_callout_callout_list_set(uchar * key, CalloutTagVal e, void* arg)
+static int i_callout_callout_list_set(uchar * key, CalloutTagVal e, void * arg)
 {
 	RegexExt* ext = (RegexExt*)arg;
 	int num = (int)e - 1;
@@ -1589,7 +1589,7 @@ int onig_callout_tag_is_exist_at_callout_num(regex_t* reg, int callout_num)
 	return (ext->callout_list[callout_num].flag & CALLOUT_TAG_LIST_FLAG_TAG_EXIST) != 0;
 }
 
-static int i_free_callout_tag_entry(uchar * key, CalloutTagVal e, void* arg ARG_UNUSED)
+static int i_free_callout_tag_entry(uchar * key, CalloutTagVal e, void * arg ARG_UNUSED)
 {
 	SAlloc::F(key);
 	return ST_DELETE;
@@ -1624,7 +1624,7 @@ int onig_get_callout_num_by_tag(regex_t* reg, const uchar * tag, const uchar * t
 		return ONIGERR_INVALID_CALLOUT_TAG_NAME;
 
 	r = onig_st_lookup_strend(ext->tag_table, tag, tag_end,
-		(HashDataType*)((void*)(&e)));
+		(HashDataType*)((void *)(&e)));
 	if(r == 0) return ONIGERR_INVALID_CALLOUT_TAG_NAME;
 	return (int)e;
 }
@@ -1635,7 +1635,7 @@ static CalloutTagVal callout_tag_find(CalloutTagTable* t, const uchar * name, co
 
 	e = -1;
 	if(IS_NOT_NULL(t)) {
-		onig_st_lookup_strend(t, name, name_end, (HashDataType*)((void*)(&e)));
+		onig_st_lookup_strend(t, name, name_end, (HashDataType*)((void *)(&e)));
 	}
 	return e;
 }
@@ -2387,7 +2387,7 @@ void onig_free_reg_callout_list(int n, CalloutListEntry* list)
 		}
 		else { /* ONIG_CALLOUT_OF_CONTENTS */
 			if(IS_NOT_NULL(list[i].u.content.start)) {
-				SAlloc::F((void*)list[i].u.content.start);
+				SAlloc::F((void *)list[i].u.content.start);
 			}
 		}
 	}
@@ -7730,7 +7730,7 @@ typedef struct {
 } IApplyCaseFoldArg;
 
 static int i_apply_case_fold(OnigCodePoint from, OnigCodePoint to[], int to_len,
-    void* arg)
+    void * arg)
 {
 	IApplyCaseFoldArg* iarg;
 	ScanEnv* env;

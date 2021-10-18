@@ -15,7 +15,7 @@
  *
  * Reference:
  * S.Gueron and V.Krasnov, "Fast Prime Field Elliptic Curve Cryptography with
- *                          256 Bit Primes"
+ *                    256 Bit Primes"
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop

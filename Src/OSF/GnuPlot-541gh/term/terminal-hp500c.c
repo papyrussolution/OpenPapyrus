@@ -136,38 +136,38 @@ TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->MaxY = Get_HP500C_YMAX(pGp);
 	switch(hpdj_dpp) {
 		case 1:
-		    strcpy(GPT.TermOptions, "300");
+		    GPT._TermOptions = "300";
 		    pThis->TicV = 15;
 		    pThis->TicH = 15;
 		    break;
 		case 2:
-		    strcpy(GPT.TermOptions, "150");
+		    GPT._TermOptions = "150";
 		    pThis->TicV = 8;
 		    pThis->TicH = 8;
 		    break;
 		case 3:
-		    strcpy(GPT.TermOptions, "100");
+		    GPT._TermOptions = "100";
 		    pThis->TicV = 6;
 		    pThis->TicH = 6;
 		    break;
 		case 4:
-		    strcpy(GPT.TermOptions, "75");
+		    GPT._TermOptions = "75";
 		    pThis->TicV = 5;
 		    pThis->TicH = 5;
 		    break;
 	}
 	switch(HP_COMP_MODE) {
 		case 0:
-		    strcat(GPT.TermOptions, " no comp");
+		    GPT._TermOptions.Cat(" no comp");
 		    break;
 		case 1:
-		    strcat(GPT.TermOptions, " RLE");
+		    GPT._TermOptions.Cat(" RLE");
 		    break;
 		case 2:
-		    strcat(GPT.TermOptions, " TIFF");
+		    GPT._TermOptions.Cat(" TIFF");
 		    break;
 		case 3:         /* not implemented yet */
-		    strcat(GPT.TermOptions, " Delta Row");
+		    GPT._TermOptions.Cat(" Delta Row");
 		    break;
 	}
 }

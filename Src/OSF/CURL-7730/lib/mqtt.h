@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_MQTT_H
 #define HEADER_CURL_MQTT_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2019 - 2020, Björn Stenberg, <bjorn@haxx.se>
  *
@@ -52,7 +52,7 @@ struct MQTT {
 
   /* when receiving */
   size_t npacket; /* byte counter */
-  unsigned char firstbyte;
+  uchar firstbyte;
   size_t remaining_length;
 };
 

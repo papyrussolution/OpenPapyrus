@@ -59,11 +59,11 @@ typedef struct _attribute_spec {
 /*
  * name [required] Unique name of this destination (UTF-8)
  * x    [optional] x coordinate of destination on page. Default is x coord of
- *                 extents of operations enclosed by the dest begin/end tags.
+ *           extents of operations enclosed by the dest begin/end tags.
  * y    [optional] y coordinate of destination on page. Default is y coord of
- *                 extents of operations enclosed by the dest begin/end tags.
+ *           extents of operations enclosed by the dest begin/end tags.
  * internal [optional] If true, the name may be optimized out of the PDF where
- *                     possible. Default false.
+ *               possible. Default false.
  */
 static attribute_spec_t _dest_attrib_spec[] = {
 	{ "name",     ATTRIBUTE_STRING },
@@ -75,9 +75,9 @@ static attribute_spec_t _dest_attrib_spec[] = {
 
 /*
  * rect [optional] One or more rectangles to define link region. Default
- *                 is the extents of the operations enclosed by the link begin/end tags.
- *                 Each rectangle is specified by four array elements: x, y, width, height.
- *                 ie the array size must be a multiple of four.
+ *           is the extents of the operations enclosed by the link begin/end tags.
+ *           Each rectangle is specified by four array elements: x, y, width, height.
+ *           ie the array size must be a multiple of four.
  *
  * Internal Links
  * --------------
@@ -118,15 +118,15 @@ static attribute_spec_t _link_attrib_spec[] =
  *
  * Optional:
  *   K - An integer identifying the encoding scheme used. < 0 is 2 dimensional
- *       Group 4, = 0 is Group3 1 dimensional, > 0 is mixed 1 and 2 dimensional
- *       encoding. Default: 0.
+ * Group 4, = 0 is Group3 1 dimensional, > 0 is mixed 1 and 2 dimensional
+ * encoding. Default: 0.
  *   EndOfLine  - If true end-of-line bit patterns are present. Default: false.
  *   EncodedByteAlign - If true the end of line is padded with 0 bits so the next
- *                      line begins on a byte boundary. Default: false.
+ *                line begins on a byte boundary. Default: false.
  *   EndOfBlock - If true the data contains an end-of-block pattern. Default: true.
  *   BlackIs1   - If true 1 bits are black pixels. Default: false.
  *   DamagedRowsBeforeError - Number of damages rows tolerated before an error
- *                            occurs. Default: 0.
+ *                      occurs. Default: 0.
  */
 static attribute_spec_t _ccitt_params_spec[] =
 {
@@ -143,11 +143,11 @@ static attribute_spec_t _ccitt_params_spec[] =
 
 /*
  * bbox - Bounding box of EPS file. The format is [ llx lly urx ury ]
- *          llx - lower left x xoordinate
- *          lly - lower left y xoordinate
- *          urx - upper right x xoordinate
- *          ury - upper right y xoordinate
- *        all cordinates are in PostScript coordinates.
+ *    llx - lower left x xoordinate
+ *    lly - lower left y xoordinate
+ *    urx - upper right x xoordinate
+ *    ury - upper right y xoordinate
+ *  all cordinates are in PostScript coordinates.
  */
 static attribute_spec_t _eps_params_spec[] =
 {
@@ -352,16 +352,14 @@ static cairo_int_status_t parse_attributes(const char * attributes, attribute_sp
 			status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 			goto fail1;
 		}
-		attrib = (attribute_t *)calloc(1, sizeof(attribute_t));
+		attrib = (attribute_t *)SAlloc::C(1, sizeof(attribute_t));
 		if(UNLIKELY(attrib == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail1;
 		}
-
 		attrib->name = name;
 		attrib->type = def->type;
 		_cairo_array_init(&attrib->array, sizeof(attrib_val_t));
-
 		p = skip_space(p);
 		if(def->type == ATTRIBUTE_BOOL && *p != '=') {
 			attrib->scalar.b = TRUE;
@@ -396,10 +394,10 @@ static cairo_int_status_t parse_attributes(const char * attributes, attribute_sp
 fail2:
 	_cairo_array_fini(&attrib->array);
 	if(attrib->type == ATTRIBUTE_STRING)
-		free(attrib->scalar.s);
-	free(attrib);
+		SAlloc::F(attrib->scalar.s);
+	SAlloc::F(attrib);
 fail1:
-	free(name);
+	SAlloc::F(name);
 	return status;
 }
 
@@ -409,11 +407,11 @@ static void free_attributes_list(cairo_list_t * list)
 	cairo_list_foreach_entry_safe(attr, next, attribute_t, list, link)
 	{
 		cairo_list_del(&attr->link);
-		free(attr->name);
+		SAlloc::F(attr->name);
 		_cairo_array_fini(&attr->array);
 		if(attr->type == ATTRIBUTE_STRING)
-			free(attr->scalar.s);
-		free(attr);
+			SAlloc::F(attr->scalar.s);
+		SAlloc::F(attr);
 	}
 }
 
@@ -465,7 +463,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 				status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
 				goto cleanup;
 			}
-			link_attrs->uri = strdup(attr->scalar.s);
+			link_attrs->uri = sstrdup(attr->scalar.s);
 		}
 		else if(strcmp(attr->name, "file") == 0) {
 			if(link_attrs->link_type != TAG_LINK_FILE) {
@@ -473,7 +471,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 				goto cleanup;
 			}
 
-			link_attrs->file = strdup(attr->scalar.s);
+			link_attrs->file = sstrdup(attr->scalar.s);
 		}
 		else if(strcmp(attr->name, "dest") == 0) {
 			if(!(link_attrs->link_type == TAG_LINK_DEST ||
@@ -482,7 +480,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 				goto cleanup;
 			}
 
-			link_attrs->dest = strdup(attr->scalar.s);
+			link_attrs->dest = sstrdup(attr->scalar.s);
 		}
 		else if(strcmp(attr->name, "page") == 0) {
 			if(!(link_attrs->link_type == TAG_LINK_DEST ||
@@ -534,12 +532,11 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 cleanup:
 	free_attributes_list(&list);
 	if(UNLIKELY(status)) {
-		free(link_attrs->dest);
-		free(link_attrs->uri);
-		free(link_attrs->file);
+		SAlloc::F(link_attrs->dest);
+		SAlloc::F(link_attrs->uri);
+		SAlloc::F(link_attrs->file);
 		_cairo_array_fini(&link_attrs->rects);
 	}
-
 	return status;
 }
 
@@ -556,7 +553,7 @@ cairo_int_status_t _cairo_tag_parse_dest_attributes(const char * attributes, cai
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{
 		if(strcmp(attr->name, "name") == 0) {
-			dest_attrs->name = strdup(attr->scalar.s);
+			dest_attrs->name = sstrdup(attr->scalar.s);
 		}
 		else if(strcmp(attr->name, "x") == 0) {
 			dest_attrs->x = attr->scalar.f;
@@ -570,13 +567,10 @@ cairo_int_status_t _cairo_tag_parse_dest_attributes(const char * attributes, cai
 			dest_attrs->internal = attr->scalar.b;
 		}
 	}
-
 	if(!dest_attrs->name)
 		status = _cairo_error(CAIRO_STATUS_TAG_ERROR);
-
 cleanup:
 	free_attributes_list(&list);
-
 	return status;
 }
 
@@ -585,10 +579,8 @@ cairo_int_status_t _cairo_tag_parse_ccitt_params(const char * attributes, cairo_
 	cairo_list_t list;
 	cairo_int_status_t status;
 	attribute_t * attr;
-
 	ccitt_params->columns = -1;
 	ccitt_params->rows = -1;
-
 	/* set defaults */
 	ccitt_params->k = 0;
 	ccitt_params->end_of_line = FALSE;

@@ -5,10 +5,10 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-int FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
+int STDCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 {
 	int    dot = 0;
-	char * p_tmp = strdup(pBuf);
+	char * p_tmp = sstrdup(pBuf);
 	char * t = strip(p_tmp);
 	{
 		//
@@ -177,6 +177,12 @@ RealRange & RealRange::Z()
 	return *this;
 }
 
+bool   RealRange::IsNan() const { return _isnan(low) || _isnan(upp); }
+bool   RealRange::IsDegraded() const { return (low == upp); }
+bool   RealRange::IsPositive() const { return (low > 0.0 && upp > 0.0); }
+bool   RealRange::IsNegative() const { return (low < 0.0 && upp < 0.0); }
+bool   RealRange::IsNormalized() const { return (low <= upp); }
+bool   RealRange::IsStrictlyNormalized() const { return (low < upp); }
 RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((double)rS.low, (double)rS.upp); }
 int FASTCALL RealRange::IsEqual(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
 int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
@@ -198,9 +204,9 @@ int RealRange::CheckValEps(double val, double eps) const
 	return 1;
 }
 
-int RealRange::Check(double v) const
+bool RealRange::Check(double v) const
 	{ return BIN(v >= low && v <= upp); }
-int RealRange::CheckX(double v) const
+bool RealRange::CheckX(double v) const
 	{ return BIN((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low)); }
 
 double RealRange::Clip(double v) const
@@ -251,6 +257,19 @@ RealRange & RealRange::Scale(double sc)
 {
 	low *= sc;
 	upp *= sc;
+	return *this;
+}
+
+RealRange & RealRange::Normalize()
+{
+	ExchangeForOrder(&low, &upp);
+	return *this;
+}
+
+RealRange & RealRange::Extend(double delta)
+{
+	low = low-delta;
+	upp = upp+delta;
 	return *this;
 }
 

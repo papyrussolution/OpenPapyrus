@@ -181,7 +181,7 @@
 // systems. Instead we make use of the maximum sizes that are available at
 // preprocessor time in standard C environments.
 //
-typedef unsigned char pcre_uint8;
+typedef uchar pcre_uint8;
 
 #if USHRT_MAX == 65535
 	typedef unsigned short pcre_uint16;
@@ -244,7 +244,7 @@ typedef unsigned char pcre_uint8;
 // items, some check is needed before accessing these tables.
 //
 #if defined COMPILE_PCRE8
-	typedef unsigned char pcre_uchar;
+	typedef uchar pcre_uchar;
 	#define IN_UCHARS(x) (x)
 	#define MAX_255(c) 1
 	#define TABLE_GET(c, table, default) ((table)[c])
@@ -289,7 +289,7 @@ typedef unsigned char pcre_uint8;
 // to process subject strings that are discontinuous by using a smart pointer
 // class. It must always be possible to inspect all of the subject string in
 // pcre_exec() because of the way it backtracks. Two macros are required in the
-// normal case, for sign-unspecified and unsigned char pointers. The former is
+// normal case, for sign-unspecified and uchar pointers. The former is
 // used for the external interface and appears in pcre.h, which is why its name must begin with PCRE_. 
 //
 #ifdef CUSTOM_SUBJECT_PTR
@@ -330,8 +330,8 @@ typedef unsigned char pcre_uint8;
 			static void * pcre_memmove(void * d, const void * s, size_t n)
 			{
 				size_t i;
-				unsigned char * dest = (uchar *)d;
-				const unsigned char * src = (const unsigned char*)s;
+				uchar * dest = (uchar *)d;
+				const uchar * src = (const uchar *)s;
 				if(dest > src) {
 				dest += n;
 				src += n;

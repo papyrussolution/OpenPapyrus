@@ -65,16 +65,16 @@
  */
 
 #if defined COMPILE_PCRE8
-const unsigned char * pcre_maketables(void)
+const uchar * pcre_maketables(void)
 #elif defined COMPILE_PCRE16
-const unsigned char *
+const uchar *
 pcre16_maketables(void)
 #elif defined COMPILE_PCRE32
-const unsigned char *
+const uchar *
 pcre32_maketables(void)
 #endif
 {
-	unsigned char * yield, * p;
+	uchar * yield, * p;
 	int i;
 #ifndef DFTABLES
 	yield = (uchar *)(PUBL(malloc))(tables_length);

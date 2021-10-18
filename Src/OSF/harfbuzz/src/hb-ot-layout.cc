@@ -214,7 +214,7 @@ static void _hb_ot_layout_set_glyph_props(hb_font_t * font, hb_buffer_t * buffer
 	_hb_buffer_assert_gsubgpos_vars(buffer);
 	const OT::GDEF &gdef = *font->face->table.GDEF->table;
 	unsigned int count = buffer->len;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		_hb_glyph_info_set_glyph_props(&buffer->info[i], gdef.get_glyph_props(buffer->info[i].codepoint));
 		_hb_glyph_info_clear_lig_props(&buffer->info[i]);
 		buffer->info[i].syllable() = 0;
@@ -260,7 +260,7 @@ hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t * face,
  * @face: The #hb_face_t to work on
  * @klass: The #hb_ot_layout_glyph_class_t GDEF class to retrieve
  * @glyphs: (out): The #hb_set_t set of all glyphs belonging to the requested
- *          class.
+ *    class.
  *
  * Retrieves the set of all glyphs from the face that belong to the requested
  * glyph class in the face's GDEF table.
@@ -556,7 +556,7 @@ bool hb_ot_layout_table_find_feature(hb_face_t * face,
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 
 	unsigned int num_features = g.get_feature_count();
-	for(unsigned int i = 0; i < num_features; i++) {
+	for(uint i = 0; i < num_features; i++) {
 		if(feature_tag == g.get_feature_tag(i)) {
 			if(feature_index) *feature_index = i;
 			return true;
@@ -783,13 +783,13 @@ unsigned int hb_ot_layout_language_get_feature_tags(hb_face_t * face,
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 	const OT::LangSys &l = g.get_script(script_index).get_lang_sys(language_index);
 
-	static_assert((sizeof(unsigned int) == sizeof(hb_tag_t)), "");
+	static_assert((sizeof(uint) == sizeof(hb_tag_t)), "");
 	unsigned int ret = l.get_feature_indexes(start_offset, feature_count, (unsigned int*)feature_tags);
 
 	if(feature_tags) {
 		unsigned int count = *feature_count;
-		for(unsigned int i = 0; i < count; i++)
-			feature_tags[i] = g.get_feature_tag((unsigned int)feature_tags[i]);
+		for(uint i = 0; i < count; i++)
+			feature_tags[i] = g.get_feature_tag((uint)feature_tags[i]);
 	}
 
 	return ret;
@@ -822,7 +822,7 @@ hb_bool_t hb_ot_layout_language_find_feature(hb_face_t * face,
 	const OT::LangSys &l = g.get_script(script_index).get_lang_sys(language_index);
 
 	unsigned int num_features = l.get_feature_count();
-	for(unsigned int i = 0; i < num_features; i++) {
+	for(uint i = 0; i < num_features; i++) {
 		unsigned int f_index = l.get_feature_index(i);
 
 		if(feature_tag == g.get_feature_tag(f_index)) {
@@ -969,7 +969,7 @@ static void langsys_collect_features(hb_collect_features_context_t * c,
 		for(; *features; features++) {
 			hb_tag_t feature_tag = *features;
 			unsigned int num_features = l.get_feature_count();
-			for(unsigned int i = 0; i < num_features; i++) {
+			for(uint i = 0; i < num_features; i++) {
 				unsigned int feature_index = l.get_feature_index(i);
 
 				if(feature_tag == c->g.get_feature_tag(feature_index)) {
@@ -1270,7 +1270,7 @@ void hb_ot_layout_delete_glyphs_inplace(hb_buffer_t * buffer,
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		if(filter(&info[i])) {
 			/* Merge clusters.
 			 * Same logic as buffer->delete_glyph(), but for in-place removal. */
@@ -1356,7 +1356,7 @@ void hb_ot_layout_lookups_substitute_closure(hb_face_t * face,
 				gsub.get_lookup(lookup_index).closure(&c, lookup_index);
 		}
 		else {
-			for(unsigned int i = 0; i < gsub.get_lookup_count(); i++)
+			for(uint i = 0; i < gsub.get_lookup_count(); i++)
 				gsub.get_lookup(i).closure(&c, i);
 		}
 	} while(iteration_count++ <= HB_CLOSURE_MAX_STAGES &&
@@ -1453,7 +1453,7 @@ hb_bool_t hb_ot_layout_get_size_params(hb_face_t * face,
 	const hb_tag_t tag = HB_TAG('s', 'i', 'z', 'e');
 
 	unsigned int num_features = gpos.get_feature_count();
-	for(unsigned int i = 0; i < num_features; i++) {
+	for(uint i = 0; i < num_features; i++) {
 		if(tag == gpos.get_feature_tag(i)) {
 			const OT::Feature &f = gpos.get_feature(i);
 			const OT::FeatureParamsSize &params = f.get_feature_params().get_size_params(tag);
@@ -1485,12 +1485,12 @@ hb_bool_t hb_ot_layout_get_size_params(hb_face_t * face,
  * @table_tag: table tag to query, "GSUB" or "GPOS".
  * @feature_index: index of feature to query.
  * @label_id: (out) (allow-none): The ‘name’ table name ID that specifies a string
- *            for a user-interface label for this feature. (May be NULL.)
+ *      for a user-interface label for this feature. (May be NULL.)
  * @tooltip_id: (out) (allow-none): The ‘name’ table name ID that specifies a string
  * that an application can use for tooltip text for this
  * feature. (May be NULL.)
  * @sample_id: (out) (allow-none): The ‘name’ table name ID that specifies sample text
- *             that illustrates the effect of this feature. (May be NULL.)
+ *       that illustrates the effect of this feature. (May be NULL.)
  * @num_named_parameters: (out) (allow-none):  Number of named parameters. (May be zero.)
  * @first_param_id: (out) (allow-none): The first ‘name’ table name ID used to specify
  *     strings for user-interface labels for the feature
@@ -1822,7 +1822,7 @@ public:
  * @alternate_count: (inout) (allow-none): Input = the maximum number of alternate glyphs to return;
  *      Output = the actual number of alternate glyphs returned (may be zero).
  * @alternate_glyphs: (out caller-allocates) (array length=alternate_count): A glyphs buffer.
- *       Alternate glyphs associated with the glyph id.
+ * Alternate glyphs associated with the glyph id.
  *
  * Fetches alternates of a glyph from a given GSUB lookup index.
  *

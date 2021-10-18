@@ -252,11 +252,11 @@ static void * index_tree_next(const index_tree_node * node)
 		node = node->right;
 		while(node->left != NULL)
 			node = node->left;
-		return (void*)(node);
+		return (void *)(node);
 	}
 	while(node->parent != NULL && node->parent->right == node)
 		node = node->parent;
-	return (void*)(node->parent);
+	return (void *)(node->parent);
 }
 
 /// Locate a node that contains the given uncompressed offset. It is
@@ -278,7 +278,7 @@ static void * index_tree_locate(const index_tree * tree, lzma_vli target)
 			node = node->right;
 		}
 	}
-	return (void*)(result);
+	return (void *)(result);
 }
 
 /// Allocate and initialize a new Stream using the given base offsets.
@@ -830,7 +830,7 @@ void lzma_index_iter_rewind(lzma_index_iter *iter)
 lzma_bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode)
 {
 	// Catch unsupported mode values.
-	if((unsigned int)(mode) > LZMA_INDEX_ITER_NONEMPTY_BLOCK)
+	if((uint)(mode) > LZMA_INDEX_ITER_NONEMPTY_BLOCK)
 		return true;
 	const lzma_index * i = static_cast<const lzma_index *>(iter->internal[ITER_INDEX].p);
 	const index_stream * stream = static_cast<const index_stream *>(iter->internal[ITER_STREAM].p);

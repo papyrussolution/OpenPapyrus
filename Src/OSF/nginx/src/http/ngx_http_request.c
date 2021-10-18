@@ -485,7 +485,7 @@ static void ngx_http_ssl_handshake_handler(ngx_connection_t * c)
 #if (NGX_HTTP_V2 && (defined TLSEXT_TYPE_application_layer_protocol_negotiation || defined TLSEXT_TYPE_next_proto_neg))
 		{
 			unsigned int len;
-			const unsigned char  * data;
+			const uchar  * data;
 			ngx_http_connection_t  * hc = (ngx_http_connection_t *)c->data;
 			if(hc->addr_conf->http2) {
 #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation

@@ -61,7 +61,7 @@ void PPVersionInfo::Clear()
 	ZDELETE(P_Info_);
 }
 
-static const unsigned char VERDATA[] = {
+static const uchar VERDATA[] = {
 	#include <private\verdata.inc>
 };
 

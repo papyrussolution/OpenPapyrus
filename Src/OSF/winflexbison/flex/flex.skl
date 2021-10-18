@@ -390,13 +390,12 @@ m4_ifdef( [[M4_YY_NOT_IN_HEADER]],
 
 
 #ifndef YY_TYPEDEF_YY_BUFFER_STATE
-#define YY_TYPEDEF_YY_BUFFER_STATE
-typedef struct yy_buffer_state *YY_BUFFER_STATE;
+	#define YY_TYPEDEF_YY_BUFFER_STATE
+	typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
-
 #ifndef YY_TYPEDEF_YY_SIZE_T
-#define YY_TYPEDEF_YY_SIZE_T
-typedef size_t yy_size_t;
+	#define YY_TYPEDEF_YY_SIZE_T
+	typedef size_t yy_size_t;
 #endif
 
 %if-not-reentrant
@@ -426,14 +425,14 @@ m4_ifdef( [[M4_YY_NOT_IN_HEADER]],
     #define  YY_LESS_LINENO(n) \
             do { \
                 int yyl;\
-                for ( yyl = n; yyl < yyleng; ++yyl )\
+                for( yyl = n; yyl < yyleng; ++yyl )\
                     if ( yytext[yyl] == '\n' )\
                         --yylineno;\
             }while(0)
     #define YY_LINENO_REWIND_TO(dst) \
             do {\
                 const char *p;\
-                for ( p = yy_cp-1; p >= (dst); --p)\
+                for( p = yy_cp-1; p >= (dst); --p)\
                     if ( *p == '\n' )\
                         --yylineno;\
             }while(0)
@@ -1591,7 +1590,7 @@ int yyFlexLexer::yy_get_next_buffer()
 	/* First move last chars to start of buffer. */
 	number_to_move = (int) (YY_G(yy_c_buf_p) - YY_G(yytext_ptr) - 1);
 
-	for ( i = 0; i < number_to_move; ++i )
+	for( i = 0; i < number_to_move; ++i )
 		*(dest++) = *(source++);
 
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING )
@@ -1714,7 +1713,7 @@ m4_ifdef( [[M4_YY_USES_REJECT]],
 
 %% [15.0] code to get the start state into yy_current_state goes here
 
-	for ( yy_cp = YY_G(yytext_ptr) + YY_MORE_ADJ; yy_cp < YY_G(yy_c_buf_p); ++yy_cp )
+	for( yy_cp = YY_G(yytext_ptr) + YY_MORE_ADJ; yy_cp < YY_G(yy_c_buf_p); ++yy_cp )
 		{
 %% [16.0] code to find the next state goes here
 		}
@@ -2047,16 +2046,12 @@ static void yy_load_buffer_state  (M4_YY_DEF_ONLY_ARG)
 %endif
 {
     M4_YY_DECL_GUTS_VAR();
-
 	if ( ! b )
 		return;
-
 	if ( b == YY_CURRENT_BUFFER ) /* Not sure if we should pop here. */
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
-
 	if ( b->yy_is_our_buffer )
 		yyfree( (void *) b->yy_ch_buf M4_YY_CALL_LAST_ARG );
-
 	yyfree( (void *) b M4_YY_CALL_LAST_ARG );
 }
 
@@ -2075,9 +2070,7 @@ static void yy_load_buffer_state  (M4_YY_DEF_ONLY_ARG)
 {
 	int oerrno = errno;
     M4_YY_DECL_GUTS_VAR();
-
 	yy_flush_buffer( b M4_YY_CALL_LAST_ARG);
-
 %if-c-only
 	b->yy_input_file = file;
 %endif
@@ -2232,50 +2225,34 @@ void yyFlexLexer::yyensure_buffer_stack(void)
 {
 	yy_size_t num_to_alloc;
     M4_YY_DECL_GUTS_VAR();
-
-	if (!YY_G(yy_buffer_stack)) {
+	if(!YY_G(yy_buffer_stack)) {
 
 		/* First allocation is just for 2 elements, since we don't know if this
 		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
 		 * immediate realloc on the next call.
          */
       num_to_alloc = 1; /* After all that talk, this was set to 1 anyways... */
-		YY_G(yy_buffer_stack) = (struct yy_buffer_state**)yyalloc
-								(num_to_alloc * sizeof(struct yy_buffer_state*)
-								M4_YY_CALL_LAST_ARG);
-		if ( ! YY_G(yy_buffer_stack) )
+		YY_G(yy_buffer_stack) = (struct yy_buffer_state**)yyalloc(num_to_alloc * sizeof(struct yy_buffer_state*)M4_YY_CALL_LAST_ARG);
+		if(!YY_G(yy_buffer_stack))
 			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-
-
-		memset(YY_G(yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-
+		memzero(YY_G(yy_buffer_stack), num_to_alloc * sizeof(struct yy_buffer_state*));
 		YY_G(yy_buffer_stack_max) = num_to_alloc;
 		YY_G(yy_buffer_stack_top) = 0;
 		return;
 	}
-
-	if (YY_G(yy_buffer_stack_top) >= (YY_G(yy_buffer_stack_max)) - 1){
-
+	if(YY_G(yy_buffer_stack_top) >= (YY_G(yy_buffer_stack_max)) - 1){
 		/* Increase the buffer to prepare for a possible push. */
 		yy_size_t grow_size = 8 /* arbitrary grow size */;
-
 		num_to_alloc = YY_G(yy_buffer_stack_max) + grow_size;
-		YY_G(yy_buffer_stack) = (struct yy_buffer_state**)yyrealloc
-								(YY_G(yy_buffer_stack),
-								num_to_alloc * sizeof(struct yy_buffer_state*)
-								M4_YY_CALL_LAST_ARG);
-		if ( ! YY_G(yy_buffer_stack) )
+		YY_G(yy_buffer_stack) = (struct yy_buffer_state**)yyrealloc(YY_G(yy_buffer_stack), num_to_alloc * sizeof(struct yy_buffer_state*)M4_YY_CALL_LAST_ARG);
+		if(!YY_G(yy_buffer_stack))
 			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-
 		/* zero only the new slots.*/
-		memset(YY_G(yy_buffer_stack) + YY_G(yy_buffer_stack_max), 0, grow_size * sizeof(struct yy_buffer_state*));
+		memzero(YY_G(yy_buffer_stack) + YY_G(yy_buffer_stack_max), grow_size * sizeof(struct yy_buffer_state*));
 		YY_G(yy_buffer_stack_max) = num_to_alloc;
 	}
 }
 %endif
-
-
-
 
 m4_ifdef( [[M4_YY_NO_SCAN_BUFFER]],,
 [[
@@ -2290,17 +2267,12 @@ YY_BUFFER_STATE yy_scan_buffer  YYFARGS2( char *,base, yy_size_t ,size)
 {
 	YY_BUFFER_STATE b;
     m4_dnl M4_YY_DECL_GUTS_VAR();
-
-	if ( size < 2 ||
-	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
-	     base[size-1] != YY_END_OF_BUFFER_CHAR )
+	if(size < 2 || base[size-2] != YY_END_OF_BUFFER_CHAR || base[size-1] != YY_END_OF_BUFFER_CHAR)
 		/* They forgot to leave room for the EOB's. */
 		return NULL;
-
 	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state ) M4_YY_CALL_LAST_ARG );
-	if ( ! b )
+	if(!b)
 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
-
 	b->yy_buf_size = (int) (size - 2);	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
 	b->yy_is_our_buffer = 0;
@@ -2310,9 +2282,7 @@ YY_BUFFER_STATE yy_scan_buffer  YYFARGS2( char *,base, yy_size_t ,size)
 	b->yy_at_bol = 1;
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
-
 	yy_switch_to_buffer( b M4_YY_CALL_LAST_ARG );
-
 	return b;
 }
 %endif
@@ -2364,7 +2334,7 @@ YY_BUFFER_STATE yy_scan_bytes  YYFARGS2( const char *,yybytes, int ,_yybytes_len
 	if ( ! buf )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
 
-	for ( i = 0; i < _yybytes_len; ++i )
+	for( i = 0; i < _yybytes_len; ++i )
 		buf[i] = yybytes[i];
 
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
@@ -2757,17 +2727,13 @@ int yylex_init(yyscan_t* ptr_yy_globals)
         errno = EINVAL;
         return 1;
     }
-
-    *ptr_yy_globals = (yyscan_t) yyalloc ( sizeof( struct yyguts_t ), NULL );
-
-    if (*ptr_yy_globals == NULL){
+    *ptr_yy_globals = (yyscan_t)yyalloc(sizeof( struct yyguts_t ), NULL);
+    if (*ptr_yy_globals == NULL) {
         errno = ENOMEM;
         return 1;
     }
-
     /* By setting to 0xAA, we expose bugs in yy_init_globals. Leave at 0x00 for releases. */
-    memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-
+    memzero(*ptr_yy_globals, sizeof(struct yyguts_t));
     return yy_init_globals ( *ptr_yy_globals );
 }
 
@@ -2782,27 +2748,20 @@ int yylex_init(yyscan_t* ptr_yy_globals)
 int yylex_init_extra( YY_EXTRA_TYPE yy_user_defined, yyscan_t* ptr_yy_globals )
 {
     struct yyguts_t dummy_yyguts;
-
     yyset_extra (yy_user_defined, &dummy_yyguts);
-
     if (ptr_yy_globals == NULL){
         errno = EINVAL;
         return 1;
     }
-
     *ptr_yy_globals = (yyscan_t) yyalloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
-
     if (*ptr_yy_globals == NULL){
         errno = ENOMEM;
         return 1;
     }
-
     /* By setting to 0xAA, we expose bugs in
     yy_init_globals. Leave at 0x00 for releases. */
-    memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-
-    yyset_extra (yy_user_defined, *ptr_yy_globals);
-
+    memzero(*ptr_yy_globals, sizeof(struct yyguts_t));
+    yyset_extra(yy_user_defined, *ptr_yy_globals);
     return yy_init_globals ( *ptr_yy_globals );
 }
 
@@ -2931,7 +2890,7 @@ static void yy_flex_strncpy YYFARGS3( char*,s1, const char *,s2, int,n)
 	M4_YY_NOOP_GUTS_VAR();
 
 	int i;
-	for ( i = 0; i < n; ++i )
+	for( i = 0; i < n; ++i )
 		s1[i] = s2[i];
 }
 #endif
@@ -2943,9 +2902,8 @@ m4_ifdef( [[M4_YY_NOT_IN_HEADER]],
 static int yy_flex_strlen YYFARGS1( const char *,s)
 {
 	int n;
-	for ( n = 0; s[n]; ++n )
+	for( n = 0; s[n]; ++n )
 		;
-
 	return n;
 }
 #endif
@@ -2985,7 +2943,7 @@ void yyfree YYFARGS1( void *,ptr)
 {
 	M4_YY_DECL_GUTS_VAR();
 	M4_YY_NOOP_GUTS_VAR();
-	free( (char *) ptr );	/* see yyrealloc() for (char *) cast */
+	SAlloc::F((char *)ptr); /* see yyrealloc() for (char *) cast */
 }
 ]])
 
@@ -3031,27 +2989,20 @@ static int yytbl_read32 (void *v, struct yytbl_reader * rd)
 static int yytbl_hdr_read YYFARGS2(struct yytbl_hdr *, th, struct yytbl_reader *, rd)
 {
     size_t  bytes;
-    memset (th, 0, sizeof (struct yytbl_hdr));
-
+    memzero(th, sizeof (struct yytbl_hdr));
     if (yytbl_read32 (&(th->th_magic), rd) != 0)
         return -1;
-
     if (th->th_magic != YYTBL_MAGIC){
         YY_FATAL_ERROR( "bad magic number" );   /* TODO: not fatal. */
         return -1;
     }
-
-    if (yytbl_read32 (&(th->th_hsize), rd) != 0
-        || yytbl_read32 (&(th->th_ssize), rd) != 0
-        || yytbl_read16 (&(th->th_flags), rd) != 0)
+    if (yytbl_read32 (&(th->th_hsize), rd) != 0 || yytbl_read32 (&(th->th_ssize), rd) != 0 || yytbl_read16 (&(th->th_flags), rd) != 0)
         return -1;
-
     /* Sanity check on header size. Greater than 1k suggests some funny business. */
     if (th->th_hsize < 16 || th->th_hsize > 1024){
         YY_FATAL_ERROR( "insane header size detected" );   /* TODO: not fatal. */
         return -1;
     }
-
     /* Allocate enough space for the version and name fields */
     bytes = th->th_hsize - 14;
     th->th_version = (char *) yyalloc (bytes M4_YY_CALL_LAST_ARG);
@@ -3100,13 +3051,8 @@ static int yytbl_data_load YYFARGS2(struct yytbl_dmap *, dmap, struct yytbl_read
     struct yytbl_dmap *transdmap=0;
     int     len, i, rv, inner_loop_count;
     void   *p=0;
-
-    memset (&td, 0, sizeof (struct yytbl_data));
-
-    if (yytbl_read16 (&td.td_id, rd) != 0
-        || yytbl_read16 (&td.td_flags, rd) != 0
-        || yytbl_read32 (&td.td_hilen, rd) != 0
-        || yytbl_read32 (&td.td_lolen, rd) != 0)
+    memzero(&td, sizeof (struct yytbl_data));
+    if (yytbl_read16 (&td.td_id, rd) != 0 || yytbl_read16 (&td.td_flags, rd) != 0 || yytbl_read32 (&td.td_hilen, rd) != 0 || yytbl_read32 (&td.td_lolen, rd) != 0)
         return -1;
 
     /* Lookup the map for the transition table so we have it in case we need it
@@ -3154,31 +3100,26 @@ static int yytbl_data_load YYFARGS2(struct yytbl_dmap *, dmap, struct yytbl_read
      * Notice that we increment 'i' in the inner loop.
      */
     len = yytbl_calc_total_len (&td);
-    for (i = 0; i < len; ){
+    for(i = 0; i < len; ){
         int    j;
-
-
         /* This loop really executes exactly 1 or 2 times.
          * The second time is to handle the second member of the
          * YYTD_STRUCT for the yy_transition array.
          */
-        for (j = 0; j < inner_loop_count; j++, i++) {
+        for(j = 0; j < inner_loop_count; j++, i++) {
             flex_int32_t t32;
-
             /* read into t32 no matter what the real size is. */
             {
             flex_int16_t t16;
             flex_int8_t  t8;
-
             switch (YYTDFLAGS2BYTES (td.td_flags)) {
-            case sizeof (flex_int32_t):
-                rv = yytbl_read32 (&t32, rd);
-                break;
-            case sizeof (flex_int16_t):
+            case sizeof(flex_int32_t): 
+				rv = yytbl_read32 (&t32, rd); break;
+            case sizeof(flex_int16_t):
                 rv = yytbl_read16 (&t16, rd);
                 t32 = t16;
                 break;
-            case sizeof (flex_int8_t):
+            case sizeof(flex_int8_t):
                 rv = yytbl_read8 (&t8, rd);
                 t32 = t8;
                 break;
@@ -3189,16 +3130,10 @@ static int yytbl_data_load YYFARGS2(struct yytbl_dmap *, dmap, struct yytbl_read
             }
             if (rv != 0)
                 return -1;
-
             /* copy into the deserialized array... */
-
             if ((td.td_flags & YYTD_STRUCT)) {
                 /* t32 is the j'th member of a two-element struct. */
-                void   *v;
-
-                v = j == 0 ? &(((struct yy_trans_info *) p)->yy_verify)
-                    : &(((struct yy_trans_info *) p)->yy_nxt);
-
+                void  * v = (j == 0) ? &(((struct yy_trans_info *) p)->yy_verify) : &(((struct yy_trans_info *) p)->yy_nxt);
                 switch (dmap->dm_sz) {
                 case sizeof (flex_int32_t):
                     if (M4_YY_TABLES_VERIFY){
@@ -3372,9 +3307,8 @@ int yytables_destroy (M4_YY_DEF_ONLY_ARG)
     if(!M4_YY_TABLES_VERIFY){
         /* Walk the dmap, freeing the pointers */
         for(dmap=yydmap; dmap->dm_id; dmap++) {
-            void * v;
-            v = dmap->dm_arr;
-            if(v && *(char**)v){
+            void * v = dmap->dm_arr;
+            if(v && *(char**)v) {
                     yyfree(*(char**)v M4_YY_CALL_LAST_ARG);
                     *(char**)v = NULL;
             }
@@ -3387,13 +3321,11 @@ int yytables_destroy (M4_YY_DEF_ONLY_ARG)
 /* end table serialization code definitions */
 %endif
 
-
 m4_ifdef([[M4_YY_MAIN]], [[
 int main (void);
 
 int main ()
 {
-
 %if-reentrant
     yyscan_t lexer;
     yylex_init(&lexer);

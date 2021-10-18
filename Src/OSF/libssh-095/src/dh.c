@@ -516,7 +516,7 @@ error:
 
 /** @internal
  * @brief parse an incoming SSH_MSG_KEXDH_INIT packet and complete
- *        Diffie-Hellman key exchange
+ *  Diffie-Hellman key exchange
  **/
 static SSH_PACKET_CALLBACK(ssh_packet_server_dh_init){
 	(void)type;
@@ -654,7 +654,7 @@ static char * ssh_get_b64_unpadded(const uchar * hash, size_t len)
  * @warning Do NOT use MD5 or SHA1! Those hash functions are being deprecated.
  *
  * @param  type         Which sort of hash is given, use
- *                      SSH_PUBLICKEY_HASH_SHA256 or better.
+ *                SSH_PUBLICKEY_HASH_SHA256 or better.
  *
  * @param  hash         The hash to be converted to fingerprint.
  *
@@ -710,7 +710,7 @@ char * ssh_get_fingerprint_hash(enum ssh_publickey_hash_type type, uchar * hash,
  * sum.  Either way, the output is prepended by the hash-type.
  *
  * @param  type         Which sort of hash is given. Use
- *                      SSH_PUBLICKEY_HASH_SHA256 or better.
+ *                SSH_PUBLICKEY_HASH_SHA256 or better.
  *
  * @param  hash         The hash to be converted to fingerprint.
  *

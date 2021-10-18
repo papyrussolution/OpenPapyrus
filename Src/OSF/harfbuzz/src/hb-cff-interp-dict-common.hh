@@ -89,7 +89,7 @@ namespace CFF {
 
 			enum Nibble { DECIMAL = 10, EXP_POS, EXP_NEG, RESERVED, NEG, END };
 			char buf[32];
-			unsigned char byte = 0;
+			uchar byte = 0;
 			for(unsigned i = 0, count = 0; count < ARRAY_LENGTH(buf); ++i, ++count) {
 				unsigned nibble;
 				if(!(i & 1)) {

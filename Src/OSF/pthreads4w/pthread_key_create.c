@@ -45,7 +45,7 @@
  *
  * PARAMETERS
  *   key
- *           pointer to an instance of pthread_key_t
+ *     pointer to an instance of pthread_key_t
  *
  *
  * DESCRIPTION
@@ -56,10 +56,10 @@
  *   is called with key's current value for that thread.
  *
  * RESULTS
- *           0               successfully created semaphore,
- *           EAGAIN          insufficient resources or PTHREAD_KEYS_MAX
- *                           exceeded,
- *           ENOMEM          insufficient memory to create the key,
+ *     0               successfully created semaphore,
+ *     EAGAIN          insufficient resources or PTHREAD_KEYS_MAX
+ *                     exceeded,
+ *     ENOMEM          insufficient memory to create the key,
  *
  * ------------------------------------------------------
  */

@@ -47,15 +47,15 @@ GpTerminalBlock GPT; // @global
 
 // Externally visible variables 
 // the central instance: the current terminal's interface structure 
-struct GpTermEntry * term = NULL;  /* unknown */
+//struct GpTermEntry * term = NULL;  // unknown 
 // char term_options[MAX_LINE_LEN+1] = ""; /* ... and its options string */
 // the 'output' file name and handle 
 //char * outstr = NULL; // means "STDOUT" 
 //FILE * gpoutfile;
 // Output file where the PostScript output goes to. See term_api.h for more details. 
-FILE * gppsfile = 0;
-char * PS_psdir = NULL;
-char * PS_fontpath = NULL;
+//FILE * gppsfile = 0;
+//char * PS_psdir = NULL;
+//char * PS_fontpath = NULL;
 //bool term_initialised; /* true if terminal has been initialized */
 // The qt and wxt terminals cannot be used in the same session. 
 // Whichever one is used first to plot, this locks out the other. 
@@ -100,9 +100,8 @@ enum {
 //
 // Support for enhanced text mode. Declared extern in term_api.h 
 //
-// Recycle count for user-defined linetypes 
-int    linetype_recycle_count = 0;
-int    mono_recycle_count = 0;
+//int    linetype_recycle_count = 0; // Recycle count for user-defined linetypes 
+//int    mono_recycle_count = 0;
 
 // Internal prototypes: 
 //static void term_close_output();
@@ -169,11 +168,11 @@ void GnuPlot::TermCloseOutput(GpTermEntry * pTerm)
 			ClosePrinter(pTerm, GPT.P_GpOutFile);
 		else
 	#endif
-		if(GPT.P_GpOutFile != gppsfile)
+		if(GPT.P_GpOutFile != GPT.P_GpPsFile)
 			fclose(GPT.P_GpOutFile);
 		GPT.P_GpOutFile = stdout; // Don't dup...
 		ZFREE(GPT.P_OutStr);
-		SFile::ZClose(&gppsfile);
+		SFile::ZClose(&GPT.P_GpPsFile);
 	}
 }
 // 
@@ -195,7 +194,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 		pTerm->P_Gp = 0;
 		TermInitialised = false;
 		// switch off output to special postscript file (if used) 
-		gppsfile = NULL;
+		GPT.P_GpPsFile = NULL;
 	}
 	if(!pDest) { // stdout 
 		TermCloseOutput(pTerm);
@@ -415,7 +414,7 @@ void GnuPlot::TermReset(GpTermEntry * pTerm)
 			pTerm->P_Gp = 0;
 			TermInitialised = false;
 			// switch off output to special postscript file (if used) 
-			gppsfile = NULL;
+			GPT.P_GpPsFile = NULL;
 		}
 	}
 }
@@ -520,17 +519,17 @@ void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 		//   the terminal supports interactive multiplot, or
 		//   we are not writing to stdout and terminal doesn't
 		//   refuse multiplot outright
-		if(!fInteractive || (term->flags & TERM_CAN_MULTIPLOT) || ((GPT.P_GpOutFile != stdout) && !(term->flags & TERM_CANNOT_MULTIPLOT))) {
+		if(!fInteractive || (GPT.P_Term->flags & TERM_CAN_MULTIPLOT) || ((GPT.P_GpOutFile != stdout) && !(GPT.P_Term->flags & TERM_CANNOT_MULTIPLOT))) {
 			// it's okay to use multiplot here, but suspend first 
-			TermSuspend(term);
+			TermSuspend(GPT.P_Term);
 		}
 		else {
 			// uh oh: they're not allowed to be in multiplot here 
-			TermEndMultiplot(term);
+			TermEndMultiplot(GPT.P_Term);
 			// at this point we know that it is interactive and that the
 			// terminal can either only do multiplot when writing to
 			// to a file, or it does not do multiplot at all
-			if(term->flags & TERM_CANNOT_MULTIPLOT)
+			if(GPT.P_Term->flags & TERM_CANNOT_MULTIPLOT)
 				IntError(NO_CARET, "This terminal does not support multiplot");
 			else
 				IntError(NO_CARET, "Must set output to a file or put all multiplot commands on one input line");
@@ -707,8 +706,8 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
  * within the the range [0.3*(the-tic-length), 2*(the-tic-length)].
  * No head is printed if the arrow length is zero.
  *
- *            Yasu-hiro Yamazaki(hiro@rainbow.physics.utoronto.ca)
- *            Jul 1, 1993
+ *      Yasu-hiro Yamazaki(hiro@rainbow.physics.utoronto.ca)
+ *      Jul 1, 1993
  */
 #define COS15 (0.96593)         // cos of 15 degree
 #define SIN15 (0.25882)         // sin of 15 degree
@@ -968,7 +967,7 @@ static void null_layer(GpTermEntry * pThis, t_termlayer layer)
 //static void options_null()
 /*static*/void GnuPlot::OptionsNull(GpTermEntry * pThis, GnuPlot * pGp)
 {
-	PTR32(GPT.TermOptions)[0] = 0; // we have no options
+	GPT._TermOptions.Z(); // we have no options
 }
 
 static void Func_Init_Null(GpTermEntry * pThis)
@@ -1297,7 +1296,7 @@ GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 		if(_Plt.interactive)
 			fprintf(stderr, "\nTerminal type is now '%s'\n", p_new_term->name);
 		InvalidatePalette(); // Invalidate any terminal-specific structures that may be active 
-		term = p_new_term;
+		GPT.P_Term = p_new_term;
 		return p_new_term;
 	}
 }
@@ -1324,7 +1323,7 @@ void GnuPlot::InitTerminal()
 	char * gnuterm = getenv("GNUTERM");
 	if(gnuterm) {
 		// April 2017 - allow GNUTERM to include terminal options 
-		char * set_term = "set term ";
+		const char * set_term = "set term ";
 		char * set_term_command = (char *)SAlloc::M(strlen(set_term) + strlen(gnuterm) + 4);
 		strcpy(set_term_command, set_term);
 		strcat(set_term_command, gnuterm);
@@ -1385,8 +1384,8 @@ void GnuPlot::InitTerminal()
 		// initialized until later.                                           
 		// Note that Pgm.P_InputLine[] is blank at this point.	              
 		if(ChangeTerm(term_name, namelength)) {
-			if(strcmp(term->name, "x11"))
-				term->options(term, this);
+			if(strcmp(GPT.P_Term->name, "x11"))
+				GPT.P_Term->options(GPT.P_Term, this);
 			return;
 		}
 		else
@@ -1402,7 +1401,6 @@ void GnuPlot::InitTerminal()
 void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 {
 	static t_colorspec black = BLACK_COLORSPEC;
-	//struct GpTermEntry * t = term;
 	const char * str;
 	int x, y, xl, yl, i;
 	int xmax_t, ymax_t, x0, y0;
@@ -1658,7 +1656,7 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 					pTerm->linetype(pTerm, 1);
 					corners->style = FS_TRANSPARENT_SOLID + (50<<4);
 				}
-				term->filled_polygon(term, n+1, corners);
+				GPT.P_Term->filled_polygon(GPT.P_Term, n+1, corners);
 			}
 			str = "filled polygons:";
 		}
@@ -1680,8 +1678,8 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
  * A driver that wants to make use of this common framework must provide
  * three new entries in TERM_TABLE:
  *      void *enhanced_open   (char *fontname, double fontsize, double base,
- *                             bool widthflag, bool showflag,
- *                             int overprint)
+ *                       bool widthflag, bool showflag,
+ *                       int overprint)
  *      void *enhanced_writec (char c)
  *      void *enhanced_flush  ()
  *
@@ -2117,16 +2115,16 @@ int GnuPlot::EstimateStrlen(const char * pText, double * pHeight)
 	int len;
 	char * s;
 	double estimated_fontheight = 1.0;
-	if(term->flags & TERM_IS_LATEX)
+	if(GPT.P_Term->flags & TERM_IS_LATEX)
 		return strlen_tex(pText);
 #ifdef GP_ENH_EST
-	if(strchr(pText, '\n') || (term->flags & TERM_ENHANCED_TEXT)) {
-		GpTermEntry * tsave = term;
-		term = &_ENHest;
-		term->put_text(term, 0, 0, pText);
-		len = term->MaxX;
-		estimated_fontheight = term->MaxY / 10.0;
-		term = tsave;
+	if(strchr(pText, '\n') || (GPT.P_Term->flags & TERM_ENHANCED_TEXT)) {
+		GpTermEntry * tsave = GPT.P_Term;
+		GPT.P_Term = &_ENHest;
+		GPT.P_Term->put_text(GPT.P_Term, 0, 0, pText);
+		len = GPT.P_Term->MaxX;
+		estimated_fontheight = GPT.P_Term->MaxY / 10.0;
+		GPT.P_Term = tsave;
 		// Assume that unicode escape sequences  \U+xxxx will generate a single character 
 		// ENHest_plaintext is filled in by the put_text() call to estimate.trm           
 		s = ENHest_plaintext;
@@ -2320,8 +2318,8 @@ recycle:
 		}
 		// This linetype wasn't defined explicitly.		
 		// Should we recycle one of the first N linetypes?	
-		if(tag > mono_recycle_count && mono_recycle_count > 0) {
-			tag = (tag-1) % mono_recycle_count + 1;
+		if(tag > GPT.MonoRecycleCount && GPT.MonoRecycleCount > 0) {
+			tag = (tag-1) % GPT.MonoRecycleCount + 1;
 			goto recycle;
 		}
 		return;
@@ -2354,8 +2352,8 @@ recycle:
 	}
 	// This linetype wasn't defined explicitly.		
 	// Should we recycle one of the first N linetypes?	
-	if(tag > linetype_recycle_count && linetype_recycle_count > 0) {
-		tag = (tag-1) % linetype_recycle_count + 1;
+	if(tag > GPT.LinetypeRecycleCount && GPT.LinetypeRecycleCount > 0) {
+		tag = (tag-1) % GPT.LinetypeRecycleCount + 1;
 		recycled = TRUE;
 		goto recycle;
 	}

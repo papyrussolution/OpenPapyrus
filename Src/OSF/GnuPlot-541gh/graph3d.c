@@ -139,7 +139,7 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	// Sanity check top and bottom margins, in case the user got confused 
 	if(V.MarginB.scalex == screen && V.MarginT.scalex == screen) {
-		ExchangeToOrder(&V.MarginB.x, &V.MarginT.x);
+		ExchangeForOrder(&V.MarginB.x, &V.MarginT.x);
 	}
 	// this should also consider the view and number of lines in xformat || yformat || xlabel || ylabel 
 	if(V.MarginB.scalex == screen)

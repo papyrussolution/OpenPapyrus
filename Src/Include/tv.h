@@ -173,8 +173,8 @@ struct SizeEvent {
 		tRestored
 	};
 	int    ResizeType; // tXXX тип события изменения размера.
-	SPoint2S PrevSize;   // Размеры окна до получения этого сообщения //
-	SPoint2S NewSize;    // Новые размеры окна.
+	SPoint2S PrevSize; // Размеры окна до получения этого сообщения //
+	SPoint2S NewSize;  // Новые размеры окна.
 };
 //
 // Descr: Структура, передаваемая с сообщением cmPaint.
@@ -387,9 +387,9 @@ private:
 int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 
 // regex: (virtual)*[ \t]+void[ \t]+handleEvent\([ \t]*TEvent[ \t]*&[^)]*\)
-#define DECL_HANDLE_EVENT      virtual void __fastcall handleEvent(TEvent & event)
+#define DECL_HANDLE_EVENT      virtual void FASTCALL handleEvent(TEvent & event)
 // regex: void[ \t]+([a-zA-Z0-9_]+)::handleEvent\([ \t]*TEvent[ \t]*&[^)]*\)
-#define IMPL_HANDLE_EVENT(cls) void __fastcall cls::handleEvent(TEvent & event)
+#define IMPL_HANDLE_EVENT(cls) void FASTCALL cls::handleEvent(TEvent & event)
 #define EVENT_BARRIER(f) if(!EventBarrier()) { f; EventBarrier(1); }
 
 #define DECL_DIALOG_DATA(typ) typedef typ DlgDataType; DlgDataType Data // @v10.5.8
@@ -1444,6 +1444,13 @@ public:
 	//   Применяется для окон, созданных в обход штатной загрузки диалогов TDialog
 	//
 	static void FASTCALL PreprocessWindowCtrlText(HWND hWnd);
+	//
+	// Descr: Создает "родной" для операционной системы виджет, соответствующий
+	//   элементу pV. Тип виджета определяется по сигнатуре pV.
+	//   Если функция отработала успешно, то возвращает идентификатор "родного"
+	//   элемента (например, HWND). Если нет, то 0.
+	//
+	static int64 CreateCorrespondingNativeItem(TView * pV);
 
 	enum phaseType {
 		phFocused,
@@ -1470,8 +1477,8 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
 	int    commandEnabled(ushort command) const;
-	void   FASTCALL enableCommands(const TCommandSet & commands, int is_enable);
-	void   FASTCALL enableCommand(ushort command, int is_enable);
+	void   STDCALL enableCommands(const TCommandSet & commands, int is_enable);
+	void   STDCALL enableCommand(ushort command, int is_enable);
 	void   getCommands(TCommandSet & commands) const;
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & bounds);
@@ -1736,32 +1743,36 @@ public:
 	TView * FASTCALL getCtrlByHandle(HWND h);
 	HWND   H() const { return this ? HW : static_cast<HWND>(0); }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
-	void   FASTCALL setCtrlReadOnly(ushort ctlID, int set);
-	void   FASTCALL disableCtrl(ushort ctl, int toDisable);
-	void   __cdecl  disableCtrls(int toDisable, ...);
+	void   STDCALL  setCtrlReadOnly(ushort ctlID, int set);
+	void   STDCALL  disableCtrl(ushort ctl, int toDisable);
+	void   CDECL    disableCtrls(int toDisable, ...);
 	void   FASTCALL selectCtrl(ushort ctl);
 	int    selectButton(ushort cmd);
 	void   setCtrlOption(ushort id, ushort flag, int s);
+	int    SetFont(const SFontDescr & rFd);
+	int    SetCtrlFont(uint ctrlID, const char * pFontName, int height);
+	int    SetCtrlFont(uint ctlID, const SFontDescr & rFd);
+	int    SetCtrlsFont(const char * pFontName, int height, ...);
 	int    destroyCtrl(uint ctl);
 	//
 	// Функции setCtrlData и getCtrlData возвращают !0 если существует
 	// управляющий элемент с ид. ctl и 0 в противном случае.
 	//
-	int    FASTCALL setCtrlData(ushort ctl, void *);
-	int    FASTCALL getCtrlData(ushort ctl, void *);
+	int    STDCALL  setCtrlData(ushort ctl, void *);
+	int    STDCALL  getCtrlData(ushort ctl, void *);
 	uint16 FASTCALL getCtrlUInt16(uint ctlID);
 	long   FASTCALL getCtrlLong(uint ctl);
 	double FASTCALL getCtrlReal(uint ctl);
-	int    FASTCALL getCtrlString(uint ctlID, SString &);
+	int    STDCALL  getCtrlString(uint ctlID, SString &);
 	LDATE  FASTCALL getCtrlDate(uint ctlID);
 	LTIME  FASTCALL getCtrlTime(uint ctlID);
 	int    getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm);
-	int    FASTCALL setCtrlUInt16(uint ctlID, int s);
-	int    FASTCALL setCtrlLong(uint ctlID, long);
-	int    FASTCALL setCtrlReal(uint ctlID, double);
-	int    FASTCALL setCtrlString(uint ctlID, const SString &);
-	int    FASTCALL setCtrlDate(uint ctlID, LDATE val);
-	int    FASTCALL setCtrlTime(uint ctlID, LTIME val);
+	int    STDCALL  setCtrlUInt16(uint ctlID, int s);
+	int    STDCALL  setCtrlLong(uint ctlID, long);
+	int    STDCALL  setCtrlReal(uint ctlID, double);
+	int    STDCALL  setCtrlString(uint ctlID, const SString &);
+	int    STDCALL  setCtrlDate(uint ctlID, LDATE val);
+	int    STDCALL  setCtrlTime(uint ctlID, LTIME val);
 	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm);
 	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm);
 	//
@@ -1802,6 +1813,7 @@ public:
 	TRect  getClientRect() const;
 	TRect  getRect() const;
 	int    invalidateRect(const TRect &, int erase);
+	int    invalidateRect(const FRect &, int erase);
 	int    invalidateRegion(const SRegion & rRgn, int erase);
 	void   FASTCALL invalidateAll(int erase);
 	//
@@ -1822,12 +1834,27 @@ public:
 	//
 	int    RegisterMouseTracking(int leaveNotify, int hoverTimeout);
 	//
+	// Descr: Возвращает текстовый символ управляющего элемента, ассоциированного
+	//   с идентификатором id.
+	// Returns:
+	//   1 - символ найден и присвоен по ссылке rBuf
+	//   0 - либо не найден элемент с идентификатором id, либо у него нет символа.
+	//
+	int    GetCtlSymb(uint id, SString & rBuf) const;
+	//
 	//
 	HWND   PrevInStack;
 	HWND   HW; // hWnd;
 	ToolbarList Toolbar;
+protected:
+	//
+	// Descr: Вспомогательная функция, используемая при динамическом формировании диалога или окна (в т.ч. из ресурсов)
+	//
+	int    InsertCtl(TView * pCtl, uint id, const char * pSymb);
+	int    SetCtlSymb(uint id, const char * pSymb);
+	int    RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 private:
-	void   FASTCALL Helper_SetTitle(const char *, int setOrgTitle);
+	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
 	TButton * FASTCALL SearchButton(uint cmd);
 
 	class LocalMenuPool {
@@ -1853,6 +1880,8 @@ private:
 		// для того, чтобы в дальнейшем можно было использовать определенное в нем
 		// форматирование функцией setSubTitle
 	LocalMenuPool * P_Lmp;
+	StrAssocArray * P_SymbList; // Специальный контейнер для хранения соответствий идентификаторов элементов и их символов.
+	SVector * P_FontsAry;
 };
 //
 // @construction {
@@ -2100,6 +2129,7 @@ struct AbstractLayoutBlock { // @persistent
 	//
 	static uint32 GetSerializeSignature();
 	AbstractLayoutBlock();
+	explicit AbstractLayoutBlock(int direction);
 	int    FASTCALL operator == (const AbstractLayoutBlock & rS) const;
 	int    FASTCALL operator != (const AbstractLayoutBlock & rS) const;
 	AbstractLayoutBlock & SetDefault();
@@ -2225,7 +2255,7 @@ struct AbstractLayoutBlock { // @persistent
 	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
 	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
-	SPoint2F Size;           // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
+	SPoint2F Size;         // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
 	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
 	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
 	float  GrowFactor;     // Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
@@ -2304,6 +2334,7 @@ public:
 	};
 	int    Evaluate(const Param * pP);
 	LayoutFlexItem * InsertItem();
+	LayoutFlexItem * InsertItem(void * pManagedPtr, const AbstractLayoutBlock * pAlb);
 	void   DeleteItem(uint idx);
 	void   DeleteAllItems();
 	int    GetOrder() const;
@@ -2334,6 +2365,20 @@ public:
 	// Descr: Возвращает финальный расчетный прямоугольник элемента.
 	//
 	FRect  GetFrame() const;
+	//
+	// Descr: Возвращаете финальный расчетный прямоугольник элемента, скорректированный относительно
+	//   родительских прямоугольников.
+	//
+	FRect  GetFrameAdjustedToParent() const;
+	//
+	// Descr: Ищет элемент с наименьшим размером, в котором находится точка {x, y}.
+	// Note: Функция предполагает, что если точка не попадает в родительский элемент, то не попадает и 
+	//   ни в один из дочерних элементов. В общем случае, это - сильное и не обязательно истинное утверждение.
+	// Returns:
+	//   !0 - указатель на минимальный элемент, включающий точку {x, y}
+	//    0 - нет ни одного элемента, включающего точку {x, y}
+	//
+	const  LayoutFlexItem * FindMinimalItemAroundPoint(float x, float y) const;
 	//
 	// Descr: Рассчитывает минимальный прямоугольник, охватывающий все дочерние элементы
 	//   контейнера. Размеры самого контейнера в расчет не принимаются.
@@ -3191,9 +3236,6 @@ public:
 
 	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
-	int     SetCtrlFont(uint ctrlID, const char * pFontName, int height);
-	int     SetCtrlFont(uint ctlID, const SFontDescr & rFd);
-	int     __cdecl SetCtrlsFont(const char * pFontName, int height, ...);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
 	TDialog(const TRect & bounds, const char * pTitle);
 	TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
@@ -3211,7 +3253,6 @@ public:
 	// Descr: Запускает немодальное окно диалога
 	//
 	int    Insert();
-	int    SetFont(const SFontDescr & rFd);
 	void   ToCascade();
 	//
 	// Descr: Возвращает !0 если в поле состояния установлен флаг f.
@@ -3225,7 +3266,6 @@ public:
 	TLabel * getCtlLabel(uint ctlID);
 	int    getLabelText(uint ctlID, SString & rText);
 	int    setLabelText(uint ctlID, const char * pText);
-	int    GetCtlSymb(uint id, SString & rBuf) const;
 	int    SaveUserSettings();
 	int    RestoreUserSettings();
 #ifndef _WIN32_WCE // {
@@ -3316,7 +3356,7 @@ protected:
 	//   то растянется между указанными контролами, иначе переместится пропорционально
 	//
 	int    SetCtrlResizeParam(long ctrlID, long lCtrl, long tCtrl, long rCtrl, long bCtrl, long ctrlResizeFlags);
-	int    __cdecl LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...);
+	int    LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...);
 	int    ResizeDlgToRect(const RECT * pRect);
 	int    ResizeDlgToFullScreen();
 
@@ -3324,13 +3364,12 @@ protected:
 	long   DlgFlags;
 	void * P_PrevData;
 private:
-	static int  FASTCALL PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void    RemoveUnusedControls();
 	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
-	SVector * P_FontsAry;
 	HWND   ToolTipsWnd;
 	//
 	struct ResizeParamEntry {
@@ -3359,15 +3398,9 @@ private:
 	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
 	//
-	// Descr: Вспомогательная функция, испольуемая при формировании диалога из ресурсов
-	//
-	int    InsertCtl(TView * pCtl, uint id, const char * pSymb);
-	int    SetCtlSymb(uint id, const char * pSymb);
-	//
 	TRect  InitRect;
 	RECT   ResizedRect;  // @todo RECT-->TRect
 	RECT   ToResizeRect; // @todo RECT-->TRect
-	StrAssocArray * P_SymbList; // Специальный контейнер для хранения соотвествий идентификаторов элементов и их символов.
 public:
 	long   resourceID;
 	int    DefInputLine;
@@ -4824,7 +4857,7 @@ public:
 	long   _topItem() const { return topItem; }
 	long   _curItem() const { return curItem; }
 	long   _curFrameItem() const { return (curItem - topItem); }
-	int    FASTCALL isColInGroup(uint col, uint * idx) const;
+	int    STDCALL isColInGroup(uint col, uint * idx) const;
 	int    GetCapHeight() const;
 	void   VerifyCapHeight();
 	uint   GetGroupCount() const;
@@ -5790,8 +5823,8 @@ public:
 	int    buildIndex();
 	int    getChar();
 	uint   getUINT();
-	char * FASTCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
-	SString & FASTCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
+	char * STDCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
+	SString & STDCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
 	TRect  getRect();
 	TYPEID getType(int defaultLen);
 	long   getFormat(int defaultLen);

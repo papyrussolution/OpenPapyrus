@@ -14,81 +14,80 @@
 // the length-distance pairs found by the match finder.
 //
 struct lzma_match {
-	uint32_t len;
-	uint32_t dist;
+	uint32 len;
+	uint32 dist;
 };
 
 struct lzma_mf {
 	//
 	// In Window //
 	//
-	uint8_t * buffer; /// Pointer to buffer with data to be compressed
-	uint32_t size; /// Total size of the allocated buffer (that is, including all the extra space)
+	uint8 * buffer; /// Pointer to buffer with data to be compressed
+	uint32 size; /// Total size of the allocated buffer (that is, including all the extra space)
 	/// Number of bytes that must be kept available in our input history.
 	/// That is, once keep_size_before bytes have been processed,
 	/// buffer[read_pos - keep_size_before] is the oldest byte that
 	/// must be available for reading.
-	uint32_t keep_size_before;
+	uint32 keep_size_before;
 	/// Number of bytes that must be kept in buffer after read_pos.
 	/// That is, read_pos <= write_pos - keep_size_after as long as
 	/// action is LZMA_RUN; when action != LZMA_RUN, read_pos is allowed
 	/// to reach write_pos so that the last bytes get encoded too.
-	uint32_t keep_size_after;
+	uint32 keep_size_after;
 	/// Match finders store locations of matches using 32-bit integers.
 	/// To avoid adjusting several megabytes of integers every time the
 	/// input window is moved with move_window, we only adjust the
 	/// offset of the buffer. Thus, buffer[value_in_hash_table - offset]
 	/// is the byte pointed by value_in_hash_table.
-	uint32_t offset;
+	uint32 offset;
 	/// buffer[read_pos] is the next byte to run through the match
 	/// finder. This is incremented in the match finder once the byte
 	/// has been processed.
-	uint32_t read_pos;
+	uint32 read_pos;
 	/// Number of bytes that have been ran through the match finder, but
 	/// which haven't been encoded by the LZ-based encoder yet.
-	uint32_t read_ahead;
+	uint32 read_ahead;
 	/// As long as read_pos is less than read_limit, there is enough
 	/// input available in buffer for at least one encoding loop.
 	///
 	/// Because of the stateful API, read_limit may and will get greater
 	/// than read_pos quite often. This is taken into account when
 	/// calculating the value for keep_size_after.
-	uint32_t read_limit;
+	uint32 read_limit;
 	/// buffer[write_pos] is the first byte that doesn't contain valid
 	/// uncompressed data; that is, the next input byte will be copied
 	/// to buffer[write_pos].
-	uint32_t write_pos;
+	uint32 write_pos;
 	/// Number of bytes not hashed before read_pos. This is needed to
 	/// restart the match finder after LZMA_SYNC_FLUSH.
-	uint32_t pending;
+	uint32 pending;
 	//
 	// Match Finder //
 	//
 	/// Find matches. Returns the number of distance-length pairs written
 	/// to the matches array. This is called only via lzma_mf_find().
-	uint32_t (* find)(lzma_mf * mf, lzma_match * matches);
+	uint32 (* find)(lzma_mf * mf, lzma_match * matches);
 	/// Skips num bytes. This is like find() but doesn't make the
 	/// distance-length pairs available, thus being a little faster.
 	/// This is called only via mf_skip().
-	void (* skip)(lzma_mf * mf, uint32_t num);
-	uint32_t * hash;
-	uint32_t * son;
-	uint32_t cyclic_pos;
-	uint32_t cyclic_size; // Must be dictionary size + 1.
-	uint32_t hash_mask;
-	uint32_t depth; /// Maximum number of loops in the match finder
-	uint32_t nice_len; /// Maximum length of a match that the match finder will try to find.
-
+	void (* skip)(lzma_mf * mf, uint32 num);
+	uint32 * hash;
+	uint32 * son;
+	uint32 cyclic_pos;
+	uint32 cyclic_size; // Must be dictionary size + 1.
+	uint32 hash_mask;
+	uint32 depth; /// Maximum number of loops in the match finder
+	uint32 nice_len; /// Maximum length of a match that the match finder will try to find.
 	/// Maximum length of a match supported by the LZ-based encoder.
 	/// If the longest match found by the match finder is nice_len,
 	/// mf_find() tries to expand it up to match_len_max bytes.
-	uint32_t match_len_max;
+	uint32 match_len_max;
 	/// When running out of input, binary tree match finders need to know
 	/// if it is due to flushing or finishing. The action is used also
 	/// by the LZ-based encoders themselves.
 	lzma_action action;
-	uint32_t hash_count; /// Number of elements in hash[]
-	uint32_t sons_count; /// Number of elements in son[]
+	uint32 hash_count; /// Number of elements in hash[]
+	uint32 sons_count; /// Number of elements in son[]
 };
 
 struct lzma_lz_encoder_options { // @sobolev lzma_lz_options-->lzma_lz_encoder_options
@@ -103,9 +102,9 @@ struct lzma_lz_encoder_options { // @sobolev lzma_lz_options-->lzma_lz_encoder_o
 	/// This must be less than or equal to match_len_max.
 	size_t nice_len;
 	lzma_match_finder match_finder; /// Type of the match finder to use
-	uint32_t depth; /// Maximum search depth
-	const uint8_t * preset_dict; /// TODO: Comment
-	uint32_t preset_dict_size;
+	uint32 depth; /// Maximum search depth
+	const uint8 * preset_dict; /// TODO: Comment
+	uint32 preset_dict_size;
 };
 
 // The total usable buffer space at any moment outside the match finder:
@@ -138,7 +137,7 @@ struct lzma_lz_encoder_options { // @sobolev lzma_lz_options-->lzma_lz_encoder_o
 struct lzma_lz_encoder {
 	void * coder; /// Data specific to the LZ-based encoder
 	/// Function to encode from *dict to out[]
-	lzma_ret (* code)(void * coder, lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size);
+	lzma_ret (* code)(void * coder, lzma_mf * mf, uint8 * out, size_t * out_pos, size_t out_size);
 	void (*end)(void * coder, const lzma_allocator *allocator); /// Free allocated resources
 	lzma_ret (* options_update)(void * coder, const lzma_filter * filter); /// Update the options in the middle of the encoding.
 };
@@ -152,14 +151,14 @@ struct lzma_lz_encoder {
 // are called `read ahead'.
 
 /// Get pointer to the first byte not ran through the match finder
-static inline const uint8_t * mf_ptr(const lzma_mf * mf) { return mf->buffer + mf->read_pos; }
+static inline const uint8 * mf_ptr(const lzma_mf * mf) { return mf->buffer + mf->read_pos; }
 
 /// Get the number of bytes that haven't been ran through the match finder yet.
-static inline uint32_t mf_avail(const lzma_mf * mf) { return mf->write_pos - mf->read_pos; }
+static inline uint32 mf_avail(const lzma_mf * mf) { return mf->write_pos - mf->read_pos; }
 
 /// Get the number of bytes that haven't been encoded yet (some of these
 /// bytes may have been ran through the match finder though).
-static inline uint32_t mf_unencoded(const lzma_mf * mf) { return mf->write_pos - mf->read_pos + mf->read_ahead; }
+static inline uint32 mf_unencoded(const lzma_mf * mf) { return mf->write_pos - mf->read_pos + mf->read_ahead; }
 
 /// Calculate the absolute offset from the beginning of the most recent
 /// dictionary reset. Only the lowest four bits are important, so there's no
@@ -168,7 +167,7 @@ static inline uint32_t mf_unencoded(const lzma_mf * mf) { return mf->write_pos -
 /// NOTE: When moving the input window, we need to do it so that the lowest
 /// bits of dict->read_pos are not modified to keep this macro working
 /// as intended.
-static inline uint32_t mf_position(const lzma_mf * mf) { return mf->read_pos - mf->read_ahead; }
+static inline uint32 mf_position(const lzma_mf * mf) { return mf->read_pos - mf->read_ahead; }
 
 /// Since everything else begins with mf_, use it also for lzma_mf_find().
 #define mf_find lzma_mf_find
@@ -177,7 +176,7 @@ static inline uint32_t mf_position(const lzma_mf * mf) { return mf->read_pos - m
 /// For example, if mf_find() finds a match of 200 bytes long, the first byte
 /// of that match was already consumed by mf_find(), and the rest 199 bytes
 /// have to be skipped with mf_skip(mf, 199).
-static inline void mf_skip(lzma_mf * mf, uint32_t amount)
+static inline void mf_skip(lzma_mf * mf, uint32 amount)
 {
 	if(amount != 0) {
 		mf->skip(mf, amount);
@@ -187,7 +186,7 @@ static inline void mf_skip(lzma_mf * mf, uint32_t amount)
 
 /// Copies at most *left number of bytes from the history buffer
 /// to out[]. This is needed by LZMA2 to encode uncompressed chunks.
-static inline void mf_read(lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size, size_t * left)
+static inline void mf_read(lzma_mf * mf, uint8 * out, size_t * out_pos, size_t out_size, size_t * left)
 {
 	const size_t out_avail = out_size - *out_pos;
 	const size_t copy_size = MIN(out_avail, *left);
@@ -200,19 +199,19 @@ static inline void mf_read(lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t
 
 extern lzma_ret lzma_lz_encoder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters,
     lzma_ret (* lz_init)(lzma_lz_encoder * lz, const lzma_allocator * allocator, const void * options, lzma_lz_encoder_options * lz_options));
-extern uint64_t lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_options);
+extern uint64 lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_options);
 // These are only for LZ encoder's internal use.
-extern uint32_t lzma_mf_find(lzma_mf * mf, uint32_t * count, lzma_match * matches);
-extern uint32_t lzma_mf_hc3_find(lzma_mf * dict, lzma_match * matches);
-extern void lzma_mf_hc3_skip(lzma_mf * dict, uint32_t amount);
-extern uint32_t lzma_mf_hc4_find(lzma_mf * dict, lzma_match * matches);
-extern void lzma_mf_hc4_skip(lzma_mf * dict, uint32_t amount);
-extern uint32_t lzma_mf_bt2_find(lzma_mf * dict, lzma_match * matches);
-extern void lzma_mf_bt2_skip(lzma_mf * dict, uint32_t amount);
-extern uint32_t lzma_mf_bt3_find(lzma_mf * dict, lzma_match * matches);
-extern void lzma_mf_bt3_skip(lzma_mf * dict, uint32_t amount);
-extern uint32_t lzma_mf_bt4_find(lzma_mf * dict, lzma_match * matches);
-extern void lzma_mf_bt4_skip(lzma_mf * dict, uint32_t amount);
+extern uint32 lzma_mf_find(lzma_mf * mf, uint32 * count, lzma_match * matches);
+extern uint32 lzma_mf_hc3_find(lzma_mf * dict, lzma_match * matches);
+extern void   lzma_mf_hc3_skip(lzma_mf * dict, uint32 amount);
+extern uint32 lzma_mf_hc4_find(lzma_mf * dict, lzma_match * matches);
+extern void   lzma_mf_hc4_skip(lzma_mf * dict, uint32 amount);
+extern uint32 lzma_mf_bt2_find(lzma_mf * dict, lzma_match * matches);
+extern void   lzma_mf_bt2_skip(lzma_mf * dict, uint32 amount);
+extern uint32 lzma_mf_bt3_find(lzma_mf * dict, lzma_match * matches);
+extern void   lzma_mf_bt3_skip(lzma_mf * dict, uint32 amount);
+extern uint32 lzma_mf_bt4_find(lzma_mf * dict, lzma_match * matches);
+extern void   lzma_mf_bt4_skip(lzma_mf * dict, uint32 amount);
 //
 // } lz_encoder
 // lz_encoder_hash
@@ -221,7 +220,7 @@ extern void lzma_mf_bt4_skip(lzma_mf * dict, uint32_t amount);
 	// This is to make liblzma produce the same output on big endian
 	// systems that it does on little endian systems. lz_encoder.c
 	// takes care of including the actual table.
-	extern const uint32_t lzma_lz_hash_table[256];
+	extern const uint32 lzma_lz_hash_table[256];
 #	define hash_table lzma_lz_hash_table
 #else
 	//#include "check-internal.h"
@@ -242,54 +241,52 @@ extern void lzma_mf_bt4_skip(lzma_mf * dict, uint32_t amount);
 
 // Endianness doesn't matter in hash_2_calc() (no effect on the output).
 #ifdef TUKLIB_FAST_UNALIGNED_ACCESS
-	#define hash_2_calc() const uint32_t hash_value = read16ne(cur)
+	#define hash_2_calc() const uint32 hash_value = read16ne(cur)
 #else
-	#define hash_2_calc() const uint32_t hash_value = (uint32_t)(cur[0]) | ((uint32_t)(cur[1]) << 8)
+	#define hash_2_calc() const uint32 hash_value = (uint32)(cur[0]) | ((uint32)(cur[1]) << 8)
 #endif
 
 #define hash_3_calc() \
-	const uint32_t temp = hash_table[cur[0]] ^ cur[1]; \
-	const uint32_t hash_2_value = temp & HASH_2_MASK; \
-	const uint32_t hash_value = (temp ^ ((uint32_t)(cur[2]) << 8)) & mf->hash_mask
+	const uint32 temp = hash_table[cur[0]] ^ cur[1]; \
+	const uint32 hash_2_value = temp & HASH_2_MASK; \
+	const uint32 hash_value = (temp ^ ((uint32)(cur[2]) << 8)) & mf->hash_mask
 
 #define hash_4_calc() \
-	const uint32_t temp = hash_table[cur[0]] ^ cur[1]; \
-	const uint32_t hash_2_value = temp & HASH_2_MASK; \
-	const uint32_t hash_3_value = (temp ^ ((uint32_t)(cur[2]) << 8)) & HASH_3_MASK; \
-	const uint32_t hash_value = (temp ^ ((uint32_t)(cur[2]) << 8) ^ (hash_table[cur[3]] << 5)) & mf->hash_mask
+	const uint32 temp = hash_table[cur[0]] ^ cur[1]; \
+	const uint32 hash_2_value = temp & HASH_2_MASK; \
+	const uint32 hash_3_value = (temp ^ ((uint32)(cur[2]) << 8)) & HASH_3_MASK; \
+	const uint32 hash_value = (temp ^ ((uint32)(cur[2]) << 8) ^ (hash_table[cur[3]] << 5)) & mf->hash_mask
 
 // The following are not currently used.
 
 #define hash_5_calc() \
-	const uint32_t temp = hash_table[cur[0]] ^ cur[1]; \
-	const uint32_t hash_2_value = temp & HASH_2_MASK; \
-	const uint32_t hash_3_value = (temp ^ ((uint32_t)(cur[2]) << 8)) & HASH_3_MASK; \
-	uint32_t hash_4_value = (temp ^ ((uint32_t)(cur[2]) << 8) ^ ^ hash_table[cur[3]] << 5); \
-	const uint32_t hash_value = (hash_4_value ^ (hash_table[cur[4]] << 3)) & mf->hash_mask; \
+	const uint32 temp = hash_table[cur[0]] ^ cur[1]; \
+	const uint32 hash_2_value = temp & HASH_2_MASK; \
+	const uint32 hash_3_value = (temp ^ ((uint32)(cur[2]) << 8)) & HASH_3_MASK; \
+	uint32 hash_4_value = (temp ^ ((uint32)(cur[2]) << 8) ^ ^ hash_table[cur[3]] << 5); \
+	const uint32 hash_value = (hash_4_value ^ (hash_table[cur[4]] << 3)) & mf->hash_mask; \
 	hash_4_value &= HASH_4_MASK
 
 /*
 #define hash_zip_calc() \
-	const uint32_t hash_value \
-			= (((uint32_t)(cur[0]) | ((uint32_t)(cur[1]) << 8)) \
+	const uint32 hash_value \
+			= (((uint32)(cur[0]) | ((uint32)(cur[1]) << 8)) \
 				^ hash_table[cur[2]]) & 0xFFFF
 */
 
-#define hash_zip_calc() \
-	const uint32_t hash_value = (((uint32_t)(cur[2]) | ((uint32_t)(cur[0]) << 8)) ^ hash_table[cur[1]]) & 0xFFFF
-
-#define mt_hash_2_calc() const uint32_t hash_2_value = (hash_table[cur[0]] ^ cur[1]) & HASH_2_MASK
+#define hash_zip_calc() const uint32 hash_value = (((uint32)(cur[2]) | ((uint32)(cur[0]) << 8)) ^ hash_table[cur[1]]) & 0xFFFF
+#define mt_hash_2_calc() const uint32 hash_2_value = (hash_table[cur[0]] ^ cur[1]) & HASH_2_MASK
 
 #define mt_hash_3_calc() \
-	const uint32_t temp = hash_table[cur[0]] ^ cur[1]; \
-	const uint32_t hash_2_value = temp & HASH_2_MASK; \
-	const uint32_t hash_3_value = (temp ^ ((uint32_t)(cur[2]) << 8)) & HASH_3_MASK
+	const uint32 temp = hash_table[cur[0]] ^ cur[1]; \
+	const uint32 hash_2_value = temp & HASH_2_MASK; \
+	const uint32 hash_3_value = (temp ^ ((uint32)(cur[2]) << 8)) & HASH_3_MASK
 
 #define mt_hash_4_calc() \
-	const uint32_t temp = hash_table[cur[0]] ^ cur[1]; \
-	const uint32_t hash_2_value = temp & HASH_2_MASK; \
-	const uint32_t hash_3_value = (temp ^ ((uint32_t)(cur[2]) << 8)) & HASH_3_MASK; \
-	const uint32_t hash_4_value = (temp ^ ((uint32_t)(cur[2]) << 8) ^ (hash_table[cur[3]] << 5)) & HASH_4_MASK
+	const uint32 temp = hash_table[cur[0]] ^ cur[1]; \
+	const uint32 hash_2_value = temp & HASH_2_MASK; \
+	const uint32 hash_3_value = (temp ^ ((uint32)(cur[2]) << 8)) & HASH_3_MASK; \
+	const uint32 hash_4_value = (temp ^ ((uint32)(cur[2]) << 8) ^ (hash_table[cur[3]] << 5)) & HASH_4_MASK
 //
 // } lz_encoder_hash
 // lz_decoder {
@@ -298,7 +295,7 @@ struct lzma_dict {
 	/// Pointer to the dictionary buffer. It can be an allocated buffer
 	/// internal to liblzma, or it can a be a buffer given by the
 	/// application when in single-call mode (not implemented yet).
-	uint8_t * buf;
+	uint8 * buf;
 	size_t pos; /// Write position in dictionary. The next byte will be written to buf[pos].
 	/// Indicates how full the dictionary is. This is used by
 	/// dict_is_distance_valid() to detect corrupt files that would
@@ -311,7 +308,7 @@ struct lzma_dict {
 
 struct lzma_lz_decoder_options { // @sobolev lzma_lz_options-->lzma_lz_decoder_options
 	size_t dict_size;
-	const uint8_t * preset_dict;
+	const uint8 * preset_dict;
 	size_t preset_dict_size;
 };
 
@@ -326,7 +323,7 @@ struct lzma_lz_decoder {
 	}
 	void * coder; /// Data specific to the LZ-based decoder
 	/// Function to decode from in[] to *dict
-	lzma_ret (* code)(void * coder, lzma_dict * dict, const uint8_t * in, size_t * in_pos, size_t in_size);
+	lzma_ret (* code)(void * coder, lzma_dict * dict, const uint8 * in, size_t * in_pos, size_t in_size);
 	void (* reset)(void * coder, const void * options);
 	/// Set the uncompressed size
 	void (* set_uncompressed)(void * coder, lzma_vli uncompressed_size);
@@ -345,18 +342,18 @@ extern void lzma_lz_decoder_uncompressed(void * coder, lzma_vli uncompressed_siz
 // Inline functions
 //
 /// Get a byte from the history buffer.
-static inline uint8_t dict_get(const lzma_dict * const dict, const uint32_t distance) { return dict->buf[dict->pos - distance - 1 + (distance < dict->pos ? 0 : dict->size)]; }
+static inline uint8 dict_get(const lzma_dict * const dict, const uint32 distance) { return dict->buf[dict->pos - distance - 1 + (distance < dict->pos ? 0 : dict->size)]; }
 /// Test if dictionary is empty.
 static inline bool dict_is_empty(const lzma_dict * const dict) { return dict->full == 0; }
 /// Validate the match distance
 static inline bool dict_is_distance_valid(const lzma_dict * const dict, const size_t distance) { return dict->full > distance; }
 
 /// Repeat *len bytes at distance.
-static inline bool dict_repeat(lzma_dict * dict, uint32_t distance, uint32_t * len)
+static inline bool dict_repeat(lzma_dict * dict, uint32 distance, uint32 * len)
 {
 	// Don't write past the end of the dictionary.
 	const size_t dict_avail = dict->limit - dict->pos;
-	uint32_t left = MIN(dict_avail, *len);
+	uint32 left = MIN(dict_avail, *len);
 	*len -= left;
 	// Repeat a block of data from the history. Because memcpy() is faster
 	// than copying byte by byte in a loop, the copying process gets split
@@ -379,8 +376,8 @@ static inline bool dict_repeat(lzma_dict * dict, uint32_t distance, uint32_t * l
 		// case occurs. We need to "wrap" the dict, thus
 		// we might need two memcpy() to copy all the data.
 		assert(dict->full == dict->size);
-		const uint32_t copy_pos = dict->pos - distance - 1 + dict->size;
-		uint32_t copy_size = dict->size - copy_pos;
+		const uint32 copy_pos = dict->pos - distance - 1 + dict->size;
+		uint32 copy_size = dict->size - copy_pos;
 		if(copy_size < left) {
 			memmove(dict->buf + dict->pos, dict->buf + copy_pos, copy_size);
 			dict->pos += copy_size;
@@ -401,7 +398,7 @@ static inline bool dict_repeat(lzma_dict * dict, uint32_t distance, uint32_t * l
 
 /// Puts one byte into the dictionary. Returns true if the dictionary was
 /// already full and the byte couldn't be added.
-static inline bool dict_put(lzma_dict * dict, uint8_t byte)
+static inline bool dict_put(lzma_dict * dict, uint8 byte)
 {
 	if(UNLIKELY(dict->pos == dict->limit))
 		return true;
@@ -412,7 +409,7 @@ static inline bool dict_put(lzma_dict * dict, uint8_t byte)
 }
 
 /// Copies arbitrary amount of data into the dictionary.
-static inline void dict_write(lzma_dict * dict, const uint8_t * in, size_t * in_pos, size_t in_size, size_t * left)
+static inline void dict_write(lzma_dict * dict, const uint8 * in, size_t * in_pos, size_t in_size, size_t * left)
 {
 	// NOTE: If we are being given more data than the size of the
 	// dictionary, it could be possible to optimize the LZ decoder

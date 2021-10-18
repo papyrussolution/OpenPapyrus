@@ -39,7 +39,7 @@ struct private_b64encode {
 	struct archive_string encoded_buff;
 	size_t bs;
 	size_t hold_len;
-	unsigned char hold[LBYTES];
+	uchar hold[LBYTES];
 };
 
 static int archive_filter_b64encode_options(struct archive_write_filter *,
@@ -49,8 +49,8 @@ static int archive_filter_b64encode_write(struct archive_write_filter *,
     const void *, size_t);
 static int archive_filter_b64encode_close(struct archive_write_filter *);
 static int archive_filter_b64encode_free(struct archive_write_filter *);
-static void la_b64_encode(struct archive_string *, const unsigned char *, size_t);
-static int64_t atol8(const char *, size_t);
+static void la_b64_encode(struct archive_string *, const uchar *, size_t);
+static int64 atol8(const char *, size_t);
 
 static const char base64[] = {
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -75,7 +75,7 @@ int archive_write_add_filter_b64encode(struct archive * _a)
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
 	    ARCHIVE_STATE_NEW, "archive_write_add_filter_uu");
 
-	state = (struct private_b64encode *)calloc(1, sizeof(*state));
+	state = (struct private_b64encode *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for b64encode filter");
@@ -161,7 +161,7 @@ static int archive_filter_b64encode_open(struct archive_write_filter * f)
 	return 0;
 }
 
-static void la_b64_encode(struct archive_string * as, const unsigned char * p, size_t len)
+static void la_b64_encode(struct archive_string * as, const uchar * p, size_t len)
 {
 	int c;
 
@@ -200,7 +200,7 @@ static void la_b64_encode(struct archive_string * as, const unsigned char * p, s
 static int archive_filter_b64encode_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_b64encode * state = (struct private_b64encode *)f->data;
-	const unsigned char * p = (const uchar *)buff;
+	const uchar * p = (const uchar *)buff;
 	int ret = ARCHIVE_OK;
 	if(length == 0)
 		return ret;
@@ -259,13 +259,13 @@ static int archive_filter_b64encode_free(struct archive_write_filter * f)
 
 	archive_string_free(&state->name);
 	archive_string_free(&state->encoded_buff);
-	free(state);
+	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
 
-static int64_t atol8(const char * p, size_t char_cnt)
+static int64 atol8(const char * p, size_t char_cnt)
 {
-	int64_t l;
+	int64 l;
 	int digit;
 	l = 0;
 	while(char_cnt-- > 0) {

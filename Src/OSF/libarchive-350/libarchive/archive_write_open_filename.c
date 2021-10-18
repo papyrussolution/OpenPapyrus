@@ -80,7 +80,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 	struct write_file_data * mine;
 	int r;
 
-	mine = (struct write_file_data *)calloc(1, sizeof(*mine));
+	mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -136,7 +136,7 @@ static int file_open(struct archive * a, void * client_data)
 	fullpath = __la_win_permissive_name_w(wcs);
 	if(fullpath != NULL) {
 		mine->fd = _wopen(fullpath, flags, 0666);
-		free(fullpath);
+		SAlloc::F(fullpath);
 	}
 	else
 		mine->fd = _wopen(wcs, flags, 0666);
@@ -238,6 +238,6 @@ static int file_free(struct archive * a, void * client_data)
 		return ARCHIVE_OK;
 
 	archive_mstring_clean(&mine->filename);
-	free(mine);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

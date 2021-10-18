@@ -263,8 +263,8 @@ struct st_ma_connection_plugin;
 
 typedef struct st_net {
 	MARIADB_PVIO * pvio;
-	unsigned char * buff;
-	unsigned char * buff_end, * write_pos, * read_pos;
+	uchar * buff;
+	uchar * buff_end, * write_pos, * read_pos;
 	my_socket fd;                           /* For Perl DBI/dbd */
 	unsigned long remain_in_buf, length;
 	unsigned long buf_length, where_b;
@@ -273,7 +273,7 @@ typedef struct st_net {
 	unsigned int write_timeout, read_timeout, retry_count;
 	int fcntl;
 	unsigned int * return_status;
-	unsigned char reading_or_writing;
+	uchar reading_or_writing;
 	char save_char;
 	char unused_1;
 	bool unused_2;
@@ -281,7 +281,7 @@ typedef struct st_net {
 	bool unused_3;
 	void * unused_4;
 	unsigned int last_errno;
-	unsigned char error;
+	uchar error;
 	bool unused_5;
 	bool unused_6;
 	char last_error[MYSQL_ERRMSG_SIZE];
@@ -289,7 +289,7 @@ typedef struct st_net {
 	struct st_mariadb_net_extension * extension;
 } NET;
 
-#define packet_error ((unsigned int)-1)
+#define packet_error ((uint)-1)
 
 /* used by mysql_set_server_option */
 enum enum_mysql_set_option {
@@ -395,8 +395,8 @@ int     ma_net_init(NET * net, MARIADB_PVIO * pvio);
 void    ma_net_end(NET * net);
 void    FASTCALL ma_net_clear(NET * net);
 int     ma_net_flush(NET * net);
-int     ma_net_write(NET * net, const unsigned char * packet, size_t len);
-int     ma_net_write_command(NET * net, unsigned char command, const char * packet, size_t len, bool disable_flush);
+int     ma_net_write(NET * net, const uchar * packet, size_t len);
+int     ma_net_write_command(NET * net, uchar command, const char * packet, size_t len, bool disable_flush);
 int     ma_net_real_write(NET * net, const char * packet, size_t len);
 extern unsigned long ma_net_read(NET * net);
 
@@ -446,7 +446,7 @@ extern "C" {
 #endif
 
 char * ma_scramble_323(char * to, const char * message, const char * password);
-void ma_scramble_41(const unsigned char * buffer, const char * scramble, const char * password);
+void ma_scramble_41(const uchar * buffer, const char * scramble, const char * password);
 void ma_hash_password(unsigned long * result, const char * password, size_t len);
 void ma_make_scrambled_password(char * to, const char * password);
 

@@ -398,7 +398,7 @@ cmsINLINE int _cmsLeaveCriticalSectionPrimitive(_cmsMutex * m)
 // Plug-In registration ---------------------------------------------------------------
 
 // Specialized function for plug-in memory management. No pairing free() since whole pool is freed at once.
-void* _cmsPluginMalloc(cmsContext ContextID, cmsUInt32Number size);
+void * _cmsPluginMalloc(cmsContext ContextID, cmsUInt32Number size);
 
 // Memory management
 cmsBool   _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plugin);
@@ -496,7 +496,7 @@ struct _cmsContext_struct {
 	struct _cmsContext_struct* Next; // Points to next context in the new style
 	_cmsSubAllocator* MemPool;    // The memory pool that stores context data
 
-	void* chunks[MemoryClientMax]; // array of pointers to client chunks. Memory itself is hold in the suballocator.
+	void * chunks[MemoryClientMax]; // array of pointers to client chunks. Memory itself is hold in the suballocator.
 	                               // If NULL, then it reverts to global Context0
 
 	_cmsMemPluginChunkType DefaultMemoryManager; // The allocators used for creating the context itself. Cannot be
@@ -508,7 +508,7 @@ struct _cmsContext_struct {
 struct _cmsContext_struct* _cmsGetContext(cmsContext ContextID);
 
 // Returns the block assigned to the specific zone.
-void*     _cmsContextGetClientChunk(cmsContext id, _cmsMemoryClient mc);
+void * _cmsContextGetClientChunk(cmsContext id, _cmsMemoryClient mc);
 
 // Chunks of context memory by plug-in client -------------------------------------------------------
 
@@ -694,7 +694,7 @@ struct _cms_MLU_struct {
 	// The Pool
 	cmsUInt32Number PoolSize; // The maximum allocated size
 	cmsUInt32Number PoolUsed; // The used size
-	void*  MemPool;        // Pointer to begin of memory pool
+	void *  MemPool;        // Pointer to begin of memory pool
 };
 
 // Named color list internal representation
@@ -755,7 +755,7 @@ typedef struct _cms_iccprofile_struct {
 	cmsUInt32Number TagSizes[MAX_TABLE_TAG];                 // Size on disk
 	cmsUInt32Number TagOffsets[MAX_TABLE_TAG];
 	cmsBool TagSaveAsRaw[MAX_TABLE_TAG];                     // True to write uncooked
-	void *                   TagPtrs[MAX_TABLE_TAG];
+	void *             TagPtrs[MAX_TABLE_TAG];
 	cmsTagTypeHandler*       TagTypeHandlers[MAX_TABLE_TAG]; // Same structure may be serialized on different types
 	                                                         // depending on profile version, so we keep track of
 	                                                         // the
@@ -764,7 +764,7 @@ typedef struct _cms_iccprofile_struct {
 	cmsBool IsWrite;
 
 	// Keep a mutex for cmsReadTag -- Note that this only works if the user includes a mutex plugin
-	void *                   UsrMutex;
+	void *             UsrMutex;
 } _cmsICCPROFILE;
 
 // IO helpers for profiles
@@ -789,13 +789,13 @@ CMSCHECKPOINT cmsInterpParams* CMSEXPORT _cmsComputeInterpParams(cmsContext Cont
     cmsUInt32Number nSamples,
     cmsUInt32Number InputChan,
     cmsUInt32Number OutputChan,
-    const void* Table,
+    const void * Table,
     cmsUInt32Number dwFlags);
 cmsInterpParams*                         _cmsComputeInterpParamsEx(cmsContext ContextID,
     const cmsUInt32Number nSamples[],
     cmsUInt32Number InputChan,
     cmsUInt32Number OutputChan,
-    const void* Table,
+    const void * Table,
     cmsUInt32Number dwFlags);
 CMSCHECKPOINT void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams* p);
 cmsBool                                  _cmsSetInterpolationRoutine(cmsContext ContextID, cmsInterpParams* p);
@@ -866,7 +866,7 @@ cmsToneCurve**     _cmsStageGetPtrToCurveSet(const cmsStage* mpe);
 // Pipeline Evaluator (in floating point)
 typedef void (* _cmsPipelineEvalFloatFn)(const cmsFloat32Number In[],
     cmsFloat32Number Out[],
-    const void* Data);
+    const void * Data);
 
 struct _cmsPipeline_struct {
 	cmsStage* Elements;                            // Points to elements chain
@@ -1026,7 +1026,7 @@ typedef struct _cmstransform_struct {
 	cmsContext ContextID;
 
 	// A user-defined pointer that can be used to store data for transform plug-ins
-	void* UserData;
+	void * UserData;
 	_cmsFreeUserDataFn FreeUserData;
 
 	// A way to provide backwards compatibility with full xform plugins
@@ -1035,8 +1035,8 @@ typedef struct _cmstransform_struct {
 
 // Copies extra channels from input to output if the original flags in the transform structure
 // instructs to do so. This function is called on all standard transform functions.
-void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void* in,
-    void* out,
+void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
+    void * out,
     cmsUInt32Number PixelsPerLine,
     cmsUInt32Number LineCount,
     const cmsStride* Stride);

@@ -216,6 +216,20 @@ IMPL_HANDLE_EVENT(TButton)
 {
 	TView::handleEvent(event);
 	switch(event.what) {
+		case TEvent::evCommand:
+			switch(TVCMD) {
+				case cmSetBounds: // @v11.2.0
+					{
+						const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+						HWND h = getHandle();
+						if(h) {
+							::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+							clearEvent(event);
+						}
+					}
+					break;
+			}
+			break;
 		case TEvent::evBroadcast:
 			switch(TVCMD) {
 				case cmDefault:

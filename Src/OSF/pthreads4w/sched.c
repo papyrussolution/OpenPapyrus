@@ -96,14 +96,14 @@ int sched_getscheduler(pid_t pid)
  *
  * PARAMETERS
  *   pid
- *                           Process ID
+ *                     Process ID
  *
  *   cpusetsize
- *                           Currently ignored in pthreads4w.
- *                           Usually set to sizeof(cpu_set_t)
+ *                     Currently ignored in pthreads4w.
+ *                     Usually set to sizeof(cpu_set_t)
  *
  *   mask
- *                           Pointer to the CPU mask to set (cpu_set_t).
+ *                     Pointer to the CPU mask to set (cpu_set_t).
  *
  * DESCRIPTION
  *   Sets the CPU affinity mask of the process whose ID is pid
@@ -117,13 +117,13 @@ int sched_getscheduler(pid_t pid)
  *	     migrated to one of the CPUs specified in mask.
  *
  * RESULTS
- *           0               successfully created semaphore,
- *           EFAULT          'mask' is a NULL pointer.
- *           EINVAL          '*mask' contains no CPUs in the set of available CPUs.
- *           EAGAIN          The system available CPUs could not be obtained.
- *           EPERM           The process referred to by 'pid' is not modifiable by us.
- *           ESRCH           The process referred to by 'pid' was not found.
- *           ENOSYS			 Function not supported.
+ *     0               successfully created semaphore,
+ *     EFAULT          'mask' is a NULL pointer.
+ *     EINVAL          '*mask' contains no CPUs in the set of available CPUs.
+ *     EAGAIN          The system available CPUs could not be obtained.
+ *     EPERM           The process referred to by 'pid' is not modifiable by us.
+ *     ESRCH           The process referred to by 'pid' was not found.
+ *     ENOSYS			 Function not supported.
  *
  * ------------------------------------------------------
  */
@@ -193,14 +193,14 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
  *
  * PARAMETERS
  *   pid
- *                           Process ID
+ *                     Process ID
  *
  *   cpusetsize
- *                           Currently ignored in pthreads4w.
- *                           Usually set to sizeof(cpu_set_t)
+ *                     Currently ignored in pthreads4w.
+ *                     Usually set to sizeof(cpu_set_t)
  *
  *   mask
- *                           Pointer to the CPU mask to set (cpu_set_t).
+ *                     Pointer to the CPU mask to set (cpu_set_t).
  *
  * DESCRIPTION
  *   Sets the CPU affinity mask of the process whose ID is pid
@@ -210,11 +210,11 @@ int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * set)
  *	     this argument would be specified as sizeof(cpu_set_t).
  *
  * RESULTS
- *           0               successfully created semaphore,
- *           EFAULT          'mask' is a NULL pointer.
- *           EAGAIN          The system available CPUs could not be obtained.
- *           EPERM           The process referred to by 'pid' is not modifiable by us.
- *           ESRCH           The process referred to by 'pid' was not found.
+ *     0               successfully created semaphore,
+ *     EFAULT          'mask' is a NULL pointer.
+ *     EAGAIN          The system available CPUs could not be obtained.
+ *     EPERM           The process referred to by 'pid' is not modifiable by us.
+ *     ESRCH           The process referred to by 'pid' was not found.
  *
  * ------------------------------------------------------
  */
@@ -430,12 +430,12 @@ int sched_get_priority_max(int policy)
  *   This function indicates that the calling thread is
  *   willing to give up some time slices to other threads.
  *   NOTE: Since this is part of POSIX 1003.1b
- *             (realtime extensions), it is defined as returning
- *             -1 if an error occurs and sets errno to the actual error.
+ *       (realtime extensions), it is defined as returning
+ *       -1 if an error occurs and sets errno to the actual error.
  *
  * RESULTS
- *           0               successfully created semaphore,
- *           ENOSYS          sched_yield not supported,
+ *     0               successfully created semaphore,
+ *     ENOSYS          sched_yield not supported,
  *
  * ------------------------------------------------------
  */

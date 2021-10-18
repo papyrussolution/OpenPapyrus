@@ -474,7 +474,7 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 	return static_cast<int>(rBuf.Len() - org_len); // return written chars without terminating \0
 }
 
-int slprintf(SString & rBuf, const char * pFormat, ...)
+int CDECL slprintf(SString & rBuf, const char * pFormat, ...)
 {
 	va_list va;
 	va_start(va, pFormat);
@@ -483,7 +483,18 @@ int slprintf(SString & rBuf, const char * pFormat, ...)
 	return result;
 }
 
-int cdecl slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va)
+int CDECL slprintf_cat(SString & rBuf, const char * pFormat, ...)
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	va_list va;
+	va_start(va, pFormat);
+	const int result = sl_printf_implementation(r_temp_buf, pFormat, va);
+	va_end(va);
+	rBuf.Cat(r_temp_buf);
+	return result;
+}
+
+int CDECL slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va)
 {
 	int    result = 0;
 	if(!pBuf || !pFormat) {
@@ -510,7 +521,7 @@ int cdecl slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_lis
 	return result;
 }
 
-int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...)
+int CDECL slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...)
 {
 	va_list va;
 	va_start(va, pFormat);
@@ -519,7 +530,7 @@ int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...)
 	return result;
 }
 
-int cdecl slfprintf(FILE * pStream, const char * pFormat, ...)
+int CDECL slfprintf(FILE * pStream, const char * pFormat, ...)
 {
 	int    result = 0;
 	if(!pStream || !pFormat) {
@@ -541,7 +552,7 @@ int cdecl slfprintf(FILE * pStream, const char * pFormat, ...)
 	return result;
 }
 
-int cdecl slfprintf_stderr(const char * pFormat, ...)
+int CDECL slfprintf_stderr(const char * pFormat, ...)
 {
 	int    result = 0;
 	if(!stderr || !pFormat) {

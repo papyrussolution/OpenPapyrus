@@ -155,7 +155,7 @@ static inline void _hb_clear_syllables(const hb_ot_shape_plan_t * plan HB_UNUSED
 {
 	hb_glyph_info_t * info = buffer->info;
 	unsigned int count = buffer->len;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		info[i].syllable() = 0;
 }
 
@@ -195,7 +195,7 @@ static inline void _hb_glyph_info_set_unicode_props(hb_glyph_info_t * info, hb_b
 {
 	hb_unicode_funcs_t * unicode = buffer->unicode;
 	unsigned int u = info->codepoint;
-	unsigned int gen_cat = (unsigned int)unicode->general_category(u);
+	unsigned int gen_cat = (uint)unicode->general_category(u);
 	unsigned int props = gen_cat;
 	if(u >= 0x80u) {
 		buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_NON_ASCII;
@@ -235,7 +235,7 @@ static inline void _hb_glyph_info_set_general_category(hb_glyph_info_t * info,
     hb_unicode_general_category_t gen_cat)
 {
 	/* Clears top-byte. */
-	info->unicode_props() = (unsigned int)gen_cat | (info->unicode_props() & (0xFF & ~UPROPS_MASK_GEN_CAT));
+	info->unicode_props() = (uint)gen_cat | (info->unicode_props() & (0xFF & ~UPROPS_MASK_GEN_CAT));
 }
 
 static inline hb_unicode_general_category_t _hb_glyph_info_get_general_category(const hb_glyph_info_t * info)
@@ -273,7 +273,7 @@ static inline void _hb_glyph_info_set_unicode_space_fallback_type(hb_glyph_info_
 {
 	if(UNLIKELY(!_hb_glyph_info_is_unicode_space(info)))
 		return;
-	info->unicode_props() = (((unsigned int)s)<<8) | (info->unicode_props() & 0xFF);
+	info->unicode_props() = (((uint)s)<<8) | (info->unicode_props() & 0xFF);
 }
 
 static inline hb_unicode_funcs_t::space_t _hb_glyph_info_get_unicode_space_fallback_type(const hb_glyph_info_t * info)
@@ -508,7 +508,7 @@ static inline void _hb_clear_substitution_flags(const hb_ot_shape_plan_t * plan 
 {
 	hb_glyph_info_t * info = buffer->info;
 	unsigned int count = buffer->len;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		_hb_glyph_info_clear_substituted(&info[i]);
 }
 

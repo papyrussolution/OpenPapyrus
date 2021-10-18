@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_SHA256_H
 #define HEADER_CURL_SHA256_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2017, Florin Petriuc, <petriuc.florin@gmail.com>
  * Copyright (C) 2018 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
@@ -27,7 +27,7 @@
 
 #define SHA256_DIGEST_LENGTH 32
 
-void Curl_sha256it(unsigned char *outbuffer, const unsigned char *input,
+void Curl_sha256it(uchar *outbuffer, const uchar *input,
                    const size_t len);
 
 #endif

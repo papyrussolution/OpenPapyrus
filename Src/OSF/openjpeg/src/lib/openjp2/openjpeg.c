@@ -147,8 +147,8 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 	switch(p_format) {
 		case OPJ_CODEC_J2K:
 		    l_codec->opj_dump_codec = (void (*)(void*, OPJ_INT32, FILE*))j2k_dump;
-		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void*))j2k_get_cstr_info;
-		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void*))j2k_get_cstr_index;
+		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void *))j2k_get_cstr_info;
+		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void *))j2k_get_cstr_index;
 		    l_codec->m_codec_data.m_decompression.opj_decode = (OPJ_BOOL (*)(void *, struct opj_stream_private *, opj_image_t*, struct opj_event_mgr *))opj_j2k_decode;
 		    l_codec->m_codec_data.m_decompression.opj_end_decompress = (OPJ_BOOL (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_end_decompress;
 		    l_codec->m_codec_data.m_decompression.opj_read_header = (OPJ_BOOL (*)(struct opj_stream_private *, void *, opj_image_t **, struct opj_event_mgr *))opj_j2k_read_header;
@@ -928,14 +928,14 @@ opj_stream_t* OPJ_CALLCONV opj_stream_create_file_stream(const char * fname, OPJ
 	return l_stream;
 }
 
-void* OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size)
+void * OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size)
 {
-	void* ret = opj_aligned_malloc(size);
+	void * ret = opj_aligned_malloc(size);
 	/* printf("opj_image_data_alloc %p\n", ret); */
 	return ret;
 }
 
-void OPJ_CALLCONV opj_image_data_free(void* ptr)
+void OPJ_CALLCONV opj_image_data_free(void * ptr)
 {
 	/* printf("opj_image_data_free %p\n", ptr); */
 	opj_aligned_free(ptr);

@@ -64,9 +64,9 @@ FT_BEGIN_HEADER
  *
  */
 
-/*************************************************************************/
+// 
 /*                        B A S I C   T Y P E S                          */
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -338,9 +338,9 @@ typedef struct  FT_Bitmap_Size_ {
 	FT_Pos y_ppem;
 } FT_Bitmap_Size;
 
-/*************************************************************************/
+// 
 /*                     O B J E C T   C L A S S E S                       */
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -777,9 +777,9 @@ typedef struct  FT_CharMapRec_ {
 	FT_UShort encoding_id;
 } FT_CharMapRec;
 
-/*************************************************************************/
+// 
 /*                 B A S E   O B J E C T   C L A S S E S                 */
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -1006,7 +1006,7 @@ typedef struct  FT_FaceRec_ {
 	FT_Stream stream;
 	FT_ListRec sizes_list;
 	FT_Generic autohint;      /* face-specific auto-hinter data */
-	void *  extensions;/* unused                         */
+	void *  extensions; /* unused                         */
 	FT_Face_Internal internal;
 	/*@private end */
 } FT_FaceRec;
@@ -1447,7 +1447,7 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *
  *   ```
  *     scaled_ascender = FT_MulFix( face->ascender,
- *                                  size_metrics->y_scale );
+ *                            size_metrics->y_scale );
  *   ```
  *
  *   Note that due to glyph hinting and the selected rendering mode these
@@ -1480,17 +1480,17 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *     font_format = FT_Get_Font_Format( face );
  *
  *     if ( !strcmp( font_format, "TrueType" ) &&
- *          do_native_bytecode_hinting         )
+ *    do_native_bytecode_hinting         )
  *     {
- *       ascender  = ROUND( FT_MulFix( face->ascender,
- *                                     size_metrics->y_scale ) );
- *       descender = ROUND( FT_MulFix( face->descender,
- *                                     size_metrics->y_scale ) );
+ * ascender  = ROUND( FT_MulFix( face->ascender,
+ *                               size_metrics->y_scale ) );
+ * descender = ROUND( FT_MulFix( face->descender,
+ *                               size_metrics->y_scale ) );
  *     }
  *     else
  *     {
- *       ascender  = size_metrics->ascender;
- *       descender = size_metrics->descender;
+ * ascender  = size_metrics->ascender;
+ * descender = size_metrics->descender;
  *     }
  *
  *     height      = size_metrics->height;
@@ -1717,17 +1717,17 @@ typedef struct FT_Slot_InternalRec_*  FT_Slot_Internal;
  *
  *
  *     for all glyphs do
- *       <load glyph with `FT_Load_Glyph'>
+ * <load glyph with `FT_Load_Glyph'>
  *
- *       FT_Outline_Translate( slot->outline, origin_x & 63, 0 );
+ * FT_Outline_Translate( slot->outline, origin_x & 63, 0 );
  *
- *       <save glyph image, or render glyph, or ...>
+ * <save glyph image, or render glyph, or ...>
  *
- *       <compute kern between current and next glyph
- *        and add it to `origin_x'>
+ * <compute kern between current and next glyph
+ *  and add it to `origin_x'>
  *
- *       origin_x += slot->advance.x;
- *       origin_x += slot->lsb_delta - slot->rsb_delta;
+ * origin_x += slot->advance.x;
+ * origin_x += slot->lsb_delta - slot->rsb_delta;
  *     endfor
  *   ```
  *
@@ -1741,21 +1741,21 @@ typedef struct FT_Slot_InternalRec_*  FT_Slot_Internal;
  *
  *
  *     for all glyphs do
- *       <compute kern between current and previous glyph
- *        and add it to `origin_x'>
+ * <compute kern between current and previous glyph
+ *  and add it to `origin_x'>
  *
- *       <load glyph with `FT_Load_Glyph'>
+ * <load glyph with `FT_Load_Glyph'>
  *
- *       if ( prev_rsb_delta - slot->lsb_delta >  32 )
- *         origin_x -= 64;
- *       else if ( prev_rsb_delta - slot->lsb_delta < -31 )
- *         origin_x += 64;
+ * if ( prev_rsb_delta - slot->lsb_delta >  32 )
+ *   origin_x -= 64;
+ * else if ( prev_rsb_delta - slot->lsb_delta < -31 )
+ *   origin_x += 64;
  *
- *       prev_rsb_delta = slot->rsb_delta;
+ * prev_rsb_delta = slot->rsb_delta;
  *
- *       <save glyph image, or render glyph, or ...>
+ * <save glyph image, or render glyph, or ...>
  *
- *       origin_x += slot->advance.x;
+ * origin_x += slot->advance.x;
  *     endfor
  *   ```
  *
@@ -1790,9 +1790,9 @@ typedef struct  FT_GlyphSlotRec_ {
 	FT_Slot_Internal internal;
 } FT_GlyphSlotRec;
 
-/*************************************************************************/
+// 
 /*                         F U N C T I O N S                             */
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -2145,11 +2145,11 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *
  *     for ( i = 0; i < num_faces; i++ )
  *     {
- *       ...
- *       error = FT_Open_Face( library, args, i, &face );
- *       ...
- *       FT_Done_Face( face );
- *       ...
+ * ...
+ * error = FT_Open_Face( library, args, i, &face );
+ * ...
+ * FT_Done_Face( face );
+ * ...
  *     }
  *   ```
  *
@@ -2171,26 +2171,26 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *
  *     do
  *     {
- *       FT_Long  id = ( instance_idx << 16 ) + face_idx;
+ * FT_Long  id = ( instance_idx << 16 ) + face_idx;
  *
  *
- *       error = FT_Open_Face( library, args, id, &face );
- *       if ( error ) { ... }
+ * error = FT_Open_Face( library, args, id, &face );
+ * if ( error ) { ... }
  *
- *       num_faces     = face->num_faces;
- *       num_instances = face->style_flags >> 16;
+ * num_faces     = face->num_faces;
+ * num_instances = face->style_flags >> 16;
  *
- *       ...
+ * ...
  *
- *       FT_Done_Face( face );
+ * FT_Done_Face( face );
  *
- *       if ( instance_idx < num_instances )
- *         instance_idx++;
- *       else
- *       {
- *         face_idx++;
- *         instance_idx = 0;
- *       }
+ * if ( instance_idx < num_instances )
+ *   instance_idx++;
+ * else
+ * {
+ *   face_idx++;
+ *   instance_idx = 0;
+ * }
  *
  *     } while ( face_idx < num_faces )
  *   ```
@@ -2929,7 +2929,7 @@ FT_EXPORT(FT_Error) FT_Load_Char(FT_Face face, FT_ULong char_code, FT_Int32 load
  *
  *   ```
  *     FT_Load_Glyph( face, glyph_index,
- *                    load_flags | FT_LOAD_TARGET_LIGHT );
+ *              load_flags | FT_LOAD_TARGET_LIGHT );
  *
  *     FT_Render_Glyph( face->glyph, FT_RENDER_MODE_LCD );
  *   ```
@@ -3510,9 +3510,9 @@ FT_EXPORT(FT_UInt) FT_Get_Char_Index(FT_Face face, FT_ULong charcode);
  *     charcode = FT_Get_First_Char( face, &gindex );
  *     while ( gindex != 0 )
  *     {
- *       ... do something with (charcode,gindex) pair ...
+ * ... do something with (charcode,gindex) pair ...
  *
- *       charcode = FT_Get_Next_Char( face, charcode, &gindex );
+ * charcode = FT_Get_Next_Char( face, charcode, &gindex );
  *     }
  *   ```
  *
@@ -3862,27 +3862,27 @@ typedef struct  FT_LayerIterator_ {
  *     FT_UInt  layer_color_index;
  *     error = FT_Palette_Select( face, palette_index, &palette );
  *     if ( error )
- *       palette = NULL;
+ * palette = NULL;
  *
  *     iterator.p  = NULL;
  *     have_layers = FT_Get_Color_Glyph_Layer( face,
- *                                             glyph_index,
- *                                             &layer_glyph_index,
- *                                             &layer_color_index,
- *                                             &iterator );
+ *                                       glyph_index,
+ *                                       &layer_glyph_index,
+ *                                       &layer_color_index,
+ *                                       &iterator );
  *
  *     if ( palette && have_layers ) {
- *       do {
- *         FT_Color  layer_color;
- *         if ( layer_color_index == 0xFFFF )
- *           layer_color = text_foreground_color;
- *         else
- *           layer_color = palette[layer_color_index];
+ * do {
+ *   FT_Color  layer_color;
+ *   if ( layer_color_index == 0xFFFF )
+ *     layer_color = text_foreground_color;
+ *   else
+ *     layer_color = palette[layer_color_index];
  *
- *         // Load and render glyph `layer_glyph_index', then
- *         // blend resulting pixmap (using color `layer_color')
- *         // with previously created pixmaps.
- *       } while ( FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator));
+ *   // Load and render glyph `layer_glyph_index', then
+ *   // blend resulting pixmap (using color `layer_color')
+ *   // with previously created pixmaps.
+ * } while ( FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator));
  *     }
  *   ```
  */

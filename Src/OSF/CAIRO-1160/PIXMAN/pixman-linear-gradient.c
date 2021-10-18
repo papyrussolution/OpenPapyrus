@@ -190,7 +190,7 @@ PIXMAN_EXPORT pixman_image_t * pixman_image_create_linear_gradient(const pixman_
 		return NULL;
 	linear = &image->linear;
 	if(!_pixman_init_gradient(&linear->common, stops, n_stops)) {
-		free(image);
+		SAlloc::F(image);
 		return NULL;
 	}
 	linear->p1 = *p1;

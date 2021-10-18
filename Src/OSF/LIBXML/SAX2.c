@@ -1774,7 +1774,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
  * @nb_attributes:  the number of attributes on that node
  * @nb_defaulted:  the number of defaulted attributes.
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *          attribute values.
+ *    attribute values.
  *
  * SAX2 callback when an element start has been detected by the parser.
  * It provides the namespace__ informations for the element, as well as

@@ -70,7 +70,7 @@ FT_BEGIN_HEADER
  *
  *
  * Warning: Use `FT_VALIDATE_XXX` to validate a table.
- *          Following definitions are for gxvalid developers.
+ *    Following definitions are for gxvalid developers.
  *
  *
  */

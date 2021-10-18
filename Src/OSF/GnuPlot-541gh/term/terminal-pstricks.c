@@ -169,16 +169,7 @@ static const char * PSTRICKS_lines[] = {
 };
 
 #define PSTRICKS_NUMCOLORS 6
-static const char * PSTRICKS_colors[] = {
-	"red",
-	"green",
-	"blue",
-	"magenta",
-	"darkgray",
-	"cyan",
-	"yellow"
-};
-
+static const char * PSTRICKS_colors[] = { "red", "green", "blue", "magenta", "darkgray", "cyan", "yellow" };
 static bool PST_rounded = FALSE; /* line caps and joins */
 static int PSTRICKS_type; /* current line type */
 static char PSTRICKS_old_linecolor[24] = "black"; /* current line color */
@@ -199,12 +190,7 @@ static double PSTRICKS_arrowinset = -1.0;
 
 /* FILL PATTERN */
 static const char * PSTRICKS_patterns[] = {
-	"solid",
-	"crosshatch%s", "crosshatch%s,hatchsep=2.5pt",
-	"solid",
-	"vlines%s", "hlines%s",
-	"vlines%s,hatchsep=2.5pt", "hlines%s,hatchsep=2.5pt",
-	"dots*", "penrose%s"
+	"solid", "crosshatch%s", "crosshatch%s,hatchsep=2.5pt", "solid", "vlines%s", "hlines%s", "vlines%s,hatchsep=2.5pt", "hlines%s,hatchsep=2.5pt", "dots*", "penrose%s"
 };
 #define PSTRICKS_NUMPATTERN (sizeof(PSTRICKS_patterns) / sizeof(char *))
 
@@ -234,8 +220,7 @@ enum PSTRICKS_id { PSTRICKS_DEFAULTOPTIONS,
 		   PSTRICKS_BACKGROUND,
 		   PSTRICKS_OTHER };
 
-static struct gen_table PSTRICKS_opts[] =
-{
+static struct gen_table PSTRICKS_opts[] = {
 	{ "def$ault", PSTRICKS_DEFAULTOPTIONS },
 	{ "size", PSTRICKS_SIZE },
 	{ "u$nit", PSTRICKS_UNIT },
@@ -365,18 +350,10 @@ TERM_PUBLIC void PSTRICKS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			snprintf(size_str, sizeof(size_str), "size %.2fcm, %.2fcm", PSTRICKS_size_x * 2.54, PSTRICKS_size_y * 2.54);
 	}
 	// update terminal option string
-	snprintf(GPT.TermOptions, MAX_LINE_LEN + 1,
-	    "%s %s linewidth %.1f pointscale %.1f %s "
-	    "background \"#%02x%02x%02x\" %sarrows %s",
-	    PST_unit_plot ? "unit" : size_str,
-	    PST_rounded ? "rounded" : "butt",
-	    PSTRICKS_lw_scale, PSTRICKS_ps,
-	    PST_colortext ? "colortext" : "blacktext",
-	    (int)floor(PSTRICKS_background.r * 255 + 0.5),
-	    (int)floor(PSTRICKS_background.g * 255 + 0.5),
-	    (int)floor(PSTRICKS_background.b * 255 + 0.5),
-	    PST_psarrows ? "ps" : "gp",
-	    PST_standalone ? "standalone" : "input");
+	slprintf(GPT._TermOptions, "%s %s linewidth %.1f pointscale %.1f %s background \"#%02x%02x%02x\" %sarrows %s",
+	    PST_unit_plot ? "unit" : size_str, PST_rounded ? "rounded" : "butt", PSTRICKS_lw_scale, PSTRICKS_ps,
+	    PST_colortext ? "colortext" : "blacktext", (int)floor(PSTRICKS_background.r * 255 + 0.5),
+	    (int)floor(PSTRICKS_background.g * 255 + 0.5), (int)floor(PSTRICKS_background.b * 255 + 0.5), PST_psarrows ? "ps" : "gp", PST_standalone ? "standalone" : "input");
 }
 
 TERM_PUBLIC void PSTRICKS_init(GpTermEntry * pThis)

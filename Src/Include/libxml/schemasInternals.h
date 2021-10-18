@@ -1,9 +1,9 @@
 /*
  * Summary: internal interfaces for XML Schemas
  * Description: internal interfaces for the XML Schemas handling
- *         and schema validity checking
+ *   and schema validity checking
  *		The Schemas development is a Work In Progress.
- *         Some of those interfaces are not garanteed to be API or ABI stable !
+ *   Some of those interfaces are not garanteed to be API or ABI stable !
  *
  * Copy: See Copyright for the status of this software.
  *
@@ -187,8 +187,8 @@ struct xmlSchemaAttribute {
  * WARNING: Deprecated; not used.
  */
 struct xmlSchemaAttributeLink {
-    xmlSchemaAttributeLink * next;/* the next attribute link ... */
-    xmlSchemaAttribute * attr;/* the linked attribute */
+    xmlSchemaAttributeLink * next; /* the next attribute link ... */
+    xmlSchemaAttribute * attr; /* the linked attribute */
 };
 
 //typedef struct _xmlSchemaAttributeLink xmlSchemaAttributeLink;
@@ -433,7 +433,7 @@ struct _xmlSchemaElement {
  */
 struct _xmlSchemaFacet {
     xmlSchemaTypeType type;        /* The kind of type */
-    struct _xmlSchemaFacet *next;/* the next type if in a sequence ... */
+    struct _xmlSchemaFacet *next; /* the next type if in a sequence ... */
     const xmlChar * value; /* The original value */
     const xmlChar * id; /* Obsolete */
     xmlSchemaAnnotPtr annot;

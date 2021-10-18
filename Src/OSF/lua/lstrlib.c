@@ -17,7 +17,7 @@
 /*
 ** maximum number of captures that a pattern can do during
 ** pattern-matching. This limit is arbitrary, but must fit in
-** an unsigned char.
+** an uchar.
 */
 #if !defined(LUA_MAXCAPTURES)
 #define LUA_MAXCAPTURES         32
@@ -193,7 +193,7 @@ typedef struct MatchState {
 	const char * p_end; /* end ('\0') of pattern */
 	lua_State * L;
 	int matchdepth; /* control for recursive depth (to avoid C stack overflow) */
-	unsigned char level; /* total number of captures (finished or unfinished) */
+	uchar level; /* total number of captures (finished or unfinished) */
 	struct {
 		const char * init;
 		ptrdiff_t len;

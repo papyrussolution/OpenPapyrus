@@ -636,38 +636,38 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case CAIROLATEX_PNG: output = "png"; break;
 		}
 		sprintf(tmp_term_options, " %s %s", output, ps_params->epslatex_standalone ? "standalone" : "input");
-		strcat(GPT.TermOptions, tmp_term_options);
+		GPT._TermOptions.Cat(tmp_term_options);
 		if(epslatex_header)
 			sprintf(tmp_term_options, " header \"%s\"", epslatex_header);
 		else
 			sprintf(tmp_term_options, " noheader");
-		strcat(GPT.TermOptions, tmp_term_options);
+		GPT._TermOptions.Cat(tmp_term_options);
 		sprintf(tmp_term_options, " %s", ps_params->blacktext ? "blacktext" : "colortext");
-		strcat(GPT.TermOptions, tmp_term_options);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 #endif
 	// Save options back into options string in normalized format 
 	if(cairo_params->transparent)
-		strncat(GPT.TermOptions, ISCAIROLATEX ? " nobackground" : " transparent", sizeof(GPT.TermOptions) - strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(ISCAIROLATEX ? " nobackground" : " transparent");
 	else {
 		sprintf(tmp_term_options, " background \"#%02x%02x%02x\"", (int)(255 * cairo_params->background.r), (int)(255 * cairo_params->background.g), (int)(255 * cairo_params->background.b));
-		strcat(GPT.TermOptions, tmp_term_options);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(cairo_params->crop)
-		strncat(GPT.TermOptions, " crop", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-	strncat(GPT.TermOptions, cairo_params->enhanced ? " enhanced" : " noenhanced", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(" crop");
+	GPT._TermOptions.Cat(cairo_params->enhanced ? " enhanced" : " noenhanced");
 	if(set_font) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " font \"%s\"", font_setting);
 		SAlloc::F(font_setting);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	// if(set_fontscale) 
 	{
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " fontscale %.1f", cairo_params->fontscale);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(cairo_params->mono)
-		strncat(GPT.TermOptions, " monochrome", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(" monochrome");
 	if(1 || set_size) {
 		if(cairo_params->explicit_units == CM)
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fcm, %.2fcm ", 2.54*cairo_params->width/72., 2.54*cairo_params->height/72.0);
@@ -675,23 +675,23 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d ", (int)cairo_params->width, (int)cairo_params->height);
 		else
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fin, %.2fin ", cairo_params->width/72.0, cairo_params->height/72.0);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(set_capjoin) {
-		strncat(GPT.TermOptions, cairo_params->linecap == ROUNDED ? " rounded" : cairo_params->linecap == BUTT ? " butt" : " square", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(cairo_params->linecap == ROUNDED ? " rounded" : cairo_params->linecap == BUTT ? " butt" : " square");
 	}
 	if(cairo_params->lw != cairo_params_default->lw) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " linewidth %g", cairo_params->lw);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(cairo_params->ps != 1.0) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " pointscale %g", cairo_params->ps);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 
 	if(cairo_params->dash_length != cairo_params_default->dash_length) {
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", cairo_params->dash_length);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	// sync settings with ps_params for latex terminal 
 #ifdef PSLATEX_DRIVER
@@ -942,7 +942,7 @@ void cairotrm_graphics(GpTermEntry * pThis)
 cairo_status_t cairostream_write(void * closure, uchar * data, uint length)
 {
 	// in case of a cairolatex terminal, output is redirected to a secondary file 
-	if(length != fwrite(data, 1, length, (ISCAIROLATEX) ? gppsfile : GPT.P_GpOutFile))
+	if(length != fwrite(data, 1, length, (ISCAIROLATEX) ? GPT.P_GpPsFile : GPT.P_GpOutFile))
 		return CAIRO_STATUS_WRITE_ERROR;
 	return CAIRO_STATUS_SUCCESS;
 }

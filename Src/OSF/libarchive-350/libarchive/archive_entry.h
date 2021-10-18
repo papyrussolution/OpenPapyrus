@@ -62,7 +62,7 @@ typedef __int64 la_int64_t;
 #  if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
 #  else
-typedef int64_t la_int64_t;
+typedef int64 la_int64_t;
 #  endif
 # endif
 #endif
@@ -407,7 +407,7 @@ __LA_DECL void archive_entry_copy_mac_metadata(struct archive_entry *, const voi
 #define ARCHIVE_ENTRY_DIGEST_SHA384           0x00000005
 #define ARCHIVE_ENTRY_DIGEST_SHA512           0x00000006
 
-__LA_DECL const unsigned char * archive_entry_digest(struct archive_entry *, int /* type */);
+__LA_DECL const uchar * archive_entry_digest(struct archive_entry *, int /* type */);
 
 /*
  * ACL routines.  This used to simply store and return text-format ACL
@@ -687,13 +687,13 @@ struct archive_entry_linkresolver;
  *    entries by calling archive_entry_linkify(NULL) and store those
  *    bodies.  If you have a file with three links l1, l2, and l3,
  *    you'll get the following behavior if you see all three links:
- *           linkify(l1) => NULL   (the resolver stores l1 internally)
- *           linkify(l2) => l1     (resolver stores l2, you write l1)
- *           linkify(l3) => l2, l3 (all links seen, you can write both).
+ *     linkify(l1) => NULL   (the resolver stores l1 internally)
+ *     linkify(l2) => l1     (resolver stores l2, you write l1)
+ *     linkify(l3) => l2, l3 (all links seen, you can write both).
  *    If you only see l1 and l2, you'll get this behavior:
- *           linkify(l1) => NULL
- *           linkify(l2) => l1
- *           linkify(NULL) => l2   (at end, you retrieve remaining links)
+ *     linkify(l1) => NULL
+ *     linkify(l2) => l1
+ *     linkify(NULL) => l2   (at end, you retrieve remaining links)
  *    As the name suggests, this strategy is used by newer cpio variants.
  *    It's noticeably more complex for the archiver, slightly more complex
  *    for the dearchiver than the tar strategy, but makes it straightforward

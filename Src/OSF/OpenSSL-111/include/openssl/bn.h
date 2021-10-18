@@ -109,20 +109,20 @@ void *BN_GENCB_get_arg(BN_GENCB *cb);
  *     S:=0;
  *     // Sum over m
  *     for m:=3 to M do
- *       s:=0;
- *       // Sum over j
- *       for j:=2 to m do
- *         s+:=(RealField(32)!2)^-(j+(k-1)/j);
- *       end for;
- *       S+:=2^(m-(m-1)*t)*s;
+ * s:=0;
+ * // Sum over j
+ * for j:=2 to m do
+ *   s+:=(RealField(32)!2)^-(j+(k-1)/j);
+ * end for;
+ * S+:=2^(m-(m-1)*t)*s;
  *     end for;
  *     A:=2^(k-2-M*t);
  *     B:=8*(Pi(RealField(32))^2-6)/3*2^(k-2)*S;
  *     pkt:=2.00743*Log(2)*k*2^-k*(A+B);
  *     seclevel:=Floor(-Log(2,pkt));
  *     if seclevel ge securitybits then
- *       printf "k: %5o, security: %o bits  (t: %o, M: %o)\n",k,seclevel,t,M;
- *       break;
+ * printf "k: %5o, security: %o bits  (t: %o, M: %o)\n",k,seclevel,t,M;
+ * break;
  *     end if;
  *   end for;
  *   if seclevel ge securitybits then break; end if;

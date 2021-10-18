@@ -406,7 +406,7 @@ static void state(struct connectdata * conn, imapstate newstate)
 
 	if(imapc->state != newstate)
 		infof(conn->data, "IMAP %p state change from %s to %s\n",
-		    (void*)imapc, names[imapc->state], names[newstate]);
+		    (void *)imapc, names[imapc->state], names[newstate]);
 #endif
 
 	imapc->state = newstate;
@@ -754,7 +754,7 @@ static CURLcode imap_perform_append(struct connectdata * conn)
 		data->state.infilesize = Curl_mime_size(&data->set.mimepost);
 		/* Read from mime structure. */
 		data->state.fread_func = (curl_read_callback)Curl_mime_read;
-		data->state.in = (void*)&data->set.mimepost;
+		data->state.in = (void *)&data->set.mimepost;
 	}
 	/* Check we know the size of the upload */
 	if(data->state.infilesize < 0) {

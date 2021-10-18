@@ -214,8 +214,8 @@ typedef struct  TT_HoriHeader_ {
 	/* but they are used to connect the metrics header to the relevant    */
 	/* 'hmtx' table.                                                      */
 
-	void*      long_metrics;
-	void*      short_metrics;
+	void *  long_metrics;
+	void *  short_metrics;
 } TT_HoriHeader;
 
 /**************************************************************************
@@ -329,8 +329,8 @@ typedef struct  TT_VertHeader_ {
 	/* but they are used to connect the metrics header to the relevant    */
 	/* 'vmtx' table.                                                      */
 
-	void*      long_metrics;
-	void*      short_metrics;
+	void *  long_metrics;
+	void *  short_metrics;
 } TT_VertHeader;
 
 /**************************************************************************
@@ -651,10 +651,10 @@ typedef enum  FT_Sfnt_Tag_ {
  *
  *
  *     vert_header =
- *       (TT_VertHeader*)FT_Get_Sfnt_Table( face, FT_SFNT_VHEA );
+ * (TT_VertHeader*)FT_Get_Sfnt_Table( face, FT_SFNT_VHEA );
  *   ```
  */
-FT_EXPORT(void*)
+FT_EXPORT(void *)
 FT_Get_Sfnt_Table(FT_Face face,
     FT_Sfnt_Tag tag);
 

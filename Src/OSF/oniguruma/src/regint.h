@@ -111,8 +111,8 @@
 		#define xmemmove    memmove
 	#endif
 #endif // ONIG_NO_STANDARD_C_HEADERS 
-#define IS_NULL(p)                    (((void*)(p)) == (void*)0)
-#define IS_NOT_NULL(p)                (((void*)(p)) != (void*)0)
+#define IS_NULL(p)                    (((void *)(p)) == (void *)0)
+#define IS_NOT_NULL(p)                (((void *)(p)) != (void *)0)
 #define CHECK_NULL_RETURN(p)          if(IS_NULL(p)) return NULL
 #define CHECK_NULL_RETURN_MEMERR(p)   if(IS_NULL(p)) return ONIGERR_MEMORY
 #define NULL_UCHARP                   ((uchar *)0)
@@ -539,7 +539,7 @@ typedef int LengthType;
 typedef int RelPositionType;
 typedef int RepeatNumType;
 typedef int MemNumType;
-typedef void* PointerType;
+typedef void * PointerType;
 // @sobolev typedef int SaveType;
 // @sobolev typedef int UpdateVarType;
 typedef int ModeType;
@@ -638,7 +638,7 @@ typedef int ModeType;
 
 typedef struct {
 #ifdef USE_DIRECT_THREADED_CODE
-	const void* opaddr;
+	const void * opaddr;
 #else
 	enum OpCode opcode;
 #endif
@@ -662,11 +662,11 @@ typedef struct {
 		} cclass;
 
 		struct {
-			void*  mb;
+			void *  mb;
 		} cclass_mb;
 
 		struct {
-			void*  mb;/* mb must be same position with cclass_mb for match_at(). */
+			void *  mb; /* mb must be same position with cclass_mb for match_at(). */
 			BitSetRef bsp;
 		} cclass_mix;
 
@@ -814,7 +814,7 @@ typedef struct {
 	const uchar * pattern;
 	const uchar * pattern_end;
 #ifdef USE_CALLOUT
-	void*  tag_table;
+	void *  tag_table;
 	int callout_num;
 	int callout_list_alloc;
 	CalloutListEntry* callout_list; /* index: callout num */
@@ -881,7 +881,7 @@ extern void onig_warning(const char* s);
 extern uchar * onig_error_code_to_format(int code);
 extern void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize, OnigEncoding enc, uchar * pat, uchar * pat_end, const uchar * fmt, ...);
 extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo);
-extern int onig_is_code_in_cc_len(int enclen, OnigCodePoint code, void* /* CClassNode* */ cc);
+extern int onig_is_code_in_cc_len(int enclen, OnigCodePoint code, void * /* CClassNode* */ cc);
 extern RegexExt* onig_get_regex_ext(regex_t* reg);
 extern int onig_ext_set_pattern(regex_t* reg, const uchar * pattern, const uchar * pattern_end);
 extern int onig_positive_int_multiply(int x, int y);
@@ -904,7 +904,7 @@ extern int onig_st_insert_strend(hash_table_type table, const uchar * str_key, c
 extern OnigCalloutType onig_get_callout_type_by_name_id(int name_id);
 extern OnigCalloutFunc onig_get_callout_start_func_by_name_id(int id);
 extern OnigCalloutFunc onig_get_callout_end_func_by_name_id(int id);
-extern int  onig_callout_tag_table_free(void* table);
+extern int  onig_callout_tag_table_free(void * table);
 extern void onig_free_reg_callout_list(int n, CalloutListEntry* list);
 extern CalloutListEntry * onig_reg_callout_list_at(regex_t* reg, int num);
 extern OnigCalloutFunc onig_get_callout_start_func(regex_t* reg, int callout_num);

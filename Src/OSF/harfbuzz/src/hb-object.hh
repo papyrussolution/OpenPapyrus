@@ -229,44 +229,34 @@ struct hb_object_header_t {
  * Object
  */
 
-template <typename Type>
-static inline void hb_object_trace(const Type * obj, const char * function)
+template <typename Type> static inline void hb_object_trace(const Type * obj, const char * function)
 {
-	DEBUG_MSG(OBJECT, (void *)obj,
-	    "%s refcount=%d",
-	    function,
-	    obj ? obj->header.ref_count.get_relaxed() : 0);
+	DEBUG_MSG(OBJECT, (void *)obj, "%s refcount=%d", function, obj ? obj->header.ref_count.get_relaxed() : 0);
 }
 
-template <typename Type>
-static inline Type * hb_object_create()
+template <typename Type> static inline Type * hb_object_create()
 {
-	Type * obj = (Type*)calloc(1, sizeof(Type));
-
+	Type * obj = (Type*)SAlloc::C(1, sizeof(Type));
 	if(UNLIKELY(!obj))
 		return obj;
-
 	hb_object_init(obj);
 	hb_object_trace(obj, HB_FUNC);
 	return obj;
 }
 
-template <typename Type>
-static inline void hb_object_init(Type * obj)
+template <typename Type> static inline void hb_object_init(Type * obj)
 {
 	obj->header.ref_count.init();
 	obj->header.writable.set_relaxed(true);
 	obj->header.user_data.init();
 }
 
-template <typename Type>
-static inline bool hb_object_is_inert(const Type * obj)
+template <typename Type> static inline bool hb_object_is_inert(const Type * obj)
 {
 	return UNLIKELY(obj->header.ref_count.is_inert());
 }
 
-template <typename Type>
-static inline bool hb_object_is_valid(const Type * obj)
+template <typename Type> static inline bool hb_object_is_valid(const Type * obj)
 {
 	return LIKELY(obj->header.ref_count.is_valid());
 }
@@ -315,7 +305,7 @@ static inline void hb_object_fini(Type * obj)
 	hb_user_data_array_t * user_data = obj->header.user_data.get();
 	if(user_data) {
 		user_data->fini();
-		free(user_data);
+		SAlloc::F(user_data);
 		user_data = nullptr;
 	}
 }
@@ -334,13 +324,13 @@ static inline bool hb_object_set_user_data(Type * obj,
 retry:
 	hb_user_data_array_t *user_data = obj->header.user_data.get();
 	if(UNLIKELY(!user_data)) {
-		user_data = (hb_user_data_array_t*)calloc(sizeof(hb_user_data_array_t), 1);
+		user_data = (hb_user_data_array_t*)SAlloc::C(sizeof(hb_user_data_array_t), 1);
 		if(UNLIKELY(!user_data))
 			return false;
 		user_data->init();
 		if(UNLIKELY(!obj->header.user_data.cmpexch(nullptr, user_data))) {
 			user_data->fini();
-			free(user_data);
+			SAlloc::F(user_data);
 			goto retry;
 		}
 	}

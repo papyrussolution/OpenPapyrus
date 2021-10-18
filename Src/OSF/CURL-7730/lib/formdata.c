@@ -478,7 +478,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 			    /* this "cast increases required alignment of target type" but
 			       we consider it OK anyway */
 			    struct curl_slist * list = array_state ?
-				(struct curl_slist *)(void*)array_value :
+				(struct curl_slist *)(void *)array_value :
 				va_arg(params, struct curl_slist *);
 
 			    if(current_form->contentheader)
@@ -864,7 +864,7 @@ CURLcode Curl_getformdata(struct Curl_easy * data,
 							(curl_read_callback)fread,
 							CURLX_FUNCTION_CAST(curl_seek_callback,
 							fseek),
-							NULL, (void*)stdin);
+							NULL, (void *)stdin);
 					}
 					else
 						result = curl_mime_filedata(part, file->contents);

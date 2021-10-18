@@ -124,7 +124,7 @@ void * curl_dbg_malloc(size_t wantedsize, int line, const char * source)
 		mem->size = wantedsize;
 	}
 	if(source)
-		curl_dbg_log("MEM %s:%d SAlloc::M(%zu) = %p\n", source, line, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::M(%zu) = %p\n", source, line, wantedsize, mem ? (void *)mem->mem : (void *)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -143,7 +143,7 @@ void * curl_dbg_calloc(size_t wanted_elements, size_t wanted_size, int line, con
 	if(mem)
 		mem->size = user_size;
 	if(source)
-		curl_dbg_log("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void *)mem->mem : (void *)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -177,7 +177,7 @@ wchar_t * curl_dbg_wcsdup(const wchar_t * str, int line, const char * source)
 	if(mem)
 		memcpy(mem, str, bsiz);
 	if(source)
-		curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n", source, line, (void*)str, bsiz, (void*)mem);
+		curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n", source, line, (void *)str, bsiz, (void *)mem);
 	return mem;
 }
 
@@ -198,13 +198,13 @@ void * curl_dbg_realloc(void * ptr, size_t wantedsize, int line, const char * so
 	/* 1684: conversion from pointer to same-sized integral type */
 #endif
 	if(ptr)
-		mem = (void*)((char *)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
 #pragma warning(pop)
 #endif
 	mem = (Curl_crealloc)(mem, size);
 	if(source)
-		curl_dbg_log("MEM %s:%d SAlloc::R(%p, %zu) = %p\n", source, line, (void*)ptr, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::R(%p, %zu) = %p\n", source, line, (void *)ptr, wantedsize, mem ? (void *)mem->mem : (void *)0);
 	if(mem) {
 		mem->size = wantedsize;
 		return mem->mem;
@@ -223,7 +223,7 @@ void curl_dbg_free(void * ptr, int line, const char * source)
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-		mem = (void*)((char *)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
 
 #ifdef __INTEL_COMPILER
 #pragma warning(pop)
@@ -234,7 +234,7 @@ void curl_dbg_free(void * ptr, int line, const char * source)
 	}
 
 	if(source && ptr)
-		curl_dbg_log("MEM %s:%d SAlloc::F(%p)\n", source, line, (void*)ptr);
+		curl_dbg_log("MEM %s:%d SAlloc::F(%p)\n", source, line, (void *)ptr);
 }
 
 curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
@@ -340,7 +340,7 @@ FILE * curl_dbg_fopen(const char * file, const char * mode, int line, const char
 {
 	FILE * res = fopen(file, mode);
 	if(source)
-		curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n", source, line, file, mode, (void*)res);
+		curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n", source, line, file, mode, (void *)res);
 	return res;
 }
 
@@ -348,7 +348,7 @@ FILE * curl_dbg_fdopen(int filedes, const char * mode, int line, const char * so
 {
 	FILE * res = fdopen(filedes, mode);
 	if(source)
-		curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n", source, line, filedes, mode, (void*)res);
+		curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n", source, line, filedes, mode, (void *)res);
 	return res;
 }
 
@@ -357,7 +357,7 @@ int curl_dbg_fclose(FILE * file, int line, const char * source)
 	int res;
 	DEBUGASSERT(file != NULL);
 	if(source)
-		curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void*)file);
+		curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
 	res = fclose(file);
 	return res;
 }

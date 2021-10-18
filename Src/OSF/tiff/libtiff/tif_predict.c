@@ -32,22 +32,22 @@
 
 #define PredictorState(tif)     ((TIFFPredictorState*)(tif)->tif_data)
 
-static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int horAcc16(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int horAcc32(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int swabHorAcc16(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int swabHorAcc32(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int horDiff16(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int horDiff32(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int swabHorDiff16(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int swabHorDiff32(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc);
-static int PredictorDecodeRow(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s);
-static int PredictorDecodeTile(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s);
-static int PredictorEncodeRow(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s);
-static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s);
+static int horAcc8(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int horAcc16(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int horAcc32(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int swabHorAcc16(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int swabHorAcc32(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int horDiff8(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int horDiff16(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int horDiff32(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int swabHorDiff16(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int swabHorDiff32(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int fpAcc(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int fpDiff(TIFF* tif, uint8 * cp0, tmsize_t cc);
+static int PredictorDecodeRow(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
+static int PredictorDecodeTile(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
+static int PredictorEncodeRow(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int PredictorEncodeTile(TIFF* tif, uint8 * bp0, tmsize_t cc0, uint16 s);
 
 static int PredictorSetup(TIFF* tif)
 {
@@ -244,7 +244,7 @@ static int PredictorSetupEncode(TIFF* tif)
 /*   as to make icc -check=conversions happy (not necessary by the standard) */
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horAcc8(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 
@@ -298,7 +298,7 @@ static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
 	return 1;
 }
 
-static int swabHorAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int swabHorAcc16(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	uint16 * wp = (uint16 *)cp0;
 	tmsize_t wc = cc / 2;
@@ -307,7 +307,7 @@ static int swabHorAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
 }
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horAcc16(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 	uint16* wp = (uint16 *)cp0;
@@ -326,7 +326,7 @@ static int horAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
 	return 1;
 }
 
-static int swabHorAcc32(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int swabHorAcc32(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	uint32* wp = (uint32 *)cp0;
 	tmsize_t wc = cc / 4;
@@ -335,7 +335,7 @@ static int swabHorAcc32(TIFF* tif, uint8* cp0, tmsize_t cc)
 }
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horAcc32(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horAcc32(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 	uint32* wp = (uint32 *)cp0;
@@ -357,7 +357,7 @@ static int horAcc32(TIFF* tif, uint8* cp0, tmsize_t cc)
 /*
  * Floating point predictor accumulation routine.
  */
-static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int fpAcc(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 	uint32 bps = tif->tif_dir.td_bitspersample / 8;
@@ -394,7 +394,7 @@ static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
 /*
  * Decode a scanline and apply the predictor routine.
  */
-static int PredictorDecodeRow(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
+static int PredictorDecodeRow(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
 	assert(sp != NULL);
@@ -413,7 +413,7 @@ static int PredictorDecodeRow(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
  * been calculated at pre-decode time according to the
  * strip/tile dimensions.
  */
-static int PredictorDecodeTile(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
+static int PredictorDecodeTile(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
 	assert(sp != NULL);
@@ -439,7 +439,7 @@ static int PredictorDecodeTile(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 }
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horDiff8(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	TIFFPredictorState* sp = PredictorState(tif);
 	tmsize_t stride = sp->stride;
@@ -490,7 +490,7 @@ static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc)
 }
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horDiff16(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	TIFFPredictorState* sp = PredictorState(tif);
 	tmsize_t stride = sp->stride;
@@ -511,7 +511,7 @@ static int horDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
 	return 1;
 }
 
-static int swabHorDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int swabHorDiff16(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	uint16* wp = (uint16 *)cp0;
 	tmsize_t wc = cc / 2;
@@ -522,7 +522,7 @@ static int swabHorDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
 }
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int horDiff32(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int horDiff32(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	TIFFPredictorState* sp = PredictorState(tif);
 	tmsize_t stride = sp->stride;
@@ -543,7 +543,7 @@ static int horDiff32(TIFF* tif, uint8* cp0, tmsize_t cc)
 	return 1;
 }
 
-static int swabHorDiff32(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int swabHorDiff32(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	uint32* wp = (uint32 *)cp0;
 	tmsize_t wc = cc / 4;
@@ -556,7 +556,7 @@ static int swabHorDiff32(TIFF* tif, uint8* cp0, tmsize_t cc)
  * Floating point predictor differencing routine.
  */
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
-static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
+static int fpDiff(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 	uint32 bps = tif->tif_dir.td_bitspersample / 8;
@@ -590,7 +590,7 @@ static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 		return 1;
 }
 
-static int PredictorEncodeRow(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int PredictorEncodeRow(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
 	assert(sp != NULL);
@@ -602,7 +602,7 @@ static int PredictorEncodeRow(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	return (*sp->encoderow)(tif, bp, cc, s);
 }
 
-static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s)
+static int PredictorEncodeTile(TIFF* tif, uint8 * bp0, tmsize_t cc0, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFPredictorState * sp = PredictorState(tif);

@@ -78,7 +78,7 @@
 /// Supported flags that can be passed to lzma_stream_decoder() or lzma_auto_decoder().
 #define LZMA_SUPPORTED_FLAGS (LZMA_TELL_NO_CHECK | LZMA_TELL_UNSUPPORTED_CHECK | LZMA_TELL_ANY_CHECK | LZMA_IGNORE_CHECK | LZMA_CONCATENATED)
 /// Largest valid lzma_action value as unsigned integer.
-#define LZMA_ACTION_MAX ((unsigned int)(LZMA_FULL_BARRIER))
+#define LZMA_ACTION_MAX ((uint)(LZMA_FULL_BARRIER))
 /// Special return value (lzma_ret) to indicate that a timeout was reached
 /// and lzma_code() must not return LZMA_BUF_ERROR. This is converted to
 /// LZMA_OK in lzma_code().
@@ -89,7 +89,7 @@
 /// input and output buffers, but for simplicity they still use this same
 /// function prototype.
 typedef lzma_ret (*lzma_code_function)(void *coder, const lzma_allocator *allocator,
-	const uint8_t * in, size_t * in_pos, size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action);
+	const uint8 * in, size_t * in_pos, size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action);
 /// Type of a function to free the memory allocated for the coder
 typedef void (*lzma_end_function)(void *coder, const lzma_allocator *allocator);
 
@@ -139,13 +139,13 @@ struct lzma_next_coder {
 	lzma_end_function end;
 	/// Pointer to a function to get progress information. If this is NULL,
 	/// lzma_stream.total_in and .total_out are used instead.
-	void (*get_progress)(void *coder, uint64_t *progress_in, uint64_t *progress_out);
+	void (*get_progress)(void *coder, uint64 *progress_in, uint64 *progress_out);
 	/// Pointer to function to return the type of the integrity check.
 	/// Most coders won't support this.
 	lzma_check (*get_check)(const void *coder);
 	/// Pointer to function to get and/or change the memory usage limit.
 	/// If new_memlimit == 0, the limit is not changed.
-	lzma_ret (*memconfig)(void *coder, uint64_t *memusage, uint64_t *old_memlimit, uint64_t new_memlimit);
+	lzma_ret (*memconfig)(void *coder, uint64 *memusage, uint64 *old_memlimit, uint64 new_memlimit);
 	/// Update the filter-specific options or the whole filter chain in the encoder.
 	lzma_ret (*update)(void *coder, const lzma_allocator *allocator, const lzma_filter *filters, const lzma_filter *reversed_filters);
 };
@@ -223,7 +223,7 @@ extern void lzma_next_end(lzma_next_coder *next, const lzma_allocator *allocator
 
 /// Copy as much data as possible from in[] to out[] and update *in_pos
 /// and *out_pos accordingly. Returns the number of bytes copied.
-extern size_t lzma_bufcpy(const uint8_t * in, size_t * in_pos, size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size);
+extern size_t lzma_bufcpy(const uint8 * in, size_t * in_pos, size_t in_size, uint8 * out, size_t * out_pos, size_t out_size);
 
 /// \brief      Return if expression doesn't evaluate to LZMA_OK
 ///
@@ -377,11 +377,11 @@ extern bool lzma_easy_preset(lzma_options_easy *easy, uint32_t preset);
 #include "lzma_common.h"
 //#include "stream_decoder.h"
 // Decodes .xz Streams
-extern lzma_ret lzma_stream_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, uint64_t memlimit, uint32_t flags);
+extern lzma_ret lzma_stream_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, uint64 memlimit, uint32_t flags);
 //
 //#include "alone_decoder.h"
 // Decoder for LZMA_Alone files
-extern lzma_ret lzma_alone_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, uint64_t memlimit, bool picky);
+extern lzma_ret lzma_alone_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, uint64 memlimit, bool picky);
 //
 //#include "block_buffer_encoder.h"
 // Single-call .xz Block encoder
@@ -389,7 +389,7 @@ extern lzma_ret lzma_alone_decoder_init(lzma_next_coder *next, const lzma_alloca
 /// uint64_t version of lzma_block_buffer_bound(). It is used by
 /// stream_encoder_mt.c. Probably the original lzma_block_buffer_bound()
 /// should have been 64-bit, but fixing it would break the ABI.
-extern uint64_t lzma_block_buffer_bound64(uint64_t uncompressed_size);
+extern uint64 lzma_block_buffer_bound64(uint64 uncompressed_size);
 //
 //#include "block_encoder.h"
 /// \brief      Biggest Compressed Size value that the Block encoder supports
@@ -427,14 +427,14 @@ extern lzma_ret lzma_block_decoder_init(lzma_next_coder *next, const lzma_alloca
 struct lzma_filter_coder {
 	lzma_vli id; /// Filter ID
 	lzma_init_function init; /// Initializes the filter encoder and calls lzma_next_filter_init() for filters + 1.
-	uint64_t (*memusage)(const void *options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
+	uint64 (*memusage)(const void *options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
 };
 
 typedef const lzma_filter_coder *(*lzma_filter_find)(lzma_vli id);
 extern lzma_ret lzma_raw_coder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter *filters, lzma_filter_find coder_find, bool is_encoder);
-extern uint64_t lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter *filters);
+extern uint64 lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter *filters);
 // FIXME: Might become a part of the public API.
-extern uint64_t lzma_mt_block_size(const lzma_filter *filters);
+extern uint64 lzma_mt_block_size(const lzma_filter *filters);
 extern lzma_ret lzma_raw_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter *filters);
 extern lzma_ret lzma_raw_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter *options);
 //
@@ -452,9 +452,9 @@ extern lzma_ret lzma_simple_armthumb_encoder_init(lzma_next_coder * next, const 
 extern lzma_ret lzma_simple_armthumb_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters);
 extern lzma_ret lzma_simple_sparc_encoder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters);
 extern lzma_ret lzma_simple_sparc_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters);
-extern lzma_ret lzma_simple_props_size(uint32_t *size, const void *options);
-extern lzma_ret lzma_simple_props_encode(const void *options, uint8_t *out);
-extern lzma_ret lzma_simple_props_decode(void **options, const lzma_allocator *allocator, const uint8_t *props, size_t props_size);
+extern lzma_ret lzma_simple_props_size(uint32 * size, const void *options);
+extern lzma_ret lzma_simple_props_encode(const void *options, uint8 * out);
+extern lzma_ret lzma_simple_props_decode(void **options, const lzma_allocator *allocator, const uint8 *props, size_t props_size);
 //
 //#include "delta_common.h"
 // Common stuff for Delta encoder and decoder
@@ -462,24 +462,24 @@ extern lzma_ret lzma_simple_props_decode(void **options, const lzma_allocator *a
 struct lzma_delta_coder {
 	lzma_next_coder next; /// Next coder in the chain
 	size_t distance; /// Delta distance
-	uint8_t pos; /// Position in history[]
-	uint8_t history[LZMA_DELTA_DIST_MAX]; /// Buffer to hold history of the original data
+	uint8  pos; /// Position in history[]
+	uint8  history[LZMA_DELTA_DIST_MAX]; /// Buffer to hold history of the original data
 };
 
 extern lzma_ret lzma_delta_coder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter_info *filters);
-extern uint64_t lzma_delta_coder_memusage(const void *options);
+extern uint64   lzma_delta_coder_memusage(const void *options);
 extern lzma_ret lzma_delta_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter_info *filters);
-extern lzma_ret lzma_delta_props_encode(const void *options, uint8_t *out);
+extern lzma_ret lzma_delta_props_encode(const void *options, uint8 *out);
 extern lzma_ret lzma_delta_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter_info *filters);
-extern lzma_ret lzma_delta_props_decode(void **options, const lzma_allocator *allocator, const uint8_t *props, size_t props_size);
+extern lzma_ret lzma_delta_props_decode(void **options, const lzma_allocator *allocator, const uint8 *props, size_t props_size);
 //
 #include "outqueue.h"
 //#include "stream_flags_common.h"
 // Common stuff for Stream flags coders
 #define LZMA_STREAM_FLAGS_SIZE 2 // Size of the Stream Flags field
 
-extern const uint8_t lzma_header_magic[6];
-extern const uint8_t lzma_footer_magic[2];
+extern const uint8 lzma_header_magic[6];
+extern const uint8 lzma_footer_magic[2];
 
 static inline bool is_backward_size_valid(const lzma_stream_flags * options)
 {

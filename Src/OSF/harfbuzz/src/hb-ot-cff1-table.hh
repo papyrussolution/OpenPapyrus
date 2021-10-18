@@ -104,7 +104,7 @@ namespace CFF {
 		{
 			assert(glyph > 0);
 			glyph--;
-			for(unsigned int i = 0; i < nRanges(); i++) {
+			for(uint i = 0; i < nRanges(); i++) {
 				if(glyph <= ranges[i].nLeft) {
 					hb_codepoint_t code = (hb_codepoint_t)ranges[i].first + glyph;
 					return (LIKELY(code < 0x100) ? code : CFF_UNDEF_CODE);
@@ -138,7 +138,7 @@ namespace CFF {
 		}
 		void get_codes(hb_codepoint_t sid, hb_vector_t<hb_codepoint_t> &codes) const
 		{
-			for(unsigned int i = 0; i < nSups(); i++)
+			for(uint i = 0; i < nSups(); i++)
 				if(sid == supps[i].glyph)
 					codes.push(supps[i].code);
 		}
@@ -178,7 +178,7 @@ namespace CFF {
 				    if(UNLIKELY(!fmt0)) return_trace(false);
 				    fmt0->nCodes() = enc_count;
 				    unsigned int glyph = 0;
-				    for(unsigned int i = 0; i < code_ranges.length; i++) {
+				    for(uint i = 0; i < code_ranges.length; i++) {
 					    hb_codepoint_t code = code_ranges[i].code;
 					    for(int left = (int)code_ranges[i].glyph; left >= 0; left--)
 						    fmt0->codes[glyph++] = code++;
@@ -194,7 +194,7 @@ namespace CFF {
 					(Encoding1::min_size + Encoding1_Range::static_size * code_ranges.length);
 				    if(UNLIKELY(!fmt1)) return_trace(false);
 				    fmt1->nRanges() = code_ranges.length;
-				    for(unsigned int i = 0; i < code_ranges.length; i++) {
+				    for(uint i = 0; i < code_ranges.length; i++) {
 					    if(UNLIKELY(!((code_ranges[i].code <= 0xFF) && (code_ranges[i].glyph <= 0xFF))))
 						    return_trace(false);
 					    fmt1->ranges[i].first = code_ranges[i].code;
@@ -209,7 +209,7 @@ namespace CFF {
 				    (CFF1SuppEncData::min_size + SuppEncoding::static_size * supp_codes.length);
 				if(UNLIKELY(!suppData)) return_trace(false);
 				suppData->nSups() = supp_codes.length;
-				for(unsigned int i = 0; i < supp_codes.length; i++) {
+				for(uint i = 0; i < supp_codes.length; i++) {
 					suppData->supps[i].code = supp_codes[i].code;
 					suppData->supps[i].glyph = supp_codes[i].glyph; /* actually SID */
 				}
@@ -353,7 +353,7 @@ public:
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
 			num_glyphs--;
-			for(unsigned int i = 0; num_glyphs > 0; i++) {
+			for(uint i = 0; num_glyphs > 0; i++) {
 				if(UNLIKELY(!ranges[i].sanitize(c) || (num_glyphs < ranges[i].nLeft + 1)))
 					return_trace(false);
 				num_glyphs -= (ranges[i].nLeft + 1);
@@ -365,7 +365,7 @@ public:
 		{
 			if(glyph == 0) return 0;
 			glyph--;
-			for(unsigned int i = 0;; i++) {
+			for(uint i = 0;; i++) {
 				if(glyph <= ranges[i].nLeft)
 					return (hb_codepoint_t)ranges[i].first + glyph;
 				glyph -= (ranges[i].nLeft + 1);
@@ -378,7 +378,7 @@ public:
 		{
 			if(sid == 0) return 0;
 			hb_codepoint_t glyph = 1;
-			for(unsigned int i = 0;; i++) {
+			for(uint i = 0;; i++) {
 				if(glyph >= num_glyphs)
 					return 0;
 				if((ranges[i].first <= sid) && (sid <= ranges[i].first + ranges[i].nLeft))
@@ -396,7 +396,7 @@ public:
 
 			assert(glyph > 0);
 			glyph--;
-			for(unsigned int i = 0; glyph > 0; i++) {
+			for(uint i = 0; glyph > 0; i++) {
 				glyph -= (ranges[i].nLeft + 1);
 				size += Charset_Range<TYPE>::static_size;
 			}
@@ -444,7 +444,7 @@ public:
 					(Charset0::min_size + HBUINT16::static_size * (num_glyphs - 1));
 				    if(UNLIKELY(!fmt0)) return_trace(false);
 				    unsigned int glyph = 0;
-				    for(unsigned int i = 0; i < sid_ranges.length; i++) {
+				    for(uint i = 0; i < sid_ranges.length; i++) {
 					    hb_codepoint_t sid = sid_ranges[i].code;
 					    for(int left = (int)sid_ranges[i].glyph; left >= 0; left--)
 						    fmt0->sids[glyph++] = sid++;
@@ -457,7 +457,7 @@ public:
 				    Charset1 * fmt1 = c->allocate_size<Charset1>
 					(Charset1::min_size + Charset1_Range::static_size * sid_ranges.length);
 				    if(UNLIKELY(!fmt1)) return_trace(false);
-				    for(unsigned int i = 0; i < sid_ranges.length; i++) {
+				    for(uint i = 0; i < sid_ranges.length; i++) {
 					    if(UNLIKELY(!(sid_ranges[i].glyph <= 0xFF)))
 						    return_trace(false);
 					    fmt1->ranges[i].first = sid_ranges[i].code;
@@ -471,7 +471,7 @@ public:
 				    Charset2 * fmt2 = c->allocate_size<Charset2>
 					(Charset2::min_size + Charset2_Range::static_size * sid_ranges.length);
 				    if(UNLIKELY(!fmt2)) return_trace(false);
-				    for(unsigned int i = 0; i < sid_ranges.length; i++) {
+				    for(uint i = 0; i < sid_ranges.length; i++) {
 					    if(UNLIKELY(!(sid_ranges[i].glyph <= 0xFFFF)))
 						    return_trace(false);
 					    fmt2->ranges[i].first = sid_ranges[i].code;
@@ -558,7 +558,7 @@ public:
 			bytesArray.init();
 			if(!bytesArray.resize(sidmap.get_population()))
 				return_trace(false);
-			for(unsigned int i = 0; i < strings.count; i++) {
+			for(uint i = 0; i < strings.count; i++) {
 				hb_codepoint_t j = sidmap[i];
 				if(j != HB_MAP_VALUE_INVALID)
 					bytesArray[j] = strings[i];
@@ -598,7 +598,7 @@ public:
 
 		void init()
 		{
-			for(unsigned int i = 0; i < ValCount; i++)
+			for(uint i = 0; i < ValCount; i++)
 				values[i] = CFF_UNDEF_SID;
 		}
 
@@ -1077,12 +1077,12 @@ namespace OT {
 				if(UNLIKELY(!privateDicts.resize(fdCount))) {
 					fini(); return;
 				}
-				for(unsigned int i = 0; i < fdCount; i++)
+				for(uint i = 0; i < fdCount; i++)
 					privateDicts[i].init();
 
 				// parse CID font dicts and gather private dicts
 				if(is_CID()) {
-					for(unsigned int i = 0; i < fdCount; i++) {
+					for(uint i = 0; i < fdCount; i++) {
 						byte_str_t fontDictStr = (*fdArray)[i];
 						if(UNLIKELY(!fontDictStr.sanitize(&sc))) {
 							fini(); return;

@@ -954,7 +954,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 			    }
 		    }
 		    else {
-			    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, (void*)
+			    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, (void *)
 				    passphrase, NULL);
 		    }
 
@@ -976,7 +976,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		    }
 		    else {
 			    valid = b64decode_rsa_privatekey(b64_key, &rsa, NULL,
-				    (void*)passphrase, NULL);
+				    (void *)passphrase, NULL);
 		    }
 
 		    if(!valid) {
@@ -1008,7 +1008,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 			    valid = b64decode_ecdsa_privatekey(b64_key,
 				    &ecdsa,
 				    NULL,
-				    (void*)passphrase,
+				    (void *)passphrase,
 				    NULL);
 		    }
 

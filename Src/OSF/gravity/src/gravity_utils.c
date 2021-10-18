@@ -89,7 +89,7 @@ uint64_t file_size(const char * path)
 {
 #ifdef WIN32
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo;
-	if(GetFileAttributesExA(path, GetFileExInfoStandard, (void*)&fileInfo) == 0) return -1;
+	if(GetFileAttributesExA(path, GetFileExInfoStandard, (void *)&fileInfo) == 0) return -1;
 		return (uint64_t)(((__int64)fileInfo.nFileSizeHigh) << 32 ) + fileInfo.nFileSizeLow;
 #else
 	struct stat sb;
@@ -120,7 +120,7 @@ const char * file_read(const char * path, size_t * len)
 	_close(fd);
 	return (const char *)buffer;
 abort_read:
-	mem_free((void*)buffer);
+	mem_free((void *)buffer);
 	if(fd >= 0) 
 		_close(fd);
 	return NULL;

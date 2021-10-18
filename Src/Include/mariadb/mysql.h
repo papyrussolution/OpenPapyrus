@@ -571,7 +571,7 @@ bool STDCALL mariadb_reconnect(MYSQL * mysql);
 int STDCALL mariadb_cancel(MYSQL * mysql);
 void STDCALL mysql_debug(const char * debug);
 unsigned long STDCALL mysql_net_read_packet(MYSQL * mysql);
-unsigned long STDCALL mysql_net_field_length(unsigned char ** packet);
+unsigned long STDCALL mysql_net_field_length(uchar ** packet);
 bool STDCALL mysql_embedded(void);
 MYSQL_PARAMETERS * STDCALL mysql_get_parameters(void);
 
@@ -787,8 +787,8 @@ struct st_mariadb_methods {
 	bool (* db_stmt_get_result_metadata)(MYSQL_STMT * stmt);
 	bool (* db_stmt_get_param_metadata)(MYSQL_STMT * stmt);
 	int (* db_stmt_read_all_rows)(MYSQL_STMT * stmt);
-	int (* db_stmt_fetch)(MYSQL_STMT * stmt, unsigned char ** row);
-	int (* db_stmt_fetch_to_bind)(MYSQL_STMT * stmt, unsigned char * row);
+	int (* db_stmt_fetch)(MYSQL_STMT * stmt, uchar ** row);
+	int (* db_stmt_fetch_to_bind)(MYSQL_STMT * stmt, uchar * row);
 	void (* db_stmt_flush_unbuffered)(MYSQL_STMT * stmt);
 	void (* set_error)(MYSQL * mysql, unsigned int error_nr, const char * sqlstate, const char * format, ...);
 	void (* invalidate_stmts)(MYSQL * mysql, const char * function_name);

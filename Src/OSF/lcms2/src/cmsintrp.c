@@ -47,7 +47,7 @@ _cmsInterpPluginChunkType _cmsInterpPluginChunk = { NULL };
 // The interpolation plug-in memory chunk allocator/dup
 void _cmsAllocInterpPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	void* from;
+	void * from;
 
 	_cmsAssert(ctx != NULL);
 
@@ -154,7 +154,7 @@ cmsInterpParams* _cmsComputeInterpParamsEx(cmsContext ContextID,
 
 // This one is a wrapper on the anterior, but assuming all directions have same number of nodes
 cmsInterpParams* CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, cmsUInt32Number nSamples,
-    cmsUInt32Number InputChan, cmsUInt32Number OutputChan, const void* Table, cmsUInt32Number dwFlags)
+    cmsUInt32Number InputChan, cmsUInt32Number OutputChan, const void * Table, cmsUInt32Number dwFlags)
 {
 	int i;
 	cmsUInt32Number Samples[MAX_INPUT_DIMENSIONS];

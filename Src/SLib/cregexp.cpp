@@ -149,7 +149,7 @@ int FASTCALL CRegExp_Depricated::deep_equal(const CRegExp_Depricated & rxp) cons
 // Utility definitions.
 //
 #ifndef CHARBITS
-	#define UCHARAT(p)	((int) * (const unsigned char *)(p))
+	#define UCHARAT(p)	((int) * (const uchar *)(p))
 #else
 	#define UCHARAT(p)	((int) *(p) & CHARBITS)
 #endif

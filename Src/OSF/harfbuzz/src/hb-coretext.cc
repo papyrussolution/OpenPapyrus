@@ -460,7 +460,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 		hb_unicode_funcs_t * unicode = buffer->unicode;
 		unsigned int count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
-		for(unsigned int i = 1; i < count; i++)
+		for(uint i = 1; i < count; i++)
 			if(HB_UNICODE_GENERAL_CATEGORY_IS_MARK(unicode->general_category(info[i].codepoint)))
 				buffer->merge_clusters(i - 1, i + 1);
 	}
@@ -475,7 +475,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 	if(num_features) {
 		/* Sort features by start/end events. */
 		hb_vector_t<feature_event_t> feature_events;
-		for(unsigned int i = 0; i < num_features; i++) {
+		for(uint i = 0; i < num_features; i++) {
 			active_feature_t feature;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
@@ -520,7 +520,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 		/* Scan events and save features for each range. */
 		hb_vector_t<active_feature_t> active_features;
 		unsigned int last_index = 0;
-		for(unsigned int i = 0; i < feature_events.length; i++) {
+		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
 
 			if(event->index != last_index) {
@@ -568,7 +568,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 							ARRAY_LENGTH(keys),
 							&kCFTypeDictionaryKeyCallBacks,
 							&kCFTypeDictionaryValueCallBacks);
-						for(unsigned int i = 0; i < ARRAY_LENGTH(values); i++)
+						for(uint i = 0; i < ARRAY_LENGTH(values); i++)
 							CFRelease(values[i]);
 
 						CFArrayAppendValue(features_array, dict);
@@ -628,7 +628,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 
 	ALLOCATE_ARRAY(UniChar, pchars, buffer->len * 2, ((void)nullptr) /*nothing*/);
 	unsigned int chars_len = 0;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		if(LIKELY(c <= 0xFFFFu))
 			pchars[chars_len++] = c;
@@ -642,7 +642,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 
 	ALLOCATE_ARRAY(unsigned int, log_clusters, chars_len, ((void)nullptr) /*nothing*/);
 	chars_len = 0;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		unsigned int cluster = buffer->info[i].cluster;
 		log_clusters[chars_len++] = cluster;
@@ -763,7 +763,7 @@ resize_and_retry:
 			if(num_features) {
 				unsigned int zeroint = 0;
 				CFNumberRef zero = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &zeroint);
-				for(unsigned int i = 0; i < num_features; i++) {
+				for(uint i = 0; i < num_features; i++) {
 					const hb_feature_t &feature = features[i];
 					if(feature.tag == HB_TAG('k', 'e', 'r', 'n') &&
 					    feature.start < chars_len && feature.start < feature.end) {
@@ -830,7 +830,7 @@ resize_and_retry:
 
 		const CFRange range_all = CFRangeMake(0, 0);
 
-		for(unsigned int i = 0; i < num_runs; i++) {
+		for(uint i = 0; i < num_runs; i++) {
 			CTRunRef run = static_cast<CTRunRef>(CFArrayGetValueAtIndex(glyph_runs, i));
 			CTRunStatus run_status = CTRunGetStatus(run);
 			status_or  |= run_status;
@@ -875,7 +875,7 @@ resize_and_retry:
 				 * Also see: https://bugs.chromium.org/p/chromium/issues/detail?id=597098
 				 */
 				bool matched = false;
-				for(unsigned int i = 0; i < range_records.length; i++)
+				for(uint i = 0; i < range_records.length; i++)
 					if(range_records[i].font && CFEqual(run_ct_font, range_records[i].font)) {
 						matched = true;
 						break;
@@ -1064,7 +1064,7 @@ resize_and_retry:
 		hb_glyph_info_t * info = buffer->info;
 		hb_glyph_position_t * pos = buffer->pos;
 		if(HB_DIRECTION_IS_HORIZONTAL(buffer->props.direction))
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				pos->x_advance = info->mask;
 				pos->x_offset = info->var1.i32;
 				pos->y_offset = info->var2.i32;
@@ -1072,7 +1072,7 @@ resize_and_retry:
 				info++, pos++;
 			}
 		else
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				pos->y_advance = info->mask;
 				pos->x_offset = info->var1.i32;
 				pos->y_offset = info->var2.i32;
@@ -1094,14 +1094,14 @@ resize_and_retry:
 			hb_glyph_info_t * info = buffer->info;
 			if(HB_DIRECTION_IS_FORWARD(buffer->props.direction)) {
 				unsigned int cluster = info[count - 1].cluster;
-				for(unsigned int i = count - 1; i > 0; i--) {
+				for(uint i = count - 1; i > 0; i--) {
 					cluster = hb_min(cluster, info[i - 1].cluster);
 					info[i - 1].cluster = cluster;
 				}
 			}
 			else {
 				unsigned int cluster = info[0].cluster;
-				for(unsigned int i = 1; i < count; i++) {
+				for(uint i = 1; i < count; i++) {
 					cluster = hb_min(cluster, info[i].cluster);
 					info[i].cluster = cluster;
 				}
@@ -1115,7 +1115,7 @@ fail:
 		CFRelease(string_ref);
 	if(line)
 		CFRelease(line);
-	for(unsigned int i = 0; i < range_records.length; i++)
+	for(uint i = 0; i < range_records.length; i++)
 		if(range_records[i].font)
 			CFRelease(range_records[i].font);
 	return ret;

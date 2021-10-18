@@ -306,8 +306,8 @@ static void _hb_generate_unique_face_name(wchar_t * face_name, unsigned int * pl
 	unsigned int name_str_len = 0;
 	face_name[name_str_len++] = 'F';
 	face_name[name_str_len++] = '_';
-	unsigned char * p = (unsigned char*)&id;
-	for(unsigned int i = 0; i < 16; i += 2) {
+	uchar * p = (uchar *)&id;
+	for(uint i = 0; i < 16; i += 2) {
 		/* Spread the 16 bits from two bytes of the UUID across three chars of face_name,
 		 * using the bits in groups of 5,5,6 to select chars from enc.
 		 * This will generate 24 characters; with the 'F_' prefix we already provided,
@@ -362,7 +362,7 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	name.format = 0;
 	name.count = ARRAY_LENGTH(name_IDs);
 	name.stringOffset = name.get_size();
-	for(unsigned int i = 0; i < ARRAY_LENGTH(name_IDs); i++) {
+	for(uint i = 0; i < ARRAY_LENGTH(name_IDs); i++) {
 		OT::NameRecord &record = name.nameRecordZ[i];
 		record.platformID = 3;
 		record.encodingID = 1;
@@ -373,8 +373,8 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	}
 
 	/* Copy string data from new_name, converting wchar_t to UTF16BE. */
-	unsigned char * p = &StructAfter<unsigned char> (name);
-	for(unsigned int i = 0; i < name_str_len; i++) {
+	uchar * p = &StructAfter<uchar> (name);
+	for(uint i = 0; i < name_str_len; i++) {
 		*p++ = new_name[i] >> 8;
 		*p++ = new_name[i] & 0xff;
 	}
@@ -560,7 +560,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 	if(num_features) {
 		/* Sort features by start/end events. */
 		hb_vector_t<feature_event_t> feature_events;
-		for(unsigned int i = 0; i < num_features; i++) {
+		for(uint i = 0; i < num_features; i++) {
 			active_feature_t feature;
 			feature.rec.tagFeature = hb_uint32_swap(features[i].tag);
 			feature.rec.lParameter = features[i].value;
@@ -591,7 +591,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 		/* Scan events and save features for each range. */
 		hb_vector_t<active_feature_t> active_features;
 		unsigned int last_index = 0;
-		for(unsigned int i = 0; i < feature_events.length; i++) {
+		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
 
 			if(event->index != last_index) {
@@ -636,7 +636,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 			num_features = 0;
 
 		/* Fixup the pointers. */
-		for(unsigned int i = 0; i < range_records.length; i++) {
+		for(uint i = 0; i < range_records.length; i++) {
 			range_record_t * range = &range_records[i];
 			range->props.potfRecords = (OPENTYPE_FEATURE_RECORD*)feature_records +
 			    reinterpret_cast<uintptr_t> (range->props.potfRecords);
@@ -670,7 +670,7 @@ retry:
 	ALLOCATE_ARRAY(WCHAR, pchars, buffer->len * 2);
 
 	unsigned int chars_len = 0;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
 		if(LIKELY(c <= 0xFFFFu))
@@ -689,7 +689,7 @@ retry:
 	if(num_features) {
 		/* Need log_clusters to assign features. */
 		chars_len = 0;
-		for(unsigned int i = 0; i < buffer->len; i++) {
+		for(uint i = 0; i < buffer->len; i++) {
 			hb_codepoint_t c = buffer->info[i].codepoint;
 			unsigned int cluster = buffer->info[i].cluster;
 			log_clusters[chars_len++] = cluster;
@@ -880,13 +880,13 @@ retry_shape:
 	/* Ok, we've got everything we need, now compose output buffer,
 	 * very, *very*, carefully! */
 	/* Calculate visual-clusters.  That's what we ship. */
-	for(unsigned int i = 0; i < glyphs_len; i++)
+	for(uint i = 0; i < glyphs_len; i++)
 		vis_clusters[i] = (uint32_t)-1;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		uint32_t * p = &vis_clusters[log_clusters[buffer->info[i].utf16_index()]];
 		*p = hb_min(*p, buffer->info[i].cluster);
 	}
-	for(unsigned int i = 1; i < glyphs_len; i++)
+	for(uint i = 1; i < glyphs_len; i++)
 		if(vis_clusters[i] == (uint32_t)-1)
 			vis_clusters[i] = vis_clusters[i - 1];
 #undef utf16_index
@@ -895,7 +895,7 @@ retry_shape:
 #undef FAIL
 	/* Set glyph infos */
 	buffer->len = 0;
-	for(unsigned int i = 0; i < glyphs_len; i++) {
+	for(uint i = 0; i < glyphs_len; i++) {
 		hb_glyph_info_t * info = &buffer->info[buffer->len++];
 		info->codepoint = glyphs[i];
 		info->cluster = vis_clusters[i];
@@ -907,7 +907,7 @@ retry_shape:
 	/* Set glyph positions */
 	buffer->clear_positions();
 	double x_mult = font_data->x_mult, y_mult = font_data->y_mult;
-	for(unsigned int i = 0; i < glyphs_len; i++) {
+	for(uint i = 0; i < glyphs_len; i++) {
 		hb_glyph_info_t * info = &buffer->info[i];
 		hb_glyph_position_t * pos = &buffer->pos[i];
 		/* TODO vertical */

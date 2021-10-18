@@ -43,9 +43,9 @@ namespace CFF {
 			buff.resize(0);
 		}
 
-		void encode_byte(unsigned char b)
+		void encode_byte(uchar b)
 		{
-			if(UNLIKELY(buff.push(b) == &Crap(unsigned char)))
+			if(UNLIKELY(buff.push(b) == &Crap(uchar)))
 				set_error();
 		}
 
@@ -232,9 +232,9 @@ protected:
 		{
 			if(!flat_charstrings.resize(plan->num_output_glyphs()))
 				return false;
-			for(unsigned int i = 0; i < plan->num_output_glyphs(); i++)
+			for(uint i = 0; i < plan->num_output_glyphs(); i++)
 				flat_charstrings[i].init();
-			for(unsigned int i = 0; i < plan->num_output_glyphs(); i++) {
+			for(uint i = 0; i < plan->num_output_glyphs(); i++) {
 				hb_codepoint_t glyph;
 				if(!plan->old_gid_for_new_gid(i, &glyph)) {
 					/* add an endchar only charstring for a missing glyph if CFF1 */
@@ -273,31 +273,26 @@ protected:
 			if(!local_closures.resize(fd_count))
 				valid = false;
 
-			for(unsigned int i = 0; i < local_closures.length; i++) {
+			for(uint i = 0; i < local_closures.length; i++) {
 				local_closures[i] = hb_set_create();
 				if(local_closures[i] == hb_set_get_empty())
 					valid = false;
 			}
 		}
-
 		void fini()
 		{
 			hb_set_destroy(global_closure);
-			for(unsigned int i = 0; i < local_closures.length; i++)
+			for(uint i = 0; i < local_closures.length; i++)
 				hb_set_destroy(local_closures[i]);
 			local_closures.fini();
 		}
-
 		void reset()
 		{
 			hb_set_clear(global_closure);
-			for(unsigned int i = 0; i < local_closures.length; i++)
+			for(uint i = 0; i < local_closures.length; i++)
 				hb_set_clear(local_closures[i]);
 		}
-
-		bool is_valid() const {
-			return valid;
-		}
+		bool is_valid() const { return valid; }
 
 		bool valid;
 		hb_set_t * global_closure;
@@ -313,37 +308,19 @@ protected:
 			keep_flag = false;
 			skip_flag = false;
 		}
-
 		void fini() {
 			op_str_t::fini();
 		}
-
-		bool for_drop() const {
-			return drop_flag;
+		bool for_drop() const { return drop_flag; }
+		void set_drop() {
+			if(!for_keep()) 
+				drop_flag = true;
 		}
-
-		void set_drop()       {
-			if(!for_keep()) drop_flag = true;
-		}
-
-		bool for_keep() const {
-			return keep_flag;
-		}
-
-		void set_keep()       {
-			keep_flag = true;
-		}
-
-		bool for_skip() const {
-			return skip_flag;
-		}
-
-		void set_skip()       {
-			skip_flag = true;
-		}
-
+		bool for_keep() const { return keep_flag; }
+		void set_keep() { keep_flag = true; }
+		bool for_skip() const { return skip_flag; }
+		void set_skip() { skip_flag = true; }
 		unsigned int subr_num;
-
 protected:
 		bool drop_flag : 1;
 		bool keep_flag : 1;
@@ -445,7 +422,7 @@ private:
 			SUPER::init();
 			if(UNLIKELY(!resize(len_)))
 				return;
-			for(unsigned int i = 0; i < length; i++)
+			for(uint i = 0; i < length; i++)
 				(*this)[i].init();
 		}
 
@@ -562,7 +539,7 @@ protected:
 		void init(unsigned int fdCount)
 		{
 			if(UNLIKELY(!local_remaps.resize(fdCount))) return;
-			for(unsigned int i = 0; i < fdCount; i++)
+			for(uint i = 0; i < fdCount; i++)
 				local_remaps[i].init();
 		}
 
@@ -574,7 +551,7 @@ protected:
 		void create(subr_closures_t& closures)
 		{
 			global_remap.create(closures.global_closure);
-			for(unsigned int i = 0; i < local_remaps.length; i++)
+			for(uint i = 0; i < local_remaps.length; i++)
 				local_remaps[i].create(closures.local_closures[i]);
 		}
 
@@ -637,7 +614,7 @@ protected:
 
 			if(UNLIKELY(!parsed_local_subrs.resize(acc.fdCount))) return false;
 
-			for(unsigned int i = 0; i < acc.fdCount; i++) {
+			for(uint i = 0; i < acc.fdCount; i++) {
 				parsed_local_subrs[i].init(acc.privateDicts[i].localSubrs->count);
 				if(UNLIKELY(parsed_local_subrs[i].in_error())) return false;
 			}
@@ -645,7 +622,7 @@ protected:
 				return false;
 
 			/* phase 1 & 2 */
-			for(unsigned int i = 0; i < plan->num_output_glyphs(); i++) {
+			for(uint i = 0; i < plan->num_output_glyphs(); i++) {
 				hb_codepoint_t glyph;
 				if(!plan->old_gid_for_new_gid(i, &glyph))
 					continue;
@@ -673,7 +650,7 @@ protected:
 
 			if(plan->drop_hints) {
 				/* mark hint ops and arguments for drop */
-				for(unsigned int i = 0; i < plan->num_output_glyphs(); i++) {
+				for(uint i = 0; i < plan->num_output_glyphs(); i++) {
 					hb_codepoint_t glyph;
 					if(!plan->old_gid_for_new_gid(i, &glyph))
 						continue;
@@ -696,7 +673,7 @@ protected:
 
 				/* after dropping hints recreate closures of actually used subrs */
 				closures.reset();
-				for(unsigned int i = 0; i < plan->num_output_glyphs(); i++) {
+				for(uint i = 0; i < plan->num_output_glyphs(); i++) {
 					hb_codepoint_t glyph;
 					if(!plan->old_gid_for_new_gid(i, &glyph))
 						continue;
@@ -721,7 +698,7 @@ protected:
 		{
 			if(UNLIKELY(!buffArray.resize(plan->num_output_glyphs())))
 				return false;
-			for(unsigned int i = 0; i < plan->num_output_glyphs(); i++) {
+			for(uint i = 0; i < plan->num_output_glyphs(); i++) {
 				hb_codepoint_t glyph;
 				if(!plan->old_gid_for_new_gid(i, &glyph)) {
 					/* add an endchar only charstring for a missing glyph if CFF1 */
@@ -857,7 +834,7 @@ protected:
 				}
 				if(has_hint) {
 					for(int i = pos - 1; i >= 0; i--) {
-						parsed_cs_op_t  &csop = str.values[(unsigned)i];
+						parsed_cs_op_t  &csop = str.values[(uint)i];
 						if(csop.for_drop())
 							break;
 						csop.set_drop();
@@ -931,7 +908,7 @@ protected:
 				if(str.prefix_op() != OpCode_Invalid)
 					encoder.encode_op(str.prefix_op());
 			}
-			for(unsigned int i = 0; i < str.get_count(); i++) {
+			for(uint i = 0; i < str.get_count(); i++) {
 				const parsed_cs_op_t  &opstr = str.values[i];
 				if(!opstr.for_drop() && !opstr.for_skip()) {
 					switch(opstr.op)

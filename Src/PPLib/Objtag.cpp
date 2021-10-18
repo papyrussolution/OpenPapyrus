@@ -691,7 +691,7 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 //
 //
 //
-int FASTCALL SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjTagFilt * pFilt)
+int STDCALL SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjTagFilt * pFilt)
 {
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_TAG, id, flags, pFilt);
 }

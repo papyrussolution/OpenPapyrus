@@ -1003,7 +1003,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				if(j >= 4) {
 					if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 						lp_style_type lptmp;
-						LoadLineType(term, &lptmp, (int)(v[3]));
+						LoadLineType(GPT.P_Term, &lptmp, (int)(v[3]));
 						color = RgbFromColorspec(&lptmp.pm3d_color);
 						color_from_column(TRUE);
 					}

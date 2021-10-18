@@ -200,16 +200,16 @@ void ssh_socket_set_callbacks(ssh_socket s, ssh_socket_callbacks callbacks)
 
 /**
  * @brief               SSH poll callback. This callback will be used when an event
- *                      caught on the socket.
+ *                caught on the socket.
  *
  * @param p             Poll object this callback belongs to.
  * @param fd            The raw socket.
  * @param revents       The current poll events on the socket.
  * @param userdata      Userdata to be passed to the callback function,
- *                      in this case the socket object.
+ *                in this case the socket object.
  *
  * @return              0 on success, < 0 when the poll object has been removed
- *                      from its poll context.
+ *                from its poll context.
  */
 int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
     socket_t fd,

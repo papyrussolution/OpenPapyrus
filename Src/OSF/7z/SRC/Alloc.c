@@ -33,7 +33,7 @@ int g_allocCountBig = 0;
 		if(address != 0)
 			slfprintf_stderr("\nFree; count = %10d,  addr = %8X", --g_allocCount, (uint)address);
 	#endif
-		free(address);
+		SAlloc::F(address);
 	}
 #endif // } 0
 

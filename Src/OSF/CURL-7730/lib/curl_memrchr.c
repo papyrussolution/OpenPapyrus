@@ -46,7 +46,7 @@ void * Curl_memrchr(const void * s, int c, size_t n)
 		p += n - 1;
 		while(p >= q) {
 			if(*p == (uchar)c)
-				return (void*)p;
+				return (void *)p;
 			p--;
 		}
 	}

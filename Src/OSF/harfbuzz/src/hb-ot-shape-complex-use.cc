@@ -125,19 +125,19 @@ static void collect_features_use(hb_ot_shape_planner_t * plan)
 	map->add_gsub_pause(record_pref_use);
 
 	/* "Orthographic unit shaping group" */
-	for(unsigned int i = 0; i < ARRAY_LENGTH(use_basic_features); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(use_basic_features); i++)
 		map->enable_feature(use_basic_features[i], F_MANUAL_ZWJ);
 
 	map->add_gsub_pause(reorder_use);
 	map->add_gsub_pause(_hb_clear_syllables);
 
 	/* "Topographical features" */
-	for(unsigned int i = 0; i < ARRAY_LENGTH(use_topographical_features); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(use_topographical_features); i++)
 		map->add_feature(use_topographical_features[i]);
 	map->add_gsub_pause(nullptr);
 
 	/* "Standard typographic presentation" */
-	for(unsigned int i = 0; i < ARRAY_LENGTH(use_other_features); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(use_other_features); i++)
 		map->enable_feature(use_other_features[i], F_MANUAL_ZWJ);
 }
 
@@ -208,7 +208,7 @@ static void setup_masks_use(const hb_ot_shape_plan_t * plan,
 
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		info[i].use_category() = hb_use_get_category(info[i].codepoint);
 }
 
@@ -225,7 +225,7 @@ static void setup_rphf_mask(const hb_ot_shape_plan_t * plan,
 	foreach_syllable(buffer, start, end)
 	{
 		unsigned int limit = info[start].use_category() == USE_R ? 1 : hb_min(3u, end - start);
-		for(unsigned int i = start; i < start + limit; i++)
+		for(uint i = start; i < start + limit; i++)
 			info[i].mask |= mask;
 	}
 }
@@ -239,7 +239,7 @@ static void setup_topographical_masks(const hb_ot_shape_plan_t * plan,
 
 	static_assert((USE_INIT < 4 && USE_ISOL < 4 && USE_MEDI < 4 && USE_FINA < 4), "");
 	hb_mask_t masks[4], all_masks = 0;
-	for(unsigned int i = 0; i < 4; i++) {
+	for(uint i = 0; i < 4; i++) {
 		masks[i] = plan->map.get_1_mask(use_topographical_features[i]);
 		if(masks[i] == plan->map.get_global_mask())
 			masks[i] = 0;
@@ -276,13 +276,13 @@ static void setup_topographical_masks(const hb_ot_shape_plan_t * plan,
 			    if(join) {
 				    /* Fixup previous syllable's form. */
 				    last_form = last_form == USE_FINA ? USE_MEDI : USE_INIT;
-				    for(unsigned int i = last_start; i < start; i++)
+				    for(uint i = last_start; i < start; i++)
 					    info[i].mask = (info[i].mask & other_masks) | masks[last_form];
 			    }
 
 			    /* Form for this syllable. */
 			    last_form = join ? USE_FINA : USE_ISOL;
-			    for(unsigned int i = start; i < end; i++)
+			    for(uint i = start; i < end; i++)
 				    info[i].mask = (info[i].mask & other_masks) | masks[last_form];
 
 			    break;
@@ -316,7 +316,7 @@ static void record_rphf_use(const hb_ot_shape_plan_t * plan,
 	foreach_syllable(buffer, start, end)
 	{
 		/* Mark a substituted repha as USE_R. */
-		for(unsigned int i = start; i < end && (info[i].mask & mask); i++)
+		for(uint i = start; i < end && (info[i].mask & mask); i++)
 			if(_hb_glyph_info_substituted(&info[i])) {
 				info[i].use_category() = USE_R;
 				break;
@@ -333,7 +333,7 @@ static void record_pref_use(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	foreach_syllable(buffer, start, end)
 	{
 		/* Mark a substituted pref as VPre, as they behave the same way. */
-		for(unsigned int i = start; i < end; i++)
+		for(uint i = start; i < end; i++)
 			if(_hb_glyph_info_substituted(&info[i])) {
 				info[i].use_category() = USE_VPre;
 				break;
@@ -382,7 +382,7 @@ static void reorder_syllable_use(hb_buffer_t * buffer, unsigned int start, unsig
 	if(info[start].use_category() == USE_R && end - start > 1) {
 		/* Got a repha.  Reorder it towards the end, but before the first post-base
 		 * glyph. */
-		for(unsigned int i = start + 1; i < end; i++) {
+		for(uint i = start + 1; i < end; i++) {
 			bool is_post_base_glyph = (FLAG64_UNSAFE(info[i].use_category()) & POST_BASE_FLAGS64) ||
 			    is_halant_use(info[i]);
 			if(is_post_base_glyph || i == end - 1) {
@@ -404,7 +404,7 @@ static void reorder_syllable_use(hb_buffer_t * buffer, unsigned int start, unsig
 
 	/* Move things back. */
 	unsigned int j = start;
-	for(unsigned int i = start; i < end; i++) {
+	for(uint i = start; i < end; i++) {
 		uint32_t flag = FLAG_UNSAFE(info[i].use_category());
 		if(is_halant_use(info[i])) {
 			/* If we hit a halant, move after it; otherwise move to the beginning, and
@@ -435,7 +435,7 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
 	bool has_broken_syllables = false;
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == use_broken_cluster) {
 			has_broken_syllables = true;
 			break;

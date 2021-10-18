@@ -46,7 +46,7 @@
 struct archive_write;
 
 struct archive_write_filter {
-	int64_t bytes_written;
+	int64 bytes_written;
 	struct archive *archive; /* Associated archive. */
 	struct archive_write_filter *next_filter; /* Who I write to. */
 	int	(*options)(struct archive_write_filter *,
@@ -77,11 +77,11 @@ struct archive_write {
 
 	/* Dev/ino of the archive being written. */
 	int		  skip_file_set;
-	int64_t		  skip_file_dev;
-	int64_t		  skip_file_ino;
+	int64		  skip_file_dev;
+	int64		  skip_file_ino;
 
 	/* Utility:  Pointer to a block of nulls. */
-	const unsigned char	*nulls;
+	const uchar	*nulls;
 	size_t			 null_length;
 
 	/* Callbacks to open/read/write/close archive stream. */

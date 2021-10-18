@@ -53,7 +53,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _DEFAULT_SOURCE /* for ctime_r(), snprintf(), strdup() */
+#define _DEFAULT_SOURCE /* for ctime_r(), snprintf(), sstrdup() */
 #include "cairo-ps.h"
 #include "cairo-ps-surface-private.h"
 #include "cairo-pdf-operators-private.h"
@@ -882,13 +882,13 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t * surfac
 	}
 
 	if(page_name) {
-		page->name = strdup(page_name);
+		page->name = sstrdup(page_name);
 	}
 	else {
 		snprintf(buf, sizeof(buf), "%dx%dmm",
 		    (int)_cairo_lround(surface->width * 25.4/72),
 		    (int)_cairo_lround(surface->height * 25.4/72));
-		page->name = strdup(buf);
+		page->name = sstrdup(buf);
 	}
 
 	if(UNLIKELY(page->name == NULL)) {
@@ -1416,7 +1416,7 @@ void cairo_ps_surface_dsc_comment(cairo_surface_t * surface,
 	}
 
 	/* Then, copy the comment and store it in the appropriate array. */
-	comment_copy = strdup(comment);
+	comment_copy = sstrdup(comment);
 	if(UNLIKELY(comment_copy == NULL)) {
 		status = _cairo_surface_set_error(surface, CAIRO_STATUS_NO_MEMORY);
 		return;

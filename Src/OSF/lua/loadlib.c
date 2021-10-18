@@ -92,7 +92,7 @@ static lua_CFunction lsys_sym(lua_State * L, void * lib, const char * sym);
 #include <dlfcn.h>
 
 /*
-** Macro to convert pointer-to-void* to pointer-to-function. This cast
+** Macro to convert pointer-to-void * to pointer-to-function. This cast
 ** is undefined according to ISO C, but POSIX assumes that it works.
 ** (The '__extension__' in gnu compilers is only to avoid warnings.)
 */

@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -82,7 +82,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 #undef GETKEYCODE
 }
 
-/*static*/int FASTCALL TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/int TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = 0;
 	TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
@@ -433,6 +433,8 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 			return 0;
 		case WM_DRAWITEM:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+			return p_dlg ? p_dlg->RedirectDrawItemMessage(uMsg, wParam, lParam) : FALSE;
+			/*
 			if(p_dlg) {
 				DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				TDrawItemData di;
@@ -453,6 +455,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 					return FALSE;
 			}
 			break;
+			*/
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
 			PostMessage(GetParent(hwndDlg), uMsg, wParam, lParam);

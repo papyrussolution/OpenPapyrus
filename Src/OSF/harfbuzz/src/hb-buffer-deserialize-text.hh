@@ -32,7 +32,7 @@
 #include "hb.hh"
 
 #line 36 "hb-buffer-deserialize-text.hh"
-static const unsigned char _deserialize_text_trans_keys[] = {
+static const uchar _deserialize_text_trans_keys[] = {
 	0u, 0u, 9u, 122u, 45u, 57u, 48u, 57u, 45u, 57u, 48u, 57u, 48u, 57u, 45u, 57u,
 	48u, 57u, 44u, 44u, 45u, 57u, 48u, 57u, 44u, 57u, 9u, 124u, 9u, 124u, 0u, 0u,
 	9u, 122u, 9u, 124u, 9u, 124u, 9u, 124u, 9u, 124u, 9u, 124u, 9u, 124u, 9u, 124u,
@@ -343,7 +343,7 @@ static hb_bool_t _hb_buffer_deserialize_glyphs_text(hb_buffer_t * buffer,
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

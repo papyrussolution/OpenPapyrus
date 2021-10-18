@@ -80,7 +80,7 @@ typedef struct opj_stream_private {
 	/**
 	 * User data, be it files, ... The actual data depends on the type of the stream.
 	 */
-	void *                  m_user_data;
+	void *            m_user_data;
 
 	/**
 	 * Pointer to function to free m_user_data (NULL at initialization)
@@ -119,12 +119,12 @@ typedef struct opj_stream_private {
 	 * Actual data stored into the stream if readed from. Data is read by chunk of fixed size.
 	 * you should never access this data directly.
 	 */
-	OPJ_BYTE *                  m_stored_data;
+	OPJ_BYTE *            m_stored_data;
 
 	/**
 	 * Pointer to the current read data.
 	 */
-	OPJ_BYTE *                  m_current_data;
+	OPJ_BYTE *            m_current_data;
 
 	/**
 	 * FIXME DOC.

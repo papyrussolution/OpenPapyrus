@@ -29,7 +29,7 @@ eval '(exit $?0)' && eval 'exec perl -wS -i "$0" ${1+"$@"}'
 # or
 #
 #   /* Copyright 2000,  2001, 2004-2007 by    */
-#   /* foobar                                 */
+#   /* foobar              */
 #
 # and replaces them uniformly with
 #
@@ -38,8 +38,8 @@ eval '(exit $?0)' && eval 'exec perl -wS -i "$0" ${1+"$@"}'
 #
 # and
 #
-#   /* Copyright 2000-2015 by                 */
-#   /* foobar                                 */
+#   /* Copyright 2000-2015 by    */
+#   /* foobar              */
 #
 # (assuming that the current year is 2015).  As can be seen, the line length
 # is retained if there is non-whitespace after the word `by' on the same

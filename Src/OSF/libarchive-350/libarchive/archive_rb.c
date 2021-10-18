@@ -151,7 +151,7 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	 * RB_FATHER(rb_node)->rb_nodes[RB_POSITION(rb_node)] will
 	 * update rbt->rbt_root.
 	 */
-	struct archive_rb_node * parent = (struct archive_rb_node *)(void*)&rbt->rbt_root;
+	struct archive_rb_node * parent = (struct archive_rb_node *)(void *)&rbt->rbt_root;
 	unsigned int position = RB_DIR_LEFT;
 	/*
 	 * Find out where to place this new leaf.
@@ -173,7 +173,7 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	 */
 	RB_SET_FATHER(self, parent);
 	RB_SET_POSITION(self, position);
-	if(parent == (struct archive_rb_node *)(void*)&rbt->rbt_root) {
+	if(parent == (struct archive_rb_node *)(void *)&rbt->rbt_root) {
 		RB_MARK_BLACK(self);            /* root is always black */
 		rebalance = F;
 	}

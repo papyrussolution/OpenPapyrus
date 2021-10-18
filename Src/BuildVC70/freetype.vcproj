@@ -375,13 +375,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\Osf\FreeType\autofit\autofit.c">
+				RelativePath="..\Osf\FreeType\autofit.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\bdf\bdf.c">
+				RelativePath="..\Osf\FreeType\bdf.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\cff\cff.c">
+				RelativePath="..\Osf\FreeType\cff.c">
 			</File>
 			<File
 				RelativePath="..\Osf\FreeType\freetype-pch.cpp">
@@ -429,109 +429,115 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftbase.c">
+				RelativePath="..\Osf\FreeType\ftbase.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftbbox.c">
+				RelativePath="..\Osf\FreeType\ftbbox.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftbdf.c">
+				RelativePath="..\Osf\FreeType\ftbdf.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftbitmap.c">
+				RelativePath="..\Osf\FreeType\ftbitmap.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\bzip2\ftbzip2.c">
+				RelativePath="..\Osf\FreeType\ftbzip2.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\cache\ftcache.c">
+				RelativePath="..\Osf\FreeType\ftcache.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftdebug.c">
+				RelativePath="..\Osf\FreeType\ftdebug.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftfstype.c">
+				RelativePath="..\Osf\FreeType\ftfstype.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftgasp.c">
+				RelativePath="..\Osf\FreeType\ftgasp.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftglyph.c">
+				RelativePath="..\Osf\FreeType\ftglyph.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftgxval.c">
+				RelativePath="..\Osf\FreeType\ftgxval.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\gzip\ftgzip.c">
+				RelativePath="..\Osf\FreeType\ftgzip.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftinit.c">
+				RelativePath="..\Osf\FreeType\ftinit.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\lzw\ftlzw.c">
+				RelativePath="..\Osf\FreeType\ftlzw.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftmm.c">
+				RelativePath="..\Osf\FreeType\ftmm.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftotval.c">
+				RelativePath="..\Osf\FreeType\ftobjs.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftpfr.c">
+				RelativePath="..\Osf\FreeType\ftotval.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftstroke.c">
+				RelativePath="..\Osf\FreeType\ftpfr.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftsynth.c">
+				RelativePath="..\Osf\FreeType\ftrfork.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftsystem.c">
+				RelativePath="..\Osf\FreeType\ftstroke.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\fttype1.c">
+				RelativePath="..\Osf\FreeType\ftsynth.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\base\ftwinfnt.c">
+				RelativePath="..\Osf\FreeType\ftsystem.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\pcf\pcf.c">
+				RelativePath="..\Osf\FreeType\fttype1.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\pfr\pfr.c">
+				RelativePath="..\Osf\FreeType\ftwinfnt.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\psaux\psaux.c">
+				RelativePath="..\Osf\FreeType\pcf.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\pshinter\pshinter.c">
+				RelativePath="..\Osf\FreeType\pfr.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\psnames\psmodule.c">
+				RelativePath="..\Osf\FreeType\psaux.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\raster\raster.c">
+				RelativePath="..\Osf\FreeType\pshinter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\sfnt\sfnt.c">
+				RelativePath="..\Osf\FreeType\psmodule.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\smooth\smooth.c">
+				RelativePath="..\Osf\FreeType\raster.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\truetype\truetype.c">
+				RelativePath="..\Osf\FreeType\sfnt.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\type1\type1.c">
+				RelativePath="..\Osf\FreeType\smooth.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\cid\type1cid.c">
+				RelativePath="..\Osf\FreeType\truetype.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\type42\type42.c">
+				RelativePath="..\Osf\FreeType\type1.c">
 			</File>
 			<File
-				RelativePath="..\Osf\FreeType\winfonts\winfnt.c">
+				RelativePath="..\Osf\FreeType\type1cid.c">
+			</File>
+			<File
+				RelativePath="..\Osf\FreeType\type42.c">
+			</File>
+			<File
+				RelativePath="..\Osf\FreeType\winfnt.c">
 			</File>
 		</Filter>
 		<Filter

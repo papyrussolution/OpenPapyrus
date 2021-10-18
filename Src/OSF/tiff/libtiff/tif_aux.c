@@ -51,9 +51,9 @@ uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const ch
 	return bytes;
 }
 
-void* _TIFFCheckRealloc(TIFF* tif, void* buffer, tmsize_t nmemb, tmsize_t elem_size, const char* what)
+void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem_size, const char* what)
 {
-	void* cp = NULL;
+	void * cp = NULL;
 	tmsize_t bytes = nmemb * elem_size;
 	/*
 	 * XXX: Check for integer overflow.

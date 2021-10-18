@@ -50,7 +50,7 @@
 /** @internal
  *
  * @brief initialize the set of key exchange, hostkey, ciphers, MACs, and
- *        compression algorithms for the given ssh_session
+ *  compression algorithms for the given ssh_session
  *
  * The selection of algorithms and keys used are determined by the
  * options that are currently set in the given ssh_session structure.

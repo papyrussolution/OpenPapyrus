@@ -13,6 +13,13 @@ AbstractLayoutBlock::AbstractLayoutBlock()
 	SetDefault();
 }
 
+AbstractLayoutBlock::AbstractLayoutBlock(int direction)
+{
+	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
+	SetDefault();
+	SetContainerDirection(direction);
+}
+
 AbstractLayoutBlock & AbstractLayoutBlock::SetDefault()
 {
 	Flags = 0;
@@ -862,6 +869,43 @@ FRect LayoutFlexItem::GetFrame() const
 	return R;
 }
 
+FRect LayoutFlexItem::GetFrameAdjustedToParent() const
+{
+	FRect f = R;
+	const LayoutFlexItem * p_parent = P_Parent;
+	if(p_parent) {
+		const FRect parent_frame = p_parent->GetFrameAdjustedToParent(); // @recursion
+		f.Move__(parent_frame.a.x, parent_frame.a.y);
+	}
+	return f;
+}
+
+const LayoutFlexItem * LayoutFlexItem::FindMinimalItemAroundPoint(float x, float y) const
+{
+	const LayoutFlexItem * p_result = 0;
+	FRect f = GetFrameAdjustedToParent();
+	if(f.IsEmpty() || f.Contains(SPoint2F(x, y))) {
+		FRect min_child_f(0.0f, 0.0f);
+		if(!f.IsEmpty())
+			p_result = this;
+		for(uint i = 0; i < GetChildrenCount(); i++) {
+			const LayoutFlexItem * p_child = GetChildC(i);
+			if(p_child) {
+				const LayoutFlexItem * p_inner_result = p_child->FindMinimalItemAroundPoint(x, y); // @recursion
+				if(p_inner_result) {
+					FRect f = GetFrameAdjustedToParent();
+					const double mcfs = min_child_f.Square();
+					if(mcfs <= 0.0 || mcfs > f.Square()) {
+						min_child_f = f;
+						p_result = p_inner_result;
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
 int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
 {
 	int    ok = 0;
@@ -901,7 +945,7 @@ LayoutFlexItem * LayoutFlexItem::GetRoot()
 	return p_root;
 }
 
-LayoutFlexItem * LayoutFlexItem::InsertItem()
+LayoutFlexItem * LayoutFlexItem::InsertItem(void * pManagedPtr, const AbstractLayoutBlock * pAlb)
 {
 	LayoutFlexItem * p_result_item = 0;
 	if(!P_Children) {
@@ -911,10 +955,18 @@ LayoutFlexItem * LayoutFlexItem::InsertItem()
 		p_result_item = P_Children->CreateNewItem();
 		if(p_result_item) {
 			p_result_item->P_Parent = this;
+			p_result_item->managed_ptr = pManagedPtr;
+			if(pAlb)
+				p_result_item->SetLayoutBlock(*pAlb);
 			p_result_item->UpdateShouldOrderChildren();		
 		}
 	}
 	return p_result_item;
+}
+
+LayoutFlexItem * LayoutFlexItem::InsertItem()
+{
+	return InsertItem(0/*pManagedPtr*/, 0);
 }
 
 void LayoutFlexItem::DeleteItem(uint idx)

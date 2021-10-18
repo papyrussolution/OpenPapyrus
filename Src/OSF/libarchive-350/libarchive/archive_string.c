@@ -145,14 +145,14 @@ static int best_effort_strncat_to_utf16le(struct archive_string *, const void *,
 static int iconv_strncat_in_locale(struct archive_string *, const void *, size_t, struct archive_string_conv *);
 #endif
 static int best_effort_strncat_in_locale(struct archive_string *, const void *, size_t, struct archive_string_conv *);
-static int _utf8_to_unicode(uint32_t *, const char *, size_t);
-static int utf8_to_unicode(uint32_t *, const char *, size_t);
-static inline uint32_t combine_surrogate_pair(uint32_t, uint32_t);
-static int cesu8_to_unicode(uint32_t *, const char *, size_t);
-static size_t unicode_to_utf8(char *, size_t, uint32_t);
-static int utf16_to_unicode(uint32_t *, const char *, size_t, int);
-static size_t unicode_to_utf16be(char *, size_t, uint32_t);
-static size_t unicode_to_utf16le(char *, size_t, uint32_t);
+static int _utf8_to_unicode(uint32 *, const char *, size_t);
+static int utf8_to_unicode(uint32 *, const char *, size_t);
+static inline uint32 combine_surrogate_pair(uint32, uint32);
+static int cesu8_to_unicode(uint32 *, const char *, size_t);
+static size_t unicode_to_utf8(char *, size_t, uint32);
+static int utf16_to_unicode(uint32 *, const char *, size_t, int);
+static size_t unicode_to_utf16be(char *, size_t, uint32);
+static size_t unicode_to_utf16le(char *, size_t, uint32);
 static int strncat_from_utf8_libarchive2(struct archive_string *, const void *, size_t, struct archive_string_conv *);
 static int strncat_from_utf8_to_utf8(struct archive_string *, const void *, size_t, struct archive_string_conv *);
 static int archive_string_normalize_C(struct archive_string *, const void *, size_t, struct archive_string_conv *);
@@ -203,7 +203,7 @@ void archive_string_free(struct archive_string * as)
 {
 	as->length = 0;
 	as->buffer_length = 0;
-	free(as->s);
+	SAlloc::F(as->s);
 	as->s = NULL;
 }
 
@@ -211,7 +211,7 @@ void archive_wstring_free(struct archive_wstring * as)
 {
 	as->length = 0;
 	as->buffer_length = 0;
-	free(as->s);
+	SAlloc::F(as->s);
 	as->s = NULL;
 }
 
@@ -250,7 +250,7 @@ struct archive_string * archive_string_ensure(struct archive_string * as, size_t
 		if(new_length < as->buffer_length) {
 			/* On failure, wipe the string and return NULL. */
 			archive_string_free(as);
-			errno = ENOMEM;/* Make sure errno has ENOMEM. */
+			errno = ENOMEM; /* Make sure errno has ENOMEM. */
 			return NULL;
 		}
 	}
@@ -261,15 +261,14 @@ struct archive_string * archive_string_ensure(struct archive_string * as, size_t
 	 */
 	if(new_length < s)
 		new_length = s;
-	/* Now we can reallocate the buffer. */
-	p = (char *)realloc(as->s, new_length);
+	// Now we can reallocate the buffer. 
+	p = (char *)SAlloc::R(as->s, new_length);
 	if(!p) {
 		/* On failure, wipe the string and return NULL. */
 		archive_string_free(as);
-		errno = ENOMEM;/* Make sure errno has ENOMEM. */
+		errno = ENOMEM; /* Make sure errno has ENOMEM. */
 		return NULL;
 	}
-
 	as->s = p;
 	as->buffer_length = new_length;
 	return (as);
@@ -397,14 +396,14 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		 * "C" locale special processing.
 		 */
 		wchar_t * ws;
-		const unsigned char * mp;
+		const uchar * mp;
 
 		if(NULL == archive_wstring_ensure(dest,
 		    dest->length + length + 1))
 			return -1;
 
 		ws = dest->s + dest->length;
-		mp = (const unsigned char*)s;
+		mp = (const uchar *)s;
 		count = 0;
 		while(count < (int)length && *mp) {
 			*ws++ = (wchar_t)*mp++;
@@ -418,7 +417,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		 * to UTF-16 as wchar_t.
 		 */
 		struct archive_string u16;
-		int saved_flag = sc->flag;/* save current flag. */
+		int saved_flag = sc->flag; /* save current flag. */
 
 		if(is_big_endian())
 			sc->flag |= SCONV_TO_UTF16BE;
@@ -449,7 +448,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		dest->s = (wchar_t*)u16.s;
 		dest->length = u16.length >> 1;
 		dest->buffer_length = u16.buffer_length;
-		sc->flag = saved_flag;/* restore the saved flag. */
+		sc->flag = saved_flag; /* restore the saved flag. */
 		return ret;
 	}
 	else if(sc != NULL && (sc->flag & SCONV_FROM_UTF16)) {
@@ -787,9 +786,9 @@ int archive_string_append_from_wcs(struct archive_string * as,
 int archive_string_append_from_wcs(struct archive_string * as,
     const wchar_t * w, size_t len)
 {
-	(void)as;/* UNUSED */
-	(void)w;/* UNUSED */
-	(void)len;/* UNUSED */
+	(void)as; /* UNUSED */
+	(void)w; /* UNUSED */
+	(void)len; /* UNUSED */
 	errno = ENOSYS;
 	return -1;
 }
@@ -1049,19 +1048,19 @@ static const char * canonical_charset_name(const char * charset)
  */
 static struct archive_string_conv * create_sconv_object(const char * fc, const char * tc, unsigned current_codepage, int flag)
 {
-	struct archive_string_conv * sc = static_cast<struct archive_string_conv *>(calloc(1, sizeof(*sc)));
+	struct archive_string_conv * sc = static_cast<struct archive_string_conv *>(SAlloc::C(1, sizeof(*sc)));
 	if(sc == NULL)
 		return NULL;
 	sc->next = NULL;
-	sc->from_charset = strdup(fc);
+	sc->from_charset = sstrdup(fc);
 	if(sc->from_charset == NULL) {
-		free(sc);
+		SAlloc::F(sc);
 		return NULL;
 	}
-	sc->to_charset = strdup(tc);
+	sc->to_charset = sstrdup(tc);
 	if(sc->to_charset == NULL) {
-		free(sc->from_charset);
-		free(sc);
+		SAlloc::F(sc->from_charset);
+		SAlloc::F(sc);
 		return NULL;
 	}
 	archive_string_init(&sc->utftmp);
@@ -1093,7 +1092,7 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 	/*
 	 * Check if "from charset" and "to charset" are the same.
 	 */
-	if(strcmp(fc, tc) == 0 || (sc->from_cp != (unsigned)-1 && sc->from_cp == sc->to_cp))
+	if(strcmp(fc, tc) == 0 || (sc->from_cp != (uint)-1 && sc->from_cp == sc->to_cp))
 		sc->same = 1;
 	else
 		sc->same = 0;
@@ -1229,8 +1228,8 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
  */
 static void free_sconv_object(struct archive_string_conv * sc)
 {
-	free(sc->from_charset);
-	free(sc->to_charset);
+	SAlloc::F(sc->from_charset);
+	SAlloc::F(sc->to_charset);
 	archive_string_free(&sc->utftmp);
 #if HAVE_ICONV
 	if(sc->cd != (iconv_t)-1)
@@ -1238,7 +1237,7 @@ static void free_sconv_object(struct archive_string_conv * sc)
 	if(sc->cd_w != (iconv_t)-1)
 		iconv_close(sc->cd_w);
 #endif
-	free(sc);
+	SAlloc::F(sc);
 }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -1533,18 +1532,18 @@ static unsigned get_current_oemcp(void)
 
 static unsigned get_current_codepage(void)
 {
-	return -1;/* Unknown */
+	return -1; /* Unknown */
 }
 
 static unsigned make_codepage_from_charset(const char * charset)
 {
 	(void)charset; /* UNUSED */
-	return -1;/* Unknown */
+	return -1; /* Unknown */
 }
 
 static unsigned get_current_oemcp(void)
 {
-	return -1;/* Unknown */
+	return -1; /* Unknown */
 }
 
 #endif /* defined(_WIN32) && !defined(__CYGWIN__) */
@@ -1615,7 +1614,7 @@ static const char * get_current_charset(struct archive * a)
 	else {
 		cur_charset = default_iconv_charset(a->current_code);
 		if(a->current_code == NULL) {
-			a->current_code = strdup(cur_charset);
+			a->current_code = sstrdup(cur_charset);
 			a->current_codepage = get_current_codepage();
 			a->current_oemcp = get_current_oemcp();
 		}
@@ -1723,7 +1722,7 @@ void archive_string_conversion_free(struct archive * a)
 		free_sconv_object(sc);
 	}
 	a->sconv = NULL;
-	free(a->current_code);
+	SAlloc::F(a->current_code);
 	a->current_code = NULL;
 }
 
@@ -2113,7 +2112,7 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
 static int best_effort_strncat_in_locale(struct archive_string * as, const void * _p, size_t length, struct archive_string_conv * sc)
 {
 	size_t remaining;
-	const uint8_t * itp;
+	const uint8 * itp;
 	int return_value = 0; /* success */
 	/*
 	 * If both from-locale and to-locale is the same, this makes a copy.
@@ -2132,7 +2131,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 */
 
 	remaining = length;
-	itp = (const uint8_t*)_p;
+	itp = (const uint8*)_p;
 	while(*itp && remaining > 0) {
 		if(*itp > 127) {
 			// Non-ASCII: Substitute with suitable replacement
@@ -2171,7 +2170,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
  * See also http://unicode.org/review/pr-121.html Public Review Issue #121
  * Recommended Practice for Replacement Characters.
  */
-static int _utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
+static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
 	static const char utf8_count[256] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 00 - 0F */
@@ -2193,7 +2192,7 @@ static int _utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
 	};
 	int ch, i;
 	int cnt;
-	uint32_t wc;
+	uint32 wc;
 
 	/* Sanity check. */
 	if(n == 0)
@@ -2295,11 +2294,11 @@ static int _utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
 	*pwc = wc;
 	return (cnt);
 invalid_sequence:
-	*pwc = UNICODE_R_CHAR;/* set the Replacement Character instead. */
+	*pwc = UNICODE_R_CHAR; /* set the Replacement Character instead. */
 	return (cnt * -1);
 }
 
-static int utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
+static int utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
 	int cnt;
 
@@ -2310,7 +2309,7 @@ static int utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
 	return (cnt);
 }
 
-static inline uint32_t combine_surrogate_pair(uint32_t uc, uint32_t uc2)
+static inline uint32 combine_surrogate_pair(uint32 uc, uint32 uc2)
 {
 	uc -= 0xD800;
 	uc *= 0x400;
@@ -2328,14 +2327,14 @@ static inline uint32_t combine_surrogate_pair(uint32_t uc, uint32_t uc2)
  * Usually return used bytes, return used byte in negative value when
  * a unicode character is replaced with U+FFFD.
  */
-static int cesu8_to_unicode(uint32_t * pwc, const char * s, size_t n)
+static int cesu8_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
-	uint32_t wc = 0;
+	uint32 wc = 0;
 	int cnt;
 
 	cnt = _utf8_to_unicode(&wc, s, n);
 	if(cnt == 3 && IS_HIGH_SURROGATE_LA(wc)) {
-		uint32_t wc2 = 0;
+		uint32 wc2 = 0;
 		if(n - 3 < 3) {
 			/* Invalid byte sequence. */
 			goto invalid_sequence;
@@ -2355,7 +2354,7 @@ static int cesu8_to_unicode(uint32_t * pwc, const char * s, size_t n)
 	*pwc = wc;
 	return (cnt);
 invalid_sequence:
-	*pwc = UNICODE_R_CHAR;/* set the Replacement Character instead. */
+	*pwc = UNICODE_R_CHAR; /* set the Replacement Character instead. */
 	if(cnt > 0)
 		cnt *= -1;
 	return (cnt);
@@ -2367,7 +2366,7 @@ invalid_sequence:
  * NOTE:This function does not check if the Unicode is legal or not.
  * Please you definitely check it before calling this.
  */
-static size_t unicode_to_utf8(char * p, size_t remaining, uint32_t uc)
+static size_t unicode_to_utf8(char * p, size_t remaining, uint32 uc)
 {
 	char * _p = p;
 
@@ -2404,17 +2403,17 @@ static size_t unicode_to_utf8(char * p, size_t remaining, uint32_t uc)
 	return (p - _p);
 }
 
-static int utf16be_to_unicode(uint32_t * pwc, const char * s, size_t n)
+static int utf16be_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
 	return (utf16_to_unicode(pwc, s, n, 1));
 }
 
-static int utf16le_to_unicode(uint32_t * pwc, const char * s, size_t n)
+static int utf16le_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
 	return (utf16_to_unicode(pwc, s, n, 0));
 }
 
-static int utf16_to_unicode(uint32_t * pwc, const char * s, size_t n, int be)
+static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 {
 	const char * utf16 = s;
 	unsigned uc;
@@ -2474,7 +2473,7 @@ static int utf16_to_unicode(uint32_t * pwc, const char * s, size_t n, int be)
 	return ((int)(utf16 - s));
 }
 
-static size_t unicode_to_utf16be(char * p, size_t remaining, uint32_t uc)
+static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 {
 	char * utf16 = p;
 
@@ -2496,7 +2495,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32_t uc)
 	}
 }
 
-static size_t unicode_to_utf16le(char * p, size_t remaining, uint32_t uc)
+static size_t unicode_to_utf16le(char * p, size_t remaining, uint32 uc)
 {
 	char * utf16 = p;
 
@@ -2538,7 +2537,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length -1;
 	do {
-		uint32_t uc;
+		uint32 uc;
 		const char * ss = s;
 		size_t w;
 
@@ -2573,7 +2572,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 			}
 			if(n < 0) {
 				ret = -1;
-				n *= -1;/* Use a replaced unicode character. */
+				n *= -1; /* Use a replaced unicode character. */
 			}
 
 			/* Rebuild UTF-8 byte sequence. */
@@ -2600,11 +2599,11 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 {
 	const char * s;
 	char * p, * endp;
-	uint32_t uc;
+	uint32 uc;
 	size_t w;
 	int n, ret = 0, ts, tm;
-	int (* parse)(uint32_t *, const char *, size_t);
-	size_t (* unparse)(char *, size_t, uint32_t);
+	int (* parse)(uint32 *, const char *, size_t);
+	size_t (* unparse)(char *, size_t, uint32);
 
 	if(sc->flag & SCONV_TO_UTF16BE) {
 		unparse = unicode_to_utf16be;
@@ -2697,7 +2696,7 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 #define HC_NCOUNT       (HC_VCOUNT * HC_TCOUNT)
 #define HC_SCOUNT       (HC_LCOUNT * HC_NCOUNT)
 
-static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
+static uint32 get_nfc(uint32 uc, uint32 uc2)
 {
 	int t, b;
 
@@ -2809,13 +2808,13 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 {
 	const char * s = (const char *)_p;
 	char * p, * endp;
-	uint32_t uc, uc2;
+	uint32 uc, uc2;
 	size_t w;
 	int n, n2, ret = 0, spair, ts, tm;
-	int (* parse)(uint32_t *, const char *, size_t);
-	size_t (* unparse)(char *, size_t, uint32_t);
+	int (* parse)(uint32 *, const char *, size_t);
+	size_t (* unparse)(char *, size_t, uint32);
 	int always_replace = 1;
-	ts = 1;/* text size. */
+	ts = 1; /* text size. */
 	if(sc->flag & SCONV_TO_UTF16BE) {
 		unparse = unicode_to_utf16be;
 		ts = 2;
@@ -2855,17 +2854,17 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 	if(sc->flag & SCONV_FROM_UTF16BE) {
 		parse = utf16be_to_unicode;
 		tm = 1;
-		spair = 4;/* surrogate pair size in UTF-16. */
+		spair = 4; /* surrogate pair size in UTF-16. */
 	}
 	else if(sc->flag & SCONV_FROM_UTF16LE) {
 		parse = utf16le_to_unicode;
 		tm = 1;
-		spair = 4;/* surrogate pair size in UTF-16. */
+		spair = 4; /* surrogate pair size in UTF-16. */
 	}
 	else {
 		parse = cesu8_to_unicode;
 		tm = ts;
-		spair = 6;/* surrogate pair size in UTF-8. */
+		spair = 6; /* surrogate pair size in UTF-8. */
 	}
 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
@@ -2894,11 +2893,11 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 		len -= n;
 		/* Read second code point. */
 		while((n2 = parse(&uc2, s, len)) > 0) {
-			uint32_t ucx[FDC_MAX];
+			uint32 ucx[FDC_MAX];
 			int ccx[FDC_MAX];
 			int cl, cx, i, nx, ucx_size;
 			int LIndex, SIndex;
-			uint32_t nfc;
+			uint32 nfc;
 			if(n2 == spair || always_replace)
 				/* uc2 is converted from a surrogate pair.
 				 * this should be treated as a changed code. */
@@ -3062,7 +3061,7 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 	return ret;
 }
 
-static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
+static int get_nfd(uint32 * cp1, uint32 * cp2, uint32 uc)
 {
 	int t, b;
 	/*
@@ -3113,14 +3112,14 @@ static int archive_string_normalize_D(struct archive_string * as, const void * _
 {
 	const char * s = (const char *)_p;
 	char * p, * endp;
-	uint32_t uc, uc2;
+	uint32 uc, uc2;
 	size_t w;
 	int always_replace, n, n2, ret = 0, spair, ts, tm;
-	int (* parse)(uint32_t *, const char *, size_t);
-	size_t (* unparse)(char *, size_t, uint32_t);
+	int (* parse)(uint32 *, const char *, size_t);
+	size_t (* unparse)(char *, size_t, uint32);
 
 	always_replace = 1;
-	ts = 1;/* text size. */
+	ts = 1; /* text size. */
 	if(sc->flag & SCONV_TO_UTF16BE) {
 		unparse = unicode_to_utf16be;
 		ts = 2;
@@ -3160,17 +3159,17 @@ static int archive_string_normalize_D(struct archive_string * as, const void * _
 	if(sc->flag & SCONV_FROM_UTF16BE) {
 		parse = utf16be_to_unicode;
 		tm = 1;
-		spair = 4;/* surrogate pair size in UTF-16. */
+		spair = 4; /* surrogate pair size in UTF-16. */
 	}
 	else if(sc->flag & SCONV_FROM_UTF16LE) {
 		parse = utf16le_to_unicode;
 		tm = 1;
-		spair = 4;/* surrogate pair size in UTF-16. */
+		spair = 4; /* surrogate pair size in UTF-16. */
 	}
 	else {
 		parse = cesu8_to_unicode;
 		tm = ts;
-		spair = 6;/* surrogate pair size in UTF-8. */
+		spair = 6; /* surrogate pair size in UTF-8. */
 	}
 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
@@ -3180,10 +3179,10 @@ static int archive_string_normalize_D(struct archive_string * as, const void * _
 	endp = as->s + as->buffer_length - ts;
 	while((n = parse(&uc, s, len)) != 0) {
 		const char * ucptr;
-		uint32_t cp1, cp2;
+		uint32 cp1, cp2;
 		int SIndex;
 		struct {
-			uint32_t uc;
+			uint32 uc;
 			int ccc;
 		} fdc[FDC_MAX];
 
@@ -3298,7 +3297,7 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 	int n;
 	char * p;
 	char * end;
-	uint32_t unicode;
+	uint32 unicode;
 #if HAVE_WCRTOMB
 	mbstate_t shift_state;
 	memzero(&shift_state, sizeof(shift_state));
@@ -3602,7 +3601,7 @@ static int best_effort_strncat_from_utf16(struct archive_string * as, const void
 {
 	const char * utf16 = (const char *)_p;
 	char * mbs;
-	uint32_t uc;
+	uint32 uc;
 	int n, ret;
 
 	(void)sc; /* UNUSED */
@@ -3756,12 +3755,12 @@ int archive_mstring_get_utf8(struct archive * a, struct archive_mstring * aes,
 		if(r == 0) {
 			aes->aes_set |= AES_SET_UTF8;
 			*p = aes->aes_utf8.s;
-			return 0;/* success. */
+			return 0; /* success. */
 		}
 		else
 			return -1; /* failure. */
 	}
-	return 0;/* success. */
+	return 0; /* success. */
 }
 
 int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, const char ** p)
@@ -3799,7 +3798,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 		*p = aes->aes_mbs.s;
 		if(r == 0) {
 			aes->aes_set |= AES_SET_MBS;
-			ret = 0;/* success; overwrite previous error. */
+			ret = 0; /* success; overwrite previous error. */
 		}
 		else
 			ret = -1; /* failure. */
@@ -3810,7 +3809,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 int archive_mstring_get_wcs(struct archive * a, struct archive_mstring * aes, const wchar_t ** wp)
 {
 	int r, ret = 0;
-	(void)a;/* UNUSED */
+	(void)a; /* UNUSED */
 	/* Return WCS form if we already have it. */
 	if(aes->aes_set & AES_SET_WCS) {
 		*wp = aes->aes_wcs.s;

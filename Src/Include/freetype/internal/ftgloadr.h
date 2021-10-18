@@ -41,8 +41,8 @@ typedef struct  FT_SubGlyphRec_ {
 
 typedef struct  FT_GlyphLoadRec_ {
 	FT_Outline outline;     /* outline                   */
-	FT_Vector*   extra_points;/* extra points table        */
-	FT_Vector*   extra_points2;/* second extra points table */
+	FT_Vector*   extra_points; /* extra points table        */
+	FT_Vector*   extra_points2; /* second extra points table */
 	FT_UInt num_subglyphs;  /* number of subglyphs       */
 	FT_SubGlyph subglyphs;  /* subglyphs                 */
 } FT_GlyphLoadRec, * FT_GlyphLoad;

@@ -1065,11 +1065,11 @@ void Definitions::compile(const wsdl__definitions& definitions)
 							const char * t = types.deftname(TYPEDEF, NULL, false, "_", (*schema)->targetNamespace, (*element).name);
 							if(strncmp(s, "char", 4) && strchr(s, '*')) { // don't want pointer typedef, unless char*
 								size_t n = strlen(s);
-								char * r = (char *)malloc(n);
+								char * r = (char *)SAlloc::M(n);
 								strncpy(r, s, n - 1);
 								r[n - 1] = '\0';
 								fprintf(stream, "typedef %s %s;\n", r, t);
-								free(r);
+								SAlloc::F(r);
 							}
 							else
 								fprintf(stream, "typedef %s %s;\n", s, t);
@@ -1105,11 +1105,11 @@ void Definitions::compile(const wsdl__definitions& definitions)
 							const char * t = types.deftname(TYPEDEF, NULL, false, "_", (*schema)->targetNamespace, (*attribute).name);
 							if(strncmp(s, "char", 4) && strchr(s, '*')) { // don't want pointer typedef, unless char*
 								size_t n = strlen(s);
-								char * r = (char *)malloc(n);
+								char * r = (char *)SAlloc::M(n);
 								strncpy(r, s, n - 1);
 								r[n - 1] = '\0';
 								fprintf(stream, "typedef %s %s;\n", r, t);
-								free(r);
+								SAlloc::F(r);
 							}
 							else
 								fprintf(stream, "typedef %s %s;\n", s, t);

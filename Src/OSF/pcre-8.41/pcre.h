@@ -359,9 +359,9 @@ typedef struct pcre_extra {
 	void * study_data;        /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
-	const unsigned char * tables; /* Pointer to character tables */
+	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
-	unsigned char ** mark;    /* For passing back a mark pointer */
+	uchar ** mark;    /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
 } pcre_extra;
 
@@ -372,7 +372,7 @@ typedef struct pcre16_extra {
 	void * study_data;        /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
-	const unsigned char * tables; /* Pointer to character tables */
+	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
 	PCRE_UCHAR16 ** mark;     /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
@@ -385,7 +385,7 @@ typedef struct pcre32_extra {
 	void * study_data;        /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
-	const unsigned char * tables; /* Pointer to character tables */
+	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
 	PCRE_UCHAR32 ** mark;     /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
@@ -412,7 +412,7 @@ typedef struct pcre_callout_block {
 	int pattern_position;     /* Offset to next item in the pattern */
 	int next_item_length;     /* Length of next item in the pattern */
 	/* ------------------- Added for Version 2 -------------------------- */
-	const unsigned char * mark; /* Pointer to current mark or NULL    */
+	const uchar * mark; /* Pointer to current mark or NULL    */
 	/* ------------------------------------------------------------------ */
 } pcre_callout_block;
 
@@ -516,12 +516,12 @@ typedef pcre32_jit_stack *(*pcre32_jit_callback)(void *);
 //
 // Exported PCRE functions 
 //
-PCRE_EXP_DECL pcre * pcre_compile(const char *, int, const char **, int *, const unsigned char *);
-PCRE_EXP_DECL pcre16 * pcre16_compile(PCRE_SPTR16, int, const char **, int *, const unsigned char *);
-PCRE_EXP_DECL pcre32 * pcre32_compile(PCRE_SPTR32, int, const char **, int *, const unsigned char *);
-PCRE_EXP_DECL pcre * pcre_compile2(const char *, int, int *, const char **, int *, const unsigned char *);
-PCRE_EXP_DECL pcre16 * pcre16_compile2(PCRE_SPTR16, int, int *, const char **, int *, const unsigned char *);
-PCRE_EXP_DECL pcre32 * pcre32_compile2(PCRE_SPTR32, int, int *, const char **, int *, const unsigned char *);
+PCRE_EXP_DECL pcre * pcre_compile(const char *, int, const char **, int *, const uchar *);
+PCRE_EXP_DECL pcre16 * pcre16_compile(PCRE_SPTR16, int, const char **, int *, const uchar *);
+PCRE_EXP_DECL pcre32 * pcre32_compile(PCRE_SPTR32, int, const char **, int *, const uchar *);
+PCRE_EXP_DECL pcre * pcre_compile2(const char *, int, int *, const char **, int *, const uchar *);
+PCRE_EXP_DECL pcre16 * pcre16_compile2(PCRE_SPTR16, int, int *, const char **, int *, const uchar *);
+PCRE_EXP_DECL pcre32 * pcre32_compile2(PCRE_SPTR32, int, int *, const char **, int *, const uchar *);
 PCRE_EXP_DECL int  pcre_config(int, void *);
 PCRE_EXP_DECL int  pcre16_config(int, void *);
 PCRE_EXP_DECL int  pcre32_config(int, void *);
@@ -564,9 +564,9 @@ PCRE_EXP_DECL int pcre32_get_substring(PCRE_SPTR32, int *, int, int, PCRE_SPTR32
 PCRE_EXP_DECL int  pcre_get_substring_list(const char *, int *, int, const char ***);
 PCRE_EXP_DECL int pcre16_get_substring_list(PCRE_SPTR16, int *, int, PCRE_SPTR16 **);
 PCRE_EXP_DECL int pcre32_get_substring_list(PCRE_SPTR32, int *, int, PCRE_SPTR32 **);
-PCRE_EXP_DECL const unsigned char * pcre_maketables(void);
-PCRE_EXP_DECL const unsigned char * pcre16_maketables(void);
-PCRE_EXP_DECL const unsigned char * pcre32_maketables(void);
+PCRE_EXP_DECL const uchar * pcre_maketables(void);
+PCRE_EXP_DECL const uchar * pcre16_maketables(void);
+PCRE_EXP_DECL const uchar * pcre32_maketables(void);
 PCRE_EXP_DECL int  pcre_refcount(pcre *, int);
 PCRE_EXP_DECL int  pcre16_refcount(pcre16 *, int);
 PCRE_EXP_DECL int  pcre32_refcount(pcre32 *, int);
@@ -581,9 +581,9 @@ PCRE_EXP_DECL const char * pcre16_version(void);
 PCRE_EXP_DECL const char * pcre32_version(void);
 
 /* Utility functions for byte order swaps. */
-PCRE_EXP_DECL int  pcre_pattern_to_host_byte_order(pcre *, pcre_extra *, const unsigned char *);
-PCRE_EXP_DECL int  pcre16_pattern_to_host_byte_order(pcre16 *, pcre16_extra *, const unsigned char *);
-PCRE_EXP_DECL int  pcre32_pattern_to_host_byte_order(pcre32 *, pcre32_extra *, const unsigned char *);
+PCRE_EXP_DECL int  pcre_pattern_to_host_byte_order(pcre *, pcre_extra *, const uchar *);
+PCRE_EXP_DECL int  pcre16_pattern_to_host_byte_order(pcre16 *, pcre16_extra *, const uchar *);
+PCRE_EXP_DECL int  pcre32_pattern_to_host_byte_order(pcre32 *, pcre32_extra *, const uchar *);
 PCRE_EXP_DECL int pcre16_utf16_to_host_byte_order(PCRE_UCHAR16 *, PCRE_SPTR16, int, int *, int);
 PCRE_EXP_DECL int pcre32_utf32_to_host_byte_order(PCRE_UCHAR32 *, PCRE_SPTR32, int, int *, int);
 

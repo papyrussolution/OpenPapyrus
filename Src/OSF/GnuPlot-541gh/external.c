@@ -34,7 +34,7 @@ void GnuPlot::F_Calle(union argument * x)
 	static void * dll_open_w(const char * f)
 	{
 		//LPWSTR w = UnicodeText((f), encoding);
-		void * dl = (void*)LoadLibraryW(SUcSwitch(f));
+		void * dl = (void *)LoadLibraryW(SUcSwitch(f));
 		//SAlloc::F(w);
 		return dl;
 	}

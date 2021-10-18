@@ -1117,7 +1117,7 @@ int PPViewSysJournal::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 //
 //
 //
-int FASTCALL ViewSysJournal(PPID objType, PPID objID, int _modeless)
+int STDCALL ViewSysJournal(PPID objType, PPID objID, int _modeless)
 {
 	SysJournalFilt flt;
 	flt.ObjType = objType;
@@ -1125,7 +1125,7 @@ int FASTCALL ViewSysJournal(PPID objType, PPID objID, int _modeless)
 	return ViewSysJournal(&flt, _modeless);
 }
 
-int FASTCALL ViewSysJournal(const SysJournalFilt * pFilt, int asModeless) { return PPView::Execute(PPVIEW_SYSJOURNAL, pFilt, 1, 0); }
+int STDCALL ViewSysJournal(const SysJournalFilt * pFilt, int asModeless) { return PPView::Execute(PPVIEW_SYSJOURNAL, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_SysJournalEntry
 //

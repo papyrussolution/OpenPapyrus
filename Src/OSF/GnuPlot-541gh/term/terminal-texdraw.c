@@ -368,17 +368,9 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 		snprintf(size_str, sizeof(size_str), "size %.2fcm, %.2fcm", _TD.Size.x * 2.54, _TD.Size.y * 2.54);
 	// update terminal option string
 	bg = static_cast<int>(_TD.TEXDRAW_background * 255);
-	snprintf(GPT.TermOptions, MAX_LINE_LEN + 1,
-	    "%s linewidth %.1f pointscale %.1f %stext "
-	    "background \"#%02x%02x%02x\" "
-	    "%sarrows %spoints %s",
-	    _TD.TEXDRAW_rounded ? "rounded" : "butt",
-	    _TD.TEXDRAW_lw_scale, _TD.TEXDRAW_ps,
-	    _TD.TEXDRAW_colortext ? "color" : "black",
-	    bg, bg, bg,
-	    _TD.TEXDRAW_psarrows ? "ps" : "gp",
-	    _TD.TEXDRAW_texpoints ? "tex" : "gp",
-	    _TD.TEXDRAW_standalone ? "standalone" : "input");
+	slprintf(GPT._TermOptions, "%s linewidth %.1f pointscale %.1f %stext background \"#%02x%02x%02x\" %sarrows %spoints %s",
+	    _TD.TEXDRAW_rounded ? "rounded" : "butt", _TD.TEXDRAW_lw_scale, _TD.TEXDRAW_ps, _TD.TEXDRAW_colortext ? "color" : "black",
+	    bg, bg, bg, _TD.TEXDRAW_psarrows ? "ps" : "gp", _TD.TEXDRAW_texpoints ? "tex" : "gp", _TD.TEXDRAW_standalone ? "standalone" : "input");
 }
 
 TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
@@ -521,8 +513,8 @@ TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
 		GnuPlot::DoPoint(pThis, x, y, number);
 		return;
 	}
-	/* Print the character defined by 'number'; number < 0 means
-	 * to use a dot, otherwise one of the defined points. */
+	// Print the character defined by 'number'; number < 0 means
+	// to use a dot, otherwise one of the defined points. 
 	fprintf(GPT.P_GpOutFile, "\\move (%d %d)\n", (int)((double)x * _TD.Scale.x), (int)((double)y * _TD.Scale.y));
 	if(_TD.TEXDRAW_last_justify != CENTRE) {
 		fprintf(GPT.P_GpOutFile, "\\textref h:C v:C ");

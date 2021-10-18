@@ -1,45 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\Osf\FreeType\autofit\autofit.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftbase.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftbbox.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftbdf.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftbitmap.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftdebug.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftfstype.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftgasp.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftglyph.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftgxval.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftinit.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftmm.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftotval.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftpfr.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftstroke.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftsynth.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftsystem.c" />
-    <ClCompile Include="..\Osf\FreeType\base\fttype1.c" />
-    <ClCompile Include="..\Osf\FreeType\base\ftwinfnt.c" />
-    <ClCompile Include="..\Osf\FreeType\bdf\bdf.c" />
-    <ClCompile Include="..\OSF\FreeType\bzip2\ftbzip2.c" />
-    <ClCompile Include="..\Osf\FreeType\cache\ftcache.c" />
-    <ClCompile Include="..\Osf\FreeType\cff\cff.c" />
-    <ClCompile Include="..\Osf\FreeType\cid\type1cid.c" />
     <ClCompile Include="..\OSF\FreeType\freetype-pch.cpp" />
-    <ClCompile Include="..\Osf\FreeType\gzip\ftgzip.c" />
-    <ClCompile Include="..\Osf\FreeType\lzw\ftlzw.c" />
-    <ClCompile Include="..\Osf\FreeType\pcf\pcf.c" />
-    <ClCompile Include="..\Osf\FreeType\pfr\pfr.c" />
-    <ClCompile Include="..\Osf\FreeType\psaux\psaux.c" />
-    <ClCompile Include="..\Osf\FreeType\pshinter\pshinter.c" />
-    <ClCompile Include="..\Osf\FreeType\psnames\psmodule.c" />
-    <ClCompile Include="..\Osf\FreeType\raster\raster.c" />
-    <ClCompile Include="..\Osf\FreeType\sfnt\sfnt.c" />
-    <ClCompile Include="..\Osf\FreeType\smooth\smooth.c" />
-    <ClCompile Include="..\Osf\FreeType\truetype\truetype.c" />
-    <ClCompile Include="..\Osf\FreeType\type1\type1.c" />
-    <ClCompile Include="..\Osf\FreeType\type42\type42.c" />
-    <ClCompile Include="..\Osf\FreeType\winfonts\winfnt.c" />
+    <ClCompile Include="..\OSF\FreeType\autofit.c" />
+    <ClCompile Include="..\OSF\FreeType\bdf.c" />
+    <ClCompile Include="..\OSF\FreeType\cff.c" />
+    <ClCompile Include="..\OSF\FreeType\ftbase.c" />
+    <ClCompile Include="..\OSF\FreeType\ftbbox.c" />
+    <ClCompile Include="..\OSF\FreeType\ftbdf.c" />
+    <ClCompile Include="..\OSF\FreeType\ftbitmap.c" />
+    <ClCompile Include="..\OSF\FreeType\ftbzip2.c" />
+    <ClCompile Include="..\OSF\FreeType\ftcache.c" />
+    <ClCompile Include="..\OSF\FreeType\ftdebug.c" />
+    <ClCompile Include="..\OSF\FreeType\ftfstype.c" />
+    <ClCompile Include="..\OSF\FreeType\ftgasp.c" />
+    <ClCompile Include="..\OSF\FreeType\ftglyph.c" />
+    <ClCompile Include="..\OSF\FreeType\ftgxval.c" />
+    <ClCompile Include="..\OSF\FreeType\ftgzip.c" />
+    <ClCompile Include="..\OSF\FreeType\ftinit.c" />
+    <ClCompile Include="..\OSF\FreeType\ftlzw.c" />
+    <ClCompile Include="..\OSF\FreeType\ftmm.c" />
+    <ClCompile Include="..\OSF\FreeType\ftotval.c" />
+    <ClCompile Include="..\OSF\FreeType\ftpfr.c" />
+    <ClCompile Include="..\OSF\FreeType\ftstroke.c" />
+    <ClCompile Include="..\OSF\FreeType\ftsynth.c" />
+    <ClCompile Include="..\OSF\FreeType\ftsystem.c" />
+    <ClCompile Include="..\OSF\FreeType\fttype1.c" />
+    <ClCompile Include="..\OSF\FreeType\ftwinfnt.c" />
+    <ClCompile Include="..\OSF\FreeType\pcf.c" />
+    <ClCompile Include="..\OSF\FreeType\pfr.c" />
+    <ClCompile Include="..\OSF\FreeType\psaux.c" />
+    <ClCompile Include="..\OSF\FreeType\pshinter.c" />
+    <ClCompile Include="..\OSF\FreeType\psmodule.c" />
+    <ClCompile Include="..\OSF\FreeType\raster.c" />
+    <ClCompile Include="..\OSF\FreeType\sfnt.c" />
+    <ClCompile Include="..\OSF\FreeType\smooth.c" />
+    <ClCompile Include="..\OSF\FreeType\truetype.c" />
+    <ClCompile Include="..\OSF\FreeType\type1.c" />
+    <ClCompile Include="..\OSF\FreeType\type1cid.c" />
+    <ClCompile Include="..\OSF\FreeType\type42.c" />
+    <ClCompile Include="..\OSF\FreeType\winfnt.c" />
+    <ClCompile Include="..\OSF\FreeType\ftobjs.c" />
+    <ClCompile Include="..\OSF\FreeType\ftrfork.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\freetype\internal\autohint.h">
@@ -52,9 +54,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\ftadvanc.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\freetype\ftautoh.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\ftbbox.h">
@@ -159,9 +158,6 @@
     <ClInclude Include="..\Include\freetype\ftpfr.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\freetype\internal\ftpic.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\freetype\ftrender.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -198,9 +194,6 @@
     <ClInclude Include="..\Include\freetype\fttrigon.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\freetype\ftttdrv.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\freetype\fttypes.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -208,12 +201,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\ftwinfnt.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\freetype\ftxf86.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\freetype\internal\internal.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\internal\psaux.h">
@@ -292,6 +279,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\freetype\internal\tttypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftbase.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

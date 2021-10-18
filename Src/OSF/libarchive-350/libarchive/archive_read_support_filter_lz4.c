@@ -61,8 +61,8 @@ struct private_data {
 		int block_maximum_size;
 	} flags;
 
-	int64_t stream_size;
-	uint32_t dict_id;
+	int64 stream_size;
+	uint32 dict_id;
 	char * out_block;
 	size_t out_block_size;
 	/* Bytes read but not yet consumed via __archive_read_consume() */
@@ -129,10 +129,10 @@ static int lz4_reader_free(struct archive_read_filter_bidder * self)
  */
 static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
-	uint32_t number;
+	uint32 number;
 	(void)self; /* UNUSED */
 	/* Minimal lz4 archive is 11 bytes. */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 11, &avail);
@@ -142,7 +142,7 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 	/* First four bytes must be LZ4 magic numbers. */
 	bits_checked = 0;
 	if((number = archive_le32dec(buffer)) == LZ4_MAGICNUMBER) {
-		unsigned char flag, BD;
+		uchar flag, BD;
 
 		bits_checked += 32;
 		/* Next follows a stream descriptor. */
@@ -200,7 +200,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	struct private_data * state;
 	self->code = ARCHIVE_FILTER_LZ4;
 	self->name = "lz4";
-	state = (struct private_data *)calloc(sizeof(*state), 1);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	if(state == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
 		return ARCHIVE_FATAL;
@@ -221,8 +221,8 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 	if(!state->flags.block_independence)
 		out_block_size += 64 * 1024;
 	if(state->out_block_size < out_block_size) {
-		free(state->out_block);
-		out_block = (uchar *)malloc(out_block_size);
+		SAlloc::F(state->out_block);
+		out_block = (uchar *)SAlloc::M(out_block_size);
 		state->out_block_size = out_block_size;
 		if(out_block == NULL) {
 			archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
@@ -241,8 +241,8 @@ static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
 	size_t out_block_size = LEGACY_BLOCK_SIZE;
 	void * out_block;
 	if(state->out_block_size < out_block_size) {
-		free(state->out_block);
-		out_block = (uchar *)malloc(out_block_size);
+		SAlloc::F(state->out_block);
+		out_block = (uchar *)SAlloc::M(out_block_size);
 		state->out_block_size = out_block_size;
 		if(out_block == NULL) {
 			archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
@@ -298,7 +298,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 			*p = NULL;
 			return 0;
 		}
-		uint32_t number = archive_le32dec(read_buf);
+		uint32 number = archive_le32dec(read_buf);
 		__archive_read_filter_consume(self->upstream, 4);
 		if(number == LZ4_MAGICNUMBER)
 			return lz4_filter_read_default_stream(self, p);
@@ -310,7 +310,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Malformed lz4 data");
 				return ARCHIVE_FATAL;
 			}
-			uint32_t skip_bytes = archive_le32dec(read_buf);
+			uint32 skip_bytes = archive_le32dec(read_buf);
 			__archive_read_filter_consume(self->upstream, 4 + skip_bytes);
 		}
 		else {
@@ -330,7 +330,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 	struct private_data * state = (struct private_data *)self->data;
 	ssize_t bytes_remaining;
 	ssize_t descriptor_bytes;
-	unsigned char flag, bd;
+	uchar flag, bd;
 	unsigned int chsum, chsum_verifier;
 	/* Make sure we have 2 bytes for flags. */
 	const char * read_buf = (const char *)__archive_read_filter_ahead(self->upstream, 2, &bytes_remaining);
@@ -591,7 +591,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, const void ** p)
 {
 	struct private_data * state = (struct private_data *)self->data;
-	uint32_t compressed;
+	uint32 compressed;
 	const char * read_buf;
 	ssize_t ret;
 	*p = NULL;
@@ -638,9 +638,9 @@ static int lz4_filter_close(struct archive_read_filter * self)
 {
 	int ret = ARCHIVE_OK;
 	struct private_data * state = (struct private_data *)self->data;
-	free(state->xxh32_state);
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->xxh32_state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ret;
 }
 

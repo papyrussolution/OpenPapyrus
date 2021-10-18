@@ -424,7 +424,7 @@ int PPViewLotOp::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int FASTCALL ViewOpersByLot(PPID lotID, int withZeroLotID)
+int STDCALL ViewOpersByLot(PPID lotID, int withZeroLotID)
 {
 	int    ok = -1;
 	LotOpFilt flt;

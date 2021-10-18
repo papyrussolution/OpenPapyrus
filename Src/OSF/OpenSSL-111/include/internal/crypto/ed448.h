@@ -49,7 +49,7 @@ c448_error_t c448_ed448_derive_public_key(
  * message (in):  The message to sign.
  * message_len (in):  The length of the message.
  * prehashed (in):  Nonzero if the message is actually the hash of something
- *                  you want to sign.
+ *            you want to sign.
  * context (in):  A "context" for this signature of up to 255 bytes.
  * context_len (in):  Length of the context.
  *
@@ -72,9 +72,9 @@ c448_error_t c448_ed448_sign(
  * privkey (in): The private key.
  * pubkey (in): The public key.
  * hash (in): The hash of the message.  This object will not be modified by the
- *            call.
+ *      call.
  * context (in): A "context" for this signature of up to 255 bytes.  Must be the
- *               same as what was used for the prehash.
+ *         same as what was used for the prehash.
  * context_len (in): Length of the context.
  *
  * For Ed25519, it is unsafe to use the same key for both prehashed and
@@ -99,7 +99,7 @@ c448_error_t c448_ed448_sign_prehash(
  * message (in): The message to verify.
  * message_len (in): The length of the message.
  * prehashed (in): Nonzero if the message is actually the hash of something you
- *                 want to verify.
+ *           want to verify.
  * context (in): A "context" for this signature of up to 255 bytes.
  * context_len (in): Length of the context.
  *
@@ -123,9 +123,9 @@ c448_error_t c448_ed448_verify(const uint8_t
  * signature (in): The signature.
  * pubkey (in): The public key.
  * hash (in): The hash of the message.  This object will not be modified by the
- *            call.
+ *      call.
  * context (in): A "context" for this signature of up to 255 bytes.  Must be the
- *               same as what was used for the prehash.
+ *         same as what was used for the prehash.
  * context_len (in): Length of the context.
  *
  * For Ed25519, it is unsafe to use the same key for both prehashed and

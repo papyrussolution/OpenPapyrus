@@ -53,7 +53,7 @@ void Curl_llist_insert_next(struct Curl_llist * list, struct Curl_llist_element 
     const void * p,
     struct Curl_llist_element * ne)
 {
-	ne->ptr = (void*)p;
+	ne->ptr = (void *)p;
 	if(list->size == 0) {
 		list->head = ne;
 		list->head->prev = NULL;

@@ -23,15 +23,15 @@
 
 #include <slib.h>
 #ifdef _WIN32
-#define strcasecmp _stricmp
-#define sleep(x) Sleep(1000*(x))
-#ifdef _MSC_VER
-#define inline __inline
-#if _MSC_VER < 1900
-#define snprintf _snprintf
-#endif
-#endif
-#define STDCALL __stdcall 
+	#define strcasecmp _stricmp
+	#define sleep(x) Sleep(1000*(x))
+	#ifdef _MSC_VER
+		#define inline __inline
+		#if _MSC_VER < 1900
+			#define snprintf _snprintf
+		#endif
+	#endif
+	// @v11.2.0 (defined in slib.h) #define STDCALL __stdcall 
 #endif
 
 #include <ma_config.h>
@@ -466,8 +466,8 @@ typedef long my_ptrdiff_t;
 #define ALIGN_PTR(A, t) ((t*) MY_ALIGN((A),sizeof(t)))
 			 /* Offset of filed f in structure t */
 #define OFFSET(t, f)	((size_t)(char *)&((t *)0)->f)
-#define ADD_TO_PTR(ptr,size,type) (type) ((unsigned char *) (ptr)+size)
-#define PTR_BYTE_DIFF(A,B) (my_ptrdiff_t) ((unsigned char *) (A) - (unsigned char *) (B))
+#define ADD_TO_PTR(ptr,size,type) (type) ((uchar *) (ptr)+size)
+#define PTR_BYTE_DIFF(A,B) (my_ptrdiff_t) ((uchar *) (A) - (uchar *) (B))
 
 #define NullS		(char *) 0
 /* Nowadays we do not support MessyDos */
@@ -853,7 +853,7 @@ do { doubleget_union _tmp; \
 								 *(((char *)T)+0)=(((A) >> 24)); } while(0)
 
 	#define floatget(V,M)    memcpy(&V, (M), sizeof(float))
-	#define floatstore(T,V)  memcpy((T), (void*) (&V), sizeof(float))
+	#define floatstore(T,V)  memcpy((T), (void *) (&V), sizeof(float))
 	#define doubleget(V,M)	 memcpy(&V, (M), sizeof(double))
 	#define doublestore(T,V) memcpy((T), (void *) &V, sizeof(double))
 	#define longlongget(V,M) memcpy(&V, (M), sizeof(ulonglong))

@@ -227,7 +227,7 @@ static SECURITY_STATUS add_certs_to_store(HCERTSTORE trust_store,
 			    file, pem_sections[type].begin_tag, (size_t)(begin - file_buffer));
 		}
 		CERT_BLOB cert_blob;
-		void* context = NULL;
+		void * context = NULL;
 		DWORD actual_content_type = 0;
 
 		cert_blob.pbData = (BYTE*)begin;

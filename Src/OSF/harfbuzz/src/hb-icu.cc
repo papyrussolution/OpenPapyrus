@@ -91,7 +91,7 @@ UScriptCode hb_icu_script_from_script(hb_script_t script)
 	if(UNLIKELY(script == HB_SCRIPT_INVALID))
 		return USCRIPT_INVALID_CODE;
 	unsigned int numScriptCode = 1 + u_getIntPropertyMaxValue(UCHAR_SCRIPT);
-	for(unsigned int i = 0; i < numScriptCode; i++)
+	for(uint i = 0; i < numScriptCode; i++)
 		if(UNLIKELY(hb_icu_script_to_script((UScriptCode)i) == script))
 			return (UScriptCode)i;
 	return USCRIPT_UNKNOWN;

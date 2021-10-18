@@ -358,6 +358,21 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(TYPEID) == 4);
 	STATIC_ASSERT(sizeof(STypEx) == 16);
 	STATIC_ASSERT(sizeof(CommPortParams) == 6);
+	// 
+	// @v11.2.0 {
+	STATIC_ASSERT(sizeof(SPoint2I) == sizeof(POINT));
+	STATIC_ASSERT(offsetof(SPoint2I, x) == offsetof(POINT, x));
+	STATIC_ASSERT(offsetof(SPoint2I, y) == offsetof(POINT, y));
+	{
+		uint ff = 0;
+		{
+			SETFLAG(ff, 0x08000000, true);
+			assert((ff & 0x08000000));
+			SETFLAG(ff, 0x08000000, false);
+			assert(!(ff & 0x08000000));
+		}
+	}
+	// } @v11.2.0 
 	//
 	STATIC_ASSERT(MAX(3.1, 8.5) == 8.5);
 	assert(smax(3.1, 8.5) == 8.5);

@@ -1479,7 +1479,7 @@ static void xmlC14NFreeCtx(xmlC14NCtxPtr ctx)
  *
  * Returns pointer to newly created object (success) or NULL (fail)
  */
-static xmlC14NCtxPtr xmlC14NNewCtx(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void* user_data,
+static xmlC14NCtxPtr xmlC14NNewCtx(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void * user_data,
     xmlC14NMode mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf)
 {
 	xmlC14NCtxPtr ctx = NULL;
@@ -1561,7 +1561,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDoc * doc, xmlC14NIsVisibleCallback is_vis
  *
  * Returns non-negative value on success or a negative value on fail
  */
-int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void* user_data, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf) 
+int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void * user_data, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf) 
 {
 	xmlC14NCtxPtr ctx;
 	xmlC14NMode c14n_mode = XML_C14N_1_0;

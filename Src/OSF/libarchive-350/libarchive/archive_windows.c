@@ -84,18 +84,18 @@ static BOOL SetFilePointerEx_perso(HANDLE hFile,
 #endif
 
 struct ustat {
-	int64_t st_atime;
-	uint32_t st_atime_nsec;
-	int64_t st_ctime;
-	uint32_t st_ctime_nsec;
-	int64_t st_mtime;
-	uint32_t st_mtime_nsec;
+	int64 st_atime;
+	uint32 st_atime_nsec;
+	int64 st_ctime;
+	uint32 st_ctime_nsec;
+	int64 st_mtime;
+	uint32 st_mtime_nsec;
 	gid_t st_gid;
 	/* 64bits ino */
-	int64_t st_ino;
+	int64 st_ino;
 	mode_t st_mode;
-	uint32_t st_nlink;
-	uint64_t st_size;
+	uint32 st_nlink;
+	uint64 st_size;
 	uid_t st_uid;
 	dev_t st_dev;
 	dev_t st_rdev;
@@ -123,17 +123,17 @@ wchar_t * __la_win_permissive_name(const char * name)
 {
 	wchar_t * ws;
 	size_t ll = strlen(name);
-	wchar_t * wn = static_cast<wchar_t *>(malloc((ll + 1) * sizeof(wchar_t)));
+	wchar_t * wn = static_cast<wchar_t *>(SAlloc::M((ll + 1) * sizeof(wchar_t)));
 	if(wn == NULL)
 		return NULL;
 	ll = mbstowcs(wn, name, ll);
 	if(ll == (size_t)-1) {
-		free(wn);
+		SAlloc::F(wn);
 		return NULL;
 	}
 	wn[ll] = L'\0';
 	ws = __la_win_permissive_name_w(wn);
-	free(wn);
+	SAlloc::F(wn);
 	return (ws);
 }
 
@@ -143,7 +143,6 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	wchar_t * ws, * wsp;
 	DWORD l, len, slen;
 	int unc;
-
 	/* Get a full-pathname. */
 	l = GetFullPathNameW(wname, 0, NULL, NULL);
 	if(l == 0)
@@ -153,7 +152,7 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	 * have to add three to the size to allocate a sufficient buffer
 	 * size for the full-pathname of the file name. */
 	l += 3;
-	wnp = static_cast<wchar_t *>(malloc(l * sizeof(wchar_t)));
+	wnp = static_cast<wchar_t *>(SAlloc::M(l * sizeof(wchar_t)));
 	if(wnp == NULL)
 		return NULL;
 	len = GetFullPathNameW(wname, l, wnp, NULL);
@@ -197,9 +196,9 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	}
 
 	slen = 4 + (unc * 4) + len + 1;
-	ws = wsp = static_cast<wchar_t *>(malloc(slen * sizeof(wchar_t)));
+	ws = wsp = static_cast<wchar_t *>(SAlloc::M(slen * sizeof(wchar_t)));
 	if(ws == NULL) {
-		free(wn);
+		SAlloc::F(wn);
 		return NULL;
 	}
 	/* prepend "\\?\" */
@@ -214,7 +213,7 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	}
 	wcsncpy(wsp, wnp, slen);
 	wsp[slen - 1] = L'\0'; /* Ensure null termination. */
-	free(wn);
+	SAlloc::F(wn);
 	return (ws);
 }
 /*
@@ -234,7 +233,7 @@ static HANDLE la_CreateFile(const char * path, DWORD dwDesiredAccess, DWORD dwSh
 	if(wpath == NULL)
 		return (handle);
 	handle = CreateFileW(wpath, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-	free(wpath);
+	SAlloc::F(wpath);
 	return (handle);
 }
 
@@ -296,7 +295,7 @@ int __la_open(const char * path, int flags, ...)
 		}
 		if(attr == (DWORD)-1) {
 			la_dosmaperr(GetLastError());
-			free(ws);
+			SAlloc::F(ws);
 			return -1;
 		}
 		if(attr & FILE_ATTRIBUTE_DIRECTORY) {
@@ -305,7 +304,7 @@ int __la_open(const char * path, int flags, ...)
 				handle = CreateFileW(ws, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_ATTRIBUTE_READONLY, NULL);
 			else
 				handle = CreateFileA(path, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_ATTRIBUTE_READONLY, NULL);
-			free(ws);
+			SAlloc::F(ws);
 			if(handle == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
 				return -1;
@@ -352,7 +351,7 @@ int __la_open(const char * path, int flags, ...)
 		else
 			errno = EACCES;
 	}
-	free(ws);
+	SAlloc::F(ws);
 	return r;
 }
 
@@ -374,7 +373,7 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 	if(nbytes == 0)
 		return 0;
 	handle = (HANDLE)_get_osfhandle(fd);
-	r = ReadFile(handle, buf, (uint32_t)nbytes,
+	r = ReadFile(handle, buf, (uint32)nbytes,
 		&bytes_read, NULL);
 	if(r == 0) {
 		lasterr = GetLastError();
@@ -402,7 +401,7 @@ __inline static void fileTimeToUTC(const FILETIME * filetime, time_t * t, long *
 	if(utc.QuadPart >= EPOC_TIME) {
 		utc.QuadPart -= EPOC_TIME;
 		*t = (time_t)(utc.QuadPart / 10000000); /* milli seconds base */
-		*ns = (long)(utc.QuadPart % 10000000) * 100;/* nano seconds base */
+		*ns = (long)(utc.QuadPart % 10000000) * 100; /* nano seconds base */
 	}
 	else {
 		*t = 0;
@@ -492,7 +491,7 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	fileTimeToUTC(&info.ftCreationTime, &t, &ns);
 	st->st_ctime = t;
 	st->st_ctime_nsec = ns;
-	st->st_size = ((int64_t)(info.nFileSizeHigh) * ((int64_t)MAXDWORD + 1)) + (int64_t)(info.nFileSizeLow);
+	st->st_size = ((int64)(info.nFileSizeHigh) * ((int64)MAXDWORD + 1)) + (int64)(info.nFileSizeLow);
 #ifdef SIMULATE_WIN_STAT
 	st->st_ino = 0;
 	st->st_nlink = 1;
@@ -576,7 +575,7 @@ int __la_stat(const char * path, struct stat * st)
 			exttype[1] = toupper(*p++);
 			exttype[2] = toupper(*p++);
 			exttype[3] = '\0';
-			if(!strcmp(exttype, "EXE") || !strcmp(exttype, "CMD") || !strcmp(exttype, "BAT") || !strcmp(exttype, "COM"))
+			if(sstreq(exttype, "EXE") || sstreq(exttype, "CMD") || sstreq(exttype, "BAT") || sstreq(exttype, "COM"))
 				st->st_mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 		}
 	}
@@ -590,7 +589,7 @@ pid_t __la_waitpid(HANDLE child, int * status, int option)
 {
 	DWORD cs;
 
-	(void)option;/* UNUSED */
+	(void)option; /* UNUSED */
 	do {
 		if(GetExitCodeProcess(child, &cs) == 0) {
 			CloseHandle(child);
@@ -616,7 +615,7 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 		errno = EBADF;
 		return -1;
 	}
-	if(!WriteFile((HANDLE)_get_osfhandle(fd), buf, (uint32_t)nbytes,
+	if(!WriteFile((HANDLE)_get_osfhandle(fd), buf, (uint32)nbytes,
 	    &bytes_written, NULL)) {
 		DWORD lasterr;
 

@@ -23,7 +23,7 @@
 #include <zlib.h>
 #include <mariadb_rpl.h>
 
-static int rpl_alloc_string(MARIADB_RPL_EVENT * event, MARIADB_STRING * s, unsigned char * buffer, size_t len)
+static int rpl_alloc_string(MARIADB_RPL_EVENT * event, MARIADB_STRING * s, uchar * buffer, size_t len)
 {
 	if(!(s->str = (char *)ma_alloc_root(&event->memroot, len)))
 		return 1;
@@ -63,7 +63,7 @@ void STDCALL mariadb_free_rpl_event(MARIADB_RPL_EVENT * event)
 
 int STDCALL mariadb_rpl_open(MARIADB_RPL * rpl)
 {
-	unsigned char * ptr, * buf;
+	uchar * ptr, * buf;
 	if(!rpl || !rpl->mysql)
 		return 1;
 
@@ -80,12 +80,12 @@ int STDCALL mariadb_rpl_open(MARIADB_RPL * rpl)
 	 */
 	ptr = buf =
 #ifdef WIN32
-		(unsigned char *)_alloca(rpl->filename_length + 11);
+		(uchar *)_alloca(rpl->filename_length + 11);
 #else
-		(unsigned char *)alloca(rpl->filename_length + 11);
+		(uchar *)alloca(rpl->filename_length + 11);
 #endif
 
-	int4store(ptr, (unsigned int)rpl->start_position);
+	int4store(ptr, (uint)rpl->start_position);
 	ptr += 4;
 	int2store(ptr, rpl->flags);
 	ptr += 2;
@@ -101,7 +101,7 @@ int STDCALL mariadb_rpl_open(MARIADB_RPL * rpl)
 
 MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVENT * event)
 {
-	unsigned char * ev;
+	uchar * ev;
 	size_t len;
 	MARIADB_RPL_EVENT * rpl_event = 0;
 
@@ -282,7 +282,7 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 			    rpl_event->event.encryption.nonce = (char *)ev;
 			    break;
 			case ANNOTATE_ROWS_EVENT:
-			    len = (uint32)(rpl->buffer + rpl->buffer_size - (unsigned char *)ev - 4);
+			    len = (uint32)(rpl->buffer + rpl->buffer_size - (uchar *)ev - 4);
 			    if(rpl_alloc_string(rpl_event, &rpl_event->event.annotate_rows.statement, ev, len))
 				    goto mem_error;
 			    break;
@@ -383,7 +383,7 @@ void STDCALL mariadb_rpl_close(MARIADB_RPL * rpl)
 	if(!rpl)
 		return;
 	if(rpl->filename)
-		SAlloc::F((void*)rpl->filename);
+		SAlloc::F((void *)rpl->filename);
 	SAlloc::F(rpl);
 	return;
 }
@@ -405,14 +405,14 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 	    {
 		    char * arg1 = va_arg(ap, char *);
 		    rpl->filename_length = (uint32_t)va_arg(ap, size_t);
-		    SAlloc::F((void*)rpl->filename);
+		    SAlloc::F((void *)rpl->filename);
 		    rpl->filename = NULL;
 		    if(rpl->filename_length) {
 			    rpl->filename = (char *)SAlloc::M(rpl->filename_length);
-			    memcpy((void*)rpl->filename, arg1, rpl->filename_length);
+			    memcpy((void *)rpl->filename, arg1, rpl->filename_length);
 		    }
 		    else if(arg1) {
-			    rpl->filename = strdup((const char *)arg1);
+			    rpl->filename = sstrdup((const char *)arg1);
 			    rpl->filename_length = (uint32_t)strlen(rpl->filename);
 		    }
 		    break;

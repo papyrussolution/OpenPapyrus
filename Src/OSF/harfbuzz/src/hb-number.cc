@@ -8,7 +8,7 @@
 template <typename T, typename Func> static bool _parse_number(const char ** pp, const char * end, T * pv, bool whole_buffer, Func f)
 {
 	char buf[32];
-	//unsigned len = hb_min(ARRAY_LENGTH(buf)-1, (unsigned)(end - *pp));
+	//unsigned len = hb_min(ARRAY_LENGTH(buf)-1, (uint)(end - *pp));
 	// @sobolev strncpy(buf, *pp, len);
 	// @sobolev buf[len] = '\0';
 	strnzcpy(buf, *pp, sizeof(buf)); // @sobolev

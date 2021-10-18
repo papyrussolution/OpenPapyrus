@@ -77,7 +77,7 @@ public:
 		HBINT16 reserved2; /* Set to 0. */
 		HBINT16 reserved3; /* Set to 0. */
 		HBINT16 reserved4; /* Set to 0. */
-		HBINT16 metricDataFormat;/* 0 for current format. */
+		HBINT16 metricDataFormat; /* 0 for current format. */
 		HBUINT16 numberOfLongMetrics;
 		/* Number of LongMetric entries in metric
 		 * table. */

@@ -55,7 +55,7 @@ void ma_tls_end(void);
    Parameters:
      MYSQL        a mysql structure
    Returns:
-     void *       a pointer to internal SSL structure
+     void * a pointer to internal SSL structure
  */
 void * ma_tls_init(MYSQL * mysql);
 

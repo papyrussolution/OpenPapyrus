@@ -40,7 +40,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _DEFAULT_SOURCE /* for strdup() */
+#define _DEFAULT_SOURCE /* for sstrdup() */
 
 static const cairo_font_face_t _cairo_font_face_null_pointer = {
 	{ 0 },                          /* hash_entry */
@@ -149,7 +149,7 @@ static cairo_status_t _cairo_toy_font_face_create_impl_face(cairo_toy_font_face_
 static cairo_status_t _cairo_toy_font_face_init(cairo_toy_font_face_t * font_face, const char * family, cairo_font_slant_t slant, cairo_font_weight_t weight)
 {
 	cairo_status_t status;
-	char * family_copy = strdup(family);
+	char * family_copy = sstrdup(family);
 	if(UNLIKELY(family_copy == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_toy_font_face_init_key(font_face, family_copy, slant, weight);

@@ -1897,24 +1897,24 @@ static void add_header(Table *gt)
 static void add_response(Entry *fun, Entry *ret)
 { 
 	Table *t;
-  Entry *p, *q;
-  Symbol *s;
-  size_t n = strlen(fun->sym->name);
-  char *r = (char *)emalloc(n+9);
-  strcpy(r, fun->sym->name);
-  strcat(r, "Response");
-  if (!(s = lookup(r)))
-    s = install(r, ID);
-  free(r);
-  t = mktable((Table*)0);
-  q = enter(t, ret->sym);
-  q->info = ret->info;
-  if (q->info.typ->type == Treference)
-    q->info.typ = (Tnode*)q->info.typ->ref;
-  p = enter(classtable, s);
-  p->info.typ = mkstruct(t, 4);
-  p->info.typ->id = s;
-  fun->info.typ->response = p;
+	Entry *p, *q;
+	Symbol *s;
+	size_t n = strlen(fun->sym->name);
+	char *r = (char *)emalloc(n+9);
+	strcpy(r, fun->sym->name);
+	strcat(r, "Response");
+	if(!(s = lookup(r)))
+		s = install(r, ID);
+	SAlloc::F(r);
+	t = mktable((Table*)0);
+	q = enter(t, ret->sym);
+	q->info = ret->info;
+	if (q->info.typ->type == Treference)
+	q->info.typ = (Tnode*)q->info.typ->ref;
+	p = enter(classtable, s);
+	p->info.typ = mkstruct(t, 4);
+	p->info.typ->id = s;
+	fun->info.typ->response = p;
 }
 
 static void add_result(Tnode *typ)

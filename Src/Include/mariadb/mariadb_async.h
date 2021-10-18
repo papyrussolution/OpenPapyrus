@@ -20,8 +20,8 @@
 #define MYSQL_ASYNC_H
 
 extern int my_connect_async(MARIADB_PVIO * pvio, const struct sockaddr * name, uint namelen, int vio_timeout);
-extern ssize_t my_recv_async(MARIADB_PVIO * pvio, unsigned char * buf, size_t size, int timeout);
-extern ssize_t my_send_async(MARIADB_PVIO * pvio, const unsigned char * buf, size_t size, int timeout);
+extern ssize_t my_recv_async(MARIADB_PVIO * pvio, uchar * buf, size_t size, int timeout);
+extern ssize_t my_send_async(MARIADB_PVIO * pvio, const uchar * buf, size_t size, int timeout);
 extern bool my_io_wait_async(struct mysql_async_context * b, enum enum_pvio_io_event event, int timeout);
 #ifdef HAVE_TLS
 	extern ssize_t ma_tls_read_async(MARIADB_PVIO * pvio, const uchar * buf, size_t size);

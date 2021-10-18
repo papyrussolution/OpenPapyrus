@@ -44,16 +44,16 @@
  *
  * PARAMETERS
  *   tid
- *           pointer to an instance of pthread_t
+ *     pointer to an instance of pthread_t
  *
  *   attr
- *           optional pointer to an instance of pthread_attr_t
+ *     optional pointer to an instance of pthread_attr_t
  *
  *   start
- *           pointer to the starting routine for the new thread
+ *     pointer to the starting routine for the new thread
  *
  *   arg
- *           optional parameter passed to 'start'
+ *     optional parameter passed to 'start'
  *
  *
  * DESCRIPTION
@@ -64,9 +64,9 @@
  *   via 'tid', which should not be the NULL pointer.
  *
  * RESULTS
- *           0               successfully created thread,
- *           EINVAL          attr invalid,
- *           EAGAIN          insufficient resources.
+ *     0               successfully created thread,
+ *     EINVAL          attr invalid,
+ *     EAGAIN          insufficient resources.
  *
  * ------------------------------------------------------
  */
@@ -179,8 +179,8 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	 * finished with it here.
 	 */
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
-	tp->threadH = threadH = (HANDLE)_beginthreadex((void*)NULL/* No security info */,
-		    stackSize/* default stack size */, __ptw32_threadStart, parms, (unsigned)CREATE_SUSPENDED, (unsigned*)&(tp->thread));
+	tp->threadH = threadH = (HANDLE)_beginthreadex((void *)NULL/* No security info */,
+		    stackSize/* default stack size */, __ptw32_threadStart, parms, (uint)CREATE_SUSPENDED, (unsigned*)&(tp->thread));
 	if(threadH != 0) {
 		if(a != NULL) {
 			(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);

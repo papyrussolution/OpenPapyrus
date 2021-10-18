@@ -261,7 +261,7 @@ FILE * Utf8_16_Write::fopen(const TCHAR * _name, const TCHAR * _type)
 	return m_pFile;
 }
 
-size_t Utf8_16_Write::fwrite(const void* p, size_t _size)
+size_t Utf8_16_Write::fwrite(const void * p, size_t _size)
 {
 	// no file open
 	if(!m_pFile) {

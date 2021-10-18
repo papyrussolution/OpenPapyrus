@@ -882,7 +882,7 @@ void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 }
 
 /* plot_filledcurves:
- *        {closed | {above | below} {x1 | x2 | y1 | y2 | r}[=<a>] | xy=<x>,<y>}
+ *  {closed | {above | below} {x1 | x2 | y1 | y2 | r}[=<a>] | xy=<x>,<y>}
  */
 //
 // finalize and draw the filled curve 
@@ -2136,7 +2136,7 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		yopen  = pPlot->points[i].Pt.y;
 		ymed   = pPlot->points[i].xhigh;
 		// HBB 20010928: To make code match the documentation, ensure yhigh is actually higher than ylow 
-		ExchangeToOrder(&ylow, &yhigh);
+		ExchangeForOrder(&ylow, &yhigh);
 		high_inrange = AxS[AxS.Idx_Y].InRange(yhigh);
 		low_inrange  = AxS[AxS.Idx_Y].InRange(ylow);
 		// compute the pPlot position of yhigh 
@@ -3372,9 +3372,9 @@ void GnuPlot::DoRectangle(GpTermEntry * pTerm, int dimensions, t_object * pObjec
 		else
 			return;
 		//if(x1 > x2) { double t = x1; x1 = x2; x2 = t; }
-		ExchangeToOrder(&x1, &x2);
+		ExchangeForOrder(&x1, &x2);
 		//if(y1 > y2) { double t = y1; y1 = y2; y2 = t; }
-		ExchangeToOrder(&y1, &y2);
+		ExchangeForOrder(&y1, &y2);
 		if(pObject->clip == OBJ_CLIP) {
 			if(this_rect->bl.scalex != screen && this_rect->tr.scalex != screen)
 				clip_x = TRUE;
@@ -4052,7 +4052,7 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 					}
 					(pTerm->image)(pTerm, M, N, image, corners, pixel_planes);
 				}
-				SAlloc::F((void*)image);
+				SAlloc::F((void *)image);
 			}
 			else {
 				IntWarn(NO_CARET, "Could not allocate memory for image.");

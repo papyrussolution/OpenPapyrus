@@ -624,8 +624,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    }
 			case LABELPOINTS:
 		    { /* x y string {rotate variable}
-				 *            {point {pt variable} {ps variable}}
-				 *            {tc|lc variable}
+				 *      {point {pt variable} {ps variable}}
+				 *      {tc|lc variable}
 				 */
 			    int var = 3; /* column number for next variable spec */
 			    coordval var_rotation = pPlot->labels->rotate;
@@ -643,7 +643,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 				var_ps, var_pt, var_rotation, v[1], 0.0);
 			    // Allocate and fill in a text_label structure to match it 
 			    if(pPlot->points[i].type != UNDEFINED) {
-				    StoreLabel(term, pPlot->labels, &(pPlot->points[i]), i, _Df.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
+				    StoreLabel(GPT.P_Term, pPlot->labels, &(pPlot->points[i]), i, _Df.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
 			    }
 			    i++;
 			    break;

@@ -174,7 +174,7 @@
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
  * BoringSSL: supported since d28f59c27bac (committed 2015-11-19)
  * LibreSSL: unsupported in at least 2.7.2 (explicitly check for it since it
- *           lies and pretends to be OpenSSL 2.0.0).
+ *     lies and pretends to be OpenSSL 2.0.0).
  */
 #if (OPENSSL_VERSION_NUMBER >= 0x10101000L && !defined(LIBRESSL_VERSION_NUMBER)) || defined(OPENSSL_IS_BORINGSSL)
 	#define HAVE_KEYLOG_CALLBACK
@@ -568,7 +568,7 @@ static int SSL_CTX_use_certificate_bio(SSL_CTX * ctx, BIO * in, int type,
 	else if(type == SSL_FILETYPE_PEM) {
 		/* ERR_R_PEM_LIB; */
 		x = PEM_read_bio_X509(in, NULL,
-			passwd_callback, (void*)key_passwd);
+			passwd_callback, (void *)key_passwd);
 	}
 	else {
 		ret = 0;
@@ -594,7 +594,7 @@ static int SSL_CTX_use_PrivateKey_bio(SSL_CTX * ctx, BIO* in, int type,
 
 	if(type == SSL_FILETYPE_PEM)
 		pkey = PEM_read_bio_PrivateKey(in, NULL, passwd_callback,
-			(void*)key_passwd);
+			(void *)key_passwd);
 	else if(type == SSL_FILETYPE_ASN1)
 		pkey = d2i_PrivateKey_bio(in, NULL);
 	else {
@@ -620,12 +620,12 @@ static int SSL_CTX_use_certificate_chain_bio(SSL_CTX * ctx, BIO* in,
 	(LIBRESSL_VERSION_NUMBER < 0x2090100fL)) /* LibreSSL 2.9.1 or later */
 	int ret = 0;
 	X509 * x = NULL;
-	void * passwd_callback_userdata = (void*)key_passwd;
+	void * passwd_callback_userdata = (void *)key_passwd;
 
 	ERR_clear_error();
 
 	x = PEM_read_bio_X509_AUX(in, NULL,
-		passwd_callback, (void*)key_passwd);
+		passwd_callback, (void *)key_passwd);
 
 	if(x == NULL) {
 		ret = 0;
@@ -751,7 +751,7 @@ int cert_stuff(struct connectdata * conn,
 					    params.cert_id = cert_file;
 					    params.cert = NULL;
 					    /* Does the engine supports LOAD_CERT_CTRL ? */
-					    if(!ENGINE_ctrl((ENGINE *)data->state.engine, ENGINE_CTRL_GET_CMD_FROM_NAME, 0, (void*)cmd_name, NULL)) {
+					    if(!ENGINE_ctrl((ENGINE *)data->state.engine, ENGINE_CTRL_GET_CMD_FROM_NAME, 0, (void *)cmd_name, NULL)) {
 						    failf(data, "ssl engine does not support loading certificates");
 						    return 0;
 					    }
@@ -2058,7 +2058,7 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 		txt_len = msnprintf(ssl_buf, sizeof(ssl_buf), "%s (%s), %s, %s (%d):\n",
 			verstr, direction ? "OUT" : "IN",
 			tls_rt_name, msg_name, msg_type);
-		if(0 <= txt_len && (unsigned)txt_len < sizeof(ssl_buf)) {
+		if(0 <= txt_len && (uint)txt_len < sizeof(ssl_buf)) {
 			Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len);
 		}
 	}
@@ -4333,7 +4333,7 @@ static void * Curl_ossl_get_internals(struct ssl_connect_data * connssl,
 	/* Legacy: CURLINFO_TLS_SESSION must return an SSL_CTX pointer. */
 	struct ssl_backend_data * backend = connssl->backend;
 	return info == CURLINFO_TLS_SESSION ?
-	       (void*)backend->ctx : (void*)backend->handle;
+	       (void *)backend->ctx : (void *)backend->handle;
 }
 
 const struct Curl_ssl Curl_ssl_openssl = {

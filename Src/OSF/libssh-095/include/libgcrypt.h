@@ -49,7 +49,7 @@ typedef gcry_md_hd_t EVPCTX;
 
 typedef gcry_mpi_t bignum;
 typedef const struct gcry_mpi *const_bignum;
-typedef void* bignum_CTX;
+typedef void * bignum_CTX;
 
 /* Constants for curves.  */
 #define NID_gcrypt_nistp256 0

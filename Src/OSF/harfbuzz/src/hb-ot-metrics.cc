@@ -26,24 +26,19 @@
 
 static float _fix_ascender_descender(float value, hb_ot_metrics_tag_t metrics_tag)
 {
-	if(metrics_tag == HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER ||
-	    metrics_tag == HB_OT_METRICS_TAG_VERTICAL_ASCENDER)
+	if(metrics_tag == HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER || metrics_tag == HB_OT_METRICS_TAG_VERTICAL_ASCENDER)
 		return fabs((double)value);
-	if(metrics_tag == HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER ||
-	    metrics_tag == HB_OT_METRICS_TAG_VERTICAL_DESCENDER)
+	if(metrics_tag == HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER || metrics_tag == HB_OT_METRICS_TAG_VERTICAL_DESCENDER)
 		return -fabs((double)value);
 	return value;
 }
 
 /* The common part of _get_position logic needed on hb-ot-font and here
    to be able to have slim builds without the not always needed parts */
-bool _hb_ot_metrics_get_position_common(hb_font_t * font,
-    hb_ot_metrics_tag_t metrics_tag,
-    hb_position_t * position /* OUT.  May be NULL. */)
+bool _hb_ot_metrics_get_position_common(hb_font_t * font, hb_ot_metrics_tag_t metrics_tag, hb_position_t * position /* OUT.  May be NULL. */)
 {
 	hb_face_t * face = font->face;
-	switch((unsigned)metrics_tag)
-	{
+	switch((uint)metrics_tag) {
 #ifndef HB_NO_VAR
 #define GET_VAR face->table.MVAR->get_var(metrics_tag, font->coords, font->num_coords)
 #else
@@ -86,7 +81,6 @@ static bool _get_gasp(hb_face_t * face, float * result, hb_ot_metrics_tag_t metr
 	if(result) *result = range.rangeMaxPPEM + font->face->table.MVAR->get_var(metrics_tag, font->coords, font->num_coords);
 	return true;
 }
-
 #endif
 
 /* Private tags for https://github.com/harfbuzz/harfbuzz/issues/1866 */
@@ -108,13 +102,10 @@ static bool _get_gasp(hb_face_t * face, float * result, hb_ot_metrics_tag_t metr
  * Returns: Whether found the requested metrics in the font.
  * Since: 2.6.0
  **/
-hb_bool_t hb_ot_metrics_get_position(hb_font_t * font,
-    hb_ot_metrics_tag_t metrics_tag,
-    hb_position_t * position /* OUT.  May be NULL. */)
+hb_bool_t hb_ot_metrics_get_position(hb_font_t * font, hb_ot_metrics_tag_t metrics_tag, hb_position_t * position /* OUT.  May be NULL. */)
 {
 	hb_face_t * face = font->face;
-	switch((unsigned)metrics_tag)
-	{
+	switch((uint)metrics_tag) {
 		case HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER:
 		case HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER:
 		case HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP:
@@ -126,12 +117,8 @@ hb_bool_t hb_ot_metrics_get_position(hb_font_t * font,
 #else
 #define GET_VAR 0
 #endif
-#define GET_METRIC_X(TABLE, ATTR) \
-	(face->table.TABLE->has_data() && \
-	(position && (*position = font->em_scalef_x(face->table.TABLE->ATTR + GET_VAR)), true))
-#define GET_METRIC_Y(TABLE, ATTR) \
-	(face->table.TABLE->has_data() && \
-	(position && (*position = font->em_scalef_y(face->table.TABLE->ATTR + GET_VAR)), true))
+#define GET_METRIC_X(TABLE, ATTR) (face->table.TABLE->has_data() && (position && (*position = font->em_scalef_x(face->table.TABLE->ATTR + GET_VAR)), true))
+#define GET_METRIC_Y(TABLE, ATTR) (face->table.TABLE->has_data() && (position && (*position = font->em_scalef_y(face->table.TABLE->ATTR + GET_VAR)), true))
 		case HB_OT_METRICS_TAG_HORIZONTAL_CLIPPING_ASCENT:  return GET_METRIC_Y(OS2, usWinAscent);
 		case HB_OT_METRICS_TAG_HORIZONTAL_CLIPPING_DESCENT: return GET_METRIC_Y(OS2, usWinDescent);
 		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_RISE:       return GET_METRIC_Y(hhea, caretSlopeRise);

@@ -142,7 +142,7 @@ static void hb_ot_all_tags_from_script(hb_script_t script, unsigned int * count 
 
 hb_script_t hb_ot_tag_to_script(hb_tag_t tag)
 {
-	unsigned char digit = tag & 0x000000FFu;
+	uchar digit = tag & 0x000000FFu;
 	if(UNLIKELY(digit == '2' || digit == '3'))
 		return hb_ot_new_tag_to_script(tag & 0xFFFFFF32);
 	return hb_ot_old_tag_to_script(tag);
@@ -176,9 +176,9 @@ struct LangTag {
 		const char * b = this->language;
 		unsigned int db;
 		const char * p = strchr(a, '-');
-		unsigned int da = p ? (unsigned int)(p - a) : strlen(a);
+		unsigned int da = p ? (uint)(p - a) : strlen(a);
 		p = strchr(b, '-');
-		db = p ? (unsigned int)(p - b) : strlen(b);
+		db = p ? (uint)(p - b) : strlen(b);
 		return strncmp(a, b, hb_max(da, db));
 	}
 	int cmp(const LangTag * that) const
@@ -257,7 +257,7 @@ static bool parse_private_use_subtag(const char * private_use_subtag,
     unsigned int * count,
     hb_tag_t * tags,
     const char * prefix,
-    unsigned char (*normalize)(unsigned char))
+    uchar (*normalize)(uchar))
 {
 #ifdef HB_NO_LANGUAGE_PRIVATE_SUBTAG
 	return false;
@@ -448,10 +448,10 @@ void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
 		    nullptr, nullptr);
 		*language = hb_ot_tag_to_language(language_tag);
 		if(script_count == 0 || primary_script_tag[0] != script_tag) {
-			unsigned char * buf;
+			uchar * buf;
 			const char * lang_str = hb_language_to_string(*language);
 			size_t len = strlen(lang_str);
-			buf = (unsigned char*)SAlloc::M(len + 16);
+			buf = (uchar *)SAlloc::M(len + 16);
 			if(UNLIKELY(!buf)) {
 				*language = nullptr;
 			}
@@ -480,7 +480,7 @@ void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
 #ifdef MAIN
 static inline void test_langs_sorted()
 {
-	for(unsigned int i = 1; i < ARRAY_LENGTH(ot_languages); i++) {
+	for(uint i = 1; i < ARRAY_LENGTH(ot_languages); i++) {
 		int c = ot_languages[i].cmp(&ot_languages[i - 1]);
 		if(c > 0) {
 			slfprintf_stderr("ot_languages not sorted at index %d: %s %d %s\n",

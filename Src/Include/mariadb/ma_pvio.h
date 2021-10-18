@@ -11,7 +11,7 @@
 /* CONC-492: Allow to buuld plugins outside of MariaDB Connector/C
    source tree wnen ma_global.h was not included. */
 /*#if !defined(_global_h) && !defined(MY_GLOBAL_INCLUDED)
-	typedef unsigned char uchar;
+	typedef uchar uchar;
 #endif*/
 
 #define PVIO_SET_ERROR if(pvio->set_error) pvio->set_error

@@ -32,7 +32,7 @@ const struct stat * archive_entry_stat(struct archive_entry * entry)
 {
 	struct stat * st;
 	if(entry->stat == NULL) {
-		entry->stat = calloc(1, sizeof(*st));
+		entry->stat = SAlloc::C(1, sizeof(*st));
 		if(entry->stat == NULL)
 			return NULL;
 		entry->stat_valid = 0;

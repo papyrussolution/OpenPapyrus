@@ -149,7 +149,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		corel_lw = static_cast<float>(pGp->Real(pGp->ConstExpress(&a)) * COREL_SC);
 		pGp->Pgm.Shift();
 	}
-	sprintf(GPT.TermOptions, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,
+	slprintf(GPT._TermOptions, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,
 	    corel_fontsize, corel_xmax / 720.0, corel_ymax / 720.0, corel_lw / COREL_SC);
 }
 

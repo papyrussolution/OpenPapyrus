@@ -326,7 +326,7 @@ static void state(struct connectdata * conn, sshstate nowstate)
 	/* a precaution to make sure the lists are in sync */
 	DEBUGASSERT(sizeof(names)/sizeof(names[0]) == SSH_LAST);
 	if(sshc->state != nowstate) {
-		infof(conn->data, "SFTP %p state change from %s to %s\n", (void*)sshc, names[sshc->state], names[nowstate]);
+		infof(conn->data, "SFTP %p state change from %s to %s\n", (void *)sshc, names[sshc->state], names[nowstate]);
 	}
 #endif
 	sshc->state = nowstate;
@@ -1698,9 +1698,9 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    ulong flags;
 			    /*
 			     * NOTE!!!  libssh2 requires that the destination path is a full path
-			     *          that includes the destination file and name OR ends in a "/"
-			     *          If this is not done the destination file will be named the
-			     *          same name as the last directory in the path.
+			     *    that includes the destination file and name OR ends in a "/"
+			     *    If this is not done the destination file will be named the
+			     *    same name as the last directory in the path.
 			     */
 
 			    if(data->state.resume_from != 0) {

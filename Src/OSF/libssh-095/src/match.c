@@ -1,7 +1,7 @@
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
  * Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
- *                    All rights reserved
+ *              All rights reserved
  * Simple pattern matching, with '*' and '?' as wildcards.
  *
  * As far as I am concerned, the code I have written for this software

@@ -98,7 +98,7 @@ static int translate_guid(struct archive * a, acl_entry_t acl_entry,
 	q = acl_get_qualifier(acl_entry);
 	if(q == NULL)
 		return 1;
-	r = mbr_uuid_to_id((const unsigned char*)q, &ugid, &idtype);
+	r = mbr_uuid_to_id((const uchar *)q, &ugid, &idtype);
 	if(r != 0) {
 		acl_free(q);
 		return 1;

@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -53,8 +53,8 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 		PPSupplAgreement suppl_agt;
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		if(AgtProp == ARTPRP_CLIAGT) {
-			if(ArObj.GetClientAgreement(arID, &cli_agt, 0) > 0) {
+		if(AgtProp == ARTPRP_CLIAGT2) { // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
+			if(ArObj.GetClientAgreement(arID, cli_agt, 0) > 0) {
 				rec.ArID        = arID;
 				rec.Beg         = cli_agt.BegDt;
 				rec.Expiry      = cli_agt.Expiry;
@@ -66,7 +66,7 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 				rec.MaxCredit     = cli_agt.MaxCredit;
 				rec.ExtObjectID   = cli_agt.ExtObjectID;
 				rec.Flags         = cli_agt.Flags;
-				STRNSCPY(rec.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+				STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
 				InitDebtLim(&rec, &cli_agt);
 				r = 1;
 			}
@@ -133,12 +133,12 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 	if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fCheckObj)) {
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
-		AgtProp = 0; // ARTPRP_CLIAGT, ARTPRP_SUPPLAGT
+		AgtProp = 0; // ARTPRP_CLIAGT2, ARTPRP_SUPPLAGT
 		if(Filt.Flags & ArticleFilt::fShowAgreement) {
 			if(acs_obj.Fetch(Filt.AccSheetID, &acs_rec) > 0) {
 				if(acs_rec.Flags & ACSHF_USECLIAGT) {
 					PPObjDebtDim obj_dd;
-					AgtProp = ARTPRP_CLIAGT;
+					AgtProp = ARTPRP_CLIAGT2; // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
 					P_DebtDimList = obj_dd.MakeStrAssocList(0);
 				}
 				else if(acs_rec.Flags & ACSHF_USESUPPLAGT)
@@ -155,10 +155,52 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 		if(AgtProp) {
 			THROW(P_TempTbl = CreateTempFile());
 			{
-				BExtInsert bei(P_TempTbl);
 				PropertyTbl::Key0 k0;
+				BExtInsert bei(P_TempTbl);
 				PropertyTbl & r_pt = PPRef->Prop;
-				if(AgtProp == ARTPRP_CLIAGT) {
+				if(AgtProp == ARTPRP_CLIAGT2) { // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
+					PPIDArray _id_list;
+					PropertyTbl::Key1 k1;
+					BExtQuery q(&r_pt, 1);
+					q.select(r_pt.ObjType, r_pt.ObjID, r_pt.Prop, 0L).where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_CLIAGT2);
+					MEMSZERO(k1);
+					k1.ObjType = PPOBJ_ARTICLE;	
+					k1.Prop = ARTPRP_CLIAGT2;
+					PPTransaction tra(ppDbDependTransaction, 1);
+					THROW(tra);
+					for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
+						_id_list.addnz(r_pt.data.ObjID);
+					}
+					if(_id_list.getCount()) {
+						_id_list.sortAndUndup();
+						PPTransaction tra(ppDbDependTransaction, 1);
+						THROW(tra);
+						for(uint i = 0; i < _id_list.getCount(); i++) {
+							const PPID _id = _id_list.get(i);
+							PPClientAgreement cli_agt;
+							if(ArObj.GetClientAgreement(_id, cli_agt) > 0) {
+								TempArAgtTbl::Rec rec;
+								// @v10.7.9 @ctr MEMSZERO(rec);
+								rec.ArID        = cli_agt.ClientID;
+								rec.Beg         = cli_agt.BegDt;
+								rec.Expiry      = cli_agt.Expiry;
+								rec.DefPayTerm  = cli_agt.DefPayPeriod;
+								rec.DefAgentID    = cli_agt.DefAgentID;
+								rec.DefQuotKindID = cli_agt.DefQuotKindID;
+								rec.Discount      = cli_agt.Dscnt;
+								rec.MaxDiscount   = cli_agt.MaxDscnt;
+								rec.MaxCredit     = cli_agt.MaxCredit;
+								rec.ExtObjectID   = cli_agt.ExtObjectID;
+								rec.Flags         = cli_agt.Flags;
+								STRNSCPY(rec.Code, cli_agt.Code_);
+								InitDebtLim(&rec, &cli_agt);
+								THROW_DB(bei.insert(&rec));
+							}
+						}
+						THROW_DB(bei.flash());
+						THROW(tra.Commit());
+					}
+#if 0 // @v11.2.0 {
 					BExtQuery q(&r_pt, 0);
 					q.selectAll().where(r_pt.ObjType == PPOBJ_ARTICLE && r_pt.Prop == ARTPRP_CLIAGT);
 					MEMSZERO(k0);
@@ -182,13 +224,14 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							rec.MaxCredit     = cli_agt.MaxCredit;
 							rec.ExtObjectID   = cli_agt.ExtObjectID;
 							rec.Flags         = cli_agt.Flags;
-							STRNSCPY(rec.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+							STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
 							InitDebtLim(&rec, &cli_agt);
 							THROW_DB(bei.insert(&rec));
 						}
 						THROW_DB(bei.flash());
 						THROW(tra.Commit());
 					}
+#endif // } 0 @v11.2.0
 				}
 				else if(AgtProp == ARTPRP_SUPPLAGT) {
 					//
@@ -277,7 +320,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 			}
 		}
 	}
-	ArObj.SetCurrFilt(&Filt); // @v9.2.4
+	ArObj.SetCurrFilt(&Filt);
 	CATCH
 		ZDELETE(P_TempTbl);
 		AgtProp = 0;
@@ -525,7 +568,7 @@ int PPViewArticle::EditDebtDimList(PPID arID)
 		THROW(agt_kind = ArObj.GetAgreementKind(&ar_rec));
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt_rec;
-			THROW(ArObj.GetClientAgreement(ar_rec.ID, &cli_agt_rec));
+			THROW(ArObj.GetClientAgreement(ar_rec.ID, cli_agt_rec));
 			cli_agt_rec.ClientID = ar_rec.ID;
 			if(EditDebtLimList(cli_agt_rec) > 0) {
 				THROW(ArObj.PutClientAgreement(ar_rec.ID, &cli_agt_rec, 1));
@@ -911,7 +954,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		if(P_TempTbl) {
 			SString fld_name;
-			if(AgtProp == ARTPRP_CLIAGT)
+			if(AgtProp == ARTPRP_CLIAGT2) // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
 				brw_id = BROWSER_ARTICLE_AGTCLI;
 			else if(AgtProp == ARTPRP_SUPPLAGT)
 				brw_id = BROWSER_ARTICLE_AGTSUPPL;
@@ -1073,7 +1116,7 @@ void PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewArticle::Print(const void * pHdr)
 {
 	uint  rpt_id = 0;
-	if(AgtProp == ARTPRP_CLIAGT)
+	if(AgtProp == ARTPRP_CLIAGT2) // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
 		rpt_id = REPORT_ARTCLVIEWWCLIAGT;
 	else if(AgtProp == ARTPRP_SUPPLAGT)
 		rpt_id = REPORT_ARTCLVIEWWSPPLAGT;

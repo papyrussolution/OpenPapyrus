@@ -51,7 +51,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	{
 		if(op_pack.Rec.AccSheet2ID) {
 			PPClientAgreement ca_rec;
-			SETFLAG(Flags, fSetupObj2ByCliAgt, ar_obj.GetClientAgreement(0, &ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
+			SETFLAG(Flags, fSetupObj2ByCliAgt, ar_obj.GetClientAgreement(0, ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
 			SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Data->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID, 0);
 			op_pack.GetExtStrData(OPKEXSTR_OBJ2NAME, temp_buf);
 			setStaticText(CTL_BILL_OBJ2NAME, temp_buf);

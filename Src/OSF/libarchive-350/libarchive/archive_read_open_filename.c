@@ -80,9 +80,9 @@ static int      file_close(struct archive *, void *);
 static int file_close2(struct archive *, void *);
 static int file_switch(struct archive *, void *, void *);
 static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64_t  file_seek(struct archive *, void *, int64_t request, int);
-static int64_t  file_skip(struct archive *, void *, int64_t request);
-static int64_t  file_skip_lseek(struct archive *, void *, int64_t request);
+static int64  file_seek(struct archive *, void *, int64 request, int);
+static int64  file_skip(struct archive *, void *, int64 request);
+static int64  file_skip_lseek(struct archive *, void *, int64 request);
 
 int archive_read_open_file(struct archive * a, const char * filename,
     size_t block_size)
@@ -111,7 +111,7 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames,
 	do {
 		if(filename == NULL)
 			filename = "";
-		mine = (struct read_file_data *)calloc(1,
+		mine = (struct read_file_data *)SAlloc::C(1,
 			sizeof(*mine) + strlen(filename));
 		if(mine == NULL)
 			goto no_memory;
@@ -145,7 +145,7 @@ no_memory:
 
 int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, size_t block_size)
 {
-	struct read_file_data * mine = (struct read_file_data *)calloc(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
+	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
 	if(!mine) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -179,7 +179,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 				    "Failed to convert a wide-character"
 				    " filename to a multi-byte filename");
 			archive_string_free(&fn);
-			free(mine);
+			SAlloc::F(mine);
 			return ARCHIVE_FATAL;
 		}
 		mine->filename_type = read_file_data::FNT_MBS;
@@ -252,7 +252,7 @@ static int file_open(struct archive * a, void * client_data)
 			fullpath = __la_win_permissive_name_w(wfilename);
 			if(fullpath != NULL) {
 				fd = _wopen(fullpath, O_RDONLY | O_BINARY);
-				free(fullpath);
+				SAlloc::F(fullpath);
 			}
 		}
 		if(fd < 0) {
@@ -338,7 +338,7 @@ static int file_open(struct archive * a, void * client_data)
 			new_block_size *= 2;
 		mine->block_size = new_block_size;
 	}
-	buffer = malloc(mine->block_size);
+	buffer = SAlloc::M(mine->block_size);
 	if(buffer == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		goto fail;
@@ -419,12 +419,12 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
  * seek request here and then actually performed the seek at the
  * top of the read callback above.
  */
-static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t request)
+static int64 file_skip_lseek(struct archive * a, void * client_data, int64 request)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/* We use _lseeki64() on Windows. */
-	int64_t old_offset, new_offset;
+	int64 old_offset, new_offset;
 #else
 	off_t old_offset, new_offset;
 #endif
@@ -456,7 +456,7 @@ static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t r
  * TODO: Implement another file_skip_XXXX that uses MTIO ioctls to
  * accelerate operation on tape drives.
  */
-static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
+static int64 file_skip(struct archive * a, void * client_data, int64 request)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 
@@ -471,10 +471,10 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 /*
  * TODO: Store the offset and use it in the read callback.
  */
-static int64_t file_seek(struct archive * a, void * client_data, int64_t request, int whence)
+static int64 file_seek(struct archive * a, void * client_data, int64 request, int whence)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-	int64_t r;
+	int64 r;
 
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
@@ -518,7 +518,7 @@ static int file_close2(struct archive * a, void * client_data)
 		if(mine->filename_type != read_file_data::FNT_STDIN)
 			close(mine->fd);
 	}
-	free(mine->buffer);
+	SAlloc::F(mine->buffer);
 	mine->buffer = NULL;
 	mine->fd = -1;
 	return ARCHIVE_OK;
@@ -528,7 +528,7 @@ static int file_close(struct archive * a, void * client_data)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	file_close2(a, client_data);
-	free(mine);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }
 

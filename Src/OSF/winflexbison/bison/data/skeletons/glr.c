@@ -1100,9 +1100,7 @@ yyinitStateSet (yyGLRStateSet* yyset)
       YYFREE (yyset->yystates);
       return yyfalse;
     }
-  memset (yyset->yylookaheadNeeds,
-          0,
-          YY_CAST (YYSIZE_T, yyset->yycapacity) * sizeof yyset->yylookaheadNeeds[0]);
+  memset (yyset->yylookaheadNeeds, 0, YY_CAST (YYSIZE_T, yyset->yycapacity) * sizeof yyset->yylookaheadNeeds[0]);
   return yytrue;
 }
 
@@ -1120,10 +1118,7 @@ yyinitGLRStack (yyGLRStack* yystackp, YYPTRDIFF_T yysize)
   yystackp->yyerrState = 0;
   yynerrs = 0;
   yystackp->yyspaceLeft = yysize;
-  yystackp->yyitems
-    = YY_CAST (yyGLRStackItem*,
-               YYMALLOC (YY_CAST (YYSIZE_T, yysize)
-                         * sizeof yystackp->yynextFree[0]));
+  yystackp->yyitems = YY_CAST (yyGLRStackItem*, YYMALLOC (YY_CAST (YYSIZE_T, yysize) * sizeof yystackp->yynextFree[0]));
   if (!yystackp->yyitems)
     return yyfalse;
   yystackp->yynextFree = yystackp->yyitems;

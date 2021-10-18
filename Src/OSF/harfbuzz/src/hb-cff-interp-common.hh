@@ -226,7 +226,7 @@ namespace CFF {
 		void fini() {
 		}
 
-		void set_int(int v)       {
+		void set_int(int v) {
 			value = v;
 		}
 
@@ -316,9 +316,9 @@ protected:
 			: hb_ubytes_t() {
 		}
 		byte_str_t(const UnsizedByteStr &s, unsigned int l)
-			: hb_ubytes_t((const unsigned char*)&s, l) {
+			: hb_ubytes_t((const uchar *)&s, l) {
 		}
-		byte_str_t(const unsigned char * s, unsigned int l)
+		byte_str_t(const uchar * s, unsigned int l)
 			: hb_ubytes_t(s, l) {
 		}
 		byte_str_t(const hb_ubytes_t &ub) /* conversion from hb_ubytes_t */
@@ -364,10 +364,10 @@ protected:
 			error = false;
 		}
 
-		const unsigned char& operator [] (int i) {
-			if(UNLIKELY((unsigned int)(offset + i) >= str.length)) {
+		const uchar& operator [] (int i) {
+			if(UNLIKELY((uint)(offset + i) >= str.length)) {
 				set_error();
-				return Null(unsigned char);
+				return Null(uchar);
 			}
 			return str[offset + i];
 		}
@@ -424,7 +424,7 @@ protected:
 			count = 0;
 			elements.init();
 			elements.resize(kSizeLimit);
-			for(unsigned int i = 0; i < elements.length; i++)
+			for(uint i = 0; i < elements.length; i++)
 				elements[i].init();
 		}
 
@@ -555,7 +555,7 @@ protected:
 				i = 0;
 				S::set_error();
 			}
-			return (unsigned)i;
+			return (uint)i;
 		}
 
 		void push_longint_from_substr(byte_str_ref_t& str_ref)
@@ -636,7 +636,7 @@ protected:
 
 		bool has_op(op_code_t op) const
 		{
-			for(unsigned int i = 0; i < get_count(); i++)
+			for(uint i = 0; i < get_count(); i++)
 				if(get_value(i).op == op) return true;
 			return false;
 		}
@@ -682,7 +682,7 @@ protected:
 			op_code_t op = OpCode_Invalid;
 			if(UNLIKELY(!str_ref.avail()))
 				return OpCode_Invalid;
-			op = (op_code_t)(unsigned char)str_ref[0];
+			op = (op_code_t)(uchar)str_ref[0];
 			if(op == OpCode_escape) {
 				if(UNLIKELY(!str_ref.avail()))
 					return OpCode_Invalid;

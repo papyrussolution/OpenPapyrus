@@ -151,7 +151,7 @@ ITERATE:
 		case S_MINUS_SIGN: UnsetMinusSign(); break;
 		case S_MONOCHROME: UnsetMonochrome(); break;
 		case S_MOUSE: UnsetMouse(); break;
-		case S_MULTIPLOT: TermEndMultiplot(term); break;
+		case S_MULTIPLOT: TermEndMultiplot(GPT.P_Term); break;
 		case S_OFFSETS: UnsetOffsets(); break;
 		case S_ORIGIN: UnsetOrigin(); break;
 		case SET_OUTPUT: UnsetOutput(); break;
@@ -265,7 +265,7 @@ ITERATE:
 		Pgm.SetTokenIdx(save_token);
 		goto ITERATE;
 	}
-	UpdateGpvalVariables(term, 0);
+	UpdateGpvalVariables(GPT.P_Term, 0);
 	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //
@@ -642,7 +642,7 @@ void GnuPlot::UnsetTextboxStyle()
 //
 static void unset_historysize()
 {
-	gnuplot_history_size = -1; /* don't ever truncate the history. */
+	GPO.Hist.HistorySize = -1; // don't ever truncate the history
 }
 //
 // process 'unset isosamples' command 
@@ -734,7 +734,7 @@ void GnuPlot::UnsetLineStyle(linestyle_def ** ppHead)
 void GnuPlot::UnsetLineType()
 {
 	if(Pgm.EqualsCur("cycle")) {
-		linetype_recycle_count = 0;
+		GPT.LinetypeRecycleCount = 0;
 		Pgm.Shift();
 	}
 	else if(!Pgm.EndOfCommand())
@@ -945,7 +945,7 @@ void GnuPlot::UnsetMonochrome()
 		if(!Pgm.EndOfCommand())
 			UnsetLineStyle(&Gg.P_FirstMonoLineStyle);
 	}
-	term->flags &= ~TERM_MONOCHROME;
+	GPT.P_Term->flags &= ~TERM_MONOCHROME;
 }
 //
 // process 'unset offsets' command 
@@ -970,7 +970,7 @@ void GnuPlot::UnsetOutput()
 	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		IntErrorCurToken("you can't change the output in multiplot mode");
 	else {
-		TermSetOutput(term, NULL);
+		TermSetOutput(GPT.P_Term, NULL);
 		ZFREE(GPT.P_OutStr); // means STDOUT 
 	}
 }
@@ -986,7 +986,7 @@ void GnuPlot::UnsetPrint()
 //
 static void unset_psdir()
 {
-	ZFREE(PS_psdir);
+	ZFREE(GPT.P_PS_PsDir);
 }
 //
 // process 'unset parametric' command 
@@ -1226,15 +1226,15 @@ void GnuPlot::UnsetTerminal()
 {
 	udvt_entry * original_terminal = Ev.GetUdvByName("GNUTERM");
 	if(GPT.Flags & GpTerminalBlock::fMultiplot)
-		TermEndMultiplot(term);
-	TermReset(term);
+		TermEndMultiplot(GPT.P_Term);
+	TermReset(GPT.P_Term);
 	// FIXME: change is correct but reported result is truncated 
 	if(original_terminal && original_terminal->udv_value.Type != NOTDEFINED) {
 		char * termname = sstrdup(original_terminal->udv_value.v.string_val);
 		if(strchr(termname, ' '))
 			*strchr(termname, ' ') = '\0';
-		PTR32(GPT.TermOptions)[0] = 0;
-		term = ChangeTerm(termname, strlen(termname));
+		GPT._TermOptions.Z();
+		GPT.P_Term = ChangeTerm(termname, strlen(termname));
 		SAlloc::F(termname);
 	}
 	GpU.screen_ok = FALSE;
@@ -1363,7 +1363,7 @@ void GnuPlot::ResetCommand()
 	}
 	else {
 		// Reset error state (only?) 
-		UpdateGpvalVariables(term, 4);
+		UpdateGpvalVariables(GPT.P_Term, 4);
 		if(Pgm.AlmostEqualsCur("err$orstate")) {
 			Pgm.Shift();
 			return;
@@ -1536,7 +1536,7 @@ void GnuPlot::ResetCommand()
 				_Fit.fit_verbosity = save_verbosity;
 				_Fit.fit_errorscaling = save_errorscaling;
 			}
-			UpdateGpvalVariables(term, 0); // update GPVAL_ inner variables 
+			UpdateGpvalVariables(GPT.P_Term, 0); // update GPVAL_ inner variables 
 			// HBB 20000506: set 'interactive' back to its real value: 
 			_Plt.interactive = save_interactive;
 		}

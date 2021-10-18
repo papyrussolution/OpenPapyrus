@@ -312,7 +312,7 @@ lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters, const lzma_allocator
 //
 //
 //
-lzma_ret lzma_filter_flags_size(uint32_t *size, const lzma_filter *filter)
+lzma_ret lzma_filter_flags_size(uint32 * size, const lzma_filter *filter)
 {
 	if(filter->id >= LZMA_FILTER_RESERVED_START)
 		return LZMA_PROG_ERROR;
@@ -321,14 +321,14 @@ lzma_ret lzma_filter_flags_size(uint32_t *size, const lzma_filter *filter)
 	return LZMA_OK;
 }
 
-lzma_ret lzma_filter_flags_encode(const lzma_filter *filter, uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_filter_flags_encode(const lzma_filter *filter, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Filter ID
 	if(filter->id >= LZMA_FILTER_RESERVED_START)
 		return LZMA_PROG_ERROR;
 	return_if_error(lzma_vli_encode(filter->id, NULL, out, out_pos, out_size));
 	// Size of Properties
-	uint32_t props_size;
+	uint32 props_size;
 	return_if_error(lzma_properties_size(&props_size, filter));
 	return_if_error(lzma_vli_encode(props_size, NULL, out, out_pos, out_size));
 	// Filter Properties
@@ -363,8 +363,8 @@ lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *all
 // filter-encoder
 //
 struct lzma_filter_encoder {
-	lzma_filter_encoder(lzma_vli _id, lzma_init_function initFunc, uint64_t (* memUsageFunc)(const void *), uint64_t (* blockSizeFunc)(const void *),
-		lzma_ret (* propsSizeGetFunc)(uint32_t *, const void *), uint32_t propsSizeFixed, lzma_ret (* propsEncodeFunc)(const void *, uint8_t *)) : 
+	lzma_filter_encoder(lzma_vli _id, lzma_init_function initFunc, uint64_t (* memUsageFunc)(const void *), uint64 (* blockSizeFunc)(const void *),
+		lzma_ret (* propsSizeGetFunc)(uint32 *, const void *), uint32 propsSizeFixed, lzma_ret (* propsEncodeFunc)(const void *, uint8 *)) : 
 		id(_id), init(initFunc), memusage(memUsageFunc), block_size(blockSizeFunc), props_size_get(propsSizeGetFunc), props_size_fixed(propsSizeFixed),
 		props_encode(propsEncodeFunc)
 	{
@@ -380,7 +380,7 @@ struct lzma_filter_encoder {
 	/// Tells the size of the Filter Properties field. If options are
 	/// invalid, UINT32_MAX is returned. If this is NULL, props_size_fixed
 	/// is used.
-	lzma_ret (* props_size_get)(uint32_t * size, const void * options);
+	lzma_ret (* props_size_get)(uint32 * size, const void * options);
 	uint32_t props_size_fixed;
 	/// Encodes Filter Properties.
 	///
@@ -656,7 +656,7 @@ extern uint64_t lzma_mt_block_size(const lzma_filter * filters)
 	return max;
 }
 
-lzma_ret lzma_properties_size(uint32_t *size, const lzma_filter *filter)
+lzma_ret lzma_properties_size(uint32 * size, const lzma_filter * filter)
 {
 	const lzma_filter_encoder * const fe = encoder_find(filter->id);
 	if(fe == NULL) {

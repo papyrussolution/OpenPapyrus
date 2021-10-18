@@ -419,7 +419,7 @@ static void aes_gcm_encrypt(struct ssh_cipher_struct * cipher, void * in, void *
 
 	/* Calculate the tag */
 	err = gcry_cipher_gettag(cipher->key[0],
-		(void*)tag,
+		(void *)tag,
 		authlen);
 	if(err) {
 		SSH_LOG(SSH_LOG_WARNING, "gcry_cipher_gettag failed: %s",

@@ -41,7 +41,7 @@
 #define OT_MEASURE
 #define OT_TABLE_START			static const struct TABLE_NAME {
 #define OT_TABLE_END			}
-#define OT_LABEL_START(Name)		unsigned char Name[
+#define OT_LABEL_START(Name)		uchar Name[
 #define OT_LABEL_END			];
 #define OT_UINT8(u8)			+1/*byte*/
 #define OT_UINT16(u16)			+2/*bytes*/
@@ -52,11 +52,11 @@
 #define OT_LABEL_START(Name)		{
 #define OT_LABEL_END			},
 #define OT_UINT8(u8)			(u8),
-#define OT_UINT16(u16)			(unsigned char)((u16)>>8), (unsigned char)((u16)&0xFFu),
-#define OT_COUNT(Name, ItemSize)	((unsigned int) sizeof(((struct TABLE_NAME*)0)->Name) \
-					 / (unsigned int)(ItemSize) \
+#define OT_UINT16(u16)			(uchar)((u16)>>8), (uchar)((u16)&0xFFu),
+#define OT_COUNT(Name, ItemSize)	((uint) sizeof(((struct TABLE_NAME*)0)->Name) \
+					 / (uint)(ItemSize) \
 					 /* OT_ASSERT it's divisible (and positive). */)
-#define OT_DISTANCE(From,To)		((unsigned int) \
+#define OT_DISTANCE(From,To)		((uint) \
 					 ((char*)(&((struct TABLE_NAME*)0)->To) - \
 					  (char*)(&((struct TABLE_NAME*)0)->From)) \
 					 /* OT_ASSERT it's positive. */)

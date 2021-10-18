@@ -41,7 +41,7 @@ static int add_cfg_dir(char ** cfg_dirs, const char * directory)
 		if(sstreq(cfg_dirs[i], directory)) /* already present */
 			return 0;
 	if(i < MAX_CONFIG_DIRS) {
-		cfg_dirs[i] = strdup(directory);
+		cfg_dirs[i] = sstrdup(directory);
 		return 0;
 	}
 	return 1;

@@ -91,7 +91,7 @@ Jbig2GlobalCtx * jbig2_make_global_ctx(Jbig2Ctx * ctx);
 Jbig2Allocator * jbig2_global_ctx_free(Jbig2GlobalCtx * global_ctx);
 
 /* submit data to the decoder */
-int jbig2_data_in(Jbig2Ctx * ctx, const unsigned char * data, size_t size);
+int jbig2_data_in(Jbig2Ctx * ctx, const uchar * data, size_t size);
 
 /* get the next available decoded page image. NULL means there isn't one. */
 Jbig2Image * jbig2_page_out(Jbig2Ctx * ctx);

@@ -35,7 +35,6 @@ TiXmlStringA::TiXmlStringA (const char* instring)
 {
 	unsigned newlen;
 	char * newstring;
-
 	if(!instring) {
 		allocated = 0;
 		cstring = NULL;
@@ -56,11 +55,9 @@ TiXmlStringA::TiXmlStringA (const TiXmlStringA& copy)
 {
 	unsigned newlen;
 	char * newstring;
-
 	// Prevent copy to self!
 	if(&copy == this)
 		return;
-
 	if(!copy.allocated) {
 		allocated = 0;
 		cstring = NULL;
@@ -81,7 +78,6 @@ void TiXmlStringA ::operator =(const char * content)
 {
 	unsigned newlen;
 	char * newstring;
-
 	if(!content) {
 		empty_it();
 		return;
@@ -155,14 +151,10 @@ void TiXmlStringA::append(const char* str, int len)
 
 		// append the suffix. It does exist, otherwize we wouldn't be expanding
 		// strncat (new_string, str, len);
-		memcpy(new_string + length(),
-		    str,
-		    size_suffix);
-
+		memcpy(new_string + length(), str, size_suffix);
 		// return previsously allocated buffer if any
 		if(allocated && cstring)
 			delete [] cstring;
-
 		// update member variables
 		cstring = new_string;
 		allocated = new_alloc;
@@ -170,9 +162,7 @@ void TiXmlStringA::append(const char* str, int len)
 	else {
 		// we know we can safely append the new string
 		// strncat (cstring, str, len);
-		memcpy(cstring + length(),
-		    str,
-		    size_suffix);
+		memcpy(cstring + length(), str, size_suffix);
 	}
 	current_length = new_size - 1;
 	cstring [current_length] = 0;
@@ -182,41 +172,32 @@ void TiXmlStringA::append(const char* str, int len)
 void TiXmlStringA::append(const char * suffix)
 {
 	char * new_string;
-	unsigned new_alloc, new_size;
-
-	new_size = length() + strlen(suffix) + 1;
+	unsigned new_alloc;
+	unsigned new_size = length() + strlen(suffix) + 1;
 	// check if we need to expand
 	if(new_size > allocated) {
 		// compute new size
 		new_alloc = assign_new_size(new_size);
-
 		// allocate new buffer
 		new_string = new char [new_alloc];
 		new_string [0] = 0;
-
 		// copy the previous allocated buffer into this one
 		if(allocated && cstring)
 			memcpy(new_string, cstring, 1 + length());
 		// strcpy (new_string, cstring);
 
 		// append the suffix. It does exist, otherwize we wouldn't be expanding
-		memcpy(new_string + length(),
-		    suffix,
-		    strlen(suffix) + 1);
-
+		memcpy(new_string + length(), suffix, strlen(suffix) + 1);
 		// return previsously allocated buffer if any
 		if(allocated && cstring)
 			delete [] cstring;
-
 		// update member variables
 		cstring = new_string;
 		allocated = new_alloc;
 	}
 	else {
 		// we know we can safely append the new string
-		memcpy(cstring + length(),
-		    suffix,
-		    strlen(suffix) + 1);
+		memcpy(cstring + length(), suffix, strlen(suffix) + 1);
 	}
 	current_length = new_size - 1;
 }
@@ -239,11 +220,11 @@ unsigned TiXmlStringA::find(char tofind, unsigned offset) const
 {
 	char * lookup;
 	if(offset >= length())
-		return (unsigned)notfound;
+		return (uint)notfound;
 	for(lookup = cstring + offset; *lookup; lookup++)
 		if(*lookup == tofind)
 			return lookup - cstring;
-	return (unsigned)notfound;
+	return (uint)notfound;
 }
 
 bool TiXmlStringA::operator ==(const TiXmlStringA & compare) const

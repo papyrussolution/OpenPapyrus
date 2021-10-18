@@ -65,7 +65,7 @@ static int win_crypto_init(Digest_CTX * ctx, ALG_ID algId)
 /*
  * Update a Message digest.
  */
-static int win_crypto_Update(Digest_CTX * ctx, const unsigned char * buf, size_t len)
+static int win_crypto_Update(Digest_CTX * ctx, const uchar * buf, size_t len)
 {
 	if(!ctx->valid)
 		return ARCHIVE_FAILED;
@@ -73,7 +73,7 @@ static int win_crypto_Update(Digest_CTX * ctx, const unsigned char * buf, size_t
 	return ARCHIVE_OK;
 }
 
-static int win_crypto_Final(unsigned char * buf, size_t bufsize, Digest_CTX * ctx)
+static int win_crypto_Final(uchar * buf, size_t bufsize, Digest_CTX * ctx)
 {
 	DWORD siglen = (DWORD)bufsize;
 	if(!ctx->valid)

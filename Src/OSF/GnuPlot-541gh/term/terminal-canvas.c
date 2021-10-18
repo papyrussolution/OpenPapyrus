@@ -344,24 +344,24 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
 	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
 	if(canvas_dashlength_factor != 1.0)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " dashlength %3.1f", canvas_dashlength_factor);
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "%s fsize %g lw %g", pThis->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " fontscale %g", canvas_fontscale);
+		slprintf_cat(GPT._TermOptions, " dashlength %3.1f", canvas_dashlength_factor);
+	slprintf_cat(GPT._TermOptions, canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
+	slprintf_cat(GPT._TermOptions, " size %d,%d", (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
+	slprintf_cat(GPT._TermOptions, "%s fsize %g lw %g", pThis->put_text == ENHCANVAS_put_text ? " enhanced" : "", canvas_font_size, canvas_linewidth);
+	slprintf_cat(GPT._TermOptions, " fontscale %g", canvas_fontscale);
 	if(*CANVAS_background)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " background \"#%06x\"", canvas_background);
+		slprintf_cat(GPT._TermOptions, " background \"#%06x\"", canvas_background);
 	if(CANVAS_name)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " name \"%s\"", CANVAS_name);
+		slprintf_cat(GPT._TermOptions, " name \"%s\"", CANVAS_name);
 	else {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " standalone");
+		slprintf_cat(GPT._TermOptions, " standalone");
 		if(CANVAS_mouseable)
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " mousing");
+			slprintf_cat(GPT._TermOptions, " mousing");
 		if(CANVAS_title)
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " title \"%s\"", CANVAS_title);
+			slprintf_cat(GPT._TermOptions, " title \"%s\"", CANVAS_title);
 	}
 	if(CANVAS_scriptdir)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " jsdir \"%s\"", CANVAS_scriptdir);
+		slprintf_cat(GPT._TermOptions, " jsdir \"%s\"", CANVAS_scriptdir);
 }
 
 TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis)
@@ -382,8 +382,8 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	canvas_state.plotno = 0;
 	/*
 	 * FIXME: This code could be shared with svg.trm
-	 *        Figure out where to find javascript support routines
-	 *        when the page is viewed.
+	 *  Figure out where to find javascript support routines
+	 *  when the page is viewed.
 	 */
 	if(CANVAS_scriptdir == NULL) {
 #ifdef GNUPLOT_JS_DIR
@@ -577,7 +577,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		 *     Both of these states are noted by gnuplot_svg.plot_logaxis_* < 0
 		 *     Linked axes that happen to be nonlinear are incorrectly treated as linear
 		 * (3) generic user-specified coordinate format (mouse_alt_string)
-		 *              'set mouse mouseformat "foo"'
+		 *        'set mouse mouseformat "foo"'
 		 *     Special case mouse_alt_string formats recognized by gnuplot_svg.js are
 		 *     "Time", "Date", and "DateTime".
 		 * FIXME: This all needs to be documented somewhere!
@@ -1261,7 +1261,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
-	while(*(str = enhanced_recursion(term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(GPT.P_Term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		p_gp->EnhErrCheck(str);
 		if(!*++str)

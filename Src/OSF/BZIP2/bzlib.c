@@ -86,7 +86,7 @@ static void * default_bzalloc(void * opaque, size_t items, size_t size)
 	return SAlloc::M(items * size);
 }
 
-static void default_bzfree(void* opaque, void* addr)
+static void default_bzfree(void * opaque, void * addr)
 {
 	SAlloc::F(addr);
 }
@@ -903,7 +903,7 @@ BZFILE* BZ2_bzWriteOpen(int*  bzerror, FILE* f, int blockSize100k, int verbosity
 	return bzf;
 }
 
-void BZ2_bzWrite(int*    bzerror, BZFILE* b, void*   buf, int len)
+void BZ2_bzWrite(int*    bzerror, BZFILE* b, void *   buf, int len)
 {
 	int32 n, n2, ret;
 	bzFile* bzf = (bzFile*)b;
@@ -936,7 +936,7 @@ void BZ2_bzWrite(int*    bzerror, BZFILE* b, void*   buf, int len)
 		}
 		if(bzf->strm.avail_out < BZ_MAX_UNUSED) {
 			n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-			n2 = static_cast<int32>(fwrite((void*)(bzf->buf), sizeof(uchar), n, bzf->handle));
+			n2 = static_cast<int32>(fwrite((void *)(bzf->buf), sizeof(uchar), n, bzf->handle));
 			if(n != n2 || ferror(bzf->handle)) {
 				BZ_SETERR(BZ_IO_ERROR); 
 				return;
@@ -986,7 +986,7 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 			}
 			if(bzf->strm.avail_out < BZ_MAX_UNUSED) {
 				n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-				n2 = static_cast<int32>(fwrite( (void*)(bzf->buf), sizeof(uchar), n, bzf->handle));
+				n2 = static_cast<int32>(fwrite( (void *)(bzf->buf), sizeof(uchar), n, bzf->handle));
 				if(n != n2 || ferror(bzf->handle)) {
 					BZ_SETERR(BZ_IO_ERROR); return;
 				}
@@ -1011,7 +1011,7 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 }
 
 /*---------------------------------------------------*/
-BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void* unused, int nUnused)
+BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void * unused, int nUnused)
 {
 	bzFile* bzf = NULL;
 	int ret;
@@ -1041,19 +1041,17 @@ BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void* u
 	bzf->strm.opaque   = NULL;
 	while(nUnused > 0) {
 		bzf->buf[bzf->bufN] = *((uchar *)(unused)); bzf->bufN++;
-		unused = ((void*)( 1 + ((uchar *)(unused))  ));
+		unused = ((void *)( 1 + ((uchar *)(unused))  ));
 		nUnused--;
 	}
-
 	ret = BZ2_bzDecompressInit(&(bzf->strm), verbosity, small);
 	if(ret != BZ_OK) {
-		BZ_SETERR(ret); free(bzf); return NULL;
+		BZ_SETERR(ret); 
+		SAlloc::F(bzf); 
+		return NULL;
 	}
-	;
-
 	bzf->strm.avail_in = bzf->bufN;
 	bzf->strm.next_in  = bzf->buf;
-
 	bzf->initialisedOk = true;
 	return bzf;
 }
@@ -1075,7 +1073,7 @@ void BZ2_bzReadClose(int * bzerror, BZFILE *b)
 }
 
 /*---------------------------------------------------*/
-int BZ2_bzRead(int * bzerror, BZFILE* b, void*   buf, int len)
+int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 {
 	int32 n, ret;
 	bzFile* bzf = (bzFile*)b;
@@ -1325,7 +1323,7 @@ BZFILE * BZ2_bzdopen(int fd, const char * mode)
 	return bzopen_or_bzdopen(NULL, fd, mode, /*bzdopen*/ 1);
 }
 
-int BZ2_bzread(BZFILE* b, void* buf, int len)
+int BZ2_bzread(BZFILE* b, void * buf, int len)
 {
 	int bzerr, nread;
 	if(static_cast<const bzFile *>(b)->lastErr == BZ_STREAM_END) 
@@ -1334,7 +1332,7 @@ int BZ2_bzread(BZFILE* b, void* buf, int len)
 	return (bzerr == BZ_OK || bzerr == BZ_STREAM_END) ? nread : -1;
 }
 
-int BZ2_bzwrite(BZFILE* b, void* buf, int len)
+int BZ2_bzwrite(BZFILE* b, void * buf, int len)
 {
 	int bzerr;
 	BZ2_bzWrite(&bzerr, b, buf, len);

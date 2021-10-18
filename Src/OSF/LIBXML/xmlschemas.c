@@ -1,6 +1,6 @@
 /*
  * schemas.c : implementation of the XML Schema handling and
- *        schema validity checking
+ *  schema validity checking
  *
  * See Copyright for the status of this software.
  *
@@ -14031,7 +14031,7 @@ static int xmlSchemaCheckCOSParticleRestrict(xmlSchemaParserCtxtPtr ctxt, xmlSch
  * (3.9.6) Constraints on Particle Schema Components
  * Schema Component Constraint:
  * Particle Derivation OK (All/Choice/Sequence:Any --
- *                    NSRecurseCheckCardinality)
+ *              NSRecurseCheckCardinality)
  * (rcase-NSRecurseCheckCardinality)
  *
  * STATUS: TODO: subst-groups

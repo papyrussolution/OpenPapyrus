@@ -44,14 +44,14 @@ int archive_write_add_filter_grzip(struct archive * _a)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct write_grzip * data;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_grzip");
-	data = (write_grzip *)calloc(1, sizeof(*data));
+	data = (write_grzip *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
 		return ARCHIVE_FATAL;
 	}
 	data->pdata = __archive_write_program_allocate("grzip");
 	if(data->pdata == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
 		return ARCHIVE_FATAL;
 	}
@@ -103,6 +103,6 @@ static int archive_write_grzip_free(struct archive_write_filter * f)
 {
 	struct write_grzip * data = (struct write_grzip *)f->data;
 	__archive_write_program_free(data->pdata);
-	free(data);
+	SAlloc::F(data);
 	return ARCHIVE_OK;
 }

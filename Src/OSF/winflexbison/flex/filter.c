@@ -147,13 +147,13 @@ void unlinktemp()
  *            not including argv[0].
  * @return newest filter in chain
  */
-struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) {
+struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) 
+{
 	struct filter * f;
 	int max_args;
 	const char * s;
 	va_list ap;
-
-	/* allocate and initialize new filter */
+	// allocate and initialize new filter 
 	f = SAlloc::M(sizeof(struct filter));
 	if(!f)
 		flexerror(_("malloc failed (f) in filter_create_ext"));

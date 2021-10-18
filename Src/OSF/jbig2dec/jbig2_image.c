@@ -387,7 +387,7 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 
 	/* Data is packed msb first within a byte, so with bits numbered: 01234567.
 	 * Second byte is: 89abcdef. So to combine into a run, we use:
-	 *       (s[0]<<8) | s[1] == 0123456789abcdef.
+	 * (s[0]<<8) | s[1] == 0123456789abcdef.
 	 * To read from src into dst at offset 3, we need to read:
 	 *    read:      0123456789abcdef...
 	 *    write:  0123456798abcdef...

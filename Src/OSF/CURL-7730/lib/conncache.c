@@ -574,7 +574,7 @@ void Curl_conncache_print(struct conncache * connc)
 		while(curr) {
 			conn = curr->ptr;
 
-			slfprintf_stderr(" [%p %d]", (void*)conn, conn->inuse);
+			slfprintf_stderr(" [%p %d]", (void *)conn, conn->inuse);
 			curr = curr->next;
 		}
 		slfprintf_stderr("\n");

@@ -279,7 +279,7 @@ void Eval16nop1D(CMSREGISTER const cmsUInt16Number Input[],
 static
 void PrelinEval16(CMSREGISTER const cmsUInt16Number Input[],
     CMSREGISTER cmsUInt16Number Output[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	Prelin16Data* p16 = (Prelin16Data*)D;
 	cmsUInt16Number StageABC[MAX_INPUT_DIMENSIONS];
@@ -298,7 +298,7 @@ void PrelinEval16(CMSREGISTER const cmsUInt16Number Input[],
 }
 
 static
-void PrelinOpt16free(cmsContext ContextID, void* ptr)
+void PrelinOpt16free(cmsContext ContextID, void * ptr)
 {
 	Prelin16Data* p16 = (Prelin16Data*)ptr;
 
@@ -309,7 +309,7 @@ void PrelinOpt16free(cmsContext ContextID, void* ptr)
 }
 
 static
-void* Prelin16dup(cmsContext ContextID, const void* ptr)
+void * Prelin16dup(cmsContext ContextID, const void * ptr)
 {
 	Prelin16Data* p16 = (Prelin16Data*)ptr;
 	Prelin16Data* Duped = (Prelin16Data*)_cmsDupMem(ContextID, p16, sizeof(Prelin16Data));
@@ -373,7 +373,7 @@ Prelin16Data* PrelinOpt16alloc(cmsContext ContextID,
 // Sampler implemented by another LUT. This is a clean way to precalculate the devicelink 3D CLUT for
 // almost any transform. We use floating point precision and then convert from floating point to 16 bits.
 static
-cmsInt32Number XFormSampler16(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+cmsInt32Number XFormSampler16(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	cmsPipeline* Lut = (cmsPipeline*)Cargo;
 	cmsFloat32Number InFloat[cmsMAXCHANNELS], OutFloat[cmsMAXCHANNELS];
@@ -687,7 +687,7 @@ cmsBool OptimizeByResampling(cmsPipeline** Lut,
 
 	// Now its time to do the sampling. We have to ignore pre/post linearization
 	// The source LUT without pre/post curves is passed as parameter.
-	if(!cmsStageSampleCLut16bit(CLUT, XFormSampler16, (void*)Src, 0)) {
+	if(!cmsStageSampleCLut16bit(CLUT, XFormSampler16, (void *)Src, 0)) {
 Error:
 		// Ops, something went wrong, Restore stages
 		if(KeepPreLin != NULL) {
@@ -733,7 +733,7 @@ Error:
 			Dest->OutputChannels,
 			DataSetOut);
 
-		_cmsPipelineSetOptimizationParameters(Dest, PrelinEval16, (void*)p16, PrelinOpt16free, Prelin16dup);
+		_cmsPipelineSetOptimizationParameters(Dest, PrelinEval16, (void *)p16, PrelinOpt16free, Prelin16dup);
 	}
 
 	// Don't fix white on absolute colorimetric
@@ -842,13 +842,13 @@ Prelin8Data* PrelinOpt8alloc(cmsContext ContextID, const cmsInterpParams* p, cms
 }
 
 static
-void Prelin8free(cmsContext ContextID, void* ptr)
+void Prelin8free(cmsContext ContextID, void * ptr)
 {
 	_cmsFree(ContextID, ptr);
 }
 
 static
-void* Prelin8dup(cmsContext ContextID, const void* ptr)
+void * Prelin8dup(cmsContext ContextID, const void * ptr)
 {
 	return _cmsDupMem(ContextID, ptr, sizeof(Prelin8Data));
 }
@@ -858,7 +858,7 @@ void* Prelin8dup(cmsContext ContextID, const void* ptr)
 static CMS_NO_SANITIZE
 void PrelinEval8(CMSREGISTER const cmsUInt16Number Input[],
     CMSREGISTER cmsUInt16Number Output[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	cmsUInt8Number r, g, b;
 	cmsS15Fixed16Number rx, ry, rz;
@@ -1105,7 +1105,7 @@ cmsBool OptimizeByComputingLinearization(cmsPipeline** Lut,
 		goto Error;
 
 	// Resample the LUT
-	if(!cmsStageSampleCLut16bit(OptimizedCLUTmpe, XFormSampler16, (void*)LutPlusCurves, 0)) goto Error;
+	if(!cmsStageSampleCLut16bit(OptimizedCLUTmpe, XFormSampler16, (void *)LutPlusCurves, 0)) goto Error;
 
 	// Free resources
 	for(t = 0; t < OriginalLut->InputChannels; t++) {
@@ -1125,7 +1125,7 @@ cmsBool OptimizeByComputingLinearization(cmsPipeline** Lut,
 			OptimizedPrelinCurves);
 		if(p8 == NULL) return FALSE;
 
-		_cmsPipelineSetOptimizationParameters(OptimizedLUT, PrelinEval8, (void*)p8, Prelin8free, Prelin8dup);
+		_cmsPipelineSetOptimizationParameters(OptimizedLUT, PrelinEval8, (void *)p8, Prelin8free, Prelin8dup);
 	}
 	else {
 		Prelin16Data* p16 = PrelinOpt16alloc(OptimizedLUT->ContextID,
@@ -1133,7 +1133,7 @@ cmsBool OptimizeByComputingLinearization(cmsPipeline** Lut,
 			3, OptimizedPrelinCurves, 3, NULL);
 		if(p16 == NULL) return FALSE;
 
-		_cmsPipelineSetOptimizationParameters(OptimizedLUT, PrelinEval16, (void*)p16, PrelinOpt16free, Prelin16dup);
+		_cmsPipelineSetOptimizationParameters(OptimizedLUT, PrelinEval16, (void *)p16, PrelinOpt16free, Prelin16dup);
 	}
 
 	// Don't fix white on absolute colorimetric
@@ -1172,7 +1172,7 @@ Error:
 // ------------------------------------------------------------------------------------------------------------------
 
 static
-void CurvesFree(cmsContext ContextID, void* ptr)
+void CurvesFree(cmsContext ContextID, void * ptr)
 {
 	Curves16Data* Data = (Curves16Data*)ptr;
 	cmsUInt32Number i;
@@ -1186,7 +1186,7 @@ void CurvesFree(cmsContext ContextID, void* ptr)
 }
 
 static
-void* CurvesDup(cmsContext ContextID, const void* ptr)
+void * CurvesDup(cmsContext ContextID, const void * ptr)
 {
 	Curves16Data* Data = (Curves16Data*)_cmsDupMem(ContextID, ptr, sizeof(Curves16Data));
 	cmsUInt32Number i;
@@ -1199,7 +1199,7 @@ void* CurvesDup(cmsContext ContextID, const void* ptr)
 		Data->Curves[i] = (cmsUInt16Number*)_cmsDupMem(ContextID, Data->Curves[i], Data->nElements * sizeof(cmsUInt16Number));
 	}
 
-	return (void*)Data;
+	return (void *)Data;
 }
 
 // Precomputes tables for 8-bit on input devicelink.
@@ -1251,7 +1251,7 @@ Curves16Data* CurvesAlloc(cmsContext ContextID, cmsUInt32Number nCurves, cmsUInt
 static
 void FastEvaluateCurves8(CMSREGISTER const cmsUInt16Number In[],
     CMSREGISTER cmsUInt16Number Out[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	Curves16Data* Data = (Curves16Data*)D;
 	int x;
@@ -1266,7 +1266,7 @@ void FastEvaluateCurves8(CMSREGISTER const cmsUInt16Number In[],
 static
 void FastEvaluateCurves16(CMSREGISTER const cmsUInt16Number In[],
     CMSREGISTER cmsUInt16Number Out[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	Curves16Data* Data = (Curves16Data*)D;
 	cmsUInt32Number i;
@@ -1279,7 +1279,7 @@ void FastEvaluateCurves16(CMSREGISTER const cmsUInt16Number In[],
 static
 void FastIdentity16(CMSREGISTER const cmsUInt16Number In[],
     CMSREGISTER cmsUInt16Number Out[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	cmsPipeline* Lut = (cmsPipeline*)D;
 	cmsUInt32Number i;
@@ -1387,7 +1387,7 @@ cmsBool OptimizeByJoiningCurves(cmsPipeline** Lut,
 			goto Error;
 
 		*dwFlags |= cmsFLAGS_NOCACHE;
-		_cmsPipelineSetOptimizationParameters(Dest, FastIdentity16, (void*)Dest, NULL, NULL);
+		_cmsPipelineSetOptimizationParameters(Dest, FastIdentity16, (void *)Dest, NULL, NULL);
 	}
 
 	// We are done.
@@ -1419,13 +1419,13 @@ Error:
 // LUT is Shaper - Matrix - Matrix - Shaper, which is very frequent when combining two matrix-shaper profiles
 
 static
-void  FreeMatShaper(cmsContext ContextID, void* Data)
+void  FreeMatShaper(cmsContext ContextID, void * Data)
 {
 	if(Data != NULL) _cmsFree(ContextID, Data);
 }
 
 static
-void* DupMatShaper(cmsContext ContextID, const void* Data)
+void * DupMatShaper(cmsContext ContextID, const void * Data)
 {
 	return _cmsDupMem(ContextID, Data, sizeof(MatShaper8Data));
 }
@@ -1436,7 +1436,7 @@ void* DupMatShaper(cmsContext ContextID, const void* Data)
 static
 void MatShaperEval16(CMSREGISTER const cmsUInt16Number In[],
     CMSREGISTER cmsUInt16Number Out[],
-    CMSREGISTER const void* D)
+    CMSREGISTER const void * D)
 {
 	MatShaper8Data* p = (MatShaper8Data*)D;
 	cmsS1Fixed14Number l1, l2, l3, r, g, b;
@@ -1567,7 +1567,7 @@ cmsBool SetMatShaper(cmsPipeline* Dest,
 		*OutputFormat |= OPTIMIZED_SH(1);
 
 	// Fill function pointers
-	_cmsPipelineSetOptimizationParameters(Dest, MatShaperEval16, (void*)p, FreeMatShaper, DupMatShaper);
+	_cmsPipelineSetOptimizationParameters(Dest, MatShaperEval16, (void *)p, FreeMatShaper, DupMatShaper);
 	return TRUE;
 }
 
@@ -1813,7 +1813,7 @@ cmsBool _cmsOptimizePipeline(cmsContext ContextID,
 
 	// Anything to optimize?
 	if((*PtrLut)->Elements == NULL) {
-		_cmsPipelineSetOptimizationParameters(*PtrLut, FastIdentity16, (void*)*PtrLut, NULL, NULL);
+		_cmsPipelineSetOptimizationParameters(*PtrLut, FastIdentity16, (void *)*PtrLut, NULL, NULL);
 		return TRUE;
 	}
 
@@ -1822,7 +1822,7 @@ cmsBool _cmsOptimizePipeline(cmsContext ContextID,
 
 	// After removal do we end with an identity?
 	if((*PtrLut)->Elements == NULL) {
-		_cmsPipelineSetOptimizationParameters(*PtrLut, FastIdentity16, (void*)*PtrLut, NULL, NULL);
+		_cmsPipelineSetOptimizationParameters(*PtrLut, FastIdentity16, (void *)*PtrLut, NULL, NULL);
 		return TRUE;
 	}
 

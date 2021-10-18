@@ -2877,7 +2877,7 @@ static int ssl_session_cmp(const SSL_SESSION * a, const SSL_SESSION * b)
 
 /*
  * These wrapper functions should remain rather than redeclaring
- * SSL_SESSION_hash and SSL_SESSION_cmp for void* types and casting each
+ * SSL_SESSION_hash and SSL_SESSION_cmp for void * types and casting each
  * variable. The reason is that the functions aren't static, they're exposed
  * via ssl.h.
  */

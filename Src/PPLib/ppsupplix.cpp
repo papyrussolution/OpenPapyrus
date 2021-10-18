@@ -1881,7 +1881,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 									STRNSCPY(sdr_saldo_aggr.AddressId, temp_buf); // zstring(24)         "Код клиента";
 									// @optional sdr_saldo_aggr.ProductId            zstring(24)         "Код продукта";
 									// @optional sdr_saldo_aggr.ProductName          zstring(128)        "Название продукта";
-									if(ArObj.GetClientAgreement(ar_id, &cli_agt, 0) > 0) {
+									if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0) {
 										sdr_saldo_aggr.mCreditLimit = cli_agt.MaxCredit;
 									}
 									sdr_saldo_aggr.mCustInvoice = debt_item.Debt; //   double format(10.2) "mCustInvoice";
@@ -5739,7 +5739,7 @@ int SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSC
 								p_new_entry->Debt = pack.Rec.Amount - paym;
 								{
 									PPClientAgreement cli_agt;
-									if(ArObj.GetClientAgreement(ar_id, &cli_agt, 1) > 0) {
+									if(ArObj.GetClientAgreement(ar_id, cli_agt, 1) > 0) {
 										p_new_entry->CreditLimit = cli_agt.GetCreditLimit(0);
 										p_new_entry->PayPeriod = cli_agt.DefPayPeriod;
 									}

@@ -235,7 +235,7 @@ static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize
 static inline void decompose_multi_char_cluster(const hb_ot_shape_normalize_context_t * c, unsigned int end, bool short_circuit)
 {
 	hb_buffer_t * const buffer = c->buffer;
-	for(unsigned int i = buffer->idx; i < end && buffer->successful; i++)
+	for(uint i = buffer->idx; i < end && buffer->successful; i++)
 		if(UNLIKELY(buffer->unicode->is_variation_selector(buffer->info[i].codepoint))) {
 			handle_variation_selector_cluster(c, end, short_circuit);
 			return;
@@ -341,7 +341,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 
 	if(!all_simple) {
 		count = buffer->len;
-		for(unsigned int i = 0; i < count; i++) {
+		for(uint i = 0; i < count; i++) {
 			if(_hb_glyph_info_get_modified_combining_class(&buffer->info[i]) == 0)
 				continue;
 
@@ -369,7 +369,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 		 * If it did NOT, then make it skippable.
 		 * https://github.com/harfbuzz/harfbuzz/issues/554
 		 */
-		for(unsigned int i = 1; i + 1 < buffer->len; i++)
+		for(uint i = 1; i + 1 < buffer->len; i++)
 			if(buffer->info[i].codepoint == 0x034Fu /*CGJ*/ &&
 			    info_cc(buffer->info[i-1]) <= info_cc(buffer->info[i+1])) {
 				_hb_glyph_info_unhide(&buffer->info[i]);

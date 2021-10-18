@@ -47,10 +47,10 @@
  *
  * PARAMETERS
  *   thread
- *           an instance of pthread_t
+ *     an instance of pthread_t
  *
  *   value_ptr
- *           pointer to an instance of pointer to void
+ *     pointer to an instance of pointer to void
  *
  *
  * DESCRIPTION
@@ -61,11 +61,11 @@
  *   NOTE:   detached threads cannot be joined or canceled
  *
  * RESULTS
- *           0               'thread' has completed
- *           EINVAL          thread is not a joinable thread,
- *           ESRCH           no thread could be found with ID 'thread',
- *           ENOENT          thread couldn't find it's own valid handle,
- *           EDEADLK         attempt to join thread with self
+ *     0               'thread' has completed
+ *     EINVAL          thread is not a joinable thread,
+ *     ESRCH           no thread could be found with ID 'thread',
+ *     ENOENT          thread couldn't find it's own valid handle,
+ *     EDEADLK         attempt to join thread with self
  *
  * ------------------------------------------------------
  */

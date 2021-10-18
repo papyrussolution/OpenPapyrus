@@ -2379,7 +2379,7 @@ extern int _zbar_window_draw_logo(zbar_window_t*);
 	//#include "window/win.h"
 	struct window_state_s {
 		HDC hdc;
-		void* hdd;
+		void * hdd;
 		BITMAPINFOHEADER bih;
 		/* pre-calculated logo geometries */
 		int logo_scale;

@@ -195,7 +195,7 @@ int PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 		{
             SETMAX(range.low, 0);
             SETMAX(range.upp, 0);
-            ExchangeToOrder(&range.low, &range.upp);
+            ExchangeForOrder(&range.low, &range.upp);
             for(long v = range.low; v <= range.upp; v++) {
                 rList.add(v);
 				THROW_PP_S(rList.getCount() <= 2000, PPERR_TOOLARGERANGE, temp_buf);

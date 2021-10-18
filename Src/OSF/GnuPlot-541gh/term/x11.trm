@@ -639,44 +639,44 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 #ifdef EXTERNAL_X11_WINDOW
 	if(set_window) {
-		sprintf(GPT.TermOptions, "XID 0x%lX", existing_X11_window_id);
+		slprintf(GPT._TermOptions, "XID 0x%lX", existing_X11_window_id);
 	}
 	else
 #endif
 	if(set_number && new_term_number >= 0) {
-		sprintf(GPT.TermOptions, "%d", new_term_number);
+		slprintf(GPT._TermOptions, "%d", new_term_number);
 	}
 	if(UNSET != do_raise) {
-		strcat(GPT.TermOptions, (yes == do_raise ? " raise" : " noraise"));
+		GPT._TermOptions.Cat((yes == do_raise ? " raise" : " noraise"));
 	}
 	if(UNSET != replot_on_resize) {
-		strcat(GPT.TermOptions, (yes == replot_on_resize ? " replotonresize" : " noreplotonresize"));
+		GPT._TermOptions.Cat((yes == replot_on_resize ? " replotonresize" : " noreplotonresize"));
 	}
 	if(UNSET != x11_persist) {
-		strcat(GPT.TermOptions, (yes == x11_persist ? " persist" : " nopersist"));
+		GPT._TermOptions.Cat((yes == x11_persist ? " persist" : " nopersist"));
 	}
 	if(UNSET != ctrlq) {
-		strcat(GPT.TermOptions, (yes == ctrlq ? " ctrlq" : " noctrlq"));
+		GPT._TermOptions.Cat((yes == ctrlq ? " ctrlq" : " noctrlq"));
 	}
 	if(pThis->put_text == ENHX11_put_text) {
-		strcat(GPT.TermOptions, " enhanced");
+		GPT._TermOptions.Cat(" enhanced");
 	}
 	if(X11_linewidth_multiplier != 1.0) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " linewidth %.2g", X11_linewidth_multiplier);
+		slprintf_cat(GPT._TermOptions, " linewidth %.2g", X11_linewidth_multiplier);
 	}
 	if(*X11_default_font) {
-		strcat(GPT.TermOptions, " font \"");
-		strcat(GPT.TermOptions, X11_default_font);
-		strcat(GPT.TermOptions, "\"");
+		GPT._TermOptions.Cat(" font \"");
+		GPT._TermOptions.Cat(X11_default_font);
+		GPT._TermOptions.Cat("\"");
 	}
 	if(set_title) {
 		char * title;
 		int save_token = pGp->Pgm.GetCurTokenIdx();
 		pGp->Pgm.SetTokenIdx(c_title_token);
-		strncat(GPT.TermOptions, " title \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(" title \"");
 		title = GPT.TermOptions + strlen(GPT.TermOptions);
 		if(pGp->Pgm.IsStringValue(c_title_token) && (s = pGp->TryToGetString())) {
-			strncat(GPT.TermOptions, s, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+			GPT._TermOptions.Cat(s);
 			SAlloc::F(s);
 		}
 		else
@@ -692,13 +692,13 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			fputc('\n', X11_ipc);
 			fflush(X11_ipc);
 		}
-		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat("\"");
 		pGp->Pgm.SetTokenIdx(save_token);
 	}
 	if(set_size != UNSET)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
+		slprintf_cat(GPT._TermOptions, " size %d,%d ", X11_SIZE_X, X11_SIZE_Y);
 	if(set_position != UNSET)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
+		slprintf_cat(GPT._TermOptions, " position %d,%d ", X11_POSITION_X, X11_POSITION_Y);
 	X11_update_opts();
 }
 
@@ -768,7 +768,7 @@ TERM_PUBLIC void X11_update_opts()
  *   DEFAULT_X11:      popen() pipe for most un*x platforms
  *
  *   CRIPPLED_SELECT : file IPC for un*x platforms with incomplete or faulty
- *                     implementation of BSD select()
+ *               implementation of BSD select()
  *
  *   VMS :             mailbox/spawn IPC
  *---------------------------------------------------------------------------*/
@@ -867,8 +867,8 @@ TERM_PUBLIC int X11_waitforinput(GpTermEntry * pThis, int options)
 	}
 
 	/* XXX:  if the input device it not a tty (e.g. /dev/null)
-	 *       mouse events are not processed. This is necessary
-	 *       as on some systems /dev/null is not selectable.
+	 * mouse events are not processed. This is necessary
+	 * as on some systems /dev/null is not selectable.
 	 * TODO: should we close the ipc_back_fd in this case ? */
 
 	// While we have ipc_back_fd data to process, process it. If not, read the
@@ -910,7 +910,7 @@ TERM_PUBLIC int X11_waitforinput(GpTermEntry * pThis, int options)
 		}
 		// got some ipc_back_fd data. Process all of it before moving on to stdin
 		have_any_ipc_back_fd_data = true;
-		n = read(ipc_back_fd, (void*)(l + (char *)&ge), sizeof(ge) - l);
+		n = read(ipc_back_fd, (void *)(l + (char *)&ge), sizeof(ge) - l);
 		if(n == 0) {
 			close(ipc_back_fd);
 			ipc_back_fd = -1;
@@ -1732,7 +1732,7 @@ TERM_PUBLIC void X11_filled_polygon(int points, gpiPoint * corners)
 					fprintf(stderr, "Bad character mapping %d -> %d\n", (int)FILLED_POLYGON_CODE_CHAR, sent_val);
 				i_buffer--;
 				if(!i_buffer) {
-					fputc('\n', X11_ipc);  FFLUSH();/* End of chunk. */
+					fputc('\n', X11_ipc);  FFLUSH(); /* End of chunk. */
 					i_buffer = BINARY_MAX_CHAR_PER_TRANSFER;
 					fputc(X11_GR_BINARY_POLYGON, X11_ipc); /* Will be another chunk. */
 				}
@@ -2076,7 +2076,7 @@ TERM_PUBLIC void X11_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 					fprintf(stderr, "Bad character mapping %d -> %d\n", (int)IMAGE_CODE_CHAR, sent_val);
 				i_buffer--;
 				if(!i_buffer) {
-					fputc('\n', X11_ipc);  FFLUSH();/* End of chunk. */
+					fputc('\n', X11_ipc);  FFLUSH(); /* End of chunk. */
 					i_buffer = BINARY_MAX_CHAR_PER_TRANSFER;
 					fputc(X11_GR_IMAGE, X11_ipc); /* Will be another chunk. */
 				}

@@ -36,11 +36,11 @@ static int blake2sp_init_leaf_param(blake2s_state * S, const blake2s_param * P)
 	return err;
 }
 
-static int blake2sp_init_leaf(blake2s_state * S, size_t outlen, size_t keylen, uint32_t offset)
+static int blake2sp_init_leaf(blake2s_state * S, size_t outlen, size_t keylen, uint32 offset)
 {
 	blake2s_param P[1];
-	P->digest_length = (uint8_t)outlen;
-	P->key_length = (uint8_t)keylen;
+	P->digest_length = (uint8)outlen;
+	P->key_length = (uint8)keylen;
 	P->fanout = PARALLELISM_DEGREE;
 	P->depth = 2;
 	store32(&P->leaf_length, 0);
@@ -56,8 +56,8 @@ static int blake2sp_init_leaf(blake2s_state * S, size_t outlen, size_t keylen, u
 static int blake2sp_init_root(blake2s_state * S, size_t outlen, size_t keylen)
 {
 	blake2s_param P[1];
-	P->digest_length = (uint8_t)outlen;
-	P->key_length = (uint8_t)keylen;
+	P->digest_length = (uint8)outlen;
+	P->key_length = (uint8)keylen;
 	P->fanout = PARALLELISM_DEGREE;
 	P->depth = 2;
 	store32(&P->leaf_length, 0);
@@ -82,7 +82,7 @@ int blake2sp_init(blake2sp_state * S, size_t outlen)
 		return -1;
 
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
-		if(blake2sp_init_leaf(S->S[i], outlen, 0, (uint32_t)i) < 0) return -1;
+		if(blake2sp_init_leaf(S->S[i], outlen, 0, (uint32)i) < 0) return -1;
 
 	S->R->last_node = 1;
 	S->S[PARALLELISM_DEGREE - 1]->last_node = 1;
@@ -102,12 +102,12 @@ int blake2sp_init_key(blake2sp_state * S, size_t outlen, const void * key, size_
 	if(blake2sp_init_root(S->R, outlen, keylen) < 0)
 		return -1;
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
-		if(blake2sp_init_leaf(S->S[i], outlen, keylen, (uint32_t)i) < 0) return -1;
+		if(blake2sp_init_leaf(S->S[i], outlen, keylen, (uint32)i) < 0) return -1;
 
 	S->R->last_node = 1;
 	S->S[PARALLELISM_DEGREE - 1]->last_node = 1;
 	{
-		uint8_t block[BLAKE2S_BLOCKBYTES];
+		uint8 block[BLAKE2S_BLOCKBYTES];
 		memzero(block, BLAKE2S_BLOCKBYTES);
 		memcpy(block, key, keylen);
 
@@ -121,7 +121,7 @@ int blake2sp_init_key(blake2sp_state * S, size_t outlen, const void * key, size_
 
 int blake2sp_update(blake2sp_state * S, const void * pin, size_t inlen)
 {
-	const unsigned char * in = (const unsigned char*)pin;
+	const uchar * in = (const uchar *)pin;
 	size_t left = S->buflen;
 	size_t fill = sizeof( S->buf ) - left;
 	size_t i;
@@ -147,7 +147,7 @@ int blake2sp_update(blake2sp_state * S, const void * pin, size_t inlen)
 		size_t i = omp_get_thread_num();
 #endif
 		size_t inlen__ = inlen;
-		const unsigned char * in__ = (const unsigned char*)in;
+		const uchar * in__ = (const uchar *)in;
 		in__ += i * BLAKE2S_BLOCKBYTES;
 
 		while(inlen__ >= PARALLELISM_DEGREE * BLAKE2S_BLOCKBYTES) {
@@ -169,7 +169,7 @@ int blake2sp_update(blake2sp_state * S, const void * pin, size_t inlen)
 
 int blake2sp_final(blake2sp_state * S, void * out, size_t outlen)
 {
-	uint8_t hash[PARALLELISM_DEGREE][BLAKE2S_OUTBYTES];
+	uint8 hash[PARALLELISM_DEGREE][BLAKE2S_OUTBYTES];
 	size_t i;
 
 	if(out == NULL || outlen < S->outlen) {
@@ -196,7 +196,7 @@ int blake2sp_final(blake2sp_state * S, void * out, size_t outlen)
 
 int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const void * key, size_t keylen)
 {
-	uint8_t hash[PARALLELISM_DEGREE][BLAKE2S_OUTBYTES];
+	uint8 hash[PARALLELISM_DEGREE][BLAKE2S_OUTBYTES];
 	blake2s_state S[PARALLELISM_DEGREE][1];
 	blake2s_state FS[1];
 	size_t i;
@@ -213,12 +213,12 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 	if(keylen > BLAKE2S_KEYBYTES) return -1;
 
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
-		if(blake2sp_init_leaf(S[i], outlen, keylen, (uint32_t)i) < 0) return -1;
+		if(blake2sp_init_leaf(S[i], outlen, keylen, (uint32)i) < 0) return -1;
 
 	S[PARALLELISM_DEGREE - 1]->last_node = 1; /* mark last node */
 
 	if(keylen > 0) {
-		uint8_t block[BLAKE2S_BLOCKBYTES];
+		uint8 block[BLAKE2S_BLOCKBYTES];
 		memzero(block, BLAKE2S_BLOCKBYTES);
 		memcpy(block, key, keylen);
 		for(i = 0; i < PARALLELISM_DEGREE; ++i)
@@ -235,7 +235,7 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 		size_t i = omp_get_thread_num();
 #endif
 		size_t inlen__ = inlen;
-		const unsigned char * in__ = (const unsigned char*)in;
+		const uchar * in__ = (const uchar *)in;
 		in__ += i * BLAKE2S_BLOCKBYTES;
 
 		while(inlen__ >= PARALLELISM_DEGREE * BLAKE2S_BLOCKBYTES) {
@@ -269,19 +269,19 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 #include "blake2-kat.h"
 int main(void)
 {
-	uint8_t key[BLAKE2S_KEYBYTES];
-	uint8_t buf[BLAKE2_KAT_LENGTH];
+	uint8 key[BLAKE2S_KEYBYTES];
+	uint8 buf[BLAKE2_KAT_LENGTH];
 	size_t i, step;
 
 	for(i = 0; i < BLAKE2S_KEYBYTES; ++i)
-		key[i] = (uint8_t)i;
+		key[i] = (uint8)i;
 
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i)
-		buf[i] = (uint8_t)i;
+		buf[i] = (uint8)i;
 
 	/* Test simple API */
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
-		uint8_t hash[BLAKE2S_OUTBYTES];
+		uint8 hash[BLAKE2S_OUTBYTES];
 		blake2sp(hash, BLAKE2S_OUTBYTES, buf, i, key, BLAKE2S_KEYBYTES);
 
 		if(0 != memcmp(hash, blake2sp_keyed_kat[i], BLAKE2S_OUTBYTES) ) {
@@ -292,9 +292,9 @@ int main(void)
 	/* Test streaming API */
 	for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
 		for(i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
-			uint8_t hash[BLAKE2S_OUTBYTES];
+			uint8 hash[BLAKE2S_OUTBYTES];
 			blake2sp_state S;
-			uint8_t * p = buf;
+			uint8 * p = buf;
 			size_t mlen = i;
 			int err = 0;
 

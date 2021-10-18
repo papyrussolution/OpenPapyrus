@@ -34,7 +34,7 @@
 
 /**************************************************************************
  *
- *                          integer limits
+ *                    integer limits
  *
  * `UINT_MAX` and `ULONG_MAX` are used to automatically compute the size of
  * `int` and `long` in bytes at compile-time.  So far, this works for all
@@ -61,7 +61,7 @@
 
 /**************************************************************************
  *
- *                character and string processing
+ *          character and string processing
  *
  */
 //#include <string.h>
@@ -81,7 +81,7 @@
 
 /**************************************************************************
  *
- *                          file handling
+ *                    file handling
  *
  */
 //#include <stdio.h>
@@ -96,35 +96,26 @@
 
 /**************************************************************************
  *
- *                            sorting
+ *                      sorting
  *
  */
 //#include <stdlib.h>
 #define ft_qsort  qsort
-
-/**************************************************************************
- *
- *                       memory allocation
- *
- */
-#define ft_scalloc   calloc
-#define ft_sfree     free
-#define ft_smalloc   malloc
-#define ft_srealloc  realloc
-
-/**************************************************************************
- *
- *                         miscellaneous
- *
- */
+// 
+// memory allocation
+// 
+// @sobolev #define ft_scalloc   calloc
+// @sobolev #define ft_sfree     free
+// @sobolev #define ft_smalloc   malloc
+// @sobolev #define ft_srealloc  realloc
+// 
+// miscellaneous
+// 
 #define ft_strtol  strtol
 #define ft_getenv  getenv
-
-/**************************************************************************
- *
- *                        execution control
- *
- */
+// 
+// execution control
+// 
 #include <setjmp.h>
 
 #define ft_jmp_buf     jmp_buf  /* note: this cannot be a typedef since  */

@@ -2626,7 +2626,7 @@ void FillArticleRec(const PPArticlePacket * pInner, SPpyO_Article * pOuter)
 		FLD_CA(DefPayPeriod);
 		FLD_CA(DefAgentID);
 		FLD_CA(DefQuotKindID);
-		(temp_buf = pInner->P_CliAgt->Code2).CopyToOleStr(&pOuter->CaCode); // @v10.2.9 Code-->Code2
+		(temp_buf = pInner->P_CliAgt->Code_).CopyToOleStr(&pOuter->CaCode); // @v10.2.9 Code-->Code2 // @v11.2.0 Code2-->Code_
 	}
 	else {
 		pOuter->CaFlags = 0;
@@ -7347,17 +7347,17 @@ double DL6ICLS_PPFiltCCheck::get_MaxQtty()                 { IMPL_PPIFC_GETPROP(
 void   DL6ICLS_PPFiltCCheck::put_MaxQtty(double value)     { IMPL_PPIFC_PUTPROP(CCheckFilt, QttyR.upp); }
 double DL6ICLS_PPFiltCCheck::get_AmountQuant()             { IMPL_PPIFC_GETPROP(CCheckFilt, AmountQuant); }
 void   DL6ICLS_PPFiltCCheck::put_AmountQuant(double value) { IMPL_PPIFC_PUTPROP(CCheckFilt, AmountQuant); }
-PpyVCCheckFlags DL6ICLS_PPFiltCCheck::get_Flags()       { return static_cast<PpyVCCheckFlags>(static_cast<const CCheckFilt *>(ExtraPtr)->Flags); }
+PpyVCCheckFlags DL6ICLS_PPFiltCCheck::get_Flags() { return static_cast<PpyVCCheckFlags>(static_cast<const CCheckFilt *>(ExtraPtr)->Flags); }
 void  DL6ICLS_PPFiltCCheck::put_Flags(PpyVCCheckFlags value) { IMPL_PPIFC_PUTPROP(CCheckFilt, Flags); }
 PpyVCCheckGrouping DL6ICLS_PPFiltCCheck::get_Grp()           { return static_cast<PpyVCCheckGrouping>(static_cast<const CCheckFilt *>(ExtraPtr)->Grp); }
 void DL6ICLS_PPFiltCCheck::put_Grp(PpyVCCheckGrouping value) { static_cast<CCheckFilt *>(ExtraPtr)->Grp = static_cast<CCheckFilt::Grouping>(value); }
 SDateRange DL6ICLS_PPFiltCCheck::get_Period()                { return DateRangeToOleDateRange(static_cast<const CCheckFilt *>(ExtraPtr)->Period); }
 LTIME DL6ICLS_PPFiltCCheck::get_MinTime()                  { IMPL_PPIFC_GETPROP(CCheckFilt, TimePeriod.low); }
-void  DL6ICLS_PPFiltCCheck::put_MinTime(LTIME value)       { IMPL_PPIFC_PUTPROP(CCheckFilt, TimePeriod.low); }
+void  DL6ICLS_PPFiltCCheck::put_MinTime(LTIME value) { IMPL_PPIFC_PUTPROP(CCheckFilt, TimePeriod.low); }
 LTIME DL6ICLS_PPFiltCCheck::get_MaxTime()                  { IMPL_PPIFC_GETPROP(CCheckFilt, TimePeriod.upp); }
-void  DL6ICLS_PPFiltCCheck::put_MaxTime(LTIME value)       { IMPL_PPIFC_PUTPROP(CCheckFilt, TimePeriod.upp); }
+void  DL6ICLS_PPFiltCCheck::put_MaxTime(LTIME value) { IMPL_PPIFC_PUTPROP(CCheckFilt, TimePeriod.upp); }
 int32 DL6ICLS_PPFiltCCheck::get_WeekDays()                 { IMPL_PPIFC_GETPROP(CCheckFilt, WeekDays);   }
-void DL6ICLS_PPFiltCCheck::put_WeekDays(int32 value)       { IMPL_PPIFC_PUTPROP_CAST(CCheckFilt, WeekDays, uint8); }
+void DL6ICLS_PPFiltCCheck::put_WeekDays(int32 value) { IMPL_PPIFC_PUTPROP_CAST(CCheckFilt, WeekDays, uint8); }
 int32 DL6ICLS_PPFiltCCheck::get_HourBefore()               { IMPL_PPIFC_GETPROP(CCheckFilt, HourBefore); }
 void DL6ICLS_PPFiltCCheck::put_HourBefore(int32 value)     { IMPL_PPIFC_PUTPROP_CAST(CCheckFilt, HourBefore, uint8); }
 //
@@ -8066,13 +8066,13 @@ void  DL6ICLS_PPFiltGoods::put_ManufCountryID(int32 value) { IMPL_PPIFC_PUTPROP(
 int32 DL6ICLS_PPFiltGoods::get_UnitID()                    { IMPL_PPIFC_GETPROP(GoodsFilt, UnitID); }
 void  DL6ICLS_PPFiltGoods::put_UnitID(int32 value)         { IMPL_PPIFC_PUTPROP(GoodsFilt, UnitID); }
 int32 DL6ICLS_PPFiltGoods::get_PhUnitID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, PhUnitID); }
-void  DL6ICLS_PPFiltGoods::put_PhUnitID(int32 value)       { IMPL_PPIFC_PUTPROP(GoodsFilt, PhUnitID); }
+void  DL6ICLS_PPFiltGoods::put_PhUnitID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, PhUnitID); }
 int32 DL6ICLS_PPFiltGoods::get_SupplID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, SupplID); }
 void  DL6ICLS_PPFiltGoods::put_SupplID(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, SupplID); }
 int32 DL6ICLS_PPFiltGoods::get_GoodsTypeID()               { IMPL_PPIFC_GETPROP(GoodsFilt, GoodsTypeID); }
 void  DL6ICLS_PPFiltGoods::put_GoodsTypeID(int32 value)    { IMPL_PPIFC_PUTPROP(GoodsFilt, GoodsTypeID); }
 int32 DL6ICLS_PPFiltGoods::get_TaxGrpID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, TaxGrpID); }
-void  DL6ICLS_PPFiltGoods::put_TaxGrpID(int32 value)       { IMPL_PPIFC_PUTPROP(GoodsFilt, TaxGrpID); }
+void  DL6ICLS_PPFiltGoods::put_TaxGrpID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, TaxGrpID); }
 int32 DL6ICLS_PPFiltGoods::get_LocID()                     { IMPL_PPIFC_GETPROP(GoodsFilt, LocList.GetSingle()); }
 void  DL6ICLS_PPFiltGoods::put_LocID(int32 value)
 {
@@ -8096,10 +8096,10 @@ SString & DL6ICLS_PPFiltGoods::get_SrchStr()               { IMPL_PPIFC_GETPROP(
 void  DL6ICLS_PPFiltGoods::put_BarcodeLen(SString & value) { IMPL_PPIFC_PUTPROP(GoodsFilt, BarcodeLen); }
 SString & DL6ICLS_PPFiltGoods::get_BarcodeLen()            { IMPL_PPIFC_GETPROP(GoodsFilt, BarcodeLen); }
 
-void  DL6ICLS_PPFiltGoods::put_GdsClsID(int32 value)       { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.GdsClsID); }
+void  DL6ICLS_PPFiltGoods::put_GdsClsID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.GdsClsID); }
 int32 DL6ICLS_PPFiltGoods::get_GdsClsID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.GdsClsID); }
 int32 DL6ICLS_PPFiltGoods::get_CodeArID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, CodeArID); }
-void  DL6ICLS_PPFiltGoods::put_CodeArID(int32 value)       { IMPL_PPIFC_PUTPROP(GoodsFilt, CodeArID); }
+void  DL6ICLS_PPFiltGoods::put_CodeArID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, CodeArID); }
 
 #define FILTGOODS_CLSF_BLOCK(cl) \
 void  DL6ICLS_PPFiltGoods::put_##cl##ID(int32 value)         { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.##cl##List); } \
@@ -8112,7 +8112,7 @@ FILTGOODS_CLSF_BLOCK(AddObj2)
 /*
 void  DL6ICLS_PPFiltGoods::put_KindID(int32 value)         { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.KindID); }
 int32 DL6ICLS_PPFiltGoods::get_KindID()                    { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.KindID); }
-void  DL6ICLS_PPFiltGoods::put_AddObjID(int32 value)       { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.AddObjID); }
+void  DL6ICLS_PPFiltGoods::put_AddObjID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.AddObjID); }
 int32 DL6ICLS_PPFiltGoods::get_AddObjID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.AddObjID); }
 void  DL6ICLS_PPFiltGoods::put_GradeID(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.GradeID); }
 int32 DL6ICLS_PPFiltGoods::get_GradeID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.GradeID); }

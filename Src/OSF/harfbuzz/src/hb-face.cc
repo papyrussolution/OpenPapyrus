@@ -480,7 +480,7 @@ static hb_face_builder_data_t * _hb_face_builder_data_create()
 static void _hb_face_builder_data_destroy(void * user_data)
 {
 	hb_face_builder_data_t * data = (hb_face_builder_data_t*)user_data;
-	for(unsigned int i = 0; i < data->tables.length; i++)
+	for(uint i = 0; i < data->tables.length; i++)
 		hb_blob_destroy(data->tables[i].blob);
 	data->tables.fini();
 	SAlloc::F(data);
@@ -490,7 +490,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 {
 	unsigned int table_count = data->tables.length;
 	unsigned int face_length = table_count * 16 + 12;
-	for(unsigned int i = 0; i < table_count; i++)
+	for(uint i = 0; i < table_count; i++)
 		face_length += hb_ceil_to_4(hb_blob_get_length(data->tables[i].blob));
 	char * buf = (char *)SAlloc::M(face_length);
 	if(UNLIKELY(!buf))

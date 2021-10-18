@@ -42,7 +42,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#define _DEFAULT_SOURCE /* for snprintf(), strdup() */
+#define _DEFAULT_SOURCE /* for snprintf(), sstrdup() */
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -980,13 +980,13 @@ static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_
 	status = cairo_truetype_font_generate(font, &data, &length, &string_offsets, &num_strings);
 	if(UNLIKELY(status))
 		goto fail1;
-	truetype_subset->ps_name = strdup(font->base.ps_name);
+	truetype_subset->ps_name = sstrdup(font->base.ps_name);
 	if(UNLIKELY(truetype_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
 	if(font->base.font_name != NULL) {
-		truetype_subset->family_name_utf8 = strdup(font->base.font_name);
+		truetype_subset->family_name_utf8 = sstrdup(font->base.font_name);
 		if(UNLIKELY(truetype_subset->family_name_utf8 == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail2;

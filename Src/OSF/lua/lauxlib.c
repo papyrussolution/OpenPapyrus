@@ -618,7 +618,7 @@ static int skipBOM(LoadF * lf) {
 	lf->n = 0;
 	do {
 		c = getc(lf->f);
-		if(c == EOF || c != *(const unsigned char*)p++) return c;
+		if(c == EOF || c != *(const uchar *)p++) return c;
 		lf->buff[lf->n++] = c; /* to be read by the parser */
 	} while(*p != '\0');
 	lf->n = 0; /* prefix matched; discard it */

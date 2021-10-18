@@ -75,7 +75,7 @@ lzma_vli lzma_block_unpadded_size(const lzma_block *block)
 	// Compressed Size is unknown.
 	if(block == NULL || block->version > 1 || block->header_size < LZMA_BLOCK_HEADER_SIZE_MIN || 
 		block->header_size > LZMA_BLOCK_HEADER_SIZE_MAX || (block->header_size & 3) || 
-		!lzma_vli_is_valid(block->compressed_size) || block->compressed_size == 0 || (unsigned int)(block->check) > LZMA_CHECK_ID_MAX)
+		!lzma_vli_is_valid(block->compressed_size) || block->compressed_size == 0 || (uint)(block->check) > LZMA_CHECK_ID_MAX)
 		return 0;
 	// If Compressed Size is unknown, return that we cannot know
 	// size of the Block either.
@@ -126,7 +126,7 @@ lzma_ret lzma_block_header_size(lzma_block *block)
 		// Don't allow too many filters.
 		if(i == LZMA_FILTERS_MAX)
 			return LZMA_PROG_ERROR;
-		uint32_t add;
+		uint32 add;
 		return_if_error(lzma_filter_flags_size(&add, block->filters + i));
 		size += add;
 	}
@@ -221,7 +221,7 @@ lzma_ret lzma_block_header_decode(lzma_block *block, const lzma_allocator *alloc
 
 	// Validate Block Header Size and Check type. The caller must have
 	// already set these, so it is a programming error if this test fails.
-	if(lzma_block_header_size_decode(in[0]) != block->header_size || (unsigned int)(block->check) > LZMA_CHECK_ID_MAX)
+	if(lzma_block_header_size_decode(in[0]) != block->header_size || (uint)(block->check) > LZMA_CHECK_ID_MAX)
 		return LZMA_PROG_ERROR;
 	// Exclude the CRC32 field.
 	const size_t in_size = block->header_size - 4;
@@ -435,8 +435,7 @@ static lzma_ret block_encode_normal(lzma_block * block, const lzma_allocator * a
 	return ret;
 }
 
-static lzma_ret block_buffer_encode(lzma_block * block, const lzma_allocator * allocator,
-    const uint8_t * in, size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, bool try_to_compress)
+static lzma_ret block_buffer_encode(lzma_block * block, const lzma_allocator * allocator, const uint8 * in, size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, bool try_to_compress)
 {
 	// Validate the arguments.
 	if(block == NULL || (in == NULL && in_size != 0) || out == NULL || out_pos == NULL || *out_pos > out_size)
@@ -445,7 +444,7 @@ static lzma_ret block_buffer_encode(lzma_block * block, const lzma_allocator * a
 	// check the version before validating the contents of *block.
 	if(block->version > 1)
 		return LZMA_OPTIONS_ERROR;
-	if((unsigned int)(block->check) > LZMA_CHECK_ID_MAX || (try_to_compress && block->filters == NULL))
+	if((uint)(block->check) > LZMA_CHECK_ID_MAX || (try_to_compress && block->filters == NULL))
 		return LZMA_PROG_ERROR;
 	if(!lzma_check_is_supported(block->check))
 		return LZMA_UNSUPPORTED_CHECK;
@@ -524,7 +523,7 @@ lzma_ret lzma_block_uncomp_encode(lzma_block *block, const uint8_t *in, size_t i
 // block_buffer_decoder
 //
 lzma_ret lzma_block_buffer_decode(lzma_block *block, const lzma_allocator *allocator,
-    const uint8_t *in, size_t *in_pos, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+    const uint8 *in, size_t *in_pos, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
 {
 	if(in_pos == NULL || (in == NULL && *in_pos != in_size) || *in_pos > in_size || out_pos == NULL || (out == NULL && *out_pos != out_size) || *out_pos > out_size)
 		return LZMA_PROG_ERROR;
@@ -577,8 +576,7 @@ lzma_ret lzma_block_buffer_decode(lzma_block *block, const lzma_allocator *alloc
 //
 // block_encoder
 //
-static lzma_ret block_encode(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos, size_t in_size, uint8_t * out,
+static lzma_ret block_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos, size_t in_size, uint8 * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_block_encoder_coder * coder = (lzma_block_encoder_coder *)coder_ptr;
@@ -670,7 +668,7 @@ extern lzma_ret lzma_block_encoder_init(lzma_next_coder * next, const lzma_alloc
 		return LZMA_OPTIONS_ERROR;
 	// If the Check ID is not supported, we cannot calculate the check and
 	// thus not create a proper Block.
-	if((unsigned int)(block->check) > LZMA_CHECK_ID_MAX)
+	if((uint)(block->check) > LZMA_CHECK_ID_MAX)
 		return LZMA_PROG_ERROR;
 	if(!lzma_check_is_supported(block->check))
 		return LZMA_UNSUPPORTED_CHECK;
@@ -724,8 +722,8 @@ static inline bool is_size_valid(lzma_vli size, lzma_vli reference)
 	return reference == LZMA_VLI_UNKNOWN || reference == size;
 }
 
-static lzma_ret block_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret block_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_block_decoder_coder * coder = (lzma_block_decoder_coder *)coder_ptr;
 	switch(coder->sequence) {

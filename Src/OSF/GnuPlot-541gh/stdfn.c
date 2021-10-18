@@ -336,7 +336,7 @@ struct DIR {
 	intptr_t handle;        /* -1 for failed rewind */
 	struct _wfinddata_t info;
 	struct gp_dirent result; /* d_name null iff first time */
-	WCHAR * name;/* null-terminated string */
+	WCHAR * name; /* null-terminated string */
 	char info_mbname[4*260];
 };
 

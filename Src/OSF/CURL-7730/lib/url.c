@@ -463,7 +463,7 @@ CURLcode Curl_init_userdefined(struct Curl_easy * data)
 
 	set->out = stdout; /* default output to stdout */
 	set->in_set = stdin; /* default input from stdin */
-	set->err  = stderr;/* default stderr to stderr */
+	set->err  = stderr; /* default stderr to stderr */
 
 	/* use fwrite as default function to store output */
 	set->fwrite_func = (curl_write_callback)fwrite;
@@ -1078,7 +1078,7 @@ static bool ConnectionExists(struct Curl_easy * data,
 		struct Curl_llist_element * curr;
 
 		infof(data, "Found bundle for host %s: %p [%s]\n",
-		    hostbundle, (void*)bundle, (bundle->multiuse == BUNDLE_MULTIPLEX ?
+		    hostbundle, (void *)bundle, (bundle->multiuse == BUNDLE_MULTIPLEX ?
 		    "can multiplex" : "serially"));
 
 		/* We can't multiplex if we don't know anything about the server */
@@ -2589,11 +2589,11 @@ out:
  * login    [in]     - The login string.
  * len      [in]     - The length of the login string.
  * userp    [in/out] - The address where a pointer to newly allocated memory
- *                     holding the user will be stored upon completion.
+ *               holding the user will be stored upon completion.
  * passwdp  [in/out] - The address where a pointer to newly allocated memory
- *                     holding the password will be stored upon completion.
+ *               holding the password will be stored upon completion.
  * optionsp [in/out] - The address where a pointer to newly allocated memory
- *                     holding the options will be stored upon completion.
+ *               holding the options will be stored upon completion.
  *
  * Returns CURLE_OK on success.
  */

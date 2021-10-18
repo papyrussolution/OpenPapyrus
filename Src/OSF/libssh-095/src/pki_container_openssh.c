@@ -33,11 +33,11 @@
  * @brief Import a private key from a ssh buffer.
  *
  * @param[in] key_blob_buffer The key blob to import as specified in
- *                            key.c:key_private_serialize in OpenSSH source
- *                            code.
+ *                      key.c:key_private_serialize in OpenSSH source
+ *                      code.
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *

@@ -343,7 +343,7 @@ int HarfBuzzTestIter() // ###
 	    | hb_map([&] (int i) -> hb_set_t *
 	{
 		hb_set_t * set = hb_set_create();
-		for(unsigned int i = 0; i < temp1; ++i)
+		for(uint i = 0; i < temp1; ++i)
 			hb_set_add(set, i);
 		temp1++;
 		return set;
@@ -749,7 +749,7 @@ int HarfBuzzTestCommon(const char * pFileName) // ###
 	unsigned int count = hb_buffer_get_length(buffer);
 	hb_glyph_info_t * infos = hb_buffer_get_glyph_infos(buffer, nullptr);
 	hb_glyph_position_t * positions = hb_buffer_get_glyph_positions(buffer, nullptr);
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		hb_glyph_info_t * info = &infos[i];
 		hb_glyph_position_t * pos = &positions[i];
 		printf("cluster %d	glyph 0x%x at	(%d,%d)+(%d,%d)\n", info->cluster, info->codepoint, pos->x_offset,
@@ -884,14 +884,14 @@ int HarfBuzzTestOtMeta(const char * pFileName) // ###
 	unsigned int count = 0;
 #ifndef HB_NO_META
 	count = hb_ot_meta_get_entry_tags(face, 0, nullptr, nullptr);
-	hb_ot_meta_tag_t * tags = (hb_ot_meta_tag_t*)malloc(sizeof(hb_ot_meta_tag_t) * count);
+	hb_ot_meta_tag_t * tags = (hb_ot_meta_tag_t *)SAlloc::M(sizeof(hb_ot_meta_tag_t) * count);
 	hb_ot_meta_get_entry_tags(face, 0, &count, tags);
 	for(unsigned i = 0; i < count; ++i) {
 		hb_blob_t * entry = hb_ot_meta_reference_entry(face, tags[i]);
 		printf("%c%c%c%c, size: %d: %.*s\n", HB_UNTAG(tags[i]), hb_blob_get_length(entry), hb_blob_get_length(entry), hb_blob_get_data(entry, nullptr));
 		hb_blob_destroy(entry);
 	}
-	free(tags);
+	SAlloc::F(tags);
 #endif
 	hb_face_destroy(face);
 	if(!count)

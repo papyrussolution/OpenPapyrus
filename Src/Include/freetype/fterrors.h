@@ -82,8 +82,8 @@
  *
  *     const struct
  *     {
- *       int          err_code;
- *       const char*  err_msg;
+ * int          err_code;
+ * const char*  err_msg;
  *     } ft_errors[] =
  *
  *     #include <freetype/fterrors.h>
@@ -259,7 +259,7 @@ FT_BEGIN_HEADER
  *
  *   ```c
  *     strcmp( FT_Error_String(  FT_Err_Unknown_File_Format ),
- *             FT_Error_String( BDF_Err_Unknown_File_Format ) ) == 0;
+ *       FT_Error_String( BDF_Err_Unknown_File_Format ) ) == 0;
  *   ```
  */
 FT_EXPORT(const char *) FT_Error_String(FT_Error error_code);

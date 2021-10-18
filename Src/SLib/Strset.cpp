@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -79,6 +79,34 @@ StringSet::~StringSet()
 {
 	if(P_Buf) // @speedcritical
 		SAlloc::F(P_Buf);
+}
+
+bool FASTCALL StringSet::IsEqual(const StringSet & rS) const
+{
+	bool   eq = true;   
+	if(sstreq(Delim, rS.Delim)) {
+		const uint _c1 = getCount();
+		const uint _c2 = rS.getCount();
+		if(_c1 == _c2) {
+			SString & r_temp_buf1 = SLS.AcquireRvlStr();
+			SString & r_temp_buf2 = SLS.AcquireRvlStr();
+			uint   p1 = 0;
+			uint   p2 = 0;
+			int    r1;
+			int    r2;
+			while(eq && (r1 = get(&p1, r_temp_buf1)) != 0 && (r2 = rS.get(&p2, r_temp_buf2)) != 0) {
+				if(r_temp_buf1 != r_temp_buf2)
+					eq = false;
+			}
+			assert(r1 == 0 && r2 == 0); // Мы выше сравнили количество элементов. Если результаты получения очередной
+				// подстроки отличаются для разных экземпляров, то значит у нас тяжелая ошибка в коде.
+		}
+		else
+			eq = false;
+	}
+	else
+		eq = false;
+	return eq;
 }
 
 StringSet & FASTCALL StringSet::operator = (const StringSet & rS)
@@ -336,7 +364,7 @@ int FASTCALL StringSet::add(const char * pStr)
 	return add(pStr, static_cast<uint *>(0));
 }
 
-int FASTCALL StringSet::add(const char * pStr, uint * pPos)
+int StringSet::add(const char * pStr, uint * pPos)
 {
 	int    ok = 1;
 	char   temp_buf[32];
@@ -470,7 +498,7 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 	return len;
 }
 
-int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
+int StringSet::get(uint * pos, char * str, size_t maxlen) const
 {
 	int    ok = 1;
 	const  char * c = 0;
@@ -515,7 +543,7 @@ int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 	return ok;
 }
 
-int FASTCALL StringSet::get(uint * pPos, SString & s) const
+int StringSet::get(uint * pPos, SString & s) const
 {
 	int    ok = 1;
 	const  char * c = 0;

@@ -19,7 +19,7 @@
 /**************************************************************************
  *
  * Note: A 'raster' is simply a scan-line converter, used to render
- *       FT_Outlines into FT_Bitmaps.
+ * FT_Outlines into FT_Bitmaps.
  *
  */
 
@@ -244,11 +244,11 @@ typedef struct  FT_Bitmap_ {
 	unsigned int rows;
 	unsigned int width;
 	int pitch;
-	unsigned char*  buffer;
+	uchar*  buffer;
 	unsigned short num_grays;
-	unsigned char pixel_mode;
-	unsigned char palette_mode;
-	void*           palette;
+	uchar pixel_mode;
+	uchar palette_mode;
+	void * palette;
 } FT_Bitmap;
 
 /**************************************************************************
@@ -717,10 +717,9 @@ typedef enum  FT_Glyph_Format_ {
 #define ft_glyph_format_outline    FT_GLYPH_FORMAT_OUTLINE
 #define ft_glyph_format_plotter    FT_GLYPH_FORMAT_PLOTTER
 
-/*************************************************************************/
+// 
 /*****            R A S T E R   D E F I N I T I O N S                *****/
-/*************************************************************************/
-
+// 
 /**************************************************************************
  *
  * A raster is a scan converter, in charge of rendering an outline into a
@@ -731,7 +730,6 @@ typedef enum  FT_Glyph_Format_ {
  * on renderers.
  *
  */
-
 /**************************************************************************
  *
  * @section:
@@ -762,7 +760,6 @@ typedef enum  FT_Glyph_Format_ {
  *   FT_Raster_Funcs
  *
  */
-
 /**************************************************************************
  *
  * @type:
@@ -804,7 +801,7 @@ typedef struct FT_RasterRec_*  FT_Raster;
 typedef struct  FT_Span_ {
 	short x;
 	unsigned short len;
-	unsigned char coverage;
+	uchar coverage;
 } FT_Span;
 
 /**************************************************************************
@@ -841,7 +838,7 @@ typedef void
 (* FT_SpanFunc)(int y,
     int count,
     const FT_Span*  spans,
-    void*           user);
+    void * user);
 
 #define FT_Raster_Span_Func  FT_SpanFunc
 
@@ -856,7 +853,7 @@ typedef void
 typedef int
 (* FT_Raster_BitTest_Func)(int y,
     int x,
-    void*  user);
+    void *  user);
 
 /**************************************************************************
  *
@@ -869,7 +866,7 @@ typedef int
 typedef void
 (* FT_Raster_BitSet_Func)(int y,
     int x,
-    void*  user);
+    void *  user);
 
 /**************************************************************************
  *
@@ -978,7 +975,7 @@ typedef struct  FT_Raster_Params_ {
 	FT_SpanFunc black_spans;          /* unused */
 	FT_Raster_BitTest_Func bit_test;  /* unused */
 	FT_Raster_BitSet_Func bit_set;    /* unused */
-	void *        user;
+	void *  user;
 	FT_BBox clip_box;
 } FT_Raster_Params;
 
@@ -1009,7 +1006,7 @@ typedef struct  FT_Raster_Params_ {
  *   given raster implementation.
  */
 typedef int
-(* FT_Raster_NewFunc)(void*       memory,
+(* FT_Raster_NewFunc)(void *   memory,
     FT_Raster*  raster);
 
 #define FT_Raster_New_Func  FT_Raster_NewFunc
@@ -1061,7 +1058,7 @@ typedef void
  */
 typedef void
 (* FT_Raster_ResetFunc)(FT_Raster raster,
-    unsigned char*  pool_base,
+    uchar*  pool_base,
     unsigned long pool_size);
 
 #define FT_Raster_Reset_Func  FT_Raster_ResetFunc
@@ -1089,7 +1086,7 @@ typedef void
 typedef int
 (* FT_Raster_SetModeFunc)(FT_Raster raster,
     unsigned long mode,
-    void*          args);
+    void *      args);
 
 #define FT_Raster_Set_Mode_Func  FT_Raster_SetModeFunc
 

@@ -217,7 +217,7 @@ static int secure_memcmp(const void * s1, const void * s2, size_t n)
  * @param  mac          The mac to compare with the hmac.
  *
  * @return              0 if hmac and mac are equal, < 0 if not or an error
- *                      occurred.
+ *                occurred.
  */
 int ssh_packet_hmac_verify(ssh_session session,
     const void * data,

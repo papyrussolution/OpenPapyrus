@@ -99,7 +99,7 @@ struct warc_s {
 
 static int _warc_bid(struct archive_read * a, int);
 static int _warc_cleanup(struct archive_read * a);
-static int _warc_read(struct archive_read*, const void**, size_t*, int64_t*);
+static int _warc_read(struct archive_read*, const void**, size_t*, int64*);
 static int _warc_skip(struct archive_read * a);
 static int _warc_rdhdr(struct archive_read * a, struct archive_entry * e);
 
@@ -119,13 +119,13 @@ int archive_read_support_format_warc(struct archive * _a)
 	struct warc_s * w;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_warc");
-	if((w = static_cast<struct warc_s *>(calloc(1, sizeof(*w)))) == NULL) {
+	if((w = static_cast<struct warc_s *>(SAlloc::C(1, sizeof(*w)))) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate warc data");
 		return ARCHIVE_FATAL;
 	}
 	r = __archive_read_register_format(a, w, "warc", _warc_bid, NULL, _warc_rdhdr, _warc_read, _warc_skip, NULL, _warc_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK) {
-		free(w);
+		SAlloc::F(w);
 		return r;
 	}
 	return ARCHIVE_OK;
@@ -136,10 +136,10 @@ static int _warc_cleanup(struct archive_read * a)
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
 
 	if(w->pool.len > 0U) {
-		free(w->pool.str);
+		SAlloc::F(w->pool.str);
 	}
 	archive_string_free(&w->sver);
-	free(w);
+	SAlloc::F(w);
 	a->format->data = NULL;
 	return ARCHIVE_OK;
 }
@@ -250,7 +250,7 @@ start_over:
 	/* and let future calls know about the content */
 	w->cntlen = cntlen;
 	w->cntoff = 0U;
-	mtime = 0;/* Avoid compiling error on some platform. */
+	mtime = 0; /* Avoid compiling error on some platform. */
 
 	switch(ftyp) {
 		case WT_RSRC:
@@ -267,10 +267,10 @@ start_over:
 			    break;
 		    }
 		    /* bang to our string pool, so we save a
-		     * malloc()+free() roundtrip */
+		     * SAlloc::M()+SAlloc::F() roundtrip */
 		    if(fnam.len + 1U > w->pool.len) {
 			    w->pool.len = ((fnam.len + 64U) / 64U) * 64U;
-			    w->pool.str = static_cast<char *>(realloc(w->pool.str, w->pool.len));
+			    w->pool.str = static_cast<char *>(SAlloc::R(w->pool.str, w->pool.len));
 		    }
 		    memcpy(w->pool.str, fnam.str, fnam.len);
 		    w->pool.str[fnam.len] = '\0';
@@ -333,7 +333,7 @@ start_over:
 	return ARCHIVE_OK;
 }
 
-static int _warc_read(struct archive_read * a, const void ** buf, size_t * bsz, int64_t * off)
+static int _warc_read(struct archive_read * a, const void ** buf, size_t * bsz, int64 * off)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
 	const char * rab;
@@ -385,7 +385,7 @@ static int _warc_skip(struct archive_read * a)
 }
 
 /* private routines */
-static void* deconst(const void * c)
+static void * deconst(const void * c)
 {
 	return (char *)0x1 + (((const char *)c) - (const char *)0x1);
 }

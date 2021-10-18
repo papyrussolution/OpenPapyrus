@@ -159,7 +159,7 @@ static inline GravityValue convert_map2string(gravity_vm * vm, gravity_map_t * m
 	// get keys list
 	uint32 count = gravity_hash_count(map->hash);
 	gravity_list_t * list = gravity_list_new(vm, count);
-	gravity_hash_iterate(map->hash, map_keys_array, (void*)list);
+	gravity_hash_iterate(map->hash, map_keys_array, (void *)list);
 	count = list->array.getCount();
 	for(uint32 i = 0; i < count; ++i) {
 		GravityValue key = list->array.at(i);
@@ -532,7 +532,7 @@ static bool FASTCALL object_real_introspection(gravity_vm * vm, GravityValue * a
 	gravity_class_t * c = value.IsClass() ? static_cast<gravity_class_t *>(value) : value.GetClass();
 	while(c) {
 		gravity_hash_t * htable = c->htable;
-		gravity_hash_iterate3(htable, callback, (void*)data, (void*)&mask, (void*)vm);
+		gravity_hash_iterate3(htable, callback, (void *)data, (void *)&mask, (void *)vm);
 		c = (!scan_super) ? NULL : c->superclass;
 	}
 	return vm->ReturnValue(GravityValue::from_object(data), rindex);
@@ -1355,7 +1355,7 @@ static bool map_keys(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 	gravity_map_t * map = VALUE_AS_MAP(args[0]);
 	uint32 count = gravity_hash_count(map->hash);
 	gravity_list_t * list = gravity_list_new(vm, count);
-	gravity_hash_iterate(map->hash, map_keys_array, (void*)list);
+	gravity_hash_iterate(map->hash, map_keys_array, (void *)list);
 	return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(list)), rindex);
 }
 
@@ -1451,7 +1451,7 @@ static bool map_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 	// build keys array
 	// do not transfer newlist to GC because it could be freed during closure execution
 	gravity_list_t * list = gravity_list_new(NULL, (uint32)n);
-	gravity_hash_iterate(map->hash, map_keys_array, (void*)list);
+	gravity_hash_iterate(map->hash, map_keys_array, (void *)list);
 	nanotime_t t1 = nanotime();
 	while(i < n) {
 		if(!gravity_vm_runclosure(vm, closure, value, &list->array.at(i), 1)) 
@@ -2032,7 +2032,7 @@ static bool int_random(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 	// Only Seed once
 	static bool already_seeded = false;
 	if(!already_seeded) {
-		srand((unsigned)time(NULL));
+		srand((uint)time(NULL));
 		already_seeded = true;
 	}
 	int r;

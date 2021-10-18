@@ -77,8 +77,8 @@ typedef struct {
 #define DecoderState(tif)       ZState(tif)
 #define EncoderState(tif)       ZState(tif)
 
-static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s);
-static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s);
+static int ZIPEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int ZIPDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
 
 static int ZIPFixupTags(TIFF* tif)
 {
@@ -131,7 +131,7 @@ static int ZIPPreDecode(TIFF* tif, uint16 s)
 	return (inflateReset(&sp->stream) == Z_OK);
 }
 
-static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int ZIPDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
@@ -215,7 +215,7 @@ static int ZIPPreEncode(TIFF* tif, uint16 s)
 /*
  * Encode a chunk of pixels.
  */
-static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int ZIPEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);

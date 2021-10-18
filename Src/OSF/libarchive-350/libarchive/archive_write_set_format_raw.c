@@ -52,7 +52,7 @@ int archive_write_set_format_raw(struct archive * _a)
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 
-	raw = (struct raw *)calloc(1, sizeof(*raw));
+	raw = (struct raw *)SAlloc::C(1, sizeof(*raw));
 	if(raw == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate raw data");
 		return ARCHIVE_FATAL;
@@ -109,7 +109,7 @@ static int archive_write_raw_free(struct archive_write * a)
 	struct raw * raw;
 
 	raw = (struct raw *)a->format_data;
-	free(raw);
+	SAlloc::F(raw);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

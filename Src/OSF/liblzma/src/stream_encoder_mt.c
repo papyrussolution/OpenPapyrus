@@ -805,7 +805,7 @@ static lzma_ret stream_encoder_mt_init(lzma_next_coder * next, const lzma_alloca
 		return LZMA_OPTIONS_ERROR;
 
 	// Validate the Check ID.
-	if((unsigned int)(options->check) > LZMA_CHECK_ID_MAX)
+	if((uint)(options->check) > LZMA_CHECK_ID_MAX)
 		return LZMA_PROG_ERROR;
 
 	if(!lzma_check_is_supported(options->check))

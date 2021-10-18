@@ -10,7 +10,7 @@
   #define Ppmd7_GetContext(p, ptr) (ptr)
   #define Ppmd7_GetStats(p, ctx) ((ctx)->Stats)
 #else
-  #define Ppmd7_GetPtr(p, offs) ((void*)((p)->Base + (offs)))
+  #define Ppmd7_GetPtr(p, offs) ((void *)((p)->Base + (offs)))
   #define Ppmd7_GetContext(p, offs) ((CPpmd7_Context*)Ppmd7_GetPtr((p), (offs)))
   #define Ppmd7_GetStats(p, ctx) ((CPpmd_State*)Ppmd7_GetPtr((p), ((ctx)->Stats)))
 #endif
@@ -112,7 +112,7 @@ static void Ppmd7_Construct(CPpmd7 * p)
 
 static void Ppmd7_Free(CPpmd7 * p)
 {
-	free(p->Base);
+	SAlloc::F(p->Base);
 	p->Size = 0;
 	p->Base = 0;
 }
@@ -132,7 +132,7 @@ static Bool Ppmd7_Alloc(CPpmd7 * p, UInt32 size)
       #else
 		    4 - (size & 3);
       #endif
-		if((p->Base = (Byte*)malloc(p->AlignOffset + size
+		if((p->Base = (Byte*)SAlloc::M(p->AlignOffset + size
 	#ifndef PPMD_32BIT
 		    + UNIT_SIZE
 	#endif
@@ -618,7 +618,7 @@ static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, UInt32 * es
 	unsigned nonMasked = p->MinContext->NumStats - numMasked;
 	if(p->MinContext->NumStats != 256) {
 		see = p->See[p->NS2Indx[nonMasked - 1]] +
-		    (nonMasked < (unsigned)SUFFIX(p->MinContext)->NumStats - p->MinContext->NumStats) +
+		    (nonMasked < (uint)SUFFIX(p->MinContext)->NumStats - p->MinContext->NumStats) +
 		    2 * (p->MinContext->SummFreq < 11 * p->MinContext->NumStats) +
 		    4 * (numMasked > nonMasked) +
 		    p->HiBitsFlag;
@@ -693,13 +693,13 @@ static Bool Ppmd_RangeDec_Init(CPpmd7z_RangeDec * p)
 	p->Low = p->Bottom = 0;
 	p->Range = 0xFFFFFFFF;
 	for(i = 0; i < 4; i++)
-		p->Code = (p->Code << 8) | p->Stream->Read((void*)p->Stream);
+		p->Code = (p->Code << 8) | p->Stream->Read((void *)p->Stream);
 	return (p->Code < 0xFFFFFFFF);
 }
 
 static Bool Ppmd7z_RangeDec_Init(CPpmd7z_RangeDec * p)
 {
-	if(p->Stream->Read((void*)p->Stream) != 0)
+	if(p->Stream->Read((void *)p->Stream) != 0)
 		return False;
 	return Ppmd_RangeDec_Init(p);
 }
@@ -725,9 +725,9 @@ static void Range_Normalize(CPpmd7z_RangeDec * p)
 			if(p->Range >= p->Bottom)
 				break;
 			else
-				p->Range = ((uint32_t)(-(int32_t)p->Low)) & (p->Bottom - 1);
+				p->Range = ((uint32)(-(int32_t)p->Low)) & (p->Bottom - 1);
 		}
-		p->Code = (p->Code << 8) | p->Stream->Read((void*)p->Stream);
+		p->Code = (p->Code << 8) | p->Stream->Read((void *)p->Stream);
 		p->Range <<= 8;
 		p->Low <<= 8;
 	}
@@ -916,7 +916,7 @@ static void Ppmd7z_RangeEnc_Init(CPpmd7z_RangeEnc * p)
 
 static void RangeEnc_ShiftLow(CPpmd7z_RangeEnc * p)
 {
-	if((UInt32)p->Low < (UInt32)0xFF000000 || (unsigned)(p->Low >> 32) != 0) {
+	if((UInt32)p->Low < (UInt32)0xFF000000 || (uint)(p->Low >> 32) != 0) {
 		Byte temp = p->Cache;
 		do {
 			p->Stream->Write(p->Stream, (Byte)(temp + (Byte)(p->Low >> 32)));

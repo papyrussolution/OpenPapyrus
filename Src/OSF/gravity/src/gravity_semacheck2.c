@@ -1253,8 +1253,8 @@ bool gravity_semacheck2(gnode_t * node, gravity_delegate_t * delegate)
 	visitor.visit_postfix_expr = visit_postfix_expr;
 	/*= {
 		.nerr = 0,                    // used to store number of found errors
-		.data = (void*)&data,         // used to store a pointer to the semantic check struct
-		.delegate = (void*)delegate, // compiler delegate to report errors
+		.data = (void *)&data,         // used to store a pointer to the semantic check struct
+		.delegate = (void *)delegate, // compiler delegate to report errors
 
 		// COMMON
 		.visit_pre = NULL,

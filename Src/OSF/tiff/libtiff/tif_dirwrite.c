@@ -48,11 +48,11 @@ static int TIFFWriteDirectoryTagSampleformatPerSample(TIFF* tif, uint32* ndir, T
 #endif
 
 static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value);
-static int TIFFWriteDirectoryTagUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value);
+static int TIFFWriteDirectoryTagUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #ifdef notdef
 static int TIFFWriteDirectoryTagByte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value);
 #endif
-static int TIFFWriteDirectoryTagByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value);
+static int TIFFWriteDirectoryTagByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #if 0
 static int TIFFWriteDirectoryTagBytePerSample(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value);
 #endif
@@ -125,11 +125,11 @@ static int TIFFWriteDirectoryTagTransferfunction(TIFF* tif, uint32* ndir, TIFFDi
 static int TIFFWriteDirectoryTagSubifd(TIFF* tif, uint32* ndir, TIFFDirEntry* dir);
 
 static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value);
-static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value);
+static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedByte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value);
 #endif
-static int TIFFWriteDirectoryTagCheckedByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value);
+static int TIFFWriteDirectoryTagCheckedByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedSbyte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, int8 value);
 #endif
@@ -167,7 +167,7 @@ static int TIFFWriteDirectoryTagCheckedDouble(TIFF* tif, uint32* ndir, TIFFDirEn
 static int TIFFWriteDirectoryTagCheckedDoubleArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, double* value);
 static int TIFFWriteDirectoryTagCheckedIfdArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint32* value);
 static int TIFFWriteDirectoryTagCheckedIfd8Array(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value);
-static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void* data);
+static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void * data);
 static int TIFFLinkDirectory(TIFF*);
 /*
  * Write the contents of the current directory
@@ -320,7 +320,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 	uint32 ndir;
 	TIFFDirEntry* dir;
 	uint32 dirsize;
-	void* dirmem;
+	void * dirmem;
 	uint32 m;
 	if(tif->tif_mode == O_RDONLY)
 		return 1;
@@ -587,7 +587,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 							case TIFF_SETGET_C32_UINT8:
 						    {
 							    uint32 pa;
-							    void* pb;
+							    void * pb;
 							    assert(o->field_type==TIFF_UNDEFINED);
 							    assert(o->field_readcount==TIFF_VARIABLE2);
 							    assert(o->field_passcount==1);
@@ -971,7 +971,7 @@ static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir
 	return (TIFFWriteDirectoryTagCheckedAscii(tif, ndir, dir, tag, count, value));
 }
 
-static int TIFFWriteDirectoryTagUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value)
+static int TIFFWriteDirectoryTagUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
 	if(!dir) {
 		(*ndir)++;
@@ -992,7 +992,7 @@ static int TIFFWriteDirectoryTagByte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir,
 
 #endif
 
-static int TIFFWriteDirectoryTagByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value)
+static int TIFFWriteDirectoryTagByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
 	if(!dir) {
 		(*ndir)++;
@@ -1005,8 +1005,8 @@ static int TIFFWriteDirectoryTagByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry*
 static int TIFFWriteDirectoryTagBytePerSample(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value)
 {
 	static const char module[] = __FUNCTION__;
-	uint8* m;
-	uint8* na;
+	uint8 * m;
+	uint8 * na;
 	uint16 nb;
 	int o;
 	if(!dir) {
@@ -1723,7 +1723,7 @@ static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEnt
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_ASCII, count, count, value));
 }
 
-static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value)
+static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_UNDEFINED, count, count, value));
@@ -1737,7 +1737,7 @@ static int TIFFWriteDirectoryTagCheckedByte(TIFF* tif, uint32* ndir, TIFFDirEntr
 }
 #endif
 
-static int TIFFWriteDirectoryTagCheckedByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8* value)
+static int TIFFWriteDirectoryTagCheckedByteArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_BYTE, count, count, value));
@@ -2080,7 +2080,7 @@ static int TIFFWriteDirectoryTagCheckedIfd8Array(TIFF* tif, uint32* ndir, TIFFDi
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_IFD8, count, count*8, value));
 }
 
-static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void* data)
+static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void * data)
 {
 	static const char module[] = __FUNCTION__;
 	uint32 m = 0;
@@ -2306,7 +2306,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 /*      Returns zero on failure, and one on success.                    */
 /************************************************************************/
 
-int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t count, void* data)
+int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t count, void * data)
 {
 	static const char module[] = __FUNCTION__;
 	/* const TIFFField* fip = NULL; */

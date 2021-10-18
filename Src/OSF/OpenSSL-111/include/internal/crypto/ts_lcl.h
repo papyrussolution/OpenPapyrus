@@ -49,9 +49,9 @@ struct TS_req_st {
 
 /*-
  * Accuracy ::= SEQUENCE {
- *                 seconds        INTEGER           OPTIONAL,
- *                 millis     [0] INTEGER  (1..999) OPTIONAL,
- *                 micros     [1] INTEGER  (1..999) OPTIONAL  }
+ *           seconds        INTEGER           OPTIONAL,
+ *           millis     [0] INTEGER  (1..999) OPTIONAL,
+ *           micros     [1] INTEGER  (1..999) OPTIONAL  }
  */
 struct TS_accuracy_st {
     ASN1_INTEGER *seconds;
@@ -64,8 +64,8 @@ struct TS_accuracy_st {
  *     version                      INTEGER  { v1(1) },
  *     policy                       TSAPolicyId,
  *     messageImprint               MessageImprint,
- *       -- MUST have the same value as the similar field in
- *       -- TimeStampReq
+ * -- MUST have the same value as the similar field in
+ * -- TimeStampReq
  *     serialNumber                 INTEGER,
  *      -- Time-Stamping users MUST be ready to accommodate integers
  *      -- up to 160 bits.
@@ -73,8 +73,8 @@ struct TS_accuracy_st {
  *     accuracy                     Accuracy                 OPTIONAL,
  *     ordering                     BOOLEAN             DEFAULT FALSE,
  *     nonce                        INTEGER                  OPTIONAL,
- *       -- MUST be present if the similar field was present
- *       -- in TimeStampReq.  In that case it MUST have the same value.
+ * -- MUST be present if the similar field was present
+ * -- in TimeStampReq.  In that case it MUST have the same value.
  *     tsa                          [0] GeneralName          OPTIONAL,
  *     extensions                   [1] IMPLICIT Extensions  OPTIONAL   }
  */
@@ -99,9 +99,9 @@ struct TS_status_info_st {
 
 /*-
  * IssuerSerial ::= SEQUENCE {
- *         issuer                   GeneralNames,
- *         serialNumber             CertificateSerialNumber
- *         }
+ *   issuer                   GeneralNames,
+ *   serialNumber             CertificateSerialNumber
+ *   }
  */
 struct ESS_issuer_serial {
     STACK_OF(GENERAL_NAME) *issuer;
@@ -110,8 +110,8 @@ struct ESS_issuer_serial {
 
 /*-
  * ESSCertID ::=  SEQUENCE {
- *         certHash                 Hash,
- *         issuerSerial             IssuerSerial OPTIONAL
+ *   certHash                 Hash,
+ *   issuerSerial             IssuerSerial OPTIONAL
  * }
  */
 struct ESS_cert_id {
@@ -121,8 +121,8 @@ struct ESS_cert_id {
 
 /*-
  * SigningCertificate ::=  SEQUENCE {
- *        certs        SEQUENCE OF ESSCertID,
- *        policies     SEQUENCE OF PolicyInformation OPTIONAL
+ *  certs        SEQUENCE OF ESSCertID,
+ *  policies     SEQUENCE OF PolicyInformation OPTIONAL
  * }
  */
 struct ESS_signing_cert {
@@ -132,10 +132,10 @@ struct ESS_signing_cert {
 
 /*-
  * ESSCertIDv2 ::=  SEQUENCE {
- *        hashAlgorithm           AlgorithmIdentifier
- *                DEFAULT {algorithm id-sha256},
- *        certHash                Hash,
- *        issuerSerial            IssuerSerial OPTIONAL
+ *  hashAlgorithm           AlgorithmIdentifier
+ *          DEFAULT {algorithm id-sha256},
+ *  certHash                Hash,
+ *  issuerSerial            IssuerSerial OPTIONAL
  * }
  */
 
@@ -147,8 +147,8 @@ struct ESS_cert_id_v2_st {
 
 /*-
  * SigningCertificateV2 ::= SEQUENCE {
- *        certs                   SEQUENCE OF ESSCertIDv2,
- *        policies                SEQUENCE OF PolicyInformation OPTIONAL
+ *  certs                   SEQUENCE OF ESSCertIDv2,
+ *  policies                SEQUENCE OF PolicyInformation OPTIONAL
  * }
  */
 

@@ -32,33 +32,33 @@ bool legal_identifier(char * p)
  *   when token[] is full.  ExtendInputLine() is called to extend
  *   expression array if needed.
  *
- *       Scanning is performed by following rules:
+ * Scanning is performed by following rules:
  *
  *      Current char    token should contain
  *     -------------    -----------------------
  *      1.  alpha,_     all following alpha-numerics
  *      2.  digit       0 or more following digits, 0 or 1 decimal point,
- *                              0 or more digits, 0 or 1 'e' or 'E',
- *                              0 or more digits.
+ *                        0 or more digits, 0 or 1 'e' or 'E',
+ *                        0 or more digits.
  *      3.  ^,+,-,/     only current char
- *          %,~,(,)
- *          [,],;,:,
- *          ?,comma
- *          $
+ *    %,~,(,)
+ *    [,],;,:,
+ *    ?,comma
+ *    $
  *      4.  &,|,=,*     current char; also next if next is same
  *      5.  !,<,>       current char; also next if next is =
  *      6.  ", '        all chars up until matching quote
  *      7.  #           this token cuts off scanning of the line (DFK).
  *      8.  `           (command substitution: all characters through the
- *                      matching backtic are replaced by the output of
- *                      the contained command, then scanning is restarted.)
+ *                matching backtic are replaced by the output of
+ *                the contained command, then scanning is restarted.)
  * EAM Jan 2010:	Bugfix. No rule covered an initial period. This caused
  *			string concatenation to fail for variables whose first
  *			character is 'E' or 'e'.  Now we add a 9th rule:
  *	9.  .		A period may be a token by itself (string concatenation)
  *			or the start of a decimal number continuing with a digit
  *
- *                      white space between tokens is ignored
+ *                white space between tokens is ignored
  */
 //int scanner(char ** expressionp, size_t * expressionlenp)
 int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)

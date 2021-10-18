@@ -56,12 +56,11 @@
 #if defined _MSC_VER || defined  __SYMBIAN32__
 	static void * LocalPcreMalloc(size_t aSize)
 	{
-		return malloc(aSize);
+		return SAlloc::M(aSize);
 	}
-
-	static void LocalPcreFree(void* aPtr)
+	static void LocalPcreFree(void * aPtr)
 	{
-		free(aPtr);
+		SAlloc::F(aPtr);
 	}
 
 	PCRE_EXP_DATA_DEFN void *(*PUBL(malloc))(size_t) = LocalPcreMalloc;

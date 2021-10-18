@@ -122,9 +122,9 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 }
 
 void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW) { CALLPTRMEMB(pW, endModal(cmCancel)); }
-uint GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
+uint STDCALL GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
 
-int FASTCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
+int STDCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
 {
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(comboBoxCtlID));
 	if(p_combo) {
@@ -135,7 +135,7 @@ int FASTCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char *
 		return 0;
 }
 
-int FASTCALL SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
+int STDCALL SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
 {
 	SString temp_buf;
 	PPLoadString("list", temp_buf);
@@ -182,7 +182,7 @@ SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-void FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
+void STDCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 {
 	if(dlg) {
 		char   b[64];
@@ -217,10 +217,10 @@ static int Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod,
 	return ok;
 }
 
-int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0); }
-int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags); }
+int    STDCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0); }
+int    STDCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags); }
 
-void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)
+void STDCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)
 {
 	SString buf;
 	if(pTimePeriod && !pTimePeriod->IsZero())
@@ -228,14 +228,14 @@ void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRa
 	CALLPTRMEMB(pDlg, setCtrlString(ctl, buf));
 }
 
-void FASTCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp)
+void STDCALL SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp)
 {
 	TimeRange tr;
 	tr.Set(DEREFPTROR(pLow, ZEROTIME), DEREFPTROR(pUpp, ZEROTIME));
 	SetTimeRangeInput(pDlg, ctl, fmt, &tr);
 }
 
-int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * pTimePeriod)
+int STDCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * pTimePeriod)
 {
 	int    ok = -1;
 	TimeRange prd;
@@ -246,7 +246,7 @@ int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, TimeRange * p
 	return ok;
 }
 
-int FASTCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp)
+int STDCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp)
 {
 	int    ok = -1;
 	if(pDlg) {
@@ -597,7 +597,7 @@ int ViewStatus()
 	return ok;
 }
 
-int FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
+int STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
 {
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -610,7 +610,7 @@ int FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes
 	return ok;
 }
 
-int FASTCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID)
+int STDCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID)
 {
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -797,14 +797,14 @@ int FASTCALL CheckDialogPtrErr(void * ppDlg)
 	return ok;
 }
 
-int FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err)
+int STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err)
 {
 	PPError(err, 0);
 	CALLPTRMEMB(dlg, selectCtrl(ctlID));
 	return 0;
 }
 
-int FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
+int STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
 {
 	PPError(-1, 0);
 	CALLPTRMEMB(dlg, selectCtrl(ctlID));
@@ -1646,19 +1646,19 @@ static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rL
 	return ok;
 }
 
-int FASTCALL SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
+int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
 {
 	SString line_buf;
 	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
-int FASTCALL SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
+int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
 {
 	SString line_buf;
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
-int FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
+int STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
 {
 	SString line_buf;
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
@@ -1685,7 +1685,7 @@ int SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, ui
 	return ok;
 } @v9.5.0 */
 
-int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
+int STDCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
@@ -1713,7 +1713,7 @@ int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray *
 	return ok;
 }
 
-int FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID)
+int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID)
 {
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -1746,7 +1746,7 @@ int SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID)
 	return SetupStringCombo(dlg, ctlID, PPTXT_SUBSTDATELIST, initID);
 }
 
-int SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
+int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 {
 	PPID   id = 0, init_id = 0;
 	SString buf, word_rel, id_buf, txt_buf;
@@ -2637,7 +2637,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-int BarcodeInputDialog(int initChar, SString & rBuf)
+int STDCALL BarcodeInputDialog(int initChar, SString & rBuf)
 {
 	class BarcodeSrchDialog : public TDialog {
 	public:
@@ -2700,7 +2700,7 @@ int BarcodeInputDialog(int initChar, SString & rBuf)
 	return ok;
 }
 
-int FASTCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle /*=0*/)
+int STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(dlgID);
@@ -2759,7 +2759,7 @@ int ListBoxSelDlg::setDTS(PPID id)
 	return 1;
 }
 
-int FASTCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
+int STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
 	PPObject * ppobj = GetPPObject(objID, extraPtr);
@@ -2788,7 +2788,7 @@ int FASTCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags)
+int STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags)
 {
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
@@ -2871,7 +2871,7 @@ int  AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString 
 	return ok;
 }
 
-int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags)
+int STDCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags)
 {
 	SString title;
 	if(titleStrId)
@@ -2879,7 +2879,7 @@ int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID,
 	return ListBoxSelDialog(pAry, title, pID, flags);
 }
 
-int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags)
+int STDCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags)
 {
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
@@ -5116,7 +5116,7 @@ int InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rVal
 	return ok;
 }
 
-int FASTCALL EditSysjFilt2(SysJournalFilt * pFilt)
+int STDCALL EditSysjFilt2(SysJournalFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT2, pFilt);
 }

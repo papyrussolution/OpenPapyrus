@@ -15,10 +15,10 @@
  * OS:       [""] Name of OS; only required if system has no uname(2) call
  * HELPFILE: ["docs/gnuplot.gih"] Location of helpfile - overridden by Makefile
  * HOME:     ["HOME"] Name of environment variable which points to
- *           the directory where gnuplot's config file is found.
+ *     the directory where gnuplot's config file is found.
  * PLOTRC:   [".gnuplot"] Name of the gnuplot startup file.
  * SHELL:    ["/bin/sh"] Name, and in some cases, full path to the shell
- *           that is used to run external commands.
+ *     that is used to run external commands.
  * DIRSEP1:  ['/'] Primary character which separates path components.
  * DIRSEP2:  ['\0'] Secondary character which separates path components.
  * PATHSEP:  [':'] Character which separates path names

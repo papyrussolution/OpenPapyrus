@@ -33,7 +33,7 @@ lzma_ret lzma_stream_buffer_encode(lzma_filter *filters, lzma_check check, const
     const uint8_t *in, size_t in_size, uint8_t *out, size_t *out_pos_ptr, size_t out_size)
 {
 	// Sanity checks
-	if(filters == NULL || (unsigned int)(check) > LZMA_CHECK_ID_MAX || (in == NULL && in_size != 0) || out == NULL || out_pos_ptr == NULL || *out_pos_ptr > out_size)
+	if(filters == NULL || (uint)(check) > LZMA_CHECK_ID_MAX || (in == NULL && in_size != 0) || out == NULL || out_pos_ptr == NULL || *out_pos_ptr > out_size)
 		return LZMA_PROG_ERROR;
 	if(!lzma_check_is_supported(check))
 		return LZMA_UNSUPPORTED_CHECK;

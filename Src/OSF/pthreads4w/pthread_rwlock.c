@@ -233,7 +233,7 @@ int pthread_rwlock_wrlock(pthread_rwlock_t * rwlock)
 #if defined (__PTW32_CONFIG_MSVC7)
 	#pragma inline_depth(0)
 #endif
-			pthread_cleanup_push(__ptw32_rwlock_cancelwrwait, (void*)rwl);
+			pthread_cleanup_push(__ptw32_rwlock_cancelwrwait, (void *)rwl);
 			do {
 				result = pthread_cond_wait(&(rwl->cndSharedAccessCompleted), &(rwl->mtxSharedAccessCompleted));
 			}
@@ -436,7 +436,7 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock, const struct timespec 
 #if defined (__PTW32_CONFIG_MSVC7)
 	#pragma inline_depth(0)
 #endif
-			pthread_cleanup_push(__ptw32_rwlock_cancelwrwait, (void*)rwl);
+			pthread_cleanup_push(__ptw32_rwlock_cancelwrwait, (void *)rwl);
 			do {
 				result = pthread_cond_timedwait(&(rwl->cndSharedAccessCompleted), &(rwl->mtxSharedAccessCompleted), abstime);
 			} while(result == 0 && rwl->nCompletedSharedAccessCount < 0);
@@ -493,14 +493,14 @@ int pthread_rwlock_unlock(pthread_rwlock_t * rwlock)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_rwlockattr_t
+ *     pointer to an instance of pthread_rwlockattr_t
  *
  * DESCRIPTION
  *   Initializes a rwlock attributes object with default attributes.
  *
  * RESULTS
- *           0               successfully initialized attr,
- *           ENOMEM          insufficient memory for attr.
+ *     0               successfully initialized attr,
+ *     ENOMEM          insufficient memory for attr.
  *
  * ------------------------------------------------------
  */
@@ -523,7 +523,7 @@ int pthread_rwlockattr_init(pthread_rwlockattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_rwlockattr_t
+ *     pointer to an instance of pthread_rwlockattr_t
  *
  *
  * DESCRIPTION
@@ -531,11 +531,11 @@ int pthread_rwlockattr_init(pthread_rwlockattr_t * attr)
  *   no longer be used.
  *
  *   NOTES:
- *           1)      Does not affect rwlockss created using 'attr'
+ *     1)      Does not affect rwlockss created using 'attr'
  *
  * RESULTS
- *           0               successfully released attr,
- *           EINVAL          'attr' is invalid.
+ *     0               successfully released attr,
+ *     EINVAL          'attr' is invalid.
  *
  * ------------------------------------------------------
  */
@@ -559,26 +559,26 @@ int pthread_rwlockattr_destroy(pthread_rwlockattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_rwlockattr_t
+ *     pointer to an instance of pthread_rwlockattr_t
  *   pshared
- *           will be set to one of:
- *                   PTHREAD_PROCESS_SHARED - May be shared if in shared memory
- *                   PTHREAD_PROCESS_PRIVATE - Cannot be shared.
+ *     will be set to one of:
+ *             PTHREAD_PROCESS_SHARED - May be shared if in shared memory
+ *             PTHREAD_PROCESS_PRIVATE - Cannot be shared.
  *
  * DESCRIPTION
  *   Rwlocks creatd with 'attr' can be shared between
  *   processes if pthread_rwlock_t variable is allocated
  *   in memory shared by these processes.
  *   NOTES:
- *           1)      pshared rwlocks MUST be allocated in shared
- *                   memory.
- *           2)      The following macro is defined if shared rwlocks
- *                   are supported:
- *                           _POSIX_THREAD_PROCESS_SHARED
+ *     1)      pshared rwlocks MUST be allocated in shared
+ *             memory.
+ *     2)      The following macro is defined if shared rwlocks
+ *             are supported:
+ *                     _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully retrieved attribute,
- *           EINVAL          'attr' is invalid,
+ *     0               successfully retrieved attribute,
+ *     EINVAL          'attr' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -600,16 +600,16 @@ int pthread_rwlockattr_getpshared(const pthread_rwlockattr_t * attr, int * pshar
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_rwlockattr_t
+ *     pointer to an instance of pthread_rwlockattr_t
  *
  *   pshared
- *           must be one of:
+ *     must be one of:
  *
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
+ *             PTHREAD_PROCESS_SHARED
+ *                     May be shared if in shared memory
  *
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *             PTHREAD_PROCESS_PRIVATE
+ *                     Cannot be shared.
  *
  * DESCRIPTION
  *   Rwlocks creatd with 'attr' can be shared between
@@ -617,17 +617,17 @@ int pthread_rwlockattr_getpshared(const pthread_rwlockattr_t * attr, int * pshar
  *   in memory shared by these processes.
  *
  *   NOTES:
- *           1)      pshared rwlocks MUST be allocated in shared
- *                   memory.
+ *     1)      pshared rwlocks MUST be allocated in shared
+ *             memory.
  *
- *           2)      The following macro is defined if shared rwlocks
- *                   are supported:
- *                           _POSIX_THREAD_PROCESS_SHARED
+ *     2)      The following macro is defined if shared rwlocks
+ *             are supported:
+ *                     _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or pshared is invalid,
- *           ENOSYS          PTHREAD_PROCESS_SHARED not supported,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or pshared is invalid,
+ *     ENOSYS          PTHREAD_PROCESS_SHARED not supported,
  *
  * ------------------------------------------------------
  */

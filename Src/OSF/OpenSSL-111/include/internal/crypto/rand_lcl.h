@@ -65,8 +65,8 @@
 #define RAND_POOL_MAX_LENGTH    (RAND_POOL_FACTOR * \
                                   3 * (RAND_DRBG_STRENGTH / 16))
 /*
- *                             = (RAND_POOL_FACTOR * \
- *                                1.5 * (RAND_DRBG_STRENGTH / 8))
+ *                       = (RAND_POOL_FACTOR * \
+ *                          1.5 * (RAND_DRBG_STRENGTH / 8))
  */
 
 /*

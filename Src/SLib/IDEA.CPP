@@ -957,7 +957,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 //
 static void hashpass(char * keystring, int keylen, uint8 * hash)
 {
-	S_MD5::Calc((unsigned char *)keystring, keylen, hash);
+	S_MD5::Calc((uchar *)keystring, keylen, hash);
 }
 
 static void IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)

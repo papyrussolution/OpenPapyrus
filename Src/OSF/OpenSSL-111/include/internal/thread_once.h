@@ -15,7 +15,7 @@
  * {
  *     do_some_initialisation();
  *     if (init_is_successful())
- *         return 1;
+ *   return 1;
  *
  *     return 0;
  * }
@@ -47,7 +47,7 @@
  * {
  *     do_some_initialisation();
  *     if (init_is_successful())
- *         return 1;
+ *   return 1;
  *
  *     return 0;
  * }
@@ -79,7 +79,7 @@
  * {
  *     do_some_initialisation();
  *     if (init_is_successful())
- *         return 1;
+ *   return 1;
  *
  *     return 0;
  * }
@@ -88,7 +88,7 @@
  * {
  *     do_some_alternative_initialisation();
  *     if (init_is_successful())
- *         return 1;
+ *   return 1;
  *
  *     return 0;
  * }
@@ -105,8 +105,8 @@
  * RUN_ONCE - use CRYPTO_THREAD_run_once, and check if the init succeeded
  * @once: pointer to static object of type CRYPTO_ONCE
  * @init: function name that was previously given to DEFINE_RUN_ONCE,
- *        DEFINE_RUN_ONCE_STATIC or DECLARE_RUN_ONCE.  This function
- *        must return 1 for success or 0 for failure.
+ *  DEFINE_RUN_ONCE_STATIC or DECLARE_RUN_ONCE.  This function
+ *  must return 1 for success or 0 for failure.
  *
  * The return value is 1 on success (*) or 0 in case of error.
  *
@@ -117,14 +117,14 @@
 
 /*
  * RUN_ONCE_ALT - use CRYPTO_THREAD_run_once, to run an alternative initialiser
- *                function and check if that initialisation succeeded
+ *          function and check if that initialisation succeeded
  * @once:    pointer to static object of type CRYPTO_ONCE
  * @initalt: alternative initialiser function name that was previously given to
- *           DEFINE_RUN_ONCE_STATIC_ALT.  This function must return 1 for
- *           success or 0 for failure.
+ *     DEFINE_RUN_ONCE_STATIC_ALT.  This function must return 1 for
+ *     success or 0 for failure.
  * @init:    primary initialiser function name that was previously given to
- *           DEFINE_RUN_ONCE_STATIC.  This function must return 1 for success or
- *           0 for failure.
+ *     DEFINE_RUN_ONCE_STATIC.  This function must return 1 for success or
+ *     0 for failure.
  *
  * The return value is 1 on success (*) or 0 in case of error.
  *

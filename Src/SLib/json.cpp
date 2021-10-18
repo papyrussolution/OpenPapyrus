@@ -398,7 +398,7 @@ int FASTCALL SJson::InsertChild(SJson * pChild)
 	return ok;
 }
 
-int FASTCALL SJson::Insert(const char * pTextLabel, SJson * pValue)
+int SJson::Insert(const char * pTextLabel, SJson * pValue)
 {
 	int    ok = 1;
 	// verify if the parameters are valid
@@ -417,9 +417,14 @@ int FASTCALL SJson::Insert(const char * pTextLabel, SJson * pValue)
 	return ok;
 }
 
-int FASTCALL SJson::InsertString(const char * pTextLabel, const char * pStr)
+int SJson::InsertString(const char * pTextLabel, const char * pStr)
 {
 	return Insert(pTextLabel, json_new_string(pStr));
+}
+
+int SJson::InsertNumber(const char * pTextLabel, const char * pStr)
+{
+	return Insert(pTextLabel, json_new_number(pStr));
 }
 
 int FASTCALL SJson::InsertNull(const char * pTextLabel)
@@ -427,28 +432,28 @@ int FASTCALL SJson::InsertNull(const char * pTextLabel)
 	return Insert(pTextLabel, json_new_null());
 }
 
-int FASTCALL SJson::InsertDouble(const char * pTextLabel, double val, long fmt)
+int SJson::InsertDouble(const char * pTextLabel, double val, long fmt)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf.Cat(val, fmt);
 	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
-int FASTCALL SJson::InsertInt(const char * pTextLabel, int val)
+int SJson::InsertInt(const char * pTextLabel, int val)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf.Cat(val);
 	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
-int FASTCALL SJson::InsertInt64(const char * pTextLabel, int64 val)
+int SJson::InsertInt64(const char * pTextLabel, int64 val)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf.Cat(val);
 	return Insert(pTextLabel, json_new_number(r_temp_buf));
 }
 
-int FASTCALL SJson::InsertBool(const char * pTextLabel, bool val)
+int SJson::InsertBool(const char * pTextLabel, bool val)
 {
 	return Insert(pTextLabel, new SJson(val ? SJson::tTRUE : SJson::tFALSE));
 }

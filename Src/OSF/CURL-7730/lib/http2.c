@@ -2077,7 +2077,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	h2_pri_spec(conn->data, &pri_spec);
 
 	H2BUGF(infof(conn->data, "http2_send request allowed %d (easy handle %p)\n",
-	    nghttp2_session_check_request_allowed(h2), (void*)conn->data));
+	    nghttp2_session_check_request_allowed(h2), (void *)conn->data));
 
 	switch(conn->data->state.httpreq) {
 		case HTTPREQ_POST:
@@ -2111,7 +2111,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	}
 
 	infof(conn->data, "Using Stream ID: %x (easy handle %p)\n",
-	    stream_id, (void*)conn->data);
+	    stream_id, (void *)conn->data);
 	stream->stream_id = stream_id;
 
 	/* this does not call h2_session_send() since there can not have been any

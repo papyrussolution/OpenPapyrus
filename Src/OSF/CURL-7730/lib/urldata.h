@@ -226,7 +226,7 @@ struct ssl_config_data {
 	struct ssl_primary_config primary;
 	long certverifyresult; /* result from the certificate verification */
 	char * CRLfile; /* CRL to check certificate revocation */
-	char * issuercert;/* optional issuer certificate filename */
+	char * issuercert; /* optional issuer certificate filename */
 	struct curl_blob * issuercert_blob;
 	curl_ssl_ctx_callback fsslctx; /* function to initialize ssl ctx */
 	void * fsslctxp; /* parameter for call back */
@@ -438,7 +438,7 @@ struct ConnectBits {
 	BIT(ipv6); /* we communicate with a site using an IPv6 address */
 	BIT(do_more); /* this is set TRUE if the ->curl_do_more() function is
 	                 supposed to be called, after ->curl_do() */
-	BIT(protoconnstart);/* the protocol layer has STARTED its operation after
+	BIT(protoconnstart); /* the protocol layer has STARTED its operation after
 	                       the TCP layer connect */
 	BIT(retry);   /* this connection is about to get closed and then
 	                 re-attempted at another connection. */
@@ -446,7 +446,7 @@ struct ConnectBits {
 	                 that we are creating a request with an auth header,
 	                 but it is not the final request in the auth
 	                 negotiation. */
-	BIT(rewindaftersend);/* TRUE when the sending couldn't be stopped even
+	BIT(rewindaftersend); /* TRUE when the sending couldn't be stopped even
 	                        though it will be discarded. When the whole send
 	                        operation is done, we must call the data rewind
 	                        callback. */
@@ -772,7 +772,7 @@ struct postponed_data {
 	size_t recv_size; /* Size of received data during sending */
 	size_t recv_processed; /* Size of processed part of postponed data */
 #ifdef DEBUGBUILD
-	curl_socket_t bindsock;/* Structure must be bound to specific socket,
+	curl_socket_t bindsock; /* Structure must be bound to specific socket,
 	                          used only for DEBUGASSERT */
 #endif /* DEBUGBUILD */
 };
@@ -1570,7 +1570,7 @@ struct UserDefined {
 	long use_port; /* which port to use (when not using default) */
 	ulong httpauth; /* kind of HTTP authentication to use (bitmask) */
 	ulong proxyauth; /* kind of proxy authentication to use (bitmask) */
-	ulong socks5auth;/* kind of SOCKS5 authentication to use (bitmask) */
+	ulong socks5auth; /* kind of SOCKS5 authentication to use (bitmask) */
 	long followlocation; /* as in HTTP Location: */
 	long maxredirs; /* maximum no. of http(s) redirects to follow, set to -1
 	                   for infinity */
@@ -1783,7 +1783,7 @@ struct UserDefined {
 	BIT(tcp_keepalive); /* use TCP keepalives */
 	BIT(tcp_fastopen); /* use TCP Fast Open */
 	BIT(ssl_enable_npn); /* TLS NPN extension? */
-	BIT(ssl_enable_alpn);/* TLS ALPN extension? */
+	BIT(ssl_enable_alpn); /* TLS ALPN extension? */
 	BIT(path_as_is); /* allow dotdots? */
 	BIT(pipewait); /* wait for multiplex status before starting a new
 	                  connection */

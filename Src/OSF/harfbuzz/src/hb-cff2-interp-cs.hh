@@ -63,7 +63,7 @@ namespace CFF {
 			numValues = numValues_;
 			valueIndex = valueIndex_;
 			deltas.resize(numBlends);
-			for(unsigned int i = 0; i < numBlends; i++)
+			for(uint i = 0; i < numBlends; i++)
 				deltas[i] = blends_[i];
 		}
 
@@ -171,7 +171,7 @@ protected:
 			if(do_blend && arg.blending()) {
 				if(LIKELY(scalars.length == arg.deltas.length)) {
 					double v = arg.to_real();
-					for(unsigned int i = 0; i < scalars.length; i++) {
+					for(uint i = 0; i < scalars.length; i++) {
 						v += (double)scalars[i] * arg.deltas[i].to_real();
 					}
 					arg.set_real(v);
@@ -239,7 +239,7 @@ protected:
 				env.set_error();
 				return;
 			}
-			for(unsigned int i = 0; i < n; i++) {
+			for(uint i = 0; i < n; i++) {
 				const hb_array_t<const blend_arg_t>       blends = env.argStack.get_subarray(start + n + (i * k));
 				env.argStack[start + i].set_blends(n, i, k, blends);
 			}

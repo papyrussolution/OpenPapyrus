@@ -74,10 +74,10 @@ struct fixup_entry {
 	struct fixup_entry      * next;
 	struct archive_acl acl;
 	mode_t mode;
-	int64_t atime;
-	int64_t birthtime;
-	int64_t mtime;
-	int64_t ctime;
+	int64 atime;
+	int64 birthtime;
+	int64 mtime;
+	int64 ctime;
 	unsigned long atime_nanos;
 	unsigned long birthtime_nanos;
 	unsigned long mtime_nanos;
@@ -120,15 +120,15 @@ struct archive_write_disk {
 	mode_t user_umask;
 	struct fixup_entry      * fixup_list;
 	struct fixup_entry      * current_fixup;
-	int64_t user_uid;
+	int64 user_uid;
 	int skip_file_set;
-	int64_t skip_file_dev;
-	int64_t skip_file_ino;
+	int64 skip_file_dev;
+	int64 skip_file_ino;
 	time_t start_time;
-	int64_t (* lookup_gid)(void * pPrivate, const char * gname, int64_t gid);
+	int64 (* lookup_gid)(void * pPrivate, const char * gname, int64 gid);
 	void (* cleanup_gid)(void * pPrivate);
 	void * lookup_gid_data;
-	int64_t (* lookup_uid)(void * pPrivate, const char * uname, int64_t uid);
+	int64 (* lookup_uid)(void * pPrivate, const char * uname, int64 uid);
 	void (* cleanup_uid)(void * pPrivate);
 	void * lookup_uid_data;
 	/*
@@ -159,20 +159,20 @@ struct archive_write_disk {
 	/* Handle for the file we're restoring. */
 	HANDLE fh;
 	/* Current offset for writing data to the file. */
-	int64_t offset;
+	int64 offset;
 	/* Last offset actually written to disk. */
-	int64_t fd_offset;
+	int64 fd_offset;
 	/* Total bytes actually written to files. */
-	int64_t total_bytes_written;
+	int64 total_bytes_written;
 	/* Maximum size of file, -1 if unknown. */
-	int64_t filesize;
+	int64 filesize;
 	/* Dir we were in before this restore; only for deep paths. */
 	int restore_pwd;
 	/* Mode we should use for this entry; affected by _PERM and umask. */
 	mode_t mode;
 	/* UID/GID to use in restoring this entry. */
-	int64_t uid;
-	int64_t gid;
+	int64 uid;
+	int64 gid;
 };
 
 /*
@@ -227,21 +227,21 @@ static int      _archive_write_disk_close(struct archive *);
 static int      _archive_write_disk_free(struct archive *);
 static int      _archive_write_disk_header(struct archive *,
     struct archive_entry *);
-static int64_t  _archive_write_disk_filter_bytes(struct archive *, int);
+static int64  _archive_write_disk_filter_bytes(struct archive *, int);
 static int      _archive_write_disk_finish_entry(struct archive *);
 static ssize_t  _archive_write_disk_data(struct archive *, const void *,
     size_t);
 static ssize_t  _archive_write_disk_data_block(struct archive *, const void *,
-    size_t, int64_t);
+    size_t, int64);
 
 #define bhfi_dev(bhfi)  ((bhfi)->dwVolumeSerialNumber)
 /* Treat FileIndex as i-node. We should remove a sequence number
  * which is high-16-bits of nFileIndexHigh. */
 #define bhfi_ino(bhfi)  \
-	((((int64_t)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
+	((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
 	+ (bhfi)->nFileIndexLow)
 #define bhfi_size(bhfi) \
-	((((int64_t)(bhfi)->nFileSizeHigh) << 32) + (bhfi)->nFileSizeLow)
+	((((int64)(bhfi)->nFileSizeHigh) << 32) + (bhfi)->nFileSizeLow)
 
 static int file_information(struct archive_write_disk * a, wchar_t * path,
     BY_HANDLE_FILE_INFORMATION * st, mode_t * mode, int sim_lstat)
@@ -258,7 +258,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path,
 			wchar_t * full;
 			full = __la_win_permissive_name_w(path);
 			h = FindFirstFileW(full, &findData);
-			free(full);
+			SAlloc::F(full);
 		}
 		if(h == INVALID_HANDLE_VALUE) {
 			la_dosmaperr(GetLastError());
@@ -282,7 +282,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path,
 		full = __la_win_permissive_name_w(path);
 		h = CreateFileW(full, 0, 0, NULL,
 			OPEN_EXISTING, flag, NULL);
-		free(full);
+		SAlloc::F(full);
 	}
 	if(h == INVALID_HANDLE_VALUE) {
 		la_dosmaperr(GetLastError());
@@ -361,7 +361,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 		if(((wnp[4] >= L'a' && wnp[4] <= L'z') ||
 		    (wnp[4] >= L'A' && wnp[4] <= L'Z')) &&
 		    wnp[5] == L':' && wnp[6] == L'\\') {
-			wnp[2] = L'?';/* Not device name. */
+			wnp[2] = L'?'; /* Not device name. */
 			return 0;
 		}
 	}
@@ -380,7 +380,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 		/* Prepend "\\?\" */
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\", 4);
 		archive_wstrcat(&(a->_name_data), wn);
-		free(wn);
+		SAlloc::F(wn);
 		return 0;
 	}
 
@@ -412,7 +412,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 				archive_wstrncpy(&(a->_name_data),
 				    L"\\\\?\\UNC\\", 8);
 				archive_wstrcat(&(a->_name_data), wn+2);
-				free(wn);
+				SAlloc::F(wn);
 				return 0;
 			}
 		}
@@ -425,10 +425,10 @@ static int permissive_name_w(struct archive_write_disk * a)
 	l = GetCurrentDirectoryW(0, NULL);
 	if(l == 0)
 		return -1;
-	ws = static_cast<wchar_t *>(malloc(l * sizeof(wchar_t)));
+	ws = static_cast<wchar_t *>(SAlloc::M(l * sizeof(wchar_t)));
 	l = GetCurrentDirectoryW(l, ws);
 	if(l == 0) {
-		free(ws);
+		SAlloc::F(ws);
 		return -1;
 	}
 	wsp = ws;
@@ -447,8 +447,8 @@ static int permissive_name_w(struct archive_write_disk * a)
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\", 4);
 		archive_wstrncat(&(a->_name_data), wsp, 2);
 		archive_wstrcat(&(a->_name_data), wn);
-		free(wsp);
-		free(wn);
+		SAlloc::F(wsp);
+		SAlloc::F(wn);
 		return 0;
 	}
 
@@ -473,8 +473,8 @@ static int permissive_name_w(struct archive_write_disk * a)
 	archive_wstrncat(&(a->_name_data), L"\\", 1);
 	archive_wstrcat(&(a->_name_data), wn);
 	a->name = a->_name_data.s;
-	free(wsp);
-	free(wn);
+	SAlloc::F(wsp);
+	SAlloc::F(wn);
 	return 0;
 }
 
@@ -510,7 +510,7 @@ static int la_chmod(const wchar_t * path, mode_t mode)
 		ret = -1;
 	}
 exit_chmode:
-	free(fullname);
+	SAlloc::F(fullname);
 	return ret;
 }
 
@@ -549,7 +549,7 @@ static void * la_GetFunctionKernel32(const char * name)
 		slfprintf_stderr("Can't load kernel32.dll?!\n");
 		exit(1);
 	}
-	return (void*)GetProcAddress(lib, name);
+	return (void *)GetProcAddress(lib, name);
 }
 
 static int la_CreateHardLinkW(wchar_t * linkname, wchar_t * target)
@@ -616,7 +616,7 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	 * When writing path targets, we need to translate slashes
 	 * to backslashes
 	 */
-	ttarget = static_cast<wchar_t *>(malloc((len + 1) * sizeof(wchar_t)));
+	ttarget = static_cast<wchar_t *>(SAlloc::M((len + 1) * sizeof(wchar_t)));
 	if(ttarget == NULL)
 		return 0;
 
@@ -675,11 +675,11 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	if(!ret) {
 		ret = (*f)(linkname, ttarget, flags);
 	}
-	free(ttarget);
+	SAlloc::F(ttarget);
 	return ret;
 }
 
-static int la_ftruncate(HANDLE handle, int64_t length)
+static int la_ftruncate(HANDLE handle, int64 length)
 {
 	LARGE_INTEGER distance;
 
@@ -741,7 +741,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)                  
 	return (&av);
 }
 
-static int64_t _archive_write_disk_filter_bytes(struct archive * _a, int n)
+static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	(void)n; /* UNUSED */
@@ -967,14 +967,14 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	 */
 	if(a->fh != INVALID_HANDLE_VALUE &&
 	    archive_entry_sparse_count(entry) > 0) {
-		int64_t base = 0, offset, length;
+		int64 base = 0, offset, length;
 		int i, cnt = archive_entry_sparse_reset(entry);
 		int sparse = 0;
 
 		for(i = 0; i < cnt; i++) {
 			archive_entry_sparse_next(entry, &offset, &length);
 			if(offset - base >= 4096) {
-				sparse = 1;/* we have a hole. */
+				sparse = 1; /* we have a hole. */
 				break;
 			}
 			base = offset + length;
@@ -1016,7 +1016,7 @@ int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64
 static ssize_t write_data_block(struct archive_write_disk * a, const char * buff, size_t size)
 {
 	OVERLAPPED ol;
-	uint64_t start_size = size;
+	uint64 start_size = size;
 	DWORD bytes_written = 0;
 	ssize_t block_size = 0, bytes_to_write;
 
@@ -1035,7 +1035,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	}
 
 	/* If this write would run beyond the file size, truncate it. */
-	if(a->filesize >= 0 && (int64_t)(a->offset + size) > a->filesize)
+	if(a->filesize >= 0 && (int64)(a->offset + size) > a->filesize)
 		start_size = size = (size_t)(a->filesize - a->offset);
 
 	/* Write the data. */
@@ -1046,7 +1046,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		else {
 			/* We're sparsifying the file. */
 			const char * p, * end;
-			int64_t block_end;
+			int64 block_end;
 
 			/* Skip leading zero bytes. */
 			for(p = buff, end = buff + size; p < end; ++p) {
@@ -1069,7 +1069,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		memzero(&ol, sizeof(ol));
 		ol.Offset = (DWORD)(a->offset & 0xFFFFFFFF);
 		ol.OffsetHigh = (DWORD)(a->offset >> 32);
-		if(!WriteFile(a->fh, buff, (uint32_t)bytes_to_write, &bytes_written, &ol)) {
+		if(!WriteFile(a->fh, buff, (uint32)bytes_to_write, &bytes_written, &ol)) {
 			DWORD lasterr = GetLastError();
 			if(lasterr == ERROR_ACCESS_DENIED)
 				errno = EBADF;
@@ -1088,7 +1088,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 }
 
 static ssize_t _archive_write_disk_data_block(struct archive * _a,
-    const void * buff, size_t size, int64_t offset)
+    const void * buff, size_t size, int64 offset)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	ssize_t r;
@@ -1255,7 +1255,7 @@ int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data
 }
 
 int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
-    int64_t (*lookup_uid)(void * pPrivate, const char * uname, int64_t uid),
+    int64 (*lookup_uid)(void * pPrivate, const char * uname, int64 uid),
     void (*cleanup_uid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
@@ -1270,7 +1270,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
 	return ARCHIVE_OK;
 }
 
-int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
@@ -1280,7 +1280,7 @@ int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_
 	return (id);
 }
 
-int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
@@ -1296,7 +1296,7 @@ int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_
 struct archive * archive_write_disk_new(void)                 {
 	struct archive_write_disk * a;
 
-	a = (struct archive_write_disk *)calloc(1, sizeof(*a));
+	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
@@ -1307,7 +1307,7 @@ struct archive * archive_write_disk_new(void)                 {
 	/* Query and restore the umask. */
 	umask(a->user_umask = umask(0));
 	if(archive_wstring_ensure(&a->path_safe, 512) == NULL) {
-		free(a);
+		SAlloc::F(a);
 		return NULL;
 	}
 	return (&a->archive);
@@ -1322,7 +1322,7 @@ static int disk_unlink(const wchar_t * path)
 	if(r != 0 && GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
 		r = _wunlink(fullname);
-		free(fullname);
+		SAlloc::F(fullname);
 	}
 	return r;
 }
@@ -1336,7 +1336,7 @@ static int disk_rmdir(const wchar_t * path)
 	if(r != 0 && GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
 		r = _wrmdir(fullname);
-		free(fullname);
+		SAlloc::F(fullname);
 	}
 	return r;
 }
@@ -1395,7 +1395,7 @@ static int restore_entry(struct archive_write_disk * a)
 			/* Remove multiple directories such as "a/../b../c" */
 			archive_wstrcpy(&(a->_name_data), full);
 			a->name = a->_name_data.s;
-			free(full);
+			SAlloc::F(full);
 			en = create_filesystem_object(a);
 		}
 	}
@@ -1662,8 +1662,8 @@ static int create_filesystem_object(struct archive_write_disk * a)
 				r = errno;
 			}
 		}
-		free(linkfull);
-		free(namefull);
+		SAlloc::F(linkfull);
+		SAlloc::F(namefull);
 		return r;
 	}
 	linkname = archive_entry_symlink_w(a->entry);
@@ -1748,7 +1748,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    else
 			    r = 0;
 		    if(fullname != a->name)
-			    free(fullname);
+			    SAlloc::F(fullname);
 		    break;
 		case AE_IFCHR:
 		case AE_IFBLK:
@@ -1782,7 +1782,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    r = -1;
 		    }
 		    if(fullname != a->name)
-			    free(fullname);
+			    SAlloc::F(fullname);
 		    break;
 		case AE_IFIFO:
 		    /* TODO: Find a better way to warn about our inability
@@ -1853,8 +1853,8 @@ static int _archive_write_disk_close(struct archive * _a)
 			set_fflags_platform(p->name, p->fflags_set, 0);
 		next = p->next;
 		archive_acl_clear(&p->acl);
-		free(p->name);
-		free(p);
+		SAlloc::F(p->name);
+		SAlloc::F(p);
 		p = next;
 	}
 	a->fixup_list = NULL;
@@ -1880,7 +1880,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	archive_wstring_free(&a->path_safe);
 	a->archive.magic = 0;
 	__archive_clean(&a->archive);
-	free(a);
+	SAlloc::F(a);
 	return ret;
 }
 
@@ -1958,7 +1958,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 static struct fixup_entry * new_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              {
 	struct fixup_entry * fe;
 
-	fe = (struct fixup_entry *)calloc(1, sizeof(struct fixup_entry));
+	fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
 	if(fe == NULL)
 		return NULL;
 	fe->next = a->fixup_list;
@@ -2412,13 +2412,13 @@ static int create_dir(struct archive_write_disk * a, wchar_t * path)
 			le->fixup |= TODO_MODE_BASE;
 			le->mode = mode_final;
 		}
-		free(full);
+		SAlloc::F(full);
 		return ARCHIVE_OK;
 	}
 	else {
 		la_dosmaperr(GetLastError());
 	}
-	free(full);
+	SAlloc::F(full);
 
 	/*
 	 * Without the following check, a/b/../b/c/d fails at the
@@ -2495,7 +2495,7 @@ static int set_times(struct archive_write_disk * a,
 			goto settimes_failed;
 		hw = CreateFileW(ws, FILE_WRITE_ATTRIBUTES,
 			0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-		free(ws);
+		SAlloc::F(ws);
 		if(hw == INVALID_HANDLE_VALUE)
 			goto settimes_failed;
 		h = hw;

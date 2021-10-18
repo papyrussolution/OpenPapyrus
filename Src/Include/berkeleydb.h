@@ -69,7 +69,7 @@ extern "C" {
  */
 //#ifndef __BIT_TYPES_DEFINED__
 	//#define __BIT_TYPES_DEFINED__
-	//typedef unsigned char uint8;
+	//typedef uchar uint8;
 	//typedef short int16;
 	//typedef unsigned short uint16;
 	//typedef int int32;
@@ -77,7 +77,7 @@ extern "C" {
 	//typedef unsigned __int64 uint64;
 //#endif
 //#ifndef _WINSOCKAPI_
-	// @sobolev typedef unsigned char u_char;
+	// @sobolev typedef uchar u_char;
 	// @sobolev typedef unsigned int u_int;
 	// @sobolev typedef unsigned long u_long;
 //#endif

@@ -38,7 +38,7 @@ EC_GROUP * EC_GROUP_new_curve_GFp(const BIGNUM * p, const BIGNUM * a,
 	 * implementing dedicated NxN multiplication subroutines for
 	 * small N. But till it materializes, let's stick to generic
 	 * prime method...
-	 *                                              <appro>
+	 *                                        <appro>
 	 */
 	meth = EC_GFp_mont_method();
 #else

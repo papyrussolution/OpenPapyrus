@@ -80,20 +80,20 @@
  *     * Execute Memento_setParanoia(1);  (In VS use Ctrl-Alt-Q). (Note #1)
  *     * Continue execution.
  *     * It will detect the memory corruption on the next allocation event
- *       after it happens, and stop in Memento_breakpoint. The console should
- *       show something like:
+ * after it happens, and stop in Memento_breakpoint. The console should
+ * show something like:
  *
- *       Freed blocks:
- *         0x172e610(size=288,num=1415) index 256 (0x172e710) onwards corrupted
- *           Block last checked OK at allocation 1457. Now 1458.
+ * Freed blocks:
+ *   0x172e610(size=288,num=1415) index 256 (0x172e710) onwards corrupted
+ *     Block last checked OK at allocation 1457. Now 1458.
  *
  *     * This means that the block became corrupted between allocation 1457
- *       and 1458 - so if we rerun and stop the program at 1457, we can then
- *       step through, possibly with a data breakpoint at 0x172e710 and see
- *       when it occurs.
+ * and 1458 - so if we rerun and stop the program at 1457, we can then
+ * step through, possibly with a data breakpoint at 0x172e710 and see
+ * when it occurs.
  *     * So restart the program from the beginning. When we stop after
- *       initialisation execute Memento_breakAt(1457); (and maybe
- *       Memento_setParanoia(1), or Memento_setParanoidAt(1457))
+ * initialisation execute Memento_breakAt(1457); (and maybe
+ * Memento_setParanoia(1), or Memento_setParanoidAt(1457))
  *     * Continue execution until we hit Memento_breakpoint.
  *     * Now you can step through and watch the memory corruption happen.
  *
@@ -146,12 +146,12 @@
  *    or
  *
  *    2) Build memento.c as normal with the C compiler, then from any
- *       one of your .cpp files, do:
+ * one of your .cpp files, do:
  *
- *       #define MEMENTO_CPP_EXTRAS_ONLY
- *       #include "memento.c"
+ * #define MEMENTO_CPP_EXTRAS_ONLY
+ * #include "memento.c"
  *
- *       In the case where MEMENTO is not defined, this will not do anything.
+ * In the case where MEMENTO is not defined, this will not do anything.
  *
  *    Both Windows and GCC provide separate new[] and delete[] operators
  *    for arrays. Apparently some systems do not. If this is the case for
@@ -165,10 +165,10 @@
  *
  *    To fix this you'll need to build your own libbacktrace. Don't worry
  *    it's really easy:
- *       git clone git://github.com/ianlancetaylor/libbacktrace
- *       cd libbacktrace
- *       ./configure
- *       make
+ * git clone git://github.com/ianlancetaylor/libbacktrace
+ * cd libbacktrace
+ * ./configure
+ * make
  *
  *    This leaves the build .so as .libs/libbacktrace.so
  *
@@ -177,9 +177,9 @@
  *    using /opt/lib/ as this won't conflict with anything that you
  *    get via a package manager like apt.
  *
- *       sudo mkdir /opt
- *       sudo mkdir /opt/lib
- *       sudo cp .libs/libbacktrace.so /opt/lib/
+ * sudo mkdir /opt
+ * sudo mkdir /opt/lib
+ * sudo cp .libs/libbacktrace.so /opt/lib/
  */
 
 #ifndef MEMENTO_H

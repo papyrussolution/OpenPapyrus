@@ -427,7 +427,7 @@ static int jbig2_decode_generic_template0_unopt(Jbig2Ctx * ctx,
 				bit = 0;
 			}
 			else {
-				CONTEXT  = out_byte & 0x000F;/* First 4 pixels */
+				CONTEXT  = out_byte & 0x000F; /* First 4 pixels */
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 4;
 				CONTEXT |= (pd>>8) & 0x03E0; /* Next 5 pixels */
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[2], y + params->gbat[3]) << 10;
@@ -492,7 +492,7 @@ static int jbig2_decode_generic_template1_unopt(Jbig2Ctx * ctx, Jbig2Segment * s
 				bit = 0;
 			}
 			else {
-				CONTEXT  = out_byte & 0x0007;/* First 3 pixels */
+				CONTEXT  = out_byte & 0x0007; /* First 3 pixels */
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 3;
 				CONTEXT |= (pd>>9) & 0x01F0; /* Next 5 pixels */
 				CONTEXT |= (ppd>>4) & 0x1E00; /* Next 4 pixels */
@@ -607,7 +607,7 @@ static int jbig2_decode_generic_template2_unopt(Jbig2Ctx * ctx,
 				bit = 0;
 			}
 			else {
-				CONTEXT  = out_byte & 0x003;/* First 2 pixels */
+				CONTEXT  = out_byte & 0x003; /* First 2 pixels */
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 2;
 				CONTEXT |= (pd>>11) & 0x078; /* Next 4 pixels */
 				CONTEXT |= (ppd>>7) & 0x380; /* Next 3 pixels */
@@ -758,7 +758,7 @@ static int jbig2_decode_generic_template3_unopt(Jbig2Ctx * ctx, Jbig2Segment * s
 				bit = 0;
 			}
 			else {
-				CONTEXT  = out_byte & 0x00F;/* First 4 pixels */
+				CONTEXT  = out_byte & 0x00F; /* First 4 pixels */
 				CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 4;
 				CONTEXT |= (pd>>9) & 0x3E0; /* Next 5 pixels */
 				bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
@@ -847,7 +847,7 @@ static int jbig2_decode_generic_template0_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * 
 						bit = 0;
 					}
 					else {
-						CONTEXT  = out_byte & 0x00F;/* First 4 pixels */
+						CONTEXT  = out_byte & 0x00F; /* First 4 pixels */
 						CONTEXT |= (pd>>8) & 0x7F0; /* Next 7 pixels */
 						CONTEXT |= (ppd>>2) & 0xF800; /* Final 5 pixels */
 						bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);
@@ -1029,7 +1029,7 @@ static int jbig2_decode_generic_template1_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * 
 					bit = 0;
 				}
 				else {
-					CONTEXT  = out_byte & 0x0007;/* First 3 pixels */
+					CONTEXT  = out_byte & 0x0007; /* First 3 pixels */
 					CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 3;
 					CONTEXT |= (pd>>9) & 0x01F0; /* next 5 pixels */
 					CONTEXT |= (ppd>>4) & 0x1E00; /* next 4 pixels */
@@ -1102,7 +1102,7 @@ static int jbig2_decode_generic_template2_TPGDON(Jbig2Ctx * ctx,
 					bit = 0;
 				}
 				else {
-					CONTEXT  = out_byte & 0x003;/* First 2 pixels */
+					CONTEXT  = out_byte & 0x003; /* First 2 pixels */
 					CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 2;
 					CONTEXT |= (pd>>11) & 0x078; /* next 4 pixels */
 					CONTEXT |= (ppd>>7) & 0x380; /* next 3 pixels */
@@ -1167,7 +1167,7 @@ static int jbig2_decode_generic_template3_TPGDON(Jbig2Ctx * ctx, Jbig2Segment * 
 					bit = 0;
 				}
 				else {
-					CONTEXT  = out_byte & 0x0F;/* First 4 pixels */
+					CONTEXT  = out_byte & 0x0F; /* First 4 pixels */
 					CONTEXT |= jbig2_image_get_pixel(image, x + params->gbat[0], y + params->gbat[1]) << 4;
 					CONTEXT |= (pd>>9) & 0x3E0; /* next 5 pixels */
 					bit = jbig2_arith_decode(ctx, as, &GB_stats[CONTEXT]);

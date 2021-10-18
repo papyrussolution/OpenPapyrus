@@ -328,7 +328,7 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 	if(agt_kind == 1) {
 		int    is_agreement = 0;
 		PPClientAgreement ca_rec;
-		if(arobj.GetClientAgreement(client_id, &ca_rec, 1) > 0)
+		if(arobj.GetClientAgreement(client_id, ca_rec, 1) > 0)
 			paym_period = ca_rec.DefPayPeriod;
 	}
 	else if(agt_kind == 2) {
@@ -1961,7 +1961,7 @@ void PPBillPacket::SetupObjectBlock::Clear_()
 	PsnID = 0;
 	Name.Z();
 	RegInfoList.freeAll();
-	CliAgt.Init();
+	CliAgt.Z();
 	SupplAgt.Z();
 }
 
@@ -2175,7 +2175,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
 		rRet.Name = ar_rec.Name;
 		if(agt_kind == 1) {
-			if(ar_obj.GetClientAgreement(arID, &rRet.CliAgt, 1) > 0) {
+			if(ar_obj.GetClientAgreement(arID, rRet.CliAgt, 1) > 0) {
 				rRet.State |= rRet.stHasCliAgreement;
 				AgtQuotKindID = rRet.CliAgt.DefQuotKindID;
 				if(rRet.CliAgt.Flags & AGTF_USEMARKEDGOODSONLY)

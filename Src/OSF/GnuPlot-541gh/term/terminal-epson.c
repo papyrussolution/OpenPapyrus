@@ -245,31 +245,31 @@ TERM_PUBLIC void NEC_options(GpTermEntry * pThis, GnuPlot * pGp)
 	GnuPlot * p_gp = pThis->P_Gp;
 	// default 
 	if(p_gp->Pgm.EndOfCommand()) {
-		strcpy(GPT.TermOptions, "monochrome");
+		GPT._TermOptions = "monochrome";
 		NECmode = 'm';
 	}
 	while(!p_gp->Pgm.EndOfCommand()) {
 		switch(p_gp->Pgm.LookupTableForCurrentToken(&NEC_opts[0])) {
 			case NEC_MONOCHROME:
 			    p_gp->Pgm.Shift();
-			    strcpy(GPT.TermOptions, "monochrome");
+			    GPT._TermOptions = "monochrome";
 			    NECmode = 'm';
 			    break;
 			case NEC_COLOR:
 			    p_gp->Pgm.Shift();
-			    strcpy(GPT.TermOptions, "color");
+			    GPT._TermOptions = "color";
 			    NECmode = 'c';
 			    break;
 			case NEC_DRAFT:
 			    p_gp->Pgm.Shift();
-			    strcpy(GPT.TermOptions, "draft");
+			    GPT._TermOptions = "draft";
 			    NECmode = 'd';
 			    break;
 			case NEC_OTHER:
 			default:
 			    // FIXME - not the most sensible thing to do 
 			    // error, but since the terminal is already set, default to mono 
-			    strcpy(GPT.TermOptions, "monochrome");
+			    GPT._TermOptions = "monochrome";
 			    NECmode = 'm';
 			    p_gp->IntErrorCurToken("modes: color, monochrome, draft");
 			    break;
@@ -713,7 +713,7 @@ TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	DPU414_font = 2;
 	DPU414_quality = 1;
-	PTR32(GPT.TermOptions)[0] = 0;
+	GPT._TermOptions.Z();
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&DPU414_opts[0])) {
 			case DPU414_SMALL:
@@ -751,18 +751,18 @@ TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->TicH = pThis->TicV;
 	// setup options string 
 	switch(DPU414_font) {
-		case 1: strcat(GPT.TermOptions, "small"); break;
-		case 2: strcat(GPT.TermOptions, "medium"); break;
-		case 3: strcat(GPT.TermOptions, "large"); break;
+		case 1: GPT._TermOptions.Cat("small"); break;
+		case 2: GPT._TermOptions.Cat("medium"); break;
+		case 3: GPT._TermOptions.Cat("large"); break;
 	}
 	switch(DPU414_quality) {
 		case 1:
-		    strcat(GPT.TermOptions, " normal");
+		    GPT._TermOptions.Cat(" normal");
 		    pThis->MaxX = DPU414XMAX;
 		    pThis->MaxY = DPU414YMAX;
 		    break;
 		case 2:
-		    strcat(GPT.TermOptions, " draft");
+		    GPT._TermOptions.Cat(" draft");
 		    pThis->MaxX = DPU414XMAX / 2;
 		    pThis->MaxY = DPU414YMAX / 2;
 		    break;

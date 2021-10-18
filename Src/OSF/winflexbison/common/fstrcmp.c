@@ -141,30 +141,25 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 		}
 #endif
 	}
-
-	/* set the info for each string.  */
+	// set the info for each string. 
 	ctxt.xvec = string1;
 	ctxt.yvec = string2;
-
-	/* Set TOO_EXPENSIVE to be approximate square root of input size,
-	   bounded below by 4096.  */
+	// Set TOO_EXPENSIVE to be approximate square root of input size, bounded below by 4096.
 	ctxt.too_expensive = 1;
 	for(i = xvec_length + yvec_length; i != 0; i >>= 2)
 		ctxt.too_expensive <<= 1;
-	if(ctxt.too_expensive < 4096)
-		ctxt.too_expensive = 4096;
-
-	/* Allocate memory for fdiag and bdiag from a thread-local pool.  */
+	SETMAX(ctxt.too_expensive, 4096);
+	// Allocate memory for fdiag and bdiag from a thread-local pool.  
 	fdiag_len = length_sum + 3;
 	gl_once(keys_init_once, keys_init);
 	buffer = (ptrdiff_t *)gl_tls_get(buffer_key);
 	bufmax = (uintptr_t)gl_tls_get(bufmax_key);
 	if(fdiag_len > (ptrdiff_t)bufmax) {
-		/* Need more memory.  */
+		// Need more memory.
 		bufmax = 2 * bufmax;
 		if(fdiag_len > (ptrdiff_t)bufmax)
 			bufmax = fdiag_len;
-		/* Calling xrealloc would be a waste: buffer's contents does not need to be preserved.  */
+		// Calling xrealloc would be a waste: buffer's contents does not need to be preserved
 		SAlloc::F(buffer);
 		buffer = (ptrdiff_t *)xnmalloc(bufmax, 2 * sizeof *buffer);
 		gl_tls_set(buffer_key, buffer);
@@ -172,7 +167,6 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 	}
 	ctxt.fdiag = buffer + yvec_length + 1;
 	ctxt.bdiag = ctxt.fdiag + fdiag_len;
-
 	/* The edit_count is only ever increased.  The computation can be aborted
 	   when
 	     (xvec_length + yvec_length - edit_count) / (xvec_length + yvec_length)

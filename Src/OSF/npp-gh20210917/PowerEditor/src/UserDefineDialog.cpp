@@ -1906,7 +1906,6 @@ INT_PTR CALLBACK StylerDlg::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 					    auto lbTextLen = ::SendDlgItemMessage(hwnd, LOWORD(wParam), CB_GETLBTEXTLEN, i, 0);
 					    if(lbTextLen > intStrLen - 1)
 						    return TRUE;
-
 					    ::SendDlgItemMessage(hwnd, LOWORD(wParam), CB_GETLBTEXT, i, reinterpret_cast<LPARAM>(intStr));
 					    if((!intStr) || (!intStr[0]))
 						    style._fontSize = -1;
@@ -1944,19 +1943,10 @@ INT_PTR CALLBACK StylerDlg::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 				    ::EndDialog(hwnd, IDOK);
 				    return TRUE;
 			    }
-
 			    style._fgColor = dlg->_pFgColour->getColour();
 			    style._bgColor = dlg->_pBgColour->getColour();
-
-			    if(dlg->_pFgColour->isEnabled())
-				    style._colorStyle |= COLORSTYLE_FOREGROUND;
-			    else
-				    style._colorStyle &= ~COLORSTYLE_FOREGROUND;
-			    if(dlg->_pBgColour->isEnabled())
-				    style._colorStyle |= COLORSTYLE_BACKGROUND;
-			    else
-				    style._colorStyle &= ~COLORSTYLE_BACKGROUND;
-
+				SETFLAG(style._colorStyle, COLORSTYLE_FOREGROUND, dlg->_pFgColour->isEnabled());
+				SETFLAG(style._colorStyle, COLORSTYLE_BACKGROUND, dlg->_pBgColour->isEnabled());
 			    style._fontStyle = FONTSTYLE_NONE;
 			    if(BST_CHECKED == ::SendMessage(::GetDlgItem(hwnd, IDC_STYLER_CHECK_BOLD), BM_GETCHECK, 0, 0))
 				    style._fontStyle |= FONTSTYLE_BOLD;
@@ -1964,18 +1954,15 @@ INT_PTR CALLBACK StylerDlg::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 				    style._fontStyle |= FONTSTYLE_ITALIC;
 			    if(BST_CHECKED == ::SendMessage(::GetDlgItem(hwnd, IDC_STYLER_CHECK_UNDERLINE), BM_GETCHECK, 0, 0))
 				    style._fontStyle |= FONTSTYLE_UNDERLINE;
-
 			    style._nesting = SCE_USER_MASK_NESTING_NONE;
 			    unordered_map<int, int>::iterator iter = globalMappper().nestingMapper.begin();
 			    for(; iter != globalMappper().nestingMapper.end(); ++iter) {
 				    if(BST_CHECKED == ::SendMessage(::GetDlgItem(hwnd, iter->first), BM_GETCHECK, 0, 0))
 					    style._nesting |= iter->second;
 			    }
-
 			    // show changes to user, re-color document
 			    if(SharedParametersDialog::_pScintilla->getCurrentBuffer()->getLangType() == L_USER)
 				    SharedParametersDialog::_pScintilla->styleChange();
-
 			    return TRUE;
 		    }
 		    return FALSE;

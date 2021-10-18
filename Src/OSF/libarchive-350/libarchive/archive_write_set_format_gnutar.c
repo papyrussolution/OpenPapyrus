@@ -37,8 +37,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_gnu_tar.c 19157
 #include "archive_write_set_format_private.h"
 
 struct gnutar {
-	uint64_t entry_bytes_remaining;
-	uint64_t entry_padding;
+	uint64 entry_bytes_remaining;
+	uint64 entry_padding;
 	const char *    linkname;
 	size_t linkname_length;
 	const char *    pathname;
@@ -151,9 +151,9 @@ static ssize_t  archive_write_gnutar_data(struct archive_write * a, const void *
 static int      archive_write_gnutar_free(struct archive_write *);
 static int      archive_write_gnutar_close(struct archive_write *);
 static int      archive_write_gnutar_finish_entry(struct archive_write *);
-static int      format_256(int64_t, char *, int);
-static int      format_number(int64_t, char *, int size, int maxsize);
-static int      format_octal(int64_t, char *, int);
+static int      format_256(int64, char *, int);
+static int      format_number(int64, char *, int size, int maxsize);
+static int      format_octal(int64, char *, int);
 
 /*
  * Set output format to 'GNU tar' format.
@@ -163,7 +163,7 @@ int archive_write_set_format_gnutar(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct gnutar * gnutar;
 
-	gnutar = (struct gnutar *)calloc(1, sizeof(*gnutar));
+	gnutar = (struct gnutar *)SAlloc::C(1, sizeof(*gnutar));
 	if(gnutar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate gnutar data");
@@ -214,7 +214,7 @@ static int archive_write_gnutar_free(struct archive_write * a)
 	struct gnutar * gnutar;
 
 	gnutar = (struct gnutar *)a->format_data;
-	free(gnutar);
+	SAlloc::F(gnutar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }
@@ -534,7 +534,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		ret = ret2;
 
 	gnutar->entry_bytes_remaining = archive_entry_size(entry);
-	gnutar->entry_padding = 0x1ff & (-(int64_t)gnutar->entry_bytes_remaining);
+	gnutar->entry_padding = 0x1ff & (-(int64)gnutar->entry_bytes_remaining);
 exit_write_header:
 	archive_entry_free(entry_main);
 	return ret;
@@ -681,9 +681,9 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 /*
  * Format a number into a field, falling back to base-256 if necessary.
  */
-static int format_number(int64_t v, char * p, int s, int maxsize)
+static int format_number(int64 v, char * p, int s, int maxsize)
 {
-	int64_t limit = ((int64_t)1 << (s*3));
+	int64 limit = ((int64)1 << (s*3));
 
 	if(v < limit)
 		return (format_octal(v, p, s));
@@ -693,7 +693,7 @@ static int format_number(int64_t v, char * p, int s, int maxsize)
 /*
  * Format a number into the specified field using base-256.
  */
-static int format_256(int64_t v, char * p, int s)
+static int format_256(int64 v, char * p, int s)
 {
 	p += s;
 	while(s-- > 0) {
@@ -706,7 +706,7 @@ static int format_256(int64_t v, char * p, int s)
 /*
  * Format a number into the specified field using octal.
  */
-static int format_octal(int64_t v, char * p, int s)
+static int format_octal(int64 v, char * p, int s)
 {
 	int len = s;
 	/* Octal values can't be negative, so use 0. */

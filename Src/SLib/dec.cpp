@@ -1,5 +1,5 @@
 // DEC.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020
+// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -32,13 +32,13 @@ static const IEEE80 expo[10] =
 
 #endif // } 0
 
-double FASTCALL dectobin(const char * dc, int16 len, int16 prec)
+double STDCALL dectobin(const char * dc, int16 len, int16 prec)
 {
 	char   buf[64];
 	return satof(dectostr(dc, len, prec, buf)); // @v10.7.9 atof-->satof
 }
 
-void FASTCALL dectobcd(char * dc, char * bcd, int16 len)
+void STDCALL dectobcd(char * dc, char * bcd, int16 len)
 {
 	uchar * d = reinterpret_cast<uchar *>(dc);
 	uchar * b = reinterpret_cast<uchar *>(bcd);
@@ -51,7 +51,7 @@ void FASTCALL dectobcd(char * dc, char * bcd, int16 len)
 	}
 }
 
-char * FASTCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
+char * STDCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
 {
 	uchar _dl = 0;
 	uchar _al;
@@ -82,7 +82,7 @@ char * FASTCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
 	return b;
 }
 
-int FASTCALL deccmp(const char * dec1, const char * dec2, int16 len)
+int STDCALL deccmp(const char * dec1, const char * dec2, int16 len)
 {
 	int    r1 = BIN((dec1[len] & 0xf) == 0xd);
 	int    r2 = BIN((dec2[len] & 0xf) == 0xd);
@@ -95,7 +95,7 @@ int FASTCALL deccmp(const char * dec1, const char * dec2, int16 len)
 	return r;
 }
 
-void FASTCALL dectodec(double val, char * dc, int16 len, int16 prec)
+void STDCALL dectodec(double val, char * dc, int16 len, int16 prec)
 {
 	int    sign, dec;
 	uchar  al;

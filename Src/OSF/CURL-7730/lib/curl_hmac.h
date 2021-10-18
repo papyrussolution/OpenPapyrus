@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_HMAC_H
 #define HEADER_CURL_HMAC_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -28,9 +28,9 @@
 
 typedef void    (* HMAC_hinit_func)(void *context);
 typedef void    (* HMAC_hupdate_func)(void *context,
-                                      const unsigned char *data,
+                                      const uchar *data,
                                       unsigned int len);
-typedef void    (* HMAC_hfinal_func)(unsigned char *result, void *context);
+typedef void    (* HMAC_hfinal_func)(uchar *result, void *context);
 
 
 /* Per-hash function HMAC parameters. */
@@ -55,17 +55,17 @@ struct HMAC_context {
 
 /* Prototypes. */
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
+                                    const uchar *key,
                                     unsigned int keylen);
 int Curl_HMAC_update(struct HMAC_context *context,
-                     const unsigned char *data,
+                     const uchar *data,
                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *context, unsigned char *result);
+int Curl_HMAC_final(struct HMAC_context *context, uchar *result);
 
 CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, const size_t datalen,
-                     unsigned char *output);
+                     const uchar *key, const size_t keylen,
+                     const uchar *data, const size_t datalen,
+                     uchar *output);
 
 #endif
 

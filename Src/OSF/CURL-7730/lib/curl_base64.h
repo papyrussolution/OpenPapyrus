@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_BASE64_H
 #define HEADER_CURL_BASE64_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -30,6 +30,6 @@ CURLcode Curl_base64url_encode(struct Curl_easy *data,
                                char **outptr, size_t *outlen);
 
 CURLcode Curl_base64_decode(const char *src,
-                            unsigned char **outptr, size_t *outlen);
+                            uchar **outptr, size_t *outlen);
 
 #endif /* HEADER_CURL_BASE64_H */

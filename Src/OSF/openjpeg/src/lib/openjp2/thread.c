@@ -210,7 +210,7 @@ void opj_cond_destroy(opj_cond_t* cond)
 
 struct opj_thread_t {
 	opj_thread_fn thread_fn;
-	void* user_data;
+	void * user_data;
 	HANDLE hThread;
 };
 
@@ -244,7 +244,7 @@ unsigned int __stdcall opj_thread_callback_adapter(void * info)
 	return 0;
 }
 
-opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
+opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void * user_data)
 {
 	opj_thread_t* thread;
 
@@ -374,18 +374,18 @@ void opj_cond_destroy(opj_cond_t* cond)
 
 struct opj_thread_t {
 	opj_thread_fn thread_fn;
-	void* user_data;
+	void * user_data;
 	pthread_t thread;
 };
 
-static void* opj_thread_callback_adapter(void* info)
+static void * opj_thread_callback_adapter(void * info)
 {
 	opj_thread_t* thread = (opj_thread_t*)info;
 	thread->thread_fn(thread->user_data);
 	return NULL;
 }
 
-opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
+opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void * user_data)
 {
 	pthread_attr_t attr;
 	opj_thread_t* thread;
@@ -402,7 +402,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	if(pthread_create(&(thread->thread), &attr,
-	    opj_thread_callback_adapter, (void*)thread) != 0) {
+	    opj_thread_callback_adapter, (void *)thread) != 0) {
 		SAlloc::F(thread);
 		return NULL;
 	}
@@ -411,7 +411,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 
 void opj_thread_join(opj_thread_t* thread)
 {
-	void* status;
+	void * status;
 	pthread_join(thread->thread, &status);
 	SAlloc::F(thread);
 }
@@ -472,7 +472,7 @@ void opj_cond_destroy(opj_cond_t* cond)
 	(void)cond;
 }
 
-opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
+opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void * user_data)
 {
 	(void)thread_fn;
 	(void)user_data;
@@ -488,7 +488,7 @@ void opj_thread_join(opj_thread_t* thread)
 
 typedef struct {
 	int key;
-	void* value;
+	void * value;
 	opj_tls_free_func opj_free_func;
 } opj_tls_key_val_t;
 
@@ -517,7 +517,7 @@ static void opj_tls_destroy(opj_tls_t* tls)
 	SAlloc::F(tls);
 }
 
-void* opj_tls_get(opj_tls_t* tls, int key)
+void * opj_tls_get(opj_tls_t* tls, int key)
 {
 	int i;
 	for(i = 0; i < tls->key_val_count; i++) {
@@ -528,7 +528,7 @@ void* opj_tls_get(opj_tls_t* tls, int key)
 	return NULL;
 }
 
-OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void* value, opj_tls_free_func opj_free_func)
+OPJ_BOOL opj_tls_set(opj_tls_t* tls, int key, void * value, opj_tls_free_func opj_free_func)
 {
 	opj_tls_key_val_t* new_key_val;
 	int i;
@@ -641,7 +641,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads)
 	return tp;
 }
 
-static void opj_worker_thread_function(void* user_data)
+static void opj_worker_thread_function(void * user_data)
 {
 	opj_worker_thread_t* worker_thread;
 	opj_thread_pool_t* tp;
@@ -813,7 +813,7 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 
 OPJ_BOOL opj_thread_pool_submit_job(opj_thread_pool_t* tp,
     opj_job_fn job_fn,
-    void* user_data)
+    void * user_data)
 {
 	opj_worker_thread_job_t* job;
 	opj_job_list_t* item;

@@ -473,16 +473,16 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
 	// CGM_default_font holds the font and size set at 'set term' 
-	sprintf(GPT.TermOptions, "%s %s %s %s %s width %d linewidth %d font \"%s, %d\"",
+	slprintf(GPT._TermOptions, "%s %s %s %s %s width %d linewidth %d font \"%s, %d\"",
 	    cgm_portrait ? "portrait" : "landscape", cgm_monochrome ? "monochrome" : "color",
 	    cgm_rotate ? "rotate" : "norotate", cgm_dashed ? "dashed" : "solid",
 	    cgm_nofontlist_mode ? "nofontlist" : "", cgm_plotwidth, cgm_linewidth_pt, cgm_font, cgm_fontsize);
 	if(cgm_user_color_count) {
-		for(int i = 0; i < cgm_user_color_count && (strlen(GPT.TermOptions) + 9 < MAX_LINE_LEN); i++) {
+		for(int i = 0; i < cgm_user_color_count && (GPT._TermOptions.Len() + 9 < MAX_LINE_LEN); i++) {
 			int red = cgm_user_color_table[1 + 3*i];
 			int green = cgm_user_color_table[2 + 3*i];
 			int blue = cgm_user_color_table[3 + 3*i];
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " x%02x%02x%02x", red, green, blue);
+			slprintf_cat(GPT._TermOptions, " x%02x%02x%02x", red, green, blue);
 		}
 	}
 	if(cgm_user_color_count < CGM_COLORS) {
@@ -809,7 +809,7 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 	cgm_color = linecolor;
 	cgm_next.fill_color = linecolor;
 	CGM_flush_polyline();
-	CGM_write_int_record(5,  4, 2, (int *)&cgm_color);/* line color */
+	CGM_write_int_record(5,  4, 2, (int *)&cgm_color); /* line color */
 	CGM_write_int_record(5, 14, 2, (int *)&cgm_color); /* text color */
 }
 
@@ -943,7 +943,7 @@ TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 		cgm_color = cgm_next.fill_color;
 		cgm_linetype = cgm_color;
 		CGM_flush_polyline();
-		CGM_write_int_record(5,  4, 2, (int *)&cgm_color);/* line color */
+		CGM_write_int_record(5,  4, 2, (int *)&cgm_color); /* line color */
 		CGM_write_int_record(5, 14, 2, (int *)&cgm_color); /* text color */
 	}
 }

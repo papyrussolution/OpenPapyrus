@@ -60,24 +60,24 @@ static hb_bool_t hb_ot_get_variation_glyph(hb_font_t * font HB_UNUSED, void * fo
 	return ot_face->cmap->get_variation_glyph(unicode, variation_selector, glyph);
 }
 
-static void hb_ot_get_glyph_h_advances(hb_font_t* font, void* font_data, unsigned count, const hb_codepoint_t * first_glyph,
+static void hb_ot_get_glyph_h_advances(hb_font_t* font, void * font_data, unsigned count, const hb_codepoint_t * first_glyph,
     unsigned glyph_stride, hb_position_t * first_advance, unsigned advance_stride, void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
 	const OT::hmtx_accelerator_t &hmtx = *ot_face->hmtx;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		*first_advance = font->em_scale_x(hmtx.get_advance(*first_glyph, font));
 		first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
 		first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
 	}
 }
 
-static void hb_ot_get_glyph_v_advances(hb_font_t* font, void* font_data, unsigned count, const hb_codepoint_t * first_glyph,
+static void hb_ot_get_glyph_v_advances(hb_font_t* font, void * font_data, unsigned count, const hb_codepoint_t * first_glyph,
     unsigned glyph_stride, hb_position_t * first_advance, unsigned advance_stride, void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
 	const OT::vmtx_accelerator_t &vmtx = *ot_face->vmtx;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		*first_advance = font->em_scale_y(-(int)vmtx.get_advance(*first_glyph, font));
 		first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
 		first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);

@@ -81,11 +81,11 @@ static uint32 FASTCALL swap_uint32(uint32 value)
    Returns:          0 if the swap is successful, negative on error
  */
 #if defined COMPILE_PCRE8
-PCRE_EXP_DECL int pcre_pattern_to_host_byte_order(pcre * argument_re, pcre_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre_pattern_to_host_byte_order(pcre * argument_re, pcre_extra * extra_data, const uchar * tables)
 #elif defined COMPILE_PCRE16
-PCRE_EXP_DECL int pcre16_pattern_to_host_byte_order(pcre16 * argument_re, pcre16_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre16_pattern_to_host_byte_order(pcre16 * argument_re, pcre16_extra * extra_data, const uchar * tables)
 #elif defined COMPILE_PCRE32
-PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re, pcre32_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re, pcre32_extra * extra_data, const uchar * tables)
 #endif
 {
 	REAL_PCRE * re = (REAL_PCRE*)argument_re;

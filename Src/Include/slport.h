@@ -1,5 +1,5 @@
 // SLPORT.H
-// Copyright (c) A.Sobolev 2020
+// Copyright (c) A.Sobolev 2020, 2021
 // @codepage UTF-8
 // Этот заголовочный файл призван унифицировать большинство макроопределений и деклараций, реализующих портируемость
 // компиляции между платформами и компиляторами.
@@ -139,9 +139,9 @@
 		#undef CXX_IMPORT
 
 		// Function Attributes.
-		#undef CXX_CDECL
-		#undef CXX_STDCALL
-		#undef CXX_FASTCALL
+		#undef CDECL
+		#undef STDCALL
+		#undef FASTCALL
 		#undef CXX_REGPARM
 		#undef CXX_FORCEINLINE
 		#undef CXX_NOINLINE
@@ -655,23 +655,34 @@
 	#endif
 	//
 	// [Function Attributes]
+	// Замечания по соглашениям вызова функций:
+	// STDCALL  - не применять для member-функций: снижает производительность
+	// FASTCALL - Следует использовать для часто вызываемых функций с количеством параметров
+	// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
+	// зрения оптимизации распределения регистров в вызывающих функциях.
+	// @v11.2.0 Небольшое изучение замены __fastcall на __stdcall показало: 
+	//  размер кода при такой замене снижается значительно, но общее быстродействие становиться на несколько процентов меньше.
+	//  Пока оставляем как было.
+	//  При этом есть резон standalone-функции с любым числом аргументом объявлять как __stdcall - это снизит общий размер кода.
+	// CDECL - применять для функций с переменным числом аргументов для того, чтобы по-ошибке не поставили какой-либо иной вариант,
+	//   то есть, это - явная декларация для тог, чтобы избежать ошибки.
 	//
 	#if CXX_ARCH_X86
 		#if CXX_HAS_X_ATTRIBUTE
-			#define CXX_CDECL      __attribute__((__cdecl__))
-			#define CXX_STDCALL    __attribute__((__stdcall__))
-			#define CXX_FASTCALL   __attribute__((__fastcall__))
+			#define CDECL      __attribute__((__cdecl__))
+			#define STDCALL    __attribute__((__stdcall__))
+			#define FASTCALL   __attribute__((__fastcall__))
 			#define CXX_REGPARM(N) __attribute__((__regparm__(N)))
 		#else
-			#define CXX_CDECL      __cdecl
-			#define CXX_STDCALL    __stdcall
-			#define CXX_FASTCALL   __fastcall
+			#define CDECL      __cdecl
+			#define STDCALL    __stdcall
+			#define FASTCALL   __fastcall
 			#define CXX_REGPARM(N)
 		#endif
 	#else
-		#define CXX_CDECL
-		#define CXX_STDCALL
-		#define CXX_FASTCALL
+		#define CDECL
+		#define STDCALL
+		#define FASTCALL
 		#define CXX_REGPARM(N)
 	#endif
 	#if CXX_HAS_X_ATTRIBUTE_ALWAYS_INLINE
@@ -814,6 +825,16 @@
 	#else
 		#define SIZEOF_SIZE_T 4
 	#endif
+#endif
+#ifdef __cplusplus
+	// ? || (__cplusplus >= 201103L)
+	#ifdef CXX_HAS_NOEXCEPT
+		#define NOEXCEPT noexcept
+	#else
+		#define NOEXCEPT throw()
+	#endif
+#else
+	#define NOEXCEPT throw()
 #endif
 #if defined(_WIN32) || defined(_WIN64)
 	//typedef long pid_t;

@@ -29,7 +29,8 @@ void ENHest_FLUSH(GpTermEntry * pThis);
 void ENHest_writec(GpTermEntry * pThis, int c);
 
 GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false),
-	P_LfHead(0), P_PushTermName(0), P_PushTermOpts(0), VarShowAll(false)
+	P_LfHead(0), P_PushTermName(0), P_PushTermOpts(0), VarShowAll(false),
+	Pm3dLastSetPaletteMode(SMPAL_COLOR_MODE_NONE), EnableResetPalette(1)
 {
 	_ENHest = {
 		"estimate", 

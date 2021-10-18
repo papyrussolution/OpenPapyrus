@@ -47,7 +47,7 @@
  *
  * PARAMETERS
  *   execute
- *           if nonzero, execute the cleanup handler
+ *     if nonzero, execute the cleanup handler
  *
  *
  * DESCRIPTION
@@ -55,10 +55,10 @@
  *   handler. If execute is nonzero, then the cleanup handler
  *   is executed if non-null.
  *   NOTE: specify 'execute' as nonzero to avoid duplication
- *             of common cleanup code.
+ *       of common cleanup code.
  *
  * RESULTS
- *           N/A
+ *     N/A
  *
  * ------------------------------------------------------
  */
@@ -69,7 +69,7 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 		if(execute && (cleanup->routine != NULL)) {
 			(*cleanup->routine)(cleanup->arg);
 		}
-		pthread_setspecific(__ptw32_cleanupKey, (void*)cleanup->prev);
+		pthread_setspecific(__ptw32_cleanupKey, (void *)cleanup->prev);
 	}
 	return (cleanup);
 }
@@ -79,36 +79,36 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
  *   This function pushes a new cleanup handler onto the thread's stack
  *   of cleanup handlers. Each cleanup handler pushed onto the stack is
  *   popped and invoked with the argument 'arg' when
- *           a) the thread exits by calling 'pthread_exit',
- *           b) when the thread acts on a cancellation request,
- *           c) or when the thread calls pthread_cleanup_pop with a nonzero
- *              'execute' argument
+ *     a) the thread exits by calling 'pthread_exit',
+ *     b) when the thread acts on a cancellation request,
+ *     c) or when the thread calls pthread_cleanup_pop with a nonzero
+ *        'execute' argument
  *
  * PARAMETERS
  *   cleanup
- *           a pointer to an instance of pthread_cleanup_t,
+ *     a pointer to an instance of pthread_cleanup_t,
  *
  *   routine
- *           pointer to a cleanup handler,
+ *     pointer to a cleanup handler,
  *
  *   arg
- *           parameter to be passed to the cleanup handler
+ *     parameter to be passed to the cleanup handler
  *
  *
  * DESCRIPTION
  *   This function pushes a new cleanup handler onto the thread's stack
  *   of cleanup handlers. Each cleanup handler pushed onto the stack is
  *   popped and invoked with the argument 'arg' when
- *           a) the thread exits by calling 'pthread_exit',
- *           b) when the thread acts on a cancellation request,
- *           c) or when the thrad calls pthread_cleanup_pop with a nonzero
- *              'execute' argument
+ *     a) the thread exits by calling 'pthread_exit',
+ *     b) when the thread acts on a cancellation request,
+ *     c) or when the thrad calls pthread_cleanup_pop with a nonzero
+ *        'execute' argument
  *   NOTE: pthread_push_cleanup, __ptw32_pop_cleanup must be paired
- *             in the same lexical scope.
+ *       in the same lexical scope.
  *
  * RESULTS
- *           pthread_cleanup_t *
- *                           pointer to the previous cleanup
+ *     pthread_cleanup_t *
+ *                     pointer to the previous cleanup
  *
  * ------------------------------------------------------
  */
@@ -117,5 +117,5 @@ void __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_
 	cleanup->routine = routine;
 	cleanup->arg = arg;
 	cleanup->prev = (__ptw32_cleanup_t*)pthread_getspecific(__ptw32_cleanupKey);
-	pthread_setspecific(__ptw32_cleanupKey, (void*)cleanup);
+	pthread_setspecific(__ptw32_cleanupKey, (void *)cleanup);
 }

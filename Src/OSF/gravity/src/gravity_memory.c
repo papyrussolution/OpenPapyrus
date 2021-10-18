@@ -274,7 +274,7 @@ void _ptr_replace(void * old_ptr, void * new_ptr, size_t new_size)
 	size_t old_size = memdebug.slot[index].size;
 	slot.ptr = new_ptr;
 	slot.size = new_size;
-	SAlloc::F((void*)slot.frames);
+	SAlloc::F((void *)slot.frames);
 	slot.frames = _ptr_stacktrace(&slot.nframe);
 	++slot.nrealloc;
 

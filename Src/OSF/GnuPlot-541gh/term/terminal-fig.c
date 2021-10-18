@@ -390,7 +390,7 @@ TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		sprintf(text_flags, "%s%s%s", (FIG_text_flags & FIG_TEXT_SPECIAL) ? " textspecial" : "",
 		    (FIG_text_flags & FIG_TEXT_HIDDEN) ? " texthidden" : "", (FIG_text_flags & FIG_TEXT_RIGID) ? " textrigid" : "");
 	}
-	sprintf(GPT.TermOptions, "%s %s %s %s \"%s,%d\" linewidth %.1f", FIG_use_color ? "color" : "monochrome", FIG_portrait ? "portrait" : "landscape",
+	slprintf(GPT._TermOptions, "%s %s %s %s \"%s,%d\" linewidth %.1f", FIG_use_color ? "color" : "monochrome", FIG_portrait ? "portrait" : "landscape",
 	    text_flags, "font", FIG_fonts[FIG_font_id].key, FIG_font_s, FIG_linewidth_factor);
 	// Normalize and print size 
 	if(FIG_portrait && FIG_width > FIG_height) {
@@ -407,7 +407,7 @@ TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
 #endif
 	else
 		sprintf(tmp_term_options, " size %.2fin, %.2fin ", (double)FIG_width/FIG_IRES, (double)FIG_height/FIG_IRES);
-	strncat(GPT.TermOptions, tmp_term_options, /*sizeof(GPT.TermOptions)*/(MAX_LINE_LEN+1)-strlen(GPT.TermOptions)-1);
+	GPT._TermOptions.Cat(tmp_term_options);
 	pThis->MaxX = FIG_width;
 	pThis->MaxY = FIG_height;
 	pThis->TicV = FIG_VTIC;

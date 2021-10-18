@@ -23,7 +23,7 @@
 #include "jmemsys.h"            /* import the system-dependent declarations */
 /* @sobolev #ifndef HAVE_STDLIB_H // <stdlib.h> should declare SAlloc::M(),free() 
 	extern void * malloc(size_t size);
-	extern void free(void* ptr);
+	extern void free(void * ptr);
 #endif */
 /*
  * Memory allocation and freeing are controlled by the regular library routines malloc and free().
@@ -35,7 +35,7 @@ void * jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject)
 
 void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
-	free(object);
+	SAlloc::F(object);
 }
 /*
  * "Large" objects are treated the same as "small" ones.
@@ -50,7 +50,7 @@ void * jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject)
 
 void jpeg_free_large(j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
-	free(object);
+	SAlloc::F(object);
 }
 /*
  * This routine computes the total memory space available for allocation.

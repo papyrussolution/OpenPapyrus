@@ -1175,7 +1175,7 @@ static void opj_pi_update_encode_not_poc(opj_cp_t * p_cp,
 
 	for(pino = 0; pino < l_poc_bound; ++pino) {
 		l_current_poc->compS = 0;
-		l_current_poc->compE = p_num_comps;/*p_image->numcomps;*/
+		l_current_poc->compE = p_num_comps; /*p_image->numcomps;*/
 		l_current_poc->resS = 0;
 		l_current_poc->resE = p_max_res;
 		l_current_poc->layS = 0;

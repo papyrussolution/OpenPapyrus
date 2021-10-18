@@ -1320,7 +1320,7 @@ browser ACCREGISTER north(100), 1, 0, "%s", OWNER|GRID, 0
 	"@id",                   0, int32,           0,  4, BCO_USERPROC
 	"@code",                 8, zstring(20),     0, 12, BCO_USERPROC
 	"@number",               1, int16, NMBF_NOZERO,  4, BCO_USERPROC
-	"Субном",                2, int16, NMBF_NOZERO,  4, BCO_USERPROC
+	"@account_subnumber",    2, int16, NMBF_NOZERO,  4, BCO_USERPROC
 	"@kind",                 3, zstring(20),     0,  3, BCO_USERPROC
 	"@appellation",          4, zstring(48),     0, 30, BCO_USERPROC
 	"@accsheet",             5, zstring(48),     0, 30, BCO_USERPROC
@@ -2720,13 +2720,13 @@ browser TRFRGR_GPD north(100), 1, 2, "@{view_opgrouping} по товару контрагенту и
 
 browser TRFRGR_GB north(100), 1, 2, "@{view_opgrouping} по товару и документу", OWNER|GRID, 0
 {
-	"Дата и документ",  8, notype, 0, 15
-	"@ware",            6, notype, 0, 30
-	"@contractor",      7, notype, 0, 30
-	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
-	"@phqtty",         10, notype, NMBF_NOTRAILZ, 8.3
-	"@termcost_ss",    11, notype, NMBF_NOZERO, 10.2
-	"@termprice_ss",   12, notype, NMBF_NOZERO, 10.2
+	"@trfranlzval_dateanddocno",  8, notype, 0, 15
+	"@ware",                      6, notype, 0, 30
+	"@contractor",                7, notype, 0, 30
+	"@qtty",                      9, notype, NMBF_NOTRAILZ, 8.3
+	"@phqtty",                   10, notype, NMBF_NOTRAILZ, 8.3
+	"@termcost_ss",              11, notype, NMBF_NOZERO, 10.2
+	"@termprice_ss",             12, notype, NMBF_NOZERO, 10.2
 	toolbar TRFRANLZ
 }
 
@@ -2745,12 +2745,12 @@ browser TRFRGR_DPAG north(100), 1, 2, "@{view_opgrouping} по дате, контрагенту, 
 
 browser TRFRGR_BP north(100), 1, 1, "@{view_opgrouping} по документу, контрагенту", OWNER|GRID, 0
 {
-	"Дата и документ",  8, notype, 0, 15
-	"@contractor",      7, notype, 0, 40
-	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
-	"@phqtty",         10, notype, NMBF_NOTRAILZ, 8.3
-	"@termcost_ss",    11, notype, NMBF_NOZERO, 10.2
-	"@termprice_ss",   12, notype, NMBF_NOZERO, 10.2
+	"@trfranlzval_dateanddocno",  8, notype, 0, 15
+	"@contractor",                7, notype, 0, 40
+	"@qtty",                      9, notype, NMBF_NOTRAILZ, 8.3
+	"@phqtty",                   10, notype, NMBF_NOTRAILZ, 8.3
+	"@termcost_ss",              11, notype, NMBF_NOZERO, 10.2
+	"@termprice_ss",             12, notype, NMBF_NOZERO, 10.2
 	toolbar TRFRANLZ
 }
 
@@ -4232,7 +4232,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	DETAIL           : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
 	ADDITEM          : kbIns,     PPDV_ADDFILE02,      hidden, "Создать новую сессию\tInsert"
 	EDITITEMSPC      : kbCtrlF3,  PPDV_EDITFILE02,     hidden, "@{sysinfo}\tCtrl-F3"
-	DELETEITEM       : kbDel,    PPDV_DELETEFILE02,    "Удалить сессию\tDelete"
+	DELETEITEM       : kbDel,    PPDV_DELETEFILE02,    "@{dodeletesess}\tDelete"
 	VIEWDEFICIT      : kbF3,      TBBM_CSESSEXC,       "Дефицит по сессии\tF3"
 	VIEWGOODSOPANLZ  : kbF4,      TBBM_GOODSANLZ,      "Товарный отчет по списанию\tF4"
 	VIEWGOODSTAXANLZ : kbShiftF4, PPDV_NOICON,         "Налоговый отчет по списанию\tShift-F4"
@@ -4242,7 +4242,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	WROFFBILLSALL    : kbCtrlF5,  PPDV_DOCUMENT_PL02,  "Документы списания по всей выборке\tCtrl-F5"
 	DFCTBILLS        : kbShiftF5, TBBM_DFCTBILLS,      "@{shortagecoveragedocument_pl}\tShift-F5"
 	separator
-	DORECOVER        : kbCtrlR,   PPDV_REPAIR02,       "Пересчитать сессию\tCtrl-R"
+	DORECOVER        : kbCtrlR,   PPDV_REPAIR02,       "@{dorecalcsess}\tCtrl-R"
 	DETACH           : kbCtrlD,   PPDV_NOICON, hidden, "Отвязать сессию от суперсессии\tCtrl-D"
 	separator
 	CLOSESESS        : kbF8,      TBBM_CLOSECSESS,     "Закрыть последнюю сессию\tF8"
@@ -4726,8 +4726,8 @@ browser SSTAT_SORD north(100), 2, 1, "@{ordertosuppliercalculation} {%s}", OWNER
 {
 	"@ware",                  2, notype, 0, 25
 	"@itemcount",             3, notype, NMBF_NOTRAILZ, 10
-	"Средние\nпродажи",       4, notype, NMBF_NOTRAILZ, 10.4
-	"Средняя\nцена",         16, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
+	"@avgsales",              4, notype, NMBF_NOTRAILZ, 10.4
+	"@averageprice",         16, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
 	"@termcost",             18, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.2
 	"@rest",                 12, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
 	"@salesforecast",        13, notype, ALIGN_RIGHT,   10
@@ -4760,8 +4760,8 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 	"@rest",                3, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
 	"@salesforecast",       4, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
 	"@recommendedorder",    5, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
-	crosstab  "Дней",    notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 6
-	crosstab  "@sales",  notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.6
+	crosstab  "@day_pl_cgen", notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 6
+	crosstab  "@sales",       notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.6
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  TBBM_SELLTAB,         "@{waresalestable}\tEnter"
 		EDITGOODS         : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
@@ -4792,7 +4792,7 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 	"@agent",                 14, notype, 0, 20
 	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
 	"@transport",              5, notype, 0, 20
-	"Город назначения",        6, notype, 0, 20
+	"@bill_freight_dlvrcity",  6, notype, 0, 20
 	"@daddress",               7, notype, 0, 30
 	"@memo",                  15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
@@ -4829,7 +4829,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 	"@agent",                 14, notype, 0, 20
 	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
 	"@transport",              5, notype, 0, 20
-	"Город назначения",        6, notype, 0, 20
+	"@bill_freight_dlvrcity",  6, notype, 0, 20
 	"@daddress",               7, notype, 0, 30
 	"@amount",                 8, notype, 0, 10.2
 	"@cargobrutto",            9, notype, NMBF_NOTRAILZ, 8.3
@@ -5075,7 +5075,7 @@ browser GBILLCMP north(100), 3, 1, "@{docomparedocuments} %s", OWNER|GRID, 0
 		"-",              10, notype, NMBF_NOZERO|NMBF_NONEG, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		EDITGOODS      : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
+		EDITGOODS      : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		PUTTOBASKET    : kbSpace,  PPDV_SHOPPINGCART01, "@{doputtobasket}\t@{keyboard_k_space}"
 		PUTTOBASKETALL : kbCtrlF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F4"
 		PRINT          : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
@@ -5139,7 +5139,7 @@ browser MRPTAB north(100), 3, 1, "@{mrptable_pl} {%s}", OWNER|GRID, 0
 	"@warehouse", 4, notype, 0, 20
 	"@date",      5, notype, DATF_DMY, 8
 	toolbar TB_FIRST_TOOLBAR {
-		VIEWCHILDS: kbSpace,  TBBM_DIVISION,     "Порожденные таблицы\t@{keyboard_k_space}"
+		VIEWCHILDS: kbSpace,  TBBM_DIVISION,     "@{derivedmrptable_pl}\t@{keyboard_k_space}"
 		DETAIL:     kbEnter,  PPDV_LINS02,       "@{view_mrpline}\tEnter"
 		separator
 		//
@@ -5243,11 +5243,11 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 		MOVEUP     : kbCtrlW, TBBM_ARROWUP,           "@{moveup}\tCtrl-W"
 		MOVEDOWN   : kbCtrlS, TBBM_ARROWDN,           "@{movedown}\tCtrl-S"
 		separator
-		VIEWCHILDS : kbF3,    TBBM_DIVISION,      "Дочерние технологии\tF3"
+		VIEWCHILDS : kbF3,    TBBM_DIVISION,      "@{techderived_pl}\tF3"
 		EDITGOODS  : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
 		EDITPRC    : kbF4,    TBBM_PRC,           "@{processor}\tF4"
 		SYSJ       : kbCtrlJ, PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT   : kbCtrlH, PPDV_SYNC01,        "@{dotransmit}\tCtrl-H" // @v7.7.2
+		TRANSMIT   : kbCtrlH, PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
 		separator
 		PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
 		separator
@@ -5835,7 +5835,7 @@ browser LOCTRANSF north(100), 3, 1, "@{view_loctransf} {%s}", OWNER|GRID, 0
 	"@qtty",          04, notype, NMBF_NOTRAILZ, 10.6
 	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
 	"@document",      12, notype, 0, 20
-	group "Время и оператор" {
+	group "@loctransf_timeandoperator" {
 		"@date",          07, notype, DATF_DMY, 8
 		"@time",          08, notype, TIMF_HMS, 8
 		"@operator",      13, notype, 0, 8
@@ -5896,7 +5896,7 @@ browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}",
 	"Размещенное\nколичество", 04, notype, NMBF_NOTRAILZ, 10.6
 	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
 	"@whcell",        10, notype, 0, 20
-	group "Время и оператор" {
+	group "@loctransf_timeandoperator" {
 		"@date",          07, notype, DATF_DMY, 8
 		"@time",          08, notype, TIMF_HMS, 8
 		"@operator",      13, notype, 0, 8
@@ -7282,7 +7282,7 @@ record Bill {
 	LocID         zstring(32)  "@{warehouseid}";
 	LocName       zstring(48)  "@{warehousename}";
 	LocCode       zstring(16)  "@{warehousecode}";
-	City          zstring(48)  "Город склада";
+	City          zstring(48)  "@{warehousecity}";
 	Addr          zstring(255) "@{warehouseaddress}";
 	OrderBillID   zstring(32)  "Ид связанного документа заказа";
 	OrderBillNo   zstring(24)  "Номер связанного документа заказа";
@@ -7376,7 +7376,7 @@ record BRow {
 	LocID         zstring(32)     "@{warehouseid}";
 	LocName       zstring(48)     "@{warehousename}";
 	LocCode       zstring(16)     "@{warehousecode}";
-	City          zstring(48)     "Город склада";
+	City          zstring(48)     "@{warehousecity}";
 	Addr          zstring(255)    "@{warehouseaddress}";
 	OrderBillID   zstring(32)     "Ид документа заказа, к которому привязан данный документ";
 	OrderBillNo   zstring(24)     "Номер документа заказа, к которому привязан данных документ";
@@ -8248,7 +8248,7 @@ record BaltikaSaldoWare {
 	WareId        zstring(24)         "Код тары";
 	FACode        zstring(32)         "Инвентарный номер оборудования";
 	Quantity      double format(10.2) "@{qtty}";
-	Summ	      double format(10.2) "Сумма долга";
+	Summ	      double format(10.2) "@{debtamount}";
 }
 
 record BaltikaSaldoAggregate {
@@ -8657,8 +8657,8 @@ reportstub SellTrnovr		{ dl600data=DebtTrnovr,			"@{view_debttrnovr}"}
 reportstub DebtAck1			{ dl600data=DebtAck1,			"@{view_accanlz_accrcvblreconcstatement}"}
 reportstub CSessViewExt		{ dl600data=CSessionView,		"@{view_csessext}"}
 reportstub CSessView		{ dl600data=CSessionView,		"@{csession_pl}"}
-reportstub CSessExcAlt		{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
-reportstub CSessExc			{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
+reportstub CSessExcAlt		{ dl600data=CSessExc,			"@{view_csessexc_amp}"}
+reportstub CSessExc			{ dl600data=CSessExc,			"@{view_csessexc_amp}"}
 reportstub CurRateBCT		{ dl600data=CurRateView,		"@{view_currate}"} // (по заданным: базовой валюте, валюте, типу курса)
 reportstub CurRateBT		{ dl600data=CurRateView,		"@{view_currate}"} // (по заданным: базовой валюте, типу курса)
 reportstub CurRate			{ dl600data=CurRateView,		"@{view_currate}"}

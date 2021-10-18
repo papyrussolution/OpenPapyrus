@@ -366,7 +366,7 @@ typedef struct __rep { /* SHARED */
 	uint32	master_envid;	/* Current master's "unique" env ID. */
 
 	SH_TAILQ_HEAD(__wait) waiters;	/* List of threads in txn_applied(). */
-	SH_TAILQ_HEAD(__wfree) free_waiters;/* Free list of waiter structs. */
+	SH_TAILQ_HEAD(__wfree) free_waiters; /* Free list of waiter structs. */
 
 #ifdef HAVE_REPLICATION_THREADS
 	/*

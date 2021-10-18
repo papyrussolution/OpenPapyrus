@@ -272,7 +272,7 @@ int validFileName(const char * pFileName)
 		strpbrk(ext + 1, illegalChars) || sstrchr(ext + 1, '.')) ? 0 : 1;
 }*/
 
-SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
 	char   prefix[128], ext[128];
 	size_t prefix_len = 0;
@@ -381,7 +381,7 @@ struct fat_time {
 	unsigned hour  : 5;  /* Hours */
 };
 
-void decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
+void STDCALL decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
 {
 	union {
 		uint16 d;
@@ -397,7 +397,7 @@ void decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
 	dt->t = encodetime(fat_t.ft.hour, fat_t.ft.min, fat_t.ft.tsec * 2, 0);
 }
 
-void encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
+void STDCALL encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 {
 	int d, m, y, h, s, hs;
 	union {
@@ -651,8 +651,8 @@ int RemoveDir(const char * pDir)
 /*static*/int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 {
 	EXCEPTVAR(SLibError);
-	int    ok = -1;
-	Stat stat;
+	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
+	Stat   stat;
 	MEMSZERO(stat);
 #ifdef __WIN32__
 	LARGE_INTEGER size;

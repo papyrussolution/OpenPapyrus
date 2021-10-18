@@ -41,19 +41,19 @@ typedef HRESULT (*WINAPI t_DWriteCreateFactory)(
  * to override malloc/free, we will redefine new/delete so users
  * won't need to do that by their own.
  */
-void* operator new(size_t size)        {
+void * operator new(size_t size)        {
 	return SAlloc::M(size);
 }
 
-void* operator new [](size_t size)     {
+void * operator new [](size_t size)     {
 	return SAlloc::M(size);
 }
 
-void operator delete(void* pointer)    {
+void operator delete(void * pointer)    {
 	SAlloc::F(pointer);
 }
 
-void operator delete [](void* pointer) {
+void operator delete [](void * pointer) {
 	SAlloc::F(pointer);
 }
 
@@ -141,7 +141,7 @@ public:
 		return S_OK;
 	}
 
-	virtual void STDMETHODCALLTYPE ReleaseFileFragment(void* fragmentContext) {
+	virtual void STDMETHODCALLTYPE ReleaseFileFragment(void * fragmentContext) {
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetFileSize(OUT UINT64* fileSize)
@@ -586,7 +586,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 	ALLOCATE_ARRAY(wchar_t, textString, buffer->len * 2);
 
 	unsigned int chars_len = 0;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
 		if(LIKELY(c <= 0xFFFFu))
@@ -602,7 +602,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 	ALLOCATE_ARRAY(WORD, log_clusters, chars_len);
 	/* Need log_clusters to assign features. */
 	chars_len = 0;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		unsigned int cluster = buffer->info[i].cluster;
 		log_clusters[chars_len++] = cluster;
@@ -652,7 +652,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 	typographic_features.featureCount = num_features;
 	if(num_features) {
 		typographic_features.features = new DWRITE_FONT_FEATURE[num_features];
-		for(unsigned int i = 0; i < num_features; ++i) {
+		for(uint i = 0; i < num_features; ++i) {
 			typographic_features.features[i].nameTag = (DWRITE_FONT_FEATURE_TAG)
 			    hb_uint32_swap(features[i].tag);
 			typographic_features.features[i].parameter = features[i].value;
@@ -806,14 +806,14 @@ retry_getjustifiedglyphs:
 	 * very, *very*, carefully! */
 
 	/* Calculate visual-clusters.  That's what we ship. */
-	for(unsigned int i = 0; i < glyphCount; i++)
+	for(uint i = 0; i < glyphCount; i++)
 		vis_clusters[i] = (uint32_t)-1;
-	for(unsigned int i = 0; i < buffer->len; i++) {
+	for(uint i = 0; i < buffer->len; i++) {
 		uint32_t * p =
 		    &vis_clusters[log_clusters[buffer->info[i].utf16_index()]];
 		*p = hb_min(*p, buffer->info[i].cluster);
 	}
-	for(unsigned int i = 1; i < glyphCount; i++)
+	for(uint i = 1; i < glyphCount; i++)
 		if(vis_clusters[i] == (uint32_t)-1)
 			vis_clusters[i] = vis_clusters[i - 1];
 
@@ -826,7 +826,7 @@ retry_getjustifiedglyphs:
 
 	/* Set glyph infos */
 	buffer->len = 0;
-	for(unsigned int i = 0; i < glyphCount; i++) {
+	for(uint i = 0; i < glyphCount; i++) {
 		hb_glyph_info_t * info = &buffer->info[buffer->len++];
 
 		info->codepoint = glyphIndices[i];
@@ -840,7 +840,7 @@ retry_getjustifiedglyphs:
 
 	/* Set glyph positions */
 	buffer->clear_positions();
-	for(unsigned int i = 0; i < glyphCount; i++) {
+	for(uint i = 0; i < glyphCount; i++) {
 		hb_glyph_info_t * info = &buffer->info[i];
 		hb_glyph_position_t * pos = &buffer->pos[i];
 

@@ -10,19 +10,18 @@
 #include <scintilla-internal.h>
 #pragma hdrstop
 
-#define NOEXCEPT
-
+// (see slport.h) #define NOEXCEPT
 #ifndef NO_CXX11_REGEX
 	#include <regex>
 	#if defined(__GLIBCXX__)
-// If using the GNU implementation of <regex> then have 'noexcept' so can use
-// when defining regex iterators to keep Clang analyze happy.
-		#undef NOEXCEPT
-		#define NOEXCEPT noexcept
+		// If using the GNU implementation of <regex> then have 'noexcept' so can use
+		// when defining regex iterators to keep Clang analyze happy.
+		// (see slport.h) #undef NOEXCEPT
+		// (see slport.h) #define NOEXCEPT noexcept
 	#endif
 #endif
 #ifdef SCI_NAMESPACE
-using namespace Scintilla;
+	using namespace Scintilla;
 #endif
 
 LexInterface::LexInterface(Document * pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false)

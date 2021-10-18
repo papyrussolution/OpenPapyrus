@@ -94,7 +94,7 @@ void ma_hash_free(MA_HASH_CTX * ctx);
    @return               void
  */
 void ma_hash_input(MA_HASH_CTX * ctx,
-    const unsigned char * buffer,
+    const uchar * buffer,
     size_t len);
 
 /**
@@ -105,7 +105,7 @@ void ma_hash_input(MA_HASH_CTX * ctx,
 
    @return               void
  */
-void ma_hash_result(MA_HASH_CTX * ctx, unsigned char * digest);
+void ma_hash_result(MA_HASH_CTX * ctx, uchar * digest);
 
 /**
    @brief  returns digest size for a given hash algorithm
@@ -146,7 +146,7 @@ static inline size_t ma_hash_digest_size(unsigned int hash_alg)
 
    @return                 void
  */
-static inline void ma_hash(unsigned int algorithm, const unsigned char * buffer, size_t buffer_length, unsigned char * digest)
+static inline void ma_hash(unsigned int algorithm, const uchar * buffer, size_t buffer_length, uchar * digest)
 {
 	MA_HASH_CTX * ctx = NULL;
 #ifdef HAVE_SCHANNEL

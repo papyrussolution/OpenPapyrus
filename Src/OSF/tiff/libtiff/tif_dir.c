@@ -39,7 +39,7 @@
 #define DATATYPE_UINT           2       /* !unsigned integer data */
 #define DATATYPE_IEEEFP         3       /* !IEEE floating point data */
 
-static void setByteArray(void** vpp, void* vp, size_t nmemb, size_t elem_size)
+static void setByteArray(void** vpp, void * vp, size_t nmemb, size_t elem_size)
 {
 	SAlloc::F(*vpp);
 	*vpp = 0;
@@ -52,7 +52,7 @@ static void setByteArray(void** vpp, void* vp, size_t nmemb, size_t elem_size)
 	}
 }
 
-void _TIFFsetByteArray(void** vpp, void* vp, uint32 n) { setByteArray(vpp, vp, n, 1); }
+void _TIFFsetByteArray(void** vpp, void * vp, uint32 n) { setByteArray(vpp, vp, n, 1); }
 void _TIFFsetString(char** cpp, char* cp) { setByteArray((void **)cpp, (void *)cp, strlen(cp)+1, 1); }
 static void _TIFFsetNString(char** cpp, char* cp, uint32 n) { setByteArray((void **)cpp, (void *)cp, n, 1); }
 void _TIFFsetShortArray(uint16** wpp, uint16* wp, uint32 n) { setByteArray((void **)wpp, (void *)wp, n, sizeof(uint16)); }

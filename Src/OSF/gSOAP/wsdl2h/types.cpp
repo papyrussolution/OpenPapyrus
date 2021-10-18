@@ -210,7 +210,7 @@ int Types::read(const char * file)
 							char * r = static_cast<char *>(emalloc(strlen(t)+strlen(def)+1));
 							strcpy(r, t);
 							strcat(r, def);
-							free((void *)modtypemap[s]);
+							SAlloc::F((void *)modtypemap[s]);
 							modtypemap[s] = r;
 						}
 						else
@@ -2717,7 +2717,7 @@ void Types::gen_soap_array(const char * name, const char * t, const char * item,
 	else { // TODO: how to handle generic SOAP array? E.g. as an array of anyType?
 		fprintf(stream, "// TODO: add declarations to handle generic SOAP-ENC:Array (array of anyType)\n");
 	}
-	free(tmp);
+	SAlloc::F(tmp);
 }
 
 void Types::gen_substitutions(const char * URI, const xs__element & element)
@@ -3085,7 +3085,7 @@ static void documentation(const char * text)
 //
 void * emalloc(size_t size)
 {
-	void * p = malloc(size);
+	void * p = SAlloc::M(size);
 	if(!p) {
 		fprintf(stderr, "Error: Malloc failed\n");
 		exit(1);

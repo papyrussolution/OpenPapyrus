@@ -34,14 +34,14 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_ar.c 201101 
 #include "archive_read_private.h"
 
 struct ar {
-	int64_t entry_bytes_remaining;
+	int64 entry_bytes_remaining;
 	/* unconsumed is purely to track data we've gotten from readahead,
 	 * but haven't yet marked as consumed.  Must be paired with
 	 * entry_bytes_remaining usage/modification.
 	 */
 	size_t entry_bytes_unconsumed;
-	int64_t entry_offset;
-	int64_t entry_padding;
+	int64 entry_offset;
+	int64 entry_padding;
 	char    * strtab;
 	size_t strtab_size;
 	char read_global_header;
@@ -68,12 +68,12 @@ struct ar {
 static int      archive_read_format_ar_bid(struct archive_read * a, int);
 static int      archive_read_format_ar_cleanup(struct archive_read * a);
 static int      archive_read_format_ar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset);
+    const void ** buff, size_t * size, int64 * offset);
 static int      archive_read_format_ar_skip(struct archive_read * a);
 static int      archive_read_format_ar_read_header(struct archive_read * a,
     struct archive_entry * e);
-static uint64_t ar_atol8(const char * p, unsigned char_cnt);
-static uint64_t ar_atol10(const char * p, unsigned char_cnt);
+static uint64 ar_atol8(const char * p, unsigned char_cnt);
+static uint64 ar_atol10(const char * p, unsigned char_cnt);
 static int      ar_parse_gnu_filename_table(struct archive_read * a);
 static int      ar_parse_common_header(struct ar * ar, struct archive_entry *,
     const char * h);
@@ -87,7 +87,7 @@ int archive_read_support_format_ar(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
 	    ARCHIVE_STATE_NEW, "archive_read_support_format_ar");
 
-	ar = (struct ar *)calloc(1, sizeof(*ar));
+	ar = (struct ar *)SAlloc::C(1, sizeof(*ar));
 	if(ar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ar data");
@@ -109,7 +109,7 @@ int archive_read_support_format_ar(struct archive * _a)
 		NULL);
 
 	if(r != ARCHIVE_OK) {
-		free(ar);
+		SAlloc::F(ar);
 		return r;
 	}
 	return ARCHIVE_OK;
@@ -120,8 +120,8 @@ static int archive_read_format_ar_cleanup(struct archive_read * a)
 	struct ar * ar;
 
 	ar = (struct ar *)(a->format->data);
-	free(ar->strtab);
-	free(ar);
+	SAlloc::F(ar->strtab);
+	SAlloc::F(ar);
 	(a->format->data) = NULL;
 	return ARCHIVE_OK;
 }
@@ -148,7 +148,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
     struct ar * ar, const char * h, size_t * unconsumed)
 {
 	char filename[AR_name_size + 1];
-	uint64_t number; /* Used to hold parsed numbers before validation. */
+	uint64 number; /* Used to hold parsed numbers before validation. */
 	size_t bsd_name_length, entry_size;
 	char * p, * st;
 	const void * b;
@@ -254,7 +254,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 			return ARCHIVE_FATAL;
 		}
 		/* Read the filename table into memory. */
-		st = (char *)malloc(entry_size);
+		st = (char *)SAlloc::M(entry_size);
 		if(st == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate filename table buffer");
@@ -325,7 +325,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		 */
 		if(number > SIZE_MAX - 1
 		    || number > 1024 * 1024
-		    || (int64_t)number > ar->entry_bytes_remaining) {
+		    || (int64)number > ar->entry_bytes_remaining) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "Bad input file size");
 			return ARCHIVE_FATAL;
@@ -347,7 +347,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 			return ARCHIVE_FATAL;
 		}
 		/* Store it in the entry. */
-		p = (char *)malloc(bsd_name_length + 1);
+		p = (char *)SAlloc::M(bsd_name_length + 1);
 		if(!p) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate fname buffer");
 			return ARCHIVE_FATAL;
@@ -356,7 +356,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		p[bsd_name_length] = '\0';
 		__archive_read_consume(a, bsd_name_length);
 		archive_entry_copy_pathname(entry, p);
-		free(p);
+		SAlloc::F(p);
 		return ARCHIVE_OK;
 	}
 
@@ -428,7 +428,7 @@ static int archive_read_format_ar_read_header(struct archive_read * a,
 static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry,
     const char * h)
 {
-	uint64_t n;
+	uint64 n;
 
 	/* Copy remaining header */
 	archive_entry_set_filetype(entry, AE_IFREG);
@@ -450,7 +450,7 @@ static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry,
 }
 
 static int archive_read_format_ar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+    const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct ar * ar;
@@ -481,7 +481,7 @@ static int archive_read_format_ar_read_data(struct archive_read * a,
 		return ARCHIVE_OK;
 	}
 	else {
-		int64_t skipped = __archive_read_consume(a, ar->entry_padding);
+		int64 skipped = __archive_read_consume(a, ar->entry_padding);
 		if(skipped >= 0) {
 			ar->entry_padding -= skipped;
 		}
@@ -501,7 +501,7 @@ static int archive_read_format_ar_read_data(struct archive_read * a,
 
 static int archive_read_format_ar_skip(struct archive_read * a)
 {
-	int64_t bytes_skipped;
+	int64 bytes_skipped;
 	struct ar* ar;
 
 	ar = (struct ar *)(a->format->data);
@@ -551,14 +551,14 @@ static int ar_parse_gnu_filename_table(struct archive_read * a)
 bad_string_table:
 	archive_set_error(&a->archive, EINVAL,
 	    "Invalid string table");
-	free(ar->strtab);
+	SAlloc::F(ar->strtab);
 	ar->strtab = NULL;
 	return ARCHIVE_FATAL;
 }
 
-static uint64_t ar_atol8(const char * p, unsigned char_cnt)
+static uint64 ar_atol8(const char * p, unsigned char_cnt)
 {
-	uint64_t l, limit, last_digit_limit;
+	uint64 l, limit, last_digit_limit;
 	unsigned int digit, base;
 
 	base = 8;
@@ -581,9 +581,9 @@ static uint64_t ar_atol8(const char * p, unsigned char_cnt)
 	return (l);
 }
 
-static uint64_t ar_atol10(const char * p, unsigned char_cnt)
+static uint64 ar_atol10(const char * p, unsigned char_cnt)
 {
-	uint64_t l, limit, last_digit_limit;
+	uint64 l, limit, last_digit_limit;
 	unsigned int base, digit;
 
 	base = 10;

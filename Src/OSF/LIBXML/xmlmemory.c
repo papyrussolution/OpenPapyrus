@@ -513,19 +513,15 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 	int nb = 0;
 #endif
 	FILE * old_fp = fp;
-
 	if(nbBytes <= 0)
 		return;
-
 	if(fp == NULL) {
 		fp = fopen(".memorylist", "w");
 		if(fp == NULL)
 			return;
 	}
-
 #ifdef MEM_LIST
-	fprintf(fp, "   Last %li MEMORY ALLOCATED : %lu, MAX was %lu\n",
-	    nbBytes, debugMemSize, debugMaxMemSize);
+	fprintf(fp, "   Last %li MEMORY ALLOCATED : %lu, MAX was %lu\n", nbBytes, debugMemSize, debugMaxMemSize);
 	fprintf(fp, "BLOCK  NUMBER   SIZE  TYPE\n");
 	idx = 0;
 	xmlMutexLock(xmlMemMutex);

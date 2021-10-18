@@ -1066,7 +1066,7 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 		}
 		memzero(GR_stats, sizeof(Jbig2ArithCx) * stats_size);
 	}
-	segment->result = (void*)jbig2_decode_symbol_dict(ctx,
+	segment->result = (void *)jbig2_decode_symbol_dict(ctx,
 		segment,
 		&params,
 		segment_data + offset,

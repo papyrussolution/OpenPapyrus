@@ -112,16 +112,16 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		 *      i := (2*a)*b^2
 		 * we have
 		 *     i^2 = (2*a)^((1 + (|p|-5)/4)*2)
-		 *         = (2*a)^((p-1)/2)
-		 *         = -1;
+		 *   = (2*a)^((p-1)/2)
+		 *   = -1;
 		 * so if we set
 		 *      x := a*b*(i-1),
 		 * then
 		 *     x^2 = a^2 * b^2 * (i^2 - 2*i + 1)
-		 *         = a^2 * b^2 * (-2*i)
-		 *         = a*(-i)*(2*a*b^2)
-		 *         = a*(-i)*i
-		 *         = a.
+		 *   = a^2 * b^2 * (-2*i)
+		 *   = a*(-i)*(2*a*b^2)
+		 *   = a*(-i)*i
+		 *   = a.
 		 *
 		 * (This is due to A.O.L. Atkin,
 		 * Subject: Square Roots and Cognate Matters modulo p=8n+5.
@@ -242,7 +242,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	 * and it satisfies
 	 *
 	 *     X^2 = a^q * a     * y^k
-	 *         = a,
+	 *   = a,
 	 *
 	 * so it is the square root that we are looking for.
 	 */

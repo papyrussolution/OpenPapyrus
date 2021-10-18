@@ -158,7 +158,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 	bool set_capjoin = FALSE, set_size = FALSE;
 	bool set_position = FALSE;
 #ifndef _WIN32
-	if(GPT.P_TermInterlock && GPT.P_TermInterlock != (void*)wxt_init) {
+	if(GPT.P_TermInterlock && GPT.P_TermInterlock != (void *)wxt_init) {
 		term = NULL;
 		pGp->IntError(NO_CARET, "The wxt terminal cannot be used in a qt session");
 	}
@@ -338,62 +338,62 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	// Save options back into options string in normalized format 
-	snprintf(GPT.TermOptions, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions), "%d", wxt_window_number);
+	slprintf(GPT._TermOptions, "%d", wxt_window_number);
 	if(set_title) {
-		strncat(GPT.TermOptions, " title \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, wxt_title, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(" title \"");
+		GPT._TermOptions.Cat(wxt_title);
+		GPT._TermOptions.Cat("\"");
 		wxt_update_title(wxt_window_number);
 	}
 	if(wxt_dashlength != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", wxt_dashlength);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(wxt_lw != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " lw %g", wxt_lw);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(wxt_background != 0xffffff) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " background '#%06x'", wxt_background);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 
 	if(set_size) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d", wxt_width, wxt_height);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 		wxt_update_size(wxt_window_number);
 	}
 	if(set_position) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " position %d, %d", wxt_posx, wxt_posy);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 		wxt_update_position(wxt_window_number);
 	}
-	strncat(GPT.TermOptions, wxt_enhanced_enabled ? " enhanced" : " noenhanced", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+	GPT._TermOptions.Cat(wxt_enhanced_enabled ? " enhanced" : " noenhanced");
 	if(set_font) {
-		strncat(GPT.TermOptions, " font \"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, font_setting, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, "\"", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(" font \"");
+		GPT._TermOptions.Cat(font_setting);
+		GPT._TermOptions.Cat("\"");
 		SAlloc::F(font_setting);
 	}
 	SETIFZ(wxt_set_fontname, sstrdup(""));
 	if(wxt_set_fontscale != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " fontscale %.1f", wxt_set_fontscale);
-		strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(tmp_term_options);
 	}
 	if(set_capjoin)
-		strncat(GPT.TermOptions, wxt_linecap == ROUNDED ? " rounded" : wxt_linecap == SQUARE ? " square" : " butt", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat(wxt_linecap == ROUNDED ? " rounded" : wxt_linecap == SQUARE ? " square" : " butt");
 	if(set_persist)
-		strncat(GPT.TermOptions, (wxt_persist==yes) ? " persist" : " nopersist", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat((wxt_persist==yes) ? " persist" : " nopersist");
 	if(set_raise)
-		strncat(GPT.TermOptions, (wxt_raise==yes) ? " raise" : " noraise", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat((wxt_raise==yes) ? " raise" : " noraise");
 	if(set_ctrl)
-		strncat(GPT.TermOptions, (wxt_ctrl==yes) ? " ctrl" : " noctrl", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat((wxt_ctrl==yes) ? " ctrl" : " noctrl");
 	if(set_close)
 		wxt_close_terminal_window(wxt_window_number);
 }

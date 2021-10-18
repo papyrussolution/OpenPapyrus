@@ -43,11 +43,11 @@
  * Purdue University                  tel: 317.494.1198 fax: 317.496.1115
  *
  * 05 Apr 1995 - cleaned up code by adding explicit function declarations.
- *               compiles clean with 'gcc -Wall'
+ *         compiles clean with 'gcc -Wall'
  * 14 Apr 1995 - adapted for new layout, added font selection
  *
  * 13 Jan 1999 - Copyright statement changed to new gnuplot copyright
- *               Permission given by orig author in private email (lh)
+ *         Permission given by orig author in private email (lh)
  *
  * send your comments or suggestions to (grassp-list@moon.cecer.army.mil).
  *

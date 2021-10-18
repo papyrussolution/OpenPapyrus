@@ -292,7 +292,7 @@ void hb_aat_layout_zero_width_deleted_glyphs(hb_buffer_t * buffer)
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if(UNLIKELY(info[i].codepoint == AAT::DELETED_GLYPH))
 			pos[i].x_advance = pos[i].y_advance = pos[i].x_offset = pos[i].y_offset = 0;
 }

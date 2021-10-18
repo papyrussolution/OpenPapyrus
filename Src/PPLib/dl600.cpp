@@ -2304,7 +2304,7 @@ int DlContext::AddBCmpOps(uint implID, const char * pType)
 		AddBOp(dlopGe,  implID+5, "bool", pType, pType, 0));
 }
 
-int SLAPIV DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
+int CDECL DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pRetType);
@@ -2317,7 +2317,7 @@ int SLAPIV DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
 	return ok;
 }
 
-int SLAPIV DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...)
+int CDECL DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pRetType);

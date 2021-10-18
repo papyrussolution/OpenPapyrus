@@ -25,7 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* modified by Werner Lemberg <wl@gnu.org>       */
+/* modified by Werner Lemberg <wl@gnu.org> */
 /* This file is now part of the FreeType library */
 
 

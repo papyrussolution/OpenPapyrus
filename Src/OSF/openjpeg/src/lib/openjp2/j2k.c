@@ -9914,7 +9914,7 @@ static OPJ_BOOL opj_j2k_read_SPCod_SPCoc(opj_j2k_t * p_j2k,
 		    "of resolutions of this component (%d)\nModify the cp_reduce parameter.\n\n",
 		    compno, l_cp->m_specific_param.m_dec.m_reduce, l_tccp->numresolutions);
 		p_j2k->m_specific_param.m_decoder.m_state |=
-		    0x8000;/* FIXME J2K_DEC_STATE_ERR;*/
+		    0x8000; /* FIXME J2K_DEC_STATE_ERR;*/
 		return OPJ_FALSE;
 	}
 

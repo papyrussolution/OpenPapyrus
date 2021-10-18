@@ -46,7 +46,7 @@ struct read_FILE_data {
 
 static int      file_close(struct archive *, void *);
 static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64_t  file_skip(struct archive *, void *, int64_t request);
+static int64  file_skip(struct archive *, void *, int64 request);
 
 int archive_read_open_FILE(struct archive * a, FILE * f)
 {
@@ -56,12 +56,12 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 	void * b;
 
 	archive_clear_error(a);
-	mine = (struct read_FILE_data *)malloc(sizeof(*mine));
-	b = malloc(block_size);
+	mine = (struct read_FILE_data *)SAlloc::M(sizeof(*mine));
+	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		free(mine);
-		free(b);
+		SAlloc::F(mine);
+		SAlloc::F(b);
 		return ARCHIVE_FATAL;
 	}
 	mine->block_size = block_size;
@@ -103,13 +103,13 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 	return (bytes_read);
 }
 
-static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
+static int64 file_skip(struct archive * a, void * client_data, int64 request)
 {
 	struct read_FILE_data * mine = (struct read_FILE_data *)client_data;
 #if HAVE_FSEEKO
 	off_t skip = (off_t)request;
 #elif HAVE__FSEEKI64
-	int64_t skip = request;
+	int64 skip = request;
 #else
 	long skip = (long)request;
 #endif
@@ -125,7 +125,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 		return 0;
 	// If request is too big for a long or an off_t, reduce it. 
 	if(sizeof(request) > sizeof(skip)) {
-		int64_t max_skip = (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
+		int64 max_skip = (((int64)1 << (skip_bits - 1)) - 1) * 2 + 1;
 		if(request > max_skip)
 			skip = static_cast<long>(max_skip);
 	}
@@ -150,7 +150,7 @@ static int file_close(struct archive * a, void * client_data)
 {
 	struct read_FILE_data * mine = (struct read_FILE_data *)client_data;
 	(void)a; /* UNUSED */
-	free(mine->buffer);
-	free(mine);
+	SAlloc::F(mine->buffer);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

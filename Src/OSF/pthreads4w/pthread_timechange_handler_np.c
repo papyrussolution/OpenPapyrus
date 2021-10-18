@@ -71,8 +71,8 @@
  *
  *
  * RESULTS
- *           0               successfully broadcast all CVs
- *           EAGAIN          Not all CVs were broadcast
+ *     0               successfully broadcast all CVs
+ *     EAGAIN          Not all CVs were broadcast
  *
  * ------------------------------------------------------
  */
@@ -88,5 +88,5 @@ void * pthread_timechange_handler_np(void * arg)
 		cv = cv->next;
 	}
 	__ptw32_mcs_lock_release(&node);
-	return (void*)(size_t)(result != 0 ? EAGAIN : 0);
+	return (void *)(size_t)(result != 0 ? EAGAIN : 0);
 }

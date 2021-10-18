@@ -111,7 +111,7 @@ cmsIOHANDLER*  CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID)
 	fm->Pointer = 0;
 
 	iohandler->ContextID = ContextID;
-	iohandler->stream  = (void*)fm;
+	iohandler->stream  = (void *)fm;
 	iohandler->UsedSpace = 0;
 	iohandler->ReportedSize = 0;
 	iohandler->PhysicalFile[0] = 0;
@@ -248,7 +248,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buf
 			    cmsSignalError(ContextID, cmsERROR_READ, "Couldn't read profile from NULL pointer");
 			    goto Error;
 		    }
-		    fm->Block = (cmsUInt8Number*)_cmsMalloc(ContextID, size);
+		    fm->Block = (cmsUInt8Number *)_cmsMalloc(ContextID, size);
 		    if(fm->Block == NULL) {
 			    _cmsFree(ContextID, fm);
 			    _cmsFree(ContextID, iohandler);
@@ -267,7 +267,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buf
 		    fm = (FILEMEM*)_cmsMallocZero(ContextID, sizeof(FILEMEM));
 		    if(fm == NULL) goto Error;
 
-		    fm->Block = (cmsUInt8Number*)Buffer;
+		    fm->Block = (cmsUInt8Number *)Buffer;
 		    fm->FreeBlockOnClose = FALSE;
 		    fm->Size    = size;
 		    fm->Pointer = 0;
@@ -280,7 +280,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buf
 	}
 
 	iohandler->ContextID = ContextID;
-	iohandler->stream  = (void*)fm;
+	iohandler->stream  = (void *)fm;
 	iohandler->UsedSpace = 0;
 	iohandler->PhysicalFile[0] = 0;
 
@@ -345,7 +345,7 @@ cmsUInt32Number FileTell(cmsIOHANDLER* iohandler)
 
 // Writes data to stream, also keeps used space for further reference. Returns TRUE on success, FALSE on error
 static
-cmsBool  FileWrite(cmsIOHANDLER* iohandler, cmsUInt32Number size, const void* Buffer)
+cmsBool  FileWrite(cmsIOHANDLER* iohandler, cmsUInt32Number size, const void * Buffer)
 {
 	if(size == 0) return TRUE; // We allow to write 0 bytes, but nothing is written
 
@@ -411,7 +411,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const cha
 	}
 
 	iohandler->ContextID = ContextID;
-	iohandler->stream = (void*)fm;
+	iohandler->stream = (void *)fm;
 	iohandler->UsedSpace = 0;
 
 	// Keep track of the original file
@@ -443,7 +443,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* S
 	if(iohandler == NULL) return NULL;
 
 	iohandler->ContextID = ContextID;
-	iohandler->stream = (void*)Stream;
+	iohandler->stream = (void *)Stream;
 	iohandler->UsedSpace = 0;
 	iohandler->ReportedSize = (cmsUInt32Number)fileSize;
 	iohandler->PhysicalFile[0] = 0;
@@ -624,7 +624,7 @@ cmsBool _cmsNewTag(_cmsICCPROFILE* Icc, cmsTagSignature sig, int* NewPos)
 // Check existence
 cmsBool CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig)
 {
-	_cmsICCPROFILE*  Icc = (_cmsICCPROFILE*)(void*)hProfile;
+	_cmsICCPROFILE*  Icc = (_cmsICCPROFILE*)(void *)hProfile;
 	return _cmsSearchTag(Icc, sig, FALSE) >= 0;
 }
 
@@ -637,7 +637,7 @@ cmsBool CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig)
 static
 cmsUInt32Number _validatedVersion(cmsUInt32Number DWord)
 {
-	cmsUInt8Number* pByte = (cmsUInt8Number*)&DWord;
+	cmsUInt8Number* pByte = (cmsUInt8Number *)&DWord;
 	cmsUInt8Number temp1;
 	cmsUInt8Number temp2;
 
@@ -1095,7 +1095,7 @@ cmsHPROFILE CMSEXPORT cmsOpenProfileFromStream(FILE* ICCProfile, const char * sA
 }
 
 // Open from memory block
-cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void* MemPtr, cmsUInt32Number dwSize)
+cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void * MemPtr, cmsUInt32Number dwSize)
 {
 	_cmsICCPROFILE* NewIcc;
 	cmsHPROFILE hEmpty;
@@ -1105,9 +1105,9 @@ cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void*
 
 	NewIcc = (_cmsICCPROFILE*)hEmpty;
 
-	// Ok, in this case const void* is casted to void* just because open IO handler
+	// Ok, in this case const void * is casted to void * just because open IO handler
 	// shares read and writing modes. Don't abuse this feature!
-	NewIcc->IOhandler = cmsOpenIOhandlerFromMem(ContextID, (void*)MemPtr, dwSize, "r");
+	NewIcc->IOhandler = cmsOpenIOhandlerFromMem(ContextID, (void *)MemPtr, dwSize, "r");
 	if(NewIcc->IOhandler == NULL) goto Error;
 
 	if(!_cmsReadHeader(NewIcc)) goto Error;
@@ -1119,7 +1119,7 @@ Error:
 	return NULL;
 }
 
-cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void* MemPtr, cmsUInt32Number dwSize)
+cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void * MemPtr, cmsUInt32Number dwSize)
 {
 	return cmsOpenProfileFromMemTHR(NULL, MemPtr, dwSize);
 }
@@ -1147,7 +1147,7 @@ cmsBool SaveTags(_cmsICCPROFILE* Icc, _cmsICCPROFILE* FileOrig)
 
 		Icc->TagOffsets[i] = Begin = io->UsedSpace;
 
-		Data = (cmsUInt8Number*)Icc->TagPtrs[i];
+		Data = (cmsUInt8Number *)Icc->TagPtrs[i];
 
 		if(!Data) {
 			// Reach here if we are copying a tag from a disk-based ICC profile which has not been modified
@@ -1156,7 +1156,7 @@ cmsBool SaveTags(_cmsICCPROFILE* Icc, _cmsICCPROFILE* FileOrig)
 			if(FileOrig != NULL && Icc->TagOffsets[i]) {
 				cmsUInt32Number TagSize   = FileOrig->TagSizes[i];
 				cmsUInt32Number TagOffset = FileOrig->TagOffsets[i];
-				void* Mem;
+				void * Mem;
 
 				if(!FileOrig->IOhandler->Seek(FileOrig->IOhandler, TagOffset)) return FALSE;
 
@@ -1414,7 +1414,7 @@ cmsBool IsTypeSupported(cmsTagDescriptor* TagDescriptor, cmsTagTypeSignature Typ
 }
 
 // That's the main read function
-void* CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig)
+void * CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	cmsIOHANDLER* io = Icc->IOhandler;
@@ -1541,7 +1541,7 @@ cmsTagTypeSignature _cmsGetTagTrueType(cmsHPROFILE hProfile, cmsTagSignature sig
 
 // Write a single tag. This just keeps track of the tak into a list of "to be written". If the tag is already
 // in that list, the previous version is deleted.
-cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void* data)
+cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	cmsTagTypeHandler* TypeHandler = NULL;
@@ -1656,7 +1656,7 @@ Error:
 // raw data written does not exactly correspond with the raw data proposed to cmsWriteRaw data, but this approach allows
 // to write a tag as raw data and the read it as handled.
 
-cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void* data, cmsUInt32Number BufferSize)
+cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void * data, cmsUInt32Number BufferSize)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	void * Object;
@@ -1774,7 +1774,7 @@ Error:
 // checking anything. As a rule, mixing Raw with cooked doesn't work, so writing a tag as raw and then reading
 // it as cooked without serializing does result into an error. If that is what you want, you will need to dump
 // the profile to memry or disk and then reopen it.
-cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void* data, cmsUInt32Number Size)
+cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, cmsUInt32Number Size)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	int i;

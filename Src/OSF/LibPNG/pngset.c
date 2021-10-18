@@ -906,11 +906,11 @@ void PNGAPI png_set_sPLT(png_const_structrp png_ptr,
     png_inforp info_ptr, png_const_sPLT_tp entries, int nentries)
 /*
  *  entries        - array of png_sPLT_t structures
- *              to be added to the list of palettes
- *              in the info structure.
+ *        to be added to the list of palettes
+ *        in the info structure.
  *
  *  nentries       - number of palette structures to be
- *              added.
+ *        added.
  */
 {
 	png_sPLT_tp np;

@@ -67,7 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #else
 typedef unsigned int uint32_t;
-typedef unsigned char uint8_t;
+typedef uchar uint8_t;
 #endif
 #else
 #include <stdint.h>
@@ -180,7 +180,7 @@ typedef unsigned char uint8_t;
         unsigned _ha_bkt;                                                                   \
         (add)->hh.next = NULL;                                                              \
         (add)->hh.key = (char *)(keyptr);                                                   \
-        (add)->hh.keylen = (unsigned)(keylen_in);                                           \
+        (add)->hh.keylen = (uint)(keylen_in);                                           \
         if (!(head)) {                                                                      \
             head = (add);                                                                   \
             (head)->hh.prev = NULL;                                                         \
@@ -419,14 +419,14 @@ typedef unsigned char uint8_t;
 #define HASH_JEN(key, keylen, num_bkts, hashv, bkt)                                                                              \
     do {                                                                                                                         \
         unsigned _hj_i, _hj_j, _hj_k;                                                                                            \
-        unsigned char *_hj_key = (unsigned char *)(key);                                                                         \
+        uchar *_hj_key = (uchar *)(key);                                                                         \
         hashv = 0xfeedbeef;                                                                                                      \
         _hj_i = _hj_j = 0x9e3779b9;                                                                                              \
-        _hj_k = (unsigned)(keylen);                                                                                              \
+        _hj_k = (uint)(keylen);                                                                                              \
         while (_hj_k >= 12) {                                                                                                    \
-            _hj_i += (_hj_key[0] + ((unsigned)_hj_key[1] << 8) + ((unsigned)_hj_key[2] << 16) + ((unsigned)_hj_key[3] << 24));   \
-            _hj_j += (_hj_key[4] + ((unsigned)_hj_key[5] << 8) + ((unsigned)_hj_key[6] << 16) + ((unsigned)_hj_key[7] << 24));   \
-            hashv += (_hj_key[8] + ((unsigned)_hj_key[9] << 8) + ((unsigned)_hj_key[10] << 16) + ((unsigned)_hj_key[11] << 24)); \
+            _hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2] << 16) + ((uint)_hj_key[3] << 24));   \
+            _hj_j += (_hj_key[4] + ((uint)_hj_key[5] << 8) + ((uint)_hj_key[6] << 16) + ((uint)_hj_key[7] << 24));   \
+            hashv += (_hj_key[8] + ((uint)_hj_key[9] << 8) + ((uint)_hj_key[10] << 16) + ((uint)_hj_key[11] << 24)); \
                                                                                                                                  \
             HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                                                                   \
                                                                                                                                  \
@@ -436,34 +436,34 @@ typedef unsigned char uint8_t;
         hashv += keylen;                                                                                                         \
         switch (_hj_k) {                                                                                                         \
             case 11:                                                                                                             \
-                hashv += ((unsigned)_hj_key[10] << 24);                                                                          \
+                hashv += ((uint)_hj_key[10] << 24);                                                                          \
             /* fall through */                                                                                                   \
             case 10:                                                                                                             \
-                hashv += ((unsigned)_hj_key[9] << 16);                                                                           \
+                hashv += ((uint)_hj_key[9] << 16);                                                                           \
             /* fall through */                                                                                                   \
             case 9:                                                                                                              \
-                hashv += ((unsigned)_hj_key[8] << 8);                                                                            \
+                hashv += ((uint)_hj_key[8] << 8);                                                                            \
             /* fall through */                                                                                                   \
             case 8:                                                                                                              \
-                _hj_j += ((unsigned)_hj_key[7] << 24);                                                                           \
+                _hj_j += ((uint)_hj_key[7] << 24);                                                                           \
             /* fall through */                                                                                                   \
             case 7:                                                                                                              \
-                _hj_j += ((unsigned)_hj_key[6] << 16);                                                                           \
+                _hj_j += ((uint)_hj_key[6] << 16);                                                                           \
             /* fall through */                                                                                                   \
             case 6:                                                                                                              \
-                _hj_j += ((unsigned)_hj_key[5] << 8);                                                                            \
+                _hj_j += ((uint)_hj_key[5] << 8);                                                                            \
             /* fall through */                                                                                                   \
             case 5:                                                                                                              \
                 _hj_j += _hj_key[4];                                                                                             \
             /* fall through */                                                                                                   \
             case 4:                                                                                                              \
-                _hj_i += ((unsigned)_hj_key[3] << 24);                                                                           \
+                _hj_i += ((uint)_hj_key[3] << 24);                                                                           \
             /* fall through */                                                                                                   \
             case 3:                                                                                                              \
-                _hj_i += ((unsigned)_hj_key[2] << 16);                                                                           \
+                _hj_i += ((uint)_hj_key[2] << 16);                                                                           \
             /* fall through */                                                                                                   \
             case 2:                                                                                                              \
-                _hj_i += ((unsigned)_hj_key[1] << 8);                                                                            \
+                _hj_i += ((uint)_hj_key[1] << 8);                                                                            \
             /* fall through */                                                                                                   \
             case 1:                                                                                                              \
                 _hj_i += _hj_key[0];                                                                                             \
@@ -483,7 +483,7 @@ typedef unsigned char uint8_t;
 #endif
 #define HASH_SFH(key, keylen, num_bkts, hashv, bkt)                       \
     do {                                                                  \
-        unsigned char *_sfh_key = (unsigned char *)(key);                 \
+        uchar *_sfh_key = (uchar *)(key);                 \
         uint32_t _sfh_tmp, _sfh_len = keylen;                             \
                                                                           \
         int _sfh_rem = _sfh_len & 3;                                      \

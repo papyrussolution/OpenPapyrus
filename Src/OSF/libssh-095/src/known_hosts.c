@@ -42,16 +42,16 @@
  * This will return a token array containing (host|ip), keytype and key.
  *
  * @param[out] file     A pointer to the known host file. Could be pointing to
- *                      NULL at start.
+ *                NULL at start.
  *
  * @param[in]  filename The file name of the known host file.
  *
  * @param[out] found_type A pointer to a string to be set with the found key
- *                        type.
+ *                  type.
  *
  * @returns             The found_type type of key (ie "dsa","ssh-rsa"). Don't
- *                      free that value. NULL if no match was found or the file
- *                      was not found.
+ *                free that value. NULL if no match was found or the file
+ *                was not found.
  */
 static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file,
     const char * filename,
@@ -121,7 +121,7 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file,
  * @param[in] tokens    A list of tokens in the known_hosts line.
  *
  * @returns             1 if the key matches, 0 if the key doesn't match and -1
- *                      on error.
+ *                on error.
  */
 static int check_public_key(ssh_session session, char ** tokens) {
 	ssh_string pubkey_blob = NULL;

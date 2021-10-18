@@ -1,9 +1,16 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
+
+#if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/
+	#define USE_MIMALLOC
+#endif
+#ifdef USE_MIMALLOC
+	#include "mimalloc\mimalloc.h"
+#endif
 //
 //
 //
@@ -259,7 +266,7 @@ void FASTCALL Exchange(uint * pA, uint * pB)
 	*pB = temp;
 }
 
-void FASTCALL ExchangeToOrder(int * pA, int * pB)
+void FASTCALL ExchangeForOrder(int * pA, int * pB)
 {
 	if(*pA > *pB) {
 		int    temp = *pA;
@@ -275,7 +282,7 @@ void FASTCALL Exchange(long * pA, long * pB)
 	*pB = temp;
 }
 
-void FASTCALL ExchangeToOrder(long * pA, long * pB)
+void FASTCALL ExchangeForOrder(long * pA, long * pB)
 {
 	if(*pA > *pB) {
 		long   temp = *pA;
@@ -298,7 +305,7 @@ void FASTCALL Exchange(int16 * pA, int16 * pB)
 	*pB = temp;
 }
 
-void FASTCALL ExchangeToOrder(int16 * pA, int16 * pB)
+void FASTCALL ExchangeForOrder(int16 * pA, int16 * pB)
 {
 	if(*pA > *pB) {
 		int16  temp = *pA;
@@ -324,7 +331,7 @@ void FASTCALL Exchange(double * pA, double * pB)
 	memswap(pA, pB, sizeof(*pA));
 }
 
-void FASTCALL ExchangeToOrder(double * pA, double * pB)
+void FASTCALL ExchangeForOrder(double * pA, double * pB)
 {
 	if(*pA > *pB)
 		memswap(pA, pB, sizeof(*pA));
@@ -468,7 +475,11 @@ int SAlloc::Stat::Output(SString & rBuf)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
+#ifdef USE_MIMALLOC
+	void * p_result = mi_malloc(sz);
+#else
 	void * p_result = malloc(sz);
+#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -479,7 +490,11 @@ int SAlloc::Stat::Output(SString & rBuf)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(n * sz);
 #endif
+#ifdef USE_MIMALLOC
+	void * p_result = mi_calloc(n, sz);
+#else
 	void * p_result = calloc(n, sz);
+#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -492,7 +507,11 @@ int SAlloc::Stat::Output(SString & rBuf)
 	// перераспределяемого блока
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
+#ifdef USE_MIMALLOC
+	void * p_result = mi_realloc(ptr, sz);
+#else
 	void * p_result = realloc(ptr, sz);
+#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -500,7 +519,11 @@ int SAlloc::Stat::Output(SString & rBuf)
 
 /*static*/void FASTCALL SAlloc::F(void * ptr)
 {
+#ifdef USE_MIMALLOC
+	mi_free(ptr);
+#else
 	free(ptr);
+#endif
 }
 
 void * operator new(size_t sz)
@@ -508,7 +531,11 @@ void * operator new(size_t sz)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
+#ifdef USE_MIMALLOC
+	void * p_result = mi_new(sz);
+#else
 	void * p_result = malloc(sz);
+#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -516,7 +543,20 @@ void * operator new(size_t sz)
 
 void operator delete(void * ptr)
 {
+#ifdef USE_MIMALLOC
+	mi_free(ptr);
+#else
 	free(ptr);
+#endif
+}
+
+void operator delete [] (void * ptr)
+{
+#ifdef USE_MIMALLOC
+	mi_free(ptr);
+#else
+	free(ptr);
+#endif
 }
 
 void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)

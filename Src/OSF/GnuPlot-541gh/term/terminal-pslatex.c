@@ -8,7 +8,7 @@
  *     pslatex  -- LaTeX with embedded postscript
  *     pstex    -- plain TeX with embedded postscript
  *     epslatex -- LaTeX using \includegraphics, postscript part in an
- *                 external file
+ *           external file
  * Some routines are also used by terminal drivers
  *     cairolatex
  *
@@ -17,13 +17,13 @@
  *  Dan Sebald, 5 March 2003: terminal entry for image functionality
  *  Theo Hopman
  *      23 May 2003:
- *              - added epslatex support. Replaces epslatex.trm; pointtype
- *              and linetypes for epslatex terminal are now identical to
- *              those of pslatex terminal.
- *              - added arbitrary text rotations to all [e]ps[la]tex
- *              terminals.
+ *        - added epslatex support. Replaces epslatex.trm; pointtype
+ *        and linetypes for epslatex terminal are now identical to
+ *        those of pslatex terminal.
+ *        - added arbitrary text rotations to all [e]ps[la]tex
+ *        terminals.
  *      27 May 2004:
- *              - epslatex patch updated for gnuplot 4.0
+ *        - epslatex patch updated for gnuplot 4.0
  *
  *  Harald Harders (h.harders@tu-bs.de), 2005-02-08:
  *  - Merged functionality of postscript, pslatex, pstex, and
@@ -154,9 +154,9 @@ void PSLATEX_reset(GpTermEntry * pThis)
 		default:; /* do nothing, just avoid a compiler warning */
 	}
 	ZFREE(p_gp->TPsB.PsLatexAuxname);
-	if(gppsfile && gppsfile != GPT.P_GpOutFile) {
-		fclose(gppsfile);
-		gppsfile = NULL;
+	if(GPT.P_GpPsFile && GPT.P_GpPsFile != GPT.P_GpOutFile) {
+		fclose(GPT.P_GpPsFile);
+		GPT.P_GpPsFile = NULL;
 	}
 }
 //
@@ -179,31 +179,31 @@ void PSTEX_reopen_output(GpTermEntry * pThis)
 				strncpy(p_gp->TPsB.PsLatexAuxname, GPT.P_OutStr, (dotIndex - GPT.P_OutStr) + 1);
 				// period or '\0' is overwritten with period, and "ps" appended 
 				strcpy(p_gp->TPsB.PsLatexAuxname + (dotIndex - GPT.P_OutStr), ".ps");
-				gppsfile = fopen(p_gp->TPsB.PsLatexAuxname, "w");
-				if(gppsfile  == (FILE*)NULL) {
+				GPT.P_GpPsFile = fopen(p_gp->TPsB.PsLatexAuxname, "w");
+				if(!GPT.P_GpPsFile) {
 					fprintf(stderr, "Cannot open aux file %s for output. Switching off auxfile option.\n", p_gp->TPsB.PsLatexAuxname);
 					SAlloc::F(p_gp->TPsB.PsLatexAuxname);
 					p_gp->TPsB.PsLatexAuxname = NULL;
 					p_gp->TPsB.P_Params->useauxfile = FALSE;
-					gppsfile = GPT.P_GpOutFile;
+					GPT.P_GpPsFile = GPT.P_GpOutFile;
 				}
 			}
 			else {
 				fprintf(stderr, "Cannot make PostScript file name from %s\n", GPT.P_OutStr);
 				fprintf(stderr, "Turning off auxfile option\n");
 				p_gp->TPsB.P_Params->useauxfile = FALSE;
-				gppsfile = GPT.P_GpOutFile;
+				GPT.P_GpPsFile = GPT.P_GpOutFile;
 			}
 		}
 		else
-			gppsfile = GPT.P_GpOutFile;
+			GPT.P_GpPsFile = GPT.P_GpOutFile;
 	}
 	else {
 		if(p_gp->TPsB.P_Params->useauxfile) {
 			fprintf(stderr, "Cannot use aux file on stdout. Switching off auxfile option.\n");
 			p_gp->TPsB.P_Params->useauxfile = FALSE;
 		}
-		gppsfile = GPT.P_GpOutFile;
+		GPT.P_GpPsFile = GPT.P_GpOutFile;
 	}
 }
 
@@ -254,7 +254,7 @@ void PSTEX_common_init(GpTermEntry * pThis)
 		    break;
 		default:; /* do nothing, just avoid a compiler warning */
 	}
-	if(gppsfile != GPT.P_GpOutFile) {
+	if(GPT.P_GpPsFile != GPT.P_GpOutFile) {
 		// these are taken from the post.trm file computation of the bounding box, but without the X_OFF and Y_OFF 
 		int urx = (int)(PSLATEX_pagesize_x / (2*PS_SC) + 0.5);
 		int ury = (int)(PSLATEX_pagesize_y / (2*PS_SC) + 0.5);
@@ -298,7 +298,7 @@ TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 	GnuPlot * p_gp = pThis->P_Gp;
 	struct pstex_text_command * tc;
 	PS_text(pThis);
-	if(gppsfile == GPT.P_GpOutFile)
+	if(GPT.P_GpPsFile == GPT.P_GpOutFile)
 		fputs("  }}%\n", GPT.P_GpOutFile);
 	if(p_gp->TPsB.P_Params->fontsize) {
 		if(p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX)
@@ -669,7 +669,7 @@ void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 			// rename primary output (tex) 
 			strncpy(&GPT.P_OutStr[outstrlen-4], ".tex", 5);
 			// redirect FILE stream 
-			gppsfile = GPT.P_GpOutFile;
+			GPT.P_GpPsFile = GPT.P_GpOutFile;
 			GPT.P_GpOutFile = fopen(GPT.P_OutStr, "w");
 			p_gp->IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", GPT.P_OutStr, psoutstr);
 			if(!GPT.P_GpOutFile)
@@ -684,9 +684,9 @@ void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 			psoutstr[outstrlen-4] = '\0';
 			strcat(psoutstr, suffix);
 			// BM: Need binary output for PDF files. Does this have negative side effects for EPS? 
-			gppsfile = fopen(psoutstr, "wb");
+			GPT.P_GpPsFile = fopen(psoutstr, "wb");
 		}
-		if(!gppsfile)
+		if(!GPT.P_GpPsFile)
 			p_gp->IntError(NO_CARET, "open of postscipt output file %s failed", psoutstr);
 		// set the name for the \includegraphics command 
 		p_gp->TPsB.PsLatexAuxname = sstrdup(psoutstr);
@@ -780,12 +780,12 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	switch(syncpoint) {
 		case TERM_LAYER_BEFORE_PLOT:
 		    if(!ISCAIROTERMINAL)
-			    fprintf(gppsfile, "%% Begin plot #%d\n", ++plotno);
+			    fprintf(GPT.P_GpPsFile, "%% Begin plot #%d\n", ++plotno);
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
 		    PS_linetype(pThis, LT_UNDEFINED); /* Forces a stroke and resets linetype */
 		    if(!ISCAIROTERMINAL)
-			    fprintf(gppsfile, "%% End plot #%d\n", plotno);
+			    fprintf(GPT.P_GpPsFile, "%% End plot #%d\n", plotno);
 		    break;
 		case TERM_LAYER_RESET: /* Start of plot; reset flag */
 		    epslatex_text_layer = 0;
@@ -818,14 +818,14 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 
 		case TERM_LAYER_BEGIN_PM3D_MAP:
 		    if(!ISCAIROTERMINAL)
-			    if(gppsfile && gppsfile != GPT.P_GpOutFile)
-				    fprintf(gppsfile, "%%pm3d_map_begin\n");
+			    if(GPT.P_GpPsFile && GPT.P_GpPsFile != GPT.P_GpOutFile)
+				    fprintf(GPT.P_GpPsFile, "%%pm3d_map_begin\n");
 		    break;
 
 		case TERM_LAYER_END_PM3D_MAP:
 		    if(!ISCAIROTERMINAL)
-			    if(gppsfile && gppsfile != GPT.P_GpOutFile)
-				    fprintf(gppsfile, "%%pm3d_map_end\n");
+			    if(GPT.P_GpPsFile && GPT.P_GpPsFile != GPT.P_GpOutFile)
+				    fprintf(GPT.P_GpPsFile, "%%pm3d_map_end\n");
 		    break;
 
 		default:

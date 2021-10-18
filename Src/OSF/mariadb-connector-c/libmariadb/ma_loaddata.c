@@ -97,7 +97,7 @@ int mysql_local_infile_read(void * ptr, char * buf, unsigned int buf_len)
 	MYSQL_INFILE_INFO * info = (MYSQL_INFILE_INFO*)ptr;
 	size_t count;
 
-	count = ma_read((void*)buf, 1, (size_t)buf_len, info->fp);
+	count = ma_read((void *)buf, 1, (size_t)buf_len, info->fp);
 
 	if(count == (size_t)-1) {
 		info->error_no = errno;
@@ -177,7 +177,7 @@ bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_loc
 {
 	unsigned int buflen = 4096;
 	int bufread;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	void * info = NULL;
 	bool result = 1;
 
@@ -192,7 +192,7 @@ bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_loc
 	    !can_local_infile) {
 		my_set_error(conn, CR_UNKNOWN_ERROR, SQLSTATE_UNKNOWN, "Load data local infile forbidden");
 		/* write empty packet to server */
-		ma_net_write(&conn->net, (unsigned char *)"", 0);
+		ma_net_write(&conn->net, (uchar *)"", 0);
 		ma_net_flush(&conn->net);
 		goto infile_error;
 	}
@@ -208,21 +208,21 @@ bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_loc
 
 		tmp_errno = conn->options.local_infile_error(info, tmp_buf, sizeof(tmp_buf));
 		my_set_error(conn, tmp_errno, SQLSTATE_UNKNOWN, tmp_buf);
-		ma_net_write(&conn->net, (unsigned char *)"", 0);
+		ma_net_write(&conn->net, (uchar *)"", 0);
 		ma_net_flush(&conn->net);
 		goto infile_error;
 	}
 
 	/* read data */
 	while((bufread = conn->options.local_infile_read(info, (char *)buf, buflen)) > 0) {
-		if(ma_net_write(&conn->net, (unsigned char *)buf, bufread)) {
+		if(ma_net_write(&conn->net, (uchar *)buf, bufread)) {
 			my_set_error(conn, CR_SERVER_LOST, SQLSTATE_UNKNOWN, NULL);
 			goto infile_error;
 		}
 	}
 
 	/* send empty packet for eof */
-	if(ma_net_write(&conn->net, (unsigned char *)"", 0) ||
+	if(ma_net_write(&conn->net, (uchar *)"", 0) ||
 	    ma_net_flush(&conn->net)) {
 		my_set_error(conn, CR_SERVER_LOST, SQLSTATE_UNKNOWN, NULL);
 		goto infile_error;

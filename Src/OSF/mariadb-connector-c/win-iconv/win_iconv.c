@@ -37,11 +37,11 @@
 #define FLAG_TRANSLIT           2 /* //TRANSLIT */
 #define FLAG_IGNORE             4 /* //IGNORE */
 
-typedef unsigned char uchar;
+typedef uchar uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
-typedef void* iconv_t;
+typedef void * iconv_t;
 
 iconv_t iconv_open(const char * tocode, const char * fromcode);
 int iconv_close(iconv_t cd);
@@ -49,7 +49,7 @@ size_t iconv(iconv_t cd, const char ** inbuf, size_t * inbytesleft, char ** outb
 
 /* libiconv interface for vim */
 #if defined(MAKE_DLL)
-int iconvctl(iconv_t cd, int request, void* argument)
+int iconvctl(iconv_t cd, int request, void * argument)
 {
 	/* not supported */
 	return 0;
@@ -1486,9 +1486,9 @@ static int utf32_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf,
 /*
  * 50220: ISO 2022 Japanese with no halfwidth Katakana; Japanese (JIS)
  * 50221: ISO 2022 Japanese with halfwidth Katakana; Japanese (JIS-Allow
- *        1 byte Kana)
+ *  1 byte Kana)
  * 50222: ISO 2022 Japanese JIS X 0201-1989; Japanese (JIS-Allow 1 byte
- *        Kana - SO/SI)
+ *  Kana - SO/SI)
  *
  * MultiByteToWideChar() and WideCharToMultiByte() behave differently
  * depending on Windows version.  On XP, WideCharToMultiByte() doesn't

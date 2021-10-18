@@ -35,16 +35,16 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_open_memory.c,v 1.6 2007/07/
  */
 
 struct read_memory_data {
-	const unsigned char     * start;
-	const unsigned char     * p;
-	const unsigned char     * end;
+	const uchar     * start;
+	const uchar     * p;
+	const uchar     * end;
 	ssize_t read_size;
 };
 
 static int      memory_read_close(struct archive *, void *);
 static int      memory_read_open(struct archive *, void *);
-static int64_t  memory_read_seek(struct archive *, void *, int64_t offset, int whence);
-static int64_t  memory_read_skip(struct archive *, void *, int64_t request);
+static int64  memory_read_seek(struct archive *, void *, int64 offset, int whence);
+static int64  memory_read_skip(struct archive *, void *, int64 request);
 static ssize_t  memory_read(struct archive *, void *, const void ** buff);
 
 int archive_read_open_memory(struct archive * a, const void * buff, size_t size)
@@ -59,12 +59,12 @@ int archive_read_open_memory(struct archive * a, const void * buff, size_t size)
  */
 int archive_read_open_memory2(struct archive * a, const void * buff, size_t size, size_t read_size)
 {
-	struct read_memory_data * mine = (struct read_memory_data *)calloc(1, sizeof(*mine));
+	struct read_memory_data * mine = (struct read_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
 	}
-	mine->start = mine->p = (const unsigned char*)buff;
+	mine->start = mine->p = (const uchar *)buff;
 	mine->end = mine->start + size;
 	mine->read_size = read_size;
 	archive_read_set_open_callback(a, memory_read_open);
@@ -112,12 +112,12 @@ static ssize_t memory_read(struct archive * a, void * client_data, const void **
  * necessary in order to better exercise internal code when used
  * as a test harness.
  */
-static int64_t memory_read_skip(struct archive * a, void * client_data, int64_t skip)
+static int64 memory_read_skip(struct archive * a, void * client_data, int64 skip)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
 	(void)a; /* UNUSED */
-	if((int64_t)skip > (int64_t)(mine->end - mine->p))
+	if((int64)skip > (int64)(mine->end - mine->p))
 		skip = mine->end - mine->p;
 	/* Round down to block size. */
 	skip /= mine->read_size;
@@ -129,7 +129,7 @@ static int64_t memory_read_skip(struct archive * a, void * client_data, int64_t 
 /*
  * Seeking.
  */
-static int64_t memory_read_seek(struct archive * a, void * client_data, int64_t offset, int whence)
+static int64 memory_read_seek(struct archive * a, void * client_data, int64 offset, int whence)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
@@ -165,6 +165,6 @@ static int memory_read_close(struct archive * a, void * client_data)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 	(void)a; /* UNUSED */
-	free(mine);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

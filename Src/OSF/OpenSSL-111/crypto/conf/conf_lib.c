@@ -368,8 +368,8 @@ OPENSSL_INIT_SETTINGS * OPENSSL_INIT_new(void)
 int OPENSSL_INIT_set_config_filename(OPENSSL_INIT_SETTINGS * settings, const char * filename)
 {
 	char * newfilename = NULL;
-	if(filename != NULL) {
-		newfilename = strdup(filename);
+	if(filename) {
+		newfilename = sstrdup(filename);
 		if(newfilename == NULL)
 			return 0;
 	}
@@ -386,8 +386,8 @@ void OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS * settings, ulong 
 int OPENSSL_INIT_set_config_appname(OPENSSL_INIT_SETTINGS * settings, const char * appname)
 {
 	char * newappname = NULL;
-	if(appname != NULL) {
-		newappname = strdup(appname);
+	if(appname) {
+		newappname = sstrdup(appname);
 		if(newappname == NULL)
 			return 0;
 	}

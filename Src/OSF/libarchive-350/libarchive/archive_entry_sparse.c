@@ -38,7 +38,7 @@ void archive_entry_sparse_clear(struct archive_entry * entry)
 	struct ae_sparse * sp;
 	while(entry->sparse_head != NULL) {
 		sp = entry->sparse_head->next;
-		free(entry->sparse_head);
+		SAlloc::F(entry->sparse_head);
 		entry->sparse_head = sp;
 	}
 	entry->sparse_tail = NULL;
@@ -71,7 +71,7 @@ void archive_entry_sparse_add_entry(struct archive_entry * entry,
 		}
 	}
 
-	if((sp = (struct ae_sparse *)malloc(sizeof(*sp))) == NULL)
+	if((sp = (struct ae_sparse *)SAlloc::M(sizeof(*sp))) == NULL)
 		/* XXX Error XXX */
 		return;
 

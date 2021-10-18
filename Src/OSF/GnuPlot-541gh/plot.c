@@ -56,7 +56,7 @@ static RETSIGTYPE inter(int /*anint*/)
 	SendMessage(GetConsoleWindow(), WM_CHAR, 0x20, 0);
 #else
 	{
-		GPO.TermReset(term);
+		GPO.TermReset(GPT.P_Term);
 		putc('\n', stderr);
 		GPO.BailToCommandLine(); // return to prompt 
 	}
@@ -226,17 +226,14 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		if(sstreqi_ascii(argv[i], "/noend"))
 			continue;
 #endif
-		if((argv[i][0] != '-') || (argv[i][1] == 'e') || (argv[i][1] == 'c') ) {
+		if(argv[i][0] != '-' || oneof2(argv[i][1], 'e', 'c')) {
 			_Plt.interactive = false;
 			break;
 		}
 	}
 	// Need this before show_version is called for the first time 
-	if(_Plt.interactive)
-		ShowVersion(stderr);
-	else
-		ShowVersion(NULL); // Only load GPVAL_COMPILE_OPTIONS 
-	UpdateGpvalVariables(/*term*/0, 3); // update GPVAL_ variables available to user // Здесь term еще не определен
+	ShowVersion(_Plt.interactive ? stderr : 0/* Only load GPVAL_COMPILE_OPTIONS */);
+	UpdateGpvalVariables(/*GPT.P_Term*/0, 3); // update GPVAL_ variables available to user // Здесь term еще не определен
 	if(!SETJMP(_Plt.command_line_env, 1)) {
 		// first time 
 		interrupt_setup();
@@ -264,7 +261,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		*/
 		// Execute commands in ~/.gnuplot 
 		InitSession();
-		if(_Plt.interactive && term) { // not unknown 
+		if(_Plt.interactive && GPT.P_Term) { // not unknown 
 #ifdef GNUPLOT_HISTORY
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && !defined(_WIN32)
 			expanded_history_filename = tilde_expand(GNUPLOT_HISTORY_FILE);
@@ -272,7 +269,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 			expanded_history_filename = sstrdup(GNUPLOT_HISTORY_FILE);
 			GpExpandTilde(&expanded_history_filename);
 #endif
-			read_history(expanded_history_filename);
+			ReadHistory(expanded_history_filename);
 			// 
 			// It is safe to ignore the return values of 'atexit()' and
 			// 'on_exit()'. In the worst case, there is no history of your
@@ -284,7 +281,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 #if defined(READLINE) && defined(WGP_CONSOLE)
 			fprintf(stderr, "Encoding set to '%s'.\n", encoding_names[encoding]);
 #endif
-		} // if(interactive && term != 0) 
+		} // if(interactive && GPT.P_Term != 0) 
 	}
 	else {
 		// come back here from IntError() 
@@ -313,7 +310,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 			goto RECOVER_FROM_ERROR_IN_DASH;
 		_Plt.reading_from_dash = false;
 		if(!_Plt.interactive && !_Plt.noinputfiles) {
-			TermReset(term);
+			TermReset(GPT.P_Term);
 			gp_exit(EXIT_FAILURE); /* exit on non-interactive error */
 		}
 	}
@@ -402,7 +399,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			if(!_Plt.interactive) {
 				// no further input from pipe 
 				while(WinAnyWindowOpen())
-					win_sleep(term, 100);
+					win_sleep(GPT.P_Term, 100);
 			}
 			else
 #endif
@@ -603,10 +600,10 @@ void cancel_history()
 		if(expanded_history_filename) {
 			if(history_is_stifled())
 				unstifle_history();
-			if(gnuplot_history_size >= 0)
-				stifle_history(gnuplot_history_size);
+			if(GPO.Hist.HistorySize >= 0)
+				stifle_history(GPO.Hist.HistorySize);
 			// returns 0 on success 
-			if(write_history(expanded_history_filename))
+			if(GPO.WriteHistory(expanded_history_filename))
 				fprintf(stderr, "Warning:  Could not write history file!!!\n");
 			unstifle_history();
 		}
@@ -620,10 +617,10 @@ void cancel_history()
 		// What we really want to do is truncate(expanded_history_filename), but this is only available on BSD compatible systems 
 		if(expanded_history_filename) {
 			remove(expanded_history_filename);
-			if(gnuplot_history_size < 0)
-				write_history(expanded_history_filename);
+			if(GPO.Hist.HistorySize < 0)
+				GPO.WriteHistory(expanded_history_filename);
 			else
-				write_history_n(gnuplot_history_size, expanded_history_filename, "w");
+				GPO.WriteHistoryN(GPO.Hist.HistorySize, expanded_history_filename, "w");
 		}
 	}
 #endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */

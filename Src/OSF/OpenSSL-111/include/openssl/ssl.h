@@ -2027,7 +2027,7 @@ typedef int (* ssl_ct_validation_cb)(const CT_POLICY_EVAL_CTX * ctx,
  * is invoked. Ownership of |arg| remains with the caller.
  *
  * NOTE: A side-effect of setting a CT callback is that an OCSP stapled response
- *       will be requested.
+ * will be requested.
  */
 int SSL_set_ct_validation_callback(SSL * s, ssl_ct_validation_cb callback, void * arg);
 int SSL_CTX_set_ct_validation_callback(SSL_CTX * ctx, ssl_ct_validation_cb callback, void * arg);

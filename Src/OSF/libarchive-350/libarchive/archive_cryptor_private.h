@@ -55,10 +55,10 @@ int __libarchive_cryptor_build_hack(void);
 
 typedef struct {
 	CCCryptorRef ctx;
-	uint8_t key[AES_MAX_KEY_SIZE];
+	uint8 key[AES_MAX_KEY_SIZE];
 	unsigned key_len;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t encr_buf[AES_BLOCK_SIZE];
+	uint8 nonce[AES_BLOCK_SIZE];
+	uint8 encr_buf[AES_BLOCK_SIZE];
 	unsigned encr_pos;
 } archive_crypto_ctx;
 
@@ -77,8 +77,8 @@ typedef struct {
 	BCRYPT_KEY_HANDLE hKey;
 	PBYTE keyObj;
 	DWORD keyObj_len;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t encr_buf[AES_BLOCK_SIZE];
+	uint8 nonce[AES_BLOCK_SIZE];
+	uint8 encr_buf[AES_BLOCK_SIZE];
 	unsigned encr_pos;
 } archive_crypto_ctx;
 
@@ -92,10 +92,10 @@ typedef struct {
 
 typedef struct {
 	mbedtls_aes_context ctx;
-	uint8_t key[AES_MAX_KEY_SIZE];
+	uint8 key[AES_MAX_KEY_SIZE];
 	unsigned key_len;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t encr_buf[AES_BLOCK_SIZE];
+	uint8 nonce[AES_BLOCK_SIZE];
+	uint8 encr_buf[AES_BLOCK_SIZE];
 	unsigned encr_pos;
 } archive_crypto_ctx;
 
@@ -116,10 +116,10 @@ typedef struct {
 		struct aes256_ctx c256;
 	} ctx;
 #endif
-	uint8_t key[AES_MAX_KEY_SIZE];
+	uint8 key[AES_MAX_KEY_SIZE];
 	unsigned key_len;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t encr_buf[AES_BLOCK_SIZE];
+	uint8 nonce[AES_BLOCK_SIZE];
+	uint8 encr_buf[AES_BLOCK_SIZE];
 	unsigned encr_pos;
 } archive_crypto_ctx;
 
@@ -131,10 +131,10 @@ typedef struct {
 typedef struct {
 	EVP_CIPHER_CTX  * ctx;
 	const EVP_CIPHER * type;
-	uint8_t key[AES_MAX_KEY_SIZE];
+	uint8 key[AES_MAX_KEY_SIZE];
 	unsigned key_len;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t encr_buf[AES_BLOCK_SIZE];
+	uint8 nonce[AES_BLOCK_SIZE];
+	uint8 encr_buf[AES_BLOCK_SIZE];
 	unsigned encr_pos;
 } archive_crypto_ctx;
 
@@ -159,13 +159,13 @@ typedef int archive_crypto_ctx;
  * libarchive */
 struct archive_cryptor {
 	/* PKCS5 PBKDF2 HMAC-SHA1 */
-	int (* pbkdf2sha1)(const char * pw, size_t pw_len, const uint8_t * salt, size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len);
+	int (* pbkdf2sha1)(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len);
 	/* AES CTR mode(little endian version) */
-	int (* decrypto_aes_ctr_init)(archive_crypto_ctx *, const uint8_t *, size_t);
-	int (* decrypto_aes_ctr_update)(archive_crypto_ctx *, const uint8_t *, size_t, uint8_t *, size_t *);
+	int (* decrypto_aes_ctr_init)(archive_crypto_ctx *, const uint8 *, size_t);
+	int (* decrypto_aes_ctr_update)(archive_crypto_ctx *, const uint8 *, size_t, uint8 *, size_t *);
 	int (* decrypto_aes_ctr_release)(archive_crypto_ctx *);
-	int (* encrypto_aes_ctr_init)(archive_crypto_ctx *, const uint8_t *, size_t);
-	int (* encrypto_aes_ctr_update)(archive_crypto_ctx *, const uint8_t *, size_t, uint8_t *, size_t *);
+	int (* encrypto_aes_ctr_init)(archive_crypto_ctx *, const uint8 *, size_t);
+	int (* encrypto_aes_ctr_update)(archive_crypto_ctx *, const uint8 *, size_t, uint8 *, size_t *);
 	int (* encrypto_aes_ctr_release)(archive_crypto_ctx *);
 };
 

@@ -1279,7 +1279,7 @@ int tls1_set_server_sigalgs(SSL * s)
  *
  *   hello: The parsed ClientHello data
  *   ret: (output) on return, if a ticket was decrypted, then this is set to
- *       point to the resulting session.
+ * point to the resulting session.
  */
 SSL_TICKET_STATUS tls_get_ticket_from_client(SSL * s, CLIENTHELLO_MSG * hello,
     SSL_SESSION ** ret)
@@ -1329,7 +1329,7 @@ SSL_TICKET_STATUS tls_get_ticket_from_client(SSL * s, CLIENTHELLO_MSG * hello,
  *   sess_id: points at the session ID.
  *   sesslen: the length of the session ID.
  *   psess: (output) on return, if a ticket was decrypted, then this is set to
- *       point to the resulting session.
+ * point to the resulting session.
  */
 SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
     size_t eticklen, const uchar * sess_id,

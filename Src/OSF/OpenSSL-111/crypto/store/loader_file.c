@@ -128,28 +128,28 @@ static int file_get_pem_pass(char * buf, int num, int w, void * data)
  * OpenSSL type and returns a OSSL_STORE_INFO with the decoded data.
  * Input:
  *    pem_name:     If this blob comes from a PEM file, this holds
- *                  the PEM name.  If it comes from another type of
- *                  file, this is NULL.
+ *            the PEM name.  If it comes from another type of
+ *            file, this is NULL.
  *    pem_header:   If this blob comes from a PEM file, this holds
- *                  the PEM headers.  If it comes from another type of
- *                  file, this is NULL.
+ *            the PEM headers.  If it comes from another type of
+ *            file, this is NULL.
  *    blob:         The blob of data to match with what this handler
- *                  can use.
+ *            can use.
  *    len:          The length of the blob.
  *    handler_ctx:  For a handler marked repeatable, this pointer can
- *                  be used to create a context for the handler.  IT IS
- *                  THE HANDLER'S RESPONSIBILITY TO CREATE AND DESTROY
- *                  THIS CONTEXT APPROPRIATELY, i.e. create on first call
- *                  and destroy when about to return NULL.
+ *            be used to create a context for the handler.  IT IS
+ *            THE HANDLER'S RESPONSIBILITY TO CREATE AND DESTROY
+ *            THIS CONTEXT APPROPRIATELY, i.e. create on first call
+ *            and destroy when about to return NULL.
  *    matchcount:   A pointer to an int to count matches for this data.
- *                  Usually becomes 0 (no match) or 1 (match!), but may
- *                  be higher in the (unlikely) event that the data matches
- *                  more than one possibility.  The int will always be
- *                  zero when the function is called.
+ *            Usually becomes 0 (no match) or 1 (match!), but may
+ *            be higher in the (unlikely) event that the data matches
+ *            more than one possibility.  The int will always be
+ *            zero when the function is called.
  *    ui_method:    Application UI method for getting a password, pin
- *                  or any other interactive data.
+ *            or any other interactive data.
  *    ui_data:      Application data to be passed to ui_method when
- *                  it's called.
+ *            it's called.
  * Output:
  *    a OSSL_STORE_INFO
  */
@@ -331,7 +331,6 @@ static OSSL_STORE_INFO * try_decode_PKCS8Encrypted(const char * pem_name,
 	BUF_MEM * mem = NULL;
 	uchar * new_data = NULL;
 	int new_data_len;
-
 	if(pem_name != NULL) {
 		if(strcmp(pem_name, PEM_STRING_PKCS8) != 0)
 			return NULL;
@@ -340,38 +339,26 @@ static OSSL_STORE_INFO * try_decode_PKCS8Encrypted(const char * pem_name,
 
 	if((p8 = d2i_X509_SIG(NULL, &blob, len)) == NULL)
 		return NULL;
-
 	*matchcount = 1;
-
 	if((mem = BUF_MEM_new()) == NULL) {
-		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED,
-		    ERR_R_MALLOC_FAILURE);
+		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED, ERR_R_MALLOC_FAILURE);
 		goto nop8;
 	}
-
-	if((pass = file_get_pass(ui_method, kbuf, PEM_BUFSIZE,
-	    "PKCS8 decrypt password", ui_data)) == NULL) {
-		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED,
-		    OSSL_STORE_R_BAD_PASSWORD_READ);
+	if((pass = file_get_pass(ui_method, kbuf, PEM_BUFSIZE, "PKCS8 decrypt password", ui_data)) == NULL) {
+		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED, OSSL_STORE_R_BAD_PASSWORD_READ);
 		goto nop8;
 	}
-
 	X509_SIG_get0(p8, &dalg, &doct);
-	if(!PKCS12_pbe_crypt(dalg, pass, strlen(pass), doct->data, doct->length,
-	    &new_data, &new_data_len, 0))
+	if(!PKCS12_pbe_crypt(dalg, pass, strlen(pass), doct->data, doct->length, &new_data, &new_data_len, 0))
 		goto nop8;
-
 	mem->data = (char *)new_data;
 	mem->max = mem->length = (size_t)new_data_len;
 	X509_SIG_free(p8);
-
 	store_info = ossl_store_info_new_EMBEDDED(PEM_STRING_PKCS8INF, mem);
 	if(store_info == NULL) {
-		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED,
-		    ERR_R_MALLOC_FAILURE);
+		OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PKCS8ENCRYPTED, ERR_R_MALLOC_FAILURE);
 		goto nop8;
 	}
-
 	return store_info;
 nop8:
 	X509_SIG_free(p8);
@@ -1109,14 +1096,11 @@ static int file_read_pem(BIO * bp, char ** pem_name, char ** pem_header,
 static int file_read_asn1(BIO * bp, uchar ** data, long * len)
 {
 	BUF_MEM * mem = NULL;
-
 	if(asn1_d2i_read_bio(bp, &mem) < 0)
 		return 0;
-
 	*data = (uchar *)mem->data;
 	*len = (long)mem->length;
 	OPENSSL_free(mem);
-
 	return 1;
 }
 
@@ -1134,22 +1118,17 @@ static int ends_with_dirsep(const char * uri)
 	return *uri == '/';
 }
 
-static int file_name_to_uri(OSSL_STORE_LOADER_CTX * ctx, const char * name,
-    char ** data)
+static int file_name_to_uri(OSSL_STORE_LOADER_CTX * ctx, const char * name, char ** data)
 {
-	assert(name != NULL);
-	assert(data != NULL);
+	assert(name != NULL && data != NULL);
 	{
 		const char * pathsep = ends_with_dirsep(ctx->_.dir.uri) ? "" : "/";
-		long calculated_length = strlen(ctx->_.dir.uri) + strlen(pathsep)
-		    + strlen(name) + 1 /* \0 */;
-
+		long calculated_length = strlen(ctx->_.dir.uri) + strlen(pathsep) + strlen(name) + 1 /* \0 */;
 		*data = static_cast<char *>(OPENSSL_zalloc(calculated_length));
 		if(*data == NULL) {
 			OSSL_STOREerr(OSSL_STORE_F_FILE_NAME_TO_URI, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
-
 		OPENSSL_strlcat(*data, ctx->_.dir.uri, calculated_length);
 		OPENSSL_strlcat(*data, pathsep, calculated_length);
 		OPENSSL_strlcat(*data, name, calculated_length);

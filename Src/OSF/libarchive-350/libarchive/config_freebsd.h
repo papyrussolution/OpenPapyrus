@@ -239,8 +239,8 @@
 
 /* FreeBSD 4 and earlier lack intmax_t/uintmax_t */
 #if __FreeBSD__ < 5
-#define intmax_t int64_t
-#define uintmax_t uint64_t
+#define intmax_t int64
+#define uintmax_t uint64
 #endif
 
 /* FreeBSD defines for archive_hash.h */

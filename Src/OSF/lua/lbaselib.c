@@ -331,7 +331,7 @@ static int luaB_load(lua_State * L) {
 /* }====================================================== */
 
 static int dofilecont(lua_State * L, int d1, lua_KContext d2) {
-	(void)d1;  (void)d2;/* only to match 'lua_Kfunction' prototype */
+	(void)d1;  (void)d2; /* only to match 'lua_Kfunction' prototype */
 	return lua_gettop(L) - 1;
 }
 

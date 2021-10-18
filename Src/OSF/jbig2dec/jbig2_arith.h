@@ -21,7 +21,7 @@ typedef struct _Jbig2ArithState Jbig2ArithState;
 /* An arithmetic coding context is stored as a single byte, with the
    index in the low order 7 bits (actually only 6 are used), and the
    MPS in the top bit. */
-typedef unsigned char Jbig2ArithCx;
+typedef uchar Jbig2ArithCx;
 /* allocate and initialize a new arithmetic coding state */
 Jbig2ArithState *jbig2_arith_new(Jbig2Ctx *ctx, Jbig2WordStream *ws);
 /* decode a bit */

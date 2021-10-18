@@ -91,9 +91,9 @@ typedef int archive_hmac_sha1_ctx;
 
 struct archive_hmac {
 	/* HMAC */
-	int (* __hmac_sha1_init)(archive_hmac_sha1_ctx *, const uint8_t *, size_t);
-	void (* __hmac_sha1_update)(archive_hmac_sha1_ctx *, const uint8_t *, size_t);
-	void (* __hmac_sha1_final)(archive_hmac_sha1_ctx *, uint8_t *, size_t *);
+	int (* __hmac_sha1_init)(archive_hmac_sha1_ctx *, const uint8 *, size_t);
+	void (* __hmac_sha1_update)(archive_hmac_sha1_ctx *, const uint8 *, size_t);
+	void (* __hmac_sha1_final)(archive_hmac_sha1_ctx *, uint8 *, size_t *);
 	void (* __hmac_sha1_cleanup)(archive_hmac_sha1_ctx *);
 };
 

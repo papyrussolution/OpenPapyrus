@@ -62,7 +62,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 //
 //
 //
-char * strfmt(const char * str, long fmt, char * buf)
+char * STDCALL strfmt(const char * str, long fmt, char * buf)
 {
 	char * p_org_buf = buf;
 	int    flag = SFMTFLAG(fmt);
@@ -117,7 +117,7 @@ char * strfmt(const char * str, long fmt, char * buf)
 //
 int FASTCALL _decode_date_fmt(int style, int * pDiv);
 
-char * FASTCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
+char * STDCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 {
 	int    div;
 	int    ord;		/* 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd */
@@ -258,7 +258,7 @@ char * FASTCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 	return pBuf;
 }
 
-char * datefmt(const void * binDate, long fmt, char * txtDate)
+char * STDCALL datefmt(const void * binDate, long fmt, char * txtDate)
 {
 	int    d, m, y;
 	uint   flag = SFMTFLAG(fmt);
@@ -292,7 +292,7 @@ char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 	return pBuf;
 }
 
-int periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
+int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 {
 	static const char * quart[4] = { "I", "II", "III", "IV" };
 	int  r = -1;
@@ -357,7 +357,7 @@ int periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 //
 //
 //
-SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
+SString & STDCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
 {
 	if(!(flags & tzfmtConcat))
 		rBuf.Z();
@@ -387,7 +387,7 @@ SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
 //
 // Time formatting
 //
-char * timefmt(LTIME t, long fmt, char * pBuf)
+char * STDCALL timefmt(LTIME t, long fmt, char * pBuf)
 {
 	char   fs[64];
 	if(t == 0 && (fmt & TIMF_BLANK))
@@ -434,7 +434,7 @@ char * timefmt(LTIME t, long fmt, char * pBuf)
 	return _commfmt(fmt, pBuf);
 }
 
-char * datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen)
+char * STDCALL datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen)
 {
 	int    df = SFMTFLAG(dtfmt);
 	int    tf = SFMTFLAG(tmfmt);
@@ -463,7 +463,7 @@ static int FASTCALL checkdeccount(const char * pBuf, uint decCount)
 	return 1;
 }
 
-int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
+int STDCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 {
 	int    ok = 1;
 	int    h = 0;
@@ -622,7 +622,7 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 	return _commfmt(fmt, buf);
 }
 
-char * decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
+char * STDCALL decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 {
 	char   str[64];
 	char * c, *s = str;
@@ -638,7 +638,7 @@ char * decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 	return fmtnumber(s, sstrlen(s) - prec, sign, fmt, pBuf);
 }
 
-char * FASTCALL realfmt(double val, long fmt, char * pBuf)
+char * STDCALL realfmt(double val, long fmt, char * pBuf)
 {
 	int    dec, sign;
 	int    prc = static_cast<int>(static_cast<signed char>(SFMTPRC(fmt)));
@@ -711,28 +711,28 @@ char * FASTCALL realfmt(double val, long fmt, char * pBuf)
 	}
 }
 
-char * FASTCALL intfmt(long val, long fmt, char * pBuf)
+char * STDCALL intfmt(long val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ltoa(labs(val), s, 10);
 	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
-char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf)
+char * STDCALL int64fmt(int64 val, long fmt, char * pBuf)
 {
 	char   s[128];
 	_i64toa(_abs64(val), s, 10);
 	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
-char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf)
+char * STDCALL uintfmt(ulong val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ultoa(val, s, 10);
 	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }
 
-char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf)
+char * STDCALL uint64fmt(uint64 val, long fmt, char * pBuf)
 {
 	char   s[128];
 	_ui64toa(val, s, 10);

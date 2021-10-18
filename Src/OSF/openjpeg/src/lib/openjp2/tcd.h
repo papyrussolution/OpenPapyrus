@@ -296,7 +296,7 @@ typedef struct opj_tcd_marker_info {
     OPJ_UINT32  packet_count;
 
     /** OUT: Array of size packet_count, such that p_packet_size[i] is
-     *       the size in bytes of the ith packet */
+     * the size in bytes of the ith packet */
     OPJ_UINT32* p_packet_size;
 } opj_tcd_marker_info_t;
 
@@ -504,7 +504,7 @@ void opj_tcd_reinit_segment(opj_tcd_seg_t* seg);
  * @param x1     Lower right x in subband coordinates
  * @param y1     Lower right y in subband coordinates
  * @return OPJ_TRUE whether the sub-band region contributs to the area of
- *                  interest.
+ *            interest.
  */
 OPJ_BOOL opj_tcd_is_subband_area_of_interest(opj_tcd_t *tcd,
         OPJ_UINT32 compno,

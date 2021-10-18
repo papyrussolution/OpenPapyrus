@@ -3,7 +3,7 @@
 **********************************************************************/
 /*-
  * Copyright (c) 2006-2020  Byte      <byte AT mail DOT kna DOT ru>
- *                          K.Kosako
+ *                    K.Kosako
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 	{ 0xff, 0xdf }
 };
 
-static int cp1251_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg)
+static int cp1251_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, f, arg);
 }

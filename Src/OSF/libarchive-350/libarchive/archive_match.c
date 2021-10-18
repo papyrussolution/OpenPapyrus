@@ -69,7 +69,7 @@ struct entry_list {
 struct id_array {
 	size_t size;                  /* Allocated size */
 	size_t count;
-	int64_t                 * ids;
+	int64                 * ids;
 };
 
 #define PATTERN_IS_SET          1
@@ -124,7 +124,7 @@ struct archive_match {
 
 static int      add_pattern_from_file(struct archive_match *, struct match_list *, int, const void *, int);
 static int      add_entry(struct archive_match *, int, struct archive_entry *);
-static int      add_owner_id(struct archive_match *, struct id_array *, int64_t);
+static int      add_owner_id(struct archive_match *, struct id_array *, int64);
 static int      add_owner_name(struct archive_match *, struct match_list *, int, const void *);
 static int      add_pattern_mbs(struct archive_match *, struct match_list *, const char *);
 static int      add_pattern_wcs(struct archive_match *, struct match_list *, const wchar_t *);
@@ -140,7 +140,7 @@ static void     match_list_add(struct match_list *, struct match *);
 static void     match_list_free(struct match_list *);
 static void     match_list_init(struct match_list *);
 static int      match_list_unmatched_inclusions_next(struct archive_match *, struct match_list *, int, const void **);
-static int      match_owner_id(struct id_array *, int64_t);
+static int      match_owner_id(struct id_array *, int64);
 #if !defined(_WIN32) || defined(__CYGWIN__)
 static int      match_owner_name_mbs(struct archive_match *, struct match_list *, const char *);
 #else
@@ -180,7 +180,7 @@ static int error_nomem(struct archive_match * a)
  */
 struct archive * archive_match_new(void)                 
 {
-	struct archive_match * a = (struct archive_match *)calloc(1, sizeof(*a));
+	struct archive_match * a = (struct archive_match *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_MATCH_MAGIC;
@@ -208,11 +208,11 @@ int archive_match_free(struct archive * _a)
 	match_list_free(&(a->inclusions));
 	match_list_free(&(a->exclusions));
 	entry_list_free(&(a->exclusion_entry_list));
-	free(a->inclusion_uids.ids);
-	free(a->inclusion_gids.ids);
+	SAlloc::F(a->inclusion_uids.ids);
+	SAlloc::F(a->inclusion_gids.ids);
 	match_list_free(&(a->inclusion_unames));
 	match_list_free(&(a->inclusion_gnames));
-	free(a);
+	SAlloc::F(a);
 	return ARCHIVE_OK;
 }
 
@@ -435,7 +435,7 @@ int archive_match_path_unmatched_inclusions_next_w(struct archive * _a, const wc
 static int add_pattern_mbs(struct archive_match * a, struct match_list * list, const char * pattern)
 {
 	size_t len;
-	struct match * match = static_cast<struct match *>(calloc(1, sizeof(*match)));
+	struct match * match = static_cast<struct match *>(SAlloc::C(1, sizeof(*match)));
 	if(match == NULL)
 		return (error_nomem(a));
 	/* Both "foo/" and "foo" should match "foo/bar". */
@@ -451,7 +451,7 @@ static int add_pattern_mbs(struct archive_match * a, struct match_list * list, c
 static int add_pattern_wcs(struct archive_match * a, struct match_list * list, const wchar_t * pattern)
 {
 	size_t len;
-	struct match * match = static_cast<struct match *>(calloc(1, sizeof(*match)));
+	struct match * match = static_cast<struct match *>(SAlloc::C(1, sizeof(*match)));
 	if(match == NULL)
 		return (error_nomem(a));
 	/* Both "foo/" and "foo" should match "foo/bar". */
@@ -472,7 +472,7 @@ static int add_pattern_from_file(struct archive_match * a, struct match_list * m
 	struct archive_string as;
 	const void * buff;
 	size_t size;
-	int64_t offset;
+	int64 offset;
 	int r;
 
 	ar = archive_read_new();
@@ -720,7 +720,7 @@ static void match_list_free(struct match_list * list)
 		q = p;
 		p = p->next;
 		archive_mstring_clean(&(q->pattern));
-		free(q);
+		SAlloc::F(q);
 	}
 }
 
@@ -1130,13 +1130,11 @@ static int set_timefilter_pathname_wcs(struct archive_match * a, int timetype, c
 /*
  * Call back functions for archive_rb.
  */
-static int cmp_node_mbs(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int cmp_node_mbs(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	struct match_file * f1 = (struct match_file *)(uintptr_t)n1;
 	struct match_file * f2 = (struct match_file *)(uintptr_t)n2;
 	const char * p1, * p2;
-
 	archive_mstring_get_mbs(NULL, &(f1->pathname), &p1);
 	archive_mstring_get_mbs(NULL, &(f2->pathname), &p2);
 	if(p1 == NULL)
@@ -1194,7 +1192,7 @@ static void entry_list_free(struct entry_list * list)
 		q = p;
 		p = p->next;
 		archive_mstring_clean(&(q->pathname));
-		free(q);
+		SAlloc::F(q);
 	}
 }
 
@@ -1209,13 +1207,13 @@ static int add_entry(struct archive_match * a, int flag, struct archive_entry * 
 {
 	const void * pathname;
 	int r;
-	struct match_file * f = static_cast<struct match_file *>(calloc(1, sizeof(*f)));
+	struct match_file * f = static_cast<struct match_file *>(SAlloc::C(1, sizeof(*f)));
 	if(f == NULL)
 		return (error_nomem(a));
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	pathname = archive_entry_pathname_w(entry);
 	if(pathname == NULL) {
-		free(f);
+		SAlloc::F(f);
 		archive_set_error(&(a->archive), EINVAL, "pathname is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -1225,7 +1223,7 @@ static int add_entry(struct archive_match * a, int flag, struct archive_entry * 
 	(void)rb_ops_wcs;
 	pathname = archive_entry_pathname(entry);
 	if(pathname == NULL) {
-		free(f);
+		SAlloc::F(f);
 		archive_set_error(&(a->archive), EINVAL, "pathname is NULL");
 		return ARCHIVE_FAILED;
 	}
@@ -1261,7 +1259,7 @@ static int add_entry(struct archive_match * a, int flag, struct archive_entry * 
 		}
 		/* Release the duplicated file. */
 		archive_mstring_clean(&(f->pathname));
-		free(f);
+		SAlloc::F(f);
 		return ARCHIVE_OK;
 	}
 	entry_list_add(&(a->exclusion_entry_list), f);
@@ -1500,7 +1498,7 @@ int archive_match_owner_excluded(struct archive * _a, struct archive_entry * ent
 	return (owner_excluded(a, entry));
 }
 
-static int add_owner_id(struct archive_match * a, struct id_array * ids, int64_t id)
+static int add_owner_id(struct archive_match * a, struct id_array * ids, int64 id)
 {
 	unsigned i;
 
@@ -1511,10 +1509,10 @@ static int add_owner_id(struct archive_match * a, struct id_array * ids, int64_t
 			ids->size = 8;
 		else
 			ids->size *= 2;
-		p = realloc(ids->ids, sizeof(*ids->ids) * ids->size);
+		p = SAlloc::R(ids->ids, sizeof(*ids->ids) * ids->size);
 		if(!p)
 			return (error_nomem(a));
-		ids->ids = (int64_t*)p;
+		ids->ids = (int64*)p;
 	}
 
 	/* Find an insert point. */
@@ -1536,12 +1534,12 @@ static int add_owner_id(struct archive_match * a, struct id_array * ids, int64_t
 	return ARCHIVE_OK;
 }
 
-static int match_owner_id(struct id_array * ids, int64_t id)
+static int match_owner_id(struct id_array * ids, int64 id)
 {
 	unsigned b, m, t;
 
 	t = 0;
-	b = (unsigned)ids->count;
+	b = (uint)ids->count;
 	while(t < b) {
 		m = (t + b)>>1;
 		if(ids->ids[m] == id)
@@ -1556,7 +1554,7 @@ static int match_owner_id(struct id_array * ids, int64_t id)
 
 static int add_owner_name(struct archive_match * a, struct match_list * list, int mbs, const void * name)
 {
-	struct match * match = static_cast<struct match *>(calloc(1, sizeof(*match)));
+	struct match * match = static_cast<struct match *>(SAlloc::C(1, sizeof(*match)));
 	if(match == NULL)
 		return (error_nomem(a));
 	if(mbs)

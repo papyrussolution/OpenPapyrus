@@ -85,9 +85,9 @@
  *	cairo_mutex_impl_t _cairo_some_mutex;
  *
  *    if (1)
- *        CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
- *        CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  * </programlisting>
  *
  * - #define %CAIRO_MUTEX_IMPL_NIL_INITIALIZER to something that can
@@ -99,9 +99,9 @@
  *	cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
  *
  *    if (1)
- *        CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
- *        CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  * </programlisting>
  *
  * - If the above code is not enough to initialize a mutex on
@@ -115,9 +115,9 @@
  *    CAIRO_MUTEX_IMPL_INIT (_cairo_some_mutex);
  *
  *    if (1)
- *        CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
- *        CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  * </programlisting>
  *
  * - If you define CAIRO_MUTEX_IMPL_INIT(mutex), cairo will use it to

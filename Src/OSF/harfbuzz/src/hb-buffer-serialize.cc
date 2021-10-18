@@ -77,7 +77,7 @@ hb_buffer_serialize_format_t hb_buffer_serialize_format_from_string(const char *
  **/
 const char * hb_buffer_serialize_format_to_string(hb_buffer_serialize_format_t format)
 {
-	switch((unsigned)format) {
+	switch((uint)format) {
 		case HB_BUFFER_SERIALIZE_FORMAT_TEXT:       return serialize_formats[0];
 		case HB_BUFFER_SERIALIZE_FORMAT_JSON:       return serialize_formats[1];
 		default:
@@ -92,7 +92,7 @@ static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, unsig
 	hb_glyph_position_t * pos = (flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS) ? nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
 	*buf_consumed = 0;
 	hb_position_t x = 0, y = 0;
-	for(unsigned int i = start; i < end; i++) {
+	for(uint i = start; i < end; i++) {
 		char b[1024];
 		char * p = b;
 		/* In the following code, we know b is large enough that no overflow can happen. */
@@ -172,7 +172,7 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
 	    nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
 	*buf_consumed = 0;
 	hb_position_t x = 0, y = 0;
-	for(unsigned int i = start; i < end; i++) {
+	for(uint i = start; i < end; i++) {
 		char b[1024];
 		char * p = b;
 		/* In the following code, we know b is large enough that no overflow can happen. */
@@ -243,14 +243,14 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
  * @start: the first item in @buffer to serialize.
  * @end: the last item in @buffer to serialize.
  * @buf: (out) (array length=buf_size) (element-type uint8_t): output string to
- *       write serialized buffer into.
+ * write serialized buffer into.
  * @buf_size: the size of @buf.
  * @buf_consumed: (out) (allow-none): if not %NULL, will be set to the number of byes written into @buf.
  * @font: (allow-none): the #hb_font_t used to shape this buffer, needed to
- *        read glyph names and extents. If %NULL, and empty font will be used.
+ *  read glyph names and extents. If %NULL, and empty font will be used.
  * @format: the #hb_buffer_serialize_format_t to use for formatting the output.
  * @flags: the #hb_buffer_serialize_flags_t that control what glyph properties
- *         to serialize.
+ *   to serialize.
  *
  * Serializes @buffer into a textual representation of its glyph content,
  * useful for showing the contents of the buffer, for example during debugging.

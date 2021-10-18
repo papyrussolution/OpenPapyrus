@@ -233,7 +233,7 @@ int mariadb_dyncol_column_cmp_named(const LEX_STRING * s1, const LEX_STRING * s2
 	int rc = (s1->length > s2->length ? 1 :
 	    (s1->length < s2->length ? -1 : 0));
 	if(rc == 0)
-		rc = memcmp((void*)s1->str, (void*)s2->str,
+		rc = memcmp((void *)s1->str, (void *)s2->str,
 			(size_t)s1->length);
 	return rc;
 }
@@ -1539,7 +1539,7 @@ static enum enum_dyncol_func_result dynamic_new_column_store(DYNAMIC_COLUMN * st
 	enum enum_dyncol_func_result rc = ER_DYNCOL_RESOURCE;
 	size_t all_headers_size;
 
-	if(!(columns_order = (void **)SAlloc::M(sizeof(void*)*column_count)))
+	if(!(columns_order = (void **)SAlloc::M(sizeof(void *)*column_count)))
 		return ER_DYNCOL_RESOURCE;
 	if(new_str || str->str == 0) {
 		if(column_count) {
@@ -1570,8 +1570,8 @@ static enum enum_dyncol_func_result dynamic_new_column_store(DYNAMIC_COLUMN * st
 	for(i = 0, element = (uchar *)column_keys;
 	    i < column_count;
 	    i++, element += fmt->key_size_in_array)
-		columns_order[i] = (void*)element;
-	qsort(columns_order, (size_t)column_count, sizeof(void*), fmt->column_sort);
+		columns_order[i] = (void *)element;
+	qsort(columns_order, (size_t)column_count, sizeof(void *), fmt->column_sort);
 
 	/*
 	   For now we don't allow creating two columns with the same number
@@ -2792,7 +2792,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLU
 		/* new data adding */
 		if(i < add_column_count) {
 			if(plan[i].act == PLAN_ADD || plan[i].act == PLAN_REPLACE) {
-				data_store(str, plan[i].val, dyncol_fmt_num);/* Append new data */
+				data_store(str, plan[i].val, dyncol_fmt_num); /* Append new data */
 			}
 		}
 	}

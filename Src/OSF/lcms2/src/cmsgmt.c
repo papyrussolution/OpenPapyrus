@@ -201,7 +201,7 @@ typedef struct {
 #define ERR_THERESHOLD      5
 
 static
-int GamutSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+int GamutSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	GAMUTCHAIN*  t = (GAMUTCHAIN*)Cargo;
 	cmsCIELab LabIn1, LabOut1;
@@ -368,7 +368,7 @@ cmsPipeline* _cmsCreateGamutCheckPipeline(cmsContext ContextID,
 				Gamut = NULL;
 			}
 			else {
-				cmsStageSampleCLut16bit(CLUT, GamutSampler, (void*)&Chain, 0);
+				cmsStageSampleCLut16bit(CLUT, GamutSampler, (void *)&Chain, 0);
 			}
 		}
 	}

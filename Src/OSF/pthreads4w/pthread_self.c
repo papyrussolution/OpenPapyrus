@@ -34,7 +34,7 @@
  * DESCRIPTION
  *   This function returns a reference to the current running thread.
  * RESULTS
- *           pthread_t       reference to the current thread
+ *     pthread_t       reference to the current thread
  * ------------------------------------------------------
  */
 pthread_t pthread_self()
@@ -102,7 +102,7 @@ pthread_t pthread_self()
 				else fail =  __PTW32_TRUE;
 #endif
 				sp->sched_priority = GetThreadPriority(sp->threadH);
-				pthread_setspecific(__ptw32_selfThreadKey, (void*)sp);
+				pthread_setspecific(__ptw32_selfThreadKey, (void *)sp);
 			}
 		}
 		if(fail) {

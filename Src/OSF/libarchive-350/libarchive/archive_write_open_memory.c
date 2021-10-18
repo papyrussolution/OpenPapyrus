@@ -32,7 +32,7 @@ struct write_memory_data {
 	size_t used;
 	size_t size;
 	size_t * client_size;
-	unsigned char * buff;
+	uchar * buff;
 };
 
 static int      memory_write_free(struct archive *, void *);
@@ -46,7 +46,7 @@ static ssize_t  memory_write(struct archive *, void *, const void * buff, size_t
  */
 int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, size_t * used)
 {
-	struct write_memory_data * mine = (struct write_memory_data *)calloc(1, sizeof(*mine));
+	struct write_memory_data * mine = (struct write_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -95,6 +95,6 @@ static int memory_write_free(struct archive * a, void * client_data)
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine == NULL)
 		return ARCHIVE_OK;
-	free(mine);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

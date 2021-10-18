@@ -34,9 +34,9 @@ FT_BEGIN_HEADER
 #undef  FT_SET_ERROR
 #define FT_SET_ERROR(expression) ((error = (expression)) != 0)
 
-/*************************************************************************/
+// 
 /****                           M E M O R Y                           ****/
-/*************************************************************************/
+// 
 
 /* The calculation `NULL + n' is undefined in C.  Even if the resulting */
 /* pointer doesn't get dereferenced, this causes warnings with          */
@@ -46,7 +46,7 @@ FT_BEGIN_HEADER
 #define FT_OFFSET(base, count)  ( (base) ? (base) + (count) : NULL )
 
 /*
- * C++ refuses to handle statements like p = (void*)anything, with `p' a
+ * C++ refuses to handle statements like p = (void *)anything, with `p' a
  * typed pointer.  Since we don't have a `typeof' operator in standard C++,
  * we have to use a template to emulate it.
  */
@@ -85,9 +85,9 @@ FT_BASE(long)         _ft_debug_lineno;
 
 FT_BASE(FT_Pointer) ft_mem_alloc(FT_Memory memory, FT_Long size, FT_Error  *p_error);
 FT_BASE(FT_Pointer) ft_mem_qalloc(FT_Memory memory, FT_Long size, FT_Error  *p_error);
-FT_BASE(FT_Pointer) ft_mem_realloc(FT_Memory memory, FT_Long item_size, FT_Long cur_count, FT_Long new_count, void*      block, FT_Error  *p_error);
-FT_BASE(FT_Pointer) ft_mem_qrealloc(FT_Memory memory, FT_Long item_size, FT_Long cur_count, FT_Long new_count, void*      block, FT_Error  *p_error);
-FT_BASE(void) ft_mem_free(FT_Memory memory, const void*  P);
+FT_BASE(FT_Pointer) ft_mem_realloc(FT_Memory memory, FT_Long item_size, FT_Long cur_count, FT_Long new_count, void *  block, FT_Error  *p_error);
+FT_BASE(FT_Pointer) ft_mem_qrealloc(FT_Memory memory, FT_Long item_size, FT_Long cur_count, FT_Long new_count, void *  block, FT_Error  *p_error);
+FT_BASE(void) ft_mem_free(FT_Memory memory, const void *  P);
 
 /* The `Q' variants of the macros below (`Q' for `quick') don't fill */
 /* the allocated or reallocated memory with zero bytes.              */
@@ -229,7 +229,7 @@ FT_BASE(void) ft_mem_free(FT_Memory memory, const void*  P);
 #define FT_QRENEW_ARRAY(ptr, curcnt, newcnt) FT_MEM_SET_ERROR(FT_MEM_RENEW_ARRAY(ptr, curcnt, newcnt) )
 
 FT_BASE(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char*  str, FT_Error    *p_error);
-FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void*  address, FT_ULong size, FT_Error    *p_error);
+FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void *  address, FT_ULong size, FT_Error    *p_error);
 
 #define FT_MEM_STRDUP(dst, str) (dst) = (char *)ft_mem_strdup(memory, (const char *)(str), &error)
 #define FT_STRDUP(dst, str) FT_MEM_SET_ERROR(FT_MEM_STRDUP(dst, str) )

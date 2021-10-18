@@ -44,10 +44,10 @@
  *      - reimplement wmh (if it's available)
  *      - implement window title using wmh (if it's available)
  *      - check for availability of two frames, and if not
- *        do it with one frame. (will eventually not do
- *        with mouse/event reporting)
+ *  do it with one frame. (will eventually not do
+ *  with mouse/event reporting)
  *      - check if libxmi is available and if so, use
- *        it to draw filled polygons.
+ *  it to draw filled polygons.
  *      - enable cursors using blits.
  */
 
@@ -512,10 +512,10 @@ TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pGp->Pgm.Shift();
 	}
 	if(*GGI_mode_spec) {
-		sprintf(GPT.TermOptions, "mode %s acceleration %d", GGI_mode_spec, GGI_acceleration);
+		slprintf(GPT._TermOptions, "mode %s acceleration %d", GGI_mode_spec, GGI_acceleration);
 	}
 	else {
-		sprintf(GPT.TermOptions, "acceleration %d", GGI_acceleration);
+		slprintf(GPT._TermOptions, "acceleration %d", GGI_acceleration);
 	}
 }
 
@@ -1133,8 +1133,8 @@ TERM_PUBLIC int GGI_waitforinput(GpTermEntry * pThis, int options)
 	char c;
 
 	/* XXX:  if the input device it not a tty (e.g. /dev/null)
-	 *       mouse events are not processed. This is necessary
-	 *       as on some systems /dev/null is not selectable.
+	 * mouse events are not processed. This is necessary
+	 * as on some systems /dev/null is not selectable.
 	 */
 	/* FIXME: Not implemented yet */
 	if(options == TERM_ONLY_CHECK_MOUSING) 

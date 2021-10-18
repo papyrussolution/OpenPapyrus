@@ -84,7 +84,7 @@ static struct Curl_hash_element * mk_hash_element(const void * key, size_t key_l
 		/* copy the key */
 		memcpy(he->key, key, key_len);
 		he->key_len = key_len;
-		he->ptr = (void*)p;
+		he->ptr = (void *)p;
 	}
 	return he;
 }
@@ -107,7 +107,7 @@ void * Curl_hash_add(struct Curl_hash * h, void * key, size_t key_len, void * p)
 	for(le = l->head; le; le = le->next) {
 		he = (struct Curl_hash_element *)le->ptr;
 		if(h->comp_func(he->key, he->key_len, key, key_len)) {
-			Curl_llist_remove(l, le, (void*)h);
+			Curl_llist_remove(l, le, (void *)h);
 			--h->size;
 			break;
 		}
@@ -136,7 +136,7 @@ int Curl_hash_delete(struct Curl_hash * h, void * key, size_t key_len)
 	for(le = l->head; le; le = le->next) {
 		struct Curl_hash_element * he = (struct Curl_hash_element *)le->ptr;
 		if(h->comp_func(he->key, he->key_len, key, key_len)) {
-			Curl_llist_remove(l, le, (void*)h);
+			Curl_llist_remove(l, le, (void *)h);
 			--h->size;
 			return 0;
 		}
@@ -197,7 +197,7 @@ void Curl_hash_destroy(struct Curl_hash * h)
 	int i;
 
 	for(i = 0; i < h->slots; ++i) {
-		Curl_llist_destroy(&h->table[i], (void*)h);
+		Curl_llist_destroy(&h->table[i], (void *)h);
 	}
 
 	Curl_safefree(h->table);
@@ -234,7 +234,7 @@ void Curl_hash_clean_with_criterium(struct Curl_hash * h, void * user,
 			lnext = le->next;
 			/* ask the callback function if we shall remove this entry or not */
 			if(comp == NULL || comp(user, he->ptr)) {
-				Curl_llist_remove(list, le, (void*)h);
+				Curl_llist_remove(list, le, (void *)h);
 				--h->size; /* one less entry in the hash now */
 			}
 			le = lnext;
@@ -328,7 +328,7 @@ void Curl_hash_print(struct Curl_hash * h,
 		if(func)
 			func(he->ptr);
 		else
-			slfprintf_stderr(" [%p]", (void*)he->ptr);
+			slfprintf_stderr(" [%p]", (void *)he->ptr);
 
 		he = Curl_hash_next_element(&iter);
 	}

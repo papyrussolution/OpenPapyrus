@@ -44,7 +44,7 @@ namespace OT {
 		hb_blob_t * reference_blob(hb_blob_t * svg_blob, unsigned int index_offset) const
 		{
 			return hb_blob_create_sub_blob(svg_blob,
-				   index_offset + (unsigned int)svgDoc,
+				   index_offset + (uint)svgDoc,
 				   svgDocLength);
 		}
 

@@ -230,7 +230,7 @@
 // #undef SIZEOF_LONG_LONG // The size of a `long long', as computed by sizeof.
 // #undef SIZEOF_SHORT // The size of a `short', as computed by sizeof.
 // #undef SIZEOF_SIZE_T // The size of a `size_t', as computed by sizeof.
-// #undef SIZEOF_UNSIGNED_CHAR // The size of a `unsigned char', as computed by sizeof.
+// #undef SIZEOF_UNSIGNED_CHAR // The size of a `uchar', as computed by sizeof.
 // #undef SIZEOF_UNSIGNED_INT // The size of a `unsigned int', as computed by sizeof.
 // #undef SIZEOF_UNSIGNED_LONG // The size of a `ulong', as computed by sizeof.
 // #undef SIZEOF_UNSIGNED_LONG_LONG // The size of a `ulong long', as computed by sizeof.

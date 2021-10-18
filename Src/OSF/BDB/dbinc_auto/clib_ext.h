@@ -80,10 +80,10 @@ extern "C" {
 	char *sstrchr(const char *,  int);
 #endif
 #ifndef HAVE_STRDUP
-	char *strdup(const char *);
+	char * strdup(const char *);
 #endif
 #ifndef HAVE_STRERROR
-	char *strerror(int);
+	char * strerror(int);
 #endif
 #ifndef HAVE_STRNCAT
 	char *strncat(char *, const char *, size_t);

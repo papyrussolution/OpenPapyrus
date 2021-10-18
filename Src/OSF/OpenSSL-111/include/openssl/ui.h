@@ -140,12 +140,12 @@ int UI_dup_error_string(UI *ui, const char *text);
  * If the ui_method doesn't contain a pointer to a user-defined prompt
  * constructor, a default string is built, looking like this:
  *
- *       "Enter {object_desc} for {object_name}:"
+ * "Enter {object_desc} for {object_name}:"
  *
  * So, if object_desc has the value "pass phrase" and object_name has
  * the value "foo.key", the resulting string is:
  *
- *       "Enter pass phrase for foo.key:"
+ * "Enter pass phrase for foo.key:"
 */
 char *UI_construct_prompt(UI *ui_method,
                           const char *object_desc, const char *object_name);

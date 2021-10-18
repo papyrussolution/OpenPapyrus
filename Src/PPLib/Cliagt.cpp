@@ -8,20 +8,25 @@
 
 PPClientAgreement::PPClientAgreement()
 {
-	Init();
+	Z();
 }
 
-PPClientAgreement::PPClientAgreement(const PPClientAgreement & rSrc)
+PPClientAgreement::PPClientAgreement(const PPClientAgreement & rS)
 {
-	Init();
-	memcpy(this, &rSrc, offsetof(PPClientAgreement, DebtLimList));
-	DebtLimList = rSrc.DebtLimList;
+	Z();
+	memcpy(this, &rS, offsetof(PPClientAgreement, DebtLimList));
+	DebtLimList = rS.DebtLimList;
+	Code_ = rS.Code_; // @v11.2.0
+	Bmpp = rS.Bmpp; // @v11.2.0
 }
 
-void PPClientAgreement::Init()
+PPClientAgreement & PPClientAgreement::Z()
 {
 	memzero(this, offsetof(PPClientAgreement, DebtLimList));
-	DebtLimList.freeAll();
+	DebtLimList.clear(); // @v11.2.0 freeAll()-->clear()
+	Code_.Z(); // @v11.2.0
+	Bmpp.Z(); // @v11.2.0
+	return *this;
 }
 
 int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
@@ -44,8 +49,10 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	CMP_FLD(RetLimPart);
 	CMP_FLD(PaymDateBase);
 	CMP_FLD(EdiPrvID); // @v10.0.0
+	CMP_FLD(Code_); // @v11.2.0
 #undef CMP_FLD
-	if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
+	// @v11.2.0 (see above) if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
+	if(!Bmpp.IsEqual(rS.Bmpp))
 		return 0;
 	else {
 		const uint _c1 = DebtLimList.getCount();
@@ -64,18 +71,20 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	return 1;
 }
 
-int PPClientAgreement::IsEmpty() const
+bool PPClientAgreement::IsEmpty() const
 {
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
-		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || EdiPrvID || sstrlen(Code2) > 0 || DebtLimList.getCount() ||
-		(RetLimPrd && RetLimPart)) ? 0 : 1; // @v10.2.9 Code-->Code2
+		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || EdiPrvID || /*sstrlen(Code2) > 0*/Code_.Len() || DebtLimList.getCount() ||
+		(RetLimPrd && RetLimPart) || !Bmpp.IsEmpty()) ? 0 : 1; // @v10.2.9 Code-->Code2
 }
 
-PPClientAgreement & FASTCALL PPClientAgreement::operator = (const PPClientAgreement & rSrc)
+PPClientAgreement & FASTCALL PPClientAgreement::operator = (const PPClientAgreement & rS)
 {
-	memcpy(this, &rSrc, offsetof(PPClientAgreement, DebtLimList));
-	DebtLimList = rSrc.DebtLimList;
+	memcpy(this, &rS, offsetof(PPClientAgreement, DebtLimList));
+	DebtLimList = rS.DebtLimList;
+	Code_ = rS.Code_; // @v11.2.0
+	Bmpp = rS.Bmpp; // @v11.2.0
 	return *this;
 }
 
@@ -96,6 +105,8 @@ int PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 		if(ind == 0) {
 			THROW_SL(pCtx->SerializeBlock(dir, offsetof(PPClientAgreement, DebtLimList), this, rBuf, 0));
 			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
+			THROW_SL(pCtx->Serialize(dir, Code_, rBuf)); // @v11.2.0
+			THROW(Bmpp.Serialize(dir, rBuf, pCtx)); // @v11.2.0
 		}
 	}
 	else if(dir < 0) {
@@ -103,10 +114,11 @@ int PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 		if(ind == 0) {
 			THROW_SL(pCtx->SerializeBlock(dir, offsetof(PPClientAgreement, DebtLimList), this, rBuf, 0));
 			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
+			THROW_SL(pCtx->Serialize(dir, Code_, rBuf)); // @v11.2.0
+			THROW(Bmpp.Serialize(dir, rBuf, pCtx)); // @v11.2.0
 		}
-		else {
-			Init();
-		}
+		else
+			Z();
 	}
 	CATCHZOK
 	return ok;
@@ -146,7 +158,7 @@ PPClientAgreement::DebtLimit * FASTCALL PPClientAgreement::GetDebtDimEntry(PPID 
 struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIXSIZE}
 	long   Tag;            // Const=PPOBJ_ARTICLE
 	long   ArtID;          // ->Article.ID
-	long   PropID;         // Const=ARTPRP_CLIAGT
+	long   PropID;         // Const=ARTPRP_CLIAGT2 // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
 	long   Flags;          //
 	LDATE  BegDt;          //
 	LDATE  Expiry;         //
@@ -169,10 +181,11 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	char   Code2[24];      // @v10.2.9 Вместо Code[12]
 };
 
+#if 0 // @v11.2.0 {
 /*static*/int FASTCALL PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList /*=0*/)
 {
 	int    ok = 1;
-	const _PPClientAgt * p_agt = (const _PPClientAgt *)pPropRec;
+	const _PPClientAgt * p_agt = reinterpret_cast<const _PPClientAgt *>(pPropRec);
 	pAgt->ClientID  = p_agt->ArtID;
 	pAgt->Flags     = (p_agt->Flags | AGTF_LOADED);
 	pAgt->BegDt     = p_agt->BegDt;
@@ -186,17 +199,23 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	pAgt->ExtObjectID   = p_agt->ExtObjectID;
 	// @v10.2.9 STRNSCPY(pAgt->Code, p_agt->Code);
 	// @v10.2.9 {
-	if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
+	/* @v11.2.0 if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
 		STRNSCPY(pAgt->Code2, p_agt->Code__);
 	else
-		STRNSCPY(pAgt->Code2, p_agt->Code2);
+		STRNSCPY(pAgt->Code2, p_agt->Code2);*/
 	// } @v10.2.9
+	// @v11.2.0 {
+	if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
+		pAgt->Code_ = reinterpret_cast<const char *>(p_agt->Code__);
+	else
+		pAgt->Code_ = p_agt->Code2;
+	// } @v11.2.0 
 	pAgt->LockPrcBefore  = p_agt->LockPrcBefore;
 	pAgt->PriceRoundDir  = p_agt->PriceRoundDir;
 	pAgt->PriceRoundPrec = p_agt->PriceRoundPrec;
 	pAgt->RetLimPrd  = p_agt->RetLimPrd;
 	pAgt->RetLimPart = p_agt->RetLimPart;
-	pAgt->PaymDateBase = p_agt->PaymDateBase; // @v8.4.2
+	pAgt->PaymDateBase = p_agt->PaymDateBase;
 	pAgt->EdiPrvID = p_agt->EdiPrvID; // @v10.0.0
 	if(loadDebtLimList) {
 		Reference * p_ref = PPRef;
@@ -204,11 +223,11 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 			p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST2, &pAgt->DebtLimList);
 		}
 		else {
-			SVector temp_list(sizeof(DebtLimit_Before715)); // @v9.9.5 SArray-->SVector
+			SVector temp_list(sizeof(DebtLimit_Before715));
 			p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST, &temp_list);
 			pAgt->DebtLimList.clear();
 			for(uint i = 0; i < temp_list.getCount(); i++) {
-				DebtLimit_Before715 & r_item = *(DebtLimit_Before715 *)temp_list.at(i);
+				const DebtLimit_Before715 & r_item = *static_cast<const DebtLimit_Before715 *>(temp_list.at(i));
 				PPClientAgreement::DebtLimit dd_item;
 				dd_item.DebtDimID = r_item.DebtDimID;
 				dd_item.Limit = r_item.Limit;
@@ -221,27 +240,253 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.2.0
+
+/*static*/int PPObjArticle::ConvertClientAgreements_11200(Reference * pRef, int use_ta)
+{
+	struct PPClientAgreement_Before11200 { // @persistent
+		struct DebtLimit { // @flat
+			enum {
+				fStop = 0x00000001L
+			};
+			PPID   DebtDimID;
+			double Limit;
+			long   Flags;
+			LDATE  LockPrcBefore;
+		};
+		PPID   ClientID;
+		long   Flags;
+		LDATE  BegDt;
+		LDATE  Expiry;
+		double MaxCredit;
+		double MaxDscnt;
+		double Dscnt;
+		int16  DefPayPeriod;
+		int16  PriceRoundDir;
+		PPID   DefAgentID;
+		PPID   DefQuotKindID;
+		PPID   ExtObjectID;
+		LDATE  LockPrcBefore;
+		uint8  Reserve2[12];
+		float  PriceRoundPrec;
+		int16  RetLimPrd;
+		uint16 RetLimPart;
+		long   PaymDateBase;
+		PPID   EdiPrvID;
+		char   Code2[24];
+		TSVector <PPClientAgreement_Before11200::DebtLimit> DebtLimList; // @anchor 
+	};
+	class InnerBlock {
+	public:
+		static int FASTCALL PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement_Before11200 * pAgt, int loadDebtLimList)
+		{
+			int    ok = 1;
+			const _PPClientAgt * p_agt = reinterpret_cast<const _PPClientAgt *>(pPropRec);
+			pAgt->ClientID  = p_agt->ArtID;
+			pAgt->Flags     = (p_agt->Flags | AGTF_LOADED);
+			pAgt->BegDt     = p_agt->BegDt;
+			pAgt->Expiry    = p_agt->Expiry;
+			pAgt->MaxCredit = p_agt->MaxCredit;
+			pAgt->MaxDscnt  = p_agt->MaxDscnt;
+			pAgt->Dscnt     = p_agt->Dscnt;
+			pAgt->DefPayPeriod  = p_agt->DefPayPeriod;
+			pAgt->DefAgentID    = p_agt->DefAgentID;
+			pAgt->DefQuotKindID = p_agt->DefQuotKindID;
+			pAgt->ExtObjectID   = p_agt->ExtObjectID;
+			// @v10.2.9 STRNSCPY(pAgt->Code, p_agt->Code);
+			// @v10.2.9 {
+			if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
+				STRNSCPY(pAgt->Code2, p_agt->Code__);
+			else
+				STRNSCPY(pAgt->Code2, p_agt->Code2);
+			// } @v10.2.9
+			pAgt->LockPrcBefore  = p_agt->LockPrcBefore;
+			pAgt->PriceRoundDir  = p_agt->PriceRoundDir;
+			pAgt->PriceRoundPrec = p_agt->PriceRoundPrec;
+			pAgt->RetLimPrd  = p_agt->RetLimPrd;
+			pAgt->RetLimPart = p_agt->RetLimPart;
+			pAgt->PaymDateBase = p_agt->PaymDateBase;
+			pAgt->EdiPrvID = p_agt->EdiPrvID; // @v10.0.0
+			if(loadDebtLimList) {
+				Reference * p_ref = PPRef;
+				if(pAgt->Flags & AGTF_DDLIST715) {
+					p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST2, &pAgt->DebtLimList);
+				}
+				else {
+					SVector temp_list(sizeof(DebtLimit_Before715));
+					p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST, &temp_list);
+					pAgt->DebtLimList.clear();
+					for(uint i = 0; i < temp_list.getCount(); i++) {
+						const DebtLimit_Before715 & r_item = *static_cast<const DebtLimit_Before715 *>(temp_list.at(i));
+						PPClientAgreement::DebtLimit dd_item;
+						dd_item.DebtDimID = r_item.DebtDimID;
+						dd_item.Limit = r_item.Limit;
+						dd_item.Flags = r_item.Flags;
+						dd_item.LockPrcBefore = ZERODATE;
+						THROW_SL(pAgt->DebtLimList.insert(&dd_item));
+					}
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+	};
+	int    ok = 1;
+	Reference * p_ref = pRef;
+	assert(p_ref);
+	if(p_ref) {
+		PropertyTbl & r_pt = p_ref->Prop;
+		PPIDArray id_list;
+		PropertyTbl::Key1 k1;
+		MEMSZERO(k1);
+		k1.ObjType = PPOBJ_ARTICLE;
+		k1.Prop = ARTPRP_CLIAGT;
+		if(r_pt.search(1, &k1, spGe) && r_pt.data.ObjType == PPOBJ_ARTICLE && r_pt.data.Prop == ARTPRP_CLIAGT) do {
+			id_list.add(r_pt.data.ObjID);
+		} while(r_pt.search(1, &k1, spNext) && r_pt.data.ObjType == PPOBJ_ARTICLE && r_pt.data.Prop == ARTPRP_CLIAGT);
+		if(id_list.getCount()) {
+			id_list.sortAndUndup();
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			for(uint i = 0; i < id_list.getCount(); i++) {
+				PPID  _id = id_list.get(i);
+				PropertyTbl::Rec prop_rec;
+				if(p_ref->GetProperty(PPOBJ_ARTICLE, _id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)) > 0) {
+					PPClientAgreement_Before11200 old_agt;
+					InnerBlock::PropToClientAgt(&prop_rec, &old_agt, 1);
+					PPClientAgreement new_agt;
+					{
+						#define CF(f) new_agt.f = old_agt.f
+						CF(ClientID);
+						CF(Flags);
+						CF(BegDt);
+						CF(Expiry);
+						CF(MaxCredit);
+						CF(MaxDscnt);
+						CF(Dscnt);
+						CF(DefPayPeriod);
+						CF(PriceRoundDir);
+						CF(DefAgentID);
+						CF(DefQuotKindID);
+						CF(ExtObjectID);
+						CF(LockPrcBefore);
+						CF(PriceRoundPrec);
+						CF(RetLimPrd);
+						CF(RetLimPart);
+						CF(PaymDateBase);
+						CF(EdiPrvID);
+						new_agt.DebtLimList.copy(old_agt.DebtLimList);
+						new_agt.Code_ = old_agt.Code2;
+					}
+					THROW(PutClientAgreement(_id, &new_agt, 0));
+					// (на всякий случай не станем удалять старую запись - вдруг что-то пойдет не так) THROW(p_ref->RemoveProperty(PPOBJ_ARTICLE, _id, ARTPRP_CLIAGT, 0));
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	else
+		ok = 0;
+	CATCHZOK
+	return ok;
+}
 
 int PPObjArticle::HasClientAgreement(PPID id)
 {
 	int    yes = 0;
 	if(id > 0) {
-		PropertyTbl::Rec prop_rec;
-		PPClientAgreement agt;
-		// @v10.6.4 MEMSZERO(prop_rec);
-		if(PPRef->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)) > 0) {
-			agt.Init();
-			PropToClientAgt(&prop_rec, &agt, 0);
-			agt.ClientID = id;
-			yes = BIN(!agt.IsEmpty());
+		Reference * p_ref = PPRef;
+		SBuffer sbuf;
+		if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, sbuf) > 0) {
+			SSerializeContext sctx;
+			PPClientAgreement agt;
+			if(agt.Serialize(-1, sbuf, &sctx)) {
+				agt.ClientID = id;
+				yes = BIN(!agt.IsEmpty());
+			}
 		}
 	}
 	return yes;
 }
 
+int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_default)
+{
+	int    ok = 1;
+	int    r;
+	int    is_default = 0;
+	int    r2 = 0;
+	Reference * p_ref = PPRef;
+	//PropertyTbl::Rec prop_rec, def_prop_rec;
+	PPClientAgreement _agt;
+	PPClientAgreement def_agt;
+	PPPersonRelTypePacket rt_pack;
+	PPIDArray rel_list;
+	// @v10.6.4 MEMSZERO(prop_rec);
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	SBuffer sbuf_def; // буфер для соглашения по умолчанию
+	THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, sbuf));
+	if(r < 0 && id) {
+		PPID   mainorg_id = 0;
+		PPID   mainorg_arid = 0;
+		GetMainOrgID(&mainorg_id);
+		P_Tbl->PersonToArticle(mainorg_id, GetSellAccSheet(), &mainorg_arid);
+		if(id != mainorg_arid && ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) {
+			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0 && rel_list.getCount() && rel_list.lsearch(mainorg_arid) > 0) {
+				THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, mainorg_arid, ARTPRP_CLIAGT2, sbuf));
+			}
+		}
+	}
+	if(r < 0 && id) {
+		if(ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhAgreements)) {
+			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
+				for(uint i = 0; r < 0 && i < rel_list.getCount(); i++) {
+					PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
+					THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, rel_ar_id, ARTPRP_CLIAGT2, sbuf));
+				}
+			}
+		}
+	}
+	if(use_default) {
+		THROW(r2 = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, 0, ARTPRP_CLIAGT2, sbuf_def));
+		if(r2 > 0) {
+			THROW(def_agt.Serialize(-1, sbuf_def, &sctx));
+		}
+		if(r < 0 && id) {
+			ok = 2;
+			if(r2 > 0) {
+				is_default = 1;
+				sbuf = sbuf_def;
+				r = 1;
+			}
+		}
+	}
+	if(r > 0) {
+		THROW(rAgt.Serialize(-1, sbuf, &sctx));
+		rAgt.ClientID = id;
+		if(is_default)
+			rAgt.Flags |= AGTF_DEFAULT;
+		else if(r2 > 0) {
+			if(rAgt.RetLimPrd == 0 && rAgt.RetLimPart == 0) {
+				rAgt.RetLimPrd = def_agt.RetLimPrd;
+				rAgt.RetLimPart = def_agt.RetLimPart;
+			}
+		}
+	}
+	else {
+		rAgt.Flags |= AGTF_LOADED;
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // @v11.2.0 {
 int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_default)
 {
-	int    ok = 1, r, is_default = 0;
+	int    ok = 1;
+	int    r;
+	int    is_default = 0;
 	int    r2 = 0;
 	Reference * p_ref = PPRef;
 	PropertyTbl::Rec prop_rec, def_prop_rec;
@@ -286,7 +531,7 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 		}
 	}
 	if(r > 0) {
-		pAgt->Init();
+		pAgt->Z();
 		PropToClientAgt(&prop_rec, pAgt, 1);
 		pAgt->ClientID = id;
 		if(is_default)
@@ -305,7 +550,26 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.2.0
 
+/*static*/int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_ta)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	if(pAgt && !pAgt->IsEmpty()) {
+		SSerializeContext sctx;
+		SBuffer sbuf;
+		THROW(pAgt->Serialize(+1, sbuf, &sctx));
+		THROW(p_ref->PutPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, sbuf, use_ta));
+	}
+	else {
+		THROW(p_ref->PutProp(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, 0, 0, use_ta));
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // @v11.2.0 {
 int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_ta)
 {
 	int    ok = 1;
@@ -351,6 +615,7 @@ int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.2.0
 //
 //
 //
@@ -616,7 +881,8 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			}
 			else
 				enableCommand(cmBills, 0);
-			setCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			// @v11.2.0 setCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			setCtrlString(CTL_CLIAGT_CODE, data.Code_); // @v11.2.0
 			setCtrlDate(CTL_CLIAGT_DATE,      data.BegDt);
 			setCtrlDate(CTL_CLIAGT_EXPIRY,    data.Expiry);
 			setCtrlDate(CTL_CLIAGT_LOCKPRCBEFORE, data.LockPrcBefore);
@@ -629,10 +895,9 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, data.DefQuotKindID, 0, 0);
 			if(data.ClientID) {
 				PPClientAgreement agt;
-				const PPID acs_id = (ArObj.GetClientAgreement(0, &agt) > 0) ? agt.ExtObjectID : 0;
+				const PPID acs_id = (ArObj.GetClientAgreement(0, agt) > 0) ? agt.ExtObjectID : 0;
 				SString  ext_obj;
-				// @v9.1.4 PPGetWord(PPWORD_EXTOBJECT, 0, ext_obj);
-				PPLoadString("bill_object2", ext_obj); // @v9.1.4
+				PPLoadString("bill_object2", ext_obj);
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
 				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
@@ -667,8 +932,10 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 		}
 		int    getDTS(PPClientAgreement * pAgt)
 		{
-			int    ok = 1, sel = 0;
-			getCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			int    ok = 1;
+			int    sel = 0;
+			// @v11.2.0 getCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			getCtrlString(CTL_CLIAGT_CODE, data.Code_); // @v11.2.0
 			getCtrlData(sel = CTL_CLIAGT_DATE,      &data.BegDt);
 			THROW_SL(checkdate(data.BegDt, 1));
 			getCtrlData(sel = CTL_CLIAGT_EXPIRY,    &data.Expiry);
@@ -707,6 +974,9 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				editRoundingParam();
 			else if(event.isCmd(cmDebtLimList))
 				EditDebtLimList(data);
+			else if(event.isCmd(cmMultiPrintParam)) { // @v11.2.0
+				BillMultiPrintParam::EditDialog(0, &data.Bmpp);
+			}
 			else
 				return;
 			clearEvent(event);
@@ -778,7 +1048,7 @@ int PPObjArticle::EditAgreement(PPID arID)
 		THROW(agt_kind = GetAgreementKind(&ar_rec));
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt_rec;
-			THROW(r = GetClientAgreement(ar_rec.ID, &cli_agt_rec));
+			THROW(r = GetClientAgreement(ar_rec.ID, cli_agt_rec));
 			cli_agt_rec.ClientID = ar_rec.ID;
 			if(EditClientAgreement(&cli_agt_rec) > 0) {
 				THROW(PutClientAgreement(ar_rec.ID, &cli_agt_rec, 1));
@@ -806,7 +1076,7 @@ int PPObjArticle::EditAgreement(PPID arID)
 	PPClientAgreement agt;
 	THROW(CheckCfgRights(PPCFGOBJ_CLIENTDEAL, PPR_MOD, 0));
 	THROW(arobj.CheckRights(ARTRT_CLIAGT));
-	THROW(arobj.GetClientAgreement(0, &agt));
+	THROW(arobj.GetClientAgreement(0, agt));
 	if(arobj.EditClientAgreement(&agt) > 0)
 		THROW(arobj.PutClientAgreement(0, &agt, 1));
 	CATCHZOKPPERR
@@ -1114,16 +1384,9 @@ PPSupplAgreement & PPSupplAgreement::Z()
 	return *this;
 }
 
-int PPSupplAgreement::IsEmpty() const
+bool PPSupplAgreement::IsEmpty() const
 {
-	if(Flags || BegDt || Expiry || DefPayPeriod || DefAgentID || DefDlvrTerm || PctRet)
-		return 0;
-	else if(!Ep.IsEmpty())
-		return 0;
-	else if(OrderParamList.getCount())
-		return 0;
-	else
-		return 1;
+	return (!Flags && !BegDt && !Expiry && !DefPayPeriod && !DefAgentID && !DefDlvrTerm & !PctRet && Ep.IsEmpty() && !OrderParamList.getCount());
 }
 
 void FASTCALL PPSupplAgreement::RestoreAutoOrderParams(const PPSupplAgreement & rS)
@@ -2035,7 +2298,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 			if(acc_sheet_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0) {
 				PPClientAgreement  cli_agt;
 				PPSupplAgreement   suppl_agt;
-				if((acs_rec.Flags & ACSHF_USECLIAGT) && p_ar_obj->GetClientAgreement(H.ID, &cli_agt, 0) > 0) {
+				if((acs_rec.Flags & ACSHF_USECLIAGT) && p_ar_obj->GetClientAgreement(H.ID, cli_agt, 0) > 0) {
 					H.AgentID      = cli_agt.DefAgentID;
 					H.ExtObjectID  = cli_agt.ExtObjectID;
 					H.QKindID      = cli_agt.DefQuotKindID;
@@ -2045,7 +2308,8 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 					H.MaxDscnt     = cli_agt.MaxDscnt;
 					H.Dscnt        = cli_agt.Dscnt;
 					H.DefPayPeriod = cli_agt.DefPayPeriod;
-					STRNSCPY(H.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+					// @v11.2.0 STRNSCPY(H.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+					STRNSCPY(H.Code, cli_agt.Code_); // @v11.2.0
 				}
 				else if((acs_rec.Flags & ACSHF_USESUPPLAGT) && p_ar_obj->GetSupplAgreement(H.ID, &suppl_agt, 0) > 0) {
 					H.AgentID      = suppl_agt.DefAgentID;

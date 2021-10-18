@@ -68,10 +68,10 @@ struct archive_read_disk {
 	/* Bitfield with ARCHIVE_READDISK_* tunables */
 	int	flags;
 
-	const char * (*lookup_gname)(void * pPrivate, int64_t gid);
+	const char * (*lookup_gname)(void * pPrivate, int64 gid);
 	void	(*cleanup_gname)(void *pPrivate);
 	void	 *lookup_gname_data;
-	const char * (*lookup_uname)(void *pPrivate, int64_t uid);
+	const char * (*lookup_uname)(void *pPrivate, int64 uid);
 	void	(*cleanup_uname)(void *pPrivate);
 	void	 *lookup_uname_data;
 	int	(*metadata_filter_func)(struct archive *, void *, struct archive_entry *);

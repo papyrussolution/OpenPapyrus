@@ -39,10 +39,10 @@ struct cff2_extents_param_t {
 		max_x.set_int(INT_MIN);
 		max_y.set_int(INT_MIN);
 	}
-	void   start_path()       {
+	void   start_path() {
 		path_open = true;
 	}
-	void     end_path()       {
+	void     end_path() {
 		path_open = false;
 	}
 	bool is_path_open() const {

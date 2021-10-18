@@ -163,7 +163,7 @@ struct __ptw32_thread_t_ {
 	void * keys;
 	void * nextAssoc;
 #if defined(__PTW32_CLEANUP_C)
-	jmp_buf start_mark;     /* Jump buffer follows void* so should be aligned */
+	jmp_buf start_mark;     /* Jump buffer follows void * so should be aligned */
 #endif                          /* __PTW32_CLEANUP_C */
 #if defined(HAVE_SIGSET_T)
 	sigset_t sigmask;
@@ -223,7 +223,7 @@ struct sem_t_ {
 #endif
 };
 
-#define  __PTW32_OBJECT_AUTO_INIT ((void*)(size_t)-1)
+#define  __PTW32_OBJECT_AUTO_INIT ((void *)(size_t)-1)
 #define  __PTW32_OBJECT_INVALID   NULL
 
 struct pthread_mutex_t_ {
@@ -384,25 +384,25 @@ struct ThreadKeyAssoc {
 	 *   Graphically, the arrangement is as follows, where:
 	 *
 	 *      K - Key with destructor
-	 *         (head of chain is key->threads)
+	 *   (head of chain is key->threads)
 	 *      T - Thread that has called pthread_setspecific(Kn)
-	 *         (head of chain is thread->keys)
+	 *   (head of chain is thread->keys)
 	 *      A - Association. Each association is a node at the
-	 *          intersection of two doubly-linked lists.
+	 *    intersection of two doubly-linked lists.
 	 *
-	 *              T1    T2    T3
-	 *              |     |     |
-	 *              |     |     |
+	 *        T1    T2    T3
+	 *        |     |     |
+	 *        |     |     |
 	 *      K1 -----+-----A-----A----->
-	 *              |     |     |
-	 *              |     |     |
+	 *        |     |     |
+	 *        |     |     |
 	 *      K2 -----A-----A-----+----->
-	 *              |     |     |
-	 *              |     |     |
+	 *        |     |     |
+	 *        |     |     |
 	 *      K3 -----A-----+-----A----->
-	 *              |     |     |
-	 *              |     |     |
-	 *              V     V     V
+	 *        |     |     |
+	 *        |     |     |
+	 *        V     V     V
 	 *
 	 *   Access to the association is guarded by two locks: the key's
 	 *   general lock (guarding the row) and the thread's general
@@ -429,45 +429,45 @@ struct ThreadKeyAssoc {
 	 *
 	 * Attributes:
 	 *   thread
-	 *           reference to the thread that owns the
-	 *           association. This is actually the pointer to the
-	 *           thread struct itself. Since the association is
-	 *           destroyed before the thread exits, this can never
-	 *           point to a different logical thread to the one that
-	 *           created the assoc, i.e. after thread struct reuse.
+	 *     reference to the thread that owns the
+	 *     association. This is actually the pointer to the
+	 *     thread struct itself. Since the association is
+	 *     destroyed before the thread exits, this can never
+	 *     point to a different logical thread to the one that
+	 *     created the assoc, i.e. after thread struct reuse.
 	 *
 	 *   key
-	 *           reference to the key that owns the association.
+	 *     reference to the key that owns the association.
 	 *
 	 *   nextKey
-	 *           The pthread_t->keys attribute is the head of a
-	 *           chain of associations that runs through the nextKey
-	 *           link. This chain provides the 1 to many relationship
-	 *           between a pthread_t and all pthread_key_t on which
-	 *           it called pthread_setspecific.
+	 *     The pthread_t->keys attribute is the head of a
+	 *     chain of associations that runs through the nextKey
+	 *     link. This chain provides the 1 to many relationship
+	 *     between a pthread_t and all pthread_key_t on which
+	 *     it called pthread_setspecific.
 	 *
 	 *   prevKey
-	 *           Similarly.
+	 *     Similarly.
 	 *
 	 *   nextThread
-	 *           The pthread_key_t->threads attribute is the head of
-	 *           a chain of associations that runs through the
-	 *           nextThreads link. This chain provides the 1 to many
-	 *           relationship between a pthread_key_t and all the
-	 *           PThreads that have called pthread_setspecific for
-	 *           this pthread_key_t.
+	 *     The pthread_key_t->threads attribute is the head of
+	 *     a chain of associations that runs through the
+	 *     nextThreads link. This chain provides the 1 to many
+	 *     relationship between a pthread_key_t and all the
+	 *     PThreads that have called pthread_setspecific for
+	 *     this pthread_key_t.
 	 *
 	 *   prevThread
-	 *           Similarly.
+	 *     Similarly.
 	 *
 	 * Notes:
 	 *   1)      As soon as either the key or the thread is no longer
-	 *           referencing the association, it can be destroyed. The
-	 *           association will be removed from both chains.
+	 *     referencing the association, it can be destroyed. The
+	 *     association will be removed from both chains.
 	 *
 	 *   2)      Under WIN32, an association is only created by
-	 *           pthread_setspecific if the user provided a
-	 *           destroyRoutine when they created the key.
+	 *     pthread_setspecific if the user provided a
+	 *     destroyRoutine when they created the key.
 	 *
 	 *
 	 */
@@ -618,7 +618,7 @@ __PTW32_END_C_DECLS
 			_CRTIMP unsigned long __cdecl _beginthread(void(__cdecl *) (void *), unsigned, void *);
 			_CRTIMP void __cdecl _endthread(void);
 			_CRTIMP unsigned long __cdecl _beginthreadex(void *, unsigned, unsigned(__stdcall *) (void *), void *, unsigned, unsigned *);
-			_CRTIMP void __cdecl _endthreadex(unsigned);
+			_CRTIMP void __cdecl _endthreadex(uint);
 		__PTW32_END_C_DECLS
 	#endif
 #else

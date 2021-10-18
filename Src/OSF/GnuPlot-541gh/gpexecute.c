@@ -28,7 +28,7 @@ int buffered_output_pending = 0;
 
 static gpe_fifo_t * gpe_init()
 {
-	gpe_fifo_t * base = malloc(sizeof(gpe_fifo_t));
+	gpe_fifo_t * base = SAlloc::M(sizeof(gpe_fifo_t));
 	/* fprintf(stderr, "(gpe_init) \n"); */
 	assert(base);
 	base->next = (gpe_fifo_t*)0;
@@ -40,7 +40,7 @@ static void gpe_push(gpe_fifo_t ** base, GpEvent * ge)
 {
 	buffered_output_pending++;
 	if((*base)->prev) {
-		gpe_fifo_t * new = malloc(sizeof(gpe_fifo_t));
+		gpe_fifo_t * new = SAlloc::M(sizeof(gpe_fifo_t));
 		/* fprintf(stderr, "(gpe_push) \n"); */
 		assert(new);
 		(*base)->prev->next = new;
@@ -118,7 +118,7 @@ void gp_exec_event(char type, int mx, int my, int par1, int par2, int winid)
 	}
 #endif
 #ifdef WIN_IPC
-	GPO.DoEvent(term, &ge);
+	GPO.DoEvent(GPT.P_Term, &ge);
 	return;
 #endif
 #ifdef PIPE_IPC

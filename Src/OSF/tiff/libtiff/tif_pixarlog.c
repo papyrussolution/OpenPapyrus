@@ -582,8 +582,8 @@ static int PixarLogMakeTables(PixarLogState * sp)
 #define DecoderState(tif)       ((PixarLogState*)(tif)->tif_data)
 #define EncoderState(tif)       ((PixarLogState*)(tif)->tif_data)
 
-static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s);
-static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s);
+static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
 
 #define PIXARLOGDATAFMT_UNKNOWN -1
 
@@ -718,7 +718,7 @@ static int PixarLogPreDecode(TIFF* tif, uint16 s)
 	return (inflateReset(&sp->stream) == Z_OK);
 }
 
-static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -1041,7 +1041,7 @@ static void horizontalDifference8(uchar * ip, int n, int stride, ushort * wp, ui
 /*
  * Encode a chunk of pixels.
  */
-static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;

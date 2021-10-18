@@ -2088,7 +2088,7 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 		return ignoreCase ? stricmp866(P_Buf, pS) : strcmp(P_Buf, pS);
 }
 
-bool FASTCALL SString::Helper_IsEqiAscii(const char * pS, size_t slen) const
+bool SString::Helper_IsEqiAscii(const char * pS, size_t slen) const
 {
 	if(P_Buf != pS) {
         const size_t len = Len();
@@ -2648,7 +2648,7 @@ SString & FASTCALL SString::Cat(uint i)
 	return Cat(ultoa(i, temp_buf, 10));
 }
 
-char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
+char * STDCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	temp_buf.CatLongZ(val, numDigits);
@@ -2800,7 +2800,7 @@ SString & FASTCALL SString::Cat(LTIME tm)
 	return Cat(timefmt(tm, TIMF_HMS, temp_buf));
 }
 
-SString & FASTCALL SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long timFmt /*=TIMF_HMS*/)
+SString & SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long timFmt /*=TIMF_HMS*/)
 {
 	Cat(rDtm.d, datFmt);
 	if((datFmt & 0x000f) == DATF_ISO8601 && oneof2(timFmt, 0, TIMF_TIMEZONE)) {
@@ -2811,7 +2811,7 @@ SString & FASTCALL SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*
 	return *this;
 }
 
-SString & FASTCALL SString::Cat(const DateRange & rPeriod, int ext)
+SString & SString::Cat(const DateRange & rPeriod, int ext)
 {
 	char   temp_buf[64];
 	if(ext)
@@ -2821,7 +2821,7 @@ SString & FASTCALL SString::Cat(const DateRange & rPeriod, int ext)
 	return Cat(temp_buf);
 }
 
-SString & FASTCALL SString::Cat(const S_GUID & rUuid, int fmt)
+SString & SString::Cat(const S_GUID & rUuid, int fmt)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
     return Cat(rUuid.ToStr(fmt, r_temp_buf));
@@ -2877,7 +2877,7 @@ SString & SString::Insert(size_t pos, const char * pS)
 	return *this;
 }
 
-SString & cdecl SString::Printf(const char * pFormat, ...)
+SString & CDECL SString::Printf(const char * pFormat, ...)
 {
 	const  size_t new_len = 4096;
 	if(Alloc(new_len)) {
@@ -2890,7 +2890,7 @@ SString & cdecl SString::Printf(const char * pFormat, ...)
 	return *this;
 }
 
-SString & __cdecl SString::VPrintf(const char * pFormat, va_list vl)
+SString & CDECL SString::VPrintf(const char * pFormat, va_list vl)
 {
 	const  size_t new_len = 4096;
 	if(Alloc(new_len)) {
@@ -3986,7 +3986,7 @@ SStringU & FASTCALL SStringU::CatChar(wchar_t chr)
 	return *this;
 }
 
-SStringU & FASTCALL SStringU::CatN(const wchar_t * pS, size_t maxLen)
+SStringU & SStringU::CatN(const wchar_t * pS, size_t maxLen)
 {
 	if(pS && maxLen) {
 		const wchar_t * p_zero = static_cast<const wchar_t *>(wmemchr(pS, 0, maxLen));
@@ -4029,7 +4029,7 @@ SStringU & FASTCALL SStringU::CopyFrom(const wchar_t * pS)
 	return *this;
 }
 
-SStringU & FASTCALL SStringU::CopyFromN(const wchar_t * pS, size_t maxLen)
+SStringU & SStringU::CopyFromN(const wchar_t * pS, size_t maxLen)
 {
 	size_t new_len = 1;
 	if(pS) {
@@ -4047,11 +4047,11 @@ SStringU & FASTCALL SStringU::CopyFromN(const wchar_t * pS, size_t maxLen)
 	return *this;
 }
 
-wchar_t * FASTCALL SStringU::CopyTo(wchar_t * pS, size_t bufLen) { return strnzcpy(pS, P_Buf, bufLen); }
-SStringU & FASTCALL SStringU::CopyFromMb_OUTER(const char * pS, size_t srcLen) { return CopyFromMb(cpANSI, pS, srcLen); }
-SStringU & FASTCALL SStringU::CopyFromMb_INNER(const char * pS, size_t srcLen) { return CopyFromMb(cpOEM, pS, srcLen); }
+wchar_t * SStringU::CopyTo(wchar_t * pS, size_t bufLen) { return strnzcpy(pS, P_Buf, bufLen); }
+SStringU & SStringU::CopyFromMb_OUTER(const char * pS, size_t srcLen) { return CopyFromMb(cpANSI, pS, srcLen); }
+SStringU & SStringU::CopyFromMb_INNER(const char * pS, size_t srcLen) { return CopyFromMb(cpOEM, pS, srcLen); }
 
-SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
+SStringU & SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 {
 	Trim(0);
 	const size_t middle_buf_len = 2048;
@@ -4285,7 +4285,7 @@ int SString::IsLegalUtf8() const
 //
 //
 //
-void FASTCALL SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
+void SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
 {
 	if(numChr) {
 		const size_t new_len = (L ? L : 1) + numChr;
@@ -4415,7 +4415,7 @@ int FASTCALL SStringU::CopyFromUtf8(const char * pSrc, size_t srcSize) { return 
 int FASTCALL SStringU::CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, pActualSrcSize); }
 int FASTCALL SStringU::CopyFromUtf8Strict(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 1, 0); }
 
-int FASTCALL SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize)
+int SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize)
 {
 	int    ok = 1;
 	Trim(0);
@@ -4667,7 +4667,7 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	return 1;
 }
 
-int FASTCALL SPathStruc::Merge(long mergeFlags, SString & rBuf) const
+int SPathStruc::Merge(long mergeFlags, SString & rBuf) const
 {
 	rBuf.Z();
 	int    last = 0;
@@ -4784,7 +4784,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 }
 
-/*static*/uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
+/*static*/uint SPathStruc::GetExt(const SString & rPath, SString * pExt)
 {
 	ASSIGN_PTR(pExt, 0);
 	size_t p = rPath.Len();
@@ -4807,7 +4807,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	return (uint)p;
 }
 
-/*static*/int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
+/*static*/int SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
 {
 	int    ok = -1;
 	rPath.Strip();
@@ -4954,7 +4954,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		return 0;
 }
 
-/*static*/SString & FASTCALL SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
+/*static*/SString & SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
 {
 	(rNormalizedPath = pPath).Strip();
 	if(flags & npfOEM)

@@ -166,10 +166,10 @@ protected:
 			subr_num = 0;
 			int n = SUPER::argStack.pop_int();
 			n += biasedSubrs.get_bias();
-			if(UNLIKELY((n < 0) || ((unsigned int)n >= biasedSubrs.get_count())))
+			if(UNLIKELY((n < 0) || ((uint)n >= biasedSubrs.get_count())))
 				return false;
 
-			subr_num = (unsigned int)n;
+			subr_num = (uint)n;
 			return true;
 		}
 
@@ -487,7 +487,7 @@ protected:
 
 		static void rlineto(ENV &env, PARAM& param)
 		{
-			for(unsigned int i = 0; i + 2 <= env.argStack.get_count(); i += 2) {
+			for(uint i = 0; i + 2 <= env.argStack.get_count(); i += 2) {
 				point_t pt1 = env.get_pt();
 				pt1.move(env.eval_arg(i), env.eval_arg(i+1));
 				PATH::line(env, param, pt1);
@@ -532,7 +532,7 @@ protected:
 
 		static void rrcurveto(ENV &env, PARAM& param)
 		{
-			for(unsigned int i = 0; i + 6 <= env.argStack.get_count(); i += 6) {
+			for(uint i = 0; i + 6 <= env.argStack.get_count(); i += 6) {
 				point_t pt1 = env.get_pt();
 				pt1.move(env.eval_arg(i), env.eval_arg(i+1));
 				point_t pt2 = pt1;
@@ -826,7 +826,7 @@ protected:
 			if(LIKELY(env.argStack.get_count() == 11)) {
 				point_t d;
 				d.init();
-				for(unsigned int i = 0; i < 10; i += 2)
+				for(uint i = 0; i < 10; i += 2)
 					d.move(env.eval_arg(i), env.eval_arg(i+1));
 
 				point_t pt1 = env.get_pt();

@@ -236,7 +236,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		char * linkbuffer;
 		int lnklen;
 
-		linkbuffer = malloc(linkbuffer_len + 1);
+		linkbuffer = SAlloc::M(linkbuffer_len + 1);
 		if(linkbuffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Couldn't read link data");
 			return ARCHIVE_FAILED;
@@ -248,7 +248,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 #else
 			if(a->tree_enter_working_dir(a->tree) != 0) {
 				archive_set_error(&a->archive, errno, "Couldn't read link data");
-				free(linkbuffer);
+				SAlloc::F(linkbuffer);
 				return ARCHIVE_FAILED;
 			}
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
@@ -258,12 +258,12 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 		if(lnklen < 0) {
 			archive_set_error(&a->archive, errno, "Couldn't read link data");
-			free(linkbuffer);
+			SAlloc::F(linkbuffer);
 			return ARCHIVE_FAILED;
 		}
 		linkbuffer[lnklen] = '\0';
 		archive_entry_set_symlink(entry, linkbuffer);
-		free(linkbuffer);
+		SAlloc::F(linkbuffer);
 	}
 #endif /* HAVE_READLINK || HAVE_READLINKAT */
 
@@ -361,7 +361,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 		ret = ARCHIVE_WARN;
 		goto cleanup;
 	}
-	buff = malloc(copyfile_stat.st_size);
+	buff = SAlloc::M(copyfile_stat.st_size);
 	if(buff == NULL) {
 		archive_set_error(&a->archive, errno, "Could not allocate memory for extended attributes");
 		ret = ARCHIVE_WARN;
@@ -380,7 +380,7 @@ cleanup:
 		unlink(tempfile.s);
 	}
 	archive_string_free(&tempfile);
-	free(buff);
+	SAlloc::F(buff);
 	return ret;
 }
 
@@ -450,7 +450,7 @@ static int setup_xattr(struct archive_read_disk * a,
 		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
 		return ARCHIVE_WARN;
 	}
-	if(size > 0 && (value = malloc(size)) == NULL) {
+	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -486,7 +486,7 @@ static int setup_xattr(struct archive_read_disk * a,
 		return ARCHIVE_WARN;
 	}
 	archive_entry_xattr_add_entry(entry, name, value, size);
-	free(value);
+	SAlloc::F(value);
 	return ARCHIVE_OK;
 }
 
@@ -535,7 +535,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	}
 	if(list_size == 0)
 		return ARCHIVE_OK;
-	if((list = malloc(list_size)) == NULL) {
+	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -568,7 +568,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	}
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
-		free(list);
+		SAlloc::F(list);
 		return ARCHIVE_WARN;
 	}
 	for(p = list; (p - list) < list_size; p += strlen(p) + 1) {
@@ -586,7 +586,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 		setup_xattr(a, entry, p, *fd, path);
 	}
 
-	free(list);
+	SAlloc::F(list);
 	return ARCHIVE_OK;
 }
 
@@ -619,7 +619,7 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
 		return ARCHIVE_WARN;
 	}
-	if(size > 0 && (value = malloc(size)) == NULL) {
+	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -630,12 +630,12 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 	else
 		size = extattr_get_file(accpath, _namespace, name, value, size);
 	if(size == -1) {
-		free(value);
+		SAlloc::F(value);
 		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
 		return ARCHIVE_WARN;
 	}
 	archive_entry_xattr_add_entry(entry, fullname, value, size);
-	free(value);
+	SAlloc::F(value);
 	return ARCHIVE_OK;
 }
 
@@ -666,7 +666,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 	}
 	if(list_size == 0)
 		return ARCHIVE_OK;
-	if((list = malloc(list_size)) == NULL) {
+	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -678,7 +678,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 		list_size = extattr_list_file(path, _namespace, list, list_size);
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
-		free(list);
+		SAlloc::F(list);
 		return ARCHIVE_WARN;
 	}
 	p = list;
@@ -686,7 +686,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 		size_t len = 255 & (int)*p;
 		char * name;
 		if(_namespace == EXTATTR_NAMESPACE_SYSTEM) {
-			if(!strcmp(p + 1, "nfs4.acl") || !strcmp(p + 1, "posix1e.acl_access") || !strcmp(p + 1, "posix1e.acl_default")) {
+			if(sstreq(p + 1, "nfs4.acl") || sstreq(p + 1, "posix1e.acl_access") || sstreq(p + 1, "posix1e.acl_default")) {
 				p += 1 + len;
 				continue;
 			}
@@ -701,7 +701,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 		setup_xattr(a, entry, _namespace, name, buff, *fd, path);
 		p += 1 + len;
 	}
-	free(list);
+	SAlloc::F(list);
 	return ARCHIVE_OK;
 }
 
@@ -762,7 +762,7 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 	char buff[4096];
 	struct fiemap * fm;
 	struct fiemap_extent * fe;
-	int64_t size;
+	int64 size;
 	int count, do_fiemap, iters;
 	int exit_sts = ARCHIVE_OK;
 	const char * path;
@@ -821,8 +821,8 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 			if(!(fe->fe_flags & FIEMAP_EXTENT_UNWRITTEN)) {
 				/* The fe_length of the last block does not
 				 * adjust itself to its size files. */
-				int64_t length = fe->fe_length;
-				if(fe->fe_logical + length > (uint64_t)size)
+				int64 length = fe->fe_length;
+				if(fe->fe_logical + length > (uint64)size)
 					length -= fe->fe_logical + length - size;
 				if(fe->fe_logical == 0 && length == size) {
 					/* This is not sparse. */
@@ -866,7 +866,7 @@ static int setup_sparse(struct archive_read_disk * a,
 static int setup_sparse(struct archive_read_disk * a,
     struct archive_entry * entry, int * fd)
 {
-	int64_t size;
+	int64 size;
 	off_t initial_off;
 	off_t off_s, off_e;
 	int exit_sts = ARCHIVE_OK;

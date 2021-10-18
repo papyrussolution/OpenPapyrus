@@ -15,11 +15,11 @@ typedef ngx_int_t (*ngx_ssl_variable_handler_pt)(ngx_connection_t * c, ngx_pool_
 
 #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
 static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn,
-    const unsigned char ** out, unsigned char * outlen,
-    const unsigned char * in, unsigned int inlen, void * arg);
+    const uchar ** out, uchar * outlen,
+    const uchar * in, unsigned int inlen, void * arg);
 #endif
 #ifdef TLSEXT_TYPE_next_proto_neg
-	static int ngx_http_ssl_npn_advertised(ngx_ssl_conn_t * ssl_conn, const unsigned char ** out, unsigned int * outlen, void * arg);
+	static int ngx_http_ssl_npn_advertised(ngx_ssl_conn_t * ssl_conn, const uchar ** out, unsigned int * outlen, void * arg);
 #endif
 static ngx_int_t ngx_http_ssl_static_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_ssl_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -217,12 +217,12 @@ static ngx_str_t ngx_http_ssl_sess_id_ctx = ngx_string("HTTP");
 
 #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
 
-static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned char ** out,
-    unsigned char * outlen, const unsigned char * in, unsigned int inlen,
+static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const uchar ** out,
+    uchar * outlen, const uchar * in, unsigned int inlen,
     void * arg)
 {
 	unsigned int srvlen;
-	unsigned char   * srv;
+	uchar   * srv;
 #if (NGX_DEBUG)
 	unsigned int i;
 #endif
@@ -252,7 +252,7 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 		srv = (uchar *)NGX_HTTP_NPN_ADVERTISE;
 		srvlen = sizeof(NGX_HTTP_NPN_ADVERTISE) - 1;
 	}
-	if(SSL_select_next_proto((unsigned char**)out, outlen, srv, srvlen, in, inlen) != OPENSSL_NPN_NEGOTIATED) {
+	if(SSL_select_next_proto((uchar**)out, outlen, srv, srvlen, in, inlen) != OPENSSL_NPN_NEGOTIATED) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "SSL ALPN selected: %*s", (size_t)*outlen, *out);
@@ -264,7 +264,7 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 #ifdef TLSEXT_TYPE_next_proto_neg
 
 static int ngx_http_ssl_npn_advertised(ngx_ssl_conn_t * ssl_conn,
-    const unsigned char ** out, unsigned int * outlen, void * arg)
+    const uchar ** out, unsigned int * outlen, void * arg)
 {
 #if (NGX_HTTP_V2 || NGX_DEBUG)
 	ngx_connection_t  * c;

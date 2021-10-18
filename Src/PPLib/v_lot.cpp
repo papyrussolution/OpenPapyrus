@@ -2797,7 +2797,7 @@ int PPViewLot::RevalCostByLots()
 //
 // Global standalone functions
 //
-int FASTCALL ViewLots(PPID goods, PPID locID, PPID suppl, PPID qcert, int modeless)
+int STDCALL ViewLots(PPID goods, PPID locID, PPID suppl, PPID qcert, int modeless)
 {
 	LotFilt flt;
 	flt.GoodsID = goods;
@@ -2808,7 +2808,7 @@ int FASTCALL ViewLots(PPID goods, PPID locID, PPID suppl, PPID qcert, int modele
 	return ::ViewLots(&flt, 0, modeless);
 }
 
-int FASTCALL ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, reinterpret_cast<void *>(BIN(asOrders))); }
+int STDCALL ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, reinterpret_cast<void *>(BIN(asOrders))); }
 //
 // Implementation of PPALDD_Lot
 //

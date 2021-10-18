@@ -44,11 +44,11 @@ namespace AAT {
 
 		hb_aat_layout_feature_selector_t get_selector() const
 		{
-			return (hb_aat_layout_feature_selector_t)(unsigned)setting;
+			return (hb_aat_layout_feature_selector_t)(uint)setting;
 		}
 		hb_aat_layout_feature_selector_info_t get_info(hb_aat_layout_feature_selector_t default_selector) const
 		{
-			return { nameIndex, (hb_aat_layout_feature_selector_t)(unsigned int)setting, default_selector == HB_AAT_LAYOUT_FEATURE_SELECTOR_INVALID ? 
+			return { nameIndex, (hb_aat_layout_feature_selector_t)(uint)setting, default_selector == HB_AAT_LAYOUT_FEATURE_SELECTOR_INVALID ? 
 				(hb_aat_layout_feature_selector_t)(setting + 1) : default_selector, 0 };
 		}
 		bool sanitize(hb_sanitize_context_t * c) const
@@ -114,7 +114,7 @@ public:
 			}
 			return settings_table.length;
 		}
-		hb_aat_layout_feature_type_t get_feature_type() const { return (hb_aat_layout_feature_type_t)(unsigned int)feature; }
+		hb_aat_layout_feature_type_t get_feature_type() const { return (hb_aat_layout_feature_type_t)(uint)feature; }
 		hb_ot_name_id_t get_feature_name_id() const { return nameIndex; }
 		bool is_exclusive() const { return featureFlags & Exclusive; }
 		/* A FeatureName with no settings is meaningless */

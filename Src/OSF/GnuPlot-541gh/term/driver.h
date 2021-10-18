@@ -19,7 +19,7 @@ static void UNKNOWN_null(GpTermEntry * pThis);
 #define fflush_binary()
 
 //extern FILE * gpoutfile;
-extern GpTermEntry * term;
+//extern GpTermEntry * term;
 
 #define sign(x) ((x) >= 0 ? 1 : -1) // for use by all drivers 
 

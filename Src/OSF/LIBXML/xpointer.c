@@ -787,15 +787,15 @@ static void xmlXPtrGetChildNo(xmlXPathParserContext * ctxt, int indx)
  * @name:  the preparsed Scheme for the XPtrPart
  *
  * XPtrPart ::= 'xpointer' '(' XPtrExpr ')'
- *       | Scheme '(' SchemeSpecificExpr ')'
+ * | Scheme '(' SchemeSpecificExpr ')'
  *
  * Scheme   ::=  NCName - 'xpointer' [VC: Non-XPointer schemes]
  *
  * SchemeSpecificExpr ::= StringWithBalancedParens
  *
  * StringWithBalancedParens ::=
- *         [^()]* ('(' StringWithBalancedParens ')' [^()]*)*
- *         [VC: Parenthesis escaping]
+ *   [^()]* ('(' StringWithBalancedParens ')' [^()]*)*
+ *   [VC: Parenthesis escaping]
  *
  * XPtrExpr ::= Expr [VC: Parenthesis escaping]
  *
@@ -1028,7 +1028,7 @@ static void xmlXPtrEvalFullXPtr(xmlXPathParserContext * ctxt, xmlChar * name)
  * @name:  a possible ID name of the child sequence
  *
  *  ChildSeq ::= '/1' ('/' [0-9]*)*
- *        | Name ('/' [0-9]*)+
+ *  | Name ('/' [0-9]*)+
  *
  * Parse and evaluate a Child Sequence. This routine also handle the
  * case of a Bare Name used to get a document ID.
@@ -1064,8 +1064,8 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContext * ctxt, xmlChar * name)
  * @ctxt:  the XPointer Parser context
  *
  *  XPointer ::= Name
- *        | ChildSeq
- *        | FullXPtr
+ *  | ChildSeq
+ *  | FullXPtr
  *
  * Parse and evaluate an XPointer
  */
@@ -2185,9 +2185,9 @@ static int xmlXPtrAdvanceChar(xmlNode ** ppNode, int * indx, int bytes)
  * (@start, @startindex) and limited by the (@end, @endindex) point
  *
  * Returns -1 in case of failure, 0 if not found, 1 if found in which case
- *       (@start, @startindex) will indicate the position of the beginning
- *       of the range and (@end, @endindex) will indicate the end
- *       of the range
+ * (@start, @startindex) will indicate the position of the beginning
+ * of the range and (@end, @endindex) will indicate the end
+ * of the range
  */
 static int xmlXPtrMatchString(const xmlChar * string, xmlNode * start, int startindex, xmlNode ** end, int * endindex)
 {
@@ -2263,9 +2263,9 @@ static int xmlXPtrMatchString(const xmlChar * string, xmlNode * start, int start
  * until the (@end, @endindex) point is reached
  *
  * Returns -1 in case of failure, 0 if not found, 1 if found in which case
- *       (@start, @startindex) will indicate the position of the beginning
- *       of the range and (@end, @endindex) will indicate the end
- *       of the range
+ * (@start, @startindex) will indicate the position of the beginning
+ * of the range and (@end, @endindex) will indicate the end
+ * of the range
  */
 static int xmlXPtrSearchString(const xmlChar * string, xmlNode ** start, int * startindex, xmlNode ** end, int * endindex)
 {

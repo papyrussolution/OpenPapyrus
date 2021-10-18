@@ -94,12 +94,12 @@ BZ_EXTERN int BZ2_bzDecompressEnd(bz_stream *strm);
 
 	typedef void BZFILE;
 
-	BZ_EXTERN BZFILE * BZ2_bzReadOpen(int * bzerror, FILE* f, int verbosity, int small, void* unused, int nUnused);
+	BZ_EXTERN BZFILE * BZ2_bzReadOpen(int * bzerror, FILE* f, int verbosity, int small, void * unused, int nUnused);
 	BZ_EXTERN void BZ2_bzReadClose(int * bzerror, BZFILE* b);
 	BZ_EXTERN void BZ2_bzReadGetUnused(int * bzerror, BZFILE* b, void ** unused, int * nUnused);
-	BZ_EXTERN int BZ2_bzRead(int * bzerror, BZFILE* b, void*   buf, int len);
+	BZ_EXTERN int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len);
 	BZ_EXTERN BZFILE * BZ2_bzWriteOpen(int * bzerror, FILE* f, int blockSize100k, int verbosity, int workFactor );
-	BZ_EXTERN void BZ2_bzWrite(int * bzerror, BZFILE* b, void*   buf, int len);
+	BZ_EXTERN void BZ2_bzWrite(int * bzerror, BZFILE* b, void *   buf, int len);
 	BZ_EXTERN void BZ2_bzWriteClose(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out);
 	BZ_EXTERN void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_lo32, uint* nbytes_in_hi32, uint* nbytes_out_lo32, uint* nbytes_out_hi32);
 #endif
@@ -121,7 +121,7 @@ BZ_EXTERN const char * BZ2_bzlibVersion(void);
 #ifndef BZ_NO_STDIO
 	BZ_EXTERN BZFILE * BZ2_bzopen(const char * path, const char * mode);
 	BZ_EXTERN BZFILE * BZ2_bzdopen(int fd, const char * mode);
-	BZ_EXTERN int  BZ2_bzread(BZFILE* b, void* buf, int len);
+	BZ_EXTERN int  BZ2_bzread(BZFILE* b, void * buf, int len);
 	BZ_EXTERN int  BZ2_bzwrite(BZFILE* b, void * buf, int len);
 	BZ_EXTERN int  BZ2_bzflush(BZFILE* b);
 	BZ_EXTERN void BZ2_bzclose(BZFILE * b);

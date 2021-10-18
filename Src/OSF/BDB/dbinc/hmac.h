@@ -18,7 +18,7 @@ extern "C" {
 typedef struct {
 	uint32	state[5];
 	uint32	count[2];
-	unsigned char	buffer[64];
+	uchar	buffer[64];
 } SHA1_CTX;
 /*
  * AES assumes the SHA1 checksumming (also called MAC)

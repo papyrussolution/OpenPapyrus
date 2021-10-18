@@ -84,11 +84,11 @@ typedef struct {
 static cmsContext DbgThread(void)
 {
 	static cmsUInt32Number n = 1;
-	return (cmsContext)(void*)((cmsUInt8Number*)NULL + (n++ % 0xff0));
+	return (cmsContext)(void *)((cmsUInt8Number *)NULL + (n++ % 0xff0));
 }
 
 // The allocate routine
-static void* DebugMalloc(cmsContext ContextID, cmsUInt32Number size)
+static void * DebugMalloc(cmsContext ContextID, cmsUInt32Number size)
 {
 	_cmsMemoryBlock* blk;
 	if(size <= 0) {
@@ -99,13 +99,13 @@ static void* DebugMalloc(cmsContext ContextID, cmsUInt32Number size)
 		MaxAllocated = TotalMemory;
 	if(size > SingleHit)
 		SingleHit = size;
-	blk = (_cmsMemoryBlock*)malloc(size + SIZE_OF_MEM_HEADER);
+	blk = (_cmsMemoryBlock*)SAlloc::M(size + SIZE_OF_MEM_HEADER);
 	if(blk == NULL) return NULL;
 	blk->KeepSize = size;
 	blk->WhoAllocated = ContextID;
 	blk->DontCheck = 0;
 
-	return (void*)((cmsUInt8Number*)blk + SIZE_OF_MEM_HEADER);
+	return (void *)((cmsUInt8Number *)blk + SIZE_OF_MEM_HEADER);
 }
 
 // The free routine
@@ -115,22 +115,22 @@ static void  DebugFree(cmsContext ContextID, void * Ptr)
 	if(Ptr == NULL) {
 		Die("NULL free (which is a no-op in C, but may be an clue of something going wrong)");
 	}
-	blk = (_cmsMemoryBlock*)(((cmsUInt8Number*)Ptr) - SIZE_OF_MEM_HEADER);
+	blk = (_cmsMemoryBlock*)(((cmsUInt8Number *)Ptr) - SIZE_OF_MEM_HEADER);
 	TotalMemory -= blk->KeepSize;
 	if(blk->WhoAllocated != ContextID && !blk->DontCheck) {
 		Die("Trying to free memory allocated by a different thread");
 	}
-	free(blk);
+	SAlloc::F(blk);
 }
 
 // Reallocate, just a malloc, a copy and a free in this case.
-static void * DebugRealloc(cmsContext ContextID, void* Ptr, cmsUInt32Number NewSize)
+static void * DebugRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number NewSize)
 {
 	_cmsMemoryBlock* blk;
 	cmsUInt32Number max_sz;
 	void *  NewPtr = DebugMalloc(ContextID, NewSize);
 	if(Ptr == NULL) return NewPtr;
-	blk = (_cmsMemoryBlock*)(((cmsUInt8Number*)Ptr) - SIZE_OF_MEM_HEADER);
+	blk = (_cmsMemoryBlock*)(((cmsUInt8Number *)Ptr) - SIZE_OF_MEM_HEADER);
 	max_sz = blk->KeepSize > NewSize ? NewSize : blk->KeepSize;
 	memmove(NewPtr, Ptr, max_sz);
 	DebugFree(ContextID, Ptr);
@@ -146,7 +146,7 @@ static void DebugMemPrintTotals(void)
 
 void DebugMemDontCheckThis(void * Ptr)
 {
-	_cmsMemoryBlock* blk = (_cmsMemoryBlock*)(((cmsUInt8Number*)Ptr) - SIZE_OF_MEM_HEADER);
+	_cmsMemoryBlock* blk = (_cmsMemoryBlock*)(((cmsUInt8Number *)Ptr) - SIZE_OF_MEM_HEADER);
 	blk->DontCheck = 1;
 }
 
@@ -179,12 +179,12 @@ static cmsPluginMemHandler DebugMemHandler = {{ cmsPluginMagicNumber, 2060, cmsP
 					      DebugMalloc, DebugFree, DebugRealloc, NULL, NULL, NULL };
 
 // Returnds a pointer to the memhandler plugin
-void* PluginMemHandler(void)
+void * PluginMemHandler(void)
 {
-	return (void*)&DebugMemHandler;
+	return (void *)&DebugMemHandler;
 }
 
-cmsContext WatchDogContext(void* usr)
+cmsContext WatchDogContext(void * usr)
 {
 	cmsContext ctx = cmsCreateContext(&DebugMemHandler, usr);
 	if(ctx == NULL)
@@ -380,7 +380,7 @@ static cmsFloat64Number Clip(cmsFloat64Number v)
 	return v;
 }
 
-static cmsInt32Number ForwardSampler(const cmsUInt16Number In[], cmsUInt16Number Out[], void* Cargo)
+static cmsInt32Number ForwardSampler(const cmsUInt16Number In[], cmsUInt16Number Out[], void * Cargo)
 {
 	FakeCMYKParams* p = (FakeCMYKParams*)Cargo;
 	cmsFloat64Number rgb[3], cmyk[4];
@@ -404,7 +404,7 @@ static cmsInt32Number ForwardSampler(const cmsUInt16Number In[], cmsUInt16Number
 	return 1;
 }
 
-static cmsInt32Number ReverseSampler(const cmsUInt16Number In[], cmsUInt16Number Out[], void* Cargo)
+static cmsInt32Number ReverseSampler(const cmsUInt16Number In[], cmsUInt16Number Out[], void * Cargo)
 {
 	FakeCMYKParams* p = (FakeCMYKParams*)Cargo;
 	cmsFloat64Number c, m, y, k, rgb[3];
@@ -473,7 +473,7 @@ static cmsHPROFILE CreateFakeCMYK(cmsFloat64Number InkLimit, cmsBool lUseAboveRG
 	cmsPipelineInsertStage(BToA0, cmsAT_END, CLUT);
 	cmsPipelineInsertStage(BToA0, cmsAT_END, _cmsStageAllocIdentityCurves(ContextID, 4));
 
-	if(!cmsWriteTag(hICC, cmsSigBToA0Tag, (void*)BToA0)) return 0;
+	if(!cmsWriteTag(hICC, cmsSigBToA0Tag, (void *)BToA0)) return 0;
 	cmsPipelineFree(BToA0);
 
 	AToB0 = cmsPipelineAlloc(ContextID, 4, 3);
@@ -486,7 +486,7 @@ static cmsHPROFILE CreateFakeCMYK(cmsFloat64Number InkLimit, cmsBool lUseAboveRG
 	cmsPipelineInsertStage(AToB0, cmsAT_END, CLUT);
 	cmsPipelineInsertStage(AToB0, cmsAT_END, _cmsStageAllocIdentityCurves(ContextID, 3));
 
-	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void*)AToB0)) return 0;
+	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void *)AToB0)) return 0;
 	cmsPipelineFree(AToB0);
 
 	cmsDeleteTransform(p.hLab2sRGB);
@@ -884,7 +884,7 @@ static cmsInt32Number Check1D(cmsInt32Number nNodesToCheck, cmsBool Down, cmsInt
 {
 	cmsUInt16Number in, out;
 	cmsInterpParams* p;
-	cmsUInt16Number* Tab = (cmsUInt16Number*)malloc(sizeof(cmsUInt16Number)* nNodesToCheck);
+	cmsUInt16Number* Tab = (cmsUInt16Number*)SAlloc::M(sizeof(cmsUInt16Number)* nNodesToCheck);
 	if(Tab == NULL) return 0;
 	p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
 	if(!p) return 0;
@@ -897,12 +897,12 @@ static cmsInt32Number Check1D(cmsInt32Number nNodesToCheck, cmsBool Down, cmsInt
 		if(abs(out - in) > max_err) {
 			Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
 			_cmsFreeInterpParams(p);
-			free(Tab);
+			SAlloc::F(Tab);
 			return 0;
 		}
 	}
 	_cmsFreeInterpParams(p);
-	free(Tab);
+	SAlloc::F(Tab);
 	return 1;
 }
 
@@ -3048,38 +3048,28 @@ static cmsInt32Number CheckMLU(void)
 
 	cmsMLUgetASCII(mlu, "ca", "CA", Buffer, 256);
 	if(strcmp(Buffer, "Hola, mon") != 0) rc = 0;
-
 	if(rc == 0)
 		Fail("Unexpected string '%s'", Buffer);
-
 	// So far, so good.
 	cmsMLUfree(mlu);
-
 	// Now for performance, allocate an empty struct
 	mlu = cmsMLUalloc(DbgThread(), 0);
-
 	// Fill it with several thousands of different lenguages
 	for(i = 0; i < 4096; i++) {
 		char Lang[3];
-
 		Lang[0] = (char)(i % 255);
 		Lang[1] = (char)(i / 255);
 		Lang[2] = 0;
-
 		sprintf(Buffer, "String #%i", i);
 		cmsMLUsetASCII(mlu, Lang, Lang, Buffer);
 	}
-
 	// Duplicate it
 	mlu2 = cmsMLUdup(mlu);
-
 	// Get rid of original
 	cmsMLUfree(mlu);
-
 	// Check all is still in place
 	for(i = 0; i < 4096; i++) {
 		char Lang[3];
-
 		Lang[0] = (char)(i % 255);
 		Lang[1] = (char)(i / 255);
 		Lang[2] = 0;
@@ -4056,7 +4046,7 @@ cmsInt32Number CheckColorantOrder(cmsInt32Number Pass,  cmsHPROFILE hProfile, cm
 		    return cmsWriteTag(hProfile, tag, c);
 
 		case 2:
-		    Pt = (cmsUInt8Number*)cmsReadTag(hProfile, tag);
+		    Pt = (cmsUInt8Number *)cmsReadTag(hProfile, tag);
 		    if(Pt == NULL) return 0;
 
 		    for(i = 0; i < cmsMAXCHANNELS; i++) {
@@ -6909,8 +6899,7 @@ static cmsInt32Number CheckMeta(void)
 	/* serialize profile to memory */
 	rc = cmsSaveProfileToMem(p, NULL, &clen);
 	if(!rc) return 0;
-
-	data = (char *)malloc(clen);
+	data = (char *)SAlloc::M(clen);
 	rc = cmsSaveProfileToMem(p, data, &clen);
 	if(!rc) return 0;
 
@@ -6919,10 +6908,8 @@ static cmsInt32Number CheckMeta(void)
 	fp = fopen("new.icc", "wb");
 	fwrite(data, 1, clen, fp);
 	fclose(fp);
-	free(data);
-
+	SAlloc::F(data);
 	cmsCloseProfile(p);
-
 	/* open newly created file and read metadata */
 	p = cmsOpenProfileFromFile("new.icc", "r");
 	//ERROR: Bad dictionary Name/Value
@@ -6985,7 +6972,7 @@ static cmsInt32Number CheckMatrixSimplify(void)
 	cmsHPROFILE pIn;
 	cmsHPROFILE pOut;
 	cmsHTRANSFORM t;
-	unsigned char buf[3] = { 127, 32, 64 };
+	uchar buf[3] = { 127, 32, 64 };
 
 	pIn = cmsCreate_sRGBProfile();
 	pOut = cmsOpenProfileFromFile("ibm-t61.icc", "r");
@@ -7249,9 +7236,7 @@ static void SpeedTest32bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsH
 
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(Scanline_rgba32);
-
-	In = (Scanline_rgba32*)malloc(Mb);
-
+	In = (Scanline_rgba32*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r += Interval)
 		for(g = 0; g < 256; g += Interval)
@@ -7267,7 +7252,7 @@ static void SpeedTest32bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsH
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, NumPixels);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7280,19 +7265,13 @@ static void SpeedTest16bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsH
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgb16 * In;
 	cmsUInt32Number Mb;
-
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_16,
-		hlcmsProfileOut, TYPE_RGB_16, Intent, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_16, hlcmsProfileOut, TYPE_RGB_16, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
-
 	Mb = 256*256*256 * sizeof(Scanline_rgb16);
-
-	In = (Scanline_rgb16*)malloc(Mb);
-
+	In = (Scanline_rgb16*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7308,7 +7287,7 @@ static void SpeedTest16bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsH
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgb16), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7324,20 +7303,14 @@ static void SpeedTest32bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	cmsUInt32Number Interval = 4; // Power of 2 number to increment r,g,b values by in the loops to keep the test
 	                              // duration practically short
 	cmsUInt32Number NumPixels;
-
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_FLT,
-		hlcmsProfileOut, TYPE_CMYK_FLT, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_FLT, hlcmsProfileOut, TYPE_CMYK_FLT, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
-
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(Scanline_rgba32);
-
-	In = (Scanline_rgba32*)malloc(Mb);
-
+	In = (Scanline_rgba32*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r += Interval)
 		for(g = 0; g < 256; g += Interval)
@@ -7349,15 +7322,11 @@ static void SpeedTest32bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 
 				j++;
 			}
-
 	TitlePerformance(Title);
-
 	atime = clock();
-
 	cmsDoTransform(hlcmsxform, In, In, NumPixels);
-
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7376,7 +7345,7 @@ static void SpeedTest16bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256*sizeof(Scanline_rgba16);
-	In = (Scanline_rgba16*)malloc(Mb);
+	In = (Scanline_rgba16*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7392,7 +7361,7 @@ static void SpeedTest16bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgba16), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7405,19 +7374,13 @@ static void SpeedTest8bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsHP
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgb8 * In;
 	cmsUInt32Number Mb;
-
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_8,
-		hlcmsProfileOut, TYPE_RGB_8, Intent, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_8, hlcmsProfileOut, TYPE_RGB_8, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
-
 	Mb = 256*256*256*sizeof(Scanline_rgb8);
-
-	In = (Scanline_rgb8*)malloc(Mb);
-
+	In = (Scanline_rgb8*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7431,7 +7394,7 @@ static void SpeedTest8bits(const char * Title, cmsHPROFILE hlcmsProfileIn, cmsHP
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgb8), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7444,19 +7407,13 @@ static void SpeedTest8bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, c
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgba8 * In;
 	cmsUInt32Number Mb;
-
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_8,
-		hlcmsProfileOut, TYPE_CMYK_8, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_8, hlcmsProfileOut, TYPE_CMYK_8, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
-
 	Mb = 256*256*256*sizeof(Scanline_rgba8);
-
-	In = (Scanline_rgba8*)malloc(Mb);
-
+	In = (Scanline_rgba8*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7472,7 +7429,7 @@ static void SpeedTest8bitsCMYK(const char * Title, cmsHPROFILE hlcmsProfileIn, c
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(Scanline_rgba8), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7489,17 +7446,12 @@ static void SpeedTest32bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	cmsUInt32Number NumPixels;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
 		Die("Unable to open profiles");
-
-	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn,
-		TYPE_GRAY_FLT, hlcmsProfileOut, TYPE_GRAY_FLT, Intent, cmsFLAGS_NOCACHE);
+	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_GRAY_FLT, hlcmsProfileOut, TYPE_GRAY_FLT, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
-
 	NumPixels = 256 / Interval * 256 / Interval * 256 / Interval;
 	Mb = NumPixels * sizeof(cmsFloat32Number);
-
-	In = (cmsFloat32Number*)malloc(Mb);
-
+	In = (cmsFloat32Number*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r += Interval)
 		for(g = 0; g < 256; g += Interval)
@@ -7513,7 +7465,7 @@ static void SpeedTest32bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, NumPixels);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(cmsFloat32Number), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7532,7 +7484,7 @@ static void SpeedTest16bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256 * sizeof(cmsUInt16Number);
-	In = (cmsUInt16Number*)malloc(Mb);
+	In = (cmsUInt16Number*)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7544,7 +7496,7 @@ static void SpeedTest16bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, 
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(cmsUInt16Number), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7563,7 +7515,7 @@ static void SpeedTest8bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, c
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
 	Mb = 256*256*256;
-	In = (cmsUInt8Number*)malloc(Mb);
+	In = (cmsUInt8Number *)SAlloc::M(Mb);
 	j = 0;
 	for(r = 0; r < 256; r++)
 		for(g = 0; g < 256; g++)
@@ -7577,7 +7529,7 @@ static void SpeedTest8bitsGray(const char * Title, cmsHPROFILE hlcmsProfileIn, c
 	atime = clock();
 	cmsDoTransform(hlcmsxform, In, In, 256*256*256);
 	diff = clock() - atime;
-	free(In);
+	SAlloc::F(In);
 	PrintPerformance(Mb, sizeof(cmsUInt8Number), diff);
 	cmsDeleteTransform(hlcmsxform);
 }
@@ -7662,7 +7614,7 @@ static void PrintSupportedIntents(void)
 // ---------------------------------------------------------------------------------------
 
 #ifdef LCMS_FAST_EXTENSIONS
-void* cmsFast8Bitextensions(void);
+void * cmsFast8Bitextensions(void);
 #endif
 
 // @sobolev int main(int argc, char * argv[])

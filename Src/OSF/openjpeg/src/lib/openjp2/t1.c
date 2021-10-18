@@ -1538,12 +1538,12 @@ typedef struct {
 	OPJ_BOOL check_pterm;
 } opj_t1_cblk_decode_processing_job_t;
 
-static void opj_t1_destroy_wrapper(void* t1)
+static void opj_t1_destroy_wrapper(void * t1)
 {
 	opj_t1_destroy((opj_t1_t*)t1);
 }
 
-static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
+static void opj_t1_clbl_decode_processor(void * user_data, opj_tls_t* tls)
 {
 	opj_tcd_cblk_dec_t* cblk;
 	opj_tcd_band_t* band;
@@ -2073,7 +2073,7 @@ typedef struct {
  * @param user_data Pointer to a opj_t1_cblk_encode_processing_job_t* structure
  * @param tls       TLS handle.
  */
-static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
+static void opj_t1_cblk_encode_processor(void * user_data, opj_tls_t* tls)
 {
 	opj_t1_cblk_encode_processing_job_t* job =
 	    (opj_t1_cblk_encode_processing_job_t*)user_data;

@@ -199,7 +199,7 @@ static void Fax3PrematureEOF(const char* module, TIFF* tif, uint32 line, uint32 
 /*
  * Decode the requested amount of G3 1D-encoded data.
  */
-static int Fax3Decode1D(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int Fax3Decode1D(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	DECLARE_STATE(tif, sp, "Fax3Decode1D");
 	(void)s;
@@ -240,7 +240,7 @@ EOF1Da:                                 /* premature EOF */
 /*
  * Decode the requested amount of G3 2D-encoded data.
  */
-static int Fax3Decode2D(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int Fax3Decode2D(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	DECLARE_STATE_2D(tif, sp, "Fax3Decode2D");
 	int is1D;                       /* current line is 1d/2d-encoded */
@@ -1010,7 +1010,7 @@ static int Fax3Encode2DRow(TIFF* tif, uchar* bp, uchar* rp, uint32 bits)
 /*
  * Encode a buffer of pixels.
  */
-static int Fax3Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int Fax3Encode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	Fax3CodecState* sp = EncoderState(tif);
@@ -1294,7 +1294,7 @@ int TIFFInitCCITTFax3(TIFF* tif, int scheme)
 /*
  * Decode the requested amount of G4-encoded data.
  */
-static int Fax4Decode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int Fax4Decode(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	DECLARE_STATE_2D(tif, sp, "Fax4Decode");
 	(void)s;
@@ -1344,7 +1344,7 @@ BADG4:
 /*
  * Encode the requested amount of data.
  */
-static int Fax4Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int Fax4Encode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	Fax3CodecState * sp = EncoderState(tif);
@@ -1407,7 +1407,7 @@ int TIFFInitCCITTFax4(TIFF* tif, int scheme)
 /*
  * Decode the requested amount of RLE-encoded data.
  */
-static int Fax3DecodeRLE(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int Fax3DecodeRLE(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	DECLARE_STATE(tif, sp, "Fax3DecodeRLE");
 	int mode = sp->b.mode;

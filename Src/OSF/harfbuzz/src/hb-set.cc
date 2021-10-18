@@ -84,10 +84,10 @@ hb_set_t * hb_set_reference(hb_set_t * set)
  **/
 void hb_set_destroy(hb_set_t * set)
 {
-	if(!hb_object_destroy(set)) 
-		return;
-	set->fini_shallow();
-	SAlloc::F(set);
+	if(hb_object_destroy(set)) {
+		set->fini_shallow();
+		SAlloc::F(set);
+	}
 }
 /**
  * hb_set_set_user_data: (skip)
@@ -101,15 +101,10 @@ void hb_set_destroy(hb_set_t * set)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_set_set_user_data(hb_set_t * set,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+hb_bool_t hb_set_set_user_data(hb_set_t * set, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(set, key, data, destroy, replace);
 }
-
 /**
  * hb_set_get_user_data: (skip)
  * @set: a set.
@@ -139,7 +134,6 @@ hb_bool_t hb_set_allocation_successful(const hb_set_t * set)
 {
 	return set->successful;
 }
-
 /**
  * hb_set_clear:
  * @set: a set.
@@ -152,7 +146,6 @@ void hb_set_clear(hb_set_t * set)
 {
 	set->clear();
 }
-
 /**
  * hb_set_is_empty:
  * @set: a set.
@@ -179,12 +172,10 @@ hb_bool_t hb_set_is_empty(const hb_set_t * set)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_set_has(const hb_set_t * set,
-    hb_codepoint_t codepoint)
+hb_bool_t hb_set_has(const hb_set_t * set, hb_codepoint_t codepoint)
 {
 	return set->has(codepoint);
 }
-
 /**
  * hb_set_add:
  * @set: a set.
@@ -194,12 +185,10 @@ hb_bool_t hb_set_has(const hb_set_t * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_add(hb_set_t * set,
-    hb_codepoint_t codepoint)
+void hb_set_add(hb_set_t * set, hb_codepoint_t codepoint)
 {
 	set->add(codepoint);
 }
-
 /**
  * hb_set_add_range:
  * @set: a set.

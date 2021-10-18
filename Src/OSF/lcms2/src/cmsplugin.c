@@ -37,7 +37,7 @@ cmsUInt16Number CMSEXPORT  _cmsAdjustEndianess16(cmsUInt16Number Word)
 {
 #ifndef CMS_USE_BIG_ENDIAN
 
-	cmsUInt8Number* pByte = (cmsUInt8Number*)&Word;
+	cmsUInt8Number* pByte = (cmsUInt8Number *)&Word;
 	cmsUInt8Number tmp;
 
 	tmp = pByte[0];
@@ -57,7 +57,7 @@ cmsUInt32Number CMSEXPORT  _cmsAdjustEndianess32(cmsUInt32Number DWord)
 {
 #ifndef CMS_USE_BIG_ENDIAN
 
-	cmsUInt8Number* pByte = (cmsUInt8Number*)&DWord;
+	cmsUInt8Number* pByte = (cmsUInt8Number *)&DWord;
 	cmsUInt8Number temp1;
 	cmsUInt8Number temp2;
 
@@ -78,8 +78,8 @@ void CMSEXPORT  _cmsAdjustEndianess64(cmsUInt64Number* Result, cmsUInt64Number* 
 {
 #ifndef CMS_USE_BIG_ENDIAN
 
-	cmsUInt8Number* pIn  = (cmsUInt8Number*)QWord;
-	cmsUInt8Number* pOut = (cmsUInt8Number*)Result;
+	cmsUInt8Number* pIn  = (cmsUInt8Number *)QWord;
+	cmsUInt8Number* pOut = (cmsUInt8Number *)Result;
 
 	_cmsAssert(Result != NULL);
 
@@ -172,7 +172,7 @@ cmsBool CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, cmsFloat32Number* n)
 
 	if(n != NULL) {
 		tmp = _cmsAdjustEndianess32(tmp);
-		*n = *(cmsFloat32Number*)(void*)&tmp;
+		*n = *(cmsFloat32Number*)(void *)&tmp;
 
 		// Safeguard which covers against absurd values
 		if(*n > 1E+20 || *n < -1E+20) return FALSE;
@@ -292,7 +292,7 @@ cmsBool CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, cmsFloat32Number n)
 {
 	cmsUInt32Number tmp;
 	_cmsAssert(io != NULL);
-	tmp = *(cmsUInt32Number*)(void*)&n;
+	tmp = *(cmsUInt32Number*)(void *)&n;
 	tmp = _cmsAdjustEndianess32(tmp);
 	if(io->Write(io, sizeof(cmsUInt32Number), &tmp) != 1)
 		return FALSE;
@@ -489,7 +489,7 @@ cmsBool CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char* frm, ...)
 // -------------------------------------------------------------------------------------------------
 
 // Specialized malloc for plug-ins, that is freed upon exit.
-void* _cmsPluginMalloc(cmsContext ContextID, cmsUInt32Number size)
+void * _cmsPluginMalloc(cmsContext ContextID, cmsUInt32Number size)
 {
 	struct _cmsContext_struct* ctx = _cmsGetContext(ContextID);
 
@@ -508,12 +508,12 @@ void* _cmsPluginMalloc(cmsContext ContextID, cmsUInt32Number size)
 }
 
 // Main plug-in dispatcher
-cmsBool CMSEXPORT cmsPlugin(void* Plug_in)
+cmsBool CMSEXPORT cmsPlugin(void * Plug_in)
 {
 	return cmsPluginTHR(NULL, Plug_in);
 }
 
-cmsBool CMSEXPORT cmsPluginTHR(cmsContext id, void* Plug_in)
+cmsBool CMSEXPORT cmsPluginTHR(cmsContext id, void * Plug_in)
 {
 	cmsPluginBase* Plugin;
 
@@ -645,7 +645,7 @@ struct _cmsContext_struct* _cmsGetContext(cmsContext ContextID)
 
 // Internal: get the memory area associanted with each context client
 // Returns the block assigned to the specific zone. Never return NULL.
-void* _cmsContextGetClientChunk(cmsContext ContextID, _cmsMemoryClient mc)
+void * _cmsContextGetClientChunk(cmsContext ContextID, _cmsMemoryClient mc)
 {
 	struct _cmsContext_struct* ctx;
 	void * ptr;
@@ -686,7 +686,7 @@ void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID)
 }
 
 // Returns the memory manager plug-in, if any, from the Plug-in bundle
-static cmsPluginMemHandler* _cmsFindMemoryPlugin(void* PluginBundle)
+static cmsPluginMemHandler* _cmsFindMemoryPlugin(void * PluginBundle)
 {
 	for(cmsPluginBase * Plugin = (cmsPluginBase*)PluginBundle; Plugin != NULL; Plugin = Plugin->Next) {
 		if(Plugin->Magic == cmsPluginMagicNumber && Plugin->ExpectedVersion <= LCMS_VERSION && Plugin->Type == cmsPluginMemHandlerSig) {
@@ -700,7 +700,7 @@ static cmsPluginMemHandler* _cmsFindMemoryPlugin(void* PluginBundle)
 
 // Creates a new context with optional associated plug-ins. Caller may also specify an optional pointer to user-defined
 // data that will be forwarded to plug-ins and logger.
-cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData)
+cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData)
 {
 	struct _cmsContext_struct* ctx;
 	struct _cmsContext_struct fakeContext;
@@ -714,7 +714,7 @@ cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData)
 		static volatile HANDLE* mutex = &_cmsWindowsInitMutex;
 		if(*mutex == NULL) {
 			HANDLE p = CreateMutex(NULL, FALSE, NULL);
-			if(p && InterlockedCompareExchangePointer((void**)mutex, (void*)p, NULL) != NULL)
+			if(p && InterlockedCompareExchangePointer((void**)mutex, (void *)p, NULL) != NULL)
 				CloseHandle(p);
 		}
 		if(*mutex == NULL || WaitForSingleObject(*mutex, INFINITE) == WAIT_FAILED)
@@ -752,7 +752,7 @@ cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData)
 	ctx->chunks[MemPlugin]   = &ctx->DefaultMemoryManager;
 
 	// Now we can allocate the pool by using default memory manager
-	ctx->MemPool = _cmsCreateSubAlloc(ctx, 22 * sizeof(void*)); // default size about 22 pointers
+	ctx->MemPool = _cmsCreateSubAlloc(ctx, 22 * sizeof(void *)); // default size about 22 pointers
 	if(ctx->MemPool == NULL) {
 		cmsDeleteContext(ctx);
 		return NULL;
@@ -785,13 +785,13 @@ cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData)
 // Duplicates a context with all associated plug-ins.
 // Caller may specify an optional pointer to user-defined
 // data that will be forwarded to plug-ins and logger.
-cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void* NewUserData)
+cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void * NewUserData)
 {
 	int i;
 	struct _cmsContext_struct* ctx;
 	const struct _cmsContext_struct* src = _cmsGetContext(ContextID);
 
-	void* userData = (NewUserData != NULL) ? NewUserData : src->chunks[UserPtr];
+	void * userData = (NewUserData != NULL) ? NewUserData : src->chunks[UserPtr];
 
 	ctx = (struct _cmsContext_struct*)_cmsMalloc(ContextID, sizeof(struct _cmsContext_struct));
 	if(ctx == NULL)
@@ -809,7 +809,7 @@ cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void* NewUserData)
 	ctx->chunks[UserPtr]    = userData;
 	ctx->chunks[MemPlugin]  = &ctx->DefaultMemoryManager;
 
-	ctx->MemPool = _cmsCreateSubAlloc(ctx, 22 * sizeof(void*));
+	ctx->MemPool = _cmsCreateSubAlloc(ctx, 22 * sizeof(void *));
 	if(ctx->MemPool == NULL) {
 		cmsDeleteContext(ctx);
 		return NULL;
@@ -889,7 +889,7 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 }
 
 // Returns the user data associated to the given ContextID, or NULL if no user data was attached on context creation
-void* CMSEXPORT cmsGetContextUserData(cmsContext ContextID)
+void * CMSEXPORT cmsGetContextUserData(cmsContext ContextID)
 {
 	return _cmsContextGetClientChunk(ContextID, UserPtr);
 }

@@ -41,7 +41,7 @@
  *
  * PARAMETERS
  *   value_ptr
- *           a generic data value (i.e. not the address of a value)
+ *     a generic data value (i.e. not the address of a value)
  *
  *
  * DESCRIPTION
@@ -50,7 +50,7 @@
  *   NOTE: thread should be joinable.
  *
  * RESULTS
- *           N/A
+ *     N/A
  *
  * ------------------------------------------------------
  */
@@ -73,7 +73,7 @@ void pthread_exit(void * value_ptr)
 		 * Implicit POSIX handles are cleaned up in __ptw32_throw() now.
 		 */
 #if !defined (__MINGW32__) || defined (__MSVCRT__)  || defined (__DMC__)
-		_endthreadex((unsigned)(size_t)value_ptr);
+		_endthreadex((uint)(size_t)value_ptr);
 #else
 		_endthread();
 #endif

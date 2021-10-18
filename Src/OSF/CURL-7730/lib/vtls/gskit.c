@@ -742,13 +742,13 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 		BACKEND->localfd = sockpair[0];
 		BACKEND->remotefd = sockpair[1];
 		setsockopt(BACKEND->localfd, SOL_SOCKET, SO_RCVBUF,
-		    (void*)sobufsize, sizeof(sobufsize));
+		    (void *)sobufsize, sizeof(sobufsize));
 		setsockopt(BACKEND->remotefd, SOL_SOCKET, SO_RCVBUF,
-		    (void*)sobufsize, sizeof(sobufsize));
+		    (void *)sobufsize, sizeof(sobufsize));
 		setsockopt(BACKEND->localfd, SOL_SOCKET, SO_SNDBUF,
-		    (void*)sobufsize, sizeof(sobufsize));
+		    (void *)sobufsize, sizeof(sobufsize));
 		setsockopt(BACKEND->remotefd, SOL_SOCKET, SO_SNDBUF,
-		    (void*)sobufsize, sizeof(sobufsize));
+		    (void *)sobufsize, sizeof(sobufsize));
 		curlx_nonblock(BACKEND->localfd, TRUE);
 		curlx_nonblock(BACKEND->remotefd, TRUE);
 	}

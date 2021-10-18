@@ -40,7 +40,7 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/0
  */
 static int pad_to(struct archive * a, int fd, int can_lseek,
     size_t nulls_size, const char * nulls,
-    int64_t target_offset, int64_t actual_offset)
+    int64 target_offset, int64 actual_offset)
 {
 	size_t to_write;
 	ssize_t bytes_written;
@@ -56,7 +56,7 @@ static int pad_to(struct archive * a, int fd, int can_lseek,
 	}
 	while(target_offset > actual_offset) {
 		to_write = nulls_size;
-		if(target_offset < actual_offset + (int64_t)nulls_size)
+		if(target_offset < actual_offset + (int64)nulls_size)
 			to_write = (size_t)(target_offset - actual_offset);
 		bytes_written = write(fd, nulls, to_write);
 		if(bytes_written < 0) {
@@ -75,8 +75,8 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 	const void * buff;
 	size_t size, bytes_to_write;
 	ssize_t bytes_written;
-	int64_t target_offset;
-	int64_t actual_offset = 0;
+	int64 target_offset;
+	int64 actual_offset = 0;
 	int can_lseek;
 	char * nulls = NULL;
 	size_t nulls_size = 16384;
@@ -86,7 +86,7 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 
 	can_lseek = (fstat(fd, &st) == 0) && S_ISREG(st.st_mode);
 	if(!can_lseek)
-		nulls = static_cast<char *>(calloc(1, nulls_size));
+		nulls = static_cast<char *>(SAlloc::C(1, nulls_size));
 	while((r = archive_read_data_block(a, &buff, &size, &target_offset)) ==
 	    ARCHIVE_OK) {
 		const char * p = static_cast<const char *>(buff);
@@ -121,7 +121,7 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 	}
 
 cleanup:
-	free(nulls);
+	SAlloc::F(nulls);
 	if(r != ARCHIVE_EOF)
 		return r;
 	return ARCHIVE_OK;

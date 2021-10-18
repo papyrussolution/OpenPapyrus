@@ -17,8 +17,8 @@
  *		David Kotz and Raymond Toy
  *
  * Adapted to metapost by:
- *              Daniel H. Luecking <luecking@comp.uark.edu> and
- *              L Srinivasa Mohan <mohan@chemeng.iisc.ernet.in>
+ *        Daniel H. Luecking <luecking@comp.uark.edu> and
+ *        L Srinivasa Mohan <mohan@chemeng.iisc.ernet.in>
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -298,7 +298,7 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->ChrH = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 5.3 / 720 + 0.5);
 	}
 	if(_MP.MP_psnfss == MP_PSNFSS_NONE) { // using the normal font scheme 
-		sprintf(GPT.TermOptions, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
+		slprintf(GPT._TermOptions, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
 		    _MP.MP_color ? "color" : "monochrome",
 		    _MP.MP_solid ? "solid" : "dashed",
 		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",
@@ -308,7 +308,7 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 		    _MP.MP_fontname, _MP.MP_fontsize, (_MP.MP_prologues > -1) ? "" : "no", _MP.MP_prologues);
 	}
 	else { // using postscript fonts 
-		sprintf(GPT.TermOptions, "%s %s %stex%s%s mag %.3f %s %sprologues(%d)",
+		slprintf(GPT._TermOptions, "%s %s %stex%s%s mag %.3f %s %sprologues(%d)",
 		    _MP.MP_color ? "color" : "monochrome",
 		    _MP.MP_solid ? "solid" : "dashed",
 		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",

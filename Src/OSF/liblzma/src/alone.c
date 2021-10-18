@@ -112,8 +112,8 @@ static lzma_ret alone_encoder_init(lzma_next_coder * next, const lzma_allocator 
 	// - Uncompressed size (always unknown and using EOPM)
 	memset(coder->header + 1 + 4, 0xFF, 8);
 	// Initialize the LZMA encoder.
-	//const lzma_filter_info filters[2] = { { .init = &lzma_lzma_encoder_init, .options = (void*)(options), }, { .init = NULL, } };
-	const lzma_filter_info filters[2] = { { 0, &lzma_lzma_encoder_init, (void*)(options) }, { 0, NULL, 0 } };
+	//const lzma_filter_info filters[2] = { { .init = &lzma_lzma_encoder_init, .options = (void *)(options), }, { .init = NULL, } };
+	const lzma_filter_info filters[2] = { { 0, &lzma_lzma_encoder_init, (void *)(options) }, { 0, NULL, 0 } };
 	return lzma_next_filter_init(&coder->next, allocator, filters);
 }
 /*extern lzma_ret lzma_alone_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_options_alone *options)

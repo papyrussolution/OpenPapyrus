@@ -41,19 +41,19 @@ int __libarchive_hmac_build_hack(void) {
 
 #ifdef ARCHIVE_HMAC_USE_Apple_CommonCrypto
 
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	CCHmacInit(ctx, kCCHmacAlgSHA1, key, key_len);
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
 	CCHmacUpdate(ctx, data, data_len);
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	CCHmacFinal(ctx, out);
 	*out_len = 20;
@@ -70,7 +70,7 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 # define BCRYPT_HASH_REUSABLE_FLAG 0x00000020
 #endif
 
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -114,13 +114,13 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, si
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
 	BCryptHashData(ctx->hHash, (PUCHAR)(uintptr_t)data, (ULONG)data_len, 0);
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	BCryptFinishHash(ctx->hHash, ctx->hash, ctx->hash_len, 0);
 	if(ctx->hash_len == *out_len)
@@ -138,7 +138,7 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_MD_H)
 
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	const mbedtls_md_info_t * info;
 	int ret;
@@ -162,13 +162,13 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, si
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
 	mbedtls_md_hmac_update(ctx, data, data_len);
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	(void)out_len;  /* UNUSED */
 
@@ -183,21 +183,21 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_HMAC_H)
 
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	hmac_sha1_set_key(ctx, key_len, key);
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
 	hmac_sha1_update(ctx, data_len, data);
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	hmac_sha1_digest(ctx, (unsigned)*out_len, out);
+	hmac_sha1_digest(ctx, (uint)*out_len, out);
 }
 
 static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
@@ -207,7 +207,7 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 
 #elif defined(HAVE_LIBCRYPTO)
 
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	*ctx = HMAC_CTX_new();
 	if(*ctx == NULL)
@@ -216,13 +216,13 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, si
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
 	HMAC_Update(*ctx, data, data_len);
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	unsigned int len = (uint)*out_len;
 
@@ -239,32 +239,32 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 #else
 
 /* Stub */
-static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8_t * key, size_t key_len)
+static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
-	(void)ctx;/* UNUSED */
-	(void)key;/* UNUSED */
-	(void)key_len;/* UNUSED */
+	(void)ctx; /* UNUSED */
+	(void)key; /* UNUSED */
+	(void)key_len; /* UNUSED */
 	return -1;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8_t * data,
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
-	(void)ctx;/* UNUSED */
-	(void)data;/* UNUSED */
-	(void)data_len;/* UNUSED */
+	(void)ctx; /* UNUSED */
+	(void)data; /* UNUSED */
+	(void)data_len; /* UNUSED */
 }
 
-static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8_t * out, size_t * out_len)
+static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	(void)ctx;/* UNUSED */
-	(void)out;/* UNUSED */
-	(void)out_len;/* UNUSED */
+	(void)ctx; /* UNUSED */
+	(void)out; /* UNUSED */
+	(void)out_len; /* UNUSED */
 }
 
 static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 {
-	(void)ctx;/* UNUSED */
+	(void)ctx; /* UNUSED */
 }
 
 #endif

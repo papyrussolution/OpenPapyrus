@@ -142,7 +142,7 @@ struct hb_inc_bimap_t : hb_bimap_t {
 	}
 
 protected:
-	static int cmp_id(const void* a, const void* b)
+	static int cmp_id(const void * a, const void * b)
 	{
 		return (int)*(const hb_codepoint_t*)a - (int)*(const hb_codepoint_t*)b;
 	}

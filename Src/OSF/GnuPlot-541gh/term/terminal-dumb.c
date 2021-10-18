@@ -142,7 +142,7 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	{
 		const char * coloropts[] = {"mono", "ansi", "ansi256", "ansirgb"};
-		sprintf(GPT.TermOptions, "%sfeed %s size %d, %d aspect %i, %i %s", pGp->TDumbB.Feed ? "" : "no",
+		slprintf(GPT._TermOptions, "%sfeed %s size %d, %d aspect %i, %i %s", pGp->TDumbB.Feed ? "" : "no",
 		    pThis->put_text == ENHdumb_put_text ? "enhanced" : "", pGp->TDumbB.PtMax.x, pGp->TDumbB.PtMax.y,
 		    pThis->TicH, pThis->TicV, coloropts[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1]);
 	}

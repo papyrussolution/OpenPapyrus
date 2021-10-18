@@ -338,7 +338,7 @@ OPJ_BOOL opj_jp2_read_header(opj_stream_private_t *p_stream,
  * @param jp2 JP2 decompressor handle
  * @param numcomps Number of components to decode.
  * @param comps_indices Array of num_compts indices (numbering starting at 0)
- *                     corresponding to the components to decode.
+ *               corresponding to the components to decode.
  * @param p_manager Event manager;
  *
  * @return OPJ_TRUE in case of success.

@@ -68,7 +68,7 @@ Allocate memory aligned to a 16 byte boundary
 */
 void * opj_aligned_malloc(size_t size);
 void * opj_aligned_realloc(void *ptr, size_t size);
-void opj_aligned_free(void* ptr);
+void opj_aligned_free(void * ptr);
 
 /**
 Allocate memory aligned to a 32 byte boundary

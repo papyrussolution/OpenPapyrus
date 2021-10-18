@@ -285,7 +285,7 @@ static int ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	return 1;
 }
 
-static int cipher_ctrl(EVP_CIPHER_CTX * ctx, int type, int p1, void* p2)
+static int cipher_ctrl(EVP_CIPHER_CTX * ctx, int type, int p1, void * p2)
 {
 	struct cipher_ctx * cipher_ctx =
 	    (struct cipher_ctx *)EVP_CIPHER_CTX_get_cipher_data(ctx);

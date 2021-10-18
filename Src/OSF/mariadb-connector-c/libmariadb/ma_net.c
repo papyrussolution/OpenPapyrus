@@ -253,7 +253,7 @@ static int ma_net_write_buff(NET * net, const char * packet, size_t len)
 	return 0;
 }
 
-unsigned char * mysql_net_store_length(unsigned char * packet, size_t length);
+uchar * mysql_net_store_length(uchar * packet, size_t length);
 
 /*  Read and write using timeouts */
 
@@ -276,7 +276,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 			return 1;
 		}
 		memcpy(b+header_length, packet, len);
-		if(_mariadb_compress((unsigned char *)b+header_length, &len, &complen)) {
+		if(_mariadb_compress((uchar *)b+header_length, &len, &complen)) {
 			complen = 0;
 		}
 		int3store(&b[NET_HEADER_SIZE], complen);
@@ -466,7 +466,7 @@ else {
 		net->where_b = (unsigned long)buffer_length;
 		if((packet_length = ma_real_read(net, (size_t*)&complen)) == packet_error)
 			return packet_error;
-		if(_mariadb_uncompress((unsigned char *)net->buff + net->where_b, &packet_length, &complen)) {
+		if(_mariadb_uncompress((uchar *)net->buff + net->where_b, &packet_length, &complen)) {
 			net->error = 2; /* caller will close socket */
 			net->last_errno = ER_NET_UNCOMPRESS_ERROR;
 			break;

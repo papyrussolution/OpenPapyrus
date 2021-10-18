@@ -2375,7 +2375,7 @@ private:
 #include "Utf8_16.h"
 //
 //#include "sha-256.h"
-void calc_sha_256(uint8_t hash[32], const void *input, size_t len);
+//void calc_sha_256(uint8_t hash[32], const void *input, size_t len);
 //
 //#include "Buffer.h"
 typedef Buffer * BufferID;       //each buffer has unique ID by which it can be retrieved
@@ -7451,10 +7451,9 @@ public:
 	bool parse(std::vector<foundInfo> & foundInfos, const AssociationInfo & assoInfo);
 private:
 	ScintillaEditView ** _ppEditView = nullptr;
-	generic_string _xmlDirPath; // The 1st place to load function list files. Usually it's
-	                            // "%APPDATA%\Notepad++\functionList\"
+	generic_string _xmlDirPath; // The 1st place to load function list files. Usually it's "%APPDATA%\Notepad++\functionList\"
 	generic_string _xmlDirInstalledPath; // Where Notepad++ is installed. The 2nd place to load function list files.
-	                                     // Usually it's "%PROGRAMFILES%\Notepad++\functionList\"
+		// Usually it's "%PROGRAMFILES%\Notepad++\functionList\"
 	ParserInfo* _parsers[L_EXTERNAL + nbMaxUserDefined] = {nullptr};
 	int _currentUDIndex = L_EXTERNAL;
 	bool getOverrideMapFromXmlTree(generic_string & xmlDirPath);

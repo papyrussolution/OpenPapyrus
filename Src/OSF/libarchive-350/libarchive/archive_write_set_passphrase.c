@@ -36,8 +36,8 @@ int archive_write_set_passphrase(struct archive * _a, const char * p)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Empty passphrase is unacceptable");
 		return ARCHIVE_FAILED;
 	}
-	free(a->passphrase);
-	a->passphrase = strdup(p);
+	SAlloc::F(a->passphrase);
+	a->passphrase = sstrdup(p);
 	if(a->passphrase == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate data for passphrase");
 		return ARCHIVE_FATAL;
@@ -62,7 +62,7 @@ const char * __archive_write_get_passphrase(struct archive_write * a)
 		const char * p;
 		p = a->passphrase_callback(&a->archive, a->passphrase_client_data);
 		if(p != NULL) {
-			a->passphrase = strdup(p);
+			a->passphrase = sstrdup(p);
 			if(a->passphrase == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate data for passphrase");
 				return NULL;

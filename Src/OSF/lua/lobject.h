@@ -335,7 +335,7 @@ typedef struct Proto {
 	LocVar * locvars; /* information about local variables (debug information) */
 	Upvaldesc * upvalues; /* upvalue information */
 	struct LClosure * cache; /* last-created closure with this prototype */
-	TString  * source;/* used for debug information */
+	TString  * source; /* used for debug information */
 	GCObject * gclist;
 } Proto;
 /*

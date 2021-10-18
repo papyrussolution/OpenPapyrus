@@ -86,7 +86,7 @@ TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
 	/* This was just ^IOL, but at Rutgers at least we need some more stuff */
 	fputs("^PY^-\n^IOL\n^ISYNTAX00000^F^IB11000^IJ00000^IT00000\n", GPT.P_GpOutFile);
 	/*     ^ QUIC on    ^set defaults  ^ set bottom,top,left margins
-	 *            ^landscape         ^free format
+	 *      ^landscape         ^free format
 	 */
 
 /* set defaults are: implicit decimal point, units in inches,
@@ -107,8 +107,8 @@ TERM_PUBLIC void QMS_text(GpTermEntry * pThis)
 /* Did anybody try this code out?  [uhh...-cdk] */
 	fputs("^IGE\n^-^,", GPT.P_GpOutFile);
 	/*     ^exit graphics vector mode
-	 *           ^pass terminator
-	 *             ^print page
+	 *     ^pass terminator
+	 *       ^print page
 	 */
 }
 

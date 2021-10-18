@@ -15,7 +15,7 @@
  * The Original Code is Mozilla Universal charset detector code.
  *
  * The Initial Developer of the Original Code is
- *          Shy Shalom <shooshX@gmail.com>
+ *    Shy Shalom <shooshX@gmail.com>
  * Portions created by the Initial Developer are Copyright (C) 2005
  * the Initial Developer. All Rights Reserved.
  *

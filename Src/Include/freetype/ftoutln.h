@@ -116,7 +116,7 @@ FT_BEGIN_HEADER
     FT_EXPORT(FT_Error)
 FT_Outline_Decompose(FT_Outline*              outline,
     const FT_Outline_Funcs*  func_interface,
-    void *         user);
+    void *   user);
 
 /**************************************************************************
  *
@@ -348,7 +348,7 @@ FT_Outline_Transform(const FT_Outline*  outline,
  *     FT_Load_Glyph( face, index, FT_LOAD_DEFAULT );
  *
  *     if ( face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
- *       FT_Outline_Embolden( &face->glyph->outline, strength );
+ * FT_Outline_Embolden( &face->glyph->outline, strength );
  *   ```
  *
  */

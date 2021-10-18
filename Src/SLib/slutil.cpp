@@ -13,14 +13,14 @@ int FASTCALL cmp_ulong(ulong a, ulong b) { return COMPARE(a, b); }
 int FASTCALL cmp_int64(int64 a, int64 b) { return COMPARE(a, b); }
 int FASTCALL cmp_double(double a, double b) { return COMPARE(a, b); }
 IMPL_CMPFUNC(PcharNoCase, i1, i2) { return stricmp866(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
-IMPL_CMPFUNC(Pchar, i1, i2)       { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
-IMPL_CMPFUNC(int,   i1, i2)       { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
-IMPL_CMPFUNC(int16, i1, i2)       { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
-IMPL_CMPFUNC(long,  i1, i2)       { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
-IMPL_CMPFUNC(int64, i1, i2)       { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
-IMPL_CMPFUNC(uint,  i1, i2)       { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
+IMPL_CMPFUNC(Pchar, i1, i2) { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
+IMPL_CMPFUNC(int,   i1, i2) { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
+IMPL_CMPFUNC(int16, i1, i2) { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
+IMPL_CMPFUNC(long,  i1, i2) { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
+IMPL_CMPFUNC(int64, i1, i2) { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
+IMPL_CMPFUNC(uint,  i1, i2) { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
 IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
-IMPL_CMPFUNC(LDATE, d1, d2)       { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
+IMPL_CMPFUNC(LDATE, d1, d2) { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
 IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }
 IMPL_CMPFUNC(S_GUID, d1, d2)      { return memcmp(d1, d2, sizeof(S_GUID)); }
 
@@ -225,6 +225,7 @@ FILETIME QuadWordToFileTime(__int64 src)
 //
 uint64 SProfile::Helper_GetAbsTimeMicroseconds()
 {
+	const uint64 clock_freq = SLS.GetSSys().PerfFreq;
 	//
 	// Compute the number of elapsed clock cycles since the clock was created/reset.
 	// Using 64-bit signed ints, this is valid for 2^63 clock cycles (over 104 years w/ clock
@@ -238,7 +239,7 @@ uint64 SProfile::Helper_GetAbsTimeMicroseconds()
 	// Compute the total elapsed seconds.  This is valid for 2^63
 	// clock cycles (over 104 years w/ clock frequency 2.8 GHz).
 	//
-	uint64 sec = (clock_cycles / ClockFrequency);
+	uint64 sec = (clock_cycles / clock_freq);
 	//
 	// Check for unexpected leaps in the Win32 performance counter.
 	// (This is caused by unexpected data across the PCI to ISA
@@ -247,22 +248,22 @@ uint64 SProfile::Helper_GetAbsTimeMicroseconds()
 	// days (because it uses 32-bit unsigned ints to represent
 	// milliseconds).
 	//
-	int64  msec1 = (sec * 1000 + (clock_cycles - sec * ClockFrequency) * 1000 / ClockFrequency);
+	int64  msec1 = (sec * 1000 + (clock_cycles - sec * clock_freq) * 1000 / clock_freq);
 	SETMIN(Gtb.StartTick, tick_count);
 	int64  msec2 = static_cast<int64>(tick_count - Gtb.StartTick);
 	int64  msec_diff = msec1 - msec2;
 	if(msec_diff > -100 && msec_diff < 100) {
 		// Adjust the starting time forwards.
-		uint64 adjustment = MIN(msec_diff * ClockFrequency / 1000, clock_cycles - Gtb.PrevHrc);
+		uint64 adjustment = MIN(msec_diff * clock_freq / 1000, clock_cycles - Gtb.PrevHrc);
 		Gtb.StartHrc += adjustment;
 		clock_cycles -= adjustment;
 		// Update the measured seconds with the adjustments.
-		sec = clock_cycles / ClockFrequency;
+		sec = clock_cycles / clock_freq;
 	}
 	//
 	// Compute the milliseconds part. This is always valid since it will never be greater than 1000000.
 	//
-	uint64 usec = (clock_cycles - sec * ClockFrequency) * 1000000 / ClockFrequency;
+	uint64 usec = (clock_cycles - sec * clock_freq) * 1000000 / clock_freq;
 	//
 	// Store the current elapsed clock cycles for adjustments next time.
 	//
@@ -289,8 +290,8 @@ uint64 SProfile::GetAbsTimeMicroseconds()
 SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded)), StartClock(0), EndClock(0)
 {
 	LARGE_INTEGER cf;
-	QueryPerformanceFrequency(&cf);
-	ClockFrequency = cf.QuadPart;
+	//QueryPerformanceFrequency(&cf);
+	//ClockFrequency = cf.QuadPart;
 	QueryPerformanceCounter(&cf);
 	Gtb.PrevHrc   = 0;
 	Gtb.StartHrc  = static_cast<int64>(cf.QuadPart);

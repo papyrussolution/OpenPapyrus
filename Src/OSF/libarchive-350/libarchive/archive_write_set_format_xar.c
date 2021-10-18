@@ -132,13 +132,13 @@ enum la_zaction {
  * Universal zstream.
  */
 struct la_zstream {
-	const unsigned char     * next_in;
+	const uchar     * next_in;
 	size_t avail_in;
-	uint64_t total_in;
+	uint64 total_in;
 
-	unsigned char * next_out;
+	uchar * next_out;
 	size_t avail_out;
-	uint64_t total_out;
+	uint64 total_out;
 
 	int valid;
 	void                    * real_stream;
@@ -152,15 +152,15 @@ struct la_zstream {
 struct chksumval {
 	enum sumalg alg;
 	size_t len;
-	unsigned char val[MAX_SUM_SIZE];
+	uchar val[MAX_SUM_SIZE];
 };
 
 struct heap_data {
 	int id;
 	struct heap_data        * next;
-	uint64_t temp_offset;
-	uint64_t length;                        /* archived size.	*/
-	uint64_t size;                          /* extracted size.	*/
+	uint64 temp_offset;
+	uint64 length;                        /* archived size.	*/
+	uint64 size;                          /* extracted size.	*/
 	enum enctype compression;
 	struct chksumval a_sum;                 /* archived checksum.	*/
 	struct chksumval e_sum;                 /* extracted checksum.	*/
@@ -216,14 +216,14 @@ struct hardlink {
 
 struct xar {
 	int temp_fd;
-	uint64_t temp_offset;
+	uint64 temp_offset;
 
 	int file_idx;
 	struct file             * root;
 	struct file             * cur_dirent;
 	struct archive_string cur_dirstr;
 	struct file             * cur_file;
-	uint64_t bytes_remaining;
+	uint64 bytes_remaining;
 	struct archive_string tstr;
 	struct archive_string vstr;
 
@@ -231,7 +231,7 @@ struct xar {
 	enum sumalg opt_sumalg;
 	enum enctype opt_compression;
 	int opt_compression_level;
-	uint32_t opt_threads;
+	uint32 opt_threads;
 
 	struct chksumwork a_sumwrk;             /* archived checksum.	*/
 	struct chksumwork e_sumwrk;             /* extracted checksum.	*/
@@ -240,7 +240,7 @@ struct xar {
 	/*
 	 * Compressed data buffer.
 	 */
-	unsigned char wbuff[1024 * 64];
+	uchar wbuff[1024 * 64];
 	size_t wbuff_remaining;
 
 	struct heap_data toc;
@@ -316,7 +316,7 @@ int archive_write_set_format_xar(struct archive * _a)
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-	xar = static_cast<struct xar *>(calloc(1, sizeof(*xar)));
+	xar = static_cast<struct xar *>(SAlloc::C(1, sizeof(*xar)));
 	if(xar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate xar data");
 		return ARCHIVE_FATAL;
@@ -332,9 +332,8 @@ int archive_write_set_format_xar(struct archive * _a)
 	 */
 	xar->root = file_create_virtual_dir(a, xar, "");
 	if(xar->root == NULL) {
-		free(xar);
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate xar data");
+		SAlloc::F(xar);
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate xar data");
 		return ARCHIVE_FATAL;
 	}
 	xar->root->parent = xar->root;
@@ -386,10 +385,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		else if(strcmp(value, "md5") == 0)
 			xar->opt_sumalg = CKSUM_MD5;
 		else {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Unknown checksum name: `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown checksum name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		return ARCHIVE_OK;
@@ -422,18 +418,11 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 			name = "xz";
 #endif
 		else {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Unknown compression name: `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown compression name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		if(name != NULL) {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' compression not supported "
-			    "on this platform",
-			    name);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "`%s' compression not supported on this platform", name);
 			return ARCHIVE_FAILED;
 		}
 		return ARCHIVE_OK;
@@ -442,10 +431,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		if(value == NULL ||
 		    !(value[0] >= '0' && value[0] <= '9') ||
 		    value[1] != '\0') {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Illegal value `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		xar->opt_compression_level = value[0] - '0';
@@ -461,10 +447,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		else if(strcmp(value, "md5") == 0)
 			xar->opt_toc_sumalg = CKSUM_MD5;
 		else {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Unknown checksum name: `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown checksum name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		return ARCHIVE_OK;
@@ -478,10 +461,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		xar->opt_threads = (int)strtoul(value, &endptr, 10);
 		if(errno != 0 || *endptr != '\0') {
 			xar->opt_threads = 1;
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Illegal value `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		if(xar->opt_threads == 0) {
@@ -501,18 +481,14 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 
 static int xar_write_header(struct archive_write * a, struct archive_entry * entry)
 {
-	struct xar * xar;
 	struct file * file;
 	struct archive_entry * file_entry;
 	int r, r2;
-
-	xar = (struct xar *)a->format_data;
+	struct xar * xar = (struct xar *)a->format_data;
 	xar->cur_file = NULL;
 	xar->bytes_remaining = 0;
-
 	if(xar->sconv == NULL) {
-		xar->sconv = archive_string_conversion_to_charset(
-			&a->archive, "UTF-8", 1);
+		xar->sconv = archive_string_conversion_to_charset(&a->archive, "UTF-8", 1);
 		if(xar->sconv == NULL)
 			return ARCHIVE_FATAL;
 	}
@@ -565,8 +541,7 @@ static int xar_write_header(struct archive_write * a, struct archive_entry * ent
 		algsize = getalgsize(xar->opt_toc_sumalg);
 		if(algsize > 0) {
 			if(lseek(xar->temp_fd, algsize, SEEK_SET) < 0) {
-				archive_set_error(&(a->archive), errno,
-				    "lseek failed");
+				archive_set_error(&(a->archive), errno, "lseek failed");
 				return ARCHIVE_FATAL;
 			}
 			xar->temp_offset = algsize;
@@ -621,12 +596,11 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 	ssize_t ws;
 
 	xar = (struct xar *)a->format_data;
-	p = (const unsigned char*)buff;
+	p = (const uchar *)buff;
 	while(s) {
 		ws = write(xar->temp_fd, p, s);
 		if(ws < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "fwrite function failed");
+			archive_set_error(&(a->archive), errno, "fwrite function failed");
 			return ARCHIVE_FATAL;
 		}
 		s -= ws;
@@ -656,7 +630,7 @@ static ssize_t xar_write_data(struct archive_write * a, const void * buff, size_
 		size = rsize = s;
 	}
 	else {
-		xar->stream.next_in = (const unsigned char*)buff;
+		xar->stream.next_in = (const uchar *)buff;
 		xar->stream.avail_in = s;
 		if(xar->bytes_remaining > s)
 			run = ARCHIVE_Z_RUN;
@@ -699,11 +673,11 @@ static ssize_t xar_write_data(struct archive_write * a, const void * buff, size_
 	}
 #if !defined(_WIN32) || defined(__CYGWIN__)
 	if(xar->bytes_remaining ==
-	    (uint64_t)archive_entry_size(xar->cur_file->entry)) {
+	    (uint64)archive_entry_size(xar->cur_file->entry)) {
 		/*
 		 * Get the path of a shell script if so.
 		 */
-		const unsigned char * b = (const unsigned char*)buff;
+		const uchar * b = (const uchar *)buff;
 
 		archive_string_empty(&(xar->cur_file->script));
 		if(rsize > 2 && b[0] == '#' && b[1] == '!') {
@@ -764,73 +738,53 @@ static int xar_finish_entry(struct archive_write * a)
 	checksum_final(&(xar->e_sumwrk), &(file->data.e_sum));
 	checksum_final(&(xar->a_sumwrk), &(file->data.a_sum));
 	xar->cur_file = NULL;
-
 	return ARCHIVE_OK;
 }
 
-static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * value,
-    const char * attrkey, const char * attrvalue)
+static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * value, const char * attrkey, const char * attrvalue)
 {
-	int r;
-
-	r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
+	int r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
 	if(attrkey != NULL && attrvalue != NULL) {
 		r = xmlTextWriterWriteAttribute(writer,
 			BAD_CAST_CONST(attrkey), BAD_CAST_CONST(attrvalue));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
 	if(value != NULL) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteString() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
 	r = xmlTextWriterEndElement(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
-static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * value)
+static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * value)
 {
 	int r;
-
 	if(value == NULL)
 		return ARCHIVE_OK;
-
 	r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
 	if(value != NULL) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteString() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -904,7 +858,7 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
 	int algsize;
 	char buff[MAX_SUM_SIZE*2 + 1];
 	char * p;
-	unsigned char * s;
+	uchar * s;
 	int i, r;
 
 	if(sum->len > 0) {
@@ -1063,8 +1017,7 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 			cp = p + strlen(p);
 
 		for(fe = flagentry; fe->name != NULL; fe++) {
-			if(fe->name[cp - p] != '\0'
-			    || p[0] != fe->name[0])
+			if(fe->name[cp - p] != '\0' || p[0] != fe->name[0])
 				continue;
 			if(strncmp(p, fe->name, cp - p) == 0) {
 				avail[n++] = fe;
@@ -1103,7 +1056,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	const char * filetype, * filelink, * fflags;
 	struct archive_string linkto;
 	struct heap_data * heap;
-	unsigned char * tmp;
+	uchar * tmp;
 	const char * p;
 	size_t len;
 	int r, r2, l, ll;
@@ -1114,13 +1067,13 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	 * Make a file name entry, "<name>".
 	 */
 	l = ll = archive_strlen(&(file->basename));
-	tmp = static_cast<uchar *>(malloc(l));
+	tmp = static_cast<uchar *>(SAlloc::M(l));
 	if(tmp == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		return ARCHIVE_FATAL;
 	}
 	r = UTF8Toisolat1(tmp, &l, BAD_CAST(file->basename.s), &ll);
-	free(tmp);
+	SAlloc::F(tmp);
 	if(r < 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST("name"));
 		if(r < 0) {
@@ -1129,24 +1082,18 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		}
 		r = xmlTextWriterWriteAttribute(writer, BAD_CAST("enctype"), BAD_CAST("base64"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 		r = xmlTextWriterWriteBase64(writer, file->basename.s,
 			0, archive_strlen(&(file->basename)));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteBase64() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteBase64() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -1218,9 +1165,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		     *   <link type="broken">foo/bar</link>
 		     *   It means "foo/bar" is not reachable.
 		     */
-		    r = xmlwrite_string_attr(a, writer, "link",
-			    file->symlink.s,
-			    "type", "broken");
+		    r = xmlwrite_string_attr(a, writer, "link", file->symlink.s, "type", "broken");
 		    if(r < 0)
 			    return ARCHIVE_FATAL;
 		    break;
@@ -1228,71 +1173,54 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		case AE_IFBLK:
 		    r = xmlTextWriterStartElement(writer, BAD_CAST("device"));
 		    if(r < 0) {
-			    archive_set_error(&a->archive,
-				ARCHIVE_ERRNO_MISC,
-				"xmlTextWriterStartElement() failed: %d", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			    return ARCHIVE_FATAL;
 		    }
-		    r = xmlwrite_fstring(a, writer, "major",
-			    "%d", archive_entry_rdevmajor(file->entry));
+		    r = xmlwrite_fstring(a, writer, "major", "%d", archive_entry_rdevmajor(file->entry));
 		    if(r < 0)
 			    return ARCHIVE_FATAL;
-		    r = xmlwrite_fstring(a, writer, "minor",
-			    "%d", archive_entry_rdevminor(file->entry));
+		    r = xmlwrite_fstring(a, writer, "minor", "%d", archive_entry_rdevminor(file->entry));
 		    if(r < 0)
 			    return ARCHIVE_FATAL;
 		    r = xmlTextWriterEndElement(writer);
 		    if(r < 0) {
-			    archive_set_error(&a->archive,
-				ARCHIVE_ERRNO_MISC,
-				"xmlTextWriterEndElement() failed: %d", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			    return ARCHIVE_FATAL;
 		    }
 		    break;
 		default:
 		    break;
 	}
-
 	/*
 	 * Make a inode entry, "<inode>".
 	 */
-	r = xmlwrite_fstring(a, writer, "inode",
-		"%jd", archive_entry_ino64(file->entry));
+	r = xmlwrite_fstring(a, writer, "inode", "%jd", archive_entry_ino64(file->entry));
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	if(archive_entry_dev(file->entry) != 0) {
-		r = xmlwrite_fstring(a, writer, "deviceno",
-			"%d", archive_entry_dev(file->entry));
+		r = xmlwrite_fstring(a, writer, "deviceno", "%d", archive_entry_dev(file->entry));
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a file mode entry, "<mode>".
 	 */
-	r = xmlwrite_mode(a, writer, "mode",
-		archive_entry_mode(file->entry));
+	r = xmlwrite_mode(a, writer, "mode", archive_entry_mode(file->entry));
 	if(r < 0)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Make a user entry, "<uid>" and "<user>.
 	 */
-	r = xmlwrite_fstring(a, writer, "uid",
-		"%d", archive_entry_uid(file->entry));
+	r = xmlwrite_fstring(a, writer, "uid", "%d", archive_entry_uid(file->entry));
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = archive_entry_uname_l(file->entry, &p, &len, xar->sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Uname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate uname '%s' to UTF-8",
-		    archive_entry_uname(file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate uname '%s' to UTF-8", archive_entry_uname(file->entry));
 		r2 = ARCHIVE_WARN;
 	}
 	if(len > 0) {
@@ -1300,25 +1228,19 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a group entry, "<gid>" and "<group>.
 	 */
-	r = xmlwrite_fstring(a, writer, "gid",
-		"%d", archive_entry_gid(file->entry));
+	r = xmlwrite_fstring(a, writer, "gid", "%d", archive_entry_gid(file->entry));
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = archive_entry_gname_l(file->entry, &p, &len, xar->sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Gname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate gname '%s' to UTF-8",
-		    archive_entry_gname(file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate gname '%s' to UTF-8", archive_entry_gname(file->entry));
 		r2 = ARCHIVE_WARN;
 	}
 	if(len > 0) {
@@ -1326,37 +1248,30 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a ctime entry, "<ctime>".
 	 */
 	if(archive_entry_ctime_is_set(file->entry)) {
-		r = xmlwrite_time(a, writer, "ctime",
-			archive_entry_ctime(file->entry), 1);
+		r = xmlwrite_time(a, writer, "ctime", archive_entry_ctime(file->entry), 1);
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a mtime entry, "<mtime>".
 	 */
 	if(archive_entry_mtime_is_set(file->entry)) {
-		r = xmlwrite_time(a, writer, "mtime",
-			archive_entry_mtime(file->entry), 1);
+		r = xmlwrite_time(a, writer, "mtime", archive_entry_mtime(file->entry), 1);
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a atime entry, "<atime>".
 	 */
 	if(archive_entry_atime_is_set(file->entry)) {
-		r = xmlwrite_time(a, writer, "atime",
-			archive_entry_atime(file->entry), 1);
+		r = xmlwrite_time(a, writer, "atime", archive_entry_atime(file->entry), 1);
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make fflags entries, "<flags>" and "<ext2>".
 	 */
@@ -1369,7 +1284,6 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		if(r < 0)
 			return r;
 	}
-
 	/*
 	 * Make extended attribute entries, "<ea>".
 	 */
@@ -1378,22 +1292,15 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		const char * name;
 		const void * value;
 		size_t size;
-
-		archive_entry_xattr_next(file->entry,
-		    &name, &value, &size);
+		archive_entry_xattr_next(file->entry, &name, &value, &size);
 		r = xmlTextWriterStartElement(writer, BAD_CAST("ea"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
-		r = xmlTextWriterWriteFormatAttribute(writer,
-			BAD_CAST("id"), "%d", heap->id);
+		r = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST("id"), "%d", heap->id);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 		r = xmlwrite_heap(a, writer, heap);
@@ -1405,29 +1312,22 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	/*
 	 * Make a file data entry, "<data>".
 	 */
 	if(file->data.length > 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST("data"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
-
 		r = xmlwrite_heap(a, writer, &(file->data));
 		if(r < 0)
 			return ARCHIVE_FATAL;
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
 			archive_set_error(&a->archive,
@@ -1694,7 +1594,7 @@ static int flush_wbuff(struct archive_write * a)
 	return r;
 }
 
-static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
+static int copy_out(struct archive_write * a, uint64 offset, uint64 length)
 {
 	int r;
 	struct xar * xar = (struct xar *)a->format_data;
@@ -1705,7 +1605,7 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 	while(length) {
 		size_t rsize;
 		ssize_t rs;
-		unsigned char * wb;
+		uchar * wb;
 		if(length > xar->wbuff_remaining)
 			rsize = xar->wbuff_remaining;
 		else
@@ -1733,23 +1633,17 @@ static int copy_out(struct archive_write * a, uint64_t offset, uint64_t length)
 
 static int xar_close(struct archive_write * a)
 {
-	struct xar * xar;
-	unsigned char * wb;
-	uint64_t length;
+	uchar * wb;
+	uint64 length;
 	int r;
-
-	xar = (struct xar *)a->format_data;
-
+	struct xar * xar = (struct xar *)a->format_data;
 	/* Empty! */
 	if(xar->root->children.first == NULL)
 		return ARCHIVE_OK;
-
 	/* Save the length of all file extended attributes and contents. */
 	length = xar->temp_offset;
-
 	/* Connect hardlinked files */
 	file_connect_hardlink_files(xar);
-
 	/* Make the TOC */
 	r = make_toc(a);
 	if(r != ARCHIVE_OK)
@@ -1798,38 +1692,30 @@ static int xar_close(struct archive_write * a)
 
 static int xar_free(struct archive_write * a)
 {
-	struct xar * xar;
-
-	xar = (struct xar *)a->format_data;
-
+	struct xar * xar = (struct xar *)a->format_data;
 	/* Close the temporary file. */
 	if(xar->temp_fd >= 0)
 		close(xar->temp_fd);
-
 	archive_string_free(&(xar->cur_dirstr));
 	archive_string_free(&(xar->tstr));
 	archive_string_free(&(xar->vstr));
 	file_free_hardlinks(xar);
 	file_free_register(xar);
 	compression_end(&(a->archive), &(xar->stream));
-	free(xar);
-
+	SAlloc::F(xar);
 	return ARCHIVE_OK;
 }
 
-static int file_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int file_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct file * f1 = (const struct file *)n1;
 	const struct file * f2 = (const struct file *)n2;
-
 	return (strcmp(f1->basename.s, f2->basename.s));
 }
 
 static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct file * f = (const struct file *)n;
-
 	return (strcmp(f->basename.s, (const char *)key));
 }
 
@@ -1839,7 +1725,7 @@ static struct file * file_new(struct archive_write * a, struct archive_entry * e
 	static const struct archive_rb_tree_ops rb_ops = {
 		file_cmp_node, file_cmp_key
 	};
-	file = static_cast<struct file *>(calloc(1, sizeof(*file)));
+	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL)
 		return NULL;
 	if(entry != NULL)
@@ -1847,7 +1733,7 @@ static struct file * file_new(struct archive_write * a, struct archive_entry * e
 	else
 		file->entry = archive_entry_new2(&a->archive);
 	if(file->entry == NULL) {
-		free(file);
+		SAlloc::F(file);
 		return NULL;
 	}
 	__archive_rb_tree_init(&(file->rbtree), &rb_ops);
@@ -1871,7 +1757,7 @@ static void file_free(struct file * file)
 		struct heap_data * heap = file->xattr.first;
 		while(heap != NULL) {
 			struct heap_data * next_heap = heap->next;
-			free(heap);
+			SAlloc::F(heap);
 			heap = next_heap;
 		}
 		archive_string_free(&(file->parentdir));
@@ -1879,7 +1765,7 @@ static void file_free(struct file * file)
 		archive_string_free(&(file->symlink));
 		archive_string_free(&(file->script));
 		archive_entry_free(file->entry);
-		free(file);
+		SAlloc::F(file);
 	}
 }
 
@@ -2122,7 +2008,7 @@ static int get_path_component(char * name, int n, const char * fn)
 static int file_tree(struct archive_write * a, struct file ** filepp)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	char name[_MAX_FNAME];/* Included null terminator size. */
+	char name[_MAX_FNAME]; /* Included null terminator size. */
 #elif defined(NAME_MAX) && NAME_MAX >= 255
 	char name[NAME_MAX+1];
 #else
@@ -2297,7 +2183,7 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 	pathname = archive_entry_hardlink(file->entry);
 	if(pathname == NULL) {
 		/* This `file` is a hardlink target. */
-		hl = static_cast<struct hardlink *>(malloc(sizeof(*hl)));
+		hl = static_cast<struct hardlink *>(SAlloc::M(sizeof(*hl)));
 		if(hl == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 			return ARCHIVE_FATAL;
@@ -2386,7 +2272,7 @@ static void file_free_hardlinks(struct xar * xar)
 	struct archive_rb_node * n, * tmp;
 	ARCHIVE_RB_TREE_FOREACH_SAFE(n, &(xar->hardlink_rbtree), tmp) {
 		__archive_rb_tree_remove_node(&(xar->hardlink_rbtree), n);
-		free(n);
+		SAlloc::F(n);
 	}
 }
 
@@ -2455,7 +2341,7 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	z_stream * strm;
 	if(lastrm->valid)
 		compression_end(a, lastrm);
-	strm = static_cast<z_stream *>(calloc(1, sizeof(*strm)));
+	strm = static_cast<z_stream *>(SAlloc::C(1, sizeof(*strm)));
 	if(strm == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for gzip stream");
 		return ARCHIVE_FATAL;
@@ -2472,7 +2358,7 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	if(deflateInit2(strm, level, Z_DEFLATED,
 	    (withheader) ? 15 : -15,
 	    8, Z_DEFAULT_STRATEGY) != Z_OK) {
-		free(strm);
+		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
 		archive_set_error(a, ARCHIVE_ERRNO_MISC,
 		    "Internal error initializing compression library");
@@ -2529,7 +2415,7 @@ static int compression_end_gzip(struct archive * a, struct la_zstream * lastrm)
 
 	strm = (z_stream*)lastrm->real_stream;
 	r = deflateEnd(strm);
-	free(strm);
+	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != Z_OK) {
@@ -2546,7 +2432,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	bz_stream * strm;
 	if(lastrm->valid)
 		compression_end(a, lastrm);
-	strm = static_cast<bz_stream *>(calloc(1, sizeof(*strm)));
+	strm = static_cast<bz_stream *>(SAlloc::C(1, sizeof(*strm)));
 	if(strm == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for bzip2 stream");
 		return ARCHIVE_FATAL;
@@ -2556,14 +2442,14 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	 * a non-const pointer. */
 	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
+	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
+	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
+	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
+	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
-		free(strm);
+		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
 		archive_set_error(a, ARCHIVE_ERRNO_MISC,
 		    "Internal error initializing compression library");
@@ -2588,24 +2474,24 @@ static int compression_code_bzip2(struct archive * a,
 	 * a non-const pointer. */
 	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32_t)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32_t)(lastrm->total_in >> 32);
+	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
+	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
+	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
+	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
 	r = BZ2_bzCompress(strm,
 		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
-	lastrm->next_in = (const unsigned char*)strm->next_in;
+	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
 	lastrm->total_in =
-	    (((uint64_t)(uint32_t)strm->total_in_hi32) << 32)
-	    + (uint64_t)(uint32_t)strm->total_in_lo32;
+	    (((uint64)(uint32)strm->total_in_hi32) << 32)
+	    + (uint64)(uint32)strm->total_in_lo32;
 	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
 	lastrm->total_out =
-	    (((uint64_t)(uint32_t)strm->total_out_hi32) << 32)
-	    + (uint64_t)(uint32_t)strm->total_out_lo32;
+	    (((uint64)(uint32)strm->total_out_hi32) << 32)
+	    + (uint64)(uint32)strm->total_out_lo32;
 	switch(r) {
 		case BZ_RUN_OK: /* Non-finishing */
 		case BZ_FINISH_OK: /* Finishing: There's more work to do */
@@ -2629,7 +2515,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 
 	strm = (bz_stream*)lastrm->real_stream;
 	r = BZ2_bzCompressEnd(strm);
-	free(strm);
+	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != BZ_OK) {
@@ -2666,7 +2552,7 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 		archive_set_error(a, ENOMEM, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
-	strm = static_cast<lzma_stream *>(calloc(1, sizeof(*strm)));
+	strm = static_cast<lzma_stream *>(SAlloc::C(1, sizeof(*strm)));
 	if(strm == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for lzma stream");
 		return ARCHIVE_FATAL;
@@ -2682,13 +2568,13 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 		    r = ARCHIVE_OK;
 		    break;
 		case LZMA_MEM_ERROR:
-		    free(strm);
+		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
 		    archive_set_error(a, ENOMEM, "Internal error initializing compression library: Cannot allocate memory");
 		    r =  ARCHIVE_FATAL;
 		    break;
 		default:
-		    free(strm);
+		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
 		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
 			"Internal error initializing compression library: It's a bug in liblzma");
@@ -2712,7 +2598,7 @@ static int compression_init_encoder_xz(struct archive * a,
 	(void)threads; /* UNUSED (if multi-threaded LZMA library not avail) */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
-	strm = static_cast<lzma_stream *>(calloc(1, sizeof(*strm) + sizeof(*lzmafilters) * 2));
+	strm = static_cast<lzma_stream *>(SAlloc::C(1, sizeof(*strm) + sizeof(*lzmafilters) * 2));
 	if(strm == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for xz stream");
 		return ARCHIVE_FATAL;
@@ -2721,14 +2607,14 @@ static int compression_init_encoder_xz(struct archive * a,
 	if(level > 9)
 		level = 9;
 	if(lzma_lzma_preset(&lzma_opt, level)) {
-		free(strm);
+		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
 		archive_set_error(a, ENOMEM, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lzmafilters[0].id = LZMA_FILTER_LZMA2;
 	lzmafilters[0].options = &lzma_opt;
-	lzmafilters[1].id = LZMA_VLI_UNKNOWN;/* Terminate */
+	lzmafilters[1].id = LZMA_VLI_UNKNOWN; /* Terminate */
 
 	*strm = lzma_init_data;
 #ifdef HAVE_LZMA_STREAM_ENCODER_MT
@@ -2752,19 +2638,15 @@ static int compression_init_encoder_xz(struct archive * a,
 		    r = ARCHIVE_OK;
 		    break;
 		case LZMA_MEM_ERROR:
-		    free(strm);
+		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
-		    archive_set_error(a, ENOMEM,
-			"Internal error initializing compression library: "
-			"Cannot allocate memory");
+		    archive_set_error(a, ENOMEM, "Internal error initializing compression library: Cannot allocate memory");
 		    r =  ARCHIVE_FATAL;
 		    break;
 		default:
-		    free(strm);
+		    SAlloc::F(strm);
 		    lastrm->real_stream = NULL;
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing compression library: "
-			"It's a bug in liblzma");
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: It's a bug in liblzma");
 		    r =  ARCHIVE_FATAL;
 		    break;
 	}
@@ -2800,17 +2682,11 @@ static int compression_code_lzma(struct archive * a,
 		    /* This return can only occur in finishing case. */
 		    return (ARCHIVE_EOF);
 		case LZMA_MEMLIMIT_ERROR:
-		    archive_set_error(a, ENOMEM,
-			"lzma compression error:"
-			" %ju MiB would have been needed",
-			(uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1)
-			/ (1024 * 1024)));
+		    archive_set_error(a, ENOMEM, "lzma compression error: %ju MiB would have been needed", (uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1) / (1024 * 1024)));
 		    return ARCHIVE_FATAL;
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"lzma compression failed:"
-			" lzma_code() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression failed: lzma_code() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
@@ -2822,7 +2698,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 	(void)a; /* UNUSED */
 	strm = (lzma_stream*)lastrm->real_stream;
 	lzma_end(strm);
-	free(strm);
+	SAlloc::F(strm);
 	lastrm->valid = 0;
 	lastrm->real_stream = NULL;
 	return ARCHIVE_OK;
@@ -2923,14 +2799,14 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 		archive_entry_xattr_next(file->entry, &name, &value, &size);
 		checksum_init(&(xar->a_sumwrk), xar->opt_sumalg);
 		checksum_init(&(xar->e_sumwrk), xar->opt_sumalg);
-		heap = static_cast<struct heap_data *>(calloc(1, sizeof(*heap)));
+		heap = static_cast<struct heap_data *>(SAlloc::C(1, sizeof(*heap)));
 		if(heap == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for xattr");
 			return ARCHIVE_FATAL;
 		}
 		heap->id = file->ea_idx++;
 		heap->temp_offset = xar->temp_offset;
-		heap->size = size;/* save a extracted size */
+		heap->size = size; /* save a extracted size */
 		heap->compression = xar->opt_compression;
 		/* Get a extracted sumcheck value. */
 		checksum_update(&(xar->e_sumwrk), value, size);
@@ -2944,7 +2820,7 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 			checksum_final(&(xar->a_sumwrk), &(heap->a_sum));
 			if(write_to_temp(a, value, size)
 			    != ARCHIVE_OK) {
-				free(heap);
+				SAlloc::F(heap);
 				return ARCHIVE_FATAL;
 			}
 			heap->length = size;
@@ -2961,25 +2837,21 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 		 */
 		r = xar_compression_init_encoder(a);
 		if(r != ARCHIVE_OK) {
-			free(heap);
+			SAlloc::F(heap);
 			return ARCHIVE_FATAL;
 		}
-
-		xar->stream.next_in = (const unsigned char*)value;
+		xar->stream.next_in = (const uchar *)value;
 		xar->stream.avail_in = size;
 		for(;;) {
-			r = compression_code(&(a->archive),
-				&(xar->stream), ARCHIVE_Z_FINISH);
+			r = compression_code(&(a->archive), &(xar->stream), ARCHIVE_Z_FINISH);
 			if(r != ARCHIVE_OK && r != ARCHIVE_EOF) {
-				free(heap);
+				SAlloc::F(heap);
 				return ARCHIVE_FATAL;
 			}
 			size = sizeof(xar->wbuff) - xar->stream.avail_out;
-			checksum_update(&(xar->a_sumwrk),
-			    xar->wbuff, size);
-			if(write_to_temp(a, xar->wbuff, size)
-			    != ARCHIVE_OK) {
-				free(heap);
+			checksum_update(&(xar->a_sumwrk), xar->wbuff, size);
+			if(write_to_temp(a, xar->wbuff, size) != ARCHIVE_OK) {
+				SAlloc::F(heap);
 				return ARCHIVE_FATAL;
 			}
 			if(r == ARCHIVE_OK) {
@@ -2987,8 +2859,7 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 				xar->stream.avail_out = sizeof(xar->wbuff);
 			}
 			else {
-				checksum_final(&(xar->a_sumwrk),
-				    &(heap->a_sum));
+				checksum_final(&(xar->a_sumwrk), &(heap->a_sum));
 				heap->length = xar->stream.total_out;
 				/* Add heap to the tail of file->xattr. */
 				heap->next = NULL;
@@ -3009,12 +2880,9 @@ static int getalgsize(enum sumalg sumalg)
 {
 	switch(sumalg) {
 		default:
-		case CKSUM_NONE:
-		    return 0;
-		case CKSUM_SHA1:
-		    return (SHA1_SIZE);
-		case CKSUM_MD5:
-		    return (MD5_SIZE);
+		case CKSUM_NONE: return 0;
+		case CKSUM_SHA1: return (SHA1_SIZE);
+		case CKSUM_MD5: return (MD5_SIZE);
 	}
 }
 
@@ -3022,12 +2890,9 @@ static const char * getalgname(enum sumalg sumalg)
 {
 	switch(sumalg) {
 		default:
-		case CKSUM_NONE:
-		    return NULL;
-		case CKSUM_SHA1:
-		    return (SHA1_NAME);
-		case CKSUM_MD5:
-		    return (MD5_NAME);
+		case CKSUM_NONE: return NULL;
+		case CKSUM_SHA1: return (SHA1_NAME);
+		case CKSUM_MD5: return (MD5_NAME);
 	}
 }
 

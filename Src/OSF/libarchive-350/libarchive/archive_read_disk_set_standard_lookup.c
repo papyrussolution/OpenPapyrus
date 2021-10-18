@@ -59,8 +59,8 @@ struct name_cache {
 	} cache[name_cache_size];
 };
 
-static const char *     lookup_gname(void *, int64_t);
-static const char *     lookup_uname(void *, int64_t);
+static const char *     lookup_gname(void *, int64);
+static const char *     lookup_uname(void *, int64);
 static void     cleanup(void *);
 static const char *     lookup_gname_helper(struct name_cache *, id_t gid);
 static const char *     lookup_uname_helper(struct name_cache *, id_t uid);
@@ -80,12 +80,12 @@ static const char *     lookup_uname_helper(struct name_cache *, id_t uid);
  */
 int archive_read_disk_set_standard_lookup(struct archive * a)
 {
-	struct name_cache * ucache = malloc(sizeof(struct name_cache));
-	struct name_cache * gcache = malloc(sizeof(struct name_cache));
+	struct name_cache * ucache = SAlloc::M(sizeof(struct name_cache));
+	struct name_cache * gcache = SAlloc::M(sizeof(struct name_cache));
 	if(ucache == NULL || gcache == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate uname/gname lookup cache");
-		free(ucache);
-		free(gcache);
+		SAlloc::F(ucache);
+		SAlloc::F(gcache);
 		return ARCHIVE_FATAL;
 	}
 	memzero(ucache, sizeof(*ucache));
@@ -107,10 +107,10 @@ static void cleanup(void * data)
 		for(i = 0; i < cache->size; i++) {
 			if(cache->cache[i].name != NULL &&
 			    cache->cache[i].name != NO_NAME)
-				free((void*)(uintptr_t)cache->cache[i].name);
+				SAlloc::F((void *)(uintptr_t)cache->cache[i].name);
 		}
-		free(cache->buff);
-		free(cache);
+		SAlloc::F(cache->buff);
+		SAlloc::F(cache);
 	}
 }
 
@@ -134,7 +134,7 @@ static const char * lookup_name(struct name_cache * cache,
 			return (cache->cache[slot].name);
 		}
 		if(cache->cache[slot].name != NO_NAME)
-			free((void*)(uintptr_t)cache->cache[slot].name);
+			SAlloc::F((void *)(uintptr_t)cache->cache[slot].name);
 		cache->cache[slot].name = NULL;
 	}
 
@@ -151,7 +151,7 @@ static const char * lookup_name(struct name_cache * cache,
 	return (cache->cache[slot].name);
 }
 
-static const char * lookup_uname(void * data, int64_t uid)
+static const char * lookup_uname(void * data, int64 uid)
 {
 	struct name_cache * uname_cache = (struct name_cache *)data;
 	return (lookup_name(uname_cache,
@@ -168,7 +168,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 
 	if(cache->buff_size == 0) {
 		cache->buff_size = 256;
-		cache->buff = malloc(cache->buff_size);
+		cache->buff = SAlloc::M(cache->buff_size);
 	}
 	if(cache->buff == NULL)
 		return NULL;
@@ -186,7 +186,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 		 * is kept around in the cache object, we shouldn't
 		 * have to do this very often. */
 		nbuff_size = cache->buff_size * 2;
-		nbuff = realloc(cache->buff, nbuff_size);
+		nbuff = SAlloc::R(cache->buff, nbuff_size);
 		if(nbuff == NULL)
 			break;
 		cache->buff = nbuff;
@@ -200,7 +200,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->pw_name);
+	return sstrdup(result->pw_name);
 }
 
 #else
@@ -214,12 +214,12 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->pw_name);
+	return sstrdup(result->pw_name);
 }
 
 #endif
 
-static const char * lookup_gname(void * data, int64_t gid)
+static const char * lookup_gname(void * data, int64 gid)
 {
 	struct name_cache * gname_cache = (struct name_cache *)data;
 	return (lookup_name(gname_cache,
@@ -236,7 +236,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 
 	if(cache->buff_size == 0) {
 		cache->buff_size = 256;
-		cache->buff = malloc(cache->buff_size);
+		cache->buff = SAlloc::M(cache->buff_size);
 	}
 	if(cache->buff == NULL)
 		return NULL;
@@ -252,7 +252,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 		 * doesn't tell us how big the buffer should be, so
 		 * we just double it and try again. */
 		nbuff_size = cache->buff_size * 2;
-		nbuff = realloc(cache->buff, nbuff_size);
+		nbuff = SAlloc::R(cache->buff, nbuff_size);
 		if(nbuff == NULL)
 			break;
 		cache->buff = nbuff;
@@ -266,7 +266,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->gr_name);
+	return sstrdup(result->gr_name);
 }
 
 #else
@@ -280,7 +280,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	if(result == NULL)
 		return NULL;
 
-	return strdup(result->gr_name);
+	return sstrdup(result->gr_name);
 }
 
 #endif

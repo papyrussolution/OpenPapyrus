@@ -2691,28 +2691,14 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				}
 				if(p_scrlr) {
 					switch(p_se->Type) {
-						case ScrollEvent::tTop:
-							r = p_scrlr->Top();
-							break;
-						case ScrollEvent::tBottom:
-							r = p_scrlr->Bottom();
-							break;
-						case ScrollEvent::tLineDown:
-							r = p_scrlr->LineDown(1, false);
-							break;
-						case ScrollEvent::tPageDown:
-							r = p_scrlr->PageDown(1);
-							break;
-						case ScrollEvent::tLineUp:
-							r = p_scrlr->LineUp(1, false);
-							break;
-						case ScrollEvent::tPageUp:
-							r = p_scrlr->PageUp(1);
-							break;
-						case ScrollEvent::tThumbPos:
-							break;
-						case ScrollEvent::tThumbTrack:
-							break;
+						case ScrollEvent::tTop: r = p_scrlr->Top(); break;
+						case ScrollEvent::tBottom: r = p_scrlr->Bottom(); break;
+						case ScrollEvent::tLineDown: r = p_scrlr->LineDown(1, false); break;
+						case ScrollEvent::tPageDown: r = p_scrlr->PageDown(1); break;
+						case ScrollEvent::tLineUp: r = p_scrlr->LineUp(1, false); break;
+						case ScrollEvent::tPageUp: r = p_scrlr->PageUp(1); break;
+						case ScrollEvent::tThumbPos: break;
+						case ScrollEvent::tThumbTrack: break;
 					}
 				}
 				else {
@@ -3135,9 +3121,8 @@ TWhatmanBrowser::~TWhatmanBrowser()
 
 void TWhatmanBrowser::InitLayout()
 {
-	AbstractLayoutBlock alb;
 	P_Lfc = new LayoutFlexItem();
-	alb.SetContainerDirection(DIREC_HORZ);
+	AbstractLayoutBlock alb(DIREC_HORZ);
 	alb.AlignContent = AbstractLayoutBlock::alignStretch;
 	P_Lfc->SetLayoutBlock(alb);
 	P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);

@@ -80,7 +80,7 @@ struct archive_read_filter_bidder {
  * corresponding bidder above.
  */
 struct archive_read_filter {
-	int64_t position;
+	int64 position;
 	/* Essentially all filters will need these values, so
 	 * just declare them here. */
 	struct archive_read_filter_bidder *bidder; /* My bidder. */
@@ -91,10 +91,10 @@ struct archive_read_filter {
 	/* Return next block. */
 	ssize_t (*read)(struct archive_read_filter *, const void **);
 	/* Skip forward this many bytes. */
-	int64_t (*skip)(struct archive_read_filter *self, int64_t request);
+	int64 (*skip)(struct archive_read_filter *self, int64 request);
 	/* Seek to an absolute location. */
-	int64_t (*seek)(struct archive_read_filter *self, int64_t offset, int whence);
-	/* Close (just this filter) and free(self). */
+	int64 (*seek)(struct archive_read_filter *self, int64 offset, int whence);
+	/* Close (just this filter) and SAlloc::F(self). */
 	int (*close)(struct archive_read_filter *self);
 	/* Function that handles switching from reading one block to the next/prev */
 	int (*sswitch)(struct archive_read_filter *self, unsigned int iindex);
@@ -129,8 +129,8 @@ struct archive_read_filter {
  * so should be deferred at least until libarchive 3.0.
  */
 struct archive_read_data_node {
-	int64_t begin_position;
-	int64_t total_size;
+	int64 begin_position;
+	int64 total_size;
 	void *data;
 };
 struct archive_read_client {
@@ -142,7 +142,7 @@ struct archive_read_client {
 	archive_switch_callback *switcher;
 	unsigned int nodes;
 	unsigned int cursor;
-	int64_t position;
+	int64 position;
 	struct archive_read_data_node *dataset;
 };
 struct archive_read_passphrase {
@@ -163,8 +163,8 @@ struct archive_read {
 	struct archive_entry	*entry;
 	/* Dev/ino of the archive being read/written. */
 	int		  skip_file_set;
-	int64_t		  skip_file_dev;
-	int64_t		  skip_file_ino;
+	int64		  skip_file_dev;
+	int64		  skip_file_ino;
 	/* Callbacks to open/read/write/close client archive streams. */
 	struct archive_read_client client;
 	/* Registered filter bidders. */
@@ -175,7 +175,7 @@ struct archive_read {
 	int bypass_filter_bidding;
 
 	/* File offset of beginning of most recently-read header. */
-	int64_t		  header_position;
+	int64		  header_position;
 
 	/* Nodes and offsets of compressed data block */
 	unsigned int data_start_node;
@@ -196,9 +196,9 @@ struct archive_read {
 		int	(*options)(struct archive_read *, const char *key,
 		    const char *value);
 		int	(*read_header)(struct archive_read *, struct archive_entry *);
-		int	(*read_data)(struct archive_read *, const void **, size_t *, int64_t *);
+		int	(*read_data)(struct archive_read *, const void **, size_t *, int64 *);
 		int	(*read_data_skip)(struct archive_read *);
-		int64_t	(*seek_data)(struct archive_read *, int64_t, int);
+		int64	(*seek_data)(struct archive_read *, int64, int);
 		int	(*cleanup)(struct archive_read *);
 		int	(*format_capabilties)(struct archive_read *);
 		int	(*has_encrypted_entries)(struct archive_read *);
@@ -227,9 +227,9 @@ int	__archive_read_register_format(struct archive_read *a,
 		int (*bid)(struct archive_read *, int),
 		int (*options)(struct archive_read *, const char *, const char *),
 		int (*read_header)(struct archive_read *, struct archive_entry *),
-		int (*read_data)(struct archive_read *, const void **, size_t *, int64_t *),
+		int (*read_data)(struct archive_read *, const void **, size_t *, int64 *),
 		int (*read_data_skip)(struct archive_read *),
-		int64_t (*seek_data)(struct archive_read *, int64_t, int),
+		int64 (*seek_data)(struct archive_read *, int64, int),
 		int (*cleanup)(struct archive_read *),
 		int (*format_capabilities)(struct archive_read *),
 		int (*has_encrypted_entries)(struct archive_read *));
@@ -237,10 +237,10 @@ int	__archive_read_register_format(struct archive_read *a,
 int __archive_read_get_bidder(struct archive_read *a, struct archive_read_filter_bidder **bidder);
 const void *__archive_read_ahead(struct archive_read *, size_t, ssize_t *);
 const void *__archive_read_filter_ahead(struct archive_read_filter *, size_t, ssize_t *);
-int64_t	__archive_read_seek(struct archive_read*, int64_t, int);
-int64_t	__archive_read_filter_seek(struct archive_read_filter *, int64_t, int);
-int64_t	__archive_read_consume(struct archive_read *, int64_t);
-int64_t	__archive_read_filter_consume(struct archive_read_filter *, int64_t);
+int64	__archive_read_seek(struct archive_read*, int64, int);
+int64	__archive_read_filter_seek(struct archive_read_filter *, int64, int);
+int64	__archive_read_consume(struct archive_read *, int64);
+int64	__archive_read_filter_consume(struct archive_read_filter *, int64);
 int __archive_read_header(struct archive_read *, struct archive_entry *);
 int __archive_read_program(struct archive_read_filter *, const char *);
 void __archive_read_free_filters(struct archive_read *);

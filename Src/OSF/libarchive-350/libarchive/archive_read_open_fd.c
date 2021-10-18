@@ -46,8 +46,8 @@ struct read_fd_data {
 
 static int      file_close(struct archive *, void *);
 static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64_t  file_seek(struct archive *, void *, int64_t request, int);
-static int64_t  file_skip(struct archive *, void *, int64_t request);
+static int64  file_seek(struct archive *, void *, int64 request, int);
+static int64  file_skip(struct archive *, void *, int64 request);
 
 int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 {
@@ -61,12 +61,12 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 		return ARCHIVE_FATAL;
 	}
 
-	mine = (struct read_fd_data *)calloc(1, sizeof(*mine));
-	b = malloc(block_size);
+	mine = (struct read_fd_data *)SAlloc::C(1, sizeof(*mine));
+	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		free(mine);
-		free(b);
+		SAlloc::F(mine);
+		SAlloc::F(b);
 		return ARCHIVE_FATAL;
 	}
 	mine->block_size = block_size;
@@ -112,11 +112,11 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 	}
 }
 
-static int64_t file_skip(struct archive * a, void * client_data, int64_t request)
+static int64 file_skip(struct archive * a, void * client_data, int64 request)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
-	int64_t skip = request;
-	int64_t old_offset, new_offset;
+	int64 skip = request;
+	int64 old_offset, new_offset;
 	int skip_bits = sizeof(skip) * 8 - 1;  /* off_t is a signed type. */
 
 	if(!mine->use_lseek)
@@ -124,8 +124,8 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 
 	/* Reduce a request that would overflow the 'skip' variable. */
 	if(sizeof(request) > sizeof(skip)) {
-		int64_t max_skip =
-		    (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
+		int64 max_skip =
+		    (((int64)1 << (skip_bits - 1)) - 1) * 2 + 1;
 		if(request > max_skip)
 			skip = max_skip;
 	}
@@ -158,10 +158,10 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 /*
  * TODO: Store the offset and use it in the read callback.
  */
-static int64_t file_seek(struct archive * a, void * client_data, int64_t request, int whence)
+static int64 file_seek(struct archive * a, void * client_data, int64 request, int whence)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
-	int64_t r;
+	int64 r;
 
 	/* We use off_t here because lseek() is declared that way. */
 	/* See above for notes about when off_t is less than 64 bits. */
@@ -186,7 +186,7 @@ static int file_close(struct archive * a, void * client_data)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	(void)a; /* UNUSED */
-	free(mine->buffer);
-	free(mine);
+	SAlloc::F(mine->buffer);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

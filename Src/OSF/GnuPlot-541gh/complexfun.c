@@ -262,7 +262,7 @@ void GnuPlot::F_lnGamma(union argument * arg)
 
 static _Dcomplex lnGamma(_Dcomplex z)
 {
-	static double coef[15] = {
+	static const double coef[15] = {
 		0.99999999999999709182,
 		57.156235665862923517,    -59.597960355475491248,
 		14.136097974741747174,     -0.49191381609762019978,
@@ -330,9 +330,9 @@ void GnuPlot::F_IGamma(union argument * arg)
 /*   Igamma(a, z)
  *   lower incomplete gamma function P(a, z).
  *
- *                        1      z  -t   (a-1)
- *             P(a, z) = ---- * ∫  e  * t     dt
- *                       Γ(a)    0
+ *                  1      z  -t   (a-1)
+ *       P(a, z) = ---- * ∫  e  * t     dt
+ *                 Γ(a)    0
  *
  *   complex a,	real(a) > 0
  *   complex z
@@ -536,9 +536,9 @@ static _Dcomplex Igamma_GL(_Dcomplex a, _Dcomplex z)
 /* Incomplete gamma function for negative z
  * computed using a series expansion for gamma*
  *
- *                  1    inf   (-z)^k
+ *            1    inf   (-z)^k
  *   gamma*(a,z) = ---  Sum    ------
- *                 Γ(a)  k=0   k!(a+k)
+ *           Γ(a)  k=0   k!(a+k)
  *
  * Abramowitz & Stegun (6.5.29) = Paris (8.7.1)
  */
@@ -572,9 +572,9 @@ _Dcomplex GnuPlot::__Igamma_negative_z(double a, _Dcomplex z)
 #ifdef IGAMMA_POINCARE
 /* Incomplete gamma function computed using a Poincaré expansion
  *
- *                  e^z    inf   (1-a)_k
+ *            e^z    inf   (1-a)_k
  *   gamma*(a,z) ~ -----  Sum    ------
- *                 zΓ(a)   k=0     z^k
+ *           zΓ(a)   k=0     z^k
  *
  * Suggested by Gil (2016) for a>0 and |z| > 50.
  * ACM TOMS 43, 3, Article 26  DOI: http://dx.doi.org/10.1145/2972951

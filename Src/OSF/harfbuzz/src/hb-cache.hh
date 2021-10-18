@@ -35,7 +35,7 @@ template <unsigned int key_bits, unsigned int value_bits, unsigned int cache_bit
 struct hb_cache_t {
 	static_assert((key_bits >= cache_bits), "");
 	static_assert((key_bits + value_bits - cache_bits <= 8 * sizeof(hb_atomic_int_t)), "");
-	static_assert(sizeof(hb_atomic_int_t) == sizeof(unsigned int), "");
+	static_assert(sizeof(hb_atomic_int_t) == sizeof(uint), "");
 
 	void init() {
 		clear();
@@ -54,7 +54,7 @@ struct hb_cache_t {
 	{
 		unsigned int k = key & ((1u<<cache_bits)-1);
 		unsigned int v = values[k].get_relaxed();
-		if((key_bits + value_bits - cache_bits == 8 * sizeof(hb_atomic_int_t) && v == (unsigned int)-1) ||
+		if((key_bits + value_bits - cache_bits == 8 * sizeof(hb_atomic_int_t) && v == (uint)-1) ||
 		    (v >> value_bits) != (key >> cache_bits))
 			return false;
 		*value = v & ((1u<<value_bits)-1);

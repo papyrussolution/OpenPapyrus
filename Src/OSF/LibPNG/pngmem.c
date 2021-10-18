@@ -188,7 +188,7 @@ PNG_DEPRECATED void PNGAPI png_free_default(png_const_structrp png_ptr, void * p
 	if(png_ptr == NULL || ptr == NULL)
 		return;
 #endif /* USER_MEM */
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 #ifdef PNG_USER_MEM_SUPPORTED

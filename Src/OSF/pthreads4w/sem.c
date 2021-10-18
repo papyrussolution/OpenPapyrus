@@ -41,29 +41,29 @@
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *
  *   pshared
- *           if zero, this semaphore may only be shared between threads in the same process.
- *           if nonzero, the semaphore can be shared between processes
+ *     if zero, this semaphore may only be shared between threads in the same process.
+ *     if nonzero, the semaphore can be shared between processes
  *
  *   value
- *           initial value of the semaphore counter
+ *     initial value of the semaphore counter
  *
  * DESCRIPTION
  *   This function initializes a semaphore. The
  *   initial value of the semaphore is set to 'value'.
  *
  * RESULTS
- *           0               successfully created semaphore,
- *           -1              failed, error in errno
+ *     0               successfully created semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore, or
- *                           'value' >= SEM_VALUE_MAX
- *           ENOMEM          out of memory,
- *           ENOSPC          a required resource has been exhausted,
- *           ENOSYS          semaphores are not supported,
- *           EPERM           the process lacks appropriate privilege
+ *     EINVAL          'sem' is not a valid semaphore, or
+ *                     'value' >= SEM_VALUE_MAX
+ *     ENOMEM          out of memory,
+ *     ENOSPC          a required resource has been exhausted,
+ *     ENOSYS          semaphores are not supported,
+ *     EPERM           the process lacks appropriate privilege
  *
  * ------------------------------------------------------
  */
@@ -75,7 +75,7 @@ int sem_init(sem_t * sem, int pshared, unsigned int value)
 		// Creating a semaphore that can be shared between processes
 		result = EPERM;
 	}
-	else if(value > (unsigned int)SEM_VALUE_MAX) {
+	else if(value > (uint)SEM_VALUE_MAX) {
 		result = EINVAL;
 	}
 	else {
@@ -117,18 +117,18 @@ int sem_init(sem_t * sem, int pshared, unsigned int value)
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *
  * DESCRIPTION
  *   This function destroys an unnamed semaphore.
  *
  * RESULTS
- *           0               successfully destroyed semaphore,
- *           -1              failed, error in errno
+ *     0               successfully destroyed semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOSYS          semaphores are not supported,
- *           EBUSY           threads (or processes) are currently blocked on 'sem'
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOSYS          semaphores are not supported,
+ *     EBUSY           threads (or processes) are currently blocked on 'sem'
  *
  * ------------------------------------------------------
  */
@@ -190,7 +190,7 @@ int sem_close(sem_t * sem)
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *
  * DESCRIPTION
  *   This function posts a wakeup to a semaphore. If there
@@ -198,12 +198,12 @@ int sem_close(sem_t * sem)
  *   otherwise, the semaphore value is incremented by one.
  *
  * RESULTS
- *           0               successfully posted semaphore,
- *           -1              failed, error in errno
+ *     0               successfully posted semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOSYS          semaphores are not supported,
- *           ERANGE          semaphore count is too big
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOSYS          semaphores are not supported,
+ *     ERANGE          semaphore count is too big
  *
  * ------------------------------------------------------
  */
@@ -242,9 +242,9 @@ int sem_post(sem_t * sem)
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *   count
- *           counter, must be greater than zero.
+ *     counter, must be greater than zero.
  *
  * DESCRIPTION
  *   This function posts multiple wakeups to a semaphore. If there
@@ -252,11 +252,11 @@ int sem_post(sem_t * sem)
  *   the semaphore value is incremented by count - n.
  *
  * RESULTS
- *           0               successfully posted semaphore,
- *           -1              failed, error in errno
+ *     0               successfully posted semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore or count is less than or equal to zero.
- *           ERANGE          semaphore count is too big
+ *     EINVAL          'sem' is not a valid semaphore or count is less than or equal to zero.
+ *     ERANGE          semaphore count is too big
  *
  * ------------------------------------------------------
  */
@@ -372,7 +372,7 @@ static void __PTW32_CDECL __ptw32_sem_wait_cleanup(void * sem)
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *
  * DESCRIPTION
  *   This function waits on a semaphore. If the
@@ -383,13 +383,13 @@ static void __PTW32_CDECL __ptw32_sem_wait_cleanup(void * sem)
  *   a signal.
  *
  * RESULTS
- *           0               successfully decreased semaphore,
- *           -1              failed, error in errno
+ *     0               successfully decreased semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOSYS          semaphores are not supported,
- *           EINTR           the function was interrupted by a signal,
- *           EDEADLK         a deadlock condition was detected.
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOSYS          semaphores are not supported,
+ *     EINTR           the function was interrupted by a signal,
+ *     EDEADLK         a deadlock condition was detected.
  *
  * ------------------------------------------------------
  */
@@ -408,7 +408,7 @@ int sem_wait(sem_t * sem)
 #pragma inline_depth(0)
 #endif
 		/* Must wait */
-		pthread_cleanup_push(__ptw32_sem_wait_cleanup, (void*)s);
+		pthread_cleanup_push(__ptw32_sem_wait_cleanup, (void *)s);
 		result = pthreadCancelableWait(s->sem);
 		/* Cleanup if we're canceled or on any other error */
 		pthread_cleanup_pop(result);
@@ -439,7 +439,7 @@ int sem_wait(sem_t * sem)
  *
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *
  * DESCRIPTION
  *   This function tries to wait on a semaphore. If the
@@ -448,14 +448,14 @@ int sem_wait(sem_t * sem)
  *   this function returns immediately with the error EAGAIN
  *
  * RESULTS
- *           0               successfully decreased semaphore,
- *           -1              failed, error in errno
+ *     0               successfully decreased semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EAGAIN          the semaphore was already locked,
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOTSUP         sem_trywait is not supported,
- *           EINTR           the function was interrupted by a signal,
- *           EDEADLK         a deadlock condition was detected.
+ *     EAGAIN          the semaphore was already locked,
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOTSUP         sem_trywait is not supported,
+ *     EINTR           the function was interrupted by a signal,
+ *     EDEADLK         a deadlock condition was detected.
  *
  * ------------------------------------------------------
  */
@@ -524,9 +524,9 @@ static void __PTW32_CDECL __ptw32_sem_timedwait_cleanup(void * args)
  *   This function waits on a semaphore possibly until 'abstime' time.
  * PARAMETERS
  *   sem
- *           pointer to an instance of sem_t
+ *     pointer to an instance of sem_t
  *   abstime
- *           pointer to an instance of struct timespec
+ *     pointer to an instance of struct timespec
  *
  * DESCRIPTION
  *   This function waits on a semaphore. If the
@@ -541,14 +541,14 @@ static void __PTW32_CDECL __ptw32_sem_timedwait_cleanup(void * args)
  *   until interrupted by a signal.
  *
  * RESULTS
- *           0               successfully decreased semaphore,
- *           -1              failed, error in errno
+ *     0               successfully decreased semaphore,
+ *     -1              failed, error in errno
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOSYS          semaphores are not supported,
- *           EINTR           the function was interrupted by a signal,
- *           EDEADLK         a deadlock condition was detected.
- *           ETIMEDOUT       abstime elapsed before success.
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOSYS          semaphores are not supported,
+ *     EINTR           the function was interrupted by a signal,
+ *     EDEADLK         a deadlock condition was detected.
+ *     ETIMEDOUT       abstime elapsed before success.
  *
  * ------------------------------------------------------
  */
@@ -578,7 +578,7 @@ int sem_timedwait(sem_t * sem, const struct timespec * abstime)
 #pragma inline_depth(0)
 #endif
 		/* Must wait */
-		pthread_cleanup_push(__ptw32_sem_timedwait_cleanup, (void*)&cleanup_args);
+		pthread_cleanup_push(__ptw32_sem_timedwait_cleanup, (void *)&cleanup_args);
 #if defined(NEED_SEM)
 		timedout =
 #endif

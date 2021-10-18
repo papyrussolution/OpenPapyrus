@@ -293,14 +293,13 @@ BOOL WINAPI DllMain(HINSTANCE module_handle, DWORD event, LPVOID reserved)
 {
 	(void)reserved;
 	if(event == DLL_PROCESS_ATTACH) {
-		/* The DLL is being loaded into an application's address range.  */
+		// The DLL is being loaded into an application's address range
 		static char location[MAX_PATH];
 		if(!GetModuleFileName(module_handle, location, sizeof(location)))
-			/* Shouldn't happen.  */
-			return FALSE;
+			return FALSE; // Shouldn't happen
 		if(!IS_PATH_WITH_DIR(location))
-			return FALSE; /* Shouldn't happen.  */
-		shared_library_fullname = strdup(location);
+			return FALSE; // Shouldn't happen
+		shared_library_fullname = sstrdup(location);
 	}
 	return TRUE;
 }
@@ -320,12 +319,12 @@ unsigned long _System _DLL_InitTerm(unsigned long hModule, unsigned long ulFlag)
 		    if(_CRT_init() == -1)
 			    return 0;
 		    __ctordtorInit();
-		    /* See http://cyberkinetica.homeunix.net/os2tk45/cp1/1247_L2H_DosQueryModuleNameSy.html
-		       for specification of DosQueryModuleName(). */
+		    // See http://cyberkinetica.homeunix.net/os2tk45/cp1/1247_L2H_DosQueryModuleNameSy.html
+		    // for specification of DosQueryModuleName(). 
 		    if(DosQueryModuleName(hModule, sizeof(location), location))
 			    return 0;
 		    _fnslashify(location);
-		    shared_library_fullname = strdup(location);
+		    shared_library_fullname = sstrdup(location);
 		    break;
 		case 1:
 		    __ctordtorTerm();

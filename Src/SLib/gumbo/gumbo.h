@@ -105,7 +105,7 @@ bool gumbo_string_equals_ignore_case(const GumboStringPiece * str1, const GumboS
  */
 struct GumboVector {
 	// Data elements. This points to a dynamically-allocated array of capacity
-	// elements, each a void* to the element itself.
+	// elements, each a void * to the element itself.
 	void ** data;
 	uint   length;   // Number of elements currently in the vector.
 	uint   capacity; /// Current array capacity.
@@ -117,7 +117,7 @@ extern const GumboVector kGumboEmptyVector;
  * Returns the first index at which an element appears in this vector (testing
  * by pointer equality), or -1 if it never does.
  */
-int gumbo_vector_index_of(GumboVector* vector, const void* element);
+int FASTCALL gumbo_vector_index_of(GumboVector * vector, const void * element);
 /**
  * An enum for all the tags defined in the HTML5 standard.  These correspond to
  * the tag names themselves.  Enum constants exist only for tags which appear in
@@ -175,7 +175,7 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tagname);
  * enum. The `tag` version expects `tagname` to be NULL-terminated
  */
 GumboTag gumbo_tag_enum(const char* tagname);
-GumboTag gumbo_tagn_enum(const char* tagname, unsigned int length);
+GumboTag gumbo_tagn_enum(const char* tagname, uint length);
 /**
  * Attribute namespaces.
  * HTML includes special handling for XLink, XML, and XMLNS namespaces on
@@ -446,12 +446,12 @@ struct GumboNode {
  * Allocating a block of 0 bytes behaves as per malloc.
  */
 // TODO(jdtang): Add checks throughout the codebase for out-of-memory condition.
-typedef void* (* GumboAllocatorFunction)(void* userdata, size_t size);
+typedef void * (* GumboAllocatorFunction)(void * userdata, size_t size);
 /**
  * The type for a deallocator function.  Takes the 'userdata' member of the
  * GumboParser struct as its first argument.
  */
-typedef void (* GumboDeallocatorFunction)(void* userdata, void* ptr);
+typedef void (* GumboDeallocatorFunction)(void * userdata, void * ptr);
 /**
  * Input struct containing configuration options for the parser.
  * These let you specify alternate memory managers, provide different error

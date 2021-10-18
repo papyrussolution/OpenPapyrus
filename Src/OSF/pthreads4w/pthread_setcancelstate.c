@@ -40,11 +40,11 @@
  * PARAMETERS
  *   state,
  *   oldstate
- *           PTHREAD_CANCEL_ENABLE
- *                   cancellation is enabled,
+ *     PTHREAD_CANCEL_ENABLE
+ *             cancellation is enabled,
  *
- *           PTHREAD_CANCEL_DISABLE
- *                   cancellation is disabled
+ *     PTHREAD_CANCEL_DISABLE
+ *             cancellation is disabled
  *
  *
  * DESCRIPTION
@@ -55,15 +55,15 @@
  *
  *   NOTES:
  *   1)      Use to disable cancellation around 'atomic' code that
- *           includes cancellation points
+ *     includes cancellation points
  *
  * COMPATIBILITY ADDITIONS
  *   If 'oldstate' is NULL then the previous state is not returned
  *   but the function still succeeds. (Solaris)
  *
  * RESULTS
- *           0               successfully set cancelability type,
- *           EINVAL          'state' is invalid
+ *     0               successfully set cancelability type,
+ *     EINVAL          'state' is invalid
  *
  * ------------------------------------------------------
  */

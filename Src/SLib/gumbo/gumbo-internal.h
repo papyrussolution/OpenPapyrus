@@ -463,7 +463,7 @@ typedef struct GumboInternalParserError {
 	GumboTag input_tag; // The HTML tag of the input token.  TAG_UNKNOWN if this was not a tag token.
 	GumboInsertionMode parser_state; // The insertion mode that the parser was in at the time.
 	// The tag stack at the point of the error.  Note that this is an GumboVector
-	// of GumboTag's *stored by value* - cast the void* to an GumboTag directly to
+	// of GumboTag's *stored by value* - cast the void * to an GumboTag directly to
 	// get at the tag.
 	GumboVector /* GumboTag */ tag_stack;
 } GumboParserError;
@@ -534,7 +534,7 @@ void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error,
 // Allocate a chunk of memory, using the allocator specified in the Parser's config options.
 //void * gumbo_parser_allocate(GumboParser * parser, size_t num_bytes);
 // Deallocate a chunk of memory, using the deallocator specified in the Parser's config options.
-//void gumbo_parser_deallocate(GumboParser * parser, void* ptr);
+//void gumbo_parser_deallocate(GumboParser * parser, void * ptr);
 // Debug wrapper for printf, to make it easier to turn off debugging info when required.
 void gumbo_debug(const char * format, ...);
 //
@@ -550,9 +550,9 @@ void FASTCALL gumbo_vector_add(void * element, GumboVector * vector);
 void * gumbo_vector_pop(GumboParser * parser, GumboVector* vector);
 // Inserts an element at a specific index.  This is potentially O(N) time, but
 // is necessary for some of the spec's behavior.
-void gumbo_vector_insert_at(void * element, uint index, GumboVector * vector);
+void STDCALL gumbo_vector_insert_at(void * element, uint index, GumboVector * vector);
 // Removes an element from the vector, or does nothing if the element is not in the vector.
-void FASTCALL gumbo_vector_remove(void* element, GumboVector* vector);
+void FASTCALL gumbo_vector_remove(void * element, GumboVector* vector);
 // Removes and returns an element at a specific index.  Note that this is
 // potentially O(N) time and should be used sparingly.
 void * FASTCALL gumbo_vector_remove_at(uint index, GumboVector* vector);

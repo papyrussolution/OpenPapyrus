@@ -32,7 +32,7 @@
 #include "hb.hh"
 
 #line 36 "hb-ot-shape-complex-myanmar-machine.hh"
-static const unsigned char _myanmar_syllable_machine_trans_keys[] = {
+static const uchar _myanmar_syllable_machine_trans_keys[] = {
 	1u, 32u, 3u, 30u, 5u, 29u, 5u, 8u, 5u, 29u, 3u, 25u, 5u, 25u, 5u, 25u,
 	3u, 29u, 3u, 29u, 3u, 29u, 3u, 29u, 1u, 16u, 3u, 29u, 3u, 29u, 3u, 29u,
 	3u, 29u, 3u, 29u, 3u, 30u, 3u, 29u, 3u, 29u, 3u, 29u, 3u, 29u, 3u, 29u,
@@ -298,7 +298,7 @@ static const int myanmar_syllable_machine_en_main = 0;
 #define found_syllable(syllable_type) \
 	HB_STMT_START { \
 		if(0) slfprintf_stderr("syllable %d..%d %s\n", ts, te, #syllable_type); \
-		for(unsigned int i = ts; i < te; i++) \
+		for(uint i = ts; i < te; i++) \
 			info[i].syllable() = (syllable_serial << 4) | myanmar_ ## syllable_type; \
 		syllable_serial++; \
 		if(UNLIKELY(syllable_serial == 16)) syllable_serial = 1; \
@@ -329,7 +329,7 @@ static void find_syllables_myanmar(hb_buffer_t * buffer)
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

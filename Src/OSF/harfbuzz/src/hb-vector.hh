@@ -62,31 +62,28 @@ public:
 	unsigned int length;
 public:
 	Type * arrayZ;
-
 	void init()
 	{
 		allocated = length = 0;
 		arrayZ = nullptr;
 	}
-
 	void fini()
 	{
-		free(arrayZ);
+		SAlloc::F(arrayZ);
 		init();
 	}
 
 	void fini_deep()
 	{
 		unsigned int count = length;
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			arrayZ[i].fini();
 		fini();
 	}
-
-	void reset() {
+	void reset() 
+	{
 		resize(0);
 	}
-
 	hb_vector_t& operator = (const hb_vector_t &o)
 	{
 		reset();
@@ -114,14 +111,14 @@ public:
 	uint32_t hash() const { return as_array().hash(); }
 	Type& operator [] (int i_)
 	{
-		unsigned int i = (unsigned int)i_;
+		unsigned int i = (uint)i_;
 		if(UNLIKELY(i >= length))
 			return Crap(Type);
 		return arrayZ[i];
 	}
 	const Type& operator [] (int i_)const
 	{
-		unsigned int i = (unsigned int)i_;
+		unsigned int i = (uint)i_;
 		if(UNLIKELY(i >= length))
 			return Null(Type);
 		return arrayZ[i];
@@ -184,16 +181,16 @@ public:
 	{
 		if(UNLIKELY(allocated < 0))
 			return false;
-		if(LIKELY(size <= (unsigned)allocated))
+		if(LIKELY(size <= (uint)allocated))
 			return true;
 		/* Reallocate */
 		unsigned int new_allocated = allocated;
 		while(size >= new_allocated)
 			new_allocated += (new_allocated >> 1) + 8;
 		Type * new_array = nullptr;
-		bool overflows = (int)new_allocated < 0 || (new_allocated < (unsigned)allocated) || hb_unsigned_mul_overflows(new_allocated, sizeof(Type));
+		bool overflows = (int)new_allocated < 0 || (new_allocated < (uint)allocated) || hb_unsigned_mul_overflows(new_allocated, sizeof(Type));
 		if(LIKELY(!overflows))
-			new_array = (Type*)realloc(arrayZ, new_allocated * sizeof(Type));
+			new_array = (Type*)SAlloc::R(arrayZ, new_allocated * sizeof(Type));
 		if(UNLIKELY(!new_array)) {
 			allocated = -1;
 			return false;
@@ -205,7 +202,7 @@ public:
 
 	bool resize(int size_)
 	{
-		unsigned int size = size_ < 0 ? 0u : (unsigned int)size_;
+		unsigned int size = size_ < 0 ? 0u : (uint)size_;
 		if(!alloc(size))
 			return false;
 		if(size > length)
@@ -228,13 +225,13 @@ public:
 	}
 	void shrink(int size_)
 	{
-		unsigned int size = size_ < 0 ? 0u : (unsigned int)size_;
+		unsigned int size = size_ < 0 ? 0u : (uint)size_;
 		if(size < length)
 			length = size;
 	}
 	template <typename T> Type * find(T v)
 	{
-		for(unsigned int i = 0; i < length; i++)
+		for(uint i = 0; i < length; i++)
 			if(arrayZ[i] == v)
 				return &arrayZ[i];
 		return nullptr;
@@ -242,7 +239,7 @@ public:
 
 	template <typename T> const Type * find(T v) const
 	{
-		for(unsigned int i = 0; i < length; i++)
+		for(uint i = 0; i < length; i++)
 			if(arrayZ[i] == v)
 				return &arrayZ[i];
 		return nullptr;
@@ -253,7 +250,7 @@ public:
 		as_array().qsort(cmp);
 	}
 
-	void qsort(unsigned int start = 0, unsigned int end = (unsigned int)-1)
+	void qsort(unsigned int start = 0, unsigned int end = (uint)-1)
 	{
 		as_array().qsort(start, end);
 	}
@@ -279,14 +276,14 @@ public:
 
 template <typename Type>
 struct hb_sorted_vector_t : hb_vector_t<Type>{
-	hb_sorted_array_t<      Type> as_array()       {
+	hb_sorted_array_t<Type> as_array() {
 		return hb_sorted_array(this->arrayZ, this->length);
 	}
 	hb_sorted_array_t<const Type> as_array() const { return hb_sorted_array(this->arrayZ, this->length); }
 
 	/* Iterator. */
 	typedef hb_sorted_array_t<const Type> const_iter_t;
-	typedef hb_sorted_array_t<      Type>       iter_t;
+	typedef hb_sorted_array_t<Type>       iter_t;
 	const_iter_t  iter() const {
 		return as_array();
 	}
@@ -295,11 +292,11 @@ struct hb_sorted_vector_t : hb_vector_t<Type>{
 		return as_array();
 	}
 
-	iter_t  iter()       {
+	iter_t  iter() {
 		return as_array();
 	}
 
-	operator       iter_t()       {
+	operator       iter_t() {
 		return iter();
 	}
 
@@ -322,7 +319,7 @@ struct hb_sorted_vector_t : hb_vector_t<Type>{
 	template <typename T>
 	bool bfind(const T &x, unsigned int * i = nullptr,
 	    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-	    unsigned int to_store = (unsigned int)-1) const
+	    unsigned int to_store = (uint)-1) const
 	{
 		return as_array().bfind(x, i, not_found, to_store);
 	}

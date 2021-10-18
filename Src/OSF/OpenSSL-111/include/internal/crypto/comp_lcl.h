@@ -25,5 +25,5 @@ struct comp_ctx_st {
     ulong compress_out;
     ulong expand_in;
     ulong expand_out;
-    void* data;
+    void * data;
 };

@@ -2047,7 +2047,7 @@ static void FASTCALL format_exponent(char * pBuffer, int32 exponent, int isUpper
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int FASTCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
+int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
 {
 	// 1. Unpack double precision value
 	int    is_nan      = 0;
@@ -2287,7 +2287,7 @@ int FASTCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double 
 // error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 // condition as an indication of successful conversion.
 // 
-int FASTCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
+int STDCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
 {
 	int    ok = 1;
 	int    output_erange = 0;

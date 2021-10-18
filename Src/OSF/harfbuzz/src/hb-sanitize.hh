@@ -213,9 +213,9 @@ public:
 		if(UNLIKELY(hb_unsigned_mul_overflows(this->end - this->start, HB_SANITIZE_MAX_OPS_FACTOR)))
 			this->max_ops = HB_SANITIZE_MAX_OPS_MAX;
 		else
-			this->max_ops = hb_clamp((unsigned)(this->end - this->start) * HB_SANITIZE_MAX_OPS_FACTOR,
-				(unsigned)HB_SANITIZE_MAX_OPS_MIN,
-				(unsigned)HB_SANITIZE_MAX_OPS_MAX);
+			this->max_ops = hb_clamp((uint)(this->end - this->start) * HB_SANITIZE_MAX_OPS_FACTOR,
+				(uint)HB_SANITIZE_MAX_OPS_MIN,
+				(uint)HB_SANITIZE_MAX_OPS_MAX);
 		this->edit_count = 0;
 		this->debug_depth = 0;
 
@@ -247,7 +247,7 @@ public:
 		bool ok = !len ||
 		    (this->start <= p &&
 		    p <= this->end &&
-		    (unsigned int)(this->end - p) >= len &&
+		    (uint)(this->end - p) >= len &&
 		    this->max_ops-- > 0);
 
 		DEBUG_MSG_LEVEL(SANITIZE, p, this->debug_depth+1, 0,

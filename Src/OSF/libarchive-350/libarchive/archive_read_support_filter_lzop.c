@@ -60,12 +60,12 @@ __FBSDID("$FreeBSD$");
 
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 struct read_lzop {
-	unsigned char   * out_block;
+	uchar   * out_block;
 	size_t out_block_size;
-	int64_t total_out;
+	int64 total_out;
 	int flags;
-	uint32_t compressed_cksum;
-	uint32_t uncompressed_cksum;
+	uint32 compressed_cksum;
+	uint32 uncompressed_cksum;
 	size_t compressed_size;
 	size_t uncompressed_size;
 	size_t unconsumed_bytes;
@@ -163,7 +163,7 @@ static int lzop_bidder_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_LZOP;
 	self->name = "lzop";
 
-	state = (struct read_lzop *)calloc(sizeof(*state), 1);
+	state = (struct read_lzop *)SAlloc::C(sizeof(*state), 1);
 	if(state == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM,
 		    "Can't allocate data for lzop decompression");
@@ -181,7 +181,7 @@ static int lzop_bidder_init(struct archive_read_filter * self)
 static int consume_header(struct archive_read_filter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
-	const unsigned char * p, * _p;
+	const uchar * p, * _p;
 	unsigned checksum, flags, len, method, version;
 	/*
 	 * Check LZOP magic code.
@@ -197,7 +197,7 @@ static int consume_header(struct archive_read_filter * self)
 		goto truncated;
 	_p = p;
 	version = archive_be16dec(p);
-	p += 4;/* version(2 bytes) + library version(2 bytes) */
+	p += 4; /* version(2 bytes) + library version(2 bytes) */
 	if(version >= 0x940) {
 		unsigned reqversion = archive_be16dec(p); p += 2;
 		if(reqversion < 0x900) {
@@ -329,7 +329,7 @@ static ssize_t lzop_filter_read(struct archive_read_filter * self, const void **
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const void * b;
 	lzo_uint out_size;
-	uint32_t cksum;
+	uint32 cksum;
 	int ret, r;
 
 	if(state->unconsumed_bytes) {
@@ -363,7 +363,7 @@ static ssize_t lzop_filter_read(struct archive_read_filter * self, const void **
 	    state->out_block_size < state->uncompressed_size) {
 		void * new_block;
 
-		new_block = realloc(state->out_block, state->uncompressed_size);
+		new_block = SAlloc::R(state->out_block, state->uncompressed_size);
 		if(new_block == NULL) {
 			archive_set_error(&self->archive->archive, ENOMEM,
 			    "Can't allocate data for lzop decompression");
@@ -453,8 +453,8 @@ static int lzop_filter_close(struct archive_read_filter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
 

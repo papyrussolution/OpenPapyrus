@@ -253,7 +253,7 @@ void xmlFreePatternList(xmlPattern * comp)
  * @pattern:  the pattern context
  * @dict:  the inherited dictionary or NULL
  * @namespaces: the prefix definitions, array of [URI, prefix] terminated
- *         with [NULL, NULL] or NULL if no namespace is used
+ *   with [NULL, NULL] or NULL if no namespace is used
  *
  * Create a new XML pattern parser context
  *
@@ -662,7 +662,7 @@ rollback:
  * Parse an XPath Litteral:
  *
  * [29] Literal ::= '"' [^"]* '"'
- *           | "'" [^']* "'"
+ *     | "'" [^']* "'"
  *
  * Returns the Literal parsed or NULL
  */
@@ -730,7 +730,7 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' |
- *             CombiningChar | Extender
+ *       CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *

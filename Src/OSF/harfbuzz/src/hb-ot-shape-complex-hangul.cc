@@ -55,7 +55,7 @@ static const hb_tag_t hangul_features[HANGUL_FEATURE_COUNT] =
 static void collect_features_hangul(hb_ot_shape_planner_t * plan)
 {
 	hb_ot_map_builder_t * map = &plan->map;
-	for(unsigned int i = FIRST_HANGUL_FEATURE; i < HANGUL_FEATURE_COUNT; i++)
+	for(uint i = FIRST_HANGUL_FEATURE; i < HANGUL_FEATURE_COUNT; i++)
 		map->add_feature(hangul_features[i]);
 }
 
@@ -77,7 +77,7 @@ static void * data_create_hangul(const hb_ot_shape_plan_t * plan)
 	if(UNLIKELY(!hangul_plan))
 		return nullptr;
 
-	for(unsigned int i = 0; i < HANGUL_FEATURE_COUNT; i++)
+	for(uint i = 0; i < HANGUL_FEATURE_COUNT; i++)
 		hangul_plan->mask_array[i] = plan->map.get_1_mask(hangul_features[i]);
 
 	return hangul_plan;
@@ -381,7 +381,7 @@ static void setup_masks_hangul(const hb_ot_shape_plan_t * plan,
 	if(LIKELY(hangul_plan)) {
 		unsigned int count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
-		for(unsigned int i = 0; i < count; i++, info++)
+		for(uint i = 0; i < count; i++, info++)
 			info->mask |= hangul_plan->mask_array[info->hangul_shaping_feature()];
 	}
 

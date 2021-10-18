@@ -116,7 +116,7 @@ typedef struct ssh_session_struct* ssh_session;
 typedef struct ssh_string_struct* ssh_string;
 typedef struct ssh_event_struct* ssh_event;
 typedef struct ssh_connector_struct * ssh_connector;
-typedef void* ssh_gssapi_creds;
+typedef void * ssh_gssapi_creds;
 
 /* Socket type */
 #ifdef _WIN32
@@ -590,7 +590,7 @@ LIBSSH_API int ssh_pcap_file_open(ssh_pcap_file pcap, const char * filename);
  * @param echo          Enable or disable the echo of what you type.
  * @param verify        Should the password be verified?
  * @param userdata      Userdata to be passed to the callback function. Useful
- *                      for GUI applications.
+ *                for GUI applications.
  *
  * @return              0 on success, < 0 on error.
  */

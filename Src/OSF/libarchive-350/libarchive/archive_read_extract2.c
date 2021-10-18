@@ -39,7 +39,7 @@ static int      archive_read_extract_cleanup(struct archive_read *);
  */
 struct archive_read_extract * __archive_read_get_extract(struct archive_read * a)                               {
 	if(a->extract == NULL) {
-		a->extract = (struct archive_read_extract *)calloc(1, sizeof(*a->extract));
+		a->extract = (struct archive_read_extract *)SAlloc::C(1, sizeof(*a->extract));
 		if(a->extract == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't extract");
 			return NULL;
@@ -59,7 +59,7 @@ static int archive_read_extract_cleanup(struct archive_read * a)
 	if(a->extract->ad != NULL) {
 		ret = archive_write_free(a->extract->ad);
 	}
-	free(a->extract);
+	SAlloc::F(a->extract);
 	a->extract = NULL;
 	return ret;
 }
@@ -108,7 +108,7 @@ void archive_read_extract_set_progress_callback(struct archive * _a,
 
 static int copy_data(struct archive * ar, struct archive * aw)
 {
-	int64_t offset;
+	int64 offset;
 	const void * buff;
 	struct archive_read_extract * extract;
 	size_t size;

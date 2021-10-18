@@ -76,7 +76,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c
 #define CLEAR   256             /* Table clear output code. */
 
 struct private_data {
-	int64_t in_count, out_count, checkpoint;
+	int64 in_count, out_count, checkpoint;
 
 	int code_len;                   /* Number of bits/code. */
 	int cur_maxcode;                /* Maximum code, given n_bits. */
@@ -89,9 +89,9 @@ struct private_data {
 	int cur_code, cur_fcode;
 
 	int bit_offset;
-	unsigned char bit_buf;
+	uchar bit_buf;
 
-	unsigned char   * compressed;
+	uchar   * compressed;
 	size_t compressed_buffer_size;
 	size_t compressed_offset;
 };
@@ -138,7 +138,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
 
-	state = (struct private_data *)calloc(1, sizeof(*state));
+	state = (struct private_data *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for compression");
@@ -155,10 +155,10 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 			bs -= bs % bpb;
 	}
 	state->compressed_buffer_size = bs;
-	state->compressed = static_cast<uchar *>(malloc(state->compressed_buffer_size));
+	state->compressed = static_cast<uchar *>(SAlloc::M(state->compressed_buffer_size));
 	if(state->compressed == NULL) {
 		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
-		free(state);
+		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}
 	f->write = archive_compressor_compress_write;
@@ -202,9 +202,9 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
  * code in turn.  When the buffer fills up empty it and start over.
  */
 
-static const unsigned char rmask[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
+static const uchar rmask[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
 
-static int output_byte(struct archive_write_filter * f, unsigned char c)
+static int output_byte(struct archive_write_filter * f, uchar c)
 {
 	struct private_data * state = static_cast<struct private_data *>(f->data);
 	state->compressed[state->compressed_offset++] = c;
@@ -304,7 +304,7 @@ static int archive_compressor_compress_write(struct archive_write_filter * f, co
 	int i;
 	int ratio;
 	int c, disp, ret;
-	const unsigned char * bp;
+	const uchar * bp;
 	if(length == 0)
 		return ARCHIVE_OK;
 	bp = static_cast<const uchar *>(buff);
@@ -401,7 +401,7 @@ static int archive_compressor_compress_close(struct archive_write_filter * f)
 static int archive_compressor_compress_free(struct archive_write_filter * f)
 {
 	struct private_data * state = (struct private_data *)f->data;
-	free(state->compressed);
-	free(state);
+	SAlloc::F(state->compressed);
+	SAlloc::F(state);
 	return ARCHIVE_OK;
 }

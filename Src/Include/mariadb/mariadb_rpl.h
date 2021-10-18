@@ -145,7 +145,7 @@ typedef struct st_mariadb_rpl {
   MYSQL *mysql;
   char *filename;
   uint32_t filename_length;
-  unsigned char *buffer;
+  uchar *buffer;
   unsigned long buffer_size;
   uint32_t server_id;
   unsigned long start_position;

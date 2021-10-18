@@ -1,7 +1,7 @@
 /* config.h.  Generated from build/cmake/config.h.in by cmake configure */
 
 /*
- * Ensure we have C99-style int64_t, etc, all defined.
+ * Ensure we have C99-style int64, etc, all defined.
  */
 
 /* First, we need to know if the system has already defined them. */
@@ -31,23 +31,23 @@
 #define SIZE_OF_UNSIGNED_LONG 4
 #define SIZE_OF_UNSIGNED_LONG_LONG 8
 /*
- * If we lack int64_t, define it to the first of __int64, int, long, and long long
+ * If we lack int64, define it to the first of __int64, int, long, and long long
  * that exists and is the right size.
  */
 #if !defined(HAVE_INT64_T) && defined(HAVE___INT64)
-	typedef __int64 int64_t;
+	typedef __int64 int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_INT == 8
-	typedef int int64_t;
+	typedef int int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_LONG == 8
-	typedef long int64_t;
+	typedef long int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T) && SIZE_OF_LONG_LONG == 8
-	typedef long long int64_t;
+	typedef long long int64;
 	#define HAVE_INT64_T
 #endif
 #if !defined(HAVE_INT64_T)
@@ -82,41 +82,41 @@
 	#error No 16-bit integer type was found.
 #endif
 /*
- * Similarly for uint64_t
+ * Similarly for uint64
  */
 #if !defined(HAVE_UINT64_T) && defined(HAVE_UNSIGNED___INT64)
-	typedef unsigned __int64 uint64_t;
+	typedef unsigned __int64 uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED == 8
-	typedef unsigned uint64_t;
+	typedef unsigned uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED_LONG == 8
-	typedef unsigned long uint64_t;
+	typedef unsigned long uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T) && SIZE_OF_UNSIGNED_LONG_LONG == 8
-	typedef unsigned long long uint64_t;
+	typedef unsigned long long uint64;
 	#define HAVE_UINT64_T
 #endif
 #if !defined(HAVE_UINT64_T)
 	#error No 64-bit unsigned integer type was found.
 #endif
 /*
- * Similarly for uint32_t
+ * Similarly for uint32
  */
-#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED == 4
-	typedef unsigned uint32_t;
-	#define HAVE_UINT32_T
-#endif
-#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED_LONG == 4
-	typedef unsigned long uint32_t;
-	#define HAVE_UINT32_T
-#endif
-#if !defined(HAVE_UINT32_T)
-	#error No 32-bit unsigned integer type was found.
-#endif
+//#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED == 4
+	//typedef unsigned int uint32_t;
+	//#define HAVE_UINT32_T
+//#endif
+//#if !defined(HAVE_UINT32_T) && SIZE_OF_UNSIGNED_LONG == 4
+	//typedef unsigned long uint32;
+	//#define HAVE_UINT32_T
+//#endif
+//#if !defined(HAVE_UINT32_T)
+	//#error No 32-bit unsigned integer type was found.
+//#endif
 /*
  * Similarly for uint16_t
  */
@@ -132,10 +132,10 @@
 	#error No 16-bit unsigned integer type was found.
 #endif
 /*
- * Similarly for uint8_t
+ * Similarly for uint8
  */
 #if !defined(HAVE_UINT8_T)
-	typedef uchar uint8_t;
+	typedef uchar uint8;
 	#define HAVE_UINT8_T
 #endif
 #if !defined(HAVE_UINT16_T)
@@ -143,10 +143,10 @@
 #endif
 /* Define intmax_t and uintmax_t if they are not already defined. */
 #if !defined(HAVE_INTMAX_T)
-	typedef int64_t intmax_t;
+	typedef int64 intmax_t;
 #endif
 #if !defined(HAVE_UINTMAX_T)
-	typedef uint64_t uintmax_t;
+	typedef uint64 uintmax_t;
 #endif
 
 /* #undef ZLIB_WINAPI */ /* Define ZLIB_WINAPI if zlib was built on Visual Studio. */

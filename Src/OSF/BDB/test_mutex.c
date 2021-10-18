@@ -221,16 +221,16 @@ int main(int argc, char * argv[])
 
 	printf("%s: %u processes, %u threads/process, %u lock requests from %u locks\n", progname, nprocs, nthreads, nlocks, maxlocks);
 	printf("%s: backing data %lu bytes\n", progname, (ulong)len);
-	if(tm_env_init() != 0)          /* Create the environment. */
+	if(tm_env_init() != 0) // Create the environment. 
 		exit(EXIT_FAILURE);
 	/* Create the backing data. */
 	data_on(&gm_addr, &tm_addr, &lm_addr, &map_fhp, 1);
 	if(verbose)
 		printf("backing data: global (%#lx), threads (%#lx), locks (%#lx)\n", (ulong)gm_addr, (ulong)tm_addr, (ulong)lm_addr);
-	tm_mutex_init();                /* Initialize mutexes. */
-	if(nprocs > 1) {                /* Run the multi-process test. */
-		/* Allocate array of locker process IDs. */
-		if((pids = (os_pid_t *)calloc(nprocs, sizeof(os_pid_t))) == NULL) {
+	tm_mutex_init(); // Initialize mutexes. 
+	if(nprocs > 1) { // Run the multi-process test. 
+		// Allocate array of locker process IDs. 
+		if((pids = (os_pid_t *)SAlloc::C(nprocs, sizeof(os_pid_t))) == NULL) {
 			slfprintf_stderr("%s: %s\n", progname, strerror(errno));
 			goto fail;
 		}
@@ -305,7 +305,7 @@ int locker_start(ulong id)
 	 * Spawn off threads.  We have nthreads all locking and going to
 	 * sleep, and one other thread cycling through and waking them up.
 	 */
-	if((kidsp = (os_thread_t *)calloc(sizeof(os_thread_t), nthreads)) == NULL) {
+	if((kidsp = (os_thread_t *)SAlloc::C(sizeof(os_thread_t), nthreads)) == NULL) {
 		slfprintf_stderr("%s: %s\n", progname, strerror(errno));
 		return 1;
 	}
@@ -332,7 +332,7 @@ int locker_wait()
 			return 1;
 		}
 	}
-	free(kidsp);
+	SAlloc::F(kidsp);
 #endif
 	return 0;
 }

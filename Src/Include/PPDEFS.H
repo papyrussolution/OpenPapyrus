@@ -875,31 +875,32 @@
 #define PPOBJ_PRSNCATEGORY       50L // # Категории персоналий
 #define PPOBJ_BILLSTATUS         51L // $ Статусы документов
 #define PPOBJ_TOUCHSCREEN        52L // $ TouchScreen
-	#define TSCPRP_GRPLIST          1L // Список групп товаров
+	#define TSCPRP_GRPLIST        1L // Список групп товаров
 #define PPOBJ_DUTYSCHED          53L // $ Расписания дежурств
-	#define DSHPRP_LIST          1L // Список дежурств
-	#define DSHPRP_POINTLIST     2L // Список точек отсчета
+	#define DSHPRP_LIST           1L // Список дежурств
+	#define DSHPRP_POINTLIST      2L // Список точек отсчета
 #define PPOBJ_DATETIMEREP        54L // $ Периодичность
 #define PPOBJ_LOCPRINTER         55L // $ Принтеры, привязанные к складам
 #define PPOBJ_SALCHARGE          56L // $ Схема начисления зарплаты
-	#define SCPRP_FORMULA        1L // Формула начисления //
-	#define SCPPRP_GRPLIST       2L // Список элементов-членов группы
+	#define SCPRP_FORMULA         1L // Формула начисления //
+	#define SCPPRP_GRPLIST        2L // Список элементов-членов группы
 #define PPOBJ_STAFFCAL           58L // $ Штатный календарь
-	#define PPSTCAL_STANDARD    10L // Стандартный календарь.
+	#define PPSTCAL_STANDARD     10L // Стандартный календарь.
 #define PPOBJ_NAMEDOBJASSOC      59L // $ Именованные ассоциации объектов
 #define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
-	#define BZSPRP_DESCR         1L // Описание показателя, совмещенное с формулой
+	#define BZSPRP_DESCR          1L // Описание показателя, совмещенное с формулой
 #define PPOBJ_GLOBALUSERACC      61L // Учетная запись глобального пользователя (внешнего по отношению к текущей базе данных)
 #define PPOBJ_GOODSVALRESTR      62L // Ограничения товарных величин
-	#define GVRPROP_TEXT         1L // Формулы
-	#define GVRPROP_BAR          2L // Список ограничений по статьям документа
+	#define GVRPROP_TEXT          1L // Формулы
+	#define GVRPROP_BAR           2L // Список ограничений по статьям документа
 #define PPOBJ_PALLET             63L // Складские паллеты
 #define PPOBJ_DEBTDIM            64L // Размерность расчета долгов по документам
-	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
+	#define DBTDIMPRP_AGENTLIST   1L // Список агентов
 #define PPOBJ_EVENTTOKEN         65L // Специальный объект, используемый как уникальная метка для событий.
-	#define PPEVTOK_CVTSCS9809   1L // Событие конвертации серий персональных карт v9.8.9
-	#define PPEVTOK_OBJHIST9811  2L // Событие переключения техники хранения версий объектов
-	#define PPEVTOK_CVTCMDGROUP  3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
+	#define PPEVTOK_CVTSCS9809      1L // Событие конвертации серий персональных карт v9.8.9
+	#define PPEVTOK_OBJHIST9811     2L // Событие переключения техники хранения версий объектов
+	#define PPEVTOK_CVTCMDGROUP     3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
+	#define PPEVTOK_CVTCLIAGT11200  4L // @v11.2.0 Событие переключения техники хранения версий объектов
 #define PPOBJ_SMSPRVACCOUNT      66L // Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
@@ -1049,6 +1050,7 @@
 	#define ARTPRP_DEBTLIMLIST   5L  // Список долговых лимитов
 	#define ARTPRP_DEBTLIMLIST2  6L  // @v7.1.5 Список долговых лимитов версии 7.1.5 и выше
 	#define ARTPRP_SUPPLAGT2     7L  // @v8.5.0 Новый формат хранения соглашения с поставщиком
+	#define ARTPRP_CLIAGT2       8L  // @v11.2.0 Новый формат соглашения с клиентом об условиях торговли
 #define PPOBJ_ACCOUNT_PRE9004 1007L  // Бухгалтерские счета (балансовые) // @v9.0.4 Заменен на PPOBJ_ACCOUNT2
 	//
 	// Extra records of PPOBJ_ACCOUNT
@@ -3261,6 +3263,7 @@
 	#define CTL_PRNGBILL_ONLYPRCHNG      (40 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGBILL_EXPFMT          (41 + WINDOWS_ID_BIAS) // @v10.8.7
 	#define CTLSEL_PRNGBILL_EXPFMT       (42 + WINDOWS_ID_BIAS) // @v10.8.7
+	#define CTL_PRNGBILL_FLAGS           (43 + WINDOWS_ID_BIAS) // @v11.2.0 вместо (CTL_PRNGBILL_ONLYPRCHNG и CTL_PRNGBILL_FDIVCOPIES)
 
 #define DLG_BILLAMT               205 // Сумма документа
 #define DLG_BILLAMTCUR            425 // Сумма документа с валютным курсом
@@ -3875,6 +3878,7 @@
 	#define CTLSEL_PRNCFG_WINPRINTER     (11 + WINDOWS_ID_BIAS)
 #define DLG_CLIAGT                293 // CLIAGT Соглашение с клиентом
 #define cmDebtLimList                102
+#define cmMultiPrintParam            103
 	#define CTL_CLIAGT_CLIENT            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_CLIENT         (2 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGT_DATE              (3 + WINDOWS_ID_BIAS)

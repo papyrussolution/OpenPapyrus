@@ -2694,7 +2694,6 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 		if(quot > 0.0 || (quot == 0.0 && gqr > 0)) {
 			PPObjArticle ar_obj;
 			PPClientAgreement cliagt;
-			// @v9.2.9 {
 			//
 			// Специальный случай - для отгрузки, привязанной к заказу, принятому из некоторых
 			// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
@@ -2719,8 +2718,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 					}
 				}
 			}
-			// } @v9.2.9
-			ar_obj.GetClientAgreement(P_Pack->Rec.Object, &cliagt, 1);
+			ar_obj.GetClientAgreement(P_Pack->Rec.Object, cliagt, 1);
 			if(cliagt.Flags & AGTF_PRICEROUNDING) {
 				quot = Item.RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
 					(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);

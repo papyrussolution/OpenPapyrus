@@ -158,8 +158,8 @@ struct K2FrameSt {
 			size_t sz = H.DataLen - CRC16_SZ;
 			if(sz > Size) {
 				if(BufAllocated)
-					free(P_Data);
-				P_Data = (char *)malloc(sz);
+					SAlloc::F(P_Data);
+				P_Data = (char *)SAlloc::M(sz);
 				BufAllocated = 1;
 			}
 			if(P_Data)

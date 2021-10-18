@@ -35,8 +35,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ar.c 201108 200
 #include "archive_write_set_format_private.h"
 
 struct ar_w {
-	uint64_t entry_bytes_remaining;
-	uint64_t entry_padding;
+	uint64 entry_bytes_remaining;
+	uint64 entry_padding;
 	int is_strtab;
 	int has_strtab;
 	char wrote_global_header;
@@ -70,8 +70,8 @@ static int               archive_write_ar_free(struct archive_write *);
 static int               archive_write_ar_close(struct archive_write *);
 static int               archive_write_ar_finish_entry(struct archive_write *);
 static const char       * ar_basename(const char * path);
-static int               format_octal(int64_t v, char * p, int s);
-static int               format_decimal(int64_t v, char * p, int s);
+static int               format_octal(int64 v, char * p, int s);
+static int               format_decimal(int64 v, char * p, int s);
 
 int archive_write_set_format_ar_bsd(struct archive * _a)
 {
@@ -110,7 +110,7 @@ static int archive_write_set_format_ar(struct archive_write * a)
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 
-	ar = (struct ar_w *)calloc(1, sizeof(*ar));
+	ar = (struct ar_w *)SAlloc::C(1, sizeof(*ar));
 	if(ar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ar data");
 		return ARCHIVE_FATAL;
@@ -134,7 +134,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 	struct ar_w * ar;
 	const char * pathname;
 	const char * filename;
-	int64_t size;
+	int64 size;
 
 	append_fn = 0;
 	ar = (struct ar_w *)a->format_data;
@@ -212,8 +212,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 		 * actually 15 bytes.
 		 */
 		if(strlen(filename) <= 15) {
-			memcpy(&buff[AR_name_offset],
-			    filename, strlen(filename));
+			memcpy(&buff[AR_name_offset], filename, strlen(filename));
 			buff[AR_name_offset + strlen(filename)] = '/';
 		}
 		else {
@@ -224,30 +223,22 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			 * The string table should have been written before.
 			 */
 			if(ar->has_strtab <= 0) {
-				archive_set_error(&a->archive, EINVAL,
-				    "Can't find string table");
+				archive_set_error(&a->archive, EINVAL, "Can't find string table");
 				return ARCHIVE_WARN;
 			}
-
-			se = (char *)malloc(strlen(filename) + 3);
+			se = (char *)SAlloc::M(strlen(filename) + 3);
 			if(se == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate filename buffer");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate filename buffer");
 				return ARCHIVE_FATAL;
 			}
-
 			memcpy(se, filename, strlen(filename));
 			strcpy(se + strlen(filename), "/\n");
-
 			ss = strstr(ar->strtab, se);
-			free(se);
-
+			SAlloc::F(se);
 			if(ss == NULL) {
-				archive_set_error(&a->archive, EINVAL,
-				    "Invalid string table");
+				archive_set_error(&a->archive, EINVAL, "Invalid string table");
 				return ARCHIVE_WARN;
 			}
-
 			/*
 			 * GNU variant puts "/" followed by digits into
 			 * ar_name field. These digits indicates the real
@@ -257,8 +248,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			if(format_decimal(ss - ar->strtab,
 			    buff + AR_name_offset + 1,
 			    AR_name_size - 1)) {
-				archive_set_error(&a->archive, ERANGE,
-				    "string table offset too large");
+				archive_set_error(&a->archive, ERANGE, "string table offset too large");
 				return ARCHIVE_WARN;
 			}
 		}
@@ -362,7 +352,7 @@ static ssize_t archive_write_ar_data(struct archive_write * a, const void * buff
 			return ARCHIVE_WARN;
 		}
 
-		ar->strtab = (char *)malloc(s + 1);
+		ar->strtab = (char *)SAlloc::M(s + 1);
 		if(ar->strtab == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate strtab buffer");
@@ -391,11 +381,11 @@ static int archive_write_ar_free(struct archive_write * a)
 		return ARCHIVE_OK;
 
 	if(ar->has_strtab > 0) {
-		free(ar->strtab);
+		SAlloc::F(ar->strtab);
 		ar->strtab = NULL;
 	}
 
-	free(ar);
+	SAlloc::F(ar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }
@@ -452,7 +442,7 @@ static int archive_write_ar_finish_entry(struct archive_write * a)
  * NB: This version is slightly different from the one in
  * _ustar.c
  */
-static int format_octal(int64_t v, char * p, int s)
+static int format_octal(int64 v, char * p, int s)
 {
 	int len;
 	char * h;
@@ -490,7 +480,7 @@ static int format_octal(int64_t v, char * p, int s)
 /*
  * Format a number into the specified field using base-10.
  */
-static int format_decimal(int64_t v, char * p, int s)
+static int format_decimal(int64 v, char * p, int s)
 {
 	int len;
 	char * h;

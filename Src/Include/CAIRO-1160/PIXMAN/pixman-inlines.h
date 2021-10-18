@@ -664,7 +664,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 	SIMPLE_NEAREST_SOLID_MASK_FAST_PATH_PAD(op, s, d, func),              \
 	SIMPLE_NEAREST_SOLID_MASK_FAST_PATH_NORMAL(op, s, d, func)
 
-/*****************************************************************************/
+// 
 
 /*
  * Identify 5 zones in each scanline for bilinear scaling. Depending on

@@ -37,7 +37,7 @@
  *
  * AUTHORS
  *   Walter Speth
- *           BITNET: SPETH@DBNPIB5
+ *     BITNET: SPETH@DBNPIB5
  *
  * send your comments or suggestions to (gnuplot-info@lists.sourceforge.net).
  *
@@ -113,7 +113,7 @@ void VWS_resize_ast()
 	replotrequest();
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_init(GpTermEntry * pThis)
 {
 	int i;
@@ -260,32 +260,32 @@ TERM_PUBLIC void VWS_init(GpTermEntry * pThis)
 	uis$set_line_style(&vd_id, &line_attr, &line_attr, &n1);
 }
 
-/****************************************************************************/
+// 
 
 TERM_PUBLIC void VWS_reset()
 {
 	uis$delete_display(&vd_id);
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_graphics()
 {
 	uis$erase(&vd_id, &wc_xmin, &wc_ymin, &wc_xmax, &wc_ymax);
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_text()
 {
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_move(uint x, uint y)
 {
 	current_x = (float)(x);
 	current_y = (float)(y);
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_vector(uint x, uint y)
 {
 	int col;
@@ -298,7 +298,7 @@ TERM_PUBLIC void VWS_vector(uint x, uint y)
 	VWS_move(x, y);
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_linetype(int lt)
 {
 	const int n1 = 0xFFFFFFFF;
@@ -368,7 +368,7 @@ TERM_PUBLIC void VWS_linetype(int lt)
 	}
 }
 
-/****************************************************************************/
+// 
 static int justify_mode = CENTRE, up;
 
 TERM_PUBLIC void VWS_put_text(uint x, uint y, const char * str)
@@ -403,7 +403,7 @@ TERM_PUBLIC void VWS_put_text(uint x, uint y, const char * str)
 	/* write to Example Viewport window */
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC int VWS_text_angle(int ang)
 {
 	float degrees;
@@ -414,20 +414,20 @@ TERM_PUBLIC int VWS_text_angle(int ang)
 	return TRUE;
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC int VWS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	justify_mode = mode;
 	return TRUE;
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_point(uint x, uint y, int point)
 {
 	GnuPlot::DoPoint(x, y, point);
 }
 
-/****************************************************************************/
+// 
 TERM_PUBLIC void VWS_arrow(unsigned int sx, unsigned int sy, uint ex, uint ey, int head)
 {
 	GnuPlot::DoArrow(sx, sy, ex, ey, head);

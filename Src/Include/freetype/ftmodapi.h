@@ -372,7 +372,7 @@ FT_EXPORT(FT_Error)
 FT_Property_Set(FT_Library library,
     const FT_String*  module_name,
     const FT_String*  property_name,
-    const void*       value);
+    const void *   value);
 
 /**************************************************************************
  *
@@ -412,8 +412,8 @@ FT_Property_Set(FT_Library library,
  *    ```
  *      typedef  range_
  *      {
- *        FT_Int32  min;
- *        FT_Int32  max;
+ *  FT_Int32  min;
+ *  FT_Int32  max;
  *
  *      } range;
  *
@@ -466,8 +466,8 @@ FT_Property_Get(FT_Library library,
  *
  *   ```
  *     FREETYPE_PROPERTIES=truetype:interpreter-version=35 \
- *                         cff:no-stem-darkening=0 \
- *                         autofitter:warping=1
+ *                   cff:no-stem-darkening=0 \
+ *                   autofitter:warping=1
  *   ```
  *
  * @inout:
@@ -600,7 +600,7 @@ FT_Done_Library(FT_Library library);
  *     which is declared in FreeType's internal header file `tttypes.h`.
  */
 typedef FT_Error
-(* FT_DebugHook_Func)(void*  arg);
+(* FT_DebugHook_Func)(void *  arg);
 
 /**************************************************************************
  *

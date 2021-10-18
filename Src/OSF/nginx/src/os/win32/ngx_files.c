@@ -503,7 +503,7 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 		goto invalid;
 	}
 	/* check if long name match */
-	lu = (u_short *)malloc(len * 2);
+	lu = (u_short *)SAlloc::M(len * 2);
 	if(lu == NULL) {
 		return NGX_ERROR;
 	}
@@ -561,7 +561,7 @@ static u_short * ngx_utf8_to_utf16(u_short * utf16, const u_char * utf8, size_t 
 		*u++ = (u_short)n;
 	}
 	// the given buffer is not enough, allocate a new one 
-	u = (u_short *)malloc(((p - utf8) + ngx_strlen(p) + 1) * sizeof(u_short));
+	u = (u_short *)SAlloc::M(((p - utf8) + ngx_strlen(p) + 1) * sizeof(u_short));
 	if(u == NULL) {
 		return NULL;
 	}

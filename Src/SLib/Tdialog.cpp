@@ -221,38 +221,6 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 
 int (* getUserControl)(TVRez*, TDialog*) = 0;
 
-int TDialog::SetCtlSymb(uint id, const char * pSymb)
-{
-	int    ok = -1;
-	if(!isempty(pSymb) && id > 0) {
-		SETIFZ(P_SymbList, new StrAssocArray);
-		if(P_SymbList) {
-			P_SymbList->Add(static_cast<long>(id), pSymb);
-			ok = 1;
-		}
-		else
-			ok = 0;
-	}
-	return ok;
-}
-
-int TDialog::GetCtlSymb(uint id, SString & rBuf) const
-{
-	rBuf.Z();
-	return BIN(P_SymbList && P_SymbList->GetText((long)id, rBuf) > 0);
-}
-
-int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
-{
-	int    ok = 0;
-	if(pCtl) {
-		Insert_(&pCtl->SetId(id));
-		SetCtlSymb(id, pSymb);
-		ok = 1;
-	}
-	return ok;
-}
-
 /*static*/int TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
 {
 	assert(dlg != 0);
@@ -273,8 +241,9 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 		rez->getString(buf);
 		rez->getString(symb, 0);
 		if(flags & ldfDL600_Cvt && symb.NotEmptyS()) {
-			SETIFZ(dlg->P_SymbList, new StrAssocArray);
-			CALLPTRMEMB(dlg->P_SymbList, Add(-1000, symb));
+			// @v11.2.0 SETIFZ(dlg->P_SymbList, new StrAssocArray);
+			// @v11.2.0 CALLPTRMEMB(dlg->P_SymbList, Add(-1000, symb));
+			dlg->SetCtlSymb(-1000, symb); // @v11.2.0 
 		}
 		dlg->changeBounds(r);
 		strip(buf);
@@ -466,8 +435,6 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 	P_Frame  = 0;
 	HW = 0;
 	ToolTipsWnd = 0;
-	P_FontsAry  = 0;
-	P_SymbList = 0;
 	MEMSZERO(ResizedRect);
 	MEMSZERO(ToResizeRect);
 	DefInputLine  = 0;
@@ -502,12 +469,6 @@ int FASTCALL TDialog::CheckFlag(long f) const { return BIN(DlgFlags & f); }
 
 TDialog::~TDialog()
 {
-	if(P_FontsAry) {
-		for(uint c = 0; c < P_FontsAry->getCount(); c++)
-			::DeleteObject(*static_cast<HFONT *>(P_FontsAry->at(c)));
-		ZDELETE(P_FontsAry);
-	}
-	ZDELETE(P_SymbList);
 	::DestroyWindow(ToolTipsWnd);
 	::DestroyWindow(H());
 	HW = 0;
@@ -880,74 +841,6 @@ void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 //
 //
 //
-int TDialog::SetFont(const SFontDescr & rFd)
-{
-	int    ok = 0;
-	if(rFd.Face.NotEmpty() && rFd.Size) {
-		/* @v9.1.3 LOGFONT log_font;
-	 	MEMSZERO(log_font);
-		rFd.MakeLogFont(&log_font);
-		HFONT new_font = ::CreateFontIndirect(&log_font);*/
-		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd)); // @v9.1.3
-		if(new_font) {
-			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
-		}
-	}
-	return ok;
-}
-
-int TDialog::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
-{
-	int    ok = 0;
-	HWND   h_ctl = GetDlgItem(H(), ctlID);
-	if(h_ctl && rFd.Face.NotEmpty() && rFd.Size) {
-		/* @v9.1.3 LOGFONT log_font;
-	 	MEMSZERO(log_font);
-		rFd.MakeLogFont(&log_font);
-		HFONT new_font = CreateFontIndirect(&log_font); */
-		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd)); // @v9.1.3
-		if(new_font) {
-			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
-			ok = 1;
-		}
-	}
-	return ok;
-}
-
-int TDialog::SetCtrlFont(uint ctrlID, const char * pFontName, int height)
-{
-	int    ok = -1;
-	HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrlID), pFontName, height);
-	if(new_font) {
-		SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
-		ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
-	}
-	return ok;
-}
-
-int __cdecl TDialog::SetCtrlsFont(const char * pFontName, int height, ...)
-{
-	int   ok = -1;
-	long  ctrl_id;
-	va_list  vl;
-	va_start(vl, height);
-	ctrl_id = va_arg(vl, long);
-	if(ctrl_id) {
-		HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrl_id), pFontName, height);
-		if(new_font) {
-			SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
-			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
-			if(ok > 0)
-				while((ctrl_id = va_arg(vl, long)) != 0)
-					::SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
-		}
-	}
-	va_end(vl);
-	return ok;
-}
-
 int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 {
     int   ok = -1;

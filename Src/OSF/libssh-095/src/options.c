@@ -44,7 +44,7 @@
  * @param src           The session to use to copy the options.
  *
  * @param dest          A pointer to store the allocated session with duplicated
- *                      options. You have to free the memory.
+ *                options. You have to free the memory.
  *
  * @returns             0 on sucess, -1 on error with errno set.
  *
@@ -213,226 +213,226 @@ int ssh_options_set_algo(ssh_session session, enum ssh_kex_types_e algo, const c
  * @param  session An allocated SSH session structure.
  *
  * @param  type The option type to set. This could be one of the
- *              following:
+ *        following:
  *
- *              - SSH_OPTIONS_HOST:
- *                The hostname or ip address to connect to (const char *).
+ *        - SSH_OPTIONS_HOST:
+ *          The hostname or ip address to connect to (const char *).
  *
- *              - SSH_OPTIONS_PORT:
- *                The port to connect to (uint *).
+ *        - SSH_OPTIONS_PORT:
+ *          The port to connect to (uint *).
  *
- *              - SSH_OPTIONS_PORT_STR:
- *                The port to connect to (const char *).
+ *        - SSH_OPTIONS_PORT_STR:
+ *          The port to connect to (const char *).
  *
- *              - SSH_OPTIONS_FD:
- *                The file descriptor to use (socket_t).\n
- *                \n
- *                If you wish to open the socket yourself for a reason
- *                or another, set the file descriptor. Don't forget to
- *                set the hostname as the hostname is used as a key in
- *                the known_host mechanism.
+ *        - SSH_OPTIONS_FD:
+ *          The file descriptor to use (socket_t).\n
+ *          \n
+ *          If you wish to open the socket yourself for a reason
+ *          or another, set the file descriptor. Don't forget to
+ *          set the hostname as the hostname is used as a key in
+ *          the known_host mechanism.
  *
- *              - SSH_OPTIONS_BINDADDR:
- *                The address to bind the client to (const char *).
+ *        - SSH_OPTIONS_BINDADDR:
+ *          The address to bind the client to (const char *).
  *
- *              - SSH_OPTIONS_USER:
- *                The username for authentication (const char *).\n
- *                \n
- *                If the value is NULL, the username is set to the
- *                default username.
+ *        - SSH_OPTIONS_USER:
+ *          The username for authentication (const char *).\n
+ *          \n
+ *          If the value is NULL, the username is set to the
+ *          default username.
  *
- *              - SSH_OPTIONS_SSH_DIR:
- *                Set the ssh directory (const char *,format string).\n
- *                \n
- *                If the value is NULL, the directory is set to the
- *                default ssh directory.\n
- *                \n
- *                The ssh directory is used for files like known_hosts
- *                and identity (private and public key). It may include
- *                "%s" which will be replaced by the user home
- *                directory.
+ *        - SSH_OPTIONS_SSH_DIR:
+ *          Set the ssh directory (const char *,format string).\n
+ *          \n
+ *          If the value is NULL, the directory is set to the
+ *          default ssh directory.\n
+ *          \n
+ *          The ssh directory is used for files like known_hosts
+ *          and identity (private and public key). It may include
+ *          "%s" which will be replaced by the user home
+ *          directory.
  *
- *              - SSH_OPTIONS_KNOWNHOSTS:
- *                Set the known hosts file name (const char *,format string).\n
- *                \n
- *                If the value is NULL, the directory is set to the
- *                default known hosts file, normally
- *                ~/.ssh/known_hosts.\n
- *                \n
- *                The known hosts file is used to certify remote hosts
- *                are genuine. It may include "%d" which will be
- *                replaced by the user home directory.
+ *        - SSH_OPTIONS_KNOWNHOSTS:
+ *          Set the known hosts file name (const char *,format string).\n
+ *          \n
+ *          If the value is NULL, the directory is set to the
+ *          default known hosts file, normally
+ *          ~/.ssh/known_hosts.\n
+ *          \n
+ *          The known hosts file is used to certify remote hosts
+ *          are genuine. It may include "%d" which will be
+ *          replaced by the user home directory.
  *
- *              - SSH_OPTIONS_GLOBAL_KNOWNHOSTS:
- *                Set the global known hosts file name (const char *,format string).\n
- *                \n
- *                If the value is NULL, the directory is set to the
- *                default global known hosts file, normally
- *                /etc/ssh/ssh_known_hosts.\n
- *                \n
- *                The known hosts file is used to certify remote hosts
- *                are genuine.
+ *        - SSH_OPTIONS_GLOBAL_KNOWNHOSTS:
+ *          Set the global known hosts file name (const char *,format string).\n
+ *          \n
+ *          If the value is NULL, the directory is set to the
+ *          default global known hosts file, normally
+ *          /etc/ssh/ssh_known_hosts.\n
+ *          \n
+ *          The known hosts file is used to certify remote hosts
+ *          are genuine.
  *
- *              - SSH_OPTIONS_ADD_IDENTITY (or SSH_OPTIONS_IDENTITY):
- *                Add a new identity file (const char *, format string) to
- *                the identity list.\n
- *                \n
- *                By default identity, id_dsa and id_rsa are checked.\n
- *                \n
- *                The identity used to authenticate with public key will be
- *                prepended to the list.
- *                It may include "%s" which will be replaced by the
- *                user home directory.
+ *        - SSH_OPTIONS_ADD_IDENTITY (or SSH_OPTIONS_IDENTITY):
+ *          Add a new identity file (const char *, format string) to
+ *          the identity list.\n
+ *          \n
+ *          By default identity, id_dsa and id_rsa are checked.\n
+ *          \n
+ *          The identity used to authenticate with public key will be
+ *          prepended to the list.
+ *          It may include "%s" which will be replaced by the
+ *          user home directory.
  *
- *              - SSH_OPTIONS_TIMEOUT:
- *                Set a timeout for the connection in seconds (long).
+ *        - SSH_OPTIONS_TIMEOUT:
+ *          Set a timeout for the connection in seconds (long).
  *
- *              - SSH_OPTIONS_TIMEOUT_USEC:
- *                Set a timeout for the connection in micro seconds
- *                        (long).
+ *        - SSH_OPTIONS_TIMEOUT_USEC:
+ *          Set a timeout for the connection in micro seconds
+ *                  (long).
  *
- *              - SSH_OPTIONS_SSH1:
- *                Deprecated
+ *        - SSH_OPTIONS_SSH1:
+ *          Deprecated
  *
- *              - SSH_OPTIONS_SSH2:
- *                Unused
+ *        - SSH_OPTIONS_SSH2:
+ *          Unused
  *
- *              - SSH_OPTIONS_LOG_VERBOSITY:
- *                Set the session logging verbosity (int).\n
- *                \n
- *                The verbosity of the messages. Every log smaller or
- *                equal to verbosity will be shown.
- *                - SSH_LOG_NOLOG: No logging
- *                - SSH_LOG_WARNING: Only warnings
- *                - SSH_LOG_PROTOCOL: High level protocol information
- *                - SSH_LOG_PACKET: Lower level protocol infomations, packet level
- *                - SSH_LOG_FUNCTIONS: Every function path
+ *        - SSH_OPTIONS_LOG_VERBOSITY:
+ *          Set the session logging verbosity (int).\n
+ *          \n
+ *          The verbosity of the messages. Every log smaller or
+ *          equal to verbosity will be shown.
+ *          - SSH_LOG_NOLOG: No logging
+ *          - SSH_LOG_WARNING: Only warnings
+ *          - SSH_LOG_PROTOCOL: High level protocol information
+ *          - SSH_LOG_PACKET: Lower level protocol infomations, packet level
+ *          - SSH_LOG_FUNCTIONS: Every function path
  *
- *              - SSH_OPTIONS_LOG_VERBOSITY_STR:
- *                Set the session logging verbosity via a
- *                string that will be converted to a numerical
- *                value (e.g. "3") and interpreted according
- *                to the values of
- *                SSH_OPTIONS_LOG_VERBOSITY above (const
- *                char *).
+ *        - SSH_OPTIONS_LOG_VERBOSITY_STR:
+ *          Set the session logging verbosity via a
+ *          string that will be converted to a numerical
+ *          value (e.g. "3") and interpreted according
+ *          to the values of
+ *          SSH_OPTIONS_LOG_VERBOSITY above (const
+ *          char *).
  *
- *              - SSH_OPTIONS_CIPHERS_C_S:
- *                Set the symmetric cipher client to server (const char *,
- *                comma-separated list).
+ *        - SSH_OPTIONS_CIPHERS_C_S:
+ *          Set the symmetric cipher client to server (const char *,
+ *          comma-separated list).
  *
- *              - SSH_OPTIONS_CIPHERS_S_C:
- *                Set the symmetric cipher server to client (const char *,
- *                comma-separated list).
+ *        - SSH_OPTIONS_CIPHERS_S_C:
+ *          Set the symmetric cipher server to client (const char *,
+ *          comma-separated list).
  *
- *              - SSH_OPTIONS_KEY_EXCHANGE:
- *                Set the key exchange method to be used (const char *,
- *                comma-separated list). ex:
- *                "ecdh-sha2-nistp256,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1"
+ *        - SSH_OPTIONS_KEY_EXCHANGE:
+ *          Set the key exchange method to be used (const char *,
+ *          comma-separated list). ex:
+ *          "ecdh-sha2-nistp256,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1"
  *
- *              - SSH_OPTIONS_HMAC_C_S:
- *                Set the Message Authentication Code algorithm client to server
- *                (const char *, comma-separated list).
+ *        - SSH_OPTIONS_HMAC_C_S:
+ *          Set the Message Authentication Code algorithm client to server
+ *          (const char *, comma-separated list).
  *
- *              - SSH_OPTIONS_HMAC_S_C:
- *                Set the Message Authentication Code algorithm server to client
- *                (const char *, comma-separated list).
+ *        - SSH_OPTIONS_HMAC_S_C:
+ *          Set the Message Authentication Code algorithm server to client
+ *          (const char *, comma-separated list).
  *
- *              - SSH_OPTIONS_HOSTKEYS:
- *                Set the preferred server host key types (const char *,
- *                comma-separated list). ex:
- *                "ssh-rsa,ssh-dss,ecdh-sha2-nistp256"
+ *        - SSH_OPTIONS_HOSTKEYS:
+ *          Set the preferred server host key types (const char *,
+ *          comma-separated list). ex:
+ *          "ssh-rsa,ssh-dss,ecdh-sha2-nistp256"
  *
- *              - SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES:
- *                Set the preferred public key algorithms to be used for
- *                authentication (const char *, comma-separated list). ex:
- *                "ssh-rsa,rsa-sha2-256,ssh-dss,ecdh-sha2-nistp256"
+ *        - SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES:
+ *          Set the preferred public key algorithms to be used for
+ *          authentication (const char *, comma-separated list). ex:
+ *          "ssh-rsa,rsa-sha2-256,ssh-dss,ecdh-sha2-nistp256"
  *
- *              - SSH_OPTIONS_COMPRESSION_C_S:
- *                Set the compression to use for client to server
- *                communication (const char *, "yes", "no" or a specific
- *                algorithm name if needed ("zlib","zlib@openssh.com","none").
+ *        - SSH_OPTIONS_COMPRESSION_C_S:
+ *          Set the compression to use for client to server
+ *          communication (const char *, "yes", "no" or a specific
+ *          algorithm name if needed ("zlib","zlib@openssh.com","none").
  *
- *              - SSH_OPTIONS_COMPRESSION_S_C:
- *                Set the compression to use for server to client
- *                communication (const char *, "yes", "no" or a specific
- *                algorithm name if needed ("zlib","zlib@openssh.com","none").
+ *        - SSH_OPTIONS_COMPRESSION_S_C:
+ *          Set the compression to use for server to client
+ *          communication (const char *, "yes", "no" or a specific
+ *          algorithm name if needed ("zlib","zlib@openssh.com","none").
  *
- *              - SSH_OPTIONS_COMPRESSION:
- *                Set the compression to use for both directions
- *                communication (const char *, "yes", "no" or a specific
- *                algorithm name if needed ("zlib","zlib@openssh.com","none").
+ *        - SSH_OPTIONS_COMPRESSION:
+ *          Set the compression to use for both directions
+ *          communication (const char *, "yes", "no" or a specific
+ *          algorithm name if needed ("zlib","zlib@openssh.com","none").
  *
- *              - SSH_OPTIONS_COMPRESSION_LEVEL:
- *                Set the compression level to use for zlib functions. (int,
- *                value from 1 to 9, 9 being the most efficient but slower).
+ *        - SSH_OPTIONS_COMPRESSION_LEVEL:
+ *          Set the compression level to use for zlib functions. (int,
+ *          value from 1 to 9, 9 being the most efficient but slower).
  *
- *              - SSH_OPTIONS_STRICTHOSTKEYCHECK:
- *                Set the parameter StrictHostKeyChecking to avoid
- *                asking about a fingerprint (int, 0 = false).
+ *        - SSH_OPTIONS_STRICTHOSTKEYCHECK:
+ *          Set the parameter StrictHostKeyChecking to avoid
+ *          asking about a fingerprint (int, 0 = false).
  *
- *              - SSH_OPTIONS_PROXYCOMMAND:
- *                Set the command to be executed in order to connect to
- *                server (const char *).
+ *        - SSH_OPTIONS_PROXYCOMMAND:
+ *          Set the command to be executed in order to connect to
+ *          server (const char *).
  *
- *              - SSH_OPTIONS_GSSAPI_SERVER_IDENTITY
- *                Set it to specify the GSSAPI server identity that libssh
- *                should expect when connecting to the server (const char *).
+ *        - SSH_OPTIONS_GSSAPI_SERVER_IDENTITY
+ *          Set it to specify the GSSAPI server identity that libssh
+ *          should expect when connecting to the server (const char *).
  *
- *              - SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY
- *                Set it to specify the GSSAPI client identity that libssh
- *                should expect when connecting to the server (const char *).
+ *        - SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY
+ *          Set it to specify the GSSAPI client identity that libssh
+ *          should expect when connecting to the server (const char *).
  *
- *              - SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS
- *                Set it to specify that GSSAPI should delegate credentials
- *                to the server (int, 0 = false).
+ *        - SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS
+ *          Set it to specify that GSSAPI should delegate credentials
+ *          to the server (int, 0 = false).
  *
- *              - SSH_OPTIONS_PASSWORD_AUTH
- *                Set it if password authentication should be used
- *                in ssh_userauth_auto_pubkey(). (int, 0=false).
- *                Currently without effect (ssh_userauth_auto_pubkey doesn't use
- *                password authentication).
+ *        - SSH_OPTIONS_PASSWORD_AUTH
+ *          Set it if password authentication should be used
+ *          in ssh_userauth_auto_pubkey(). (int, 0=false).
+ *          Currently without effect (ssh_userauth_auto_pubkey doesn't use
+ *          password authentication).
  *
- *              - SSH_OPTIONS_PUBKEY_AUTH
- *                Set it if pubkey authentication should be used
- *                in ssh_userauth_auto_pubkey(). (int, 0=false).
+ *        - SSH_OPTIONS_PUBKEY_AUTH
+ *          Set it if pubkey authentication should be used
+ *          in ssh_userauth_auto_pubkey(). (int, 0=false).
  *
- *              - SSH_OPTIONS_KBDINT_AUTH
- *                Set it if keyboard-interactive authentication should be used
- *                in ssh_userauth_auto_pubkey(). (int, 0=false).
- *                Currently without effect (ssh_userauth_auto_pubkey doesn't use
- *                keyboard-interactive authentication).
+ *        - SSH_OPTIONS_KBDINT_AUTH
+ *          Set it if keyboard-interactive authentication should be used
+ *          in ssh_userauth_auto_pubkey(). (int, 0=false).
+ *          Currently without effect (ssh_userauth_auto_pubkey doesn't use
+ *          keyboard-interactive authentication).
  *
- *              - SSH_OPTIONS_GSSAPI_AUTH
- *                Set it if gssapi authentication should be used
- *                in ssh_userauth_auto_pubkey(). (int, 0=false).
- *                Currently without effect (ssh_userauth_auto_pubkey doesn't use
- *                gssapi authentication).
+ *        - SSH_OPTIONS_GSSAPI_AUTH
+ *          Set it if gssapi authentication should be used
+ *          in ssh_userauth_auto_pubkey(). (int, 0=false).
+ *          Currently without effect (ssh_userauth_auto_pubkey doesn't use
+ *          gssapi authentication).
  *
- *              - SSH_OPTIONS_NODELAY
- *                Set it to disable Nagle's Algorithm (TCP_NODELAY) on the
- *                session socket. (int, 0=false)
+ *        - SSH_OPTIONS_NODELAY
+ *          Set it to disable Nagle's Algorithm (TCP_NODELAY) on the
+ *          session socket. (int, 0=false)
  *
- *              - SSH_OPTIONS_PROCESS_CONFIG
- *                Set it to false to disable automatic processing of per-user
- *                and system-wide OpenSSH configuration files. LibSSH
- *                automatically uses these configuration files unless
- *                you provide it with this option or with different file (bool).
+ *        - SSH_OPTIONS_PROCESS_CONFIG
+ *          Set it to false to disable automatic processing of per-user
+ *          and system-wide OpenSSH configuration files. LibSSH
+ *          automatically uses these configuration files unless
+ *          you provide it with this option or with different file (bool).
  *
- *              - SSH_OPTIONS_REKEY_DATA
- *                Set the data limit that can be transferred with a single
- *                key in bytes. RFC 4253 Section 9 recommends 1GB of data, while
- *                RFC 4344 provides more specific restrictions, that are applied
- *                automatically. When specified, the lower value will be used.
- *                (uint64_t, 0=default)
+ *        - SSH_OPTIONS_REKEY_DATA
+ *          Set the data limit that can be transferred with a single
+ *          key in bytes. RFC 4253 Section 9 recommends 1GB of data, while
+ *          RFC 4344 provides more specific restrictions, that are applied
+ *          automatically. When specified, the lower value will be used.
+ *          (uint64_t, 0=default)
  *
- *              - SSH_OPTIONS_REKEY_TIME
- *                Set the time limit for a session before intializing a rekey
- *                in seconds. RFC 4253 Section 9 recommends one hour.
- *                (uint32_t, 0=off)
+ *        - SSH_OPTIONS_REKEY_TIME
+ *          Set the time limit for a session before intializing a rekey
+ *          in seconds. RFC 4253 Section 9 recommends one hour.
+ *          (uint32_t, 0=off)
  *
  * @param  value The value to set. This is a generic pointer and the
- *               datatype which is used should be set according to the
- *               type set.
+ *         datatype which is used should be set according to the
+ *         type set.
  *
  * @return       0 on success, < 0 on error.
  */
@@ -1046,14 +1046,14 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 
 /**
  * @brief This function can get ssh the ssh port. It must only be used on
- *        a valid ssh session. This function is useful when the session
- *        options have been automatically inferred from the environment
- *        or configuration files and one
+ *  a valid ssh session. This function is useful when the session
+ *  options have been automatically inferred from the environment
+ *  or configuration files and one
  *
  * @param  session An allocated SSH session structure.
  *
  * @param  port_target An unsigned integer into which the
- *         port will be set from the ssh session.
+ *   port will be set from the ssh session.
  *
  * @return       0 on success, < 0 on error.
  *
@@ -1075,44 +1075,44 @@ int ssh_options_get_port(ssh_session session, uint* port_target) {
 
 /**
  * @brief This function can get ssh options, it does not support all options provided for
- *        ssh options set, but mostly those which a user-space program may care about having
- *        trusted the ssh driver to infer these values from underlaying configuration files.
- *        It operates only on those SSH_OPTIONS_* which return char*. If you wish to receive
- *        the port then please use ssh_options_get_port() which returns an uint.
+ *  ssh options set, but mostly those which a user-space program may care about having
+ *  trusted the ssh driver to infer these values from underlaying configuration files.
+ *  It operates only on those SSH_OPTIONS_* which return char*. If you wish to receive
+ *  the port then please use ssh_options_get_port() which returns an uint.
  *
  * @param  session An allocated SSH session structure.
  *
  * @param  type The option type to get. This could be one of the
- *              following:
+ *        following:
  *
- *              - SSH_OPTIONS_HOST:
- *                The hostname or ip address to connect to (const char *).
+ *        - SSH_OPTIONS_HOST:
+ *          The hostname or ip address to connect to (const char *).
  *
- *              - SSH_OPTIONS_USER:
- *                The username for authentication (const char *).\n
- *                \n when not explicitly set this will be inferred from the
- *                ~/.ssh/config file.
+ *        - SSH_OPTIONS_USER:
+ *          The username for authentication (const char *).\n
+ *          \n when not explicitly set this will be inferred from the
+ *          ~/.ssh/config file.
  *
- *              - SSH_OPTIONS_IDENTITY:
- *                Get the first identity file name (const char *).\n
- *                \n
- *                By default identity, id_dsa and id_rsa are checked.
+ *        - SSH_OPTIONS_IDENTITY:
+ *          Get the first identity file name (const char *).\n
+ *          \n
+ *          By default identity, id_dsa and id_rsa are checked.
  *
- *              - SSH_OPTIONS_PROXYCOMMAND:
- *                Get the proxycommand necessary to log into the
- *                remote host. When not explicitly set, it will be read
- *                from the ~/.ssh/config file.
+ *        - SSH_OPTIONS_PROXYCOMMAND:
+ *          Get the proxycommand necessary to log into the
+ *          remote host. When not explicitly set, it will be read
+ *          from the ~/.ssh/config file.
  *
- *              - SSH_OPTIONS_GLOBAL_KNOWNHOSTS:
- *                Get the path to the global known_hosts file being used.
+ *        - SSH_OPTIONS_GLOBAL_KNOWNHOSTS:
+ *          Get the path to the global known_hosts file being used.
  *
- *              - SSH_OPTIONS_KNOWNHOSTS:
- *                Get the path to the known_hosts file being used.
+ *        - SSH_OPTIONS_KNOWNHOSTS:
+ *          Get the path to the known_hosts file being used.
  *
  * @param  value The value to get into. As a char**, space will be
- *               allocated by the function for the value, it is
- *               your responsibility to free the memory using
- *               ssh_string_free_char().
+ *         allocated by the function for the value, it is
+ *         your responsibility to free the memory using
+ *         ssh_string_free_char().
  *
  * @return       SSH_OK on success, SSH_ERROR on error.
  */
@@ -1372,7 +1372,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
  * @param  session      SSH session handle
  *
  * @param  filename     The options file to use, if NULL the default
- *                      ~/.ssh/config will be used.
+ *                ~/.ssh/config will be used.
  *
  * @return 0 on success, < 0 on error.
  *
@@ -1553,114 +1553,114 @@ static int ssh_bind_set_algo(ssh_bind sshbind,
  * @param  sshbind      The ssh server bind to configure.
  *
  * @param  type         The option type to set. This should be one of the
- *                      following:
+ *                following:
  *
- *                      - SSH_BIND_OPTIONS_HOSTKEY:
- *                        Set the path to an ssh host key, regardless
- *                        of type.  Only one key from per key type
- *                        (RSA, DSA, ECDSA) is allowed in an ssh_bind
- *                        at a time, and later calls to this function
- *                        with this option for the same key type will
- *                        override prior calls (const char *).
+ *                - SSH_BIND_OPTIONS_HOSTKEY:
+ *                  Set the path to an ssh host key, regardless
+ *                  of type.  Only one key from per key type
+ *                  (RSA, DSA, ECDSA) is allowed in an ssh_bind
+ *                  at a time, and later calls to this function
+ *                  with this option for the same key type will
+ *                  override prior calls (const char *).
  *
- *                      - SSH_BIND_OPTIONS_BINDADDR:
- *                        Set the IP address to bind (const char *).
+ *                - SSH_BIND_OPTIONS_BINDADDR:
+ *                  Set the IP address to bind (const char *).
  *
- *                      - SSH_BIND_OPTIONS_BINDPORT:
- *                        Set the port to bind (uint *).
+ *                - SSH_BIND_OPTIONS_BINDPORT:
+ *                  Set the port to bind (uint *).
  *
- *                      - SSH_BIND_OPTIONS_BINDPORT_STR:
- *                        Set the port to bind (const char *).
+ *                - SSH_BIND_OPTIONS_BINDPORT_STR:
+ *                  Set the port to bind (const char *).
  *
- *                      - SSH_BIND_OPTIONS_LOG_VERBOSITY:
- *                        Set the session logging verbosity (int *).
- *                        The logging verbosity should have one of the
- *                        following values, which are listed in order
- *                        of increasing verbosity.  Every log message
- *                        with verbosity less than or equal to the
- *                        logging verbosity will be shown.
- *                        - SSH_LOG_NOLOG: No logging
- *                        - SSH_LOG_WARNING: Only warnings
- *                        - SSH_LOG_PROTOCOL: High level protocol information
- *                        - SSH_LOG_PACKET: Lower level protocol infomations, packet level
- *                        - SSH_LOG_FUNCTIONS: Every function path
+ *                - SSH_BIND_OPTIONS_LOG_VERBOSITY:
+ *                  Set the session logging verbosity (int *).
+ *                  The logging verbosity should have one of the
+ *                  following values, which are listed in order
+ *                  of increasing verbosity.  Every log message
+ *                  with verbosity less than or equal to the
+ *                  logging verbosity will be shown.
+ *                  - SSH_LOG_NOLOG: No logging
+ *                  - SSH_LOG_WARNING: Only warnings
+ *                  - SSH_LOG_PROTOCOL: High level protocol information
+ *                  - SSH_LOG_PACKET: Lower level protocol infomations, packet level
+ *                  - SSH_LOG_FUNCTIONS: Every function path
  *
- *                      - SSH_BIND_OPTIONS_LOG_VERBOSITY_STR:
- *                        Set the session logging verbosity via a
- *                        string that will be converted to a numerical
- *                        value (e.g. "3") and interpreted according
- *                        to the values of
- *                        SSH_BIND_OPTIONS_LOG_VERBOSITY above (const
- *                        char *).
+ *                - SSH_BIND_OPTIONS_LOG_VERBOSITY_STR:
+ *                  Set the session logging verbosity via a
+ *                  string that will be converted to a numerical
+ *                  value (e.g. "3") and interpreted according
+ *                  to the values of
+ *                  SSH_BIND_OPTIONS_LOG_VERBOSITY above (const
+ *                  char *).
  *
- *                      - SSH_BIND_OPTIONS_DSAKEY:
- *                        Set the path to the ssh host dsa key, SSHv2
- *                        only (const char *).
+ *                - SSH_BIND_OPTIONS_DSAKEY:
+ *                  Set the path to the ssh host dsa key, SSHv2
+ *                  only (const char *).
  *
- *                      - SSH_BIND_OPTIONS_RSAKEY:
- *                        Set the path to the ssh host rsa key, SSHv2
- *                        only (const char *).
+ *                - SSH_BIND_OPTIONS_RSAKEY:
+ *                  Set the path to the ssh host rsa key, SSHv2
+ *                  only (const char *).
  *
- *                      - SSH_BIND_OPTIONS_ECDSAKEY:
- *                        Set the path to the ssh host ecdsa key,
- *                        SSHv2 only (const char *).
+ *                - SSH_BIND_OPTIONS_ECDSAKEY:
+ *                  Set the path to the ssh host ecdsa key,
+ *                  SSHv2 only (const char *).
  *
- *                      - SSH_BIND_OPTIONS_BANNER:
- *                        Set the server banner sent to clients (const char *).
+ *                - SSH_BIND_OPTIONS_BANNER:
+ *                  Set the server banner sent to clients (const char *).
  *
- *                      - SSH_BIND_OPTIONS_IMPORT_KEY:
- *                        Set the Private Key for the server directly (ssh_key)
+ *                - SSH_BIND_OPTIONS_IMPORT_KEY:
+ *                  Set the Private Key for the server directly (ssh_key)
  *
- *                      - SSH_BIND_OPTIONS_CIPHERS_C_S:
- *                        Set the symmetric cipher client to server (const char *,
- *                        comma-separated list).
+ *                - SSH_BIND_OPTIONS_CIPHERS_C_S:
+ *                  Set the symmetric cipher client to server (const char *,
+ *                  comma-separated list).
  *
- *                      - SSH_BIND_OPTIONS_CIPHERS_S_C:
- *                        Set the symmetric cipher server to client (const char *,
- *                        comma-separated list).
+ *                - SSH_BIND_OPTIONS_CIPHERS_S_C:
+ *                  Set the symmetric cipher server to client (const char *,
+ *                  comma-separated list).
  *
- *                      - SSH_BIND_OPTIONS_KEY_EXCHANGE:
- *                        Set the key exchange method to be used (const char *,
- *                        comma-separated list). ex:
- *                        "ecdh-sha2-nistp256,diffie-hellman-group14-sha1"
+ *                - SSH_BIND_OPTIONS_KEY_EXCHANGE:
+ *                  Set the key exchange method to be used (const char *,
+ *                  comma-separated list). ex:
+ *                  "ecdh-sha2-nistp256,diffie-hellman-group14-sha1"
  *
- *                      - SSH_BIND_OPTIONS_HMAC_C_S:
- *                        Set the Message Authentication Code algorithm client
- *                        to server (const char *, comma-separated list).
+ *                - SSH_BIND_OPTIONS_HMAC_C_S:
+ *                  Set the Message Authentication Code algorithm client
+ *                  to server (const char *, comma-separated list).
  *
- *                      - SSH_BIND_OPTIONS_HMAC_S_C:
- *                        Set the Message Authentication Code algorithm server
- *                        to client (const char *, comma-separated list).
+ *                - SSH_BIND_OPTIONS_HMAC_S_C:
+ *                  Set the Message Authentication Code algorithm server
+ *                  to client (const char *, comma-separated list).
  *
- *                      - SSH_BIND_OPTIONS_CONFIG_DIR:
- *                        Set the directory (const char *, format string)
- *                        to be used when the "%d" scape is used when providing
- *                        paths of configuration files to
- *                        ssh_bind_options_parse_config().
+ *                - SSH_BIND_OPTIONS_CONFIG_DIR:
+ *                  Set the directory (const char *, format string)
+ *                  to be used when the "%d" scape is used when providing
+ *                  paths of configuration files to
+ *                  ssh_bind_options_parse_config().
  *
- *                      - SSH_BIND_OPTIONS_PROCESS_CONFIG
- *                        Set it to false to disable automatic processing of
- *                        system-wide configuration files. LibSSH automatically
- *                        uses these configuration files otherwise. This
- *                        option will only have effect if set before any call
- *                        to ssh_bind_options_parse_config() (bool).
+ *                - SSH_BIND_OPTIONS_PROCESS_CONFIG
+ *                  Set it to false to disable automatic processing of
+ *                  system-wide configuration files. LibSSH automatically
+ *                  uses these configuration files otherwise. This
+ *                  option will only have effect if set before any call
+ *                  to ssh_bind_options_parse_config() (bool).
  *
- *                      - SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES:
- *                        Set the public key algorithm accepted by the server
- *                        (const char *, comma-separated list).
+ *                - SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES:
+ *                  Set the public key algorithm accepted by the server
+ *                  (const char *, comma-separated list).
  *
- *                      - SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS:
- *                        Set the list of allowed hostkey signatures algorithms
- *                        to offer to the client, ordered by preference. This
- *                        list is used as a filter when creating the list of
- *                        algorithms to offer to the client: first the list of
- *                        possible algorithms is created from the list of keys
- *                        set and then filtered against this list.
- *                        (const char *, comma-separated list).
+ *                - SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS:
+ *                  Set the list of allowed hostkey signatures algorithms
+ *                  to offer to the client, ordered by preference. This
+ *                  list is used as a filter when creating the list of
+ *                  algorithms to offer to the client: first the list of
+ *                  possible algorithms is created from the list of keys
+ *                  set and then filtered against this list.
+ *                  (const char *, comma-separated list).
  *
  * @param  value        The value to set. This is a generic pointer and the
- *                      datatype which should be used is described at the
- *                      corresponding value of type above.
+ *                datatype which should be used is described at the
+ *                corresponding value of type above.
  *
  * @return              0 on success, < 0 on error, invalid option, or parameter.
  */
@@ -2114,8 +2114,8 @@ static char * ssh_bind_options_expand_escape(ssh_bind sshbind, const char * s)
  * @param  sshbind      SSH bind handle
  *
  * @param  filename     The options file to use; if NULL only the global
- *                      configuration is parsed and applied (if it haven't been
- *                      processed before).
+ *                configuration is parsed and applied (if it haven't been
+ *                processed before).
  *
  * @return 0 on success, < 0 on error.
  */

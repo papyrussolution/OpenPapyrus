@@ -138,13 +138,13 @@ typedef enum {
 HB_EXTERN hb_direction_t hb_direction_from_string(const char * str, int len);
 HB_EXTERN const char * hb_direction_to_string(hb_direction_t direction);
 
-#define HB_DIRECTION_IS_VALID(dir)      ((((unsigned int)(dir)) & ~3U) == 4)
+#define HB_DIRECTION_IS_VALID(dir)      ((((uint)(dir)) & ~3U) == 4)
 /* Direction must be valid for the following */
-#define HB_DIRECTION_IS_HORIZONTAL(dir) ((((unsigned int)(dir)) & ~1U) == 4)
-#define HB_DIRECTION_IS_VERTICAL(dir)   ((((unsigned int)(dir)) & ~1U) == 6)
-#define HB_DIRECTION_IS_FORWARD(dir)    ((((unsigned int)(dir)) & ~2U) == 4)
-#define HB_DIRECTION_IS_BACKWARD(dir)   ((((unsigned int)(dir)) & ~2U) == 5)
-#define HB_DIRECTION_REVERSE(dir)       ((hb_direction_t)(((unsigned int)(dir)) ^ 1))
+#define HB_DIRECTION_IS_HORIZONTAL(dir) ((((uint)(dir)) & ~1U) == 4)
+#define HB_DIRECTION_IS_VERTICAL(dir)   ((((uint)(dir)) & ~1U) == 6)
+#define HB_DIRECTION_IS_FORWARD(dir)    ((((uint)(dir)) & ~2U) == 4)
+#define HB_DIRECTION_IS_BACKWARD(dir)   ((((uint)(dir)) & ~2U) == 5)
+#define HB_DIRECTION_REVERSE(dir)       ((hb_direction_t)(((uint)(dir)) ^ 1))
 
 /* hb_language_t */
 
@@ -401,7 +401,7 @@ typedef void (* hb_destroy_func_t) (void * user_data);
  *
  * Since: 2.0.0
  */
-#define HB_FEATURE_GLOBAL_END   ((unsigned int)-1)
+#define HB_FEATURE_GLOBAL_END   ((uint)-1)
 
 /**
  * hb_feature_t:

@@ -183,7 +183,7 @@ hb_position_t hb_ot_math_get_glyph_kerning(hb_font_t * font,
  * @direction: The direction of the stretching (horizontal or vertical)
  * @start_offset: offset of the first variant to retrieve
  * @variants_count: (inout): Input = the maximum number of variants to return;
- *              Output = the actual number of variants returned
+ *        Output = the actual number of variants returned
  * @variants: (out) (array length=variants_count): array of variants returned
  *
  * Fetches the MathGlyphConstruction for the specified font, glyph index, and

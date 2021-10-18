@@ -2440,7 +2440,7 @@ err:
  *   Foreign db = Where delete occurs (dbp).
  *   Secondary db = Where references to dbp occur (sdbp, a secondary)
  *   Primary db = sdbp's primary database, references to dbp are secondary
- *                 keys here
+ *           keys here
  *   Foreign Key = Key being deleted in dbp (fkey)
  *   Primary Key = Key of the corresponding entry in sdbp's primary (pkey).
  */

@@ -89,7 +89,7 @@
  *
  * Petr Mikulik, Jan 1999: terminal entries for PM3D functionality
  * Ethan Merritt, May 2001: modified gd/gif driver to produce png instead;
- *                          added support for line width and TrueType fonts
+ *                    added support for line width and TrueType fonts
  * Shige Takeno, Mar 2011: deal with libgd built to use SJIS rather than UTF-8
  * Ethan Merritt, Apr 2012: Don't claim to support versions 1.x of libgd
  * kmiya@culti, Nov 2016: sixelgd terminal
@@ -605,7 +605,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	bool gif_anim_option = FALSE; /* set to TRUE if an animated gif option given */
 	if(!PNG_initialized) {
 		PNG_initialized = TRUE;
-		PTR32(GPT.TermOptions)[0] = 0;
+		GPT._TermOptions.Z();
 		pThis->ChrH = PNG_HCHAR; /* Default to medium font */
 		png_state.default_font = gdfont;
 		png_state.n_colors = 0;
@@ -993,10 +993,10 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		png_state.flags &= ~PNG_USE_TRANSPARENT;
 	 now generate options string 
 	if(png_state.flags & PNG_USE_TRANSPARENT) {
-		strcat(GPT.TermOptions, "transparent ");
+		GPT._TermOptions.Cat("transparent ");
 	}
 	if(png_state.flags & PNG_USE_INTERLACE) {
-		strcat(GPT.TermOptions, "interlace ");
+		GPT._TermOptions.Cat("interlace ");
 	}
 	/* JPEG files are always 24-bit color */
 	if(strcmp(pThis->name, "jpeg") == 0) {
@@ -1004,50 +1004,49 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->flags |= TERM_ALPHA_CHANNEL;
 	}
 	else if(png_state.TrueColor) {
-		strcat(GPT.TermOptions, "truecolor ");
+		GPT._TermOptions.Cat("truecolor ");
 	}
 	if(!(png_state.flags & PNG_USE_CROP)) {
-		strcat(GPT.TermOptions, "no");
+		GPT._TermOptions.Cat("no");
 	}
-	strcat(GPT.TermOptions, "crop ");
+	GPT._TermOptions.Cat("crop ");
 	if(pThis->flags & TERM_ENHANCED_TEXT) {
-		strcat(GPT.TermOptions, "enhanced ");
+		GPT._TermOptions.Cat("enhanced ");
 	}
 	if(PNG_linewidth_factor != 1.0)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "linewidth %3.1f ", PNG_linewidth_factor);
+		slprintf_cat(GPT._TermOptions, "linewidth %3.1f ", PNG_linewidth_factor);
 	if(PNG_dashlength_factor != 1.0)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "dashlength %3.1f ", PNG_dashlength_factor);
+		slprintf_cat(GPT._TermOptions, "dashlength %3.1f ", PNG_dashlength_factor);
 	if(png_state.capbutt) {
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "butt ");
+		slprintf_cat(GPT._TermOptions, "butt ");
 	}
 	if(png_state.animate) {
 		if(strncmp("sixel", pThis->name, 5) == 0)
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "animate ");
+			slprintf_cat(GPT._TermOptions, "animate ");
 		else
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "animate delay %d loop %d %soptimize ",
+			slprintf_cat(GPT._TermOptions, "animate delay %d loop %d %soptimize ",
 			    png_state.frame_delay, png_state.loop_count, png_state.frame_optimization ? "" : "no");
 	}
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "size %d,%d ", PNG_XMAX, PNG_YMAX);
+	slprintf_cat(GPT._TermOptions, "size %d,%d ", PNG_XMAX, PNG_YMAX);
 	if(png_state.n_colors == 1)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "background \"#%06x\" ", png_state.rgb_table[0]);
+		slprintf_cat(GPT._TermOptions, "background \"#%06x\" ", png_state.rgb_table[0]);
 	if(png_state.ttffont) {
 		if(png_state.fontscale != 1.0)
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "fontscale %.1f ", png_state.fontscale);
-		if(strlen(GPT.TermOptions) + strlen(png_state.ttffont) < sizeof(GPT.TermOptions) - 32)
-			sprintf(GPT.TermOptions + strlen(GPT.TermOptions), "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
+			slprintf_cat(GPT._TermOptions, "fontscale %.1f ", png_state.fontscale);
+		slprintf_cat(GPT._TermOptions, "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
 	}
 	else 
 		switch(pThis->ChrH) {
-			case 5: strcat(GPT.TermOptions, "tiny "); break;
-			case 6: strcat(GPT.TermOptions, "small "); break;
+			case 5: GPT._TermOptions.Cat("tiny "); break;
+			case 6: GPT._TermOptions.Cat("small "); break;
 			case 7:
-			default: strcat(GPT.TermOptions, "medium "); break;
-			case 8: strcat(GPT.TermOptions, "large "); break;
-			case 9: strcat(GPT.TermOptions, "giant "); break;
+			default: GPT._TermOptions.Cat("medium "); break;
+			case 8: GPT._TermOptions.Cat("large "); break;
+			case 9: GPT._TermOptions.Cat("giant "); break;
 		}
 	// Oct 2020:  'animate optimize' is deprecated 
 	if(png_state.animate && png_state.frame_optimization) {
-		strcat(GPT.TermOptions, "\n\tWarning: the 'optimize' option to gif animation is deprecated");
+		GPT._TermOptions.Cat("\n\tWarning: the 'optimize' option to gif animation is deprecated");
 	}
 }
 /*
@@ -1826,7 +1825,7 @@ TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize)
  * PROBLEMS:
  *	- the Symbol font encoding didn't work in libgd until 2.0.21
  *      - Placement of superscripts and subscripts relies on information
- *        in the font description that is not always reliable
+ *  in the font description that is not always reliable
  *	- the TTF character encoding for non-keyboard characters does
  *	  not always match the PostScript standard.
  *	- Spacing of rotated text is incorrect; I believe this is a due
@@ -2104,7 +2103,7 @@ TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 				rgb1.g = *cval++;
 				rgb1.b = *cval++;
 				alpha  = *cval++;
-				alpha  = 127 - (alpha>>1);/* input is [0:255] but gd wants [127:0] */
+				alpha  = 127 - (alpha>>1); /* input is [0:255] but gd wants [127:0] */
 				rgb255_from_rgb1(rgb1, &rgb255);
 				pixel = gdImageColorResolveAlpha(png_state.image,
 					(int)rgb255.r, (int)rgb255.g, (int)rgb255.b, alpha);
@@ -2179,7 +2178,7 @@ static void gd_iconv(GpTermEntry * pThis, char ** string)
 		if((cd = iconv_open("Shift_JIS", "UTF-8")) == (iconv_t)-1)
 			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
-			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
+			if(iconv(cd, (void *)string, &len1, &stmp, &len2) == (size_t)-1)
 				p_gp->IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;
@@ -2194,7 +2193,7 @@ static void gd_iconv(GpTermEntry * pThis, char ** string)
 		if((cd = iconv_open("UTF-8", "Shift_JIS")) == (iconv_t)-1)
 			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
-			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
+			if(iconv(cd, (void *)string, &len1, &stmp, &len2) == (size_t)-1)
 				p_gp->IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;

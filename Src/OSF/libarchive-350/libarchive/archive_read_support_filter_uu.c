@@ -34,12 +34,12 @@ __FBSDID("$FreeBSD$");
 #define UUENCODE_BID_MAX_READ 128*1024 /* in bytes */
 
 struct uudecode {
-	int64_t total;
-	unsigned char   * in_buff;
+	int64 total;
+	uchar   * in_buff;
 #define IN_BUFF_SIZE    (1024)
 	int in_cnt;
 	size_t in_allocated;
-	unsigned char   * out_buff;
+	uchar   * out_buff;
 #define OUT_BUFF_SIZE   (64 * 1024)
 	int state;
 #define ST_FIND_HEAD    0
@@ -86,7 +86,7 @@ int archive_read_support_filter_uu(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static const unsigned char ascii[256] = {
+static const uchar ascii[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '\n', 0, 0, '\r', 0, 0, /* 00 - 0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 10 - 1F */
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 20 - 2F */
@@ -105,7 +105,7 @@ static const unsigned char ascii[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* F0 - FF */
 };
 
-static const unsigned char uuchar[256] = {
+static const uchar uuchar[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 00 - 0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 10 - 1F */
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 20 - 2F */
@@ -124,7 +124,7 @@ static const unsigned char uuchar[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* F0 - FF */
 };
 
-static const unsigned char base64[256] = {
+static const uchar base64[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 00 - 0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 10 - 1F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, /* 20 - 2F */
@@ -162,7 +162,7 @@ static const int base64num[128] = {
 	49, 50, 51,  0,  0,  0,  0,  0, /* 70 - 7F */
 };
 
-static ssize_t get_line(const unsigned char * b, ssize_t avail, ssize_t * nlsize)
+static ssize_t get_line(const uchar * b, ssize_t avail, ssize_t * nlsize)
 {
 	ssize_t len;
 
@@ -196,7 +196,7 @@ static ssize_t get_line(const unsigned char * b, ssize_t avail, ssize_t * nlsize
 }
 
 static ssize_t bid_get_line(struct archive_read_filter * filter,
-    const unsigned char ** b, ssize_t * avail, ssize_t * ravail,
+    const uchar ** b, ssize_t * avail, ssize_t * ravail,
     ssize_t * nl, size_t* nbytes_read)
 {
 	ssize_t len;
@@ -233,7 +233,7 @@ static ssize_t bid_get_line(struct archive_read_filter * filter,
 		*ravail = *avail;
 		*b += diff;
 		*avail -= diff;
-		tested = len;/* Skip some bytes we already determinated. */
+		tested = len; /* Skip some bytes we already determinated. */
 		len = get_line(*b + tested, *avail - tested, nl);
 		if(len >= 0)
 			len += tested;
@@ -246,7 +246,7 @@ static ssize_t bid_get_line(struct archive_read_filter * filter,
 static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
     struct archive_read_filter * filter)
 {
-	const unsigned char * b;
+	const uchar * b;
 	ssize_t avail, ravail;
 	ssize_t len, nl;
 	int l;
@@ -352,14 +352,14 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 	self->skip = NULL; /* not supported */
 	self->close = uudecode_filter_close;
 
-	uudecode = (struct uudecode *)calloc(sizeof(*uudecode), 1);
-	out_buff = malloc(OUT_BUFF_SIZE);
-	in_buff = malloc(IN_BUFF_SIZE);
+	uudecode = (struct uudecode *)SAlloc::C(sizeof(*uudecode), 1);
+	out_buff = SAlloc::M(OUT_BUFF_SIZE);
+	in_buff = SAlloc::M(IN_BUFF_SIZE);
 	if(uudecode == NULL || out_buff == NULL || in_buff == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for uudecode");
-		free(uudecode);
-		free(out_buff);
-		free(in_buff);
+		SAlloc::F(uudecode);
+		SAlloc::F(out_buff);
+		SAlloc::F(in_buff);
 		return ARCHIVE_FATAL;
 	}
 	self->data = uudecode;
@@ -374,7 +374,7 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecode * uudecode, size_t size)
 {
 	if(size > uudecode->in_allocated) {
-		unsigned char * ptr;
+		uchar * ptr;
 		size_t newsize;
 		/*
 		 * Calculate a new buffer size for in_buff.
@@ -388,9 +388,9 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 				newsize += IN_BUFF_SIZE;
 		} while(size > newsize);
 		/* Allocate the new buffer. */
-		ptr = static_cast<uchar *>(malloc(newsize));
+		ptr = static_cast<uchar *>(SAlloc::M(newsize));
 		if(ptr == NULL) {
-			free(ptr);
+			SAlloc::F(ptr);
 			archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for uudecode");
 			return ARCHIVE_FATAL;
 		}
@@ -398,7 +398,7 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 		if(uudecode->in_cnt)
 			memmove(ptr, uudecode->in_buff, uudecode->in_cnt);
 		/* Replace in_buff with the new buffer. */
-		free(uudecode->in_buff);
+		SAlloc::F(uudecode->in_buff);
 		uudecode->in_buff = ptr;
 		uudecode->in_allocated = newsize;
 	}
@@ -408,8 +408,8 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 static ssize_t uudecode_filter_read(struct archive_read_filter * self, const void ** buff)
 {
 	struct uudecode * uudecode;
-	const unsigned char * b, * d;
-	unsigned char * out;
+	const uchar * b, * d;
+	uchar * out;
 	ssize_t avail_in, ravail;
 	ssize_t used;
 	ssize_t total;
@@ -446,7 +446,7 @@ read_more:
 		uudecode->in_cnt = 0;
 	}
 	for(; used < avail_in; d += llen, used += llen) {
-		int64_t l, body;
+		int64 l, body;
 
 		b = d;
 		len = get_line(b, avail_in - used, &nl);
@@ -644,8 +644,8 @@ static int uudecode_filter_close(struct archive_read_filter * self)
 {
 	struct uudecode * uudecode;
 	uudecode = (struct uudecode *)self->data;
-	free(uudecode->in_buff);
-	free(uudecode->out_buff);
-	free(uudecode);
+	SAlloc::F(uudecode->in_buff);
+	SAlloc::F(uudecode->out_buff);
+	SAlloc::F(uudecode);
 	return ARCHIVE_OK;
 }

@@ -147,7 +147,7 @@ static OPJ_BOOL opj_dwt_decode_partial_tile(opj_tcd_tilecomp_t* tilec,
 
 /* Forward transform, for the vertical pass, processing cols columns */
 /* where cols <= NB_ELTS_V8 */
-/* Where void* is a OPJ_INT32* for 5x3 and OPJ_FLOAT32* for 9x7 */
+/* Where void * is a OPJ_INT32* for 5x3 and OPJ_FLOAT32* for 9x7 */
 typedef void (* opj_encode_and_deinterleave_v_fnptr_type)(void * array,
     void * tmp,
     OPJ_UINT32 height,
@@ -155,7 +155,7 @@ typedef void (* opj_encode_and_deinterleave_v_fnptr_type)(void * array,
     OPJ_UINT32 stride_width,
     OPJ_UINT32 cols);
 
-/* Where void* is a OPJ_INT32* for 5x3 and OPJ_FLOAT32* for 9x7 */
+/* Where void * is a OPJ_INT32* for 5x3 and OPJ_FLOAT32* for 9x7 */
 typedef void (* opj_encode_and_deinterleave_h_one_row_fnptr_type)(void * row,
     void * tmp,
     OPJ_UINT32 width,
@@ -1107,8 +1107,8 @@ static void opj_dwt_encode_stepsize(OPJ_INT32 stepsize, OPJ_INT32 numbps,
 
 /** Process one line for the horizontal pass of the 5x3 forward transform */
 static
-void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn,
-    void* tmpIn,
+void opj_dwt_encode_and_deinterleave_h_one_row(void * rowIn,
+    void * tmpIn,
     OPJ_UINT32 width,
     OPJ_BOOL even)
 {
@@ -1163,8 +1163,8 @@ void opj_dwt_encode_and_deinterleave_h_one_row(void* rowIn,
 
 /** Process one line for the horizontal pass of the 9x7 forward transform */
 static
-void opj_dwt_encode_and_deinterleave_h_one_row_real(void* rowIn,
-    void* tmpIn,
+void opj_dwt_encode_and_deinterleave_h_one_row_real(void * rowIn,
+    void * tmpIn,
     OPJ_UINT32 width,
     OPJ_BOOL even)
 {
@@ -1192,7 +1192,7 @@ typedef struct {
 	opj_encode_and_deinterleave_h_one_row_fnptr_type p_function;
 } opj_dwt_encode_h_job_t;
 
-static void opj_dwt_encode_h_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt_encode_h_func(void * user_data, opj_tls_t* tls)
 {
 	opj_dwt_encode_h_job_t* job = (opj_dwt_encode_h_job_t*)user_data;
 	for(OPJ_UINT32 j = job->min_j; j < job->max_j; j++) {
@@ -1215,7 +1215,7 @@ typedef struct {
 	opj_encode_and_deinterleave_v_fnptr_type p_encode_and_deinterleave_v;
 } opj_dwt_encode_v_job_t;
 
-static void opj_dwt_encode_v_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt_encode_v_func(void * user_data, opj_tls_t* tls)
 {
 	OPJ_UINT32 j;
 	opj_dwt_encode_v_job_t* job;
@@ -2027,7 +2027,7 @@ typedef struct {
 	OPJ_UINT32 max_j;
 } opj_dwt_decode_h_job_t;
 
-static void opj_dwt_decode_h_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt_decode_h_func(void * user_data, opj_tls_t* tls)
 {
 	OPJ_UINT32 j;
 	opj_dwt_decode_h_job_t* job;
@@ -2051,7 +2051,7 @@ typedef struct {
 	OPJ_UINT32 max_j;
 } opj_dwt_decode_v_job_t;
 
-static void opj_dwt_decode_v_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt_decode_v_func(void * user_data, opj_tls_t* tls)
 {
 	OPJ_UINT32 j;
 	opj_dwt_decode_v_job_t* job;
@@ -3221,7 +3221,7 @@ typedef struct {
 	OPJ_UINT32 nb_rows;
 } opj_dwt97_decode_h_job_t;
 
-static void opj_dwt97_decode_h_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt97_decode_h_func(void * user_data, opj_tls_t* tls)
 {
 	OPJ_UINT32 j;
 	opj_dwt97_decode_h_job_t* job;
@@ -3269,7 +3269,7 @@ typedef struct {
 	OPJ_UINT32 nb_columns;
 } opj_dwt97_decode_v_job_t;
 
-static void opj_dwt97_decode_v_func(void* user_data, opj_tls_t* tls)
+static void opj_dwt97_decode_v_func(void * user_data, opj_tls_t* tls)
 {
 	OPJ_UINT32 j;
 	opj_dwt97_decode_v_job_t* job;

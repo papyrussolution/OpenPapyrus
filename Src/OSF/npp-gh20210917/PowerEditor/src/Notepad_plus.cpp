@@ -2812,7 +2812,6 @@ void Notepad_plus::maintainIndentation(TCHAR ch)
 			UCHAR prevChar = (UCHAR)_pEditView->execute(SCI_GETCHARAT, prevPos);
 			auto curPos = _pEditView->execute(SCI_GETCURRENTPOS);
 			UCHAR nextChar = (UCHAR)_pEditView->execute(SCI_GETCHARAT, curPos);
-
 			if(prevChar == '{') {
 				if(nextChar == '}') {
 					const char * eolChars;
@@ -2822,10 +2821,7 @@ void Notepad_plus::maintainIndentation(TCHAR ch)
 						eolChars = "\n";
 					else
 						eolChars = "\r";
-
-					_pEditView->execute(SCI_INSERTTEXT,
-					    _pEditView->execute(SCI_GETCURRENTPOS),
-					    reinterpret_cast<LPARAM>(eolChars));
+					_pEditView->execute(SCI_INSERTTEXT, _pEditView->execute(SCI_GETCURRENTPOS), reinterpret_cast<LPARAM>(eolChars));
 					_pEditView->setLineIndent(curLine + 1, indentAmountPrevLine);
 				}
 				_pEditView->setLineIndent(curLine, indentAmountPrevLine + tabWidth);
@@ -4578,13 +4574,13 @@ void Notepad_plus::getTaskListInfo(TaskListInfo * tli)
 		BufferID bufID = _pDocTab->getBufferByIndex(i);
 		Buffer * b = MainFileManager.getBufferByID(bufID);
 		int status = b->isMonitoringOn() ? tb_monitored : (b->isReadOnly() ? tb_ro : (b->isDirty() ? tb_unsaved : tb_saved));
-		tli->_tlfsLst.push_back(TaskLstFnStatus(currentView(), i, b->getFullPathName(), status, (void*)bufID));
+		tli->_tlfsLst.push_back(TaskLstFnStatus(currentView(), i, b->getFullPathName(), status, (void *)bufID));
 	}
 	for(int i = 0; i < nonCurrentNbDoc; ++i) {
 		BufferID bufID = _pNonDocTab->getBufferByIndex(i);
 		Buffer * b = MainFileManager.getBufferByID(bufID);
 		int status = b->isMonitoringOn() ? tb_monitored : (b->isReadOnly() ? tb_ro : (b->isDirty() ? tb_unsaved : tb_saved));
-		tli->_tlfsLst.push_back(TaskLstFnStatus(otherView(), i, b->getFullPathName(), status, (void*)bufID));
+		tli->_tlfsLst.push_back(TaskLstFnStatus(otherView(), i, b->getFullPathName(), status, (void *)bufID));
 	}
 }
 
@@ -5331,7 +5327,7 @@ void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 		bool isDirty = buffer->isDirty();
 		// To notify plugins ro status is changed
 		SCNotification scnN;
-		scnN.nmhdr.hwndFrom = (void*)buffer->getID();
+		scnN.nmhdr.hwndFrom = (void *)buffer->getID();
 		scnN.nmhdr.idFrom = (uptr_t)((isSysReadOnly || isUserReadOnly ? DOCSTATUS_READONLY : 0) | (isDirty ? DOCSTATUS_BUFFERDIRTY : 0));
 		scnN.nmhdr.code = NPPN_READONLYCHANGED;
 		_pluginsManager.notify(&scnN);

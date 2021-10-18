@@ -56,14 +56,14 @@ static void insert_passphrase_to_head(struct archive_read * a,
 
 static struct archive_read_passphrase * new_read_passphrase(struct archive_read * a, const char * passphrase) 
 {
-	struct archive_read_passphrase * p = static_cast<struct archive_read_passphrase *>(malloc(sizeof(*p)));
+	struct archive_read_passphrase * p = static_cast<struct archive_read_passphrase *>(SAlloc::M(sizeof(*p)));
 	if(!p) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		return NULL;
 	}
-	p->passphrase = strdup(passphrase);
+	p->passphrase = sstrdup(passphrase);
 	if(p->passphrase == NULL) {
-		free(p);
+		SAlloc::F(p);
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		return NULL;
 	}

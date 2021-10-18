@@ -183,7 +183,7 @@ XXH_PUBLIC_API XXH32_state_t* XXH32_createState(void);
 XXH_PUBLIC_API XXH_errorcode  XXH32_freeState(XXH32_state_t* statePtr);
 XXH_PUBLIC_API void XXH32_copyState(XXH32_state_t* dst_state, const XXH32_state_t* src_state);
 XXH_PUBLIC_API XXH_errorcode XXH32_reset(XXH32_state_t* statePtr, unsigned int seed);
-XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* statePtr, const void * input, size_t length);
 XXH_PUBLIC_API XXH32_hash_t  XXH32_digest(const XXH32_state_t* statePtr);
 /*
  * Streaming functions generate the xxHash of an input provided in multiple segments.
@@ -208,7 +208,7 @@ XXH_PUBLIC_API XXH32_hash_t  XXH32_digest(const XXH32_state_t* statePtr);
 // 
 // Canonical representation
 // 
-typedef struct { unsigned char digest[4]; } XXH32_canonical_t;
+typedef struct { uchar digest[4]; } XXH32_canonical_t;
 XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t hash);
 XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src);
 
@@ -241,12 +241,12 @@ XXH_PUBLIC_API XXH64_state_t* XXH64_createState(void);
 XXH_PUBLIC_API XXH_errorcode  XXH64_freeState(XXH64_state_t* statePtr);
 XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dst_state, const XXH64_state_t* src_state);
 XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long long seed);
-XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* statePtr, const void * input, size_t length);
 XXH_PUBLIC_API XXH64_hash_t  XXH64_digest(const XXH64_state_t* statePtr);
 // 
 // Canonical representation
 // 
-typedef struct { unsigned char digest[8]; } XXH64_canonical_t;
+typedef struct { uchar digest[8]; } XXH64_canonical_t;
 XXH_PUBLIC_API void XXH64_canonicalFromHash(XXH64_canonical_t* dst, XXH64_hash_t hash);
 XXH_PUBLIC_API XXH64_hash_t XXH64_hashFromCanonical(const XXH64_canonical_t* src);
 
@@ -322,25 +322,25 @@ struct XXH32_state_s {
  * I'm trying to list a few of them below, though don't consider this list as complete.
  *
  * - 128-bits output type : currently defined as a structure of two 64-bits fields.
- *                          That's because 128-bit values do not exist in C standard.
- *                          Note that it means that, at byte level, result is not identical depending on endianess.
- *                          However, at field level, they are identical on all platforms.
- *                          The canonical representation solves the issue of identical byte-level representation across platforms,
- *                          which is necessary for serialization.
- *                          Would there be a better representation for a 128-bit hash result ?
- *                          Are the names of the inner 64-bit fields important ? Should they be changed ?
+ *                    That's because 128-bit values do not exist in C standard.
+ *                    Note that it means that, at byte level, result is not identical depending on endianess.
+ *                    However, at field level, they are identical on all platforms.
+ *                    The canonical representation solves the issue of identical byte-level representation across platforms,
+ *                    which is necessary for serialization.
+ *                    Would there be a better representation for a 128-bit hash result ?
+ *                    Are the names of the inner 64-bit fields important ? Should they be changed ?
  *
  * - Seed type for 128-bits variant : currently, it's a single 64-bit value, like the 64-bit variant.
- *                          It could be argued that it's more logical to offer a 128-bit seed input parameter for a 128-bit hash.
- *                          But 128-bit seed is more difficult to use, since it requires to pass a structure instead of a scalar value.
- *                          Such a variant could either replace current one, or become an additional one.
- *                          Farmhash, for example, offers both variants (the 128-bits seed variant is called `doubleSeed`).
- *                          If both 64-bit and 128-bit seeds are possible, which variant should be called XXH128 ?
+ *                    It could be argued that it's more logical to offer a 128-bit seed input parameter for a 128-bit hash.
+ *                    But 128-bit seed is more difficult to use, since it requires to pass a structure instead of a scalar value.
+ *                    Such a variant could either replace current one, or become an additional one.
+ *                    Farmhash, for example, offers both variants (the 128-bits seed variant is called `doubleSeed`).
+ *                    If both 64-bit and 128-bit seeds are possible, which variant should be called XXH128 ?
  *
  * - Result for len==0 : Currently, the result of hashing a zero-length input is `0`.
- *                          It seems okay as a return value when using all "default" secret and seed (it used to be a request for XXH32/XXH64).
- *                          But is it still fine to return `0` when secret or seed are non-default ?
- *                          Are there use cases which could depend on generating a different hash result for zero-length input when the secret is different ?
+ *                    It seems okay as a return value when using all "default" secret and seed (it used to be a request for XXH32/XXH64).
+ *                    But is it still fine to return `0` when secret or seed are non-default ?
+ *                    Are there use cases which could depend on generating a different hash result for zero-length input when the secret is different ?
  */
 #ifdef XXH_NAMESPACE
 	#define XXH3_64bits XXH_NAME2(XXH_NAMESPACE, XXH3_64bits)
@@ -358,7 +358,7 @@ struct XXH32_state_s {
 /* XXH3_64bits() :
  * default 64-bit variant, using default secret and default seed of 0.
  * It's the fastest variant. */
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits(const void* data, size_t len);
+XXH_PUBLIC_API XXH64_hash_t XXH3_64bits(const void * data, size_t len);
 
 /* XXH3_64bits_withSecret() :
  * It's possible to provide any blob of bytes as a "secret" to generate the hash.
@@ -370,14 +370,14 @@ XXH_PUBLIC_API XXH64_hash_t XXH3_64bits(const void* data, size_t len);
  * Failure to respect these conditions will result in a poor quality hash.
  */
 #define XXH3_SECRET_SIZE_MIN 136
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSecret(const void* data, size_t len, const void* secret, size_t secretSize);
+XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
 
 /* XXH3_64bits_withSeed() :
  * This variant generates on the fly a custom secret,
  * based on the default secret, altered using the `seed` value.
  * While this operation is decently fast, note that it's not completely free.
  * note : seed==0 produces same results as XXH3_64bits() */
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSeed(const void* data, size_t len, XXH64_hash_t seed);
+XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSeed(const void * data, size_t len, XXH64_hash_t seed);
 
 /* streaming 64-bit */
 #if defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)   /* C11+ */
@@ -408,7 +408,7 @@ struct XXH3_state_s {
 	XXH64_hash_t totalLen;
 	XXH64_hash_t seed;
 	XXH64_hash_t reserved64;
-	const void* secret;    /* note : there is some padding after, due to alignment on 64 bytes */
+	const void * secret;    /* note : there is some padding after, due to alignment on 64 bytes */
 };   /* typedef'd to XXH3_state_t */
 
 /* Streaming requires state maintenance.
@@ -433,8 +433,8 @@ XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSeed(XXH3_state_t* statePtr, 
 // Descr: `secret` is referenced, and must outlive the hash streaming session.
 //   secretSize must be >= XXH3_SECRET_SIZE_MIN.
 // 
-XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSecret(XXH3_state_t* statePtr, const void* secret, size_t secretSize);
-XXH_PUBLIC_API XXH_errorcode XXH3_64bits_update(XXH3_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSecret(XXH3_state_t* statePtr, const void * secret, size_t secretSize);
+XXH_PUBLIC_API XXH_errorcode XXH3_64bits_update(XXH3_state_t* statePtr, const void * input, size_t length);
 XXH_PUBLIC_API XXH64_hash_t  XXH3_64bits_digest(const XXH3_state_t* statePtr);
 //
 // 128-bit 
@@ -460,14 +460,14 @@ typedef struct {
     XXH64_hash_t high64;
 } XXH128_hash_t;
 
-XXH_PUBLIC_API XXH128_hash_t XXH128(const void* data, size_t len, XXH64_hash_t seed);
-XXH_PUBLIC_API XXH128_hash_t XXH3_128bits(const void* data, size_t len);
-XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void* data, size_t len, XXH64_hash_t seed);  /* == XXH128() */
-XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSecret(const void* data, size_t len, const void* secret, size_t secretSize);
+XXH_PUBLIC_API XXH128_hash_t XXH128(const void * data, size_t len, XXH64_hash_t seed);
+XXH_PUBLIC_API XXH128_hash_t XXH3_128bits(const void * data, size_t len);
+XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void * data, size_t len, XXH64_hash_t seed);  /* == XXH128() */
+XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset(XXH3_state_t* statePtr);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed);
-XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSecret(XXH3_state_t* statePtr, const void* secret, size_t secretSize);
-XXH_PUBLIC_API XXH_errorcode XXH3_128bits_update(XXH3_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSecret(XXH3_state_t* statePtr, const void * secret, size_t secretSize);
+XXH_PUBLIC_API XXH_errorcode XXH3_128bits_update(XXH3_state_t* statePtr, const void * input, size_t length);
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_digest(const XXH3_state_t* statePtr);
 //
 // Note : for better performance, following functions should be inlined, using XXH_INLINE_ALL */
@@ -479,13 +479,13 @@ XXH_PUBLIC_API int XXH128_isEqual(XXH128_hash_t h1, XXH128_hash_t h2);
 
 /* This comparator is compatible with stdlib's qsort().
  * return : >0 if *h128_1  > *h128_2
- *          <0 if *h128_1  < *h128_2
- *          =0 if *h128_1 == *h128_2  */
-XXH_PUBLIC_API int XXH128_cmp(const void* h128_1, const void* h128_2);
+ *    <0 if *h128_1  < *h128_2
+ *    =0 if *h128_1 == *h128_2  */
+XXH_PUBLIC_API int XXH128_cmp(const void * h128_1, const void * h128_2);
 
 
 /*======   Canonical representation   ======*/
-typedef struct { unsigned char digest[16]; } XXH128_canonical_t;
+typedef struct { uchar digest[16]; } XXH128_canonical_t;
 XXH_PUBLIC_API void XXH128_canonicalFromHash(XXH128_canonical_t* dst, XXH128_hash_t hash);
 XXH_PUBLIC_API XXH128_hash_t XXH128_hashFromCanonical(const XXH128_canonical_t* src);
 

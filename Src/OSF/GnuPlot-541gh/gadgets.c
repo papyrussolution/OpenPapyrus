@@ -277,8 +277,8 @@ void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double 
  *   This routine uses the cohen & sutherland bit mapping for fast clipping -
  * see "Principles of Interactive Computer Graphics" Newman & Sproull page 65.
  * Return 0: entire line segment is outside bounding box
- *        1: entire line segment is inside bounding box
- *       -1: line segment has been clipped to bounding box
+ *  1: entire line segment is inside bounding box
+ * -1: line segment has been clipped to bounding box
  */
 //int clip_line(int * x1, int * y1, int * x2, int * y2)
 int GpView::ClipLine(int * x1, int * y1, int * x2, int * y2) const

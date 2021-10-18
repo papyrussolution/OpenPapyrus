@@ -83,7 +83,7 @@ extern "C" {
  * This pair helps declare a SEQUENCE. We can do:
  *
  *      ASN1_SEQUENCE(stname) = {
- *              ... SEQUENCE components ...
+ *        ... SEQUENCE components ...
  *      } ASN1_SEQUENCE_END(stname)
  *
  *      This will produce an ASN1_ITEM called stname_it
@@ -93,7 +93,7 @@ extern "C" {
  *      name then use:
  *
  *      ASN1_SEQUENCE(itname) = {
- *              ... SEQUENCE components ...
+ *        ... SEQUENCE components ...
  *      } ASN1_SEQUENCE_END_name(stname, itname)
  *
  *      This will create an item called itname_it using
@@ -221,18 +221,18 @@ extern "C" {
  * This pair helps declare a CHOICE type. We can do:
  *
  *      ASN1_CHOICE(chname) = {
- *              ... CHOICE options ...
+ *        ... CHOICE options ...
  *      ASN1_CHOICE_END(chname)
  *
  *      This will produce an ASN1_ITEM called chname_it
  *      for a structure called chname. The structure
  *      definition must look like this:
  *      typedef struct {
- *              int type;
- *              union {
- *                      ASN1_SOMETHING *opt1;
- *                      ASN1_SOMEOTHER *opt2;
- *              } value;
+ *        int type;
+ *        union {
+ *                ASN1_SOMETHING *opt1;
+ *                ASN1_SOMEOTHER *opt2;
+ *        } value;
  *      } chname;
  *
  *      the name of the selector must be 'type'.

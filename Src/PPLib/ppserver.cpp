@@ -72,20 +72,50 @@ void FASTCALL PPThread::SetJobID(PPID jobID)
 		JobID = jobID;
 }
 
-const SString & PPThread::GetOuterSignature() const // @v11.1.12
-{ 
-	const SString * p_result = 0;
-	Lck_OuterSignature.Lock();
-	p_result = &OuterSignature; 
-	Lck_OuterSignature.Unlock();
-	return *p_result;
+bool PPThread::HasOuterSignature() const
+{
+	bool result = false;
+	OtrSigntr.Lck.Lock();
+	if(OtrSigntr.Signature[0] != 0)
+		result = true;
+	OtrSigntr.Lck.Unlock();
+	return result;
+}
+
+bool FASTCALL PPThread::CheckOuterSignature(const char * pS) const // @v11.1.12
+{
+	bool result = false;
+	OtrSigntr.Lck.Lock();
+	if(isempty(pS)) {
+		if(OtrSigntr.Signature[0] == 0)
+			result = true;
+	}
+	else {
+		if(sstreqi_ascii(OtrSigntr.Signature, pS))
+			result = true;
+	}
+	OtrSigntr.Lck.Unlock();
+	return result;
 }
 
 void FASTCALL PPThread::SetOuterSignature(const char * pSignature) // @v11.1.12
 {
-	Lck_OuterSignature.Lock();
-	OuterSignature = pSignature;
-	Lck_OuterSignature.Unlock();
+	OtrSigntr.Lck.Lock();
+	STRNSCPY(OtrSigntr.Signature, pSignature);
+	OtrSigntr.Tm = time(0);
+	OtrSigntr.Lck.Unlock();
+}
+
+void FASTCALL PPThread::ResetOuterSignatureByTimeout(int64 currentEpochTime, int timeoutSec)
+{
+	OtrSigntr.Lck.Lock();
+	if(OtrSigntr.Signature[0]) {
+		if((currentEpochTime - OtrSigntr.Tm) > timeoutSec) {
+			PTR32(OtrSigntr.Signature)[0] = 0;
+			OtrSigntr.Tm = 0;
+		}
+	}
+	OtrSigntr.Lck.Unlock();
 }
 
 void FASTCALL PPThread::SetText(const char * pTxt) { Text = pTxt; }

@@ -156,7 +156,7 @@ void VerticalFileSwitcherListView::initList()
 			fileNameStatus._docIndex,
 			fileNameStatus._fn,
 			fileNameStatus._status,
-			(void*)fileNameStatus._bufID);
+			(void *)fileNameStatus._bufID);
 
 		TCHAR fn[MAX_PATH];
 		wcscpy_s(fn, ::PathFindFileName(fileNameStatus._fn.c_str()));
@@ -315,7 +315,7 @@ int VerticalFileSwitcherListView::add(BufferID bufferID, int iView)
 	Buffer * buf = static_cast<Buffer *>(bufferID);
 	const TCHAR * fileName = buf->getFileName();
 	NppGUI& nppGUI = NppParameters::getInstance().getNppGUI();
-	TaskLstFnStatus * tl = new TaskLstFnStatus(iView, 0, buf->getFullPathName(), 0, (void*)bufferID);
+	TaskLstFnStatus * tl = new TaskLstFnStatus(iView, 0, buf->getFullPathName(), 0, (void *)bufferID);
 
 	TCHAR fn[MAX_PATH];
 	wcscpy_s(fn, ::PathFindFileName(fileName));

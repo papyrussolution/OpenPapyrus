@@ -36,7 +36,7 @@
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 	static inline HMAC_CTX *HMAC_CTX_new(void)
 	{
-		HMAC_CTX *ctx = (HMAC_CTX *)calloc(1, sizeof(HMAC_CTX));
+		HMAC_CTX *ctx = (HMAC_CTX *)SAlloc::C(1, sizeof(HMAC_CTX));
 		return ctx;
 	}
 
@@ -44,7 +44,7 @@
 	{
 		HMAC_CTX_cleanup(ctx);
 		memzero(ctx, sizeof(*ctx));
-		free(ctx);
+		SAlloc::F(ctx);
 	}
 #endif
 

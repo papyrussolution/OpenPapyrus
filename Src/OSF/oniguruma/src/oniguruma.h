@@ -38,7 +38,7 @@ extern "C" {
 	//#define UChar_Removed uchar
 //#endif
 typedef uint  OnigCodePoint;
-//typedef unsigned char OnigUChar_Removed;
+//typedef uchar OnigUChar_Removed;
 typedef uint  OnigCtype;
 typedef uint  OnigLen;
 
@@ -81,7 +81,7 @@ typedef struct {
 	OnigCodePoint anychar_anytime;
 } OnigMetaCharTableType;
 
-typedef int (* OnigApplyAllCaseFoldFunc)(OnigCodePoint from, OnigCodePoint* to, int to_len, void* arg);
+typedef int (* OnigApplyAllCaseFoldFunc)(OnigCodePoint from, OnigCodePoint* to, int to_len, void * arg);
 
 typedef struct OnigEncodingTypeST {
 	int (*mbc_enc_len)(const uchar* p);
@@ -93,7 +93,7 @@ typedef struct OnigEncodingTypeST {
 	int (*code_to_mbclen)(OnigCodePoint code);
 	int (*code_to_mbc)(OnigCodePoint code, uchar *buf);
 	int (*mbc_case_fold)(OnigCaseFoldType flag, const uchar**pp, const uchar* end, uchar* to);
-	int (*apply_all_case_fold)(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+	int (*apply_all_case_fold)(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg);
 	int (*get_case_fold_codes_by_str)(OnigCaseFoldType flag, const uchar* p, const uchar* end, OnigCaseFoldCodeItem acs[]);
 	int (*property_name_to_ctype)(struct OnigEncodingTypeST* enc, uchar* p, uchar* end);
 	int (*is_code_ctype)(OnigCodePoint code, OnigCtype ctype);
@@ -655,7 +655,7 @@ struct OnigCalloutArgsStruct;
 
 typedef struct OnigCalloutArgsStruct OnigCalloutArgs;
 
-typedef int (* OnigCalloutFunc)(OnigCalloutArgs* args, void* user_data);
+typedef int (* OnigCalloutFunc)(OnigCalloutArgs * args, void * user_data);
 
 /* callout function return values (less than -1: error code) */
 typedef enum {
@@ -680,7 +680,7 @@ typedef union {
 		uchar* end;
 	} s;
 
-	void* p;
+	void * p;
 	int tag; /* tag -> callout_num */
 } OnigValue;
 
@@ -704,7 +704,7 @@ ONIG_EXTERN int onig_new_deluxe(OnigRegex* reg, const uchar* pattern, const ucha
 ONIG_EXTERN void onig_free(OnigRegex);
 ONIG_EXTERN void onig_free_body(OnigRegex);
 ONIG_EXTERN int onig_scan(OnigRegex reg, const uchar* str, const uchar* end, OnigRegion* region, OnigOptionType option, int (* scan_callback)(
-	int, int, OnigRegion*, void*), void* callback_arg);
+	int, int, OnigRegion*, void*), void * callback_arg);
 ONIG_EXTERN int onig_search(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range, OnigRegion* region, OnigOptionType option);
 ONIG_EXTERN int onig_search_with_param(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range,
     OnigRegion* region, OnigOptionType option, OnigMatchParam* mp);
@@ -731,12 +731,12 @@ ONIG_EXTERN int onig_region_resize(OnigRegion* region, int n);
 ONIG_EXTERN int onig_region_set(OnigRegion* region, int at, int beg, int end);
 ONIG_EXTERN int onig_name_to_group_numbers(OnigRegex reg, const uchar* name, const uchar* name_end, int** nums);
 ONIG_EXTERN int onig_name_to_backref_number(OnigRegex reg, const uchar* name, const uchar* name_end, OnigRegion * region);
-ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar*, const uchar*, int, int*, OnigRegex, void*), void* arg);
+ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar*, const uchar*, int, int*, OnigRegex, void*), void * arg);
 ONIG_EXTERN int onig_number_of_names(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_captures(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_capture_histories(OnigRegex reg);
 ONIG_EXTERN OnigCaptureTreeNode* onig_get_capture_tree(OnigRegion* region);
-ONIG_EXTERN int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void*), void* arg);
+ONIG_EXTERN int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void*), void * arg);
 ONIG_EXTERN int onig_noname_group_capture_is_active(OnigRegex reg);
 ONIG_EXTERN OnigEncoding onig_get_encoding(OnigRegex reg);
 ONIG_EXTERN OnigOptionType onig_get_options(OnigRegex reg);
@@ -784,7 +784,7 @@ ONIG_EXTERN int onig_set_retry_limit_in_match_of_match_param(OnigMatchParam* par
 ONIG_EXTERN int onig_set_retry_limit_in_search_of_match_param(OnigMatchParam* param, ulong limit);
 ONIG_EXTERN int onig_set_progress_callout_of_match_param(OnigMatchParam* param, OnigCalloutFunc f);
 ONIG_EXTERN int onig_set_retraction_callout_of_match_param(OnigMatchParam* param, OnigCalloutFunc f);
-ONIG_EXTERN int onig_set_callout_user_data_of_match_param(OnigMatchParam* param, void* user_data);
+ONIG_EXTERN int onig_set_callout_user_data_of_match_param(OnigMatchParam* param, void * user_data);
 
 /* for callout functions */
 ONIG_EXTERN OnigCalloutFunc onig_get_progress_callout(void);
@@ -799,44 +799,44 @@ ONIG_EXTERN int onig_get_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, 
 ONIG_EXTERN int onig_set_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar* tag, const uchar* tag_end, int slot, OnigType type, OnigValue* val);
 
 /* used in callout functions */
-ONIG_EXTERN int onig_get_callout_num_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN OnigCalloutIn onig_get_callout_in_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN int onig_get_name_id_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_contents_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_contents_end_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN int onig_get_args_num_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN int onig_get_passed_args_num_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN int onig_get_arg_by_callout_args(OnigCalloutArgs* args, int index, OnigType* type, OnigValue* val);
-ONIG_EXTERN const uchar* onig_get_string_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_string_end_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_start_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_right_range_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN const uchar* onig_get_current_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN OnigRegex onig_get_regex_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN ulong onig_get_retry_counter_by_callout_args(OnigCalloutArgs* args);
+ONIG_EXTERN int onig_get_callout_num_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN OnigCalloutIn onig_get_callout_in_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN int onig_get_name_id_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_contents_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_contents_end_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN int onig_get_args_num_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN int onig_get_passed_args_num_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN int onig_get_arg_by_callout_args(OnigCalloutArgs * args, int index, OnigType* type, OnigValue* val);
+ONIG_EXTERN const uchar* onig_get_string_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_string_end_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_start_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_right_range_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar* onig_get_current_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN OnigRegex onig_get_regex_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN ulong onig_get_retry_counter_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_callout_tag_is_exist_at_callout_num(OnigRegex reg, int callout_num);
 ONIG_EXTERN const uchar* onig_get_callout_tag_start(OnigRegex reg, int callout_num);
 ONIG_EXTERN const uchar* onig_get_callout_tag_end(OnigRegex reg, int callout_num);
 ONIG_EXTERN int onig_get_callout_data_dont_clear_old(OnigRegex reg, OnigMatchParam* mp, int callout_num, int slot, OnigType* type, OnigValue* val);
-ONIG_EXTERN int onig_get_callout_data_by_callout_args_self_dont_clear_old(OnigCalloutArgs* args, int slot, OnigType* type, OnigValue* val);
+ONIG_EXTERN int onig_get_callout_data_by_callout_args_self_dont_clear_old(OnigCalloutArgs * args, int slot, OnigType* type, OnigValue* val);
 ONIG_EXTERN int onig_get_callout_data(OnigRegex reg, OnigMatchParam* mp, int callout_num, int slot, OnigType* type, OnigValue* val);
-ONIG_EXTERN int onig_get_callout_data_by_callout_args(OnigCalloutArgs* args, int callout_num, int slot, OnigType* type, OnigValue* val);
-ONIG_EXTERN int onig_get_callout_data_by_callout_args_self(OnigCalloutArgs* args, int slot, OnigType* type, OnigValue* val);
+ONIG_EXTERN int onig_get_callout_data_by_callout_args(OnigCalloutArgs * args, int callout_num, int slot, OnigType* type, OnigValue* val);
+ONIG_EXTERN int onig_get_callout_data_by_callout_args_self(OnigCalloutArgs * args, int slot, OnigType* type, OnigValue* val);
 ONIG_EXTERN int onig_set_callout_data(OnigRegex reg, OnigMatchParam* mp, int callout_num, int slot, OnigType type, OnigValue* val);
-ONIG_EXTERN int onig_set_callout_data_by_callout_args(OnigCalloutArgs* args, int callout_num, int slot, OnigType type, OnigValue* val);
-ONIG_EXTERN int onig_set_callout_data_by_callout_args_self(OnigCalloutArgs* args, int slot, OnigType type, OnigValue* val);
-ONIG_EXTERN int onig_get_capture_range_in_callout(OnigCalloutArgs* args, int mem_num, int* begin, int* end);
-ONIG_EXTERN int onig_get_used_stack_size_in_callout(OnigCalloutArgs* args, int* used_num, int* used_bytes);
+ONIG_EXTERN int onig_set_callout_data_by_callout_args(OnigCalloutArgs * args, int callout_num, int slot, OnigType type, OnigValue* val);
+ONIG_EXTERN int onig_set_callout_data_by_callout_args_self(OnigCalloutArgs * args, int slot, OnigType type, OnigValue* val);
+ONIG_EXTERN int onig_get_capture_range_in_callout(OnigCalloutArgs * args, int mem_num, int* begin, int* end);
+ONIG_EXTERN int onig_get_used_stack_size_in_callout(OnigCalloutArgs * args, int* used_num, int* used_bytes);
 
 /* builtin callout functions */
-ONIG_EXTERN int onig_builtin_fail(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_mismatch(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_error(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_count(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_total_count(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_max(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_builtin_cmp(OnigCalloutArgs* args, void* user_data);
-ONIG_EXTERN int onig_setup_builtin_monitors_by_ascii_encoded_name(void* fp);
+ONIG_EXTERN int onig_builtin_fail(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_mismatch(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_error(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_count(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_total_count(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_max(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_builtin_cmp(OnigCalloutArgs * args, void * user_data);
+ONIG_EXTERN int onig_setup_builtin_monitors_by_ascii_encoded_name(void * fp);
 
 #ifdef __cplusplus
 }

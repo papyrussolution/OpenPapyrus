@@ -357,7 +357,7 @@ template <typename T>
 static inline HB_CONST_FUNC unsigned int hb_popcount(T v)
 {
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
-	if(sizeof(T) <= sizeof(unsigned int))
+	if(sizeof(T) <= sizeof(uint))
 		return __builtin_popcount(v);
 
 	if(sizeof(T) <= sizeof(unsigned long))
@@ -396,8 +396,8 @@ static inline HB_CONST_FUNC unsigned int hb_bit_storage(T v)
 	if(UNLIKELY(!v)) return 0;
 
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
-	if(sizeof(T) <= sizeof(unsigned int))
-		return sizeof(unsigned int) * 8 - __builtin_clz(v);
+	if(sizeof(T) <= sizeof(uint))
+		return sizeof(uint) * 8 - __builtin_clz(v);
 
 	if(sizeof(T) <= sizeof(unsigned long))
 		return sizeof(unsigned long) * 8 - __builtin_clzl(v);
@@ -407,7 +407,7 @@ static inline HB_CONST_FUNC unsigned int hb_bit_storage(T v)
 #endif
 
 #if (defined(_MSC_VER) && _MSC_VER >= 1500) || (defined(__MINGW32__) && (__GNUC__ < 4))
-	if(sizeof(T) <= sizeof(unsigned int)) {
+	if(sizeof(T) <= sizeof(uint)) {
 		unsigned long where;
 		_BitScanReverse(&where, v);
 		return 1 + where;
@@ -462,7 +462,7 @@ template <typename T> static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
 	if(UNLIKELY(!v)) 
 		return 8 * sizeof(T);
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
-	if(sizeof(T) <= sizeof(unsigned int))
+	if(sizeof(T) <= sizeof(uint))
 		return __builtin_ctz(v);
 	if(sizeof(T) <= sizeof(unsigned long))
 		return __builtin_ctzl(v);
@@ -470,7 +470,7 @@ template <typename T> static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
 		return __builtin_ctzll(v);
 #endif
 #if (defined(_MSC_VER) && _MSC_VER >= 1500) || (defined(__MINGW32__) && (__GNUC__ < 4))
-	if(sizeof(T) <= sizeof(unsigned int)) {
+	if(sizeof(T) <= sizeof(uint)) {
 		unsigned long where;
 		_BitScanForward(&where, v);
 		return where;
@@ -524,42 +524,42 @@ template <typename T> static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
  */
 
 /* ASCII tag/character handling */
-static inline bool ISALPHA(unsigned char c)
+static inline bool ISALPHA(uchar c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-static inline bool ISALNUM(unsigned char c)
+static inline bool ISALNUM(uchar c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 }
 
-static inline bool ISSPACE(unsigned char c)
+static inline bool ISSPACE(uchar c)
 {
 	return c == ' ' || c =='\f'|| c =='\n'|| c =='\r'|| c =='\t'|| c =='\v';
 }
 
-static inline unsigned char TOUPPER(unsigned char c)
+static inline uchar TOUPPER(uchar c)
 {
 	return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
 }
 
-static inline unsigned char TOLOWER(unsigned char c)
+static inline uchar TOLOWER(uchar c)
 {
 	return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c;
 }
 
-static inline bool ISHEX(unsigned char c)
+static inline bool ISHEX(uchar c)
 {
 	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
-static inline unsigned char TOHEX(uint8_t c)
+static inline uchar TOHEX(uint8_t c)
 {
 	return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10;
 }
 
-static inline uint8_t FROMHEX(unsigned char c)
+static inline uint8_t FROMHEX(uchar c)
 {
 	return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10;
 }
@@ -625,7 +625,7 @@ template <typename T> static inline bool hb_in_ranges(T u, T lo1, T hi1, T lo2, 
 /* Consider __builtin_mul_overflow use here also */
 static inline bool hb_unsigned_mul_overflows(unsigned int count, unsigned int size)
 {
-	return (size > 0) && (count >= ((unsigned int)-1) / size);
+	return (size > 0) && (count >= ((uint)-1) / size);
 }
 
 /*
@@ -652,7 +652,7 @@ static inline bool hb_bsearch_impl(unsigned * pos, /* Out */
 
 	int min = 0, max = (int)nmemb - 1;
 	while(min <= max) {
-		int mid = ((unsigned int)min + (unsigned int)max) / 2;
+		int mid = ((uint)min + (uint)max) / 2;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 		V* p = (V*)(((const char*)base) + (mid * stride));
@@ -931,7 +931,7 @@ static inline void hb_qsort(void * base, size_t nel, size_t width,
 template <typename T, typename T2, typename T3> static inline void hb_stable_sort(T * array, unsigned int len, int (*compar)(const T2 *,
     const T2 *), T3 * array2)
 {
-	for(unsigned int i = 1; i < len; i++) {
+	for(uint i = 1; i < len; i++) {
 		unsigned int j = i;
 		while(j && compar(&array[j - 1], &array[i]) > 0)
 			j--;
@@ -1056,7 +1056,7 @@ struct hb_vector_size_t {
 	elt_t& operator [] (unsigned int i) {return v[i]; }
 	const elt_t& operator [] (unsigned int i)const { return v[i]; }
 
-	void clear(unsigned char v = 0) {
+	void clear(uchar v = 0) {
 		memset(this, v, sizeof(*this));
 	}
 
@@ -1064,7 +1064,7 @@ struct hb_vector_size_t {
 	hb_vector_size_t process(const Op& op) const
 	{
 		hb_vector_size_t r;
-		for(unsigned int i = 0; i < ARRAY_LENGTH(v); i++)
+		for(uint i = 0; i < ARRAY_LENGTH(v); i++)
 			r.v[i] = op(v[i]);
 		return r;
 	}
@@ -1073,7 +1073,7 @@ struct hb_vector_size_t {
 	hb_vector_size_t process(const Op& op, const hb_vector_size_t &o) const
 	{
 		hb_vector_size_t r;
-		for(unsigned int i = 0; i < ARRAY_LENGTH(v); i++)
+		for(uint i = 0; i < ARRAY_LENGTH(v); i++)
 			r.v[i] = op(v[i], o.v[i]);
 		return r;
 	}

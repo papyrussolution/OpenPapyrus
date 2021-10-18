@@ -3067,8 +3067,7 @@ int PPBillImporter::Import(int useTa)
 								if(P_Btd) {
 									THROW(P_Btd->AddItem(&ilti, serial, &pack.Rec, 1));
 								}
-								// @v9.1.11 PPGetWord(PPWORD_DEFICIT, 0, msg_buf);
-								PPLoadString("deficit", msg_buf); // @v9.1.11
+								PPLoadString("deficit", msg_buf);
 								msg_buf.Space().CatChar('[').Cat(GetGoodsName(r_row.GoodsID, temp_buf));
 								if(serial.NotEmpty())
 									msg_buf.CatDiv(';', 2).CatEq("sn", serial);
@@ -3241,7 +3240,7 @@ int PPBillImporter::Import(int useTa)
 						if(acs_obj.Fetch(pack.AccSheetID, &acs_rec) > 0) {
 							if((acs_rec.Flags & ACSHF_USECLIAGT) || pack.AccSheetID == GetSellAccSheet()) {
 								PPClientAgreement ca_rec;
-								if(ArObj.GetClientAgreement(pack.Rec.Object, &ca_rec, 1) > 0) {
+								if(ArObj.GetClientAgreement(pack.Rec.Object, ca_rec, 1) > 0) {
 									if(!(ca_rec.Flags & AGTF_DEFAULT))
 										if(GetAgentAccSheet() && ca_rec.DefAgentID && !pack.Ext.AgentID)
 											pack.Ext.AgentID = ca_rec.DefAgentID;
@@ -3872,7 +3871,7 @@ int PPBillImporter::DoFullEdiProcess()
 				temp_id_list.clear();
 				for(uint i = 0; i < cli_list.GetCount(); i++) {
 					const PPID ar_id = cli_list.Get(i);
-					if(ArObj.GetClientAgreement(ar_id, &cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID)
+					if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID)
 						temp_id_list.add(ar_id);
 				}
 				if(temp_id_list.getCount()) {
@@ -5822,9 +5821,11 @@ int DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDAT
 		const int agt_kind = ArObj.GetAgreementKind(&ar_rec);
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt;
-			if(ArObj.GetClientAgreement(arID, &cli_agt, 0) > 0) {
-				if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
-					rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
+			if(ArObj.GetClientAgreement(arID, cli_agt, 0) > 0) {
+				// @v11.2.0 if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
+				if(cli_agt.Code_.IsEmpty()) { // @v11.2.0
+					// @v11.2.0 rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
+					rAgtCode = cli_agt.Code_; // @v11.2.0
 					if(checkdate(cli_agt.BegDt))
 						rAgtDate = cli_agt.BegDt;
 					rAgtExpiry = cli_agt.Expiry;

@@ -72,7 +72,7 @@
 #endif
 
 namespace OT {
-#define NOT_COVERED             ((unsigned int)-1)
+#define NOT_COVERED             ((uint)-1)
 
 	template<typename Iterator>
 	static inline void Coverage_serialize(hb_serialize_context_t * c,
@@ -571,7 +571,7 @@ public:
 
 		Offset16 lookupOrderZ; /* = Null (reserved for an offset to a
 		 * reordering table) */
-		HBUINT16 reqFeatureIndex;/* Index of a feature required for this
+		HBUINT16 reqFeatureIndex; /* Index of a feature required for this
 		  * language system--if no required features
 		  * = 0xFFFFu */
 		IndexArray featureIndex; /* Array of indices into the FeatureList */
@@ -770,7 +770,7 @@ public:
 		 * same subfamily value. If this value is
 		 * zero, the remaining fields in the array
 		 * will be ignored. */
-		NameID subfamilyNameID;/* If the preceding value is non-zero, this
+		NameID subfamilyNameID; /* If the preceding value is non-zero, this
 		 * value must be set in the range 256 - 32767
 		 * (inclusive). It records the value of a
 		 * field in the name table, which must
@@ -869,7 +869,7 @@ public:
 		   * for multiple languages) for a
 		   * user-interface label for this
 		   * feature. (May be NULL.) */
-		NameID featUITooltipTextNameID;/* The ‘name’ table name ID that
+		NameID featUITooltipTextNameID; /* The ‘name’ table name ID that
 		     * specifies a string (or strings,
 		     * for multiple languages) that an
 		     * application can use for tooltip
@@ -881,7 +881,7 @@ public:
 		  * feature. (May be NULL.) */
 		HBUINT16 numNamedParameters; /* Number of named parameters. (May
 		   * be zero.) */
-		NameID firstParamUILabelNameID;/* The first ‘name’ table name ID
+		NameID firstParamUILabelNameID; /* The first ‘name’ table name ID
 		     * used to specify strings for
 		     * user-interface labels for the
 		     * feature parameters. (Must be zero
@@ -1144,7 +1144,7 @@ namespace OT {
 			unsigned int lookup_type = get_type();
 			TRACE_DISPATCH(this, lookup_type);
 			unsigned int count = get_subtable_count();
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				typename context_t::return_t r = get_subtable<TSubTable> (i).dispatch(c,
 					lookup_type,
 					hb_forward<Ts> (ds) ...);
@@ -1221,7 +1221,7 @@ namespace OT {
 				 * https://bugs.chromium.org/p/chromium/issues/detail?id=960331
 				 */
 				unsigned int type = get_subtable<TSubTable> (0).u.extension.get_type();
-				for(unsigned int i = 1; i < subtables; i++)
+				for(uint i = 1; i < subtables; i++)
 					if(get_subtable<TSubTable> (i).u.extension.get_type() != type)
 						return_trace(false);
 			}
@@ -1300,7 +1300,7 @@ private:
 		{
 			/* TODO Speed up, using hb_set_next() and bsearch()? */
 			unsigned int count = glyphArray.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(glyphs->has(glyphArray[i]))
 					return true;
 			return false;
@@ -1365,7 +1365,7 @@ private:
 		{
 			const RangeRecord &range = rangeRecord.bsearch(glyph_id);
 			return LIKELY(range.first <= range.last)
-			       ? (unsigned int)range.value + (glyph_id - range.first)
+			       ? (uint)range.value + (glyph_id - range.first)
 			       : NOT_COVERED;
 		}
 
@@ -1394,7 +1394,7 @@ private:
 			if(UNLIKELY(!rangeRecord.serialize(c, num_ranges))) return_trace(false);
 
 			unsigned count = 0;
-			unsigned range = (unsigned)-1;
+			unsigned range = (uint)-1;
 			last = (hb_codepoint_t)-2;
 			for(auto g: glyphs) {
 				if(last + 1 != g) {
@@ -1420,7 +1420,7 @@ private:
 		{
 			/* TODO Speed up, using hb_set_next() and bsearch()? */
 			unsigned int count = rangeRecord.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(rangeRecord[i].intersects(glyphs))
 					return true;
 			return false;
@@ -1433,7 +1433,7 @@ private:
 			for(i = 0; i < count; i++) {
 				const RangeRecord &range = rangeRecord[i];
 				if(range.value <= index &&
-				    index < (unsigned int)range.value + (range.last - range.first) &&
+				    index < (uint)range.value + (range.last - range.first) &&
 				    range.intersects(glyphs))
 					return true;
 				else if(index < range.value)
@@ -1446,7 +1446,7 @@ private:
 		bool collect_coverage(set_t * glyphs) const
 		{
 			unsigned int count = rangeRecord.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!rangeRecord[i].collect_coverage(glyphs)))
 					return false;
 			return true;
@@ -1767,7 +1767,7 @@ public:
 private:
 		unsigned int get_class(hb_codepoint_t glyph_id) const
 		{
-			return classValue[(unsigned int)(glyph_id - startGlyph)];
+			return classValue[(uint)(glyph_id - startGlyph)];
 		}
 
 		template<typename Iterator,
@@ -1838,7 +1838,7 @@ private:
 		{
 			unsigned int start = 0;
 			unsigned int count = classValue.len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(classValue[i])
 					continue;
 
@@ -1859,7 +1859,7 @@ private:
 		bool collect_class(set_t * glyphs, unsigned int klass) const
 		{
 			unsigned int count = classValue.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(classValue[i] == klass) glyphs->add(startGlyph + i);
 			return true;
 		}
@@ -1887,7 +1887,7 @@ private:
 				if(hb_set_next(glyphs, &g)) return true;
 				/* Fall through. */
 			}
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(classValue[i] == klass && glyphs->has(startGlyph + i))
 					return true;
 			return false;
@@ -2002,7 +2002,7 @@ private:
 		bool collect_coverage(set_t * glyphs) const
 		{
 			unsigned int count = rangeRecord.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(rangeRecord[i].value)
 					if(UNLIKELY(!rangeRecord[i].collect_coverage(glyphs)))
 						return false;
@@ -2013,7 +2013,7 @@ private:
 		bool collect_class(set_t * glyphs, unsigned int klass) const
 		{
 			unsigned int count = rangeRecord.len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(rangeRecord[i].value == klass)
 					if(UNLIKELY(!rangeRecord[i].collect_coverage(glyphs)))
 						return false;
@@ -2025,7 +2025,7 @@ private:
 		{
 			/* TODO Speed up, using hb_set_next() and bsearch()? */
 			unsigned int count = rangeRecord.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(rangeRecord[i].intersects(glyphs))
 					return true;
 			return false;
@@ -2037,7 +2037,7 @@ private:
 			if(klass == 0) {
 				/* Match if there's any glyph that is not listed! */
 				hb_codepoint_t g = HB_SET_VALUE_INVALID;
-				for(unsigned int i = 0; i < count; i++) {
+				for(uint i = 0; i < count; i++) {
 					if(!hb_set_next(glyphs, &g))
 						break;
 					if(g < rangeRecord[i].first)
@@ -2048,7 +2048,7 @@ private:
 					return true;
 				/* Fall through. */
 			}
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(rangeRecord[i].value == klass && rangeRecord[i].intersects(glyphs))
 					return true;
 			return false;
@@ -2260,7 +2260,7 @@ public:
 			const VarRegionAxis * axes = axesZ.arrayZ + (region_index * axisCount);
 			float v = 1.0;
 			unsigned int count = axisCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				int coord = i < coord_len ? coords[i] : 0;
 				float factor = axes[i].evaluate(coord);
 				if(factor == 0.f)
@@ -2272,7 +2272,7 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) && axesZ.sanitize(c, (unsigned int)axisCount * (unsigned int)regionCount));
+			return_trace(c->check_struct(this) && axesZ.sanitize(c, (uint)axisCount * (uint)regionCount));
 		}
 		bool serialize(hb_serialize_context_t * c, const VarRegionList * src, const hb_bimap_t &region_map)
 		{
@@ -2362,9 +2362,9 @@ public:
 		    unsigned int num_scalars) const
 		{
 			unsigned count = hb_min(num_scalars, regionIndices.len);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				scalars[i] = regions.evaluate(regionIndices.arrayZ[i], coords, coord_count);
-			for(unsigned int i = count; i < num_scalars; i++)
+			for(uint i = count; i < num_scalars; i++)
 				scalars[i] = 0.f;
 		}
 
@@ -2400,7 +2400,7 @@ public:
 			unsigned int r;
 			for(r = 0; r < ri_count; r++) {
 				delta_sz[r] = kZero;
-				for(unsigned int i = 0; i < inner_map.get_next_value(); i++) {
+				for(uint i = 0; i < inner_map.get_next_value(); i++) {
 					unsigned int old = inner_map.backward(i);
 					int16_t delta = src->get_item_delta(old, r);
 					if(delta < -128 || 127 < delta) {
@@ -2432,7 +2432,7 @@ public:
 			for(r = 0; r < ri_count; r++)
 				if(delta_sz[r]) regionIndices[ri_map[r]] = region_map[src->regionIndices[r]];
 
-			for(unsigned int i = 0; i < itemCount; i++) {
+			for(uint i = 0; i < itemCount; i++) {
 				unsigned int old = inner_map.backward(i);
 				for(unsigned int r = 0; r < ri_count; r++)
 					if(delta_sz[r]) set_item_delta(i, ri_map[r], src->get_item_delta(old, r));
@@ -2446,7 +2446,7 @@ public:
 			for(unsigned int r = 0; r < regionIndices.len; r++) {
 				unsigned int region = regionIndices[r];
 				if(region_map.has(region)) continue;
-				for(unsigned int i = 0; i < inner_map.get_next_value(); i++)
+				for(uint i = 0; i < inner_map.get_next_value(); i++)
 					if(get_item_delta(inner_map.backward(i), r) != 0) {
 						region_map.add(region);
 						break;
@@ -2535,7 +2535,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			unsigned int set_count = 0;
-			for(unsigned int i = 0; i < inner_maps.length; i++)
+			for(uint i = 0; i < inner_maps.length; i++)
 				if(inner_maps[i].get_population() > 0) set_count++;
 
 			unsigned int size = min_size + HBUINT32::static_size * set_count;
@@ -2543,7 +2543,7 @@ public:
 			format = 1;
 
 			hb_inc_bimap_t region_map;
-			for(unsigned int i = 0; i < inner_maps.length; i++)
+			for(uint i = 0; i < inner_maps.length; i++)
 				(src+src->dataSets[i]).collect_region_refs(region_map, inner_maps[i]);
 			region_map.sort();
 
@@ -2555,7 +2555,7 @@ public:
 			 */
 			dataSets.len = set_count;
 			unsigned int set_index = 0;
-			for(unsigned int i = 0; i < inner_maps.length; i++) {
+			for(uint i = 0; i < inner_maps.length; i++) {
 				if(inner_maps[i].get_population() == 0) continue;
 				if(UNLIKELY(!dataSets[set_index++].serialize(c, this)
 				    .serialize(c, &(src+src->dataSets[i]), inner_maps[i], region_map)))
@@ -2576,7 +2576,7 @@ public:
 			if(variation_indices->is_empty()) return_trace(false);
 
 			hb_vector_t<hb_inc_bimap_t> inner_maps;
-			inner_maps.resize((unsigned)dataSets.len);
+			inner_maps.resize((uint)dataSets.len);
 			for(unsigned i = 0; i < inner_maps.length; i++)
 				inner_maps[i].init();
 
@@ -2711,7 +2711,7 @@ public:
 		bool evaluate(const int * coords, unsigned int coord_len) const
 		{
 			unsigned int count = conditions.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!(this+conditions.arrayZ[i]).evaluate(coords, coord_len))
 					return false;
 			return true;
@@ -2785,7 +2785,7 @@ public:
 		const Feature * find_substitute(unsigned int feature_index) const
 		{
 			unsigned int count = substitutions.len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const FeatureTableSubstitutionRecord &record = substitutions.arrayZ[i];
 				if(record.featureIndex == feature_index)
 					return &(this+record.feature);
@@ -2835,7 +2835,7 @@ public:
 		}
 
 protected:
-		FixedVersion<>        version;/* Version--0x00010000u */
+		FixedVersion<>        version; /* Version--0x00010000u */
 		ArrayOf<FeatureTableSubstitutionRecord>
 		substitutions;
 public:
@@ -2894,7 +2894,7 @@ public:
 		    unsigned int * index) const
 		{
 			unsigned int count = varRecords.len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const FeatureVariationRecord &record = varRecords.arrayZ[i];
 				if((this+record.conditions).evaluate(coords, coord_len)) {
 					* index = i;
@@ -2957,7 +2957,7 @@ public:
 		}
 
 protected:
-		FixedVersion<>        version;/* Version--0x00010000u */
+		FixedVersion<>        version; /* Version--0x00010000u */
 		LArrayOf<FeatureVariationRecord>
 		varRecords;
 public:
@@ -3034,7 +3034,7 @@ private:
 
 			int delta = bits & mask;
 
-			if((unsigned int)delta >= ((mask + 1) >> 1))
+			if((uint)delta >= ((mask + 1) >> 1))
 				delta -= mask + 1;
 
 			return delta;

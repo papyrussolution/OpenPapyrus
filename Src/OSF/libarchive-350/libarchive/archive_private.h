@@ -69,17 +69,17 @@ struct archive_vtable {
 	ssize_t (* archive_write_data)(struct archive *,
 	    const void *, size_t);
 	ssize_t (* archive_write_data_block)(struct archive *,
-	    const void *, size_t, int64_t);
+	    const void *, size_t, int64);
 
 	int (* archive_read_next_header)(struct archive *,
 	    struct archive_entry **);
 	int (* archive_read_next_header2)(struct archive *,
 	    struct archive_entry *);
 	int (* archive_read_data_block)(struct archive *,
-	    const void **, size_t *, int64_t *);
+	    const void **, size_t *, int64 *);
 
 	int (* archive_filter_count)(struct archive *);
-	int64_t (* archive_filter_bytes)(struct archive *, int);
+	int64 (* archive_filter_bytes)(struct archive *, int);
 	int (* archive_filter_code)(struct archive *, int);
 	const char * (* archive_filter_name)(struct archive *, int);
 };
@@ -125,8 +125,8 @@ struct archive {
 	 * data to client buffers, filling gaps with zero bytes.
 	 */
 	const char       * read_data_block;
-	int64_t read_data_offset;
-	int64_t read_data_output_offset;
+	int64 read_data_offset;
+	int64 read_data_output_offset;
 	size_t read_data_remaining;
 
 	/*

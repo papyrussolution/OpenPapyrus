@@ -87,40 +87,28 @@ namespace OT {
 		HBINT16 yAdvance;       /* Vertical adjustment for advance--in
 		 * design units (only used for vertical
 		 * writing) */
-		OffsetTo<Device>      xPlaDevice;/* Offset to Device table for
+		OffsetTo<Device>      xPlaDevice; /* Offset to Device table for
 		   * horizontal placement--measured from
 		   * beginning of PosTable (may be NULL) */
-		OffsetTo<Device>      yPlaDevice;/* Offset to Device table for vertical
+		OffsetTo<Device>      yPlaDevice; /* Offset to Device table for vertical
 		   * placement--measured from beginning
 		   * of PosTable (may be NULL) */
-		OffsetTo<Device>      xAdvDevice;/* Offset to Device table for
+		OffsetTo<Device>      xAdvDevice; /* Offset to Device table for
 		   * horizontal advance--measured from
 		   * beginning of PosTable (may be NULL) */
-		OffsetTo<Device>      yAdvDevice;/* Offset to Device table for vertical
+		OffsetTo<Device>      yAdvDevice; /* Offset to Device table for vertical
 		   * advance--measured from beginning of
 		   * PosTable (may be NULL) */
 #endif
-
-		unsigned int get_len() const {
-			return hb_popcount((unsigned int)*this);
-		}
-
-		unsigned int get_size() const {
-			return get_len() * Value::static_size;
-		}
-
-		bool apply_value(hb_ot_apply_context_t * c,
-		    const void  * base,
-		    const Value * values,
-		    hb_glyph_position_t   &glyph_pos) const
+		unsigned int get_len() const { return hb_popcount((uint)*this); }
+		unsigned int get_size() const { return get_len() * Value::static_size; }
+		bool apply_value(hb_ot_apply_context_t * c, const void  * base, const Value * values, hb_glyph_position_t   &glyph_pos) const
 		{
 			bool ret = false;
 			unsigned int format = *this;
 			if(!format) return ret;
-
 			hb_font_t * font = c->font;
 			bool horizontal = HB_DIRECTION_IS_HORIZONTAL(c->direction);
-
 			if(format & xPlacement) glyph_pos.x_offset  += font->em_scale_x(get_short(values++, &ret));
 			if(format & yPlacement) glyph_pos.y_offset  += font->em_scale_y(get_short(values++, &ret));
 			if(format & xAdvance) {
@@ -165,12 +153,10 @@ namespace OT {
 			return ret;
 		}
 
-		void serialize_copy(hb_serialize_context_t * c, const void * base,
-		    const Value * values, const hb_map_t * layout_variation_idx_map) const
+		void serialize_copy(hb_serialize_context_t * c, const void * base, const Value * values, const hb_map_t * layout_variation_idx_map) const
 		{
 			unsigned int format = *this;
 			if(!format) return;
-
 			if(format & xPlacement) c->copy(*values++);
 			if(format & yPlacement) c->copy(*values++);
 			if(format & xAdvance) c->copy(*values++);
@@ -182,9 +168,7 @@ namespace OT {
 			if(format & yAdvDevice) copy_device(c, base, values++, layout_variation_idx_map);
 		}
 
-		void collect_variation_indices(hb_collect_variation_indices_context_t * c,
-		    const void * base,
-		    const hb_array_t<const Value>& values) const
+		void collect_variation_indices(hb_collect_variation_indices_context_t * c, const void * base, const hb_array_t<const Value>& values) const
 		{
 			unsigned format = *this;
 			unsigned i = 0;
@@ -196,28 +180,23 @@ namespace OT {
 				(base + get_device(&(values[i]))).collect_variation_indices(c->layout_variation_indices);
 				i++;
 			}
-
 			if(format & ValueFormat::yPlaDevice) {
 				(base + get_device(&(values[i]))).collect_variation_indices(c->layout_variation_indices);
 				i++;
 			}
-
 			if(format & ValueFormat::xAdvDevice) {
 				(base + get_device(&(values[i]))).collect_variation_indices(c->layout_variation_indices);
 				i++;
 			}
-
 			if(format & ValueFormat::yAdvDevice) {
 				(base + get_device(&(values[i]))).collect_variation_indices(c->layout_variation_indices);
 				i++;
 			}
 		}
-
 private:
 		bool sanitize_value_devices(hb_sanitize_context_t * c, const void * base, const Value * values) const
 		{
 			unsigned int format = *this;
-
 			if(format & xPlacement) values++;
 			if(format & yPlacement) values++;
 			if(format & xAdvance) values++;
@@ -290,7 +269,7 @@ public:
 
 			if(!has_device()) return_trace(true);
 
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(!sanitize_value_devices(c, base, values))
 					return_trace(false);
 				values += len;
@@ -310,7 +289,7 @@ public:
 
 			if(!has_device()) return_trace(true);
 
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(!sanitize_value_devices(c, base, values))
 					return_trace(false);
 				values += stride;
@@ -567,7 +546,7 @@ public:
 			if(UNLIKELY(hb_unsigned_mul_overflows(rows, cols))) return_trace(false);
 			unsigned int count = rows * cols;
 			if(!c->check_array(matrixZ.arrayZ, count)) return_trace(false);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!matrixZ[i].sanitize(c, this)) return_trace(false);
 			return_trace(true);
 		}
@@ -584,7 +563,7 @@ public:
 		friend struct MarkArray;
 
 		unsigned get_class() const {
-			return (unsigned)klass;
+			return (uint)klass;
 		}
 
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
@@ -812,7 +791,7 @@ public:
 			if(!valueFormat.has_device()) return;
 
 			auto it =
-			    +hb_zip(this+coverage, hb_range((unsigned)valueCount))
+			    +hb_zip(this+coverage, hb_range((uint)valueCount))
 			    | hb_filter(c->glyph_set, hb_first)
 			;
 
@@ -889,7 +868,7 @@ public:
 			auto values_array = values.as_array(valueCount * sub_length);
 
 			auto it =
-			    +hb_zip(this+coverage, hb_range((unsigned)valueCount))
+			    +hb_zip(this+coverage, hb_range((uint)valueCount))
 			    | hb_filter(glyphset, hb_first)
 			    | hb_map_retains_sorting([&] (const hb_pair_t<hb_codepoint_t, unsigned>&_)
 			{
@@ -1063,27 +1042,22 @@ public:
 
 			const PairValueRecord * record = &firstPairValueRecord;
 			unsigned int count = len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(glyphs->has(record->secondGlyph))
 					return true;
 				record = &StructAtOffset<const PairValueRecord> (record, record_size);
 			}
 			return false;
 		}
-
-		void collect_glyphs(hb_collect_glyphs_context_t * c,
-		    const ValueFormat * valueFormats) const
+		void collect_glyphs(hb_collect_glyphs_context_t * c, const ValueFormat * valueFormats) const
 		{
 			unsigned int len1 = valueFormats[0].get_len();
 			unsigned int len2 = valueFormats[1].get_len();
 			unsigned int record_size = HBUINT16::static_size * (1 + len1 + len2);
-
 			const PairValueRecord * record = &firstPairValueRecord;
 			c->input->add_array(&record->secondGlyph, len, record_size);
 		}
-
-		void collect_variation_indices(hb_collect_variation_indices_context_t * c,
-		    const ValueFormat * valueFormats) const
+		void collect_variation_indices(hb_collect_variation_indices_context_t * c, const ValueFormat * valueFormats) const
 		{
 			unsigned len1 = valueFormats[0].get_len();
 			unsigned len2 = valueFormats[1].get_len();
@@ -1099,10 +1073,7 @@ public:
 				record = &StructAtOffset<const PairValueRecord> (record, record_size);
 			}
 		}
-
-		bool apply(hb_ot_apply_context_t * c,
-		    const ValueFormat * valueFormats,
-		    unsigned int pos) const
+		bool apply(hb_ot_apply_context_t * c, const ValueFormat * valueFormats, unsigned int pos) const
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
@@ -1235,7 +1206,7 @@ public:
 		{
 			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			unsigned int count = pairSet.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				(this+pairSet[i]).collect_glyphs(c, valueFormat);
 		}
 
@@ -1361,10 +1332,10 @@ public:
 			unsigned len1 = valueFormat1.get_len();
 			unsigned len2 = valueFormat2.get_len();
 			const hb_array_t<const Value>
-			values_array = values.as_array((unsigned)class1Count * (unsigned)class2Count * (len1 + len2));
+			values_array = values.as_array((uint)class1Count * (uint)class2Count * (len1 + len2));
 			for(const unsigned class1_idx : class1_set.iter()) {
 				for(const unsigned class2_idx : class2_set.iter()) {
-					unsigned start_offset = (class1_idx * (unsigned)class2Count + class2_idx) * (len1 + len2);
+					unsigned start_offset = (class1_idx * (uint)class2Count + class2_idx) * (len1 + len2);
 					if(valueFormat1.has_device())
 						valueFormat1.collect_variation_indices(c, this, values_array.sub_array(start_offset, len1));
 
@@ -1437,15 +1408,15 @@ public:
 			unsigned len1 = valueFormat1.get_len();
 			unsigned len2 = valueFormat2.get_len();
 
-			+hb_range((unsigned)class1Count)
+			+hb_range((uint)class1Count)
 			| hb_filter(klass1_map)
 			| hb_apply([&] (const unsigned class1_idx)
 			{
-				+hb_range((unsigned)class2Count)
+				+hb_range((uint)class2Count)
 				| hb_filter(klass2_map)
 				| hb_apply([&] (const unsigned class2_idx)
 				{
-					unsigned idx = (class1_idx * (unsigned)class2Count + class2_idx) * (len1 + len2);
+					unsigned idx = (class1_idx * (uint)class2Count + class2_idx) * (len1 + len2);
 					valueFormat1.serialize_copy(c->serializer, this, &values[idx], c->plan->layout_variation_idx_map);
 					valueFormat2.serialize_copy(c->serializer, this, &values[idx + len1],
 					c->plan->layout_variation_idx_map);
@@ -1479,7 +1450,7 @@ public:
 			unsigned int len2 = valueFormat2.get_len();
 			unsigned int stride = len1 + len2;
 			unsigned int record_size = valueFormat1.get_size() + valueFormat2.get_size();
-			unsigned int count = (unsigned int)class1Count * (unsigned int)class2Count;
+			unsigned int count = (uint)class1Count * (uint)class2Count;
 			return_trace(c->check_range((const void*)values,
 			    count,
 			    record_size) &&
@@ -1869,9 +1840,9 @@ protected:
 
 			hb_sorted_vector_t<unsigned> base_indexes;
 			for(const unsigned row : base_iter) {
-				+hb_range((unsigned)classCount)
+				+hb_range((uint)classCount)
 				| hb_filter(klass_mapping)
-				| hb_map([&] (const unsigned col) { return row * (unsigned)classCount + col; })
+				| hb_map([&] (const unsigned col) { return row * (uint)classCount + col; })
 				| hb_sink(base_indexes)
 				;
 			}
@@ -1984,9 +1955,9 @@ protected:
 			hb_sorted_vector_t<unsigned> base_indexes;
 			for(const unsigned row : +base_iter
 			    | hb_map(hb_second)) {
-				+hb_range((unsigned)classCount)
+				+hb_range((uint)classCount)
 				| hb_filter(klass_mapping)
-				| hb_map([&] (const unsigned col) { return row * (unsigned)classCount + col; })
+				| hb_map([&] (const unsigned col) { return row * (uint)classCount + col; })
 				| hb_sink(base_indexes)
 				;
 			}
@@ -2004,7 +1975,7 @@ protected:
 			    markCoverage.sanitize(c, this) &&
 			    baseCoverage.sanitize(c, this) &&
 			    markArray.sanitize(c, this) &&
-			    baseArray.sanitize(c, this, (unsigned int)classCount));
+			    baseArray.sanitize(c, this, (uint)classCount));
 		}
 
 protected:
@@ -2088,9 +2059,9 @@ protected:
 				hb_sorted_vector_t<unsigned> lig_indexes;
 				unsigned row_count = lig_array[i].rows;
 				for(unsigned row : +hb_range(row_count)) {
-					+hb_range((unsigned)classCount)
+					+hb_range((uint)classCount)
 					| hb_filter(klass_mapping)
-					| hb_map([&] (const unsigned col) { return row * (unsigned)classCount + col; })
+					| hb_map([&] (const unsigned col) { return row * (uint)classCount + col; })
 					| hb_sink(lig_indexes)
 					;
 				}
@@ -2166,7 +2137,7 @@ protected:
 			    markCoverage.sanitize(c, this) &&
 			    ligatureCoverage.sanitize(c, this) &&
 			    markArray.sanitize(c, this) &&
-			    ligatureArray.sanitize(c, this, (unsigned int)classCount));
+			    ligatureArray.sanitize(c, this, (uint)classCount));
 		}
 
 protected:
@@ -2243,9 +2214,9 @@ protected:
 
 			hb_sorted_vector_t<unsigned> mark2_indexes;
 			for(const unsigned row : mark2_iter) {
-				+hb_range((unsigned)classCount)
+				+hb_range((uint)classCount)
 				| hb_filter(klass_mapping)
-				| hb_map([&] (const unsigned col) { return row * (unsigned)classCount + col; })
+				| hb_map([&] (const unsigned col) { return row * (uint)classCount + col; })
 				| hb_sink(mark2_indexes)
 				;
 			}
@@ -2365,9 +2336,9 @@ good:
 			hb_sorted_vector_t<unsigned> mark2_indexes;
 			for(const unsigned row : +mark2_iter
 			    | hb_map(hb_second)) {
-				+hb_range((unsigned)classCount)
+				+hb_range((uint)classCount)
 				| hb_filter(klass_mapping)
-				| hb_map([&] (const unsigned col) { return row * (unsigned)classCount + col; })
+				| hb_map([&] (const unsigned col) { return row * (uint)classCount + col; })
 				| hb_sink(mark2_indexes)
 				;
 			}
@@ -2388,7 +2359,7 @@ good:
 			    mark1Coverage.sanitize(c, this) &&
 			    mark2Coverage.sanitize(c, this) &&
 			    mark1Array.sanitize(c, this) &&
-			    mark2Array.sanitize(c, this, (unsigned int)classCount));
+			    mark2Array.sanitize(c, this, (uint)classCount));
 		}
 
 protected:
@@ -2707,7 +2678,7 @@ public:
 	void GPOS::position_start(hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
 	{
 		unsigned int count = buffer->len;
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			buffer->pos[i].attach_chain() = buffer->pos[i].attach_type() = 0;
 	}
 
@@ -2726,7 +2697,7 @@ public:
 
 		/* Handle attachments */
 		if(buffer->scratch_flags & HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT)
-			for(unsigned int i = 0; i < len; i++)
+			for(uint i = 0; i < len; i++)
 				propagate_attachment_offsets(pos, len, i, direction);
 	}
 

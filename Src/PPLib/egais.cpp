@@ -6008,7 +6008,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 					const PPTransferItem & r_cwr_item = current_wh_rest_bp.ConstTI(cwridx);
 					current_wh_rest_bp.LTagL.GetTagStr(cwridx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 					current_wh_rest_bp.LTagL.GetTagStr(cwridx, PPTAG_LOT_FSRARINFB, ref_b);
-					if(egais_code.NotEmpty() && ref_b.NotEmpty() && PreprocessGoodsItem(labs(r_cwr_item.GoodsID), 0, 0, 0, agi) > 0) {
+					if(egais_code.NotEmpty() && ref_b.NotEmpty() /*&& PreprocessGoodsItem(labs(r_cwr_item.GoodsID), 0, 0, 0, agi) > 0*/) {
 						if(refb_charged_list.searchNcAscii(ref_b, 0)) { // @v11.0.3
 							// Если справка Б найдена среди строк документа постановки марок на баланс, но 
 							// строку с этой справкой на регистр 2 отправлять нельзя.
@@ -6017,27 +6017,31 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							LogTextWithAddendum(PPTXT_EGAIS_WHRESTINMCHARGE, temp_buf);
 						}
 						else {
+							Transfer * p_trfr = P_BObj->trfr;
 							const double cwr_rest = r_cwr_item.Quantity_;
 							double shop_rest = 0.0;
 							PPID   lot_id = 0;
-							int    is_lot_in_3format = 0; // @v10.2.6
+							bool   is_lot_in_3format = false; // @v10.2.6
+							bool   is_beer = false; // @v11.2.0
 							ReceiptTbl::Rec lot_rec;
 							ref_b_lot_list.clear();
 							p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
 							for(uint llidx = 0; llidx < ref_b_lot_list.getCount(); llidx++) {
-								const PPID temp_lot_id = ref_b_lot_list.get(llidx);
+								const  PPID temp_lot_id = ref_b_lot_list.get(llidx);
+								PPID   org_lot_id = 0;
 								// @todo Вероятно, надо искать лот по любому складу
-								if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-									if(IsAlcGoods(lot_rec.GoodsID)) {
+								if(p_trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id && IsAlcGoods(lot_rec.GoodsID)) {
+									if(p_trfr->Rcpt.SearchOrigin(lot_rec.ID, &org_lot_id, 0, 0) && PreprocessGoodsItem(lot_rec.GoodsID, org_lot_id, 0, 0, agi) > 0) {
+										is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode)); // @v11.2.0
 										// @v10.2.6 {
 										const PPID lot_bill_id = lot_rec.BillID;
 										TransferTbl::Rec trfr_rec;
-										for(DateIter di; P_BObj->trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
+										for(DateIter di; p_trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
 											if(trfr_rec.BillID == lot_bill_id) {
 												// @v10.3.1 @fix {
 												int16 row_idx = 0;
 												int   row_is_found = 0;
-												for(int   rbb_iter = 0; !row_is_found && P_BObj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
+												for(int   rbb_iter = 0; !row_is_found && p_trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
 													row_idx++;
 													if(rbb_iter == trfr_rec.RByBill)
 														row_is_found = 1;
@@ -6091,6 +6095,11 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 								// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
 								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
+							}
+							else if(!is_beer) { // @v11.2.0 Начиная с этого релиза передается только пиво
+								//PPTXT_EGAIS_CHARGEONSHOPBEERONLY
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								LogTextWithAddendum(PPTXT_EGAIS_CHARGEONSHOPBEERONLY, temp_buf);
 							}
 							else if(is_lot_in_3format) { // @v10.2.6
 								//PPTXT_EGAIS_LOTFORWHRESTIN3F

@@ -287,12 +287,12 @@ struct __mpool { /* SHARED */
 struct __db_mpool_hash {
 	db_mutex_t	mtx_hash;	/* Per-bucket mutex. */
 	DB_HASHTAB	hash_bucket;	/* Head of bucket. */
-	db_atomic_t	hash_page_dirty;/* Count of dirty pages. */
+	db_atomic_t	hash_page_dirty; /* Count of dirty pages. */
 #ifndef __TEST_DB_NO_STATISTICS
 	uint32	hash_io_wait;	/* Count of I/O waits. */
 	uint32	hash_frozen;	/* Count of frozen buffers. */
 	uint32	hash_thawed;	/* Count of thawed buffers. */
-	uint32	hash_frozen_freed;/* Count of freed frozen buffers. */
+	uint32	hash_frozen_freed; /* Count of freed frozen buffers. */
 #endif
 	DB_LSN		old_reader;	/* Oldest snapshot reader (cached). */
 	uint32	flags;

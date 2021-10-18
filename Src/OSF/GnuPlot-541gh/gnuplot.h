@@ -64,6 +64,11 @@
 #include <syscfg.h>
 #include <stdfn.h>
 
+int gpfputc(int ch, FILE * pF); // @construction
+int gpputs(const char * pStr); // @construction
+int gpfputs(const char * pStr, FILE * pF); // @construction
+int gpprintf(FILE * pF, const char * pFmt, ...); // @construction
+
 const int GpResolution = 72; // resolution in dpi for converting pixels to size units 
 
 //struct TERMENTRY_Removed;
@@ -362,9 +367,18 @@ struct GpMeshTriangle;
 	// 
 	// Variables of history.c needed by other modules:
 	// 
-	extern int  gnuplot_history_size;
-	extern bool history_quiet;
-	extern bool history_full;
+	typedef void * histdata_t;
+
+	struct HIST_ENTRY {
+		char * line;
+		histdata_t data;
+		HIST_ENTRY * prev;
+		HIST_ENTRY * next;
+	};
+
+	//extern int  gnuplot_history_size;
+	//extern bool history_quiet;
+	//extern bool history_full;
 	// 
 	// GNU readline
 	// 
@@ -377,44 +391,35 @@ struct GpMeshTriangle;
 		//
 		// gnuplot's built-in replacement history functions
 		//
-		typedef void * histdata_t;
-
-		struct HIST_ENTRY {
-			char * line;
-			histdata_t data;
-			HIST_ENTRY * prev;
-			HIST_ENTRY * next;
-		};
-
-		extern int history_length;
-		extern int history_base;
+		//extern int history_length;
+		//extern int history_base;
 
 		void using_history();
-		void clear_history();
-		void add_history(char * line);
-		void read_history(char *);
-		int  write_history(char *);
-		int  where_history();
-		int  history_set_pos(int offset);
-		HIST_ENTRY * history_get(int offset);
-		HIST_ENTRY * current_history();
-		HIST_ENTRY * previous_history();
-		HIST_ENTRY * next_history();
-		HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data);
-		HIST_ENTRY * remove_history(int which);
+		//void clear_history();
+		//void add_history(const char * line);
+		//void read_history(char *);
+		//int  write_history(char *);
+		//int  where_history();
+		//int  history_set_pos(int offset);
+		//HIST_ENTRY * history_get(int offset);
+		//HIST_ENTRY * current_history();
+		//HIST_ENTRY * previous_history();
+		//HIST_ENTRY * next_history();
+		//HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data);
+		//HIST_ENTRY * remove_history(int which);
 		histdata_t free_history_entry(HIST_ENTRY * histent);
-		int  history_search(const char * string, int direction);
-		int  history_search_prefix(const char * string, int direction);
+		//int  history_search(const char * string, int direction);
+		//int  history_search_prefix(const char * string, int direction);
 	#endif
 	#ifdef USE_READLINE
 		//
 		// extra functions provided by history.c 
 		//
-		int  gp_read_history(const char * filename);
-		void write_history_n(const int, const char *, const char *);
-		const char * history_find(char *);
-		const char * history_find_by_number(int);
-		int  history_find_all(char *);
+		//int  gp_read_history(const char * filename);
+		//void write_history_n(const int, const char *, const char *);
+		//const char * history_find(char *);
+		//const char * history_find_by_number(int);
+		//int  history_find_all(char *);
 	#endif
 //
 //#include <eval.h>
@@ -1722,12 +1727,15 @@ enum t_fillstyle {
 	class GpTerminalBlock {
 	public:
 		GpTerminalBlock() : P_Term(0), P_OutStr(0), P_GpOutFile(0), P_GpPsFile(0), P_PS_PsDir(0), P_PS_FontPath(0), P_TermInterlock(0),
-			Flags(0), MultiplotCount(0), _Encoding(S_ENC_DEFAULT)
+			Flags(0), MultiplotCount(0), _Encoding(S_ENC_DEFAULT), LinetypeRecycleCount(0), MonoRecycleCount(0)
 		{
-			memzero(TermOptions, sizeof(TermOptions));
+			//memzero(TermOptions, sizeof(TermOptions));
 		}
+		int OutPrintf(); // @construction
+		int PsPrintf(); // @construction
 		struct GpTermEntry * P_Term;  // unknown 
-		char   TermOptions[MAX_LINE_LEN+1]; // ... and its options string 
+		//char   TermOptions[MAX_LINE_LEN+1]; // ... and its options string 
+		SString _TermOptions;
 		// the 'output' file name and handle 
 		char * P_OutStr; // means "STDOUT" 
 		FILE * P_GpOutFile;
@@ -1747,8 +1755,13 @@ enum t_fillstyle {
 		uint   Flags;
 		//bool monochrome; // true if "set monochrome"
 		//bool multiplot;  // true if in multiplot mode 
-		int  MultiplotCount;
-		enum set_encoding_id _Encoding; // text output encoding, for terminals that support it 
+		int    MultiplotCount;
+		enum   set_encoding_id _Encoding; // text output encoding, for terminals that support it 
+		//
+		// Support for enhanced text mode. Declared extern in term_api.h 
+		//
+		int    LinetypeRecycleCount; // Recycle count for user-defined linetypes 
+		int    MonoRecycleCount;
 		GpArrow CArw;
 	};
 
@@ -1756,16 +1769,15 @@ enum t_fillstyle {
 	//
 	// Variables of term.c needed by other modules: 
 	//
-	extern GpTermEntry * term; // the terminal info structure, being the heart of the whole module 
+	//extern GpTermEntry * term; // the terminal info structure, being the heart of the whole module 
 	// extern char term_options[MAX_LINE_LEN+1]; // Options string of the currently used terminal driver 
 	//extern int curr_arrow_headlength; // access head length + angle without changing API 
 	//extern double curr_arrow_headangle; // angle in degrees 
 	//extern double curr_arrow_headbackangle; // angle in degrees 
 	//extern arrowheadfill curr_arrow_headfilled;
 	//extern bool curr_arrow_headfixedsize;
-	// Recycle count for user-defined linetypes 
-	extern int linetype_recycle_count;
-	extern int mono_recycle_count;
+	//extern int linetype_recycle_count; // Recycle count for user-defined linetypes 
+	//extern int mono_recycle_count;
 	// Current 'output' file: name and open filehandle 
 	//extern char * outstr;
 	//extern FILE * gpoutfile;
@@ -1776,9 +1788,9 @@ enum t_fillstyle {
 	//   gppsfile == PSLATEX_auxfile - for 'set term': pslatex, cairolatex
 	//   gppsfile == 0               - for all other terminals
 	// 
-	extern FILE * gppsfile;
-	extern char * PS_psdir;
-	extern char * PS_fontpath; // just a directory name 
+	//extern FILE * gppsfile;
+	//extern char * PS_psdir;
+	//extern char * PS_fontpath; // just a directory name 
 	//extern bool monochrome;
 	//extern bool multiplot;
 	//extern int multiplot_count;
@@ -1919,9 +1931,9 @@ enum t_fillstyle {
 		bool hypertext;
 	};
 
-	#define EMPTY_LABELSTRUCT \
-		{NULL, NONROTATING_LABEL_TAG, {character, character, character, 0.0, 0.0, 0.0}, CENTRE, 0, 0, 0, \
-		 NULL, NULL, {TC_LT, -2, 0.0}, DEFAULT_LP_STYLE_TYPE, {character, character, character, 0.0, 0.0, 0.0}, FALSE, FALSE}
+	//#define EMPTY_LABELSTRUCT \
+		//{NULL, NONROTATING_LABEL_TAG, {character, character, character, 0.0, 0.0, 0.0}, CENTRE, 0, 0, 0, \
+		//NULL, NULL, {TC_LT, -2, 0.0}, DEFAULT_LP_STYLE_TYPE, {character, character, character, 0.0, 0.0, 0.0}, FALSE, FALSE}
 	//
 	// Datastructure for implementing 'set arrow' 
 	//
@@ -2156,7 +2168,7 @@ enum t_fillstyle {
 	// Datastructure implementing 'set style arrow' 
 	//
 	struct arrowstyle_def {
-		arrowstyle_def * next;/* pointer to next arrowstyle in linked list */
+		arrowstyle_def * next; /* pointer to next arrowstyle in linked list */
 		int tag;                /* identifies the arrowstyle */
 		arrow_style_type arrow_properties;
 	};
@@ -2184,7 +2196,7 @@ enum t_fillstyle {
 		pa_style() : lp_properties(lp_style_type::defParallelAxis), layer(LAYER_FRONT)
 		{
 		}
-		lp_style_type lp_properties;/* used to draw the axes themselves */
+		lp_style_type lp_properties; /* used to draw the axes themselves */
 		int layer;              /* front/back */
 	};
 
@@ -2238,13 +2250,16 @@ enum t_fillstyle {
 	};
 
 	struct filledcurves_opts {
-		enum filledcurves_opts_id closeto; /* from list FILLEDCURVES_CLOSED, ... */
-		double at; /* value for FILLEDCURVES_AT... */
-		double aty; /* the other value for FILLEDCURVES_ATXY */
-		int    oneside; /* -1 if fill below bound only; +1 if fill above bound only */
+		filledcurves_opts() : closeto(FILLEDCURVES_DEFAULT), at(0.0), aty(0.0), oneside(0)
+		{
+		}
+		enum filledcurves_opts_id closeto; // from list FILLEDCURVES_CLOSED, ...
+		double at; // value for FILLEDCURVES_AT... 
+		double aty; // the other value for FILLEDCURVES_ATXY 
+		int    oneside; // -1 if fill below bound only; +1 if fill above bound only 
 	};
 
-	#define EMPTY_FILLEDCURVES_OPTS { FILLEDCURVES_DEFAULT, 0.0, 0.0, 0 }
+	//#define EMPTY_FILLEDCURVES_OPTS { FILLEDCURVES_DEFAULT, 0.0, 0.0, 0 }
 
 	enum t_histogram_type {
 		HT_NONE,
@@ -2271,7 +2286,7 @@ enum t_fillstyle {
 		text_label title;
 	};
 
-	#define DEFAULT_HISTOGRAM_STYLE { HT_CLUSTERED, 2, 1, 0.0, 0.0, LT_UNDEFINED, LT_UNDEFINED, 0, NULL, EMPTY_LABELSTRUCT }
+	//#define DEFAULT_HISTOGRAM_STYLE { HT_CLUSTERED, 2, 1, 0.0, 0.0, LT_UNDEFINED, LT_UNDEFINED, 0, NULL, EMPTY_LABELSTRUCT }
 
 	enum t_boxplot_factor_labels {
 		BOXPLOT_FACTOR_LABELS_OFF,
@@ -2368,11 +2383,10 @@ enum t_fillstyle {
 	#define DEFAULT_KEYBOX_LP {0, LT_NODRAW, 0, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}
 	#define DEFAULT_KEY_POSITION { graph, graph, graph, 0.9, 0.9, 0. }
 
-	#define DEFAULT_KEY_PROPS \
-		{ TRUE, GPKEY_AUTO_INTERIOR_LRTBC, GPKEY_RMARGIN, DEFAULT_KEY_POSITION, \
-		  JUST_TOP, RIGHT, TRUE, GPKEY_RIGHT, GPKEY_VERTICAL, 4.0, 1.0, 0.0, 0.0, \
-		  FILENAME_KEYTITLES, FALSE, FALSE, FALSE, TRUE, DEFAULT_KEYBOX_LP, \
-		  NULL, {TC_LT, LT_BLACK, 0.0}, BACKGROUND_COLORSPEC, {0, 0, 0, 0}, 0, 0, EMPTY_LABELSTRUCT}
+	//#define DEFAULT_KEY_PROPS { TRUE, GPKEY_AUTO_INTERIOR_LRTBC, GPKEY_RMARGIN, DEFAULT_KEY_POSITION, \
+		  //JUST_TOP, RIGHT, TRUE, GPKEY_RIGHT, GPKEY_VERTICAL, 4.0, 1.0, 0.0, 0.0, \
+		  //FILENAME_KEYTITLES, FALSE, FALSE, FALSE, TRUE, DEFAULT_KEYBOX_LP, \
+		  //NULL, {TC_LT, LT_BLACK, 0.0}, BACKGROUND_COLORSPEC, {0, 0, 0, 0}, 0, 0, EMPTY_LABELSTRUCT}
 	// 
 	// EAM Jan 2006 - Move colorbox structure definition to here from color.h
 	// in order to be able to use struct GpPosition
@@ -3211,17 +3225,17 @@ enum t_fillstyle {
 		int    ellipseaxes_units;  // Only used if plot_style == ELLIPSES 
 		histogram_style *histogram; // Only used if plot_style == HISTOGRAM 
 		int    histogram_sequence;  // Ordering of this dataset within the histogram 
-		enum   PLOT_SMOOTH plot_smooth; /* which "smooth" method to be used? */
-		double smooth_parameter;	/* e.g. optional bandwidth for smooth kdensity */
-		double smooth_period;	/* e.g. 2pi for a circular function */
-		int    boxplot_factors;	/* Only used if plot_style == BOXPLOT */
-		int    p_max;			/* how many points are allocated */
-		int    p_count;		/* count of points in points */
+		enum   PLOT_SMOOTH plot_smooth; // which "smooth" method to be used? 
+		double smooth_parameter; // e.g. optional bandwidth for smooth kdensity 
+		double smooth_period;    // e.g. 2pi for a circular function 
+		int    boxplot_factors;  // Only used if plot_style == BOXPLOT 
+		int    p_max;            // how many points are allocated 
+		int    p_count;          // count of points in points 
 		AXIS_INDEX AxIdx_X/*x_axis*/; // FIRST_X_AXIS or SECOND_X_AXIS 
 		AXIS_INDEX AxIdx_Y/*y_axis*/; // FIRST_Y_AXIS or SECOND_Y_AXIS 
 		AXIS_INDEX AxIdx_Z/*z_axis*/; // same as either x_axis or y_axis, for 5-column plot types 
 		int    current_plotno; // Only used by "pn" option of linespoints 
-		AXIS_INDEX AxIdx_P;/*p_axis*/;  // Only used for parallel axis plots 
+		AXIS_INDEX AxIdx_P; /*p_axis*/;  // Only used for parallel axis plots 
 		double * varcolor;  // Only used if plot has variable color 
 		GpCoordinate * points;
 	};
@@ -3343,8 +3357,8 @@ enum t_fillstyle {
 		char * title;           /* plot title, a.k.a. key entry */
 		GpPosition * title_position; /* title at {beginning|end|<xpos>,<ypos>} */
 		bool title_no_enhanced; /* don't typeset title in enhanced mode */
-		bool title_is_automated;/* TRUE if title was auto-generated */
-		bool title_is_suppressed;/* TRUE if 'notitle' was specified */
+		bool title_is_automated; /* TRUE if title was auto-generated */
+		bool title_is_suppressed; /* TRUE if 'notitle' was specified */
 		bool noautoscale; /* ignore data from this plot during autoscaling */
 		lp_style_type lp_properties;
 		arrow_style_type arrow_properties;
@@ -3534,7 +3548,7 @@ enum t_fillstyle {
 		bool   if_open_for_else; // used by _new_ if/else syntax 
 		char * input_line;       // Input line text to restore 
 		GpLexicalUnit * P_Tokens/*tokens*/;   // Input line tokens to restore 
-		int    _NumTokens;/*num_tokens*/;       // How big is the above ? 
+		int    _NumTokens; /*num_tokens*/;       // How big is the above ? 
 		int    _CToken/*c_token*/;          // Which one were we on ? 
 		LFS  * prev;             // defines a stack 
 		int    call_argc;        // This saves the _caller's_ argc 
@@ -3770,7 +3784,7 @@ enum t_fillstyle {
 	#define DEF_FIT_LIMIT 1e-5
 
 	// error interrupt for fitting routines 
-	#define Eex(a)       { ErrorEx(NO_CARET, (a)); }
+	#define Eex(a) { ErrorEx(NO_CARET, (a)); }
 	#define Eex2(a, b)    { ErrorEx(NO_CARET, (a), (b)); }
 	#define Eex3(a, b, c)  { ErrorEx(NO_CARET, (a), (b), (c)); }
 	#define Eexc(c, a)    { ErrorEx((c), (a)); }
@@ -3841,7 +3855,7 @@ enum t_fillstyle {
 	void delete_linestyle(struct linestyle_def **, struct linestyle_def *, struct linestyle_def *);
 	//void delete_dashtype(struct custom_dashtype_def *, struct custom_dashtype_def *);
 	void free_marklist(struct ticmark * list);
-	extern int enable_reset_palette;
+	//extern int enable_reset_palette;
 	extern text_label * new_text_label(int tag);
 	extern ticmark * prune_dataticks(struct ticmark *list);
 //
@@ -3858,7 +3872,7 @@ enum t_fillstyle {
 		#define DLL_EXT  ".dll"
 		#define DLL_OPEN(f) dll_open_w(f);
 		#define DLL_CLOSE(dl) ((void)FreeLibrary((HINSTANCE)dl))
-		#define DLL_SYM(dl, sym) ((void*)GetProcAddress((HINSTANCE)dl, (sym)))
+		#define DLL_SYM(dl, sym) ((void *)GetProcAddress((HINSTANCE)dl, (sym)))
 		#define DLL_ERROR(dl) "dynamic library error"
 	#elif defined(HAVE_DLFCN_H)
 		#include <dlfcn.h>
@@ -4760,7 +4774,9 @@ struct GpGadgets {
 		draw_border(31), user_border(31), border_layer(LAYER_FRONT), refresh_nplots(0), current_x11_windowid(0), ang2rad(1.0),
 		border_lp(lp_style_type::defBorder), data_style(POINTSTYLE), func_style(LINES), refresh_ok(E_REFRESH_NOT_OK),
 		default_fillstyle(FS_EMPTY, 100, 0), default_rectangle(t_object::defRectangle), default_circle(t_object::defCircle), default_ellipse(t_object::defEllipse),
-		filledcurves_opts_data(EMPTY_FILLEDCURVES_OPTS), filledcurves_opts_func(EMPTY_FILLEDCURVES_OPTS), histogram_opts(), boxplot_opts(DEFAULT_BOXPLOT_STYLE)
+		// @ctr filledcurves_opts_data(EMPTY_FILLEDCURVES_OPTS), 
+		// @ctr filledcurves_opts_func(EMPTY_FILLEDCURVES_OPTS), 
+		histogram_opts(), boxplot_opts(DEFAULT_BOXPLOT_STYLE)
 	{
 		memzero(textbox_opts, sizeof(textbox_opts));
 	}
@@ -5133,7 +5149,7 @@ struct GpParseBlock {
 		STRNSCPY(set_dummy_var[0], "x");
 		STRNSCPY(set_dummy_var[1], "y");
 	}
-	at_type * P_At; // @global
+	at_type * P_At;
 	int    AtSize;
 	int    RecursionLevel;
 	//
@@ -6096,6 +6112,42 @@ public:
 	void   BailToCommandLine();
 	const char * LatexInputEncoding(enum set_encoding_id encoding);
 
+	class GpHistory {
+	public:
+		GpHistory() : HistorySize(HISTORY_SIZE), HistoryLength(0), HistoryBase(1), HistoryQuiet(false), HistoryFull(false),
+			P_History(0), P_CurEntry(0)
+		{
+		}
+		int  HistorySize;
+		int  HistoryLength;
+		int  HistoryBase;
+		bool HistoryQuiet;
+		bool HistoryFull;
+		HIST_ENTRY * P_History; // last entry in the history list, no history yet 
+		HIST_ENTRY * P_CurEntry;
+	};
+
+	void   AddHistory(const char * pLine);
+	void   ClearHistory();
+	int    WhereHistory();
+	int    HistoryFindAll(char * pCmd);
+	int    HistorySetPos(int offset);
+	HIST_ENTRY * HistoryGet(int offset);
+	const char * HistoryFindByNumber(int);
+	int    HistorySearch(const char * pString, int direction);
+	HIST_ENTRY * CurrentHistory();
+	HIST_ENTRY * PreviousHistory();
+	HIST_ENTRY * NextHistory();
+	HIST_ENTRY * RemoveHistory(int which);
+	void   WriteHistoryList(const int num, const char * const filename, const char * mode);
+	void   WriteHistoryN(const int, const char *, const char *);
+	int    WriteHistory(const char * pFileName);
+	void   ReadHistory(const char * pFileName);
+	int    Implement_ReadHistory(const char * pFileName);
+	int    HistorySearchPrefix(const char * string, int direction);
+	const char * HistoryFind(char * pCmd);
+	HIST_ENTRY * ReplaceHistoryEntry(int which, const char * line, histdata_t data);
+
 	enum jitterstyle {
 		JITTER_DEFAULT = 0,
 		JITTER_SWARM,
@@ -6228,6 +6280,7 @@ public:
 	t_sm_palette SmPltt;
 	GpView V;
 	GpGadgets Gg;
+	GpHistory Hist;
 private:
 	bool   CheckTagGtZero(int * pTag, const char ** ppErrMessage);
 	GpStack EvStk;
@@ -6235,7 +6288,7 @@ private:
 	// Copy of palette previously in use.
 	// Exported so that change_term() can invalidate contents
 	//
-	t_sm_palette PrevPltt; // = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 }; // @global
+	t_sm_palette PrevPltt; // = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 };
 	MpLayout_ MpLo;// = MP_LAYOUT_DEFAULT;
 	t_jitter Jitter;
 	GpTabulate Tab;
@@ -6249,6 +6302,10 @@ private:
 	GpReadLineBlock RlB_;
 	GpParseBlock _Pb;
 	GpDataFile _Df;
+
+	palette_color_mode Pm3dLastSetPaletteMode/*= SMPAL_COLOR_MODE_NONE*/;
+	int    EnableResetPalette/*= 1*/; // is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
+	GpVertex Polyline3dPreviousVertex; // Previous points 3D position 
 public:
 	GpPlot  _Plt;
 	GpGraph3DBlock _3DBlk;
@@ -6429,7 +6486,7 @@ private:
 	void   SetStyle();
 	void   SetKey();
 	void   SetPaletteFunction();
-	void   SetMouse();
+	void   SetMouse(GpTermEntry * pTerm);
 	void   SetTicProp(GpAxis * pThisAxis);
 	void   SetPAxis();
 	void   SetTics();
@@ -7348,6 +7405,8 @@ private:
 	char * BuiltinZoomInX(GpEvent * ge, GpTermEntry * pTerm);
 	char * BuiltinZoomOutX(GpEvent * ge, GpTermEntry * pTerm);
 #endif
+	const char * EncodingMicro();
+	const char * EncodingMinus();
 
 	GpTermEntry _ENHest;
 	char * P_PushTermName;
@@ -7356,6 +7415,13 @@ private:
 };
 
 extern GnuPlot GPO; // @global
+
+class GnuPlotHolder {
+public:
+	GnuPlotHolder()
+	{
+	}
+};
 //
 // Terminal support
 //

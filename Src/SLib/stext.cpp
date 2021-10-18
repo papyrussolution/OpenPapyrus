@@ -1470,7 +1470,7 @@ int FASTCALL IsLetter1251(int alpha)
 
 int FASTCALL ToLower1251(int alpha)
 {
-	unsigned ch = (alpha & 0x00ff);
+	uint   ch = (alpha & 0x00ff);
 	if(ch == 0xa8U)
 		ch = 0xb8U;
 	else if(ch >= 0xc0U && ch <= 0xdfU)
@@ -1482,7 +1482,7 @@ int FASTCALL ToLower1251(int alpha)
 
 int FASTCALL ToUpper1251(int alpha)
 {
-	unsigned ch = (alpha & 0x00ff);
+	uint   ch = (alpha & 0x00ff);
 	if(ch == 0xb8U)
 		ch = 0xa8U;
 	else if(ch >= 0xe0U && ch <= 0xffU)
@@ -1497,7 +1497,7 @@ int FASTCALL ToUpper1251(int alpha)
 //
 int FASTCALL ToLower866(int alpha)
 {
-	unsigned ch = (alpha & 0x00ff);
+	uint   ch = (alpha & 0x00ff);
 	if(IsLetter866(ch)) {
 		if(ch >= 0x80 && ch < 0x90)
 			ch += 0x20;
@@ -1516,7 +1516,7 @@ int FASTCALL ToLower866(int alpha)
 //
 int FASTCALL ToUpper866(int alpha)
 {
-	unsigned ch = (alpha & 0x00ff);
+	uint   ch = (alpha & 0x00ff);
 	if(IsLetter866(ch)) {
 		if(ch >= 0xa0U && ch < 0xb0U)
 			ch -= 0x20;
@@ -1696,9 +1696,9 @@ char * FASTCALL SCharToOem(char * pStr)
 //
 //
 //
-static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr && pStr[0]) ? strlen(pStr) : 0; }
-static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
-static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr /*&& pStr[0]*/) ? strlen(pStr) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr /*&& pStr[0]*/) ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { return (pStr /*&& pStr[0]*/) ? wcslen(pStr) : 0; }
 //
 // Descr: копирует сроку from в буфер to и возвращает указатель на
 //   завершающий нулевой символ строки to.
@@ -1716,9 +1716,9 @@ char * FASTCALL stpcpy(char *to, const char *from)
 bool   FASTCALL isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 0); }
 bool   FASTCALL isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
 bool   FASTCALL isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
-size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
-size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
-size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
+//size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
+//size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
+//size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
 
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 {
@@ -1842,7 +1842,7 @@ bool FASTCALL sstreq(const uchar * pS1, const char * pS2)
 }
 
 // @construction
-bool FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
+bool STDCALL sstrneq(const char * pS1, const char * pS2, uint len)
 {
 	if(len == 0)
 		return true;
@@ -2026,9 +2026,9 @@ char * FASTCALL newStr(const char * s)
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
 uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return reinterpret_cast<uchar *>(strcpy(reinterpret_cast<char *>(pDest), reinterpret_cast<const char *>(pSrc))); }
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc) { return wcscpy(pDest, pSrc); }
-char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, reinterpret_cast<const char *>(src), maxlen); }
+char * STDCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, reinterpret_cast<const char *>(src), maxlen); }
 
-char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
+char * STDCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 {
 	if(dest) {
 		if(src) {
@@ -2050,13 +2050,13 @@ char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	return dest;
 }
 
-char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen)
+char * STDCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen)
 {
 	rSrc.CopyTo(pDest, maxlen);
 	return pDest;
 }
 
-wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
+wchar_t * STDCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 {
 	if(dest) {
 		if(src) {

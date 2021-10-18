@@ -93,7 +93,7 @@
  *      Provides an implementation of PThreads based upon the
  *      standard:
  *
- *              POSIX 1003.1-2001
+ *        POSIX 1003.1-2001
  *  and
  *    The Single Unix Specification version 3
  *
@@ -129,7 +129,7 @@
  *      The code base for this project is coordinated and
  *      eventually pre-tested, packaged, and made available by
  *
- *              Ross Johnson <rpj@callisto.canberra.edu.au>
+ *        Ross Johnson <rpj@callisto.canberra.edu.au>
  *
  * QA Testers:
  *      Ultimately, the library is tested in the real world by
@@ -151,7 +151,7 @@
  *      The source code and other information about this library
  *      are available from
  *
- *              https://sourceforge.net/projects/pthreads4w/
+ *        https://sourceforge.net/projects/pthreads4w/
  *
  * -------------------------------------------------------------
  */
@@ -180,73 +180,73 @@ enum { /* Boolean values to make us independent of system includes. */
  * runtime to check the status of the option.
  *
  * _POSIX_THREADS (== 20080912L)
- *                      If == 20080912L, you can use threads
+ *                If == 20080912L, you can use threads
  *
  * _POSIX_THREAD_ATTR_STACKSIZE (== 200809L)
- *                      If == 200809L, you can control the size of a thread's
- *                      stack
- *                              pthread_attr_getstacksize
- *                              pthread_attr_setstacksize
+ *                If == 200809L, you can control the size of a thread's
+ *                stack
+ *                        pthread_attr_getstacksize
+ *                        pthread_attr_setstacksize
  *
  * _POSIX_THREAD_ATTR_STACKADDR (== -1)
- *                      If == 200809L, you can allocate and control a thread's
- *                      stack. If not supported, the following functions
- *                      will return ENOSYS, indicating they are not
- *                      supported:
- *                              pthread_attr_getstackaddr
- *                              pthread_attr_setstackaddr
+ *                If == 200809L, you can allocate and control a thread's
+ *                stack. If not supported, the following functions
+ *                will return ENOSYS, indicating they are not
+ *                supported:
+ *                        pthread_attr_getstackaddr
+ *                        pthread_attr_setstackaddr
  *
  * _POSIX_THREAD_PRIORITY_SCHEDULING (== -1)
- *                      If == 200112L, you can use realtime scheduling.
- *                      This option indicates that the behaviour of some
- *                      implemented functions conforms to the additional TPS
- *                      requirements in the standard. E.g. rwlocks favour
- *                      writers over readers when threads have equal priority.
+ *                If == 200112L, you can use realtime scheduling.
+ *                This option indicates that the behaviour of some
+ *                implemented functions conforms to the additional TPS
+ *                requirements in the standard. E.g. rwlocks favour
+ *                writers over readers when threads have equal priority.
  *
  * _POSIX_THREAD_PRIO_INHERIT (== -1)
- *                      If == 200809L, you can create priority inheritance
- *                      mutexes.
- *                              pthread_mutexattr_getprotocol +
- *                              pthread_mutexattr_setprotocol +
+ *                If == 200809L, you can create priority inheritance
+ *                mutexes.
+ *                        pthread_mutexattr_getprotocol +
+ *                        pthread_mutexattr_setprotocol +
  *
  * _POSIX_THREAD_PRIO_PROTECT (== -1)
- *                      If == 200809L, you can create priority ceiling mutexes
- *                      Indicates the availability of:
- *                              pthread_mutex_getprioceiling
- *                              pthread_mutex_setprioceiling
- *                              pthread_mutexattr_getprioceiling
- *                              pthread_mutexattr_getprotocol     +
- *                              pthread_mutexattr_setprioceiling
- *                              pthread_mutexattr_setprotocol     +
+ *                If == 200809L, you can create priority ceiling mutexes
+ *                Indicates the availability of:
+ *                        pthread_mutex_getprioceiling
+ *                        pthread_mutex_setprioceiling
+ *                        pthread_mutexattr_getprioceiling
+ *                        pthread_mutexattr_getprotocol     +
+ *                        pthread_mutexattr_setprioceiling
+ *                        pthread_mutexattr_setprotocol     +
  *
  * _POSIX_THREAD_PROCESS_SHARED (== -1)
- *                      If set, you can create mutexes and condition
- *                      variables that can be shared with another
- *                      process.If set, indicates the availability
- *                      of:
- *                              pthread_mutexattr_getpshared
- *                              pthread_mutexattr_setpshared
- *                              pthread_condattr_getpshared
- *                              pthread_condattr_setpshared
+ *                If set, you can create mutexes and condition
+ *                variables that can be shared with another
+ *                process.If set, indicates the availability
+ *                of:
+ *                        pthread_mutexattr_getpshared
+ *                        pthread_mutexattr_setpshared
+ *                        pthread_condattr_getpshared
+ *                        pthread_condattr_setpshared
  *
  * _POSIX_THREAD_SAFE_FUNCTIONS (== 200809L)
- *                      If == 200809L you can use the special *_r library
- *                      functions that provide thread-safe behaviour
+ *                If == 200809L you can use the special *_r library
+ *                functions that provide thread-safe behaviour
  *
  * _POSIX_READER_WRITER_LOCKS (== 200809L)
- *                      If == 200809L, you can use read/write locks
+ *                If == 200809L, you can use read/write locks
  *
  * _POSIX_SPIN_LOCKS (== 200809L)
- *                      If == 200809L, you can use spin locks
+ *                If == 200809L, you can use spin locks
  *
  * _POSIX_BARRIERS (== 200809L)
- *                      If == 200809L, you can use barriers
+ *                If == 200809L, you can use barriers
  *
  * _POSIX_ROBUST_MUTEXES (== 200809L)
- *                      If == 200809L, you can use robust mutexes
- *                      Officially this should also imply
- *                      _POSIX_THREAD_PROCESS_SHARED != -1 however
- *                      not here yet.
+ *                If == 200809L, you can use robust mutexes
+ *                Officially this should also imply
+ *                _POSIX_THREAD_PROCESS_SHARED != -1 however
+ *                not here yet.
  *
  * -------------------------------------------------------------
  */
@@ -427,7 +427,7 @@ enum { /* pthread_attr_{get,set}detachstate
  * ====================
  * ====================
  */
-#define PTHREAD_CANCELED       ((void*)(size_t)-1)
+#define PTHREAD_CANCELED       ((void *)(size_t)-1)
 /*
  * ====================
  * ====================
@@ -440,7 +440,7 @@ enum { /* pthread_attr_{get,set}detachstate
 #define PTHREAD_ONCE_INIT       { 0,  __PTW32_FALSE }
 
 struct pthread_once_t_ {
-	void *       lock;      /* MCS lock */
+	void * lock;      /* MCS lock */
 	int done;               /* indicates if user function has been executed */
 };
 
@@ -450,7 +450,7 @@ struct pthread_once_t_ {
 
 struct pthread_once_t_ {
 	int done;               /* indicates if user function has been executed */
-	void *       lock;      /* MCS lock */
+	void * lock;      /* MCS lock */
 	int reserved1;
 	int reserved2;
 };
@@ -558,7 +558,7 @@ class PThreadCleanup {
 	 *      (i.e. such as by an exception)
 	 */
 	__ptw32_cleanup_callback_t cleanUpRout;
-	void    *       obj;
+	void    * obj;
 	int executeIt;
 
 public:
@@ -576,7 +576,7 @@ public:
 	}
 	~PThreadCleanup()
 	{
-		if(executeIt && ((void*)cleanUpRout != (void*)0) ) {
+		if(executeIt && ((void *)cleanUpRout != (void *)0) ) {
 			(*cleanUpRout)(obj);
 		}
 	}
@@ -591,7 +591,7 @@ public:
  * class who's destructor automatically calls the
  * cleanup routine if we exit our scope weirdly
  */
-#define pthread_cleanup_push(_rout, _arg) { PThreadCleanup cleanup((__ptw32_cleanup_callback_t)(_rout), (void*)(_arg));
+#define pthread_cleanup_push(_rout, _arg) { PThreadCleanup cleanup((__ptw32_cleanup_callback_t)(_rout), (void *)(_arg));
 #define pthread_cleanup_pop(_execute)     cleanup.execute(_execute); }
 #else
 	#error ERROR [__FILE__, line __LINE__]: Cleanup type undefined.
@@ -817,7 +817,7 @@ __PTW32_DLLPORT int __PTW32_CDECL pthread_attr_getname_np(pthread_attr_t * attr,
  * This function allows the caller to hook into the
  * PThreads cancel mechanism. It is implemented using
  *
- *              WaitForMultipleObjects
+ *        WaitForMultipleObjects
  *
  * on 'waitHandle' and a manually reset WIN32 Event
  * used to implement pthread_cancel. The 'timeout'

@@ -163,9 +163,9 @@ void GnuPlot::F_VP_Fwhm(union argument * arg)
 }
 
 /* Fresnel integrals
- *              x
+ *        x
  *     C(x) =  ∫ cos(pi/2 * t^2) dt
- *              x
+ *        x
  *     S(x) =  ∫ sin(pi/2 * t^2) dt
  *
  * calculated from the relationship

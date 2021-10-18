@@ -279,13 +279,13 @@ TERM_PUBLIC void AQUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(AQUA_title[0]=='\0') /* always set title */
 		sprintf(AQUA_title, "Figure %d", AQUA_plotRef);
 	// Save options back into options string in normalized format 
-	sprintf(GPT.TermOptions, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s", AQUA_plotRef, AQUA_title,
+	slprintf(GPT._TermOptions, "%d title \"%s\" size %d,%d font \"%s,%g\" %s %s", AQUA_plotRef, AQUA_title,
 	    (uint)(AQUA_xSize/AQUA_RESOLUTION), (uint)(AQUA_ySize/AQUA_RESOLUTION), AQUA_fontNameCur, AQUA_fontSizeCur,
 	    term->put_text == ENHAQUA_put_text ? "enhanced" : "noenhanced", AQUA_dashedlines ? "dashed" : "solid");
 	if(AQUA_dashedlines)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " dl %3.1f", AQUA_dashlength_factor);
+		slprintf_cat(GPT._TermOptions, " dl %3.1f", AQUA_dashlength_factor);
 	if(AQUA_LineWidth != 1.0)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %3.1f", AQUA_LineWidth);
+		slprintf_cat(GPT._TermOptions, " linewidth %3.1f", AQUA_LineWidth);
 }
 
 static NSString* AQUA_convert_using_encoding(const char * string)
@@ -646,7 +646,7 @@ blue:                                   b*(1-density) + density];
 
 	NSRect scaledRect = NSMakeRect(x1/AQUA_RESOLUTION, y1/AQUA_RESOLUTION, width/AQUA_RESOLUTION, height/AQUA_RESOLUTION);
 	/* FIXME: Aquaterm eraseRect scales very badly with the total number of rectangles.
-	 *        It is probably fixable, but is the erase operation necessary at all?
+	 *  It is probably fixable, but is the erase operation necessary at all?
 	 */
 	[adapter eraseRect: scaledRect];
 	[adapter addFilledRect: scaledRect];
@@ -784,7 +784,7 @@ TERM_PUBLIC void AQUA_image(GpTermEntry * pThis, uint M, uint N, coordval * imag
 	int targetSize = 3 * bitmapSize;
 	int srcSize;
 	int i;
-	uchar * bitmap = malloc(targetSize*sizeof(uchar));
+	uchar * bitmap = SAlloc::M(targetSize*sizeof(uchar));
 	if(bitmap != nil) {
 		if(color_mode == IC_RGB) {
 			srcSize = targetSize;

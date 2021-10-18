@@ -42,17 +42,17 @@ __FBSDID("$FreeBSD$");
 
 struct private_data {
 	lzma_stream stream;
-	unsigned char   * out_block;
+	uchar   * out_block;
 	size_t out_block_size;
-	int64_t total_out;
+	int64 total_out;
 	char eof;             /* True = found end of compressed data. */
 	char in_stream;
 
 	/* Following variables are used for lzip only. */
 	char lzip_ver;
-	uint32_t crc32;
-	int64_t member_in;
-	int64_t member_out;
+	uint32 crc32;
+	int64 member_in;
+	int64 member_out;
 };
 
 #if LZMA_VERSION_MAJOR >= 5
@@ -192,7 +192,7 @@ int archive_read_support_filter_lzip(struct archive * _a)
  */
 static int xz_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	(void)self; /* UNUSED */
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
@@ -220,10 +220,10 @@ static int xz_bidder_bid(struct archive_read_filter_bidder * self, struct archiv
  */
 static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
-	uint32_t dicsize;
-	uint64_t uncompressed_size;
+	uint32 dicsize;
+	uint64 uncompressed_size;
 	int bits_checked;
 	(void)self; /* UNUSED */
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
@@ -257,7 +257,7 @@ static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	 * size is unknown and lzma of XZ Utils always records `-1'
 	 * in this field. */
 	uncompressed_size = archive_le64dec(buffer+5);
-	if(uncompressed_size == (uint64_t)ARCHIVE_LITERAL_LL(-1))
+	if(uncompressed_size == (uint64)ARCHIVE_LITERAL_LL(-1))
 		bits_checked += 64;
 
 	/* Second through fifth bytes are dictionary size, stored in
@@ -322,7 +322,7 @@ static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 
 static int lzip_has_member(struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	int log2dic;
@@ -426,12 +426,12 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	struct private_data * state;
 	int ret;
 
-	state = (struct private_data *)calloc(sizeof(*state), 1);
-	out_block = (uchar *)malloc(out_block_size);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for xz decompression");
-		free(out_block);
-		free(state);
+		SAlloc::F(out_block);
+		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}
 
@@ -475,8 +475,8 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	/* Library setup failed: Choose an error message and clean up. */
 	set_error(self, ret);
 
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	self->data = NULL;
 	return ARCHIVE_FATAL;
 }
@@ -484,11 +484,11 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 static int lzip_init(struct archive_read_filter * self)
 {
 	struct private_data * state;
-	const unsigned char * h;
+	const uchar * h;
 	lzma_filter filters[2];
-	unsigned char props[5];
+	uchar props[5];
 	ssize_t avail_in;
-	uint32_t dicsize;
+	uint32 dicsize;
 	int log2dic, ret;
 
 	state = (struct private_data *)self->data;
@@ -528,7 +528,7 @@ static int lzip_init(struct archive_read_filter * self)
 		return ARCHIVE_FATAL;
 	}
 	ret = lzma_raw_decoder(&(state->stream), filters);
-	free(filters[0].options);
+	SAlloc::F(filters[0].options);
 	if(ret != LZMA_OK) {
 		set_error(self, ret);
 		return ARCHIVE_FATAL;
@@ -539,7 +539,7 @@ static int lzip_init(struct archive_read_filter * self)
 static int lzip_tail(struct archive_read_filter * self)
 {
 	struct private_data * state;
-	const unsigned char * f;
+	const uchar * f;
 	ssize_t avail_in;
 	int tail;
 
@@ -564,14 +564,14 @@ static int lzip_tail(struct archive_read_filter * self)
 	}
 
 	/* Check the uncompressed size of the current member */
-	if((uint64_t)state->member_out != archive_le64dec(f + 4)) {
+	if((uint64)state->member_out != archive_le64dec(f + 4)) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Uncompressed size error");
 		return ARCHIVE_FAILED;
 	}
 
 	/* Check the total size of the current member */
 	if(state->lzip_ver == 1 &&
-	    (uint64_t)state->member_in + tail != archive_le64dec(f + 12)) {
+	    (uint64)state->member_in + tail != archive_le64dec(f + 12)) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Member size error");
 		return ARCHIVE_FAILED;
 	}
@@ -671,8 +671,8 @@ static int xz_filter_close(struct archive_read_filter * self)
 
 	state = (struct private_data *)self->data;
 	lzma_end(&(state->stream));
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
 

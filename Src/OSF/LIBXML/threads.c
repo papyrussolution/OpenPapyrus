@@ -140,7 +140,7 @@ static xmlRMutex * xmlLibraryLock = NULL;
  */
 xmlMutex * xmlNewMutex()
 {
-	xmlMutex * tok = static_cast<xmlMutex *>(malloc(sizeof(xmlMutex)));
+	xmlMutex * tok = static_cast<xmlMutex *>(SAlloc::M(sizeof(xmlMutex)));
 	if(!tok == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
@@ -236,7 +236,7 @@ void FASTCALL xmlMutexUnlock(xmlMutex * tok)
  */
 xmlRMutex * xmlNewRMutex()
 {
-	xmlRMutex * tok = static_cast<xmlRMutex *>(malloc(sizeof(xmlRMutex)));
+	xmlRMutex * tok = static_cast<xmlRMutex *>(SAlloc::M(sizeof(xmlRMutex)));
 	if(tok == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
@@ -376,19 +376,18 @@ void __xmlGlobalInitMutexLock()
 	LPCRITICAL_SECTION cs;
 	/* Create a new critical section */
 	if(global_init_lock == NULL) {
-		cs = (LPCRITICAL_SECTION)malloc(sizeof(CRITICAL_SECTION));
+		cs = (LPCRITICAL_SECTION)SAlloc::M(sizeof(CRITICAL_SECTION));
 		if(cs == NULL) {
 			xmlGenericError(0, "xmlGlobalInitMutexLock: out of memory\n");
 			return;
 		}
 		InitializeCriticalSection(cs);
-		/* Swap it into the global_init_lock */
+		// Swap it into the global_init_lock 
 #ifdef InterlockedCompareExchangePointer
 		InterlockedCompareExchangePointer((volatile PVOID *)&global_init_lock, cs, 0);
-#else /* Use older void* version */
+#else /* Use older void * version */
 		InterlockedCompareExchange((void **)&global_init_lock, (void *)cs, 0);
 #endif /* InterlockedCompareExchangePointer */
-
 		/* If another thread successfully recorded its critical
 		 * section in the global_init_lock then discard the one
 		 * allocated by this thread. */
@@ -486,7 +485,7 @@ static void xmlFreeGlobalState(void * state)
  */
 static xmlGlobalState * xmlNewGlobalState()
 {
-	xmlGlobalState * gs = static_cast<xmlGlobalState *>(malloc(sizeof(xmlGlobalState)));
+	xmlGlobalState * gs = static_cast<xmlGlobalState *>(SAlloc::M(sizeof(xmlGlobalState)));
 	if(!gs)
 		xmlGenericError(0, __FUNCTION__ ": out of memory\n");
 	else {
@@ -588,7 +587,7 @@ xmlGlobalState * xmlGetGlobalState()
 		xmlGlobalState * tsd = xmlNewGlobalState();
 		if(tsd == NULL)
 			return 0;
-		p = static_cast<xmlGlobalStateCleanupHelperParams *>(malloc(sizeof(xmlGlobalStateCleanupHelperParams)));
+		p = static_cast<xmlGlobalStateCleanupHelperParams *>(SAlloc::M(sizeof(xmlGlobalStateCleanupHelperParams)));
 		if(!p) {
 			xmlGenericError(0, __FUNCTION__ ": out of memory\n");
 			xmlFreeGlobalState(tsd);

@@ -44,7 +44,7 @@ static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> a
 #define s0(x) (rotr_32(x ^ rotr_32(x, 11), 7) ^ (x >> 3))
 #define s1(x) (rotr_32(x ^ rotr_32(x, 2), 17) ^ (x >> 10))
 
-static const uint32_t SHA256_K[64] = {
+static const uint32 SHA256_K[64] = {
 	0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 	0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
 	0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
@@ -63,7 +63,7 @@ static const uint32_t SHA256_K[64] = {
 	0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2,
 };
 
-static void transform(uint32_t state[8], const uint32_t data[16])
+static void transform(uint32 state[8], const uint32 data[16])
 {
 	uint32_t W[16];
 	uint32_t T[8];
@@ -104,7 +104,7 @@ extern void lzma_sha256_init(lzma_check_state * check)
 	check->state.sha256.size = 0;
 }
 
-extern void lzma_sha256_update(const uint8_t * buf, size_t size, lzma_check_state * check)
+extern void lzma_sha256_update(const uint8 * buf, size_t size, lzma_check_state * check)
 {
 	// Copy the input data into a properly aligned temporary buffer.
 	// This way we can be called with arbitrarily sized buffers

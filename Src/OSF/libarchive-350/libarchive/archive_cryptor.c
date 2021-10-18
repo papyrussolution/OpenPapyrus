@@ -41,8 +41,8 @@ int __libarchive_cryptor_build_hack(void) {
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
+    size_t salt_len, unsigned rounds, uint8 * derived_key,
     size_t derived_key_len)
 {
 	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw,
@@ -56,7 +56,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 #pragma comment(lib, "Bcrypt.lib")
 #endif
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt, size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	NTSTATUS status;
 	BCRYPT_ALG_HANDLE hAlg;
@@ -70,8 +70,8 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt, siz
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_PKCS5_H)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
+    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	mbedtls_md_context_t ctx;
 	const mbedtls_md_info_t * info;
@@ -87,24 +87,24 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 		mbedtls_md_free(&ctx);
 		return -1;
 	}
-	ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (const unsigned char*)pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
+	ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (const uchar *)pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	mbedtls_md_free(&ctx);
 	return ret;
 }
 
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len) 
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
+    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
 {
-	pbkdf2_hmac_sha1((unsigned)pw_len, (const uint8_t*)pw, rounds, salt_len, salt, derived_key_len, derived_key);
+	pbkdf2_hmac_sha1((uint)pw_len, (const uint8*)pw, rounds, salt_len, salt, derived_key_len, derived_key);
 	return 0;
 }
 
 #elif defined(HAVE_LIBCRYPTO) && defined(HAVE_PKCS5_PBKDF2_HMAC_SHA1)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key, size_t derived_key_len) 
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
+    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
 {
 	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	return 0;
@@ -113,8 +113,8 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 #else
 
 /* Stub */
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
-    size_t salt_len, unsigned rounds, uint8_t * derived_key,
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
+    size_t salt_len, unsigned rounds, uint8 * derived_key,
     size_t derived_key_len) {
 	(void)pw; /* UNUSED */
 	(void)pw_len; /* UNUSED */
@@ -133,7 +133,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 #  define kCCAlgorithmAES kCCAlgorithmAES128
 # endif
 
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	CCCryptorStatus r;
 	ctx->key_len = key_len;
@@ -167,7 +167,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 
 #elif defined(_WIN32) && !defined(__CYGWIN__) && defined(HAVE_BCRYPT_H)
 
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	BCRYPT_ALG_HANDLE hAlg;
 	BCRYPT_KEY_HANDLE hKey;
@@ -264,7 +264,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_AES_H)
 
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	mbedtls_aes_init(&ctx->ctx);
 	ctx->key_len = key_len;
@@ -294,7 +294,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_AES_H)
 
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	ctx->key_len = key_len;
 	memcpy(ctx->key, key, key_len);
@@ -342,7 +342,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 
 #elif defined(HAVE_LIBCRYPTO)
 
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	if((ctx->ctx = EVP_CIPHER_CTX_new()) == NULL)
 		return -1;
@@ -396,7 +396,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 
 #define ARCHIVE_CRYPTOR_STUB
 /* Stub */
-static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8_t * key, size_t key_len)
+static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
 	(void)ctx; /* UNUSED */
 	(void)key; /* UNUSED */
@@ -419,7 +419,7 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 #endif
 
 #ifdef ARCHIVE_CRYPTOR_STUB
-static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in, size_t in_len, uint8_t * const out, size_t * out_len)
+static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size_t in_len, uint8 * const out, size_t * out_len)
 {
 	(void)ctx; /* UNUSED */
 	(void)in; /* UNUSED */
@@ -433,7 +433,7 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in, si
 #else
 static void aes_ctr_increase_counter(archive_crypto_ctx * ctx)
 {
-	uint8_t * const nonce = ctx->nonce;
+	uint8 * const nonce = ctx->nonce;
 	int j;
 	for(j = 0; j < 8; j++) {
 		if(++nonce[j])
@@ -441,12 +441,12 @@ static void aes_ctr_increase_counter(archive_crypto_ctx * ctx)
 	}
 }
 
-static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8_t * const in,
-    size_t in_len, uint8_t * const out, size_t * out_len)
+static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in,
+    size_t in_len, uint8 * const out, size_t * out_len)
 {
-	uint8_t * const ebuf = ctx->encr_buf;
+	uint8 * const ebuf = ctx->encr_buf;
 	unsigned pos = ctx->encr_pos;
-	unsigned max = (unsigned)((in_len < *out_len) ? in_len : *out_len);
+	unsigned max = (uint)((in_len < *out_len) ? in_len : *out_len);
 	unsigned i;
 	for(i = 0; i < max;) {
 		if(pos == AES_BLOCK_SIZE) {

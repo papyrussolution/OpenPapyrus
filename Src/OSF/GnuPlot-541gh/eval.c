@@ -1344,7 +1344,7 @@ void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 			Ev.FillGpValString("GPVAL_TERM", "unknown");
 		else
 			Ev.FillGpValString("GPVAL_TERM", pTerm->name);
-		Ev.FillGpValString("GPVAL_TERMOPTIONS", GPT.TermOptions);
+		Ev.FillGpValString("GPVAL_TERMOPTIONS", GPT._TermOptions);
 		Ev.FillGpValString("GPVAL_OUTPUT", NZOR(GPT.P_OutStr, ""));
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[GPT._Encoding]);
 		Ev.FillGpValString("GPVAL_MINUS_SIGN", NZOR(GpU.minus_sign, "-"));

@@ -41,7 +41,7 @@ __inline static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long *
 	if(utc.QuadPart >= EPOC_TIME) {
 		utc.QuadPart -= EPOC_TIME;
 		*t = (time_t)(utc.QuadPart / 10000000); /* milli seconds base */
-		*ns = (long)(utc.QuadPart % 10000000) * 100;/* nano seconds base */
+		*ns = (long)(utc.QuadPart % 10000000) * 100; /* nano seconds base */
 	}
 	else {
 		*t = 0;
@@ -63,10 +63,10 @@ void archive_entry_copy_bhfi(struct archive_entry * entry,
 	archive_entry_set_birthtime(entry, secs, nsecs);
 	archive_entry_set_ctime(entry, secs, nsecs);
 	archive_entry_set_dev(entry, bhfi->dwVolumeSerialNumber);
-	archive_entry_set_ino64(entry, (((int64_t)bhfi->nFileIndexHigh) << 32)
+	archive_entry_set_ino64(entry, (((int64)bhfi->nFileIndexHigh) << 32)
 	    + bhfi->nFileIndexLow);
 	archive_entry_set_nlink(entry, bhfi->nNumberOfLinks);
-	archive_entry_set_size(entry, (((int64_t)bhfi->nFileSizeHigh) << 32)
+	archive_entry_set_size(entry, (((int64)bhfi->nFileSizeHigh) << 32)
 	    + bhfi->nFileSizeLow);
 	/* archive_entry_set_mode(entry, st->st_mode); */
 }

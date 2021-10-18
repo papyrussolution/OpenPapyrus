@@ -10,11 +10,11 @@
  * this file you indicate that you have read the license and
  * understand and accept it fully.
  */
-/*************************************************************************/
+// 
 /*********        WARNING, THIS IS ALPHA CODE!  THIS API         *********/
 /*********    IS DUE TO CHANGE UNTIL STRICTLY NOTIFIED BY THE    *********/
 /*********            FREETYPE DEVELOPMENT TEAM                  *********/
-/*************************************************************************/
+// 
 
 /* Main reason for not lifting the functions in this module to a  */
 /* 'standard' API is that the used parameters for emboldening and */

@@ -72,7 +72,7 @@ namespace OT {
 
 		HBUINT8 pixelSize;              /* Pixel size for following widths (as ppem). */
 		HBUINT8 maxWidth;               /* Maximum width. */
-		UnsizedArrayOf<HBUINT8>       widthsZ;/* Array of widths (numGlyphs is from the 'maxp' table). */
+		UnsizedArrayOf<HBUINT8>       widthsZ; /* Array of widths (numGlyphs is from the 'maxp' table). */
 public:
 		DEFINE_SIZE_ARRAY(2, widthsZ);
 	};
@@ -119,7 +119,7 @@ public:
 			if(UNLIKELY(!hdmx_prime)) return_trace(false);
 
 			auto it =
-			    +hb_range((unsigned)numRecords)
+			    +hb_range((uint)numRecords)
 			    | hb_map([c, this] (unsigned _)
 			{
 				const DeviceRecord * device_record =
@@ -135,7 +135,7 @@ public:
 					return device_record->widthsZ.as_array(get_num_glyphs()) [_];
 				})
 				;
-				return hb_pair((unsigned)device_record->pixelSize, +row);
+				return hb_pair((uint)device_record->pixelSize, +row);
 			})
 			;
 

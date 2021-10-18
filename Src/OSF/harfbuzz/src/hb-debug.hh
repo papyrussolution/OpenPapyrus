@@ -127,9 +127,9 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 	slfprintf_stderr("%-10s", what ? what : "");
 
 	if(obj)
-		slfprintf_stderr("(%*p) ", (unsigned int)(2 * sizeof(void *)), obj);
+		slfprintf_stderr("(%*p) ", (uint)(2 * sizeof(void *)), obj);
 	else
-		slfprintf_stderr(" %*s  ", (unsigned int)(2 * sizeof(void *)), "");
+		slfprintf_stderr(" %*s  ", (uint)(2 * sizeof(void *)), "");
 
 	if(indented) {
 #define VBAR    "\342\224\202"  /* U+2502 BOX DRAWINGS LIGHT VERTICAL */
@@ -145,7 +145,7 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR;
 		slfprintf_stderr("%2u %s" VRBAR "%s",
 		    level,
-		    bars + sizeof(bars) - 1 - hb_min((unsigned int)sizeof(bars) - 1, (unsigned int)(sizeof(VBAR) - 1) * level),
+		    bars + sizeof(bars) - 1 - hb_min((uint)sizeof(bars) - 1, (uint)(sizeof(VBAR) - 1) * level),
 		    level_dir ? (level_dir > 0 ? DLBAR : ULBAR) : LBAR);
 	}
 	else

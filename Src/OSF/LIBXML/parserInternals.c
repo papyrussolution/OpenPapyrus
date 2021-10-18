@@ -1,6 +1,6 @@
 /*
  * parserInternals.c : Internal routines (and obsolete ones) needed for the
- *                XML and HTML parsers.
+ *          XML and HTML parsers.
  *
  * See Copyright for the status of this software.
  *

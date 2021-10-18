@@ -128,9 +128,9 @@ int archive_random(void * buf, size_t nbytes)
 #endif                          /* !__GNUC__ */
 
 struct arc4_stream {
-	uint8_t i;
-	uint8_t j;
-	uint8_t s[256];
+	uint8 i;
+	uint8 j;
+	uint8 s[256];
 };
 
 #define RANDOMDEV       "/dev/urandom"
@@ -149,7 +149,7 @@ static struct arc4_stream rs;
 static pid_t arc4_stir_pid;
 static int arc4_count;
 
-static inline uint8_t arc4_getbyte(void);
+static inline uint8 arc4_getbyte(void);
 static void arc4_stir(void);
 
 static inline void arc4_init(void)
@@ -164,7 +164,7 @@ static inline void arc4_init(void)
 static inline void arc4_addrandom(u_char * dat, int datlen)
 {
 	int n;
-	uint8_t si;
+	uint8 si;
 
 	rs.i--;
 	for(n = 0; n < 256; n++) {
@@ -227,9 +227,9 @@ static void arc4_stir_if_needed(void)
 	}
 }
 
-static inline uint8_t arc4_getbyte(void)
+static inline uint8 arc4_getbyte(void)
 {
-	uint8_t si, sj;
+	uint8 si, sj;
 
 	rs.i = (rs.i + 1);
 	si = rs.s[rs.i];

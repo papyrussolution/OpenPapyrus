@@ -22,7 +22,7 @@ int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 	return ret;
 }
 
-char * CRYPTO_strdup(const char * str, const char* file, int line)
+char * STDCALL CRYPTO_strdup(const char * str, const char* file, int line)
 {
 	char * ret;
 	if(str == NULL)
@@ -100,7 +100,6 @@ int OPENSSL_hexchar2int(uchar c)
 #ifdef CHARSET_EBCDIC
 	c = os_toebcdic[c];
 #endif
-
 	switch(c) {
 		case '0':
 		    return 0;

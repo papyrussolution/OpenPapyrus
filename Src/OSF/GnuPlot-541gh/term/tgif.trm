@@ -394,10 +394,10 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			default: uActZoom = 2; break;
 		}
 	}
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "%s [%u,%u]", TgifPortrait ? "portrait" : "landscape", uTgif_win_horiz, uTgif_win_verti);
-	strcat(GPT.TermOptions, TgifUseColor ? " color" : " monochrome");
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %f", dActThick_default);
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " %s font \"%s,%u\"", TgifSolid ? "solid" : "dashed", sActFont, uActFontSize);
+	slprintf_cat(GPT._TermOptions, "%s [%u,%u]", TgifPortrait ? "portrait" : "landscape", uTgif_win_horiz, uTgif_win_verti);
+	GPT._TermOptions.Cat(TgifUseColor ? " color" : " monochrome");
+	slprintf_cat(GPT._TermOptions, " linewidth %f", dActThick_default);
+	slprintf_cat(GPT._TermOptions, " %s font \"%s,%u\"", TgifSolid ? "solid" : "dashed", sActFont, uActFontSize);
 }
 
 /*}}}  */
@@ -1184,8 +1184,7 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		    fprintf(GPT.P_GpOutFile, "group([\n");
 		    fprintf(GPT.P_GpOutFile, "oval('%s',%.1f,%.1f,%.1f,%.1f,2,1,1,%u,0,0,0,[\n]).\n",
 			sActColor, x - p, y - p, x + p, y + p, uActNr++);
-		    fprintf(GPT.P_GpOutFile,
-			"arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,11520,17280,%u,0,0,8,3,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,11520,17280,%u,0,0,8,3,0,[\n]).\n",
 			sActColor, x - p, y - p, x, y, x - p, y, x, y - p, 2 * p, 2 * p, uActNr++);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
@@ -1196,8 +1195,7 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		    fprintf(GPT.P_GpOutFile, "group([\n");
 		    fprintf(GPT.P_GpOutFile, "oval('%s',%.1f,%.1f,%.1f,%.1f,2,1,1,%u,0,0,0,[\n]).\n",
 			sActColor, x - p, y - p, x + p, y + p, uActNr++);
-		    fprintf(GPT.P_GpOutFile,
-			"arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,5760,17280,%u,0,0,8,3,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,5760,17280,%u,0,0,8,3,0,[\n]).\n",
 			sActColor, x - p, y - p, x, y, x, y - p, x + p, y, 2 * p, 2 * p, uActNr++);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
@@ -1397,13 +1395,11 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 47:
 		    /* diamond1 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - 0.625 * p, y - 0.375 * p, x - 0.375 * p, y - 0.625 * p, x + p / 8,
-			y - p / 8, x - p / 8, y + p / 8, x - 0.625 * p, y - 0.375 * p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - 0.625 * p, y - 0.375 * p, x - 0.375 * p, y - 0.625 * p, x + p / 8,
+				y - p / 8, x - p / 8, y + p / 8, x - 0.625 * p, y - 0.375 * p, uActNr);
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
 		    uActNr += 2;
 		    break;
@@ -1411,13 +1407,10 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 48:
 		    /* diamond2 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - p / 2, y - p / 2, x, y - p, x + p / 2, y - p / 2, x, y, x - p / 2,
-			y - p / 2, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p / 2, y - p / 2, x, y - p, x + p / 2, y - p / 2, x, y, x - p / 2, y - p / 2, uActNr);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
@@ -1425,26 +1418,21 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 49:
 		    /* diamond3 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - p, y, x - p / 2, y - p / 2, x, y, x - p / 2, y + p / 2, x - p, y, uActNr);
-		    uActNr += 2;
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p, y, x - p / 2, y - p / 2, x, y, x - p / 2, y + p / 2, x - p, y, uActNr);
+			uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
 		/*}}}  */
 		case 50:
 		    /* diamond4 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - p, y, x, y - p, x + p / 2, y - p / 2, x - p / 2, y + p / 2, x - p,
-			y, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p, y, x, y - p, x + p / 2, y - p / 2, x - p / 2, y + p / 2, x - p, y, uActNr);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
@@ -1452,13 +1440,10 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 51:
 		    /* diamond5 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - p / 2, y + p / 2, x, y, x + p / 2, y + p / 2, x, y + p, x - p / 2,
-			y + p / 2, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p / 2, y + p / 2, x, y, x + p / 2, y + p / 2, x, y + p, x - p / 2, y + p / 2, uActNr);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
@@ -1466,15 +1451,12 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 52:
 		    /* diamond6 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x - p / 2, y - p / 2, x, y - p, x + p / 2, y - p / 2, x, y, x - p / 2,
 			y - p / 2, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x - p / 2, y + p / 2, x, y, x + p / 2, y + p / 2, x, y + p, x - p / 2,
 			y + p / 2, uActNr);
 		    uActNr += 3;
@@ -1484,11 +1466,9 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 53:
 		    /* diamond7 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x - p, y, x - p / 2, y - p / 2, x + p / 2, y + p / 2, x, y + p, x - p,
 			y, uActNr);
 		    uActNr += 2;
@@ -1498,11 +1478,9 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 54:
 		    /* diamond8 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor,
 			x - p,
 			y,
@@ -1526,11 +1504,9 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 55:
 		    /* diamond9 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y, x + p / 2, y - p / 2, x + p, y, x + p / 2, y + p / 2, x, y, uActNr);
 		    uActNr += 2;
 		    fprintf(GPT.P_GpOutFile, "],\n%u,0,[\n]).\n", uActNr++);
@@ -1564,11 +1540,9 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 58:
 		    /* diamond12 */
 		    fprintf(GPT.P_GpOutFile, "group([\n");
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(GPT.P_GpOutFile,
-			"polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+		    fprintf(GPT.P_GpOutFile, "polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
 			sActColor,
 			x - p,
 			y,

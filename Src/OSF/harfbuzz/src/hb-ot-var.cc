@@ -147,11 +147,11 @@ void hb_ot_var_normalize_variations(hb_face_t  * face,
     int * coords,                            /* OUT */
     unsigned int coords_length)
 {
-	for(unsigned int i = 0; i < coords_length; i++)
+	for(uint i = 0; i < coords_length; i++)
 		coords[i] = 0;
 
 	const OT::fvar &fvar = *face->table.fvar;
-	for(unsigned int i = 0; i < variations_length; i++) {
+	for(uint i = 0; i < variations_length; i++) {
 		hb_ot_var_axis_info_t info;
 		if(hb_ot_var_find_axis_info(face, variations[i].tag, &info) &&
 		    info.axis_index < coords_length)
@@ -172,7 +172,7 @@ void hb_ot_var_normalize_coords(hb_face_t * face,
     int * normalized_coords /* OUT */)
 {
 	const OT::fvar &fvar = *face->table.fvar;
-	for(unsigned int i = 0; i < coords_length; i++)
+	for(uint i = 0; i < coords_length; i++)
 		normalized_coords[i] = fvar.normalize_axis_value(i, design_coords[i]);
 
 	face->table.avar->map_coords(normalized_coords, coords_length);

@@ -50,8 +50,8 @@ struct private_data {
 	int timestamp;
 #ifdef HAVE_ZLIB_H
 	z_stream stream;
-	int64_t total_in;
-	unsigned char   * compressed;
+	int64 total_in;
+	uchar   * compressed;
 	size_t compressed_buffer_size;
 	unsigned long crc;
 #else
@@ -87,7 +87,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_gzip");
-	data = (private_data *)calloc(1, sizeof(*data));
+	data = (private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -105,7 +105,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 #else
 	data->pdata = __archive_write_program_allocate("gzip");
 	if(data->pdata == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -121,11 +121,11 @@ static int archive_compressor_gzip_free(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 
 #ifdef HAVE_ZLIB_H
-	free(data->compressed);
+	SAlloc::F(data->compressed);
 #else
 	__archive_write_program_free(data->pdata);
 #endif
-	free(data);
+	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
@@ -178,7 +178,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 		}
 		data->compressed_buffer_size = bs;
 		data->compressed
-			= (uchar *)malloc(data->compressed_buffer_size);
+			= (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
@@ -197,10 +197,10 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	data->compressed[3] = 0; /* No options */
 	if(data->timestamp >= 0) {
 		time_t t = time(NULL);
-		data->compressed[4] = (uint8_t)(t)&0xff;  /* Timestamp */
-		data->compressed[5] = (uint8_t)(t>>8)&0xff;
-		data->compressed[6] = (uint8_t)(t>>16)&0xff;
-		data->compressed[7] = (uint8_t)(t>>24)&0xff;
+		data->compressed[4] = (uint8)(t)&0xff;  /* Timestamp */
+		data->compressed[5] = (uint8)(t>>8)&0xff;
+		data->compressed[6] = (uint8)(t>>16)&0xff;
+		data->compressed[7] = (uint8)(t>>24)&0xff;
 	}
 	else
 		memzero(&data->compressed[4], 4);
@@ -281,7 +281,7 @@ static int archive_compressor_gzip_write(struct archive_write_filter * f, const 
  */
 static int archive_compressor_gzip_close(struct archive_write_filter * f)
 {
-	unsigned char trailer[8];
+	uchar trailer[8];
 	struct private_data * data = (struct private_data *)f->data;
 	int ret;
 
@@ -295,14 +295,14 @@ static int archive_compressor_gzip_close(struct archive_write_filter * f)
 	}
 	if(ret == ARCHIVE_OK) {
 		/* Build and write out 8-byte trailer. */
-		trailer[0] = (uint8_t)(data->crc)&0xff;
-		trailer[1] = (uint8_t)(data->crc >> 8)&0xff;
-		trailer[2] = (uint8_t)(data->crc >> 16)&0xff;
-		trailer[3] = (uint8_t)(data->crc >> 24)&0xff;
-		trailer[4] = (uint8_t)(data->total_in)&0xff;
-		trailer[5] = (uint8_t)(data->total_in >> 8)&0xff;
-		trailer[6] = (uint8_t)(data->total_in >> 16)&0xff;
-		trailer[7] = (uint8_t)(data->total_in >> 24)&0xff;
+		trailer[0] = (uint8)(data->crc)&0xff;
+		trailer[1] = (uint8)(data->crc >> 8)&0xff;
+		trailer[2] = (uint8)(data->crc >> 16)&0xff;
+		trailer[3] = (uint8)(data->crc >> 24)&0xff;
+		trailer[4] = (uint8)(data->total_in)&0xff;
+		trailer[5] = (uint8)(data->total_in >> 8)&0xff;
+		trailer[6] = (uint8)(data->total_in >> 16)&0xff;
+		trailer[7] = (uint8)(data->total_in >> 24)&0xff;
 		ret = __archive_write_filter(f->next_filter, trailer, 8);
 	}
 

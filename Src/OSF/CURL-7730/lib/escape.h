@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_ESCAPE_H
 #define HEADER_CURL_ESCAPE_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -24,7 +24,7 @@
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred.  */
 
-bool Curl_isunreserved(unsigned char in);
+bool Curl_isunreserved(uchar in);
 
 enum urlreject {
   REJECT_NADA = 2,

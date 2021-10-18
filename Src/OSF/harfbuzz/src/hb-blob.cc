@@ -607,23 +607,21 @@ fail_without_close:
 	unsigned long len = 0, allocated = BUFSIZ * 16;
 	char * data = (char *)SAlloc::M(allocated);
 	if(UNLIKELY(!data)) return hb_blob_get_empty();
-
 	FILE * fp = fopen(file_name, "rb");
-	if(UNLIKELY(!fp)) goto fread_fail_without_close;
-
+	if(UNLIKELY(!fp)) 
+		goto fread_fail_without_close;
 	while(!feof(fp)) {
 		if(allocated - len < BUFSIZ) {
 			allocated *= 2;
 			/* Don't allocate and go more than ~536MB, our mmap reader still
 			   can cover files like that but lets limit our fallback reader */
 			if(UNLIKELY(allocated > (2 << 28))) goto fread_fail;
-			char * new_data = (char *)realloc(data, allocated);
-			if(UNLIKELY(!new_data)) goto fread_fail;
+			char * new_data = (char *)SAlloc::R(data, allocated);
+			if(UNLIKELY(!new_data)) 
+				goto fread_fail;
 			data = new_data;
 		}
-
 		unsigned long addition = fread(data + len, 1, allocated - len, fp);
-
 		int err = ferror(fp);
 #ifdef EINTR // armcc doesn't have it
 		if(UNLIKELY(err == EINTR)) continue;

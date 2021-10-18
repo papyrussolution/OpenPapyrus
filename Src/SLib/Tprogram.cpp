@@ -1845,7 +1845,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	HBITMAP hbmp = 0;
 	SString text_buf;
 	TView::SGetWindowText(pDi->hwndItem, text_buf);
-	text_buf.Strip(); // @v9.2.4
+	text_buf.Strip();
 	const int draw_text = BIN(text_buf.Len());
 	int    erase_text = 0;
 	{
@@ -2142,7 +2142,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT  hf = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			HFONT  hf = reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			int    temp_font_id = 0;
 			if(hf) {
 				LOGFONT f;

@@ -75,7 +75,7 @@ struct dir_info {
  */
 struct reg_info {
 	int compute_sum;
-	uint32_t crc;
+	uint32 crc;
 	struct ae_digest digest;
 };
 
@@ -96,9 +96,9 @@ struct mtree_entry {
 	unsigned int nlink;
 	mode_t filetype;
 	mode_t mode;
-	int64_t size;
-	int64_t uid;
-	int64_t gid;
+	int64 size;
+	int64 uid;
+	int64 gid;
 	time_t mtime;
 	long mtime_nsec;
 	unsigned long fflags_set;
@@ -107,7 +107,7 @@ struct mtree_entry {
 	dev_t rdevminor;
 	dev_t devmajor;
 	dev_t devminor;
-	int64_t ino;
+	int64 ino;
 };
 
 struct mtree_writer {
@@ -120,7 +120,7 @@ struct mtree_writer {
 	struct archive_string ebuf;
 	struct archive_string buf;
 	int first;
-	uint64_t entry_bytes_remaining;
+	uint64 entry_bytes_remaining;
 
 	/*
 	 * Set global value.
@@ -129,8 +129,8 @@ struct mtree_writer {
 		int processing;
 		mode_t type;
 		int keys;
-		int64_t uid;
-		int64_t gid;
+		int64 uid;
+		int64 gid;
 		mode_t mode;
 		unsigned long fflags_set;
 		unsigned long fflags_clear;
@@ -142,8 +142,8 @@ struct mtree_writer {
 
 	/* check sum */
 	int compute_sum;
-	uint32_t crc;
-	uint64_t crc_len;
+	uint32 crc;
+	uint64 crc_len;
 #ifdef ARCHIVE_HAS_MD5
 	archive_md5_ctx md5ctx;
 #endif
@@ -243,7 +243,7 @@ static int write_mtree_entry(struct archive_write *, struct mtree_entry *);
 static int write_dot_dot_entry(struct archive_write *, struct mtree_entry *);
 
 #define COMPUTE_CRC(var, ch)    (var) = (var) << 8 ^ crctab[(var) >> 24 ^ (ch)]
-static const uint32_t crctab[] = {
+static const uint32 crctab[] = {
 	0x0,
 	0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
 	0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6,
@@ -298,7 +298,7 @@ static const uint32_t crctab[] = {
 	0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
 };
 
-static const unsigned char safe_char[256] = {
+static const uchar safe_char[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 00 - 0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 10 - 1F */
 	/* !"$%&'()*+,-./  EXCLUSION:0x20( ) 0x23(#) */
@@ -327,10 +327,10 @@ static void mtree_quote(struct archive_string * s, const char * str)
 {
 	const char * start;
 	char buf[4];
-	unsigned char c;
+	uchar c;
 
 	for(start = str; *str != '\0'; ++str) {
-		if(safe_char[*(const unsigned char*)str])
+		if(safe_char[*(const uchar *)str])
 			continue;
 		if(start != str)
 			archive_strncat(s, start, str - start);
@@ -564,7 +564,7 @@ static void write_global(struct mtree_writer * mtree)
 
 static struct attr_counter * attr_counter_new(struct mtree_entry * me, struct attr_counter * prev)                               
 {
-	struct attr_counter * ac = static_cast<struct attr_counter *>(malloc(sizeof(*ac)));
+	struct attr_counter * ac = static_cast<struct attr_counter *>(SAlloc::M(sizeof(*ac)));
 	if(ac != NULL) {
 		ac->prev = prev;
 		ac->next = NULL;
@@ -582,7 +582,7 @@ static void attr_counter_free(struct attr_counter ** top)
 	ac = *top;
 	while(ac != NULL) {
 		tac = ac->next;
-		free(ac);
+		SAlloc::F(ac);
 		ac = tac;
 	}
 	*top = NULL;
@@ -774,7 +774,7 @@ static int mtree_entry_new(struct archive_write * a, struct archive_entry * entr
 	static const struct archive_rb_tree_ops rb_ops = {
 		mtree_entry_cmp_node, mtree_entry_cmp_key
 	};
-	struct mtree_entry * me = static_cast<struct mtree_entry *>(calloc(1, sizeof(*me)));
+	struct mtree_entry * me = static_cast<struct mtree_entry *>(SAlloc::C(1, sizeof(*me)));
 	if(me == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a mtree entry");
 		*m_entry = NULL;
@@ -810,7 +810,7 @@ static int mtree_entry_new(struct archive_write * a, struct archive_entry * entr
 	me->ino = archive_entry_ino(entry);
 	me->size = archive_entry_size(entry);
 	if(me->filetype == AE_IFDIR) {
-		me->dir_info = static_cast<struct dir_info *>(calloc(1, sizeof(*me->dir_info)));
+		me->dir_info = static_cast<struct dir_info *>(SAlloc::C(1, sizeof(*me->dir_info)));
 		if(me->dir_info == NULL) {
 			mtree_entry_free(me);
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a mtree entry");
@@ -823,7 +823,7 @@ static int mtree_entry_new(struct archive_write * a, struct archive_entry * entr
 		me->dir_info->chnext = NULL;
 	}
 	else if(me->filetype == AE_IFREG) {
-		me->reg_info = static_cast<struct reg_info *>(calloc(1, sizeof(*me->reg_info)));
+		me->reg_info = static_cast<struct reg_info *>(SAlloc::C(1, sizeof(*me->reg_info)));
 		if(me->reg_info == NULL) {
 			mtree_entry_free(me);
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a mtree entry");
@@ -846,9 +846,9 @@ static void mtree_entry_free(struct mtree_entry * me)
 	archive_string_free(&me->uname);
 	archive_string_free(&me->gname);
 	archive_string_free(&me->fflags_text);
-	free(me->dir_info);
-	free(me->reg_info);
-	free(me);
+	SAlloc::F(me->dir_info);
+	SAlloc::F(me->reg_info);
+	SAlloc::F(me);
 }
 
 static int archive_write_mtree_header(struct archive_write * a, struct archive_entry * entry)
@@ -1237,7 +1237,7 @@ static int archive_write_mtree_free(struct archive_write * a)
 	archive_string_free(&mtree->ebuf);
 	archive_string_free(&mtree->buf);
 	attr_counter_set_free(mtree);
-	free(mtree);
+	SAlloc::F(mtree);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }
@@ -1309,17 +1309,13 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 			    keybit = F_RMD160;
 		    break;
 		case 's':
-		    if(strcmp(key, "sha1") == 0 ||
-			strcmp(key, "sha1digest") == 0)
+		    if(strcmp(key, "sha1") == 0 || strcmp(key, "sha1digest") == 0)
 			    keybit = F_SHA1;
-		    if(strcmp(key, "sha256") == 0 ||
-			strcmp(key, "sha256digest") == 0)
+		    if(strcmp(key, "sha256") == 0 || strcmp(key, "sha256digest") == 0)
 			    keybit = F_SHA256;
-		    if(strcmp(key, "sha384") == 0 ||
-			strcmp(key, "sha384digest") == 0)
+		    if(strcmp(key, "sha384") == 0 || strcmp(key, "sha384digest") == 0)
 			    keybit = F_SHA384;
-		    if(strcmp(key, "sha512") == 0 ||
-			strcmp(key, "sha512digest") == 0)
+		    if(strcmp(key, "sha512") == 0 || strcmp(key, "sha512digest") == 0)
 			    keybit = F_SHA512;
 		    if(strcmp(key, "size") == 0)
 			    keybit = F_SIZE;
@@ -1362,7 +1358,7 @@ static int archive_write_set_format_mtree_default(struct archive * _a, const cha
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, fn);
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-	if((mtree = static_cast<struct mtree_writer *>(calloc(1, sizeof(*mtree)))) == NULL) {
+	if((mtree = static_cast<struct mtree_writer *>(SAlloc::C(1, sizeof(*mtree)))) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate mtree data");
 		return ARCHIVE_FATAL;
 	}
@@ -1516,7 +1512,7 @@ static void sum_update(struct mtree_writer * mtree, const void * buff, size_t n)
 static void sum_final(struct mtree_writer * mtree, struct reg_info * reg)
 {
 	if(mtree->compute_sum & F_CKSUM) {
-		uint64_t len;
+		uint64 len;
 		/* Include the length of the file. */
 		for(len = mtree->crc_len; len != 0; len >>= 8)
 			COMPUTE_CRC(mtree->crc, len & 0xff);
@@ -1553,7 +1549,7 @@ static void sum_final(struct mtree_writer * mtree, struct reg_info * reg)
 #if defined(ARCHIVE_HAS_MD5) || defined(ARCHIVE_HAS_RMD160) || \
 	defined(ARCHIVE_HAS_SHA1) || defined(ARCHIVE_HAS_SHA256) || \
 	defined(ARCHIVE_HAS_SHA384) || defined(ARCHIVE_HAS_SHA512)
-static void strappend_bin(struct archive_string * s, const unsigned char * bin, int n)
+static void strappend_bin(struct archive_string * s, const uchar * bin, int n)
 {
 	static const char hex[] = "0123456789abcdef";
 	int i;
@@ -1939,7 +1935,7 @@ static int get_path_component(char * name, size_t n, const char * fn)
 static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** filep)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	char name[_MAX_FNAME];/* Included null terminator size. */
+	char name[_MAX_FNAME]; /* Included null terminator size. */
 #elif defined(NAME_MAX) && NAME_MAX >= 255
 	char name[NAME_MAX+1];
 #else

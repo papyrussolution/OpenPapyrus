@@ -1084,7 +1084,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    /*
 		     * Custom pointer to pass the header write callback function
 		     */
-		    data->set.writeheader = (void*)va_arg(param, void *);
+		    data->set.writeheader = (void *)va_arg(param, void *);
 		    break;
 		case CURLOPT_ERRORBUFFER:
 		    /*

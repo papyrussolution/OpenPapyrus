@@ -31,16 +31,16 @@
  *      reads a line, does all the 'index' and 'using' manipulation
  *      deposits values into vector[]
  *      returns
- *          number of columns parsed  [0 = not a blank line, but no valid data],
- *          DF_EOF - end of file
- *          DF_UNDEFINED - undefined result during eval of extended using spec
- *          DF_MISSING - requested column matched that of 'set missing <foo>'
- *          DF_FIRST_BLANK - first consecutive blank line
- *          DF_SECOND_BLANK - second consecutive blank line
- *          DF_FOUND_KEY_TITLE  - only relevant to first line of data
- *          DF_KEY_TITLE_MISSING  and only for 'set key autotitle columnhead'
- *          DF_STRINGDATA - not currently used by anyone
- *          DF_COLUMN_HEADERS - first row used as headers rather than data
+ *    number of columns parsed  [0 = not a blank line, but no valid data],
+ *    DF_EOF - end of file
+ *    DF_UNDEFINED - undefined result during eval of extended using spec
+ *    DF_MISSING - requested column matched that of 'set missing <foo>'
+ *    DF_FIRST_BLANK - first consecutive blank line
+ *    DF_SECOND_BLANK - second consecutive blank line
+ *    DF_FOUND_KEY_TITLE  - only relevant to first line of data
+ *    DF_KEY_TITLE_MISSING  and only for 'set key autotitle columnhead'
+ *    DF_STRINGDATA - not currently used by anyone
+ *    DF_COLUMN_HEADERS - first row used as headers rather than data
  *
  * if a using spec was given, lines not fulfilling spec are ignored.
  * we will always return exactly the number of items specified
@@ -93,7 +93,7 @@ enum COLUMN_TYPE {
 
 /*{{{  static fns */
 //static int  check_missing(const char * s);
-static bool valid_format(const char *);
+//static bool valid_format(const char *);
 //static int  axcol_for_ticlabel(enum COLUMN_TYPE type, int * axis);
 
 #define DATA_LINE_BUFSIZ 160
@@ -111,9 +111,9 @@ static bool valid_format(const char *);
 //static void initialize_use_spec();
 //static void df_insert_scanned_use_spec(int);
 //static void clear_binary_records(df_records_type);
-static bool rotation_matrix_2D(double R[][2], double);
-static bool rotation_matrix_3D(double P[][3], double *);
-static void df_swap_bytes_by_endianess(char *, int, int);
+//static bool rotation_matrix_2D(double R[][2], double);
+//static bool rotation_matrix_3D(double P[][3], double *);
+//static void df_swap_bytes_by_endianess(char *, int, int);
 
 const char * df_endian[DF_ENDIAN_TYPE_LENGTH] = { "little", "pdp (middle)", "swapped pdp (dimmle)", "big" };
 
@@ -1248,6 +1248,41 @@ void GnuPlot::PlotOptionIndex()
 			_Df.df_upper_index = _Df.df_lower_index;
 	}
 }
+// 
+// formerly in misc.c, but only used here 
+// check user defined format strings for valid double conversions 
+// HBB 20040601: Added check that the number of format specifiers is
+// workable (between 0 and 7) 
+// 
+static bool valid_format(const char * format)
+{
+	int formats_found = 0;
+	if(!format)
+		return false;
+	for(;;) {
+		if(!(format = strchr(format, '%'))) /* look for format spec  */
+			return (formats_found > 0 && formats_found <= 7);
+		// Found a % to check --- scan past option specifiers: 
+		do {
+			format++;
+		} while(*format && strchr("+-#0123456789.", *format));
+		// Now at format modifier 
+		switch(*format) {
+			case '*': /* Ignore '*' statements */
+			case '%': /* Char   '%' itself     */
+			    format++;
+			    continue;
+			case 'l': /* Now we found it !!! */
+			    if(!strchr("fFeEgG", format[1])) /* looking for a valid format */
+				    return false;
+			    formats_found++;
+			    format++;
+			    break;
+			default:
+			    return false;
+		}
+	}
+}
 
 //static void plot_option_using(int max_using)
 void GnuPlot::PlotOptionUsing(int max_using)
@@ -1848,8 +1883,8 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 					else if((_Df.df_current_plot && _Df.df_current_plot->plot_style == POLYGONS && _Df.df_no_use_specs && column == _Df.df_no_cols+1)) {
 						/* DEBUG - the idea here is to forgive a missing color value in
-						 *         polygon vertices after the first one. The test is not
-						 *         quite correct since we don't track the vertex number.
+						 *   polygon vertices after the first one. The test is not
+						 *   quite correct since we don't track the vertex number.
 						 */
 						v[output] = fgetnan();
 					}
@@ -1927,6 +1962,31 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 
 char * read_error_msg = "Data file read error";
 double df_matrix_corner[2][2]; /* First argument is corner, second argument is x (0) or y(1). */
+
+void df_swap_bytes_by_endianess(char * data, int read_order, int read_size)
+{
+	if((read_order == DF_3210)
+#if SUPPORT_MIDDLE_ENDIAN
+	    || (read_order == DF_2301)
+#endif
+	    ) {
+		int k = read_size - 1;
+		for(int j = 0; j < k; j++, k--) {
+			char temp = data[j];
+			data[j] = data[k];
+			data[k] = temp;
+		}
+	}
+#if SUPPORT_MIDDLE_ENDIAN
+	if(oneof2(read_order, DF_1032, DF_2301)) {
+		for(int j = read_size - 1; j > 0; j -= 2) {
+			char temp = data[j-1];
+			data[j-1] = data[j];
+			data[j] = temp;
+		}
+	}
+#endif
+}
 
 //static double df_read_a_float(FILE * fin) 
 double GnuPlot::DfReadAFloat(FILE * fin)
@@ -2360,42 +2420,6 @@ int GnuPlot::CheckMissing(const char * s)
 		return 1;
 	return 0;
 }
-
-/*}}} */
-
-/* formerly in misc.c, but only used here */
-/* check user defined format strings for valid double conversions */
-/* HBB 20040601: Added check that the number of format specifiers is
- * workable (between 0 and 7) */
-static bool valid_format(const char * format)
-{
-	int formats_found = 0;
-	if(!format)
-		return false;
-	for(;;) {
-		if(!(format = strchr(format, '%'))) /* look for format spec  */
-			return (formats_found > 0 && formats_found <= 7);
-		// Found a % to check --- scan past option specifiers: 
-		do {
-			format++;
-		} while(*format && strchr("+-#0123456789.", *format));
-		// Now at format modifier 
-		switch(*format) {
-			case '*': /* Ignore '*' statements */
-			case '%': /* Char   '%' itself     */
-			    format++;
-			    continue;
-			case 'l': /* Now we found it !!! */
-			    if(!strchr("fFeEgG", format[1])) /* looking for a valid format */
-				    return false;
-			    formats_found++;
-			    format++;
-			    break;
-			default:
-			    return false;
-		}
-	}
-}
 // 
 // Plotting routines can call this prior to invoking df_readline() to indicate
 // that they expect a certain column to contain an ascii string rather than a number.
@@ -2559,14 +2583,15 @@ void GnuPlot::AddKeyEntry(char * pTempString, int dfDatum)
 	_Df.df_current_plot->labels->next = p_new_entry;
 	FPRINTF((stderr, "add_key_entry( \"%s\", %d )\n", p_new_entry->text, p_new_entry->tag));
 }
-
-/* Construct 2D rotation matrix. */
-/* R - Matrix to construct. */
-/* alpha - Rotation angle. */
-/* return - TRUE means a translation is required. */
+// 
+// Construct 2D rotation matrix.
+// R - Matrix to construct.
+// alpha - Rotation angle.
+// return - TRUE means a translation is required. 
+// 
 bool rotation_matrix_2D(double R[][2], double alpha)
 {
-	static double I[2][2] = {{1, 0}, {0, 1}};
+	static const double I[2][2] = {{1, 0}, {0, 1}};
 #define ANGLE_TOLERANCE 0.001
 	if(fabs(alpha) < ANGLE_TOLERANCE) {
 		/* Zero angle.  Unity rotation. */
@@ -2581,14 +2606,15 @@ bool rotation_matrix_2D(double R[][2], double alpha)
 		return TRUE;
 	}
 }
-
-/* Construct 3D rotation matrix. */
-/* P - Matrix to construct. */
-/* p - Pointer to perpendicular vector. */
-/* return - TRUE means a translation is required. */
+// 
+// Construct 3D rotation matrix. 
+// P - Matrix to construct. 
+// p - Pointer to perpendicular vector. 
+// return - TRUE means a translation is required. 
+// 
 bool rotation_matrix_3D(double P[][3], double * p)
 {
-	static double I[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+	static const double I[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	double scale, C1, C2;
 #define x p[0]
 #define y p[1]
@@ -3984,31 +4010,6 @@ void df_show_filetypes(FILE * fp)
 	}
 	/*for(int i = 0; df_bin_filetype_table[i].key;) fprintf(fp, "\t  %s", df_bin_filetype_table[i++].key);*/
 	fputs("\n", fp);
-}
-
-void df_swap_bytes_by_endianess(char * data, int read_order, int read_size)
-{
-	if((read_order == DF_3210)
-#if SUPPORT_MIDDLE_ENDIAN
-	    || (read_order == DF_2301)
-#endif
-	    ) {
-		int k = read_size - 1;
-		for(int j = 0; j < k; j++, k--) {
-			char temp = data[j];
-			data[j] = data[k];
-			data[k] = temp;
-		}
-	}
-#if SUPPORT_MIDDLE_ENDIAN
-	if(oneof2(read_order, DF_1032, DF_2301)) {
-		for(int j = read_size - 1; j > 0; j -= 2) {
-			char temp = data[j-1];
-			data[j-1] = data[j];
-			data[j] = temp;
-		}
-	}
-#endif
 }
 
 //static int df_skip_bytes(off_t nbytes)

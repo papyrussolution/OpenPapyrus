@@ -51,7 +51,7 @@ FT_BEGIN_HEADER
 //#define FALSE  0
 //#endif
 //#ifndef NULL
-//#define NULL  (void*)0
+//#define NULL  (void *)0
 //#endif
 /**************************************************************************
  *
@@ -93,18 +93,18 @@ FT_BEGIN_HEADER
  * character classification functions -- since these are used to parse font
  * files, we must not use those in <ctypes.h> which are locale-dependent
  */
-#define  ft_isdigit(x)   (((unsigned)(x) - '0' ) < 10U )
-#define  ft_isxdigit(x)  (((unsigned)(x) - '0' ) < 10U || ((unsigned)(x) - 'a' ) < 6U  || ((unsigned)(x) - 'A' ) < 6U)
+#define  ft_isdigit(x)   (((uint)(x) - '0' ) < 10U )
+#define  ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U  || ((uint)(x) - 'A' ) < 6U)
 
 /* the next two macros assume ASCII representation */
-#define  ft_isupper(x)  ( ( (unsigned)(x) - 'A' ) < 26U )
-#define  ft_islower(x)  ( ( (unsigned)(x) - 'a' ) < 26U )
+#define  ft_isupper(x)  ( ( (uint)(x) - 'A' ) < 26U )
+#define  ft_islower(x)  ( ( (uint)(x) - 'a' ) < 26U )
 #define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x) )
 #define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x) )
 
-/*************************************************************************/
+// 
 /****                       C H A R M A P S                           ****/
-/*************************************************************************/
+// 
 
 /* handle to internal charmap object */
 typedef struct FT_CMapRec_*              FT_CMap;
@@ -378,7 +378,7 @@ typedef struct  FT_Slot_InternalRec_ {
 	FT_Bool glyph_transformed;
 	FT_Matrix glyph_matrix;
 	FT_Vector glyph_delta;
-	void*           glyph_hints;
+	void * glyph_hints;
 
 	FT_Int32 load_flags;
 } FT_GlyphSlot_InternalRec;
@@ -404,15 +404,15 @@ typedef struct  FT_Slot_InternalRec_ {
  */
 
 typedef struct  FT_Size_InternalRec_ {
-	void*  module_data;
+	void *  module_data;
 
 	FT_Render_Mode autohint_mode;
 	FT_Size_Metrics autohint_metrics;
 } FT_Size_InternalRec;
 
-/*************************************************************************/
+// 
 /****                         M O D U L E S                           ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -511,9 +511,9 @@ ft_property_string_set(FT_Library library,
 
 /* */
 
-/*************************************************************************/
+// 
 /****   F A C E,   S I Z E   &   G L Y P H   S L O T   O B J E C T S  ****/
-/*************************************************************************/
+// 
 
 /* a few macros used to perform easy typecasts with minimal brain damage */
 
@@ -632,9 +632,9 @@ FT_BASE(void)
 ft_glyphslot_set_bitmap(FT_GlyphSlot slot,
     FT_Byte*      buffer);
 
-/*************************************************************************/
+// 
 /****                        R E N D E R E R S                        ****/
-/*************************************************************************/
+// 
 
 #define FT_RENDERER(x)       ( (FT_Renderer)(x) )
 #define FT_GLYPH(x)          ( (FT_Glyph)(x) )
@@ -652,9 +652,9 @@ typedef struct  FT_RendererRec_ {
 	FT_Renderer_RenderFunc render;
 } FT_RendererRec;
 
-/*************************************************************************/
+// 
 /****                    F O N T   D R I V E R S                      ****/
-/*************************************************************************/
+// 
 
 /* typecast a module into a driver easily */
 #define FT_DRIVER(x)  ( (FT_Driver)(x) )
@@ -693,9 +693,9 @@ typedef struct  FT_DriverRec_ {
 	FT_GlyphLoader glyph_loader;
 } FT_DriverRec;
 
-/*************************************************************************/
+// 
 /****                       L I B R A R I E S                         ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *

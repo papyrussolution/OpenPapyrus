@@ -181,7 +181,7 @@ static char * FASTCALL inet_ntop6(const uchar * src, char * dst, size_t size)
 // actual last winsock error. So use macro ERRNO to fetch the
 // errno this function sets when returning NULL, not SOCKERRNO.
 // 
-char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize)
+char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize)
 {
 	switch(af) {
 		case AF_INET: return inet_ntop4((const uchar *)pSrc, pBuf, bufSize);

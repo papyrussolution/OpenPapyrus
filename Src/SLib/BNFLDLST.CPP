@@ -1,5 +1,5 @@
 // BNFLDLST.CPP
-// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -19,7 +19,7 @@ int BNField::IsEqual(const BNField & rS, int nameAndTypeOnly) const
 	return 1;
 }
 
-int FASTCALL BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSize) const
+int BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSize) const
 {
 	if(pDataBuf && pBuf) {
 		const size_t sz = stsize(T);

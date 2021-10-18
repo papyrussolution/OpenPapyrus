@@ -146,7 +146,7 @@ static const char * getASN1Element(struct Curl_asn1Element * elem, const char * 
 		elem->end = beg;
 		return beg + 1;
 	}
-	else if((unsigned)b > (size_t)(end - beg))
+	else if((uint)b > (size_t)(end - beg))
 		return NULL; /* Does not fit in source. */
 	else {
 		/* Get long length. */

@@ -34,8 +34,8 @@ __FBSDID("$FreeBSD$");
 #include "archive_write_set_format_private.h"
 
 struct v7tar {
-	uint64_t entry_bytes_remaining;
-	uint64_t entry_padding;
+	uint64 entry_bytes_remaining;
+	uint64 entry_padding;
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
 	int init_default_conversion;
@@ -118,9 +118,9 @@ static int      archive_write_v7tar_header(struct archive_write *,
     struct archive_entry * entry);
 static int      archive_write_v7tar_options(struct archive_write *,
     const char *, const char *);
-static int      format_256(int64_t, char *, int);
-static int      format_number(int64_t, char *, int size, int max, int strict);
-static int      format_octal(int64_t, char *, int);
+static int      format_256(int64, char *, int);
+static int      format_number(int64, char *, int size, int max, int strict);
+static int      format_octal(int64, char *, int);
 static int      format_header_v7tar(struct archive_write *, char h[512],
     struct archive_entry *, int, struct archive_string_conv *);
 
@@ -147,7 +147,7 @@ int archive_write_set_format_v7tar(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 
-	v7tar = (struct v7tar *)calloc(1, sizeof(*v7tar));
+	v7tar = (struct v7tar *)SAlloc::C(1, sizeof(*v7tar));
 	if(v7tar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate v7tar data");
@@ -322,7 +322,7 @@ static int archive_write_v7tar_header(struct archive_write * a, struct archive_e
 		ret = ret2;
 
 	v7tar->entry_bytes_remaining = archive_entry_size(entry);
-	v7tar->entry_padding = 0x1ff & (-(int64_t)v7tar->entry_bytes_remaining);
+	v7tar->entry_padding = 0x1ff & (-(int64)v7tar->entry_bytes_remaining);
 	archive_entry_free(entry_main);
 	return ret;
 }
@@ -492,11 +492,11 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 /*
  * Format a number into a field, with some intelligence.
  */
-static int format_number(int64_t v, char * p, int s, int maxsize, int strict)
+static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 {
-	int64_t limit;
+	int64 limit;
 
-	limit = ((int64_t)1 << (s*3));
+	limit = ((int64)1 << (s*3));
 
 	/* "Strict" only permits octal values with proper termination. */
 	if(strict)
@@ -524,7 +524,7 @@ static int format_number(int64_t v, char * p, int s, int maxsize, int strict)
 /*
  * Format a number into the specified field using base-256.
  */
-static int format_256(int64_t v, char * p, int s)
+static int format_256(int64 v, char * p, int s)
 {
 	p += s;
 	while(s-- > 0) {
@@ -538,7 +538,7 @@ static int format_256(int64_t v, char * p, int s)
 /*
  * Format a number into the specified field.
  */
-static int format_octal(int64_t v, char * p, int s)
+static int format_octal(int64 v, char * p, int s)
 {
 	int len;
 
@@ -577,7 +577,7 @@ static int archive_write_v7tar_free(struct archive_write * a)
 	struct v7tar * v7tar;
 
 	v7tar = (struct v7tar *)a->format_data;
-	free(v7tar);
+	SAlloc::F(v7tar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

@@ -296,7 +296,7 @@ Usage: set terminal mif [options]\n\
 			    break;
 		}
 	}
-	sprintf(GPT.TermOptions, "%s %s", (mif_colour == TRUE) ? "colour" : "monochrome", (mif_polyline == TRUE) ? "polyline" : "vectors");
+	slprintf(GPT._TermOptions, "%s %s", (mif_colour == TRUE) ? "colour" : "monochrome", (mif_polyline == TRUE) ? "polyline" : "vectors");
 }
 
 /* Deallocate the used line structure elements */

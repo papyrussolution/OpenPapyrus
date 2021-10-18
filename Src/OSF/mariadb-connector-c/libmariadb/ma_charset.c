@@ -234,9 +234,8 @@ static unsigned int mysql_mbcharlen_utf8(unsigned int utf8)
 /* }}} */
 
 /* {{{ big5 functions */
-#define valid_big5head(c)  (0xA1 <= (unsigned int)(c) && (unsigned int)(c) <= 0xF9)
-#define valid_big5tail(c)  ((0x40 <= (unsigned int)(c) && (unsigned int)(c) <= 0x7E) || \
-	(0xA1 <= (unsigned int)(c) && (unsigned int)(c) <= 0xFE))
+#define valid_big5head(c)  (0xA1 <= (uint)(c) && (uint)(c) <= 0xF9)
+#define valid_big5tail(c)  ((0x40 <= (uint)(c) && (uint)(c) <= 0x7E) || (0xA1 <= (uint)(c) && (uint)(c) <= 0xFE))
 
 #define isbig5code(c, d) (isbig5head(c) && isbig5tail(d))
 
@@ -258,8 +257,7 @@ static unsigned int mysql_mbcharlen_big5(unsigned int big5)
 
 static unsigned int check_mb_cp932(const char * start, const char * end)
 {
-	return (valid_cp932head((uchar)start[0]) && (end - start >  1) &&
-	       valid_cp932tail((uchar)start[1])) ? 2 : 0;
+	return (valid_cp932head((uchar)start[0]) && (end - start >  1) && valid_cp932tail((uchar)start[1])) ? 2 : 0;
 }
 
 static unsigned int mysql_mbcharlen_cp932(unsigned int cp932)
@@ -336,8 +334,8 @@ static unsigned int mysql_mbcharlen_eucjpms(unsigned int jpms)
 
 static unsigned int check_mb_gb2312(const char * start, const char * end)
 {
-	return (valid_gb2312_head((unsigned int)start[0]) && end - start > 1 &&
-	       valid_gb2312_tail((unsigned int)start[1])) ? 2 : 0;
+	return (valid_gb2312_head((uint)start[0]) && end - start > 1 &&
+	       valid_gb2312_tail((uint)start[1])) ? 2 : 0;
 }
 
 static unsigned int mysql_mbcharlen_gb2312(unsigned int gb)
@@ -463,10 +461,10 @@ static uint mysql_mbcharlen_utf32(unsigned int utf32 __attribute((unused)))
 /* }}} */
 
 /* {{{ gb18030 functions */
-#define is_gb18030_odd(c)          (0x81 <= (unsigned char)(c) && (unsigned char)(c) <= 0xFE)
-#define is_gb18030_even_2(c)       ((0x40 <= (unsigned char)(c) && (unsigned char)(c) <= 0x7E) || \
-	(0x80 <= (unsigned char)(c) && (unsigned char)(c) <= 0xFE))
-#define is_gb18030_even_4(c)       (0x30 <= (unsigned char)(c) && (unsigned char)(c) <= 0x39)
+#define is_gb18030_odd(c)          (0x81 <= (uchar)(c) && (uchar)(c) <= 0xFE)
+#define is_gb18030_even_2(c)       ((0x40 <= (uchar)(c) && (uchar)(c) <= 0x7E) || \
+	(0x80 <= (uchar)(c) && (uchar)(c) <= 0xFE))
+#define is_gb18030_even_4(c)       (0x30 <= (uchar)(c) && (uchar)(c) <= 0x39)
 
 static unsigned int mysql_mbcharlen_gb18030(unsigned int c)
 {
@@ -1078,7 +1076,7 @@ struct st_madb_os_charset {
 	const char * description;
 	const char * charset;
 	const char * iconv_cs;
-	unsigned char supported;
+	uchar supported;
 };
 
 #define MADB_CS_UNSUPPORTED 0

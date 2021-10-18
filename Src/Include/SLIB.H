@@ -373,18 +373,24 @@
 	// @v10.9.1 #define SFAR
 	#define SLAPI_unused    // (since @v10.9.1 unused) __stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
 		// снижает скорость работы member-функция из-за того, что this передается на стеке, а не в регистре
-	#define SLAPIV   __cdecl
-	#define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
+	// @v11.2.0 (moved to slport.h) #define STDCALL  __stdcall // @v11.2.0 не применять для member-функций: снижает производительность
+	// @v11.2.0 (moved to slport.h) #define SLAPIV   __cdecl
+	// @v11.2.0 (moved to slport.h) #define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
 		// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
 		// зрения оптимизации распределения регистров в вызывающих функциях.
+		// @v11.2.0 Небольшое изучение замены __fastcall на __stdcall показало: 
+		//  размер кода при такой замене снижается значительно, но общее быстродействие становиться на несколько процентов меньше.
+		//  Пока оставляем как было.
+		//  При этом есть резон standalone-функции с любым числом аргументом объявлять как __stdcall - это снизит общий размер кода.
 #else
 	#ifndef PASCAL
 		#define PASCAL           pascal
 	#endif
 	// @v10.9.1 #define SFAR                 far
 	#define SLAPI_unused         pascal SFAR // (since @v10.9.1 unused)
-	#define SLAPIV               cdecl SFAR
-	#define FASTCALL
+	// @v11.2.0 (moved to slport.h) #define STDCALL              // @v11.2.0
+	// @v11.2.0 (moved to slport.h) #define SLAPIV               cdecl SFAR
+	// @v11.2.0 (moved to slport.h) #define FASTCALL
 #endif
 #ifdef _MSC_VER
 	#define THREADLOCAL __declspec(thread)
@@ -421,7 +427,7 @@ typedef char                BCD4[4];
 typedef char                BCD8[8];
 typedef char                BCD10[10];
 typedef char   * BCD_T;
-typedef uint16              RECORDSIZE;
+typedef unsigned short      RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
 typedef int                 boolint; // @v10.5.2 Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
@@ -2288,7 +2294,7 @@ private:
 #define CALLEXCEPT()           goto __scatch;
 #define CALLEXCEPT_S(val)      {SLS.SetError(val);goto __scatch;}
 #define CALLEXCEPT_S_S(val,s)  {SLS.SetError(val, s);goto __scatch;}
-#define CALLEXCEPTV(val)       {*__sexcept=val;goto __scatch;}
+#define CALLEXCEPTV(val) {*__sexcept=val;goto __scatch;}
 #define THROW(expr)            {if(!(expr)){goto __scatch;}}
 #define THROWEC(expr)          {if(!!(expr)){goto __scatch;}}
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
@@ -3131,6 +3137,30 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	int    IsZero() const;
+	//
+	// Descr: Возвращает true если хоть один из компонентов экземпляра имеет значение NAN
+	//
+	bool   IsNan() const;
+	//
+	// Descr: Возвращает true если low == upp
+	//
+	bool   IsDegraded() const;
+	//
+	// Descr: Возвращает true если и low и upp строго больше нуля.
+	//
+	bool   IsPositive() const;
+	//
+	// Descr: Возвращает true если и low и upp строго меньше нуля.
+	//
+	bool   IsNegative() const;
+	//
+	// Descr: Возвращает true если low <= upp
+	//
+	bool   IsNormalized() const;
+	//
+	// Descr: Возвращает true если low < upp
+	//
+	bool   IsStrictlyNormalized() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	int    FASTCALL LessThan(double v) const;
 	int    FASTCALL GreaterThan(double v) const;
@@ -3149,12 +3179,12 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
 	//
-	int    Check(double v) const;
+	bool   Check(double v) const;
 	//
 	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
 	//   если low <= upp, в противном случае - на принадлежность диапазону [upp..low].
 	//
-	int    CheckX(double v) const;
+	bool   CheckX(double v) const;
 	//
 	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
 	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
@@ -3179,6 +3209,15 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	RealRange & SetDelta(double lo, double delta);
 	RealRange & Scale(double sc);
+	RealRange & Normalize();
+	//
+	// Descr: Расширяет диапазон на величину delta в обе стороны.
+	//  То есть, после исполнения low = low-delta; upp = upp+delta
+	//  Note: Не проверяет валидность и упорядоченность low и upp
+	// Returns:
+	//  *this
+	//
+	RealRange & Extend(double delta);
 	//
 	// Descr: вызывает round(low, prec) и round(upp, prec)
 	//
@@ -3806,7 +3845,7 @@ public:
 	//     например: " -19  ..  38" будет воспринято как валидный диапазон.
 	// Note: Функция не обращает внимание на упорядоченность нижней и верхней границ. То есть,
 	//   строка "125..98" вернет диапазон [125:98] не меняя границы местами.
-	//   Для гарантированной упорядоченности границ можно использовать вызов ExchangeToOrder(&range.low, &range.upp).
+	//   Для гарантированной упорядоченности границ можно использовать вызов ExchangeForOrder(&range.low, &range.upp).
 	//   Кроме того, функция не проверяет значения чисел на переполнение.
 	// ARG(rRange OUT): Целочисленный диапазон, полученный в результате разбора строки
 	// ARG(flags  IN): Флаги, регулирующие возможные форматы. See SString::torfXXX
@@ -4014,14 +4053,14 @@ public:
 	//
 	// Descr: == Cat(LDATE, DATF_DMY)
 	//
-	SString & FASTCALL Cat(LDATE); // @v9.6.4
+	SString & FASTCALL Cat(LDATE);
 	//
 	// Descr: == Cat(LTIME, DATF_HMS)
 	//
-	SString & FASTCALL Cat(LTIME); // @v9.6.4
-	SString & FASTCALL Cat(const LDATETIME &, long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
-	SString & FASTCALL Cat(const DateRange &, int ext = 0);
-	SString & FASTCALL Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
+	SString & FASTCALL Cat(LTIME);
+	SString & Cat(const LDATETIME &, long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
+	SString & Cat(const DateRange &, int ext = 0);
+	SString & Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
 	//
 	// Descr: Конкатенация конструкции <text> с вариантами
 	// ARG(kind IN):
@@ -4050,8 +4089,8 @@ public:
 	//   если pos == this->Len(), то this->Insert(this->Len(), pStr) == this->Cat(pStr)
 	//
 	SString & Insert(size_t pos, const char * pStr);
-	SString & __cdecl Printf(const char * pFormat, ...);
-	SString & __cdecl VPrintf(const char * pFormat, va_list);
+	SString & CDECL Printf(const char * pFormat, ...);
+	SString & CDECL VPrintf(const char * pFormat, va_list);
 	//
 	// Descr: Добавляет в конец строки обратный слэш ('\\'). Если строка пустая или
 	//   в конце строки уже стоит '\\' или '/', то ничего не делает.
@@ -4111,7 +4150,7 @@ public:
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
 	SString & Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
 
-	void   FASTCALL Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
+	void   Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
 private:
 	int    FASTCALL Alloc(size_t);
 	SString & ShiftRight(size_t n, int padChar);
@@ -4125,7 +4164,7 @@ private:
 	//   { prev_len = this->Len(); assert(this->Len() == this->CharToQp(c) + prev_len); }
 	//
 	size_t FASTCALL CharToQp(char c);
-	bool   FASTCALL Helper_IsEqiAscii(const char * pS, size_t slen) const;
+	bool   Helper_IsEqiAscii(const char * pS, size_t slen) const;
 
 	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
@@ -4134,10 +4173,11 @@ private:
 
 int slvprintf(SString & rBuf, const char * pFormat, va_list va);
 int slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va);
-int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
-int cdecl slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...);
-int cdecl slfprintf(FILE *, const char * pFormat, ...);
-int cdecl slfprintf_stderr(const char * pFormat, ...);
+int CDECL slprintf(SString & rBuf, const char * pFormat, ...);
+int CDECL slprintf_cat(SString & rBuf, const char * pFormat, ...);
+int CDECL slsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, ...);
+int CDECL slfprintf(FILE *, const char * pFormat, ...);
+int CDECL slfprintf_stderr(const char * pFormat, ...);
 //
 //
 //
@@ -4179,20 +4219,20 @@ public:
 	//
 	wchar_t    FASTCALL C(size_t n) const;
 	SStringU & FASTCALL CatChar(wchar_t);
-	SStringU & FASTCALL CatN(const wchar_t * pS, size_t maxLen);
+	SStringU & CatN(const wchar_t * pS, size_t maxLen);
 	SStringU & FASTCALL CopyFrom(const SStringU & rS);
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
-	SStringU & FASTCALL CopyFromN(const wchar_t * pS, size_t maxLen);
-	SStringU & FASTCALL CopyFromMb(int cp, const char * pS, size_t srcLen);
+	SStringU & CopyFromN(const wchar_t * pS, size_t maxLen);
+	SStringU & CopyFromMb(int cp, const char * pS, size_t srcLen);
 	//
 	// Descr: Копирует мультибайт-строку pS в this предполагая, OUTER-кодировку pS.
 	//
-	SStringU & FASTCALL CopyFromMb_OUTER(const char * pS, size_t srcLen);
+	SStringU & CopyFromMb_OUTER(const char * pS, size_t srcLen);
 	//
 	// Descr: Копирует мультибайт-строку pS в this предполагая, INNER-кодировку pS.
 	//
-	SStringU & FASTCALL CopyFromMb_INNER(const char * pS, size_t srcLen);
-	wchar_t *  FASTCALL CopyTo(wchar_t * pS, size_t maxLen);
+	SStringU & CopyFromMb_INNER(const char * pS, size_t srcLen);
+	wchar_t *  CopyTo(wchar_t * pS, size_t maxLen);
 	SStringU & Sub(size_t startPos, size_t len, SStringU & rBuf) const;
 	int    FASTCALL CopyFromUtf8(const char * pSrc, size_t srcSize);
 	int    FASTCALL CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
@@ -4218,7 +4258,7 @@ public:
 	int64  ToInt64() const;
 private:
 	int    FASTCALL Alloc(size_t sz);
-	int    FASTCALL Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
+	int    Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
 
 	size_t L; // @firstmember
 	size_t Size;
@@ -4239,6 +4279,9 @@ public:
 	StringSet(char delim, const char * pBuf);
 	StringSet(const StringSet &);
 	~StringSet();
+	bool   FASTCALL IsEqual(const StringSet & rS) const;
+	bool   FASTCALL operator == (const StringSet & rS) const { return IsEqual(rS); }
+	bool   FASTCALL operator != (const StringSet & rS) const { return !IsEqual(rS); }
 	//
 	// Descr: Разрушает внутренний буфер экземпляра и обнуляет текущую длину данных (DataLen).
 	//   Параметр Delim (разделитель элементов) не меняет.
@@ -4266,8 +4309,8 @@ public:
 	void   FASTCALL setDelim(const char * pDelim);
 	uint   getDelimLen() const;
 	uint   getCount() const;
-	int    FASTCALL add(const char * pStr, uint * pPos);
-	int    FASTCALL add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
+	int    add(const char * pStr, uint * pPos);
+	int    add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
 	//
 	// Descr: Функция добавляет в конец набора новую строку pStr.
 	//   Единственное отличие от add(const char *, uint *) только в отсутствии последнего параметра.
@@ -4283,8 +4326,8 @@ public:
 	// Descr: возвращает длину подстроки, начинающейся в позиции pos.
 	//
 	size_t FASTCALL getLen(uint pos) const;
-	int    FASTCALL get(uint * pPos, char * pStr, size_t maxlen) const;
-	int    FASTCALL get(uint * pPos, SString &) const;
+	int    get(uint * pPos, char * pStr, size_t maxlen) const;
+	int    get(uint * pPos, SString &) const;
 	int    get(uint pos, SString & rBuf) const;
 	//
 	// Descr: Специализированный вариант функции get(uint, SString &). Если pos == 0,
@@ -4376,8 +4419,8 @@ struct SPathStruc {
 	//   0 - путь rPath не содержит расширения
 	//  !0 - позиция следующего за точкой первого символа расширения в rPath
 	//
-	static uint FASTCALL GetExt(const SString & rPath, SString * pExt);
-	static int  FASTCALL ReplaceExt(SString & rPath, const char * pExt, int force);
+	static uint GetExt(const SString & rPath, SString * pExt);
+	static int  ReplaceExt(SString & rPath, const char * pExt, int force);
 	static int  ReplacePath(SString & rPath, const char * pNewPath, int force);
 	static int  GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
 	//
@@ -4392,7 +4435,7 @@ struct SPathStruc {
 	//
 	// Descr: Унифицирует текстовое представление пути pPath. Результат переносится в rNormalizedPath
 	//
-	static SString & FASTCALL NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
+	static SString & NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
 	int    Invariant(SInvariantParam *);
 	SPathStruc();
 	//
@@ -4416,7 +4459,7 @@ struct SPathStruc {
 	//   -- Инвариант по отношению к лидирующей точке компонента Ext
 	//
 	int    FASTCALL Merge(SString & rBuf) const;
-	int    FASTCALL Merge(long mergeFlags, SString & rBuf) const;
+	int    Merge(long mergeFlags, SString & rBuf) const;
 	int    Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf);
 
 	enum {
@@ -4505,9 +4548,9 @@ void   fnmerge(char *, const char *, const char *, const char *nameP, const char
 // If maxlen == 0, then call strcpy(dest, src)
 // If (src == 0 && dest != 0) then dest[0] = 0;
 //
-char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
-char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
-char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
+char * STDCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
+char * STDCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
+char * STDCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 //
 // Descr: Копирует в конец строки pDest строку pSrc соблюдая ограничение на общий
 //   размер destSize буфера pDest.
@@ -4518,7 +4561,7 @@ char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 //   pDest
 //
 char * FASTCALL sstrncat(char * pDest, size_t destSize, const char * pSrc); // @v11.0.0
-wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
+wchar_t * STDCALL  strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
@@ -4527,9 +4570,9 @@ char * FASTCALL trimright(char * pStr);
 bool   FASTCALL isempty(const char * pStr); // BIN(pStr || pStr[0])
 bool   FASTCALL isempty(const uchar * pStr); // BIN(pStr || pStr[0])
 bool   FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
-size_t FASTCALL sstrlen(const char * pStr);
-size_t FASTCALL sstrlen(const uchar * pStr);
-size_t FASTCALL sstrlen(const wchar_t * pStr);
+FORCEINLINE size_t FASTCALL sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
+FORCEINLINE size_t FASTCALL sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
+FORCEINLINE size_t FASTCALL sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
 FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
@@ -4550,8 +4593,8 @@ wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
 //
 bool   FASTCALL sstreq(const char * pS1, const char * pS2);
 bool   FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
-bool   FASTCALL sstrneq(const char * pS1, const char * pS2, uint len);
-bool   FASTCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
+bool   STDCALL sstrneq(const char * pS1, const char * pS2, uint len);
+bool   STDCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 // Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
 //
@@ -4766,14 +4809,14 @@ extern const char   daysPerMonth[NUM_MONTHES];
 //
 // Functions for date formats convertion
 //
-void   FASTCALL _encodedate(int d, int m, int y, void *, int);
-void   FASTCALL _decodedate(int * pD, int * pM, int * pY, const void *, int);
-int    FASTCALL _checkdate(int d, int m, int y);
-char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
-void   FASTCALL encodedate(int, int, int, void *);
-void   FASTCALL decodedate(int *, int *, int *, const void *);
-void   decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
-void   encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
+void   STDCALL  _encodedate(int d, int m, int y, void *, int);
+void   STDCALL  _decodedate(int * pD, int * pM, int * pY, const void *, int);
+int    STDCALL  _checkdate(int d, int m, int y);
+char * STDCALL  _datefmt(int d, int m, int y, int format, char *);
+void   STDCALL  encodedate(int, int, int, void *);
+void   STDCALL  decodedate(int *, int *, int *, const void *);
+void   STDCALL  decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
+void   STDCALL  encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
 int    FASTCALL IsLeapYear(uint y);
 int    FASTCALL checkdate(const void * pBinDate);
 //
@@ -4794,7 +4837,7 @@ int    FASTCALL checktime(LTIME tm);
 #define MONF_CASEGEN   0x0004 // Полная форма (родительный падеж)
 #define MONF_OEM       0x0080 // OEM-coding
 
-SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf);
+SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf);
 //
 // Descr: Флаги функции strtoperiod
 //
@@ -4808,7 +4851,7 @@ enum {
 //   >0 - строка преобразована успешно
 //   0  - ошибка
 //
-int    FASTCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
+int    STDCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
 // Current date getting
 //
@@ -4817,11 +4860,11 @@ int    FASTCALL getcurtime(LTIME *);
 //
 // Descr: Возвращает текущую системную дату
 //
-LDATE  FASTCALL getcurdate_();
+LDATE  getcurdate_();
 //
 // Descr: Возвращает текущее системное время //
 //
-LTIME  FASTCALL getcurtime_();
+LTIME  getcurtime_();
 int    FASTCALL getcurdatetime(LDATETIME *);
 int    FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
 LDATETIME FASTCALL getcurdatetime_();
@@ -4830,8 +4873,8 @@ int    gettimezone();
 //
 // Date arithmetic
 //
-long   FASTCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
-void   FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
+long   STDCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
+void   STDCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest.
@@ -4844,8 +4887,8 @@ void   FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //
 void   _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
 int    FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
-long   FASTCALL diffdate(const void *, const void *, int _360);
-void   FASTCALL plusdate(void *, int, int _360);
+long   STDCALL diffdate(const void *, const void *, int _360);
+void   STDCALL plusdate(void *, int, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest. Функция считает, что бинарный формат представления даты pDest
@@ -4856,7 +4899,7 @@ void   FASTCALL plusdate(void *, int, int _360);
 // ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void   FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360);
+void   STDCALL plusperiod(void * pDest, int period, int numperiods, int _360);
 //
 // Descr: возвращает день недели, на который приходится дата pDate.
 // Parameters:
@@ -4891,16 +4934,16 @@ enum {
 	dowtRuFull,
 	dowtRuShrt
 };
-int    FASTCALL GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
+int    STDCALL  GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
 int    FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
 // @v10.0.02 int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
 // @v10.0.02 int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
-void   FASTCALL encodetime(int h, int m, int s, int ts, void *);
-void   FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
-LTIME  FASTCALL encodetime(int h, int m, int s, int ts);
+void   STDCALL encodetime(int h, int m, int s, int ts, void *);
+void   STDCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
+LTIME  STDCALL encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:
 		(dim == 1) : hours
@@ -4908,13 +4951,13 @@ LTIME  FASTCALL encodetime(int h, int m, int s, int ts);
 		(dim == 3) : seconds
 		(dim == 4) : thousandths of second
 */
-long   FASTCALL DiffTime(LTIME t1, LTIME t2, int dim);
-long   diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
-long   diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
-long   diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
+long   STDCALL  DiffTime(LTIME t1, LTIME t2, int dim);
+long   STDCALL  diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
+long   STDCALL  diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
+long   STDCALL  diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
 long   FASTCALL diffdatetimesec(const LDATETIME &, const LDATETIME &);
 LDATETIME FASTCALL plusdatetime(const LDATETIME &, long plus, int dim);
-LDATE  FASTCALL encodedate(int day, int month, int year);
+LDATE  STDCALL  encodedate(int day, int month, int year);
 LDATE  FASTCALL plusdate(LDATE d, long a);
 long   FASTCALL diffdate(LDATE d, LDATE s);
 char * FASTCALL _commfmt(long fmt, char * pBuf);
@@ -4953,7 +4996,7 @@ public:
 	// @returns  1  if value was successfully converted to string.
 	//   0  if there is not enough room in buffer or internal error happened during conversion.
 	//
-	static int FASTCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
+	static int STDCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
 	//
 	// Descr: Convert string to IEEE 754 floating-point double precision value
 	//   In general, interface of this function is similar to strtod(3), except for returning overflow
@@ -4971,12 +5014,12 @@ public:
 	//   1  if there were no internal errors
 	//   0  if there was internal error during conversion.
 	//
-	static int FASTCALL Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange);
+	static int STDCALL Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange);
 };
 
-char * FASTCALL realfmt(double val, long fmt, char * pBuf);
-char * FASTCALL intfmt(long val, long fmt, char * pBuf);
-char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
+char * STDCALL realfmt(double val, long fmt, char * pBuf);
+char * STDCALL intfmt(long val, long fmt, char * pBuf);
+char * STDCALL int64fmt(int64 val, long fmt, char * pBuf);
 //
 // Descr: форматирует длинное целое число val в строку pBuf
 //   Если numdigits > 0, то форматирутся с количеством символов равным numDigits
@@ -4985,15 +5028,15 @@ char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
 // Returns:
 //   pBuf
 //
-char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
-char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf);
-char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf);
-char * decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
-char * datefmt(const void *, long fmt, char *);
-char * timefmt(LTIME, long fmt, char *);
-char * datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
+char * STDCALL  longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
+char * STDCALL  uintfmt(ulong val, long fmt, char * pBuf);
+char * STDCALL  uint64fmt(uint64 val, long fmt, char * pBuf);
+char * STDCALL  decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
+char * STDCALL  datefmt(const void *, long fmt, char *);
+char * STDCALL  timefmt(LTIME, long fmt, char *);
+char * STDCALL  datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
 char * FASTCALL periodfmt(const DateRange *, char *);
-int    periodfmtex(const DateRange *, char *, size_t bufLen);
+int    STDCALL  periodfmtex(const DateRange *, char *, size_t bufLen);
 //
 // Descr: Флаги функции TimeZoneFmt
 //
@@ -5009,10 +5052,10 @@ enum {
 // Returns:
 //    rBuf
 //
-SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
-char * strfmt(const char * str, long fmt, char * buf);
+SString & STDCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
+char * STDCALL strfmt(const char * str, long fmt, char * buf);
 //char * numbertotext(double nmb, long fmt, char * pBuf);
-int    FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
+int    STDCALL  strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int    FASTCALL strtodoub(const char * pBuf, double *);
 int    FASTCALL strtolong(const char * pBuf, long *);
@@ -5051,9 +5094,9 @@ enum {
 //   недопустимым символом считаются две следующие одна за другой точки.
 // Returns: смещение от начала строки до первого после принятой даты символа.
 //
-int   FASTCALL _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
-int   FASTCALL strtodate(const char * pBuf, long fmt, void *);
-LDATE FASTCALL strtodate_(const char * pBuf, long fmt);
+int   STDCALL _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
+int   STDCALL strtodate(const char * pBuf, long fmt, void *);
+LDATE STDCALL strtodate_(const char * pBuf, long fmt);
 //
 // Descr: Заимствованная у CURL функция преобразования строки в дату/время.
 // Note: поскольку встроенная библиотека libcurl зависит от SLIB, то оригинальный код
@@ -5065,7 +5108,7 @@ time_t FASTCALL Sl_Curl_GetDate(const char * p);
 // Note: поскольку встроенная библиотека libcurl зависит от SLIB, то оригинальный код
 //   также использует эту функцию.
 //
-char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize);
+char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize);
 //
 // Descr: Преобразует строку pBuf в представление времени в формате LTIME
 //   Строка может иметь вид "hh:mm:ss:hs", где
@@ -5079,8 +5122,8 @@ char * FASTCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t 
 // Returns:
 //   1
 //
-int   FASTCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
-int   FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
+int   STDCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
+int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
 //
 // Descr: Обобщанная структура поля данных. Используется в основном для работы
 //   с таблицами баз данных.
@@ -5089,7 +5132,7 @@ int   FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, l
 struct BNField {
 	uint   size() const { return stsize(T); }
 	int    IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
-	int    FASTCALL getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
+	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    setValue(void * pDataBuf, const void * pValBuf) const;
 	int    putValueToString(const void * pDataBuf, char * pBuf) const;
 
@@ -5268,7 +5311,7 @@ int    FASTCALL createEmptyFile(const char * pFileName);
 char * MakeTempFileName(const char * pDir, const char * pPrefix,
 	const char * pExt, long * pStart, char * pFileNameBuf, size_t fileNameBufLen); // @obsolete
 */
-SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
 //
 // Descr: Searches a binary file for a string.
 //   @>>SearchStrInFile(Filename, startoffset, string, ignoreCase);
@@ -5526,16 +5569,16 @@ char * FASTCALL newStr(const char *);
 //
 void   FASTCALL Exchange(int * pA, int * pB);
 void   FASTCALL Exchange(uint * pA, uint * pB);
-void   FASTCALL ExchangeToOrder(int * pA, int * pB);
+void   FASTCALL ExchangeForOrder(int * pA, int * pB);
 void   FASTCALL Exchange(long * pA, long * pB);
 //
 // Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
 //   в противном случае ничего не делает
 //
-void   FASTCALL ExchangeToOrder(long * pA, long * pB);
+void   FASTCALL ExchangeForOrder(long * pA, long * pB);
 void   FASTCALL Exchange(ulong * pA, ulong * pB);
 void   FASTCALL Exchange(int16 * pA, int16 * pB);
-void   FASTCALL ExchangeToOrder(int16 * pA, int16 * pB);
+void   FASTCALL ExchangeForOrder(int16 * pA, int16 * pB);
 void   FASTCALL Exchange(int64 * pA, int64 * pB);
 void   FASTCALL Exchange(float * pA, float * pB);
 void   FASTCALL Exchange(double * pA, double * pB);
@@ -5543,7 +5586,7 @@ void   FASTCALL Exchange(double * pA, double * pB);
 // Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
 //   в противном случае ничего не делает
 //
-void   FASTCALL ExchangeToOrder(double * pA, double * pB);
+void   FASTCALL ExchangeForOrder(double * pA, double * pB);
 int    FASTCALL cmp_long(long a, long b);
 int    FASTCALL cmp_ulong(ulong a, ulong b);
 int    FASTCALL cmp_int64(int64 a, int64 b);
@@ -5551,11 +5594,11 @@ int    FASTCALL cmp_double(double a, double b);
 //
 // Decimal format (COBOL) functions
 //
-double FASTCALL dectobin(const char * dec, int16 len, int16 prec);
-char * FASTCALL dectostr(const char * dec, int16 len, int16 prec, char * buf);
-void   FASTCALL dectodec(double v, char * dec, int16 len, int16 prec);
-void   FASTCALL dectobcd(char * dec, char * bcd, int16 len);
-int    FASTCALL deccmp(const char * dc1, const char * dc2, int16 len);
+double STDCALL dectobin(const char * dec, int16 len, int16 prec);
+char * STDCALL dectostr(const char * dec, int16 len, int16 prec, char * buf);
+void   STDCALL dectodec(double v, char * dec, int16 len, int16 prec);
+void   STDCALL dectobcd(char * dec, char * bcd, int16 len);
+int    STDCALL deccmp(const char * dc1, const char * dc2, int16 len);
 //
 //
 //
@@ -6160,7 +6203,6 @@ public:
 	private:
 		struct ShaCtx {
 			ShaCtx & Z();
-			void   Sha256_Process(State * pS, const void * pData);
 			uint32 H[8];
 			uint64 Count;
 			uint32 Data[16];
@@ -6204,16 +6246,17 @@ public:
 	//     }
 	//     result = Func(&hs, 0, 0); // final
 	//
-	static uint8  FASTCALL CRC8(State * pS, const void * pData, size_t len);
-	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
-	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
-	static uint32 FASTCALL Adler32(State * pS, const void * pData, size_t len);
-	static binary128 FASTCALL Md5(State * pS, const void * pData, size_t len);
-	static binary160 FASTCALL Sha1(State * pS, const void * pData, size_t len);
-	static binary256 FASTCALL Sha256(State * pS, const void * pData, size_t len);
+	static uint8  STDCALL CRC8(State * pS, const void * pData, size_t len);
+	static uint32 STDCALL CRC24(State * pS, const void * pData, size_t len);
+	static uint32 STDCALL CRC32(State * pS, const void * pData, size_t len);
+	static uint32 STDCALL Adler32(State * pS, const void * pData, size_t len);
+	static binary128 STDCALL Md5(State * pS, const void * pData, size_t len);
+	static binary160 STDCALL Sha1(State * pS, const void * pData, size_t len);
+	static binary256 STDCALL Sha256(State * pS, const void * pData, size_t len);
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
 	static void FASTCALL Md5TransformHelper(State::Md5Ctx * pCtx);
+	static void __Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer);
 };
 //
 // Descr: Высокоуровневые функции для работы с шифрованием
@@ -6246,7 +6289,7 @@ public:
 		tagReplyStatus             = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
 		tagReplyStatusText         = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
 			// приветствие или иной малозначительный текст.
-		tatSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
+		tagSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
 		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
 			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
 		tagFace                    = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
@@ -6570,7 +6613,7 @@ uint32 FASTCALL parity32(uint32 v);
 //   count > 32 эквивалентно count == 32 (в отладочной версии вызывается assert(count <= 32)).
 //
 uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count);
-int    FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos);
+int    STDCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos);
 void   insbit(void * pBuf, size_t len, size_t);
 void   delbit(void * pBuf, size_t len, size_t);
 uint8  FASTCALL bitscanforward(uint32 * pIdx, uint32 mask);
@@ -6715,7 +6758,7 @@ struct SIntToSymbTabEntry {
 //   >0 - искомый элемент найден
 //   0  - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
 //
-int    FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+int    STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   (Id == id) и возвращает указатель на соответствующий символ (SIntToSymbTabEntry::P_Symb).
@@ -6723,11 +6766,11 @@ int    FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t ta
 //   !0 - указатель на символ, соответствующий идентификатору id
 //   0  - искомый элемент не найден либо заданному идентификатору соответствует нулевая строка.
 //
-const char * FASTCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
+const char * STDCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
 //
 // Descr: Возвращает true если таблица pTab содержит элемент с полем Id == id. В противном случае - false.
 //
-bool   FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
+bool   STDCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   P_Symb равное параметру pSymb (сравнение осуществляется функцией sstreqi_ascii).
@@ -6738,7 +6781,7 @@ bool   FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabS
 //   в противном случае 0.
 //   Если pSymb == 0 || pSymb[0] == 0, то возвращает 0.
 //
-int   FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
+int   STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb);
 //
 // Dynamic Array structures
 //
@@ -7497,7 +7540,7 @@ public:
 	//
 	int    FASTCALL addnz(long value);
 	int    FASTCALL addUnique(long);
-	int    SLAPIV addzlist(long first, ...);
+	int    CDECL    addzlist(long first, ...);
 	int    FASTCALL add(const LongArray *);
 	int    FASTCALL addUnique(const LongArray *);
 	//
@@ -9261,11 +9304,11 @@ public:
 		sslTLS_v13 = 7
 	};
 
-	static int     BigEndian();
-	static int     SGetModuleFileName(void * hModule, SString & rFileName);
-	static uint    SFormatMessage(int sysErrCode, SString & rMsg);
-	static uint    SFormatMessage(SString & rMsg);
-	static char    FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
+	static int  BigEndian();
+	static int  SGetModuleFileName(void * hModule, SString & rFileName);
+	static uint SFormatMessage(int sysErrCode, SString & rMsg);
+	static uint SFormatMessage(SString & rMsg);
+	static char FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
 	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
@@ -11067,12 +11110,13 @@ struct SJson {
 	const SJson * FASTCALL FindChildByKey(const char * pKey) const;
 	int    FASTCALL ToString(SString & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
-	int    FASTCALL Insert(const char * pTextLabel, SJson * pValue);
-	int    FASTCALL InsertString(const char * pTextLabel, const char * pStr);
-	int    FASTCALL InsertDouble(const char * pTextLabel, double val, long fmt);
-	int    FASTCALL InsertInt(const char * pTextLabel, int val);
-	int    FASTCALL InsertInt64(const char * pTextLabel, int64 val);
-	int    FASTCALL InsertBool(const char * pTextLabel, bool val);
+	int    Insert(const char * pTextLabel, SJson * pValue);
+	int    InsertString(const char * pTextLabel, const char * pStr);
+	int    InsertNumber(const char * pTextLabel, const char * pStr);
+	int    InsertDouble(const char * pTextLabel, double val, long fmt);
+	int    InsertInt(const char * pTextLabel, int val);
+	int    InsertInt64(const char * pTextLabel, int64 val);
+	int    InsertBool(const char * pTextLabel, bool val);
 	int    FASTCALL InsertNull(const char * pTextLabel);
 	int    FASTCALL InsertChild(SJson * pChild);
 
@@ -12297,6 +12341,10 @@ struct FRect { // @persistent
 	//   Если ширина равна нулю, то возвращает SMathConst::Max.
 	//
 	double Ratio() const;
+	//
+	// Descr: Возвращает площадь прямоугольника.
+	//
+	double Square() const;
 	FRect & FASTCALL Union(const FRect & rR);
 
 	SPoint2F a;
@@ -12384,7 +12432,7 @@ private:
 	FloatArray * P_List;
 };
 //
-//
+// 
 //
 class SPoint2I {
 public:
@@ -12400,7 +12448,12 @@ public:
 		y = _y;
 		return *this;
 	}
-	operator POINT() const;
+	//
+	// Descr: Так как этот класс бинарно совместим с Win32 POINT, то
+	//   следующий метод просто возвращает преобразованную ссылку на this.
+	//
+	operator POINT & ();
+	//operator POINT() const;
 	SPoint2I & Z();
 	int    x;
 	int    y;
@@ -12929,7 +12982,6 @@ public:
 	//   записи, но по указателю pData ничего не записывается.
 	//
 	int    Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
-
 	int    Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf);
 	int    Serialize(int dir, SString & rStr, SBuffer & rBuf);
 	int    Serialize(int dir, SStringU & rStr, SBuffer & rBuf);
@@ -13053,7 +13105,7 @@ private:
 class SSerializer {
 public:
 	SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    Serialize(TYPEID typ, void * pData, uint8 * pInd);
+	int    STDCALL  Serialize(TYPEID typ, void * pData, uint8 * pInd);
 	int    FASTCALL Serialize(SString & rStr);
 	int    FASTCALL Serialize(SStringU & rStr);
 	int    FASTCALL Serialize(int64 & rV);
@@ -13071,14 +13123,14 @@ public:
 	int    FASTCALL Serialize(float & rV);
 	int    FASTCALL Serialize(double & rV);
 	int    FASTCALL Serialize(S_GUID & rV);
-	int    Serialize(char * pV, size_t valBufLen);
-	int    SerializeFieldList(BNFieldList * pFldList);
+	int    STDCALL  Serialize(char * pV, size_t valBufLen);
+	int    FASTCALL SerializeFieldList(BNFieldList * pFldList);
 	int    FASTCALL Serialize(SPoint2S & rV);
 	int    FASTCALL Serialize(SPoint2F & rV);
 	int    FASTCALL Serialize(SArray * pArray);
 	int    FASTCALL Serialize(SStrCollection * pColl);
 	int    FASTCALL Serialize(StrAssocArray & rArray);
-	int    SerializeBlock(uint32 size, void * pData, int skipMissizedBlock);
+	int    STDCALL  SerializeBlock(uint32 size, void * pData, int skipMissizedBlock);
 private:
 	int    Dir;
 	SBuffer & R_Buf;
@@ -14185,7 +14237,7 @@ protected:
 	const  int SingleThreaded;
 	int64  StartClock; // время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
 	int64  EndClock;   // время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
-	uint64 ClockFrequency; // result of QueryPerformanceFrequency()
+	// @v11.2.0 uint64 ClockFrequency; // result of QueryPerformanceFrequency()
 	//
 	// Descr: Специализированный блок переменных, используемых только функцией Helper_GetAbsTimeMicroseconds
 	//

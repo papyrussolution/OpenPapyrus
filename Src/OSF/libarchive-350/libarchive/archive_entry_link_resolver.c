@@ -35,13 +35,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 200
  * match up links.  These strategies match those used by various
  * archiving formats:
  *   tar - content stored with first link, remainder refer back to it.
- *       This requires us to match each subsequent link up with the
- *       first appearance.
+ * This requires us to match each subsequent link up with the
+ * first appearance.
  *   cpio - Old cpio just stored body with each link, match-ups were
- *       implicit.  This is trivial.
+ * implicit.  This is trivial.
  *   new cpio - New cpio only stores body with last link, match-ups
- *       are implicit.  This is actually quite tricky; see the notes
- *       below.
+ * are implicit.  This is actually quite tricky; see the notes
+ * below.
  */
 
 /* Users pass us a format code, we translate that into a strategy here. */
@@ -85,13 +85,13 @@ struct archive_entry_linkresolver * archive_entry_linkresolver_new(void)
 	/* Check for positive power-of-two */
 	if(links_cache_initial_size == 0 || (links_cache_initial_size & (links_cache_initial_size - 1)) != 0)
 		return NULL;
-	res = static_cast<struct archive_entry_linkresolver *>(calloc(1, sizeof(struct archive_entry_linkresolver)));
+	res = static_cast<struct archive_entry_linkresolver *>(SAlloc::C(1, sizeof(struct archive_entry_linkresolver)));
 	if(res == NULL)
 		return NULL;
 	res->number_buckets = links_cache_initial_size;
-	res->buckets = static_cast<struct links_entry **>(calloc(res->number_buckets, sizeof(res->buckets[0])));
+	res->buckets = static_cast<struct links_entry **>(SAlloc::C(res->number_buckets, sizeof(res->buckets[0])));
 	if(res->buckets == NULL) {
-		free(res);
+		SAlloc::F(res);
 		return NULL;
 	}
 	return (res);
@@ -143,8 +143,8 @@ void archive_entry_linkresolver_free(struct archive_entry_linkresolver * res)
 
 	while((le = next_entry(res, NEXT_ENTRY_ALL)) != NULL)
 		archive_entry_free(le->entry);
-	free(res->buckets);
-	free(res);
+	SAlloc::F(res->buckets);
+	SAlloc::F(res);
 }
 
 void archive_entry_linkify(struct archive_entry_linkresolver * res,
@@ -241,13 +241,13 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 	struct links_entry      * le;
 	size_t hash, bucket;
 	dev_t dev;
-	int64_t ino;
+	int64 ino;
 
 	/* Free a held entry. */
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
-		free(res->spare);
+		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
 
@@ -293,7 +293,7 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
-		free(res->spare);
+		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
 	/* Look for next non-empty bucket in the links cache. */
@@ -323,7 +323,7 @@ static struct links_entry * insert_entry(struct archive_entry_linkresolver * res
 {
 	size_t hash, bucket;
 	/* Add this entry to the links cache. */
-	struct links_entry * le = static_cast<struct links_entry *>(calloc(1, sizeof(struct links_entry)));
+	struct links_entry * le = static_cast<struct links_entry *>(SAlloc::C(1, sizeof(struct links_entry)));
 	if(le == NULL)
 		return NULL;
 	le->canonical = archive_entry_clone(entry);
@@ -352,7 +352,7 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 	size_t new_size = res->number_buckets * 2;
 	if(new_size < res->number_buckets)
 		return;
-	new_buckets = static_cast<struct links_entry **>(calloc(new_size, sizeof(struct links_entry *)));
+	new_buckets = static_cast<struct links_entry **>(SAlloc::C(new_size, sizeof(struct links_entry *)));
 	if(new_buckets == NULL)
 		return;
 	for(i = 0; i < res->number_buckets; i++) {
@@ -371,7 +371,7 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 			new_buckets[bucket] = le;
 		}
 	}
-	free(res->buckets);
+	SAlloc::F(res->buckets);
 	res->buckets = new_buckets;
 	res->number_buckets = new_size;
 }
@@ -385,7 +385,7 @@ struct archive_entry * archive_entry_partial_links(struct archive_entry_linkreso
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
-		free(res->spare);
+		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
 

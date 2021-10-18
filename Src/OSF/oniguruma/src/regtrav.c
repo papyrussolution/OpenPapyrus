@@ -6,7 +6,7 @@
 
 #ifdef USE_CAPTURE_HISTORY
 
-static int capture_tree_traverse(OnigCaptureTreeNode* node, int at, int (* callback_func)(int, int, int, int, int, void*), int level, void* arg)
+static int capture_tree_traverse(OnigCaptureTreeNode* node, int at, int (* callback_func)(int, int, int, int, int, void*), int level, void * arg)
 {
 	int r, i;
 	if(node == (OnigCaptureTreeNode*)0)
@@ -28,7 +28,7 @@ static int capture_tree_traverse(OnigCaptureTreeNode* node, int at, int (* callb
 
 #endif /* USE_CAPTURE_HISTORY */
 
-extern int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void*), void* arg)
+extern int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void*), void * arg)
 {
 #ifdef USE_CAPTURE_HISTORY
 	return capture_tree_traverse(region->history_root, at, callback_func, 0, arg);

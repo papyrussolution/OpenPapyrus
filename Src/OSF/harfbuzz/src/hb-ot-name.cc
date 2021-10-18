@@ -125,7 +125,7 @@ static inline unsigned int hb_ot_name_get_utf(hb_face_t * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                      text written to buffer.
+ *                text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.
@@ -151,7 +151,7 @@ unsigned int hb_ot_name_get_utf8(hb_face_t * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                      text written to buffer.
+ *                text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.
@@ -176,7 +176,7 @@ unsigned int hb_ot_name_get_utf16(hb_face_t * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                      text written to buffer.
+ *                text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.

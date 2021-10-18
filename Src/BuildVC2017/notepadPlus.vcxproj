@@ -461,7 +461,6 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-etc.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginsManager.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\regExtDlg.cpp" />
-    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\sha-256.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\Sorters.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\verifySignedfile.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\npp-pch.cpp">

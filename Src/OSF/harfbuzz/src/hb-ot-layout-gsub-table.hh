@@ -89,11 +89,7 @@ namespace OT {
 			return_trace(true);
 		}
 
-		template<typename Iterator,
-		hb_requires(hb_is_sorted_source_of(Iterator, hb_codepoint_t))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator glyphs,
-		    unsigned delta)
+		template<typename Iterator, hb_requires(hb_is_sorted_source_of(Iterator, hb_codepoint_t))> bool serialize(hb_serialize_context_t * c, Iterator glyphs, unsigned delta)
 		{
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
@@ -107,9 +103,7 @@ namespace OT {
 			TRACE_SUBSET(this);
 			const hb_set_t &glyphset = *c->plan->glyphset_gsub();
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
-
 			hb_codepoint_t delta = deltaGlyphID;
-
 			auto it =
 			    +hb_iter(this+coverage)
 			    | hb_filter(glyphset)
@@ -170,44 +164,31 @@ public:
 			| hb_sink(c->output)
 			;
 		}
-
 		const Coverage &get_coverage() const {
 			return this+coverage;
 		}
-
 		bool would_apply(hb_would_apply_context_t * c) const
 		{
 			return c->len == 1 && (this+coverage).get_coverage(c->glyphs[0]) != NOT_COVERED;
 		}
-
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(LIKELY(index == NOT_COVERED)) return_trace(false);
-
-			if(UNLIKELY(index >= substitute.len)) return_trace(false);
-
+			if(LIKELY(index == NOT_COVERED)) 
+				return_trace(false);
+			if(UNLIKELY(index >= substitute.len)) 
+				return_trace(false);
 			c->replace_glyph(substitute[index]);
-
 			return_trace(true);
 		}
 
-		template<typename Iterator,
-		hb_requires(hb_is_sorted_source_of(Iterator,
-		    hb_codepoint_pair_t))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator it)
+		template<typename Iterator, hb_requires(hb_is_sorted_source_of(Iterator, hb_codepoint_pair_t))>
+		bool serialize(hb_serialize_context_t * c, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
-			auto substitutes =
-			    +it
-			    | hb_map(hb_second)
-			;
-			auto glyphs =
-			    +it
-			    | hb_map_retains_sorting(hb_first)
-			;
+			auto substitutes = +it | hb_map(hb_second);
+			auto glyphs = +it | hb_map_retains_sorting(hb_first);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			if(UNLIKELY(!substitute.serialize(c, substitutes))) return_trace(false);
 			if(UNLIKELY(!coverage.serialize(c, this).serialize(c, glyphs))) return_trace(false);
@@ -252,11 +233,8 @@ public:
 	};
 
 	struct SingleSubst {
-		template<typename Iterator,
-		hb_requires(hb_is_sorted_source_of(Iterator,
-		    const hb_codepoint_pair_t))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator glyphs)
+		template<typename Iterator, hb_requires(hb_is_sorted_source_of(Iterator, const hb_codepoint_pair_t))>
+		bool serialize(hb_serialize_context_t * c, Iterator glyphs)
 		{
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(u.format))) return_trace(false);
@@ -264,10 +242,10 @@ public:
 			unsigned delta = 0;
 			if(glyphs) {
 				format = 1;
-				auto get_delta = [ = ] (hb_codepoint_pair_t _)
-				{ return (unsigned)(_.second - _.first) & 0xFFFF; };
+				auto get_delta = [ = ] (hb_codepoint_pair_t _) { return (uint)(_.second - _.first) & 0xFFFF; };
 				delta = get_delta(*glyphs);
-				if(!hb_all(++(+glyphs), delta, get_delta)) format = 2;
+				if(!hb_all(++(+glyphs), delta, get_delta)) 
+					format = 2;
 			}
 			u.format = format;
 			switch(u.format) {
@@ -344,7 +322,7 @@ protected:
 			unsigned int klass = _hb_glyph_info_is_ligature(&c->buffer->cur()) ?
 			    HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH : 0;
 
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				_hb_glyph_info_set_lig_props_for_component(&c->buffer->cur(), i);
 				c->output_glyph_for_component(substitute.arrayZ[i], klass);
 			}
@@ -448,7 +426,7 @@ public:
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			if(UNLIKELY(!sequence.serialize(c, glyphs.length))) return_trace(false);
-			for(unsigned int i = 0; i < glyphs.length; i++) {
+			for(uint i = 0; i < glyphs.length; i++) {
 				unsigned int substitute_len = substitute_len_list[i];
 				if(UNLIKELY(!sequence[i].serialize(c, this)
 				    .serialize(c, substitute_glyphs_list.sub_array(0, substitute_len))))
@@ -691,7 +669,7 @@ public:
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			if(UNLIKELY(!alternateSet.serialize(c, glyphs.length))) return_trace(false);
-			for(unsigned int i = 0; i < glyphs.length; i++) {
+			for(uint i = 0; i < glyphs.length; i++) {
 				unsigned int alternate_len = alternate_len_list[i];
 				if(UNLIKELY(!alternateSet[i].serialize(c, this)
 				    .serialize(c, alternate_glyphs_list.sub_array(0, alternate_len))))
@@ -799,7 +777,7 @@ protected:
 			if(c->len != component.lenP1)
 				return false;
 
-			for(unsigned int i = 1; i < c->len; i++)
+			for(uint i = 1; i < c->len; i++)
 				if(LIKELY(c->glyphs[i] != component[i]))
 					return false;
 
@@ -934,7 +912,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int num_ligs = ligature.len;
-			for(unsigned int i = 0; i < num_ligs; i++) {
+			for(uint i = 0; i < num_ligs; i++) {
 				const Ligature &lig = this+ligature[i];
 				if(lig.apply(c)) return_trace(true);
 			}
@@ -950,8 +928,8 @@ public:
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			if(UNLIKELY(!ligature.serialize(c, ligatures.length))) return_trace(false);
-			for(unsigned int i = 0; i < ligatures.length; i++) {
-				unsigned int component_count = (unsigned)hb_max((int)component_count_list[i] - 1, 0);
+			for(uint i = 0; i < ligatures.length; i++) {
+				unsigned int component_count = (uint)hb_max((int)component_count_list[i] - 1, 0);
 				if(UNLIKELY(!ligature[i].serialize(c, this)
 				    .serialize(c,
 				    ligatures[i],
@@ -1060,7 +1038,7 @@ public:
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			if(UNLIKELY(!ligatureSet.serialize(c, first_glyphs.length))) return_trace(false);
-			for(unsigned int i = 0; i < first_glyphs.length; i++) {
+			for(uint i = 0; i < first_glyphs.length; i++) {
 				unsigned int ligature_count = ligature_per_first_glyph_count_list[i];
 				if(UNLIKELY(!ligatureSet[i].serialize(c, this)
 				    .serialize(c,
@@ -1175,12 +1153,12 @@ protected:
 			unsigned int count;
 
 			count = backtrack.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!(this+backtrack[i]).intersects(glyphs))
 					return false;
 
 			count = lookahead.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!(this+lookahead[i]).intersects(glyphs))
 					return false;
 
@@ -1211,12 +1189,12 @@ protected:
 			unsigned int count;
 
 			count = backtrack.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!(this+backtrack[i]).collect_coverage(c->before))) return;
 
 			const OffsetArrayOf<Coverage> &lookahead = StructAfter<OffsetArrayOf<Coverage>> (backtrack);
 			count = lookahead.len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!(this+lookahead[i]).collect_coverage(c->after))) return;
 
 			const ArrayOf<HBGlyphID> &substitute = StructAfter<ArrayOf<HBGlyphID>> (lookahead);

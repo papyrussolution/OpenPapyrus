@@ -29,14 +29,14 @@
  * An automatic hinter might compute two kinds of data for a given face:
  *
  * - global hints: Usually some metrics that describe global properties
- *                 of the face.  It is computed by scanning more or less
- *                 aggressively the glyphs in the face, and thus can be
- *                 very slow to compute (even if the size of global hints
- *                 is really small).
+ *           of the face.  It is computed by scanning more or less
+ *           aggressively the glyphs in the face, and thus can be
+ *           very slow to compute (even if the size of global hints
+ *           is really small).
  *
  * - glyph hints: These describe some important features of the glyph
- *                 outline, as well as how to align them.  They are
- *                 generally much faster to compute than global hints.
+ *           outline, as well as how to align them.  They are
+ *           generally much faster to compute than global hints.
  *
  * The current FreeType auto-hinter does a pretty good job while performing
  * fast computations for both global and glyph hints.  However, we might be
@@ -118,7 +118,7 @@ typedef void
  */
 typedef void
 (* FT_AutoHinter_GlobalDoneFunc)(FT_AutoHinter hinter,
-    void*          global);
+    void *      global);
 
 /**************************************************************************
  *

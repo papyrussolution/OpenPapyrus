@@ -97,7 +97,7 @@ int archive_read_set_format(struct archive * _a, int code)
 	slots = sizeof(a->formats) / sizeof(a->formats[0]);
 	a->format = &(a->formats[0]);
 	for(i = 0; i < slots; i++, a->format++) {
-		if(!a->format->name || !strcmp(a->format->name, str))
+		if(!a->format->name || sstreq(a->format->name, str))
 			break;
 	}
 	if(!a->format->name || strcmp(a->format->name, str)) {

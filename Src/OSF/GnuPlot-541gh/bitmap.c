@@ -492,7 +492,7 @@ const char_row fnt13x25[FNT_CHARS][FNT13X25_VBITS] = {
 #define fill_bitmap_height 8
 
 #define fill_halftone_num 5
-static uchar fill_halftone_bitmaps[fill_halftone_num][8] = {
+static const uchar fill_halftone_bitmaps[fill_halftone_num][8] = {
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, /* no fill */
 	{ 0x11, 0x44, 0x11, 0x44, 0x11, 0x44, 0x11, 0x44 }, /* 25% pattern */
 	{ 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa }, /* 50% pattern */
@@ -501,7 +501,7 @@ static uchar fill_halftone_bitmaps[fill_halftone_num][8] = {
 };
 
 #define fill_pattern_num 8
-static uchar fill_pattern_bitmaps[fill_pattern_num][8] = {
+static const uchar fill_pattern_bitmaps[fill_pattern_num][8] = {
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } /* no fill */
 	, { 0x82, 0x44, 0x28, 0x10, 0x28, 0x44, 0x82, 0x01 } /* cross-hatch      (1) */
 	, { 0x88, 0x55, 0x22, 0x55, 0x88, 0x55, 0x22, 0x55 } /* double crosshatch(2) */
@@ -886,7 +886,7 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint ix, iy;
 	int pixcolor, pat, mask, idx, bitoffs;
-	uchar * fillbitmap;
+	const uchar * fillbitmap;
 	bool transparent = FALSE;
 	switch(style & 0xf) {
 		case FS_TRANSPARENT_SOLID:
@@ -954,7 +954,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 	int style = corners->style;
 	int pixcolor;
 	int idx;
-	uchar * fillbitmap = 0;
+	const uchar * fillbitmap = 0;
 	bool transparent = FALSE;
 	switch(style & 0xf) {
 		case FS_TRANSPARENT_SOLID:

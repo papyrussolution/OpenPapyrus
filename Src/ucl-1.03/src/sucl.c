@@ -369,9 +369,9 @@ ACCCHK_ASSERT(sizeof(char) == 1)
 #if (SIZEOF_PTRDIFF_T > 0)
     ACCCHK_ASSERT(sizeof(ptrdiff_t) == SIZEOF_PTRDIFF_T)
 #endif
-    ACCCHK_ASSERT(sizeof(void*) >= sizeof(char *))
+    ACCCHK_ASSERT(sizeof(void *) >= sizeof(char *))
 #if (SIZEOF_VOID_P > 0)
-    ACCCHK_ASSERT(sizeof(void*) == SIZEOF_VOID_P)
+    ACCCHK_ASSERT(sizeof(void *) == SIZEOF_VOID_P)
 #endif
 #if (SIZEOF_CHAR_P > 0)
     ACCCHK_ASSERT(sizeof(char *) == SIZEOF_CHAR_P)
@@ -538,14 +538,14 @@ ACCCHK_ASSERT((((1ul << 31) + 1) >> 31) == 1)
 #if (ACC_MM_FLAT)
 #if 0
     /* this is not a valid assumption -- disabled */
-    ACCCHK_ASSERT(sizeof(void*) == sizeof(void (*)(void)))
+    ACCCHK_ASSERT(sizeof(void *) == sizeof(void (*)(void)))
 #endif
 #endif
 #if (ACC_MM_TINY || ACC_MM_SMALL || ACC_MM_MEDIUM)
-    ACCCHK_ASSERT(sizeof(void*) == 2)
+    ACCCHK_ASSERT(sizeof(void *) == 2)
     ACCCHK_ASSERT(sizeof(ptrdiff_t) == 2)
 #elif (ACC_MM_COMPACT || ACC_MM_LARGE || ACC_MM_HUGE)
-    ACCCHK_ASSERT(sizeof(void*) == 4)
+    ACCCHK_ASSERT(sizeof(void *) == 4)
 #endif
 #if (ACC_MM_TINY || ACC_MM_SMALL || ACC_MM_COMPACT)
     ACCCHK_ASSERT(sizeof(void (*)(void)) == 2)
@@ -583,7 +583,7 @@ ACCCHK_ASSERT((((1ul << 31) + 1) >> 31) == 1)
     // NDP C is broken 
 #else
     // check that the compiler correctly casts signed to unsigned 
-    ACCCHK_ASSERT( (int) ((unsigned char) ((signed char) -1)) == 255)
+    ACCCHK_ASSERT((int)((unsigned char)((signed char)-1)) == 255)
 #endif
 #if (ACC_CC_KEILC)
     // Keil C is broken 
@@ -645,7 +645,7 @@ static ucl_bool ptr_check(void)
 	/* check that the pointer constructs work as expected */
 	if(r == 1) {
 		unsigned k = 1;
-		const unsigned n = (unsigned int)sizeof(ucl_uint32);
+		const unsigned int n = (unsigned int)sizeof(ucl_uint32);
 		ucl_bytep p0;
 		ucl_bytep p1;
 

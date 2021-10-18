@@ -565,45 +565,46 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 void WIN_update_options()
 {
-	bool set_font = FALSE, set_fontsize = FALSE;
+	bool set_font = FALSE;
+	bool set_fontsize = FALSE;
+	GW * p_gr_win = _WinM.P_GraphWin;
 	// update term_options 
-	sprintf(GPT.TermOptions, "%i %s %s %s %s %s", _WinM.P_GraphWin->Id, _WinM.P_GraphWin->color ? "color" : "monochrome",
-	    _WinM.P_GraphWin->dashed ? "dashed" : "solid", _WinM.P_GraphWin->rounded ? "rounded" : "butt",
-	    term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", _WinM.P_GraphWin->bDocked ? "docked" : "standalone");
+	slprintf(GPT._TermOptions, "%i %s %s %s %s %s", p_gr_win->Id, p_gr_win->color ? "color" : "monochrome",
+	    p_gr_win->dashed ? "dashed" : "solid", p_gr_win->rounded ? "rounded" : "butt",
+	    GPT.P_Term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", p_gr_win->bDocked ? "docked" : "standalone");
 #ifndef WGP_CONSOLE
-	if(_WinM.P_GraphWin->bDocked) {
+	if(p_gr_win->bDocked) {
 		char buf[128];
 		sprintf(buf, " layout %i,%i", _WinM.TxtWin.nDockRows, _WinM.TxtWin.nDockCols);
-		strcat(GPT.TermOptions, buf);
+		GPT._TermOptions.Cat(buf);
 	}
 #endif
-	set_fontsize = (_WinM.P_GraphWin->deffontsize != WIN_inifontsize);
-	set_font = (_tcscmp(_WinM.P_GraphWin->deffontname, WIN_inifontname) != 0);
+	set_fontsize = (p_gr_win->deffontsize != WIN_inifontsize);
+	set_font = (_tcscmp(p_gr_win->deffontname, WIN_inifontname) != 0);
 	if(set_font || set_fontsize) {
-		char * fontstring = (char *)SAlloc::M(_tcslen(_WinM.P_GraphWin->deffontname) + 24);
+		SString fnt_buf;
 		if(!set_fontsize) {
-			sprintf(fontstring, " font \"" TCHARFMT "\"", _WinM.P_GraphWin->deffontname);
+			fnt_buf.Printf(" font \"" TCHARFMT "\"", p_gr_win->deffontname);
 		}
 		else {
-			sprintf(fontstring, " font \"" TCHARFMT ", %d\"", set_font ? _WinM.P_GraphWin->deffontname : TEXT(""), _WinM.P_GraphWin->deffontsize);
+			fnt_buf.Printf(" font \"" TCHARFMT ", %d\"", set_font ? p_gr_win->deffontname : TEXT(""), p_gr_win->deffontsize);
 		}
-		strcat(GPT.TermOptions, fontstring);
-		SAlloc::F(fontstring);
+		GPT._TermOptions.Cat(fnt_buf.cptr());
 	}
-	if(_WinM.P_GraphWin->background != RGB(255, 255, 255))
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " background \"#%0x%0x%0x\"", GetRValue(_WinM.P_GraphWin->background),
-		    GetGValue(_WinM.P_GraphWin->background), GetBValue(_WinM.P_GraphWin->background));
-	if(_WinM.P_GraphWin->fontscale != 1)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " fontscale %.1f", _WinM.P_GraphWin->fontscale);
-	if(_WinM.P_GraphWin->linewidth != 1)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %.1f", _WinM.P_GraphWin->linewidth);
-	if(_WinM.P_GraphWin->pointscale != 1)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " pointscale %.1f", _WinM.P_GraphWin->pointscale);
-	if(!_WinM.P_GraphWin->bDocked) {
-		if(_WinM.P_GraphWin->Canvas_.x)
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " size %li,%li", _WinM.P_GraphWin->Canvas_.x, _WinM.P_GraphWin->Canvas_.y);
-		else if(_WinM.P_GraphWin->Size_.x != CW_USEDEFAULT)
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " wsize %li,%li", _WinM.P_GraphWin->Size_.x, _WinM.P_GraphWin->Size_.y);
+	if(p_gr_win->background != RGB(255, 255, 255))
+		slprintf_cat(GPT._TermOptions, " background \"#%0x%0x%0x\"", GetRValue(p_gr_win->background),
+		    GetGValue(p_gr_win->background), GetBValue(p_gr_win->background));
+	if(p_gr_win->fontscale != 1)
+		slprintf_cat(GPT._TermOptions, " fontscale %.1f", p_gr_win->fontscale);
+	if(p_gr_win->linewidth != 1)
+		slprintf_cat(GPT._TermOptions, " linewidth %.1f", p_gr_win->linewidth);
+	if(p_gr_win->pointscale != 1)
+		slprintf_cat(GPT._TermOptions, " pointscale %.1f", p_gr_win->pointscale);
+	if(!p_gr_win->bDocked) {
+		if(p_gr_win->Canvas_.x)
+			slprintf_cat(GPT._TermOptions, " size %li,%li", p_gr_win->Canvas_.x, p_gr_win->Canvas_.y);
+		else if(p_gr_win->Size_.x != CW_USEDEFAULT)
+			slprintf_cat(GPT._TermOptions, " wsize %li,%li", p_gr_win->Size_.x, p_gr_win->Size_.y);
 	}
 }
 

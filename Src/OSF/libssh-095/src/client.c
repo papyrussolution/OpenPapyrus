@@ -419,7 +419,7 @@ static int ssh_connect_termination(void * user)
  *
  * @returns             SSH_OK on success, SSH_ERROR on error.
  * @returns             SSH_AGAIN, if the session is in nonblocking mode,
- *                      and call must be done again.
+ *                and call must be done again.
  *
  * @see ssh_new()
  * @see ssh_disconnect()

@@ -557,7 +557,7 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 		//if(!*ppBytesB) {
 		if(!rB.Ensure(BN_num_bytes(p_B))) {
 			rB.Z();
-			//SAlloc::F((void*)P_UserName);
+			//SAlloc::F((void *)P_UserName);
 			//*pLenB = 0;
 			goto cleanup_and_exit;
 		}
@@ -568,7 +568,7 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 cleanup_and_exit:
 	CATCH
 		rB.Z();
-		//SAlloc::F((void*)P_UserName);
+		//SAlloc::F((void *)P_UserName);
 	ENDCATCH
 	BN_free(p_s);
 	BN_free(p_v);
@@ -644,7 +644,7 @@ SlSRP::Verifier::Verifier(SlSRP::HashAlgorithm alg, NGType ngType, const char * 
 		*pLenB   = BN_num_bytes(p_B);
 		*ppBytesB = (const uchar *)SAlloc::M(*pLenB);
 		if(!*ppBytesB) {
-			SAlloc::F((void*)P_UserName);
+			SAlloc::F((void *)P_UserName);
 			*pLenB = 0;
 			goto cleanup_and_exit;
 		}
@@ -738,7 +738,7 @@ err_exit:
 	BN_free(static_cast<BIGNUM *>(P_a));
 	BN_free(static_cast<BIGNUM *>(P_A));
 	BN_free(static_cast<BIGNUM *>(P_S));
-	SAlloc::F((void*)P_UserName);
+	SAlloc::F((void *)P_UserName);
 	if(P_Password) {
 		memzero(P_Password, PasswordLen);
 		SAlloc::F(P_Password);

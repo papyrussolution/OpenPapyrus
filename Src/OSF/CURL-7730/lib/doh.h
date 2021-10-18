@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_DOH_H
 #define HEADER_CURL_DOH_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2018 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -73,8 +73,8 @@ typedef enum {
 struct dohaddr {
   int type;
   union {
-    unsigned char v4[4]; /* network byte order */
-    unsigned char v6[16];
+    uchar v4[4]; /* network byte order */
+    uchar v6[16];
   } ip;
 };
 
@@ -90,10 +90,10 @@ struct dohentry {
 #ifdef DEBUGBUILD
 DOHcode doh_encode(const char *host,
                    DNStype dnstype,
-                   unsigned char *dnsp, /* buffer */
+                   uchar *dnsp, /* buffer */
                    size_t len,  /* buffer size */
                    size_t *olen); /* output length */
-DOHcode doh_decode(const unsigned char *doh,
+DOHcode doh_decode(const uchar *doh,
                    size_t dohlen,
                    DNStype dnstype,
                    struct dohentry *d);

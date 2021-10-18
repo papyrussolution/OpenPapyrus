@@ -23,7 +23,6 @@
  *
  * Facebook Author(s): Behdad Esfahbod
  */
-
 #ifndef HB_POOL_HH
 #define HB_POOL_HH
 
@@ -43,16 +42,15 @@ template <typename T, unsigned ChunkLen = 16> struct hb_pool_t {
 	{
 		next = nullptr;
 		for(chunk_t * _ : chunks) 
-			::free(_);
+			SAlloc::F(_);
 		chunks.fini();
 	}
-
 	T* alloc()
 	{
 		if(UNLIKELY(!next)) {
 			if(UNLIKELY(!chunks.alloc(chunks.length + 1))) 
 				return nullptr;
-			chunk_t * chunk = (chunk_t*)calloc(1, sizeof(chunk_t));
+			chunk_t * chunk = (chunk_t*)SAlloc::C(1, sizeof(chunk_t));
 			if(UNLIKELY(!chunk)) 
 				return nullptr;
 			chunks.push(chunk);

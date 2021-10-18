@@ -282,8 +282,8 @@ typedef xmlParserCtxt htmlParserCtxt;
 // Descr: A SAX Locator
 //
 struct xmlSAXLocator {
-	const xmlChar *(*getPublicId)(void* ctx);
-	const xmlChar *(*getSystemId)(void* ctx);
+	const xmlChar *(*getPublicId)(void * ctx);
+	const xmlChar *(*getSystemId)(void * ctx);
 	int (* getLineNumber)(void * ctx);
 	int (* getColumnNumber)(void * ctx);
 };
@@ -586,9 +586,9 @@ typedef int (*hasExternalSubsetSAXFunc)(void * ctx);
  * @namespaces:  pointer to the array of prefix/URI pairs namespace definitions
  * @nb_attributes:  the number of attributes on that node
  * @nb_defaulted:  the number of defaulted attributes. The defaulted
- *             ones are at the end of the array
+ *       ones are at the end of the array
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *          attribute values.
+ *    attribute values.
  *
  * SAX2 callback when an element start has been detected by the parser.
  * It provides the namespace informations for the element, as well as

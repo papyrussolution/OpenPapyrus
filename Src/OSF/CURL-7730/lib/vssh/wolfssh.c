@@ -200,7 +200,7 @@ static void state(struct connectdata * conn, sshstate nowstate)
 
 	if(sshc->state != nowstate) {
 		infof(conn->data, "wolfssh %p state change from %s to %s\n",
-		    (void*)sshc, names[sshc->state], names[nowstate]);
+		    (void *)sshc, names[sshc->state], names[nowstate]);
 	}
 #endif
 

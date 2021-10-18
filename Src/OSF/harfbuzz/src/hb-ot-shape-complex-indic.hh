@@ -303,7 +303,7 @@ static const hb_codepoint_t ra_chars[] = {
 
 static inline bool is_ra(hb_codepoint_t u)
 {
-	for(unsigned int i = 0; i < ARRAY_LENGTH(ra_chars); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(ra_chars); i++)
 		if(u == ra_chars[i])
 			return true;
 	return false;
@@ -398,7 +398,7 @@ struct hb_indic_would_substitute_feature_t {
 	    unsigned int glyphs_count,
 	    hb_face_t  * face) const
 	{
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			if(hb_ot_layout_lookup_would_substitute(face, lookups[i].index, glyphs, glyphs_count, zero_context))
 				return true;
 		return false;

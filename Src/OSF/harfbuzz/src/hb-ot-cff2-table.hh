@@ -451,7 +451,7 @@ namespace OT {
 				}
 
 				/* parse font dicts and gather private dicts */
-				for(unsigned int i = 0; i < fdCount; i++) {
+				for(uint i = 0; i < fdCount; i++) {
 					const byte_str_t fontDictStr = (*fdArray)[i];
 					if(UNLIKELY(!fontDictStr.sanitize(&sc))) {
 						fini(); return;
@@ -538,8 +538,8 @@ public:
 		}
 
 public:
-		FixedVersion<HBUINT8>         version;/* Version of CFF2 table. set to 0x0200u */
-		NNOffsetTo<TopDict, HBUINT8>  topDict;/* headerSize = Offset to Top DICT. */
+		FixedVersion<HBUINT8>         version; /* Version of CFF2 table. set to 0x0200u */
+		NNOffsetTo<TopDict, HBUINT8>  topDict; /* headerSize = Offset to Top DICT. */
 		HBUINT16 topDictSize;           /* Top DICT size */
 
 public:

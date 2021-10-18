@@ -493,11 +493,11 @@ static int ssh_flush_termination(void * c)
  * @brief Blocking flush of the outgoing buffer
  * @param[in] session The SSH session
  * @param[in] timeout Set an upper limit on the time for which this function
- *                    will block, in milliseconds. Specifying -1
- *                    means an infinite timeout. This parameter is passed to
- *                    the poll() function.
+ *              will block, in milliseconds. Specifying -1
+ *              means an infinite timeout. This parameter is passed to
+ *              the poll() function.
  * @returns           SSH_OK on success, SSH_AGAIN if timeout occurred,
- *                    SSH_ERROR otherwise.
+ *              SSH_ERROR otherwise.
  */
 
 int ssh_blocking_flush(ssh_session session, int timeout){
@@ -541,7 +541,7 @@ int ssh_is_connected(ssh_session session) {
  * @param[in] session   The ssh session to use.
  *
  * @return              The file descriptor of the connection, or -1 if it is
- *                      not connected
+ *                not connected
  */
 socket_t ssh_get_fd(ssh_session session) {
 	if(session == NULL) {
@@ -602,11 +602,11 @@ void ssh_set_fd_except(ssh_session session) {
  * @param[in] session   The session handle to use.
  *
  * @param[in] timeout   Set an upper limit on the time for which this function
- *                      will block, in milliseconds. Specifying SSH_TIMEOUT_INFINITE
- *                      (-1) means an infinite timeout.
- *                      Specifying SSH_TIMEOUT_USER means to use the timeout
- *                      specified in options. 0 means poll will return immediately.
- *                      This parameter is passed to the poll() function.
+ *                will block, in milliseconds. Specifying SSH_TIMEOUT_INFINITE
+ *                (-1) means an infinite timeout.
+ *                Specifying SSH_TIMEOUT_USER means to use the timeout
+ *                specified in options. 0 means poll will return immediately.
+ *                This parameter is passed to the poll() function.
  *
  * @return              SSH_OK on success, SSH_ERROR otherwise.
  */
@@ -655,20 +655,20 @@ int ssh_handle_packets(ssh_session session, int timeout) {
  * @param[in] session   The session handle to use.
  *
  * @param[in] timeout   Set an upper limit on the time for which this function
- *                      will block, in milliseconds. Specifying
- *                      SSH_TIMEOUT_INFINITE (-1) means an infinite timeout.
- *                      Specifying SSH_TIMEOUT_USER means to use the timeout
- *                      specified in options. 0 means poll will return
- *                      immediately.
- *                      SSH_TIMEOUT_DEFAULT uses the session timeout if set or
- *                      uses blocking parameters of the session.
- *                      This parameter is passed to the poll() function.
+ *                will block, in milliseconds. Specifying
+ *                SSH_TIMEOUT_INFINITE (-1) means an infinite timeout.
+ *                Specifying SSH_TIMEOUT_USER means to use the timeout
+ *                specified in options. 0 means poll will return
+ *                immediately.
+ *                SSH_TIMEOUT_DEFAULT uses the session timeout if set or
+ *                uses blocking parameters of the session.
+ *                This parameter is passed to the poll() function.
  *
  * @param[in] fct       Termination function to be used to determine if it is
- *                      possible to stop polling.
+ *                possible to stop polling.
  * @param[in] user      User parameter to be passed to fct termination function.
  * @returns             SSH_OK on success, SSH_AGAIN if timeout occurred,
- *                      SSH_ERROR otherwise.
+ *                SSH_ERROR otherwise.
  */
 int ssh_handle_packets_termination(ssh_session session,
     long timeout,
@@ -728,9 +728,9 @@ int ssh_handle_packets_termination(ssh_session session,
  * @param session       The ssh session to use.
  *
  * @returns A bitmask including SSH_CLOSED, SSH_READ_PENDING, SSH_WRITE_PENDING
- *          or SSH_CLOSED_ERROR which respectively means the session is closed,
- *          has data to read on the connection socket and session was closed
- *          due to an error.
+ *    or SSH_CLOSED_ERROR which respectively means the session is closed,
+ *    has data to read on the connection socket and session was closed
+ *    due to an error.
  */
 int ssh_get_status(ssh_session session) {
 	int socketstate;
@@ -766,9 +766,9 @@ int ssh_get_status(ssh_session session) {
  * @param session       The ssh session to use.
  *
  * @returns A bitmask including SSH_READ_PENDING or SSH_WRITE_PENDING.
- *          For SSH_READ_PENDING, your invocation of poll() should include
- *          POLLIN.  For SSH_WRITE_PENDING, your invocation of poll() should
- *          include POLLOUT.
+ *    For SSH_READ_PENDING, your invocation of poll() should include
+ *    POLLIN.  For SSH_WRITE_PENDING, your invocation of poll() should
+ *    include POLLOUT.
  */
 int ssh_get_poll_flags(ssh_session session)
 {
@@ -785,8 +785,8 @@ int ssh_get_poll_flags(ssh_session session)
  * @param[in] session   The ssh session to use.
  *
  * @return              The message sent by the server along with the
- *                      disconnect, or NULL in which case the reason of the
- *                      disconnect may be found with ssh_get_error.
+ *                disconnect, or NULL in which case the reason of the
+ *                disconnect may be found with ssh_get_error.
  *
  * @see ssh_get_error()
  */
@@ -883,8 +883,8 @@ error:
  * @param[in] session          The SSH session
  * @param[in] message          Data to be sent
  * @param[in] always_display   Message SHOULD be displayed by the server. It
- *                             SHOULD NOT be displayed unless debugging
- *                             information has been explicitly requested.
+ *                       SHOULD NOT be displayed unless debugging
+ *                       information has been explicitly requested.
  *
  * @return                     SSH_OK on success, SSH_ERROR otherwise.
  */
@@ -942,7 +942,7 @@ error:
  * @param[in] scounter  Counter for byte data handled by the session sockets.
  *
  * @param[in] rcounter  Counter for byte and packet data handled by the session,
- *                      prior compression and SSH overhead.
+ *                prior compression and SSH overhead.
  */
 void ssh_set_counters(ssh_session session, ssh_counter scounter,
     ssh_counter rcounter) {
@@ -1036,7 +1036,7 @@ void ssh_clean_pubkey_hash(uchar ** hash) {
  * @param[in]  session  The session to get the key from.
  *
  * @param[out] key      A pointer to store the allocated key. You need to free
- *                      the key.
+ *                the key.
  *
  * @return              SSH_OK on success, SSH_ERROR on errror.
  *
@@ -1081,16 +1081,16 @@ int ssh_get_publickey(ssh_session session, ssh_key * key)
  * @param[in]  type     The type of the hash you want.
  *
  * @param[in]  hash     A pointer to store the allocated buffer. It can be
- *                      freed using ssh_clean_pubkey_hash().
+ *                freed using ssh_clean_pubkey_hash().
  *
  * @param[in]  hlen     The length of the hash.
  *
  * @return 0 on success, -1 if an error occured.
  *
  * @warning It is very important that you verify at some moment that the hash
- *          matches a known server. If you don't do it, cryptography wont help
- *          you at making things secure.
- *          OpenSSH uses SHA256 to print public key digests.
+ *    matches a known server. If you don't do it, cryptography wont help
+ *    you at making things secure.
+ *    OpenSSH uses SHA256 to print public key digests.
  *
  * @see ssh_session_update_known_hosts()
  * @see ssh_get_hexa()

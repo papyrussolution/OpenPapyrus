@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_RAND_H
 #define HEADER_CURL_RAND_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -36,14 +36,14 @@
  * easy handle!
  *
  */
-CURLcode Curl_rand(struct Curl_easy *data, unsigned char *rnd, size_t num);
+CURLcode Curl_rand(struct Curl_easy *data, uchar *rnd, size_t num);
 
 /*
  * Curl_rand_hex() fills the 'rnd' buffer with a given 'num' size with random
  * hexadecimal digits PLUS a zero terminating byte. It must be an odd number
  * size.
  */
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd,
+CURLcode Curl_rand_hex(struct Curl_easy *data, uchar *rnd,
                        size_t num);
 
 #endif /* HEADER_CURL_RAND_H */

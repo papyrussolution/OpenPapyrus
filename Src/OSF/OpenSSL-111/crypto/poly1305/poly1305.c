@@ -59,7 +59,7 @@ static uint U8TOU32(const uchar * p)
  * implementation is not necessarily optimal choice in every situation,
  * rather contrary...
  *
- *                                              <appro@openssl.org>
+ *                                        <appro@openssl.org>
  */
 
 typedef uint u32;

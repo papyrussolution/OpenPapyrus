@@ -484,11 +484,11 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 /*
  *  Start Tag: 1 means the start tag can be ommited
  *  End Tag:   1 means the end tag can be ommited
- *        2 means it's forbidden (empty elements)
- *        3 means the tag is stylistic and should be closed easily
+ *  2 means it's forbidden (empty elements)
+ *  3 means the tag is stylistic and should be closed easily
  *  Depr:      this element is deprecated
  *  DTD:       1 means that this element is valid only in the Loose DTD
- *        2 means that this element is valid only in the Frameset DTD
+ *  2 means that this element is valid only in the Frameset DTD
  *
  * Name,Start Tag,End Tag,Save End,Empty,Deprecated,DTD,inline,Description
         , subElements , impliedsubelt , Attributes, userdata
@@ -2627,13 +2627,13 @@ static void htmlParseCharData(htmlParserCtxt * ctxt)
  * Parse an External ID or a Public ID
  *
  * [75] ExternalID ::= 'SYSTEM' S SystemLiteral
- *              | 'PUBLIC' S PubidLiteral S SystemLiteral
+ *        | 'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [83] PublicID ::= 'PUBLIC' S PubidLiteral
  *
  * Returns the function returns SystemLiteral and in the second
- *           case publicID receives PubidLiteral, is strict is off
- *           it is possible to return NULL and have publicID set.
+ *     case publicID receives PubidLiteral, is strict is off
+ *     it is possible to return NULL and have publicID set.
  */
 
 static xmlChar * htmlParseExternalID(htmlParserCtxt * ctxt, xmlChar ** publicID) 
@@ -2861,7 +2861,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
  * parse Reference declarations
  *
  * [66] CharRef ::= '&#' [0-9]+ ';' |
- *             '&#x' [0-9a-fA-F]+ ';'
+ *       '&#x' [0-9a-fA-F]+ ';'
  *
  * Returns the value parsed (as an int)
  */
@@ -2927,7 +2927,7 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
  * parse a DOCTYPE declaration
  *
  * [28] doctypedecl ::= '<!DOCTYPE' S Name (S ExternalID)? S?
- *                 ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
+ *           ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  */
 
 static void htmlParseDocTypeDecl(htmlParserCtxt * ctxt) 
@@ -3994,7 +3994,7 @@ void __htmlParseContent(void * ctxt)
  * interface).
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *           as a result of the parsing.
+ *     as a result of the parsing.
  */
 int htmlParseDocument(htmlParserCtxt * ctxt)
 {

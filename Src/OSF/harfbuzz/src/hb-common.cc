@@ -96,7 +96,7 @@ hb_tag_t hb_tag_from_string(const char * str, int len)
 
 	if(len < 0 || len > 4)
 		len = 4;
-	for(i = 0; i < (unsigned)len && str[i]; i++)
+	for(i = 0; i < (uint)len && str[i]; i++)
 		tag[i] = str[i];
 	for(; i < 4; i++)
 		tag[i] = ' ';
@@ -150,7 +150,7 @@ hb_direction_t hb_direction_from_string(const char * str, int len)
 	 * all of "ltr", "left-to-right", etc work!
 	 */
 	char c = TOLOWER(str[0]);
-	for(unsigned int i = 0; i < ARRAY_LENGTH(direction_strings); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(direction_strings); i++)
 		if(c == direction_strings[i][0])
 			return (hb_direction_t)(HB_DIRECTION_LTR + i);
 
@@ -169,7 +169,7 @@ hb_direction_t hb_direction_from_string(const char * str, int len)
  **/
 const char * hb_direction_to_string(hb_direction_t direction)
 {
-	if(LIKELY((unsigned int)(direction - HB_DIRECTION_LTR)
+	if(LIKELY((uint)(direction - HB_DIRECTION_LTR)
 	    < ARRAY_LENGTH(direction_strings)))
 		return direction_strings[direction - HB_DIRECTION_LTR];
 
@@ -196,8 +196,8 @@ static const char canon_map[256] = {
 static bool lang_equal(hb_language_t v1,
     const void * v2)
 {
-	const unsigned char * p1 = (const unsigned char*)v1;
-	const unsigned char * p2 = (const unsigned char*)v2;
+	const uchar * p1 = (const uchar *)v1;
+	const uchar * p2 = (const uchar *)v2;
 
 	while(*p1 && *p1 == canon_map[*p2]) {
 		p1++;
@@ -210,7 +210,7 @@ static bool lang_equal(hb_language_t v1,
 #if 0
 static unsigned int lang_hash(const void * key)
 {
-	const unsigned char * p = key;
+	const uchar * p = key;
 	unsigned int h = 0;
 	while(canon_map[*p]) {
 		h = (h << 5) - h + canon_map[*p];
@@ -239,15 +239,14 @@ struct hb_language_item_t {
 		size_t len = strlen(s) + 1;
 		lang = (hb_language_t)SAlloc::M(len);
 		if(LIKELY(lang)) {
-			memcpy((unsigned char*)lang, s, len);
-			for(unsigned char * p = (unsigned char*)lang; * p; p++)
+			memcpy((uchar *)lang, s, len);
+			for(uchar * p = (uchar *)lang; * p; p++)
 				*p = canon_map[*p];
 		}
-
 		return *this;
 	}
-
-	void fini() {
+	void fini() 
+	{
 		SAlloc::F((void *)lang);
 	}
 };
@@ -278,7 +277,6 @@ static hb_language_item_t * lang_find_or_insert(const char * key)
 {
 retry:
 	hb_language_item_t *first_lang = langs;
-
 	for(hb_language_item_t * lang = first_lang; lang; lang = lang->next)
 		if(*lang == key)
 			return lang;
@@ -293,25 +291,21 @@ retry:
 		SAlloc::F(lang);
 		return nullptr;
 	}
-
 	if(UNLIKELY(!langs.cmpexch(first_lang, lang))) {
 		lang->fini();
 		SAlloc::F(lang);
 		goto retry;
 	}
-
 #if HB_USE_ATEXIT
 	if(!first_lang)
 		atexit(free_langs); /* First person registers atexit() callback. */
 #endif
-
 	return lang;
 }
-
 /**
  * hb_language_from_string:
  * @str: (array length=len) (element-type uint8_t): a string representing
- *       a BCP 47 language tag
+ * a BCP 47 language tag
  * @len: length of the @str, or -1 if it is %NULL-terminated.
  *
  * Converts @str representing a BCP 47 language tag to the corresponding
@@ -326,7 +320,6 @@ hb_language_t hb_language_from_string(const char * str, int len)
 {
 	if(!str || !len || !*str)
 		return HB_LANGUAGE_INVALID;
-
 	hb_language_item_t * item = nullptr;
 	if(len >= 0) {
 		/* NUL-terminate it. */
@@ -338,10 +331,8 @@ hb_language_t hb_language_from_string(const char * str, int len)
 	}
 	else
 		item = lang_find_or_insert(str);
-
 	return LIKELY(item) ? item->lang : HB_LANGUAGE_INVALID;
 }
-
 /**
  * hb_language_to_string:
  * @language: an #hb_language_t to convert.
@@ -356,11 +347,10 @@ hb_language_t hb_language_from_string(const char * str, int len)
  **/
 const char * hb_language_to_string(hb_language_t language)
 {
-	if(UNLIKELY(!language)) return nullptr;
-
+	if(UNLIKELY(!language)) 
+		return nullptr;
 	return language->s;
 }
-
 /**
  * hb_language_get_default:
  *
@@ -438,7 +428,7 @@ hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
 /**
  * hb_script_from_string:
  * @str: (array length=len) (element-type uint8_t): a string representing an
- *       ISO 15924 tag.
+ * ISO 15924 tag.
  * @len: length of the @str, or -1 if it is %NULL-terminated.
  *
  * Converts a string @str representing an ISO 15924 script tag to a

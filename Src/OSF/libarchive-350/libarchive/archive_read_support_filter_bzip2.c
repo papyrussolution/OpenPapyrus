@@ -108,7 +108,7 @@ static int bzip2_reader_free(struct archive_read_filter_bidder * self){
  */
 static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	(void)self; /* UNUSED */
@@ -172,12 +172,12 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	struct private_data * state;
 	self->code = ARCHIVE_FILTER_BZIP2;
 	self->name = "bzip2";
-	state = (struct private_data *)calloc(sizeof(*state), 1);
-	out_block = (uchar *)malloc(out_block_size);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for bzip2 decompression");
-		free(out_block);
-		free(state);
+		SAlloc::F(out_block);
+		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}
 	self->data = state;
@@ -310,8 +310,8 @@ static int bzip2_filter_close(struct archive_read_filter * self)
 		}
 		state->valid = 0;
 	}
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ret;
 }
 

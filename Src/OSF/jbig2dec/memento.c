@@ -47,23 +47,23 @@ int atexit(void (*)(void));
 
 #define UB(x) ((intptr_t)((x) & 0xFF))
 #define B2I(x) (UB(x) | (UB(x)<<8) | (UB(x)<<16) | (UB(x)<<24))
-#define B2P(x) ((void*)(B2I(x) | ((B2I(x)<<16)<<16)))
-#define MEMENTO_PREFILL_UBYTE ((unsigned char)(MEMENTO_PREFILL))
+#define B2P(x) ((void *)(B2I(x) | ((B2I(x)<<16)<<16)))
+#define MEMENTO_PREFILL_UBYTE ((uchar)(MEMENTO_PREFILL))
 #define MEMENTO_PREFILL_USHORT (((unsigned short)MEMENTO_PREFILL_UBYTE) | (((unsigned short)MEMENTO_PREFILL_UBYTE)<<8))
-#define MEMENTO_PREFILL_UINT (((unsigned int)MEMENTO_PREFILL_USHORT) | (((unsigned int)MEMENTO_PREFILL_USHORT)<<16))
-#define MEMENTO_PREFILL_PTR (void*)(((uintptr_t)MEMENTO_PREFILL_UINT) | ((((uintptr_t)MEMENTO_PREFILL_UINT)<<16)<<16))
-#define MEMENTO_POSTFILL_UBYTE ((unsigned char)(MEMENTO_POSTFILL))
+#define MEMENTO_PREFILL_UINT (((uint)MEMENTO_PREFILL_USHORT) | (((uint)MEMENTO_PREFILL_USHORT)<<16))
+#define MEMENTO_PREFILL_PTR (void *)(((uintptr_t)MEMENTO_PREFILL_UINT) | ((((uintptr_t)MEMENTO_PREFILL_UINT)<<16)<<16))
+#define MEMENTO_POSTFILL_UBYTE ((uchar)(MEMENTO_POSTFILL))
 #define MEMENTO_POSTFILL_USHORT (((unsigned short)MEMENTO_POSTFILL_UBYTE) | (((unsigned short)MEMENTO_POSTFILL_UBYTE)<<8))
-#define MEMENTO_POSTFILL_UINT (((unsigned int)MEMENTO_POSTFILL_USHORT) | (((unsigned int)MEMENTO_POSTFILL_USHORT)<<16))
-#define MEMENTO_POSTFILL_PTR (void*)(((uintptr_t)MEMENTO_POSTFILL_UINT) | ((((uintptr_t)MEMENTO_POSTFILL_UINT)<<16)<<16))
-#define MEMENTO_ALLOCFILL_UBYTE ((unsigned char)(MEMENTO_ALLOCFILL))
+#define MEMENTO_POSTFILL_UINT (((uint)MEMENTO_POSTFILL_USHORT) | (((uint)MEMENTO_POSTFILL_USHORT)<<16))
+#define MEMENTO_POSTFILL_PTR (void *)(((uintptr_t)MEMENTO_POSTFILL_UINT) | ((((uintptr_t)MEMENTO_POSTFILL_UINT)<<16)<<16))
+#define MEMENTO_ALLOCFILL_UBYTE ((uchar)(MEMENTO_ALLOCFILL))
 #define MEMENTO_ALLOCFILL_USHORT (((unsigned short)MEMENTO_ALLOCFILL_UBYTE) | (((unsigned short)MEMENTO_ALLOCFILL_UBYTE)<<8))
-#define MEMENTO_ALLOCFILL_UINT (((unsigned int)MEMENTO_ALLOCFILL_USHORT) | (((unsigned int)MEMENTO_ALLOCFILL_USHORT)<<16))
-#define MEMENTO_ALLOCFILL_PTR (void*)(((uintptr_t)MEMENTO_ALLOCFILL_UINT) | ((((uintptr_t)MEMENTO_ALLOCFILL_UINT)<<16)<<16))
-#define MEMENTO_FREEFILL_UBYTE ((unsigned char)(MEMENTO_FREEFILL))
+#define MEMENTO_ALLOCFILL_UINT (((uint)MEMENTO_ALLOCFILL_USHORT) | (((uint)MEMENTO_ALLOCFILL_USHORT)<<16))
+#define MEMENTO_ALLOCFILL_PTR (void *)(((uintptr_t)MEMENTO_ALLOCFILL_UINT) | ((((uintptr_t)MEMENTO_ALLOCFILL_UINT)<<16)<<16))
+#define MEMENTO_FREEFILL_UBYTE ((uchar)(MEMENTO_FREEFILL))
 #define MEMENTO_FREEFILL_USHORT (((unsigned short)MEMENTO_FREEFILL_UBYTE) | (((unsigned short)MEMENTO_FREEFILL_UBYTE)<<8))
-#define MEMENTO_FREEFILL_UINT (((unsigned int)MEMENTO_FREEFILL_USHORT) | (((unsigned int)MEMENTO_FREEFILL_USHORT)<<16))
-#define MEMENTO_FREEFILL_PTR (void*)(((uintptr_t)MEMENTO_FREEFILL_UINT) | ((((uintptr_t)MEMENTO_FREEFILL_UINT)<<16)<<16))
+#define MEMENTO_FREEFILL_UINT (((uint)MEMENTO_FREEFILL_USHORT) | (((uint)MEMENTO_FREEFILL_USHORT)<<16))
+#define MEMENTO_FREEFILL_PTR (void *)(((uintptr_t)MEMENTO_FREEFILL_UINT) | ((((uintptr_t)MEMENTO_FREEFILL_UINT)<<16)<<16))
 
 #ifdef MEMENTO
 
@@ -301,7 +301,7 @@ struct Memento_BlkHeader {
 	int lastCheckedOK;
 	int flags;
 	Memento_BlkHeader   * next;
-	Memento_BlkHeader   * prev;/* Reused as 'parent' when printing nested list */
+	Memento_BlkHeader   * prev; /* Reused as 'parent' when printing nested list */
 
 	const char          * label;
 
@@ -409,10 +409,10 @@ static struct {
 
 #define MEMBLK_SIZE(s) MEMENTO_ROUNDUP(s + MEMENTO_EXTRASIZE, MEMENTO_MAXALIGN)
 
-#define MEMBLK_FROMBLK(B)   (&((Memento_BlkHeader*)(void*)(B))[-1])
-#define MEMBLK_TOBLK(B)     ((void*)(&((Memento_BlkHeader*)(void*)(B))[1]))
+#define MEMBLK_FROMBLK(B)   (&((Memento_BlkHeader*)(void *)(B))[-1])
+#define MEMBLK_TOBLK(B)     ((void *)(&((Memento_BlkHeader*)(void *)(B))[1]))
 #define MEMBLK_POSTPTR(B) \
-	(&((uchar *)(void*)(B))[(B)->rawsize + sizeof(Memento_BlkHeader)])
+	(&((uchar *)(void *)(B))[(B)->rawsize + sizeof(Memento_BlkHeader)])
 
 enum {
 	SkipStackBackTraceLevels = 4
@@ -795,7 +795,7 @@ static _Unwind_Reason_Code unwind_populate_callback(struct _Unwind_Context * con
 	if(count >= MEMENTO_BACKTRACE_MAX)
 		return _URC_END_OF_STACK;
 
-	uw->addr[count] = (void*)_Unwind_GetIP(context);
+	uw->addr[count] = (void *)_Unwind_GetIP(context);
 	uw->count++;
 
 	return _URC_NO_REASON;
@@ -1011,10 +1011,10 @@ static int Memento_Internal_checkAllocedBlock(Memento_BlkHeader * b, void * arg)
 {
 	int i;
 	MEMENTO_UINT32 * ip;
-	unsigned char  * p;
+	uchar  * p;
 	BlkCheckData   * data = (BlkCheckData*)arg;
 
-	ip = (MEMENTO_UINT32*)(void*)(b->preblk);
+	ip = (MEMENTO_UINT32*)(void *)(b->preblk);
 	i = Memento_PreSize>>2;
 	do {
 		if(*ip++ != MEMENTO_PREFILL_UINT32)
@@ -1067,7 +1067,7 @@ post_corrupt:
 static int Memento_Internal_checkFreedBlock(Memento_BlkHeader * b, void * arg)
 {
 	size_t i;
-	unsigned char * p;
+	uchar * p;
 	BlkCheckData  * data = (BlkCheckData*)arg;
 
 	p = MEMBLK_TOBLK(b); /* p will always be aligned */
@@ -1095,7 +1095,7 @@ mismatch4:
 	}
 mismatch:
 	while(i) {
-		if(*p++ != (unsigned char)MEMENTO_FREEFILL)
+		if(*p++ != (uchar)MEMENTO_FREEFILL)
 			break;
 		i--;
 	}
@@ -1346,7 +1346,7 @@ int Memento_listBlocksNested(void)
 		b->flags &= ~Memento_Flag_HasParent;
 		b->child   = NULL;
 		b->sibling = NULL;
-		b->prev    = NULL;/* parent */
+		b->prev    = NULL; /* parent */
 	}
 	qsort(blocks, count, sizeof(void *), ptrcmp);
 
@@ -1602,19 +1602,19 @@ static int Memento_containsAddr(Memento_BlkHeader * b,
 	findBlkData * data = (findBlkData*)arg;
 	char * blkend = &((char *)MEMBLK_TOBLK(b))[b->rawsize];
 	if((MEMBLK_TOBLK(b) <= data->addr) &&
-	    ((void*)blkend > data->addr)) {
+	    ((void *)blkend > data->addr)) {
 		data->blk = b;
 		data->flags = 1;
 		return 1;
 	}
-	if(((void*)b <= data->addr) &&
+	if(((void *)b <= data->addr) &&
 	    (MEMBLK_TOBLK(b) > data->addr)) {
 		data->blk = b;
 		data->flags = 2;
 		return 1;
 	}
-	if(((void*)blkend <= data->addr) &&
-	    ((void*)(blkend + Memento_PostSize) > data->addr)) {
+	if(((void *)blkend <= data->addr) &&
+	    ((void *)(blkend + Memento_PostSize) > data->addr)) {
 		data->blk = b;
 		data->flags = 3;
 		return 1;
@@ -2046,7 +2046,7 @@ int Memento_checkPointerOrNull(void * blk)
 
 int Memento_checkBytePointerOrNull(void * blk)
 {
-	unsigned char i;
+	uchar i;
 	if(blk == NULL)
 		return 0;
 	Memento_checkPointerOrNull(blk);
@@ -2862,7 +2862,7 @@ void * operator new[] (size_t size)
 	return ret;
 }
 
-void operator delete[] (void* pointer)
+void operator delete[] (void * pointer)
 {
 	MEMENTO_LOCK();
 	do_free(pointer, Memento_EventType_deleteArray);
@@ -2931,12 +2931,12 @@ void(Memento_breakOnRealloc)(void * a)
 {
 }
 
-void *(Memento_takeRef)(void* a)
+void *(Memento_takeRef)(void * a)
 {
 	return a;
 }
 
-void *(Memento_dropRef)(void* a)
+void *(Memento_dropRef)(void * a)
 {
 	return a;
 }
@@ -2946,7 +2946,7 @@ void *(Memento_adjustRef)(void * a, int adjust)
 	return a;
 }
 
-void *(Memento_reference)(void* a)
+void *(Memento_reference)(void * a)
 {
 	return a;
 }

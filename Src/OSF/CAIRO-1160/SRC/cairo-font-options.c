@@ -83,7 +83,7 @@ void _cairo_font_options_init_copy(cairo_font_options_t * options,
 	options->hint_style = other->hint_style;
 	options->hint_metrics = other->hint_metrics;
 	options->round_glyph_positions = other->round_glyph_positions;
-	options->variations = other->variations ? strdup(other->variations) : NULL;
+	options->variations = other->variations ? sstrdup(other->variations) : NULL;
 }
 
 /**
@@ -230,7 +230,7 @@ void cairo_font_options_merge(cairo_font_options_t * options,
 			options->variations = p;
 		}
 		else {
-			options->variations = strdup(other->variations);
+			options->variations = sstrdup(other->variations);
 		}
 	}
 }
@@ -553,7 +553,7 @@ cairo_hint_metrics_t cairo_font_options_get_hint_metrics(const cairo_font_option
 void cairo_font_options_set_variations(cairo_font_options_t * options,
     const char * variations)
 {
-	char * tmp = variations ? strdup(variations) : NULL;
+	char * tmp = variations ? sstrdup(variations) : NULL;
 	SAlloc::F(options->variations);
 	options->variations = tmp;
 }

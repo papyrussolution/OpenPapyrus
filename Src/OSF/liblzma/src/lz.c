@@ -55,7 +55,7 @@ static void move_window(lzma_mf * mf)
 	// alignment of the uncompressed data. We also get better speed
 	// for memmove() with aligned buffers.
 	assert(mf->read_pos > mf->keep_size_before);
-	const uint32_t move_offset = (mf->read_pos - mf->keep_size_before) & ~UINT32_C(15);
+	const uint32 move_offset = (mf->read_pos - mf->keep_size_before) & ~UINT32_C(15);
 	assert(mf->write_pos > move_offset);
 	const size_t move_size = mf->write_pos - move_offset;
 	assert(move_offset + move_size <= mf->size);
@@ -80,7 +80,7 @@ static lzma_ret fill_window(lzma_encoder_coder * coder, const lzma_allocator * a
 	// Move the sliding window if needed.
 	if(coder->mf.read_pos >= coder->mf.size - coder->mf.keep_size_after)
 		move_window(&coder->mf);
-	// Maybe this is ugly, but lzma_mf uses uint32_t for most things
+	// Maybe this is ugly, but lzma_mf uses uint32 for most things
 	// (which I find cleanest), but we need size_t here when filling
 	// the history window.
 	size_t write_pos = coder->mf.write_pos;
@@ -119,7 +119,7 @@ static lzma_ret fill_window(lzma_encoder_coder * coder, const lzma_allocator * a
 	if(coder->mf.pending > 0 && coder->mf.read_pos < coder->mf.read_limit) {
 		// Match finder may update coder->pending and expects it to
 		// start from zero, so use a temporary variable.
-		const uint32_t pending = coder->mf.pending;
+		const uint32 pending = coder->mf.pending;
 		coder->mf.pending = 0;
 		// Rewind read_pos so that the match finder can hash
 		// the pending bytes.
@@ -169,15 +169,15 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 	//
 	// This works with dictionaries up to about 3 GiB. If bigger
 	// dictionary is wanted, some extra work is needed:
-	//   - Several variables in lzma_mf have to be changed from uint32_t
+	//   - Several variables in lzma_mf have to be changed from uint32
 	//     to size_t.
 	//   - Memory usage calculation needs something too, e.g. use uint64_t
 	//     for mf->size.
-	uint32_t reserve = lz_options->dict_size / 2;
+	uint32 reserve = lz_options->dict_size / 2;
 	if(reserve > (UINT32_C(1) << 30))
 		reserve /= 2;
 	reserve += (lz_options->before_size + lz_options->match_len_max + lz_options->after_size) / 2 + (UINT32_C(1) << 19);
-	const uint32_t old_size = mf->size;
+	const uint32 old_size = mf->size;
 	mf->size = mf->keep_size_before + reserve + mf->keep_size_after;
 	// Deallocate the old history buffer if it exists but has different
 	// size than what is needed now.
@@ -242,11 +242,11 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 	}
 	// Calculate the sizes of mf->hash and mf->son and check that
 	// nice_len is big enough for the selected match finder.
-	const uint32_t hash_bytes = lz_options->match_finder & 0x0F;
+	const uint32 hash_bytes = lz_options->match_finder & 0x0F;
 	if(hash_bytes > mf->nice_len)
 		return true;
 	const bool is_bt = (lz_options->match_finder & 0x10) != 0;
-	uint32_t hs;
+	uint32 hs;
 	if(hash_bytes == 2) {
 		hs = 0xFFFF;
 	}
@@ -279,8 +279,8 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
         if (mf->hash_bytes > 4)
                 hs += HASH_4_SIZE;
  */
- 	const uint32_t old_hash_count = mf->hash_count;
-	const uint32_t old_sons_count = mf->sons_count;
+ 	const uint32 old_hash_count = mf->hash_count;
+	const uint32 old_sons_count = mf->sons_count;
 	mf->hash_count = hs;
 	mf->sons_count = mf->cyclic_size;
 	if(is_bt)
@@ -333,7 +333,7 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 #if UINT32_MAX >= SIZE_MAX / 4
 	// Check for integer overflow. (Huge dictionaries are not
 	// possible on 32-bit CPU.)
-	if(mf->hash_count > SIZE_MAX / sizeof(uint32_t) || mf->sons_count > SIZE_MAX / sizeof(uint32_t))
+	if(mf->hash_count > SIZE_MAX / sizeof(uint32) || mf->sons_count > SIZE_MAX / sizeof(uint32))
 		return true;
 #endif
 
@@ -348,12 +348,11 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 	// allocated by the kernel, so we avoid wasting RAM and improve
 	// initialization speed a lot.
 	if(mf->hash == NULL) {
-		mf->hash = (uint32_t *)lzma_alloc_zero(mf->hash_count * sizeof(uint32_t), allocator);
-		mf->son = (uint32_t *)lzma_alloc(mf->sons_count * sizeof(uint32_t), allocator);
+		mf->hash = (uint32 *)lzma_alloc_zero(mf->hash_count * sizeof(uint32), allocator);
+		mf->son = (uint32 *)lzma_alloc(mf->sons_count * sizeof(uint32), allocator);
 		if(mf->hash == NULL || mf->son == NULL) {
 			lzma_free(mf->hash, allocator);
 			mf->hash = NULL;
-
 			lzma_free(mf->son, allocator);
 			mf->son = NULL;
 
@@ -362,10 +361,10 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 	}
 	else {
 /*
-                for (uint32_t i = 0; i < mf->hash_count; ++i)
+                for (uint32 i = 0; i < mf->hash_count; ++i)
                         mf->hash[i] = EMPTY_HASH_VALUE;
  */
-		memzero(mf->hash, mf->hash_count * sizeof(uint32_t));
+		memzero(mf->hash, mf->hash_count * sizeof(uint32));
 	}
 	mf->cyclic_pos = 0;
 	// Handle preset dictionary.
@@ -381,7 +380,7 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 	return false;
 }
 
-extern uint64_t lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_options)
+extern uint64 lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_options)
 {
 	// Old buffers must not exist when calling lz_encoder_prepare().
 	lzma_mf mf;// = { .buffer = NULL, .hash = NULL, .son = NULL, .hash_count = 0, .sons_count = 0, };
@@ -390,7 +389,7 @@ extern uint64_t lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_opti
 	if(lz_encoder_prepare(&mf, NULL, lz_options))
 		return UINT64_MAX;
 	// Calculate the memory usage.
-	return ((uint64_t)(mf.hash_count) + mf.sons_count) * sizeof(uint32_t) + mf.size + sizeof(lzma_encoder_coder);
+	return ((uint64_t)(mf.hash_count) + mf.sons_count) * sizeof(uint32) + mf.size + sizeof(lzma_encoder_coder);
 }
 
 static void lz_encoder_end(void * coder_ptr, const lzma_allocator * allocator)
@@ -495,20 +494,19 @@ lzma_bool lzma_mf_is_supported(lzma_match_finder mf)
 /// \brief      Find matches starting from the current byte
 ///
 /// \return     The length of the longest match found
-extern uint32_t lzma_mf_find(lzma_mf * mf, uint32_t * count_ptr, lzma_match * matches)
+extern uint32 lzma_mf_find(lzma_mf * mf, uint32 * count_ptr, lzma_match * matches)
 {
 	// Call the match finder. It returns the number of length-distance
 	// pairs found.
 	// FIXME: Minimum count is zero, what _exactly_ is the maximum?
-	const uint32_t count = mf->find(mf, matches);
+	const uint32 count = mf->find(mf, matches);
 	// Length of the longest match; assume that no matches were found
 	// and thus the maximum length is zero.
-	uint32_t len_best = 0;
-
+	uint32 len_best = 0;
 	if(count > 0) {
 #ifndef NDEBUG
 		// Validate the matches.
-		for(uint32_t i = 0; i < count; ++i) {
+		for(uint32 i = 0; i < count; ++i) {
 			assert(matches[i].len <= mf->nice_len);
 			assert(matches[i].dist < mf->read_pos);
 			assert(memcmp(mf_ptr(mf) - 1, mf_ptr(mf) - matches[i].dist - 2, matches[i].len) == 0);
@@ -526,7 +524,7 @@ extern uint32_t lzma_mf_find(lzma_mf * mf, uint32_t * count_ptr, lzma_match * ma
 			// maximum match length supported by the LZ-based
 			// encoder or the number of bytes left in the
 			// dictionary, whichever is smaller.
-			uint32_t limit = mf_avail(mf) + 1;
+			uint32 limit = mf_avail(mf) + 1;
 			if(limit > mf->match_len_max)
 				limit = mf->match_len_max;
 			// Pointer to the byte we just ran through
@@ -572,9 +570,9 @@ static void normalize(lzma_mf * mf)
 	assert(mf->read_pos + mf->offset == MUST_NORMALIZE_POS);
 	// In future we may not want to touch the lowest bits, because there
 	// may be match finders that use larger resolution than one byte.
-	const uint32_t subvalue = (MUST_NORMALIZE_POS - mf->cyclic_size);
+	const uint32 subvalue = (MUST_NORMALIZE_POS - mf->cyclic_size);
 	// & ~((UINT32_C(1) << 10) - 1);
-	for(uint32_t i = 0; i < mf->hash_count; ++i) {
+	for(uint32 i = 0; i < mf->hash_count; ++i) {
 		// If the distance is greater than the dictionary size,
 		// we can simply mark the hash element as empty.
 		if(mf->hash[i] <= subvalue)
@@ -582,7 +580,7 @@ static void normalize(lzma_mf * mf)
 		else
 			mf->hash[i] -= subvalue;
 	}
-	for(uint32_t i = 0; i < mf->sons_count; ++i) {
+	for(uint32 i = 0; i < mf->sons_count; ++i) {
 		// Do the same for mf->son.
 		//
 		// NOTE: There may be uninitialized elements in mf->son.
@@ -637,7 +635,7 @@ static void move_pending(lzma_mf * mf)
 /// chain skip function doesn't need len_limit so a simpler code is used
 /// in them.
 #define header(is_bt, len_min, ret_op) \
-	uint32_t len_limit = mf_avail(mf); \
+	uint32 len_limit = mf_avail(mf); \
 	if(mf->nice_len <= len_limit) { \
 		len_limit = mf->nice_len; \
 	} else if(len_limit < (len_min) || (is_bt && mf->action == LZMA_SYNC_FLUSH)) { \
@@ -645,14 +643,12 @@ static void move_pending(lzma_mf * mf)
 		move_pending(mf); \
 		ret_op; \
 	} \
-	const uint8_t * cur = mf_ptr(mf); \
-	const uint32_t pos = mf->read_pos + mf->offset
+	const uint8 * cur = mf_ptr(mf); \
+	const uint32 pos = mf->read_pos + mf->offset
 
 /// Header for find functions. "return 0" indicates that zero matches
 /// were found.
-#define header_find(is_bt, len_min) \
-	header(is_bt, len_min, return 0); \
-	uint32_t matches_count = 0
+#define header_find(is_bt, len_min) header(is_bt, len_min, return 0); uint32 matches_count = 0
 
 /// Header for a loop in a skip function. "continue" tells to skip the rest
 /// of the code in the loop.
@@ -668,11 +664,9 @@ static void move_pending(lzma_mf * mf)
 		move_pos(mf); \
 		return matches_count; \
 	} while(0)
-
-////////////////
-// Hash Chain //
-////////////////
-
+//
+// Hash Chain
+//
 #if defined(HAVE_MF_HC3) || defined(HAVE_MF_HC4)
 ///
 ///
@@ -686,18 +680,18 @@ static void move_pending(lzma_mf * mf)
 /// \param      cyclic_size
 /// \param      matches         Array to hold the matches.
 /// \param      len_best        The length of the longest match found so far.
-static lzma_match * hc_find_func(const uint32_t len_limit, const uint32_t pos, const uint8_t * const cur, uint32_t cur_match,
-    uint32_t depth, uint32_t * const son, const uint32_t cyclic_pos, const uint32_t cyclic_size, lzma_match * matches, uint32_t len_best)
+static lzma_match * hc_find_func(const uint32 len_limit, const uint32 pos, const uint8_t * const cur, uint32 cur_match,
+    uint32 depth, uint32 * const son, const uint32 cyclic_pos, const uint32 cyclic_size, lzma_match * matches, uint32 len_best)
 {
 	son[cyclic_pos] = cur_match;
 	while(true) {
-		const uint32_t delta = pos - cur_match;
+		const uint32 delta = pos - cur_match;
 		if(depth-- == 0 || delta >= cyclic_size)
 			return matches;
 		const uint8_t * const pb = cur - delta;
 		cur_match = son[cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)];
 		if(pb[len_best] == cur[len_best] && pb[0] == cur[0]) {
-			uint32_t len = lzma_memcmplen(pb, cur, 1, len_limit);
+			uint32 len = lzma_memcmplen(pb, cur, 1, len_limit);
 			if(len_best < len) {
 				len_best = len;
 				matches->len = len;
@@ -721,15 +715,15 @@ static lzma_match * hc_find_func(const uint32_t len_limit, const uint32_t pos, c
 #endif
 
 #ifdef HAVE_MF_HC3
-extern uint32_t lzma_mf_hc3_find(lzma_mf * mf, lzma_match * matches)
+extern uint32 lzma_mf_hc3_find(lzma_mf * mf, lzma_match * matches)
 {
 	header_find(false, 3);
 	hash_3_calc();
-	const uint32_t delta2 = pos - mf->hash[hash_2_value];
-	const uint32_t cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
+	const uint32 delta2 = pos - mf->hash[hash_2_value];
+	const uint32 cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
 	mf->hash[hash_2_value] = pos;
 	mf->hash[FIX_3_HASH_SIZE + hash_value] = pos;
-	uint32_t len_best = 2;
+	uint32 len_best = 2;
 	if(delta2 < mf->cyclic_size && *(cur - delta2) == *cur) {
 		len_best = lzma_memcmplen(cur - delta2, cur, len_best, len_limit);
 		matches[0].len = len_best;
@@ -743,17 +737,17 @@ extern uint32_t lzma_mf_hc3_find(lzma_mf * mf, lzma_match * matches)
 	hc_find(len_best);
 }
 
-extern void lzma_mf_hc3_skip(lzma_mf * mf, uint32_t amount)
+extern void lzma_mf_hc3_skip(lzma_mf * mf, uint32 amount)
 {
 	do {
 		if(mf_avail(mf) < 3) {
 			move_pending(mf);
 			continue;
 		}
-		const uint8_t * cur = mf_ptr(mf);
-		const uint32_t pos = mf->read_pos + mf->offset;
+		const uint8 * cur = mf_ptr(mf);
+		const uint32 pos = mf->read_pos + mf->offset;
 		hash_3_calc();
-		const uint32_t cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
+		const uint32 cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
 		mf->hash[hash_2_value] = pos;
 		mf->hash[FIX_3_HASH_SIZE + hash_value] = pos;
 		hc_skip();
@@ -763,17 +757,17 @@ extern void lzma_mf_hc3_skip(lzma_mf * mf, uint32_t amount)
 #endif
 
 #ifdef HAVE_MF_HC4
-extern uint32_t lzma_mf_hc4_find(lzma_mf * mf, lzma_match * matches)
+extern uint32 lzma_mf_hc4_find(lzma_mf * mf, lzma_match * matches)
 {
 	header_find(false, 4);
 	hash_4_calc();
-	uint32_t delta2 = pos - mf->hash[hash_2_value];
-	const uint32_t delta3 = pos - mf->hash[FIX_3_HASH_SIZE + hash_3_value];
-	const uint32_t cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
+	uint32 delta2 = pos - mf->hash[hash_2_value];
+	const uint32 delta3 = pos - mf->hash[FIX_3_HASH_SIZE + hash_3_value];
+	const uint32 cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
 	mf->hash[hash_2_value ] = pos;
 	mf->hash[FIX_3_HASH_SIZE + hash_3_value] = pos;
 	mf->hash[FIX_4_HASH_SIZE + hash_value] = pos;
-	uint32_t len_best = 1;
+	uint32 len_best = 1;
 	if(delta2 < mf->cyclic_size && *(cur - delta2) == *cur) {
 		len_best = 2;
 		matches[0].len = 2;
@@ -798,17 +792,17 @@ extern uint32_t lzma_mf_hc4_find(lzma_mf * mf, lzma_match * matches)
 	hc_find(len_best);
 }
 
-extern void lzma_mf_hc4_skip(lzma_mf * mf, uint32_t amount)
+extern void lzma_mf_hc4_skip(lzma_mf * mf, uint32 amount)
 {
 	do {
 		if(mf_avail(mf) < 4) {
 			move_pending(mf);
 			continue;
 		}
-		const uint8_t * cur = mf_ptr(mf);
-		const uint32_t pos = mf->read_pos + mf->offset;
+		const uint8 * cur = mf_ptr(mf);
+		const uint32 pos = mf->read_pos + mf->offset;
 		hash_4_calc();
-		const uint32_t cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
+		const uint32 cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
 		mf->hash[hash_2_value] = pos;
 		mf->hash[FIX_3_HASH_SIZE + hash_3_value] = pos;
 		mf->hash[FIX_4_HASH_SIZE + hash_value] = pos;
@@ -821,24 +815,24 @@ extern void lzma_mf_hc4_skip(lzma_mf * mf, uint32_t amount)
 // Binary Tree //
 //
 #if defined(HAVE_MF_BT2) || defined(HAVE_MF_BT3) || defined(HAVE_MF_BT4)
-static lzma_match * bt_find_func(const uint32_t len_limit, const uint32_t pos, const uint8_t * const cur,
-    uint32_t cur_match, uint32_t depth, uint32_t * const son, const uint32_t cyclic_pos, const uint32_t cyclic_size,
-    lzma_match * matches, uint32_t len_best)
+static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const uint8_t * const cur,
+    uint32 cur_match, uint32 depth, uint32 * const son, const uint32 cyclic_pos, const uint32 cyclic_size,
+    lzma_match * matches, uint32 len_best)
 {
-	uint32_t * ptr0 = son + (cyclic_pos << 1) + 1;
-	uint32_t * ptr1 = son + (cyclic_pos << 1);
-	uint32_t len0 = 0;
-	uint32_t len1 = 0;
+	uint32 * ptr0 = son + (cyclic_pos << 1) + 1;
+	uint32 * ptr1 = son + (cyclic_pos << 1);
+	uint32 len0 = 0;
+	uint32 len1 = 0;
 	while(true) {
-		const uint32_t delta = pos - cur_match;
+		const uint32 delta = pos - cur_match;
 		if(depth-- == 0 || delta >= cyclic_size) {
 			*ptr0 = EMPTY_HASH_VALUE;
 			*ptr1 = EMPTY_HASH_VALUE;
 			return matches;
 		}
-		uint32_t * const pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
+		uint32 * const pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
 		const uint8_t * const pb = cur - delta;
-		uint32_t len = MIN(len0, len1);
+		uint32 len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
 			if(len_best < len) {
@@ -870,23 +864,23 @@ static lzma_match * bt_find_func(const uint32_t len_limit, const uint32_t pos, c
 	}
 }
 
-static void bt_skip_func(const uint32_t len_limit, const uint32_t pos, const uint8_t * const cur, uint32_t cur_match,
-    uint32_t depth, uint32_t * const son, const uint32_t cyclic_pos, const uint32_t cyclic_size)
+static void bt_skip_func(const uint32 len_limit, const uint32 pos, const uint8 * const cur, uint32 cur_match,
+    uint32 depth, uint32 * const son, const uint32 cyclic_pos, const uint32 cyclic_size)
 {
-	uint32_t * ptr0 = son + (cyclic_pos << 1) + 1;
-	uint32_t * ptr1 = son + (cyclic_pos << 1);
-	uint32_t len0 = 0;
-	uint32_t len1 = 0;
+	uint32 * ptr0 = son + (cyclic_pos << 1) + 1;
+	uint32 * ptr1 = son + (cyclic_pos << 1);
+	uint32 len0 = 0;
+	uint32 len1 = 0;
 	while(true) {
-		const uint32_t delta = pos - cur_match;
+		const uint32 delta = pos - cur_match;
 		if(depth-- == 0 || delta >= cyclic_size) {
 			*ptr0 = EMPTY_HASH_VALUE;
 			*ptr1 = EMPTY_HASH_VALUE;
 			return;
 		}
-		uint32_t * pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
+		uint32 * pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
 		const uint8_t * pb = cur - delta;
-		uint32_t len = MIN(len0, len1);
+		uint32 len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
 			if(len == len_limit) {
@@ -921,21 +915,21 @@ static void bt_skip_func(const uint32_t len_limit, const uint32_t pos, const uin
 #endif
 
 #ifdef HAVE_MF_BT2
-extern uint32_t lzma_mf_bt2_find(lzma_mf * mf, lzma_match * matches)
+extern uint32 lzma_mf_bt2_find(lzma_mf * mf, lzma_match * matches)
 {
 	header_find(true, 2);
 	hash_2_calc();
-	const uint32_t cur_match = mf->hash[hash_value];
+	const uint32 cur_match = mf->hash[hash_value];
 	mf->hash[hash_value] = pos;
 	bt_find(1);
 }
 
-extern void lzma_mf_bt2_skip(lzma_mf * mf, uint32_t amount)
+extern void lzma_mf_bt2_skip(lzma_mf * mf, uint32 amount)
 {
 	do {
 		header_skip(true, 2);
 		hash_2_calc();
-		const uint32_t cur_match = mf->hash[hash_value];
+		const uint32 cur_match = mf->hash[hash_value];
 		mf->hash[hash_value] = pos;
 		bt_skip();
 	} while(--amount != 0);
@@ -943,15 +937,15 @@ extern void lzma_mf_bt2_skip(lzma_mf * mf, uint32_t amount)
 #endif
 
 #ifdef HAVE_MF_BT3
-extern uint32_t lzma_mf_bt3_find(lzma_mf * mf, lzma_match * matches)
+extern uint32 lzma_mf_bt3_find(lzma_mf * mf, lzma_match * matches)
 {
 	header_find(true, 3);
 	hash_3_calc();
-	const uint32_t delta2 = pos - mf->hash[hash_2_value];
-	const uint32_t cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
+	const uint32 delta2 = pos - mf->hash[hash_2_value];
+	const uint32 cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
 	mf->hash[hash_2_value] = pos;
 	mf->hash[FIX_3_HASH_SIZE + hash_value] = pos;
-	uint32_t len_best = 2;
+	uint32 len_best = 2;
 	if(delta2 < mf->cyclic_size && *(cur - delta2) == *cur) {
 		len_best = lzma_memcmplen(cur, cur - delta2, len_best, len_limit);
 		matches[0].len = len_best;
@@ -965,12 +959,12 @@ extern uint32_t lzma_mf_bt3_find(lzma_mf * mf, lzma_match * matches)
 	bt_find(len_best);
 }
 
-extern void lzma_mf_bt3_skip(lzma_mf * mf, uint32_t amount)
+extern void lzma_mf_bt3_skip(lzma_mf * mf, uint32 amount)
 {
 	do {
 		header_skip(true, 3);
 		hash_3_calc();
-		const uint32_t cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
+		const uint32 cur_match = mf->hash[FIX_3_HASH_SIZE + hash_value];
 		mf->hash[hash_2_value] = pos;
 		mf->hash[FIX_3_HASH_SIZE + hash_value] = pos;
 		bt_skip();
@@ -980,17 +974,17 @@ extern void lzma_mf_bt3_skip(lzma_mf * mf, uint32_t amount)
 #endif
 
 #ifdef HAVE_MF_BT4
-extern uint32_t lzma_mf_bt4_find(lzma_mf * mf, lzma_match * matches)
+extern uint32 lzma_mf_bt4_find(lzma_mf * mf, lzma_match * matches)
 {
 	header_find(true, 4);
 	hash_4_calc();
-	uint32_t delta2 = pos - mf->hash[hash_2_value];
-	const uint32_t delta3 = pos - mf->hash[FIX_3_HASH_SIZE + hash_3_value];
-	const uint32_t cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
+	uint32 delta2 = pos - mf->hash[hash_2_value];
+	const uint32 delta3 = pos - mf->hash[FIX_3_HASH_SIZE + hash_3_value];
+	const uint32 cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
 	mf->hash[hash_2_value] = pos;
 	mf->hash[FIX_3_HASH_SIZE + hash_3_value] = pos;
 	mf->hash[FIX_4_HASH_SIZE + hash_value] = pos;
-	uint32_t len_best = 1;
+	uint32 len_best = 1;
 	if(delta2 < mf->cyclic_size && *(cur - delta2) == *cur) {
 		len_best = 2;
 		matches[0].len = 2;
@@ -1015,12 +1009,12 @@ extern uint32_t lzma_mf_bt4_find(lzma_mf * mf, lzma_match * matches)
 	bt_find(len_best);
 }
 
-extern void lzma_mf_bt4_skip(lzma_mf * mf, uint32_t amount)
+extern void lzma_mf_bt4_skip(lzma_mf * mf, uint32 amount)
 {
 	do {
 		header_skip(true, 4);
 		hash_4_calc();
-		const uint32_t cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
+		const uint32 cur_match = mf->hash[FIX_4_HASH_SIZE + hash_value];
 		mf->hash[hash_2_value] = pos;
 		mf->hash[FIX_3_HASH_SIZE + hash_3_value] = pos;
 		mf->hash[FIX_4_HASH_SIZE + hash_value] = pos;

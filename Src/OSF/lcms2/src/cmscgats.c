@@ -87,7 +87,7 @@ typedef struct _KeyVal {
 // Linked list of memory chunks (Memory sink)
 typedef struct _OwnedMem {
 	struct _OwnedMem* Next;
-	void *            Ptr;          // Point to value
+	void *      Ptr;          // Point to value
 } OWNEDMEM;
 
 // Suballocator
@@ -351,7 +351,7 @@ static const char* PredefinedSampleID[] = {
 #define NUMPREDEFINEDSAMPLEID (sizeof(PredefinedSampleID)/sizeof(char *))
 
 //Forward declaration of some internal functions
-static void* AllocChunk(cmsIT8* it8, cmsUInt32Number size);
+static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size);
 
 // Checks whatever c is a separator
 static
@@ -940,10 +940,10 @@ void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 
 // Allocates a chunk of data, keep linked list
 static
-void* AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
+void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 {
 	OWNEDMEM* ptr1;
-	void* ptr = _cmsMallocZero(it8->ContextID, size);
+	void * ptr = _cmsMallocZero(it8->ContextID, size);
 
 	if(ptr != NULL) {
 		ptr1 = (OWNEDMEM*)_cmsMallocZero(it8->ContextID, sizeof(OWNEDMEM));
@@ -963,7 +963,7 @@ void* AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 
 // Suballocator.
 static
-void* AllocChunk(cmsIT8* it8, cmsUInt32Number size)
+void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 {
 	cmsUInt32Number Free = it8->Allocator.BlockSize - it8->Allocator.Used;
 	cmsUInt8Number* ptr;
@@ -981,13 +981,13 @@ void* AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 			it8->Allocator.BlockSize = size;
 
 		it8->Allocator.Used = 0;
-		it8->Allocator.Block = (cmsUInt8Number*)AllocBigBlock(it8, it8->Allocator.BlockSize);
+		it8->Allocator.Block = (cmsUInt8Number *)AllocBigBlock(it8, it8->Allocator.BlockSize);
 	}
 
 	ptr = it8->Allocator.Block + it8->Allocator.Used;
 	it8->Allocator.Used += size;
 
-	return (void*)ptr;
+	return (void *)ptr;
 }
 
 // Allocates a string
@@ -1589,7 +1589,7 @@ cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	memzero(&sd, sizeof(sd));
 	sd.stream = NULL;
-	sd.Base   = (cmsUInt8Number*)MemPtr;
+	sd.Base   = (cmsUInt8Number *)MemPtr;
 	sd.Ptr    = sd.Base;
 	sd.Used = 0;
 	if(sd.Base)

@@ -70,7 +70,7 @@ static char FASTCALL wchar_to_1251(int16 src)
 	return c;
 }
 
-SString & FASTCALL TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
+SString & STDCALL TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
 {
 	rBuf.Z();
 	for(char c = !0; c != 0;) {
@@ -91,7 +91,7 @@ SString & FASTCALL TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_ch
 	return rBuf;
 }
 
-char * FASTCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
+char * STDCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
 {
 	size_t i = 0;
 	if(buf) {

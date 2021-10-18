@@ -4282,6 +4282,7 @@ int PPViewBill::PrintAllBills()
 	int    is_packet = 0;
 	PPID   op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
 	SVector * p_rpt_ary = 0;
+	long   out_prn_flags = 0;
 	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
 		int    out_amt_type = 0, r = 1;
 		uint   count = 0;
@@ -4299,10 +4300,14 @@ int PPViewBill::PrintAllBills()
 				is_packet = 0;
 				THROW(P_BObj->ExtractPacket(item.ID, &pack));
 				is_packet = 1;
-				pack.OutAmtType = out_amt_type;
-				THROW(r = PrintGoodsBill(&pack, &p_rpt_ary, 1));
-				out_amt_type = pack.OutAmtType;
-				count++;
+				r = (count == 0) ? PrepareBillMultiPrint(&pack, &p_rpt_ary, &out_prn_flags) : 1;
+				if(r > 0) {
+					pack.OutAmtType = out_amt_type;
+					//THROW(r = PrintGoodsBill(&pack, &p_rpt_ary, 1));
+					THROW(r = MultiPrintGoodsBill(&pack, p_rpt_ary, out_prn_flags));
+					out_amt_type = pack.OutAmtType;
+					count++;
+				}
 			}
 		}
 		ok = 1;
@@ -6059,7 +6064,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 //
 //
 //
-int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
+int STDCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 {
 	int    ok = -1, r = 0, view_in_use = 0;
 	int    modeless = GetModelessStatus(asModeless);
@@ -6100,7 +6105,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	return ok;
 }
 
-int FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
+int STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 {
 	int    ok = -1;
 	int    pool_bytype = BIN(poolOwnerID && oneof5(poolType, PPASS_OPBILLPOOL, PPASS_TODOBILLPOOL,
@@ -6138,7 +6143,7 @@ int FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 	return ok;
 }
 
-int FASTCALL BrowseBills(BrowseBillsType bbt)
+int STDCALL BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
 	THROW(PPCheckDatabaseChain());

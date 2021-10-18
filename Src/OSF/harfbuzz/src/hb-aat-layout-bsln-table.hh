@@ -128,7 +128,7 @@ protected:
 		FixedVersion<>version; /* Version number of the Baseline table. */
 		HBUINT16 format; /* Format of the baseline table. Only one baseline
 		 * format may be selected for the font. */
-		HBUINT16 defaultBaseline;/* Default baseline value for all glyphs.
+		HBUINT16 defaultBaseline; /* Default baseline value for all glyphs.
 		 * This value can be from 0 through 31. */
 		union {
 			// Distance-Based Formats

@@ -24,7 +24,7 @@ uint BroGroup::NextColumn() const { return (First+Count); }
 //
 //
 //
-BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
+BrowserDef::BrowserDef(int captionHight, uint aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
 	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
 	ExtraPtr(extraPtr), UserProc(0), isBOQ(0), isEOQ(0)
 {
@@ -84,7 +84,7 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 
 #pragma warn +rng
 
-int FASTCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
+int STDCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
 {
 	for(uint i = 0, c = NumGroups; i < c; i++) {
 		const BroGroup * p_group = GetGroup(i);

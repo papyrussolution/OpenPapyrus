@@ -1,9 +1,9 @@
 /***************************************************************************
- *                                  _   _ ____  _
+ *                            _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                       / __| | | | |_) | |
+ *                      | (__| |_| |  _ <| |___
+ *                       \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1999 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -857,7 +857,7 @@ number:
 			    /* Generic pointer.  */
 		    {
 			    void * ptr;
-			    ptr = (void*)p->data.ptr;
+			    ptr = (void *)p->data.ptr;
 			    if(ptr != NULL) {
 				    /* If the pointer is not NULL, write it as a %#x spec.  */
 				    base = 16;

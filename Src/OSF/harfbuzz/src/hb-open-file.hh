@@ -128,7 +128,7 @@ public:
 			HBUINT32 * checksum_adjustment = nullptr;
 
 			/* Write OffsetTables, alloc for and write actual table blobs. */
-			for(unsigned int i = 0; i < tables.len; i++) {
+			for(uint i = 0; i < tables.len; i++) {
 				TableRecord &rec = tables.arrayZ[i];
 				hb_blob_t * blob = items[i].blob;
 				rec.tag = items[i].tag;
@@ -147,7 +147,7 @@ public:
 				const char * end = (const char *)c->head;
 
 				if(items[i].tag == HB_OT_TAG_head &&
-				    (unsigned)(end - start) >= head::static_size) {
+				    (uint)(end - start) >= head::static_size) {
 					head * h = (head *)start;
 					checksum_adjustment = &h->checkSumAdjustment;
 					*checksum_adjustment = 0;
@@ -164,7 +164,7 @@ public:
 				/* The following line is a slower version of the following block. */
 				//checksum.set_for_data (this, (const char *) c->head - (const char *) this);
 				checksum.set_for_data(this, dir_end - (const char *)this);
-				for(unsigned int i = 0; i < items.length; i++) {
+				for(uint i = 0; i < items.length; i++) {
 					TableRecord &rec = tables.arrayZ[i];
 					checksum = checksum + rec.checkSum;
 				}
@@ -344,7 +344,7 @@ public:
 		unsigned int get_face_count() const
 		{
 			unsigned int count = get_type_count();
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const ResourceTypeRecord& type = get_type_record(i);
 				if(type.is_sfnt())
 					return type.get_resource_count();
@@ -356,7 +356,7 @@ public:
 		    const void * data_base) const
 		{
 			unsigned int count = get_type_count();
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const ResourceTypeRecord& type = get_type_record(i);
 				/* The check for idx < count is here because ResourceRecord is NOT null-safe.
 				 * Because an offset of 0 there does NOT mean null. */

@@ -44,12 +44,12 @@ static int      archive_write_newc_header(struct archive_write *,
     struct archive_entry *);
 static int      archive_write_newc_options(struct archive_write *,
     const char *, const char *);
-static int      format_hex(int64_t, void *, int);
-static int64_t  format_hex_recursive(int64_t, char *, int);
+static int      format_hex(int64, void *, int);
+static int64  format_hex_recursive(int64, char *, int);
 static int      write_header(struct archive_write *, struct archive_entry *);
 
 struct cpio {
-	uint64_t entry_bytes_remaining;
+	uint64 entry_bytes_remaining;
 	int padding;
 
 	struct archive_string_conv * opt_sconv;
@@ -105,7 +105,7 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 
-	cpio = (struct cpio *)calloc(1, sizeof(*cpio));
+	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
@@ -200,7 +200,7 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 
 static int write_header(struct archive_write * a, struct archive_entry * entry)
 {
-	int64_t ino;
+	int64 ino;
 	struct cpio * cpio;
 	const char * p, * path;
 	int pathlength, ret, ret_final;
@@ -366,12 +366,12 @@ static ssize_t archive_write_newc_data(struct archive_write * a, const void * bu
 /*
  * Format a number into the specified field.
  */
-static int format_hex(int64_t v, void * p, int digits)
+static int format_hex(int64 v, void * p, int digits)
 {
-	int64_t max;
+	int64 max;
 	int ret;
 
-	max = (((int64_t)1) << (digits * 4)) - 1;
+	max = (((int64)1) << (digits * 4)) - 1;
 	if(v >= 0 && v <= max) {
 		format_hex_recursive(v, (char *)p, digits);
 		ret = 0;
@@ -383,7 +383,7 @@ static int format_hex(int64_t v, void * p, int digits)
 	return ret;
 }
 
-static int64_t format_hex_recursive(int64_t v, char * p, int s)
+static int64 format_hex_recursive(int64 v, char * p, int s)
 {
 	if(s == 0)
 		return (v);
@@ -412,7 +412,7 @@ static int archive_write_newc_free(struct archive_write * a)
 	struct cpio * cpio;
 
 	cpio = (struct cpio *)a->format_data;
-	free(cpio);
+	SAlloc::F(cpio);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

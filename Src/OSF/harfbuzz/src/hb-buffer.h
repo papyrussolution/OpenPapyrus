@@ -43,18 +43,18 @@ HB_BEGIN_DECLS
 /**
  * hb_glyph_info_t:
  * @codepoint: either a Unicode code point (before shaping) or a glyph index
- *             (after shaping).
+ *       (after shaping).
  * @cluster: the index of the character in the original text that corresponds
- *           to this #hb_glyph_info_t, or whatever the client passes to
- *           hb_buffer_add(). More than one #hb_glyph_info_t can have the same
- *           @cluster value, if they resulted from the same character (e.g. one
- *           to many glyph substitution), and when more than one character gets
- *           merged in the same glyph (e.g. many to one glyph substitution) the
- *           #hb_glyph_info_t will have the smallest cluster value of them.
- *           By default some characters are merged into the same cluster
- *           (e.g. combining marks have the same cluster as their bases)
- *           even if they are separate glyphs, hb_buffer_set_cluster_level()
- *           allow selecting more fine-grained cluster handling.
+ *     to this #hb_glyph_info_t, or whatever the client passes to
+ *     hb_buffer_add(). More than one #hb_glyph_info_t can have the same
+ *     @cluster value, if they resulted from the same character (e.g. one
+ *     to many glyph substitution), and when more than one character gets
+ *     merged in the same glyph (e.g. many to one glyph substitution) the
+ *     #hb_glyph_info_t will have the smallest cluster value of them.
+ *     By default some characters are merged into the same cluster
+ *     (e.g. combining marks have the same cluster as their bases)
+ *     even if they are separate glyphs, hb_buffer_set_cluster_level()
+ *     allow selecting more fine-grained cluster handling.
  *
  * The #hb_glyph_info_t is the structure that holds information about the
  * glyphs and their relation to input text.
@@ -74,20 +74,20 @@ typedef struct hb_glyph_info_t {
 /**
  * hb_glyph_flags_t:
  * @HB_GLYPH_FLAG_UNSAFE_TO_BREAK: Indicates that if input text is broken at the
- *                    beginning of the cluster this glyph is part of,
- *                    then both sides need to be re-shaped, as the
- *                    result might be different.  On the flip side,
- *                    it means that when this flag is not present,
- *                    then it's safe to break the glyph-run at the
- *                    beginning of this cluster, and the two sides
- *                    represent the exact same result one would get
- *                    if breaking input text at the beginning of
- *                    this cluster and shaping the two sides
- *                    separately.  This can be used to optimize
- *                    paragraph layout, by avoiding re-shaping
- *                    of each line after line-breaking, or limiting
- *                    the reshaping to a small piece around the
- *                    breaking point only.
+ *              beginning of the cluster this glyph is part of,
+ *              then both sides need to be re-shaped, as the
+ *              result might be different.  On the flip side,
+ *              it means that when this flag is not present,
+ *              then it's safe to break the glyph-run at the
+ *              beginning of this cluster, and the two sides
+ *              represent the exact same result one would get
+ *              if breaking input text at the beginning of
+ *              this cluster and shaping the two sides
+ *              separately.  This can be used to optimize
+ *              paragraph layout, by avoiding re-shaping
+ *              of each line after line-breaking, or limiting
+ *              the reshaping to a small piece around the
+ *              breaking point only.
  * @HB_GLYPH_FLAG_DEFINED: All the currently defined flags.
  *
  * Since: 1.5.0
@@ -101,18 +101,18 @@ typedef enum { /*< flags >*/
 HB_EXTERN hb_glyph_flags_t hb_glyph_info_get_glyph_flags(const hb_glyph_info_t * info);
 
 #define hb_glyph_info_get_glyph_flags(info) \
-	((hb_glyph_flags_t)((unsigned int)(info)->mask & HB_GLYPH_FLAG_DEFINED))
+	((hb_glyph_flags_t)((uint)(info)->mask & HB_GLYPH_FLAG_DEFINED))
 
 /**
  * hb_glyph_position_t:
  * @x_advance: how much the line advances after drawing this glyph when setting
- *             text in horizontal direction.
+ *       text in horizontal direction.
  * @y_advance: how much the line advances after drawing this glyph when setting
- *             text in vertical direction.
+ *       text in vertical direction.
  * @x_offset: how much the glyph moves on the X-axis before drawing it, this
- *            should not affect how much the line advances.
+ *      should not affect how much the line advances.
  * @y_offset: how much the glyph moves on the Y-axis before drawing it, this
- *            should not affect how much the line advances.
+ *      should not affect how much the line advances.
  *
  * The #hb_glyph_position_t is the structure that holds the positions of the
  * glyph in both horizontal and vertical directions. All positions in
@@ -197,30 +197,30 @@ HB_EXTERN void hb_buffer_guess_segment_properties(hb_buffer_t * buffer);
  * hb_buffer_flags_t:
  * @HB_BUFFER_FLAG_DEFAULT: the default buffer flag.
  * @HB_BUFFER_FLAG_BOT: flag indicating that special handling of the beginning
- *         of text paragraph can be applied to this buffer. Should usually
- *         be set, unless you are passing to the buffer only part
- *         of the text without the full context.
+ *   of text paragraph can be applied to this buffer. Should usually
+ *   be set, unless you are passing to the buffer only part
+ *   of the text without the full context.
  * @HB_BUFFER_FLAG_EOT: flag indicating that special handling of the end of text
- *         paragraph can be applied to this buffer, similar to
- *         @HB_BUFFER_FLAG_BOT.
+ *   paragraph can be applied to this buffer, similar to
+ *   @HB_BUFFER_FLAG_BOT.
  * @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES:
- *         flag indication that character with Default_Ignorable
- *         Unicode property should use the corresponding glyph
- *         from the font, instead of hiding them (done by
- *         replacing them with the space glyph and zeroing the
- *         advance width.)  This flag takes precedence over
- *         @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES.
+ *   flag indication that character with Default_Ignorable
+ *   Unicode property should use the corresponding glyph
+ *   from the font, instead of hiding them (done by
+ *   replacing them with the space glyph and zeroing the
+ *   advance width.)  This flag takes precedence over
+ *   @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES.
  * @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES:
- *         flag indication that character with Default_Ignorable
- *         Unicode property should be removed from glyph string
- *         instead of hiding them (done by replacing them with the
- *         space glyph and zeroing the advance width.)
- *         @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES takes
- *         precedence over this flag. Since: 1.8.0
+ *   flag indication that character with Default_Ignorable
+ *   Unicode property should be removed from glyph string
+ *   instead of hiding them (done by replacing them with the
+ *   space glyph and zeroing the advance width.)
+ *   @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES takes
+ *   precedence over this flag. Since: 1.8.0
  * @HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE:
- *         flag indicating that a dotted circle should
- *         not be inserted in the rendering of incorrect
- *         character sequences (such at <0905 093E>). Since: 2.4
+ *   flag indicating that a dotted circle should
+ *   not be inserted in the rendering of incorrect
+ *   character sequences (such at <0905 093E>). Since: 2.4
  *
  * Since: 0.9.20
  */

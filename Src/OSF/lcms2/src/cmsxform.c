@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -21,14 +20,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//---------------------------------------------------------------------------------
-//
 #include "lcms2_internal.h"
 #pragma hdrstop
-
+//
 // Transformations stuff
-// -----------------------------------------------------------------------
-
+//
 #define DEFAULT_OBSERVER_ADAPTATION_STATE 1.0
 
 // The Context0 observer adaptation state.
@@ -38,7 +34,7 @@ _cmsAdaptationStateChunkType _cmsAdaptationStateChunk = { DEFAULT_OBSERVER_ADAPT
 void _cmsAllocAdaptationStateChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsAdaptationStateChunkType AdaptationStateChunk = { DEFAULT_OBSERVER_ADAPTATION_STATE };
-	void* from;
+	void * from;
 	if(src != NULL) {
 		from = src->chunks[AdaptationStateContext];
 	}
@@ -52,17 +48,13 @@ void _cmsAllocAdaptationStateChunk(struct _cmsContext_struct* ctx, const struct 
 // but cmsCreateExtendedTransformTHR().  Little CMS can handle incomplete adaptation states.
 cmsFloat64Number CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, cmsFloat64Number d)
 {
-	cmsFloat64Number prev;
-	_cmsAdaptationStateChunkType* ptr = (_cmsAdaptationStateChunkType*)_cmsContextGetClientChunk(ContextID, AdaptationStateContext);
-
+	_cmsAdaptationStateChunkType * ptr = (_cmsAdaptationStateChunkType*)_cmsContextGetClientChunk(ContextID, AdaptationStateContext);
 	// Get previous value for return
-	prev = ptr->AdaptationState;
-
+	cmsFloat64Number prev = ptr->AdaptationState;
 	// Set the value if d is positive or zero
 	if(d >= 0.0) {
 		ptr->AdaptationState = d;
 	}
-
 	// Always return previous value
 	return prev;
 }
@@ -87,9 +79,7 @@ _cmsAlarmCodesChunkType _cmsAlarmCodesChunk = { DEFAULT_ALARM_CODES_VALUE };
 void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID, const cmsUInt16Number AlarmCodesP[cmsMAXCHANNELS])
 {
 	_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(ContextID, AlarmCodesContext);
-
 	_cmsAssert(ContextAlarmCodes != NULL); // Can't happen
-
 	memcpy(ContextAlarmCodes->AlarmCodes, AlarmCodesP, sizeof(ContextAlarmCodes->AlarmCodes));
 }
 
@@ -98,16 +88,13 @@ void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID, const cmsUInt16Number A
 void CMSEXPORT cmsGetAlarmCodesTHR(cmsContext ContextID, cmsUInt16Number AlarmCodesP[cmsMAXCHANNELS])
 {
 	_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(ContextID, AlarmCodesContext);
-
 	_cmsAssert(ContextAlarmCodes != NULL); // Can't happen
-
 	memcpy(AlarmCodesP, ContextAlarmCodes->AlarmCodes, sizeof(ContextAlarmCodes->AlarmCodes));
 }
 
 void CMSEXPORT cmsSetAlarmCodes(const cmsUInt16Number NewAlarm[cmsMAXCHANNELS])
 {
 	_cmsAssert(NewAlarm != NULL);
-
 	cmsSetAlarmCodesTHR(NULL, NewAlarm);
 }
 
@@ -118,19 +105,10 @@ void CMSEXPORT cmsGetAlarmCodes(cmsUInt16Number OldAlarm[cmsMAXCHANNELS])
 }
 
 // Init and duplicate alarm codes
-void _cmsAllocAlarmCodesChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void _cmsAllocAlarmCodesChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsAlarmCodesChunkType AlarmCodesChunk = { DEFAULT_ALARM_CODES_VALUE };
-	void* from;
-
-	if(src != NULL) {
-		from = src->chunks[AlarmCodesContext];
-	}
-	else {
-		from = &AlarmCodesChunk;
-	}
-
+	void * from = src ? src->chunks[AlarmCodesContext] : &AlarmCodesChunk;
 	ctx->chunks[AlarmCodesContext] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsAlarmCodesChunkType));
 }
 
@@ -140,28 +118,20 @@ void _cmsAllocAlarmCodesChunk(struct _cmsContext_struct* ctx,
 void CMSEXPORT cmsDeleteTransform(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)hTransform;
-
 	_cmsAssert(p != NULL);
-
 	if(p->GamutCheck)
 		cmsPipelineFree(p->GamutCheck);
-
 	if(p->Lut)
 		cmsPipelineFree(p->Lut);
-
 	if(p->InputColorant)
 		cmsFreeNamedColorList(p->InputColorant);
-
 	if(p->OutputColorant)
 		cmsFreeNamedColorList(p->OutputColorant);
-
 	if(p->Sequence)
 		cmsFreeProfileSequenceDescription(p->Sequence);
-
 	if(p->UserData)
 		p->FreeUserData(p->ContextID, p->UserData);
-
-	_cmsFree(p->ContextID, (void*)p);
+	_cmsFree(p->ContextID, (void *)p);
 }
 
 static
@@ -179,8 +149,8 @@ cmsUInt32Number PixelSize(cmsUInt32Number Format)
 
 // Apply transform.
 void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform,
-    const void* InputBuffer,
-    void* OutputBuffer,
+    const void * InputBuffer,
+    void * OutputBuffer,
     cmsUInt32Number Size)
 
 {
@@ -197,8 +167,8 @@ void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform,
 
 // This is a legacy stride for planar
 void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform,
-    const void* InputBuffer,
-    void* OutputBuffer,
+    const void * InputBuffer,
+    void * OutputBuffer,
     cmsUInt32Number Size, cmsUInt32Number Stride)
 
 {
@@ -215,8 +185,8 @@ void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform,
 
 // This is the "fast" function for plugins
 void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
-    const void* InputBuffer,
-    void* OutputBuffer,
+    const void * InputBuffer,
+    void * OutputBuffer,
     cmsUInt32Number PixelsPerLine,
     cmsUInt32Number LineCount,
     cmsUInt32Number BytesPerLineIn,
@@ -243,8 +213,8 @@ void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
 // Note that because extended range, we can use a -1.0 value for out of gamut in this case.
 static
 void FloatXFORM(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
+    const void * in,
+    void * out,
     cmsUInt32Number PixelsPerLine,
     cmsUInt32Number LineCount,
     const cmsStride* Stride)
@@ -261,14 +231,11 @@ void FloatXFORM(_cmsTRANSFORM* p,
 	strideOut = 0;
 	memzero(fIn, sizeof(fIn));
 	memzero(fOut, sizeof(fIn));
-
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInputFloat(p, fIn, accum, Stride->BytesPerPlaneIn);
-
 			// Any gamut chack to do?
 			if(p->GamutCheck != NULL) {
 				// Evaluate gamut marker.
@@ -298,35 +265,24 @@ void FloatXFORM(_cmsTRANSFORM* p,
 	}
 }
 
-static
-void NullFloatXFORM(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void NullFloatXFORM(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 
 {
 	cmsUInt8Number* accum;
 	cmsUInt8Number* output;
 	cmsFloat32Number fIn[cmsMAXCHANNELS];
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
 	memzero(fIn, sizeof(fIn));
-
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInputFloat(p, fIn, accum, Stride->BytesPerPlaneIn);
 			output = p->ToOutputFloat(p, fIn, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}
@@ -336,62 +292,43 @@ void NullFloatXFORM(_cmsTRANSFORM* p,
 // -----------------------------------------------------------------------------------------------------------
 
 // Null transformation, only applies formatters. No cache
-static
-void NullXFORM(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void NullXFORM(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 {
 	cmsUInt8Number* accum;
 	cmsUInt8Number* output;
 	cmsUInt16Number wIn[cmsMAXCHANNELS];
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
 	memzero(wIn, sizeof(wIn));
-
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInput(p, wIn, accum, Stride->BytesPerPlaneIn);
 			output = p->ToOutput(p, wIn, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}
 }
 
 // No gamut check, no cache, 16 bits
-static
-void PrecalculatedXFORM(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void PrecalculatedXFORM(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 {
 	CMSREGISTER cmsUInt8Number* accum;
 	CMSREGISTER cmsUInt8Number* output;
 	cmsUInt16Number wIn[cmsMAXCHANNELS], wOut[cmsMAXCHANNELS];
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
 	memzero(wIn, sizeof(wIn));
 	memzero(wOut, sizeof(wOut));
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInput(p, wIn, accum, Stride->BytesPerPlaneIn);
 			p->Lut->Eval16Fn(wIn, wOut, p->Lut->Data);
@@ -404,19 +341,13 @@ void PrecalculatedXFORM(_cmsTRANSFORM* p,
 
 // Auxiliary: Handle precalculated gamut check. The retrieval of context may be alittle bit slow, but this function is
 // not critical.
-static
-void TransformOnePixelWithGamutCheck(_cmsTRANSFORM* p,
-    const cmsUInt16Number wIn[],
-    cmsUInt16Number wOut[])
+static void TransformOnePixelWithGamutCheck(_cmsTRANSFORM* p, const cmsUInt16Number wIn[], cmsUInt16Number wOut[])
 {
 	cmsUInt16Number wOutOfGamut;
-
 	p->GamutCheck->Eval16Fn(wIn, &wOutOfGamut, p->GamutCheck->Data);
 	if(wOutOfGamut >= 1) {
 		cmsUInt16Number i;
-		_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(p->ContextID,
-			AlarmCodesContext);
-
+		_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(p->ContextID, AlarmCodesContext);
 		for(i = 0; i < p->Lut->OutputChannels; i++) {
 			wOut[i] = ContextAlarmCodes->AlarmCodes[i];
 		}
@@ -426,58 +357,39 @@ void TransformOnePixelWithGamutCheck(_cmsTRANSFORM* p,
 }
 
 // Gamut check, No cache, 16 bits.
-static
-void PrecalculatedXFORMGamutCheck(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void PrecalculatedXFORMGamutCheck(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 {
 	cmsUInt8Number* accum;
 	cmsUInt8Number* output;
 	cmsUInt16Number wIn[cmsMAXCHANNELS], wOut[cmsMAXCHANNELS];
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
 	memzero(wIn, sizeof(wIn));
 	memzero(wOut, sizeof(wOut));
-
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInput(p, wIn, accum, Stride->BytesPerPlaneIn);
 			TransformOnePixelWithGamutCheck(p, wIn, wOut);
 			output = p->ToOutput(p, wOut, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}
 }
 
 // No gamut check, Cache, 16 bits,
-static
-void CachedXFORM(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void CachedXFORM(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 {
 	cmsUInt8Number* accum;
 	cmsUInt8Number* output;
 	cmsUInt16Number wIn[cmsMAXCHANNELS], wOut[cmsMAXCHANNELS];
 	_cmsCACHE Cache;
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	// Empty buffers for quick memcmp
 	memzero(wIn, sizeof(wIn));
 	memzero(wOut, sizeof(wOut));
@@ -486,77 +398,56 @@ void CachedXFORM(_cmsTRANSFORM* p,
 	strideIn = 0;
 	strideOut = 0;
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInput(p, wIn, accum, Stride->BytesPerPlaneIn);
-
 			if(memcmp(wIn, Cache.CacheIn, sizeof(Cache.CacheIn)) == 0) {
 				memcpy(wOut, Cache.CacheOut, sizeof(Cache.CacheOut));
 			}
 			else {
 				p->Lut->Eval16Fn(wIn, wOut, p->Lut->Data);
-
 				memcpy(Cache.CacheIn, wIn, sizeof(Cache.CacheIn));
 				memcpy(Cache.CacheOut, wOut, sizeof(Cache.CacheOut));
 			}
-
 			output = p->ToOutput(p, wOut, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}
 }
 
 // All those nice features together
-static
-void CachedXFORMGamutCheck(_cmsTRANSFORM* p,
-    const void* in,
-    void* out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    const cmsStride* Stride)
+static void CachedXFORMGamutCheck(_cmsTRANSFORM* p, const void * in, void * out, cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride)
 {
 	cmsUInt8Number* accum;
 	cmsUInt8Number* output;
 	cmsUInt16Number wIn[cmsMAXCHANNELS], wOut[cmsMAXCHANNELS];
 	_cmsCACHE Cache;
 	cmsUInt32Number i, j, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	// Empty buffers for quick memcmp
 	memzero(wIn, sizeof(wIn));
 	memzero(wOut, sizeof(wOut));
-
 	// Get copy of zero cache
 	memcpy(&Cache, &p->Cache, sizeof(Cache));
-
 	strideIn = 0;
 	strideOut = 0;
-
 	for(i = 0; i < LineCount; i++) {
-		accum = (cmsUInt8Number*)in + strideIn;
-		output = (cmsUInt8Number*)out + strideOut;
-
+		accum = (cmsUInt8Number *)in + strideIn;
+		output = (cmsUInt8Number *)out + strideOut;
 		for(j = 0; j < PixelsPerLine; j++) {
 			accum = p->FromInput(p, wIn, accum, Stride->BytesPerPlaneIn);
-
 			if(memcmp(wIn, Cache.CacheIn, sizeof(Cache.CacheIn)) == 0) {
 				memcpy(wOut, Cache.CacheOut, sizeof(Cache.CacheOut));
 			}
 			else {
 				TransformOnePixelWithGamutCheck(p, wIn, wOut);
-
 				memcpy(Cache.CacheIn, wIn, sizeof(Cache.CacheIn));
 				memcpy(Cache.CacheOut, wOut, sizeof(Cache.CacheOut));
 			}
-
 			output = p->ToOutput(p, wOut, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}
@@ -577,42 +468,30 @@ typedef struct _cmsTransformCollection_st {
 _cmsTransformPluginChunkType _cmsTransformPluginChunk = { NULL };
 
 // Duplicates the zone of memory used by the plug-in in the new context
-static
-void DupPluginTransformList(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+static void DupPluginTransformList(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	_cmsTransformPluginChunkType newHead = { NULL };
 	_cmsTransformCollection*  entry;
 	_cmsTransformCollection*  Anterior = NULL;
 	_cmsTransformPluginChunkType* head = (_cmsTransformPluginChunkType*)src->chunks[TransformPlugin];
-
 	// Walk the list copying all nodes
-	for(entry = head->TransformCollection;
-	    entry != NULL;
-	    entry = entry->Next) {
-		_cmsTransformCollection * newEntry =
-		    (_cmsTransformCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsTransformCollection));
-
+	for(entry = head->TransformCollection; entry != NULL; entry = entry->Next) {
+		_cmsTransformCollection * newEntry = (_cmsTransformCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsTransformCollection));
 		if(newEntry == NULL)
 			return;
-
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
 		if(Anterior)
 			Anterior->Next = newEntry;
-
 		Anterior = newEntry;
-
 		if(newHead.TransformCollection == NULL)
 			newHead.TransformCollection = newEntry;
 	}
-
 	ctx->chunks[TransformPlugin] = _cmsSubAllocDup(ctx->MemPool, &newHead, sizeof(_cmsTransformPluginChunkType));
 }
 
 // Allocates memory for transform plugin factory
-void _cmsAllocTransformPluginChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void _cmsAllocTransformPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	if(src != NULL) {
 		// Copy all linked list
@@ -628,8 +507,8 @@ void _cmsAllocTransformPluginChunk(struct _cmsContext_struct* ctx,
 // Adaptor for old versions of plug-in
 static
 void _cmsTransform2toTransformAdaptor(struct _cmstransform_struct * CMMcargo,
-    const void* InputBuffer,
-    void* OutputBuffer,
+    const void * InputBuffer,
+    void * OutputBuffer,
     cmsUInt32Number PixelsPerLine,
     cmsUInt32Number LineCount,
     const cmsStride* Stride)
@@ -642,8 +521,8 @@ void _cmsTransform2toTransformAdaptor(struct _cmstransform_struct * CMMcargo,
 	strideOut = 0;
 
 	for(i = 0; i < LineCount; i++) {
-		void * accum = (cmsUInt8Number*)InputBuffer + strideIn;
-		void * output = (cmsUInt8Number*)OutputBuffer + strideOut;
+		void * accum = (cmsUInt8Number *)InputBuffer + strideIn;
+		void * output = (cmsUInt8Number *)OutputBuffer + strideOut;
 
 		CMMcargo->OldXform(CMMcargo, accum, output, PixelsPerLine, Stride->BytesPerPlaneIn);
 
@@ -689,7 +568,7 @@ cmsBool  _cmsRegisterTransformPlugin(cmsContext ContextID, cmsPluginBase* Data)
 	return TRUE;
 }
 
-void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void* ptr, _cmsFreeUserDataFn FreePrivateDataFn)
+void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn)
 {
 	_cmsAssert(CMMcargo != NULL);
 	CMMcargo->UserData = ptr;
@@ -762,47 +641,33 @@ _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline* lut,
 					// No error is thrown if the formatter doesn't exist. It is up to the
 					// optimization
 					// factory to decide what to do in those cases.
-					p->FromInput =
-					    _cmsGetFormatter(ContextID, *InputFormat, cmsFormatterInput, CMS_PACK_FLAGS_16BITS).Fmt16;
-					p->ToOutput =
-					    _cmsGetFormatter(ContextID, *OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_16BITS).Fmt16;
-					p->FromInputFloat = _cmsGetFormatter(ContextID,
-						*InputFormat,
-						cmsFormatterInput,
-						CMS_PACK_FLAGS_FLOAT).FmtFloat;
-					p->ToOutputFloat = _cmsGetFormatter(ContextID,
-						*OutputFormat,
-						cmsFormatterOutput,
-						CMS_PACK_FLAGS_FLOAT).FmtFloat;
-
+					p->FromInput = _cmsGetFormatter(ContextID, *InputFormat, cmsFormatterInput, CMS_PACK_FLAGS_16BITS).Fmt16;
+					p->ToOutput = _cmsGetFormatter(ContextID, *OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_16BITS).Fmt16;
+					p->FromInputFloat = _cmsGetFormatter(ContextID, *InputFormat, cmsFormatterInput, CMS_PACK_FLAGS_FLOAT).FmtFloat;
+					p->ToOutputFloat = _cmsGetFormatter(ContextID, *OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_FLOAT).FmtFloat;
 					// Save the day? (Ignore the warning)
 					if(Plugin->OldXform) {
-						p->OldXform = (_cmsTransformFn)(void*)p->xform;
+						p->OldXform = (_cmsTransformFn)(void *)p->xform;
 						p->xform = _cmsTransform2toTransformAdaptor;
 					}
-
 					return p;
 				}
 			}
 		}
-
 		// Not suitable for the transform plug-in, let's check  the pipeline plug-in
 		_cmsOptimizePipeline(ContextID, &p->Lut, Intent, InputFormat, OutputFormat, dwFlags);
 	}
-
 	// Check whatever this is a true floating point transform
 	if(_cmsFormatterIsFloat(*InputFormat) && _cmsFormatterIsFloat(*OutputFormat)) {
 		// Get formatter function always return a valid union, but the contents of this union may be NULL.
 		p->FromInputFloat = _cmsGetFormatter(ContextID, *InputFormat,  cmsFormatterInput, CMS_PACK_FLAGS_FLOAT).FmtFloat;
 		p->ToOutputFloat  = _cmsGetFormatter(ContextID, *OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_FLOAT).FmtFloat;
 		*dwFlags |= cmsFLAGS_CAN_CHANGE_FORMATTER;
-
 		if(p->FromInputFloat == NULL || p->ToOutputFloat == NULL) {
 			cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unsupported raster format");
 			cmsDeleteTransform(p);
 			return NULL;
 		}
-
 		if(*dwFlags & cmsFLAGS_NULLTRANSFORM) {
 			p->xform = NullFloatXFORM;
 		}
@@ -818,21 +683,17 @@ _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline* lut,
 		}
 		else {
 			cmsUInt32Number BytesPerPixelInput;
-
 			p->FromInput = _cmsGetFormatter(ContextID, *InputFormat,  cmsFormatterInput, CMS_PACK_FLAGS_16BITS).Fmt16;
 			p->ToOutput  = _cmsGetFormatter(ContextID, *OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_16BITS).Fmt16;
-
 			if(p->FromInput == NULL || p->ToOutput == NULL) {
 				cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unsupported raster format");
 				cmsDeleteTransform(p);
 				return NULL;
 			}
-
 			BytesPerPixelInput = T_BYTES(p->InputFormat);
 			if(BytesPerPixelInput == 0 || BytesPerPixelInput >= 2)
 				*dwFlags |= cmsFLAGS_CAN_CHANGE_FORMATTER;
 		}
-
 		if(*dwFlags & cmsFLAGS_NULLTRANSFORM) {
 			p->xform = NullXFORM;
 		}
@@ -851,7 +712,6 @@ _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline* lut,
 			}
 		}
 	}
-
 	p->InputFormat     = *InputFormat;
 	p->OutputFormat    = *OutputFormat;
 	p->dwOriginalFlags = *dwFlags;
@@ -860,32 +720,20 @@ _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline* lut,
 	return p;
 }
 
-static
-cmsBool GetXFormColorSpaces(cmsUInt32Number nProfiles,
-    cmsHPROFILE hProfiles[],
-    cmsColorSpaceSignature* Input,
-    cmsColorSpaceSignature* Output)
+static cmsBool GetXFormColorSpaces(cmsUInt32Number nProfiles, cmsHPROFILE hProfiles[], cmsColorSpaceSignature* Input, cmsColorSpaceSignature* Output)
 {
 	cmsColorSpaceSignature ColorSpaceIn, ColorSpaceOut;
 	cmsColorSpaceSignature PostColorSpace;
 	cmsUInt32Number i;
-
 	if(nProfiles == 0) return FALSE;
 	if(hProfiles[0] == NULL) return FALSE;
-
 	*Input = PostColorSpace = cmsGetColorSpace(hProfiles[0]);
-
 	for(i = 0; i < nProfiles; i++) {
 		cmsProfileClassSignature cls;
 		cmsHPROFILE hProfile = hProfiles[i];
-
-		int lIsInput = (PostColorSpace != cmsSigXYZData) &&
-		    (PostColorSpace != cmsSigLabData);
-
+		int lIsInput = (PostColorSpace != cmsSigXYZData) && (PostColorSpace != cmsSigLabData);
 		if(hProfile == NULL) return FALSE;
-
 		cls = cmsGetDeviceClass(hProfile);
-
 		if(cls == cmsSigNamedColorClass) {
 			ColorSpaceIn    = cmsSig1colorData;
 			ColorSpaceOut   = (nProfiles > 1) ? cmsGetPCS(hProfile) : cmsGetColorSpace(hProfile);
@@ -898,31 +746,23 @@ cmsBool GetXFormColorSpaces(cmsUInt32Number nProfiles,
 			ColorSpaceIn    = cmsGetPCS(hProfile);
 			ColorSpaceOut   = cmsGetColorSpace(hProfile);
 		}
-
 		if(i==0)
 			*Input = ColorSpaceIn;
-
 		PostColorSpace = ColorSpaceOut;
 	}
-
 	*Output = PostColorSpace;
-
 	return TRUE;
 }
 
 // Check colorspace
-static
-cmsBool  IsProperColorSpace(cmsColorSpaceSignature Check, cmsUInt32Number dwFormat)
+static cmsBool  IsProperColorSpace(cmsColorSpaceSignature Check, cmsUInt32Number dwFormat)
 {
 	int Space1 = (int)T_COLORSPACE(dwFormat);
 	int Space2 = _cmsLCMScolorSpace(Check);
-
 	if(Space1 == PT_ANY) return TRUE;
 	if(Space1 == Space2) return TRUE;
-
 	if(Space1 == PT_LabV2 && Space2 == PT_Lab) return TRUE;
 	if(Space1 == PT_Lab   && Space2 == PT_LabV2) return TRUE;
-
 	return FALSE;
 }
 
@@ -931,20 +771,16 @@ cmsBool  IsProperColorSpace(cmsColorSpaceSignature Check, cmsUInt32Number dwForm
 // Jun-21-2000: Some profiles (those that comes with W2K) comes
 // with the media white (media black?) x 100. Add a sanity check
 
-static
-void NormalizeXYZ(cmsCIEXYZ* Dest)
+static void NormalizeXYZ(cmsCIEXYZ * Dest)
 {
-	while(Dest->X > 2. &&
-	    Dest->Y > 2. &&
-	    Dest->Z > 2.) {
+	while(Dest->X > 2. && Dest->Y > 2. && Dest->Z > 2.) { 
 		Dest->X /= 10.;
 		Dest->Y /= 10.;
 		Dest->Z /= 10.;
 	}
 }
 
-static
-void SetWhitePoint(cmsCIEXYZ* wtPt, const cmsCIEXYZ* src)
+static void SetWhitePoint(cmsCIEXYZ* wtPt, const cmsCIEXYZ* src)
 {
 	if(src == NULL) {
 		wtPt->X = cmsD50X;
@@ -955,7 +791,6 @@ void SetWhitePoint(cmsCIEXYZ* wtPt, const cmsCIEXYZ* src)
 		wtPt->X = src->X;
 		wtPt->Y = src->Y;
 		wtPt->Z = src->Z;
-
 		NormalizeXYZ(wtPt);
 	}
 }
@@ -1112,39 +947,19 @@ cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransformTHR(cmsContext ContextID,
 		Intents[i] = Intent;
 		AdaptationStates[i] = cmsSetAdaptationStateTHR(ContextID, -1);
 	}
-
-	return cmsCreateExtendedTransform(ContextID,
-		   nProfiles,
-		   hProfiles,
-		   BPC,
-		   Intents,
-		   AdaptationStates,
-		   NULL,
-		   0,
-		   InputFormat,
-		   OutputFormat,
-		   dwFlags);
+	return cmsCreateExtendedTransform(ContextID, nProfiles, hProfiles, BPC, Intents, AdaptationStates, NULL,
+		   0, InputFormat, OutputFormat, dwFlags);
 }
 
-cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransform(cmsHPROFILE hProfiles[],
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags)
+cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransform(cmsHPROFILE hProfiles[], cmsUInt32Number nProfiles,
+    cmsUInt32Number InputFormat, cmsUInt32Number OutputFormat, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
 {
 	if(nProfiles <= 0 || nProfiles > 255) {
 		cmsSignalError(NULL, cmsERROR_RANGE, "Wrong number of profiles. 1..255 expected, %d found.", nProfiles);
 		return NULL;
 	}
-
-	return cmsCreateMultiprofileTransformTHR(cmsGetProfileContextID(hProfiles[0]),
-		   hProfiles,
-		   nProfiles,
-		   InputFormat,
-		   OutputFormat,
-		   Intent,
-		   dwFlags);
+	return cmsCreateMultiprofileTransformTHR(cmsGetProfileContextID(hProfiles[0]), hProfiles,
+		   nProfiles, InputFormat, OutputFormat, Intent, dwFlags);
 }
 
 cmsHTRANSFORM CMSEXPORT cmsCreateTransformTHR(cmsContext ContextID,
@@ -1156,19 +971,13 @@ cmsHTRANSFORM CMSEXPORT cmsCreateTransformTHR(cmsContext ContextID,
     cmsUInt32Number dwFlags)
 {
 	cmsHPROFILE hArray[2];
-
 	hArray[0] = Input;
 	hArray[1] = Output;
-
 	return cmsCreateMultiprofileTransformTHR(ContextID, hArray, Output == NULL ? 1U : 2U, InputFormat, OutputFormat, Intent, dwFlags);
 }
 
-CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateTransform(cmsHPROFILE Input,
-    cmsUInt32Number InputFormat,
-    cmsHPROFILE Output,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags)
+CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateTransform(cmsHPROFILE Input, cmsUInt32Number InputFormat, cmsHPROFILE Output,
+    cmsUInt32Number OutputFormat, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
 {
 	return cmsCreateTransformTHR(cmsGetProfileContextID(Input), Input, InputFormat, Output, OutputFormat, Intent, dwFlags);
 }
@@ -1202,31 +1011,18 @@ cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransformTHR(cmsContext ContextID,
 		   ProofingProfile, 1, InputFormat, OutputFormat, dwFlags);
 }
 
-cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransform(cmsHPROFILE InputProfile,
-    cmsUInt32Number InputFormat,
-    cmsHPROFILE OutputProfile,
-    cmsUInt32Number OutputFormat,
-    cmsHPROFILE ProofingProfile,
-    cmsUInt32Number nIntent,
-    cmsUInt32Number ProofingIntent,
+cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransform(cmsHPROFILE InputProfile, cmsUInt32Number InputFormat,
+    cmsHPROFILE OutputProfile, cmsUInt32Number OutputFormat, cmsHPROFILE ProofingProfile, cmsUInt32Number nIntent, cmsUInt32Number ProofingIntent,
     cmsUInt32Number dwFlags)
 {
-	return cmsCreateProofingTransformTHR(cmsGetProfileContextID(InputProfile),
-		   InputProfile,
-		   InputFormat,
-		   OutputProfile,
-		   OutputFormat,
-		   ProofingProfile,
-		   nIntent,
-		   ProofingIntent,
-		   dwFlags);
+	return cmsCreateProofingTransformTHR(cmsGetProfileContextID(InputProfile), InputProfile, InputFormat,
+		   OutputProfile, OutputFormat, ProofingProfile, nIntent, ProofingIntent, dwFlags);
 }
 
 // Grab the ContextID from an open transform. Returns NULL if a NULL transform is passed
 cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
-
 	if(xform == NULL) return NULL;
 	return xform->ContextID;
 }
@@ -1235,43 +1031,31 @@ cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform)
 cmsUInt32Number CMSEXPORT cmsGetTransformInputFormat(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
-
-	if(xform == NULL) return 0;
-	return xform->InputFormat;
+	return xform ? xform->InputFormat : 0;
 }
 
 cmsUInt32Number CMSEXPORT cmsGetTransformOutputFormat(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
-
-	if(xform == NULL) return 0;
-	return xform->OutputFormat;
+	return xform ? xform->OutputFormat : 0;
 }
 
 // For backwards compatibility
-cmsBool CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat)
+cmsBool CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform, cmsUInt32Number InputFormat, cmsUInt32Number OutputFormat)
 {
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
 	cmsFormatter16 FromInput, ToOutput;
-
 	// We only can afford to change formatters if previous transform is at least 16 bits
 	if(!(xform->dwOriginalFlags & cmsFLAGS_CAN_CHANGE_FORMATTER)) {
-		cmsSignalError(xform->ContextID,
-		    cmsERROR_NOT_SUITABLE,
-		    "cmsChangeBuffersFormat works only on transforms created originally with at least 16 bits of precision");
+		cmsSignalError(xform->ContextID, cmsERROR_NOT_SUITABLE, "cmsChangeBuffersFormat works only on transforms created originally with at least 16 bits of precision");
 		return FALSE;
 	}
-
 	FromInput = _cmsGetFormatter(xform->ContextID, InputFormat,  cmsFormatterInput, CMS_PACK_FLAGS_16BITS).Fmt16;
 	ToOutput  = _cmsGetFormatter(xform->ContextID, OutputFormat, cmsFormatterOutput, CMS_PACK_FLAGS_16BITS).Fmt16;
-
 	if(FromInput == NULL || ToOutput == NULL) {
 		cmsSignalError(xform->ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unsupported raster format");
 		return FALSE;
 	}
-
 	xform->InputFormat  = InputFormat;
 	xform->OutputFormat = OutputFormat;
 	xform->FromInput    = FromInput;

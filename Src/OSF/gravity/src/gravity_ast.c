@@ -425,7 +425,7 @@ gnode_t * gnode_literal_string_expr_create(gtoken_s token, char * s, uint32 len,
 	}
 	else {
 		node->value.str = static_cast<char *>(mem_alloc(NULL, len+1));
-		memcpy((void*)node->value.str, s, len);
+		memcpy((void *)node->value.str, s, len);
 	}
 	return node;
 }
@@ -587,17 +587,17 @@ static void free_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node)
 static void free_variable(gvisitor_t * self, gnode_var_t * p) 
 {
 	CHECK_REFCOUNT(p);
-	mem_free((void*)p->identifier);
-	mem_free((void*)p->annotation_type);
+	mem_free((void *)p->identifier);
+	mem_free((void *)p->annotation_type);
 	gvisit(self, p->expr);
-	mem_free((void*)p);
+	mem_free((void *)p);
 }
 
 static void free_function_decl(gvisitor_t * self, gnode_function_decl_t * node) 
 {
 	CHECK_REFCOUNT(node);
 	symboltable_free(node->symtable);
-	mem_free((void*)node->identifier);
+	mem_free((void *)node->identifier);
 	if(node->params) {
 		gnode_array_each(node->params, {free_variable(self, (gnode_var_t *)val);});
 		gnode_array_free(node->params);
@@ -623,7 +623,7 @@ static void free_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 static void free_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	mem_free((void*)node->identifier);
+	mem_free((void *)node->identifier);
 	symboltable_free(node->symtable);
 	mem_free(node);
 }
@@ -631,7 +631,7 @@ static void free_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node)
 static void free_class_decl(gvisitor_t * self, gnode_class_decl_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	mem_free((void*)node->identifier);
+	mem_free((void *)node->identifier);
 	if(node->decls) {
 		gnode_array_each(node->decls, { gvisit(self, val); });
 		gnode_array_free(node->decls);
@@ -643,7 +643,7 @@ static void free_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 static void free_module_decl(gvisitor_t * self, gnode_module_decl_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	mem_free((void*)node->identifier);
+	mem_free((void *)node->identifier);
 	if(node->decls) {
 		gnode_array_each(node->decls, {gvisit(self, val);});
 		gnode_array_free(node->decls);
@@ -702,36 +702,36 @@ static void free_file_expr(gvisitor_t * self, gnode_file_expr_t * node)
 {
 	CHECK_REFCOUNT(node);
 	cstring_array_each(node->identifiers, {
-		mem_free((void*)val);
+		mem_free((void *)val);
 	});
 
 	if(node->identifiers) gnode_array_free(node->identifiers);
-	mem_free((void*)node);
+	mem_free((void *)node);
 }
 
 static void free_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	if(node->type == LITERAL_STRING) mem_free((void*)node->value.str);
+	if(node->type == LITERAL_STRING) mem_free((void *)node->value.str);
 	else if(node->type == LITERAL_STRING_INTERPOLATED) {
 		gnode_array_each(node->value.r, {gvisit(self, val);})
 		gnode_array_free(node->value.r);
 	}
-	mem_free((void*)node);
+	mem_free((void *)node);
 }
 
 static void free_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	mem_free((void*)node->value);
-	mem_free((void*)node->value2);
-	mem_free((void*)node);
+	mem_free((void *)node->value);
+	mem_free((void *)node->value2);
+	mem_free((void *)node);
 }
 
 static void free_keyword_expr(gvisitor_t * self, gnode_keyword_expr_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	mem_free((void*)node);
+	mem_free((void *)node);
 }
 
 static void free_list_expr(gvisitor_t * self, gnode_list_expr_t * node) 

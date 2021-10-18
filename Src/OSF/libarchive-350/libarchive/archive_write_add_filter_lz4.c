@@ -51,7 +51,7 @@ struct private_data {
 	unsigned preset_dictionary : 1;
 	unsigned block_maximum_size : 3;
 #if defined(HAVE_LIBLZ4) && LZ4_VERSION_MAJOR >= 1 && LZ4_VERSION_MINOR >= 2
-	int64_t total_in;
+	int64 total_in;
 	char            * out;
 	char            * out_buffer;
 	size_t out_buffer_size;
@@ -83,7 +83,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_lz4");
-	data = static_cast<struct private_data *>(calloc(1, sizeof(*data)));
+	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -119,7 +119,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	 */
 	data->pdata = __archive_write_program_allocate("lz4");
 	if(data->pdata == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -212,7 +212,7 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 	required_size = 4 + 15 + 4 + data->block_size + 4 + 4;
 	if(data->out_buffer_size < required_size) {
 		size_t bs = required_size, bpb;
-		free(data->out_buffer);
+		SAlloc::F(data->out_buffer);
 		if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 			/* Buffer size should be a multiple number of
 			 * the of bytes per block for performance. */
@@ -226,17 +226,17 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 		}
 		data->out_block_size = bs;
 		bs += required_size;
-		data->out_buffer = malloc(bs);
+		data->out_buffer = SAlloc::M(bs);
 		data->out = data->out_buffer;
 		data->out_buffer_size = bs;
 	}
 
 	pre_block_size = (data->block_independence) ? 0 : 64 * 1024;
 	if(data->in_buffer_size < data->block_size + pre_block_size) {
-		free(data->in_buffer_allocated);
+		SAlloc::F(data->in_buffer_allocated);
 		data->in_buffer_size = data->block_size;
 		data->in_buffer_allocated =
-		    malloc(data->in_buffer_size + pre_block_size);
+		    SAlloc::M(data->in_buffer_size + pre_block_size);
 		data->in_buffer = data->in_buffer_allocated + pre_block_size;
 		if(!data->block_independence && data->compression_level >= 3)
 			data->in_buffer = data->in_buffer_allocated;
@@ -330,8 +330,7 @@ static int archive_filter_lz4_close(struct archive_write_filter * f)
 			archive_le32enc(data->out, checksum);
 			data->out += 4;
 		}
-		ret = __archive_write_filter(f->next_filter,
-			data->out_buffer, data->out - data->out_buffer);
+		ret = __archive_write_filter(f->next_filter, data->out_buffer, data->out - data->out_buffer);
 	}
 	return ret;
 }
@@ -356,10 +355,10 @@ static int archive_filter_lz4_free(struct archive_write_filter * f)
 		LZ4_free(data->lz4_stream);
 #endif
 	}
-	free(data->out_buffer);
-	free(data->in_buffer_allocated);
-	free(data->xxh32_state);
-	free(data);
+	SAlloc::F(data->out_buffer);
+	SAlloc::F(data->in_buffer_allocated);
+	SAlloc::F(data->xxh32_state);
+	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
@@ -367,9 +366,9 @@ static int archive_filter_lz4_free(struct archive_write_filter * f)
 static int lz4_write_stream_descriptor(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	uint8_t * sd;
+	uint8 * sd;
 
-	sd = (uint8_t*)data->out;
+	sd = (uint8*)data->out;
 	/* Write Magic Number. */
 	archive_le32enc(&sd[0], LZ4_MAGICNUMBER);
 	/* FLG */
@@ -658,7 +657,7 @@ static int archive_filter_lz4_free(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
 	__archive_write_program_free(data->pdata);
-	free(data);
+	SAlloc::F(data);
 	return ARCHIVE_OK;
 }
 

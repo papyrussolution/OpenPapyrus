@@ -57,7 +57,7 @@ struct warc_s {
 	mode_t typ;
 	unsigned int rng;
 	/* populated size */
-	uint64_t populz;
+	uint64 populz;
 };
 
 static const char warcinfo[] =
@@ -93,7 +93,7 @@ typedef struct {
 	time_t rtime;
 	time_t mtime;
 	const char * cnttyp;
-	uint64_t cntlen;
+	uint64 cntlen;
 } warc_essential_hdr_t;
 
 typedef struct {
@@ -124,7 +124,7 @@ int archive_write_set_format_warc(struct archive * _a)
 	if(a->format_free != NULL) {
 		(a->format_free)(a);
 	}
-	w = static_cast<struct warc_s *>(malloc(sizeof(*w)));
+	w = static_cast<struct warc_s *>(SAlloc::M(sizeof(*w)));
 	if(w == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate warc data");
 		return ARCHIVE_FATAL;
@@ -295,7 +295,7 @@ static int _warc_free(struct archive_write * a)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format_data);
 
-	free(w);
+	SAlloc::F(w);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

@@ -79,7 +79,7 @@
 #else
 	#define FASTPOS_BITS 13
 
-	extern const uint8_t lzma_fastpos[1 << FASTPOS_BITS];
+	extern const uint8 lzma_fastpos[1 << FASTPOS_BITS];
 
 	#define fastpos_shift(extra, n) ((extra) + (n) * (FASTPOS_BITS - 1))
 	#define fastpos_limit(extra, n) (UINT32_C(1) << (FASTPOS_BITS + fastpos_shift(extra, n)))

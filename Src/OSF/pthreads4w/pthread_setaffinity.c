@@ -44,10 +44,10 @@
  *		cpuset
  *					The new cpu set mask.
  *
- *                           The set of CPUs on which the thread will actually run
- *                           is the intersection of the set specified in the cpuset
- *                           argument and the set of CPUs actually present for
- *                           the process.
+ *                     The set of CPUs on which the thread will actually run
+ *                     is the intersection of the set specified in the cpuset
+ *                     argument and the set of CPUs actually present for
+ *                     the process.
  *
  * DESCRIPTION
  *   The pthread_setaffinity_np() function sets the CPU affinity mask
@@ -56,11 +56,11 @@
  *   of the CPUs in cpuset, then it is migrated to one of those CPUs.
  *
  * RESULTS
- *                           0		Success
- *                           ESRCH	Thread does not exist
- *                           EFAULT	pcuset is NULL
- *                           EAGAIN	The thread affinity could not be set
- *                           ENOSYS  The platform does not support this function
+ *                     0		Success
+ *                     ESRCH	Thread does not exist
+ *                     EFAULT	pcuset is NULL
+ *                     EAGAIN	The thread affinity could not be set
+ *                     ENOSYS  The platform does not support this function
  *
  * ------------------------------------------------------
  */
@@ -137,10 +137,10 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize, const cpu_set_t 
  *   of the thread thread in the CPU set pointed to by cpuset.
  *
  * RESULTS
- *                           0		Success
- *                           ESRCH	thread does not exist
- *                           EFAULT	cpuset is NULL
- *                              ENOSYS  The platform does not support this function
+ *                     0		Success
+ *                     ESRCH	thread does not exist
+ *                     EFAULT	cpuset is NULL
+ *                        ENOSYS  The platform does not support this function
  *
  * ------------------------------------------------------
  */

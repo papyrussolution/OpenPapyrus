@@ -312,7 +312,7 @@ int ssh_buffer_allocate_size(struct ssh_buffer_struct * buffer, uint32_t len)
  * @param[in]  len      The length of the data to add.
  *
  * @return              Pointer on the allocated space
- *                      NULL on error.
+ *                NULL on error.
  */
 void * ssh_buffer_allocate(struct ssh_buffer_struct * buffer, uint32_t len)
 {
@@ -488,7 +488,7 @@ int ssh_buffer_prepend_data(struct ssh_buffer_struct * buffer, const void * data
  * @param[in]  buffer   The destination buffer.
  *
  * @param[in]  source   The source buffer to append. It doesn't take the
- *                      position of the buffer into account.
+ *                position of the buffer into account.
  *
  * @return              0 on success, -1 on error.
  */
@@ -827,7 +827,7 @@ static int ssh_buffer_pack_allocate_va(struct ssh_buffer_struct * buffer,
  * @param[in] format    A format string of arguments.
  * @param[in] ap        A va_list of arguments.
  * @returns             SSH_OK on success
- *                      SSH_ERROR on error
+ *                SSH_ERROR on error
  * @see ssh_buffer_add_format() for format list values.
  */
 int ssh_buffer_pack_va(struct ssh_buffer_struct * buffer, const char * format, size_t argc, va_list ap)
@@ -941,21 +941,21 @@ int ssh_buffer_pack_va(struct ssh_buffer_struct * buffer, const char * format, s
  * @brief Add multiple values in a buffer on a single function call
  * @param[in] buffer    The buffer to add to
  * @param[in] format    A format string of arguments. This string contains single
- *                      letters describing the order and type of arguments:
- *                         'b': uint8  (pushed in network byte order)
- *                         'w': uint16_t (pushed in network byte order)
- *                         'd': uint32_t (pushed in network byte order)
- *                         'q': uint64_t (pushed in network byte order)
- *                         'S': ssh_string
- *                         's': char * (C string, pushed as SSH string)
- *                         't': char * (C string, pushed as free text)
- *                         'P': size_t, void * (len of data, pointer to data)
- *                              only pushes data.
- *                         'B': bignum (pushed as SSH string)
+ *                letters describing the order and type of arguments:
+ *                   'b': uint8  (pushed in network byte order)
+ *                   'w': uint16_t (pushed in network byte order)
+ *                   'd': uint32_t (pushed in network byte order)
+ *                   'q': uint64_t (pushed in network byte order)
+ *                   'S': ssh_string
+ *                   's': char * (C string, pushed as SSH string)
+ *                   't': char * (C string, pushed as free text)
+ *                   'P': size_t, void * (len of data, pointer to data)
+ *                        only pushes data.
+ *                   'B': bignum (pushed as SSH string)
  * @returns             SSH_OK on success
- *                      SSH_ERROR on error
+ *                SSH_ERROR on error
  * @warning             when using 'P' with a constant size (e.g. 8), do not
- *                      forget to cast to (size_t).
+ *                forget to cast to (size_t).
  */
 int _ssh_buffer_pack(struct ssh_buffer_struct * buffer,
     const char * format,
@@ -990,7 +990,7 @@ int _ssh_buffer_pack(struct ssh_buffer_struct * buffer,
  * @param[in] format    A format string of arguments.
  * @param[in] ap        A va_list of arguments.
  * @returns             SSH_OK on success
- *                      SSH_ERROR on error
+ *                SSH_ERROR on error
  * @see ssh_buffer_get_format() for format list values.
  */
 int ssh_buffer_unpack_va(struct ssh_buffer_struct * buffer,
@@ -1240,20 +1240,20 @@ cleanup:
  * @brief Get multiple values from a buffer on a single function call
  * @param[in] buffer    The buffer to get from
  * @param[in] format    A format string of arguments. This string contains single
- *                      letters describing the order and type of arguments:
- *                         'b': uint8 *  (pulled in network byte order)
- *                         'w': uint16_t * (pulled in network byte order)
- *                         'd': uint32_t * (pulled in network byte order)
- *                         'q': uint64_t * (pulled in network byte order)
- *                         'S': ssh_string *
- *                         's': char ** (C string, pulled as SSH string)
- *                         'P': size_t, void ** (len of data, pointer to data)
- *                              only pulls data.
- *                         'B': bignum * (pulled as SSH string)
+ *                letters describing the order and type of arguments:
+ *                   'b': uint8 *  (pulled in network byte order)
+ *                   'w': uint16_t * (pulled in network byte order)
+ *                   'd': uint32_t * (pulled in network byte order)
+ *                   'q': uint64_t * (pulled in network byte order)
+ *                   'S': ssh_string *
+ *                   's': char ** (C string, pulled as SSH string)
+ *                   'P': size_t, void ** (len of data, pointer to data)
+ *                        only pulls data.
+ *                   'B': bignum * (pulled as SSH string)
  * @returns             SSH_OK on success
- *                      SSH_ERROR on error
+ *                SSH_ERROR on error
  * @warning             when using 'P' with a constant size (e.g. 8), do not
- *                      forget to cast to (size_t).
+ *                forget to cast to (size_t).
  */
 int _ssh_buffer_unpack(struct ssh_buffer_struct * buffer, const char * format, size_t argc, ...)
 {

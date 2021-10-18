@@ -475,11 +475,11 @@ FILE * GnuPlot::LoadPath_fopen(const char * filename, const char * mode)
 //void push_terminal(int isInteractive)
 void GnuPlot::PushTerminal(int isInteractive)
 {
-	if(term) {
+	if(GPT.P_Term) {
 		SAlloc::F(P_PushTermName);
 		SAlloc::F(P_PushTermOpts);
-		P_PushTermName = sstrdup(term->name);
-		P_PushTermOpts = sstrdup(GPT.TermOptions);
+		P_PushTermName = sstrdup(GPT.P_Term->name);
+		P_PushTermOpts = sstrdup(GPT._TermOptions);
 		if(isInteractive)
 			fprintf(stderr, "   pushed terminal %s %s\n", P_PushTermName, P_PushTermOpts);
 	}
@@ -512,7 +512,7 @@ void GnuPlot::PopTerminal()
 		DoStringAndFree(s);
 		_Plt.interactive = LOGIC(i);
 		if(_Plt.interactive)
-			fprintf(stderr, "   restored terminal is %s %s\n", term->name, (GPT.TermOptions[0] ? GPT.TermOptions : ""));
+			fprintf(stderr, "   restored terminal is %s %s\n", GPT.P_Term->name, (GPT._TermOptions.NotEmpty() ? GPT._TermOptions.cptr() : ""));
 	}
 	else
 		fprintf(stderr, "No terminal has been pushed yet\n");
@@ -1151,7 +1151,7 @@ void GnuPlot::ParseColorSpec(t_colorspec * tc, int options)
 		// July 2014 - translate linetype into user-defined linetype color.
 		// This is a CHANGE!
 		//
-		LoadLineType(term, &lptemp, tc->lt + 1);
+		LoadLineType(GPT.P_Term, &lptemp, tc->lt + 1);
 		*tc = lptemp.pm3d_color;
 	}
 	else if(options <= TC_LT) {
@@ -1408,7 +1408,7 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 		// pick up a line spec - allow ls, but no point. 
 		{
 			int stored_token = Pgm.GetCurTokenIdx();
-			LpParse(term, &arrow->lp_properties, LP_ADHOC, FALSE);
+			LpParse(GPT.P_Term, &arrow->lp_properties, LP_ADHOC, FALSE);
 			if(stored_token == Pgm.GetCurTokenIdx() || set_line++)
 				break;
 			continue;

@@ -1607,8 +1607,8 @@ typedef enum _cairo_path_data_type {
  * break;
  * case CAIRO_PATH_CURVE_TO:
  * do_curve_to_things (data[1].point.x, data[1].point.y,
- *           data[2].point.x, data[2].point.y,
- *           data[3].point.x, data[3].point.y);
+ *     data[2].point.x, data[2].point.y,
+ *     data[3].point.x, data[3].point.y);
  * break;
  * case CAIRO_PATH_CLOSE_PATH:
  * do_close_path_things ();

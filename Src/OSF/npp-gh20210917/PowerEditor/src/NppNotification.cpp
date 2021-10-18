@@ -246,7 +246,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 				    quotFileName += TEXT("\"");
 				    COPYDATASTRUCT fileNamesData;
 				    fileNamesData.dwData = COPYDATA_FILENAMES;
-				    fileNamesData.lpData = (void*)quotFileName.c_str();
+				    fileNamesData.lpData = (void *)quotFileName.c_str();
 				    fileNamesData.cbData = long(quotFileName.length() + 1)*(sizeof(TCHAR));
 
 				    HWND hWinParent = ::GetParent(hWin);

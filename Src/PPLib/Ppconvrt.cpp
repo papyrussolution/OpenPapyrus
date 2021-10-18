@@ -8588,3 +8588,49 @@ int Convert11112()
 	CATCHZOK
 	return ok;
 }
+
+int Convert11200()
+{
+	int    ok = 1;
+	SysJournal * p_sj = 0;
+	Reference * p_ref = 0;
+	bool   ref_is_common = false;
+	PPWaitStart();
+	{
+		//
+		// Необходимо зафиксировать в системном журнале событие,
+		// которое будет разграничивать применении старой
+		// и новой схемы хранения соглашений
+		//
+		LDATETIME moment;
+		PPIDArray acn_list;
+		acn_list.add(PPACN_EVENTTOKEN);
+		THROW(p_sj = new SysJournal);
+		if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_CVTCLIAGT11200, &acn_list, &moment) > 0)
+			ok = -1; // Событие уже установлено
+		else {
+			p_ref = PPRef;
+			if(p_ref) {
+				ref_is_common = true;
+			}
+			else {
+				p_ref = new Reference;
+				ref_is_common = false;
+			}
+			if(p_ref) {
+				PPTransaction tra(1);
+				THROW(tra);
+				THROW(PPObjArticle::ConvertClientAgreements_11200(p_ref, 0));
+				THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_CVTCLIAGT11200, 0, 0/*use_ta*/));
+				THROW(tra.Commit());
+			}
+		}
+	}
+	PPWaitStop();
+	CATCHZOKPPERR
+	ZDELETE(p_sj);
+	if(p_ref && !ref_is_common) {
+		delete p_ref;
+	}
+	return ok;
+}

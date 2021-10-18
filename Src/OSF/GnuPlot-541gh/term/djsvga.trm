@@ -296,7 +296,7 @@ TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf(GPT.TermOptions, "font \"%s\" %senhanced background rgb \"#%06lx\" linewidth %.1f pointscale %.1f fontscale %.1f",
+	slprintf(GPT._TermOptions, "font \"%s\" %senhanced background rgb \"#%06lx\" linewidth %.1f pointscale %.1f fontscale %.1f",
 	    DJSVGA_default_fontname, pThis->flags & TERM_ENHANCED_TEXT ? "" : "no", dj_background, dj_lwscale, dj_pointscale, dj_fontscale);
 }
 
@@ -366,7 +366,7 @@ TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 	pThis->MaxY = dj_ylast + 1;
 #ifdef DJSVGA_SAVE_COLORS
 	if(DJSVGA_colorbuf == NULL)
-		DJSVGA_colorbuf = (void*)SAlloc::M(GrColorSaveBufferSize());
+		DJSVGA_colorbuf = (void *)SAlloc::M(GrColorSaveBufferSize());
 	GrSaveColors(DJSVGA_colorbuf);
 #endif
 #ifdef MSDOS
@@ -847,9 +847,9 @@ TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str)
 	if((dj_angle % 90) == 0) {
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)
 		/* determine text length in characters automatically according to encoding */
-		GrDrawString((void*)str, 0, x, dj_ylast - y, &DJSVGA_TextOption);
+		GrDrawString((void *)str, 0, x, dj_ylast - y, &DJSVGA_TextOption);
 #else
-		GrDrawString((void*)str, strlen(str), x, dj_ylast - y, &DJSVGA_TextOption);
+		GrDrawString((void *)str, strlen(str), x, dj_ylast - y, &DJSVGA_TextOption);
 #endif
 	}
 	else {
@@ -870,9 +870,9 @@ TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str)
 
 		// now create a b/w memory context
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)
-		GrStringSize((void*)str, 0, &txo, &width, &height);
+		GrStringSize((void *)str, 0, &txo, &width, &height);
 #else
-		GrStringSize((void*)str, strlen(str), &txo, &width, &height);
+		GrStringSize((void *)str, strlen(str), &txo, &width, &height);
 #endif
 		mem = GrCreateFrameContext(GR_frameRAM1, width, height, NULL, NULL);
 
@@ -881,9 +881,9 @@ TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str)
 		GrSetContext(mem);
 		GrClearContext(GrBlack());
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)
-		GrDrawString((void*)str, 0, 0, height - 1, &txo);
+		GrDrawString((void *)str, 0, 0, height - 1, &txo);
 #else
-		GrDrawString((void*)str, strlen(str), 0, height - 1, &txo);
+		GrDrawString((void *)str, strlen(str), 0, height - 1, &txo);
 #endif
 		GrSetContext(&save);
 
@@ -1285,7 +1285,7 @@ TERM_PUBLIC void DJSVGA_filled_polygon(int npoints, gpiPoint * corners)
 	int (*points)[2];
 	int i;
 	DJSVGA_flush_line();
-	points = (int (*)[2])malloc(npoints * 2 * sizeof(int));
+	points = (int (*)[2])SAlloc::M(npoints * 2 * sizeof(int));
 	for(i = 0; i < npoints; i++) {
 		points[i][0] = corners[i].x;
 		points[i][1] = dj_ylast - corners[i].y;
@@ -1678,21 +1678,21 @@ static int grx_translate_key(int key, int kbstat)
 		int (*found)[2];
 
 		/* GRX/MGRX maps some special keys including modifiers */
-		found = bsearch((void*)&key,
+		found = bsearch((void *)&key,
 			grx_key_table, sizeof(grx_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 			&grx_int_compare);
 		if((found == NULL) && (kbstat & GRKBS_ALT)) {
-			found = bsearch((void*)&key,
+			found = bsearch((void *)&key,
 				grx_alt_key_table, sizeof(grx_alt_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 				&grx_int_compare);
 		}
 		if((found == NULL) && (kbstat & GRKBS_CTRL)) {
-			found = bsearch((void*)&key,
+			found = bsearch((void *)&key,
 				grx_control_key_table, sizeof(grx_control_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 				&grx_int_compare);
 		}
 		if((found == NULL) && (kbstat & GRKBS_SHIFT)) {
-			found = bsearch((void*)&key,
+			found = bsearch((void *)&key,
 				grx_shift_key_table, sizeof(grx_shift_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
 				&grx_int_compare);
 		}

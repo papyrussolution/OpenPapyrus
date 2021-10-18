@@ -329,13 +329,13 @@ int ssh_poll(ssh_pollfd_t * fds, nfds_t nfds, int timeout) {
  *
  * @param  fd           Socket that will be polled.
  * @param  events       Poll events that will be monitored for the socket. i.e.
- *                      POLLIN, POLLPRI, POLLOUT
+ *                POLLIN, POLLPRI, POLLOUT
  * @param  cb           Function to be called if any of the events are set.
- *                      The prototype of cb is:
- *                      int (*ssh_poll_callback)(ssh_poll_handle p, socket_t fd,
- *                                                 int revents, void *userdata);
+ *                The prototype of cb is:
+ *                int (*ssh_poll_callback)(ssh_poll_handle p, socket_t fd,
+ *                                           int revents, void *userdata);
  * @param  userdata     Userdata to be passed to the callback function. NULL if
- *                      not needed.
+ *                not needed.
  *
  * @return              A new poll object, NULL on error
  */
@@ -390,7 +390,7 @@ short ssh_poll_get_events(ssh_poll_handle p)
 }
 /**
  * @brief  Set the events of a poll object. The events will also be propagated
- *         to an associated poll context.
+ *   to an associated poll context.
  *
  * @param  p            Pointer to an already allocated poll object.
  * @param  events       Poll events.
@@ -404,7 +404,7 @@ void ssh_poll_set_events(ssh_poll_handle p, short events) {
 
 /**
  * @brief  Set the file descriptor of a poll object. The FD will also be propagated
- *         to an associated poll context.
+ *   to an associated poll context.
  *
  * @param  p            Pointer to an already allocated poll object.
  * @param  fd       New file descriptor.
@@ -420,7 +420,7 @@ void ssh_poll_set_fd(ssh_poll_handle p, socket_t fd) {
 
 /**
  * @brief  Add extra events to a poll object. Duplicates are ignored.
- *         The events will also be propagated to an associated poll context.
+ *   The events will also be propagated to an associated poll context.
  *
  * @param  p            Pointer to an already allocated poll object.
  * @param  events       Poll events.
@@ -431,7 +431,7 @@ void ssh_poll_add_events(ssh_poll_handle p, short events) {
 
 /**
  * @brief  Remove events from a poll object. Non-existent are ignored.
- *         The events will also be propagated to an associated poll context.
+ *   The events will also be propagated to an associated poll context.
  *
  * @param  p            Pointer to an already allocated poll object.
  * @param  events       Poll events.
@@ -462,7 +462,7 @@ socket_t ssh_poll_get_fd(ssh_poll_handle p) {
  * @param  p            Pointer to an already allocated poll object.
  * @param  cb           Function to be called if any of the events are set.
  * @param  userdata     Userdata to be passed to the callback function. NULL if
- *                      not needed.
+ *                not needed.
  */
 void ssh_poll_set_callback(ssh_poll_handle p, ssh_poll_callback cb, void * userdata) {
 	if(cb != NULL) {
@@ -473,14 +473,14 @@ void ssh_poll_set_callback(ssh_poll_handle p, ssh_poll_callback cb, void * userd
 
 /**
  * @brief  Create a new poll context. It could be associated with many poll object
- *         which are going to be polled at the same time as the poll context. You
- *         would need a single poll context per thread.
+ *   which are going to be polled at the same time as the poll context. You
+ *   would need a single poll context per thread.
  *
  * @param  chunk_size   The size of the memory chunk that will be allocated, when
- *                      more memory is needed. This is for efficiency reasons,
- *                      i.e. don't allocate memory for each new poll object, but
- *                      for the next 5. Set it to 0 if you want to use the
- *                      library's default value.
+ *                more memory is needed. This is for efficiency reasons,
+ *                i.e. don't allocate memory for each new poll object, but
+ *                for the next 5. Set it to 0 if you want to use the
+ *                library's default value.
  */
 ssh_poll_ctx ssh_poll_ctx_new(size_t chunk_size) 
 {
@@ -624,18 +624,18 @@ void ssh_poll_ctx_remove(ssh_poll_ctx ctx, ssh_poll_handle p) {
 
 /**
  * @brief  Poll all the sockets associated through a poll object with a
- *         poll context. If any of the events are set after the poll, the
- *         call back function of the socket will be called.
- *         This function should be called once within the programs main loop.
+ *   poll context. If any of the events are set after the poll, the
+ *   call back function of the socket will be called.
+ *   This function should be called once within the programs main loop.
  *
  * @param  ctx          Pointer to an already allocated poll context.
  * @param  timeout      An upper limit on the time for which ssh_poll_ctx() will
- *                      block, in milliseconds. Specifying a negative value
- *                      means an infinite timeout. This parameter is passed to
- *                      the poll() function.
+ *                block, in milliseconds. Specifying a negative value
+ *                means an infinite timeout. This parameter is passed to
+ *                the poll() function.
  * @returns SSH_OK      No error.
- *          SSH_ERROR   Error happened during the poll.
- *          SSH_AGAIN   Timeout occured
+ *    SSH_ERROR   Error happened during the poll.
+ *    SSH_AGAIN   Timeout occured
  */
 
 int ssh_poll_ctx_dopoll(ssh_poll_ctx ctx, int timeout)
@@ -731,9 +731,9 @@ struct ssh_event_struct {
 
 /**
  * @brief  Create a new event context. It could be associated with many
- *         ssh_session objects and socket fd which are going to be polled at the
- *         same time as the event context. You would need a single event context
- *         per thread.
+ *   ssh_session objects and socket fd which are going to be polled at the
+ *   same time as the event context. You would need a single event context
+ *   per thread.
  *
  * @return  The ssh_event object on success, NULL on failure.
  */
@@ -778,16 +778,16 @@ static int ssh_event_fd_wrapper_callback(ssh_poll_handle p, socket_t fd, int rev
  * @param event         The ssh_event
  * @param  fd           Socket that will be polled.
  * @param  events       Poll events that will be monitored for the socket. i.e.
- *                      POLLIN, POLLPRI, POLLOUT
+ *                POLLIN, POLLPRI, POLLOUT
  * @param  cb           Function to be called if any of the events are set.
- *                      The prototype of cb is:
- *                      int (*ssh_event_callback)(socket_t fd, int revents,
- *                                                          void *userdata);
+ *                The prototype of cb is:
+ *                int (*ssh_event_callback)(socket_t fd, int revents,
+ *                                                    void *userdata);
  * @param  userdata     Userdata to be passed to the callback function. NULL if
- *                      not needed.
+ *                not needed.
  *
  * @returns SSH_OK      on success
- *          SSH_ERROR   on failure
+ *    SSH_ERROR   on failure
  */
 int ssh_event_add_fd(ssh_event event, socket_t fd, short events, ssh_event_callback cb, void * userdata) 
 {
@@ -824,7 +824,7 @@ int ssh_event_add_fd(ssh_event event, socket_t fd, short events, ssh_event_callb
  * @param   p         the poll handle
  *
  * @returns SSH_OK    on success
- *          SSH_ERROR on failure
+ *    SSH_ERROR on failure
  */
 int ssh_event_add_poll(ssh_event event, ssh_poll_handle p)
 {
@@ -851,7 +851,7 @@ void ssh_event_remove_poll(ssh_event event, ssh_poll_handle p)
  * @param session   The session to add to the event.
  *
  * @returns SSH_OK      on success
- *          SSH_ERROR   on failure
+ *    SSH_ERROR   on failure
  */
 int ssh_event_add_session(ssh_event event, ssh_session session) {
 	ssh_poll_handle p;
@@ -919,12 +919,12 @@ int ssh_event_add_connector(ssh_event event, ssh_connector connector){
  * @param  event        The ssh_event object to poll.
  *
  * @param  timeout      An upper limit on the time for which the poll will
- *                      block, in milliseconds. Specifying a negative value
- *                      means an infinite timeout. This parameter is passed to
- *                      the poll() function.
+ *                block, in milliseconds. Specifying a negative value
+ *                means an infinite timeout. This parameter is passed to
+ *                the poll() function.
  * @returns SSH_OK      on success.
- *          SSH_ERROR   Error happened during the poll.
- *          SSH_AGAIN   Timeout occured
+ *    SSH_ERROR   Error happened during the poll.
+ *    SSH_AGAIN   Timeout occured
  */
 int ssh_event_dopoll(ssh_event event, int timeout) {
 	int rc;
@@ -943,7 +943,7 @@ int ssh_event_dopoll(ssh_event event, int timeout) {
  * @param  fd           The fd to remove.
  *
  * @returns SSH_OK      on success
- *          SSH_ERROR   on failure
+ *    SSH_ERROR   on failure
  */
 int ssh_event_remove_fd(ssh_event event, socket_t fd) 
 {
@@ -985,7 +985,7 @@ int ssh_event_remove_fd(ssh_event event, socket_t fd)
  * @param  session      The session to remove.
  *
  * @returns SSH_OK      on success
- *          SSH_ERROR   on failure
+ *    SSH_ERROR   on failure
  */
 int ssh_event_remove_session(ssh_event event, ssh_session session) {
 	ssh_poll_handle p;
@@ -1049,8 +1049,8 @@ int ssh_event_remove_connector(ssh_event event, ssh_connector connector){
  * @brief  Free an event context.
  *
  * @param  event        The ssh_event object to free.
- *                      Note: you have to manually remove sessions and socket
- *                      fds before freeing the event object.
+ *                Note: you have to manually remove sessions and socket
+ *                fds before freeing the event object.
  *
  */
 void FASTCALL ssh_event_free(ssh_event event)

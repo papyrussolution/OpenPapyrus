@@ -25,13 +25,13 @@ int getc_wrapper(FILE * fp)
 #ifdef USE_MOUSE
 		/* EAM June 2020:
 		 * For 20 years this was conditional on interactive.
-		 *    if (term && term->waitforinput && interactive)
+		 *    if(GPT.P_Term && GPT.P_Term->waitforinput && interactive)
 		 * Now I am suspicious that this was the cause of dropped
 		 * characters when mixing piped input with mousing,
 		 * e.g. Bugs 2134, 2279
 		 */
-		if(term && term->waitforinput) {
-			c = term->waitforinput(term, 0);
+		if(GPT.P_Term && GPT.P_Term->waitforinput) {
+			c = GPT.P_Term->waitforinput(GPT.P_Term, 0);
 		}
 		else
 #endif
@@ -54,7 +54,7 @@ int getc_wrapper(FILE * fp)
 	/*
 	 * The signal handler of libreadline sets a flag when SIGTSTP is received
 	 * but does not suspend until this flag is checked by other library
-	 * routines.  Since gnuplot's term->waitforinput() + getc_wrapper()
+	 * routines.  Since gnuplot's GPT.P_Term->waitforinput() + getc_wrapper()
 	 * replace these other routines, we must do the test and suspend ourselves.
 	 */
 	void wrap_readline_signal_handler()
@@ -657,13 +657,13 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 	RlB_.CurPos = 0;
 	RlB_.MaxPos = 0;
 	// move to end of history 
-	while(next_history())
+	while(NextHistory())
 		;
 	// init global variables 
 	RlB_.SearchMode = false;
 	// get characters 
 	for(;;) {
-		cur_char = special_getc(term);
+		cur_char = special_getc(GPT.P_Term);
 		// Accumulate ascii (7bit) printable characters and all leading 8bit characters.
 		if(((isprint(cur_char) || (((cur_char & 0x80) != 0) && (cur_char != EOF))) && cur_char != '\t') /*TAB is a printable character in some locales*/ || next_verbatim) {
 			size_t i;
@@ -837,15 +837,15 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 					    RlB_.MaxPos = RlB_.CurPos;
 					    break;
 					case 020: /* ^P */
-					    if(previous_history()) {
+					    if(PreviousHistory()) {
 						    ClearLine(pPrompt);
-						    CopyLine(current_history()->line);
+						    CopyLine(CurrentHistory()->line);
 					    }
 					    break;
 					case 016: /* ^N */
 					    ClearLine(pPrompt);
-					    if(next_history()) {
-						    CopyLine(current_history()->line);
+					    if(NextHistory()) {
+						    CopyLine(CurrentHistory()->line);
 					    }
 					    else {
 						    RlB_.CurPos = RlB_.MaxPos = 0;
@@ -854,7 +854,7 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 					case 022: /* ^R */
 					    prev_line = sstrdup(RlB_.P_CurLine);
 					    SwitchPrompt(pPrompt, RlB_.P_SearchPrompt);
-					    while(next_history())
+					    while(NextHistory())
 							; // seek to end of history 
 					    RlB_.P_SearchResult = NULL;
 					    RlB_.SearchResultWidth = 0;
@@ -927,21 +927,21 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 			{
 				switch(cur_char) {
 					case 022: /* ^R */
-					    /* search next */
-					    previous_history();
+					    // search next 
+					    PreviousHistory();
 					    if(DoSearch(-1) == -1)
-						    next_history();
+						    NextHistory();
 					    break;
 					case 023: /* ^S */
-					    /* search previous */
-					    next_history();
+					    // search previous 
+					    NextHistory();
 					    if(DoSearch(1) == -1)
-						    previous_history();
+						    PreviousHistory();
 					    break;
 					    break;
 					case '\n': /* ^J */
 					case '\r': /* ^M */
-					    /* accept */
+					    // accept 
 					    SwitchPrompt(RlB_.P_SearchPrompt, pPrompt);
 					    if(RlB_.P_SearchResult)
 						    CopyLine(RlB_.P_SearchResult->line);
@@ -975,9 +975,9 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 //static int do_search(int dir)
 int GnuPlot::DoSearch(int dir)
 {
-	int ret = history_search(RlB_.P_CurLine, dir);
+	int ret = HistorySearch(RlB_.P_CurLine, dir);
 	if(ret != -1)
-		RlB_.P_SearchResult = current_history();
+		RlB_.P_SearchResult = CurrentHistory();
 	PrintSearchResult(RlB_.P_SearchResult);
 	return ret;
 }

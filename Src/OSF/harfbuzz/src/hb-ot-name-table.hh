@@ -87,7 +87,7 @@ namespace OT {
 			if(p == 3 && e ==  0) return 8;
 
 			/* We treat all Mac Latin names as ASCII only. */
-			if(p == 1 && e ==  0) return 10;/* 10 is magic number :| */
+			if(p == 1 && e ==  0) return 10; /* 10 is magic number :| */
 
 			return UNSUPPORTED;
 		}
@@ -197,46 +197,36 @@ public:
 
 		template <typename Iterator,
 		hb_requires(hb_is_source_of(Iterator, const NameRecord &))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator it,
-		    const void * src_string_pool)
+		bool serialize(hb_serialize_context_t * c, Iterator it, const void * src_string_pool)
 		{
 			TRACE_SERIALIZE(this);
-
-			if(UNLIKELY(!c->extend_min((*this)))) return_trace(false);
-
+			if(UNLIKELY(!c->extend_min((*this)))) 
+				return_trace(false);
 			this->format = 0;
 			this->count = it.len();
-
-			NameRecord * name_records = (NameRecord*)calloc(it.len(), NameRecord::static_size);
-			if(UNLIKELY(!name_records)) return_trace(false);
-
+			NameRecord * name_records = (NameRecord*)SAlloc::C(it.len(), NameRecord::static_size);
+			if(UNLIKELY(!name_records)) 
+				return_trace(false);
 			hb_array_t<NameRecord> records(name_records, it.len());
-
 			for(const NameRecord& record : it) {
 				memcpy(name_records, &record, NameRecord::static_size);
 				name_records++;
 			}
-
 			records.qsort();
-
 			c->copy_all(records, src_string_pool);
-			free(records.arrayZ);
-
-			if(UNLIKELY(c->ran_out_of_room)) return_trace(false);
-
+			SAlloc::F(records.arrayZ);
+			if(UNLIKELY(c->ran_out_of_room)) 
+				return_trace(false);
 			this->stringOffset = c->length();
-
 			return_trace(true);
 		}
 
 		bool subset(hb_subset_context_t * c) const
 		{
 			TRACE_SUBSET(this);
-
 			name * name_prime = c->serializer->start_embed<name> ();
-			if(UNLIKELY(!name_prime)) return_trace(false);
-
+			if(UNLIKELY(!name_prime)) 
+				return_trace(false);
 			auto it =
 			    +nameRecordZ.as_array(count)
 			    | hb_filter(c->plan->name_ids, &NameRecord::nameID)
@@ -278,7 +268,7 @@ public:
 				this->names.init();
 				this->names.alloc(all_names.length);
 
-				for(unsigned int i = 0; i < all_names.length; i++) {
+				for(uint i = 0; i < all_names.length; i++) {
 					hb_ot_name_entry_t * entry = this->names.push();
 
 					entry->name_id = all_names[i].nameID;
@@ -291,7 +281,7 @@ public:
 				/* Walk and pick best only for each name_id,language pair,
 				 * while dropping unsupported encodings. */
 				unsigned int j = 0;
-				for(unsigned int i = 0; i < this->names.length; i++) {
+				for(uint i = 0; i < this->names.length; i++) {
 					if(this->names[i].entry_score == UNSUPPORTED ||
 					    this->names[i].language == HB_LANGUAGE_INVALID)
 						continue;

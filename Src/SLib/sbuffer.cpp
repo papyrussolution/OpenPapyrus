@@ -1045,17 +1045,19 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 		assert(DataLen >= sizeof(H));
 		if(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic) {
 			size_t offs = sizeof(H);
-			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
-			do {
-				if(p_blk->I == id) {
-					size = p_blk->S;
-					p_result = p_blk+1;
-				}
-				else {
-					offs += (sizeof(BH) + p_blk->S);
-					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
-				}
-			} while(!p_result && offs < DataLen);
+			if(offs < DataLen) { // @v11.2.0
+				BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+				do {
+					if(p_blk->I == id) {
+						size = p_blk->S;
+						p_result = p_blk+1;
+					}
+					else {
+						offs += (sizeof(BH) + p_blk->S);
+						p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
+					}
+				} while(!p_result && offs < DataLen);
+			}
 			assert(p_result || offs == DataLen);
 		}
 	}
@@ -1859,7 +1861,7 @@ SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) : R
 {
 }
 
-int SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf); }
+int STDCALL  SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf); }
 int FASTCALL SSerializer::Serialize(SString & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStringU & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(int64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
@@ -1877,14 +1879,14 @@ int FASTCALL SSerializer::Serialize(LDATETIME & rV) { return P_SCtx->Serialize(D
 int FASTCALL SSerializer::Serialize(float & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(double & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(S_GUID & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
-int SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
-int SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
+int STDCALL  SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
+int FASTCALL SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
 int FASTCALL SSerializer::Serialize(SPoint2S & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SPoint2F & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SArray * pArray) { return P_SCtx->Serialize(Dir, pArray, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStrCollection * pColl) { return P_SCtx->Serialize(Dir, pColl, R_Buf); }
 int FASTCALL SSerializer::Serialize(StrAssocArray & rArray) { return P_SCtx->Serialize(Dir, rArray, R_Buf); }
-int SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock) { return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock); }
+int STDCALL SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock) { return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock); }
 //
 //
 //

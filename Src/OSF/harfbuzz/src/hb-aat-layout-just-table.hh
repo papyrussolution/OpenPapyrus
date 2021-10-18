@@ -205,7 +205,7 @@ public:
 				return_trace(false);
 
 			unsigned int offset = min_size;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const ActionSubrecord& subrecord = StructAtOffset<ActionSubrecord> (this, offset);
 				if(UNLIKELY(!subrecord.sanitize(c))) return_trace(false);
 				offset += subrecord.get_length();
@@ -250,7 +250,7 @@ public:
 		};
 
 protected:
-		HBFixed beforeGrowLimit;/* The ratio by which the advance width of the
+		HBFixed beforeGrowLimit; /* The ratio by which the advance width of the
 		 * glyph is permitted to grow on the left or top side. */
 		HBFixed beforeShrinkLimit;
 		/* The ratio by which the advance width of the

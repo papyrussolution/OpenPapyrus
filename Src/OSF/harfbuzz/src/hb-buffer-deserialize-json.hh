@@ -32,7 +32,7 @@
 #include "hb.hh"
 
 #line 36 "hb-buffer-deserialize-json.hh"
-static const unsigned char _deserialize_json_trans_keys[] = {
+static const uchar _deserialize_json_trans_keys[] = {
 	0u, 0u, 9u, 123u, 9u, 34u, 97u, 103u, 120u, 121u, 34u, 34u, 9u, 58u, 9u, 57u,
 	48u, 57u, 9u, 125u, 9u, 125u, 9u, 125u, 34u, 34u, 9u, 58u, 9u, 57u, 48u, 57u,
 	9u, 125u, 9u, 125u, 108u, 108u, 34u, 34u, 9u, 58u, 9u, 57u, 9u, 125u, 9u, 125u,
@@ -460,7 +460,7 @@ static hb_bool_t _hb_buffer_deserialize_glyphs_json(hb_buffer_t * buffer, const 
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

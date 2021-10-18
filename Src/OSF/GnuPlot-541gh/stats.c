@@ -38,7 +38,7 @@ GpFileStats GnuPlot::AnalyzeFile(long n, int outofrange, int invalid, int blank,
 	res.records = n;
 	res.invalid = invalid;
 	res.blanks  = blank;
-	res.blocks  = dblblank + 1;/* blocks are separated by dbl blank lines */
+	res.blocks  = dblblank + 1; /* blocks are separated by dbl blank lines */
 	res.outofrange = outofrange;
 	res.header_records = headers;
 	res.columns = _Df.df_last_col;

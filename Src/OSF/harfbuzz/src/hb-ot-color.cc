@@ -178,7 +178,7 @@ hb_bool_t hb_ot_color_has_layers(hb_face_t * face)
  * @glyph: The glyph index to query
  * @start_offset: offset of the first layer to retrieve
  * @layer_count: (inout) (optional): Input = the maximum number of layers to return;
- *         Output = the actual number of layers returned (may be zero)
+ *   Output = the actual number of layers returned (may be zero)
  * @layers: (out) (array length=layer_count) (nullable): The array of layers found
  *
  * Fetches a list of all color layers for the specified glyph index in the specified

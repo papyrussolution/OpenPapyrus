@@ -52,7 +52,7 @@ namespace OT {
 		}
 
 protected:
-		ArrayOf<HBUINT16>     glyphNameIndex;/* This is not an offset, but is the
+		ArrayOf<HBUINT16>     glyphNameIndex; /* This is not an offset, but is the
 		        * ordinal number of the glyph in 'post'
 		        * string tables. */
 /*UnsizedArrayOf<HBUINT8>
@@ -106,7 +106,7 @@ public:
 			void fini()
 			{
 				index_to_offset.fini();
-				free(gids_sorted_by_name.get());
+				SAlloc::F(gids_sorted_by_name.get());
 				table.destroy();
 			}
 			bool get_glyph_name(hb_codepoint_t glyph, char * buf, unsigned int buf_len) const
@@ -132,47 +132,36 @@ public:
 				if(UNLIKELY(!len)) return false;
 retry:
 				uint16_t *gids = gids_sorted_by_name.get();
-
 				if(UNLIKELY(!gids)) {
-					gids = (uint16_t*)malloc(count * sizeof(gids[0]));
+					gids = (uint16_t*)SAlloc::M(count * sizeof(gids[0]));
 					if(UNLIKELY(!gids))
 						return false; /* Anything better?! */
-
-					for(unsigned int i = 0; i < count; i++)
+					for(uint i = 0; i < count; i++)
 						gids[i] = i;
 					hb_qsort(gids, count, sizeof(gids[0]), cmp_gids, (void *)this);
-
 					if(UNLIKELY(!gids_sorted_by_name.cmpexch(nullptr, gids))) {
-						free(gids);
+						SAlloc::F(gids);
 						goto retry;
 					}
 				}
-
 				hb_bytes_t st(name, len);
 				auto* gid = hb_bsearch(st, gids, count, sizeof(gids[0]), cmp_key, (void *)this);
 				if(gid) {
 					* glyph = *gid;
 					return true;
 				}
-
 				return false;
 			}
-
 			hb_blob_ptr_t<post> table;
-
 protected:
-
 			unsigned int get_glyph_count() const
 			{
 				if(version == 0x00010000)
 					return format1_names_length;
-
 				if(version == 0x00020000)
 					return glyphNameIndex->len;
-
 				return 0;
 			}
-
 			static int cmp_gids(const void * pa, const void * pb, void * arg)
 			{
 				const accelerator_t * thiz = (const accelerator_t*)arg;

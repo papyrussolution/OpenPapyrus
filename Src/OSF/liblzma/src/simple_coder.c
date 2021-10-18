@@ -220,14 +220,14 @@ extern lzma_ret lzma_simple_coder_init(lzma_next_coder * next, const lzma_alloca
 //
 // simple_encoder
 //
-extern lzma_ret lzma_simple_props_size(uint32_t * size, const void * options)
+extern lzma_ret lzma_simple_props_size(uint32 * size, const void * options)
 {
 	const lzma_options_bcj * const opt = (const lzma_options_bcj * const)options;
 	*size = (opt == NULL || opt->start_offset == 0) ? 0 : 4;
 	return LZMA_OK;
 }
 
-extern lzma_ret lzma_simple_props_encode(const void * options, uint8_t * out)
+extern lzma_ret lzma_simple_props_encode(const void * options, uint8 * out)
 {
 	const lzma_options_bcj * const opt = (const lzma_options_bcj * const)options;
 	// The default start offset is zero, so we don't need to store any

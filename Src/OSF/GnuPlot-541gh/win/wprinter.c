@@ -46,13 +46,13 @@ HRESULT STDMETHODCALLTYPE QueryInterface(IPrintDialogCallback * This, REFIID rii
 	#define _is_eq_iid(iid1, iid2) IsEqualIID((iid1), &(iid2))
 #endif
 	if(_is_eq_iid(riid, IID_IUnknown)) {
-		*object = (void*)This;
+		*object = (void *)This;
 	}
 	else if(_is_eq_iid(riid, IID_IPrintDialogCallback)) {
-		*object = (void*)&((PrintingCallbackHandler*)This)->callback;
+		*object = (void *)&((PrintingCallbackHandler*)This)->callback;
 	}
 	else if(_is_eq_iid(riid, IID_IObjectWithSite)) {
-		*object = (void*)&((PrintingCallbackHandler*)This)->site;
+		*object = (void *)&((PrintingCallbackHandler*)This)->site;
 	}
 	else {
 		return E_NOINTERFACE;
@@ -212,15 +212,15 @@ void PrintingCallbackFree(void * callback)
 	SAlloc::F(callback);
 }
 
-void PrintingCleanup(void)
+void GpWinMainBlock::PrintingCleanup()
 {
-	if(_WinM.hDevNames) {
-		GlobalFree(_WinM.hDevNames);
-		_WinM.hDevNames = 0;
+	if(hDevNames) {
+		GlobalFree(hDevNames);
+		hDevNames = 0;
 	}
-	if(_WinM.hDevMode) {
-		GlobalFree(_WinM.hDevMode);
-		_WinM.hDevMode = 0;
+	if(hDevMode) {
+		GlobalFree(hDevMode);
+		hDevMode = 0;
 	}
 }
 

@@ -96,11 +96,11 @@ static const char * ssh_auth_get_current_method(ssh_session session)
  * @param[in] session   The SSH session.
  *
  * @returns SSH_AUTH_SUCCESS Authentication success, or pubkey accepted
- *          SSH_AUTH_PARTIAL Authentication succeeded but another mean
- *                           of authentication is needed.
- *          SSH_AUTH_INFO    Data for keyboard-interactive
- *          SSH_AUTH_AGAIN   In nonblocking mode, call has to be made again
- *          SSH_AUTH_ERROR   Error during the process.
+ *    SSH_AUTH_PARTIAL Authentication succeeded but another mean
+ *                     of authentication is needed.
+ *    SSH_AUTH_INFO    Data for keyboard-interactive
+ *    SSH_AUTH_AGAIN   In nonblocking mode, call has to be made again
+ *    SSH_AUTH_ERROR   Error during the process.
  */
 static int ssh_userauth_get_response(ssh_session session) 
 {
@@ -292,10 +292,10 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_pk_ok)
  * @param[in] username  Deprecated, set to NULL.
  *
  * @returns             A bitfield of the fllowing values:
- *                      - SSH_AUTH_METHOD_PASSWORD
- *                      - SSH_AUTH_METHOD_PUBLICKEY
- *                      - SSH_AUTH_METHOD_HOSTBASED
- *                      - SSH_AUTH_METHOD_INTERACTIVE
+ *                - SSH_AUTH_METHOD_PASSWORD
+ *                - SSH_AUTH_METHOD_PUBLICKEY
+ *                - SSH_AUTH_METHOD_HOSTBASED
+ *                - SSH_AUTH_METHOD_INTERACTIVE
  *
  * @warning Other reserved flags may appear in future versions.
  * @see ssh_userauth_none()
@@ -313,12 +313,12 @@ int ssh_userauth_list(ssh_session session, const char * username)
  * @param[in] username    The username, this SHOULD be NULL.
  *
  * @returns SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  Authentication failed: use another method\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method\n
- *          SSH_AUTH_SUCCESS: Authentication success\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  Authentication failed: use another method\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method\n
+ *    SSH_AUTH_SUCCESS: Authentication success\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -394,15 +394,15 @@ fail:
  * @param[in] pubkey      The public key to try.
  *
  * @return  SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  The server doesn't accept that public key as an
- *                            authentication token. Try another key or another
- *                            method.\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method.\n
- *          SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
- *                            ssh_userauth_publickey().\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  The server doesn't accept that public key as an
+ *                      authentication token. Try another key or another
+ *                      method.\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method.\n
+ *    SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
+ *                      ssh_userauth_publickey().\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -516,14 +516,14 @@ fail:
  * @param[in] privkey     The private key for authentication.
  *
  * @return  SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  The server doesn't accept that public key as an
- *                            authentication token. Try another key or another
- *                            method.\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method.\n
- *          SSH_AUTH_SUCCESS: The public key is accepted.\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  The server doesn't accept that public key as an
+ *                      authentication token. Try another key or another
+ *                      method.\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method.\n
+ *    SSH_AUTH_SUCCESS: The public key is accepted.\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -780,15 +780,15 @@ void ssh_agent_state_free(void * data) {
  * @param[in]  username The username, this SHOULD be NULL.
  *
  * @return  SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  The server doesn't accept that public key as an
- *                            authentication token. Try another key or another
- *                            method.\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method.\n
- *          SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
- *                            ssh_userauth_publickey().\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  The server doesn't accept that public key as an
+ *                      authentication token. Try another key or another
+ *                      method.\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method.\n
+ *    SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
+ *                      ssh_userauth_publickey().\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -915,19 +915,19 @@ struct ssh_auth_auto_state_struct {
  * @param[in]  username    The username, this SHOULD be NULL.
  *
  * @param[in]  passphrase  Use this passphrase to unlock the privatekey. Use NULL
- *                         if you don't want to use a passphrase or the user
- *                         should be asked.
+ *                   if you don't want to use a passphrase or the user
+ *                   should be asked.
  *
  * @return  SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  The server doesn't accept that public key as an
- *                            authentication token. Try another key or another
- *                            method.\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method.\n
- *          SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
- *                            ssh_userauth_publickey().\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  The server doesn't accept that public key as an
+ *                      authentication token. Try another key or another
+ *                      method.\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method.\n
+ *    SSH_AUTH_SUCCESS: The public key is accepted, you want now to use
+ *                      ssh_userauth_publickey().\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -1150,12 +1150,12 @@ int ssh_userauth_publickey_auto(ssh_session session,
  * @param[in] password  The password to authenticate in UTF-8.
  *
  * @returns SSH_AUTH_ERROR:   A serious error happened.\n
- *          SSH_AUTH_DENIED:  Authentication failed: use another method\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method\n
- *          SSH_AUTH_SUCCESS: Authentication success\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  Authentication failed: use another method\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method\n
+ *    SSH_AUTH_SUCCESS: Authentication success\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @note Most server implementations do not permit changing the username during
  * authentication. The username should only be set with ssh_options_set() only
@@ -1400,7 +1400,7 @@ fail:
  * @internal
  *
  * @brief Send the current challenge response and wait for a reply from the
- *        server.
+ *  server.
  *
  * @returns SSH_AUTH_INFO if more info is needed
  * @returns SSH_AUTH_SUCCESS
@@ -1461,8 +1461,8 @@ fail:
 /**
  * @internal
  * @brief handles a SSH_USERAUTH_INFO_REQUEST packet, as used in
- *        keyboard-interactive authentication, and changes the
- *        authentication state.
+ *  keyboard-interactive authentication, and changes the
+ *  authentication state.
  */
 SSH_PACKET_CALLBACK(ssh_packet_userauth_info_request) 
 {
@@ -1551,20 +1551,20 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_request)
  * @param[in]  session  The ssh session to use.
  *
  * @param[in]  user     The username to authenticate. You can specify NULL if
- *                      ssh_option_set_username() has been used. You cannot try
- *                      two different logins in a row.
+ *                ssh_option_set_username() has been used. You cannot try
+ *                two different logins in a row.
  *
  * @param[in]  submethods Undocumented. Set it to NULL.
  *
  * @returns SSH_AUTH_ERROR:   A serious error happened\n
- *          SSH_AUTH_DENIED:  Authentication failed : use another method\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method\n
- *          SSH_AUTH_SUCCESS: Authentication success\n
- *          SSH_AUTH_INFO:    The server asked some questions. Use
- *                            ssh_userauth_kbdint_getnprompts() and such.\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  Authentication failed : use another method\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method\n
+ *    SSH_AUTH_SUCCESS: Authentication success\n
+ *    SSH_AUTH_INFO:    The server asked some questions. Use
+ *                      ssh_userauth_kbdint_getnprompts() and such.\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  *
  * @see ssh_userauth_kbdint_getnprompts()
  * @see ssh_userauth_kbdint_getname()
@@ -1683,8 +1683,8 @@ const char * ssh_userauth_kbdint_getinstruction(ssh_session session) {
  * @param[in]  i        The index number of the i'th prompt.
  *
  * @param[out] echo     This is an optional variable. You can obtain a
- *                      boolean if the user input should be echoed or
- *                      hidden. For passwords it is usually hidden.
+ *                boolean if the user input should be echoed or
+ *                hidden. For passwords it is usually hidden.
  *
  * @returns             A pointer to the prompt. Do not free it.
  *
@@ -1764,10 +1764,10 @@ const char * ssh_userauth_kbdint_getanswer(ssh_session session, uint i)
  * @param[in]  i index  The number of the ith prompt.
  *
  * @param[in]  answer   The answer to give to the server. The answer MUST be
- *                      encoded UTF-8. It is up to the server how to interpret
- *                      the value and validate it. However, if you read the
- *                      answer in some other encoding, you MUST convert it to
- *                      UTF-8.
+ *                encoded UTF-8. It is up to the server how to interpret
+ *                the value and validate it. However, if you read the
+ *                answer in some other encoding, you MUST convert it to
+ *                UTF-8.
  *
  * @return              0 on success, < 0 on error.
  */
@@ -1808,12 +1808,12 @@ int ssh_userauth_kbdint_setanswer(ssh_session session, uint i, const char * answ
  * @param[in]  session  The ssh session to use.
  *
  * @returns SSH_AUTH_ERROR:   A serious error happened\n
- *          SSH_AUTH_DENIED:  Authentication failed : use another method\n
- *          SSH_AUTH_PARTIAL: You've been partially authenticated, you still
- *                            have to use another method\n
- *          SSH_AUTH_SUCCESS: Authentication success\n
- *          SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
- *                            later.
+ *    SSH_AUTH_DENIED:  Authentication failed : use another method\n
+ *    SSH_AUTH_PARTIAL: You've been partially authenticated, you still
+ *                      have to use another method\n
+ *    SSH_AUTH_SUCCESS: Authentication success\n
+ *    SSH_AUTH_AGAIN:   In nonblocking mode, you've got to call this again
+ *                      later.
  */
 int ssh_userauth_gssapi(ssh_session session) 
 {

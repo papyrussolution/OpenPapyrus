@@ -306,7 +306,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx);
  * doesn't work.
  */
 #if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-	#define SET(n) (*(MD4_u32plus*)(void*)&ptr[(n) * 4])
+	#define SET(n) (*(MD4_u32plus*)(void *)&ptr[(n) * 4])
 	#define GET(n) SET(n)
 #else
 	#define SET(n) (ctx->block[(n)] = (MD4_u32plus)ptr[(n)*4] | ((MD4_u32plus)ptr[(n)*4+1] << 8) | ((MD4_u32plus)ptr[(n)*4+2] << 16) | ((MD4_u32plus)ptr[(n)*4+3] << 24))

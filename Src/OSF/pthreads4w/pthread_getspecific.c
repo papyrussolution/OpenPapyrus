@@ -38,7 +38,7 @@
  *
  * PARAMETERS
  *   key
- *           an instance of pthread_key_t
+ *     an instance of pthread_key_t
  *
  *
  * DESCRIPTION
@@ -47,7 +47,7 @@
  *   the thread, NULL is returned.
  *
  * RESULTS
- *           key value or NULL on failure
+ *     key value or NULL on failure
  *
  * ------------------------------------------------------
  */

@@ -280,7 +280,7 @@ static void Round(uint64_t A[5][5], size_t i)
 
 	C[3] = ROL64(A[3][3] ^ C[2], rhotates[3][3]); /* D[3] */
 	C[4] = ROL64(A[4][4] ^ E[1], rhotates[4][4]); /* D[4] */
-	C[0] =       A[0][0] ^ C[0];/* rotate by 0 */  /* D[0] */
+	C[0] =       A[0][0] ^ C[0]; /* rotate by 0 */  /* D[0] */
 	C[2] = ROL64(A[2][2] ^ C[1], rhotates[2][2]); /* D[2] */
 	C[1] = ROL64(A[1][1] ^ E[0], rhotates[1][1]); /* D[1] */
 #else
@@ -296,7 +296,7 @@ static void Round(uint64_t A[5][5], size_t i)
 	T[0][3] = A[0][3] ^ D[3];
 	T[0][4] = A[0][4] ^ D[4];
 
-	C[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	C[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	C[1] = ROL64(A[1][1] ^ D[1], rhotates[1][1]);
 	C[2] = ROL64(A[2][2] ^ D[2], rhotates[2][2]);
 	C[3] = ROL64(A[3][3] ^ D[3], rhotates[3][3]);
@@ -340,7 +340,7 @@ static void Round(uint64_t A[5][5], size_t i)
 
 	C[0] = ROL64(T[0][4],        rhotates[0][4]);
 	C[1] = ROL64(T[1][0],        rhotates[1][0]);
-	C[2] = ROL64(T[1][1],        rhotates[2][1]);/* originally A[2][1] */
+	C[2] = ROL64(T[1][1],        rhotates[2][1]); /* originally A[2][1] */
 	C[3] = ROL64(A[3][2] ^ D[2], rhotates[3][2]);
 	C[4] = ROL64(A[4][3] ^ D[3], rhotates[4][3]);
 
@@ -352,8 +352,8 @@ static void Round(uint64_t A[5][5], size_t i)
 
 	C[0] = ROL64(T[0][2],        rhotates[0][2]);
 	C[1] = ROL64(T[1][3],        rhotates[1][3]);
-	C[2] = ROL64(T[1][4],        rhotates[2][4]);/* originally A[2][4] */
-	C[3] = ROL64(T[0][0],        rhotates[3][0]);/* originally A[3][0] */
+	C[2] = ROL64(T[1][4],        rhotates[2][4]); /* originally A[2][4] */
+	C[3] = ROL64(T[0][0],        rhotates[3][0]); /* originally A[3][0] */
 	C[4] = ROL64(A[4][1] ^ D[1], rhotates[4][1]);
 
 	A[4][0] = C[0] ^ (~C[1] & C[2]);
@@ -543,7 +543,7 @@ static void Round(uint64_t R[5][5], uint64_t A[5][5], size_t i)
 	D[3] = ROL64(C[4], 1) ^ C[2];
 	D[4] = ROL64(C[0], 1) ^ C[3];
 
-	C[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	C[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	C[1] = ROL64(A[1][1] ^ D[1], rhotates[1][1]);
 	C[2] = ROL64(A[2][2] ^ D[2], rhotates[2][2]);
 	C[3] = ROL64(A[3][3] ^ D[3], rhotates[3][3]);
@@ -702,7 +702,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	D[3] = ROL64(C[4], 1) ^ C[2];
 	D[4] = ROL64(C[0], 1) ^ C[3];
 
-	B[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	B[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	B[1] = ROL64(A[1][1] ^ D[1], rhotates[1][1]);
 	B[2] = ROL64(A[2][2] ^ D[2], rhotates[2][2]);
 	B[3] = ROL64(A[3][3] ^ D[3], rhotates[3][3]);
@@ -769,7 +769,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	D[3] = ROL64(C[4], 1) ^ C[2];
 	D[4] = ROL64(C[0], 1) ^ C[3];
 
-	B[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	B[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	B[1] = ROL64(A[3][1] ^ D[1], rhotates[1][1]);
 	B[2] = ROL64(A[1][2] ^ D[2], rhotates[2][2]);
 	B[3] = ROL64(A[4][3] ^ D[3], rhotates[3][3]);
@@ -836,7 +836,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	D[3] = ROL64(C[4], 1) ^ C[2];
 	D[4] = ROL64(C[0], 1) ^ C[3];
 
-	B[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	B[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	B[1] = ROL64(A[2][1] ^ D[1], rhotates[1][1]);
 	B[2] = ROL64(A[4][2] ^ D[2], rhotates[2][2]);
 	B[3] = ROL64(A[1][3] ^ D[3], rhotates[3][3]);
@@ -903,7 +903,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	D[3] = ROL64(C[4], 1) ^ C[2];
 	D[4] = ROL64(C[0], 1) ^ C[3];
 
-	B[0] =       A[0][0] ^ D[0];/* rotate by 0 */
+	B[0] =       A[0][0] ^ D[0]; /* rotate by 0 */
 	B[1] = ROL64(A[0][1] ^ D[1], rhotates[1][1]);
 	B[2] = ROL64(A[0][2] ^ D[2], rhotates[2][2]);
 	B[3] = ROL64(A[0][3] ^ D[3], rhotates[3][3]);

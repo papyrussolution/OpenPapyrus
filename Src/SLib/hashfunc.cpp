@@ -105,8 +105,6 @@ struct BdtTestItem {
 
 //Iterations = 6
 //Passphrase = ftlkfbxdtbjbvllvbwiw
-
-
 };
 
 int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection <BdtTestItem> & rData)
@@ -1326,17 +1324,13 @@ static uint32 MurmurHashAligned2(const void * key, int len, uint32 seed)
 	return hash;
 }
 //
-//
-//
-//-----------------------------------------------------------------------------
 // Block read - if your platform needs to do endian-swapping or can only
 // handle aligned reads, do the conversion here
-
+//
 #define getblock(p, i) (p[i])
-
-//-----------------------------------------------------------------------------
+//
 // Finalization mix - force all bits of a hash block to avalanche
-
+//
 static FORCEINLINE uint32 fmix32(uint32 h) { h ^= h >> 16; h *= 0x85ebca6b;            h ^= h >> 13; h *= 0xc2b2ae35;            h ^= h >> 16; return h; }
 static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558ccdULL; h ^= h >> 33; h *= 0xc4ceb9fe1a85ec53ULL; h ^= h >> 33; return h; }
 
@@ -1681,7 +1675,7 @@ SCRC32::~SCRC32()
 #define CRC_START_64_ECMA    0x0000000000000000ull
 #define CRC_START_64_WE      0xFFFFFFFFFFFFFFFFull
 
-/*static*/uint8 FASTCALL SlHash::CRC8(State * pS, const void * pData, size_t dataLen)
+/*static*/uint8 STDCALL SlHash::CRC8(State * pS, const void * pData, size_t dataLen)
 {
 	const uint8 init_val = CRC_START_8;
 	uint8 result = 0;
@@ -1742,7 +1736,7 @@ SCRC32::~SCRC32()
 	return result;
 }
 
-/*static*/uint32 FASTCALL SlHash::CRC32(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 STDCALL SlHash::CRC32(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -1789,7 +1783,7 @@ SCRC32::~SCRC32()
 	return result;
 }
 
-/*static*/uint32 FASTCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 STDCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -2011,7 +2005,7 @@ SCRC32::~SCRC32()
 	return result;
 }
 
-/*static*/uint32 FASTCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 STDCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -2108,14 +2102,6 @@ SCRC32::~SCRC32()
 #define MD5_BLOCK_WORDS		16
 #define MD5_HASH_WORDS		4
 
-//extern const uint8 md5_zero_message_hash[MD5_DIGEST_SIZE];
-
-/*struct Md5State {
-	uint32 hash[MD5_HASH_WORDS];
-	uint32 block[MD5_BLOCK_WORDS];
-	uint64 byte_count;
-};*/
-
 static inline void sl_cpu_to_le32_array(uint32 * buf, uint words)
 {
 	if(SSystem::BigEndian()) {
@@ -2136,7 +2122,7 @@ static inline void sl_le32_to_cpu_array(uint32 * buf, uint words)
 	}
 }
 
-static const uint8 md5_zero_message_hash[MD5_DIGEST_SIZE] = { 0xd4, 0x1d, 0x8c, 0xd9, 0x8f, 0x00, 0xb2, 0x04, 0xe9, 0x80, 0x09, 0x98, 0xec, 0xf8, 0x42, 0x7e, };
+//static const uint8 md5_zero_message_hash[MD5_DIGEST_SIZE] = { 0xd4, 0x1d, 0x8c, 0xd9, 0x8f, 0x00, 0xb2, 0x04, 0xe9, 0x80, 0x09, 0x98, 0xec, 0xf8, 0x42, 0x7e, };
 
 static void md5_transform(uint32 * pHash, const uint32 * in)
 {
@@ -2227,14 +2213,13 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 	pHash[3] += d;
 }
 
-//static inline void md5_transform_helper(SlHash::Md5Ctx * pCtx)
 /*static*/void FASTCALL SlHash::Md5TransformHelper(State::Md5Ctx * pCtx)
 {
 	sl_le32_to_cpu_array(pCtx->Data, sizeof(pCtx->Data) / sizeof(uint32));
 	md5_transform(pCtx->H, pCtx->Data);
 }
 
-/*static*/binary128 FASTCALL SlHash::Md5(State * pS, const void * pData, size_t dataLen)
+/*static*/binary128 STDCALL SlHash::Md5(State * pS, const void * pData, size_t dataLen)
 {
 	binary128 result;
 	if(!pS) {
@@ -2307,11 +2292,32 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 #define SHA1_F2(b, c, d)  ((b) ^ (c) ^ (d))
 #define SHA1_F3(b, c, d)  (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
 #define SHA1_STEP(f, a, b, c, d, e, w, t) temp = SHA1_ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = SHA1_ROTATE(30, (b)); (b) = (a); (a) = temp;
+//
+#define sHA256_BLOCK_SIZE 64
+#define SHA256_STORE32H(x, y) { (y)[0] = (uint8)(((x)>>24)&255); (y)[1] = (uint8)(((x)>>16)&255); (y)[2] = (uint8)(((x)>>8)&255); (y)[3] = (uint8)((x)&255); }
+#define SHA256_LOAD32H(x, y)  { x = ((uint32)((y)[0] & 255)<<24) | ((uint32)((y)[1] & 255)<<16) | ((uint32)((y)[2] & 255)<<8) | ((uint32)((y)[3] & 255)); }
+#define SHA256_STORE64H(x, y) { (y)[0] = (uint8)(((x)>>56)&255); (y)[1] = (uint8)(((x)>>48)&255); (y)[2] = (uint8)(((x)>>40)&255); (y)[3] = (uint8)(((x)>>32)&255); \
+	(y)[4] = (uint8)(((x)>>24)&255); (y)[5] = (uint8)(((x)>>16)&255); (y)[6] = (uint8)(((x)>>8)&255); (y)[7] = (uint8)((x)&255); }
+#define SHA256_ror(value, bits) (((value) >> (bits)) | ((value) << (32 - (bits))))
+#define SHA256_Ch(x, y, z)     (z ^ (x & (y ^ z)))
+#define SHA256_Maj(x, y, z)    (((x | y) & z) | (x & y))
+#define SHA256_S(x, n)         SHA256_ror((x), (n))
+#define SHA256_R(x, n)         (((x)&0xFFFFFFFFUL)>>(n))
+#define SHA256_Sigma0(x)       (SHA256_S(x, 2) ^ SHA256_S(x, 13) ^ SHA256_S(x, 22))
+#define SHA256_Sigma1(x)       (SHA256_S(x, 6) ^ SHA256_S(x, 11) ^ SHA256_S(x, 25))
+#define SHA256_Gamma0(x)       (SHA256_S(x, 7) ^ SHA256_S(x, 18) ^ SHA256_R(x, 3))
+#define SHA256_Gamma1(x)       (SHA256_S(x, 17) ^ SHA256_S(x, 19) ^ SHA256_R(x, 10))
+
+#define Sha256Round(a, b, c, d, e, f, g, h, i)       \
+	t0 = h + SHA256_Sigma1(e) + SHA256_Ch(e, f, g) + K[i] + W[i];   \
+	t1 = SHA256_Sigma0(a) + SHA256_Maj(a, b, c);                    \
+	d += t0;                                          \
+	h  = t0 + t1;
 // 
 // This processes one or more 64-byte data blocks, but does not update
 // the bit counters. There are no alignment requirements.
 // 
-/*static*/const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
+/*static*/const uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
 {
 	uint32 words[80];
 	uint   i;
@@ -2441,7 +2447,7 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 	return p;
 }
 
-/*static*/binary160 FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen)
+/*static*/binary160 STDCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen)
 {
 	binary160 result;
 	if(!pS) {
@@ -2488,51 +2494,185 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 			}
 		}
 		else { // final
-			{
-				size_t used = static_cast<size_t>(r_ctx.Count & 0x3f);
-				PTR8(r_ctx.Data)[used++] = 0x80;
-				size_t free__ = 64 - used;
-				if(free__ < 8) {
-					memzero(PTR8(r_ctx.Data) + used, free__);
-					Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
-					used = 0;
-					free__ = 64;
-				}
-				memzero(PTR8(r_ctx.Data) + used, free__ - 8);
-				r_ctx.Count <<= 3;
-				PTR8(r_ctx.Data)[56] = static_cast<uchar>(r_ctx.Count >> 56);
-				PTR8(r_ctx.Data)[57] = static_cast<uchar>(r_ctx.Count >> 48);
-				PTR8(r_ctx.Data)[58] = static_cast<uchar>(r_ctx.Count >> 40);
-				PTR8(r_ctx.Data)[59] = static_cast<uchar>(r_ctx.Count >> 32);
-				PTR8(r_ctx.Data)[60] = static_cast<uchar>(r_ctx.Count >> 24);
-				PTR8(r_ctx.Data)[61] = static_cast<uchar>(r_ctx.Count >> 16);
-				PTR8(r_ctx.Data)[62] = static_cast<uchar>(r_ctx.Count >> 8);
-				PTR8(r_ctx.Data)[63] = (uchar)r_ctx.Count;
-				{
-					Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
-				}
-				result.D[0]  = static_cast<uchar>(r_ctx.H[0] >> 24);
-				result.D[1]  = static_cast<uchar>(r_ctx.H[0] >> 16);
-				result.D[2]  = static_cast<uchar>(r_ctx.H[0] >> 8);
-				result.D[3]  = static_cast<uchar>(r_ctx.H[0]);
-				result.D[4]  = static_cast<uchar>(r_ctx.H[1] >> 24);
-				result.D[5]  = static_cast<uchar>(r_ctx.H[1] >> 16);
-				result.D[6]  = static_cast<uchar>(r_ctx.H[1] >> 8);
-				result.D[7]  = static_cast<uchar>(r_ctx.H[1]);
-				result.D[8]  = static_cast<uchar>(r_ctx.H[2] >> 24);
-				result.D[9]  = static_cast<uchar>(r_ctx.H[2] >> 16);
-				result.D[10] = static_cast<uchar>(r_ctx.H[2] >> 8);
-				result.D[11] = static_cast<uchar>(r_ctx.H[2]);
-				result.D[12] = static_cast<uchar>(r_ctx.H[3] >> 24);
-				result.D[13] = static_cast<uchar>(r_ctx.H[3] >> 16);
-				result.D[14] = static_cast<uchar>(r_ctx.H[3] >> 8);
-				result.D[15] = static_cast<uchar>(r_ctx.H[3]);
-				result.D[16] = static_cast<uchar>(r_ctx.H[4] >> 24);
-				result.D[17] = static_cast<uchar>(r_ctx.H[4] >> 16);
-				result.D[18] = static_cast<uchar>(r_ctx.H[4] >> 8);
-				result.D[19] = static_cast<uchar>(r_ctx.H[4]);
-				r_ctx.Z();
+			size_t used = static_cast<size_t>(r_ctx.Count & 0x3f);
+			PTR8(r_ctx.Data)[used++] = 0x80;
+			size_t free__ = 64 - used;
+			if(free__ < 8) {
+				memzero(PTR8(r_ctx.Data) + used, free__);
+				Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
+				used = 0;
+				free__ = 64;
 			}
+			memzero(PTR8(r_ctx.Data) + used, free__ - 8);
+			r_ctx.Count <<= 3;
+			PTR8(r_ctx.Data)[56] = static_cast<uchar>(r_ctx.Count >> 56);
+			PTR8(r_ctx.Data)[57] = static_cast<uchar>(r_ctx.Count >> 48);
+			PTR8(r_ctx.Data)[58] = static_cast<uchar>(r_ctx.Count >> 40);
+			PTR8(r_ctx.Data)[59] = static_cast<uchar>(r_ctx.Count >> 32);
+			PTR8(r_ctx.Data)[60] = static_cast<uchar>(r_ctx.Count >> 24);
+			PTR8(r_ctx.Data)[61] = static_cast<uchar>(r_ctx.Count >> 16);
+			PTR8(r_ctx.Data)[62] = static_cast<uchar>(r_ctx.Count >> 8);
+			PTR8(r_ctx.Data)[63] = (uchar)r_ctx.Count;
+			{
+				Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
+			}
+			result.D[0]  = static_cast<uchar>(r_ctx.H[0] >> 24);
+			result.D[1]  = static_cast<uchar>(r_ctx.H[0] >> 16);
+			result.D[2]  = static_cast<uchar>(r_ctx.H[0] >> 8);
+			result.D[3]  = static_cast<uchar>(r_ctx.H[0]);
+			result.D[4]  = static_cast<uchar>(r_ctx.H[1] >> 24);
+			result.D[5]  = static_cast<uchar>(r_ctx.H[1] >> 16);
+			result.D[6]  = static_cast<uchar>(r_ctx.H[1] >> 8);
+			result.D[7]  = static_cast<uchar>(r_ctx.H[1]);
+			result.D[8]  = static_cast<uchar>(r_ctx.H[2] >> 24);
+			result.D[9]  = static_cast<uchar>(r_ctx.H[2] >> 16);
+			result.D[10] = static_cast<uchar>(r_ctx.H[2] >> 8);
+			result.D[11] = static_cast<uchar>(r_ctx.H[2]);
+			result.D[12] = static_cast<uchar>(r_ctx.H[3] >> 24);
+			result.D[13] = static_cast<uchar>(r_ctx.H[3] >> 16);
+			result.D[14] = static_cast<uchar>(r_ctx.H[3] >> 8);
+			result.D[15] = static_cast<uchar>(r_ctx.H[3]);
+			result.D[16] = static_cast<uchar>(r_ctx.H[4] >> 24);
+			result.D[17] = static_cast<uchar>(r_ctx.H[4] >> 16);
+			result.D[18] = static_cast<uchar>(r_ctx.H[4] >> 8);
+			result.D[19] = static_cast<uchar>(r_ctx.H[4]);
+			r_ctx.Z();
+		}
+	}
+	return result;
+}
+
+void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
+{
+	// The K array
+	static const uint32 K[64] = {
+		0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
+		0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
+		0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
+		0xc19bf174UL, 0xe49b69c1UL, 0xefbe4786UL, 0x0fc19dc6UL, 0x240ca1ccUL,
+		0x2de92c6fUL, 0x4a7484aaUL, 0x5cb0a9dcUL, 0x76f988daUL, 0x983e5152UL,
+		0xa831c66dUL, 0xb00327c8UL, 0xbf597fc7UL, 0xc6e00bf3UL, 0xd5a79147UL,
+		0x06ca6351UL, 0x14292967UL, 0x27b70a85UL, 0x2e1b2138UL, 0x4d2c6dfcUL,
+		0x53380d13UL, 0x650a7354UL, 0x766a0abbUL, 0x81c2c92eUL, 0x92722c85UL,
+		0xa2bfe8a1UL, 0xa81a664bUL, 0xc24b8b70UL, 0xc76c51a3UL, 0xd192e819UL,
+		0xd6990624UL, 0xf40e3585UL, 0x106aa070UL, 0x19a4c116UL, 0x1e376c08UL,
+		0x2748774cUL, 0x34b0bcb5UL, 0x391c0cb3UL, 0x4ed8aa4aUL, 0x5b9cca4fUL,
+		0x682e6ff3UL, 0x748f82eeUL, 0x78a5636fUL, 0x84c87814UL, 0x8cc70208UL,
+		0x90befffaUL, 0xa4506cebUL, 0xbef9a3f7UL, 0xc67178f2UL
+	};
+	uint32 S[8];
+	uint32 W[64];
+	uint32 t0;
+	uint32 t1;
+	uint32 t;
+	uint   i;
+	// Copy H into S
+	for(i = 0; i < 8; i++) {
+		S[i] = pCtx->H[i];
+	}
+	// Copy the H into 512-bits into W[0..15]
+	for(i = 0; i < 16; i++) {
+		SHA256_LOAD32H(W[i], PTR8C(pBuffer) + (4*i) );
+	}
+	// Fill W[16..63]
+	for(i = 16; i < 64; i++) {
+		W[i] = SHA256_Gamma1(W[i-2]) + W[i-7] + SHA256_Gamma0(W[i-15]) + W[i-16];
+	}
+	// Compress
+	for(i = 0; i < 64; i++) {
+		Sha256Round(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
+		t = S[7];
+		S[7] = S[6];
+		S[6] = S[5];
+		S[5] = S[4];
+		S[4] = S[3];
+		S[3] = S[2];
+		S[2] = S[1];
+		S[1] = S[0];
+		S[0] = t;
+	}
+	// Feedback
+	for(i = 0; i < 8; i++) {
+		pCtx->H[i] = pCtx->H[i] + S[i];
+	}
+}
+
+/*static*/binary256 STDCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen)
+{
+	binary256 result;
+	if(!pS) {
+		State st;
+		result = Sha256(&st, pData, dataLen);
+		if(pData && dataLen) {
+			result = Sha256(&st, 0, 0);
+		}
+	}
+	else {
+		State::ShaCtx & r_ctx = pS->Result.Sha;
+		if(pS->Flags & pS->fEmpty) {
+			r_ctx.Num = 0;
+			r_ctx.Count = 0;
+			r_ctx.H[0] = 0x6A09E667UL;
+			r_ctx.H[1] = 0xBB67AE85UL;
+			r_ctx.H[2] = 0x3C6EF372UL;
+			r_ctx.H[3] = 0xA54FF53AUL;
+			r_ctx.H[4] = 0x510E527FUL;
+			r_ctx.H[5] = 0x9B05688CUL;
+			r_ctx.H[6] = 0x1F83D9ABUL;
+			r_ctx.H[7] = 0x5BE0CD19UL;
+			pS->Flags &= ~pS->fEmpty;
+		}
+		if(pData && dataLen) {
+			if(r_ctx.Num <= sizeof(r_ctx.Data)) {
+				while(dataLen > 0) {
+					if(r_ctx.Num == 0 && dataLen >= sHA256_BLOCK_SIZE) {
+						__Sha256TransformHelper(&r_ctx, (uint8 *)pData);
+						r_ctx.Count += sHA256_BLOCK_SIZE * 8;
+						pData = (uint8 *)pData + sHA256_BLOCK_SIZE;
+						dataLen -= sHA256_BLOCK_SIZE;
+					}
+					else {
+						uint32 n = MIN(dataLen, (sHA256_BLOCK_SIZE - r_ctx.Num));
+						memcpy(PTR8(r_ctx.Data) + r_ctx.Num, pData, (size_t)n);
+						r_ctx.Num += n;
+						pData = (uint8 *)pData + n;
+						dataLen -= n;
+						if(r_ctx.Num == sHA256_BLOCK_SIZE) {
+							__Sha256TransformHelper(&r_ctx, r_ctx.Data);
+							r_ctx.Count += 8 * sHA256_BLOCK_SIZE;
+							r_ctx.Num = 0;
+						}
+					}
+				}
+			}
+		}
+		else { // final
+			if(r_ctx.Num < sizeof(r_ctx.Data) ) {
+				r_ctx.Count += r_ctx.Num * 8; // Increase the Count of the message
+				PTR8(r_ctx.Data)[r_ctx.Num++] = (uint8)0x80; // Append the '1' bit
+				// if the Count is currently above 56 bytes we append zeros
+				// then compress.  Then we can fall back to padding zeros and Count
+				// encoding like normal.
+				if(r_ctx.Num > 56) {
+					while(r_ctx.Num < 64) {
+						PTR8(r_ctx.Data)[r_ctx.Num++] = 0;
+					}
+					__Sha256TransformHelper(&r_ctx, r_ctx.Data);
+					r_ctx.Num = 0;
+				}
+				// Pad up to 56 bytes of zeroes
+				while(r_ctx.Num < 56) {
+					PTR8(r_ctx.Data)[r_ctx.Num++] = 0;
+				}
+				// Store Count
+				SHA256_STORE64H(r_ctx.Count, PTR8(r_ctx.Data) + 56);
+				__Sha256TransformHelper(&r_ctx, r_ctx.Data);
+			}
+			// Copy output
+			for(int i = 0; i < 8; i++) {
+				SHA256_STORE32H(r_ctx.H[i], PTR8(&result) + (4*i) );
+			}
+			r_ctx.Z();
 		}
 	}
 	return result;
@@ -2554,146 +2694,6 @@ SlHash::State::R::R()
 {
 	THISZERO();
 }
-
-#if 0 // @construction {
-void Sha256_Transform(uint32 * pState/*[8]*/, const uint32 * pData/*[16]*/)
-{
-	static const uint32 SHA256_K[64] = {
-		0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
-		0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
-		0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-		0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
-		0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
-		0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-		0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
-		0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2,
-	};
-#if 1 // @construction {
-	#define blk0(i) (W[i] = sbswap32(pData[i]))
-	#define blk2(i) (W[i & 15] += s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + s0(W[(i - 15) & 15]))
-
-	#define Ch(x, y, z) (z ^ (x & (y ^ z)))
-	#define Maj(x, y, z) ((x & (y ^ z)) + (y & z))
-
-	#define a(i) T[(0-i) & 7]
-	#define b(i) T[(1-i) & 7]
-	#define c(i) T[(2-i) & 7]
-	#define d(i) T[(3-i) & 7]
-	#define e(i) T[(4-i) & 7]
-	#define f(i) T[(5-i) & 7]
-	#define g(i) T[(6-i) & 7]
-	#define h(i) T[(7-i) & 7]
-
-	#define R(i, j, blk) h(i) += S1(e(i)) + Ch(e(i), f(i), g(i)) + SHA256_K[i + j] + blk; d(i) += h(i); h(i) += S0(a(i)) + Maj(a(i), b(i), c(i))
-	#define R0(i) R(i, 0, blk0(i))
-	#define R2(i) R(i, j, blk2(i))
-
-	#define S0(x) _rotr(x ^ _rotr(x ^ _rotr(x, 9), 11), 2)
-	#define S1(x) _rotr(x ^ _rotr(x ^ _rotr(x, 14), 5), 6)
-	#define s0(x) (_rotr(x ^ _rotr(x, 11), 7) ^ (x >> 3))
-	#define s1(x) (_rotr(x ^ _rotr(x, 2), 17) ^ (x >> 10))
-	uint32 W[16];
-	uint32 T[8];
-	// Copy state[] to working vars.
-	memcpy(T, pState, sizeof(T));
-	// The first 16 operations unrolled
-	R0(0); R0(1); R0(2); R0(3); R0(4); R0(5); R0(6); R0(7); R0(8); R0(9); R0(10); R0(11); R0(12); R0(13); R0(14); R0(15);
-	// The remaining 48 operations partially unrolled
-	for(uint j = 16; j < 64; j += 16) {
-		R2(0); R2(1); R2(2); R2(3); R2(4); R2(5); R2(6); R2(7); R2(8); R2(9); R2(10); R2(11); R2(12); R2(13); R2(14); R2(15);
-	}
-	// Add the working vars back into state[].
-	pState[0] += a(0);
-	pState[1] += b(0);
-	pState[2] += c(0);
-	pState[3] += d(0);
-	pState[4] += e(0);
-	pState[5] += f(0);
-	pState[6] += g(0);
-	pState[7] += h(0);
-	#undef blk0
-	#undef blk2
-	#undef Ch
-	#undef Maj
-	#undef a
-	#undef b
-	#undef c
-	#undef d
-	#undef e
-	#undef f
-	#undef g
-	#undef h
-	#undef R
-	#undef R0
-	#undef R2
-	#undef S0
-	#undef S1
-	#undef s0
-	#undef s1
-#endif // } 0 @construction
-}
-
-void SlHash::State::ShaCtx::Sha256_Process(State * pS, const void * pData)
-{
-	Sha256_Transform(pS->Result.Sha.H, static_cast<const uint32 *>(pData));
-}
-
-/*static*/binary256 FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen)
-{
-	binary256 result;
-	if(!pS) {
-		State st;
-		Sha256(&st, pData, dataLen);
-		result = Sha256(&st, 0, 0);
-	}
-	else {
-		State::ShaCtx & r_ctx = pS->Result.Sha;
-		if(pS->Flags & pS->fEmpty) {
-			r_ctx.H[0] = 0x6a09e667;
-			r_ctx.H[1] = 0xbb67ae85;
-			r_ctx.H[2] = 0x3c6ef372;
-			r_ctx.H[3] = 0xa54ff53a;
-			r_ctx.H[4] = 0x510e527f;
-			r_ctx.H[5] = 0x9b05688c;
-			r_ctx.H[6] = 0x1f83d9ab;
-			r_ctx.H[7] = 0x5be0cd19;
-			r_ctx.Count = 0;
-			pS->Flags &= ~pS->fEmpty;
-		}
-		if(pData && dataLen) {
-			int    done = 0;
-			const  size_t used = static_cast<size_t>(r_ctx.Count & 0x3f);
-			r_ctx.Count += dataLen;
-			// @construction
-			if(used) {
-				const size_t free__ = 64 - used;
-				if(dataLen < free__) {
-					memcpy(PTR8(r_ctx.Data)+used, pData, dataLen);
-					done = 1;
-				}
-				else {
-					memcpy(PTR8(r_ctx.Data)+used, pData, free__);
-					pData = PTR8C(pData) + free__;
-					dataLen -= free__;
-					r_ctx.Sha256_Process(pS, reinterpret_cast<const uchar *>(r_ctx.Data));
-				}
-			}
-			if(!done) {
-				if(dataLen >= 64) {
-					r_ctx.Sha256_Process(pS, reinterpret_cast<const uchar *>(r_ctx.Data));
-					dataLen &= 0x3f;
-				}
-				assert(dataLen <= sizeof(r_ctx.Data));
-				memcpy(r_ctx.Data, pData, dataLen);
-			}
-			//
-		}
-		else { // final
-		}
-	}
-	return result;
-}
-#endif // } 0 @construction
 
 static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
 {
@@ -4018,7 +4018,6 @@ SLTEST_R(BDT)
 				"84983E441C3BD26EBAAE4AA1F95129E5E54670F1",
 				"34AA973CD4C4DAA4F61EEB2BDBAD27316534016F"
 			};	
-			char hex_outp[256];
 			binary160 s1;
 			SString hex;
 			assert(SIZEOFARRAY(jbig2dec_test_data) == SIZEOFARRAY(jbig2dec_test_results));
@@ -4036,9 +4035,37 @@ SLTEST_R(BDT)
 				hex.Z();
 				for(uint j = 0; j < sizeof(s1); j++)
 					hex.CatHexUpper(reinterpret_cast<const uint8 *>(&s1)[j]);
-				//InnerBlock::digest_to_hex(reinterpret_cast<const uint8 *>(&s1), hex_outp);
-				//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
+				{
+					//char hex_outp[256];
+					//InnerBlock::digest_to_hex(reinterpret_cast<const uint8 *>(&s1), hex_outp);
+					//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
+				}
 				SLTEST_CHECK_NZ(hex.IsEqual(jbig2dec_test_results[i]));
+			}
+		}
+		{ // SHA-256
+			(in_file_name = data_trasform_path).Cat("sha2_32.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "SHA-256", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+				const binary256 s1 = SlHash::Sha256(0, p_src_buf, src_size);
+				SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					uint32 r = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::Sha256(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					binary256 s2 = SlHash::Sha256(&st, 0, 0); // finalize
+					SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+					SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+				}
 			}
 		}
 	}
@@ -4291,7 +4318,7 @@ public:
 		//BMK_checkResult64(XXH64_digest(&state), Nresult);
 		R_Case.SLTEST_CHECK_EQ(XXH64_digest(&state), Nresult);
 	}
-	void BMK_testXXH3(const void* data, size_t len, uint64 seed, uint64 Nresult)
+	void BMK_testXXH3(const void * data, size_t len, uint64 seed, uint64 Nresult)
 	{
 		{   
 			uint64 const Dresult = XXH3_64bits_withSeed(data, len, seed);
@@ -4330,7 +4357,7 @@ public:
 			}   
 		}
 	}
-	void BMK_testXXH3_withSecret(const void* data, size_t len, const void * secret, size_t secretSize, uint64 Nresult)
+	void BMK_testXXH3_withSecret(const void * data, size_t len, const void * secret, size_t secretSize, uint64 Nresult)
 	{
 		{   
 			uint64 const Dresult = XXH3_64bits_withSecret(data, len, secret, secretSize);
@@ -4354,7 +4381,7 @@ public:
 			}   
 		}
 	}
-	void BMK_testXXH128(const void* data, size_t len, uint64 seed, XXH128_hash_t Nresult)
+	void BMK_testXXH128(const void * data, size_t len, uint64 seed, XXH128_hash_t Nresult)
 	{
 		{   
 			XXH128_hash_t const Dresult = XXH3_128bits_withSeed(data, len, seed);
@@ -4440,43 +4467,43 @@ public:
 
 		BMK_testXXH3(NULL,           0, 0,       0);                  /* zero-length hash is always 0 */
 		BMK_testXXH3(NULL,           0, prime64, 0);
-		BMK_testXXH3(sanityBuffer,   1, 0,       0x7198D737CFE7F386ULL);/*  1 -  3 */
-		BMK_testXXH3(sanityBuffer,   1, prime64, 0xB70252DB7161C2BDULL);/*  1 -  3 */
-		BMK_testXXH3(sanityBuffer,   6, 0,       0x22CBF5F3E1F6257CULL);/*  4 -  8 */
-		BMK_testXXH3(sanityBuffer,   6, prime64, 0x6398631C12AB94CEULL);/*  4 -  8 */
-		BMK_testXXH3(sanityBuffer,  12, 0,       0xD5361CCEEBB5A0CCULL);/*  9 - 16 */
-		BMK_testXXH3(sanityBuffer,  12, prime64, 0xC4C125E75A808C3DULL);/*  9 - 16 */
-		BMK_testXXH3(sanityBuffer,  24, 0,       0x46796F3F78B20F6BULL);/* 17 - 32 */
-		BMK_testXXH3(sanityBuffer,  24, prime64, 0x60171A7CD0A44C10ULL);/* 17 - 32 */
-		BMK_testXXH3(sanityBuffer,  48, 0,       0xD8D4D3590D136E11ULL);/* 33 - 64 */
-		BMK_testXXH3(sanityBuffer,  48, prime64, 0x05441F2AEC2A1296ULL);/* 33 - 64 */
-		BMK_testXXH3(sanityBuffer,  80, 0,       0xA1DC8ADB3145B86AULL);/* 65 - 96 */
-		BMK_testXXH3(sanityBuffer,  80, prime64, 0xC9D55256965B7093ULL);/* 65 - 96 */
-		BMK_testXXH3(sanityBuffer, 112, 0,       0xE43E5717A61D3759ULL);/* 97 -128 */
+		BMK_testXXH3(sanityBuffer,   1, 0,       0x7198D737CFE7F386ULL); /*  1 -  3 */
+		BMK_testXXH3(sanityBuffer,   1, prime64, 0xB70252DB7161C2BDULL); /*  1 -  3 */
+		BMK_testXXH3(sanityBuffer,   6, 0,       0x22CBF5F3E1F6257CULL); /*  4 -  8 */
+		BMK_testXXH3(sanityBuffer,   6, prime64, 0x6398631C12AB94CEULL); /*  4 -  8 */
+		BMK_testXXH3(sanityBuffer,  12, 0,       0xD5361CCEEBB5A0CCULL); /*  9 - 16 */
+		BMK_testXXH3(sanityBuffer,  12, prime64, 0xC4C125E75A808C3DULL); /*  9 - 16 */
+		BMK_testXXH3(sanityBuffer,  24, 0,       0x46796F3F78B20F6BULL); /* 17 - 32 */
+		BMK_testXXH3(sanityBuffer,  24, prime64, 0x60171A7CD0A44C10ULL); /* 17 - 32 */
+		BMK_testXXH3(sanityBuffer,  48, 0,       0xD8D4D3590D136E11ULL); /* 33 - 64 */
+		BMK_testXXH3(sanityBuffer,  48, prime64, 0x05441F2AEC2A1296ULL); /* 33 - 64 */
+		BMK_testXXH3(sanityBuffer,  80, 0,       0xA1DC8ADB3145B86AULL); /* 65 - 96 */
+		BMK_testXXH3(sanityBuffer,  80, prime64, 0xC9D55256965B7093ULL); /* 65 - 96 */
+		BMK_testXXH3(sanityBuffer, 112, 0,       0xE43E5717A61D3759ULL); /* 97 -128 */
 		BMK_testXXH3(sanityBuffer, 112, prime64, 0x5A5F89A3FECE44A5ULL); /* 97 -128 */
-		BMK_testXXH3(sanityBuffer, 195, 0,       0x6F747739CBAC22A5ULL);/* 129-240 */
+		BMK_testXXH3(sanityBuffer, 195, 0,       0x6F747739CBAC22A5ULL); /* 129-240 */
 		BMK_testXXH3(sanityBuffer, 195, prime64, 0x33368E23C7F95810ULL); /* 129-240 */
 
-		BMK_testXXH3(sanityBuffer, 403, 0,       0x4834389B15D981E8ULL);/* one block, last stripe is overlapping */
+		BMK_testXXH3(sanityBuffer, 403, 0,       0x4834389B15D981E8ULL); /* one block, last stripe is overlapping */
 		BMK_testXXH3(sanityBuffer, 403, prime64, 0x85CE5DFFC7B07C87ULL); /* one block, last stripe is overlapping */
-		BMK_testXXH3(sanityBuffer, 512, 0,       0x6A1B982631F059A8ULL);/* one block, finishing at stripe boundary */
+		BMK_testXXH3(sanityBuffer, 512, 0,       0x6A1B982631F059A8ULL); /* one block, finishing at stripe boundary */
 		BMK_testXXH3(sanityBuffer, 512, prime64, 0x10086868CF0ADC99ULL); /* one block, finishing at stripe boundary */
-		BMK_testXXH3(sanityBuffer, 2048, 0,       0xEFEFD4449323CDD4ULL);/* 2 blocks, finishing at block boundary */
+		BMK_testXXH3(sanityBuffer, 2048, 0,       0xEFEFD4449323CDD4ULL); /* 2 blocks, finishing at block boundary */
 		BMK_testXXH3(sanityBuffer, 2048, prime64, 0x01C85E405ECA3F6EULL); /* 2 blocks, finishing at block boundary */
-		BMK_testXXH3(sanityBuffer, 2240, 0,       0x998C0437486672C7ULL);/* 3 blocks, finishing at stripe boundary */
+		BMK_testXXH3(sanityBuffer, 2240, 0,       0x998C0437486672C7ULL); /* 3 blocks, finishing at stripe boundary */
 		BMK_testXXH3(sanityBuffer, 2240, prime64, 0x4ED38056B87ABC7FULL); /* 3 blocks, finishing at stripe boundary */
-		BMK_testXXH3(sanityBuffer, 2243, 0,       0xA559D20581D742D3ULL);/* 3 blocks, last stripe is overlapping */
+		BMK_testXXH3(sanityBuffer, 2243, 0,       0xA559D20581D742D3ULL); /* 3 blocks, last stripe is overlapping */
 		BMK_testXXH3(sanityBuffer, 2243, prime64, 0x96E051AB57F21FC8ULL); /* 3 blocks, last stripe is overlapping */
 		{   
-			const void* const secret = sanityBuffer + 7;
+			const void * const secret = sanityBuffer + 7;
 			const size_t secretSize = XXH3_SECRET_SIZE_MIN + 11;
 			BMK_testXXH3_withSecret(NULL,           0, secret, secretSize, 0);                  /* zero-length hash is always 0 */
-			BMK_testXXH3_withSecret(sanityBuffer,   1, secret, secretSize, 0x7F69735D618DB3F0ULL);/*  1 -  3 */
-			BMK_testXXH3_withSecret(sanityBuffer,   6, secret, secretSize, 0xBFCC7CB1B3554DCEULL);/*  6 -  8 */
-			BMK_testXXH3_withSecret(sanityBuffer,  12, secret, secretSize, 0x8C50DC90AC9206FCULL);/*  9 - 16 */
-			BMK_testXXH3_withSecret(sanityBuffer,  24, secret, secretSize, 0x1CD2C2EE9B9A0928ULL);/* 17 - 32 */
-			BMK_testXXH3_withSecret(sanityBuffer,  48, secret, secretSize, 0xA785256D9D65D514ULL);/* 33 - 64 */
-			BMK_testXXH3_withSecret(sanityBuffer,  80, secret, secretSize, 0x6F3053360D21BBB7ULL);/* 65 - 96 */
+			BMK_testXXH3_withSecret(sanityBuffer,   1, secret, secretSize, 0x7F69735D618DB3F0ULL); /*  1 -  3 */
+			BMK_testXXH3_withSecret(sanityBuffer,   6, secret, secretSize, 0xBFCC7CB1B3554DCEULL); /*  6 -  8 */
+			BMK_testXXH3_withSecret(sanityBuffer,  12, secret, secretSize, 0x8C50DC90AC9206FCULL); /*  9 - 16 */
+			BMK_testXXH3_withSecret(sanityBuffer,  24, secret, secretSize, 0x1CD2C2EE9B9A0928ULL); /* 17 - 32 */
+			BMK_testXXH3_withSecret(sanityBuffer,  48, secret, secretSize, 0xA785256D9D65D514ULL); /* 33 - 64 */
+			BMK_testXXH3_withSecret(sanityBuffer,  80, secret, secretSize, 0x6F3053360D21BBB7ULL); /* 65 - 96 */
 			BMK_testXXH3_withSecret(sanityBuffer, 112, secret, secretSize, 0x560E82D25684154CULL); /* 97 -128 */
 			BMK_testXXH3_withSecret(sanityBuffer, 195, secret, secretSize, 0xBA5BDDBC5A767B11ULL); /* 129-240 */
 
@@ -5055,4 +5082,3 @@ done:
 }
 
 #endif // } SLTEST_RUNNING
-

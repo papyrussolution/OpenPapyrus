@@ -32,7 +32,7 @@
 #include "hb.hh"
 
 #line 36 "hb-ot-shape-complex-khmer-machine.hh"
-static const unsigned char _khmer_syllable_machine_trans_keys[] = {
+static const uchar _khmer_syllable_machine_trans_keys[] = {
 	5u, 26u, 5u, 21u, 5u, 26u, 5u, 21u, 1u, 16u, 5u, 21u, 5u, 26u, 5u, 21u,
 	5u, 26u, 5u, 21u, 5u, 21u, 5u, 26u, 5u, 21u, 1u, 16u, 5u, 21u, 5u, 26u,
 	5u, 21u, 5u, 26u, 5u, 21u, 5u, 26u, 1u, 29u, 5u, 29u, 5u, 29u, 5u, 29u,
@@ -199,7 +199,7 @@ static const char _khmer_syllable_machine_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0
 };
 
-static const unsigned char _khmer_syllable_machine_eof_trans[] = {
+static const uchar _khmer_syllable_machine_eof_trans[] = {
 	1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 14, 17, 17, 17, 17, 17,
 	17, 17, 17, 17, 0, 32, 32, 32,
@@ -220,7 +220,7 @@ static const int khmer_syllable_machine_en_main = 20;
 #define found_syllable(syllable_type) \
 	HB_STMT_START { \
 		if(0) slfprintf_stderr("syllable %d..%d %s\n", ts, te, #syllable_type); \
-		for(unsigned int i = ts; i < te; i++) \
+		for(uint i = ts; i < te; i++) \
 			info[i].syllable() = (syllable_serial << 4) | khmer_ ## syllable_type; \
 		syllable_serial++; \
 		if(UNLIKELY(syllable_serial == 16)) syllable_serial = 1; \
@@ -251,7 +251,7 @@ static void find_syllables_khmer(hb_buffer_t * buffer)
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

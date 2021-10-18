@@ -104,7 +104,7 @@ static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 	{ 0xde, 0xfe }
 };
 
-static int apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg)
+static int apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1, flag, f, arg);
 }

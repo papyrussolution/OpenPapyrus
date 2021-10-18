@@ -244,7 +244,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 #endif
 			}
 			if(plen) {
-				p_name = (u_char *)malloc(plen + nlen + 2);
+				p_name = (u_char *)SAlloc::M(plen + nlen + 2);
 				if(p_name == NULL) {
 					return NULL;
 				}

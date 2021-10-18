@@ -312,8 +312,8 @@ struct __log { /* SHARED */
 	int32	  db_log_inmemory;
 	uint32 ncommit;		/* Number of txns waiting to commit. */
 	DB_LSN	  t_lsn;		/* LSN of first commit */
-	SH_TAILQ_HEAD(__commit) commits;/* list of txns waiting to commit. */
-	SH_TAILQ_HEAD(__free) free_commits;/* free list of commit structs. */
+	SH_TAILQ_HEAD(__commit) commits; /* list of txns waiting to commit. */
+	SH_TAILQ_HEAD(__free) free_commits; /* free list of commit structs. */
 	/*
 	 * In-memory logs maintain a list of the start positions of all log
 	 * files currently active in the in-memory buffer.  This is to make the

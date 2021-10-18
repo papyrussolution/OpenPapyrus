@@ -429,7 +429,7 @@ int scandir(const char * dirname, struct dirent *** namelist, int (*filter)(cons
 			/* Compute number of entries in the new table */
 			size_t num_entries = size * 2 + 16;
 			/* Allocate new pointer table or enlarge existing */
-			void * p = SAlloc::R(files, sizeof(void*) * num_entries);
+			void * p = SAlloc::R(files, sizeof(void *) * num_entries);
 			if(!p)
 				goto exit_failure;
 			/* Got the memory */
@@ -450,7 +450,7 @@ exit_failure:
 	goto exit_status;
 exit_success:
 	/* Sort directory entries */
-	qsort(files, size, sizeof(void*), (int (*)(const void*, const void*))compare);
+	qsort(files, size, sizeof(void *), (int (*)(const void*, const void*))compare);
 	/* Pass pointer table to caller */
 	if(namelist)
 		*namelist = files;
@@ -519,7 +519,7 @@ int strverscmp(const char * a, const char * b)
 			return 1;
 	}
 	// Alphabetical comparison 
-	return (int)((unsigned char)a[i]) - ((unsigned char)b[i]);
+	return (int)((uchar)a[i]) - ((uchar)b[i]);
 }
 #if !defined(_MSC_VER) || _MSC_VER < 1400
 	//
@@ -1064,7 +1064,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 	int n;
 	SString dir_buf;
 	SString temp_buf;
-	srand((unsigned)time(NULL)); // Initialize random number generator 
+	srand((uint)time(NULL)); // Initialize random number generator 
 	// Basic scan with simple filter function 
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
@@ -1687,7 +1687,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 		printf("Opening \"%s\" hex ", path + k + 1);
 		x = 0;
 		while(entry->d_name[x] != '\0') {
-			printf("0x%02x ", (unsigned)(entry->d_name[x++] & 0xff));
+			printf("0x%02x ", (uint)(entry->d_name[x++] & 0xff));
 		}
 		printf("\n");
 		/* Open file for read */

@@ -85,7 +85,6 @@
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\md5Dlgs.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\PluginsManager.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\regExtDlg.cpp" />
-    <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\sha-256.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\verifySignedfile.cpp" />
     <ClCompile Include="..\OSF\npp-gh20210917\PowerEditor\src\uchardet\nsBig5Prober.cpp">
       <Filter>uchardet</Filter>

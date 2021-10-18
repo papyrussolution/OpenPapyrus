@@ -18,7 +18,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 #define EXPORT	extern "C" __declspec(dllexport)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
 
-//typedef unsigned char  uint8;
+//typedef uchar  uint8;
 
 int	   ErrorCode = 0;
 char   FS = 0x1C;

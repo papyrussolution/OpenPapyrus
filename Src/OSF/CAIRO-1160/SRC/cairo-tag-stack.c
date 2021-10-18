@@ -120,9 +120,9 @@ void _cairo_tag_stack_fini(cairo_tag_stack_t * stack)
 	while(!cairo_list_is_empty(&stack->list)) {
 		cairo_tag_stack_elem_t * elem = cairo_list_first_entry(&stack->list, cairo_tag_stack_elem_t, link);
 		cairo_list_del(&elem->link);
-		free(elem->name);
-		free(elem->attributes);
-		free(elem);
+		SAlloc::F(elem->name);
+		SAlloc::F(elem->attributes);
+		SAlloc::F(elem);
 	}
 }
 
@@ -167,11 +167,11 @@ cairo_int_status_t _cairo_tag_stack_push(cairo_tag_stack_t * stack, const char *
 	elem = (cairo_tag_stack_elem_t *)_cairo_malloc(sizeof(cairo_tag_stack_elem_t));
 	if(UNLIKELY(elem == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	elem->name = strdup(name);
+	elem->name = sstrdup(name);
 	if(UNLIKELY(elem->name == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(attributes) {
-		elem->attributes = strdup(attributes);
+		elem->attributes = sstrdup(attributes);
 		if(UNLIKELY(elem->attributes == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -224,9 +224,11 @@ cairo_tag_stack_elem_t * _cairo_tag_stack_top_elem(cairo_tag_stack_t * stack)
 
 void _cairo_tag_stack_free_elem(cairo_tag_stack_elem_t * elem)
 {
-	free(elem->name);
-	free(elem->attributes);
-	free(elem);
+	if(elem) {
+		SAlloc::F(elem->name);
+		SAlloc::F(elem->attributes);
+		SAlloc::F(elem);
+	}
 }
 
 cairo_tag_type_t _cairo_tag_get_type(const char * name)

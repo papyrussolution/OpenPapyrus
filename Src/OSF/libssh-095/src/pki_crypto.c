@@ -768,7 +768,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 			NULL,               /* kstr */
 			0,               /* klen */
 			NULL,               /* auth_fn */
-			(void*)passphrase);
+			(void *)passphrase);
 	}
 	EVP_PKEY_free(pkey);
 	pkey = NULL;
@@ -817,7 +817,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 #endif
 	EVP_PKEY * pkey = NULL;
 
-	mem = BIO_new_mem_buf((void*)b64_key, -1);
+	mem = BIO_new_mem_buf((void *)b64_key, -1);
 
 	if(passphrase == NULL) {
 		if(auth_fn) {
@@ -831,7 +831,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		}
 	}
 	else {
-		pkey = PEM_read_bio_PrivateKey(mem, NULL, NULL, (void*)passphrase);
+		pkey = PEM_read_bio_PrivateKey(mem, NULL, NULL, (void *)passphrase);
 	}
 
 	BIO_free(mem);

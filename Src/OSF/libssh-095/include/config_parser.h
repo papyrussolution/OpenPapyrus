@@ -40,14 +40,14 @@ int ssh_config_get_yesno(char **str, int notfound);
  *
  * @param[in]   tok      String to parse
  * @param[out]  username Pointer to the location, where the new username will
- *                       be stored or NULL if we do not care about the result.
+ *                 be stored or NULL if we do not care about the result.
  * @param[out]  hostname Pointer to the location, where the new hostname will
- *                       be stored or NULL if we do not care about the result.
+ *                 be stored or NULL if we do not care about the result.
  * @param[out]  port     Pointer to the location, where the new port will
- *                       be stored or NULL if we do not care about the result.
+ *                 be stored or NULL if we do not care about the result.
  *
  * @returns     SSH_OK if the provided string is in format of SSH URI,
- *              SSH_ERROR on failure
+ *        SSH_ERROR on failure
  */
 int ssh_config_parse_uri(const char *tok,
         char **username,

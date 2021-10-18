@@ -518,9 +518,9 @@ int pthread_mutex_trylock(pthread_mutex_t * mutex)
  *   This routine is not a cancellation point.
  *
  * RESULTS
- *           0               successfully signaled,
- *           ETIMEDOUT       abstime passed
- *           EINVAL          'event' is not a valid event,
+ *     0               successfully signaled,
+ *     ETIMEDOUT       abstime passed
+ *     EINVAL          'event' is not a valid event,
  *
  * ------------------------------------------------------
  */
@@ -793,7 +793,7 @@ int pthread_mutex_unlock(pthread_mutex_t * mutex)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *
  *
  * DESCRIPTION
@@ -801,11 +801,11 @@ int pthread_mutex_unlock(pthread_mutex_t * mutex)
  *   attributes.
  *
  *   NOTES:
- *           1)      Used to define mutex types
+ *     1)      Used to define mutex types
  *
  * RESULTS
- *           0               successfully initialized attr,
- *           ENOMEM          insufficient memory for attr.
+ *     0               successfully initialized attr,
+ *     ENOMEM          insufficient memory for attr.
  *
  * ------------------------------------------------------
  */
@@ -831,7 +831,7 @@ int pthread_mutexattr_init(pthread_mutexattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *
  *
  * DESCRIPTION
@@ -839,11 +839,11 @@ int pthread_mutexattr_init(pthread_mutexattr_t * attr)
  *   no longer be used.
  *
  *   NOTES:
- *           1)      Does not affect mutexes created using 'attr'
+ *     1)      Does not affect mutexes created using 'attr'
  *
  * RESULTS
- *           0               successfully released attr,
- *           EINVAL          'attr' is invalid.
+ *     0               successfully released attr,
+ *     EINVAL          'attr' is invalid.
  *
  * ------------------------------------------------------
  */
@@ -878,28 +878,28 @@ int pthread_mutexattr_setkind_np(pthread_mutexattr_t * attr, int kind)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *   pshared
- *           will be set to one of:
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *     will be set to one of:
+ *             PTHREAD_PROCESS_SHARED
+ *                     May be shared if in shared memory
+ *             PTHREAD_PROCESS_PRIVATE
+ *                     Cannot be shared.
  *
  * DESCRIPTION
  *   Mutexes creatd with 'attr' can be shared between
  *   processes if pthread_mutex_t variable is allocated
  *   in memory shared by these processes.
  *   NOTES:
- *           1)      pshared mutexes MUST be allocated in shared
- *                   memory.
- *           2)      The following macro is defined if shared mutexes
- *                   are supported:
- *                           _POSIX_THREAD_PROCESS_SHARED
+ *     1)      pshared mutexes MUST be allocated in shared
+ *             memory.
+ *     2)      The following macro is defined if shared mutexes
+ *             are supported:
+ *                     _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully retrieved attribute,
- *           EINVAL          'attr' is invalid,
+ *     0               successfully retrieved attribute,
+ *     EINVAL          'attr' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -921,13 +921,13 @@ int pthread_mutexattr_getpshared(const pthread_mutexattr_t * attr, int * pshared
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *   pshared
- *           must be one of:
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *     must be one of:
+ *             PTHREAD_PROCESS_SHARED
+ *                     May be shared if in shared memory
+ *             PTHREAD_PROCESS_PRIVATE
+ *                     Cannot be shared.
  *
  * DESCRIPTION
  *   Mutexes creatd with 'attr' can be shared between
@@ -935,13 +935,13 @@ int pthread_mutexattr_getpshared(const pthread_mutexattr_t * attr, int * pshared
  *   in memory shared by these processes.
  *
  *   NOTES:
- *           1)      pshared mutexes MUST be allocated in shared memory.
- *           2)      The following macro is defined if shared mutexes are supported: _POSIX_THREAD_PROCESS_SHARED
+ *     1)      pshared mutexes MUST be allocated in shared memory.
+ *     2)      The following macro is defined if shared mutexes are supported: _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or pshared is invalid,
- *           ENOSYS          PTHREAD_PROCESS_SHARED not supported,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or pshared is invalid,
+ *     ENOSYS          PTHREAD_PROCESS_SHARED not supported,
  *
  * ------------------------------------------------------
  */
@@ -976,9 +976,9 @@ int pthread_mutexattr_setpshared(pthread_mutexattr_t * attr, int pshared)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *  robust
- *           must be one of: PTHREAD_MUTEX_STALLED PTHREAD_MUTEX_ROBUST
+ *     must be one of: PTHREAD_MUTEX_STALLED PTHREAD_MUTEX_ROBUST
  *
  * DESCRIPTION
  * The pthread_mutexattr_setrobust() and
@@ -1015,8 +1015,8 @@ int pthread_mutexattr_setpshared(pthread_mutexattr_t * attr, int pshared)
  * a mutex is pthread_mutex_destroy().
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or 'robust' is invalid,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or 'robust' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -1040,10 +1040,10 @@ int pthread_mutexattr_getrobust(const pthread_mutexattr_t * attr, int * robust)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *
  *  robust
- *           must be one of: PTHREAD_MUTEX_STALLED PTHREAD_MUTEX_ROBUST
+ *     must be one of: PTHREAD_MUTEX_STALLED PTHREAD_MUTEX_ROBUST
  *
  * DESCRIPTION
  * The pthread_mutexattr_setrobust() and
@@ -1080,8 +1080,8 @@ int pthread_mutexattr_getrobust(const pthread_mutexattr_t * attr, int * robust)
  * a mutex is pthread_mutex_destroy().
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or 'robust' is invalid,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or 'robust' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -1120,9 +1120,9 @@ int pthread_mutexattr_gettype(const pthread_mutexattr_t * attr, int * kind)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_mutexattr_t
+ *     pointer to an instance of pthread_mutexattr_t
  *   type
- *           must be one of: PTHREAD_MUTEX_DEFAULT PTHREAD_MUTEX_NORMAL PTHREAD_MUTEX_ERRORCHECK PTHREAD_MUTEX_RECURSIVE
+ *     must be one of: PTHREAD_MUTEX_DEFAULT PTHREAD_MUTEX_NORMAL PTHREAD_MUTEX_ERRORCHECK PTHREAD_MUTEX_RECURSIVE
  *
  * DESCRIPTION
  * The pthread_mutexattr_settype() and
@@ -1135,45 +1135,45 @@ int pthread_mutexattr_gettype(const pthread_mutexattr_t * attr, int * kind)
  * mutex attributes. Valid mutex types include:
  *
  * PTHREAD_MUTEX_NORMAL
- *       This type of mutex does  not  detect  deadlock.  A
- *       thread  attempting  to  relock  this mutex without
- *       first unlocking it will  deadlock.  Attempting  to
- *       unlock  a  mutex  locked  by  a  different  thread
- *       results  in  undefined  behavior.  Attempting   to
- *       unlock  an  unlocked  mutex  results  in undefined
- *       behavior.
+ * This type of mutex does  not  detect  deadlock.  A
+ * thread  attempting  to  relock  this mutex without
+ * first unlocking it will  deadlock.  Attempting  to
+ * unlock  a  mutex  locked  by  a  different  thread
+ * results  in  undefined  behavior.  Attempting   to
+ * unlock  an  unlocked  mutex  results  in undefined
+ * behavior.
  *
  * PTHREAD_MUTEX_ERRORCHECK
- *       This type of  mutex  provides  error  checking.  A
- *       thread  attempting  to  relock  this mutex without
- *       first unlocking it will return with  an  error.  A
- *       thread  attempting to unlock a mutex which another
- *       thread has locked will return  with  an  error.  A
- *       thread attempting to unlock an unlocked mutex will
- *       return with an error.
+ * This type of  mutex  provides  error  checking.  A
+ * thread  attempting  to  relock  this mutex without
+ * first unlocking it will return with  an  error.  A
+ * thread  attempting to unlock a mutex which another
+ * thread has locked will return  with  an  error.  A
+ * thread attempting to unlock an unlocked mutex will
+ * return with an error.
  *
  * PTHREAD_MUTEX_DEFAULT
- *       Same as PTHREAD_MUTEX_NORMAL.
+ * Same as PTHREAD_MUTEX_NORMAL.
  *
  * PTHREAD_MUTEX_RECURSIVE
- *       A thread attempting to relock this  mutex  without
- *       first  unlocking  it  will  succeed in locking the
- *       mutex. The relocking deadlock which can occur with
- *       mutexes of type  PTHREAD_MUTEX_NORMAL cannot occur
- *       with this type of mutex. Multiple  locks  of  this
- *       mutex  require  the  same  number  of  unlocks  to
- *       release  the  mutex  before  another  thread   can
- *       acquire the mutex. A thread attempting to unlock a
- *       mutex which another thread has locked will  return
- *       with  an  error. A thread attempting to  unlock an
- *       unlocked mutex will return  with  an  error.  This
- *       type  of mutex is only supported for mutexes whose
- *       process        shared         attribute         is
- *       PTHREAD_PROCESS_PRIVATE.
+ * A thread attempting to relock this  mutex  without
+ * first  unlocking  it  will  succeed in locking the
+ * mutex. The relocking deadlock which can occur with
+ * mutexes of type  PTHREAD_MUTEX_NORMAL cannot occur
+ * with this type of mutex. Multiple  locks  of  this
+ * mutex  require  the  same  number  of  unlocks  to
+ * release  the  mutex  before  another  thread   can
+ * acquire the mutex. A thread attempting to unlock a
+ * mutex which another thread has locked will  return
+ * with  an  error. A thread attempting to  unlock an
+ * unlocked mutex will return  with  an  error.  This
+ * type  of mutex is only supported for mutexes whose
+ * process        shared         attribute         is
+ * PTHREAD_PROCESS_PRIVATE.
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or 'type' is invalid,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or 'type' is invalid,
  *
  * ------------------------------------------------------
  */

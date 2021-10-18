@@ -2685,7 +2685,7 @@ static const char _char_ref_key_spans[] = {
 	1, 1
 };
 
-static const unsigned short _char_ref_index_offsets[] = {
+static const ushort _char_ref_index_offsets[] = {
 	0, 0, 50, 52, 54, 56, 58, 60,
 	62, 64, 66, 68, 70, 72, 74, 76,
 	94, 96, 98, 100, 102, 104, 106, 108,
@@ -13936,25 +13936,22 @@ static bool consume_named_ref(GumboParser * parser, Utf8Iterator* input, bool is
 	(void)act;
 	(void)ts;
 	(void)char_ref_en_valid_named_ref;
-
 	start = p;
-
 #line 14001 "char_ref.c"
 	{
 		int _slen;
 		int _trans;
 		const short * _acts;
-		unsigned int _nacts;
+		uint _nacts;
 		const char * _keys;
 		const short * _inds;
-
 		if(p == pe)
 			goto _test_eof;
 		if(cs == 0)
 			goto _out;
 _resume:
 		_acts = _char_ref_actions + _char_ref_from_state_actions[cs];
-		_nacts = (unsigned int)*_acts++;
+		_nacts = (uint)*_acts++;
 		while(_nacts-- > 0) {
 			switch(*_acts++) {
 				case 1:
@@ -13964,26 +13961,18 @@ _resume:
 #line 14023 "char_ref.c"
 			}
 		}
-
 		_keys = _char_ref_trans_keys + (cs<<1);
 		_inds = _char_ref_indicies + _char_ref_index_offsets[cs];
-
 		_slen = _char_ref_key_spans[cs];
-		_trans = _inds[ _slen > 0 && _keys[0] <=(*p) &&
-		    (*p) <= _keys[1] ?
-		    (*p) - _keys[0] : _slen ];
-
+		_trans = _inds[ _slen > 0 && _keys[0] <=(*p) && (*p) <= _keys[1] ? (*p) - _keys[0] : _slen ];
 _eof_trans:
 		cs = _char_ref_trans_targs[_trans];
-
 		if(_char_ref_trans_actions[_trans] == 0)
 			goto _again;
-
 		_acts = _char_ref_actions + _char_ref_trans_actions[_trans];
-		_nacts = (unsigned int)*_acts++;
+		_nacts = (uint)*_acts++;
 		while(_nacts-- > 0) {
-			switch(*(_acts++) )
-			{
+			switch(*(_acts++) ) {
 				case 2:
 #line 1 "NONE"
 				    {te = p+1;}
@@ -22950,7 +22939,7 @@ _eof_trans:
 
 _again:
 		_acts = _char_ref_actions + _char_ref_to_state_actions[cs];
-		_nacts = (unsigned int)*_acts++;
+		_nacts = (uint)*_acts++;
 		while(_nacts-- > 0) {
 			switch(*_acts++) {
 				case 0:

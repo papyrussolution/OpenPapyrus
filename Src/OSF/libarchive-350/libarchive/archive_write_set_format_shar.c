@@ -102,7 +102,7 @@ int archive_write_set_format_shar(struct archive * _a)
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 
-	shar = (struct shar *)calloc(1, sizeof(*shar));
+	shar = (struct shar *)SAlloc::C(1, sizeof(*shar));
 	if(shar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate shar data");
 		return ARCHIVE_FATAL;
@@ -195,7 +195,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 
 	if(archive_entry_filetype(entry) != AE_IFDIR) {
 		/* Try to create the dir. */
-		p = strdup(name);
+		p = sstrdup(name);
 		pp = strrchr(p, '/');
 		/* If there is a / character, try to create the dir. */
 		if(pp != NULL) {
@@ -204,7 +204,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			/* Try to avoid a lot of redundant mkdir commands. */
 			if(strcmp(p, ".") == 0) {
 				/* Don't try to "mkdir ." */
-				free(p);
+				SAlloc::F(p);
 			}
 			else if(shar->last_dir == NULL) {
 				archive_strcat(&shar->work, "mkdir -p ");
@@ -215,12 +215,12 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			}
 			else if(strcmp(p, shar->last_dir) == 0) {
 				/* We've already created this exact dir. */
-				free(p);
+				SAlloc::F(p);
 			}
 			else if(strlen(p) < strlen(shar->last_dir) &&
 			    strncmp(p, shar->last_dir, strlen(p)) == 0) {
 				/* We've already created a subdir. */
-				free(p);
+				SAlloc::F(p);
 			}
 			else {
 				archive_strcat(&shar->work, "mkdir -p ");
@@ -231,7 +231,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			}
 		}
 		else {
-			free(p);
+			SAlloc::F(p);
 		}
 	}
 
@@ -284,9 +284,9 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 				"mkdir -p %s > /dev/null 2>&1\n",
 				shar->quoted_name.s);
 			    /* Record that we just created this directory. */
-			    free(shar->last_dir);
+			    SAlloc::F(shar->last_dir);
 
-			    shar->last_dir = strdup(name);
+			    shar->last_dir = sstrdup(name);
 			    /* Trim a trailing '/'. */
 			    pp = strrchr(shar->last_dir, '/');
 			    if(pp != NULL && pp[1] == '\0')
@@ -390,7 +390,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 
 static void uuencode_group(const char _in[3], char out[4])
 {
-	const unsigned char * in = (const unsigned char*)_in;
+	const uchar * in = (const uchar *)_in;
 	int t;
 
 	t = (in[0] << 16) | (in[1] << 8) | in[2];
@@ -621,10 +621,10 @@ static int archive_write_shar_free(struct archive_write * a)
 		return ARCHIVE_OK;
 
 	archive_entry_free(shar->entry);
-	free(shar->last_dir);
+	SAlloc::F(shar->last_dir);
 	archive_string_free(&(shar->work));
 	archive_string_free(&(shar->quoted_name));
-	free(shar);
+	SAlloc::F(shar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

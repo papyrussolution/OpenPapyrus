@@ -476,7 +476,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool, size_t size)
 
 /* Allocate size bytes from the pool.  The first allocated address
  * returned from a pool is aligned to sizeof(void *).  Subsequent
- * addresses will maintain alignment as long as multiples of void* are
+ * addresses will maintain alignment as long as multiples of void * are
  * allocated.  Returns the address of a new memory area or %NULL on
  * allocation failures.	 The pool retains ownership of the returned
  * memory. */
@@ -1322,12 +1322,11 @@ static void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter
 	INPUT_TO_GRID_Y(edge->bottom, e.bottom);
 	if(e.top >= e.bottom)
 		return;
-	/* XXX: possible overflows if GRID_X/Y > 2**GLITTER_INPUT_BITS */
+	// XXX: possible overflows if GRID_X/Y > 2**GLITTER_INPUT_BITS 
 	INPUT_TO_GRID_Y(edge->line.p1.y, e.line.p1.y);
 	INPUT_TO_GRID_Y(edge->line.p2.y, e.line.p2.y);
 	if(e.line.p1.y == e.line.p2.y)
 		return;
-
 	INPUT_TO_GRID_X(edge->line.p1.x, e.line.p1.x);
 	INPUT_TO_GRID_X(edge->line.p2.x, e.line.p2.x);
 	e.dir = edge->dir;

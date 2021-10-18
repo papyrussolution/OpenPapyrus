@@ -2408,7 +2408,7 @@ void FindReplaceDlg::findAllIn(InWhat op)
 	}
 	if(justCreated) {
 		// Send the address of _MarkingsStruct to the lexer
-		char ptrword[sizeof(void*)*2+1];
+		char ptrword[sizeof(void *)*2+1];
 		sprintf(ptrword, "%p", &_pFinder->_markingsStruct);
 		_pFinder->_scintView.execute(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("@MarkingsStruct"), reinterpret_cast<LPARAM>(ptrword));
 		//enable "Search Results Window" under Search Menu
@@ -2506,7 +2506,7 @@ Finder * FindReplaceDlg::createFinder()
 	::UpdateWindow(_hParent);
 	pFinder->setFinderStyle();
 	// Send the address of _MarkingsStruct to the lexer
-	char ptrword[sizeof(void*) * 2 + 1];
+	char ptrword[sizeof(void *) * 2 + 1];
 	sprintf(ptrword, "%p", &pFinder->_markingsStruct);
 	pFinder->_scintView.execute(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("@MarkingsStruct"), reinterpret_cast<LPARAM>(ptrword));
 	_findersOfFinder.push_back(pFinder);
@@ -3661,7 +3661,7 @@ void Finder::add(FoundInfo fi, SearchResultMarking mi, const TCHAR* foundline)
 		size_t cut = SC_SEARCHRESULT_LINEBUFFERMAXLENGTH - lenEndOfLongLine - 1;
 		while((cut > 0) && (!Utf8::isValid(&text2AddUtf8 [cut], (int)(len - cut))))
 			cut--;
-		memcpy((void*)&text2AddUtf8 [cut], endOfLongLine, lenEndOfLongLine + 1);
+		memcpy((void *)&text2AddUtf8 [cut], endOfLongLine, lenEndOfLongLine + 1);
 		len = cut + lenEndOfLongLine;
 	}
 	setFinderReadOnly(false);
@@ -4366,7 +4366,7 @@ void Progress::setPercent(unsigned percent, const TCHAR * fileName) const
 DWORD WINAPI Progress::threadFunc(LPVOID data)
 {
 	Progress * pw = static_cast<Progress*>(data);
-	return (DWORD)pw->thread();
+	return pw ? (DWORD)pw->thread() : 0;
 }
 
 int Progress::thread()
@@ -4410,11 +4410,8 @@ int Progress::createProgressWindow()
 
 	int xStartPos = dpiManager.scaleX(5);
 	int yTextPos = dpiManager.scaleY(5);
-	_hPText = ::CreateWindowEx(0, TEXT("STATIC"), TEXT(""),
-		WS_CHILD | WS_VISIBLE | BS_TEXT | SS_PATHELLIPSIS,
-		xStartPos, yTextPos,
-		width - widthPadding, textHeight, _hwnd, NULL, _hInst, NULL);
-
+	_hPText = ::CreateWindowEx(0, TEXT("STATIC"), TEXT(""), WS_CHILD|WS_VISIBLE|BS_TEXT|SS_PATHELLIPSIS, 
+		xStartPos, yTextPos, width - widthPadding, textHeight, _hwnd, NULL, _hInst, NULL);
 	HFONT hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 	if(hf)
 		::SendMessage(_hPText, WM_SETFONT, reinterpret_cast<WPARAM>(hf), MAKELPARAM(TRUE, 0));

@@ -201,7 +201,7 @@ TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 		}
 	}
-	sprintf(GPT.TermOptions, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
+	slprintf(GPT._TermOptions, "%d %s [%1d,%1d]", IMAGEN_fontsize, (IMAGEN_portrait) ? "portrait" : "landscape", IM_win_horiz, IM_win_verti);
 }
 
 TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis)

@@ -1,6 +1,6 @@
 /*
  * debugXML.c : This is a set of routines used for debugging the tree
- *         produced by the XML parser.
+ *   produced by the XML parser.
  *
  * See Copyright for the status of this software.
  *

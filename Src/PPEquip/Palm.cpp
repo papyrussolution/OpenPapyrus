@@ -3698,7 +3698,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 					}
 					rBlk.P_PsnObj->GetRegNumber(ar_item.ObjID, PPREGT_TPID, inn_buf);
 				}
-				if(rBlk.P_ArObj->GetClientAgreement(ar_item.ID, &cli_agt, 0) > 0) {
+				if(rBlk.P_ArObj->GetClientAgreement(ar_item.ID, cli_agt, 0) > 0) {
 					quot_kind_id = cli_agt.DefQuotKindID;
 					if(cli_agt.Flags & AGTF_DONTUSEMINSHIPMQTTY)
 						_flags |= CLIENTF_DONTUSEMINSHIPMQTTY;

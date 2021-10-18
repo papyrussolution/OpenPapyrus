@@ -493,7 +493,7 @@ int xmlNop(void);
 	 * Macro to check the following production in the XML spec:
 	 *
 	 * [2] Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
-	 *             | [#x10000-#x10FFFF]
+	 *       | [#x10000-#x10FFFF]
 	 * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
 	 */
 	#define IS_CHAR(c)   xmlIsCharQ(c)
@@ -1279,7 +1279,7 @@ int xmlNop(void);
 			xmlNode * origin;			/* for origin() */
 			/* the set of namespace declarations in scope for the expression */
 			xmlHashTable * nsHash;		/* The namespaces hash table */
-			xmlXPathVariableLookupFunc varLookupFunc;/* variable lookup func */
+			xmlXPathVariableLookupFunc varLookupFunc; /* variable lookup func */
 			void *varLookupData;		/* variable lookup data */
 			/* Possibility to link in an extra item */
 			void *extra;                        /* needed for XSLT */
@@ -1287,7 +1287,7 @@ int xmlNop(void);
 			const xmlChar *function;
 			const xmlChar *functionURI;
 			/* function lookup function and data */
-			xmlXPathFuncLookupFunc funcLookupFunc;/* function lookup func */
+			xmlXPathFuncLookupFunc funcLookupFunc; /* function lookup func */
 			void *funcLookupData;		/* function lookup data */
 			/* temporary namespace lists kept for walking the namespace axis */
 			xmlNs ** tmpNsList; // Array of namespaces 

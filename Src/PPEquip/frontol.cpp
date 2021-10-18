@@ -863,7 +863,7 @@ int ACS_FRONTOL::ImportFiles()
 	PPMailPop3 mail(0);
 
 	PPGetPath(PPPATH_IN, dir_in);
-	ImportedFiles = 0;
+	ImportedFiles.Z();
 	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
@@ -1480,6 +1480,14 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 						THROW_DB(P_TmpCcTbl->updateRec());
 					}
 				}
+				*/
+				/*
+					0 – оплата наличными;
+					1 – оплата банковской картой;
+					3 – оплата внутренней предоплатой;
+					6 – оплата внутренней подарочной картой;
+					7 – пользовательская;
+					8 – оплата внешней подарочной картой
 				*/
 				if(crd_card_id) {
 					cc_payment.CrdSCardList.Add(crd_card_id, _amount);

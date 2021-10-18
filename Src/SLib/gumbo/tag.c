@@ -24,7 +24,7 @@ const char* kGumboTagNames[] = {
 	"", // TAG_LAST
 };
 
-static const unsigned char kGumboTagSizes[] = {
+static const uchar kGumboTagSizes[] = {
 #include "tag_sizes.h"
 	0, // TAG_UNKNOWN
 	0, // TAG_LAST

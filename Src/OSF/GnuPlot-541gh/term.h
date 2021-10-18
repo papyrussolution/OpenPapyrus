@@ -61,7 +61,7 @@
 #if (defined(DJGPP) && (!defined(DJSVGA) || (DJSVGA != 0))) || defined(HAVE_GRX)
 	#include "djsvga.trm"
 #endif
-/****************************************************************************/
+// 
 /* Windows */
 #ifdef _WIN32
 	// @experimental #include "win.trm" // Windows GDI/GDI+/Direct2D 

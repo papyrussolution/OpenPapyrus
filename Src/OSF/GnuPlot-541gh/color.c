@@ -320,23 +320,23 @@ void t_sm_palette::CheckGradientType()
 void GnuPlot::DrawInsideColorSmoothBoxPostScript()
 {
 	int scale_x = (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft), scale_y = (Gg.ColorBox.bounds.ytop - Gg.ColorBox.bounds.ybot);
-	fputs("stroke gsave\t%% draw gray scale smooth box\nmaxcolors 0 gt {/imax maxcolors def} {/imax 1024 def} ifelse\n", gppsfile);
+	fputs("stroke gsave\t%% draw gray scale smooth box\nmaxcolors 0 gt {/imax maxcolors def} {/imax 1024 def} ifelse\n", GPT.P_GpPsFile);
 	// nb. of discrete steps (counted in the loop) 
-	fprintf(gppsfile, "%i %i translate %i %i scale 0 setlinewidth\n", Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot, scale_x, scale_y);
+	fprintf(GPT.P_GpPsFile, "%i %i translate %i %i scale 0 setlinewidth\n", Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot, scale_x, scale_y);
 	// define left bottom corner and scale of the box so that all coordinates
 	// of the box are from [0,0] up to [1,1]. Further, this normalization
 	// makes it possible to pass y from [0,1] as parameter to setgray 
-	fprintf(gppsfile, "/ystep 1 imax div def /y0 0 def /ii 0 def\n");
+	fprintf(GPT.P_GpPsFile, "/ystep 1 imax div def /y0 0 def /ii 0 def\n");
 	// local variables; y-step, current y position and counter ii;  
 	if(SmPltt.Positive == SMPAL_NEGATIVE) // inverted gray for negative figure 
-		fputs("{ 0.99999 y0 sub g ", gppsfile); // 1 > x > 1-1.0/1024 
+		fputs("{ 0.99999 y0 sub g ", GPT.P_GpPsFile); // 1 > x > 1-1.0/1024 
 	else
-		fputs("{ y0 g ", gppsfile);
+		fputs("{ y0 g ", GPT.P_GpPsFile);
 	if(Gg.ColorBox.rotation == 'v')
-		fputs("0 y0 N 1 0 V 0 ystep V -1 0 f\n", gppsfile);
+		fputs("0 y0 N 1 0 V 0 ystep V -1 0 f\n", GPT.P_GpPsFile);
 	else
-		fputs("y0 0 N 0 1 V ystep 0 V 0 -1 f\n", gppsfile);
-	fputs("/y0 y0 ystep add def /ii ii 1 add def\nii imax ge {exit} if } loop\ngrestore 0 setgray\n", gppsfile);
+		fputs("y0 0 N 0 1 V ystep 0 V 0 -1 f\n", GPT.P_GpPsFile);
+	fputs("/y0 y0 ystep add def /ii ii 1 add def\nii imax ge {exit} if } loop\ngrestore 0 setgray\n", GPT.P_GpPsFile);
 }
 // 
 // plot a colour smooth box bounded by the terminal's integer coordinates
@@ -715,7 +715,7 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 			}
 		}
 	}
-	ExchangeToOrder(&Gg.ColorBox.bounds.ybot, &Gg.ColorBox.bounds.ytop);
+	ExchangeForOrder(&Gg.ColorBox.bounds.ybot, &Gg.ColorBox.bounds.ytop);
 	if(Gg.ColorBox.invert && Gg.ColorBox.rotation == 'v')
 		Exchange(&Gg.ColorBox.bounds.ytop, &Gg.ColorBox.bounds.ybot);
 	pTerm->layer(pTerm, TERM_LAYER_BEGIN_COLORBOX);

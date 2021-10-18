@@ -40,7 +40,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_FT_FONT // {
-#define _DEFAULT_SOURCE /* for strdup() */
+#define _DEFAULT_SOURCE /* for sstrdup() */
 //#include "cairo-error-private.h"
 //#include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
@@ -158,7 +158,7 @@ struct _cairo_ft_unscaled_font {
 	cairo_matrix_t current_shape;
 	FT_Matrix Current_Shape;
 	uint have_color_set  : 1;
-	uint have_color      : 1;/* true if the font contains color glyphs */
+	uint have_color      : 1; /* true if the font contains color glyphs */
 	FT_Fixed * variations;         /* variation settings that FT_Face came */
 	cairo_mutex_t mutex;
 	int lock_count;
@@ -375,7 +375,7 @@ static cairo_status_t _cairo_ft_unscaled_font_init(cairo_ft_unscaled_font_t * un
 		char * filename_copy;
 		unscaled->from_face = FALSE;
 		unscaled->face = NULL;
-		filename_copy = strdup(filename);
+		filename_copy = sstrdup(filename);
 		if(UNLIKELY(filename_copy == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		_cairo_ft_unscaled_font_init_key(unscaled, FALSE, filename_copy, id, NULL);
@@ -1573,7 +1573,7 @@ static void _get_pattern_ft_options(FcPattern * pattern, cairo_ft_options_t * re
 #define FC_FONT_VARIATIONS "fontvariations"
 #endif
 	if(FcPatternGetString(pattern, FC_FONT_VARIATIONS, 0, (FcChar8**)&variations) == FcResultMatch) {
-		ft_options.base.variations = strdup(variations);
+		ft_options.base.variations = sstrdup(variations);
 	}
 
 	*ret = ft_options;
@@ -1666,7 +1666,7 @@ static void _cairo_ft_options_merge(cairo_ft_options_t * options,
 			options->base.variations = p;
 		}
 		else {
-			options->base.variations = strdup(other->base.variations);
+			options->base.variations = sstrdup(other->base.variations);
 		}
 	}
 	options->load_flags = load_flags | load_target;
@@ -3057,7 +3057,7 @@ cairo_font_face_t * cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
  *
  * font_face = cairo_ft_font_face_create_for_ft_face (ft_face, 0);
  * status = cairo_font_face_set_user_data (font_face, &key,
- *         ft_face, (cairo_destroy_func_t) FT_Done_Face);
+ *   ft_face, (cairo_destroy_func_t) FT_Done_Face);
  * if (status) {
  * cairo_font_face_destroy (font_face);
  * FT_Done_Face (ft_face);

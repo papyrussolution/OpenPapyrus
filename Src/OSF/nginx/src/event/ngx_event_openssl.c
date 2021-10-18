@@ -36,7 +36,7 @@ static void ngx_ssl_remove_session(SSL_CTX * ssl, ngx_ssl_session_t * sess);
 static void ngx_ssl_expire_sessions(ngx_ssl_session_cache_t * cache, ngx_slab_pool_t * shpool, ngx_uint_t n);
 static void ngx_ssl_session_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
 #ifdef SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
-	static int ngx_ssl_session_ticket_key_callback(ngx_ssl_conn_t * ssl_conn, unsigned char * name, unsigned char * iv, EVP_CIPHER_CTX * ectx, HMAC_CTX * hctx, int enc);
+	static int ngx_ssl_session_ticket_key_callback(ngx_ssl_conn_t * ssl_conn, uchar * name, uchar * iv, EVP_CIPHER_CTX * ectx, HMAC_CTX * hctx, int enc);
 #endif
 #ifndef X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT
 	static ngx_int_t ngx_ssl_check_name(ngx_str_t * name, ASN1_STRING * str);
@@ -2088,7 +2088,7 @@ failed:
 }
 
 static int ngx_ssl_session_ticket_key_callback(ngx_ssl_conn_t * ssl_conn,
-    unsigned char * name, unsigned char * iv, EVP_CIPHER_CTX * ectx, HMAC_CTX * hctx, int enc)
+    uchar * name, uchar * iv, EVP_CIPHER_CTX * ectx, HMAC_CTX * hctx, int enc)
 {
 	size_t size;
 	ngx_uint_t i;

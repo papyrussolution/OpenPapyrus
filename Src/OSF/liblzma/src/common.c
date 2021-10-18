@@ -128,7 +128,7 @@ lzma_ret lzma_code(lzma_stream *strm, lzma_action action)
 	    || (strm->next_out == NULL && strm->avail_out != 0)
 	    || strm->internal == NULL
 	    || strm->internal->next.code == NULL
-	    || (unsigned int)(action) > LZMA_ACTION_MAX
+	    || (uint)(action) > LZMA_ACTION_MAX
 	    || !strm->internal->supported_actions[action])
 		return LZMA_PROG_ERROR;
 

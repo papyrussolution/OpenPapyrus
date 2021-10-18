@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -150,7 +150,7 @@ uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count)
 	return r;
 }
 
-int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
+int STDCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 {
 	/* @project
 	static const uint32 map[32] = {

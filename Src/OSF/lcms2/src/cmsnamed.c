@@ -150,7 +150,7 @@ cmsBool AddMLUBlock(cmsMLU* mlu, cmsUInt32Number size, const wchar_t * Block,
 
 	Offset = mlu->PoolUsed;
 
-	Ptr = (cmsUInt8Number*)mlu->MemPool;
+	Ptr = (cmsUInt8Number *)mlu->MemPool;
 	if(Ptr == NULL) return FALSE;
 
 	// Set the entry
@@ -314,7 +314,7 @@ static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 
 				if(len != NULL) *len = v->Len;
 
-				return (wchar_t*)((cmsUInt8Number*)mlu->MemPool + v->StrW); // Found exact match
+				return (wchar_t*)((cmsUInt8Number *)mlu->MemPool + v->StrW); // Found exact match
 			}
 		}
 	}
@@ -330,7 +330,7 @@ static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 
 	if(len != NULL) *len   = v->Len;
 
-	return (wchar_t*)((cmsUInt8Number*)mlu->MemPool + v->StrW);
+	return (wchar_t*)((cmsUInt8Number *)mlu->MemPool + v->StrW);
 }
 
 // Obtain an ASCII representation of the wide string. Setting buffer to NULL returns the len
@@ -479,7 +479,7 @@ cmsBool  GrowNamedColorList(cmsNAMEDCOLORLIST* v)
 
 	// Keep a maximum color lists can grow, 100K entries seems reasonable
 	if(size > 1024 * 100) {
-		_cmsFree(v->ContextID, (void*)v->List);
+		_cmsFree(v->ContextID, (void *)v->List);
 		v->List = NULL;
 		return FALSE;
 	}
@@ -647,7 +647,7 @@ void FreeNamedColorList(cmsStage* mpe)
 }
 
 static
-void* DupNamedColorList(cmsStage* mpe)
+void * DupNamedColorList(cmsStage* mpe)
 {
 	cmsNAMEDCOLORLIST* List = (cmsNAMEDCOLORLIST*)mpe->Data;
 	return cmsDupNamedColorList(List);

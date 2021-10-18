@@ -228,6 +228,8 @@ int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay
 
 int FASTCALL dayspermonth(int month, int year)
 {
+	assert(checkirange(month, 1, 12));
+	assert(year > 0);
 	int    dpm = 0;
 	if(month >= 1 && month <= 12) {
 		dpm = daysPerMonth[month-1];
@@ -374,7 +376,7 @@ static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 	return rBuf;
 }
 
-SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf)
+SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 {
 	static const char * p_month_names[NUM_MONTHES] = {
 		"Январ[ь|я]", "Феврал[ь|я]", "Март[|а]", "Апрел[ь|я]", "Ма[й|я]", "Июн[ь|я]",
@@ -424,7 +426,7 @@ int FASTCALL GetDayOfWeekByText(const char * pText)
 	return 0;
 }
 
-int FASTCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rBuf)
+int STDCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rBuf)
 {
 	rBuf.Z();
 	if(dayOfWeek >= 1 && dayOfWeek <= 7 && options >= 1 && options <= 4) {
@@ -513,7 +515,7 @@ static void CLALongToDate(long off, SDosDate * d)
 	exit(-1);
 }*/
 
-void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
+void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 {
 	char   tmp[64];
 	switch(format) {
@@ -558,7 +560,7 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 	}
 }
 
-void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, int format)
+void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, int format)
 {
 	char   tmp[64];
 #ifndef _WIN32_WCE
@@ -605,7 +607,7 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 	}
 }
 
-long FASTCALL _diffdate(const void * dest, const void * src, int format, int _360)
+long STDCALL _diffdate(const void * dest, const void * src, int format, int _360)
 {
 	if(!_360)
 		return (_datetol(dest, format) - _datetol(src, format));
@@ -613,7 +615,7 @@ long FASTCALL _diffdate(const void * dest, const void * src, int format, int _36
 		return (_datetol360(dest, format) - _datetol360(src, format));
 }
 
-void FASTCALL _plusdate(void * dt, int nd, int fmt, int _360)
+void STDCALL _plusdate(void * dt, int nd, int fmt, int _360)
 {
 	if(!_360)
 		_ltodate(_datetol(dt, fmt) + nd, dt, fmt);
@@ -671,11 +673,11 @@ int FASTCALL _dayofweek(const void * pDate, int format)
 	return (int)((4 + _diffdate(pDate, beg, format, 0) % 7) % 7);
 }
 
-void FASTCALL encodedate(int day, int mon, int year, void * pBinDate)                { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
-void FASTCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
-long FASTCALL diffdate(const void * pDest, const void * pSrc, int _360)              { return _diffdate(pDest, pSrc, BinDateFmt, _360); }
-void FASTCALL plusdate(void * pDest, int numdays, int _360)                          { _plusdate(pDest, numdays, BinDateFmt, _360); }
-void FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360)         { _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
+void STDCALL encodedate(int day, int mon, int year, void * pBinDate)                { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
+void STDCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
+long STDCALL diffdate(const void * pDest, const void * pSrc, int _360)              { return _diffdate(pDest, pSrc, BinDateFmt, _360); }
+void STDCALL plusdate(void * pDest, int numdays, int _360)                          { _plusdate(pDest, numdays, BinDateFmt, _360); }
+void STDCALL plusperiod(void * pDest, int period, int numperiods, int _360)         { _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
 
 int FASTCALL dayofweek(const void * pDate, int sundayIsSeventh)
 {
@@ -683,7 +685,7 @@ int FASTCALL dayofweek(const void * pDate, int sundayIsSeventh)
 	return !sundayIsSeventh ? dow : (dow ? dow : 7);
 }
 
-LDATE FASTCALL encodedate(int day, int month, int year)
+LDATE STDCALL encodedate(int day, int month, int year)
 {
 	LDATE dt;
 	encodedate(day, month, year, &dt);
@@ -704,7 +706,7 @@ long FASTCALL diffdate(LDATE d, LDATE s)
 //
 //
 //
-int FASTCALL _checkdate(int day, int mon, int year)
+int STDCALL _checkdate(int day, int mon, int year)
 {
 	int    err = SLERR_SUCCESS;
 	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && (year < 1801 || year > 2099))
@@ -882,24 +884,24 @@ LTIME & FASTCALL LTIME::addhs(long n)
 
 #define __ENCODEDATE(h, m, s, ts, pTm) PTR8(pTm)[0] = ts; PTR8(pTm)[1] = s; PTR8(pTm)[2] = m; PTR8(pTm)[3] = h;
 
-void FASTCALL encodetime(int h, int m, int s, int ts, void * tm)
+void STDCALL encodetime(int h, int m, int s, int ts, void * tm)
 {
 	__ENCODEDATE(h, m, s, ts, tm);
 }
 
-LTIME FASTCALL encodetime(int h, int m, int s, int ts)
+LTIME STDCALL encodetime(int h, int m, int s, int ts)
 {
 	LTIME  tm;
 	__ENCODEDATE(h, m, s, ts, &tm.v);
 	return tm;
 }
 
-void FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void * tm)
+void STDCALL decodetime(int * h, int * m, int * s, int * ts, const void * tm)
 {
 	implement_decodetime(h, m, s, ts, tm);
 }
 
-long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
+long STDCALL DiffTime(LTIME t1, LTIME t2, int dim)
 {
 	int    h1, m1, s1, ts1;
 	int    h2, m2, s2, ts2;
@@ -916,7 +918,7 @@ long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
 		return d;
 }
 
-long diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays)
+long STDCALL diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays)
 {
 	long   dd = _diffdate(&d1, &d2, DF_BTRIEVE, 0);
 	long   dt = DiffTime(t1, t2, 4/*dim*/);
@@ -941,12 +943,12 @@ long diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffD
 		return dt;
 }
 
-long  diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, int dim, long * pDiffDays)
+long STDCALL diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, int dim, long * pDiffDays)
 {
 	return diffdatetime(dtm1.d, dtm1.t, dtm2.d, dtm2.t, dim, pDiffDays);
 }
 
-long diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
+long STDCALL diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
 	long dif_days = 0;
 	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
@@ -1039,14 +1041,14 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 int FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
 int FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
 
-LDATE FASTCALL getcurdate_()
+LDATE getcurdate_()
 {
 	LDATE dt;
 	getcurdatetime(&dt, 0);
 	return dt;
 }
 
-LTIME FASTCALL getcurtime_()
+LTIME getcurtime_()
 {
 	LTIME tm;
 	getcurdatetime(0, &tm);

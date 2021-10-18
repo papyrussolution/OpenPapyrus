@@ -120,7 +120,7 @@ public:
 		}
 
 protected:
-		FixedVersion<>version;/* Version of the maxp table (0.5 or 1.0),
+		FixedVersion<>version; /* Version of the maxp table (0.5 or 1.0),
 		 * 0x00005000u or 0x00010000u. */
 		HBUINT16 numGlyphs;
 		/* The number of glyphs in the font. */

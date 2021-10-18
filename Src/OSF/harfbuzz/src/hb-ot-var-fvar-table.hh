@@ -51,12 +51,12 @@ namespace OT {
 		}
 
 protected:
-		NameID subfamilyNameID;/* The name ID for entries in the 'name' table
+		NameID subfamilyNameID; /* The name ID for entries in the 'name' table
 		 * that provide subfamily names for this instance. */
 		HBUINT16 flags; /* Reserved for future use — set to 0. */
 		UnsizedArrayOf<HBFixed>
 		coordinatesZ;   /* The coordinates array for this instance. */
-		//NameID	postScriptNameIDX;/*Optional. The name ID for entries in the 'name'
+		//NameID	postScriptNameIDX; /*Optional. The name ID for entries in the 'name'
 		//				 * table that provide PostScript names for this
 		//				 * instance. */
 
@@ -88,7 +88,7 @@ public:
 			info->axis_index = axis_index;
 			info->tag = axisTag;
 			info->name_id = axisNameID;
-			info->flags = (hb_ot_var_axis_flags_t)(unsigned int)flags;
+			info->flags = (hb_ot_var_axis_flags_t)(uint)flags;
 			get_coordinates(info->min_value, info->default_value, info->max_value);
 			info->reserved = 0;
 		}
@@ -267,7 +267,7 @@ public:
 			if(coords_length && *coords_length) {
 				hb_array_t<const HBFixed> instanceCoords = instance->get_coordinates(axisCount)
 				    .sub_array(0, *coords_length);
-				for(unsigned int i = 0; i < instanceCoords.length; i++)
+				for(uint i = 0; i < instanceCoords.length; i++)
 					coords[i] = instanceCoords.arrayZ[i].to_float();
 			}
 			return axisCount;
@@ -282,12 +282,12 @@ public:
 			| hb_sink(nameids)
 			;
 
-			+hb_range((unsigned)instanceCount)
+			+hb_range((uint)instanceCount)
 			| hb_map([this] (const unsigned _) { return get_instance_subfamily_name_id(_); })
 			| hb_sink(nameids)
 			;
 
-			+hb_range((unsigned)instanceCount)
+			+hb_range((uint)instanceCount)
 			| hb_map([this] (const unsigned _) { return get_instance_postscript_name_id(_); })
 			| hb_sink(nameids)
 			;

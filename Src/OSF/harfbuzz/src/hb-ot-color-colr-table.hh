@@ -198,9 +198,9 @@ private:
 
 		const BaseGlyphRecord* get_base_glyph_record(hb_codepoint_t gid) const
 		{
-			if((unsigned int)gid == 0) // Ignore notdef.
+			if((uint)gid == 0) // Ignore notdef.
 				return nullptr;
-			const BaseGlyphRecord* record = &(this+baseGlyphsZ).bsearch(numBaseGlyphs, (unsigned int)gid);
+			const BaseGlyphRecord* record = &(this+baseGlyphsZ).bsearch(numBaseGlyphs, (uint)gid);
 			if((record && (hb_codepoint_t)record->glyphId != gid))
 				record = nullptr;
 			return record;
@@ -233,7 +233,7 @@ private:
 				auto layers = (this+layersZ).as_array(numLayers).sub_array(old_record->firstLayerIdx,
 				old_record->numLayers);
 				out_layers.resize(layers.length);
-				for(unsigned int i = 0; i < layers.length; i++) {
+				for(uint i = 0; i < layers.length; i++) {
 					out_layers[i] = layers[i];
 					hb_codepoint_t new_gid = 0;
 					if(UNLIKELY(!c->plan->new_gid_for_old_gid(out_layers[i].glyphId, &new_gid)))

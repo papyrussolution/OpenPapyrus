@@ -5407,7 +5407,7 @@ public:
 	{
 		nsUniversalDetector::Reset();
 		SAlloc::F(m_charset);
-		m_charset = strdup("");
+		m_charset = sstrdup("");
 	}
 	const char * GetCharset() const
 	{

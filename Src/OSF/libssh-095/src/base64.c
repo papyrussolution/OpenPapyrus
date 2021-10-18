@@ -46,7 +46,7 @@ static int get_equals(char * string);
  * @brief Translates a base64 string into a binary one.
  *
  * @returns A buffer containing the decoded string, NULL if something went
- *          wrong (e.g. incorrect char).
+ *    wrong (e.g. incorrect char).
  */
 ssh_buffer base64_to_bin(const char * source) 
 {

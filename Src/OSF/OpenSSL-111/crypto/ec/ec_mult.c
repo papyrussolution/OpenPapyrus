@@ -98,9 +98,9 @@ void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
  * various timing attack defenses.
  *
  * It performs either a fixed point multiplication
- *          (scalar * generator)
+ *    (scalar * generator)
  * when point is NULL, or a variable point multiplication
- *          (scalar * point)
+ *    (scalar * point)
  * when point is not NULL.
  *
  * `scalar` cannot be NULL and should be in the range [0,n) otherwise all

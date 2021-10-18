@@ -51,9 +51,7 @@ static int call_malloc_debug = 0;
 #define FAILTEST() /* empty */
 #endif
 
-int CRYPTO_set_mem_functions(void *(*m)(size_t, const char *, int),
-    void *(*r)(void *, size_t, const char *, int),
-    void (*f)(void *, const char *, int))
+int CRYPTO_set_mem_functions(void *(*m)(size_t, const char *, int), void *(*r)(void *, size_t, const char *, int), void (*f)(void *, const char *, int))
 {
 	if(!allow_customize)
 		return 0;
@@ -74,9 +72,7 @@ int CRYPTO_set_mem_debug(int flag)
 	return 1;
 }
 
-void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int),
-    void *(**r)(void *, size_t, const char *, int),
-    void (**f)(void *, const char *, int))
+void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int), void *(**r)(void *, size_t, const char *, int), void (**f)(void *, const char *, int))
 {
 	if(m != NULL)
 		*m = malloc_impl;
@@ -101,7 +97,7 @@ void CRYPTO_get_alloc_counts(int * mcount, int * rcount, int * fcount)
  * Parse a "malloc failure spec" string.  This likes like a set of fields
  * separated by semicolons.  Each field has a count and an optional failure
  * percentage.  For example:
- *          100@0;100@25;0@0
+ *    100@0;100@25;0@0
  *    or    100;100@25;0
  * This means 100 mallocs succeed, then next 100 fail 25% of the time, and
  * all remaining (count is zero) succeed.
@@ -151,7 +147,6 @@ static int shouldfail(void)
 		if(shoulditfail) {
 			void * addrs[30];
 			int num = backtrace(addrs, OSSL_NELEM(addrs));
-
 			backtrace_symbols_fd(addrs, num, md_tracefd);
 		}
 #endif
@@ -168,7 +163,7 @@ static int shouldfail(void)
 void ossl_malloc_setup_failures(void)
 {
 	const char * cp = getenv("OPENSSL_MALLOC_FAILURES");
-	if(cp != NULL && (md_failstring = strdup(cp)) != NULL)
+	if(cp != NULL && (md_failstring = sstrdup(cp)) != NULL)
 		parseit();
 	if((cp = getenv("OPENSSL_MALLOC_FD")) != NULL)
 		md_tracefd = atoi(cp);

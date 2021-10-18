@@ -102,7 +102,7 @@ float hb_style_get_value(hb_font_t * font, hb_tag_t tag)
 	if(face->table.STAT->get_value(style_tag, &value))
 		return value;
 
-	switch((unsigned)style_tag)
+	switch((uint)style_tag)
 	{
 		case HB_STYLE_TAG_ITALIC:
 		    return face->table.OS2->is_italic() || face->table.head->is_italic() ? 1 : 0;

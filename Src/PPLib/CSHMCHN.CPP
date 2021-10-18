@@ -1795,7 +1795,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 	return ok;
 }
 
-int ViewCashBills(PPID cashNodeID)
+int STDCALL ViewCashBills(PPID cashNodeID)
 {
 	int    ok = 1;
 	PPCashMachine * p_cm = 0;

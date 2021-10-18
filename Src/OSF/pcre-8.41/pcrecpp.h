@@ -492,10 +492,10 @@ class PCRECPP_EXP_DEFN RE {
   RE(const string& pat, const RE_Options& option) { Init(pat, &option); }
   RE(const char* pat) { Init(pat, NULL); }
   RE(const char* pat, const RE_Options& option) { Init(pat, &option); }
-  RE(const unsigned char* pat) {
+  RE(const uchar* pat) {
     Init(reinterpret_cast<const char*>(pat), NULL);
   }
-  RE(const unsigned char* pat, const RE_Options& option) {
+  RE(const uchar* pat, const RE_Options& option) {
     Init(reinterpret_cast<const char*>(pat), &option);
   }
 

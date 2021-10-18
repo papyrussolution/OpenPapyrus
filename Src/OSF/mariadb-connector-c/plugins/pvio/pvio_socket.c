@@ -331,7 +331,7 @@ ssize_t pvio_socket_async_read(MARIADB_PVIO * pvio, uchar * buffer, size_t lengt
 		return -1;
 	csock = (struct st_pvio_socket *)pvio->data;
 #ifndef _WIN32
-	r = recv(csock->socket, (void*)buffer, length, read_flags);
+	r = recv(csock->socket, (void *)buffer, length, read_flags);
 #else
 	/* Windows doesn't support MSG_DONTWAIT, so we need to set
 	   socket to non blocking */
@@ -594,7 +594,7 @@ static int pvio_socket_internal_connect(MARIADB_PVIO * pvio, const struct sockad
 #ifdef __APPLE__
 	if(csock->socket) {
 		int val = 1;
-		setsockopt(csock->socket, SOL_SOCKET, SO_NOSIGPIPE, (void*)&val, sizeof(int));
+		setsockopt(csock->socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&val, sizeof(int));
 	}
 #endif
 #else
@@ -677,7 +677,7 @@ bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 		PVIO_SET_ERROR(cinfo->mysql, CR_OUT_OF_MEMORY, unknown_sqlstate, 0, "");
 		return 1;
 	}
-	pvio->data = (void*)csock;
+	pvio->data = (void *)csock;
 	csock->socket = INVALID_SOCKET;
 	mysql = pvio->mysql = cinfo->mysql;
 	pvio->type = cinfo->type;

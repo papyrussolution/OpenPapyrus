@@ -1288,8 +1288,8 @@ static int xmlXzfileClose(void * context)
 #ifdef LIBXML_OUTPUT_ENABLED
 typedef struct xmlIOHTTPWriteCtxt_ {
 	int compression;
-	char *         uri;
-	void *         doc_buff;
+	char *   uri;
+	void *   doc_buff;
 } xmlIOHTTPWriteCtxt, * xmlIOHTTPWriteCtxtPtr;
 
 #ifdef HAVE_ZLIB_H

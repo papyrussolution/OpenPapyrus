@@ -102,7 +102,7 @@ MA_FILE * ma_open(const char * location, const char * mode, MYSQL * mysql)
 			return NULL;
 		}
 		ma_file->type = MA_FILE_LOCAL;
-		ma_file->ptr = (void*)fp;
+		ma_file->ptr = (void *)fp;
 	}
 	return ma_file;
 #ifdef HAVE_REMOTEIO

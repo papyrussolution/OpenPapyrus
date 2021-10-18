@@ -116,9 +116,9 @@ int CRYPTO_mem_ctrl(int mode);
 size_t OPENSSL_strlcpy(char *dst, const char *src, size_t siz);
 size_t OPENSSL_strlcat(char *dst, const char *src, size_t siz);
 size_t OPENSSL_strnlen(const char *str, size_t maxlen);
-char *OPENSSL_buf2hexstr(const uchar *buffer, long len);
-uchar *OPENSSL_hexstr2buf(const char *str, long *len);
-int OPENSSL_hexchar2int(uchar c);
+char * OPENSSL_buf2hexstr(const uchar *buffer, long len);
+uchar * OPENSSL_hexstr2buf(const char *str, long *len);
+int    OPENSSL_hexchar2int(uchar c);
 
 #define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
@@ -216,9 +216,9 @@ int    CRYPTO_set_mem_debug(int flag);
 void   CRYPTO_get_mem_functions(void *(**m) (size_t, const char *, int), void *(**r) (void *, size_t, const char *, int), void (**f) (void *, const char *, int));
 void * CRYPTO_malloc(size_t num, const char *file, int line);
 void * CRYPTO_zalloc(size_t num, const char *file, int line);
-void * CRYPTO_memdup(const void *str, size_t siz, const char *file, int line);
-char * CRYPTO_strdup(const char *str, const char *file, int line);
-char * CRYPTO_strndup(const char *str, size_t s, const char *file, int line);
+void * CRYPTO_memdup(const void * str, size_t siz, const char *file, int line);
+char * STDCALL CRYPTO_strdup(const char * str, const char *file, int line);
+char * CRYPTO_strndup(const char * str, size_t s, const char *file, int line);
 void   CRYPTO_free(void *ptr, const char *file, int line);
 void   CRYPTO_clear_free(void *ptr, size_t num, const char *file, int line);
 void * CRYPTO_realloc(void *addr, size_t num, const char *file, int line);

@@ -7,9 +7,9 @@ static int client_mpvio_write_packet(struct st_plugin_vio*, const uchar*, size_t
 static int native_password_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql);
 static int dummy_fallback_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql __attribute__((unused)));
 extern void read_user_name(char * name);
-extern char * ma_send_connect_attr(MYSQL * mysql, unsigned char * buffer);
+extern char * ma_send_connect_attr(MYSQL * mysql, uchar * buffer);
 extern int ma_read_ok_packet(MYSQL * mysql, uchar * pos, ulong length);
-extern unsigned char * mysql_net_store_length(unsigned char * packet, size_t length);
+extern uchar * mysql_net_store_length(uchar * packet, size_t length);
 
 typedef struct {
 	int (*read_packet)(struct st_plugin_vio * vio, uchar ** buf);
@@ -156,7 +156,7 @@ static int send_change_user_packet(MCPVIO_EXT * mpvio, const uchar * data, int d
 	}
 	if(mysql->server_capabilities & CLIENT_PLUGIN_AUTH)
 		end = ma_strmake(end, mpvio->plugin->name, NAME_LEN) + 1;
-	end = ma_send_connect_attr(mysql, (unsigned char *)end);
+	end = ma_send_connect_attr(mysql, (uchar *)end);
 	res = ma_simple_command(mysql, COM_CHANGE_USER, buff, (ulong)(end-buff), 1, NULL);
 error:
 	SAlloc::F(buff);
@@ -228,7 +228,7 @@ static int send_client_reply_packet(MCPVIO_EXT * mpvio, const uchar * data, int 
 	if(mysql->options.use_ssl && (mysql->client_flag & CLIENT_SSL)) {
 		// Send mysql->client_flag, max_packet_size - unencrypted otherwise
 		// the server does not know we want to do SSL
-		if(ma_net_write(net, (unsigned char *)buff, (size_t)(end-buff)) || ma_net_flush(net)) {
+		if(ma_net_write(net, (uchar *)buff, (size_t)(end-buff)) || ma_net_flush(net)) {
 			my_set_error(mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN, ER(CR_SERVER_LOST_EXTENDED), "sending connection information to server", errno);
 			goto error;
 		}
@@ -268,13 +268,13 @@ static int send_client_reply_packet(MCPVIO_EXT * mpvio, const uchar * data, int 
 	// Add database if needed 
 	if(mpvio->db && (mysql->server_capabilities & CLIENT_CONNECT_WITH_DB)) {
 		end = ma_strmake(end, mpvio->db, NAME_LEN) + 1;
-		mysql->db = strdup(mpvio->db);
+		mysql->db = sstrdup(mpvio->db);
 	}
 	if(mysql->server_capabilities & CLIENT_PLUGIN_AUTH)
 		end = ma_strmake(end, mpvio->plugin->name, NAME_LEN) + 1;
-	end = ma_send_connect_attr(mysql, (unsigned char *)end);
+	end = ma_send_connect_attr(mysql, (uchar *)end);
 	// Write authentication package
-	if(ma_net_write(net, (unsigned char *)buff, (size_t)(end-buff)) || ma_net_flush(net)) {
+	if(ma_net_write(net, (uchar *)buff, (size_t)(end-buff)) || ma_net_flush(net)) {
 		my_set_error(mysql, CR_SERVER_LOST, SQLSTATE_UNKNOWN, ER(CR_SERVER_LOST_EXTENDED), "sending authentication information", errno);
 		goto error;
 	}
@@ -358,7 +358,7 @@ static int client_mpvio_write_packet(struct st_plugin_vio * mpv, const uchar * p
 		if(mpvio->mysql->thd)
 			res = 1; /* no chit-chat in embedded */
 		else
-			res = ma_net_write(net, (unsigned char *)pkt, pkt_len) || ma_net_flush(net);
+			res = ma_net_write(net, (uchar *)pkt, pkt_len) || ma_net_flush(net);
 	}
 	if(res) {
 		/* don't overwrite errors */

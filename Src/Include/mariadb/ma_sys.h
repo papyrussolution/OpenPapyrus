@@ -240,7 +240,7 @@ typedef struct st_record_cache { /* Used when caching records */
 	int rc_seek, error, inited;
 	uint rc_length, read_length, reclength;
 	my_off_t rc_record_pos, end_of_file;
-	unsigned char * rc_buff, * rc_buff2, * rc_pos, * rc_end, * rc_request_pos;
+	uchar * rc_buff, * rc_buff2, * rc_pos, * rc_end, * rc_request_pos;
 #ifdef HAVE_AIOWAIT
 	int use_async_io;
 	my_aio_result aio_result;
@@ -263,8 +263,8 @@ typedef struct st_dynamic_string {
 typedef struct st_io_cache              /* Used when caching files */
 {
 	my_off_t pos_in_file, end_of_file;
-	unsigned char * rc_pos, * rc_end, * buffer, * rc_request_pos;
-	int (* read_function)(struct st_io_cache *, unsigned char *, uint);
+	uchar * rc_pos, * rc_end, * buffer, * rc_request_pos;
+	int (* read_function)(struct st_io_cache *, uchar *, uint);
 	char * file_name;               /* if used with 'open_cached_file' */
 	char * dir, * prefix;
 	File file;
@@ -427,17 +427,17 @@ extern size_s strip_sp(my_string str);
 extern void get_date(my_string to, int timeflag, time_t use_time);
 extern void soundex(my_string out_pntr, my_string in_pntr, pbool remove_garbage);
 extern int init_record_cache(RECORD_CACHE * info, uint cachesize, File file, uint reclength, enum cache_type type, pbool use_async_io);
-extern int read_cache_record(RECORD_CACHE * info, unsigned char * to);
+extern int read_cache_record(RECORD_CACHE * info, uchar * to);
 extern int end_record_cache(RECORD_CACHE * info);
-extern int write_cache_record(RECORD_CACHE * info, my_off_t filepos, const unsigned char * record, uint length);
+extern int write_cache_record(RECORD_CACHE * info, my_off_t filepos, const uchar * record, uint length);
 extern int flush_write_cache(RECORD_CACHE * info);
 extern long my_clock(void);
 extern sig_handler sigtstp_handler(int signal_number);
 extern void handle_recived_signals(void);
 extern int init_key_cache(ulong use_mem, ulong leave_this_much_mem);
-extern unsigned char * key_cache_read(File file, my_off_t filepos, unsigned char* buff, uint length,
+extern uchar * key_cache_read(File file, my_off_t filepos, uchar* buff, uint length,
     uint block_length, int return_buffer);
-extern int key_cache_write(File file, my_off_t filepos, unsigned char* buff, uint length,
+extern int key_cache_write(File file, my_off_t filepos, uchar* buff, uint length,
     uint block_length, int force_write);
 extern int flush_key_blocks(int file, enum flush_type type);
 extern void end_key_cache(void);
@@ -454,12 +454,12 @@ extern int init_io_cache(IO_CACHE * info, File file, uint cachesize,
 extern bool reinit_io_cache(IO_CACHE * info, enum cache_type type,
     my_off_t seek_offset, pbool use_async_io,
     pbool clear_cache);
-extern int _my_b_read(IO_CACHE * info, unsigned char * Buffer, uint Count);
-extern int _my_b_net_read(IO_CACHE * info, unsigned char * Buffer, uint Count);
+extern int _my_b_read(IO_CACHE * info, uchar * Buffer, uint Count);
+extern int _my_b_net_read(IO_CACHE * info, uchar * Buffer, uint Count);
 extern int _my_b_get(IO_CACHE * info);
-extern int _my_b_async_read(IO_CACHE * info, unsigned char * Buffer, uint Count);
-extern int _my_b_write(IO_CACHE * info, const unsigned char * Buffer, uint Count);
-extern int my_block_write(IO_CACHE * info, const unsigned char * Buffer,
+extern int _my_b_async_read(IO_CACHE * info, uchar * Buffer, uint Count);
+extern int _my_b_write(IO_CACHE * info, const uchar * Buffer, uint Count);
+extern int my_block_write(IO_CACHE * info, const uchar * Buffer,
     uint Count, my_off_t pos);
 extern int flush_io_cache(IO_CACHE * info);
 extern int end_io_cache(IO_CACHE * info);
@@ -481,8 +481,8 @@ extern bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
     uint init_alloc, uint alloc_increment CALLER_INFO_PROTO);
 #define ma_init_dynamic_array_ci(A, B, C, D) ma_init_dynamic_array(A, B, C, D ORIG_CALLER_INFO)
 extern bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element);
-extern unsigned char * ma_alloc_dynamic(DYNAMIC_ARRAY * array);
-extern unsigned char * ma_pop_dynamic(DYNAMIC_ARRAY*);
+extern uchar * ma_alloc_dynamic(DYNAMIC_ARRAY * array);
+extern uchar * ma_pop_dynamic(DYNAMIC_ARRAY*);
 extern bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint array_index);
 extern void ma_get_dynamic(DYNAMIC_ARRAY * array, void * element, uint array_index);
 extern void ma_delete_dynamic(DYNAMIC_ARRAY * array);
@@ -513,10 +513,10 @@ char * FASTCALL ma_strdup_root(MA_MEM_ROOT * root, const char * str);
 char * ma_memdup_root(MA_MEM_ROOT * root, const char * str, size_t len);
 void ma_free_defaults(char ** argv);
 void ma_print_defaults(const char * conf_file, const char ** groups);
-bool _mariadb_compress(unsigned char *, size_t *, size_t *);
-bool _mariadb_uncompress(unsigned char *, size_t *, size_t *);
-unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * len, size_t * complen);
-ulong checksum(const unsigned char * mem, uint count);
+bool _mariadb_compress(uchar *, size_t *, size_t *);
+bool _mariadb_uncompress(uchar *, size_t *, size_t *);
+uchar * _mariadb_compress_alloc(const uchar * packet, size_t * len, size_t * complen);
+ulong checksum(const uchar * mem, uint count);
 
 #if defined(_MSC_VER) && !defined(_WIN32)
 extern void sleep(int sec);

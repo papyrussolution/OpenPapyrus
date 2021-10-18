@@ -101,7 +101,7 @@ extern int onigenc_unicode_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag
 }
 
 static int apply_case_fold1(OnigCaseFoldType flag, int from, int to,
-    OnigApplyAllCaseFoldFunc f, void* arg)
+    OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int i, j, k, n, r;
 
@@ -139,7 +139,7 @@ static int apply_case_fold1(OnigCaseFoldType flag, int from, int to,
 	return 0;
 }
 
-static int apply_case_fold2(int from, int to, OnigApplyAllCaseFoldFunc f, void* arg)
+static int apply_case_fold2(int from, int to, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int i, j, k, n, r;
 
@@ -167,7 +167,7 @@ static int apply_case_fold2(int from, int to, OnigApplyAllCaseFoldFunc f, void* 
 	return 0;
 }
 
-static int apply_case_fold3(int from, int to, OnigApplyAllCaseFoldFunc f, void* arg)
+static int apply_case_fold3(int from, int to, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int i, j, k, n, r;
 
@@ -195,7 +195,7 @@ static int apply_case_fold3(int from, int to, OnigApplyAllCaseFoldFunc f, void* 
 	return 0;
 }
 
-extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg)
+extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int r = apply_case_fold1(flag, 0, FOLDS1_NORMAL_END_INDEX, f, arg);
 	if(r != 0) 
@@ -1060,7 +1060,7 @@ extern int onig_unicode_define_user_property(const char* name, OnigCodePoint* ra
 	e = UserDefinedPropertyRanges + UserDefinedPropertyNum;
 	e->ctype = CODE_RANGES_NUM + UserDefinedPropertyNum;
 	e->ranges = ranges;
-	r = onig_st_insert_strend(UserDefinedPropertyTable, (const uchar *)s, (const uchar *)s + n, (hash_data_type)((void*)e));
+	r = onig_st_insert_strend(UserDefinedPropertyTable, (const uchar *)s, (const uchar *)s + n, (hash_data_type)((void *)e));
 	if(r < 0) 
 		return r;
 	UserDefinedPropertyNum++;
@@ -1128,7 +1128,7 @@ extern int onigenc_unicode_property_name_to_ctype(OnigEncoding enc, uchar * name
 	buf[len] = 0;
 	if(UserDefinedPropertyTable != 0) {
 		UserDefinedPropertyValue * e = (UserDefinedPropertyValue*)NULL;
-		onig_st_lookup_strend(UserDefinedPropertyTable, (const uchar *)buf, (const uchar *)buf + len, (hash_data_type*)((void*)(&e)));
+		onig_st_lookup_strend(UserDefinedPropertyTable, (const uchar *)buf, (const uchar *)buf + len, (hash_data_type*)((void *)(&e)));
 		if(e != 0) {
 			return e->ctype;
 		}

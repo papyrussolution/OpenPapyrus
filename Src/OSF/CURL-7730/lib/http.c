@@ -404,19 +404,19 @@ static bool pickoneauth(struct auth * pick, ulong mask)
  * If we are doing POST or PUT {
  *   If we have more data to send {
  *     If we are doing NTLM {
- *       Keep sending since we must not disconnect
+ * Keep sending since we must not disconnect
  *     }
  *     else {
- *       If there is more than just a little data left to send, close
- *       the current connection by force.
+ * If there is more than just a little data left to send, close
+ * the current connection by force.
  *     }
  *   }
  *   If we have sent any data {
  *     If we don't have track of all the data {
- *       call app to tell it to rewind
+ * call app to tell it to rewind
  *     }
  *     else {
- *       rewind internally so that the operation can restart fine
+ * rewind internally so that the operation can restart fine
  *     }
  *   }
  * }
@@ -1277,7 +1277,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 
 				/* set the new pointers for the request-sending */
 				data->state.fread_func = (curl_read_callback)readmoredata;
-				data->state.in = (void*)conn;
+				data->state.in = (void *)conn;
 				http->postdata = ptr;
 				http->postsize = (curl_off_t)size;
 
@@ -2763,7 +2763,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 
 		    /* Read from mime structure. */
 		    data->state.fread_func = (curl_read_callback)Curl_mime_read;
-		    data->state.in = (void*)http->sendit;
+		    data->state.in = (void *)http->sendit;
 		    http->sending = HTTP::HTTPSEND_BODY;
 
 		    /* this sends the buffer and frees all the buffer resources */
@@ -2881,7 +2881,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				    http->sending = HTTP::HTTPSEND_BODY;
 
 				    data->state.fread_func = (curl_read_callback)readmoredata;
-				    data->state.in = (void*)conn;
+				    data->state.in = (void *)conn;
 
 				    /* set the upload size to the progress meter */
 				    Curl_pgrsSetUploadSize(data, http->postsize);

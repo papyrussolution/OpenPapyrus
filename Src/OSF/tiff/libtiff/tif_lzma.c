@@ -59,8 +59,8 @@ typedef struct {
 #define DecoderState(tif)       LState(tif)
 #define EncoderState(tif)       LState(tif)
 
-static int LZMAEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s);
-static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s);
+static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s);
+static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s);
 
 static const char * LZMAStrerror(lzma_ret ret)
 {
@@ -129,7 +129,7 @@ static int LZMAPreDecode(TIFF* tif, uint16 s)
 	return 1;
 }
 
-static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
@@ -212,7 +212,7 @@ static int LZMAPreEncode(TIFF* tif, uint16 s)
 /*
  * Encode a chunk of pixels.
  */
-static int LZMAEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);

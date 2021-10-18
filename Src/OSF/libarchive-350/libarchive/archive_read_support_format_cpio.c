@@ -155,7 +155,7 @@ struct links_entry {
 	struct links_entry      * previous;
 	unsigned int links;
 	dev_t dev;
-	int64_t ino;
+	int64 ino;
 	char                    * name;
 };
 
@@ -164,25 +164,25 @@ struct cpio {
 	int magic;
 	int (* read_header)(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
 	struct links_entry       * links_head;
-	int64_t entry_bytes_remaining;
-	int64_t entry_bytes_unconsumed;
-	int64_t entry_offset;
-	int64_t entry_padding;
+	int64 entry_bytes_remaining;
+	int64 entry_bytes_unconsumed;
+	int64 entry_offset;
+	int64 entry_padding;
 
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 
-static int64_t  atol16(const char *, unsigned);
-static int64_t  atol8(const char *, unsigned);
+static int64  atol16(const char *, unsigned);
+static int64  atol8(const char *, unsigned);
 static int      archive_read_format_cpio_bid(struct archive_read *, int);
 static int      archive_read_format_cpio_options(struct archive_read *, const char *, const char *);
 static int      archive_read_format_cpio_cleanup(struct archive_read *);
-static int      archive_read_format_cpio_read_data(struct archive_read *, const void **, size_t *, int64_t *);
+static int      archive_read_format_cpio_read_data(struct archive_read *, const void **, size_t *, int64 *);
 static int      archive_read_format_cpio_read_header(struct archive_read *, struct archive_entry *);
 static int      archive_read_format_cpio_skip(struct archive_read *);
-static int64_t  be4(const unsigned char *);
+static int64  be4(const uchar *);
 static int      find_odc_header(struct archive_read *);
 static int      find_newc_header(struct archive_read *);
 static int      header_bin_be(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
@@ -192,7 +192,7 @@ static int      header_odc(struct archive_read *, struct cpio *, struct archive_
 static int      header_afiol(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
 static int      is_octal(const char *, size_t);
 static int      is_hex(const char *, size_t);
-static int64_t  le4(const unsigned char *);
+static int64  le4(const uchar *);
 static int      record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry);
 
 int archive_read_support_format_cpio(struct archive * _a)
@@ -201,7 +201,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 	struct cpio * cpio;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cpio");
-	cpio = (struct cpio *)calloc(1, sizeof(*cpio));
+	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
@@ -211,7 +211,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 		archive_read_format_cpio_read_header, archive_read_format_cpio_read_data, archive_read_format_cpio_skip, NULL,
 		archive_read_format_cpio_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK)
-		free(cpio);
+		SAlloc::F(cpio);
 	return ARCHIVE_OK;
 }
 
@@ -380,7 +380,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	return r;
 }
 
-static int archive_read_format_cpio_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
+static int archive_read_format_cpio_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct cpio * cpio = (struct cpio *)(a->format->data);
@@ -416,7 +416,7 @@ static int archive_read_format_cpio_read_data(struct archive_read * a, const voi
 static int archive_read_format_cpio_skip(struct archive_read * a)
 {
 	struct cpio * cpio = (struct cpio *)(a->format->data);
-	int64_t to_skip = cpio->entry_bytes_remaining + cpio->entry_padding + cpio->entry_bytes_unconsumed;
+	int64 to_skip = cpio->entry_bytes_remaining + cpio->entry_padding + cpio->entry_bytes_unconsumed;
 	if(to_skip != __archive_read_consume(a, to_skip)) {
 		return ARCHIVE_FATAL;
 	}
@@ -754,7 +754,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio,
     struct archive_entry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
-	const unsigned char * header;
+	const uchar * header;
 
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_BIN_LE;
 	a->archive.archive_format_name = "cpio (little-endian binary)";
@@ -768,7 +768,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio,
 	}
 
 	/* Parse out binary fields. */
-	header = (const unsigned char*)h;
+	header = (const uchar *)h;
 
 	archive_entry_set_dev(entry, header[bin_dev_offset] + header[bin_dev_offset + 1] * 256);
 	archive_entry_set_ino(entry, header[bin_ino_offset] + header[bin_ino_offset + 1] * 256);
@@ -792,7 +792,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
     struct archive_entry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
-	const unsigned char * header;
+	const uchar * header;
 
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_BIN_BE;
 	a->archive.archive_format_name = "cpio (big-endian binary)";
@@ -806,7 +806,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 	}
 
 	/* Parse out binary fields. */
-	header = (const unsigned char*)h;
+	header = (const uchar *)h;
 
 	archive_entry_set_dev(entry, header[bin_dev_offset] * 256 + header[bin_dev_offset + 1]);
 	archive_entry_set_ino(entry, header[bin_ino_offset] * 256 + header[bin_ino_offset + 1]);
@@ -835,23 +835,23 @@ static int archive_read_format_cpio_cleanup(struct archive_read * a)
 	while(cpio->links_head != NULL) {
 		struct links_entry * lp = cpio->links_head->next;
 
-		free(cpio->links_head->name);
-		free(cpio->links_head);
+		SAlloc::F(cpio->links_head->name);
+		SAlloc::F(cpio->links_head);
 		cpio->links_head = lp;
 	}
-	free(cpio);
+	SAlloc::F(cpio);
 	(a->format->data) = NULL;
 	return ARCHIVE_OK;
 }
 
-static int64_t le4(const unsigned char * p)
+static int64 le4(const uchar * p)
 {
-	return ((p[0] << 16) + (((int64_t)p[1]) << 24) + (p[2] << 0) + (p[3] << 8));
+	return ((p[0] << 16) + (((int64)p[1]) << 24) + (p[2] << 0) + (p[3] << 8));
 }
 
-static int64_t be4(const unsigned char * p)
+static int64 be4(const uchar * p)
 {
-	return ((((int64_t)p[0]) << 24) + (p[1] << 16) + (p[2] << 8) + (p[3]));
+	return ((((int64)p[0]) << 24) + (p[1] << 16) + (p[2] << 8) + (p[3]));
 }
 
 /*
@@ -859,10 +859,10 @@ static int64_t be4(const unsigned char * p)
  * locale settings; you cannot simply substitute strtol here, since
  * it does obey locale.
  */
-static int64_t atol8(const char * p, unsigned char_cnt)
+static int64 atol8(const char * p, unsigned char_cnt)
 {
 	int digit;
-	int64_t l = 0;
+	int64 l = 0;
 	while(char_cnt-- > 0) {
 		if(*p >= '0' && *p <= '7')
 			digit = *p - '0';
@@ -875,10 +875,10 @@ static int64_t atol8(const char * p, unsigned char_cnt)
 	return (l);
 }
 
-static int64_t atol16(const char * p, unsigned char_cnt)
+static int64 atol16(const char * p, unsigned char_cnt)
 {
 	int digit;
-	int64_t l = 0;
+	int64 l = 0;
 	while(char_cnt-- > 0) {
 		if(*p >= 'a' && *p <= 'f')
 			digit = *p - 'a' + 10;
@@ -899,7 +899,7 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 {
 	struct links_entry      * le;
 	dev_t dev;
-	int64_t ino;
+	int64 ino;
 	if(archive_entry_nlink(entry) <= 1)
 		return ARCHIVE_OK;
 	dev = archive_entry_dev(entry);
@@ -919,15 +919,15 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 					le->next->previous = le->previous;
 				if(cpio->links_head == le)
 					cpio->links_head = le->next;
-				free(le->name);
-				free(le);
+				SAlloc::F(le->name);
+				SAlloc::F(le);
 			}
 
 			return ARCHIVE_OK;
 		}
 	}
 
-	le = (struct links_entry *)malloc(sizeof(struct links_entry));
+	le = (struct links_entry *)SAlloc::M(sizeof(struct links_entry));
 	if(le == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
 		return ARCHIVE_FATAL;
@@ -940,7 +940,7 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 	le->dev = dev;
 	le->ino = ino;
 	le->links = archive_entry_nlink(entry) - 1;
-	le->name = strdup(archive_entry_pathname(entry));
+	le->name = sstrdup(archive_entry_pathname(entry));
 	if(le->name == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
 		return ARCHIVE_FATAL;

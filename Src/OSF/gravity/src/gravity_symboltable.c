@@ -165,7 +165,7 @@ uint32 symboltable_exit_scope(symboltable_t * table, uint32 * nlevel)
 	gravity_hash_t * h = (gravity_hash_t*)scope_stack_pop(table->stack);
 	if(nlevel) {
 		*nlevel = UINT32_MAX;
-		gravity_hash_iterate(h, check_upvalue_inscope, (void*)nlevel);
+		gravity_hash_iterate(h, check_upvalue_inscope, (void *)nlevel);
 	}
 	gravity_hash_free(h);
 	return table->count1;
@@ -184,5 +184,5 @@ void * symboltable_hash_atindex(symboltable_t * table, size_t n)
 {
 	size_t count = scope_stack_size(table->stack);
 	if(count <= n) return NULL;
-	return (void*)scope_stack_get(table->stack, n);
+	return (void *)scope_stack_get(table->stack, n);
 }

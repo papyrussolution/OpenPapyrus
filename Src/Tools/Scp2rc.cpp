@@ -203,7 +203,7 @@ public:
 							fprintf(R_Out, ", %s\n", Fix.helpCtxSym);
 							for(unsigned j = 0; j < Ctrl.Cluster.numItems; j++) {
 								fprintf(R_Out, "\t\t\"%s\\0\"\n", Ctrl.Cluster.labels[j]);
-								free(Ctrl.Cluster.labels[j]);
+								SAlloc::F(Ctrl.Cluster.labels[j]);
 							}
 							fprintf(R_Out, "\tTV_END\n");
 						}
@@ -285,7 +285,7 @@ public:
 	char ** GetStrColl(unsigned count)
 	{
 		char   buf[128];
-		char ** coll = static_cast<char **>(calloc(count, sizeof(char *)));
+		char ** coll = static_cast<char **>(SAlloc::C(count, sizeof(char *)));
 		for(uint i = 0; i < count; i++) {
 			GetString(buf);
 			coll[i] = sstrdup(buf);

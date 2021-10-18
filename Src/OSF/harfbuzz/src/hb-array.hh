@@ -110,7 +110,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 
 	uint32_t hash() const {
 		uint32_t current = 0;
-		for(unsigned int i = 0; i < this->length; i++) {
+		for(uint i = 0; i < this->length; i++) {
 			current = current * 31 + hb_hash(this->arrayZ[i]);
 		}
 		return current;
@@ -247,17 +247,18 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 	{
 		return arrayZ <= ((const char*)p)
 		       && ((const char*)p) <= arrayZ + length
-		       && (unsigned int)(arrayZ + length - (const char*)p) >= size;
+		       && (uint)(arrayZ + length - (const char*)p) >= size;
 	}
 
 	/* Only call if you allocated the underlying array using malloc() or similar. */
 	void free()
 	{
-		::free((void *)arrayZ); arrayZ = nullptr; length = 0;
+		SAlloc::F((void *)arrayZ); 
+		arrayZ = nullptr; 
+		length = 0;
 	}
 
-	template <typename hb_serialize_context_t>
-	hb_array_t copy(hb_serialize_context_t * c) const
+	template <typename hb_serialize_context_t> hb_array_t copy(hb_serialize_context_t * c) const
 	{
 		TRACE_SERIALIZE(this);
 		auto* out = c->start_embed(arrayZ);
@@ -357,7 +358,7 @@ hb_iter_t<hb_sorted_array_t<Type>, Type&>,
 
 	template <typename T> bool bfind(const T &x, unsigned int * i = nullptr,
 	    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-	    unsigned int to_store = (unsigned int)-1) const
+	    unsigned int to_store = (uint)-1) const
 	{
 		unsigned pos;
 		if(bsearch_impl(x, &pos)) {
@@ -393,7 +394,7 @@ template <typename T, unsigned int length_> inline hb_sorted_array_t<T> hb_sorte
 template <typename T> bool hb_array_t<T>::operator == (const hb_array_t<T> &o) const
 {
 	if(o.length != this->length) return false;
-	for(unsigned int i = 0; i < this->length; i++) {
+	for(uint i = 0; i < this->length; i++) {
 		if(this->arrayZ[i] != o.arrayZ[i]) return false;
 	}
 	return true;
@@ -404,20 +405,20 @@ template <typename T> bool hb_array_t<T>::operator == (const hb_array_t<T> &o) c
 template <>
 inline uint32_t hb_array_t<const char>::hash() const {
 	uint32_t current = 0;
-	for(unsigned int i = 0; i < this->length; i++)
+	for(uint i = 0; i < this->length; i++)
 		current = current * 31 + (uint32_t)(this->arrayZ[i] * 2654435761u);
 	return current;
 }
 
 template <>
-inline uint32_t hb_array_t<const unsigned char>::hash() const {
+inline uint32_t hb_array_t<const uchar>::hash() const {
 	uint32_t current = 0;
-	for(unsigned int i = 0; i < this->length; i++)
+	for(uint i = 0; i < this->length; i++)
 		current = current * 31 + (uint32_t)(this->arrayZ[i] * 2654435761u);
 	return current;
 }
 
 typedef hb_array_t<const char> hb_bytes_t;
-typedef hb_array_t<const unsigned char> hb_ubytes_t;
+typedef hb_array_t<const uchar> hb_ubytes_t;
 
 #endif /* HB_ARRAY_HH */

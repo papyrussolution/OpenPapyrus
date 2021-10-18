@@ -286,8 +286,8 @@ struct {								\
  */
 #define	STAILQ_HEAD(name, type)						\
 struct name {								\
-	struct type *stqh_first;/* first element */			\
-	struct type **stqh_last;/* addr of last next element */		\
+	struct type *stqh_first; /* first element */			\
+	struct type **stqh_last; /* addr of last next element */		\
 }
 
 #define	STAILQ_HEAD_INITIALIZER(head) { NULL, &(head).stqh_first }

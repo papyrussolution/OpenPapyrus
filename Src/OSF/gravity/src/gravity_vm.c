@@ -300,9 +300,9 @@ static void gravity_close_upvalues(gravity_fiber_t * fiber, GravityValue * level
 static void gravity_vm_loadclass(gravity_vm * vm, gravity_class_t * c) 
 {
 	// convert func to closure for class and for its meta class
-	gravity_hash_transform(c->htable, gravity_gc_transform, (void*)vm);
+	gravity_hash_transform(c->htable, gravity_gc_transform, (void *)vm);
 	gravity_class_t * meta = gravity_class_get_meta(c);
-	gravity_hash_transform(meta->htable, gravity_gc_transform, (void*)vm);
+	gravity_hash_transform(meta->htable, gravity_gc_transform, (void *)vm);
 }
 
 // MARK: - Optionals -
@@ -2045,7 +2045,7 @@ void gravity_gc_start(gravity_vm * vm)
 			gravity_gray_object(vm, obj);
 		}
 		gravity_gray_object(vm, (gravity_class_t *)vm->fiber); // mark all reachable objects starting from current fiber
-		gravity_hash_iterate(vm->context, gravity_gray_hash, (void*)vm); // mark globals
+		gravity_hash_iterate(vm->context, gravity_gray_hash, (void *)vm); // mark globals
 		// root has been grayed so recursively scan reachable objects
 		while(vm->graylist.getCount()) {
 			gravity_class_t * obj = vm->graylist.pop();

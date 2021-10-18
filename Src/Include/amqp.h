@@ -590,7 +590,7 @@ enum amqp_delivery_mode_enum {
 	 *
 	 * @param [in] constantNumber constant to get the name of
 	 * @returns string describing the constant. String is managed by
-	 *        the library and should not be free()'d by the program
+	 *  the library and should not be free()'d by the program
 	 */
 	AMQP_PUBLIC_FUNCTION char const * amqp_constant_name(int constantNumber);
 	/**
@@ -608,7 +608,7 @@ enum amqp_delivery_mode_enum {
 	 *
 	 * @param [in] methodNumber the method number
 	 * @returns method name string. String is managed by the library
-	 *        and should not be freed()'d by the program
+	 *  and should not be freed()'d by the program
 	 */
 	AMQP_PUBLIC_FUNCTION char const * amqp_method_name(amqp_method_number_t methodNumber);
 	/**
@@ -647,8 +647,8 @@ enum amqp_delivery_mode_enum {
 	 * @param [in] methodNumber the method number for the decoded parameter
 	 * @param [in] decoded the method structure (e.g., amqp_connection_start_t)
 	 * @param [in] encoded an allocated byte buffer for the encoded method
-	 *           structure to be written to. If the buffer isn't large enough
-	 *           to hold the encoded method, an error code will be returned.
+	 *     structure to be written to. If the buffer isn't large enough
+	 *     to hold the encoded method, an error code will be returned.
 	 * @returns 0 on success, an error code otherwise.
 	 */
 	AMQP_PUBLIC_FUNCTION int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, amqp_bytes_t encoded);
@@ -659,8 +659,8 @@ enum amqp_delivery_mode_enum {
 	 * @param [in] decoded the properties structure (e.g., amqp_basic_properties_t)
 	 * @param [in] encoded an allocated byte buffer for the encoded properties to
 	 * written to.
-	 *           If the buffer isn't large enough to hold the encoded method, an
-	 *           an error code will be returned
+	 *     If the buffer isn't large enough to hold the encoded method, an
+	 *     an error code will be returned
 	 * @returns 0 on success, an error code otherwise.
 	 */
 	AMQP_PUBLIC_FUNCTION int amqp_encode_properties(uint16 class_id, void *decoded, amqp_bytes_t encoded);
@@ -1483,14 +1483,14 @@ AMQP_PUBLIC_VARIABLE const amqp_array_t amqp_empty_array; // Empty table array s
  * must be initialized before use
  *
  * \param [in] pool the amqp_pool_t structure to initialize.
- *           Calling this function on a pool a pool that has
- *           already been initialized will result in undefined
- *           behavior
+ *     Calling this function on a pool a pool that has
+ *     already been initialized will result in undefined
+ *     behavior
  * \param [in] pagesize the unit size that the pool will allocate
- *           memory chunks in. Anything allocated against the pool
- *           with a requested size will be carved out of a block
- *           this size. Allocations larger than this will be
- *           allocated individually
+ *     memory chunks in. Anything allocated against the pool
+ *     with a requested size will be carved out of a block
+ *     this size. Allocations larger than this will be
+ *     allocated individually
  *
  * \sa recycle_amqp_pool(), empty_amqp_pool(), amqp_pool_alloc(), amqp_pool_alloc_bytes(), amqp_pool_t
  * \since v0.1
@@ -1593,7 +1593,7 @@ AMQP_PUBLIC_FUNCTION amqp_bytes_t FASTCALL amqp_bytes_malloc_dup(const amqp_byte
  *
  * \param [in] amount the size of the buffer in bytes
  * \returns an amqp_bytes_t with amount bytes allocated.
- *        output.bytes will be set to NULL on error
+ *  output.bytes will be set to NULL on error
  *
  * \sa amqp_bytes_free(), amqp_bytes_malloc_dup()
  * \since v0.1
@@ -2141,7 +2141,7 @@ AMQP_PUBLIC_FUNCTION int amqp_send_method(amqp_connection_state_t state, amqp_ch
  * \param [in] channel the channel object
  * \param [in] request_id the method number of the request
  * \param [in] expected_reply_ids a 0 terminated array of expected response
- *          method numbers
+ *    method numbers
  * \param [in] decoded_request_method the method to be sent to the broker
  * \return a amqp_rpc_reply_t:
  *  - r.reply_type == AMQP_RESPONSE_NORMAL. RPC completed successfully
@@ -2238,23 +2238,23 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_get_rpc_reply(const amqp_connection_s
  * is 65535 (2^16, with the 0-channel reserved). The server can
  * set a lower channel_max and then the client will use the lowest of the two
  * \param [in] frame_max the maximum size of an AMQP frame on the wire to
- *           request of the broker for this connection. 4096 is the minimum
- *           size, 2^31-1 is the maximum, a good default is 131072 (128KB),
- *           or AMQP_DEFAULT_FRAME_SIZE
+ *     request of the broker for this connection. 4096 is the minimum
+ *     size, 2^31-1 is the maximum, a good default is 131072 (128KB),
+ *     or AMQP_DEFAULT_FRAME_SIZE
  * \param [in] heartbeat the number of seconds between heartbeat frames to
- *           request of the broker. A value of 0 disables heartbeats.
- *           Note rabbitmq-c only has partial support for heartbeats, as of
- *           v0.4.0 they are only serviced during amqp_basic_publish() and
- *           amqp_simple_wait_frame()/amqp_simple_wait_frame_noblock()
+ *     request of the broker. A value of 0 disables heartbeats.
+ *     Note rabbitmq-c only has partial support for heartbeats, as of
+ *     v0.4.0 they are only serviced during amqp_basic_publish() and
+ *     amqp_simple_wait_frame()/amqp_simple_wait_frame_noblock()
  * \param [in] sasl_method the SASL method to authenticate with the broker.
- *           followed by the authentication information. The following SASL
- *           methods are implemented:
- *           -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
- *              should be followed by two arguments in this order:
- *              const char* username, and const char* password.
- *           -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
- *              argument should be followed one argument:
- *              const char* identity.
+ *     followed by the authentication information. The following SASL
+ *     methods are implemented:
+ *     -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
+ *        should be followed by two arguments in this order:
+ *        const char* username, and const char* password.
+ *     -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
+ *        argument should be followed one argument:
+ *        const char* identity.
  * \return amqp_rpc_reply_t indicating success or failure.
  *  - r.reply_type == AMQP_RESPONSE_NORMAL. Login completed successfully
  *  - r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION. In most cases errors
@@ -2289,34 +2289,34 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_login(amqp_connection_state_t state, 
  *
  * \param [in] state the connection object
  * \param [in] vhost the virtual host to connect to on the broker. The default
- *           on most brokers is "/"
+ *     on most brokers is "/"
  * \param [in] channel_max the limit for the number of channels for the
- *          connection.
- *          0 means no limit, and is a good default
- *          (AMQP_DEFAULT_MAX_CHANNELS)
- *          Note that the maximum number of channels the protocol supports
- *          is 65535 (2^16, with the 0-channel reserved). The server can
- *          set a lower channel_max and then the client will use the lowest
- *          of the two
+ *    connection.
+ *    0 means no limit, and is a good default
+ *    (AMQP_DEFAULT_MAX_CHANNELS)
+ *    Note that the maximum number of channels the protocol supports
+ *    is 65535 (2^16, with the 0-channel reserved). The server can
+ *    set a lower channel_max and then the client will use the lowest
+ *    of the two
  * \param [in] frame_max the maximum size of an AMQP frame ont he wire to
- *           request of the broker for this connection. 4096 is the minimum
- *           size, 2^31-1 is the maximum, a good default is 131072 (128KB),
- *           or AMQP_DEFAULT_FRAME_SIZE
+ *     request of the broker for this connection. 4096 is the minimum
+ *     size, 2^31-1 is the maximum, a good default is 131072 (128KB),
+ *     or AMQP_DEFAULT_FRAME_SIZE
  * \param [in] heartbeat the number of seconds between heartbeat frame to
- *          request of the broker. A value of 0 disables heartbeats.
- *          Note rabbitmq-c only has partial support for hearts, as of
- *          v0.4.0 heartbeats are only serviced during amqp_basic_publish(),
- *          and amqp_simple_wait_frame()/amqp_simple_wait_frame_noblock()
+ *    request of the broker. A value of 0 disables heartbeats.
+ *    Note rabbitmq-c only has partial support for hearts, as of
+ *    v0.4.0 heartbeats are only serviced during amqp_basic_publish(),
+ *    and amqp_simple_wait_frame()/amqp_simple_wait_frame_noblock()
  * \param [in] properties a table of properties to send the broker.
  * \param [in] sasl_method the SASL method to authenticate with the broker
- *          followed by the authentication information. The following SASL
- *          methods are implemented:
- *          -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
- *             should be followed by two arguments in this order:
- *             const char* username, and const char* password.
- *          -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
- *             argument should be followed one argument:
- *             const char* identity.
+ *    followed by the authentication information. The following SASL
+ *    methods are implemented:
+ *    -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
+ *       should be followed by two arguments in this order:
+ *       const char* username, and const char* password.
+ *    -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
+ *       argument should be followed one argument:
+ *       const char* identity.
  * \return amqp_rpc_reply_t indicating success or failure.
  *  - r.reply_type == AMQP_RESPONSE_NORMAL. Login completed successfully
  *  - r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION. In most cases errors
@@ -2383,7 +2383,7 @@ AMQP_PUBLIC_FUNCTION int amqp_basic_publish(amqp_connection_state_t state, amqp_
  * \param [in] state the connection object
  * \param [in] channel the channel identifier
  * \param [in] code the reason for closing the channel, AMQP_REPLY_SUCCESS is a
- *          good default
+ *    good default
  * \return amqp_rpc_reply_t indicating success or failure
  *
  * \since v0.1
@@ -2398,7 +2398,7 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_channel_close(amqp_connection_state_t
  *
  * \param [in] state the connection object
  * \param [in] code the reason code for closing the connection.
- *          AMQP_REPLY_SUCCESS is a good default.
+ *    AMQP_REPLY_SUCCESS is a good default.
  * \return amqp_rpc_reply_t indicating the result
  *
  * \since v0.1
@@ -2413,10 +2413,10 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_connection_close(amqp_connection_stat
  * \param [in] channel the channel identifier
  * \param [in] delivery_tag the delivery tag of the message to be ack'd
  * \param [in] multiple if true, ack all messages up to this delivery tag, if
- *           false ack only this delivery tag
+ *     false ack only this delivery tag
  * \return 0 on success,  0 > on failing to send the ack to the broker.
- *         this will not indicate failure if something goes wrong on the
- *         broker
+ *   this will not indicate failure if something goes wrong on the
+ *   broker
  *
  * \since v0.1
  */
@@ -2431,8 +2431,8 @@ AMQP_PUBLIC_FUNCTION int amqp_basic_ack(amqp_connection_state_t state, amqp_chan
  * \param [in] channel the channel identifier to use
  * \param [in] queue the queue name to retrieve from
  * \param [in] no_ack if true the message is automatically ack'ed
- *           if false amqp_basic_ack should be called once the message
- *           retrieved has been processed
+ *     if false amqp_basic_ack should be called once the message
+ *     retrieved has been processed
  * \return amqp_rpc_reply indicating success or failure
  *
  * \since v0.1
@@ -2447,9 +2447,9 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_basic_get(amqp_connection_state_t sta
  * \param [in] channel the channel identifier
  * \param [in] delivery_tag the delivery tag of the message to reject
  * \param [in] requeue indicate to the broker whether it should requeue the
- *           message or just discard it.
+ *     message or just discard it.
  * \return 0 on success, 0 > on failing to send the reject method to the broker.
- *       This will not indicate failure if something goes wrong on the
+ * This will not indicate failure if something goes wrong on the
  * broker.
  *
  * \since v0.1
@@ -2467,9 +2467,9 @@ AMQP_PUBLIC_FUNCTION int amqp_basic_reject(amqp_connection_state_t state, amqp_c
  * \param [in] channel the channel identifier
  * \param [in] delivery_tag the delivery tag of the message to reject
  * \param [in] multiple if set to 1 negatively acknowledge all unacknowledged
- *           messages on this channel.
+ *     messages on this channel.
  * \param [in] requeue indicate to the broker whether it should requeue the
- *           message or dead-letter it.
+ *     message or dead-letter it.
  * \return AMQP_STATUS_OK on success, an amqp_status_enum value otherwise.
  *
  * \since v0.5.0
@@ -2524,10 +2524,10 @@ AMQP_PUBLIC_FUNCTION const char * amqp_error_string2(int err);
  * \param [in] encoded the buffer containing the serialized data
  * \param [in] pool memory pool used to allocate the table entries from
  * \param [in] output the amqp_table_t structure to fill in. Any existing
- *          entries will be erased
+ *    entries will be erased
  * \param [in,out] offset The offset into the encoded buffer to start
- *              reading the serialized table. It will be updated
- *              by this function to end of the table
+ *        reading the serialized table. It will be updated
+ *        by this function to end of the table
  * \return AMQP_STATUS_OK on success, an amqp_status_enum value on failure
  *  Possible error codes:
  *  - AMQP_STATUS_NO_MEMORY out of memory
@@ -2545,8 +2545,8 @@ AMQP_PUBLIC_FUNCTION int amqp_decode_table(amqp_bytes_t encoded, amqp_pool_t *po
  * \param [in] encoded the buffer where to serialize the table to
  * \param [in] input the amqp_table_t to serialize
  * \param [in,out] offset The offset into the encoded buffer to start
- *              writing the serialized table. It will be updated
- *              by this function to where writing left off
+ *        writing the serialized table. It will be updated
+ *        by this function to where writing left off
  * \return AMQP_STATUS_OK on success, an amqp_status_enum value on failure
  *  Possible error codes:
  *  - AMQP_STATUS_TABLE_TOO_BIG the serialized form is too large for the
@@ -2566,7 +2566,7 @@ AMQP_PUBLIC_FUNCTION int amqp_encode_table(amqp_bytes_t encoded, const amqp_tabl
  * \param [in] original the table to copy
  * \param [in,out] clone the table to copy to
  * \param [in] pool the initialized memory pool to do allocations for the table
- *          from
+ *    from
  * \return AMQP_STATUS_OK on success, amqp_status_enum value on failure.
  *  Possible error values:
  *  - AMQP_STATUS_NO_MEMORY - memory allocation failure.
@@ -2964,7 +2964,7 @@ int amqp_time_ms_until(amqp_time_t time);
 // AMQP_STATUS_OK will be returned if successfully filled.
 // AMQP_STATUS_TIMER_FAILURE is returned when the underlying call to get the current timestamp fails.
 // 
-int FASTCALL amqp_time_tv_until(amqp_time_t time, struct timeval *in, struct timeval **out);
+int STDCALL amqp_time_tv_until(amqp_time_t time, struct timeval *in, struct timeval **out);
 /* Test whether current time is past the provided time.
  *
  * TODO: this isn't a great interface to use. Fix this.
@@ -3099,7 +3099,7 @@ AMQP_BEGIN_DECLS
 	int amqp_open_socket_inner(char const * hostname, int portnumber, amqp_time_t deadline);
 	// Wait up to dealline for fd to become readable or writeable depending on
 	// event (AMQP_SF_POLLIN, AMQP_SF_POLLOUT) 
-	int FASTCALL amqp_poll(int fd, int event, amqp_time_t deadline);
+	int STDCALL amqp_poll(int fd, int event, amqp_time_t deadline);
 	int amqp_send_method_inner(amqp_connection_state_t state, amqp_channel_t channel, amqp_method_number_t id, void * decoded, int flags, amqp_time_t deadline);
 	int amqp_queue_frame(amqp_connection_state_t state, amqp_frame_t * frame);
 	int amqp_put_back_frame(amqp_connection_state_t state, amqp_frame_t * frame);

@@ -81,14 +81,14 @@ typedef enum {
 ///   - the lowest literal_pos_bits bits of the position of the current
 ///     byte; and
 ///   - the highest literal_context_bits bits of the previous byte.
-#define literal_subcoder(probs, lc, lp_mask, pos, prev_byte) ((probs)[(((pos) & (lp_mask)) << (lc)) + ((uint32_t)(prev_byte) >> (8U - (lc)))])
+#define literal_subcoder(probs, lc, lp_mask, pos, prev_byte) ((probs)[(((pos) & (lp_mask)) << (lc)) + ((uint32)(prev_byte) >> (8U - (lc)))])
 
-static inline void literal_init(probability (*probs)[LITERAL_CODER_SIZE], uint32_t lc, uint32_t lp)
+static inline void literal_init(probability (*probs)[LITERAL_CODER_SIZE], uint32 lc, uint32 lp)
 {
 	assert(lc + lp <= LZMA_LCLP_MAX);
-	const uint32_t coders = 1U << (lc + lp);
-	for(uint32_t i = 0; i < coders; ++i)
-		for(uint32_t j = 0; j < LITERAL_CODER_SIZE; ++j)
+	const uint32 coders = 1U << (lc + lp);
+	for(uint32 i = 0; i < coders; ++i)
+		for(uint32 j = 0; j < LITERAL_CODER_SIZE; ++j)
 			bit_reset(probs[i][j]);
 }
 //
@@ -163,9 +163,9 @@ static inline void literal_init(probability (*probs)[LITERAL_CODER_SIZE], uint32
 typedef struct lzma_lzma1_encoder_s lzma_lzma1_encoder;
 extern lzma_ret lzma_lzma_encoder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters);
 extern uint64_t lzma_lzma_encoder_memusage(const void * options);
-extern lzma_ret lzma_lzma_props_encode(const void * options, uint8_t * out);
+extern lzma_ret lzma_lzma_props_encode(const void * options, uint8 * out);
 /// Encodes lc/lp/pb into one byte. Returns false on success and true on error.
-extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8_t * byte);
+extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8 * byte);
 // @sobolev #ifdef LZMA_LZ_ENCODER_H
 
 	struct lzma_lz_encoder_options;
@@ -175,24 +175,23 @@ extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8_t *
 	extern lzma_ret lzma_lzma_encoder_create(void ** coder_ptr, const lzma_allocator * allocator, const lzma_options_lzma * options, lzma_lz_encoder_options * lz_options);
 	/// Resets an already initialized LZMA encoder; this is used by LZMA2.
 	extern lzma_ret lzma_lzma_encoder_reset(lzma_lzma1_encoder * coder, const lzma_options_lzma * options);
-	extern lzma_ret lzma_lzma_encode(lzma_lzma1_encoder * coder, lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size, uint32_t read_limit);
+	extern lzma_ret lzma_lzma_encode(lzma_lzma1_encoder * coder, lzma_mf * mf, uint8 * out, size_t * out_pos, size_t out_size, uint32 read_limit);
 // @sobolev #endif
 //
 //#include "lzma_decoder.h"
 /// Allocates and initializes LZMA decoder
 extern lzma_ret lzma_lzma_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_filter_info *filters);
 extern uint64_t lzma_lzma_decoder_memusage(const void *options);
-extern lzma_ret lzma_lzma_props_decode(void **options, const lzma_allocator *allocator, const uint8_t *props, size_t props_size);
+extern lzma_ret lzma_lzma_props_decode(void **options, const lzma_allocator *allocator, const uint8 *props, size_t props_size);
 /// \brief      Decodes the LZMA Properties byte (lc/lp/pb)
 ///
 /// \return     true if error occurred, false on success
 ///
-extern bool lzma_lzma_lclppb_decode(lzma_options_lzma *options, uint8_t byte);
+extern bool lzma_lzma_lclppb_decode(lzma_options_lzma *options, uint8 byte);
 // @sobolev #ifdef LZMA_LZ_DECODER_H
 
 	struct lzma_lz_decoder_options; // @sobolev
 	struct lzma_lz_decoder; // @sobolev
-
 	/// Allocate and setup function pointers only. This is used by LZMA1 and LZMA2 decoders.
 	extern lzma_ret lzma_lzma_decoder_create(lzma_lz_decoder *lz, const lzma_allocator *allocator, const void *opt, lzma_lz_decoder_options * lz_options);
 	/// Gets memory usage without validating lc/lp/pb. This is used by LZMA2

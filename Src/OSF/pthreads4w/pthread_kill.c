@@ -56,10 +56,10 @@
  *   function can be used to check for a valid thread ID.
  *
  * RESULTS
- *           ESRCH           the thread is not a valid thread ID,
- *           EINVAL          the value of the signal is invalid
- *                           or unsupported.
- *           0               the signal was successfully sent.
+ *     ESRCH           the thread is not a valid thread ID,
+ *     EINVAL          the value of the signal is invalid
+ *                     or unsupported.
+ *     0               the signal was successfully sent.
  *
  * ------------------------------------------------------
  */

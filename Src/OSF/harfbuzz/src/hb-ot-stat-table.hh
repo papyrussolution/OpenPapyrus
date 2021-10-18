@@ -274,7 +274,7 @@ public:
 			if(!get_design_axes().lfind(tag, &axis_index)) return false;
 
 			hb_array_t<const OffsetTo<AxisValue>> axis_values = get_axis_value_offsets();
-			for(unsigned int i = 0; i < axis_values.length; i++) {
+			for(uint i = 0; i < axis_values.length; i++) {
 				const AxisValue& axis_value = this+axis_values[i];
 				if(axis_value.get_axis_index() == axis_index) {
 					if(value)
@@ -344,7 +344,7 @@ protected:
 		FixedVersion<>version; /* Version of the stat table
 		 * initially set to 0x00010002u */
 		HBUINT16 designAxisSize; /* The size in bytes of each axis record. */
-		HBUINT16 designAxisCount;/* The number of design axis records. In a
+		HBUINT16 designAxisCount; /* The number of design axis records. In a
 		  * font with an 'fvar' table, this value must be
 		  * greater than or equal to the axisCount value
 		  * in the 'fvar' table. In all fonts, must

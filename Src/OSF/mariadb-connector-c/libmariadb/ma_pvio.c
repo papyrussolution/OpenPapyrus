@@ -528,7 +528,7 @@ int ma_pvio_register_callback(bool register_callback,
 	/* plugin will unregister in it's deinit function */
 	if(register_callback) {
 		list = (LIST*)SAlloc::M(sizeof(LIST));
-		list->data = (void*)callback_function;
+		list->data = (void *)callback_function;
 		pvio_callback = list_add(pvio_callback, list);
 	}
 	else { /* unregister callback function */

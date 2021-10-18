@@ -39,7 +39,7 @@
  *
  * PARAMETERS
  *   key
- *           pointer to an instance of pthread_key_t
+ *     pointer to an instance of pthread_key_t
  *
  *
  * DESCRIPTION
@@ -49,8 +49,8 @@
  *   in any thread so it should be used with caution.
  *
  * RESULTS
- *           0               successfully deleted the key,
- *           EINVAL          key is invalid,
+ *     0               successfully deleted the key,
+ *     EINVAL          key is invalid,
  *
  * ------------------------------------------------------
  */

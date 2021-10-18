@@ -58,7 +58,7 @@ static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
 int archive_write_open_FILE(struct archive * a, FILE * f)
 {
 	struct write_FILE_data * mine;
-	mine = (struct write_FILE_data *)malloc(sizeof(*mine));
+	mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
 		return ARCHIVE_FATAL;
@@ -96,6 +96,6 @@ static int file_free(struct archive * a, void * client_data)
 	(void)a; /* UNUSED */
 	if(mine == NULL)
 		return ARCHIVE_OK;
-	free(mine);
+	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

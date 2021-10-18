@@ -36,13 +36,13 @@ typedef struct  PS_DriverRec_ {
 	FT_Int32 random_seed;
 } PS_DriverRec, * PS_Driver;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                             T1_TABLE                          *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct PS_TableRec_*              PS_Table;
 typedef const struct PS_Table_FuncsRec_*  PS_Table_Funcs;
@@ -80,7 +80,7 @@ typedef struct  PS_Table_FuncsRec_ {
 	FT_Error
 	(* add)(PS_Table table,
 	    FT_Int idx,
-	    const void*  object,
+	    const void *  object,
 	    FT_UInt length);
 
 	void
@@ -143,13 +143,13 @@ typedef struct  PS_TableRec_ {
 	PS_Table_FuncsRec funcs;
 } PS_TableRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                       T1 FIELDS & TOKENS                      *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct PS_ParserRec_*  PS_Parser;
 
@@ -171,8 +171,8 @@ typedef enum  T1_TokenType_ {
 
 /* a simple structure used to identify tokens */
 typedef struct  T1_TokenRec_ {
-	FT_Byte*      start;/* first character of token in input stream */
-	FT_Byte*      limit;/* first character after the token          */
+	FT_Byte*      start; /* first character of token in input stream */
+	FT_Byte*      limit; /* first character after the token          */
 	T1_TokenType type; /* type of token                            */
 } T1_TokenRec;
 
@@ -317,13 +317,13 @@ typedef struct  T1_FieldRec_ {
 #define T1_FIELD_CALLBACK(_ident, _name, _dict)       \
 	T1_NEW_CALLBACK_FIELD(_ident, _name, _dict)
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                            T1 PARSER                          *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef const struct PS_Parser_FuncsRec_*  PS_Parser_Funcs;
 
@@ -426,13 +426,13 @@ typedef struct  PS_ParserRec_ {
 	PS_Parser_FuncsRec funcs;
 } PS_ParserRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                         PS BUILDER                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct PS_Builder_ PS_Builder;
 typedef const struct PS_Builder_FuncsRec_*  PS_Builder_Funcs;
@@ -440,7 +440,7 @@ typedef const struct PS_Builder_FuncsRec_*  PS_Builder_Funcs;
 typedef struct  PS_Builder_FuncsRec_ {
 	void
 	(* init)(PS_Builder*  ps_builder,
-	    void*        builder,
+	    void *    builder,
 	    FT_Bool is_t1);
 
 	void
@@ -533,13 +533,13 @@ struct  PS_Builder_ {
 	PS_Builder_FuncsRec funcs;
 };
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                            PS DECODER                         *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 #define PS_MAX_OPERANDS        48
 #define PS_MAX_SUBRS_CALLS     16   /* maximum subroutine nesting;         */
@@ -598,7 +598,7 @@ typedef struct  PS_Decoder_ {
 	FT_Byte**  locals;
 	FT_Byte**  globals;
 
-	FT_Byte**  glyph_names;/* for pure CFF fonts only  */
+	FT_Byte**  glyph_names; /* for pure CFF fonts only  */
 	FT_UInt num_glyphs;   /* number of glyphs in font */
 
 	FT_Render_Mode hint_mode;
@@ -612,7 +612,7 @@ typedef struct  PS_Decoder_ {
 	FT_Service_PsCMaps psnames;   /* for seac */
 
 	FT_Int lenIV;        /* internal for sub routine calls   */
-	FT_UInt*  locals_len;/* array of subrs length (optional) */
+	FT_UInt*  locals_len; /* array of subrs length (optional) */
 	FT_Hash locals_hash; /* used if `num_subrs' was massaged */
 
 	FT_Matrix font_matrix;
@@ -624,13 +624,13 @@ typedef struct  PS_Decoder_ {
 	FT_UInt len_buildchar;
 } PS_Decoder;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                         T1 BUILDER                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct T1_BuilderRec_*  T1_Builder;
 
@@ -760,33 +760,27 @@ typedef struct  T1_BuilderRec_ {
 	FT_GlyphLoader loader;
 	FT_Outline*     base;
 	FT_Outline*     current;
-
 	FT_Pos pos_x;
 	FT_Pos pos_y;
-
 	FT_Vector left_bearing;
 	FT_Vector advance;
-
 	FT_BBox bbox;              /* bounding box */
 	T1_ParseState parse_state;
 	FT_Bool load_points;
 	FT_Bool no_recurse;
-
 	FT_Bool metrics_only;
-
-	void*           hints_funcs;/* hinter-specific */
-	void*           hints_globals;/* hinter-specific */
-
+	void * hints_funcs; /* hinter-specific */
+	void * hints_globals; /* hinter-specific */
 	T1_Builder_FuncsRec funcs;
 } T1_BuilderRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                         T1 DECODER                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 #if 0
 
@@ -868,7 +862,7 @@ typedef struct  T1_DecoderRec_ {
 	FT_Int lenIV;                  /* internal for sub routine calls */
 	FT_Int num_subrs;
 	FT_Byte**            subrs;
-	FT_UInt*             subrs_len;/* array of subrs length (optional) */
+	FT_UInt*             subrs_len; /* array of subrs length (optional) */
 	FT_Hash subrs_hash;            /* used if `num_subrs' was massaged */
 
 	FT_Matrix font_matrix;
@@ -893,13 +887,13 @@ typedef struct  T1_DecoderRec_ {
 	FT_Generic cf2_instance;
 } T1_DecoderRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                        CFF BUILDER                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct CFF_Builder_ CFF_Builder;
 
@@ -1033,19 +1027,19 @@ struct  CFF_Builder_ {
 
 	FT_Bool metrics_only;
 
-	void*  hints_funcs; /* hinter-specific */
-	void*  hints_globals;/* hinter-specific */
+	void *  hints_funcs; /* hinter-specific */
+	void *  hints_globals; /* hinter-specific */
 
 	CFF_Builder_FuncsRec funcs;
 };
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                        CFF DECODER                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 #define CFF_MAX_OPERANDS        48
 #define CFF_MAX_SUBRS_CALLS     16  /* maximum subroutine nesting;         */
@@ -1095,7 +1089,7 @@ typedef struct  CFF_Decoder_ {
 	FT_Byte**  locals;
 	FT_Byte**  globals;
 
-	FT_Byte**  glyph_names;/* for pure CFF fonts only  */
+	FT_Byte**  glyph_names; /* for pure CFF fonts only  */
 	FT_UInt num_glyphs;   /* number of glyphs in font */
 
 	FT_Render_Mode hint_mode;
@@ -1140,13 +1134,13 @@ typedef struct  CFF_Decoder_FuncsRec_ {
 	    FT_ULong charstring_len);
 } CFF_Decoder_FuncsRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                            AFM PARSER                         *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct AFM_ParserRec_*  AFM_Parser;
 
@@ -1196,18 +1190,18 @@ typedef struct  AFM_ParserRec_ {
 	FT_Int
 	(* get_index)(const char*  name,
 	    FT_Offset len,
-	    void*        user_data);
+	    void *    user_data);
 
-	void*         user_data;
+	void *     user_data;
 } AFM_ParserRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                     TYPE1 CHARMAPS                            *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef const struct T1_CMap_ClassesRec_*  T1_CMap_Classes;
 
@@ -1218,13 +1212,13 @@ typedef struct T1_CMap_ClassesRec_ {
 	FT_CMap_Class unicode;
 } T1_CMap_ClassesRec;
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*****                                                               *****/
 /*****                        PSAux Module Interface                 *****/
 /*****                                                               *****/
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 typedef struct  PSAux_ServiceRec_ {
 	/* don't use `PS_Table_Funcs' and friends to avoid compiler warnings */
@@ -1238,7 +1232,7 @@ typedef struct  PSAux_ServiceRec_ {
 	    FT_Offset length,
 	    FT_UShort seed);
 	FT_UInt32 (* cff_random)(FT_UInt32 r);
-	void (* ps_decoder_init)(PS_Decoder*  ps_decoder, void*        decoder, FT_Bool is_t1);
+	void (* ps_decoder_init)(PS_Decoder*  ps_decoder, void *    decoder, FT_Bool is_t1);
 	void (* t1_make_subfont)(FT_Face face, PS_Private priv, CFF_SubFont subfont);
 	T1_CMap_Classes t1_cmap_classes;
 	/* fields after this comment line were added after version 2.1.10 */

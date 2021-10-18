@@ -30,10 +30,10 @@ SecurityGard::SecurityGard()
 	_scilexerSha256.push_back(TEXT("9896c4089275e21412fd80421827912ebd80e357394b05145a613d190462e211")); // v3.5.6 64 bit (signed)
 	_gupSha256.push_back(TEXT("4c8191f511c2ad67148ef809b40c1108aaa074130547157c335a959404d8d6f6")); // v5.1 32 bit (signed)
 	_gupSha256.push_back(TEXT("268a65829e86d5c3d324eea79b51e59f0a7d07c69d3ba0f700c9cb3aa772566f")); // v5.1 64 bit (signed)
-	_pluginListSha256.push_back(TEXT("be9e251a30fd712fd2ff98febd360805df51110b6659de8c9a0000220d7ae535")); // v1.0.7 32 bit (unsigned)
-	_pluginListSha256.push_back(TEXT("3ecd7f9c56bcd659a4126c659eb69b354789c78574a82390749ac751ae539bc6")); // v1.0.7 64 bit (unsigned)
-	_pluginListSha256.push_back(TEXT("a4a7e57d605f29b294378d0d94fc867b9febd6a1cc63f1bb69bcb7609dc25f2c")); // v1.0.8 32 bit (unsigned)
-	_pluginListSha256.push_back(TEXT("1c404fd3578273f5ecde585af82179ff3b63c635fb4fa24be21ebde708e403e4")); // v1.0.8 64 bit (unsigned)
+	_pluginListSha256.push_back(TEXT("be9e251a30fd712fd2ff98febd360805df51110b6659de8c9a0000220d7ae535")); // v1.0.7 32 bit (uint)
+	_pluginListSha256.push_back(TEXT("3ecd7f9c56bcd659a4126c659eb69b354789c78574a82390749ac751ae539bc6")); // v1.0.7 64 bit (uint)
+	_pluginListSha256.push_back(TEXT("a4a7e57d605f29b294378d0d94fc867b9febd6a1cc63f1bb69bcb7609dc25f2c")); // v1.0.8 32 bit (uint)
+	_pluginListSha256.push_back(TEXT("1c404fd3578273f5ecde585af82179ff3b63c635fb4fa24be21ebde708e403e4")); // v1.0.8 64 bit (uint)
 }
 
 bool SecurityGard::checkModule(const std::wstring& filePath, NppModule module2check)
@@ -64,15 +64,14 @@ bool SecurityGard::checkSha256(const std::wstring& filePath, NppModule module2ch
 	   if (dontCheck)
 	        return true;
 	 */
-
 	std::string content = getFileContent(filePath.c_str());
-	uint8_t sha2hash[32];
-	calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
-
+	//uint8_t sha2hash[32];
+	//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
+	binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
 	wchar_t sha2hashStr[65] = { '\0' };
-	for(size_t i = 0; i < 32; i++)
-		wsprintf(sha2hashStr + i * 2, TEXT("%02x"), sha2hash[i]);
-
+	for(size_t i = 0; i < 32; i++) {
+		wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash[i]*/PTR8C(&__h)[i]);
+	}
 	std::vector<std::wstring>* moduleSha256 = nullptr;
 	if(module2check == nm_scilexer)
 		moduleSha256 = &_scilexerSha256;
@@ -82,14 +81,12 @@ bool SecurityGard::checkSha256(const std::wstring& filePath, NppModule module2ch
 		moduleSha256 = &_pluginListSha256;
 	else
 		return false;
-
 	for(auto i : *moduleSha256) {
 		if(i == sha2hashStr) {
 			//::MessageBox(NULL, filePath.c_str(), TEXT("OK"), MB_OK);
 			return true;
 		}
 	}
-
 	//::MessageBox(NULL, filePath.c_str(), TEXT("KO"), MB_OK);
 	return false;
 }

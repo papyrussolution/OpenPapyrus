@@ -78,10 +78,8 @@ DockingManager::~DockingManager()
 void DockingManager::init(HINSTANCE hInst, HWND hWnd, Window ** ppWin)
 {
 	Window::init(hInst, hWnd);
-
 	if(!_isRegistered) {
 		WNDCLASS clz;
-
 		clz.style = 0;
 		clz.lpfnWndProc = staticWinProc;
 		clz.cbClsExtra = 0;

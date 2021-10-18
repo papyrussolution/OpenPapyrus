@@ -175,9 +175,9 @@ static size_t FASTCALL jbig2_find_buffer_size(size_t desired)
  * to (continue to) parse it as part of a jbig2 data stream.
  *
  * Return code: 0 on success
- *             -1 if there is a parsing error
+ *       -1 if there is a parsing error
  **/
-int jbig2_data_in(Jbig2Ctx * ctx, const unsigned char * data, size_t size)
+int jbig2_data_in(Jbig2Ctx * ctx, const uchar * data, size_t size)
 {
 	if(ctx->buf == NULL) {
 		size_t buf_size = jbig2_find_buffer_size(size);

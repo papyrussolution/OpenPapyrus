@@ -32,7 +32,7 @@ bool hb_shape_plan_key_t::init(bool copy, hb_face_t * face, const hb_segment_pro
 	if(copy && num_user_features) {
 		memcpy(features, user_features, num_user_features * sizeof(hb_feature_t));
 		/* Make start/end uniform to easier catch bugs. */
-		for(unsigned int i = 0; i < num_user_features; i++) {
+		for(uint i = 0; i < num_user_features; i++) {
 			if(features[0].start != HB_FEATURE_GLOBAL_START)
 				features[0].start = 1;
 			if(features[0].end   != HB_FEATURE_GLOBAL_END)
@@ -67,7 +67,7 @@ bool hb_shape_plan_key_t::init(bool copy, hb_face_t * face, const hb_segment_pro
 	}
 	else {
 		const hb_shaper_entry_t * shapers = _hb_shapers_get();
-		for(unsigned int i = 0; i < HB_SHAPERS_COUNT; i++)
+		for(uint i = 0; i < HB_SHAPERS_COUNT; i++)
 			if(false)
 				;
 #define HB_SHAPER_IMPLEMENT(shaper) \
@@ -87,7 +87,7 @@ bool hb_shape_plan_key_t::user_features_match(const hb_shape_plan_key_t * other)
 {
 	if(this->num_user_features != other->num_user_features)
 		return false;
-	for(unsigned int i = 0; i < num_user_features; i++) {
+	for(uint i = 0; i < num_user_features; i++) {
 		if(this->user_features[i].tag   != other->user_features[i].tag   ||
 		    this->user_features[i].value != other->user_features[i].value ||
 		    (this->user_features[i].start == HB_FEATURE_GLOBAL_START &&

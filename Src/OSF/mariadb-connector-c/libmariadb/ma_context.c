@@ -123,7 +123,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 	c->stack_size = stack_size;
 #ifdef HAVE_VALGRIND
 	c->valgrind_stack_id =
-	    VALGRIND_STACK_REGISTER(c->stack, ((unsigned char *)(c->stack))+stack_size);
+	    VALGRIND_STACK_REGISTER(c->stack, ((uchar *)(c->stack))+stack_size);
 #endif
 	return 0;
 }
@@ -346,7 +346,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 	   The x86_64 ABI specifies 16-byte stack alignment.
 	   Also put two zero words at the top of the stack.
 	 */
-	c->stack_top = (void*)(( ((intptr)c->stack_bot + stack_size) & ~(intptr)0xf) - 16);
+	c->stack_top = (void *)(( ((intptr)c->stack_bot + stack_size) & ~(intptr)0xf) - 16);
 	memzero(c->stack_top, 16);
 #ifdef HAVE_VALGRIND
 	c->valgrind_stack_id = VALGRIND_STACK_REGISTER(c->stack_bot, c->stack_top);
@@ -559,7 +559,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 	memzero(c, sizeof(*c));
 	if(!(c->stack_bot = SAlloc::M(stack_size)))
 		return -1;                      /* Out of memory */
-	c->stack_top = (void*)(( ((intptr)c->stack_bot + stack_size) & ~(intptr)0xf) - 16);
+	c->stack_top = (void *)(( ((intptr)c->stack_bot + stack_size) & ~(intptr)0xf) - 16);
 	memzero(c->stack_top, 16);
 #ifdef HAVE_VALGRIND
 	c->valgrind_stack_id = VALGRIND_STACK_REGISTER(c->stack_bot, c->stack_top);

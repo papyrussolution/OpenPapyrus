@@ -62,18 +62,18 @@ DWORD __ptw32_Registercancellation(PAPCFUNC unused1, HANDLE threadH, DWORD unuse
  *
  * PARAMETERS
  *   thread
- *           reference to an instance of pthread_t
+ *     reference to an instance of pthread_t
  *
  *
  * DESCRIPTION
  *   This function requests cancellation of 'thread'.
  *   NOTE: cancellation is asynchronous; use pthread_join to
- *             wait for termination of 'thread' if necessary.
+ *       wait for termination of 'thread' if necessary.
  *
  * RESULTS
- *           0               successfully requested cancellation,
- *           ESRCH           no thread found corresponding to 'thread',
- *           ENOMEM          implicit self thread create failed.
+ *     0               successfully requested cancellation,
+ *     ESRCH           no thread found corresponding to 'thread',
+ *     ENOMEM          implicit self thread create failed.
  * ------------------------------------------------------
  */
 int pthread_cancel(pthread_t thread)

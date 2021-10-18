@@ -145,7 +145,7 @@ static void agent_set_channel(struct ssh_agent_struct * agent, ssh_channel chann
  * is to implement SSH Agent forwarding into a SSH proxy.
  * @param[in] channel a SSH channel from another session.
  * @returns SSH_OK in case of success
- *          SSH_ERROR in case of an error
+ *    SSH_ERROR in case of an error
  */
 int ssh_set_agent_channel(ssh_session session, ssh_channel channel)
 {
@@ -165,7 +165,7 @@ int ssh_set_agent_channel(ssh_session session, ssh_channel channel)
  * is responsible for connecting to the socket prior to calling
  * this function.
  * @returns SSH_OK in case of success
- *          SSH_ERROR in case of an error
+ *    SSH_ERROR in case of an error
  */
 int ssh_set_agent_socket(ssh_session session, socket_t fd)
 {

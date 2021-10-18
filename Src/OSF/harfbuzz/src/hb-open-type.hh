@@ -104,12 +104,12 @@ public:
 		DEFINE_SIZE_STATIC(Size);
 	};
 
-	typedef IntType<uint8_t,  1> HBUINT8;/* 8-bit unsigned integer. */
-	typedef IntType<int8_t,   1> HBINT8;/* 8-bit signed integer. */
+	typedef IntType<uint8_t,  1> HBUINT8; /* 8-bit unsigned integer. */
+	typedef IntType<int8_t,   1> HBINT8; /* 8-bit signed integer. */
 	typedef IntType<uint16_t, 2> HBUINT16; /* 16-bit unsigned integer. */
-	typedef IntType<int16_t,  2> HBINT16;/* 16-bit signed integer. */
+	typedef IntType<int16_t,  2> HBINT16; /* 16-bit signed integer. */
 	typedef IntType<uint32_t, 4> HBUINT32; /* 32-bit unsigned integer. */
-	typedef IntType<int32_t,  4> HBINT32;/* 32-bit signed integer. */
+	typedef IntType<int32_t,  4> HBINT32; /* 32-bit signed integer. */
 /* Note: we cannot defined a signed HBINT24 because there's no corresponding C type.
  * Works for unsigned, but not signed, since we rely on compiler for sign-extension. */
 	typedef IntType<uint32_t, 3> HBUINT24; /* 24-bit unsigned integer. */
@@ -206,7 +206,7 @@ public:
 		void * serialize(hb_serialize_context_t * c, const void * base)
 		{
 			void * t = c->start_embed<void> ();
-			c->check_assign(*this, (unsigned)((char*)t - (char*)base));
+			c->check_assign(*this, (uint)((char*)t - (char*)base));
 			return t;
 		}
 
@@ -276,7 +276,7 @@ public:
 			return nullptr;
 		}
 
-		static Type * get_crap()       {
+		static Type * get_crap() {
 			return nullptr;
 		}
 	};
@@ -429,14 +429,14 @@ public:
 
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			const Type * p = &arrayZ[i];
 			if(UNLIKELY(p < arrayZ)) return Null(Type); /* Overflowed. */
 			return *p;
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			Type * p = &arrayZ[i];
 			if(UNLIKELY(p < arrayZ)) return Crap(Type); /* Overflowed. */
 			return *p;
@@ -455,7 +455,7 @@ public:
 		}
 		hb_array_t<const Type> as_array(unsigned int len) const
 		{ return hb_array(arrayZ, len); }
-		operator hb_array_t<      Type> ()       { return as_array(); }
+		operator hb_array_t<Type> () { return as_array(); }
 		operator hb_array_t<const Type> () const { return as_array(); }
 
 		template <typename T>
@@ -476,7 +476,7 @@ public:
 			return as_array(len).lfind(x, pos);
 		}
 
-		void qsort(unsigned int len, unsigned int start = 0, unsigned int end = (unsigned int)-1)
+		void qsort(unsigned int len, unsigned int start = 0, unsigned int end = (uint)-1)
 		{
 			as_array(len).qsort(start, end);
 		}
@@ -516,7 +516,7 @@ public:
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!sanitize_shallow(c, count))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
@@ -543,14 +543,14 @@ public:
 	    struct UnsizedOffsetListOf : UnsizedOffsetArrayOf<Type, OffsetType, has_null>{
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			const OffsetTo<Type, OffsetType, has_null> * p = &this->arrayZ[i];
 			if(UNLIKELY(p < this->arrayZ)) return Null(Type); /* Overflowed. */
 			return this+*p;
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			const OffsetTo<Type, OffsetType, has_null> * p = &this->arrayZ[i];
 			if(UNLIKELY(p < this->arrayZ)) return Crap(Type); /* Overflowed. */
 			return this+*p;
@@ -592,7 +592,7 @@ public:
 		template <typename T>
 		bool bfind(unsigned int len, const T &x, unsigned int * i = nullptr,
 		    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-		    unsigned int to_store = (unsigned int)-1) const
+		    unsigned int to_store = (uint)-1) const
 		{
 			return as_array(len).bfind(x, i, not_found, to_store);
 		}
@@ -608,13 +608,13 @@ public:
 
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= len)) return Null(Type);
 			return arrayZ[i];
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= len)) return Crap(Type);
 			return arrayZ[i];
 		}
@@ -632,19 +632,19 @@ public:
 			len--;
 		}
 
-		hb_array_t<      Type> as_array()       {
+		hb_array_t<Type> as_array() {
 			return hb_array(arrayZ, len);
 		}
 		hb_array_t<const Type> as_array() const { return hb_array(arrayZ, len); }
 
 		/* Iterator. */
 		typedef hb_array_t<const Type>   iter_t;
-		typedef hb_array_t<      Type> writer_t;
+		typedef hb_array_t<Type> writer_t;
 		iter_t   iter() const {
 			return as_array();
 		}
 
-		writer_t writer()       {
+		writer_t writer() {
 			return as_array();
 		}
 
@@ -652,7 +652,7 @@ public:
 			return iter();
 		}
 
-		operator writer_t()       {
+		operator writer_t() {
 			return writer();
 		}
 
@@ -720,7 +720,7 @@ public:
 			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
@@ -744,7 +744,7 @@ public:
 			return as_array().lfind(x, pos);
 		}
 
-		void qsort(unsigned int start = 0, unsigned int end = (unsigned int)-1)
+		void qsort(unsigned int start = 0, unsigned int end = (uint)-1)
 		{
 			as_array().qsort(start, end);
 		}
@@ -779,13 +779,13 @@ public:
 	struct OffsetListOf : OffsetArrayOf<Type>{
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= this->len)) return Null(Type);
 			return this+this->arrayZ[i];
 		}
 		const Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= this->len)) return Crap(Type);
 			return this+this->arrayZ[i];
 		}
@@ -796,7 +796,7 @@ public:
 			struct OffsetListOf<Type> * out = c->serializer->embed(*this);
 			if(UNLIKELY(!out)) return_trace(false);
 			unsigned int count = this->len;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				out->arrayZ[i].serialize_subset(c, this->arrayZ[i], this, out);
 			return_trace(true);
 		}
@@ -818,49 +818,28 @@ public:
 
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= lenP1 || !i)) return Null(Type);
 			return arrayZ[i-1];
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= lenP1 || !i)) return Crap(Type);
 			return arrayZ[i-1];
 		}
-		unsigned int get_size() const
-		{
-			return lenP1.static_size + get_length() * Type::static_size;
-		}
-
-		unsigned get_length() const {
-			return lenP1 ? lenP1 - 1 : 0;
-		}
-
-		hb_array_t<      Type> as_array()       {
-			return hb_array(arrayZ, get_length());
-		}
+		unsigned int get_size() const { return lenP1.static_size + get_length() * Type::static_size; }
+		unsigned get_length() const { return lenP1 ? lenP1 - 1 : 0; }
+		hb_array_t<Type> as_array() { return hb_array(arrayZ, get_length()); }
 		hb_array_t<const Type> as_array() const { return hb_array(arrayZ, get_length()); }
 
 		/* Iterator. */
 		typedef hb_array_t<const Type>   iter_t;
-		typedef hb_array_t<      Type> writer_t;
-		iter_t   iter() const {
-			return as_array();
-		}
-
-		writer_t writer()       {
-			return as_array();
-		}
-
-		operator   iter_t() const {
-			return iter();
-		}
-
-		operator writer_t()       {
-			return writer();
-		}
-
+		typedef hb_array_t<Type> writer_t;
+		iter_t   iter() const { return as_array(); }
+		writer_t writer() { return as_array(); }
+		operator   iter_t() const { return iter(); }
+		operator writer_t() { return writer(); }
 		bool serialize(hb_serialize_context_t * c, unsigned int items_len)
 		{
 			TRACE_SERIALIZE(this);
@@ -869,9 +848,7 @@ public:
 			if(UNLIKELY(!c->extend(*this))) return_trace(false);
 			return_trace(true);
 		}
-
-		template <typename Iterator,
-		hb_requires(hb_is_source_of(Iterator, Type))>
+		template <typename Iterator, hb_requires(hb_is_source_of(Iterator, Type))>
 		bool serialize(hb_serialize_context_t * c, Iterator items)
 		{
 			TRACE_SERIALIZE(this);
@@ -891,7 +868,7 @@ public:
 			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = get_length();
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
@@ -919,13 +896,13 @@ public:
 
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i > lenM1)) return Null(Type);
 			return arrayZ[i];
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i > lenM1)) return Crap(Type);
 			return arrayZ[i];
 		}
@@ -940,7 +917,7 @@ public:
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			unsigned int count = lenM1 + 1;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
@@ -964,19 +941,19 @@ public:
 /* An array with sorted elements.  Supports binary searching. */
 	template <typename Type, typename LenType = HBUINT16>
 	    struct SortedArrayOf : ArrayOf<Type, LenType>{
-		hb_sorted_array_t<      Type> as_array()       {
+		hb_sorted_array_t<Type> as_array() {
 			return hb_sorted_array(this->arrayZ, this->len);
 		}
 		hb_sorted_array_t<const Type> as_array() const { return hb_sorted_array(this->arrayZ, this->len); }
 
 		/* Iterator. */
 		typedef hb_sorted_array_t<const Type>   iter_t;
-		typedef hb_sorted_array_t<      Type> writer_t;
+		typedef hb_sorted_array_t<Type> writer_t;
 		iter_t   iter() const {
 			return as_array();
 		}
 
-		writer_t writer()       {
+		writer_t writer() {
 			return as_array();
 		}
 
@@ -984,7 +961,7 @@ public:
 			return iter();
 		}
 
-		operator writer_t()       {
+		operator writer_t() {
 			return writer();
 		}
 
@@ -1034,7 +1011,7 @@ public:
 		template <typename T>
 		bool bfind(const T &x, unsigned int * i = nullptr,
 		    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-		    unsigned int to_store = (unsigned int)-1) const
+		    unsigned int to_store = (uint)-1) const
 		{
 			return as_array().bfind(x, i, not_found, to_store);
 		}
@@ -1117,7 +1094,7 @@ public:
 			 * The value that indicates binary search termination is 0xFFFF." */
 			const HBUINT16 * words = &StructAtOffset<HBUINT16> (&bytesZ, (header.nUnits - 1) * header.unitSize);
 			unsigned int count = Type::TerminationWordCount;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(words[i] != 0xFFFFu)
 					return false;
 			return true;
@@ -1125,13 +1102,13 @@ public:
 
 		const Type& operator [] (int i_)const
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= get_length())) return Null(Type);
 			return StructAtOffset<Type> (&bytesZ, i * header.unitSize);
 		}
 		Type& operator [] (int i_)
 		{
-			unsigned int i = (unsigned int)i_;
+			unsigned int i = (uint)i_;
 			if(UNLIKELY(i >= get_length())) return Crap(Type);
 			return StructAtOffset<Type> (&bytesZ, i * header.unitSize);
 		}
@@ -1152,7 +1129,7 @@ public:
 			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = get_length();
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!(*this)[i].sanitize(c, hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);

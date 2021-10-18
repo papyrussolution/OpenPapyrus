@@ -429,7 +429,7 @@ COLORREF getDarkerTextColor()         {
 	return getTheme()._colors.darkerText;
 }
 
-COLORREF getDisabledTextColor()       {
+COLORREF getDisabledTextColor() {
 	return getTheme()._colors.disabledText;
 }
 

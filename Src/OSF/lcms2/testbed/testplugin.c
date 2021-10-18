@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------------------------------
 
 static
-cmsContext DupContext(cmsContext src, void* Data)
+cmsContext DupContext(cmsContext src, void * Data)
 {
 	cmsContext cpy = cmsDupContext(src, Data);
 	DebugMemDontCheckThis(cpy);
@@ -699,20 +699,20 @@ void * Type_int_Read(struct _cms_typehandler_struct* self,
 static
 cmsBool Type_int_Write(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Ptr, cmsUInt32Number nItems)
+    void * Ptr, cmsUInt32Number nItems)
 {
 	return _cmsWriteUInt32Number(io, *(cmsUInt32Number*)Ptr);
 }
 
 static
-void* Type_int_Dup(struct _cms_typehandler_struct* self,
+void * Type_int_Dup(struct _cms_typehandler_struct* self,
     const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, n * sizeof(cmsUInt32Number));
 }
 
 void Type_int_Free(struct _cms_typehandler_struct* self,
-    void* Ptr)
+    void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -747,25 +747,21 @@ cmsInt32Number CheckTagTypePlugin(void)
 
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
-
 	h = cmsCreateProfilePlaceholder(cpy2);
 	if(h == NULL) {
 		Fail("Create placeholder failed");
 		goto Error;
 	}
-
 	if(!cmsWriteTag(h, SigInt, &myTag)) {
 		Fail("Plug-in failed");
 		goto Error;
 	}
-
 	rc = cmsSaveProfileToMem(h, NULL, &clen);
 	if(!rc) {
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-
-	data = (char *)malloc(clen);
+	data = (char *)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -785,47 +781,37 @@ cmsInt32Number CheckTagTypePlugin(void)
 		Fail("Open profile failed");
 		goto Error;
 	}
-
 	ptr = (cmsUInt32Number*)cmsReadTag(h, SigInt);
 	if(ptr != NULL) {
 		Fail("read tag/context switching failed");
 		goto Error;
 	}
-
 	cmsCloseProfile(h);
 	ResetFatalError();
-
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
 	if(h == NULL) {
 		Fail("Open profile from mem failed");
 		goto Error;
 	}
-
 	// Get rid of data
-	free(data); data = NULL;
-
+	SAlloc::F(data); 
+	data = NULL;
 	ptr = (cmsUInt32Number*)cmsReadTag(h, SigInt);
 	if(ptr == NULL) {
 		Fail("Read tag/conext switching failed (2)");
 		return 0;
 	}
-
 	rc = (*ptr == 1234);
-
 	cmsCloseProfile(h);
-
 	cmsDeleteContext(cpy2);
-
 	return rc;
-
 Error:
-
 	if(h != NULL) cmsCloseProfile(h);
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data) free(data);
-
+	if(data) 
+		SAlloc::F(data);
 	return 0;
 }
 
@@ -869,7 +855,7 @@ void * Type_negate_Read(struct _cms_typehandler_struct* self,
 static
 cmsBool Type_negate_Write(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Ptr, cmsUInt32Number nItems)
+    void * Ptr, cmsUInt32Number nItems)
 {
 	if(!_cmsWriteUInt16Number(io, 3)) return FALSE;
 	return TRUE;
@@ -924,22 +910,18 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Pipeline failed");
 		goto Error;
 	}
-
 	if(!cmsWriteTag(h, cmsSigDToB3Tag, pipe)) {
 		Fail("Plug-in failed");
 		goto Error;
 	}
-
 	// This cleans the stage as well
 	cmsPipelineFree(pipe);
-
 	rc = cmsSaveProfileToMem(h, NULL, &clen);
 	if(!rc) {
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-
-	data = (char *)malloc(clen);
+	data = (char *)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -959,55 +941,41 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Open profile failed");
 		goto Error;
 	}
-
 	pipe = (cmsPipeline*)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe != NULL) {
 		// Unsupported stage, should fail
 		Fail("read tag/context switching failed");
 		goto Error;
 	}
-
 	cmsCloseProfile(h);
-
 	ResetFatalError();
-
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
 	if(h == NULL) {
 		Fail("Open profile from mem failed");
 		goto Error;
 	}
-
 	// Get rid of data
-	free(data); data = NULL;
-
+	SAlloc::F(data); 
+	data = NULL;
 	pipe = (cmsPipeline*)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe == NULL) {
 		Fail("Read tag/conext switching failed (2)");
 		return 0;
 	}
-
 	// Evaluate for negation
 	In[0] = 0.3f; In[1] = 0.2f; In[2] = 0.9f;
 	cmsPipelineEvalFloat(In, Out, pipe);
-
-	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) &&
-	    IsGoodVal("1", Out[1], 1.0-In[1], 0.001) &&
-	    IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
-
+	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
 	cmsCloseProfile(h);
-
 	cmsDeleteContext(cpy2);
-
 	return rc;
-
 Error:
-
 	if(h != NULL) cmsCloseProfile(h);
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data) free(data);
-
+	if(data) 
+		SAlloc::F(data);
 	return 0;
 }
 
@@ -1015,7 +983,7 @@ Error:
 // Optimization plugin check:
 // --------------------------------------------------------------------------------------------------
 
-static void FastEvaluateCurves(const cmsUInt16Number In[], cmsUInt16Number Out[], const void* Data)
+static void FastEvaluateCurves(const cmsUInt16Number In[], cmsUInt16Number Out[], const void * Data)
 {
 	Out[0] = In[0];
 }
@@ -1180,11 +1148,11 @@ cmsInt32Number CheckIntentPlugin(void)
 // --------------------------------------------------------------------------------------------------
 
 // This is a sample intent that only works for gray8 as output, and always returns '42'
-static void TrancendentalTransform(struct _cmstransform_struct * CMM, const void* InputBuffer, void* OutputBuffer,
+static void TrancendentalTransform(struct _cmstransform_struct * CMM, const void * InputBuffer, void * OutputBuffer,
     cmsUInt32Number Size, cmsUInt32Number Stride)
 {
 	for(cmsUInt32Number i = 0; i < Size; i++) {
-		((cmsUInt8Number*)OutputBuffer)[i] = 0x42;
+		((cmsUInt8Number *)OutputBuffer)[i] = 0x42;
 	}
 }
 
@@ -1250,14 +1218,14 @@ typedef struct {
 	int nlocks;
 } MyMtx;
 
-static void* MyMtxCreate(cmsContext id)
+static void * MyMtxCreate(cmsContext id)
 {
 	MyMtx* mtx = (MyMtx*)_cmsMalloc(id, sizeof(MyMtx));
 	mtx->nlocks = 0;
 	return mtx;
 }
 
-static void MyMtxDestroy(cmsContext id, void* mtx)
+static void MyMtxDestroy(cmsContext id, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	if(mtx_->nlocks != 0)
@@ -1265,14 +1233,14 @@ static void MyMtxDestroy(cmsContext id, void* mtx)
 	_cmsFree(id, mtx);
 }
 
-static cmsBool MyMtxLock(cmsContext id, void* mtx)
+static cmsBool MyMtxLock(cmsContext id, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks++;
 	return TRUE;
 }
 
-static void MyMtxUnlock(cmsContext id, void* mtx)
+static void MyMtxUnlock(cmsContext id, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks--;

@@ -134,7 +134,7 @@ static void tcpkeepalive(struct Curl_easy * data,
 		optval = curlx_sltosi(data->set.tcp_keepidle);
 		KEEPALIVE_FACTOR(optval);
 		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-		    (void*)&optval, sizeof(optval)) < 0) {
+		    (void *)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPIDLE on fd %d\n", sockfd);
 		}
 #endif
@@ -142,7 +142,7 @@ static void tcpkeepalive(struct Curl_easy * data,
 		optval = curlx_sltosi(data->set.tcp_keepintvl);
 		KEEPALIVE_FACTOR(optval);
 		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-		    (void*)&optval, sizeof(optval)) < 0) {
+		    (void *)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPINTVL on fd %d\n", sockfd);
 		}
 #endif
@@ -151,7 +151,7 @@ static void tcpkeepalive(struct Curl_easy * data,
 		optval = curlx_sltosi(data->set.tcp_keepidle);
 		KEEPALIVE_FACTOR(optval);
 		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
-		    (void*)&optval, sizeof(optval)) < 0) {
+		    (void *)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPALIVE on fd %d\n", sockfd);
 		}
 #endif
@@ -627,7 +627,7 @@ bool Curl_addr2string(struct sockaddr * sa, curl_socklen_t salen,
 
 	switch(sa->sa_family) {
 		case AF_INET:
-		    si = (struct sockaddr_in *)(void*)sa;
+		    si = (struct sockaddr_in *)(void *)sa;
 		    if(Curl_inet_ntop(sa->sa_family, &si->sin_addr,
 			addr, MAX_IPADR_LEN)) {
 			    ushort us_port = ntohs(si->sin_port);
@@ -637,7 +637,7 @@ bool Curl_addr2string(struct sockaddr * sa, curl_socklen_t salen,
 		    break;
 #ifdef ENABLE_IPV6
 		case AF_INET6:
-		    si6 = (struct sockaddr_in6 *)(void*)sa;
+		    si6 = (struct sockaddr_in6 *)(void *)sa;
 		    if(Curl_inet_ntop(sa->sa_family, &si6->sin6_addr,
 			addr, MAX_IPADR_LEN)) {
 			    ushort us_port = ntohs(si6->sin6_port);
@@ -1028,7 +1028,7 @@ static void nosigpipe(struct connectdata * conn, curl_socket_t sockfd)
 {
 	struct Curl_easy * data = conn->data;
 	int onoff = 1;
-	if(setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, (void*)&onoff,
+	if(setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&onoff,
 	    sizeof(onoff)) < 0) {
 		char buffer[STRERROR_LEN];
 		infof(data, "Could not set SO_NOSIGPIPE: %s\n", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
@@ -1211,7 +1211,7 @@ static CURLcode singleipconnect(struct connectdata * conn,
 #endif /* HAVE_BUILTIN_AVAILABLE */
 #elif defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
 			if(setsockopt(sockfd, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
-			    (void*)&optval, sizeof(optval)) < 0)
+			    (void *)&optval, sizeof(optval)) < 0)
 				infof(data, "Failed to enable TCP Fast Open on fd %d\n", sockfd);
 
 			rc = connect(sockfd, &addr.sa_addr, addr.addrlen);

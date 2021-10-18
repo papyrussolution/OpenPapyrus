@@ -136,7 +136,7 @@ static cmsBool _cmsReadWCharArray(cmsIOHANDLER* io, cmsUInt32Number n, wchar_t* 
 // To deal with position tables
 typedef cmsBool (* PositionTableEntryFn)(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag);
 
@@ -254,18 +254,18 @@ static void * Type_XYZ_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 		return NULL;
 	}
 	*nItems = 1;
-	return (void*)xyz;
+	return (void *)xyz;
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_XYZ_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_XYZ_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	return _cmsWriteXYZNumber(io, (cmsCIEXYZ*)Ptr);
 	cmsUNUSED_PARAMETER(nItems);
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_XYZ_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_XYZ_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsCIEXYZ));
 	cmsUNUSED_PARAMETER(n);
@@ -325,10 +325,10 @@ static void * Type_Chromaticity_Read(struct _cms_typehandler_struct* self, cmsIO
 	chrm->Blue.Y = 1.0;
 
 	*nItems = 1;
-	return (void*)chrm;
+	return (void *)chrm;
 
 Error:
-	_cmsFree(self->ContextID, (void*)chrm);
+	_cmsFree(self->ContextID, (void *)chrm);
 	return NULL;
 
 	cmsUNUSED_PARAMETER(SizeOfTag);
@@ -341,7 +341,7 @@ static cmsBool  SaveOneChromaticity(cmsFloat64Number x, cmsFloat64Number y, cmsI
 	return TRUE;
 }
 
-static cmsBool  Type_Chromaticity_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_Chromaticity_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsCIExyYTRIPLE* chrm = (cmsCIExyYTRIPLE*)Ptr;
 	if(!_cmsWriteUInt16Number(io, 3)) return FALSE;     // nChannels
@@ -355,13 +355,13 @@ static cmsBool  Type_Chromaticity_Write(struct _cms_typehandler_struct* self, cm
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_Chromaticity_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Chromaticity_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsCIExyYTRIPLE));
 	cmsUNUSED_PARAMETER(n);
 }
 
-static void Type_Chromaticity_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Chromaticity_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -385,24 +385,24 @@ static void * Type_ColorantOrderType_Read(struct _cms_typehandler_struct* self,
 	*nItems = 0;
 	if(!_cmsReadUInt32Number(io, &Count)) return NULL;
 	if(Count > cmsMAXCHANNELS) return NULL;
-	ColorantOrder = (cmsUInt8Number*)_cmsCalloc(self->ContextID, cmsMAXCHANNELS, sizeof(cmsUInt8Number));
+	ColorantOrder = (cmsUInt8Number *)_cmsCalloc(self->ContextID, cmsMAXCHANNELS, sizeof(cmsUInt8Number));
 	if(ColorantOrder == NULL) return NULL;
 
 	// We use FF as end marker
 	memset(ColorantOrder, 0xFF, cmsMAXCHANNELS * sizeof(cmsUInt8Number));
 	if(io->Read(io, ColorantOrder, sizeof(cmsUInt8Number), Count) != Count) {
-		_cmsFree(self->ContextID, (void*)ColorantOrder);
+		_cmsFree(self->ContextID, (void *)ColorantOrder);
 		return NULL;
 	}
 	*nItems = 1;
-	return (void*)ColorantOrder;
+	return (void *)ColorantOrder;
 
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool Type_ColorantOrderType_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool Type_ColorantOrderType_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
-	cmsUInt8Number*  ColorantOrder = (cmsUInt8Number*)Ptr;
+	cmsUInt8Number*  ColorantOrder = (cmsUInt8Number *)Ptr;
 	cmsUInt32Number i, sz, Count;
 	// Get the length
 	for(Count = i = 0; i < cmsMAXCHANNELS; i++) {
@@ -416,13 +416,13 @@ static cmsBool Type_ColorantOrderType_Write(struct _cms_typehandler_struct* self
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_ColorantOrderType_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_ColorantOrderType_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, cmsMAXCHANNELS * sizeof(cmsUInt8Number));
 	cmsUNUSED_PARAMETER(n);
 }
 
-static void Type_ColorantOrderType_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_ColorantOrderType_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -449,11 +449,11 @@ static void * Type_S15Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHA
 	}
 
 	*nItems = n;
-	return (void*)array_double;
+	return (void *)array_double;
 }
 
 static
-cmsBool Type_S15Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_S15Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsFloat64Number* Value = (cmsFloat64Number*)Ptr;
 	cmsUInt32Number i;
@@ -467,12 +467,12 @@ cmsBool Type_S15Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_S15Fixed16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_S15Fixed16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, n * sizeof(cmsFloat64Number));
 }
 
-static void Type_S15Fixed16_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_S15Fixed16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -496,7 +496,7 @@ static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHA
 
 	for(i = 0; i < n; i++) {
 		if(!_cmsReadUInt32Number(io, &v)) {
-			_cmsFree(self->ContextID, (void*)array_double);
+			_cmsFree(self->ContextID, (void *)array_double);
 			return NULL;
 		}
 
@@ -505,10 +505,10 @@ static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHA
 	}
 
 	*nItems = n;
-	return (void*)array_double;
+	return (void *)array_double;
 }
 
-static cmsBool Type_U16Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool Type_U16Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsFloat64Number* Value = (cmsFloat64Number*)Ptr;
 	cmsUInt32Number i;
@@ -520,12 +520,12 @@ static cmsBool Type_U16Fixed16_Write(struct _cms_typehandler_struct* self, cmsIO
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_U16Fixed16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_U16Fixed16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, n * sizeof(cmsFloat64Number));
 }
 
-static void Type_U16Fixed16_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_U16Fixed16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -549,7 +549,7 @@ static void * Type_Signature_Read(struct _cms_typehandler_struct* self, cmsIOHAN
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_Signature_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_Signature_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsSignature* SigPtr = (cmsSignature*)Ptr;
 	return _cmsWriteUInt32Number(io, *SigPtr);
@@ -557,12 +557,12 @@ static cmsBool  Type_Signature_Write(struct _cms_typehandler_struct* self, cmsIO
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_Signature_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Signature_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, n * sizeof(cmsSignature));
 }
 
-static void Type_Signature_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Signature_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -597,7 +597,7 @@ static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 	if(!cmsMLUsetASCII(mlu, cmsNoLanguage, cmsNoCountry, Text)) goto Error;
 
 	_cmsFree(self->ContextID, Text);
-	return (void*)mlu;
+	return (void *)mlu;
 
 Error:
 	if(mlu != NULL)
@@ -609,7 +609,7 @@ Error:
 }
 
 // The conversion implies to choose a language. So, we choose the actual language.
-static cmsBool Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	cmsUInt32Number size;
@@ -635,14 +635,14 @@ static cmsBool Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 	cmsUNUSED_PARAMETER(nItems);
 }
 
-static void* Type_Text_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Text_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsMLUdup((cmsMLU*)Ptr);
+	return (void *)cmsMLUdup((cmsMLU*)Ptr);
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void Type_Text_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Text_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	cmsMLUfree(mlu);
@@ -686,10 +686,10 @@ static void * Type_Data_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 
 	*nItems = 1;
 
-	return (void*)BinData;
+	return (void *)BinData;
 }
 
-static cmsBool Type_Data_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool Type_Data_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsICCData* BinData = (cmsICCData*)Ptr;
 	if(!_cmsWriteUInt32Number(io, BinData->flag)) return FALSE;
@@ -698,14 +698,14 @@ static cmsBool Type_Data_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_Data_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Data_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	cmsICCData* BinData = (cmsICCData*)Ptr;
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsICCData) + BinData->len - 1);
 	cmsUNUSED_PARAMETER(n);
 }
 
-static void Type_Data_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Data_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -753,7 +753,7 @@ static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, c
 
 	// Set the MLU entry. From here we can be tolerant to wrong types
 	if(!cmsMLUsetASCII(mlu, cmsNoLanguage, cmsNoCountry, Text)) goto Error;
-	_cmsFree(self->ContextID, (void*)Text);
+	_cmsFree(self->ContextID, (void *)Text);
 	Text = NULL;
 
 	// Skip Unicode code
@@ -789,13 +789,13 @@ Done:
 	return mlu;
 
 Error:
-	if(Text) _cmsFree(self->ContextID, (void*)Text);
+	if(Text) _cmsFree(self->ContextID, (void *)Text);
 	if(mlu) cmsMLUfree(mlu);
 	return NULL;
 }
 
 // This tag can come IN UNALIGNED SIZE. In order to prevent issues, we force zeros on description to align it
-static cmsBool  Type_Text_Description_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_Text_Description_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	char * Text = NULL;
@@ -884,14 +884,14 @@ Error:
 	cmsUNUSED_PARAMETER(nItems);
 }
 
-static void* Type_Text_Description_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Text_Description_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsMLUdup((cmsMLU*)Ptr);
+	return (void *)cmsMLUdup((cmsMLU*)Ptr);
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void Type_Text_Description_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Text_Description_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	cmsMLUfree(mlu);
@@ -960,7 +960,7 @@ static void * Type_Curve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_Curve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_Curve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsToneCurve* Curve = (cmsToneCurve*)Ptr;
 	if(Curve->nSegments == 1 && Curve->Segments[0].Type == 1) {
@@ -979,14 +979,14 @@ static cmsBool  Type_Curve_Write(struct _cms_typehandler_struct* self, cmsIOHAND
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_Curve_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Curve_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsDupToneCurve((cmsToneCurve*)Ptr);
+	return (void *)cmsDupToneCurve((cmsToneCurve*)Ptr);
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void Type_Curve_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Curve_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsToneCurve* gamma = (cmsToneCurve*)Ptr;
 	cmsFreeToneCurve(gamma);
@@ -1035,7 +1035,7 @@ static void * Type_ParametricCurve_Read(struct _cms_typehandler_struct* self, cm
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_ParametricCurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_ParametricCurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsToneCurve* Curve = (cmsToneCurve*)Ptr;
 	int i, nParams;
@@ -1064,14 +1064,14 @@ static cmsBool  Type_ParametricCurve_Write(struct _cms_typehandler_struct* self,
 	cmsUNUSED_PARAMETER(nItems);
 }
 
-static void* Type_ParametricCurve_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_ParametricCurve_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsDupToneCurve((cmsToneCurve*)Ptr);
+	return (void *)cmsDupToneCurve((cmsToneCurve*)Ptr);
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void Type_ParametricCurve_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_ParametricCurve_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsToneCurve* gamma = (cmsToneCurve*)Ptr;
 	cmsFreeToneCurve(gamma);
@@ -1107,7 +1107,7 @@ static void * Type_DateTime_Read(struct _cms_typehandler_struct* self, cmsIOHAND
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_DateTime_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_DateTime_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	struct tm * DateTime = (struct tm*)Ptr;
 	cmsDateTimeNumber timestamp;
@@ -1118,13 +1118,13 @@ static cmsBool  Type_DateTime_Write(struct _cms_typehandler_struct* self, cmsIOH
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_DateTime_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_DateTime_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(struct tm));
 	cmsUNUSED_PARAMETER(n);
 }
 
-static void Type_DateTime_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_DateTime_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -1155,7 +1155,7 @@ static void * Type_Measurement_Read(struct _cms_typehandler_struct* self, cmsIOH
 	cmsUNUSED_PARAMETER(SizeOfTag);
 }
 
-static cmsBool  Type_Measurement_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_Measurement_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsICCMeasurementConditions* mc = (cmsICCMeasurementConditions*)Ptr;
 	if(!_cmsWriteUInt32Number(io, mc->Observer)) return FALSE;
@@ -1170,13 +1170,13 @@ static cmsBool  Type_Measurement_Write(struct _cms_typehandler_struct* self, cms
 	cmsUNUSED_PARAMETER(self);
 }
 
-static void* Type_Measurement_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_Measurement_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsICCMeasurementConditions));
 	cmsUNUSED_PARAMETER(n);
 }
 
-static void Type_Measurement_Free(struct _cms_typehandler_struct* self, void* Ptr)
+static void Type_Measurement_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -1260,13 +1260,13 @@ static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	mlu->PoolUsed = SizeOfTag;
 
 	*nItems = 1;
-	return (void*)mlu;
+	return (void *)mlu;
 Error:
 	if(mlu) cmsMLUfree(mlu);
 	return NULL;
 }
 
-static cmsBool  Type_MLU_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+static cmsBool  Type_MLU_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	cmsUInt32Number HeaderSize;
@@ -1307,16 +1307,16 @@ static cmsBool  Type_MLU_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 }
 
 static
-void* Type_MLU_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_MLU_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsMLUdup((cmsMLU*)Ptr);
+	return (void *)cmsMLUdup((cmsMLU*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_MLU_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_MLU_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsMLUfree((cmsMLU*)Ptr);
 	return;
@@ -1387,7 +1387,7 @@ cmsBool  Read8bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline* lut
 
 	memzero(Tables, sizeof(Tables));
 
-	Temp = (cmsUInt8Number*)_cmsMalloc(ContextID, 256);
+	Temp = (cmsUInt8Number *)_cmsMalloc(ContextID, 256);
 	if(Temp == NULL) return FALSE;
 
 	for(i = 0; i < nChannels; i++) {
@@ -1537,7 +1537,7 @@ void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cm
 		PtrW = T  = (cmsUInt16Number*)_cmsCalloc(self->ContextID, nTabSize, sizeof(cmsUInt16Number));
 		if(T  == NULL) goto Error;
 
-		Temp = (cmsUInt8Number*)_cmsMalloc(self->ContextID, nTabSize);
+		Temp = (cmsUInt8Number *)_cmsMalloc(self->ContextID, nTabSize);
 		if(Temp == NULL) {
 			_cmsFree(self->ContextID, T);
 			goto Error;
@@ -1578,7 +1578,7 @@ Error:
 
 // We only allow a specific MPE structure: Matrix plus prelin, plus clut, plus post-lin.
 static
-cmsBool  Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt32Number j, nTabSize, i, n;
 	cmsUInt8Number val;
@@ -1672,16 +1672,16 @@ cmsBool  Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 }
 
 static
-void* Type_LUT8_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_LUT8_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsPipelineDup((cmsPipeline*)Ptr);
+	return (void *)cmsPipelineDup((cmsPipeline*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_LUT8_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_LUT8_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline*)Ptr);
 	return;
@@ -1847,7 +1847,7 @@ Error:
 // Some empty defaults are created for missing parts
 
 static
-cmsBool Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt32Number nTabSize;
 	cmsPipeline* NewLUT = (cmsPipeline*)Ptr;
@@ -1968,16 +1968,16 @@ cmsBool Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 }
 
 static
-void* Type_LUT16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_LUT16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsPipelineDup((cmsPipeline*)Ptr);
+	return (void *)cmsPipelineDup((cmsPipeline*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_LUT16_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_LUT16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline*)Ptr);
 	return;
@@ -2156,7 +2156,7 @@ Error:
  */
 
 static
-void* Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number SizeOfTag)
+void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number SizeOfTag)
 {
 	cmsUInt32Number BaseOffset;
 	cmsUInt8Number inputChan;        // Number of input channels
@@ -2343,7 +2343,7 @@ cmsBool WriteCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUIn
 }
 
 static
-cmsBool Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsPipeline* Lut = (cmsPipeline*)Ptr;
 	cmsUInt32Number inputChan, outputChan;
@@ -2432,16 +2432,16 @@ cmsBool Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 }
 
 static
-void* Type_LUTA2B_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_LUTA2B_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsPipelineDup((cmsPipeline*)Ptr);
+	return (void *)cmsPipelineDup((cmsPipeline*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline*)Ptr);
 	return;
@@ -2452,7 +2452,7 @@ void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void* Ptr)
 // LutBToA type
 
 static
-void* Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number SizeOfTag)
+void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number SizeOfTag)
 {
 	cmsUInt8Number inputChan;        // Number of input channels
 	cmsUInt8Number outputChan;       // Number of output channels
@@ -2527,7 +2527,7 @@ Error:
  */
 
 static
-cmsBool  Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsPipeline* Lut = (cmsPipeline*)Ptr;
 	cmsUInt32Number inputChan, outputChan;
@@ -2609,16 +2609,16 @@ cmsBool  Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 }
 
 static
-void* Type_LUTB2A_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_LUTB2A_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsPipelineDup((cmsPipeline*)Ptr);
+	return (void *)cmsPipelineDup((cmsPipeline*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline*)Ptr);
 	return;
@@ -2675,7 +2675,7 @@ Error:
 
 // Saves a colorant table. It is using the named color structure for simplicity sake
 static
-cmsBool  Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)Ptr;
 	cmsUInt32Number i, nColors;
@@ -2702,17 +2702,17 @@ cmsBool  Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHAN
 }
 
 static
-void* Type_ColorantTable_Dup(struct _cms_typehandler_struct* self, const void* Ptr, cmsUInt32Number n)
+void * Type_ColorantTable_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	cmsNAMEDCOLORLIST* nc = (cmsNAMEDCOLORLIST*)Ptr;
-	return (void*)cmsDupNamedColorList(nc);
+	return (void *)cmsDupNamedColorList(nc);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeNamedColorList((cmsNAMEDCOLORLIST*)Ptr);
 	return;
@@ -2780,7 +2780,7 @@ void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	}
 
 	*nItems = 1;
-	return (void*)v;
+	return (void *)v;
 
 Error:
 	cmsFreeNamedColorList(v);
@@ -2791,7 +2791,7 @@ Error:
 
 // Saves a named color list into a named color profile
 static
-cmsBool Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)Ptr;
 	char prefix[33];                // Prefix for each color name
@@ -2831,18 +2831,18 @@ cmsBool Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 }
 
 static
-void* Type_NamedColor_Dup(struct _cms_typehandler_struct* self, const void* Ptr, cmsUInt32Number n)
+void * Type_NamedColor_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	cmsNAMEDCOLORLIST* nc = (cmsNAMEDCOLORLIST*)Ptr;
 
-	return (void*)cmsDupNamedColorList(nc);
+	return (void *)cmsDupNamedColorList(nc);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_NamedColor_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_NamedColor_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeNamedColorList((cmsNAMEDCOLORLIST*)Ptr);
 	return;
@@ -2963,7 +2963,7 @@ cmsBool  SaveDescription(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 }
 
 static
-cmsBool  Type_ProfileSequenceDesc_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_ProfileSequenceDesc_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsSEQ* Seq = (cmsSEQ*)Ptr;
 	cmsUInt32Number i;
@@ -2988,16 +2988,16 @@ cmsBool  Type_ProfileSequenceDesc_Write(struct _cms_typehandler_struct* self, cm
 }
 
 static
-void* Type_ProfileSequenceDesc_Dup(struct _cms_typehandler_struct* self, const void* Ptr, cmsUInt32Number n)
+void * Type_ProfileSequenceDesc_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsDupProfileSequenceDescription((cmsSEQ*)Ptr);
+	return (void *)cmsDupProfileSequenceDescription((cmsSEQ*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_ProfileSequenceDesc_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_ProfileSequenceDesc_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeProfileSequenceDescription((cmsSEQ*)Ptr);
 	return;
@@ -3018,7 +3018,7 @@ void Type_ProfileSequenceDesc_Free(struct _cms_typehandler_struct* self, void* P
 static
 cmsBool ReadSeqID(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag)
 {
@@ -3068,7 +3068,7 @@ void * Type_ProfileSequenceId_Read(struct _cms_typehandler_struct* self,
 static
 cmsBool WriteSeqID(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag)
 {
@@ -3085,7 +3085,7 @@ cmsBool WriteSeqID(struct _cms_typehandler_struct* self,
 }
 
 static
-cmsBool  Type_ProfileSequenceId_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_ProfileSequenceId_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsSEQ* Seq = (cmsSEQ*)Ptr;
 	cmsUInt32Number BaseOffset;
@@ -3105,16 +3105,16 @@ cmsBool  Type_ProfileSequenceId_Write(struct _cms_typehandler_struct* self, cmsI
 }
 
 static
-void* Type_ProfileSequenceId_Dup(struct _cms_typehandler_struct* self, const void* Ptr, cmsUInt32Number n)
+void * Type_ProfileSequenceId_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsDupProfileSequenceDescription((cmsSEQ*)Ptr);
+	return (void *)cmsDupProfileSequenceDescription((cmsSEQ*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_ProfileSequenceId_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_ProfileSequenceId_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeProfileSequenceDescription((cmsSEQ*)Ptr);
 	return;
@@ -3176,11 +3176,11 @@ void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, c
 	_cmsFree(self->ContextID, ASCIIString);
 
 	*nItems = 1;
-	return (void*)n;
+	return (void *)n;
 }
 
 static
-cmsBool  Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUcrBg* Value = (cmsUcrBg*)Ptr;
 	cmsUInt32Number TextSize;
@@ -3208,7 +3208,7 @@ cmsBool  Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 }
 
 static
-void* Type_UcrBg_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_UcrBg_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	cmsUcrBg* Src = (cmsUcrBg*)Ptr;
 	cmsUcrBg* NewUcrBg = (cmsUcrBg*)_cmsMallocZero(self->ContextID, sizeof(cmsUcrBg));
@@ -3219,7 +3219,7 @@ void* Type_UcrBg_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cms
 	NewUcrBg->Ucr  = cmsDupToneCurve(Src->Ucr);
 	NewUcrBg->Desc = cmsMLUdup(Src->Desc);
 
-	return (void*)NewUcrBg;
+	return (void *)NewUcrBg;
 
 	cmsUNUSED_PARAMETER(n);
 }
@@ -3302,7 +3302,7 @@ static void * Type_CrdInfo_Read(struct _cms_typehandler_struct* self, cmsIOHANDL
 	if(!ReadCountAndSting(self, io, mlu, &SizeOfTag, "#3")) goto Error;
 
 	*nItems = 1;
-	return (void*)mlu;
+	return (void *)mlu;
 
 Error:
 	cmsMLUfree(mlu);
@@ -3310,7 +3310,7 @@ Error:
 }
 
 static
-cmsBool  Type_CrdInfo_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_CrdInfo_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	if(!WriteCountAndSting(self, io, mlu, "nm")) goto Error;
@@ -3325,9 +3325,9 @@ Error:
 	cmsUNUSED_PARAMETER(nItems);
 }
 
-static void* Type_CrdInfo_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+static void * Type_CrdInfo_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsMLUdup((cmsMLU*)Ptr);
+	return (void *)cmsMLUdup((cmsMLU*)Ptr);
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
@@ -3371,7 +3371,7 @@ void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 
 	*nItems = 1;
 
-	return (void*)sc;
+	return (void *)sc;
 
 Error:
 	if(sc != NULL)
@@ -3383,7 +3383,7 @@ Error:
 }
 
 static
-cmsBool Type_Screening_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_Screening_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsScreening* sc = (cmsScreening*)Ptr;
 	cmsUInt32Number i;
@@ -3404,7 +3404,7 @@ cmsBool Type_Screening_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 }
 
 static
-void* Type_Screening_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_Screening_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsScreening));
 
@@ -3412,7 +3412,7 @@ void* Type_Screening_Dup(struct _cms_typehandler_struct* self, const void * Ptr,
 }
 
 static
-void Type_Screening_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_Screening_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -3444,7 +3444,7 @@ void * Type_ViewingConditions_Read(struct _cms_typehandler_struct* self,
 
 	*nItems = 1;
 
-	return (void*)vc;
+	return (void *)vc;
 
 Error:
 	if(vc != NULL)
@@ -3456,7 +3456,7 @@ Error:
 }
 
 static
-cmsBool Type_ViewingConditions_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_ViewingConditions_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsICCViewingConditions* sc = (cmsICCViewingConditions*)Ptr;
 
@@ -3471,7 +3471,7 @@ cmsBool Type_ViewingConditions_Write(struct _cms_typehandler_struct* self, cmsIO
 }
 
 static
-void* Type_ViewingConditions_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_ViewingConditions_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsICCViewingConditions));
 
@@ -3479,7 +3479,7 @@ void* Type_ViewingConditions_Dup(struct _cms_typehandler_struct* self, const voi
 }
 
 static
-void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -3489,9 +3489,9 @@ void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void* Ptr
 // ********************************************************************************
 
 static
-void* GenericMPEdup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * GenericMPEdup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsStageDup((cmsStage*)Ptr);
+	return (void *)cmsStageDup((cmsStage*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
@@ -3617,7 +3617,7 @@ Error:
 static
 cmsBool ReadMPECurve(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag)
 {
@@ -3733,7 +3733,7 @@ Error:
 static
 cmsBool WriteMPECurve(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag)
 {
@@ -3747,7 +3747,7 @@ cmsBool WriteMPECurve(struct _cms_typehandler_struct* self,
 
 // Write a curve, checking first for validity
 static
-cmsBool  Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt32Number BaseOffset;
 	cmsStage* mpe = (cmsStage*)Ptr;
@@ -3834,7 +3834,7 @@ void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 }
 
 static
-cmsBool  Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt32Number i, nElems;
 	cmsStage* mpe = (cmsStage*)Ptr;
@@ -3913,7 +3913,7 @@ Error:
 
 // Write a CLUT in floating point
 static
-cmsBool  Type_MPEclut_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool  Type_MPEclut_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt8Number Dimensions8[16]; // 16 because the spec says 16 and not max number of channels
 	cmsUInt32Number i;
@@ -3967,7 +3967,7 @@ _cmsTagTypePluginChunkType _cmsMPETypePluginChunk = { NULL };
 static
 cmsBool ReadMPEElem(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
-    void* Cargo,
+    void * Cargo,
     cmsUInt32Number n,
     cmsUInt32Number SizeOfTag)
 {
@@ -4055,7 +4055,7 @@ Error:
 
 // This one is a liitle bit more complex, so we don't use position tables this time.
 static
-cmsBool Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsUInt32Number i, BaseOffset, DirectoryPos, CurrentPos;
 	cmsUInt32Number inputChan, outputChan;
@@ -4146,9 +4146,9 @@ Error:
 }
 
 static
-void* Type_MPE_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_MPE_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsPipelineDup((cmsPipeline*)Ptr);
+	return (void *)cmsPipelineDup((cmsPipeline*)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
@@ -4301,7 +4301,7 @@ void * Type_vcgt_Read(struct _cms_typehandler_struct* self,
 	}
 
 	*nItems = 1;
-	return (void*)Curves;
+	return (void *)Curves;
 
 // Regret,  free all resources
 Error:
@@ -4315,7 +4315,7 @@ Error:
 
 // We don't support all flavors, only 16bits tables and formula
 static
-cmsBool Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsToneCurve** Curves =  (cmsToneCurve**)Ptr;
 	cmsUInt32Number i, j;
@@ -4363,7 +4363,7 @@ cmsBool Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 }
 
 static
-void* Type_vcgt_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_vcgt_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	cmsToneCurve** OldCurves =  (cmsToneCurve**)Ptr;
 	cmsToneCurve** NewCurves;
@@ -4375,13 +4375,13 @@ void* Type_vcgt_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsU
 	NewCurves[1] = cmsDupToneCurve(OldCurves[1]);
 	NewCurves[2] = cmsDupToneCurve(OldCurves[2]);
 
-	return (void*)NewCurves;
+	return (void *)NewCurves;
 
 	cmsUNUSED_PARAMETER(n);
 }
 
 static
-void Type_vcgt_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_vcgt_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeToneCurveTriple((cmsToneCurve**)Ptr);
 	_cmsFree(self->ContextID, Ptr);
@@ -4601,7 +4601,7 @@ static cmsBool WriteOneMLUC(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	}
 	Before = io->Tell(io);
 	e->Offsets[i] = Before - BaseOffset;
-	if(!Type_MLU_Write(self, io, (void*)mlu, 1)) return FALSE;
+	if(!Type_MLU_Write(self, io, (void *)mlu, 1)) return FALSE;
 	e->Sizes[i] = io->Tell(io) - Before;
 	return TRUE;
 }
@@ -4676,7 +4676,7 @@ static void * Type_Dictionary_Read(struct _cms_typehandler_struct* self, cmsIOHA
 
 	FreeArray(&a);
 	*nItems = 1;
-	return (void*)hDict;
+	return (void *)hDict;
 
 Error:
 	FreeArray(&a);
@@ -4685,7 +4685,7 @@ Error:
 }
 
 static
-cmsBool Type_Dictionary_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void* Ptr, cmsUInt32Number nItems)
+cmsBool Type_Dictionary_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number nItems)
 {
 	cmsHANDLE hDict = (cmsHANDLE)Ptr;
 	const cmsDICTentry* p;
@@ -4758,16 +4758,16 @@ Error:
 }
 
 static
-void* Type_Dictionary_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
+void * Type_Dictionary_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
-	return (void*)cmsDictDup((cmsHANDLE)Ptr);
+	return (void *)cmsDictDup((cmsHANDLE)Ptr);
 
 	cmsUNUSED_PARAMETER(n);
 	cmsUNUSED_PARAMETER(self);
 }
 
 static
-void Type_Dictionary_Free(struct _cms_typehandler_struct* self, void* Ptr)
+void Type_Dictionary_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsDictFree((cmsHANDLE)Ptr);
 	cmsUNUSED_PARAMETER(self);

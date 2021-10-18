@@ -1407,11 +1407,11 @@ const char * ZEXPORT zError(int err)
 		#endif /* M_I86 */
 	#endif // } SYS16BIT 
 	#ifndef MY_ZCALLOC // Any system without a special alloc function 
-		#ifndef STDC
-			extern void * malloc(uInt size);
-			extern void * calloc(uInt items, uInt size);
-			extern void free(void * ptr);
-		#endif
+		//#ifndef STDC
+			//extern void * malloc(uInt size);
+			//extern void * calloc(uInt items, uInt size);
+			//extern void free(void * ptr);
+		//#endif
 		void * ZLIB_INTERNAL zcalloc(void * opaque, uint items, uint size)
 		{
 			(void)opaque;

@@ -142,7 +142,7 @@ cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID,
 		_cmsAdaptationMatrix(&CHAD, NULL, &WhitePointXYZ, cmsD50_XYZ());
 
 		// This is a V4 tag, but many CMM does read and understand it no matter which version
-		if(!cmsWriteTag(hICC, cmsSigChromaticAdaptationTag, (void*)&CHAD)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigChromaticAdaptationTag, (void *)&CHAD)) goto Error;
 	}
 
 	if(WhitePoint && Primaries) {
@@ -164,32 +164,32 @@ cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID,
 		Colorants.Blue.Y  = MColorants.v[1].n[2];
 		Colorants.Blue.Z  = MColorants.v[2].n[2];
 
-		if(!cmsWriteTag(hICC, cmsSigRedColorantTag,   (void*)&Colorants.Red)) goto Error;
-		if(!cmsWriteTag(hICC, cmsSigBlueColorantTag,  (void*)&Colorants.Blue)) goto Error;
-		if(!cmsWriteTag(hICC, cmsSigGreenColorantTag, (void*)&Colorants.Green)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigRedColorantTag,   (void *)&Colorants.Red)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigBlueColorantTag,  (void *)&Colorants.Blue)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigGreenColorantTag, (void *)&Colorants.Green)) goto Error;
 	}
 
 	if(TransferFunction) {
 		// Tries to minimize space. Thanks to Richard Hughes for this nice idea
-		if(!cmsWriteTag(hICC, cmsSigRedTRCTag,   (void*)TransferFunction[0])) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigRedTRCTag,   (void *)TransferFunction[0])) goto Error;
 
 		if(TransferFunction[1] == TransferFunction[0]) {
 			if(!cmsLinkTag(hICC, cmsSigGreenTRCTag, cmsSigRedTRCTag)) goto Error;
 		}
 		else {
-			if(!cmsWriteTag(hICC, cmsSigGreenTRCTag, (void*)TransferFunction[1])) goto Error;
+			if(!cmsWriteTag(hICC, cmsSigGreenTRCTag, (void *)TransferFunction[1])) goto Error;
 		}
 
 		if(TransferFunction[2] == TransferFunction[0]) {
 			if(!cmsLinkTag(hICC, cmsSigBlueTRCTag, cmsSigRedTRCTag)) goto Error;
 		}
 		else {
-			if(!cmsWriteTag(hICC, cmsSigBlueTRCTag, (void*)TransferFunction[2])) goto Error;
+			if(!cmsWriteTag(hICC, cmsSigBlueTRCTag, (void *)TransferFunction[2])) goto Error;
 		}
 	}
 
 	if(Primaries) {
-		if(!cmsWriteTag(hICC, cmsSigChromaticityTag, (void*)Primaries)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigChromaticityTag, (void *)Primaries)) goto Error;
 	}
 
 	return hICC;
@@ -240,11 +240,11 @@ cmsHPROFILE CMSEXPORT cmsCreateGrayProfileTHR(cmsContext ContextID,
 
 	if(WhitePoint) {
 		cmsxyY2XYZ(&tmp, WhitePoint);
-		if(!cmsWriteTag(hICC, cmsSigMediaWhitePointTag, (void*)&tmp)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigMediaWhitePointTag, (void *)&tmp)) goto Error;
 	}
 
 	if(TransferFunction) {
-		if(!cmsWriteTag(hICC, cmsSigGrayTRCTag, (void*)TransferFunction)) goto Error;
+		if(!cmsWriteTag(hICC, cmsSigGrayTRCTag, (void *)TransferFunction)) goto Error;
 	}
 
 	return hICC;
@@ -286,7 +286,7 @@ cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID, 
 		goto Error;
 	// Create tags
 	if(!SetTextTags(hICC, L"Linearization built-in")) goto Error;
-	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void*)Pipeline)) goto Error;
+	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void *)Pipeline)) goto Error;
 	if(!SetSeqDescTag(hICC, "Linearization built-in")) goto Error;
 
 	// Pipeline is already on virtual profile
@@ -323,7 +323,7 @@ cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature Co
 //     M = Ratio * M
 //     Y = Ratio * Y
 //     K: Does not change
-static int InkLimitingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+static int InkLimitingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	cmsFloat64Number InkLimit = *(cmsFloat64Number*)Cargo;
 	cmsFloat64Number SumCMY, SumCMYK, Ratio;
@@ -389,7 +389,7 @@ cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
 	CLUT = cmsStageAllocCLut16bit(ContextID, 17, nChannels, nChannels, NULL);
 	if(CLUT == NULL) goto Error;
 
-	if(!cmsStageSampleCLut16bit(CLUT, InkLimitingSampler, (void*)&Limit, 0)) goto Error;
+	if(!cmsStageSampleCLut16bit(CLUT, InkLimitingSampler, (void *)&Limit, 0)) goto Error;
 
 	if(!cmsPipelineInsertStage(LUT, cmsAT_BEGIN, _cmsStageAllocIdentityCurves(ContextID, nChannels)) ||
 	    !cmsPipelineInsertStage(LUT, cmsAT_END, CLUT) ||
@@ -399,7 +399,7 @@ cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
 	// Create tags
 	if(!SetTextTags(hICC, L"ink-limiting built-in")) goto Error;
 
-	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void*)LUT)) goto Error;
+	if(!cmsWriteTag(hICC, cmsSigAToB0Tag, (void *)LUT)) goto Error;
 	if(!SetSeqDescTag(hICC, "ink-limiting built-in")) goto Error;
 
 	// cmsPipeline is already on virtual profile
@@ -630,7 +630,7 @@ typedef struct {
 } BCHSWADJUSTS, * LPBCHSWADJUSTS;
 
 static
-int bchswSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+int bchswSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	cmsCIELab LabIn, LabOut;
 	cmsCIELCh LChIn, LChOut;
@@ -718,7 +718,7 @@ cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
 	CLUT = cmsStageAllocCLut16bitGranular(ContextID, Dimensions, 3, 3, NULL);
 	if(CLUT == NULL) goto Error;
 
-	if(!cmsStageSampleCLut16bit(CLUT, bchswSampler, (void*)&bchsw, 0)) {
+	if(!cmsStageSampleCLut16bit(CLUT, bchswSampler, (void *)&bchsw, 0)) {
 		// Shouldn't reach here
 		goto Error;
 	}
@@ -730,9 +730,9 @@ cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
 	// Create tags
 	if(!SetTextTags(hICC, L"BCHS built-in")) return NULL;
 
-	cmsWriteTag(hICC, cmsSigMediaWhitePointTag, (void*)cmsD50_XYZ());
+	cmsWriteTag(hICC, cmsSigMediaWhitePointTag, (void *)cmsD50_XYZ());
 
-	cmsWriteTag(hICC, cmsSigAToB0Tag, (void*)Pipeline);
+	cmsWriteTag(hICC, cmsSigAToB0Tag, (void *)Pipeline);
 
 	// Pipeline is already on virtual profile
 	cmsPipelineFree(Pipeline);
@@ -799,7 +799,7 @@ cmsHPROFILE CMSEXPORT cmsCreateNULLProfileTHR(cmsContext ContextID)
 	if(!cmsPipelineInsertStage(LUT, cmsAT_END, OutLin))
 		goto Error;
 
-	if(!cmsWriteTag(hProfile, cmsSigBToA0Tag, (void*)LUT)) goto Error;
+	if(!cmsWriteTag(hProfile, cmsSigBToA0Tag, (void *)LUT)) goto Error;
 	if(!cmsWriteTag(hProfile, cmsSigMediaWhitePointTag, cmsD50_XYZ())) goto Error;
 
 	cmsPipelineFree(LUT);
@@ -906,7 +906,7 @@ cmsHPROFILE CreateNamedColorDevicelink(cmsHTRANSFORM xform)
 		cmsDoTransform(xform, &i, nc2->List[i].DeviceColorant, 1);
 	}
 
-	if(!cmsWriteTag(hICC, cmsSigNamedColor2Tag, (void*)nc2)) goto Error;
+	if(!cmsWriteTag(hICC, cmsSigNamedColor2Tag, (void *)nc2)) goto Error;
 	cmsFreeNamedColorList(nc2);
 
 	return hICC;

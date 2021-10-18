@@ -474,7 +474,7 @@ BExtQuery & BExtQuery::select(const DBFieldList & s)
 	return *this;
 }
 
-BExtQuery & SLAPIV BExtQuery::select(DBField first_arg, ...)
+BExtQuery & CDECL BExtQuery::select(DBField first_arg, ...)
 {
 	va_list list;
 	DBField f;

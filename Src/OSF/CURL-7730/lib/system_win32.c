@@ -163,8 +163,8 @@ typedef HMODULE (APIENTRY *LOADLIBRARYEX_FN)(LPCTSTR, HANDLE, DWORD);
  * Parameters:
  *
  * filename  [in] - The filename or full path of the DLL to load. If only the
- *                  filename is passed then the DLL will be loaded from the
- *                  Windows system directory.
+ *            filename is passed then the DLL will be loaded from the
+ *            Windows system directory.
  *
  * Returns the handle of the module on success; otherwise NULL.
  */

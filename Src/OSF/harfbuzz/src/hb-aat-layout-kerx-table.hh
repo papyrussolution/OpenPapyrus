@@ -154,7 +154,7 @@ public:
 		};
 
 		struct EntryData {
-			HBUINT16 kernActionIndex;/* Index into the kerning value array. If
+			HBUINT16 kernActionIndex; /* Index into the kerning value array. If
 			  * this index is 0xFFFF, then no kerning
 			  * is to be performed. */
 public:
@@ -424,7 +424,7 @@ public:
 		typedef ExtendedTypes Types;
 
 		struct EntryData {
-			HBUINT16 ankrActionIndex;/* Either 0xFFFF (for no action) or the index of
+			HBUINT16 ankrActionIndex; /* Either 0xFFFF (for no action) or the index of
 			  * the action to perform. */
 public:
 			DEFINE_SIZE_STATIC(2);
@@ -774,7 +774,7 @@ public:
 
 			const SubTable * st = &thiz()->firstSubTable;
 			unsigned int count = thiz()->tableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(st->get_type() == 1)
 					return true;
 				st = &StructAfter<SubTable> (*st);
@@ -788,7 +788,7 @@ public:
 
 			const SubTable * st = &thiz()->firstSubTable;
 			unsigned int count = thiz()->tableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(st->u.header.coverage & st->u.header.CrossStream)
 					return true;
 				st = &StructAfter<SubTable> (*st);
@@ -803,7 +803,7 @@ public:
 			int v = 0;
 			const SubTable * st = &thiz()->firstSubTable;
 			unsigned int count = thiz()->tableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if((st->u.header.coverage & (st->u.header.Variation | st->u.header.CrossStream)) ||
 				    !st->u.header.is_horizontal())
 					continue;
@@ -822,7 +822,7 @@ public:
 			c->set_lookup_index(0);
 			const SubTable * st = &thiz()->firstSubTable;
 			unsigned int count = thiz()->tableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				bool reverse;
 
 				if(!T::Types::extended && (st->u.header.coverage & st->u.header.Variation))
@@ -843,7 +843,7 @@ public:
 					seenCrossStream = true;
 					hb_glyph_position_t * pos = c->buffer->pos;
 					unsigned int count = c->buffer->len;
-					for(unsigned int i = 0; i < count; i++) {
+					for(uint i = 0; i < count; i++) {
 						pos[i].attach_type() = ATTACH_TYPE_CURSIVE;
 						pos[i].attach_chain() = HB_DIRECTION_IS_FORWARD(c->buffer->props.direction) ? -1 : +1;
 						/* We intentionally don't set
@@ -878,14 +878,14 @@ skip:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			if(UNLIKELY(!thiz()->version.sanitize(c) || (unsigned)thiz()->version < (unsigned)T::minVersion || !thiz()->tableCount.sanitize(c)))
+			if(UNLIKELY(!thiz()->version.sanitize(c) || (uint)thiz()->version < (uint)T::minVersion || !thiz()->tableCount.sanitize(c)))
 				return_trace(false);
 
 			typedef typename T::SubTable SubTable;
 
 			const SubTable * st = &thiz()->firstSubTable;
 			unsigned int count = thiz()->tableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(UNLIKELY(!st->u.header.sanitize(c)))
 					return_trace(false);
 				/* OpenType kern table has 2-byte subtable lengths.  That's limiting.

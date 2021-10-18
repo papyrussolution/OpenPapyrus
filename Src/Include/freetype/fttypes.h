@@ -96,10 +96,10 @@ FT_BEGIN_HEADER
  *   FT_Bool
  *
  * @description:
- *   A typedef of unsigned char, used for simple booleans.  As usual,
+ *   A typedef of uchar, used for simple booleans.  As usual,
  *   values 1 and~0 represent true and false, respectively.
  */
-typedef unsigned char FT_Bool;
+typedef uchar FT_Bool;
 
 /**************************************************************************
  *
@@ -141,7 +141,7 @@ typedef signed char FT_Char;
  * @description:
  *   A simple typedef for the _unsigned_ char type.
  */
-typedef unsigned char FT_Byte;
+typedef uchar FT_Byte;
 
 /**************************************************************************
  *
@@ -283,7 +283,7 @@ typedef int FT_Error;
  * @description:
  *   A simple typedef for a typeless pointer.
  */
-typedef void*  FT_Pointer;
+typedef void *  FT_Pointer;
 
 /**************************************************************************
  *
@@ -396,7 +396,7 @@ typedef struct  FT_Data_ {
  *   The address of the FreeType object that is under finalization.  Its
  *   client data is accessed through its `generic` field.
  */
-typedef void (* FT_Generic_Finalizer)(void*  object);
+typedef void (* FT_Generic_Finalizer)(void *  object);
 
 /**************************************************************************
  *
@@ -452,13 +452,13 @@ typedef struct  FT_Generic_ {
 	( (FT_ULong)_x3 <<  8 ) |     \
 	(FT_ULong)_x4         )
 
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /*                                                                       */
 /*                    L I S T   M A N A G E M E N T                      */
 /*                                                                       */
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 
 /**************************************************************************
  *
@@ -510,7 +510,7 @@ typedef struct FT_ListRec_*  FT_List;
 typedef struct  FT_ListNodeRec_ {
 	FT_ListNode prev;
 	FT_ListNode next;
-	void*        data;
+	void *    data;
 } FT_ListNodeRec;
 
 /**************************************************************************

@@ -3060,7 +3060,7 @@ int FASTCALL LongArray::IsEqual(const LongArray * pS) const
 	return 0;
 }
 
-int SLAPIV LongArray::addzlist(long first, ...)
+int CDECL LongArray::addzlist(long first, ...)
 {
 	va_list list;
 	va_start(list, first);

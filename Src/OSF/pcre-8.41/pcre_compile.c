@@ -203,7 +203,7 @@ static const short int escapes[] = {
 /* We also need a table of characters that may follow \c in an EBCDIC
    environment for characters 0-31. */
 
-static unsigned char ebcdic_escape_c[] = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
+static uchar ebcdic_escape_c[] = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
 
 #endif
 
@@ -7336,13 +7336,13 @@ static void add_name(compile_data * cd, const pcre_uchar * name, int length, uin
 
 #if defined COMPILE_PCRE8
 PCRE_EXP_DEFN pcre * PCRE_CALL_CONVENTION pcre_compile(const char * pattern, int options, const char ** errorptr,
-    int * erroroffset, const unsigned char * tables)
+    int * erroroffset, const uchar * tables)
 #elif defined COMPILE_PCRE16
 PCRE_EXP_DEFN pcre16 * PCRE_CALL_CONVENTION pcre16_compile(PCRE_SPTR16 pattern, int options, const char ** errorptr,
-    int * erroroffset, const unsigned char * tables)
+    int * erroroffset, const uchar * tables)
 #elif defined COMPILE_PCRE32
 PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile(PCRE_SPTR32 pattern, int options, const char ** errorptr,
-    int * erroroffset, const unsigned char * tables)
+    int * erroroffset, const uchar * tables)
 #endif
 {
 #if defined COMPILE_PCRE8
@@ -7356,13 +7356,13 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile(PCRE_SPTR32 pattern, 
 
 #if defined COMPILE_PCRE8
 PCRE_EXP_DEFN pcre * PCRE_CALL_CONVENTION pcre_compile2(const char * pattern, int options, int * errorcodeptr,
-    const char ** errorptr, int * erroroffset, const unsigned char * tables)
+    const char ** errorptr, int * erroroffset, const uchar * tables)
 #elif defined COMPILE_PCRE16
 PCRE_EXP_DEFN pcre16 * PCRE_CALL_CONVENTION pcre16_compile2(PCRE_SPTR16 pattern, int options, int * errorcodeptr,
-    const char ** errorptr, int * erroroffset, const unsigned char * tables)
+    const char ** errorptr, int * erroroffset, const uchar * tables)
 #elif defined COMPILE_PCRE32
 PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern, int options, int * errorcodeptr,
-    const char ** errorptr, int * erroroffset, const unsigned char * tables)
+    const char ** errorptr, int * erroroffset, const uchar * tables)
 #endif
 {
 	REAL_PCRE * re;

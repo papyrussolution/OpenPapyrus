@@ -424,7 +424,7 @@ static bool init_resolve_thread(struct connectdata * conn,
 	struct thread_data * td = (struct thread_data *)SAlloc::C(1, sizeof(struct thread_data));
 	int err = ENOMEM;
 
-	conn->async.os_specific = (void*)td;
+	conn->async.os_specific = (void *)td;
 	if(!td)
 		goto errno_exit;
 

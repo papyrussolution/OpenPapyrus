@@ -108,12 +108,12 @@ extern bool mthd_supported_buffer_type(enum enum_field_types type);
 extern bool mthd_stmt_read_prepare_response(MYSQL_STMT * stmt);
 extern bool mthd_stmt_get_param_metadata(MYSQL_STMT * stmt);
 extern bool mthd_stmt_get_result_metadata(MYSQL_STMT * stmt);
-extern int mthd_stmt_fetch_row(MYSQL_STMT * stmt, unsigned char ** row);
-extern int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, unsigned char * row);
+extern int mthd_stmt_fetch_row(MYSQL_STMT * stmt, uchar ** row);
+extern int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, uchar * row);
 extern int mthd_stmt_read_all_rows(MYSQL_STMT * stmt);
 extern void mthd_stmt_flush_unbuffered(MYSQL_STMT * stmt);
 extern bool _mariadb_read_options(MYSQL * mysql, const char * dir, const char * config_file, const char * group, unsigned int recursion);
-extern unsigned char * mysql_net_store_length(unsigned char * packet, size_t length);
+extern uchar * mysql_net_store_length(uchar * packet, size_t length);
 
 extern void my_context_install_suspend_resume_hook(struct mysql_async_context * b, void (*hook)(bool, void *), void * user_data);
 
@@ -576,7 +576,7 @@ struct st_default_options mariadb_defaults[] =
 	CHECK_OPT_EXTENSION_SET(OPTS)                                \
 	SAlloc::F((gptr)(OPTS)->extension->KEY);                          \
 	if((VAL))                                                   \
-		(OPTS)->extension->KEY = strdup((char *)(VAL));             \
+		(OPTS)->extension->KEY = sstrdup((char *)(VAL));             \
 	else                                                         \
 		(OPTS)->extension->KEY = NULL
 
@@ -589,7 +589,7 @@ struct st_default_options mariadb_defaults[] =
 #define OPT_SET_VALUE_STR(OPTS, KEY, VAL)                        \
 	SAlloc::F((OPTS)->KEY);                                           \
 	if((VAL))                                                   \
-		(OPTS)->KEY = strdup((char *)(VAL));                        \
+		(OPTS)->KEY = sstrdup((char *)(VAL));                        \
 	else                                                         \
 		(OPTS)->KEY = NULL
 
@@ -598,7 +598,7 @@ struct st_default_options mariadb_defaults[] =
 
 static void options_add_initcommand(struct st_mysql_options * options, const char * init_cmd)
 {
-	char * insert = strdup(init_cmd);
+	char * insert = sstrdup(init_cmd);
 	if(!options->init_command) {
 		options->init_command = (DYNAMIC_ARRAY*)SAlloc::M(sizeof(DYNAMIC_ARRAY));
 		ma_init_dynamic_array(options->init_command, sizeof(char *), 5, 5);
@@ -642,7 +642,7 @@ bool _mariadb_set_conf_option(MYSQL * mysql, const char * config_option, const c
 					    option_val = &val_sizet;
 					    break;
 					case MARIADB_OPTION_STR:
-					    option_val = (void*)config_value;
+					    option_val = (void *)config_value;
 					    break;
 					case MARIADB_OPTION_NONE:
 					    break;
@@ -679,7 +679,7 @@ MA_FIELD_EXTENSION * new_ma_field_extension(MA_MEM_ROOT * memroot)
 {
 	MA_FIELD_EXTENSION * ext = (MA_FIELD_EXTENSION *)ma_alloc_root(memroot, sizeof(MA_FIELD_EXTENSION));
 	if(ext)
-		memzero((void*)ext, sizeof(*ext));
+		memzero((void *)ext, sizeof(*ext));
 	return ext;
 }
 
@@ -1020,10 +1020,10 @@ const char * STDCALL mysql_get_ssl_cipher(MYSQL * mysql __attribute__((unused)))
 ** NB! Errors are not reported until you do mysql_real_connect.
 **************************************************************************/
 
-char * ma_send_connect_attr(MYSQL * mysql, unsigned char * buffer)
+char * ma_send_connect_attr(MYSQL * mysql, uchar * buffer)
 {
 	if(mysql->server_capabilities & CLIENT_CONNECT_ATTRS) {
-		buffer = (unsigned char *)mysql_net_store_length((unsigned char *)buffer, (mysql->options.extension) ?
+		buffer = (uchar *)mysql_net_store_length((uchar *)buffer, (mysql->options.extension) ?
 			mysql->options.extension->connect_attrs_len : 0);
 		if(mysql->options.extension &&
 		    hash_inited(&mysql->options.extension->connect_attrs)) {
@@ -1249,7 +1249,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 	if(mysql->options.extension && mysql->options.extension->proxy_header) {
 		char * hdr = mysql->options.extension->proxy_header;
 		size_t len = mysql->options.extension->proxy_header_len;
-		if(ma_pvio_write(pvio, (unsigned char *)hdr, len) <= 0) {
+		if(ma_pvio_write(pvio, (uchar *)hdr, len) <= 0) {
 			ma_pvio_close(pvio);
 			goto error;
 		}
@@ -1293,20 +1293,20 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 	}
 	/* Save connection information */
 	SETIFZ(user, "");
-	if(!(mysql->host_info = strdup(host_info)) || !(mysql->host = strdup(cinfo.host ? cinfo.host : "")) ||
-	    !(mysql->user = strdup(user)) || !(mysql->passwd = strdup(passwd))) {
+	if(!(mysql->host_info = sstrdup(host_info)) || !(mysql->host = sstrdup(cinfo.host ? cinfo.host : "")) ||
+	    !(mysql->user = sstrdup(user)) || !(mysql->passwd = sstrdup(passwd))) {
 		SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 		goto error;
 	}
-	mysql->unix_socket = cinfo.unix_socket ? strdup(cinfo.unix_socket) : 0;
+	mysql->unix_socket = cinfo.unix_socket ? sstrdup(cinfo.unix_socket) : 0;
 	mysql->port = port;
 	client_flag |= mysql->options.client_flag;
 	if(strncmp(end, MA_RPL_VERSION_HACK, sizeof(MA_RPL_VERSION_HACK) - 1) == 0) {
-		mysql->server_version = strdup(end + sizeof(MA_RPL_VERSION_HACK) - 1);
+		mysql->server_version = sstrdup(end + sizeof(MA_RPL_VERSION_HACK) - 1);
 		is_maria = 1;
 	}
 	else {
-		if(!(mysql->server_version = strdup(end))) {
+		if(!(mysql->server_version = sstrdup(end))) {
 			SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 			goto error;
 		}
@@ -1328,7 +1328,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 	if(end + 18 <= end_pkt) {
 		mysql->server_language = uint1korr(end + 2);
 		mysql->server_status = uint2korr(end + 3);
-		mysql->server_capabilities |= (unsigned int)(uint2korr(end + 5)) << 16;
+		mysql->server_capabilities |= (uint)(uint2korr(end + 5)) << 16;
 		pkt_scramble_len = uint1korr(end + 7);
 		/* check if MariaD2B specific capabilities are available */
 		if(is_maria && !(mysql->server_capabilities & CLIENT_MYSQL)) {
@@ -1562,8 +1562,8 @@ bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * pa
 		mysql->charset = mysql_find_charset_name(mysql->options.charset_name);
 	else
 		mysql->charset = mysql_find_charset_name(MARIADB_DEFAULT_CHARSET);
-	mysql->user = strdup(user ? user : "");
-	mysql->passwd = strdup(passwd ? passwd : "");
+	mysql->user = sstrdup(user ? user : "");
+	mysql->passwd = sstrdup(passwd ? passwd : "");
 	/* db will be set in run_plugin_auth */
 	mysql->db = 0;
 	rc = run_plugin_auth(mysql, 0, 0, 0, db);
@@ -1573,7 +1573,7 @@ bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * pa
 		SAlloc::F(s_user);
 		SAlloc::F(s_passwd);
 		SAlloc::F(s_db);
-		if(!mysql->db && db && !(mysql->db = strdup(db))) {
+		if(!mysql->db && db && !(mysql->db = sstrdup(db))) {
 			SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 			rc = 1;
 		}
@@ -1602,7 +1602,7 @@ int STDCALL mysql_select_db(MYSQL * mysql, const char * db)
 	if((error = ma_simple_command(mysql, COM_INIT_DB, db, (uint)strlen(db), 0, 0)))
 		return(error);
 	SAlloc::F(mysql->db);
-	mysql->db = strdup(db);
+	mysql->db = sstrdup(db);
 	return 0;
 }
 
@@ -2431,7 +2431,7 @@ const char * STDCALL mysql_get_client_info(void)
 static size_t get_store_length(size_t length)
 {
   #define MAX_STORE_SIZE 9
-	unsigned char buffer[MAX_STORE_SIZE], * p;
+	uchar buffer[MAX_STORE_SIZE], * p;
 
 	/* We just store the length and substract offset of our buffer
 	   to determine the length */
@@ -2449,7 +2449,7 @@ uchar * ma_get_hash_keyval(const uchar * hash_entry,
 	 */
 	uchar * p = (uchar *)hash_entry;
 	size_t len = strlen((char *)p);
-	*length = (unsigned int)len;
+	*length = (uint)len;
 	return p;
 }
 
@@ -3405,8 +3405,8 @@ ulong STDCALL mysql_hex_string(char * to, const char * from, unsigned long len)
 	char hexdigits[] = "0123456789ABCDEF";
 
 	while(len--) {
-		*to++ = hexdigits[((unsigned char)*from) >> 4];
-		*to++ = hexdigits[((unsigned char)*from) & 0x0F];
+		*to++ = hexdigits[((uchar)*from) >> 4];
+		*to++ = hexdigits[((uchar)*from) & 0x0F];
 		from++;
 	}
 	*to = 0;
@@ -3607,7 +3607,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_PVIO_TYPE:
 		    if(mysql && mysql->net.pvio)
-			    *((unsigned int*)arg) = (unsigned int)mysql->net.pvio->type;
+			    *((unsigned int*)arg) = (uint)mysql->net.pvio->type;
 		    else
 			    goto error;
 		    break;

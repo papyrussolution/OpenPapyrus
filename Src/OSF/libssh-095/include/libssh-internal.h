@@ -258,7 +258,7 @@ void memzero(void * s, size_t n);
  * Also, please call this via the discard_const_p() macro interface, as that
  * makes the return type safe.
  */
-#define discard_const(ptr) ((void*)((uintptr_t)(ptr)))
+#define discard_const(ptr) ((void *)((uintptr_t)(ptr)))
 
 /**
  * Type-safe version of discard_const

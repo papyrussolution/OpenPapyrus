@@ -14,9 +14,9 @@
 #define EPSILON  1e-5           /* Used to decide if two float are equal. */
 #define SQR(x)  ((x) * (x))
 
-static int    solve_cubic_1(tri_diag m[], int n);
-static void   solve_cubic_2(tri_diag m[], double x[], int n);
-static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int i);
+//static int    solve_cubic_1(tri_diag m[], int n);
+//static void   solve_cubic_2(tri_diag m[], double x[], int n);
+//static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int i);
 
 static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
@@ -429,7 +429,7 @@ void GnuPlot::GenTriangle(int num_isolines/* number of iso-lines input */, iso_c
 	 * Temporary pointers:
 	 * 1. p_edge2: Top horizontal edge list:      +-----------------------+ 2
 	 * 2. p_tail : end of middle edge list:       |\  |\  |\  |\  |\  |\  |
-	 *                                            |  \|  \|  \|  \|  \|  \|
+	 *                                      |  \|  \|  \|  \|  \|  \|
 	 * 3. p_edge1: Bottom horizontal edge list:   +-----------------------+ 1
 	 *
 	 * pe_tail2  : end of list beginning at p_edge2
@@ -444,8 +444,8 @@ void GnuPlot::GenTriangle(int num_isolines/* number of iso-lines input */, iso_c
 	 * The polygons are stored in the polygon        ----           \ |
 	 * list (*p_polys) (pp_tail points on             2
 	 * last polygon).
-	 *                                                        1
-	 *                                                   -----------
+	 *                                                  1
+	 *                                             -----------
 	 * In addition, the edge lists are updated -        | \   0     |
 	 * each edge has two pointers on the two            |   \       |
 	 * (one active if boundary) polygons which         0|1   0\1   0|1
@@ -564,22 +564,18 @@ GnuPlot::PolyNode * GnuPlot::AddPoly(EdgeNode * edge0, EdgeNode * edge1, EdgeNod
 			edge0->poly[1] = pp_temp;
 		else
 			edge0->poly[0] = pp_temp;
-
 		if(edge1->poly[0]) /* update edge1 */
 			edge1->poly[1] = pp_temp;
 		else
 			edge1->poly[0] = pp_temp;
-
 		if(edge2->poly[0]) /* update edge2 */
 			edge2->poly[1] = pp_temp;
 		else
 			edge2->poly[0] = pp_temp;
-
 		if((*pp_tail))  /* Stick new record as last one. */
 			(*pp_tail)->next = pp_temp;
 		else
 			(*p_poly) = pp_temp; /* start new list if empty */
-
 		(*pp_tail) = pp_temp; /* continue to last record. */
 	}
 	return pp_temp;         /* returns NULL, if no edge allocated */
@@ -755,6 +751,82 @@ int GnuPlot::CountContour(const ContourNode * pCntr) const
 	return count;
 }
 // 
+// The following two procedures solve the special linear system which arise
+// in cubic spline interpolation. If x is assumed cyclic ( x[i]=x[n+i] ) the
+// equations can be written as (i=0,1,...,n-1):
+//     m[i][0] * x[i-1] + m[i][1] * x[i] + m[i][2] * x[i+1] = b[i] .
+// In matrix notation one gets M * x = b, where the matrix M is tridiagonal
+// with additional elements in the upper right and lower left position:
+//   m[i][0] = M_{i,i-1}  for i=1,2,...,n-1    and    m[0][0] = M_{0,n-1} ,
+//   m[i][1] = M_{i, i }  for i=0,1,...,n-1
+//   m[i][2] = M_{i,i+1}  for i=0,1,...,n-2    and    m[n-1][2] = M_{n-1,0}.
+// M should be symmetric (m[i+1][0]=m[i][2]) and positive definite.
+// The size of the system is given in n (n>=1).
+// 
+// In the first procedure the Cholesky decomposition M = C^T * D * C
+// (C is upper triangle with unit diagonal, D is diagonal) is calculated.
+// Return TRUE if decomposition exist.
+// 
+static int solve_cubic_1(tri_diag m[], int n)
+{
+	int i;
+	double m_ij, m_n, m_nn, d;
+	if(n < 1)
+		return FALSE;   /* Dimension should be at least 1 */
+	d = m[0][1];            /* D_{0,0} = M_{0,0} */
+	if(d <= 0.)
+		return FALSE;   /* M (or D) should be positive definite */
+	m_n = m[0][0];          /*  M_{0,n-1}  */
+	m_nn = m[n-1][1];     /* M_{n-1,n-1} */
+	for(i = 0; i < n - 2; i++) {
+		m_ij = m[i][2]; /*  M_{i,1}  */
+		m[i][2] = m_ij / d; /* C_{i,i+1} */
+		m[i][0] = m_n / d; /* C_{i,n-1} */
+		m_nn -= m[i][0] * m_n; /* to get C_{n-1,n-1} */
+		m_n = -m[i][2] * m_n; /* to get C_{i+1,n-1} */
+		d = m[i+1][1] - m[i][2] * m_ij; /* D_{i+1,i+1} */
+		if(d <= 0.)
+			return FALSE; /* Elements of D should be positive */
+		m[i+1][1] = d;
+	}
+	if(n >= 2) {            /* Complete last column */
+		m_n += m[n - 2][2]; /* add M_{n-2,n-1} */
+		m[n - 2][0] = m_n / d; /* C_{n-2,n-1} */
+		m[n-1][1] = d = m_nn - m[n - 2][0] * m_n; /* D_{n-1,n-1} */
+		if(d <= 0.)
+			return FALSE;
+	}
+	return TRUE;
+}
+// 
+// The second procedure solves the linear system, with the Choleky
+// decomposition calculated above (in m[][]) and the right side b given
+// in x[]. The solution x overwrites the right side in x[].
+// 
+static void solve_cubic_2(tri_diag m[], double x[], int n)
+{
+	int i;
+	// Division by transpose of C : b = C^{-T} * b 
+	double x_n = x[n-1];
+	for(i = 0; i < n - 2; i++) {
+		x[i+1] -= m[i][2] * x[i]; /* C_{i,i+1} * x_{i} */
+		x_n -= m[i][0] * x[i]; /* C_{i,n-1} * x_{i} */
+	}
+	if(n >= 2)
+		x[n-1] = x_n - m[n - 2][0] * x[n - 2]; /* C_{n-2,n-1} * x_{n-1} */
+	// Division by D: b = D^{-1} * b 
+	for(i = 0; i < n; i++)
+		x[i] /= m[i][1];
+	// Division by C: b = C^{-1} * b 
+	x_n = x[n-1];
+	if(n >= 2)
+		x[n - 2] -= m[n - 2][0] * x_n; /* C_{n-2,n-1} * x_{n-1} */
+	for(i = n - 3; i >= 0; i--) {
+		/*      C_{i,i+1} * x_{i+1} + C_{i,n-1} * x_{n-1} */
+		x[i] -= m[i][2] * x[i+1] + m[i][0] * x_n;
+	}
+}
+// 
 // Find second derivatives (x''(t_i),y''(t_i)) of cubic spline interpolation
 // through list of points (x_i,y_i). The parameter t is calculated as the
 // length of the linear stroke. The number of points must be at least 3.
@@ -896,81 +968,26 @@ void GnuPlot::IntpCubicSpline(int n, ContourNode * p_cntr, double d2x[], double 
 		t -= delta_t[i]; // Parameter t relative to start of next interval 
 	}
 }
-/*
- * The following two procedures solve the special linear system which arise
- * in cubic spline interpolation. If x is assumed cyclic ( x[i]=x[n+i] ) the
- * equations can be written as (i=0,1,...,n-1):
- *     m[i][0] * x[i-1] + m[i][1] * x[i] + m[i][2] * x[i+1] = b[i] .
- * In matrix notation one gets M * x = b, where the matrix M is tridiagonal
- * with additional elements in the upper right and lower left position:
- *   m[i][0] = M_{i,i-1}  for i=1,2,...,n-1    and    m[0][0] = M_{0,n-1} ,
- *   m[i][1] = M_{i, i }  for i=0,1,...,n-1
- *   m[i][2] = M_{i,i+1}  for i=0,1,...,n-2    and    m[n-1][2] = M_{n-1,0}.
- * M should be symmetric (m[i+1][0]=m[i][2]) and positive definite.
- * The size of the system is given in n (n>=1).
- *
- * In the first procedure the Cholesky decomposition M = C^T * D * C
- * (C is upper triangle with unit diagonal, D is diagonal) is calculated.
- * Return TRUE if decomposition exist.
- */
-static int solve_cubic_1(tri_diag m[], int n)
+// 
+// Routine to get the i knot from uniform knot vector. The knot vector
+// might be float (Knot(i) = i) or open (where the first and last "order"
+// knots are equal). contr_isclosed determines knot kind - open contour means
+// open knot vector, and closed contour selects float knot vector.
+// Note the knot vector is not exist and this routine simulates it existence
+// Also note the indexes for the knot vector starts from 0.
+// 
+static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int i)
 {
-	int i;
-	double m_ij, m_n, m_nn, d;
-	if(n < 1)
-		return FALSE;   /* Dimension should be at least 1 */
-	d = m[0][1];            /* D_{0,0} = M_{0,0} */
-	if(d <= 0.)
-		return FALSE;   /* M (or D) should be positive definite */
-	m_n = m[0][0];          /*  M_{0,n-1}  */
-	m_nn = m[n-1][1];     /* M_{n-1,n-1} */
-	for(i = 0; i < n - 2; i++) {
-		m_ij = m[i][2]; /*  M_{i,1}  */
-		m[i][2] = m_ij / d; /* C_{i,i+1} */
-		m[i][0] = m_n / d; /* C_{i,n-1} */
-		m_nn -= m[i][0] * m_n; /* to get C_{n-1,n-1} */
-		m_n = -m[i][2] * m_n; /* to get C_{i+1,n-1} */
-		d = m[i+1][1] - m[i][2] * m_ij; /* D_{i+1,i+1} */
-		if(d <= 0.)
-			return FALSE; /* Elements of D should be positive */
-		m[i+1][1] = d;
+	if(!contr_isclosed) {
+		if(i <= order)
+			return 0.0;
+		else if(i <= num_of_points)
+			return (double)(i - order);
+		else
+			return (double)(num_of_points - order);
 	}
-	if(n >= 2) {            /* Complete last column */
-		m_n += m[n - 2][2]; /* add M_{n-2,n-1} */
-		m[n - 2][0] = m_n / d; /* C_{n-2,n-1} */
-		m[n-1][1] = d = m_nn - m[n - 2][0] * m_n; /* D_{n-1,n-1} */
-		if(d <= 0.)
-			return FALSE;
-	}
-	return TRUE;
-}
-/*
- * The second procedure solves the linear system, with the Choleky
- * decomposition calculated above (in m[][]) and the right side b given
- * in x[]. The solution x overwrites the right side in x[].
- */
-static void solve_cubic_2(tri_diag m[], double x[], int n)
-{
-	int i;
-	// Division by transpose of C : b = C^{-T} * b 
-	double x_n = x[n-1];
-	for(i = 0; i < n - 2; i++) {
-		x[i+1] -= m[i][2] * x[i]; /* C_{i,i+1} * x_{i} */
-		x_n -= m[i][0] * x[i]; /* C_{i,n-1} * x_{i} */
-	}
-	if(n >= 2)
-		x[n-1] = x_n - m[n - 2][0] * x[n - 2]; /* C_{n-2,n-1} * x_{n-1} */
-	// Division by D: b = D^{-1} * b 
-	for(i = 0; i < n; i++)
-		x[i] /= m[i][1];
-	// Division by C: b = C^{-1} * b 
-	x_n = x[n-1];
-	if(n >= 2)
-		x[n - 2] -= m[n - 2][0] * x_n; /* C_{n-2,n-1} * x_{n-1} */
-	for(i = n - 3; i >= 0; i--) {
-		/*      C_{i,i+1} * x_{i+1} + C_{i,n-1} * x_{n-1} */
-		x[i] -= m[i][2] * x[i+1] + m[i][0] * x_n;
-	}
+	else
+		return (double)i;
 }
 // 
 // Generate a Bspline curve defined by all the points given in linked list p:
@@ -1059,10 +1076,8 @@ void GnuPlot::EvalBSpline(double t, ContourNode * p_cntr, int num_of_points, int
 			if(ti == tikp) { /* Should not be a problems but how knows... */
 			}
 			else {
-				dx[i] = dx[i] * (t - ti) / (tikp - ti) + /* Calculate x. */
-				    dx[i-1] * (tikp - t) / (tikp - ti);
-				dy[i] = dy[i] * (t - ti) / (tikp - ti) + /* Calculate y. */
-				    dy[i-1] * (tikp - t) / (tikp - ti);
+				dx[i] = dx[i] * (t - ti) / (tikp - ti) + /* Calculate x. */ dx[i-1] * (tikp - t) / (tikp - ti);
+				dy[i] = dy[i] * (t - ti) / (tikp - ti) + /* Calculate y. */ dy[i-1] * (tikp - t) / (tikp - ti);
 			}
 		}
 	}
@@ -1070,25 +1085,4 @@ void GnuPlot::EvalBSpline(double t, ContourNode * p_cntr, int num_of_points, int
 	*y = dy[j];
 	SAlloc::F(dx);
 	SAlloc::F(dy);
-}
-/*
- * Routine to get the i knot from uniform knot vector. The knot vector
- * might be float (Knot(i) = i) or open (where the first and last "order"
- * knots are equal). contr_isclosed determines knot kind - open contour means
- * open knot vector, and closed contour selects float knot vector.
- * Note the knot vector is not exist and this routine simulates it existence
- * Also note the indexes for the knot vector starts from 0.
- */
-static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int i)
-{
-	if(!contr_isclosed) {
-		if(i <= order)
-			return 0.0;
-		else if(i <= num_of_points)
-			return (double)(i - order);
-		else
-			return (double)(num_of_points - order);
-	}
-	else
-		return (double)i;
 }

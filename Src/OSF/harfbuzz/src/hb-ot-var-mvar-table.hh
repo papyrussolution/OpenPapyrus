@@ -94,9 +94,9 @@ protected:
 		FixedVersion<>version; /* Version of the metrics variation table
 		 * initially set to 0x00010000u */
 		HBUINT16 reserved; /* Not used; set to 0. */
-		HBUINT16 valueRecordSize;/* The size in bytes of each value record —
+		HBUINT16 valueRecordSize; /* The size in bytes of each value record —
 		  * must be greater than zero. */
-		HBUINT16 valueRecordCount;/* The number of value records — may be zero. */
+		HBUINT16 valueRecordCount; /* The number of value records — may be zero. */
 		OffsetTo<VariationStore>
 		varStore;       /* Offset to item variation store table. */
 		UnsizedArrayOf<HBUINT8>

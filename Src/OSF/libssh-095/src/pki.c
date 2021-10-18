@@ -182,11 +182,11 @@ void ssh_key_free(ssh_key key){
  * @brief returns the type of a ssh key
  * @param[in] key the ssh_key handle
  * @returns one of SSH_KEYTYPE_RSA, SSH_KEYTYPE_DSS,
- *          SSH_KEYTYPE_ECDSA_P256, SSH_KEYTYPE_ECDSA_P384,
- *          SSH_KEYTYPE_ECDSA_P521, SSH_KEYTYPE_ED25519, SSH_KEYTYPE_DSS_CERT01,
- *          SSH_KEYTYPE_RSA_CERT01, SSH_KEYTYPE_ECDSA_P256_CERT01,
- *          SSH_KEYTYPE_ECDSA_P384_CERT01, SSH_KEYTYPE_ECDSA_P521_CERT01, or
- *          SSH_KEYTYPE_ED25519_CERT01.
+ *    SSH_KEYTYPE_ECDSA_P256, SSH_KEYTYPE_ECDSA_P384,
+ *    SSH_KEYTYPE_ECDSA_P521, SSH_KEYTYPE_ED25519, SSH_KEYTYPE_DSS_CERT01,
+ *    SSH_KEYTYPE_RSA_CERT01, SSH_KEYTYPE_ECDSA_P256_CERT01,
+ *    SSH_KEYTYPE_ECDSA_P384_CERT01, SSH_KEYTYPE_ECDSA_P521_CERT01, or
+ *    SSH_KEYTYPE_ED25519_CERT01.
  * @returns SSH_KEYTYPE_UNKNOWN if the type is unknown
  */
 enum ssh_keytypes_e ssh_key_type(const ssh_key key){
@@ -433,7 +433,7 @@ enum ssh_digest_e ssh_key_type_to_hash(ssh_session session,
 
 /**
  * @brief Gets signature algorithm name to be used with the given
- *        key type.
+ *  key type.
  *
  * @param[in]  session  SSH session.
  * @param[in]  type     The algorithm type to convert.
@@ -713,7 +713,7 @@ void ssh_signature_free(ssh_signature sig)
  * @param[in]  auth_data Private data passed to the auth function.
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return  SSH_ERROR in case of error, SSH_OK otherwise.
  *
@@ -748,19 +748,19 @@ int ssh_pki_import_privkey_base64(const char * b64_key, const char * passphrase,
 
 /**
  * @brief Convert a private key to a pem base64 encoded key, or OpenSSH format for
- *        keytype ssh-ed25519
+ *  keytype ssh-ed25519
  *
  * @param[in]  privkey  The private key to export.
  *
  * @param[in]  passphrase The passphrase to use to encrypt the key with or
- *             NULL. An empty string means no passphrase.
+ *       NULL. An empty string means no passphrase.
  *
  * @param[in]  auth_fn  An auth function you may want to use or NULL.
  *
  * @param[in]  auth_data Private data passed to the auth function.
  *
  * @param[out] b64_key  A pointer to store the allocated base64 encoded key. You
- *                      need to free the buffer.
+ *                need to free the buffer.
  *
  * @return     SSH_OK on success, SSH_ERROR on error.
  */
@@ -803,17 +803,17 @@ int ssh_pki_export_privkey_base64(const ssh_key privkey,
  * @param[in]  filename The filename of the the private key.
  *
  * @param[in]  passphrase The passphrase to decrypt the private key. Set to NULL
- *                        if none is needed or it is unknown.
+ *                  if none is needed or it is unknown.
  *
  * @param[in]  auth_fn  An auth function you may want to use or NULL.
  *
  * @param[in]  auth_data Private data passed to the auth function.
  *
  * @param[out] pkey     A pointer to store the allocated ssh_key. You need to
- *                      free the key.
+ *                free the key.
  *
  * @returns SSH_OK on success, SSH_EOF if the file doesn't exist or permission
- *          denied, SSH_ERROR otherwise.
+ *    denied, SSH_ERROR otherwise.
  *
  * @see ssh_key_free()
  **/
@@ -883,12 +883,12 @@ int ssh_pki_import_privkey_file(const char * filename,
 
 /**
  * @brief Export a private key to a pem file on disk, or OpenSSH format for
- *        keytype ssh-ed25519
+ *  keytype ssh-ed25519
  *
  * @param[in]  privkey  The private key to export.
  *
  * @param[in]  passphrase The passphrase to use to encrypt the key with or
- *             NULL. An empty string means no passphrase.
+ *       NULL. An empty string means no passphrase.
  *
  * @param[in]  auth_fn  An auth function you may want to use or NULL.
  *
@@ -1387,7 +1387,7 @@ static int pki_import_cert_buffer(ssh_buffer buffer,
 
 	key->type = type;
 	key->type_c = type_c;
-	key->cert = (void*)cert;
+	key->cert = (void *)cert;
 
 	*pkey = key;
 	return SSH_OK;
@@ -1406,7 +1406,7 @@ fail:
  * @param[in]  type     The type of the key to format.
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1452,10 +1452,10 @@ int ssh_pki_import_pubkey_base64(const char * b64_key,
  * @brief Import a public key from a ssh string.
  *
  * @param[in]  key_blob The key blob to import as specified in RFC 4253 section
- *                      6.6 "Public Key Algorithms".
+ *                6.6 "Public Key Algorithms".
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1521,10 +1521,10 @@ fail:
  * @param[in]  filename The path to the public key.
  *
  * @param[out] pkey     A pointer to store the allocated public key. You need to
- *                      free the memory.
+ *                free the memory.
  *
  * @returns SSH_OK on success, SSH_EOF if the file doesn't exist or permission
- *          denied, SSH_ERROR otherwise.
+ *    denied, SSH_ERROR otherwise.
  *
  * @see ssh_key_free()
  */
@@ -1620,7 +1620,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
  * @param[in]  type     The type of the cert to format.
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1638,10 +1638,10 @@ int ssh_pki_import_cert_base64(const char * b64_cert,
  * @brief Import a certificate from a ssh string.
  *
  * @param[in]  cert_blob The cert blob to import as specified in RFC 4253 section
- *                      6.6 "Public Key Algorithms".
+ *                6.6 "Public Key Algorithms".
  *
  * @param[out] pkey     A pointer where the allocated key can be stored. You
- *                      need to free the memory.
+ *                need to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1658,10 +1658,10 @@ int ssh_pki_import_cert_blob(const ssh_string cert_blob,
  * @param[in]  filename The path to the certificate.
  *
  * @param[out] pkey     A pointer to store the allocated certificate. You need to
- *                      free the memory.
+ *                free the memory.
  *
  * @returns SSH_OK on success, SSH_EOF if the file doesn't exist or permission
- *          denied, SSH_ERROR otherwise.
+ *    denied, SSH_ERROR otherwise.
  *
  * @see ssh_key_free()
  */
@@ -1676,10 +1676,10 @@ int ssh_pki_import_cert_file(const char * filename, ssh_key * pkey)
  * @param[in] type      Type of key to create
  *
  * @param[in] parameter Parameter to the creation of key:
- *                      rsa : length of the key in bits (e.g. 1024, 2048, 4096)
- *                      dsa : length of the key in bits (e.g. 1024, 2048, 3072)
+ *                rsa : length of the key in bits (e.g. 1024, 2048, 4096)
+ *                dsa : length of the key in bits (e.g. 1024, 2048, 3072)
  * @param[out] pkey     A pointer to store the allocated private key. You need
- *                      to free the memory.
+ *                to free the memory.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1769,7 +1769,7 @@ error:
  * @param[in]  privkey  The private key to get the public key from.
  *
  * @param[out] pkey     A pointer to store the newly allocated public key. You
- *                      NEED to free the key.
+ *                NEED to free the key.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *
@@ -1804,10 +1804,10 @@ int ssh_pki_export_privkey_to_pubkey(const ssh_key privkey,
  * Format".
  *
  * @param[in]  key      A public or private key to create the public ssh_string
- *                      from.
+ *                from.
  *
  * @param[out] pblob    A pointer to store the newly allocated key blob. You
- *                      NEED to free it.
+ *                NEED to free it.
  *
  * @return              SSH_OK on success, SSH_ERROR otherwise.
  *
@@ -1837,7 +1837,7 @@ int ssh_pki_export_pubkey_blob(const ssh_key key,
  * @param[in] key       The key to hash
  *
  * @param[out] b64_key  A pointer to store the allocated base64 encoded key. You
- *                      need to free the buffer.
+ *                need to free the buffer.
  *
  * @return              SSH_OK on success, SSH_ERROR on error.
  *

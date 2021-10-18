@@ -92,7 +92,7 @@ struct ti_buffer {
 static ti_buffer * ti_buffer_new(int size) 
 {
 	const int s = (int)sizeof(ti_buffer) + size * (int)sizeof(double);
-	ti_buffer * ret = static_cast<ti_buffer *>(SAlloc::M((unsigned int)s));
+	ti_buffer * ret = static_cast<ti_buffer *>(SAlloc::M((uint)s));
 	ret->size = size;
 	ret->pushes = 0;
 	ret->index = 0;

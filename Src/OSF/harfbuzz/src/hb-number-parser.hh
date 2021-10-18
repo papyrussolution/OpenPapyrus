@@ -31,7 +31,7 @@
 #include "hb.hh"
 
 #line 35 "hb-number-parser.hh"
-static const unsigned char _double_parser_trans_keys[] = {
+static const uchar _double_parser_trans_keys[] = {
 	0u, 0u, 43u, 57u, 46u, 57u, 48u, 57u, 43u, 57u, 48u, 57u, 48u, 101u, 48u, 57u,
 	46u, 101u, 0
 };
@@ -41,7 +41,7 @@ static const char _double_parser_key_spans[] = {
 	56
 };
 
-static const unsigned char _double_parser_index_offsets[] = {
+static const uchar _double_parser_index_offsets[] = {
 	0, 0, 16, 29, 40, 56, 67, 122,
 	133
 };
@@ -139,7 +139,7 @@ static inline double strtod_rl(const char * p, const char ** end_ptr /* IN/OUT *
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

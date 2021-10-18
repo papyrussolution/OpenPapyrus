@@ -41,7 +41,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _DEFAULT_SOURCE /* for snprintf(), strdup() */
+#define _DEFAULT_SOURCE /* for snprintf(), sstrdup() */
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -2500,7 +2500,7 @@ static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * sc
 	if(UNLIKELY(status))
 		goto fail2;
 
-	font->subset_font_name = strdup(subset_name);
+	font->subset_font_name = sstrdup(subset_name);
 	if(UNLIKELY(font->subset_font_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
@@ -2629,13 +2629,13 @@ cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset, const cha
 	status = cairo_cff_font_generate(font, &data, &length);
 	if(UNLIKELY(status))
 		goto fail1;
-	cff_subset->ps_name = strdup(font->ps_name);
+	cff_subset->ps_name = sstrdup(font->ps_name);
 	if(UNLIKELY(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
 	if(font->font_name) {
-		cff_subset->family_name_utf8 = strdup(font->font_name);
+		cff_subset->family_name_utf8 = sstrdup(font->font_name);
 		if(cff_subset->family_name_utf8 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail2;
@@ -2788,12 +2788,12 @@ static cairo_int_status_t _cairo_cff_font_fallback_create(cairo_scaled_font_subs
 	status = _cairo_array_grow_by(&font->output, 4096);
 	if(UNLIKELY(status))
 		goto fail1;
-	font->subset_font_name = strdup(subset_name);
+	font->subset_font_name = sstrdup(subset_name);
 	if(UNLIKELY(font->subset_font_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
-	font->ps_name = strdup(subset_name);
+	font->ps_name = sstrdup(subset_name);
 	if(UNLIKELY(font->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
@@ -2976,17 +2976,14 @@ cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t * cff_subset, const c
 	cairo_status_t status = _cairo_cff_font_fallback_create(font_subset, &font, subset_name);
 	if(UNLIKELY(status))
 		return status;
-
 	status = _cairo_type2_charstrings_init(&type2_subset, font_subset);
 	if(UNLIKELY(status))
 		goto fail1;
-
 	status = cairo_cff_font_fallback_generate(font, &type2_subset, &data, &length);
 	if(UNLIKELY(status))
 		goto fail2;
-
 	cff_subset->family_name_utf8 = NULL;
-	cff_subset->ps_name = strdup(font->ps_name);
+	cff_subset->ps_name = sstrdup(font->ps_name);
 	if(UNLIKELY(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;

@@ -51,7 +51,7 @@ typedef uint8_t byte;
 //#define FALSE 0
 //#endif
 #ifndef NULL
-	#define NULL ((void*)0)
+	#define NULL ((void *)0)
 #endif
 #if !defined (INT32_MIN)
 #define INT32_MIN (-0x7fffffff - 1)

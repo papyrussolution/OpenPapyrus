@@ -193,7 +193,7 @@ int PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 			gencpp.Wr_Comment(0);
 			gencpp.IndentInc();
 			//fprintf(p_out_file, "/*\n\t%s\n\tAutomaticaly generated file\n\tDon't modify !\n*/\n", pOutFileName);
-			//fprintf(p_out_file, "static unsigned char G_PPVerInfo[] = {\n\t");
+			//fprintf(p_out_file, "static uchar G_PPVerInfo[] = {\n\t");
 			assert((tbuf.GetSize() % 4) == 0);
 			temp_buf.Z();
 			for(size_t i = 0; i < tbuf.GetSize(); i++) {

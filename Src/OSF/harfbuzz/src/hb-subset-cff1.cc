@@ -106,7 +106,7 @@ struct cff1_top_dict_values_mod_t : cff1_top_dict_values_t {
 
 	void reassignSIDs(const remap_sid_t& sidmap)
 	{
-		for(unsigned int i = 0; i < name_dict_values_t::ValCount; i++)
+		for(uint i = 0; i < name_dict_values_t::ValCount; i++)
 			nameSIDs[i] = sidmap[base->nameSIDs[i]];
 	}
 
@@ -232,7 +232,7 @@ struct cff1_cs_opset_flatten_t : cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatte
 	static void flush_args(cff1_cs_interp_env_t &env, flatten_param_t& param)
 	{
 		str_encoder_t encoder(param.flatStr);
-		for(unsigned int i = env.arg_start; i < env.argStack.get_count(); i++)
+		for(uint i = env.arg_start; i < env.argStack.get_count(); i++)
 			encoder.encode_num(env.eval_arg(i));
 		SUPER::flush_args(env, param);
 	}
@@ -255,7 +255,7 @@ struct cff1_cs_opset_flatten_t : cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatte
 		SUPER::flush_hintmask(op, env, param);
 		if(!param.drop_hints) {
 			str_encoder_t encoder(param.flatStr);
-			for(unsigned int i = 0; i < env.hintmask_size; i++)
+			for(uint i = 0; i < env.hintmask_size; i++)
 				encoder.encode_byte(env.str_ref[i]);
 		}
 	}
@@ -269,7 +269,7 @@ struct range_list_t : hb_vector_t<code_pair_t>{
 	bool complete(unsigned int last_glyph)
 	{
 		bool two_byte = false;
-		for(unsigned int i = (*this).length; i > 0; i--) {
+		for(uint i = (*this).length; i > 0; i--) {
 			code_pair_t &pair = (*this)[i - 1];
 			unsigned int nLeft = last_glyph - pair.glyph - 1;
 			if(nLeft >= 0x100)
@@ -345,7 +345,7 @@ struct cff1_subr_subsetter_t : subr_subsetter_t<cff1_subr_subsetter_t, CFF1Subrs
 		 * unmarked when a subroutine terminates with endchar. mark them.
 		 */
 		param.current_parsed_str->set_parsed();
-		for(unsigned int i = 0; i < env.callStack.get_count(); i++) {
+		for(uint i = 0; i < env.callStack.get_count(); i++) {
 			parsed_cs_str_t * parsed_str = param.get_parsed_str_for_context(env.callStack[i]);
 			if(LIKELY(parsed_str))
 				parsed_str->set_parsed();
@@ -375,7 +375,7 @@ struct cff_subset_plan {
 		subset_enc_supp_codes.init();
 		subset_charset_ranges.init();
 		sidmap.init();
-		for(unsigned int i = 0; i < name_dict_values_t::ValCount; i++)
+		for(uint i = 0; i < name_dict_values_t::ValCount; i++)
 			topDictModSIDs[i] = CFF_UNDEF_SID;
 	}
 
@@ -432,7 +432,7 @@ struct cff_subset_plan {
 			if(encoding != &Null(Encoding)) {
 				hb_codepoint_t sid = acc.glyph_to_sid(old_glyph);
 				encoding->get_supplement_codes(sid, supp_codes);
-				for(unsigned int i = 0; i < supp_codes.length; i++) {
+				for(uint i = 0; i < supp_codes.length; i++) {
 					code_pair_t pair = { supp_codes[i], sid };
 					subset_enc_supp_codes.push(pair);
 				}
@@ -502,7 +502,7 @@ struct cff_subset_plan {
 	{
 		sidmap.reset();
 
-		for(unsigned int i = 0; i < name_dict_values_t::ValCount; i++) {
+		for(uint i = 0; i < name_dict_values_t::ValCount; i++) {
 			unsigned int sid = acc.topDict.nameSIDs[i];
 			if(sid != CFF_UNDEF_SID) {
 				(void)sidmap.add(sid);
@@ -511,7 +511,7 @@ struct cff_subset_plan {
 		}
 
 		if(acc.fdArray != &Null(CFF1FDArray))
-			for(unsigned int i = 0; i < orig_fdcount; i++)
+			for(uint i = 0; i < orig_fdcount; i++)
 				if(fdmap.has(i))
 					(void)sidmap.add(acc.fontDicts[i].fontName);
 

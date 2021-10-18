@@ -14,10 +14,10 @@
  *
  * Returns:
  *    0: (in non-constant time) if the record is publically invalid (i.e. too
- *        short etc).
+ *  short etc).
  *    1: if the record encryption was successful.
  *   -1: if the record's AEAD-authenticator is invalid or, if sending,
- *       an internal error occurred.
+ * an internal error occurred.
  */
 int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 {

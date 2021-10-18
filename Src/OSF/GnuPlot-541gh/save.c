@@ -169,7 +169,7 @@ void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 	// reset the options to startup defaults. This may have to be
 	// changed on a per-terminal driver basis... 
 	if(pTerm)
-		fprintf(fp, "set terminal %s %s\n", pTerm->name, GPT.TermOptions);
+		fprintf(fp, "set terminal %s %s\n", pTerm->name, GPT._TermOptions.cptr());
 	else
 		fputs("set terminal unknown\n", fp);
 	// output will still be written in commented form.  Otherwise, the risk of overwriting files is just too high */
@@ -228,8 +228,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	int axis;
 	// opinions are split as to whether we save term and outfile
 	// as a compromise, we output them as comments !
-	if(term)
-		fprintf(fp, "# set terminal %s %s\n", term->name, GPT.TermOptions);
+	if(GPT.P_Term)
+		fprintf(fp, "# set terminal %s %s\n", GPT.P_Term->name, GPT._TermOptions.cptr());
 	else
 		fputs("# set terminal unknown\n", fp);
 	if(GPT.P_OutStr)
@@ -814,12 +814,12 @@ void GnuPlot::SaveSetAll(FILE * fp)
 			fprintf(fp, "\"%s\" ", s);
 		fputc('\n', fp);
 	}
-	if(PS_fontpath)
-		fprintf(fp, "set fontpath \"%s\"\n", PS_fontpath);
+	if(GPT.P_PS_FontPath)
+		fprintf(fp, "set fontpath \"%s\"\n", GPT.P_PS_FontPath);
 	else
 		fprintf(fp, "set fontpath\n");
-	if(PS_psdir)
-		fprintf(fp, "set psdir \"%s\"\n", PS_psdir);
+	if(GPT.P_PS_PsDir)
+		fprintf(fp, "set psdir \"%s\"\n", GPT.P_PS_PsDir);
 	else
 		fprintf(fp, "set psdir\n");
 	fprintf(fp, "set fit");
@@ -834,21 +834,21 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, " %sprescale", _Fit.fit_prescale ? "" : "no");
 	{
 		int i;
-		udvt_entry * v = Ev.GetUdvByName((char *)FITLIMIT);
+		udvt_entry * v = Ev.GetUdvByName(FITLIMIT);
 		double d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.0 && d < 1.0)
 			fprintf(fp, " limit %g", d);
 		if(_Fit.epsilon_abs > 0.)
 			fprintf(fp, " limit_abs %g", _Fit.epsilon_abs);
-		v = Ev.GetUdvByName((char *)FITMAXITER);
+		v = Ev.GetUdvByName(FITMAXITER);
 		i = (v && (v->udv_value.Type != NOTDEFINED)) ? static_cast<int>(Real(&v->udv_value)) : -1;
 		if(i > 0)
 			fprintf(fp, " maxiter %i", i);
-		v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
+		v = Ev.GetUdvByName(FITSTARTLAMBDA);
 		d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " start_lambda %g", d);
-		v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
+		v = Ev.GetUdvByName(FITLAMBDAFACTOR);
 		d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " lambda_factor %g", d);

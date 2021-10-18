@@ -63,7 +63,7 @@ bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element)
 
 /* Alloc room for one element */
 
-unsigned char * ma_alloc_dynamic(DYNAMIC_ARRAY * array)
+uchar * ma_alloc_dynamic(DYNAMIC_ARRAY * array)
 {
 	if(array->elements == array->max_element) {
 		char * new_ptr;
@@ -72,15 +72,15 @@ unsigned char * ma_alloc_dynamic(DYNAMIC_ARRAY * array)
 		array->buffer = new_ptr;
 		array->max_element += array->alloc_increment;
 	}
-	return (unsigned char *)array->buffer+(array->elements++ *array->size_of_element);
+	return (uchar *)array->buffer+(array->elements++ *array->size_of_element);
 }
 
 /* remove last element from array and return it */
 
-unsigned char * ma_pop_dynamic(DYNAMIC_ARRAY * array)
+uchar * ma_pop_dynamic(DYNAMIC_ARRAY * array)
 {
 	if(array->elements)
-		return (unsigned char *)array->buffer+(--array->elements * array->size_of_element);
+		return (uchar *)array->buffer+(--array->elements * array->size_of_element);
 	return 0;
 }
 

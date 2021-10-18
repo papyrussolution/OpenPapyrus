@@ -97,7 +97,7 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	GpValue a;
 	pbm_font = 1;
 	pbm_mode = 0;
-	PTR32(GPT.TermOptions)[0] = 0;
+	GPT._TermOptions.Z();
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&PBM_opts[0])) {
 			case PBM_SMALL:
@@ -160,17 +160,17 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->TicH = pThis->TicV;
 	// setup options string 
 	switch(pbm_font) {
-		case 1: strcat(GPT.TermOptions, "small"); break;
-		case 2: strcat(GPT.TermOptions, "medium"); break;
-		case 3: strcat(GPT.TermOptions, "large"); break;
+		case 1: GPT._TermOptions.Cat("small"); break;
+		case 2: GPT._TermOptions.Cat("medium"); break;
+		case 3: GPT._TermOptions.Cat("large"); break;
 	}
 	switch(pbm_mode) {
-		case 0: strcat(GPT.TermOptions, " monochrome"); break;
-		case 1: strcat(GPT.TermOptions, " gray"); break;
-		case 2: strcat(GPT.TermOptions, " color"); break;
+		case 0: GPT._TermOptions.Cat(" monochrome"); break;
+		case 1: GPT._TermOptions.Cat(" gray"); break;
+		case 2: GPT._TermOptions.Cat(" color"); break;
 	}
 	if(PBM_explicit_size)
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", pThis->MaxX, pThis->MaxY);
+		slprintf_cat(GPT._TermOptions, " size %d,%d", pThis->MaxX, pThis->MaxY);
 }
 
 TERM_PUBLIC void PBM_init(GpTermEntry * pThis)

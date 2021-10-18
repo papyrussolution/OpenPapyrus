@@ -18,10 +18,10 @@
  * The below switch allow to select different access method for improved performance.
  * Method 0 (default) : use `memcpy()`. Safe and portable.
  * Method 1 : `__packed` statement. It depends on compiler extension (ie, not portable).
- *            This method is safe if your compiler supports it, and *generally* as fast or faster than `memcpy`.
+ *      This method is safe if your compiler supports it, and *generally* as fast or faster than `memcpy`.
  * Method 2 : direct access. This method doesn't depend on compiler but violate C standard.
- *            It can generate buggy code on targets which do not support unaligned memory accesses.
- *            But in some circumstances, it's the only known way to get the most performance (ie GCC + ARMv6)
+ *      It can generate buggy code on targets which do not support unaligned memory accesses.
+ *      But in some circumstances, it's the only known way to get the most performance (ie GCC + ARMv6)
  * See http://stackoverflow.com/a/32095106/646947 for details.
  * Prefer these methods in priority order (0 > 1 > 2)
  */
@@ -73,9 +73,9 @@
 //#include <stdlib.h>
 //#include <limits.h>   /* ULLONG_MAX */
 //#include <string.h>
-//static void* XXH_malloc(size_t s) { return malloc(s); }
-//static void  XXH_free(void* p)  { free(p); }
-//static void * XXH_memcpy(void* dest, const void* src, size_t size) { return memcpy(dest, src, size); }
+//static void * XXH_malloc(size_t s) { return malloc(s); }
+//static void  XXH_free(void * p)  { free(p); }
+//static void * XXH_memcpy(void * dest, const void * src, size_t size) { return memcpy(dest, src, size); }
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
@@ -126,7 +126,7 @@
 		//typedef uint16_t U16_Removed;
 		//typedef uint32_t U32_Removed;
 	#else
-		//typedef unsigned char BYTE;
+		//typedef uchar BYTE;
 		//typedef unsigned short U16_Removed;
 		//typedef unsigned int U32_Removed;
 	#endif
@@ -136,16 +136,16 @@
 
 #if (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
 	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
-	static uint32 XXH_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+	static uint32 XXH_read32(const void * memPtr) { return *(const uint32*)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))
 	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
 	// currently only defined for gcc and icc 
 	typedef union { uint32 u32; } __attribute__((packed)) unalign;
-	static uint32 XXH_read32(const void* ptr) { return ((const unalign*)ptr)->u32; }
+	static uint32 XXH_read32(const void * ptr) { return ((const unalign*)ptr)->u32; }
 #else
 	// portable and safe solution. Generally efficient.
 	// see : http://stackoverflow.com/a/32095106/646947
-	static uint32 XXH_read32(const void* memPtr)
+	static uint32 XXH_read32(const void * memPtr)
 	{
 		uint32 val;
 		memcpy(&val, memPtr, sizeof(val));
@@ -203,9 +203,9 @@ typedef enum {
 } XXH_alignment;
 
 XXH_FORCE_INLINE uint32 XXH_readLE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_read32(ptr) : XXH_swap32(XXH_read32(ptr)); }
-static uint32 XXH_readBE32(const void* ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_swap32(XXH_read32(ptr)) : XXH_read32(ptr); }
+static uint32 XXH_readBE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_swap32(XXH_read32(ptr)) : XXH_read32(ptr); }
 
-XXH_FORCE_INLINE uint32 XXH_readLE32_align(const void* ptr, XXH_alignment align)
+XXH_FORCE_INLINE uint32 XXH_readLE32_align(const void * ptr, XXH_alignment align)
 {
 	if(align==XXH_unaligned)
 		return XXH_readLE32(ptr);
@@ -260,9 +260,9 @@ static uint32 XXH32_round(uint32 acc, uint32 input)
 	 *
 	 * How this hack works:
 	 * __asm__(""       // Declare an assembly block but don't declare any instructions
-	 *          :       // However, as an Input/Output Operand,
-	 *          "+r"    // constrain a read/write operand (+) as a general purpose register (r).
-	 *          (acc)   // and set acc as the operand
+	 *    :       // However, as an Input/Output Operand,
+	 *    "+r"    // constrain a read/write operand (+) as a general purpose register (r).
+	 *    (acc)   // and set acc as the operand
 	 * );
 	 *
 	 * Because of the 'r', the compiler has promised that seed will be in a
@@ -291,7 +291,7 @@ static uint32 FASTCALL XXH32_avalanche(uint32 h32)
 
 #define XXH_get32bits(p) XXH_readLE32_align(p, align)
 
-static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_alignment align)
+static uint32 XXH32_finalize(uint32 h32, const void * ptr, size_t len, XXH_alignment align)
 {
 	const BYTE * p = static_cast<const BYTE *>(ptr);
 #define PROCESS1               \
@@ -340,7 +340,7 @@ static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_alignm
 	}
 }
 
-XXH_FORCE_INLINE uint32 XXH32_endian_align(const void* input, size_t len, uint32 seed, XXH_alignment align)
+XXH_FORCE_INLINE uint32 XXH32_endian_align(const void * input, size_t len, uint32 seed, XXH_alignment align)
 {
 	const BYTE * p = static_cast<const BYTE *>(input);
 	const BYTE * bEnd = p + len;
@@ -372,7 +372,7 @@ XXH_FORCE_INLINE uint32 XXH32_endian_align(const void* input, size_t len, uint32
 	return XXH32_finalize(h32, p, len&15, align);
 }
 
-XXH_PUBLIC_API XXH32_hash_t XXH32(const void* input, size_t len, unsigned int seed)
+XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t len, unsigned int seed)
 {
 #if 0
 	/* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -422,7 +422,7 @@ XXH_PUBLIC_API XXH_errorcode XXH32_reset(XXH32_state_t* statePtr, unsigned int s
 	return XXH_OK;
 }
 
-XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* state, const void* input, size_t len)
+XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* state, const void * input, size_t len)
 {
 	if(input==NULL)
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
@@ -471,7 +471,7 @@ XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* state, const void* inpu
 	    }
 	    if(p < bEnd) {
 		    memcpy(state->mem32, p, (size_t)(bEnd-p));
-		    state->memsize = (unsigned)(bEnd-p);
+		    state->memsize = (uint)(bEnd-p);
 	    }
 	}
 	return XXH_OK;
@@ -557,12 +557,12 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 
 #if (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
 	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
-	static uint64 XXH_read64(const void* memPtr) { return *(const uint64*)memPtr; }
+	static uint64 XXH_read64(const void * memPtr) { return *(const uint64*)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))
 	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
 	// currently only defined for gcc and icc 
 	typedef union { uint32 u32; uint64 u64; } __attribute__((packed)) unalign64;
-	static uint64 XXH_read64(const void* ptr) 
+	static uint64 XXH_read64(const void * ptr) 
 	{
 		return ((const unalign64*)ptr)->u64;
 	}
@@ -571,7 +571,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 	// portable and safe solution. Generally efficient.
 	// see : http://stackoverflow.com/a/32095106/646947
 	// 
-	static uint64 XXH_read64(const void* memPtr)
+	static uint64 XXH_read64(const void * memPtr)
 	{
 		uint64 val;
 		memcpy(&val, memPtr, sizeof(val));
@@ -592,17 +592,17 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 	}
 #endif
 
-XXH_FORCE_INLINE uint64 XXH_readLE64(const void* ptr)
+XXH_FORCE_INLINE uint64 XXH_readLE64(const void * ptr)
 {
 	return XXH_CPU_LITTLE_ENDIAN ? XXH_read64(ptr) : XXH_swap64(XXH_read64(ptr));
 }
 
-static uint64 XXH_readBE64(const void* ptr)
+static uint64 XXH_readBE64(const void * ptr)
 {
 	return XXH_CPU_LITTLE_ENDIAN ? XXH_swap64(XXH_read64(ptr)) : XXH_read64(ptr);
 }
 
-XXH_FORCE_INLINE uint64 XXH_readLE64_align(const void* ptr, XXH_alignment align)
+XXH_FORCE_INLINE uint64 XXH_readLE64_align(const void * ptr, XXH_alignment align)
 {
 	if(align==XXH_unaligned)
 		return XXH_readLE64(ptr);
@@ -711,7 +711,7 @@ static uint64 XXH64_finalize(uint64 h64, const void * ptr, size_t len, XXH_align
 	return 0; // unreachable, but some compilers complain without it 
 }
 
-XXH_FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64 seed, XXH_alignment align)
+XXH_FORCE_INLINE uint64 XXH64_endian_align(const void * input, size_t len, uint64 seed, XXH_alignment align)
 {
 	const BYTE * p = (const BYTE *)input;
 	const BYTE * bEnd = p + len;
@@ -747,7 +747,7 @@ XXH_FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64
 	return XXH64_finalize(h64, p, len, align);
 }
 
-XXH_PUBLIC_API XXH64_hash_t XXH64(const void* input, size_t len, unsigned long long seed)
+XXH_PUBLIC_API XXH64_hash_t XXH64(const void * input, size_t len, unsigned long long seed)
 {
 #if 0
 	/* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -796,7 +796,7 @@ XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long 
 	return XXH_OK;
 }
 
-XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* state, const void* input, size_t len)
+XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* state, const void * input, size_t len)
 {
 	if(input==NULL)
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
@@ -843,7 +843,7 @@ XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* state, const void* inpu
 	    }
 	    if(p < bEnd) {
 		    memcpy(state->mem64, p, (size_t)(bEnd-p));
-		    state->memsize = (unsigned)(bEnd-p);
+		    state->memsize = (uint)(bEnd-p);
 	    }
 	}
 	return XXH_OK;

@@ -19,7 +19,7 @@
  * Modified June 1995 Ian MacPhedran to support newterm format
  * Modified October 1995 Ian MacPhedran to simplify HPGL terminals
  * Modified January 96 by David Denholm and Emmanuel Bigler for cp850
- *                               and iso international character sets
+ *                         and iso international character sets
  * Modified February 99 by Jeremy Brenes to give PCL5 terminal optional
  *   multi-pen support (6 pen default), a default 34" plotting width for
  *   use with large color plotters such as the HP Designjet 750C,
@@ -657,7 +657,7 @@ TERM_PUBLIC void HPGL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->IntErrorCurToken("expecting \"eject\" or number of pens");
 		pGp->Pgm.Shift();
 	}
-	sprintf(GPT.TermOptions, "%d pens %s", HPGL_numpen, HPGL_eject ? "eject" : "noeject");
+	slprintf(GPT._TermOptions, "%d pens %s", HPGL_numpen, HPGL_eject ? "eject" : "noeject");
 }
 
 static int PCL_landscape = TRUE;
@@ -922,7 +922,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf(GPT.TermOptions, "%senhanced %s size %s %s %d font \"%s, %.1f\" %s %s linewidth %.1f pointsize %.1f fontscale %.1f",
+	slprintf(GPT._TermOptions, "%senhanced %s size %s %s %d font \"%s, %.1f\" %s %s linewidth %.1f pointsize %.1f fontscale %.1f",
 	    (pThis->flags & TERM_ENHANCED_TEXT) ? "" : "no", PCL_mode.name, PCL_dim, "color", HPGL2_numpen,
 	    HPGL2_font->name, HPGL2_point_size, HPGL2_pspointset ? "pspoints" : "nopspoints", HPGL2_rounded ? "rounded" : "butt",
 	    HPGL2_linewidth_scale, HPGL2_pointscale, HPGL2_fontscale);

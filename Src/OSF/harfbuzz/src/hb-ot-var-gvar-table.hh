@@ -57,13 +57,13 @@ namespace OT {
 		{
 			unsigned int old_len = length;
 			resize(old_len + a.length);
-			for(unsigned int i = 0; i < a.length; i++)
+			for(uint i = 0; i < a.length; i++)
 				(*this)[old_len + i] = a[i];
 		}
 
 		void transform(const float (&matrix)[4])
 		{
-			for(unsigned int i = 0; i < length; i++) {
+			for(uint i = 0; i < length; i++) {
 				contour_point_t &p = (*this)[i];
 				float x_ = p.x * matrix[0] + p.y * matrix[2];
 				p.y = p.x * matrix[1] + p.y * matrix[3];
@@ -73,7 +73,7 @@ namespace OT {
 
 		void translate(const contour_point_t& delta)
 		{
-			for(unsigned int i = 0; i < length; i++)
+			for(uint i = 0; i < length; i++)
 				(*this)[i].translate(delta);
 		}
 	};
@@ -116,7 +116,7 @@ namespace OT {
 			}
 
 			float scalar = 1.f;
-			for(unsigned int i = 0; i < coord_count; i++) {
+			for(uint i = 0; i < coord_count; i++) {
 				int v = coords[i];
 				int peak = peak_tuple[i];
 				if(!peak || v == peak) continue;
@@ -489,7 +489,7 @@ protected:
 		{
 			unsigned start_offset = get_offset(glyph);
 			unsigned length = get_offset(glyph+1) - start_offset;
-			hb_bytes_t var_data = blob->as_bytes().sub_array(((unsigned)dataZ) + start_offset, length);
+			hb_bytes_t var_data = blob->as_bytes().sub_array(((uint)dataZ) + start_offset, length);
 			return LIKELY(var_data.length >= GlyphVariationData::min_size) ? var_data : hb_bytes_t();
 		}
 
@@ -581,7 +581,7 @@ public:
 				/* Save original points for inferred delta calculation */
 				contour_point_vector_t orig_points;
 				orig_points.resize(points.length);
-				for(unsigned int i = 0; i < orig_points.length; i++)
+				for(uint i = 0; i < orig_points.length; i++)
 					orig_points[i] = points[i];
 
 				contour_point_vector_t deltas; /* flag is used to indicate referenced point */
@@ -622,9 +622,9 @@ public:
 					if(!GlyphVariationData::unpack_deltas(p, y_deltas, bytes))
 						return false;
 
-					for(unsigned int i = 0; i < deltas.length; i++)
+					for(uint i = 0; i < deltas.length; i++)
 						deltas[i].init();
-					for(unsigned int i = 0; i < num_deltas; i++) {
+					for(uint i = 0; i < num_deltas; i++) {
 						unsigned int pt_index = apply_to_all ? i : indices[i];
 						deltas[pt_index].flag = 1; /* this point is referenced, i.e., explicit
 						                              deltas specified */
@@ -684,7 +684,7 @@ no_more_gaps:
 					}
 
 					/* apply specified / inferred deltas to points */
-					for(unsigned int i = 0; i < points.length; i++) {
+					for(uint i = 0; i < points.length; i++) {
 						points[i].x += roundf(deltas[i].x);
 						points[i].y += roundf(deltas[i].y);
 					}

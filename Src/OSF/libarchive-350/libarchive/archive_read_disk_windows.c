@@ -80,8 +80,8 @@ struct tree_entry {
 	struct archive_wstring name;
 	struct archive_wstring full_path;
 	size_t dirname_length;
-	int64_t dev;
-	int64_t ino;
+	int64 dev;
+	int64 ino;
 	int flags;
 	int filesystem_id;
 	/* How to restore time of a directory. */
@@ -89,7 +89,7 @@ struct tree_entry {
 };
 
 struct filesystem {
-	int64_t dev;
+	int64 dev;
 	int synthetic;
 	int remote;
 	DWORD bytesPerSector;
@@ -150,8 +150,8 @@ struct tree {
 	struct restore_time restore_time;
 
 	struct entry_sparse {
-		int64_t length;
-		int64_t offset;
+		int64 length;
+		int64 offset;
 	}                       * sparse_list, * current_sparse;
 
 	int sparse_count;
@@ -168,21 +168,21 @@ struct tree {
 
 	HANDLE entry_fh;
 	int entry_eof;
-	int64_t entry_remaining_bytes;
-	int64_t entry_total;
+	int64 entry_remaining_bytes;
+	int64 entry_total;
 
 	int ol_idx_doing;
 	int ol_idx_done;
 	int ol_num_doing;
 	int ol_num_done;
-	int64_t ol_remaining_bytes;
-	int64_t ol_total;
+	int64 ol_remaining_bytes;
+	int64 ol_total;
 	struct la_overlapped {
 		OVERLAPPED ol;
 		struct archive * _a;
-		unsigned char   * buff;
+		uchar   * buff;
 		size_t buff_size;
-		int64_t offset;
+		int64 offset;
 		size_t bytes_expected;
 		size_t bytes_transferred;
 	} ol[MAX_OVERLAPPED];
@@ -194,7 +194,7 @@ struct tree {
 /* Treat FileIndex as i-node. We should remove a sequence number
  * which is high-16-bits of nFileIndexHigh. */
 #define bhfi_ino(bhfi)  \
-	((((int64_t)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
+	((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
 	+ (bhfi)->nFileIndexLow)
 
 /* Definitions for tree.flags bitmap. */
@@ -210,7 +210,7 @@ static struct tree * tree_reopen(struct tree *, const wchar_t *, int);
 static void tree_close(struct tree *);
 static void tree_free(struct tree *);
 static void tree_push(struct tree *, const wchar_t *, const wchar_t *,
-    int, int64_t, int64_t, struct restore_time *);
+    int, int64, int64, struct restore_time *);
 
 /*
  * tree_next() returns Zero if there is no next entry, non-zero if
@@ -273,7 +273,7 @@ static void tree_archive_entry_copy_bhfi(struct archive_entry *,
 /* "is_dir" is equivalent to S_ISDIR(tree_current_stat()->st_mode) */
 static int tree_current_is_dir(struct tree *);
 static int update_current_filesystem(struct archive_read_disk * a,
-    int64_t dev);
+    int64 dev);
 static int setup_current_filesystem(struct archive_read_disk *);
 static int tree_target_is_same_as_parent(struct tree *,
     const BY_HANDLE_FILE_INFORMATION *);
@@ -282,13 +282,13 @@ static int      _archive_read_disk_open_w(struct archive *, const wchar_t *);
 static int      _archive_read_free(struct archive *);
 static int      _archive_read_close(struct archive *);
 static int      _archive_read_data_block(struct archive *,
-    const void **, size_t *, int64_t *);
+    const void **, size_t *, int64 *);
 static int      _archive_read_next_header(struct archive *,
     struct archive_entry **);
 static int      _archive_read_next_header2(struct archive *,
     struct archive_entry *);
-static const char * trivial_lookup_gname(void *, int64_t gid);
-static const char * trivial_lookup_uname(void *, int64_t uid);
+static const char * trivial_lookup_gname(void *, int64 gid);
+static const char * trivial_lookup_uname(void *, int64 uid);
 static int      setup_sparse(struct archive_read_disk *, struct archive_entry *);
 static int      close_and_restore_time(HANDLE, struct tree *,
     struct restore_time *);
@@ -347,32 +347,32 @@ static int la_linkname_from_handle(HANDLE h, wchar_t ** linkname, int * linktype
 	    (st.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
 		return -1;
 	}
-	indata = static_cast<BYTE *>(malloc(MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
+	indata = static_cast<BYTE *>(SAlloc::M(MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
 	ret = DeviceIoControl(h, FSCTL_GET_REPARSE_POINT, NULL, 0, indata, 1024, &inbytes, NULL);
 	if(ret == 0) {
 		la_dosmaperr(GetLastError());
-		free(indata);
+		SAlloc::F(indata);
 		return -1;
 	}
 	buf = (REPARSE_DATA_BUFFER*)indata;
 	if(buf->ReparseTag != IO_REPARSE_TAG_SYMLINK) {
-		free(indata);
+		SAlloc::F(indata);
 		/* File is not a symbolic link */
 		errno = EINVAL;
 		return -1;
 	}
 	len = buf->SymbolicLinkReparseBuffer.SubstituteNameLength;
 	if(len <= 0) {
-		free(indata);
+		SAlloc::F(indata);
 		return -1;
 	}
-	tbuf = static_cast<wchar_t *>(malloc(len + 1 * sizeof(wchar_t)));
+	tbuf = static_cast<wchar_t *>(SAlloc::M(len + 1 * sizeof(wchar_t)));
 	if(tbuf == NULL) {
-		free(indata);
+		SAlloc::F(indata);
 		return -1;
 	}
 	memcpy(tbuf, &((BYTE*)buf->SymbolicLinkReparseBuffer.PathBuffer)[buf->SymbolicLinkReparseBuffer.SubstituteNameOffset], len);
-	free(indata);
+	SAlloc::F(indata);
 	tbuf[len / sizeof(wchar_t)] = L'\0';
 	*linkname = tbuf;
 	/*
@@ -427,7 +427,7 @@ static void entry_symlink_from_pathw(struct archive_entry * entry, const wchar_t
 		archive_entry_copy_symlink_w(entry, linkname);
 		archive_entry_set_symlink_type(entry, linktype);
 	}
-	free(linkname);
+	SAlloc::F(linkname);
 
 	return;
 }
@@ -483,7 +483,7 @@ int archive_read_disk_set_gname_lookup(struct archive * _a, void * private_data,
 }
 
 int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
-    const char * (*lookup_uname)(void * pPrivate, int64_t uid), void (*cleanup_uname)(void * pPrivate))
+    const char * (*lookup_uname)(void * pPrivate, int64 uid), void (*cleanup_uname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC,
@@ -504,7 +504,7 @@ int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
 struct archive * archive_read_disk_new(void)                 {
 	struct archive_read_disk * a;
 
-	a = (struct archive_read_disk *)calloc(1, sizeof(*a));
+	a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_READ_DISK_MAGIC;
@@ -540,7 +540,7 @@ static int _archive_read_free(struct archive * _a)
 	archive_string_free(&a->archive.error_string);
 	archive_entry_free(a->entry);
 	a->archive.magic = 0;
-	free(a);
+	SAlloc::F(a);
 	return r;
 }
 
@@ -593,7 +593,7 @@ int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
 	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_hybrid");
-	setup_symlink_mode(a, 'H', 1);/* Follow symlinks initially. */
+	setup_symlink_mode(a, 'H', 1); /* Follow symlinks initially. */
 	return ARCHIVE_OK;
 }
 
@@ -632,23 +632,23 @@ int archive_read_disk_set_behavior(struct archive * _a, int flags)
  * These are normally overridden by the client, but these stub
  * versions ensure that we always have something that works.
  */
-static const char * trivial_lookup_gname(void * private_data, int64_t gid)
+static const char * trivial_lookup_gname(void * private_data, int64 gid)
 {
 	(void)private_data; /* UNUSED */
 	(void)gid; /* UNUSED */
 	return NULL;
 }
 
-static const char * trivial_lookup_uname(void * private_data, int64_t uid)
+static const char * trivial_lookup_uname(void * private_data, int64 uid)
 {
 	(void)private_data; /* UNUSED */
 	(void)uid; /* UNUSED */
 	return NULL;
 }
 
-static int64_t align_num_per_sector(struct tree * t, int64_t size)
+static int64 align_num_per_sector(struct tree * t, int64 size)
 {
-	int64_t surplus;
+	int64 surplus;
 
 	size += t->current_filesystem->bytesPerSector -1;
 	surplus = size % t->current_filesystem->bytesPerSector;
@@ -756,7 +756,7 @@ static void cancel_async(struct tree * t)
 }
 
 static int _archive_read_data_block(struct archive * _a, const void ** buff,
-    size_t * size, int64_t * offset)
+    size_t * size, int64 * offset)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
@@ -1122,13 +1122,13 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry)
 {
 	struct tree * t = a->tree;
-	int64_t aligned, length, offset;
+	int64 aligned, length, offset;
 	int i;
 	t->sparse_count = archive_entry_sparse_reset(entry);
 	if(t->sparse_count+1 > t->sparse_list_size) {
-		free(t->sparse_list);
+		SAlloc::F(t->sparse_list);
 		t->sparse_list_size = t->sparse_count + 1;
-		t->sparse_list = static_cast<struct tree::entry_sparse *>(malloc(sizeof(t->sparse_list[0]) * t->sparse_list_size));
+		t->sparse_list = static_cast<struct tree::entry_sparse *>(SAlloc::M(sizeof(t->sparse_list[0]) * t->sparse_list_size));
 		if(t->sparse_list == NULL) {
 			t->sparse_list_size = 0;
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate data");
@@ -1321,7 +1321,7 @@ int archive_read_disk_current_filesystem(struct archive * _a)
 	return (a->tree->current_filesystem_id);
 }
 
-static int update_current_filesystem(struct archive_read_disk * a, int64_t dev)
+static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
 {
 	struct tree * t = a->tree;
 	int i, fid;
@@ -1348,7 +1348,7 @@ static int update_current_filesystem(struct archive_read_disk * a, int64_t dev)
 		void * p;
 
 		s = t->max_filesystem_id * 2;
-		p = realloc(t->filesystem_table,
+		p = SAlloc::R(t->filesystem_table,
 			s * sizeof(*t->filesystem_table));
 		if(!p) {
 			archive_set_error(&a->archive, ENOMEM,
@@ -1426,17 +1426,17 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	wchar_t vol[256];
 	wchar_t * path;
 
-	t->current_filesystem->synthetic = -1;/* Not supported */
+	t->current_filesystem->synthetic = -1; /* Not supported */
 	path = safe_path_for_statfs(t);
 	if(!GetVolumePathNameW(path, vol, sizeof(vol)/sizeof(vol[0]))) {
-		free(path);
+		SAlloc::F(path);
 		t->current_filesystem->remote = -1;
 		t->current_filesystem->bytesPerSector = 0;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "GetVolumePathName failed: %d", (int)GetLastError());
 		return ARCHIVE_FAILED;
 	}
-	free(path);
+	SAlloc::F(path);
 	switch(GetDriveTypeW(vol)) {
 		case DRIVE_UNKNOWN:
 		case DRIVE_NO_ROOT_DIR:
@@ -1493,9 +1493,9 @@ static int close_and_restore_time(HANDLE h, struct tree * t, struct restore_time
  * Add a directory path to the current stack.
  */
 static void tree_push(struct tree * t, const wchar_t * path, const wchar_t * full_path,
-    int filesystem_id, int64_t dev, int64_t ino, struct restore_time * rt)
+    int filesystem_id, int64 dev, int64 ino, struct restore_time * rt)
 {
-	struct tree_entry * te = static_cast<struct tree_entry *>(calloc(1, sizeof(*te)));
+	struct tree_entry * te = static_cast<struct tree_entry *>(SAlloc::C(1, sizeof(*te)));
 	te->next = t->stack;
 	te->parent = t->current;
 	if(te->parent)
@@ -1555,7 +1555,7 @@ static void tree_append(struct tree * t, const wchar_t * name, size_t name_lengt
  */
 static struct tree * tree_open(const wchar_t * path, int symlink_mode, int restore_time)                      
 {
-	struct tree * t = static_cast<struct tree *>(calloc(1, sizeof(*t)));
+	struct tree * t = static_cast<struct tree *>(SAlloc::C(1, sizeof(*t)));
 	archive_string_init(&(t->full_path));
 	archive_string_init(&t->path);
 	archive_wstring_ensure(&t->path, 15);
@@ -1593,7 +1593,7 @@ static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int rest
 	if(!p)
 		goto failed;
 	archive_wstrcpy(&(t->full_path), p);
-	free(p);
+	SAlloc::F(p);
 
 	/* Convert path separators from '\' to '/' */
 	for(p = pathname; *p != L'\0'; ++p) {
@@ -1707,7 +1707,7 @@ static void tree_pop(struct tree * t)
 		t->basename++;
 	archive_wstring_free(&te->name);
 	archive_wstring_free(&te->full_path);
-	free(te);
+	SAlloc::F(te);
 }
 
 /*
@@ -1725,20 +1725,17 @@ static int tree_next(struct tree * t)
 				continue;
 			return r;
 		}
-
 		if(t->stack->flags & needsFirstVisit) {
 			wchar_t * d = t->stack->name.s;
 			t->stack->flags &= ~needsFirstVisit;
-			if(!(d[0] == L'/' && d[1] == L'/' &&
-			    d[2] == L'?' && d[3] == L'/') &&
-			    (wcschr(d, L'*') || wcschr(d, L'?'))) {
+			if(!(d[0] == L'/' && d[1] == L'/' && d[2] == L'?' && d[3] == L'/') && (wcschr(d, L'*') || wcschr(d, L'?'))) {
 				r = tree_dir_next_windows(t, d);
 				if(r == 0)
 					continue;
 				return r;
 			}
 			else {
-				HANDLE h = FindFirstFileW(d, &t->_findData);
+				HANDLE h = FindFirstFileW(t->stack->full_path.s, &t->_findData); // @sobolev (upd-from-repo) (d)-->(t->stack->full_path.s) 
 				if(h == INVALID_HANDLE_VALUE) {
 					la_dosmaperr(GetLastError());
 					t->tree_errno = errno;
@@ -1801,15 +1798,11 @@ static int tree_dir_next_windows(struct tree * t, const wchar_t * pattern)
 	const wchar_t * name;
 	size_t namelen;
 	int r;
-
 	for(;;) {
 		if(pattern != NULL) {
 			struct archive_wstring pt;
-
 			archive_string_init(&pt);
-			archive_wstring_ensure(&pt,
-			    archive_strlen(&(t->full_path))
-			    + 2 + wcslen(pattern));
+			archive_wstring_ensure(&pt, archive_strlen(&(t->full_path)) + 2 + wcslen(pattern));
 			archive_wstring_copy(&pt, &(t->full_path));
 			archive_wstrappend_wchar(&pt, L'\\');
 			archive_wstrcat(&pt, pattern);
@@ -1887,7 +1880,7 @@ static void entry_copy_bhfi(struct archive_entry * entry, const wchar_t * path,
 	else
 		archive_entry_set_nlink(entry, bhfi->nNumberOfLinks);
 	archive_entry_set_size(entry,
-	    (((int64_t)bhfi->nFileSizeHigh) << 32)
+	    (((int64)bhfi->nFileSizeHigh) << 32)
 	    + bhfi->nFileSizeLow);
 	archive_entry_set_uid(entry, 0);
 	archive_entry_set_gid(entry, 0);
@@ -2024,8 +2017,8 @@ static int tree_current_is_physical_link(struct tree * t)
  */
 static int tree_target_is_same_as_parent(struct tree * t, const BY_HANDLE_FILE_INFORMATION * st)
 {
-	int64_t dev = bhfi_dev(st);
-	int64_t ino = bhfi_ino(st);
+	int64 dev = bhfi_dev(st);
+	int64 ino = bhfi_ino(st);
 	for(struct tree_entry * te = t->current->parent; te != NULL; te = te->parent) {
 		if(te->dev == dev && te->ino == ino)
 			return 1;
@@ -2080,14 +2073,14 @@ static void tree_free(struct tree * t)
 	if(t) {
 		archive_wstring_free(&t->path);
 		archive_wstring_free(&t->full_path);
-		free(t->sparse_list);
-		free(t->filesystem_table);
+		SAlloc::F(t->sparse_list);
+		SAlloc::F(t->filesystem_table);
 		for(int i = 0; i < MAX_OVERLAPPED; i++) {
 			if(t->ol[i].buff)
 				VirtualFree(t->ol[i].buff, 0, MEM_RELEASE);
 			CloseHandle(t->ol[i].ol.hEvent);
 		}
-		free(t);
+		SAlloc::F(t);
 	}
 }
 /*
@@ -2243,13 +2236,13 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 {
 	FILE_ALLOCATED_RANGE_BUFFER range, * outranges = NULL;
 	size_t outranges_size;
-	int64_t entry_size = archive_entry_size(entry);
+	int64 entry_size = archive_entry_size(entry);
 	int exit_sts = ARCHIVE_OK;
 
 	range.FileOffset.QuadPart = 0;
 	range.Length.QuadPart = entry_size;
 	outranges_size = 2048;
-	outranges = (FILE_ALLOCATED_RANGE_BUFFER*)malloc(outranges_size);
+	outranges = (FILE_ALLOCATED_RANGE_BUFFER*)SAlloc::M(outranges_size);
 	if(outranges == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Couldn't allocate memory");
@@ -2267,9 +2260,9 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 				&range, sizeof(range), outranges,
 				(DWORD)outranges_size, &retbytes, NULL);
 			if(ret == 0 && GetLastError() == ERROR_MORE_DATA) {
-				free(outranges);
+				SAlloc::F(outranges);
 				outranges_size *= 2;
-				outranges = (FILE_ALLOCATED_RANGE_BUFFER*)malloc(outranges_size);
+				outranges = (FILE_ALLOCATED_RANGE_BUFFER*)SAlloc::M(outranges_size);
 				if(outranges == NULL) {
 					archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory");
 					exit_sts = ARCHIVE_FATAL;
@@ -2309,7 +2302,7 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 		}
 	}
 exit_setup_sparse:
-	free(outranges);
+	SAlloc::F(outranges);
 
 	return (exit_sts);
 }

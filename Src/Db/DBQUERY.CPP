@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -390,7 +390,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 	return q;
 }
 
-DBQuery & SLAPIV select(DBField first_arg, ...)
+DBQuery & CDECL select(DBField first_arg, ...)
 {
 	va_list list = reinterpret_cast<va_list>(&first_arg);
 	DBQuery & q = *new DBQuery;
@@ -438,7 +438,7 @@ DBQuery & selectAll()
 	return q;
 }
 
-DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
+DBQuery & CDECL DBQuery::from(DBTable * first_arg, ...)
 {
 	uint   i = 0;
 	DBTable * p_tbl;
@@ -502,7 +502,7 @@ int DBQuery::addOrderField(const DBField & rFld)
 		return 0;
 }
 
-DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
+DBQuery & CDECL DBQuery::orderBy(DBField first_arg, ...)
 {
 	va_list  list = reinterpret_cast<va_list>(&first_arg);
 	ordCount = 0;

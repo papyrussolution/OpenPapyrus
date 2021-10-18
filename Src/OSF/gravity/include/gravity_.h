@@ -665,7 +665,7 @@ void json_value_free_ex(json_settings * settings, json_value *);
 // In a 64bit OS:
 // sizeof(float)        => 4 bytes
 // sizeof(double)       => 8 bytes
-// sizeof(void*)        => 8 bytes
+// sizeof(void *)        => 8 bytes
 // sizeof(int64_t)      => 8 bytes
 //
 // sizeof various structs in a 64bit OS:
@@ -1783,7 +1783,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 #define FN_COUNTREG(_f,_nargs)          (MAX(_f->nparams,_nargs) + _f->nlocals + _f->ntemps)
 
 /* @sobolev #if GRAVITY_COMPUTED_GOTO
-#define DECLARE_DISPATCH_TABLE      static void* dispatchTable[] = {                                \
+#define DECLARE_DISPATCH_TABLE      static void * dispatchTable[] = {                                \
                                     &&RET0,         &&HALT,         &&NOP,          &&RET,          \
                                     &&CALL,         &&LOAD,         &&LOADS,        &&LOADAT,       \
                                     &&LOADK,        &&LOADG,        &&LOADI,        &&LOADU,        \
@@ -2202,7 +2202,7 @@ const char * gravity_disassemble(gravity_vm *vm, gravity_function_t *f, const ch
 //    ================
 //    <<        Bitwise left shift (160)
 //    >>        Bitwise right shift (160)
-//    *         Multiply (150) (associativity left)
+//    *   Multiply (150) (associativity left)
 //    /         Divide (150) (associativity left)
 //    %         Remainder (150) (associativity left)
 //    &         Bitwise AND (150) (associativity left)
@@ -2751,7 +2751,7 @@ void    FASTCALL gnode_free(gnode_t * node);
 #define gnode_array_push(r, node)           (r)->insert(node)
 #define gnode_array_pop(r)                  ((r)->getCount() ? r->pop() : NULL)
 #define gnode_array_get(r, i)               (((i) >= 0 && (i) < (r)->getCount()) ? r->at(i) : NULL)
-#define gnode_array_free(r)                 do { r->Z(); mem_free((void*)r); } while(0)
+#define gnode_array_free(r)                 do { r->Z(); mem_free((void *)r); } while(0)
 #define gtype_array_each(r, block, type)    { uint _len = gnode_array_size(r); for(uint _i = 0; _i < _len; ++_i) { type val = (type)gnode_array_get(r, _i); block; } }
 #define gnode_array_each(r, block)          gtype_array_each(r, block, gnode_t*)
 #define gnode_array_eachbase(r, block)      gtype_array_each(r, block, gnode_base_t*)

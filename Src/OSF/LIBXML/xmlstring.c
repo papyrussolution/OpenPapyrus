@@ -739,31 +739,31 @@ int xmlCheckUTF8(const uchar * utf)
 	/*
 	 * utf is a string of 1, 2, 3 or 4 bytes.  The valid strings
 	 * are as follows (in "bit format"):
-	 *  0xxxxxxx                                      valid 1-byte
-	 *  110xxxxx 10xxxxxx                             valid 2-byte
-	 *  1110xxxx 10xxxxxx 10xxxxxx                    valid 3-byte
-	 *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx           valid 4-byte
+	 *  0xxxxxxx                            valid 1-byte
+	 *  110xxxxx 10xxxxxx                   valid 2-byte
+	 *  1110xxxx 10xxxxxx 10xxxxxx          valid 3-byte
+	 *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx valid 4-byte
 	 */
-	for(ix = 0; (c = utf[ix]); ) {  /* string is 0-terminated */
-		if((c & 0x80) == 0x00) { /* 1-byte code, starts with 10 */
+	for(ix = 0; (c = utf[ix]); ) { // string is 0-terminated 
+		if((c & 0x80) == 0x00) { // 1-byte code, starts with 10 
 			ix++;
 		}
-		else if((c & 0xe0) == 0xc0) { /* 2-byte code, starts with 110 */
+		else if((c & 0xe0) == 0xc0) { // 2-byte code, starts with 110 
 			if((utf[ix+1] & 0xc0 ) != 0x80)
 				return 0;
 			ix += 2;
 		}
-		else if((c & 0xf0) == 0xe0) { /* 3-byte code, starts with 1110 */
+		else if((c & 0xf0) == 0xe0) { // 3-byte code, starts with 1110 
 			if(((utf[ix+1] & 0xc0) != 0x80) || ((utf[ix+2] & 0xc0) != 0x80))
 				return 0;
 			ix += 3;
 		}
-		else if((c & 0xf8) == 0xf0) { /* 4-byte code, starts with 11110 */
+		else if((c & 0xf8) == 0xf0) { // 4-byte code, starts with 11110 
 			if(((utf[ix+1] & 0xc0) != 0x80) || ((utf[ix+2] & 0xc0) != 0x80) || ((utf[ix+3] & 0xc0) != 0x80))
 				return 0;
 			ix += 4;
 		}
-		else                    /* unknown encoding */
+		else // unknown encoding 
 			return 0;
 	}
 	return 1;

@@ -97,12 +97,13 @@ static uchar PADDING[64] = {
 
 // convenient object that wraps
 // the C-functions for use in C++ only
+#if 0 // {
 class MD5 {
 private:
 	struct __context_t {
-		uint32 state[4];                       /* state (ABCD) */
+		uint32 state[4]; /* state (ABCD) */
 		uint32 count[2]; /* number of bits, modulo 2^64 (lsb first) */
-		uchar buffer[64];             /* input buffer */
+		uchar buffer[64]; /* input buffer */
 	} context;
 
 	#pragma region static helper functions
@@ -136,7 +137,7 @@ private:
 		GG(c, d, a, b, x[11], S23, 0x265e5a51); /* 19 */
 		GG(b, c, d, a, x[ 0], S24, 0xe9b6c7aa); /* 20 */
 		GG(a, b, c, d, x[ 5], S21, 0xd62f105d); /* 21 */
-		GG(d, a, b, c, x[10], S22,  0x2441453);/* 22 */
+		GG(d, a, b, c, x[10], S22,  0x2441453); /* 22 */
 		GG(c, d, a, b, x[15], S23, 0xd8a1e681); /* 23 */
 		GG(b, c, d, a, x[ 4], S24, 0xe7d3fbc8); /* 24 */
 		GG(a, b, c, d, x[ 9], S21, 0x21e1cde6); /* 25 */
@@ -160,7 +161,7 @@ private:
 		HH(a, b, c, d, x[13], S31, 0x289b7ec6); /* 41 */
 		HH(d, a, b, c, x[ 0], S32, 0xeaa127fa); /* 42 */
 		HH(c, d, a, b, x[ 3], S33, 0xd4ef3085); /* 43 */
-		HH(b, c, d, a, x[ 6], S34,  0x4881d05);/* 44 */
+		HH(b, c, d, a, x[ 6], S34,  0x4881d05); /* 44 */
 		HH(a, b, c, d, x[ 9], S31, 0xd9d4d039); /* 45 */
 		HH(d, a, b, c, x[12], S32, 0xe6db99e5); /* 46 */
 		HH(c, d, a, b, x[15], S33, 0x1fa27cf8); /* 47 */
@@ -324,9 +325,40 @@ public:
 		return digestChars;
 	}
 };
+#endif // } 0
 //
 //
 //
+static SString & DigestFile_MD5(const char * filename, SString & rBuf)
+{
+	rBuf.Z();
+	int len;
+	uchar buffer[1024];
+	FILE * file = fopen(filename, "rb");
+	if(file) {
+		SlHash::State hs;
+		SlHash::Md5(&hs, 0, 0);
+		while((len = static_cast<int>(fread(buffer, 1, 1024, file)) ) != 0) {
+			//Update(buffer, len);
+			SlHash::Md5(&hs, buffer, len);
+		}
+		binary128 h = SlHash::Md5(&hs, 0, 0);
+		//Final();
+		fclose(file);
+		{
+			for(int pos = 0; pos < sizeof(h); pos++) {
+				//sprintf(pOutBuf+(pos*2), "%02x", PTR8(&h)[pos]);
+				rBuf.CatHexUpper(PTR8(&h)[pos]);
+			}
+		}
+	}
+	else {
+		//printf("%s can't be opened\n", filename);
+	}
+	return rBuf;
+}
+
+
 /*static*/LRESULT CALLBACK HashFromFilesDlg::HashPathEditStaticProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
 	const auto dlg = (HashFromFilesDlg *)(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -388,21 +420,21 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 				fDlg.setExtFilter(TEXT("All types"), TEXT(".*"));
 				const auto& fns = fDlg.doOpenMultiFilesDlg();
 				if(!fns.empty()) {
+					SString digest_buf;
 					std::wstring files2check, hashResultStr;
-					for(const auto& it : fns) {
+					for(const auto & it : fns) {
 						if(_ht == hashType::hash_md5) {
 							WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 							const char * path = wmc.wchar2char(it.c_str(), CP_ACP);
-
-							MD5 md5;
-							char * md5Result = md5.digestFile(path);
-
-							if(md5Result) {
+							//MD5 md5;
+							//char * md5Result = md5.digestFile(path);
+							DigestFile_MD5(path, digest_buf);
+							//if(md5Result) {
+							if(digest_buf.NotEmpty()) {
 								files2check += it;
 								files2check += TEXT("\r\n");
-
 								wchar_t* fileName = ::PathFindFileName(it.c_str());
-								hashResultStr += wmc.char2wchar(md5Result, CP_ACP);
+								hashResultStr += wmc.char2wchar(/*md5Result*/digest_buf, CP_ACP);
 								hashResultStr += TEXT("  ");
 								hashResultStr += fileName;
 								hashResultStr += TEXT("\r\n");
@@ -410,19 +442,14 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 						}
 						else if(_ht == hashType::hash_sha256) {
 							std::string content = getFileContent(it.c_str());
-
-							uint8_t sha2hash[32];
-							calc_sha_256(sha2hash,
-							    reinterpret_cast<const uint8_t*>(content.c_str()),
-							    content.length());
-
+							//uint8_t sha2hash[32];
+							//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
+							binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
 							wchar_t sha2hashStr[65] = { '\0' };
-							for(size_t i = 0; i < 32; i++)
-								wsprintf(sha2hashStr + i * 2, TEXT("%02x"), sha2hash[i]);
-
+							for(size_t i = 0; i < sizeof(__h); i++)
+								wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);
 							files2check += it;
 							files2check += TEXT("\r\n");
-
 							wchar_t* fileName = ::PathFindFileName(it.c_str());
 							hashResultStr += sha2hashStr;
 							hashResultStr += TEXT("  ");
@@ -433,7 +460,6 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 							// unknown
 						}
 					}
-
 					if(!files2check.empty() && !hashResultStr.empty()) {
 						::SetDlgItemText(_hSelf, IDC_HASH_PATH_EDIT, files2check.c_str());
 						::SetDlgItemText(_hSelf, IDC_HASH_RESULT_EDIT, hashResultStr.c_str());
@@ -517,11 +543,12 @@ void HashFromTextDlg::generateHash()
 				::SetDlgItemTextA(_hSelf, IDC_HASH_RESULT_FOMTEXT_EDIT, /*md5Result*/__md5_buf.cptr());
 			}
 			else if(_ht == hash_sha256) {
-				uint8_t sha2hash[32];
-				calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+				//uint8_t sha2hash[32];
+				//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+				binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
 				wchar_t sha2hashStr[65] = { '\0' };
-				for(size_t i = 0; i < 32; i++)
-					wsprintf(sha2hashStr + i * 2, TEXT("%02x"), sha2hash[i]);
+				for(size_t i = 0; i < sizeof(__h); i++)
+					wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);
 				::SetDlgItemText(_hSelf, IDC_HASH_RESULT_FOMTEXT_EDIT, sha2hashStr);
 			}
 			delete[] text;
@@ -561,11 +588,12 @@ void HashFromTextDlg::generateHashPerLine()
 					result += __md5_buf.cptr();
 				}
 				else if(_ht == hash_sha256) {
-					uint8_t sha2hash[32];
-					calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+					//uint8_t sha2hash[32];
+					//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+					binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
 					char sha2hashStr[65] = { '\0' };
-					for(size_t i = 0; i < 32; i++)
-						sprintf(sha2hashStr + i * 2, "%02x", sha2hash[i]);
+					for(size_t i = 0; i < sizeof(__h); i++)
+						sprintf(sha2hashStr + i * 2, "%02x", /*sha2hash*/PTR8C(&__h)[i]);
 					result += sha2hashStr;
 					result += "\r\n";
 				}

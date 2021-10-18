@@ -46,7 +46,7 @@ static int hashcmp(HASH * hash, HASH_LINK * pos, const uchar * key, uint length)
 
 bool _hash_init(HASH * hash, uint size, uint key_offset, uint key_length,
     hash_get_key get_key,
-    void (*free_element)(void*), uint flags CALLER_INFO_PROTO)
+    void (*free_element)(void *), uint flags CALLER_INFO_PROTO)
 {
 	hash->records = 0;
 	if(ma_init_dynamic_array_ci(&hash->array, sizeof(HASH_LINK), size, 0)) {
@@ -191,7 +191,7 @@ unsigned int rec_hashnr(HASH * hash, const uchar * record)
 /* Search after a record based on a key */
 /* Sets info->current_ptr to found record */
 
-void* hash_search(HASH * hash, const uchar * key, uint length)
+void * hash_search(HASH * hash, const uchar * key, uint length)
 {
 	HASH_LINK * pos;
 	uint flag, idx;

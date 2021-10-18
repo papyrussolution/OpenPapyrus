@@ -179,8 +179,7 @@ err2:
 	if(plugin->deinit)
 		plugin->deinit();
 err1:
-	my_set_error(mysql, CR_AUTH_PLUGIN_CANNOT_LOAD, SQLSTATE_UNKNOWN,
-	    ER(CR_AUTH_PLUGIN_CANNOT_LOAD), plugin->name, errmsg);
+	my_set_error(mysql, CR_AUTH_PLUGIN_CANNOT_LOAD, SQLSTATE_UNKNOWN, ER(CR_AUTH_PLUGIN_CANNOT_LOAD), plugin->name, errmsg);
 	if(dlhandle)
 		(void)dlclose(dlhandle);
 	return NULL;
@@ -207,7 +206,7 @@ static void load_env_plugins(MYSQL * mysql)
 	char * plugs, * free_env, * s = getenv("LIBMYSQL_PLUGINS");
 	if(ma_check_env_str(s))
 		return;
-	free_env = strdup(s);
+	free_env = sstrdup(s);
 	plugs = s = free_env;
 	do {
 		if((s = strchr(plugs, ';')))

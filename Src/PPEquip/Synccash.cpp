@@ -666,9 +666,11 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						const int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
 						if(pczcr > 0) {
 							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-							if(PreprocessChZnCode(0, chzn_code, fabs(ccl.Quantity), chzn_pp_result) > 0) {
+							const double chzn_qtty = fabs(ccl.Quantity);
+							if(PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result) > 0) {
 								chzn_pp_result.LineIdx = pos;
-								if(PreprocessChZnCode(1/*accept*/, chzn_code, fabs(ccl.Quantity), chzn_pp_result) > 0) {
+								int accept_op = 1; // 1 - accept, 2 - reject
+								if(PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, chzn_pp_result) > 0) {
 									pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
 								}
 							}

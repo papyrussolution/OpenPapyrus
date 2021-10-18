@@ -113,7 +113,7 @@ static int ops_init(regex_t* reg, int init_alloc_size)
 		reg->ocs = (enum OpCode*)0;
 #endif
 	}
-	reg->ops_curr  = 0;/* !!! not yet done ops_new() */
+	reg->ops_curr  = 0; /* !!! not yet done ops_new() */
 	reg->ops_alloc = init_alloc_size;
 	reg->ops_used  = 0;
 	return ONIG_NORMAL;
@@ -514,7 +514,7 @@ static void FASTCALL mmcl_set(MinMaxCharLen * l, OnigLen len)
 	l->min_is_sure = TRUE;
 }
 
-static void mmcl_set_min_max(MinMaxCharLen* l, OnigLen min, OnigLen max, int min_is_sure)
+static void STDCALL mmcl_set_min_max(MinMaxCharLen * l, OnigLen min, OnigLen max, int min_is_sure)
 {
 	l->min = min;
 	l->max = max;
@@ -537,7 +537,6 @@ static void FASTCALL mmcl_multiply(MinMaxCharLen* to, int m)
 static void mmcl_repeat_range_multiply(MinMaxCharLen* to, int mlow, int mhigh)
 {
 	to->min = distance_multiply(to->min, mlow);
-
 	if(IS_INFINITE_REPEAT(mhigh))
 		to->max = INFINITE_LEN;
 	else
@@ -563,7 +562,7 @@ static int FASTCALL mml_is_equal(const MinMaxLen * a, const MinMaxLen * b)
 	return a->min == b->min && a->max == b->max;
 }
 
-static void mml_set_min_max(MinMaxLen* l, OnigLen min, OnigLen max)
+static void STDCALL mml_set_min_max(MinMaxLen* l, OnigLen min, OnigLen max)
 {
 	l->min = min;
 	l->max = max;
@@ -593,9 +592,10 @@ static void FASTCALL mml_alt_merge(MinMaxLen * to, const MinMaxLen * alt)
 	if(to->max < alt->max) 
 		to->max = alt->max;
 }
-
-/* fixed size pattern node only */
-static int node_char_len1(Node * node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env, int level)
+//
+// fixed size pattern node only 
+//
+static int STDCALL node_char_len1(Node * node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env, int level)
 {
 	MinMaxCharLen tci;
 	int r = CHAR_LEN_NORMAL;
@@ -828,7 +828,7 @@ static int FASTCALL add_op(regex_t * reg, int opcode)
 static int FASTCALL compile_length_tree(Node * node, regex_t * reg);
 static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env);
 
-#define IS_NEED_STR_LEN_OP(op) ((op) == OP_STR_N    || (op) == OP_STR_MB2N || (op) == OP_STR_MB3N || (op) == OP_STR_MBN)
+#define IS_NEED_STR_LEN_OP(op) oneof4(op, OP_STR_N, OP_STR_MB2N, OP_STR_MB3N, OP_STR_MBN)
 
 static int select_str_opcode(int mb_len, int str_len)
 {
@@ -862,12 +862,12 @@ static int select_str_opcode(int mb_len, int str_len)
 	return op;
 }
 
-static int is_strict_real_node(Node * node)
+static int FASTCALL is_strict_real_node(const Node * node)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_STRING:
 			{
-				StrNode * sn = STR_(node);
+				const StrNode * sn = STR_(node);
 				return (sn->end != sn->s);
 			}
 			break;
@@ -1060,7 +1060,7 @@ static int compile_string_crude_node(StrNode* sn, regex_t* reg)
 	return add_compile_string(sn->s, 1 /* sb */, (int)(sn->end - sn->s), reg);
 }
 
-static void* set_multi_byte_cclass(BBuf* mbuf, regex_t* reg)
+static void * set_multi_byte_cclass(BBuf* mbuf, regex_t* reg)
 {
 	size_t len = (size_t)mbuf->used;
 	void * p = SAlloc::M(len);
@@ -2852,9 +2852,9 @@ swap:
 	return 0;
 }
 
-static Node * FASTCALL get_tree_head_literal(Node * node, int exact, regex_t* reg)
+static Node * STDCALL get_tree_head_literal(const Node * node, int exact, regex_t* reg)
 {
-	Node * n = NULL_NODE;
+	const Node * n = NULL_NODE;
 	switch(NODE_TYPE(node)) {
 		case NODE_BACKREF:
 		case NODE_ALT:
@@ -2876,7 +2876,7 @@ static Node * FASTCALL get_tree_head_literal(Node * node, int exact, regex_t* re
 		    break;
 		case NODE_STRING:
 			{
-				StrNode* sn = STR_(node);
+				const StrNode * sn = STR_(node);
 				if(sn->end <= sn->s)
 					break;
 				if(exact == 0 || !NODE_IS_REAL_IGNORECASE(node)) {
@@ -2886,38 +2886,37 @@ static Node * FASTCALL get_tree_head_literal(Node * node, int exact, regex_t* re
 			break;
 		case NODE_QUANT:
 			{
-				QuantNode* qn = QUANT_(node);
+				const QuantNode * qn = QUANT_(node);
 				if(qn->lower > 0) {
 					if(IS_NOT_NULL(qn->head_exact))
 						n = qn->head_exact;
 					else
-						n = get_tree_head_literal(NODE_BODY(node), exact, reg);
+						n = get_tree_head_literal(NODE_BODY(node), exact, reg); // @recursion
 				}
 			}
 			break;
 		case NODE_BAG:
 			{
-				BagNode* en = BAG_(node);
+				const BagNode * en = BAG_(node);
 				switch(en->type) {
 					case BAG_OPTION:
 					case BAG_MEMORY:
 					case BAG_STOP_BACKTRACK:
 					case BAG_IF_ELSE:
-					n = get_tree_head_literal(NODE_BODY(node), exact, reg);
+					n = get_tree_head_literal(NODE_BODY(node), exact, reg); // @recursion
 					break;
 				}
 			}
 			break;
 		case NODE_ANCHOR:
 		    if(ANCHOR_(node)->type == ANCR_PREC_READ)
-			    n = get_tree_head_literal(NODE_BODY(node), exact, reg);
+			    n = get_tree_head_literal(NODE_BODY(node), exact, reg); // @recursion
 		    break;
 		case NODE_GIMMICK:
 		default:
 		    break;
 	}
-
-	return n;
+	return const_cast<Node *>(n);
 }
 
 enum GetValue {
@@ -4141,7 +4140,7 @@ static int alt_reduce_in_look_behind(Node * node, regex_t* reg, ScanEnv* env)
 	return r;
 }
 
-static int tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env);
+static int STDCALL tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env);
 
 static int tune_look_behind(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
@@ -4222,19 +4221,19 @@ normal:
 	return r;
 }
 
-static int tune_next(Node * node, Node* next_node, regex_t* reg)
+static int tune_next(Node * node, Node * next_node, regex_t* reg)
 {
 	NodeType type;
 	int called = FALSE;
 retry:
 	type = NODE_TYPE(node);
 	if(type == NODE_QUANT) {
-		QuantNode* qn = QUANT_(node);
+		QuantNode * qn = QUANT_(node);
 		if(qn->greedy && IS_INFINITE_REPEAT(qn->upper)) {
 #ifdef USE_QUANT_PEEK_NEXT
 			if(called == FALSE) {
 				Node * n = get_tree_head_literal(next_node, 1, reg);
-				/* '\0': for UTF-16BE etc... */
+				// '\0': for UTF-16BE etc... 
 				if(IS_NOT_NULL(n) && STR_(n)->s[0] != '\0') {
 					qn->next_head_exact = n;
 				}
@@ -4259,7 +4258,7 @@ retry:
 		}
 	}
 	else if(type == NODE_BAG) {
-		BagNode* en = BAG_(node);
+		const BagNode * en = BAG_(node);
 		if(en->type == BAG_MEMORY) {
 			if(NODE_IS_CALLED(node))
 				called = TRUE;
@@ -4365,7 +4364,7 @@ static int unravel_cf_string_alt_or_cc_add(Node ** rlist, int n, OnigCaseFoldCod
 	int r, i;
 	Node * node;
 	if(is_all_code_len_1_items(n, items)) {
-		OnigCodePoint codes[14];/* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
+		OnigCodePoint codes[14]; /* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
 		codes[0] = ONIGENC_MBC_TO_CODE(enc, s, end);
 		for(i = 0; i < n; i++) {
 			OnigCaseFoldCodeItem* item = items + i;
@@ -4425,7 +4424,7 @@ static int unravel_cf_look_behind_add(Node ** rlist, Node ** rsn, int n, OnigCas
 	}
 	else {
 		Node * node;
-		OnigCodePoint codes[14];/* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
+		OnigCodePoint codes[14]; /* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
 		found = 0;
 		codes[found++] = ONIGENC_MBC_TO_CODE(enc, s, s + one_len);
 		for(i = 0; i < n; i++) {
@@ -5089,13 +5088,13 @@ static int tune_quant(Node * node, regex_t* reg, int state, ScanEnv* env)
 // 5. find invalid patterns in look-behind.
 // 6. expand repeated string.
 // 
-static int tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env)
+static int STDCALL tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
 	int r = 0;
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 	    {
-		    Node* prev = NULL_NODE;
+		    Node * prev = NULL_NODE;
 		    do {
 			    r = tune_tree(NODE_CAR(node), reg, state, env);
 			    if(IS_NOT_NULL(prev) && r == 0) {
@@ -6300,7 +6299,7 @@ RegexExt* onig_get_regex_ext(regex_t* reg)
 static void free_regex_ext(RegexExt * ext)
 {
 	if(ext) {
-		SAlloc::F((void*)ext->pattern);
+		SAlloc::F((void *)ext->pattern);
 #ifdef USE_CALLOUT
 		onig_callout_tag_table_free(ext->tag_table);
 		if(ext->callout_list)
@@ -6524,7 +6523,7 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 			if(r != 0) 
 				goto err;
 			COP(reg)->update_var.type = UPDATE_VAR_KEEP_FROM_STACK_LAST;
-			COP(reg)->update_var.id   = 0;/* not used */
+			COP(reg)->update_var.id   = 0; /* not used */
 			COP(reg)->update_var.clear = FALSE;
 		}
 		r = add_op(reg, OP_END);
@@ -6631,7 +6630,7 @@ int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType case_fol
 	(reg)->ops_curr       = (Operation*)NULL;
 	(reg)->ops_used       = 0;
 	(reg)->ops_alloc      = 0;
-	(reg)->name_table     = (void*)NULL;
+	(reg)->name_table     = (void *)NULL;
 	(reg)->case_fold_flag = case_fold_flag;
 	return 0;
 }
@@ -6738,7 +6737,7 @@ int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code)
 	return ((low < n && code >= data[low * 2]) ? 1 : 0);
 }
 
-int onig_is_code_in_cc_len(int elen, OnigCodePoint code, /* CClassNode* */ void* cc_arg)
+int onig_is_code_in_cc_len(int elen, OnigCodePoint code, /* CClassNode* */ void * cc_arg)
 {
 	int found;
 	CClassNode * cc = (CClassNode*)cc_arg;

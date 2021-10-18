@@ -81,7 +81,7 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 
 	static void flush_args(cff2_cs_interp_env_t &env, flatten_param_t& param)
 	{
-		for(unsigned int i = 0; i < env.argStack.get_count();) {
+		for(uint i = 0; i < env.argStack.get_count();) {
 			const blend_arg_t &arg = env.argStack[i];
 			if(arg.blending()) {
 				if(UNLIKELY(!((arg.numValues > 0) && (env.argStack.get_count() >= arg.numValues)))) {

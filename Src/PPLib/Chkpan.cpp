@@ -10025,7 +10025,7 @@ static int Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector,
 	return ok;
 }
 
-int FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
+int STDCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
 {
 	const int preserve_use_large_dialogs_flags = SLS.CheckUiFlag(sluifUseLargeDialogs);
 	SLS.SetUiFlag(sluifUseLargeDialogs, 0);

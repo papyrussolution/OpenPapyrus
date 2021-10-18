@@ -103,7 +103,7 @@ gravity_module_t * gravity_module_new(gravity_vm * vm, const char * identifier)
 	assert(m);
 	m->isa = GravityEnv.P_ClsModule;
 	m->identifier = sstrdup(identifier);
-	m->htable = gravity_hash_create(0, gravity_value_hash, gravity_value_equals, gravity_hash_keyvaluefree, (void*)vm);
+	m->htable = gravity_hash_create(0, gravity_value_hash, gravity_value_equals, gravity_hash_keyvaluefree, (void *)vm);
 	gravity_vm_transfer(vm, (gravity_class_t *)m);
 	return m;
 }
@@ -121,7 +121,7 @@ uint32 gravity_module_size(gravity_vm * vm, gravity_module_t * m)
 {
 	SET_OBJECT_VISITED_FLAG(m, true);
 	uint32 hash_size = 0;
-	gravity_hash_iterate2(m->htable, gravity_hash_internalsize, (void*)&hash_size, (void*)vm);
+	gravity_hash_iterate2(m->htable, gravity_hash_internalsize, (void *)&hash_size, (void *)vm);
 	uint32 module_size = static_cast<uint32>((sizeof(gravity_module_t)) + sstrlen(m->identifier) + hash_size + gravity_hash_memsize(m->htable));
 	SET_OBJECT_VISITED_FLAG(m, false);
 	return module_size;
@@ -130,7 +130,7 @@ uint32 gravity_module_size(gravity_vm * vm, gravity_module_t * m)
 void gravity_module_blacken(gravity_vm * vm, gravity_module_t * m) 
 {
 	gravity_vm_memupdate(vm, gravity_module_size(vm, m));
-	gravity_hash_iterate(m->htable, gravity_hash_gray, (void*)vm);
+	gravity_hash_iterate(m->htable, gravity_hash_gray, (void *)vm);
 }
 
 // MARK: -
@@ -303,14 +303,14 @@ void gravity_class_serialize(gravity_class_t * c, GravityJson * json)
 		json_add_bool(json, GRAVITY_JSON_LABELSTRUCT, true);
 	// serialize htable
 	if(c->htable) {
-		gravity_hash_iterate(c->htable, gravity_hash_serialize, (void*)json);
+		gravity_hash_iterate(c->htable, gravity_hash_serialize, (void *)json);
 	}
 	// serialize meta class
 	if(c != meta) {
 		// further proceed only if it has something to be serialized
 		if((meta->htable) && (gravity_hash_count(meta->htable) > 0)) {
 			json_begin_array(json, GRAVITY_JSON_LABELMETA);
-			gravity_hash_iterate(meta->htable, gravity_hash_serialize, (void*)json);
+			gravity_hash_iterate(meta->htable, gravity_hash_serialize, (void *)json);
 			json_end_array(json);
 		}
 	}
@@ -414,16 +414,16 @@ static void gravity_class_free_internal(gravity_vm * vm, gravity_class_t * c, bo
 			if(p_delegate->bridge_free) 
 				p_delegate->bridge_free(vm, c);
 		}
-		mem_free((void*)c->identifier);
-		mem_free((void*)c->superlook);
+		mem_free((void *)c->identifier);
+		mem_free((void *)c->superlook);
 		if(!skip_base) {
 			// base classes have functions not registered inside VM so manually free all of them
 			gravity_hash_iterate(c->htable, gravity_hash_finteralfree, NULL);
 			gravity_hash_iterate(c->htable, gravity_hash_valuefree, NULL);
 		}
 		gravity_hash_free(c->htable);
-		mem_free((void*)c->ivars);
-		mem_free((void*)c);
+		mem_free((void *)c->ivars);
+		mem_free((void *)c);
 	}
 }
 
@@ -486,7 +486,7 @@ uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c)
 	SET_OBJECT_VISITED_FLAG(c, true);
 	uint32 class_size = static_cast<uint32>(sizeof(gravity_class_t) + (c->nivars * sizeof(GravityValue)) + sstrlen(c->identifier));
 	uint32 hash_size = 0;
-	gravity_hash_iterate2(c->htable, gravity_hash_internalsize, (void*)&hash_size, (void*)vm);
+	gravity_hash_iterate2(c->htable, gravity_hash_internalsize, (void *)&hash_size, (void *)vm);
 	hash_size += gravity_hash_memsize(c->htable);
 	gravity_delegate_t * delegate = gravity_vm_delegate(vm);
 	if(c->xdata && delegate->bridge_size)
@@ -500,7 +500,7 @@ void gravity_class_blacken(gravity_vm * vm, gravity_class_t * c)
 	gravity_vm_memupdate(vm, gravity_class_size(vm, c));
 	gravity_gray_object(vm, c->objclass); // metaclass
 	gravity_gray_object(vm, c->superclass); // superclass
-	gravity_hash_iterate(c->htable, gravity_hash_gray, (void*)vm); // internals
+	gravity_hash_iterate(c->htable, gravity_hash_gray, (void *)vm); // internals
 	// ivars
 	for(uint32 i = 0; i<c->nivars; ++i) {
 		gravity_gray_value(vm, c->ivars[i]);
@@ -1120,10 +1120,10 @@ void gravity_function_free(gravity_vm * vm, gravity_function_t * f)
 			if(p_delegate->bridge_free) 
 				p_delegate->bridge_free(vm, (gravity_class_t *)f);
 		}
-		mem_free((void*)f->identifier);
+		mem_free((void *)f->identifier);
 		if(f->tag == EXEC_TYPE_NATIVE) {
-			mem_free((void*)f->U.Nf.bytecode);
-			mem_free((void*)f->U.Nf.lineno);
+			mem_free((void *)f->U.Nf.bytecode);
+			mem_free((void *)f->U.Nf.lineno);
 			// FREE EACH DEFAULT value
 			uint n = f->U.Nf.pvalue.getCount();
 			for(uint i = 0; i < n; i++) {
@@ -1141,7 +1141,7 @@ void gravity_function_free(gravity_vm * vm, gravity_function_t * f)
 			// DO NOT FREE EACH INDIVIDUAL CPOOL ITEM HERE
 			f->U.Nf.cpool.Z();
 		}
-		delete f;//mem_free((void*)f);
+		delete f;//mem_free((void *)f);
 	}
 }
 
@@ -1677,7 +1677,7 @@ void gravity_instance_free(gravity_vm * vm, gravity_instance_t * i)
 			delegate->bridge_free(vm, (gravity_class_t *)i);
 	}
 	mem_free(i->ivars);
-	mem_free((void*)i);
+	mem_free((void *)i);
 }
 
 gravity_closure_t * gravity_instance_lookup_event(gravity_instance_t * i, const char * name) 
@@ -2140,7 +2140,7 @@ void gravity_list_free(gravity_vm * vm, gravity_list_t * list)
 	if(list) {
 		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)list, true));
 		list->array.Z();
-		mem_free((void*)list);
+		mem_free((void *)list);
 	}
 }
 
@@ -2188,7 +2188,7 @@ void gravity_map_free(gravity_vm * vm, gravity_map_t * map)
 {
 	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)map, true));
 	gravity_hash_free(map->hash);
-	mem_free((void*)map);
+	mem_free((void *)map);
 }
 
 void gravity_map_append_map(gravity_vm * vm, gravity_map_t * map1, gravity_map_t * map2) 
@@ -2242,7 +2242,7 @@ uint32 gravity_map_size(gravity_vm * vm, gravity_map_t * map)
 {
 	SET_OBJECT_VISITED_FLAG(map, true);
 	uint32 hash_size = 0;
-	gravity_hash_iterate2(map->hash, gravity_hash_internalsize, (void*)&hash_size, (void*)vm);
+	gravity_hash_iterate2(map->hash, gravity_hash_internalsize, (void *)&hash_size, (void *)vm);
 	hash_size += gravity_hash_memsize(map->hash);
 	hash_size += sizeof(gravity_map_t);
 	SET_OBJECT_VISITED_FLAG(map, false);
@@ -2252,7 +2252,7 @@ uint32 gravity_map_size(gravity_vm * vm, gravity_map_t * map)
 void gravity_map_blacken(gravity_vm * vm, gravity_map_t * map) 
 {
 	gravity_vm_memupdate(vm, gravity_map_size(vm, map));
-	gravity_hash_iterate(map->hash, gravity_hash_gray, (void*)vm);
+	gravity_hash_iterate(map->hash, gravity_hash_gray, (void *)vm);
 }
 
 // MARK: -
@@ -2270,7 +2270,7 @@ gravity_range_t * gravity_range_new(gravity_vm * vm, gravity_int_t from_range, g
 void gravity_range_free(gravity_vm * vm, gravity_range_t * range) 
 {
 	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)range, true));
-	mem_free((void*)range);
+	mem_free((void *)range);
 }
 
 uint32 gravity_range_size(gravity_vm * vm, gravity_range_t * range) 

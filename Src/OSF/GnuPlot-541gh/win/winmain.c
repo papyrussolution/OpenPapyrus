@@ -91,8 +91,8 @@ void WinExit()
 	// Last chance to close Windows help, call before anything else to avoid a crash. 
 	_WinM.WinCloseHelp();
 	// clean-up call for printing system 
-	PrintingCleanup();
-	GPO.TermReset(term);
+	_WinM.PrintingCleanup();
+	GPO.TermReset(GPT.P_Term);
 	_fcloseall();
 	// Close all graph windows 
 	for(GW * lpgw = _WinM.P_ListGraphs; lpgw; lpgw = lpgw->next) {

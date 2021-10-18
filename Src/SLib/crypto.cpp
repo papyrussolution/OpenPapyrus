@@ -601,39 +601,6 @@ int SlCrypto::Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t da
 
 int SlCrypto::Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen)
 {
-	/*
-		ctx     = EVP_CIPHER_CTX_new();
-		//Get the cipher.
-		cipher  = EVP_aes_128_gcm ();
-		#define     GCM_IV      "000000000000"
-		#define     GCM_ADD     "0000"
-		#define     TAG_SIZE    16
-		#define     ENC_SIZE    64
-		//Encrypt the data first.
-		//Set the cipher and context only.
-		retv    = EVP_EncryptInit (ctx, cipher, NULL, NULL);
-
-		//Set the nonce and tag sizes.
-		//Set IV length. [Optional for GCM].
-		retv    = EVP_CIPHER_CTX_ctrl (ctx, EVP_CTRL_GCM_SET_IVLEN, strlen((const char *)GCM_IV), NULL);
-		retv    = EVP_EncryptInit (ctx, NULL, (const unsigned char *)keybuf, (const unsigned char *)GCM_IV); //Now initialize the context with key and IV. 
-		retv    = EVP_EncryptUpdate(ctx, NULL, (int *)&enclen, (const unsigned char *)GCM_ADD, strlen(GCM_ADD)); //Add Additional associated data (AAD). [Optional for GCM]
-		retv    = EVP_EncryptUpdate(ctx, (unsigned char *)encm, (int *)&enclen, (const unsigned char *)msg, _tcslen (msg) *sizeof(Char)); //Now encrypt the data.
-		retv    = EVP_EncryptFinal(ctx, (unsigned char *)encm + enclen, (int *)&enclen2); //Finalize.
-		enclen  += enclen2;
-		retv    = EVP_CIPHER_CTX_ctrl (ctx, EVP_CTRL_GCM_GET_TAG, TAG_SIZE, (unsigned char *)encm + enclen); //Append authentication tag at the end.
-		//DECRYPTION PART
-		//Now Decryption of the data.
-		//Then decrypt the data.
-		retv    = EVP_DecryptInit(ctx, cipher, NULL, NULL); //Set just cipher.
-		//
-		retv    = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, strlen((const char *)GCM_IV), NULL); //Set Nonce size.
-		retv    = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, TAG_SIZE, (unsigned char *)encm + enclen); //Set Tag from the data.
-		retv    = EVP_DecryptInit (ctx, NULL, (const unsigned char*)keybuf, (const unsigned char *)GCM_IV); //Set key and IV (nonce).
-		retv    = EVP_DecryptUpdate (ctx, NULL, (int *)&declen, (const unsigned char *)GCM_ADD, strlen((const char *)GCM_ADD)); //Add Additional associated data (AAD).
-		retv    = EVP_DecryptUpdate (ctx, decm, (int *)&declen, (const unsigned char *)encm, enclen); //Decrypt the data.
-		retv    = EVP_DecryptFinal (ctx, (unsigned char*)decm + declen, (int *)&declen2); //Finalize.
-	*/
 	assert(pKey);
 	int    ok = 1;
 	int    outl = 0;

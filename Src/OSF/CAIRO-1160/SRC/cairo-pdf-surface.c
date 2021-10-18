@@ -669,7 +669,7 @@ void cairo_pdf_surface_set_page_label(cairo_surface_t * surface, const char * ut
 	if(!_extract_pdf_surface(surface, &pdf_surface))
 		return;
 	SAlloc::F(pdf_surface->current_page_label);
-	pdf_surface->current_page_label = utf8 ? strdup(utf8) : NULL;
+	pdf_surface->current_page_label = utf8 ? sstrdup(utf8) : NULL;
 }
 
 /**

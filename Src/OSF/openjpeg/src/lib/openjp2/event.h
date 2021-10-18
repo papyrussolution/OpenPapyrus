@@ -49,11 +49,11 @@ used for
 */
 typedef struct opj_event_mgr {
     /** Data to call the event manager upon */
-    void *          m_error_data;
+    void *    m_error_data;
     /** Data to call the event manager upon */
-    void *          m_warning_data;
+    void *    m_warning_data;
     /** Data to call the event manager upon */
-    void *          m_info_data;
+    void *    m_info_data;
     /** Error message callback if available, NULL otherwise */
     opj_msg_callback error_handler;
     /** Warning message callback if available, NULL otherwise */

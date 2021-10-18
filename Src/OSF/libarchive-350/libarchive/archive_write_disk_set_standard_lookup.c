@@ -45,8 +45,8 @@ struct bucket {
 
 static const size_t cache_size = 127;
 static unsigned int     hash(const char *);
-static int64_t  lookup_gid(void *, const char * uname, int64_t);
-static int64_t  lookup_uid(void *, const char * uname, int64_t);
+static int64  lookup_gid(void *, const char * uname, int64);
+static int64  lookup_uid(void *, const char * uname, int64);
 static void     cleanup(void *);
 
 /*
@@ -70,11 +70,11 @@ static void     cleanup(void *);
  */
 int archive_write_disk_set_standard_lookup(struct archive * a)
 {
-	struct bucket * ucache = static_cast<struct bucket *>(calloc(cache_size, sizeof(struct bucket)));
-	struct bucket * gcache = static_cast<struct bucket *>(calloc(cache_size, sizeof(struct bucket)));
+	struct bucket * ucache = static_cast<struct bucket *>(SAlloc::C(cache_size, sizeof(struct bucket)));
+	struct bucket * gcache = static_cast<struct bucket *>(SAlloc::C(cache_size, sizeof(struct bucket)));
 	if(ucache == NULL || gcache == NULL) {
-		free(ucache);
-		free(gcache);
+		SAlloc::F(ucache);
+		SAlloc::F(gcache);
 		return ARCHIVE_FATAL;
 	}
 	archive_write_disk_set_group_lookup(a, gcache, lookup_gid, cleanup);
@@ -82,7 +82,7 @@ int archive_write_disk_set_standard_lookup(struct archive * a)
 	return ARCHIVE_OK;
 }
 
-static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
+static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 {
 	int h;
 	struct bucket * b;
@@ -99,8 +99,8 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 		return ((gid_t)b->id);
 
 	/* Free the cache slot for a new entry. */
-	free(b->name);
-	b->name = strdup(gname);
+	SAlloc::F(b->name);
+	b->name = sstrdup(gname);
 	/* Note: If strdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_GRP_H
@@ -121,15 +121,15 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 			if(r != ERANGE)
 				break;
 			bufsize *= 2;
-			free(allocated);
-			allocated = malloc(bufsize);
+			SAlloc::F(allocated);
+			allocated = SAlloc::M(bufsize);
 			if(allocated == NULL)
 				break;
 			buffer = allocated;
 		}
 		if(result != NULL)
 			gid = result->gr_gid;
-		free(allocated);
+		SAlloc::F(allocated);
 	}
 #  else /* HAVE_GETGRNAM_R */
 	{
@@ -150,7 +150,7 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 	return (gid);
 }
 
-static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
+static int64 lookup_uid(void * private_data, const char * uname, int64 uid)
 {
 	int h;
 	struct bucket * b;
@@ -167,8 +167,8 @@ static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
 		return ((uid_t)b->id);
 
 	/* Free the cache slot for a new entry. */
-	free(b->name);
-	b->name = strdup(uname);
+	SAlloc::F(b->name);
+	b->name = sstrdup(uname);
 	/* Note: If strdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_PWD_H
@@ -189,15 +189,15 @@ static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
 			if(r != ERANGE)
 				break;
 			bufsize *= 2;
-			free(allocated);
-			allocated = malloc(bufsize);
+			SAlloc::F(allocated);
+			allocated = SAlloc::M(bufsize);
 			if(allocated == NULL)
 				break;
 			buffer = allocated;
 		}
 		if(result != NULL)
 			uid = result->pw_uid;
-		free(allocated);
+		SAlloc::F(allocated);
 	}
 #  else /* HAVE_GETPWNAM_R */
 	{
@@ -223,8 +223,8 @@ static void cleanup(void * pPrivate)
 	size_t i;
 	struct bucket * cache = (struct bucket *)pPrivate;
 	for(i = 0; i < cache_size; i++)
-		free(cache[i].name);
-	free(cache);
+		SAlloc::F(cache[i].name);
+	SAlloc::F(cache);
 }
 
 static unsigned int hash(const char * p)

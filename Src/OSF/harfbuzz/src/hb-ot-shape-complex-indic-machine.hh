@@ -32,7 +32,7 @@
 #include "hb.hh"
 
 #line 36 "hb-ot-shape-complex-indic-machine.hh"
-static const unsigned char _indic_syllable_machine_trans_keys[] = {
+static const uchar _indic_syllable_machine_trans_keys[] = {
 	8u, 8u, 4u, 8u, 5u, 7u, 5u, 8u, 4u, 8u, 6u, 6u, 16u, 16u, 4u, 8u,
 	4u, 13u, 4u, 8u, 8u, 8u, 5u, 7u, 5u, 8u, 4u, 8u, 6u, 6u, 16u, 16u,
 	4u, 8u, 4u, 13u, 4u, 13u, 4u, 13u, 8u, 8u, 5u, 7u, 5u, 8u, 4u, 8u,
@@ -95,7 +95,7 @@ static const short _indic_syllable_machine_index_offsets[] = {
 	1305, 1312, 1319, 1321, 1328
 };
 
-static const unsigned char _indic_syllable_machine_indicies[] = {
+static const uchar _indic_syllable_machine_indicies[] = {
 	1, 0, 2, 3, 3, 4, 1, 0,
 	3, 3, 4, 0, 3, 3, 4, 1,
 	0, 5, 3, 3, 4, 1, 0, 6,
@@ -267,7 +267,7 @@ static const unsigned char _indic_syllable_machine_indicies[] = {
 	120, 0
 };
 
-static const unsigned char _indic_syllable_machine_trans_targs[] = {
+static const uchar _indic_syllable_machine_trans_targs[] = {
 	39, 45, 50, 2, 51, 5, 6, 53,
 	57, 58, 39, 67, 11, 73, 68, 14,
 	15, 75, 80, 81, 84, 39, 89, 21,
@@ -389,7 +389,7 @@ static const int indic_syllable_machine_en_main = 39;
 #define found_syllable(syllable_type) \
 	HB_STMT_START { \
 		if(0) slfprintf_stderr("syllable %d..%d %s\n", ts, te, #syllable_type); \
-		for(unsigned int i = ts; i < te; i++) \
+		for(uint i = ts; i < te; i++) \
 			info[i].syllable() = (syllable_serial << 4) | indic_ ## syllable_type; \
 		syllable_serial++; \
 		if(UNLIKELY(syllable_serial == 16)) syllable_serial = 1; \
@@ -420,8 +420,8 @@ static void find_syllables_indic(hb_buffer_t * buffer)
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
-		const unsigned char * _inds;
+		const uchar * _keys;
+		const uchar * _inds;
 		if(p == pe)
 			goto _test_eof;
 _resume:

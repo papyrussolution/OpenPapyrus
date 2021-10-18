@@ -87,7 +87,7 @@
 #endif
 
 // Base types
-typedef unsigned char cmsUInt8Number;          // That is guaranteed by the C99 spec
+typedef uchar cmsUInt8Number;          // That is guaranteed by the C99 spec
 typedef signed char cmsInt8Number;             // That is guaranteed by the C99 spec
 // IEEE float storage numbers
 typedef float cmsFloat32Number;
@@ -149,8 +149,8 @@ typedef double cmsFloat64Number;
 #endif
 // In the case 64 bit numbers are not supported by the compiler
 #ifdef CMS_DONT_USE_INT64
-typedef cmsUInt32Number cmsUInt64Number[2];
-typedef cmsInt32Number cmsInt64Number[2];
+	typedef cmsUInt32Number cmsUInt64Number[2];
+	typedef cmsInt32Number cmsInt64Number[2];
 #endif
 
 // Derivative types
@@ -158,98 +158,84 @@ typedef cmsUInt32Number cmsSignature;
 typedef cmsUInt16Number cmsU8Fixed8Number;
 typedef cmsInt32Number cmsS15Fixed16Number;
 typedef cmsUInt32Number cmsU16Fixed16Number;
-
-// Boolean type, which will be using the native integer
-typedef int cmsBool;
+typedef int cmsBool; // Boolean type, which will be using the native integer
 
 // Try to detect windows
 #if defined (_WIN32) || defined(_WIN64) || defined(WIN32) || defined(_WIN32_)
-#define CMS_IS_WINDOWS_ 1
+	#define CMS_IS_WINDOWS_ 1
 #endif
-
 #ifdef _MSC_VER
-#define CMS_IS_WINDOWS_ 1
+	#define CMS_IS_WINDOWS_ 1
 #endif
-
 #ifdef __BORLANDC__
-#define CMS_IS_WINDOWS_ 1
+	#define CMS_IS_WINDOWS_ 1
 #endif
 
 // Try to detect big endian platforms. This list can be endless, so primarily rely on the configure script
 // on Unix-like systems, and allow it to be set on the compiler command line using
 // -DCMS_USE_BIG_ENDIAN or something similar
 #ifdef CMS_USE_BIG_ENDIAN // set at compiler command line takes overall precedence
-
-#if CMS_USE_BIG_ENDIAN == 0
-#undef CMS_USE_BIG_ENDIAN
-#endif
-
+	#if CMS_USE_BIG_ENDIAN == 0
+		#undef CMS_USE_BIG_ENDIAN
+	#endif
 #else // CMS_USE_BIG_ENDIAN
-
-#ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
-#define CMS_USE_BIG_ENDIAN 1
-#else // WORDS_BIGENDIAN
-// Fall back to platform/compiler specific tests
-#    if defined(__sgi__) || defined(__sgi) || defined(sparc)
-#      define CMS_USE_BIG_ENDIAN      1
-#    endif
-
-#    if defined(__s390__) || defined(__s390x__)
-#      define CMS_USE_BIG_ENDIAN   1
-#    endif
-
-#ifdef macintosh
-#      ifdef __BIG_ENDIAN__
-#        define CMS_USE_BIG_ENDIAN      1
-#      endif
-#      ifdef __LITTLE_ENDIAN__
-#undef CMS_USE_BIG_ENDIAN
-#      endif
-#    endif
-#endif  // WORDS_BIGENDIAN
-
-#if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-#define CMS_USE_BIG_ENDIAN      1
-#endif
-
+	#ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
+		#define CMS_USE_BIG_ENDIAN 1
+	#else // WORDS_BIGENDIAN
+		// Fall back to platform/compiler specific tests
+		#if defined(__sgi__) || defined(__sgi) || defined(sparc)
+			#define CMS_USE_BIG_ENDIAN      1
+		#endif
+		#if defined(__s390__) || defined(__s390x__)
+			#define CMS_USE_BIG_ENDIAN   1
+		#endif
+		#ifdef macintosh
+			#ifdef __BIG_ENDIAN__
+				#define CMS_USE_BIG_ENDIAN      1
+			#endif
+			#ifdef __LITTLE_ENDIAN__
+				#undef CMS_USE_BIG_ENDIAN
+			#endif
+		#endif
+	#endif  // WORDS_BIGENDIAN
+	#if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+		#define CMS_USE_BIG_ENDIAN      1
+	#endif
 #endif  // CMS_USE_BIG_ENDIAN
-
 // Calling convention -- this is hardly platform and compiler dependent
 #ifdef CMS_IS_WINDOWS_
-#if defined(CMS_DLL) || defined(CMS_DLL_BUILD)
-#     ifdef __BORLANDC__
-#        define CMSEXPORT       __stdcall _export
-#        define CMSAPI
-#     else
-#        define CMSEXPORT      __stdcall
-#        ifdef CMS_DLL_BUILD
-#define CMSAPI    __declspec(dllexport)
-#        else
-#define CMSAPI     __declspec(dllimport)
-#endif
-#     endif
-#else
-#     define CMSEXPORT
-#     define CMSAPI
-#endif
+	#if defined(CMS_DLL) || defined(CMS_DLL_BUILD)
+		#ifdef __BORLANDC__
+			#define CMSEXPORT       __stdcall _export
+			#define CMSAPI
+		#else
+			#define CMSEXPORT      __stdcall
+			#ifdef CMS_DLL_BUILD
+				#define CMSAPI    __declspec(dllexport)
+			#else
+				#define CMSAPI     __declspec(dllimport)
+			#endif
+		#endif
+	#else
+		#define CMSEXPORT
+		#define CMSAPI
+	#endif
 #else  // not Windows
-#ifdef HAVE_FUNC_ATTRIBUTE_VISIBILITY
-#     define CMSEXPORT
-#     define CMSAPI    __attribute__((visibility("default")))
-#else
-#     define CMSEXPORT
-#     define CMSAPI
-#endif
+	#ifdef HAVE_FUNC_ATTRIBUTE_VISIBILITY
+		#define CMSEXPORT
+		#define CMSAPI    __attribute__((visibility("default")))
+	#else
+		#define CMSEXPORT
+		#define CMSAPI
+	#endif
 #endif  // CMS_IS_WINDOWS_
-
 #ifdef HasTHREADS
-#if HasTHREADS == 1
-#undef CMS_NO_PTHREADS
-#else
-#define CMS_NO_PTHREADS 1
+	#if HasTHREADS == 1
+		#undef CMS_NO_PTHREADS
+	#else
+		#define CMS_NO_PTHREADS 1
+	#endif
 #endif
-#endif
-
 // Some common definitions
 #define cmsMAX_PATH     256
 
@@ -623,9 +609,9 @@ typedef struct {
 
 // Little CMS specific typedefs
 
-typedef void* cmsHANDLE;               // Generic handle
-typedef void* cmsHPROFILE;             // Opaque typedefs to hide internals
-typedef void* cmsHTRANSFORM;
+typedef void * cmsHANDLE;               // Generic handle
+typedef void * cmsHPROFILE;             // Opaque typedefs to hide internals
+typedef void * cmsHTRANSFORM;
 
 #define cmsMAXCHANNELS  16                // Maximum number of channels in ICC profiles
 
@@ -997,16 +983,16 @@ CMSAPI long int CMSEXPORT cmsfilelength(FILE* f);
 
 typedef struct _cmsContext_struct* cmsContext;
 
-CMSAPI cmsContext CMSEXPORT cmsCreateContext(void* Plugin, void* UserData);
+CMSAPI cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData);
 CMSAPI void CMSEXPORT cmsDeleteContext(cmsContext ContextID);
-CMSAPI cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void* NewUserData);
+CMSAPI cmsContext CMSEXPORT cmsDupContext(cmsContext ContextID, void * NewUserData);
 CMSAPI void * CMSEXPORT cmsGetContextUserData(cmsContext ContextID);
 
 // Plug-In registering
 //  --------------------------------------------------------------------------------------------------
 
-CMSAPI cmsBool CMSEXPORT cmsPlugin(void* Plugin);
-CMSAPI cmsBool CMSEXPORT cmsPluginTHR(cmsContext ContextID, void* Plugin);
+CMSAPI cmsBool CMSEXPORT cmsPlugin(void * Plugin);
+CMSAPI cmsBool CMSEXPORT cmsPluginTHR(cmsContext ContextID, void * Plugin);
 CMSAPI void CMSEXPORT cmsUnregisterPlugins(void);
 CMSAPI void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID);
 
@@ -1264,8 +1250,8 @@ typedef cmsInt32Number (* cmsSAMPLERFLOAT)(CMSREGISTER const cmsFloat32Number In
 #define SAMPLER_INSPECT     0x01000000
 
 // For CLUT only
-CMSAPI cmsBool CMSEXPORT cmsStageSampleCLut16bit(cmsStage* mpe,    cmsSAMPLER16 Sampler, void* Cargo, cmsUInt32Number dwFlags);
-CMSAPI cmsBool CMSEXPORT cmsStageSampleCLutFloat(cmsStage* mpe, cmsSAMPLERFLOAT Sampler, void* Cargo, cmsUInt32Number dwFlags);
+CMSAPI cmsBool CMSEXPORT cmsStageSampleCLut16bit(cmsStage* mpe,    cmsSAMPLER16 Sampler, void * Cargo, cmsUInt32Number dwFlags);
+CMSAPI cmsBool CMSEXPORT cmsStageSampleCLutFloat(cmsStage* mpe, cmsSAMPLERFLOAT Sampler, void * Cargo, cmsUInt32Number dwFlags);
 
 // Slicers
 CMSAPI cmsBool CMSEXPORT cmsSliceSpace16(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[],
@@ -1437,13 +1423,13 @@ CMSAPI cmsBool CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write pre-formatted data
 CMSAPI void *  CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
-CMSAPI cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void* data);
+CMSAPI cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data);
 CMSAPI cmsBool CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, cmsTagSignature dest);
 CMSAPI cmsTagSignature CMSEXPORT cmsTagLinkedTo(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write raw data
-CMSAPI cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void* Buffer, cmsUInt32Number BufferSize);
-CMSAPI cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void* data, cmsUInt32Number Size);
+CMSAPI cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void * Buffer, cmsUInt32Number BufferSize);
+CMSAPI cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, cmsUInt32Number Size);
 
 // Access header data
 #define cmsEmbeddedProfileFalse    0x00000000
@@ -1754,8 +1740,8 @@ CMSAPI void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform,             
     cmsUInt32Number Stride);
 
 CMSAPI void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
-    const void* InputBuffer,
-    void* OutputBuffer,
+    const void * InputBuffer,
+    void * OutputBuffer,
     cmsUInt32Number PixelsPerLine,
     cmsUInt32Number LineCount,
     cmsUInt32Number BytesPerLineIn,
@@ -1803,13 +1789,13 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID,
     cmsHPROFILE hProfile,
     cmsUInt32Number Intent,
     cmsUInt32Number dwFlags,
-    void* Buffer,
+    void * Buffer,
     cmsUInt32Number dwBufferLen);
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID,
     cmsHPROFILE hProfile,
     cmsUInt32Number Intent,
     cmsUInt32Number dwFlags,
-    void* Buffer,
+    void * Buffer,
     cmsUInt32Number dwBufferLen);
 
 // IT8.7 / CGATS.17-200x handling -----------------------------------------------------------------------------

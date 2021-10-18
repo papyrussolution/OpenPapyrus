@@ -417,7 +417,7 @@ void * gumbo_vector_pop(GumboParser * parser, GumboVector* vector)
 	return vector->length ? vector->data[--vector->length] : 0;
 }
 
-int gumbo_vector_index_of(GumboVector* vector, const void * element) 
+int FASTCALL gumbo_vector_index_of(GumboVector* vector, const void * element) 
 {
 	for(uint i = 0; i < vector->length; ++i) {
 		if(vector->data[i] == element)
@@ -426,7 +426,7 @@ int gumbo_vector_index_of(GumboVector* vector, const void * element)
 	return -1;
 }
 
-void gumbo_vector_insert_at(void * element, uint index, GumboVector * vector) 
+void STDCALL gumbo_vector_insert_at(void * element, uint index, GumboVector * vector) 
 {
 	assert(index >= 0);
 	assert(index <= vector->length);
@@ -447,7 +447,7 @@ void * FASTCALL gumbo_vector_remove_at(uint index, GumboVector * vector)
 {
 	assert(index >= 0);
 	assert(index < vector->length);
-	void* result = vector->data[index];
+	void * result = vector->data[index];
 	memmove(&vector->data[index], &vector->data[index + 1], sizeof(void *) * (vector->length - index - 1));
 	--vector->length;
 	return result;
@@ -552,7 +552,7 @@ static void handle_parser_error(GumboParser * parser, const GumboParserError* er
 // Finds the preceding newline in an original source buffer from a given byte
 // location.  Returns a character pointer to the character after that, or a
 // pointer to the beginning of the string if this is the first line.
-static const char* find_last_newline(const char* original_text, const char* error_location) 
+static const char * FASTCALL find_last_newline(const char* original_text, const char* error_location) 
 {
 	assert(error_location >= original_text);
 	const char* c = error_location;

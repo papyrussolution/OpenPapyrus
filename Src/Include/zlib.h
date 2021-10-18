@@ -383,10 +383,10 @@
 	#define FAR
 #endif
 #if !defined(__MACTYPES__)
-	typedef unsigned char Byte;   /* 8 bits */
+	typedef unsigned char Byte; // 8 bits 
 #endif
-typedef unsigned int uInt;    /* 16 bits or more */
-typedef unsigned long uLong;  /* 32 bits or more */
+typedef unsigned int uInt;   // 16 bits or more 
+typedef unsigned long uLong; // 32 bits or more 
 #ifdef SMALL_MEDIUM
 	#define Bytef Byte FAR // Borland C/C++ and some old MSC versions ignore FAR inside typedef 
 #else

@@ -175,7 +175,7 @@ int Crosstab::AddIdxField(const DBField & fld) { return IdxFldList.Add(fld); }
 int Crosstab::AddFixField(const char * pName, TYPEID type) { return FixFldList.addField(pName, type); }
 int Crosstab::AddInheritedFixField(const DBField & fld) { return InhFldList.Add(fld); }
 
-int SLAPIV Crosstab::SetSortIdx(const char * pFldName, ...)
+int CDECL Crosstab::SetSortIdx(const char * pFldName, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pFldName);

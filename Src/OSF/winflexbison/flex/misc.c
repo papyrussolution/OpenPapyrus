@@ -96,23 +96,25 @@ static void sko_pop(bool* dc)
 void action_define(const char * defname, int value)
 {
 	char buf[MAXLINE];
-	char   * cpy;
-	if((int)strlen(defname) > MAXLINE / 2) {
+	char * cpy;
+	if(strlen(defname) > (MAXLINE / 2)) {
 		format_pinpoint_message(_("name \"%s\" ridiculously long"), defname);
 		return;
 	}
-	snprintf(buf, sizeof(buf), "#define %s %d\n", defname, value);
-	add_action(buf);
-	/* track #defines so we can undef them when we're done. */
-	cpy = xstrdup(defname);
-	buf_append(&defs_buf, &cpy, 1);
+	else {
+		snprintf(buf, sizeof(buf), "#define %s %d\n", defname, value);
+		add_action(buf);
+		// track #defines so we can undef them when we're done.
+		cpy = xstrdup(defname);
+		buf_append(&defs_buf, &cpy, 1);
+	}
 }
 
 /* Append "new_text" to the running buffer. */
 void add_action(const char * new_text)
 {
-	int len = (int)strlen(new_text);
-	while(len + action_index >= action_size - 10 /* slop */) {
+	int len = sstrleni(new_text);
+	while((len + action_index) >= action_size - 10 /* slop */) {
 		int new_size = action_size * 2;
 		if(new_size <= 0)
 			// Increase just a little, to try to avoid overflow on 16-bit machines.
@@ -129,13 +131,12 @@ void add_action(const char * new_text)
 
 void   * allocate_array(int size, size_t element_size)
 {
-	void * mem;
 #if HAVE_REALLOCARRAY
-	/* reallocarray has built-in overflow detection */
-	mem = reallocarray(NULL, (size_t)size, element_size);
+	// reallocarray has built-in overflow detection 
+	void * mem = reallocarray(NULL, (size_t)size, element_size);
 #else
 	size_t num_bytes = (size_t)size * element_size;
-	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : SAlloc::M(num_bytes);
+	void * mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : SAlloc::M(num_bytes);
 #endif
 	if(!mem)
 		flexfatal(_("memory allocation failed in allocate_array()"));
@@ -480,12 +481,11 @@ void out_m4_define(const char* def, const char* val)
 	const char * fmt = "m4_define( [[%s]], [[%s]])m4_dnl\n";
 	fprintf(stdout, fmt, def, val ? val : "");
 }
-
-/* readable_form - return the the human-readable form of a character
- *
- * The returned string is in static storage.
- */
-char   * readable_form(int c)
+// 
+// readable_form - return the the human-readable form of a character
+// The returned string is in static storage.
+// 
+char * readable_form(int c)
 {
 	static char rform[20];
 	if((c >= 0 && c < 32) || c >= 127) {
@@ -498,10 +498,7 @@ char   * readable_form(int c)
 			case '\a': return "\\a";
 			case '\v': return "\\v";
 			default:
-			    if(trace_hex)
-				    snprintf(rform, sizeof(rform), "\\x%.2x", (uint)c);
-			    else
-				    snprintf(rform, sizeof(rform), "\\%.3o", (uint)c);
+			    snprintf(rform, sizeof(rform), (trace_hex ? "\\x%.2x" : "\\%.3o"), (uint)c);
 			    return rform;
 		}
 	}
@@ -614,8 +611,7 @@ void skelout()
 					outn((char*)(yydmap_buf.elts));
 			}
 			else if(cmd_match(CMD_DEFINE_YYTABLES)) {
-				out_str("#define YYTABLES_NAME \"%s\"\n",
-				    tablesname ? tablesname : "yytables");
+				out_str("#define YYTABLES_NAME \"%s\"\n", tablesname ? tablesname : "yytables");
 			}
 			else if(cmd_match(CMD_IF_CPP_ONLY)) {
 				/* only for C++ */
@@ -648,33 +644,31 @@ void skelout()
 			outn(buf);
 	}                       /* end while */
 }
-
 /* transition_struct_out - output a yy_trans_info structure
  *
  * outputs the yy_trans_info structure with the two elements, element_v and
  * element_n.  Formats the output with spaces and carriage returns.
  */
-
 void transition_struct_out(int element_v, int element_n)
 {
-	/* short circuit any output */
-	if(!gentables)
-		return;
-	out_dec2(" {%4d,%4d },", element_v, element_n);
-	datapos += TRANS_STRUCT_PRINT_LENGTH;
-	if(datapos >= 79 - TRANS_STRUCT_PRINT_LENGTH) {
-		outc('\n');
-		if(++dataline % 10 == 0)
+	// short circuit any output 
+	if(gentables) {
+		out_dec2(" {%4d,%4d },", element_v, element_n);
+		datapos += TRANS_STRUCT_PRINT_LENGTH;
+		if(datapos >= 79 - TRANS_STRUCT_PRINT_LENGTH) {
 			outc('\n');
-		datapos = 0;
+			if(++dataline % 10 == 0)
+				outc('\n');
+			datapos = 0;
+		}
 	}
 }
-
-/* The following is only needed when building flex's parser using certain
- * broken versions of bison.
- *
- * XXX: this is should go soon
- */
+// 
+// The following is only needed when building flex's parser using certain
+// broken versions of bison.
+// 
+// XXX: this is should go soon
+// 
 void   * yy_flex_xmalloc(int size)
 {
 	void * result = SAlloc::M((size_t)size);

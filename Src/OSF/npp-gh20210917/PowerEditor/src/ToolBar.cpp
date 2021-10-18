@@ -292,37 +292,22 @@ void ToolBar::reset(bool create)
 		::DestroyWindow(_hSelf);
 		_hSelf = NULL;
 	}
-
 	if(!_hSelf) {
 		DWORD dwExtraStyle = 0;
 		if(NppDarkMode::isEnabled()) {
 			dwExtraStyle = TBSTYLE_CUSTOMERASE;
 		}
-
-		_hSelf = ::CreateWindowEx(
-			WS_EX_PALETTEWINDOW,
-			TOOLBARCLASSNAME,
-			TEXT(""),
-			WS_TOOLBARSTYLE | dwExtraStyle,
-			0, 0,
-			0, 0,
-			_hParent,
-			NULL,
-			_hInst,
-			0);
-
+		_hSelf = ::CreateWindowEx(WS_EX_PALETTEWINDOW, TOOLBARCLASSNAME, TEXT(""), WS_TOOLBARSTYLE | dwExtraStyle,
+			0, 0, 0, 0, _hParent, NULL, _hInst, 0);
 		NppDarkMode::setDarkTooltips(_hSelf, NppDarkMode::ToolTipsType::toolbar);
-
 		// Send the TB_BUTTONSTRUCTSIZE message, which is required for
 		// backward compatibility.
 		::SendMessage(_hSelf, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
 		::SendMessage(_hSelf, TB_SETEXTENDEDSTYLE, 0, TBSTYLE_EX_HIDECLIPPEDBUTTONS);
 	}
-
 	if(!_hSelf) {
 		throw std::runtime_error("ToolBar::reset : CreateWindowEx() function return null");
 	}
-
 	if(_state != TB_STANDARD) { //If non standard icons, use custom imagelists
 		if(_state == TB_SMALL || _state == TB_LARGE) {
 			if(NppDarkMode::isEnabled()) {

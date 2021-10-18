@@ -4,7 +4,7 @@
  * external library detected at configuration/build time.
  *	AMOS - A Portable Package for Bessel Functions of a Complex Argument
  *	       and Nonnegative Order
- *             D. E. Amos, Sandia National Laboratories, SAND85-1018 (1985)
+ *       D. E. Amos, Sandia National Laboratories, SAND85-1018 (1985)
  * The amos routines have been packaged by various projects in slightly
  * different ways.
  * The zairy_() routine (note Fortran naming and parameter passing conventions)
@@ -17,9 +17,9 @@
  * real and imaginary parts of the arguments as with the zxxxx.f Bessel
  * routines; this one accepts and returns a CMPLX argument rather than separate
  * real and imaginary parts.
- *             D. E. Amos, ALGORITHM 683  A Portable FORTRAN Subroutine
- *             for Exponential Integrals of a Complex Argument
- *             ACM Trans. Math. Software 16:178-182 (1990)
+ *       D. E. Amos, ALGORITHM 683  A Portable FORTRAN Subroutine
+ *       for Exponential Integrals of a Complex Argument
+ *       ACM Trans. Math. Software 16:178-182 (1990)
  *
  * IERR codes from libamos Bessel functions
  *	0	no error

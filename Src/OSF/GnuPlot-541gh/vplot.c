@@ -16,7 +16,7 @@
 #ifdef VOXEL_GRID_SUPPORT
 
 /*            Data structures for tessellation
- *            ===============================
+ *      ===============================
  * We offer a choice of two tessellation tables.
  * One is Heller's table originally derived for use with marching cubes.
  * It contains triangles only.

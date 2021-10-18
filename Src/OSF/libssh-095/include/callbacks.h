@@ -209,9 +209,9 @@ typedef int (* ssh_auth_gssapi_mic_callback) (ssh_session session, const char * 
  * @param user User that wants to authenticate
  * @param pubkey public key used for authentication
  * @param signature_state SSH_PUBLICKEY_STATE_NONE if the key is not signed (simple public key probe),
- *                                                      SSH_PUBLICKEY_STATE_VALID if the signature is valid. Others
+ *                                                SSH_PUBLICKEY_STATE_VALID if the signature is valid. Others
  *values should be
- *                                                      replied with a SSH_AUTH_DENIED.
+ *                                                replied with a SSH_AUTH_DENIED.
  * @param userdata Userdata to be passed to the callback function.
  * @returns SSH_AUTH_SUCCESS Authentication is accepted.
  * @returns SSH_AUTH_PARTIAL Partial authentication, more authentication means are needed.
@@ -260,7 +260,7 @@ typedef ssh_string (* ssh_gssapi_select_oid_callback) (ssh_session session, cons
  * @param session current session handler
  * @param[in] input_token input token provided by client
  * @param[out] output_token output of the gssapi accept_sec_context method,
- *                              NULL after completion.
+ *                        NULL after completion.
  * @returns SSH_OK if the token was generated correctly or accept_sec_context
  * returned GSS_S_COMPLETE
  * @returns SSH_ERROR in case of error
@@ -463,10 +463,10 @@ typedef struct ssh_socket_callbacks_struct * ssh_socket_callbacks;
  *
  * @code
  * ssh_callbacks_iterate(channel->callbacks, ssh_channel_callbacks,
- *                     channel_eof_function){
+ *               channel_eof_function){
  *     rc = ssh_callbacks_iterate_exec(session, channel);
  *     if (rc != SSH_OK){
- *         break;
+ *   break;
  *     }
  * }
  * ssh_callbacks_iterate_end();
@@ -715,7 +715,7 @@ typedef int (* ssh_channel_exec_request_callback)(ssh_session session, ssh_chann
  * @returns 0 if the env request is accepted
  * @returns 1 if the request is denied
  * @warning some environment variables can be dangerous if changed (e.g.
- *                      LD_PRELOAD) and should not be fulfilled.
+ *                LD_PRELOAD) and should not be fulfilled.
  */
 typedef int (* ssh_channel_env_request_callback) (ssh_session session, ssh_channel channel, const char * env_name, const char * env_value, void * userdata);
 /**
@@ -733,7 +733,7 @@ typedef int (* ssh_channel_subsystem_request_callback) (ssh_session session, ssh
  * @param channel the channel
  *
  * @param[in] bytes size of the remote window in bytes. Writing as much data
- *            will not block.
+ *      will not block.
  *
  * @param[in] userdata Userdata to be passed to the callback function.
  *
@@ -833,7 +833,7 @@ typedef struct ssh_channel_callbacks_struct * ssh_channel_callbacks;
  *
  * @return SSH_OK on success, SSH_ERROR on error.
  * @warning this function will not replace existing callbacks but set the
- *          new one atop of them.
+ *    new one atop of them.
  */
 LIBSSH_API int ssh_set_channel_callbacks(ssh_channel channel,
     ssh_channel_callbacks cb);
@@ -898,7 +898,7 @@ struct ssh_threads_callbacks_struct {
  * main() function for instance), before you call ssh_init().
  *
  * @param[in] cb   A pointer to a ssh_threads_callbacks_struct structure, which
- *                 contains the different callbacks to be set.
+ *           contains the different callbacks to be set.
  *
  * @returns        Always returns SSH_OK.
  *

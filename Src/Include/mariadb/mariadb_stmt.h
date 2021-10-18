@@ -110,13 +110,13 @@ typedef struct st_mysql_bind {
 	void * buffer;   /* buffer to get/put data */
 	bool * error;    /* set this if you want to track data truncations happened during fetch */
 	union {
-		unsigned char * row_ptr; /* for the current data position */
+		uchar * row_ptr; /* for the current data position */
 		char * indicator;  /* indicator variable */
 	} u;
 
 	void (* store_param_func)(NET * net, struct st_mysql_bind * param);
-	void (* fetch_result)(struct st_mysql_bind *, MYSQL_FIELD *, unsigned char ** row);
-	void (* skip_result)(struct st_mysql_bind *, MYSQL_FIELD *, unsigned char ** row);
+	void (* fetch_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
+	void (* skip_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
 	unsigned long buffer_length; /* output buffer length, must be set when fetching str/binary */
 	unsigned long offset;      /* offset position for char/binary fetch */
 	unsigned long length_value; /* Used if length is 0 */
@@ -138,7 +138,7 @@ typedef struct st_mysqlnd_upsert_result {
 } mysql_upsert_status;
 
 typedef struct st_mysql_cmd_buffer {
-	unsigned char   * buffer;
+	uchar   * buffer;
 	size_t length;
 } MYSQL_CMD_BUFFER;
 
@@ -180,8 +180,8 @@ struct st_mysqlnd_stmt_methods {
 	void (* set_error)(MYSQL_STMT * stmt, unsigned int error_nr, const char * sqlstate, const char * format, ...);
 };
 
-typedef int (* mysql_stmt_fetch_row_func)(MYSQL_STMT * stmt, unsigned char ** row);
-typedef void (* ps_result_callback)(void * data, unsigned int column, unsigned char ** row);
+typedef int (* mysql_stmt_fetch_row_func)(MYSQL_STMT * stmt, uchar ** row);
+typedef void (* ps_result_callback)(void * data, unsigned int column, uchar ** row);
 typedef bool *(* ps_param_callback)(void * data, MYSQL_BIND * bind, unsigned int row_nr);
 
 struct st_mysql_stmt {
@@ -193,7 +193,7 @@ struct st_mysql_stmt {
 	MYSQL_FIELD * fields;
 	unsigned int field_count;
 	unsigned int param_count;
-	unsigned char send_types_to_server;
+	uchar send_types_to_server;
 	MYSQL_BIND * params;
 	MYSQL_BIND * bind;
 	MYSQL_DATA result;          /* we don't use mysqlnd's result set logic */
@@ -221,7 +221,7 @@ struct st_mysql_stmt {
 	ps_param_callback param_callback;
 };
 
-typedef void (* ps_field_fetch_func)(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row);
+typedef void (* ps_field_fetch_func)(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row);
 typedef struct st_mysql_perm_bind {
 	ps_field_fetch_func func;
 	/* should be signed int */
@@ -232,7 +232,7 @@ typedef struct st_mysql_perm_bind {
 extern MYSQL_PS_CONVERSION mysql_ps_fetch_functions[MYSQL_TYPE_GEOMETRY + 1];
 unsigned long FASTCALL ma_net_safe_read(MYSQL * mysql);
 void mysql_init_ps_subsystem(void);
-unsigned long FASTCALL net_field_length(unsigned char ** packet);
+unsigned long FASTCALL net_field_length(uchar ** packet);
 int ma_simple_command(MYSQL * mysql, enum enum_server_command command, const char * arg,
     size_t length, bool skipp_check, void * opt_arg);
 /*

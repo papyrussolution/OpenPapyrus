@@ -356,8 +356,8 @@ static int PThr4wTest_Equal1()
 		}
 	};
 	pthread_t t1, t2;
-	PTHR4W_TEST_ASSERT(pthread_create(&t1, NULL, InnerBlock::ThreadFunc, (void*)1) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t2, NULL, InnerBlock::ThreadFunc, (void*)2) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t1, NULL, InnerBlock::ThreadFunc, (void *)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t2, NULL, InnerBlock::ThreadFunc, (void *)2) == 0);
 	PTHR4W_TEST_ASSERT(pthread_equal(t1, t2) == 0);
 	PTHR4W_TEST_ASSERT(pthread_equal(t1, t1) != 0);
 	// This is a hack. We don't want to rely on pthread_join yet if we can help it. 
@@ -448,17 +448,17 @@ static int PThr4wTest_Delay2()
 		#ifdef _MSC_VER
 			#pragma inline_depth()
 		#endif
-			return (void*)(size_t)1;
+			return (void *)(size_t)1;
 		}
 	};
 	pthread_t t;
-	void * result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mx) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::ThreadFunc, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_cancel(t) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mx) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
-	PTHR4W_TEST_ASSERT(result == (void*)PTHREAD_CANCELED);
+	PTHR4W_TEST_ASSERT(result == (void *)PTHREAD_CANCELED);
 	return 0;
 }
 //
@@ -736,7 +736,7 @@ static int PThr4wTest_Create3()
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	for(int i = 0; i < NUMTHREADS; i++) {
 		washere = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void*)(size_t)1) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void *)(size_t)1) == 0);
 		PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
 		PTHR4W_TEST_ASSERT((int)(size_t)result == 0);
 		PTHR4W_TEST_ASSERT(washere == 1);
@@ -815,7 +815,7 @@ static int PThr4wTest_Errno1()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -933,7 +933,7 @@ static int PThr4wTest_Context2()
 		static void * ThreadFunc(void * arg)
 		{
 			washere = 1;
-			return (void*)tree(64);
+			return (void *)tree(64);
 		}
 		static void anotherEnding()
 		{
@@ -983,9 +983,9 @@ static int PThr4wTest_Join0()
 		}
 	};
 	pthread_t id;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	// Create a single thread and wait for it to exit. 
-	PTHR4W_TEST_ASSERT(pthread_create(&id, NULL, InnerBlock::ThreadFunc, (void*)123) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&id, NULL, InnerBlock::ThreadFunc, (void *)123) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(id, &result) == 0);
 	PTHR4W_TEST_ASSERT((int)(size_t)result == 123);
 	return 0; // Success
@@ -1008,10 +1008,10 @@ static int PThr4wTest_Join1()
 	};
 	pthread_t id[4];
 	int i;
-	void * result = (void*)-1;
+	void * result = (void *)-1;
 	// Create a few threads and then exit. 
 	for(i = 0; i < 4; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void *)(size_t)i) == 0);
 	}
 	// Some threads will finish before they are joined, some after. 
 	Sleep(2 * 100 + 50);
@@ -1037,10 +1037,10 @@ static int PThr4wTest_Join2()
 	};
 	pthread_t id[4];
 	int i;
-	void * result = (void*)-1;
+	void * result = (void *)-1;
 	// Create a few threads and then exit
 	for(i = 0; i < 4; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void *)(size_t)i) == 0);
 	}
 	for(i = 0; i < 4; i++) {
 		PTHR4W_TEST_ASSERT(pthread_join(id[i], &result) == 0);
@@ -1063,10 +1063,10 @@ static int PThr4wTest_Join3()
 	};
 	pthread_t id[4];
 	int i;
-	void* result = (void*)-1;
+	void * result = (void *)-1;
 	/* Create a few threads and then exit. */
 	for(i = 0; i < 4; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::func, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::func, (void *)(size_t)i) == 0);
 	}
 	/*
 	 * Let threads exit before we join them.
@@ -1095,8 +1095,8 @@ static int PThr4wTest_Join4()
 	};
 	pthread_t id;
 	struct timespec abstime, reltime = { 1, 0 };
-	void * result = (void*)-1;
-	PTHR4W_TEST_ASSERT(pthread_create(&id, NULL, InnerBlock::ThreadFunc, (void*)(size_t)999) == 0);
+	void * result = (void *)-1;
+	PTHR4W_TEST_ASSERT(pthread_create(&id, NULL, InnerBlock::ThreadFunc, (void *)(size_t)999) == 0);
 	// 
 	// Let thread start before we attempt to join it.
 	// 
@@ -1152,7 +1152,7 @@ static int PThr4wTest_Reuse1()
 	last_t = t;
 	for(i = 1; i < NUMTHREADS; i++) {
 		washere = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void *)(size_t)i) == 0);
 		pthread_join(t, &result);
 		PTHR4W_TEST_ASSERT((int)(size_t)result == i);
 		PTHR4W_TEST_ASSERT(washere == 1);
@@ -1274,7 +1274,7 @@ static int PThr4wTest_Priority1()
 			pthread_t threadID = pthread_self();
 			PTHR4W_TEST_ASSERT(pthread_getschedparam(threadID, &policy, &param) == 0);
 			PTHR4W_TEST_ASSERT(policy == SCHED_OTHER);
-			return (void*)(size_t)(param.sched_priority);
+			return (void *)(size_t)(param.sched_priority);
 		}
 		static void * getValidPriorities(void * arg)
 		{
@@ -1317,7 +1317,7 @@ static int PThr4wTest_Priority1()
 	for(param.sched_priority = minPrio; param.sched_priority <= maxPrio; param.sched_priority++) {
 		int prio;
 		PTHR4W_TEST_ASSERT(pthread_attr_setschedparam(&attr, &param) == 0);
-		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void*)&attr) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t, &attr, InnerBlock::ThreadFunc, (void *)&attr) == 0);
 		PTHR4W_TEST_ASSERT((prio = GetThreadPriority(pthread_getw32threadhandle_np(t))) == validPriorities[param.sched_priority+(PTW32TEST_MAXPRIORITIES/2)]);
 		PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
 		PTHR4W_TEST_ASSERT(param.sched_priority == (int)(size_t)result);
@@ -1356,7 +1356,7 @@ static int PThr4wTest_Priority2()
 			PTHR4W_TEST_ASSERT(policy == SCHED_OTHER);
 			result = pthread_barrier_wait(&endBarrier);
 			PTHR4W_TEST_ASSERT(result == 0 || result == PTHREAD_BARRIER_SERIAL_THREAD);
-			return (void*)(size_t)param.sched_priority;
+			return (void *)(size_t)param.sched_priority;
 		}
 		static void * getValidPriorities(void * arg)
 		{
@@ -1463,7 +1463,7 @@ static int PThr4wTest_Once2()
 			EnterCriticalSection(&numThreads.cs);
 			numThreads.i++;
 			LeaveCriticalSection(&numThreads.cs);
-			return (void*)(size_t)0;
+			return (void *)(size_t)0;
 		}
 	};
 	pthread_t t[NUM_THREADS][NUM_ONCE];
@@ -1476,7 +1476,7 @@ static int PThr4wTest_Once2()
 		once[j] = o;
 		for(i = 0; i < NUM_THREADS; i++) {
 			// GCC build: create was failing with EAGAIN after 790 threads 
-			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void*)(size_t)j))
+			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void *)(size_t)j))
 				sched_yield();
 		}
 	}
@@ -1538,7 +1538,7 @@ static int PThr4wTest_Once3()
 			EnterCriticalSection(&numThreads.cs);
 			numThreads.i++;
 			LeaveCriticalSection(&numThreads.cs);
-			return (void*)(size_t)0;
+			return (void *)(size_t)0;
 		}
 	};
 	pthread_t t[NUM_THREADS][NUM_ONCE];
@@ -1556,7 +1556,7 @@ static int PThr4wTest_Once3()
 		once[j] = o;
 		for(i = 0; i < NUM_THREADS; i++) {
 			// GCC build: create was failing with EAGAIN after 790 threads 
-			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void*)(size_t)j))
+			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void *)(size_t)j))
 				sched_yield();
 		}
 	}
@@ -1677,7 +1677,7 @@ static int PThr4wTest_Once4()
 			bag->threadnum = i;
 			bag->oncenum = j;
 			// GCC build: create was failing with EAGAIN after 790 threads
-			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void*)bag))
+			while(0 != pthread_create(&t[i][j], NULL, InnerBlock::ThreadFunc, (void *)bag))
 				sched_yield();
 		}
 	}
@@ -1721,7 +1721,7 @@ static int PThr4wTest_Inherit1()
 			int policy;
 			struct sched_param param;
 			PTHR4W_TEST_ASSERT(pthread_getschedparam(pthread_self(), &policy, &param) == 0);
-			return (void*)(size_t)param.sched_priority;
+			return (void *)(size_t)param.sched_priority;
 		}
 		static void * ThreadFunc_getValidPriorities(void * arg)
 		{
@@ -1821,12 +1821,12 @@ static int PThr4wTest_Barrier2()
 static int PThr4wTest_Barrier3()
 {
 	static pthread_barrier_t barrier = NULL;
-	static void * result = (void*)1;
+	static void * result = (void *)1;
 	class InnerBlock {
 	public:
 		static void * ThreadFunc(void * arg)
 		{
-			return (void*)(size_t)pthread_barrier_wait(&barrier);
+			return (void *)(size_t)pthread_barrier_wait(&barrier);
 		}
 	};
 	pthread_t t;
@@ -1911,7 +1911,7 @@ static int PThr4wTest_Barrier5()
 					return NULL;
 				}
 			}
-			return (void*)(size_t)serialThreads;
+			return (void *)(size_t)serialThreads;
 		}
 	};
 	const int NUMTHREADS = 15;
@@ -1929,7 +1929,7 @@ static int PThr4wTest_Barrier5()
 		printf("Threads=%d, Barrier height=%d\n", j, height);
 		PTHR4W_TEST_ASSERT(pthread_barrier_init(&barrier, NULL, height) == 0);
 		for(i = 1; i <= j; i++) {
-			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::ThreadFunc, (void*)(size_t)Crossings) == 0);
+			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::ThreadFunc, (void *)(size_t)Crossings) == 0);
 		}
 		serialThreadsTotal = 0;
 		for(i = 1; i <= j; i++) {
@@ -2038,7 +2038,7 @@ static int PThr4wTest_Semaphore1()
 	};
 	pthread_t t;
 	sem_t s;
-	void* result1 = (void*)-1;
+	void * result1 = (void *)-1;
 	int result2;
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::thr, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result1) == 0);
@@ -2194,7 +2194,7 @@ static int PThr4wTest_Semaphore4()
 	PTHR4W_TEST_ASSERT(-value == SEMAPHORE_MAX_COUNT);
 	PTHR4W_TEST_ASSERT(pthread_cancel(t[50]) == 0);
 	{
-		void* result;
+		void * result;
 		PTHR4W_TEST_ASSERT(pthread_join(t[50], &result) == 0);
 	}
 	PTHR4W_TEST_ASSERT(sem_getvalue(&s, &value) == 0);
@@ -2338,7 +2338,7 @@ static int PThr4wTest_Semaphore5()
 	pthread_t t;
 	sem_t s;
 	PTHR4W_TEST_ASSERT(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::thr, (void*)&s) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::thr, (void *)&s) == 0);
 	PTHR4W_TEST_ASSERT(sem_wait(&s) == 0);
 	/*
 	 * Normally we would retry this next, but we're only
@@ -2522,7 +2522,7 @@ static int PThr4wTest_Eyal1()
 		PTHR4W_TEST_ASSERT(pthread_mutex_init(&tcs[i].mutex_ended, NULL) == 0);
 		tcs[i].work = 0;
 		PTHR4W_TEST_ASSERT(pthread_mutex_lock(&tcs[i].mutex_start) == 0);
-		PTHR4W_TEST_ASSERT((tcs[i].stat = pthread_create(&tcs[i].thread, NULL, (void *(*)(void *))InnerBlock::print_server, (void*)&tcs[i])) == 0);
+		PTHR4W_TEST_ASSERT((tcs[i].stat = pthread_create(&tcs[i].thread, NULL, (void *(*)(void *))InnerBlock::print_server, (void *)&tcs[i])) == 0);
 		/*
 		 * Wait for thread initialisation
 		 */
@@ -2765,7 +2765,7 @@ static int PThr4wTest_NameNp1()
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::ThreadFunc, NULL) == 0);
 #if defined (__PTW32_COMPATIBILITY_BSD)
 	seqno++;
-	PTHR4W_TEST_ASSERT(pthread_setname_np(t, "MyThread%d", (void*)&seqno) == 0);
+	PTHR4W_TEST_ASSERT(pthread_setname_np(t, "MyThread%d", (void *)&seqno) == 0);
 #elif defined (__PTW32_COMPATIBILITY_TRU64)
 	PTHR4W_TEST_ASSERT(pthread_setname_np(t, "MyThread1", NULL) == 0);
 #else
@@ -2813,7 +2813,7 @@ static int PThr4wTest_NameNp2()
 	PTHR4W_TEST_ASSERT(pthread_attr_init(&attr) == 0);
 #if defined (__PTW32_COMPATIBILITY_BSD)
 	seqno++;
-	PTHR4W_TEST_ASSERT(pthread_attr_setname_np(&attr, "MyThread%d", (void*)&seqno) == 0);
+	PTHR4W_TEST_ASSERT(pthread_attr_setname_np(&attr, "MyThread%d", (void *)&seqno) == 0);
 #elif defined (__PTW32_COMPATIBILITY_TRU64)
 	PTHR4W_TEST_ASSERT(pthread_attr_setname_np(&attr, "MyThread1", NULL) == 0);
 #else
@@ -3080,7 +3080,7 @@ static int PThr4wTest_RwLock6()
 			bankAccount += 10;
 			ba = bankAccount;
 			PTHR4W_TEST_ASSERT(pthread_rwlock_unlock(&rwlock1) == 0);
-			return ((void*)(size_t)ba);
+			return ((void *)(size_t)ba);
 		}
 		static void * rdfunc(void * arg)
 		{
@@ -3088,15 +3088,15 @@ static int PThr4wTest_RwLock6()
 			PTHR4W_TEST_ASSERT(pthread_rwlock_rdlock(&rwlock1) == 0);
 			ba = bankAccount;
 			PTHR4W_TEST_ASSERT(pthread_rwlock_unlock(&rwlock1) == 0);
-			return ((void*)(size_t)ba);
+			return ((void *)(size_t)ba);
 		}
 	};
 	pthread_t wrt1;
 	pthread_t wrt2;
 	pthread_t rdt;
-	void* wr1Result = (void*)0;
-	void* wr2Result = (void*)0;
-	void* rdResult = (void*)0;
+	void * wr1Result = (void *)0;
+	void * wr2Result = (void *)0;
+	void * rdResult = (void *)0;
 	bankAccount = 0;
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, NULL) == 0);
 	Sleep(50);
@@ -3128,7 +3128,7 @@ static int PThr4wTest_RwLock6t()
 			Sleep(2000);
 			bankAccount += 10;
 			PTHR4W_TEST_ASSERT(pthread_rwlock_unlock(&rwlock1) == 0);
-			return ((void*)(size_t)bankAccount);
+			return ((void *)(size_t)bankAccount);
 		}
 		static void * rdfunc(void * arg)
 		{
@@ -3146,25 +3146,25 @@ static int PThr4wTest_RwLock6t()
 				ba = bankAccount;
 				PTHR4W_TEST_ASSERT(pthread_rwlock_unlock(&rwlock1) == 0);
 			}
-			return ((void*)(size_t)ba);
+			return ((void *)(size_t)ba);
 		}
 	};
 	pthread_t wrt1;
 	pthread_t wrt2;
 	pthread_t rdt1;
 	pthread_t rdt2;
-	void* wr1Result = (void*)0;
-	void* wr2Result = (void*)0;
-	void* rd1Result = (void*)0;
-	void* rd2Result = (void*)0;
+	void * wr1Result = (void *)0;
+	void * wr2Result = (void *)0;
+	void * rd1Result = (void *)0;
+	void * rd2Result = (void *)0;
 	bankAccount = 0;
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, NULL) == 0);
 	Sleep(500);
-	PTHR4W_TEST_ASSERT(pthread_create(&rdt1, NULL, InnerBlock::rdfunc, (void*)(size_t)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&rdt1, NULL, InnerBlock::rdfunc, (void *)(size_t)1) == 0);
 	Sleep(500);
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt2, NULL, InnerBlock::wrfunc, NULL) == 0);
 	Sleep(500);
-	PTHR4W_TEST_ASSERT(pthread_create(&rdt2, NULL, InnerBlock::rdfunc, (void*)(size_t)2) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&rdt2, NULL, InnerBlock::rdfunc, (void *)(size_t)2) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(wrt1, &wr1Result) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(rdt1, &rd1Result) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(wrt2, &wr2Result) == 0);
@@ -3196,34 +3196,34 @@ static int PThr4wTest_RwLock6t2()
 				Sleep(2000);
 				bankAccount += 10;
 				PTHR4W_TEST_ASSERT(pthread_rwlock_unlock(&rwlock1) == 0);
-				return ((void*)(size_t)bankAccount);
+				return ((void *)(size_t)bankAccount);
 			}
 			else if((int)(size_t)arg == 2) {
 				PTHR4W_TEST_ASSERT(result == ETIMEDOUT);
-				return ((void*)100);
+				return ((void *)100);
 			}
-			return ((void*)(size_t)-1);
+			return ((void *)(size_t)-1);
 		}
 		static void * rdfunc(void * arg)
 		{
 			int ba = 0;
 			PTHR4W_TEST_ASSERT(pthread_rwlock_timedrdlock(&rwlock1, &abstime) == ETIMEDOUT);
-			return ((void*)(size_t)ba);
+			return ((void *)(size_t)ba);
 		}
 	};
 	pthread_t wrt1;
 	pthread_t wrt2;
 	pthread_t rdt;
-	void* wr1Result = (void*)0;
-	void* wr2Result = (void*)0;
-	void* rdResult = (void*)0;
+	void * wr1Result = (void *)0;
+	void * wr2Result = (void *)0;
+	void * rdResult = (void *)0;
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	bankAccount = 0;
-	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, (void*)(size_t)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, (void *)(size_t)1) == 0);
 	Sleep(100);
 	PTHR4W_TEST_ASSERT(pthread_create(&rdt, NULL, InnerBlock::rdfunc, NULL) == 0);
 	Sleep(100);
-	PTHR4W_TEST_ASSERT(pthread_create(&wrt2, NULL, InnerBlock::wrfunc, (void*)(size_t)2) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&wrt2, NULL, InnerBlock::wrfunc, (void *)(size_t)2) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(wrt1, &wr1Result) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(rdt, &rdResult) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(wrt2, &wr2Result) == 0);
@@ -3316,7 +3316,7 @@ static int PThr4wTest_RwLock7(/*int argc, char * argv[]*/)
 		threads[count].updates = 0;
 		threads[count].reads = 0;
 		threads[count].seed = 1 + rand_r(&seed) % 71;
-		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void *)(size_t)&threads[count]) == 0);
 	}
 	/*
 	 * Wait for all threads to complete, and collect statistics.
@@ -3455,7 +3455,7 @@ static int PThr4wTest_RwLock71(/*int argc, char * argv[]*/)
 		threads[count].updates = 0;
 		threads[count].reads = 0;
 		threads[count].seed = 1 + rand_r(&seed) % 71;
-		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void *)(size_t)&threads[count]) == 0);
 	}
 	/*
 	 * Wait for all threads to complete, and collect statistics.
@@ -3583,7 +3583,7 @@ static int PThr4wTest_RwLock8(/*int argc, char * argv[]*/)
 		threads[count].updates = 0;
 		threads[count].reads = 0;
 		threads[count].seed = 1 + rand_r(&seed) % 71;
-		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void *)(size_t)&threads[count]) == 0);
 	}
 	// 
 	// Wait for all threads to complete, and collect statistics.
@@ -3729,7 +3729,7 @@ static int PThr4wTest_RwLock81(/*int argc, char * argv[]*/)
 		threads[count].updates = 0;
 		threads[count].reads = 0;
 		threads[count].seed = 1 + rand_r(&seed) % 71;
-		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void *)(size_t)&threads[count]) == 0);
 	}
 	// 
 	// Wait for all threads to complete, and collect statistics.
@@ -3856,7 +3856,7 @@ static int PThr4wTest_Reinit1()
 			threads[count].updates = 0;
 			threads[count].reads = 0;
 			threads[count].seed = 1 + rand_r(&seed) % 71;
-			PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void*)(size_t)&threads[count]) == 0);
+			PTHR4W_TEST_ASSERT(pthread_create(&threads[count].thread_id, NULL, InnerBlock::thread_routine, (void *)(size_t)&threads[count]) == 0);
 		}
 		// 
 		// Wait for all threads to complete, and collect statistics.
@@ -4108,7 +4108,7 @@ static int PThr4wTest_Mutex4()
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_DEFAULT) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex1, &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex1) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex1) == 0);
 	PTHR4W_TEST_ASSERT(wasHere == 2);
@@ -4117,7 +4117,7 @@ static int PThr4wTest_Mutex4()
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex1, &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex1) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)(size_t)(IS_ROBUST ? EPERM : 0)) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex1) == 0);
 	PTHR4W_TEST_ASSERT(wasHere == 2);
@@ -4126,7 +4126,7 @@ static int PThr4wTest_Mutex4()
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex1, &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex1) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)EPERM) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)(size_t)EPERM) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex1) == 0);
 	PTHR4W_TEST_ASSERT(wasHere == 2);
@@ -4135,7 +4135,7 @@ static int PThr4wTest_Mutex4()
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex1, &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex1) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)(size_t)EPERM) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)(size_t)EPERM) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex1) == 0);
 	PTHR4W_TEST_ASSERT(wasHere == 2);
@@ -4229,11 +4229,11 @@ static int PThr4wTest_Mutex6e()
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == EPERM);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4275,11 +4275,11 @@ static int PThr4wTest_Mutex6es()
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == EPERM);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
@@ -4311,7 +4311,7 @@ static int PThr4wTest_Mutex6n()
 			PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex) == 0);
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
@@ -4359,11 +4359,11 @@ static int PThr4wTest_Mutex6r()
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4403,11 +4403,11 @@ static int PThr4wTest_Mutex6rs()
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(mutex == PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
@@ -4519,11 +4519,11 @@ static int PThr4wTest_Mutex7e()
 			PTHR4W_TEST_ASSERT(pthread_mutex_trylock(&mutex) == EBUSY);
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4563,7 +4563,7 @@ static int PThr4wTest_Mutex7n()
 			PTHR4W_TEST_ASSERT(pthread_mutex_trylock(&mutex) == EBUSY);
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
@@ -4607,11 +4607,11 @@ static int PThr4wTest_Mutex7r()
 			lockCount++;
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 			PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
-			return (void*)555;
+			return (void *)555;
 		}
 	};
 	pthread_t t;
-	void* result = (void*)0;
+	void * result = (void *)0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4852,7 +4852,7 @@ static int PThr4wTest_Spin3()
 	wasHere = 0;
 	PTHR4W_TEST_ASSERT(pthread_spin_init(&spin, PTHREAD_PROCESS_PRIVATE) == 0);
 	PTHR4W_TEST_ASSERT(pthread_spin_lock(&spin) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void*)0) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)0) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	// 
 	// Our spinlocks don't record the owner thread so any thread can unlock the spinlock,
@@ -4880,10 +4880,10 @@ static int PThr4wTest_Spin4()
 			PTHR4W_TEST_ASSERT(pthread_spin_lock(&lock) == 0);
 			PTHR4W_TEST_ASSERT(pthread_spin_unlock(&lock) == 0);
 			__PTW32_FTIME(&currSysTimeStop);
-			return (void*)(size_t)GetDurationMilliSecs(currSysTimeStart, currSysTimeStop);
+			return (void *)(size_t)GetDurationMilliSecs(currSysTimeStart, currSysTimeStop);
 		}
 	};
-	void * result = (void*)0;
+	void * result = (void *)0;
 	pthread_t t;
 	int CPUs;
 	__PTW32_STRUCT_TIMEB sysTime;
@@ -4913,7 +4913,7 @@ static int PThr4wTest_Spin4()
 static int PThr4wTest_Exit1()
 {
 	// A simple test first. 
-	pthread_exit((void*)0);
+	pthread_exit((void *)0);
 	return 1; // Not reached 
 }
 
@@ -4956,7 +4956,7 @@ static int PThr4wTest_Exit3()
 	pthread_t id[4];
 	// Create a few threads and then exit. 
 	for(int i = 0; i < SIZEOFARRAY(id); i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&id[i], NULL, InnerBlock::ThreadFunc, (void *)(size_t)i) == 0);
 	}
 	Sleep(400);
 	return 0; // Success
@@ -4993,7 +4993,7 @@ static int PThr4wTest_Exit4()
 			PTHR4W_TEST_ASSERT(bag->started == 0);
 			bag->started = 1;
 			// Doesn't return and doesn't create an implicit POSIX handle.
-			pthread_exit((void*)(size_t)result);
+			pthread_exit((void *)(size_t)result);
 			return 0;
 		}
 	};
@@ -5005,9 +5005,9 @@ static int PThr4wTest_Exit4()
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void *)&threadbag[i], 0, &thrAddr);
 #else
-		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void *)&threadbag[i]);
 #endif
 	}
 	/*
@@ -5078,7 +5078,7 @@ static int PThr4wTest_Exit5()
 			PTHR4W_TEST_ASSERT((bag->self = pthread_self()).p != NULL);
 			PTHR4W_TEST_ASSERT(pthread_kill(bag->self, 0) == 0);
 			// Doesn't return.
-			pthread_exit((void*)(size_t)result);
+			pthread_exit((void *)(size_t)result);
 			return 0;
 		}
 	};
@@ -5090,9 +5090,9 @@ static int PThr4wTest_Exit5()
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void *)&threadbag[i], 0, &thrAddr);
 #else
-		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void *)&threadbag[i]);
 #endif
 	}
 	/*
@@ -5404,14 +5404,14 @@ static int PThr4wTest_Affinity5()
 	}
 	PTHR4W_TEST_ASSERT(pthread_getaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
 	if(CPU_COUNT(&threadCpus) > 1) {
-		PTHR4W_TEST_ASSERT(pthread_create(&tid, NULL, InnerBlock::mythread, (void*)&threadCpus) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&tid, NULL, InnerBlock::mythread, (void *)&threadCpus) == 0);
 		PTHR4W_TEST_ASSERT(pthread_join(tid, NULL) == 0);
 		CPU_AND(&threadCpus, &threadCpus, &keepCpus);
 		PTHR4W_TEST_ASSERT(pthread_setaffinity_np(self, sizeof(cpu_set_t), &threadCpus) == 0);
 		vThreadMask = SetThreadAffinityMask(GetCurrentThread(), (*(PDWORD_PTR)&threadCpus) /* Violating Opacity*/);
 		PTHR4W_TEST_ASSERT(vThreadMask != 0);
 		PTHR4W_TEST_ASSERT(memcmp(&vThreadMask, &threadCpus, sizeof(DWORD_PTR)) == 0);
-		PTHR4W_TEST_ASSERT(pthread_create(&tid, NULL, InnerBlock::mythread, (void*)&threadCpus) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&tid, NULL, InnerBlock::mythread, (void *)&threadCpus) == 0);
 		PTHR4W_TEST_ASSERT(pthread_join(tid, NULL) == 0);
 	}
 	return 0;
@@ -5452,9 +5452,9 @@ static int PThr4wTest_Affinity6()
 		PTHR4W_TEST_ASSERT(pthread_attr_setaffinity_np(&attr1, sizeof(cpu_set_t), &threadCpus) == 0);
 		CPU_AND(&threadCpus, &threadCpus, &keepCpus);
 		PTHR4W_TEST_ASSERT(pthread_attr_setaffinity_np(&attr2, sizeof(cpu_set_t), &threadCpus) == 0);
-		PTHR4W_TEST_ASSERT(pthread_create(&tid, &attr1, InnerBlock::mythread, (void*)&attr1) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&tid, &attr1, InnerBlock::mythread, (void *)&attr1) == 0);
 		PTHR4W_TEST_ASSERT(pthread_join(tid, NULL) == 0);
-		PTHR4W_TEST_ASSERT(pthread_create(&tid, &attr2, InnerBlock::mythread, (void*)&attr2) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&tid, &attr2, InnerBlock::mythread, (void *)&attr2) == 0);
 		PTHR4W_TEST_ASSERT(pthread_join(tid, NULL) == 0);
 	}
 	PTHR4W_TEST_ASSERT(pthread_attr_destroy(&attr1) == 0);
@@ -5517,7 +5517,7 @@ static int PThr4wTest_Cancel1()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5597,7 +5597,7 @@ static int PThr4wTest_Cancel2()
 			}
 			// Should not get to here either.
 			result += 1000;
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	int failed = 0;
@@ -5608,7 +5608,7 @@ static int PThr4wTest_Cancel2()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5630,7 +5630,7 @@ static int PThr4wTest_Cancel2()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -5675,7 +5675,7 @@ static int PThr4wTest_Cancel3()
 	public:
 		static void * mythread(void * arg)
 		{
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			bag_t * bag = static_cast<bag_t *>(arg);
 			PTHR4W_TEST_ASSERT(bag == &threadbag[bag->threadnum]);
 			PTHR4W_TEST_ASSERT(bag->started == 0);
@@ -5698,7 +5698,7 @@ static int PThr4wTest_Cancel3()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5720,7 +5720,7 @@ static int PThr4wTest_Cancel3()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
@@ -5756,7 +5756,7 @@ static int PThr4wTest_Cancel4()
 	public:
 		static void * mythread(void * arg)
 		{
-			void * result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			bag_t * bag = static_cast<bag_t *>(arg);
 			PTHR4W_TEST_ASSERT(bag == &threadbag[bag->threadnum]);
 			PTHR4W_TEST_ASSERT(bag->started == 0);
@@ -5780,7 +5780,7 @@ static int PThr4wTest_Cancel4()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5802,7 +5802,7 @@ static int PThr4wTest_Cancel4()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED indicates that async
@@ -5840,7 +5840,7 @@ static int PThr4wTest_Cancel5()
 	public:
 		static void * mythread(void * arg)
 		{
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			bag_t * bag = static_cast<bag_t *>(arg);
 			PTHR4W_TEST_ASSERT(bag == &threadbag[bag->threadnum]);
 			PTHR4W_TEST_ASSERT(bag->started == 0);
@@ -5865,7 +5865,7 @@ static int PThr4wTest_Cancel5()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5887,7 +5887,7 @@ static int PThr4wTest_Cancel5()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+		void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
@@ -5924,7 +5924,7 @@ static int PThr4wTest_Cancel6a()
 	public:
 		static void * mythread(void * arg)
 		{
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			bag_t * bag = static_cast<bag_t *>(arg);
 			PTHR4W_TEST_ASSERT(bag == &threadbag[bag->threadnum]);
 			PTHR4W_TEST_ASSERT(bag->started == 0);
@@ -5950,7 +5950,7 @@ static int PThr4wTest_Cancel6a()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -5973,7 +5973,7 @@ static int PThr4wTest_Cancel6a()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
@@ -6012,7 +6012,7 @@ static int PThr4wTest_Cancel6d()
 	public:
 		static void * mythread(void * arg)
 		{
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			bag_t * bag = static_cast<bag_t *>(arg);
 			PTHR4W_TEST_ASSERT(bag == &threadbag[bag->threadnum]);
 			PTHR4W_TEST_ASSERT(bag->started == 0);
@@ -6038,7 +6038,7 @@ static int PThr4wTest_Cancel6d()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)(size_t)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -6063,7 +6063,7 @@ static int PThr4wTest_Cancel6d()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -6125,9 +6125,9 @@ static int PThr4wTest_Cancel7()
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void *)&threadbag[i], 0, &thrAddr);
 #else
-		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void *)&threadbag[i]);
 #endif
 	}
 	// 
@@ -6224,9 +6224,9 @@ static int PThr4wTest_Cancel8()
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void*)&threadbag[i], 0, &thrAddr);
+		h[i] = (HANDLE)_beginthreadex(NULL, 0, InnerBlock::Win32thread, (void *)&threadbag[i], 0, &thrAddr);
 #else
-		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void*)&threadbag[i]);
+		h[i] = (HANDLE)_beginthread(InnerBlock::Win32thread, 0, (void *)&threadbag[i]);
 #endif
 	}
 	/*
@@ -6432,7 +6432,7 @@ static int PThr4wTest_Tsd1()
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&startBarrier, NULL, NUM_THREADS/2) == 0);
 	for(i = 1; i < NUM_THREADS/2; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	/*
 	 * Here we test that existing threads will get a key created
@@ -6444,14 +6444,14 @@ static int PThr4wTest_Tsd1()
 	 * Test main thread key.
 	 */
 	accesscount[0] = 0;
-	InnerBlock::setkey((void*)&accesscount[0]);
+	InnerBlock::setkey((void *)&accesscount[0]);
 	/*
 	 * Here we test that new threads will get a key created
 	 * for them.
 	 */
 	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	/*
 	 * Wait for all threads to complete.
@@ -6548,7 +6548,7 @@ static int PThr4wTest_Tsd2()
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&startBarrier, NULL, NUM_THREADS/2) == 0);
 	for(i = 1; i < NUM_THREADS/2; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	/*
 	 * Here we test that existing threads will get a key created for them.
@@ -6559,13 +6559,13 @@ static int PThr4wTest_Tsd2()
 	 * Test main thread key.
 	 */
 	accesscount[0] = 0;
-	InnerBlock::setkey((void*)&accesscount[0]);
+	InnerBlock::setkey((void *)&accesscount[0]);
 	/*
 	 * Here we test that new threads will get a key created for them.
 	 */
 	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	/*
 	 * Wait for all threads to complete.
@@ -6653,18 +6653,18 @@ static int PThr4wTest_Tsd3()
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&progressSyncBarrier, NULL, NUM_THREADS) == 0);
 	for(i = 1; i < NUM_THREADS/2; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	// Here we test that existing threads will get a key created for them.
 	PTHR4W_TEST_ASSERT(pthread_key_create(&key, InnerBlock::destroy_key) == 0);
 	(void)pthread_barrier_wait(&startBarrier);
 	// Test main thread key.
 	accesscount[0] = 0;
-	InnerBlock::setkey((void*)&accesscount[0]);
+	InnerBlock::setkey((void *)&accesscount[0]);
 	// Here we test that new threads will get a key created for them.
 	for(i = NUM_THREADS/2; i < NUM_THREADS; i++) {
 		accesscount[i] = thread_set[i] = thread_destroyed[i] = 0;
-		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void*)&accesscount[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&thread[i], NULL, InnerBlock::mythread, (void *)&accesscount[i]) == 0);
 	}
 	(void)pthread_barrier_wait(&progressSyncBarrier);
 	// Deleting the key should not call the key destructor.
@@ -6727,13 +6727,13 @@ static int PThr4wTest_CleanUp0()
 		#ifdef _MSC_VER
 		#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			pthread_cleanup_push(increment_pop_count, (void *)&pop_count);
 			Sleep(100);
 			pthread_cleanup_pop(1);
 		#ifdef _MSC_VER
 		#pragma inline_depth()
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	int failed = 0;
@@ -6745,7 +6745,7 @@ static int PThr4wTest_CleanUp0()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -6764,7 +6764,7 @@ static int PThr4wTest_CleanUp0()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result == PTHREAD_CANCELED);
 		if(fail) {
@@ -6822,7 +6822,7 @@ static int PThr4wTest_CleanUp1()
 		#ifdef _MSC_VER
 		#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			pthread_cleanup_push(increment_pop_count, (void *)&pop_count);
 			/*
 			 * We don't have true async cancellation - it relies on the thread
 			 * at least re-entering the run state at some point.
@@ -6836,7 +6836,7 @@ static int PThr4wTest_CleanUp1()
 		#ifdef _MSC_VER
 		#pragma inline_depth()
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	int failed = 0;
@@ -6850,7 +6850,7 @@ static int PThr4wTest_CleanUp1()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -6872,7 +6872,7 @@ static int PThr4wTest_CleanUp1()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -6922,13 +6922,13 @@ static int PThr4wTest_CleanUp2()
 		#ifdef _MSC_VER
 			#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			pthread_cleanup_push(increment_pop_count, (void *)&pop_count);
 			sched_yield();
 			pthread_cleanup_pop(1);
 		#ifdef _MSC_VER
 			#pragma inline_depth()
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	int failed = 0;
@@ -6940,7 +6940,7 @@ static int PThr4wTest_CleanUp2()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	// 
 	// Code to control or manipulate child threads should probably go here.
@@ -6958,7 +6958,7 @@ static int PThr4wTest_CleanUp2()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = ((int)(size_t)result != 0);
 		if(fail) {
@@ -7008,7 +7008,7 @@ static int PThr4wTest_CleanUp3()
 		#ifdef _MSC_VER
 			#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
+			pthread_cleanup_push(increment_pop_count, (void *)&pop_count);
 			sched_yield();
 			EnterCriticalSection(&pop_count.cs);
 			pop_count.i--;
@@ -7017,7 +7017,7 @@ static int PThr4wTest_CleanUp3()
 		#ifdef _MSC_VER
 			#pragma inline_depth()
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	int failed = 0;
@@ -7029,7 +7029,7 @@ static int PThr4wTest_CleanUp3()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -7047,7 +7047,7 @@ static int PThr4wTest_CleanUp3()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = ((int)(size_t)result != 0);
 		if(fail) {
@@ -7119,18 +7119,18 @@ static int PThr4wTest_CondVar11()
 	int i, j;
 	for(i = 0; i < SIZEOFARRAY(cv); i++) {
 		/* Traverse the list before every init of a CV. */
-		PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void*)0);
+		PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void *)0);
 		PTHR4W_TEST_ASSERT(pthread_cond_init(&cv[i], NULL) == 0);
 	}
 	j = SIZEOFARRAY(cv);
-	srand((unsigned)time(NULL));
+	srand((uint)time(NULL));
 	do {
 		i = (SIZEOFARRAY(cv) - 1) * rand() / RAND_MAX;
 		if(cv[i] != NULL) {
 			j--;
 			PTHR4W_TEST_ASSERT(pthread_cond_destroy(&cv[i]) == 0);
 			/* Traverse the list every time we remove a CV. */
-			PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void*)0);
+			PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void *)0);
 		}
 	} while(j > 0);
 	return 0;
@@ -7158,14 +7158,14 @@ static int PThr4wTest_CondVar12()
 	static pthread_cond_t cv[5];
 
 	int i, j;
-	void * result = (void*)-1;
+	void * result = (void *)-1;
 	pthread_t t;
 	for(int k = 0; k < NUM_LOOPS; k++) {
 		for(i = 0; i < SIZEOFARRAY(cv); i++) {
 			PTHR4W_TEST_ASSERT(pthread_cond_init(&cv[i], NULL) == 0);
 		}
 		j = SIZEOFARRAY(cv);
-		(void)srand((unsigned)time(NULL));
+		(void)srand((uint)time(NULL));
 		// Traverse the list asynchronously. 
 		PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, pthread_timechange_handler_np, NULL) == 0);
 		do {
@@ -7259,13 +7259,13 @@ static int PThr4wTest_CondVar21()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void* result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex) == 0);
 	for(i = 1; i <= NUMTHREADS; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)(size_t)i) == 0);
 	}
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 	for(i = 1; i <= NUMTHREADS; i++) {
@@ -7333,7 +7333,7 @@ static int PThr4wTest_CondVar3()
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void *)1) == 0);
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);
 	while(!(shared > 0))
 		PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cv, &mutex, &abstime) == 0);
@@ -7398,7 +7398,7 @@ static int PThr4wTest_CondVar31()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void * result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv1, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
@@ -7406,7 +7406,7 @@ static int PThr4wTest_CondVar31()
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex1) == 0);
 	for(i = 1; i <= NUMTHREADS; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)(size_t)i) == 0);
 	}
 	do {
 		PTHR4W_TEST_ASSERT(pthread_cond_wait(&cv1, &mutex1) == 0);
@@ -7495,7 +7495,7 @@ static int PThr4wTest_CondVar32()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void* result = (void*)0;
+	void * result = (void *)0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);
@@ -7503,7 +7503,7 @@ static int PThr4wTest_CondVar32()
 	abstime2.tv_nsec = abstime.tv_nsec;
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex) == 0);
 	for(i = 1; i <= NUMTHREADS; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)(size_t)i) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)(size_t)i) == 0);
 	}
 	PTHR4W_TEST_ASSERT(pthread_mutex_unlock(&mutex) == 0);
 	for(i = 1; i <= NUMTHREADS; i++) {
@@ -7620,7 +7620,7 @@ static int PThr4wTest_CondVar4()
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == ETIMEDOUT);
 	PTHR4W_TEST_ASSERT(cvthing.notbusy != PTHREAD_COND_INITIALIZER);
-	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void *)1) == 0);
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	while(!(cvthing.shared > 0))
 		PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
@@ -7677,7 +7677,7 @@ static int PThr4wTest_CondVar5()
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == ETIMEDOUT);
 	PTHR4W_TEST_ASSERT(cvthing.notbusy != PTHREAD_COND_INITIALIZER);
-	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void*)1) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t[1], NULL, InnerBlock::mythread, (void *)1) == 0);
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	while(!(cvthing.shared > 0))
 		PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
@@ -7748,7 +7748,7 @@ static int PThr4wTest_CondVar6()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -7821,7 +7821,7 @@ static int PThr4wTest_CondVar7()
 		#ifdef _MSC_VER
 		#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			pthread_cleanup_push(pthread_mutex_unlock, (void *)&cvthing.lock);
 			while(!(cvthing.shared > 0))
 				PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
 			pthread_cleanup_pop(0);
@@ -7848,7 +7848,7 @@ static int PThr4wTest_CondVar7()
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
-		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.
@@ -7930,7 +7930,7 @@ static int PThr4wTest_CondVar8()
 		#ifdef _MSC_VER
 		#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			pthread_cleanup_push(pthread_mutex_unlock, (void *)&cvthing.lock);
 			while(!(cvthing.shared > 0))
 				PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
 			pthread_cleanup_pop(0);
@@ -7960,7 +7960,7 @@ static int PThr4wTest_CondVar8()
 		for(i = first; i <= last; i++) {
 			threadbag[i].started = 0;
 			threadbag[i].threadnum = i;
-			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 		}
 		/*
 		 * Code to control or manipulate child threads should probably go here.
@@ -8040,7 +8040,7 @@ static int PThr4wTest_CondVar9()
 		#ifdef _MSC_VER
 		#pragma inline_depth(0)
 		#endif
-			pthread_cleanup_push(pthread_mutex_unlock, (void*)&cvthing.lock);
+			pthread_cleanup_push(pthread_mutex_unlock, (void *)&cvthing.lock);
 			while(!(cvthing.shared > 0))
 				PTHR4W_TEST_ASSERT(pthread_cond_timedwait(&cvthing.notbusy, &cvthing.lock, &abstime) == 0);
 			pthread_cleanup_pop(0);
@@ -8071,7 +8071,7 @@ static int PThr4wTest_CondVar9()
 		for(i = first; i <= last; i++) {
 			threadbag[i].started = threadbag[i].finished = 0;
 			threadbag[i].threadnum = i;
-			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void*)&threadbag[i]) == 0);
+			PTHR4W_TEST_ASSERT(pthread_create(&t[i], NULL, InnerBlock::mythread, (void *)&threadbag[i]) == 0);
 		}
 		/*
 		 * Code to control or manipulate child threads should probably go here.
@@ -8448,7 +8448,7 @@ static int PThr4wTest_Robust4()
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex[2], &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void *)order) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(to, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(ti, NULL) == 0);
 	PTHR4W_TEST_ASSERT(lockCount == 6);
@@ -8471,7 +8471,7 @@ static int PThr4wTest_Robust4()
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex[2], &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void *)order) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(to, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(ti, NULL) == 0);
 	PTHR4W_TEST_ASSERT(lockCount == 6);
@@ -8494,7 +8494,7 @@ static int PThr4wTest_Robust4()
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex[2], &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void *)order) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(to, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(ti, NULL) == 0);
 	PTHR4W_TEST_ASSERT(lockCount == 6);
@@ -8517,7 +8517,7 @@ static int PThr4wTest_Robust4()
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex[2], &ma) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&ti, NULL, InnerBlock::inheritor, (void *)order) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(to, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(ti, NULL) == 0);
 	PTHR4W_TEST_ASSERT(lockCount == 6);
@@ -8718,7 +8718,7 @@ static int PThr4wTest_Stress1()
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&startBarrier, NULL, 3) == 0);
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&readyBarrier, NULL, 3) == 0);
 	PTHR4W_TEST_ASSERT(pthread_barrier_init(&holdBarrier, NULL, 3) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&master, NULL, InnerBlock::masterThread, (void*)(size_t)timeout) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&master, NULL, InnerBlock::masterThread, (void *)(size_t)timeout) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&slave, NULL, InnerBlock::slaveThread, NULL) == 0);
 	allExit = FALSE;
 	pthread_barrier_wait(&startBarrier);
@@ -8764,7 +8764,7 @@ static int PThr4wTest_Exception1()
 		static void * exceptionedThread(void * arg)
 		{
 			int dummy = 0;
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			/* Set to async cancelable */
 			PTHR4W_TEST_ASSERT(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
 			PTHR4W_TEST_ASSERT(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
@@ -8783,7 +8783,7 @@ static int PThr4wTest_Exception1()
 			__except(EXCEPTION_EXECUTE_HANDLER)
 			{
 				/* Should get into here. */
-				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+				result = (void *)((int)(size_t)PTHREAD_CANCELED + 2);
 			}
 		#elif defined(__cplusplus)
 			try
@@ -8802,15 +8802,15 @@ static int PThr4wTest_Exception1()
 		#endif
 			{
 				/* Should get into here. */
-				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+				result = (void *)((int)(size_t)PTHREAD_CANCELED + 2);
 			}
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 
 		static void * canceledThread(void * arg)
 		{
-			void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
+			void * result = (void *)((int)(size_t)PTHREAD_CANCELED + 1);
 			int count;
 			/* Set to async cancelable */
 			PTHR4W_TEST_ASSERT(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
@@ -8828,7 +8828,7 @@ static int PThr4wTest_Exception1()
 			__except(EXCEPTION_EXECUTE_HANDLER)
 			{
 				/* Should NOT get into here. */
-				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+				result = (void *)((int)(size_t)PTHREAD_CANCELED + 2);
 			}
 		#elif defined(__cplusplus)
 			try
@@ -8847,10 +8847,10 @@ static int PThr4wTest_Exception1()
 		#endif
 			{
 				/* Should NOT get into here. */
-				result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
+				result = (void *)((int)(size_t)PTHREAD_CANCELED + 2);
 			}
 		#endif
-			return (void*)(size_t)result;
+			return (void *)(size_t)result;
 		}
 	};
 	const int NUMTHREADS = 4; // Create NUMTHREADS threads in addition to the Main thread.
@@ -8863,7 +8863,7 @@ static int PThr4wTest_Exception1()
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 	PTHR4W_TEST_ASSERT((mt = pthread_self()).p != NULL);
 	for(i = 0; i < NUMTHREADS; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, (void*)0) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, (void *)0) == 0);
 		PTHR4W_TEST_ASSERT(pthread_create(&ct[i], NULL, InnerBlock::canceledThread, NULL) == 0);
 	}
 	/*
@@ -8878,14 +8878,14 @@ static int PThr4wTest_Exception1()
 	failed = 0;
 	for(i = 0; i < NUMTHREADS; i++) {
 		int fail = 0;
-		void* result = (void*)0;
+		void * result = (void *)0;
 		/* Canceled thread */
 		PTHR4W_TEST_ASSERT(pthread_join(ct[i], &result) == 0);
 		PTHR4W_TEST_ASSERT(!(fail = (result != PTHREAD_CANCELED)));
 		failed = (failed || fail);
 		/* Exceptioned thread */
 		PTHR4W_TEST_ASSERT(pthread_join(et[i], &result) == 0);
-		PTHR4W_TEST_ASSERT(!(fail = (result != (void*)((int)(size_t)PTHREAD_CANCELED + 2))));
+		PTHR4W_TEST_ASSERT(!(fail = (result != (void *)((int)(size_t)PTHREAD_CANCELED + 2))));
 		failed = (failed || fail);
 	}
 	PTHR4W_TEST_ASSERT(!failed);
@@ -8915,7 +8915,7 @@ static int PThr4wTest_Exception2(int argc, char* argv[])
 		#elif defined(__cplusplus)
 			throw dummy;
 		#endif
-			return (void*)100;
+			return (void *)100;
 		}
 	};
 	const int NUMTHREADS = 1; // Create NUMTHREADS threads in addition to the Main thread.
@@ -8998,15 +8998,15 @@ static int PThr4wTest_Exception3()
 			assert_e(pthread_mutex_unlock(&caughtLock), ==, 0);
 			/*
 			 * Notes from the MSVC++ manual:
-			 *       1) A term_func() should call exit(), otherwise
-			 *          abort() will be called on return to the caller.
-			 *          abort() raises SIGABRT. The default signal handler
-			 *          for all signals terminates the calling program with
-			 *          exit code 3.
-			 *       2) A term_func() must not throw an exception. Dev: Therefore
-			 *          term_func() should not call pthread_exit() if an
-			 *          exception-using version of pthreads-win32 library
-			 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+			 * 1) A term_func() should call exit(), otherwise
+			 *    abort() will be called on return to the caller.
+			 *    abort() raises SIGABRT. The default signal handler
+			 *    for all signals terminates the calling program with
+			 *    exit code 3.
+			 * 2) A term_func() must not throw an exception. Dev: Therefore
+			 *    term_func() should not call pthread_exit() if an
+			 *    exception-using version of pthreads-win32 library
+			 *    is being used (i.e. either pthreadVCE or pthreadVSE).
 			 */
 			/*
 			 * Allow time for all threads to reach here before exit, otherwise
@@ -9090,15 +9090,15 @@ static int PThr4wTest_Exception30()
 
 			/*
 			 * Notes from the MSVC++ manual:
-			 *       1) A term_func() should call exit(), otherwise
-			 *          abort() will be called on return to the caller.
-			 *          abort() raises SIGABRT. The default signal handler
-			 *          for all signals terminates the calling program with
-			 *          exit code 3.
-			 *       2) A term_func() must not throw an exception. Dev: Therefore
-			 *          term_func() should not call pthread_exit() if an
-			 *          exception-using version of pthreads-win32 library
-			 *          is being used (i.e. either pthreadVCE or pthreadVSE).
+			 * 1) A term_func() should call exit(), otherwise
+			 *    abort() will be called on return to the caller.
+			 *    abort() raises SIGABRT. The default signal handler
+			 *    for all signals terminates the calling program with
+			 *    exit code 3.
+			 * 2) A term_func() must not throw an exception. Dev: Therefore
+			 *    term_func() should not call pthread_exit() if an
+			 *    exception-using version of pthreads-win32 library
+			 *    is being used (i.e. either pthreadVCE or pthreadVSE).
 			 */
 			exit(0);
 		}
@@ -9108,7 +9108,7 @@ static int PThr4wTest_Exception30()
 			set_terminate(&terminateFunction);
 			PTHR4W_TEST_ASSERT(set_terminate(&terminateFunction) == &terminateFunction);
 			throw dummy;
-			return (void*)2;
+			return (void *)2;
 		}
 	};
 	DWORD et[NUMTHREADS];
@@ -9144,7 +9144,7 @@ static int PThr4wTest_Exception30()
 //
 //
 //
-// @sobolev (yet defined at implement.h) #define  __PTW32_OBJECT_AUTO_INIT ((void*)-1)
+// @sobolev (yet defined at implement.h) #define  __PTW32_OBJECT_AUTO_INIT ((void *)-1)
 // 
 // Dummy use of j, otherwise the loop may be removed by the optimiser
 // when doing the overhead timing with an empty loop.
@@ -10016,8 +10016,8 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		volatile uint q_size; /* Queue max size size          */
 		volatile uint q_first; /* Index of oldest message      */
 		volatile uint q_last; /* Index of youngest msg        */
-		volatile uint q_destroyed;/* Q receiver has terminated  */
-		void *  msg_array;/* array of q_size messages     */
+		volatile uint q_destroyed; /* Q receiver has terminated  */
+		void *  msg_array; /* array of q_size messages     */
 	};
 	struct msg_block_t { // Message block 
 		pthread_mutex_t mguard; // Mutex for  the message block 
@@ -10030,7 +10030,7 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		 * are part of a protected queue
 		 */
 		volatile uint source; /* Creating producer identity     */
-		volatile uint destination;/* Identity of receiving thread*/
+		volatile uint destination; /* Identity of receiving thread*/
 
 		volatile uint f_consumed;
 		volatile uint f_ready;
@@ -10369,13 +10369,13 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		consumer_arg[ithread].thread_number = ithread;
 		consumer_arg[ithread].work_goal = goal;
 		consumer_arg[ithread].work_done = 0;
-		tstatus = pthread_create(&consumer_th[ithread], NULL, InnerBlock::consumer, (void*)&consumer_arg[ithread]);
+		tstatus = pthread_create(&consumer_th[ithread], NULL, InnerBlock::consumer, (void *)&consumer_arg[ithread]);
 		if(tstatus != 0)
 			perror("Cannot create consumer thread");
 		producer_arg[ithread].thread_number = ithread;
 		producer_arg[ithread].work_goal = goal;
 		producer_arg[ithread].work_done = 0;
-		tstatus = pthread_create(&producer_th[ithread], NULL, InnerBlock::producer, (void*)&producer_arg[ithread]);
+		tstatus = pthread_create(&producer_th[ithread], NULL, InnerBlock::producer, (void *)&producer_arg[ithread]);
 		if(tstatus != 0)
 			perror("Cannot create producer thread");
 	}

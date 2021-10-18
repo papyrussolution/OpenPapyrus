@@ -59,7 +59,7 @@ typedef mbedtls_md_context_t *EVPCTX;
 
 typedef mbedtls_mpi *bignum;
 typedef const mbedtls_mpi *const_bignum;
-typedef void* bignum_CTX;
+typedef void * bignum_CTX;
 
 /* Constants for curves */
 #define NID_mbedtls_nistp256 0

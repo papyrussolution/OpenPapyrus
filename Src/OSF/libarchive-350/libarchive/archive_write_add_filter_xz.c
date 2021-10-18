@@ -84,16 +84,16 @@ int archive_write_add_filter_lzip(struct archive * a)
 
 struct private_data {
 	int compression_level;
-	uint32_t threads;
+	uint32 threads;
 	lzma_stream stream;
 	lzma_filter lzmafilters[2];
 	lzma_options_lzma lzma_opt;
-	int64_t total_in;
-	unsigned char   * compressed;
+	int64 total_in;
+	uchar   * compressed;
 	size_t compressed_buffer_size;
-	int64_t total_out;
+	int64 total_out;
 	/* the CRC32 value of uncompressed data for lzip */
-	uint32_t crc32;
+	uint32 crc32;
 };
 
 static int      archive_compressor_xz_options(struct archive_write_filter *,
@@ -107,8 +107,8 @@ static int      drive_compressor(struct archive_write_filter *,
     struct private_data *, int finishing);
 
 struct option_value {
-	uint32_t dict_size;
-	uint32_t nice_len;
+	uint32 dict_size;
+	uint32 nice_len;
 	lzma_match_finder mf;
 };
 
@@ -128,7 +128,7 @@ static const struct option_value option_values[] = {
 static int common_setup(struct archive_write_filter * f)
 {
 	struct archive_write * a = (struct archive_write *)f->archive;
-	struct private_data * data = static_cast<struct private_data *>(calloc(1, sizeof(*data)));
+	struct private_data * data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -244,7 +244,7 @@ static int archive_compressor_xz_init_stream(struct archive_write_filter * f, st
 		data->compressed[1] = 0x5A;
 		data->compressed[2] = 0x49;
 		data->compressed[3] = 0x50;
-		data->compressed[4] = 1;/* Version */
+		data->compressed[4] = 1; /* Version */
 		data->compressed[5] = (uchar)ds;
 		data->stream.next_out += 6;
 		data->stream.avail_out -= 6;
@@ -289,7 +289,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 		}
 		data->compressed_buffer_size = bs;
 		data->compressed
-			= (uchar *)malloc(data->compressed_buffer_size);
+			= (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
@@ -317,7 +317,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 		data->lzma_opt.depth = 0;
 		data->lzmafilters[0].id = LZMA_FILTER_LZMA1;
 		data->lzmafilters[0].options = &data->lzma_opt;
-		data->lzmafilters[1].id = LZMA_VLI_UNKNOWN;/* Terminate */
+		data->lzmafilters[1].id = LZMA_VLI_UNKNOWN; /* Terminate */
 	}
 	else {
 		if(lzma_lzma_preset(&data->lzma_opt, data->compression_level)) {
@@ -326,7 +326,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 		}
 		data->lzmafilters[0].id = LZMA_FILTER_LZMA2;
 		data->lzmafilters[0].options = &data->lzma_opt;
-		data->lzmafilters[1].id = LZMA_VLI_UNKNOWN;/* Terminate */
+		data->lzmafilters[1].id = LZMA_VLI_UNKNOWN; /* Terminate */
 	}
 	ret = archive_compressor_xz_init_stream(f, data);
 	if(ret == LZMA_OK) {
@@ -389,9 +389,9 @@ static int archive_compressor_xz_write(struct archive_write_filter * f, const vo
 	/* Update statistics */
 	data->total_in += length;
 	if(f->code == ARCHIVE_FILTER_LZIP)
-		data->crc32 = lzma_crc32(static_cast<const uint8_t *>(buff), length, data->crc32);
+		data->crc32 = lzma_crc32(static_cast<const uint8 *>(buff), length, data->crc32);
 	/* Compress input data to output buffer */
-	data->stream.next_in = static_cast<const uint8_t *>(buff);
+	data->stream.next_in = static_cast<const uint8 *>(buff);
 	data->stream.avail_in = length;
 	if((ret = drive_compressor(f, data, 0)) != ARCHIVE_OK)
 		return ret;
@@ -423,8 +423,8 @@ static int archive_compressor_xz_close(struct archive_write_filter * f)
 static int archive_compressor_xz_free(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	free(data->compressed);
-	free(data);
+	SAlloc::F(data->compressed);
+	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }

@@ -68,7 +68,7 @@ hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a, const h
  **/
 unsigned int hb_segment_properties_hash(const hb_segment_properties_t * p)
 {
-	return (unsigned int)p->direction ^ (unsigned int)p->script ^ (intptr_t)(p->language);
+	return (uint)p->direction ^ (uint)p->script ^ (intptr_t)(p->language);
 }
 /* Here is how the buffer works internally:
  *
@@ -109,8 +109,8 @@ bool hb_buffer_t::enlarge(unsigned int size)
 	static_assert((sizeof(info[0]) == sizeof(pos[0])), "");
 	if(UNLIKELY(hb_unsigned_mul_overflows(new_allocated, sizeof(info[0]))))
 		goto done;
-	new_pos = (hb_glyph_position_t*)realloc(pos, new_allocated * sizeof(pos[0]));
-	new_info = (hb_glyph_info_t*)realloc(info, new_allocated * sizeof(info[0]));
+	new_pos = (hb_glyph_position_t*)SAlloc::R(pos, new_allocated * sizeof(pos[0]));
+	new_info = (hb_glyph_info_t*)SAlloc::R(info, new_allocated * sizeof(info[0]));
 done:
 	if(UNLIKELY(!new_pos || !new_info))
 		successful = false;
@@ -294,7 +294,7 @@ void hb_buffer_t::replace_glyphs(unsigned int num_in,
 
 	hb_glyph_info_t orig_info = info[idx];
 	hb_glyph_info_t * pinfo = &out_info[out_len];
-	for(unsigned int i = 0; i < num_out; i++) {
+	for(uint i = 0; i < num_out; i++) {
 		*pinfo = orig_info;
 		pinfo->codepoint = glyph_data[i];
 		pinfo++;
@@ -360,7 +360,7 @@ void hb_buffer_t::set_masks(hb_mask_t value,
 		return;
 
 	unsigned int count = len;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if(cluster_start <= info[i].cluster && info[i].cluster < cluster_end)
 			info[i].mask = (info[i].mask & not_mask) | value;
 }
@@ -418,7 +418,7 @@ void hb_buffer_t::merge_clusters_impl(unsigned int start,
 
 	unsigned int cluster = info[start].cluster;
 
-	for(unsigned int i = start + 1; i < end; i++)
+	for(uint i = start + 1; i < end; i++)
 		cluster = hb_min(cluster, info[i].cluster);
 
 	/* Extend end */
@@ -431,10 +431,10 @@ void hb_buffer_t::merge_clusters_impl(unsigned int start,
 
 	/* If we hit the start of buffer, continue in out-buffer. */
 	if(idx == start)
-		for(unsigned int i = out_len; i && out_info[i - 1].cluster == info[start].cluster; i--)
+		for(uint i = out_len; i && out_info[i - 1].cluster == info[start].cluster; i--)
 			set_cluster(out_info[i - 1], cluster);
 
-	for(unsigned int i = start; i < end; i++)
+	for(uint i = start; i < end; i++)
 		set_cluster(info[i], cluster);
 }
 
@@ -449,7 +449,7 @@ void hb_buffer_t::merge_out_clusters(unsigned int start,
 
 	unsigned int cluster = out_info[start].cluster;
 
-	for(unsigned int i = start + 1; i < end; i++)
+	for(uint i = start + 1; i < end; i++)
 		cluster = hb_min(cluster, out_info[i].cluster);
 
 	/* Extend start */
@@ -462,10 +462,10 @@ void hb_buffer_t::merge_out_clusters(unsigned int start,
 
 	/* If we hit the end of out-buffer, continue in buffer. */
 	if(end == out_len)
-		for(unsigned int i = idx; i < len && info[i].cluster == out_info[end - 1].cluster; i++)
+		for(uint i = idx; i < len && info[i].cluster == out_info[end - 1].cluster; i++)
 			set_cluster(info[i], cluster);
 
-	for(unsigned int i = start; i < end; i++)
+	for(uint i = start; i < end; i++)
 		set_cluster(out_info[i], cluster);
 }
 
@@ -529,7 +529,7 @@ void hb_buffer_t::guess_segment_properties()
 	assert((content_type == HB_BUFFER_CONTENT_TYPE_UNICODE) || (!len && (content_type == HB_BUFFER_CONTENT_TYPE_INVALID)));
 	/* If script is set to INVALID, guess from buffer contents */
 	if(props.script == HB_SCRIPT_INVALID) {
-		for(unsigned int i = 0; i < len; i++) {
+		for(uint i = 0; i < len; i++) {
 			hb_script_t script = unicode->script(info[i].codepoint);
 			if(LIKELY(script != HB_SCRIPT_COMMON && script != HB_SCRIPT_INHERITED && script != HB_SCRIPT_UNKNOWN)) {
 				props.script = script;
@@ -1609,13 +1609,13 @@ static inline void normalize_glyphs_cluster(hb_buffer_t * buffer,
 
 	/* Total cluster advance */
 	hb_position_t total_x_advance = 0, total_y_advance = 0;
-	for(unsigned int i = start; i < end; i++) {
+	for(uint i = start; i < end; i++) {
 		total_x_advance += pos[i].x_advance;
 		total_y_advance += pos[i].y_advance;
 	}
 
 	hb_position_t x_advance = 0, y_advance = 0;
-	for(unsigned int i = start; i < end; i++) {
+	for(uint i = start; i < end; i++) {
 		pos[i].x_offset += x_advance;
 		pos[i].y_offset += y_advance;
 
@@ -1637,7 +1637,7 @@ static inline void normalize_glyphs_cluster(hb_buffer_t * buffer,
 		/* Transfer all cluster advance to the first glyph. */
 		pos[start].x_advance += total_x_advance;
 		pos[start].y_advance += total_y_advance;
-		for(unsigned int i = start + 1; i < end; i++) {
+		for(uint i = start + 1; i < end; i++) {
 			pos[i].x_offset -= total_x_advance;
 			pos[i].y_offset -= total_y_advance;
 		}
@@ -1671,7 +1671,7 @@ void hb_buffer_normalize_glyphs(hb_buffer_t * buffer)
 void hb_buffer_t::sort(unsigned int start, unsigned int end, int (*compar)(const hb_glyph_info_t *, const hb_glyph_info_t *))
 {
 	assert(!have_positions);
-	for(unsigned int i = start + 1; i < end; i++) {
+	for(uint i = start + 1; i < end; i++) {
 		unsigned int j = i;
 		while(j > start && compar(&info[j - 1], &info[i]) > 0)
 			j--;
@@ -1739,7 +1739,7 @@ hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
 
 	const hb_glyph_info_t * buf_info = buffer->info;
 	const hb_glyph_info_t * ref_info = reference->info;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		if(buf_info->codepoint != ref_info->codepoint)
 			result |= HB_BUFFER_DIFF_FLAG_CODEPOINT_MISMATCH;
 		if(buf_info->cluster != ref_info->cluster)
@@ -1758,11 +1758,11 @@ hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
 		assert(buffer->have_positions);
 		const hb_glyph_position_t * buf_pos = buffer->pos;
 		const hb_glyph_position_t * ref_pos = reference->pos;
-		for(unsigned int i = 0; i < count; i++) {
-			if((unsigned int)abs(buf_pos->x_advance - ref_pos->x_advance) > position_fuzz ||
-			    (unsigned int)abs(buf_pos->y_advance - ref_pos->y_advance) > position_fuzz ||
-			    (unsigned int)abs(buf_pos->x_offset - ref_pos->x_offset) > position_fuzz ||
-			    (unsigned int)abs(buf_pos->y_offset - ref_pos->y_offset) > position_fuzz) {
+		for(uint i = 0; i < count; i++) {
+			if((uint)abs(buf_pos->x_advance - ref_pos->x_advance) > position_fuzz ||
+			    (uint)abs(buf_pos->y_advance - ref_pos->y_advance) > position_fuzz ||
+			    (uint)abs(buf_pos->x_offset - ref_pos->x_offset) > position_fuzz ||
+			    (uint)abs(buf_pos->y_offset - ref_pos->y_offset) > position_fuzz) {
 				result |= HB_BUFFER_DIFF_FLAG_POSITION_MISMATCH;
 				break;
 			}

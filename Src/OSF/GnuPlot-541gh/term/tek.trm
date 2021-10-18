@@ -547,15 +547,15 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->TicH = pThis->TicV;
 	/* setup options string */
 	switch(SIXEL_font) {
-		case 1: strcpy(GPT.TermOptions, "small"); break;
-		case 2: strcpy(GPT.TermOptions, "medium"); break;
-		case 3: strcpy(GPT.TermOptions, "large"); break;
+		case 1: GPT._TermOptions = "small"; break;
+		case 2: GPT._TermOptions = "medium"; break;
+		case 3: GPT._TermOptions = "large"; break;
 	}
 	if(SIXEL_mode == 0)
-		strcat(GPT.TermOptions, " monochrome");
+		GPT._TermOptions.Cat(" monochrome");
 	else
-		sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " colors %d", SIXEL_ncol);
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
+		slprintf_cat(GPT._TermOptions, " colors %d", SIXEL_ncol);
+	slprintf_cat(GPT._TermOptions, " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
 }
 
 TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)

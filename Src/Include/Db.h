@@ -2018,6 +2018,7 @@ private:
 //   атрибутов, этот блок построен так, что позволяет с одной стороны легко расширять набор
 //   атрибутов, а с другой стороны обеспечить правильное их хранение (например, пароль хранится в
 //   зашифрованном виде).
+// @todo remaster into SBinarySet
 //
 class DbLoginBlock : private SBaseBuffer {
 public:
@@ -3194,25 +3195,25 @@ public:
 	//   Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
 	//   Если *pFuncId != 0, тогда считает, что функция уже зарегистрирована.
 	//
-	static int SLAPIV RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
+	static int CDECL RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
 	//
 	// Descr: Тоже что и RegisterDyn(0, retType, pProc, paramCount,...) 
 	//   Но возвращает идентификатор функции, а не сигнал успеха/неудачи.
 	//
-	static int SLAPIV RegisterDynR(int retType, DBQProc pProc, int paramCount, ...); // @cs
+	static int CDECL RegisterDynR(int retType, DBQProc pProc, int paramCount, ...); // @cs
 	//
 	// Динамически регистрирует новую агрегатную функцию.
 	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
 	// Если *pFuncId != 0, тогда считает, что функция уже зарегестрирована.
 	//
-	static int SLAPIV RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
+	static int CDECL RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
 	static DBFuncInfo * FASTCALL Get(int);
 	DbqFuncTab();
 	~DbqFuncTab();
 private:
 	int    GetDynFuncId(int * pId);
 	int    _RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, va_list);
-	int    SLAPIV RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, ...);
+	int    CDECL RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, ...);
 	int    SearchFunc(int funcId, DBFuncInfo *);
 	DBFuncInfo * FASTCALL GetFuncPtr(int funcId);
 	int    PreRegister();
@@ -3538,7 +3539,7 @@ int FASTCALL compare(KR, KR);
 
 DBQuery & FASTCALL selectbycell(int count, const DBDataCell *);
 DBQuery & FASTCALL select(const DBFieldList &);
-DBQuery & SLAPIV select(DBField,...);
+DBQuery & CDECL select(DBField,...);
 DBQuery & selectAll();
 
 #define DBQTF_OUTER_JOIN         0x0004 // По таблице определен OUTER JOIN
@@ -3557,7 +3558,7 @@ DBQuery & selectAll();
 #define DBQTF_PREVUP             0x0100 // Предыдущая операция выборки была "UP"
 
 class DBQuery {
-	friend DBQuery & SLAPIV select(DBField, ...);
+	friend DBQuery & CDECL select(DBField, ...);
 	friend DBQuery & selectAll();
 public:
 	enum {
@@ -3588,9 +3589,9 @@ public:
 	//   1
 	//
 	void   setSearchForUpdateMode(int set);
-	DBQuery & SLAPIV from(DBTable *,...);
-	DBQuery & SLAPIV groupBy(DBField,...);
-	DBQuery & SLAPIV orderBy(DBField,...);
+	DBQuery & CDECL from(DBTable *,...);
+	DBQuery & CDECL groupBy(DBField,...);
+	DBQuery & CDECL orderBy(DBField,...);
 	DBQuery & FASTCALL where(DBQ &);
 	DBQuery & having(DBQ &);
 	int    FASTCALL addField(DBConst &);
@@ -3870,7 +3871,7 @@ public:
 	void   resetEof();
 	BExtQuery & select(const DBFieldList &);
 	BExtQuery & selectAll();
-	BExtQuery & SLAPIV select(DBField,...);
+	BExtQuery & CDECL select(DBField,...);
 	int    addField(const DBField &);
 	void   FASTCALL where(DBQ &);
 	//

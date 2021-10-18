@@ -51,7 +51,7 @@ namespace OT {
 
 protected:
 		HBINT16 value;          /* The X or Y value in design units */
-		OffsetTo<Device>      deviceTable;/* Offset to the device table - from the
+		OffsetTo<Device>      deviceTable; /* Offset to the device table - from the
 		    * beginning of parent table.  May be NULL.
 		    * Suggested format for device table is 1. */
 
@@ -65,7 +65,7 @@ public:
 			TRACE_SANITIZE(this);
 
 			unsigned int count = ARRAY_LENGTH(mathValueRecords);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!mathValueRecords[i].sanitize(c, this))
 					return_trace(false);
 
@@ -180,7 +180,7 @@ public:
 		}
 
 protected:
-		OffsetTo<Coverage>       coverage;/* Offset to Coverage table -
+		OffsetTo<Coverage>       coverage; /* Offset to Coverage table -
 		      * from the beginning of
 		      * MathItalicsCorrectionInfo
 		      * table. */
@@ -212,7 +212,7 @@ public:
 		}
 
 protected:
-		OffsetTo<Coverage>       topAccentCoverage;/* Offset to Coverage table -
+		OffsetTo<Coverage>       topAccentCoverage; /* Offset to Coverage table -
 		            * from the beginning of
 		            * MathTopAccentAttachment
 		            * table. */
@@ -230,7 +230,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			unsigned int count = 2 * heightCount + 1;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!mathValueRecordsZ.arrayZ[i].sanitize(c, this)) return_trace(false);
 			return_trace(true);
 		}
@@ -295,7 +295,7 @@ public:
 			TRACE_SANITIZE(this);
 
 			unsigned int count = ARRAY_LENGTH(mathKern);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!mathKern[i].sanitize(c, base)))
 					return_trace(false);
 
@@ -462,11 +462,11 @@ public:
 			out.end_connector_length    = font->em_mult(endConnectorLength, mult);
 			out.full_advance            = font->em_mult(fullAdvance, mult);
 
-			static_assert((unsigned int)HB_OT_MATH_GLYPH_PART_FLAG_EXTENDER ==
-			    (unsigned int)PartFlags::Extender, "");
+			static_assert((uint)HB_OT_MATH_GLYPH_PART_FLAG_EXTENDER ==
+			    (uint)PartFlags::Extender, "");
 
 			out.flags = (hb_ot_math_glyph_part_flags_t)
-			    (unsigned int)
+			    (uint)
 			    (partFlags & PartFlags::Defined);
 		}
 
@@ -580,7 +580,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			unsigned int count = vertGlyphCount + horizGlyphCount;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!glyphConstruction.arrayZ[i].sanitize(c, this)) return_trace(false);
 			return_trace(true);
 		}
@@ -662,7 +662,7 @@ protected:
 		HBUINT16 vertGlyphCount; /* Number of glyphs for which
 		  * information is provided for
 		  * vertically growing variants. */
-		HBUINT16 horizGlyphCount;/* Number of glyphs for which
+		HBUINT16 horizGlyphCount; /* Number of glyphs for which
 		  * information is provided for
 		  * horizontally growing variants. */
 

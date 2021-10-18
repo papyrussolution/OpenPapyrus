@@ -115,11 +115,11 @@ __FBSDID("$FreeBSD$");
  *
  * It assumes that the input is an integer type of no more than 64 bits.
  * If the number is less than zero, t must be a signed type, so it fits in
- * int64_t. Otherwise, it's a nonnegative value so we can cast it to uint64_t
+ * int64. Otherwise, it's a nonnegative value so we can cast it to uint64
  * without loss. But it could be a large unsigned value, so we have to clip it
  * to INT64_MAX.*
  */
-#define to_int64_time(t) ((t) < 0 ? (int64_t)(t) : (uint64_t)(t) > (uint64_t)INT64_MAX ? INT64_MAX : (int64_t)(t))
+#define to_int64_time(t) ((t) < 0 ? (int64)(t) : (uint64)(t) > (uint64)INT64_MAX ? INT64_MAX : (int64)(t))
 
 #if __APPLE__
 #include <TargetConditionals.h>
@@ -172,10 +172,10 @@ struct fixup_entry {
 	struct fixup_entry      * next;
 	struct archive_acl acl;
 	mode_t mode;
-	int64_t atime;
-	int64_t birthtime;
-	int64_t mtime;
-	int64_t ctime;
+	int64 atime;
+	int64 birthtime;
+	int64 mtime;
+	int64 ctime;
 	unsigned long atime_nanos;
 	unsigned long birthtime_nanos;
 	unsigned long mtime_nanos;
@@ -222,16 +222,16 @@ struct archive_write_disk {
 	mode_t user_umask;
 	struct fixup_entry      * fixup_list;
 	struct fixup_entry      * current_fixup;
-	int64_t user_uid;
+	int64 user_uid;
 	int skip_file_set;
-	int64_t skip_file_dev;
-	int64_t skip_file_ino;
+	int64 skip_file_dev;
+	int64 skip_file_ino;
 	time_t start_time;
 
-	int64_t (* lookup_gid)(void * private, const char * gname, int64_t gid);
+	int64 (* lookup_gid)(void * private, const char * gname, int64 gid);
 	void (* cleanup_gid)(void * private);
 	void                    * lookup_gid_data;
-	int64_t (* lookup_uid)(void * private, const char * uname, int64_t uid);
+	int64 (* lookup_uid)(void * private, const char * uname, int64 uid);
 	void (* cleanup_uid)(void * private);
 	void                    * lookup_uid_data;
 
@@ -263,41 +263,41 @@ struct archive_write_disk {
 	/* Handle for the file we're restoring. */
 	int fd;
 	/* Current offset for writing data to the file. */
-	int64_t offset;
+	int64 offset;
 	/* Last offset actually written to disk. */
-	int64_t fd_offset;
+	int64 fd_offset;
 	/* Total bytes actually written to files. */
-	int64_t total_bytes_written;
+	int64 total_bytes_written;
 	/* Maximum size of file, -1 if unknown. */
-	int64_t filesize;
+	int64 filesize;
 	/* Dir we were in before this restore; only for deep paths. */
 	int restore_pwd;
 	/* Mode we should use for this entry; affected by _PERM and umask. */
 	mode_t mode;
 	/* UID/GID to use in restoring this entry. */
-	int64_t uid;
-	int64_t gid;
+	int64 uid;
+	int64 gid;
 	/*
 	 * HFS+ Compression.
 	 */
 	/* Xattr "com.apple.decmpfs". */
-	uint32_t decmpfs_attr_size;
-	unsigned char * decmpfs_header_p;
+	uint32 decmpfs_attr_size;
+	uchar * decmpfs_header_p;
 	/* ResourceFork set options used for fsetxattr. */
 	int rsrc_xattr_options;
 	/* Xattr "com.apple.ResourceFork". */
-	unsigned char * resource_fork;
+	uchar * resource_fork;
 	size_t resource_fork_allocated_size;
 	unsigned int decmpfs_block_count;
-	uint32_t                * decmpfs_block_info;
+	uint32                * decmpfs_block_info;
 	/* Buffer for compressed data. */
-	unsigned char * compressed_buffer;
+	uchar * compressed_buffer;
 	size_t compressed_buffer_size;
 	size_t compressed_buffer_remaining;
 	/* The offset of the ResourceFork where compressed data will
 	 * be placed. */
-	uint32_t compressed_rsrc_position;
-	uint32_t compressed_rsrc_position_v;
+	uint32 compressed_rsrc_position;
+	uint32 compressed_rsrc_position_v;
 	/* Buffer for uncompressed data. */
 	char                    * uncompressed_buffer;
 	size_t block_remaining_bytes;
@@ -394,10 +394,10 @@ static struct archive_vtable * archive_write_disk_vtable(void);
 static int      _archive_write_disk_close(struct archive *);
 static int      _archive_write_disk_free(struct archive *);
 static int      _archive_write_disk_header(struct archive *, struct archive_entry *);
-static int64_t  _archive_write_disk_filter_bytes(struct archive *, int);
+static int64  _archive_write_disk_filter_bytes(struct archive *, int);
 static int      _archive_write_disk_finish_entry(struct archive *);
 static ssize_t  _archive_write_disk_data(struct archive *, const void *, size_t);
-static ssize_t  _archive_write_disk_data_block(struct archive *, const void *, size_t, int64_t);
+static ssize_t  _archive_write_disk_data_block(struct archive *, const void *, size_t, int64);
 
 static int la_mktemp(struct archive_write_disk * a)
 {
@@ -492,7 +492,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)
 	return (&av);
 }
 
-static int64_t _archive_write_disk_filter_bytes(struct archive * _a, int n)
+static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	(void)n; /* UNUSED */
@@ -690,13 +690,13 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		archive_entry_fflags(a->entry, &set, &clear);
 		if((set & ~clear) & UF_COMPRESSED) {
 			a->todo |= TODO_HFS_COMPRESSION;
-			a->decmpfs_block_count = (unsigned)-1;
+			a->decmpfs_block_count = (uint)-1;
 		}
 	}
 	if((a->flags & ARCHIVE_EXTRACT_HFS_COMPRESSION_FORCED) != 0 &&
 	    (a->mode & AE_IFMT) == AE_IFREG && a->filesize > 0) {
 		a->todo |= TODO_HFS_COMPRESSION;
-		a->decmpfs_block_count = (unsigned)-1;
+		a->decmpfs_block_count = (uint)-1;
 	}
 	{
 		const char * p;
@@ -856,7 +856,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			fe = current_fixup(a, archive_entry_pathname(entry));
 			if(fe == NULL)
 				return ARCHIVE_FATAL;
-			fe->mac_metadata = malloc(metadata_size);
+			fe->mac_metadata = SAlloc::M(metadata_size);
 			if(fe->mac_metadata != NULL) {
 				memcpy(fe->mac_metadata, metadata,
 				    metadata_size);
@@ -902,7 +902,7 @@ int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64
 
 static ssize_t write_data_block(struct archive_write_disk * a, const char * buff, size_t size)
 {
-	uint64_t start_size = size;
+	uint64 start_size = size;
 	ssize_t bytes_written = 0;
 	ssize_t block_size = 0, bytes_to_write;
 
@@ -928,7 +928,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	}
 
 	/* If this write would run beyond the file size, truncate it. */
-	if(a->filesize >= 0 && (int64_t)(a->offset + size) > a->filesize)
+	if(a->filesize >= 0 && (int64)(a->offset + size) > a->filesize)
 		start_size = size = (size_t)(a->filesize - a->offset);
 
 	/* Write the data. */
@@ -939,7 +939,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		else {
 			/* We're sparsifying the file. */
 			const char * p, * end;
-			int64_t block_end;
+			int64 block_end;
 
 			/* Skip leading zero bytes. */
 			for(p = buff, end = buff + size; p < end; ++p) {
@@ -1030,7 +1030,7 @@ static int hfs_set_compressed_fflag(struct archive_write_disk * a)
 static int hfs_write_decmpfs(struct archive_write_disk * a)
 {
 	int r;
-	uint32_t compression_type;
+	uint32 compression_type;
 
 	r = fsetxattr(a->fd, DECMPFS_XATTR_NAME, a->decmpfs_header_p,
 		a->decmpfs_attr_size, 0, 0);
@@ -1082,8 +1082,8 @@ static int hfs_write_decmpfs(struct archive_write_disk * a)
 /*
  * Write the header of "com.apple.ResourceFork"
  */
-static int hfs_write_resource_fork(struct archive_write_disk * a, unsigned char * buff,
-    size_t bytes, uint32_t position)
+static int hfs_write_resource_fork(struct archive_write_disk * a, uchar * buff,
+    size_t bytes, uint32 position)
 {
 	int ret;
 
@@ -1091,7 +1091,7 @@ static int hfs_write_resource_fork(struct archive_write_disk * a, unsigned char 
 		position, a->rsrc_xattr_options);
 	if(ret < 0) {
 		archive_set_error(&a->archive, errno, "Cannot restore xattr: %s at %u pos %u bytes", XATTR_RESOURCEFORK_NAME,
-		    (unsigned)position, (unsigned)bytes);
+		    (uint)position, (uint)bytes);
 		return ARCHIVE_WARN;
 	}
 	a->rsrc_xattr_options &= ~XATTR_CREATE;
@@ -1111,9 +1111,9 @@ static int hfs_write_compressed_data(struct archive_write_disk * a, size_t bytes
 
 static int hfs_write_resource_fork_header(struct archive_write_disk * a)
 {
-	unsigned char * buff;
-	uint32_t rsrc_bytes;
-	uint32_t rsrc_header_bytes;
+	uchar * buff;
+	uint32 rsrc_bytes;
+	uint32 rsrc_header_bytes;
 
 	/*
 	 * Write resource fork header + block info.
@@ -1130,7 +1130,7 @@ static int hfs_write_resource_fork_header(struct archive_write_disk * a)
 	return hfs_write_resource_fork(a, buff, rsrc_header_bytes, 0);
 }
 
-static size_t hfs_set_resource_fork_footer(unsigned char * buff, size_t buff_size)
+static size_t hfs_set_resource_fork_footer(uchar * buff, size_t buff_size)
 {
 	static const char rsrc_footer[RSRC_F_SIZE] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1165,14 +1165,14 @@ static int hfs_reset_compressor(struct archive_write_disk * a)
 
 static int hfs_decompress(struct archive_write_disk * a)
 {
-	uint32_t * block_info;
+	uint32 * block_info;
 	unsigned int block_count;
-	uint32_t data_pos, data_size;
+	uint32 data_pos, data_size;
 	ssize_t r;
 	ssize_t bytes_written, bytes_to_write;
-	unsigned char * b;
+	uchar * b;
 
-	block_info = (uint32_t*)(a->resource_fork + RSRC_H_SIZE);
+	block_info = (uint32*)(a->resource_fork + RSRC_H_SIZE);
 	block_count = archive_le32dec(block_info++);
 	while(block_count--) {
 		data_pos = RSRC_H_SIZE + archive_le32dec(block_info++);
@@ -1221,7 +1221,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff,
     size_t size)
 {
-	unsigned char * buffer_compressed;
+	uchar * buffer_compressed;
 	size_t bytes_compressed;
 	size_t bytes_used;
 	int ret;
@@ -1235,7 +1235,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 
 		block_size = COMPRESSED_W_SIZE + RSRC_F_SIZE +
 		    +compressBound(MAX_DECMPFS_BLOCK_SIZE);
-		a->compressed_buffer = malloc(block_size);
+		a->compressed_buffer = SAlloc::M(block_size);
 		if(a->compressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Resource Fork");
 			return ARCHIVE_FATAL;
@@ -1268,7 +1268,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	 * throw away compressed data, use uncompressed data instead.
 	 */
 	if(bytes_compressed > size) {
-		buffer_compressed[0] = 0xFF;/* uncompressed marker. */
+		buffer_compressed[0] = 0xFF; /* uncompressed marker. */
 		memcpy(buffer_compressed + 1, buff, size);
 		bytes_compressed = size + 1;
 	}
@@ -1331,7 +1331,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	 */
 	if(a->file_remaining_bytes == 0) {
 		size_t rsrc_size;
-		int64_t bk;
+		int64 bk;
 
 		/* Append the resource footer. */
 		rsrc_size = hfs_set_resource_fork_footer(
@@ -1373,14 +1373,14 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 	size_t bytes_to_write;
 	int ret;
 
-	if(a->decmpfs_block_count == (unsigned)-1) {
+	if(a->decmpfs_block_count == (uint)-1) {
 		void * new_block;
 		size_t new_size;
 		unsigned int block_count;
 
 		if(a->decmpfs_header_p == NULL) {
-			new_block = malloc(MAX_DECMPFS_XATTR_SIZE
-				+ sizeof(uint32_t));
+			new_block = SAlloc::M(MAX_DECMPFS_XATTR_SIZE
+				+ sizeof(uint32));
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for decmpfs");
 				return ARCHIVE_FATAL;
@@ -1406,10 +1406,10 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		new_size =
 		    RSRC_H_SIZE + /* header */
 		    4 + /* Block count */
-		    (block_count * sizeof(uint32_t) * 2) +
+		    (block_count * sizeof(uint32) * 2) +
 		    RSRC_F_SIZE; /* footer */
 		if(new_size > a->resource_fork_allocated_size) {
-			new_block = realloc(a->resource_fork, new_size);
+			new_block = SAlloc::R(a->resource_fork, new_size);
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for ResourceFork");
 				return ARCHIVE_FATAL;
@@ -1420,7 +1420,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 
 		/* Allocate uncompressed buffer */
 		if(a->uncompressed_buffer == NULL) {
-			new_block = malloc(MAX_DECMPFS_BLOCK_SIZE);
+			new_block = SAlloc::M(MAX_DECMPFS_BLOCK_SIZE);
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for decmpfs");
 				return ARCHIVE_FATAL;
@@ -1438,7 +1438,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		/* Get the position where we are going to set a bunch
 		 * of block info. */
 		a->decmpfs_block_info =
-		    (uint32_t*)(a->resource_fork + RSRC_H_SIZE);
+		    (uint32*)(a->resource_fork + RSRC_H_SIZE);
 		/* Set the block count to the resource fork. */
 		archive_le32enc(a->decmpfs_block_info++, block_count);
 		/* Get the position where we are going to set compressed
@@ -1491,7 +1491,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * buff,
     size_t size)
 {
-	uint64_t start_size = size;
+	uint64 start_size = size;
 	ssize_t bytes_written = 0;
 	ssize_t bytes_to_write;
 
@@ -1504,7 +1504,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 	}
 
 	/* If this write would run beyond the file size, truncate it. */
-	if(a->filesize >= 0 && (int64_t)(a->offset + size) > a->filesize)
+	if(a->filesize >= 0 && (int64)(a->offset + size) > a->filesize)
 		start_size = size = (size_t)(a->filesize - a->offset);
 
 	/* Write the data. */
@@ -1517,11 +1517,11 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 			return ARCHIVE_FATAL;
 		}
 		else if(a->offset > a->fd_offset) {
-			int64_t skip = a->offset - a->fd_offset;
+			int64 skip = a->offset - a->fd_offset;
 			char nullblock[1024];
 			memzero(nullblock, sizeof(nullblock));
 			while(skip > 0) {
-				if(skip > (int64_t)sizeof(nullblock))
+				if(skip > (int64)sizeof(nullblock))
 					bytes_written = hfs_write_decmpfs_block(
 						a, nullblock, sizeof(nullblock));
 				else
@@ -1559,7 +1559,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 #endif
 
 static ssize_t _archive_write_disk_data_block(struct archive * _a,
-    const void * buff, size_t size, int64_t offset)
+    const void * buff, size_t size, int64 offset)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	ssize_t r;
@@ -1833,7 +1833,7 @@ int archive_write_disk_set_group_lookup(struct archive * _a,
 
 int archive_write_disk_set_user_lookup(struct archive * _a,
     void * private_data,
-    int64_t (*lookup_uid)(void * private, const char * uname, int64_t uid),
+    int64 (*lookup_uid)(void * private, const char * uname, int64 uid),
     void (*cleanup_uid)(void * private))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
@@ -1849,7 +1849,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a,
 	return ARCHIVE_OK;
 }
 
-int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
@@ -1859,7 +1859,7 @@ int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_
 	return (id);
 }
 
-int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
@@ -1875,7 +1875,7 @@ int64_t archive_write_disk_uid(struct archive * _a, const char * name, la_int64_
 struct archive * archive_write_disk_new(void)                 {
 	struct archive_write_disk * a;
 
-	a = (struct archive_write_disk *)calloc(1, sizeof(*a));
+	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
@@ -1889,7 +1889,7 @@ struct archive * archive_write_disk_new(void)                 {
 	a->user_uid = geteuid();
 #endif /* HAVE_GETEUID */
 	if(archive_string_ensure(&a->path_safe, 512) == NULL) {
-		free(a);
+		SAlloc::F(a);
 		return NULL;
 	}
 #ifdef HAVE_ZLIB_H
@@ -2155,7 +2155,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		return (EPERM);
 #else
 		archive_string_init(&error_string);
-		linkname_copy = strdup(linkname);
+		linkname_copy = sstrdup(linkname);
 		if(linkname_copy == NULL) {
 			return (EPERM);
 		}
@@ -2167,7 +2167,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			&error_string, a->flags);
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, error_number, "%s", error_string.s);
-			free(linkname_copy);
+			SAlloc::F(linkname_copy);
 			archive_string_free(&error_string);
 			/*
 			 * EPERM is more appropriate than error_number for our
@@ -2179,7 +2179,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			&error_string, a->flags);
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, error_number, "%s", error_string.s);
-			free(linkname_copy);
+			SAlloc::F(linkname_copy);
 			archive_string_free(&error_string);
 			/*
 			 * EPERM is more appropriate than error_number for our
@@ -2187,7 +2187,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			 */
 			return (EPERM);
 		}
-		free(linkname_copy);
+		SAlloc::F(linkname_copy);
 		archive_string_free(&error_string);
 		/*
 		 * Unlinking and linking here is really not atomic,
@@ -2412,11 +2412,11 @@ static int _archive_write_disk_close(struct archive * _a)
 			    p->mac_metadata_size);
 		next = p->next;
 		archive_acl_clear(&p->acl);
-		free(p->mac_metadata);
-		free(p->name);
+		SAlloc::F(p->mac_metadata);
+		SAlloc::F(p->name);
 		if(fd >= 0)
 			close(fd);
-		free(p);
+		SAlloc::F(p);
 		p = next;
 	}
 	a->fixup_list = NULL;
@@ -2442,10 +2442,10 @@ static int _archive_write_disk_free(struct archive * _a)
 	archive_string_free(&a->path_safe);
 	a->archive.magic = 0;
 	__archive_clean(&a->archive);
-	free(a->decmpfs_header_p);
-	free(a->resource_fork);
-	free(a->compressed_buffer);
-	free(a->uncompressed_buffer);
+	SAlloc::F(a->decmpfs_header_p);
+	SAlloc::F(a->resource_fork);
+	SAlloc::F(a->compressed_buffer);
+	SAlloc::F(a->uncompressed_buffer);
 #if defined(__APPLE__) && defined(UF_COMPRESSED) && defined(HAVE_SYS_XATTR_H) \
 	&& defined(HAVE_ZLIB_H)
 	if(a->stream_valid) {
@@ -2459,7 +2459,7 @@ static int _archive_write_disk_free(struct archive * _a)
 		}
 	}
 #endif
-	free(a);
+	SAlloc::F(a);
 	return ret;
 }
 
@@ -2537,7 +2537,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char * pathname)                              {
 	struct fixup_entry * fe;
 
-	fe = (struct fixup_entry *)calloc(1, sizeof(struct fixup_entry));
+	fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
 	if(fe == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a fixup");
 		return NULL;
@@ -2545,7 +2545,7 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char 
 	fe->next = a->fixup_list;
 	a->fixup_list = fe;
 	fe->fixup = 0;
-	fe->name = strdup(pathname);
+	fe->name = sstrdup(pathname);
 	return (fe);
 }
 
@@ -3902,7 +3902,7 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 		ret = ARCHIVE_WARN;
 		goto exit_xattr;
 	}
-	xattr_names = malloc(xattr_size);
+	xattr_names = SAlloc::M(xattr_size);
 	if(xattr_names == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for metadata(xattr)");
 		ret = ARCHIVE_FATAL;
@@ -3927,11 +3927,11 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 			goto exit_xattr;
 		}
 		xattr_val_saved = xattr_val;
-		xattr_val = realloc(xattr_val, s);
+		xattr_val = SAlloc::R(xattr_val, s);
 		if(xattr_val == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Failed to get metadata(xattr)");
 			ret = ARCHIVE_WARN;
-			free(xattr_val_saved);
+			SAlloc::F(xattr_val_saved);
 			goto exit_xattr;
 		}
 		s = fgetxattr(tmpfd, xattr_names + xattr_i, xattr_val, s, 0, 0);
@@ -3948,8 +3948,8 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 		}
 	}
 exit_xattr:
-	free(xattr_names);
-	free(xattr_val);
+	SAlloc::F(xattr_names);
+	SAlloc::F(xattr_val);
 	return ret;
 }
 
@@ -4280,7 +4280,7 @@ static int set_xattrs(struct archive_write_disk * a)
 			else if(strncmp(name, "system.", 7) == 0) {
 				name += 7;
 				_namespace = EXTATTR_NAMESPACE_SYSTEM;
-				if(!strcmp(name, "nfs4.acl") || !strcmp(name, "posix1e.acl_access") || !strcmp(name, "posix1e.acl_default"))
+				if(sstreq(name, "nfs4.acl") || sstreq(name, "posix1e.acl_access") || sstreq(name, "posix1e.acl_default"))
 					continue;
 			}
 			else {

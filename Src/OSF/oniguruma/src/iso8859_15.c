@@ -102,33 +102,26 @@ static const ushort EncISO_8859_15_CtypeTable[256] = {
 	0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2
 };
 
-static int mbc_case_fold(OnigCaseFoldType flag,
-    const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
+static int mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
 {
 	const uchar * p = *pp;
-
 	if(*p == 0xdf && (flag & INTERNAL_ONIGENC_CASE_FOLD_MULTI_CHAR) != 0) {
 		*lower++ = 's';
 		*lower   = 's';
 		(*pp)++;
 		return 2;
 	}
-
 	if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) || ONIGENC_IS_ASCII_CODE(*p))
 		*lower = ENC_ISO_8859_15_TO_LOWER_CASE(*p);
 	else
 		*lower = *p;
-
 	(*pp)++;
 	return 1; /* return byte length of converted char to lower */
 }
 
 static int is_code_ctype(OnigCodePoint code, uint ctype)
 {
-	if(code < 256)
-		return ENC_IS_ISO_8859_15_CTYPE(code, ctype);
-	else
-		return FALSE;
+	return (code < 256) ? ENC_IS_ISO_8859_15_CTYPE(code, ctype) : FALSE;
 }
 
 static const OnigPairCaseFoldCodes CaseFoldMap[] = {
@@ -171,20 +164,14 @@ static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 	{ 0xde, 0xfe }
 };
 
-static int apply_all_case_fold(OnigCaseFoldType flag,
-    OnigApplyAllCaseFoldFunc f, void* arg)
+static int apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
-	return onigenc_apply_all_case_fold_with_map(
-		sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1,
-		flag, f, arg);
+	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1, flag, f, arg);
 }
 
-static int get_case_fold_codes_by_str(OnigCaseFoldType flag,
-    const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
+static int get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
-	return onigenc_get_case_fold_codes_by_str_with_map(
-		sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1,
-		flag, p, end, items);
+	return onigenc_get_case_fold_codes_by_str_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 1, flag, p, end, items);
 }
 
 OnigEncodingType OnigEncodingISO_8859_15 = {

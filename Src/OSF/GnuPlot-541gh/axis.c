@@ -161,13 +161,13 @@ const t_ticdef default_axis_ticdef; // = DEFAULT_AXIS_TICDEF;
 //static RealRange SaveAutoscaledRangeY;
 
 /* --------- internal prototypes ------------------------- */
-static double make_auto_time_minitics(t_timelevel, double);
+//static double make_auto_time_minitics(t_timelevel, double);
 //static double make_tics(GpAxis *, int);
-static double quantize_time_tics(GpAxis *, double, double, int);
+//static double quantize_time_tics(GpAxis *, double, double, int);
 //static double time_tic_just(t_timelevel, double);
 //static double round_outward(const GpAxis *, bool, double);
 //static bool axis_position_zeroaxis(AXIS_INDEX);
-static double quantize_duodecimal_tics(double, int);
+//static double quantize_duodecimal_tics(double, int);
 
 //void check_log_limits(const GpAxis * pAx, double min, double max)
 void GnuPlot::CheckAxisLogLimits(const GpAxis * pAx, double min, double max)
@@ -351,13 +351,13 @@ void GpAxis::FlipProjection()
  *
  * Arguments:
  * axis = (in) An integer specifying which axis (x1, x2, y1, y2, z, etc)
- *             we should do our stuff for.  We use this argument as an
- *             index into the global arrays  {min,max,auto}_array .  In
- *             practice this argument will typically be one of the constants
- *              {FIRST,SECOND}_{X,Y,Z}_AXIS  defined in plot.h.
+ *       we should do our stuff for.  We use this argument as an
+ *       index into the global arrays  {min,max,auto}_array .  In
+ *       practice this argument will typically be one of the constants
+ *        {FIRST,SECOND}_{X,Y,Z}_AXIS  defined in plot.h.
  * mesg = (in) if non-NULL, will check if the axis range is valid (min
- *             not +VERYLARGE, max not -VERYLARGE), and GnuPlot::IntError() out
- *             if it isn't.
+ *       not +VERYLARGE, max not -VERYLARGE), and GnuPlot::IntError() out
+ *       if it isn't.
  *
  * Global Variables:
  * auto_array, min_array, max_array (in out) (defined in axis.[ch]):
@@ -659,29 +659,6 @@ double quantize_normal_tics(double arg, int guide)
 		tics = ceil(xnorm);
 	return (tics * power);
 }
-
-/* }}} */
-// 
-// Implement TIC_COMPUTED case, i.e. automatically choose a usable
-// ticking interval for the given axis. For the meaning of the guide
-// parameter, see the comment on quantize_normal_tics() 
-// 
-//static double make_tics(GpAxis * pAx, int guide)
-double GnuPlot::MakeTics(GpAxis * pAx, int guide)
-{
-	double xr = fabs(pAx->min - pAx->max);
-	if(xr == 0.0)
-		return 1.0; // Anything will do, since we'll never use it 
-	else {
-		if(xr >= VERYLARGE)
-			IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)pAx->index));
-		double tic = quantize_normal_tics(xr, guide);
-		// FIXME HBB 20010831: disabling this might allow short log axis to receive better ticking... 
-		if(pAx->log && tic < 1.0)
-			tic = 1.0;
-		return (pAx->tictype == DT_TIMEDATE) ? quantize_time_tics(pAx, tic, xr, guide) : tic;
-	}
-}
 // 
 // HBB 20020220: New function, to be used to properly tic axes with a
 // duodecimal reference, as used in times (60 seconds, 60 minutes, 24
@@ -690,7 +667,7 @@ double GnuPlot::MakeTics(GpAxis * pAx, int guide)
 // 
 static double quantize_duodecimal_tics(double arg, int guide)
 {
-	/* order of magnitude of argument: */
+	// order of magnitude of argument: 
 	double power = pow(12.0, floor(log(arg)/log(12.0)));
 	double xnorm = arg / power; /* approx number of decades */
 	double posns = guide / xnorm; /* approx number of tic posns per decade */
@@ -775,6 +752,27 @@ static double quantize_time_tics(GpAxis * pAx, double tic, double xr, int guide)
 			pAx->timelevel = TIMELEVEL_YEARS;
 	}
 	return (tic);
+}
+// 
+// Implement TIC_COMPUTED case, i.e. automatically choose a usable
+// ticking interval for the given axis. For the meaning of the guide
+// parameter, see the comment on quantize_normal_tics() 
+// 
+//static double make_tics(GpAxis * pAx, int guide)
+double GnuPlot::MakeTics(GpAxis * pAx, int guide)
+{
+	double xr = fabs(pAx->min - pAx->max);
+	if(xr == 0.0)
+		return 1.0; // Anything will do, since we'll never use it 
+	else {
+		if(xr >= VERYLARGE)
+			IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)pAx->index));
+		double tic = quantize_normal_tics(xr, guide);
+		// FIXME HBB 20010831: disabling this might allow short log axis to receive better ticking... 
+		if(pAx->log && tic < 1.0)
+			tic = 1.0;
+		return (pAx->tictype == DT_TIMEDATE) ? quantize_time_tics(pAx, tic, xr, guide) : tic;
+	}
 }
 //
 // HBB 20011204: new function (repeated code ripped out of setup_tics)
@@ -1749,7 +1747,7 @@ void GnuPlot::SetCbMinMax()
 			r_cb_ax.max = AxS.__Z().max;
 	}
 	r_cb_ax.max = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.max, "color axis");
-	ExchangeToOrder(&r_cb_ax.min, &r_cb_ax.max);
+	ExchangeForOrder(&r_cb_ax.min, &r_cb_ax.max);
 	if(r_cb_ax.linked_to_primary)
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }

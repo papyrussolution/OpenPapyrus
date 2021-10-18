@@ -2075,7 +2075,7 @@ void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, lon
 	strnzcpy(pBuf, temp, bufLen);
 }
 
-static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*...*/va_list pArgList)
+static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*...*/va_list pArgList)
 {
 	enum {
 		tokInt64 = 1, // int64 @v10.2.4
@@ -2326,7 +2326,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 	return *pBuf;
 }
 
-SString & SLAPIV PPFormat(const SString & rFmt, SString * pBuf, ...)
+SString & CDECL PPFormat(const SString & rFmt, SString * pBuf, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pBuf);
@@ -2335,7 +2335,7 @@ SString & SLAPIV PPFormat(const SString & rFmt, SString * pBuf, ...)
 	return *pBuf;
 }
 
-SString & SLAPIV PPFormatT(int textCode, SString * pBuf, ...)
+SString & CDECL PPFormatT(int textCode, SString * pBuf, ...)
 {
 	SString fmt_buf;
 	PPLoadText(textCode, fmt_buf);
@@ -2346,7 +2346,7 @@ SString & SLAPIV PPFormatT(int textCode, SString * pBuf, ...)
 	return *pBuf;
 }
 
-SString & SLAPIV PPFormatS(int textGroup, int textCode, SString * pBuf, ...)
+SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...)
 {
 	SString fmt_buf;
 	PPLoadString(textGroup, textCode, fmt_buf);

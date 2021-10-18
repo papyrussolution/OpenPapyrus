@@ -553,7 +553,7 @@ void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve* g[], const cha
 //  detect row changing by keeping a copy of last value of first
 //  component. -1 is used to mark beginning of whole block.
 
-static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	cmsPsSamplerCargo* sc = (cmsPsSamplerCargo*)Cargo;
 	cmsUInt32Number i;
@@ -646,7 +646,7 @@ void WriteCLUT(cmsIOHANDLER* m, cmsStage* mpe, const char* PreMaj,
 
 	_cmsIOPrintf(m, " [\n");
 
-	cmsStageSampleCLut16bit(mpe, OutputValueSampler, (void*)&sc, SAMPLER_INSPECT);
+	cmsStageSampleCLut16bit(mpe, OutputValueSampler, (void *)&sc, SAMPLER_INSPECT);
 
 	_cmsIOPrintf(m, PostMin);
 	_cmsIOPrintf(m, PostMaj);
@@ -1439,7 +1439,7 @@ cmsUInt32Number CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID,
 }
 
 cmsUInt32Number CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags,
-    void* Buffer, cmsUInt32Number dwBufferLen)
+    void * Buffer, cmsUInt32Number dwBufferLen)
 {
 	cmsIOHANDLER* mem;
 	cmsUInt32Number dwBytesUsed;
@@ -1457,7 +1457,7 @@ cmsUInt32Number CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID, cmsHPROFILE 
 
 // Does create a Color Space Array on XYZ colorspace for PostScript usage
 cmsUInt32Number CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags,
-    void* Buffer, cmsUInt32Number dwBufferLen)
+    void * Buffer, cmsUInt32Number dwBufferLen)
 {
 	cmsIOHANDLER* mem;
 	cmsUInt32Number dwBytesUsed;

@@ -1160,7 +1160,7 @@ DECLAREContigPutFunc(putRGBUAcontig8bittile)
 	fromskew *= samplesperpixel;
 	for(; h > 0; --h) {
 		uint32 r, g, b, a;
-		uint8* m;
+		uint8 * m;
 		for(x = w; x > 0; --x) {
 			a = pp[3];
 			m = img->UaToAa+((size_t)a<<8);
@@ -1333,7 +1333,7 @@ DECLARESepPutFunc(putRGBUAseparate8bittile)
 	(void)img; (void)y;
 	for(; h > 0; --h) {
 		uint32 rv, gv, bv, av;
-		uint8* m;
+		uint8 * m;
 		for(x = w; x > 0; --x) {
 			av = *a++;
 			m = img->UaToAa+((size_t)av<<8);
@@ -1391,7 +1391,7 @@ DECLARESepPutFunc(putRGBUAseparate16bittile)
 	(void)img; (void)y;
 	for(; h > 0; --h) {
 		uint32 r2, g2, b2, a2;
-		uint8* m;
+		uint8 * m;
 		for(x = w; x > 0; --x) {
 			a2 = img->Bitdepth16To8[*wa++];
 			m = img->UaToAa+((size_t)a2<<8);
@@ -2368,7 +2368,7 @@ static int PickSeparateCase(TIFFRGBAImage* img)
 static int BuildMapUaToAa(TIFFRGBAImage* img)
 {
 	static const char module[] = __FUNCTION__;
-	uint8* m;
+	uint8 * m;
 	uint16 na, nv;
 	assert(img->UaToAa == NULL);
 	img->UaToAa = static_cast<uint8 *>(SAlloc::M(65536));
@@ -2387,7 +2387,7 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 static int FASTCALL BuildMapBitdepth16To8(TIFFRGBAImage* img)
 {
 	static const char module[] = __FUNCTION__;
-	uint8* m;
+	uint8 * m;
 	uint32 n;
 	assert(img->Bitdepth16To8 == NULL);
 	img->Bitdepth16To8 = static_cast<uint8 *>(SAlloc::M(65536));

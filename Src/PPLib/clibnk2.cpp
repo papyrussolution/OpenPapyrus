@@ -705,7 +705,7 @@ int ClientBankImportDef::ImportAll()
 					}
 					if(!obj2_ar_id && p_assoc->ArticleID) {
 						PPClientAgreement cli_agt;
-						if(ar_obj.GetClientAgreement(p_assoc->ArticleID, &cli_agt, 0) > 0) {
+						if(ar_obj.GetClientAgreement(p_assoc->ArticleID, cli_agt, 0) > 0) {
 							ArticleTbl::Rec ar2_rec;
 							if(cli_agt.ExtObjectID && ar_obj.Fetch(cli_agt.ExtObjectID, &ar2_rec) > 0 && ar2_rec.AccSheetID == op_rec.AccSheet2ID)
 								obj2_ar_id = cli_agt.ExtObjectID;

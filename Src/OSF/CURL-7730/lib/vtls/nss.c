@@ -1164,7 +1164,7 @@ static SECStatus SelectClientCert(void * arg, PRFileDesc * sock,
 	}
 
 	/* use the default NSS hook */
-	if(SECSuccess != NSS_GetClientAuthData((void*)nickname, sock, caNames,
+	if(SECSuccess != NSS_GetClientAuthData((void *)nickname, sock, caNames,
 	    pRetCert, pRetKey)
 	    || NULL == *pRetCert) {
 		if(NULL == nickname)
@@ -1303,7 +1303,7 @@ static CURLcode nss_init_core(struct Curl_easy * data, const char * cert_dir)
 	const char * err_name;
 	if(nss_context != NULL)
 		return CURLE_OK;
-	memzero((void*)&initparams, sizeof(initparams));
+	memzero((void *)&initparams, sizeof(initparams));
 	initparams.length = sizeof(initparams);
 	if(cert_dir) {
 		char * certpath = aprintf("sql:%s", cert_dir);
@@ -1479,7 +1479,7 @@ static int Curl_nss_check_cxn(struct connectdata * conn)
 	char buf;
 
 	rc =
-	    PR_Recv(backend->handle, (void*)&buf, 1, PR_MSG_PEEK,
+	    PR_Recv(backend->handle, (void *)&buf, 1, PR_MSG_PEEK,
 		PR_SecondsToInterval(1));
 	if(rc > 0)
 		return 1; /* connection still in place */
@@ -1962,7 +1962,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 		backend->client_nickname = NULL;
 
 	if(SSL_GetClientAuthDataHook(model, SelectClientCert,
-	    (void*)connssl) != SECSuccess) {
+	    (void *)connssl) != SECSuccess) {
 		result = CURLE_SSL_CERTPROBLEM;
 		goto error;
 	}
@@ -1991,7 +1991,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 	}
 
 	/* make the per-connection data accessible from NSPR I/O callbacks */
-	nspr_io_stub->secret = (void*)connssl;
+	nspr_io_stub->secret = (void *)connssl;
 
 	/* push our new layer to the NSPR I/O stack */
 	if(PR_PushIOLayer(nspr_io, PR_TOP_IO_LAYER, nspr_io_stub) != PR_SUCCESS) {

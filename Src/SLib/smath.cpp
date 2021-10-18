@@ -154,8 +154,8 @@ float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
-int    FASTCALL smin(int a, int b)       { return MIN(a, b); }
-int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
+int    FASTCALL smin(int a, int b) { return MIN(a, b); }
+int    FASTCALL smax(int a, int b) { return MAX(a, b); }
 int64  FASTCALL smin(int64 a, int64 b)   { return MIN(a, b); }
 int64  FASTCALL smax(int64 a, int64 b)   { return MAX(a, b); }
 uint   FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
@@ -173,7 +173,7 @@ double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
 double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
 
 int    FASTCALL sclamp(int v, int lo, int up)          { return (v < lo) ? lo : ((v > up) ? up : v); }
-uint   FASTCALL sclamp(uint v, uint lo, uint up)       { return (v < lo) ? lo : ((v > up) ? up : v); }
+uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
 

@@ -149,7 +149,7 @@ typedef struct  FT_Frame_Field_ {
 
 /*
  *    function      acts on      increases  does range   for    emits
- *                                pointer    checking   frames  error
+ *                          pointer    checking   frames  error
  *  -------------------------------------------------------------------
  *   FT_PEEK_XXX  buffer pointer      no         no        no     no
  *   FT_NEXT_XXX  buffer pointer     yes         no        no     no
@@ -217,7 +217,7 @@ typedef struct  FT_Frame_Field_ {
 	( (signed char)*buffer++ )
 
 #define FT_NEXT_BYTE(buffer)         \
-	( (unsigned char)*buffer++ )
+	( (uchar)*buffer++ )
 
 #define FT_NEXT_SHORT(buffer)                                   \
 	( (short)( buffer += 2, FT_PEEK_SHORT(buffer - 2) ) )
@@ -488,7 +488,7 @@ FT_Stream_ReadULongLE(FT_Stream stream,
 FT_BASE(FT_Error)
 FT_Stream_ReadFields(FT_Stream stream,
     const FT_Frame_Field*  fields,
-    void *       structure);
+    void * structure);
 
 #define FT_STREAM_POS()           \
 	FT_Stream_Pos(stream)

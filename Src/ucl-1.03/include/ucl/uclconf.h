@@ -148,23 +148,22 @@ extern "C" {
 //
 /* Integral types with 32 bits or more */
 #if !defined(UCL_UINT32_MAX)
-#  if (UINT_MAX >= UCL_0xffffffffL)
-     typedef unsigned int       ucl_uint32;
-     typedef int                ucl_int32;
-#    define UCL_UINT32_MAX      UINT_MAX
-#    define UCL_INT32_MAX       INT_MAX
-#    define UCL_INT32_MIN       INT_MIN
-#  elif (ULONG_MAX >= UCL_0xffffffffL)
-     typedef unsigned long      ucl_uint32;
-     typedef long               ucl_int32;
-#    define UCL_UINT32_MAX      ULONG_MAX
-#    define UCL_INT32_MAX       LONG_MAX
-#    define UCL_INT32_MIN       LONG_MIN
-#  else
-#    error "ucl_uint32"
-#  endif
+	#if (UINT_MAX >= UCL_0xffffffffL)
+		typedef unsigned int       ucl_uint32;
+		typedef int                ucl_int32;
+		#define UCL_UINT32_MAX      UINT_MAX
+		#define UCL_INT32_MAX       INT_MAX
+		#define UCL_INT32_MIN       INT_MIN
+	#elif (ULONG_MAX >= UCL_0xffffffffL)
+		typedef unsigned long      ucl_uint32;
+		typedef long               ucl_int32;
+		#define UCL_UINT32_MAX      ULONG_MAX
+		#define UCL_INT32_MAX       LONG_MAX
+		#define UCL_INT32_MIN       LONG_MIN
+	#else
+		#error "ucl_uint32"
+	#endif
 #endif
-
 /* ucl_uint is used like size_t */
 #if !defined(UCL_UINT_MAX)
 #  if (UINT_MAX >= UCL_0xffffffffL)

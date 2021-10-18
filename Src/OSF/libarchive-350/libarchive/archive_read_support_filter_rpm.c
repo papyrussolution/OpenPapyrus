@@ -30,10 +30,10 @@
 #include "archive_read_private.h"
 
 struct rpm {
-	int64_t total_in;
+	int64 total_in;
 	size_t hpos;
 	size_t hlen;
-	unsigned char header[16];
+	uchar header[16];
 	enum {
 		ST_LEAD,        /* Skipping 'Lead' section. */
 		ST_HEADER,      /* Reading 'Header' section;
@@ -88,11 +88,11 @@ int archive_read_support_filter_rpm(struct archive * _a)
 
 static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
-	const unsigned char * b;
+	const uchar * b;
 	ssize_t avail;
 	int bits_checked;
 	(void)self; /* UNUSED */
-	b = static_cast<const unsigned char *>(__archive_read_filter_ahead(filter, 8, &avail));
+	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 8, &avail));
 	if(b == NULL)
 		return 0;
 
@@ -130,7 +130,7 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 	self->read = rpm_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = rpm_filter_close;
-	rpm = (struct rpm *)calloc(sizeof(*rpm), 1);
+	rpm = (struct rpm *)SAlloc::C(sizeof(*rpm), 1);
 	if(rpm == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for rpm");
 		return ARCHIVE_FATAL;
@@ -143,11 +143,11 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** buff)
 {
 	struct rpm * rpm;
-	const unsigned char * b;
+	const uchar * b;
 	ssize_t avail_in, total;
 	size_t used, n;
-	uint32_t section;
-	uint32_t bytes;
+	uint32 section;
+	uint32 bytes;
 	rpm = (struct rpm *)self->data;
 	*buff = NULL;
 	total = avail_in = 0;
@@ -155,7 +155,7 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 	used = 0;
 	do {
 		if(b == NULL) {
-			b = static_cast<const unsigned char *>(__archive_read_filter_ahead(self->upstream, 1, &avail_in));
+			b = static_cast<const uchar *>(__archive_read_filter_ahead(self->upstream, 1, &avail_in));
 			if(b == NULL) {
 				if(avail_in < 0)
 					return ARCHIVE_FATAL;
@@ -253,7 +253,7 @@ static int rpm_filter_close(struct archive_read_filter * self)
 	struct rpm * rpm;
 
 	rpm = (struct rpm *)self->data;
-	free(rpm);
+	SAlloc::F(rpm);
 
 	return ARCHIVE_OK;
 }

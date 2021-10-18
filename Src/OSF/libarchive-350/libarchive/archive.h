@@ -71,7 +71,7 @@ typedef __int64 la_int64_t;
 #  if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
 #  else
-typedef int64_t la_int64_t;
+typedef int64 la_int64_t;
 #  endif
 # endif
 #endif
@@ -353,9 +353,7 @@ typedef const char * archive_passphrase_callback (struct archive *,
  */
 #define ARCHIVE_READ_FORMAT_CAPS_NONE (0) /* no special capabilities */
 #define ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA (1<<0)  /* reader can detect encrypted data */
-#define ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA (1<<1)  /* reader can detect encryptable metadata (pathname, mtime,
-	                                                     etc.) */
-
+#define ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA (1<<1)  /* reader can detect encryptable metadata (pathname, mtime, etc.) */
 /*
  * Codes returned by archive_read_has_encrypted_entries().
  *
@@ -389,34 +387,20 @@ __LA_DECL struct archive        * archive_read_new(void);
  * support_compression_bzip2().  The "all" functions provide the
  * obvious shorthand.
  */
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
-__LA_DECL int archive_read_support_compression_all(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_bzip2(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_compress(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_gzip(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_lzip(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_lzma(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_none(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_program(struct archive *,
-    const char * command) __LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_program_signature
-	(struct archive *, const char *,
-    const void * /* match */, size_t) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_all(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_bzip2(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_compress(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_gzip(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_lzip(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_lzma(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_none(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_program(struct archive *, const char * command) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_program_signature (struct archive *, const char *, const void * /* match */, size_t) __LA_DEPRECATED;
 
-__LA_DECL int archive_read_support_compression_rpm(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_uu(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_read_support_compression_xz(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_rpm(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_uu(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_read_support_compression_xz(struct archive *) __LA_DEPRECATED;
 #endif
 
 __LA_DECL int archive_read_support_filter_all(struct archive *);
@@ -431,11 +415,8 @@ __LA_DECL int archive_read_support_filter_lzip(struct archive *);
 __LA_DECL int archive_read_support_filter_lzma(struct archive *);
 __LA_DECL int archive_read_support_filter_lzop(struct archive *);
 __LA_DECL int archive_read_support_filter_none(struct archive *);
-__LA_DECL int archive_read_support_filter_program(struct archive *,
-    const char * command);
-__LA_DECL int archive_read_support_filter_program_signature
-	(struct archive *, const char * /* cmd */,
-    const void * /* match */, size_t);
+__LA_DECL int archive_read_support_filter_program(struct archive *, const char * command);
+__LA_DECL int archive_read_support_filter_program_signature(struct archive *, const char * /* cmd */, const void * /* match */, size_t);
 __LA_DECL int archive_read_support_filter_rpm(struct archive *);
 __LA_DECL int archive_read_support_filter_uu(struct archive *);
 __LA_DECL int archive_read_support_filter_xz(struct archive *);
@@ -474,34 +455,24 @@ __LA_DECL int archive_read_support_format_zip_seekable(struct archive *);
  */
 __LA_DECL int archive_read_set_format(struct archive *, int);
 __LA_DECL int archive_read_append_filter(struct archive *, int);
-__LA_DECL int archive_read_append_filter_program(struct archive *,
-    const char *);
-__LA_DECL int archive_read_append_filter_program_signature
-	(struct archive *, const char *, const void * /* match */, size_t);
+__LA_DECL int archive_read_append_filter_program(struct archive *, const char *);
+__LA_DECL int archive_read_append_filter_program_signature(struct archive *, const char *, const void * /* match */, size_t);
 
 /* Set various callbacks. */
-__LA_DECL int archive_read_set_open_callback(struct archive *,
-    archive_open_callback *);
-__LA_DECL int archive_read_set_read_callback(struct archive *,
-    archive_read_callback *);
-__LA_DECL int archive_read_set_seek_callback(struct archive *,
-    archive_seek_callback *);
-__LA_DECL int archive_read_set_skip_callback(struct archive *,
-    archive_skip_callback *);
-__LA_DECL int archive_read_set_close_callback(struct archive *,
-    archive_close_callback *);
+__LA_DECL int archive_read_set_open_callback(struct archive *, archive_open_callback *);
+__LA_DECL int archive_read_set_read_callback(struct archive *, archive_read_callback *);
+__LA_DECL int archive_read_set_seek_callback(struct archive *, archive_seek_callback *);
+__LA_DECL int archive_read_set_skip_callback(struct archive *, archive_skip_callback *);
+__LA_DECL int archive_read_set_close_callback(struct archive *, archive_close_callback *);
 /* Callback used to switch between one data object to the next */
-__LA_DECL int archive_read_set_switch_callback(struct archive *,
-    archive_switch_callback *);
+__LA_DECL int archive_read_set_switch_callback(struct archive *, archive_switch_callback *);
 
 /* This sets the first data object. */
 __LA_DECL int archive_read_set_callback_data(struct archive *, void *);
 /* This sets data object at specified index */
-__LA_DECL int archive_read_set_callback_data2(struct archive *, void *,
-    unsigned int);
+__LA_DECL int archive_read_set_callback_data2(struct archive *, void *, unsigned int);
 /* This adds a data object at the specified index. */
-__LA_DECL int archive_read_add_callback_data(struct archive *, void *,
-    unsigned int);
+__LA_DECL int archive_read_add_callback_data(struct archive *, void *, unsigned int);
 /* This appends a data object to the end of list */
 __LA_DECL int archive_read_append_callback_data(struct archive *, void *);
 /* This prepends a data object to the beginning of list */
@@ -511,12 +482,8 @@ __LA_DECL int archive_read_prepend_callback_data(struct archive *, void *);
 __LA_DECL int archive_read_open1(struct archive *);
 
 /* Convenience wrappers around the above. */
-__LA_DECL int archive_read_open(struct archive *, void * _client_data,
-    archive_open_callback *, archive_read_callback *,
-    archive_close_callback *);
-__LA_DECL int archive_read_open2(struct archive *, void * _client_data,
-    archive_open_callback *, archive_read_callback *,
-    archive_skip_callback *, archive_close_callback *);
+__LA_DECL int archive_read_open(struct archive *, void * _client_data, archive_open_callback *, archive_read_callback *, archive_close_callback *);
+__LA_DECL int archive_read_open2(struct archive *, void * _client_data, archive_open_callback *, archive_read_callback *, archive_skip_callback *, archive_close_callback *);
 
 /*
  * A variety of shortcuts that invoke archive_read_open() with
@@ -524,37 +491,28 @@ __LA_DECL int archive_read_open2(struct archive *, void * _client_data,
  * accept a block size handle tape blocking correctly.
  */
 /* Use this if you know the filename.  Note: NULL indicates stdin. */
-__LA_DECL int archive_read_open_filename(struct archive *,
-    const char * _filename, size_t _block_size);
+__LA_DECL int archive_read_open_filename(struct archive *, const char * _filename, size_t _block_size);
 /* Use this for reading multivolume files by filenames.
  * NOTE: Must be NULL terminated. Sorting is NOT done. */
-__LA_DECL int archive_read_open_filenames(struct archive *,
-    const char ** _filenames, size_t _block_size);
-__LA_DECL int archive_read_open_filename_w(struct archive *,
-    const wchar_t * _filename, size_t _block_size);
+__LA_DECL int archive_read_open_filenames(struct archive *, const char ** _filenames, size_t _block_size);
+__LA_DECL int archive_read_open_filename_w(struct archive *, const wchar_t * _filename, size_t _block_size);
 /* archive_read_open_file() is a deprecated synonym for ..._open_filename(). */
-__LA_DECL int archive_read_open_file(struct archive *,
-    const char * _filename, size_t _block_size) __LA_DEPRECATED;
+__LA_DECL int archive_read_open_file(struct archive *, const char * _filename, size_t _block_size) __LA_DEPRECATED;
 /* Read an archive that's stored in memory. */
-__LA_DECL int archive_read_open_memory(struct archive *,
-    const void * buff, size_t size);
+__LA_DECL int archive_read_open_memory(struct archive *, const void * buff, size_t size);
 /* A more involved version that is only used for internal testing. */
-__LA_DECL int archive_read_open_memory2(struct archive * a, const void * buff,
-    size_t size, size_t read_size);
+__LA_DECL int archive_read_open_memory2(struct archive * a, const void * buff, size_t size, size_t read_size);
 /* Read an archive that's already open, using the file descriptor. */
 __LA_DECL int archive_read_open_fd(struct archive *, int _fd,
     size_t _block_size);
 /* Read an archive that's already open, using a FILE *. */
 /* Note: DO NOT use this with tape drives. */
 __LA_DECL int archive_read_open_FILE(struct archive *, FILE * _file);
-
 /* Parses and returns next entry header. */
-__LA_DECL int archive_read_next_header(struct archive *,
-    struct archive_entry **);
+__LA_DECL int archive_read_next_header(struct archive *, struct archive_entry **);
 
 /* Parses and returns next entry header using the archive_entry passed in */
-__LA_DECL int archive_read_next_header2(struct archive *,
-    struct archive_entry *);
+__LA_DECL int archive_read_next_header2(struct archive *, struct archive_entry *);
 
 /*
  * Retrieve the byte offset in UNCOMPRESSED data where last-read
@@ -589,21 +547,16 @@ __LA_DECL int   archive_read_has_encrypted_entries(struct archive *);
 __LA_DECL int            archive_read_format_capabilities(struct archive *);
 
 /* Read data from the body of an entry.  Similar to read(2). */
-__LA_DECL la_ssize_t archive_read_data(struct archive *,
-    void *, size_t);
-
+__LA_DECL la_ssize_t archive_read_data(struct archive *, void *, size_t);
 /* Seek within the body of an entry.  Similar to lseek(2). */
 __LA_DECL la_int64_t archive_seek_data(struct archive *, la_int64_t, int);
-
 /*
  * A zero-copy version of archive_read_data that also exposes the file offset
  * of each returned block.  Note that the client has no way to specify
  * the desired size of the block.  The API does guarantee that offsets will
  * be strictly increasing and that returned blocks will not overlap.
  */
-__LA_DECL int archive_read_data_block(struct archive * a,
-    const void ** buff, size_t * size, la_int64_t * offset);
-
+__LA_DECL int archive_read_data_block(struct archive * a, const void ** buff, size_t * size, la_int64_t * offset);
 /*-
  * Some convenience functions that are built on archive_read_data:
  *  'skip': skips entire entry
@@ -612,33 +565,22 @@ __LA_DECL int archive_read_data_block(struct archive * a,
  */
 __LA_DECL int archive_read_data_skip(struct archive *);
 __LA_DECL int archive_read_data_into_fd(struct archive *, int fd);
-
 /*
  * Set read options.
  */
 /* Apply option to the format only. */
-__LA_DECL int archive_read_set_format_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_read_set_format_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option to the filter only. */
-__LA_DECL int archive_read_set_filter_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_read_set_filter_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option to both the format and the filter. */
-__LA_DECL int archive_read_set_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_read_set_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option string to both the format and the filter. */
-__LA_DECL int archive_read_set_options(struct archive * _a,
-    const char * opts);
-
+__LA_DECL int archive_read_set_options(struct archive * _a, const char * opts);
 /*
  * Add a decryption passphrase.
  */
 __LA_DECL int archive_read_add_passphrase(struct archive *, const char *);
-__LA_DECL int archive_read_set_passphrase_callback(struct archive *,
-    void * client_data, archive_passphrase_callback *);
-
+__LA_DECL int archive_read_set_passphrase_callback(struct archive *, void * client_data, archive_passphrase_callback *);
 /*-
  * Convenience function to recreate the current entry (whose header
  * has just been read) on disk.
@@ -698,17 +640,13 @@ __LA_DECL int archive_read_set_passphrase_callback(struct archive *,
 /* Default: Do not extract atomically (using rename) */
 #define ARCHIVE_EXTRACT_SAFE_WRITES             (0x40000)
 
-__LA_DECL int archive_read_extract(struct archive *, struct archive_entry *,
-    int flags);
-__LA_DECL int archive_read_extract2(struct archive *, struct archive_entry *,
-    struct archive * /* dest */);
-__LA_DECL void   archive_read_extract_set_progress_callback(struct archive *,
-    void (* _progress_func)(void *), void * _user_data);
+__LA_DECL int archive_read_extract(struct archive *, struct archive_entry *, int flags);
+__LA_DECL int archive_read_extract2(struct archive *, struct archive_entry *, struct archive * /* dest */);
+__LA_DECL void   archive_read_extract_set_progress_callback(struct archive *, void (* _progress_func)(void *), void * _user_data);
 
 /* Record the dev/ino of a file that will not be written.  This is
  * generally set to the dev/ino of the archive being read. */
-__LA_DECL void archive_read_extract_set_skip_file(struct archive *,
-    la_int64_t, la_int64_t);
+__LA_DECL void archive_read_extract_set_skip_file(struct archive *, la_int64_t, la_int64_t);
 
 /* Close the file and release most resources. */
 __LA_DECL int            archive_read_close(struct archive *);
@@ -726,8 +664,8 @@ __LA_DECL int            archive_read_finish(struct archive *) __LA_DEPRECATED;
  *   2) Set any global properties.  In particular, you should set
  *      the compression and format to use.
  *   3) Call archive_write_open to open the file (most people
- *       will use archive_write_open_file or archive_write_open_fd,
- *       which provide convenient canned I/O callbacks for you).
+ * will use archive_write_open_file or archive_write_open_fd,
+ * which provide convenient canned I/O callbacks for you).
  *   4) For each entry:
  *      - construct an appropriate struct archive_entry structure
  *      - archive_write_header to write the header
@@ -736,12 +674,10 @@ __LA_DECL int            archive_read_finish(struct archive *) __LA_DEPRECATED;
  *   6) archive_write_free to cleanup the writer and release resources
  */
 __LA_DECL struct archive        * archive_write_new(void);
-__LA_DECL int archive_write_set_bytes_per_block(struct archive *,
-    int bytes_per_block);
+__LA_DECL int archive_write_set_bytes_per_block(struct archive *, int bytes_per_block);
 __LA_DECL int archive_write_get_bytes_per_block(struct archive *);
 /* XXX This is badly misnamed; suggestions appreciated. XXX */
-__LA_DECL int archive_write_set_bytes_in_last_block(struct archive *,
-    int bytes_in_last_block);
+__LA_DECL int archive_write_set_bytes_in_last_block(struct archive *, int bytes_in_last_block);
 __LA_DECL int archive_write_get_bytes_in_last_block(struct archive *);
 
 /* The dev/ino of a file that won't be archived.  This is used
@@ -750,28 +686,19 @@ __LA_DECL int archive_write_set_skip_file(struct archive *,
     la_int64_t, la_int64_t);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-__LA_DECL int archive_write_set_compression_bzip2(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_compress(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_gzip(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_lzip(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_lzma(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_none(struct archive *)
-__LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_program(struct archive *,
-    const char * cmd) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_xz(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_bzip2(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_compress(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_gzip(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_lzip(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_lzma(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_none(struct archive *) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_program(struct archive *, const char * cmd) __LA_DEPRECATED;
+__LA_DECL int archive_write_set_compression_xz(struct archive *) __LA_DEPRECATED;
 #endif
 
 /* A convenience function to set the filter based on the code. */
 __LA_DECL int archive_write_add_filter(struct archive *, int filter_code);
-__LA_DECL int archive_write_add_filter_by_name(struct archive *,
-    const char * name);
+__LA_DECL int archive_write_add_filter_by_name(struct archive *, const char * name);
 __LA_DECL int archive_write_add_filter_b64encode(struct archive *);
 __LA_DECL int archive_write_add_filter_bzip2(struct archive *);
 __LA_DECL int archive_write_add_filter_compress(struct archive *);
@@ -783,8 +710,7 @@ __LA_DECL int archive_write_add_filter_lzip(struct archive *);
 __LA_DECL int archive_write_add_filter_lzma(struct archive *);
 __LA_DECL int archive_write_add_filter_lzop(struct archive *);
 __LA_DECL int archive_write_add_filter_none(struct archive *);
-__LA_DECL int archive_write_add_filter_program(struct archive *,
-    const char * cmd);
+__LA_DECL int archive_write_add_filter_program(struct archive *, const char * cmd);
 __LA_DECL int archive_write_add_filter_uuencode(struct archive *);
 __LA_DECL int archive_write_add_filter_xz(struct archive *);
 __LA_DECL int archive_write_add_filter_zstd(struct archive *);
@@ -819,41 +745,31 @@ __LA_DECL int archive_write_set_format_filter_by_ext_def(struct archive * a, con
 __LA_DECL int archive_write_zip_set_compression_deflate(struct archive *);
 __LA_DECL int archive_write_zip_set_compression_store(struct archive *);
 /* Deprecated; use archive_write_open2 instead */
-__LA_DECL int archive_write_open(struct archive *, void *,
-    archive_open_callback *, archive_write_callback *,
-    archive_close_callback *);
-__LA_DECL int archive_write_open2(struct archive *, void *,
-    archive_open_callback *, archive_write_callback *,
-    archive_close_callback *, archive_free_callback *);
+__LA_DECL int archive_write_open(struct archive *, void *, archive_open_callback *, archive_write_callback *, archive_close_callback *);
+__LA_DECL int archive_write_open2(struct archive *, void *, archive_open_callback *, archive_write_callback *, archive_close_callback *, archive_free_callback *);
 __LA_DECL int archive_write_open_fd(struct archive *, int _fd);
 __LA_DECL int archive_write_open_filename(struct archive *, const char * _file);
-__LA_DECL int archive_write_open_filename_w(struct archive *,
-    const wchar_t * _file);
+__LA_DECL int archive_write_open_filename_w(struct archive *, const wchar_t * _file);
 /* A deprecated synonym for archive_write_open_filename() */
-__LA_DECL int archive_write_open_file(struct archive *, const char * _file)
-__LA_DEPRECATED;
+__LA_DECL int archive_write_open_file(struct archive *, const char * _file) __LA_DEPRECATED;
 __LA_DECL int archive_write_open_FILE(struct archive *, FILE *);
 /* _buffSize is the size of the buffer, _used refers to a variable that
  * will be updated after each write into the buffer. */
-__LA_DECL int archive_write_open_memory(struct archive *,
-    void * _buffer, size_t _buffSize, size_t * _used);
+__LA_DECL int archive_write_open_memory(struct archive *, void * _buffer, size_t _buffSize, size_t * _used);
 
 /*
  * Note that the library will truncate writes beyond the size provided
  * to archive_write_header or pad if the provided data is short.
  */
-__LA_DECL int archive_write_header(struct archive *,
-    struct archive_entry *);
-__LA_DECL la_ssize_t archive_write_data(struct archive *,
-    const void *, size_t);
+__LA_DECL int archive_write_header(struct archive *, struct archive_entry *);
+__LA_DECL la_ssize_t archive_write_data(struct archive *, const void *, size_t);
 
 /* This interface is currently only available for archive_write_disk handles.  */
-__LA_DECL la_ssize_t archive_write_data_block(struct archive *,
-    const void *, size_t, la_int64_t);
+__LA_DECL la_ssize_t archive_write_data_block(struct archive *, const void *, size_t, la_int64_t);
 
 __LA_DECL int            archive_write_finish_entry(struct archive *);
 __LA_DECL int            archive_write_close(struct archive *);
-/* Marks the archive as FATAL so that a subsequent free() operation
+/* Marks the archive as FATAL so that a subsequent SAlloc::F() operation
  * won't try to close() cleanly.  Provides a fast abort capability
  * when the client discovers that things have gone wrong. */
 __LA_DECL int            archive_write_fail(struct archive *);
@@ -869,27 +785,19 @@ __LA_DECL int            archive_write_finish(struct archive *) __LA_DEPRECATED;
  * Set write options.
  */
 /* Apply option to the format only. */
-__LA_DECL int archive_write_set_format_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_write_set_format_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option to the filter only. */
-__LA_DECL int archive_write_set_filter_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_write_set_filter_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option to both the format and the filter. */
-__LA_DECL int archive_write_set_option(struct archive * _a,
-    const char * m, const char * o,
-    const char * v);
+__LA_DECL int archive_write_set_option(struct archive * _a, const char * m, const char * o, const char * v);
 /* Apply option string to both the format and the filter. */
-__LA_DECL int archive_write_set_options(struct archive * _a,
-    const char * opts);
+__LA_DECL int archive_write_set_options(struct archive * _a, const char * opts);
 
 /*
  * Set a encryption passphrase.
  */
 __LA_DECL int archive_write_set_passphrase(struct archive * _a, const char * p);
-__LA_DECL int archive_write_set_passphrase_callback(struct archive *,
-    void * client_data, archive_passphrase_callback *);
+__LA_DECL int archive_write_set_passphrase_callback(struct archive *, void * client_data, archive_passphrase_callback *);
 
 /*-
  * ARCHIVE_WRITE_DISK API
@@ -1025,12 +933,9 @@ __LA_DECL int  archive_read_disk_set_behavior(struct archive *,
  * of archive_match.
  */
 __LA_DECL int   archive_read_disk_set_matching(struct archive *,
-    struct archive * _matching, void (*_excluded_func)
-    (struct archive *, void *, struct archive_entry *),
-    void * _client_data);
+    struct archive * _matching, void (*_excluded_func) (struct archive *, void *, struct archive_entry *), void * _client_data);
 __LA_DECL int   archive_read_disk_set_metadata_filter_callback(struct archive *,
-    int (* _metadata_filter_func)(struct archive *, void *,
-    struct archive_entry *), void * _client_data);
+    int (* _metadata_filter_func)(struct archive *, void *, struct archive_entry *), void * _client_data);
 
 /* Simplified cleanup interface;
  * This calls archive_read_free() or archive_write_free() as needed. */
@@ -1054,17 +959,13 @@ __LA_DECL const char *   archive_filter_name(struct archive *, int);
 /* These don't properly handle multiple filters, so are deprecated and
  * will eventually be removed. */
 /* As of libarchive 3.0, this is an alias for archive_filter_bytes(a, -1); */
-__LA_DECL la_int64_t     archive_position_compressed(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL la_int64_t     archive_position_compressed(struct archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_bytes(a, 0); */
-__LA_DECL la_int64_t     archive_position_uncompressed(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL la_int64_t     archive_position_uncompressed(struct archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_name(a, 0); */
-__LA_DECL const char    * archive_compression_name(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL const char    * archive_compression_name(struct archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_code(a, 0); */
-__LA_DECL int            archive_compression(struct archive *)
-__LA_DEPRECATED;
+__LA_DECL int            archive_compression(struct archive *) __LA_DEPRECATED;
 #endif
 
 __LA_DECL int            archive_errno(struct archive *);

@@ -196,7 +196,6 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 			return 0;
 		}
 		EVP_MD_CTX_free(mctx);
-
 		/* Generate the pre-extract secret */
 		if(!tls13_hkdf_expand(s, md, prevsecret,
 		    (uchar *)derived_secret_label,
@@ -206,21 +205,12 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 			EVP_PKEY_CTX_free(pctx);
 			return 0;
 		}
-
 		prevsecret = preextractsec;
 		prevsecretlen = mdlen;
 	}
-
-	ret = EVP_PKEY_derive_init(pctx) <= 0
-	    || EVP_PKEY_CTX_hkdf_mode(pctx, EVP_PKEY_HKDEF_MODE_EXTRACT_ONLY)
-	    <= 0
-	    || EVP_PKEY_CTX_set_hkdf_md(pctx, md) <= 0
-	    || EVP_PKEY_CTX_set1_hkdf_key(pctx, insecret, insecretlen) <= 0
-	    || EVP_PKEY_CTX_set1_hkdf_salt(pctx, prevsecret, prevsecretlen)
-	    <= 0
-	    || EVP_PKEY_derive(pctx, outsecret, &mdlen)
-	    <= 0;
-
+	ret = EVP_PKEY_derive_init(pctx) <= 0 || EVP_PKEY_CTX_hkdf_mode(pctx, EVP_PKEY_HKDEF_MODE_EXTRACT_ONLY) <= 0 || 
+		EVP_PKEY_CTX_set_hkdf_md(pctx, md) <= 0 || EVP_PKEY_CTX_set1_hkdf_key(pctx, insecret, insecretlen) <= 0 || 
+		EVP_PKEY_CTX_set1_hkdf_salt(pctx, prevsecret, prevsecretlen) <= 0 || EVP_PKEY_derive(pctx, outsecret, &mdlen) <= 0;
 	if(ret != 0)
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 	EVP_PKEY_CTX_free(pctx);
@@ -815,11 +805,11 @@ int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen, const 
 	 *
 	 * TLS-Exporter(label, context_value, key_length) =
 	 *     HKDF-Expand-Label(Derive-Secret(Secret, label, ""),
-	 *                       "exporter", Hash(context_value), key_length)
+	 *                 "exporter", Hash(context_value), key_length)
 	 *
 	 * Derive-Secret(Secret, Label, Messages) =
-	 *       HKDF-Expand-Label(Secret, Label,
-	 *                         Transcript-Hash(Messages), Hash.length)
+	 * HKDF-Expand-Label(Secret, Label,
+	 *                   Transcript-Hash(Messages), Hash.length)
 	 *
 	 * Here Transcript-Hash is the cipher suite hash algorithm.
 	 */

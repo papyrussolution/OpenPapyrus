@@ -53,8 +53,8 @@ struct HMAC_context * Curl_HMAC_init(const struct HMAC_params * hashparams, cons
 		return ctxt;
 
 	ctxt->hmac_hash = hashparams;
-	ctxt->hmac_hashctxt1 = (void*)(ctxt + 1);
-	ctxt->hmac_hashctxt2 = (void*)((char *)ctxt->hmac_hashctxt1 +
+	ctxt->hmac_hashctxt1 = (void *)(ctxt + 1);
+	ctxt->hmac_hashctxt2 = (void *)((char *)ctxt->hmac_hashctxt1 +
 	    hashparams->hmac_ctxtsize);
 
 	/* If the key is too long, replace it by its hash digest. */

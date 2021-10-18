@@ -162,8 +162,7 @@ static int LUA_GP_term_options(lua_State * pL)
 	n = strlen(opt_str);
 	if(n > MAX_LINE_LEN)
 		return luaL_error(pL, "Option string consists of %d characters but only %d are allowed", n, MAX_LINE_LEN);
-	strncpy(GPT.TermOptions, opt_str, MAX_LINE_LEN);
-	GPT.TermOptions[MAX_LINE_LEN] = 0;
+	GPT._TermOptions.CatN(opt_str, MAX_LINE_LEN);
 	return 0;
 }
 
@@ -734,11 +733,11 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			return;
 		}
 	}
-	/* since options are tokenized again in the script we always "finish" this here */
+	// since options are tokenized again in the script we always "finish" this here 
 	while(!pGp->Pgm.EndOfCommand())
 		pGp->Pgm.Shift();
 	if(LUA_init_luaterm_function(pThis, "options")) {
-		/* isolate the "set term ...;" part of the command line */
+		// isolate the "set term ...;" part of the command line 
 		opt_str = sstrdup(opt_str);
 		opt_str[ strcspn(opt_str, ";") ] = '\0';
 		lua_pushstring(P_LuaS, opt_str);
@@ -751,7 +750,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	LUA_get_term_vars(pThis);
 	// Treat "set term tikz mono" as "set term tikz; set mono" 
-	if(strstr(GPT.TermOptions, "monochrome")) {
+	if(GPT._TermOptions.Search("monochrome", 0, 0, 0)) {
 		GPT.Flags |= GpTerminalBlock::fMonochrome;
 		pGp->InitMonochrome();
 	}

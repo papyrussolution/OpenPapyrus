@@ -786,19 +786,19 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	if(new_defaultfontsize > 0)
 		_EMF.emf_defaultfontsize = new_defaultfontsize;
-	sprintf(GPT.TermOptions, "%s %s font \"%s,%g\"", _EMF.emf_monochrome ? "monochrome" : "color", _EMF.emf_pentype ? "butt" : "rounded", _EMF.emf_defaultfontname, _EMF.emf_defaultfontsize);
+	slprintf(GPT._TermOptions, "%s %s font \"%s,%g\"", _EMF.emf_monochrome ? "monochrome" : "color", _EMF.emf_pentype ? "butt" : "rounded", _EMF.emf_defaultfontname, _EMF.emf_defaultfontsize);
 	if(pThis->flags & TERM_ENHANCED_TEXT)
-		strcat(GPT.TermOptions, " enhanced ");
+		GPT._TermOptions.Cat(" enhanced ");
 	if(_EMF.emf_fontscale != 1.0)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " fontscale %.1f", _EMF.emf_fontscale);
+		slprintf_cat(GPT._TermOptions, " fontscale %.1f", _EMF.emf_fontscale);
 	if(pThis->MaxX != (int)EMF_XMAX || pThis->MaxY != (int)EMF_YMAX)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " size %d,%d ", (int)(0.5+pThis->MaxX/EMF_PX2HM), (int)(0.5+pThis->MaxY/EMF_PX2HM));
+		slprintf_cat(GPT._TermOptions, " size %d,%d ", (int)(0.5+pThis->MaxX/EMF_PX2HM), (int)(0.5+pThis->MaxY/EMF_PX2HM));
 	if(_EMF.emf_linewidth_factor != 1.0)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " lw %.1f", _EMF.emf_linewidth_factor);
+		slprintf_cat(GPT._TermOptions, " lw %.1f", _EMF.emf_linewidth_factor);
 	if(_EMF.emf_dashlength != 1.0)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " dashlength %.1f", _EMF.emf_dashlength);
+		slprintf_cat(GPT._TermOptions, " dashlength %.1f", _EMF.emf_dashlength);
 	if(emf_bgnd_rgb)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " background \"#%06x\"", emf_bgnd_rgb);
+		slprintf_cat(GPT._TermOptions, " background \"#%06x\"", emf_bgnd_rgb);
 }
 
 TERM_PUBLIC void EMF_init(GpTermEntry * pThis)
@@ -1190,7 +1190,7 @@ TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 	int xa, ya;
 	int dx, dy, adx, ady;
 	int dist; /* approximate distance in plot units from starting point to end point. */
-	long remain;/* approximate distance in plot units remaining to specified end point. */
+	long remain; /* approximate distance in plot units remaining to specified end point. */
 	if(ux >= pThis->MaxX || uy >= pThis->MaxY)
 		p_gp->IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
 	dx = (ux - _EMF.Pos.x);
@@ -1275,7 +1275,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		if((cd = iconv_open("UTF-16LE", FromEnc)) == (iconv_t)-1)
 			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
-			if(iconv(cd, (void*)&str_start, &mblen, &wstr_start, &wlen) == (size_t)-1)
+			if(iconv(cd, (void *)&str_start, &mblen, &wstr_start, &wlen) == (size_t)-1)
 				p_gp->IntWarn(NO_CARET, "iconv failed");
 			iconv_close(cd);
 			slen = wsize - wlen;

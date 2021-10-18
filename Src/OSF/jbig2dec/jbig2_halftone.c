@@ -223,7 +223,7 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
  * annex C.5. This is part of the halftone region decoding.
  *
  * returns: array of gray-scale values with GSW x GSH width/height
- *          0 on failure
+ *    0 on failure
  **/
 static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * data, const size_t size,
     boolint GSMMR, uint32_t GSW, uint32_t GSH,
@@ -367,7 +367,7 @@ cleanup:
  * Returns the first referred pattern dictionary of segment
  *
  * returns: pattern dictionary
- *          0 if search failed
+ *    0 if search failed
  **/
 static Jbig2PatternDict * jbig2_decode_ht_region_get_hpats(Jbig2Ctx * ctx, Jbig2Segment * segment)
 {
@@ -402,7 +402,7 @@ static Jbig2PatternDict * jbig2_decode_ht_region_get_hpats(Jbig2Ctx * ctx, Jbig2
  * described in section 6.6.5 of the JBIG2 spec.
  *
  * returns: 0 on success
- *         <0 on failure
+ *   <0 on failure
  **/
 static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
     Jbig2HalftoneRegionParams * params, const byte * data, const size_t size, Jbig2Image * image, Jbig2ArithCx * GB_stats)

@@ -86,12 +86,12 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
 	    ARCHIVE_STATE_NEW, "archive_write_add_filter_program");
 
-	f->data = calloc(1, sizeof(*data));
+	f->data = SAlloc::C(1, sizeof(*data));
 	if(f->data == NULL)
 		goto memerr;
 	data = (struct private_data *)f->data;
 
-	data->cmd = strdup(cmd);
+	data->cmd = sstrdup(cmd);
 	if(data->cmd == NULL)
 		goto memerr;
 
@@ -147,10 +147,10 @@ static int archive_compressor_program_free(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 
 	if(data) {
-		free(data->cmd);
+		SAlloc::F(data->cmd);
 		archive_string_free(&data->description);
 		__archive_write_program_free(data->pdata);
-		free(data);
+		SAlloc::F(data);
 		f->data = NULL;
 	}
 	return ARCHIVE_OK;
@@ -161,12 +161,12 @@ static int archive_compressor_program_free(struct archive_write_filter * f)
  */
 struct archive_write_program_data * __archive_write_program_allocate(const char * program)                                     
 {
-	struct archive_write_program_data * data = static_cast<struct archive_write_program_data *>(calloc(1, sizeof(struct archive_write_program_data)));
+	struct archive_write_program_data * data = static_cast<struct archive_write_program_data *>(SAlloc::C(1, sizeof(struct archive_write_program_data)));
 	if(data == NULL)
 		return (data);
 	data->child_stdin = -1;
 	data->child_stdout = -1;
-	data->program_name = strdup(program);
+	data->program_name = sstrdup(program);
 	return (data);
 }
 
@@ -176,9 +176,9 @@ struct archive_write_program_data * __archive_write_program_allocate(const char 
 int __archive_write_program_free(struct archive_write_program_data * data)
 {
 	if(data) {
-		free(data->program_name);
-		free(data->child_buf);
-		free(data);
+		SAlloc::F(data->program_name);
+		SAlloc::F(data->child_buf);
+		SAlloc::F(data);
 	}
 	return ARCHIVE_OK;
 }
@@ -189,7 +189,7 @@ int __archive_write_program_open(struct archive_write_filter * f, struct archive
 	if(data->child_buf == NULL) {
 		data->child_buf_len = 65536;
 		data->child_buf_avail = 0;
-		data->child_buf = static_cast<char *>(malloc(data->child_buf_len));
+		data->child_buf = static_cast<char *>(SAlloc::M(data->child_buf_len));
 		if(data->child_buf == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate compression buffer");
 			return ARCHIVE_FATAL;

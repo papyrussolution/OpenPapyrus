@@ -41,8 +41,7 @@ cmsPipeline* DefaultICCintents(cmsContext ContextID,
 
 // This is the entry for black-preserving K-only intents, which are non-ICC. Last profile have to be a output profile
 // to do the trick (no devicelinks allowed at that position)
-static
-cmsPipeline*  BlackPreservingKOnlyIntents(cmsContext ContextID,
+static cmsPipeline*  BlackPreservingKOnlyIntents(cmsContext ContextID,
     cmsUInt32Number nProfiles,
     cmsUInt32Number Intents[],
     cmsHPROFILE hProfiles[],
@@ -54,8 +53,7 @@ cmsPipeline*  BlackPreservingKOnlyIntents(cmsContext ContextID,
 
 // This is the entry for black-plane preserving, which are non-ICC. Again, Last profile have to be a output profile
 // to do the trick (no devicelinks allowed at that position)
-static
-cmsPipeline*  BlackPreservingKPlaneIntents(cmsContext ContextID,
+static cmsPipeline*  BlackPreservingKPlaneIntents(cmsContext ContextID,
     cmsUInt32Number nProfiles,
     cmsUInt32Number Intents[],
     cmsHPROFILE hProfiles[],
@@ -75,24 +73,15 @@ typedef struct _cms_intents_list {
 
 // Built-in intents
 static cmsIntentsList DefaultIntents[] = {
-	{ INTENT_PERCEPTUAL,                            "Perceptual",                                   DefaultICCintents,
-	  &DefaultIntents[1] },
-	{ INTENT_RELATIVE_COLORIMETRIC,                 "Relative colorimetric",                        DefaultICCintents,
-	  &DefaultIntents[2] },
-	{ INTENT_SATURATION,                            "Saturation",                                   DefaultICCintents,
-	  &DefaultIntents[3] },
-	{ INTENT_ABSOLUTE_COLORIMETRIC,                 "Absolute colorimetric",                        DefaultICCintents,
-	  &DefaultIntents[4] },
-	{ INTENT_PRESERVE_K_ONLY_PERCEPTUAL,            "Perceptual preserving black ink",              BlackPreservingKOnlyIntents,
-	  &DefaultIntents[5] },
-	{ INTENT_PRESERVE_K_ONLY_RELATIVE_COLORIMETRIC, "Relative colorimetric preserving black ink",   BlackPreservingKOnlyIntents,
-	  &DefaultIntents[6] },
-	{ INTENT_PRESERVE_K_ONLY_SATURATION,            "Saturation preserving black ink",              BlackPreservingKOnlyIntents,
-	  &DefaultIntents[7] },
-	{ INTENT_PRESERVE_K_PLANE_PERCEPTUAL,           "Perceptual preserving black plane",            BlackPreservingKPlaneIntents,
-	  &DefaultIntents[8] },
-	{ INTENT_PRESERVE_K_PLANE_RELATIVE_COLORIMETRIC, "Relative colorimetric preserving black plane", BlackPreservingKPlaneIntents,
-	  &DefaultIntents[9] },
+	{ INTENT_PERCEPTUAL,                            "Perceptual",                                   DefaultICCintents, &DefaultIntents[1] },
+	{ INTENT_RELATIVE_COLORIMETRIC,                 "Relative colorimetric",                        DefaultICCintents, &DefaultIntents[2] },
+	{ INTENT_SATURATION,                            "Saturation",                                   DefaultICCintents, &DefaultIntents[3] },
+	{ INTENT_ABSOLUTE_COLORIMETRIC,                 "Absolute colorimetric",                        DefaultICCintents, &DefaultIntents[4] },
+	{ INTENT_PRESERVE_K_ONLY_PERCEPTUAL,            "Perceptual preserving black ink",              BlackPreservingKOnlyIntents, &DefaultIntents[5] },
+	{ INTENT_PRESERVE_K_ONLY_RELATIVE_COLORIMETRIC, "Relative colorimetric preserving black ink",   BlackPreservingKOnlyIntents, &DefaultIntents[6] },
+	{ INTENT_PRESERVE_K_ONLY_SATURATION,            "Saturation preserving black ink",              BlackPreservingKOnlyIntents, &DefaultIntents[7] },
+	{ INTENT_PRESERVE_K_PLANE_PERCEPTUAL,           "Perceptual preserving black plane",            BlackPreservingKPlaneIntents, &DefaultIntents[8] },
+	{ INTENT_PRESERVE_K_PLANE_RELATIVE_COLORIMETRIC, "Relative colorimetric preserving black plane", BlackPreservingKPlaneIntents, &DefaultIntents[9] },
 	{ INTENT_PRESERVE_K_PLANE_SATURATION,           "Saturation preserving black plane",            BlackPreservingKPlaneIntents, NULL }
 };
 
@@ -100,9 +89,7 @@ static cmsIntentsList DefaultIntents[] = {
 _cmsIntentsPluginChunkType _cmsIntentsPluginChunk = { NULL };
 
 // Duplicates the zone of memory used by the plug-in in the new context
-static
-void DupPluginIntentsList(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+static void DupPluginIntentsList(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	_cmsIntentsPluginChunkType newHead = { NULL };
 	cmsIntentsList*  entry;
@@ -661,7 +648,7 @@ typedef struct {
 
 // Preserve black only if that is the only ink used
 static
-int BlackPreservingGrayOnlySampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+int BlackPreservingGrayOnlySampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	GrayOnlyParams* bp = (GrayOnlyParams*)Cargo;
 
@@ -747,7 +734,7 @@ cmsPipeline*  BlackPreservingKOnlyIntents(cmsContext ContextID,
 		goto Error;
 
 	// Sample it. We cannot afford pre/post linearization this time.
-	if(!cmsStageSampleCLut16bit(CLUT, BlackPreservingGrayOnlySampler, (void*)&bp, 0))
+	if(!cmsStageSampleCLut16bit(CLUT, BlackPreservingGrayOnlySampler, (void *)&bp, 0))
 		goto Error;
 
 	// Get rid of xform and tone curve
@@ -780,7 +767,7 @@ typedef struct {
 
 // The CLUT will be stored at 16 bits, but calculations are performed at cmsFloat32Number precision
 static
-int BlackPreservingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void* Cargo)
+int BlackPreservingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
 {
 	int i;
 	cmsFloat32Number Inf[4], Outf[4];
@@ -951,7 +938,7 @@ cmsPipeline* BlackPreservingKPlaneIntents(cmsContext ContextID,
 	if(!cmsPipelineInsertStage(Result, cmsAT_BEGIN, CLUT))
 		goto Cleanup;
 
-	cmsStageSampleCLut16bit(CLUT, BlackPreservingSampler, (void*)&bp, 0);
+	cmsStageSampleCLut16bit(CLUT, BlackPreservingSampler, (void *)&bp, 0);
 
 Cleanup:
 
@@ -1066,24 +1053,18 @@ cmsBool  _cmsRegisterRenderingIntentPlugin(cmsContext id, cmsPluginBase* Data)
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(id, IntentPlugin);
 	cmsPluginRenderingIntent* Plugin = (cmsPluginRenderingIntent*)Data;
 	cmsIntentsList* fl;
-
 	// Do we have to reset the custom intents?
 	if(Data == NULL) {
 		ctx->Intents = NULL;
 		return TRUE;
 	}
-
 	fl = (cmsIntentsList*)_cmsPluginMalloc(id, sizeof(cmsIntentsList));
 	if(fl == NULL) return FALSE;
-
 	fl->Intent  = Plugin->Intent;
 	strncpy(fl->Description, Plugin->Description, sizeof(fl->Description)-1);
 	fl->Description[sizeof(fl->Description)-1] = 0;
-
 	fl->Link    = Plugin->Link;
-
 	fl->Next = ctx->Intents;
 	ctx->Intents = fl;
-
 	return TRUE;
 }

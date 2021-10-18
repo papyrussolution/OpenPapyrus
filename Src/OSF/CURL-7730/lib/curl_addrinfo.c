@@ -164,7 +164,7 @@ int Curl_getaddrinfo_ex(const char * nodename,
 		ca->ai_addr = (struct sockaddr *)((char *)ca + sizeof(struct Curl_addrinfo));
 		memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 		if(namelen) {
-			ca->ai_canonname = (char *)((void*)((char *)ca->ai_addr + ss_size));
+			ca->ai_canonname = (char *)((void *)((char *)ca->ai_addr + ss_size));
 			memcpy(ca->ai_canonname, ai->ai_canonname, namelen);
 		}
 		/* if the return list is empty, this becomes the first element */
@@ -221,24 +221,24 @@ int Curl_getaddrinfo_ex(const char * nodename,
  *   Curl_addrinfo defined in "lib/curl_addrinfo.h"
  *
  *     struct Curl_addrinfo {
- *       int                   ai_flags;
- *       int                   ai_family;
- *       int                   ai_socktype;
- *       int                   ai_protocol;
- *       curl_socklen_t        ai_addrlen;   * Follow rfc3493 struct addrinfo *
- *       char                 *ai_canonname;
- *       struct sockaddr      *ai_addr;
- *       struct Curl_addrinfo *ai_next;
+ * int                   ai_flags;
+ * int                   ai_family;
+ * int                   ai_socktype;
+ * int                   ai_protocol;
+ * curl_socklen_t        ai_addrlen;   * Follow rfc3493 struct addrinfo *
+ * char                 *ai_canonname;
+ * struct sockaddr      *ai_addr;
+ * struct Curl_addrinfo *ai_next;
  *     };
  *
  *   hostent defined in <netdb.h>
  *
  *     struct hostent {
- *       char    *h_name;
- *       char    **h_aliases;
- *       int     h_addrtype;
- *       int     h_length;
- *       char    **h_addr_list;
+ * char    *h_name;
+ * char    **h_aliases;
+ * int     h_addrtype;
+ * int     h_length;
+ * char    **h_addr_list;
  *     };
  *
  *   for backward compatibility:
@@ -372,7 +372,7 @@ struct Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * ho
 	switch(af) {
 		case AF_INET:
 		    addrsize = sizeof(struct in_addr);
-		    addrentry = (char *)((void*)&buf->addrentry.ina4);
+		    addrentry = (char *)((void *)&buf->addrentry.ina4);
 		    memcpy(addrentry, inaddr, sizeof(struct in_addr));
 		    break;
 #ifdef ENABLE_IPV6
@@ -485,7 +485,7 @@ struct Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool a
 
 void curl_dbg_freeaddrinfo(struct addrinfo * freethis, int line, const char * source)
 {
-	curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n", source, line, (void*)freethis);
+	curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n", source, line, (void *)freethis);
 #ifdef USE_LWIPSOCK
 	lwip_freeaddrinfo(freethis);
 #else
@@ -513,7 +513,7 @@ int curl_dbg_getaddrinfo(const char * hostname, const char * service, const stru
 #endif
 	if(0 == res)
 		/* success */
-		curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line, (void*)*result);
+		curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line, (void *)*result);
 	else
 		curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, line);
 	return res;
@@ -536,13 +536,13 @@ void Curl_addrinfo_set_port(struct Curl_addrinfo * addrinfo, int port)
 	for(ca = addrinfo; ca != NULL; ca = ca->ai_next) {
 		switch(ca->ai_family) {
 			case AF_INET:
-			    addr = (void*)ca->ai_addr; /* storage area for this info */
+			    addr = (void *)ca->ai_addr; /* storage area for this info */
 			    addr->sin_port = htons((ushort)port);
 			    break;
 
 #ifdef ENABLE_IPV6
 			case AF_INET6:
-			    addr6 = (void*)ca->ai_addr; /* storage area for this info */
+			    addr6 = (void *)ca->ai_addr; /* storage area for this info */
 			    addr6->sin6_port = htons((ushort)port);
 			    break;
 #endif

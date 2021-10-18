@@ -8,8 +8,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE; // @global
-int enable_reset_palette = 1; // @global is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
+//static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE; // @global
+//int enable_reset_palette = 1; // @global is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
 
 static const GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
 static const GpPosition default_offset = {character, character, character, 0., 0., 0.};
@@ -80,7 +80,7 @@ ITERATE:
 			case S_FIT: SetFit(); break;
 			case S_FONTPATH: SetFontPath(); break;
 			case S_FORMAT: SetFormat(); break;
-			case S_GRID: SetGrid(term); break;
+			case S_GRID: SetGrid(GPT.P_Term); break;
 			case S_HIDDEN3D: SetHidden3D(); break;
 			case S_HISTORYSIZE: /* Deprecated in favor of "set history size" */
 			case S_HISTORY: SetHistory(); break;
@@ -94,7 +94,7 @@ ITERATE:
 			    if(Pgm.EqualsNext("cycle")) {
 					Pgm.Shift();
 					Pgm.Shift();
-				    linetype_recycle_count = IntExpression();
+				    GPT.LinetypeRecycleCount = IntExpression();
 			    }
 			    else
 				    SetLineStyle(&Gg.P_FirstPermLineStyle, LP_TYPE);
@@ -130,9 +130,9 @@ ITERATE:
 			case S_MICRO:   SetMicro(); break;
 			case S_MINUS_SIGN: SetMinusSign(); break;
 			case S_DATAFILE: SetDataFile(); break;
-			case S_MOUSE: SetMouse(); break;
+			case S_MOUSE: SetMouse(GPT.P_Term); break;
 			case S_MONOCHROME: SetMonochrome(); break;
-			case S_MULTIPLOT: TermStartMultiplot(term); break;
+			case S_MULTIPLOT: TermStartMultiplot(GPT.P_Term); break;
 			case S_OFFSETS: SetOffsets(); break;
 			case S_ORIGIN:
 				{
@@ -170,7 +170,7 @@ ITERATE:
 			case S_SURFACE: SetSurface(); break;
 			case S_TABLE: SetTable(); break;
 			case S_TERMINAL: SetTerminal(); break;
-			case S_TERMOPTIONS: SetTermOptions(term); break;
+			case S_TERMOPTIONS: SetTermOptions(GPT.P_Term); break;
 			case S_THETA: SetTheta(); break;
 			case S_TICS: SetTics(); break;
 			case S_TICSCALE: SetTicScale(); break;
@@ -246,18 +246,10 @@ ITERATE:
 			    SetTimeData(&AxS[FIRST_Y_AXIS]);
 			    AxS[V_AXIS].datatype = AxS[FIRST_X_AXIS].datatype;
 			    break;
-			case S_ZDATA:
-			    SetTimeData(&AxS[FIRST_Z_AXIS]);
-			    break;
-			case S_CBDATA:
-			    SetTimeData(&AxS[COLOR_AXIS]);
-			    break;
-			case S_X2DATA:
-			    SetTimeData(&AxS[SECOND_X_AXIS]);
-			    break;
-			case S_Y2DATA:
-			    SetTimeData(&AxS[SECOND_Y_AXIS]);
-			    break;
+			case S_ZDATA: SetTimeData(&AxS[FIRST_Z_AXIS]); break;
+			case S_CBDATA: SetTimeData(&AxS[COLOR_AXIS]); break;
+			case S_X2DATA: SetTimeData(&AxS[SECOND_X_AXIS]); break;
+			case S_Y2DATA: SetTimeData(&AxS[SECOND_Y_AXIS]); break;
 			case S_XLABEL: SetXYZLabel(&AxS[FIRST_X_AXIS].label); break;
 			case S_YLABEL: SetXYZLabel(&AxS[FIRST_Y_AXIS].label); break;
 			case S_ZLABEL: SetXYZLabel(&AxS[FIRST_Z_AXIS].label); break;
@@ -298,7 +290,7 @@ ITERATE:
 			goto ITERATE;
 		}
 	}
-	UpdateGpvalVariables(term, 0);
+	UpdateGpvalVariables(GPT.P_Term, 0);
 	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //
@@ -594,7 +586,7 @@ void GnuPlot::SetBars()
 		}
 		/* Jul 2015 - allow a separate line type for error bars */
 		save_token = Pgm.GetCurTokenIdx();
-		LpParse(term, &Gr.BarLp, LP_ADHOC, FALSE);
+		LpParse(GPT.P_Term, &Gr.BarLp, LP_ADHOC, FALSE);
 		if(Pgm.GetCurTokenIdx() != save_token) {
 			Gr.BarLp.flags = LP_ERRORBAR_SET;
 			continue;
@@ -654,7 +646,7 @@ void GnuPlot::SetBorder()
 		}
 		else {
 			int save_token = Pgm.GetCurTokenIdx();
-			LpParse(term, &Gg.border_lp, LP_ADHOC, FALSE);
+			LpParse(GPT.P_Term, &Gg.border_lp, LP_ADHOC, FALSE);
 			if(save_token != Pgm.GetCurTokenIdx())
 				continue;
 			Gg.draw_border = IntExpression();
@@ -1025,7 +1017,7 @@ void GnuPlot::SetColorSequence(int option)
 		ulong * colors = default_colors;
 		if(option == 2)
 			colors = podo_colors;
-		linetype_recycle_count = 8;
+		GPT.LinetypeRecycleCount = 8;
 		for(i = 1; i <= 8; i++) {
 			command = (char *)SAlloc::M(strlen(command_template)+8);
 			sprintf(command, command_template, i, colors[i-1]);
@@ -1037,7 +1029,7 @@ void GnuPlot::SetColorSequence(int option)
 			p_this->lp_properties.pm3d_color.type = TC_LT;
 			p_this->lp_properties.pm3d_color.lt = p_this->tag-1;
 		}
-		linetype_recycle_count = 0;
+		GPT.LinetypeRecycleCount = 0;
 	}
 	else {
 		IntErrorCurToken("Expecting 'classic' or 'default'");
@@ -1669,29 +1661,29 @@ void GnuPlot::SetHistory()
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.EqualsCur("quiet")) {
 			Pgm.Shift();
-			history_quiet = TRUE;
+			Hist.HistoryQuiet = true;
 			continue;
 		}
 		else if(Pgm.AlmostEqualsCur("num$bers")) {
 			Pgm.Shift();
-			history_quiet = FALSE;
+			Hist.HistoryQuiet = false;
 			continue;
 		}
 		else if(Pgm.EqualsCur("full")) {
 			Pgm.Shift();
-			history_full = TRUE;
+			Hist.HistoryFull = TRUE;
 			continue;
 		}
 		else if(Pgm.EqualsCur("trim")) {
 			Pgm.Shift();
-			history_full = FALSE;
+			Hist.HistoryFull = FALSE;
 			continue;
 		}
 		else if(Pgm.AlmostEqualsCur("def$ault")) {
 			Pgm.Shift();
-			history_quiet = FALSE;
-			history_full = TRUE;
-			gnuplot_history_size = HISTORY_SIZE;
+			Hist.HistoryQuiet = false;
+			Hist.HistoryFull = TRUE;
+			Hist.HistorySize = HISTORY_SIZE;
 			continue;
 		}
 		else if(Pgm.EqualsCur("size")) {
@@ -1699,7 +1691,7 @@ void GnuPlot::SetHistory()
 			// @fallthrough
 		}
 		// Catches both the deprecated "set historysize" and "set history size" 
-		gnuplot_history_size = IntExpression();
+		Hist.HistorySize = IntExpression();
 #ifndef GNUPLOT_HISTORY
 		IntWarn(NO_CARET, "This copy of gnuplot was built without support for command history.");
 #endif
@@ -1833,10 +1825,12 @@ void GnuPlot::SetIsoSamples()
 		Gg.IsoSamples2 = tsamp2;
 	}
 }
-/* When plotting an external key, the margin and l/r/t/b/c are
-   used to determine one of twelve possible positions.  They must
-   be defined appropriately in the case where stack direction
-   determines exact position. */
+//
+// When plotting an external key, the margin and l/r/t/b/c are
+// used to determine one of twelve possible positions.  They must
+// be defined appropriately in the case where stack direction
+// determines exact position. 
+//
 static void set_key_position_from_stack_direction(legend_key * key)
 {
 	if(key->stack_dir == GPKEY_VERTICAL) {
@@ -2014,7 +2008,7 @@ void GnuPlot::SetKey()
 			    key->box.l_type = LT_BLACK;
 			    if(!Pgm.EndOfCommand()) {
 				    int old_token = Pgm.GetCurTokenIdx();
-				    LpParse(term, &key->box, LP_ADHOC, FALSE);
+				    LpParse(GPT.P_Term, &key->box, LP_ADHOC, FALSE);
 				    if(old_token == Pgm.GetCurTokenIdx() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 					    key->box.l_type = IntExpression() - 1;
 					    Pgm.Shift();
@@ -2269,8 +2263,8 @@ void GnuPlot::SetLoadPath()
 void GnuPlot::SetFontPath()
 {
 	Pgm.Shift();
-	SAlloc::F(PS_fontpath);
-	PS_fontpath = TryToGetString();
+	SAlloc::F(GPT.P_PS_FontPath);
+	GPT.P_PS_FontPath = TryToGetString();
 }
 //
 // process 'set locale' command 
@@ -2505,7 +2499,7 @@ void GnuPlot::SetMonochrome()
 		if(Pgm.EqualsNext("cycle")) {
 			Pgm.Shift();
 			Pgm.Shift();
-			mono_recycle_count = IntExpression();
+			GPT.MonoRecycleCount = IntExpression();
 		}
 		else
 			SetLineStyle(&Gg.P_FirstMonoLineStyle, LP_TYPE);
@@ -2515,7 +2509,7 @@ void GnuPlot::SetMonochrome()
 }
 
 //static void set_mouse()
-void GnuPlot::SetMouse()
+void GnuPlot::SetMouse(GpTermEntry * pTerm)
 {
 #ifdef USE_MOUSE
 	char * ctmp;
@@ -2635,12 +2629,12 @@ void GnuPlot::SetMouse()
 		}
 		else if(Pgm.AlmostEqualsCur("noru$ler")) {
 			Pgm.Shift();
-			SetRuler(term, FALSE, -1, -1);
+			SetRuler(pTerm, FALSE, -1, -1);
 		}
 		else if(Pgm.AlmostEqualsCur("ru$ler")) {
 			Pgm.Shift();
 			if(Pgm.EndOfCommand() || !Pgm.EqualsCur("at")) {
-				SetRuler(term, TRUE, -1, -1);
+				SetRuler(pTerm, TRUE, -1, -1);
 			}
 			else { // set mouse ruler at ... 
 				GpPosition where;
@@ -2649,8 +2643,8 @@ void GnuPlot::SetMouse()
 				if(Pgm.EndOfCommand())
 					IntErrorCurToken("expecting ruler coordinates");
 				GetPosition(&where);
-				MapPosition(term, &where, &x, &y, "ruler at");
-				SetRuler(term, TRUE, x, y);
+				MapPosition(pTerm, &where, &x, &y, "ruler at");
+				SetRuler(pTerm, TRUE, x, y);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("zoomfac$tors")) {
@@ -2735,12 +2729,12 @@ void GnuPlot::SetOutput()
 	if(GPT.Flags & GpTerminalBlock::fMultiplot)
 		IntErrorCurToken("you can't change the output in multiplot mode");
 	if(Pgm.EndOfCommand()) {    /* no file specified */
-		TermSetOutput(term, NULL);
+		TermSetOutput(GPT.P_Term, NULL);
 		ZFREE(GPT.P_OutStr); // means STDOUT 
 	}
 	else if((testfile = TryToGetString())) {
 		GpExpandTilde(&testfile);
-		TermSetOutput(term, testfile);
+		TermSetOutput(GPT.P_Term, testfile);
 		if(testfile != GPT.P_OutStr) {
 			SAlloc::F(testfile);
 			testfile = GPT.P_OutStr;
@@ -2800,10 +2794,10 @@ void GnuPlot::SetPsDir()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {    /* no file specified */
-		ZFREE(PS_psdir);
+		ZFREE(GPT.P_PS_PsDir);
 	}
-	else if((PS_psdir = TryToGetString())) {
-		GpExpandTilde(&PS_psdir);
+	else if((GPT.P_PS_PsDir = TryToGetString()) != 0) {
+		GpExpandTilde(&GPT.P_PS_PsDir);
 	}
 	else
 		IntErrorCurToken("expecting filename");
@@ -2849,14 +2843,14 @@ void GnuPlot::SetParametric()
 //void reset_palette()
 void GnuPlot::ResetPalette()
 {
-	if(enable_reset_palette) {
+	if(EnableResetPalette) {
 		SAlloc::F(SmPltt.P_Gradient);
 		SAlloc::F(SmPltt.P_Color);
 		free_at(SmPltt.Afunc.at);
 		free_at(SmPltt.Bfunc.at);
 		free_at(SmPltt.Cfunc.at);
 		InitColor();
-		pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
+		Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_NONE;
 	}
 }
 // 
@@ -3174,8 +3168,8 @@ void GnuPlot::SetPalette()
 				    Pgm.Rollback();
 				    continue;
 				case S_PALETTE_COLOR: /* "col$or" */
-				    if(pm3d_last_set_palette_mode != SMPAL_COLOR_MODE_NONE)
-					    SmPltt.colorMode = pm3d_last_set_palette_mode;
+				    if(Pm3dLastSetPaletteMode != SMPAL_COLOR_MODE_NONE)
+					    SmPltt.colorMode = Pm3dLastSetPaletteMode;
 				    else
 					    SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
 				    continue;
@@ -3207,7 +3201,7 @@ void GnuPlot::SetPalette()
 				    SmPltt.formulaB = i;
 				    Pgm.Rollback();
 				    SmPltt.colorMode = SMPAL_COLOR_MODE_RGB;
-				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_RGB;
+				    Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_RGB;
 				    continue;
 			    } /* rgbformulae */
 				/* rgb color mapping based on the "cubehelix" scheme proposed by */
@@ -3245,7 +3239,7 @@ void GnuPlot::SetPalette()
 				    Pgm.Shift();
 				    SetPaletteColorMap();
 				    SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
-				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_GRADIENT;
 				    continue;
 			    }
 				case S_PALETTE_DEFINED: { /* "def$ine" */
@@ -3253,14 +3247,14 @@ void GnuPlot::SetPalette()
 				    Pgm.Shift();
 				    named_color = SetPaletteDefined();
 				    SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
-				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_GRADIENT;
 				    continue;
 			    }
 				case S_PALETTE_FILE: { /* "file" */
 				    CHECK_TRANSFORM;
 				    SetPaletteFile();
 				    SmPltt.colorMode = SMPAL_COLOR_MODE_GRADIENT;
-				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_GRADIENT;
+				    Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_GRADIENT;
 				    Pgm.Rollback();
 				    continue;
 			    }
@@ -3268,7 +3262,7 @@ void GnuPlot::SetPalette()
 				    CHECK_TRANSFORM;
 				    SetPaletteFunction();
 				    SmPltt.colorMode = SMPAL_COLOR_MODE_FUNCTIONS;
-				    pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_FUNCTIONS;
+				    Pm3dLastSetPaletteMode = SMPAL_COLOR_MODE_FUNCTIONS;
 				    Pgm.Rollback();
 				    continue;
 			    }
@@ -3368,10 +3362,10 @@ void GnuPlot::NewColorMap()
 	A[0].Type = COLORMAP_ARRAY;
 
 	/* FIXME: Leverage the known structure of value.v as a union
-	 *        to overload both the colormap value as v.int_val
-	 *        and the min/max range as v.cmplx_val.imag
-	 *        There is nothing wrong with pThis in terms of available
-	 *        storage, but a new member field of the union would be cleaner.
+	 *  to overload both the colormap value as v.int_val
+	 *  and the min/max range as v.cmplx_val.imag
+	 *  There is nothing wrong with pThis in terms of available
+	 *  storage, but a new member field of the union would be cleaner.
 	 * Initialize to min = max = 0, which means use current cbrange.
 	 * A different min/max can be written later via set_colormap();
 	 */
@@ -3394,7 +3388,7 @@ void GnuPlot::NewColorMap()
 
 /* set colormap <colormap-name> range [min:max]
  * FIXME: parsing the bare colormap name rather than a string works
- *        but that means you can't put the name in a variable.
+ *  but that means you can't put the name in a variable.
  */
 //static void set_colormap_range()
 void GnuPlot::SetColorMapRange()
@@ -3619,7 +3613,7 @@ void GnuPlot::SetPm3D()
 				case S_PM3D_HIDDEN:
 				    if(Pgm.IsANumber(Pgm.GetCurTokenIdx()+1)) {
 					    Pgm.Shift();
-					    LoadLineType(term, &_Pm3D.pm3d.border, IntExpression());
+					    LoadLineType(GPT.P_Term, &_Pm3D.pm3d.border, IntExpression());
 					    Pgm.Rollback();
 					    continue;
 				    }
@@ -3627,7 +3621,7 @@ void GnuPlot::SetPm3D()
 				case S_PM3D_BORDER: /* border {linespec} */
 				    Pgm.Shift();
 				    _Pm3D.pm3d.border = default_pm3d_border;
-				    LpParse(term, &_Pm3D.pm3d.border, LP_ADHOC, FALSE);
+				    LpParse(GPT.P_Term, &_Pm3D.pm3d.border, LP_ADHOC, FALSE);
 				    Pgm.Rollback();
 				    continue;
 				case S_PM3D_NOHIDDEN:
@@ -3744,10 +3738,10 @@ void GnuPlot::SetPolar()
 /*
  * Process command     'set object <tag> {rectangle|ellipse|circle|polygon}'
  * set object {tag} rectangle {from <bottom_left> {to|rto} <top_right>}
- *                     {{at|center} <xcen>,<ycen> size <w>,<h>}
- *                     {fc|fillcolor <colorspec>} {lw|linewidth <lw>}
- *                     {fs <fillstyle>} {front|back|behind}
- *                     {default}
+ *               {{at|center} <xcen>,<ycen> size <w>,<h>}
+ *               {fc|fillcolor <colorspec>} {lw|linewidth <lw>}
+ *               {fs <fillstyle>} {front|back|behind}
+ *               {default}
  * EAM Jan 2005
  */
 //static void set_object()
@@ -4130,7 +4124,7 @@ polygon_error:
 		// LP_NOFILL means don't eat fillcolor here since at is set separately with "fc". 
 		if(!got_lt) {
 			lp_style_type lptmp = this_object->lp_properties;
-			LpParse(term, &lptmp, LP_NOFILL, FALSE);
+			LpParse(GPT.P_Term, &lptmp, LP_NOFILL, FALSE);
 			if(Pgm.GetCurTokenIdx() != save_token) {
 				this_object->lp_properties.l_width = lptmp.l_width;
 				this_object->lp_properties.d_type = lptmp.d_type;
@@ -4195,7 +4189,7 @@ void GnuPlot::SetWall()
 		// Line properties (for the object border if the fillstyle has one.  
 		// LP_NOFILL means don't eat fillcolor here since at is set by "fc". 
 		lptmp = p_object->lp_properties;
-		LpParse(term, &lptmp, LP_NOFILL, FALSE);
+		LpParse(GPT.P_Term, &lptmp, LP_NOFILL, FALSE);
 		if(Pgm.GetCurTokenIdx() != save_token) {
 			p_object->lp_properties.l_width = lptmp.l_width;
 			p_object->lp_properties.d_type = lptmp.d_type;
@@ -4556,9 +4550,9 @@ void GnuPlot::SetTerminal()
 	}
 	else {
 #ifdef USE_MOUSE
-		EventReset(reinterpret_cast<GpEvent *>(1), term); // cancel zoombox etc. 
+		EventReset(reinterpret_cast<GpEvent *>(1), GPT.P_Term); // cancel zoombox etc. 
 #endif
-		TermReset(term);
+		TermReset(GPT.P_Term);
 		if(Pgm.EqualsCur("pop")) { // `set term pop' 
 			PopTerminal();
 			Pgm.Shift();
@@ -4566,25 +4560,25 @@ void GnuPlot::SetTerminal()
 		else {
 			// `set term <normal terminal>' 
 			// NB: if set_term() exits via IntError() then term will not be changed 
-			term = SetTerm();
+			GPT.P_Term = SetTerm();
 			// get optional mode parameters
 			// not all drivers reset the option string before
 			// strcat-ing to it, so we reset it for them
-			PTR32(GPT.TermOptions)[0] = 0;
-			term->options(term, this);
-			if(_Plt.interactive && GPT.TermOptions[0])
-				fprintf(stderr, "Options are '%s'\n", GPT.TermOptions);
-			if(term->flags & TERM_MONOCHROME)
+			GPT._TermOptions.Z();
+			GPT.P_Term->options(GPT.P_Term, this);
+			if(_Plt.interactive && GPT._TermOptions.NotEmpty())
+				fprintf(stderr, "Options are '%s'\n", GPT._TermOptions.cptr());
+			if(GPT.P_Term->flags & TERM_MONOCHROME)
 				InitMonochrome();
 			// Sanity check:
 			// The most common failure mode found by fuzzing is a divide-by-zero
 			// caused by initializing the basic unit of the current terminal character
 			// size to zero.  I keep patching the individual terminals, but a generic
 			// sanity check may at least prevent a crash due to mistyping.
-			if(term->ChrH <= 0 || term->ChrV <= 0) {
+			if(GPT.P_Term->ChrH <= 0 || GPT.P_Term->ChrV <= 0) {
 				IntWarn(NO_CARET, "invalid terminal font size");
-				term->ChrH = 10;
-				term->ChrV = 10;
+				GPT.P_Term->ChrH = 10;
+				GPT.P_Term->ChrV = 10;
 			}
 		}
 	}
@@ -4661,7 +4655,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 			IntErrorCurToken("This option cannot be changed using 'set termoption'");
 		}
 		if(ok_to_call_terminal) {
-			PTR32(GPT.TermOptions)[0] = 0;
+			GPT._TermOptions.Z();
 			(pTerm->options)(pTerm, this);
 		}
 		Pgm.NumTokens = save_end_of_line;
@@ -5077,9 +5071,9 @@ void GnuPlot::SetRange(GpAxis * pAx)
 }
 /*
  * set paxis <axis> {range <range-options>}
- *                  {tics <tic-options>}
- *                  {label <label options>} (only used for spiderplots)
- *                  {<lp-options>} (only used for spiderplots)
+ *            {tics <tic-options>}
+ *            {label <label options>} (only used for spiderplots)
+ *            {<lp-options>} (only used for spiderplots)
  */
 //static void set_paxis()
 void GnuPlot::SetPAxis()
@@ -5100,7 +5094,7 @@ void GnuPlot::SetPAxis()
 		else {
 			int save_token = Pgm.GetCurTokenIdx();
 			lp_style_type axis_line(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
-			LpParse(term, &axis_line, LP_ADHOC, FALSE);
+			LpParse(GPT.P_Term, &axis_line, LP_ADHOC, FALSE);
 			if(Pgm.GetCurTokenIdx() != save_token) {
 				SAlloc::F(AxS.Parallel(p-1).zeroaxis);
 				AxS.Parallel(p-1).zeroaxis = (lp_style_type *)SAlloc::M(sizeof(lp_style_type));
@@ -5125,7 +5119,7 @@ void GnuPlot::SetRaxis()
 void GnuPlot::SetZeroAxis(AXIS_INDEX axis)
 {
 	Pgm.Shift();
-	if(AxS[axis].zeroaxis != (void*)(&default_axis_zeroaxis))
+	if(AxS[axis].zeroaxis != (void *)(&default_axis_zeroaxis))
 		SAlloc::F(AxS[axis].zeroaxis);
 	if(Pgm.EndOfCommand())
 		AxS[axis].zeroaxis = (lp_style_type *)(&default_axis_zeroaxis);
@@ -5133,7 +5127,7 @@ void GnuPlot::SetZeroAxis(AXIS_INDEX axis)
 		// Some non-default style for the zeroaxis 
 		AxS[axis].zeroaxis = (lp_style_type *)SAlloc::M(sizeof(lp_style_type));
 		*(AxS[axis].zeroaxis) = default_axis_zeroaxis;
-		LpParse(term, AxS[axis].zeroaxis, LP_ADHOC, FALSE);
+		LpParse(GPT.P_Term, AxS[axis].zeroaxis, LP_ADHOC, FALSE);
 	}
 }
 //
@@ -5520,7 +5514,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 		Pgm.Shift();
 	}
 	else
-		LpParse(term, &this_linestyle->lp_properties, destinationClass, TRUE); // pick up a line spec; dont allow ls, do allow point type 
+		LpParse(GPT.P_Term, &this_linestyle->lp_properties, destinationClass, TRUE); // pick up a line spec; dont allow ls, do allow point type 
 	if(!Pgm.EndOfCommand())
 		IntErrorCurToken("Extraneous arguments to set %s", ppHead == &Gg.P_FirstPermLineStyle ? "linetype" : "style line");
 }
@@ -5941,7 +5935,7 @@ void GnuPlot::ParseLabelOptions(text_label * pLabel, int ndim)
 				lp_style_type tmp_lp;
 				loc_lp.flags = LP_SHOW_POINTS;
 				tmp_lp = loc_lp;
-				LpParse(term, &tmp_lp, LP_ADHOC, TRUE);
+				LpParse(GPT.P_Term, &tmp_lp, LP_ADHOC, TRUE);
 				if(stored_token != Pgm.GetCurTokenIdx())
 					loc_lp = tmp_lp;
 				set_point = TRUE;
@@ -6116,7 +6110,7 @@ void GnuPlot::SetStyleParallel()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
-		LpParse(term, &Gg.ParallelAxisStyle.lp_properties, LP_ADHOC, FALSE);
+		LpParse(GPT.P_Term, &Gg.ParallelAxisStyle.lp_properties, LP_ADHOC, FALSE);
 		if(save_token != Pgm.GetCurTokenIdx())
 			continue;
 		if(Pgm.EqualsCur("front"))
@@ -6149,7 +6143,7 @@ void GnuPlot::SetStyleSpiderPlot()
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
 		ParseFillStyle(&Gg.SpiderPlotStyle.fillstyle);
-		LpParse(term, &Gg.SpiderPlotStyle.lp_properties,  LP_ADHOC, TRUE);
+		LpParse(GPT.P_Term, &Gg.SpiderPlotStyle.lp_properties,  LP_ADHOC, TRUE);
 		if(save_token == Pgm.GetCurTokenIdx())
 			break;
 	}

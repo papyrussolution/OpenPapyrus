@@ -46,7 +46,7 @@ int crypto_sign_ed25519_keypair(ed25519_pubkey pk, ed25519_privkey sk);
 /** @internal
  * @brief sign a message with ed25519
  * @param[out] sm location to store the signed message.
- *                Its length should be mlen + 64.
+ *          Its length should be mlen + 64.
  * @param[out] smlen pointer to the size of the signed message
  * @param[in] m message to be signed
  * @param[in] mlen length of the message to be signed
@@ -58,7 +58,7 @@ int crypto_sign_ed25519(uchar *sm, uint64_t *smlen, const uchar *m, uint64_t mle
 /** @internal
  * @brief "open" and verify the signature of a signed message
  * @param[out] m location to store the verified message.
- *               Its length should be equal to smlen.
+ *         Its length should be equal to smlen.
  * @param[out] mlen pointer to the size of the verified message
  * @param[in] sm signed message to verify
  * @param[in] smlen length of the signed message to verify

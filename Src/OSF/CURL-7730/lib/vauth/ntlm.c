@@ -364,7 +364,7 @@ static void unicodecpy(uchar * dest, const char * src, size_t length)
  * host    [in]     - The host name.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *              holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -489,7 +489,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
  * passwdp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *              holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -792,7 +792,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
 	});
 
-	SAlloc::F(ntlmv2resp);/* Free the dynamic buffer allocated for NTLMv2 */
+	SAlloc::F(ntlmv2resp); /* Free the dynamic buffer allocated for NTLMv2 */
 
 #endif
 

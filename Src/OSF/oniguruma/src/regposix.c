@@ -137,7 +137,7 @@ extern int onig_posix_regcomp(onig_posix_regex_t* reg, const char* pattern, int 
 	int r, len;
 	OnigSyntaxType* syntax = OnigDefaultSyntax;
 	OnigOptionType options;
-	reg->onig = (void*)0;
+	reg->onig = (void *)0;
 	if((posix_options & REG_EXTENDED) == 0)
 		syntax = ONIG_SYNTAX_POSIX_BASIC;
 	options = syntax->options;
@@ -208,7 +208,7 @@ extern int onig_posix_regexec(onig_posix_regex_t* reg, const char* str, size_t n
 extern void onig_posix_regfree(onig_posix_regex_t* reg)
 {
 	onig_free(ONIG_C(reg));
-	reg->onig = (void*)0;
+	reg->onig = (void *)0;
 }
 
 extern void onig_posix_reg_set_encoding(int mb_code)
@@ -235,16 +235,16 @@ extern int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const u
 typedef struct {
 	int (*func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void*);
 	onig_posix_regex_t* reg;
-	void* arg;
+	void * arg;
 } i_wrap;
 
-static int i_wrapper(const uchar * name, const uchar * name_end, int ng, int* gs, onig_regex_t* reg ARG_UNUSED, void* arg)
+static int i_wrapper(const uchar * name, const uchar * name_end, int ng, int* gs, onig_regex_t* reg ARG_UNUSED, void * arg)
 {
 	i_wrap* warg = (i_wrap*)arg;
 	return (*warg->func)(name, name_end, ng, gs, warg->reg, warg->arg);
 }
 
-extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void*), void* arg)
+extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void*), void * arg)
 {
 	i_wrap warg;
 	warg.func = func;
@@ -285,7 +285,7 @@ extern int reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar* name,
 	return onig_posix_reg_name_to_group_numbers(reg, name, name_end, nums);
 }
 
-extern int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void*), void* arg)
+extern int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void*), void * arg)
 {
 	return onig_posix_reg_foreach_name(reg, func, arg);
 }

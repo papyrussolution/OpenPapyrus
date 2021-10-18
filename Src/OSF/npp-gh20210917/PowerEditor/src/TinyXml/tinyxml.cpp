@@ -37,14 +37,9 @@ void TiXmlBase::PutString(const TIXML_STRING& str, TIXML_OSTREAM* stream)
 void TiXmlBase::PutString(const TIXML_STRING& str, TIXML_STRING* outString)
 {
 	size_t i = 0;
-
 	while(i < str.length()) {
 		int c = str[i];
-
-		if(c == '&'
-		    && i < ( str.length() - 2 )
-		    && str[i+1] == '#'
-		    && str[i+2] == 'x') {
+		if(c == '&' && i < ( str.length() - 2 ) && str[i+1] == '#' && str[i+2] == 'x') {
 			// Hexadecimal character reference.
 			// Pass through unchanged.
 			// &#xA9;	-- copyright symbol, for example.
@@ -108,22 +103,14 @@ TiXmlBase::StringToBuffer::~StringToBuffer()
 
 // End strange bug fix. -->
 
-TiXmlNode::TiXmlNode(NodeType _type)
+TiXmlNode::TiXmlNode(NodeType _type) : parent(0), type(_type), firstChild(0), lastChild(0), prev(0), next(0), userData(0)
 {
-	parent = 0;
-	type = _type;
-	firstChild = 0;
-	lastChild = 0;
-	prev = 0;
-	next = 0;
-	userData = 0;
 }
 
 TiXmlNode::~TiXmlNode()
 {
 	TiXmlNode* node = firstChild;
 	TiXmlNode* temp = 0;
-
 	while(node) {
 		temp = node;
 		node = node->next;
@@ -135,18 +122,24 @@ void TiXmlNode::Clear()
 {
 	TiXmlNode* node = firstChild;
 	TiXmlNode* temp = 0;
-
 	while(node) {
 		temp = node;
 		node = node->next;
 		delete temp;
 	}
-
 	firstChild = 0;
 	lastChild = 0;
 }
 
-TiXmlNode* TiXmlNode::LinkEndChild(TiXmlNode* node)
+void FASTCALL TiXmlNode::CopyToClone(TiXmlNode * target) const 
+{
+	if(target) {
+		target->SetValue(value.c_str() );
+		target->userData = userData;
+	}
+}
+
+TiXmlNode * TiXmlNode::LinkEndChild(TiXmlNode* node)
 {
 	node->parent = this;
 
@@ -783,15 +776,8 @@ void TiXmlAttribute::SetDoubleValue(double _value)
 	SetValue(buf);
 }
 
-const int TiXmlAttribute::IntValue() const
-{
-	return generic_atoi(value.c_str());
-}
-
-const double TiXmlAttribute::DoubleValue() const
-{
-	return generic_atof(value.c_str());
-}
+const int TiXmlAttribute::IntValue() const { return generic_atoi(value.c_str()); }
+const double TiXmlAttribute::DoubleValue() const { return generic_atof(value.c_str()); }
 
 void TiXmlComment::Print(FILE* cfile, int depth) const
 {
@@ -810,12 +796,9 @@ void TiXmlComment::StreamOut(TIXML_OSTREAM * stream) const
 
 TiXmlNode* TiXmlComment::Clone() const
 {
-	TiXmlComment* clone = new TiXmlComment();
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
+	TiXmlComment * clone = new TiXmlComment();
+	if(clone)
+		CopyToClone(clone);
 	return clone;
 }
 
@@ -833,20 +816,13 @@ void TiXmlText::StreamOut(TIXML_OSTREAM * stream) const
 
 TiXmlNode* TiXmlText::Clone() const
 {
-	TiXmlText* clone = 0;
-	clone = new TiXmlText(TEXT("") );
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
+	TiXmlText * clone = new TiXmlText(TEXT("") );
+	if(clone)
+		CopyToClone(clone);
 	return clone;
 }
 
-TiXmlDeclaration::TiXmlDeclaration(const TCHAR * _version,
-    const TCHAR * _encoding,
-    const TCHAR * _standalone)
-	: TiXmlNode(TiXmlNode::DECLARATION)
+TiXmlDeclaration::TiXmlDeclaration(const TCHAR * _version, const TCHAR * _encoding, const TCHAR * _standalone) : TiXmlNode(TiXmlNode::DECLARATION)
 {
 	version = _version;
 	encoding = _encoding;
@@ -856,7 +832,6 @@ TiXmlDeclaration::TiXmlDeclaration(const TCHAR * _version,
 void TiXmlDeclaration::Print(FILE* cfile, int /*depth*/) const
 {
 	generic_fprintf(cfile, TEXT("<?xml "));
-
 	if(!version.empty() )
 		generic_fprintf(cfile, TEXT("version=\"%ls\" "), version.c_str());
 	if(!encoding.empty() )
@@ -891,14 +866,12 @@ void TiXmlDeclaration::StreamOut(TIXML_OSTREAM * stream) const
 TiXmlNode* TiXmlDeclaration::Clone() const
 {
 	TiXmlDeclaration* clone = new TiXmlDeclaration();
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
-	clone->version = version;
-	clone->encoding = encoding;
-	clone->standalone = standalone;
+	if(clone) {
+		CopyToClone(clone);
+		clone->version = version;
+		clone->encoding = encoding;
+		clone->standalone = standalone;
+	}
 	return clone;
 }
 
@@ -911,16 +884,14 @@ void TiXmlUnknown::Print(FILE* cfile, int depth) const
 
 void TiXmlUnknown::StreamOut(TIXML_OSTREAM * stream) const
 {
-	(*stream) << TEXT("<") << value << TEXT(">");           // Don't use entities hear! It is unknown.
+	(*stream) << TEXT("<") << value << TEXT(">"); // Don't use entities hear! It is unknown.
 }
 
 TiXmlNode* TiXmlUnknown::Clone() const
 {
 	TiXmlUnknown* clone = new TiXmlUnknown();
-
 	if(!clone)
 		return 0;
-
 	CopyToClone(clone);
 	return clone;
 }
@@ -939,20 +910,16 @@ TiXmlAttributeSet::~TiXmlAttributeSet()
 
 void TiXmlAttributeSet::Add(TiXmlAttribute* addMe)
 {
-	assert(!Find(addMe->Name() ) );         // Shouldn't be multiply adding to the set.
-
+	assert(!Find(addMe->Name())); // Shouldn't be multiply adding to the set.
 	addMe->next = &sentinel;
 	addMe->prev = sentinel.prev;
-
 	sentinel.prev->next = addMe;
 	sentinel.prev      = addMe;
 }
 
 void TiXmlAttributeSet::Remove(TiXmlAttribute* removeMe)
 {
-	TiXmlAttribute* node;
-
-	for(node = sentinel.next; node != &sentinel; node = node->next) {
+	for(TiXmlAttribute * node = sentinel.next; node != &sentinel; node = node->next) {
 		if(node == removeMe) {
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
@@ -981,7 +948,6 @@ TIXML_ISTREAM & operator >>(TIXML_ISTREAM & in, TiXmlNode & base)
 	TIXML_STRING tag;
 	tag.reserve(8 * 1000);
 	base.StreamIn(&in, &tag);
-
 	base.Parse(tag.c_str(), 0);
 	return in;
 }

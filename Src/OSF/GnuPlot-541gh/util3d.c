@@ -6,8 +6,8 @@
  * Added user-specified bases for log scaling.
  *
  * 3.6 - split graph3d.c into graph3d.c (graph),
- *                            util3d.c (intersections, etc)
- *                            hidden3d.c (hidden-line removal code)
+ *                      util3d.c (intersections, etc)
+ *                      hidden3d.c (hidden-line removal code)
  *
  */
 #include <gnuplot.h>
@@ -902,17 +902,17 @@ void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 	else
 		Draw3DPointUnconditional(pTerm, v, lp);
 }
-
-/* HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
- * like term->move() and term->vector() */
-
-static GpVertex polyline3d_previous_vertex; // @global Previous points 3D position 
+//
+// HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
+// like term->move() and term->vector() 
+//
+//static GpVertex polyline3d_previous_vertex; // @global Previous points 3D position 
 
 //void polyline3d_start(GpVertex * v1)
 void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 {
 	int x1, y1;
-	polyline3d_previous_vertex = *v1;
+	Polyline3dPreviousVertex = *v1;
 	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
 		return;
 	// EAM - This may now be unneeded. But I'm not sure. */
@@ -928,8 +928,8 @@ void GnuPlot::Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type *
 	//     routines do not mess up dash patterns by resetting them
 	t_colorspec nochange = DEFAULT_COLORSPEC;
 	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
-		DrawLineHidden(pTerm, &polyline3d_previous_vertex, v2, lp);
+		DrawLineHidden(pTerm, &Polyline3dPreviousVertex, v2, lp);
 	else
-		Draw3DLineUnconditional(pTerm, &polyline3d_previous_vertex, v2, lp, nochange);
-	polyline3d_previous_vertex = *v2;
+		Draw3DLineUnconditional(pTerm, &Polyline3dPreviousVertex, v2, lp, nochange);
+	Polyline3dPreviousVertex = *v2;
 }

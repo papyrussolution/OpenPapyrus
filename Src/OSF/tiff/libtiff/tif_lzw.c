@@ -142,7 +142,7 @@ typedef struct {
 	long enc_ratio;                 /* current compression ratio */
 	long enc_incount;               /* (input) data bytes encoded */
 	long enc_outcount;              /* encoded (output) bytes */
-	uint8*  enc_rawlimit;           /* bound on tif_rawdata buffer */
+	uint8 *  enc_rawlimit;           /* bound on tif_rawdata buffer */
 	hash_t* enc_hashtab;            /* kept separate for small machines */
 } LZWCodecState;
 
@@ -150,9 +150,9 @@ typedef struct {
 #define DecoderState(tif)       ((LZWCodecState*)LZWState(tif))
 #define EncoderState(tif)       ((LZWCodecState*)LZWState(tif))
 
-static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s);
+static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
 #ifdef LZW_COMPAT
-static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s);
+static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s);
 #endif
 static void cl_hash(LZWCodecState*);
 
@@ -324,7 +324,7 @@ static void codeLoop(TIFF* tif, const char* module)
 	TIFFErrorExt(tif->tif_clientdata, module, "Bogus encoding, loop in the code table; scanline %d", tif->tif_row);
 }
 
-static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
+static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
@@ -536,7 +536,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		nextbits -= nbits;					\
 }
 
-static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
+static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
@@ -798,7 +798,7 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
  * are re-sized at this point, and a CODE_CLEAR is generated
  * for the decoder.
  */
-static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LZWEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	LZWCodecState * sp = EncoderState(tif);
 	long fcode;
@@ -812,8 +812,8 @@ static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	int free_ent;
 	int maxcode;
 	int nbits;
-	uint8* op;
-	uint8* limit;
+	uint8 * op;
+	uint8 * limit;
 	(void)s;
 	if(sp == NULL)
 		return 0;

@@ -1,6 +1,7 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
 // Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -38,7 +39,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 
 TToolbar::~TToolbar()
 {
-	// @vadim Приводило к зависанию при выходе из программы
+	// @vadim РџСЂРёРІРѕРґРёР»Рѕ Рє Р·Р°РІРёСЃР°РЅРёСЋ РїСЂРё РІС‹С…РѕРґРµ РёР· РїСЂРѕРіСЂР°РјРјС‹
 	// DestroyMenu(H_Menu);
 	//SAlloc::F(m_pitem);
 	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
@@ -53,12 +54,12 @@ TToolbar::~TToolbar()
 
 // AHTOXA {
 //
-// Сразу после вызова данной функции уничтожать объект.
-// Используется при вызове функции BrowserWindow::ChangeResource
+// РЎСЂР°Р·Сѓ РїРѕСЃР»Рµ РІС‹Р·РѕРІР° РґР°РЅРЅРѕР№ С„СѓРЅРєС†РёРё СѓРЅРёС‡С‚РѕР¶Р°С‚СЊ РѕР±СЉРµРєС‚.
+// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё BrowserWindow::ChangeResource
 //
 void TToolbar::DestroyHWND()
 {
-	// Возможно сначала надо будет произвести действия из ~TToolbar
+	// Р’РѕР·РјРѕР¶РЅРѕ СЃРЅР°С‡Р°Р»Р° РЅР°РґРѕ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРµСЃС‚Рё РґРµР№СЃС‚РІРёСЏ РёР· ~TToolbar
 	DestroyWindow(H_Wnd);
 	H_Wnd = 0;
 }
@@ -392,7 +393,7 @@ HICON BitmapToIcon(HBITMAP hBitmap)
 	HDC hAndMaskDC = ::CreateCompatibleDC(hDC);
 	HDC hXorMaskDC = ::CreateCompatibleDC(hDC);
 	//
-	// Получаем размеры битмапа
+	// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂС‹ Р±РёС‚РјР°РїР°
 	//
 	BITMAP bm;
 	::GetObject(hBitmap, sizeof(BITMAP), &bm);
@@ -474,12 +475,12 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 					btns.idCommand = item.KeyCode;
 					btns.dwData  = reinterpret_cast<DWORD_PTR>(item.ToolTipText);
 					btns.fsStyle = TBSTYLE_BUTTON;
-					// @v10.9.1 oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) костыль, предотвращающий блокировку команд, которых нет в меню
+					// @v10.9.1 oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) РєРѕСЃС‚С‹Р»СЊ, РїСЂРµРґРѕС‚РІСЂР°С‰Р°СЋС‰РёР№ Р±Р»РѕРєРёСЂРѕРІРєСѓ РєРѕРјР°РЅРґ, РєРѕС‚РѕСЂС‹С… РЅРµС‚ РІ РјРµРЅСЋ
 					if(!h_menu || oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
 					prev_separator = 0;
 				}
-				else if(!prev_separator && i < Items.getItemsCount()) { // Последовательный и последний разделитель не заносим
+				else if(!prev_separator && i < Items.getItemsCount()) { // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ Рё РїРѕСЃР»РµРґРЅРёР№ СЂР°Р·РґРµР»РёС‚РµР»СЊ РЅРµ Р·Р°РЅРѕСЃРёРј
 					btns.fsStyle = TBSTYLE_SEP | TBSTYLE_AUTOSIZE;
 					btns.fsState = TBSTATE_ENABLED;
 					prev_separator = 1;
@@ -505,8 +506,8 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
 							//
 							canv.Rect(pic_bounds);
-							//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-							canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+							//canv.Fill(SColor(255, 255, 255, 255), 0); // РџСЂРѕР·СЂР°С‡РЅС‹Р№ С„РѕРЅ
+							canv.Fill(SColor(192, 192, 192, 255), 0); // РџСЂРѕР·СЂР°С‡РЅС‹Р№ С„РѕРЅ
 							canv.PushTransform();
 							p_fig->GetViewPort(&vp);
 							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
@@ -523,7 +524,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 						HBITMAP h_bmp = item.BitmapIndex ? APPL->FetchBitmap(item.BitmapIndex) : 0;
 						if(h_bmp) {
 							HICON h_icon = BitmapToIcon(h_bmp);
-							// На некоторых машинах не отображаются картинки
+							// РќР° РЅРµРєРѕС‚РѕСЂС‹С… РјР°С€РёРЅР°С… РЅРµ РѕС‚РѕР±СЂР°Р¶Р°СЋС‚СЃСЏ РєР°СЂС‚РёРЅРєРё
 							// img_idx = ImageList_Add(himl, h_bmp, (HBITMAP)0);
 							img_idx = ImageList_AddIcon(himl, h_icon);
 							DestroyIcon(h_icon);
@@ -948,7 +949,7 @@ int TToolbar::SaveUserSettings(uint typeID)
 {
 	int    r = -1;
 	char * p = 0;
-	/* Не будем записывать данные в реестр {
+	/* РќРµ Р±СѓРґРµРј Р·Р°РїРёСЃС‹РІР°С‚СЊ РґР°РЅРЅС‹Рµ РІ СЂРµРµСЃС‚СЂ {
 	if(typeID) {
 		char   param[48];
 		if(GetRegTbParam(typeID, param, sizeof(param)) > 0) {
@@ -968,7 +969,7 @@ int TToolbar::SaveUserSettings(uint typeID)
 				r = reg_key.PutBinary(param, p, tb_cfg.GetSize());
 		}
 	}
-	} Не будем записывать данные в реестр */
+	} РќРµ Р±СѓРґРµРј Р·Р°РїРёСЃС‹РІР°С‚СЊ РґР°РЅРЅС‹Рµ РІ СЂРµРµСЃС‚СЂ */
 	delete p;
 	return r;
 }
@@ -994,10 +995,10 @@ int TToolbar::RestoreUserSettings(uint typeID, ToolbarList * pTbList)
 						new_tb_list.addItem(&tb_item);
 					}
 				}
-				/* Не будем восстанавливать данные из реестра
+				/* РќРµ Р±СѓРґРµРј РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РґР°РЅРЅС‹Рµ РёР· СЂРµРµСЃС‚СЂР°
 				if((r = Init(&new_tb_list)) > 0)
 					SetupToolbarWnd(0, &new_tb_list);
-					// todo Перенести в SetupToolbarWnd {
+					// todo РџРµСЂРµРЅРµСЃС‚Рё РІ SetupToolbarWnd {
 					for(i = 0; i < new_tb_list.getItemsCount(); i++) {
 						ToolbarItem tb_item = new_tb_list.getItem(i);
 						if(!(tb_item.Flags & ToolbarItem::fHidden)) {
@@ -1010,7 +1011,7 @@ int TToolbar::RestoreUserSettings(uint typeID, ToolbarList * pTbList)
 							SendMessage(H_Toolbar, TB_INSERTBUTTON, i, (LPARAM) &btn);
 						}
 					}
-					// } todo Перенести в SetupToolbarWnd
+					// } todo РџРµСЂРµРЅРµСЃС‚Рё РІ SetupToolbarWnd
 				*/
 			}
 		}

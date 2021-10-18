@@ -184,7 +184,7 @@ bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_l
 	if((cert_fp_len = ma_tls_get_finger_print(ctls, cert_fp, cert_fp_len)) < 1)
 		goto end;
 	if(fp)
-		rc = ma_pvio_tls_compare_fp(cert_fp, cert_fp_len, fp, (unsigned int)strlen(fp));
+		rc = ma_pvio_tls_compare_fp(cert_fp, cert_fp_len, fp, (uint)strlen(fp));
 	else if(fp_list) {
 		MA_FILE * fp;
 		char buff[255];
@@ -200,7 +200,7 @@ bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_l
 			if(pos)
 				*pos = '\0';
 
-			if(!ma_pvio_tls_compare_fp(cert_fp, cert_fp_len, buff, (unsigned int)strlen(buff))) {
+			if(!ma_pvio_tls_compare_fp(cert_fp, cert_fp_len, buff, (uint)strlen(buff))) {
 				/* finger print is valid: close file and exit */
 				ma_close(fp);
 				rc = 0;

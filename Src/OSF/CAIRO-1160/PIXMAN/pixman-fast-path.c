@@ -1957,7 +1957,7 @@ static pixman_bool_t fast_path_fill(pixman_implementation_t * imp,
 	return TRUE;
 }
 
-/*****************************************************************************/
+// 
 
 static uint32_t * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 {

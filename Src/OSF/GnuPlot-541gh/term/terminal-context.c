@@ -3,25 +3,25 @@
 /*
  * AUTHORS:
  *   Mojca Miklavec
- *       <mojca.miklavec.lists at gmail.com>
+ * <mojca.miklavec.lists at gmail.com>
  *     - author of this file
  *     - improvements to m-gnuplot.tex
  *     - mp-gnuplot.mp - metapost macros to support gnuplot-specifics
- *       inside ConTeXt
+ * inside ConTeXt
  *
  *   Hans Hagen (author of ConTeXt)
- *        <pragma at wxs.nl>
+ *  <pragma at wxs.nl>
  *      - a lot of functionality added to ConTeXt to enable better support
- *        of Gnuplot module, many bugs fixed
+ *  of Gnuplot module, many bugs fixed
  *      - author of the module m-gnuplot.tex to support inclusion of Gnuplot
- *        graphics into ConTeXt
+ *  graphics into ConTeXt
  *      - constant support on the most tricky issues
  *   Taco Hoekwater (developer of MetaPost, pdfTeX & LuaTeX)
- *        <taco at elvenkind.com>
+ *  <taco at elvenkind.com>
  *      - some code of this file, many tricks, lots of bug fixes,
- *        suggestions and testing
+ *  suggestions and testing
  *      - Hans's right hand in ConTeXt development:
- *        constant support on even more tricky issues
+ *  constant support on even more tricky issues
  *
  *   For questions, suggestions, comments, improvements please contact:
  *     - Mojca Miklavec <mojca.miklavec.lists at gmail.com> or
@@ -559,73 +559,61 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	CONTEXT_fontsize = CONTEXT_params.fontsize; // current font size in pt (to be used in CONTEXT_adjust_dimensions) 
 	CONTEXT_adjust_dimensions(pThis); // sets pThis->MaxX, ymax, vchar, hchar 
-	snprintf(GPT.TermOptions, sizeof(GPT.TermOptions), "size %g%s,%g%s %s %s %s",
+	slprintf(GPT._TermOptions, "size %g%s,%g%s %s %s %s",
 	    CONTEXT_params.xsize, (CONTEXT_params.unit == INCHES) ? "in" : "cm", CONTEXT_params.ysize,
 	    (CONTEXT_params.unit == INCHES) ? "in" : "cm", CONTEXT_params.standalone ? "standalone" : "input",
 	    CONTEXT_params.timestamp ? "timestamp" : "notimestamp", CONTEXT_params.header == NULL ? "noheader \\\n   " : "\\\n   header ");
 	if(CONTEXT_params.header != NULL) {
-		strncat(GPT.TermOptions, "\"",                  sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, CONTEXT_params.header, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
-		strncat(GPT.TermOptions, "\" \\\n   ",          sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		GPT._TermOptions.Cat("\"");
+		GPT._TermOptions.Cat(CONTEXT_params.header);
+		GPT._TermOptions.Cat("\" \\\n   ");
 	}
-	strncat(GPT.TermOptions, CONTEXT_params.color ? "color " : "monochrome ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+	GPT._TermOptions.Cat(CONTEXT_params.color ? "color " : "monochrome ");
 	switch(CONTEXT_params.linejoin) {
 		case LINEJOIN_MITER:
-		    strncat(GPT.TermOptions, "mitered ",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("mitered ");
 		    break;
 		case LINEJOIN_ROUND:
-		    strncat(GPT.TermOptions, "rounded ",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("rounded ");
 		    break;
 		case LINEJOIN_BEVEL:
-		    strncat(GPT.TermOptions, "beveled ",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("beveled ");
 		    break;
 	}
 	switch(CONTEXT_params.linecap) {
 		case LINECAP_BUTT:
-		    strncat(GPT.TermOptions, "butt",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("butt");
 		    break;
 		case LINECAP_ROUND:
-		    strncat(GPT.TermOptions, "round",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("round");
 		    break;
 		case LINECAP_SQUARE:
-		    strncat(GPT.TermOptions, "squared",
-			sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("squared");
 		    break;
 	}
-
-	snprintf(tmp_term_options, sizeof(tmp_term_options),
-	    " %s dashlength %g linewidth %g fontscale %g \\\n   ",
-	    CONTEXT_params.dashed ? "dashed" : "solid",
-	    CONTEXT_params.scale_dashlength,
-	    CONTEXT_params.scale_linewidth,
-	    CONTEXT_params.scale_text
-	    );
-	strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+	snprintf(tmp_term_options, sizeof(tmp_term_options), " %s dashlength %g linewidth %g fontscale %g \\\n   ",
+	    CONTEXT_params.dashed ? "dashed" : "solid", CONTEXT_params.scale_dashlength, CONTEXT_params.scale_linewidth, CONTEXT_params.scale_text);
+	GPT._TermOptions.Cat(tmp_term_options);
 	switch(CONTEXT_params.points) {
 		case CONTEXT_POINTS_WITH_TEX:
-		    strncat(GPT.TermOptions, "texpoints ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("texpoints ");
 		    break;
 		case CONTEXT_POINTS_WITH_METAPOST:
-		    strncat(GPT.TermOptions, "mppoints ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("mppoints ");
 		    break;
 	}
 #ifdef WRITE_PNG_IMAGE
 	switch(CONTEXT_params.images) {
 		case CONTEXT_IMAGES_INLINE:
-		    strncat(GPT.TermOptions, "inlineimages ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("inlineimages ");
 		    break;
 		case CONTEXT_IMAGES_EXTERNAL:
-		    strncat(GPT.TermOptions, "externalimages ", sizeof(GPT.TermOptions)-strlen(GPT.TermOptions)-1);
+		    GPT._TermOptions.Cat("externalimages ");
 		    break;
 	}
 #endif
 	snprintf(tmp_term_options, sizeof(tmp_term_options), "font \"%s,%g\"", CONTEXT_params.font, CONTEXT_params.fontsize);
-	strncat(GPT.TermOptions, tmp_term_options, sizeof(GPT.TermOptions) - strlen(GPT.TermOptions)-1);
+	GPT._TermOptions.Cat(tmp_term_options);
 }
 
 /* **************
@@ -1624,8 +1612,8 @@ TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoin
  * 2. printing out a string with colors
  *    - MKIV: works, but transparency is not yet implemented
  *    - MKII: requires MetaPost > 0.750 and is not implemented at all
- *            two possible approaches: drawing rectangles & creating proper image
- *            it might require one additional level of abstraction like gp_image(...)
+ *      two possible approaches: drawing rectangles & creating proper image
+ *      it might require one additional level of abstraction like gp_image(...)
  */
 TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {

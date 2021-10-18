@@ -86,7 +86,7 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 	char opt[4];
 	int parse_error = 0;
 	if(pGp->Pgm.EndOfCommand()) {
-		PTR32(GPT.TermOptions)[0] = 0;
+		GPT._TermOptions.Z();
 	}
 	else {
 		if(pGp->Pgm.GetCurTokenLength() > 3) {
@@ -118,22 +118,22 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 	pThis->MaxY = HPLJII_YMAX_(pGp);
 	switch(hplj_dpp) {
 		case 1:
-		    strcpy(GPT.TermOptions, "300");
+		    GPT._TermOptions = "300";
 		    pThis->TicV = 15;
 		    pThis->TicH = 15;
 		    break;
 		case 2:
-		    strcpy(GPT.TermOptions, "150");
+		    GPT._TermOptions = "150";
 		    pThis->TicV = 8;
 		    pThis->TicH = 8;
 		    break;
 		case 3:
-		    strcpy(GPT.TermOptions, "100");
+		    GPT._TermOptions = "100";
 		    pThis->TicV = 6;
 		    pThis->TicH = 6;
 		    break;
 		case 4:
-		    strcpy(GPT.TermOptions, "75");
+		    GPT._TermOptions = "75";
 		    pThis->TicV = 5;
 		    pThis->TicH = 5;
 		    break;

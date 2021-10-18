@@ -169,7 +169,7 @@ struct __db_commit_info {
  *	An in-memory, linked-list copy of a log record.
  */
 struct __txn_logrec {
-	STAILQ_ENTRY(__txn_logrec) links;/* Linked list. */
+	STAILQ_ENTRY(__txn_logrec) links; /* Linked list. */
 	uint8 data[1];		/* Log record. */
 };
 

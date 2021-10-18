@@ -34,19 +34,19 @@
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *   attr
- *           specifies optional creation attributes.
+ *     specifies optional creation attributes.
  *
  * DESCRIPTION
  *   This function initializes a condition variable.
  *
  * RESULTS
- *           0               successfully created condition variable,
- *           EINVAL          'attr' is invalid,
- *           EAGAIN          insufficient resources (other than memory,
- *           ENOMEM          insufficient memory,
- *           EBUSY           'cond' is already initialized,
+ *     0               successfully created condition variable,
+ *     EINVAL          'attr' is invalid,
+ *     EAGAIN          insufficient resources (other than memory,
+ *     ENOMEM          insufficient memory,
+ *     EBUSY           'cond' is already initialized,
  *
  * ------------------------------------------------------
  */
@@ -119,66 +119,66 @@ DONE:
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *
  * DESCRIPTION
  *   This function destroys a condition variable.
  *
  *   NOTES:
- *           1)      A condition variable can be destroyed
- *                   immediately after all the threads that
- *                   are blocked on it are awakened. e.g.
+ *     1)      A condition variable can be destroyed
+ *             immediately after all the threads that
+ *             are blocked on it are awakened. e.g.
  *
- *                   struct list {
- *                     pthread_mutex_t lm;
- *                     ...
- *                   }
+ *             struct list {
+ *               pthread_mutex_t lm;
+ *               ...
+ *             }
  *
- *                   struct elt {
- *                     key k;
- *                     int busy;
- *                     pthread_cond_t notbusy;
- *                     ...
- *                   }
+ *             struct elt {
+ *               key k;
+ *               int busy;
+ *               pthread_cond_t notbusy;
+ *               ...
+ *             }
  *
  *
- *                   struct elt *
- *                   list_find(struct list *lp, key k)
- *                   {
- *                     struct elt *ep;
+ *             struct elt *
+ *             list_find(struct list *lp, key k)
+ *             {
+ *               struct elt *ep;
  *
- *                     pthread_mutex_lock(&lp->lm);
- *                     while ((ep = find_elt(l,k) != NULL) && ep->busy)
- *                       pthread_cond_wait(&ep->notbusy, &lp->lm);
- *                     if (ep != NULL)
- *                       ep->busy = 1;
- *                     pthread_mutex_unlock(&lp->lm);
- *                     return(ep);
- *                   }
+ *               pthread_mutex_lock(&lp->lm);
+ *               while ((ep = find_elt(l,k) != NULL) && ep->busy)
+ *                 pthread_cond_wait(&ep->notbusy, &lp->lm);
+ *               if (ep != NULL)
+ *                 ep->busy = 1;
+ *               pthread_mutex_unlock(&lp->lm);
+ *               return(ep);
+ *             }
  *
- *                   delete_elt(struct list *lp, struct elt *ep)
- *                   {
- *                     pthread_mutex_lock(&lp->lm);
- *                     assert(ep->busy);
- *                     ... remove ep from list ...
- *                     ep->busy = 0;
- *                 (A) pthread_cond_broadcast(&ep->notbusy);
- *                     pthread_mutex_unlock(&lp->lm);
- *                 (B) pthread_cond_destroy(&rp->notbusy);
- *                     free(ep);
- *                   }
+ *             delete_elt(struct list *lp, struct elt *ep)
+ *             {
+ *               pthread_mutex_lock(&lp->lm);
+ *               assert(ep->busy);
+ *               ... remove ep from list ...
+ *               ep->busy = 0;
+ *           (A) pthread_cond_broadcast(&ep->notbusy);
+ *               pthread_mutex_unlock(&lp->lm);
+ *           (B) pthread_cond_destroy(&rp->notbusy);
+ *               free(ep);
+ *             }
  *
- *                   In this example, the condition variable
- *                   and its list element may be freed (line B)
- *                   immediately after all threads waiting for
- *                   it are awakened (line A), since the mutex
- *                   and the code ensure that no other thread
- *                   can touch the element to be deleted.
+ *             In this example, the condition variable
+ *             and its list element may be freed (line B)
+ *             immediately after all threads waiting for
+ *             it are awakened (line A), since the mutex
+ *             and the code ensure that no other thread
+ *             can touch the element to be deleted.
  *
  * RESULTS
- *           0               successfully released condition variable,
- *           EINVAL          'cond' is invalid,
- *           EBUSY           'cond' is in use,
+ *     0               successfully released condition variable,
+ *     EINVAL          'cond' is invalid,
+ *     EBUSY           'cond' is in use,
  */
 int pthread_cond_destroy(pthread_cond_t * cond)
 {
@@ -326,7 +326,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *    if ( 0 != nWaitersBlocked ) {
  *      sem_post( semBlockLock );           // open the gate.
  *      nSignalsWasLeft = 0;                // do not open the gate
- *                                          // below again.
+ *                                    // below again.
  *    }
  *    else if ( 0 != (nWaitersWasGone = nWaitersGone) ) {
  *      nWaitersGone = 0;
@@ -334,10 +334,10 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *  }
  *   }
  *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
- *                                          // spurious semaphore :-)
+ *                                    // spurious semaphore :-)
  *  sem_wait( semBlockLock );
  *  nWaitersBlocked -= nWaitersGone;     // something is going on here
- *                                       //  - test of timeouts? :-)
+ *                                 //  - test of timeouts? :-)
  *  sem_post( semBlockLock );
  *  nWaitersGone = 0;
  *   }
@@ -406,7 +406,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *  Algorithm 9 / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
  *
  * presented below in pseudo-code; basically 8a...
- *                                   ...BUT W/O "spurious wakes" prevention:
+ *                             ...BUT W/O "spurious wakes" prevention:
  *
  *
  * given:
@@ -435,10 +435,10 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *  --nWaitersToUnblock;
  *   }
  *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
- *                                          // spurious semaphore :-)
+ *                                    // spurious semaphore :-)
  *  sem_wait( semBlockLock );
  *  nWaitersBlocked -= nWaitersGone;        // something is going on here
- *                                          //  - test of timeouts? :-)
+ *                                    //  - test of timeouts? :-)
  *  sem_post( semBlockLock );
  *  nWaitersGone = 0;
  *   }
@@ -611,17 +611,17 @@ static INLINE int __ptw32_cond_timedwait(pthread_cond_t * cond, pthread_mutex_t 
 #if defined (__PTW32_CONFIG_MSVC7)
 	#pragma inline_depth(0)
 #endif
-	pthread_cleanup_push(__ptw32_cond_wait_cleanup, (void*)&cleanup_args);
+	pthread_cleanup_push(__ptw32_cond_wait_cleanup, (void *)&cleanup_args);
 	/*
 	 * Now we can release 'mutex' and...
 	 */
 	if((result = pthread_mutex_unlock(mutex)) == 0) {
 		/*
 		 * ...wait to be awakened by
-		 *           pthread_cond_signal, or
-		 *           pthread_cond_broadcast, or
-		 *           timeout, or
-		 *           thread cancellation
+		 *     pthread_cond_signal, or
+		 *     pthread_cond_broadcast, or
+		 *     timeout, or
+		 *     thread cancellation
 		 *
 		 * Note:
 		 *
@@ -661,9 +661,9 @@ static INLINE int __ptw32_cond_timedwait(pthread_cond_t * cond, pthread_mutex_t 
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *   mutex
- *           pointer to an instance of pthread_mutex_t
+ *     pointer to an instance of pthread_mutex_t
  *
  * DESCRIPTION
  *   This function waits on a condition variable until
@@ -671,20 +671,20 @@ static INLINE int __ptw32_cond_timedwait(pthread_cond_t * cond, pthread_mutex_t 
  *
  *   NOTES:
  *   1)      The function must be called with 'mutex' LOCKED
- *           by the calling thread, or undefined behaviour will result.
+ *     by the calling thread, or undefined behaviour will result.
  *   2)      This routine atomically releases 'mutex' and causes
- *           the calling thread to block on the condition variable.
- *           The blocked thread may be awakened by
- *                   pthread_cond_signal or
- *                   pthread_cond_broadcast.
+ *     the calling thread to block on the condition variable.
+ *     The blocked thread may be awakened by
+ *             pthread_cond_signal or
+ *             pthread_cond_broadcast.
  *
  * Upon successful completion, the 'mutex' has been locked and is owned by the calling thread.
  *
  * RESULTS
- *           0               caught condition; mutex released,
- *           EINVAL          'cond' or 'mutex' is invalid,
- *           EINVAL          different mutexes for concurrent waits,
- *           EINVAL          mutex is not held by the calling thread,
+ *     0               caught condition; mutex released,
+ *     EINVAL          'cond' or 'mutex' is invalid,
+ *     EINVAL          different mutexes for concurrent waits,
+ *     EINVAL          mutex is not held by the calling thread,
  *
  * ------------------------------------------------------
  */
@@ -702,11 +702,11 @@ int pthread_cond_wait(pthread_cond_t * cond, pthread_mutex_t * mutex)
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *   mutex
- *           pointer to an instance of pthread_mutex_t
+ *     pointer to an instance of pthread_mutex_t
  *   abstime
- *           pointer to an instance of (const struct timespec)
+ *     pointer to an instance of (const struct timespec)
  *
  * DESCRIPTION
  *   This function waits on a condition variable either until
@@ -715,20 +715,20 @@ int pthread_cond_wait(pthread_cond_t * cond, pthread_mutex_t * mutex)
  *
  *   NOTES:
  *   1)      The function must be called with 'mutex' LOCKED
- *           by the calling thread, or undefined behaviour will result.
+ *     by the calling thread, or undefined behaviour will result.
  *   2)      This routine atomically releases 'mutex' and causes
- *           the calling thread to block on the condition variable.
- *           The blocked thread may be awakened by
- *                   pthread_cond_signal or
- *                   pthread_cond_broadcast.
+ *     the calling thread to block on the condition variable.
+ *     The blocked thread may be awakened by
+ *             pthread_cond_signal or
+ *             pthread_cond_broadcast.
  *
  *
  * RESULTS
- *           0               caught condition; mutex released,
- *           EINVAL          'cond', 'mutex', or abstime is invalid,
- *           EINVAL          different mutexes for concurrent waits,
- *           EINVAL          mutex is not held by the calling thread,
- *           ETIMEDOUT       abstime ellapsed before cond was signaled.
+ *     0               caught condition; mutex released,
+ *     EINVAL          'cond', 'mutex', or abstime is invalid,
+ *     EINVAL          different mutexes for concurrent waits,
+ *     EINVAL          mutex is not held by the calling thread,
+ *     ETIMEDOUT       abstime ellapsed before cond was signaled.
  *
  * ------------------------------------------------------
  */
@@ -824,7 +824,7 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *
  *
  * DESCRIPTION
@@ -837,11 +837,11 @@ static INLINE int __ptw32_cond_unblock(pthread_cond_t * cond, int unblockAll)
  *   NOTES:
  *
  *   1)      Use when any waiter can respond and only one need
- *           respond (all waiters being equal).
+ *     respond (all waiters being equal).
  *
  * RESULTS
- *           0               successfully signaled condition,
- *           EINVAL          'cond' is invalid,
+ *     0               successfully signaled condition,
+ *     EINVAL          'cond' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -859,7 +859,7 @@ int pthread_cond_signal(pthread_cond_t * cond)
  *
  * PARAMETERS
  *   cond
- *           pointer to an instance of pthread_cond_t
+ *     pointer to an instance of pthread_cond_t
  *
  * DESCRIPTION
  *   This function signals a condition variable, waking all waiting threads.
@@ -867,13 +867,13 @@ int pthread_cond_signal(pthread_cond_t * cond)
  *   NOTES:
  *
  *   1)      Use when more than one waiter may respond to
- *           predicate change or if any waiting thread may
- *           not be able to respond
+ *     predicate change or if any waiting thread may
+ *     not be able to respond
  *
  * RESULTS
- *           0               successfully signalled condition to all waiting threads,
- *           EINVAL          'cond' is invalid
- *           ENOSPC          a required resource has been exhausted,
+ *     0               successfully signalled condition to all waiting threads,
+ *     EINVAL          'cond' is invalid
+ *     ENOSPC          a required resource has been exhausted,
  *
  * ------------------------------------------------------
  */
@@ -890,7 +890,7 @@ int pthread_cond_broadcast(pthread_cond_t * cond)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_condattr_t
+ *     pointer to an instance of pthread_condattr_t
  *
  *
  * DESCRIPTION
@@ -898,15 +898,15 @@ int pthread_cond_broadcast(pthread_cond_t * cond)
  *   with default attributes.
  *
  *   NOTES:
- *           1)      Use to define condition variable types
- *           2)      It is up to the application to ensure
- *                   that it doesn't re-init an attribute
- *                   without destroying it first. Otherwise
- *                   a memory leak is created.
+ *     1)      Use to define condition variable types
+ *     2)      It is up to the application to ensure
+ *             that it doesn't re-init an attribute
+ *             without destroying it first. Otherwise
+ *             a memory leak is created.
  *
  * RESULTS
- *           0               successfully initialized attr,
- *           ENOMEM          insufficient memory for attr.
+ *     0               successfully initialized attr,
+ *     ENOMEM          insufficient memory for attr.
  *
  * ------------------------------------------------------
  */
@@ -927,7 +927,7 @@ int pthread_condattr_init(pthread_condattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_condattr_t
+ *     pointer to an instance of pthread_condattr_t
  *
  *
  * DESCRIPTION
@@ -936,11 +936,11 @@ int pthread_condattr_init(pthread_condattr_t * attr)
  *
  *   NOTES:
  *   1)      Does not affect condition variables created
- *           using 'attr'
+ *     using 'attr'
  *
  * RESULTS
- *           0               successfully released attr,
- *           EINVAL          'attr' is invalid.
+ *     0               successfully released attr,
+ *     EINVAL          'attr' is invalid.
  *
  * ------------------------------------------------------
  */
@@ -964,13 +964,13 @@ int pthread_condattr_destroy(pthread_condattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_condattr_t
+ *     pointer to an instance of pthread_condattr_t
  *   pshared
- *           will be set to one of:
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *     will be set to one of:
+ *             PTHREAD_PROCESS_SHARED
+ *                     May be shared if in shared memory
+ *             PTHREAD_PROCESS_PRIVATE
+ *                     Cannot be shared.
  *
  *
  * DESCRIPTION
@@ -980,12 +980,12 @@ int pthread_condattr_destroy(pthread_condattr_t * attr)
  *   NOTES:
  *   1)      pshared condition variables MUST be allocated in shared memory.
  *   2)      The following macro is defined if shared mutexes
- *           are supported:
- *                   _POSIX_THREAD_PROCESS_SHARED
+ *     are supported:
+ *             _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully retrieved attribute,
- *           EINVAL          'attr' or 'pshared' is invalid,
+ *     0               successfully retrieved attribute,
+ *     EINVAL          'attr' or 'pshared' is invalid,
  *
  * ------------------------------------------------------
  */

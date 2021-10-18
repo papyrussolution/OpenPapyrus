@@ -42,10 +42,10 @@
  *
  * PARAMETERS
  *   thread
- *           an instance of pthread_t
+ *     an instance of pthread_t
  *
  *   value_ptr
- *           pointer to an instance of pointer to void
+ *     pointer to an instance of pointer to void
  *
  *
  * DESCRIPTION
@@ -56,16 +56,16 @@
  *   immediately. This function detaches the thread on successful
  *   completion.
  *   NOTE:   Detached threads cannot be joined or canceled.
- *           In this implementation 'abstime' will be
- *           resolved to the nearest millisecond.
+ *     In this implementation 'abstime' will be
+ *     resolved to the nearest millisecond.
  *
  * RESULTS
- *           0               'thread' has completed
- *           EBUSY           'thread' is still live
- *           EINVAL          thread is not a joinable thread,
- *           ESRCH           no thread could be found with ID 'thread',
- *           ENOENT          thread couldn't find it's own valid handle,
- *           EDEADLK         attempt to join thread with self
+ *     0               'thread' has completed
+ *     EBUSY           'thread' is still live
+ *     EINVAL          thread is not a joinable thread,
+ *     ESRCH           no thread could be found with ID 'thread',
+ *     ENOENT          thread couldn't find it's own valid handle,
+ *     EDEADLK         attempt to join thread with self
  *
  * ------------------------------------------------------
  */

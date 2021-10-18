@@ -640,7 +640,7 @@ protected:
 			direction(buffer_->props.direction),
 			lookup_mask(1),
 			table_index(table_index_),
-			lookup_index((unsigned int)-1),
+			lookup_index((uint)-1),
 			lookup_props(0),
 			nesting_level_left(HB_MAX_NESTING_LEVEL),
 			has_glyph_classes(gdef.has_glyph_classes()),
@@ -937,7 +937,7 @@ private:
 		if(count != c->len)
 			return false;
 
-		for(unsigned int i = 1; i < count; i++)
+		for(uint i = 1; i < count; i++)
 			if(LIKELY(!match_func(c->glyphs[i], input[i - 1], match_data)))
 				return false;
 
@@ -1000,7 +1000,7 @@ private:
 		} ligbase = LIGBASE_NOT_CHECKED;
 
 		match_positions[0] = buffer->idx;
-		for(unsigned int i = 1; i < count; i++) {
+		for(uint i = 1; i < count; i++) {
 			if(!skippy_iter.next()) return_trace(false);
 
 			match_positions[i] = skippy_iter.idx;
@@ -1105,7 +1105,7 @@ private:
 
 		bool is_base_ligature = _hb_glyph_info_is_base_glyph(&buffer->info[match_positions[0]]);
 		bool is_mark_ligature = _hb_glyph_info_is_mark(&buffer->info[match_positions[0]]);
-		for(unsigned int i = 1; i < count; i++)
+		for(uint i = 1; i < count; i++)
 			if(!_hb_glyph_info_is_mark(&buffer->info[match_positions[i]])) {
 				is_base_ligature = false;
 				is_mark_ligature = false;
@@ -1127,7 +1127,7 @@ private:
 		}
 		c->replace_glyph_with_ligature(lig_glyph, klass);
 
-		for(unsigned int i = 1; i < count; i++) {
+		for(uint i = 1; i < count; i++) {
 			while(buffer->idx < match_positions[i] && buffer->successful) {
 				if(is_ligature) {
 					unsigned int this_comp = _hb_glyph_info_get_lig_comp(&buffer->cur());
@@ -1177,7 +1177,7 @@ private:
 		skippy_iter.reset(c->buffer->backtrack_len(), count);
 		skippy_iter.set_match_func(match_func, match_data, backtrack);
 
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			if(!skippy_iter.prev())
 				return_trace(false);
 
@@ -1200,7 +1200,7 @@ private:
 		skippy_iter.reset(c->buffer->idx + offset - 1, count);
 		skippy_iter.set_match_func(match_func, match_data, lookahead);
 
-		for(unsigned int i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++)
 			if(!skippy_iter.next())
 				return_trace(false);
 
@@ -1240,7 +1240,7 @@ public:
 	    unsigned int lookupCount,
 	    const LookupRecord lookupRecord[] /* Array of LookupRecords--in design order */)
 	{
-		for(unsigned int i = 0; i < lookupCount; i++)
+		for(uint i = 0; i < lookupCount; i++)
 			c->recurse(lookupRecord[i].lookupListIndex);
 	}
 
@@ -1268,7 +1268,7 @@ public:
 				match_positions[j] += delta;
 		}
 
-		for(unsigned int i = 0; i < lookupCount && buffer->successful; i++) {
+		for(uint i = 0; i < lookupCount && buffer->successful; i++) {
 			unsigned int idx = lookupRecord[i].sequenceIndex;
 			if(idx >= count)
 				continue;
@@ -1530,7 +1530,7 @@ public:
 
 			const UnsizedArrayOf<LookupRecord> &lookupRecord = StructAfter<UnsizedArrayOf<LookupRecord>>
 			    (inputZ.as_array((inputCount ? inputCount - 1 : 0)));
-			for(unsigned i = 0; i < (unsigned)lookupCount; i++)
+			for(unsigned i = 0; i < (uint)lookupCount; i++)
 				c->copy(lookupRecord[i], lookup_map);
 
 			return_trace(true);
@@ -2094,7 +2094,7 @@ public:
 
 			const LookupRecord * lookupRecord = &StructAfter<LookupRecord> (coverageZ.as_array(glyphCount));
 			const hb_map_t * lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
-			for(unsigned i = 0; i < (unsigned)lookupCount; i++)
+			for(unsigned i = 0; i < (uint)lookupCount; i++)
 				c->serializer->copy(lookupRecord[i], lookup_map);
 
 			return_trace(true);
@@ -2107,7 +2107,7 @@ public:
 			unsigned int count = glyphCount;
 			if(!count) return_trace(false); /* We want to access coverageZ[0] freely. */
 			if(!c->check_array(coverageZ.arrayZ, count)) return_trace(false);
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				if(!coverageZ[i].sanitize(c, this)) return_trace(false);
 			const LookupRecord * lookupRecord = &StructAfter<LookupRecord> (coverageZ.as_array(glyphCount));
 			return_trace(c->check_array(lookupRecord, lookupCount));
@@ -2409,7 +2409,7 @@ protected:
 			lookupCount = lookupRecord.len;
 			if(!c->copy(lookupCount)) return_trace(nullptr);
 
-			for(unsigned i = 0; i < (unsigned)lookupCount; i++)
+			for(unsigned i = 0; i < (uint)lookupCount; i++)
 				if(!c->copy(lookupRecord[i], lookup_map)) return_trace(nullptr);
 
 			return_trace(out);
@@ -3056,7 +3056,7 @@ public:
 
 		template<typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize_coverage_offsets(hb_subset_context_t * c, Iterator it, const void* base) const
+		bool serialize_coverage_offsets(hb_subset_context_t * c, Iterator it, const void * base) const
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->serializer->start_embed<OffsetArrayOf<Coverage>> ();
@@ -3095,7 +3095,7 @@ public:
 			if(!c->serializer->copy(lookupCount)) return_trace(false);
 
 			const hb_map_t * lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
-			for(unsigned i = 0; i < (unsigned)lookupCount; i++)
+			for(unsigned i = 0; i < (uint)lookupCount; i++)
 				if(!c->serializer->copy(lookupRecord[i], lookup_map)) return_trace(false);
 
 			return_trace(true);
@@ -3266,7 +3266,7 @@ protected:
 
 		bool apply(hb_ot_apply_context_t * c) const
 		{
-			for(unsigned int i = 0; i < subtables.length; i++)
+			for(uint i = 0; i < subtables.length; i++)
 				if(subtables[i].apply(c))
 					return true;
 			return false;
@@ -3437,7 +3437,7 @@ private:
 		void closure_features(const hb_map_t * lookup_indexes, /* IN */
 		    hb_set_t * feature_indexes /* OUT */) const
 		{
-			unsigned int feature_count = hb_min(get_feature_count(), (unsigned)HB_MAX_FEATURES);
+			unsigned int feature_count = hb_min(get_feature_count(), (uint)HB_MAX_FEATURES);
 			for(unsigned i = 0; i < feature_count; i++) {
 				const Feature& f = get_feature(i);
 				if((!f.featureParams.is_null()) || f.intersects_lookup_indexes(lookup_indexes))
@@ -3478,27 +3478,20 @@ private:
 					hb_blob_destroy(this->table.get_blob());
 					this->table = hb_blob_get_empty();
 				}
-
 				this->lookup_count = table->get_lookup_count();
-
-				this->accels =
-				    (hb_ot_layout_lookup_accelerator_t*)calloc(this->lookup_count,
-					sizeof(hb_ot_layout_lookup_accelerator_t));
+				this->accels = (hb_ot_layout_lookup_accelerator_t*)SAlloc::C(this->lookup_count, sizeof(hb_ot_layout_lookup_accelerator_t));
 				if(UNLIKELY(!this->accels))
 					this->lookup_count = 0;
-
-				for(unsigned int i = 0; i < this->lookup_count; i++)
+				for(uint i = 0; i < this->lookup_count; i++)
 					this->accels[i].init(table->get_lookup(i));
 			}
-
 			void fini()
 			{
-				for(unsigned int i = 0; i < this->lookup_count; i++)
+				for(uint i = 0; i < this->lookup_count; i++)
 					this->accels[i].fini();
-				free(this->accels);
+				SAlloc::F(this->accels);
 				this->table.destroy();
 			}
-
 			hb_blob_ptr_t<T> table;
 			unsigned int lookup_count;
 			hb_ot_layout_lookup_accelerator_t * accels;

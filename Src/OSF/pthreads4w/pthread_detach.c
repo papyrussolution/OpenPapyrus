@@ -37,20 +37,20 @@
  *
  * PARAMETERS
  *   thread
- *           an instance of a pthread_t
+ *     an instance of a pthread_t
  *
  *
  * DESCRIPTION
  *   This function detaches the given thread. You may use it to
  *   detach the main thread or to detach a joinable thread.
  *   NOTE:   detached threads cannot be joined;
- *           storage is freed immediately on termination.
+ *     storage is freed immediately on termination.
  *
  * RESULTS
- *           0               successfully detached the thread,
- *           EINVAL          thread is not a joinable thread,
- *           ENOSPC          a required resource has been exhausted,
- *           ESRCH           no thread could be found for 'thread',
+ *     0               successfully detached the thread,
+ *     EINVAL          thread is not a joinable thread,
+ *     ENOSPC          a required resource has been exhausted,
+ *     ESRCH           no thread could be found for 'thread',
  *
  * ------------------------------------------------------
  */

@@ -2953,7 +2953,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 						long   term = ds_cfg.LimitTerm;
 						if(ds_cfg.Flags & PPDebtorStatConfig::fLimitTermFromAgreement) {
 							PPClientAgreement agt_rec;
-							if(ar_obj.GetClientAgreement(p_item->ArID, &agt_rec, 0) > 0)
+							if(ar_obj.GetClientAgreement(p_item->ArID, agt_rec, 0) > 0)
 								term = agt_rec.DefPayPeriod;
 						}
 						p_item->LimitTerm = term;
@@ -3623,7 +3623,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 					const PPDebtorStat * p_item = list.at(i);
 					if(p_item->ArID && !(p_item->Flags & (PPDebtorStat::fAgent|PPDebtorStat::fHolding))) {
 						PPClientAgreement agt;
-						if(ArObj.GetClientAgreement(p_item->ArID, &agt, 0) > 0) {
+						if(ArObj.GetClientAgreement(p_item->ArID, agt, 0) > 0) {
 							if(agt.LockPrcBefore && cur_dt <= agt.LockPrcBefore) {
 								; // @log "Для клиента '@article' блокировано автоматическое изменение кредитного лимита (=@real) до @date"
 								CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_DEBTRATE_LIMITLOCK, &line_buf, p_item->ArID, agt.MaxCredit, agt.LockPrcBefore)));
@@ -3789,7 +3789,7 @@ int PrcssrDebtRate::Run()
 				if(ArObj.Fetch(ar_id, &ar_rec) > 0) {
 					double rckn = 0.0;
 					int    rckn_inited = 0;
-					int    r = ArObj.GetClientAgreement(ar_id, &agt_rec, 0);
+					int    r = ArObj.GetClientAgreement(ar_id, agt_rec, 0);
 					if(r == 0)
 						logger.LogLastError();
 					else {

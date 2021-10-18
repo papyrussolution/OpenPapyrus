@@ -465,7 +465,7 @@ static unsigned int get32bit(const uchar * doh, int index)
 	/* avoid undefined behaviour by casting to unsigned before shifting
 	   24 bits, possibly into the sign bit. codegen is same, but
 	   ub sanitizer won't be upset */
-	return ( (unsigned)doh[0] << 24) | (doh[1] << 16) |(doh[2] << 8) | doh[3];
+	return ( (uint)doh[0] << 24) | (doh[1] << 16) |(doh[2] << 8) | doh[3];
 }
 
 static DOHcode store_a(const uchar * doh, int index, struct dohentry * d)

@@ -310,7 +310,7 @@ private:
 
 			unsigned int v = 0;
 			unsigned int count = valueSize;
-			for(unsigned int i = 0; i < count; i++)
+			for(uint i = 0; i < count; i++)
 				v = (v << 8) | *p++;
 
 			return v;
@@ -420,7 +420,7 @@ public:
  * don't work.  So we have to hand-code them here.  UGLY. */
 } /* Close namespace. */
 /* Ugly hand-coded null objects for template Lookup<> :(. */
-extern HB_INTERNAL const unsigned char _hb_Null_AAT_Lookup[2];
+extern HB_INTERNAL const uchar _hb_Null_AAT_Lookup[2];
 template <typename T>
 struct Null<AAT::Lookup<T>> {
 	static AAT::Lookup<T> const & get_null()
@@ -628,7 +628,7 @@ protected:
 		NNOffsetTo<ClassType, HBUINT>
 		classTable;     /* Offset to the class table. */
 		NNOffsetTo<UnsizedArrayOf<HBUSHORT>, HBUINT>
-		stateArrayTable;/* Offset to the state array. */
+		stateArrayTable; /* Offset to the state array. */
 		NNOffsetTo<UnsizedArrayOf<Entry<Extra>>, HBUINT>
 		entryTable;     /* Offset to the entry array. */
 
@@ -659,7 +659,7 @@ public:
 
 protected:
 		HBGlyphID firstGlyph;   /* First glyph index included in the trimmed array. */
-		ArrayOf<HBUCHAR>      classArray;/* The class codes (indexed by glyph index minus
+		ArrayOf<HBUCHAR>      classArray; /* The class codes (indexed by glyph index minus
 		   * firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(4, classArray);
@@ -672,26 +672,15 @@ public:
 		typedef ClassTable<HBUINT8> ClassTypeNarrow;
 		typedef ClassTable<HBUINT16> ClassTypeWide;
 
-		template <typename T>
-		static unsigned int offsetToIndex(unsigned int offset,
-		    const void * base,
-		    const T * array)
+		template <typename T> static unsigned int offsetToIndex(unsigned int offset, const void * base, const T * array)
 		{
 			return (offset - ((const char*)array - (const char*)base)) / T::static_size;
 		}
-
-		template <typename T>
-		static unsigned int byteOffsetToIndex(unsigned int offset,
-		    const void * base,
-		    const T * array)
+		template <typename T> static unsigned int byteOffsetToIndex(unsigned int offset, const void * base, const T * array)
 		{
 			return offsetToIndex(offset, base, array);
 		}
-
-		template <typename T>
-		static unsigned int wordOffsetToIndex(unsigned int offset,
-		    const void * base,
-		    const T * array)
+		template <typename T> static unsigned int wordOffsetToIndex(unsigned int offset, const void * base, const T * array)
 		{
 			return offsetToIndex(2 * offset, base, array);
 		}
@@ -704,52 +693,34 @@ public:
 		typedef Lookup<HBUINT16> ClassTypeNarrow;
 		typedef Lookup<HBUINT16> ClassTypeWide;
 
-		template <typename T>
-		static unsigned int offsetToIndex(unsigned int offset,
-		    const void * base HB_UNUSED,
-		    const T * array HB_UNUSED)
+		template <typename T> static unsigned int offsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset;
 		}
-
-		template <typename T>
-		static unsigned int byteOffsetToIndex(unsigned int offset,
-		    const void * base HB_UNUSED,
-		    const T * array HB_UNUSED)
+		template <typename T> static unsigned int byteOffsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset / 2;
 		}
-
-		template <typename T>
-		static unsigned int wordOffsetToIndex(unsigned int offset,
-		    const void * base HB_UNUSED,
-		    const T * array HB_UNUSED)
+		template <typename T> static unsigned int wordOffsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset;
 		}
 	};
 
-	template <typename Types, typename EntryData>
-	struct StateTableDriver {
-		StateTableDriver(const StateTable<Types, EntryData> &machine_,
-		    hb_buffer_t *buffer_,
-		    hb_face_t *face_) :
-			machine(machine_),
-			buffer(buffer_),
-			num_glyphs(face_->get_num_glyphs()) {
+	template <typename Types, typename EntryData> struct StateTableDriver {
+		StateTableDriver(const StateTable<Types, EntryData> &machine_, hb_buffer_t *buffer_, hb_face_t *face_) :
+			machine(machine_), buffer(buffer_), num_glyphs(face_->get_num_glyphs()) 
+		{
 		}
-
-		template <typename context_t>
-		void drive(context_t * c)
+		template <typename context_t> void drive(context_t * c)
 		{
 			if(!c->in_place)
 				buffer->clear_output();
-
 			int state = StateTable<Types, EntryData>::STATE_START_OF_TEXT;
 			for(buffer->idx = 0; buffer->successful;) {
 				unsigned int klass = buffer->idx < buffer->len ?
 				    machine.get_class(buffer->info[buffer->idx].codepoint, num_glyphs) :
-				    (unsigned)StateTable<Types, EntryData>::CLASS_END_OF_TEXT;
+				    (uint)StateTable<Types, EntryData>::CLASS_END_OF_TEXT;
 				DEBUG_MSG(APPLY, nullptr, "c%u at %u", klass, buffer->idx);
 				const Entry<EntryData> &entry = machine.get_entry(state, klass);
 
@@ -760,40 +731,31 @@ public:
 				if(state && buffer->backtrack_len() && buffer->idx < buffer->len) {
 					/* If there's no action and we're just epsilon-transitioning to state 0,
 					 * safe to break. */
-					if(c->is_actionable(this, entry) ||
-					    !(entry.newState == StateTable<Types, EntryData>::STATE_START_OF_TEXT &&
+					if(c->is_actionable(this, entry) || !(entry.newState == StateTable<Types, EntryData>::STATE_START_OF_TEXT &&
 					    entry.flags == context_t::DontAdvance))
 						buffer->unsafe_to_break_from_outbuffer(buffer->backtrack_len() - 1, buffer->idx + 1);
 				}
 
 				/* Unsafe-to-break if end-of-text would kick in here. */
 				if(buffer->idx + 2 <= buffer->len) {
-					const Entry<EntryData> &end_entry = machine.get_entry(state,
-						StateTable<Types,
-						EntryData>::CLASS_END_OF_TEXT);
+					const Entry<EntryData> &end_entry = machine.get_entry(state, StateTable<Types, EntryData>::CLASS_END_OF_TEXT);
 					if(c->is_actionable(this, end_entry))
 						buffer->unsafe_to_break(buffer->idx, buffer->idx + 2);
 				}
-
 				c->transition(this, entry);
-
 				state = machine.new_state(entry.newState);
 				DEBUG_MSG(APPLY, nullptr, "s%d", state);
-
 				if(buffer->idx == buffer->len)
 					break;
-
 				if(!(entry.flags & context_t::DontAdvance) || buffer->max_ops-- <= 0)
 					buffer->next_glyph();
 			}
-
 			if(!c->in_place) {
 				for(; buffer->successful && buffer->idx < buffer->len;)
 					buffer->next_glyph();
 				buffer->swap_buffers();
 			}
 		}
-
 public:
 		const StateTable<Types, EntryData> &machine;
 		hb_buffer_t * buffer;
@@ -802,24 +764,11 @@ public:
 
 	struct ankr;
 
-	struct hb_aat_apply_context_t :
-	hb_dispatch_context_t<hb_aat_apply_context_t, bool, HB_DEBUG_APPLY>{
-		const char * get_name() {
-			return "APPLY";
-		}
-
-		template <typename T>
-		return_t dispatch(const T &obj) {
-			return obj.apply(this);
-		}
-
-		static return_t default_return_value() {
-			return false;
-		}
-
-		bool stop_sublookup_iteration(return_t r) const {
-			return r;
-		}
+	struct hb_aat_apply_context_t : hb_dispatch_context_t<hb_aat_apply_context_t, bool, HB_DEBUG_APPLY> {
+		const char * get_name() { return "APPLY"; }
+		template <typename T> return_t dispatch(const T &obj) { return obj.apply(this); }
+		static return_t default_return_value() { return false; }
+		bool stop_sublookup_iteration(return_t r) const { return r; }
 
 		const hb_ot_shape_plan_t * plan;
 		hb_font_t * font;
@@ -831,18 +780,11 @@ public:
 		/* Unused. For debug tracing only. */
 		unsigned int lookup_index;
 
-		HB_INTERNAL hb_aat_apply_context_t(const hb_ot_shape_plan_t * plan_,
-		    hb_font_t * font_,
-		    hb_buffer_t * buffer_,
-		    hb_blob_t * blob = const_cast<hb_blob_t *> (&Null(hb_blob_t)));
-
+		HB_INTERNAL hb_aat_apply_context_t(const hb_ot_shape_plan_t * plan_, hb_font_t * font_,
+		    hb_buffer_t * buffer_, hb_blob_t * blob = const_cast<hb_blob_t *> (&Null(hb_blob_t)));
 		HB_INTERNAL ~hb_aat_apply_context_t ();
-
 		HB_INTERNAL void set_ankr_table(const AAT::ankr * ankr_table_);
-
-		void set_lookup_index(unsigned int i) {
-			lookup_index = i;
-		}
+		void set_lookup_index(unsigned int i) { lookup_index = i; }
 	};
 } /* namespace AAT */
 

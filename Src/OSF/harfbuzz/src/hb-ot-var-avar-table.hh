@@ -111,7 +111,7 @@ public:
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
 			unsigned int count = axisCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(UNLIKELY(!map->sanitize(c)))
 					return_trace(false);
 				map = &StructAfter<SegmentMaps> (*map);
@@ -125,7 +125,7 @@ public:
 			unsigned int count = hb_min(coords_length, axisCount);
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				coords[i] = map->map(coords[i]);
 				map = &StructAfter<SegmentMaps> (*map);
 			}
@@ -136,7 +136,7 @@ public:
 			unsigned int count = hb_min(coords_length, axisCount);
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				coords[i] = map->unmap(coords[i]);
 				map = &StructAfter<SegmentMaps> (*map);
 			}

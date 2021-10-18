@@ -37,9 +37,9 @@
  *
  * PARAMETERS
  *   key
- *           an instance of pthread_key_t
+ *     an instance of pthread_key_t
  *   value
- *           the value to set key to
+ *     the value to set key to
  *
  *
  * DESCRIPTION
@@ -47,9 +47,9 @@
  *   key in the calling thread.
  *
  * RESULTS
- *           0               successfully set value
- *           EAGAIN          could not set value
- *           ENOENT          SERIOUS!!
+ *     0               successfully set value
+ *     EAGAIN          could not set value
+ *     ENOENT          SERIOUS!!
  *
  * ------------------------------------------------------
  */

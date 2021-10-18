@@ -9,7 +9,7 @@
 
 lzma_bool lzma_check_is_supported(lzma_check type)
 {
-	if((unsigned int)(type) > LZMA_CHECK_ID_MAX)
+	if((uint)(type) > LZMA_CHECK_ID_MAX)
 		return false;
 	static const lzma_bool available_checks[LZMA_CHECK_ID_MAX + 1] = {
 		true,   // LZMA_CHECK_NONE
@@ -42,12 +42,12 @@ lzma_bool lzma_check_is_supported(lzma_check type)
 		false,  // Reserved
 		false,  // Reserved
 	};
-	return available_checks[(unsigned int)(type)];
+	return available_checks[(uint)(type)];
 }
 
 uint32_t lzma_check_size(lzma_check type)
 {
-	if((unsigned int)(type) > LZMA_CHECK_ID_MAX)
+	if((uint)(type) > LZMA_CHECK_ID_MAX)
 		return UINT32_MAX;
 	// See file-format.txt section 2.1.1.2.
 	static const uint8_t check_sizes[LZMA_CHECK_ID_MAX + 1] = {
@@ -58,7 +58,7 @@ uint32_t lzma_check_size(lzma_check type)
 		32, 32, 32,
 		64, 64, 64
 	};
-	return check_sizes[(unsigned int)(type)];
+	return check_sizes[(uint)(type)];
 }
 
 extern void lzma_check_init(lzma_check_state * check, lzma_check type)
@@ -80,7 +80,7 @@ extern void lzma_check_init(lzma_check_state * check, lzma_check type)
 	}
 }
 
-extern void lzma_check_update(lzma_check_state * check, lzma_check type, const uint8_t * buf, size_t size)
+extern void lzma_check_update(lzma_check_state * check, lzma_check type, const uint8 * buf, size_t size)
 {
 	switch(type) {
 #ifdef HAVE_CHECK_CRC32

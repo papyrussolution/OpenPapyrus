@@ -48,7 +48,7 @@ struct private_data {
 	int compression_level;
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	bz_stream stream;
-	int64_t total_in;
+	int64 total_in;
 	char            * compressed;
 	size_t compressed_buffer_size;
 #else
@@ -73,7 +73,7 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_bzip2");
-	data = static_cast<struct private_data *>(calloc(1, sizeof(*data)));
+	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -91,7 +91,7 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 #else
 	data->pdata = __archive_write_program_allocate("bzip2");
 	if(data->pdata == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -160,7 +160,7 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 				bs -= bs % bpb;
 		}
 		data->compressed_buffer_size = bs;
-		data->compressed = (char *)malloc(data->compressed_buffer_size);
+		data->compressed = (char *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
@@ -239,8 +239,8 @@ static int archive_compressor_bzip2_close(struct archive_write_filter * f)
 static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	free(data->compressed);
-	free(data);
+	SAlloc::F(data->compressed);
+	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
@@ -340,7 +340,7 @@ static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 
 	__archive_write_program_free(data->pdata);
-	free(data);
+	SAlloc::F(data);
 	return ARCHIVE_OK;
 }
 

@@ -141,7 +141,7 @@ TERM_PUBLIC void BE_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	sprintf(GPT.TermOptions, "%d", BE_plot_number);
+	slprintf(GPT._TermOptions, "%d", BE_plot_number);
 }
 //
 // BE_args - scan gnuplot command line for standard Toolkit options (to be

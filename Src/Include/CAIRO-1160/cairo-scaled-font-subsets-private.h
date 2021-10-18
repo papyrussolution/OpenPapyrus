@@ -581,7 +581,7 @@ cairo_private cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font
  * _cairo_truetype_read_font_name:
  * @scaled_font: the #cairo_scaled_font_t
  * @ps_name: returns the PostScript name of the font
- *         or %NULL if the name could not be found.
+ *   or %NULL if the name could not be found.
  * @font_name: returns the font name or %NULL if the name could not be found.
  *
  * If possible (depending on the format of the underlying

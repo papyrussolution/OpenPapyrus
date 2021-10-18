@@ -34,29 +34,25 @@ static const struct gen_table set_multiplot_tbl[] =
 	{ NULL, S_MULTIPLOT_INVALID }
 };
 
-#define MP_LAYOUT_DEFAULT {          \
-		FALSE, /* auto_layout */         \
-		0, /* current_panel */       \
-		0, 0, /* num_rows, num_cols */  \
-		FALSE, /* row_major */           \
-		TRUE, /* downwards */           \
-		0, 0, /* act_row, act_col */    \
-		1, 1, /* xscale, yscale */      \
-		0, 0, /* xoffset, yoffset */    \
-		FALSE, /* auto_layout_margins */ \
-		{screen, screen, screen, 0.1, -1, -1}, /* lmargin */ \
-		{screen, screen, screen, 0.9, -1, -1}, /* rmargin */ \
-		{screen, screen, screen, 0.1, -1, -1}, /* bmargin */ \
-		{screen, screen, screen, 0.9, -1, -1}, /* tmargin */ \
-		{screen, screen, screen, 0.05, -1, -1}, /* xspacing */ \
-		{screen, screen, screen, 0.05, -1, -1}, /* yspacing */ \
-		0, 0, 0, 0, /* prev_ sizes and offsets */ \
-		DEFAULT_MARGIN_POSITION, \
-		DEFAULT_MARGIN_POSITION, \
-		DEFAULT_MARGIN_POSITION, \
-		DEFAULT_MARGIN_POSITION, /* prev_ margins */ \
-		EMPTY_LABELSTRUCT, 0.0 \
-}
+//#define MP_LAYOUT_DEFAULT {          \
+		//FALSE, /* auto_layout */         \
+		//0, /* current_panel */       \
+		//0, 0, /* num_rows, num_cols */  \
+		//FALSE, /* row_major */           \
+		//TRUE, /* downwards */           \
+		//0, 0, /* act_row, act_col */    \
+		//1, 1, /* xscale, yscale */      \
+		//0, 0, /* xoffset, yoffset */    \
+		//FALSE, /* auto_layout_margins */ \
+		//{screen, screen, screen, 0.1, -1, -1}, /* lmargin */ \
+		//{screen, screen, screen, 0.9, -1, -1}, /* rmargin */ \
+		//{screen, screen, screen, 0.1, -1, -1}, /* bmargin */ \
+		//{screen, screen, screen, 0.9, -1, -1}, /* tmargin */ \
+		//{screen, screen, screen, 0.05, -1, -1}, /* xspacing */ \
+		//{screen, screen, screen, 0.05, -1, -1}, /* yspacing */ \
+		//0, 0, 0, 0, /* prev_ sizes and offsets */ \
+		//DEFAULT_MARGIN_POSITION, DEFAULT_MARGIN_POSITION, DEFAULT_MARGIN_POSITION, \
+		//DEFAULT_MARGIN_POSITION, /* prev_ margins */ EMPTY_LABELSTRUCT, 0.0 }
 //
 // Helper routines 
 //
@@ -393,7 +389,7 @@ void GnuPlot::MultiplotEnd()
 void GnuPlot::MultiplotReset()
 {
 	if(MpLo.auto_layout_margins)
-		MpLayoutMarginsAndSpacing(term);
+		MpLayoutMarginsAndSpacing(GPT.P_Term);
 	else
 		MpLayoutSizeAndOffset();
 }

@@ -39,9 +39,9 @@
  * minorVersion [in] - The minor version number.
  * platform     [in] - The optional platform identifier.
  * condition    [in] - The test condition used to specifier whether we are
- *                     checking a version less then, equal to or greater than
- *                     what is specified in the major and minor version
- *                     numbers.
+ *               checking a version less then, equal to or greater than
+ *               what is specified in the major and minor version
+ *               numbers.
  *
  * Returns TRUE if matched; otherwise FALSE.
  */

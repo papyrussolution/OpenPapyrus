@@ -1571,6 +1571,35 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 	return p_ret;
 }
 
+PPThread * FASTCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature)
+{
+	PPThread * p_ret = 0;
+	{
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		if(!isempty(pSignature)) {
+			const uint c = getCount();
+			for(uint i = 0; i < c; i++) {
+				PPThread * p_thread = at(i);
+				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(pSignature)) {
+					p_ret = p_thread;
+					break;
+				}
+			}
+		}
+		if(!p_ret) {
+			const uint c = getCount();
+			for(uint i = 0; i < c; i++) {
+				PPThread * p_thread = at(i);
+				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(0) && p_thread->IsIdle()) {
+					p_ret = p_thread;
+					break;
+				}
+			}				
+		}
+	}
+	return p_ret;
+}
+
 PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 {
 	PPThread * p_ret = 0;
@@ -3589,6 +3618,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10905()); // @v10.9.5
 						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
 						THROW(Convert11112()); // @v11.1.12 Bill
+						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

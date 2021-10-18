@@ -39,14 +39,14 @@
  *   Initializes a thread attributes object with default attributes.
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  * DESCRIPTION
  *   Initializes a thread attributes object with default attributes.
  *   NOTES:
- *           1)      Used to define thread attributes
+ *     1)      Used to define thread attributes
  * RESULTS
- *           0               successfully initialized attr,
- *           ENOMEM          insufficient memory for attr.
+ *     0               successfully initialized attr,
+ *     ENOMEM          insufficient memory for attr.
  *
  * ------------------------------------------------------
  */
@@ -99,18 +99,18 @@ int pthread_attr_init(pthread_attr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *
  *
  * DESCRIPTION
  *   Destroys a thread attributes object.
  *
  *   NOTES:
- *           1)      Does not affect threads created with 'attr'.
+ *     1)      Does not affect threads created with 'attr'.
  *
  * RESULTS
- *           0               successfully destroyed attr,
- *           EINVAL          'attr' is invalid.
+ *     0               successfully destroyed attr,
+ *     EINVAL          'attr' is invalid.
  *
  * ------------------------------------------------------
  */
@@ -151,27 +151,27 @@ int pthread_attr_setaffinity_np(pthread_attr_t * attr, size_t cpusetsize, const 
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *
  *   detachstate
- *           pointer to an integer into which is returned one of:
+ *     pointer to an integer into which is returned one of:
  *
- *           PTHREAD_CREATE_JOINABLE
- *                           Thread ID is valid, must be joined
+ *     PTHREAD_CREATE_JOINABLE
+ *                     Thread ID is valid, must be joined
  *
- *           PTHREAD_CREATE_DETACHED
- *                           Thread ID is invalid, cannot be joined, canceled, or modified
+ *     PTHREAD_CREATE_DETACHED
+ *                     Thread ID is invalid, cannot be joined, canceled, or modified
  *
  *
  * DESCRIPTION
  *   This function determines whether threads created with 'attr' will run detached.
  *
  *   NOTES:
- *           1)      You cannot join or cancel detached threads.
+ *     1)      You cannot join or cancel detached threads.
  *
  * RESULTS
- *           0               successfully retrieved detach state,
- *           EINVAL          'attr' is invalid
+ *     0               successfully retrieved detach state,
+ *     EINVAL          'attr' is invalid
  *
  * ------------------------------------------------------
  */
@@ -191,17 +191,17 @@ int pthread_attr_getdetachstate(const pthread_attr_t * attr, int * detachstate)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *
  *   detachstate
- *           an integer containing one of:
+ *     an integer containing one of:
  *
- *           PTHREAD_CREATE_JOINABLE
- *                           Thread ID is valid, must be joined
+ *     PTHREAD_CREATE_JOINABLE
+ *                     Thread ID is valid, must be joined
  *
- *           PTHREAD_CREATE_DETACHED
- *                           Thread ID is invalid, cannot be joined,
- *                           canceled, or modified
+ *     PTHREAD_CREATE_DETACHED
+ *                     Thread ID is invalid, cannot be joined,
+ *                     canceled, or modified
  *
  *
  * DESCRIPTION
@@ -209,11 +209,11 @@ int pthread_attr_getdetachstate(const pthread_attr_t * attr, int * detachstate)
  *   'attr' will run detached.
  *
  *   NOTES:
- *           1)      You cannot join or cancel detached threads.
+ *     1)      You cannot join or cancel detached threads.
  *
  * RESULTS
- *           0               successfully set detach state,
- *           EINVAL          'attr' or 'detachstate' is invalid
+ *     0               successfully set detach state,
+ *     EINVAL          'attr' or 'detachstate' is invalid
  *
  * ------------------------------------------------------
  */
@@ -383,10 +383,10 @@ int pthread_attr_setscope(pthread_attr_t * attr, int contentionscope)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *
  *   stackaddr
- *           pointer into which is returned the stack address.
+ *     pointer into which is returned the stack address.
  *
  *
  * DESCRIPTION
@@ -394,16 +394,16 @@ int pthread_attr_setscope(pthread_attr_t * attr, int contentionscope)
  *   on which threads created with 'attr' will run.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is defined:
+ *     1)      Function supported only if this macro is defined:
  *
- *                           _POSIX_THREAD_ATTR_STACKADDR
+ *                     _POSIX_THREAD_ATTR_STACKADDR
  *
- *           2)      Create only one thread for each stack address..
+ *     2)      Create only one thread for each stack address..
  *
  * RESULTS
- *           0               successfully retrieved stack address,
- *           EINVAL          'attr' is invalid
- *           ENOSYS          function not supported
+ *     0               successfully retrieved stack address,
+ *     EINVAL          'attr' is invalid
+ *     ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */
@@ -429,23 +429,23 @@ int pthread_attr_getstackaddr(const pthread_attr_t * attr, void ** stackaddr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *   stackaddr
- *           the address of the stack to use
+ *     the address of the stack to use
  *
  * DESCRIPTION
  *   Threads created with 'attr' will run on the stack starting at 'stackaddr'.
  *   Stack must be at least PTHREAD_STACK_MIN bytes.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is defined: _POSIX_THREAD_ATTR_STACKADDR
-  *           2)      Create only one thread for each stack address..
-  *           3)      Ensure that stackaddr is aligned.
+ *     1)      Function supported only if this macro is defined: _POSIX_THREAD_ATTR_STACKADDR
+  *     2)      Create only one thread for each stack address..
+  *     3)      Ensure that stackaddr is aligned.
  *
  * RESULTS
- *           0               successfully set stack address,
- *           EINVAL          'attr' is invalid
- *           ENOSYS          function not supported
+ *     0               successfully set stack address,
+ *     EINVAL          'attr' is invalid
+ *     ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */
@@ -469,10 +469,10 @@ int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *
  *   stacksize
- *           pointer to size_t into which is returned the stack size, in bytes.
+ *     pointer to size_t into which is returned the stack size, in bytes.
  *
  *
  * DESCRIPTION
@@ -480,16 +480,16 @@ int pthread_attr_setstackaddr(pthread_attr_t * attr, void * stackaddr)
  *   which threads created with 'attr' will run.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is defined:
+ *     1)      Function supported only if this macro is defined:
  *
- *                           _POSIX_THREAD_ATTR_STACKSIZE
+ *                     _POSIX_THREAD_ATTR_STACKSIZE
  *
- *           2)      Use on newly created attributes object to find the default stack size.
+ *     2)      Use on newly created attributes object to find the default stack size.
  *
  * RESULTS
- *           0               successfully retrieved stack size,
- *           EINVAL          'attr' is invalid
- *           ENOSYS          function not supported
+ *     0               successfully retrieved stack size,
+ *     EINVAL          'attr' is invalid
+ *     ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */
@@ -515,27 +515,27 @@ int pthread_attr_getstacksize(const pthread_attr_t * attr, size_t * stacksize)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_attr_t
+ *     pointer to an instance of pthread_attr_t
  *   stacksize
- *           stack size, in bytes.
+ *     stack size, in bytes.
  *
  * DESCRIPTION
  *   This function specifies the size of the stack on
  *   which threads created with 'attr' will run.
  *
  *   NOTES:
- *           1)      Function supported only if this macro is defined:
+ *     1)      Function supported only if this macro is defined:
  *
- *                           _POSIX_THREAD_ATTR_STACKSIZE
+ *                     _POSIX_THREAD_ATTR_STACKSIZE
  *
- *           2)      Find the default first (using pthread_attr_getstacksize), then increase by multiplying.
+ *     2)      Find the default first (using pthread_attr_getstacksize), then increase by multiplying.
  *
- *           3)      Only use if thread needs more than the default.
+ *     3)      Only use if thread needs more than the default.
  *
  * RESULTS
- *           0               successfully set stack size,
- *           EINVAL          'attr' is invalid or stacksize too small or too big.
- *           ENOSYS          function not supported
+ *     0               successfully set stack size,
+ *     EINVAL          'attr' is invalid or stacksize too small or too big.
+ *     ENOSYS          function not supported
  *
  * ------------------------------------------------------
  */

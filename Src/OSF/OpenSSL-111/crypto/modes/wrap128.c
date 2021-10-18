@@ -38,12 +38,12 @@ static const uchar default_aiv[] = {
  *  @param[in]  in     Plaintext as n 64-bit blocks, n >= 2.
  *  @param[in]  inlen  Length of in.
  *  @param[out] out    Ciphertext. Minimal buffer length = (inlen + 8) bytes.
- *                     Input and output buffers can overlap if block function
- *                     supports that.
+ *               Input and output buffers can overlap if block function
+ *               supports that.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen does not consist of n 64-bit blocks, n >= 2.
- *                     or if inlen > CRYPTO128_WRAP_MAX.
- *                     Output length if wrapping succeeded.
+ *               or if inlen > CRYPTO128_WRAP_MAX.
+ *               Output length if wrapping succeeded.
  */
 size_t CRYPTO_128_wrap(void * key, const uchar * iv,
     uchar * out,
@@ -86,15 +86,15 @@ size_t CRYPTO_128_wrap(void * key, const uchar * iv,
  *  @param[in]  key    Key value.
  *  @param[out] iv     Unchecked IV value. Minimal buffer length = 8 bytes.
  *  @param[out] out    Plaintext without IV.
- *                     Minimal buffer length = (inlen - 8) bytes.
- *                     Input and output buffers can overlap if block function
- *                     supports that.
+ *               Minimal buffer length = (inlen - 8) bytes.
+ *               Input and output buffers can overlap if block function
+ *               supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [24, CRYPTO128_WRAP_MAX]
- *                     or if inlen is not a multiple of 8.
- *                     Output length otherwise.
+ *               or if inlen is not a multiple of 8.
+ *               Output length otherwise.
  */
 static size_t crypto_128_unwrap_raw(void * key, uchar * iv,
     uchar * out,
@@ -134,18 +134,18 @@ static size_t crypto_128_unwrap_raw(void * key, uchar * iv,
  *
  *  @param[in]  key    Key value.
  *  @param[out] iv     IV value to match against. Length = 8 bytes.
- *                     NULL = use default_iv.
+ *               NULL = use default_iv.
  *  @param[out] out    Plaintext without IV.
- *                     Minimal buffer length = (inlen - 8) bytes.
- *                     Input and output buffers can overlap if block function
- *                     supports that.
+ *               Minimal buffer length = (inlen - 8) bytes.
+ *               Input and output buffers can overlap if block function
+ *               supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [24, CRYPTO128_WRAP_MAX]
- *                     or if inlen is not a multiple of 8
- *                     or if IV doesn't match expected value.
- *                     Output length otherwise.
+ *               or if inlen is not a multiple of 8
+ *               or if IV doesn't match expected value.
+ *               Output length otherwise.
  */
 size_t CRYPTO_128_unwrap(void * key, const uchar * iv,
     uchar * out, const uchar * in,
@@ -172,13 +172,13 @@ size_t CRYPTO_128_unwrap(void * key, const uchar * iv,
  *  @param[in]  key    Key value.
  *  @param[in]  icv    (Non-standard) IV, 4 bytes. NULL = use default_aiv.
  *  @param[out] out    Ciphertext. Minimal buffer length = (inlen + 15) bytes.
- *                     Input and output buffers can overlap if block function
- *                     supports that.
+ *               Input and output buffers can overlap if block function
+ *               supports that.
  *  @param[in]  in     Plaintext as n 64-bit blocks, n >= 2.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [1, CRYPTO128_WRAP_MAX].
- *                     Output length if wrapping succeeded.
+ *               Output length if wrapping succeeded.
  */
 size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
     uchar * out,
@@ -239,15 +239,15 @@ size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
  *  @param[in]  key    Key value.
  *  @param[in]  icv    (Non-standard) IV, 4 bytes. NULL = use default_aiv.
  *  @param[out] out    Plaintext. Minimal buffer length = (inlen - 8) bytes.
- *                     Input and output buffers can overlap if block function
- *                     supports that.
+ *               Input and output buffers can overlap if block function
+ *               supports that.
  *  @param[in]  in     Ciphertext as n 64-bit blocks.
  *  @param[in]  inlen  Length of in.
  *  @param[in]  block  Block processing function.
  *  @return            0 if inlen is out of range [16, CRYPTO128_WRAP_MAX],
- *                     or if inlen is not a multiple of 8
- *                     or if IV and message length indicator doesn't match.
- *                     Output length if unwrapping succeeded and IV matches.
+ *               or if inlen is not a multiple of 8
+ *               or if IV and message length indicator doesn't match.
+ *               Output length if unwrapping succeeded and IV matches.
  */
 size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
     uchar * out,
@@ -292,32 +292,24 @@ size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
 			return 0;
 		}
 	}
-
 	/*
 	 * Section 3: AIV checks: Check that MSB(32,A) = A65959A6. Optionally a
 	 * user-supplied value can be used (even if standard doesn't mention
 	 * this).
 	 */
-	if((!icv && CRYPTO_memcmp(aiv, default_aiv, 4))
-	    || (icv && CRYPTO_memcmp(aiv, icv, 4))) {
+	if((!icv && CRYPTO_memcmp(aiv, default_aiv, 4)) || (icv && CRYPTO_memcmp(aiv, icv, 4))) {
 		OPENSSL_cleanse(out, inlen);
 		return 0;
 	}
-
 	/*
 	 * Check that 8*(n-1) < LSB(32,AIV) <= 8*n. If so, let ptext_len =
 	 * LSB(32,AIV).
 	 */
-
-	ptext_len =   ((uint)aiv[4] << 24)
-	    | ((uint)aiv[5] << 16)
-	    | ((uint)aiv[6] <<  8)
-	    |  (uint)aiv[7];
+	ptext_len =   ((uint)aiv[4] << 24) | ((uint)aiv[5] << 16) | ((uint)aiv[6] <<  8) |  (uint)aiv[7];
 	if(8 * (n - 1) >= ptext_len || ptext_len > 8 * n) {
 		OPENSSL_cleanse(out, inlen);
 		return 0;
 	}
-
 	/*
 	 * Check that the rightmost padding_len octets of the output data are
 	 * zero.
@@ -327,7 +319,6 @@ size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
 		OPENSSL_cleanse(out, inlen);
 		return 0;
 	}
-
 	/* Section 4.2 step 3: Remove padding */
 	return ptext_len;
 }

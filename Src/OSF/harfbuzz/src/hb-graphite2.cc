@@ -203,7 +203,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
 	int lang_len = lang_end ? lang_end - lang : -1;
 	gr_feature_val * feats = gr_face_featureval_for_lang(grface, lang ? hb_tag_from_string(lang, lang_len) : 0);
 
-	for(unsigned int i = 0; i < num_features; i++) {
+	for(uint i = 0; i < num_features; i++) {
 		const gr_feature_ref * fref = gr_face_find_fref(grface, features[i].tag);
 		if(fref)
 			gr_fref_set_feature_value(fref, features[i].value, feats);
@@ -219,7 +219,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
 
 	uint32_t * chars = (uint32_t*)scratch;
 
-	for(unsigned int i = 0; i < buffer->len; ++i)
+	for(uint i = 0; i < buffer->len; ++i)
 		chars[i] = buffer->info[i].codepoint;
 
 	/* TODO ensure_native_direction. */
@@ -332,7 +332,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
 		clusters[ci].advance += gr_seg_advance_X(seg) * xscale - curradv;
 	ci++;
 
-	for(unsigned int i = 0; i < ci; ++i) {
+	for(uint i = 0; i < ci; ++i) {
 		for(unsigned int j = 0; j < clusters[i].num_glyphs; ++j) {
 			hb_glyph_info_t * info = &buffer->info[clusters[i].base_glyph + j];
 			info->codepoint = gids[clusters[i].base_glyph + j];

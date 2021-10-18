@@ -4944,7 +4944,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 		if(is_quot && CONFIRM(PPCFM_SETPRICEBYQUOT)) {
 			uint i;
 			PPClientAgreement cliagt;
-			ArObj.GetClientAgreement(pPack->Rec.Object, &cliagt, 1);
+			ArObj.GetClientAgreement(pPack->Rec.Object, cliagt, 1);
 			/* @construction {
 			// @v7.3.12 {
 			if(cliagt.DefQuotKindID && qkobj.Fetch(cliagt.DefQuotKindID, &qk_rec) > 0)
@@ -9062,7 +9062,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 					int    k = PPObjArticle::GetAgreementKind(&ar_rec);
 					if(k == 1) {
 						PPClientAgreement ca_rec;
-						if(ar_obj.GetClientAgreement(arID, &ca_rec, 0) > 0) {
+						if(ar_obj.GetClientAgreement(arID, ca_rec, 0) > 0) {
 							P_CliAgt = new PPClientAgreement;
 							*P_CliAgt = ca_rec;
 							Kind = k;
@@ -9383,7 +9383,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								//
 								// В @v5.7.12 номера есть только у соглашений с покупателями
 								//
-								subst_buf = agt_blk.P_CliAgt->Code2; // @v10.2.9 Code-->Code2
+								subst_buf = agt_blk.P_CliAgt->Code_; // @v10.2.9 Code-->Code2 // @v11.2.0 Code2-->Code_
 							}
 							break;
 						case PPSYM_AGTDATE:

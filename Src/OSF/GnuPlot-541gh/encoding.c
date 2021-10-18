@@ -85,7 +85,8 @@ enum set_encoding_id encoding_from_locale()
 //
 // Encoding-specific character enabled by "set micro" 
 //
-static const char * encoding_micro()
+//static const char * encoding_micro()
+const char * GnuPlot::EncodingMicro()
 {
 	static const char micro_utf8[4]    = { '\xC2', '\xB5', '\x00', '\x00' };
 	static const char micro_437[2]     = { '\xE6', '\x00' };
@@ -108,7 +109,8 @@ static const char * encoding_micro()
 //
 // Encoding-specific character enabled by "set minussign" 
 //
-static const char * encoding_minus()
+//static const char * encoding_minus()
+const char * GnuPlot::EncodingMinus()
 {
 	static const char minus_utf8[4] = { '\xE2', '\x88', '\x92', '\x00' };
 	static const char minus_1252[2] = { '\x96', '\x00' };
@@ -130,8 +132,8 @@ void GnuPlot::InitSpecialChars()
 	l = setlocale(LC_CTYPE, "");
 #endif
 	SetDegreeSign(l);
-	GpU.minus_sign = encoding_minus(); // Set minus sign to match encoding 
-	GpU.micro = encoding_micro(); // Set micro character to match encoding 
+	GpU.minus_sign = EncodingMinus(); // Set minus sign to match encoding 
+	GpU.micro = EncodingMicro(); // Set micro character to match encoding 
 }
 
 //static void set_degreesign(char * locale)
@@ -176,8 +178,8 @@ void GnuPlot::SetDegreeSign(char * locale)
 		case S_ENC_CP437:
 		case S_ENC_CP850:
 		case S_ENC_CP852:   GpU.degree_sign[0] = '\370'; break;
-		case S_ENC_SJIS:    break;/* should be 0x818B */
-		case S_ENC_CP950:   break;/* should be 0xA258 */
+		case S_ENC_SJIS:    break; /* should be 0x818B */
+		case S_ENC_CP950:   break; /* should be 0xA258 */
 		// default applies at least to: ISO8859-1, -2, -9, -15, CP1250, CP1251, CP1252, CP1254
 		default: GpU.degree_sign[0] = '\260'; break;
 	}
@@ -193,7 +195,7 @@ static enum set_encoding_id map_codepage_to_encoding(uint cp)
 	switch(cp) {
 		case 437:   encoding = S_ENC_CP437; break;
 		case 850:
-		case 858:   encoding = S_ENC_CP850; break;/* 850 with Euro sign */
+		case 858:   encoding = S_ENC_CP850; break; /* 850 with Euro sign */
 		case 852:   encoding = S_ENC_CP852; break;
 		case 932:   encoding = S_ENC_SJIS; break;
 		case 950:   encoding = S_ENC_CP950; break;
@@ -299,7 +301,7 @@ bool utf8toulong(ulong * wch, const char ** str)
 		return utf8_getmore(wch, str, 3);
 	}
 	/* Note: 5 and 6 byte UTF8 sequences are no longer valid
-	 *       according to RFC 3629 (Nov 2003)
+	 * according to RFC 3629 (Nov 2003)
 	 */
 #if (0)
 	if((c & 0xfc) == 0xf8) {
@@ -369,7 +371,7 @@ size_t strlen_utf8(const char * s)
  * "AB" -> "A"
  * "\U+0041" -> "A"
  * "\316\261" -> utf8 "ɑ" (alpha) (unchanged from input)
- *               the scanner already replaced string "\316" with octal byte 0316
+ *         the scanner already replaced string "\316" with octal byte 0316
  */
 void truncate_to_one_utf8_char(char * orig)
 {

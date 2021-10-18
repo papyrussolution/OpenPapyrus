@@ -58,7 +58,7 @@
 #ifdef __WATCOMC__
 	#include <conio.h>             /* for getch() */
 #endif
-static int    changedir(char * path);
+//static int    changedir(const char * path);
 //
 // support for dynamic size of input line 
 //
@@ -212,7 +212,7 @@ int GnuPlot::DoLine()
 					IntErrorCurToken("unexpected or unrecognized token: %s", Pgm.TokenToString(Pgm.GetCurTokenIdx()));
 			}
 		}
-		CheckForMouseEvents(term); // This check allows event handling inside load/eval/while statements 
+		CheckForMouseEvents(GPT.P_Term); // This check allows event handling inside load/eval/while statements 
 		return 0;
 	}
 }
@@ -403,9 +403,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ca$ll"))
 				CallCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cd"))
-				ChangeDirCommand(term);
+				ChangeDirCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cl$ear"))
-				ClearCommand(term);
+				ClearCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "continue"))
 				Pgm.ContinueCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "do"))
@@ -431,9 +431,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "l$oad"))
 				LoadCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pa$use"))
-				PauseCommand(term);
+				PauseCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "p$lot"))
-				PlotCommand(term);
+				PlotCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pr$int"))
 				PrintCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "printerr$or"))
@@ -443,9 +443,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "q$uit"))
 				ExitCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ref$resh"))
-				RefreshCommand(term);
+				RefreshCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "rep$lot"))
-				ReplotCommand(term);
+				ReplotCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "re$read"))
 				RereadCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "res$et"))
@@ -453,7 +453,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sa$ve"))
 				SaveCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "scr$eendump"))
-				ScreenDumpCommand(term);
+				ScreenDumpCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "se$t"))
 				SetCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "she$ll"))
@@ -461,7 +461,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sh$ow"))
 				ShowCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sp$lot"))
-				SPlotCommand(term);
+				SPlotCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "st$ats"))
 				StatsCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sy$stem"))
@@ -469,7 +469,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "test"))
 				TestCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "tog$gle"))
-				ToggleCommand(term);
+				ToggleCommand(GPT.P_Term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "und$efine"))
 				UndefineCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "uns$et"))
@@ -586,8 +586,8 @@ void GnuPlot::LowerCommand() { RaiseLowerCommand(1); }
  */
 void GnuPlot::ArrayCommand()
 {
-	int    nsize = 0;  /* Size of array when we leave */
-	int    est_size = 0; /* Estimated size */
+	int    nsize = 0; // Size of array when we leave 
+	int    est_size = 0; // Estimated size 
 	udvt_entry * array;
 	GpValue * A;
 	int    i;
@@ -669,30 +669,30 @@ bool GnuPlot::IsArrayAssignment()
 	udvt_entry * udv;
 	GpValue newvalue;
 	int    index;
-	bool   looks_OK = FALSE;
+	bool   looks_OK = false;
 	int    brackets;
 	if(!Pgm.IsLetter(Pgm.GetCurTokenIdx()) || !Pgm.EqualsNext("["))
-		return FALSE;
+		return false;
 	else {
 		// There are other legal commands where the 2nd token is [
 		// e.g.  "plot [min:max] foo"
 		// so we check that the closing ] is immediately followed by =.
 		for(index = Pgm.CToken+2, brackets = 1; index < Pgm.NumTokens; index++) {
 			if(Pgm.Equals(index, ";"))
-				return FALSE;
+				return false;
 			if(Pgm.Equals(index, "["))
 				brackets++;
 			if(Pgm.Equals(index, "]"))
 				brackets--;
 			if(brackets == 0) {
 				if(!Pgm.Equals(index+1, "="))
-					return FALSE;
-				looks_OK = TRUE;
+					return false;
+				looks_OK = true;
 				break;
 			}
 		}
 		if(!looks_OK)
-			return FALSE;
+			return false;
 		else {
 			udv = AddUdv(Pgm.GetCurTokenIdx());
 			if(udv->udv_value.Type != ARRAY)
@@ -710,7 +710,7 @@ bool GnuPlot::IsArrayAssignment()
 			Pgm.Shift();
 			ConstExpress(&newvalue);
 			udv->udv_value.v.value_array[index] = newvalue;
-			return TRUE;
+			return true;
 		}
 	}
 }
@@ -740,7 +740,7 @@ void GnuPlot::BindCommand()
 		FPRINTF((stderr, "Got bind quoted lhs = \"%s\"\n", lhs));
 	}
 	else {
-		char * first = Pgm.P_InputLine + Pgm.ÑTok().StartIdx;
+		const char * first = Pgm.P_InputLine + Pgm.ÑTok().StartIdx;
 		int size = strcspn(first, " \";");
 		lhs = (char *)SAlloc::M(size+1);
 		strnzcpy(lhs, first, size+1);
@@ -816,6 +816,22 @@ void GnuPlot::CallCommand()
 	GpExpandTilde(&save_file);
 	// Argument list follows filename 
 	LoadFile(LoadPath_fopen(save_file, "r"), save_file, 2);
+}
+//
+// used by changedir_command() 
+//
+static int changedir(const char * path)
+{
+#if defined(_WIN32)
+	//LPWSTR pathw = UnicodeText(path, encoding);
+	int ret = !SetCurrentDirectoryW(SUcSwitch(path));
+	//SAlloc::F(pathw);
+	return ret;
+#elif defined(__EMX__) && defined(OS2)
+	return _chdir2(path);
+#else
+	return chdir(path);
+#endif
 }
 //
 // process the 'cd' command 
@@ -902,7 +918,7 @@ void GnuPlot::HistoryCommand()
 		Pgm.Shift();
 		Pgm.MCapture(&search_str, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx()); // reallocates memory 
 		printf("history ?%s\n", search_str);
-		if(!history_find_all(search_str))
+		if(!HistoryFindAll(search_str))
 			IntErrorCurToken("not in history");
 		Pgm.Shift();
 	}
@@ -911,19 +927,19 @@ void GnuPlot::HistoryCommand()
 		Pgm.Shift();
 		if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 			int i = IntExpression();
-			line_to_do = history_find_by_number(i);
+			line_to_do = HistoryFindByNumber(i);
 		}
 		else {
 			char * search_str = NULL; /* string from command line to search for */
 			Pgm.MCapture(&search_str, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-			line_to_do = history_find(search_str);
+			line_to_do = HistoryFind(search_str);
 			SAlloc::F(search_str);
 		}
 		if(line_to_do == NULL)
 			IntErrorCurToken("not in history");
 		// Add the command to the history.
 		// Note that history commands themselves are no longer added to the history. 
-		add_history((char *)line_to_do);
+		AddHistory(line_to_do);
 		printf("  Executing:\n\t%s\n", line_to_do);
 		DoString(line_to_do);
 		Pgm.Shift();
@@ -933,7 +949,7 @@ void GnuPlot::HistoryCommand()
 		char * tmp;
 		bool append = FALSE; // rewrite output file or append it 
 		static char * name = NULL; // name of the output file; NULL for stdout 
-		bool quiet = history_quiet;
+		bool quiet = Hist.HistoryQuiet;
 		if(!Pgm.EndOfCommand() && Pgm.AlmostEqualsCur("q$uiet")) {
 			// option quiet to suppress history entry numbers 
 			quiet = TRUE;
@@ -951,7 +967,7 @@ void GnuPlot::HistoryCommand()
 				Pgm.Shift();
 			}
 		}
-		write_history_n(n, (quiet ? "" : name), (append ? "a" : "w"));
+		WriteHistoryN(n, (quiet ? "" : name), (append ? "a" : "w"));
 	}
 #else
 	Pgm.Shift();
@@ -1912,7 +1928,7 @@ void GnuPlot::SaveCommand()
 	switch(what) {
 		case SAVE_FUNCS: SaveFunctions(fp); break;
 		case SAVE_SET: SaveSet(fp); break;
-		case SAVE_TERMINAL: SaveTerm(term, fp); break;
+		case SAVE_TERMINAL: SaveTerm(GPT.P_Term, fp); break;
 		case SAVE_VARS: SaveVariables(fp); break;
 		case SAVE_FIT: SaveFit(fp); break;
 		case SAVE_DATABLOCKS: SaveDatablocks(fp); break;
@@ -2073,7 +2089,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	}
 	reset_numeric_locale();
 	// commands to setup the test palette plot 
-	enable_reset_palette = 0;
+	EnableResetPalette = 0;
 	save_replot_line = sstrdup(Pgm.replot_line);
 	save_is_3d_plot = Gg.Is3DPlot;
 	fputs(pre1, f);
@@ -2087,7 +2103,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	rewind(f);
 	LoadFile(f, NULL, 1); /* note: it does fclose(f) */
 	// enable reset_palette() and restore replot line 
-	enable_reset_palette = 1;
+	EnableResetPalette = 1;
 	SAlloc::F(Pgm.replot_line);
 	Pgm.replot_line = save_replot_line;
 	Gg.Is3DPlot = save_is_3d_plot;
@@ -2100,7 +2116,7 @@ void GnuPlot::TestCommand()
 {
 	int what;
 	const int save_token = Pgm.Shift();
-	if(!term) // unknown terminal 
+	if(!GPT.P_Term) // unknown terminal 
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	what = Pgm.LookupTableForCurrentToken(&test_tbl[0]);
 	switch(what) {
@@ -2108,7 +2124,7 @@ void GnuPlot::TestCommand()
 		    if(!Pgm.EndOfCommand())
 			    IntErrorCurToken("unrecognized test option");
 		// otherwise fall through to test_term 
-		case TEST_TERMINAL: TestTerminal(term); break;
+		case TEST_TERMINAL: TestTerminal(GPT.P_Term); break;
 		case TEST_PALETTE: TestPaletteSubcommand(); break;
 	}
 	// prevent annoying error messages if there was no previous plot 
@@ -2227,20 +2243,6 @@ void GnuPlot::InvalidCommand()
 /*
  * Auxiliary routines
  */
-/* used by changedir_command() */
-static int changedir(char * path)
-{
-#if defined(_WIN32)
-	//LPWSTR pathw = UnicodeText(path, encoding);
-	int ret = !SetCurrentDirectoryW(SUcSwitch(path));
-	//SAlloc::F(pathw);
-	return ret;
-#elif defined(__EMX__) && defined(OS2)
-	return _chdir2(path);
-#else
-	return chdir(path);
-#endif
-}
 //
 // used by ReplotCommand() 
 //
@@ -2570,11 +2572,11 @@ char * GnuPlot::RlGets(char * s, size_t n, const char * pPrompt)
 			// They may have other tokens before and after line, hence
 			// the check on strcmp below. 
 			if(!is_history_command(p_line_)) {
-				if(!history_full) {
-					found = history_search(p_line_, -1);
-					if(found != -1 && sstreq(current_history()->line, p_line_)) {
+				if(!Hist.HistoryFull) {
+					found = HistorySearch(p_line_, -1);
+					if(found != -1 && sstreq(CurrentHistory()->line, p_line_)) {
 						// this line is already in the history, remove the earlier entry 
-						HIST_ENTRY * removed = remove_history(where_history());
+						HIST_ENTRY * removed = RemoveHistory(WhereHistory());
 						// according to history docs we are supposed to free the stuff 
 						if(removed) {
 							SAlloc::F(removed->line);
@@ -2583,17 +2585,17 @@ char * GnuPlot::RlGets(char * s, size_t n, const char * pPrompt)
 						}
 					}
 				}
-				add_history(p_line_);
+				AddHistory(p_line_);
 			}
 #elif defined(HAVE_LIBEDITLINE)
 			if(!is_history_command(p_line_)) {
 				// deleting history entries does not work, so suppress adjacent duplicates only 
 				int found = 0;
 				using_history();
-				if(!history_full)
-					found = history_search(p_line_, -1);
+				if(!Hist.HistoryFull)
+					found = HistorySearch(p_line_, -1);
 				if(found <= 0)
-					add_history(p_line_);
+					AddHistory(p_line_);
 			}
 #endif
 		}
@@ -2699,7 +2701,7 @@ char * GnuPlot::GpGetString(char * buffer, size_t len, const char * pPrompt)
 	if(_Plt.interactive)
 		return RlGets(buffer, len, pPrompt);
 	else
-		return FGetsIpc(term, buffer, len);
+		return FGetsIpc(GPT.P_Term, buffer, len);
 #else
 	if(interactive)
 		PUT_STRING(pPrompt);

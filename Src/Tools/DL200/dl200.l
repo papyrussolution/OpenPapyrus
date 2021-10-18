@@ -87,7 +87,7 @@ ACCVAL      (\x5b)({ACCDEF})?(([DdCc])?([IiRrTtSs])?)?(:{ACCDEF})?(,{PERIODOFFS}
 <incl>[ \t]+
 <incl>[^ \t\n]+ {
 	yyin_count++;
-	yyin_struct = (YYIN_STR *) realloc(yyin_struct, yyin_count*sizeof(YYIN_STR));
+	yyin_struct = (YYIN_STR *)SAlloc::R(yyin_struct, yyin_count*sizeof(YYIN_STR));
 	if(!yyin_struct)
 		yyerror("Not enough memory");
 	yyin_struct[yyin_count-1].yyin_buf = YY_CURRENT_BUFFER;
@@ -102,7 +102,7 @@ ACCVAL      (\x5b)({ACCDEF})?(([DdCc])?([IiRrTtSs])?)?(:{ACCDEF})?(,{PERIODOFFS}
 }
 <<EOF>> {
 	if(--yyin_count < 0) {
-		free(yyin_struct);
+		SAlloc::F(yyin_struct);
 		yyterminate();
 	}
 	else {

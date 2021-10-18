@@ -44,7 +44,6 @@ bool FunctionParsersManager::init(const generic_string& xmlDirPath, const generi
 	_ppEditView = ppEditView;
 	_xmlDirPath = xmlDirPath;
 	_xmlDirInstalledPath = xmlInstalledPath;
-
 	bool isOK = getOverrideMapFromXmlTree(_xmlDirPath);
 	if(isOK)
 		return true;
@@ -54,57 +53,42 @@ bool FunctionParsersManager::init(const generic_string& xmlDirPath, const generi
 		return false;
 }
 
-bool FunctionParsersManager::getZonePaserParameters(TiXmlNode * classRangeParser,
-    generic_string &mainExprStr,
-    generic_string &openSymboleStr,
-    generic_string &closeSymboleStr,
-    std::vector<generic_string> &classNameExprArray,
-    generic_string &functionExprStr,
-    std::vector<generic_string> &functionNameExprArray)
+bool FunctionParsersManager::getZonePaserParameters(TiXmlNode * classRangeParser, generic_string &mainExprStr,
+    generic_string &openSymboleStr, generic_string &closeSymboleStr, std::vector<generic_string> &classNameExprArray,
+    generic_string &functionExprStr, std::vector<generic_string> &functionNameExprArray)
 {
 	const TCHAR * mainExpr = NULL;
 	const TCHAR * openSymbole = NULL;
 	const TCHAR * closeSymbole = NULL;
 	const TCHAR * functionExpr = NULL;
-
 	mainExpr = (classRangeParser->ToElement())->Attribute(TEXT("mainExpr"));
 	if(!mainExpr || !mainExpr[0])
 		return false;
 	mainExprStr = mainExpr;
-
 	openSymbole = (classRangeParser->ToElement())->Attribute(TEXT("openSymbole"));
 	if(openSymbole && openSymbole[0])
 		openSymboleStr = openSymbole;
-
 	closeSymbole = (classRangeParser->ToElement())->Attribute(TEXT("closeSymbole"));
 	if(closeSymbole && closeSymbole[0])
 		closeSymboleStr = closeSymbole;
-
 	TiXmlNode * classNameParser = classRangeParser->FirstChild(TEXT("className"));
 	if(classNameParser) {
-		for(TiXmlNode * childNode2 = classNameParser->FirstChildElement(TEXT("nameExpr"));
-		    childNode2;
-		    childNode2 = childNode2->NextSibling(TEXT("nameExpr")) ) {
+		for(TiXmlNode * childNode2 = classNameParser->FirstChildElement(TEXT("nameExpr")); childNode2; childNode2 = childNode2->NextSibling(TEXT("nameExpr"))) {
 			const TCHAR * expr = (childNode2->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				classNameExprArray.push_back(expr);
 		}
 	}
-
 	TiXmlNode * functionParser = classRangeParser->FirstChild(TEXT("function"));
 	if(!functionParser)
 		return false;
-
 	functionExpr = (functionParser->ToElement())->Attribute(TEXT("mainExpr"));
 	if(!functionExpr || !functionExpr[0])
 		return false;
 	functionExprStr = functionExpr;
-
 	TiXmlNode * functionNameParser = functionParser->FirstChild(TEXT("functionName"));
 	if(functionNameParser) {
-		for(TiXmlNode * childNode3 = functionNameParser->FirstChildElement(TEXT("funcNameExpr"));
-		    childNode3;
-		    childNode3 = childNode3->NextSibling(TEXT("funcNameExpr")) ) {
+		for(TiXmlNode * childNode3 = functionNameParser->FirstChildElement(TEXT("funcNameExpr")); childNode3; childNode3 = childNode3->NextSibling(TEXT("funcNameExpr")) ) {
 			const TCHAR * expr = (childNode3->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				functionNameExprArray.push_back(expr);
@@ -122,18 +106,14 @@ bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
 	if(!mainExpr || !mainExpr[0])
 		return false;
 	mainExprStr = mainExpr;
-
 	TiXmlNode * functionNameParser = functionParser->FirstChild(TEXT("functionName"));
 	if(functionNameParser) {
-		for(TiXmlNode * childNode = functionNameParser->FirstChildElement(TEXT("nameExpr"));
-		    childNode;
-		    childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
+		for(TiXmlNode * childNode = functionNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
 			const TCHAR * expr = (childNode->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				functionNameExprArray.push_back(expr);
 		}
 	}
-
 	TiXmlNode * classNameParser = functionParser->FirstChild(TEXT("className"));
 	if(classNameParser) {
 		for(TiXmlNode * childNode = classNameParser->FirstChildElement(TEXT("nameExpr"));
@@ -147,10 +127,7 @@ bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
 	return true;
 }
 
-bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath,
-    LangType lType,
-    const generic_string& overrideId,
-    int udlIndex)
+bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath, LangType lType, const generic_string& overrideId, int udlIndex)
 {
 	generic_string funcListRulePath = xmlDirPath;
 	funcListRulePath += TEXT("\\");
@@ -158,10 +135,8 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 	if(lType == L_USER) { // UDL
 		if(overrideId.empty())
 			return false;
-
 		if(udlIndex == -1)
 			return false;
-
 		index = udlIndex;
 		funcListRulePath += overrideId;
 	}
@@ -176,19 +151,14 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 			funcListRulePath += overrideId;
 		}
 	}
-
 	if(index > _currentUDIndex)
 		return false;
-
 	if(_parsers[index] == nullptr)
 		return false;
-
 	TiXmlDocument xmlFuncListDoc(funcListRulePath);
 	bool loadOK = xmlFuncListDoc.LoadFile();
-
 	if(!loadOK)
 		return false;
-
 	TiXmlNode * root = xmlFuncListDoc.FirstChild(TEXT("NotepadPlus"));
 	if(!root)
 		return false;
@@ -408,25 +378,17 @@ FunctionParser * FunctionParsersManager::getParser(const AssociationInfo & assoI
 	return nullptr;
 }
 
-void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos,
-    size_t begin,
-    size_t end,
-    ScintillaEditView ** ppEditView,
-    generic_string classStructName,
-    const std::vector< std::pair<int, int> > * commentZones)
+void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end,
+    ScintillaEditView ** ppEditView, generic_string classStructName, const std::vector< std::pair<int, int> > * commentZones)
 {
 	if(begin >= end)
 		return;
-
 	if(_functionExpr.length() == 0)
 		return;
-
 	int flags = SCFIND_REGEXP | SCFIND_POSIX | SCFIND_REGEXP_DOTMATCHESNL;
-
 	(*ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 	int targetStart = (*ppEditView)->searchInTarget(_functionExpr.c_str(), _functionExpr.length(), begin, end);
 	int targetEnd = 0;
-
 	//foundInfos.clear();
 	while(targetStart >= 0) {
 		targetStart = int((*ppEditView)->execute(SCI_GETTARGETSTART));
@@ -437,14 +399,11 @@ void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos,
 		int foundTextLen = targetEnd - targetStart;
 		if(targetStart + foundTextLen == int(end))
 			break;
-
 		foundInfo fi;
-
 		// dataToSearch & data2ToSearch are optional
 		if(!_functionNameExprArray.size() && !_classNameExprArray.size()) {
 			TCHAR foundData[1024];
 			(*ppEditView)->getGenericText(foundData, 1024, targetStart, targetEnd);
-
 			fi._data = foundData; // whole found data
 			fi._pos = targetStart;
 		}
@@ -454,7 +413,6 @@ void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos,
 				fi._data = parseSubLevel(targetStart, targetEnd, _functionNameExprArray, foundPos, ppEditView);
 				fi._pos = foundPos;
 			}
-
 			if(!classStructName.empty()) {
 				fi._data2 = classStructName;
 				fi._pos2 = -1; // change -1 valeur for validated data2
@@ -504,16 +462,13 @@ generic_string FunctionParser::parseSubLevel(size_t begin,
 		return generic_string();
 	}
 	int targetEnd = int((*ppEditView)->execute(SCI_GETTARGETEND));
-
 	if(dataToSearch.size() >= 2) {
 		dataToSearch.erase(dataToSearch.begin());
 		return parseSubLevel(targetStart, targetEnd, dataToSearch, foundPos, ppEditView);
 	}
-
 	// only one processed element, so we conclude the result
 	TCHAR foundStr[1024];
 	(*ppEditView)->getGenericText(foundStr, 1024, targetStart, targetEnd);
-
 	foundPos = targetStart;
 	return foundStr;
 }
@@ -524,14 +479,9 @@ bool FunctionParsersManager::parse(std::vector<foundInfo> & foundInfos, const As
 	FunctionParser * fp = getParser(assoInfo);
 	if(!fp)
 		return false;
-
 	// parse
 	int docLen = (*_ppEditView)->getCurrentDocLen();
-	fp->parse(foundInfos,
-	    0,
-	    docLen,
-	    _ppEditView);
-
+	fp->parse(foundInfos, 0, docLen, _ppEditView);
 	return true;
 }
 
@@ -539,33 +489,25 @@ size_t FunctionZoneParser::getBodyClosePos(size_t begin, const TCHAR * bodyOpenS
     const std::vector< std::pair<int, int> > & commentZones, ScintillaEditView ** ppEditView)
 {
 	size_t cntOpen = 1;
-
 	int docLen = (*ppEditView)->getCurrentDocLen();
-
 	if(begin >= (size_t)docLen)
 		return docLen;
-
 	generic_string exprToSearch = TEXT("(");
 	exprToSearch += bodyOpenSymbol;
 	exprToSearch += TEXT("|");
 	exprToSearch += bodyCloseSymbol;
 	exprToSearch += TEXT(")");
-
 	int flags = SCFIND_REGEXP | SCFIND_POSIX | SCFIND_REGEXP_DOTMATCHESNL;
-
 	(*ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 	int targetStart = (*ppEditView)->searchInTarget(exprToSearch.c_str(), exprToSearch.length(), begin, docLen);
 	LRESULT targetEnd = 0;
-
 	do {
 		if(targetStart >= 0) { // found open or close symbol
 			targetEnd = (*ppEditView)->execute(SCI_GETTARGETEND);
-
 			// Treat it only if it's NOT in the comment zone
 			if(!isInZones(targetStart, commentZones)) {
 				// Now we determinate the symbol (open or close)
-				int tmpStart =
-				    (*ppEditView)->searchInTarget(bodyOpenSymbol, lstrlen(bodyOpenSymbol), targetStart, targetEnd);
+				int tmpStart = (*ppEditView)->searchInTarget(bodyOpenSymbol, lstrlen(bodyOpenSymbol), targetStart, targetEnd);
 				if(tmpStart >= 0) { // open symbol found
 					++cntOpen;
 				}
@@ -578,56 +520,35 @@ size_t FunctionZoneParser::getBodyClosePos(size_t begin, const TCHAR * bodyOpenS
 			cntOpen = 0; // get me out of here
 			targetEnd = begin;
 		}
-
-		targetStart = (*ppEditView)->searchInTarget(exprToSearch.c_str(),
-			exprToSearch.length(),
-			targetEnd,
-			docLen);
+		targetStart = (*ppEditView)->searchInTarget(exprToSearch.c_str(), exprToSearch.length(), targetEnd, docLen);
 	} while(cntOpen);
-
 	return targetEnd;
 }
 
-void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos,
-    vector< pair<int, int> > &scannedZones,
-    const std::vector< std::pair<int, int> > & commentZones,
-    size_t begin,
-    size_t end,
-    ScintillaEditView ** ppEditView,
-    generic_string classStructName)
+void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair<int, int> > &scannedZones, const std::vector< std::pair<int, int> > & commentZones,
+    size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
 	if(begin >= end)
 		return;
-
 	int flags = SCFIND_REGEXP | SCFIND_POSIX | SCFIND_REGEXP_DOTMATCHESNL;
-
 	(*ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 	int targetStart = (*ppEditView)->searchInTarget(_rangeExpr.c_str(), _rangeExpr.length(), begin, end);
-
 	int targetEnd = 0;
-
 	while(targetStart >= 0) {
 		targetEnd = int((*ppEditView)->execute(SCI_GETTARGETEND));
-
 		// Get class name
 		int foundPos = 0;
 		generic_string classStructName = parseSubLevel(targetStart, targetEnd, _classNameExprArray, foundPos, ppEditView);
-
 		if(!_openSymbole.empty() && !_closeSymbole.empty()) {
-			targetEnd =
-			    static_cast<int32_t>(getBodyClosePos(targetEnd, _openSymbole.c_str(), _closeSymbole.c_str(), commentZones,
-			    ppEditView));
+			targetEnd = static_cast<int32_t>(getBodyClosePos(targetEnd, _openSymbole.c_str(), _closeSymbole.c_str(), commentZones, ppEditView));
 		}
 
 		if(targetEnd > int(end))  //we found a result but outside our range, therefore do not process it
 			break;
-
 		scannedZones.push_back(pair<int, int>(targetStart, targetEnd));
-
 		int foundTextLen = targetEnd - targetStart;
 		if(targetStart + foundTextLen == int(end))
 			break;
-
 		// Begin to search all method inside
 		//vector< generic_string > emptyArray;
 		if(!isInZones(targetStart, commentZones)) {
@@ -642,25 +563,19 @@ void FunctionParser::getCommentZones(vector< pair<int, int> > & commentZone, siz
 {
 	if((begin >= end) || (_commentExpr.empty()))
 		return;
-
 	int flags = SCFIND_REGEXP | SCFIND_POSIX | SCFIND_REGEXP_DOTMATCHESNL;
-
 	(*ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 	int targetStart = (*ppEditView)->searchInTarget(_commentExpr.c_str(), _commentExpr.length(), begin, end);
 	int targetEnd = 0;
-
 	while(targetStart >= 0) {
 		targetStart = int((*ppEditView)->execute(SCI_GETTARGETSTART));
 		targetEnd = int((*ppEditView)->execute(SCI_GETTARGETEND));
 		if(targetEnd > int(end))  //we found a result but outside our range, therefore do not process it
 			break;
-
 		commentZone.push_back(pair<int, int>(targetStart, targetEnd));
-
 		int foundTextLen = targetEnd - targetStart;
 		if(targetStart + foundTextLen == int(end))
 			break;
-
 		begin = targetStart + foundTextLen;
 		targetStart = (*ppEditView)->searchInTarget(_commentExpr.c_str(), _commentExpr.length(), begin, end);
 	}
@@ -675,8 +590,7 @@ bool FunctionParser::isInZones(int pos2Test, const std::vector< std::pair<int, i
 	return false;
 }
 
-void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vector< pair<int, int> > &  sourceZones, size_t begin,
-    size_t end)
+void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vector< pair<int, int> > &  sourceZones, size_t begin, size_t end)
 {
 	if(sourceZones.size() == 0) {
 		destZones.push_back(pair<int, int>(static_cast<int>(begin), static_cast<int>(end)));
@@ -686,7 +600,6 @@ void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vecto
 		if(int(begin) < sourceZones[0].first) {
 			destZones.push_back(pair<int, int>(static_cast<int>(begin), sourceZones[0].first - 1));
 		}
-
 		size_t i = 0;
 		for(size_t len = sourceZones.size() - 1; i < len; ++i) {
 			int newBegin = sourceZones[i].second + 1;
@@ -700,31 +613,18 @@ void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vecto
 	}
 }
 
-void FunctionZoneParser::parse(std::vector<foundInfo> & foundInfos,
-    size_t begin,
-    size_t end,
-    ScintillaEditView ** ppEditView,
-    generic_string classStructName)
+void FunctionZoneParser::parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
 	vector< pair<int, int> > classZones, commentZones, nonCommentZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
 	getInvertZones(nonCommentZones, commentZones, begin, end);
 	for(size_t i = 0, len = nonCommentZones.size(); i < len; ++i) {
-		classParse(foundInfos,
-		    classZones,
-		    commentZones,
-		    nonCommentZones[i].first,
-		    nonCommentZones[i].second,
-		    ppEditView,
-		    classStructName);
+		classParse(foundInfos, classZones, commentZones, nonCommentZones[i].first, nonCommentZones[i].second, ppEditView, classStructName);
 	}
 }
 
-void FunctionUnitParser::parse(std::vector<foundInfo> & foundInfos,
-    size_t begin,
-    size_t end,
-    ScintillaEditView ** ppEditView,
-    generic_string classStructName)
+void FunctionUnitParser::parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end,
+    ScintillaEditView ** ppEditView, generic_string classStructName)
 {
 	vector< pair<int, int> > commentZones, nonCommentZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
@@ -745,16 +645,11 @@ struct SortZones final {
 };
 
 void FunctionMixParser::parse(std::vector<foundInfo> & foundInfos,
-    size_t begin,
-    size_t end,
-    ScintillaEditView ** ppEditView,
-    generic_string classStructName)
+    size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
 	vector< pair<int, int> > commentZones, scannedZones, nonScannedZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
-
 	classParse(foundInfos, scannedZones, commentZones, begin, end, ppEditView, classStructName);
-
 	// the second level
 	for(size_t i = 0, len = scannedZones.size(); i < len; ++i) {
 		vector< pair<int, int> > temp;
@@ -762,15 +657,10 @@ void FunctionMixParser::parse(std::vector<foundInfo> & foundInfos,
 	}
 	// invert scannedZones
 	getInvertZones(nonScannedZones, scannedZones, begin, end);
-
 	// for each nonScannedZones, search functions
 	if(_funcUnitPaser) {
 		for(size_t i = 0, len = nonScannedZones.size(); i < len; ++i) {
-			_funcUnitPaser->funcParse(foundInfos,
-			    nonScannedZones[i].first,
-			    nonScannedZones[i].second,
-			    ppEditView,
-			    classStructName);
+			_funcUnitPaser->funcParse(foundInfos, nonScannedZones[i].first, nonScannedZones[i].second, ppEditView, classStructName);
 		}
 	}
 }

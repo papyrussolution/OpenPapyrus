@@ -1181,9 +1181,9 @@ int tls_construct_client_hello(SSL * s, WPACKET * pkt)
 	 *      4. Handshake proceeds using TLS 1.0.
 	 *      5. Server sends hello request to renegotiate.
 	 *      6. Client hello indicates TLS v1.0 as we now
-	 *         know that is maximum server supports.
+	 *   know that is maximum server supports.
 	 *      7. Server chokes on RSA encrypted premaster secret
-	 *         containing version 1.0.
+	 *   containing version 1.0.
 	 *
 	 * For interoperability it should be OK to always use the
 	 * maximum version we support in client hello and then rely

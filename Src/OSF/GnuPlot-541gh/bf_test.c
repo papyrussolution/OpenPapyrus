@@ -23,13 +23,11 @@ struct range {
 };
 
 #define NUM_PLOTS 2
-static range TheRange[] = {{-3, 3, -2, 2},
-			   {-3, 3, -3, 3},
-			   {-3, 3, -3, 3}}; /* Sampling rate causes this to go from -3:6*/
+static const range TheRange[] = {{-3, 3, -2, 2}, {-3, 3, -3, 3}, {-3, 3, -3, 3}}; /* Sampling rate causes this to go from -3:6*/
 
 static float function(int p, double x, double y)
 {
-	float t = 0;                    /* HBB 990828: initialize */
+	float t = 0.0f; // HBB 990828: initialize 
 	switch(p) {
 		case 0:
 		    t = static_cast<float>(1.0 / (x * x + y * y + 1.0));

@@ -295,7 +295,7 @@ static void state(struct connectdata * conn, smtpstate newstate)
 
 	if(smtpc->state != newstate)
 		infof(conn->data, "SMTP %p state change from %s to %s\n",
-		    (void*)smtpc, names[smtpc->state], names[newstate]);
+		    (void *)smtpc, names[smtpc->state], names[newstate]);
 #endif
 
 	smtpc->state = newstate;
@@ -673,7 +673,7 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 
 		/* Read from mime structure. */
 		data->state.fread_func = (curl_read_callback)Curl_mime_read;
-		data->state.in = (void*)&data->set.mimepost;
+		data->state.in = (void *)&data->set.mimepost;
 	}
 
 	/* Calculate the optional SIZE parameter */
@@ -1719,14 +1719,14 @@ static CURLcode smtp_parse_custom_request(struct connectdata * conn)
  *
  * conn  [in]              - The connection handle.
  * fqma  [in]              - The fully qualified mailbox address (which may or
- *                           may not contain UTF-8 characters).
+ *                     may not contain UTF-8 characters).
  * address        [in/out] - A new allocated buffer which holds the local
- *                           address part of the mailbox. This buffer must be
- *                           free'ed by the caller.
+ *                     address part of the mailbox. This buffer must be
+ *                     free'ed by the caller.
  * host           [in/out] - The host name structure that holds the original,
- *                           and optionally encoded, host name.
- *                           Curl_free_idnconverted_hostname() must be called
- *                           once the caller has finished with the structure.
+ *                     and optionally encoded, host name.
+ *                     Curl_free_idnconverted_hostname() must be called
+ *                     once the caller has finished with the structure.
  *
  * Returns CURLE_OK on success.
  *

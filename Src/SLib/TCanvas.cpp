@@ -489,7 +489,7 @@ int FASTCALL TCanvas2::Implement_Stroke(int preserve)
 
 int TCanvas2::Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve)
 {
-	return Helper_SelectPen(pTb, paintObjIdent) ?  Implement_Stroke(preserve) : 0;
+	return Helper_SelectPen(pTb, paintObjIdent) ? Implement_Stroke(preserve) : 0;
 }
 
 TCanvas2::PatternWrapper::PatternWrapper() : P(0)

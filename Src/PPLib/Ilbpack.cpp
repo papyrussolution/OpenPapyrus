@@ -523,7 +523,7 @@ public:
 				const double _part_qtty = fabs(r_ti.Quantity_);
 				double _low_rv = (r_ti.Price - DiscountList[ridx]) * _part_qtty;
 				double _upp_rv = _low_rv + delta;
-				ExchangeToOrder(&_low_rv, &_upp_rv);
+				ExchangeForOrder(&_low_rv, &_upp_rv);
 				const ulong  min_vat_div = min_vat_div_list.at(ridx);
 				PossibilityRange pr(ridx, min_vat_div);
 				if(_part_qtty != 0.0) {

@@ -4754,7 +4754,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
  * @doc:  a document instance
  * @elem:  an element instance
  * @extsubset:  pointer, (out) indicate if the declaration was found
- *         in the external subset.
+ *   in the external subset.
  *
  * Finds a declaration associated to an element in the document.
  *

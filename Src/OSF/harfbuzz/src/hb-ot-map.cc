@@ -32,7 +32,7 @@
 
 void hb_ot_map_t::collect_lookups(unsigned int table_index, hb_set_t * lookups_out) const
 {
-	for(unsigned int i = 0; i < lookups[table_index].length; i++)
+	for(uint i = 0; i < lookups[table_index].length; i++)
 		lookups_out->add(lookups[table_index][i].index);
 }
 
@@ -105,7 +105,7 @@ void hb_ot_map_builder_t::add_lookups(hb_ot_map_t  &m,
 		    offset, &len,
 		    lookup_indices);
 
-		for(unsigned int i = 0; i < len; i++) {
+		for(uint i = 0; i < len; i++) {
 			if(lookup_indices[i] >= table_lookup_count)
 				continue;
 			hb_ot_map_t::lookup_map_t * lookup = m.lookups[table_index].push();
@@ -162,7 +162,7 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 	if(feature_infos.length) {
 		feature_infos.qsort();
 		unsigned int j = 0;
-		for(unsigned int i = 1; i < feature_infos.length; i++)
+		for(uint i = 1; i < feature_infos.length; i++)
 			if(feature_infos[i].tag != feature_infos[j].tag)
 				feature_infos[++j] = feature_infos[i];
 			else {
@@ -187,7 +187,7 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 	/* Allocate bits now */
 	unsigned int next_bit = global_bit_shift + 1;
 
-	for(unsigned int i = 0; i < feature_infos.length; i++) {
+	for(uint i = 0; i < feature_infos.length; i++) {
 		const feature_info_t * info = &feature_infos[i];
 
 		unsigned int bits_needed;
@@ -282,7 +282,7 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 			if(last_num_lookups < m.lookups[table_index].length) {
 				m.lookups[table_index].qsort(last_num_lookups, m.lookups[table_index].length);
 				unsigned int j = last_num_lookups;
-				for(unsigned int i = j + 1; i < m.lookups[table_index].length; i++)
+				for(uint i = j + 1; i < m.lookups[table_index].length; i++)
 					if(m.lookups[table_index][i].index != m.lookups[table_index][j].index)
 						m.lookups[table_index][++j] = m.lookups[table_index][i];
 					else {

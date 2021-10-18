@@ -458,6 +458,50 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	}
 }
 
+/*static*/int64 TView::CreateCorrespondingNativeItem(TView * pV)
+{
+	int64 result = 0;
+	if(pV) {
+		HWND hw = 0;
+		HWND hw_parent = 0;
+		HWND test_handle = 0;
+		if(pV->Parent)
+			hw_parent = pV->Parent;
+		else {
+			for(TWindow * p_up = static_cast<TWindow *>(pV->P_Owner); !hw_parent && p_up; p_up = static_cast<TWindow *>(p_up->P_Owner)) {
+				hw_parent = p_up->H();
+			}
+		}
+		if(hw_parent) {
+			uint ctl_id = pV->GetId();
+			switch(pV->GetSubSign()) {
+				case TV_SUBSIGN_BUTTON:
+					{
+						TButton * p_b = (TButton *)(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							test_handle = pV->getHandle();
+							//::SetWindowText(hw, SUcSwitch(p_b->Title));
+							TView::SetWindowUserData(hw, p_b);
+							::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_b->Title)));
+							SetupWindowCtrlTextProc(hw, 0);
+						}
+					}
+					break;
+				case TV_SUBSIGN_STATIC:
+					break;
+			}
+		}
+		if(hw) {
+			::ShowWindow(hw, SW_SHOWNORMAL);
+			result = reinterpret_cast<int64>(hw);
+		}
+	}
+	return result;
+}
+
 int TView::IsConsistent() const
 {
 	int    ok = 1;
@@ -527,7 +571,7 @@ TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 :
 int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
 int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
 
-void FASTCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
+void STDCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;
@@ -549,7 +593,7 @@ void FASTCALL TView::enableCommands(const TCommandSet & cmds, int isEnable)
 	}
 }
 
-void FASTCALL TView::enableCommand(ushort cmd, int isEnable)
+void STDCALL TView::enableCommand(ushort cmd, int isEnable)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;

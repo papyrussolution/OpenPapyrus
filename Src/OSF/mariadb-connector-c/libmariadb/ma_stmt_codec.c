@@ -87,7 +87,7 @@ void ma_bmove_upp(char * dst, const char * src, size_t len)
 
 /* {{{ ps_fetch_from_1_to_8_bytes */
 void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
-    unsigned char ** row, unsigned int byte_count)
+    uchar ** row, unsigned int byte_count)
 {
 	bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
 	r_param->buffer_length = byte_count;
@@ -242,7 +242,7 @@ static unsigned int my_strtoui(const char * str, size_t len, const char ** end, 
 	uint64 ull = my_strtoull(str, len, end, err);
 	if(ull > UINT_MAX)
 		*err = ERANGE;
-	return (unsigned int)ull;
+	return (uint)ull;
 }
 
 /*
@@ -606,7 +606,7 @@ static void convert_from_long(MYSQL_BIND * r_param, const MYSQL_FIELD * field, l
 			    if(display_width < r_param->buffer_length) {
 				    ma_bmove_upp(buffer + display_width, buffer + len, len);
 				    /* coverity[bad_memset] */
-				    memset((void*)buffer, (int)'0', display_width - len);
+				    memset((void *)buffer, (int)'0', display_width - len);
 				    len = display_width;
 			    }
 			    else
@@ -620,7 +620,7 @@ static void convert_from_long(MYSQL_BIND * r_param, const MYSQL_FIELD * field, l
 }
 
 /* {{{ ps_fetch_null */
-static void ps_fetch_null(MYSQL_BIND * r_param __attribute__((unused)), const MYSQL_FIELD * field __attribute__((unused)), unsigned char ** row __attribute__((unused)))
+static void ps_fetch_null(MYSQL_BIND * r_param __attribute__((unused)), const MYSQL_FIELD * field __attribute__((unused)), uchar ** row __attribute__((unused)))
 {
 	/* do nothing */
 }
@@ -629,7 +629,7 @@ static void ps_fetch_null(MYSQL_BIND * r_param __attribute__((unused)), const MY
 
 #define GET_LVALUE_FROM_ROW(is_unsigned, data, ucast, scast) (is_unsigned) ? (longlong)(ucast) *(longlong*)(data) : (longlong)(scast) *(longlong*)(data)
 /* {{{ ps_fetch_int8 */
-static void ps_fetch_int8(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, unsigned char ** row)
+static void ps_fetch_int8(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_TINY:
@@ -649,7 +649,7 @@ static void ps_fetch_int8(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
 /* }}} */
 
 /* {{{ ps_fetch_int16 */
-static void ps_fetch_int16(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, unsigned char ** row)
+static void ps_fetch_int16(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_YEAR:
@@ -670,7 +670,7 @@ static void ps_fetch_int16(MYSQL_BIND * r_param, const MYSQL_FIELD * const field
 /* }}} */
 
 /* {{{ ps_fetch_int32 */
-static void ps_fetch_int32(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, unsigned char ** row)
+static void ps_fetch_int32(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 /*    case MYSQL_TYPE_TINY:
@@ -698,7 +698,7 @@ static void ps_fetch_int32(MYSQL_BIND * r_param, const MYSQL_FIELD * const field
 /* }}} */
 
 /* {{{ ps_fetch_int64 */
-static void ps_fetch_int64(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, unsigned char ** row)
+static void ps_fetch_int64(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 /*    case MYSQL_TYPE_TINY:
@@ -810,7 +810,7 @@ static void convert_from_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, 
 				    break;
 			    ma_bmove_upp(buff + field->length, buff + length, length);
 			    /* coverity[bad_memset] */
-			    memset((void*)buff, (int)'0', field->length - length);
+			    memset((void *)buff, (int)'0', field->length - length);
 			    length = field->length;
 		    }
 
@@ -902,7 +902,7 @@ static void convert_from_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field,
 				    break;
 			    ma_bmove_upp(buff + field->length, buff + length, length);
 			    /* coverity [bad_memset] */
-			    memset((void*)buff, (int)'0', field->length - length);
+			    memset((void *)buff, (int)'0', field->length - length);
 			    length = field->length;
 		    }
 		    convert_froma_string(r_param, buff, length);
@@ -912,7 +912,7 @@ static void convert_from_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field,
 }
 
 /* {{{ ps_fetch_double */
-static void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_DOUBLE:
@@ -936,7 +936,7 @@ static void ps_fetch_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uns
 /* }}} */
 
 /* {{{ ps_fetch_float */
-static void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_FLOAT:
@@ -961,7 +961,7 @@ static void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsi
 
 /* }}} */
 
-static void convert_to_datetime(MYSQL_TIME * t, unsigned char ** row, uint len, enum enum_field_types type)
+static void convert_to_datetime(MYSQL_TIME * t, uchar ** row, uint len, enum enum_field_types type)
 {
 	memzero(t, sizeof(MYSQL_TIME));
 	/* binary protocol for datetime:
@@ -970,7 +970,7 @@ static void convert_to_datetime(MYSQL_TIME * t, unsigned char ** row, uint len, 
 	   >7 bytes: DATE + TIME with second_part
 	 */
 	if(len) {
-		unsigned char * to = *row;
+		uchar * to = *row;
 		int has_date = 0;
 		uint offset = 7;
 		if(type == MYSQL_TYPE_TIME) {
@@ -1005,7 +1005,7 @@ static void convert_to_datetime(MYSQL_TIME * t, unsigned char ** row, uint len, 
 }
 
 /* {{{ ps_fetch_datetime */
-static void ps_fetch_datetime(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_datetime(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row)
 {
 	MYSQL_TIME * t = (MYSQL_TIME *)r_param->buffer;
 	unsigned int len = net_field_length(row);
@@ -1073,7 +1073,7 @@ static void ps_fetch_datetime(MYSQL_BIND * r_param, const MYSQL_FIELD * field, u
 /* }}} */
 
 /* {{{ ps_fetch_string */
-static void ps_fetch_string(MYSQL_BIND * r_param, const MYSQL_FIELD * field __attribute__((unused)), unsigned char ** row)
+static void ps_fetch_string(MYSQL_BIND * r_param, const MYSQL_FIELD * field __attribute__((unused)), uchar ** row)
 {
 	/* C-API differs from PHP. While PHP just converts string to string,
 	   C-API needs to convert the string to the defined type with in
@@ -1087,7 +1087,7 @@ static void ps_fetch_string(MYSQL_BIND * r_param, const MYSQL_FIELD * field __at
 /* }}} */
 
 /* {{{ ps_fetch_bin */
-static void ps_fetch_bin(MYSQL_BIND * r_param, const MYSQL_FIELD * field, unsigned char ** row)
+static void ps_fetch_bin(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row)
 {
 	if(field->charsetnr == 63) {
 		ulong field_length = *r_param->length = net_field_length(row);

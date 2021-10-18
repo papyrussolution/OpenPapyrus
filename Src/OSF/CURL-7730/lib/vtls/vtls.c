@@ -97,7 +97,7 @@ static CURLcode blobdup(struct curl_blob ** dest,
 		/* Always duplicate because the connection may survive longer than the
 		   handle that passed in the blob. */
 		d->flags = CURL_BLOB_COPY;
-		d->data = (void*)((char *)d + sizeof(struct curl_blob));
+		d->data = (void *)((char *)d + sizeof(struct curl_blob));
 		memcpy(d->data, src->data, src->len);
 		*dest = d;
 	}

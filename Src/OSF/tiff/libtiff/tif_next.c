@@ -46,12 +46,12 @@
 #define LITERALSPAN     0x40
 #define WHITE           ((1<<2)-1)
 
-static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int NeXTDecode(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	uchar * bp, * op;
 	tmsize_t cc;
-	uint8* row;
+	uint8 * row;
 	tmsize_t scanline, n;
 	(void)s;
 	/*

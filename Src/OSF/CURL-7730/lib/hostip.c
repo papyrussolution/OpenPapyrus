@@ -208,7 +208,7 @@ static void hostcache_prune(struct Curl_hash * hostcache, long cache_timeout, ti
 	user.now = now;
 
 	Curl_hash_clean_with_criterium(hostcache,
-	    (void*)&user,
+	    (void *)&user,
 	    hostcache_timestamp_remove);
 }
 
@@ -436,7 +436,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data,
 
 	/* Store the resolved data in our DNS cache. */
 	dns2 = (struct Curl_dns_entry *)Curl_hash_add(data->dns.hostcache, entry_id, entry_len + 1,
-		(void*)dns);
+		(void *)dns);
 	if(!dns2) {
 		SAlloc::F(dns);
 		return NULL;

@@ -18,7 +18,6 @@
 #define RED_8(x) (((x) >> R_SHIFT) & MASK)
 #define GREEN_8(x) (((x) >> G_SHIFT) & MASK)
 #define BLUE_8(x) ((x) & MASK)
-
 /*
  * ARMv6 has UQADD8 instruction, which implements unsigned saturated
  * addition for 8-bit values packed in 32-bit registers. It is very useful
@@ -28,7 +27,6 @@
  * much less dependent on runtime CPU detection and can get practical
  * benefits from conditional compilation here for a lot of users.
  */
-
 #if defined(USE_GCC_INLINE_ASM) && defined(__arm__) && \
     !defined(__aarch64__) && (!defined(__thumb__) || defined(__thumb2__))
 #if defined(__ARM_ARCH_6__)   || defined(__ARM_ARCH_6J__)  || \
@@ -38,8 +36,7 @@
     defined(__ARM_ARCH_7A__)  || defined(__ARM_ARCH_7R__)  || \
     defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__)
 
-static force_inline uint32_t
-un8x4_add_un8x4 (uint32_t x, uint32_t y)
+static force_inline uint32_t un8x4_add_un8x4 (uint32_t x, uint32_t y)
 {
     uint32_t t;
     asm ("uqadd8 %0, %1, %2" : "=r" (t) : "%r" (x), "r" (y));
@@ -53,7 +50,7 @@ un8x4_add_un8x4 (uint32_t x, uint32_t y)
 #endif
 #endif
 
-/*****************************************************************************/
+// 
 
 /*
  * Helper macros.

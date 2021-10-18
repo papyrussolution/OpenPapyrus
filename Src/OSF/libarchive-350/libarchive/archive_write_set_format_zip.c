@@ -100,23 +100,23 @@ enum encryption {
 struct cd_segment {
 	struct cd_segment * next;
 	size_t buff_size;
-	unsigned char * buff;
-	unsigned char * p;
+	uchar * buff;
+	uchar * p;
 };
 
 struct trad_enc_ctx {
-	uint32_t keys[3];
+	uint32 keys[3];
 };
 
 struct zip {
-	int64_t entry_offset;
-	int64_t entry_compressed_size;
-	int64_t entry_uncompressed_size;
-	int64_t entry_compressed_written;
-	int64_t entry_uncompressed_written;
-	int64_t entry_uncompressed_limit;
+	int64 entry_offset;
+	int64 entry_compressed_size;
+	int64 entry_uncompressed_size;
+	int64 entry_compressed_written;
+	int64 entry_uncompressed_written;
+	int64 entry_uncompressed_limit;
 	struct archive_entry * entry;
-	uint32_t entry_crc32;
+	uint32 entry_crc32;
 	enum compression entry_compression;
 	enum encryption entry_encryption;
 	int entry_flags;
@@ -124,14 +124,14 @@ struct zip {
 	int experiments;
 	struct trad_enc_ctx tctx;
 	char tctx_valid;
-	unsigned char trad_chkdat;
+	uchar trad_chkdat;
 	unsigned aes_vendor;
 	archive_crypto_ctx cctx;
 	char cctx_valid;
 	archive_hmac_sha1_ctx hctx;
 	char hctx_valid;
 
-	unsigned char * file_header;
+	uchar * file_header;
 	size_t file_header_extra_offset;
 	unsigned long (* crc32func)(unsigned long crc, const void * buff, size_t len);
 
@@ -140,7 +140,7 @@ struct zip {
 	size_t central_directory_bytes;
 	size_t central_directory_entries;
 
-	int64_t written_bytes; /* Overall position in file. */
+	int64 written_bytes; /* Overall position in file. */
 
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
@@ -158,7 +158,7 @@ struct zip {
 	z_stream stream;
 #endif
 	size_t len_buf;
-	unsigned char * buf;
+	uchar * buf;
 };
 
 /* Don't call this min or MIN, since those are already defined
@@ -177,27 +177,27 @@ static int archive_write_zip_options(struct archive_write *,
 static unsigned int dos_time(const time_t);
 static size_t path_length(struct archive_entry *);
 static int write_path(struct archive_entry *, struct archive_write *);
-static void copy_path(struct archive_entry *, unsigned char *);
+static void copy_path(struct archive_entry *, uchar *);
 static struct archive_string_conv * get_sconv(struct archive_write *, struct zip *);
 static int trad_enc_init(struct trad_enc_ctx *, const char *, size_t);
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8_t *,
-    size_t, uint8_t *, size_t);
+static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *,
+    size_t, uint8 *, size_t);
 static int init_traditional_pkware_encryption(struct archive_write *);
 static int is_traditional_pkware_encryption_supported(void);
 static int init_winzip_aes_encryption(struct archive_write *);
 static int is_winzip_aes_encryption_supported(int encryption);
 
-static unsigned char * cd_alloc(struct zip * zip, size_t length)
+static uchar * cd_alloc(struct zip * zip, size_t length)
 {
-	unsigned char * p;
+	uchar * p;
 	if(zip->central_directory == NULL || (zip->central_directory_last->p + length > zip->central_directory_last->buff + zip->central_directory_last->buff_size)) {
-		struct cd_segment * segment = static_cast<struct cd_segment *>(calloc(1, sizeof(*segment)));
+		struct cd_segment * segment = static_cast<struct cd_segment *>(SAlloc::C(1, sizeof(*segment)));
 		if(segment == NULL)
 			return NULL;
 		segment->buff_size = 64 * 1024;
-		segment->buff = static_cast<uchar *>(malloc(segment->buff_size));
+		segment->buff = static_cast<uchar *>(SAlloc::M(segment->buff_size));
 		if(segment->buff == NULL) {
-			free(segment);
+			SAlloc::F(segment);
 			return NULL;
 		}
 		segment->p = segment->buff;
@@ -423,7 +423,7 @@ int archive_write_set_format_zip(struct archive * _a)
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-	zip = (struct zip *)calloc(1, sizeof(*zip));
+	zip = (struct zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
 		return ARCHIVE_FATAL;
@@ -436,9 +436,9 @@ int archive_write_set_format_zip(struct archive * _a)
 	zip->crc32func = real_crc32;
 	/* A buffer used for both compression and encryption. */
 	zip->len_buf = 65536;
-	zip->buf = static_cast<uchar *>(malloc(zip->len_buf));
+	zip->buf = static_cast<uchar *>(SAlloc::M(zip->len_buf));
 	if(zip->buf == NULL) {
-		free(zip);
+		SAlloc::F(zip);
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate compression buffer");
 		return ARCHIVE_FATAL;
 	}
@@ -458,7 +458,7 @@ int archive_write_set_format_zip(struct archive * _a)
 
 static int is_all_ascii(const char * p)
 {
-	const unsigned char * pp = (const unsigned char*)p;
+	const uchar * pp = (const uchar *)p;
 
 	while(*pp) {
 		if(*pp++ > 127)
@@ -469,11 +469,11 @@ static int is_all_ascii(const char * p)
 
 static int archive_write_zip_header(struct archive_write * a, struct archive_entry * entry)
 {
-	unsigned char local_header[32];
-	unsigned char local_extra[144];
+	uchar local_header[32];
+	uchar local_extra[144];
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
-	unsigned char * e;
-	unsigned char * cd_extra;
+	uchar * e;
+	uchar * cd_extra;
 	size_t filename_length;
 	const char * slink = NULL;
 	size_t slink_size = 0;
@@ -628,7 +628,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		zip->entry_compressed_size = slink_size;
 		zip->entry_uncompressed_size = slink_size;
 		zip->entry_crc32 = zip->crc32func(zip->entry_crc32,
-			(const unsigned char*)slink, slink_size);
+			(const uchar *)slink, slink_size);
 		zip->entry_compression = COMPRESSION_STORE;
 		version_needed = 20;
 	}
@@ -638,8 +638,8 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		version_needed = 20;
 	}
 	else if(archive_entry_size_is_set(zip->entry)) {
-		int64_t size = archive_entry_size(zip->entry);
-		int64_t additional_size = 0;
+		int64 size = archive_entry_size(zip->entry);
+		int64 additional_size = 0;
 
 		zip->entry_uncompressed_limit = size;
 		zip->entry_compression = zip->requested_compression;
@@ -758,8 +758,8 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		archive_le32enc(local_header + 22, ZIP_4GB_MAX);
 	}
 	else {
-		archive_le32enc(local_header + 18, (uint32_t)zip->entry_compressed_size);
-		archive_le32enc(local_header + 22, (uint32_t)zip->entry_uncompressed_size);
+		archive_le32enc(local_header + 18, (uint32)zip->entry_compressed_size);
+		archive_le32enc(local_header + 22, (uint32)zip->entry_uncompressed_size);
 	}
 	archive_le16enc(local_header + 26, (uint16_t)filename_length);
 
@@ -790,7 +790,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	archive_le16enc(zip->file_header + 28, (uint16_t)filename_length);
 	/* Following Info-Zip, store mode in the "external attributes" field. */
 	archive_le32enc(zip->file_header + 38,
-	    ((uint32_t)archive_entry_mode(zip->entry)) << 16);
+	    ((uint32)archive_entry_mode(zip->entry)) << 16);
 	e = cd_alloc(zip, filename_length);
 	/* If (e == NULL) XXXX */
 	copy_path(zip->entry, e);
@@ -816,15 +816,15 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	    | (archive_entry_atime_is_set(entry) ? 2 : 0)
 	    | (archive_entry_ctime_is_set(entry) ? 4 : 0);
 	if(archive_entry_mtime_is_set(entry)) {
-		archive_le32enc(e, (uint32_t)archive_entry_mtime(entry));
+		archive_le32enc(e, (uint32)archive_entry_mtime(entry));
 		e += 4;
 	}
 	if(archive_entry_atime_is_set(entry)) {
-		archive_le32enc(e, (uint32_t)archive_entry_atime(entry));
+		archive_le32enc(e, (uint32)archive_entry_atime(entry));
 		e += 4;
 	}
 	if(archive_entry_ctime_is_set(entry)) {
-		archive_le32enc(e, (uint32_t)archive_entry_ctime(entry));
+		archive_le32enc(e, (uint32)archive_entry_ctime(entry));
 		e += 4;
 	}
 
@@ -833,10 +833,10 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	memcpy(e, "ux\013\000\001", 5);
 	e += 5;
 	*e++ = 4; /* Length of following UID */
-	archive_le32enc(e, (uint32_t)archive_entry_uid(entry));
+	archive_le32enc(e, (uint32)archive_entry_uid(entry));
 	e += 4;
 	*e++ = 4; /* Length of following GID */
-	archive_le32enc(e, (uint32_t)archive_entry_gid(entry));
+	archive_le32enc(e, (uint32)archive_entry_gid(entry));
 	e += 4;
 
 	/* AES extra data field: WinZIP AES information, ID=0x9901 */
@@ -853,7 +853,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		if(archive_entry_size_is_set(zip->entry)
 		    && archive_entry_size(zip->entry) < 20) {
 			archive_le16enc(e+4, AES_VENDOR_AE_2);
-			zip->aes_vendor = AES_VENDOR_AE_2;/* no CRC. */
+			zip->aes_vendor = AES_VENDOR_AE_2; /* no CRC. */
 		}
 		else
 			zip->aes_vendor = AES_VENDOR_AE_1;
@@ -880,7 +880,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	/* "[Zip64 entry] in the local header MUST include BOTH
 	 * original [uncompressed] and compressed size fields." */
 	if(zip->entry_uses_zip64) {
-		unsigned char * zip64_start = e;
+		uchar * zip64_start = e;
 		memcpy(e, "\001\000\020\000", 4);
 		e += 4;
 		archive_le64enc(e, zip->entry_uncompressed_size);
@@ -892,7 +892,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 
 	if(zip->flags & ZIP_FLAG_EXPERIMENT_xl) {
 		/* Experimental 'xl' extension to improve streaming. */
-		unsigned char * external_info = e;
+		uchar * external_info = e;
 		int included = 7;
 		memcpy(e, "xl\000\000", 4); // 0x6c65 + 2-byte length
 		e += 4;
@@ -909,7 +909,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		}
 		if(included & 4) {
 			archive_le32enc(e,  /* external file attributes */
-			    ((uint32_t)archive_entry_mode(zip->entry)) << 16);
+			    ((uint32)archive_entry_mode(zip->entry)) << 16);
 			e += 4;
 		}
 		if(included & 8) {
@@ -970,7 +970,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 	int ret;
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 
-	if((int64_t)s > zip->entry_uncompressed_limit)
+	if((int64)s > zip->entry_uncompressed_limit)
 		s = (size_t)zip->entry_uncompressed_limit;
 	zip->entry_uncompressed_written += s;
 
@@ -1005,8 +1005,8 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 	switch(zip->entry_compression) {
 		case COMPRESSION_STORE:
 		    if(zip->tctx_valid || zip->cctx_valid) {
-			    const uint8_t * rb = (const uint8_t*)buff;
-			    const uint8_t * const re = rb + s;
+			    const uint8 * rb = (const uint8*)buff;
+			    const uint8 * const re = rb + s;
 
 			    while(rb < re) {
 				    size_t l;
@@ -1094,7 +1094,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 	}
 	zip->entry_uncompressed_limit -= s;
 	if(!zip->cctx_valid || zip->aes_vendor != AES_VENDOR_AE_2)
-		zip->entry_crc32 = zip->crc32func(zip->entry_crc32, buff, (unsigned)s);
+		zip->entry_crc32 = zip->crc32func(zip->entry_crc32, buff, (uint)s);
 	return (s);
 }
 
@@ -1142,7 +1142,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	}
 #endif
 	if(zip->hctx_valid) {
-		uint8_t hmac[20];
+		uint8 hmac[20];
 		size_t hmac_len = 20;
 
 		archive_hmac_sha1_final(&zip->hctx, hmac, &hmac_len);
@@ -1163,17 +1163,17 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 			archive_le32enc(d + 4, zip->entry_crc32);
 		if(zip->entry_uses_zip64) {
 			archive_le64enc(d + 8,
-			    (uint64_t)zip->entry_compressed_written);
+			    (uint64)zip->entry_compressed_written);
 			archive_le64enc(d + 16,
-			    (uint64_t)zip->entry_uncompressed_written);
+			    (uint64)zip->entry_uncompressed_written);
 			ret = __archive_write_output(a, d, 24);
 			zip->written_bytes += 24;
 		}
 		else {
 			archive_le32enc(d + 8,
-			    (uint32_t)zip->entry_compressed_written);
+			    (uint32)zip->entry_compressed_written);
 			archive_le32enc(d + 12,
-			    (uint32_t)zip->entry_uncompressed_written);
+			    (uint32)zip->entry_uncompressed_written);
 			ret = __archive_write_output(a, d, 16);
 			zip->written_bytes += 16;
 		}
@@ -1185,8 +1185,8 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	if(zip->entry_compressed_written > ZIP_4GB_MAX
 	    || zip->entry_uncompressed_written > ZIP_4GB_MAX
 	    || zip->entry_offset > ZIP_4GB_MAX) {
-		unsigned char zip64[32];
-		unsigned char * z = zip64, * zd;
+		uchar zip64[32];
+		uchar * z = zip64, * zd;
 		memcpy(z, "\001\000\000\000", 4);
 		z += 4;
 		if(zip->entry_uncompressed_written >= ZIP_4GB_MAX) {
@@ -1220,15 +1220,15 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	else
 		archive_le32enc(zip->file_header + 16, zip->entry_crc32);
 	archive_le32enc(zip->file_header + 20,
-	    (uint32_t)zipmin(zip->entry_compressed_written,
+	    (uint32)zipmin(zip->entry_compressed_written,
 	    ZIP_4GB_MAX));
 	archive_le32enc(zip->file_header + 24,
-	    (uint32_t)zipmin(zip->entry_uncompressed_written,
+	    (uint32)zipmin(zip->entry_uncompressed_written,
 	    ZIP_4GB_MAX));
 	archive_le16enc(zip->file_header + 30,
 	    (uint16_t)(zip->central_directory_bytes - zip->file_header_extra_offset));
 	archive_le32enc(zip->file_header + 42,
-	    (uint32_t)zipmin(zip->entry_offset,
+	    (uint32)zipmin(zip->entry_offset,
 	    ZIP_4GB_MAX));
 
 	return ARCHIVE_OK;
@@ -1236,8 +1236,8 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 
 static int archive_write_zip_close(struct archive_write * a)
 {
-	uint8_t buff[64];
-	int64_t offset_start, offset_end;
+	uint8 buff[64];
+	int64 offset_start, offset_end;
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 	struct cd_segment * segment;
 	int ret;
@@ -1294,9 +1294,9 @@ static int archive_write_zip_close(struct archive_write * a)
 	archive_le16enc(buff + 10, (uint16_t)zipmin(0xffffU,
 	    zip->central_directory_entries));
 	archive_le32enc(buff + 12,
-	    (uint32_t)zipmin(ZIP_4GB_MAX, (offset_end - offset_start)));
+	    (uint32)zipmin(ZIP_4GB_MAX, (offset_end - offset_start)));
 	archive_le32enc(buff + 16,
-	    (uint32_t)zipmin(ZIP_4GB_MAX, offset_start));
+	    (uint32)zipmin(ZIP_4GB_MAX, offset_start));
 	ret = __archive_write_output(a, buff, 22);
 	if(ret != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
@@ -1311,10 +1311,10 @@ static int archive_write_zip_free(struct archive_write * a)
 	while(zip->central_directory != NULL) {
 		segment = zip->central_directory;
 		zip->central_directory = segment->next;
-		free(segment->buff);
-		free(segment);
+		SAlloc::F(segment->buff);
+		SAlloc::F(segment);
 	}
-	free(zip->buf);
+	SAlloc::F(zip->buf);
 	archive_entry_free(zip->entry);
 	if(zip->cctx_valid)
 		archive_encrypto_aes_ctr_release(&zip->cctx);
@@ -1322,7 +1322,7 @@ static int archive_write_zip_free(struct archive_write * a)
 		archive_hmac_sha1_cleanup(&zip->hctx);
 	/* TODO: Free opt_sconv, sconv_default */
 
-	free(zip);
+	SAlloc::F(zip);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }
@@ -1422,7 +1422,7 @@ static int write_path(struct archive_entry * entry, struct archive_write * archi
 	return ((int)written_bytes);
 }
 
-static void copy_path(struct archive_entry * entry, unsigned char * p)
+static void copy_path(struct archive_entry * entry, uchar * p)
 {
 	const char * path;
 	size_t pathlen;
@@ -1455,9 +1455,9 @@ static struct archive_string_conv * get_sconv(struct archive_write * a, struct z
    Traditional PKWARE Decryption functions.
  */
 
-static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8_t c)
+static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
-	uint8_t t;
+	uint8 t;
 #define CRC32(c, b) (crc32(c ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL)
 
 	ctx->keys[0] = CRC32(ctx->keys[0], c);
@@ -1467,21 +1467,21 @@ static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8_t c)
 #undef CRC32
 }
 
-static uint8_t trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
+static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 {
 	unsigned temp = ctx->keys[2] | 2;
-	return (uint8_t)((temp * (temp ^ 1)) >> 8) & 0xff;
+	return (uint8)((temp * (temp ^ 1)) >> 8) & 0xff;
 }
 
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8_t * in,
-    size_t in_len, uint8_t * out, size_t out_len)
+static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in,
+    size_t in_len, uint8 * out, size_t out_len)
 {
 	unsigned i, max;
 
-	max = (unsigned)((in_len < out_len) ? in_len : out_len);
+	max = (uint)((in_len < out_len) ? in_len : out_len);
 
 	for(i = 0; i < max; i++) {
-		uint8_t t = in[i];
+		uint8 t = in[i];
 		out[i] = t ^ trad_enc_decrypt_byte(ctx);
 		trad_enc_update_keys(ctx, t);
 	}
@@ -1501,7 +1501,7 @@ static int trad_enc_init(struct trad_enc_ctx * ctx, const char * pw, size_t pw_l
 
 static int is_traditional_pkware_encryption_supported(void)
 {
-	uint8_t key[TRAD_HEADER_SIZE];
+	uint8 key[TRAD_HEADER_SIZE];
 	if(archive_random(key, sizeof(key)-1) != ARCHIVE_OK)
 		return 0;
 	return 1;
@@ -1510,8 +1510,8 @@ static int is_traditional_pkware_encryption_supported(void)
 static int init_traditional_pkware_encryption(struct archive_write * a)
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
-	uint8_t key[TRAD_HEADER_SIZE];
-	uint8_t key_encrypted[TRAD_HEADER_SIZE];
+	uint8 key[TRAD_HEADER_SIZE];
+	uint8 key_encrypted[TRAD_HEADER_SIZE];
 	int ret;
 	const char * passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
@@ -1541,8 +1541,8 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 {
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
 	size_t key_len, salt_len;
-	uint8_t salt[16 + 2];
-	uint8_t derived_key[MAX_DERIVED_KEY_BUF_SIZE];
+	uint8 salt[16 + 2];
+	uint8 derived_key[MAX_DERIVED_KEY_BUF_SIZE];
 	int ret;
 	const char * passphrase = __archive_write_get_passphrase(a);
 	if(passphrase == NULL) {
@@ -1590,8 +1590,8 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 static int is_winzip_aes_encryption_supported(int encryption)
 {
 	size_t key_len, salt_len;
-	uint8_t salt[16 + 2];
-	uint8_t derived_key[MAX_DERIVED_KEY_BUF_SIZE];
+	uint8 salt[16 + 2];
+	uint8 derived_key[MAX_DERIVED_KEY_BUF_SIZE];
 	archive_crypto_ctx cctx;
 	archive_hmac_sha1_ctx hctx;
 	int ret;

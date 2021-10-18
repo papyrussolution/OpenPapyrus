@@ -27,25 +27,25 @@ static double ri1(double x);
 // These hard-coded Bessel approximations are used only if we
 // can't use the functions in libm
 // 
-static double jzero(double x);
-static double pzero(double x);
-static double qzero(double x);
-static double yzero(double x);
-static double rj0(double x);
-static double ry0(double x);
-static double jone(double x);
-static double pone(double x);
-static double qone(double x);
-static double yone(double x);
-static double rj1(double x);
-static double ry1(double x);
+//static double jzero(double x);
+//static double pzero(double x);
+//static double qzero(double x);
+//static double yzero(double x);
+//static double rj0(double x);
+//static double ry0(double x);
+//static double jone(double x);
+//static double pone(double x);
+//static double qone(double x);
+//static double yone(double x);
+//static double rj1(double x);
+//static double ry1(double x);
 // 
 // The bessel function approximations here are from
 // "Computer Approximations"
 // by Hart, Cheney et al.
 // John Wiley & Sons, 1968
 // 
-static double dzero = 0.0;
+static double dzero = 0.0; // don't make const: compiler will answer with "divide of mod by zero" error
 // 
 // There appears to be a mistake in Hart, Cheney et al. on page 149.
 // Where it list Qn(x)/x ~ P(z*z)/Q(z*z), z = 8/x, it should read Qn(x)/z ~ P(z*z)/Q(z*z), z = 8/x
@@ -1084,7 +1084,7 @@ static double rj0(double x)
 static double ry0(double x)
 {
 	if(x < 0.0)
-		return (dzero / dzero); /* error */
+		return (dzero / dzero); // error 
 	if(x < 8.0)
 		return (yzero(x) + TWO_ON_PI * rj0(x) * log(x));
 	else
@@ -1093,11 +1093,10 @@ static double ry0(double x)
 
 static double jone(double x)
 {
-	double p, q, x2;
 	int n;
-	x2 = x * x;
-	p = pjone[8];
-	q = qjone[8];
+	double x2 = x * x;
+	double p = pjone[8];
+	double q = qjone[8];
 	for(n = 7; n >= 0; n--) {
 		p = p * x2 + pjone[n];
 		q = q * x2 + qjone[n];
@@ -1350,7 +1349,7 @@ void GnuPlot::F_TmWeek(union argument * /*arg*/)
 	Push(Gcomplex(&a, (double)week, 0.0));
 }
 
-/*****************************************************************************/
+// 
 
 #define         SQR(a)          ((a)*(a))
 
@@ -1535,4 +1534,4 @@ static double carlson_elliptic_rj(double x, double y, double z, double p)
 
 #undef                  SQR
 
-/*****************************************************************************/
+// 

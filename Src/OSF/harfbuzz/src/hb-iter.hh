@@ -72,7 +72,7 @@ struct hb_iter_t
   private:
   /* https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern */
   const iter_t* thiz () const { return static_cast<const iter_t *> (this); }
-	iter_t* thiz ()       { return static_cast<      iter_t *> (this); }
+	iter_t* thiz () { return static_cast<      iter_t *> (this); }
   public:
 
   /* TODO:
@@ -192,7 +192,7 @@ struct hb_iter_fallback_mixin_t
   private:
   /* https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern */
   const iter_t* thiz () const { return static_cast<const iter_t *> (this); }
-	iter_t* thiz ()       { return static_cast<      iter_t *> (this); }
+	iter_t* thiz () { return static_cast<      iter_t *> (this); }
   public:
 
   /* Access: Implement __item__(), or __item_at__() if random-access. */
@@ -654,7 +654,7 @@ struct hb_range_iter_t :
 struct
 {
   template <typename T = unsigned> hb_range_iter_t<T, unsigned>
-  operator () (T end = (unsigned) -1) const
+  operator () (T end = (uint) -1) const
   { return hb_range_iter_t<T, unsigned> (0, end, 1u); }
 
   template <typename T, typename S = unsigned> hb_range_iter_t<T, S>
@@ -720,9 +720,9 @@ struct hb_repeat_iter_t :
   bool __more__ () const { return true; }
   unsigned __len__ () const { return UINT_MAX; }
   void __next__ () {}
-  void __forward__ (unsigned) {}
+  void __forward__ (uint) {}
   void __prev__ () {}
-  void __rewind__ (unsigned) {}
+  void __rewind__ (uint) {}
   hb_repeat_iter_t __end__ () const { return *this; }
   bool operator != (const hb_repeat_iter_t& o) const { return true; }
 

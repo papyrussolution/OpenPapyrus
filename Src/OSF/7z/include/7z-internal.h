@@ -44,10 +44,10 @@
 	#define WINAPI
 
 	typedef char CHAR;
-	typedef unsigned char UCHAR;
+	typedef uchar UCHAR;
 
 	#undef BYTE
-	typedef unsigned char BYTE;
+	typedef uchar BYTE;
 
 	typedef short SHORT;
 	typedef unsigned short USHORT;
@@ -338,7 +338,7 @@ EXTERN_C_BEGIN
 #define SZ_ERROR_NO_ARCHIVE 17
 
 typedef int SRes;
-typedef unsigned char Byte;
+typedef uchar Byte;
 typedef short Int16_Removed;
 typedef unsigned short UInt16_Removed;
 typedef int Bool;
@@ -7771,11 +7771,11 @@ namespace NArchive {
 
 			bool Is_Size_Defined() const { return Size != static_cast<uint64>(-1LL); }
 			bool IsEncrypted()   const { return (Flags & NHeader::NFile::kEncrypted) != 0; }
-			bool IsSolid()       const { return (Flags & NHeader::NFile::kSolid) != 0; }
+			bool IsSolid() const { return (Flags & NHeader::NFile::kSolid) != 0; }
 			bool IsCommented()   const { return (Flags & NHeader::NFile::kComment) != 0; }
 			bool IsSplitBefore() const { return (Flags & NHeader::NFile::kSplitBefore) != 0; }
 			bool IsSplitAfter()  const { return (Flags & NHeader::NFile::kSplitAfter) != 0; }
-			bool HasSalt()       const { return (Flags & NHeader::NFile::kSalt) != 0; }
+			bool HasSalt() const { return (Flags & NHeader::NFile::kSalt) != 0; }
 			bool HasExtTime()    const { return (Flags & NHeader::NFile::kExtTime) != 0; }
 			bool HasUnicodeName() const { return (Flags & NHeader::NFile::kUnicodeName) != 0; }
 			bool IsOldVersion()  const { return (Flags & NHeader::NFile::kOldVersion) != 0; }

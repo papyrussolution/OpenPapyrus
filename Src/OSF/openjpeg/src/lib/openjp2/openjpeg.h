@@ -112,7 +112,7 @@ typedef int OPJ_BOOL;
 typedef char OPJ_CHAR;
 typedef float OPJ_FLOAT32;
 typedef double OPJ_FLOAT64;
-typedef unsigned char OPJ_BYTE;
+typedef uchar OPJ_BYTE;
 
 #include "opj_stdint.h"
 
@@ -1094,7 +1094,7 @@ OPJ_API opj_image_t* OPJ_CALLCONV opj_image_tile_create(OPJ_UINT32 numcmpts,
  * @return  a new pointer if successful, NULL otherwise.
  * @since 2.2.0
  */
-OPJ_API void* OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size);
+OPJ_API void * OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size);
 /**
  * Destructor for opj_image_t->comps[].data
  * To be paired with opj_image_data_alloc.
@@ -1103,7 +1103,7 @@ OPJ_API void* OPJ_CALLCONV opj_image_data_alloc(OPJ_SIZE_T size);
  *
  * @since 2.2.0
  */
-OPJ_API void OPJ_CALLCONV opj_image_data_free(void* ptr);
+OPJ_API void OPJ_CALLCONV opj_image_data_free(void * ptr);
 /*
    ==========================================================
    stream functions definitions
@@ -1320,12 +1320,12 @@ OPJ_API OPJ_BOOL OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream,
  * @param   p_codec         the jpeg2000 codec to read.
  * @param   numcomps        Size of the comps_indices array.
  * @param   comps_indices   Array of numcomps values representing the indices
- *                          of the components to decode (relative to the
- *                          codestream, starting at 0)
+ *                    of the components to decode (relative to the
+ *                    codestream, starting at 0)
  * @param   apply_color_transforms Whether multi-component transform at codestream level
- *                                 or JP2 channel transformations should be applied.
- *                                 Currently this parameter should be set to OPJ_FALSE.
- *                                 Setting it to OPJ_TRUE will result in an error.
+ *                           or JP2 channel transformations should be applied.
+ *                           Currently this parameter should be set to OPJ_FALSE.
+ *                           Setting it to OPJ_TRUE will result in an error.
  *
  * @return OPJ_TRUE         in case of success.
  */
@@ -1401,7 +1401,7 @@ OPJ_API OPJ_BOOL OPJ_CALLCONV opj_set_decoded_resolution_factor(opj_codec_t * p_
  *then ... NO INTERLEAVING should be set.
  * @param   p_data_size         this value os used to make sure the data being written is correct. The size must be
  *equal to the sum for each component of
- *                              tile_width * tile_height * component_size. component_size can be 1,2 or 4 bytes,
+ *                        tile_width * tile_height * component_size. component_size can be 1,2 or 4 bytes,
  *depending on the precision of the given component.
  * @param   p_stream            the stream to write data to.
  *
@@ -1421,22 +1421,22 @@ OPJ_API OPJ_BOOL OPJ_CALLCONV opj_write_tile(opj_codec_t * p_codec,
  * @param   p_tile_index    pointer to a value that will hold the index of the tile being decoded, in case of success.
  * @param   p_data_size     pointer to a value that will hold the maximum size of the decoded data, in case of success.
  *In case
- *                          of truncated codestreams, the actual number of bytes decoded may be lower. The computation
+ *                    of truncated codestreams, the actual number of bytes decoded may be lower. The computation
  *of the size is the same
- *                          as depicted in opj_write_tile.
+ *                    as depicted in opj_write_tile.
  * @param   p_tile_x0       pointer to a value that will hold the x0 pos of the tile (in the image).
  * @param   p_tile_y0       pointer to a value that will hold the y0 pos of the tile (in the image).
  * @param   p_tile_x1       pointer to a value that will hold the x1 pos of the tile (in the image).
  * @param   p_tile_y1       pointer to a value that will hold the y1 pos of the tile (in the image).
  * @param   p_nb_comps      pointer to a value that will hold the number of components in the tile.
  * @param   p_should_go_on  pointer to a boolean that will hold the fact that the decoding should go on. In case the
- *                          codestream is over at the time of the call, the value will be set to false. The user should
+ *                    codestream is over at the time of the call, the value will be set to false. The user should
  *then stop
- *                          the decoding.
+ *                    the decoding.
  * @param   p_stream        the stream to decode.
  * @return  true            if the tile header could be decoded. In case the decoding should end, the returned value is
  *still true.
- *                          returning false may be the result of a shortage of memory or an internal error.
+ *                    returning false may be the result of a shortage of memory or an internal error.
  */
 OPJ_API OPJ_BOOL OPJ_CALLCONV opj_read_tile_header(opj_codec_t * p_codec,
     opj_stream_t * p_stream,
@@ -1524,7 +1524,7 @@ OPJ_API OPJ_BOOL OPJ_CALLCONV opj_setup_encoder(opj_codec_t * p_codec, opj_cpara
  *
  * @param p_codec       Compressor handle
  * @param p_options     Compression options. This should be a NULL terminated
- *                      array of strings. Each string is of the form KEY=VALUE.
+ *                array of strings. Each string is of the form KEY=VALUE.
  *
  * @return OPJ_TRUE in case of success.
  * @since 2.3.2

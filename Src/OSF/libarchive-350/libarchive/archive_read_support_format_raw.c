@@ -32,15 +32,15 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_raw.c 201107
 #include "archive_read_private.h"
 
 struct raw_info {
-	int64_t offset; /* Current position in the file. */
-	int64_t unconsumed;
+	int64 offset; /* Current position in the file. */
+	int64 unconsumed;
 	int end_of_file;
 };
 
 static int      archive_read_format_raw_bid(struct archive_read *, int);
 static int      archive_read_format_raw_cleanup(struct archive_read *);
 static int      archive_read_format_raw_read_data(struct archive_read *,
-    const void **, size_t *, int64_t *);
+    const void **, size_t *, int64 *);
 static int      archive_read_format_raw_read_data_skip(struct archive_read *);
 static int      archive_read_format_raw_read_header(struct archive_read *,
     struct archive_entry *);
@@ -54,7 +54,7 @@ int archive_read_support_format_raw(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
 	    ARCHIVE_STATE_NEW, "archive_read_support_format_raw");
 
-	info = (struct raw_info *)calloc(1, sizeof(*info));
+	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));
 	if(info == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate raw_info data");
@@ -74,7 +74,7 @@ int archive_read_support_format_raw(struct archive * _a)
 		NULL,
 		NULL);
 	if(r != ARCHIVE_OK)
-		free(info);
+		SAlloc::F(info);
 	return r;
 }
 
@@ -116,7 +116,7 @@ static int archive_read_format_raw_read_header(struct archive_read * a,
 }
 
 static int archive_read_format_raw_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+    const void ** buff, size_t * size, int64 * offset)
 {
 	struct raw_info * info;
 	ssize_t avail;
@@ -174,7 +174,7 @@ static int archive_read_format_raw_cleanup(struct archive_read * a)
 {
 	struct raw_info * info;
 	info = (struct raw_info *)(a->format->data);
-	free(info);
+	SAlloc::F(info);
 	a->format->data = NULL;
 	return ARCHIVE_OK;
 }

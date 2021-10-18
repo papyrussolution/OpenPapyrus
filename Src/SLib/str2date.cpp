@@ -1,5 +1,5 @@
 // STR2DATE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -17,7 +17,7 @@ static int * FASTCALL getnmb(int cnt, int ord, int * d, int * m, int * y)
 	}
 }
 
-int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int * pYear, long * pRetFlags)
+int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int * pYear, long * pRetFlags)
 {
 	// DATF_DMY
 
@@ -264,7 +264,7 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 	return static_cast<int>(c - pBuf);
 }
 
-int FASTCALL strtodate(const char * pBuf, long fmt, void * pDate)
+int STDCALL strtodate(const char * pBuf, long fmt, void * pDate)
 {
 	int    d, m, y;
 	_strtodate(pBuf, SFMTFLAG(fmt), &d, &m, &y);
@@ -272,14 +272,14 @@ int FASTCALL strtodate(const char * pBuf, long fmt, void * pDate)
 	return 1;
 }
 
-LDATE FASTCALL strtodate_(const char * pBuf, long fmt)
+LDATE STDCALL strtodate_(const char * pBuf, long fmt)
 {
 	int    d, m, y;
 	_strtodate(pBuf, SFMTFLAG(fmt), &d, &m, &y);
 	return encodedate(d, m, y);
 }
 
-int FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
+int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
 {
 	pDtm->Z();
 	const char * p = pBuf;
@@ -442,7 +442,7 @@ static int FASTCALL gettoken(const char ** b, long * pNumber, TempVar * pV, long
 	return result;
 }
 
-int FASTCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
+int STDCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
 {
 	const  int _defyear  = DefaultYear;
 	const  int _defmonth = DefaultMonth;

@@ -98,7 +98,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	void fini_shallow()
 	{
-		free(items);
+		SAlloc::F(items);
 		items = nullptr;
 		population = occupancy = 0;
 	}
@@ -117,17 +117,15 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 		clear();
 	}
 
-	bool in_error() const {
-		return !successful;
-	}
+	bool in_error() const { return !successful; }
 
 	bool resize()
 	{
-		if(UNLIKELY(!successful)) return false;
-
+		if(UNLIKELY(!successful)) 
+			return false;
 		unsigned int power = hb_bit_storage(population * 2 + 8);
 		unsigned int new_size = 1u << power;
-		item_t * new_items = (item_t*)malloc((size_t)new_size * sizeof(item_t));
+		item_t * new_items = (item_t *)SAlloc::M((size_t)new_size * sizeof(item_t));
 		if(UNLIKELY(!new_items)) {
 			successful = false;
 			return false;
@@ -146,14 +144,10 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 		/* Insert back old items. */
 		if(old_items)
-			for(unsigned int i = 0; i < old_size; i++)
+			for(uint i = 0; i < old_size; i++)
 				if(old_items[i].is_real())
-					set_with_hash(old_items[i].key,
-					    old_items[i].hash,
-					    old_items[i].value);
-
-		free(old_items);
-
+					set_with_hash(old_items[i].key, old_items[i].hash, old_items[i].value);
+		SAlloc::F(old_items);
 		return true;
 	}
 
@@ -274,15 +268,15 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			{
 			unsigned int i = hash % prime;
 			unsigned int step = 0;
-			unsigned int tombstone = (unsigned)-1;
+			unsigned int tombstone = (uint)-1;
 			while(!items[i].is_unused()) {
 				if(items[i].hash == hash && items[i] == key)
 					return i;
-				if(tombstone == (unsigned)-1 && items[i].is_tombstone())
+				if(tombstone == (uint)-1 && items[i].is_tombstone())
 					tombstone = i;
 				i = (i + ++step) & mask;
 			}
-			return tombstone == (unsigned)-1 ? i : tombstone;
+			return tombstone == (uint)-1 ? i : tombstone;
 		}
 
 		static unsigned int prime_for(unsigned int shift)

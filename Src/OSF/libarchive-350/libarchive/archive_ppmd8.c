@@ -85,7 +85,7 @@ void Ppmd8_Construct(CPpmd8 * p)
 void Ppmd8_Free(CPpmd8 * p)
 {
 	if(p) {
-		free(p->Base);
+		SAlloc::F(p->Base);
 		p->Size = 0;
 		p->Base = 0;
 	}
@@ -101,7 +101,7 @@ Bool Ppmd8_Alloc(CPpmd8 * p, UInt32 size)
       #else
 		    4 - (size & 3);
       #endif
-		if((p->Base = (Byte*)malloc(p->AlignOffset + size)) == 0)
+		if((p->Base = (Byte*)SAlloc::M(p->AlignOffset + size)) == 0)
 			return False;
 		p->Size = size;
 	}
@@ -427,7 +427,7 @@ static CPpmd_Void_Ref CutOff(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 		return 0;
 	}
 
-	ctx->Stats = STATS_REF(MoveUnitsUp(p, STATS(ctx), tmp = ((unsigned)ctx->NumStats + 2) >> 1));
+	ctx->Stats = STATS_REF(MoveUnitsUp(p, STATS(ctx), tmp = ((uint)ctx->NumStats + 2) >> 1));
 
 	for(s = STATS(ctx) + (i = ctx->NumStats); s >= STATS(ctx); s--)
 		if((Byte*)Ppmd8_GetPtr(p, SUCCESSOR(s)) < p->UnitsStart) {
@@ -453,7 +453,7 @@ static CPpmd_Void_Ref CutOff(CPpmd8 * p, CTX_PTR ctx, unsigned order)
 			*ONE_STATE(ctx) = *s;
 			FreeUnits(p, s, tmp);
 			/* 9.31: the code was fixed. It's was not BUG, if Freq <= MAX_FREQ = 124 */
-			ONE_STATE(ctx)->Freq = (Byte)(((unsigned)ONE_STATE(ctx)->Freq + 11) >> 3);
+			ONE_STATE(ctx)->Freq = (Byte)(((uint)ONE_STATE(ctx)->Freq + 11) >> 3);
 		}
 		else
 			Refresh(p, ctx, tmp, ctx->SummFreq > 16 * i);
@@ -522,7 +522,7 @@ static void RestoreModel(CPpmd8 * p, CTX_PTR c1
 			c->Flags = (Byte)((c->Flags & 0x10) + 0x08 * (s->Symbol >= 0x40));
 			*ONE_STATE(c) = *s;
 			SpecialFreeUnit(p, s);
-			ONE_STATE(c)->Freq = (Byte)(((unsigned)ONE_STATE(c)->Freq + 11) >> 3);
+			ONE_STATE(c)->Freq = (Byte)(((uint)ONE_STATE(c)->Freq + 11) >> 3);
 		}
 		else
 			Refresh(p, c, (c->NumStats+3) >> 1, 0);
@@ -958,10 +958,10 @@ CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked1, UInt32 * escFreq)
 {
 	CPpmd_See * see;
 	if(p->MinContext->NumStats != 0xFF) {
-		see = p->See[(unsigned)p->NS2Indx[(unsigned)p->MinContext->NumStats + 2] - 3] +
-		    (p->MinContext->SummFreq > 11 * ((unsigned)p->MinContext->NumStats + 1)) +
-		    2 * (unsigned)(2 * (unsigned)p->MinContext->NumStats <
-		    ((unsigned)SUFFIX(p->MinContext)->NumStats + numMasked1)) +
+		see = p->See[(uint)p->NS2Indx[(uint)p->MinContext->NumStats + 2] - 3] +
+		    (p->MinContext->SummFreq > 11 * ((uint)p->MinContext->NumStats + 1)) +
+		    2 * (uint)(2 * (uint)p->MinContext->NumStats <
+		    ((uint)SUFFIX(p->MinContext)->NumStats + numMasked1)) +
 		    p->MinContext->Flags;
 		{
 			unsigned r = (see->Summ >> see->Shift);

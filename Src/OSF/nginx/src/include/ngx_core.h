@@ -738,7 +738,7 @@ ngx_int_t ngx_list_init(ngx_list_t * list, ngx_pool_t * pool, ngx_uint_t n, size
  *  for(i = 0 ;; i++) {
  * if(i >= part->nelts) {
  *     if(part->next == NULL) {
- *         break;
+ *   break;
  *     }
  *     part = part->next;
  *     data = part->elts;
@@ -3354,11 +3354,11 @@ extern ngx_event_actions_t ngx_event_actions; // @global
  * The event filter is deleted just before the closing file.
  * Has no meaning for select and poll.
  * kqueue, epoll, eventport:         allows to avoid explicit delete,
- *                              because filter automatically is deleted
- *                              on file close,
+ *                        because filter automatically is deleted
+ *                        on file close,
  *
  * /dev/poll:                        we need to flush POLLREMOVE event
- *                              before closing file.
+ *                        before closing file.
  */
 #define NGX_CLOSE_EVENT    1
 #define NGX_DISABLE_EVENT  2 // disable temporarily event filter, this may avoid locks in kernel malloc()/free(): kqueue.
@@ -4142,7 +4142,7 @@ extern ngx_http_request_body_filter_pt ngx_http_top_request_body_filter;
 struct NgxReqResult {
 	ngx_http_request_t * P_Req;
 	ngx_chain_t Chain;
-	int    ReplyCode; // Код ответа, отсылаемова функции ngx_http_finalize_request 
+	int    ReplyCode; // Код ответа, отсылаемого функции ngx_http_finalize_request 
 		// Если все хорошо, то должно быть NGX_DONE.
 };
 

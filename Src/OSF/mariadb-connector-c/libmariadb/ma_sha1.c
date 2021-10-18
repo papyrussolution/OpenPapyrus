@@ -27,9 +27,9 @@
 /* This code is heavily based on the PHP md5 implementation */
 //#include "ma_sha1.h"
 
-static void ma_SHA1Transform(uint32[5], const unsigned char[64]);
-static void ma_SHA1Encode(unsigned char *, uint32 *, unsigned int);
-static void ma_SHA1Decode(uint32 *, const unsigned char *, unsigned int);
+static void ma_SHA1Transform(uint32[5], const uchar[64]);
+static void ma_SHA1Encode(uchar *, uint32 *, unsigned int);
+static void ma_SHA1Decode(uint32 *, const uchar *, unsigned int);
 
 static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -98,13 +98,13 @@ void ma_SHA1Init(_MA_SHA1_CTX * context)
    operation, processing another message block, and updating the
    context.
  */
-void ma_SHA1Update(_MA_SHA1_CTX * context, const unsigned char * input,
+void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input,
     size_t inputLen)
 {
 	unsigned int i, index, partLen;
 
 	/* Compute number of bytes mod 64 */
-	index = (unsigned int)((context->count[0] >> 3) & 0x3F);
+	index = (uint)((context->count[0] >> 3) & 0x3F);
 
 	/* Update number of bits */
 	if((context->count[0] += ((uint32)inputLen << 3))
@@ -118,7 +118,7 @@ void ma_SHA1Update(_MA_SHA1_CTX * context, const unsigned char * input,
 	 */
 	if(inputLen >= partLen) {
 		memcpy
-			((unsigned char *)&context->buffer[index], (unsigned char *)input, partLen);
+			((uchar *)&context->buffer[index], (uchar *)input, partLen);
 		ma_SHA1Transform(context->state, context->buffer);
 
 		for(i = partLen; i + 63 < inputLen; i += 64)
@@ -131,7 +131,7 @@ void ma_SHA1Update(_MA_SHA1_CTX * context, const unsigned char * input,
 
 	/* Buffer remaining input */
 	memcpy
-		((unsigned char *)&context->buffer[index], (unsigned char *)&input[i],
+		((uchar *)&context->buffer[index], (uchar *)&input[i],
 	    inputLen - i);
 }
 
@@ -141,9 +141,9 @@ void ma_SHA1Update(_MA_SHA1_CTX * context, const unsigned char * input,
    SHA1 finalization. Ends an SHA1 message-digest operation, writing the
    the message digest and zeroizing the context.
  */
-void ma_SHA1Final(unsigned char digest[20], _MA_SHA1_CTX * context)
+void ma_SHA1Final(uchar digest[20], _MA_SHA1_CTX * context)
 {
-	unsigned char bits[8];
+	uchar bits[8];
 	unsigned int index, padLen;
 
 	/* Save number of bits */
@@ -158,7 +158,7 @@ void ma_SHA1Final(unsigned char digest[20], _MA_SHA1_CTX * context)
 
 	/* Pad out to 56 mod 64.
 	 */
-	index = (unsigned int)((context->count[0] >> 3) & 0x3f);
+	index = (uint)((context->count[0] >> 3) & 0x3f);
 	padLen = (index < 56) ? (56 - index) : (120 - index);
 	ma_SHA1Update(context, PADDING, padLen);
 	/* Append length (before padding) */
@@ -167,7 +167,7 @@ void ma_SHA1Final(unsigned char digest[20], _MA_SHA1_CTX * context)
 	ma_SHA1Encode(digest, context->state, 20);
 	/* Zeroize sensitive information.
 	 */
-	memzero((unsigned char *)context, sizeof(*context));
+	memzero((uchar *)context, sizeof(*context));
 }
 
 /* }}} */
@@ -175,7 +175,7 @@ void ma_SHA1Final(unsigned char digest[20], _MA_SHA1_CTX * context)
 /* {{{ ma_SHA1Transform
  * SHA1 basic transformation. Transforms state based on block.
  */
-static void ma_SHA1Transform(uint32 state[5], const unsigned char block[64])
+static void ma_SHA1Transform(uint32 state[5], const uchar block[64])
 {
 	uint32 a = state[0], b = state[1], c = state[2];
 	uint32 d = state[3], e = state[4], x[16], tmp;
@@ -275,33 +275,33 @@ static void ma_SHA1Transform(uint32 state[5], const unsigned char block[64])
 	state[3] += d;
 	state[4] += e;
 	/* Zeroize sensitive information. */
-	memzero((unsigned char *)x, sizeof(x));
+	memzero((uchar *)x, sizeof(x));
 }
 
 /* }}} */
 
 /* {{{ ma_SHA1Encode
-   Encodes input (uint32) into output (unsigned char). Assumes len is
+   Encodes input (uint32) into output (uchar). Assumes len is
    a multiple of 4.
  */
-static void ma_SHA1Encode(unsigned char * output, uint32 * input, unsigned int len)
+static void ma_SHA1Encode(uchar * output, uint32 * input, unsigned int len)
 {
 	unsigned int i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4) {
-		output[j] = (unsigned char)((input[i] >> 24) & 0xff);
-		output[j + 1] = (unsigned char)((input[i] >> 16) & 0xff);
-		output[j + 2] = (unsigned char)((input[i] >> 8) & 0xff);
-		output[j + 3] = (unsigned char)(input[i] & 0xff);
+		output[j] = (uchar)((input[i] >> 24) & 0xff);
+		output[j + 1] = (uchar)((input[i] >> 16) & 0xff);
+		output[j + 2] = (uchar)((input[i] >> 8) & 0xff);
+		output[j + 3] = (uchar)(input[i] & 0xff);
 	}
 }
 
 /* }}} */
 
 /* {{{ ma_SHA1Decode
-   Decodes input (unsigned char) into output (uint32). Assumes len is
+   Decodes input (uchar) into output (uint32). Assumes len is
    a multiple of 4.
  */
-static void ma_SHA1Decode(uint32 * output, const unsigned char * input, unsigned int len)
+static void ma_SHA1Decode(uint32 * output, const uchar * input, unsigned int len)
 {
 	unsigned int i, j;
 

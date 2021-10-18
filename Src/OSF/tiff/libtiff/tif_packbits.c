@@ -57,12 +57,12 @@ static int PackBitsPostEncode(TIFF* tif)
 /*
  * Encode a run of pixels.
  */
-static int PackBitsEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
+static int PackBitsEncode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 {
 	uchar* bp = (uchar *)buf;
-	uint8* op;
-	uint8* ep;
-	uint8* lastliteral;
+	uint8 * op;
+	uint8 * ep;
+	uint8 * lastliteral;
 	long n, slop;
 	int b;
 	enum { BASE, LITERAL, RUN, LITERAL_RUN } state;
@@ -192,7 +192,7 @@ again:
  * the decoder if data is read, for example, by scanlines
  * when it was encoded by strips.
  */
-static int PackBitsEncodeChunk(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int PackBitsEncodeChunk(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowsize = *reinterpret_cast<const tmsize_t *>(tif->tif_data);
 	while(cc > 0) {
@@ -207,7 +207,7 @@ static int PackBitsEncodeChunk(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	return 1;
 }
 
-static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int PackBitsDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	char * bp;

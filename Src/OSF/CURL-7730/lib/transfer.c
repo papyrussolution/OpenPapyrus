@@ -205,7 +205,7 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, size_t bytes, size_t * n
 		   nothing happened.
 		 */
 		readfunc = Curl_trailers_read;
-		extra_data = (void*)data;
+		extra_data = (void *)data;
 	}
 	else
 #endif
@@ -250,8 +250,8 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, size_t bytes, size_t * n
 		/* if chunked Transfer-Encoding
 		 *    build chunk:
 		 *
-		 *        <HEX SIZE> CRLF
-		 *        <DATA> CRLF
+		 *  <HEX SIZE> CRLF
+		 *  <DATA> CRLF
 		 */
 		/* On non-ASCII platforms the <DATA> may or may not be
 		   translated based on set.prefer_ascii while the protocol

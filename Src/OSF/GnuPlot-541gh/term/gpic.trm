@@ -126,7 +126,7 @@ TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			GPIC_y = y;
 		}
 	}
-	sprintf(GPT.TermOptions, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
+	slprintf(GPT._TermOptions, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
 }
 
 TERM_PUBLIC void GPIC_init(GpTermEntry * pThis)
@@ -174,9 +174,7 @@ TERM_PUBLIC void GPIC_move(uint x, uint y)
 TERM_PUBLIC void GPIC_vector(uint ux, uint uy)
 {
 	if(GPIC_linecount == 1) {
-		fprintf(GPT.P_GpOutFile, "line %s to (x+%f,y+%f)",
-		    GPIC_lines[GPIC_ltype + 2],
-		    GPIC_coord(ux), GPIC_coord(uy));
+		fprintf(GPT.P_GpOutFile, "line %s to (x+%f,y+%f)", GPIC_lines[GPIC_ltype + 2], GPIC_coord(ux), GPIC_coord(uy));
 	}
 	else {
 		fprintf(GPT.P_GpOutFile, "\

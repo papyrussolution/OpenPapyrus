@@ -152,7 +152,7 @@ static int screensize;          /* lines on screen (got with env var) */
 /* (out) - are there subtopics? */
 int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */)
 {
-	static char * oldpath = NULL;/* previous help file */
+	static char * oldpath = NULL; /* previous help file */
 	int status;             /* result of LoadHelp */
 	KEY * key;              /* key that matches keyword */
 	/*

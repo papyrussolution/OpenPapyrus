@@ -73,7 +73,7 @@ typedef uint32 tstrile_t;       /* strip or tile number */
 typedef tstrile_t tstrip_t;     /* strip number */
 typedef tstrile_t ttile_t;      /* tile number */
 typedef tmsize_t tsize_t;       /* i/o size in bytes */
-typedef void* tdata_t;          /* image data ref */
+typedef void * tdata_t;          /* image data ref */
 
 #if !defined(__WIN32__) && (defined(_WIN32) || defined(WIN32))
 	#define __WIN32__
@@ -99,7 +99,7 @@ typedef void* tdata_t;          /* image data ref */
 		typedef HFILE thandle_t;       /* client data handle */
 	#endif /* __WIN32__ */
 #else
-	typedef void* thandle_t;       /* client data handle */
+	typedef void * thandle_t;       /* client data handle */
 #endif /* USE_WIN32_FILEIO */
 /*
  * Flags to pass to TIFFPrintDirectory to control
@@ -260,7 +260,7 @@ typedef toff_t (*TIFFSeekProc)(thandle_t, toff_t, int);
 typedef int (*TIFFCloseProc)(thandle_t);
 typedef toff_t (*TIFFSizeProc)(thandle_t);
 typedef int (*TIFFMapFileProc)(thandle_t, void** base, toff_t* size);
-typedef void (*TIFFUnmapFileProc)(thandle_t, void* base, toff_t size);
+typedef void (*TIFFUnmapFileProc)(thandle_t, void * base, toff_t size);
 typedef void (*TIFFExtendProc)(TIFF*);
 
 extern const char* TIFFGetVersion(void);
@@ -274,13 +274,13 @@ extern TIFFCodec* TIFFGetConfiguredCODECs(void);
 /*
  * Auxiliary functions.
  */
-//extern void* _TIFFmalloc_Removed(tmsize_t s);
-//extern void* _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz);
-//extern void* _TIFFrealloc_Removed(void* p, tmsize_t s);
-//extern void _TIFFmemset_Removed(void* p, int v, tmsize_t c);
-//extern void _TIFFmemcpy_Removed(void* d, const void* s, tmsize_t c);
-extern int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c);
-//extern void _TIFFfree_Removed(void* p);
+//extern void * _TIFFmalloc_Removed(tmsize_t s);
+//extern void * _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz);
+//extern void * _TIFFrealloc_Removed(void * p, tmsize_t s);
+//extern void _TIFFmemset_Removed(void * p, int v, tmsize_t c);
+//extern void _TIFFmemcpy_Removed(void * d, const void * s, tmsize_t c);
+extern int _TIFFmemcmp(const void * p1, const void * p2, tmsize_t c);
+//extern void _TIFFfree_Removed(void * p);
 
 /*
 ** Stuff, related to tag handling and creating custom tags.
@@ -375,8 +375,8 @@ extern uint16 TIFFNumberOfDirectories(TIFF*);
 extern uint64 TIFFCurrentDirOffset(TIFF*);
 extern uint32 TIFFCurrentStrip(TIFF*);
 extern uint32 TIFFCurrentTile(TIFF* tif);
-extern int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size);
-extern int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size);  
+extern int TIFFReadBufferSetup(TIFF* tif, void * bp, tmsize_t size);
+extern int TIFFWriteBufferSetup(TIFF* tif, void * bp, tmsize_t size);  
 extern int TIFFSetupStrips(TIFF *);
 extern int FASTCALL TIFFWriteCheck(TIFF*, int, const char *);
 extern void TIFFFreeDirectory(TIFF*);
@@ -397,14 +397,14 @@ extern int TIFFRewriteDirectory(TIFF *);
 
 #if defined(c_plusplus) || defined(__cplusplus)
 extern void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
-extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
-extern int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
+extern int TIFFReadScanline(TIFF* tif, void * buf, uint32 row, uint16 sample = 0);
+extern int TIFFWriteScanline(TIFF* tif, void * buf, uint32 row, uint16 sample = 0);
 extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
 extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int = ORIENTATION_BOTLEFT, int = 0);
 #else
 extern void TIFFPrintDirectory(TIFF*, FILE*, long);
-extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
-extern int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
+extern int TIFFReadScanline(TIFF* tif, void * buf, uint32 row, uint16 sample);
+extern int TIFFWriteScanline(TIFF* tif, void * buf, uint32 row, uint16 sample);
 extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
 extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
 #endif
@@ -438,18 +438,18 @@ extern TIFFExtendProc TIFFSetTagExtender(TIFFExtendProc);
 extern uint32 TIFFComputeTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
 extern int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
 extern uint32 TIFFNumberOfTiles(TIFF*);
-extern tmsize_t TIFFReadTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);  
-extern tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);
+extern tmsize_t TIFFReadTile(TIFF* tif, void * buf, uint32 x, uint32 y, uint32 z, uint16 s);  
+extern tmsize_t TIFFWriteTile(TIFF* tif, void * buf, uint32 x, uint32 y, uint32 z, uint16 s);
 extern uint32 TIFFComputeStrip(TIFF*, uint32, uint16);
 extern uint32 TIFFNumberOfStrips(TIFF*);
-extern tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);
-extern tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);  
-extern tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
-extern tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
-extern tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);
-extern tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);  
-extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
-extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
+extern tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void * buf, tmsize_t size);
+extern tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void * buf, tmsize_t size);  
+extern tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void * buf, tmsize_t size);  
+extern tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void * buf, tmsize_t size);  
+extern tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void * data, tmsize_t cc);
+extern tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void * data, tmsize_t cc);  
+extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc);  
+extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc);  
 extern int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
 extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
 extern void FASTCALL TIFFSwabShort(uint16 *);
@@ -458,12 +458,12 @@ extern void FASTCALL TIFFSwabLong8(uint64 *);
 extern void TIFFSwabFloat(float *);
 extern void TIFFSwabDouble(double *);
 extern void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
-extern void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);
+extern void TIFFSwabArrayOfTriples(uint8 * tp, tmsize_t n);
 extern void FASTCALL TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
 extern void FASTCALL TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
 extern void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
 extern void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
-extern void FASTCALL TIFFReverseBits(uint8* cp, tmsize_t n);
+extern void FASTCALL TIFFReverseBits(uint8 * cp, tmsize_t n);
 extern const uchar * TIFFGetBitRevTable(int);
 
 #ifdef LOGLUV_PUBLIC
@@ -498,7 +498,7 @@ extern int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
 extern void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32, uint32 *, uint32 *, uint32 *);
 
 /****************************************************************************
- *             O B S O L E T E D    I N T E R F A C E S
+ *       O B S O L E T E D    I N T E R F A C E S
  *
  * Don't use this stuff in your applications, it may be removed in the future
  * libtiff versions.

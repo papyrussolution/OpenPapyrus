@@ -419,7 +419,7 @@ int PPObjOprKind::AssignImages(ListBoxDef * pDef)
 }
 #endif // } @v11.1.11 @construction
 
-int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
+int STDCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -468,7 +468,7 @@ PPID SelectOpKind(PPID linkOpID, const PPIDArray * pOpList, uint opklFlags)
 	return id;
 }
 
-PPID SLAPIV SelectOprKind(uint opklFlags, PPID linkOpID, ...)
+PPID CDECL SelectOprKind(uint opklFlags, PPID linkOpID, ...)
 {
 	va_list ap;
 	PPID   id = 0;
@@ -891,7 +891,6 @@ int PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock &
 		assert(!isempty(rBlk.P_CodeTempl));
 		SString temp_buf;
 		PPOprKindPacket op_pack;
-        MEMSZERO(op_rec);
 		op_pack.Rec.ID = rBlk.OpID;
         PPLoadText(rBlk.NameTxtId, temp_buf);
         THROW(temp_buf.NotEmptyS());

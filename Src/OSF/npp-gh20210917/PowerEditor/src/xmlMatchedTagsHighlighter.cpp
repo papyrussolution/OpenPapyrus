@@ -189,8 +189,8 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 					 * We then need to check if either
 					 *    a) this tag is a self-closed tag - e.g. <TAGNAME attrib="value" />
 					 * or b) this tag has another closing tag after it and before our closing tag
-					 *       e.g.  <TAGNAME attrib="value">some text</TAGNAME></TAGNA|ME>
-					 *             (cursor represented by |)
+					 * e.g.  <TAGNAME attrib="value">some text</TAGNAME></TAGNA|ME>
+					 *       (cursor represented by |)
 					 * If it's either of the above, then we continue searching, but only up to the
 					 * the point of the last find. (So in the (b) example above, we'd only search
 					 *backwards
@@ -308,9 +308,9 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 							 * We then need to check if
 							 * our tag has another opening tag after it and before the
 							 *closing tag we've found
-							 *       e.g.  <TA|GNAME><TAGNAME attrib="value">some
+							 * e.g.  <TA|GNAME><TAGNAME attrib="value">some
 							 *text</TAGNAME></TAGNAME>
-							 *             (cursor represented by |)
+							 *       (cursor represented by |)
 							 */
 							int currentStartPosition = xmlTags.tagOpenEnd;
 							int closeTagsRemaining = 1;

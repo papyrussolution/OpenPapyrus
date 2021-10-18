@@ -42,11 +42,11 @@ __FBSDID("$FreeBSD$");
 struct private_data {
 	z_stream stream;
 	char in_stream;
-	unsigned char   * out_block;
+	uchar   * out_block;
 	size_t out_block_size;
-	int64_t total_out;
+	int64 total_out;
 	unsigned long crc;
-	uint32_t mtime;
+	uint32 mtime;
 	char            * name;
 	char eof;             /* True = found end of compressed data. */
 };
@@ -173,8 +173,8 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits,
 #ifdef HAVE_ZLIB_H
 		if(state) {
 			/* Reset the name in case of repeat header reads. */
-			free(state->name);
-			state->name = strdup((const char *)&p[file_start]);
+			SAlloc::F(state->name);
+			state->name = sstrdup((const char *)&p[file_start]);
 		}
 #endif
 	}
@@ -275,11 +275,11 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_GZIP;
 	self->name = "gzip";
 
-	state = (struct private_data *)calloc(sizeof(*state), 1);
-	out_block = (uchar *)malloc(out_block_size);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
-		free(out_block);
-		free(state);
+		SAlloc::F(out_block);
+		SAlloc::F(state);
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for gzip decompression");
 		return ARCHIVE_FATAL;
 	}
@@ -487,9 +487,9 @@ static int gzip_filter_close(struct archive_read_filter * self)
 		}
 	}
 
-	free(state->name);
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->name);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ret;
 }
 

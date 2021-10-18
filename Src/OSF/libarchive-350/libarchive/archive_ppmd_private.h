@@ -16,7 +16,7 @@ This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain */
 /*** Begin defined in Types.h ***/
 
 #if !defined(ZCONF_H)
-typedef unsigned char Byte;
+typedef uchar Byte;
 #endif
 typedef short Int16;
 typedef unsigned short UInt16;

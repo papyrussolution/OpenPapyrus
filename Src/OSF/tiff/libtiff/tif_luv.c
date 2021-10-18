@@ -174,7 +174,7 @@ struct logLuvState {
 /*
  * Decode a string of 16-bit gray pixels.
  */
-static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int LogL16Decode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
@@ -239,7 +239,7 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 /*
  * Decode a string of 24-bit pixels.
  */
-static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int LogLuvDecode24(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
@@ -285,7 +285,7 @@ static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 /*
  * Decode a string of 32-bit pixels.
  */
-static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
+static int LogLuvDecode32(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp;
@@ -353,7 +353,7 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
  * maintain synchrony with the encode algorithm, which
  * is row by row.
  */
-static int LogLuvDecodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvDecodeStrip(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFScanlineSize(tif);
 	if(rowlen == 0)
@@ -371,7 +371,7 @@ static int LogLuvDecodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  * maintain synchrony with the encode algorithm, which
  * is row by row.
  */
-static int LogLuvDecodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvDecodeTile(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFTileRowSize(tif);
 	if(rowlen == 0)
@@ -387,7 +387,7 @@ static int LogLuvDecodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 /*
  * Encode a row of 16-bit pixels.
  */
-static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogL16Encode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
@@ -395,7 +395,7 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tmsize_t i;
 	tmsize_t j;
 	tmsize_t npixels;
-	uint8* op;
+	uint8 * op;
 	int16* tp;
 	int16 b;
 	tmsize_t occ;
@@ -481,14 +481,14 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 /*
  * Encode a row of 24-bit pixels.
  */
-static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvEncode24(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
 	tmsize_t i;
 	tmsize_t npixels;
 	tmsize_t occ;
-	uint8* op;
+	uint8 * op;
 	uint32* tp;
 
 	assert(s == 0);
@@ -531,7 +531,7 @@ static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 /*
  * Encode a row of 32-bit pixels.
  */
-static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvEncode32(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
@@ -539,7 +539,7 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tmsize_t i;
 	tmsize_t j;
 	tmsize_t npixels;
-	uint8* op;
+	uint8 * op;
 	uint32* tp;
 	uint32 b;
 	tmsize_t occ;
@@ -626,7 +626,7 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  * Encode a strip of pixels.  We break it into rows to
  * avoid encoding runs across row boundaries.
  */
-static int LogLuvEncodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvEncodeStrip(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFScanlineSize(tif);
 	if(rowlen == 0)
@@ -643,7 +643,7 @@ static int LogLuvEncodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  * Encode a tile of pixels.  We break it into rows to
  * avoid encoding runs across row boundaries.
  */
-static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
+static int LogLuvEncodeTile(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFTileRowSize(tif);
 	if(rowlen == 0)
@@ -706,7 +706,7 @@ LOGLUV_FUNC_QUALIF int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y
 	return 0;
 }
 
-static void L16toY(LogLuvState* sp, uint8* op, tmsize_t n)
+static void L16toY(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
 	float * yp = reinterpret_cast<float *>(op);
@@ -724,7 +724,7 @@ static void L16toGry(LogLuvState* sp, uint8 * op, tmsize_t n)
 	}
 }
 
-static void L16fromY(LogLuvState* sp, uint8* op, tmsize_t n)
+static void L16fromY(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
 	float * yp = reinterpret_cast<float *>(op);
@@ -904,7 +904,7 @@ LOGLUV_FUNC_QUALIF uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 	return (Le << 14 | Ce);
 }
 
-static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv24toXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float * xyz = reinterpret_cast<float *>(op);
@@ -915,7 +915,7 @@ static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv24toLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16 * luv3 = reinterpret_cast<int16 *>(op);
@@ -932,7 +932,7 @@ static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv24toRGB(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	uint8 * rgb = op;
@@ -944,7 +944,7 @@ static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv24fromXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
@@ -954,7 +954,7 @@ static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv24fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv24fromLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16  * luv3 = reinterpret_cast<int16 *>(op);
@@ -1023,7 +1023,7 @@ LOGLUV_FUNC_QUALIF uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 	return (Le << 16 | ue << 8 | ve);
 }
 
-static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv32toXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
@@ -1033,7 +1033,7 @@ static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv32toLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16* luv3 = reinterpret_cast<int16 *>(op);
@@ -1048,7 +1048,7 @@ static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv32toRGB(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	uint8  * rgb = op;
@@ -1060,7 +1060,7 @@ static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv32fromXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
@@ -1070,7 +1070,7 @@ static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void Luv32fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
+static void Luv32fromLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16* luv3 = reinterpret_cast<int16 *>(op);
@@ -1089,7 +1089,7 @@ static void Luv32fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 	}
 }
 
-static void _logLuvNop(LogLuvState* sp, uint8* op, tmsize_t n)
+static void _logLuvNop(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
 	(void)sp; (void)op; (void)n;
 }

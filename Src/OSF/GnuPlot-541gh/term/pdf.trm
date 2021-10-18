@@ -417,16 +417,16 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pGp->IntErrorCurToken("unexpected text at end of command");
 	}
 	// Save options back into options string in normalized format 
-	sprintf(GPT.TermOptions, "%s%s fname '%s'  fsize %g fontscale %3.1f linewidth %3.1f %s ",
+	slprintf(GPT._TermOptions, "%s%s fname '%s'  fsize %g fontscale %3.1f linewidth %3.1f %s ",
 	    PDF_monochrome ? "monochrome " : " ", pThis->put_text == ENHPDF_put_text ? "enhanced" : "noenhanced",
 	    PDF_fontNameDef, PDF_fontSizeDef, PDF_fontscale, PDF_linewidth_factor, PDF_LineCap == 1 ? "rounded" : "");
 	if(PDF_dashedlines)
-		sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "dl %3.1f", PDF_dashlength_factor);
+		slprintf_cat(GPT._TermOptions, "dl %3.1f", PDF_dashlength_factor);
 	if(pdf_explicit_size) {
 		if(pdf_explicit_units == CM)
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(72.*PDF_RESOLUTION), 2.54*(float)pThis->MaxY/(72.*PDF_RESOLUTION));
+			slprintf_cat(GPT._TermOptions, "size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(72.*PDF_RESOLUTION), 2.54*(float)pThis->MaxY/(72.*PDF_RESOLUTION));
 		else
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fin, %.2fin ", (float)pThis->MaxX/(72.*PDF_RESOLUTION), (float)pThis->MaxY/(72.*PDF_RESOLUTION));
+			slprintf_cat(GPT._TermOptions, "size %.2fin, %.2fin ", (float)pThis->MaxX/(72.*PDF_RESOLUTION), (float)pThis->MaxY/(72.*PDF_RESOLUTION));
 	}
 }
 
@@ -849,14 +849,14 @@ TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
 			    PDF_closepath_fill_stroke(myPDF);
 			    break;
 
-/*************************************************************************/
+// 
 /* 31 + (0..15): squares with different quadrants of them filled in. */
-/*************************************************************************/
-/*************************************************************************/
+// 
+// 
 /* 47 + (0..15): diamonds with filled quadrants as given by bit pattern  */
 /*   Diamonds are drawn as squares rotated by 45 degrees, so can use
  * fall-through from diamond to squares, and re-use some macros. */
-/*************************************************************************/
+// 
 			case 47+0:
 			    PDF_rotate(myPDF, 45);
 			// @fallthrough

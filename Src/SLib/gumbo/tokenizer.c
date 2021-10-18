@@ -2772,7 +2772,6 @@ bool gumbo_lex(GumboParser * parser, GumboToken* output)
 		tokenizer->_buffered_emit_char = kGumboNoChar;
 		return true;
 	}
-
 	if(maybe_emit_from_temporary_buffer(parser, output)) {
 		return true;
 	}

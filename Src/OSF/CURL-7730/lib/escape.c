@@ -131,7 +131,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
  * ctrl options:
  * - REJECT_NADA: accept everything
  * - REJECT_CTRL: rejects control characters (byte codes lower than 32) in
- *                the data
+ *          the data
  * - REJECT_ZERO: rejects decoded zero bytes
  *
  * The values for the enum starts at 2, to make the assert detect legacy

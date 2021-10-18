@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -402,7 +402,7 @@ int PPViewGoodsMov2::SerializeState(int dir, SBuffer & rBuf, SSerializeContext *
 	return ok;
 }
 
-int ViewGoodsMov(int modeless)
+int STDCALL ViewGoodsMov(int modeless)
 {
 	int    ok = -1;
 	GoodsMovFilt  filt;
@@ -451,8 +451,8 @@ int PPALDD_GoodsMov2::InitData(PPFilt & rFilt, long rsrv)
 	const GoodsMovFilt * p_flt  = static_cast<const GoodsMovFilt *>(p_v->GetBaseFilt());
 	H.FltBeg  = p_flt->Period.low;
 	H.FltEnd  = p_flt->Period.upp;
-	H.fLabelOnly    = (p_flt->Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0;
-	H.fCostWoVat    = (p_flt->Flags & GoodsMovFilt::fCostWoVat) ? 1 : 0;
+	H.fLabelOnly    = BIN(p_flt->Flags & GoodsMovFilt::fLabelOnly);
+	H.fCostWoVat    = BIN(p_flt->Flags & GoodsMovFilt::fCostWoVat);
 	PPFormatPeriod(&p_flt->Period, temp_buf).CopyTo(H.Period, sizeof(H.Period));
 	H.FltLocID      = p_flt->LocList.GetSingle();
 	H.FltSupplID    = p_flt->SupplID;

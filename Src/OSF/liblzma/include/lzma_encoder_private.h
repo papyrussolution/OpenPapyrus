@@ -28,36 +28,36 @@ struct lzma_length_encoder {
 	probability low[POS_STATES_MAX][LEN_LOW_SYMBOLS];
 	probability mid[POS_STATES_MAX][LEN_MID_SYMBOLS];
 	probability high[LEN_HIGH_SYMBOLS];
-	uint32_t prices[POS_STATES_MAX][LEN_SYMBOLS];
-	uint32_t table_size;
-	uint32_t counters[POS_STATES_MAX];
+	uint32 prices[POS_STATES_MAX][LEN_SYMBOLS];
+	uint32 table_size;
+	uint32 counters[POS_STATES_MAX];
 };
 
 struct lzma_optimal {
 	lzma_lzma_state state;
 	bool prev_1_is_literal;
 	bool prev_2;
-	uint32_t pos_prev_2;
-	uint32_t back_prev_2;
-	uint32_t price;
-	uint32_t pos_prev;  // pos_next;
-	uint32_t back_prev;
-	uint32_t backs[REPS];
+	uint32 pos_prev_2;
+	uint32 back_prev_2;
+	uint32 price;
+	uint32 pos_prev;  // pos_next;
+	uint32 back_prev;
+	uint32 backs[REPS];
 };
 
 struct lzma_lzma1_encoder_s {
 	lzma_range_encoder rc; /// Range encoder
 	lzma_lzma_state state; /// State
-	uint32_t reps[REPS]; /// The four most recent match distances
+	uint32 reps[REPS]; /// The four most recent match distances
 	lzma_match matches[MATCH_LEN_MAX + 1]; /// Array of match candidates
-	uint32_t matches_count; /// Number of match candidates in matches[]
-	uint32_t longest_match_length; /// Variable to hold the length of the longest match between calls to lzma_lzma_optimum_*().
+	uint32 matches_count; /// Number of match candidates in matches[]
+	uint32 longest_match_length; /// Variable to hold the length of the longest match between calls to lzma_lzma_optimum_*().
 	bool fast_mode; /// True if using getoptimumfast
 	bool is_initialized; /// True if the encoder has been initialized by encoding the first byte as a literal.
 	bool is_flushed; /// True if the range encoder has been flushed, but not all bytes have been written to the output buffer yet.
-	uint32_t pos_mask;         ///< (1 << pos_bits) - 1
-	uint32_t literal_context_bits;
-	uint32_t literal_pos_mask;
+	uint32 pos_mask;         ///< (1 << pos_bits) - 1
+	uint32 literal_context_bits;
+	uint32 literal_pos_mask;
 	// These are the same as in lzma_decoder.c. See comments there.
 	probability literal[LITERAL_CODERS_MAX][LITERAL_CODER_SIZE];
 	probability is_match[STATES][POS_STATES_MAX];
@@ -73,19 +73,19 @@ struct lzma_lzma1_encoder_s {
 	lzma_length_encoder match_len_encoder;
 	lzma_length_encoder rep_len_encoder;
 	// Price tables
-	uint32_t dist_slot_prices[DIST_STATES][DIST_SLOTS];
-	uint32_t dist_prices[DIST_STATES][FULL_DISTANCES];
-	uint32_t dist_table_size;
-	uint32_t match_price_count;
-	uint32_t align_prices[ALIGN_SIZE];
-	uint32_t align_price_count;
+	uint32 dist_slot_prices[DIST_STATES][DIST_SLOTS];
+	uint32 dist_prices[DIST_STATES][FULL_DISTANCES];
+	uint32 dist_table_size;
+	uint32 match_price_count;
+	uint32 align_prices[ALIGN_SIZE];
+	uint32 align_price_count;
 	// Optimal
-	uint32_t opts_end_index;
-	uint32_t opts_current_index;
+	uint32 opts_end_index;
+	uint32 opts_current_index;
 	lzma_optimal opts[OPTS];
 };
 
-extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32_t * back_res, uint32_t * len_res);
-extern void lzma_lzma_optimum_normal(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32_t * back_res, uint32_t * len_res, uint32_t position);
+extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 * back_res, uint32 * len_res);
+extern void lzma_lzma_optimum_normal(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 * back_res, uint32 * len_res, uint32 position);
 
 #endif

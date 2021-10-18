@@ -1047,9 +1047,9 @@ struct __db_log_verify_info {
 	uint32 ntxn_active, ntxn_abort, ntxn_commit, ntxn_prep;  // The number of active, abort, commit and prepared txns.
 	uint32 nckp;		/* The number of checkpoint log records. */
 	uint8 target_dbid[DB_FILE_ID_LEN]; // Target database file unique id. Set if only verify log records of a database. 
-	uint32 non_txnup_cnt;/* Number of non-txnal log records. */
-	uint32 unknown_logrec_cnt;/* Number of unknown log record. */
-	uint32 external_logrec_cnt;/* Number of external log record. */
+	uint32 non_txnup_cnt; /* Number of non-txnal log records. */
+	uint32 unknown_logrec_cnt; /* Number of unknown log record. */
+	uint32 external_logrec_cnt; /* Number of external log record. */
 	uint32 lrtypes[256]; // (Log type, number of record) map. typeids are continuous integers, 256 is a big enough number. 
 	uint32 aborted_txnid; // The last aborted txnid. 
 	DB_LSN aborted_txnlsn; /* Last aborted txn's last log. */
@@ -1086,7 +1086,7 @@ struct __txn_verify_info {
 	uint32 flags; /* Copied from the DB_TXN::flags member. */
 	DB_LSN *recycle_lsns; 	/* The array of txn_recycle records' lsns. */
 	DBT *fileups; 	 // The array of file unique ids of files updated by this txn. 
-	int32 *dbregid;/* The array of dbreg file ids updated by this txn. */
+	int32 *dbregid; /* The array of dbreg file ids updated by this txn. */
 };
 //
 // Database file information. 
@@ -1147,7 +1147,7 @@ struct __lv_txnrange {
 struct __add_recycle_params {
 	uint32 min, max; // The recycled txnid range. 
 	VRFY_TXN_INFO **ti2u; // The array of txn info to update into db.
-	uint32 ti2ui, ti2ul;/* The effective length and array length. */
+	uint32 ti2ui, ti2ul; /* The effective length and array length. */
 	DB_LSN recycle_lsn;
 }; 
 

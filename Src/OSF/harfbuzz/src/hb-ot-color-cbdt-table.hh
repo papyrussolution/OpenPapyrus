@@ -234,7 +234,7 @@ public:
 			switch(u.header.indexFormat)
 			{
 				case 1: {
-				    for(unsigned int i = 0; i < num_missing; i++) {
+				    for(uint i = 0; i < num_missing; i++) {
 					    if(UNLIKELY(!u.format1.add_offset(c, local_offset, size)))
 						    return_trace(false);
 					    *num_glyphs += 1;
@@ -242,7 +242,7 @@ public:
 				    return_trace(true);
 			    }
 				case 3: {
-				    for(unsigned int i = 0; i < num_missing; i++) {
+				    for(uint i = 0; i < num_missing; i++) {
 					    if(UNLIKELY(!u.format3.add_offset(c, local_offset, size)))
 						    return_trace(false);
 					    *num_glyphs += 1;
@@ -269,7 +269,7 @@ public:
 			if(UNLIKELY(offset > cbdt_length || cbdt_length - offset < length)) return_trace(false);
 
 			auto * header_prime = subtable_prime->get_header();
-			unsigned int new_local_offset = cbdt_prime->length - (unsigned int)header_prime->imageDataOffset;
+			unsigned int new_local_offset = cbdt_prime->length - (uint)header_prime->imageDataOffset;
 			if(UNLIKELY(!_copy_data_to_cbdt(cbdt_prime, cbdt + offset, length))) return_trace(false);
 
 			return_trace(subtable_prime->add_offset(c, new_local_offset, size));
@@ -380,7 +380,7 @@ public:
 
 			unsigned int num_glyphs = 0;
 			bool early_exit = false;
-			for(unsigned int i = *start; i < lookup->length; i++) {
+			for(uint i = *start; i < lookup->length; i++) {
 				hb_codepoint_t new_gid = (*lookup)[i].first;
 				const IndexSubtableRecord * next_record = (*lookup)[i].second;
 				const IndexSubtable * next_subtable = next_record->get_subtable(base);
@@ -403,7 +403,7 @@ public:
 				if(old_gid < next_record->firstGlyphIndex)
 					return_trace(false);
 
-				unsigned int old_idx = (unsigned int)old_gid - next_record->firstGlyphIndex;
+				unsigned int old_idx = (uint)old_gid - next_record->firstGlyphIndex;
 				if(UNLIKELY(!next_subtable->copy_glyph_at_idx(c->serializer,
 				    old_idx,
 				    bitmap_size_context->cbdt,
@@ -469,7 +469,7 @@ public:
 			// TODO maybe assert? this shouldn't occur.
 			if(lastGlyphIndex > gid)
 				return 0;
-			unsigned int num_missing = (unsigned int)(gid - lastGlyphIndex - 1);
+			unsigned int num_missing = (uint)(gid - lastGlyphIndex - 1);
 			lastGlyphIndex = gid;
 			return num_missing;
 		}
@@ -554,7 +554,7 @@ public:
 				if(UNLIKELY(!lookup[start].second->add_new_record(c, bitmap_size_context, &lookup, this, &start,
 				    &records))) {
 					// Discard any leftover pushes to the serializer from successful records.
-					for(unsigned int i = 0; i < records.length; i++)
+					for(uint i = 0; i < records.length; i++)
 						c->serializer->pop_discard();
 					return_trace(false);
 				}
@@ -563,9 +563,9 @@ public:
 			/* Workaround to ensure offset ordering is from least to greatest when
 			 * resolving links. */
 			hb_vector_t<hb_serialize_context_t::objidx_t> objidxs;
-			for(unsigned int i = 0; i < records.length; i++)
+			for(uint i = 0; i < records.length; i++)
 				objidxs.push(c->serializer->pop_pack());
-			for(unsigned int i = 0; i < records.length; i++) {
+			for(uint i = 0; i < records.length; i++) {
 				IndexSubtableRecord* record = c->serializer->embed(records[i]);
 				if(UNLIKELY(!record)) return_trace(false);
 				c->serializer->add_link(record->offsetToSubtable, objidxs[records.length - 1 - i]);
@@ -576,7 +576,7 @@ public:
 public:
 		const IndexSubtableRecord* find_table(hb_codepoint_t glyph, unsigned int numTables) const
 		{
-			for(unsigned int i = 0; i < numTables; ++i) {
+			for(uint i = 0; i < numTables; ++i) {
 				unsigned int firstGlyphIndex = indexSubtablesZ[i].firstGlyphIndex;
 				unsigned int lastGlyphIndex = indexSubtablesZ[i].lastGlyphIndex;
 				if(firstGlyphIndex <= glyph && glyph <= lastGlyphIndex)
@@ -746,7 +746,7 @@ protected:
 			unsigned int best_i = 0;
 			unsigned int best_ppem = hb_max(sizeTables[0].ppemX, sizeTables[0].ppemY);
 
-			for(unsigned int i = 1; i < count; i++) {
+			for(uint i = 1; i < count; i++) {
 				unsigned int ppem = hb_max(sizeTables[i].ppemX, sizeTables[i].ppemY);
 				if((requested_ppem <= ppem && ppem < best_ppem) ||
 				    (requested_ppem > best_ppem && ppem > best_ppem)) {

@@ -237,26 +237,26 @@ static int ssh_select_cb(socket_t fd, int revents, void * userdata)
  * There is no support for writing or exceptions.\n
  *
  * @param[in]  channels Arrays of channels pointers terminated by a NULL.
- *                      It is never rewritten.
+ *                It is never rewritten.
  *
  * @param[out] outchannels Arrays of same size that "channels", there is no need
- *                         to initialize it.
+ *                   to initialize it.
  *
  * @param[in]  maxfd    Maximum +1 file descriptor from readfds.
  *
  * @param[in]  readfds  A fd_set of file descriptors to be select'ed for
- *                      reading.
+ *                reading.
  *
  * @param[in]  timeout  The timeout in milliseconds.
  *
  * @return              SSH_OK on success,
- *                      SSH_ERROR on error,
- *                      SSH_EINTR if it was interrupted. In that case,
- *                      just restart it.
+ *                SSH_ERROR on error,
+ *                SSH_EINTR if it was interrupted. In that case,
+ *                just restart it.
  *
  * @warning libssh is not reentrant here. That means that if a signal is caught
- *          during the processing of this function, you cannot call libssh
- *          functions on sessions that are busy with ssh_select().
+ *    during the processing of this function, you cannot call libssh
+ *    functions on sessions that are busy with ssh_select().
  *
  * @see select(2)
  */

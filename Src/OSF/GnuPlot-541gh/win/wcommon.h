@@ -96,7 +96,7 @@ void CloseMacros(TW * lptw);
 //extern HGLOBAL hDevNames;
 //extern HGLOBAL hDevMode;
 
-void PrintingCleanup();
+//void PrintingCleanup();
 void * PrintingCallbackCreate(GP_PRINT * lpr);
 void PrintingCallbackFree(void * callback);
 void PrintRegister(GP_PRINT * lpr);

@@ -32,11 +32,11 @@
 typedef struct {
 	uint32 state[5];		/* state (ABCD) */
 	uint32 count[2];		/* number of bits, modulo 2^64 (lsb first) */
-	unsigned char buffer[64];	/* input buffer */
+	uchar buffer[64];	/* input buffer */
 } _MA_SHA1_CTX;
 
 void ma_SHA1Init(_MA_SHA1_CTX *);
-void ma_SHA1Update(_MA_SHA1_CTX *, const unsigned char *, size_t);
-void ma_SHA1Final(unsigned char[20], _MA_SHA1_CTX *);
+void ma_SHA1Update(_MA_SHA1_CTX *, const uchar *, size_t);
+void ma_SHA1Final(uchar[20], _MA_SHA1_CTX *);
 
 #endif

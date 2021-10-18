@@ -133,9 +133,9 @@ static void * sunacl_get(int cmd, int * aclcnt, int fd, const char * path)
 
 		if(cnt > 0) {
 			if(aclp == NULL)
-				aclp = malloc(cnt * size);
+				aclp = SAlloc::M(cnt * size);
 			else
-				aclp = realloc(NULL, cnt * size);
+				aclp = SAlloc::R(NULL, cnt * size);
 			if(aclp != NULL) {
 				if(path != NULL)
 					cnt = acl(path, cmd, cnt, aclp);
@@ -144,7 +144,7 @@ static void * sunacl_get(int cmd, int * aclcnt, int fd, const char * path)
 			}
 		}
 		else {
-			free(aclp);
+			SAlloc::F(aclp);
 			aclp = NULL;
 			break;
 		}
@@ -163,12 +163,12 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 {
 #if ARCHIVE_ACL_SUNOS_NFS4
 	int i, p;
-	const uint32_t rperm = ACE_READ_DATA;
-	const uint32_t wperm = ACE_WRITE_DATA | ACE_APPEND_DATA;
-	const uint32_t eperm = ACE_EXECUTE;
-	const uint32_t pubset = ACE_READ_ATTRIBUTES | ACE_READ_NAMED_ATTRS |
+	const uint32 rperm = ACE_READ_DATA;
+	const uint32 wperm = ACE_WRITE_DATA | ACE_APPEND_DATA;
+	const uint32 eperm = ACE_EXECUTE;
+	const uint32 pubset = ACE_READ_ATTRIBUTES | ACE_READ_NAMED_ATTRS |
 	    ACE_READ_ACL | ACE_SYNCHRONIZE;
-	const uint32_t ownset = pubset | ACE_WRITE_ATTRIBUTES |
+	const uint32 ownset = pubset | ACE_WRITE_ATTRIBUTES |
 	    ACE_WRITE_NAMED_ATTRS | ACE_WRITE_ACL | ACE_WRITE_OWNER;
 
 	ace_t * ace;
@@ -472,12 +472,12 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	switch(ae_requested_type) {
 		case ARCHIVE_ENTRY_ACL_TYPE_POSIX1E:
 		    cmd = SETACL;
-		    aclp = malloc(entries * sizeof(aclent_t));
+		    aclp = SAlloc::M(entries * sizeof(aclent_t));
 		    break;
 #if ARCHIVE_ACL_SUNOS_NFS4
 		case ARCHIVE_ENTRY_ACL_TYPE_NFS4:
 		    cmd = ACE_SETACL;
-		    aclp = malloc(entries * sizeof(ace_t));
+		    aclp = SAlloc::M(entries * sizeof(ace_t));
 		    break;
 #endif
 		default:
@@ -690,7 +690,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		}
 	}
 exit_free:
-	free(aclp);
+	SAlloc::F(aclp);
 	return ret;
 }
 
@@ -728,7 +728,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt,
 	    archive_entry_mode(entry), 1, S_ISDIR(archive_entry_mode(entry)),
 	    &r) == 0 && r == 1) {
-		free(aclp);
+		SAlloc::F(aclp);
 		aclp = NULL;
 		return ARCHIVE_OK;
 	}
@@ -736,7 +736,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	if(aclp != NULL) {
 		r = translate_acl(a, entry, aclp, aclcnt,
 			ARCHIVE_ENTRY_ACL_TYPE_NFS4);
-		free(aclp);
+		SAlloc::F(aclp);
 		aclp = NULL;
 
 		if(r != ARCHIVE_OK) {
@@ -761,14 +761,14 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt,
 	    archive_entry_mode(entry), 0, S_ISDIR(archive_entry_mode(entry)),
 	    &r) == 0 && r == 1) {
-		free(aclp);
+		SAlloc::F(aclp);
 		aclp = NULL;
 	}
 
 	if(aclp != NULL) {
 		r = translate_acl(a, entry, aclp, aclcnt,
 			ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
-		free(aclp);
+		SAlloc::F(aclp);
 		aclp = NULL;
 
 		if(r != ARCHIVE_OK) {

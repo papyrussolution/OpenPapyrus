@@ -35,8 +35,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 
 #include "archive_write_set_format_private.h"
 
 struct ustar {
-	uint64_t entry_bytes_remaining;
-	uint64_t entry_padding;
+	uint64 entry_bytes_remaining;
+	uint64 entry_padding;
 
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
@@ -145,9 +145,9 @@ static int      archive_write_ustar_header(struct archive_write *,
     struct archive_entry * entry);
 static int      archive_write_ustar_options(struct archive_write *,
     const char *, const char *);
-static int      format_256(int64_t, char *, int);
-static int      format_number(int64_t, char *, int size, int max, int strict);
-static int      format_octal(int64_t, char *, int);
+static int      format_256(int64, char *, int);
+static int      format_number(int64, char *, int size, int max, int strict);
+static int      format_octal(int64, char *, int);
 
 /*
  * Set output format to 'ustar' format.
@@ -172,7 +172,7 @@ int archive_write_set_format_ustar(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 
-	ustar = (struct ustar *)calloc(1, sizeof(*ustar));
+	ustar = (struct ustar *)SAlloc::C(1, sizeof(*ustar));
 	if(ustar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ustar data");
@@ -346,7 +346,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		ret = ret2;
 
 	ustar->entry_bytes_remaining = archive_entry_size(entry);
-	ustar->entry_padding = 0x1ff & (-(int64_t)ustar->entry_bytes_remaining);
+	ustar->entry_padding = 0x1ff & (-(int64)ustar->entry_bytes_remaining);
 	archive_entry_free(entry_main);
 	return ret;
 }
@@ -618,11 +618,11 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 /*
  * Format a number into a field, with some intelligence.
  */
-static int format_number(int64_t v, char * p, int s, int maxsize, int strict)
+static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 {
-	int64_t limit;
+	int64 limit;
 
-	limit = ((int64_t)1 << (s*3));
+	limit = ((int64)1 << (s*3));
 
 	/* "Strict" only permits octal values with proper termination. */
 	if(strict)
@@ -650,7 +650,7 @@ static int format_number(int64_t v, char * p, int s, int maxsize, int strict)
 /*
  * Format a number into the specified field using base-256.
  */
-static int format_256(int64_t v, char * p, int s)
+static int format_256(int64 v, char * p, int s)
 {
 	p += s;
 	while(s-- > 0) {
@@ -664,7 +664,7 @@ static int format_256(int64_t v, char * p, int s)
 /*
  * Format a number into the specified field.
  */
-static int format_octal(int64_t v, char * p, int s)
+static int format_octal(int64 v, char * p, int s)
 {
 	int len;
 
@@ -703,7 +703,7 @@ static int archive_write_ustar_free(struct archive_write * a)
 	struct ustar * ustar;
 
 	ustar = (struct ustar *)a->format_data;
-	free(ustar);
+	SAlloc::F(ustar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

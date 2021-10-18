@@ -597,8 +597,8 @@ error:
  * @param[in]  req_version The version required.
  *
  * @return              If the version of libssh is newer than the version
- *                      required it will return a version string.
- *                      NULL if the version is older.
+ *                required it will return a version string.
+ *                NULL if the version is older.
  *
  * Example:
  *
@@ -763,7 +763,7 @@ void ssh_list_remove(struct ssh_list * list, struct ssh_iterator * iterator)
  * @param[in[  list     The ssh_list to remove the element.
  *
  * @returns             A pointer to the element being stored in head, or NULL
- *                      if the list is empty.
+ *                if the list is empty.
  */
 const void * _ssh_list_pop_head(struct ssh_list * list){
 	struct ssh_iterator * iterator = NULL;
@@ -796,10 +796,10 @@ const void * _ssh_list_pop_head(struct ssh_list * list){
  * @param[in]  path     The path to parse.
  *
  * @return              The dirname of path or NULL if we can't allocate memory.
- *                      If path does not contain a slash, c_dirname() returns
- *                      the string ".".  If path is the string "/", it returns
- *                      the string "/". If path is NULL or an empty string,
- *                      "." is returned.
+ *                If path does not contain a slash, c_dirname() returns
+ *                the string ".".  If path is the string "/", it returns
+ *                the string "/". If path is NULL or an empty string,
+ *                "." is returned.
  */
 char * ssh_dirname(const char * path) 
 {
@@ -846,9 +846,9 @@ char * ssh_dirname(const char * path)
  * @param[in]  path     The path to parse.
  *
  * @return              The filename of path or NULL if we can't allocate
- *                      memory. If path is a the string "/", basename returns
- *                      the string "/". If path is NULL or an empty string,
- *                      "." is returned.
+ *                memory. If path is a the string "/", basename returns
+ *                the string "/". If path is NULL or an empty string,
+ *                "." is returned.
  */
 char * ssh_basename(const char * path) 
 {
@@ -1038,12 +1038,12 @@ char * ssh_path_expand_tilde(const char * d) {
 /** @internal
  * @brief expands a string in function of session options
  * @param[in] s Format string to expand. Known parameters:
- *              %d SSH configuration directory (~/.ssh)
- *              %h target host name
- *              %u local username
- *              %l local hostname
- *              %r remote username
- *              %p remote port
+ *        %d SSH configuration directory (~/.ssh)
+ *        %h target host name
+ *        %u local username
+ *        %l local hostname
+ *        %r remote username
+ *        %p remote port
  * @returns Expanded string.
  */
 char * ssh_path_expand_escape(ssh_session session, const char * s) {
@@ -1316,9 +1316,9 @@ int ssh_make_milliseconds(long sec, long usec) {
  * timestamp and an assigned timeout
  * @param[in] ts pointer to an existing timestamp
  * @param[in] timeout timeout in milliseconds. Negative values mean infinite
- *                   timeout
+ *             timeout
  * @returns 1 if timeout is elapsed
- *          0 otherwise
+ *    0 otherwise
  */
 int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout) {
 	struct ssh_timestamp now;
@@ -1349,7 +1349,7 @@ int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout) {
  * @brief updates a timeout value so it reflects the remaining time
  * @param[in] ts pointer to an existing timestamp
  * @param[in] timeout timeout in milliseconds. Negative values mean infinite
- *             timeout
+ *       timeout
  * @returns   remaining time in milliseconds, 0 if elapsed, -1 if never.
  */
 int ssh_timeout_update(struct ssh_timestamp * ts, int timeout){
@@ -1458,10 +1458,10 @@ void uint64_inc(uchar * counter)
  *
  * @param[in]   file_name  File name string to be quoted before used on shell
  * @param[out]  buf       Buffer to receive the final quoted file name.  Must
- *                        have room for the final quoted string.  The maximum
- *                        output length would be (3 * strlen(file_name) + 1)
- *                        since in the worst case each character would be
- *                        replaced by 3 characters, plus the terminating '\0'.
+ *                  have room for the final quoted string.  The maximum
+ *                  output length would be (3 * strlen(file_name) + 1)
+ *                  since in the worst case each character would be
+ *                  replaced by 3 characters, plus the terminating '\0'.
  * @param[in]   buf_len   The size of the provided output buffer
  *
  * @returns SSH_ERROR on error; length of the resulting string not counting the
@@ -1628,9 +1628,9 @@ error:
  *
  * @param[in]  string   Input string
  * @param[out] buf      Output buffer. This buffer must be at least (2 *
- *                      strlen(string)) + 1 long.  In the worst case,
- *                      each character can be encoded as 2 characters plus the
- *                      terminating '\0'.
+ *                strlen(string)) + 1 long.  In the worst case,
+ *                each character can be encoded as 2 characters plus the
+ *                terminating '\0'.
  * @param[in]  buf_len  Size of the provided output buffer
  *
  * @returns SSH_ERROR on error; length of the resulting string not counting the

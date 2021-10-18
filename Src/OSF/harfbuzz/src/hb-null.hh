@@ -96,7 +96,7 @@ struct NullHelper
 /* Specializations for arbitrary-content Null objects expressed in bytes. */
 #define DECLARE_NULL_NAMESPACE_BYTES(Namespace, Type) \
 	} /* Close namespace. */ \
-	extern HB_INTERNAL const unsigned char _hb_Null_##Namespace##_##Type[Namespace::Type::null_size]; \
+	extern HB_INTERNAL const uchar _hb_Null_##Namespace##_##Type[Namespace::Type::null_size]; \
 	template <> \
 	struct Null<Namespace::Type> { \
 	  static Namespace::Type const & get_null () { \
@@ -106,7 +106,7 @@ struct NullHelper
 	namespace Namespace { \
 	static_assert (true, "") /* Require semicolon after. */
 #define DEFINE_NULL_NAMESPACE_BYTES(Namespace, Type) \
-	const unsigned char _hb_Null_##Namespace##_##Type[Namespace::Type::null_size]
+	const uchar _hb_Null_##Namespace##_##Type[Namespace::Type::null_size]
 
 /* Specializations for arbitrary-content Null objects expressed as struct initializer. */
 #define DECLARE_NULL_INSTANCE(Type) \

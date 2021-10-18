@@ -169,7 +169,7 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		     *      a) We allow no Certificate to be returned
 		     *      AND
 		     *      b) We are running SSL3 (in TLS1.0+ the client must return a 0
-		     *         list if we requested a certificate)
+		     *   list if we requested a certificate)
 		     */
 		    if(mt == SSL3_MT_CLIENT_KEY_EXCHANGE) {
 			    if(s->s3->tmp.cert_request) {

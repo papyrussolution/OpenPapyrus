@@ -56,7 +56,7 @@ uint * gp_cairo_helper_coordval_to_chars(GpTermEntry * pThis, coordval * image, 
 	rgb255_color rgb255;
 	// cairo image buffer, upper bits are alpha, then r, g and b
 	// Depends on endianess 
-	image255 = (uint*)malloc(M*N*sizeof(uint));
+	image255 = (uint *)SAlloc::M(M*N*sizeof(uint));
 	if(!image255) {
 		fprintf(stderr, "cairo terminal: out of memory!\n"); gp_exit(EXIT_FAILURE);
 	}

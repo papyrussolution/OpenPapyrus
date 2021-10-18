@@ -228,7 +228,7 @@ static cairo_fixed_t line_compute_intersection_x_for_y(const cairo_line_t * line
  * By construction, we know that A_dy and B_dy (and (Y - A_y), (Y - B_y)) are
  * all positive, so we can rearrange it thus without causing a sign change:
  * A_dy * B_dy * (A_x - B_x) ∘ (Y - B_y) * B_dx * A_dy
- *          - (Y - A_y) * A_dx * B_dy
+ *    - (Y - A_y) * A_dx * B_dy
  *
  * Given the assumption that all the deltas fit within 32 bits, we can compute
  * this comparison directly using 128 bit arithmetic. For certain, but common,

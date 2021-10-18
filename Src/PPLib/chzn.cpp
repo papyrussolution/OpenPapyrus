@@ -385,6 +385,7 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 415, "move_order" }, // @v10.9.2
 	{ 416, "receive_order" },
 	{ 431, "move_place" }, // @v10.8.7 doctypMovePlace
+	{ 441, "move_unregistered_order" }, // @v11.2.0 move_unregistered_order
 	{ 511, "retail_sale" }, // @v11.0.1 
 	{ 602, "receive_order_notification" },
 	{ 701, "accept" },
@@ -580,6 +581,7 @@ public:
 		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
 		doctypMdlpReceiveOrder             		 = 416,
 		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
+		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
 		doctypMdlpRetailSale                     = 511, // @v11.0.1
 		doctypMdlpReceiveOrderNotification 		 = 602,
 		doctypMdlpAccept                         = 701,
@@ -3232,6 +3234,8 @@ int PPChZnPrcssr::Run(const Param & rP)
 				if(!op_assoc_list.Search(op_id, 0, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt)
 						op_assoc_list.Add(op_id, ChZnInterface::doctGisMt_LpShipReceipt);
+					else if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp) // @v11.2.0
+						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMoveUnregisteredOrder);
 				}
 			}
 		}
@@ -3277,6 +3281,13 @@ int PPChZnPrcssr::Run(const Param & rP)
 								THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
 								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)
 									suited = 1;
+							}
+						}
+						else if(chzn_op_id == ChZnInterface::doctypMdlpMoveUnregisteredOrder) { // @v11.2.0 @construction
+							assert(bill_rec.OpID == op_id);
+							const PPID dest_psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
+							if(dest_psn_id) {
+								; // @todo	
 							}
 						}
 						if(oneof3(chzn_op_id, ChZnInterface::doctypMdlpReceiveOrder, ChZnInterface::doctypMdlpRefusalReceiver, ChZnInterface::doctypMdlpMoveOrder)) {

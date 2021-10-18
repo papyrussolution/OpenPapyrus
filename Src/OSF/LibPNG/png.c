@@ -334,7 +334,7 @@ PNG_DEPRECATED void PNGAPI png_info_init_3(png_infopp ptr_ptr, size_t png_info_s
 		if((sizeof(png_info)) > png_info_struct_size) {
 			*ptr_ptr = NULL;
 			/* The following line is why this API should not be used: */
-			free(info_ptr);
+			SAlloc::F(info_ptr);
 			info_ptr = png_voidcast(png_inforp, png_malloc_base(NULL, (sizeof *info_ptr)));
 			if(info_ptr == NULL)
 				return;
@@ -1067,7 +1067,7 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 *
 	 *  color-C = color-c * color-scale
 	 *  white-C = red-C + green-C + blue-C
-	 *       = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+	 * = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
 	 *
 	 * But cHRM records only white-x and white-y, so we have lost the white scale
 	 * factor:
@@ -1115,7 +1115,7 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 *  white-Z = (1 - white-x - white-y) * white_scale
 	 *
 	 *  white-C = red-C + green-C + blue-C
-	 *       = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+	 * = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
 	 *
 	 * This gives us three equations in (red-scale,green-scale,blue-scale) where
 	 * all the coefficients are now known:
@@ -1144,34 +1144,34 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 * Hence:
 	 *
 	 *  (red-x - blue-x)*red-scale + (green-x - blue-x)*green-scale =
-	 *           (white-x - blue-x)*white-scale
+	 *     (white-x - blue-x)*white-scale
 	 *
 	 *  (red-y - blue-y)*red-scale + (green-y - blue-y)*green-scale =
-	 *           1 - blue-y*white-scale
+	 *     1 - blue-y*white-scale
 	 *
 	 * And now we can trivially solve for (red-scale,green-scale):
 	 *
 	 *  green-scale =
-	 *           (white-x - blue-x)*white-scale - (red-x - blue-x)*red-scale
-	 *           -----------------------------------------------------------
-	 *                             green-x - blue-x
+	 *     (white-x - blue-x)*white-scale - (red-x - blue-x)*red-scale
+	 *     -----------------------------------------------------------
+	 *                       green-x - blue-x
 	 *
 	 *  red-scale =
-	 *           1 - blue-y*white-scale - (green-y - blue-y) * green-scale
-	 *           ---------------------------------------------------------
-	 *                             red-y - blue-y
+	 *     1 - blue-y*white-scale - (green-y - blue-y) * green-scale
+	 *     ---------------------------------------------------------
+	 *                       red-y - blue-y
 	 *
 	 * Hence:
 	 *
 	 *  red-scale =
 	 *     ( (green-x - blue-x) * (white-y - blue-y) -
-	 *       (green-y - blue-y) * (white-x - blue-x) ) / white-y
+	 * (green-y - blue-y) * (white-x - blue-x) ) / white-y
 	 * -------------------------------------------------------------------------
 	 *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
 	 *
 	 *  green-scale =
 	 *     ( (red-y - blue-y) * (white-x - blue-x) -
-	 *       (red-x - blue-x) * (white-y - blue-y) ) / white-y
+	 * (red-x - blue-x) * (white-y - blue-y) ) / white-y
 	 * -------------------------------------------------------------------------
 	 *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
 	 *

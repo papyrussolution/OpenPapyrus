@@ -192,7 +192,7 @@ static void conn_state(struct connectdata * conn, enum smb_conn_state newstate)
 
 	if(smbc->state != newstate)
 		infof(conn->data, "SMB conn %p state change from %s to %s\n",
-		    (void*)smbc, names[smbc->state], names[newstate]);
+		    (void *)smbc, names[smbc->state], names[newstate]);
 #endif
 
 	smbc->state = newstate;
@@ -218,7 +218,7 @@ static void request_state(struct connectdata * conn,
 
 	if(req->state != newstate)
 		infof(conn->data, "SMB request %p state change from %s to %s\n",
-		    (void*)req, names[req->state], names[newstate]);
+		    (void *)req, names[req->state], names[newstate]);
 #endif
 
 	req->state = newstate;

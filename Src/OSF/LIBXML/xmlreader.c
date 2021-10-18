@@ -562,7 +562,7 @@ static void xmlTextReaderEndElement(void * ctx, const xmlChar * fullname)
  * @nb_attributes:  the number of attributes on that node
  * nb_defaulted:  the number of defaulted attributes.
  * @attributes:  pointer to the array of (localname/prefix/URI/value/end)
- *          attribute values.
+ *    attribute values.
  *
  * called when an opening tag has been processed.
  */

@@ -5140,10 +5140,10 @@ namespace NArchive {
 
 		bool CItem::IsSplitBefore()  const { return (CommonFlags & NHeaderFlags::kPrevVol) != 0; }
 		bool CItem::IsSplitAfter()   const { return (CommonFlags & NHeaderFlags::kNextVol) != 0; }
-		bool CItem::IsSplit()        const { return (CommonFlags & (NHeaderFlags::kPrevVol | NHeaderFlags::kNextVol)) != 0; }
+		bool CItem::IsSplit() const { return (CommonFlags & (NHeaderFlags::kPrevVol | NHeaderFlags::kNextVol)) != 0; }
 		bool CItem::IsDir()          const { return (Flags & NFileFlags::kIsDir) != 0; }
 		bool CItem::Has_UnixMTime()  const { return (Flags & NFileFlags::kUnixTime) != 0; }
-		bool CItem::Has_CRC()        const { return (Flags & NFileFlags::kCrc32) != 0; }
+		bool CItem::Has_CRC() const { return (Flags & NFileFlags::kCrc32) != 0; }
 		bool CItem::Is_UnknownSize() const { return (Flags & NFileFlags::kUnknownSize) != 0; }
 
 		bool FASTCALL CItem::IsNextForItem(const CItem &prev) const

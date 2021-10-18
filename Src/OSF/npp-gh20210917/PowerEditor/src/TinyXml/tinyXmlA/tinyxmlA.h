@@ -161,19 +161,12 @@ public:
 
 	        @sa TiXmlDocumentA::SetTabSize()
 	 */
-	int Row() const {
-		return location.row + 1;
-	}
-
-	int Column() const {
-		return location.col + 1;
-	}                                                               ///< See Row()
-
+	int Row() const { return location.row + 1; }
+	int Column() const { return location.col + 1; } ///< See Row()
 protected:
 	// See STL_STRING_BUG
 	// Utility class to overcome a bug.
-	class StringToBuffer
-	{
+	class StringToBuffer {
 public:
 		StringToBuffer(const TIXMLA_STRING& str);
 		~StringToBuffer();
@@ -201,25 +194,11 @@ public:
 	/*	Reads text. Returns a pointer past the given end tag.
 	        Wickedly complex options, but it keeps the (sensitive) code in one place.
 	 */
-	static const char* ReadText(const char* in,                             // where to start
-	    TIXMLA_STRING* text,                                                                                // the
-	                                                                                                        // string
-	                                                                                                        // read
-	    bool ignoreWhiteSpace,                                                                      // whether to
-	                                                                                                // keep the
-	                                                                                                // white space
-	    const char* endTag,                                                                                 // what
-	                                                                                                        // ends
-	                                                                                                        // this
-	                                                                                                        // text
-	    bool ignoreCase);                                                                                   // whether
-	                                                                                                        // to
-	                                                                                                        // ignore
-	                                                                                                        // case
-	                                                                                                        // in
-	                                                                                                        // the
-	                                                                                                        // end
-	                                                                                                        // tag
+	static const char* ReadText(const char* in, // where to start
+	    TIXMLA_STRING* text, // the string read
+	    bool ignoreWhiteSpace, // whether to keep the white space
+	    const char* endTag, // what ends this text
+	    bool ignoreCase); // whether to ignore case in the end tag
 
 	virtual const char* Parse(const char* p, TiXmlParsingDataA* data) = 0;
 
@@ -387,48 +366,22 @@ public:
 	}
 
 	#endif
-
 	/// Delete all the children of this node. Does not affect 'this'.
 	void Clear();
-
 	/// One step up the DOM.
-	TiXmlNodeA* Parent() const {
-		return parent;
-	}
-
-	TiXmlNodeA* FirstChild()        const {
-		return firstChild;
-	}                                                                       ///< The first child of this node. Will
-	                                                                        // be null if there are no children.
-
-	TiXmlNodeA* FirstChild(const char * value) const;                       ///< The first child of this node with
-	                                                                        // the matching 'value'. Will be null if
-	                                                                        // none found.
+	TiXmlNodeA* Parent() const { return parent; }
+	TiXmlNodeA* FirstChild() const { return firstChild; } ///< The first child of this node. Will be null if there are no children.
+	TiXmlNodeA* FirstChild(const char * value) const; ///< The first child of this node with the matching 'value'. Will be null if none found.
 
 	TiXmlNodeA* LastChild() const {
 		return lastChild;
-	}                                                               /// The last child of this node. Will be null if
-	                                                                // there are no children.
+	} /// The last child of this node. Will be null if there are no children.
 
-	TiXmlNodeA* LastChild(const char * value) const;                        /// The last child of this node matching
-	                                                                        // 'value'. Will be null if there are no
-	                                                                        // children.
+	TiXmlNodeA* LastChild(const char * value) const; /// The last child of this node matching 'value'. Will be null if there are no children.
 
     #ifdef TIXMLA_USE_STL
-	TiXmlNodeA* FirstChild(const std::string& _value) const {
-		return FirstChild(_value.c_str());
-	}                                                                                                                       ///<
-	                                                                                                                        // STL
-	                                                                                                                        // std::string
-	                                                                                                                        // form.
-
-	TiXmlNodeA* LastChild(const std::string& _value) const {
-		return LastChild(_value.c_str());
-	}                                                                                                                               ///<
-	                                                                                                                                // STL
-	                                                                                                                                // std::string
-	                                                                                                                                // form.
-
+	TiXmlNodeA* FirstChild(const std::string& _value) const { return FirstChild(_value.c_str()); } ///< STL std::string form.
+	TiXmlNodeA* LastChild(const std::string& _value) const { return LastChild(_value.c_str()); } ///< STL std::string form.
 	#endif
 
 	/** An alternate way to walk the children of a node.
@@ -453,15 +406,8 @@ public:
 	TiXmlNodeA* IterateChildren(const char * value, TiXmlNodeA* previous) const;
 
     #ifdef TIXMLA_USE_STL
-	TiXmlNodeA* IterateChildren(const std::string& _value, TiXmlNodeA* previous) const {
-		return IterateChildren(_value.c_str(), previous);
-	}                                                                                                                                                               ///<
-	                                                                                                                                                                // STL
-	                                                                                                                                                                // std::string
-	                                                                                                                                                                // form.
-
+		TiXmlNodeA* IterateChildren(const std::string& _value, TiXmlNodeA* previous) const { return IterateChildren(_value.c_str(), previous); } ///< STL std::string form.
 	#endif
-
 	/** Add a new node related to this. Adds a child past the LastChild.
 	        Returns a pointer to the new object or NULL if an error occured.
 	 */
@@ -495,30 +441,15 @@ public:
 
 	/// Delete a child of this node.
 	bool RemoveChild(TiXmlNodeA* removeThis);
-
 	/// Navigate to a sibling node.
 	TiXmlNodeA* PreviousSibling() const {
 		return prev;
 	}
-
 	/// Navigate to a sibling node.
 	TiXmlNodeA* PreviousSibling(const char *) const;
-
     #ifdef TIXMLA_USE_STL
-	TiXmlNodeA* PreviousSibling(const std::string& _value) const {
-		return PreviousSibling(_value.c_str());
-	}                                                                                                                               ///<
-	                                                                                                                                // STL
-	                                                                                                                                // std::string
-	                                                                                                                                // form.
-
-	TiXmlNodeA* NextSibling(const std::string& _value) const {
-		return NextSibling(_value.c_str());
-	}                                                                                                                               ///<
-	                                                                                                                                // STL
-	                                                                                                                                // std::string
-	                                                                                                                                // form.
-
+		TiXmlNodeA* PreviousSibling(const std::string& _value) const { return PreviousSibling(_value.c_str()); } ///< STL std::string form.
+		TiXmlNodeA* NextSibling(const std::string& _value) const { return NextSibling(_value.c_str()); } ///< STL std::string form.
 	#endif
 
 	/// Navigate to a sibling node.
@@ -544,29 +475,17 @@ public:
     #ifdef TIXMLA_USE_STL
 	TiXmlElementA* NextSiblingElement(const std::string& _value) const {
 		return NextSiblingElement(_value.c_str());
-	}                                                                                                                                       ///<
-	                                                                                                                                        // STL
-	                                                                                                                                        // std::string
-	                                                                                                                                        // form.
-
+	} ///< STL std::string form.
 	#endif
-
 	/// Convenience function to get through elements.
 	TiXmlElementA* FirstChildElement()      const;
-
 	/// Convenience function to get through elements.
 	TiXmlElementA* FirstChildElement(const char * value) const;
-
     #ifdef TIXMLA_USE_STL
 	TiXmlElementA* FirstChildElement(const std::string& _value) const {
 		return FirstChildElement(_value.c_str());
-	}                                                                                                                                       ///<
-	                                                                                                                                        // STL
-	                                                                                                                                        // std::string
-	                                                                                                                                        // form.
-
+	} ///< STL std::string form.
 	#endif
-
 	/** Query the type (as an enumerated value, above) of this node.
 	        The possible types are: DOCUMENT, ELEMENT, COMMENT,
 	                                                        UNKNOWN, TEXT, and DECLARATION.
@@ -579,129 +498,32 @@ public:
 	        Returns null if not in a document.
 	 */
 	TiXmlDocumentA* GetDocument() const;
-
 	/// Returns true if this node has no children.
-	bool NoChildren() const {
-		return !firstChild;
-	}
-
-	TiXmlDocumentA* ToDocument()    const {
-		return ( this && type == DOCUMENT ) ? (TiXmlDocumentA*)this : 0;
-	}                                                                                                                     ///<
-	                                                                                                                      // Cast
-	                                                                                                                      // to
-	                                                                                                                      // a
-	                                                                                                                      // more
-	                                                                                                                      // defined
-	                                                                                                                      // type.
-	                                                                                                                      // Will
-	                                                                                                                      // return
-	                                                                                                                      // null
-	                                                                                                                      // not
-	                                                                                                                      // of
-	                                                                                                                      // the
-	                                                                                                                      // requested
-	                                                                                                                      // type.
-
+	bool NoChildren() const { return !firstChild; }
+	TiXmlDocumentA* ToDocument() const { return ( this && type == DOCUMENT ) ? (TiXmlDocumentA*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlElementA*  ToElement() const {
 		return ( this && type == ELEMENT  ) ? (TiXmlElementA*)this : 0;
-	}                                                                                                                     ///<
-	                                                                                                                      // Cast
-	                                                                                                                      // to
-	                                                                                                                      // a
-	                                                                                                                      // more
-	                                                                                                                      // defined
-	                                                                                                                      // type.
-	                                                                                                                      // Will
-	                                                                                                                      // return
-	                                                                                                                      // null
-	                                                                                                                      // not
-	                                                                                                                      // of
-	                                                                                                                      // the
-	                                                                                                                      // requested
-	                                                                                                                      // type.
+	} ///< Cast to a more defined type. Will return null not of the requested type.
 
 	TiXmlCommentA*  ToComment() const {
 		return ( this && type == COMMENT  ) ? (TiXmlCommentA*)this : 0;
-	}                                                                                                                     ///<
-	                                                                                                                      // Cast
-	                                                                                                                      // to
-	                                                                                                                      // a
-	                                                                                                                      // more
-	                                                                                                                      // defined
-	                                                                                                                      // type.
-	                                                                                                                      // Will
-	                                                                                                                      // return
-	                                                                                                                      // null
-	                                                                                                                      // not
-	                                                                                                                      // of
-	                                                                                                                      // the
-	                                                                                                                      // requested
-	                                                                                                                      // type.
+	} ///< Cast to a more defined type. Will return null not of the requested type.
 
 	TiXmlUnknownA*  ToUnknown() const {
 		return ( this && type == UNKNOWN  ) ? (TiXmlUnknownA*)this : 0;
-	}                                                                                                                     ///<
-	                                                                                                                      // Cast
-	                                                                                                                      // to
-	                                                                                                                      // a
-	                                                                                                                      // more
-	                                                                                                                      // defined
-	                                                                                                                      // type.
-	                                                                                                                      // Will
-	                                                                                                                      // return
-	                                                                                                                      // null
-	                                                                                                                      // not
-	                                                                                                                      // of
-	                                                                                                                      // the
-	                                                                                                                      // requested
-	                                                                                                                      // type.
+	} ///< Cast to a more defined type. Will return null not of the requested type.
 
-	TiXmlTextA*        ToText()    const {
+	TiXmlTextA * ToText() const {
 		return ( this && type == TEXT     ) ? (TiXmlTextA*)this : 0;
-	}                                                                                                                     ///<
-	                                                                                                                      // Cast
-	                                                                                                                      // to
-	                                                                                                                      // a
-	                                                                                                                      // more
-	                                                                                                                      // defined
-	                                                                                                                      // type.
-	                                                                                                                      // Will
-	                                                                                                                      // return
-	                                                                                                                      // null
-	                                                                                                                      // not
-	                                                                                                                      // of
-	                                                                                                                      // the
-	                                                                                                                      // requested
-	                                                                                                                      // type.
+	} ///< Cast to a more defined type. Will return null not of the requested type.
 
 	TiXmlDeclarationA* ToDeclaration() const {
 		return ( this && type == DECLARATION ) ? (TiXmlDeclarationA*)this : 0;
-	}                                                                                                                           ///<
-	                                                                                                                            // Cast
-	                                                                                                                            // to
-	                                                                                                                            // a
-	                                                                                                                            // more
-	                                                                                                                            // defined
-	                                                                                                                            // type.
-	                                                                                                                            // Will
-	                                                                                                                            // return
-	                                                                                                                            // null
-	                                                                                                                            // not
-	                                                                                                                            // of
-	                                                                                                                            // the
-	                                                                                                                            // requested
-	                                                                                                                            // type.
+	} ///< Cast to a more defined type. Will return null not of the requested type.
 
 	virtual TiXmlNodeA* Clone() const = 0;
-
-	void  SetUserData(void* user)                 {
-		userData = user;
-	}
-
-	void* GetUserData()                                             {
-		return userData;
-	}
+	void  SetUserData(void * user) { userData = user; }
+	void * GetUserData() { return userData; }
 
 protected:
 	TiXmlNodeA(NodeType type);
@@ -713,27 +535,22 @@ protected:
 
 	// Figure out what is at *p, and parse it. Returns null if it is not an xml node.
 	TiXmlNodeA* Identify(const char* start);
-	void CopyToClone(TiXmlNodeA* target) const {
+	void CopyToClone(TiXmlNodeA* target) const 
+	{
 		target->SetValue(value.c_str() );
 		target->userData = userData;
 	}
 
 	// Internal Value function returning a TIXMLA_STRING
-	TIXMLA_STRING SValue() const {
-		return value;
-	}
-
+	TIXMLA_STRING SValue() const { return value; }
 	TiXmlNodeA*             parent;
 	NodeType type;
-
 	TiXmlNodeA*             firstChild;
 	TiXmlNodeA*             lastChild;
-
 	TIXMLA_STRING value;
-
 	TiXmlNodeA*             prev;
 	TiXmlNodeA*             next;
-	void*                   userData;
+	void * userData;
 };
 
 /** An attribute is a name-value pair. Elements have an arbitrary
@@ -743,10 +560,8 @@ protected:
                   part of the tinyXML document object model. There are other
                   suggested ways to look at this problem.
  */
-class TiXmlAttributeA : public TiXmlBaseA
-{
+class TiXmlAttributeA : public TiXmlBaseA {
 	friend class TiXmlAttributeSetA;
-
 public:
 	/// Construct an empty attribute.
 	TiXmlAttributeA()
@@ -754,7 +569,6 @@ public:
 		document = 0;
 		prev = next = 0;
 	}
-
 	#ifdef TIXMLA_USE_STL
 	/// std::string constructor.
 	TiXmlAttributeA(const std::string& _name, const std::string& _value)
@@ -764,9 +578,7 @@ public:
 		document = 0;
 		prev = next = 0;
 	}
-
 	#endif
-
 	/// Construct an attribute with a name and value.
 	TiXmlAttributeA(const char * _name, const char * _value)
 	{
@@ -775,33 +587,10 @@ public:
 		document = 0;
 		prev = next = 0;
 	}
-
-	const char*             Name()  const {
-		return name.c_str();
-	}                                                                                       ///< Return the name of
-	                                                                                        // this attribute.
-
-	const char*             Value() const {
-		return value.c_str();
-	}                                                                                       ///< Return the value of
-	                                                                                        // this attribute.
-
-	const int       IntValue() const;                                                                       ///<
-	                                                                                                        // Return
-	                                                                                                        // the
-	                                                                                                        // value
-	                                                                                                        // of
-	                                                                                                        // this
-	                                                                                                        // attribute,
-	                                                                                                        // converted
-	                                                                                                        // to an
-	                                                                                                        // integer.
-	const double    DoubleValue() const;                                                            ///< Return the
-	                                                                                                // value of this
-	                                                                                                // attribute,
-	                                                                                                // converted to
-	                                                                                                // a double.
-
+	const char* Name()  const { return name.c_str(); } ///< Return the name of this attribute.
+	const char* Value() const { return value.c_str(); } ///< Return the value of this attribute.
+	const int IntValue() const; ///< Return the value of this attribute, converted to an integer.
+	const double    DoubleValue() const; ///< Return the value of this attribute, converted to a double.
 	/** QueryIntValue examines the value string. It is an alternative to the
 	        IntValue() method with richer error checking.
 	        If the value is an integer, it is stored in 'value' and
@@ -814,26 +603,15 @@ public:
 	int QueryIntValue(int* value) const;
 	/// QueryDoubleValue examines the value string. See QueryIntValue().
 	int QueryDoubleValue(double* value) const;
-
-	void SetName(const char* _name)       {
+	void SetName(const char* _name) {
 		name = _name;
-	}                                                                                       ///< Set the name of
-	                                                                                        // this attribute.
-
+	} ///< Set the name of this attribute.
 	void SetValue(const char* _value)     {
 		value = _value;
-	}                                                                                       ///< Set the value.
+	} ///< Set the value.
 
-	void SetIntValue(int value);                                                                            ///< Set
-	                                                                                                        // the
-	                                                                                                        // value
-	                                                                                                        // from
-	                                                                                                        // an
-	                                                                                                        // integer.
-	void SetDoubleValue(double value);                                                              ///< Set the
-	                                                                                                // value from a
-	                                                                                                // double.
-
+	void SetIntValue(int value); ///< Set the value from an integer.
+	void SetDoubleValue(double value); ///< Set the value from a double.
     #ifdef TIXMLA_USE_STL
 	/// STL std::string form.
 	void SetName(const std::string& _name)
@@ -855,18 +633,9 @@ public:
 	TiXmlAttributeA* Next() const;
 	/// Get the previous sibling attribute in the DOM. Returns null at beginning.
 	TiXmlAttributeA* Previous() const;
-
-	bool operator==(const TiXmlAttributeA& rhs) const {
-		return rhs.name == name;
-	}
-
-	bool operator<(const TiXmlAttributeA& rhs)     const {
-		return name < rhs.name;
-	}
-
-	bool operator>(const TiXmlAttributeA& rhs)  const {
-		return name > rhs.name;
-	}
+	bool operator==(const TiXmlAttributeA& rhs) const { return rhs.name == name; }
+	bool operator<(const TiXmlAttributeA& rhs) const { return name < rhs.name; }
+	bool operator>(const TiXmlAttributeA& rhs)  const { return name > rhs.name; }
 
 	/*	[internal use]
 	        Attribtue parsing starts: first letter of the name
@@ -904,25 +673,15 @@ private:
                 - I like circular lists
                 - it demonstrates some independence from the (typical) doubly linked list.
  */
-class TiXmlAttributeSetA
-{
+class TiXmlAttributeSetA {
 public:
 	TiXmlAttributeSetA();
 	~TiXmlAttributeSetA();
-
 	void Add(TiXmlAttributeA* attribute);
 	void Remove(TiXmlAttributeA* attribute);
-
-	TiXmlAttributeA* First() const {
-		return ( sentinel.next == &sentinel ) ? 0 : sentinel.next;
-	}
-
-	TiXmlAttributeA* Last()  const {
-		return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev;
-	}
-
+	TiXmlAttributeA* First() const { return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
+	TiXmlAttributeA* Last()  const { return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
 	TiXmlAttributeA*        Find(const char * name) const;
-
 private:
 	TiXmlAttributeA sentinel;
 };
@@ -1025,38 +784,27 @@ public:
     #ifdef TIXMLA_USE_STL
 	void RemoveAttribute(const std::string& name) {
 		RemoveAttribute(name.c_str());
-	}                                                                                                       ///< STL
-	                                                                                                        // std::string
-	                                                                                                        // form.
+	} ///< STL std::string form.
 
 	#endif
 
 	TiXmlAttributeA* FirstAttribute() const {
 		return attributeSet.First();
-	}                                                                                       ///< Access the first
-	                                                                                        // attribute in this
-	                                                                                        // element.
+	} ///< Access the first attribute in this element.
 
-	TiXmlAttributeA* LastAttribute()        const {
+	TiXmlAttributeA* LastAttribute() const {
 		return attributeSet.Last();
-	}                                                                                       ///< Access the last
-	                                                                                        // attribute in this
-	                                                                                        // element.
-
+	} ///< Access the last attribute in this element.
 	// [internal use] Creates a new Element and returs it.
 	virtual TiXmlNodeA* Clone() const;
 	// [internal use]
-
 	virtual void Print(FILE* cfile, int depth) const;
-
 protected:
-
 	// Used to be public [internal use]
 	#ifdef TIXMLA_USE_STL
 	virtual void StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag);
 	#endif
 	virtual void StreamOut(TIXMLA_OSTREAM * out) const;
-
 	/*	[internal use]
 	        Attribtue parsing starts: next char past '<'
 	                                         returns: next char past '>'
@@ -1554,31 +1302,25 @@ public:
 	TiXmlHandleA FirstChild(const std::string& _value) const {
 		return FirstChild(_value.c_str() );
 	}
-
 	TiXmlHandleA FirstChildElement(const std::string& _value) const {
 		return FirstChildElement(_value.c_str() );
 	}
-
 	TiXmlHandleA Child(const std::string& _value, int index) const {
 		return Child(_value.c_str(), index);
 	}
-
 	TiXmlHandleA ChildElement(const std::string& _value, int index) const {
 		return ChildElement(_value.c_str(), index);
 	}
-
 	#endif
 
 	/// Return the handle as a TiXmlNodeA. This may return null.
 	TiXmlNodeA* Node() const {
 		return node;
 	}
-
 	/// Return the handle as a TiXmlElementA. This may return null.
 	TiXmlElementA* Element() const {
 		return ( ( node && node->ToElement() ) ? node->ToElement() : 0 );
 	}
-
 	/// Return the handle as a TiXmlTextA. This may return null.
 	TiXmlTextA* Text() const {
 		return ( ( node && node->ToText() ) ? node->ToText() : 0 );

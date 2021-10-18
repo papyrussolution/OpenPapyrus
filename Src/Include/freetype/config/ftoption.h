@@ -19,7 +19,7 @@ FT_BEGIN_HEADER
 
 /**************************************************************************
  *
- *                USER-SELECTABLE CONFIGURATION MACROS
+ *          USER-SELECTABLE CONFIGURATION MACROS
  *
  * This file contains the default configuration macro definitions for a
  * standard build of the FreeType library.  There are three ways to use
@@ -58,11 +58,9 @@ FT_BEGIN_HEADER
  * We highly recommend using the third method whenever possible.
  *
  */
-
-/*************************************************************************/
+// 
 /**** G E N E R A L   F R E E T Y P E   2   C O N F I G U R A T I O N ****/
-/*************************************************************************/
-
+// 
 /*#************************************************************************
  *
  * If you enable this configuration option, FreeType recognizes an
@@ -91,8 +89,8 @@ FT_BEGIN_HEADER
  *
  * ```
  *   FREETYPE_PROPERTIES=truetype:interpreter-version=35 \
- *                       cff:no-stem-darkening=1 \
- *                       autofitter:warping=1
+ *                 cff:no-stem-darkening=1 \
+ *                 autofitter:warping=1
  * ```
  *
  */
@@ -125,8 +123,8 @@ FT_BEGIN_HEADER
  * building the library.
  *
  * ObNote: The compiler-specific 64-bit integers are detected in the
- *         file `ftconfig.h` either statically or through the `configure`
- *         script on supported platforms.
+ *   file `ftconfig.h` either statically or through the `configure`
+ *   script on supported platforms.
  */
 #undef FT_CONFIG_OPTION_FORCE_INT64
 
@@ -481,9 +479,9 @@ FT_BEGIN_HEADER
  */
 /* #define FT_CONFIG_OPTION_ERROR_STRINGS */
 
-/*************************************************************************/
+// 
 /****        S F N T   D R I V E R    C O N F I G U R A T I O N       ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -545,9 +543,9 @@ FT_BEGIN_HEADER
 #define TT_CONFIG_CMAP_FORMAT_13
 #define TT_CONFIG_CMAP_FORMAT_14
 
-/*************************************************************************/
+// 
 /****    T R U E T Y P E   D R I V E R    C O N F I G U R A T I O N   ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -672,9 +670,9 @@ FT_BEGIN_HEADER
 #define TT_CONFIG_OPTION_MAX_RUNNABLE_OPCODES  1000000L
 #endif
 
-/*************************************************************************/
+// 
 /****      T Y P E 1   D R I V E R    C O N F I G U R A T I O N       ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -725,9 +723,9 @@ FT_BEGIN_HEADER
  */
 /* #define T1_CONFIG_OPTION_OLD_ENGINE */
 
-/*************************************************************************/
+// 
 /****         C F F   D R I V E R    C O N F I G U R A T I O N        ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -760,9 +758,9 @@ FT_BEGIN_HEADER
  */
 /* #define CFF_CONFIG_OPTION_OLD_ENGINE */
 
-/*************************************************************************/
+// 
 /****         P C F   D R I V E R    C O N F I G U R A T I O N        ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -781,9 +779,9 @@ FT_BEGIN_HEADER
  */
 /* #define PCF_CONFIG_OPTION_LONG_FAMILY_NAMES */
 
-/*************************************************************************/
+// 
 /****    A U T O F I T   M O D U L E    C O N F I G U R A T I O N     ****/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *

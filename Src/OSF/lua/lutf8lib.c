@@ -31,7 +31,7 @@ static lua_Integer u_posrelat(lua_Integer pos, size_t len)
 static const char * utf8_decode(const char * o, int * val) 
 {
 	static const unsigned int limits[] = {0xFF, 0x7F, 0x7FF, 0xFFFF};
-	const unsigned char * s = (const unsigned char*)o;
+	const uchar * s = (const uchar *)o;
 	unsigned int c = s[0];
 	unsigned int res = 0; /* final result */
 	if(c < 0x80) /* ascii? */

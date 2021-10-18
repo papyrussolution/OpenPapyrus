@@ -213,15 +213,15 @@ public:
 	 * @brief Authenticate through the "keyboard-interactive" method.
 	 *
 	 * @param[in] username The username to authenticate. You can specify NULL if
-	 *                     ssh_option_set_username() has been used. You cannot
-	 *                     try two different logins in a row.
+	 *               ssh_option_set_username() has been used. You cannot
+	 *               try two different logins in a row.
 	 *
 	 * @param[in] submethods Undocumented. Set it to NULL.
 	 *
 	 * @throws SshException on error
 	 *
 	 * @returns SSH_AUTH_SUCCESS, SSH_AUTH_PARTIAL, SSH_AUTH_DENIED,
-	 *          SSH_AUTH_ERROR, SSH_AUTH_INFO, SSH_AUTH_AGAIN
+	 *    SSH_AUTH_ERROR, SSH_AUTH_INFO, SSH_AUTH_AGAIN
 	 *
 	 * @see ssh_userauth_kbdint
 	 */
@@ -245,10 +245,10 @@ public:
 	 *
 	 * @param[in] index The index number of the prompt.
 	 * @param[in] answer The answer to give to the server. The answer MUST be
-	 *                   encoded UTF-8. It is up to the server how to interpret
-	 *                   the value and validate it. However, if you read the
-	 *                   answer in some other encoding, you MUST convert it to
-	 *                   UTF-8.
+	 *             encoded UTF-8. It is up to the server how to interpret
+	 *             the value and validate it. However, if you read the
+	 *             answer in some other encoding, you MUST convert it to
+	 *             UTF-8.
 	 *
 	 * @throws SshException on error
 	 *

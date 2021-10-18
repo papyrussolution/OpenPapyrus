@@ -43,19 +43,19 @@ static int TIFFNoEncode(TIFF* tif, const char* method)
 	return -1;
 }
 
-int _TIFFNoRowEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoRowEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "scanline"));
 }
 
-int _TIFFNoStripEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoStripEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "strip"));
 }
 
-int _TIFFNoTileEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoTileEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoEncode(tif, "tile"));
@@ -77,19 +77,19 @@ static int _TIFFNoFixupTags(TIFF* tif)
 	return 1;
 }
 
-int _TIFFNoRowDecode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoRowDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "scanline"));
 }
 
-int _TIFFNoStripDecode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoStripDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "strip"));
 }
 
-int _TIFFNoTileDecode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
+int _TIFFNoTileDecode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)pp; (void)cc; (void)s;
 	return (TIFFNoDecode(tif, "tile"));

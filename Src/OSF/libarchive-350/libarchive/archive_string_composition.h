@@ -42,9 +42,9 @@
 #endif
 
 struct unicode_composition_table {
-	uint32_t cp1;
-	uint32_t cp2;
-	uint32_t nfc;
+	uint32 cp1;
+	uint32 cp2;
+	uint32 nfc;
 };
 
 static const struct unicode_composition_table u_composition_table[] = {
@@ -1010,7 +1010,7 @@ static const char u_decomposable_blocks[0x1D2+1] = {
 	ccc_val[ccc_val_index[ccc_index[(uc)>>8]][((uc)>>4)&0x0F]][(uc)&0x0F])
 
 /* The table of the value of Canonical Combining Class */
-static const unsigned char ccc_val[][16] = {
+static const uchar ccc_val[][16] = {
  /* idx=0: XXXX0 - XXXXF */
  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
  /* idx=1: 00300 - 0030F */
@@ -1244,7 +1244,7 @@ static const unsigned char ccc_val[][16] = {
 };
 
 /* The index table to ccc_val[*][16] */
-static const unsigned char ccc_val_index[][16] = {
+static const uchar ccc_val_index[][16] = {
  /* idx=0: XXX00 - XXXFF */
  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
  /* idx=1: 00300 - 003FF */
@@ -1326,7 +1326,7 @@ static const unsigned char ccc_val_index[][16] = {
 };
 
 /* The index table to ccc_val_index[*][16] */
-static const unsigned char ccc_index[] = {
+static const uchar ccc_index[] = {
   0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14, 0, 0,15, 0, 0, 0,16,
  17,18,19,20,21,22, 0, 0,23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,24,25, 0, 0,
  26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1349,9 +1349,9 @@ static const unsigned char ccc_index[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0,37,38,};
 
 struct unicode_decomposition_table {
-	uint32_t nfc;
-	uint32_t cp1;
-	uint32_t cp2;
+	uint32 nfc;
+	uint32 cp1;
+	uint32 cp2;
 };
 
 static const struct unicode_decomposition_table u_decomposition_table[] = {

@@ -40,11 +40,11 @@
  * PARAMETERS
  *   type,
  *   oldtype
- *           PTHREAD_CANCEL_DEFERRED
- *                   only deferred cancellation is allowed,
+ *     PTHREAD_CANCEL_DEFERRED
+ *             only deferred cancellation is allowed,
  *
- *           PTHREAD_CANCEL_ASYNCHRONOUS
- *                   Asynchronous cancellation is allowed
+ *     PTHREAD_CANCEL_ASYNCHRONOUS
+ *             Asynchronous cancellation is allowed
  *
  *
  * DESCRIPTION
@@ -55,15 +55,15 @@
  *
  *   NOTES:
  *   1)      Use with caution; most code is not safe for use
- *           with asynchronous cancelability.
+ *     with asynchronous cancelability.
  *
  * COMPATIBILITY ADDITIONS
  *   If 'oldtype' is NULL then the previous type is not returned
  *   but the function still succeeds. (Solaris)
  *
  * RESULTS
- *           0               successfully set cancelability type,
- *           EINVAL          'type' is invalid
+ *     0               successfully set cancelability type,
+ *     EINVAL          'type' is invalid
  *
  * ------------------------------------------------------
  */

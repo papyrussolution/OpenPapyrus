@@ -47,11 +47,11 @@ void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 	if(!(next = (MA_USED_MEM *)SAlloc::M(Size))) {
 		if(mem_root->error_handler)
 			(*mem_root->error_handler)();
-		return((void*)0);               /* purecov: inspected */
+		return((void *)0);               /* purecov: inspected */
 	}
 	next->next = mem_root->used;
 	mem_root->used = next;
-	return (void*)(((char *)next)+ALIGN_SIZE(sizeof(MA_USED_MEM)));
+	return (void *)(((char *)next)+ALIGN_SIZE(sizeof(MA_USED_MEM)));
 #else
 	size_t get_size;
 	void * point;
@@ -74,7 +74,7 @@ void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 		if(!(next = (MA_USED_MEM *)SAlloc::M(get_size))) {
 			if(mem_root->error_handler)
 				(*mem_root->error_handler)();
-			return((void*)0);               /* purecov: inspected */
+			return((void *)0);               /* purecov: inspected */
 		}
 		mem_root->block_num++;
 		next->next = *prev;
@@ -82,7 +82,7 @@ void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 		next->left = get_size-ALIGN_SIZE(sizeof(MA_USED_MEM));
 		*prev = next;
 	}
-	point = (void*)((char *)next+ (next->size-next->left));
+	point = (void *)((char *)next+ (next->size-next->left));
 	if((next->left -= Size) < mem_root->min_malloc) { /* Full block */
 		*prev = next->next;             /* Remove block from list */
 		next->next = mem_root->used;

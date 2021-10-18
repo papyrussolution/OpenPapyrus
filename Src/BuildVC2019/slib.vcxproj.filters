@@ -174,6 +174,60 @@
     <ClCompile Include="..\SLib\slib-winapi-helper.cpp" />
     <ClCompile Include="..\SLib\sregexp2.cpp" />
     <ClCompile Include="..\SLib\srp.cpp" />
+    <ClCompile Include="..\SLib\mimalloc\alloc.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-override.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-override-osx.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\alloc-posix.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\arena.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\bitmap.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\heap.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\init.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\options.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\os.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\page.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\page-queue.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\random.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\region.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\segment.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\static.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\mimalloc\stats.c">
+      <Filter>MiMalloc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -262,6 +316,27 @@
     </ClInclude>
     <ClInclude Include="..\Include\getopt.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\bitmap.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-atomic.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-internal.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-new-delete.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-override.h">
+      <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h">
+      <Filter>MiMalloc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -479,6 +554,9 @@
     </Filter>
     <Filter Include="gumbo\Header">
       <UniqueIdentifier>{1f5f75fd-58a2-4a11-85fc-a6c3a4a98f72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MiMalloc">
+      <UniqueIdentifier>{1675187b-c587-4acf-87d3-46aa405ac574}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

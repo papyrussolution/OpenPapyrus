@@ -246,7 +246,7 @@ static int mtherr(char * name, int code)
 }
 
 /*                                                      polevl.c
- *                                                      p1evl.c
+ *                                                p1evl.c
  *
  *      Evaluate polynomial
  *
@@ -265,14 +265,14 @@ static int mtherr(char * name, int code)
  *
  * Evaluates polynomial of degree N:
  *
- *                     2          N
+ *               2          N
  * y  =  C  + C x + C x  +...+ C x
- *        0    1     2          N
+ *  0    1     2          N
  *
  * Coefficients are stored in reverse order:
  *
  * coef[0] = C  , ..., coef[N] = C  .
- *            N                   0
+ *      N                   0
  *
  *  The function p1evl() assumes that coef[N] = 1.0 and is
  * omitted from the array.  Its calling arguments are
@@ -844,36 +844,36 @@ static double humlik(double x, double y)
  *
  *   DESCRIBE  Approximate the incomplete beta function Ix(a, b).
  *
- *                           _
- *                          |(a + b)     /x  (a-1)         (b-1)
- *             Ix(a, b) = -_-------_--- * |  t     * (1 - t)     dt (a,b > 0)
- *                        |(a) * |(b)   /0
+ *                     _
+ *                    |(a + b)     /x  (a-1)         (b-1)
+ *       Ix(a, b) = -_-------_--- * |  t     * (1 - t)     dt (a,b > 0)
+ *                  |(a) * |(b)   /0
  *
  *
  *
  *   CALL      p = ibeta(a, b, x)
  *
- *             double    a    > 0
- *             double    b    > 0
- *             double    x    [0, 1]
+ *       double    a    > 0
+ *       double    b    > 0
+ *       double    x    [0, 1]
  *
  *   WARNING   none
  *
  *   RETURN    double    p    [0, 1]
- *                            -1.0 on error condition
+ *                      -1.0 on error condition
  *
  *   XREF      lngamma()
  *
  *   BUGS      This approximation is only accurate on the domain
- *             x < (a-1)/(a+b-2)
+ *       x < (a-1)/(a+b-2)
  *
  *   REFERENCE The continued fraction expansion as given by
- *             Abramowitz and Stegun (1964) is used.
+ *       Abramowitz and Stegun (1964) is used.
  *
  * Copyright (c) 1992 Jos van der Woude, jvdwoude@hut.nl
  *
  * Note: this function was translated from the Public Domain Fortran
- *       version available from http://lib.stat.cmu.edu/apstat/xxx
+ * version available from http://lib.stat.cmu.edu/apstat/xxx
  *
  */
 
@@ -954,19 +954,19 @@ static double confrac(double a, double b, double x)
  *
  *   DESCRIBE  Approximate the incomplete gamma function P(a, x).
  *
- *                         1     /x  -t   (a-1)
- *             P(a, x) = -_--- * |  e  * t     dt      (a > 0)
- *                       |(a)   /0
+ *                   1     /x  -t   (a-1)
+ *       P(a, x) = -_--- * |  e  * t     dt      (a > 0)
+ *                 |(a)   /0
  *
  *   CALL      p = igamma(a, x)
  *
- *             double    a > 0
- *             double    x >= 0
+ *       double    a > 0
+ *       double    x >= 0
  *
  *   WARNING   none
  *
  *   RETURN    double    p    [0, 1]
- *                            -1.0 on error condition
+ *                      -1.0 on error condition
  *
  *   XREF      lngamma()
  *
@@ -978,7 +978,7 @@ static double confrac(double a, double b, double x)
  * Copyright (c) 1992 Jos van der Woude, jvdwoude@hut.nl
  *
  * Note: this function was translated from the Public Domain Fortran
- *       version available from http://lib.stat.cmu.edu/apstat/239
+ * version available from http://lib.stat.cmu.edu/apstat/239
  *
  * EAM 2020 modified to use Gauss-Legendre quadrature when a and x
  * are both large.
@@ -1281,7 +1281,7 @@ void GnuPlot::F_InverseErf(union argument * /*arg*/)
  *
  * ACCURACY:
  *
- *                      Relative error:
+ *                Relative error:
  * arithmetic   domain        # trials      peak         rms
  *    DEC      0.125, 1         5500       9.5e-17     2.1e-17
  *    DEC      6e-39, 0.135     3500       5.7e-17     1.3e-17
@@ -1665,13 +1665,13 @@ static double inverse_normal_func(double y0)
  *
  *  1 - erf(x) =
  *
- *                           inf.
- *                             -
- *                  2         | |          2
+ *                     inf.
+ *                       -
+ *            2         | |          2
  *   erfc(x)  =  --------     |    exp( - t  ) dt
- *               sqrt(pi)   | |
- *                           -
- *                            x
+ *         sqrt(pi)   | |
+ *                     -
+ *                      x
  *
  *
  * For small x, erfc(x) = 1 - erf(x); otherwise rational
@@ -1681,7 +1681,7 @@ static double inverse_normal_func(double y0)
  *
  * ACCURACY:
  *
- *                      Relative error:
+ *                Relative error:
  * arithmetic   domain     # trials      peak         rms
  *    DEC       0, 9.2319   12000       5.1e-16     1.2e-16
  *    IEEE      0,26.6417   30000       5.7e-14     1.5e-14
@@ -1917,13 +1917,13 @@ under:
  *
  * The integral is
  *
- *                           x
- *                            -
- *                 2         | |          2
+ *                     x
+ *                      -
+ *           2         | |          2
  *   erf(x)  =  --------     |    exp( - t  ) dt.
- *              sqrt(pi)   | |
- *                          -
- *                           0
+ *        sqrt(pi)   | |
+ *                    -
+ *                     0
  *
  * The magnitude of x is limited to 9.231948545 for DEC
  * arithmetic; 1 or -1 is returned outside this range.
@@ -1935,7 +1935,7 @@ under:
  *
  * ACCURACY:
  *
- *                      Relative error:
+ *                Relative error:
  * arithmetic   domain     # trials      peak         rms
  *    DEC       0,1         14000       4.7e-17     1.5e-17
  *    IEEE      0,1         30000       3.7e-16     1.0e-16
@@ -3252,22 +3252,22 @@ void GnuPlot::F_Airy(union argument * arg)
  *   DESCRIBE  Approximate the exponential integral function
  *
  *
- *                       /inf   -n    -zt
- *             E_n(z) =  |     t   * e    dt (n = 0, 1, 2, ...)
- *                       /1
+ *                 /inf   -n    -zt
+ *       E_n(z) =  |     t   * e    dt (n = 0, 1, 2, ...)
+ *                 /1
  *
  *
  *   CALL      p = expint(n, z)
  *
- *             double    n    >= 0
- *             double    z    >= 0
- *               also: n must be an integer
- *                     either z > 0 or n > 1
+ *       double    n    >= 0
+ *       double    z    >= 0
+ *         also: n must be an integer
+ *               either z > 0 or n > 1
  *
  *   WARNING   none
  *
  *   RETURN    double    p    > 0
- *                            -1.0 on error condition
+ *                      -1.0 on error condition
  *
  *   REFERENCE Abramowitz and Stegun (1964)
  *
@@ -4050,7 +4050,7 @@ void GnuPlot::F_IBeta(union argument * /*arg*/)
  *
  * Tested at uniformly distributed random points (a,b,x) with a and b
  * in "domain" and x between 0 and 1.
- *                                        Relative error
+ *                                  Relative error
  * arithmetic   domain     # trials      peak         rms
  *    IEEE      0,5         10000       6.9e-15     4.5e-16
  *    IEEE      0,85       250000       2.2e-13     1.7e-14
@@ -4369,9 +4369,9 @@ static double pseries(double a, double b, double x)
 
 /*
  * Chebyshev coefficients fit to synchrotron function
- *              ∞
+ *        ∞
  *     F(x) = x∫ K(5/3) y dy    where x is frequency in units of
- *              x               critical frequence v_c
+ *        x               critical frequence v_c
  *
  * MacLeod (2000) NucInstMethPhysRes A443:540-545.
  * The domain is split into 3 regions delimited by L = 27/64  U = 2197/512

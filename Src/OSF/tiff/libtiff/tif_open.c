@@ -37,7 +37,7 @@ static int _tiffDummyMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	return 0;
 }
 
-static void _tiffDummyUnmapProc(thandle_t fd, void* base, toff_t size)
+static void _tiffDummyUnmapProc(thandle_t fd, void * base, toff_t size)
 {
 	(void)fd; (void)base; (void)size;
 }

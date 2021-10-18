@@ -1366,8 +1366,8 @@ int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str)
 	enhstate.Pt.y += cos(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
 	// enhanced_recursion() uses the callback functions of the current terminal. So we have to switch temporarily. 
 	if(WIN_term) {
-		tsave = term;
-		term = WIN_term;
+		tsave = GPT.P_Term;
+		GPT.P_Term = WIN_term;
 	}
 	for(pass = 1; pass <= num_passes; pass++) {
 		/* Set the recursion going. We say to keep going until a
@@ -1383,7 +1383,7 @@ int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str)
 #else
 		char * save_fontname_a = save_fontname;
 #endif
-		while(*(str = enhanced_recursion(term, str, TRUE, save_fontname_a, save_fontsize, 0.0, TRUE, TRUE, 0))) {
+		while(*(str = enhanced_recursion(GPT.P_Term, str, TRUE, save_fontname_a, save_fontsize, 0.0, TRUE, TRUE, 0))) {
 			GraphEnhancedFlush();
 			if(!*++str)
 				break; /* end of string */
@@ -1401,7 +1401,7 @@ int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str)
 	}
 	// restore terminal 
 	if(WIN_term) 
-		term = tsave;
+		GPT.P_Term = tsave;
 	// restore font 
 	_tcscpy(enhstate.fontname, save_fontname);
 	enhstate.fontsize = save_fontsize;
@@ -3577,7 +3577,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 			    break;
 		}
 	}
-	if(term && sstreq(term->name, "windows") && ((lpgw == _WinM.P_GraphWin) || old)) {
+	if(GPT.P_Term && sstreq(GPT.P_Term->name, "windows") && ((lpgw == _WinM.P_GraphWin) || old)) {
 		GetMousePosViewport(lpgw, &mx, &my);
 		gp_exec_event(type, mx, my, par1, par2, 0);
 		lastTimestamp = thisTimestamp;
@@ -4383,8 +4383,9 @@ static void GraphChangeFont(GW * lpgw, LPCTSTR font, int fontsize, HDC hdc, RECT
 	}
 }
 #endif
-
-/* close the terminal window */
+//
+// close the terminal window 
+//
 void win_close_terminal_window(GW * lpgw)
 {
 	if(GraphHasWindow(lpgw)) {
@@ -4397,12 +4398,8 @@ void win_close_terminal_window(GW * lpgw)
 }
 
 #ifdef USE_MOUSE
-/* Implemented by Petr Mikulik, February 2001 --- the best Windows solutions
- * come from OS/2 :-))
- */
-
-/* ================================================================= */
-
+// Implemented by Petr Mikulik, February 2001 --- the best Windows solutions come from OS/2 :-))
+//
 /* Firstly: terminal calls from win.trm */
 
 /* Note that these all take lpgw as their first argument. It's an OO-type
@@ -4468,19 +4465,20 @@ void Graph_set_cursor(GW * lpgw, int c, int x, int y)
 	}
 }
 
-/* set_ruler(int x, int y) term API: x<0 switches ruler off. */
+// set_ruler(int x, int y) term API: x<0 switches ruler off. 
 void Graph_set_ruler(GW * lpgw, int x, int y)
 {
-	DrawRuler(lpgw); /* remove previous drawing, if any */
+	DrawRuler(lpgw); // remove previous drawing, if any 
 	DrawRulerLineTo(lpgw);
 	if(x < 0) {
 		ruler.on = FALSE;
-		return;
 	}
-	ruler.on = TRUE;
-	ruler.x = x; ruler.y = y;
-	DrawRuler(lpgw); /* draw ruler at new positions */
-	DrawRulerLineTo(lpgw);
+	else {
+		ruler.on = TRUE;
+		ruler.x = x; ruler.y = y;
+		DrawRuler(lpgw); // draw ruler at new positions 
+		DrawRulerLineTo(lpgw);
+	}
 }
 
 /* put_tmptext(int i, char c[]) term API
@@ -4489,26 +4487,21 @@ void Graph_set_ruler(GW * lpgw, int x, int y)
  */
 void Graph_put_tmptext(GW * lpgw, int where, LPCSTR text)
 {
-	/* Position of the annotation string (mouse movement) or zoom box
-	 * text or whatever temporary text added...
-	 */
+	// Position of the annotation string (mouse movement) or zoom box
+	// text or whatever temporary text added...
 	switch(where) {
 		case 0:
 		    UpdateStatusLine(lpgw, text);
 		    break;
 		case 1:
 		    DrawZoomBox(lpgw);
-		    if(zoombox.text1) {
-			    SAlloc::F((char *)zoombox.text1);
-		    }
+		    SAlloc::F((char *)zoombox.text1);
 		    zoombox.text1 = _strdup(text);
 		    DrawZoomBox(lpgw);
 		    break;
 		case 2:
 		    DrawZoomBox(lpgw);
-		    if(zoombox.text2) {
-			    SAlloc::F((char *)zoombox.text2);
-		    }
+		    SAlloc::F((char *)zoombox.text2);
 		    zoombox.text2 = _strdup(text);
 		    DrawZoomBox(lpgw);
 		    break;

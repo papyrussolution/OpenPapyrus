@@ -279,7 +279,7 @@ void CMSEXPORT cmsGBDFree(cmsHANDLE hGBD)
 {
 	cmsGDB* gbd = (cmsGDB*)hGBD;
 	if(hGBD != NULL)
-		_cmsFree(gbd->ContextID, (void*)gbd);
+		_cmsFree(gbd->ContextID, (void *)gbd);
 }
 
 // Auxiliary to retrieve a pointer to the segmentr containing the Lab value

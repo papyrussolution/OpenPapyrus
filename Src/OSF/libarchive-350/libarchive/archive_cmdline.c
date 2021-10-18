@@ -73,7 +73,7 @@ static ssize_t get_argument(struct archive_string * as, const char * p)
 				s += 2;
 			}
 			else {
-				s++;/* Ignore this character.*/
+				s++; /* Ignore this character.*/
 				break;
 			}
 		}
@@ -108,11 +108,11 @@ int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 	/* Get first argument as a command path. */
 	al = get_argument(&as, cmd);
 	if(al < 0) {
-		r = ARCHIVE_FAILED;/* Invalid sequence. */
+		r = ARCHIVE_FAILED; /* Invalid sequence. */
 		goto exit_function;
 	}
 	if(archive_strlen(&as) == 0) {
-		r = ARCHIVE_FAILED;/* An empty command path. */
+		r = ARCHIVE_FAILED; /* An empty command path. */
 		goto exit_function;
 	}
 	r = cmdline_set_path(data, as.s);
@@ -130,7 +130,7 @@ int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 	for(;;) {
 		al = get_argument(&as, cmd);
 		if(al < 0) {
-			r = ARCHIVE_FAILED;/* Invalid sequence. */
+			r = ARCHIVE_FAILED; /* Invalid sequence. */
 			goto exit_function;
 		}
 		if(al == 0)
@@ -152,7 +152,7 @@ exit_function:
  */
 static int cmdline_set_path(struct archive_cmdline * data, const char * path)
 {
-	char * newptr = static_cast<char *>(realloc(data->path, strlen(path) + 1));
+	char * newptr = static_cast<char *>(SAlloc::R(data->path, strlen(path) + 1));
 	if(newptr == NULL)
 		return ARCHIVE_FATAL;
 	data->path = newptr;
@@ -167,37 +167,36 @@ static int cmdline_add_arg(struct archive_cmdline * data, const char * arg)
 	char ** newargv;
 	if(data->path == NULL)
 		return ARCHIVE_FAILED;
-	newargv = static_cast<char **>(realloc(data->argv, (data->argc + 2) * sizeof(char *)));
+	newargv = static_cast<char **>(SAlloc::R(data->argv, (data->argc + 2) * sizeof(char *)));
 	if(newargv == NULL)
 		return ARCHIVE_FATAL;
 	data->argv = newargv;
-	data->argv[data->argc] = strdup(arg);
+	data->argv[data->argc] = sstrdup(arg);
 	if(data->argv[data->argc] == NULL)
 		return ARCHIVE_FATAL;
-	/* Set the terminator of argv. */
+	// Set the terminator of argv. 
 	data->argv[++data->argc] = NULL;
 	return ARCHIVE_OK;
 }
 
-struct archive_cmdline * __archive_cmdline_allocate(void)                         {
-	return (struct archive_cmdline *)
-	       calloc(1, sizeof(struct archive_cmdline));
+struct archive_cmdline * __archive_cmdline_allocate(void)                         
+{
+	return (struct archive_cmdline *)SAlloc::C(1, sizeof(struct archive_cmdline));
 }
-
 /*
  * Release the resources.
  */
 int __archive_cmdline_free(struct archive_cmdline * data)
 {
 	if(data) {
-		free(data->path);
+		SAlloc::F(data->path);
 		if(data->argv != NULL) {
 			int i;
 			for(i = 0; data->argv[i] != NULL; i++)
-				free(data->argv[i]);
-			free(data->argv);
+				SAlloc::F(data->argv[i]);
+			SAlloc::F(data->argv);
 		}
-		free(data);
+		SAlloc::F(data);
 	}
 	return ARCHIVE_OK;
 }

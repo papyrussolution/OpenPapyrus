@@ -299,7 +299,7 @@ static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font HB_UNUSED,
 	return true;
 }
 
-static void hb_ft_get_glyph_h_advances(hb_font_t* font, void* font_data,
+static void hb_ft_get_glyph_h_advances(hb_font_t* font, void * font_data,
     unsigned count,
     const hb_codepoint_t * first_glyph,
     unsigned glyph_stride,
@@ -318,7 +318,7 @@ static void hb_ft_get_glyph_h_advances(hb_font_t* font, void* font_data,
 		ft_font->cached_x_scale.set(font->x_scale);
 	}
 
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		FT_Fixed v = 0;
 		hb_codepoint_t glyph = *first_glyph;
 
@@ -440,7 +440,7 @@ static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void 
 		return false;
 	if(UNLIKELY(ft_face->glyph->format != FT_GLYPH_FORMAT_OUTLINE))
 		return false;
-	if(UNLIKELY(point_index >= (unsigned int)ft_face->glyph->outline.n_points))
+	if(UNLIKELY(point_index >= (uint)ft_face->glyph->outline.n_points))
 		return false;
 	*x = ft_face->glyph->outline.points[point_index].x;
 	*y = ft_face->glyph->outline.points[point_index].y;
@@ -601,7 +601,7 @@ hb_face_t * hb_ft_face_create(FT_Face ft_face, hb_destroy_func_t destroy)
 {
 	hb_face_t * face;
 	if(!ft_face->stream->read) {
-		hb_blob_t * blob = hb_blob_create((const char *)ft_face->stream->base, (unsigned int)ft_face->stream->size, HB_MEMORY_MODE_READONLY, ft_face, destroy);
+		hb_blob_t * blob = hb_blob_create((const char *)ft_face->stream->base, (uint)ft_face->stream->size, HB_MEMORY_MODE_READONLY, ft_face, destroy);
 		face = hb_face_create(blob, ft_face->face_index);
 		hb_blob_destroy(blob);
 	}
@@ -747,7 +747,7 @@ void hb_ft_font_changed(hb_font_t * font)
 			if(!FT_Get_Var_Blend_Coordinates(ft_face, mm_var->num_axis, ft_coords)) {
 				bool nonzero = false;
 
-				for(unsigned int i = 0; i < mm_var->num_axis; ++i) {
+				for(uint i = 0; i < mm_var->num_axis; ++i) {
 					coords[i] = ft_coords[i] >>= 2;
 					nonzero = nonzero || coords[i];
 				}
@@ -897,7 +897,7 @@ void hb_ft_font_set_funcs(hb_font_t * font)
 	if(num_coords) {
 		FT_Fixed * ft_coords = (FT_Fixed*)SAlloc::C(num_coords, sizeof(FT_Fixed));
 		if(ft_coords) {
-			for(unsigned int i = 0; i < num_coords; i++)
+			for(uint i = 0; i < num_coords; i++)
 				ft_coords[i] = coords[i] * 4;
 			FT_Set_Var_Blend_Coordinates(ft_face, num_coords, ft_coords);
 			SAlloc::F(ft_coords);

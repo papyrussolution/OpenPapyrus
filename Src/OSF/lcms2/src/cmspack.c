@@ -1381,7 +1381,7 @@ cmsUInt8Number* PackPlanarBytes(CMSREGISTER _cmsTRANSFORM* info,
 		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
 		cmsUInt8Number v = FROM_16_TO_8(wOut[index]);
 
-		*(cmsUInt8Number*)output = (cmsUInt8Number)(Reverse ? REVERSE_FLAVOR_8(v) : v);
+		*(cmsUInt8Number *)output = (cmsUInt8Number)(Reverse ? REVERSE_FLAVOR_8(v) : v);
 		output += Stride;
 	}
 

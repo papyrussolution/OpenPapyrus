@@ -680,7 +680,7 @@ int err_shelve_state(void ** state)
  * err_unshelve_state restores the error state that was returned
  * by err_shelve_state previously.
  */
-void err_unshelve_state(void* state)
+void err_unshelve_state(void * state)
 {
 	if(state != (void *)-1)
 		CRYPTO_THREAD_set_local(&err_thread_local, (ERR_STATE*)state);

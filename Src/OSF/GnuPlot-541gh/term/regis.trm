@@ -173,7 +173,7 @@ TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		i = (int)pGp->Real(pGp->ConstExpress(&a));
 	}
 	REGIS16color = (i == 16);
-	sprintf(GPT.TermOptions, "%s", REGIS16color ? "16" : "4");
+	slprintf(GPT._TermOptions, "%s", REGIS16color ? "16" : "4");
 }
 
 #endif

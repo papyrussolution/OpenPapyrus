@@ -38,9 +38,9 @@
 #define BUFFERCHECK(tif)              ((((tif)->tif_flags & TIFF_BUFFERSETUP) && tif->tif_rawdata) ||	TIFFWriteBufferSetup((tif), NULL, (tmsize_t)-1))
 
 static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module);
-static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc);
+static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8 * data, tmsize_t cc);
 
-int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
+int TIFFWriteScanline(TIFF* tif, void * buf, uint32 row, uint16 sample)
 {
 	static const char module[] = __FUNCTION__;
 	register TIFFDirectory * td;
@@ -174,7 +174,7 @@ int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
  *
  * NB: Image length must be setup before writing.
  */
-tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
+tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void * data, tmsize_t cc)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -266,7 +266,7 @@ tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
  *
  * NB: Image length must be setup before writing.
  */
-tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
+tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void * data, tmsize_t cc)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
@@ -309,7 +309,7 @@ tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
  * Write and compress a tile of data.  The
  * tile is selected by the (x,y,z,s) coordinates.
  */
-tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s)
+tmsize_t TIFFWriteTile(TIFF* tif, void * buf, uint32 x, uint32 y, uint32 z, uint16 s)
 {
 	if(!TIFFCheckTile(tif, x, y, z, s))
 		return static_cast<tmsize_t>(-1);
@@ -334,7 +334,7 @@ tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint1
  *   interface does not support automatically growing
  *   the image on each write (as TIFFWriteScanline does).
  */
-tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
+tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td;
@@ -445,7 +445,7 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
  *   interface does not support automatically growing
  *   the image on each write (as TIFFWriteScanline does).
  */
-tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
+tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc)
 {
 	static const char module[] = __FUNCTION__;
 	if(!WRITECHECKTILES(tif, module))
@@ -555,7 +555,7 @@ int FASTCALL TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 /*
  * Setup the raw data buffer used for encoding.
  */
-int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size)
+int TIFFWriteBufferSetup(TIFF* tif, void * bp, tmsize_t size)
 {
 	static const char module[] = __FUNCTION__;
 	if(tif->tif_rawdata) {
@@ -623,7 +623,7 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
 /*
  * Append the data to the specified strip.
  */
-static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
+static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8 * data, tmsize_t cc)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;

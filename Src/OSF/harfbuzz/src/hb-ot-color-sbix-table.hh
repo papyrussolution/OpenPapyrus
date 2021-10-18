@@ -106,10 +106,10 @@ retry:
 			if(UNLIKELY(glyph_id >= num_glyphs ||
 			    imageOffsetsZ[glyph_id + 1] <= imageOffsetsZ[glyph_id] ||
 			    imageOffsetsZ[glyph_id + 1] - imageOffsetsZ[glyph_id] <= SBIXGlyph::min_size ||
-			    (unsigned int)imageOffsetsZ[glyph_id + 1] > sbix_len - strike_offset))
+			    (uint)imageOffsetsZ[glyph_id + 1] > sbix_len - strike_offset))
 				return hb_blob_get_empty();
 
-			unsigned int glyph_offset = strike_offset + (unsigned int)imageOffsetsZ[glyph_id] + SBIXGlyph::min_size;
+			unsigned int glyph_offset = strike_offset + (uint)imageOffsetsZ[glyph_id] + SBIXGlyph::min_size;
 			unsigned int glyph_length = imageOffsetsZ[glyph_id + 1] - imageOffsetsZ[glyph_id] - SBIXGlyph::min_size;
 			const SBIXGlyph * glyph = &(this+imageOffsetsZ[glyph_id]);
 			if(glyph->graphicType == HB_TAG('d', 'u', 'p', 'e')) {
@@ -150,7 +150,7 @@ retry:
 				    imageOffsetsZ[old_gid + 1].is_null() ||
 				    imageOffsetsZ[old_gid + 1] <= imageOffsetsZ[old_gid] ||
 				    imageOffsetsZ[old_gid + 1] - imageOffsetsZ[old_gid] <= SBIXGlyph::min_size) ||
-				    (unsigned int)imageOffsetsZ[old_gid + 1] > available_len) {
+				    (uint)imageOffsetsZ[old_gid + 1] > available_len) {
 					out->imageOffsetsZ[new_gid] = head;
 					continue;
 				}
@@ -242,7 +242,7 @@ private:
 				unsigned int best_i = 0;
 				unsigned int best_ppem = table->get_strike(0).ppem;
 
-				for(unsigned int i = 1; i < count; i++) {
+				for(uint i = 1; i < count; i++) {
 					unsigned int ppem = (table->get_strike(i)).ppem;
 					if((requested_ppem <= ppem && ppem < best_ppem) ||
 					    (requested_ppem > best_ppem && ppem > best_ppem)) {
@@ -331,10 +331,10 @@ private:
 
 		bool add_strike(hb_subset_context_t * c, unsigned i) const
 		{
-			if(strikes[i].is_null() || c->source_blob->length < (unsigned)strikes[i])
+			if(strikes[i].is_null() || c->source_blob->length < (uint)strikes[i])
 				return false;
 
-			return (this+strikes[i]).subset(c, c->source_blob->length - (unsigned)strikes[i]);
+			return (this+strikes[i]).subset(c, c->source_blob->length - (uint)strikes[i]);
 		}
 
 		bool serialize_strike_offsets(hb_subset_context_t * c) const
@@ -364,7 +364,7 @@ private:
 					new_strikes.push(o);
 				}
 			}
-			for(unsigned int i = 0; i < new_strikes.length; ++i)
+			for(uint i = 0; i < new_strikes.length; ++i)
 				c->serializer->add_link(*new_strikes[i], objidxs[new_strikes.length - 1 - i]);
 
 			return_trace(true);

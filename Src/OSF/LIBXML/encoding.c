@@ -7,11 +7,11 @@
  * [ISO-10646]    UTF-8 and UTF-16 in Annexes
  * [ISO-8859-1]   ISO Latin-1 characters codes.
  * [UNICODE]      The Unicode Consortium, "The Unicode Standard --
- *           Worldwide Character Encoding -- Version 1.0", Addison-
- *           Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
- *           described in Unicode Technical Report #4.
+ *     Worldwide Character Encoding -- Version 1.0", Addison-
+ *     Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
+ *     described in Unicode Technical Report #4.
  * [US-ASCII]     Coded Character Set--7-bit American Standard Code for
- *           Information Interchange, ANSI X3.4-1986.
+ *     Information Interchange, ANSI X3.4-1986.
  *
  * See Copyright for the status of this software.
  *
@@ -355,25 +355,29 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
 	while(in < inend) {
 		d = *in++;
 		if(d < 0x80) {
-			c = d; trailing = 0;
+			c = d; 
+			trailing = 0;
 		}
 		else if(d < 0xC0) {
-			/* trailing byte in leading position */
+			// trailing byte in leading position 
 			*outlen = out - outstart;
 			*inlen = processed - instart;
 			return -2;
 		}
 		else if(d < 0xE0) {
-			c = d & 0x1F; trailing = 1;
+			c = d & 0x1F; 
+			trailing = 1;
 		}
 		else if(d < 0xF0) {
-			c = d & 0x0F; trailing = 2;
+			c = d & 0x0F; 
+			trailing = 2;
 		}
 		else if(d < 0xF8) {
-			c = d & 0x07; trailing = 3;
+			c = d & 0x07; 
+			trailing = 3;
 		}
 		else {
-			/* no chance for this in Ascii */
+			// no chance for this in Ascii 
 			*outlen = out - outstart;
 			*inlen = processed - instart;
 			return -2;

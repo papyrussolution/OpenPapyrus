@@ -31,37 +31,37 @@
   #define BLAKE2_INLINE inline
 #endif
 
-static BLAKE2_INLINE uint32_t load32( const void *src )
+static BLAKE2_INLINE uint32 load32( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  uint32_t w;
+  uint32 w;
   memcpy(&w, src, sizeof w);
   return w;
 #else
-  const uint8_t *p = ( const uint8_t * )src;
-  return (( uint32_t )( p[0] ) <<  0) |
-         (( uint32_t )( p[1] ) <<  8) |
-         (( uint32_t )( p[2] ) << 16) |
-         (( uint32_t )( p[3] ) << 24) ;
+  const uint8 *p = ( const uint8 * )src;
+  return (( uint32 )( p[0] ) <<  0) |
+         (( uint32 )( p[1] ) <<  8) |
+         (( uint32 )( p[2] ) << 16) |
+         (( uint32 )( p[3] ) << 24) ;
 #endif
 }
 
-static BLAKE2_INLINE uint64_t load64( const void *src )
+static BLAKE2_INLINE uint64 load64( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  uint64_t w;
+  uint64 w;
   memcpy(&w, src, sizeof w);
   return w;
 #else
-  const uint8_t *p = ( const uint8_t * )src;
-  return (( uint64_t )( p[0] ) <<  0) |
-         (( uint64_t )( p[1] ) <<  8) |
-         (( uint64_t )( p[2] ) << 16) |
-         (( uint64_t )( p[3] ) << 24) |
-         (( uint64_t )( p[4] ) << 32) |
-         (( uint64_t )( p[5] ) << 40) |
-         (( uint64_t )( p[6] ) << 48) |
-         (( uint64_t )( p[7] ) << 56) ;
+  const uint8 *p = ( const uint8 * )src;
+  return (( uint64 )( p[0] ) <<  0) |
+         (( uint64 )( p[1] ) <<  8) |
+         (( uint64 )( p[2] ) << 16) |
+         (( uint64 )( p[3] ) << 24) |
+         (( uint64 )( p[4] ) << 32) |
+         (( uint64 )( p[5] ) << 40) |
+         (( uint64 )( p[6] ) << 48) |
+         (( uint64 )( p[7] ) << 56) ;
 #endif
 }
 
@@ -72,9 +72,9 @@ static BLAKE2_INLINE uint16_t load16( const void *src )
   memcpy(&w, src, sizeof w);
   return w;
 #else
-  const uint8_t *p = ( const uint8_t * )src;
-  return ( uint16_t )((( uint32_t )( p[0] ) <<  0) |
-                      (( uint32_t )( p[1] ) <<  8));
+  const uint8 *p = ( const uint8 * )src;
+  return ( uint16_t )((( uint32 )( p[0] ) <<  0) |
+                      (( uint32 )( p[1] ) <<  8));
 #endif
 }
 
@@ -83,70 +83,70 @@ static BLAKE2_INLINE void store16( void *dst, uint16_t w )
 #if defined(NATIVE_LITTLE_ENDIAN)
   memcpy(dst, &w, sizeof w);
 #else
-  uint8_t *p = ( uint8_t * )dst;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w;
+  uint8 *p = ( uint8 * )dst;
+  *p++ = ( uint8 )w; w >>= 8;
+  *p++ = ( uint8 )w;
 #endif
 }
 
-static BLAKE2_INLINE void store32( void *dst, uint32_t w )
+static BLAKE2_INLINE void store32( void *dst, uint32 w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   memcpy(dst, &w, sizeof w);
 #else
-  uint8_t *p = ( uint8_t * )dst;
-  p[0] = (uint8_t)(w >>  0);
-  p[1] = (uint8_t)(w >>  8);
-  p[2] = (uint8_t)(w >> 16);
-  p[3] = (uint8_t)(w >> 24);
+  uint8 *p = ( uint8 * )dst;
+  p[0] = (uint8)(w >>  0);
+  p[1] = (uint8)(w >>  8);
+  p[2] = (uint8)(w >> 16);
+  p[3] = (uint8)(w >> 24);
 #endif
 }
 
-static BLAKE2_INLINE void store64( void *dst, uint64_t w )
+static BLAKE2_INLINE void store64( void *dst, uint64 w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   memcpy(dst, &w, sizeof w);
 #else
-  uint8_t *p = ( uint8_t * )dst;
-  p[0] = (uint8_t)(w >>  0);
-  p[1] = (uint8_t)(w >>  8);
-  p[2] = (uint8_t)(w >> 16);
-  p[3] = (uint8_t)(w >> 24);
-  p[4] = (uint8_t)(w >> 32);
-  p[5] = (uint8_t)(w >> 40);
-  p[6] = (uint8_t)(w >> 48);
-  p[7] = (uint8_t)(w >> 56);
+  uint8 *p = ( uint8 * )dst;
+  p[0] = (uint8)(w >>  0);
+  p[1] = (uint8)(w >>  8);
+  p[2] = (uint8)(w >> 16);
+  p[3] = (uint8)(w >> 24);
+  p[4] = (uint8)(w >> 32);
+  p[5] = (uint8)(w >> 40);
+  p[6] = (uint8)(w >> 48);
+  p[7] = (uint8)(w >> 56);
 #endif
 }
 
-static BLAKE2_INLINE uint64_t load48( const void *src )
+static BLAKE2_INLINE uint64 load48( const void *src )
 {
-  const uint8_t *p = ( const uint8_t * )src;
-  return (( uint64_t )( p[0] ) <<  0) |
-         (( uint64_t )( p[1] ) <<  8) |
-         (( uint64_t )( p[2] ) << 16) |
-         (( uint64_t )( p[3] ) << 24) |
-         (( uint64_t )( p[4] ) << 32) |
-         (( uint64_t )( p[5] ) << 40) ;
+  const uint8 *p = ( const uint8 * )src;
+  return (( uint64 )( p[0] ) <<  0) |
+         (( uint64 )( p[1] ) <<  8) |
+         (( uint64 )( p[2] ) << 16) |
+         (( uint64 )( p[3] ) << 24) |
+         (( uint64 )( p[4] ) << 32) |
+         (( uint64 )( p[5] ) << 40) ;
 }
 
-static BLAKE2_INLINE void store48( void *dst, uint64_t w )
+static BLAKE2_INLINE void store48( void *dst, uint64 w )
 {
-  uint8_t *p = ( uint8_t * )dst;
-  p[0] = (uint8_t)(w >>  0);
-  p[1] = (uint8_t)(w >>  8);
-  p[2] = (uint8_t)(w >> 16);
-  p[3] = (uint8_t)(w >> 24);
-  p[4] = (uint8_t)(w >> 32);
-  p[5] = (uint8_t)(w >> 40);
+  uint8 *p = ( uint8 * )dst;
+  p[0] = (uint8)(w >>  0);
+  p[1] = (uint8)(w >>  8);
+  p[2] = (uint8)(w >> 16);
+  p[3] = (uint8)(w >> 24);
+  p[4] = (uint8)(w >> 32);
+  p[5] = (uint8)(w >> 40);
 }
 
-static BLAKE2_INLINE uint32_t rotr32( const uint32_t w, const unsigned c )
+static BLAKE2_INLINE uint32 rotr32( const uint32 w, const unsigned c )
 {
   return ( w >> c ) | ( w << ( 32 - c ) );
 }
 
-static BLAKE2_INLINE uint64_t rotr64( const uint64_t w, const unsigned c )
+static BLAKE2_INLINE uint64 rotr64( const uint64 w, const unsigned c )
 {
   return ( w >> c ) | ( w << ( 64 - c ) );
 }

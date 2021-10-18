@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
 	unsigned int count = 0;
 #ifndef HB_NO_NAME
 	const hb_ot_name_entry_t * entries = hb_ot_name_list_names(face, &count);
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		printf("%u	%s	", entries[i].name_id, hb_language_to_string(entries[i].language));
 		char buf[64];
 		unsigned int buf_size = sizeof(buf);

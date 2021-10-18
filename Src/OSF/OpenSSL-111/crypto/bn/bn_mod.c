@@ -36,9 +36,9 @@ int BN_mod_add(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, const BIGNUM * m,
  * less than m. The original algorithm was
  *
  *    if (!BN_uadd(r, a, b))
- *       return 0;
+ * return 0;
  *    if (BN_ucmp(r, m) >= 0)
- *       return BN_usub(r, r, m);
+ * return BN_usub(r, r, m);
  *
  * which is replaced with addition, subtracting modulus, and conditional
  * move depending on whether or not subtraction borrowed.

@@ -1360,7 +1360,7 @@ void SelAmtSymbDialog::updateList()
 	}
 }
 
-int SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf)
+int STDCALL SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf)
 {
 	int    ok = -1;
 	SelAmtSymbDialog * dlg = 0;

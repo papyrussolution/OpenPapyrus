@@ -889,10 +889,10 @@ typedef PNG_CALLBACK (void, * png_free_ptr, (png_structp, void *));
  * PNG_EXPORT(ordinal, type, name, (args));
  *
  *  ordinal:    ordinal that is used while building
- *              *.def files. The ordinal value is only
- *              relevant when preprocessing png.h with
- *              the *.dfn files for building symbol table
- *              entries, and are removed by pngconf.h.
+ *        *.def files. The ordinal value is only
+ *        relevant when preprocessing png.h with
+ *        the *.dfn files for building symbol table
+ *        entries, and are removed by pngconf.h.
  *  type:       return type of the function
  *  name:       function name
  *  args:       function arguments, with types

@@ -79,7 +79,7 @@ void TiXmlBaseA::PutString(const TIXMLA_STRING& str, TIXMLA_STRING* outString)
 			// Easy pass at non-alpha/numeric/symbol
 			// 127 is the delete key. Below 32 is symbolic.
 			char buf[ 32 ];
-			sprintf(buf, "&#x%02X;", (unsigned)( c & 0xff ) );
+			sprintf(buf, "&#x%02X;", (uint)( c & 0xff ) );
 			outString->append(buf, strlen(buf) );
 			++i;
 		}
@@ -896,12 +896,9 @@ void TiXmlCommentA::StreamOut(TIXMLA_OSTREAM * stream) const
 
 TiXmlNodeA* TiXmlCommentA::Clone() const
 {
-	TiXmlCommentA* clone = new TiXmlCommentA();
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
+	TiXmlCommentA * clone = new TiXmlCommentA();
+	if(clone)
+		CopyToClone(clone);
 	return clone;
 }
 
@@ -919,20 +916,13 @@ void TiXmlTextA::StreamOut(TIXMLA_OSTREAM * stream) const
 
 TiXmlNodeA* TiXmlTextA::Clone() const
 {
-	TiXmlTextA* clone = 0;
-	clone = new TiXmlTextA("");
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
+	TiXmlTextA * clone = new TiXmlTextA("");
+	if(clone)
+		CopyToClone(clone);
 	return clone;
 }
 
-TiXmlDeclarationA::TiXmlDeclarationA(const char * _version,
-    const char * _encoding,
-    const char * _standalone)
-	: TiXmlNodeA(TiXmlNodeA::DECLARATION)
+TiXmlDeclarationA::TiXmlDeclarationA(const char * _version, const char * _encoding, const char * _standalone) : TiXmlNodeA(TiXmlNodeA::DECLARATION)
 {
 	version = _version;
 	encoding = _encoding;
@@ -942,7 +932,6 @@ TiXmlDeclarationA::TiXmlDeclarationA(const char * _version,
 void TiXmlDeclarationA::Print(FILE* cfile, int /*depth*/) const
 {
 	fprintf(cfile, "<?xml ");
-
 	if(!version.empty() )
 		fprintf(cfile, "version=\"%s\" ", version.c_str());
 	if(!encoding.empty() )
@@ -955,7 +944,6 @@ void TiXmlDeclarationA::Print(FILE* cfile, int /*depth*/) const
 void TiXmlDeclarationA::StreamOut(TIXMLA_OSTREAM * stream) const
 {
 	(*stream) << "<?xml ";
-
 	if(!version.empty() ) {
 		(*stream) << "version=\"";
 		PutString(version, stream);
@@ -976,38 +964,33 @@ void TiXmlDeclarationA::StreamOut(TIXMLA_OSTREAM * stream) const
 
 TiXmlNodeA* TiXmlDeclarationA::Clone() const
 {
-	TiXmlDeclarationA* clone = new TiXmlDeclarationA();
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
-	clone->version = version;
-	clone->encoding = encoding;
-	clone->standalone = standalone;
+	TiXmlDeclarationA * clone = new TiXmlDeclarationA();
+	if(clone) {
+		CopyToClone(clone);
+		clone->version = version;
+		clone->encoding = encoding;
+		clone->standalone = standalone;
+	}
 	return clone;
 }
 
 void TiXmlUnknownA::Print(FILE* cfile, int depth) const
 {
-	for(int i = 0; i<depth; i++)
+	for(int i = 0; i < depth; i++)
 		fprintf(cfile, "    ");
 	fprintf(cfile, "%s", value.c_str() );
 }
 
 void TiXmlUnknownA::StreamOut(TIXMLA_OSTREAM * stream) const
 {
-	(*stream) << "<" << value << ">";               // Don't use entities hear! It is unknown.
+	(*stream) << "<" << value << ">"; // Don't use entities hear! It is unknown.
 }
 
 TiXmlNodeA* TiXmlUnknownA::Clone() const
 {
-	TiXmlUnknownA* clone = new TiXmlUnknownA();
-
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
+	TiXmlUnknownA * clone = new TiXmlUnknownA();
+	if(clone)
+		CopyToClone(clone);
 	return clone;
 }
 
@@ -1026,19 +1009,15 @@ TiXmlAttributeSetA::~TiXmlAttributeSetA()
 void TiXmlAttributeSetA::Add(TiXmlAttributeA* addMe)
 {
 	assert(!Find(addMe->Name() ) );         // Shouldn't be multiply adding to the set.
-
 	addMe->next = &sentinel;
 	addMe->prev = sentinel.prev;
-
 	sentinel.prev->next = addMe;
 	sentinel.prev      = addMe;
 }
 
 void TiXmlAttributeSetA::Remove(TiXmlAttributeA* removeMe)
 {
-	TiXmlAttributeA* node;
-
-	for(node = sentinel.next; node != &sentinel; node = node->next) {
+	for(TiXmlAttributeA * node = sentinel.next; node != &sentinel; node = node->next) {
 		if(node == removeMe) {
 			node->prev->next = node->next;
 			node->next->prev = node->prev;
@@ -1050,11 +1029,9 @@ void TiXmlAttributeSetA::Remove(TiXmlAttributeA* removeMe)
 	assert(0);              // we tried to remove a non-linked attribute.
 }
 
-TiXmlAttributeA*        TiXmlAttributeSetA::Find(const char * name) const
+TiXmlAttributeA * TiXmlAttributeSetA::Find(const char * name) const
 {
-	TiXmlAttributeA* node;
-
-	for(node = sentinel.next; node != &sentinel; node = node->next) {
+	for(TiXmlAttributeA * node = sentinel.next; node != &sentinel; node = node->next) {
 		if(node->name == name)
 			return node;
 	}
@@ -1062,16 +1039,14 @@ TiXmlAttributeA*        TiXmlAttributeSetA::Find(const char * name) const
 }
 
 #ifdef TIXMLA_USE_STL
-TIXMLA_ISTREAM & operator >>(TIXMLA_ISTREAM & in, TiXmlNodeA & base)
-{
-	TIXMLA_STRING tag;
-	tag.reserve(8 * 1000);
-	base.StreamIn(&in, &tag);
-
-	base.Parse(tag.c_str(), 0);
-	return in;
-}
-
+	TIXMLA_ISTREAM & operator >>(TIXMLA_ISTREAM & in, TiXmlNodeA & base)
+	{
+		TIXMLA_STRING tag;
+		tag.reserve(8 * 1000);
+		base.StreamIn(&in, &tag);
+		base.Parse(tag.c_str(), 0);
+		return in;
+	}
 #endif
 
 TIXMLA_OSTREAM & operator<<(TIXMLA_OSTREAM & out, const TiXmlNodeA & base)
@@ -1081,15 +1056,13 @@ TIXMLA_OSTREAM & operator<<(TIXMLA_OSTREAM & out, const TiXmlNodeA & base)
 }
 
 #ifdef TIXMLA_USE_STL
-std::string & operator<<(std::string& out, const TiXmlNodeA& base)
-{
-	std::ostringstream os_stream(std::ostringstream::out);
-	base.StreamOut(&os_stream);
-
-	out.append(os_stream.str() );
-	return out;
-}
-
+	std::string & operator<<(std::string& out, const TiXmlNodeA& base)
+	{
+		std::ostringstream os_stream(std::ostringstream::out);
+		base.StreamOut(&os_stream);
+		out.append(os_stream.str() );
+		return out;
+	}
 #endif
 
 TiXmlHandleA TiXmlHandleA::FirstChild() const
@@ -1151,11 +1124,8 @@ TiXmlHandleA TiXmlHandleA::Child(int count) const
 TiXmlHandleA TiXmlHandleA::Child(const char* value, int count) const
 {
 	if(node) {
-		int i;
-		TiXmlNodeA* child = node->FirstChild(value);
-		for(i = 0;
-		    child && i<count;
-		    child = child->NextSibling(value), ++i) {
+		TiXmlNodeA * child = node->FirstChild(value);
+		for(int i = 0; child && i < count; child = child->NextSibling(value), ++i) {
 			// nothing
 		}
 		if(child)
@@ -1167,11 +1137,8 @@ TiXmlHandleA TiXmlHandleA::Child(const char* value, int count) const
 TiXmlHandleA TiXmlHandleA::ChildElement(int count) const
 {
 	if(node) {
-		int i;
-		TiXmlElementA* child = node->FirstChildElement();
-		for(i = 0;
-		    child && i<count;
-		    child = child->NextSiblingElement(), ++i) {
+		TiXmlElementA * child = node->FirstChildElement();
+		for(int i = 0; child && i < count; child = child->NextSiblingElement(), ++i) {
 			// nothing
 		}
 		if(child)
@@ -1183,11 +1150,8 @@ TiXmlHandleA TiXmlHandleA::ChildElement(int count) const
 TiXmlHandleA TiXmlHandleA::ChildElement(const char* value, int count) const
 {
 	if(node) {
-		int i;
 		TiXmlElementA* child = node->FirstChildElement(value);
-		for(i = 0;
-		    child && i<count;
-		    child = child->NextSiblingElement(value), ++i) {
+		for(int i = 0; child && i < count; child = child->NextSiblingElement(value), ++i) {
 			// nothing
 		}
 		if(child)

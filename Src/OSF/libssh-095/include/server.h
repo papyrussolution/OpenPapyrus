@@ -63,7 +63,7 @@ typedef struct ssh_bind_struct* ssh_bind;
 
 /**
  * @brief Incoming connection callback. This callback is called when a ssh_bind
- *        has a new incoming connection.
+ *  has a new incoming connection.
  * @param sshbind Current sshbind session handler
  * @param userdata Userdata to be passed to the callback function.
  */
@@ -113,8 +113,8 @@ LIBSSH_API int ssh_bind_listen(ssh_bind ssh_bind_o);
  *
  * @code
  *     struct ssh_callbacks_struct cb = {
- *         .userdata = data,
- *         .auth_function = my_auth_function
+ *   .userdata = data,
+ *   .auth_function = my_auth_function
  *     };
  *     ssh_callbacks_init(&cb);
  *     ssh_bind_set_callbacks(session, &cb);
@@ -169,12 +169,12 @@ LIBSSH_API int ssh_bind_accept(ssh_bind ssh_bind_o, ssh_session session);
 
 /**
  * @brief Accept an incoming ssh connection on the given file descriptor
- *        and initialize the session.
+ *  and initialize the session.
  *
  * @param  ssh_bind_o     The ssh server bind to accept a connection.
  * @param  session        A preallocated ssh session
  * @param  fd             A file descriptor of an already established TCP
- *                          inbound connection
+ *                    inbound connection
  * @see ssh_new
  * @see ssh_bind_accept
  * @return SSH_OK when a connection is established
@@ -195,7 +195,7 @@ LIBSSH_API int ssh_handle_key_exchange(ssh_session session);
 
 /**
  * @brief Initialize the set of key exchange, hostkey, ciphers, MACs, and
- *        compression algorithms for the given ssh_session.
+ *  compression algorithms for the given ssh_session.
  *
  * The selection of algorithms and keys used are determined by the
  * options that are currently set in the given ssh_session structure.
@@ -225,15 +225,15 @@ LIBSSH_API void ssh_bind_free(ssh_bind ssh_bind_o);
  * @param[in]  session  The server session
  *
  * @param[in]  auth_methods The authentication methods we will support, which
- *                          can be bitwise-or'd.
+ *                    can be bitwise-or'd.
  *
- *                          Supported methods are:
+ *                    Supported methods are:
  *
- *                          SSH_AUTH_METHOD_PASSWORD
- *                          SSH_AUTH_METHOD_PUBLICKEY
- *                          SSH_AUTH_METHOD_HOSTBASED
- *                          SSH_AUTH_METHOD_INTERACTIVE
- *                          SSH_AUTH_METHOD_GSSAPI_MIC
+ *                    SSH_AUTH_METHOD_PASSWORD
+ *                    SSH_AUTH_METHOD_PUBLICKEY
+ *                    SSH_AUTH_METHOD_HOSTBASED
+ *                    SSH_AUTH_METHOD_INTERACTIVE
+ *                    SSH_AUTH_METHOD_GSSAPI_MIC
  */
 LIBSSH_API void ssh_set_auth_methods(ssh_session session, int auth_methods);
 

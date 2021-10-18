@@ -3005,7 +3005,7 @@ static void testerr(xmlRegExecCtxtPtr exec);
  * xmlRegNewExecCtxt:
  * @comp: a precompiled regular expression
  * @callback: a callback function used for handling progresses in the
- *       automata matching phase
+ * automata matching phase
  * @data: the context data associated to the callback in this context
  *
  * Build a context used for progressive evaluation of a regexp.
@@ -4035,7 +4035,7 @@ static int xmlFAIsChar(xmlRegParserCtxt * ctxt)
  *
  * [27]   charProp   ::=   IsCategory | IsBlock
  * [28]   IsCategory ::= Letters | Marks | Numbers | Punctuation |
- *                  Separators | Symbols | Others
+ *            Separators | Symbols | Others
  * [29]   Letters   ::=   'L' [ultmo]?
  * [30]   Marks   ::=   'M' [nce]?
  * [31]   Numbers   ::=   'N' [dlo]?

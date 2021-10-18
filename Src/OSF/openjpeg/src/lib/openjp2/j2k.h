@@ -211,7 +211,7 @@ typedef struct opj_mct_data {
 	J2K_MCT_ELEMENT_TYPE m_element_type;
 	J2K_MCT_ARRAY_TYPE m_array_type;
 	OPJ_UINT32 m_index;
-	OPJ_BYTE *           m_data;
+	OPJ_BYTE *     m_data;
 	OPJ_UINT32 m_data_size;
 }
 
@@ -231,7 +231,7 @@ typedef struct opj_simple_mcc_decorrelation_data {
 opj_simple_mcc_decorrelation_data_t;
 
 typedef struct opj_ppx_struct {
-	OPJ_BYTE*   m_data;/* m_data == NULL => Zppx not read yet */
+	OPJ_BYTE*   m_data; /* m_data == NULL => Zppx not read yet */
 	OPJ_UINT32 m_data_size;
 } opj_ppx;
 
@@ -560,11 +560,11 @@ typedef struct opj_j2k {
 	opj_image_t* m_private_image; /** pointer to the internal/private encoded / decoded image */
 	opj_image_t* m_output_image; /* pointer to the output image (decoded)*/
 	opj_cp_t m_cp; /** Coding parameters */
-	opj_procedure_list_t *  m_procedure_list;/** the list of procedures to exec **/
-	opj_procedure_list_t *  m_validation_list;/** the list of validation procedures to follow to make sure the code is valid **/
+	opj_procedure_list_t *  m_procedure_list; /** the list of procedures to exec **/
+	opj_procedure_list_t *  m_validation_list; /** the list of validation procedures to follow to make sure the code is valid **/
 	opj_codestream_index_t * cstr_index; /** helper used to write the index file */
 	OPJ_UINT32 m_current_tile_number; /** number of the tile currently concern by coding/decoding */
-	struct opj_tcd *    m_tcd;/** the current tile coder/decoder **/
+	struct opj_tcd *    m_tcd; /** the current tile coder/decoder **/
 	opj_thread_pool_t* m_tp; /** Thread pool */
 	OPJ_UINT32 ihdr_w; /** Image width coming from JP2 IHDR box. 0 from a pure codestream */
 	OPJ_UINT32 ihdr_h; /** Image height coming from JP2 IHDR box. 0 from a pure codestream */
@@ -680,7 +680,7 @@ OPJ_BOOL opj_j2k_read_tile_header(opj_j2k_t * p_j2k, OPJ_UINT32 * p_tile_index,
  * @param p_j2k         the jpeg2000 codec.
  * @param numcomps      Number of components to decode.
  * @param comps_indices Array of num_compts indices (numbering starting at 0)
- *                      corresponding to the components to decode.
+ *                corresponding to the components to decode.
  * @param p_manager     Event manager
  *
  * @return OPJ_TRUE in case of success.

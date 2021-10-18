@@ -270,20 +270,52 @@ int ToolbarList::moveItem(uint pos, int up)
 	return (cls_name == "MDICLIENT");
 }
 
-TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle)
+int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	ViewOptions  |= ofSelectable;
+	int    result = FALSE;
+	if(H() && lParam) {
+		DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
+		TDrawItemData di;
+		di.CtlType = p_dis->CtlType;
+		di.CtlID   = p_dis->CtlID;
+		di.ItemID  = p_dis->itemID;
+		di.ItemAction = p_dis->itemAction;
+		di.ItemState  = p_dis->itemState;
+		di.H_Item   = p_dis->hwndItem;
+		di.H_DC     = p_dis->hDC;
+		di.ItemRect = p_dis->rcItem;
+		di.P_View   = getCtrlView(LOWORD(di.CtlID));
+		di.ItemData = p_dis->itemData;
+		TView::messageCommand(this, cmDrawItem, &di);
+		if(APPL->DrawControl(H(), uMsg, wParam, lParam) > 0)
+			di.ItemAction = p_dis->itemAction;
+		if(!di.ItemAction)
+			result = TRUE;
+	}
+	return result;
+}
+
+TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : 
+	TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle), P_SymbList(0), P_FontsAry(0)
+{
+	ViewOptions |= ofSelectable;
 }
 
 TWindow::~TWindow()
 {
 	delete P_Lmp;
+	ZDELETE(P_SymbList);
 	if(HW) {
 		//
 		// Обнуляем ссылку на this в системной структуре окна во
 		// избежании попытки повторного удаления оконной процедурой.
 		//
 		TView::SetWindowUserData(HW, static_cast<void *>(0));
+	}
+	if(P_FontsAry) {
+		for(uint c = 0; c < P_FontsAry->getCount(); c++)
+			::DeleteObject(*static_cast<HFONT *>(P_FontsAry->at(c)));
+		ZDELETE(P_FontsAry);
 	}
 }
 
@@ -373,7 +405,7 @@ int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 	return ok;
 }
 
-void FASTCALL TWindow::setCtrlReadOnly(ushort ctlID, int enable)
+void STDCALL TWindow::setCtrlReadOnly(ushort ctlID, int enable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
@@ -395,7 +427,7 @@ void FASTCALL TWindow::drawCtrl(ushort ctlID)
 	}
 }
 
-void FASTCALL TWindow::disableCtrl(ushort ctlID, int enable)
+void STDCALL TWindow::disableCtrl(ushort ctlID, int enable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
@@ -487,13 +519,13 @@ int TWindow::destroyCtrl(uint ctlID)
 	return ok;
 }
 
-int FASTCALL TWindow::setCtrlData(ushort ctlID, void * data)
+int STDCALL TWindow::setCtrlData(ushort ctlID, void * data)
 {
 	TView * v = getCtrlView(ctlID);
 	return v ? (v->TransmitData(+1, data), 1) : 0;
 }
 
-int FASTCALL TWindow::getCtrlData(ushort ctlID, void * data)
+int STDCALL TWindow::getCtrlData(ushort ctlID, void * data)
 {
 	TView * v = getCtrlView(ctlID);
 	return v ? (v->TransmitData(-1, data), 1) : 0;
@@ -507,7 +539,7 @@ long FASTCALL TWindow::getCtrlLong(uint ctlID)
 	return val;
 }
 
-int FASTCALL TWindow::setCtrlUInt16(uint ctlID, int s)
+int STDCALL TWindow::setCtrlUInt16(uint ctlID, int s)
 {
 	uint16 val = static_cast<uint16>(s);
 	return setCtrlData(ctlID, &val);
@@ -541,7 +573,7 @@ LTIME FASTCALL TWindow::getCtrlTime(uint ctlID)
 	return getCtrlData(ctlID, &tm) ? tm : ZEROTIME;
 }
 
-int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
+int STDCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 {
 	int    ok = 0;
 	char   temp_buf[1024];
@@ -581,7 +613,7 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 	return ok;
 }
 
-int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
+int STDCALL TWindow::getCtrlString(uint ctlID, SString & s)
 {
 	int    ok = 0;
 	char   temp_buf[1024];
@@ -605,10 +637,10 @@ int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	return ok;
 }
 
-int FASTCALL TWindow::setCtrlLong(uint ctlID, long val) { return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlReal(uint ctlID, double val) { return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlDate(uint ctlID, LDATE val) { return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlTime(uint ctlID, LTIME val) { return setCtrlData(ctlID, &val); }
+int STDCALL TWindow::setCtrlLong(uint ctlID, long val) { return setCtrlData(ctlID, &val); }
+int STDCALL TWindow::setCtrlReal(uint ctlID, double val) { return setCtrlData(ctlID, &val); }
+int STDCALL TWindow::setCtrlDate(uint ctlID, LDATE val) { return setCtrlData(ctlID, &val); }
+int STDCALL TWindow::setCtrlTime(uint ctlID, LTIME val) { return setCtrlData(ctlID, &val); }
 int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
 int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
 int TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
@@ -618,6 +650,66 @@ void TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 	TView * v = getCtrlView(ctlID);
 	if(v)
 		SETFLAG(v->ViewOptions, flags, s);
+}
+
+int TWindow::SetFont(const SFontDescr & rFd)
+{
+	int    ok = 0;
+	if(rFd.Face.NotEmpty() && rFd.Size) {
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd));
+		if(new_font) {
+			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
+			::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+		}
+	}
+	return ok;
+}
+
+int TWindow::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
+{
+	int    ok = 0;
+	HWND   h_ctl = GetDlgItem(H(), ctlID);
+	if(h_ctl && rFd.Face.NotEmpty() && rFd.Size) {
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd));
+		if(new_font) {
+			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
+			::SendMessage(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int TWindow::SetCtrlFont(uint ctrlID, const char * pFontName, int height)
+{
+	int    ok = -1;
+	HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrlID), pFontName, height);
+	if(new_font) {
+		SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
+		ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
+	}
+	return ok;
+}
+
+int __cdecl TWindow::SetCtrlsFont(const char * pFontName, int height, ...)
+{
+	int   ok = -1;
+	long  ctrl_id;
+	va_list  vl;
+	va_start(vl, height);
+	ctrl_id = va_arg(vl, long);
+	if(ctrl_id) {
+		HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrl_id), pFontName, height);
+		if(new_font) {
+			SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
+			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
+			if(ok > 0)
+				while((ctrl_id = va_arg(vl, long)) != 0)
+					::SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+		}
+	}
+	va_end(vl);
+	return ok;
 }
 
 int TWindow::getStaticText(ushort ctlID, SString & rBuf)
@@ -664,7 +756,7 @@ void FASTCALL TWindow::setTitle(const char * pBuf) { return Helper_SetTitle(pBuf
 void FASTCALL TWindow::setOrgTitle(const char * pBuf) { return Helper_SetTitle(pBuf, 1); }
 const SString & TWindow::getTitle() const { return Title; }
 
-void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
+void STDCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 {
 	if(!isempty(pBuf)) {
 		SString temp_title(pBuf);
@@ -855,7 +947,17 @@ TRect TWindow::getRect() const
 int TWindow::invalidateRect(const TRect & rRect, int erase)
 {
 	RECT r = rRect;
-	return ::InvalidateRect(HW, &r, erase ? TRUE : FALSE);
+	return ::InvalidateRect(HW, &r, BIN(erase));
+}
+
+int TWindow::invalidateRect(const FRect & rRect, int erase)
+{
+	RECT r;
+	r.left = R0i(rRect.a.x);
+	r.top = R0i(rRect.a.y);
+	r.right = R0i(rRect.b.x);
+	r.bottom = R0i(rRect.b.y);
+	return ::InvalidateRect(HW, &r, BIN(erase));
 }
 
 int TWindow::invalidateRegion(const SRegion & rRgn, int erase)
@@ -888,6 +990,38 @@ int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
 	}
 	tme.hwndTrack = HW;
 	return BIN(::_TrackMouseEvent(&tme)); // win sdk commctrl
+}
+
+int TWindow::SetCtlSymb(uint id, const char * pSymb)
+{
+	int    ok = -1;
+	if(!isempty(pSymb) && id > 0) {
+		SETIFZ(P_SymbList, new StrAssocArray);
+		if(P_SymbList) {
+			P_SymbList->Add(static_cast<long>(id), pSymb);
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
+int TWindow::GetCtlSymb(uint id, SString & rBuf) const
+{
+	rBuf.Z();
+	return BIN(P_SymbList && P_SymbList->GetText(static_cast<long>(id), rBuf) > 0);
+}
+
+int TWindow::InsertCtl(TView * pCtl, uint id, const char * pSymb)
+{
+	int    ok = 0;
+	if(pCtl) {
+		Insert_(&pCtl->SetId(id));
+		SetCtlSymb(id, pSymb);
+		ok = 1;
+	}
+	return ok;
 }
 //
 //
@@ -1315,7 +1449,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			if(IsMDIClientWindow(APPL->H_MainWnd))
 				Create(APPL->H_MainWnd, coMDI);
 			else
-				Create(APPL->H_TopOfStack, coPopup | coMaxSize);
+				Create(APPL->H_TopOfStack, coPopup /* @v11.2.0 | coMaxSize*/);
 		}
 		::ShowWindow(HW, SW_NORMAL);
 		::UpdateWindow(HW);
@@ -1676,6 +1810,8 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c))
 				TView::messageKeyDown(p_view, wParam);
 			return 0;
+		case WM_DRAWITEM: // @v11.2.0
+			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
 		default:
 			break;
 	}

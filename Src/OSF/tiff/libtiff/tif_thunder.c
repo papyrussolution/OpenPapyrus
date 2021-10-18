@@ -76,7 +76,7 @@ static int ThunderSetupDecode(TIFF* tif)
 	return 1;
 }
 
-static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
+static int ThunderDecode(TIFF* tif, uint8 * op, tmsize_t maxpixels)
 {
 	static const char module[] = __FUNCTION__;
 	uchar * bp = (uchar *)tif->tif_rawcp;
@@ -143,10 +143,10 @@ static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
 	return 1;
 }
 
-static int ThunderDecodeRow(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
+static int ThunderDecodeRow(TIFF* tif, uint8 * buf, tmsize_t occ, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
-	uint8* row = buf;
+	uint8 * row = buf;
 	(void)s;
 	if(occ % tif->tif_scanlinesize) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Fractional scanlines cannot be read");

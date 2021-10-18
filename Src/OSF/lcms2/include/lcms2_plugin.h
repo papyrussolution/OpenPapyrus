@@ -109,15 +109,15 @@ CMSAPI void               CMSEXPORT  cmsSignalError(cmsContext ContextID, cmsUIn
 CMSAPI void *   CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size);
 CMSAPI void *   CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size);
 CMSAPI void *   CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
-CMSAPI void *   CMSEXPORT _cmsRealloc(cmsContext ContextID, void* Ptr, cmsUInt32Number NewSize);
-CMSAPI void               CMSEXPORT _cmsFree(cmsContext ContextID, void* Ptr);
-CMSAPI void *   CMSEXPORT _cmsDupMem(cmsContext ContextID, const void* Org, cmsUInt32Number size);
+CMSAPI void *   CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number NewSize);
+CMSAPI void               CMSEXPORT _cmsFree(cmsContext ContextID, void * Ptr);
+CMSAPI void *   CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Number size);
 
 // I/O handler ----------------------------------------------------------------------------------
 
 struct _cms_io_handler {
 
-    void* stream;   // Associated stream, which is implemented differently depending on media.
+    void * stream;   // Associated stream, which is implemented differently depending on media.
 
     cmsContext        ContextID;
     cmsUInt32Number   UsedSpace;
@@ -131,7 +131,7 @@ struct _cms_io_handler {
     cmsBool           (* Close)(struct _cms_io_handler* iohandler);
     cmsUInt32Number   (* Tell)(struct _cms_io_handler* iohandler);
     cmsBool           (* Write)(struct _cms_io_handler* iohandler, cmsUInt32Number size,
-                                                                   const void* Buffer);
+                                                                   const void * Buffer);
 };
 
 // Endianness adjust functions
@@ -190,8 +190,8 @@ CMSAPI void                CMSEXPORT _cmsDecodeDateTimeNumber(const cmsDateTimeN
 //----------------------------------------------------------------------------------------------------------
 
 // Shared callbacks for user data
-typedef void     (* _cmsFreeUserDataFn)(cmsContext ContextID, void* Data);
-typedef void*    (* _cmsDupUserDataFn)(cmsContext ContextID, const void* Data);
+typedef void     (* _cmsFreeUserDataFn)(cmsContext ContextID, void * Data);
+typedef void *    (* _cmsDupUserDataFn)(cmsContext ContextID, const void * Data);
 
 //----------------------------------------------------------------------------------------------------------
 
@@ -226,13 +226,13 @@ typedef struct _cmsPluginBaseStruct {
 
 // Memory handler. Each new plug-in type replaces current behaviour
 
-typedef void* (* _cmsMallocFnPtrType)(cmsContext ContextID, cmsUInt32Number size); 
+typedef void * (* _cmsMallocFnPtrType)(cmsContext ContextID, cmsUInt32Number size); 
 typedef void  (* _cmsFreeFnPtrType)(cmsContext ContextID, void *Ptr);
-typedef void* (* _cmsReallocFnPtrType)(cmsContext ContextID, void* Ptr, cmsUInt32Number NewSize);
+typedef void * (* _cmsReallocFnPtrType)(cmsContext ContextID, void * Ptr, cmsUInt32Number NewSize);
 
-typedef void* (* _cmsMalloZerocFnPtrType)(cmsContext ContextID, cmsUInt32Number size); 
-typedef void* (* _cmsCallocFnPtrType)(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
-typedef void* (* _cmsDupFnPtrType)(cmsContext ContextID, const void* Org, cmsUInt32Number size);
+typedef void * (* _cmsMalloZerocFnPtrType)(cmsContext ContextID, cmsUInt32Number size); 
+typedef void * (* _cmsCallocFnPtrType)(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
+typedef void * (* _cmsDupFnPtrType)(cmsContext ContextID, const void * Org, cmsUInt32Number size);
 
 typedef struct {
 
@@ -400,7 +400,7 @@ typedef struct _cms_typehandler_struct {
                               cmsUInt32Number   nItems);
 
         // Duplicate an item or array of items
-        void*   (* DupPtr)(struct _cms_typehandler_struct* self,
+        void *   (* DupPtr)(struct _cms_typehandler_struct* self,
                            const void *Ptr,
                            cmsUInt32Number n);
 
@@ -549,7 +549,7 @@ typedef struct {
 
 typedef void     (* _cmsOPTeval16Fn)(CMSREGISTER const cmsUInt16Number In[],
                                      CMSREGISTER cmsUInt16Number Out[],
-                                     CMSREGISTER const void* Data);
+                                     CMSREGISTER const void * Data);
 
 
 typedef cmsBool  (* _cmsOPToptimizeFn)(cmsPipeline** Lut,
@@ -563,7 +563,7 @@ typedef cmsBool  (* _cmsOPToptimizeFn)(cmsPipeline** Lut,
 
 CMSAPI void CMSEXPORT _cmsPipelineSetOptimizationParameters(cmsPipeline* Lut,
                                                _cmsOPTeval16Fn Eval16,
-                                               void* PrivateData,
+                                               void * PrivateData,
                                                _cmsFreeUserDataFn FreePrivateDataFn,
                                                _cmsDupUserDataFn DupPrivateDataFn);
 
@@ -587,15 +587,15 @@ typedef struct {
 } cmsStride;
 
 typedef void     (* _cmsTransformFn)(struct _cmstransform_struct *CMMcargo,   // Legacy function, handles just ONE scanline.
-                                     const void* InputBuffer,
-                                     void* OutputBuffer,
+                                     const void * InputBuffer,
+                                     void * OutputBuffer,
                                      cmsUInt32Number Size,
                                      cmsUInt32Number Stride);                 // Stride in bytes to the next plana in planar formats
 
 
 typedef void     (*_cmsTransform2Fn)(struct _cmstransform_struct *CMMcargo,
-                                     const void* InputBuffer,
-                                     void* OutputBuffer,
+                                     const void * InputBuffer,
+                                     void * OutputBuffer,
                                      cmsUInt32Number PixelsPerLine,     
                                      cmsUInt32Number LineCount,          
                                      const cmsStride* Stride);  
@@ -618,7 +618,7 @@ typedef cmsBool  (* _cmsTransform2Factory)(_cmsTransform2Fn* xform,
 
 
 // Retrieve user data as specified by the factory
-CMSAPI void   CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct *CMMcargo, void* ptr, _cmsFreeUserDataFn FreePrivateDataFn);
+CMSAPI void   CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct *CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn);
 CMSAPI void * CMSEXPORT _cmsGetTransformUserData(struct _cmstransform_struct *CMMcargo);
 
 
@@ -640,10 +640,10 @@ typedef struct {
 //----------------------------------------------------------------------------------------------------------
 // Mutex 
 
-typedef void*    (* _cmsCreateMutexFnPtrType)(cmsContext ContextID);
-typedef void     (* _cmsDestroyMutexFnPtrType)(cmsContext ContextID, void* mtx);
-typedef cmsBool  (* _cmsLockMutexFnPtrType)(cmsContext ContextID, void* mtx);
-typedef void     (* _cmsUnlockMutexFnPtrType)(cmsContext ContextID, void* mtx);
+typedef void *    (* _cmsCreateMutexFnPtrType)(cmsContext ContextID);
+typedef void     (* _cmsDestroyMutexFnPtrType)(cmsContext ContextID, void * mtx);
+typedef cmsBool  (* _cmsLockMutexFnPtrType)(cmsContext ContextID, void * mtx);
+typedef void     (* _cmsUnlockMutexFnPtrType)(cmsContext ContextID, void * mtx);
 
 typedef struct {
       cmsPluginBase     base;
@@ -655,10 +655,10 @@ typedef struct {
 
 }  cmsPluginMutex;
 
-CMSAPI void*   CMSEXPORT _cmsCreateMutex(cmsContext ContextID);
-CMSAPI void    CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void* mtx);
-CMSAPI cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void* mtx);
-CMSAPI void    CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void* mtx);
+CMSAPI void *   CMSEXPORT _cmsCreateMutex(cmsContext ContextID);
+CMSAPI void    CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void * mtx);
+CMSAPI cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx);
+CMSAPI void    CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void * mtx);
 
 
 #ifndef CMS_USE_CPP_API

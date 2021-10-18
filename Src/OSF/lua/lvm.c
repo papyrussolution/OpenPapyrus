@@ -708,7 +708,7 @@ void luaV_finishOp(lua_State * L) {
 	  luai_threadyield(L); }
 
 /* fetch an instruction and prepare its execution */
-#define vmfetch()       { \
+#define vmfetch() { \
 		i = *(ci->u.l.savedpc++); \
 		if(L->hookmask & (LUA_MASKLINE | LUA_MASKCOUNT)) \
 			Protect(luaG_traceexec(L)); \

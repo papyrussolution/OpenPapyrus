@@ -69,25 +69,25 @@
 static unsigned int       XXH32(const void*, unsigned int, unsigned int);
 static void *   XXH32_init(uint);
 static XXH_errorcode      XXH32_update(void*, const void*, unsigned int);
-static unsigned int       XXH32_digest(void*);
+static unsigned int       XXH32_digest(void *);
 /*static int		  XXH32_sizeofState(void);*/
 static XXH_errorcode      XXH32_resetState(void*, unsigned int);
 #define       XXH32_SIZEOFSTATE 48
 typedef struct { long long ll[(XXH32_SIZEOFSTATE+(sizeof(long long)-1))/sizeof(long long)]; } XXH32_stateSpace_t;
-static unsigned int       XXH32_intermediateDigest(void*);
+static unsigned int       XXH32_intermediateDigest(void *);
 
 /***************************************
 ** Basic Types
 ****************************************/
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
 # include <stdint.h>
-typedef uint8_t BYTE;
+typedef uint8 BYTE;
 typedef uint16_t U16;
-typedef uint32_t U32;
+typedef uint32 U32;
 typedef  int32_t S32;
-typedef uint64_t U64;
+typedef uint64 U64;
 #else
-typedef unsigned char BYTE;
+typedef uchar BYTE;
 typedef unsigned short U16;
 typedef unsigned int U32;
 typedef   signed int S32;
@@ -191,7 +191,7 @@ static FORCE_INLINE U32 XXH_readLE32(const U32* ptr, XXH_endianess endian)
 /*****************************
 ** Simple Hash Functions
 ******************************/
-static FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, U32 seed, XXH_endianess endian, XXH_alignment align)
+static FORCE_INLINE U32 XXH32_endian_align(const void * input, unsigned int len, U32 seed, XXH_endianess endian, XXH_alignment align)
 {
 	const BYTE* p = (const BYTE*)input;
 	const BYTE* bEnd = p + len;
@@ -240,11 +240,11 @@ static FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, 
 	return h32;
 }
 
-U32 XXH32(const void* input, unsigned int len, U32 seed)
+U32 XXH32(const void * input, unsigned int len, U32 seed)
 {
 #if 0
 	// Simple version, good for code maintenance, but unfortunately slow for small inputs
-	void* state = XXH32_init(seed);
+	void * state = XXH32_init(seed);
 	XXH32_update(state, input, len);
 	return XXH32_digest(state);
 #else
@@ -289,7 +289,7 @@ struct XXH_state32_t {
 	}
 #endif
 
-static XXH_errorcode XXH32_resetState(void* state_in, U32 seed)
+static XXH_errorcode XXH32_resetState(void * state_in, U32 seed)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	state->seed = seed;
@@ -304,12 +304,12 @@ static XXH_errorcode XXH32_resetState(void* state_in, U32 seed)
 
 static void * XXH32_init(U32 seed)
 {
-	void* state = XXH_malloc(sizeof(struct XXH_state32_t));
+	void * state = XXH_malloc(sizeof(struct XXH_state32_t));
 	XXH32_resetState(state, seed);
 	return state;
 }
 
-static FORCE_INLINE XXH_errorcode XXH32_update_endian(void* state_in, const void* input, int len, XXH_endianess endian)
+static FORCE_INLINE XXH_errorcode XXH32_update_endian(void * state_in, const void * input, int len, XXH_endianess endian)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	const BYTE* p = (const BYTE*)input;
@@ -368,7 +368,7 @@ static FORCE_INLINE XXH_errorcode XXH32_update_endian(void* state_in, const void
 	return XXH_OK;
 }
 
-static XXH_errorcode XXH32_update(void* state_in, const void* input, unsigned int len)
+static XXH_errorcode XXH32_update(void * state_in, const void * input, unsigned int len)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
@@ -377,7 +377,7 @@ static XXH_errorcode XXH32_update(void* state_in, const void* input, unsigned in
 		return XXH32_update_endian(state_in, input, len, XXH_bigEndian);
 }
 
-static FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endianess endian)
+static FORCE_INLINE U32 XXH32_intermediateDigest_endian(void * state_in, XXH_endianess endian)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	const BYTE * p = (const BYTE*)state->memory;
@@ -411,7 +411,7 @@ static FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endi
 	return h32;
 }
 
-static U32 XXH32_intermediateDigest(void* state_in)
+static U32 XXH32_intermediateDigest(void * state_in)
 {
 	XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
 	if((endian_detected==XXH_littleEndian) || XXH_FORCE_NATIVE_FORMAT)
@@ -420,7 +420,7 @@ static U32 XXH32_intermediateDigest(void* state_in)
 		return XXH32_intermediateDigest_endian(state_in, XXH_bigEndian);
 }
 
-static U32 XXH32_digest(void* state_in)
+static U32 XXH32_digest(void * state_in)
 {
 	U32 h32 = XXH32_intermediateDigest(state_in);
 	XXH_free(state_in);

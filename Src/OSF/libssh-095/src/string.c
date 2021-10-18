@@ -90,7 +90,7 @@ int ssh_string_fill(struct ssh_string_struct * s, const void * data, size_t len)
  * @param[in] what      The source 0-terminated C string.
  *
  * @return              The newly allocated string, NULL on error with errno
- *                      set.
+ *                set.
  *
  * @note The nul byte is not copied nor counted in the ouput string.
  */
@@ -162,7 +162,7 @@ const char * ssh_string_get_char(struct ssh_string_struct * s)
  * @param[in] s         The SSH input string.
  *
  * @return              An allocated string pointer, NULL on error with errno
- *                      set.
+ *                set.
  *
  * @note If the input SSH string contains zeroes, some parts of the output
  * string may not be readable with regular libc functions.
@@ -199,7 +199,7 @@ void ssh_string_free_char(char * s)
 
 /**
  * @brief Copy a string, return a newly allocated string. The caller has to
- *        free the string.
+ *  free the string.
  *
  * @param[in] s         String to copy.
  *

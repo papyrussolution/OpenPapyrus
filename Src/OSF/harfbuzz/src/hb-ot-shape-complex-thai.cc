@@ -214,7 +214,7 @@ static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 	hb_glyph_info_t * info = buffer->info;
 	unsigned int count = buffer->len;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		thai_mark_type_t mt = get_mark_type(info[i].codepoint);
 
 		if(mt == NOT_MARK) {

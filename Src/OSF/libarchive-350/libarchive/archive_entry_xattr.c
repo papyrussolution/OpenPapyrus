@@ -54,9 +54,9 @@ void archive_entry_xattr_clear(struct archive_entry * entry)
 
 	while(entry->xattr_head != NULL) {
 		xp = entry->xattr_head->next;
-		free(entry->xattr_head->name);
-		free(entry->xattr_head->value);
-		free(entry->xattr_head);
+		SAlloc::F(entry->xattr_head->name);
+		SAlloc::F(entry->xattr_head->value);
+		SAlloc::F(entry->xattr_head);
 		entry->xattr_head = xp;
 	}
 
@@ -68,13 +68,13 @@ void archive_entry_xattr_add_entry(struct archive_entry * entry,
 {
 	struct ae_xattr * xp;
 
-	if((xp = (struct ae_xattr *)malloc(sizeof(struct ae_xattr))) == NULL)
+	if((xp = (struct ae_xattr *)SAlloc::M(sizeof(struct ae_xattr))) == NULL)
 		__archive_errx(1, "Out of memory");
 
-	if((xp->name = strdup(name)) == NULL)
+	if((xp->name = sstrdup(name)) == NULL)
 		__archive_errx(1, "Out of memory");
 
-	if((xp->value = malloc(size)) != NULL) {
+	if((xp->value = SAlloc::M(size)) != NULL) {
 		memcpy(xp->value, value, size);
 		xp->size = size;
 	}

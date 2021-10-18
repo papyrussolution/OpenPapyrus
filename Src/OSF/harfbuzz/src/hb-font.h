@@ -113,7 +113,7 @@ typedef hb_position_t (* hb_font_get_glyph_advance_func_t) (hb_font_t * font, vo
 typedef hb_font_get_glyph_advance_func_t hb_font_get_glyph_h_advance_func_t;
 typedef hb_font_get_glyph_advance_func_t hb_font_get_glyph_v_advance_func_t;
 
-typedef void (* hb_font_get_glyph_advances_func_t) (hb_font_t* font, void* font_data,
+typedef void (* hb_font_get_glyph_advances_func_t) (hb_font_t* font, void * font_data,
     unsigned int count,
     const hb_codepoint_t * first_glyph,
     unsigned glyph_stride,

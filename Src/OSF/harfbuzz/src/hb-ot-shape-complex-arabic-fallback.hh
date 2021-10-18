@@ -123,7 +123,7 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_
 	    &first_glyphs_indirection[0]);
 
 	/* Now that the first-glyphs are sorted, walk again, populate ligatures. */
-	for(unsigned int i = 0; i < num_first_glyphs; i++) {
+	for(uint i = 0; i < num_first_glyphs; i++) {
 		unsigned int first_glyph_idx = first_glyphs_indirection[i];
 
 		for(unsigned int second_glyph_idx = 0; second_glyph_idx < ARRAY_LENGTH(ligature_table[0].ligatures); second_glyph_idx++) {
@@ -224,7 +224,7 @@ static bool arabic_fallback_plan_init_win1256(arabic_fallback_plan_t * fallback_
 
 	unsigned j = 0;
 	unsigned int count = manifest.len;
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		fallback_plan->mask_array[j] = plan->map.get_1_mask(manifest[i].tag);
 		if(fallback_plan->mask_array[j]) {
 			fallback_plan->lookup_array[j] = const_cast<OT::SubstLookup*> (&(&manifest+manifest[i].lookupOffset));
@@ -250,7 +250,7 @@ static bool arabic_fallback_plan_init_unicode(arabic_fallback_plan_t * fallback_
 {
 	static_assert((ARRAY_LENGTH_CONST(arabic_fallback_features) <= ARABIC_FALLBACK_MAX_LOOKUPS), "");
 	unsigned int j = 0;
-	for(unsigned int i = 0; i < ARRAY_LENGTH(arabic_fallback_features); i++) {
+	for(uint i = 0; i < ARRAY_LENGTH(arabic_fallback_features); i++) {
 		fallback_plan->mask_array[j] = plan->map.get_1_mask(arabic_fallback_features[i]);
 		if(fallback_plan->mask_array[j]) {
 			fallback_plan->lookup_array[j] = arabic_fallback_synthesize_lookup(plan, font, i);
@@ -267,7 +267,7 @@ static bool arabic_fallback_plan_init_unicode(arabic_fallback_plan_t * fallback_
 
 static arabic_fallback_plan_t * arabic_fallback_plan_create(const hb_ot_shape_plan_t * plan, hb_font_t * font)
 {
-	arabic_fallback_plan_t * fallback_plan = (arabic_fallback_plan_t*)calloc(1, sizeof(arabic_fallback_plan_t));
+	arabic_fallback_plan_t * fallback_plan = (arabic_fallback_plan_t *)SAlloc::C(1, sizeof(arabic_fallback_plan_t));
 	if(UNLIKELY(!fallback_plan))
 		return const_cast<arabic_fallback_plan_t *> (&Null(arabic_fallback_plan_t));
 	fallback_plan->num_lookups = 0;
@@ -276,12 +276,11 @@ static arabic_fallback_plan_t * arabic_fallback_plan_create(const hb_ot_shape_pl
 	 * in case the font has cmap entries for the presentation-forms characters. */
 	if(arabic_fallback_plan_init_unicode(fallback_plan, plan, font))
 		return fallback_plan;
-	/* See if this looks like a Windows-1256-encoded font.  If it does, use a
-	 * hand-coded GSUB table. */
+	// See if this looks like a Windows-1256-encoded font.  If it does, use a hand-coded GSUB table. 
 	if(arabic_fallback_plan_init_win1256(fallback_plan, plan, font))
 		return fallback_plan;
 	assert(fallback_plan->num_lookups == 0);
-	free(fallback_plan);
+	SAlloc::F(fallback_plan);
 	return const_cast<arabic_fallback_plan_t *> (&Null(arabic_fallback_plan_t));
 }
 
@@ -289,19 +288,19 @@ static void arabic_fallback_plan_destroy(arabic_fallback_plan_t * fallback_plan)
 {
 	if(!fallback_plan || fallback_plan->num_lookups == 0)
 		return;
-	for(unsigned int i = 0; i < fallback_plan->num_lookups; i++)
+	for(uint i = 0; i < fallback_plan->num_lookups; i++)
 		if(fallback_plan->lookup_array[i]) {
 			fallback_plan->accel_array[i].fini();
 			if(fallback_plan->free_lookups)
-				free(fallback_plan->lookup_array[i]);
+				SAlloc::F(fallback_plan->lookup_array[i]);
 		}
-	free(fallback_plan);
+	SAlloc::F(fallback_plan);
 }
 
 static void arabic_fallback_plan_shape(arabic_fallback_plan_t * fallback_plan, hb_font_t * font, hb_buffer_t * buffer)
 {
 	OT::hb_ot_apply_context_t c(0, font, buffer);
-	for(unsigned int i = 0; i < fallback_plan->num_lookups; i++)
+	for(uint i = 0; i < fallback_plan->num_lookups; i++)
 		if(fallback_plan->lookup_array[i]) {
 			c.set_lookup_mask(fallback_plan->mask_array[i]);
 			hb_ot_layout_substitute_lookup(&c, *fallback_plan->lookup_array[i], fallback_plan->accel_array[i]);

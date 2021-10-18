@@ -57,7 +57,7 @@ static int rtsp_getsock_do(struct connectdata * conn, curl_socket_t * socks);
  * Parse and write out any available RTP data.
  *
  * nread: amount of data left after k->str. will be modified if RTP
- *        data is parsed and k->str is moved up
+ *  data is parsed and k->str is moved up
  * readmore: whether or not the RTP parser needs more data right away
  */
 static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,

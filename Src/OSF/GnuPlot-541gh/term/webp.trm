@@ -74,7 +74,7 @@
  * Notes
  *	- terminal options are handled by the pngcairo terminal except
  *	  for animation properties delay <milliseconds> loop <repeat-count>
- *        and quality <integer value 1..100>
+ *  and quality <integer value 1..100>
  *	- the WebPAnimEncoder API seems to lack an mechanism for setting
  *	  the dispose_method to WEBP_MUX_DISPOSE_BACKGROUND, which would
  *	  be needed for proper handling of a transparent background.
@@ -153,10 +153,10 @@ void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int show)
 		if(webp_params.animate) {
 			char tmp_term_options[MAX_LINE_LEN] = "";
 			sprintf(tmp_term_options, " animate quality %d delay %d loop %d ", webp_params.quality, webp_params.delay, webp_params.loop);
-			strcat(GPT.TermOptions, tmp_term_options);
+			GPT._TermOptions.Cat(tmp_term_options);
 		}
 		else {
-			strcat(GPT.TermOptions, " noanimate");
+			GPT._TermOptions.Cat(" noanimate");
 		}
 	}
 }

@@ -300,7 +300,7 @@ FAST_NEAREST_MAINLOOP_COMMON (cputype##_##name##_normal_##op,                 \
     SIMPLE_NEAREST_A8_MASK_FAST_PATH (op,s,d,func),                           \
     SIMPLE_NEAREST_A8_MASK_FAST_PATH_NORMAL (op,s,d,func)
 
-/*****************************************************************************/
+// 
 
 #define PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST(flags, cputype, name, op,     \
                                                 src_type, dst_type)           \

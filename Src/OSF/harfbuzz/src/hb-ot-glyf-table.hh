@@ -83,39 +83,23 @@ public:
 		hb_requires(hb_is_source_of(Iterator, unsigned int))>
 		static bool _add_loca_and_head(hb_subset_plan_t * plan, Iterator padded_offsets)
 		{
-			unsigned max_offset =
-			    +padded_offsets
-			    | hb_reduce(hb_add, 0)
-			;
+			unsigned max_offset = +padded_offsets | hb_reduce(hb_add, 0);
 			unsigned num_offsets = padded_offsets.len() + 1;
 			bool use_short_loca = max_offset < 0x1FFFF;
 			unsigned entry_size = use_short_loca ? 2 : 4;
-			char * loca_prime_data = (char*)calloc(entry_size, num_offsets);
-
-			if(UNLIKELY(!loca_prime_data)) return false;
-
-			DEBUG_MSG(SUBSET, nullptr, "loca entry_size %d num_offsets %d "
-			    "max_offset %d size %d",
-			    entry_size, num_offsets, max_offset, entry_size * num_offsets);
-
+			char * loca_prime_data = (char *)SAlloc::C(entry_size, num_offsets);
+			if(UNLIKELY(!loca_prime_data)) 
+				return false;
+			DEBUG_MSG(SUBSET, nullptr, "loca entry_size %d num_offsets %d max_offset %d size %d", entry_size, num_offsets, max_offset, entry_size * num_offsets);
 			if(use_short_loca)
 				_write_loca(padded_offsets, 1, hb_array((HBUINT16*)loca_prime_data, num_offsets));
 			else
 				_write_loca(padded_offsets, 0, hb_array((HBUINT32*)loca_prime_data, num_offsets));
-
-			hb_blob_t * loca_blob = hb_blob_create(loca_prime_data,
-				entry_size * num_offsets,
-				HB_MEMORY_MODE_WRITABLE,
-				loca_prime_data,
-				free);
-
-			bool result = plan->add_table(HB_OT_TAG_loca, loca_blob)
-			    && _add_head_and_set_loca_version(plan, use_short_loca);
-
+			hb_blob_t * loca_blob = hb_blob_create(loca_prime_data, entry_size * num_offsets, HB_MEMORY_MODE_WRITABLE, loca_prime_data, free);
+			bool result = plan->add_table(HB_OT_TAG_loca, loca_blob) && _add_head_and_set_loca_version(plan, use_short_loca);
 			hb_blob_destroy(loca_blob);
 			return result;
 		}
-
 		template<typename IteratorIn, typename IteratorOut,
 		hb_requires(hb_is_source_of(IteratorIn, unsigned int)),
 		hb_requires(hb_is_sink_of(IteratorOut, unsigned))>
@@ -267,7 +251,7 @@ public:
 				glyphIndex = new_gid;
 			}
 
-			hb_codepoint_t get_glyph_index()       const {
+			hb_codepoint_t get_glyph_index() const {
 				return glyphIndex;
 			}
 
@@ -287,7 +271,7 @@ public:
 				return flags & USE_MY_METRICS;
 			}
 
-			bool is_anchored()       const {
+			bool is_anchored() const {
 				return !(flags & ARGS_ARE_XY_VALUES);
 			}
 
@@ -602,7 +586,7 @@ public:
 					unsigned int num_points = endPtsOfContours[num_contours - 1] + 1;
 
 					points_.resize(num_points);
-					for(unsigned int i = 0; i < points_.length; i++) points_[i].init();
+					for(uint i = 0; i < points_.length; i++) points_[i].init();
 					if(phantom_only) return true;
 
 					for(int i = 0; i < num_contours; i++)
@@ -613,7 +597,7 @@ public:
 					    endPtsOfContours[num_contours]);
 
 					/* Read flags */
-					for(unsigned int i = 0; i < num_points; i++) {
+					for(uint i = 0; i < num_points; i++) {
 						if(UNLIKELY(!bytes.check_range(p))) return false;
 						uint8_t flag = *p++;
 						points_[i].flag = flag;
@@ -779,7 +763,7 @@ public:
 
 						    /* Copy phantom points from component if USE_MY_METRICS flag set */
 						    if(item.is_use_my_metrics())
-							    for(unsigned int i = 0; i < PHANTOM_COUNT; i++)
+							    for(uint i = 0; i < PHANTOM_COUNT; i++)
 								    phantoms[i] = comp_points[comp_points.length - PHANTOM_COUNT + i];
 
 						    /* Apply component transformation & translation */

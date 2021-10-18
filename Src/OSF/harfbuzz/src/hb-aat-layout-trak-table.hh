@@ -86,7 +86,7 @@ public:
 			 */
 			const TrackTableEntry * trackTableEntry = nullptr;
 			unsigned int count = nTracks;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				/* Note: Seems like the track entries are sorted by values.  But the
 				 * spec doesn't explicitly say that.  It just mentions it in the example. */
 

@@ -15,7 +15,7 @@ typedef struct {
 	uint32_t prev_pos;
 } lzma_simple_x86;
 
-static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size)
+static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size)
 {
 	static const bool MASK_TO_ALLOWED_STATUS[8] = { true, true, true, false, true, false, false, false };
 	static const uint32_t MASK_TO_BIT_NUMBER[8] = { 0, 1, 2, 2, 3, 3, 3, 3 };
@@ -29,7 +29,7 @@ static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uin
 	const size_t limit = size - 5;
 	size_t buffer_pos = 0;
 	while(buffer_pos <= limit) {
-		uint8_t b = buffer[buffer_pos];
+		uint8 b = buffer[buffer_pos];
 		if(b != 0xE8 && b != 0xE9) {
 			++buffer_pos;
 			continue;
@@ -57,15 +57,15 @@ static size_t x86_code(void * simple_ptr, uint32_t now_pos, bool is_encoder, uin
 				if(prev_mask == 0)
 					break;
 				const uint32_t i = MASK_TO_BIT_NUMBER[prev_mask >> 1];
-				b = (uint8_t)(dest >> (24 - i * 8));
+				b = (uint8)(dest >> (24 - i * 8));
 				if(!Test86MSByte(b))
 					break;
 				src = dest ^ ((1U << (32 - i * 8)) - 1);
 			}
-			buffer[buffer_pos + 4] = (uint8_t)(~(((dest >> 24) & 1) - 1));
-			buffer[buffer_pos + 3] = (uint8_t)(dest >> 16);
-			buffer[buffer_pos + 2] = (uint8_t)(dest >> 8);
-			buffer[buffer_pos + 1] = (uint8_t)(dest);
+			buffer[buffer_pos + 4] = (uint8)(~(((dest >> 24) & 1) - 1));
+			buffer[buffer_pos + 3] = (uint8)(dest >> 16);
+			buffer[buffer_pos + 2] = (uint8)(dest >> 8);
+			buffer[buffer_pos + 1] = (uint8)(dest);
 			buffer_pos += 5;
 			prev_mask = 0;
 		}

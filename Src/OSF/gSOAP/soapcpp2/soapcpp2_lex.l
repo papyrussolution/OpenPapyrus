@@ -989,7 +989,7 @@ static void import(const char *file)
 			execerror(errbuf);
 		}
 	}
-	p = (struct importlist*)malloc(sizeof(struct importlist) + strlen(file)); /* has already + 1 byte size */
+	p = (struct importlist *)SAlloc::M(sizeof(struct importlist) + strlen(file)); /* has already + 1 byte size */
 	strcpy(p->name, file);
 	p->next = importlist;
 	importlist = p;

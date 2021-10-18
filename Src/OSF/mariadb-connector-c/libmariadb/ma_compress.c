@@ -28,12 +28,12 @@
 ** *complen is 0 if the packet wasn't compressed
 */
 
-bool _mariadb_compress(unsigned char * packet, size_t * len, size_t * complen)
+bool _mariadb_compress(uchar * packet, size_t * len, size_t * complen)
 {
 	if(*len < MIN_COMPRESS_LENGTH)
 		*complen = 0;
 	else {
-		unsigned char * compbuf = _mariadb_compress_alloc(packet, len, complen);
+		uchar * compbuf = _mariadb_compress_alloc(packet, len, complen);
 		if(!compbuf)
 			return *complen ? 0 : 1;
 		memcpy(packet, compbuf, *len);
@@ -42,11 +42,11 @@ bool _mariadb_compress(unsigned char * packet, size_t * len, size_t * complen)
 	return 0;
 }
 
-unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * len, size_t * complen)
+uchar * _mariadb_compress_alloc(const uchar * packet, size_t * len, size_t * complen)
 {
-	unsigned char * compbuf;
+	uchar * compbuf;
 	*complen =  *len * 120 / 100 + 12;
-	if(!(compbuf = (unsigned char *)SAlloc::M(*complen)))
+	if(!(compbuf = (uchar *)SAlloc::M(*complen)))
 		return 0;                       /* Not enough memory */
 	if(compress((Bytef*)compbuf, (ulong *)complen, (Bytef*)packet, (uLong)*len) != Z_OK) {
 		SAlloc::F(compbuf);
@@ -61,10 +61,10 @@ unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * l
 	return compbuf;
 }
 
-bool _mariadb_uncompress(unsigned char * packet, size_t * len, size_t * complen)
+bool _mariadb_uncompress(uchar * packet, size_t * len, size_t * complen)
 {
 	if(*complen) {                          /* If compressed */
-		unsigned char * compbuf = (unsigned char *)SAlloc::M(*complen);
+		uchar * compbuf = (uchar *)SAlloc::M(*complen);
 		if(!compbuf)
 			return 1; /* Not enough memory */
 		if(uncompress((Bytef*)compbuf, (uLongf*)complen, (Bytef*)packet, (uLongf)*len) != Z_OK) { // Probably wrong packet

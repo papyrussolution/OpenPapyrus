@@ -29,9 +29,9 @@
 
 FT_BEGIN_HEADER
 
-/*************************************************************************/
+// 
 /***             REQUIRED TRUETYPE/OPENTYPE TABLES DEFINITIONS         ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -276,9 +276,9 @@ typedef struct  TT_NameTableRec_ {
 	FT_Stream stream;
 } TT_NameTableRec, * TT_NameTable;
 
-/*************************************************************************/
+// 
 /***             OPTIONAL TRUETYPE/OPENTYPE TABLES DEFINITIONS         ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -330,9 +330,9 @@ typedef struct  TT_Gasp_ {
 	TT_GaspRange gaspRanges;
 } TT_GaspRec;
 
-/*************************************************************************/
+// 
 /***                    EMBEDDED BITMAPS SUPPORT                       ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -682,9 +682,9 @@ typedef struct  TT_SBit_ScaleRec_ {
 	FT_Byte y_ppem_substitute;
 } TT_SBit_ScaleRec, * TT_SBit_Scale;
 
-/*************************************************************************/
+// 
 /***                  POSTSCRIPT GLYPH NAMES SUPPORT                   ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -763,17 +763,17 @@ typedef struct  TT_Post_NamesRec_ {
 	} names;
 } TT_Post_NamesRec, * TT_Post_Names;
 
-/*************************************************************************/
+// 
 /***                    GX VARIATION TABLE SUPPORT                     ***/
-/*************************************************************************/
+// 
 
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
 typedef struct GX_BlendRec_  * GX_Blend;
 #endif
 
-/*************************************************************************/
+// 
 /***              EMBEDDED BDF PROPERTIES TABLE SUPPORT                ***/
-/*************************************************************************/
+// 
 
 /*
  * These types are used to support a `BDF ' table that isn't part of the
@@ -785,30 +785,30 @@ typedef struct GX_BlendRec_  * GX_Blend;
  *   USHORT version `BDF ' table version number, should be 0x0001.  USHORT
  *   strikeCount Number of strikes (bitmap sizes) in this table.  ULONG
  *   stringTable Offset (from start of BDF table) to string
- *                         table.
+ *                   table.
  *
  * This is followed by an array of `strikeCount' descriptors, having the
  * following format.
  *
  *   USHORT ppem Vertical pixels per EM for this strike.  USHORT numItems
  *   Number of items for this strike (properties and
- *                         atoms).  Maximum is 255.
+ *                   atoms).  Maximum is 255.
  *
  * This array in turn is followed by `strikeCount' value sets.  Each `value
  * set' is an array of `numItems' items with the following format.
  *
  *   ULONG    item_name    Offset in string table to item name.
  *   USHORT   item_type    The item type.  Possible values are
- *                            0 => string (e.g., COMMENT)
- *                            1 => atom   (e.g., FONT or even SIZE)
- *                            2 => int32
- *                            3 => uint32
- *                         0x10 => A flag to indicate a properties.  This
- *                                 is ORed with the above values.
+ *                      0 => string (e.g., COMMENT)
+ *                      1 => atom   (e.g., FONT or even SIZE)
+ *                      2 => int32
+ *                      3 => uint32
+ *                   0x10 => A flag to indicate a properties.  This
+ *                           is ORed with the above values.
  *   ULONG    item_value   For strings  => Offset into string table without
- *                                         the corresponding double quotes.
- *                         For atoms    => Offset into string table.
- *                         For integers => Direct value.
+ *                                   the corresponding double quotes.
+ *                   For atoms    => Offset into string table.
+ *                   For integers => Direct value.
  *
  * All strings in the string table consist of bytes and are
  * zero-terminated.
@@ -828,9 +828,9 @@ typedef struct  TT_BDFRec_ {
 
 #endif /* TT_CONFIG_OPTION_BDF */
 
-/*************************************************************************/
+// 
 /***                  ORIGINAL TT_FACE CLASS DEFINITION                ***/
-/*************************************************************************/
+// 
 
 /**************************************************************************
  *
@@ -859,7 +859,7 @@ typedef struct TT_FaceRec_*  TT_Face;
 
 /* a function type used for the truetype bytecode interpreter hooks */
 typedef FT_Error
-(* TT_Interpreter)(void*  exec_context);
+(* TT_Interpreter)(void *  exec_context);
 
 /* forward declaration */
 typedef struct TT_LoaderRec_*  TT_Loader;
@@ -1008,7 +1008,7 @@ typedef enum TT_SbitTableType_ {
 
 /**************************************************************************
  *
- *                        TrueType Face Type
+ *                  TrueType Face Type
  *
  * @struct:
  *   TT_Face
@@ -1342,7 +1342,7 @@ typedef struct  TT_FaceRec_ {
 	TT_OS2 os2;                     /* TrueType OS/2 table            */
 	TT_Postscript postscript;       /* TrueType Postscript table      */
 
-	FT_Byte*              cmap_table;/* extracted `cmap' table */
+	FT_Byte*              cmap_table; /* extracted `cmap' table */
 	FT_ULong cmap_size;
 
 	TT_Loader_GotoTableFunc goto_table;
@@ -1553,7 +1553,7 @@ typedef struct  TT_GlyphZoneRec_ {
 	FT_Vector*  orus;    /* original (unscaled) point coordinates */
 
 	FT_Byte*    tags;    /* current touch flags         */
-	FT_UShort*  contours;/* contour end points          */
+	FT_UShort*  contours; /* contour end points          */
 
 	FT_UShort first_point; /* offset of first (#0) point  */
 } TT_GlyphZoneRec, * TT_GlyphZone;

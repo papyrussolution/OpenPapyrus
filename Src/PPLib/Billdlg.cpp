@@ -842,7 +842,7 @@ void BillDialog::SetupAgreementButton()
 		int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		if(agt_kind == 1) {
 			PPClientAgreement agt_cli;
-			if(ArObj.GetClientAgreement(ar_id, &agt_cli, 0) > 0) {
+			if(ArObj.GetClientAgreement(ar_id, agt_cli, 0) > 0) {
 				do_enable = 1;
 			}
 		}
@@ -1911,9 +1911,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			case cmBillTaxes:       EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_BILL_AMOUNT)); break;
 			case cmDetail:          editItems(); break;
 			case cmAdvItems:        editItems(); break;
-			/* @v6.2.4 Функция печати из документа блокирована из-за возможности распечатать непроведенный док.
-			case cmPrint:           PrintGoodsBill(P_Pack); break;
-			*/
+			// @v6.2.4 (Функция печати из документа блокирована из-за возможности распечатать непроведенный док) case cmPrint: PrintGoodsBill(P_Pack, 0, 0/*printingNoAsk*/); break;
 			case cmRentCondition:   EditRentCondition(&P_Pack->Rent); break;
 			case cmPaymOrder:       editPaymOrder(0);     break;
 			case cmBillFreight:
@@ -2067,7 +2065,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 			/* @v6.2.4 Функция печати из документа блокирована из-за возможности распечатаь непроведенный док.
 			case kbF7:
 				if(getDTS(0))
-					PrintGoodsBill(P_Pack);
+					PrintGoodsBill(P_Pack, 0, 0);
 				else
 					PPError();
 				break;
@@ -2209,13 +2207,13 @@ void BillDialog::setupByCntragnt()
 	PayDateBase = 0;
 	CurrDebt = 0.0;
 	CDebtList.clear();
-	CliAgt.Init();
+	CliAgt.Z();
 	if(ar_id) {
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(ar_id, &ar_rec) > 0) {
 			const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 			PPClientAgreement cli_agt;
-			if(agt_kind == 1 && ArObj.GetClientAgreement(ar_id, &cli_agt, 1) > 0)
+			if(agt_kind == 1 && ArObj.GetClientAgreement(ar_id, cli_agt, 1) > 0)
 				CliAgt = cli_agt;
 			if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT) {
 				if(agt_kind == 2) {
@@ -2284,7 +2282,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 		if(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement)
 			CliAgt = sob.CliAgt;
 		else
-			CliAgt.Init();
+			CliAgt.Z();
 		if(Flags & fSetupObj2ByCliAgt) {
 			if(P_Pack->SetupObject2(CliAgt.ExtObjectID)) {
 				setCtrlLong(CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2);
@@ -2595,7 +2593,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	SetupAgreementButton();
 	if(op_pack.Rec.AccSheet2ID) {
 		PPClientAgreement ca_rec;
-		SETFLAG(Flags, fSetupObj2ByCliAgt, ArObj.GetClientAgreement(0, &ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
+		SETFLAG(Flags, fSetupObj2ByCliAgt, ArObj.GetClientAgreement(0, ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
 		SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Pack->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID, sacfNonGeneric);
 		op_pack.GetExtStrData(OPKEXSTR_OBJ2NAME, temp_buf);
 		setStaticText(CTL_BILL_OBJ2NAME, temp_buf);

@@ -69,14 +69,13 @@ ssize_t getdelim(char ** lineptr, size_t * n, int delimiter, FILE * fp)
 			result = -1;
 			break;
 		}
-		/* Make enough space for len+1 (for final NUL) bytes.  */
+		// Make enough space for len+1 (for final NUL) bytes
 		if(cur_len + 1 >= *n) {
-			size_t needed_max = SSIZE_MAX < SIZE_MAX ? (size_t)SSIZE_MAX + 1 : SIZE_MAX;
-			size_t needed = 2 * *n + 1; /* Be generous. */
+			size_t needed_max = (SSIZE_MAX < SIZE_MAX) ? (size_t)(SSIZE_MAX + 1) : SIZE_MAX;
+			size_t needed = 2 * (*n) + 1; // Be generous
 			char * new_lineptr;
-			if(needed_max < needed)
-				needed = needed_max;
-			if(cur_len + 1 >= needed) {
+			SETMIN(needed, needed_max);
+			if((cur_len + 1) >= needed) {
 				result = -1;
 				errno = EOVERFLOW;
 				goto unlock_return;

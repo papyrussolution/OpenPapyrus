@@ -25,7 +25,7 @@
 #endif
 
 #ifndef uchar
-	typedef unsigned char uchar;
+	typedef uchar uchar;
 #endif
 #ifndef uint
 	typedef unsigned int uint;

@@ -134,12 +134,12 @@ void archive_acl_clear(struct archive_acl * acl)
 	while(acl->acl_head != NULL) {
 		ap = acl->acl_head->next;
 		archive_mstring_clean(&acl->acl_head->name);
-		free(acl->acl_head);
+		SAlloc::F(acl->acl_head);
 		acl->acl_head = ap;
 	}
-	free(acl->acl_text_w);
+	SAlloc::F(acl->acl_text_w);
 	acl->acl_text_w = NULL;
-	free(acl->acl_text);
+	SAlloc::F(acl->acl_text);
 	acl->acl_text = NULL;
 	acl->acl_p = NULL;
 	acl->acl_types = 0;
@@ -307,9 +307,9 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
 		    return NULL;
 	}
 
-	free(acl->acl_text_w);
+	SAlloc::F(acl->acl_text_w);
 	acl->acl_text_w = NULL;
-	free(acl->acl_text);
+	SAlloc::F(acl->acl_text);
 	acl->acl_text = NULL;
 
 	/*
@@ -334,7 +334,7 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
 	}
 
 	/* Add a new entry to the end of the list. */
-	ap = (struct archive_acl_entry *)calloc(1, sizeof(*ap));
+	ap = (struct archive_acl_entry *)SAlloc::C(1, sizeof(*ap));
 	if(!ap)
 		return NULL;
 	if(aq == NULL)
@@ -678,7 +678,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		separator = L'\n';
 
 	/* Now, allocate the string and actually populate it. */
-	wp = ws = (wchar_t*)malloc(length * sizeof(wchar_t));
+	wp = ws = (wchar_t*)SAlloc::M(length * sizeof(wchar_t));
 	if(wp == NULL) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");
@@ -731,7 +731,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 			count++;
 		}
 		else if(r < 0 && errno == ENOMEM) {
-			free(ws);
+			SAlloc::F(ws);
 			return NULL;
 		}
 	}
@@ -909,7 +909,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		separator = '\n';
 
 	/* Now, allocate the string and actually populate it. */
-	p = s = (char *)malloc(length * sizeof(char));
+	p = s = (char *)SAlloc::M(length * sizeof(char));
 	if(!p) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");
@@ -952,7 +952,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		r = archive_mstring_get_mbs_l(
 			NULL, &ap->name, &name, &len, sc);
 		if(r != 0) {
-			free(s);
+			SAlloc::F(s);
 			return NULL;
 		}
 		if(count > 0)

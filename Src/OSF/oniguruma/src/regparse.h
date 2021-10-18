@@ -67,7 +67,7 @@ typedef struct {
 	struct _Node* parent;
 	uint flags;
 	BitSet bs;
-	BBuf*  mbuf;/* multi-byte info or NULL */
+	BBuf*  mbuf; /* multi-byte info or NULL */
 } CClassNode;
 
 typedef struct {

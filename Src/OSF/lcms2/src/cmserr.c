@@ -37,8 +37,8 @@ int CMSEXPORT cmsGetEncodedCMMversion(void)
 // compare two strings ignoring case
 int CMSEXPORT cmsstrcasecmp(const char* s1, const char* s2)
 {
-	CMSREGISTER const unsigned char * us1 = (const unsigned char*)s1,
-	    * us2 = (const unsigned char*)s2;
+	CMSREGISTER const uchar * us1 = (const uchar *)s1,
+	    * us2 = (const uchar *)s2;
 
 	while(toupper(*us1) == toupper(*us2++))
 		if(*us1++ == '\0')
@@ -89,13 +89,14 @@ cmsBool   _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plug
 // check of amount of memory, just to prevent exploits
 static void * _cmsMallocDefaultFn(cmsContext ContextID, cmsUInt32Number size)
 {
-	if(size > MAX_MEMORY_FOR_ALLOC) return NULL; // Never allow over maximum
-	return (void*)malloc(size);
+	if(size > MAX_MEMORY_FOR_ALLOC) 
+		return NULL; // Never allow over maximum
+	return (void *)SAlloc::M(size);
 	cmsUNUSED_PARAMETER(ContextID);
 }
 
 // Generic allocate & zero
-static void* _cmsMallocZeroDefaultFn(cmsContext ContextID, cmsUInt32Number size)
+static void * _cmsMallocZeroDefaultFn(cmsContext ContextID, cmsUInt32Number size)
 {
 	void * pt = _cmsMalloc(ContextID, size);
 	if(pt == NULL) 
@@ -109,16 +110,18 @@ static void _cmsFreeDefaultFn(cmsContext ContextID, void * Ptr)
 {
 	// free(NULL) is defined a no-op by C99, therefore it is safe to
 	// avoid the check, but it is here just in case...
-	if(Ptr) free(Ptr);
+	if(Ptr) 
+		SAlloc::F(Ptr);
 	cmsUNUSED_PARAMETER(ContextID);
 }
 
 // The default realloc function. Again it checks for exploits. If Ptr is NULL,
 // realloc behaves the same way as malloc and allocates a new block of size bytes.
-static void * _cmsReallocDefaultFn(cmsContext ContextID, void* Ptr, cmsUInt32Number size)
+static void * _cmsReallocDefaultFn(cmsContext ContextID, void * Ptr, cmsUInt32Number size)
 {
-	if(size > MAX_MEMORY_FOR_ALLOC) return NULL; // Never realloc over 512Mb
-	return realloc(Ptr, size);
+	if(size > MAX_MEMORY_FOR_ALLOC) 
+		return NULL; // Never realloc over 512Mb
+	return SAlloc::R(Ptr, size);
 	cmsUNUSED_PARAMETER(ContextID);
 }
 
@@ -131,7 +134,6 @@ static void * _cmsCallocDefaultFn(cmsContext ContextID, cmsUInt32Number num, cms
 	if(Total == 0) return NULL;
 	// Safe check for overflow.
 	if(num >= UINT_MAX / size) return NULL;
-
 	// Check for overflow
 	if(Total < num || Total < size) {
 		return NULL;
@@ -141,14 +143,13 @@ static void * _cmsCallocDefaultFn(cmsContext ContextID, cmsUInt32Number num, cms
 }
 
 // Generic block duplication
-static void* _cmsDupDefaultFn(cmsContext ContextID, const void* Org, cmsUInt32Number size)
+static void * _cmsDupDefaultFn(cmsContext ContextID, const void * Org, cmsUInt32Number size)
 {
-	void* mem;
+	void * mem;
 	if(size > MAX_MEMORY_FOR_ALLOC) return NULL; // Never dup over 512Mb
 	mem = _cmsMalloc(ContextID, size);
 	if(mem != NULL && Org != NULL)
 		memmove(mem, Org, size);
-
 	return mem;
 }
 
@@ -160,7 +161,6 @@ _cmsMemPluginChunkType _cmsMemPluginChunk = { _cmsMallocDefaultFn, _cmsMallocZer
 void _cmsAllocMemPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	_cmsAssert(ctx != NULL);
-
 	if(src != NULL) {
 		// Duplicate
 		ctx->chunks[MemPlugin] = _cmsSubAllocDup(ctx->MemPool, src->chunks[MemPlugin], sizeof(_cmsMemPluginChunkType));
@@ -207,7 +207,7 @@ cmsBool  _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data
 
 		// Return to the default allocators
 		if(ContextID != NULL) {
-			ctx->chunks[MemPlugin] = (void*)&ctx->DefaultMemoryManager;
+			ctx->chunks[MemPlugin] = (void *)&ctx->DefaultMemoryManager;
 		}
 		return TRUE;
 	}
@@ -227,35 +227,35 @@ cmsBool  _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data
 }
 
 // Generic allocate
-void* CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size)
+void * CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->MallocPtr(ContextID, size);
 }
 
 // Generic allocate & zero
-void* CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size)
+void * CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->MallocZeroPtr(ContextID, size);
 }
 
 // Generic calloc
-void* CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size)
+void * CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->CallocPtr(ContextID, num, size);
 }
 
 // Generic reallocate
-void* CMSEXPORT _cmsRealloc(cmsContext ContextID, void* Ptr, cmsUInt32Number size)
+void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->ReallocPtr(ContextID, Ptr, size);
 }
 
 // Generic free memory
-void CMSEXPORT _cmsFree(cmsContext ContextID, void* Ptr)
+void CMSEXPORT _cmsFree(cmsContext ContextID, void * Ptr)
 {
 	if(Ptr != NULL) {
 		_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
@@ -264,7 +264,7 @@ void CMSEXPORT _cmsFree(cmsContext ContextID, void* Ptr)
 }
 
 // Generic block duplication
-void* CMSEXPORT _cmsDupMem(cmsContext ContextID, const void* Org, cmsUInt32Number size)
+void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Number size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->DupPtr(ContextID, Org, size);
@@ -290,7 +290,7 @@ _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32N
 	if(chunk == NULL) return NULL;
 
 	// Initialize values
-	chunk->Block     = (cmsUInt8Number*)_cmsMalloc(ContextID, Initial);
+	chunk->Block     = (cmsUInt8Number *)_cmsMalloc(ContextID, Initial);
 	if(chunk->Block == NULL) {
 		// Something went wrong
 		_cmsFree(ContextID, chunk);
@@ -341,7 +341,7 @@ void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 }
 
 // Get a pointer to small memory block.
-void*  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
+void *  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
 {
 	cmsUInt32Number Free = sub->h->BlockSize - sub->h->Used;
 	cmsUInt8Number* ptr;
@@ -359,11 +359,11 @@ void*  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
 	}
 	ptr =  sub->h->Block + sub->h->Used;
 	sub->h->Used += size;
-	return (void*)ptr;
+	return (void *)ptr;
 }
 
 // Duplicate in pool
-void* _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size)
+void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size)
 {
 	void * NewPtr;
 
@@ -410,7 +410,7 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
     const struct _cmsContext_struct* src)
 {
 	static _cmsLogErrorChunkType LogErrorChunk = { DefaultLogErrorHandlerFunction };
-	void* from;
+	void * from;
 
 	if(src != NULL) {
 		from = src->chunks[Logger];
@@ -489,26 +489,26 @@ void _cmsTagSignature2String(char String[5], cmsTagSignature sig)
 
 //--------------------------------------------------------------------------------------------------
 
-static void* defMtxCreate(cmsContext id)
+static void * defMtxCreate(cmsContext id)
 {
 	_cmsMutex* ptr_mutex = (_cmsMutex*)_cmsMalloc(id, sizeof(_cmsMutex));
 	_cmsInitMutexPrimitive(ptr_mutex);
-	return (void*)ptr_mutex;
+	return (void *)ptr_mutex;
 }
 
-static void defMtxDestroy(cmsContext id, void* mtx)
+static void defMtxDestroy(cmsContext id, void * mtx)
 {
 	_cmsDestroyMutexPrimitive((_cmsMutex*)mtx);
 	_cmsFree(id, mtx);
 }
 
-static cmsBool defMtxLock(cmsContext id, void* mtx)
+static cmsBool defMtxLock(cmsContext id, void * mtx)
 {
 	cmsUNUSED_PARAMETER(id);
 	return _cmsLockPrimitive((_cmsMutex*)mtx) == 0;
 }
 
-static void defMtxUnlock(cmsContext id, void* mtx)
+static void defMtxUnlock(cmsContext id, void * mtx)
 {
 	cmsUNUSED_PARAMETER(id);
 	_cmsUnlockPrimitive((_cmsMutex*)mtx);
@@ -522,7 +522,7 @@ void _cmsAllocMutexPluginChunk(struct _cmsContext_struct* ctx,
     const struct _cmsContext_struct* src)
 {
 	static _cmsMutexPluginChunkType MutexChunk = {defMtxCreate, defMtxDestroy, defMtxLock, defMtxUnlock };
-	void* from;
+	void * from;
 	if(src != NULL) {
 		from = src->chunks[MutexPlugin];
 	}
@@ -560,7 +560,7 @@ cmsBool  _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 }
 
 // Generic Mutex fns
-void* CMSEXPORT _cmsCreateMutex(cmsContext ContextID)
+void * CMSEXPORT _cmsCreateMutex(cmsContext ContextID)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
 
@@ -569,7 +569,7 @@ void* CMSEXPORT _cmsCreateMutex(cmsContext ContextID)
 	return ptr->CreateMutexPtr(ContextID);
 }
 
-void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void* mtx)
+void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
 	if(ptr->DestroyMutexPtr != NULL) {
@@ -577,14 +577,14 @@ void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void* mtx)
 	}
 }
 
-cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void* mtx)
+cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
 	if(ptr->LockMutexPtr == NULL) return TRUE;
 	return ptr->LockMutexPtr(ContextID, mtx);
 }
 
-void CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void* mtx)
+void CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
 

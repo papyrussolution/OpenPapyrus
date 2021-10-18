@@ -309,11 +309,11 @@ struct cff1_extents_param_t {
 		bounds.init();
 	}
 
-	void start_path()       {
+	void start_path() {
 		path_open = true;
 	}
 
-	void end_path()       {
+	void end_path() {
 		path_open = false;
 	}
 

@@ -1170,34 +1170,34 @@ static int final_key_share(SSL * s, uint context, int sent)
 	 *     we are a server
 	 * THEN
 	 *     IF
-	 *         we have a suitable key_share
+	 *   we have a suitable key_share
 	 *     THEN
-	 *         IF
-	 *             we are stateless AND we have no cookie
-	 *         THEN
-	 *             send a HelloRetryRequest
+	 *   IF
+	 *       we are stateless AND we have no cookie
+	 *   THEN
+	 *       send a HelloRetryRequest
 	 *     ELSE
-	 *         IF
-	 *             we didn't already send a HelloRetryRequest
-	 *             AND
-	 *             the client sent a key_share extension
-	 *             AND
-	 *             (we are not resuming
-	 *              OR the kex_mode allows key_share resumes)
-	 *             AND
-	 *             a shared group exists
-	 *         THEN
-	 *             send a HelloRetryRequest
-	 *         ELSE IF
-	 *             we are not resuming
-	 *             OR
-	 *             the kex_mode doesn't allow non key_share resumes
-	 *         THEN
-	 *             fail
-	 *         ELSE IF
-	 *             we are stateless AND we have no cookie
-	 *         THEN
-	 *             send a HelloRetryRequest
+	 *   IF
+	 *       we didn't already send a HelloRetryRequest
+	 *       AND
+	 *       the client sent a key_share extension
+	 *       AND
+	 *       (we are not resuming
+	 *        OR the kex_mode allows key_share resumes)
+	 *       AND
+	 *       a shared group exists
+	 *   THEN
+	 *       send a HelloRetryRequest
+	 *   ELSE IF
+	 *       we are not resuming
+	 *       OR
+	 *       the kex_mode doesn't allow non key_share resumes
+	 *   THEN
+	 *       fail
+	 *   ELSE IF
+	 *       we are stateless AND we have no cookie
+	 *   THEN
+	 *       send a HelloRetryRequest
 	 */
 	if(s->server) {
 		if(s->s3->peer_tmp) {

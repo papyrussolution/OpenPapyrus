@@ -75,7 +75,7 @@ static int __bam_compress_set_dbt(DB * dbp, DBT * dbt, const void * data, uint32
 	return 0;
 }
 
-/******************************************************************************/
+// 
 
 /*
  * Very simple key/data stream to give __bamc_compress_merge_insert()
@@ -234,7 +234,7 @@ static void __bam_cs_create_multiple_keyonly(BTREE_COMPRESS_STREAM * stream, DBT
 	DB_MULTIPLE_INIT(stream->kptr, stream->key);
 }
 
-/******************************************************************************/
+// 
 
 /*
  * Marshal data in initial data format into destbuf, resizing destbuf if
@@ -260,7 +260,7 @@ static int __bam_compress_marshal_data(DB * dbp, const DBT * data, DBT * destbuf
  */
  #define CMP_UNMARSHAL_DATA(src, dest) do { (dest)->data = ((uint8 *)(src)->data)+__db_decompress_int32((uint8 *)(src)->data, &(dest)->size); } while(0)
 
-/******************************************************************************/
+// 
 
 /*
  * __bam_compress_dupcmp --
@@ -449,7 +449,7 @@ int __bam_defdecompress(DB * dbp, const DBT * prevKey, const DBT * prevData, DBT
 	return 0;
 }
 
-/******************************************************************************/
+// 
 
 /*
  * Set dbc up to start decompressing the compressed key/data pair, dbc->key1
@@ -678,7 +678,7 @@ err:
 	return ret;
 }
 
-/******************************************************************************/
+// 
 
  #define CMP_STORE(key, data) do {                                           \
 		while((ret = __bamc_compress_store(dbc, (key), (data), &prevDestKey, &prevDestData, &destkey, &destbuf)) == DB_BUFFER_SMALL) { \
@@ -873,7 +873,7 @@ end:
 	return ret != 0 ? ret : bulk_ret;
 }
 
-/******************************************************************************/
+// 
 
 /* Remove the sorted key/data pairs in stream from the compressed database. */
 static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * stream, uint32 * countp)
@@ -1204,7 +1204,7 @@ end:
 	return ret != 0 ? ret : bulk_ret;
 }
 
-/******************************************************************************/
+// 
 
 /* Implements DB_PREV and DB_LAST for __bamc_compress_get() */
 static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)

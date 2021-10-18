@@ -48,7 +48,7 @@ static int JBIGSetupDecode(TIFF* tif)
 	return 1;
 }
 
-static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
+static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 {
 	struct jbg_dec_state decoder;
 	int decodeStatus = 0;
@@ -139,7 +139,7 @@ static int JBIGCopyEncodedData(TIFF* tif, uchar* pp, size_t cc, uint16 s)
 	return 1;
 }
 
-static void JBIGOutputBie(uchar* buffer, size_t len, void* userData)
+static void JBIGOutputBie(uchar* buffer, size_t len, void * userData)
 {
 	TIFF* tif = (TIFF*)userData;
 
@@ -151,7 +151,7 @@ static void JBIGOutputBie(uchar* buffer, size_t len, void* userData)
 	JBIGCopyEncodedData(tif, buffer, len, 0);
 }
 
-static int JBIGEncode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
+static int JBIGEncode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 {
 	TIFFDirectory* dir = &tif->tif_dir;
 	struct jbg_enc_state encoder;

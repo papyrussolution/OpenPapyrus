@@ -126,7 +126,7 @@ wsdl__definitions::~wsdl__definitions()
 	soap_destroy(soap);
 	soap_end(soap);
 	soap_done(soap);
-	free(soap);
+	SAlloc::F(soap);
 }
 
 int wsdl__definitions::get(struct soap * soap)

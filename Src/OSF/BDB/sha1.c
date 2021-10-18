@@ -16,10 +16,10 @@
 
    Corrected a problem which generated improper hash values on 16 bit machines
    Routine SHA1Update changed from
-        void SHA1Update(SHA1_CTX* context, unsigned char* data, unsigned int
+        void SHA1Update(SHA1_CTX* context, uchar* data, unsigned int
    len)
    to
-        void SHA1Update(SHA1_CTX* context, unsigned char* data, unsigned
+        void SHA1Update(SHA1_CTX* context, uchar* data, unsigned
    long len)
 
    The 'len' parameter was declared an int which works fine on 32 bit machines.
@@ -108,19 +108,19 @@ static void __db_SHAPrintContext(SHA1_CTX * context, char * msg)
 /*
  * __db_SHA1Transform --
  *
- * PUBLIC: void __db_SHA1Transform __P((uint32 *, unsigned char *));
+ * PUBLIC: void __db_SHA1Transform __P((uint32 *, uchar *));
  */
-void __db_SHA1Transform(uint32 * state, unsigned char * buffer)
+void __db_SHA1Transform(uint32 * state, uchar * buffer)
 {
 	uint32 a, b, c, d, e;
 	typedef union {
-		unsigned char c[64];
+		uchar c[64];
 		uint32 l[16];
 	} CHAR64LONG16;
 	CHAR64LONG16 * block;
 	int is_bigendian;
 #ifdef SHA1HANDSOFF
-	unsigned char workspace[64];
+	uchar workspace[64];
 	block = (CHAR64LONG16 *)workspace;
 	memcpy(block, buffer, 64);
 #else
@@ -190,10 +190,10 @@ void __db_SHA1Init(SHA1_CTX * context)
  * __db_SHA1Update --
  * Run your data through this.
  *
- * PUBLIC: void __db_SHA1Update __P((SHA1_CTX *, unsigned char *,
+ * PUBLIC: void __db_SHA1Update __P((SHA1_CTX *, uchar *,
  * PUBLIC:     size_t));
  */
-void __db_SHA1Update(SHA1_CTX * context, unsigned char * data, size_t len)
+void __db_SHA1Update(SHA1_CTX * context, uchar * data, size_t len)
 {
 	uint32 i, j; /* JHB */
 #ifdef VERBOSE
@@ -225,18 +225,18 @@ void __db_SHA1Update(SHA1_CTX * context, unsigned char * data, size_t len)
  * __db_SHA1Final --
  * Add padding and return the message digest.
  *
- * PUBLIC: void __db_SHA1Final __P((unsigned char *, SHA1_CTX *));
+ * PUBLIC: void __db_SHA1Final __P((uchar *, SHA1_CTX *));
  */
-void __db_SHA1Final(unsigned char * digest, SHA1_CTX * context)
+void __db_SHA1Final(uchar * digest, SHA1_CTX * context)
 {
 	uint32 i; /* JHB */
-	unsigned char finalcount[8];
+	uchar finalcount[8];
 	for(i = 0; i < 8; i++) {
 		finalcount[i] = (uchar)((context->count[(i >= 4 ? 0 : 1)]>>((3-(i&3))*8) )&255); /* Endian independent */
 	}
-	__db_SHA1Update(context, (unsigned char *)"\200", 1);
+	__db_SHA1Update(context, (uchar *)"\200", 1);
 	while((context->count[0]&504) != 448) {
-		__db_SHA1Update(context, (unsigned char *)"\0", 1);
+		__db_SHA1Update(context, (uchar *)"\0", 1);
 	}
 	__db_SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
 	for(i = 0; i < 20; i++) {

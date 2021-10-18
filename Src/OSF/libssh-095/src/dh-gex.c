@@ -77,7 +77,7 @@ error:
 
 /** @internal
  *  @brief handle a DH_GEX_GROUP packet, client side. This packet contains
- *         the group parameters.
+ *   the group parameters.
  */
 SSH_PACKET_CALLBACK(ssh_packet_client_dhgex_group)
 {
@@ -630,7 +630,7 @@ error:
 
 /** @internal
  * @brief parse an incoming SSH_MSG_KEX_DH_GEX_INIT packet and complete
- *        Diffie-Hellman key exchange
+ *  Diffie-Hellman key exchange
  **/
 static SSH_PACKET_CALLBACK(ssh_packet_server_dhgex_init){
 	(void)type;

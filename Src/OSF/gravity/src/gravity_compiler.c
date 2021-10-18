@@ -74,7 +74,7 @@ static void gravity_compiler_reset(gravity_compiler_t * compiler, bool free_core
 {
 	// free memory for array of strings storage
 	if(compiler->storage) {
-		cstring_array_each(compiler->storage, {mem_free((void*)val);});
+		cstring_array_each(compiler->storage, {mem_free((void *)val);});
 		gnode_array_free(compiler->storage);
 	}
 	// first ast then parser, don't change the release order
@@ -85,7 +85,7 @@ static void gravity_compiler_reset(gravity_compiler_t * compiler, bool free_core
 	gravity_vm_free(compiler->vm);
 	if(compiler->objects) {
 		compiler->objects->Z();
-		mem_free((void*)compiler->objects);
+		mem_free((void *)compiler->objects);
 	}
 	// feel free to free core if someone requires it
 	if(free_core) 
@@ -147,7 +147,7 @@ gravity_closure_t * gravity_compiler_run(gravity_compiler_t * compiler, const ch
 	SETIFZ(compiler->objects, void_array_create());
 	// CODEGEN requires a mini vm in order to be able to handle garbage collector
 	compiler->vm = gravity_vm_newmini();
-	gravity_vm_setdata(compiler->vm, (void*)compiler);
+	gravity_vm_setdata(compiler->vm, (void *)compiler);
 	gravity_vm_set_callbacks(compiler->vm, internal_vm_transfer, internal_vm_cleanup);
 	gravity_core_register(compiler->vm);
 	// STEP 0: CREATE PARSER

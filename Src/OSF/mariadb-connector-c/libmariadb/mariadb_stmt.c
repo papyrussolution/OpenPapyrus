@@ -165,7 +165,7 @@ int mthd_stmt_read_all_rows(MYSQL_STMT * stmt)
 	MYSQL_DATA * result = &stmt->result;
 	MYSQL_ROWS * current;
 	ulong packet_len;
-	unsigned char * p;
+	uchar * p;
 	MYSQL_ROWS ** pprevious = &result->data;
 	while((packet_len = ma_net_safe_read(stmt->mysql)) != packet_error) {
 		p = stmt->mysql->net.read_pos;
@@ -311,11 +311,11 @@ end:
 	stmt->state = MYSQL_STMT_FETCH_DONE;
 }
 
-int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, unsigned char * row)
+int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, uchar * row)
 {
 	uint i;
 	size_t truncations = 0;
-	unsigned char * null_ptr, bit_offset = 4;
+	uchar * null_ptr, bit_offset = 4;
 	row++; /* skip status byte */
 	null_ptr = row;
 	row += (stmt->field_count + 9) / 8;
@@ -385,10 +385,10 @@ MYSQL_RES * _mysql_stmt_use_result(MYSQL_STMT * stmt)
 	return NULL;
 }
 
-unsigned char * mysql_net_store_length(unsigned char * packet, size_t length)
+uchar * mysql_net_store_length(uchar * packet, size_t length)
 {
 	if(length < (uint64)L64(251)) {
-		*packet = (unsigned char)length;
+		*packet = (uchar)length;
 		return packet + 1;
 	}
 	if(length < (uint64)L64(65536)) {
@@ -438,16 +438,16 @@ static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type
 	if(stmt->array_size) {
 		int len;
 		if(stmt->row_size)
-			return (void*)((char *)buffer + stmt->row_size * row_nr);
+			return (void *)((char *)buffer + stmt->row_size * row_nr);
 		len = mysql_ps_fetch_functions[type].pack_len;
 		if(len > 0)
-			return (void*)((char *)buffer + len * row_nr);
+			return (void *)((char *)buffer + len * row_nr);
 		return ((void**)buffer)[row_nr];
 	}
 	return buffer;
 }
 
-int store_param(MYSQL_STMT * stmt, int column, unsigned char ** p, unsigned long row_nr)
+int store_param(MYSQL_STMT * stmt, int column, uchar ** p, unsigned long row_nr)
 {
 	void * buf = ma_get_buffer_offset(stmt, stmt->params[column].buffer_type, stmt->params[column].buffer, row_nr);
 	signed char indicator = ma_get_indicator(stmt, column, row_nr);
@@ -587,7 +587,7 @@ int store_param(MYSQL_STMT * stmt, int column, unsigned char ** p, unsigned long
 }
 
 /* {{{ mysqlnd_stmt_execute_generate_simple_request */
-unsigned char* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * request_len)
+uchar* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * request_len)
 {
 	/* execute packet has the following format:
 	   Offset   Length      Description
@@ -626,7 +626,7 @@ unsigned char* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, siz
 	p += STMT_ID_LENGTH;
 
 	/* flags is 4 bytes, we store just 1 */
-	int1store(p, (unsigned char)stmt->flags);
+	int1store(p, (uchar)stmt->flags);
 	p++;
 
 	int4store(p, 1);
@@ -721,7 +721,7 @@ unsigned char* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, siz
 			    stmt->params[i].buffer_type == MYSQL_TYPE_NULL ||
 			    !stmt->params[i].buffer)) {
 				has_data = FALSE;
-				(start + null_byte_offset)[i/8] |= (unsigned char)(1 << (i & 7));
+				(start + null_byte_offset)[i/8] |= (uchar)(1 << (i & 7));
 			}
 
 			if(has_data) {
@@ -756,7 +756,7 @@ bool mysql_stmt_skip_paramset(MYSQL_STMT * stmt, uint row)
 /* }}} */
 
 /* {{{ mysql_stmt_execute_generate_bulk_request */
-unsigned char* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * request_len)
+uchar* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * request_len)
 {
 	/* execute packet has the following format:
 	   Offset   Length      Description
@@ -1021,7 +1021,7 @@ bool STDCALL mysql_stmt_attr_set(MYSQL_STMT * stmt, enum enum_stmt_attr_type att
 		    stmt->param_callback = (ps_param_callback)value;
 		    break;
 		case STMT_ATTR_CB_USER_DATA:
-		    stmt->user_data = (void*)value;
+		    stmt->user_data = (void *)value;
 		    break;
 		default:
 		    SET_CLIENT_STMT_ERROR(stmt, CR_NOT_IMPLEMENTED, SQLSTATE_UNKNOWN, 0);
@@ -1255,14 +1255,14 @@ const char * STDCALL mysql_stmt_error(MYSQL_STMT * stmt)
 	return (const char *)stmt->last_error;
 }
 
-int mthd_stmt_fetch_row(MYSQL_STMT * stmt, unsigned char ** row)
+int mthd_stmt_fetch_row(MYSQL_STMT * stmt, uchar ** row)
 {
 	return stmt->fetch_row_func(stmt, row);
 }
 
 int STDCALL mysql_stmt_fetch(MYSQL_STMT * stmt)
 {
-	unsigned char * row;
+	uchar * row;
 	int rc;
 	if(stmt->state <= MYSQL_STMT_EXECUTED) {
 		SET_CLIENT_STMT_ERROR(stmt, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
@@ -1302,7 +1302,7 @@ int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind, unsign
 			*bind[0].is_null = 1;
 	}
 	else {
-		unsigned char * save_ptr;
+		uchar * save_ptr;
 		if(bind[0].length)
 			*bind[0].length = *stmt->bind[column].length;
 		else
@@ -1827,7 +1827,7 @@ static bool madb_reset_stmt(MYSQL_STMT * stmt, unsigned int flags)
 		if(flags & MADB_RESET_SERVER) {
 			/* reset statement on server side */
 			if(stmt->mysql && stmt->mysql->status == MYSQL_STATUS_READY && stmt->mysql->net.pvio) {
-				unsigned char cmd_buf[STMT_ID_LENGTH];
+				uchar cmd_buf[STMT_ID_LENGTH];
 				int4store(cmd_buf, stmt->stmt_id);
 				if((ret = stmt->mysql->methods->db_command(mysql, COM_STMT_RESET, (char *)cmd_buf,
 				    sizeof(cmd_buf), 0, stmt))) {

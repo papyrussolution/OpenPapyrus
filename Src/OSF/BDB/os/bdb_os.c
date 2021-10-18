@@ -91,13 +91,13 @@ int __os_urealloc(ENV * env, size_t size, void * storep)
 	int ret;
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	void * ptr = *(void **)storep;
-	/* Never allocate 0 bytes -- some C libraries don't like it. */
+	// Never allocate 0 bytes -- some C libraries don't like it. 
 	if(size == 0)
 		++size;
 	if(dbenv == NULL || dbenv->db_realloc == NULL) {
 		if(ptr == NULL)
 			return __os_umalloc(env, size, storep);
-		*(void **)storep = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc) (ptr, size) : realloc(ptr, size);
+		*(void **)storep = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc)(ptr, size) : SAlloc::R(ptr, size);
 		if(*(void **)storep == NULL) {
 			/*
 			 * Correct errno, see __os_realloc.
@@ -134,7 +134,7 @@ void FASTCALL __os_ufree(ENV * env, void * ptr)
 		else if(DB_GLOBAL(j_free))
 			DB_GLOBAL(j_free)(ptr);
 		else
-			free(ptr);
+			SAlloc::F(ptr);
 	}
 }
 /*
@@ -243,7 +243,7 @@ int FASTCALL __os_realloc(ENV * env, size_t size, void * storep)
 	 * Don't overwrite the original pointer, there are places in DB we
 	 * try to continue after realloc fails.
 	 */
-	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc)(ptr, size) : realloc(ptr, size);
+	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc)(ptr, size) : SAlloc::R(ptr, size);
 	if(!p) {
 		/*
 		 * Some C libraries don't correctly set errno when SAlloc::M(3)
@@ -294,7 +294,7 @@ void FASTCALL __os_free(ENV * env, void * ptr)
 		if(DB_GLOBAL(j_free) != NULL)
 			DB_GLOBAL(j_free)(ptr);
 		else
-			free(ptr);
+			SAlloc::F(ptr);
 	}
 }
 

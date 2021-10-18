@@ -280,7 +280,7 @@ extern "C" {
 #ifdef HAVE_MUTEX_VMS
 	#include <sys/mman.h>
 	#include <builtins.h>
-	typedef volatile unsigned char tsl_t;
+	typedef volatile uchar tsl_t;
 
 	#ifdef LOAD_ACTUAL_MUTEX_CODE
 		#ifdef __ALPHA
@@ -375,7 +375,7 @@ typedef LONG volatile tsl_t;
  * 68K/gcc assembly.
  *********************************************************************/
 #ifdef HAVE_MUTEX_68K_GCC_ASSEMBLY
-typedef unsigned char tsl_t;
+typedef uchar tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
 /* gcc/68K: 0 is clear, 1 is set. */
@@ -460,7 +460,7 @@ typedef volatile uint32 tsl_t;
  * ARM/gcc assembly.
  *********************************************************************/
 #ifdef HAVE_MUTEX_ARM_GCC_ASSEMBLY
-typedef unsigned char tsl_t;
+typedef uchar tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
 /* gcc/arm: 0 is clear, 1 is set. */
@@ -510,7 +510,7 @@ typedef uint32 tsl_t;
  * IA64/gcc assembly.
  *********************************************************************/
 #ifdef HAVE_MUTEX_IA64_GCC_ASSEMBLY
-typedef volatile unsigned char tsl_t;
+typedef volatile uchar tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
 /* gcc/ia64: 0 is clear, 1 is set. */
@@ -647,7 +647,7 @@ MUTEX_SET(tsl_t *tsl) {							\
  * SCO/cc assembly.
  *********************************************************************/
 #ifdef HAVE_MUTEX_SCO_X86_CC_ASSEMBLY
-typedef unsigned char tsl_t;
+typedef uchar tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
 /*
@@ -678,7 +678,7 @@ _tsl_set(void *tsl)
  * Sparc/gcc assembly.
  *********************************************************************/
 #ifdef HAVE_MUTEX_SPARC_GCC_ASSEMBLY
-typedef unsigned char tsl_t;
+typedef uchar tsl_t;
 
 #define	MUTEX_ALIGN	8
 
@@ -782,7 +782,7 @@ MUTEX_UNSET(tsl_t *tsl) {
  * x86/gcc (32- and 64-bit) assembly.
  *********************************************************************/
 #if defined(HAVE_MUTEX_X86_GCC_ASSEMBLY) || defined(HAVE_MUTEX_X86_64_GCC_ASSEMBLY)
-typedef volatile unsigned char tsl_t;
+typedef volatile uchar tsl_t;
 
 #ifdef LOAD_ACTUAL_MUTEX_CODE
 /* gcc/x86: 0 is clear, 1 is set. */
@@ -883,7 +883,7 @@ struct __db_mutexmgr {
  */
 typedef struct __db_mutexregion { /* SHARED */
 	/* These fields are initialized at create time and never modified. */
-	roff_t		mutex_off_alloc;/* Offset of mutex array */
+	roff_t		mutex_off_alloc; /* Offset of mutex array */
 	roff_t		mutex_off;	/* Adjusted offset of mutex array */
 	db_size_t	mutex_size;	/* Size of the aligned mutex */
 	roff_t		thread_off;	/* Offset of the thread area. */

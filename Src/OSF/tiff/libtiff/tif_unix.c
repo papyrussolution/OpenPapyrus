@@ -54,7 +54,7 @@ typedef union fd_as_handle_union {
 	thandle_t h;
 } fd_as_handle_union_t;
 
-static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
+static tmsize_t _tiffReadProc(thandle_t fd, void * buf, tmsize_t size)
 {
 	fd_as_handle_union_t fdh;
 	const size_t bytes_total = (size_t)size;
@@ -78,7 +78,7 @@ static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 	}
 }
 
-static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
+static tmsize_t _tiffWriteProc(thandle_t fd, void * buf, tmsize_t size)
 {
 	fd_as_handle_union_t fdh;
 	const size_t bytes_total = (size_t)size;
@@ -152,7 +152,7 @@ static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	return 0;
 }
 
-static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
+static void _tiffUnmapProc(thandle_t fd, void * base, toff_t size)
 {
 	(void)fd;
 	(void)munmap(base, (off_t)size);
@@ -165,7 +165,7 @@ static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	return 0;
 }
 
-static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
+static void _tiffUnmapProc(thandle_t fd, void * base, toff_t size)
 {
 	(void)fd; (void)base; (void)size;
 }
@@ -264,31 +264,31 @@ TIFF* TIFFOpenW(const wchar_t* name, const char* mode)
 	return (malloc((size_t)s));
 }*/
 
-/*void* _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz)
+/*void * _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz)
 {
 	if(nmemb == 0 || siz == 0)
 		return ((void *)NULL);
 	return calloc((size_t)nmemb, (size_t)siz);
 }*/
 
-/*void _TIFFfree_Removed(void* p)
+/*void _TIFFfree_Removed(void * p)
 {
 	free(p);
 }*/
-/*void * _TIFFrealloc_Removed(void* p, tmsize_t s)
+/*void * _TIFFrealloc_Removed(void * p, tmsize_t s)
 {
 	return (realloc(p, (size_t)s));
 }*/
-/*void _TIFFmemset_Removed(void* p, int v, tmsize_t c)
+/*void _TIFFmemset_Removed(void * p, int v, tmsize_t c)
 {
 	memset(p, v, (size_t)c);
 }*/
-/*void _TIFFmemcpy_Removed(void* d, const void* s, tmsize_t c)
+/*void _TIFFmemcpy_Removed(void * d, const void * s, tmsize_t c)
 {
 	memcpy(d, s, (size_t)c);
 }*/
 
-int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c)
+int _TIFFmemcmp(const void * p1, const void * p2, tmsize_t c)
 {
 	return (memcmp(p1, p2, (size_t)c));
 }

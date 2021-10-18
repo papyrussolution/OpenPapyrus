@@ -64,7 +64,7 @@ namespace CFF {
 		hb_codepoint_t glyph;
 	};
 
-	typedef hb_vector_t<unsigned char> str_buff_t;
+	typedef hb_vector_t<uchar> str_buff_t;
 	struct str_buff_vec_t : hb_vector_t<str_buff_t>{
 		void fini() {
 			SUPER::fini_deep();
@@ -73,7 +73,7 @@ namespace CFF {
 		unsigned int total_size() const
 		{
 			unsigned int size = 0;
-			for(unsigned int i = 0; i < length; i++)
+			for(uint i = 0; i < length; i++)
 				size += (*this)[i].length;
 			return size;
 		}
@@ -143,9 +143,9 @@ private:
 				set_offset_at(i, offset);
 
 				/* serialize data */
-				for(unsigned int i = 0; i < byteArray.length; i++) {
+				for(uint i = 0; i < byteArray.length; i++) {
 					const byte_str_t &bs = byteArray[i];
-					unsigned char * dest = c->allocate_size<unsigned char> (bs.length);
+					uchar * dest = c->allocate_size<uchar> (bs.length);
 					if(UNLIKELY(!dest)) return_trace(false);
 					memcpy(dest, &bs[0], bs.length);
 				}
@@ -160,7 +160,7 @@ private:
 			byte_str_array_t byteArray;
 			byteArray.init();
 			byteArray.resize(buffArray.length);
-			for(unsigned int i = 0; i < byteArray.length; i++)
+			for(uint i = 0; i < byteArray.length; i++)
 				byteArray[i] = byte_str_t(buffArray[i].arrayZ, buffArray[i].length);
 			bool result = this->serialize(c, offSize_, byteArray);
 			byteArray.fini();
@@ -261,9 +261,9 @@ private:
 			return offset_at(index + 1) - offset_at(index);
 		}
 
-		const unsigned char * data_base() const
+		const uchar * data_base() const
 		{
-			return (const unsigned char*)this + min_size + offset_array_size();
+			return (const uchar *)this + min_size + offset_array_size();
 		}
 
 		unsigned int data_size() const {
@@ -297,7 +297,7 @@ protected:
 		unsigned int max_offset() const
 		{
 			unsigned int max = 0;
-			for(unsigned int i = 0; i < count + 1u; i++) {
+			for(uint i = 0; i < count + 1u; i++) {
 				unsigned int off = offset_at(i);
 				if(off > max) max = off;
 			}
@@ -351,7 +351,7 @@ public:
 			CFFIndex<COUNT>::set_offset_at(i, offset);
 
 			/* serialize data */
-			for(unsigned int i = 0; i < dataArrayLen; i++) {
+			for(uint i = 0; i < dataArrayLen; i++) {
 				TYPE * dest = c->start_embed<TYPE> ();
 				if(UNLIKELY(!dest || !dest->serialize(c, dataArray[i], param1, param2)))
 					return_trace(false);
@@ -363,26 +363,19 @@ public:
 /* Top Dict, Font Dict, Private Dict */
 	struct Dict : UnsizedByteStr {
 		template <typename DICTVAL, typename OP_SERIALIZER, typename ... Ts>
-		bool serialize(hb_serialize_context_t * c,
-		    const DICTVAL &dictval,
-		    OP_SERIALIZER& opszr,
-		    Ts&&... ds)
+		bool serialize(hb_serialize_context_t * c, const DICTVAL &dictval, OP_SERIALIZER& opszr, Ts&&... ds)
 		{
 			TRACE_SERIALIZE(this);
-			for(unsigned int i = 0; i < dictval.get_count(); i++)
+			for(uint i = 0; i < dictval.get_count(); i++)
 				if(UNLIKELY(!opszr.serialize(c, dictval[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
-
 			return_trace(true);
 		}
-
-		template <typename T, typename V>
-		static bool serialize_int_op(hb_serialize_context_t * c, op_code_t op, V value, op_code_t intOp)
+		template <typename T, typename V> static bool serialize_int_op(hb_serialize_context_t * c, op_code_t op, V value, op_code_t intOp)
 		{
 			// XXX: not sure why but LLVM fails to compile the following 'unlikely' macro invocation
 			if(/*unlikely*/ (!serialize_int<T, V> (c, intOp, value)))
 				return false;
-
 			TRACE_SERIALIZE(this);
 			/* serialize the opcode */
 			HBUINT8 * p = c->allocate_size<HBUINT8> (OpCode_Size(op));
@@ -395,19 +388,14 @@ public:
 			*p = op;
 			return_trace(true);
 		}
-
-		template <typename V>
-		static bool serialize_int4_op(hb_serialize_context_t * c, op_code_t op, V value)
+		template <typename V> static bool serialize_int4_op(hb_serialize_context_t * c, op_code_t op, V value)
 		{
 			return serialize_int_op<HBINT32> (c, op, value, OpCode_longintdict);
 		}
-
-		template <typename V>
-		static bool serialize_int2_op(hb_serialize_context_t * c, op_code_t op, V value)
+		template <typename V> static bool serialize_int2_op(hb_serialize_context_t * c, op_code_t op, V value)
 		{
 			return serialize_int_op<HBINT16> (c, op, value, OpCode_shortint);
 		}
-
 		template <typename T, int int_op>
 		static bool serialize_link_op(hb_serialize_context_t * c, op_code_t op, objidx_t link, whence_t whence)
 		{
@@ -416,12 +404,10 @@ public:
 			c->add_link(ofs, link, whence);
 			return true;
 		}
-
 		static bool serialize_link4_op(hb_serialize_context_t * c, op_code_t op, objidx_t link, whence_t whence = whence_t::Head)
 		{
 			return serialize_link_op<HBINT32, OpCode_longintdict> (c, op, link, whence);
 		}
-
 		static bool serialize_link2_op(hb_serialize_context_t * c, op_code_t op, objidx_t link, whence_t whence = whence_t::Head)
 		{
 			return serialize_link_op<HBINT16, OpCode_shortint> (c, op, link, whence);
@@ -433,24 +419,20 @@ public:
 	struct PrivateDict : Dict {};
 
 	struct table_info_t {
-		void init() {
+		void init() 
+		{
 			offset = size = 0; link = 0;
 		}
-
 		unsigned int offset;
 		unsigned int size;
 		objidx_t link;
 	};
 
-	template <typename COUNT>
-	struct FDArray : CFFIndexOf<COUNT, FontDict>{
+	template <typename COUNT> struct FDArray : CFFIndexOf<COUNT, FontDict> {
 		template <typename DICTVAL, typename INFO, typename Iterator, typename OP_SERIALIZER>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator it,
-		    OP_SERIALIZER& opszr)
+		bool serialize(hb_serialize_context_t * c, Iterator it, OP_SERIALIZER& opszr)
 		{
 			TRACE_SERIALIZE(this);
-
 			/* serialize INDEX data */
 			hb_vector_t<unsigned> sizes;
 			c->push();
@@ -477,7 +459,7 @@ public:
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!(c->check_struct(this))))
 				return_trace(false);
-			for(unsigned int i = 0; i < c->get_num_glyphs(); i++)
+			for(uint i = 0; i < c->get_num_glyphs(); i++)
 				if(UNLIKELY(!fds[i].sanitize(c)))
 					return_trace(false);
 
@@ -527,7 +509,7 @@ public:
 			    (nRanges() == 0) || ranges[0].first != 0))
 				return_trace(false);
 
-			for(unsigned int i = 1; i < nRanges(); i++)
+			for(uint i = 1; i < nRanges(); i++)
 				if(UNLIKELY(ranges[i - 1].first >= ranges[i].first))
 					return_trace(false);
 
@@ -547,7 +529,7 @@ public:
 			return (hb_codepoint_t)ranges[i - 1].fd;
 		}
 
-		GID_TYPE        &nRanges()       {
+		GID_TYPE        &nRanges() {
 			return ranges.len;
 		}
 
@@ -555,7 +537,7 @@ public:
 			return ranges.len;
 		}
 
-		GID_TYPE       &sentinel()       {
+		GID_TYPE       &sentinel() {
 			return StructAfter<GID_TYPE> (ranges[nRanges() - 1]);
 		}
 

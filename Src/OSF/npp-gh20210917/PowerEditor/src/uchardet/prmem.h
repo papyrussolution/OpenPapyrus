@@ -19,7 +19,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *          Kohei TAKETA <k-tak@void.in>
+ *    Kohei TAKETA <k-tak@void.in>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -37,7 +37,7 @@
 #ifndef nsDummyPrmem_h__
 #define nsDummyPrmem_h__
 
-inline void * PR_Malloc(size_t len) { return malloc(len); }
-#define PR_FREEIF(p) if(p) free(p)
+inline void * PR_Malloc(size_t len) { return SAlloc::M(len); }
+#define PR_FREEIF(p) if(p) SAlloc::F(p)
 
 #endif

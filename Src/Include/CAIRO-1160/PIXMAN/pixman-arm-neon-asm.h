@@ -1123,7 +1123,7 @@ local skip1
     vpop        {d8-d15}
 .endm
 
-/******************************************************************************/
+// 
 
 /*
  * Conversion of 8 r5g6b6 pixels packed in 128-bit register (in)

@@ -173,7 +173,7 @@ static int krb5_encode(void * app_data, const void * from, int length, int level
 	/* NOTE that the cast is safe, neither of the krb5, gnu gss and heimdal
 	 * libraries modify the input buffer in gss_wrap()
 	 */
-	dec.value = (void*)from;
+	dec.value = (void *)from;
 	dec.length = length;
 	maj = gss_wrap(&min, *context,
 		level == PROT_PRIVATE,

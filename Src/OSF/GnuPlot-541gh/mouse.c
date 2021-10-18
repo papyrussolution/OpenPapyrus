@@ -611,7 +611,7 @@ void GnuPlot::DoZoom(double xmin, double ymin, double x2min, double y2min, doubl
 	z->_Max.y  = (AxS[FIRST_Y_AXIS].max  > -VERYLARGE) ? ymax  : AxS[FIRST_Y_AXIS].max;
 	z->_2Max.x = (AxS[SECOND_X_AXIS].max > -VERYLARGE) ? x2max : AxS[SECOND_X_AXIS].max;
 	z->_2Max.y = (AxS[SECOND_Y_AXIS].max > -VERYLARGE) ? y2max : AxS[SECOND_Y_AXIS].max;
-	ApplyZoom(term, z);
+	ApplyZoom(GPT.P_Term, z);
 }
 
 void GnuPlot::ZoomNext(GpTermEntry * pTerm)
@@ -673,7 +673,7 @@ void GnuPlot::IncrMouseMode(const int amount)
 
 void GnuPlot::UpdateStatusLine()
 {
-	UpdateStatusLineWithMouseSetting(term, &mouse_setting);
+	UpdateStatusLineWithMouseSetting(GPT.P_Term, &mouse_setting);
 }
 
 void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_setting_t * ms)
@@ -769,8 +769,8 @@ char * GnuPlot::BuiltinAutoscale(GpEvent * ge, GpTermEntry * pTerm)
 		return "`builtin-autoscale` (set autoscale keepfix; replot)";
 	}
 	else {
-		DoStringReplot(term, "set autoscale keepfix");
-		return (char *)0;
+		DoStringReplot(GPT.P_Term, "set autoscale keepfix");
+		return 0;
 	}
 }
 
@@ -792,8 +792,8 @@ char * GnuPlot::BuiltinToggleBorder(GpEvent * ge, GpTermEntry * pTerm)
 			Gg.draw_border = 4095;
 		else
 			Gg.draw_border = 0;
-		DoStringReplot(term, "");
-		return (char *)0;
+		DoStringReplot(GPT.P_Term, "");
+		return 0;
 	}
 }
 
@@ -802,8 +802,8 @@ char * GnuPlot::BuiltinReplot(GpEvent * ge, GpTermEntry * pTerm)
 	if(!ge)
 		return "`builtin-replot`";
 	else {
-		DoStringReplot(term, "");
-		return (char *)0;
+		DoStringReplot(GPT.P_Term, "");
+		return 0;
 	}
 }
 
@@ -814,10 +814,10 @@ char * GnuPlot::BuiltinToggleGrid(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	else {
 		if(!SomeGridSelected())
-			DoStringReplot(term, "set grid");
+			DoStringReplot(GPT.P_Term, "set grid");
 		else
-			DoStringReplot(term, "unset grid");
-		return (char *)0;
+			DoStringReplot(GPT.P_Term, "unset grid");
+		return 0;
 	}
 }
 
@@ -1972,7 +1972,7 @@ void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	// Dummy up a keystroke event so that we can conveniently check for a  
 	// binding to "Close". We only get these for the current window. 
-	if(ge != (void*)1) {
+	if(ge != (void *)1) {
 		ge->par1 = GP_Cancel; // Dummy keystroke 
 		ge->par2 = 0; // Not used; could pass window id here? 
 		EventKeyPress(ge, pTerm, true);
@@ -2097,7 +2097,7 @@ bool exec_event(char type, int mx, int my, int par1, int par2, int winid)
 	ge.par1 = par1;
 	ge.par2 = par2;
 	ge.winid = winid;
-	GPO.DoEvent(term, &ge);
+	GPO.DoEvent(GPT.P_Term, &ge);
 	// end pause mouse? 
 	if((type == GE_buttonrelease) && (paused_for_mouse & PAUSE_CLICK) && (((par1 == 1) && 
 		(paused_for_mouse & PAUSE_BUTTON1)) || ((par1 == 2) && (paused_for_mouse & PAUSE_BUTTON2)) || ((par1 == 3) && (paused_for_mouse & PAUSE_BUTTON3)))) {
@@ -2310,7 +2310,7 @@ void GnuPlot::BindDisplayOne(bind_t * ptr)
 		fprintf(stderr, "%s\n", ptr->builtin(0));
 	}*/
 	else if(ptr->HandlerFunc) {
-		fprintf(stderr, "%s\n", (this->*ptr->HandlerFunc)(0, term));
+		fprintf(stderr, "%s\n", (this->*ptr->HandlerFunc)(0, GPT.P_Term));
 	}
 	else {
 		fprintf(stderr, "`%s:%d oops.'\n", __FILE__, __LINE__);

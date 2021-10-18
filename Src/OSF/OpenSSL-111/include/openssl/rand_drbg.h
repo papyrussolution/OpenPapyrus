@@ -17,7 +17,7 @@
  * RAND_DRBG  flags
  *
  * Note: if new flags are added, the constant `rand_drbg_used_flags`
- *       in drbg_lib.c needs to be updated accordingly.
+ * in drbg_lib.c needs to be updated accordingly.
  */
 
 /* In CTR mode, disable derivation function ctr_df */

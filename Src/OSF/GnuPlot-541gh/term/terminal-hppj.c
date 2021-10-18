@@ -60,7 +60,7 @@ TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char opt[10];
 #define HPPJERROR "expecting font size FNT5X9, FNT9X17, or FNT13X25"
-	PTR32(GPT.TermOptions)[0] = 0; // default to empty string and 9x17 font 
+	GPT._TermOptions.Z(); // default to empty string and 9x17 font 
 	hppj_font = FNT9X17; // in case of error or empty options
 	if(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.GetCurTokenLength() > 8) {
@@ -69,15 +69,15 @@ TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), /*4 */ 9); /* HBB 980226 */
 		if(sstreq(opt, "FNT5X9")) {
 			hppj_font = FNT5X9;
-			strcpy(GPT.TermOptions, "FNT5X9");
+			GPT._TermOptions = "FNT5X9";
 		}
 		else if(sstreq(opt, "FNT9X17")) {
 			hppj_font = FNT9X17;
-			strcpy(GPT.TermOptions, "FNT9X17");
+			GPT._TermOptions = "FNT9X17";
 		}
 		else if(sstreq(opt, "FNT13X25")) {
 			hppj_font = FNT13X25;
-			strcpy(GPT.TermOptions, "FNT13X25");
+			GPT._TermOptions = "FNT13X25";
 		}
 		else {
 			pGp->IntErrorCurToken(HPPJERROR);

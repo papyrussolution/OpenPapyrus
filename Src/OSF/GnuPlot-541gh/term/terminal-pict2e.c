@@ -349,28 +349,24 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// is about half the text pointsize
 	pThis->ChrV = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 72);
 	pThis->ChrH = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 144);
-	sprintf(GPT.TermOptions, "font \"%s,%d\"", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
+	slprintf(GPT._TermOptions, "font \"%s,%d\"", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
 	if(_Pict2E.pict2e_explicit_size) {
 		if(_Pict2E.pict2e_explicit_units == CM)
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
+			slprintf_cat(GPT._TermOptions, "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
 		else
-			sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
+			slprintf_cat(GPT._TermOptions, "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
 	}
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_use_color ? " color" : " monochrome");
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), " linewidth %.1f", _Pict2E.pict2e_lw_scale);
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_points ? " texpoints" : " gppoints");
-	sprintf(GPT.TermOptions + strlen(GPT.TermOptions), _Pict2E.pict2e_pointsize == 1 ? " smallpoints" : (_Pict2E.pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
-	sprintf(&(GPT.TermOptions[strlen(GPT.TermOptions)]), _Pict2E.pict2e_arrows ? " texarrows" : " gparrows");
+	slprintf_cat(GPT._TermOptions, _Pict2E.pict2e_use_color ? " color" : " monochrome");
+	slprintf_cat(GPT._TermOptions, " linewidth %.1f", _Pict2E.pict2e_lw_scale);
+	slprintf_cat(GPT._TermOptions, _Pict2E.pict2e_points ? " texpoints" : " gppoints");
+	slprintf_cat(GPT._TermOptions, _Pict2E.pict2e_pointsize == 1 ? " smallpoints" : (_Pict2E.pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
+	slprintf_cat(GPT._TermOptions, _Pict2E.pict2e_arrows ? " texarrows" : " gparrows");
 }
 
 TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
 {
-	fprintf(GPT.P_GpOutFile,
-	    "%% GNUPLOT: LaTeX2e picture (pict2e)\n" \
-	    "\\setlength{\\unitlength}{%fpt}\n",
-	    PICT2E_UNIT);
-	fputs("\\ifx\\plotpoint\\undefined\\newsavebox{\\plotpoint}\\fi\n",
-	    GPT.P_GpOutFile);
+	fprintf(GPT.P_GpOutFile, "%% GNUPLOT: LaTeX2e picture (pict2e)\n\\setlength{\\unitlength}{%fpt}\n", PICT2E_UNIT);
+	fputs("\\ifx\\plotpoint\\undefined\\newsavebox{\\plotpoint}\\fi\n", GPT.P_GpOutFile);
 #ifdef PICT2E_TRANSPARENT
 	fputs(// test if command \transparent is available
 		"\\ifx\\transparent\\undefined%\n"

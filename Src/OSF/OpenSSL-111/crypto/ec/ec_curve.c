@@ -3109,7 +3109,7 @@ int EC_curve_nist2nid(const char * name)
  * name) or to validate that domain parameters have not been modified.
  *
  * Returns: The nid associated with the found named curve, or NID_undef
- *          if not found. If there was an error it returns -1.
+ *    if not found. If there was an error it returns -1.
  */
 int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 {

@@ -121,7 +121,7 @@
 	#include <stdbool.h>
 #else
 	#if !HAVE__BOOL
-		typedef unsigned char _Bool;
+		typedef uchar _Bool;
 	#endif
 	#define bool _Bool
 	#define false 0

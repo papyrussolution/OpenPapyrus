@@ -465,21 +465,15 @@ int WordStyleDlg::whichTabColourIndex()
 	auto lbTextLen = ::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_GETTEXTLEN, i, 0);
 	if(lbTextLen > styleNameLen)
 		return -1;
-
 	::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_GETTEXT, i, reinterpret_cast<LPARAM>(styleName));
-
 	if(lstrcmp(styleName, TABBAR_ACTIVEFOCUSEDINDCATOR) == 0)
 		return TabBarPlus::activeFocusedTop;
-
 	if(lstrcmp(styleName, TABBAR_ACTIVEUNFOCUSEDINDCATOR) == 0)
 		return TabBarPlus::activeUnfocusedTop;
-
 	if(lstrcmp(styleName, TABBAR_ACTIVETEXT) == 0)
 		return TabBarPlus::activeText;
-
 	if(lstrcmp(styleName, TABBAR_INACTIVETEXT) == 0)
 		return TabBarPlus::inactiveText;
-
 	return -1;
 }
 
@@ -488,15 +482,12 @@ bool WordStyleDlg::isDocumentMapStyle()
 	const auto i = ::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_GETCURSEL, 0, 0);
 	if(i == LB_ERR)
 		return false;
-
 	constexpr size_t styleNameLen = 128;
 	TCHAR styleName[styleNameLen + 1] = { 0 };
 	const auto lbTextLen = ::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_GETTEXTLEN, i, 0);
 	if(lbTextLen > styleNameLen)
 		return false;
-
 	::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_GETTEXT, i, reinterpret_cast<LPARAM>(styleName));
-
 	return (lstrcmp(styleName, VIEWZONE_DOCUMENTMAP) == 0);
 }
 
@@ -505,17 +496,11 @@ void WordStyleDlg::updateColour(bool which)
 	NppStyle & style = getCurrentStyler();
 	if(which == C_FOREGROUND) {
 		style._fgColor = _pFgColour->getColour();
-		if(_pFgColour->isEnabled())
-			style._colorStyle |= COLORSTYLE_FOREGROUND;
-		else
-			style._colorStyle &= ~COLORSTYLE_FOREGROUND;
+		SETFLAG(style._colorStyle, COLORSTYLE_FOREGROUND, _pFgColour->isEnabled());
 	}
 	else { //(which == C_BACKGROUND)
 		style._bgColor = _pBgColour->getColour();
-		if(_pBgColour->isEnabled())
-			style._colorStyle |= COLORSTYLE_BACKGROUND;
-		else
-			style._colorStyle &= ~COLORSTYLE_BACKGROUND;
+		SETFLAG(style._colorStyle, COLORSTYLE_BACKGROUND, _pBgColour->isEnabled());
 	}
 }
 
@@ -560,7 +545,7 @@ void WordStyleDlg::updateUserKeywords()
 	//TCHAR kw[NB_MAX];
 	auto len = ::SendDlgItemMessage(_hSelf, IDC_USER_KEYWORDS_EDIT, WM_GETTEXTLENGTH, 0, 0);
 	len += 1;
-	TCHAR* kw = new TCHAR[len];
+	TCHAR * kw = new TCHAR[len];
 	memzero(kw, len * sizeof(TCHAR));
 	::SendDlgItemMessage(_hSelf, IDC_USER_KEYWORDS_EDIT, WM_GETTEXT, len, reinterpret_cast<LPARAM>(kw));
 	style._keywords = kw;
@@ -590,13 +575,9 @@ void WordStyleDlg::updateFontStyleStatus(fontStyleType whitchStyle)
 		fontStyle = FONTSTYLE_ITALIC;
 		hWnd = _hCheckItalic;
 	}
-
 	auto isChecked = ::SendMessage(hWnd, BM_GETCHECK, 0, 0);
 	if(isChecked != BST_INDETERMINATE) {
-		if(isChecked == BST_CHECKED)
-			style._fontStyle |= fontStyle;
-		else
-			style._fontStyle &= ~fontStyle;
+		SETFLAG(style._fontStyle, fontStyle, isChecked == BST_CHECKED);
 	}
 }
 
@@ -802,7 +783,6 @@ void WordStyleDlg::setVisualFromStyleList()
 	// Selected text colour style
 	if(style._styleDesc == TEXT("Selected text colour")) {
 		isEnable = false; // disable by default for "Selected text colour" style
-
 		if(NppParameters::getInstance().isSelectFgColorEnabled())
 			isEnable = true;
 	}

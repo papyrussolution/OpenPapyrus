@@ -160,17 +160,17 @@ int pthread_barrier_wait(pthread_barrier_t * barrier)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_barrierattr_t
+ *     pointer to an instance of pthread_barrierattr_t
  *
  * DESCRIPTION
  *   Initializes a barrier attributes object with default attributes.
  *
  *   NOTES:
- *           1)      Used to define barrier types
+ *     1)      Used to define barrier types
  *
  * RESULTS
- *           0               successfully initialized attr,
- *           ENOMEM          insufficient memory for attr.
+ *     0               successfully initialized attr,
+ *     ENOMEM          insufficient memory for attr.
  *
  * ------------------------------------------------------
  */
@@ -192,17 +192,17 @@ int pthread_barrierattr_init(pthread_barrierattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_barrierattr_t
+ *     pointer to an instance of pthread_barrierattr_t
  *
  * DESCRIPTION
  *   Destroys a barrier attributes object. The object can no longer be used.
  *
  *   NOTES:
- *           1)      Does not affect barrieres created using 'attr'
+ *     1)      Does not affect barrieres created using 'attr'
  *
  * RESULTS
- *           0               successfully released attr,
- *           EINVAL          'attr' is invalid.
+ *     0               successfully released attr,
+ *     EINVAL          'attr' is invalid.
  *
  * ------------------------------------------------------
  */
@@ -227,16 +227,16 @@ int pthread_barrierattr_destroy(pthread_barrierattr_t * attr)
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_barrierattr_t
+ *     pointer to an instance of pthread_barrierattr_t
  *
  *   pshared
- *           will be set to one of:
+ *     will be set to one of:
  *
- *                   PTHREAD_PROCESS_SHARED
- *                           May be shared if in shared memory
+ *             PTHREAD_PROCESS_SHARED
+ *                     May be shared if in shared memory
  *
- *                   PTHREAD_PROCESS_PRIVATE
- *                           Cannot be shared.
+ *             PTHREAD_PROCESS_PRIVATE
+ *                     Cannot be shared.
  *
  *
  * DESCRIPTION
@@ -244,15 +244,15 @@ int pthread_barrierattr_destroy(pthread_barrierattr_t * attr)
  *   processes if pthread_barrier_t variable is allocated
  *   in memory shared by these processes.
  *   NOTES:
- *           1)      pshared barriers MUST be allocated in shared
- *                   memory.
- *           2)      The following macro is defined if shared barriers
- *                   are supported:
- *                           _POSIX_THREAD_PROCESS_SHARED
+ *     1)      pshared barriers MUST be allocated in shared
+ *             memory.
+ *     2)      The following macro is defined if shared barriers
+ *             are supported:
+ *                     _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully retrieved attribute,
- *           EINVAL          'attr' is invalid,
+ *     0               successfully retrieved attribute,
+ *     EINVAL          'attr' is invalid,
  *
  * ------------------------------------------------------
  */
@@ -274,12 +274,12 @@ int pthread_barrierattr_getpshared(const pthread_barrierattr_t * attr, int * psh
  *
  * PARAMETERS
  *   attr
- *           pointer to an instance of pthread_barrierattr_t
+ *     pointer to an instance of pthread_barrierattr_t
  *
  *   pshared
- *           must be one of:
- *                   PTHREAD_PROCESS_SHARED May be shared if in shared memory
- *                   PTHREAD_PROCESS_PRIVATE Cannot be shared.
+ *     must be one of:
+ *             PTHREAD_PROCESS_SHARED May be shared if in shared memory
+ *             PTHREAD_PROCESS_PRIVATE Cannot be shared.
  *
  * DESCRIPTION
  *   Mutexes creatd with 'attr' can be shared between
@@ -287,13 +287,13 @@ int pthread_barrierattr_getpshared(const pthread_barrierattr_t * attr, int * psh
  *   in memory shared by these processes.
  *
  *   NOTES:
- *           1)      pshared barriers MUST be allocated in shared memory.
- *           2)      The following macro is defined if shared barriers are supported: _POSIX_THREAD_PROCESS_SHARED
+ *     1)      pshared barriers MUST be allocated in shared memory.
+ *     2)      The following macro is defined if shared barriers are supported: _POSIX_THREAD_PROCESS_SHARED
  *
  * RESULTS
- *           0               successfully set attribute,
- *           EINVAL          'attr' or pshared is invalid,
- *           ENOSYS          PTHREAD_PROCESS_SHARED not supported,
+ *     0               successfully set attribute,
+ *     EINVAL          'attr' or pshared is invalid,
+ *     ENOSYS          PTHREAD_PROCESS_SHARED not supported,
  *
  * ------------------------------------------------------
  */

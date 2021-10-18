@@ -734,7 +734,7 @@ static DbqFuncTab * __GetRegFuncTab()
 	return p__inst;
 }
 
-/*static*/int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
+/*static*/int CDECL DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
 {
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -755,7 +755,7 @@ static DbqFuncTab * __GetRegFuncTab()
 	return ok;
 }
 
-/*static*/int SLAPIV DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, ...) // @cs
+/*static*/int CDECL DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, ...) // @cs
 {
 	int    func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -771,9 +771,10 @@ static DbqFuncTab * __GetRegFuncTab()
 	return func_id;
 }
 
-/*static*/int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
+/*static*/int CDECL DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
 {
-	int    ok = 0, func_id = 0;
+	int    ok = 0;
+	int    func_id = 0;
 	ENTER_CRITICAL_SECTION
 	DbqFuncTab * p_tab = __GetRegFuncTab();
 	if(p_tab) {
@@ -820,7 +821,7 @@ int DbqFuncTab::GetDynFuncId(int * pId)
 	return 0;
 }
 
-int SLAPIV DbqFuncTab::RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, ...)
+int CDECL DbqFuncTab::RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, ...)
 {
 	va_list param_list;
 	va_start(param_list, paramCount);

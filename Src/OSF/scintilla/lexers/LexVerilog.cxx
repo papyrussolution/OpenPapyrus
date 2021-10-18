@@ -219,7 +219,7 @@ public:
 	Sci_Position SCI_METHOD WordListSet(int n, const char* wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-	void* SCI_METHOD PrivateCall(int, void*)
+	void * SCI_METHOD PrivateCall(int, void*)
 	{
 		return 0;
 	}

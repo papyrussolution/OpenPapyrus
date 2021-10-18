@@ -607,7 +607,8 @@ ZIP_EXTERN zip_source_t * zip_source_win32w(zip_t * za, const wchar_t * fname, u
 
 static void * _win32_strdup_w(const void * str)
 {
-	return _wcsdup(static_cast<const wchar_t *>(str));
+	//return _wcsdup(static_cast<const wchar_t *>(str));
+	return sstrdup(static_cast<const wchar_t *>(str));
 }
 
 static HANDLE _win32_open_w(_zip_source_win32_read_file_t * ctx)

@@ -566,11 +566,11 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
  * @param[in]  hostname     The hostname to match the line to
  *
  * @param[in]  line         The line to compare and parse if we have a hostname
- *                          match.
+ *                    match.
  *
  * @param[in]  entry        A pointer to store the the allocated known_hosts
- *                          entry structure. The user needs to free the memory
- *                          using SSH_KNOWNHOSTS_ENTRY_FREE().
+ *                    entry structure. The user needs to free the memory
+ *                    using SSH_KNOWNHOSTS_ENTRY_FREE().
  *
  * @return SSH_OK on success, SSH_ERROR otherwise.
  */
@@ -826,8 +826,8 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
  * @param[in]  session  The session with information to export.
  *
  * @param[in]  pentry_string A pointer to a string to store the alloocated
- *                           line of the entry. The user must free it using
- *                           ssh_string_free_char().
+ *                     line of the entry. The user must free it using
+ *                     ssh_string_free_char().
  *
  * @return SSH_OK on succcess, SSH_ERROR otherwise.
  */
@@ -1003,19 +1003,19 @@ static enum ssh_known_hosts_e ssh_known_hosts_check_server_key(const char * host
  * @param[in]  pentry   A pointer to store the allocated known hosts entry.
  *
  * @returns SSH_KNOWN_HOSTS_OK:        The server is known and has not changed.\n
- *          SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
- *                                     are under attack or the administrator
- *                                     changed the key. You HAVE to warn the
- *                                     user about a possible attack.\n
- *          SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
- *                                     we had an other type recorded. It is a
- *                                     possible attack.\n
- *          SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
- *                                     confirm the public key hash is correct.\n
- *          SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
- *                                     host is thus unknown. File will be
- *                                     created if host key is accepted.\n
- *          SSH_KNOWN_HOSTS_ERROR:     There had been an eror checking the host.
+ *    SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
+ *                               are under attack or the administrator
+ *                               changed the key. You HAVE to warn the
+ *                               user about a possible attack.\n
+ *    SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
+ *                               we had an other type recorded. It is a
+ *                               possible attack.\n
+ *    SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
+ *                               confirm the public key hash is correct.\n
+ *    SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
+ *                               host is thus unknown. File will be
+ *                               created if host key is accepted.\n
+ *    SSH_KNOWN_HOSTS_ERROR:     There had been an eror checking the host.
  *
  * @see ssh_knownhosts_entry_free()
  */
@@ -1060,7 +1060,7 @@ enum ssh_known_hosts_e ssh_session_get_known_hosts_entry(ssh_session session,
 
 /**
  * @brief Get the known_hosts entry for the current connected session
- *        from the given known_hosts file.
+ *  from the given known_hosts file.
  *
  * @param[in]  session  The session to validate.
  *
@@ -1069,19 +1069,19 @@ enum ssh_known_hosts_e ssh_session_get_known_hosts_entry(ssh_session session,
  * @param[in]  pentry   A pointer to store the allocated known hosts entry.
  *
  * @returns SSH_KNOWN_HOSTS_OK:        The server is known and has not changed.\n
- *          SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
- *                                     are under attack or the administrator
- *                                     changed the key. You HAVE to warn the
- *                                     user about a possible attack.\n
- *          SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
- *                                     we had an other type recorded. It is a
- *                                     possible attack.\n
- *          SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
- *                                     confirm the public key hash is correct.\n
- *          SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
- *                                     host is thus unknown. File will be
- *                                     created if host key is accepted.\n
- *          SSH_KNOWN_HOSTS_ERROR:     There had been an eror checking the host.
+ *    SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
+ *                               are under attack or the administrator
+ *                               changed the key. You HAVE to warn the
+ *                               user about a possible attack.\n
+ *    SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
+ *                               we had an other type recorded. It is a
+ *                               possible attack.\n
+ *    SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
+ *                               confirm the public key hash is correct.\n
+ *    SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
+ *                               host is thus unknown. File will be
+ *                               created if host key is accepted.\n
+ *    SSH_KNOWN_HOSTS_ERROR:     There had been an eror checking the host.
  *
  * @see ssh_knownhosts_entry_free()
  */
@@ -1126,19 +1126,19 @@ enum ssh_known_hosts_e ssh_session_get_known_hosts_entry_file(ssh_session sessio
  * @param[in]  session  The SSH to validate.
  *
  * @returns SSH_KNOWN_HOSTS_OK:        The server is known and has not changed.\n
- *          SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
- *                                     are under attack or the administrator
- *                                     changed the key. You HAVE to warn the
- *                                     user about a possible attack.\n
- *          SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
- *                                     we had an other type recorded. It is a
- *                                     possible attack.\n
- *          SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
- *                                     confirm the public key hash is correct.\n
- *          SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
- *                                     host is thus unknown. File will be
- *                                     created if host key is accepted.\n
- *          SSH_KNOWN_HOSTS_ERROR:     There had been an error checking the host.
+ *    SSH_KNOWN_HOSTS_CHANGED:   The server key has changed. Either you
+ *                               are under attack or the administrator
+ *                               changed the key. You HAVE to warn the
+ *                               user about a possible attack.\n
+ *    SSH_KNOWN_HOSTS_OTHER:     The server gave use a key of a type while
+ *                               we had an other type recorded. It is a
+ *                               possible attack.\n
+ *    SSH_KNOWN_HOSTS_UNKNOWN:   The server is unknown. User should
+ *                               confirm the public key hash is correct.\n
+ *    SSH_KNOWN_HOSTS_NOT_FOUND: The known host file does not exist. The
+ *                               host is thus unknown. File will be
+ *                               created if host key is accepted.\n
+ *    SSH_KNOWN_HOSTS_ERROR:     There had been an error checking the host.
  */
 enum ssh_known_hosts_e ssh_session_is_known_server(ssh_session session){
 	return ssh_session_get_known_hosts_entry(session, NULL);

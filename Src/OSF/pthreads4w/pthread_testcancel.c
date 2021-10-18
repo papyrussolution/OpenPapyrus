@@ -46,10 +46,10 @@
  *
  *   NOTES:
  *   1)      Cancellation is asynchronous. Use pthread_join
- *           to wait for termination of thread if necessary
+ *     to wait for termination of thread if necessary
  *
  * RESULTS
- *           N/A
+ *     N/A
  *
  * ------------------------------------------------------
  */

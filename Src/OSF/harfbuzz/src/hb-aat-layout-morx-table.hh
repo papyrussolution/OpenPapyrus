@@ -92,7 +92,7 @@ namespace AAT {
 					 * and end-side. Values of 0,1,2 mean move that many
 					 * to the other side. Value of 3 means move 2 and
 					 * flip them. */
-					const unsigned char map[16] =
+					const uchar map[16] =
 					{
 						0x00, /* 0	no change */
 						0x10, /* 1	Ax => xA */
@@ -314,7 +314,7 @@ private:
 			unsigned int num_lookups = 0;
 
 			const Entry<EntryData> * entries = machine.get_entries();
-			for(unsigned int i = 0; i < num_entries; i++) {
+			for(uint i = 0; i < num_entries; i++) {
 				const EntryData &data = entries[i].data;
 
 				if(data.markIndex != 0xFFFF)
@@ -570,7 +570,7 @@ public:
 
 			hb_glyph_info_t * info = c->buffer->info;
 			unsigned int count = c->buffer->len;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				const HBGlyphID * replacement = substitute.get_value(info[i].codepoint, num_glyphs);
 				if(replacement) {
 					info[i].codepoint = *replacement;
@@ -699,7 +699,7 @@ public:
 					if(buffer->idx < buffer->len && !before)
 						buffer->copy_glyph();
 					/* TODO We ignore KashidaLike setting. */
-					for(unsigned int i = 0; i < count; i++)
+					for(uint i = 0; i < count; i++)
 						buffer->output_glyph(glyphs[i]);
 					if(buffer->idx < buffer->len && !before)
 						buffer->skip_glyph();
@@ -726,7 +726,7 @@ public:
 					if(buffer->idx < buffer->len && !before)
 						buffer->copy_glyph();
 					/* TODO We ignore KashidaLike setting. */
-					for(unsigned int i = 0; i < count; i++)
+					for(uint i = 0; i < count; i++)
 						buffer->output_glyph(glyphs[i]);
 					if(buffer->idx < buffer->len && !before)
 						buffer->skip_glyph();
@@ -886,7 +886,7 @@ public:
 protected:
 		HBUINT length;  /* Total subtable length, including this header. */
 		HBUINT coverage; /* Coverage flags and subtable type. */
-		HBUINT32 subFeatureFlags;/* The 32-bit mask identifying which subtable this is. */
+		HBUINT32 subFeatureFlags; /* The 32-bit mask identifying which subtable this is. */
 		union {
 			RearrangementSubtable<Types>  rearrangement;
 			ContextualSubtable<Types>     contextual;
@@ -910,9 +910,9 @@ public:
 				unsigned int count = featureCount;
 				for(unsigned i = 0; i < count; i++) {
 					const Feature &feature = featureZ[i];
-					hb_aat_layout_feature_type_t type = (hb_aat_layout_feature_type_t)(unsigned int)feature.featureType;
+					hb_aat_layout_feature_type_t type = (hb_aat_layout_feature_type_t)(uint)feature.featureType;
 					hb_aat_layout_feature_selector_t setting =
-					    (hb_aat_layout_feature_selector_t)(unsigned int)feature.featureSetting;
+					    (hb_aat_layout_feature_selector_t)(uint)feature.featureSetting;
 retry:
 					// Check whether this type/setting pair was requested in the map, and if so,
 					// apply its flags.
@@ -940,7 +940,7 @@ retry:
 		{
 			const ChainSubtable<Types> * subtable = &StructAfter<ChainSubtable<Types>> (featureZ.as_array(featureCount));
 			unsigned int count = subtableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				bool reverse;
 
 				if(!(subtable->subFeatureFlags & flags))
@@ -1021,7 +1021,7 @@ skip:
 
 			const ChainSubtable<Types> * subtable = &StructAfter<ChainSubtable<Types>> (featureZ.as_array(featureCount));
 			unsigned int count = subtableCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(!subtable->sanitize(c))
 					return_trace(false);
 				subtable = &StructAfter<ChainSubtable<Types>> (*subtable);
@@ -1036,7 +1036,7 @@ protected:
 		HBUINT featureCount; /* Number of feature subtable entries. */
 		HBUINT subtableCount; /* The number of subtables in the chain. */
 
-		UnsizedArrayOf<Feature>       featureZ;/* Features. */
+		UnsizedArrayOf<Feature>       featureZ; /* Features. */
 /*ChainSubtable	firstSubtable;*//* Subtables. */
 /*subtableGlyphCoverageArray*/	/* Only if version >= 3. We don't use. */
 
@@ -1057,7 +1057,7 @@ public:
 		{
 			const Chain<Types> * chain = &firstChain;
 			unsigned int count = chainCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				map->chain_flags.push(chain->compile_flags(mapper));
 				chain = &StructAfter<Chain<Types>> (*chain);
 			}
@@ -1069,7 +1069,7 @@ public:
 			c->set_lookup_index(0);
 			const Chain<Types> * chain = &firstChain;
 			unsigned int count = chainCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				chain->apply(c, c->plan->aat_map.chain_flags[i]);
 				if(UNLIKELY(!c->buffer->successful)) 
 					return;
@@ -1083,7 +1083,7 @@ public:
 				return_trace(false);
 			const Chain<Types> * chain = &firstChain;
 			unsigned int count = chainCount;
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint i = 0; i < count; i++) {
 				if(!chain->sanitize(c, version))
 					return_trace(false);
 				chain = &StructAfter<Chain<Types>> (*chain);
@@ -1095,7 +1095,7 @@ protected:
 		HBUINT16 version; /* Version number of the glyph metamorphosis table. 1, 2, or 3. */
 		HBUINT16 unused; /* Set to 0. */
 		HBUINT32 chainCount; /* Number of metamorphosis chains contained in this table. */
-		Chain<Types>  firstChain;/* Chains. */
+		Chain<Types>  firstChain; /* Chains. */
 public:
 		DEFINE_SIZE_MIN(8);
 	};

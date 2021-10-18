@@ -1067,8 +1067,8 @@ private:
 	DlScope * GetCurDialogScope();
 	int    GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);
 	int    Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
-	int    SLAPIV AddBOp(int op, uint implID, const char * pRetType, ...);
-	int    SLAPIV AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...);
+	int    CDECL AddBOp(int op, uint implID, const char * pRetType, ...);
+	int    CDECL AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...);
 	int    AddBCmpOps(uint implID, const char * pType);
 	int    AddBCvt(uint implID, int loss, const char * pRetType, const char * pSrcType);
 	int    FASTCALL BuiltinOp(const DlFunc * pF, SV_Uint32 *);

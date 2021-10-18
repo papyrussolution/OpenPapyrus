@@ -26,16 +26,16 @@
  * HASH_CTX
  *      context structure that at least contains following
  *      members:
- *              typedef struct {
- *                      ...
- *                      HASH_LONG       Nl,Nh;
- *                      either {
- *                      HASH_LONG       data[HASH_LBLOCK];
- *                      uchar   data[HASH_CBLOCK];
- *                      };
- *                      uint    num;
- *                      ...
- *                      } HASH_CTX;
+ *        typedef struct {
+ *                ...
+ *                HASH_LONG       Nl,Nh;
+ *                either {
+ *                HASH_LONG       data[HASH_LBLOCK];
+ *                uchar   data[HASH_CBLOCK];
+ *                };
+ *                uint    num;
+ *                ...
+ *                } HASH_CTX;
  *      data[] vector is expected to be zeroed upon first call to
  *      HASH_UPDATE.
  * HASH_UPDATE

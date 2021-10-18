@@ -257,7 +257,7 @@ LIBSSH_API int sftp_init(sftp_session sftp);
  * @param sftp          The sftp session where the error is saved.
  *
  * @return              The saved error (see server responses), < 0 if an error
- *                      in the function occured.
+ *                in the function occured.
  *
  * @see Server responses
  */
@@ -269,7 +269,7 @@ LIBSSH_API int sftp_get_error(sftp_session sftp);
  * @param  sftp         The sftp session to use.
  *
  * @return The count of extensions provided by the server, 0 on error or
- *         not available.
+ *   not available.
  */
 LIBSSH_API uint sftp_extensions_get_count(sftp_session sftp);
 
@@ -324,7 +324,7 @@ LIBSSH_API int sftp_extension_supported(sftp_session sftp, const char *name,
  * @param path          The path of the directory to open.
  *
  * @return              A sftp directory handle or NULL on error with ssh and
- *                      sftp error set.
+ *                sftp error set.
  *
  * @see                 sftp_readdir
  * @see                 sftp_closedir
@@ -338,7 +338,7 @@ LIBSSH_API sftp_dir sftp_opendir(sftp_session session, const char *path);
  * @param dir          The opened sftp directory handle to read from.
  *
  * @return             A file attribute structure or NULL at the end of the
- *                     directory.
+ *               directory.
  *
  * @see                sftp_opendir()
  * @see                sftp_attribute_free()
@@ -362,10 +362,10 @@ LIBSSH_API int sftp_dir_eof(sftp_dir dir);
  *
  * @param session       The sftp session handle.
  * @param path          The path to the file or directory to obtain the
- *                      information.
+ *                information.
  *
  * @return              The sftp attributes structure of the file or directory,
- *                      NULL on error with ssh and sftp error set.
+ *                NULL on error with ssh and sftp error set.
  *
  * @see sftp_get_error()
  */
@@ -379,10 +379,10 @@ LIBSSH_API sftp_attributes sftp_stat(sftp_session session, const char *path);
  *
  * @param session       The sftp session handle.
  * @param path          The path to the file or directory to obtain the
- *                      information.
+ *                information.
  *
  * @return              The sftp attributes structure of the file or directory,
- *                      NULL on error with ssh and sftp error set.
+ *                NULL on error with ssh and sftp error set.
  *
  * @see sftp_get_error()
  */
@@ -394,7 +394,7 @@ LIBSSH_API sftp_attributes sftp_lstat(sftp_session session, const char *path);
  * @param file          The sftp file handle to get the stat information.
  *
  * @return              The sftp attributes structure of the file or directory,
- *                      NULL on error with ssh and sftp error set.
+ *                NULL on error with ssh and sftp error set.
  *
  * @see sftp_get_error()
  */
@@ -435,23 +435,23 @@ LIBSSH_API int sftp_close(sftp_file file);
  * @param file          The file to be opened.
  *
  * @param accesstype    Is one of O_RDONLY, O_WRONLY or O_RDWR which request
- *                      opening  the  file  read-only,write-only or read/write.
- *                      Acesss may also be bitwise-or'd with one or  more of
- *                      the following:
- *                      O_CREAT - If the file does not exist it will be
- *                      created.
- *                      O_EXCL - When  used with O_CREAT, if the file already
- *                      exists it is an error and the open will fail.
- *                      O_TRUNC - If the file already exists it will be
- *                      truncated.
+ *                opening  the  file  read-only,write-only or read/write.
+ *                Acesss may also be bitwise-or'd with one or  more of
+ *                the following:
+ *                O_CREAT - If the file does not exist it will be
+ *                created.
+ *                O_EXCL - When  used with O_CREAT, if the file already
+ *                exists it is an error and the open will fail.
+ *                O_TRUNC - If the file already exists it will be
+ *                truncated.
  *
  * @param mode          Mode specifies the permissions to use if a new file is
- *                      created.  It  is  modified  by  the process's umask in
- *                      the usual way: The permissions of the created file are
- *                      (mode & ~umask)
+ *                created.  It  is  modified  by  the process's umask in
+ *                the usual way: The permissions of the created file are
+ *                (mode & ~umask)
  *
  * @return              A sftp file handle, NULL on error with ssh and sftp
- *                      error set.
+ *                error set.
  *
  * @see sftp_get_error()
  */
@@ -482,7 +482,7 @@ LIBSSH_API void sftp_file_set_blocking(sftp_file handle);
  * @param count         Size of the buffer in bytes.
  *
  * @return              Number of bytes written, < 0 on error with ssh and sftp
- *                      error set.
+ *                error set.
  *
  * @see sftp_get_error()
  */
@@ -505,16 +505,16 @@ LIBSSH_API ssize_t sftp_read(sftp_file file, void *buf, size_t count);
  * @param len           Size to read in bytes.
  *
  * @return              An identifier corresponding to the sent request, < 0 on
- *                      error.
+ *                error.
  *
  * @warning             When calling this function, the internal offset is
- *                      updated corresponding to the len parameter.
+ *                updated corresponding to the len parameter.
  *
  * @warning             A call to sftp_async_read_begin() sends a request to
- *                      the server. When the server answers, libssh allocates
- *                      memory to store it until sftp_async_read() is called.
- *                      Not calling sftp_async_read() will lead to memory
- *                      leaks.
+ *                the server. When the server answers, libssh allocates
+ *                memory to store it until sftp_async_read() is called.
+ *                Not calling sftp_async_read() will lead to memory
+ *                leaks.
  *
  * @see                 sftp_async_read()
  * @see                 sftp_open()
@@ -529,18 +529,18 @@ LIBSSH_API int sftp_async_read_begin(sftp_file file, uint32_t len);
  * @param data          Pointer to buffer to recieve read data.
  *
  * @param len           Size of the buffer in bytes. It should be bigger or
- *                      equal to the length parameter of the
- *                      sftp_async_read_begin() call.
+ *                equal to the length parameter of the
+ *                sftp_async_read_begin() call.
  *
  * @param id            The identifier returned by the sftp_async_read_begin()
- *                      function.
+ *                function.
  *
  * @return              Number of bytes read, 0 on EOF, SSH_ERROR if an error
- *                      occured, SSH_AGAIN if the file is opened in nonblocking
- *                      mode and the request hasn't been executed yet.
+ *                occured, SSH_AGAIN if the file is opened in nonblocking
+ *                mode and the request hasn't been executed yet.
  *
  * @warning             A call to this function with an invalid identifier
- *                      will never return.
+ *                will never return.
  *
  * @see sftp_async_read_begin()
  */
@@ -556,7 +556,7 @@ LIBSSH_API int sftp_async_read(sftp_file file, void *data, uint32_t len, uint32_
  * @param count         Size of buffer in bytes.
  *
  * @return              Number of bytes written, < 0 on error with ssh and sftp
- *                      error set.
+ *                error set.
  *
  * @see                 sftp_open()
  * @see                 sftp_read()
@@ -593,8 +593,8 @@ LIBSSH_API int sftp_seek64(sftp_file file, uint64_t new_offset);
  * @param file          Open sftp file handle.
  *
  * @return              The offset of the current byte relative to the beginning
- *                      of the file associated with the file descriptor. < 0 on
- *                      error.
+ *                of the file associated with the file descriptor. < 0 on
+ *                error.
  */
 LIBSSH_API ulong sftp_tell(sftp_file file);
 
@@ -604,8 +604,8 @@ LIBSSH_API ulong sftp_tell(sftp_file file);
  * @param file          Open sftp file handle.
  *
  * @return              The offset of the current byte relative to the beginning
- *                      of the file associated with the file descriptor. < 0 on
- *                      error.
+ *                of the file associated with the file descriptor. < 0 on
+ *                error.
  */
 LIBSSH_API uint64_t sftp_tell64(sftp_file file);
 
@@ -651,8 +651,8 @@ LIBSSH_API int sftp_rmdir(sftp_session sftp, const char *directory);
  * @param directory     The directory to create.
  *
  * @param mode          Specifies the permissions to use. It is modified by the
- *                      process's umask in the usual way:
- *                      The permissions of the created file are (mode & ~umask)
+ *                process's umask in the usual way:
+ *                The permissions of the created file are (mode & ~umask)
  *
  * @return              0 on success, < 0 on error with ssh and sftp error set.
  *
@@ -666,10 +666,10 @@ LIBSSH_API int sftp_mkdir(sftp_session sftp, const char *directory, mode_t mode)
  * @param sftp          The sftp session handle.
  *
  * @param original      The original url (source url) of file or directory to
- *                      be moved.
+ *                be moved.
  *
  * @param newname       The new url (destination url) of the file or directory
- *                      after the move.
+ *                after the move.
  *
  * @return              0 on success, < 0 on error with ssh and sftp error set.
  *
@@ -685,7 +685,7 @@ LIBSSH_API int sftp_rename(sftp_session sftp, const char *original, const  char 
  * @param file          The file which attributes should be changed.
  *
  * @param attr          The file attributes structure with the attributes set
- *                      which should be changed.
+ *                which should be changed.
  *
  * @return              0 on success, < 0 on error with ssh and sftp error set.
  *
@@ -718,8 +718,8 @@ LIBSSH_API int sftp_chown(sftp_session sftp, const char *file, uid_t owner, gid_
  * @param file          The file which owner and group should be changed.
  *
  * @param mode          Specifies the permissions to use. It is modified by the
- *                      process's umask in the usual way:
- *                      The permissions of the created file are (mode & ~umask)
+ *                process's umask in the usual way:
+ *                The permissions of the created file are (mode & ~umask)
  *
  * @return              0 on success, < 0 on error with ssh and sftp error set.
  *
@@ -735,7 +735,7 @@ LIBSSH_API int sftp_chmod(sftp_session sftp, const char *file, mode_t mode);
  * @param file          The file which owner and group should be changed.
  *
  * @param times         A timeval structure which contains the desired access
- *                      and modification time.
+ *                and modification time.
  *
  * @return              0 on success, < 0 on error with ssh and sftp error set.
  *
@@ -826,8 +826,8 @@ LIBSSH_API int sftp_fsync(sftp_file file);
  * @param path          The path to be canonicalized.
  *
  * @return              A pointer to the newly allocated canonicalized path,
- *                      NULL on error. The caller needs to free the memory
- *                      using ssh_string_free_char().
+ *                NULL on error. The caller needs to free the memory
+ *                using ssh_string_free_char().
  */
 LIBSSH_API char *sftp_canonicalize_path(sftp_session sftp, const char *path);
 

@@ -89,38 +89,38 @@ void ma_hash_password(ulong * result, const char * password, size_t len)
  * written by Andrey Hristov (andrey@php.net)
  * License: PHP License 3.0
  */
-void my_crypt(unsigned char * buffer, const unsigned char * s1, const unsigned char * s2, size_t len)
+void my_crypt(uchar * buffer, const uchar * s1, const uchar * s2, size_t len)
 {
-	const unsigned char * s1_end = s1 + len;
+	const uchar * s1_end = s1 + len;
 	while(s1 < s1_end) {
 		*buffer++ = *s1++ ^ *s2++;
 	}
 }
 
-void ma_scramble_41(const unsigned char * buffer, const char * scramble, const char * password)
+void ma_scramble_41(const uchar * buffer, const char * scramble, const char * password)
 {
 	_MA_SHA1_CTX context;
-	unsigned char sha1[SHA1_MAX_LENGTH];
-	unsigned char sha2[SHA1_MAX_LENGTH];
+	uchar sha1[SHA1_MAX_LENGTH];
+	uchar sha2[SHA1_MAX_LENGTH];
 
 	/* Phase 1: hash password */
 	ma_SHA1Init(&context);
-	ma_SHA1Update(&context, (unsigned char *)password, strlen((char *)password));
+	ma_SHA1Update(&context, (uchar *)password, strlen((char *)password));
 	ma_SHA1Final(sha1, &context);
 
 	/* Phase 2: hash sha1 */
 	ma_SHA1Init(&context);
-	ma_SHA1Update(&context, (unsigned char *)sha1, SHA1_MAX_LENGTH);
+	ma_SHA1Update(&context, (uchar *)sha1, SHA1_MAX_LENGTH);
 	ma_SHA1Final(sha2, &context);
 
 	/* Phase 3: hash scramble + sha2 */
 	ma_SHA1Init(&context);
-	ma_SHA1Update(&context, (unsigned char *)scramble, SCRAMBLE_LENGTH);
-	ma_SHA1Update(&context, (unsigned char *)sha2, SHA1_MAX_LENGTH);
-	ma_SHA1Final((unsigned char *)buffer, &context);
+	ma_SHA1Update(&context, (uchar *)scramble, SCRAMBLE_LENGTH);
+	ma_SHA1Update(&context, (uchar *)sha2, SHA1_MAX_LENGTH);
+	ma_SHA1Final((uchar *)buffer, &context);
 
 	/* let's crypt buffer now */
-	my_crypt((uchar *)buffer, (const unsigned char*)buffer, (const unsigned char*)sha1, SHA1_MAX_LENGTH);
+	my_crypt((uchar *)buffer, (const uchar *)buffer, (const uchar *)sha1, SHA1_MAX_LENGTH);
 }
 
 /* }}} */

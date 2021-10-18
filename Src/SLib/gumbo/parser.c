@@ -115,8 +115,8 @@ static GumboInsertionMode get_current_template_insertion_mode(const GumboParser*
 static bool handle_in_template(GumboParser*, GumboToken*);
 static void FASTCALL destroy_node(GumboNode * pNode);
 
-//static void * malloc_wrapper(void* unused, size_t size) { return malloc(size); }
-//static void free_wrapper(void* unused, void* ptr) { free(ptr); }
+//static void * malloc_wrapper(void * unused, size_t size) { return malloc(size); }
+//static void free_wrapper(void * unused, void * ptr) { free(ptr); }
 const GumboOptions kGumboDefaultOptions = { /*&malloc_wrapper, &free_wrapper,*/ NULL, 8, false, -1, GUMBO_TAG_LAST, GUMBO_NAMESPACE_HTML};
 
 static const GumboStringPiece kDoctypeHtml = GUMBO_STRING("html");
@@ -1740,8 +1740,7 @@ static void adjust_mathml_attributes(GumboParser * parser, GumboToken* token)
 	}
 }
 
-static bool doctype_matches(const GumboTokenDocType* doctype,
-    const GumboStringPiece* public_id, const GumboStringPiece* system_id, bool allow_missing_system_id) 
+static bool STDCALL doctype_matches(const GumboTokenDocType* doctype, const GumboStringPiece* public_id, const GumboStringPiece* system_id, bool allow_missing_system_id) 
 {
 	return sstreq(doctype->public_identifier, public_id->data) && (allow_missing_system_id || doctype->has_system_identifier) &&
 	       sstreq(doctype->system_identifier, system_id->data);
@@ -1868,13 +1867,11 @@ static bool adoption_agency_algorithm(GumboParser * parser, GumboToken* token, G
 		}
 		assert(!node_html_tag_is(furthest_block, GUMBO_TAG_HTML));
 		assert(furthest_block);
-
 		// Step 11.
 		// Elements may be moved and reparented by this algorithm, so
 		// common_ancestor is not necessarily the same as formatting_node->parent.
 		GumboNode * common_ancestor = static_cast<GumboNode *>(state->_open_elements.data[gumbo_vector_index_of(&state->_open_elements, formatting_node) - 1]);
-		gumbo_debug("Common ancestor tag = %s, furthest block tag = %s.\n",
-		    gumbo_normalized_tagname(common_ancestor->v.element.tag), gumbo_normalized_tagname(furthest_block->v.element.tag));
+		gumbo_debug("Common ancestor tag = %s, furthest block tag = %s.\n", gumbo_normalized_tagname(common_ancestor->v.element.tag), gumbo_normalized_tagname(furthest_block->v.element.tag));
 		// Step 12.
 		int bookmark = gumbo_vector_index_of(&state->_active_formatting_elements, formatting_node) + 1;
 		gumbo_debug("Bookmark at %d.\n", bookmark);

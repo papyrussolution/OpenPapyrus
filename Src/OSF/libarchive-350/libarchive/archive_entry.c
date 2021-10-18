@@ -93,7 +93,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
  * This adjustment is needed to support the following idiom for adding
  * 1000ns to the stored time:
  * archive_entry_set_atime(archive_entry_atime(),
- *                         archive_entry_atime_nsec() + 1000)
+ *                   archive_entry_atime_nsec() + 1000)
  * The additional if() here compensates for ambiguity in the C standard,
  * which permits two possible interpretations of a % b when a is negative.
  */
@@ -155,7 +155,7 @@ struct archive_entry * archive_entry_clear(struct archive_entry * entry)        
 	archive_acl_clear(&entry->acl);
 	archive_entry_xattr_clear(entry);
 	archive_entry_sparse_clear(entry);
-	free(entry->stat);
+	SAlloc::F(entry->stat);
 	entry->ae_symlink_type = AE_SYMLINK_TYPE_UNDEFINED;
 	memzero(entry, sizeof(*entry));
 	return entry;
@@ -237,7 +237,7 @@ struct archive_entry * archive_entry_clone(struct archive_entry * entry)
 void archive_entry_free(struct archive_entry * entry)
 {
 	archive_entry_clear(entry);
-	free(entry);
+	SAlloc::F(entry);
 }
 
 struct archive_entry * archive_entry_new(void)                       {
@@ -247,7 +247,7 @@ struct archive_entry * archive_entry_new(void)                       {
 struct archive_entry * archive_entry_new2(struct archive * a)                        {
 	struct archive_entry * entry;
 
-	entry = (struct archive_entry *)calloc(1, sizeof(*entry));
+	entry = (struct archive_entry *)SAlloc::C(1, sizeof(*entry));
 	if(entry == NULL)
 		return NULL;
 	entry->archive = a;
@@ -371,7 +371,7 @@ const char * archive_entry_fflags_text(struct archive_entry * entry)
 	if(!p)
 		return NULL;
 	archive_mstring_copy_mbs(&entry->ae_fflags_text, p);
-	free(p);
+	SAlloc::F(p);
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_fflags_text, &f) == 0)
 		return (f);
 	if(errno == ENOMEM)
@@ -1256,14 +1256,14 @@ const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s
 void archive_entry_copy_mac_metadata(struct archive_entry * entry,
     const void * p, size_t s)
 {
-	free(entry->mac_metadata);
+	SAlloc::F(entry->mac_metadata);
 	if(p == NULL || s == 0) {
 		entry->mac_metadata = NULL;
 		entry->mac_metadata_size = 0;
 	}
 	else {
 		entry->mac_metadata_size = s;
-		entry->mac_metadata = malloc(s);
+		entry->mac_metadata = SAlloc::M(s);
 		if(entry->mac_metadata == NULL)
 			abort();
 		memcpy(entry->mac_metadata, p, s);
@@ -1271,7 +1271,7 @@ void archive_entry_copy_mac_metadata(struct archive_entry * entry,
 }
 
 /* Digest handling */
-const unsigned char * archive_entry_digest(struct archive_entry * entry, int type)
+const uchar * archive_entry_digest(struct archive_entry * entry, int type)
 {
 	switch(type) {
 		case ARCHIVE_ENTRY_DIGEST_MD5:
@@ -1292,7 +1292,7 @@ const unsigned char * archive_entry_digest(struct archive_entry * entry, int typ
 }
 
 int archive_entry_set_digest(struct archive_entry * entry, int type,
-    const unsigned char * digest)
+    const uchar * digest)
 {
 #define copy_digest(_e, _t, _d) \
 	memcpy(_e->digest._t, _d, sizeof(_e->digest._t))
@@ -1461,7 +1461,7 @@ static int archive_entry_acl_text_compat(int * flags)
 /* Deprecated */
 const wchar_t * archive_entry_acl_text_w(struct archive_entry * entry, int flags)
 {
-	free(entry->acl.acl_text_w);
+	SAlloc::F(entry->acl.acl_text_w);
 	entry->acl.acl_text_w = NULL;
 	if(archive_entry_acl_text_compat(&flags) == 0)
 		entry->acl.acl_text_w = archive_acl_to_text_w(&entry->acl,
@@ -1472,7 +1472,7 @@ const wchar_t * archive_entry_acl_text_w(struct archive_entry * entry, int flags
 /* Deprecated */
 const char * archive_entry_acl_text(struct archive_entry * entry, int flags)
 {
-	free(entry->acl.acl_text);
+	SAlloc::F(entry->acl.acl_text);
 	entry->acl.acl_text = NULL;
 	if(archive_entry_acl_text_compat(&flags) == 0)
 		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, NULL,
@@ -1485,7 +1485,7 @@ const char * archive_entry_acl_text(struct archive_entry * entry, int flags)
 int _archive_entry_acl_text_l(struct archive_entry * entry, int flags,
     const char ** acl_text, size_t * len, struct archive_string_conv * sc)
 {
-	free(entry->acl.acl_text);
+	SAlloc::F(entry->acl.acl_text);
 	entry->acl.acl_text = NULL;
 
 	if(archive_entry_acl_text_compat(&flags) == 0)
@@ -1765,7 +1765,7 @@ static char * ae_fflagstostr(unsigned long bitset, unsigned long bitclear)
 
 	if(length == 0)
 		return NULL;
-	string = (char *)malloc(length);
+	string = (char *)SAlloc::M(length);
 	if(string == NULL)
 		return NULL;
 

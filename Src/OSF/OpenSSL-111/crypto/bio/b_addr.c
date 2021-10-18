@@ -609,9 +609,9 @@ int BIO_lookup(const char * host, const char * service,
  * @socktype: The socket type you want to use.  Can be SOCK_STREAM, SOCK_DGRAM
  *  or 0 for all.
  * @protocol: The protocol to use, e.g. IPPROTO_TCP or IPPROTO_UDP or 0 for all.
- *            Note that some platforms may not return IPPROTO_SCTP without
- *            explicitly requesting it (i.e. IPPROTO_SCTP may not be returned
- *            with 0 for the protocol)
+ *      Note that some platforms may not return IPPROTO_SCTP without
+ *      explicitly requesting it (i.e. IPPROTO_SCTP may not be returned
+ *      with 0 for the protocol)
  * @res: Storage place for the resulting list of returned addresses
  *
  * This will do a lookup of the node and service that you want to connect to.

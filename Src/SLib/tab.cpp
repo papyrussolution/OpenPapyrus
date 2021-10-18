@@ -1,10 +1,10 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb)
+int STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb)
 {
 	rSymb.Z();
 	int    ok = 0;
@@ -17,7 +17,7 @@ int FASTCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSi
 	return ok;
 }
 
-const char * FASTCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
+const char * STDCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
 {
 	const char * ptr = 0;
 	for(uint i = 0; i < tabSize; i++) {
@@ -29,7 +29,7 @@ const char * FASTCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, 
 	return ptr;
 }
 
-bool FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
+bool STDCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id)
 {
 	bool   yes = 0;
 	for(uint i = 0; !yes && i < tabSize; i++) {
@@ -39,7 +39,7 @@ bool FASTCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSiz
 	return yes;
 }
 
-int FASTCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
+int STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
 {
 	if(!isempty(pSymb)) {
 		for(uint i = 0; i < tabSize; i++) {

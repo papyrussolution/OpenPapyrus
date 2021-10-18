@@ -127,9 +127,9 @@ FT_BEGIN_HEADER
 
 #endif /* !C++ */
 
-/*************************************************************************/
+// 
 /*****         S E R V I C E   D E S C R I P T O R S                 *****/
-/*************************************************************************/
+// 
 
 /*
  * The following structure is used to _describe_ a given service to the
@@ -137,7 +137,7 @@ FT_BEGIN_HEADER
  */
 typedef struct  FT_ServiceDescRec_ {
 	const char*  serv_id; /* service name         */
-	const void*  serv_data;/* service pointer/data */
+	const void *  serv_data; /* service pointer/data */
 } FT_ServiceDescRec;
 
 typedef const FT_ServiceDescRec*  FT_ServiceDesc;
@@ -345,9 +345,9 @@ FT_BASE(FT_Pointer)
 ft_service_list_lookup(FT_ServiceDesc service_descriptors,
     const char*     service_id);
 
-/*************************************************************************/
+// 
 /*****             S E R V I C E S   C A C H E                       *****/
-/*************************************************************************/
+// 
 
 /*
  * This structure is used to store a cache for several frequently used

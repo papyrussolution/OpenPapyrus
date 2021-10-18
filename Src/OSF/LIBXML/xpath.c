@@ -8736,7 +8736,7 @@ encoding_error:
  * [NS 3] NCName ::= (Letter | '_') (NCNameChar)*
  *
  * [NS 4] NCNameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                  CombiningChar | Extender
+ *            CombiningChar | Extender
  *
  * Returns the namespace name or NULL
  */
@@ -8801,7 +8801,7 @@ static xmlChar * xmlXPathParseQName(xmlXPathParserContext * ctxt, xmlChar ** pre
  * parse an XML name
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *             CombiningChar | Extender
+ *       CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -8910,7 +8910,7 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContext * ctxt, int qual
  *  [30a]  Float  ::= Number ('e' Digits?)?
  *
  *  [30]   Number ::=   Digits ('.' Digits?)?
- *               | '.' Digits
+ *         | '.' Digits
  *  [31]   Digits ::=   [0-9]+
  *
  * Compile a Number in the string
@@ -9099,7 +9099,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
  * Parse a Literal
  *
  *  [29]   Literal ::=   '"' [^"]* '"'
- *               | "'" [^']* "'"
+ *         | "'" [^']* "'"
  *
  * Returns the value found or NULL in case of error
  */
@@ -9146,7 +9146,7 @@ static xmlChar * xmlXPathParseLiteral(xmlXPathParserContext * ctxt)
  * Parse a Literal and push it on the stack.
  *
  *  [29]   Literal ::=   '"' [^"]* '"'
- *               | "'" [^']* "'"
+ *         | "'" [^']* "'"
  *
  * @todo xmlXPathCompLiteral memory allocation could be improved.
  */
@@ -9234,9 +9234,9 @@ static void xmlXPathCompVariableReference(xmlXPathParserContext * ctxt)
  * Is the name given a NodeType one.
  *
  *  [38]   NodeType ::=   'comment'
- *               | 'text'
- *               | 'processing-instruction'
- *               | 'node'
+ *         | 'text'
+ *         | 'processing-instruction'
+ *         | 'node'
  *
  * Returns 1 if true 0 otherwise
  */
@@ -9325,10 +9325,10 @@ static void xmlXPathCompFunctionCall(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [15]   PrimaryExpr ::=   VariableReference
- *           | '(' Expr ')'
- *           | Literal
- *           | Number
- *           | FunctionCall
+ *     | '(' Expr ')'
+ *     | Literal
+ *     | Number
+ *     | FunctionCall
  *
  * Compile a primary expression.
  */
@@ -9364,7 +9364,7 @@ static void xmlXPathCompPrimaryExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [20]   FilterExpr ::=   PrimaryExpr
- *          | FilterExpr Predicate
+ *    | FilterExpr Predicate
  *
  * Compile a filter expression.
  * Square brackets are used to filter expressions in the same way that
@@ -9393,7 +9393,7 @@ static void xmlXPathCompFilterExpr(xmlXPathParserContext * ctxt) {
  * Needed to avoid insanity in the parser state.
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
- *             CombiningChar | Extender
+ *       CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -9437,9 +9437,9 @@ static xmlChar * xmlXPathScanName(xmlXPathParserContext * ctxt) {
  * @ctxt:  the XPath Parser context
  *
  *  [19]   PathExpr ::=   LocationPath
- *          | FilterExpr
- *          | FilterExpr '/' RelativeLocationPath
- *          | FilterExpr '//' RelativeLocationPath
+ *    | FilterExpr
+ *    | FilterExpr '/' RelativeLocationPath
+ *    | FilterExpr '//' RelativeLocationPath
  *
  * Compile a path expression.
  * The / operator and // operators combine an arbitrary expression
@@ -9598,7 +9598,7 @@ static void xmlXPathCompPathExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [18]   UnionExpr ::=   PathExpr
- *          | UnionExpr '|' PathExpr
+ *    | UnionExpr '|' PathExpr
  *
  * Compile an union expression.
  */
@@ -9623,7 +9623,7 @@ static void xmlXPathCompUnionExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [27]   UnaryExpr ::=   UnionExpr
- *              | '-' UnaryExpr
+ *        | '-' UnaryExpr
  *
  * Compile an unary expression.
  */
@@ -9653,9 +9653,9 @@ static void xmlXPathCompUnaryExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [26]   MultiplicativeExpr ::=   UnaryExpr
- *              | MultiplicativeExpr MultiplyOperator UnaryExpr
- *              | MultiplicativeExpr 'div' UnaryExpr
- *              | MultiplicativeExpr 'mod' UnaryExpr
+ *        | MultiplicativeExpr MultiplyOperator UnaryExpr
+ *        | MultiplicativeExpr 'div' UnaryExpr
+ *        | MultiplicativeExpr 'mod' UnaryExpr
  *  [34]   MultiplyOperator ::=   '*'
  *
  * Compile an Additive expression.
@@ -9692,8 +9692,8 @@ static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [25]   AdditiveExpr ::=   MultiplicativeExpr
- *              | AdditiveExpr '+' MultiplicativeExpr
- *              | AdditiveExpr '-' MultiplicativeExpr
+ *        | AdditiveExpr '+' MultiplicativeExpr
+ *        | AdditiveExpr '-' MultiplicativeExpr
  *
  * Compile an Additive expression.
  */
@@ -9722,10 +9722,10 @@ static void xmlXPathCompAdditiveExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [24]   RelationalExpr ::=   AdditiveExpr
- *            | RelationalExpr '<' AdditiveExpr
- *            | RelationalExpr '>' AdditiveExpr
- *            | RelationalExpr '<=' AdditiveExpr
- *            | RelationalExpr '>=' AdditiveExpr
+ *      | RelationalExpr '<' AdditiveExpr
+ *      | RelationalExpr '>' AdditiveExpr
+ *      | RelationalExpr '<=' AdditiveExpr
+ *      | RelationalExpr '>=' AdditiveExpr
  *
  *  A <= B > C is allowed ? Answer from James, yes with
  *  (AdditiveExpr <= AdditiveExpr) > AdditiveExpr
@@ -9765,8 +9765,8 @@ static void xmlXPathCompRelationalExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [23]   EqualityExpr ::=   RelationalExpr
- *            | EqualityExpr '=' RelationalExpr
- *            | EqualityExpr '!=' RelationalExpr
+ *      | EqualityExpr '=' RelationalExpr
+ *      | EqualityExpr '!=' RelationalExpr
  *
  *  A != B != C is allowed ? Answer from James, yes with
  *  (RelationalExpr = RelationalExpr) = RelationalExpr
@@ -9803,7 +9803,7 @@ static void xmlXPathCompEqualityExpr(xmlXPathParserContext * ctxt)
  * @ctxt:  the XPath Parser context
  *
  *  [22]   AndExpr ::=   EqualityExpr
- *            | AndExpr 'and' EqualityExpr
+ *      | AndExpr 'and' EqualityExpr
  *
  * Compile an AND expression.
  *
@@ -9829,7 +9829,7 @@ static void xmlXPathCompAndExpr(xmlXPathParserContext * ctxt)
  *
  *  [14]   Expr ::=   OrExpr
  *  [21]   OrExpr ::=   AndExpr
- *            | OrExpr 'or' AndExpr
+ *      | OrExpr 'or' AndExpr
  *
  * Parse and compile an expression
  */
@@ -10039,18 +10039,18 @@ static xmlChar * xmlXPathCompNodeTest(xmlXPathParserContext * ctxt, xmlXPathTest
  * @name:  a preparsed name token
  *
  * [6] AxisName ::=   'ancestor'
- *             | 'ancestor-or-self'
- *             | 'attribute'
- *             | 'child'
- *             | 'descendant'
- *             | 'descendant-or-self'
- *             | 'following'
- *             | 'following-sibling'
- *             | 'namespace'
- *             | 'parent'
- *             | 'preceding'
- *             | 'preceding-sibling'
- *             | 'self'
+ *       | 'ancestor-or-self'
+ *       | 'attribute'
+ *       | 'child'
+ *       | 'descendant'
+ *       | 'descendant-or-self'
+ *       | 'following'
+ *       | 'following-sibling'
+ *       | 'namespace'
+ *       | 'parent'
+ *       | 'preceding'
+ *       | 'preceding-sibling'
+ *       | 'self'
  *
  * Returns the axis or 0
  */
@@ -10106,20 +10106,20 @@ static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name)
  * @ctxt:  the XPath Parser context
  *
  * [4] Step ::=   AxisSpecifier NodeTest Predicate*
- *             | AbbreviatedStep
+ *       | AbbreviatedStep
  *
  * [12] AbbreviatedStep ::=   '.' | '..'
  *
  * [5] AxisSpecifier ::= AxisName '::'
- *             | AbbreviatedAxisSpecifier
+ *       | AbbreviatedAxisSpecifier
  *
  * [13] AbbreviatedAxisSpecifier ::= '@'?
  *
  * Modified for XPtr range support as:
  *
  *  [4xptr] Step ::= AxisSpecifier NodeTest Predicate*
- *                | AbbreviatedStep
- *                | 'range-to' '(' Expr ')' Predicate*
+ *          | AbbreviatedStep
+ *          | 'range-to' '(' Expr ')' Predicate*
  *
  * Compile one step in a Location Path
  * A location step of . is short for self::node(). This is
@@ -10277,8 +10277,8 @@ eval_predicates:
  * @ctxt:  the XPath Parser context
  *
  *  [3]   RelativeLocationPath ::=   Step
- *                | RelativeLocationPath '/' Step
- *                | AbbreviatedRelativeLocationPath
+ *          | RelativeLocationPath '/' Step
+ *          | AbbreviatedRelativeLocationPath
  *  [11]  AbbreviatedRelativeLocationPath ::=   RelativeLocationPath '//' Step
  *
  * Compile a relative location path.
@@ -10320,11 +10320,11 @@ static void xmlXPathCompRelativeLocationPath(xmlXPathParserContext * ctxt) {
  * @ctxt:  the XPath Parser context
  *
  *  [1]   LocationPath ::=   RelativeLocationPath
- *                | AbsoluteLocationPath
+ *          | AbsoluteLocationPath
  *  [2]   AbsoluteLocationPath ::=   '/' RelativeLocationPath?
- *                | AbbreviatedAbsoluteLocationPath
+ *          | AbbreviatedAbsoluteLocationPath
  *  [10]   AbbreviatedAbsoluteLocationPath ::=
- *                      '//' RelativeLocationPath
+ *                '//' RelativeLocationPath
  *
  * Compile a location path
  *

@@ -919,7 +919,7 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	bool is_class_ctx = context_object->IsClass();
 	// create new function object
 	uint16 nparams = (node->params) ? (uint16)node->params->getCount() : 0;
-	gravity_function_t * f = gravity_function_new((is_class_ctx) ? NULL : GET_VM(), node->identifier, nparams, node->nlocals, 0, (void*)ircode_create(node->nlocals+nparams));
+	gravity_function_t * f = gravity_function_new((is_class_ctx) ? NULL : GET_VM(), node->identifier, nparams, node->nlocals, 0, (void *)ircode_create(node->nlocals+nparams));
 	// check if f is a special constructor function (init)
 	// name must be CLASS_CONSTRUCTOR_NAME and context_object must be a class
 	bool is_constructor = (sstreq(node->identifier, CLASS_CONSTRUCTOR_NAME) && is_class_ctx);
@@ -1168,7 +1168,7 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 				// superclass has not yet processed so we need recheck the node at the end of the visit
 				// add node to superfix for later processing
 				codegen_t * data = (codegen_t *)self->data;
-				node->data = (void*)c;
+				node->data = (void *)c;
 				data->superfix.insert(node);
 			}
 		}
@@ -1185,7 +1185,7 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	// save runtime representation
 	// since this class could be a superclass of another class
 	// then save opaque gravity_class_t pointer to node->data
-	node->data = (void*)c;
+	node->data = (void *)c;
 }
 
 static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node) 
@@ -1932,7 +1932,7 @@ gravity_function_t * gravity_codegen(gnode_t * node, gravity_delegate_t * delega
 		.nerr = 0,              // used for internal codegen errors
 		.data = &data,          // used to store a pointer to codegen struct
 		.bflag = add_debug,     // flag used to decide if bytecode must include debug info
-		.delegate = (void*)delegate, // compiler delegate to report errors
+		.delegate = (void *)delegate, // compiler delegate to report errors
 
 		// COMMON
 		.visit_pre = NULL,

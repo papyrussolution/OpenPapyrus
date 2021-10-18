@@ -22,7 +22,7 @@ typedef struct {
 } OnigPairCaseFoldCodes;
 
 //#ifndef NULL
-	//#define NULL   ((void*)0)
+	//#define NULL   ((void *)0)
 //#endif
 //#ifndef TRUE
 //#define TRUE    1
@@ -37,8 +37,8 @@ typedef struct {
 		#define ARG_UNUSED
 	#endif
 #endif
-#define ONIG_IS_NULL(p)                    (((void*)(p)) == (void*)0)
-#define ONIG_IS_NOT_NULL(p)                (((void*)(p)) != (void*)0)
+#define ONIG_IS_NULL(p)                    (((void *)(p)) == (void *)0)
+#define ONIG_IS_NOT_NULL(p)                (((void *)(p)) != (void *)0)
 #define ONIG_CHECK_NULL_RETURN(p)          if(ONIG_IS_NULL(p)) return NULL
 #define ONIG_CHECK_NULL_RETURN_VAL(p, val)  if(ONIG_IS_NULL(p)) return (val)
 
@@ -105,10 +105,10 @@ struct PropertyNameCtype {
 
 /* for encoding system implementation (internal) */
 extern int onigenc_end(void);
-extern int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+extern int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg);
 extern int onigenc_ascii_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
 extern int onigenc_apply_all_case_fold_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
-    OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+    OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg);
 extern int onigenc_get_case_fold_codes_by_str_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag,
     OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
 extern int onigenc_not_support_get_ctype_code_range(OnigCtype ctype, OnigCodePoint* sb_out, const OnigCodePoint* ranges[]);
@@ -145,7 +145,7 @@ extern int onigenc_utf16_32_get_ctype_code_range(OnigCtype ctype, OnigCodePoint 
 extern int onigenc_unicode_ctype_code_range(OnigCtype ctype, const OnigCodePoint* ranges[]);
 extern int onigenc_unicode_get_case_fold_codes_by_str(OnigEncoding enc, OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[]);
 extern int onigenc_unicode_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag, const uchar **pp, const uchar * end, uchar * fold);
-extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg);
+extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg);
 extern int onigenc_egcb_is_break_position(OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end);
 #ifdef USE_UNICODE_WORD_BREAK
 	extern int onigenc_wb_is_break_position(OnigEncoding enc, uchar * p, uchar * prev, const uchar * start, const uchar * end);

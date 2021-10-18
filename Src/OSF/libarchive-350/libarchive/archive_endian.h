@@ -72,7 +72,7 @@ archive_be16dec(const void *pp)
 	return ((p0 << 8) | p1);
 }
 
-static inline uint32_t
+static inline uint32
 archive_be32dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
@@ -87,10 +87,10 @@ archive_be32dec(const void *pp)
 	return ((p0 << 24) | (p1 << 16) | (p2 << 8) | p3);
 }
 
-static inline uint64_t archive_be64dec(const void *pp)
+static inline uint64 archive_be64dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-	return (((uint64_t)archive_be32dec(p) << 32) | archive_be32dec(p + 4));
+	return (((uint64)archive_be32dec(p) << 32) | archive_be32dec(p + 4));
 }
 
 static inline uint16_t archive_le16dec(const void *pp)
@@ -104,7 +104,7 @@ static inline uint16_t archive_le16dec(const void *pp)
 	return ((p1 << 8) | p0);
 }
 
-static inline uint32_t archive_le32dec(const void *pp)
+static inline uint32 archive_le32dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
 	/* Store into unsigned temporaries before left shifting, to avoid
@@ -117,10 +117,10 @@ static inline uint32_t archive_le32dec(const void *pp)
 	return ((p3 << 24) | (p2 << 16) | (p1 << 8) | p0);
 }
 
-static inline uint64_t archive_le64dec(const void *pp)
+static inline uint64 archive_le64dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-	return (((uint64_t)archive_le32dec(p + 4) << 32) | archive_le32dec(p));
+	return (((uint64)archive_le32dec(p + 4) << 32) | archive_le32dec(p));
 }
 
 static inline void archive_be16enc(void *pp, uint16_t u)
@@ -130,7 +130,7 @@ static inline void archive_be16enc(void *pp, uint16_t u)
 	p[1] = u & 0xff;
 }
 
-static inline void archive_be32enc(void *pp, uint32_t u)
+static inline void archive_be32enc(void *pp, uint32 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
 	p[0] = (u >> 24) & 0xff;
@@ -139,11 +139,11 @@ static inline void archive_be32enc(void *pp, uint32_t u)
 	p[3] = u & 0xff;
 }
 
-static inline void archive_be64enc(void *pp, uint64_t u)
+static inline void archive_be64enc(void *pp, uint64 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
-	archive_be32enc(p, (uint32_t)(u >> 32));
-	archive_be32enc(p + 4, (uint32_t)(u & 0xffffffff));
+	archive_be32enc(p, (uint32)(u >> 32));
+	archive_be32enc(p + 4, (uint32)(u & 0xffffffff));
 }
 
 static inline void archive_le16enc(void *pp, uint16_t u)
@@ -153,7 +153,7 @@ static inline void archive_le16enc(void *pp, uint16_t u)
 	p[1] = (u >> 8) & 0xff;
 }
 
-static inline void archive_le32enc(void *pp, uint32_t u)
+static inline void archive_le32enc(void *pp, uint32 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
 	p[0] = u & 0xff;
@@ -162,11 +162,11 @@ static inline void archive_le32enc(void *pp, uint32_t u)
 	p[3] = (u >> 24) & 0xff;
 }
 
-static inline void archive_le64enc(void *pp, uint64_t u)
+static inline void archive_le64enc(void *pp, uint64 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
-	archive_le32enc(p, (uint32_t)(u & 0xffffffff));
-	archive_le32enc(p + 4, (uint32_t)(u >> 32));
+	archive_le32enc(p, (uint32)(u & 0xffffffff));
+	archive_le32enc(p + 4, (uint32)(u >> 32));
 }
 
 #endif

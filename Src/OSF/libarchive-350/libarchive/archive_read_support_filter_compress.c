@@ -81,7 +81,7 @@ __FBSDID("$FreeBSD$");
 
 struct private_data {
 	/* Input variables. */
-	const unsigned char     * next_in;
+	const uchar     * next_in;
 	size_t avail_in;
 	size_t consume_unnotified;
 	int bit_buffer;
@@ -104,7 +104,7 @@ struct private_data {
 
 	/* Dictionary. */
 	int free_ent;                            /* Next dictionary entry. */
-	unsigned char suffix[65536];
+	uchar suffix[65536];
 	uint16_t prefix[65536];
 
 	/*
@@ -115,8 +115,8 @@ struct private_data {
 	 * a 65280-byte dictionary entry.  (Of course, 32640:1
 	 * compression could also be considered the "best" case. ;-)
 	 */
-	unsigned char * stackp;
-	unsigned char stack[65300];
+	uchar * stackp;
+	uchar stack[65300];
 };
 
 static int      compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
@@ -165,7 +165,7 @@ int archive_read_support_filter_compress(struct archive * _a)
 static int compress_bidder_bid(struct archive_read_filter_bidder * self,
     struct archive_read_filter * filter)
 {
-	const unsigned char * buffer;
+	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	(void)self; /* UNUSED */
@@ -199,11 +199,11 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_COMPRESS;
 	self->name = "compress (.Z)";
 
-	state = (struct private_data *)calloc(sizeof(*state), 1);
-	out_block = malloc(out_block_size);
+	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	out_block = SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
-		free(out_block);
-		free(state);
+		SAlloc::F(out_block);
+		SAlloc::F(state);
 		archive_set_error(&self->archive->archive, ENOMEM,
 		    "Can't allocate data for %s decompression",
 		    self->name);
@@ -257,7 +257,7 @@ static int compress_bidder_init(struct archive_read_filter * self)
 static ssize_t compress_filter_read(struct archive_read_filter * self, const void ** pblock)
 {
 	struct private_data * state;
-	unsigned char * p, * start, * end;
+	uchar * p, * start, * end;
 	int ret;
 
 	state = (struct private_data *)self->data;
@@ -301,8 +301,8 @@ static int compress_filter_close(struct archive_read_filter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 
-	free(state->out_block);
-	free(state);
+	SAlloc::F(state->out_block);
+	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
 

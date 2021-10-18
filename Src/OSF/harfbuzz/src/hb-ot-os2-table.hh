@@ -211,7 +211,7 @@ public:
 		void _update_unicode_ranges(const hb_set_t * codepoints, HBUINT32 ulUnicodeRange[4]) const
 		{
 			HBUINT32 newBits[4];
-			for(unsigned int i = 0; i < 4; i++)
+			for(uint i = 0; i < 4; i++)
 				newBits[i] = 0;
 			hb_codepoint_t cp = HB_SET_VALUE_INVALID;
 			while(codepoints->next(&cp)) {
@@ -230,7 +230,7 @@ public:
 				}
 			}
 
-			for(unsigned int i = 0; i < 4; i++)
+			for(uint i = 0; i < 4; i++)
 				ulUnicodeRange[i] = ulUnicodeRange[i] & newBits[i]; // set bits only if set in the
 			                                                            // original
 		}

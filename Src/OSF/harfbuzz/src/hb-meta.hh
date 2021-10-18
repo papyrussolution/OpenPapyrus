@@ -223,7 +223,7 @@ template <typename T>
 using hb_is_integral = hb_bool_constant<
     hb_is_same(hb_decay<T>, char) ||
     hb_is_same(hb_decay<T>, signed char) ||
-    hb_is_same(hb_decay<T>, unsigned char) ||
+    hb_is_same(hb_decay<T>, uchar) ||
     hb_is_same(hb_decay<T>, signed int) ||
     hb_is_same(hb_decay<T>, unsigned int) ||
     hb_is_same(hb_decay<T>, signed short) ||
@@ -266,7 +266,7 @@ template <typename T> struct hb_int_min;
 
 template <> struct hb_int_min<char>                     : hb_integral_constant<char,                    CHAR_MIN>       {};
 template <> struct hb_int_min<signed char>              : hb_integral_constant<signed char,             SCHAR_MIN>      {};
-template <> struct hb_int_min<unsigned char>            : hb_integral_constant<unsigned char,           0>              {};
+template <> struct hb_int_min<uchar>            : hb_integral_constant<uchar,           0>              {};
 template <> struct hb_int_min<signed short>             : hb_integral_constant<signed short,            SHRT_MIN>       {};
 template <> struct hb_int_min<unsigned short>           : hb_integral_constant<unsigned short,          0>              {};
 template <> struct hb_int_min<signed int>               : hb_integral_constant<signed int,              INT_MIN>        {};
@@ -280,7 +280,7 @@ template <typename T> struct hb_int_max;
 
 template <> struct hb_int_max<char>                     : hb_integral_constant<char,                    CHAR_MAX>       {};
 template <> struct hb_int_max<signed char>              : hb_integral_constant<signed char,             SCHAR_MAX>      {};
-template <> struct hb_int_max<unsigned char>            : hb_integral_constant<unsigned char,           UCHAR_MAX>      {};
+template <> struct hb_int_max<uchar>            : hb_integral_constant<uchar,           UCHAR_MAX>      {};
 template <> struct hb_int_max<signed short>             : hb_integral_constant<signed short,            SHRT_MAX>       {};
 template <> struct hb_int_max<unsigned short>           : hb_integral_constant<unsigned short,          USHRT_MAX>      {};
 template <> struct hb_int_max<signed int>               : hb_integral_constant<signed int,              INT_MAX>        {};

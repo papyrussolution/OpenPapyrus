@@ -40,7 +40,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _DEFAULT_SOURCE /* for snprintf(), strdup() */
+#define _DEFAULT_SOURCE /* for snprintf(), sstrdup() */
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -352,7 +352,7 @@ static cairo_status_t cairo_type1_font_subset_get_fontname(cairo_type1_font_subs
 		if(i == 6)
 			start += 7;
 	}
-	font->base.base_font = strdup(start);
+	font->base.base_font = sstrdup(start);
 	SAlloc::F(s);
 	if(UNLIKELY(font->base.base_font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1412,11 +1412,11 @@ cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, con
 	if(UNLIKELY(status))
 		goto fail1;
 	if(font.base.base_font) {
-		type1_subset->base_font = strdup(font.base.base_font);
+		type1_subset->base_font = sstrdup(font.base.base_font);
 	}
 	else {
 		snprintf(buf, sizeof(buf), "CairoFont-%u-%u", scaled_font_subset->font_id, scaled_font_subset->subset_id);
-		type1_subset->base_font = strdup(buf);
+		type1_subset->base_font = sstrdup(buf);
 	}
 	if(UNLIKELY(type1_subset->base_font == NULL))
 		goto fail1;

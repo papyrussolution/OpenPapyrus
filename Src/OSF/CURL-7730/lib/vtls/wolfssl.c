@@ -475,7 +475,7 @@ static CURLcode wolfssl_connect_step1(struct connectdata * conn,
 		infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
 
 		if(wolfSSL_UseALPN(backend->handle, protocols,
-		    (unsigned)strlen(protocols),
+		    (uint)strlen(protocols),
 		    WOLFSSL_ALPN_CONTINUE_ON_MISMATCH) != SSL_SUCCESS) {
 			failf(data, "SSL: failed setting ALPN protocols");
 			return CURLE_SSL_CONNECT_ERROR;
@@ -1059,7 +1059,7 @@ static CURLcode Curl_wolfssl_random(struct Curl_easy * data,
 		return CURLE_FAILED_INIT;
 	if(length > UINT_MAX)
 		return CURLE_FAILED_INIT;
-	if(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
+	if(wc_RNG_GenerateBlock(&rng, entropy, (uint)length))
 		return CURLE_FAILED_INIT;
 	if(wc_FreeRng(&rng))
 		return CURLE_FAILED_INIT;

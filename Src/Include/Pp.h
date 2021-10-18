@@ -442,6 +442,7 @@ public:
 		Signature_PPView(0x099A099BUL),
 		Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
 		Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
+		Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
@@ -463,7 +464,8 @@ public:
 		WrParam_PersonAddImageFolder("PersonAddImageFolder"),
 		WrParam_UseDuplexPrinting("UseDuplexPrinting"),
 		WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
-		WrParam_LastSelectedPrinter("LastSelectedPrinter")
+		WrParam_LastSelectedPrinter("LastSelectedPrinter"),
+		WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2") // @v11.2.0
 	{
 	}
 	enum {
@@ -482,6 +484,7 @@ public:
 	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
 	const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
 	const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
+	const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -504,8 +507,9 @@ public:
 	const char * WrParam_DefaultWindowsPrinter;        // "DefaultWindowsPrinter"
 	const char * WrParam_PersonAddImageFolder;         // "PersonAddImageFolder"
 	const char * WrParam_UseDuplexPrinting;            // "UseDuplexPrinting"
-	const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter"; // @v10.7.10
-	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter"; // @v10.7.10
+	const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter" // @v10.7.10
+	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
+	const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
 };
 
 extern const PPConstParam _PPConst;
@@ -1167,7 +1171,7 @@ public:
 	int    AddInheritedFixField(const DBField &);
 	int    AddTotalRow(const DBFieldList & rAggrFldList, size_t extSize, const char * pTitle);
 	int    AddTotalColumn(const DBField & rAggrFld, size_t extSize, const char * pTitle);
-	int    SLAPIV SetSortIdx(const char * pFldName, ...);
+	int    CDECL SetSortIdx(const char * pFldName, ...);
 	int    Create(int use_ta);
 	uint   GetAggrCount() const;
 	uint   GetTotalRowsCount() const;
@@ -1819,7 +1823,7 @@ public:
 	// Return 0 - end of search
 	// > 0 - message number
 	//
-	long   EnumMessages(long nmsg, void* buff, int16 bsize, int16 *retsize, int16 *hsize);
+	long   EnumMessages(long nmsg, void * buff, int16 bsize, int16 *retsize, int16 *hsize);
 	long   GetVisibleMessage(long nrow);
 	void * GetRow(long r);
 protected:
@@ -7198,7 +7202,23 @@ public:
 	void   FASTCALL GetInfo(PPThread::Info & rInfo) const;
 	void   FASTCALL LockStackToStr(SString & rBuf) const;
 	int32  GetUniqueSessID() const { return UniqueSessID; }
-	const  SString & GetOuterSignature() const; // @v11.1.12
+	//
+	// Descr: Возвращает true если в потоке задана внешняя сигнатура.
+	//
+	bool   HasOuterSignature() const;
+	void   FASTCALL SetOuterSignature(const char * pSignature); // @v11.1.12
+	//
+	// Descr: Если !isempty(pS) и сигнатура потока равена pS, то возвращает true.
+	//   Если isempty(pS) и сигнатура потока пустая, то возвращает true.
+	//   В остальных случаях возвращает false.
+	//
+	bool   FASTCALL CheckOuterSignature(const char * pS) const; // @v11.1.12
+	//
+	// Descr: Если время жизни сигнатуры в секундах превысило таймаут, заданный параметром timeoutSec,
+	//   то значение сигнатуры обнуляется. Таким образом, поток теряет привязку к сигнатуре.
+	//   Ради ускорения обработки множества потоков текущее время передается параметром currentEpochTime
+	//
+	void   FASTCALL ResetOuterSignatureByTimeout(int64 currentEpochTime, int timeoutSec);
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply) { return -1; }
 protected:
 	//
@@ -7215,7 +7235,6 @@ protected:
 	};
 	virtual void Startup();
 	void   FASTCALL SetJobID(PPID jobID);
-	void   FASTCALL SetOuterSignature(const char * pSignature); // @v11.1.12
 public: // Метод Shutdown вызывается из функции DllMain
 	virtual void Shutdown();
 private:
@@ -7223,12 +7242,28 @@ private:
 	PPID   JobID;
 	int32  UniqueSessID; // Фактически, идентификатор потока. Инициируется функцией PPThread::Startup() как {UniqueSessID = DS.GetTLA().GetId();}
 	LDATETIME StartMoment;
-	mutable SMtLock Lck_OuterSignature; // @v11.1.12 Блокировка для OuterSignature
-	SString OuterSignature; // @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
-		// повторном обращении с этой же сигнатурой можно было бы найти поток, который "занимался вопросом" ранее.
-		// Текущая мотивация заключается в асинхронной обработке запросов к серверу.
-		// Важно: в общем случае нелья гарантировать, что эта сигнатура уникальна, поскольку эмитирована
-		// актором, который нами не контролируется.
+	//
+	// @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
+	//   повторном обращении с этой же сигнатурой можно было бы найти поток, который "занимался вопросом" ранее.
+	//   Текущая мотивация заключается в асинхронной обработке запросов к серверу.
+	//   Важно: в общем случае нелья гарантировать, что эта сигнатура уникальна, поскольку эмитирована
+	//   актором, который нами не контролируется.
+	//
+	struct OuterSignatureBlock {
+		OuterSignatureBlock() : Tm(0)
+		{
+			PTR32(Signature)[0] = 0;
+		}
+		char   Signature[64]; // Собственно, сигнатура. Реализована в виде плоского массива символов
+			// с целью снизить накладные расходы на обработку.
+		mutable SMtLock Lck; // Блокировка (возможно, правильнее будет read-write, но пока сделаем по-проще)
+		int64 Tm; // Epoch-time время установки. Используется для сброса, если время жизни превысило 
+			// допустимый таймаут (другими словами, для освобождения потока, чтобы он мог заняться иной работой).
+	};
+	OuterSignatureBlock OtrSigntr;
+	//mutable SMtLock Lck_OuterSignature; // @v11.1.12 Блокировка для OuterSignature
+	//SString OuterSignature; // @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
+
 	SString Text;
 	SString LastMsg_;
 };
@@ -7506,9 +7541,10 @@ public:
 	LimitedDatabaseBlock * LimitedOpenDatabase(const char * pDbSymb, long flags);
 
 	enum {
-		loginfSkipLicChecking  = 0x0001,
-		loginfInternal         = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
-		loginfCheckOnetimePass = 0x0004   // @v11.1.9 Авторизация по одноразовому пропуску
+		loginfSkipLicChecking   = 0x0001,
+		loginfInternal          = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
+		loginfCheckOnetimePass  = 0x0004,  // @v11.1.9 Авторизация по одноразовому пропуску
+		loginfAllowAuthAsJobSrv = 0x0008,  // @v11.2.0 Флаг используется специальным образом во-вне функции Login
 	};
 	int    Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
 	int    Logout();
@@ -7755,6 +7791,17 @@ private:
 		int    FASTCALL StopThread(ThreadID tId);
 		PPThread * FASTCALL SearchById(ThreadID tId);
 		PPThread * FASTCALL SearchBySessId(int32 sessId);
+		//
+		// Descr: Ищет поток вида kind с сигнатурой pSignature.
+		//   Если isempty(pSignature), то ищет первый свободный (статус SlThread::stIdle) поток, не имеющий сигнатуры.
+		//   Если !isempty(pSignature), то ищет поток с заданной сигнатурой.
+		//   Если поток с заданной сигнатурой не найден, то ищет первый поток, имеющий
+		//   пустую сигнатуру и имеющий статус SlThread::stIdle.
+		// Returns: 
+		//   !0 - указатель на поток, отвечающий перечисленным выше критериям
+		//    0 - поток по заданаым критериям не найден.
+		//
+		PPThread * FASTCALL SearchByOuterSignature(int kind, const char * pSignature);
 		//
 		// Descr: Находит первый попавшийся поток вида kind, имеющий статус SlThread::stIdle.
 		//
@@ -9304,6 +9351,74 @@ public:
 	int    Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta);
 };
 //
+// @v11.2.0
+// Descr: Параметры множественной печати документов.
+//
+class BillMultiPrintParam { // @persistent
+public:
+	BillMultiPrintParam();
+	bool   IsEmpty() const;
+	bool   FASTCALL IsEqual(const BillMultiPrintParam & rS) const;
+	BillMultiPrintParam & Z();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	//
+	// Descr: Сохраняет экземпляр в локальном реестре.
+	//   Если экземпляр пустой, тогда, если в реетсре что-то было - будет удалено.
+	// Returns:
+	//   >0 - экземпляр успешно сохранен в реестре (или удален, если this->IsEmpty())
+	//   0  - ошибка
+	//
+	int    LocalSave();
+	//
+	// Descr: Пытается восстановить экземпляр объекта из локального реестра.
+	// Returns:
+	//   >0 - объект найден в локальном реестре и успешно восстановлен
+	//   <0 - объект не найден в локальном реестре
+	//    0 - ошибка
+	//
+	int    LocalRestore();
+	//
+	// Descr: Вызывает диалог редактирования экземпляра this.
+	// Returns:
+	//  >0 - пользователь подтвердил результаты редактирования.
+	//  <0 - пользователь отказался от изменений
+	//   0 - ошибка
+	//
+	static int EditDialog(PPID opTypeID, BillMultiPrintParam * pData);
+	// 
+	// Descr: Перечисление печатных форм по документам.
+	// Note: Значения используются как смещения битовой маски поля FormBits //
+	// 
+	enum { // @persistent (не менять значения элементов ни в коем случае!)
+		pbBill           =  0,
+		pbQCert          =  1,
+		pbInvoice        =  2,
+		pbCashOrder      =  3,
+		pbWayBill        =  4, // Товарно-транспортная накладная
+		pbWayBillFreight =  5, // Товарно-транспортная накладная (транспортный раздел)
+		pbSrvcAct        =  6, // Акт выполненных работ
+		pbPriceTag       =  7, // Ценники
+		pbPaymPlan       =  8, // План платежей
+		pbTareSaldo      =  9, // Сальдо по возвратной таре
+		pbLocDisp        = 10, // Наряд на складскую сборку
+		pbLotTagImage    = 11, // Изображения из тегов лотов
+		pbUniBill        = 12, // Универсальный передаточный документ
+		// Следующий вариант вставлять сюда
+		pb__Count              // Общее количество вариантов      
+	};	
+	enum {
+		fMakeOutCopies     = 0x0001, // Разобрать по копиям
+		fUpdatedPricesOnly = 0x0002  // Печатать только позиции с изменившимися ценами (специализированный флаг)
+	};
+	uint32 Reserve[16];
+	uint32 FormBits;
+	uint32 Flags;
+	uint16 CopyCounter[32];
+	// Если какой-либо отчет должен использовать кастомизированную форму, то
+	// наименование этой формы хранится в StringSet с префиксом енумератора pbXXX + 1.
+	StringSet CustomFormNames;
+};
+//
 // Descr: Структура соглашения с клиентом об условиях торговли
 //   Хранится в таблице Property с координатами {PPOBJ_ARTICLE, ArtID, ARTPRP_CLIAGT}
 //
@@ -9330,8 +9445,8 @@ public:
 struct PPClientAgreement { // @persistent
 	PPClientAgreement();
 	PPClientAgreement(const PPClientAgreement &);
-	void   Init();
-	int    IsEmpty() const;
+	PPClientAgreement & Z();
+	bool   IsEmpty() const;
 	int    FASTCALL IsEqual(const PPClientAgreement & rS) const;
 	PPClientAgreement & FASTCALL operator = (const PPClientAgreement &);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -9368,15 +9483,17 @@ struct PPClientAgreement { // @persistent
 	double Dscnt;          // Обычная скидка в %%
 	int16  DefPayPeriod;   // Количество дней от отгрузки до оплаты по умолчанию
 	int16  PriceRoundDir;  // Направление округления окончательной цены в документах
+	int16  RetLimPrd;      // @v11.2.0 (moved up) Период ограничения доли возвратов от суммы товарооборота
+	uint16 RetLimPart;     // @v11.2.0 (moved up) Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	PPID   DefAgentID;     // Агент, закрепленный за клиентом
 	PPID   DefQuotKindID;  // Вид котировки, закрепленный за клиентом
 	PPID   ExtObjectID;    // Дополнительный объект (таблица дополнительных объектов для общего соглашения)
 	LDATE  LockPrcBefore;  // Дата, до которой процессинг должников не меняет параметры соглашения //
 	// @v10.2.9 char   Code[12];       // Номер соглашения //
-	uint8  Reserve2[12];   // @v10.2.9
+	// @v11.2.0 uint8  Reserve2[12];   // @v10.2.9
 	float  PriceRoundPrec; // Точность округления окончательной цены в документах
-	int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
-	uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	// @v11.2.0 (moved up) int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
+	// @v11.2.0 (moved up) uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
 	//
 	// Descr: Значения базы определения даты оплаты по документу
 	//
@@ -9391,15 +9508,19 @@ struct PPClientAgreement { // @persistent
 	long   PaymDateBase;   // База для определения даты оплаты по документу.
 	PPID   EdiPrvID;       // @v10.0.0 ->Ref(PPOBJ_EDIPROVIDER)
 	// @v10.0.0 uint8  Reserve2[4];    // @reserve
-	char   Code2[24];      // @v10.2.9 Номер соглашения //
+	// @v11.2.0 char   Code2[24];      // @v10.2.9 Номер соглашения 
+	uint8  Reserve3[24];   // @v11.2.0 Переведено в резерв. Номер соглашения - в поле Code_
 	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов
+	SString Code_;            // @v11.2.0 Номер соглашения //
+	BillMultiPrintParam Bmpp; // @v11.2.0 Параметры множественной печати документов. Позволит быстро установить эти параметры для документа 
+		// по конкретному контрагенту.
 };
 
 class PPSupplAgreement {    // @persistent @store(PropertyTbl)
 public:
 	PPSupplAgreement();
 	PPSupplAgreement & Z();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    FASTCALL IsEqual(const PPSupplAgreement & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	void   FASTCALL RestoreAutoOrderParams(const PPSupplAgreement & rS);
@@ -27784,7 +27905,7 @@ public:
 	//   2  - статья использует соглашение с поставщиком
 	//
 	static int FASTCALL GetAgreementKind(const ArticleTbl::Rec * pArRec);
-	static int FASTCALL PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList = 0);
+	// @v11.2.0 static int FASTCALL PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList = 0);
 	static int FASTCALL GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance = 0);
 	static int FASTCALL EditSupplAgreement(PPSupplAgreement *);
 	static int FASTCALL PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt);
@@ -27838,8 +27959,8 @@ public:
 	int    GetMainOrgAsSuppl(PPID * id, int processAbsense = 0, int use_ta = 0);
 	int    CreateObjRef(PPID *, PPID accSheetID, PPID objID, long ar, int use_ta);
 	int    AddSimple(PPID *, PPID accSheetID, const char * pName, long ar, int use_ta);
-	int    GetClientAgreement(PPID id, PPClientAgreement *, int use_default = 0);
-	int    PutClientAgreement(PPID id, PPClientAgreement *, int use_ta);
+	int    GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_default = 0);
+	static int PutClientAgreement(PPID id, PPClientAgreement *, int use_ta);
 	int    HasClientAgreement(PPID arID);
 	int    EditClientAgreement(PPClientAgreement *);
 	int    PutSupplAgreement(PPID id, PPSupplAgreement *, int use_ta);
@@ -27864,6 +27985,8 @@ public:
 	int    GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID);
 	int    GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList);
 	int    GetRelPersonSingle(PPID arID, PPID relTypeID, int reverse, PPID * pRelID);
+	//
+	static int ConvertClientAgreements_11200(Reference * pRef, int use_ta);
 private:
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -27873,8 +27996,7 @@ private:
 	int    SearchAssocObjRef(PPID objType, PPID objID, PPID * pAccSheetID, PPID kind, PPID * pID);
 	int    ReplyArticleReplace(PPID dest, PPID src);
 	int    ReplyPersonReplace(PPID dest, PPID src);
-	// @v9.1.3 int    ReplyWarehouseAdded(PPID locID);
-	int    ReplyObjectCreated(PPID objType, PPID objID); // @v9.1.3
+	int    ReplyObjectCreated(PPID objType, PPID objID);
 	int    _ProcessSearch(int, PPID id);
 	int    _UpdateName(const char * pNewName);
 	int    Helper_PutAgreement(PPID id, PPArticlePacket * pPack);
@@ -44267,7 +44389,7 @@ private:
 	int    CtrlX;
 	long   LimitTerm;      // @*Init_
 	long   AddedLimitTerm; // @*Init_
-	PPID   AgtProp; // @#[ARTPRP_CLIAGT, ARTPRP_SUPPLAGT]
+	PPID   AgtProp; // @#[ARTPRP_CLIAGT2, ARTPRP_SUPPLAGT]
 	TempArAgtTbl * P_TempTbl;
 };
 //
@@ -45954,13 +46076,28 @@ public:
 		SvcDbSymbMap & FASTCALL operator = (const SvcDbSymbMap & rS);
 		int    FASTCALL Copy(const SvcDbSymbMap & rS);
 		int    Store(const char * pFilePath);
-		int    Read(const char * pFilePath);
+		//
+		// Descr: Загружает экземпляр из файла pFilePath. 
+		// ARG(pFilePath IN): Имя файла, из которого следует загрузить экзмепляр.
+		//   Если isempty(pFilePath), то читает из штатного хранилища, определяемого методом this->InitFilePath().
+		// ARG(loadTimeUsage IN): Опция, определяющая использования времени последней загрузки LoadTime:
+		//   0 - загружает в любом случае
+		//   >0 - загружает только если LoadTime == 0
+		//   <0 - загружает только в случае, если время модификации файла больше чем LoadTime
+		// Returns:
+		//   >0 - загрузка осуществлена успешно
+		//   <0 - файл-источник отсутствует, либо загрузки не было по причине, определяемой параметром loadTimeUsage
+		//    0 - ошибка
+		//
+		int    Read(const char * pFilePath, int loadTimeUsage);
+		bool   IsLoaded() const { return (LoadTime > 0); }
 		bool   FindSvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags) const;
 		bool   HasDbUserAssocEntries(const char * pDbSymb) const;
 		static int Dump(const char * pInputFileName, const char * pDumpFileName);
 	private:
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		SString & InitFilePath(const char * pOuterPath, SString & rResultBuf);
+		int64  LoadTime; // @transitive epoch-time since last loading. zero - isn't loaded. Used for global instance only.
 	};
 	//
 	// Descr: Виды записей реестра объектов Stylo-Q
@@ -46007,6 +46144,69 @@ public:
 	int    GetOwnPeerEntry(StoragePacket * pPack);
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
+
+	static bool GetDbMapBySvcIdent(const SBinaryChunk & rIdent, SString * pDbSymb, uint * pFlags);
+private:
+	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
+	static SvcDbSymbMap _SvcDbMap;
+};
+
+class StyloQCommandList { // @construction
+public:
+	struct Item { 
+		Item();
+		enum { // @persistent
+			sqbcEmpty       = 0,
+			sqbcRegister    = 1,
+			sqbcLogin       = 2,
+			sqbcPersonEvent = 3,
+			sqbcReport      = 4
+		};
+		int32  Ver;                 //
+		int32  BaseCmdId;           //
+		int32  Flags;               //
+		S_GUID Uuid;                //   
+		int32  ObjTypeRestriction;  //
+		int32  ObjGroupRestriction; //
+		SString DbSymb;             // 
+		SString Name;               // utf8
+		SString ViewSymb;           //
+		SString Description;        // utf8 Подробное описание команды
+		SString Image;              // Ссылка на изображение, ассоциированное с командой
+		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
+		PPNamedFilt::ViewDefinition Vd;
+	};
+	//
+	// Descr: Возвращает регулярное имя файла, в котором хранится список команд
+	//
+	static int GetCanonicalFileName(SString & rFileName);
+	static SString & GetBaseCommandName(int cmdId, SString & rBuf);
+	StyloQCommandList();
+	~StyloQCommandList();
+	Item * CreateNewItem(uint * pIdx);
+	uint   GetCount() const;
+	Item * Get(uint idx);
+	const  Item * GetC(uint idx) const;
+	const  Item * GetByUuid(const S_GUID & rUuid) const;
+	int    Set(uint idx, const Item * pItem);
+	int    Store(const char * pFileName) const;
+	int    Load(const char * pFileName);
+	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+	//
+	// Descr: Формирует json-объект по списку команд для передачи клиенту.
+	//   Если pParent == 0, то формирует автономный безымянный json-объект,
+	//   в противном случае вставляет объект с именем pName в родительский json-контейнер.
+	//   Если pParent != 0, то для аргумента pName должно выполнятся условие isempty(pName) == false
+	// ARG(expirationSec IN): если > 0, то в json-описание вставляется параметр expiration_period_sec=expirationSec.
+	// Returns: 
+	//   0 - ошибка
+	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть 
+	//      разрушен вызывающей функцией.
+	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
+	//
+	static SJson * CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec);
+private:
+	TSCollection <Item> L;
 };
 
 class StyloQProtocol : public PPJobSrvProtocol {
@@ -46060,7 +46260,16 @@ public:
 
 		SString CommandJson;
 	};
-
+	//
+	// Descr: Возвращает номинальное время жизни сессии в секундах.
+	//   Клиент и сервис при установке сессии обмениваются своими значениями
+	//   номинального времени жизни сессии и оба принимают минимальное значение
+	//   из двух. Если один из участников передал нулевое или пустое значение,
+	//   то принимается величина второго участника, если же оба участника
+	//   передали нулевое значение, то время жизни сессии принимается равной
+	//   значению по умолчанию (24 * 60 * 60, то есть сутки).
+	//
+	uint   GetNominalSessionLifeTimeSec() const;
 	//int    RunStyloQServer(RunServerParam & rP);
 	int    RunStyloQServer(RunServerParam & rP, const DbLoginBlock * pDlb);
 	static int StopStyloQServer();
@@ -46115,9 +46324,11 @@ public:
 
 		SSecretTagPool Other; // Блок параметров сервиса, к которому осуществляется запрос
 		SSecretTagPool Sess;  // Блок параметров сессии
-		StyloQCore::StoragePacket StP;    // Блок собственных данных, извлеченных из хранилища
+		StyloQCore::StoragePacket StP; // Блок собственных данных, извлеченных из хранилища
 		PPMqbClient * P_Mqbc; // Экземпляр клиента MQ уже "заряженный" на прослушку регулярной очереди от визави
 		PPMqbClient::RoutingParamEntry * P_MqbRpe; // Параметры маршрутизации при использовании брокера MQ
+		SlSRP::Verifier * P_SrpV; // @v11.2.0 SRP-верификатор для серверной части. При асинхронной обработке
+			// он нужен для обслуживания процесса верификации клиента в несколько заходов запрос-ответ.
 		PPID   InnerSvcID;
 		PPID   InnerSessID;
 		PPID   InnerCliID;
@@ -46125,6 +46336,10 @@ public:
 		S_GUID Uuid; // Идентификатор текущего сеанса обмена. Не путать с сессией, которая может сохраняться:
 			// сеанс обмена обрабатывает одинарную серию запросов-ответов. Идентификатор нужен для правильной
 			// обработки сообщений при асинхронном режиме.
+		InetUrl Url; // Для клиента. Инициализируется в методе InitRoundTripBlock() на основании
+			// значения SSecretTagPool::tagSvcAccessPoint в Other.
+		int32  LastRcvCmd; // Последняя полученная команда. Необходимо для отслеживания состояний //
+		int32  LastSndCmd; // Последняя отправленная команда. Необходимо для отслеживания состояний //
 	};
 	int    InitRoundTripBlock(RoundTripBlock & rB);
 	//
@@ -46165,8 +46380,20 @@ public:
 	int    ExecuteInvitationDialog(Invitation & rData);
 	int    Dump();
 	int    TestDatabase();
+	//
+	// Descr: Головная функция, реализующая исполнение клиентских команд.
+	// Returns:
+	//  >0 - обработка завершена и клиенту следует отправить ответ (даже если обработка была с ошибкой)
+	//   0 - функция отработала с ошибкой и клиенту ответ отсылать не следует.
+	//
+	int    ProcessCommand(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent, const SBinaryChunk * pSessSecret, StyloQProtocol & rReplyPack);
+	//
+	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
+	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, 
+		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
+	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
 	enum {
 		gcisfMakeSecret = 0x0001
 	};
@@ -46178,6 +46405,23 @@ private:
 	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
 	//
 	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
+public: // @debug временно 
+	//
+	// Descr: Утилитная функция, отправляющая http запрос сервису.
+	// ARG(rB IN): 
+	// ARG(rPack IN/OUT): Протокольный пакет для отправки. При успешном завершении ответ будет скопирован
+	//   в этот же пакет.
+	// Return:
+	//   >0 - success
+	//    0 - error
+	//
+	int    SendHttpQuery(RoundTripBlock & rB, StyloQProtocol & rPack, const SBinaryChunk * pCryptoKey);
+private:
+	SlSRP::User * InitSrpAuth(const SBinaryChunk & rIdent, const SBinaryChunk & rSecret) const;
+	int    CreateSrpPacket_Cli_Auth(SlSRP::User * pU, const SBinaryChunk & rSvcIdent, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSessPubKey, const SBinaryChunk * pSessSecret, StyloQProtocol & rP);
+	int    CreateSrpPacket_Cli_Auth2(const SBinaryChunk & rM, const SBinaryChunk & rCliIdent, StyloQProtocol & rP, int * pSrpProtocolFault);
+	int    CreateSrpPacket_Cli_HAMK(SlSRP::User * pU, const SBinaryChunk & rHamk, StyloQProtocol & rP, int * pSrpProtocolFault);
+	int    CreateSrpPacket_Svc_Auth(StyloQProtocol & rP);
 	StyloQCore * P_T;
 	enum {
 		stOuterStqC = 0x0001 // Экземпляр использует внешний указатель на StyloQCore (не следует разрушать)
@@ -46257,64 +46501,6 @@ private:
 	SStrGroup StrPool;
 	PPObjStyloQBindery Obj;
 	ObjCollection ObjColl;
-};
-
-class StyloQCommandList { // @construction
-public:
-	struct Item { 
-		Item();
-		enum { // @persistent
-			sqbcEmpty       = 0,
-			sqbcRegister    = 1,
-			sqbcLogin       = 2,
-			sqbcPersonEvent = 3,
-			sqbcReport      = 4
-		};
-		int32  Ver;                 //
-		int32  BaseCmdId;           //
-		int32  Flags;               //
-		S_GUID Uuid;                //   
-		int32  ObjTypeRestriction;  //
-		int32  ObjGroupRestriction; //
-		SString DbSymb;             // 
-		SString Name;               // utf8
-		SString ViewSymb;           //
-		SString Description;        // utf8 Подробное описание команды
-		SString Image;              // Ссылка на изображение, ассоциированное с командой
-		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
-		PPNamedFilt::ViewDefinition Vd;
-	};
-	//
-	// Descr: Возвращает регулярное имя файла, в котором хранится список команд
-	//
-	static int GetCanonicalFileName(SString & rFileName);
-	static SString & GetBaseCommandName(int cmdId, SString & rBuf);
-	StyloQCommandList();
-	~StyloQCommandList();
-	Item * CreateNewItem(uint * pIdx);
-	uint   GetCount() const;
-	Item * Get(uint idx);
-	const  Item * GetC(uint idx) const;
-	const  Item * GetByUuid(const S_GUID & rUuid) const;
-	int    Set(uint idx, const Item * pItem);
-	int    Store(const char * pFileName) const;
-	int    Load(const char * pFileName);
-	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
-	//
-	// Descr: Формирует json-объект по списку команд для передачи клиенту.
-	//   Если pParent == 0, то формирует автономный безымянный json-объект,
-	//   в противном случае вставляет объект с именем pName в родительский json-контейнер.
-	//   Если pParent != 0, то для аргумента pName должно выполнятся условие isempty(pName) == false
-	// ARG(expirationSec IN): если > 0, то в json-описание вставляется параметр expiration_period_sec=expirationSec.
-	// Returns: 
-	//   0 - ошибка
-	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть 
-	//      разрушен вызывающей функцией.
-	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
-	//
-	static SJson * CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec);
-private:
-	TSCollection <Item> L;
 };
 
 class StyloQCommandFilt : public PPBaseFilt {
@@ -54981,9 +55167,9 @@ char * FASTCALL ideqvalstr(long id, char * pBuf, size_t bufLen); // @obsolete
 //
 // Output message functions
 //
-SString & SLAPIV PPFormat(const SString & rFmt, SString * pBuf, ...);
-SString & SLAPIV PPFormatT(int textCode, SString * pBuf, ...);
-SString & SLAPIV PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
+SString & CDECL PPFormat(const SString & rFmt, SString * pBuf, ...);
+SString & CDECL PPFormatT(int textCode, SString * pBuf, ...);
+SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
 void   FASTCALL PPSetAddedMsgString(const char * pStr);
 void   FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID);
 int    FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
@@ -55515,9 +55701,9 @@ void   FASTCALL PPWaitDate(LDATE);
 //
 int    PPCheckUserBreak();
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
-int    BarcodeInputDialog(int initChar, SString & rBuf);
-int    FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes);
-int    FASTCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID);
+int    STDCALL BarcodeInputDialog(int initChar, SString & rBuf);
+int    STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes);
+int    STDCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID);
 int    EditAccTurnTemplate(PPObjAccTurn*, PPAccTurnTempl *);
 //
 // @obsolete {
@@ -55550,38 +55736,38 @@ int    EditStaffAmtEntry(long idx, StaffAmtList * pAmtList);
 // заканчивающийся нулем. Если linkOprKind != 0, то выбираются только
 // те виды операция, для которых вид связанной операции равен linkOprKind
 //
-PPID   SLAPIV SelectOprKind(uint opklFlags /* OPKLF_XXX */, PPID linkOprKind, ...);
+PPID   CDECL   SelectOprKind(uint opklFlags /* OPKLF_XXX */, PPID linkOprKind, ...);
 PPID   SelectOpKind(PPID linkOpID, const PPIDArray * pOpTypesList, uint opklFlags /* OPKLF_XXX */);
-int    FASTCALL SetupOprKindCombo(TDialog *, uint ctlID, PPID id, uint flags, const PPIDArray *, uint opklFlags);
+int    STDCALL SetupOprKindCombo(TDialog *, uint ctlID, PPID id, uint flags, const PPIDArray *, uint opklFlags);
 int    BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID * pOpID, PPID * pLocID);
-int    FASTCALL SetupLocationCombo(TDialog *, uint, PPID, uint flags, PPID locType, PPID owner);
-int    FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, const LocationFilt * pFilt);
-int    FASTCALL SetupObjTagCombo(TDialog *, uint, PPID, uint flags, ObjTagFilt * pFilt);
+int    STDCALL SetupLocationCombo(TDialog *, uint, PPID, uint flags, PPID locType, PPID owner);
+int    STDCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, const LocationFilt * pFilt);
+int    STDCALL SetupObjTagCombo(TDialog *, uint, PPID, uint flags, ObjTagFilt * pFilt);
 int    SetupStaffListCombo(TDialog *, uint, PPID, uint flags, PPID orgID, PPID divID);
 int    SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID);
 int    SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb);
-int    FASTCALL SetupPersonCombo(TDialog *, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind);
+int    STDCALL SetupPersonCombo(TDialog *, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind);
 int    MessagePersonBirthDay(TDialog * pDlg, PPID psnID);
-int    SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp);
+int    STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp);
 int    SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID);
 int    SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc);
 int    EditCfgOptionsDialog(PPConfig *, long, EmbedDialog * = 0);
 int    EditSecurDialog(PPID obj, PPID * id, void * extraPtr);
-int    FASTCALL ViewLots(const LotFilt *, int asOrders, int modeless);
-int    FASTCALL ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless);
+int    STDCALL ViewLots(const LotFilt *, int asOrders, int modeless);
+int    STDCALL ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless);
 int    BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pExt, ObjTagList * pTagList, int isFilt);
 int    BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
 int    BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
 int    ViewStatus();
 int    ViewPredictSales(PredictSalesFilt *);
 // @v9.5.9 int    ViewPrognosis();
-void   FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
-int    FASTCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
-int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
-void   FASTCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
-void   FASTCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
-int    FASTCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
-int    FASTCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
+void   STDCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
+int    STDCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
+int    STDCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
+void   STDCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
+void   STDCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
+int    STDCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
+int    STDCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
 SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf);
 SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf);
 int    FASTCALL SetRealRangeInput(TDialog *, uint ctl, double lo, double up, int prc = 0);
@@ -55606,21 +55792,23 @@ enum {
 	selSymbSalPeriod = 0x0008  // Выбирать периоды начисления зарплаты //
 };
 //
-int    SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf);
-int    PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags = 0);
-int    FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry = 0, int printingNoAsk = 0); // @v9.8.6 SArray-->SVector
+int    STDCALL SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf);
+int    STDCALL PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags = 0);
+int    STDCALL PrepareBillMultiPrint(PPBillPacket * pFirstPack, SVector ** ppAry, long * pOutPrnFlags);
+int    STDCALL MultiPrintGoodsBill(PPBillPacket * pPack, const SVector * pAry, long outPrnFlags);
+int    STDCALL PrintGoodsBill(PPBillPacket * pPack);
 //
 // Descr: печатает расходный или приходный кассовый ордер.
 //   Если pay_rcv != 0, то печатается расходный ордер (pay), в противном
 //   случае - приходный.
 //
-int    PrintCashOrder(PPBillPacket *, int pay_rcv, int prnflags = 0);
-int    FASTCALL ViewGoodsBills(BillFilt *, int modeless);
-int    FASTCALL BrowseBills(BrowseBillsType);
-int    FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID);
-int    FASTCALL ViewOpersByLot(PPID id, int withZeroLotID);
-int    ViewCashBills(PPID cashNode);
-int    ViewGoodsMov(int modeless);
+int    STDCALL PrintCashOrder(PPBillPacket *, int pay_rcv, int prnflags = 0);
+int    STDCALL ViewGoodsBills(BillFilt *, int modeless);
+int    STDCALL BrowseBills(BrowseBillsType);
+int    STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID);
+int    STDCALL ViewOpersByLot(PPID id, int withZeroLotID);
+int    STDCALL ViewCashBills(PPID cashNode);
+int    STDCALL ViewGoodsMov(int modeless);
 //
 // Descr: Вызывает диалог расчета формул по товару goodsID.
 //   Расчет формул по товару возможен тогда, когда товар принадлежит
@@ -55685,7 +55873,7 @@ int    CalcPrice(CalcPriceParam *);
 int    CalcDiff(double amount, double * pDiff);
 int    CalcTaxPrice(PPID goodsID, PPID opID, LDATE, double price, int = 0);
 int    CloseCashDay();
-int    FASTCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle = 0);
+int    STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle = 0);
 //
 // Descr: функция для выбора элемента из списка
 //
@@ -55700,10 +55888,10 @@ protected:
 	ListBoxDef * P_Def;
 };
 
-int    FASTCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr);
-int    FASTCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags);
-int    FASTCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags);
-int    FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags);
+int    STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr);
+int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags);
+int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags);
+int    STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags);
 int    ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags);
 int    AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags);
 //
@@ -55714,10 +55902,10 @@ int    CorrectAccTurnRest();
 int    CorrectCurRest();
 int    RecalcBillTurns(int checkAmounts);
 int    RemoveEmptyAcctRels();
-int    FASTCALL EditSysjFilt2(SysJournalFilt * pFilt);
+int    STDCALL EditSysjFilt2(SysJournalFilt * pFilt);
 #define OBJTRNSMDLGF_SEARCHDTTM 0x00000001
-int    FASTCALL ObjTransmDialog(uint dlgID, ObjTransmitParam *, long dlgFlags = 0);
-int    FASTCALL ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags = 0);
+int    STDCALL ObjTransmDialog(uint dlgID, ObjTransmitParam *, long dlgFlags = 0);
+int    STDCALL ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags = 0);
 //
 // Descr: Проверяет корректность создания и загрузки диалога.
 //   С этой функцией вышел легкий прокол. Фактически ей должен
@@ -55744,16 +55932,16 @@ int    FASTCALL CheckDialogPtrErr(void * ppDlg);
 // Returns:
 //   0 - всегда. Для того, чтобы можно было быстро инициализировать значение, возвращаемое вызывающей функцией.
 //
-int    FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err);
+int    STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err);
 //
 // Descr: То же, что и PPErrorByDialog(TDialog * dlg, uint ctlID, int err), но
 //   аргумент err = -1. Отдельная функция сделана ради уменьшения размера кода (чаще вызывается именно так).
 // Return:
 //   0 - всегда. Для того, чтобы можно было быстро инициализировать значение, возвращаемое вызывающей функцией.
 //
-int    FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID);
-uint   GetComboBoxLinkID(TDialog *, uint comboBoxCtlID);
-int    FASTCALL SetComboBoxLinkText(TDialog *, uint comboBoxCtlID, const char * pText);
+int    STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID);
+uint   STDCALL GetComboBoxLinkID(TDialog *, uint comboBoxCtlID);
+int    STDCALL SetComboBoxLinkText(TDialog *, uint comboBoxCtlID, const char * pText);
 //
 // Descr: Блок параметров функции InputStringDialog()
 //
@@ -55801,19 +55989,19 @@ int    BigTextDialog(uint maxLen, const char * pTitle, SString & rText);
 //
 // Descr: Устанавливает в строке комбо-бокса текст 'Список'
 //
-int    FASTCALL SetComboBoxListText(TDialog *, uint comboBoxCtlID);
-int    FASTCALL SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
-int    FASTCALL SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
-int    FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
+int    STDCALL SetComboBoxListText(TDialog *, uint comboBoxCtlID);
+int    STDCALL SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
+int    STDCALL SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
+int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
 // id = <string offset> + 1
 // @v9.5.0 int    SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
 int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int    GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
-int    FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
-int    FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);
-int    FASTCALL ViewSysJournal(const SysJournalFilt *, int modeless);
-int    FASTCALL ViewSysJournal(PPID objType, PPID objID, int modeless);
+int    STDCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
+int    STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);
+int    STDCALL ViewSysJournal(const SysJournalFilt *, int modeless);
+int    STDCALL ViewSysJournal(PPID objType, PPID objID, int modeless);
 int    ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID);
 int    EditRightsDialog(PPRights &);
 int    GenericObjRightsDialog(PPID obj, ObjRights *, EmbedDialog * = 0);
@@ -55929,7 +56117,7 @@ int    DatabaseCutting();
 //   GetCalCtrlSignature, то кнопка относится к искомому типу.
 //
 const  char * GetCalCtrlSignature(int type);
-void   FASTCALL SetupCalCtrl(int, TDialog *, uint, uint);
+void   STDCALL SetupCalCtrl(int, TDialog *, uint, uint);
 void   ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show);
 int    Import(PPID objType, long extraParam = 0);
 int    ImportBanks();
@@ -56046,7 +56234,7 @@ int    ProcessGoodsSaldo();
 //
 int    EditHolidays();
 int    ViewGoodsInfo(const InfoKioskPaneFilt * pFilt);
-int    FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector);
+int    STDCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector);
 //
 // Descr: Отображает список товарных позиций, соответсвующих забракованной серии pSerial
 //
@@ -56214,6 +56402,7 @@ int Convert10903(); // @v10.9.3
 int Convert10905(); // @v10.9.5 EgaisRefA
 int Convert11004(); // @v11.0.4 TSessLine
 int Convert11112(); // @v11.1.12 Bill
+int Convert11200(); // @v11.2.0 Соглашения с клиентами
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

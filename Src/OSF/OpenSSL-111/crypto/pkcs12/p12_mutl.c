@@ -149,7 +149,6 @@ int PKCS12_verify_mac(PKCS12 * p12, const char * pass, int passlen)
 	uchar mac[EVP_MAX_MD_SIZE];
 	uint maclen;
 	const ASN1_OCTET_STRING * macoct;
-
 	if(p12->mac == NULL) {
 		PKCS12err(PKCS12_F_PKCS12_VERIFY_MAC, PKCS12_R_MAC_ABSENT);
 		return 0;
@@ -160,25 +159,19 @@ int PKCS12_verify_mac(PKCS12 * p12, const char * pass, int passlen)
 		return 0;
 	}
 	X509_SIG_get0(p12->mac->dinfo, NULL, &macoct);
-	if((maclen != (uint)ASN1_STRING_length(macoct))
-	    || CRYPTO_memcmp(mac, ASN1_STRING_get0_data(macoct), maclen) != 0)
+	if((maclen != (uint)ASN1_STRING_length(macoct)) || CRYPTO_memcmp(mac, ASN1_STRING_get0_data(macoct), maclen) != 0)
 		return 0;
-
 	return 1;
 }
 
 /* Set a mac */
 
-int PKCS12_set_mac(PKCS12 * p12, const char * pass, int passlen,
-    uchar * salt, int saltlen, int iter,
-    const EVP_MD * md_type)
+int PKCS12_set_mac(PKCS12 * p12, const char * pass, int passlen, uchar * salt, int saltlen, int iter, const EVP_MD * md_type)
 {
 	uchar mac[EVP_MAX_MD_SIZE];
 	uint maclen;
 	ASN1_OCTET_STRING * macoct;
-
-	if(!md_type)
-		md_type = EVP_sha1();
+	SETIFZ(md_type, EVP_sha1());
 	if(PKCS12_setup_mac(p12, iter, salt, saltlen, md_type) == PKCS12_ERROR) {
 		PKCS12err(PKCS12_F_PKCS12_SET_MAC, PKCS12_R_MAC_SETUP_ERROR);
 		return 0;

@@ -1474,7 +1474,7 @@ static OPJ_BOOL opj_jp2_read_colr(opj_jp2_t * jp2,
 			/* default values */
 			rl = ra = rb = ol = oa = ob = 0;
 			il = 0x00443530; /* D50 */
-			cielab[1] = 0x44454600;/* DEF */
+			cielab[1] = 0x44454600; /* DEF */
 
 			if(p_colr_header_size == 35) {
 				opj_read_bytes(p_colr_header_data, &rl, 4);

@@ -712,7 +712,7 @@ int main(int argc, char * argv[])
 	}
 #endif
 	polyline_space = 100;
-	polyline = calloc(polyline_space, sizeof(XPoint));
+	polyline = SAlloc::C(polyline_space, sizeof(XPoint));
 	if(!polyline) 
 		fprintf(stderr, "Panic: cannot allocate polyline\n");
 	mainloop();
@@ -746,14 +746,14 @@ int main(int argc, char * argv[])
  *   three different platforms.
  *
  *   DEFAULT_X11:     use select() for both X events and input on stdin
- *                    from gnuplot inboard driver
+ *              from gnuplot inboard driver
  *
  *   CRIPPLED_SELECT: use select() to service X events and check during
- *                    select timeout for temporary plot file created
- *                    by inboard driver
+ *              select timeout for temporary plot file created
+ *              by inboard driver
  *
  *   VMS:             use XNextEvent to service X events and AST to
- *                    service input from gnuplot inboard driver on stdin
+ *              service input from gnuplot inboard driver on stdin
  *---------------------------------------------------------------------------*/
 
 #ifdef DEFAULT_X11
@@ -1072,9 +1072,7 @@ static void store_command(char * buffer, plot_struct * plot)
 
 	if(plot->ncommands >= plot->max_commands) {
 		plot->max_commands = plot->max_commands * 2 + 1;
-		plot->commands = (plot->commands)
-		    ? (char**)realloc(plot->commands, plot->max_commands * sizeof(char *))
-		    : (char**)malloc(sizeof(char *));
+		plot->commands = (plot->commands) ? (char**)SAlloc::R(plot->commands, plot->max_commands * sizeof(char *)) : (char**)malloc(sizeof(char *));
 	}
 	p = (char *)malloc(strlen(buffer) + 1);
 	if(!plot->commands || !p) {
@@ -1898,7 +1896,7 @@ static void DrawRotated(plot_struct * plot, Display * dpy, GC gc, int xdest, int
 	image_src = XGetImage(dpy, pixmap_src, 0, 0, (uint)width, (uint)height, 1, XYPixmap /* ZPixmap, XYBitmap */);
 	/* empty dest */
 	assert(data);
-	memzero((void*)data, (size_t)dest_width * dest_height);
+	memzero((void *)data, (size_t)dest_width * dest_height);
 	image_dest = XCreateImage(dpy, vis, 1, XYBitmap, 0, data, (uint)dest_width, (uint)dest_height, 8, 0);
 #define RotateX(_x, _y) (( (_x) * ca + (_y) * sa + dest_cen_x))
 #define RotateY(_x, _y) ((-(_x) * sa + (_y) * ca + dest_cen_y))
@@ -1958,7 +1956,7 @@ static void DrawRotated(plot_struct * plot, Display * dpy, GC gc, int xdest, int
 		/* Slow but sure version - grab the current screen area where the new
 		 * text will go and substitute in the pixels of the new text one by one.
 		 * NB: selected by X Resource
-		 *                             gnuplot*fastrotate: off
+		 *                       gnuplot*fastrotate: off
 		 */
 		assert(s); /* Previous success in reading XGetGCValues() */
 		gcValues.function = GXcopy;
@@ -2043,8 +2041,9 @@ static void exec_cmd(plot_struct * plot, char * command)
 		}
 		if(++polyline_size >= polyline_space) {
 			polyline_space += 100;
-			polyline = realloc(polyline, polyline_space * sizeof(XPoint));
-			if(!polyline) fprintf(stderr, "Panic: cannot realloc polyline\n");
+			polyline = SAlloc::R(polyline, polyline_space * sizeof(XPoint));
+			if(!polyline) 
+				fprintf(stderr, "Panic: cannot realloc polyline\n");
 		}
 		polyline[polyline_size].x = X(x);
 		polyline[polyline_size].y = Y(y);
@@ -2665,7 +2664,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 					npoints = int_cache[0];
 					style = int_cache[1];
 					if(npoints > st_npoints) {
-						XPoint * new_points = realloc(points, npoints*2*sizeof(int));
+						XPoint * new_points = SAlloc::R(points, npoints*2*sizeof(int));
 						st_npoints = npoints;
 						if(!new_points) {
 							perror("gnuplot_x11: exec_cmd()->points");
@@ -3444,7 +3443,7 @@ static void RecolorWindow(plot_struct * plot)
 		*cspp = (cmap_struct*)malloc(sizeof(cmap_struct));
 		if(*cspp) {
 			/* Initialize structure variables. */
-			memset((void*)*cspp, 0, sizeof(cmap_struct));
+			memset((void *)*cspp, 0, sizeof(cmap_struct));
 			(*cspp)->cmap = plot->cmap;
 		}
 		else {
@@ -6300,7 +6299,7 @@ static plot_struct * Add_Plot_To_Linked_List(int plot_number)
 		psp = (plot_struct*)malloc(sizeof(plot_struct));
 		if(psp) {
 			/* Initialize structure variables. */
-			memset((void*)psp, 0, sizeof(plot_struct));
+			memset((void *)psp, 0, sizeof(plot_struct));
 			psp->plot_number = plot_number;
 #if EXTERNAL_X11_WINDOW
 			/* Number and container methods are mutually exclusive. */
@@ -6788,8 +6787,7 @@ static void x11_update_key_box(plot_struct * plot, uint x, uint y)
 	x11BoundingBox * bb;
 	if(plot->x11_max_key_boxes <= x11_cur_plotno) {
 		plot->x11_max_key_boxes = x11_cur_plotno + 10;
-		plot->x11_key_boxes = (x11BoundingBox*)realloc(plot->x11_key_boxes,
-			plot->x11_max_key_boxes * sizeof(x11BoundingBox));
+		plot->x11_key_boxes = (x11BoundingBox *)SAlloc::R(plot->x11_key_boxes, plot->x11_max_key_boxes * sizeof(x11BoundingBox));
 		x11_initialize_key_boxes(plot, x11_cur_plotno);
 		x11_initialize_hidden(plot, x11_cur_plotno);
 	}

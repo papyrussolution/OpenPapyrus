@@ -46,8 +46,8 @@
  *
  *    The timespec structure contains the following two fields:
  *
- *         tv_sec is an integer number of seconds.
- *         tv_nsec is an integer number of nanoseconds.
+ *   tv_sec is an integer number of seconds.
+ *   tv_nsec is an integer number of nanoseconds.
  *
  *  Return Values
  *
@@ -55,9 +55,9 @@
  *  the type of error. Possible return values are as follows:
  *
  *  0
- *        Successful completion.
+ *  Successful completion.
  *  [EINVAL]
- *        The value specified by interval is invalid.
+ *  The value specified by interval is invalid.
  *
  * Example
  *

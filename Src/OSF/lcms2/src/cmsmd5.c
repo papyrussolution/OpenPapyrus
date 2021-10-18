@@ -163,7 +163,7 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const cmsUInt8Number* buf, cmsUInt32N
 	ctx->bits[1] += len >> 29;
 	t = (t >> 3) & 0x3f;
 	if(t) {
-		cmsUInt8Number * p = (cmsUInt8Number*)ctx->in + t;
+		cmsUInt8Number * p = (cmsUInt8Number *)ctx->in + t;
 		t = 64 - t;
 		if(len < t) {
 			memmove(p, buf, len);
@@ -214,7 +214,7 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	((cmsUInt32Number*)ctx->in)[15] = ctx->bits[1];
 
 	cmsMD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
-	byteReverse((cmsUInt8Number*)ctx->buf, 4);
+	byteReverse((cmsUInt8Number *)ctx->buf, 4);
 	memmove(ProfileID->ID8, ctx->buf, 16);
 	_cmsFree(ctx->ContextID, ctx);
 }
@@ -243,7 +243,7 @@ cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 	if(!cmsSaveProfileToMem(hProfile, NULL, &BytesNeeded)) 
 		goto Error;
 	// Allocate memory
-	Mem = (cmsUInt8Number*)_cmsMalloc(ContextID, BytesNeeded);
+	Mem = (cmsUInt8Number *)_cmsMalloc(ContextID, BytesNeeded);
 	if(Mem == NULL) 
 		goto Error;
 	// Save to temporary storage

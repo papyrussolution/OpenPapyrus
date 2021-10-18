@@ -275,7 +275,7 @@ void GnuPlot::Implement_FileTypeFunction_Gd(int filetype)
 	M = im->sx;
 	N = im->sy;
 	FPRINTF((stderr, "This is a %u X %u %s image\n", M, N, im->trueColor ? "TrueColor" : "palette"));
-	df_pixeldata = im->trueColor ? (void*)im->tpixels : (void*)im->pixels;
+	df_pixeldata = im->trueColor ? (void *)im->tpixels : (void *)im->pixels;
 	df_matrix_file = FALSE;
 	df_binary_file = TRUE;
 	df_bin_record[0].scan_skip[0] = 0;
@@ -313,7 +313,7 @@ int df_libgd_get_pixel(int i, int j, int component)
 		case 3: /* runs from 0-127 rather than 0-255 */
 		    alpha = 2 * gdTrueColorGetAlpha(pixel);
 		    return (255-alpha);
-		default:    return 0;/* shouldn't happen */
+		default:    return 0; /* shouldn't happen */
 	}
 }
 

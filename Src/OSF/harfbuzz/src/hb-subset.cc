@@ -32,7 +32,7 @@ static unsigned _plan_estimate_subset_table_size(hb_subset_plan_t * plan, unsign
 	unsigned dst_glyphs = plan->glyphset()->get_population();
 	if(UNLIKELY(!src_glyphs))
 		return 512 + table_len;
-	return 512 + (unsigned)(table_len * sqrt((double)dst_glyphs / src_glyphs));
+	return 512 + (uint)(table_len * sqrt((double)dst_glyphs / src_glyphs));
 }
 
 template <typename TableType> static bool _subset(hb_subset_plan_t * plan)

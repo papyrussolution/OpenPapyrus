@@ -263,14 +263,14 @@ retry:
 	static const Stored* get_null() { return &Null(Stored); }
 	static Stored * create(Data * data)
 	{
-		Stored * p = (Stored*)calloc(1, sizeof(Stored));
+		Stored * p = (Stored *)SAlloc::C(1, sizeof(Stored));
 		if(LIKELY(p))
 			p->init(data);
 		return p;
 	}
 	static Stored * create()
 	{
-		Stored * p = (Stored*)calloc(1, sizeof(Stored));
+		Stored * p = (Stored *)SAlloc::C(1, sizeof(Stored));
 		if(LIKELY(p))
 			p->init();
 		return p;
@@ -278,7 +278,7 @@ retry:
 	static void destroy(Stored * p)
 	{
 		p->fini();
-		free(p);
+		SAlloc::F(p);
 	}
 //  private:
 	/* Must only have one pointer. */

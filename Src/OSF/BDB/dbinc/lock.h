@@ -175,7 +175,7 @@ typedef struct __db_lockpart{ /* SHARED */
 	struct __flock free_locks; /* free lock header */
 	SH_TAILQ_HEAD(__fobj) free_objs; /* free obj header */
 	roff_t          lock_mem_off;   /* block memory for locks */
-	roff_t          lockobj_mem_off;/* block memory for lockobjs */
+	roff_t          lockobj_mem_off; /* block memory for lockobjs */
 #ifdef HAVE_STATISTICS
 	DB_LOCK_PSTAT	part_stat;	/* Partition stats. */
 #endif

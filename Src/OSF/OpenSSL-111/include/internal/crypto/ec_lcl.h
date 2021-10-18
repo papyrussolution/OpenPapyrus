@@ -103,9 +103,9 @@ struct ec_method_st {
 	 * mul() calculates the value
 	 *
 	 *   r := generator * scalar
-	 *        + points[0] * scalars[0]
-	 *        + ...
-	 *        + points[num-1] * scalars[num-1].
+	 *  + points[0] * scalars[0]
+	 *  + ...
+	 *  + points[num-1] * scalars[num-1].
 	 *
 	 * For a fixed point multiplication (scalar != NULL, num == 0)
 	 * or a variable point multiplication (scalar == NULL, num == 1),
@@ -631,9 +631,9 @@ void X25519_public_from_private(uint8_t out_public_value[32],
  * various timing attack defenses.
  *
  * It performs either a fixed point multiplication
- *          (scalar * generator)
+ *    (scalar * generator)
  * when point is NULL, or a variable point multiplication
- *          (scalar * point)
+ *    (scalar * point)
  * when point is not NULL.
  *
  * `scalar` cannot be NULL and should be in the range [0,n) otherwise all

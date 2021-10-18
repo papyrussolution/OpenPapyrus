@@ -19,7 +19,7 @@ int (*SPrinter::HandlePrintError)(int) = 0;
 SPrinter::SPrinter()              {}
 SPrinter::~SPrinter()             {}
 int   SPrinter::printLine(const char *, size_t) { return 1; }
-int   SPrinter::startPage()       { return 1; }
+int   SPrinter::startPage() { return 1; }
 int   SPrinter::endPage()         { return 1; }
 //
 // @todo перенести функционал в SPrinter

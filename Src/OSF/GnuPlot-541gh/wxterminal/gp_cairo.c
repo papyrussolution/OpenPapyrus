@@ -277,7 +277,7 @@ void gp_cairo_set_font(plot_struct * plot, const char * name, float fontsize)
 	char * fname;
 	FPRINTF((stderr, "set_font \"%s\" %f\n", name, fontsize));
 	/* Split out Bold and Italic attributes from font name */
-	fname = strdup(name);
+	fname = sstrdup(name);
 	for(c = fname; *c; c++) {
 		if(*c == '\\') {
 			char * d = c;
@@ -324,7 +324,7 @@ void gp_cairo_set_linewidth(plot_struct * plot, double linewidth)
 	FPRINTF((stderr, "set_linewidth %lf\n", linewidth));
 	gp_cairo_stroke(plot); // stroke any open path 
 	gp_cairo_end_polygon(plot); // draw any open polygon set 
-	if(!strcmp(term->name, "pdfcairo"))
+	if(sstreq(GPT.P_Term->name, "pdfcairo"))
 		linewidth *= 2;
 	if(linewidth < 0.20)    /* Admittedly arbitrary */
 		linewidth = 0.20;
@@ -494,7 +494,7 @@ void gp_cairo_set_dashtype(plot_struct * plot, int type, t_dashtype * custom_das
 		/* Convert to internal representation */
 		int i;
 		double empirical_scale;
-		if(!strcmp(term->name, "pngcairo"))
+		if(sstreq(GPT.P_Term->name, "pngcairo"))
 			empirical_scale = 0.25;
 		else
 			empirical_scale = 0.55;
@@ -651,7 +651,7 @@ static char * gp_cairo_convert(plot_struct * plot, const char* string)
 		if(error->code != G_CONVERT_ERROR_ILLEGAL_SEQUENCE) {
 			fprintf(stderr, "Unable to convert \"%s\": %s\n", string, error->message);
 			g_error_free(error);
-			return strdup("");
+			return sstrdup("");
 		}
 		/* The sequence is invalid in the chosen charset.
 		 * we will try to fall back to iso_8859_1, and if it doesn't work,
@@ -1013,7 +1013,7 @@ void gp_cairo_draw_image(plot_struct * plot, unsigned int * image, int x1, int y
 	gp_cairo_stroke(plot);
 	/* also draw any open polygon set */
 	gp_cairo_end_polygon(plot);
-	image_surface = cairo_image_surface_create_for_data((unsigned char*)image, CAIRO_FORMAT_ARGB32, M, N, 4*M);
+	image_surface = cairo_image_surface_create_for_data((uchar *)image, CAIRO_FORMAT_ARGB32, M, N, 4*M);
 	scale_x = (double)M/(double)abs(x2 - x1);
 	scale_y = (double)N/(double)abs(y2 - y1);
 
@@ -1346,19 +1346,19 @@ void gp_cairo_enhanced_flush(plot_struct * plot)
 	g_free(enhanced_text_utf8);
 }
 /* brace is TRUE to keep processing to },
- *         FALSE to do one character only
+ *   FALSE to do one character only
  * fontname & fontsize are obvious
  * base is the current baseline
  * widthflag is TRUE if the width of this should count,
- *              FALSE for zero width boxes
+ *        FALSE for zero width boxes
  * showflag is TRUE if this should be shown,
- *             FALSE if it should not be shown (like TeX \phantom)
+ *       FALSE if it should not be shown (like TeX \phantom)
  * overprint is 0 for normal operation,
- *              1 for the underprinted text (included in width calculation),
- *              2 for the overprinted text (not included in width calc, through widhtflag=false),
- *              (overprinted text is centered horizontally on underprinted text)
- *              3 means "save current position",
- *              4 means "restore saved position" */
+ *        1 for the underprinted text (included in width calculation),
+ *        2 for the overprinted text (not included in width calc, through widhtflag=false),
+ *        (overprinted text is centered horizontally on underprinted text)
+ *        3 means "save current position",
+ *        4 means "restore saved position" */
 void gp_cairo_enhanced_open(plot_struct * plot, char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	if(overprint == 3) {
@@ -1376,7 +1376,7 @@ void gp_cairo_enhanced_open(plot_struct * plot, char* fontname, double fontsize,
 		/* Strip off Bold or Italic and apply immediately
 		 * Is it really necessary to preserve plot->fontname?
 		 */
-		char * save_plot_font = strdup(plot->fontname);
+		char * save_plot_font = sstrdup(plot->fontname);
 		gp_cairo_set_font(plot, fontname, plot->fontsize);
 		safe_strncpy(gp_cairo_enhanced_font, plot->fontname, sizeof(gp_cairo_enhanced_font));
 		strcpy(plot->fontname, save_plot_font);
@@ -1403,7 +1403,7 @@ void gp_cairo_enhanced_init(plot_struct * plot, int len)
 	gp_cairo_stroke(plot);
 	/* also draw any open polygon set */
 	gp_cairo_end_polygon(plot);
-	gp_cairo_enhanced_string = (char*)malloc(len+1);
+	gp_cairo_enhanced_string = (char *)SAlloc::M(len+1);
 	gp_cairo_enhanced_opened_string = FALSE;
 	gp_cairo_enhanced_overprint = FALSE;
 	gp_cairo_enhanced_showflag = TRUE;
@@ -1656,7 +1656,7 @@ void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar)
 	else
 		cairo_set_source_rgb(pattern_cr, 1.0, 1.0, 1.0);
 	cairo_paint(pattern_cr);
-	if(!strcmp(term->name, "pdfcairo")) /* Work-around for poor scaling in cairo */
+	if(sstreq(GPT.P_Term->name, "pdfcairo")) /* Work-around for poor scaling in cairo */
 		cairo_set_line_width(pattern_cr, PATTERN_SIZE/150.);
 	else
 		cairo_set_line_width(pattern_cr, PATTERN_SIZE/50.);
@@ -1768,10 +1768,8 @@ void gp_cairo_set_termvar(plot_struct * plot, unsigned int * v_char, unsigned in
 		tmp_v_char = 300 * (plot->fontsize / 10.);
 		fprintf(stderr, "warning: problem determining pango font metrics\n");
 	}
-	if(v_char)
-		*v_char = tmp_v_char;
-	if(h_char)
-		*h_char = tmp_h_char;
+	ASSIGN_PTR(v_char, tmp_v_char);
+	ASSIGN_PTR(h_char, tmp_h_char);
 
 /* FIXME!!! So far, so good. But now we have a problem. This routine	*/
 /* is called synchronously with the set_font command, but avg_vchar is	*/

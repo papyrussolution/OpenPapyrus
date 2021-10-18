@@ -441,7 +441,7 @@ const OnigPairCaseFoldCodes OnigAsciiLowerMap[] = {
 	{ 0x5a, 0x7a }
 };
 
-int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag ARG_UNUSED, OnigApplyAllCaseFoldFunc f, void* arg)
+int onigenc_ascii_apply_all_case_fold(OnigCaseFoldType flag ARG_UNUSED, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	for(int i = 0; i < (int)(sizeof(OnigAsciiLowerMap)/sizeof(OnigPairCaseFoldCodes)); i++) {
 		OnigCodePoint code = OnigAsciiLowerMap[i].to;
@@ -473,13 +473,13 @@ int onigenc_ascii_get_case_fold_codes_by_str(OnigCaseFoldType flag ARG_UNUSED, c
 		return 0;
 }
 
-static int ss_apply_all_case_fold(OnigCaseFoldType flag ARG_UNUSED, OnigApplyAllCaseFoldFunc f, void* arg)
+static int ss_apply_all_case_fold(OnigCaseFoldType flag ARG_UNUSED, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	static OnigCodePoint ss[] = { SMALL_S, SMALL_S };
 	return (*f)((OnigCodePoint)0xdf, ss, 2, arg);
 }
 
-int onigenc_apply_all_case_fold_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag, OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void* arg)
+int onigenc_apply_all_case_fold_with_map(int map_size, const OnigPairCaseFoldCodes map[], int ess_tsett_flag, OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	OnigCodePoint code;
 	int i;

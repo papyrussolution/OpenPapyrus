@@ -76,7 +76,7 @@ static unsigned int hb_font_get_nominal_glyphs_default(hb_font_t * font, void * 
     unsigned int unicode_stride, hb_codepoint_t * first_glyph, unsigned int glyph_stride, void * user_data HB_UNUSED)
 {
 	if(font->has_nominal_glyph_func_set()) {
-		for(unsigned int i = 0; i < count; i++) {
+		for(uint i = 0; i < count; i++) {
 			if(!font->get_nominal_glyph(*first_unicode, first_glyph))
 				return i;
 			first_unicode = &StructAtOffsetUnaligned<hb_codepoint_t> (first_unicode, unicode_stride);
@@ -132,11 +132,11 @@ static hb_position_t hb_font_get_glyph_v_advance_default(hb_font_t * font, void 
 }
 
 #define hb_font_get_glyph_h_advances_nil hb_font_get_glyph_h_advances_default
-static void hb_font_get_glyph_h_advances_default(hb_font_t* font, void* font_data HB_UNUSED, unsigned int count, const hb_codepoint_t * first_glyph,
+static void hb_font_get_glyph_h_advances_default(hb_font_t* font, void * font_data HB_UNUSED, unsigned int count, const hb_codepoint_t * first_glyph,
     unsigned int glyph_stride, hb_position_t * first_advance, unsigned int advance_stride, void * user_data HB_UNUSED)
 {
 	if(font->has_glyph_h_advance_func_set()) {
-		for(unsigned int i = 0; i < count; i++) {
+		for(uint i = 0; i < count; i++) {
 			*first_advance = font->get_glyph_h_advance(*first_glyph);
 			first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
 			first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
@@ -144,19 +144,19 @@ static void hb_font_get_glyph_h_advances_default(hb_font_t* font, void* font_dat
 		return;
 	}
 	font->parent->get_glyph_h_advances(count, first_glyph, glyph_stride, first_advance, advance_stride);
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		*first_advance = font->parent_scale_x_distance(*first_advance);
 		first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
 	}
 }
 
 #define hb_font_get_glyph_v_advances_nil hb_font_get_glyph_v_advances_default
-static void hb_font_get_glyph_v_advances_default(hb_font_t* font, void* font_data HB_UNUSED, unsigned int count,
+static void hb_font_get_glyph_v_advances_default(hb_font_t* font, void * font_data HB_UNUSED, unsigned int count,
     const hb_codepoint_t * first_glyph, unsigned int glyph_stride, hb_position_t * first_advance, unsigned int advance_stride,
     void * user_data HB_UNUSED)
 {
 	if(font->has_glyph_v_advance_func_set()) {
-		for(unsigned int i = 0; i < count; i++) {
+		for(uint i = 0; i < count; i++) {
 			*first_advance = font->get_glyph_v_advance(*first_glyph);
 			first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
 			first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
@@ -164,7 +164,7 @@ static void hb_font_get_glyph_v_advances_default(hb_font_t* font, void* font_dat
 		return;
 	}
 	font->parent->get_glyph_v_advances(count, first_glyph, glyph_stride, first_advance, advance_stride);
-	for(unsigned int i = 0; i < count; i++) {
+	for(uint i = 0; i < count; i++) {
 		*first_advance = font->parent_scale_y_distance(*first_advance);
 		first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
 	}
@@ -1500,7 +1500,7 @@ void hb_font_set_variations(hb_font_t * font, const hb_variation_t * variations,
 		return;
 	}
 	const OT::fvar &fvar = *font->face->table.fvar;
-	for(unsigned int i = 0; i < variations_length; i++) {
+	for(uint i = 0; i < variations_length; i++) {
 		hb_ot_var_axis_info_t info;
 		if(hb_ot_var_find_axis_info(font->face, variations[i].tag, &info) && info.axis_index < coords_length) {
 			float v = variations[i].value;
@@ -1577,7 +1577,7 @@ void hb_font_set_var_coords_normalized(hb_font_t * font, const int * coords/* 2.
 	}
 	/* Best effort design coords simulation */
 	font->face->table.avar->unmap_coords(unmapped, coords_length);
-	for(unsigned int i = 0; i < coords_length; ++i)
+	for(uint i = 0; i < coords_length; ++i)
 		design_coords[i] = font->face->table.fvar->unnormalize_axis_value(i, unmapped[i]);
 	SAlloc::F(unmapped);
 	_hb_font_adopt_var_coords(font, copy, design_coords, coords_length);

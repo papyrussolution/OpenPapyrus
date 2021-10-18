@@ -41,15 +41,15 @@ static int      archive_write_cpio_free(struct archive_write *);
 static int      archive_write_cpio_finish_entry(struct archive_write *);
 static int      archive_write_cpio_header(struct archive_write *, struct archive_entry *);
 static int      archive_write_cpio_options(struct archive_write *, const char *, const char *);
-static int      format_octal(int64_t, void *, int);
-static int64_t  format_octal_recursive(int64_t, char *, int);
+static int      format_octal(int64, void *, int);
+static int64  format_octal_recursive(int64, char *, int);
 static int      write_header(struct archive_write *, struct archive_entry *);
 
 struct cpio {
-	uint64_t entry_bytes_remaining;
-	int64_t ino_next;
+	uint64 entry_bytes_remaining;
+	int64 ino_next;
 	struct InoList { 
-		int64_t old; 
+		int64 old; 
 		int New;
 	} * ino_list;
 	size_t ino_list_size;
@@ -97,7 +97,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 
-	cpio = (struct cpio *)calloc(1, sizeof(*cpio));
+	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
@@ -159,7 +159,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
  */
 static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry)
 {
-	int64_t ino = archive_entry_ino64(entry);
+	int64 ino = archive_entry_ino64(entry);
 	int ino_new;
 	size_t i;
 
@@ -188,7 +188,7 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	/* Ensure space for the new mapping. */
 	if(cpio->ino_list_size <= cpio->ino_list_next) {
 		size_t newsize = cpio->ino_list_size < 512 ? 512 : cpio->ino_list_size * 2;
-		void * newlist = realloc(cpio->ino_list, sizeof(cpio->ino_list[0]) * newsize);
+		void * newlist = SAlloc::R(cpio->ino_list, sizeof(cpio->ino_list[0]) * newsize);
 		if(newlist == NULL)
 			return -1;
 		cpio->ino_list_size = newsize;
@@ -252,7 +252,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct cpio * cpio;
 	const char * p, * path;
 	int pathlength, ret, ret_final;
-	int64_t ino;
+	int64 ino;
 	char h[76];
 	struct archive_string_conv * sconv;
 	struct archive_entry * entry_main;
@@ -403,12 +403,12 @@ static ssize_t archive_write_cpio_data(struct archive_write * a, const void * bu
 /*
  * Format a number into the specified field.
  */
-static int format_octal(int64_t v, void * p, int digits)
+static int format_octal(int64 v, void * p, int digits)
 {
-	int64_t max;
+	int64 max;
 	int ret;
 
-	max = (((int64_t)1) << (digits * 3)) - 1;
+	max = (((int64)1) << (digits * 3)) - 1;
 	if(v >= 0 && v <= max) {
 		format_octal_recursive(v, (char *)p, digits);
 		ret = 0;
@@ -420,7 +420,7 @@ static int format_octal(int64_t v, void * p, int digits)
 	return ret;
 }
 
-static int64_t format_octal_recursive(int64_t v, char * p, int s)
+static int64 format_octal_recursive(int64 v, char * p, int s)
 {
 	if(s == 0)
 		return (v);
@@ -449,8 +449,8 @@ static int archive_write_cpio_free(struct archive_write * a)
 	struct cpio * cpio;
 
 	cpio = (struct cpio *)a->format_data;
-	free(cpio->ino_list);
-	free(cpio);
+	SAlloc::F(cpio->ino_list);
+	SAlloc::F(cpio);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
 }

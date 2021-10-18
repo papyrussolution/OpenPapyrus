@@ -138,13 +138,11 @@ void archive_clear_error(struct archive * a)
 void archive_set_error(struct archive * a, int error_number, const char * fmt, ...)
 {
 	va_list ap;
-
 	a->archive_error_number = error_number;
 	if(fmt == NULL) {
 		a->error = NULL;
 		return;
 	}
-
 	archive_string_empty(&(a->error_string));
 	va_start(ap, fmt);
 	archive_string_vsprintf(&(a->error_string), fmt, ap);
@@ -155,7 +153,6 @@ void archive_set_error(struct archive * a, int error_number, const char * fmt, .
 void archive_copy_error(struct archive * dest, struct archive * src)
 {
 	dest->archive_error_number = src->archive_error_number;
-
 	archive_string_copy(&dest->error_string, &src->error_string);
 	dest->error = dest->error_string.s;
 }
@@ -221,14 +218,14 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 				la_dosmaperr(GetLastError());
 				goto exit_tmpfile;
 			}
-			tmp = (wchar_t *)malloc(l*sizeof(wchar_t));
+			tmp = (wchar_t *)SAlloc::M(l*sizeof(wchar_t));
 			if(tmp == NULL) {
 				errno = ENOMEM;
 				goto exit_tmpfile;
 			}
 			GetTempPathW((DWORD)l, tmp);
 			archive_wstrcpy(&temp_name, tmp);
-			free(tmp);
+			SAlloc::F(tmp);
 		}
 		else {
 			if(archive_wstring_append_from_mbs(&temp_name, tmpdir, strlen(tmpdir)) < 0)
@@ -295,7 +292,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 		}
 		for(; p < ep; p++)
 			*p = num[((DWORD)*p) % (sizeof(num)/sizeof(num[0]))];
-		free(ws);
+		SAlloc::F(ws);
 		ws = __la_win_permissive_name_w(pTemplate);
 		if(ws == NULL) {
 			errno = EINVAL;
@@ -336,7 +333,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 exit_tmpfile:
 	if(hProv != (HCRYPTPROV)NULL)
 		CryptReleaseContext(hProv, 0);
-	free(ws);
+	SAlloc::F(ws);
 	if(pTemplate == temp_name.s)
 		archive_wstring_free(&temp_name);
 	return (fd);
@@ -554,11 +551,11 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 	for(i = 1; i < n; i++) {
 		if(strcmp(strings[i], pivot) < 0) {
 			lesser_count++;
-			tmp = (char**)realloc(lesser,
+			tmp = (char**)SAlloc::R(lesser,
 				lesser_count * sizeof(char *));
 			if(!tmp) {
-				free(greater);
-				free(lesser);
+				SAlloc::F(greater);
+				SAlloc::F(lesser);
 				return ARCHIVE_FATAL;
 			}
 			lesser = tmp;
@@ -566,11 +563,11 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 		}
 		else {
 			greater_count++;
-			tmp = (char**)realloc(greater,
+			tmp = (char**)SAlloc::R(greater,
 				greater_count * sizeof(char *));
 			if(!tmp) {
-				free(greater);
-				free(lesser);
+				SAlloc::F(greater);
+				SAlloc::F(lesser);
 				return ARCHIVE_FATAL;
 			}
 			greater = tmp;
@@ -582,7 +579,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 	retval1 = archive_utility_string_sort_helper(lesser, lesser_count);
 	for(i = 0; i < lesser_count; i++)
 		strings[i] = lesser[i];
-	free(lesser);
+	SAlloc::F(lesser);
 
 	/* pivot */
 	strings[lesser_count] = pivot;
@@ -591,7 +588,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 	retval2 = archive_utility_string_sort_helper(greater, greater_count);
 	for(i = 0; i < greater_count; i++)
 		strings[lesser_count + 1 + i] = greater[i];
-	free(greater);
+	SAlloc::F(greater);
 
 	return (retval1 < retval2) ? retval1 : retval2;
 }

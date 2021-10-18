@@ -193,7 +193,7 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 	{
 		const char * mode_strings[] = { "dot", "half", "halfh", "quadrants", "sextants", "braille" };
 		const char * color_strings[] = {"mono", "ansi", "ansi256", "ansirgb"};
-		sprintf(GPT.TermOptions, "%s %s %soptimize %senhanced size %d,%d", mode_strings[BLOCK_mode],
+		GPT._TermOptions.Printf("%s %s %soptimize %senhanced size %d,%d", mode_strings[BLOCK_mode],
 		    color_strings[pGp->TDumbB.ColorMode == 0 ? 0 : pGp->TDumbB.ColorMode - DUMB_ANSI + 1],
 		    (BLOCK_optimize ? "" : "no"), (pThis->flags & TERM_ENHANCED_TEXT) ? "" : "no", BLOCK_xchars, BLOCK_ychars);
 	}

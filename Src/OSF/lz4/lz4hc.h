@@ -57,7 +57,7 @@ extern "C" {
  *  Compression is guaranteed to succeed if `dstCapacity >= LZ4_compressBound(srcSize)` (see "lz4.h")
  *  Max supported `srcSize` value is LZ4_MAX_INPUT_SIZE (see "lz4.h")
  * `compressionLevel` : any value between 1 and LZ4HC_CLEVEL_MAX will work.
- *                 Values > LZ4HC_CLEVEL_MAX behave the same as LZ4HC_CLEVEL_MAX.
+ *           Values > LZ4HC_CLEVEL_MAX behave the same as LZ4HC_CLEVEL_MAX.
  * @return : the number of bytes written into 'dst'
  *      or 0 if compression fails.
  */
@@ -73,7 +73,7 @@ LZ4LIB_API int LZ4_compress_HC(const char* src, char* dst, int srcSize, int dstC
  *  Memory segment must be aligned on 8-bytes boundaries (which a normal malloc() should do properly).
  */
 LZ4LIB_API int LZ4_sizeofStateHC(void);
-LZ4LIB_API int LZ4_compress_HC_extStateHC(void* state, const char* src, char* dst, int srcSize, int maxDstSize, int compressionLevel);
+LZ4LIB_API int LZ4_compress_HC_extStateHC(void * state, const char* src, char* dst, int srcSize, int maxDstSize, int compressionLevel);
 
 /*-************************************
 *  Streaming Compression
@@ -161,9 +161,9 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char* safeBuffer, int
 	struct LZ4HC_CCtx_internal {
 		unsigned int hashTable[LZ4HC_HASHTABLESIZE];
 		unsigned short chainTable[LZ4HC_MAXD];
-		const unsigned char* end;    /* next block here to continue on current prefix */
-		const unsigned char* base;   /* All index relative to this position */
-		const unsigned char* dictBase; /* alternate base for extDict */
+		const uchar* end;    /* next block here to continue on current prefix */
+		const uchar* base;   /* All index relative to this position */
+		const uchar* dictBase; /* alternate base for extDict */
 		unsigned int dictLimit;      /* below that point, need extDict */
 		unsigned int lowLimit;       /* below that point, no more dict */
 		unsigned int nextToUpdate;   /* index from which to continue dictionary update */
@@ -204,13 +204,13 @@ LZ4_DEPRECATED("use LZ4_compress_HC() instead") LZ4LIB_API int LZ4_compressHC2(c
     char* dest, int inputSize, int compressionLevel);
 LZ4_DEPRECATED("use LZ4_compress_HC() instead") LZ4LIB_API int LZ4_compressHC2_limitedOutput(const char* source,
     char* dest, int inputSize, int maxOutputSize, int compressionLevel);
-LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC_withStateHC(void* state,
+LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC_withStateHC(void * state,
     const char* source, char* dest, int inputSize);
-LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC_limitedOutput_withStateHC(void* state,
+LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC_limitedOutput_withStateHC(void * state,
     const char* source, char* dest, int inputSize, int maxOutputSize);
-LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC2_withStateHC(void* state,
+LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC2_withStateHC(void * state,
     const char* source, char* dest, int inputSize, int compressionLevel);
-LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC2_limitedOutput_withStateHC(void* state,
+LZ4_DEPRECATED("use LZ4_compress_HC_extStateHC() instead") LZ4LIB_API int LZ4_compressHC2_limitedOutput_withStateHC(void * state,
     const char* source, char* dest, int inputSize, int maxOutputSize, int compressionLevel);
 LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_compressHC_continue(LZ4_streamHC_t* LZ4_streamHCPtr,
     const char* source, char* dest, int inputSize);
@@ -225,15 +225,15 @@ LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_comp
  * LZ4_slideInputBufferHC() will truncate the history of the stream, rather
  * than preserve a window-sized chunk of history.
  */
-LZ4_DEPRECATED("use LZ4_createStreamHC() instead") LZ4LIB_API void* LZ4_createHC(const char* inputBuffer);
-LZ4_DEPRECATED("use LZ4_saveDictHC() instead") LZ4LIB_API     char* LZ4_slideInputBufferHC(void* LZ4HC_Data);
-LZ4_DEPRECATED("use LZ4_freeStreamHC() instead") LZ4LIB_API int   LZ4_freeHC(void* LZ4HC_Data);
-LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_compressHC2_continue(void* LZ4HC_Data,
+LZ4_DEPRECATED("use LZ4_createStreamHC() instead") LZ4LIB_API void * LZ4_createHC(const char* inputBuffer);
+LZ4_DEPRECATED("use LZ4_saveDictHC() instead") LZ4LIB_API     char* LZ4_slideInputBufferHC(void * LZ4HC_Data);
+LZ4_DEPRECATED("use LZ4_freeStreamHC() instead") LZ4LIB_API int   LZ4_freeHC(void * LZ4HC_Data);
+LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_compressHC2_continue(void * LZ4HC_Data,
     const char* source, char* dest, int inputSize, int compressionLevel);
-LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_compressHC2_limitedOutput_continue(void* LZ4HC_Data,
+LZ4_DEPRECATED("use LZ4_compress_HC_continue() instead") LZ4LIB_API int LZ4_compressHC2_limitedOutput_continue(void * LZ4HC_Data,
     const char* source, char* dest, int inputSize, int maxOutputSize, int compressionLevel);
 LZ4_DEPRECATED("use LZ4_createStreamHC() instead") LZ4LIB_API int   LZ4_sizeofStreamStateHC(void);
-LZ4_DEPRECATED("use LZ4_resetStreamHC() instead") LZ4LIB_API int   LZ4_resetStreamStateHC(void* state, char* inputBuffer);
+LZ4_DEPRECATED("use LZ4_resetStreamHC() instead") LZ4LIB_API int   LZ4_resetStreamStateHC(void * state, char* inputBuffer);
 
 #if defined (__cplusplus)
 }
@@ -265,7 +265,7 @@ extern "C" {
  *      or 0 if compression fails.
  * `srcSizePtr` : value will be updated to indicate how much bytes were read from `src`
  */
-int LZ4_compress_HC_destSize(void* LZ4HC_Data, const char* src, char* dst, int* srcSizePtr, int targetDstSize, int compressionLevel);
+int LZ4_compress_HC_destSize(void * LZ4HC_Data, const char* src, char* dst, int* srcSizePtr, int targetDstSize, int compressionLevel);
 /*! LZ4_compress_HC_continue_destSize() : v1.8.0 (experimental)
  *  Similar as LZ4_compress_HC_continue(),
  *  but will read a variable nb of bytes from `src`
@@ -323,7 +323,7 @@ void LZ4_resetStreamHC_fast(LZ4_streamHC_t* LZ4_streamHCPtr, int compressionLeve
  *  LZ4_resetStreamHC_fast() while LZ4_compress_HC_extStateHC() starts with a
  *  call to LZ4_resetStreamHC().
  */
-int LZ4_compress_HC_extStateHC_fastReset(void* state, const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel);
+int LZ4_compress_HC_extStateHC_fastReset(void * state, const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel);
 
 /*! LZ4_attach_HC_dictionary() :
  *  This is an experimental API that allows for the efficient use of a

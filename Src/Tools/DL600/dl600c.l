@@ -150,7 +150,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 <incl>[ \t]+
 <incl>[^ \t\n]+	{
 		yyin_cnt++;
-		yyin_struct = (YYIN_STR *)realloc(yyin_struct, yyin_cnt*sizeof(YYIN_STR));
+		yyin_struct = (YYIN_STR *)SAlloc::R(yyin_struct, yyin_cnt*sizeof(YYIN_STR));
 		if(!yyin_struct)
 			yyerror("Not enough memory");
 		yyin_struct[yyin_cnt-1].yyin_buf = YY_CURRENT_BUFFER;
@@ -173,7 +173,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 	}
 <<EOF>> {
 		if(--yyin_cnt < 0 ) {
-			free(yyin_struct);
+			SAlloc::F(yyin_struct);
 			yyterminate();
 		}
 		else {

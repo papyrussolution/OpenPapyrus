@@ -46,7 +46,7 @@ static int piecemeal_write_base64_data_finish(base64s * b64)
 }
 
 // To use repeatedly, must initialize base64state first, then when done call finish.  See write_base64_data(). 
-static int piecemeal_write_base64_data(const unsigned char * data, unsigned int length, base64s * b64) 
+static int piecemeal_write_base64_data(const uchar * data, unsigned int length, base64s * b64) 
 {
 	uint i_data = 0;
 	while(1) {
@@ -85,7 +85,7 @@ static int piecemeal_write_base64_data(const unsigned char * data, unsigned int 
 int write_png_image(GpTermEntry * pThis, uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename) 
 {
 	uint * image255 = gp_cairo_helper_coordval_to_chars(pThis, image, m, n, color_mode);
-	cairo_surface_t * image_surface = cairo_image_surface_create_for_data((unsigned char*)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
+	cairo_surface_t * image_surface = cairo_image_surface_create_for_data((uchar *)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
 	cairo_status_t cairo_stat = cairo_surface_write_to_png(image_surface, filename);
 	cairo_surface_destroy(image_surface);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
@@ -96,7 +96,7 @@ int write_png_image(GpTermEntry * pThis, uint m, uint n, coordval * image, t_ima
 		return 0;
 }
 
-cairo_status_t cairo_write_base64_callback(void * closure, const unsigned char * data, unsigned int length) 
+cairo_status_t cairo_write_base64_callback(void * closure, const uchar * data, unsigned int length) 
 {
 	if(piecemeal_write_base64_data(data, length, (base64s *)closure) == 0)
 		return CAIRO_STATUS_SUCCESS;
@@ -154,7 +154,7 @@ gdImagePtr construct_gd_image(GpTermEntry * pThis, uint M, uint N, coordval * im
 				rgb1.g = *image++;
 				rgb1.b = *image++;
 				alpha  = *image++;
-				alpha  = 127 - (alpha>>1);/* input is [0:255] but gd wants [127:0] */
+				alpha  = 127 - (alpha>>1); /* input is [0:255] but gd wants [127:0] */
 				rgb255_from_rgb1(rgb1, &rgb255);
 				pixel = gdImageColorResolveAlpha(im, (int)rgb255.r, (int)rgb255.g, (int)rgb255.b, alpha);
 				gdImageSetPixel(im, m, n, pixel);

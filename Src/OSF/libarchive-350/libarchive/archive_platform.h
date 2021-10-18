@@ -130,7 +130,7 @@
 #endif
 #ifndef SLIBINCLUDED // {
 	#if !HAVE_DECL_UINT32_MAX
-		#define	UINT32_MAX (~(uint32_t)0)
+		#define	UINT32_MAX (~(uint32)0)
 	#endif
 	#if !HAVE_DECL_INT32_MAX
 		#define	INT32_MAX ((int32_t)(UINT32_MAX >> 1))
@@ -139,13 +139,13 @@
 		#define	INT32_MIN ((int32_t)(~INT32_MAX))
 	#endif
 	#if !HAVE_DECL_UINT64_MAX
-		#define	UINT64_MAX (~(uint64_t)0)
+		#define	UINT64_MAX (~(uint64)0)
 	#endif
 	#if !HAVE_DECL_INT64_MAX
-		#define	INT64_MAX ((int64_t)(UINT64_MAX >> 1))
+		#define	INT64_MAX ((int64)(UINT64_MAX >> 1))
 	#endif
 	#if !HAVE_DECL_INT64_MIN
-		#define	INT64_MIN ((int64_t)(~INT64_MAX))
+		#define	INT64_MIN ((int64)(~INT64_MAX))
 	#endif
 	#if !HAVE_DECL_UINTMAX_MAX
 		#define	UINTMAX_MAX (~(uintmax_t)0)

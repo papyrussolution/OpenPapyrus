@@ -34,7 +34,7 @@
 #include "hb.hh"
 
 #line 38 "hb-ot-shape-complex-use-machine.hh"
-static const unsigned char _use_syllable_machine_trans_keys[] = {
+static const uchar _use_syllable_machine_trans_keys[] = {
 	12u, 48u, 1u, 15u, 1u, 1u, 12u, 48u, 1u, 1u, 0u, 48u, 21u, 21u, 11u, 48u,
 	11u, 48u, 1u, 15u, 1u, 1u, 11u, 48u, 22u, 48u, 23u, 48u, 24u, 47u, 25u, 47u,
 	26u, 47u, 45u, 46u, 46u, 46u, 24u, 48u, 24u, 48u, 24u, 48u, 1u, 1u, 24u, 48u,
@@ -374,7 +374,7 @@ static const int use_syllable_machine_en_main = 5;
 #define found_syllable(syllable_type) \
 	HB_STMT_START { \
 		if(0) slfprintf_stderr("syllable %d..%d %s\n", ts, te, #syllable_type); \
-		for(unsigned int i = ts; i < te; i++) \
+		for(uint i = ts; i < te; i++) \
 			info[i].syllable() = (syllable_serial << 4) | use_ ## syllable_type; \
 		syllable_serial++; \
 		if(UNLIKELY(syllable_serial == 16)) syllable_serial = 1; \
@@ -405,7 +405,7 @@ static void find_syllables_use(hb_buffer_t * buffer)
 	{
 		int _slen;
 		int _trans;
-		const unsigned char * _keys;
+		const uchar * _keys;
 		const char * _inds;
 		if(p == pe)
 			goto _test_eof;

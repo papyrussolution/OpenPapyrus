@@ -46,29 +46,29 @@ enum blake2b_constant {
 };
 
 typedef struct blake2s_state__ {
-	uint32_t h[8];
-	uint32_t t[2];
-	uint32_t f[2];
-	uint8_t buf[BLAKE2S_BLOCKBYTES];
+	uint32 h[8];
+	uint32 t[2];
+	uint32 f[2];
+	uint8 buf[BLAKE2S_BLOCKBYTES];
 	size_t buflen;
 	size_t outlen;
-	uint8_t last_node;
+	uint8 last_node;
 } blake2s_state;
 
 typedef struct blake2b_state__ {
-	uint64_t h[8];
-	uint64_t t[2];
-	uint64_t f[2];
-	uint8_t buf[BLAKE2B_BLOCKBYTES];
+	uint64 h[8];
+	uint64 t[2];
+	uint64 f[2];
+	uint8 buf[BLAKE2B_BLOCKBYTES];
 	size_t buflen;
 	size_t outlen;
-	uint8_t last_node;
+	uint8 last_node;
 } blake2b_state;
 
 typedef struct blake2sp_state__ {
 	blake2s_state S[8][1];
 	blake2s_state R[1];
-	uint8_t buf[8 * BLAKE2S_BLOCKBYTES];
+	uint8 buf[8 * BLAKE2S_BLOCKBYTES];
 	size_t buflen;
 	size_t outlen;
 } blake2sp_state;
@@ -76,41 +76,41 @@ typedef struct blake2sp_state__ {
 typedef struct blake2bp_state__ {
 	blake2b_state S[4][1];
 	blake2b_state R[1];
-	uint8_t buf[4 * BLAKE2B_BLOCKBYTES];
+	uint8 buf[4 * BLAKE2B_BLOCKBYTES];
 	size_t buflen;
 	size_t outlen;
 } blake2bp_state;
 
 BLAKE2_PACKED(struct blake2s_param__ {
-	uint8_t digest_length; /* 1 */
-	uint8_t key_length; /* 2 */
-	uint8_t fanout;     /* 3 */
-	uint8_t depth;      /* 4 */
-	uint32_t leaf_length; /* 8 */
-	uint32_t node_offset; /* 12 */
+	uint8 digest_length; /* 1 */
+	uint8 key_length; /* 2 */
+	uint8 fanout;     /* 3 */
+	uint8 depth;      /* 4 */
+	uint32 leaf_length; /* 8 */
+	uint32 node_offset; /* 12 */
 	uint16_t xof_length; /* 14 */
-	uint8_t node_depth; /* 15 */
-	uint8_t inner_length; /* 16 */
-	/* uint8_t  reserved[0]; */
-	uint8_t salt[BLAKE2S_SALTBYTES]; /* 24 */
-	uint8_t personal[BLAKE2S_PERSONALBYTES]; /* 32 */
+	uint8 node_depth; /* 15 */
+	uint8 inner_length; /* 16 */
+	/* uint8  reserved[0]; */
+	uint8 salt[BLAKE2S_SALTBYTES]; /* 24 */
+	uint8 personal[BLAKE2S_PERSONALBYTES]; /* 32 */
 });
 
 typedef struct blake2s_param__ blake2s_param;
 
 BLAKE2_PACKED(struct blake2b_param__ {
-	uint8_t digest_length; /* 1 */
-	uint8_t key_length; /* 2 */
-	uint8_t fanout;     /* 3 */
-	uint8_t depth;      /* 4 */
-	uint32_t leaf_length; /* 8 */
-	uint32_t node_offset; /* 12 */
-	uint32_t xof_length; /* 16 */
-	uint8_t node_depth; /* 17 */
-	uint8_t inner_length; /* 18 */
-	uint8_t reserved[14]; /* 32 */
-	uint8_t salt[BLAKE2B_SALTBYTES]; /* 48 */
-	uint8_t personal[BLAKE2B_PERSONALBYTES]; /* 64 */
+	uint8 digest_length; /* 1 */
+	uint8 key_length; /* 2 */
+	uint8 fanout;     /* 3 */
+	uint8 depth;      /* 4 */
+	uint32 leaf_length; /* 8 */
+	uint32 node_offset; /* 12 */
+	uint32 xof_length; /* 16 */
+	uint8 node_depth; /* 17 */
+	uint8 inner_length; /* 18 */
+	uint8 reserved[14]; /* 32 */
+	uint8 salt[BLAKE2B_SALTBYTES]; /* 48 */
+	uint8 personal[BLAKE2B_PERSONALBYTES]; /* 64 */
 });
 
 typedef struct blake2b_param__ blake2b_param;

@@ -29,11 +29,11 @@
 
 typedef enum  OutputFormat_
 {
-  OUTPUT_LIST = 0,      /* output the list of names, one per line             */
+  OUTPUT_LIST = 0,      /* output the list of names, one per line       */
   OUTPUT_WINDOWS_DEF,   /* output a Windows .DEF file for Visual C++ or Mingw */
-  OUTPUT_BORLAND_DEF,   /* output a Windows .DEF file for Borland C++         */
-  OUTPUT_WATCOM_LBC,    /* output a Watcom Linker Command File                */
-  OUTPUT_NETWARE_IMP,   /* output a NetWare ImportFile                        */
+  OUTPUT_BORLAND_DEF,   /* output a Windows .DEF file for Borland C++   */
+  OUTPUT_WATCOM_LBC,    /* output a Watcom Linker Command File   */
+  OUTPUT_NETWARE_IMP,   /* output a NetWare ImportFile     */
   OUTPUT_GNU_VERMAP     /* output a version map for GNU or Solaris linker     */
 
 } OutputFormat;
@@ -291,7 +291,7 @@ read_header_file( FILE*  file,
       /*
        * Sometimes, the name is just after `FT_EXPORT(...)', so skip
        * whitespace and fall-through if we find an alphanumeric character.
-       */
+ */
       while ( *p == ' ' || *p == '\t' )
         p++;
 

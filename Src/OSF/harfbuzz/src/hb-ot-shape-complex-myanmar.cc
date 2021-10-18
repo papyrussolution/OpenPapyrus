@@ -76,14 +76,14 @@ static void collect_features_myanmar(hb_ot_shape_planner_t * plan)
 
 	map->add_gsub_pause(reorder_myanmar);
 
-	for(unsigned int i = 0; i < ARRAY_LENGTH(myanmar_basic_features); i++) {
+	for(uint i = 0; i < ARRAY_LENGTH(myanmar_basic_features); i++) {
 		map->enable_feature(myanmar_basic_features[i], F_MANUAL_ZWJ);
 		map->add_gsub_pause(nullptr);
 	}
 
 	map->add_gsub_pause(_hb_clear_syllables);
 
-	for(unsigned int i = 0; i < ARRAY_LENGTH(myanmar_other_features); i++)
+	for(uint i = 0; i < ARRAY_LENGTH(myanmar_other_features); i++)
 		map->enable_feature(myanmar_other_features[i], F_MANUAL_ZWJ);
 }
 
@@ -113,7 +113,7 @@ static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		set_myanmar_properties(info[i]);
 }
 
@@ -160,7 +160,7 @@ static void initial_reordering_consonant_syllable(hb_buffer_t * buffer,
 			if(!has_reph)
 				base = limit;
 
-			for(unsigned int i = limit; i < end; i++)
+			for(uint i = limit; i < end; i++)
 				if(is_consonant(info[i])) {
 					base = i;
 					break;
@@ -253,7 +253,7 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
 	bool has_broken_syllables = false;
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
-	for(unsigned int i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == myanmar_broken_cluster) {
 			has_broken_syllables = true;
 			break;

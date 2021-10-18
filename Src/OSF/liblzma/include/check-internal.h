@@ -27,8 +27,8 @@
 #if defined(HAVE_INTERNAL_SHA256)
 /// State for the internal SHA-256 implementation
 typedef struct {
-	uint32_t state[8]; /// Internal state
-	uint64_t size; /// Size of the message excluding padding
+	uint32 state[8]; /// Internal state
+	uint64 size; /// Size of the message excluding padding
 } lzma_sha256_state;
 #elif defined(HAVE_CC_SHA256_CTX)
 	typedef CC_SHA256_CTX lzma_sha256_state;
@@ -64,14 +64,14 @@ typedef struct {
 struct lzma_check_state {
 	/// Buffer to hold the final result and a temporary buffer for SHA256.
 	union {
-		uint8_t u8[64];
-		uint32_t u32[16];
-		uint64_t u64[8];
+		uint8  u8[64];
+		uint32 u32[16];
+		uint64 u64[8];
 	} buffer;
 	/// Check-specific data
 	union {
-		uint32_t crc32;
-		uint64_t crc64;
+		uint32 crc32;
+		uint64 crc64;
 		lzma_sha256_state sha256;
 	} state;
 };
@@ -81,8 +81,8 @@ struct lzma_check_state {
 	extern uint32_t lzma_crc32_table[1][256];
 	extern void lzma_crc32_init(void);
 #else
-	extern const uint32_t lzma_crc32_table[8][256];
-	extern const uint64_t lzma_crc64_table[4][256];
+	extern const uint32 lzma_crc32_table[8][256];
+	extern const uint64 lzma_crc64_table[4][256];
 #endif
 /// \brief      Initialize *check depending on type
 ///
@@ -91,12 +91,12 @@ struct lzma_check_state {
 ///             LZMA_PROG_ERROR if type > LZMA_CHECK_ID_MAX.
 extern void lzma_check_init(lzma_check_state *check, lzma_check type);
 /// Update the check state
-extern void lzma_check_update(lzma_check_state *check, lzma_check type, const uint8_t *buf, size_t size);
+extern void lzma_check_update(lzma_check_state *check, lzma_check type, const uint8 *buf, size_t size);
 /// Finish the check calculation and store the result to check->buffer.u8.
 extern void lzma_check_finish(lzma_check_state *check, lzma_check type);
 #ifndef LZMA_SHA256FUNC
 	extern void lzma_sha256_init(lzma_check_state *check); /// Prepare SHA-256 state for new input.
-	extern void lzma_sha256_update(const uint8_t *buf, size_t size, lzma_check_state *check); /// Update the SHA-256 hash state
+	extern void lzma_sha256_update(const uint8 *buf, size_t size, lzma_check_state *check); /// Update the SHA-256 hash state
 	extern void lzma_sha256_finish(lzma_check_state *check); /// Finish the SHA-256 calculation and store the result to check->buffer.u8.
 #else
 
@@ -105,7 +105,7 @@ static inline void lzma_sha256_init(lzma_check_state *check)
 	LZMA_SHA256FUNC(Init)(&check->state.sha256);
 }
 
-static inline void lzma_sha256_update(const uint8_t *buf, size_t size, lzma_check_state *check)
+static inline void lzma_sha256_update(const uint8 *buf, size_t size, lzma_check_state *check)
 {
 #if defined(HAVE_CC_SHA256_INIT) && SIZE_MAX > UINT32_MAX
 	// Darwin's CC_SHA256_Update takes uint32_t as the buffer size,

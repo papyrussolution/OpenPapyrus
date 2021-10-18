@@ -48,7 +48,7 @@ static struct archive_vtable * archive_write_vtable(void);
 
 static int      _archive_filter_code(struct archive *, int);
 static const char * _archive_filter_name(struct archive *, int);
-static int64_t  _archive_filter_bytes(struct archive *, int);
+static int64  _archive_filter_bytes(struct archive *, int);
 static int  _archive_write_filter_count(struct archive *);
 static int      _archive_write_close(struct archive *);
 static int      _archive_write_free(struct archive *);
@@ -87,9 +87,9 @@ static struct archive_vtable * archive_write_vtable(void)                       
  */
 struct archive * archive_write_new(void)                 {
 	struct archive_write * a;
-	unsigned char * nulls;
+	uchar * nulls;
 
-	a = (struct archive_write *)calloc(1, sizeof(*a));
+	a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_MAGIC;
@@ -105,9 +105,9 @@ struct archive * archive_write_new(void)                 {
 
 	/* Initialize a block of nulls for padding purposes. */
 	a->null_length = 1024;
-	nulls = (uchar *)calloc(1, a->null_length);
+	nulls = (uchar *)SAlloc::C(1, a->null_length);
 	if(nulls == NULL) {
-		free(a);
+		SAlloc::F(a);
 		return NULL;
 	}
 	a->nulls = nulls;
@@ -182,7 +182,7 @@ int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 struct archive_write_filter * __archive_write_allocate_filter(struct archive * _a)                               
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	struct archive_write_filter * f = static_cast<struct archive_write_filter *>(calloc(1, sizeof(*f)));
+	struct archive_write_filter * f = static_cast<struct archive_write_filter *>(SAlloc::C(1, sizeof(*f)));
 	f->archive = _a;
 	f->state = ARCHIVE_WRITE_FILTER_STATE_NEW;
 	if(a->filter_first == NULL)
@@ -313,11 +313,11 @@ static int archive_write_client_open(struct archive_write_filter * f)
 	    archive_write_get_bytes_in_last_block(f->archive);
 	buffer_size = f->bytes_per_block;
 
-	state = (struct archive_none *)calloc(1, sizeof(*state));
-	buffer = (char *)malloc(buffer_size);
+	state = (struct archive_none *)SAlloc::C(1, sizeof(*state));
+	buffer = (char *)SAlloc::M(buffer_size);
 	if(state == NULL || buffer == NULL) {
-		free(state);
-		free(buffer);
+		SAlloc::F(state);
+		SAlloc::F(buffer);
 		archive_set_error(f->archive, ENOMEM, "Can't allocate data for output buffering");
 		return ARCHIVE_FATAL;
 	}
@@ -330,8 +330,8 @@ static int archive_write_client_open(struct archive_write_filter * f)
 		return ARCHIVE_OK;
 	ret = a->client_opener(f->archive, a->client_data);
 	if(ret != ARCHIVE_OK) {
-		free(state->buffer);
-		free(state);
+		SAlloc::F(state->buffer);
+		SAlloc::F(state);
 		f->data = NULL;
 	}
 	return ret;
@@ -427,7 +427,7 @@ static int archive_write_client_free(struct archive_write_filter * f)
 	/* Clear passphrase. */
 	if(a->passphrase != NULL) {
 		memzero(a->passphrase, strlen(a->passphrase));
-		free(a->passphrase);
+		SAlloc::F(a->passphrase);
 		a->passphrase = NULL;
 	}
 	return ARCHIVE_OK;
@@ -467,8 +467,8 @@ static int archive_write_client_close(struct archive_write_filter * f)
 	}
 	if(a->client_closer)
 		(*a->client_closer)(&a->archive, a->client_data);
-	free(state->buffer);
-	free(state);
+	SAlloc::F(state->buffer);
+	SAlloc::F(state);
 
 	/* Clear the close handler myself not to be called again. */
 	f->state = ARCHIVE_WRITE_FILTER_STATE_CLOSED;
@@ -586,7 +586,7 @@ void __archive_write_filters_free(struct archive * _a)
 			if(r > r1)
 				r = r1;
 		}
-		free(a->filter_first);
+		SAlloc::F(a->filter_first);
 		a->filter_first = next;
 	}
 	a->filter_last = NULL;
@@ -604,7 +604,7 @@ static int _archive_write_free(struct archive * _a)
 	int r = ARCHIVE_OK, r1;
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	/* It is okay to call free() in state FATAL. */
+	/* It is okay to call SAlloc::F() in state FATAL. */
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_free");
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_write_close(&a->archive);
@@ -616,16 +616,16 @@ static int _archive_write_free(struct archive * _a)
 	}
 	__archive_write_filters_free(_a);
 	/* Release various dynamic buffers. */
-	free((void*)(uintptr_t)(const void*)a->nulls);
+	SAlloc::F((void *)(uintptr_t)(const void*)a->nulls);
 	archive_string_free(&a->archive.error_string);
 	if(a->passphrase != NULL) {
 		/* A passphrase should be cleaned. */
 		memzero(a->passphrase, strlen(a->passphrase));
-		free(a->passphrase);
+		SAlloc::F(a->passphrase);
 	}
 	a->archive.magic = 0;
 	__archive_clean(&a->archive);
-	free(a);
+	SAlloc::F(a);
 	return r;
 }
 
@@ -741,7 +741,7 @@ static const char * _archive_filter_name(struct archive * _a, int n)
 	return f != NULL ? f->name : NULL;
 }
 
-static int64_t _archive_filter_bytes(struct archive * _a, int n)
+static int64 _archive_filter_bytes(struct archive * _a, int n)
 {
 	struct archive_write_filter * f = filter_lookup(_a, n);
 	return f == NULL ? -1 : f->bytes_written;

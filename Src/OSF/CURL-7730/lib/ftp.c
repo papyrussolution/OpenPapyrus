@@ -748,7 +748,7 @@ static void _state(struct connectdata * conn,
 #else
 	if(ftpc->state != newstate)
 		infof(conn->data, "FTP %p (line %d) state change from %s to %s\n",
-		    (void*)ftpc, lineno, ftp_state_names[ftpc->state],
+		    (void *)ftpc, lineno, ftp_state_names[ftpc->state],
 		    ftp_state_names[newstate]);
 #endif
 #endif
@@ -983,9 +983,9 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 
 		/* correct errors like:
 		 *  :1234-1230
-		 *  :-4711,  in this case port_min is (unsigned)-1,
-		 *           therefore port_min > port_max for all cases
-		 *           but port_max = (unsigned)-1
+		 *  :-4711,  in this case port_min is (uint)-1,
+		 *     therefore port_min > port_max for all cases
+		 *     but port_max = (uint)-1
 		 */
 		if(port_min > port_max)
 			port_min = port_max = 0;

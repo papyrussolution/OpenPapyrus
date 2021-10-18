@@ -617,7 +617,7 @@ static void felem_reduce(felem out, const largefelem in)
 	out[1] += (((limb)(in[0] >> 64)) & bottom52bits) << 6;
 	/*-
 	 * out[1] < 2^58 + 2^6 + 2^58
-	 *        = 2^59 + 2^6
+	 *  = 2^59 + 2^6
 	 */
 	out[2] += ((limb)(in[0] >> 64)) >> 52;
 
@@ -649,7 +649,7 @@ static void felem_reduce(felem out, const largefelem in)
 	out[8] += (((limb)(in[7] >> 64)) & bottom52bits) << 6;
 	/*-
 	 * out[x > 1] < 2^58 + 2^6 + 2^58 + 2^12
-	 *            < 2^59 + 2^13
+	 *      < 2^59 + 2^13
 	 */
 	overflow1 = ((limb)(in[7] >> 64)) >> 52;
 
@@ -668,7 +668,7 @@ static void felem_reduce(felem out, const largefelem in)
 	/*-
 	 * out[0] < 2^58
 	 * out[1] < 2^59 + 2^6 + 2^13 + 2^2
-	 *        < 2^59 + 2^14
+	 *  < 2^59 + 2^14
 	 */
 }
 
@@ -1061,10 +1061,10 @@ static void point_double(felem x_out, felem y_out, felem z_out,
 	felem_mul(tmp, ftmp, ftmp2);
 	/*-
 	 * tmp[i] < 17(3*2^121 + 3*2^76)
-	 *        = 61*2^121 + 61*2^76
-	 *        < 64*2^121 + 64*2^76
-	 *        = 2^127 + 2^82
-	 *        < 2^128
+	 *  = 61*2^121 + 61*2^76
+	 *  < 64*2^121 + 64*2^76
+	 *  = 2^127 + 2^82
+	 *  < 2^128
 	 */
 	felem_reduce(alpha, tmp);
 
@@ -1102,27 +1102,27 @@ static void point_double(felem x_out, felem y_out, felem z_out,
 	felem_mul(tmp, alpha, beta);
 	/*-
 	 * tmp[i] < 17*((2^59 + 2^14)(2^61 + 2^60 + 2^16))
-	 *        = 17*(2^120 + 2^75 + 2^119 + 2^74 + 2^75 + 2^30)
-	 *        = 17*(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
-	 *        < 2^128
+	 *  = 17*(2^120 + 2^75 + 2^119 + 2^74 + 2^75 + 2^30)
+	 *  = 17*(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
+	 *  < 2^128
 	 */
 	felem_square(tmp2, gamma);
 	/*-
 	 * tmp2[i] < 17*(2^59 + 2^14)^2
-	 *         = 17*(2^118 + 2^74 + 2^28)
+	 *   = 17*(2^118 + 2^74 + 2^28)
 	 */
 	felem_scalar128(tmp2, 8);
 	/*-
 	 * tmp2[i] < 8*17*(2^118 + 2^74 + 2^28)
-	 *         = 2^125 + 2^121 + 2^81 + 2^77 + 2^35 + 2^31
-	 *         < 2^126
+	 *   = 2^125 + 2^121 + 2^81 + 2^77 + 2^35 + 2^31
+	 *   < 2^126
 	 */
 	felem_diff128(tmp, tmp2);
 	/*-
 	 * tmp[i] < 2^127 - 2^69 + 17(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
-	 *        = 2^127 + 2^124 + 2^122 + 2^120 + 2^118 + 2^80 + 2^78 + 2^76 +
-	 *          2^74 + 2^69 + 2^34 + 2^30
-	 *        < 2^128
+	 *  = 2^127 + 2^124 + 2^122 + 2^120 + 2^118 + 2^80 + 2^78 + 2^76 +
+	 *    2^74 + 2^69 + 2^34 + 2^30
+	 *  < 2^128
 	 */
 	felem_reduce(y_out, tmp);
 }
@@ -1304,8 +1304,8 @@ static void point_add(felem x3, felem y3, felem z3,
 	felem_diff128(tmp, tmp2);
 	/*-
 	 * tmp[i] < 2^127 - 2^69 + 17*2^122
-	 *        = 2^126 - 2^122 - 2^6 - 2^2 - 1
-	 *        < 2^127
+	 *  = 2^126 - 2^122 - 2^6 - 2^2 - 1
+	 *  < 2^127
 	 */
 	felem_reduce(y_out, tmp);
 
@@ -1658,7 +1658,7 @@ const EC_METHOD * EC_GFp_nistp521_method(void)
 	return &ret;
 }
 
-/******************************************************************************/
+// 
 /*
  * FUNCTIONS TO MANAGE PRECOMPUTATION
  */
@@ -1708,7 +1708,7 @@ void EC_nistp521_pre_comp_free(NISTP521_PRE_COMP * p)
 	OPENSSL_free(p);
 }
 
-/******************************************************************************/
+// 
 /*
  * OPENSSL EC_METHOD FUNCTIONS
  */

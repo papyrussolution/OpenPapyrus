@@ -189,11 +189,11 @@ INLINE int __ptw32_cond_check_need_init(pthread_cond_t * cond)
  * It simulates the behaviour of POSIX Threads.
  *
  * PARAMETERS
- *           thread
- *                   an instance of pthread_t
+ *     thread
+ *             an instance of pthread_t
  *
  * RETURNS
- *           N/A
+ *     N/A
  * -------------------------------------------------------------------
  */
 void __ptw32_callUserDestroyRoutines(pthread_t thread)
@@ -581,8 +581,8 @@ INLINE int __ptw32_mutex_check_need_init(pthread_mutex_t * mutex)
  *   __ptw32_processInitialized to TRUE.
  *
  * RESULTS
- *           TRUE    if successful,
- *           FALSE   otherwise
+ *     TRUE    if successful,
+ *     FALSE   otherwise
  *
  * ------------------------------------------------------
  */
@@ -648,7 +648,7 @@ int __ptw32_processInitialize()
  *   __ptw32_processInitialized to FALSE
  *
  * RESULTS
- *           N/A
+ *     N/A
  *
  * ------------------------------------------------------
  */
@@ -884,11 +884,11 @@ void __ptw32_throw(DWORD exception)
 		unsigned exitCode = 0;
 		switch(exception) {
 			case  __PTW32_EPS_CANCEL:
-			    exitCode = (unsigned)(size_t)PTHREAD_CANCELED;
+			    exitCode = (uint)(size_t)PTHREAD_CANCELED;
 			    break;
 			case  __PTW32_EPS_EXIT:
 			    if(sp)
-				    exitCode = (unsigned)(size_t)sp->exitStatus;
+				    exitCode = (uint)(size_t)sp->exitStatus;
 			    break;
 		}
 #endif
@@ -1021,7 +1021,7 @@ __ptw32_threadStart(void * vthreadParms)
 	int setjmp_rc;
 #endif
 	__ptw32_mcs_local_node_t stateLock;
-	void * status = (void*)0;
+	void * status = (void *)0;
 	self = threadParms->tid;
 	sp = (__ptw32_thread_t *)self.p;
 	start = threadParms->start;
@@ -1140,7 +1140,7 @@ __ptw32_threadStart(void * vthreadParms)
 	pthread_win32_thread_detach_np();
 #endif
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
-	_endthreadex((unsigned)(size_t)status);
+	_endthreadex((uint)(size_t)status);
 #else
 	_endthread();
 #endif
@@ -1148,7 +1148,7 @@ __ptw32_threadStart(void * vthreadParms)
 	 * Never reached.
 	 */
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
-	return (unsigned)(size_t)status;
+	return (uint)(size_t)status;
 #endif
 }
 /*
@@ -1206,16 +1206,16 @@ void __ptw32_threadDestroy(pthread_t thread)
  *
  * Notes:
  *   1)      New associations are pushed to the beginning of the
- *           chain so that the internal __ptw32_selfThreadKey association
- *           is always last, thus allowing selfThreadExit to
- *           be implicitly called last by pthread_exit.
+ *     chain so that the internal __ptw32_selfThreadKey association
+ *     is always last, thus allowing selfThreadExit to
+ *     be implicitly called last by pthread_exit.
  *   2)
  *
  * Parameters:
- *           thread
- *                   current running thread.
- *           key
- *                   key on which to create an association.
+ *     thread
+ *             current running thread.
+ *     key
+ *             key on which to create an association.
  * Returns:
  *    0              - if successful,
  *    ENOMEM         - not enough memory to create assoc or other object
@@ -1243,7 +1243,7 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 	assoc->nextThread = static_cast<ThreadKeyAssoc *>(key->threads);
 	if(assoc->nextThread)
 		assoc->nextThread->prevThread = assoc;
-	key->threads = (void*)assoc;
+	key->threads = (void *)assoc;
 	/*
 	 * Register assoc with thread
 	 */
@@ -1252,7 +1252,7 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 	if(assoc->nextKey != NULL) {
 		assoc->nextKey->prevKey = assoc;
 	}
-	sp->keys = (void*)assoc;
+	sp->keys = (void *)assoc;
 	return 0;
 }
 /*
@@ -1262,8 +1262,8 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
  * ie) either the key or thread has stopped referencing it.
  *
  * Parameters:
- *           assoc
- *                   an instance of ThreadKeyAssoc.
+ *     assoc
+ *             an instance of ThreadKeyAssoc.
  * Returns:
  *   N/A
  * -------------------------------------------------------------------
@@ -1388,13 +1388,13 @@ void __ptw32_rwlock_cancelwrwait(void * arg)
  *   Unlike sem_wait(), this routine is non-cancelable.
  *
  * RESULTS
- *           0               successfully decreased semaphore,
- *           -1              failed, error in errno.
+ *     0               successfully decreased semaphore,
+ *     -1              failed, error in errno.
  * ERRNO
- *           EINVAL          'sem' is not a valid semaphore,
- *           ENOSYS          semaphores are not supported,
- *           EINTR           the function was interrupted by a signal,
- *           EDEADLK         a deadlock condition was detected.
+ *     EINVAL          'sem' is not a valid semaphore,
+ *     ENOSYS          semaphores are not supported,
+ *     EINTR           the function was interrupted by a signal,
+ *     EDEADLK         a deadlock condition was detected.
  *
  * ------------------------------------------------------
  */

@@ -916,10 +916,10 @@ static cairo_int_status_t _cairo_recording_surface_tag(void * abstract_surface,
 	if(UNLIKELY(status))
 		goto CLEANUP_COMMAND;
 	command->begin = begin;
-	command->tag_name = strdup(tag_name);
+	command->tag_name = sstrdup(tag_name);
 	if(begin) {
 		if(attributes)
-			command->attributes = strdup(attributes);
+			command->attributes = sstrdup(attributes);
 		status = _cairo_pattern_init_snapshot(&command->source.base, source);
 		if(UNLIKELY(status))
 			goto CLEANUP_STRINGS;
@@ -1168,10 +1168,10 @@ static cairo_status_t _cairo_recording_surface_copy__tag(cairo_recording_surface
 	}
 	_command_init_copy(surface, &command->header, &src->header);
 	command->begin = src->tag.begin;
-	command->tag_name = strdup(src->tag.tag_name);
+	command->tag_name = sstrdup(src->tag.tag_name);
 	if(src->tag.begin) {
 		if(src->tag.attributes)
-			command->attributes = strdup(src->tag.attributes);
+			command->attributes = sstrdup(src->tag.attributes);
 		status = _cairo_pattern_init_copy(&command->source.base, &src->stroke.source.base);
 		if(UNLIKELY(status))
 			goto err_command;

@@ -40,7 +40,7 @@ struct private_data {
 	int compression_level;
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	ZSTD_CStream    * cstream;
-	int64_t total_in;
+	int64 total_in;
 	ZSTD_outBuffer out;
 #else
 	struct archive_write_program_data * pdata;
@@ -78,7 +78,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_zstd");
-	data = (private_data *)calloc(1, sizeof(*data));
+	data = (private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -94,7 +94,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	data->cstream = ZSTD_createCStream();
 	if(data->cstream == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM,
 		    "Failed to allocate zstd compressor object");
 		return ARCHIVE_FATAL;
@@ -104,7 +104,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 #else
 	data->pdata = __archive_write_program_allocate("zstd");
 	if(data->pdata == NULL) {
-		free(data);
+		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
@@ -119,11 +119,11 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	ZSTD_freeCStream(data->cstream);
-	free(data->out.dst);
+	SAlloc::F(data->out.dst);
 #else
 	__archive_write_program_free(data->pdata);
 #endif
-	free(data);
+	SAlloc::F(data);
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
@@ -216,7 +216,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 		data->out.size = bs;
 		data->out.pos = 0;
 		data->out.dst
-			= (uchar *)malloc(data->out.size);
+			= (uchar *)SAlloc::M(data->out.size);
 		if(data->out.dst == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");

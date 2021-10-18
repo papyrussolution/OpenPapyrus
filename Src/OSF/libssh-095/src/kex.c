@@ -269,9 +269,9 @@ const char * ssh_kex_get_fips_methods(uint32_t algo)
 /**
  * @internal
  * @brief returns whether the first client key exchange algorithm or
- *        hostkey type matches its server counterpart
+ *  hostkey type matches its server counterpart
  * @returns whether the first client key exchange algorithm or hostkey type
- *          matches its server counterpart
+ *    matches its server counterpart
  */
 static int cmp_first_kex_algo(const char * client_str, const char * server_str) 
 {
@@ -545,7 +545,7 @@ void ssh_list_kex(struct ssh_kex_struct * kex) {
  * as some hostkey mechanisms may be present in known_hosts files.
  *
  * @returns a cstring containing a comma-separated list of hostkey methods.
- *          NULL if no method matches
+ *    NULL if no method matches
  */
 char * ssh_client_select_hostkeys(ssh_session session)
 {
@@ -639,7 +639,7 @@ char * ssh_client_select_hostkeys(ssh_session session)
 
 /**
  * @brief sets the key exchange parameters to be sent to the server,
- *        in function of the options and available methods.
+ *  in function of the options and available methods.
  */
 int ssh_set_client_kex(ssh_session session)
 {

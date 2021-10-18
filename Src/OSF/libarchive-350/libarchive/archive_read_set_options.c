@@ -28,42 +28,29 @@ __FBSDID("$FreeBSD$");
 #include "archive_read_private.h"
 #include "archive_options_private.h"
 
-static int      archive_set_format_option(struct archive * a,
-    const char * m, const char * o, const char * v);
-static int      archive_set_filter_option(struct archive * a,
-    const char * m, const char * o, const char * v);
-static int      archive_set_option(struct archive * a,
-    const char * m, const char * o, const char * v);
+static int archive_set_format_option(struct archive * a, const char * m, const char * o, const char * v);
+static int archive_set_filter_option(struct archive * a, const char * m, const char * o, const char * v);
+static int archive_set_option(struct archive * a, const char * m, const char * o, const char * v);
 
 int archive_read_set_format_option(struct archive * a, const char * m, const char * o,
     const char * v)
 {
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_format_option",
-		   archive_set_format_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_format_option", archive_set_format_option);
 }
 
-int archive_read_set_filter_option(struct archive * a, const char * m, const char * o,
-    const char * v)
+int archive_read_set_filter_option(struct archive * a, const char * m, const char * o, const char * v)
 {
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_filter_option",
-		   archive_set_filter_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_filter_option", archive_set_filter_option);
 }
 
-int archive_read_set_option(struct archive * a, const char * m, const char * o,
-    const char * v)
+int archive_read_set_option(struct archive * a, const char * m, const char * o, const char * v)
 {
-	return _archive_set_option(a, m, o, v,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_option",
-		   archive_set_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, "archive_read_set_option", archive_set_option);
 }
 
 int archive_read_set_options(struct archive * a, const char * options)
 {
-	return _archive_set_options(a, options,
-		   ARCHIVE_READ_MAGIC, "archive_read_set_options",
-		   archive_set_option);
+	return _archive_set_options(a, options, ARCHIVE_READ_MAGIC, "archive_read_set_options", archive_set_option);
 }
 
 static int archive_set_format_option(struct archive * _a, const char * m, const char * o, const char * v)

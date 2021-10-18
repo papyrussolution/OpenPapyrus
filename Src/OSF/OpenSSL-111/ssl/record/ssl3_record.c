@@ -629,8 +629,7 @@ int ssl3_get_record(SSL * s)
 			}
 
 			i = s->method->ssl3_enc->mac(s, thisrr, md, 0 /* not send */);
-			if(i == 0 || mac == NULL
-			    || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0)
+			if(i == 0 || mac == NULL || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0)
 				enc_err = -1;
 			if(thisrr->length > SSL3_RT_MAX_COMPRESSED_LENGTH + mac_size)
 				enc_err = -1;
@@ -838,10 +837,10 @@ int ssl3_do_compress(SSL * ssl, SSL3_RECORD * wr)
  *
  * Returns:
  *   0: (in non-constant time) if the record is publically invalid (i.e. too
- *       short etc).
+ * short etc).
  *   1: if the record's padding is valid / the encryption was successful.
  *   -1: if the record's padding is invalid or, if sending, an internal error
- *       occurred.
+ * occurred.
  */
 int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, size_t n_recs, int sending)
 {
@@ -931,10 +930,10 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, size_t n_recs, int sending)
  *
  * Returns:
  *   0: (in non-constant time) if the record is publically invalid (i.e. too
- *       short etc).
+ * short etc).
  *   1: if the record's padding is valid / the encryption was successful.
  *   -1: if the record's padding/AEAD-authenticator is invalid or, if sending,
- *       an internal error occurred.
+ * an internal error occurred.
  */
 int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 {
@@ -1752,8 +1751,7 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 			 */
 			mac = mac_tmp;
 			if(!ssl3_cbc_copy_mac(mac_tmp, rr, mac_size)) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DTLS1_PROCESS_RECORD,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DTLS1_PROCESS_RECORD, ERR_R_INTERNAL_ERROR);
 				return 0;
 			}
 			rr->length -= mac_size;
@@ -1767,10 +1765,8 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 			rr->length -= mac_size;
 			mac = &rr->data[rr->length];
 		}
-
 		i = s->method->ssl3_enc->mac(s, rr, md, 0 /* not send */);
-		if(i == 0 || mac == NULL
-		    || CRYPTO_memcmp(md, mac, mac_size) != 0)
+		if(i == 0 || mac == NULL || CRYPTO_memcmp(md, mac, mac_size) != 0)
 			enc_err = -1;
 		if(rr->length > SSL3_RT_MAX_COMPRESSED_LENGTH + mac_size)
 			enc_err = -1;
@@ -1786,23 +1782,18 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	/* r->length is now just compressed */
 	if(s->expand != NULL) {
 		if(rr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
-			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD,
-			    SSL_R_COMPRESSED_LENGTH_TOO_LONG);
+			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 			return 0;
 		}
 		if(!ssl3_do_uncompress(s, rr)) {
-			SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE,
-			    SSL_F_DTLS1_PROCESS_RECORD, SSL_R_BAD_DECOMPRESSION);
+			SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE, SSL_F_DTLS1_PROCESS_RECORD, SSL_R_BAD_DECOMPRESSION);
 			return 0;
 		}
 	}
-
 	if(rr->length > SSL3_RT_MAX_PLAIN_LENGTH) {
-		SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD,
-		    SSL_R_DATA_LENGTH_TOO_LONG);
+		SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD, SSL_R_DATA_LENGTH_TOO_LONG);
 		return 0;
 	}
-
 	rr->off = 0;
 	/*-
 	 * So at this point the following is true
@@ -1810,7 +1801,7 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	 * ssl->s3->rrec.length == number of bytes in record
 	 * ssl->s3->rrec.off    == offset to first valid byte
 	 * ssl->s3->rrec.data   == where to take bytes from, increment
-	 *                         after use :-).
+	 *                   after use :-).
 	 */
 
 	/* we have pulled in a full packet so zero things */

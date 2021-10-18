@@ -355,7 +355,7 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// FIXME: enhanced text only available for Tcl 
 	if((pThis->flags & TERM_ENHANCED_TEXT) && (tk_script_language != TK_LANG_TCL))
 		pThis->flags &= ~TERM_ENHANCED_TEXT;
-	sprintf(GPT.TermOptions, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
+	slprintf(GPT._TermOptions, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
 	    tk_interactive ? " interactive" : "", tk_standalone ? "standalone" : "input",
 	    (tk_background[0] == NUL) ? "nobackground " : "background ", (tk_background[0] == NUL) ? "" : tk_background_opt,
 	    tk_rounded ? "rounded" : "butt", pThis->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
