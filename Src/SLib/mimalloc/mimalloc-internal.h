@@ -579,11 +579,13 @@ static inline void mi_page_set_has_aligned(mi_page_t* page, bool has_aligned) {
    `(k2<<<k1)+k1` would appear (too) often as a sentinel value.
    ------------------------------------------------------------------- */
 
-static inline bool mi_is_in_same_segment(const void * p, const void * q) {
+static inline bool mi_is_in_same_segment(const void * p, const void * q) 
+{
 	return (_mi_ptr_segment(p) == _mi_ptr_segment(q));
 }
 
-static inline bool mi_is_in_same_page(const void * p, const void * q) {
+static inline bool mi_is_in_same_page(const void * p, const void * q) 
+{
 	mi_segment_t* segmentp = _mi_ptr_segment(p);
 	mi_segment_t* segmentq = _mi_ptr_segment(q);
 	if(segmentp != segmentq) return false;
@@ -592,27 +594,32 @@ static inline bool mi_is_in_same_page(const void * p, const void * q) {
 	return (idxp == idxq);
 }
 
-static inline uintptr_t mi_rotl(uintptr_t x, uintptr_t shift) {
+static inline uintptr_t mi_rotl(uintptr_t x, uintptr_t shift) 
+{
 	shift %= MI_INTPTR_BITS;
 	return (shift==0 ? x : ((x << shift) | (x >> (MI_INTPTR_BITS - shift))));
 }
 
-static inline uintptr_t mi_rotr(uintptr_t x, uintptr_t shift) {
+static inline uintptr_t mi_rotr(uintptr_t x, uintptr_t shift) 
+{
 	shift %= MI_INTPTR_BITS;
 	return (shift==0 ? x : ((x >> shift) | (x << (MI_INTPTR_BITS - shift))));
 }
 
-static inline void * mi_ptr_decode(const void * null, const mi_encoded_t x, const uintptr_t* keys) {
+static inline void * mi_ptr_decode(const void * null, const mi_encoded_t x, const uintptr_t* keys) 
+{
 	void * p = (void *)(mi_rotr(x - keys[0], keys[0]) ^ keys[1]);
 	return (UNLIKELY(p==null) ? NULL : p);
 }
 
-static inline mi_encoded_t mi_ptr_encode(const void * null, const void * p, const uintptr_t* keys) {
+static inline mi_encoded_t mi_ptr_encode(const void * null, const void * p, const uintptr_t* keys) 
+{
 	uintptr_t x = (uintptr_t)(UNLIKELY(p==NULL) ? null : p);
 	return mi_rotl(x ^ keys[1], keys[0]) + keys[0];
 }
 
-static inline mi_block_t* mi_block_nextx(const void * null, const mi_block_t* block, const uintptr_t* keys) {
+static inline mi_block_t* mi_block_nextx(const void * null, const mi_block_t* block, const uintptr_t* keys) 
+{
   #ifdef MI_ENCODE_FREELIST
 	return (mi_block_t*)mi_ptr_decode(null, block->next, keys);
   #else
@@ -621,7 +628,8 @@ static inline mi_block_t* mi_block_nextx(const void * null, const mi_block_t* bl
   #endif
 }
 
-static inline void mi_block_set_nextx(const void * null, mi_block_t* block, const mi_block_t* next, const uintptr_t* keys) {
+static inline void mi_block_set_nextx(const void * null, mi_block_t* block, const mi_block_t* next, const uintptr_t* keys) 
+{
   #ifdef MI_ENCODE_FREELIST
 	block->next = mi_ptr_encode(null, next, keys);
   #else
@@ -630,7 +638,8 @@ static inline void mi_block_set_nextx(const void * null, mi_block_t* block, cons
   #endif
 }
 
-static inline mi_block_t* mi_block_next(const mi_page_t* page, const mi_block_t* block) {
+static inline mi_block_t* mi_block_next(const mi_page_t* page, const mi_block_t* block) 
+{
   #ifdef MI_ENCODE_FREELIST
 	mi_block_t* next = mi_block_nextx(page, block, page->keys);
 	// check for free list corruption: is `next` at least in the same page?
@@ -647,7 +656,8 @@ static inline mi_block_t* mi_block_next(const mi_page_t* page, const mi_block_t*
   #endif
 }
 
-static inline void mi_block_set_next(const mi_page_t* page, mi_block_t* block, const mi_block_t* next) {
+static inline void mi_block_set_next(const mi_page_t* page, mi_block_t* block, const mi_block_t* next) 
+{
   #ifdef MI_ENCODE_FREELIST
 	mi_block_set_nextx(page, block, next, page->keys);
   #else
@@ -660,7 +670,8 @@ static inline void mi_block_set_next(const mi_page_t* page, mi_block_t* block, c
 // Fast "random" shuffle
 // -------------------------------------------------------------------
 
-static inline uintptr_t _mi_random_shuffle(uintptr_t x) {
+static inline uintptr_t _mi_random_shuffle(uintptr_t x) 
+{
 	if(x==0) {
 		x = 17;
 	}                 // ensure we don't get stuck in generating zeros
@@ -687,15 +698,17 @@ static inline uintptr_t _mi_random_shuffle(uintptr_t x) {
 // -------------------------------------------------------------------
 
 int    _mi_os_numa_node_get(mi_os_tld_t* tld);
-size_t _mi_os_numa_node_count_get(void);
+size_t _mi_os_numa_node_count_get();
 
 extern _Atomic(size_t) _mi_numa_node_count;
-static inline int _mi_os_numa_node(mi_os_tld_t* tld) {
+static inline int _mi_os_numa_node(mi_os_tld_t* tld) 
+{
 	if(LIKELY(mi_atomic_load_relaxed(&_mi_numa_node_count) == 1)) return 0;
 	else return _mi_os_numa_node_get(tld);
 }
 
-static inline size_t _mi_os_numa_node_count(void) {
+static inline size_t _mi_os_numa_node_count() 
+{
 	const size_t count = mi_atomic_load_relaxed(&_mi_numa_node_count);
 	if(LIKELY(count>0)) return count;
 	else return _mi_os_numa_node_count_get();
@@ -708,16 +721,17 @@ static inline size_t _mi_os_numa_node_count(void) {
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-static inline uintptr_t _mi_thread_id(void) NOEXCEPT {
+static inline uintptr_t _mi_thread_id(void) NOEXCEPT 
+{
 	// Windows: works on Intel and ARM in both 32- and 64-bit
 	return (uintptr_t)NtCurrentTeb();
 }
 
-#elif defined(__GNUC__) && \
-	(defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__aarch64__))
+#elif defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__aarch64__))
 
 // TLS register on x86 is in the FS or GS register, see: https://akkadia.org/drepper/tls.pdf
-static inline void * mi_tls_slot(size_t slot) NOEXCEPT {
+static inline void * mi_tls_slot(size_t slot) NOEXCEPT 
+{
 	void * res;
 	const size_t ofs = (slot*sizeof(void *));
 #if defined(__i386__)

@@ -122,18 +122,6 @@ void TDialog::RemoveUnusedControls()
 	} while(v != P_Last);
 }
 
-TView * FASTCALL TDialog::CtrlIdToView(long id) const
-{
-	TView * v = P_Last;
-	if(v) do {
-		if(v->TestId(id))
-			return v;
-		else
-			v = v->prev();
-	} while(v != P_Last);
-	return 0;
-}
-
 static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	SString temp_buf;
@@ -244,12 +232,6 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 				uint16 hiw = HIWORD(wParam);
 				uint16 low = LOWORD(wParam);
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-#if 0 // {
-				if(APPL->UICfg.WndViewKindID == UserInterfaceSettings::wndVKFancy && hiw == 0 && low != IDCANCEL) {
-					if(p_dlg && p_dlg->P_Current && p_dlg->P_Current->IsSubSign(TV_SUBSIGN_BUTTON))
-						low = p_dlg->P_Current->Id;
-				}
-#endif // } 0
 				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE)
 					return 0;
 				else if(p_dlg) {
@@ -259,9 +241,8 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 					}
 					else {
 						if(lParam == 0) {
-							if(hiw == 0) { // from menu
+							if(hiw == 0) // from menu
 								TView::messageKeyDown(p_dlg, low);
-							}
 							else if(hiw == 1) { // from accelerator
 								event.what = TEvent::evCommand;
 								event.message.command = low;
@@ -300,8 +281,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 		case WM_RBUTTONDOWN:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && HIWORD(wParam) == 1) {
-				if(p_dlg->P_Current)
-					p_dlg->P_Current->handleWindowsMessage(uMsg, wParam, lParam);
+				CALLPTRMEMB(p_dlg->P_Current, handleWindowsMessage(uMsg, wParam, lParam));
 			}
 			break;
 		case WM_LBUTTONUP:
@@ -366,9 +346,10 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 				short  def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
 				if(def_inln_id && def_inln_id != ctrl_id) {
 					::SetFocus(GetDlgItem(hwndDlg, def_inln_id));
-					SString temp_buf;
-					temp_buf.CatChar(static_cast<char>(LOWORD(wParam)));
-					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), temp_buf);
+					// @v11.20 SString temp_buf;
+					// @v11.20 temp_buf.CatChar(static_cast<char>(LOWORD(wParam)));
+					// @v11.20 TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), temp_buf);
+					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), SLS.AcquireRvlStr().CatChar(static_cast<char>(LOWORD(wParam)))); // @v11.20
 					::SendDlgItemMessage(hwndDlg, def_inln_id, WM_KEYDOWN, VK_END, 0);
 					return 0;
 				}

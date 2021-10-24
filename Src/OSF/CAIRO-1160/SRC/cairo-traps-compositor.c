@@ -45,8 +45,8 @@
 typedef cairo_int_status_t (* draw_func_t) (const cairo_traps_compositor_t * compositor, cairo_surface_t * dst, void * closure, cairo_operator_t op, cairo_surface_t * src,
     int src_x, int src_y, int dst_x, int dst_y, const cairo_rectangle_int_t * extents, cairo_clip_t * clip);
 
-static void do_unaligned_row(void (*blt)(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage),
-    void * closure, const cairo_box_t * b, int tx, int y, int h, uint16_t coverage)
+static void do_unaligned_row(void (*blt)(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage),
+    void * closure, const cairo_box_t * b, int tx, int y, int h, uint16 coverage)
 {
 	int x1 = _cairo_fixed_integer_part(b->p1.x) - tx;
 	int x2 = _cairo_fixed_integer_part(b->p2.x) - tx;
@@ -61,17 +61,16 @@ static void do_unaligned_row(void (*blt)(void * closure, int16_t x, int16_t y, i
 			blt(closure, x2, y, 1, h, coverage * _cairo_fixed_fractional_part(b->p2.x));
 	}
 	else
-		blt(closure, x1, y, 1, h, coverage * (b->p2.x - b->p1.x));
+		blt(closure, x1, y, 1, h, static_cast<uint16>(coverage * (b->p2.x - b->p1.x)));
 }
 
-static void do_unaligned_box(void (*blt)(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage), void * closure, const cairo_box_t * b, int tx, int ty)
+static void do_unaligned_box(void (*blt)(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage), void * closure, const cairo_box_t * b, int tx, int ty)
 {
 	int y1 = _cairo_fixed_integer_part(b->p1.y) - ty;
 	int y2 = _cairo_fixed_integer_part(b->p2.y) - ty;
 	if(y2 > y1) {
 		if(!_cairo_fixed_is_integer(b->p1.y)) {
-			do_unaligned_row(blt, closure, b, tx, y1, 1,
-			    256 - _cairo_fixed_fractional_part(b->p1.y));
+			do_unaligned_row(blt, closure, b, tx, y1, 1, 256 - _cairo_fixed_fractional_part(b->p1.y));
 			y1++;
 		}
 		if(y2 > y1)
@@ -89,7 +88,7 @@ struct blt_in {
 	cairo_boxes_t boxes;
 };
 
-static void blt_in(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void blt_in(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct blt_in * info = static_cast<struct blt_in *>(closure);
 	cairo_color_t color;
@@ -1264,14 +1263,14 @@ CLEANUP_TRAPS:
 
 struct composite_opacity_info {
 	const cairo_traps_compositor_t * compositor;
-	uint8_t op;
+	uint8 op;
 	cairo_surface_t * dst;
 	cairo_surface_t * src;
 	int src_x, src_y;
 	double opacity;
 };
 
-static void composite_opacity(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void composite_opacity(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct composite_opacity_info * info = (struct composite_opacity_info *)closure;
 	const cairo_traps_compositor_t * compositor = info->compositor;
@@ -1477,10 +1476,10 @@ struct composite_box_info {
 	cairo_surface_t * src;
 	int src_x;
 	int src_y;
-	uint8_t op;
+	uint8 op;
 };
 
-static void composite_box(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void composite_box(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct composite_box_info * info = static_cast<struct composite_box_info *>(closure);
 	const cairo_traps_compositor_t * compositor = info->compositor;

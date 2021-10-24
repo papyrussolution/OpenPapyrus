@@ -1249,6 +1249,7 @@ struct FormatSpec {
 };
 
 class DlRtm {
+	friend class PPView; // export functions
 public:
 	enum {
 		rscDefHdr  = 1,
@@ -1281,11 +1282,12 @@ public:
 	void * GetFixFieldData(const DlScope * pScope, uint fldPos);
 	long   FASTCALL GetIterID(const char * pIterName = 0) const;
 	DLSYMBID GetDataId() const { return DataId; }
-	int    SetByJSON(SJson * pJSONDoc, long & ObjId);           // @Muxa
-	int    SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk); // @Muxa
+	int    SetByJSON(const SJson * pJSONDoc, long & ObjId);           // @Muxa
+	int    SetByJSON_Helper(const SJson * pNode, SetScopeBlk & rBlk); // @Muxa
 
 	struct ExportParam {
 		ExportParam();
+		ExportParam(PPFilt & rF, long flags);
 		enum {
 			fIsView            = 0x0001, // P_F->Ptr указывает на класс, порожденный от PPView
 			fInheritedTblNames = 0x0002, // При экспорте в качестве наименования таблиц будет
@@ -1300,7 +1302,8 @@ public:
 				// файлов словарей. Однако, они необходимы для формирования и редактирования отчетов в дизайнере.
 			fDontWriteXmlDTD   = 0x0010, // Не формировать DTD в XML-файле
 			fDontWriteXmlTypes = 0x0020, // @v7.1.9 Не формировать зону типов в XML-файле
-			fCompressXml       = 0x0040  // @v10.6.0 Сжимать создаваемый XML-файл
+			fCompressXml       = 0x0040, // @v10.6.0 Сжимать создаваемый XML-файл
+			fJsonStQStyle      = 0x0080  // @v11.2.0 При выводе в JSON-формате применять новую структуру (в рамках работы над проектом StyloQ)
 		};
 		PPFilt * P_F;
 		int    Sort;
@@ -1309,13 +1312,22 @@ public:
 		SFileFormat OutputFormat;
 		SString DestPath;
 		SString Path;
-		const void * P_ViewDef; //v10.5.1
+		const void * P_ViewDef; // v10.5.1
 	};
 	int    Export(ExportParam & rParam);
 	int    ExportXML(ExportParam & rParam, SString & rOutFileName);
+	int    ExportJson(ExportParam & rParam, SString & rOutFileName);
+	SJson * ExportJson(ExportParam & rParam);
 	int    PutToXmlBuffer(ExportParam & rParam, SString & rBuf);
-	int    Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj) const;
-	int    Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, SJson * pRoot);
+	//
+	// ARG(cp IN): Кодовая страница вывода. Если cp == cpUndef, то ANSI
+	//   Обрабатываются следующие варианты:
+	//   cpUTF8 - строки преобразуются в UTF8
+	//   cpANSI, cp1251 - строки преобразуются в cpANSI
+	//   Все остальные варианты - строки преобразуются в cpANSI
+	//
+	int    Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp) const;
+	int    Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot);
 	int    PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);
 	int    PutToJsonBuffer(void * ptr, SString & rBuf, int flags);
 	int    PutToJsonBuffer(PPView * pV, SString & rBuf, int flags);
@@ -1350,6 +1362,7 @@ protected:
 	//   0  - ошибка
 	//
 	int    FASTCALL IterProlog(/*PPIterID*/long & rID, int doInit);
+	int    Helper_WriteXML(ExportParam & rParam, void * /*xmlWriter*/);
 	DlContext * P_Ctx; // @notowned
 	DlScope * P_Data;     // @*DlRtm::DlRtm
 	DlScope * P_HdrScope; // @*DlRtm::DlRtm
@@ -1501,9 +1514,6 @@ struct PPReportEnv {
 
 int  FASTCALL PPAlddPrint(int RptId, PPFilt * pf, const PPReportEnv * pEnv = 0);
 int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0);
-
-//int  PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
-//int  PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf);

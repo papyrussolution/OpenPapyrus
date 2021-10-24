@@ -45,10 +45,10 @@ enum {
 typedef struct _cairo_rtree_node {
 	struct _cairo_rtree_node * children[4], * parent;
 	cairo_list_t link;
-	uint16_t pinned;
-	uint16_t state;
-	uint16_t x, y;
-	uint16_t width, height;
+	uint16 pinned;
+	uint16 state;
+	uint16 x, y;
+	uint16 width, height;
 } cairo_rtree_node_t;
 
 typedef struct _cairo_rtree {

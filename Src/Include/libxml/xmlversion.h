@@ -221,7 +221,7 @@ extern "C" {
 #if 1
 	#define LIBXML_XINCLUDE_ENABLED // Whether XInclude is configured in
 #endif
-#if 0 // @sobolev 1-->0
+#if 0 // @sobolev 1-->0 
 #define LIBXML_ICONV_ENABLED // Whether iconv support is available
 #endif
 #if 0

@@ -58,13 +58,13 @@ typedef cairo_int_status_t
     cairo_clip_t * clip);
 
 static void do_unaligned_row(void (*blt)(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage),
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage),
     void * closure,
     const cairo_box_t * b,
     int tx, int y, int h,
-    uint16_t coverage)
+    uint16 coverage)
 {
 	int x1 = _cairo_fixed_integer_part(b->p1.x) - tx;
 	int x2 = _cairo_fixed_integer_part(b->p2.x) - tx;
@@ -83,9 +83,9 @@ static void do_unaligned_row(void (*blt)(void * closure,
 }
 
 static void do_unaligned_box(void (*blt)(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage),
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage),
     void * closure,
     const cairo_box_t * b, int tx, int ty)
 {
@@ -110,7 +110,7 @@ struct blt_in {
 	cairo_surface_t * dst;
 };
 
-static void blt_in(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void blt_in(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct blt_in * info = static_cast<struct blt_in *>(closure);
 	cairo_color_t color;
@@ -700,14 +700,14 @@ static cairo_int_status_t _cairo_mask_compositor_paint(const cairo_compositor_t 
 
 struct composite_opacity_info {
 	const cairo_mask_compositor_t * compositor;
-	uint8_t op;
+	uint8 op;
 	cairo_surface_t * dst;
 	cairo_surface_t * src;
 	int src_x, src_y;
 	double opacity;
 };
 
-static void composite_opacity(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void composite_opacity(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct composite_opacity_info * info = (struct composite_opacity_info *)closure;
 	const cairo_mask_compositor_t * compositor = info->compositor;
@@ -760,10 +760,10 @@ struct composite_box_info {
 	cairo_surface_t * dst;
 	cairo_surface_t * src;
 	int src_x, src_y;
-	uint8_t op;
+	uint8 op;
 };
 
-static void composite_box(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
+static void composite_box(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage)
 {
 	struct composite_box_info * info = static_cast<struct composite_box_info *>(closure);
 	const cairo_mask_compositor_t * compositor = info->compositor;

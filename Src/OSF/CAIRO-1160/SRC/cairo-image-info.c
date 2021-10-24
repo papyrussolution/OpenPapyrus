@@ -165,9 +165,9 @@ static const uchar * _jpx_get_box_contents(const uchar * p)
 	return p + 8;
 }
 
-static boolint _jpx_match_box(const uchar * p, const uchar * end, uint32_t type)
+static boolint _jpx_match_box(const uchar * p, const uchar * end, uint32 type)
 {
-	uint32_t length;
+	uint32 length;
 
 	if(p + 8 < end) {
 		length = get_unaligned_be32(p);
@@ -178,7 +178,7 @@ static boolint _jpx_match_box(const uchar * p, const uchar * end, uint32_t type)
 	return FALSE;
 }
 
-static const uchar * _jpx_find_box(const uchar * p, const uchar * end, uint32_t type)
+static const uchar * _jpx_find_box(const uchar * p, const uchar * end, uint32 type)
 {
 	while(p < end) {
 		if(_jpx_match_box(p, end, type))

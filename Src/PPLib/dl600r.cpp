@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Run-time DL600 modules
 //
@@ -642,7 +642,7 @@ int DlRtm::InitIteration(long iterId, int sortId, long rsrv)
 int DlRtm::NextIteration(long iterId/*, long rsrv*/)
 {
 	if(iterId) {
-		DLSYMBID scope_id = IterList.Get(iterId-1);
+		const DLSYMBID scope_id = IterList.Get(iterId-1);
 		DlScope * p_scope = P_Data->SearchByID(scope_id, 0);
 		return BIN(p_scope && FinishRecord(p_scope));
 	}
@@ -751,7 +751,7 @@ private:
 	DLSYMBID   ParentID;
 };
 
-int DlRtm::SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk)
+int DlRtm::SetByJSON_Helper(const SJson * pNode, SetScopeBlk & rBlk)
 {
 	int    ok = 1;
 	void * p_buf = NULL;
@@ -759,7 +759,7 @@ int DlRtm::SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk)
 	SdbField fld;
 	SFormatParam fp;
 	SString temp_buf;
-	for(SJson * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
+	for(const SJson * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
 		switch(p_cur->Type) {
 			case SJson::tARRAY:
 				THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
@@ -801,7 +801,7 @@ int DlRtm::SetByJSON_Helper(SJson * pNode, SetScopeBlk & rBlk)
 	return ok;
 }
 
-int DlRtm::SetByJSON(SJson * pJSONDoc, PPID & ObjId)
+int DlRtm::SetByJSON(const SJson * pJSONDoc, PPID & ObjId)
 {
 	int    ok = 1;
 	SetScopeBlk s_blk(this);
@@ -876,6 +876,10 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
 DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0)
+{
+}
+
+DlRtm::ExportParam::ExportParam(PPFilt & rF, long flags) : P_F(&rF), Sort(0), Flags(flags), P_ViewDef(0)
 {
 }
 
@@ -1071,18 +1075,20 @@ void DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const ch
 
 int DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 {
+	rBuf.Z();
 	int    ok = 1;
-	int    r;
+	//int    r;
 	const  DlScope * p_data = GetData();
-	SString data_name, head_name, suffix, left;
+	//SString suffix, left;
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
-	rBuf.Z();
-	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
-	head_name = data_name;
+	SString data_name((rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name);
+	//SString head_name(data_name);
 	data_name.DotCat("xml");
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	THROW(Helper_WriteXML(rParam, p_writer));
+#if 0 // {
 	if(rParam.P_F && p_writer) {
 		uint   i;
 		DlScope * p_child = 0;
@@ -1174,24 +1180,251 @@ int DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 			}
 		}
 		xmlTextWriterEndDocument(p_writer);
-		xmlTextWriterFlush(p_writer);
-		rBuf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use)/*.UTF8ToChar()*/;
 	}
+#endif
+	xmlTextWriterFlush(p_writer);
+	rBuf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use)/*.UTF8ToChar()*/;
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
 	return ok;
 }
 
+int DlRtm::Helper_WriteXML(ExportParam & rParam, void * pWriter/*xmlWriter*/)
+{
+	int    ok = 1;
+	xmlTextWriter * p_writer = static_cast<xmlTextWriter *>(pWriter);
+	SString temp_buf;
+	SString suffix;
+	SdbField fld;
+	uint   i;
+	DlScope * p_child = 0;
+	char   xml_entity_spec[256];
+	const  DlScope * p_data = GetData();
+	const SString data_name((rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name);
+	const SString head_name(data_name);
+	THROW(p_writer);
+	THROW(rParam.P_F);
+	THROW(p_data); // @todo err
+	const  char * p_xml_entity_spec = 0;
+	{
+		temp_buf = DS.GetConstTLA().DL600XMLEntityParam;
+		if(temp_buf.NotEmptyS()) {
+			temp_buf.CopyTo(xml_entity_spec, sizeof(xml_entity_spec));
+			p_xml_entity_spec = xml_entity_spec;
+		}
+		temp_buf.Z();
+	}
+	xmlTextWriterSetIndent(p_writer, 1);
+	xmlTextWriterSetIndentTab(p_writer);
+	if(rParam.Cp == cpUndef)
+		rParam.Cp = cpUTF8; // @v11.2.0 cp1251-->cpUTF8
+	else if(rParam.Cp == cpANSI)
+		rParam.Cp = cp1251;
+	else if(rParam.Cp == cpOEM) // @v11.2.0
+		rParam.Cp = cp866;
+	rParam.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf);
+	xmlTextWriterStartDocument(p_writer, 0, temp_buf, 0);
+	if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
+		xmlTextWriterStartDTD(p_writer, head_name.ucptr(), 0, 0);
+		XMLWriteSpecSymbEntities(p_writer);
+		{
+			StringSet dtd(',', 0);
+			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+				int    is_hdr = 0;
+				if(p_child->Name.IsEqiAscii("hdr")) {
+					suffix = "Head";
+					is_hdr = 1;
+				}
+				else if(p_child->Name == "iter@def")
+					suffix = "Iter";
+				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+					temp_buf.Z().CatChar('_').Cat(suffix);
+					suffix = temp_buf;
+				}
+				else
+					suffix = p_child->Name;
+				if(!is_hdr)
+					suffix.CatChar('+');
+				dtd.add(suffix);
+			}
+			suffix.Z().CatParStr(dtd.getBuf());
+			xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
+		}
+		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+			if(p_child->Name.IsEqiAscii("hdr"))
+				suffix = "Head";
+			else if(p_child->Name == "iter@def")
+				suffix = "Iter";
+			else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+				temp_buf.Z().CatChar('_').Cat(suffix);
+				suffix = temp_buf;
+			}
+			else
+				suffix = p_child->Name;
+			FillDTDBuf(p_child, p_writer, suffix);
+		}
+		xmlTextWriterEndDTD(p_writer);
+	}
+	{
+		SXml::WNode n_head(p_writer, head_name);
+		if(!(rParam.Flags & ExportParam::fDontWriteXmlTypes)) {
+			// @paul (pentaho export types) {
+			int    h_i = 0; // счетчик, обработали ли мы уже И "Head" И "Iter"
+			StringSet * p_dtd = 0;
+			SXml::WNode n_types(p_writer, "Types");
+			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+				if(h_i >= 2)
+					break;
+				else if(p_child->Name.IsEqiAscii("hdr")) {
+					h_i++;
+					suffix = "Head";
+				}
+				else if(p_child->Name == "iter@def") {
+					h_i++;
+					suffix = "Iter";
+				}
+				{
+					const DlScope * p_scope = 0;
+					SXml::WNode n_(p_writer, suffix);
+					for(uint j = 0; p_child->EnumInheritance(&j, &p_scope);) {
+						for(uint k = 0; p_scope->EnumFields(&k, &fld);) {
+							if(p_dtd)
+								p_dtd->add(fld.Name);
+							else {
+								XMLReplaceSpecSymb(GetBinaryTypeString(/*fld.T.Typ*/fld.T.GetDbFieldType(), 0, temp_buf, 0, 0), p_xml_entity_spec);
+								xmlTextWriterWriteElement(p_writer, fld.Name.ucptr(), temp_buf.ucptr());
+							}
+						}
+					}
+				}
+				if(h_i >= 2)
+					break;
+			}
+		// } @paul (pentaho export types)
+		}
+		// @erik v10.5.2{
+		if(rParam.P_ViewDef) { // надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
+			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
+			PPNamedFilt::ViewDefinition::Entry tmp_entry;
+			SXml::WNode n_vd(p_writer, "ViewDescription");
+			for(uint i = 0; i < p_vd->GetCount(); i++) {
+				if(p_vd->GetEntry(i, tmp_entry)) {
+					if(oneof2(rParam.Cp, cpANSI, cp1251)){
+						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
+						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
+						tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
+					}
+					else if(rParam.Cp == cpUTF8){
+						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_UTF8);
+						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
+						tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
+					}
+					{
+						SXml::WNode n_item(p_writer, "Item");
+						n_item.PutInner("Zone", tmp_entry.Zone);
+						n_item.PutInner("FieldName", tmp_entry.FieldName);
+						n_item.PutInner("Text", tmp_entry.Text);
+						n_item.PutInner("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
+					}
+				}
+			}
+		}
+		// } @erik
+		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+			int    is_hdr = 0;
+			if(p_child->Name.IsEqiAscii("hdr")) {
+				suffix = "Head";
+				is_hdr = 1;
+				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
+			}
+			else if(p_child->Name == "iter@def") {
+				suffix = "Iter";
+			}
+			else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+				temp_buf.Z().CatChar('_').Cat(suffix);
+				suffix = temp_buf;
+			}
+			else
+				suffix = p_child->Name;
+			if(is_hdr) {
+				SXml::WNode n_(p_writer, suffix);
+				FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
+			}
+			else {
+				long   iter_id = GetIterID(p_child->Name);
+				THROW(InitIteration(iter_id, rParam.Sort));
+				while(NextIteration(iter_id) > 0) {
+					SXml::WNode n_(p_writer, suffix);
+					FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
+				}
+			}
+		}
+	}
+	xmlTextWriterEndDocument(p_writer);
+	CATCHZOK
+	return ok;
+}
+
+SJson * DlRtm::ExportJson(ExportParam & rParam)
+{
+	SJson * p_result = 0;
+	const  DlScope * p_data = GetData();
+	THROW(p_data);
+	if(rParam.Flags & ExportParam::fJsonStQStyle) {
+		THROW_SL(p_result = new SJson(SJson::tOBJECT));
+		THROW(Helper_PutItemToJson(rParam, p_result));
+	}
+	else {
+		THROW_SL(p_result = new SJson(SJson::tARRAY));
+		THROW(Helper_PutItemToJson(rParam, p_result));
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+int DlRtm::ExportJson(ExportParam & rParam, SString & rOutFileName)
+{
+	rOutFileName.Z();
+	int    ok = 1;
+	SJson * p_js = 0;
+	const  DlScope * p_data = GetData();
+	THROW(p_data);
+	{
+		SString path;
+		SString data_name((rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name);
+		data_name.DotCat("json");
+		PPGetFilePath(PPPATH_OUT, data_name, path);
+		{
+			SString json_buf;
+			THROW(p_js = ExportJson(rParam));
+			THROW_SL(json_tree_to_string(p_js, json_buf));
+			{
+				SFile f_out(path, SFile::mWrite);
+				f_out.WriteLine(json_buf);
+			}
+		}
+		rOutFileName = path;
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
 int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 {
 	int    ok = 1;
-	int    r;
+	//int    r;
 	const  DlScope * p_data = GetData();
-	SdbField fld;
-	SString path, data_name, head_name, suffix;//, left;
-	SString temp_buf;
+	//SdbField fld;
+	SString path;
+	//SString head_name;
+	//SString suffix;
+	//SString temp_buf;
 	xmlTextWriter * p_writer = 0;
+	/*
 	char   xml_entity_spec[256];
 	const  char * p_xml_entity_spec = 0;
 	{
@@ -1202,24 +1435,26 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		}
 		temp_buf.Z();
 	}
+	*/
 	rOutFileName.Z();
-	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
-	head_name = data_name;
+	SString data_name((rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name);
+	//head_name = data_name;
 	data_name.DotCat("xml");
 	PPGetFilePath(PPPATH_OUT, data_name, path);
 	p_writer = xmlNewTextWriterFilename(path, (rParam.Flags & ExportParam::fCompressXml) ? 9 : 0); // @v10.6.0 0-->((rParam.Flags & ExportParam::fCompressXml) ? 9 : 0)
+	THROW(Helper_WriteXML(rParam, p_writer));
+#if 0 // {
 	if(rParam.P_F && p_writer) {
 		uint   i;
 		DlScope * p_child = 0;
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentTab(p_writer);
-		// @v9.4.6 xmlTextWriterStartDocument(writer, 0, "windows-1251", 0);
 		if(rParam.Cp == cpUndef)
 			rParam.Cp = cp1251;
 		else if(rParam.Cp == cpANSI)
 			rParam.Cp = cp1251;
-		rParam.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf); // @v9.4.6
-		xmlTextWriterStartDocument(p_writer, 0, temp_buf, 0); // @v9.4.6
+		rParam.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf);
+		xmlTextWriterStartDocument(p_writer, 0, temp_buf, 0);
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
 			xmlTextWriterStartDTD(p_writer, head_name.ucptr(), 0, 0);
 			XMLWriteSpecSymbEntities(p_writer);
@@ -1261,134 +1496,130 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			}
 			xmlTextWriterEndDTD(p_writer);
 		}
-		xmlTextWriterStartElement(p_writer, head_name.ucptr());
-		if(!(rParam.Flags & ExportParam::fDontWriteXmlTypes)) {
-		// @paul (pentaho export types) {
-			int    h_i = 0; // счетчик, обработали ли мы уже И "Head" И "Iter"
-			StringSet * p_dtd = 0;
-			xmlTextWriterStartElement(p_writer, reinterpret_cast<const xmlChar *>("Types"));
-			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
-				if(h_i >= 2)
-					break;
-				else if(p_child->Name.IsEqiAscii("hdr")) {
-					h_i++;
-					suffix = "Head";
+		{
+			SXml::WNode n_head(p_writer, head_name);
+			if(!(rParam.Flags & ExportParam::fDontWriteXmlTypes)) {
+			// @paul (pentaho export types) {
+				int    h_i = 0; // счетчик, обработали ли мы уже И "Head" И "Iter"
+				StringSet * p_dtd = 0;
+				SXml::WNode n_types(p_writer, "Types");
+				for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+					if(h_i >= 2)
+						break;
+					else if(p_child->Name.IsEqiAscii("hdr")) {
+						h_i++;
+						suffix = "Head";
+					}
+					else if(p_child->Name == "iter@def") {
+						h_i++;
+						suffix = "Iter";
+					}
+					{
+						const DlScope * p_scope = 0;
+						SXml::WNode n_(p_writer, suffix);
+						for(uint j = 0; p_child->EnumInheritance(&j, &p_scope);) {
+							for(uint k = 0; p_scope->EnumFields(&k, &fld);) {
+								if(p_dtd)
+									p_dtd->add(fld.Name);
+								else {
+									XMLReplaceSpecSymb(GetBinaryTypeString(fld.T.Typ, 0, temp_buf, 0, 0), p_xml_entity_spec);
+									xmlTextWriterWriteElement(p_writer, fld.Name.ucptr(), temp_buf.ucptr());
+								}
+							}
+						}
+					}
+					if(h_i >= 2)
+						break;
 				}
-				else if(p_child->Name == "iter@def") {
-					h_i++;
-					suffix = "Iter";
-				}
-				xmlTextWriterStartElement(p_writer, suffix.ucptr());
-				//
-				const DlScope * p_scope = 0;
-				for(uint j = 0; p_child->EnumInheritance(&j, &p_scope);) {
-					for(uint k = 0; p_scope->EnumFields(&k, &fld);) {
-						if(p_dtd)
-							p_dtd->add(fld.Name);
-						else {
-							XMLReplaceSpecSymb(GetBinaryTypeString(fld.T.Typ, 0, temp_buf, 0, 0), p_xml_entity_spec);
-							xmlTextWriterWriteElement(p_writer, fld.Name.ucptr(), temp_buf.ucptr());
+			// } @paul (pentaho export types)
+			}
+			// @erik v10.5.2{
+			if(rParam.P_ViewDef) { //надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
+				const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
+				PPNamedFilt::ViewDefinition::Entry tmp_entry;
+				SXml::WNode n_vd(p_writer, "ViewDescription");
+				for(uint i = 0; i < p_vd->GetCount(); i++) {
+					if(p_vd->GetEntry(i, tmp_entry)){
+						if(oneof2(rParam.Cp, cpANSI, cp1251)){
+							tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
+							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
+							tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
+						}
+						else if(rParam.Cp == cpUTF8){
+							tmp_entry.Zone.Transf(CTRANSF_INNER_TO_UTF8);
+							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
+							tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
+						}
+						{
+							SXml::WNode n_item(p_writer, "Item");
+							n_item.PutInner("Zone", tmp_entry.Zone);
+							n_item.PutInner("FieldName", tmp_entry.FieldName);
+							n_item.PutInner("Text", tmp_entry.Text);
+							n_item.PutInner("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
 						}
 					}
 				}
-				xmlTextWriterEndElement(p_writer);
-				if(h_i >= 2)
-					break;
 			}
-			xmlTextWriterEndElement(p_writer);
-		// } @paul (pentaho export types)
-		}
-		// @erik v10.5.2{
-		if(rParam.P_ViewDef) { //надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
-			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
-			PPNamedFilt::ViewDefinition::Entry tmp_entry;
-			suffix = "ViewDescription";
-			xmlTextWriterStartElement(p_writer, suffix.ucptr());
-			for(uint i = 0; i < p_vd->GetCount(); i++) {
-				if(p_vd->GetEntry(i, tmp_entry)){
-					if(oneof2(rParam.Cp, cpANSI, cp1251)){
-						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
-						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
-						tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
-					}
-					else if(rParam.Cp == cpUTF8){
-						tmp_entry.Zone.Transf(CTRANSF_INNER_TO_UTF8);
-						tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
-						tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
-					}
-					suffix = "Item";
-					xmlTextWriterStartElement(p_writer, suffix.ucptr());
-					suffix = "Zone";
-					xmlTextWriterWriteElement(p_writer, suffix.ucptr() , tmp_entry.Zone.ucptr());
-					suffix = "FieldName";
-					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), tmp_entry.FieldName.ucptr());
-					suffix = "Text";
-					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), tmp_entry.Text.ucptr());
-					suffix = "TotalFunc";
-					xmlTextWriterWriteElement(p_writer, suffix.ucptr(), temp_buf.Z().Cat(tmp_entry.TotalFunc).ucptr());
-					xmlTextWriterEndElement(p_writer);
+			// } @erik
+			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
+				int    is_hdr = 0;
+				if(p_child->Name.IsEqiAscii("hdr")) {
+					suffix = "Head";
+					is_hdr = 1;
+					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 				}
-			}
-			xmlTextWriterEndElement(p_writer);
-		}
-		// } @erik
-
-		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
-			int    is_hdr = 0;
-			if(p_child->Name.IsEqiAscii("hdr")) {
-				suffix = "Head";
-				is_hdr = 1;
-				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
-			}
-			else if(p_child->Name == "iter@def") {
-				suffix = "Iter";
-			}
-			else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
-				temp_buf.Z().CatChar('_').Cat(suffix);
-				suffix = temp_buf;
-			}
-			else
-				suffix = p_child->Name;
-			if(is_hdr) {
-				xmlTextWriterStartElement(p_writer, suffix.ucptr());
-				FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
-				xmlTextWriterEndElement(p_writer);
-			}
-			else {
-				long   iter_id = GetIterID(p_child->Name);
-				THROW(InitIteration(iter_id, rParam.Sort));
-				while((r = NextIteration(iter_id)) > 0) {
-					xmlTextWriterStartElement(p_writer, suffix.ucptr());
+				else if(p_child->Name == "iter@def") {
+					suffix = "Iter";
+				}
+				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+					temp_buf.Z().CatChar('_').Cat(suffix);
+					suffix = temp_buf;
+				}
+				else
+					suffix = p_child->Name;
+				if(is_hdr) {
+					SXml::WNode n_(p_writer, suffix);
 					FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
-					xmlTextWriterEndElement(p_writer);
+				}
+				else {
+					long   iter_id = GetIterID(p_child->Name);
+					THROW(InitIteration(iter_id, rParam.Sort));
+					while((r = NextIteration(iter_id)) > 0) {
+						SXml::WNode n_(p_writer, suffix);
+						FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
+					}
 				}
 			}
 		}
-		xmlTextWriterEndElement(p_writer);
 		xmlTextWriterEndDocument(p_writer);
 	}
+#endif // } 0
 	rOutFileName = path;
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
-int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj) const
+int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp) const
 {
 	int    ok = 1;
 	const  DlScope * p_scope = 0;
 	SString buf;
 	SdbField fld;
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ);
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	THROW(pJsonObj);
 	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
-			if(fld.T.IsZStr(0))
-				buf.Transf(CTRANSF_INNER_TO_OUTER);
+			if(fld.T.IsZStr(0)) {
+				if(cp == cpUTF8)
+					buf.Transf(CTRANSF_INNER_TO_UTF8);
+				else
+					buf.Transf(CTRANSF_INNER_TO_OUTER);
+			}
 			buf.Escape();
 			pJsonObj->InsertString(fld.Name.cptr(), buf);
 		}
@@ -1400,37 +1631,113 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj) const
 int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 {
 	int     ok = 1;
-	SString left, suffix;
+	SString temp_buf;
+	SString suffix;
 	const   DlScope * p_data = GetData();
 	DlScope * p_child = 0;
-	SJson  * p_hdr_obj = new SJson(SJson::tOBJECT);
-	for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
-		if(p_child->Name.IsEqiAscii("hdr")) {
-			//THROW(InitData(*pFilt, 0));
-			THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
-			Helper_PutScopeToJson(p_child, p_hdr_obj);
-		}
-		else {
-			long iter_id = GetIterID(p_child->Name);
-			if(p_child->Name == "iter@def") {
-				suffix = "Iter";
+	SJson * p_hdr_obj = 0;
+	if(rParam.Flags & ExportParam::fJsonStQStyle) {
+		if(rParam.P_ViewDef) { // надеюсь, список всех entry отсортирован по Zone. При обратном ничего плохого конечно не случится, но JSON будет не красивый
+			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
+			PPNamedFilt::ViewDefinition::Entry tmp_entry;
+			//SXml::WNode n_vd(p_writer, "ViewDescription");
+			SJson * p_view_def = new SJson(SJson::tOBJECT);
+			if(p_vd->GetStrucSymb().NotEmpty()) {
+				p_view_def->InsertString("StrucSymb", p_vd->GetStrucSymb());
 			}
-			else if(p_child->Name.Divide('@', left, suffix) > 0) {
+			{
+				SJson * p_vd_list = new SJson(SJson::tARRAY);
+				for(uint i = 0; i < p_vd->GetCount(); i++) {
+					if(p_vd->GetEntry(i, tmp_entry)) {
+						if(oneof2(rParam.Cp, cpANSI, cp1251)){
+							tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
+							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
+							tmp_entry.Text.Transf(CTRANSF_INNER_TO_OUTER);
+						}
+						else if(rParam.Cp == cpUTF8){
+							tmp_entry.Zone.Transf(CTRANSF_INNER_TO_UTF8);
+							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
+							tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
+						}
+						{
+							//SXml::WNode n_item(p_writer, "Item");
+							SJson * p_vd_item = new SJson(SJson::tOBJECT);
+							p_vd_item->InsertString("Zone", tmp_entry.Zone);
+							p_vd_item->InsertString("FieldName", tmp_entry.FieldName);
+							p_vd_item->InsertString("Text", tmp_entry.Text);
+							p_vd_item->InsertString("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
+							p_vd_list->InsertChild(p_vd_item);
+						}
+					}
+				}
+				p_view_def->Insert("Items", p_vd_list);
+			}
+			pRoot->Insert("ViewDescription", p_view_def);
+		}
+		for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
+			if(p_child->Name.IsEqiAscii("hdr")) {
+				//THROW(InitData(*pFilt, 0));
+				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
+				{
+					SJson * p_ho = new SJson(SJson::tOBJECT);
+					Helper_PutScopeToJson(p_child, p_ho, rParam.Cp);
+					pRoot->Insert("hdr", p_ho);
+				}
 			}
 			else {
-				suffix = p_child->Name;
+				long iter_id = GetIterID(p_child->Name);
+				if(p_child->Name == "iter@def") {
+					suffix = "Iter";
+				}
+				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+				}
+				else {
+					suffix = p_child->Name;
+				}
+				THROW(InitIteration(iter_id, 0));
+				SJson * p_iter_ary = new SJson(SJson::tARRAY);
+				while(NextIteration(iter_id) > 0) {
+					SJson * p_iter_obj = new SJson(SJson::tOBJECT);
+					Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp);
+					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
+				}
+				THROW_SL(pRoot->Insert(suffix.cptr(), p_iter_ary));
 			}
-			THROW(InitIteration(iter_id, 0));
-			SJson * p_iter_ary = new SJson(SJson::tARRAY);
-			while(NextIteration(iter_id) > 0) {
-				SJson * p_iter_obj = new SJson(SJson::tOBJECT);
-				Helper_PutScopeToJson(p_child, p_iter_obj);
-				THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
-			}
-			THROW_SL(p_hdr_obj->Insert(suffix.cptr(), p_iter_ary));
 		}
 	}
-	THROW_SL(json_insert_child(pRoot, p_hdr_obj));
+	else {
+		// Эта зона обрабатывает старый вариант экспорта (до @v11.2.0), используемый в том числе для проекта Universe-HTT
+		// Его нельзя менять произвольно!
+		// Исходящая кодировка - cp1251 (параметр cpUndef обрабатывается вызываемыми функциями соответственно)
+		p_hdr_obj = new SJson(SJson::tOBJECT);
+		for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
+			if(p_child->Name.IsEqiAscii("hdr")) {
+				//THROW(InitData(*pFilt, 0));
+				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
+				Helper_PutScopeToJson(p_child, p_hdr_obj, cpUndef);
+			}
+			else {
+				long iter_id = GetIterID(p_child->Name);
+				if(p_child->Name == "iter@def") {
+					suffix = "Iter";
+				}
+				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+				}
+				else {
+					suffix = p_child->Name;
+				}
+				THROW(InitIteration(iter_id, 0));
+				SJson * p_iter_ary = new SJson(SJson::tARRAY);
+				while(NextIteration(iter_id) > 0) {
+					SJson * p_iter_obj = new SJson(SJson::tOBJECT);
+					Helper_PutScopeToJson(p_child, p_iter_obj, cpUndef);
+					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
+				}
+				THROW_SL(p_hdr_obj->Insert(suffix.cptr(), p_iter_ary));
+			}
+		}
+		THROW_SL(json_insert_child(pRoot, p_hdr_obj));
+	}
 	CATCHZOK
 	if(!ok)
 		ZDELETE(p_hdr_obj);
@@ -1440,57 +1747,44 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 int DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	SJson * p_root_ary = new SJson(SJson::tARRAY);
-	THROW_MEM(p_root_ary);
+	SJson  root_ary(SJson::tARRAY);
 	THROW(pAry);
 	for(uint i = 0, n = pAry->getCount(); i < n; i++) {
 		PPFilt filt(pAry->Get(i).Id);
 		if(filt.ID > 0) {
-			ExportParam ep;
-			ep.P_F = &filt;
-			THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
+			THROW(Helper_PutItemToJson(ExportParam(filt, 0), &root_ary));
 		}
 	}
-	THROW_SL(json_tree_to_string(p_root_ary, rBuf));
+	THROW_SL(json_tree_to_string(&root_ary, rBuf));
 	CATCHZOK
-	delete p_root_ary;
 	return ok;
 }
 
 int DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	SJson * p_root_ary = new SJson(SJson::tARRAY);
-	THROW_MEM(p_root_ary);
+	SJson  root_ary(SJson::tARRAY);
 	THROW(ptr);
 	{
 		PPFilt filt(ptr);
-		ExportParam ep;
-		ep.P_F = &filt;
-		THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
-		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
+		THROW(Helper_PutItemToJson(ExportParam(filt, 0), &root_ary));
+		THROW_SL(json_tree_to_string(&root_ary, rBuf));
 	}
 	CATCHZOK
-	delete p_root_ary;
 	return ok;
 }
 
 int DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	SJson * p_root_ary = new SJson(SJson::tARRAY);
-	THROW_MEM(p_root_ary);
+	SJson  root_ary(SJson::tARRAY);
 	THROW(pV);
 	{
 		PPFilt filt(pV);
-		ExportParam ep;
-		ep.P_F = &filt;
-		ep.Flags |= ExportParam::fIsView;
-		THROW(Helper_PutItemToJson(/*&filt*/ep, p_root_ary));
-		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
+		THROW(Helper_PutItemToJson(ExportParam(filt, ExportParam::fIsView), &root_ary));
+		THROW_SL(json_tree_to_string(&root_ary, rBuf));
 	}
 	CATCHZOK
-	delete p_root_ary;
 	return ok;
 }
 //

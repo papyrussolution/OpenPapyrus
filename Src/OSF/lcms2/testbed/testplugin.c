@@ -141,7 +141,7 @@ cmsInt32Number CheckAlarmColorsContext(void)
 	cmsInt32Number rc = 0;
 	const cmsUInt16Number codes[] =
 	{0x0000, 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777, 0x8888, 0x9999, 0xaaaa, 0xbbbb, 0xcccc, 0xdddd, 0xeeee,
-	     0xffff};
+	 0xffff};
 	cmsUInt16Number out[16];
 	cmsContext c1, c2, c3;
 	int i;
@@ -227,7 +227,7 @@ static void Fake1Dfloat(const cmsFloat32Number Value[], cmsFloat32Number Output[
 }
 
 // This fake interpolation just uses scrambled negated indexes for output
-static void Fake3D16(const cmsUInt16Number Input[], cmsUInt16Number Output[], const struct _cms_interp_struc* p)
+static void Fake3D16(const cmsUInt16Number Input[], cmsUInt16Number Output[], const struct _cms_interp_struc * /*p*/)
 {
 	Output[0] =  0xFFFF - Input[2];
 	Output[1] =  0xFFFF - Input[1];
@@ -264,7 +264,9 @@ cmsInt32Number CheckInterp1DPlugin(void)
 {
 	cmsToneCurve* Sampled1D = NULL;
 	cmsContext cpy = NULL;
-	const cmsFloat32Number tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A straight line
+	const cmsFloat32Number tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A
+	                                                                                                               // straight
+	                                                                                                               // line
 	// 1st level context
 	cmsContext ctx = WatchDogContext(NULL);
 	if(ctx == NULL) {
@@ -583,7 +585,8 @@ Error:
 
 #define TYPE_RGB_565  (COLORSPACE_SH(PT_RGB)|CHANNELS_SH(3)|BYTES_SH(0) | (1 << 23))
 
-cmsUInt8Number* my_Unroll565(struct _cmstransform_struct* nfo, cmsUInt16Number wIn[], cmsUInt8Number* accum, cmsUInt32Number Stride)
+cmsUInt8Number * my_Unroll565(struct _cmstransform_struct * /*nfo*/, cmsUInt16Number wIn[], cmsUInt8Number * accum,
+    cmsUInt32Number /*_stride*/)
 {
 	cmsUInt16Number pixel = *(cmsUInt16Number*)accum; // Take whole pixel
 	double r = floor(((double)(pixel & 31) * 65535.0) / 31.0 + 0.5);
@@ -595,7 +598,7 @@ cmsUInt8Number* my_Unroll565(struct _cmstransform_struct* nfo, cmsUInt16Number w
 	return accum + 2;
 }
 
-cmsUInt8Number* my_Pack565(_cmsTRANSFORM* info, cmsUInt16Number wOut[], cmsUInt8Number* output, cmsUInt32Number Stride)
+cmsUInt8Number * my_Pack565(_cmsTRANSFORM * /*info*/, cmsUInt16Number wOut[], cmsUInt8Number* output, cmsUInt32Number /*_stride*/)
 {
 	int r = (int)floor(( wOut[2] * 31) / 65535.0 + 0.5);
 	int g = (int)floor(( wOut[1] * 63) / 65535.0 + 0.5);
@@ -683,11 +686,7 @@ cmsInt32Number CheckFormattersPlugin(void)
 #define SigIntType      ((cmsTagTypeSignature)0x74747448)     //   'tttH'
 #define SigInt          ((cmsTagSignature)0x74747448)         //   'tttH'
 
-static
-void * Type_int_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    cmsUInt32Number* nItems,
-    cmsUInt32Number SizeOfTag)
+static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number /*SizeOfTag*/)
 {
 	cmsUInt32Number* Ptr = (cmsUInt32Number*)_cmsMalloc(self->ContextID, sizeof(cmsUInt32Number));
 	if(Ptr == NULL) return NULL;
@@ -696,23 +695,17 @@ void * Type_int_Read(struct _cms_typehandler_struct* self,
 	return Ptr;
 }
 
-static
-cmsBool Type_int_Write(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Ptr, cmsUInt32Number nItems)
+static cmsBool Type_int_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number /*nItems*/)
 {
 	return _cmsWriteUInt32Number(io, *(cmsUInt32Number*)Ptr);
 }
 
-static
-void * Type_int_Dup(struct _cms_typehandler_struct* self,
-    const void * Ptr, cmsUInt32Number n)
+static void * Type_int_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, n * sizeof(cmsUInt32Number));
 }
 
-void Type_int_Free(struct _cms_typehandler_struct* self,
-    void * Ptr)
+void Type_int_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -761,7 +754,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char *)SAlloc::M(clen);
+	data = (char*)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -794,7 +787,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 		goto Error;
 	}
 	// Get rid of data
-	SAlloc::F(data); 
+	SAlloc::F(data);
 	data = NULL;
 	ptr = (cmsUInt32Number*)cmsReadTag(h, SigInt);
 	if(ptr == NULL) {
@@ -810,7 +803,7 @@ Error:
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data) 
+	if(data)
 		SAlloc::F(data);
 	return 0;
 }
@@ -820,29 +813,19 @@ Error:
 // --------------------------------------------------------------------------------------------------
 #define SigNegateType ((cmsStageSignature)0x6E202020)
 
-static
-void EvaluateNegate(const cmsFloat32Number In[],
-    cmsFloat32Number Out[],
-    const cmsStage * mpe)
+static void EvaluateNegate(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * /*pMpe*/)
 {
 	Out[0] = 1.0f - In[0];
 	Out[1] = 1.0f - In[1];
 	Out[2] = 1.0f - In[2];
 }
 
-static
-cmsStage* StageAllocNegate(cmsContext ContextID)
+static cmsStage* StageAllocNegate(cmsContext ContextID)
 {
-	return _cmsStageAllocPlaceholder(ContextID,
-		   SigNegateType, 3, 3, EvaluateNegate,
-		   NULL, NULL, NULL);
+	return _cmsStageAllocPlaceholder(ContextID, SigNegateType, 3, 3, EvaluateNegate, NULL, NULL, NULL);
 }
 
-static
-void * Type_negate_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    cmsUInt32Number* nItems,
-    cmsUInt32Number SizeOfTag)
+static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number /*SizeOfTag*/)
 {
 	cmsUInt16Number Chans;
 	if(!_cmsReadUInt16Number(io, &Chans)) return NULL;
@@ -852,19 +835,14 @@ void * Type_negate_Read(struct _cms_typehandler_struct* self,
 	return StageAllocNegate(self->ContextID);
 }
 
-static
-cmsBool Type_negate_Write(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Ptr, cmsUInt32Number nItems)
+static cmsBool Type_negate_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * /*Ptr*/, cmsUInt32Number /*nItems*/)
 {
 	if(!_cmsWriteUInt16Number(io, 3)) return FALSE;
 	return TRUE;
 }
 
-static
-cmsPluginMultiProcessElement MPEPluginSample = {
+static cmsPluginMultiProcessElement MPEPluginSample = {
 	{cmsPluginMagicNumber, 2060, cmsPluginMultiProcessElementSig, NULL},
-
 	{ (cmsTagTypeSignature)SigNegateType, Type_negate_Read, Type_negate_Write, NULL, NULL, NULL }
 };
 
@@ -921,7 +899,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char *)SAlloc::M(clen);
+	data = (char*)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -955,7 +933,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		goto Error;
 	}
 	// Get rid of data
-	SAlloc::F(data); 
+	SAlloc::F(data);
 	data = NULL;
 	pipe = (cmsPipeline*)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe == NULL) {
@@ -965,7 +943,9 @@ cmsInt32Number CheckMPEPlugin(void)
 	// Evaluate for negation
 	In[0] = 0.3f; In[1] = 0.2f; In[2] = 0.9f;
 	cmsPipelineEvalFloat(In, Out, pipe);
-	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
+	rc =
+	    (IsGoodVal("0", Out[0], 1.0-In[0],
+	    0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
 	cmsCloseProfile(h);
 	cmsDeleteContext(cpy2);
 	return rc;
@@ -974,7 +954,7 @@ Error:
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data) 
+	if(data)
 		SAlloc::F(data);
 	return 0;
 }
@@ -983,27 +963,26 @@ Error:
 // Optimization plugin check:
 // --------------------------------------------------------------------------------------------------
 
-static void FastEvaluateCurves(const cmsUInt16Number In[], cmsUInt16Number Out[], const void * Data)
+static void FastEvaluateCurves(const cmsUInt16Number In[], cmsUInt16Number Out[], const void * /*pData*/)
 {
 	Out[0] = In[0];
 }
 
-static cmsBool MyOptimize(cmsPipeline** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+static cmsBool MyOptimize(cmsPipeline** Lut, cmsUInt32Number /*Intent*/, cmsUInt32Number * /*InputFormat*/, cmsUInt32Number * /*OutputFormat*/, cmsUInt32Number* dwFlags)
 {
 	cmsStage* mpe;
 	_cmsStageToneCurvesData* Data;
 	//  Only curves in this LUT? All are identities?
 	for(mpe = cmsPipelineGetPtrToFirstStage(*Lut); mpe != NULL; mpe = cmsStageNext(mpe)) {
-		if(cmsStageType(mpe) != cmsSigCurveSetElemType) return FALSE;
+		if(cmsStageType(mpe) != cmsSigCurveSetElemType) 
+			return FALSE;
 		// Check for identity
 		Data = (_cmsStageToneCurvesData*)cmsStageData(mpe);
 		if(Data->nCurves != 1) return FALSE;
 		if(cmsEstimateGamma(Data->TheCurves[0], 0.1) > 1.0) return FALSE;
 	}
-
 	*dwFlags |= cmsFLAGS_NOCACHE;
 	_cmsPipelineSetOptimizationParameters(*Lut, FastEvaluateCurves, NULL, NULL, NULL);
-
 	return TRUE;
 }
 
@@ -1148,21 +1127,15 @@ cmsInt32Number CheckIntentPlugin(void)
 // --------------------------------------------------------------------------------------------------
 
 // This is a sample intent that only works for gray8 as output, and always returns '42'
-static void TrancendentalTransform(struct _cmstransform_struct * CMM, const void * InputBuffer, void * OutputBuffer,
-    cmsUInt32Number Size, cmsUInt32Number Stride)
+static void TrancendentalTransform(struct _cmstransform_struct * /*CMM*/, const void * /*pInputBuffer*/, void * OutputBuffer, cmsUInt32Number Size, cmsUInt32Number /*_stride*/)
 {
 	for(cmsUInt32Number i = 0; i < Size; i++) {
-		((cmsUInt8Number *)OutputBuffer)[i] = 0x42;
+		((cmsUInt8Number*)OutputBuffer)[i] = 0x42;
 	}
 }
 
-cmsBool  TransformFactory(_cmsTransformFn* xformPtr,
-    void** UserData,
-    _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline** Lut,
-    cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat,
-    cmsUInt32Number* dwFlags)
+cmsBool  TransformFactory(_cmsTransformFn* xformPtr, void ** /*ppUserData*/, _cmsFreeUserDataFn * /*pFreePrivateDataFn*/,
+    cmsPipeline ** /*ppLut*/, cmsUInt32Number * /*pInputFormat*/, cmsUInt32Number* OutputFormat, cmsUInt32Number * /*dwFlags*/)
 
 {
 	if(*OutputFormat == TYPE_GRAY_8) {
@@ -1205,7 +1178,7 @@ cmsInt32Number CheckTransformPlugin(void)
 	cmsDeleteContext(cpy);
 	cmsDeleteContext(cpy2);
 	for(i = 0; i < 4; i++)
-		if(Out[i] != 0x42) 
+		if(Out[i] != 0x42)
 			return 0;
 	return 1;
 }
@@ -1233,24 +1206,20 @@ static void MyMtxDestroy(cmsContext id, void * mtx)
 	_cmsFree(id, mtx);
 }
 
-static cmsBool MyMtxLock(cmsContext id, void * mtx)
+static cmsBool MyMtxLock(cmsContext /*id*/, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks++;
 	return TRUE;
 }
 
-static void MyMtxUnlock(cmsContext id, void * mtx)
+static void MyMtxUnlock(cmsContext /*id*/, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks--;
 }
 
-static cmsPluginMutex MutexPluginSample = {
-	{ cmsPluginMagicNumber, 2060, cmsPluginMutexSig, NULL},
-
-	MyMtxCreate,  MyMtxDestroy,  MyMtxLock,  MyMtxUnlock
-};
+static cmsPluginMutex MutexPluginSample = { { cmsPluginMagicNumber, 2060, cmsPluginMutexSig, NULL}, MyMtxCreate,  MyMtxDestroy,  MyMtxLock,  MyMtxUnlock };
 
 cmsInt32Number CheckMutexPlugin(void)
 {

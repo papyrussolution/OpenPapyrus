@@ -620,13 +620,13 @@ int FASTCALL PPViewSStat::NextIteration(SStatViewItem * pItem)
 			}
 			TempGoodsStatTbl::Rec rec;
 			rec = P_TempTbl->data;
-			if(!Filt.CountRange.IsZero() && Filt.CountRange.CheckX(rec.Count) <= 0)
+			if(!Filt.CountRange.IsZero() && !Filt.CountRange.CheckX(rec.Count))
 				continue;
-			if(!Filt.QttyAvgRange.IsZero() && Filt.QttyAvgRange.CheckX(rec.QttyAvg) <= 0)
+			if(!Filt.QttyAvgRange.IsZero() && !Filt.QttyAvgRange.CheckX(rec.QttyAvg))
 				continue;
-			if(!Filt.AmtAvgRange.IsZero()  && Filt.AmtAvgRange.CheckX(rec.AmtAvg) <= 0)
+			if(!Filt.AmtAvgRange.IsZero()  && !Filt.AmtAvgRange.CheckX(rec.AmtAvg))
 				continue;
-			if(!Filt.QttyVarRange.IsZero() && Filt.QttyVarRange.CheckX(rec.QttyVar) <= 0)
+			if(!Filt.QttyVarRange.IsZero() && !Filt.QttyVarRange.CheckX(rec.QttyVar))
 				continue;
 			RecToViewItem(&rec, pItem);
 			Counter.Increment();

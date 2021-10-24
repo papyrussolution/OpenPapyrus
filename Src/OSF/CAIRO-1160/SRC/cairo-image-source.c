@@ -132,10 +132,10 @@ static pixman_image_t * _pixman_white_image(void)
 	return image;
 }
 
-static uint32_t hars_petruska_f54_1_random(void)
+static uint32 hars_petruska_f54_1_random(void)
 {
 #define rol(x, k) ((x << k) | (x >> (32-k)))
-	static uint32_t x;
+	static uint32 x;
 	return x = (x ^ rol(x, 5) ^ rol(x, 24)) + 0x37798849;
 #undef rol
 }
@@ -344,7 +344,7 @@ static void _defer_free_cleanup(pixman_image_t * pixman_image, void * closure)
 	cairo_surface_destroy(static_cast<cairo_surface_t *>(closure));
 }
 
-static uint16_t FASTCALL expand_channel(uint16_t v, uint32_t bits)
+static uint16 FASTCALL expand_channel(uint16 v, uint32 bits)
 {
 	for(int offset = 16 - bits; offset > 0;) {
 		v |= v >> bits;
@@ -356,7 +356,7 @@ static uint16_t FASTCALL expand_channel(uint16_t v, uint32_t bits)
 
 static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, int y)
 {
-	uint32_t pixel;
+	uint32 pixel;
 	pixman_color_t color;
 	TRACE_FUNCTION_SIMPLE();
 	switch(image->format) {
@@ -366,11 +366,11 @@ static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, in
 		    return NULL;
 
 		case CAIRO_FORMAT_A1:
-		    pixel = *(uint8_t *)(image->data + y * image->stride + x/8);
+		    pixel = *(uint8 *)(image->data + y * image->stride + x/8);
 		    return pixel & (1 << (x&7)) ? _pixman_black_image() : _pixman_transparent_image();
 
 		case CAIRO_FORMAT_A8:
-		    color.alpha = *(uint8_t *)(image->data + y * image->stride + x);
+		    color.alpha = *(uint8 *)(image->data + y * image->stride + x);
 		    color.alpha |= color.alpha << 8;
 		    if(color.alpha == 0)
 			    return _pixman_transparent_image();
@@ -381,7 +381,7 @@ static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, in
 		    return pixman_image_create_solid_fill(&color);
 
 		case CAIRO_FORMAT_RGB16_565:
-		    pixel = *(uint16_t*)(image->data + y * image->stride + 2 * x);
+		    pixel = *(uint16 *)(image->data + y * image->stride + 2 * x);
 		    if(pixel == 0)
 			    return _pixman_black_image();
 		    if(pixel == 0xffff)
@@ -394,7 +394,7 @@ static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, in
 		    return pixman_image_create_solid_fill(&color);
 
 		case CAIRO_FORMAT_RGB30:
-		    pixel = *(uint32_t *)(image->data + y * image->stride + 4 * x);
+		    pixel = *(uint32 *)(image->data + y * image->stride + 4 * x);
 		    pixel &= 0x3fffffff; /* ignore alpha bits */
 		    if(pixel == 0)
 			    return _pixman_black_image();
@@ -410,7 +410,7 @@ static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, in
 
 		case CAIRO_FORMAT_ARGB32:
 		case CAIRO_FORMAT_RGB24:
-		    pixel = *(uint32_t *)(image->data + y * image->stride + 4 * x);
+		    pixel = *(uint32 *)(image->data + y * image->stride + 4 * x);
 		    color.alpha = image->format == CAIRO_FORMAT_ARGB32 ? (pixel >> 24) | (pixel >> 16 & 0xff00) : 0xffff;
 		    if(color.alpha == 0)
 			    return _pixman_transparent_image();
@@ -1059,7 +1059,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst, c
 				return pixman_image_ref(source->pixman_image);
 			}
 #endif
-			pixman_image = pixman_image_create_bits(source->pixman_format, source->width, source->height, (uint32_t *)source->data, source->stride);
+			pixman_image = pixman_image_create_bits(source->pixman_format, source->width, source->height, (uint32 *)source->data, source->stride);
 			if(UNLIKELY(pixman_image == NULL)) {
 				cairo_surface_destroy(defer_free);
 				return NULL;
@@ -1097,7 +1097,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst, c
 			if(PIXMAN_FORMAT_BPP(source->pixman_format) >= 8) {
 				if(is_contained) {
 					void * data = source->data + sub->extents.x * PIXMAN_FORMAT_BPP(source->pixman_format)/8 + sub->extents.y * source->stride;
-					pixman_image = pixman_image_create_bits(source->pixman_format, sub->extents.width, sub->extents.height, (uint32_t *)data, source->stride);
+					pixman_image = pixman_image_create_bits(source->pixman_format, sub->extents.width, sub->extents.height, (uint32 *)data, source->stride);
 					if(UNLIKELY(pixman_image == NULL))
 						return NULL;
 				}
@@ -1116,7 +1116,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst, c
 		cairo_status_t status = _cairo_surface_acquire_source_image(pattern->surface, &image, &extra);
 		if(UNLIKELY(status))
 			return NULL;
-		pixman_image = pixman_image_create_bits(image->pixman_format, image->width, image->height, (uint32_t *)image->data, image->stride);
+		pixman_image = pixman_image_create_bits(image->pixman_format, image->width, image->height, (uint32 *)image->data, image->stride);
 		if(UNLIKELY(pixman_image == NULL)) {
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			return NULL;
@@ -1180,7 +1180,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 	pixman_image = pixman_image_create_bits(image->pixman_format,
 		image->width,
 		image->height,
-		(uint32_t *)image->data,
+		(uint32 *)image->data,
 		image->stride);
 	if(UNLIKELY(pixman_image == NULL)) {
 		_cairo_surface_release_source_image(surface, image, extra);

@@ -1120,7 +1120,7 @@ ARCHIVE_INTERFACE(IArchiveAllowTail, 0x05) { STDMETHOD(AllowTail) (int32 allowTa
 
 #define IMP_IInArchive_GetProp(k) \
 	(uint32 index, BSTR *name, PROPID *propID, VARTYPE *varType) \
-	{ if(index >= ARRAY_SIZE(k)) return E_INVALIDARG; \
+	{ if(index >= SIZEOFARRAY(k)) return E_INVALIDARG; \
 	  *propID = k[index]; *varType = k7z_PROPID_To_VARTYPE[(uint)*propID];  *name = 0; return S_OK; } \
 
 
@@ -1131,25 +1131,25 @@ struct CStatProp {
 };
 
 #define IMP_IInArchive_GetProp_WITH_NAME(k) (uint32 index, BSTR *name, PROPID *propID, VARTYPE *varType) \
-	{ if(index >= ARRAY_SIZE(k)) return E_INVALIDARG; \
+	{ if(index >= SIZEOFARRAY(k)) return E_INVALIDARG; \
 	  const CStatProp &prop = k[index]; \
 	  *propID = (PROPID)prop.PropID; *varType = prop.vt; \
 	  *name = NWindows::NCOM::AllocBstrFromAscii(prop.Name); return S_OK; }	\
 
 #define IMP_IInArchive_Props \
-	STDMETHODIMP CHandler::GetNumberOfProperties(uint32 *numProps) { *numProps = ARRAY_SIZE(kProps); return S_OK; } \
+	STDMETHODIMP CHandler::GetNumberOfProperties(uint32 *numProps) { *numProps = SIZEOFARRAY(kProps); return S_OK; } \
 	STDMETHODIMP CHandler::GetPropertyInfo IMP_IInArchive_GetProp(kProps)
 
 #define IMP_IInArchive_Props_WITH_NAME \
-	STDMETHODIMP CHandler::GetNumberOfProperties(uint32 *numProps) { *numProps = ARRAY_SIZE(kProps); return S_OK; } \
+	STDMETHODIMP CHandler::GetNumberOfProperties(uint32 *numProps) { *numProps = SIZEOFARRAY(kProps); return S_OK; } \
 	STDMETHODIMP CHandler::GetPropertyInfo IMP_IInArchive_GetProp_WITH_NAME(kProps)
 
 #define IMP_IInArchive_ArcProps	\
-	STDMETHODIMP CHandler::GetNumberOfArchiveProperties(uint32 *numProps) { *numProps = ARRAY_SIZE(kArcProps); return S_OK; } \
+	STDMETHODIMP CHandler::GetNumberOfArchiveProperties(uint32 *numProps) { *numProps = SIZEOFARRAY(kArcProps); return S_OK; } \
 	STDMETHODIMP CHandler::GetArchivePropertyInfo IMP_IInArchive_GetProp(kArcProps)
 
 #define IMP_IInArchive_ArcProps_WITH_NAME \
-	STDMETHODIMP CHandler::GetNumberOfArchiveProperties(uint32 *numProps) { *numProps = ARRAY_SIZE(kArcProps); return S_OK; } \
+	STDMETHODIMP CHandler::GetNumberOfArchiveProperties(uint32 *numProps) { *numProps = SIZEOFARRAY(kArcProps); return S_OK; } \
 	STDMETHODIMP CHandler::GetArchivePropertyInfo IMP_IInArchive_GetProp_WITH_NAME(kArcProps)
 
 #define IMP_IInArchive_ArcProps_NO_Table \
@@ -2951,7 +2951,7 @@ void RegisterCodec(const CCodecInfo * codecInfo) throw();
 #define REGISTER_CODECS_VAR static const CCodecInfo g_CodecsInfo[] =
 
 #define REGISTER_CODECS(x) struct REGISTER_CODECS_NAME (x) { \
-	REGISTER_CODECS_NAME(x) () { for(uint i = 0; i < ARRAY_SIZE(g_CodecsInfo); i++) RegisterCodec(&g_CodecsInfo[i]); }}; \
+	REGISTER_CODECS_NAME(x) () { for(uint i = 0; i < SIZEOFARRAY(g_CodecsInfo); i++) RegisterCodec(&g_CodecsInfo[i]); }}; \
 	static REGISTER_CODECS_NAME(x) g_RegisterCodecs;
 
 #define REGISTER_CODEC_2(x, crDec, crEnc, id, name) REGISTER_CODEC_VAR { crDec, crEnc, id, name, 1, false }; REGISTER_CODEC(x)
@@ -3028,7 +3028,7 @@ void RegisterArc(const CArcInfo * arcInfo) throw();
 	static CRegisterArc g_RegisterArc;
 
 #define REGISTER_ARC_I_CLS(cls, n, e, ae, id, sig, offs, flags, isArc) \
-	IMP_CreateArcIn_2(cls) REGISTER_ARC_R(n, e, ae, id, ARRAY_SIZE(sig), sig, offs, flags, CreateArc, NULL, isArc)
+	IMP_CreateArcIn_2(cls) REGISTER_ARC_R(n, e, ae, id, SIZEOFARRAY(sig), sig, offs, flags, CreateArc, NULL, isArc)
 
 #define REGISTER_ARC_I_CLS_NO_SIG(cls, n, e, ae, id, offs, flags, isArc) \
 	IMP_CreateArcIn_2(cls) REGISTER_ARC_R(n, e, ae, id, 0, NULL, offs, flags, CreateArc, NULL, isArc)
@@ -3037,11 +3037,11 @@ void RegisterArc(const CArcInfo * arcInfo) throw();
 #define REGISTER_ARC_I_NO_SIG(n, e, ae, id, offs, flags, isArc)	REGISTER_ARC_I_CLS_NO_SIG(CHandler(), n, e, ae, id, offs, flags, isArc)
 
 #define REGISTER_ARC_IO(n, e, ae, id, sig, offs, flags, isArc) \
-	IMP_CreateArcIn	IMP_CreateArcOut REGISTER_ARC_R(n, e, ae, id, ARRAY_SIZE(sig), sig, offs, flags, CreateArc, CreateArcOut, isArc)
+	IMP_CreateArcIn	IMP_CreateArcOut REGISTER_ARC_R(n, e, ae, id, SIZEOFARRAY(sig), sig, offs, flags, CreateArc, CreateArcOut, isArc)
 
 #define REGISTER_ARC_IO_DECREMENT_SIG(n, e, ae, id, sig, offs, flags, isArc) \
 	IMP_CreateArcIn	IMP_CreateArcOut \
-	REGISTER_ARC_V(n, e, ae, id, ARRAY_SIZE(sig), sig, offs, flags, CreateArc, CreateArcOut, isArc)	\
+	REGISTER_ARC_V(n, e, ae, id, SIZEOFARRAY(sig), sig, offs, flags, CreateArc, CreateArcOut, isArc)	\
 	struct CRegisterArcDecSig { CRegisterArcDecSig() { sig[0]--; RegisterArc(&g_ArcInfo); }}; \
 	static CRegisterArcDecSig g_RegisterArc;
 //

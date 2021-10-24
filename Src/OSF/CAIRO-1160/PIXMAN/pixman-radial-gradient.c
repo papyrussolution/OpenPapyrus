@@ -54,7 +54,7 @@ static inline double fdot(double x1, double y1, double z1, double x2, double y2,
 	return (x1 * x2) + (y1 * y2) + (z1 * z2);
 }
 
-static uint32_t radial_compute_color(double a, double b, double c, double inva, double dr, double mindr, pixman_gradient_walker_t * walker, pixman_repeat_t repeat)
+static uint32 radial_compute_color(double a, double b, double c, double inva, double dr, double mindr, pixman_gradient_walker_t * walker, pixman_repeat_t repeat)
 {
 	/*
 	 * In this function error propagation can lead to bad results:
@@ -121,7 +121,7 @@ static uint32_t radial_compute_color(double a, double b, double c, double inva, 
 	return 0;
 }
 
-static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32 * mask)
 {
 	/*
 	 * Implementation of radial gradients following the PDF specification.
@@ -208,10 +208,10 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 	int x = iter->x;
 	int y = iter->y;
 	int width = iter->width;
-	uint32_t * buffer = iter->buffer;
+	uint32 * buffer = iter->buffer;
 	gradient_t * gradient = reinterpret_cast<gradient_t *>(image);
 	radial_gradient_t * radial = reinterpret_cast<radial_gradient_t *>(image);
-	uint32_t * end = buffer + width;
+	uint32 * end = buffer + width;
 	pixman_gradient_walker_t walker;
 	pixman_vector_t v, unit;
 	/* reference point is the center of the pixel */
@@ -319,9 +319,9 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 	return iter->buffer;
 }
 
-static uint32_t * radial_get_scanline_wide(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * radial_get_scanline_wide(pixman_iter_t * iter, const uint32 * mask)
 {
-	uint32_t * buffer = radial_get_scanline_narrow(iter, NULL);
+	uint32 * buffer = radial_get_scanline_narrow(iter, NULL);
 	pixman_expand_to_float((argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return buffer;
 }

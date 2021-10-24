@@ -154,7 +154,7 @@ const cairo_compositor_t * _cairo_win32_gdi_compositor_get(void);
 cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context);
 cairo_private void _cairo_win32_display_surface_discard_fallback(cairo_win32_display_surface_t * surface);
 boolint _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);
-uint32_t _cairo_win32_flags_for_dc(HDC dc, cairo_format_t format);
+uint32 _cairo_win32_flags_for_dc(HDC dc, cairo_format_t format);
 cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t * dst,
     const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, boolint glyph_indexing);
 

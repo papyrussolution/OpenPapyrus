@@ -49,9 +49,9 @@ typedef struct {
 	uint   total_out_lo32;
 	uint   total_out_hi32;
 	void * state;
-	void * (*bzalloc)(void *, size_t, size_t);
-	void   (*bzfree)(void *, void *);
-	void * opaque;
+	//void * (*bzalloc)(void *, size_t, size_t);
+	//void   (*bzfree)(void *, void *);
+	//void * opaque;
 } bz_stream;
 
 #ifndef BZ_IMPORT

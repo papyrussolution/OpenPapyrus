@@ -215,7 +215,7 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 	return status;
 }
 
-static ulong _cairo_user_ucs4_to_index(void * abstract_font, uint32_t ucs4)
+static ulong _cairo_user_ucs4_to_index(void * abstract_font, uint32 ucs4)
 {
 	cairo_user_scaled_font_t * scaled_font = static_cast<cairo_user_scaled_font_t *>(abstract_font);
 	cairo_user_font_face_t * face = (cairo_user_font_face_t*)scaled_font->base.font_face;

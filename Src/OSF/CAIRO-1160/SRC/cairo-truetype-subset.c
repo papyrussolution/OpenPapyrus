@@ -190,13 +190,13 @@ static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * s
 
 	font->is_pdf = is_pdf;
 	font->num_glyphs = 0;
-	font->base.x_min = (int16_t)be16_to_cpu(head.x_min);
-	font->base.y_min = (int16_t)be16_to_cpu(head.y_min);
-	font->base.x_max = (int16_t)be16_to_cpu(head.x_max);
-	font->base.y_max = (int16_t)be16_to_cpu(head.y_max);
-	font->base.ascent = (int16_t)be16_to_cpu(hhea.ascender);
-	font->base.descent = (int16_t)be16_to_cpu(hhea.descender);
-	font->base.units_per_em = (int16_t)be16_to_cpu(head.units_per_em);
+	font->base.x_min = (int16)be16_to_cpu(head.x_min);
+	font->base.y_min = (int16)be16_to_cpu(head.y_min);
+	font->base.x_max = (int16)be16_to_cpu(head.x_max);
+	font->base.y_max = (int16)be16_to_cpu(head.y_max);
+	font->base.ascent = (int16)be16_to_cpu(hhea.ascender);
+	font->base.descent = (int16)be16_to_cpu(hhea.descender);
+	font->base.units_per_em = (int16)be16_to_cpu(head.units_per_em);
 	if(font->base.units_per_em == 0)
 		font->base.units_per_em = 2048;
 
@@ -299,9 +299,9 @@ static void cairo_truetype_font_write(cairo_truetype_font_t * font,
 }
 
 static void cairo_truetype_font_write_be16(cairo_truetype_font_t * font,
-    uint16_t value)
+    uint16 value)
 {
-	uint16_t be16_value;
+	uint16 be16_value;
 
 	if(font->status)
 		return;
@@ -311,9 +311,9 @@ static void cairo_truetype_font_write_be16(cairo_truetype_font_t * font,
 }
 
 static void cairo_truetype_font_write_be32(cairo_truetype_font_t * font,
-    uint32_t value)
+    uint32 value)
 {
-	uint32_t be32_value;
+	uint32 be32_value;
 
 	if(font->status)
 		return;
@@ -495,7 +495,7 @@ static cairo_status_t cairo_truetype_font_remap_composite_glyph(cairo_truetype_f
 	if((uchar *)(&glyph_data->data) >= end)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	if((int16_t)be16_to_cpu(glyph_data->num_contours) >= 0)
+	if((int16)be16_to_cpu(glyph_data->num_contours) >= 0)
 		return CAIRO_STATUS_SUCCESS;
 
 	composite_glyph = &glyph_data->glyph;
@@ -536,8 +536,8 @@ static cairo_status_t cairo_truetype_font_write_glyf_table(cairo_truetype_font_t
 	uint i;
 	union {
 		uchar * bytes;
-		uint16_t * short_offsets;
-		uint32_t * long_offsets;
+		uint16 * short_offsets;
+		uint32 * long_offsets;
 	} u;
 
 	cairo_status_t status;
@@ -550,9 +550,9 @@ static cairo_status_t cairo_truetype_font_write_glyf_table(cairo_truetype_font_t
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
 	if(be16_to_cpu(header.index_to_loc_format) == 0)
-		size = sizeof(int16_t) * (font->base.num_glyphs_in_face + 1);
+		size = sizeof(int16) * (font->base.num_glyphs_in_face + 1);
 	else
-		size = sizeof(int32_t) * (font->base.num_glyphs_in_face + 1);
+		size = sizeof(int32) * (font->base.num_glyphs_in_face + 1);
 	u.bytes = static_cast<uchar *>(_cairo_malloc(size));
 	if(UNLIKELY(u.bytes == NULL))
 		return _cairo_truetype_font_set_error(font, CAIRO_STATUS_NO_MEMORY);
@@ -599,7 +599,7 @@ static cairo_status_t cairo_truetype_font_write_glyf_table(cairo_truetype_font_t
 			if(UNLIKELY(status))
 				goto FAIL;
 			glyph_data = (tt_glyph_data_t*)buffer;
-			num_contours = (int16_t)be16_to_cpu(glyph_data->num_contours);
+			num_contours = (int16)be16_to_cpu(glyph_data->num_contours);
 			if(num_contours < 0) {
 				status = cairo_truetype_font_remap_composite_glyph(font, buffer, size);
 				if(UNLIKELY(status))
@@ -653,7 +653,7 @@ static cairo_status_t cairo_truetype_font_write_head_table(cairo_truetype_font_t
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
 	/* set checkSumAdjustment to 0 for table checksum calculation */
-	*(uint32_t *)(buffer + 8) = 0;
+	*(uint32 *)(buffer + 8) = 0;
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -671,7 +671,7 @@ static cairo_status_t cairo_truetype_font_write_hhea_table(cairo_truetype_font_t
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, tag, 0, (uchar *)hhea, &size);
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
-	hhea->num_hmetrics = cpu_to_be16((uint16_t)(font->num_glyphs));
+	hhea->num_hmetrics = cpu_to_be16((uint16)(font->num_glyphs));
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -697,8 +697,8 @@ static cairo_status_t cairo_truetype_font_write_hmtx_table(cairo_truetype_font_t
 	num_hmetrics = be16_to_cpu(hhea.num_hmetrics);
 
 	for(i = 0; i < font->num_glyphs; i++) {
-		long_entry_size = 2 * sizeof(int16_t);
-		short_entry_size = sizeof(int16_t);
+		long_entry_size = 2 * sizeof(int16);
+		short_entry_size = sizeof(int16);
 		status = cairo_truetype_font_allocate_write_buffer(font,
 			long_entry_size,
 			(uchar**)&p);
@@ -750,7 +750,7 @@ static cairo_status_t cairo_truetype_font_write_loca_table(cairo_truetype_font_t
 
 	if(be16_to_cpu(header.index_to_loc_format) == 0) {
 		for(i = 0; i < font->num_glyphs + 1; i++)
-			cairo_truetype_font_write_be16(font, static_cast<uint16_t>(font->glyphs[i].location / 2));
+			cairo_truetype_font_write_be16(font, static_cast<uint16>(font->glyphs[i].location / 2));
 	}
 	else {
 		for(i = 0; i < font->num_glyphs + 1; i++)
@@ -808,12 +808,12 @@ static cairo_status_t cairo_truetype_font_write_offset_table(cairo_truetype_font
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static uint32_t cairo_truetype_font_calculate_checksum(cairo_truetype_font_t * font, ulong start, ulong end)
+static uint32 cairo_truetype_font_calculate_checksum(cairo_truetype_font_t * font, ulong start, ulong end)
 {
-	uint32_t checksum = 0;
+	uint32 checksum = 0;
 	char * data = (char *)_cairo_array_index(&font->output, 0);
-	uint32_t * p = (uint32_t *)(data + start);
-	uint32_t * padded_end = (uint32_t *)(data + ((end + 3) & ~3));
+	uint32 * p = (uint32 *)(data + start);
+	uint32 * padded_end = (uint32 *)(data + ((end + 3) & ~3));
 	while(p < padded_end)
 		checksum += be32_to_cpu(*p++);
 	return checksum;
@@ -821,11 +821,11 @@ static uint32_t cairo_truetype_font_calculate_checksum(cairo_truetype_font_t * f
 
 static void cairo_truetype_font_update_entry(cairo_truetype_font_t * font, int index, ulong tag, ulong start, ulong end)
 {
-	uint32_t * entry = (uint32_t *)_cairo_array_index(&font->output, 12 + 16 * index);
-	entry[0] = cpu_to_be32((uint32_t)tag);
+	uint32 * entry = (uint32 *)_cairo_array_index(&font->output, 12 + 16 * index);
+	entry[0] = cpu_to_be32((uint32)tag);
 	entry[1] = cpu_to_be32(cairo_truetype_font_calculate_checksum(font, start, end));
-	entry[2] = cpu_to_be32((uint32_t)start);
-	entry[3] = cpu_to_be32((uint32_t)(end - start));
+	entry[2] = cpu_to_be32((uint32)start);
+	entry[3] = cpu_to_be32((uint32)(end - start));
 }
 
 static cairo_status_t cairo_truetype_font_generate(cairo_truetype_font_t * font, const char  ** data,
@@ -833,7 +833,7 @@ static cairo_status_t cairo_truetype_font_generate(cairo_truetype_font_t * font,
 {
 	cairo_status_t status;
 	ulong start, end, next;
-	uint32_t checksum, * checksum_location;
+	uint32 checksum, * checksum_location;
 	int i;
 	if(font->status)
 		return font->status;
@@ -860,7 +860,7 @@ static cairo_status_t cairo_truetype_font_generate(cairo_truetype_font_t * font,
 		start = next;
 	}
 	checksum = 0xb1b0afba - cairo_truetype_font_calculate_checksum(font, 0, end);
-	checksum_location = (uint32_t *)_cairo_array_index(&font->output, font->checksum_index);
+	checksum_location = (uint32 *)_cairo_array_index(&font->output, font->checksum_index);
 	*checksum_location = cpu_to_be32(checksum);
 	*data = (const char *)_cairo_array_index(&font->output, 0);
 	*length = _cairo_array_num_elements(&font->output);
@@ -1070,16 +1070,16 @@ void FASTCALL _cairo_truetype_subset_fini(cairo_truetype_subset_t * subset)
 	SAlloc::F(subset->string_offsets);
 }
 
-static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * scaled_font, ulong table_offset, ulong index, uint32_t * ucs4)
+static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * scaled_font, ulong table_offset, ulong index, uint32 * ucs4)
 {
 	tt_segment_map_t * map;
 	char buf[4];
 	uint num_segments, i;
-	uint16_t * start_code;
-	uint16_t * end_code;
-	uint16_t * delta;
-	uint16_t * range_offset;
-	uint16_t c;
+	uint16 * start_code;
+	uint16 * end_code;
+	uint16 * delta;
+	uint16 * range_offset;
+	uint16 c;
 	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	ulong size = 4;
 	cairo_status_t status = backend->load_truetype_table(scaled_font, TT_TAG_cmap, table_offset, (uchar *)&buf, &size);
@@ -1097,8 +1097,8 @@ static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * sca
 	if(UNLIKELY(status))
 		goto fail;
 	num_segments = be16_to_cpu(map->segCountX2)/2;
-	// A Format 4 cmap contains 8 uint16_t numbers and 4 arrays of uint16_t each num_segments long. 
-	if(size < (8 + 4*num_segments)*sizeof(uint16_t))
+	// A Format 4 cmap contains 8 uint16 numbers and 4 arrays of uint16 each num_segments long. 
+	if(size < (8 + 4*num_segments)*sizeof(uint16))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	end_code = map->endCount;
 	start_code = &(end_code[num_segments + 1]);
@@ -1106,11 +1106,11 @@ static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * sca
 	range_offset = &(delta[num_segments]);
 	/* search for glyph in segments with rangeOffset=0 */
 	for(i = 0; i < num_segments; i++) {
-		uint16_t start = be16_to_cpu(start_code[i]);
-		uint16_t end = be16_to_cpu(end_code[i]);
+		uint16 start = be16_to_cpu(start_code[i]);
+		uint16 end = be16_to_cpu(end_code[i]);
 		if(start == 0xffff && end == 0xffff)
 			break;
-		c = static_cast<uint16_t>(index - be16_to_cpu(delta[i]));
+		c = static_cast<uint16>(index - be16_to_cpu(delta[i]));
 		if(range_offset[i] == 0 && c >= start && c <= end) {
 			*ucs4 = c;
 			goto found;
@@ -1118,14 +1118,14 @@ static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * sca
 	}
 	/* search for glyph in segments with rangeOffset=1 */
 	for(i = 0; i < num_segments; i++) {
-		uint16_t start = be16_to_cpu(start_code[i]);
-		uint16_t end = be16_to_cpu(end_code[i]);
+		uint16 start = be16_to_cpu(start_code[i]);
+		uint16 end = be16_to_cpu(end_code[i]);
 		if(start == 0xffff && end == 0xffff)
 			break;
 		if(range_offset[i] != 0) {
-			uint16_t * glyph_ids = &range_offset[i] + be16_to_cpu(range_offset[i])/2;
+			uint16 * glyph_ids = &range_offset[i] + be16_to_cpu(range_offset[i])/2;
 			int range_size = end - start + 1;
-			uint16_t g_id_be = cpu_to_be16(static_cast<uint16_t>(index));
+			uint16 g_id_be = cpu_to_be16(static_cast<uint16>(index));
 			int j;
 			if(range_size > 0) {
 				if((char *)glyph_ids + 2*range_size > (char *)map + size)
@@ -1148,7 +1148,7 @@ fail:
 	return status;
 }
 
-cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font_t * scaled_font, ulong index, uint32_t * ucs4)
+cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font_t * scaled_font, ulong index, uint32 * ucs4)
 {
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	tt_cmap_t * cmap;
@@ -1222,7 +1222,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		/* convert to utf8 */
 		int size = 0;
 		char * utf8;
-		uint16_t * u = (uint16_t*)str;
+		uint16 * u = (uint16 *)str;
 		int u_len = len/2;
 		for(i = 0; i < u_len; i++)
 			size += _cairo_ucs4_to_utf8(be16_to_cpu(u[i]), NULL);
@@ -1356,7 +1356,7 @@ cairo_int_status_t _cairo_truetype_get_style(cairo_scaled_font_t * scaled_font,
 	const cairo_scaled_font_backend_t * backend;
 	tt_os2_t os2;
 	ulong size;
-	uint16_t selection;
+	uint16 selection;
 
 	backend = scaled_font->backend;
 	if(!backend->load_truetype_table)

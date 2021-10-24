@@ -109,7 +109,7 @@ static FT_Error ft_bzip2_file_init(FT_BZip2File zip, FT_Stream stream, FT_Stream
 	zip->limit  = zip->buffer + FT_BZIP2_BUFFER_SIZE;
 	zip->cursor = zip->limit;
 	zip->pos    = 0;
-	/* check .bz2 header */
+	// check .bz2 header 
 	{
 		stream = source;
 		error = ft_bzip2_check_header(stream);
@@ -118,10 +118,10 @@ static FT_Error ft_bzip2_file_init(FT_BZip2File zip, FT_Stream stream, FT_Stream
 		if(FT_STREAM_SEEK(0) )
 			goto Exit;
 	}
-	/* initialize bzlib */
-	bzstream->bzalloc = /*(alloc_func)*/reinterpret_cast<void * (*)(void *, size_t, size_t)>(ft_bzip2_alloc);
-	bzstream->bzfree  = (free_func)ft_bzip2_free;
-	bzstream->opaque  = zip->memory;
+	// initialize bzlib 
+	//bzstream->bzalloc = /*(alloc_func)*/reinterpret_cast<void * (*)(void *, size_t, size_t)>(ft_bzip2_alloc);
+	//bzstream->bzfree  = (free_func)ft_bzip2_free;
+	//bzstream->opaque  = zip->memory;
 	bzstream->avail_in = 0;
 	bzstream->next_in  = (char *)zip->buffer;
 	if(BZ2_bzDecompressInit(bzstream, 0, 0) != BZ_OK || !bzstream->next_in)
@@ -134,10 +134,10 @@ static void ft_bzip2_file_done(FT_BZip2File zip)
 {
 	bz_stream * bzstream = &zip->bzstream;
 	BZ2_bzDecompressEnd(bzstream);
-	/* clear the rest */
-	bzstream->bzalloc   = NULL;
-	bzstream->bzfree    = NULL;
-	bzstream->opaque    = NULL;
+	// clear the rest 
+	//bzstream->bzalloc   = NULL;
+	//bzstream->bzfree    = NULL;
+	//bzstream->opaque    = NULL;
 	bzstream->next_in   = NULL;
 	bzstream->next_out  = NULL;
 	bzstream->avail_in  = 0;
@@ -252,18 +252,13 @@ static FT_Error ft_bzip2_file_skip_output(FT_BZip2File zip,
 		if(error)
 			break;
 	}
-
 	return error;
 }
 
-static FT_ULong ft_bzip2_file_io(FT_BZip2File zip,
-    FT_ULong pos,
-    FT_Byte*      buffer,
-    FT_ULong count)
+static FT_ULong ft_bzip2_file_io(FT_BZip2File zip, FT_ULong pos, FT_Byte * buffer, FT_ULong count)
 {
 	FT_ULong result = 0;
 	FT_Error error;
-
 	/* Reset inflate stream if we're seeking backwards.  */
 	/* Yes, that is not too efficient, but it saves memory :-) */
 	if(pos < zip->pos) {
@@ -271,25 +266,19 @@ static FT_ULong ft_bzip2_file_io(FT_BZip2File zip,
 		if(error)
 			goto Exit;
 	}
-
 	/* skip unwanted bytes */
 	if(pos > zip->pos) {
 		error = ft_bzip2_file_skip_output(zip, (FT_ULong)( pos - zip->pos ) );
 		if(error)
 			goto Exit;
 	}
-
 	if(count == 0)
 		goto Exit;
-
 	/* now read the data */
 	for(;;) {
-		FT_ULong delta;
-
-		delta = (FT_ULong)( zip->limit - zip->cursor );
+		FT_ULong delta = (FT_ULong)( zip->limit - zip->cursor );
 		if(delta >= count)
 			delta = count;
-
 		FT_MEM_COPY(buffer, zip->cursor, delta);
 		buffer      += delta;
 		result      += delta;
@@ -305,11 +294,9 @@ static FT_ULong ft_bzip2_file_io(FT_BZip2File zip,
 Exit:
 	return result;
 }
-
-/***************************************************************************/
-/*****               B Z   E M B E D D I N G   S T R E A M             *****/
-/***************************************************************************/
-
+// 
+// B Z   E M B E D D I N G   S T R E A M
+// 
 static void ft_bzip2_stream_close(FT_Stream stream)
 {
 	FT_BZip2File zip    = (FT_BZip2File)stream->descriptor.pointer;
@@ -317,9 +304,7 @@ static void ft_bzip2_stream_close(FT_Stream stream)
 	if(zip) {
 		/* finalize bzip file descriptor */
 		ft_bzip2_file_done(zip);
-
 		FT_FREE(zip);
-
 		stream->descriptor.pointer = NULL;
 	}
 }

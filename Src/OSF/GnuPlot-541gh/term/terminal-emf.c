@@ -845,8 +845,8 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	_EMF.emf_graphics = TRUE;
 	// header end 
 	EMF_SetMapMode(8);      /* forcing anisotropic mode */
-	EMF_SetWindowExtEx(pThis->MaxX, pThis->MaxY);     /* setting logical (himetric) size      */
-	EMF_SetViewportExtEx(pThis->MaxX / EMF_PX2HM, pThis->MaxY / EMF_PX2HM);   /* setting device (pixel) size */
+	EMF_SetWindowExtEx(pThis->MaxX, pThis->MaxY);     /* setting logical (himetric) size */
+	EMF_SetViewportExtEx(static_cast<ulong>(pThis->MaxX / EMF_PX2HM), static_cast<ulong>(pThis->MaxY / EMF_PX2HM));   /* setting device (pixel) size */
 	// Paint with background color 
 	if(_EMF.emf_background != 0xffffff)
 		EMF_fillbox(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);

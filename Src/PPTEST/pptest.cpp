@@ -1402,7 +1402,7 @@ int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
 int  Test_PPStyloQInterchange();
-int  Test_Launc_SCalendarPiker();
+int  Test_Launch_SCalendarPicker();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1473,8 +1473,8 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	Test_Launc_SCalendarPiker();
-	Test_PPStyloQInterchange();
+	Test_Launch_SCalendarPicker();
+	//Test_PPStyloQInterchange();
 	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);

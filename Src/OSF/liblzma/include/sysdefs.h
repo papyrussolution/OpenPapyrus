@@ -160,10 +160,9 @@
 // the system headers insist defining their own versions.
 //#define my_min(x, y) ((x) < (y) ? (x) : (y))
 //#define my_max(x, y) ((x) > (y) ? (x) : (y))
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
-#endif
-
+//#ifndef ARRAY_SIZE_Removed
+	//#define ARRAY_SIZE_Removed(array) (sizeof(array) / sizeof((array)[0]))
+//#endif
 #if defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR__ >= 3) || __GNUC__ > 4)
 	#define lzma_attr_alloc_size(x) __attribute__((__alloc_size__(x)))
 #else

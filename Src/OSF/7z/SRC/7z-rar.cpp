@@ -505,7 +505,7 @@ namespace NCompress {
 					uint32 minDif = Dif[0];
 					uint32 numMinDif = 0;
 					Dif[0] = 0;
-					for(uint i = 1; i < ARRAY_SIZE(Dif); i++) {
+					for(uint i = 1; i < SIZEOFARRAY(Dif); i++) {
 						if(Dif[i] < minDif) {
 							minDif = Dif[i];
 							numMinDif = i;
@@ -2477,7 +2477,7 @@ namespace NCompress {
 			static int FindStandardFilter(const Byte *code, uint32 codeSize)
 			{
 				uint32 crc = CrcCalc(code, codeSize);
-				for(uint i = 0; i < ARRAY_SIZE(kStdFilters); i++) {
+				for(uint i = 0; i < SIZEOFARRAY(kStdFilters); i++) {
 					const CStandardFilterSignature &sfs = kStdFilters[i];
 					if(sfs.CRC == crc && sfs.Length == codeSize)
 						return i;
@@ -2664,7 +2664,7 @@ namespace NCompress {
 						if((byteCount & 0x1F) == 0) {
 							uint32 minDif = dif[0], numMinDif = 0;
 							dif[0] = 0;
-							for(uint j = 1; j < ARRAY_SIZE(dif); j++) {
+							for(uint j = 1; j < SIZEOFARRAY(dif); j++) {
 								if(dif[j] < minDif) {
 									minDif = dif[j];
 									numMinDif = j;
@@ -4307,7 +4307,7 @@ namespace NArchive {
 				case kpidSolid: prop = _arcInfo.IsSolid(); break;
 				case kpidCharacts:
 				{
-					AString s(FlagsToString(k_Flags, ARRAY_SIZE(k_Flags), _arcInfo.Flags));
+					AString s(FlagsToString(k_Flags, SIZEOFARRAY(k_Flags), _arcInfo.Flags));
 					// FLAGS_TO_PROP(k_Flags, _arcInfo.Flags, prop);
 					if(_arcInfo.Is_DataCRC_Defined()) {
 						s.Add_Space_if_NotEmpty();
@@ -5262,17 +5262,17 @@ namespace NArchive {
 					if(id == NExtraID::kSubdata && RecordType == NHeaderType::kService && rem + 1 == Extra.Size() - offset)
 						rem++;
 					s.Add_Space_if_NotEmpty();
-					PrintType(s, g_ExtraTypes, ARRAY_SIZE(g_ExtraTypes), id);
+					PrintType(s, g_ExtraTypes, SIZEOFARRAY(g_ExtraTypes), id);
 					if(id == NExtraID::kTime) {
 						const Byte * p = Extra + offset;
 						uint64 flags;
 						unsigned num = ReadVarInt(p, rem, &flags);
 						if(num != 0) {
 							s += ':';
-							for(uint i = 0; i < ARRAY_SIZE(g_ExtraTimeFlags); i++)
+							for(uint i = 0; i < SIZEOFARRAY(g_ExtraTimeFlags); i++)
 								if((flags & ((uint64)1 << i)) != 0)
 									s += g_ExtraTimeFlags[i];
-							flags &= ~(((uint64)1 << ARRAY_SIZE(g_ExtraTimeFlags)) - 1);
+							flags &= ~(((uint64)1 << SIZEOFARRAY(g_ExtraTimeFlags)) - 1);
 							if(flags != 0) {
 								s += '_';
 								AddHex64(s, flags);
@@ -5283,7 +5283,7 @@ namespace NArchive {
 						CLinkInfo linkInfo;
 						if(linkInfo.Parse(Extra + offset, (uint)rem)) {
 							s += ':';
-							PrintType(s, g_LinkTypes, ARRAY_SIZE(g_LinkTypes), linkInfo.Type);
+							PrintType(s, g_LinkTypes, SIZEOFARRAY(g_LinkTypes), linkInfo.Type);
 							uint64 flags = linkInfo.Flags;
 							if(flags != 0) {
 								s += ':';
@@ -6308,7 +6308,7 @@ namespace NArchive {
 
 		STDMETHODIMP CHandler::GetNumRawProps(uint32 * numProps)
 		{
-			*numProps = ARRAY_SIZE(kRawProps);
+			*numProps = SIZEOFARRAY(kRawProps);
 			return S_OK;
 		}
 
@@ -6566,7 +6566,7 @@ namespace NArchive {
 					uint32 flags = item.Flags;
 					// flags &= ~(6); // we don't need compression related bits here.
 					if(flags != 0) {
-						AString s2 = FlagsToString(k_FileFlags, ARRAY_SIZE(k_FileFlags), flags);
+						AString s2 = FlagsToString(k_FileFlags, SIZEOFARRAY(k_FileFlags), flags);
 						if(!s2.IsEmpty()) {
 							s.Add_OptSpaced(s2);
 						}
@@ -6577,7 +6577,7 @@ namespace NArchive {
 					break;
 				}
 				case kpidHostOS:
-					if(item.HostOS < ARRAY_SIZE(kHostOS))
+					if(item.HostOS < SIZEOFARRAY(kHostOS))
 						prop = kHostOS[(size_t)item.HostOS];
 					else
 						prop = (uint64)item.HostOS;

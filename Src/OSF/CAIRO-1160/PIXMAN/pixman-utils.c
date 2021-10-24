@@ -54,21 +54,21 @@ void * pixman_malloc_abc(uint a, uint b, uint c)
 		return SAlloc::M(a * b * c);
 }
 
-static force_inline uint16_t float_to_unorm(float f, int n_bits)
+static force_inline uint16 float_to_unorm(float f, int n_bits)
 {
-	uint32_t u;
+	uint32 u;
 	if(f > 1.0f)
 		f = 1.0f;
 	if(f < 0.0f)
 		f = 0.0f;
-	u = static_cast<uint32_t>(f * (1 << n_bits));
+	u = static_cast<uint32>(f * (1 << n_bits));
 	u -= (u >> n_bits);
 	return u;
 }
 
-static force_inline float unorm_to_float(uint16_t u, int n_bits)
+static force_inline float unorm_to_float(uint16 u, int n_bits)
 {
-	uint32_t m = ((1 << n_bits) - 1);
+	uint32 m = ((1 << n_bits) - 1);
 	return (u & m) * (1.f / static_cast<float>(m));
 }
 
@@ -82,7 +82,7 @@ static force_inline float unorm_to_float(uint16_t u, int n_bits)
  * expand this to floating point, it should be 12345 / 31.0 and not
  * 12345123 / 255.0.
  */
-void pixman_expand_to_float(argb_t * dst, const uint32_t * src, pixman_format_code_t format, int width)
+void pixman_expand_to_float(argb_t * dst, const uint32 * src, pixman_format_code_t format, int width)
 {
 	static const float multipliers[16] = {
 		0.0f,
@@ -105,7 +105,7 @@ void pixman_expand_to_float(argb_t * dst, const uint32_t * src, pixman_format_co
 	int a_size, r_size, g_size, b_size;
 	int a_shift, r_shift, g_shift, b_shift;
 	float a_mul, r_mul, g_mul, b_mul;
-	uint32_t a_mask, r_mask, g_mask, b_mask;
+	uint32 a_mask, r_mask, g_mask, b_mask;
 	int i;
 	if(!PIXMAN_FORMAT_VIS(format))
 		format = PIXMAN_a8r8g8b8;
@@ -137,7 +137,7 @@ void pixman_expand_to_float(argb_t * dst, const uint32_t * src, pixman_format_co
 	 * when src == dst
 	 */
 	for(i = width - 1; i >= 0; i--) {
-		const uint32_t pixel = src[i];
+		const uint32 pixel = src[i];
 		dst[i].a = a_mask ? ((pixel >> a_shift) & a_mask) * a_mul : 1.0f;
 		dst[i].r = ((pixel >> r_shift) & r_mask) * r_mul;
 		dst[i].g = ((pixel >> g_shift) & g_mask) * g_mul;
@@ -145,21 +145,21 @@ void pixman_expand_to_float(argb_t * dst, const uint32_t * src, pixman_format_co
 	}
 }
 
-uint16_t FASTCALL pixman_float_to_unorm(float f, int n_bits) { return float_to_unorm(f, n_bits); }
-float    FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits) { return unorm_to_float(u, n_bits); }
+uint16 FASTCALL pixman_float_to_unorm(float f, int n_bits) { return float_to_unorm(f, n_bits); }
+float    FASTCALL pixman_unorm_to_float(uint16 u, int n_bits) { return unorm_to_float(u, n_bits); }
 
-void pixman_contract_from_float(uint32_t * dst, const argb_t * src, int width)
+void pixman_contract_from_float(uint32 * dst, const argb_t * src, int width)
 {
 	for(int i = 0; i < width; ++i) {
-		uint8_t a = static_cast<uint8_t>(float_to_unorm(src[i].a, 8));
-		uint8_t r = static_cast<uint8_t>(float_to_unorm(src[i].r, 8));
-		uint8_t g = static_cast<uint8_t>(float_to_unorm(src[i].g, 8));
-		uint8_t b = static_cast<uint8_t>(float_to_unorm(src[i].b, 8));
+		uint8 a = static_cast<uint8>(float_to_unorm(src[i].a, 8));
+		uint8 r = static_cast<uint8>(float_to_unorm(src[i].r, 8));
+		uint8 g = static_cast<uint8>(float_to_unorm(src[i].g, 8));
+		uint8 b = static_cast<uint8>(float_to_unorm(src[i].b, 8));
 		dst[i] = (a << 24) | (r << 16) | (g << 8) | (b << 0);
 	}
 }
 
-uint32_t * _pixman_iter_get_scanline_noop(pixman_iter_t * iter, const uint32_t * mask)
+uint32 * _pixman_iter_get_scanline_noop(pixman_iter_t * iter, const uint32 * mask)
 {
 	return iter->buffer;
 }
@@ -167,7 +167,7 @@ uint32_t * _pixman_iter_get_scanline_noop(pixman_iter_t * iter, const uint32_t *
 void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_t * info)
 {
 	pixman_image_t * image = iter->image;
-	uint8_t * b = reinterpret_cast<uint8_t *>(image->bits.bits);
+	uint8 * b = reinterpret_cast<uint8 *>(image->bits.bits);
 	int s = image->bits.rowstride * 4;
 	iter->bits = b + s * iter->y + iter->x * PIXMAN_FORMAT_BPP(info->format) / 8;
 	iter->stride = s;

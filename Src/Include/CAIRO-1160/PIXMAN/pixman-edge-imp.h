@@ -31,8 +31,8 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 		pixman_fixed_t		b)
 {
     pixman_fixed_t  y = t;
-    uint32_t  *line;
-    uint32_t *buf = (image)->bits.bits;
+    uint32  *line;
+    uint32 *buf = (image)->bits.bits;
     int stride = (image)->bits.rowstride;
     int width = (image)->bits.width;
 
@@ -105,9 +105,9 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 		    n >>= 5;						\
 		}
 		
-		uint32_t  *a = line;
-		uint32_t  startmask;
-		uint32_t  endmask;
+		uint32  *a = line;
+		uint32  startmask;
+		uint32  endmask;
 		int	    nmiddle;
 		int	    width = rxi - lxi;
 		int	    x = lxi;

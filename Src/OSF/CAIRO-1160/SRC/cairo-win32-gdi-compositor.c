@@ -275,7 +275,7 @@ err:
 	return status;
 }
 
-static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst, const cairo_pattern_t * source, cairo_boxes_t * boxes, uint8_t alpha)
+static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst, const cairo_pattern_t * source, cairo_boxes_t * boxes, uint8 alpha)
 {
 	const cairo_surface_pattern_t * pattern;
 	struct copy_box cb;

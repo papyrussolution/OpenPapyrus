@@ -63,7 +63,7 @@
  * Since: 1.6
  **/
 
-static CFDataRef (* CGFontCopyTableForTagPtr)(CGFontRef font, uint32_t tag) = NULL;
+static CFDataRef (* CGFontCopyTableForTagPtr)(CGFontRef font, uint32 tag) = NULL;
 
 /* CreateWithFontName exists in 10.5, but not in 10.4; CreateWithName isn't public in 10.4 */
 static CGFontRef (* CGFontCreateWithFontNamePtr) (CFStringRef) = NULL;
@@ -733,7 +733,7 @@ static cairo_int_status_t _cairo_quartz_scaled_glyph_init(void * abstract_font,
 }
 
 static ulong _cairo_quartz_ucs4_to_index(void * abstract_font,
-    uint32_t ucs4)
+    uint32 ucs4)
 {
 	cairo_quartz_scaled_font_t * font = (cairo_quartz_scaled_font_t*)abstract_font;
 	cairo_quartz_font_face_t * ffont = _cairo_quartz_scaled_to_face(font);

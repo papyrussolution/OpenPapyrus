@@ -324,12 +324,10 @@ uint32_t ssh_agent_get_ident_count(struct ssh_session_struct * session)
 		return 0;
 	}
 	SSH_BUFFER_FREE(request);
-
 	/* get message type and verify the answer */
 	rc = ssh_buffer_get_u8(reply, (uint8*)&type);
 	if(rc != sizeof(uint8)) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Bad authentication reply size: %d", rc);
+		ssh_set_error(session, SSH_FATAL, "Bad authentication reply size: %d", rc);
 		SSH_BUFFER_FREE(reply);
 		return 0;
 	}

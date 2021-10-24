@@ -106,7 +106,7 @@ static inline cairo_fixed_t _cairo_fixed_from_double(double d)
 {
 	union {
 		double d;
-		int32_t i[2];
+		int32 i[2];
 	} u;
 	u.d = d + CAIRO_MAGIC_NUMBER_FIXED;
 #ifdef FLOAT_WORDS_BIGENDIAN
@@ -120,7 +120,7 @@ static inline cairo_fixed_t _cairo_fixed_from_double(double d)
 	#error See cairo-fixed-private.h for details.
 #endif
 
-static inline cairo_fixed_t _cairo_fixed_from_26_6(uint32_t i)
+static inline cairo_fixed_t _cairo_fixed_from_26_6(uint32 i)
 {
 #if CAIRO_FIXED_FRAC_BITS > 6
 	return i << (CAIRO_FIXED_FRAC_BITS - 6);
@@ -129,7 +129,7 @@ static inline cairo_fixed_t _cairo_fixed_from_26_6(uint32_t i)
 #endif
 }
 
-static inline cairo_fixed_t _cairo_fixed_from_16_16(uint32_t i)
+static inline cairo_fixed_t _cairo_fixed_from_16_16(uint32 i)
 {
 #if CAIRO_FIXED_FRAC_BITS > 16
 	return i << (CAIRO_FIXED_FRAC_BITS - 16);
@@ -199,7 +199,7 @@ static inline cairo_fixed_16_16_t _cairo_fixed_16_16_from_double(double d)
 {
 	union {
 		double d;
-		int32_t i[2];
+		int32 i[2];
 	} u;
 	u.d = d + CAIRO_MAGIC_NUMBER_FIXED_16_16;
 #ifdef FLOAT_WORDS_BIGENDIAN

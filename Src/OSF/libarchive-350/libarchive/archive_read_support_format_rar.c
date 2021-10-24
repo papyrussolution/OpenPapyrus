@@ -1456,7 +1456,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		case OS_MSDOS:
 		case OS_OS2:
 		case OS_WIN32:
-		    rar->mode = archive_le32dec(file_header.file_attr);
+		    rar->mode = (mode_t)archive_le32dec(file_header.file_attr);
 		    if(rar->mode & FILE_ATTRIBUTE_DIRECTORY)
 			    rar->mode = AE_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH;
 		    else
@@ -1467,7 +1467,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		case OS_UNIX:
 		case OS_MAC_OS:
 		case OS_BEOS:
-		    rar->mode = archive_le32dec(file_header.file_attr);
+		    rar->mode = (mode_t)archive_le32dec(file_header.file_attr);
 		    break;
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unknown file attributes from RAR file's host OS");
@@ -1883,11 +1883,11 @@ static int parse_codes(struct archive_read * a)
 	/* PPMd block flag */
 	if(!rar_br_read_ahead(a, br, 1))
 		goto truncated_data;
-	if((rar->is_ppmd_block = rar_br_bits(br, 1)) != 0) {
+	if((rar->is_ppmd_block = (char)rar_br_bits(br, 1)) != 0) {
 		rar_br_consume(br, 1);
 		if(!rar_br_read_ahead(a, br, 7))
 			goto truncated_data;
-		ppmd_flags = rar_br_bits(br, 7);
+		ppmd_flags = (uchar)rar_br_bits(br, 7);
 		rar_br_consume(br, 7);
 		/* Memory is allocated in MB */
 		if(ppmd_flags & 0x20) {
@@ -1961,12 +1961,12 @@ static int parse_codes(struct archive_read * a)
 		for(i = 0; i < MAX_SYMBOLS;) {
 			if(!rar_br_read_ahead(a, br, 4))
 				goto truncated_data;
-			bitlengths[i++] = rar_br_bits(br, 4);
+			bitlengths[i++] = (uchar)rar_br_bits(br, 4);
 			rar_br_consume(br, 4);
 			if(bitlengths[i-1] == 0xF) {
 				if(!rar_br_read_ahead(a, br, 4))
 					goto truncated_data;
-				zerocount = rar_br_bits(br, 4);
+				zerocount = (uchar)rar_br_bits(br, 4);
 				rar_br_consume(br, 4);
 				if(zerocount) {
 					i--;
@@ -2164,7 +2164,7 @@ static int read_next_symbol(struct archive_read * a, struct huffman_code * code)
 			rar->valid = 0;
 			return -1;
 		}
-		bit = rar_br_bits(br, 1);
+		bit = (uchar)rar_br_bits(br, 1);
 		rar_br_consume(br, 1);
 		if(code->tree[node].branches[bit] < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid prefix code in bitstream");

@@ -209,7 +209,7 @@ PIXMAN_EXPORT void pixman_disable_out_of_bounds_workaround(void)
 static void compute_image_info(pixman_image_t * image)
 {
 	pixman_format_code_t code;
-	uint32_t flags = 0;
+	uint32 flags = 0;
 	/* Transform */
 	if(!image->common.transform) {
 		flags |= (FAST_PATH_ID_TRANSFORM|FAST_PATH_X_UNIT_POSITIVE|FAST_PATH_Y_UNIT_ZERO|FAST_PATH_AFFINE_TRANSFORM);
@@ -556,7 +556,7 @@ PIXMAN_EXPORT void pixman_image_set_indexed(pixman_image_t * image, const pixman
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y)
+PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16 x, int16 y)
 {
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	return_if_fail(!alpha_map || alpha_map->type == BITS);
@@ -612,22 +612,22 @@ PIXMAN_EXPORT void pixman_image_set_accessors(pixman_image_t *  image, pixman_re
 	}
 }
 
-PIXMAN_EXPORT uint32_t * pixman_image_get_data(pixman_image_t * image)
+PIXMAN_EXPORT uint32 * pixman_image_get_data(pixman_image_t * image)
 	{ return (image->type == BITS) ? image->bits.bits : NULL; }
 PIXMAN_EXPORT int pixman_image_get_width(const pixman_image_t * image)
 	{ return (image->type == BITS) ? image->bits.width : 0; }
 PIXMAN_EXPORT int pixman_image_get_height(const pixman_image_t * image)
 	{ return (image->type == BITS) ? image->bits.height : 0; }
 PIXMAN_EXPORT int pixman_image_get_stride(const pixman_image_t * image)
-	{ return (image->type == BITS) ? (image->bits.rowstride * static_cast<int>(sizeof(uint32_t))) : 0; }
+	{ return (image->type == BITS) ? (image->bits.rowstride * static_cast<int>(sizeof(uint32))) : 0; }
 PIXMAN_EXPORT int pixman_image_get_depth(const pixman_image_t * image)
 	{ return (image->type == BITS) ? PIXMAN_FORMAT_DEPTH(image->bits.format) : 0; }
 PIXMAN_EXPORT pixman_format_code_t pixman_image_get_format(const pixman_image_t * image)
 	{ return (image->type == BITS) ? image->bits.format : PIXMAN_null; }
 
-uint32_t FASTCALL _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t * image, pixman_format_code_t format)
+uint32 FASTCALL _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t * image, pixman_format_code_t format)
 {
-	uint32_t result;
+	uint32 result;
 	if(image->type == SOLID) {
 		result = image->solid.color_32;
 	}
@@ -637,14 +637,14 @@ uint32_t FASTCALL _pixman_image_get_solid(pixman_implementation_t * imp, pixman_
 		else if(image->bits.format == PIXMAN_x8r8g8b8)
 			result = image->bits.bits[0] | 0xff000000;
 		else if(image->bits.format == PIXMAN_a8)
-			result = (*(uint8_t *)image->bits.bits) << 24;
+			result = (*(uint8 *)image->bits.bits) << 24;
 		else
 			goto otherwise;
 	}
 	else {
 		pixman_iter_t iter;
 otherwise:
-		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1, (uint8_t *)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
+		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1, (uint8 *)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
 		result = *iter.get_scanline(&iter, NULL);
 		if(iter.fini)
 			iter.fini(&iter);

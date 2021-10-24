@@ -4116,7 +4116,7 @@ static /*inline*/int regset_search_body_position_lead(OnigRegSet* set,
 		sr[i].state = SRS_DEAD;
 		if(reg->optimize != OPTIMIZE_NONE) {
 			if(reg->dist_max != INFINITE_LEN) {
-				if((end - range) > reg->dist_max)
+				if((end - range) > static_cast<ssize_t>(reg->dist_max))
 					sch_range = (uchar *)range + reg->dist_max;
 				else
 					sch_range = (uchar *)end;
@@ -4673,8 +4673,8 @@ static int forward_search(regex_t* reg, const uchar * str, const uchar * end, uc
 #endif
 	p = start;
 	if(reg->dist_min != 0) {
-		if(end - p <= reg->dist_min)
-			return 0; /* fail */
+		if((end - p) <= static_cast<ssize_t>(reg->dist_min))
+			return 0; // fail 
 		if(ONIGENC_IS_SINGLEBYTE(reg->enc)) {
 			p += reg->dist_min;
 		}
@@ -4699,7 +4699,7 @@ retry:
 		    break;
 	}
 	if(p && p < range) {
-		if((p - start) < reg->dist_min) {
+		if((p - start) < static_cast<ssize_t>(reg->dist_min)) {
 retry_gate:
 			pprev = p;
 			p += enclen(reg->enc, p);
@@ -4740,7 +4740,7 @@ retry_gate:
 		}
 		else {
 			if(reg->dist_max != INFINITE_LEN) {
-				if((p - str) < reg->dist_max) {
+				if((p - str) < static_cast<ssize_t>(reg->dist_max)) {
 					*low = (uchar *)str;
 				}
 				else {
@@ -4750,8 +4750,8 @@ retry_gate:
 					}
 				}
 			}
-			/* no needs to adjust *high, *high is used as range check only */
-			if((p - str) < reg->dist_min)
+			// no needs to adjust *high, *high is used as range check only 
+			if((p - str) < static_cast<ssize_t>(reg->dist_min))
 				*high = (uchar *)str;
 			else
 				*high = p - reg->dist_min;
@@ -4820,9 +4820,9 @@ exact_method:
 			}
 		}
 		if(reg->dist_max != INFINITE_LEN) {
-			*low = ((p - str) < reg->dist_max) ? (uchar *)str : (p - reg->dist_max);
+			*low = ((p - str) < static_cast<ssize_t>(reg->dist_max)) ? (uchar *)str : (p - reg->dist_max);
 			if(reg->dist_min)
-				*high = ((p - str) < reg->dist_min) ? (uchar *)str : (p - reg->dist_min);
+				*high = ((p - str) < static_cast<ssize_t>(reg->dist_min)) ? (uchar *)str : (p - reg->dist_min);
 			else
 				*high = p;
 			*high = onigenc_get_right_adjust_char_head(reg->enc, adjrange, *high);
@@ -4923,13 +4923,13 @@ end_buf:
 			if((OnigLen)(max_semi_end - str) < reg->anc_dist_min)
 				goto mismatch_no_msa;
 			if(range > start) {
-				if(reg->anc_dist_max != INFINITE_LEN && min_semi_end - start > reg->anc_dist_max) {
+				if(reg->anc_dist_max != INFINITE_LEN && (min_semi_end - start) > static_cast<ssize_t>(reg->anc_dist_max)) {
 					start = min_semi_end - reg->anc_dist_max;
 					if(start < end)
 						start = onigenc_get_right_adjust_char_head(reg->enc, str, start);
 				}
-				if(max_semi_end - (range - 1) < reg->anc_dist_min) {
-					if(max_semi_end - str + 1 < reg->anc_dist_min)
+				if((max_semi_end - (range - 1)) < static_cast<ssize_t>(reg->anc_dist_min)) {
+					if((max_semi_end - str + 1) < static_cast<ssize_t>(reg->anc_dist_min))
 						goto mismatch_no_msa;
 					else
 						range = max_semi_end - reg->anc_dist_min + 1;
@@ -4939,11 +4939,11 @@ end_buf:
 				// If start == range, match with empty at end. Backward search is used. 
 			}
 			else {
-				if(reg->anc_dist_max != INFINITE_LEN && min_semi_end - range > reg->anc_dist_max) {
+				if(reg->anc_dist_max != INFINITE_LEN && (min_semi_end - range) > static_cast<ssize_t>(reg->anc_dist_max)) {
 					range = min_semi_end - reg->anc_dist_max;
 				}
-				if(max_semi_end - start < reg->anc_dist_min) {
-					if(max_semi_end - str < reg->anc_dist_min)
+				if((max_semi_end - start) < static_cast<ssize_t>(reg->anc_dist_min)) {
+					if((max_semi_end - str) < static_cast<ssize_t>(reg->anc_dist_min))
 						goto mismatch_no_msa;
 					else {
 						start = max_semi_end - reg->anc_dist_min;
@@ -5004,7 +5004,7 @@ end_buf:
 				if(reg->dist_max == INFINITE_LEN)
 					sch_range = (uchar *)end;
 				else
-					sch_range = ((end - range) < reg->dist_max) ? (uchar *)end : (uchar *)(range + reg->dist_max);
+					sch_range = ((end - range) < static_cast<ssize_t>(reg->dist_max)) ? (uchar *)end : (uchar *)(range + reg->dist_max);
 			}
 			else
 				sch_range = (uchar *)range;
@@ -5061,10 +5061,10 @@ end_buf:
 			if((end - range) < reg->threshold_len) 
 				goto mismatch;
 			adjrange = (range < end) ? ONIGENC_LEFT_ADJUST_CHAR_HEAD(reg->enc, str, range) : (uchar *)end;
-			min_range = ((end - range) > reg->dist_min) ? (range + reg->dist_min) : end;
+			min_range = ((end - range) > static_cast<ssize_t>(reg->dist_min)) ? (range + reg->dist_min) : end;
 			if(reg->dist_max != INFINITE_LEN) {
 				do {
-					sch_start = ((end - s) > reg->dist_max) ? (s + reg->dist_max) : onigenc_get_prev_char_head(reg->enc, str, end);
+					sch_start = ((end - s) > static_cast<ssize_t>(reg->dist_max)) ? (s + reg->dist_max) : onigenc_get_prev_char_head(reg->enc, str, end);
 					if(backward_search(reg, str, end, sch_start, min_range, adjrange, &low, &high) <= 0)
 						goto mismatch;
 					SETMIN(s, high);
@@ -5787,7 +5787,7 @@ static int onig_builtin_monitor(OnigCalloutArgs * args, void * user_data)
 		tag_len = tag_end - tag_start;
 		if(tag_len >= sizeof(buf)) 
 			tag_len = sizeof(buf) - 1;
-		for(int i = 0; i < tag_len; i++) 
+		for(size_t i = 0; i < tag_len; i++) 
 			buf[i] = tag_start[i];
 		buf[tag_len] = '\0';
 	}

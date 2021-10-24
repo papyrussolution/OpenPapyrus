@@ -245,15 +245,6 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 /*static*/int PPObjArticle::ConvertClientAgreements_11200(Reference * pRef, int use_ta)
 {
 	struct PPClientAgreement_Before11200 { // @persistent
-		struct DebtLimit { // @flat
-			enum {
-				fStop = 0x00000001L
-			};
-			PPID   DebtDimID;
-			double Limit;
-			long   Flags;
-			LDATE  LockPrcBefore;
-		};
 		PPID   ClientID;
 		long   Flags;
 		LDATE  BegDt;
@@ -274,7 +265,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 		long   PaymDateBase;
 		PPID   EdiPrvID;
 		char   Code2[24];
-		TSVector <PPClientAgreement_Before11200::DebtLimit> DebtLimList; // @anchor 
+		TSVector <PPClientAgreement::DebtLimit> DebtLimList; // @anchor 
 	};
 	class InnerBlock {
 	public:

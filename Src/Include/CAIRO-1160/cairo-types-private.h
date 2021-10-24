@@ -224,10 +224,10 @@ struct _cairo_color_stop {
 	double alpha;
 
 	/* unpremultipled, for convenience */
-	uint16_t red_short;
-	uint16_t green_short;
-	uint16_t blue_short;
-	uint16_t alpha_short;
+	uint16 red_short;
+	uint16 green_short;
+	uint16 blue_short;
+	uint16 alpha_short;
 };
 
 typedef enum _cairo_paginated_mode {

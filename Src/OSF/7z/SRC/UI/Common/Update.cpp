@@ -440,7 +440,7 @@ STDMETHODIMP CArchiveUpdateCallback::SetRatioInfo(const uint64 * inSize, const u
    };
    STDMETHODIMP CArchiveUpdateCallback::EnumProperties(IEnumSTATPROPSTG **)
    {
-	return CStatPropEnumerator::CreateEnumerator(kProps, ARRAY_SIZE(kProps), enumerator);
+	return CStatPropEnumerator::CreateEnumerator(kProps, SIZEOFARRAY(kProps), enumerator);
    }
  */
 STDMETHODIMP CArchiveUpdateCallback::GetUpdateItemInfo(uint32 index, int32 * newData, int32 * newProps, uint32 * indexInArchive)

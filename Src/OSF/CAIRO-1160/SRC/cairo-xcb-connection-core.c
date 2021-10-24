@@ -35,10 +35,10 @@
 #include <xcb/xcbext.h>
 
 xcb_pixmap_t _cairo_xcb_connection_create_pixmap(cairo_xcb_connection_t * connection,
-    uint8_t depth,
+    uint8 depth,
     xcb_drawable_t drawable,
-    uint16_t width,
-    uint16_t height)
+    uint16 width,
+    uint16 height)
 {
 	xcb_pixmap_t pixmap = _cairo_xcb_connection_get_xid(connection);
 
@@ -59,8 +59,8 @@ void _cairo_xcb_connection_free_pixmap(cairo_xcb_connection_t * connection,
 
 xcb_gcontext_t _cairo_xcb_connection_create_gc(cairo_xcb_connection_t * connection,
     xcb_drawable_t drawable,
-    uint32_t value_mask,
-    uint32_t * values)
+    uint32 value_mask,
+    uint32 * values)
 {
 	xcb_gcontext_t gc = _cairo_xcb_connection_get_xid(connection);
 	xcb_create_gc(connection->xcb_connection, gc, drawable,
@@ -77,8 +77,8 @@ void _cairo_xcb_connection_free_gc(cairo_xcb_connection_t * connection,
 
 void _cairo_xcb_connection_change_gc(cairo_xcb_connection_t * connection,
     xcb_gcontext_t gc,
-    uint32_t value_mask,
-    uint32_t * values)
+    uint32 value_mask,
+    uint32 * values)
 {
 	xcb_change_gc(connection->xcb_connection, gc,
 	    value_mask, values);
@@ -88,12 +88,12 @@ void _cairo_xcb_connection_copy_area(cairo_xcb_connection_t * connection,
     xcb_drawable_t src,
     xcb_drawable_t dst,
     xcb_gcontext_t gc,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t dst_x,
-    int16_t dst_y,
-    uint16_t width,
-    uint16_t height)
+    int16 src_x,
+    int16 src_y,
+    int16 dst_x,
+    int16 dst_y,
+    uint16 width,
+    uint16 height)
 {
 	xcb_copy_area(connection->xcb_connection, src, dst, gc,
 	    src_x, src_y, dst_x, dst_y, width, height);
@@ -102,7 +102,7 @@ void _cairo_xcb_connection_copy_area(cairo_xcb_connection_t * connection,
 void _cairo_xcb_connection_poly_fill_rectangle(cairo_xcb_connection_t * connection,
     xcb_drawable_t dst,
     xcb_gcontext_t gc,
-    uint32_t num_rectangles,
+    uint32 num_rectangles,
     xcb_rectangle_t * rectangles)
 {
 	xcb_poly_fill_rectangle(connection->xcb_connection, dst, gc,
@@ -112,17 +112,17 @@ void _cairo_xcb_connection_poly_fill_rectangle(cairo_xcb_connection_t * connecti
 void _cairo_xcb_connection_put_image(cairo_xcb_connection_t * connection,
     xcb_drawable_t dst,
     xcb_gcontext_t gc,
-    uint16_t width,
-    uint16_t height,
-    int16_t dst_x,
-    int16_t dst_y,
-    uint8_t depth,
-    uint32_t stride,
+    uint16 width,
+    uint16 height,
+    int16 dst_x,
+    int16 dst_y,
+    uint8 depth,
+    uint32 stride,
     void * data)
 {
-	const uint32_t req_size = 18;
-	uint32_t length = height * stride;
-	uint32_t len = (req_size + length) >> 2;
+	const uint32 req_size = 18;
+	uint32 length = height * stride;
+	uint32 len = (req_size + length) >> 2;
 
 	if(len < connection->maximum_request_length) {
 		xcb_put_image(connection->xcb_connection, XCB_IMAGE_FORMAT_Z_PIXMAP,
@@ -155,15 +155,15 @@ void _cairo_xcb_connection_put_image(cairo_xcb_connection_t * connection,
 static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * connection,
     xcb_drawable_t dst,
     xcb_gcontext_t gc,
-    int16_t src_x,
-    int16_t src_y,
-    uint16_t width,
-    uint16_t height,
-    uint16_t cpp,
+    int16 src_x,
+    int16 src_y,
+    uint16 width,
+    uint16 height,
+    uint16 cpp,
     int stride,
-    int16_t dst_x,
-    int16_t dst_y,
-    uint8_t depth,
+    int16 dst_x,
+    int16 dst_y,
+    uint8 depth,
     void * _data)
 {
 	xcb_protocol_request_t xcb_req = {
@@ -175,8 +175,8 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 	xcb_put_image_request_t req;
 	struct iovec vec_stack[CAIRO_STACK_ARRAY_LENGTH(struct iovec)];
 	struct iovec * vec = vec_stack;
-	uint32_t len = 0;
-	uint8_t * data = _data;
+	uint32 len = 0;
+	uint8 * data = _data;
 	int n = 3;
 	/* Two extra entries are needed for xcb, two for us */
 	int entries_needed = height + 2 + 2;
@@ -234,20 +234,20 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 void _cairo_xcb_connection_put_subimage(cairo_xcb_connection_t * connection,
     xcb_drawable_t dst,
     xcb_gcontext_t gc,
-    int16_t src_x,
-    int16_t src_y,
-    uint16_t width,
-    uint16_t height,
-    uint16_t cpp,
+    int16 src_x,
+    int16 src_y,
+    uint16 width,
+    uint16 height,
+    uint16 cpp,
     int stride,
-    int16_t dst_x,
-    int16_t dst_y,
-    uint8_t depth,
+    int16 dst_x,
+    int16 dst_y,
+    uint8 depth,
     void * _data)
 {
-	const uint32_t req_size = sizeof(xcb_put_image_request_t);
-	uint32_t length = height * cpp * width;
-	uint32_t len = (req_size + length) >> 2;
+	const uint32 req_size = sizeof(xcb_put_image_request_t);
+	uint32 length = height * cpp * width;
+	uint32 len = (req_size + length) >> 2;
 
 	if(len < connection->maximum_request_length) {
 		_cairo_xcb_connection_do_put_subimage(connection, dst, gc, src_x, src_y,
@@ -274,13 +274,13 @@ void _cairo_xcb_connection_put_subimage(cairo_xcb_connection_t * connection,
 
 xcb_get_image_reply_t * _cairo_xcb_connection_get_image(cairo_xcb_connection_t * connection,
     xcb_drawable_t src,
-    int16_t src_x,
-    int16_t src_y,
-    uint16_t width,
-    uint16_t height)
+    int16 src_x,
+    int16 src_y,
+    uint16 width,
+    uint16 height)
 {
 	return xcb_get_image_reply(connection->xcb_connection, xcb_get_image(connection->xcb_connection,
-		   XCB_IMAGE_FORMAT_Z_PIXMAP, src, src_x, src_y, width, height, (uint32_t)-1), NULL);
+		   XCB_IMAGE_FORMAT_Z_PIXMAP, src, src_x, src_y, width, height, (uint32)-1), NULL);
 }
 
 #endif // } CAIRO_HAS_XCB_SURFACE

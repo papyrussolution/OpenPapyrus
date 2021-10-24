@@ -30,11 +30,7 @@ PPCommSyncID::PPCommSyncID(const TempSyncCmpTbl::Rec & rRec) : P(rRec.CommIdPfx)
 
 int FASTCALL PPCommSyncID::operator == (const PPCommSyncID s) const { return (P == s.P && I == s.I); }
 int FASTCALL PPCommSyncID::operator != (const PPCommSyncID s) const { return (P != s.P || I != s.I); }
-
-int PPCommSyncID::IsZero() const
-{
-	return BIN(P == 0 && I == 0);
-}
+bool PPCommSyncID::IsZero() const { return (P == 0 && I == 0); }
 
 PPCommSyncID & PPCommSyncID::Z()
 {

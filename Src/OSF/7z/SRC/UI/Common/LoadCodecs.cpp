@@ -436,7 +436,7 @@ HRESULT CCodecs::LoadFormats()
 		item.NewInterface = flags_Defined;
 		if(!flags_Defined) { // && item.UpdateEnabled
 			// support for DLL version before 9.31:
-			for(uint j = 0; j < ARRAY_SIZE(kArcFlagsPars); j += 2) {
+			for(uint j = 0; j < SIZEOFARRAY(kArcFlagsPars); j += 2) {
 				bool val = false;
 				GetProp_Bool(getProp, getProp2, i, kArcFlagsPars[j], val);
 				if(val)

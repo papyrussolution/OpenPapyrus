@@ -4489,6 +4489,33 @@ IMPLEMENT_CMD_HDL_FACTORY(TIMESERIESSA);
 //
 //
 //
+int Helper_ExecuteNF_WithSerializedParam(SBuffer * pParam)
+{
+	int    ok = 1;
+	PPView::ExecNfViewParam param;
+	SString result_fname, dest_fname;
+	// @debug {
+		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
+		assert((&r_tla) != 0);
+	// } @debug
+	THROW_INVARG(pParam);
+	THROW(param.Read(*pParam, 0));
+	THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
+	if(param.FileName.NotEmpty()) {
+		SPathStruc dest_ps(param.FileName);
+		if(dest_ps.Nam.IsEmpty()) {
+			SPathStruc src_ps(result_fname);
+			dest_ps.Nam = src_ps.Nam;
+			dest_ps.Ext = src_ps.Ext;
+		}
+		dest_ps.Merge(dest_fname);
+		THROW(SCopyFile(result_fname, dest_fname, 0, FILE_SHARE_READ, 0));
+		SFile::Remove(result_fname);
+	}
+	CATCHZOK
+	return ok;
+}
+
 class CMD_HDL_CLS(EXPORTVIEW) : public PPCommandHandler {
 public:
 	CMD_HDL_CLS(EXPORTVIEW)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
@@ -4510,29 +4537,7 @@ public:
 	}
 	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
-		int    ok = 1;
-		PPView::ExecNfViewParam param;
-		SString result_fname, dest_fname;
-		// @debug {
-			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
-			assert((&r_tla) != 0);
-		// } @debug
-		THROW_INVARG(pParam);
-		THROW(param.Read(*pParam, 0));
-		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
-		if(param.FileName.NotEmpty()) {
-			SPathStruc dest_ps(param.FileName);
-			if(dest_ps.Nam.IsEmpty()) {
-				SPathStruc src_ps(result_fname);
-				dest_ps.Nam = src_ps.Nam;
-				dest_ps.Ext = src_ps.Ext;
-			}
-			dest_ps.Merge(dest_fname);
-			THROW(SCopyFile(result_fname, dest_fname, 0, FILE_SHARE_READ, 0));
-			SFile::Remove(result_fname);
-		}
-		CATCHZOK
-		return ok;
+		return Helper_ExecuteNF_WithSerializedParam(pParam);
 	}
 };
 

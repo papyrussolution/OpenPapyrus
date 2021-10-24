@@ -102,7 +102,7 @@ typedef struct _cairo_sub_font_glyph {
 	boolint is_latin;
 	int latin_character;
 	boolint is_mapped;
-	uint32_t unicode;
+	uint32 unicode;
 	char * utf8;
 	int utf8_len;
 } cairo_sub_font_glyph_t;
@@ -139,7 +139,7 @@ static cairo_sub_font_glyph_t * _cairo_sub_font_glyph_create(ulong scaled_font_g
     double x_advance,
     double y_advance,
     int latin_character,
-    uint32_t unicode,
+    uint32 unicode,
     char * utf8,
     int utf8_len)
 {
@@ -310,17 +310,17 @@ int FASTCALL _cairo_unicode_to_winansi(ulong uni)
 }
 
 static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t * scaled_font, ulong scaled_font_glyph_index,
-    uint32_t * unicode_out, char     ** utf8_out, int * utf8_len_out)
+    uint32 * unicode_out, char     ** utf8_out, int * utf8_len_out)
 {
 	char buf[8];
 	int len;
 	/* Do a reverse lookup on the glyph index. unicode is -1 if the
 	 * index could not be mapped to a unicode character. */
-	uint32_t unicode = -1;
+	uint32 unicode = -1;
 	cairo_status_t status = _cairo_truetype_index_to_ucs4(scaled_font, scaled_font_glyph_index, &unicode);
 	if(_cairo_status_is_error(status))
 		return status;
-	if(unicode == (uint32_t)-1 && scaled_font->backend->index_to_ucs4) {
+	if(unicode == (uint32)-1 && scaled_font->backend->index_to_ucs4) {
 		status = scaled_font->backend->index_to_ucs4(scaled_font, scaled_font_glyph_index, &unicode);
 		if(UNLIKELY(status))
 			return status;
@@ -329,7 +329,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 	*unicode_out = unicode;
 	*utf8_out = NULL;
 	*utf8_len_out = 0;
-	if(unicode != (uint32_t)-1) {
+	if(unicode != (uint32)-1) {
 		len = _cairo_ucs4_to_utf8(unicode, buf);
 		if(len > 0) {
 			*utf8_out = (char *)_cairo_malloc(len+1);
@@ -400,7 +400,7 @@ static cairo_int_status_t _cairo_sub_font_lookup_glyph(cairo_sub_font_t * sub_fo
 }
 
 static cairo_status_t _cairo_sub_font_add_glyph(cairo_sub_font_t * sub_font, ulong scaled_font_glyph_index, boolint is_latin,
-    int latin_character, uint32_t unicode, char * utf8, int utf8_len, cairo_sub_font_glyph_t ** sub_font_glyph_out)
+    int latin_character, uint32 unicode, char * utf8, int utf8_len, cairo_sub_font_glyph_t ** sub_font_glyph_out)
 {
 	cairo_scaled_glyph_t * scaled_glyph;
 	cairo_sub_font_glyph_t * sub_font_glyph;
@@ -466,7 +466,7 @@ static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font, ulo
 	_cairo_sub_font_glyph_init_key(&key, scaled_font_glyph_index);
 	sub_font_glyph = (cairo_sub_font_glyph_t *)_cairo_hash_table_lookup(sub_font->sub_font_glyphs, &key.base);
 	if(sub_font_glyph == NULL) {
-		uint32_t font_unicode;
+		uint32 font_unicode;
 		char * font_utf8;
 		int font_utf8_len;
 		boolint is_latin;
@@ -477,7 +477,7 @@ static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font, ulo
 		/* If the supplied utf8 is a valid single character, use it
 		 * instead of the font lookup */
 		if(text_utf8 != NULL && text_utf8_len > 0) {
-			uint32_t * ucs4;
+			uint32 * ucs4;
 			int ucs4_len;
 			status = _cairo_utf8_to_ucs4(text_utf8, text_utf8_len, &ucs4, &ucs4_len);
 			if(status == CAIRO_STATUS_SUCCESS) {
@@ -949,7 +949,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 	cairo_string_entry_t key, * entry;
 	char buf[30];
 	char * utf8;
-	uint16_t * utf16;
+	uint16 * utf16;
 	int utf16_len;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_hash_table_t * names = _cairo_hash_table_create(_cairo_string_equal);

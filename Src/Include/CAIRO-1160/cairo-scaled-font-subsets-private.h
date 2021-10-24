@@ -46,7 +46,7 @@ typedef struct _cairo_scaled_font_subsets_glyph {
 	double x_advance;
 	double y_advance;
 	boolint utf8_is_mapped;
-	uint32_t unicode;
+	uint32 unicode;
 } cairo_scaled_font_subsets_glyph_t;
 
 /**
@@ -576,7 +576,7 @@ cairo_private void _cairo_type2_charstrings_fini(cairo_type2_charstrings_t * cha
  * %CAIRO_INT_STATUS_UNSUPPORTED if mapping glyph indices to unicode
  * is not supported.  Possible errors include %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font_t * scaled_font, ulong index, uint32_t  * ucs4);
+cairo_private cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font_t * scaled_font, ulong index, uint32  * ucs4);
 /**
  * _cairo_truetype_read_font_name:
  * @scaled_font: the #cairo_scaled_font_t

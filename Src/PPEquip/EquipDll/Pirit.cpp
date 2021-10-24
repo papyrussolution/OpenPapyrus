@@ -2321,27 +2321,32 @@ int PiritEquip::RunCheck(int opertype)
 				if(rl > 0) {
 					PreprocessChZnCodeResult pczcr;
 					str.Z();
+					bool set_chzn_mark = true;
 					// @v11.1.10 {
-					if(OfdVer.IsGe(1, 2, 0) && Check.ChZnPpStatus > 0) {
-						{
-							// --> 79/1
-							// --> 79/2
-							//
-							// --> 79/15
+					if(OfdVer.IsGe(1, 2, 0)) {
+						if(Check.ChZnPpStatus > 0) {
+							{
+								// --> 79/1
+								// --> 79/2
+								//
+								// --> 79/15
+							}
+							//PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
+							//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
+							// 79
+							in_data.Z();
+							CreateStr(15, in_data);
+							CreateStr(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
+							CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (тег 2110)
+							CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (тег 2102) = 0
+							CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (тег 2106)
+							CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
+							THROW(ExecCmd("79", in_data, out_data, r_error));
 						}
-						//PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
-						//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
-						// 79
-						in_data.Z();
-						CreateStr(15, in_data);
-						CreateStr(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
-						CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (тег 2110)
-						CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (тег 2102) = 0
-						CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (тег 2106)
-						CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
-						THROW(ExecCmd("79", in_data, out_data, r_error));
+						else
+							set_chzn_mark = false;
 					}
-					else {
+					if(set_chzn_mark) {
 					// } @v11.1.10
 						if(OfdVer.IsGe(1, 2, 0)) {
 							str.CatChar('@');

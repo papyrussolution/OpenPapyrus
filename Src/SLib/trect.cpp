@@ -118,10 +118,7 @@ SPoint2S & SPoint2S::Z()
 	return *this;
 }
 
-int SPoint2S::IsZero() const
-{
-	return (x == 0 && y == 0);
-}
+bool SPoint2S::IsZero() const { return (x == 0 && y == 0); }
 
 SPoint2S FASTCALL SPoint2S::operator = (SPoint2S p)
 {
@@ -1059,8 +1056,8 @@ SPoint2F SPoint2F::Scale(float factor)
 int    FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEqual(rS); } // @v10.9.10
 int    FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEqual(rS); } // @v10.9.10
 int    FASTCALL SPoint2F::IsEqual(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); } // @v10.9.10
-int    SPoint2F::IsZero() const { return (x != 0.0f && y != 0.0f); }
-int    SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
+bool   SPoint2F::IsZero() const { return (x == 0.0f && y == 0.0f); } // @v11.2.0 @fix (x != 0.0f && y != 0.0f)-->(x == 0.0f && y == 0.0f);
+bool   SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
 int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
 int    FASTCALL SPoint2F::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
 SPoint2F SPoint2F::Neg()   const { return SPoint2F(-x, -y); }
@@ -1220,10 +1217,7 @@ SPoint3F & SPoint3F::Set(float _x, float _y, float _z)
 //
 //
 //
-int SColorRGB::IsZero() const
-{
-	return (!R && !G && !B);
-}
+bool SColorRGB::IsZero() const { return (!R && !G && !B); }
 
 SColorRGB SColorRGB::Set(uint r, uint g, uint b)
 {

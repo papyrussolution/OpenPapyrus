@@ -2352,9 +2352,9 @@ ANYNL03:
 					    ptr, /* where we currently are */
 					    (int)(ptr - start_subject), /* start offset */
 					    local_offsets, /* offset vector */
-					    sizeof(local_offsets)/sizeof(int), /* size of same */
+					    SIZEOFARRAY(local_offsets), /* size of same */
 					    local_workspace, /* workspace vector */
-					    sizeof(local_workspace)/sizeof(int), /* size of same */
+					    SIZEOFARRAY(local_workspace), /* size of same */
 					    rlevel); /* function recursion level */
 
 				    if(rc == PCRE_ERROR_DFA_UITEM) return rc;
@@ -2449,9 +2449,9 @@ ANYNL03:
 						    ptr, /* where we currently are */
 						    (int)(ptr - start_subject), /* start offset */
 						    local_offsets, /* offset vector */
-						    sizeof(local_offsets)/sizeof(int), /* size of same */
+						    SIZEOFARRAY(local_offsets), /* size of same */
 						    local_workspace, /* workspace vector */
-						    sizeof(local_workspace)/sizeof(int), /* size of same */
+						    SIZEOFARRAY(local_workspace), /* size of same */
 						    rlevel); /* function recursion level */
 
 					    if(rc == PCRE_ERROR_DFA_UITEM) 
@@ -2490,8 +2490,8 @@ ANYNL03:
 					    md->recursive = &new_recursive;
 					    rc = internal_dfa_exec( md, /* fixed match data */ callpat, /* this subexpression's code */
 							ptr, /* where we currently are */ (int)(ptr - start_subject), /* start offset */
-							local_offsets, /* offset vector */ sizeof(local_offsets)/sizeof(int), /* size of same */
-							local_workspace, /* workspace vector */	sizeof(local_workspace)/sizeof(int), /* size of same */ rlevel); /* function recursion level */
+							local_offsets, /* offset vector */ SIZEOFARRAY(local_offsets), /* size of same */
+							local_workspace, /* workspace vector */	SIZEOFARRAY(local_workspace), /* size of same */ rlevel); /* function recursion level */
 					    md->recursive = new_recursive.prevrec; /* Done this recursion */
 					    DPRINTF(("%.*sReturn from regex recursion: rc=%d\n", rlevel*2-2, SP, rc));
 			            /* Ran out of internal offsets */
@@ -2551,20 +2551,16 @@ ANYNL03:
 						    local_ptr, /* where we currently are */
 						    (int)(ptr - start_subject), /* start offset */
 						    local_offsets, /* offset vector */
-						    sizeof(local_offsets)/sizeof(int), /* size of same */
+						    SIZEOFARRAY(local_offsets), /* size of same */
 						    local_workspace, /* workspace vector */
-						    sizeof(local_workspace)/sizeof(int), /* size of same */
+						    SIZEOFARRAY(local_workspace), /* size of same */
 						    rlevel); /* function recursion level */
-
 				                    /* Failed to match */
-
 						    if(rc < 0) {
 							    if(rc != PCRE_ERROR_NOMATCH) return rc;
 							    break;
 						    }
-
 				                    /* Matched: break the loop if zero characters matched. */
-
 						    charcount = local_offsets[1] - local_offsets[0];
 						    if(charcount == 0) break;
 						    local_ptr += charcount; /* Advance temporary position ptr */
@@ -2620,9 +2616,9 @@ ANYNL03:
 					    ptr, /* where we currently are */
 					    (int)(ptr - start_subject), /* start offset */
 					    local_offsets, /* offset vector */
-					    sizeof(local_offsets)/sizeof(int), /* size of same */
+					    SIZEOFARRAY(local_offsets), /* size of same */
 					    local_workspace, /* workspace vector */
-					    sizeof(local_workspace)/sizeof(int), /* size of same */
+					    SIZEOFARRAY(local_workspace), /* size of same */
 					    rlevel); /* function recursion level */
 
 					    if(rc >= 0) {

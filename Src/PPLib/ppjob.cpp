@@ -3383,41 +3383,10 @@ IMPLEMENT_JOB_HDL_FACTORY(UPDATEQUOTS);
 //
 //
 //
+int Helper_ExecuteNF_WithSerializedParam(SBuffer * pParam); // @prototype (ppcmd.cpp)
+
 class JOB_HDL_CLS(EXPORTVIEW) : public PPJobHandler {
 public:
-	/*struct Param {
-		Param() : Flags(0)
-		{
-			memzero(ReserveStart, sizeof(ReserveStart));
-		}
-		int    Write(SBuffer & rBuf, long)
-		{
-			int    ok = 1;
-			THROW_SL(rBuf.Write(ReserveStart, sizeof(ReserveStart)));
-			THROW_SL(rBuf.Write(Flags));
-			THROW_SL(rBuf.Write(NfSymb));
-			THROW_SL(rBuf.Write(Dl600_Name));
-			THROW_SL(rBuf.Write(FileName));
-			CATCHZOK
-			return ok;
-		}
-		int    Read(SBuffer & rBuf, long)
-		{
-			int    ok = 1;
-			THROW_SL(rBuf.ReadV(ReserveStart, sizeof(ReserveStart)));
-			THROW_SL(rBuf.Read(Flags));
-			THROW_SL(rBuf.Read(NfSymb));
-			THROW_SL(rBuf.Read(Dl600_Name));
-			THROW_SL(rBuf.Read(FileName));
-			CATCHZOK
-			return ok;
-		}
-		uint8  ReserveStart[32];
-		long   Flags;
-		SString NfSymb;
-		SString Dl600_Name;
-		SString FileName;
-	};*/
 	JOB_HDL_CLS(EXPORTVIEW)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
@@ -3440,81 +3409,9 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	/* @v10.5.3 virtual int EditParam(SBuffer * pParam, void * extraPtr)
-	{
-		int    ok = -1;
-		PPView::ExecNfViewParam param;
-		TDialog * dlg = 0;
-		PPNamedFiltMngr nf_mngr;
-		SString db_symb;
-		THROW_INVARG(pParam);
-		THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-		const size_t sav_offs = pParam->GetRdOffs();
-		if(pParam->GetAvailableSize()) {
-			THROW(param.Read(*pParam, 0));
-		}
-		dlg = new TDialog(DLG_JOB_EXPVIEW);
-		THROW(CheckDialogPtrErr(&dlg));
-		{
-			PPNamedFiltPool nf_pool(0, 1);
-			PPNamedFilt nf;
-			PPID   nf_id = 0, sel_nf_id = 0;
-			StrAssocArray nf_list;
-			THROW(nf_mngr.LoadPool(db_symb, &nf_pool, 0));
-			for(nf_id = 0; nf_pool.Enum(&nf_id, &nf) > 0;) {
-				if(param.NfSymb.NotEmpty() && param.NfSymb.CmpNC(nf.Symb) == 0)
-					sel_nf_id = nf.ID;
-				nf_list.Add(nf.ID, nf.Name);
-			}
-			SetupStrAssocCombo(dlg, CTLSEL_JOB_EXPVIEW_FILT, &nf_list, sel_nf_id, 0, 0, 0);
-			dlg->setCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, param.Dl600_Name);
-			FileBrowseCtrlGroup::Setup(dlg, CTLBRW_JOB_EXPVIEW_OUT, CTL_JOB_EXPVIEW_OUT, 1, 0, 0,
-				FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfAllowNExists);
-			dlg->setCtrlString(CTL_JOB_EXPVIEW_OUT, param.FileName);
-			while(ok < 0 && ExecView(dlg) == cmOK) {
-				nf_id = dlg->getCtrlLong(CTLSEL_JOB_EXPVIEW_FILT);
-				const  PPNamedFilt * p_nf = nf_id ? nf_pool.GetByID(nf_id) : 0;
-				if(p_nf && p_nf->Symb.NotEmpty()) {
-					param.NfSymb = p_nf->Symb;
-					dlg->getCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, param.Dl600_Name);
-					dlg->getCtrlString(CTL_JOB_EXPVIEW_OUT, param.FileName);
-					THROW(param.Write(pParam->Z(), 0));
-					ok = 1;
-				}
-			}
-		}
-		CATCH
-			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
-			ok = 0;
-		ENDCATCH
-		delete dlg;
-		return ok;
-	} */
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = 1;
-		PPView::ExecNfViewParam param;
-		SString result_fname, dest_fname;
-		// @debug {
-			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
-			assert((&r_tla) != 0);
-		// } @debug
-		THROW_INVARG(pParam);
-		THROW(param.Read(*pParam, 0));
-		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
-		if(param.FileName.NotEmpty()) {
-			SPathStruc dest_ps(param.FileName);
-			if(dest_ps.Nam.IsEmpty()) {
-				SPathStruc src_ps(result_fname);
-				dest_ps.Nam = src_ps.Nam;
-				dest_ps.Ext = src_ps.Ext;
-			}
-			dest_ps.Merge(dest_fname);
-			THROW(SCopyFile(result_fname, dest_fname, 0, FILE_SHARE_READ, 0));
-			SFile::Remove(result_fname);
-		}
-		CATCHZOK
-		return ok;
+		return Helper_ExecuteNF_WithSerializedParam(pParam);
 	}
 };
 

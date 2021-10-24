@@ -34,61 +34,61 @@
 #include "pixman-combine32.h"
 #include "pixman-inlines.h"
 
-static force_inline uint32_t fetch_24(uint8_t * a)
+static force_inline uint32 fetch_24(uint8 * a)
 {
 	if(((uintptr_t)a) & 1) {
 #ifdef WORDS_BIGENDIAN
-		return (*a << 16) | (*(uint16_t*)(a + 1));
+		return (*a << 16) | (*(uint16 *)(a + 1));
 #else
-		return *a | (*(uint16_t*)(a + 1) << 8);
+		return *a | (*(uint16 *)(a + 1) << 8);
 #endif
 	}
 	else {
 #ifdef WORDS_BIGENDIAN
-		return (*(uint16_t*)a << 8) | *(a + 2);
+		return (*(uint16 *)a << 8) | *(a + 2);
 #else
-		return *(uint16_t*)a | (*(a + 2) << 16);
+		return *(uint16 *)a | (*(a + 2) << 16);
 #endif
 	}
 }
 
-static force_inline void store_24(uint8_t * a,
-    uint32_t v)
+static force_inline void store_24(uint8 * a,
+    uint32 v)
 {
 	if(((uintptr_t)a) & 1) {
 #ifdef WORDS_BIGENDIAN
-		*a = (uint8_t)(v >> 16);
-		*(uint16_t*)(a + 1) = (uint16_t)(v);
+		*a = (uint8)(v >> 16);
+		*(uint16 *)(a + 1) = (uint16)(v);
 #else
-		*a = (uint8_t)(v);
-		*(uint16_t*)(a + 1) = (uint16_t)(v >> 8);
+		*a = (uint8)(v);
+		*(uint16 *)(a + 1) = (uint16)(v >> 8);
 #endif
 	}
 	else {
 #ifdef WORDS_BIGENDIAN
-		*(uint16_t*)a = (uint16_t)(v >> 8);
-		*(a + 2) = (uint8_t)v;
+		*(uint16 *)a = (uint16)(v >> 8);
+		*(a + 2) = (uint8)v;
 #else
-		*(uint16_t*)a = (uint16_t)v;
-		*(a + 2) = (uint8_t)(v >> 16);
+		*(uint16 *)a = (uint16)v;
+		*(a + 2) = (uint8)(v >> 16);
 #endif
 	}
 }
 
-static force_inline uint32_t over(uint32_t src,
-    uint32_t dest)
+static force_inline uint32 over(uint32 src,
+    uint32 dest)
 {
-	uint32_t a = ~src >> 24;
+	uint32 a = ~src >> 24;
 
 	UN8x4_MUL_UN8_ADD_UN8x4(dest, a, src);
 
 	return dest;
 }
 
-static force_inline uint32_t in(uint32_t x,
-    uint8_t y)
+static force_inline uint32 in(uint32 x,
+    uint8 y)
 {
-	uint16_t a = y;
+	uint16 a = y;
 
 	UN8x4_MUL_UN8(x, a);
 
@@ -104,17 +104,17 @@ static void fast_composite_over_x888_8_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * src, * src_line;
-	uint32_t * dst, * dst_line;
-	uint8_t * mask, * mask_line;
+	uint32 * src, * src_line;
+	uint32 * dst, * dst_line;
+	uint8 * mask, * mask_line;
 	int src_stride, mask_stride, dst_stride;
-	uint8_t m;
-	uint32_t s, d;
-	int32_t w;
+	uint8 m;
+	uint32 s, d;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		src = src_line;
@@ -148,19 +148,19 @@ static void fast_composite_in_n_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint8_t * dst_line, * dst;
-	uint8_t * mask_line, * mask, m;
+	uint32 src, srca;
+	uint8 * dst_line, * dst;
+	uint8 * mask_line, * mask, m;
 	int dst_stride, mask_stride;
-	int32_t w;
-	uint16_t t;
+	int32 w;
+	uint16 t;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
 	srca = src >> 24;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	if(srca == 0xff) {
 		while(height--) {
@@ -209,15 +209,15 @@ static void fast_composite_in_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * src_line, * src;
+	uint8 * dst_line, * dst;
+	uint8 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
-	uint8_t s;
-	uint16_t t;
+	int32 w;
+	uint8 s;
+	uint16 t;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -243,11 +243,11 @@ static void fast_composite_over_n_8_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint32_t * dst_line, * dst, d;
-	uint8_t * mask_line, * mask, m;
+	uint32 src, srca;
+	uint32 * dst_line, * dst, d;
+	uint8 * mask_line, * mask, m;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -255,8 +255,8 @@ static void fast_composite_over_n_8_8888(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -286,19 +286,19 @@ static void fast_composite_add_n_8888_8888_ca(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, s;
-	uint32_t * dst_line, * dst, d;
-	uint32_t * mask_line, * mask, ma;
+	uint32 src, s;
+	uint32 * dst_line, * dst, d;
+	uint32 * mask_line, * mask, ma;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -328,11 +328,11 @@ static void fast_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca, s;
-	uint32_t * dst_line, * dst, d;
-	uint32_t * mask_line, * mask, ma;
+	uint32 src, srca, s;
+	uint32 * dst_line, * dst, d;
+	uint32 * mask_line, * mask, ma;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -340,8 +340,8 @@ static void fast_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -379,12 +379,12 @@ static void fast_composite_over_n_8_0888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint8_t * dst_line, * dst;
-	uint32_t d;
-	uint8_t * mask_line, * mask, m;
+	uint32 src, srca;
+	uint8 * dst_line, * dst;
+	uint32 d;
+	uint8 * mask_line, * mask, m;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -392,8 +392,8 @@ static void fast_composite_over_n_8_0888(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 3);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 3);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -427,12 +427,12 @@ static void fast_composite_over_n_8_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint16_t * dst_line, * dst;
-	uint32_t d;
-	uint8_t * mask_line, * mask, m;
+	uint32 src, srca;
+	uint16 * dst_line, * dst;
+	uint32 d;
+	uint8 * mask_line, * mask, m;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -440,8 +440,8 @@ static void fast_composite_over_n_8_0565(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -476,13 +476,13 @@ static void fast_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca, s;
-	uint16_t src16;
-	uint16_t * dst_line, * dst;
-	uint32_t d;
-	uint32_t * mask_line, * mask, ma;
+	uint32 src, srca, s;
+	uint16 src16;
+	uint16 * dst_line, * dst;
+	uint32 d;
+	uint32 * mask_line, * mask, ma;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -492,8 +492,8 @@ static void fast_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 
 	src16 = convert_8888_to_0565(src);
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32, mask_stride, mask_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -536,14 +536,14 @@ static void fast_composite_over_8888_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src, s;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src, s;
 	int dst_stride, src_stride;
-	uint8_t a;
-	int32_t w;
+	uint8 a;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -568,13 +568,13 @@ static void fast_composite_src_x888_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -593,15 +593,15 @@ static void fast_composite_over_8888_0888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint32_t d;
-	uint32_t * src_line, * src, s;
-	uint8_t a;
+	uint8 * dst_line, * dst;
+	uint32 d;
+	uint32 * src_line, * src, s;
+	uint8 a;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 3);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 3);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -632,15 +632,15 @@ static void fast_composite_over_8888_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t d;
-	uint32_t * src_line, * src, s;
-	uint8_t a;
+	uint16 * dst_line, * dst;
+	uint32 d;
+	uint32 * src_line, * src, s;
+	uint8 a;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -671,15 +671,15 @@ static void fast_composite_add_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * src_line, * src;
+	uint8 * dst_line, * dst;
+	uint8 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
-	uint8_t s, d;
-	uint16_t t;
+	int32 w;
+	uint8 s, d;
+	uint16 t;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -707,15 +707,15 @@ static void fast_composite_add_0565_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t d;
-	uint16_t * src_line, * src;
-	uint32_t s;
+	uint16 * dst_line, * dst;
+	uint32 d;
+	uint16 * src_line, * src;
+	uint32 s;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint16_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint16, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -744,14 +744,14 @@ static void fast_composite_add_8888_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
-	uint32_t s, d;
+	int32 w;
+	uint32 s, d;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -775,68 +775,56 @@ static void fast_composite_add_8888_8888(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_add_n_8_8(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_add_n_8_8(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint8 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
-	uint32_t src;
-	uint8_t sa;
-
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	int32 w;
+	uint32 src;
+	uint8 sa;
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	sa = (src >> 24);
-
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
 		mask = mask_line;
 		mask_line += mask_stride;
 		w = width;
-
 		while(w--) {
-			uint16_t tmp;
-			uint16_t a;
-			uint32_t m, d;
-			uint32_t r;
-
-			a = *mask++;
-			d = *dst;
-
-			m = MUL_UN8(sa, a, tmp);
-			r = ADD_UN8(m, d, tmp);
-
-			*dst++ = r;
+			uint16 tmp;
+			uint16 a = *mask++;
+			uint32 d = *dst;
+			uint32 m = MUL_UN8(sa, a, tmp);
+			uint32 r = ADD_UN8(m, d, tmp);
+			*dst++ = static_cast<uint8>(r);
 		}
 	}
 }
 
 #ifdef WORDS_BIGENDIAN
-#define CREATE_BITMASK(n) (0x80000000 >> (n))
-#define UPDATE_BITMASK(n) ((n) >> 1)
+	#define CREATE_BITMASK(n) (0x80000000 >> (n))
+	#define UPDATE_BITMASK(n) ((n) >> 1)
 #else
-#define CREATE_BITMASK(n) (1 << (n))
-#define UPDATE_BITMASK(n) ((n) << 1)
+	#define CREATE_BITMASK(n) (1 << (n))
+	#define UPDATE_BITMASK(n) ((n) << 1)
 #endif
 
-#define TEST_BIT(p, n)                                  \
-	(*((p) + ((n) >> 5)) & CREATE_BITMASK((n) & 31))
-#define SET_BIT(p, n)                                                   \
-	do { *((p) + ((n) >> 5)) |= CREATE_BITMASK((n) & 31); } while(0);
+#define TEST_BIT(p, n) (*((p) + ((n) >> 5)) & CREATE_BITMASK((n) & 31))
+#define SET_BIT(p, n)  do { *((p) + ((n) >> 5)) |= CREATE_BITMASK((n) & 31); } while(0);
 
 static void fast_composite_add_1_1(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
-	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32_t, dst_stride, dst_line, 1);
+	int32 w;
+	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32, dst_stride, dst_line, 1);
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
@@ -845,7 +833,7 @@ static void fast_composite_add_1_1(pixman_implementation_t * imp, pixman_composi
 		w = width;
 		while(w--) {
 			/*
-			 * TODO: improve performance by processing uint32_t data instead
+			 * TODO: improve performance by processing uint32 data instead
 			 *  of individual bits
 			 */
 			if(TEST_BIT(src, src_x + w))
@@ -854,24 +842,23 @@ static void fast_composite_add_1_1(pixman_implementation_t * imp, pixman_composi
 	}
 }
 
-static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_over_n_1_8888(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint32_t * dst, * dst_line;
-	uint32_t * mask, * mask_line;
+	uint32 src, srca;
+	uint32 * dst, * dst_line;
+	uint32 * mask, * mask_line;
 	int mask_stride, dst_stride;
-	uint32_t bitcache, bitmask;
-	int32_t w;
+	uint32 bitcache, bitmask;
+	int32 w;
 	if(width <= 0)
 		return;
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	srca = src >> 24;
 	if(src == 0)
 		return;
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
 	if(srca == 0xff) {
 		while(height--) {
@@ -880,10 +867,8 @@ static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
 			mask = mask_line;
 			mask_line += mask_stride;
 			w = width;
-
 			bitcache = *mask++;
 			bitmask = CREATE_BITMASK(mask_x & 31);
-
 			while(w--) {
 				if(bitmask == 0) {
 					bitcache = *mask++;
@@ -903,10 +888,8 @@ static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
 			mask = mask_line;
 			mask_line += mask_stride;
 			w = width;
-
 			bitcache = *mask++;
 			bitmask = CREATE_BITMASK(mask_x & 31);
-
 			while(w--) {
 				if(bitmask == 0) {
 					bitcache = *mask++;
@@ -921,28 +904,25 @@ static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_over_n_1_0565(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint16_t * dst, * dst_line;
-	uint32_t * mask, * mask_line;
+	uint32 src, srca;
+	uint16 * dst, * dst_line;
+	uint32 * mask, * mask_line;
 	int mask_stride, dst_stride;
-	uint32_t bitcache, bitmask;
-	int32_t w;
-	uint32_t d;
-	uint16_t src565;
-
+	uint32 bitcache, bitmask;
+	int32 w;
+	uint32 d;
+	uint16 src565;
 	if(width <= 0)
 		return;
-
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	srca = src >> 24;
 	if(src == 0)
 		return;
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
 	if(srca == 0xff) {
 		src565 = convert_8888_to_0565(src);
@@ -952,10 +932,8 @@ static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
 			mask = mask_line;
 			mask_line += mask_stride;
 			w = width;
-
 			bitcache = *mask++;
 			bitmask = CREATE_BITMASK(mask_x & 31);
-
 			while(w--) {
 				if(bitmask == 0) {
 					bitcache = *mask++;
@@ -975,10 +953,8 @@ static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
 			mask = mask_line;
 			mask_line += mask_stride;
 			w = width;
-
 			bitcache = *mask++;
 			bitmask = CREATE_BITMASK(mask_x & 31);
-
 			while(w--) {
 				if(bitmask == 0) {
 					bitcache = *mask++;
@@ -994,81 +970,61 @@ static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
 		}
 	}
 }
-
 /*
  * Simple bitblt
  */
-
-static void fast_composite_solid_fill(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_solid_fill(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-
-	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
-
+	uint32 src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	if(dest_image->bits.format == PIXMAN_a1) {
 		src = src >> 31;
 	}
 	else if(dest_image->bits.format == PIXMAN_a8) {
 		src = src >> 24;
 	}
-	else if(dest_image->bits.format == PIXMAN_r5g6b5 ||
-	    dest_image->bits.format == PIXMAN_b5g6r5) {
+	else if(dest_image->bits.format == PIXMAN_r5g6b5 || dest_image->bits.format == PIXMAN_b5g6r5) {
 		src = convert_8888_to_0565(src);
 	}
-
-	pixman_fill(dest_image->bits.bits, dest_image->bits.rowstride,
-	    PIXMAN_FORMAT_BPP(dest_image->bits.format),
-	    dest_x, dest_y,
-	    width, height,
-	    src);
+	pixman_fill(dest_image->bits.bits, dest_image->bits.rowstride, PIXMAN_FORMAT_BPP(dest_image->bits.format), dest_x, dest_y, width, height, src);
 }
 
-static void fast_composite_src_memcpy(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_src_memcpy(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	int bpp = PIXMAN_FORMAT_BPP(dest_image->bits.format) / 8;
-	uint32_t n_bytes = width * bpp;
-	int dst_stride, src_stride;
-	uint8_t * dst;
-	uint8_t * src;
-
-	src_stride = src_image->bits.rowstride * 4;
-	dst_stride = dest_image->bits.rowstride * 4;
-
-	src = (uint8_t *)src_image->bits.bits + src_y * src_stride + src_x * bpp;
-	dst = (uint8_t *)dest_image->bits.bits + dest_y * dst_stride + dest_x * bpp;
-
+	uint32 n_bytes = width * bpp;
+	const int src_stride = src_image->bits.rowstride * 4;
+	const int dst_stride = dest_image->bits.rowstride * 4;
+	const uint8 * src = (const uint8 *)src_image->bits.bits + src_y * src_stride + src_x * bpp;
+	uint8 * dst = (uint8 *)dest_image->bits.bits + dest_y * dst_stride + dest_x * bpp;
 	while(height--) {
 		memcpy(dst, src, n_bytes);
-
 		dst += dst_stride;
 		src += src_stride;
 	}
 }
 
-FAST_NEAREST(8888_8888_cover, 8888, 8888, uint32_t, uint32_t, SRC, COVER)
-FAST_NEAREST(8888_8888_none, 8888, 8888, uint32_t, uint32_t, SRC, NONE)
-FAST_NEAREST(8888_8888_pad, 8888, 8888, uint32_t, uint32_t, SRC, PAD)
-FAST_NEAREST(8888_8888_normal, 8888, 8888, uint32_t, uint32_t, SRC, NORMAL)
-FAST_NEAREST(x888_8888_cover, x888, 8888, uint32_t, uint32_t, SRC, COVER)
-FAST_NEAREST(x888_8888_pad, x888, 8888, uint32_t, uint32_t, SRC, PAD)
-FAST_NEAREST(x888_8888_normal, x888, 8888, uint32_t, uint32_t, SRC, NORMAL)
-FAST_NEAREST(8888_8888_cover, 8888, 8888, uint32_t, uint32_t, OVER, COVER)
-FAST_NEAREST(8888_8888_none, 8888, 8888, uint32_t, uint32_t, OVER, NONE)
-FAST_NEAREST(8888_8888_pad, 8888, 8888, uint32_t, uint32_t, OVER, PAD)
-FAST_NEAREST(8888_8888_normal, 8888, 8888, uint32_t, uint32_t, OVER, NORMAL)
-FAST_NEAREST(8888_565_cover, 8888, 0565, uint32_t, uint16_t, SRC, COVER)
-FAST_NEAREST(8888_565_none, 8888, 0565, uint32_t, uint16_t, SRC, NONE)
-FAST_NEAREST(8888_565_pad, 8888, 0565, uint32_t, uint16_t, SRC, PAD)
-FAST_NEAREST(8888_565_normal, 8888, 0565, uint32_t, uint16_t, SRC, NORMAL)
-FAST_NEAREST(565_565_normal, 0565, 0565, uint16_t, uint16_t, SRC, NORMAL)
-FAST_NEAREST(8888_565_cover, 8888, 0565, uint32_t, uint16_t, OVER, COVER)
-FAST_NEAREST(8888_565_none, 8888, 0565, uint32_t, uint16_t, OVER, NONE)
-FAST_NEAREST(8888_565_pad, 8888, 0565, uint32_t, uint16_t, OVER, PAD)
-FAST_NEAREST(8888_565_normal, 8888, 0565, uint32_t, uint16_t, OVER, NORMAL)
+FAST_NEAREST(8888_8888_cover, 8888, 8888, uint32, uint32, SRC, COVER)
+FAST_NEAREST(8888_8888_none, 8888, 8888, uint32, uint32, SRC, NONE)
+FAST_NEAREST(8888_8888_pad, 8888, 8888, uint32, uint32, SRC, PAD)
+FAST_NEAREST(8888_8888_normal, 8888, 8888, uint32, uint32, SRC, NORMAL)
+FAST_NEAREST(x888_8888_cover, x888, 8888, uint32, uint32, SRC, COVER)
+FAST_NEAREST(x888_8888_pad, x888, 8888, uint32, uint32, SRC, PAD)
+FAST_NEAREST(x888_8888_normal, x888, 8888, uint32, uint32, SRC, NORMAL)
+FAST_NEAREST(8888_8888_cover, 8888, 8888, uint32, uint32, OVER, COVER)
+FAST_NEAREST(8888_8888_none, 8888, 8888, uint32, uint32, OVER, NONE)
+FAST_NEAREST(8888_8888_pad, 8888, 8888, uint32, uint32, OVER, PAD)
+FAST_NEAREST(8888_8888_normal, 8888, 8888, uint32, uint32, OVER, NORMAL)
+FAST_NEAREST(8888_565_cover, 8888, 0565, uint32, uint16, SRC, COVER)
+FAST_NEAREST(8888_565_none, 8888, 0565, uint32, uint16, SRC, NONE)
+FAST_NEAREST(8888_565_pad, 8888, 0565, uint32, uint16, SRC, PAD)
+FAST_NEAREST(8888_565_normal, 8888, 0565, uint32, uint16, SRC, NORMAL)
+FAST_NEAREST(565_565_normal, 0565, 0565, uint16, uint16, SRC, NORMAL)
+FAST_NEAREST(8888_565_cover, 8888, 0565, uint32, uint16, OVER, COVER)
+FAST_NEAREST(8888_565_none, 8888, 0565, uint32, uint16, OVER, NONE)
+FAST_NEAREST(8888_565_pad, 8888, 0565, uint32, uint16, OVER, PAD)
+FAST_NEAREST(8888_565_normal, 8888, 0565, uint32, uint16, OVER, NORMAL)
 
 #define REPEAT_MIN_WIDTH    32
 
@@ -1077,18 +1033,18 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 	PIXMAN_COMPOSITE_ARGS(info);
 	pixman_composite_func_t func;
 	pixman_format_code_t mask_format;
-	uint32_t src_flags, mask_flags;
-	int32_t sx, sy;
-	int32_t width_remain;
-	int32_t num_pixels;
-	int32_t src_width;
-	int32_t i, j;
+	uint32 src_flags, mask_flags;
+	int32 sx, sy;
+	int32 width_remain;
+	int32 num_pixels;
+	int32 src_width;
+	int32 i, j;
 	pixman_image_t extended_src_image;
-	uint32_t extended_src[REPEAT_MIN_WIDTH * 2];
+	uint32 extended_src[REPEAT_MIN_WIDTH * 2];
 	pixman_bool_t need_src_extension;
-	uint32_t * src_line;
-	int32_t src_stride;
-	int32_t src_bpp;
+	uint32 * src_line;
+	int32 src_stride;
+	int32 src_bpp;
 	pixman_composite_info_t info2 = *info;
 	src_flags = (info->src_flags & ~FAST_PATH_NORMAL_REPEAT) | FAST_PATH_SAMPLES_COVER_CLIP_NEAREST;
 	if(mask_image) {
@@ -1114,7 +1070,7 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 		while(src_width < REPEAT_MIN_WIDTH && src_width <= sx)
 			src_width += src_image->bits.width;
 
-		src_stride = (src_width * (src_bpp >> 3) + 3) / (int)sizeof(uint32_t);
+		src_stride = (src_width * (src_bpp >> 3) + 3) / (int)sizeof(uint32);
 
 		/* Initialize/validate stack-allocated temporary image */
 		_pixman_bits_image_init(&extended_src_image, src_image->bits.format,
@@ -1139,7 +1095,7 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 
 		if(need_src_extension) {
 			if(src_bpp == 32) {
-				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint32_t, src_stride, src_line, 1);
+				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint32, src_stride, src_line, 1);
 
 				for(i = 0; i < src_width;) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
@@ -1147,27 +1103,27 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 				}
 			}
 			else if(src_bpp == 16) {
-				uint16_t * src_line_16;
+				uint16 * src_line_16;
 
-				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint16_t, src_stride,
+				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint16, src_stride,
 				    src_line_16, 1);
-				src_line = (uint32_t *)src_line_16;
+				src_line = (uint32 *)src_line_16;
 
 				for(i = 0; i < src_width;) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
-						((uint16_t*)extended_src)[i] = ((uint16_t*)src_line)[j];
+						((uint16 *)extended_src)[i] = ((uint16 *)src_line)[j];
 				}
 			}
 			else if(src_bpp == 8) {
-				uint8_t * src_line_8;
+				uint8 * src_line_8;
 
-				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint8_t, src_stride,
+				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint8, src_stride,
 				    src_line_8, 1);
-				src_line = (uint32_t *)src_line_8;
+				src_line = (uint32 *)src_line_8;
 
 				for(i = 0; i < src_width;) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
-						((uint8_t *)extended_src)[i] = ((uint8_t *)src_line)[j];
+						((uint8 *)extended_src)[i] = ((uint8 *)src_line)[j];
 				}
 			}
 
@@ -1210,15 +1166,15 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 }
 
 /* Use more unrolling for src_0565_0565 because it is typically CPU bound */
-static force_inline void scaled_nearest_scanline_565_565_SRC(uint16_t *  dst,
-    const uint16_t * src,
-    int32_t w,
+static force_inline void scaled_nearest_scanline_565_565_SRC(uint16 *  dst,
+    const uint16 * src,
+    int32 w,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t max_vx,
     pixman_bool_t fully_transparent_src)
 {
-	uint16_t tmp1, tmp2, tmp3, tmp4;
+	uint16 tmp1, tmp2, tmp3, tmp4;
 	while((w -= 4) >= 0) {
 		tmp1 = *(src + pixman_fixed_to_int(vx));
 		vx += unit_x;
@@ -1245,19 +1201,11 @@ static force_inline void scaled_nearest_scanline_565_565_SRC(uint16_t *  dst,
 		*dst = *(src + pixman_fixed_to_int(vx));
 }
 
-FAST_NEAREST_MAINLOOP(565_565_cover_SRC,
-    scaled_nearest_scanline_565_565_SRC,
-    uint16_t, uint16_t, COVER)
-FAST_NEAREST_MAINLOOP(565_565_none_SRC,
-    scaled_nearest_scanline_565_565_SRC,
-    uint16_t, uint16_t, NONE)
-FAST_NEAREST_MAINLOOP(565_565_pad_SRC,
-    scaled_nearest_scanline_565_565_SRC,
-    uint16_t, uint16_t, PAD)
+FAST_NEAREST_MAINLOOP(565_565_cover_SRC, scaled_nearest_scanline_565_565_SRC, uint16, uint16, COVER)
+FAST_NEAREST_MAINLOOP(565_565_none_SRC, scaled_nearest_scanline_565_565_SRC, uint16, uint16, NONE)
+FAST_NEAREST_MAINLOOP(565_565_pad_SRC, scaled_nearest_scanline_565_565_SRC, uint16, uint16, PAD)
 
-static force_inline uint32_t fetch_nearest(pixman_repeat_t src_repeat,
-    pixman_format_code_t format,
-    uint32_t * src, int x, int src_width)
+static force_inline uint32 fetch_nearest(pixman_repeat_t src_repeat, pixman_format_code_t format, uint32 * src, int32 x, int src_width)
 {
 	if(repeat(src_repeat, &x, src_width)) {
 		if(format == PIXMAN_x8r8g8b8 || format == PIXMAN_x8b8g8r8)
@@ -1270,10 +1218,10 @@ static force_inline uint32_t fetch_nearest(pixman_repeat_t src_repeat,
 	}
 }
 
-static force_inline void combine_over(uint32_t s, uint32_t * dst)
+static force_inline void combine_over(uint32 s, uint32 * dst)
 {
 	if(s) {
-		uint8_t ia = 0xff - (s >> 24);
+		uint8 ia = 0xff - (s >> 24);
 
 		if(ia)
 			UN8x4_MUL_UN8_ADD_UN8x4(*dst, ia, s);
@@ -1282,7 +1230,7 @@ static force_inline void combine_over(uint32_t s, uint32_t * dst)
 	}
 }
 
-static force_inline void combine_src(uint32_t s, uint32_t * dst)
+static force_inline void combine_src(uint32 s, uint32 * dst)
 {
 	*dst = s;
 }
@@ -1291,8 +1239,8 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line;
-	uint32_t * src_line;
+	uint32 * dst_line;
+	uint32 * src_line;
 	int dst_stride, src_stride;
 	int src_width, src_height;
 	pixman_repeat_t src_repeat;
@@ -1301,11 +1249,11 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
 	pixman_vector_t v;
 	pixman_fixed_t vy;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
 	/* pass in 0 instead of src_x and src_y because src_x and src_y need to be
 	 * transformed from destination space to source space
 	 */
-	PIXMAN_IMAGE_GET_LINE(src_image, 0, 0, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, 0, 0, uint32, src_stride, src_line, 1);
 
 	/* reference point is the center of the pixel */
 	v.vector[0] = pixman_int_to_fixed(src_x) + pixman_fixed_1 / 2;
@@ -1330,24 +1278,21 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
 	vy = v.vector[1];
 	while(height--) {
 		pixman_fixed_t vx = v.vector[0];
-		int y = pixman_fixed_to_int(vy);
-		uint32_t * dst = dst_line;
-
+		int32 y = pixman_fixed_to_int(vy);
+		uint32 * dst = dst_line;
 		dst_line += dst_stride;
-
 		/* adjust the y location by a unit vector in the y direction
 		 * this is equivalent to transforming y+1 of the destination point to source space */
 		vy += unit_y;
-
 		if(!repeat(src_repeat, &y, src_height)) {
 			if(op == PIXMAN_OP_SRC)
 				memzero(dst, sizeof(*dst) * width);
 		}
 		else {
 			int w = width;
-			uint32_t * src = src_line + y * src_stride;
+			uint32 * src = src_line + y * src_stride;
 			while(w >= 2) {
-				uint32_t s1, s2;
+				uint32 s1, s2;
 				int x1, x2;
 				x1 = pixman_fixed_to_int(vx);
 				vx += unit_x;
@@ -1366,7 +1311,7 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
 				}
 			}
 			while(w--) {
-				uint32_t s;
+				uint32 s;
 				int x;
 
 				x = pixman_fixed_to_int(vx);
@@ -1625,9 +1570,9 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
 		    width, height);                                 \
 	}
 
-FAST_SIMPLE_ROTATE(8, uint8_t)
-FAST_SIMPLE_ROTATE(565, uint16_t)
-FAST_SIMPLE_ROTATE(8888, uint32_t)
+FAST_SIMPLE_ROTATE(8, uint8)
+FAST_SIMPLE_ROTATE(565, uint16)
+FAST_SIMPLE_ROTATE(8888, uint32)
 
 static const pixman_fast_path_t c_fast_paths[] =
 {
@@ -1796,7 +1741,7 @@ static const pixman_fast_path_t c_fast_paths[] =
 #define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (offs))
 #endif
 
-static force_inline void pixman_fill1_line(uint32_t * dst, int offs, int width, int v)
+static force_inline void pixman_fill1_line(uint32 * dst, int offs, int width, int v)
 {
 	if(offs) {
 		int leading_pixels = 32 - offs;
@@ -1830,15 +1775,15 @@ static force_inline void pixman_fill1_line(uint32_t * dst, int offs, int width, 
 	}
 }
 
-static void pixman_fill1(uint32_t * bits,
+static void pixman_fill1(uint32 * bits,
     int stride,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
-	uint32_t * dst = bits + y * stride + (x >> 5);
+	uint32 * dst = bits + y * stride + (x >> 5);
 	int offs = x & 31;
 
 	if(filler & 1) {
@@ -1855,17 +1800,17 @@ static void pixman_fill1(uint32_t * bits,
 	}
 }
 
-static void pixman_fill8(uint32_t * bits,
+static void pixman_fill8(uint32 * bits,
     int stride,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
-	int byte_stride = stride * (int)sizeof(uint32_t);
-	uint8_t * dst = (uint8_t *)bits;
-	uint8_t v = filler & 0xff;
+	int byte_stride = stride * (int)sizeof(uint32);
+	uint8 * dst = (uint8 *)bits;
+	uint8 v = filler & 0xff;
 	int i;
 
 	dst = dst + y * byte_stride + x;
@@ -1878,18 +1823,18 @@ static void pixman_fill8(uint32_t * bits,
 	}
 }
 
-static void pixman_fill16(uint32_t * bits,
+static void pixman_fill16(uint32 * bits,
     int stride,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
 	int short_stride =
-	    (stride * (int)sizeof(uint32_t)) / (int)sizeof(uint16_t);
-	uint16_t * dst = (uint16_t*)bits;
-	uint16_t v = filler & 0xffff;
+	    (stride * (int)sizeof(uint32)) / (int)sizeof(uint16);
+	uint16 * dst = (uint16 *)bits;
+	uint16 v = filler & 0xffff;
 	int i;
 
 	dst = dst + y * short_stride + x;
@@ -1902,13 +1847,13 @@ static void pixman_fill16(uint32_t * bits,
 	}
 }
 
-static void pixman_fill32(uint32_t * bits,
+static void pixman_fill32(uint32 * bits,
     int stride,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
 	int i;
 
@@ -1923,14 +1868,14 @@ static void pixman_fill32(uint32_t * bits,
 }
 
 static pixman_bool_t fast_path_fill(pixman_implementation_t * imp,
-    uint32_t * bits,
+    uint32 * bits,
     int stride,
     int bpp,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
 	switch(bpp)
 	{
@@ -1959,11 +1904,11 @@ static pixman_bool_t fast_path_fill(pixman_implementation_t * imp,
 
 // 
 
-static uint32_t * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 {
-	int32_t w = iter->width;
-	uint32_t * dst = iter->buffer;
-	const uint16_t * src = (const uint16_t*)iter->bits;
+	int32 w = iter->width;
+	uint32 * dst = iter->buffer;
+	const uint16 * src = (const uint16*)iter->bits;
 
 	iter->bits += iter->stride;
 
@@ -1974,8 +1919,8 @@ static uint32_t * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 	}
 	/* Process two pixels per iteration */
 	while((w -= 2) >= 0) {
-		uint32_t sr, sb, sg, t0, t1;
-		uint32_t s = *(const uint32_t*)src;
+		uint32 sr, sb, sg, t0, t1;
+		uint32 s = *(const uint32*)src;
 		src += 2;
 		sr = (s >> 8) & 0x00F800F8;
 		sb = (s << 3) & 0x00F800F8;
@@ -2002,7 +1947,7 @@ static uint32_t * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 	return iter->buffer;
 }
 
-static uint32_t * fast_dest_fetch_noop(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * fast_dest_fetch_noop(pixman_iter_t * iter, const uint32 * mask)
 {
 	iter->bits += iter->stride;
 	return iter->buffer;
@@ -2011,9 +1956,9 @@ static uint32_t * fast_dest_fetch_noop(pixman_iter_t * iter, const uint32_t * ma
 /* Helper function for a workaround, which tries to ensure that 0x1F001F
  * constant is always allocated in a register on RISC architectures.
  */
-static force_inline uint32_t convert_8888_to_0565_workaround(uint32_t s, uint32_t x1F001F)
+static force_inline uint32 convert_8888_to_0565_workaround(uint32 s, uint32 x1F001F)
 {
-	uint32_t a, b;
+	uint32 a, b;
 	a = (s >> 3) & x1F001F;
 	b = s & 0xFC00;
 	a |= a >> 5;
@@ -2023,65 +1968,64 @@ static force_inline uint32_t convert_8888_to_0565_workaround(uint32_t s, uint32_
 
 static void fast_write_back_r5g6b5(pixman_iter_t * iter)
 {
-	int32_t w = iter->width;
-	uint16_t * dst = (uint16_t*)(iter->bits - iter->stride);
-	const uint32_t * src = iter->buffer;
+	int32 w = iter->width;
+	uint16 * dst = (uint16 *)(iter->bits - iter->stride);
+	const uint32 * src = iter->buffer;
 	/* Workaround to ensure that x1F001F variable is allocated in a register */
-	static volatile uint32_t volatile_x1F001F = 0x1F001F;
-	uint32_t x1F001F = volatile_x1F001F;
-
+	static volatile uint32 volatile_x1F001F = 0x1F001F;
+	uint32 x1F001F = volatile_x1F001F;
 	while((w -= 4) >= 0) {
-		uint32_t s1 = *src++;
-		uint32_t s2 = *src++;
-		uint32_t s3 = *src++;
-		uint32_t s4 = *src++;
-		*dst++ = convert_8888_to_0565_workaround(s1, x1F001F);
-		*dst++ = convert_8888_to_0565_workaround(s2, x1F001F);
-		*dst++ = convert_8888_to_0565_workaround(s3, x1F001F);
-		*dst++ = convert_8888_to_0565_workaround(s4, x1F001F);
+		uint32 s1 = *src++;
+		uint32 s2 = *src++;
+		uint32 s3 = *src++;
+		uint32 s4 = *src++;
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(s1, x1F001F));
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(s2, x1F001F));
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(s3, x1F001F));
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(s4, x1F001F));
 	}
 	if(w & 2) {
-		*dst++ = convert_8888_to_0565_workaround(*src++, x1F001F);
-		*dst++ = convert_8888_to_0565_workaround(*src++, x1F001F);
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(*src++, x1F001F));
+		*dst++ = static_cast<uint16>(convert_8888_to_0565_workaround(*src++, x1F001F));
 	}
 	if(w & 1) {
-		*dst = convert_8888_to_0565_workaround(*src, x1F001F);
+		*dst = static_cast<uint16>(convert_8888_to_0565_workaround(*src, x1F001F));
 	}
 }
 
 typedef struct {
 	int y;
-	uint64_t *  buffer;
+	uint64 *  buffer;
 } line_t;
 
 typedef struct {
 	line_t lines[2];
 	pixman_fixed_t y;
 	pixman_fixed_t x;
-	uint64_t data[1];
+	uint64 data[1];
 } bilinear_info_t;
 
 static void fetch_horizontal(bits_image_t * image, line_t * line,
     int y, pixman_fixed_t x, pixman_fixed_t ux, int n)
 {
-	uint32_t * bits = image->bits + y * image->rowstride;
+	uint32 * bits = image->bits + y * image->rowstride;
 	int i;
 
 	for(i = 0; i < n; ++i) {
 		int x0 = pixman_fixed_to_int(x);
 		int x1 = x0 + 1;
-		int32_t dist_x;
+		int32 dist_x;
 
-		uint32_t left = *(bits + x0);
-		uint32_t right = *(bits + x1);
+		uint32 left = *(bits + x0);
+		uint32 right = *(bits + x1);
 
 		dist_x = pixman_fixed_to_bilinear_weight(x);
 		dist_x <<= (8 - BILINEAR_INTERPOLATION_BITS);
 
 #if SIZEOF_LONG <= 4
 		{
-			uint32_t lag, rag, ag;
-			uint32_t lrb, rrb, rb;
+			uint32 lag, rag, ag;
+			uint32 lrb, rrb, rb;
 
 			lag = (left & 0xff00ff00) >> 8;
 			rag = (right & 0xff00ff00) >> 8;
@@ -2091,21 +2035,21 @@ static void fetch_horizontal(bits_image_t * image, line_t * line,
 			rrb = (right & 0x00ff00ff);
 			rb = (lrb << 8) + dist_x * (rrb - lrb);
 
-			*((uint32_t *)(line->buffer + i)) = ag;
-			*((uint32_t *)(line->buffer + i) + 1) = rb;
+			*((uint32 *)(line->buffer + i)) = ag;
+			*((uint32 *)(line->buffer + i) + 1) = rb;
 		}
 #else
 		{
-			uint64_t lagrb, ragrb;
-			uint32_t lag, rag;
-			uint32_t lrb, rrb;
+			uint64 lagrb, ragrb;
+			uint32 lag, rag;
+			uint32 lrb, rrb;
 
 			lag = (left & 0xff00ff00);
 			lrb = (left & 0x00ff00ff);
 			rag = (right & 0xff00ff00);
 			rrb = (right & 0x00ff00ff);
-			lagrb = (((uint64_t)lag) << 24) | lrb;
-			ragrb = (((uint64_t)rag) << 24) | rrb;
+			lagrb = (((uint64)lag) << 24) | lrb;
+			ragrb = (((uint64)rag) << 24) | rrb;
 
 			line->buffer[i] = (lagrb << 8) + dist_x * (ragrb - lagrb);
 		}
@@ -2117,13 +2061,13 @@ static void fetch_horizontal(bits_image_t * image, line_t * line,
 	line->y = y;
 }
 
-static uint32_t * fast_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * fast_fetch_bilinear_cover(pixman_iter_t * iter, const uint32 * mask)
 {
 	pixman_fixed_t fx, ux;
 	bilinear_info_t * info = (bilinear_info_t *)iter->data;
 	line_t * line0, * line1;
 	int y0, y1;
-	int32_t dist_y;
+	int32 dist_y;
 	int i;
 	COMPILE_TIME_ASSERT(BILINEAR_INTERPOLATION_BITS < 8);
 	fx = info->x;
@@ -2142,16 +2086,16 @@ static uint32_t * fast_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_t
 	}
 	for(i = 0; i < iter->width; ++i) {
 #if SIZEOF_LONG <= 4
-		uint32_t ta, tr, tg, tb;
-		uint32_t ba, br, bg, bb;
-		uint32_t tag, trb;
-		uint32_t bag, brb;
-		uint32_t a, r, g, b;
+		uint32 ta, tr, tg, tb;
+		uint32 ba, br, bg, bb;
+		uint32 tag, trb;
+		uint32 bag, brb;
+		uint32 a, r, g, b;
 
-		tag = *((uint32_t *)(line0->buffer + i));
-		trb = *((uint32_t *)(line0->buffer + i) + 1);
-		bag = *((uint32_t *)(line1->buffer + i));
-		brb = *((uint32_t *)(line1->buffer + i) + 1);
+		tag = *((uint32 *)(line0->buffer + i));
+		trb = *((uint32 *)(line0->buffer + i) + 1);
+		bag = *((uint32 *)(line1->buffer + i));
+		brb = *((uint32 *)(line1->buffer + i) + 1);
 
 		ta = tag >> 16;
 		ba = bag >> 16;
@@ -2174,14 +2118,14 @@ static uint32_t * fast_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_t
 		g = (g >>  8) & 0x0000ff00;
 		b = (b >> 16) & 0x000000ff;
 #else
-		uint64_t top = line0->buffer[i];
-		uint64_t bot = line1->buffer[i];
-		uint64_t tar = (top & 0xffff0000ffff0000ULL) >> 16;
-		uint64_t bar = (bot & 0xffff0000ffff0000ULL) >> 16;
-		uint64_t tgb = (top & 0x0000ffff0000ffffULL);
-		uint64_t bgb = (bot & 0x0000ffff0000ffffULL);
-		uint64_t ar, gb;
-		uint32_t a, r, g, b;
+		uint64 top = line0->buffer[i];
+		uint64 bot = line1->buffer[i];
+		uint64 tar = (top & 0xffff0000ffff0000ULL) >> 16;
+		uint64 bar = (bot & 0xffff0000ffff0000ULL) >> 16;
+		uint64 tgb = (top & 0x0000ffff0000ffffULL);
+		uint64 bgb = (bot & 0x0000ffff0000ffffULL);
+		uint64 ar, gb;
+		uint32 a, r, g, b;
 
 		ar = (tar << 8) + dist_y * (bar - tar);
 		gb = (tgb << 8) + dist_y * (bgb - tgb);
@@ -2217,7 +2161,7 @@ static void fast_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_ite
 	v.vector[2] = pixman_fixed_1;
 	if(!pixman_transform_point_3d(iter->image->common.transform, &v))
 		goto fail;
-	info = (bilinear_info_t *)SAlloc::M(sizeof(*info) + (2 * width - 1) * sizeof(uint64_t));
+	info = (bilinear_info_t *)SAlloc::M(sizeof(*info) + (2 * width - 1) * sizeof(uint64));
 	if(!info)
 		goto fail;
 
@@ -2248,23 +2192,23 @@ fail:
 	iter->fini = NULL;
 }
 
-static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter, const uint32 * mask)
 {
 	pixman_image_t * ima = iter->image;
 	int offset = iter->x;
 	int line = iter->y++;
 	int width = iter->width;
-	uint32_t *  buffer = iter->buffer;
+	uint32 *  buffer = iter->buffer;
 	bits_image_t * bits = &ima->bits;
 	pixman_fixed_t x_top, x_bottom, x;
 	pixman_fixed_t ux_top, ux_bottom, ux;
 	pixman_vector_t v;
-	uint32_t top_mask, bottom_mask;
-	uint32_t * top_row;
-	uint32_t * bottom_row;
-	uint32_t * end;
-	uint32_t zero[2] = { 0, 0 };
-	uint32_t one = 1;
+	uint32 top_mask, bottom_mask;
+	uint32 * top_row;
+	uint32 * bottom_row;
+	uint32 * end;
+	uint32 zero[2] = { 0, 0 };
+	uint32 one = 1;
 	int y, y1, y2;
 	int disty;
 	int mask_inc;
@@ -2334,7 +2278,7 @@ static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter,
 	}
 	/* If both are zero, then the whole thing is zero */
 	if(top_row == zero && bottom_row == zero) {
-		memzero(buffer, width * sizeof(uint32_t));
+		memzero(buffer, width * sizeof(uint32));
 		return iter->buffer;
 	}
 	else if(bits->format == PIXMAN_x8r8g8b8) {
@@ -2370,8 +2314,8 @@ static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter,
 	/* Left edge
 	 */
 	while(buffer < end && x < 0) {
-		uint32_t tr, br;
-		int32_t distx;
+		uint32 tr, br;
+		int32 distx;
 
 		tr = top_row[pixman_fixed_to_int(x_top) + 1] | top_mask;
 		br = bottom_row[pixman_fixed_to_int(x_bottom) + 1] | bottom_mask;
@@ -2391,8 +2335,8 @@ static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter,
 
 	while(buffer < end  &&  x < w) {
 		if(*mask) {
-			uint32_t tl, tr, bl, br;
-			int32_t distx;
+			uint32 tl, tr, bl, br;
+			int32 distx;
 
 			tl = top_row [pixman_fixed_to_int(x_top)] | top_mask;
 			tr = top_row [pixman_fixed_to_int(x_top) + 1] | top_mask;
@@ -2415,8 +2359,8 @@ static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter,
 	w = pixman_int_to_fixed(bits->width);
 	while(buffer < end  &&  x < w) {
 		if(*mask) {
-			uint32_t tl, bl;
-			int32_t distx;
+			uint32 tl, bl;
+			int32 distx;
 
 			tl = top_row [pixman_fixed_to_int(x_top)] | top_mask;
 			bl = bottom_row [pixman_fixed_to_int(x_bottom)] | bottom_mask;
@@ -2432,26 +2376,17 @@ static uint32_t * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter,
 		x_bottom += ux_bottom;
 		mask += mask_inc;
 	}
-
 	/* Zero fill to the left of the image */
 	while(buffer < end)
 		*buffer++ = 0;
-
 	return iter->buffer;
 }
 
-typedef uint32_t (* convert_pixel_t) (const uint8_t * row, int x);
+typedef uint32 (* convert_pixel_t) (const uint8 * row, int x);
 
 static force_inline void bits_image_fetch_separable_convolution_affine(pixman_image_t * image,
-    int offset,
-    int line,
-    int width,
-    uint32_t *  buffer,
-    const uint32_t * mask,
-
-    convert_pixel_t convert_pixel,
-    pixman_format_code_t format,
-    pixman_repeat_t repeat_mode)
+    int offset, int line, int width, uint32 *  buffer, const uint32 * mask,
+    convert_pixel_t convert_pixel, pixman_format_code_t format, pixman_repeat_t repeat_mode)
 {
 	bits_image_t * bits = &image->bits;
 	pixman_fixed_t * params = image->common.filter_params;
@@ -2486,8 +2421,8 @@ static force_inline void bits_image_fetch_separable_convolution_affine(pixman_im
 		pixman_fixed_t * y_params;
 		int satot, srtot, sgtot, sbtot;
 		pixman_fixed_t x, y;
-		int32_t x1, x2, y1, y2;
-		int32_t px, py;
+		int32 x1, x2, y1, y2;
+		int32 px, py;
 		int i, j;
 
 		if(mask && !mask[k])
@@ -2500,42 +2435,31 @@ static force_inline void bits_image_fetch_separable_convolution_affine(pixman_im
 		 */
 		x = ((vx >> x_phase_shift) << x_phase_shift) + ((1 << x_phase_shift) >> 1);
 		y = ((vy >> y_phase_shift) << y_phase_shift) + ((1 << y_phase_shift) >> 1);
-
 		px = (x & 0xffff) >> x_phase_shift;
 		py = (y & 0xffff) >> y_phase_shift;
-
 		x1 = pixman_fixed_to_int(x - pixman_fixed_e - x_off);
 		y1 = pixman_fixed_to_int(y - pixman_fixed_e - y_off);
 		x2 = x1 + cwidth;
 		y2 = y1 + cheight;
-
 		satot = srtot = sgtot = sbtot = 0;
-
 		y_params = params + 4 + (1 << x_phase_bits) * cwidth + py * cheight;
-
 		for(i = y1; i < y2; ++i) {
 			pixman_fixed_t fy = *y_params++;
-
 			if(fy) {
 				pixman_fixed_t * x_params = params + 4 + px * cwidth;
-
 				for(j = x1; j < x2; ++j) {
 					pixman_fixed_t fx = *x_params++;
-					int rx = j;
-					int ry = i;
-
+					int32 rx = j;
+					int32 ry = i;
 					if(fx) {
 						pixman_fixed_t f;
-						uint32_t pixel, mask;
-						uint8_t * row;
-
-						mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
-
+						uint32 pixel;
+						uint8 * row;
+						uint32 mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
 						if(repeat_mode != PIXMAN_REPEAT_NONE) {
 							repeat(repeat_mode, &rx, bits->width);
 							repeat(repeat_mode, &ry, bits->height);
-
-							row = (uint8_t *)bits->bits + bits->rowstride * 4 * ry;
+							row = (uint8 *)bits->bits + bits->rowstride * 4 * ry;
 							pixel = convert_pixel(row, rx) | mask;
 						}
 						else {
@@ -2543,7 +2467,7 @@ static force_inline void bits_image_fetch_separable_convolution_affine(pixman_im
 								pixel = 0;
 							}
 							else {
-								row = (uint8_t *)bits->bits + bits->rowstride * 4 * ry;
+								row = (uint8 *)bits->bits + bits->rowstride * 4 * ry;
 								pixel = convert_pixel(row, rx) | mask;
 							}
 						}
@@ -2576,14 +2500,14 @@ next:
 	}
 }
 
-static const uint8_t zero[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const uint8 zero[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image,
     int offset,
     int line,
     int width,
-    uint32_t *  buffer,
-    const uint32_t * mask,
+    uint32 *  buffer,
+    const uint32 * mask,
 
     convert_pixel_t convert_pixel,
     pixman_format_code_t format,
@@ -2610,40 +2534,35 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 	y = v.vector[1];
 
 	for(i = 0; i < width; ++i) {
-		int x1, y1, x2, y2;
-		uint32_t tl, tr, bl, br;
-		int32_t distx, disty;
+		int32 x1;
+		int32 y1;
+		int32 x2;
+		int32 y2;
+		uint32 tl, tr, bl, br;
+		int32 distx, disty;
 		int width = image->bits.width;
 		int height = image->bits.height;
-		const uint8_t * row1;
-		const uint8_t * row2;
-
+		const uint8 * row1;
+		const uint8 * row2;
 		if(mask && !mask[i])
 			goto next;
-
 		x1 = x - pixman_fixed_1 / 2;
 		y1 = y - pixman_fixed_1 / 2;
-
 		distx = pixman_fixed_to_bilinear_weight(x1);
 		disty = pixman_fixed_to_bilinear_weight(y1);
-
 		y1 = pixman_fixed_to_int(y1);
 		y2 = y1 + 1;
 		x1 = pixman_fixed_to_int(x1);
 		x2 = x1 + 1;
-
 		if(repeat_mode != PIXMAN_REPEAT_NONE) {
-			uint32_t mask;
-
-			mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
-
+			uint32 mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
 			repeat(repeat_mode, &x1, width);
 			repeat(repeat_mode, &y1, height);
 			repeat(repeat_mode, &x2, width);
 			repeat(repeat_mode, &y2, height);
 
-			row1 = (uint8_t *)bits->bits + bits->rowstride * 4 * y1;
-			row2 = (uint8_t *)bits->bits + bits->rowstride * 4 * y2;
+			row1 = (uint8 *)bits->bits + bits->rowstride * 4 * y1;
+			row2 = (uint8 *)bits->bits + bits->rowstride * 4 * y2;
 
 			tl = convert_pixel(row1, x1) | mask;
 			tr = convert_pixel(row1, x2) | mask;
@@ -2651,7 +2570,7 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 			br = convert_pixel(row2, x2) | mask;
 		}
 		else {
-			uint32_t mask1, mask2;
+			uint32 mask1, mask2;
 			int bpp;
 
 			/* Note: PIXMAN_FORMAT_BPP() returns an unsigned value,
@@ -2674,7 +2593,7 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 				mask1 = 0;
 			}
 			else {
-				row1 = (uint8_t *)bits->bits + bits->rowstride * 4 * y1;
+				row1 = (uint8 *)bits->bits + bits->rowstride * 4 * y1;
 				row1 += bpp / 8 * x1;
 
 				mask1 = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
@@ -2685,7 +2604,7 @@ static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image
 				mask2 = 0;
 			}
 			else {
-				row2 = (uint8_t *)bits->bits + bits->rowstride * 4 * y2;
+				row2 = (uint8 *)bits->bits + bits->rowstride * 4 * y2;
 				row2 += bpp / 8 * x1;
 
 				mask2 = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
@@ -2719,96 +2638,78 @@ next:
 	}
 }
 
-static force_inline void bits_image_fetch_nearest_affine(pixman_image_t * image,
-    int offset,
-    int line,
-    int width,
-    uint32_t *  buffer,
-    const uint32_t * mask,
-
-    convert_pixel_t convert_pixel,
-    pixman_format_code_t format,
-    pixman_repeat_t repeat_mode)
+static force_inline void bits_image_fetch_nearest_affine(pixman_image_t * image, int offset, int line, int width,
+    uint32 *  buffer, const uint32 * mask, convert_pixel_t convert_pixel, pixman_format_code_t format, pixman_repeat_t repeat_mode)
 {
 	pixman_fixed_t x, y;
 	pixman_fixed_t ux, uy;
 	pixman_vector_t v;
 	bits_image_t * bits = &image->bits;
 	int i;
-
 	/* reference point is the center of the pixel */
 	v.vector[0] = pixman_int_to_fixed(offset) + pixman_fixed_1 / 2;
 	v.vector[1] = pixman_int_to_fixed(line) + pixman_fixed_1 / 2;
 	v.vector[2] = pixman_fixed_1;
-
 	if(!pixman_transform_point_3d(image->common.transform, &v))
 		return;
-
 	ux = image->common.transform->matrix[0][0];
 	uy = image->common.transform->matrix[1][0];
-
 	x = v.vector[0];
 	y = v.vector[1];
-
 	for(i = 0; i < width; ++i) {
-		int width, height, x0, y0;
-		const uint8_t * row;
-
+		int width;
+		int height;
+		int32 x0;
+		int32 y0;
+		const uint8 * row;
 		if(mask && !mask[i])
 			goto next;
-
 		width = image->bits.width;
 		height = image->bits.height;
 		x0 = pixman_fixed_to_int(x - pixman_fixed_e);
 		y0 = pixman_fixed_to_int(y - pixman_fixed_e);
-
-		if(repeat_mode == PIXMAN_REPEAT_NONE &&
-		    (y0 < 0 || y0 >= height || x0 < 0 || x0 >= width)) {
+		if(repeat_mode == PIXMAN_REPEAT_NONE && (y0 < 0 || y0 >= height || x0 < 0 || x0 >= width)) {
 			buffer[i] = 0;
 		}
 		else {
-			uint32_t mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
-
+			uint32 mask = PIXMAN_FORMAT_A(format) ? 0 : 0xff000000;
 			if(repeat_mode != PIXMAN_REPEAT_NONE) {
 				repeat(repeat_mode, &x0, width);
 				repeat(repeat_mode, &y0, height);
 			}
-
-			row = (uint8_t *)bits->bits + bits->rowstride * 4 * y0;
-
+			row = (uint8 *)bits->bits + bits->rowstride * 4 * y0;
 			buffer[i] = convert_pixel(row, x0) | mask;
 		}
-
 next:
 		x += ux;
 		y += uy;
 	}
 }
 
-static force_inline uint32_t convert_a8r8g8b8(const uint8_t * row, int x)
+static force_inline uint32 convert_a8r8g8b8(const uint8 * row, int x)
 {
-	return *(((uint32_t *)row) + x);
+	return *(((uint32 *)row) + x);
 }
 
-static force_inline uint32_t convert_x8r8g8b8(const uint8_t * row, int x)
+static force_inline uint32 convert_x8r8g8b8(const uint8 * row, int x)
 {
-	return *(((uint32_t *)row) + x);
+	return *(((uint32 *)row) + x);
 }
 
-static force_inline uint32_t convert_a8(const uint8_t * row, int x)
+static force_inline uint32 convert_a8(const uint8 * row, int x)
 {
 	return *(row + x) << 24;
 }
 
-static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
+static force_inline uint32 convert_r5g6b5(const uint8 * row, int x)
 {
-	return convert_0565_to_0888(*((uint16_t*)row + x));
+	return convert_0565_to_0888(*((uint16 *)row + x));
 }
 
 #define MAKE_SEPARABLE_CONVOLUTION_FETCHER(name, format, repeat_mode)  \
-	static uint32_t *      \
+	static uint32 *      \
 	bits_image_fetch_separable_convolution_affine_ ## name(pixman_iter_t   *iter, \
-	    const uint32_t * mask) \
+	    const uint32 * mask) \
 	{                                                                   \
 		bits_image_fetch_separable_convolution_affine(                 \
 			iter->image,                                                \
@@ -2823,9 +2724,9 @@ static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
 	}
 
 #define MAKE_BILINEAR_FETCHER(name, format, repeat_mode)                \
-	static uint32_t *      \
+	static uint32 *      \
 	bits_image_fetch_bilinear_affine_ ## name(pixman_iter_t   *iter,   \
-	    const uint32_t * mask)   \
+	    const uint32 * mask)   \
 	{                                                                   \
 		bits_image_fetch_bilinear_affine(iter->image,                  \
 		    iter->x, iter->y++,           \
@@ -2838,9 +2739,9 @@ static force_inline uint32_t convert_r5g6b5(const uint8_t * row, int x)
 	}
 
 #define MAKE_NEAREST_FETCHER(name, format, repeat_mode)                 \
-	static uint32_t *      \
+	static uint32 *      \
 	bits_image_fetch_nearest_affine_ ## name(pixman_iter_t   *iter,    \
-	    const uint32_t * mask)    \
+	    const uint32 * mask)    \
 	{                                                                   \
 		bits_image_fetch_nearest_affine(iter->image,                   \
 		    iter->x, iter->y++,            \

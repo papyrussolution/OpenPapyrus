@@ -525,7 +525,7 @@ namespace NArchive {
 		{
 			AString s(Bootable ? "Boot" : "NotBoot");
 			s += '-';
-			if(BootMediaType < ARRAY_SIZE(kMediaTypes))
+			if(BootMediaType < SIZEOFARRAY(kMediaTypes))
 				s += kMediaTypes[BootMediaType];
 			else
 				s.Add_UInt32(BootMediaType);

@@ -1210,7 +1210,7 @@ int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 	rFileName = dbfname;
 	DbfTable  * dbf = new DbfTable(dbfname);
 	Field    ** dbf_fields_id = static_cast<Field **>(SAlloc::M(sizeof(void *)));
-	for(int type = 0; type < (sizeof(row_band_types)/sizeof(int)); type++) {
+	for(size_t type = 0; type < SIZEOFARRAY(row_band_types); type++) {
 		f = 0;
 		for(b = searchBand(row_band_types[type], 0); enumFields(&f, b, &i);) {
 			int    used = 0;
@@ -1298,7 +1298,7 @@ int SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 	rFileName = dbfname;
 	DbfTable * dbf = new DbfTable(dbfname);
 	flds = new DBFCreateFld[2];
-	for(type = 0; type < (sizeof(hdr_band_types)/sizeof(int)); type++) {
+	for(type = 0; type < SIZEOFARRAY(hdr_band_types); type++) {
 		f = 0;
 		for(Band * b = searchBand(hdr_band_types[type], 0); enumFields(&f, b, &i);) {
 			int    used = 0;
@@ -2667,19 +2667,11 @@ static int Implement_ExportDL600DataToBuffer(const char * pDataName, long id, vo
 }
 
 int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf)
-{
-	return Implement_ExportDL600DataToBuffer(pDataName, id, 0, 0, cp, rBuf);
-}
-
+	{ return Implement_ExportDL600DataToBuffer(pDataName, id, 0, 0, cp, rBuf); }
 int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf)
-{
-	return Implement_ExportDL600DataToBuffer(pDataName, 0, ptr, 0, cp, rBuf);
-}
-
+	{ return Implement_ExportDL600DataToBuffer(pDataName, 0, ptr, 0, cp, rBuf); }
 int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf)
-{
-	return Implement_ExportDL600DataToBuffer(pDataName, 0, pView, DlRtm::ExportParam::fIsView, cp, rBuf);
-}
+	{ return Implement_ExportDL600DataToBuffer(pDataName, 0, pView, DlRtm::ExportParam::fIsView, cp, rBuf); }
 
 int  FASTCALL PPExportDL600DataToJson(const char * pDataName, PPView * pV, SString & rBuf)
 {
@@ -2706,11 +2698,11 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
 	if(pStrAssocAry) {
 		THROW(p_rtm = p_ctx->GetRtm(isempty(pDataName) ? "StrAssocArray" : pDataName));
-		THROW(p_rtm->PutToJsonBuffer(pStrAssocAry, rBuf.Z(), 0 /* flags */));
+		THROW(p_rtm->PutToJsonBuffer(pStrAssocAry, rBuf.Z(), 0/*flags*/));
 	}
 	else if(ptr) {
 		THROW(p_rtm = p_ctx->GetRtm(pDataName));
-		THROW(p_rtm->PutToJsonBuffer(ptr, rBuf.Z(), 0 /* flags */));
+		THROW(p_rtm->PutToJsonBuffer(ptr, rBuf.Z(), 0/*flags*/));
 	}
 	else {
 		ok = 0;

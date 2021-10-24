@@ -508,7 +508,7 @@ namespace NArchive {
 			"EXEPATH" /* NSIS 2.26+ */, "EXEFILE" /* NSIS 2.26+ */, "HWNDPARENT", "_CLICK" /*is set from page->clicknext*/, "_OUTDIR" /*NSIS 2.04+ */
 		};
 
-		static const unsigned kNumInternalVars = 20 + ARRAY_SIZE(kVarStrings);
+		static const unsigned kNumInternalVars = 20 + SIZEOFARRAY(kVarStrings);
 
 		#define GET_NUM_INTERNAL_VARS (IsNsis200 ? kNumInternalVars - 3 : IsNsis225 ? kNumInternalVars - 2 : kNumInternalVars);
 
@@ -669,14 +669,14 @@ namespace NArchive {
 			}
 
 			s += '$';
-			if(index1 < ARRAY_SIZE(kShellStrings)) {
+			if(index1 < SIZEOFARRAY(kShellStrings)) {
 				const char * sz = kShellStrings[index1];
 				if(sz) {
 					s += sz;
 					return;
 				}
 			}
-			if(index2 < ARRAY_SIZE(kShellStrings)) {
+			if(index2 < SIZEOFARRAY(kShellStrings)) {
 				const char * sz = kShellStrings[index2];
 				if(sz) {
 					s += sz;
@@ -1488,7 +1488,7 @@ namespace NArchive {
 		void CInArchive::Add_ButtonID(uint32 buttonID)
 		{
 			Space();
-			if(buttonID < ARRAY_SIZE(k_Button_IDs))
+			if(buttonID < SIZEOFARRAY(k_Button_IDs))
 				Script += k_Button_IDs[buttonID];
 			else {
 				Script += "Button_";
@@ -1611,7 +1611,7 @@ namespace NArchive {
 
 		static void Add_ShowWindow_Cmd_2(AString &s, uint32 cmd)
 		{
-			if(cmd < ARRAY_SIZE(kShowWindow_Commands)) {
+			if(cmd < SIZEOFARRAY(kShowWindow_Commands)) {
 				s += "SW_";
 				s += kShowWindow_Commands[cmd];
 			}
@@ -1621,7 +1621,7 @@ namespace NArchive {
 
 		void CInArchive::Add_ShowWindow_Cmd(uint32 cmd)
 		{
-			if(cmd < ARRAY_SIZE(kShowWindow_Commands)) {
+			if(cmd < SIZEOFARRAY(kShowWindow_Commands)) {
 				Script += "SW_";
 				Script += kShowWindow_Commands[cmd];
 			}
@@ -1639,7 +1639,7 @@ namespace NArchive {
 			}
 		}
 
-		#define ADD_TYPE_FROM_LIST(table, type) Add_TypeFromList(table, ARRAY_SIZE(table), type)
+		#define ADD_TYPE_FROM_LIST(table, type) Add_TypeFromList(table, SIZEOFARRAY(table), type)
 
 		enum {
 			k_ExecFlags_AutoClose,
@@ -1995,7 +1995,7 @@ namespace NArchive {
 			{
 				uint32 v = param & 0xF;
 				Script += " MB_";
-				if(v < ARRAY_SIZE(k_MB_Buttons))
+				if(v < SIZEOFARRAY(k_MB_Buttons))
 					Script += k_MB_Buttons[v];
 				else {
 					Script += "Buttons_";
@@ -2006,7 +2006,7 @@ namespace NArchive {
 				uint32 icon = (param >> 4) & 0x7;
 				if(icon != 0) {
 					Script += "|MB_";
-					if(icon < ARRAY_SIZE(k_MB_Icons) && k_MB_Icons[icon] != 0)
+					if(icon < SIZEOFARRAY(k_MB_Icons) && k_MB_Icons[icon] != 0)
 						Script += k_MB_Icons[icon];
 					else {
 						Script += "Icon_";
@@ -2029,7 +2029,7 @@ namespace NArchive {
 				else if(modal == 2) Script += "|MB_TASKMODAL";
 				else if(modal == 3) Script += "|0x3000";
 				uint32 flags = (param >> 14);
-				for(uint i = 0; i < ARRAY_SIZE(k_MB_Flags); i++)
+				for(uint i = 0; i < SIZEOFARRAY(k_MB_Flags); i++)
 					if((flags & (1 << i)) != 0) {
 						Script += "|MB_";
 						Script += k_MB_Flags[i];
@@ -2581,7 +2581,7 @@ namespace NArchive {
 						else
 							s += IsInstaller ? "Page " : "UninstPage ";
 
-						if(wndProcID < ARRAY_SIZE(kPageTypes))
+						if(wndProcID < SIZEOFARRAY(kPageTypes))
 							s += kPageTypes[wndProcID];
 						else
 							Add_UInt(wndProcID);
@@ -2770,10 +2770,10 @@ namespace NArchive {
 				   }
 				 */
 				if(IsFunc(flg)
-							&& bh.Num - kkk >= ARRAY_SIZE(k_InitPluginDir_Commands)
-							&& CompareCommands(p, k_InitPluginDir_Commands, ARRAY_SIZE(k_InitPluginDir_Commands))) {
+							&& bh.Num - kkk >= SIZEOFARRAY(k_InitPluginDir_Commands)
+							&& CompareCommands(p, k_InitPluginDir_Commands, SIZEOFARRAY(k_InitPluginDir_Commands))) {
 					InitPluginsDir_Start = kkk;
-					InitPluginsDir_End = kkk + ARRAY_SIZE(k_InitPluginDir_Commands);
+					InitPluginsDir_End = kkk + SIZEOFARRAY(k_InitPluginDir_Commands);
 					labels[kkk] |= CMD_REF_InitPluginDir;
 					break;
 				}
@@ -2917,7 +2917,7 @@ namespace NArchive {
 
 				unsigned numSkipParams = 0;
 
-				if(commandId < ARRAY_SIZE(k_Commands) && commandId < numSupportedCommands) {
+				if(commandId < SIZEOFARRAY(k_Commands) && commandId < numSupportedCommands) {
 					numSkipParams = k_Commands[commandId].NumParams;
 					const char * sz = k_CommandNames[commandId];
 					if(sz)
@@ -3116,7 +3116,7 @@ namespace NArchive {
 			#ifdef NSIS_SCRIPT
 						AddParam(params[0]);
 						Space();
-						FlagsToString2(s, g_WinAttrib, ARRAY_SIZE(g_WinAttrib), params[1]);
+						FlagsToString2(s, g_WinAttrib, SIZEOFARRAY(g_WinAttrib), params[1]);
 			#endif
 						break;
 					}
@@ -3751,7 +3751,7 @@ namespace NArchive {
 							uint32 val;
 							bool valDefined = false;
 							if(StringToUInt32(sw, val)) {
-								if(val < ARRAY_SIZE(kShowWindow_Commands)) {
+								if(val < SIZEOFARRAY(kShowWindow_Commands)) {
 									sw.Empty();
 									sw += "${";
 									Add_ShowWindow_Cmd_2(sw, val);
@@ -4797,7 +4797,7 @@ namespace NArchive {
 			}
 
 			onFuncOffset = paramsOffset + 40;
-			numOnFunc = ARRAY_SIZE(kOnFunc);
+			numOnFunc = SIZEOFARRAY(kOnFunc);
 			if(bhPages.Offset == 276)
 				numOnFunc--;
 			p2 += 40 + numOnFunc * 4;
@@ -5515,7 +5515,7 @@ namespace NArchive {
 				s += kBcjMethod;
 				s.Add_Space();
 			}
-			s += ((uint)method < ARRAY_SIZE(kMethods)) ? kMethods[(uint)method] : kUnknownMethod;
+			s += ((uint)method < SIZEOFARRAY(kMethods)) ? kMethods[(uint)method] : kUnknownMethod;
 			if(method == NMethodType::kLZMA) {
 				s += ':';
 				s += GetStringForSizeValue(dict);
@@ -5531,7 +5531,7 @@ namespace NArchive {
 			s += kBcjMethod;
 			s.Add_Space();
 		   }
-		   s += (method < ARRAY_SIZE(kMethods)) ? kMethods[method] : kUnknownMethod;
+		   s += (method < SIZEOFARRAY(kMethods)) ? kMethods[method] : kUnknownMethod;
 		   if(method == NMethodType::kLZMA) {
 			s += ':';
 			s += GetStringForSizeValue(_archive.IsSolid ? _archive.DictionarySize: dictionary);

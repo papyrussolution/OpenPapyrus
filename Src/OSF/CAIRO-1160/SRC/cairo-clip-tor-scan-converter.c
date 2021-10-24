@@ -209,8 +209,8 @@ typedef int grid_area_t;
 #define UNROLL3(x) x x x
 
 struct quorem {
-	int32_t quo;
-	int32_t rem;
+	int32 quo;
+	int32 rem;
 };
 
 /* Header for a chunk of memory in a memory pool. */
@@ -397,7 +397,7 @@ static struct quorem FASTCALL floored_muldivrem(int x, int a, int b)
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = static_cast<int32_t>(xa/b);
+	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;
@@ -909,7 +909,7 @@ static void active_list_init(struct active_list * active)
 static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      
 {
 	struct edge * head, ** next;
-	int32_t x;
+	int32 x;
 	if(head_a == NULL)
 		return head_b;
 	next = &head;

@@ -49,12 +49,7 @@ size_t iconv(iconv_t cd, const char ** inbuf, size_t * inbytesleft, char ** outb
 
 /* libiconv interface for vim */
 #if defined(MAKE_DLL)
-int iconvctl(iconv_t cd, int request, void * argument)
-{
-	/* not supported */
-	return 0;
-}
-
+	int iconvctl(iconv_t cd, int request, void * argument) { return 0; /* not supported */ }
 #endif
 
 typedef struct compat_t compat_t;
@@ -679,9 +674,7 @@ static int load_mlang(void)
 
 iconv_t iconv_open(const char * tocode, const char * fromcode)
 {
-	rec_iconv_t * cd;
-
-	cd = (rec_iconv_t*)SAlloc::C(1, sizeof(rec_iconv_t));
+	rec_iconv_t * cd = (rec_iconv_t*)SAlloc::C(1, sizeof(rec_iconv_t));
 	if(cd == NULL)
 		return (iconv_t)(-1);
 
@@ -1232,9 +1225,7 @@ static int eucjp_mblen(csconv_t * cv UNUSED, const uchar * buf, int bufsize)
 
 static int kernel_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushort * wbuf, int * wbufsize)
 {
-	int len;
-
-	len = cv->mblen(cv, buf, bufsize);
+	int len = cv->mblen(cv, buf, bufsize);
 	if(len == -1)
 		return -1;
 	*wbufsize = MultiByteToWideChar(cv->codepage, mbtowc_flags(cv->codepage),
@@ -1250,7 +1241,6 @@ static int kernel_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf
 	BOOL * p = NULL;
 	int flags = 0;
 	int len;
-
 	if(bufsize == 0)
 		return seterror(E2BIG);
 	if(!must_use_null_useddefaultchar(cv->codepage)) {
@@ -1284,11 +1274,9 @@ static int kernel_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf
  */
 static int mlang_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushort * wbuf, int * wbufsize)
 {
-	int len;
 	int insize;
 	HRESULT hr;
-
-	len = cv->mblen(cv, buf, bufsize);
+	int len = cv->mblen(cv, buf, bufsize);
 	if(len == -1)
 		return -1;
 	insize = len;
@@ -1304,10 +1292,7 @@ static int mlang_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf,
 	char tmpbuf[MB_CHAR_MAX]; /* enough room for one character */
 	int tmpsize = MB_CHAR_MAX;
 	int insize = wbufsize;
-	HRESULT hr;
-
-	hr = ConvertINetUnicodeToMultiByte(&cv->mode, cv->codepage,
-		(const wchar_t*)wbuf, &wbufsize, tmpbuf, &tmpsize);
+	HRESULT hr = ConvertINetUnicodeToMultiByte(&cv->mode, cv->codepage, (const wchar_t*)wbuf, &wbufsize, tmpbuf, &tmpsize);
 	if(hr != S_OK || insize != wbufsize)
 		return seterror(EILSEQ);
 	else if(bufsize < tmpsize)
@@ -1321,11 +1306,9 @@ static int mlang_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf,
 static int utf16_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushort * wbuf, int * wbufsize)
 {
 	int codepage = cv->codepage;
-
 	/* swap endian: 1200 <-> 1201 */
 	if(cv->mode & UNICODE_MODE_SWAPPED)
 		codepage ^= 1;
-
 	if(bufsize < 2)
 		return seterror(EINVAL);
 	if(codepage == 1200) /* little endian */

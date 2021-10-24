@@ -36,9 +36,9 @@
 /* A structure representing an open-ended horizontal span of constant
  * pixel coverage. */
 typedef struct _cairo_half_open_span {
-	int32_t x; /* The inclusive x-coordinate of the start of the span. */
-	uint8_t coverage; /* The pixel coverage for the pixels to the right. */
-	uint8_t inverse; /* between regular mask and clip */
+	int32 x; /* The inclusive x-coordinate of the start of the span. */
+	uint8 coverage; /* The pixel coverage for the pixels to the right. */
+	uint8 inverse; /* between regular mask and clip */
 } cairo_half_open_span_t;
 
 /* Span renderer interface. Instances of renderers are provided by

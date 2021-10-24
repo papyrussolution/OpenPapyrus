@@ -77,8 +77,8 @@ static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_
 
 static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
-	int32_t dx = p1->x - p2->x;
-	int32_t dy = p1->y - p2->y;
+	int32 dx = p1->x - p2->x;
+	int32 dy = p1->y - p2->y;
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
 }
 

@@ -187,13 +187,13 @@ int32 BZ2_decompress(DState * s)
 			RETURN(BZ_DATA_ERROR_MAGIC);
 		s->blockSize100k -= BZ_HDR_0;
 		if(s->smallDecompress) {
-			s->ll16 = static_cast<uint16 *>(BZALLOC(s->blockSize100k * 100000 * sizeof(uint16)));
-			s->ll4  = static_cast<uchar *>(BZALLOC(((1 + s->blockSize100k * 100000) >> 1) * sizeof(uchar)));
+			s->ll16 = static_cast<uint16 *>(SAlloc::M(s->blockSize100k * 100000 * sizeof(uint16)));
+			s->ll4  = static_cast<uchar *>(SAlloc::M(((1 + s->blockSize100k * 100000) >> 1) * sizeof(uchar)));
 			if(s->ll16 == NULL || s->ll4 == NULL) 
 				RETURN(BZ_MEM_ERROR);
 		}
 		else {
-			s->tt = (uint32 *)BZALLOC(s->blockSize100k * 100000 * sizeof(int32) );
+			s->tt = (uint32 *)SAlloc::M(s->blockSize100k * 100000 * sizeof(int32));
 			if(s->tt == NULL) 
 				RETURN(BZ_MEM_ERROR);
 		}

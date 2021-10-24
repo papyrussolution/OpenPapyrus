@@ -185,8 +185,8 @@ cairo_int_status_t _cairo_contour_add_reversed(cairo_contour_t * dst, const cair
 
 static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
-	int32_t dx = p1->x - p2->x;
-	int32_t dy = p1->y - p2->y;
+	int32 dx = p1->x - p2->x;
+	int32 dy = p1->y - p2->y;
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
 }
 
@@ -196,7 +196,7 @@ static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_po
 static boolint _cairo_contour_simplify_chain(cairo_contour_t * contour, const double tolerance, const cairo_contour_iter_t * first, const cairo_contour_iter_t * last)
 {
 	cairo_contour_iter_t iter, furthest;
-	uint64_t max_error;
+	uint64 max_error;
 	int x0, y0;
 	int nx, ny;
 	int count;
@@ -213,7 +213,7 @@ static boolint _cairo_contour_simplify_chain(cairo_contour_t * contour, const do
 	do {
 		cairo_point_t * p = iter.point;
 		if(!DELETED(p)) {
-			uint64_t d = (uint64_t)nx * (x0 - p->x) + (uint64_t)ny * (y0 - p->y);
+			uint64 d = (uint64)nx * (x0 - p->x) + (uint64)ny * (y0 - p->y);
 			if(d * d > max_error) {
 				max_error = d * d;
 				furthest = iter;
@@ -225,7 +225,7 @@ static boolint _cairo_contour_simplify_chain(cairo_contour_t * contour, const do
 	if(count == 0)
 		return FALSE;
 
-	if(max_error > tolerance * ((uint64_t)nx * nx + (uint64_t)ny * ny)) {
+	if(max_error > tolerance * ((uint64)nx * nx + (uint64)ny * ny)) {
 		boolint simplified;
 		simplified = FALSE;
 		simplified |= _cairo_contour_simplify_chain(contour, tolerance, first, &furthest);
@@ -250,7 +250,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 	cairo_point_t * last = NULL;
 	cairo_contour_iter_t iter, furthest;
 	boolint simplified;
-	uint64_t max = 0;
+	uint64 max = 0;
 	int i;
 	if(contour->chain.num_points <= 2)
 		return;
@@ -276,7 +276,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 		max = 0;
 		for(chain = &contour->chain; chain; chain = chain->next) {
 			for(i = 0; i < chain->num_points; i++) {
-				uint64_t d;
+				uint64 d;
 
 				if(DELETED(&chain->points[i]))
 					continue;

@@ -37,9 +37,9 @@ static void noop_composite(pixman_implementation_t * imp, pixman_composite_info_
 	return;
 }
 
-static uint32_t * noop_get_scanline(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * noop_get_scanline(pixman_iter_t * iter, const uint32 * mask)
 {
-	uint32_t * result = iter->buffer;
+	uint32 * result = iter->buffer;
 	iter->buffer += iter->image->bits.rowstride;
 	return result;
 }
@@ -47,9 +47,9 @@ static uint32_t * noop_get_scanline(pixman_iter_t * iter, const uint32_t * mask)
 static void noop_init_solid_narrow(pixman_iter_t * iter, const pixman_iter_info_t * info)
 {
 	pixman_image_t * image = iter->image;
-	uint32_t * buffer = iter->buffer;
-	uint32_t * end = buffer + iter->width;
-	uint32_t color;
+	uint32 * buffer = iter->buffer;
+	uint32 * end = buffer + iter->width;
+	uint32 color;
 	if(iter->image->type == SOLID)
 		color = image->solid.color_32;
 	else

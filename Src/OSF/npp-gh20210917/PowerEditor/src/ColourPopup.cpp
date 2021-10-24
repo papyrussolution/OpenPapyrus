@@ -74,37 +74,26 @@ INT_PTR CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 		case WM_INITDIALOG:
 	    {
 		    NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-
-		    int nColor;
-		    for(nColor = 0; nColor < int(sizeof(colourItems)/sizeof(DWORD)); ++nColor) {
+		    for(int nColor = 0; nColor < int(SIZEOFARRAY(colourItems)); ++nColor) {
 			    ::SendDlgItemMessage(_hSelf, IDC_COLOUR_LIST, LB_ADDSTRING, nColor, reinterpret_cast<LPARAM>(""));
 			    ::SendDlgItemMessage(_hSelf, IDC_COLOUR_LIST, LB_SETITEMDATA, nColor, static_cast<LPARAM>(colourItems[nColor]));
 		    }
 		    return TRUE;
 	    }
-
 		case WM_CTLCOLORLISTBOX:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    return reinterpret_cast<LRESULT>(::GetStockObject(NULL_BRUSH));
-	    }
-
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case NPPM_INTERNAL_REFRESHDARKMODE:
-	    {
 		    NppDarkMode::autoThemeChildControls(_hSelf);
 		    return TRUE;
-	    }
 		case WM_DRAWITEM:
 	    {
 		    COLORREF cr;

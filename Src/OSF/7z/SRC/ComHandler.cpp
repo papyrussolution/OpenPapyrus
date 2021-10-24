@@ -336,7 +336,7 @@ namespace NArchive {
 			Byte p[kHeaderSize];
 			PhySize = kHeaderSize;
 			RINOK(ReadStream_FALSE(inStream, p, kHeaderSize));
-			if(memcmp(p, kSignature, ARRAY_SIZE(kSignature)) != 0)
+			if(memcmp(p, kSignature, SIZEOFARRAY(kSignature)) != 0)
 				return S_FALSE;
 			if(Get16(p + 0x1A) > 4) // majorVer
 				return S_FALSE;

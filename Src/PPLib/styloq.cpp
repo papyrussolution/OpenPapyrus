@@ -2878,10 +2878,28 @@ int PPStyloQInterchange::Verification_ClientRequest(RoundTripBlock & rB)
 					temp_chunk.Z(); // В этом блоке temp_chunk работает как фактор HAMK
 					THROW(tp.P.Get(SSecretTagPool::tagSrpHAMK, &temp_chunk));
 					THROW(CreateSrpPacket_Cli_HAMK(p_srp_usr, temp_chunk, tp, &srp_protocol_fault));
+					//
+					// CreateSrpPacket_Cli_HAMK должна была затолкать в пакет наш вариант времени жизни сессии
+					//
+					if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk)) {
+						if(temp_chunk.Len() == sizeof(uint32))
+							cli_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
+					}
 				}
-				THROW(p_mqbc->Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
-				// Это было завершающее сообщение. Если все OK то сервис ждет от нас команды, если нет, то можно уходить - свадьбы не будет
-				THROW(!srp_protocol_fault);
+				{
+					const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+					THROW(p_mqbc->Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+					// Это было завершающее сообщение. Если все OK то сервис ждет от нас команды, если нет, то можно уходить - свадьбы не будет
+					THROW(!srp_protocol_fault);
+					{
+						const int cmr = p_mqbc->ConsumeMessage(env, cmto);
+						THROW(cmr);
+						THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSRPHAMK, cmto);
+					}
+					p_mqbc->Ack(env.DeliveryTag, 0);
+					if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk) && temp_chunk.Len() == sizeof(uint32))
+						svc_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
+				}
 				// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
 				if(SetRoundTripBlockReplyValues(rB, p_mqbc, rpe_regular)) {
 					p_mqbc = 0;
@@ -3972,6 +3990,93 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 	return ok;
 }
 
+int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult)
+{
+	int    ok = 1;
+	SJson * p_js = 0;
+	PPView * p_view = 0;
+	PPBaseFilt * p_filt = 0;
+	DlRtm  * p_rtm = 0;
+	assert(rCmdItem.BaseCmdId == StyloQCommandList::Item::sqbcReport);
+	{
+		// @debug {
+			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
+			assert((&r_tla) != 0);
+		// } @debug
+		rResult.Z();
+		SString dl600_name(rCmdItem.Vd.GetStrucSymb());
+		uint p = 0;
+		LoadViewSymbList();
+		long   view_id = ViewSymbList.SearchByText(rCmdItem.ViewSymb, 1, &p) ? ViewSymbList.at_WithoutParent(p).Id : 0;
+		THROW_PP_S(view_id, PPERR_NAMEDFILTUNDEFVIEWID, rCmdItem.ViewSymb);
+		THROW(PPView::CreateInstance(view_id, &p_view));
+		{
+			if(rCmdItem.Param.GetAvailableSize()) {
+				THROW(PPView::ReadFiltPtr(rCmdItem.Param, &p_filt));
+			}
+			else {
+				THROW(p_filt = p_view->CreateFilt(0));
+			}
+			THROW(p_view->Init_(p_filt));
+			if(!dl600_name.NotEmptyS()) {
+				if(p_view->GetDefReportId()) {
+					SReport rpt(p_view->GetDefReportId(), 0);
+					THROW(rpt.IsValid());
+					dl600_name = rpt.getDataName();
+				}
+			}
+			{
+				DlContext ctx;
+				PPFilt f(p_view);
+				DlRtm::ExportParam ep;
+				THROW(ctx.InitSpecial(DlContext::ispcExpData));
+				THROW(ctx.CreateDlRtmInstance(dl600_name, &p_rtm));
+				ep.P_F = &f;
+				ep.Sort = 0;
+				ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
+				ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
+				SETFLAG(ep.Flags, DlRtm::ExportParam::fCompressXml, /*pNf->Flags & PPNamedFilt::fCompressXml*/0);
+				ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
+				/*
+				if(pNf->VD.GetCount() > 0)
+					ep.P_ViewDef = &pNf->VD;
+				*/
+				if(rCmdItem.Vd.GetCount()) {
+					ep.P_ViewDef = &rCmdItem.Vd;
+				}
+				ep.Cp = cpUTF8;
+				// format == SFileFormat::Json)
+				{
+					ep.Flags |= DlRtm::ExportParam::fJsonStQStyle; 
+					THROW(p_js = p_rtm->ExportJson(ep));
+					THROW_SL(json_tree_to_string(p_js, rResult));
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	delete p_rtm;
+	delete p_filt;
+	delete p_view;
+	return ok;
+}
+
+int PPStyloQInterchange::LoadViewSymbList()
+{
+	int    ok = -1;
+	if(!(State & stViewSymbListLoaded)) {
+		PPNamedFiltMngr nf_mgr;
+		if(nf_mgr.GetResourceLists(&ViewSymbList, &ViewDescrList) > 0) {
+			State |= stViewSymbListLoaded;
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent, const SBinaryChunk * pSessSecret, StyloQProtocol & rReplyPack)
 {
 	rReplyPack.Z();
@@ -4143,7 +4248,14 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 										}
 										break;
 									case StyloQCommandList::Item::sqbcReport:
-										PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
+										if(ProcessCommand_Report(temp_item, cli_pack, geopos, reply_text_buf)) {
+											cmd_reply_ok = true;
+										}
+										else {
+											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+											PPSetError(PPERR_SQ_CMDFAULT_REPORT);
+										}
+										//PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
 										break;
 									default:
 										PPSetError(PPERR_SQ_UNSUPPORTEDCMD);

@@ -160,15 +160,14 @@ static inline double sqlen(cairo_point_double_t p0, cairo_point_double_t p1)
 	return delta.x * delta.x + delta.y * delta.y;
 }
 
-static inline int16_t _color_delta_to_shifted_short(int32_t from, int32_t to, int shift)
+static inline int16 _color_delta_to_shifted_short(int32 from, int32 to, int shift)
 {
-	int32_t delta = to - from;
-	/* We need to round toward zero, because otherwise adding the
-	 * delta 2^shift times can overflow */
+	const int32 delta = to - from;
+	// We need to round toward zero, because otherwise adding the delta 2^shift times can overflow 
 	if(delta >= 0)
-		return delta >> shift;
+		return static_cast<int16>(delta >> shift);
 	else
-		return -((-delta) >> shift);
+		return static_cast<int16>(-((-delta) >> shift));
 }
 
 /*
@@ -267,7 +266,7 @@ static inline void fd_fwd(double f[4])
  *
  * i[0] is 9.23 fixed point, other differences are 4.28 fixed point.
  */
-static inline void fd_fixed(const double d[4], int32_t i[4])
+static inline void fd_fixed(const double d[4], int32 i[4])
 {
 	i[0] = _cairo_fixed_16_16_from_double(256 *  2 * d[0]);
 	i[1] = _cairo_fixed_16_16_from_double(256 * 16 * d[1]);
@@ -284,7 +283,7 @@ static inline void fd_fixed(const double d[4], int32_t i[4])
  *
  * f[0] is 9.23 fixed point, other differences are 4.28 fixed point.
  */
-static inline void fd_fixed_fwd(int32_t f[4])
+static inline void fd_fixed_fwd(int32 f[4])
 {
 	f[0] += (f[1] >> 5) + ((f[1] >> 4) & 1);
 	f[1] += f[2];
@@ -427,10 +426,10 @@ static inline int intersect_interval(double a, double b, double c, double d)
  * If the pixel to be set is outside the image, this function does
  * nothing.
  */
-static inline void draw_pixel(uchar * data, int width, int height, int stride, int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
+static inline void draw_pixel(uchar * data, int width, int height, int stride, int x, int y, uint16 r, uint16 g, uint16 b, uint16 a)
 {
 	if(LIKELY(0 <= x && 0 <= y && x < width && y < height)) {
-		uint32_t tr, tg, tb, ta;
+		uint32 tr, tg, tb, ta;
 		/* Premultiply and round */
 		ta = a;
 		tr = r * ta + 0x8000;
@@ -439,7 +438,7 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride, i
 		tr += tr >> 16;
 		tg += tg >> 16;
 		tb += tb >> 16;
-		*((uint32_t *)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) | ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
+		*((uint32 *)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) | ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
 	}
 }
 
@@ -468,17 +467,17 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride, i
  */
 static inline void rasterize_bezier_curve(uchar * data, int width, int height, int stride,
     int ushift, const double dxu[4], const double dyu[4],
-    uint16_t r0, uint16_t g0, uint16_t b0, uint16_t a0,
-    uint16_t r3, uint16_t g3, uint16_t b3, uint16_t a3)
+    uint16 r0, uint16 g0, uint16 b0, uint16 a0,
+    uint16 r3, uint16 g3, uint16 b3, uint16 a3)
 {
-	int32_t xu[4], yu[4];
+	int32 xu[4], yu[4];
 	int x0, y0, u, usteps = 1 << ushift;
 
-	uint16_t r = r0, g = g0, b = b0, a = a0;
-	int16_t dr = _color_delta_to_shifted_short(r0, r3, ushift);
-	int16_t dg = _color_delta_to_shifted_short(g0, g3, ushift);
-	int16_t db = _color_delta_to_shifted_short(b0, b3, ushift);
-	int16_t da = _color_delta_to_shifted_short(a0, a3, ushift);
+	uint16 r = r0, g = g0, b = b0, a = a0;
+	int16 dr = _color_delta_to_shifted_short(r0, r3, ushift);
+	int16 dg = _color_delta_to_shifted_short(g0, g3, ushift);
+	int16 db = _color_delta_to_shifted_short(b0, b3, ushift);
+	int16 da = _color_delta_to_shifted_short(a0, a3, ushift);
 
 	fd_fixed(dxu, xu);
 	fd_fixed(dyu, yu);

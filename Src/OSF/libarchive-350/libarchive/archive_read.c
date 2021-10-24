@@ -944,9 +944,8 @@ static int _archive_read_free(struct archive * _a)
 	}
 	/* Free the filters */
 	__archive_read_free_filters(a);
-
 	/* Release the bidder objects. */
-	n = sizeof(a->bidders)/sizeof(a->bidders[0]);
+	n = SIZEOFARRAY(a->bidders);
 	for(i = 0; i < n; i++) {
 		if(a->bidders[i].free != NULL) {
 			int r1 = (a->bidders[i].free)(&a->bidders[i]);
@@ -954,7 +953,6 @@ static int _archive_read_free(struct archive * _a)
 				r = r1;
 		}
 	}
-
 	/* Release passphrase list. */
 	p = a->passphrases.first;
 	while(p != NULL) {

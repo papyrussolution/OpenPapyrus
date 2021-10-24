@@ -510,7 +510,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 	struct _qimage_surface * surface;
 	pixman_image_t * pixman_image;
 	pixman_format_code_t pixman_format;
-	uint8_t * data;
+	uint8 * data;
 
 	if(qimg == NULL)
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
@@ -562,7 +562,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 	pixman_image = pixman_image_create_bits(pixman_format,
 		extents->width,
 		extents->height,
-		(uint32_t *)data,
+		(uint32 *)data,
 		qimg->bytesPerLine());
 	if(pixman_image == NULL) {
 		delete qimg;

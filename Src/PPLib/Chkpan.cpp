@@ -6733,26 +6733,28 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						PPError();
 				}
 				break;
+#endif // } !NDEBUG
 			case kbCtrlF12:
 				{
 					SString mark;
-					if(PPChZnPrcssr::InputMark(mark, 0) > 0) {
+					SString reconstructed_original;
+					if(PPChZnPrcssr::InputMark(mark, &reconstructed_original, 0) > 0) {
 						CCheckPacket::PreprocessChZnCodeResult chzn_result;
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
-							int r = P_CM->SyncPreprocessChZnCode(0, mark, 1.0, chzn_result);
+							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
+							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, chzn_result);
 							msg_buf.CatEq("SyncPreprocessChZnCode-result", (long)r).CR();
 							msg_buf.CatEq("check-result", (long)chzn_result.CheckResult).CR();
 							msg_buf.CatEq("reason", (long)chzn_result.Reason).CR();
 							msg_buf.CatEq("processing-result", (long)chzn_result.ProcessingResult).CR();
 							msg_buf.CatEq("processing-code", (long)chzn_result.ProcessingCode).CR();
 							msg_buf.CatEq("status", (long)chzn_result.Status).CR();
-							PPChZnPrcssr::InputMark(mark, msg_buf);
+							PPChZnPrcssr::InputMark(mark, &reconstructed_original, msg_buf);
 						}						
 					}
 				}
 				break;
-#endif // } !NDEBUG
 			case kbF2:      BARRIER(SelectGoods__(sgmNormal)); break;
 			case kbShiftF2: BARRIER(SelectGoods__(sgmAllByName)); break;
 			case kbF3:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
@@ -8599,7 +8601,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
-								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0)) > 0) {
+								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
 									int    dup_mark = chzn_mark.IsEqual(P.GetCur().ChZnMark);
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 										if(chzn_mark.IsEqual(P.at(i).ChZnMark))

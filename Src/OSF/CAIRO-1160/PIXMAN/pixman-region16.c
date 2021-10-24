@@ -34,7 +34,7 @@
 typedef pixman_box16_t		box_type_t;
 typedef pixman_region16_data_t	region_data_type_t;
 typedef pixman_region16_t	region_type_t;
-typedef int32_t                 overflow_int_t;
+typedef int32                 overflow_int_t;
 
 typedef struct {
     int x, y;

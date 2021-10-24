@@ -1076,7 +1076,7 @@ static boolint _cairo_matrix_scale_equal(cairo_matrix_t * a, cairo_matrix_t * b)
 
 static cairo_status_t _cairo_pdf_operators_begin_actualtext(cairo_pdf_operators_t * pdf_operators, const char * utf8, int utf8_len)
 {
-	uint16_t * utf16;
+	uint16 * utf16;
 	int utf16_len;
 	cairo_status_t status;
 	int i;

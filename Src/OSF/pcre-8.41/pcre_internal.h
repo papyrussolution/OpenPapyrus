@@ -1847,8 +1847,8 @@ enum {
 	1, 1, 1, 1, 1, 1,        /* *, *?, +, +?, ?, ??                    */ \
 	1+2*IMM2_SIZE, 1+2*IMM2_SIZE, /* CRRANGE, CRMINRANGE                    */ \
 	1, 1, 1, 1+2*IMM2_SIZE,  /* Possessive *+, ++, ?+, CRPOSRANGE      */ \
-	1+(32/sizeof(pcre_uchar)), /* CLASS                                  */	\
-	1+(32/sizeof(pcre_uchar)), /* NCLASS                                 */	\
+	1+(32/sizeof(pcre_uchar)), /* CLASS  */	\
+	1+(32/sizeof(pcre_uchar)), /* NCLASS */	\
 	0,                       /* XCLASS - variable length               */ \
 	1+IMM2_SIZE,             /* REF                                    */ \
 	1+IMM2_SIZE,             /* REFI                                   */ \

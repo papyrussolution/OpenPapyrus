@@ -1341,7 +1341,7 @@ namespace NArchive {
 
 		void CExtraSubBlock::PrintInfo(AString &s) const
 		{
-			for(uint i = 0; i < ARRAY_SIZE(g_ExtraTypes); i++) {
+			for(uint i = 0; i < SIZEOFARRAY(g_ExtraTypes); i++) {
 				const CUInt32PCharPair &pair = g_ExtraTypes[i];
 				if(pair.Value == ID) {
 					s += pair.Name;
@@ -5162,7 +5162,7 @@ namespace NArchive {
 							CStrongCryptoExtra f;
 							f.AlgId = 0;
 							if(extra.GetStrongCrypto(f)) {
-								const char * s = FindNameForId(k_StrongCryptoPairs, ARRAY_SIZE(k_StrongCryptoPairs), f.AlgId);
+								const char * s = FindNameForId(k_StrongCryptoPairs, SIZEOFARRAY(k_StrongCryptoPairs), f.AlgId);
 								if(s)
 									m += s;
 								else {
@@ -5234,7 +5234,7 @@ namespace NArchive {
 					uint32 flags = item.Flags;
 					flags &= ~(6); // we don't need compression related bits here.
 					if(flags != 0) {
-						AString s2 = FlagsToString(g_HeaderCharacts, ARRAY_SIZE(g_HeaderCharacts), flags);
+						AString s2 = FlagsToString(g_HeaderCharacts, SIZEOFARRAY(g_HeaderCharacts), flags);
 						if(!s2.IsEmpty()) {
 							s.Add_OptSpaced(":");
 							s.Add_OptSpaced(s2);

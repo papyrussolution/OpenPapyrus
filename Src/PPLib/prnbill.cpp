@@ -395,7 +395,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 		//
 		if(opPrnFlags & OPKF_PRT_EXTFORMFLAGS) {
 			if(clu) {
-				const LAssoc flags_to_cluster_item_list[] = {
+				const LAssocBase flags_to_cluster_item_list[] = {
 					// { 0, 0 },                //    0. Накладная //
 					{ OPKF_PRT_QCERT,      1 }, //    1. Сертификаты
 					{ OPKF_PRT_INVOICE,    2 }, //    2. Счет-фактура

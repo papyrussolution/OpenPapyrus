@@ -419,7 +419,7 @@ static void _swap_ximage_2bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint16_t * p = (uint16_t*)line;
+		uint16 * p = (uint16 *)line;
 		for(i = ximage->width; i; i--) {
 			*p = bswap_16(*p);
 			p++;
@@ -435,9 +435,9 @@ static void _swap_ximage_3bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t *)line;
+		uint8 * p = (uint8 *)line;
 		for(i = ximage->width; i; i--) {
-			uint8_t tmp;
+			uint8 tmp;
 			tmp = p[2];
 			p[2] = p[0];
 			p[0] = tmp;
@@ -454,7 +454,7 @@ static void _swap_ximage_4bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint32_t * p = (uint32_t *)line;
+		uint32 * p = (uint32 *)line;
 		for(i = ximage->width; i; i--) {
 			*p = bswap_32(*p);
 			p++;
@@ -470,7 +470,7 @@ static void _swap_ximage_nibbles(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t *)line;
+		uint8 * p = (uint8 *)line;
 		for(i = (ximage->width + 1) / 2; i; i--) {
 			*p = ((*p >> 4) & 0xf) | ((*p << 4) & ~0xf);
 			p++;
@@ -560,7 +560,7 @@ static void _swap_ximage_to_native(XImage * ximage)
 /* Given a mask, (with a single sequence of contiguous 1 bits), return
  * the number of 1 bits in 'width' and the number of 0 bits to its
  * right in 'shift'. */
-static void _characterize_field(uint32_t mask, int * width, int * shift)
+static void _characterize_field(uint32 mask, int * width, int * shift)
 {
 	*width = _cairo_popcount(mask);
 	/* The final '& 31' is to force a 0 mask to result in 0 shift. */
@@ -569,7 +569,7 @@ static void _characterize_field(uint32_t mask, int * width, int * shift)
 
 /* Convert a field of 'width' bits to 'new_width' bits with correct
  * rounding. */
-static inline uint32_t _resize_field(uint32_t field, int width, int new_width)
+static inline uint32 _resize_field(uint32 field, int width, int new_width)
 {
 	if(width == 0)
 		return 0;
@@ -578,7 +578,7 @@ static inline uint32_t _resize_field(uint32_t field, int width, int new_width)
 		return field >> (width - new_width);
 	}
 	else {
-		uint32_t result = field << (new_width - width);
+		uint32 result = field << (new_width - width);
 
 		while(width < new_width) {
 			result |= result >> width;
@@ -588,7 +588,7 @@ static inline uint32_t _resize_field(uint32_t field, int width, int new_width)
 	}
 }
 
-static inline uint32_t _adjust_field(uint32_t field, int adjustment)
+static inline uint32 _adjust_field(uint32 field, int adjustment)
 {
 	return MIN(255, MAX(0, (int)field + adjustment));
 }
@@ -599,12 +599,12 @@ static inline uint32_t _adjust_field(uint32_t field, int adjustment)
  * Note that the original field value must not have any non-field bits
  * set.
  */
-static inline uint32_t _field_to_8(uint32_t field, int width, int shift)
+static inline uint32 _field_to_8(uint32 field, int width, int shift)
 {
 	return _resize_field(field >> shift, width, 8);
 }
 
-static inline uint32_t _field_to_8_undither(uint32_t field, int width, int shift,
+static inline uint32 _field_to_8_undither(uint32 field, int width, int shift,
     int dither_adjustment)
 {
 	return _adjust_field(_field_to_8(field, width, shift), -dither_adjustment>>width);
@@ -612,19 +612,19 @@ static inline uint32_t _field_to_8_undither(uint32_t field, int width, int shift
 
 /* Given an 8-bit value, convert it to a field of 'width', shift it up
  *  to 'shift, and return it. */
-static inline uint32_t _field_from_8(uint32_t field, int width, int shift)
+static inline uint32 _field_from_8(uint32 field, int width, int shift)
 {
 	return _resize_field(field, 8, width) << shift;
 }
 
-static inline uint32_t _field_from_8_dither(uint32_t field, int width, int shift,
+static inline uint32 _field_from_8_dither(uint32 field, int width, int shift,
     int8_t dither_adjustment)
 {
 	return _field_from_8(_adjust_field(field, dither_adjustment>>width), width, shift);
 }
 
-static inline uint32_t _pseudocolor_from_rgb888_dither(cairo_xlib_visual_info_t * visual_info,
-    uint32_t r, uint32_t g, uint32_t b,
+static inline uint32 _pseudocolor_from_rgb888_dither(cairo_xlib_visual_info_t * visual_info,
+    uint32 r, uint32 g, uint32 b,
     int8_t dither_adjustment)
 {
 	if(r == g && g == b) {
@@ -639,9 +639,9 @@ static inline uint32_t _pseudocolor_from_rgb888_dither(cairo_xlib_visual_info_t 
 	}
 }
 
-static inline uint32_t _pseudocolor_to_rgb888(cairo_xlib_visual_info_t * visual_info, uint32_t pixel)
+static inline uint32 _pseudocolor_to_rgb888(cairo_xlib_visual_info_t * visual_info, uint32 pixel)
 {
-	uint32_t r, g, b;
+	uint32 r, g, b;
 	pixel &= 0xff;
 	r = visual_info->colors[pixel].r;
 	g = visual_info->colors[pixel].g;
@@ -873,10 +873,10 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 
 		cairo_format_t format;
 		uchar * data;
-		uint32_t * row;
-		uint32_t in_pixel, out_pixel;
+		uint32 * row;
+		uint32 in_pixel, out_pixel;
 		uint rowstride;
-		uint32_t a_mask = 0, r_mask = 0, g_mask = 0, b_mask = 0;
+		uint32 a_mask = 0, r_mask = 0, g_mask = 0, b_mask = 0;
 		int a_width = 0, r_width = 0, g_width = 0, b_width = 0;
 		int a_shift = 0, r_shift = 0, g_shift = 0, b_shift = 0;
 		int x, y, x0, y0, x_off, y_off;
@@ -936,7 +936,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 
 		data = cairo_image_surface_get_data(&image->base);
 		rowstride = cairo_image_surface_get_stride(&image->base) >> 2;
-		row = (uint32_t *)data;
+		row = (uint32 *)data;
 		x0 = extents->x + surface->base.device_transform.x0;
 		y0 = extents->y + surface->base.device_transform.y0;
 		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
@@ -1191,7 +1191,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 	else {
 		uint stride, rowstride;
 		int x, y, x0, y0, x_off, y_off;
-		uint32_t in_pixel, out_pixel, * row;
+		uint32 in_pixel, out_pixel, * row;
 		int i_a_width = 0, i_r_width = 0, i_g_width = 0, i_b_width = 0;
 		int i_a_shift = 0, i_r_shift = 0, i_g_shift = 0, i_b_shift = 0;
 		int o_a_width = 0, o_r_width = 0, o_g_width = 0, o_b_width = 0;
@@ -1238,7 +1238,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 		}
 
 		rowstride = image->stride >> 2;
-		row = (uint32_t *)image->data;
+		row = (uint32 *)image->data;
 		x0 = dst_x + surface->base.device_transform.x0;
 		y0 = dst_y + surface->base.device_transform.y0;
 		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
@@ -1253,20 +1253,20 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 				int a, r, g, b;
 
 				if(image_masks.bpp == 1)
-					in_pixel = !!(((uint8_t *)row)[x/8] & (1 << (x & 7)));
+					in_pixel = !!(((uint8 *)row)[x/8] & (1 << (x & 7)));
 				else if(image_masks.bpp <= 8)
-					in_pixel = ((uint8_t *)row)[x];
+					in_pixel = ((uint8 *)row)[x];
 				else if(image_masks.bpp <= 16)
-					in_pixel = ((uint16_t*)row)[x];
+					in_pixel = ((uint16 *)row)[x];
 				else if(image_masks.bpp <= 24)
 #ifdef WORDS_BIGENDIAN
-					in_pixel = ((uint8_t *)row)[3 * x] << 16 |
-					    ((uint8_t *)row)[3 * x + 1] << 8  |
-					    ((uint8_t *)row)[3 * x + 2];
+					in_pixel = ((uint8 *)row)[3 * x] << 16 |
+					    ((uint8 *)row)[3 * x + 1] << 8  |
+					    ((uint8 *)row)[3 * x + 2];
 #else
-					in_pixel = ((uint8_t *)row)[3 * x]           |
-					    ((uint8_t *)row)[3 * x + 1] << 8  |
-					    ((uint8_t *)row)[3 * x + 2] << 16;
+					in_pixel = ((uint8 *)row)[3 * x]           |
+					    ((uint8 *)row)[3 * x + 1] << 8  |
+					    ((uint8 *)row)[3 * x + 2] << 16;
 #endif
 				else
 					in_pixel = row[x];

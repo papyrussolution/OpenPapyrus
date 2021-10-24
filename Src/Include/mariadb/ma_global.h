@@ -640,7 +640,7 @@ typedef uint64 my_ulonglong;
                          (((ulonglong) ((uchar) (A)[5])) << 40))
 #define uint8korr(A)	(*((ulonglong *) (A)))
 #define sint8korr(A)	(*((longlong *) (A)))
-#define int2store(T,A)	*((uint16*) (T))= (uint16) (A)
+#define int2store(T,A)	*((uint16 *) (T))= (uint16) (A)
 #define int3store(T,A)  do { *(T)=  (uchar) ((A));\
                             *(T+1)=(uchar) (((uint) (A) >> 8));\
                             *(T+2)=(uchar) (((A) >> 16)); } while (0)

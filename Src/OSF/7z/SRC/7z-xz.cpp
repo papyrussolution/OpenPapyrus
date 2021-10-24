@@ -462,7 +462,7 @@ namespace NArchive {
 	static AString GetMethodString(const CXzFilter &f)
 	{
 		const char * p = NULL;
-		for(uint i = 0; i < ARRAY_SIZE(g_NamePairs); i++)
+		for(uint i = 0; i < SIZEOFARRAY(g_NamePairs); i++)
 			if(g_NamePairs[i].Id == f.id) {
 				p = g_NamePairs[i].Name;
 				break;
@@ -921,15 +921,15 @@ namespace NArchive {
 			RINOK(SetProperty(names[i], values[i]));
 		}
 		if(!_filterMethod.MethodName.IsEmpty()) {
-			unsigned k;
-			for(k = 0; k < ARRAY_SIZE(g_NamePairs); k++) {
+			uint k;
+			for(k = 0; k < SIZEOFARRAY(g_NamePairs); k++) {
 				const CMethodNamePair &pair = g_NamePairs[k];
 				if(sstreqi_ascii(_filterMethod.MethodName, pair.Name)) {
 					_filterId = pair.Id;
 					break;
 				}
 			}
-			if(k == ARRAY_SIZE(g_NamePairs))
+			if(k == SIZEOFARRAY(g_NamePairs))
 				return E_INVALIDARG;
 		}
 		_methods.DeleteFrontal(GetNumEmptyMethods());

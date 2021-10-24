@@ -49,18 +49,18 @@
 	#include <sys/int_types.h>
 #elif defined(_MSC_VER)
 // @sobolev typedef __int8 int8_t;
-typedef unsigned __int8 uint8_t;
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
+//typedef unsigned __int8 uint8;
+//typedef __int16 int16;
+//typedef unsigned __int16 uint16;
+//typedef __int32 int32;
+//typedef unsigned __int32 uint32;
+typedef __int64 int64;
+typedef unsigned __int64 uint64;
 #ifndef HAVE_UINT64_T
 	#define HAVE_UINT64_T 1
 #endif
 #else
-	#error Cannot find definitions for fixed-width integral types (uint8_t, uint32_t, etc.)
+	#error Cannot find definitions for fixed-width integral types (uint8, uint32, etc.)
 #endif
 #ifndef INT16_MIN
 	#define INT16_MIN      (-32767-1)
@@ -84,18 +84,18 @@ typedef unsigned __int64 uint64_t;
 	#include <byteswap.h>
 #endif
 #ifndef bswap_16
-	#define bswap_16(p) (((((uint16_t)(p)) & 0x00ff) << 8) | (((uint16_t)(p)) >> 8));
+	#define bswap_16(p) (((((uint16)(p)) & 0x00ff) << 8) | (((uint16)(p)) >> 8));
 #endif
 #ifndef bswap_32
-	#define bswap_32(p) (((((uint32_t)(p)) & 0x000000ff) << 24) | ((((uint32_t)(p)) & 0x0000ff00) << 8) | ((((uint32_t)(p)) & 0x00ff0000) >> 8) | ((((uint32_t)(p))) >> 24));
+	#define bswap_32(p) (((((uint32)(p)) & 0x000000ff) << 24) | ((((uint32)(p)) & 0x0000ff00) << 8) | ((((uint32)(p)) & 0x00ff0000) >> 8) | ((((uint32)(p))) >> 24));
 #endif
 #if !HAVE_UINT64_T
 	typedef struct _cairo_uint64 {
-		uint32_t lo, hi;
+		uint32 lo, hi;
 	} cairo_uint64_t, cairo_int64_t;
 #else
-	typedef uint64_t cairo_uint64_t;
-	typedef int64_t cairo_int64_t;
+	typedef uint64 cairo_uint64_t;
+	typedef int64 cairo_int64_t;
 #endif
 
 typedef struct _cairo_uquorem64 {

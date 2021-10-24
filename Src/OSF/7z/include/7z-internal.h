@@ -288,7 +288,7 @@ operator delete[](void *p) throw();
 */
 //
 //#include <Common.h>
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+//#define ARRAY_SIZE_Removed(a) (sizeof(a) / sizeof((a)[0]))
 // 
 // There is BUG in MSVC 6.0 compiler for operator new[]:
 // It doesn't check overflow, when it calculates size in bytes for allocated array.
@@ -4250,12 +4250,12 @@ void FlagsToProp(const CUInt32PCharPair * pairs, unsigned num, uint32 flags, NWi
 AString TypeToString(const char * const table[], unsigned num, uint32 value);
 void TypeToProp(const char * const table[], unsigned num, uint32 value, NWindows::NCOM::CPropVariant &prop);
 
-#define PAIR_TO_PROP(pairs, value, prop) PairToProp(pairs, ARRAY_SIZE(pairs), value, prop)
-#define FLAGS_TO_PROP(pairs, value, prop) FlagsToProp(pairs, ARRAY_SIZE(pairs), value, prop)
-#define TYPE_TO_PROP(table, value, prop) TypeToProp(table, ARRAY_SIZE(table), value, prop)
+#define PAIR_TO_PROP(pairs, value, prop) PairToProp(pairs, SIZEOFARRAY(pairs), value, prop)
+#define FLAGS_TO_PROP(pairs, value, prop) FlagsToProp(pairs, SIZEOFARRAY(pairs), value, prop)
+#define TYPE_TO_PROP(table, value, prop) TypeToProp(table, SIZEOFARRAY(table), value, prop)
 
 void Flags64ToProp(const CUInt32PCharPair * pairs, unsigned num, uint64 flags, NWindows::NCOM::CPropVariant &prop);
-#define FLAGS64_TO_PROP(pairs, value, prop) Flags64ToProp(pairs, ARRAY_SIZE(pairs), value, prop)
+#define FLAGS64_TO_PROP(pairs, value, prop) Flags64ToProp(pairs, SIZEOFARRAY(pairs), value, prop)
 //
 //#include <Windows/PropVariantConv.h>
 // provide at least 32 bytes for buffer including zero-end

@@ -60,8 +60,8 @@ static void dummy_composite_rect(pixman_implementation_t * imp, pixman_composite
 }
 
 void _pixman_implementation_lookup_composite(pixman_implementation_t * toplevel, pixman_op_t op,
-    pixman_format_code_t src_format, uint32_t src_flags, pixman_format_code_t mask_format, uint32_t mask_flags,
-    pixman_format_code_t dest_format, uint32_t dest_flags, pixman_implementation_t ** out_imp, pixman_composite_func_t * out_func)
+    pixman_format_code_t src_format, uint32 src_flags, pixman_format_code_t mask_format, uint32 mask_flags,
+    pixman_format_code_t dest_format, uint32 dest_flags, pixman_implementation_t ** out_imp, pixman_composite_func_t * out_func)
 {
 	pixman_implementation_t * imp;
 	int i;
@@ -140,7 +140,7 @@ update_cache:
 	}
 }
 
-static void dummy_combine(pixman_implementation_t * imp, pixman_op_t op, uint32_t * pd, const uint32_t * ps, const uint32_t * pm, int w)
+static void dummy_combine(pixman_implementation_t * imp, pixman_op_t op, uint32 * pd, const uint32 * ps, const uint32 * pm, int w)
 {
 }
 
@@ -172,8 +172,8 @@ pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implement
 }
 
 pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
-    uint32_t * src_bits,
-    uint32_t * dst_bits,
+    uint32 * src_bits,
+    uint32 * dst_bits,
     int src_stride,
     int dst_stride,
     int src_bpp,
@@ -196,8 +196,8 @@ pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
 	return FALSE;
 }
 
-pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32_t * bits,
-    int stride, int bpp, int x, int y, int width, int height, uint32_t filler)
+pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32 * bits,
+    int stride, int bpp, int x, int y, int width, int height, uint32 filler)
 {
 	while(imp) {
 		if(imp->fill && ((*imp->fill)(imp, bits, stride, bpp, x, y, width, height, filler))) {
@@ -209,17 +209,17 @@ pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32_
 	return FALSE;
 }
 
-static uint32_t * get_scanline_null(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * get_scanline_null(pixman_iter_t * iter, const uint32 * mask)
 {
 	return NULL;
 }
 
 void _pixman_implementation_iter_init(pixman_implementation_t * imp, pixman_iter_t * iter, pixman_image_t * image,
-    int x, int y, int width, int height, uint8_t * buffer, iter_flags_t iter_flags, uint32_t image_flags)
+    int x, int y, int width, int height, uint8 * buffer, iter_flags_t iter_flags, uint32 image_flags)
 {
 	pixman_format_code_t format;
 	iter->image = image;
-	iter->buffer = (uint32_t *)buffer;
+	iter->buffer = (uint32 *)buffer;
 	iter->x = x;
 	iter->y = y;
 	iter->width = width;

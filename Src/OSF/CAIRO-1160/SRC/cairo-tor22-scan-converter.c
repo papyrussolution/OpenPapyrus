@@ -264,8 +264,8 @@ typedef int grid_scaled_y_t;
 #define UNROLL3(x) x x x
 
 struct quorem {
-	int32_t quo;
-	int32_t rem;
+	int32 quo;
+	int32 rem;
 };
 
 /* Header for a chunk of memory in a memory pool. */
@@ -401,8 +401,8 @@ struct polygon {
 struct cell {
 	struct cell * next;
 	int x;
-	int16_t uncovered_area;
-	int16_t covered_height;
+	int16 uncovered_area;
+	int16 covered_height;
 };
 
 /* A cell list represents the scan line sparsely as cells ordered by
@@ -472,7 +472,7 @@ static struct quorem floored_muldivrem(int x, int a, int b)
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = static_cast<int32_t>(xa/b);
+	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;
@@ -636,7 +636,7 @@ inline static struct cell * cell_list_alloc(struct cell_list * cells, struct cel
 	cell->next = tail->next;
 	tail->next = cell;
 	cell->x = x;
-	*(uint32_t *)&cell->uncovered_area = 0;
+	*(uint32 *)&cell->uncovered_area = 0;
 	return cell;
 }
 
@@ -894,7 +894,7 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 		goto start_with_b;
 	}
 	do {
-		int32_t x = head_b->x.quo;
+		int32 x = head_b->x.quo;
 		while(head_a != NULL && head_a->x.quo <= x) {
 			prev = head_a;
 			next = &head_a->next;
@@ -1242,7 +1242,7 @@ static glitter_status_t blit_a8(struct cell_list * cells, cairo_span_renderer_t 
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0, last_cover = 0;
+	int16 cover = 0, last_cover = 0;
 	unsigned num_spans;
 	if(cell == &cells->tail)
 		return CAIRO_STATUS_SUCCESS;
@@ -1256,7 +1256,7 @@ static glitter_status_t blit_a8(struct cell_list * cells, cairo_span_renderer_t 
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 		if(x > prev_x && cover != last_cover) {
 			spans[num_spans].x = prev_x;
 			spans[num_spans].coverage = GRID_AREA_TO_ALPHA(cover);
@@ -1297,8 +1297,8 @@ static glitter_status_t blit_a1(struct cell_list * cells, cairo_span_renderer_t 
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0;
-	uint8_t coverage, last_cover = 0;
+	int16 cover = 0;
+	uint8 coverage, last_cover = 0;
 	unsigned num_spans;
 	if(cell == &cells->tail)
 		return CAIRO_STATUS_SUCCESS;
@@ -1312,7 +1312,7 @@ static glitter_status_t blit_a1(struct cell_list * cells, cairo_span_renderer_t 
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 		coverage = GRID_AREA_TO_A1(cover);
 		if(x > prev_x && coverage != last_cover) {
 			last_x = spans[num_spans].x = prev_x;

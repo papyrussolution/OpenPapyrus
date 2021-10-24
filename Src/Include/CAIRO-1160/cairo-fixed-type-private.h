@@ -41,7 +41,7 @@
 /*
  * Fixed-point configuration
  */
-typedef int32_t		cairo_fixed_16_16_t;
+typedef int32		cairo_fixed_16_16_t;
 typedef cairo_int64_t	cairo_fixed_32_32_t;
 typedef cairo_int64_t	cairo_fixed_48_16_t;
 typedef cairo_int128_t	cairo_fixed_64_64_t;
@@ -58,8 +58,8 @@ typedef cairo_int128_t	cairo_fixed_96_32_t;
 // 
 #define CAIRO_FIXED_FRAC_BITS	8
 
-typedef int32_t cairo_fixed_t; // A signed type %CAIRO_FIXED_BITS in size; the main fixed point type 
-typedef uint32_t cairo_fixed_unsigned_t; // An unsigned type of the same size as #cairo_fixed_t 
+typedef int32 cairo_fixed_t; // A signed type %CAIRO_FIXED_BITS in size; the main fixed point type 
+typedef uint32 cairo_fixed_unsigned_t; // An unsigned type of the same size as #cairo_fixed_t 
 
 typedef struct _cairo_point {
     cairo_fixed_t x;

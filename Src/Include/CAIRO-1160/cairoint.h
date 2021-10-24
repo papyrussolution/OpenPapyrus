@@ -144,7 +144,7 @@ CAIRO_BEGIN_DECLS
  * in libgcc in case a target does not have one, which should be just as
  * good as the open-coded solution below, (which is "HACKMEM 169").
  */
-static inline int cairo_const _cairo_popcount(uint32_t mask)
+static inline int cairo_const _cairo_popcount(uint32 mask)
 {
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
@@ -173,24 +173,24 @@ static cairo_always_inline boolint _cairo_is_little_endian(void)
 	#define cpu_to_be32(v) (v)
 	#define be32_to_cpu(v) (v)
 #else
-	static inline uint16_t cairo_const cpu_to_be16(uint16_t v) { return (v << 8) | (v >> 8); }
-	static inline uint16_t cairo_const be16_to_cpu(uint16_t v) { return cpu_to_be16(v); }
-	static inline uint32_t cairo_const cpu_to_be32(uint32_t v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
-	static inline uint32_t cairo_const be32_to_cpu(uint32_t v) { return cpu_to_be32(v); }
+	static inline uint16 cairo_const cpu_to_be16(uint16 v) { return (v << 8) | (v >> 8); }
+	static inline uint16 cairo_const be16_to_cpu(uint16 v) { return cpu_to_be16(v); }
+	static inline uint32 cairo_const cpu_to_be32(uint32 v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
+	static inline uint32 cairo_const be32_to_cpu(uint32 v) { return cpu_to_be32(v); }
 #endif
 
 /* Unaligned big endian access
  */
-static inline uint16_t get_unaligned_be16(const uchar * p) { return p[0] << 8 | p[1]; }
-static inline uint32_t get_unaligned_be32(const uchar * p) { return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
+static inline uint16 get_unaligned_be16(const uchar * p) { return p[0] << 8 | p[1]; }
+static inline uint32 get_unaligned_be32(const uchar * p) { return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 
-static inline void put_unaligned_be16(uint16_t v, uchar * p)
+static inline void put_unaligned_be16(uint16 v, uchar * p)
 {
 	p[0] = (v >> 8) & 0xff;
 	p[1] = v & 0xff;
 }
 
-static inline void put_unaligned_be32(uint32_t v, uchar * p)
+static inline void put_unaligned_be32(uint32 v, uchar * p)
 {
 	p[0] = (v >> 24) & 0xff;
 	p[1] = (v >> 16) & 0xff;
@@ -359,7 +359,7 @@ struct _cairo_scaled_font_backend {
 	 */
 	cairo_warn cairo_int_status_t (* text_to_glyphs) (void * scaled_font, double x, double y, const char * utf8, int utf8_len, cairo_glyph_t ** glyphs, int * num_glyphs,
 	    cairo_text_cluster_t  ** clusters, int * num_clusters, cairo_text_cluster_flags_t * cluster_flags);
-	ulong (* ucs4_to_index)(void * scaled_font, uint32_t ucs4);
+	ulong (* ucs4_to_index)(void * scaled_font, uint32 ucs4);
 	/* Read data from a sfnt font table.
 	 * @scaled_font: font
 	 * @tag: 4 byte table name specifying the table to read.
@@ -381,7 +381,7 @@ struct _cairo_scaled_font_backend {
 	cairo_warn cairo_int_status_t (* load_truetype_table)(void * scaled_font, ulong tag, long offset, uchar * buffer, ulong * length);
 	/* ucs4 is set to -1 if the unicode character could not be found
 	 * for the glyph */
-	cairo_warn cairo_int_status_t (* index_to_ucs4)(void * scaled_font, ulong index, uint32_t * ucs4);
+	cairo_warn cairo_int_status_t (* index_to_ucs4)(void * scaled_font, ulong index, uint32 * ucs4);
 	/* Determine if this scaled font differs from the outlines in the font tables.
 	 * eg synthesized bold/italic or a non default variant of a variable font.
 	 */
@@ -528,7 +528,7 @@ static inline double cairo_const _cairo_round(double r)
 	static inline int cairo_const _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
 #endif
 
-cairo_private uint16_t _cairo_half_from_float(float f) cairo_const;
+cairo_private uint16 _cairo_half_from_float(float f) cairo_const;
 cairo_private boolint FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op) cairo_const;
 cairo_private boolint FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op) cairo_const;
 
@@ -537,7 +537,7 @@ enum {
 	CAIRO_OPERATOR_BOUND_BY_SOURCE = 1 << 2,
 };
 
-cairo_private uint32_t _cairo_operator_bounded_by_either(cairo_operator_t op) cairo_const;
+cairo_private uint32 _cairo_operator_bounded_by_either(cairo_operator_t op) cairo_const;
 /* cairo-color.c */
 cairo_private const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock) cairo_pure;
 
@@ -545,10 +545,10 @@ cairo_private const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t st
 #define CAIRO_COLOR_BLACK       _cairo_stock_color(CAIRO_STOCK_BLACK)
 #define CAIRO_COLOR_TRANSPARENT _cairo_stock_color(CAIRO_STOCK_TRANSPARENT)
 
-//cairo_private uint16_t _cairo_color_double_to_short(double d) cairo_const;
-FORCEINLINE uint16_t _cairo_color_double_to_short(double d)
+//cairo_private uint16 _cairo_color_double_to_short(double d) cairo_const;
+FORCEINLINE uint16 _cairo_color_double_to_short(double d)
 {
-	return static_cast<uint16_t>(d * 65535.0 + 0.5);
+	return static_cast<uint16>(d * 65535.0 + 0.5);
 }
 cairo_private void FASTCALL _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha);
 cairo_private void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha);
@@ -578,7 +578,7 @@ cairo_private cairo_status_t _cairo_font_face_twin_create_for_toy(cairo_toy_font
 /* cairo-font-face-twin-data.c */
 
 extern const cairo_private int8_t _cairo_twin_outlines[];
-extern const cairo_private uint16_t _cairo_twin_charmap[128];
+extern const cairo_private uint16 _cairo_twin_charmap[128];
 
 /* cairo-font-options.c */
 
@@ -881,7 +881,7 @@ cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * sur
 #define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 && (format) <= CAIRO_FORMAT_RGB30)
 
 /* pixman-required stride alignment in bytes. */
-#define CAIRO_STRIDE_ALIGNMENT (sizeof(uint32_t))
+#define CAIRO_STRIDE_ALIGNMENT (sizeof(uint32))
 #define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) ((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
 #define CAIRO_CONTENT_VALID(content) ((content) && (((content) & ~(CAIRO_CONTENT_COLOR | CAIRO_CONTENT_ALPHA | CAIRO_CONTENT_COLOR_ALPHA)) == 0))
 
@@ -990,16 +990,16 @@ cairo_private void _cairo_pattern_reset_static_data(void);
 
 /* cairo-unicode.c */
 
-cairo_private int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode);
-cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written);
-cairo_private int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8);
-cairo_private int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16);
+cairo_private int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32 * unicode);
+cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32 ** result, int * items_written);
+cairo_private int _cairo_ucs4_to_utf8(uint32 unicode, char * utf8);
+cairo_private int FASTCALL _cairo_ucs4_to_utf16(uint32 unicode, uint16 * utf16);
 
 #if CAIRO_HAS_WIN32_FONT || CAIRO_HAS_QUARTZ_FONT || CAIRO_HAS_PDF_OPERATORS
 	#define CAIRO_HAS_UTF8_TO_UTF16 1
 #endif
 #if CAIRO_HAS_UTF8_TO_UTF16
-	cairo_private cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written);
+	cairo_private cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16 ** result, int * items_written);
 #endif
 
 cairo_private void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const cairo_matrix_t * b);

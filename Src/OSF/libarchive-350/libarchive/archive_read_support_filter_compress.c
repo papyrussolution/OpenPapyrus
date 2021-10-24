@@ -315,18 +315,14 @@ static int next_code(struct archive_read_filter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	int code, newcode;
-
 	static int debug_buff[1024];
 	static unsigned debug_index;
-
 	code = newcode = getbits(self, state->bits);
 	if(code < 0)
 		return (code);
-
 	debug_buff[debug_index++] = code;
-	if(debug_index >= sizeof(debug_buff)/sizeof(debug_buff[0]))
+	if(debug_index >= SIZEOFARRAY(debug_buff))
 		debug_index = 0;
-
 	/* If it's a reset code, reset the dictionary. */
 	if((code == 256) && state->use_reset_code) {
 		/*
@@ -336,8 +332,7 @@ static int next_code(struct archive_read_filter * self)
 		 * this junk.  (Yes, the number of *bytes* to skip is
 		 * a function of the current *bit* length.)
 		 */
-		int skip_bytes =  state->bits -
-		    (state->bytes_in_section % state->bits);
+		int skip_bytes =  state->bits - (state->bytes_in_section % state->bits);
 		skip_bytes %= state->bits;
 		state->bits_avail = 0; /* Discard rest of this byte. */
 		while(skip_bytes-- > 0) {

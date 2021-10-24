@@ -48,12 +48,11 @@ void ma_format_win32_error(char* buf, size_t buflen, DWORD code, _Printf_format_
 		return;
 	static struct map_entry {
 		DWORD code;
-		const char* sym;
-		const char* msg;
+		const char * sym;
+		const char * msg;
 	}
 	map[] = {
-#define ENTRY(x, y) {x,#x, y \
-}
+#define ENTRY(x, y) { (DWORD)x, #x, y }
 		ENTRY(SEC_E_WRONG_PRINCIPAL, "The target principal name is incorrect"),
 		ENTRY(CERT_E_CN_NO_MATCH, "The certificate's CN name does not match the passed value"),
 		ENTRY(SEC_E_UNTRUSTED_ROOT, "The certificate chain was issued by an authority that is not trusted"),
@@ -98,7 +97,7 @@ void ma_format_win32_error(char* buf, size_t buflen, DWORD code, _Printf_format_
 		strncpy_s(cur, end-cur, ". ", _TRUNCATE);
 		cur += 2;
 	}
-	for(size_t i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(map); i++) {
 		if(code == map[i].code) {
 			entry = &map[i];
 			break;

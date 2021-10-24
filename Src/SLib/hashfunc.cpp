@@ -423,12 +423,12 @@ uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
    rotates.
 */
 #define BobJencHash_Mix(a, b, c) { \
-	a -= c;  a ^= _rotl(c, 4);  c += b; \
-	b -= a;  b ^= _rotl(a, 6);  a += c; \
-	c -= b;  c ^= _rotl(b, 8);  b += a; \
-	a -= c;  a ^= _rotl(c, 16);  c += b; \
-	b -= a;  b ^= _rotl(a, 19);  a += c; \
-	c -= b;  c ^= _rotl(b, 4);  b += a; \
+	a -= c;  a ^= /*_rotl*/slrotl32(c, 4);  c += b; \
+	b -= a;  b ^= /*_rotl*/slrotl32(a, 6);  a += c; \
+	c -= b;  c ^= /*_rotl*/slrotl32(b, 8);  b += a; \
+	a -= c;  a ^= /*_rotl*/slrotl32(c, 16);  c += b; \
+	b -= a;  b ^= /*_rotl*/slrotl32(a, 19);  a += c; \
+	c -= b;  c ^= /*_rotl*/slrotl32(b, 4);  b += a; \
 }
 /*
    BobJencHash_Final -- final mixing of 3 32-bit values (a,b,c) into c
@@ -452,13 +452,13 @@ uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
    11  8 15 26 3 22 24
 */
 #define BobJencHash_Final(a, b, c) { \
-	c ^= b; c -= _rotl(b, 14); \
-	a ^= c; a -= _rotl(c, 11); \
-	b ^= a; b -= _rotl(a, 25); \
-	c ^= b; c -= _rotl(b, 16); \
-	a ^= c; a -= _rotl(c, 4);	 \
-	b ^= a; b -= _rotl(a, 14); \
-	c ^= b; c -= _rotl(b, 24); \
+	c ^= b; c -= /*_rotl*/slrotl32(b, 14); \
+	a ^= c; a -= /*_rotl*/slrotl32(c, 11); \
+	b ^= a; b -= /*_rotl*/slrotl32(a, 25); \
+	c ^= b; c -= /*_rotl*/slrotl32(b, 16); \
+	a ^= c; a -= /*_rotl*/slrotl32(c, 4);	 \
+	b ^= a; b -= /*_rotl*/slrotl32(a, 14); \
+	c ^= b; c -= /*_rotl*/slrotl32(b, 24); \
 }
 //
 // This works on all machines.  To be useful, it requires
@@ -1347,11 +1347,11 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	for(i = -nblocks; i; i++) {
 		uint32 k1 = getblock(p_blocks, i);
 		k1 *= c1;
-		k1 = _rotl(k1, 15);
+		k1 = /*_rotl*/slrotl32(k1, 15);
 		k1 *= c2;
     
 		h1 ^= k1;
-		h1 = _rotl(h1, 13); 
+		h1 = /*_rotl*/slrotl32(h1, 13); 
 		h1 = h1*5+0xe6546b64;
 	}
 	// tail
@@ -1363,7 +1363,7 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 		case 1: 
 			k1 ^= p_tail[0];
 			k1 *= c1; 
-			k1 = _rotl(k1, 15); 
+			k1 = /*_rotl*/slrotl32(k1, 15); 
 			k1 *= c2; 
 			h1 ^= k1;
 	};
@@ -1394,14 +1394,38 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 		uint32 k2 = getblock(blocks,i*4+1);
 		uint32 k3 = getblock(blocks,i*4+2);
 		uint32 k4 = getblock(blocks,i*4+3);
-		k1 *= c1; k1  = _rotl(k1,15); k1 *= c2; h1 ^= k1;
-		h1 = _rotl(h1,19); h1 += h2; h1 = h1*5+0x561ccd1b;
-		k2 *= c2; k2  = _rotl(k2,16); k2 *= c3; h2 ^= k2;
-		h2 = _rotl(h2,17); h2 += h3; h2 = h2*5+0x0bcaa747;
-		k3 *= c3; k3  = _rotl(k3,17); k3 *= c4; h3 ^= k3;
-		h3 = _rotl(h3,15); h3 += h4; h3 = h3*5+0x96cd1c35;
-		k4 *= c4; k4  = _rotl(k4,18); k4 *= c1; h4 ^= k4;
-		h4 = _rotl(h4,13); h4 += h1; h4 = h4*5+0x32ac3b17;
+		k1 *= c1; 
+		k1  = slrotl32(k1,15); 
+		k1 *= c2; 
+		h1 ^= k1;
+		
+		h1 = slrotl32(h1,19); 
+		h1 += h2; 
+		h1 = h1*5+0x561ccd1b;
+		
+		k2 *= c2; 
+		k2  = slrotl32(k2,16); 
+		k2 *= c3; 
+		h2 ^= k2;
+		
+		h2 = slrotl32(h2,17); 
+		h2 += h3; 
+		h2 = h2*5+0x0bcaa747;
+		
+		k3 *= c3; 
+		k3  = slrotl32(k3,17); 
+		k3 *= c4; 
+		h3 ^= k3;
+		h3 = slrotl32(h3,15); 
+		h3 += h4; 
+		h3 = h3*5+0x96cd1c35;
+		k4 *= c4; 
+		k4  = slrotl32(k4,18); 
+		k4 *= c1; 
+		h4 ^= k4;
+		h4 = slrotl32(h4,13); 
+		h4 += h1; 
+		h4 = h4*5+0x32ac3b17;
 	}
 	//----------
 	// tail
@@ -1413,19 +1437,19 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	switch(len & 15) {
 		case 15: k4 ^= p_tail[14] << 16;
 		case 14: k4 ^= p_tail[13] << 8;
-		case 13: k4 ^= p_tail[12] << 0; k4 *= c4; k4  = _rotl(k4,18); k4 *= c1; h4 ^= k4;
+		case 13: k4 ^= p_tail[12] << 0; k4 *= c4; k4  = slrotl32(k4,18); k4 *= c1; h4 ^= k4;
 		case 12: k3 ^= p_tail[11] << 24;
 		case 11: k3 ^= p_tail[10] << 16;
 		case 10: k3 ^= p_tail[ 9] << 8;
-		case  9: k3 ^= p_tail[ 8] << 0; k3 *= c3; k3  = _rotl(k3,17); k3 *= c4; h3 ^= k3;
+		case  9: k3 ^= p_tail[ 8] << 0; k3 *= c3; k3  = slrotl32(k3,17); k3 *= c4; h3 ^= k3;
 		case  8: k2 ^= p_tail[ 7] << 24;
 		case  7: k2 ^= p_tail[ 6] << 16;
 		case  6: k2 ^= p_tail[ 5] << 8;
-		case  5: k2 ^= p_tail[ 4] << 0; k2 *= c2; k2  = _rotl(k2,16); k2 *= c3; h2 ^= k2;
+		case  5: k2 ^= p_tail[ 4] << 0; k2 *= c2; k2  = slrotl32(k2,16); k2 *= c3; h2 ^= k2;
 		case  4: k1 ^= p_tail[ 3] << 24;
 		case  3: k1 ^= p_tail[ 2] << 16;
 		case  2: k1 ^= p_tail[ 1] << 8;
-		case  1: k1 ^= p_tail[ 0] << 0; k1 *= c1; k1  = _rotl(k1,15); k1 *= c2; h1 ^= k1;
+		case  1: k1 ^= p_tail[ 0] << 0; k1 *= c1; k1  = slrotl32(k1,15); k1 *= c2; h1 ^= k1;
 	};
 	//----------
 	// finalization
@@ -1469,10 +1493,20 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	for(i = 0; i < nblocks; i++) {
 		uint64 k1 = getblock(blocks,i*2+0);
 		uint64 k2 = getblock(blocks,i*2+1);
-		k1 *= c1; k1  = _rotl64(k1,31); k1 *= c2; h1 ^= k1;
-		h1 = _rotl64(h1,27); h1 += h2; h1 = h1*5+0x52dce729;
-		k2 *= c2; k2  = _rotl64(k2,33); k2 *= c1; h2 ^= k2;
-		h2 = _rotl64(h2,31); h2 += h1; h2 = h2*5+0x38495ab5;
+		k1 *= c1; 
+		k1  = slrotl64(k1,31); 
+		k1 *= c2; 
+		h1 ^= k1;
+		h1 = slrotl64(h1,27); 
+		h1 += h2; 
+		h1 = h1*5+0x52dce729;
+		k2 *= c2; 
+		k2  = slrotl64(k2,33); 
+		k2 *= c1; 
+		h2 ^= k2;
+		h2 = slrotl64(h2,31); 
+		h2 += h1; 
+		h2 = h2*5+0x38495ab5;
 	}
 	//----------
 	// tail
@@ -1486,7 +1520,7 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 		case 12: k2 ^= (uint64)(p_tail[11]) << 24;
 		case 11: k2 ^= (uint64)(p_tail[10]) << 16;
 		case 10: k2 ^= (uint64)(p_tail[ 9]) << 8;
-		case  9: k2 ^= (uint64)(p_tail[ 8]) << 0; k2 *= c2; k2  = _rotl64(k2,33); k2 *= c1; h2 ^= k2;
+		case  9: k2 ^= (uint64)(p_tail[ 8]) << 0; k2 *= c2; k2  = slrotl64(k2,33); k2 *= c1; h2 ^= k2;
 
 		case  8: k1 ^= (uint64)(p_tail[ 7]) << 56;
 		case  7: k1 ^= (uint64)(p_tail[ 6]) << 48;
@@ -1495,7 +1529,7 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 		case  4: k1 ^= (uint64)(p_tail[ 3]) << 24;
 		case  3: k1 ^= (uint64)(p_tail[ 2]) << 16;
 		case  2: k1 ^= (uint64)(p_tail[ 1]) << 8;
-		case  1: k1 ^= (uint64)(p_tail[ 0]) << 0; k1 *= c1; k1  = _rotl64(k1, 31); k1 *= c2; h1 ^= k1;
+		case  1: k1 ^= (uint64)(p_tail[ 0]) << 0; k1 *= c1; k1  = slrotl64(k1, 31); k1 *= c2; h1 ^= k1;
 	};
 	// finalization
 	h1 ^= len; h2 ^= len;
@@ -2287,21 +2321,26 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 // 
 // Helper functions.
 // 
-#define SHA1_ROTATE(bits, word)  (((word) << (bits)) | ((word) >> (32 - (bits))))
+//#define SHA1_ROTATE(bits, word)  (((word) << (bits)) | ((word) >> (32 - (bits))))
 #define SHA1_F1(b, c, d)  (((b) & (c)) | ((~(b)) & (d)))
 #define SHA1_F2(b, c, d)  ((b) ^ (c) ^ (d))
 #define SHA1_F3(b, c, d)  (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
-#define SHA1_STEP(f, a, b, c, d, e, w, t) temp = SHA1_ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = SHA1_ROTATE(30, (b)); (b) = (a); (a) = temp;
+//#define SHA1_STEP(f, a, b, c, d, e, w, t) temp = SHA1_ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = SHA1_ROTATE(30, (b)); (b) = (a); (a) = temp;
+#define SHA1_STEP(f, a, b, c, d, e, w, t) temp = slrotl32((a), 5) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = slrotl32((b), 30); (b) = (a); (a) = temp;
 //
 #define sHA256_BLOCK_SIZE 64
+#define SHA512_BLOCK_SIZE 128
+
 #define SHA256_STORE32H(x, y) { (y)[0] = (uint8)(((x)>>24)&255); (y)[1] = (uint8)(((x)>>16)&255); (y)[2] = (uint8)(((x)>>8)&255); (y)[3] = (uint8)((x)&255); }
 #define SHA256_LOAD32H(x, y)  { x = ((uint32)((y)[0] & 255)<<24) | ((uint32)((y)[1] & 255)<<16) | ((uint32)((y)[2] & 255)<<8) | ((uint32)((y)[3] & 255)); }
 #define SHA256_STORE64H(x, y) { (y)[0] = (uint8)(((x)>>56)&255); (y)[1] = (uint8)(((x)>>48)&255); (y)[2] = (uint8)(((x)>>40)&255); (y)[3] = (uint8)(((x)>>32)&255); \
 	(y)[4] = (uint8)(((x)>>24)&255); (y)[5] = (uint8)(((x)>>16)&255); (y)[6] = (uint8)(((x)>>8)&255); (y)[7] = (uint8)((x)&255); }
-#define SHA256_ror(value, bits) (((value) >> (bits)) | ((value) << (32 - (bits))))
+//#define SHA256_ror(value, bits) (((value) >> (bits)) | ((value) << (32 - (bits))))
+//#define SHA256_ror(value, bits) slrotr32(value, bits)
+
 #define SHA256_Ch(x, y, z)     (z ^ (x & (y ^ z)))
 #define SHA256_Maj(x, y, z)    (((x | y) & z) | (x & y))
-#define SHA256_S(x, n)         SHA256_ror((x), (n))
+#define SHA256_S(x, n)         slrotr32((x), (n))
 #define SHA256_R(x, n)         (((x)&0xFFFFFFFFUL)>>(n))
 #define SHA256_Sigma0(x)       (SHA256_S(x, 2) ^ SHA256_S(x, 13) ^ SHA256_S(x, 22))
 #define SHA256_Sigma1(x)       (SHA256_S(x, 6) ^ SHA256_S(x, 11) ^ SHA256_S(x, 25))
@@ -2312,6 +2351,32 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 	t0 = h + SHA256_Sigma1(e) + SHA256_Ch(e, f, g) + K[i] + W[i];   \
 	t1 = SHA256_Sigma0(a) + SHA256_Maj(a, b, c);                    \
 	d += t0;                                          \
+	h  = t0 + t1;
+
+
+//#define ROR64(value, bits) (((value) >> (bits)) | ((value) << (64 - (bits))))
+//#define ROR64(value, bits) slrotr64(value, bits)
+#define SHA512_LOAD64H(x, y) { x = (((uint64)((y)[0] & 255))<<56)|(((uint64)((y)[1] & 255))<<48) | \
+	(((uint64)((y)[2] & 255))<<40)|(((uint64)((y)[3] & 255))<<32) | (((uint64)((y)[4] & 255))<<24)|(((uint64)((y)[5] & 255))<<16) | \
+	(((uint64)((y)[6] & 255))<<8)|(((uint64)((y)[7] & 255))); }
+
+#define SHA512_STORE64H(x, y) { (y)[0] = (uint8)(((x)>>56)&255); (y)[1] = (uint8)(((x)>>48)&255);     \
+	(y)[2] = (uint8)(((x)>>40)&255); (y)[3] = (uint8)(((x)>>32)&255); (y)[4] = (uint8)(((x)>>24)&255); (y)[5] = (uint8)(((x)>>16)&255); \
+	(y)[6] = (uint8)(((x)>>8)&255); (y)[7] = (uint8)((x)&255); }
+
+#define SHA512_Ch(x, y, z)     (z ^ (x & (y ^ z)))
+#define SHA512_Maj(x, y, z)     (((x | y) & z) | (x & y))
+#define SHA512_S(x, n)         slrotr64(x, n)
+#define SHA512_R(x, n)         (((x)&0xFFFFFFFFFFFFFFFFULL)>>((uint64)n))
+#define SHA512_Sigma0(x)       (SHA512_S(x, 28) ^ SHA512_S(x, 34) ^ SHA512_S(x, 39))
+#define SHA512_Sigma1(x)       (SHA512_S(x, 14) ^ SHA512_S(x, 18) ^ SHA512_S(x, 41))
+#define SHA512_Gamma0(x)       (SHA512_S(x, 1)  ^ SHA512_S(x, 8)  ^ SHA512_R(x, 7))
+#define SHA512_Gamma1(x)       (SHA512_S(x, 19) ^ SHA512_S(x, 61) ^ SHA512_R(x, 6))
+
+#define Sha512Round(a, b, c, d, e, f, g, h, i) \
+	t0 = h + SHA512_Sigma1(e) + SHA512_Ch(e, f, g) + K[i] + W[i];   \
+	t1 = SHA512_Sigma0(a) + SHA512_Maj(a, b, c); \
+	d += t0; \
 	h  = t0 + t1;
 // 
 // This processes one or more 64-byte data blocks, but does not update
@@ -2344,7 +2409,8 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 		}
 		#undef SHA1_GET
 		for(i = 16; i < 80; i++) {
-			words[i] = SHA1_ROTATE(1, words[i-3] ^ words[i-8] ^ words[i-14] ^ words[i-16]);
+			//words[i] = SHA1_ROTATE(1, words[i-3] ^ words[i-8] ^ words[i-14] ^ words[i-16]);
+			words[i] = slrotl32(words[i-3] ^ words[i-8] ^ words[i-14] ^ words[i-16], 1);
 		}
 		// Transformations 
 		SHA1_STEP(SHA1_F1, a, b, c, d, e, words[0],  0x5a827999);
@@ -2678,7 +2744,159 @@ void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 	return result;
 }
 
+//
+//  TransformFunction
+//  Compress 1024-bits
+//
+/*static*/void SlHash::__Sha512TransformHelper(State::Sha512Ctx * pCtx, const void * pBuffer)
+{
+	static const uint64 K[80] = { // The K array
+		0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
+		0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL, 0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
+		0xd807aa98a3030242ULL, 0x12835b0145706fbeULL, 0x243185be4ee4b28cULL, 0x550c7dc3d5ffb4e2ULL,
+		0x72be5d74f27b896fULL, 0x80deb1fe3b1696b1ULL, 0x9bdc06a725c71235ULL, 0xc19bf174cf692694ULL,
+		0xe49b69c19ef14ad2ULL, 0xefbe4786384f25e3ULL, 0x0fc19dc68b8cd5b5ULL, 0x240ca1cc77ac9c65ULL,
+		0x2de92c6f592b0275ULL, 0x4a7484aa6ea6e483ULL, 0x5cb0a9dcbd41fbd4ULL, 0x76f988da831153b5ULL,
+		0x983e5152ee66dfabULL, 0xa831c66d2db43210ULL, 0xb00327c898fb213fULL, 0xbf597fc7beef0ee4ULL,
+		0xc6e00bf33da88fc2ULL, 0xd5a79147930aa725ULL, 0x06ca6351e003826fULL, 0x142929670a0e6e70ULL,
+		0x27b70a8546d22ffcULL, 0x2e1b21385c26c926ULL, 0x4d2c6dfc5ac42aedULL, 0x53380d139d95b3dfULL,
+		0x650a73548baf63deULL, 0x766a0abb3c77b2a8ULL, 0x81c2c92e47edaee6ULL, 0x92722c851482353bULL,
+		0xa2bfe8a14cf10364ULL, 0xa81a664bbc423001ULL, 0xc24b8b70d0f89791ULL, 0xc76c51a30654be30ULL,
+		0xd192e819d6ef5218ULL, 0xd69906245565a910ULL, 0xf40e35855771202aULL, 0x106aa07032bbd1b8ULL,
+		0x19a4c116b8d2d0c8ULL, 0x1e376c085141ab53ULL, 0x2748774cdf8eeb99ULL, 0x34b0bcb5e19b48a8ULL,
+		0x391c0cb3c5c95a63ULL, 0x4ed8aa4ae3418acbULL, 0x5b9cca4f7763e373ULL, 0x682e6ff3d6b2b8a3ULL,
+		0x748f82ee5defb2fcULL, 0x78a5636f43172f60ULL, 0x84c87814a1f0ab72ULL, 0x8cc702081a6439ecULL,
+		0x90befffa23631e28ULL, 0xa4506cebde82bde9ULL, 0xbef9a3f7b2c67915ULL, 0xc67178f2e372532bULL,
+		0xca273eceea26619cULL, 0xd186b8c721c0c207ULL, 0xeada7dd6cde0eb1eULL, 0xf57d4f7fee6ed178ULL,
+		0x06f067aa72176fbaULL, 0x0a637dc5a2c898a6ULL, 0x113f9804bef90daeULL, 0x1b710b35131c471bULL,
+		0x28db77f523047d84ULL, 0x32caab7b40c72493ULL, 0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
+		0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
+	};
+	uint64 S[8];
+	uint64 W[80];
+	uint64 t0;
+	uint64 t1;
+	int i;
+	// Copy state into S
+	for(i = 0; i < 8; i++) {
+		S[i] = pCtx->H[i];
+	}
+	// Copy the state into 1024-bits into W[0..15]
+	for(i = 0; i < 16; i++) {
+		SHA512_LOAD64H(W[i], PTR8C(pBuffer) + (8*i));
+	}
+	// Fill W[16..79]
+	for(i = 16; i < 80; i++) {
+		W[i] = SHA512_Gamma1(W[i - 2]) + W[i - 7] + SHA512_Gamma0(W[i - 15]) + W[i - 16];
+	}
+	// Compress
+	for(i = 0; i < 80; i += 8) {
+		Sha512Round(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i+0);
+		Sha512Round(S[7], S[0], S[1], S[2], S[3], S[4], S[5], S[6], i+1);
+		Sha512Round(S[6], S[7], S[0], S[1], S[2], S[3], S[4], S[5], i+2);
+		Sha512Round(S[5], S[6], S[7], S[0], S[1], S[2], S[3], S[4], i+3);
+		Sha512Round(S[4], S[5], S[6], S[7], S[0], S[1], S[2], S[3], i+4);
+		Sha512Round(S[3], S[4], S[5], S[6], S[7], S[0], S[1], S[2], i+5);
+		Sha512Round(S[2], S[3], S[4], S[5], S[6], S[7], S[0], S[1], i+6);
+		Sha512Round(S[1], S[2], S[3], S[4], S[5], S[6], S[7], S[0], i+7);
+	}
+	// Feedback
+	for(i = 0; i < 8; i++) {
+		pCtx->H[i] = pCtx->H[i] + S[i];
+	}
+}
+
+/*static*/binary512 STDCALL SlHash::Sha512(State * pS, const void * pData, size_t dataLen)
+{
+	binary512 result;
+	if(!pS) {
+		State st;
+		result = Sha512(&st, pData, dataLen); // @recursion
+		if(pData && dataLen)
+			result = Sha512(&st, 0, 0); // @recursion
+	}
+	else {
+		State::Sha512Ctx & r_ctx = pS->Result.Sha512;
+		if(pS->Flags & pS->fEmpty) {
+			r_ctx.Num = 0;
+			r_ctx.Count = 0;
+			r_ctx.H[0] = 0x6a09e667f3bcc908ULL;
+			r_ctx.H[1] = 0xbb67ae8584caa73bULL;
+			r_ctx.H[2] = 0x3c6ef372fe94f82bULL;
+			r_ctx.H[3] = 0xa54ff53a5f1d36f1ULL;
+			r_ctx.H[4] = 0x510e527fade682d1ULL;
+			r_ctx.H[5] = 0x9b05688c2b3e6c1fULL;
+			r_ctx.H[6] = 0x1f83d9abfb41bd6bULL;
+			r_ctx.H[7] = 0x5be0cd19137e2179ULL;
+			pS->Flags &= ~pS->fEmpty;
+		}
+		if(pData && dataLen) {
+			if(r_ctx.Num <= sizeof(r_ctx.Data)) {
+				while(dataLen > 0) {
+					if(r_ctx.Num == 0 && dataLen >= SHA512_BLOCK_SIZE) {
+						__Sha512TransformHelper(&r_ctx, PTR8C(pData));
+						r_ctx.Count += (SHA512_BLOCK_SIZE * 8);
+						pData = PTR8C(pData) + SHA512_BLOCK_SIZE;
+						dataLen -= SHA512_BLOCK_SIZE;
+					}
+					else {
+						uint32 n = MIN(dataLen, (SHA512_BLOCK_SIZE - r_ctx.Num));
+						memcpy(r_ctx.Data + r_ctx.Num, pData, (size_t)n);
+						r_ctx.Num += n;
+						pData = PTR8C(pData) + n;
+						dataLen -= n;
+						if(r_ctx.Num == SHA512_BLOCK_SIZE) {
+							__Sha512TransformHelper(&r_ctx, r_ctx.Data);
+							r_ctx.Count += (8 * SHA512_BLOCK_SIZE);
+							r_ctx.Num = 0;
+						}
+					}
+				}
+			}
+		}
+		else { // final
+			if(r_ctx.Num < sizeof(r_ctx.Data)) {
+				// Increase the length of the message
+				r_ctx.Count += (r_ctx.Num * 8ULL);
+				// Append the '1' bit
+				r_ctx.Data[r_ctx.Num++] = (uint8)0x80;
+				// If the length is currently above 112 bytes we append zeros
+				// then compress.  Then we can fall back to padding zeros and length
+				// encoding like normal.
+				if(r_ctx.Num > 112) {
+					while(r_ctx.Num < 128) {
+						r_ctx.Data[r_ctx.Num++] = 0;
+					}
+					__Sha512TransformHelper(&r_ctx, r_ctx.Data);
+					r_ctx.Num = 0;
+				}
+				// Pad up to 120 bytes of zeroes
+				// note: that from 112 to 120 is the 64 MSB of the length.  We assume that you won't hash
+				// > 2^64 bits of data... :-)
+				while(r_ctx.Num < 120) {
+					r_ctx.Data[r_ctx.Num++] = 0;
+				}
+				// Store length
+				SHA512_STORE64H(r_ctx.Count, r_ctx.Data+120);
+				__Sha512TransformHelper(&r_ctx, r_ctx.Data);
+			}
+			// Copy output
+			for(int i = 0; i < 8; i++) {
+				SHA512_STORE64H(r_ctx.H[i], PTR8(&result) + (8*i));
+			}
+			r_ctx.Z();
+		}
+	}
+	return result;
+}
+
 SlHash::State::ShaCtx & SlHash::State::ShaCtx::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+SlHash::State::Sha512Ctx & SlHash::State::Sha512Ctx::Z()
 {
 	THISZERO();
 	return *this;
@@ -2807,10 +3025,11 @@ void TestCRC()
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const void * p_src_buf = p_item->In.GetBufC();
-			uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-			PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-			PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-			PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+			//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+			//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+			//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+			//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+			uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 			{
 				uint32 r = SlHash::CRC32(0, p_src_buf, src_size);
 				assert(r == pattern_value);
@@ -2837,10 +3056,11 @@ void TestCRC()
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const void * p_src_buf = p_item->In.GetBufC();
-			uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-			PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-			PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-			PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+			//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+			//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+			//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+			//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+			uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 			{
 				uint32 r = SlHash::Adler32(0, p_src_buf, src_size);
 				assert(r == pattern_value);
@@ -3863,6 +4083,36 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 	return ok;
 }
 
+template <typename T> void TestSlHashFunc(STestCase & rTc, T (STDCALL * hashFunc)(SlHash::State * pS, const void * pData, size_t dataLen),
+	const SString & rDataTrasformPath, const char * pTestVecFileName, const char * pTestVec)
+{
+	SString in_file_name;
+	TSCollection <BdtTestItem> data_set;
+	(in_file_name = rDataTrasformPath).Cat(pTestVecFileName);
+	data_set.freeAll();
+	ReadBdtTestData(in_file_name, pTestVec, data_set);
+	for(uint i = 0; i < data_set.getCount(); i++) {
+		const BdtTestItem * p_item = data_set.at(i);
+		const size_t src_size = p_item->In.GetLen();
+		const void * p_src_buf = p_item->In.GetBufC();
+		const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+		const T s1 = hashFunc(0, p_src_buf, src_size);
+		rTc.SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+		if(src_size > 10) {
+			SlHash::State st;
+			size_t total_sz = 0;
+			uint32 r = 0;
+			for(size_t ps = 1; total_sz < src_size; ps++) {
+				hashFunc(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+				total_sz += ps;
+			}
+			T s2 = hashFunc(&st, 0, 0); // finalize
+			rTc.SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+			rTc.SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+		}
+	}
+}
+
 SLTEST_R(BDT)
 {
 	int    ok = 1;
@@ -3911,10 +4161,11 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-				PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-				PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-				PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+				//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 				SLTEST_CHECK_EQ(SlHash::CRC32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
 					SlHash::State st;
@@ -3936,10 +4187,11 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-				PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-				PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-				PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
+				//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 				SLTEST_CHECK_EQ(SlHash::Adler32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
 					SlHash::State st;
@@ -3953,7 +4205,17 @@ SLTEST_R(BDT)
 				}
 			}
 		}
-		{ // MD5
+		{
+			//
+			// С алгоритмами adler32 и crc32 не получается использовать TestSlHashFunc из-за того,
+			// что тестовые векторы хранят результаты в перевернутом виде (see above)
+			//
+			TestSlHashFunc<binary128>(*this, SlHash::Md5,     data_trasform_path, "md5.vec", "MD5");
+			TestSlHashFunc<binary160>(*this, SlHash::Sha1,    data_trasform_path, "sha1.vec", "SHA-160");
+			TestSlHashFunc<binary256>(*this, SlHash::Sha256,  data_trasform_path, "sha2_32.vec", "SHA-256");
+			TestSlHashFunc<binary512>(*this, SlHash::Sha512,  data_trasform_path, "sha2_64.vec", "SHA-512");
+		}
+		/*{ // MD5
 			(in_file_name = data_trasform_path).Cat("md5.vec");
 			data_set.freeAll();
 			ReadBdtTestData(in_file_name, "MD5", data_set);
@@ -3979,8 +4241,8 @@ SLTEST_R(BDT)
 					SLTEST_CHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
 				}
 			}
-		}
-		{ // SHA-1
+		}*/
+		/*{ // SHA-1
 			(in_file_name = data_trasform_path).Cat("sha1.vec");
 			data_set.freeAll();
 			ReadBdtTestData(in_file_name, "SHA-160", data_set);
@@ -4006,7 +4268,7 @@ SLTEST_R(BDT)
 					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
 			}
-		}
+		}*/
 		{ // SHA-1 Дополнительный тест по образцам библиотеки jbig2dec для элиминации локальной реализации
 			static char * jbig2dec_test_data[] = {
 				"abc",
@@ -4043,7 +4305,7 @@ SLTEST_R(BDT)
 				SLTEST_CHECK_NZ(hex.IsEqual(jbig2dec_test_results[i]));
 			}
 		}
-		{ // SHA-256
+		/*{ // SHA-256
 			(in_file_name = data_trasform_path).Cat("sha2_32.vec");
 			data_set.freeAll();
 			ReadBdtTestData(in_file_name, "SHA-256", data_set);
@@ -4067,7 +4329,32 @@ SLTEST_R(BDT)
 					SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
 				}
 			}
-		}
+		}*/
+		/*{ // SHA-512
+			(in_file_name = data_trasform_path).Cat("sha2_64.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "SHA-512", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+				const binary512 s1 = SlHash::Sha512(0, p_src_buf, src_size);
+				SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					uint32 r = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::Sha512(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					binary512 s2 = SlHash::Sha512(&st, 0, 0); // finalize
+					SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+					SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+				}
+			}
+		}*/
 	}
 	{
 		// CRC32
@@ -4687,10 +4974,10 @@ static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, ui
 	for(int i = 0; i < nblocks; i++) {
 		uint32 k = blocks[i];
 		k *= c1;
-		k = _rotl(k, r1);
+		k = /*_rotl*/slrotl32(k, r1);
 		k *= c2;
 		hash ^= k;
-		hash = _rotl(hash, r2) * m + n;
+		hash = /*_rotl*/slrotl32(hash, r2) * m + n;
 	}
 	const uint8 * tail = (const uint8 *)(key + nblocks * 4);
 	uint32 k1 = 0;
@@ -4702,7 +4989,7 @@ static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, ui
 		case 1:
 			k1 ^= tail[0];
 			k1 *= c1;
-			k1 = _rotl(k1, r1);
+			k1 = /*_rotl*/slrotl32(k1, r1);
 			k1 *= c2;
 			hash ^= k1;
 	}

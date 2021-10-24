@@ -249,9 +249,9 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 				r.height = _cairo_fixed_integer_part(b->p2.y) - r.y;
 
 				if(shm->pixman_format != image->pixman_format ||
-				    !pixman_blt((uint32_t *)image->data, (uint32_t *)shm->data,
-				    image->stride / sizeof(uint32_t),
-				    shm->stride / sizeof(uint32_t),
+				    !pixman_blt((uint32 *)image->data, (uint32 *)shm->data,
+				    image->stride / sizeof(uint32),
+				    shm->stride / sizeof(uint32),
 				    PIXMAN_FORMAT_BPP(image->pixman_format),
 				    PIXMAN_FORMAT_BPP(shm->pixman_format),
 				    r.x + dx, r.y + dy,
@@ -299,9 +299,9 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 					r.width  = _cairo_fixed_integer_part(b->p2.x) - r.x;
 					r.height = _cairo_fixed_integer_part(b->p2.y) - r.y;
 
-					if(!pixman_blt((uint32_t *)image->data, (uint32_t *)shm->data,
-					    image->stride / sizeof(uint32_t),
-					    shm->stride / sizeof(uint32_t),
+					if(!pixman_blt((uint32 *)image->data, (uint32 *)shm->data,
+					    image->stride / sizeof(uint32),
+					    shm->stride / sizeof(uint32),
 					    PIXMAN_FORMAT_BPP(image->pixman_format),
 					    PIXMAN_FORMAT_BPP(shm->pixman_format),
 					    r.x + dx, r.y + dy,
@@ -1246,8 +1246,8 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 		case GLYPHSET_INDEX_ARGB32:
 		    if(_cairo_is_little_endian() != (ImageByteOrder(display->display) == LSBFirst)) {
 			    uint c = glyph_surface->stride * glyph_surface->height / 4;
-			    const uint32_t * d;
-			    uint32_t * new, * n;
+			    const uint32 * d;
+			    uint32 * new, * n;
 
 			    if(c == 0)
 				    break;
@@ -1258,12 +1258,12 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				    goto BAIL;
 			    }
 			    n = new;
-			    d = (uint32_t *)data;
+			    d = (uint32 *)data;
 			    do {
 				    *n++ = bswap_32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8_t *)new;
+			    data = (uint8 *)new;
 		    }
 		    break;
 		default:
@@ -1468,7 +1468,7 @@ static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangle
 	if(!CAIRO_RENDER_SUPPORTS_OPERATOR(display, extents->op))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	/* The glyph coordinates must be representable in an int16_t.
+	/* The glyph coordinates must be representable in an int16.
 	 * When possible, they will be expressed as an offset from the
 	 * previous glyph, otherwise they will be an offset from the
 	 * surface origin. If we can't guarantee this to be possible,

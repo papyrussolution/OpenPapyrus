@@ -27,7 +27,7 @@
 #endif
 //#include "pixman-private.h"
 
-static uint32_t color_to_uint32(const pixman_color_t * color)
+static uint32 color_to_uint32(const pixman_color_t * color)
 {
 	return ((uint)color->alpha >> 8 << 24) | ((uint)color->red >> 8 << 16) | ((uint)color->green & 0xff00) | ((uint)color->blue >> 8);
 }

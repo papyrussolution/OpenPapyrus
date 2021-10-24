@@ -46,7 +46,7 @@ typedef struct _cairo_base85_stream {
 static void _expand_four_tuple_to_five(uchar four_tuple[4], uchar five_tuple[5], boolint * all_zero)
 {
 	int digit, i;
-	uint32_t value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
+	uint32 value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
 	if(all_zero)
 		*all_zero = TRUE;
 	for(i = 0; i < 5; i++) {

@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -356,10 +356,10 @@ int PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & rText,
 	int    ok = 1;
 	long   flags;
 	if(P_Rez) {
-		THROW_PP(P_Rez->findResource((uint)viewID, PP_RCDECLVIEW), PPERR_RESFAULT);
-		P_Rez->getString(rSymb, 2); /*0 - 866, 1 - w_char, 2 - 1251*/
+		THROW_PP(P_Rez->findResource(static_cast<uint>(viewID), PP_RCDECLVIEW), PPERR_RESFAULT);
+		P_Rez->getString(rSymb, 2); // 0 - 866, 1 - w_char, 2 - 1251
 		P_Rez->getString(rText, 2);
-		flags = (long)P_Rez->getUINT();
+		flags = static_cast<long>(P_Rez->getUINT());
 		pFlags = &flags;
 	}
 	CATCHZOK
@@ -372,19 +372,23 @@ int PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray *
 	SString text;
 	SString symb;
 	long flags;
-	pSymbList->Z();
-	pTextList->Z();
+	CALLPTRMEMB(pSymbList, Z());
+	CALLPTRMEMB(pTextList, Z());
 	if(P_Rez) {
 		ulong pos = 0;
 		for(uint rsc_id = 0; P_Rez->enumResources(PP_RCDECLVIEW, &rsc_id, &pos) > 0;) {
 			if(!oneof4(rsc_id, PPVIEW_GOODSGROUP, PPVIEW_REGISTER, PPVIEW_TAG, PPVIEW_BBOARD)) { // Исключаем фиктивные PPView
 				THROW(LoadResource(rsc_id, symb, text, &flags));
-				THROW_SL(pSymbList->Add(rsc_id, symb));
-				PPExpandString(text, CTRANSF_UTF8_TO_INNER); // @v10.1.6
-				THROW_SL(pTextList->Add(rsc_id, text));
+				if(pSymbList) {
+					THROW_SL(pSymbList->Add(rsc_id, symb));
+				}
+				if(pTextList) {
+					PPExpandString(text, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+					THROW_SL(pTextList->Add(rsc_id, text));
+				}
 			}
 		}
-		pTextList->SortByText();
+		CALLPTRMEMB(pTextList, SortByText());
 	}
 	CATCHZOK
 	return ok;
@@ -531,7 +535,6 @@ int PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@erik v10.
 	xmlFreeTextWriter(p_xml_writer);
 	return ok;
 }
-
 //
 // Descr: Отвечает за диалог "Список фильтров"
 //
@@ -543,17 +546,37 @@ public:
 		updateList(-1);
 	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmTest)) {
+			long  cur_pos = 0;
+			long  cur_id = 0;
+			if(getCurItem(&cur_pos, &cur_id)) {
+				TestExport(P_Data->GetByID(cur_id));
+			}			
+		}
+	}
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
-
+	void   TestExport(const PPNamedFilt * pNf)
+	{
+		if(pNf) {
+			SString result_file_name;
+			if(PPView::ExecuteNF(pNf, 0/*pDl600Name*/, result_file_name)) {
+				//PPMessage(mfInfo, )
+			}
+			else
+				PPError();
+		}
+	}
 	PPNamedFiltMngr * P_Mngr; // @notowned
 	PPNamedFiltPool * P_Data; // @notowned
 	StrAssocArray CmdSymbList;
 	StrAssocArray CmdTextList;
 };
-
 //
 // Descr: Обновляет таблицу фильтров в диалоге "Список фильтров"
 //
@@ -588,22 +611,23 @@ int FiltPoolDialog::setupList()
 int ViewFiltPool()
 {
 	int    ok = -1;
-	PPNamedFiltMngr mngr;
-	PPNamedFiltPool pool(0, 0);
-	SString db_symb;
 	FiltPoolDialog * dlg = 0;
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-	//THROW(mngr.LoadPool(db_symb, &pool, 0)); //@erik v10.7.5
-	THROW(mngr.LoadPool2(db_symb, &pool, 0));//@erik v10.7.5
-	THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
-	while(ExecView(dlg) == cmOK) {
-		//if(mngr.SavePool(&pool)) { //@erik v10.7.5
-		if(mngr.SavePool2(&pool)) {  //@erik v10.7.5
-			ok = 1;
-			break;
+	DbProvider * p_dbdict = CurDict;
+	if(p_dbdict) {
+		PPNamedFiltMngr mngr;
+		PPNamedFiltPool pool(0, 0);
+		SString db_symb;
+		THROW_PP(p_dbdict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+		THROW(mngr.LoadPool2(db_symb, &pool, 0));
+		THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
+		while(ExecView(dlg) == cmOK) {
+			if(mngr.SavePool2(&pool)) {
+				ok = 1;
+				break;
+			}
+			else
+				PPError();
 		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -628,7 +652,7 @@ public:
 		setCtrlString(CTL_FILTITEM_NAME, Data.Name); // Поле "Наименование"
 		setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // Поле "Символ"
 		setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // Поле "ID"
-		disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображаетс
+		disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображается //
 		view_id = Data.ViewID; // Может быть и ноль, если это создание (а не редактирование) именованного фильтра
 		//
 		// Инициализировать комбобокс:
@@ -884,15 +908,16 @@ int PPNamedFilt::ViewDefinition::SetEntry(const Entry & rE)
 int PPNamedFilt::ViewDefinition::GetEntry(const uint pos, Entry & rE) const
 {
 	rE.Z();
-	int ok = 0;
+	int    ok = 1;
 	if(pos < L.getCount()) {
 		const InnerEntry & r_entry = L.at(pos);
 		GetS(r_entry.ZoneP, rE.Zone);
 		GetS(r_entry.FieldNameP, rE.FieldName);
 		GetS(r_entry.TextP, rE.Text);
 		rE.TotalFunc = r_entry.TotalFunc;
-		ok = 1;
 	}
+	else
+		ok = 0;
 	return ok;
 }
 
@@ -919,8 +944,9 @@ int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) const
 	THROW(pXmlWriter);
 	{
 		SXml::WNode pp_vd_node(pXmlWriter, "VD");
+		Entry tmp_entry;
+		pp_vd_node.PutInnerSkipEmpty("DlStrucSymb", StrucSymb); // @v11.2.0
 		for(uint i = 0; i < GetCount(); i++) {
-			Entry tmp_entry;
 			if(GetEntry(i, tmp_entry)) {
 				SXml::WNode pp_entry_node(pXmlWriter, "Entry");
 				XMLReplaceSpecSymb(temp_buf.Z().Cat(tmp_entry.Zone), "&<>\'");
@@ -945,7 +971,10 @@ int PPNamedFilt::ViewDefinition::XmlRead(xmlNode * pParentNode)
 	int    ok = 1;
 	SString temp_buf;
 	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
-		if(SXml::IsName(p_node, "Entry")) {
+		if(SXml::GetContentByName(p_node, "DlStrucSymb", temp_buf)) { // @v11.2.0
+			StrucSymb = temp_buf;
+		}
+		else if(SXml::IsName(p_node, "Entry")) {
 			Entry tmp_entry;
 			for(xmlNode * p_entry_node = p_node->children; p_entry_node; p_entry_node = p_entry_node->next) {
 				if(SXml::GetContentByName(p_entry_node, "Zone", temp_buf)){

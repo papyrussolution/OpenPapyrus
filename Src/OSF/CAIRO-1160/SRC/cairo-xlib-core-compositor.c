@@ -98,17 +98,17 @@ static boolint fill_box(cairo_box_t * box, void * closure)
 	return TRUE;
 }
 
-static void _characterize_field(uint32_t mask, int * width, int * shift)
+static void _characterize_field(uint32 mask, int * width, int * shift)
 {
 	*width = _cairo_popcount(mask);
 	/* The final '& 31' is to force a 0 mask to result in 0 shift. */
 	*shift = _cairo_popcount((mask - 1) & ~mask) & 31;
 }
 
-static uint32_t color_to_pixel(cairo_xlib_surface_t * dst,
+static uint32 color_to_pixel(cairo_xlib_surface_t * dst,
     const cairo_color_t * color)
 {
-	uint32_t rgba = 0;
+	uint32 rgba = 0;
 	int width, shift;
 
 	_characterize_field(dst->a_mask, &width, &shift);

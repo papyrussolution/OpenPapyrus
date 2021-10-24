@@ -149,10 +149,10 @@ cairo_int_status_t _cairo_rtree_insert(cairo_rtree_t * rtree, int width, int hei
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 }
 
-static uint32_t hars_petruska_f54_1_random(void)
+static uint32 hars_petruska_f54_1_random(void)
 {
 #define rol(x, k) ((x << k) | (x >> (32-k)))
-	static uint32_t x;
+	static uint32 x;
 	return x = (x ^ rol(x, 5) ^ rol(x, 24)) + 0x37798849;
 #undef rol
 }

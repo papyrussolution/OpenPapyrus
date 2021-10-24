@@ -74,8 +74,7 @@ static const acl_perm_map_t acl_nfs4_perm_map[] = {
 #endif
 };
 
-static const int acl_nfs4_perm_map_size =
-    (int)(sizeof(acl_nfs4_perm_map)/sizeof(acl_nfs4_perm_map[0]));
+static const int acl_nfs4_perm_map_size = (int)(SIZEOFARRAY(acl_nfs4_perm_map));
 
 static const acl_perm_map_t acl_nfs4_flag_map[] = {
 	{ARCHIVE_ENTRY_ACL_ENTRY_INHERITED, ACL_ENTRY_INHERITED},
@@ -85,16 +84,13 @@ static const acl_perm_map_t acl_nfs4_flag_map[] = {
 	{ARCHIVE_ENTRY_ACL_ENTRY_INHERIT_ONLY, ACL_ENTRY_ONLY_INHERIT}
 };
 
-static const int acl_nfs4_flag_map_size =
-    (int)(sizeof(acl_nfs4_flag_map)/sizeof(acl_nfs4_flag_map[0]));
+static const int acl_nfs4_flag_map_size = (int)(SIZEOFARRAY(acl_nfs4_flag_map));
 
-static int translate_guid(struct archive * a, acl_entry_t acl_entry,
-    int * ae_id, int * ae_tag, const char ** ae_name)
+static int translate_guid(struct archive * a, acl_entry_t acl_entry, int * ae_id, int * ae_tag, const char ** ae_name)
 {
 	void * q;
 	uid_t ugid;
 	int r, idtype;
-
 	q = acl_get_qualifier(acl_entry);
 	if(q == NULL)
 		return 1;

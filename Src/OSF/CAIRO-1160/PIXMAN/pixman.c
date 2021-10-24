@@ -41,14 +41,14 @@ static void __attribute__((constructor)) pixman_constructor(void)
 typedef struct operator_info_t operator_info_t;
 
 struct operator_info_t {
-	uint8_t opaque_info[4];
+	uint8 opaque_info[4];
 };
 
 #define PACK(neither, src, dest, both)                  \
-	{{      (uint8_t)PIXMAN_OP_ ## neither,             \
-		(uint8_t)PIXMAN_OP_ ## src,                 \
-		(uint8_t)PIXMAN_OP_ ## dest,                \
-		(uint8_t)PIXMAN_OP_ ## both         }}
+	{{      (uint8)PIXMAN_OP_ ## neither,             \
+		(uint8)PIXMAN_OP_ ## src,                 \
+		(uint8)PIXMAN_OP_ ## dest,                \
+		(uint8)PIXMAN_OP_ ## both         }}
 
 static const operator_info_t operator_table[] =
 {
@@ -128,7 +128,7 @@ static const operator_info_t operator_table[] =
  * Optimize the current operator based on opacity of source or destination
  * The output operator should be mathematically equivalent to the source.
  */
-static pixman_op_t optimize_operator(pixman_op_t op, uint32_t src_flags, uint32_t mask_flags, uint32_t dst_flags)
+static pixman_op_t optimize_operator(pixman_op_t op, uint32 src_flags, uint32 mask_flags, uint32 dst_flags)
 {
 	pixman_bool_t is_source_opaque, is_dest_opaque;
 #define OPAQUE_SHIFT 13
@@ -192,7 +192,7 @@ static inline pixman_bool_t clip_source_image(pixman_region32_t * region, pixman
  * an allocation failure, but rendering ignores those anyways.
  */
 pixman_bool_t _pixman_compute_composite_region32(pixman_region32_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
-    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height)
+    int32 src_x, int32 src_y, int32 mask_x, int32 mask_y, int32 dest_x, int32 dest_y, int32 width, int32 height)
 {
 	region->extents.x1 = dest_x;
 	region->extents.x2 = dest_x + width;
@@ -314,7 +314,7 @@ static pixman_bool_t FASTCALL compute_transformed_extents(pixman_transform_t * t
 #define ABS(f)      (((f) < 0) ?  (-(f)) : (f))
 #define IS_16_16(f) (((f) >= pixman_min_fixed_48_16 && ((f) <= pixman_max_fixed_48_16)))
 
-static pixman_bool_t FASTCALL analyze_extent(pixman_image_t * image, const pixman_box32_t * extents, uint32_t * flags)
+static pixman_bool_t FASTCALL analyze_extent(pixman_image_t * image, const pixman_box32_t * extents, uint32 * flags)
 {
 	pixman_transform_t * transform;
 	pixman_fixed_t x_off, y_off;
@@ -448,7 +448,7 @@ static pixman_bool_t FASTCALL analyze_extent(pixman_image_t * image, const pixma
 __attribute__((__force_align_arg_pointer__))
 #endif
 PIXMAN_EXPORT void FASTCALL pixman_image_composite32(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
-    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height)
+    int32 src_x, int32 src_y, int32 mask_x, int32 mask_y, int32 dest_x, int32 dest_y, int32 width, int32 height)
 {
 	pixman_format_code_t src_format, mask_format, dest_format;
 	pixman_region32_t region;
@@ -547,31 +547,31 @@ out:
 }
 
 PIXMAN_EXPORT void pixman_image_composite(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
-    int16_t src_x, int16_t src_y, int16_t mask_x, int16_t mask_y, int16_t dest_x, int16_t dest_y, uint16_t width, uint16_t height)
+    int16 src_x, int16 src_y, int16 mask_x, int16 mask_y, int16 dest_x, int16 dest_y, uint16 width, uint16 height)
 {
 	pixman_image_composite32(op, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_blt(uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride,
+PIXMAN_EXPORT pixman_bool_t pixman_blt(uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
     int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
 	return _pixman_implementation_blt(get_implementation(), src_bits, dst_bits, src_stride, dst_stride,
 		src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t filler)
+PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 filler)
 {
 	return _pixman_implementation_fill(get_implementation(), bits, stride, bpp, x, y, width, height, filler);
 }
 
-static uint32_t color_to_uint32(const pixman_color_t * color)
+static uint32 color_to_uint32(const pixman_color_t * color)
 {
 	return (color->alpha >> 8 << 24) | (color->red >> 8 << 16) | (color->green & 0xff00) | (color->blue >> 8);
 }
 
-static pixman_bool_t color_to_pixel(const pixman_color_t * color, uint32_t * pixel, pixman_format_code_t format)
+static pixman_bool_t color_to_pixel(const pixman_color_t * color, uint32 * pixel, pixman_format_code_t format)
 {
-	uint32_t c = color_to_uint32(color);
+	uint32 c = color_to_uint32(color);
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_RGBA_FLOAT) {
 		return FALSE;
 	}
@@ -670,7 +670,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_fill_boxes(pixman_op_t op, pixman_image
 	}
 
 	if(op == PIXMAN_OP_SRC) {
-		uint32_t pixel;
+		uint32 pixel;
 
 		if(color_to_pixel(color, &pixel, dest->bits.format)) {
 			pixman_region32_t fill_region;
@@ -851,14 +851,14 @@ PIXMAN_EXPORT pixman_bool_t pixman_compute_composite_region(pixman_region16_t * 
     pixman_image_t * src_image,
     pixman_image_t * mask_image,
     pixman_image_t * dest_image,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height)
+    int16 src_x,
+    int16 src_y,
+    int16 mask_x,
+    int16 mask_y,
+    int16 dest_x,
+    int16 dest_y,
+    uint16 width,
+    uint16 height)
 {
 	pixman_region32_t r32;
 	pixman_bool_t retval;

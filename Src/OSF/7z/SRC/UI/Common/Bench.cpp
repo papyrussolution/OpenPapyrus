@@ -1760,7 +1760,7 @@ static void FASTCALL PrintRight(IBenchPrintCallback & f, const char * s, uint si
 static HRESULT TotalBench(DECL_EXTERNAL_CODECS_LOC_VARS uint64 complexInCommands, uint32 numThreads, bool forceUnpackSize,
     size_t unpackSize, const Byte * fileData, IBenchPrintCallback * printCallback, CBenchCallbackToPrint * callback)
 {
-	for(uint i = 0; i < ARRAY_SIZE(g_Bench); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(g_Bench); i++) {
 		const CBenchMethod &bench = g_Bench[i];
 		PrintLeft(*callback->_file, bench.Name, kFieldSize_Name);
 		callback->BenchProps.DecComplexUnc = bench.DecComplexUnc;
@@ -1972,7 +1972,7 @@ static HRESULT CrcBench(DECL_EXTERNAL_CODECS_LOC_VARS uint64 complexInCommands, 
 static HRESULT TotalBench_Hash(DECL_EXTERNAL_CODECS_LOC_VARS uint64 complexInCommands, uint32 numThreads, uint32 bufSize,
     IBenchPrintCallback * printCallback, CBenchCallbackToPrint * callback, CTotalBenchRes * encodeRes, bool showFreq, uint64 cpuFreq)
 {
-	for(uint i = 0; i < ARRAY_SIZE(g_Hash); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(g_Hash); i++) {
 		const CBenchHash &bench = g_Hash[i];
 		PrintLeft(*callback->_file, bench.Name, kFieldSize_Name);
                 // callback->BenchProps.DecComplexUnc = bench.DecComplexUnc;
@@ -2181,11 +2181,11 @@ static AString TypeToString2(const char * const table[], uint num, uint32 value)
 #ifdef _WIN32
 	static void SysInfo_To_String(AString &s, const SYSTEM_INFO &si)
 	{
-		s += TypeToString2(k_PROCESSOR_ARCHITECTURE, ARRAY_SIZE(k_PROCESSOR_ARCHITECTURE), si.wProcessorArchitecture);
+		s += TypeToString2(k_PROCESSOR_ARCHITECTURE, SIZEOFARRAY(k_PROCESSOR_ARCHITECTURE), si.wProcessorArchitecture);
 		if(!(si.wProcessorArchitecture == MY__PROCESSOR_ARCHITECTURE_INTEL && si.dwProcessorType == MY__PROCESSOR_INTEL_PENTIUM
 				|| si.wProcessorArchitecture == MY__PROCESSOR_ARCHITECTURE_AMD64 && si.dwProcessorType == MY__PROCESSOR_AMD_X8664)) {
 			s += " ";
-					// s += TypePairToString(k_PROCESSOR, ARRAY_SIZE(k_PROCESSOR), si.dwProcessorType);
+					// s += TypePairToString(k_PROCESSOR, SIZEOFARRAY(k_PROCESSOR), si.dwProcessorType);
 			s.Add_UInt32(si.dwProcessorType);
 		}
 		s += " ";
@@ -2278,11 +2278,11 @@ void GetCpuFeatures(AString &s)
 	s.Empty();
   #ifdef _WIN32
 	const uint kNumFeatures_Extra = 32; // we check also for unknown features
-	const uint kNumFeatures = ARRAY_SIZE(k_PF) + kNumFeatures_Extra;
+	const uint kNumFeatures = SIZEOFARRAY(k_PF) + kNumFeatures_Extra;
 	for(uint i = 0; i < kNumFeatures; i++) {
 		if(IsProcessorFeaturePresent(i)) {
 			s.Add_Space_if_NotEmpty();
-			s += TypeToString2(k_PF, ARRAY_SIZE(k_PF), i);
+			s += TypeToString2(k_PF, SIZEOFARRAY(k_PF), i);
 		}
 	}
   #endif
@@ -2489,7 +2489,7 @@ HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback,
 		uint32 complexity = 10000;
 		const uint32 * checkSum = NULL;
 		{
-			for(uint i = 0; i < ARRAY_SIZE(g_Hash); i++) {
+			for(uint i = 0; i < SIZEOFARRAY(g_Hash); i++) {
 				const CBenchHash &h = g_Hash[i];
 				AString s(h.Name);
 				AString hProp;
@@ -2735,7 +2735,7 @@ HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback,
 		else {
 			bool needSetComplexity = true;
 			if(!methodName.IsEqualTo_Ascii_NoCase("LZMA")) {
-				for(uint i = 0; i < ARRAY_SIZE(g_Bench); i++) {
+				for(uint i = 0; i < SIZEOFARRAY(g_Bench); i++) {
 					const CBenchMethod &h = g_Bench[i];
 					if(AreSameMethodNames(h.Name, methodName)) {
 						callback.BenchProps.EncComplex = h.EncComplex;

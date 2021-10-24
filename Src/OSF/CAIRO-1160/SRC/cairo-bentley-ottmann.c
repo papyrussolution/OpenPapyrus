@@ -45,7 +45,7 @@
 typedef cairo_point_t cairo_bo_point32_t;
 
 typedef struct _cairo_bo_intersect_ordinate {
-	int32_t ordinate;
+	int32 ordinate;
 	enum { 
 		EXACT, 
 		INEXACT 
@@ -63,7 +63,7 @@ typedef struct _cairo_bo_trap cairo_bo_trap_t;
 /* A deferred trapezoid of an edge */
 struct _cairo_bo_trap {
 	cairo_bo_edge_t * right;
-	int32_t top;
+	int32 top;
 };
 
 struct _cairo_bo_edge {
@@ -117,7 +117,7 @@ typedef struct _cairo_bo_event_queue {
 typedef struct _cairo_bo_sweep_line {
 	cairo_bo_edge_t * head;
 	cairo_bo_edge_t * stopped;
-	int32_t current_y;
+	int32 current_y;
 	cairo_bo_edge_t * current_edge;
 } cairo_bo_sweep_line_t;
 
@@ -248,8 +248,8 @@ static inline int _slope_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_
 	 * should prevent that before the tessellation algorithm
 	 * begins.
 	 */
-	int32_t adx = a->edge.line.p2.x - a->edge.line.p1.x;
-	int32_t bdx = b->edge.line.p2.x - b->edge.line.p1.x;
+	int32 adx = a->edge.line.p2.x - a->edge.line.p1.x;
+	int32 bdx = b->edge.line.p2.x - b->edge.line.p1.x;
 	/* Since the dy's are all positive by construction we can fast
 	 * path several common cases.
 	 */
@@ -263,8 +263,8 @@ static inline int _slope_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_
 		return adx;
 	/* Finally we actually need to do the general comparison. */
 	{
-		int32_t ady = a->edge.line.p2.y - a->edge.line.p1.y;
-		int32_t bdy = b->edge.line.p2.y - b->edge.line.p1.y;
+		int32 ady = a->edge.line.p2.y - a->edge.line.p1.y;
+		int32 bdy = b->edge.line.p2.y - b->edge.line.p1.y;
 		cairo_int64_t adx_bdy = _cairo_int32x32_64_mul(adx, bdy);
 		cairo_int64_t bdx_ady = _cairo_int32x32_64_mul(bdx, ady);
 		return _cairo_int64_cmp(adx_bdy, bdx_ady);
@@ -291,10 +291,10 @@ static inline int _slope_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_
  * See the similar discussion for _slope_compare() and
  * edges_compare_x_for_y_general().
  */
-static int edge_compare_for_y_against_x(const cairo_bo_edge_t * a, int32_t y, int32_t x)
+static int edge_compare_for_y_against_x(const cairo_bo_edge_t * a, int32 y, int32 x)
 {
-	int32_t adx, ady;
-	int32_t dx, dy;
+	int32 adx, ady;
+	int32 dx, dy;
 	cairo_int64_t L, R;
 	if(x < a->edge.line.p1.x && x < a->edge.line.p2.x)
 		return 1;
@@ -322,14 +322,14 @@ static inline int _cairo_bo_sweep_line_compare_edges(const cairo_bo_sweep_line_t
 	return (b->edge.bottom - a->edge.bottom);
 }
 
-static inline cairo_int64_t det32_64(int32_t a, int32_t b, int32_t c, int32_t d)
+static inline cairo_int64_t det32_64(int32 a, int32 b, int32 c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d), _cairo_int32x32_64_mul(b, c));
 }
 
-static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b,
-    cairo_int64_t c, int32_t d)
+static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32 b,
+    cairo_int64_t c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int128_sub(_cairo_int64x32_128_mul(a, d), _cairo_int64x32_128_mul(c, b));
@@ -350,10 +350,10 @@ static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_b
 	 * What we're doing to mitigate this is to perform clamping in
 	 * cairo_bo_tessellate_polygon().
 	 */
-	int32_t dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
-	int32_t dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
-	int32_t dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
-	int32_t dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
+	int32 dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
+	int32 dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
+	int32 dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
+	int32 dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
 	cairo_int64_t den_det;
 	cairo_int64_t R;
 	cairo_quorem64_t qr;
@@ -442,7 +442,7 @@ static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_b
 	return TRUE;
 }
 
-static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a, int32_t b)
+static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a, int32 b)
 {
 	/* First compare the quotient */
 	if(a.ordinate > b)
@@ -898,7 +898,7 @@ static inline boolint edges_colinear(cairo_bo_edge_t * a, const cairo_bo_edge_t 
 }
 
 /* Adds the trapezoid, if any, of the left edge to the #cairo_traps_t */
-static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, cairo_traps_t * traps)
+static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32 bot, cairo_traps_t * traps)
 {
 	cairo_bo_trap_t * trap = &left->deferred_trap;
 	/* Only emit (trivial) non-degenerate trapezoids with positive height. */
@@ -947,7 +947,7 @@ static inline void _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge_t * left,
 	}
 }
 
-static inline void _active_edges_to_traps(cairo_bo_edge_t * pos, int32_t top, unsigned mask, cairo_traps_t * traps)
+static inline void _active_edges_to_traps(cairo_bo_edge_t * pos, int32 top, unsigned mask, cairo_traps_t * traps)
 {
 	cairo_bo_edge_t * left;
 	int in_out;
@@ -1501,12 +1501,12 @@ int main(void)
 		for(i = 0; i < num_random; i++) {
 			do {
 				edge = &random_edges[i];
-				edge->line.p1.x = (int32_t)(10.0 * (rand() / (RAND_MAX + 1.0)));
-				edge->line.p1.y = (int32_t)(10.0 * (rand() / (RAND_MAX + 1.0)));
-				edge->line.p2.x = (int32_t)(10.0 * (rand() / (RAND_MAX + 1.0)));
-				edge->line.p2.y = (int32_t)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				edge->line.p1.x = (int32)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				edge->line.p1.y = (int32)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				edge->line.p2.x = (int32)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				edge->line.p2.y = (int32)(10.0 * (rand() / (RAND_MAX + 1.0)));
 				if(edge->line.p1.y > edge->line.p2.y) {
-					int32_t tmp = edge->line.p1.y;
+					int32 tmp = edge->line.p1.y;
 					edge->line.p1.y = edge->line.p2.y;
 					edge->line.p2.y = tmp;
 				}

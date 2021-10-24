@@ -51,7 +51,7 @@
 #define AREA_TO_ALPHA(c)  (((c)*255 + STEP_XY/2) / STEP_XY)
 
 typedef struct _cairo_bo_intersect_ordinate {
-	int32_t ordinate;
+	int32 ordinate;
 	enum { 
 		EXACT, 
 		INEXACT 
@@ -240,16 +240,16 @@ static cairo_fixed_t line_compute_intersection_x_for_y(const cairo_line_t * line
  *
  * See the similar discussion for _slope_compare().
  */
-static int edges_compare_x_for_y_general(const cairo_edge_t * a, const cairo_edge_t * b, int32_t y)
+static int edges_compare_x_for_y_general(const cairo_edge_t * a, const cairo_edge_t * b, int32 y)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
 	 * bits. That's not true in general as there could be overflow. We
 	 * should prevent that before the tessellation algorithm
 	 * begins.
 	 */
-	int32_t dx;
-	int32_t adx, ady;
-	int32_t bdx, bdy;
+	int32 dx;
+	int32 adx, ady;
+	int32 bdx, bdy;
 	enum {
 		HAVE_NONE    = 0x0,
 		HAVE_DX      = 0x1,
@@ -263,8 +263,8 @@ static int edges_compare_x_for_y_general(const cairo_edge_t * a, const cairo_edg
 	int    have_dx_adx_bdx = HAVE_ALL;
 	// don't bother solving for abscissa if the edges' bounding boxes can be used to order them.
 	{
-		int32_t amin, amax;
-		int32_t bmin, bmax;
+		int32 amin, amax;
+		int32 bmin, bmax;
 		if(a->line.p1.x < a->line.p2.x) {
 			amin = a->line.p1.x;
 			amax = a->line.p2.x;
@@ -388,10 +388,10 @@ static int edges_compare_x_for_y_general(const cairo_edge_t * a, const cairo_edg
  * See the similar discussion for _slope_compare() and
  * edges_compare_x_for_y_general().
  */
-static int edge_compare_for_y_against_x(const cairo_edge_t * a, int32_t y, int32_t x)
+static int edge_compare_for_y_against_x(const cairo_edge_t * a, int32 y, int32 x)
 {
-	int32_t adx, ady;
-	int32_t dx, dy;
+	int32 adx, ady;
+	int32 dx, dy;
 	cairo_int64_t L, R;
 
 	if(a->line.p1.x <= a->line.p2.x) {
@@ -420,7 +420,7 @@ static int edge_compare_for_y_against_x(const cairo_edge_t * a, int32_t y, int32
 	return _cairo_int64_cmp(L, R);
 }
 
-static int edges_compare_x_for_y(const cairo_edge_t * a, const cairo_edge_t * b, int32_t y)
+static int edges_compare_x_for_y(const cairo_edge_t * a, const cairo_edge_t * b, int32 y)
 {
 	/* If the sweep-line is currently on an end-point of a line,
 	 * then we know its precise x value (and considering that we often need to
@@ -434,7 +434,7 @@ static int edges_compare_x_for_y(const cairo_edge_t * a, const cairo_edge_t * b,
 		HAVE_BOTH    = HAVE_AX | HAVE_BX
 	};
 	int    have_ax_bx = HAVE_BOTH;
-	int32_t ax = 0, bx = 0;
+	int32 ax = 0, bx = 0;
 	/* XXX given we have x and dx? */
 	if(y == a->line.p1.y)
 		ax = a->line.p1.x;
@@ -493,13 +493,13 @@ static inline int sweep_line_compare_edges(const edge_t * a, const edge_t * b, c
 	return slope_compare(a, b);
 }
 
-static inline cairo_int64_t det32_64(int32_t a, int32_t b, int32_t c, int32_t d)
+static inline cairo_int64_t det32_64(int32 a, int32 b, int32 c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d), _cairo_int32x32_64_mul(b, c));
 }
 
-static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b, cairo_int64_t c, int32_t d)
+static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32 b, cairo_int64_t c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int128_sub(_cairo_int64x32_128_mul(a, d), _cairo_int64x32_128_mul(c, b));
@@ -522,11 +522,11 @@ static boolint intersect_lines(const edge_t * a, const edge_t * b,
 	 * What we're doing to mitigate this is to perform clamping in
 	 * cairo_bo_tessellate_polygon().
 	 */
-	int32_t dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
-	int32_t dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
+	int32 dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
+	int32 dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
 
-	int32_t dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
-	int32_t dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
+	int32 dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
+	int32 dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
 
 	cairo_int64_t den_det;
 	cairo_int64_t R;
@@ -610,7 +610,7 @@ static boolint intersect_lines(const edge_t * a, const edge_t * b,
 	return TRUE;
 }
 
-static int bo_intersect_ordinate_32_compare(int32_t a, int32_t b, int exactness)
+static int bo_intersect_ordinate_32_compare(int32 a, int32 b, int exactness)
 {
 	/* First compare the quotient */
 	int cmp = a - b;
@@ -1157,7 +1157,7 @@ static void render_rows(cairo_botor_scan_converter_t * self, sweep_line_t * swee
 		if(x > prev_x) {
 			spans[num_spans].x = prev_x;
 			spans[num_spans].inverse = 0;
-			spans[num_spans].coverage = AREA_TO_ALPHA(cover);
+			spans[num_spans].coverage = static_cast<uint8>(AREA_TO_ALPHA(cover));
 			++num_spans;
 		}
 
@@ -1165,19 +1165,17 @@ static void render_rows(cairo_botor_scan_converter_t * self, sweep_line_t * swee
 		area = cover - cell->uncovered_area;
 
 		spans[num_spans].x = x;
-		spans[num_spans].coverage = AREA_TO_ALPHA(area);
+		spans[num_spans].coverage = static_cast<uint8>(AREA_TO_ALPHA(area));
 		++num_spans;
 
 		prev_x = x + 1;
 	} while((cell = cell->next) != &sweep_line->coverage.tail);
-
 	if(prev_x <= self->xmax) {
 		spans[num_spans].x = prev_x;
 		spans[num_spans].inverse = 0;
-		spans[num_spans].coverage = AREA_TO_ALPHA(cover);
+		spans[num_spans].coverage = static_cast<uint8>(AREA_TO_ALPHA(cover));
 		++num_spans;
 	}
-
 	if(cover && prev_x < self->xmax) {
 		spans[num_spans].x = self->xmax;
 		spans[num_spans].inverse = 1;

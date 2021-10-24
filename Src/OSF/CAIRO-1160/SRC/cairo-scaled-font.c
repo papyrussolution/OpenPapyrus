@@ -49,7 +49,7 @@
  * size and transformation and a certain set of font options.
  **/
 
-static uint32_t FASTCALL _cairo_scaled_font_compute_hash(cairo_scaled_font_t * scaled_font);
+static uint32 FASTCALL _cairo_scaled_font_compute_hash(cairo_scaled_font_t * scaled_font);
 
 /* Global Glyph Cache
  *
@@ -510,12 +510,12 @@ static void _cairo_scaled_font_placeholder_wait_for_creation_to_finish(cairo_sca
  * well tested with binary data.
  */
 
-#define FNV_32_PRIME ((uint32_t)0x01000193)
-#define FNV1_32_INIT ((uint32_t)0x811c9dc5)
+#define FNV_32_PRIME ((uint32)0x01000193)
+#define FNV1_32_INIT ((uint32)0x811c9dc5)
 
-static uint32_t FASTCALL _hash_matrix_fnv(const cairo_matrix_t * matrix, uint32_t hval)
+static uint32 FASTCALL _hash_matrix_fnv(const cairo_matrix_t * matrix, uint32 hval)
 {
-	const uint8_t * buffer = reinterpret_cast<const uint8_t *>(matrix);
+	const uint8 * buffer = reinterpret_cast<const uint8 *>(matrix);
 	int len = sizeof(cairo_matrix_t);
 	do {
 		hval *= FNV_32_PRIME;
@@ -524,7 +524,7 @@ static uint32_t FASTCALL _hash_matrix_fnv(const cairo_matrix_t * matrix, uint32_
 	return hval;
 }
 
-static uint32_t FASTCALL _hash_mix_bits(uint32_t hash)
+static uint32 FASTCALL _hash_mix_bits(uint32 hash)
 {
 	hash += hash << 12;
 	hash ^= hash >> 7;
@@ -534,9 +534,9 @@ static uint32_t FASTCALL _hash_mix_bits(uint32_t hash)
 	return hash;
 }
 
-static uint32_t FASTCALL _cairo_scaled_font_compute_hash(cairo_scaled_font_t * scaled_font)
+static uint32 FASTCALL _cairo_scaled_font_compute_hash(cairo_scaled_font_t * scaled_font)
 {
-	uint32_t hash = FNV1_32_INIT;
+	uint32 hash = FNV1_32_INIT;
 	/* We do a bytewise hash on the font matrices */
 	hash = _hash_matrix_fnv(&scaled_font->font_matrix, hash);
 	hash = _hash_matrix_fnv(&scaled_font->ctm, hash);
@@ -1391,7 +1391,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_cached(cairo_sca
 		double x_advance;
 		double y_advance;
 	} glyph_lut[GLYPH_LUT_SIZE];
-	uint32_t glyph_lut_unicode[GLYPH_LUT_SIZE];
+	uint32 glyph_lut_unicode[GLYPH_LUT_SIZE];
 	cairo_status_t status;
 	const char * p;
 	int i;
@@ -1400,7 +1400,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_cached(cairo_sca
 	p = utf8;
 	for(i = 0; i < num_chars; i++) {
 		int idx, num_bytes;
-		uint32_t unicode;
+		uint32 unicode;
 		cairo_scaled_glyph_t * scaled_glyph;
 		struct glyph_lut_elt * glyph_slot;
 		num_bytes = _cairo_utf8_get_char_validated(p, &unicode);
@@ -1444,7 +1444,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
 	const char * p = utf8;
 	for(int i = 0; i < num_chars; i++) {
 		ulong g;
-		uint32_t unicode;
+		uint32 unicode;
 		cairo_scaled_glyph_t * scaled_glyph;
 		cairo_status_t status;
 		int num_bytes = _cairo_utf8_get_char_validated(p, &unicode);
@@ -2149,7 +2149,7 @@ static cairo_status_t FASTCALL _add_unit_rectangle_to_path(cairo_path_fixed_t * 
  **/
 static cairo_status_t FASTCALL _trace_mask_to_path(cairo_image_surface_t * mask, cairo_path_fixed_t * path, double tx, double ty)
 {
-	const uint8_t * row;
+	const uint8 * row;
 	int rows, cols, bytes_per_row;
 	int x, y, bit;
 	double xoff, yoff;
@@ -2166,16 +2166,16 @@ static cairo_status_t FASTCALL _trace_mask_to_path(cairo_image_surface_t * mask,
 	bytes_per_row = (mask->width + 7) / 8;
 	row = mask->data;
 	for(y = 0, rows = mask->height; rows--; row += mask->stride, y++) {
-		const uint8_t * byte_ptr = row;
+		const uint8 * byte_ptr = row;
 		x = 0;
 		py = _cairo_fixed_from_int(y);
 		for(cols = bytes_per_row; cols--;) {
-			uint8_t byte = *byte_ptr++;
+			uint8 byte = *byte_ptr++;
 			if(byte == 0) {
 				x += 8;
 				continue;
 			}
-			byte = static_cast<uint8_t>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(byte));
+			byte = static_cast<uint8>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(byte));
 			for(bit = 1 << 7; bit && x < mask->width; bit >>= 1, x++) {
 				if(byte & bit) {
 					px = _cairo_fixed_from_int(x);

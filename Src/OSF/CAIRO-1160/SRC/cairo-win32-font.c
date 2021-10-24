@@ -430,14 +430,14 @@ static void _cairo_win32_scaled_font_done_unscaled_font(cairo_scaled_font_t * sc
 static cairo_status_t _cairo_win32_font_face_create_for_toy(cairo_toy_font_face_t * toy_face, cairo_font_face_t  ** font_face)
 {
 	LOGFONTW logfont;
-	uint16_t * face_name;
+	uint16 * face_name;
 	int face_name_len;
 	cairo_status_t status = _cairo_utf8_to_utf16(toy_face->family, -1, &face_name, &face_name_len);
 	if(status)
 		return status;
 	if(face_name_len > LF_FACESIZE - 1)
 		face_name_len = LF_FACESIZE - 1;
-	memcpy(logfont.lfFaceName, face_name, sizeof(uint16_t) * face_name_len);
+	memcpy(logfont.lfFaceName, face_name, sizeof(uint16) * face_name_len);
 	logfont.lfFaceName[face_name_len] = 0;
 	SAlloc::F(face_name);
 	logfont.lfHeight = 0;   /* filled in later */
@@ -493,7 +493,7 @@ static void _cairo_win32_scaled_font_fini(void * abstract_font)
 static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_win32_scaled_font_t * scaled_font,
     double x, double y, const char * utf8, cairo_glyph_t  ** glyphs, int * num_glyphs)
 {
-	uint16_t * utf16;
+	uint16 * utf16;
 	int n16;
 	int i;
 	WORD * glyph_indices = NULL;
@@ -561,7 +561,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
     const char * utf8, cairo_glyph_t ** glyphs, int * num_glyphs)
 {
 	cairo_win32_scaled_font_t * scaled_font = static_cast<cairo_win32_scaled_font_t *>(abstract_font);
-	uint16_t * utf16;
+	uint16 * utf16;
 	int n16;
 	GCP_RESULTSW gcp_results;
 	uint buffer_size, i;
@@ -651,7 +651,7 @@ FAIL1:
 	return status;
 }
 
-static ulong _cairo_win32_scaled_font_ucs4_to_index(void * abstract_font, uint32_t ucs4)
+static ulong _cairo_win32_scaled_font_ucs4_to_index(void * abstract_font, uint32 ucs4)
 {
 	cairo_win32_scaled_font_t * scaled_font = static_cast<cairo_win32_scaled_font_t *>(abstract_font);
 	wchar_t unicode[2];
@@ -662,7 +662,7 @@ static ulong _cairo_win32_scaled_font_ucs4_to_index(void * abstract_font, uint32
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
 		return 0;
-	unicode[0] = ucs4;
+	unicode[0] = static_cast<wchar_t>(ucs4); // @sobolev static_cast
 	unicode[1] = 0;
 	if(GetGlyphIndicesW(hdc, unicode, 1, &glyph_index, 0) == GDI_ERROR) {
 		_cairo_win32_print_gdi_error("_cairo_win32_scaled_font_ucs4_to_index:GetGlyphIndicesW");
@@ -1076,11 +1076,11 @@ static cairo_int_status_t _cairo_win32_scaled_font_load_truetype_table(void * ab
 
 static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract_font,
     ulong index,
-    uint32_t * ucs4)
+    uint32 * ucs4)
 {
 	cairo_win32_scaled_font_t * scaled_font = static_cast<cairo_win32_scaled_font_t *>(abstract_font);
 	GLYPHSET * glyph_set;
-	uint16_t * utf16 = NULL;
+	uint16 * utf16 = NULL;
 	WORD * glyph_indices = NULL;
 	int res;
 	uint i, j, num_glyphs;
@@ -1105,10 +1105,10 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 		status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_index_to_ucs4:GetFontUnicodeRanges");
 		goto exit1;
 	}
-	*ucs4 = (uint32_t)-1;
+	*ucs4 = (uint32)-1;
 	for(i = 0; i < glyph_set->cRanges; i++) {
 		num_glyphs = glyph_set->ranges[i].cGlyphs;
-		utf16 = static_cast<uint16_t *>(_cairo_malloc_ab(num_glyphs + 1, sizeof(uint16_t)));
+		utf16 = static_cast<uint16 *>(_cairo_malloc_ab(num_glyphs + 1, sizeof(uint16)));
 		if(utf16 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto exit1;
@@ -1240,8 +1240,8 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 			glyph->width, glyph->height);
 		if(LIKELY(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
-				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
-				uint32_t * q = (uint32_t *)(mask->data + i * mask->stride);
+				uint32 * p = (uint32 *)(glyph->data + i * glyph->stride);
+				uint32 * q = (uint32 *)(mask->data + i * mask->stride);
 				for(j = 0; j < glyph->width; j++) {
 					*q++ = 0xffffffff ^ (*p | ((*p & 0x0000ff00) << 16));
 					p++;
@@ -1256,8 +1256,8 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 		mask = (cairo_image_surface_t*)cairo_image_surface_create(CAIRO_FORMAT_A8, glyph->width, glyph->height);
 		if(LIKELY(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
-				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
-				uint8_t * q = (uint8_t *)(mask->data + i * mask->stride);
+				uint32 * p = (uint32 *)(glyph->data + i * glyph->stride);
+				uint8 * q = (uint8 *)(mask->data + i * mask->stride);
 				for(j = 0; j < glyph->width; j++)
 					*q++ = 255 - ((*p++ & 0x0000ff00) >> 8);
 			}

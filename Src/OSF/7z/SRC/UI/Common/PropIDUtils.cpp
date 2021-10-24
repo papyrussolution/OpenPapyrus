@@ -247,13 +247,13 @@ static void ParseSid(AString &s, const Byte * p, uint32 lim, uint32 &sidSize)
 				uint32 authority = GetBe32(p + 4);
 				if(p[2] == 0 && p[3] == 0 && authority == 5 && num >= 1) {
 					uint32 v0 = Get32(p + 8);
-					if(v0 < ARRAY_SIZE(sidNames)) {
+					if(v0 < SIZEOFARRAY(sidNames)) {
 						s += sidNames[v0];
 						return;
 					}
 					if(v0 == 32 && num == 2) {
 						uint32 v1 = Get32(p + 12);
-						for(uint i = 0; i < ARRAY_SIZE(sid_32_Names); i++)
+						for(uint i = 0; i < SIZEOFARRAY(sid_32_Names); i++)
 							if(sid_32_Names[i].n == v1) {
 								s += sid_32_Names[i].sz;
 								return;
@@ -261,14 +261,14 @@ static void ParseSid(AString &s, const Byte * p, uint32 lim, uint32 &sidSize)
 					}
 					if(v0 == 21 && num == 5) {
 						uint32 v4 = Get32(p + 8 + 4 * 4);
-						for(uint i = 0; i < ARRAY_SIZE(sid_21_Names); i++)
+						for(uint i = 0; i < SIZEOFARRAY(sid_21_Names); i++)
 							if(sid_21_Names[i].n == v4) {
 								s += sid_21_Names[i].sz;
 								return;
 							}
 					}
 					if(v0 == 80 && num == 6) {
-						for(uint i = 0; i < ARRAY_SIZE(services_to_name); i++) {
+						for(uint i = 0; i < SIZEOFARRAY(services_to_name); i++) {
 							const CServicesToName &sn = services_to_name[i];
 							int j;
 							for(j = 0; j < 5 && sn.n[j] == Get32(p + 8 + 4 + j * 4); j++) ;

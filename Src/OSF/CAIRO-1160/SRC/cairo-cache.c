@@ -271,7 +271,7 @@ ulong FASTCALL _cairo_hash_string(const char * c)
 
 ulong FASTCALL _cairo_hash_bytes(ulong hash, const void * ptr, uint length)
 {
-	const uint8_t * bytes = (const uint8_t *)ptr;
+	const uint8 * bytes = (const uint8 *)ptr;
 	/* This is the djb2 hash. */
 	while(length--)
 		hash = ((hash << 5) + hash) + *bytes++;

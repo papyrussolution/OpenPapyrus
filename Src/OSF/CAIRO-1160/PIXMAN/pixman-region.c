@@ -1906,10 +1906,10 @@ static inline box_type_t * bitmap_addrect(region_type_t * reg, box_type_t * r, b
 // 
 PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image_t *image)
 {
-	uint32_t mask0 = 0xffffffff & ~SCREEN_SHIFT_RIGHT(0xffffffff, 1);
+	uint32 mask0 = 0xffffffff & ~SCREEN_SHIFT_RIGHT(0xffffffff, 1);
 	box_type_t * first_rect, * rects, * prect_line_start;
 	box_type_t * old_rect, * new_rect;
-	uint32_t * pw, w, * pw_line, * pw_line_end;
+	uint32 * pw, w, * pw_line, * pw_line_end;
 	int irect_prev_start, irect_line_start;
 	int h, base, rx1 = 0, crects;
 	int ib;

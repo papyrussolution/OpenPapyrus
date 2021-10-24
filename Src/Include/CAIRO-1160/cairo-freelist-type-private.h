@@ -39,7 +39,7 @@ typedef struct _cairo_freelist_pool cairo_freelist_pool_t;
 struct _cairo_freelist_pool {
 	cairo_freelist_pool_t * next;
 	unsigned size, rem;
-	uint8_t * data;
+	uint8 * data;
 };
 
 typedef struct _cairo_freepool {
@@ -48,7 +48,7 @@ typedef struct _cairo_freepool {
 	cairo_freelist_pool_t * freepools;
 	unsigned nodesize;
 	cairo_freelist_pool_t embedded_pool;
-	uint8_t embedded_data[1000];
+	uint8 embedded_data[1000];
 } cairo_freepool_t;
 
 #endif /* CAIRO_FREELIST_TYPE_H */

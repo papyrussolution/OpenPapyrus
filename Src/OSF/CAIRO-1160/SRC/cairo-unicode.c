@@ -108,30 +108,30 @@ static const char utf8_skip_data[256] = {
  * If @p does not point to a valid UTF-8 encoded character, results are
  * undefined.
  **/
-static uint32_t FASTCALL _utf8_get_char(const uchar * p)
+static uint32 FASTCALL _utf8_get_char(const uchar * p)
 {
 	int i, mask = 0, len;
-	uint32_t result;
+	uint32 result;
 	uchar c = static_cast<uchar>(*p);
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1)
-		return static_cast<uint32_t>(-1);
+		return static_cast<uint32>(-1);
 	UTF8_GET(result, p, i, mask, len);
 	return result;
 }
 
 /* Like _utf8_get_char, but take a maximum length
- * and return (uint32_t)-2 on incomplete trailing character
+ * and return (uint32)-2 on incomplete trailing character
  */
-static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
+static uint32 FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 {
 	int i, len;
-	uint32_t wc = static_cast<uchar>(*p);
+	uint32 wc = static_cast<uchar>(*p);
 	if(wc < 0x80) {
 		return wc;
 	}
 	else if(wc < 0xc0) {
-		return static_cast<uint32_t>(-1);
+		return static_cast<uint32>(-1);
 	}
 	else if(wc < 0xe0) {
 		len = 2;
@@ -154,28 +154,28 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 		wc &= 0x01;
 	}
 	else {
-		return static_cast<uint32_t>(-1);
+		return static_cast<uint32>(-1);
 	}
 	if(max_len >= 0 && len > max_len) {
 		for(i = 1; i < max_len; i++) {
 			if((((uchar *)p)[i] & 0xc0) != 0x80)
-				return static_cast<uint32_t>(-1);
+				return static_cast<uint32>(-1);
 		}
-		return (uint32_t)-2;
+		return (uint32)-2;
 	}
 	for(i = 1; i < len; ++i) {
-		uint32_t ch = ((uchar *)p)[i];
+		uint32 ch = ((uchar *)p)[i];
 		if((ch & 0xc0) != 0x80) {
 			if(ch)
-				return static_cast<uint32_t>(-1);
+				return static_cast<uint32>(-1);
 			else
-				return (uint32_t)-2;
+				return (uint32)-2;
 		}
 		wc <<= 6;
 		wc |= (ch & 0x3f);
 	}
 	if(UTF8_LENGTH(wc) != len)
-		return static_cast<uint32_t>(-1);
+		return static_cast<uint32>(-1);
 	return wc;
 }
 /**
@@ -191,15 +191,15 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
  *
  * Returns: the number of bytes forming the character returned.
  **/
-int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
+int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32 * unicode)
 {
 	int i, mask = 0, len;
-	uint32_t result;
+	uint32 result;
 	uchar c = static_cast<uchar>(*p);
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1) {
 		if(unicode)
-			*unicode = (uint32_t)-1;
+			*unicode = (uint32)-1;
 		return 1;
 	}
 	UTF8_GET(result, p, i, mask, len);
@@ -226,15 +226,15 @@ int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
  * successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  * invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written)
+cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32 ** result, int * items_written)
 {
-	uint32_t * str32 = NULL;
+	uint32 * str32 = NULL;
 	int i;
 	const uchar * const ustr = (const uchar *)str;
 	const uchar * in = ustr;
 	int n_chars = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
-		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
+		uint32 wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		n_chars++;
@@ -243,7 +243,7 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result
 		in = UTF8_NEXT_CHAR(in);
 	}
 	if(result) {
-		str32 = static_cast<uint32_t *>(_cairo_malloc_ab(n_chars + 1, sizeof(uint32_t)));
+		str32 = static_cast<uint32 *>(_cairo_malloc_ab(n_chars + 1, sizeof(uint32)));
 		if(!str32)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		in = ustr;
@@ -269,12 +269,12 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result
  * Return value: Number of bytes in the utf8 string or 0 if an invalid
  * unicode character
  **/
-int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
+int _cairo_ucs4_to_utf8(uint32 unicode, char * utf8)
 {
 	int bytes;
 	char * p;
 	if(unicode < 0x80) {
-		ASSIGN_PTR(utf8, unicode);
+		ASSIGN_PTR(utf8, static_cast<char>(unicode));
 		return 1;
 	}
 	else if(unicode < 0x800) {
@@ -311,16 +311,16 @@ int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
  * Return value: Number of elements in the utf16 string or 0 if an
  * invalid unicode character
  **/
-int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
+int FASTCALL _cairo_ucs4_to_utf16(uint32 unicode, uint16 * utf16)
 {
 	if(unicode < 0x10000) {
 		if(utf16)
-			utf16[0] = unicode;
+			utf16[0] = static_cast<uint16>(unicode);
 		return 1;
 	}
 	else if(unicode < 0x110000) {
 		if(utf16) {
-			utf16[0] = (unicode - 0x10000) / 0x400 + 0xd800;
+			utf16[0] = static_cast<uint16>((unicode - 0x10000) / 0x400 + 0xd800);
 			utf16[1] = (unicode - 0x10000) % 0x400 + 0xdc00;
 		}
 		return 2;
@@ -352,15 +352,15 @@ int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
  * successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  * an invalid sequence was found.
  **/
-cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written)
+cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16 ** result, int * items_written)
 {
-	uint16_t * str16 = NULL;
+	uint16 * str16 = NULL;
 	int i;
 	const uchar * const ustr = (const uchar *)str;
 	const uchar * in = ustr;
 	int n16 = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
-		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
+		uint32 wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		if(wc < 0x10000)
@@ -371,12 +371,12 @@ cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		in = UTF8_NEXT_CHAR(in);
 	}
-	str16 = static_cast<uint16_t *>(_cairo_malloc_ab(n16 + 1, sizeof(uint16_t)));
+	str16 = static_cast<uint16 *>(_cairo_malloc_ab(n16 + 1, sizeof(uint16)));
 	if(!str16)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	in = ustr;
 	for(i = 0; i < n16;) {
-		uint32_t wc = _utf8_get_char(in);
+		uint32 wc = _utf8_get_char(in);
 		i += _cairo_ucs4_to_utf16(wc, str16 + i);
 		in = UTF8_NEXT_CHAR(in);
 	}

@@ -519,6 +519,24 @@ int TWindow::destroyCtrl(uint ctlID)
 	return ok;
 }
 
+TLabel * TWindow::getCtlLabel(uint ctlID)
+{
+	TView  * v = getCtrlView(ctlID);
+	return v ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, v)) : 0;
+}
+
+int TWindow::getLabelText(uint ctlID, SString & rText)
+{
+	TLabel * p_label = getCtlLabel(ctlID);
+	return p_label ? (p_label->getText(rText), 1) : 0;
+}
+
+int TWindow::setLabelText(uint ctlID, const char * pText)
+{
+	TLabel * p_label = getCtlLabel(ctlID);
+	return p_label ? p_label->setText(pText) : 0;
+}
+
 int STDCALL TWindow::setCtrlData(ushort ctlID, void * data)
 {
 	TView * v = getCtrlView(ctlID);
@@ -1007,6 +1025,18 @@ int TWindow::SetCtlSymb(uint id, const char * pSymb)
 	return ok;
 }
 
+TView * FASTCALL TWindow::CtrlIdToView(long id) const
+{
+	TView * v = P_Last;
+	if(v) do {
+		if(v->TestId(id))
+			return v;
+		else
+			v = v->prev();
+	} while(v != P_Last);
+	return 0;
+}
+
 int TWindow::GetCtlSymb(uint id, SString & rBuf) const
 {
 	rBuf.Z();
@@ -1019,6 +1049,16 @@ int TWindow::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	if(pCtl) {
 		Insert_(&pCtl->SetId(id));
 		SetCtlSymb(id, pSymb);
+		ok = 1;
+	}
+	return ok;
+}
+
+int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb)
+{
+	int    ok = 0;
+	if(InsertCtl(pCtl, id, pSymb)) {
+		TView::CreateCorrespondingNativeItem(pCtl);
 		ok = 1;
 	}
 	return ok;
@@ -1812,6 +1852,39 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			return 0;
 		case WM_DRAWITEM: // @v11.2.0
 			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
+		case WM_COMMAND: // @v11.2.0
+			// Этот участок кода почти в точности скопирован из класса TDialog. Вполне возможно, что возникнут проблемы!
+			{
+				uint16 hiw = HIWORD(wParam);
+				uint16 low = LOWORD(wParam);
+				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE) {
+					//return 0;
+					;
+				}
+				else if(p_view) {
+					if(hiw == 0 && low == IDCANCEL) {
+						TView::messageCommand(p_view, cmCancel, p_view);
+						//return 0;
+					}
+					else {
+						if(lParam == 0) {
+							if(hiw == 0) { // from menu
+								TView::messageKeyDown(p_view, low);
+								return 0;
+							}
+							else if(hiw == 1) { // from accelerator
+								TEvent event;
+								event.what = TEvent::evCommand;
+								event.message.command = low;
+								p_view->handleEvent(event);
+							}
+						}
+						TView * v = p_view->CtrlIdToView(CLUSTER_ID(low));
+						CALLPTRMEMB(v, handleWindowsMessage(message, wParam, lParam));
+					}
+				}
+			}
+			break;
 		default:
 			break;
 	}

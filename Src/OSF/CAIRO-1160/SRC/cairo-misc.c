@@ -391,7 +391,7 @@ boolint FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op)
 	return FALSE;
 }
 
-uint32_t _cairo_operator_bounded_by_either(cairo_operator_t op)
+uint32 _cairo_operator_bounded_by_either(cairo_operator_t op)
 {
 	switch(op) {
 		default:
@@ -453,11 +453,11 @@ uint32_t _cairo_operator_bounded_by_either(cairo_operator_t op)
  */
 int _cairo_lround(double d)
 {
-	uint32_t top, shift_amount, output;
+	uint32 top, shift_amount, output;
 	union {
 		double d;
-		uint64_t ui64;
-		uint32_t ui32[2];
+		uint64 ui64;
+		uint32 ui32[2];
 	} u;
 
 	u.d = d;
@@ -474,7 +474,7 @@ int _cairo_lround(double d)
 #if ( defined(FLOAT_WORDS_BIGENDIAN) && !defined(WORDS_BIGENDIAN)) || \
 	(!defined(FLOAT_WORDS_BIGENDIAN) &&  defined(WORDS_BIGENDIAN))
 	{
-		uint32_t temp = u.ui32[0];
+		uint32 temp = u.ui32[0];
 		u.ui32[0] = u.ui32[1];
 		u.ui32[1] = temp;
 	}
@@ -646,10 +646,10 @@ int _cairo_lround(double d)
 // 
 // Descr: Convert a 32-bit IEEE single precision floating point number to a 'half' representation (s10.5)
 //
-uint16_t _cairo_half_from_float(float f)
+uint16 _cairo_half_from_float(float f)
 {
 	union {
-		uint32_t ui;
+		uint32 ui;
 		float f;
 	} u;
 	int s, e, m;
@@ -812,8 +812,8 @@ cairo_status_t _cairo_fopen(const char * filename, const char * mode, FILE ** fi
 {
 	FILE * result;
 #ifdef _WIN32 /* also defined on x86_64 */
-	uint16_t * filename_w;
-	uint16_t * mode_w;
+	uint16 * filename_w;
+	uint16 * mode_w;
 	cairo_status_t status;
 
 	*file_out = NULL;

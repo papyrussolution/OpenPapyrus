@@ -226,10 +226,8 @@ static int checkday(const char * check, size_t len)
 static int checkmonth(const char * check)
 {
 	int i;
-	const char * const * what;
 	bool found = FALSE;
-
-	what = &Curl_month[0];
+	const char * const * what = &Curl_month[0];
 	for(i = 0; i<12; i++) {
 		if(strcasecompare(check, what[0])) {
 			found = TRUE;
@@ -247,7 +245,7 @@ static int checktz(const char * check)
 {
 	bool found = FALSE;
 	const struct tzinfo * what = tz;
-	for(uint i = 0; i < sizeof(tz)/sizeof(tz[0]); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(tz); i++) {
 		if(strcasecompare(check, what->name)) {
 			found = TRUE;
 			break;

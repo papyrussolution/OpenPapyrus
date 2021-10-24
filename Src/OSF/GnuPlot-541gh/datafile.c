@@ -301,36 +301,36 @@ struct df_binary_tables_struct {
 };
 
 static const df_binary_details_struct df_binary_details[] = {
-	{ch_names, sizeof(ch_names)/sizeof(ch_names[0]), {DF_CHAR, sizeof(char)}},
-	{uc_names, sizeof(uc_names)/sizeof(uc_names[0]), {DF_UCHAR, sizeof(uchar)}},
-	{sh_names, sizeof(sh_names)/sizeof(sh_names[0]), {DF_SHORT, sizeof(short)}},
-	{us_names, sizeof(us_names)/sizeof(us_names[0]), {DF_USHORT, sizeof(ushort)}},
-	{in_names, sizeof(in_names)/sizeof(in_names[0]), {DF_INT, sizeof(int)}},
-	{ui_names, sizeof(ui_names)/sizeof(ui_names[0]), {DF_UINT, sizeof(uint)}},
-	{lo_names, sizeof(lo_names)/sizeof(lo_names[0]), {DF_LONG, sizeof(long)}},
-	{ul_names, sizeof(ul_names)/sizeof(ul_names[0]), {DF_ULONG, sizeof(ulong)}},
-	{fl_names, sizeof(fl_names)/sizeof(fl_names[0]), {DF_FLOAT, sizeof(float)}},
-	{db_names, sizeof(db_names)/sizeof(db_names[0]), {DF_DOUBLE, sizeof(double)}},
-	{NULL, 0,                                       {DF_LONGLONG, sizeof(int64)}},
-	{NULL, 0,                                       {DF_ULONGLONG, sizeof(uint64)}}
+	{ch_names, SIZEOFARRAY(ch_names), {DF_CHAR, sizeof(char)}},
+	{uc_names, SIZEOFARRAY(uc_names), {DF_UCHAR, sizeof(uchar)}},
+	{sh_names, SIZEOFARRAY(sh_names), {DF_SHORT, sizeof(short)}},
+	{us_names, SIZEOFARRAY(us_names), {DF_USHORT, sizeof(ushort)}},
+	{in_names, SIZEOFARRAY(in_names), {DF_INT, sizeof(int)}},
+	{ui_names, SIZEOFARRAY(ui_names), {DF_UINT, sizeof(uint)}},
+	{lo_names, SIZEOFARRAY(lo_names), {DF_LONG, sizeof(long)}},
+	{ul_names, SIZEOFARRAY(ul_names), {DF_ULONG, sizeof(ulong)}},
+	{fl_names, SIZEOFARRAY(fl_names), {DF_FLOAT, sizeof(float)}},
+	{db_names, SIZEOFARRAY(db_names), {DF_DOUBLE, sizeof(double)}},
+	{NULL, 0, {DF_LONGLONG, sizeof(int64)}},
+	{NULL, 0, {DF_ULONGLONG, sizeof(uint64)}}
 };
 
 static const df_binary_details_struct df_binary_details_independent[] = {
-	{byte_names, sizeof(byte_names)/sizeof(byte_names[0]), {SIGNED_TEST(1), 1}},
-	{ubyte_names, sizeof(ubyte_names)/sizeof(ubyte_names[0]), {UNSIGNED_TEST(1), 1}},
-	{word_names, sizeof(word_names)/sizeof(word_names[0]), {SIGNED_TEST(2), 2}},
-	{uword_names, sizeof(uword_names)/sizeof(uword_names[0]), {UNSIGNED_TEST(2), 2}},
-	{word2_names, sizeof(word2_names)/sizeof(word2_names[0]), {SIGNED_TEST(4), 4}},
-	{uword2_names, sizeof(uword2_names)/sizeof(uword2_names[0]), {UNSIGNED_TEST(4), 4}},
-	{word4_names, sizeof(word4_names)/sizeof(word4_names[0]), {SIGNED_TEST(8), 8}},
-	{uword4_names, sizeof(uword4_names)/sizeof(uword4_names[0]), {UNSIGNED_TEST(8), 8}},
-	{float_names, sizeof(float_names)/sizeof(float_names[0]), {FLOAT_TEST(4), 4}},
-	{float2_names, sizeof(float2_names)/sizeof(float2_names[0]), {FLOAT_TEST(8), 8}}
+	{byte_names,   SIZEOFARRAY(byte_names), {SIGNED_TEST(1), 1}},
+	{ubyte_names,  SIZEOFARRAY(ubyte_names), {UNSIGNED_TEST(1), 1}},
+	{word_names,   SIZEOFARRAY(word_names), {SIGNED_TEST(2), 2}},
+	{uword_names,  SIZEOFARRAY(uword_names), {UNSIGNED_TEST(2), 2}},
+	{word2_names,  SIZEOFARRAY(word2_names), {SIGNED_TEST(4), 4}},
+	{uword2_names, SIZEOFARRAY(uword2_names), {UNSIGNED_TEST(4), 4}},
+	{word4_names,  SIZEOFARRAY(word4_names), {SIGNED_TEST(8), 8}},
+	{uword4_names, SIZEOFARRAY(uword4_names), {UNSIGNED_TEST(8), 8}},
+	{float_names,  SIZEOFARRAY(float_names), {FLOAT_TEST(4), 4}},
+	{float2_names, SIZEOFARRAY(float2_names), {FLOAT_TEST(8), 8}}
 };
 
 static const df_binary_tables_struct df_binary_tables[] = {
-	{df_binary_details, sizeof(df_binary_details)/sizeof(df_binary_details[0])},
-	{df_binary_details_independent, sizeof(df_binary_details_independent)/sizeof(df_binary_details_independent[0])}
+	{df_binary_details, SIZEOFARRAY(df_binary_details)},
+	{df_binary_details_independent, SIZEOFARRAY(df_binary_details_independent)}
 };
 //
 // Information about binary data structure, to be determined by the
@@ -3982,7 +3982,7 @@ void df_show_datasizes(FILE * fp)
 {
 	int i;
 	fprintf(fp, "\tThe following binary data sizes are machine dependent:\n\n\t  name (size in bytes)\n\n");
-	for(i = 0; i < sizeof(df_binary_details)/sizeof(df_binary_details[0]); i++) {
+	for(i = 0; i < SIZEOFARRAY(df_binary_details); i++) {
 		fprintf(fp, "\t  ");
 		for(int j = 0; j < df_binary_details[i].no_names; j++) {
 			fprintf(fp, "\"%s\" ", df_binary_details[i].name[j]);
@@ -3990,7 +3990,7 @@ void df_show_datasizes(FILE * fp)
 		fprintf(fp, "(%d)\n", df_binary_details[i].type.read_size);
 	}
 	fprintf(fp, "\n\\tThe following binary data sizes attempt to be machine independent:\n\n\\t  name (size in bytes)\n\n");
-	for(i = 0; i < sizeof(df_binary_details_independent)/sizeof(df_binary_details_independent[0]); i++) {
+	for(i = 0; i < SIZEOFARRAY(df_binary_details_independent); i++) {
 		fprintf(fp, "\t  ");
 		for(int j = 0; j < df_binary_details_independent[i].no_names; j++) {
 			fprintf(fp, "\"%s\" ", df_binary_details_independent[i].name[j]);

@@ -65,7 +65,7 @@ static const pixman_iter_info_t general_iters[] =
 
 typedef struct op_info_t op_info_t;
 struct op_info_t {
-	uint8_t src, dst;
+	uint8 src, dst;
 };
 
 #define ITER_IGNORE_BOTH (ITER_IGNORE_ALPHA | ITER_IGNORE_RGB | ITER_LOCALIZED_ALPHA)
@@ -93,7 +93,7 @@ static const op_info_t op_flags[PIXMAN_N_OPERATORS] =
 
 static pixman_bool_t operator_needs_division(pixman_op_t op)
 {
-	static const uint8_t needs_division[] = {
+	static const uint8 needs_division[] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, /* SATURATE */
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, /* DISJOINT */
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, /* CONJOINT */
@@ -105,9 +105,9 @@ static pixman_bool_t operator_needs_division(pixman_op_t op)
 static void general_composite_rect(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
-	uint8_t * scanline_buffer = (uint8_t *)stack_scanline_buffer;
-	uint8_t * src_buffer, * mask_buffer, * dest_buffer;
+	uint8 stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
+	uint8 * scanline_buffer = (uint8 *)stack_scanline_buffer;
+	uint8 * src_buffer, * mask_buffer, * dest_buffer;
 	pixman_iter_t src_iter, mask_iter, dest_iter;
 	pixman_combine_32_func_t compose;
 	pixman_bool_t component_alpha;
@@ -125,11 +125,11 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		width_flag = ITER_WIDE;
 		Bpp = 16;
 	}
-#define ALIGN(addr) ((uint8_t *)((((uintptr_t)(addr)) + 15) & (~15)))
+#define ALIGN(addr) ((uint8 *)((((uintptr_t)(addr)) + 15) & (~15)))
 	if(width <= 0 || _pixman_multiply_overflows_int(width, Bpp * 3))
 		return;
 	if(width * Bpp * 3 > sizeof(stack_scanline_buffer) - 15 * 3) {
-		scanline_buffer = (uint8_t *)pixman_malloc_ab_plus_c(width, Bpp * 3, 15 * 3);
+		scanline_buffer = (uint8 *)pixman_malloc_ab_plus_c(width, Bpp * 3, 15 * 3);
 		if(!scanline_buffer)
 			return;
 	}
@@ -159,9 +159,9 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		dest_buffer, (iter_flags_t)(ITER_DEST | width_flag | op_flags[op].dst), info->dest_flags);
 	compose = _pixman_implementation_lookup_combiner(imp->toplevel, op, component_alpha, width_flag != ITER_WIDE);
 	for(i = 0; i < height; ++i) {
-		uint32_t * m = mask_iter.get_scanline(&mask_iter, NULL);
-		uint32_t * s = src_iter.get_scanline(&src_iter, m);
-		uint32_t * d = dest_iter.get_scanline(&dest_iter, NULL);
+		uint32 * m = mask_iter.get_scanline(&mask_iter, NULL);
+		uint32 * s = src_iter.get_scanline(&src_iter, m);
+		uint32 * d = dest_iter.get_scanline(&dest_iter, NULL);
 		compose(imp->toplevel, op, d, s, m, width);
 		dest_iter.write_back(&dest_iter);
 	}
@@ -171,7 +171,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		mask_iter.fini(&mask_iter);
 	if(dest_iter.fini)
 		dest_iter.fini(&dest_iter);
-	if(scanline_buffer != (uint8_t *)stack_scanline_buffer)
+	if(scanline_buffer != (uint8 *)stack_scanline_buffer)
 		SAlloc::F(scanline_buffer);
 }
 

@@ -44,8 +44,7 @@ public:
 	}
 	int    FASTCALL Add(const CashierEntry * pEntry)
 	{
-		uint   p = 0;
-		return Search(pEntry->TabNum, pEntry->Expiry, &p) ? -1 : Insert(pEntry);
+		return Search(pEntry->TabNum, pEntry->Expiry, 0) ? -1 : Insert(pEntry);
 	}
 	PPID   GetCshrID(long tabNum, LDATE dt) const
 	{
@@ -636,6 +635,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 			const  int is_spirit    = BIN(pGoodsIter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0);
 			const  int is_tobacco   = BIN(tobacco_cls_id && tobacco_cls_id == prev_gds_info.GdsClsID);
 			const  int is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == prev_gds_info.GdsClsID);
+			int    tag1212 = 0; // @v11.2.0
 			int    do_process_lookbackprices = 0;
 			int    is_weight = 0;
 			LDATE  expiry = ZERODATE;
@@ -726,21 +726,29 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 					}
 					// тип товара:
 					// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
-					if(is_spirit)
+					if(is_spirit) {
 						p_writer->PutElement("product-type", "ProductSpiritsEntity");
+						tag1212 = 2; // @v11.2.0
+					}
 					else if(is_tobacco) {
 						p_writer->PutElement("product-type", "ProductCiggyEntity");
+						tag1212 = (prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 31 : 30; // @v11.2.0
 						if(!ignore_lookbackprices)
 							do_process_lookbackprices = 1;
 					}
-					else if(is_gift_card)
+					else if(is_gift_card) {
 						p_writer->PutElement("product-type", "ProductGiftCardEntity");
-					else if(is_weight == 1)
-						p_writer->PutElement("product-type", "ProductWeightEntity");
-					else if(is_weight == 2)
-						p_writer->PutElement("product-type", "ProductPieceWeightEntity");
-					else
-						p_writer->PutElement("product-type", "ProductPieceEntity");
+						tag1212 = 10; // @v11.2.0
+					}
+					else {
+						tag1212 = (prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 33 : 1; // @v11.2.0
+						if(is_weight == 1)
+							p_writer->PutElement("product-type", "ProductWeightEntity");
+						else if(is_weight == 2)
+							p_writer->PutElement("product-type", "ProductPieceWeightEntity");
+						else
+							p_writer->PutElement("product-type", "ProductPieceEntity");
+					}
 					// @v10.4.12 {
 					if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, prev_gds_info.ID, sr_prodtagb_tag, temp_buf) > 0) {
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -864,6 +872,18 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 						p_writer->PutPlugin("description-on-scale-screen", prev_gds_info.LabelName);
 						p_writer->PutPlugin("name-on-scale-screen", prev_gds_info.Name);
 					}
+					// @v11.2.0 {
+					{
+						if(is_weight)
+							p_writer->PutElement("ffd-tag-2108", "11"); // kg
+						else
+							p_writer->PutElement("ffd-tag-2108", "0"); // piece
+						if(tag1212 > 0)
+							p_writer->PutElement("ffd-tag-1212", temp_buf.Z().Cat(tag1212)); 
+						//<ffd-tag-2108>5</ffd-tag-2108>
+						//<ffd-tag-1212>4</ffd-tag-1212>
+					}
+					// } @v11.2.0 
 				}
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(do_process_lookbackprices) {
@@ -1077,14 +1097,12 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(_grp_list.getCount()) {
 			for(i = 0; i < _grp_list.getCount(); i++) {
 				PPGoodsPacket gds_pack;
-				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0) {
-					if(gds_pack.GetGroupCode(code) > 0) {
-						_SalesGrpEntry sales_grp_item;
-						sales_grp_item.GrpID = gds_pack.Rec.ID;
-						STRNSCPY(sales_grp_item.GrpName, gds_pack.Rec.Name);
-						STRNSCPY(sales_grp_item.Code, code);
-						sales_grp_list.insert(&sales_grp_item);
-					}
+				if(ggobj.GetPacket(_grp_list.at(i), &gds_pack, PPObjGoods::gpoSkipQuot) > 0 && gds_pack.GetGroupCode(code) > 0) {
+					_SalesGrpEntry sales_grp_item;
+					sales_grp_item.GrpID = gds_pack.Rec.ID;
+					STRNSCPY(sales_grp_item.GrpName, gds_pack.Rec.Name);
+					STRNSCPY(sales_grp_item.Code, code);
+					sales_grp_list.insert(&sales_grp_item);
 				}
 			}
 		}

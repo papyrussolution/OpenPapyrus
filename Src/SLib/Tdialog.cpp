@@ -714,24 +714,6 @@ int TDialog::TransmitData(int dir, void * pData)
 	return s;
 }
 
-TLabel * TDialog::getCtlLabel(uint ctlID)
-{
-	TView  * v = getCtrlView(ctlID);
-	return v ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, v)) : 0;
-}
-
-int TDialog::getLabelText(uint ctlID, SString & rText)
-{
-	TLabel * p_label = getCtlLabel(ctlID);
-	return p_label ? (p_label->getText(rText), 1) : 0;
-}
-
-int TDialog::setLabelText(uint ctlID, const char * pText)
-{
-	TLabel * p_label = getCtlLabel(ctlID);
-	return p_label ? p_label->setText(pText) : 0;
-}
-
 long TDialog::getVirtButtonID(uint ctlID)
 {
 	TView * v = getCtrlView(ctlID);

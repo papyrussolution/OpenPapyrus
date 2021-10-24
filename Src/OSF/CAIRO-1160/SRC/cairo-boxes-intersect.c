@@ -52,7 +52,7 @@ struct _edge {
 
 struct _rectangle {
 	edge_t left, right;
-	int32_t top, bottom;
+	int32 top, bottom;
 };
 
 #define UNROLL3(x) x x x
@@ -75,8 +75,8 @@ typedef struct _sweep_line {
 	pqueue_t pq;
 	edge_t head, tail;
 	edge_t * insert_left, * insert_right;
-	int32_t current_y;
-	int32_t last_y;
+	int32 current_y;
+	int32 last_y;
 	jmp_buf unwind;
 } sweep_line_t;
 
@@ -229,7 +229,7 @@ static void sweep_line_fini(sweep_line_t * sweep_line)
 	pqueue_fini(&sweep_line->pq);
 }
 
-static void end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot, cairo_boxes_t * out)
+static void end_box(sweep_line_t * sweep_line, edge_t * left, int32 bot, cairo_boxes_t * out)
 {
 	if(LIKELY(left->top < bot)) {
 		cairo_status_t status;

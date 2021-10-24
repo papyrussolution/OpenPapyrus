@@ -37,7 +37,7 @@ typedef struct _rectangle {
 	struct _rectangle * next, * prev;
 	cairo_fixed_t left, right;
 	cairo_fixed_t top, bottom;
-	int32_t top_y, bottom_y;
+	int32 top_y, bottom_y;
 	int dir;
 } rectangle_t;
 
@@ -61,8 +61,8 @@ struct sweep_line_t {
 	pqueue_t stop;
 	rectangle_t head, tail;
 	rectangle_t * insert_cursor;
-	int32_t current_y;
-	int32_t xmin, xmax;
+	int32 current_y;
+	int32 xmin, xmax;
 	struct coverage {
 		struct cell {
 			struct cell * prev, * next;
@@ -76,33 +76,26 @@ struct sweep_line_t {
 	cairo_half_open_span_t * spans;
 	uint num_spans;
 	uint size_spans;
-
 	jmp_buf jmpbuf;
 };
 
-static inline int rectangle_compare_start(const rectangle_t * a,
-    const rectangle_t * b)
+static inline int rectangle_compare_start(const rectangle_t * a, const rectangle_t * b)
 {
-	int cmp;
-
-	cmp = a->top_y - b->top_y;
+	int cmp = a->top_y - b->top_y;
 	if(cmp)
 		return cmp;
-
 	return a->left - b->left;
 }
 
-static inline int rectangle_compare_stop(const rectangle_t * a,
-    const rectangle_t * b)
+static inline int rectangle_compare_stop(const rectangle_t * a, const rectangle_t * b)
 {
-	return a->bottom_y - b->bottom_y;
+	return (a->bottom_y - b->bottom_y);
 }
 
 static inline void pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 	pq->elements[PQ_FIRST_ENTRY] = NULL;
 }
@@ -136,32 +129,23 @@ static inline void pqueue_push(sweep_line_t * sweep, rectangle_t * rectangle)
 {
 	rectangle_t ** elements;
 	int i, parent;
-
 	if(UNLIKELY(sweep->stop.size + 1 == sweep->stop.max_size)) {
 		if(UNLIKELY(!pqueue_grow(&sweep->stop)))
 			longjmp(sweep->jmpbuf,
 			    _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
-
 	elements = sweep->stop.elements;
-	for(i = ++sweep->stop.size;
-	    i != PQ_FIRST_ENTRY &&
-	    rectangle_compare_stop(rectangle,
-	    elements[parent = PQ_PARENT_INDEX(i)]) < 0;
-	    i = parent) {
+	for(i = ++sweep->stop.size; i != PQ_FIRST_ENTRY && rectangle_compare_stop(rectangle, elements[parent = PQ_PARENT_INDEX(i)]) < 0; i = parent) {
 		elements[i] = elements[parent];
 	}
-
 	elements[i] = rectangle;
 }
 
 static inline void pqueue_pop(pqueue_t * pq)
 {
 	rectangle_t ** elements = pq->elements;
-	rectangle_t * tail;
 	int child, i;
-
-	tail = elements[pq->size--];
+	rectangle_t * tail = elements[pq->size--];
 	if(pq->size == 0) {
 		elements[PQ_FIRST_ENTRY] = NULL;
 		return;
@@ -268,7 +252,7 @@ found:
 
 static inline void _active_edges_to_spans(sweep_line_t * sweep)
 {
-	int32_t y = sweep->current_y;
+	int32 y = sweep->current_y;
 	rectangle_t * rectangle;
 	int coverage, prev_coverage;
 	int prev_x;
@@ -331,7 +315,6 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 			sweep->spans[n].coverage = c - (c >> 8);
 			prev_coverage = coverage;
 		}
-
 		coverage += cell->covered;
 		if(coverage != prev_coverage) {
 			int n = sweep->num_spans++;
@@ -345,7 +328,6 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 		prev_x = cell->x + 1;
 	}
 	_cairo_freepool_reset(&sweep->coverage.pool);
-
 	if(sweep->num_spans) {
 		if(prev_x <= sweep->xmax) {
 			int n = sweep->num_spans++;
@@ -364,24 +346,18 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 	}
 }
 
-static inline void sweep_line_delete(sweep_line_t * sweep,
-    rectangle_t * rectangle)
+static inline void sweep_line_delete(sweep_line_t * sweep, rectangle_t * rectangle)
 {
 	if(sweep->insert_cursor == rectangle)
 		sweep->insert_cursor = rectangle->next;
-
 	rectangle->prev->next = rectangle->next;
 	rectangle->next->prev = rectangle->prev;
-
 	pqueue_pop(&sweep->stop);
 }
 
-static inline void sweep_line_insert(sweep_line_t * sweep,
-    rectangle_t * rectangle)
+static inline void sweep_line_insert(sweep_line_t * sweep, rectangle_t * rectangle)
 {
-	rectangle_t * pos;
-
-	pos = sweep->insert_cursor;
+	rectangle_t * pos = sweep->insert_cursor;
 	if(pos->left != rectangle->left) {
 		if(pos->left > rectangle->left) {
 			do {
@@ -402,13 +378,11 @@ static inline void sweep_line_insert(sweep_line_t * sweep,
 			} while(TRUE);
 		}
 	}
-
 	pos->prev->next = rectangle;
 	rectangle->prev = pos->prev;
 	rectangle->next = pos;
 	pos->prev = rectangle;
 	sweep->insert_cursor = rectangle;
-
 	pqueue_push(sweep, rectangle);
 }
 
@@ -416,10 +390,7 @@ static void render_rows(sweep_line_t * sweep_line, cairo_span_renderer_t * rende
 {
 	cairo_status_t status;
 	_active_edges_to_spans(sweep_line);
-	status = renderer->render_rows(renderer,
-		sweep_line->current_y, height,
-		sweep_line->spans,
-		sweep_line->num_spans);
+	status = renderer->render_rows(renderer, sweep_line->current_y, height, sweep_line->spans, sweep_line->num_spans);
 	if(UNLIKELY(status))
 		longjmp(sweep_line->jmpbuf, status);
 }
@@ -439,11 +410,9 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 	start = *sweep_line.start++;
 	do {
 		if(start->top_y != sweep_line.current_y) {
-			render_rows(&sweep_line, renderer,
-			    start->top_y - sweep_line.current_y);
+			render_rows(&sweep_line, renderer, start->top_y - sweep_line.current_y);
 			sweep_line.current_y = start->top_y;
 		}
-
 		do {
 			sweep_line_insert(&sweep_line, start);
 			start = *sweep_line.start++;
@@ -452,9 +421,7 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 			if(start->top_y != sweep_line.current_y)
 				break;
 		} while(TRUE);
-
 		render_rows(&sweep_line, renderer, 1);
-
 		stop = peek_stop(&sweep_line);
 		while(stop->bottom_y == sweep_line.current_y) {
 			sweep_line_delete(&sweep_line, stop);
@@ -462,9 +429,7 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 			if(stop == NULL)
 				break;
 		}
-
 		sweep_line.current_y++;
-
 		while(stop != NULL && stop->bottom_y < start->top_y) {
 			if(stop->bottom_y != sweep_line.current_y) {
 				render_rows(&sweep_line, renderer,
@@ -485,7 +450,6 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 
 end:
 	render_rows(&sweep_line, renderer, 1);
-
 	stop = peek_stop(&sweep_line);
 	while(stop->bottom_y == sweep_line.current_y) {
 		sweep_line_delete(&sweep_line, stop);
@@ -493,16 +457,12 @@ end:
 		if(stop == NULL)
 			goto out;
 	}
-
 	while(++sweep_line.current_y < _cairo_fixed_integer_part(self->extents.p2.y)) {
 		if(stop->bottom_y != sweep_line.current_y) {
-			render_rows(&sweep_line, renderer,
-			    stop->bottom_y - sweep_line.current_y);
+			render_rows(&sweep_line, renderer, stop->bottom_y - sweep_line.current_y);
 			sweep_line.current_y = stop->bottom_y;
 		}
-
 		render_rows(&sweep_line, renderer, 1);
-
 		do {
 			sweep_line_delete(&sweep_line, stop);
 			stop = peek_stop(&sweep_line);
@@ -510,17 +470,12 @@ end:
 				goto out;
 		} while(stop->bottom_y == sweep_line.current_y);
 	}
-
 out:
 	sweep_line_fini(&sweep_line);
-
 	return status;
 }
 
-static void generate_row(cairo_span_renderer_t * renderer,
-    const rectangle_t * r,
-    int y, int h,
-    uint16_t coverage)
+static void generate_row(cairo_span_renderer_t * renderer, const rectangle_t * r, int y, int h, uint16 coverage)
 {
 	cairo_half_open_span_t spans[4];
 	uint num_spans = 0;
@@ -529,35 +484,29 @@ static void generate_row(cairo_span_renderer_t * renderer,
 	if(x2 > x1) {
 		if(!_cairo_fixed_is_integer(r->left)) {
 			spans[num_spans].x = x1;
-			spans[num_spans].coverage =
-			    coverage * (256 - _cairo_fixed_fractional_part(r->left)) >> 8;
+			spans[num_spans].coverage = coverage * (256 - _cairo_fixed_fractional_part(r->left)) >> 8;
 			num_spans++;
 			x1++;
 		}
-
 		if(x2 > x1) {
 			spans[num_spans].x = x1;
 			spans[num_spans].coverage = coverage - (coverage >> 8);
 			num_spans++;
 		}
-
 		if(!_cairo_fixed_is_integer(r->right)) {
 			spans[num_spans].x = x2++;
-			spans[num_spans].coverage =
-			    coverage * _cairo_fixed_fractional_part(r->right) >> 8;
+			spans[num_spans].coverage = coverage * _cairo_fixed_fractional_part(r->right) >> 8;
 			num_spans++;
 		}
 	}
 	else {
 		spans[num_spans].x = x2++;
-		spans[num_spans].coverage = coverage * (r->right - r->left) >> 8;
+		spans[num_spans].coverage = static_cast<uint8>(coverage * (r->right - r->left) >> 8); // @sobolev static_cast
 		num_spans++;
 	}
-
 	spans[num_spans].x = x2;
 	spans[num_spans].coverage = 0;
 	num_spans++;
-
 	renderer->render_rows(renderer, y, h, spans, num_spans);
 }
 
@@ -577,7 +526,7 @@ static cairo_status_t generate_box(cairo_rectangular_scan_converter_t * self, ca
 			generate_row(renderer, r, y2, 1, _cairo_fixed_fractional_part(r->bottom));
 	}
 	else
-		generate_row(renderer, r, y1, 1, r->bottom - r->top);
+		generate_row(renderer, r, y1, 1, static_cast<uint16>(r->bottom - r->top));
 	return CAIRO_STATUS_SUCCESS;
 }
 

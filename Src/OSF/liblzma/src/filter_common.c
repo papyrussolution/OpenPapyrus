@@ -585,7 +585,7 @@ static const lzma_filter_encoder * encoder_find(lzma_vli id)
 		},
 	#endif
 	};
-	for(size_t i = 0; i < ARRAY_SIZE(encoders); ++i)
+	for(size_t i = 0; i < SIZEOFARRAY(encoders); ++i)
 		if(encoders[i].id == id)
 			return encoders + i;
 #endif // } 0
@@ -856,7 +856,7 @@ static const lzma_filter_decoder * decoder_find(lzma_vli id)
 	#endif
 	};
 #endif // } 0
-	//for(size_t i = 0; i < ARRAY_SIZE(decoders); ++i)
+	//for(size_t i = 0; i < SIZEOFARRAY(decoders); ++i)
 		//if(decoders[i].id == id)
 			//return decoders + i;
 	for(uint i = 0; i < _decoders_list.getCount(); i++) {

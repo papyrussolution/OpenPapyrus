@@ -104,7 +104,7 @@ detect_cpu_features (void)
 {
     arm_cpu_features_t features = 0;
     AndroidCpuFamily cpu_family;
-    uint64_t cpu_features;
+    uint64 cpu_features;
 
     cpu_family = android_getCpuFamily();
     cpu_features = android_getCpuFeatures();
@@ -148,7 +148,7 @@ detect_cpu_features (void)
 	{
 	    if (aux.a_type == AT_HWCAP)
 	    {
-		uint32_t hwcap = aux.a_un.a_val;
+		uint32 hwcap = aux.a_un.a_val;
 
 		/* hardcode these values to avoid depending on specific
 		 * versions of the hwcap header, e.g. HWCAP_NEON

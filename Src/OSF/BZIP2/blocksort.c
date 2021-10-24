@@ -1,9 +1,6 @@
-
-/*-------------------------------------------------------------*/
-/*--- Block sorting machinery                               ---*/
-/*---                                           blocksort.c ---*/
-/*-------------------------------------------------------------*/
-
+// blocksort.c
+// Block sorting machinery
+//
 /* ------------------------------------------------------------------
    This file is part of bzip2/libbzip2, a program and library for
    lossless, block-sorting data compression.
@@ -20,13 +17,10 @@
 
 #include "bzlib_private.h"
 #pragma hdrstop
-
-/*---------------------------------------------*/
-/*--- Fallback O(N log(N)^2) sorting        ---*/
-/*--- algorithm, for repetitive blocks      ---*/
-/*---------------------------------------------*/
-
-/*---------------------------------------------*/
+// 
+// Fallback O(N log(N)^2) sorting
+// algorithm, for repetitive blocks
+// 
 static __inline__ void fallbackSimpleSort(uint32* fmap, uint32* eclass, int32 lo, int32 hi)
 {
 	int32 i, j;
@@ -493,7 +487,7 @@ static void mainSimpleSort(uint32* ptr, uchar*  block, uint16* quadrant, int32 n
 			j = i;
 			while(mainGtU(
 				    ptr[j-h]+d, v+d, block, quadrant, nblock, budget
-				    ) ) {
+				    )) {
 				ptr[j] = ptr[j-h];
 				j = j - h;
 				if(j <= (lo + h - 1)) break;
@@ -694,21 +688,21 @@ static void mainSort(uint32* ptr, uchar*  block, uint16* quadrant, uint32* ftab,
 	i = nblock-1;
 	for(; i >= 3; i -= 4) {
 		quadrant[i] = 0;
-		j = (j >> 8) | ( ((uint16)block[i]) << 8);
+		j = (j >> 8) | (((uint16)block[i]) << 8);
 		ftab[j]++;
 		quadrant[i-1] = 0;
-		j = (j >> 8) | ( ((uint16)block[i-1]) << 8);
+		j = (j >> 8) | (((uint16)block[i-1]) << 8);
 		ftab[j]++;
 		quadrant[i-2] = 0;
-		j = (j >> 8) | ( ((uint16)block[i-2]) << 8);
+		j = (j >> 8) | (((uint16)block[i-2]) << 8);
 		ftab[j]++;
 		quadrant[i-3] = 0;
-		j = (j >> 8) | ( ((uint16)block[i-3]) << 8);
+		j = (j >> 8) | (((uint16)block[i-3]) << 8);
 		ftab[j]++;
 	}
 	for(; i >= 0; i--) {
 		quadrant[i] = 0;
-		j = (j >> 8) | ( ((uint16)block[i]) << 8);
+		j = (j >> 8) | (((uint16)block[i]) << 8);
 		ftab[j]++;
 	}
 	/*-- (emphasises close relationship of block & quadrant) --*/
@@ -767,7 +761,7 @@ static void mainSort(uint32* ptr, uchar*  block, uint16* quadrant, uint32* ftab,
 			for(i = h; i <= 255; i++) {
 				vv = runningOrder[i];
 				j = i;
-				while(BIGFREQ(runningOrder[j-h]) > BIGFREQ(vv) ) {
+				while(BIGFREQ(runningOrder[j-h]) > BIGFREQ(vv)) {
 					runningOrder[j] = runningOrder[j-h];
 					j = j - h;
 					if(j <= (h - 1)) goto zero;
@@ -800,7 +794,7 @@ zero:
 		for(j = 0; j <= 255; j++) {
 			if(j != ss) {
 				sb = (ss << 8) + j;
-				if(!(ftab[sb] & SETMASK) ) {
+				if(!(ftab[sb] & SETMASK)) {
 					int32 lo = ftab[sb]   & CLEARMASK;
 					int32 hi = (ftab[sb+1] & CLEARMASK) - 1;
 					if(hi > lo) {
@@ -902,7 +896,7 @@ zero:
 				if(a2update < BZ_N_OVERSHOOT)
 					quadrant[a2update + nblock] = qVal;
 			}
-			AssertH( ((bbSize-1) >> shifts) <= 65535, 1002);
+			AssertH(((bbSize-1) >> shifts) <= 65535, 1002);
 		}
 	}
 	if(verb >= 4)
@@ -948,9 +942,9 @@ void BZ2_blockSort(EState* s)
 		   the first section of arr2.
 		 */
 		i = nblock+BZ_N_OVERSHOOT;
-		if(i & 1) i++;
+		if(i & 1) 
+			i++;
 		quadrant = (uint16 *)(&(block[i]));
-
 		/* (wfact-1) / 3 puts the default-factor-30
 		   transition point at very roughly the same place as
 		   with v0.1 and v0.9.0.
@@ -958,13 +952,15 @@ void BZ2_blockSort(EState* s)
 		   resulting compressed stream is now the same regardless
 		   of whether or not we use the main sort or fallback sort.
 		 */
-		if(wfact < 1) wfact = 1;
-		if(wfact > 100) wfact = 100;
+		if(wfact < 1) 
+			wfact = 1;
+		if(wfact > 100) 
+			wfact = 100;
 		budgetInit = nblock * ((wfact-1) / 3);
 		budget = budgetInit;
 		mainSort(ptr, block, quadrant, ftab, nblock, verb, &budget);
 		if(verb >= 3)
-			VPrintf3("      %d work, %d block, ratio %5.2f\n", budgetInit - budget, nblock, (float)(budgetInit - budget) / (float)(nblock==0 ? 1 : nblock) );
+			VPrintf3("      %d work, %d block, ratio %5.2f\n", budgetInit - budget, nblock, (float)(budgetInit - budget) / (float)(nblock==0 ? 1 : nblock));
 		if(budget < 0) {
 			if(verb >= 2)
 				VPrintf0("    too repetitive; using fallback sorting algorithm\n");

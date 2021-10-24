@@ -1028,7 +1028,7 @@ static void ReplaceIncorrectChars(UString &s)
 
 	static bool IsSupportedName(const UString &name)
 	{
-		for(uint i = 0; i < ARRAY_SIZE(g_ReservedNames); i++) {
+		for(uint i = 0; i < SIZEOFARRAY(g_ReservedNames); i++) {
 			const char * reservedName = g_ReservedNames[i];
 			uint len = sstrlen(reservedName);
 			if(name.Len() < len)

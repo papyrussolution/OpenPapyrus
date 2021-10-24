@@ -415,7 +415,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
-	//EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          "Экспорт в ЕГАИС\tCtrl-F10"
+	//EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          "Экспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,         "@{refresh}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
@@ -477,7 +477,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,             "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,         "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,           "@{exportbills}\tCtrl-R"
-	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,  hidden, "Экспорт в ЕГАИС\tCtrl-F10"
+	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,  hidden, "Экспорт в @{brand_egais}\tCtrl-F10"
 	//EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,       "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,      "@{refresh}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
@@ -538,7 +538,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,        "@{exportbills}\tCtrl-R"
-	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Экспорт в ЕГАИС\tCtrl-F10"
+	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Экспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
@@ -548,7 +548,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditdocument}\tEnter"
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-	WROFFINVENTORY   :  kbCtrlW,    TBBM_WROFFDRAFT,        "Списать документ\tCtrl-W" // @v10.5.9
+	WROFFINVENTORY   :  kbCtrlW,    TBBM_WROFFDRAFT,        "@{dowriteoffdocument}\tCtrl-W" // @v10.5.9
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,         "@{bill_extension}\tF4"
@@ -637,7 +637,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      hidden, "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
-	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Экспорт в ЕГАИС\tCtrl-F10"
+	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Экспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
 	separator
@@ -1703,7 +1703,7 @@ browser ACCTOACC north(100), 1, 0, "@{view_accanlz} {%s}", OWNER|GRID, 0
 {
 	"@date",         0, notype, DATF_DMY, 8
 	"@billno",       5, notype, 0, 7
-	"Кор сч",        6, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 6
+	"Корр счет",     6, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 6
 	"@currency",    10, notype, 0, 6
 	"@debit",       11, notype, NMBF_NOZERO, 12.2
 	"@credit",      12, notype, NMBF_NOZERO, 12.2
@@ -2411,7 +2411,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		separator
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{doclink_payment}\tF5"
-		WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "Списание драфт-документа\tCtrl-W"
+		WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "@{dowriteoffdocument}\tCtrl-W"
 		COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		separator
@@ -2547,7 +2547,7 @@ browser TRFRANLZ north(100), 3, 2, "@{view_trfranlz}", OWNER|GRID, 0
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
+browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
@@ -2571,14 +2571,14 @@ browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
 	}
 }
 
-browser TRFRGR_CT_G north(100), 3, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
+browser TRFRGR_CT_G north(100), 3, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID, 0
 {
 	"@ware",        3, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_CT_P north(100), 3, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
+browser TRFRGR_CT_P north(100), 3, 1, "@{view_opgrouping} @{_bycontractor}", OWNER|GRID, 0
 {
 	"@contractor",   4, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
@@ -2608,7 +2608,7 @@ browser TRFRGR_CT_GPD north(100), 3, 1, "@{view_opgrouping} по товару и контраге
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_GS north(100), 3, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
+browser TRFRGR_GS north(100), 3, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 6.3
@@ -2636,7 +2636,7 @@ browser TRFRGR_GS north(100), 3, 1, "@{view_opgrouping} по товару", OWNER|GRID, 
 	}
 }
 
-browser TRFRGR_P north(100), 1, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
+browser TRFRGR_P north(100), 1, 1, "@{view_opgrouping} @{_bycontractor}", OWNER|GRID, 0
 {
 	"@contractor",      7, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
@@ -2658,7 +2658,7 @@ browser TRFRGR_P north(100), 1, 1, "@{view_opgrouping} по контрагенту", OWNER|GR
 	}
 }
 
-browser TRFRGR_PS north(100), 3, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
+browser TRFRGR_PS north(100), 3, 1, "@{view_opgrouping} @{_bycontractor}", OWNER|GRID, 0
 {
 	"@contractor",      7, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 6.3
@@ -3586,7 +3586,7 @@ browser VATBUY north(100), 1, 1, "@{purchaseledger}", OWNER|GRID, 0
 	toolbar VATBOOK
 }
 
-browser SIMPLELEDGER north(100), 2, 1, "Книга доходов и расходов, для упрощенной системы налогообложения", OWNER|GRID, 0
+browser SIMPLELEDGER north(100), 2, 1, "@{incnexpsimplifiedledger}", OWNER|GRID, 0
 {
 	"@date",                1, notype, DATF_DMY, 8
 	"@number",              2, notype, 0, 10
@@ -3612,7 +3612,7 @@ browser QUOT north(100), 2, 1, "@{view_quot}", OWNER|GRID, 0
 		EDITITEMSIMPLE  : kbCtrlS,     PPDV_NOICON,          "@{doeditquotquick}\tCtrl-S"
 		ADDITEM         : kbIns,       PPDV_ADDFILE02,       "@{doeditquotselectingware}\tInsert"
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
-		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,     "@{ware}\tF2"
+		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,    "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{view_lot}\tF3"
 		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (@{doselectcell})\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "@{goodsmatrixbygroup}\tF6"
@@ -3728,9 +3728,9 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 		EDITITEM    : kbEnter,  PPDV_LINS01,            "@{doviewccheck}\tEnter"
 		TOGGLE      : kbCtrlT,  TBBM_TOGGLESHIPMTAG,    "Пометить как доставленный\tCtrl-T"
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
-		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "Создать драфт-документ по чеку\tF2"
+		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "@{createnewdraftbillbyccheck}\tF2"
 		ADDTOBASKET : kbCtrlF4, PPDV_SHOPPINGCART01,    "@{doputtobasket_goodsfromccheck}\tCtrl-F4"
-		EXPORTCHZN  : kbAltF8,  PPDV_LOGOCHZN,          "Отправить чеки в честный знак\tAlt-F8"
+		EXPORTCHZN  : kbAltF8,  PPDV_LOGOCHZN,          "Отправить чеки в @{brand_chzn}\tAlt-F8"
 		separator
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "Удалить все чеки с неопределенной сессией\tCtrl-F8"
@@ -3765,7 +3765,7 @@ browser CCHECKGRP_TM north(100), 1, 1, "@{view_ccheck} с группировкой по часам",
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DT north(100), 1, 1, "@{view_ccheck} с группировкой по дням", OWNER|GRID, 0
+browser CCHECKGRP_DT north(100), 1, 1, "@{view_ccheck} @{_groupedbydate}", OWNER|GRID, 0
 {
 	"@date",          1, notype, 0, 6
 	"@check_count_s", 4, notype, 0, 6
@@ -3809,7 +3809,7 @@ browser CCHECKGRP_CASH north(100), 1, 1, "@{view_ccheck} с группировкой по касса
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_CASHNODE north(100), 1, 1, "@{view_ccheck} с группировкой по товарам", OWNER|GRID, 0
+browser CCHECKGRP_CASHNODE north(100), 1, 1, "@{view_ccheck} @{_groupedbygoods}", OWNER|GRID, 0
 {
 	"@posnode",       3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3877,7 +3877,7 @@ browser CCHECKGRP_LNCOUNT north(100), 1, 1, "@{view_ccheck} с группировкой по ко
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_GOODS north(100), 1, 1, "@{view_ccheck} с группировкой по товарам", OWNER|GRID, 0
+browser CCHECKGRP_GOODS north(100), 1, 1, "@{view_ccheck} @{_groupedbygoods}", OWNER|GRID, 0
 {
 	"@ware",          3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3989,7 +3989,7 @@ browser CCHECKGRP_AGENTSNHOUR north(100), 1, 1, "@{view_ccheck} с группировкой п
 	toolbar CCHECKGRP
 }
 
-browser CCHECK_CT north(100), 3, 1, "@{view_ccheck} с группировкой по товару", OWNER|GRID, 0
+browser CCHECK_CT north(100), 3, 1, "@{view_ccheck} @{_groupedbygoods}", OWNER|GRID, 0
 {
 	"@ware",        2,     notype, 0, 40
 	crosstab       "@{date}", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
@@ -4194,7 +4194,7 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser STAFFCAL_DTGRP north(100), 1, 1, "@{view_staffcal} с группировкой по дате {%s}", OWNER|GRID, 0
+browser STAFFCAL_DTGRP north(100), 1, 1, "@{view_staffcal} @{_groupedbydate} {%s}", OWNER|GRID, 0
 {
 	"@object",                8,  notype, 0, 20, BCO_DONTSHOWDUPL
 	"@daterange",             9,  notype, 0, 20
@@ -4233,7 +4233,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	ADDITEM          : kbIns,     PPDV_ADDFILE02,      hidden, "Создать новую сессию\tInsert"
 	EDITITEMSPC      : kbCtrlF3,  PPDV_EDITFILE02,     hidden, "@{sysinfo}\tCtrl-F3"
 	DELETEITEM       : kbDel,    PPDV_DELETEFILE02,    "@{dodeletesess}\tDelete"
-	VIEWDEFICIT      : kbF3,      TBBM_CSESSEXC,       "Дефицит по сессии\tF3"
+	VIEWDEFICIT      : kbF3,      TBBM_CSESSEXC,       "@{view_csessexc_singlesess}\tF3"
 	VIEWGOODSOPANLZ  : kbF4,      TBBM_GOODSANLZ,      "Товарный отчет по списанию\tF4"
 	VIEWGOODSTAXANLZ : kbShiftF4, PPDV_NOICON,         "Налоговый отчет по списанию\tShift-F4"
 	CCHECKS          : kbAltF4,   TBBM_CCHECKS,        "Чеки по всей выборке сессий\tAlt-F4"
@@ -4247,9 +4247,9 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	separator
 	CLOSESESS        : kbF8,      TBBM_CLOSECSESS,     "Закрыть последнюю сессию\tF8"
 	WROFFSESS        : kbCtrlF8,  TBBM_COMPLETECSESS,  "Завершить сессию\tCtrl-F8"
-	WROFFDRAFT       : kbShiftF8, TBBM_WROFFDRAFT,     "Списание драфт-документов дефицита по сессии\tShift-F8"
+	WROFFDRAFT       : kbShiftF8, TBBM_WROFFDRAFT,     "@{writeoffsessdfctdrafts}\tShift-F8"
 	TRANSMIT         : kbCtrlH,   PPDV_SYNC01,         "@{dotransmitsession}\tCtrl-H"
-	CREATEDRAFT      : kbCtrlC,   TBBM_EXTADDTI,       "Создать драфт-документ\tCtrl-C"
+	CREATEDRAFT      : kbCtrlC,   TBBM_EXTADDTI,       "@{createnewdraftbill}\tCtrl-C"
 	separator
 	SYSJ             : kbCtrlJ,   PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 	EXPORT           : kbCtrlE,   PPDV_EXPORT01,       "@{export}\tCtrl-E"
@@ -5456,7 +5456,7 @@ browser TSESSLINE north(100), 3, 1, "@{view_tsessionlines} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser TSESSLINEGOODS north(100), 3, 1, "@{view_tsessionlines} по товару {%s}", OWNER|GRID, 0
+browser TSESSLINEGOODS north(100), 3, 1, "@{view_tsessionlines} @{_bygoods} {%s}", OWNER|GRID, 0
 {
 	"@valuesign_s",          2, notype, ALIGN_CENTER,  4
 	"@feature",             11, notype, ALIGN_CENTER,  3
@@ -5524,7 +5524,7 @@ browser TSESSANLZ north(100), 3, 1, "@{view_tsessanlz}", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS  : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
 		EDITPRC    : kbF4,    TBBM_PRC,           "@{processor}\tF4"
-		VIEWTSESS  : kbCtrlS, TBBM_TSESS,         "Сессии по товару\tCtrl-S"
+		VIEWTSESS  : kbCtrlS, TBBM_TSESS,         "@{tsession_pl} @{_bygoods}\tCtrl-S"
 		separator
 		PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
 	}
@@ -6464,7 +6464,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 	"@form",                13,  notype, 0, 10  // @v10.5.11 11-->13
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{detail}\tEnter"
-		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "Удалить документ (только для исходящих)\tDelete"
+		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "@{doremovebill} (только для исходящих)\tDelete"
 		LOTOPS           : kbF3,       TBBM_LOTSOPER,       "@{view_lotop}\tF3"
 		VIEWLINKREST     : kbF4,       PPDV_LINK01,         "Связанные остатки\tF4" // @v10.1.12
 		MATCHPERSON      : kbCtrlM,    PPDV_MATCH01,        "Сопоставить объекты\tCtrl-M"
@@ -6472,8 +6472,8 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		SETUPOUTGOING    : kbCtrlF5,   PPDV_NOICON,         "Сформировать исходящие документы\tCtrl-F5"
 		SENDOUTGOING     : kbCtrlF8,   PPDV_NOICON,         "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
 		UPDATEITEMS      : kbF5,       PPDV_VETISREFRESH,   "@{refresh}\tF5"
-		VETISWAREHOUSE   : kbCtrlF3,   PPDV_VETISWAREHOUSE, "Склад Vetis\tCtrl-F3"
-		VETISPRODUCT     : kbCtrlF4,   PPDV_NOICON,         "Продукт Vetis\tCtrl-F4"
+		VETISWAREHOUSE   : kbCtrlF3,   PPDV_VETISWAREHOUSE, "@{warehouse} @{brand_vetis}\tCtrl-F3"
+		VETISPRODUCT     : kbCtrlF4,   PPDV_NOICON,         "@{vetisware}\tCtrl-F4"
 		separator
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9" // @v10.1.12
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
@@ -6505,7 +6505,7 @@ browser QUOTEREQANALYZE north(100), 1, 0, "@{view_quotereqanalyze}", OWNER|GRID,
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{document}\tEnter"
 		EDITLINKQR       : kbF3,       PPDV_NOICON,         "@{linkdocument}\tEnter"
-		CREATELINKQR     : kbAltF3,    PPDV_NOICON,         "Создать связанный запрос\tAlt-F3"
+		CREATELINKQR     : kbAltF3,    PPDV_NOICON,         "@{docreatelinkedrequest}\tAlt-F3"
 		separator
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
@@ -6898,7 +6898,7 @@ cmd BizScValByTempl       { "@{cmd_bizscvalbytempl}"                       none 
 cmd ViewCheckOpJ          { "@{cmd_viewcheckopj}"                          none                  none cmViewCheckOpJ }
 cmd Pallet                { "@{cmd_pallet}"                                none                  none cmPallet }
 cmd InfoKiosk             { "@{cmd_viewgoodsinfo}"                         ICON_INFOKIOSK        none cmViewGoodsInfo }
-cmd CTblOrdCreate         { "Заказ стола в ресторане"                      ICON_CTBLORD          none cmCTblOrdCreate }
+cmd CTblOrdCreate         { "@{tablebooking_amp}"                          ICON_CTBLORD          none cmCTblOrdCreate }
 cmd CTblOrdGraph          { "Диаграмма заказов столов в ресторане"         ICON_CTBLORD          none cmCTblOrdTimeGraph }
 cmd SearchBillByCtx       { "@{cmd_searchbillbyctx}"                       none                  none cmSearchBillByCtx }
 cmd StockOpt              { "Оптимизация запасов (construction)"           none                  none cmStockOpt view = StockOpt }
@@ -7230,7 +7230,7 @@ record CliBnkData {
 	DebtBillDate     date         "Дата долгового документа (для зачета)";
 	DebtBillCode     zstring(24)  "Номер долгового документа (для зачета)";
 	UIN              zstring(24)  "УИН"; // @v8.0.9
-	FormalPurpose    long         "Формальное назначение платежа"; // @v10.7.11
+	FormalPurpose    long         "@{bankingorder_formalpurpose}"; // @v10.7.11
 }
 
 record SpecSeries {
@@ -7259,9 +7259,9 @@ record Bill {
 	EdiOpSymb     zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
 	InvoiceCode   zstring(24)  "@{bill_invoicecode}";
 	InvoiceDate   date         "@{bill_invoicedate}";
-	MainGLN       zstring(16)  "GLN главной организации";                   // @v7.1.12
+	MainGLN       zstring(16)  "@{mainorggln}";                             // @v7.1.12
 	INN           zstring(32)  "@{contractorinn}";
-	GLN           zstring(16)  "GLN контрагента";                           // @v7.1.12
+	GLN           zstring(16)  "@{contractorgln}";                          // @v7.1.12
 	CntragID      long         "@{contractorarid}";
 	CntragName    zstring(128) "@{contractorname}";
 	CntragNo      long         "@{contractorarcode}";
@@ -7277,7 +7277,7 @@ record Bill {
 	CRate         double       format(8.2) "@{currate}";
 	CurID         long         format(10)  "@{currency}";
 	BaseAmount    double       format(8.2) "@{baseamount}";
-	VatSum        double       format(8.2) "Сумма НДС в номинальных ценах";
+	VatSum        double       format(8.2) "@{billvatnominalamount}";
 	Memo          zstring(160) "@{memo}";
 	LocID         zstring(32)  "@{warehouseid}";
 	LocName       zstring(48)  "@{warehousename}";
@@ -7294,13 +7294,13 @@ record Bill {
 	DlvrAddr      zstring(255) "@{daddress}";
 	AgentName     zstring(128) "@{agentname}";
 	AgentINN      zstring(32)  "@{agentinn}";
-	AgentGLN      zstring(16)  "GLN агента";          // @v7.1.12
+	AgentGLN      zstring(16)  "@{agentgln}";      // @v7.1.12
 	AgentPersonID long         "@{agentpersonid}"; // @v9.8.7
 
 	CostWithSTax  int16        format(4)   "Цены включают налог с продаж";
 	XmlPrefix     zstring(16)  "Префикс XML-документа (dll)";
 	GUID          zstring(64)  "@{billguid} (dll)";
-	MainINN       zstring(32)  "ИНН главной организации (dll)";
+	MainINN       zstring(32)  "@{mainorginn} (dll)";
 	BeerGrpID     long         "ИД товарной группы Пиво (dll)";
 	OrderDate     date         "Дата связанного документа заказа (dll)";
 	CntractCode   zstring(32)  "Номер договора с контрагентом (из регистра, указанного в конфигурации)";
@@ -7371,7 +7371,7 @@ record BRow {
 	CRate         double       format(8.2) "@{currate}";
 	CurID         long         format(10)  "Валюта документа";
 	BaseAmount    double       format(8.2) "Базовая сумма документа";
-	BillVatSum    double       format(8.2) "Сумма НДС документа в номинальных ценах";
+	BillVatSum    double       format(8.2) "@{billvatnominalamount}";
 	BillMemo      zstring(160)    "@{documentmemo}";
 	LocID         zstring(32)     "@{warehouseid}";
 	LocName       zstring(48)     "@{warehousename}";
@@ -7442,7 +7442,7 @@ record Barcodes {
 
 record QuotKinds {
 	QuotKindID   long         format(10)   "@{quotkindid}";
-	QuotKindName zstring(48)  "Наименование вида котировки"; // @v8.9.12 (32)-->(48)
+	QuotKindName zstring(48)  "@{quotkind_name_amp}"; // @v8.9.12 (32)-->(48)
 	DefDiscount  double       format(10.2) "Скидка по умолчанию";
 	BeginDate    date         "Дата начала действия";
 	EndDate      date         "Дата окончания действия";
@@ -7461,17 +7461,17 @@ record Quots {
 }
 
 record SCard {
-	SeriesName   zstring(48)  "Наименование серии карт";
-	SeriesSymb   zstring(20)  "Символ серии карт";
+	SeriesName   zstring(48)  "@{scardseries_name_amp}";
+	SeriesSymb   zstring(20)  "@{scardseries_symb_amp}";
 	Code         zstring(32)  "@{cardno}";
-	OwnerName    zstring(128) "Наименование владельца карты";
-	OwnerCode    zstring(32)  "Код владельца карты";
+	OwnerName    zstring(128) "@{scardownername}";
+	OwnerCode    zstring(32)  "@{scardownercode}";
 	IssueDate    date         "@{releasedate}";
 	Expiry       date         "@{scard_expiry}";
 	QuotKindID   long         format(10)   "@{quotkindid}";
 	QuotKindSymb zstring(20)  "@{quotkindsymb}";
 	PercentDis   double       "@{discountpctg}";
-	MaxCredit    double       "Максимальный кредит по карте";
+	MaxCredit    double       "@{scard_maxcredit}";
 	//RestByCredit double       "Остаток по кредиту";
 	//IsCredCard   int16        "Признак кредитной карты";
 	Rest         double       "Остаток на карте";
@@ -7675,7 +7675,7 @@ record SupplBill {
 }
 
 record SupplBillLine {
-	CompanyId         zstring(24)         "Код организации";
+	CompanyId         zstring(24)         "@{orgcode}";
 	AddressId         zstring(24)         "@{clientcode}";
 	AddressRegionType zstring(64)         "@{region}";
 	SaleChannel       zstring(8)          "Канал поставки";
@@ -7696,7 +7696,7 @@ record SupplBillLine {
 // @v10.3.11 Baltika
 //
 record BaltikaBillPricePromo {
-	CompanyId         zstring(24)         "Код организации";
+	CompanyId         zstring(24)         "@{orgcode}";
 	AddressId         zstring(24)         "@{clientcode}";
 	WareHouseId       zstring(24)         "@{warehouse}";
 	DocumentDate      date                "@{billdate}";
@@ -7719,7 +7719,7 @@ record SupplGoods {
 
 record SupplDlvrAddr {
 	CRMClientId     zstring(24)         "@{contractorcode} (CRM)";
-	CompanyId       zstring(24)         "Код организации СУП";
+	CompanyId       zstring(24)         "@{orgcode} (СУП)";
 	CompanyName     zstring(64)         "Юридическое название организации СУП";
 	AddressId       zstring(24)         "Код адреса торговой точки СУП";
 	AddressName     zstring(64)         "Юридическое название торговой точки";
@@ -7734,7 +7734,7 @@ record InventoryItem {
 	Quantity        double format(12.5) "@{phqtty}";
 	Cost            double format(12.5) "@{termcost}";
 	Price           double format(12.5) "@{termprice}";
-	Empty           zstring(24)         "Незначащее поле";
+	Empty           zstring(24)         "@{datafieldinsignificant}";
 }
 
 record RbcBnkSeek {
@@ -7742,7 +7742,7 @@ record RbcBnkSeek {
 	City            zstring(48)  "@{city}";
 	Symb            long         "@{symbol}";
 	Name            zstring(128) "@{bankname}";
-	Empty           zstring(48)  "Неизвестное поле";
+	Empty           zstring(48)  "@{datafieldinsignificant}";
 	Bic             zstring(48)  "@{bic}";
 	CorrAcc         zstring(48)  "@{correspondentaccount}";
 }
@@ -7937,7 +7937,7 @@ record Goods2 {
 	Clb            zstring(32)         "@{custfrghtdecl}";
 	Serial         zstring(32)         "@{serial}";
 	Expiry         date                "@{expirationdate_amp}";
-	ExpiryPeriod   long                "Срок годности в днях";
+	ExpiryPeriod   long                "@{goods_expiryperiod}";
 	PckgQtty       double              "Емкость упаковки поставки (количество торговых единиц)";
 	PckgBrutto     long                "Масса брутто упаковки поставки, г";
 	PckgLength     long                "Длина упаковки поставки, мм";
@@ -7975,7 +7975,7 @@ record Goods2 {
 	PropAdd2Name   zstring(48)         "@{classifier} Add2";
 	WeightPrefix   zstring(12)         "@{cfggoods_wghtprefix}";
 	GoodsID          long              "@{goodsid}";
-	ExpiryFromCurDt  long              "Срок годности в днях от текущей даты";
+	ExpiryFromCurDt  long              "@{goods_expiryperiodfromtoday}";
 	ForceReplace     zstring(12)       "Необходимо заменить товар в БД на импортируемый";
 	EgaisCode        zstring(24)       "@{egaiscode}";
 	FlgPassive       zstring(8)        "@{goodsfeature} '@{goods_gf_passiv}'";          // @v10.3.4
@@ -8007,8 +8007,8 @@ record Person {
 	DlvrAddrSubCity    zstring(48)     "Населенный пункт, подчиненный городу адреса доставки";
 	DlvrAddrZIP        zstring(20)     "@{dlvraddrpostzip}";
 	DlvrAddrText       zstring(256)    "Текст адреса доставки";
-	DlvrAddrLongitude  double          "GPS-долгота адреса доставки";
-	DlvrAddrLatitude   double          "GPS-широта адреса доставки";
+	DlvrAddrLongitude  double          "@{dlvraddrgeolon}";
+	DlvrAddrLatitude   double          "@{dlvraddrgeolat}";
 	Phone              zstring(64)     "@{phonemain}";
 	Phone2             zstring(64)     "@{phoneadditional}";
 	PhoneMobile        zstring(64)     "@{phonemobile}";
@@ -8213,9 +8213,9 @@ record Lot {
 	UhttArCode    zstring(32)         "Приватный UHTT-код товара";
 	EgaisRefA     zstring(64)         "@{brand_egais} @{egaisrefa}"; // @v10.5.8
 	EgaisRefB     zstring(64)         "@{brand_egais} @{egaisrefb}"; // @v10.5.8
-	EgaisCode     zstring(64)         "ЕГАИС код товара"; // @v10.5.8
-	EgaisMark     zstring(160)        "ЕГАИС марка"; // @v10.5.8
-	VetisCertGUID zstring(64)         "ВЕТИС GUID сертификата"; // @v10.5.8
+	EgaisCode     zstring(64)         "@{brand_egais} код товара"; // @v10.5.8
+	EgaisMark     zstring(160)        "@{brand_egais} марка"; // @v10.5.8
+	VetisCertGUID zstring(64)         "@{brand_vetis} GUID сертификата"; // @v10.5.8
 }
 
 record Workbook {
@@ -8424,7 +8424,7 @@ record FiasRawHouseIntObj {
 	UPDATEDATE   date         "@{fias_recupdatetime}";
 	INTSTART     int32        "Значение начала интервала";
 	INTEND       int32        "Значение окончания интервала";
-	HOUSEINTID   guid         "Идентификатор записи интервала домов";
+	HOUSEINTID   guid         "@{fias_houseintid}";
 	INTGUID      guid         "GUID интервала домов";
 	AOGUID       guid         "@{fias_parentguid}";
 	STARTDATE    date         "@{recordstartdate}";
@@ -8461,8 +8461,8 @@ record FiasRawAddrObj {
 	AOLEVEL      zstring(16)  "Уровень адресного объекта"; // 10 digits
 	PARENTGUID   guid         "Идентификатор объекта родительского объекта";
 	AOID         guid         "Уникальный идентификатор записи. Ключевое поле.";
-	PREVID       guid         "Идентификатор записи связывания с предыдушей исторической записью";
-	NEXTID       guid         "Идентификатор записи связывания с последующей исторической записью";
+	PREVID       guid         "@{fias_prevhistrecid}";
+	NEXTID       guid         "@{fias_nexthistrecid}";
 	CODE         zstring(20)  "Код адресного объекта одной строкой с признаком актуальности из КЛАДР 4.0"; // [0..17]
 	PLAINCODE    zstring(20)  "Код адресного объекта из КЛАДР 4.0 одной строкой без признака актуальности (последних двух цифр)"; // [0..15]
 	ACTSTATUS    int32        "Статус актуальности адресного объекта ФИАС. Актуальный адрес на текущую дату. Обычно последняя запись об адресном объекте."; // 0 - не актуальный, 1 - актуальный
@@ -8501,7 +8501,7 @@ reportstub SalaryCt         { dl600data=Salary,          "@{view_salary} с кросс
 reportstub GOA_ZEROOP       { dl600data=GoodsOpAnlz,     "Отчет о товарах, по которым не было операций, но были остатки" }
 reportstub GOA_LOSS         { dl600data=GoodsOpAnlz,     "Отчет по убыточным товарам" }
 reportstub BizScoreValView  { dl600data=BizScoreValView, "@{view_bizscoreval}" }
-reportstub StaffCalDtGrpng  { dl600data=StaffCalView,    "@{view_staffcal} с группировкой по дате" }
+reportstub StaffCalDtGrpng  { dl600data=StaffCalView,    "@{view_staffcal} @{_groupedbydate}" }
 reportstub DebtorStat       { dl600data=DebtorStat,      "@{view_debtorstat}" }
 reportstub DispatchOrder    { dl600data=PsnEventItem,    "Приказ о командировке" }
 reportstub LeaveOrder       { dl600data=PsnEventItem,    "Приказ об отпуске" }
@@ -8520,7 +8520,7 @@ reportstub Budget           { dl600data=Budget,               "@{budget}" }
 reportstub CheckOpJrnl      { dl600data=CheckOpJrnl,          "Журнал чековых операций" }
 reportstub GTaxAnlz_LedgByLots { dl600data=GoodsTaxAnlz,      "Книга учета частного предпринимателя (приходы)" }
 reportstub GoodsMov2        { dl600data=GoodsMov2,            "@{view_goodsmov}" }
-reportstub CCheckDetailOrd  { dl600data=CCheckPacket,         "Заказ стола" }
+reportstub CCheckDetailOrd  { dl600data=CCheckPacket,         "@{tablebooking}" }
 reportstub CCheckDetailLocRowCancel { dl600data=CCheckDetail, "Отмена изготовления" }
 reportstub GoodsBillLocDisp { dl600data=GoodsBillDispose,     "Наряд на складскую сборку" }
 reportstub PsnAttrAddr      { dl600data=PersonListAddr,       "@{view_person} с адресами" }
@@ -8665,7 +8665,7 @@ reportstub CurRate			{ dl600data=CurRateView,		"@{view_currate}"}
 reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"@{view_ccheck_goodscorr}"}
 reportstub CCheckView_Q		{ dl600data=CCheckView,			"@{view_ccheck} с колонкой количества"}
 reportstub CCheckView		{ dl600data=CCheckView,			"@{poscheck_pl}"}
-reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по дням"}
+reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"@{view_ccheck} @{_groupedbydate}"}
 reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по количеству"}
 reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по товару и дате"}
 reportstub CCheckView_G		{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по часам (аппаратам, карточкам)"}
@@ -8688,8 +8688,8 @@ reportstub ATurnList		{ dl600data=AccturnList,		"@{view_accturn}"}
 reportstub AssetView		{ dl600data=AssetView,			"@{view_asset}"}
 reportstub AssetOperView	{ dl600data=AssetView,			"@{view_asset} (с операционным периодом)"}
 reportstub AssetCard		{ dl600data=AssetReceipt,		"Инвентарная карточка учета основных средств"}
-reportstub ArtclViewWCliAgt	{ dl600data=ArticleView,		"Аналитические статьи с соглашениями с клиентами"}
-reportstub ArtclViewWSpplAgt { dl600data=ArticleView,		"Аналитические статьи с соглашениями с поставщиками"}
+reportstub ArtclViewWCliAgt	{ dl600data=ArticleView,		"@{view_article} с соглашениями с клиентами"}
+reportstub ArtclViewWSpplAgt { dl600data=ArticleView,		"@{view_article} с соглашениями с поставщиками"}
 reportstub ArtclView		{ dl600data=ArticleView,		"@{accsheet_pl}"}
 reportstub AccGrpngByOp		{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по операциям"}
 reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по складам"}
@@ -8890,9 +8890,9 @@ file debug_log    { "debug.log"    LOG TEXT             "Журнал отладочных сообщ
 file psales_log   { "psales.log"   LOG TEXT             "Журнал заполнения таблицы продаж" }
 file dbxrecv_log  { "dbxrecv.log"  LOG TEXT             "Журнал приема данных из других разделов БД" }
 file loterr_log   { "loterr.log"   LOG TEXT             "Журнал проверки лотов" }
-file egais_log    { "egais.log"    LOG TEXT             "Журнал обмена с ЕГАИС" }
-file vetis_talk_log { "vetis-talk.log" LOG TEXT         "Журнал обмена с ВЕТИС" }
-file vetis_info_log { "vetis-info.log" LOG TEXT         "Журнал сообщений при обмене с ВЕТИС" }
+file egais_log    { "egais.log"    LOG TEXT             "Журнал обмена с @{brand_egais}" }
+file vetis_talk_log { "vetis-talk.log" LOG TEXT         "Журнал обмена с @{brand_vetis}" }
+file vetis_info_log { "vetis-info.log" LOG TEXT         "Журнал сообщений при обмене с @{brand_vetis}" }
 //
 // Определение векторных изображений.
 // Заголовок: (каталог, в котором храняться svg-файлы изображений) [общий замещаемый цвет]

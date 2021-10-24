@@ -163,7 +163,7 @@ PIXMAN_EXPORT void pixman_line_fixed_edge_init(pixman_edge_t * e, int n, pixman_
 	pixman_edge_init(e, n, y, top->x + x_off_fixed, top->y + y_off_fixed, bot->x + x_off_fixed, bot->y + y_off_fixed);
 }
 
-PIXMAN_EXPORT void pixman_add_traps(pixman_image_t * image, int16_t x_off, int16_t y_off, int ntrap, const pixman_trap_t * traps)
+PIXMAN_EXPORT void pixman_add_traps(pixman_image_t * image, int16 x_off, int16 y_off, int ntrap, const pixman_trap_t * traps)
 {
 	int bpp;
 	int height;
@@ -205,7 +205,7 @@ static void dump_image(pixman_image_t * image, const char * title)
 		printf("%s is not an alpha mask\n", title);
 	printf("\n\n\n%s: \n", title);
 	for(i = 0; i < image->bits.height; ++i) {
-		uint8_t * line = (uint8_t *)&(image->bits.bits[i * image->bits.rowstride]);
+		uint8 * line = (uint8 *)&(image->bits.bits[i * image->bits.rowstride]);
 		for(j = 0; j < image->bits.width; ++j)
 			printf("%c", line[j] ? '#' : ' ');
 		printf("\n");
@@ -214,7 +214,7 @@ static void dump_image(pixman_image_t * image, const char * title)
 
 #endif
 
-PIXMAN_EXPORT void pixman_add_trapezoids(pixman_image_t * image, int16_t x_off, int y_off, int ntraps, const pixman_trapezoid_t * traps)
+PIXMAN_EXPORT void pixman_add_trapezoids(pixman_image_t * image, int16 x_off, int y_off, int ntraps, const pixman_trapezoid_t * traps)
 {
 	int i;
 #if 0
@@ -497,8 +497,8 @@ PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op,
 }
 
 PIXMAN_EXPORT void pixman_add_triangles(pixman_image_t * image,
-    int32_t x_off,
-    int32_t y_off,
+    int32 x_off,
+    int32 y_off,
     int n_tris,
     const pixman_triangle_t * tris)
 {

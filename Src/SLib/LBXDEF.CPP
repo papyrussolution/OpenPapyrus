@@ -198,49 +198,35 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 			long image_idx = -1;
 			if(added_list.Search(image_id, &image_idx, 0) <= 0) {
 				if(image_id & _SlConst.VectorImageMask) {
-					{
-						//SETIFZ(dv_id, PPDV_TESTFLOWER);
-						TWhatmanToolArray::Item tool_item;
-						//const SDrawFigure * p_fig = APPL->DvToolList.GetFigById(1, dv_id, &tool_item);
-						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
-						if(p_fig) {
-							const uint _w = 16;
-							const uint _h = 16;
-							SImageBuffer ib(_w, _h);
-							{
-								//p_fig->TransformToImage(0, ib);
-								TCanvas2 canv(APPL->GetUiToolBox(), ib);
-								//canv.SetBkColor(GetColorRef(SClrWhite));
-								//canv.Fill(SClrWhite, 1);
-								//canv.SetBkTranparent();
-								if(!tool_item.ReplacedColor.IsEmpty()) {
-									SColor replacement_color;
-									replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
-									canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
-								}
-								LMatrix2D mtx;
-								SViewPort vp;
-								FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-								//pic_bounds.a.X = 0.0f;
-								//pic_bounds.a.Y = 0.0f;
-								//pic_bounds.b.X = static_cast<float>(_w);
-								//pic_bounds.b.Y = static_cast<float>(_h);
-								//
-								canv.Rect(pic_bounds);
-								canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-								canv.PushTransform();
-								p_fig->GetViewPort(&vp);
-								canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-								canv.Draw(p_fig);
-								//canv.PopTransform();
-								//canv.ResetColorReplacement();
+					TWhatmanToolArray::Item tool_item;
+					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
+					if(p_fig) {
+						const uint _w = 16;
+						const uint _h = 16;
+						SImageBuffer ib(_w, _h);
+						{
+							TCanvas2 canv(APPL->GetUiToolBox(), ib);
+							if(!tool_item.ReplacedColor.IsEmpty()) {
+								SColor replacement_color;
+								replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 							}
-							HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
-							if(h_icon) {
-								image_idx = ImageList_AddIcon(himl, h_icon);
-								added_list.Add(image_id, image_idx, 0);
-								::DestroyIcon(h_icon);
-							}
+							LMatrix2D mtx;
+							SViewPort vp;
+							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+							//
+							canv.Rect(pic_bounds);
+							canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+							canv.PushTransform();
+							p_fig->GetViewPort(&vp);
+							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+							canv.Draw(p_fig);
+						}
+						HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
+						if(h_icon) {
+							image_idx = ImageList_AddIcon(himl, h_icon);
+							added_list.Add(image_id, image_idx, 0);
+							::DestroyIcon(h_icon);
 						}
 					}
 				}

@@ -1354,66 +1354,62 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	return ok;
 }
 
-/*static*/int PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
+/*static*/int PPView::ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, SString & rResultFileName)
 {
 	rResultFileName.Z();
 	int    ok = 1;
+	SString result_json_file_name;
 	PPView * p_view = 0;
 	PPBaseFilt * p_filt = 0;
 	DlRtm  * p_rtm = 0;
-	SString db_symb;
-	SString filt_symb(pNamedFiltSymb);
-	SString dl600_name(pDl600Name);
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-	{
-		PPNamedFiltMngr mgr;
-		PPNamedFiltPool pool(0, 1);
-		//THROW(mgr.LoadPool(db_symb, &pool, 1)); //@erik v10.7.5
-		THROW(mgr.LoadPool2(db_symb, &pool, 1)); //@erik v10.7.5
-		const PPNamedFilt * p_nf = pool.GetBySymb(filt_symb, 0);
-		THROW(p_nf);
-		THROW_PP_S(p_nf->ViewID, PPERR_NAMEDFILTUNDEFVIEWID, filt_symb);
+	if(!pNf)
+		ok = -1;
+	else {
+		SString dl600_name(pDl600Name);
+		SBuffer filt_buf;
+		THROW_PP_S(pNf->ViewID, PPERR_NAMEDFILTUNDEFVIEWID, pNf->Symb);
+		THROW(PPView::CreateInstance(pNf->ViewID, &p_view));
+		filt_buf = pNf->Param;
+		if(filt_buf.GetAvailableSize()) {
+			THROW(PPView::ReadFiltPtr(filt_buf, &p_filt));
+		}
+		else {
+			THROW(p_filt = p_view->CreateFilt(0));
+		}
+		THROW(p_view->Init_(p_filt));
+		if(!dl600_name.NotEmptyS()) {
+			dl600_name = pNf->VD.GetStrucSymb();
+		}
+		if(!dl600_name.NotEmptyS()) {
+			if(p_view->DefReportId) {
+				SReport rpt(p_view->DefReportId, 0);
+				THROW(rpt.IsValid());
+				dl600_name = rpt.getDataName();
+			}
+		}
 		{
-			SBuffer filt_buf;
-			THROW(PPView::CreateInstance(p_nf->ViewID, &p_view));
-			filt_buf = p_nf->Param;
-			if(filt_buf.GetAvailableSize()) {
-				THROW(PPView::ReadFiltPtr(filt_buf, &p_filt));
-			}
-			else {
-				THROW(p_filt = p_view->CreateFilt(0));
-			}
-			THROW(p_view->Init_(p_filt));
-			if(!dl600_name.NotEmptyS()) {
-				if(p_view->DefReportId) {
-					SReport rpt(p_view->DefReportId, 0);
-					THROW(rpt.IsValid());
-					dl600_name = rpt.getDataName();
-				}
-			}
-			{
-				DlContext ctx;
-				PPFilt f(p_view);
-				DlRtm::ExportParam ep;
-				THROW(ctx.InitSpecial(DlContext::ispcExpData));
-				THROW(ctx.CreateDlRtmInstance(dl600_name, &p_rtm));
-				ep.P_F = &f;
-				ep.Sort = 0;
-				ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
-				ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
-				SETFLAG(ep.Flags, DlRtm::ExportParam::fCompressXml, p_nf->Flags & PPNamedFilt::fCompressXml); // @v10.6.0
-				if(p_nf->Flags & PPNamedFilt::fDontWriteXmlDTD)
-					ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
-				//@erik v10.5.1 {
-				if(p_nf->VD.GetCount() > 0)
-					ep.P_ViewDef = &p_nf->VD;
-				// } @erik
-				//ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
-				ep.Cp = cpUTF8; // @v10.5.0 DS.GetConstTLA().DL600XmlCp-->cpUTF8
-				THROW(p_rtm->ExportXML(ep, rResultFileName));
-				if(!PublishNfViewToMqb(p_nf, rResultFileName)) { // @v10.5.3
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v10.6.3
-				}
+			DlContext ctx;
+			PPFilt f(p_view);
+			DlRtm::ExportParam ep;
+			THROW(ctx.InitSpecial(DlContext::ispcExpData));
+			THROW(ctx.CreateDlRtmInstance(dl600_name, &p_rtm));
+			ep.P_F = &f;
+			ep.Sort = 0;
+			ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
+			ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
+			SETFLAG(ep.Flags, DlRtm::ExportParam::fCompressXml, pNf->Flags & PPNamedFilt::fCompressXml);
+			if(pNf->Flags & PPNamedFilt::fDontWriteXmlDTD)
+				ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
+			if(pNf->VD.GetCount() > 0)
+				ep.P_ViewDef = &pNf->VD;
+			ep.Cp = cpUTF8;
+			THROW(p_rtm->ExportXML(ep, rResultFileName));
+			// @debug {
+			ep.Flags |= DlRtm::ExportParam::fJsonStQStyle; 
+			THROW(p_rtm->ExportJson(ep, result_json_file_name)); 
+			// } @debug 
+			if(!PublishNfViewToMqb(pNf, rResultFileName)) {
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 			}
 		}
 	}
@@ -1421,6 +1417,104 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	delete p_rtm;
 	delete p_filt;
 	delete p_view;
+	return ok;
+}
+
+/*static*/int PPView::ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, int format, SBuffer & rResult)
+{
+	assert(oneof3(format, SFileFormat::Unkn, SFileFormat::Xml, SFileFormat::Json));
+	rResult.Z();
+	int    ok = 1;
+	SJson * p_js = 0;
+	xmlBuffer * p_xml_buf = 0;
+	xmlTextWriter * p_xml_writer = 0;
+	PPView * p_view = 0;
+	PPBaseFilt * p_filt = 0;
+	DlRtm  * p_rtm = 0;
+	if(!pNf)
+		ok = -1;
+	else {
+		SString dl600_name(pDl600Name);
+		SBuffer filt_buf;
+		THROW_PP_S(pNf->ViewID, PPERR_NAMEDFILTUNDEFVIEWID, pNf->Symb);
+		THROW(PPView::CreateInstance(pNf->ViewID, &p_view));
+		filt_buf = pNf->Param;
+		if(filt_buf.GetAvailableSize()) {
+			THROW(PPView::ReadFiltPtr(filt_buf, &p_filt));
+		}
+		else {
+			THROW(p_filt = p_view->CreateFilt(0));
+		}
+		THROW(p_view->Init_(p_filt));
+		if(!dl600_name.NotEmptyS()) {
+			dl600_name = pNf->VD.GetStrucSymb();
+		}
+		if(!dl600_name.NotEmptyS()) {
+			if(p_view->DefReportId) {
+				SReport rpt(p_view->DefReportId, 0);
+				THROW(rpt.IsValid());
+				dl600_name = rpt.getDataName();
+			}
+		}
+		{
+			DlContext ctx;
+			PPFilt f(p_view);
+			DlRtm::ExportParam ep;
+			THROW(ctx.InitSpecial(DlContext::ispcExpData));
+			THROW(ctx.CreateDlRtmInstance(dl600_name, &p_rtm));
+			ep.P_F = &f;
+			ep.Sort = 0;
+			ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
+			ep.Flags &= ~DlRtm::ExportParam::fDiff_ID_ByScope;
+			SETFLAG(ep.Flags, DlRtm::ExportParam::fCompressXml, pNf->Flags & PPNamedFilt::fCompressXml);
+			if(pNf->Flags & PPNamedFilt::fDontWriteXmlDTD)
+				ep.Flags |= (DlRtm::ExportParam::fDontWriteXmlDTD|DlRtm::ExportParam::fDontWriteXmlTypes);
+			if(pNf->VD.GetCount() > 0)
+				ep.P_ViewDef = &pNf->VD;
+			ep.Cp = cpUTF8;
+			if(format == SFileFormat::Xml || format == SFileFormat::Unkn) {
+				THROW(p_xml_buf = xmlBufferCreate());
+				THROW(p_xml_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+				THROW(p_rtm->Helper_WriteXML(ep, p_xml_writer));
+				xmlTextWriterFlush(p_xml_writer);
+				rResult.Write(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use);
+			}
+			else if(format == SFileFormat::Json) {
+				SString json_buf;
+				ep.Flags |= DlRtm::ExportParam::fJsonStQStyle; 
+				THROW(p_js = p_rtm->ExportJson(ep));
+				THROW_SL(json_tree_to_string(p_js, json_buf));
+				rResult.Write(json_buf, json_buf.Len());
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	xmlFreeTextWriter(p_xml_writer);
+	xmlBufferFree(p_xml_buf);
+	delete p_rtm;
+	delete p_filt;
+	delete p_view;
+	return ok;
+}
+
+/*static*/int PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
+{
+	rResultFileName.Z();
+	int    ok = 1;
+	SString db_symb;
+	SString filt_symb(pNamedFiltSymb);
+	SString dl600_name(pDl600Name);
+	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	{
+		PPNamedFiltMngr mgr;
+		PPNamedFiltPool pool(0, 1);
+		THROW(mgr.LoadPool2(db_symb, &pool, 1));
+		const PPNamedFilt * p_nf = pool.GetBySymb(filt_symb, 0);
+		THROW(p_nf);
+		THROW(ExecuteNF(p_nf, pDl600Name, rResultFileName));
+	}
+	CATCHZOK
 	return ok;
 }
 

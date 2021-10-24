@@ -1137,7 +1137,7 @@ int _libssh2_pem_decode_integer(uchar ** data, uint * datalen, uchar ** i, uint 
 /* global.c */
 void _libssh2_init_if_needed(void);
 
-#define ARRAY_SIZE(a) (sizeof((a)) / sizeof((a)[0]))
+//#define ARRAY_SIZE_Removed(a) (sizeof((a)) / sizeof((a)[0]))
 
 /* define to output the int64 type in a *printf() */
 #if defined( __BORLANDC__ ) || defined( _MSC_VER ) || defined( __MINGW32__ )

@@ -67,7 +67,15 @@ TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStati
 IMPL_HANDLE_EVENT(TLabel)
 {
 	TStaticText::handleEvent(event);
-	if(TVBROADCAST)
+	if(event.isCmd(cmSetBounds)) { // @v11.2.0
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
+	else if(TVBROADCAST)
 		if(TVCMD == cmSearchLabel && link && TVINFOVIEW == link)
 			clearEvent(event);
 }
@@ -311,28 +319,28 @@ void TButton::press(ushort item)
 //
 /*static*/LPCTSTR TInputLine::WndClsName = _T("Edit");
 
-TInputLine::InputStat::InputStat()
+TInputLine::InputStat::InputStat() : Last(0), TmSum(0), TmSqSum(0)
 {
-	Reset();
 }
 
-void TInputLine::InputStat::Reset()
+TInputLine::InputStat & TInputLine::InputStat::Z()
 {
 	Last = 0;
 	TmSum = 0.0;
 	TmSqSum = 0.0;
+	return *this;
 }
 
 void TInputLine::InputStat::CheckIn()
 {
-	clock_t c = clock();
+	const clock_t c = clock();
 	if(!Last) {
 		Last = c;
 		TmSum = 0.0;
 		TmSqSum = 0.0;
 	}
 	else {
-		clock_t diff = (c - Last);
+		const clock_t diff = (c - Last);
 		TmSum += diff;
 		TmSqSum += (diff*diff);
 		Last = c;
@@ -591,18 +599,16 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				const uint prev_len = Data.Len();
 				Implement_GetText();
 				if(Data.Len() == (prev_len+1)) {
-					if(InlSt & stSerialized) {
+					if(InlSt & stSerialized)
 						Stat.CheckIn();
-					}
 					else if(prev_len == 0) {
 						InlSt |= stSerialized;
-						Stat.Reset();
-						Stat.CheckIn();
+						Stat.Z().CheckIn();
 					}
 				}
 				else {
 					InlSt &= ~stSerialized;
-					Stat.Reset();
+					Stat.Z();
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
@@ -677,8 +683,6 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	//SString text_buf;
-	//(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER);
 	TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
 	if(IsInState(sfSelected))
 		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
@@ -782,6 +786,14 @@ IMPL_HANDLE_EVENT(TInputLine)
 		}
 	}
 	// } @v10.7.7 
+	else if(event.isCmd(cmSetBounds)) { // @v11.2.0
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
 	else if(TVCOMMAND && IsInState(sfSelected)) {
 		if(event.message.infoPtr)
 			if(event.message.command == cmGetFocusedNumber)
@@ -1797,8 +1809,7 @@ TImageView::~TImageView()
 
 void TImageView::SetOuterFigure(SDrawFigure * pFig) // @v11.1.5
 {
-	ZDELETE(P_Fig);
-	P_Fig = pFig;
+	DELETEANDASSIGN(P_Fig, pFig);
 }
 
 int TImageView::TransmitData(int dir, void * pData)

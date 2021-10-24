@@ -41,20 +41,20 @@
 
 typedef struct {
 	int y;
-	uint64_t *  buffer;
+	uint64 *  buffer;
 } line_t;
 
 typedef struct {
 	line_t lines[2];
 	pixman_fixed_t y;
 	pixman_fixed_t x;
-	uint64_t data[1];
+	uint64 data[1];
 } bilinear_info_t;
 
 static void ssse3_fetch_horizontal(bits_image_t * image, line_t * line,
     int y, pixman_fixed_t x, pixman_fixed_t ux, int n)
 {
-	uint32_t * bits = image->bits + y * image->rowstride;
+	uint32 * bits = image->bits + y * image->rowstride;
 	__m128i vx = _mm_set_epi16(
 		-(x + 1), x, -(x + 1), x,
 		-(x + ux + 1), x + ux,  -(x + ux + 1), x + ux);
@@ -153,13 +153,13 @@ final_pixel:
 	line->y = y;
 }
 
-static uint32_t * ssse3_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * ssse3_fetch_bilinear_cover(pixman_iter_t * iter, const uint32 * mask)
 {
 	pixman_fixed_t fx, ux;
 	bilinear_info_t * info = (bilinear_info_t *)iter->data;
 	line_t * line0, * line1;
 	int y0, y1;
-	int32_t dist_y;
+	int32 dist_y;
 	__m128i vw;
 	int i;
 	fx = info->x;
@@ -218,7 +218,7 @@ static uint32_t * ssse3_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_
 		/* r0:  A1 R1 G1 B1 A0 R0 G0 B0 */
 		p = _mm_packus_epi16(r0, r0);
 		if(iter->width - i == 1) {
-			*(uint32_t *)(iter->buffer + i) = _mm_cvtsi128_si32(p);
+			*(uint32 *)(iter->buffer + i) = _mm_cvtsi128_si32(p);
 			i++;
 		}
 		else {
@@ -246,7 +246,7 @@ static void ssse3_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_it
 	v.vector[2] = pixman_fixed_1;
 	if(!pixman_transform_point_3d(iter->image->common.transform, &v))
 		goto fail;
-	info = (bilinear_info_t *)SAlloc::M(sizeof(*info) + (2 * width - 1) * sizeof(uint64_t) + 64);
+	info = (bilinear_info_t *)SAlloc::M(sizeof(*info) + (2 * width - 1) * sizeof(uint64) + 64);
 	if(!info)
 		goto fail;
 	info->x = v.vector[0] - pixman_fixed_1 / 2;
@@ -259,9 +259,9 @@ static void ssse3_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_it
 	 * be asked to fetch lines in the [0, height) interval
 	 */
 	info->lines[0].y = -1;
-	info->lines[0].buffer = (uint64_t *)ALIGN(&(info->data[0]));
+	info->lines[0].buffer = (uint64 *)ALIGN(&(info->data[0]));
 	info->lines[1].y = -1;
-	info->lines[1].buffer = (uint64_t *)ALIGN(info->lines[0].buffer + width);
+	info->lines[1].buffer = (uint64 *)ALIGN(info->lines[0].buffer + width);
 	iter->get_scanline = ssse3_fetch_bilinear_cover;
 	iter->fini = ssse3_bilinear_cover_iter_fini;
 	iter->data = info;

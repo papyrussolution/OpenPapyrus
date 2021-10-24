@@ -2143,6 +2143,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		}
 		else if(draw_text) {
 			HFONT  hf = reinterpret_cast<HFONT>(::SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
+			if(!hf)
+				hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 			int    temp_font_id = 0;
 			if(hf) {
 				LOGFONT f;

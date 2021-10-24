@@ -45,7 +45,7 @@ typedef struct _cairo_bo_trap cairo_bo_trap_t;
 /* A deferred trapezoid of an edge */
 struct _cairo_bo_trap {
 	cairo_bo_edge_t * right;
-	int32_t top;
+	int32 top;
 };
 
 struct _cairo_bo_edge {
@@ -70,7 +70,7 @@ typedef struct _cairo_bo_sweep_line {
 	cairo_bo_event_t ** events;
 	cairo_bo_edge_t * head;
 	cairo_bo_edge_t * stopped;
-	int32_t current_y;
+	int32 current_y;
 	cairo_bo_edge_t * current_edge;
 } cairo_bo_sweep_line_t;
 
@@ -179,7 +179,7 @@ static inline boolint edges_collinear(const cairo_bo_edge_t * a, const cairo_bo_
 	return a->edge.line.p1.x == b->edge.line.p1.x;
 }
 
-static cairo_status_t _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, boolint do_traps, void * container)
+static cairo_status_t _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32 bot, boolint do_traps, void * container)
 {
 	cairo_bo_trap_t * trap = &left->deferred_trap;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
@@ -229,7 +229,7 @@ static inline cairo_status_t _cairo_bo_edge_start_or_continue_trap(cairo_bo_edge
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int32_t top, cairo_fill_rule_t fill_rule, boolint do_traps, void * container)
+static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int32 top, cairo_fill_rule_t fill_rule, boolint do_traps, void * container)
 {
 	cairo_bo_edge_t * right;
 	cairo_status_t status;

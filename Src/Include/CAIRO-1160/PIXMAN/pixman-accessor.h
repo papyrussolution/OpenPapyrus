@@ -5,7 +5,7 @@
 
 #define MEMSET_WRAPPED(img, dst, val, size)				\
 	do {								\
-		uint8_t *_dst = reinterpret_cast<uint8_t *>(dst);				\
+		uint8 *_dst = reinterpret_cast<uint8 *>(dst);				\
 		for(size_t _i = 0; _i < (size_t) size; _i++) {				\
 			WRITE((img), _dst +_i, (val));				\
 		}								\

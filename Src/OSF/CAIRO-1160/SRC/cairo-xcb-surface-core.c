@@ -319,7 +319,7 @@ static cairo_xcb_pixmap_t * _copy_to_pixmap(cairo_xcb_surface_t * source)
 			return pixmap;
 	}
 	else {
-		uint32_t values[1];
+		uint32 values[1];
 		xcb_gcontext_t gc;
 
 		pixmap = _cairo_xcb_pixmap_create(source,
@@ -474,8 +474,8 @@ cairo_status_t _cairo_xcb_surface_core_copy_boxes(cairo_xcb_surface_t * dst,
 	assert(src->depth == dst->depth);
 	gc = _cairo_xcb_screen_get_gc(dst->screen, src->pixmap, src->depth);
 	if(src->repeat) {
-		uint32_t mask = XCB_GC_FILL_STYLE | XCB_GC_TILE | XCB_GC_TILE_STIPPLE_ORIGIN_X | XCB_GC_TILE_STIPPLE_ORIGIN_Y;
-		uint32_t values[] = {
+		uint32 mask = XCB_GC_FILL_STYLE | XCB_GC_TILE | XCB_GC_TILE_STIPPLE_ORIGIN_X | XCB_GC_TILE_STIPPLE_ORIGIN_Y;
+		uint32 values[] = {
 			XCB_FILL_STYLE_TILED,
 			src->pixmap,
 			-src->x0, -src->y0,

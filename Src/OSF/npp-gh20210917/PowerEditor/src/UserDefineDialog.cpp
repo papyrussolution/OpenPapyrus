@@ -656,7 +656,6 @@ void CommentStyleDialog::setKeywords2List(int id)
 		    ::GetDlgItemText(_hSelf, id, _pUserLang->_keywordLists[globalMappper().dialogMapper[id]], max_char);
 		    break;
 	    }
-
 		case IDC_COMMENT_OPEN_EDIT:
 		case IDC_COMMENT_CLOSE_EDIT:
 		case IDC_COMMENTLINE_OPEN_EDIT:
@@ -670,7 +669,6 @@ void CommentStyleDialog::setKeywords2List(int id)
 		TCHAR newList[max_char] = TEXT("");
 		TCHAR buffer[max_char] = TEXT("");
 		TCHAR intBuffer[10] = {'0', 0};
-
 		const int list[] = {
 			IDC_COMMENTLINE_OPEN_EDIT,
 			IDC_COMMENTLINE_CONTINUE_EDIT,
@@ -678,13 +676,11 @@ void CommentStyleDialog::setKeywords2List(int id)
 			IDC_COMMENT_OPEN_EDIT,
 			IDC_COMMENT_CLOSE_EDIT
 		};
-
-		for(auto i = 0; i < sizeof(list)/sizeof(int); ++i) {
+		for(auto i = 0; i < SIZEOFARRAY(list); ++i) {
 			generic_itoa(i, intBuffer+1, 10);
 			::GetDlgItemText(_hSelf, list[i], buffer, max_char);
 			convertTo(newList, max_char, buffer, intBuffer);
 		}
-
 		wcscpy_s(_pUserLang->_keywordLists[index], newList);
 	}
 }
@@ -730,7 +726,7 @@ void CommentStyleDialog::updateDlg()
 		IDC_COMMENT_OPEN_EDIT,
 		IDC_COMMENT_CLOSE_EDIT
 	};
-	for(int i = 0; i<sizeof(list)/sizeof(int); ++i) {
+	for(int i = 0; i < SIZEOFARRAY(list); ++i) {
 		generic_itoa(i, intBuffer+1, 10);
 		retrieve(buffer, _pUserLang->_keywordLists[SCE_USER_KWLIST_COMMENTS], intBuffer);
 		::SendDlgItemMessage(_hSelf, list[i], WM_SETTEXT, 0, reinterpret_cast<LPARAM>(buffer));
@@ -781,7 +777,7 @@ void SymbolsStyleDialog::updateDlg()
 		IDC_DELIMITER8_BOUNDARYCLOSE_EDIT
 	};
 	TCHAR intBuffer[10] = {'0', 0};
-	for(int i = 0; i < sizeof(list)/sizeof(int); ++i) {
+	for(int i = 0; i < SIZEOFARRAY(list); ++i) {
 		if(i < 10)
 			generic_itoa(i, intBuffer+1, 10);
 		else
@@ -954,12 +950,11 @@ void SymbolsStyleDialog::setKeywords2List(int id)
 			    IDC_DELIMITER8_ESCAPE_EDIT,
 			    IDC_DELIMITER8_BOUNDARYCLOSE_EDIT
 		    };
-		    for(int i = 0; i < sizeof(list)/sizeof(int); ++i) {
+		    for(int i = 0; i < SIZEOFARRAY(list); ++i) {
 			    if(i < 10)
 				    generic_itoa(i, intBuffer+1, 10);
 			    else
 				    generic_itoa(i, intBuffer, 10);
-
 			    int dd = list[i];
 			    ::GetDlgItemText(_hSelf, dd, buffer, max_char);
 			    convertTo(newList, max_char, buffer, intBuffer);

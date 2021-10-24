@@ -1338,13 +1338,13 @@ struct LocalSelectorDescr {
 	{
 		SJson * p_jsel = new SJson(SJson::tOBJECT);
 		SString temp_buf, o_buf, txt_buf;
-		p_jsel->Insert("ID", json_new_string(temp_buf.Z().Cat(ID)));
-		p_jsel->Insert("Attr", json_new_string(temp_buf.Z().Cat(Attr)));
-		p_jsel->Insert("Clsf", json_new_string(temp_buf.Z().Cat(Clsf)));
-		p_jsel->Insert("Title", json_new_string((temp_buf = Title).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-		p_jsel->Insert("Crit", json_new_string((temp_buf = Crit).Escape()));
-		p_jsel->Insert("Subcrit", json_new_string(temp_buf.Z()));
-		p_jsel->Insert("Part", json_new_string(Part));
+		p_jsel->InsertString("ID", temp_buf.Z().Cat(ID));
+		p_jsel->InsertString("Attr", temp_buf.Z().Cat(Attr));
+		p_jsel->InsertString("Clsf", temp_buf.Z().Cat(Clsf));
+		p_jsel->InsertString("Title", (temp_buf = Title).Transf(CTRANSF_INNER_TO_OUTER).Escape());
+		p_jsel->InsertString("Crit", (temp_buf = Crit).Escape());
+		p_jsel->InsertString("Subcrit", temp_buf.Z());
+		p_jsel->InsertString("Part", Part);
 		//
 		SJson * p_jsel_val_ary = new SJson(SJson::tARRAY);
 		if(Attr != PPUhttStoreSelDescr::attrName) {
@@ -1352,9 +1352,9 @@ struct LocalSelectorDescr {
 			for(uint j = 0, k = Values.getCount(); j < k; j++) {
 				SJson * p_jsel_val = new SJson(SJson::tOBJECT);
 				StrAssocArray::Item _val = Values.Get(j);
-				p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
-				p_jsel_val->Insert("Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v10.7.7 Escape()
-				p_jsel_val->Insert("PID", json_new_string(temp_buf.Z().Cat(_val.ParentId)));
+				p_jsel_val->InsertString("ID", temp_buf.Z().Cat(_val.Id));
+				p_jsel_val->InsertString("Txt", (temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape()); // @v10.7.7 Escape()
+				p_jsel_val->InsertString("PID", temp_buf.Z().Cat(_val.ParentId));
 				named_id_list.add(_val.Id);
 				if(_val.ParentId)
 					parent_id_list.add(_val.ParentId);
@@ -1663,7 +1663,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					SJson * p_jsel_ary = new SJson(SJson::tARRAY);
 					SJson * p_jitem_list = new SJson(SJson::tARRAY);
 					p_jpack->Insert("Header", p_jhdr);
-					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(0L)));
+					p_jhdr->InsertString("Class", temp_buf.Z().Cat(0L));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
 					p_jpack->Insert("Items", p_jitem_list);
 					if(Separate == 1) {
@@ -1725,32 +1725,32 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								}
 								SJson * p_jitem = new SJson(SJson::tOBJECT);
 								//
-								p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(tses_rec.ID)));
-								p_jitem->Insert("PrcID", json_new_string(temp_buf.Z().Cat(tses_rec.PrcID)));
-								p_jitem->Insert("Num", json_new_string(temp_buf.Z().Cat(tses_rec.Num)));
-								p_jitem->Insert("Status", json_new_string(temp_buf.Z().Cat(tses_rec.Status)));
-								p_jitem->Insert("Flags", json_new_string(temp_buf.Z().Cat(tses_rec.Flags)));
-								p_jitem->Insert("StDate", json_new_string(temp_buf.Z().Cat(tses_rec.StDt, DATF_DMY|DATF_CENTURY)));
-								p_jitem->Insert("StTime", json_new_string(temp_buf.Z().Cat(tses_rec.StTm, TIMF_HMS)));
-								p_jitem->Insert("FinDate", json_new_string(temp_buf.Z().Cat(tses_rec.FinDt, DATF_DMY|DATF_CENTURY)));
-								p_jitem->Insert("FinTime", json_new_string(temp_buf.Z().Cat(tses_rec.FinTm, TIMF_HMS)));
+								p_jitem->InsertString("ID", temp_buf.Z().Cat(tses_rec.ID));
+								p_jitem->InsertString("PrcID", temp_buf.Z().Cat(tses_rec.PrcID));
+								p_jitem->InsertString("Num", temp_buf.Z().Cat(tses_rec.Num));
+								p_jitem->InsertString("Status", temp_buf.Z().Cat(tses_rec.Status));
+								p_jitem->InsertString("Flags", temp_buf.Z().Cat(tses_rec.Flags));
+								p_jitem->InsertString("StDate", temp_buf.Z().Cat(tses_rec.StDt, DATF_DMY|DATF_CENTURY));
+								p_jitem->InsertString("StTime", temp_buf.Z().Cat(tses_rec.StTm, TIMF_HMS));
+								p_jitem->InsertString("FinDate", temp_buf.Z().Cat(tses_rec.FinDt, DATF_DMY|DATF_CENTURY));
+								p_jitem->InsertString("FinTime", temp_buf.Z().Cat(tses_rec.FinTm, TIMF_HMS));
 								{
 									temp_buf.Z();
 									ObjTagItem tag;
 									if(TagObj.FetchTag(tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0)
 										tag.GetStr(temp_buf);
-									p_jitem->Insert("Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+									p_jitem->InsertString("Descr", temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape());
 								}
 								// @v11.0.4 p_jitem->Insert("Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								// @v11.0.4 {
 								temp_buf.Z();
 								if(tses_ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf) > 0) {
-									p_jitem->Insert("Memo", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+									p_jitem->InsertString("Memo", temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape());
 								}
 								// } @v11.0.4 
 								temp_buf.Z();
 								if(tses_ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf) > 0) {
-									p_jitem->Insert("Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+									p_jitem->InsertString("Detail", temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape());
 								}
 								//uint   reg_count = 0;
 								//uint   ci_count = 0;
@@ -1759,9 +1759,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								ss_places.clear();
 								ss_places_busy.clear();
 								//
-								p_jitem->Insert("PrcName", json_new_string((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								p_jitem->Insert("PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								p_jitem->Insert("CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
+								p_jitem->InsertString("PrcName", (temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape());
+								p_jitem->InsertString("PrcSymb", (temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape());
+								p_jitem->InsertString("CipMax", temp_buf.Z().Cat(prc_rec.CipMax));
 								ci_list.Z();
 								if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tses_rec.ID, ci_list) > 0) {
 									//ci_list.Count(&reg_count, &ci_count, &cancel_count);
@@ -1774,9 +1774,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 									}
 								}
 								//
-								p_jitem->Insert("CipAvl", json_new_string(temp_buf.Z().Cat((long)prc_rec.CipMax - (long)rcount.RegCount)));
-								p_jitem->Insert("Places", json_new_string((temp_buf = ss_places.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								p_jitem->Insert("PlacesBusy", json_new_string((temp_buf = ss_places_busy.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								p_jitem->InsertString("CipAvl", temp_buf.Z().Cat((long)prc_rec.CipMax - (long)rcount.RegCount));
+								p_jitem->InsertString("Places", (temp_buf = ss_places.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape());
+								p_jitem->InsertString("PlacesBusy", (temp_buf = ss_places_busy.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape());
 								//
 								json_insert_child(p_jitem_list, p_jitem);
 							}
@@ -1837,8 +1837,9 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 									THROW_SL(ResultList.Add(goods_rec.ID, goods_rec.ParentID, goods_rec.Name));
 							}
 						}
-						else
+						else {
 							THROW_SL(ResultList.Add(blk.Rec.ID, blk.Rec.ParentID, blk.Rec.Name));
+						}
 					}
 				}
 				else if(o_buf.ToLong() == 3) {
@@ -1854,7 +1855,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 	if(TagExistList.getCount()) {
 		UintHashTable id_list;
 		for(uint i = 0; i < TagExistList.getCount(); i++) {
-			PPID   tag_id = TagExistList.get(i);
+			const PPID tag_id = TagExistList.get(i);
 			p_ref->Ot.GetObjectList(PPOBJ_GOODS, tag_id, id_list);
 		}
 		for(ulong lp = 0; id_list.Enum(&lp);) {
@@ -1904,7 +1905,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					SJson * p_jitem_list = new SJson(SJson::tARRAY);
 					//
 					p_jpack->Insert("Header", p_jhdr);
-					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(cls_id)));
+					p_jhdr->InsertString("Class", temp_buf.Z().Cat(cls_id));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
 					p_jpack->Insert("Items", p_jitem_list);
 					//
@@ -1976,13 +1977,13 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 						GoodsIterator::Ext iter_ext;
 						while(iter.Next(&goods_rec, &iter_ext) > 0) {
 							SJson * p_jitem = new SJson(SJson::tOBJECT);
-							p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(goods_rec.ID)));
-							p_jitem->Insert("Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-							p_jitem->Insert("CurID", json_new_string(temp_buf.Z().Cat(iter_ext.CurID)));
-							p_jitem->Insert("Price", json_new_string(temp_buf.Z().Cat(iter_ext.Price, SFMT_MONEY)));
-							p_jitem->Insert("Rest", json_new_string(temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0))));
-							p_jitem->Insert("PriceDt", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY).Escape()));
-							p_jitem->Insert("PriceTm", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM).Escape()));
+							p_jitem->InsertString("ID", temp_buf.Z().Cat(goods_rec.ID));
+							p_jitem->InsertString("Name", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape());
+							p_jitem->InsertString("CurID", temp_buf.Z().Cat(iter_ext.CurID));
+							p_jitem->InsertString("Price", temp_buf.Z().Cat(iter_ext.Price, SFMT_MONEY));
+							p_jitem->InsertString("Rest", temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0)));
+							p_jitem->InsertString("PriceDt", temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY).Escape());
+							p_jitem->InsertString("PriceTm", temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM).Escape());
 							json_insert_child(p_jitem_list, p_jitem);
 						}
 					}
@@ -2558,15 +2559,15 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_SL(rResult.Write(p_qlist, 0));
 				}
 				else if(OutFormat == fmtTddo) {
-					THROW(Helper_ProcessTddo(0, (void *)p_qlist, "QuotArray", OutTemplate, rResult));
+					THROW(Helper_ProcessTddo(0, const_cast<PPQuotItemArray *>(p_qlist), "QuotArray", OutTemplate, rResult)); // @badcast
 				}
 				else if(OutFormat == fmtJson) {
-					PPExportDL600DataToJson(DL600StrucName, 0, (void *)p_qlist, ResultText); // @badcast
+					PPExportDL600DataToJson(DL600StrucName, 0, const_cast<PPQuotItemArray *>(p_qlist), ResultText); // @badcast
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
 				else {
-					THROW(PPExportDL600DataToBuffer("QuotArray", (void *)p_qlist, _xmlcp, ResultText)); // @badcast
+					THROW(PPExportDL600DataToBuffer("QuotArray", const_cast<PPQuotItemArray *>(p_qlist), _xmlcp, ResultText)); // @badcast
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}

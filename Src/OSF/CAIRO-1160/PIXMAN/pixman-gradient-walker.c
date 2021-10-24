@@ -51,7 +51,7 @@ void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t 
 static void gradient_walker_reset(pixman_gradient_walker_t * walker,
     pixman_fixed_48_16_t pos)
 {
-	int64_t x, left_x, right_x;
+	int64 x, left_x, right_x;
 	pixman_color_t * left_c, * right_c;
 	int n, count = walker->num_stops;
 	pixman_gradient_stop_t * stops = walker->stops;
@@ -60,11 +60,11 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 	float lx, rx;
 
 	if(walker->repeat == PIXMAN_REPEAT_NORMAL) {
-		x = (int32_t)pos & 0xffff;
+		x = (int32)pos & 0xffff;
 	}
 	else if(walker->repeat == PIXMAN_REPEAT_REFLECT) {
-		x = (int32_t)pos & 0xffff;
-		if((int32_t)pos & 0x10000)
+		x = (int32)pos & 0xffff;
+		if((int32)pos & 0x10000)
 			x = 0x10000 - x;
 	}
 	else {
@@ -87,11 +87,11 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 		right_x += (pos - x);
 	}
 	else if(walker->repeat == PIXMAN_REPEAT_REFLECT) {
-		if((int32_t)pos & 0x10000) {
+		if((int32)pos & 0x10000) {
 			pixman_color_t * tmp_c;
-			int32_t tmp_x;
+			int32 tmp_x;
 
-			tmp_x   = static_cast<int32_t>(0x10000 - right_x);
+			tmp_x   = static_cast<int32>(0x10000 - right_x);
 			right_x = 0x10000 - left_x;
 			left_x  = tmp_x;
 
@@ -152,11 +152,11 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 	walker->need_reset = FALSE;
 }
 
-uint32_t _pixman_gradient_walker_pixel(pixman_gradient_walker_t * walker, pixman_fixed_48_16_t x)
+uint32 _pixman_gradient_walker_pixel(pixman_gradient_walker_t * walker, pixman_fixed_48_16_t x)
 {
 	float a, r, g, b;
-	uint8_t a8, r8, g8, b8;
-	uint32_t v;
+	uint8 a8, r8, g8, b8;
+	uint32 v;
 	float y;
 	if(walker->need_reset || x < walker->left_x || x >= walker->right_x)
 		gradient_walker_reset(walker, x);
@@ -165,10 +165,10 @@ uint32_t _pixman_gradient_walker_pixel(pixman_gradient_walker_t * walker, pixman
 	r = a * (walker->r_s * y + walker->r_b);
 	g = a * (walker->g_s * y + walker->g_b);
 	b = a * (walker->b_s * y + walker->b_b);
-	a8 = static_cast<uint8_t>(a + 0.5f);
-	r8 = static_cast<uint8_t>(r + 0.5f);
-	g8 = static_cast<uint8_t>(g + 0.5f);
-	b8 = static_cast<uint8_t>(b + 0.5f);
+	a8 = static_cast<uint8>(a + 0.5f);
+	r8 = static_cast<uint8>(r + 0.5f);
+	g8 = static_cast<uint8>(g + 0.5f);
+	b8 = static_cast<uint8>(b + 0.5f);
 	v = ((a8 << 24) & 0xff000000) | ((r8 << 16) & 0x00ff0000) | ((g8 <<  8) & 0x0000ff00) | ((b8 >>  0) & 0x000000ff);
 	return v;
 }

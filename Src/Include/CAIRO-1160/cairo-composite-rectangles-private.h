@@ -59,7 +59,7 @@ struct _cairo_composite_rectangles {
 	cairo_rectangle_int_t destination;
 	cairo_rectangle_int_t bounded; /* source? IN mask? IN unbounded */
 	cairo_rectangle_int_t unbounded; /* destination IN clip */
-	uint32_t is_bounded;
+	uint32 is_bounded;
 	cairo_rectangle_int_t source_sample_area;
 	cairo_rectangle_int_t mask_sample_area;
 	cairo_pattern_union_t source_pattern;

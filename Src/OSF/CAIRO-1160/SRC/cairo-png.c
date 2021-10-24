@@ -76,16 +76,16 @@ struct png_read_closure_t {
 static void unpremultiply_data(png_structp png, png_row_infop row_info, png_bytep data)
 {
 	for(uint i = 0; i < row_info->rowbytes; i += 4) {
-		uint8_t * b = &data[i];
-		uint32_t pixel;
-		uint8_t alpha;
-		memcpy(&pixel, b, sizeof(uint32_t));
+		uint8 * b = &data[i];
+		uint32 pixel;
+		uint8 alpha;
+		memcpy(&pixel, b, sizeof(uint32));
 		alpha = (pixel & 0xff000000) >> 24;
 		if(alpha == 0) {
 			b[0] = b[1] = b[2] = b[3] = 0;
 		}
 		else {
-			b[0] = (((pixel & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
+			b[0] = static_cast<uint8>((((pixel & 0xff0000) >> 16) * 255 + alpha / 2) / alpha);
 			b[1] = (((pixel & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
 			b[2] = (((pixel & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
 			b[3] = alpha;
@@ -97,10 +97,10 @@ static void unpremultiply_data(png_structp png, png_row_infop row_info, png_byte
 static void convert_data_to_bytes(png_structp png, png_row_infop row_info, png_bytep data)
 {
 	for(uint i = 0; i < row_info->rowbytes; i += 4) {
-		uint8_t * b = &data[i];
-		uint32_t pixel;
-		memcpy(&pixel, b, sizeof(uint32_t));
-		b[0] = (pixel & 0xff0000) >> 16;
+		uint8 * b = &data[i];
+		uint32 pixel;
+		memcpy(&pixel, b, sizeof(uint32));
+		b[0] = static_cast<uint8>((pixel & 0xff0000) >> 16);
 		b[1] = (pixel & 0x00ff00) >>  8;
 		b[2] = (pixel & 0x0000ff) >>  0;
 		b[3] = 0;
@@ -373,16 +373,16 @@ static inline int multiply_alpha(int alpha, int color)
 static void premultiply_data(png_structp png, png_row_infop row_info, png_bytep data)
 {
 	for(uint i = 0; i < row_info->rowbytes; i += 4) {
-		uint8_t * base  = &data[i];
-		uint8_t alpha = base[3];
-		uint32_t p;
+		uint8 * base  = &data[i];
+		uint8 alpha = base[3];
+		uint32 p;
 		if(alpha == 0) {
 			p = 0;
 		}
 		else {
-			uint8_t red   = base[0];
-			uint8_t green = base[1];
-			uint8_t blue  = base[2];
+			uint8 red   = base[0];
+			uint8 green = base[1];
+			uint8 blue  = base[2];
 			if(alpha != 0xff) {
 				red   = multiply_alpha(alpha, red);
 				green = multiply_alpha(alpha, green);
@@ -390,7 +390,7 @@ static void premultiply_data(png_structp png, png_row_infop row_info, png_bytep 
 			}
 			p = (alpha << 24) | (red << 16) | (green << 8) | (blue << 0);
 		}
-		memcpy(base, &p, sizeof(uint32_t));
+		memcpy(base, &p, sizeof(uint32));
 	}
 }
 
@@ -398,12 +398,12 @@ static void premultiply_data(png_structp png, png_row_infop row_info, png_bytep 
 static void convert_bytes_to_data(png_structp png, png_row_infop row_info, png_bytep data)
 {
 	for(uint i = 0; i < row_info->rowbytes; i += 4) {
-		uint8_t * base  = &data[i];
-		uint8_t red   = base[0];
-		uint8_t green = base[1];
-		uint8_t blue  = base[2];
-		uint32_t pixel = (0xff << 24) | (red << 16) | (green << 8) | (blue << 0);
-		memcpy(base, &pixel, sizeof(uint32_t));
+		uint8 * base  = &data[i];
+		uint8 red   = base[0];
+		uint8 green = base[1];
+		uint8 blue  = base[2];
+		uint32 pixel = (0xff << 24) | (red << 16) | (green << 8) | (blue << 0);
+		memcpy(base, &pixel, sizeof(uint32));
 	}
 }
 

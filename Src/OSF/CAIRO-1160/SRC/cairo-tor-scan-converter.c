@@ -254,8 +254,8 @@ typedef int grid_scaled_y_t;
 #define UNROLL3(x) x x x
 
 struct quorem {
-	int32_t quo;
-	int64_t rem;
+	int32 quo;
+	int64 rem;
 };
 
 /* Header for a chunk of memory in a memory pool. */
@@ -271,12 +271,12 @@ struct _pool_chunk {
 	struct _pool_chunk * prev_chunk;
 
 	/* Actual data starts here. Well aligned even for 64 bit types. */
-	int64_t data;
+	int64 data;
 };
 
-/* The int64_t data member of _pool_chunk just exists to enforce alignment,
+/* The int64 data member of _pool_chunk just exists to enforce alignment,
  * it shouldn't be included in the allocated size for the struct. */
-#define SIZEOF_POOL_CHUNK (sizeof(struct _pool_chunk) - sizeof(int64_t))
+#define SIZEOF_POOL_CHUNK (sizeof(struct _pool_chunk) - sizeof(int64))
 
 /* A memory pool.  This is supposed to be embedded on the stack or
  * within some other structure.	 It may optionally be followed by an
@@ -298,7 +298,7 @@ struct pool {
 	/* Header for the sentinel chunk.  Directly following the pool
 	 * struct should be some space for embedded elements from which
 	 * the sentinel chunk allocates from. This is expressed as a char
-	 * array so that the 'int64_t data' member of _pool_chunk isn't
+	 * array so that the 'int64 data' member of _pool_chunk isn't
 	 * included. This way embedding struct pool in other structs works
 	 * without wasting space. */
 	char sentinel[SIZEOF_POOL_CHUNK];
@@ -337,7 +337,7 @@ struct edge {
 	struct quorem dxdy_full;
 
 	/* y2-y1 after orienting the edge downwards.  */
-	int64_t dy;
+	int64 dy;
 };
 
 #define EDGE_Y_BUCKET_INDEX(y, ymin) (((y) - (ymin))/GRID_Y)
@@ -405,8 +405,8 @@ struct polygon {
 struct cell {
 	struct cell * next;
 	int x;
-	int16_t uncovered_area;
-	int16_t covered_height;
+	int16 uncovered_area;
+	int16 covered_height;
 };
 
 /* A cell list represents the scan line sparsely as cells ordered by
@@ -615,7 +615,7 @@ inline static struct cell * cell_list_alloc(struct cell_list * cells, struct cel
 	cell->next = tail->next;
 	tail->next = cell;
 	cell->x = x;
-	*(uint32_t *)&cell->uncovered_area = 0;
+	*(uint32 *)&cell->uncovered_area = 0;
 	return cell;
 }
 
@@ -802,14 +802,14 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 	{
 		struct cell_pair pair;
 		struct quorem y;
-		int64_t tmp, dx;
+		int64 tmp, dx;
 		int y_last;
 		dx = (x2.quo - x1.quo) * edge->dy + (x2.rem - x1.rem);
 		tmp = (ix1 + 1) * GRID_X * edge->dy;
 		tmp -= x1.quo * edge->dy + x1.rem;
 		tmp *= GRID_Y;
 
-		y.quo = static_cast<int32_t>(tmp / dx);
+		y.quo = static_cast<int32>(tmp / dx);
 		y.rem = tmp % dx;
 
 		/* When rendering a previous edge on the active list we may
@@ -834,7 +834,7 @@ static void cell_list_render_edge(struct cell_list * cells, struct edge * edge, 
 		if(ix1+1 < ix2) {
 			struct cell * cell = pair.cell2;
 			struct quorem dydx_full;
-			dydx_full.quo = static_cast<int32_t>(GRID_Y * GRID_X * edge->dy / dx);
+			dydx_full.quo = static_cast<int32>(GRID_Y * GRID_X * edge->dy / dx);
 			dydx_full.rem = GRID_Y * GRID_X * edge->dy % dx;
 			++ix1;
 			do {
@@ -948,7 +948,7 @@ static void active_list_init(struct active_list * active)
 static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      
 {
 	struct edge * head;
-	int32_t x;
+	int32 x;
 	struct edge * prev = head_a->prev;
 	struct edge ** next = &head;
 	if(head_a->cell <= head_b->cell) {
@@ -1355,20 +1355,20 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		e->dy = 0;
 	}
 	else {
-		int64_t tmp;
-		int64_t Ex = (int64_t)(p2->x - p1->x) * GRID_X;
-		int64_t Ey = (int64_t)(p2->y - p1->y) * GRID_Y * (2 << GLITTER_INPUT_BITS);
-		e->dxdy.quo = static_cast<int32_t>(Ex * (2 << GLITTER_INPUT_BITS) / Ey);
+		int64 tmp;
+		int64 Ex = (int64)(p2->x - p1->x) * GRID_X;
+		int64 Ey = (int64)(p2->y - p1->y) * GRID_Y * (2 << GLITTER_INPUT_BITS);
+		e->dxdy.quo = static_cast<int32>(Ex * (2 << GLITTER_INPUT_BITS) / Ey);
 		e->dxdy.rem = Ex * (2 << GLITTER_INPUT_BITS) % Ey;
-		tmp = (int64_t)(2*ytop + 1) << GLITTER_INPUT_BITS;
-		tmp -= (int64_t)p1->y * GRID_Y * 2;
+		tmp = (int64)(2*ytop + 1) << GLITTER_INPUT_BITS;
+		tmp -= (int64)p1->y * GRID_Y * 2;
 		tmp *= Ex;
-		e->x.quo = static_cast<int32_t>(tmp / Ey);
+		e->x.quo = static_cast<int32>(tmp / Ey);
 		e->x.rem = tmp % Ey;
 #if GRID_X_BITS == GLITTER_INPUT_BITS
 		e->x.quo += p1->x;
 #else
-		tmp = (int64_t)p1->x * GRID_X;
+		tmp = (int64)p1->x * GRID_X;
 		e->x.quo += tmp >> GLITTER_INPUT_BITS;
 		e->x.rem += ((tmp & ((1 << GLITTER_INPUT_BITS) - 1)) * Ey) / (1 << GLITTER_INPUT_BITS);
 #endif
@@ -1382,7 +1382,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		}
 		if(e->height_left >= GRID_Y) {
 			tmp = Ex * (2 * GRID_Y << GLITTER_INPUT_BITS);
-			e->dxdy_full.quo = static_cast<int32_t>(tmp / Ey);
+			e->dxdy_full.quo = static_cast<int32>(tmp / Ey);
 			e->dxdy_full.rem = tmp % Ey;
 		}
 		else {
@@ -1429,7 +1429,7 @@ static glitter_status_t blit_a8(struct cell_list * cells,
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0, last_cover = 0;
+	int16 cover = 0, last_cover = 0;
 	unsigned num_spans;
 
 	if(cell == &cells->tail)
@@ -1446,7 +1446,7 @@ static glitter_status_t blit_a8(struct cell_list * cells,
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 
 		if(x > prev_x && cover != last_cover) {
 			spans[num_spans].x = prev_x;
@@ -1497,8 +1497,8 @@ static glitter_status_t blit_a1(struct cell_list * cells,
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0;
-	uint8_t coverage, last_cover = 0;
+	int16 cover = 0;
+	uint8 coverage, last_cover = 0;
 	unsigned num_spans;
 
 	if(cell == &cells->tail)
@@ -1515,7 +1515,7 @@ static glitter_status_t blit_a1(struct cell_list * cells,
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 
 		coverage = GRID_AREA_TO_A1(cover);
 		if(x > prev_x && coverage != last_cover) {

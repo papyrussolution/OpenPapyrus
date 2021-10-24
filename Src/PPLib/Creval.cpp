@@ -1,5 +1,5 @@
 // CREVAL.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Валютная переоценка
 //
@@ -136,7 +136,7 @@ void CRevalDialog::editCRate()
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CREVAL_CRATELIST));
 	if(p_list) {
 		const long pos = p_list->def->_curItem();
-		if(pos >= 0 && pos < static_cast<long>(Data.CRateList.getCount())) {
+		if(pos >= 0 && pos < Data.CRateList.getCountI()) {
 			AmtEntry * p_entry = &Data.CRateList.at(static_cast<uint>(pos));
 			const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
 			double rate = p_entry->Amt;

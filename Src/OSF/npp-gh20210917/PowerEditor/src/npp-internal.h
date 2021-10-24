@@ -2345,7 +2345,7 @@ private:
 	void feedUserStyles(TiXmlNode * node);
 	void feedUserKeywordList(TiXmlNode * node);
 	void feedUserSettings(TiXmlNode * node);
-	void feedShortcut(TiXmlNode * node);
+	void FASTCALL feedShortcut(TiXmlNode * node);
 	void feedMacros(TiXmlNode * node);
 	void feedUserCmds(TiXmlNode * node);
 	void feedPluginCustomizedCmds(TiXmlNode * node);

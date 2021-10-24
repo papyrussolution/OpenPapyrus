@@ -40,10 +40,10 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-static int FASTCALL line_compare_for_y_against_x(const cairo_line_t * a, int32_t y, int32_t x)
+static int FASTCALL line_compare_for_y_against_x(const cairo_line_t * a, int32 y, int32 x)
 {
-	int32_t adx, ady;
-	int32_t dx, dy;
+	int32 adx, ady;
+	int32 dx, dy;
 	cairo_int64_t L, R;
 	if(x < a->p1.x && x < a->p2.x)
 		return 1;
@@ -87,16 +87,16 @@ static int FASTCALL line_compare_for_y_against_x(const cairo_line_t * a, int32_t
  *
  * See the similar discussion for _slope_compare().
  */
-static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_line_t * b, int32_t y)
+static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_line_t * b, int32 y)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
 	 * bits. That's not true in general as there could be overflow. We
 	 * should prevent that before the tessellation algorithm
 	 * begins.
 	 */
-	int32_t dx = 0;
-	int32_t adx = 0, ady = 0;
-	int32_t bdx = 0, bdy = 0;
+	int32 dx = 0;
+	int32 adx = 0, ady = 0;
+	int32 bdx = 0, bdy = 0;
 	enum {
 		HAVE_NONE    = 0x0,
 		HAVE_DX      = 0x1,
@@ -177,7 +177,7 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 #undef L
 }
 
-static int FASTCALL lines_compare_x_for_y(const cairo_line_t * a, const cairo_line_t * b, int32_t y)
+static int FASTCALL lines_compare_x_for_y(const cairo_line_t * a, const cairo_line_t * b, int32 y)
 {
 	/* If the sweep-line is currently on an end-point of a line,
 	 * then we know its precise x value (and considering that we often need to
@@ -191,7 +191,7 @@ static int FASTCALL lines_compare_x_for_y(const cairo_line_t * a, const cairo_li
 		HAVE_BOTH    = HAVE_AX | HAVE_BX
 	};
 	int    have_ax_bx = HAVE_BOTH;
-	int32_t ax = 0, bx = 0;
+	int32 ax = 0, bx = 0;
 	if(y == a->p1.y)
 		ax = a->p1.x;
 	else if(y == a->p2.y)
@@ -215,8 +215,8 @@ static int FASTCALL lines_compare_x_for_y(const cairo_line_t * a, const cairo_li
 
 static int FASTCALL bbox_compare(const cairo_line_t * a, const cairo_line_t * b)
 {
-	int32_t amin, amax;
-	int32_t bmin, bmax;
+	int32 amin, amax;
+	int32 bmin, bmax;
 	if(a->p1.x < a->p2.x) {
 		amin = a->p1.x;
 		amax = a->p2.x;

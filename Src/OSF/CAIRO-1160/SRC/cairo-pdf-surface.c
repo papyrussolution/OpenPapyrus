@@ -2110,8 +2110,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * su
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	char * alpha;
 	ulong alpha_size;
-	uint32_t * pixel32;
-	uint8_t * pixel8;
+	uint32 * pixel32;
+	uint8 * pixel8;
 	int i, x, y, bit, a;
 	cairo_image_transparency_t transparency;
 	// This is the only image format we support, which simplifies things. 
@@ -2142,7 +2142,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * su
 				alpha[i++] = '\xff'; // @sobolev 0xff-->'\xff'
 		}
 		else if(image->format == CAIRO_FORMAT_A1) {
-			pixel8 = static_cast<uint8_t *>(image->data + y * image->stride);
+			pixel8 = static_cast<uint8 *>(image->data + y * image->stride);
 			for(x = 0; x < (image->width + 7) / 8; x++, pixel8++) {
 				a = *pixel8;
 				a = CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(a);
@@ -2150,8 +2150,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * su
 			}
 		}
 		else {
-			pixel8 = static_cast<uint8_t *>(image->data + y * image->stride);
-			pixel32 = reinterpret_cast<uint32_t *>(image->data + y * image->stride);
+			pixel8 = static_cast<uint8 *>(image->data + y * image->stride);
+			pixel32 = reinterpret_cast<uint32 *>(image->data + y * image->stride);
 			bit = 7;
 			for(x = 0; x < image->width; x++) {
 				if(image->format == CAIRO_FORMAT_ARGB32) {
@@ -2235,7 +2235,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	char * data;
 	ulong data_size;
-	uint32_t * pixel;
+	uint32 * pixel;
 	int i, x, y, bit;
 	cairo_pdf_resource_t smask = {0}; /* squelch bogus compiler warning */
 	boolint need_smask;
@@ -2286,7 +2286,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 
 	i = 0;
 	for(y = 0; y < image->height; y++) {
-		pixel = (uint32_t *)(image->data + y * image->stride);
+		pixel = (uint32 *)(image->data + y * image->stride);
 
 		bit = 7;
 		for(x = 0; x < image->width; x++, pixel++) {
@@ -2298,7 +2298,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 			 * appropriately, but my attempts to do that so far have
 			 * failed. */
 			if(image->format == CAIRO_FORMAT_ARGB32) {
-				uint8_t a;
+				uint8 a;
 				a = (*pixel & 0xff000000) >> 24;
 				if(a == 0) {
 					r = g = b = 0;
@@ -4530,7 +4530,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 		str[i+2] = 0;
 	}
 	else {
-		uint16_t * utf16 = NULL;
+		uint16 * utf16 = NULL;
 		int utf16_len = 0;
 		status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &utf16_len);
 		if(UNLIKELY(status))
@@ -4552,7 +4552,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 
 static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_surface_t * surface, const char * utf8)
 {
-	uint16_t * utf16 = NULL;
+	uint16 * utf16 = NULL;
 	int utf16_len = 0;
 	cairo_int_status_t status;
 	int i;
@@ -4609,18 +4609,18 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 		c -= a; c -= b; c ^= (b>>15);       \
 	}
 
-static uint32_t _hash_data(const uchar * data, int length, uint32_t initval)
+static uint32 _hash_data(const uchar * data, int length, uint32 initval)
 {
-	uint32_t a, b, c, len;
+	uint32 a, b, c, len;
 
 	len = length;
 	a = b = 0x9e3779b9; /* the golden ratio; an arbitrary value */
 	c = initval;     /* the previous hash value */
 
 	while(len >= 12) {
-		a += (data[0] + ((uint32_t)data[1]<<8) + ((uint32_t)data[2]<<16) + ((uint32_t)data[3]<<24));
-		b += (data[4] + ((uint32_t)data[5]<<8) + ((uint32_t)data[6]<<16) + ((uint32_t)data[7]<<24));
-		c += (data[8] + ((uint32_t)data[9]<<8) + ((uint32_t)data[10]<<16)+ ((uint32_t)data[11]<<24));
+		a += (data[0] + ((uint32)data[1]<<8) + ((uint32)data[2]<<16) + ((uint32)data[3]<<24));
+		b += (data[4] + ((uint32)data[5]<<8) + ((uint32)data[6]<<16) + ((uint32)data[7]<<24));
+		c += (data[8] + ((uint32)data[9]<<8) + ((uint32)data[10]<<16)+ ((uint32)data[11]<<24));
 		HASH_MIX(a, b, c);
 		data += 12;
 		len -= 12;
@@ -4628,16 +4628,16 @@ static uint32_t _hash_data(const uchar * data, int length, uint32_t initval)
 
 	c += length;
 	switch(len) {
-		case 11: c += ((uint32_t)data[10] << 24);
-		case 10: c += ((uint32_t)data[9] << 16);
-		case 9: c += ((uint32_t)data[8] << 8);
-		case 8: b += ((uint32_t)data[7] << 24);
-		case 7: b += ((uint32_t)data[6] << 16);
-		case 6: b += ((uint32_t)data[5] << 8);
+		case 11: c += ((uint32)data[10] << 24);
+		case 10: c += ((uint32)data[9] << 16);
+		case 9: c += ((uint32)data[8] << 8);
+		case 8: b += ((uint32)data[7] << 24);
+		case 7: b += ((uint32)data[6] << 16);
+		case 6: b += ((uint32)data[5] << 8);
 		case 5: b += data[4];
-		case 4: a += ((uint32_t)data[3] << 24);
-		case 3: a += ((uint32_t)data[2] << 16);
-		case 2: a += ((uint32_t)data[1] << 8);
+		case 4: a += ((uint32)data[3] << 24);
+		case 3: a += ((uint32)data[2] << 16);
+		case 2: a += ((uint32)data[1] << 8);
 		case 1: a += data[0];
 	}
 	HASH_MIX(a, b, c);
@@ -4646,7 +4646,7 @@ static uint32_t _hash_data(const uchar * data, int length, uint32_t initval)
 
 static void _create_font_subset_tag(cairo_scaled_font_subset_t * font_subset, const char * font_name, char * tag)
 {
-	uint32_t hash;
+	uint32 hash;
 	int i;
 	long numerator;
 	ldiv_t d;
@@ -5313,7 +5313,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_truetype_font_subset(cairo_pdf
 static cairo_int_status_t _cairo_pdf_emit_imagemask(cairo_image_surface_t * image,
     cairo_output_stream_t * stream)
 {
-	uint8_t * byte, output_byte;
+	uint8 * byte, output_byte;
 	int row, col, num_cols;
 
 	/* The only image type supported by Type 3 fonts are 1-bit image
@@ -5335,7 +5335,7 @@ static cairo_int_status_t _cairo_pdf_emit_imagemask(cairo_image_surface_t * imag
 	for(row = 0; row < image->height; row++) {
 		byte = image->data + row * image->stride;
 		for(col = 0; col < num_cols; col++) {
-			output_byte = static_cast<uint8_t>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte));
+			output_byte = static_cast<uint8>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte));
 			_cairo_output_stream_write(stream, &output_byte, 1);
 			byte++;
 		}

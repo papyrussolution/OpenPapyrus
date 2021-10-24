@@ -288,7 +288,7 @@ void CFieldPrinter::Init(const CFieldInfoInit * standardFieldTable, unsigned num
 
 static void GetPropName(PROPID propID, const wchar_t * name, AString &nameA, UString &nameU)
 {
-	if(propID < ARRAY_SIZE(kPropIdToName)) {
+	if(propID < SIZEOFARRAY(kPropIdToName)) {
 		nameA = kPropIdToName[propID];
 		return;
 	}
@@ -621,7 +621,7 @@ static void PrintPropName_and_Eq(CStdOutStream &so, PROPID propID)
 {
 	const char * s;
 	char temp[16];
-	if(propID < ARRAY_SIZE(kPropIdToName))
+	if(propID < SIZEOFARRAY(kPropIdToName))
 		s = kPropIdToName[propID];
 	else {
 		ConvertUInt32ToString(propID, temp);
@@ -792,7 +792,7 @@ HRESULT ListArchives(CCodecs * codecs, const CObjectVector<COpenType> &types, co
 	numWarnings = 0;
 	CFieldPrinter fp;
 	if(!techMode)
-		fp.Init(kStandardFieldTable, ARRAY_SIZE(kStandardFieldTable));
+		fp.Init(kStandardFieldTable, SIZEOFARRAY(kStandardFieldTable));
 	CListStat2 stat2total;
 	CBoolArr skipArcs(arcPaths.Size());
 	uint   arcIndex;

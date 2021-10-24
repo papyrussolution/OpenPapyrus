@@ -1681,7 +1681,7 @@ INT_PTR CALLBACK NewDocumentSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPA
 		    int selIndex = -1;
 		    generic_string str;
 		    EncodingMapper& em = EncodingMapper::getInstance();
-		    for(size_t i = 0, encodingArraySize = sizeof(encodings)/sizeof(int); i < encodingArraySize; ++i) {
+		    for(size_t i = 0, encodingArraySize = SIZEOFARRAY(encodings); i < encodingArraySize; ++i) {
 			    int cmdID = em.getIndexFromEncoding(encodings[i]);
 			    if(cmdID != -1) {
 				    cmdID += IDM_FORMAT_ENCODE;

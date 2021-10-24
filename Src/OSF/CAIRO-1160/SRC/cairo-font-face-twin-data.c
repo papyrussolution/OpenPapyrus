@@ -1052,7 +1052,7 @@ const int8_t _cairo_twin_outlines[] = {
     'e',
 };
 
-const uint16_t _cairo_twin_charmap[128] = {
+const uint16 _cairo_twin_charmap[128] = {
     0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,

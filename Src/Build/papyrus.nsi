@@ -334,6 +334,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppstr-nl.bin" ; @v10.4.4
 	File "${SRC_TARGET}\ppstr-de.bin" ; @v10.5.8
 	File "${SRC_TARGET}\ppstr-pt.bin" ; @v10.5.8
+	File "${SRC_TARGET}\ppstr-es.bin" ; @v11.2.0
 	File "${SRC_TARGET}\ppdv.wta" ; @v9.2.0
 	File "${SRC_TARGET}\pphelp.chm"
 	File "${SRC_TARGET}\ppgplot.exe"

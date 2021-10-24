@@ -50,15 +50,8 @@ IntRange & IntRange::Z()
 	return *this;
 }
 
-int IntRange::IsZero() const
-{
-	return BIN(low == 0 && upp == 0);
-}
-
-int FASTCALL IntRange::CheckVal(int test) const
-{
-	return BIN((low == 0 || test >= low) && (upp == 0 || test <= upp));
-}
+bool IntRange::IsZero() const { return (low == 0 && upp == 0); }
+bool FASTCALL IntRange::CheckVal(int test) const { return (low == 0 || test >= low) && (upp == 0 || test <= upp); }
 
 IntRange & FASTCALL IntRange::operator = (const IntRange & rS)
 {
@@ -187,27 +180,25 @@ RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((d
 int FASTCALL RealRange::IsEqual(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
 int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
 int FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
-int FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEqual(rS); }
-int RealRange::IsZero() const { return BIN(low == 0.0 && upp == 0.0); }
-int RealRange::CheckVal(double v) const { return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
+int  FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEqual(rS); }
+bool RealRange::IsZero() const { return (low == 0.0 && upp == 0.0); }
+bool RealRange::CheckVal(double v) const { return (low == 0.0 || v >= low) && (upp == 0.0 || v <= upp); }
 
-int RealRange::CheckValEps(double val, double eps) const
+bool RealRange::CheckValEps(double val, double eps) const
 {
 	if(low != 0.0) {
 		if(!feqeps(val, low, eps) && val < low)
-			return 0;
+			return false;
 	}
 	if(upp != 0.0) {
 		if(!feqeps(val, upp, eps) && val > upp)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
-bool RealRange::Check(double v) const
-	{ return BIN(v >= low && v <= upp); }
-bool RealRange::CheckX(double v) const
-	{ return BIN((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low)); }
+bool RealRange::Check(double v) const { return (v >= low && v <= upp); }
+bool RealRange::CheckX(double v) const { return ((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low)); }
 
 double RealRange::Clip(double v) const
 {
@@ -367,10 +358,7 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 	}
 }
 
-int DateRange::IsZero() const
-{
-	return BIN(!low && !upp);
-}
+bool DateRange::IsZero() const { return (!low && !upp); }
 
 int FASTCALL DateRange::CheckDate(LDATE dt) const
 {
@@ -588,10 +576,7 @@ void TimeRange::SetZero()
 	upp = ZEROTIME;
 }
 
-int TimeRange::IsZero() const
-{
-	return (low == ZEROTIME && upp == ZEROTIME);
-}
+bool TimeRange::IsZero() const { return (low == ZEROTIME && upp == ZEROTIME); }
 
 int FASTCALL TimeRange::Check(LTIME tm) const
 {

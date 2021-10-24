@@ -1852,6 +1852,7 @@
 #define cmLayoutContainer        1182 // @v10.9.8
 #define cmRepeating              1183 // Вызов диалога повторений задания //
 #define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
+#define cmNow                    1185 // @v11.2.0 Кнопка [Сегодня] или [Сейчас] в календарях
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)

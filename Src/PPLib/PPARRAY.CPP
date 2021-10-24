@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8 // @v10.4.5
 // @Kernel
 //
@@ -627,10 +627,7 @@ int ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 //
 //
-int PPObjID_Base::IsZero() const
-{
-	return (Obj == 0 && Id == 0);
-}
+bool PPObjID_Base::IsZero() const { return (Obj == 0 && Id == 0); }
 
 PPObjID_Base & PPObjID_Base::Z()
 {
@@ -646,9 +643,9 @@ PPObjID_Base PPObjID_Base::Set(PPID objType, PPID objID)
 	return *this;
 }
 
-int PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
-int FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
-int FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
+bool PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
+bool FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
+bool FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
 PPObjID_Base::operator double() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
 
 PPObjID_Base & FASTCALL PPObjID_Base::operator = (double oid)

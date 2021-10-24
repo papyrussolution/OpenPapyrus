@@ -207,18 +207,15 @@ static void handleLetter(StyleContext& sc, WordList* specialSelectorList)
 	int il;
 	int state;
 	bool doubleColonPresent;
-
 	sc.SetState(SCE_ST_DEFAULT);
-
 	ident[0] = static_cast<char>(sc.ch);
 	il = 1;
 	while(isAlphaNumeric(sc.chNext)) {
 		ident[il++] = static_cast<char>(sc.chNext);
 		sc.Forward();
-		if(il+2 == sizeof(ident)/sizeof(ident[0])) // overrun check
+		if(il+2 == SIZEOFARRAY(ident)) // overrun check
 			break;
 	}
-
 	if(sc.chNext == ':') {
 		doubleColonPresent = true;
 		ident[il++] = ':';
@@ -227,7 +224,6 @@ static void handleLetter(StyleContext& sc, WordList* specialSelectorList)
 	else
 		doubleColonPresent = false;
 	ident[il] = 0;
-
 	if(specialSelectorList->InList(ident))
 		state = SCE_ST_SPEC_SEL;
 	else if(doubleColonPresent)

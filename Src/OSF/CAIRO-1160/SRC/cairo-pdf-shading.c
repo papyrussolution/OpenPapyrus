@@ -42,7 +42,7 @@
 
 static uchar * FASTCALL encode_coordinate(uchar * p, double c)
 {
-	uint32_t f = static_cast<uint32_t>(c);
+	uint32 f = static_cast<uint32>(c);
 	*p++ = f >> 24;
 	*p++ = (f >> 16) & 0xff;
 	*p++ = (f >> 8)  & 0xff;
@@ -59,7 +59,7 @@ static uchar * encode_point(uchar * p, const cairo_point_double_t * point)
 
 static uchar * FASTCALL encode_color_component(uchar * p, double color)
 {
-	uint16_t c = _cairo_color_double_to_short(color);
+	uint16 c = _cairo_color_double_to_short(color);
 	*p++ = c >> 8;
 	*p++ = c & 0xff;
 	return p;
@@ -168,9 +168,9 @@ static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading, con
 	/*
 	 * Coordinates from the minimum to the maximum value of the mesh
 	 * map to the [0..UINT32_MAX] range and are represented as
-	 * uint32_t values.
+	 * uint32 values.
 	 *
-	 * Color components are represented as uint16_t (in a 0.16 fixed
+	 * Color components are represented as uint16 (in a 0.16 fixed
 	 * point format, as in the rest of cairo).
 	 */
 	shading->bits_per_coordinate = 32;

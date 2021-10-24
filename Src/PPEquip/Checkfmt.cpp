@@ -1577,7 +1577,10 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								GtinStruc gts;
 								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0) > 0) {
 									// @v11.1.11 SString result_chzn_code;
-									STRNSCPY(pIter->ChZnCode, temp_buf); // @v11.1.11
+									SString reconstructed_org; // @v11.2.0
+									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_org); // @v11.2.0
+									//STRNSCPY(pIter->ChZnCode, temp_buf); // @v11.1.11
+									STRNSCPY(pIter->ChZnCode, reconstructed_org); // @v11.2.0
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 										STRNSCPY(pIter->ChZnGTIN, temp_buf); // @v10.7.2
 										// @v11.1.11 result_chzn_code.Cat(temp_buf);

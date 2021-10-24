@@ -53,7 +53,7 @@
  */
 #define REPEAT_NORMAL_MIN_WIDTH                 64
 
-static force_inline pixman_bool_t repeat(pixman_repeat_t repeat, int * c, int size)
+static force_inline pixman_bool_t repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
 {
 	if(repeat == PIXMAN_REPEAT_NONE) {
 		if(*c < 0 || *c >= size)
@@ -83,10 +83,10 @@ static force_inline int pixman_fixed_to_bilinear_weight(pixman_fixed_t x)
 
 #if BILINEAR_INTERPOLATION_BITS <= 4
 /* Inspired by Filter_32_opaque from Skia */
-static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, uint32_t bl, uint32_t br, int distx, int disty)
+static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
 	int distxy, distxiy, distixy, distixiy;
-	uint32_t lo, hi;
+	uint32 lo, hi;
 	distx <<= (4 - BILINEAR_INTERPOLATION_BITS);
 	disty <<= (4 - BILINEAR_INTERPOLATION_BITS);
 	distxy = distx * disty;
@@ -107,11 +107,11 @@ static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, ui
 #else
 #if SIZEOF_LONG > 4
 
-static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, uint32_t bl, uint32_t br, int distx, int disty)
+static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
-	uint64_t distxy, distxiy, distixy, distixiy;
-	uint64_t tl64, tr64, bl64, br64;
-	uint64_t f, r;
+	uint64 distxy, distxiy, distixy, distixiy;
+	uint64 tl64, tr64, bl64, br64;
+	uint64 f, r;
 	distx <<= (8 - BILINEAR_INTERPOLATION_BITS);
 	disty <<= (8 - BILINEAR_INTERPOLATION_BITS);
 	distxy = distx * disty;
@@ -136,15 +136,15 @@ static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, ui
 	br64 = ((br64 << 16) & 0x000000ff00000000ull) | (br64 & 0x0000ff00ull);
 	f = tl64 * distixiy + tr64 * distxiy + bl64 * distixy + br64 * distxy;
 	r |= ((f >> 16) & 0x000000ff00000000ull) | (f & 0xff000000ull);
-	return (uint32_t)(r >> 16);
+	return (uint32)(r >> 16);
 }
 
 #else
 
-static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, uint32_t bl, uint32_t br, int distx, int disty)
+static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
 	int distxy, distxiy, distixy, distixiy;
-	uint32_t f, r;
+	uint32 f, r;
 	distx <<= (8 - BILINEAR_INTERPOLATION_BITS);
 	disty <<= (8 - BILINEAR_INTERPOLATION_BITS);
 	distxy = distx * disty;
@@ -185,26 +185,25 @@ static force_inline uint32_t bilinear_interpolation(uint32_t tl, uint32_t tr, ui
  *  is probably excessive in many cases. This particular function
  *  may need its own correctness test and performance tuning.
  */
-static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_width, pixman_fixed_t vx, pixman_fixed_t unit_x,
-    int32_t *  width, int32_t *  left_pad, int32_t *  right_pad)
+static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width, pixman_fixed_t vx, pixman_fixed_t unit_x, int32 *  width, int32 *  left_pad, int32 *  right_pad)
 {
-	int64_t max_vx = (int64_t)source_image_width << 16;
-	int64_t tmp;
+	int64 max_vx = (int64)source_image_width << 16;
+	int64 tmp;
 	if(vx < 0) {
-		tmp = ((int64_t)unit_x - 1 - vx) / unit_x;
+		tmp = ((int64)unit_x - 1 - vx) / unit_x;
 		if(tmp > *width) {
 			*left_pad = *width;
 			*width = 0;
 		}
 		else {
-			*left_pad = (int32_t)tmp;
-			*width -= (int32_t)tmp;
+			*left_pad = (int32)tmp;
+			*width -= (int32)tmp;
 		}
 	}
 	else {
 		*left_pad = 0;
 	}
-	tmp = ((int64_t)unit_x - 1 - vx + max_vx) / unit_x - *left_pad;
+	tmp = ((int64)unit_x - 1 - vx + max_vx) / unit_x - *left_pad;
 	if(tmp < 0) {
 		*right_pad = *width;
 		*width = 0;
@@ -213,8 +212,8 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 		*right_pad = 0;
 	}
 	else {
-		*right_pad = *width - (int32_t)tmp;
-		*width = (int32_t)tmp;
+		*right_pad = *width - (int32)tmp;
+		*width = (int32)tmp;
 	}
 }
 
@@ -239,20 +238,12 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 #define GET_0565_ALPHA(s) 0xff
 #define GET_x888_ALPHA(s) 0xff
 
-#define FAST_NEAREST_SCANLINE(scanline_func_name, SRC_FORMAT, DST_FORMAT,                       \
-	    src_type_t, dst_type_t, OP, repeat_mode)                          \
-	static force_inline void                                                                        \
-	scanline_func_name(dst_type_t       *dst,                                                      \
-	    const src_type_t *src,                                                      \
-	    int32_t w,                                                        \
-	    pixman_fixed_t vx,                                                       \
-	    pixman_fixed_t unit_x,                                                   \
-	    pixman_fixed_t src_width_fixed,                                          \
-	    pixman_bool_t fully_transparent_src)                                    \
+#define FAST_NEAREST_SCANLINE(scanline_func_name, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
+	static force_inline void scanline_func_name(dst_type_t * dst, const src_type_t * src, int32 w, pixman_fixed_t vx, \
+	    pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, pixman_bool_t fully_transparent_src) \
 	{                                                                                               \
-		uint32_t d;                                                                           \
+		uint32 d;                                                                           \
 		src_type_t s1, s2;                                                                      \
-		uint8_t a1, a2;                                                                      \
 		int x1, x2;                                                                      \
 		if(PIXMAN_OP_ ## OP == PIXMAN_OP_OVER && fully_transparent_src)                        \
 			return;                                                                             \
@@ -276,13 +267,13 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 			}                                                                                   \
 			s2 = *(src + x2);                                                                   \
 			if(PIXMAN_OP_ ## OP == PIXMAN_OP_OVER) { \
-				a1 = GET_ ## SRC_FORMAT ## _ALPHA(s1);                                          \
-				a2 = GET_ ## SRC_FORMAT ## _ALPHA(s2);                                          \
+				uint8 a1 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s1)); \
+				uint8 a2 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s2)); \
 				if(a1 == 0xff) { \
 					*dst = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                   \
 				}                                                                               \
 				else if(s1) { \
-					d = convert_ ## DST_FORMAT ## _to_8888(*dst);                              \
+					d  = convert_ ## DST_FORMAT ## _to_8888(*dst);                              \
 					s1 = convert_ ## SRC_FORMAT ## _to_8888(s1);                               \
 					a1 ^= 0xff;                                                                 \
 					UN8x4_MUL_UN8_ADD_UN8x4(d, a1, s1);                                        \
@@ -310,12 +301,12 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 			x1 = pixman_fixed_to_int(vx);                                                      \
 			s1 = *(src + x1);                                                                   \
 			if(PIXMAN_OP_ ## OP == PIXMAN_OP_OVER) { \
-				a1 = GET_ ## SRC_FORMAT ## _ALPHA(s1);                                          \
+				uint8 a1 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s1)); \
 				if(a1 == 0xff) { \
 					*dst = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                   \
 				}                                                                               \
 				else if(s1) { \
-					d = convert_ ## DST_FORMAT ## _to_8888(*dst);                               \
+					d  = convert_ ## DST_FORMAT ## _to_8888(*dst);                               \
 					s1 = convert_ ## SRC_FORMAT ## _to_8888(s1);                               \
 					a1 ^= 0xff;                                                                 \
 					UN8x4_MUL_UN8_ADD_UN8x4(d, a1, s1);                                        \
@@ -329,38 +320,31 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 		}                                                                                       \
 	}
 
-#define FAST_NEAREST_MAINLOOP_INT(scale_func_name, scanline_func, src_type_t, mask_type_t,      \
-	    dst_type_t, repeat_mode, have_mask, mask_is_solid)            \
-	static void                                                                                     \
-	fast_composite_scaled_nearest  ## scale_func_name(pixman_implementation_t *imp,                \
-	    pixman_composite_info_t *info)               \
+#define FAST_NEAREST_MAINLOOP_INT(scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, have_mask, mask_is_solid) \
+	static void fast_composite_scaled_nearest  ## scale_func_name(pixman_implementation_t *imp, pixman_composite_info_t *info) \
 	{                                                                                               \
 		PIXMAN_COMPOSITE_ARGS(info);                                                               \
 		dst_type_t * dst_line;                                                                       \
 		mask_type_t * mask_line;                                                                     \
 		src_type_t * src_first_line;                                                                 \
-		int y;                                                                                \
+		int32 y;                                                                                \
 		pixman_fixed_t src_width_fixed = pixman_int_to_fixed(src_image->bits.width);               \
 		pixman_fixed_t max_vy;                                                                      \
 		pixman_vector_t v;                                                                          \
 		pixman_fixed_t vx, vy;                                                                      \
 		pixman_fixed_t unit_x, unit_y;                                                              \
-		int32_t left_pad, right_pad;                                                                \
-                                                                                                \
+		int32 left_pad, right_pad;                                                                \
 		src_type_t * src;                                                                            \
 		dst_type_t * dst;                                                                            \
 		mask_type_t solid_mask;                                                                     \
 		const mask_type_t * mask = &solid_mask;                                                      \
 		int src_stride, mask_stride, dst_stride;                                                    \
-                                                                                                \
 		PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, dst_type_t, dst_stride, dst_line, 1);    \
-		if(have_mask)                                                                              \
-		{                                                                                           \
+		if(have_mask) { \
 			if(mask_is_solid)                                                                      \
 				solid_mask = _pixman_image_get_solid(imp, mask_image, dest_image->bits.format);    \
 			else                                                                                    \
-				PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, mask_type_t,                     \
-				    mask_stride, mask_line, 1);                                  \
+				PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, mask_type_t, mask_stride, mask_line, 1); \
 		}                                                                                           \
 		/* pass in 0 instead of src_x and src_y because src_x and src_y need to be \
 		 * transformed from destination space to source space */                        \
@@ -383,80 +367,57 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
                                                                                                 \
 		vx = v.vector[0];                                                                           \
 		vy = v.vector[1];                                                                           \
-                                                                                                \
-		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL)                                  \
-		{                                                                                           \
+		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL) { \
 			max_vy = pixman_int_to_fixed(src_image->bits.height);                                  \
-                                                                                                \
 			/* Clamp repeating positions inside the actual samples */                               \
 			repeat(PIXMAN_REPEAT_NORMAL, &vx, src_width_fixed);                                    \
 			repeat(PIXMAN_REPEAT_NORMAL, &vy, max_vy);                                             \
 		}                                                                                           \
-                                                                                                \
-		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD ||                                   \
-		    PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NONE)                                    \
-		{                                                                                           \
-			pad_repeat_get_scanline_bounds(src_image->bits.width, vx, unit_x,                      \
-			    &width, &left_pad, &right_pad);                         \
+		if(oneof2(PIXMAN_REPEAT_ ## repeat_mode, PIXMAN_REPEAT_PAD, PIXMAN_REPEAT_NONE)) { \
+			pad_repeat_get_scanline_bounds(src_image->bits.width, vx, unit_x, &width, &left_pad, &right_pad); \
 			vx += left_pad * unit_x;                                                                \
 		}                                                                                           \
-                                                                                                \
-		while(--height >= 0)                                                                       \
-		{                                                                                           \
+		while(--height >= 0) {  \
 			dst = dst_line;                                                                         \
 			dst_line += dst_stride;                                                                 \
-			if(have_mask && !mask_is_solid)                                                        \
-			{                                                                                       \
+			if(have_mask && !mask_is_solid) { \
 				mask = mask_line;                                                                   \
 				mask_line += mask_stride;                                                           \
 			}                                                                                       \
-                                                                                                \
 			y = pixman_fixed_to_int(vy);                                                           \
 			vy += unit_y;                                                                           \
 			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL)                              \
 				repeat(PIXMAN_REPEAT_NORMAL, &vy, max_vy);                                         \
-			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD)                                 \
-			{                                                                                       \
+			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD) { \
 				repeat(PIXMAN_REPEAT_PAD, &y, src_image->bits.height);                             \
 				src = src_first_line + src_stride * y;                                              \
-				if(left_pad > 0)                                                                   \
-				{                                                                                   \
-					scanline_func(mask, dst,                                                       \
-					    src + src_image->bits.width - src_image->bits.width + 1,         \
+				if(left_pad > 0) { \
+					scanline_func(mask, dst, src + src_image->bits.width - src_image->bits.width + 1, \
 					    left_pad, -pixman_fixed_e, 0, src_width_fixed, FALSE);           \
 				}                                                                                   \
-				if(width > 0)                                                                      \
-				{                                                                                   \
+				if(width > 0) { \
 					scanline_func(mask + (mask_is_solid ? 0 : left_pad),                           \
 					    dst + left_pad, src + src_image->bits.width, width,              \
 					    vx - src_width_fixed, unit_x, src_width_fixed, FALSE);           \
 				}                                                                                   \
-				if(right_pad > 0)                                                                  \
-				{                                                                                   \
+				if(right_pad > 0) { \
 					scanline_func(mask + (mask_is_solid ? 0 : left_pad + width),                   \
 					    dst + left_pad + width, src + src_image->bits.width,             \
 					    right_pad, -pixman_fixed_e, 0, src_width_fixed, FALSE);          \
 				}                                                                                   \
 			}                                                                                       \
-			else if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NONE)                           \
-			{                                                                                       \
+			else if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NONE) { \
 				static const src_type_t zero[1] = { 0 };                                            \
-				if(y < 0 || y >= src_image->bits.height)                                           \
-				{                                                                                   \
-					scanline_func(mask, dst, zero + 1, left_pad + width + right_pad,               \
-					    -pixman_fixed_e, 0, src_width_fixed, TRUE);                      \
+				if(y < 0 || y >= src_image->bits.height) { \
+					scanline_func(mask, dst, zero + 1, left_pad + width + right_pad, -pixman_fixed_e, 0, src_width_fixed, TRUE); \
 					continue;                                                                       \
 				}                                                                                   \
 				src = src_first_line + src_stride * y;                                              \
-				if(left_pad > 0)                                                                   \
-				{                                                                                   \
-					scanline_func(mask, dst, zero + 1, left_pad,                                   \
-					    -pixman_fixed_e, 0, src_width_fixed, TRUE);                      \
+				if(left_pad > 0) { \
+					scanline_func(mask, dst, zero + 1, left_pad, -pixman_fixed_e, 0, src_width_fixed, TRUE); \
 				}                                                                                   \
-				if(width > 0)                                                                      \
-				{                                                                                   \
-					scanline_func(mask + (mask_is_solid ? 0 : left_pad),                           \
-					    dst + left_pad, src + src_image->bits.width, width,              \
+				if(width > 0) { \
+					scanline_func(mask + (mask_is_solid ? 0 : left_pad), dst + left_pad, src + src_image->bits.width, width, \
 					    vx - src_width_fixed, unit_x, src_width_fixed, FALSE);           \
 				}                                                                                   \
 				if(right_pad > 0)                                                                  \
@@ -466,8 +427,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 					    -pixman_fixed_e, 0, src_width_fixed, TRUE);                      \
 				}                                                                                   \
 			}                                                                                       \
-			else                                                                                    \
-			{                                                                                       \
+			else { \
 				src = src_first_line + src_stride * y;                                              \
 				scanline_func(mask, dst, src + src_image->bits.width, width, vx - src_width_fixed, \
 				    unit_x, src_width_fixed, FALSE);                                     \
@@ -481,37 +441,21 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 	FAST_NEAREST_MAINLOOP_INT(_ ## scale_func_name, scanline_func, src_type_t, mask_type_t, \
 	    dst_type_t, repeat_mode, have_mask, mask_is_solid)
 
-#define FAST_NEAREST_MAINLOOP_NOMASK(scale_func_name, scanline_func, src_type_t, dst_type_t,    \
-	    repeat_mode)                                                      \
-	static force_inline void                                                                    \
-	scanline_func ## scale_func_name ## _wrapper(                                                  \
-		const uint8_t    *mask,                                                     \
-		dst_type_t       *dst,                                                      \
-		const src_type_t *src,                                                      \
-		int32_t w,                                                         \
-		pixman_fixed_t vx,                                                        \
-		pixman_fixed_t unit_x,                                                    \
-		pixman_fixed_t max_vx,                                                    \
-		pixman_bool_t fully_transparent_src)                                     \
+#define FAST_NEAREST_MAINLOOP_NOMASK(scale_func_name, scanline_func, src_type_t, dst_type_t, repeat_mode) \
+	static force_inline void scanline_func ## scale_func_name ## _wrapper(const uint8 * mask, dst_type_t * dst, const src_type_t *src, \
+		int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t fully_transparent_src) \
 	{                                                                                           \
 		scanline_func(dst, src, w, vx, unit_x, max_vx, fully_transparent_src);                 \
 	}                                                                                           \
 	FAST_NEAREST_MAINLOOP_INT(scale_func_name, scanline_func ## scale_func_name ## _wrapper,       \
-	    src_type_t, uint8_t, dst_type_t, repeat_mode, FALSE, FALSE)
+	    src_type_t, uint8, dst_type_t, repeat_mode, FALSE, FALSE)
 
-#define FAST_NEAREST_MAINLOOP(scale_func_name, scanline_func, src_type_t, dst_type_t,           \
-	    repeat_mode)                                                      \
-	FAST_NEAREST_MAINLOOP_NOMASK(_ ## scale_func_name, scanline_func, src_type_t,           \
-	    dst_type_t, repeat_mode)
+#define FAST_NEAREST_MAINLOOP(scale_func_name, scanline_func, src_type_t, dst_type_t, repeat_mode) \
+	FAST_NEAREST_MAINLOOP_NOMASK(_ ## scale_func_name, scanline_func, src_type_t, dst_type_t, repeat_mode)
 
-#define FAST_NEAREST(scale_func_name, SRC_FORMAT, DST_FORMAT,                           \
-	    src_type_t, dst_type_t, OP, repeat_mode)                           \
-	FAST_NEAREST_SCANLINE(scaled_nearest_scanline_ ## scale_func_name ## _ ## OP,       \
-	    SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t,               \
-	    OP, repeat_mode)                                              \
-	FAST_NEAREST_MAINLOOP_NOMASK(_ ## scale_func_name ## _ ## OP,                       \
-	    scaled_nearest_scanline_ ## scale_func_name ## _ ## OP,       \
-	    src_type_t, dst_type_t, repeat_mode)
+#define FAST_NEAREST(scale_func_name, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
+	FAST_NEAREST_SCANLINE(scaled_nearest_scanline_ ## scale_func_name ## _ ## OP, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
+	FAST_NEAREST_MAINLOOP_NOMASK(_ ## scale_func_name ## _ ## OP, scaled_nearest_scanline_ ## scale_func_name ## _ ## OP, src_type_t, dst_type_t, repeat_mode)
 
 #define SCALED_NEAREST_FLAGS                                            \
 	(FAST_PATH_SCALE_TRANSFORM  |                                       \
@@ -671,23 +615,23 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
  * whether 2 pixels to be interpolated are fetched from the image itself,
  * from the padding area around it or from both image and padding area.
  */
-static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_image_width,
+static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_image_width,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
-    int32_t *  left_pad,
-    int32_t *  left_tz,
-    int32_t *  width,
-    int32_t *  right_tz,
-    int32_t *  right_pad)
+    int32 *  left_pad,
+    int32 *  left_tz,
+    int32 *  width,
+    int32 *  right_tz,
+    int32 *  right_pad)
 {
-	int width1 = *width, left_pad1, right_pad1;
-	int width2 = *width, left_pad2, right_pad2;
-
-	pad_repeat_get_scanline_bounds(source_image_width, vx, unit_x,
-	    &width1, &left_pad1, &right_pad1);
-	pad_repeat_get_scanline_bounds(source_image_width, vx + pixman_fixed_1,
-	    unit_x, &width2, &left_pad2, &right_pad2);
-
+	int32 width1 = *width;
+	int32 left_pad1;
+	int32 right_pad1;
+	int32 width2 = *width;
+	int32 left_pad2;
+	int32 right_pad2;
+	pad_repeat_get_scanline_bounds(source_image_width, vx, unit_x, &width1, &left_pad1, &right_pad1);
+	pad_repeat_get_scanline_bounds(source_image_width, vx + pixman_fixed_1, unit_x, &width2, &left_pad2, &right_pad2);
 	*left_pad = left_pad2;
 	*left_tz = left_pad1 - left_pad2;
 	*right_tz = right_pad2 - right_pad1;
@@ -704,7 +648,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
  *		       const mask_type_ * mask,
  *		       const src_type_t * src_top,
  *		       const src_type_t * src_bottom,
- *		       int32_t            width,
+ *		       int32            width,
  *		       int                weight_top,
  *		       int                weight_bottom,
  *		       pixman_fixed_t     vx,
@@ -738,72 +682,55 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
  *  with 8-bit SIMD multiplication instructions for 8-bit interpolation
  *  precision.
  */
-#define FAST_BILINEAR_MAINLOOP_INT(scale_func_name, scanline_func, src_type_t, mask_type_t,     \
-	    dst_type_t, repeat_mode, flags)                               \
-	static void                                                                                     \
-	fast_composite_scaled_bilinear ## scale_func_name(pixman_implementation_t *imp,                \
-	    pixman_composite_info_t *info)               \
+#define FAST_BILINEAR_MAINLOOP_INT(scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, flags) \
+	static void fast_composite_scaled_bilinear ## scale_func_name(pixman_implementation_t *imp, pixman_composite_info_t *info) \
 	{                                                                                               \
 		PIXMAN_COMPOSITE_ARGS(info);                                                               \
 		dst_type_t * dst_line;                                                                       \
 		mask_type_t * mask_line;                                                                     \
 		src_type_t * src_first_line;                                                                 \
-		int y1, y2;                                                                           \
+		int32 y1; \
+		int32 y2; \
 		pixman_fixed_t max_vx = INT32_MAX; /* suppress uninitialized variable warning */            \
 		pixman_vector_t v;                                                                          \
 		pixman_fixed_t vx, vy;                                                                      \
 		pixman_fixed_t unit_x, unit_y;                                                              \
-		int32_t left_pad, left_tz, right_tz, right_pad;                                             \
-                                                                                                \
+		int32 left_pad, left_tz, right_tz, right_pad;                                             \
 		dst_type_t * dst;                                                                            \
 		mask_type_t solid_mask;                                                                     \
 		const mask_type_t * mask = &solid_mask;                                                      \
 		int src_stride, mask_stride, dst_stride;                                                    \
-                                                                                                \
 		int src_width;                                                                              \
 		pixman_fixed_t src_width_fixed;                                                             \
 		int max_x;                                                                                  \
 		pixman_bool_t need_src_extension;                                                           \
-                                                                                                \
 		PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, dst_type_t, dst_stride, dst_line, 1);    \
-		if(flags & FLAG_HAVE_SOLID_MASK)                                                           \
-		{                                                                                           \
+		if(flags & FLAG_HAVE_SOLID_MASK) { \
 			solid_mask = _pixman_image_get_solid(imp, mask_image, dest_image->bits.format);        \
 			mask_stride = 0;                                                                        \
 		}                                                                                           \
-		else if(flags & FLAG_HAVE_NON_SOLID_MASK)                                                  \
-		{                                                                                           \
-			PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, mask_type_t,                         \
-			    mask_stride, mask_line, 1);                                      \
+		else if(flags & FLAG_HAVE_NON_SOLID_MASK) { \
+			PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, mask_type_t, mask_stride, mask_line, 1); \
 		}                                                                                           \
                                                                                                 \
 		/* pass in 0 instead of src_x and src_y because src_x and src_y need to be \
 		 * transformed from destination space to source space */                        \
 		PIXMAN_IMAGE_GET_LINE(src_image, 0, 0, src_type_t, src_stride, src_first_line, 1);         \
-                                                                                                \
 		/* reference point is the center of the pixel */                                            \
 		v.vector[0] = pixman_int_to_fixed(src_x) + pixman_fixed_1 / 2;                             \
 		v.vector[1] = pixman_int_to_fixed(src_y) + pixman_fixed_1 / 2;                             \
 		v.vector[2] = pixman_fixed_1;                                                               \
-                                                                                                \
 		if(!pixman_transform_point_3d(src_image->common.transform, &v))                           \
 			return;                                                                                 \
-                                                                                                \
 		unit_x = src_image->common.transform->matrix[0][0];                                         \
 		unit_y = src_image->common.transform->matrix[1][1];                                         \
-                                                                                                \
 		v.vector[0] -= pixman_fixed_1 / 2;                                                          \
 		v.vector[1] -= pixman_fixed_1 / 2;                                                          \
-                                                                                                \
 		vy = v.vector[1];                                                                           \
-                                                                                                \
-		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD ||                                   \
-		    PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NONE)                                    \
-		{                                                                                           \
+		if(oneof2(PIXMAN_REPEAT_ ## repeat_mode, PIXMAN_REPEAT_PAD, PIXMAN_REPEAT_NONE)) { \
 			bilinear_pad_repeat_get_scanline_bounds(src_image->bits.width, v.vector[0], unit_x,    \
 			    &left_pad, &left_tz, &width, &right_tz, &right_pad);    \
-			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD)                                 \
-			{                                                                                       \
+			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD) { \
 				/* PAD repeat does not need special handling for 'transition zones' and */          \
 				/* they can be combined with 'padding zones' safely */                              \
 				left_pad += left_tz;                                                                \
@@ -812,60 +739,45 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 			}                                                                                       \
 			v.vector[0] += left_pad * unit_x;                                                       \
 		}                                                                                           \
-                                                                                                \
-		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL)                                  \
-		{                                                                                           \
+		if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL) { \
 			vx = v.vector[0];                                                                       \
 			repeat(PIXMAN_REPEAT_NORMAL, &vx, pixman_int_to_fixed(src_image->bits.width));         \
-			max_x = pixman_fixed_to_int(vx + (width - 1) * (int64_t)unit_x) + 1;                   \
-                                                                                                \
-			if(src_image->bits.width < REPEAT_NORMAL_MIN_WIDTH)                                    \
-			{                                                                                       \
+			max_x = pixman_fixed_to_int(vx + (width - 1) * (int64)unit_x) + 1;                   \
+			if(src_image->bits.width < REPEAT_NORMAL_MIN_WIDTH) { \
 				src_width = 0;                                                                      \
-                                                                                                \
 				while(src_width < REPEAT_NORMAL_MIN_WIDTH && src_width <= max_x)                   \
 					src_width += src_image->bits.width;                                             \
-                                                                                                \
 				need_src_extension = TRUE;                                                          \
 			}                                                                                       \
-			else                                                                                    \
-			{                                                                                       \
+			else { \
 				src_width = src_image->bits.width;                                                  \
 				need_src_extension = FALSE;                                                         \
 			}                                                                                       \
-                                                                                                \
 			src_width_fixed = pixman_int_to_fixed(src_width);                                      \
 		}                                                                                           \
-                                                                                                \
-		while(--height >= 0)                                                                       \
-		{                                                                                           \
+		while(--height >= 0) { \
 			int weight1, weight2;                                                                   \
 			dst = dst_line;                                                                         \
 			dst_line += dst_stride;                                                                 \
 			vx = v.vector[0];                                                                       \
-			if(flags & FLAG_HAVE_NON_SOLID_MASK)                                                   \
-			{                                                                                       \
+			if(flags & FLAG_HAVE_NON_SOLID_MASK) { \
 				mask = mask_line;                                                                   \
 				mask_line += mask_stride;                                                           \
 			}                                                                                       \
-                                                                                                \
 			y1 = pixman_fixed_to_int(vy);                                                          \
 			weight2 = pixman_fixed_to_bilinear_weight(vy);                                         \
-			if(weight2)                                                                            \
-			{                                                                                       \
+			if(weight2) { \
 				/* both weight1 and weight2 are smaller than BILINEAR_INTERPOLATION_RANGE */        \
 				y2 = y1 + 1;                                                                        \
 				weight1 = BILINEAR_INTERPOLATION_RANGE - weight2;                                   \
 			}                                                                                       \
-			else                                                                                    \
-			{                                                                                       \
+			else { \
 				/* set both top and bottom row to the same scanline and tweak weights */            \
 				y2 = y1;                                                                            \
 				weight1 = weight2 = BILINEAR_INTERPOLATION_RANGE / 2;                               \
 			}                                                                                       \
 			vy += unit_y;                                                                           \
-			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD)                                 \
-			{                                                                                       \
+			if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_PAD) { \
 				src_type_t * src1, * src2;                                                            \
 				src_type_t buf1[2];                                                                 \
 				src_type_t buf2[2];                                                                 \
@@ -873,9 +785,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 				repeat(PIXMAN_REPEAT_PAD, &y2, src_image->bits.height);                            \
 				src1 = src_first_line + src_stride * y1;                                            \
 				src2 = src_first_line + src_stride * y2;                                            \
-                                                                                                \
-				if(left_pad > 0)                                                                   \
-				{                                                                                   \
+				if(left_pad > 0) { \
 					buf1[0] = buf1[1] = src1[0];                                                    \
 					buf2[0] = buf2[1] = src2[0];                                                    \
 					scanline_func(dst, mask,                                                       \
@@ -884,20 +794,16 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += left_pad;                                                           \
 				}                                                                                   \
-				if(width > 0)                                                                      \
-				{                                                                                   \
-					scanline_func(dst, mask,                                                       \
-					    src1, src2, width, weight1, weight2, vx, unit_x, 0, FALSE);      \
+				if(width > 0) { \
+					scanline_func(dst, mask, src1, src2, width, weight1, weight2, vx, unit_x, 0, FALSE); \
 					dst += width;                                                                   \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += width;                                                              \
 				}                                                                                   \
-				if(right_pad > 0)                                                                  \
-				{                                                                                   \
+				if(right_pad > 0) { \
 					buf1[0] = buf1[1] = src1[src_image->bits.width - 1];                            \
 					buf2[0] = buf2[1] = src2[src_image->bits.width - 1];                            \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, right_pad, weight1, weight2, 0, 0, 0, FALSE);        \
+					scanline_func(dst, mask, buf1, buf2, right_pad, weight1, weight2, 0, 0, 0, FALSE); \
 				}                                                                                   \
 			}                                                                                       \
 			else if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NONE)                           \
@@ -906,87 +812,69 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 				src_type_t buf1[2];                                                                 \
 				src_type_t buf2[2];                                                                 \
 				/* handle top/bottom zero padding by just setting weights to 0 if needed */         \
-				if(y1 < 0)                                                                         \
-				{                                                                                   \
+				if(y1 < 0) { \
 					weight1 = 0;                                                                    \
 					y1 = 0;                                                                         \
 				}                                                                                   \
-				if(y1 >= src_image->bits.height)                                                   \
-				{                                                                                   \
+				if(y1 >= src_image->bits.height) { \
 					weight1 = 0;                                                                    \
 					y1 = src_image->bits.height - 1;                                                \
 				}                                                                                   \
-				if(y2 < 0)                                                                         \
-				{                                                                                   \
+				if(y2 < 0) { \
 					weight2 = 0;                                                                    \
 					y2 = 0;                                                                         \
 				}                                                                                   \
-				if(y2 >= src_image->bits.height)                                                   \
-				{                                                                                   \
+				if(y2 >= src_image->bits.height) { \
 					weight2 = 0;                                                                    \
 					y2 = src_image->bits.height - 1;                                                \
 				}                                                                                   \
 				src1 = src_first_line + src_stride * y1;                                            \
 				src2 = src_first_line + src_stride * y2;                                            \
-                                                                                                \
-				if(left_pad > 0)                                                                   \
-				{                                                                                   \
+				if(left_pad > 0) { \
 					buf1[0] = buf1[1] = 0;                                                          \
 					buf2[0] = buf2[1] = 0;                                                          \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, left_pad, weight1, weight2, 0, 0, 0, TRUE);          \
+					scanline_func(dst, mask, buf1, buf2, left_pad, weight1, weight2, 0, 0, 0, TRUE); \
 					dst += left_pad;                                                                \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += left_pad;                                                           \
 				}                                                                                   \
-				if(left_tz > 0)                                                                    \
-				{                                                                                   \
+				if(left_tz > 0) { \
 					buf1[0] = 0;                                                                    \
 					buf1[1] = src1[0];                                                              \
 					buf2[0] = 0;                                                                    \
 					buf2[1] = src2[0];                                                              \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, left_tz, weight1, weight2,                           \
-					    pixman_fixed_frac(vx), unit_x, 0, FALSE);                       \
+					scanline_func(dst, mask, buf1, buf2, left_tz, weight1, weight2, pixman_fixed_frac(vx), unit_x, 0, FALSE); \
 					dst += left_tz;                                                                 \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += left_tz;                                                            \
 					vx += left_tz * unit_x;                                                         \
 				}                                                                                   \
-				if(width > 0)                                                                      \
-				{                                                                                   \
-					scanline_func(dst, mask,                                                       \
-					    src1, src2, width, weight1, weight2, vx, unit_x, 0, FALSE);      \
+				if(width > 0) { \
+					scanline_func(dst, mask, src1, src2, width, weight1, weight2, vx, unit_x, 0, FALSE); \
 					dst += width;                                                                   \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += width;                                                              \
 					vx += width * unit_x;                                                           \
 				}                                                                                   \
-				if(right_tz > 0)                                                                   \
-				{                                                                                   \
+				if(right_tz > 0) { \
 					buf1[0] = src1[src_image->bits.width - 1];                                      \
 					buf1[1] = 0;                                                                    \
 					buf2[0] = src2[src_image->bits.width - 1];                                      \
 					buf2[1] = 0;                                                                    \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, right_tz, weight1, weight2,                          \
-					    pixman_fixed_frac(vx), unit_x, 0, FALSE);                       \
+					scanline_func(dst, mask, buf1, buf2, right_tz, weight1, weight2, pixman_fixed_frac(vx), unit_x, 0, FALSE); \
 					dst += right_tz;                                                                \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += right_tz;                                                           \
 				}                                                                                   \
-				if(right_pad > 0)                                                                  \
-				{                                                                                   \
+				if(right_pad > 0) { \
 					buf1[0] = buf1[1] = 0;                                                          \
 					buf2[0] = buf2[1] = 0;                                                          \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, right_pad, weight1, weight2, 0, 0, 0, TRUE);         \
+					scanline_func(dst, mask, buf1, buf2, right_pad, weight1, weight2, 0, 0, 0, TRUE); \
 				}                                                                                   \
 			}                                                                                       \
-			else if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL)                         \
-			{                                                                                       \
-				int32_t num_pixels;                                                         \
-				int32_t width_remain;                                                       \
+			else if(PIXMAN_REPEAT_ ## repeat_mode == PIXMAN_REPEAT_NORMAL) { \
+				int32 num_pixels;                                                         \
+				int32 width_remain;                                                       \
 				src_type_t * src_line_top;                                                  \
 				src_type_t * src_line_bottom;                                                       \
 				src_type_t buf1[2];                                                            \
@@ -994,43 +882,31 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 				src_type_t extended_src_line0[REPEAT_NORMAL_MIN_WIDTH*2];                      \
 				src_type_t extended_src_line1[REPEAT_NORMAL_MIN_WIDTH*2];                      \
 				int i, j;                                                               \
-                                                                                                \
 				repeat(PIXMAN_REPEAT_NORMAL, &y1, src_image->bits.height);                         \
 				repeat(PIXMAN_REPEAT_NORMAL, &y2, src_image->bits.height);                         \
 				src_line_top = src_first_line + src_stride * y1;                                    \
 				src_line_bottom = src_first_line + src_stride * y2;                                 \
-                                                                                                \
-				if(need_src_extension)                                                             \
-				{                                                                                   \
-					for(i = 0; i<src_width;)                                                         \
-					{                                                                               \
-						for(j = 0; j<src_image->bits.width; j++, i++)                                \
-						{                                                                           \
+				if(need_src_extension) { \
+					for(i = 0; i<src_width;) { \
+						for(j = 0; j<src_image->bits.width; j++, i++) { \
 							extended_src_line0[i] = src_line_top[j];                                \
 							extended_src_line1[i] = src_line_bottom[j];                             \
 						}                                                                           \
 					}                                                                               \
-                                                                                                \
 					src_line_top = &extended_src_line0[0];                                          \
 					src_line_bottom = &extended_src_line1[0];                                       \
 				}                                                                                   \
-                                                                                                \
 				/* Top & Bottom wrap around buffer */                                               \
 				buf1[0] = src_line_top[src_width - 1];                                              \
 				buf1[1] = src_line_top[0];                                                          \
 				buf2[0] = src_line_bottom[src_width - 1];                                           \
 				buf2[1] = src_line_bottom[0];                                                       \
-                                                                                                \
 				width_remain = width;                                                               \
-                                                                                                \
-				while(width_remain > 0)                                                            \
-				{                                                                                   \
+				while(width_remain > 0) { \
 					/* We use src_width_fixed because it can make vx in original source range */    \
 					repeat(PIXMAN_REPEAT_NORMAL, &vx, src_width_fixed);                            \
-                                                                                                \
 					/* Wrap around part */                                                          \
-					if(pixman_fixed_to_int(vx) == src_width - 1)                                  \
-					{                                                                               \
+					if(pixman_fixed_to_int(vx) == src_width - 1) { \
 						/* for positive unit_x \
 						 * num_pixels = max(n) + 1, where vx + n*unit_x < src_width_fixed \
 						 * \
@@ -1038,27 +914,18 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 						 * So we are safe from overflow. \
 						 */                                             \
 						num_pixels = ((src_width_fixed - vx - pixman_fixed_e) / unit_x) + 1;        \
-                                                                                                \
 						if(num_pixels > width_remain)                                              \
 							num_pixels = width_remain;                                              \
-                                                                                                \
-						scanline_func(dst, mask, buf1, buf2, num_pixels,                           \
-						    weight1, weight2, pixman_fixed_frac(vx),                     \
-						    unit_x, src_width_fixed, FALSE);                             \
-                                                                                                \
+						scanline_func(dst, mask, buf1, buf2, num_pixels, weight1, weight2, pixman_fixed_frac(vx), unit_x, src_width_fixed, FALSE); \
 						width_remain -= num_pixels;                                                 \
 						vx += num_pixels * unit_x;                                                  \
 						dst += num_pixels;                                                          \
-                                                                                                \
 						if(flags & FLAG_HAVE_NON_SOLID_MASK)                                       \
 							mask += num_pixels;                                                     \
-                                                                                                \
 						repeat(PIXMAN_REPEAT_NORMAL, &vx, src_width_fixed);                        \
 					}                                                                               \
-                                                                                                \
 					/* Normal scanline composite */                                                 \
-					if(pixman_fixed_to_int(vx) != src_width - 1 && width_remain > 0)              \
-					{                                                                               \
+					if(pixman_fixed_to_int(vx) != src_width - 1 && width_remain > 0) { \
 						/* for positive unit_x \
 						 * num_pixels = max(n) + 1, where vx + n*unit_x < (src_width_fixed - 1)
 						 *\
@@ -1066,38 +933,27 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32_t source_
 						 * vx is in range [0, src_width_fixed - pixman_fixed_e] \
 						 * So we are safe from overflow here. \
 						 */                                             \
-						num_pixels = ((src_width_fixed - pixman_fixed_1 - vx - pixman_fixed_e)      \
-						    / unit_x) + 1;                                                \
-                                                                                                \
+						num_pixels = ((src_width_fixed - pixman_fixed_1 - vx - pixman_fixed_e) / unit_x) + 1; \
 						if(num_pixels > width_remain)                                              \
 							num_pixels = width_remain;                                              \
-                                                                                                \
-						scanline_func(dst, mask, src_line_top, src_line_bottom, num_pixels,        \
-						    weight1, weight2, vx, unit_x, src_width_fixed, FALSE);       \
-                                                                                                \
+						scanline_func(dst, mask, src_line_top, src_line_bottom, num_pixels, weight1, weight2, vx, unit_x, src_width_fixed, FALSE); \
 						width_remain -= num_pixels;                                                 \
 						vx += num_pixels * unit_x;                                                  \
 						dst += num_pixels;                                                          \
-                                                                                                \
 						if(flags & FLAG_HAVE_NON_SOLID_MASK)                                       \
 							mask += num_pixels;                                                     \
 					}                                                                               \
 				}                                                                                   \
 			}                                                                                       \
-			else                                                                                    \
-			{                                                                                       \
-				scanline_func(dst, mask, src_first_line + src_stride * y1,                         \
-				    src_first_line + src_stride * y2, width,                             \
-				    weight1, weight2, vx, unit_x, max_vx, FALSE);                        \
+			else { \
+				scanline_func(dst, mask, src_first_line + src_stride * y1, src_first_line + src_stride * y2, width, weight1, weight2, vx, unit_x, max_vx, FALSE); \
 			}                                                                                       \
 		}                                                                                           \
 	}
 
 /* A workaround for old sun studio, see: https://bugs.freedesktop.org/show_bug.cgi?id=32764 */
-#define FAST_BILINEAR_MAINLOOP_COMMON(scale_func_name, scanline_func, src_type_t, mask_type_t,  \
-	    dst_type_t, repeat_mode, flags)                               \
-	FAST_BILINEAR_MAINLOOP_INT(_ ## scale_func_name, scanline_func, src_type_t, mask_type_t, \
-	    dst_type_t, repeat_mode, flags)
+#define FAST_BILINEAR_MAINLOOP_COMMON(scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, flags) \
+	FAST_BILINEAR_MAINLOOP_INT(_ ## scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, flags)
 
 #define SCALED_BILINEAR_FLAGS                                           \
 	(FAST_PATH_SCALE_TRANSFORM  |                                       \

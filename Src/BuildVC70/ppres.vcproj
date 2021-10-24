@@ -1123,9 +1123,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1138,9 +1138,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerDebug|Win32">
@@ -1153,9 +1153,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ServerRelease|Win32">
@@ -1168,9 +1168,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllDebug|Win32">
@@ -1183,9 +1183,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MtDllRelease|Win32">
@@ -1198,9 +1198,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Universe-HTT|Win32">
@@ -1213,9 +1213,9 @@ COPY $(InputDir)$(InputName)-en.BIN $(OutDir)\ppstr-en.bin
 COPY $(InputDir)$(InputName)-nl.BIN $(OutDir)\ppstr-nl.bin
 COPY $(InputDir)$(InputName)-de.BIN $(OutDir)\ppstr-de.bin
 COPY $(InputDir)$(InputName)-pt.BIN $(OutDir)\ppstr-pt.bin
-
+COPY $(InputDir)$(InputName)-es.BIN $(OutDir)\ppstr-es.bin
 "
-						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN"/>
+						Outputs="$(OutDir)\PPSTR.BIN;$(OutDir)\PPSTR-en.BIN;$(OutDir)\PPSTR-nl.BIN;$(OutDir)\PPSTR-de.BIN;$(OutDir)\PPSTR-pt.BIN;$(OutDir)\PPSTR-es.BIN"/>
 				</FileConfiguration>
 			</File>
 			<Filter

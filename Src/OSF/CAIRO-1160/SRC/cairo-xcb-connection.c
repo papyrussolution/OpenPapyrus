@@ -48,7 +48,7 @@ typedef struct _cairo_xcb_xrender_format {
 
 typedef struct _cairo_xcb_xid {
 	cairo_list_t link;
-	uint32_t xid;
+	uint32 xid;
 } cairo_xcb_xid_t;
 
 #define XCB_RENDER_AT_LEAST(V, major, minor)    \
@@ -117,7 +117,7 @@ static cairo_status_t _cairo_xcb_connection_find_visual_formats(cairo_xcb_connec
 }
 
 #if 0
-static xcb_format_t * find_format_for_depth(const xcb_setup_t * setup, uint8_t depth)
+static xcb_format_t * find_format_for_depth(const xcb_setup_t * setup, uint8 depth)
 {
 	xcb_format_t * fmt = xcb_setup_pixmap_formats(setup);
 	xcb_format_t * fmtend = fmt + xcb_setup_pixmap_formats_length(setup);
@@ -202,7 +202,7 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 	DEPTH_MASK(24) | \
 	DEPTH_MASK(32))
 static boolint pixmap_depths_usable(cairo_xcb_connection_t * connection,
-    uint32_t missing,
+    uint32 missing,
     xcb_drawable_t root)
 {
 	xcb_connection_t * c = connection->xcb_connection;
@@ -244,7 +244,7 @@ static boolint has_required_depths(cairo_xcb_connection_t * connection)
 	    screens.rem;
 	    xcb_screen_next(&screens)) {
 		xcb_depth_iterator_t depths;
-		uint32_t missing = REQUIRED_DEPTHS;
+		uint32 missing = REQUIRED_DEPTHS;
 
 		for(depths = xcb_screen_allowed_depths_iterator(screens.data);
 		    depths.rem;
@@ -359,8 +359,8 @@ static cairo_status_t _cairo_xcb_connection_query_render(cairo_xcb_connection_t 
 		connection->flags |= CAIRO_XCB_RENDER_HAS_GRADIENTS;
 
 	if(XCB_RENDER_HAS_SUBPIXEL_ORDER(version)) {
-		uint32_t screen;
-		uint32_t * subpixel = xcb_render_query_pict_formats_subpixels(formats);
+		uint32 screen;
+		uint32 * subpixel = xcb_render_query_pict_formats_subpixels(formats);
 
 		/* The spec explicitly allows to have too few entries in the reply... */
 		for(screen = 0; screen < formats->num_subpixel && screen < connection->root->roots_len; screen++)
@@ -398,7 +398,7 @@ static boolint can_use_shm(cairo_xcb_connection_t * connection)
 	xcb_void_cookie_t cookie[2];
 	xcb_generic_error_t * error;
 	int shmid;
-	uint32_t shmseg;
+	uint32 shmseg;
 	void * ptr;
 	shmid = shmget(IPC_PRIVATE, 0x1000, IPC_CREAT | 0600);
 	if(shmid == -1)
@@ -695,7 +695,7 @@ xcb_render_pictformat_t _cairo_xcb_connection_get_xrender_format_for_visual(cair
 }
 
 void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection,
-    uint32_t xid)
+    uint32 xid)
 {
 	cairo_xcb_xid_t * cache;
 
@@ -707,9 +707,9 @@ void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection,
 	}
 }
 
-uint32_t _cairo_xcb_connection_get_xid(cairo_xcb_connection_t * connection)
+uint32 _cairo_xcb_connection_get_xid(cairo_xcb_connection_t * connection)
 {
-	uint32_t xid;
+	uint32 xid;
 
 	assert(CAIRO_MUTEX_IS_LOCKED(connection->device.mutex));
 	if(!cairo_list_is_empty(&connection->free_xids)) {

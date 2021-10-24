@@ -369,7 +369,7 @@ HRESULT Print_OpenArchive_Error(CStdOutStream &so, const CCodecs * codecs, const
 static AString GetOpenArcErrorMessage(uint32 errorFlags)
 {
 	AString s;
-	for(uint i = 0; i < ARRAY_SIZE(k_ErrorFlagsMessages); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(k_ErrorFlagsMessages); i++) {
 		uint32 f = (1 << i);
 		if(errorFlags & f) {
 			const char * m = k_ErrorFlagsMessages[i];

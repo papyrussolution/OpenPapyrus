@@ -69,19 +69,19 @@ static pixman_bool_t linear_gradient_is_horizontal(pixman_image_t * image, int x
 	return FALSE;
 }
 
-static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32 * mask)
 {
 	pixman_image_t * image  = iter->image;
 	int x      = iter->x;
 	int y      = iter->y;
 	int width  = iter->width;
-	uint32_t * buffer = iter->buffer;
+	uint32 * buffer = iter->buffer;
 	pixman_vector_t v, unit;
 	pixman_fixed_32_32_t l;
 	pixman_fixed_48_16_t dx, dy;
 	gradient_t * gradient = (gradient_t*)image;
 	linear_gradient_t * linear = (linear_gradient_t*)image;
-	uint32_t * end = buffer + width;
+	uint32 * end = buffer + width;
 	pixman_gradient_walker_t walker;
 	_pixman_gradient_walker_init(&walker, gradient, image->common.repeat);
 	/* reference point is the center of the pixel */
@@ -119,7 +119,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 		}
 		next_inc = 0;
 		if(((pixman_fixed_32_32_t)(inc * width)) == 0) {
-			uint32_t color = _pixman_gradient_walker_pixel(&walker, t);
+			uint32 color = _pixman_gradient_walker_pixel(&walker, t);
 			while(buffer < end)
 				*buffer++ = color;
 		}
@@ -157,9 +157,9 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 	return iter->buffer;
 }
 
-static uint32_t * linear_get_scanline_wide(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * linear_get_scanline_wide(pixman_iter_t * iter, const uint32 * mask)
 {
-	uint32_t * buffer = linear_get_scanline_narrow(iter, NULL);
+	uint32 * buffer = linear_get_scanline_narrow(iter, NULL);
 	pixman_expand_to_float((argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return buffer;
 }

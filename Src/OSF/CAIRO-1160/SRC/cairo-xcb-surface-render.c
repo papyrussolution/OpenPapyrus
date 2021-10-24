@@ -63,10 +63,10 @@ static inline cairo_xcb_connection_t * _picture_to_connection(cairo_xcb_picture_
 
 static void _cairo_xcb_surface_ensure_picture(cairo_xcb_surface_t * surface);
 
-static uint32_t hars_petruska_f54_1_random(void)
+static uint32 hars_petruska_f54_1_random(void)
 {
 #define rol(x, k) ((x << k) | (x >> (32-k)))
-	static uint32_t x;
+	static uint32 x;
 	return x = (x ^ rol(x, 5) ^ rol(x, 24)) + 0x37798849;
 #undef rol
 }
@@ -124,7 +124,7 @@ static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * scre
 	return surface;
 }
 
-static inline boolint _operator_is_supported(uint32_t flags, cairo_operator_t op)
+static inline boolint _operator_is_supported(uint32 flags, cairo_operator_t op)
 {
 	if(op <= CAIRO_OPERATOR_SATURATE)
 		return TRUE;
@@ -229,7 +229,7 @@ static cairo_status_t _cairo_xcb_surface_set_clip_region(cairo_xcb_surface_t * s
 
 static void _cairo_xcb_surface_clear_clip_region(cairo_xcb_surface_t * surface)
 {
-	uint32_t values[] = { XCB_NONE };
+	uint32 values[] = { XCB_NONE };
 	_cairo_xcb_connection_render_change_picture(surface->connection,
 	    surface->picture,
 	    XCB_RENDER_CP_CLIP_MASK,
@@ -240,7 +240,7 @@ static void _cairo_xcb_surface_set_precision(cairo_xcb_surface_t * surface,
     cairo_antialias_t antialias)
 {
 	cairo_xcb_connection_t * connection = surface->connection;
-	uint32_t precision;
+	uint32 precision;
 
 	if(connection->force_precision != -1)
 		precision = connection->force_precision;
@@ -272,8 +272,8 @@ static void _cairo_xcb_surface_ensure_picture(cairo_xcb_surface_t * surface)
 {
 	assert(surface->fallback == NULL);
 	if(surface->picture == XCB_NONE) {
-		uint32_t values[1];
-		uint32_t flags = 0;
+		uint32 values[1];
+		uint32 flags = 0;
 
 		if(surface->precision != XCB_RENDER_POLY_MODE_PRECISE) {
 			flags |= XCB_RENDER_CP_POLY_MODE;
@@ -359,7 +359,7 @@ static cairo_xcb_picture_t * _picture_from_image(cairo_xcb_surface_t * target,
 	return picture;
 }
 
-static boolint _pattern_is_supported(uint32_t flags,
+static boolint _pattern_is_supported(uint32 flags,
     const cairo_pattern_t * pattern)
 
 {
@@ -493,7 +493,7 @@ static void _cairo_xcb_picture_set_filter(cairo_xcb_picture_t * picture,
 static void _cairo_xcb_picture_set_extend(cairo_xcb_picture_t * picture,
     cairo_extend_t extend)
 {
-	uint32_t pa[1];
+	uint32 pa[1];
 
 	if(picture->extend == extend)
 		return;
@@ -527,7 +527,7 @@ static void _cairo_xcb_picture_set_extend(cairo_xcb_picture_t * picture,
 static void _cairo_xcb_picture_set_component_alpha(cairo_xcb_picture_t * picture,
     boolint ca)
 {
-	uint32_t pa[1];
+	uint32 pa[1];
 
 	if(picture->has_component_alpha == ca)
 		return;
@@ -568,7 +568,7 @@ static cairo_xcb_picture_t * _solid_picture(cairo_xcb_surface_t * target,
 	}
 	else {
 		xcb_pixmap_t pixmap;
-		uint32_t values[] = { XCB_RENDER_REPEAT_NORMAL };
+		uint32 values[] = { XCB_RENDER_REPEAT_NORMAL };
 
 		pixmap = _cairo_xcb_connection_create_pixmap(target->connection,
 			32, target->drawable, 1, 1);
@@ -591,7 +591,7 @@ static cairo_xcb_picture_t * _solid_picture(cairo_xcb_surface_t * target,
 		}
 		else {
 			xcb_gcontext_t gc;
-			uint32_t pixel;
+			uint32 pixel;
 
 			gc = _cairo_xcb_screen_get_gc(target->screen, pixmap, 32);
 
@@ -953,7 +953,7 @@ setup_picture:
 static cairo_xcb_picture_t * _copy_to_picture(cairo_xcb_surface_t * source)
 {
 	cairo_xcb_picture_t * picture;
-	uint32_t values[] = { 0, 1 };
+	uint32 values[] = { 0, 1 };
 
 	if(source->deferred_clear) {
 		cairo_status_t status = _cairo_xcb_surface_clear(source);
@@ -1645,13 +1645,13 @@ typedef cairo_int_status_t
     cairo_clip_t * clip);
 
 static void do_unaligned_row(void (*blt)(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage),
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage),
     void * closure,
     const cairo_box_t * b,
     int tx, int y, int h,
-    uint16_t coverage)
+    uint16 coverage)
 {
 	int x1 = _cairo_fixed_integer_part(b->p1.x) - tx;
 	int x2 = _cairo_fixed_integer_part(b->p2.x) - tx;
@@ -1675,9 +1675,9 @@ static void do_unaligned_row(void (*blt)(void * closure,
 }
 
 static void do_unaligned_box(void (*blt)(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage),
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage),
     void * closure,
     const cairo_box_t * b, int tx, int ty)
 {
@@ -1703,9 +1703,9 @@ static void do_unaligned_box(void (*blt)(void * closure,
 }
 
 static void blt_in(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage)
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage)
 {
 	cairo_xcb_surface_t * mask = closure;
 	xcb_render_color_t color;
@@ -2265,7 +2265,7 @@ cairo_status_t _cairo_xcb_surface_clear(cairo_xcb_surface_t * dst)
 
 	if(dst->connection->flags & CAIRO_XCB_RENDER_HAS_FILL_RECTANGLES) {
 		xcb_render_color_t color;
-		uint8_t op;
+		uint8 op;
 
 		color.red   = dst->deferred_clear_color.red_short;
 		color.green = dst->deferred_clear_color.green_short;
@@ -3100,13 +3100,13 @@ static cairo_int_status_t _composite_mask(void * closure,
 struct composite_box_info {
 	cairo_xcb_surface_t * dst;
 	cairo_xcb_picture_t * src;
-	uint8_t op;
+	uint8 op;
 };
 
 static void composite_box(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage)
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage)
 {
 	struct composite_box_info * info = closure;
 
@@ -3238,16 +3238,16 @@ static cairo_int_status_t _composite_mask_clip(void * closure,
 }
 
 struct composite_opacity_info {
-	uint8_t op;
+	uint8 op;
 	cairo_xcb_surface_t * dst;
 	cairo_xcb_picture_t * src;
 	double opacity;
 };
 
 static void composite_opacity(void * closure,
-    int16_t x, int16_t y,
-    int16_t w, int16_t h,
-    uint16_t coverage)
+    int16 x, int16 y,
+    int16 w, int16 h,
+    uint16 coverage)
 {
 	struct composite_opacity_info * info = closure;
 	cairo_xcb_picture_t * mask;
@@ -3815,7 +3815,7 @@ static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
 			break;
 		}
 
-		/* The glyph coordinates must be representable in an int16_t.
+		/* The glyph coordinates must be representable in an int16.
 		 * When possible, they will be expressed as an offset from the
 		 * previous glyph, otherwise they will be an offset from the
 		 * operation extents or from the surface origin. If the last
@@ -3858,11 +3858,11 @@ static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
 /* sz_xGlyphtElt required alignment to a 32-bit boundary, so ensure we have
  * enough room for padding */
 typedef struct {
-	uint8_t len;
-	uint8_t pad1;
-	uint16_t pad2;
-	int16_t deltax;
-	int16_t deltay;
+	uint8 len;
+	uint8 pad1;
+	uint16 pad2;
+	int16 deltax;
+	int16 deltay;
 } x_glyph_elt_t;
 #define _cairo_sz_x_glyph_elt_t (sizeof(x_glyph_elt_t) + 4)
 
@@ -4143,13 +4143,13 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
     cairo_scaled_glyph_t ** scaled_glyph_out)
 {
 	xcb_render_glyphinfo_t glyph_info;
-	uint8_t * data;
+	uint8 * data;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_scaled_glyph_t * scaled_glyph = *scaled_glyph_out;
 	cairo_image_surface_t * glyph_surface = scaled_glyph->surface;
 	boolint already_had_glyph_surface;
 	cairo_xcb_font_glyphset_info_t * info;
-	uint32_t glyph_index = _cairo_scaled_glyph_index(scaled_glyph);
+	uint32 glyph_index = _cairo_scaled_glyph_index(scaled_glyph);
 	/* check to see if we have a pending XRenderFreeGlyph for this glyph */
 	info = _cairo_xcb_scaled_font_get_glyphset_info_for_pending_free_glyph(connection, font, glyph_index, glyph_surface);
 	if(info != NULL)
@@ -4216,8 +4216,8 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 		    /* local bitmaps are always stored with bit == byte */
 		    if(_cairo_is_little_endian() != (connection->root->bitmap_format_bit_order == XCB_IMAGE_ORDER_LSB_FIRST)) {
 			    int c = glyph_surface->stride * glyph_surface->height;
-			    const uint8_t * d;
-			    uint8_t * new, * n;
+			    const uint8 * d;
+			    uint8 * new, * n;
 
 			    if(c == 0)
 				    break;
@@ -4231,7 +4231,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    n = new;
 			    d = data;
 			    do {
-				    uint8_t b = *d++;
+				    uint8 b = *d++;
 				    b = ((b << 1) & 0xaa) | ((b >> 1) & 0x55);
 				    b = ((b << 2) & 0xcc) | ((b >> 2) & 0x33);
 				    b = ((b << 4) & 0xf0) | ((b >> 4) & 0x0f);
@@ -4247,8 +4247,8 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 		case GLYPHSET_INDEX_ARGB32:
 		    if(_cairo_is_little_endian() != (connection->root->image_byte_order == XCB_IMAGE_ORDER_LSB_FIRST)) {
 			    uint c = glyph_surface->stride * glyph_surface->height / 4;
-			    const uint32_t * d;
-			    uint32_t * new, * n;
+			    const uint32 * d;
+			    uint32 * new, * n;
 
 			    if(c == 0)
 				    break;
@@ -4260,12 +4260,12 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    }
 
 			    n = new;
-			    d = (uint32_t *)data;
+			    d = (uint32 *)data;
 			    do {
 				    *n++ = bswap_32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8_t *)new;
+			    data = (uint8 *)new;
 		    }
 		    break;
 
@@ -4303,15 +4303,15 @@ BAIL:
 }
 
 typedef void (* cairo_xcb_render_composite_text_func_t)(cairo_xcb_connection_t * connection,
-    uint8_t op,
+    uint8 op,
     xcb_render_picture_t src,
     xcb_render_picture_t dst,
     xcb_render_pictformat_t mask_format,
     xcb_render_glyphset_t glyphset,
-    int16_t src_x,
-    int16_t src_y,
-    uint32_t len,
-    uint8_t * cmd);
+    int16 src_x,
+    int16 src_y,
+    uint32 len,
+    uint8 * cmd);
 
 static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
     cairo_operator_t op,
@@ -4325,10 +4325,10 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
     xcb_render_pictformat_t mask_format)
 {
 	cairo_xcb_render_composite_text_func_t composite_text_func;
-	uint8_t stack_buf[CAIRO_STACK_BUFFER_SIZE];
-	uint8_t * buf = stack_buf;
+	uint8 stack_buf[CAIRO_STACK_BUFFER_SIZE];
+	uint8 * buf = stack_buf;
 	x_glyph_elt_t * elt = NULL; /* silence compiler */
-	uint32_t len;
+	uint32 len;
 	int i;
 
 	if(estimated_req_size > ARRAY_LENGTH(stack_buf)) {
@@ -4351,10 +4351,10 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
 		}
 
 		switch(width) {
-			case 1: *(uint8_t *)(buf + len) = glyphs[i].index; break;
-			case 2: *(uint16_t*)(buf + len) = glyphs[i].index; break;
+			case 1: *(uint8 *)(buf + len) = glyphs[i].index; break;
+			case 2: *(uint16 *)(buf + len) = glyphs[i].index; break;
 			default:
-			case 4: *(uint32_t *)(buf + len) = glyphs[i].index; break;
+			case 4: *(uint32 *)(buf + len) = glyphs[i].index; break;
 		}
 		len += width;
 		elt->len++;

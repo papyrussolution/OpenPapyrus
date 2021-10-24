@@ -570,6 +570,29 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define	GIGABYTE	       SMEGABYTE(1024)
 //
 //
+// @v11.2.0 {
+#ifdef _MSC_VER
+	// don't use _rotl with MINGW. It can insert slow call to function. 
+	// #if(_MSC_VER >= 1200) 
+	#pragma intrinsic(_rotl)
+	#pragma intrinsic(_rotr)
+	#pragma intrinsic(_rotl64)
+	#pragma intrinsic(_rotr64)
+	// #endif 
+	#define slrotl32(x, n) _rotl((x), (n))
+	#define slrotr32(x, n) _rotr((x), (n))
+	#define slrotl64(x, n) _rotl64((x), (n))
+	#define slrotr64(x, n) _rotr64((x), (n))
+#else
+	// new compilers can translate these macros to fast commands
+	#define slrotl32(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+	#define slrotr32(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
+	#define slrotl64(x, n) (((x) << (n)) | ((x) >> (64 - (n))))
+	#define slrotr64(x, n) (((x) >> (n)) | ((x) << (64 - (n))))
+#endif
+// } @v11.2.0
+//
+//
 //
 #include <asmlib.h>
 
@@ -1596,10 +1619,10 @@ public:
 		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
-	int    operator !() const { return IsZero(); }
+	bool   operator !() const { return IsZero(); }
 	int    FASTCALL operator == (const S_GUID_Base &) const;
 	int    FASTCALL operator != (const S_GUID_Base &) const;
-	int    IsZero() const;
+	bool   IsZero() const;
 	S_GUID_Base & Z();
 	SString & ToStr(long fmt, SString &) const;
 	//
@@ -3061,7 +3084,7 @@ struct IntRange { // @persistent @size=8
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)
 	//
-	int    IsZero() const;
+	bool   IsZero() const;
 	//
 	// Descr: Проверяет значение test на принадлежность закрытому диапазону this
 	//   (то есть, равенство граничному значению означает принадлежность всему диапазону).
@@ -3071,9 +3094,9 @@ struct IntRange { // @persistent @size=8
 	//   !0 - значение test принадлежит закрытому диапазону low..upp
 	//   0  - значение test не принадлежит диапазону
 	//
-	int    FASTCALL CheckVal(int test) const;
-	int    FASTCALL operator == (const IntRange & rS) const { return (low == rS.low && upp == rS.upp); }
-	int    FASTCALL operator != (const IntRange & rS) const { return (low != rS.low || upp != rS.upp); }
+	bool   FASTCALL CheckVal(int test) const;
+	bool   FASTCALL operator == (const IntRange & rS) const { return (low == rS.low && upp == rS.upp); }
+	bool   FASTCALL operator != (const IntRange & rS) const { return (low != rS.low || upp != rS.upp); }
 	//
 	// Descr: Присваивает экземпляру this значение объекта rS.
 	// Returns:
@@ -3136,7 +3159,7 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 //
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
-	int    IsZero() const;
+	bool   IsZero() const;
 	//
 	// Descr: Возвращает true если хоть один из компонентов экземпляра имеет значение NAN
 	//
@@ -3192,14 +3215,14 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//     -1 удовлетворяет диапазону [0..5.2]
 	//     10 удовлетворяет диапазону [-3.1..0]
 	//
-	int    CheckVal(double val) const;
+	bool   CheckVal(double val) const;
 	//
 	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
 	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
 	//   Если разница между val и границей диапазона меньше eps, то функция считает условие
 	//   выполненным.
 	//
-	int    CheckValEps(double val, double eps) const;
+	bool   CheckValEps(double val, double eps) const;
 	double Clip(double v) const;
 	RealRange & SetVal(double);
 	RealRange & Set(double, double);
@@ -3248,7 +3271,7 @@ struct DateRange { // @persistent @size=8
 	//   Для интевалов, нижняя граница которых превышает верхнюю возвращает отрицательное значение.
 	//
 	long   GetLength() const;
-	int    IsZero() const;
+	bool   IsZero() const;
 	int    FASTCALL CheckDate(LDATE) const;
 	int    FASTCALL Intersect(const DateRange *);
 	int    IsIntersect(DateRange r) const;
@@ -3299,7 +3322,7 @@ inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2) { re
 struct TimeRange { // @persistent
 	void   Set(LTIME lowTm, LTIME uppTm);
 	void   SetZero();
-	int    IsZero() const;
+	bool   IsZero() const;
 	//
 	// Descr: Проверяет принадлежность момента tm диапазону low..upp.
 	//   -- Если low == upp && low == ZEROTIME, то не зависимо от значения tm возвращается !0.
@@ -3447,8 +3470,8 @@ public:
 	int    FASTCALL operator == (const SPoint2F & rS) const;
 	int    FASTCALL operator != (const SPoint2F & rS) const;
 	int    FASTCALL IsEqual(const SPoint2F & rS) const;
-	int    IsZero() const;
-	int    IsPositive() const;
+	bool   IsZero() const;
+	bool   IsPositive() const;
 	SPoint2F Set(float xy);
 	SPoint2F Set(float x, float y);
 	SPoint2F SetZero();
@@ -6087,6 +6110,7 @@ public:
 typedef TSBinary <16> binary128;
 typedef TSBinary <20> binary160;
 typedef TSBinary <32> binary256;
+typedef TSBinary <64> binary512;
 //
 // CRC32 functions
 //
@@ -6209,11 +6233,18 @@ public:
 			uint   Num;
 			uint   MdLen;
 		};
+		struct Sha512Ctx {
+			Sha512Ctx & Z();
+			uint64 Count;
+			uint32 Num;
+			uint64 H[8];
+			uint8  Data[128];
+		};
 		struct Md5Ctx {
 			Md5Ctx & Z();
-			uint32 H[/*MD5_HASH_WORDS*/4];
+			uint32 H[4];
 			uint64 Count; // bytes
-			uint32 Data[/*MD5_BLOCK_WORDS*/16];
+			uint32 Data[16];
 		};
 		union R {
 			R();
@@ -6222,6 +6253,7 @@ public:
 			uint32 R32;
 			uint64 R64;
 			ShaCtx Sha;
+			Sha512Ctx Sha512; // @v11.2.0
 			Md5Ctx Md5; // @v11.0.10
 		} Result;
 		enum {
@@ -6253,10 +6285,12 @@ public:
 	static binary128 STDCALL Md5(State * pS, const void * pData, size_t len);
 	static binary160 STDCALL Sha1(State * pS, const void * pData, size_t len);
 	static binary256 STDCALL Sha256(State * pS, const void * pData, size_t len);
+	static binary512 STDCALL Sha512(State * pS, const void * pData, size_t len);
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
 	static void FASTCALL Md5TransformHelper(State::Md5Ctx * pCtx);
 	static void __Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer);
+	static void __Sha512TransformHelper(State::Sha512Ctx * pCtx, const void * pBuffer);
 };
 //
 // Descr: Высокоуровневые функции для работы с шифрованием
@@ -12470,7 +12504,7 @@ public:
 	SPoint2S FASTCALL operator = (int v);
 	SPoint2S FASTCALL operator = (POINT p);
 	operator POINT() const;
-	int    IsZero() const;
+	bool   IsZero() const;
 	SPoint2S & Z();
 	SPoint2S Set(int _x, int _y);
 	SPoint2S FASTCALL setwparam(uint32 wp);
@@ -12852,7 +12886,7 @@ enum SColourCollection { // 0x00rrggbb
 // Descr: Структура для унификации сторонних библиотек
 //
 struct SColorRGB {
-	int    IsZero() const;
+	bool   IsZero() const;
 	SColorRGB Set(uint r, uint g, uint b);
 	SColorRGB FASTCALL Set(uint v);
 

@@ -836,7 +836,7 @@ namespace NArchive {
 					AddLangPrefix(s, item.Lang);
 					{
 						const char * p = NULL;
-						if(item.Type < ARRAY_SIZE(g_ResTypes))
+						if(item.Type < SIZEOFARRAY(g_ResTypes))
 							p = g_ResTypes[item.Type];
 						if(p)
 							s += p;
@@ -1290,7 +1290,7 @@ namespace NArchive {
 		f.AddString("FILEFLAGS      ");
 		{
 			bool wasPrinted = false;
-			for(uint i = 0; i < ARRAY_SIZE(k_VS_FileFlags); i++) {
+			for(uint i = 0; i < SIZEOFARRAY(k_VS_FileFlags); i++) {
 				if((Flags & ((uint32)1 << i)) != 0) {
 					if(wasPrinted)
 						f.AddString(" | ");
@@ -1299,7 +1299,7 @@ namespace NArchive {
 					wasPrinted = true;
 				}
 			}
-			uint32 v = Flags & ~(((uint32)1 << ARRAY_SIZE(k_VS_FileFlags)) - 1);
+			uint32 v = Flags & ~(((uint32)1 << SIZEOFARRAY(k_VS_FileFlags)) - 1);
 			if(v != 0 || !wasPrinted) {
 				if(wasPrinted)
 					f.AddString(" | ");
@@ -1311,7 +1311,7 @@ namespace NArchive {
 		// OS = 0x111230;
 		f.AddString("FILEOS         ");
 		uint i;
-		for(i = 0; i < ARRAY_SIZE(k_VS_FileOS); i++) {
+		for(i = 0; i < SIZEOFARRAY(k_VS_FileOS); i++) {
 			const CUInt32PCharPair &pair = k_VS_FileOS[i];
 			if(OS == pair.Value) {
 				// continue;
@@ -1320,16 +1320,16 @@ namespace NArchive {
 				break;
 			}
 		}
-		if(i == ARRAY_SIZE(k_VS_FileOS)) {
+		if(i == SIZEOFARRAY(k_VS_FileOS)) {
 			uint32 high = OS >> 16;
-			if(high < ARRAY_SIZE(k_VS_FileOS_High))
+			if(high < SIZEOFARRAY(k_VS_FileOS_High))
 				f.AddString(k_VS_FileOS_High[high]);
 			else
 				PrintHex(f, high << 16);
 			uint32 low = OS & 0xFFFF;
 			if(low != 0) {
 				f.AddString(" | ");
-				if(low < ARRAY_SIZE(k_VS_FileOS_Low))
+				if(low < SIZEOFARRAY(k_VS_FileOS_Low))
 					f.AddString(k_VS_FileOS_Low[low]);
 				else
 					PrintHex(f, low);
@@ -1338,7 +1338,7 @@ namespace NArchive {
 		f.NewLine();
 
 		f.AddString("FILETYPE       ");
-		if(Type < ARRAY_SIZE(k_VS_FileType))
+		if(Type < SIZEOFARRAY(k_VS_FileType))
 			f.AddString(k_VS_FileType[Type]);
 		else
 			PrintHex(f, Type);
@@ -1347,14 +1347,14 @@ namespace NArchive {
 		f.AddString("FILESUBTYPE    ");
 		bool needPrintSubType = true;
 		if(Type == kMY_VFT_DRV) {
-			if(Subtype != 0 && Subtype < ARRAY_SIZE(k_VS_FileSubType_DRV)) {
+			if(Subtype != 0 && Subtype < SIZEOFARRAY(k_VS_FileSubType_DRV)) {
 				f.AddString("VFT2_DRV_");
 				f.AddString(k_VS_FileSubType_DRV[Subtype]);
 				needPrintSubType = false;
 			}
 		}
 		else if(Type == kMY_VFT_FONT) {
-			if(Subtype != 0 && Subtype < ARRAY_SIZE(k_VS_FileSubType_FONT)) {
+			if(Subtype != 0 && Subtype < SIZEOFARRAY(k_VS_FileSubType_FONT)) {
 				f.AddString(k_VS_FileSubType_FONT[Subtype]);
 				needPrintSubType = false;
 			}
@@ -2319,8 +2319,8 @@ namespace NArchive {
 			return false;
 		}
 
-		#define MY_FIND_VALUE(pairs, val) FindValue(pairs, ARRAY_SIZE(pairs), val)
-		#define MY_FIND_VALUE_2(strings, val) (val < ARRAY_SIZE(strings) && strings[val])
+		#define MY_FIND_VALUE(pairs, val) FindValue(pairs, SIZEOFARRAY(pairs), val)
+		#define MY_FIND_VALUE_2(strings, val) (val < SIZEOFARRAY(strings) && strings[val])
 
 		static const uint32 kNumSection_MAX = 32;
 

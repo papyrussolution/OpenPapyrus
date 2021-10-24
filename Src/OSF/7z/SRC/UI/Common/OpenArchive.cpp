@@ -928,7 +928,7 @@ static bool IsNameFromList(const UString &s, const char * const names[], size_t 
 
 static bool IsPreArcFormat(const CArcInfoEx &ai)
 {
-	return ai.Flags_PreArc() ? true : IsNameFromList(ai.Name, k_PreArcFormats, ARRAY_SIZE(k_PreArcFormats));
+	return ai.Flags_PreArc() ? true : IsNameFromList(ai.Name, k_PreArcFormats, SIZEOFARRAY(k_PreArcFormats));
 }
 
 static const char * const k_Formats_with_simple_signuature[] = { "7z", "xz", "rar", "bzip2", "gzip", "cab", "wim", "rpm", "vhd", "xar" };
@@ -936,7 +936,7 @@ static const char * const k_Formats_with_simple_signuature[] = { "7z", "xz", "ra
 static bool IsNewStyleSignature(const CArcInfoEx &ai)
 {
 	// if(ai.Version >= 0x91F)
-	return ai.NewInterface ? true : IsNameFromList(ai.Name, k_Formats_with_simple_signuature, ARRAY_SIZE(k_Formats_with_simple_signuature));
+	return ai.NewInterface ? true : IsNameFromList(ai.Name, k_Formats_with_simple_signuature, SIZEOFARRAY(k_Formats_with_simple_signuature));
 }
 
 class CArchiveOpenCallback_Offset : public IArchiveOpenCallback, public IArchiveOpenVolumeCallback,

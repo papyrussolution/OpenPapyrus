@@ -446,7 +446,7 @@ namespace NArchive {
 
 		static void SetMethodName(char * s, unsigned method, unsigned param)
 		{
-			if(method < ARRAY_SIZE(kMethods)) {
+			if(method < SIZEOFARRAY(kMethods)) {
 				s = MyStpCpy(s, kMethods[method]);
 				if(method != NHeader::NMethod::kLZX && method != NHeader::NMethod::kQuantum)
 					return;

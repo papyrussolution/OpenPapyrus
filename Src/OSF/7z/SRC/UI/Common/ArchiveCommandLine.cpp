@@ -713,7 +713,7 @@ static inline void SetStreamMode(const CSwitchResult &sw, unsigned &res)
 
 void CArcCmdLineParser::Parse1(const UStringVector &commandStrings, CArcCmdLineOptions &options)
 {
-	if(!parser.ParseStrings(kSwitchForms, ARRAY_SIZE(kSwitchForms), commandStrings))
+	if(!parser.ParseStrings(kSwitchForms, SIZEOFARRAY(kSwitchForms), commandStrings))
 		throw CArcCmdLineException(parser.ErrorMessage, parser.ErrorLine);
 	options.IsInTerminal = MY_IS_TERMINAL(stdin);
 	options.IsStdOutTerminal = MY_IS_TERMINAL(stdout);
@@ -796,7 +796,7 @@ static int32 FindCharset(const NCommandLineParser::CParser &parser, unsigned key
 		if(v < ((uint32)1 << 16))
 			return (int32)v;
 	name.MakeLower_Ascii();
-	unsigned num = byteOnlyCodePages ? kNumByteOnlyCodePages : ARRAY_SIZE(g_CodePagePairs);
+	unsigned num = byteOnlyCodePages ? kNumByteOnlyCodePages : SIZEOFARRAY(g_CodePagePairs);
 	for(uint i = 0;; i++) {
 		if(i == num) // to disable warnings from different compilers
 			throw CArcCmdLineException("Unsupported charset:", name);

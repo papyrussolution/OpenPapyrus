@@ -773,7 +773,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 			    //ScintillaEditView * unfocusView = isFromPrimary ? &_subEditView : &_mainEditView;
 			    if(nppGui._smartHiliteOnAnotherView) {
 				    TCHAR selectedText[1024];
-				    _pEditView->getGenericSelectedText(selectedText, sizeof(selectedText)/sizeof(TCHAR), false);
+				    _pEditView->getGenericSelectedText(selectedText, SIZEOFARRAY(selectedText), false);
 				    _smartHighlighter.highlightViewWithWord(notifyView, selectedText);
 			    }
 			    break;

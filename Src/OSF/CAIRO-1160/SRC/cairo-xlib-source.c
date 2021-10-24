@@ -129,10 +129,10 @@ static cairo_surface_t * source(cairo_xlib_surface_t * dst, Picture picture, Pix
 	return &source->base;
 }
 
-static uint32_t hars_petruska_f54_1_random(void)
+static uint32 hars_petruska_f54_1_random(void)
 {
 #define rol(x, k) ((x << k) | (x >> (32-k)))
-	static uint32_t x;
+	static uint32 x;
 	return x = (x ^ rol(x, 5) ^ rol(x, 24)) + 0x37798849;
 #undef rol
 }
@@ -490,7 +490,7 @@ static cairo_surface_t * color_source(cairo_xlib_surface_t * dst, const cairo_co
 	return source(dst, picture, pixmap);
 }
 
-static cairo_surface_t * alpha_source(cairo_xlib_surface_t * dst, uint8_t alpha)
+static cairo_surface_t * alpha_source(cairo_xlib_surface_t * dst, uint8 alpha)
 {
 	cairo_xlib_display_t * display = dst->display;
 
@@ -519,7 +519,7 @@ static cairo_surface_t * white_source(cairo_xlib_surface_t * dst)
 static cairo_surface_t * opaque_source(cairo_xlib_surface_t * dst, const cairo_color_t * color)
 {
 	cairo_xlib_display_t * display = dst->display;
-	uint32_t pixel =
+	uint32 pixel =
 	    0xff000000 |
 	    color->red_short   >> 8 << 16 |
 		color->green_short >> 8 << 8 |
@@ -549,7 +549,7 @@ done:
 static cairo_surface_t * transparent_source(cairo_xlib_surface_t * dst, const cairo_color_t * color)
 {
 	cairo_xlib_display_t * display = dst->display;
-	uint32_t pixel =
+	uint32 pixel =
 	    color->alpha_short >> 8 << 24 |
 		color->red_short   >> 8 << 16 |
 		color->green_short >> 8 << 8 |

@@ -769,7 +769,7 @@ static cairo_int_status_t _cairo_svg_document_emit_bitmap_glyph_data(cairo_svg_d
 {
 	cairo_scaled_glyph_t * scaled_glyph;
 	cairo_image_surface_t * image;
-	uint8_t * row, * byte;
+	uint8 * row, * byte;
 	int rows, cols;
 	int x, y, bit;
 	cairo_status_t status = _cairo_scaled_glyph_lookup(scaled_font, glyph_index, CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
@@ -784,7 +784,7 @@ static cairo_int_status_t _cairo_svg_document_emit_bitmap_glyph_data(cairo_svg_d
 	_cairo_output_stream_printf(document->xml_node_glyphs, ">\n");
 	for(y = 0, row = image->data, rows = image->height; rows; row += image->stride, rows--, y++) {
 		for(x = 0, byte = row, cols = (image->width + 7) / 8; cols; byte++, cols--) {
-			uint8_t output_byte = static_cast<uint8_t>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte));
+			uint8 output_byte = static_cast<uint8>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte));
 			for(bit = 7; bit >= 0 && x < image->width; bit--, x++) {
 				if(output_byte & (1 << bit)) {
 					_cairo_output_stream_printf(document->xml_node_glyphs, "<rect x=\"%d\" y=\"%d\" width=\"1\" height=\"1\"/>\n", x, y);

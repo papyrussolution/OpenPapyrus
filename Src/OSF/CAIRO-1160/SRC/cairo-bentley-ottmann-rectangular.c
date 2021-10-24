@@ -51,7 +51,7 @@ struct _edge {
 
 struct _rectangle {
 	edge_t left, right;
-	int32_t top, bottom;
+	int32 top, bottom;
 };
 
 #define UNROLL3(x) x x x
@@ -67,10 +67,10 @@ typedef struct _sweep_line {
 	rectangle_t ** rectangles;
 	rectangle_t ** stop;
 	edge_t head, tail, * insert, * cursor;
-	int32_t current_y;
-	int32_t last_y;
+	int32 current_y;
+	int32 last_y;
 	int stop_size;
-	int32_t insert_x;
+	int32 insert_x;
 	cairo_fill_rule_t fill_rule;
 	boolint do_traps;
 	void * container;
@@ -209,7 +209,7 @@ static void sweep_line_init(sweep_line_t * sweep_line, rectangle_t ** rectangles
 	sweep_line->do_traps = do_traps;
 }
 
-static void edge_end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot)
+static void edge_end_box(sweep_line_t * sweep_line, edge_t * left, int32 bot)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	/* Only emit (trivial) non-degenerate trapezoids with positive height. */
@@ -285,7 +285,7 @@ static inline void edge_start_or_continue_box(sweep_line_t * sweep_line, edge_t 
 static edge_t * merge_sorted_edges(edge_t * head_a, edge_t * head_b)
 {
 	edge_t * head, * prev;
-	int32_t x;
+	int32 x;
 
 	prev = head_a->prev;
 	if(head_a->x <= head_b->x) {

@@ -1345,7 +1345,7 @@ void ssh_packet_remove_callbacks(ssh_session session, ssh_packet_callbacks callb
  */
 void ssh_packet_set_default_callbacks(ssh_session session){
 	session->default_packet_callbacks.start = 1;
-	session->default_packet_callbacks.n_callbacks = sizeof(default_packet_handlers)/sizeof(ssh_packet_callback);
+	session->default_packet_callbacks.n_callbacks = SIZEOFARRAY(default_packet_handlers);
 	session->default_packet_callbacks.user = session;
 	session->default_packet_callbacks.callbacks = default_packet_handlers;
 	ssh_packet_set_callbacks(session, &session->default_packet_callbacks);

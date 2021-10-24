@@ -748,8 +748,7 @@ static const LocalizationSwitcher::LocalizationDefinition localizationDefs[] = {
 
 std::wstring LocalizationSwitcher::getLangFromXmlFileName(const wchar_t * fn) const
 {
-	size_t nbItem = sizeof(localizationDefs)/sizeof(LocalizationSwitcher::LocalizationDefinition);
-	for(size_t i = 0; i < nbItem; ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(localizationDefs); ++i) {
 		if(0 == wcsicmp(fn, localizationDefs[i]._xmlFileName))
 			return localizationDefs[i]._langName;
 	}
@@ -1676,16 +1675,13 @@ bool NppParameters::getBlackListFromXmlTree()
 	if(!_pXmlBlacklistDoc)
 		return false;
 	TiXmlNode * root = _pXmlBlacklistDoc->FirstChild(TEXT("NotepadPlus"));
-	if(!root)
-		return false;
-	return feedBlacklist(root);
+	return root ? feedBlacklist(root) : false;
 }
 
 void NppParameters::initMenuKeys()
 {
-	int nbCommands = sizeof(winKeyDefs)/sizeof(WinMenuKeyDefinition);
 	WinMenuKeyDefinition wkd;
-	for(int i = 0; i < nbCommands; ++i) {
+	for(int i = 0; i < SIZEOFARRAY(winKeyDefs); ++i) {
 		wkd = winKeyDefs[i];
 		Shortcut sc((wkd.specialName ? wkd.specialName : TEXT("")), wkd.isCtrl, wkd.isAlt, wkd.isShift, static_cast<uchar>(wkd.vKey));
 		_shortcuts.push_back(CommandShortcut(sc, wkd.functionId) );
@@ -1694,12 +1690,11 @@ void NppParameters::initMenuKeys()
 
 void NppParameters::initScintillaKeys()
 {
-	int nbCommands = sizeof(scintKeyDefs)/sizeof(ScintillaKeyDefinition);
 	// Warning! Matching function have to be consecutive
 	ScintillaKeyDefinition skd;
 	int prevIndex = -1;
 	int prevID = -1;
-	for(int i = 0; i < nbCommands; ++i) {
+	for(int i = 0; i < SIZEOFARRAY(scintKeyDefs); ++i) {
 		skd = scintKeyDefs[i];
 		if(skd.functionId == prevID) {
 			KeyCombo kc;
@@ -2185,7 +2180,7 @@ void NppParameters::feedFindHistoryParameters(TiXmlNode * node)
 		_findHistory._regexBackward4PowerUser = sstreq(TEXT("yes"), boolStr);
 }
 
-void NppParameters::feedShortcut(TiXmlNode * node)
+void FASTCALL NppParameters::feedShortcut(TiXmlNode * node)
 {
 	TiXmlNode * shortcutsRoot = node->FirstChildElement(TEXT("InternalCommands"));
 	if(!shortcutsRoot) return;

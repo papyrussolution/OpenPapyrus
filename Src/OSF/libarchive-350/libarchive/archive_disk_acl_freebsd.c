@@ -58,8 +58,7 @@ static const acl_perm_map_t acl_posix_perm_map[] = {
 	{ARCHIVE_ENTRY_ACL_READ, ACL_READ},
 };
 
-static const int acl_posix_perm_map_size =
-    (int)(sizeof(acl_posix_perm_map)/sizeof(acl_posix_perm_map[0]));
+static const int acl_posix_perm_map_size = (int)(SIZEOFARRAY(acl_posix_perm_map));
 
 #if ARCHIVE_ACL_FREEBSD_NFS4
 static const acl_perm_map_t acl_nfs4_perm_map[] = {
@@ -82,8 +81,7 @@ static const acl_perm_map_t acl_nfs4_perm_map[] = {
 	{ARCHIVE_ENTRY_ACL_SYNCHRONIZE, ACL_SYNCHRONIZE}
 };
 
-static const int acl_nfs4_perm_map_size =
-    (int)(sizeof(acl_nfs4_perm_map)/sizeof(acl_nfs4_perm_map[0]));
+static const int acl_nfs4_perm_map_size = (int)(SIZEOFARRAY(acl_nfs4_perm_map));
 
 static const acl_perm_map_t acl_nfs4_flag_map[] = {
 	{ARCHIVE_ENTRY_ACL_ENTRY_FILE_INHERIT, ACL_ENTRY_FILE_INHERIT},
@@ -97,8 +95,7 @@ static const acl_perm_map_t acl_nfs4_flag_map[] = {
 #endif
 };
 
-static const int acl_nfs4_flag_map_size =
-    (int)(sizeof(acl_nfs4_flag_map)/sizeof(acl_nfs4_flag_map[0]));
+static const int acl_nfs4_flag_map_size = (int)(SIZEOFARRAY(acl_nfs4_flag_map));
 #endif /* ARCHIVE_ACL_FREEBSD_NFS4 */
 
 static int translate_acl(struct archive_read_disk * a,

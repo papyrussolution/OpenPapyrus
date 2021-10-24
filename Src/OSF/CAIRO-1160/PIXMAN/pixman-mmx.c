@@ -129,8 +129,8 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
 /* If __m64 is defined as a struct or union, then define M64_MEMBER to be
  * the name of the member used to access the data.
  * If __m64 requires using mm_cvt* intrinsics functions to convert between
- * uint64_t and __m64 values, then define USE_CVT_INTRINSICS.
- * If __m64 and uint64_t values can just be cast to each other directly,
+ * uint64 and __m64 values, then define USE_CVT_INTRINSICS.
+ * If __m64 and uint64 values can just be cast to each other directly,
  * then define USE_M64_CASTS.
  * If __m64 is a double datatype, then define USE_M64_DOUBLE.
  */
@@ -158,7 +158,7 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
 #endif
 
 #if defined(USE_M64_CASTS) || defined(USE_CVT_INTRINSICS) || defined(USE_M64_DOUBLE)
-typedef uint64_t mmxdatafield;
+typedef uint64 mmxdatafield;
 #else
 typedef __m64 mmxdatafield;
 #endif
@@ -232,7 +232,7 @@ static const mmx_data_t c =
 #define MC(x) c.mmx_ ## x
 #endif
 
-static force_inline __m64 to_m64(uint64_t x)
+static force_inline __m64 to_m64(uint64 x)
 {
 #ifdef USE_CVT_INTRINSICS
 	return _mm_cvtsi64_m64(x);
@@ -248,17 +248,17 @@ static force_inline __m64 to_m64(uint64_t x)
 #endif
 }
 
-static force_inline uint64_t to_uint64(__m64 x)
+static force_inline uint64 to_uint64(__m64 x)
 {
 #ifdef USE_CVT_INTRINSICS
 	return _mm_cvtm64_si64(x);
 #elif defined M64_MEMBER        /* __m64 is a struct, not an integral type */
-	uint64_t res = x.M64_MEMBER;
+	uint64 res = x.M64_MEMBER;
 	return res;
 #elif defined USE_M64_DOUBLE
-	return *(uint64_t*)&x;
+	return *(uint64*)&x;
 #else /* USE_M64_CASTS */
-	return (uint64_t)x;
+	return (uint64)x;
 #endif
 }
 
@@ -387,20 +387,20 @@ static force_inline __m64 ldq_u(__m64 * p)
 #endif
 }
 
-static force_inline uint32_t ldl_u(const uint32_t * p)
+static force_inline uint32 ldl_u(const uint32 * p)
 {
 #ifdef USE_X86_MMX
 	/* x86's alignment restrictions are very relaxed. */
 	return *p;
 #else
-	struct __una_u32 { uint32_t x __attribute__((packed)); };
+	struct __una_u32 { uint32 x __attribute__((packed)); };
 
 	const struct __una_u32 * ptr = (const struct __una_u32 *)p;
 	return ptr->x;
 #endif
 }
 
-static force_inline __m64 load(const uint32_t * v)
+static force_inline __m64 load(const uint32 * v)
 {
 #ifdef USE_LOONGSON_MMI
 	__m64 ret;
@@ -414,7 +414,7 @@ static force_inline __m64 load(const uint32_t * v)
 #endif
 }
 
-static force_inline __m64 load8888(const uint32_t * v)
+static force_inline __m64 load8888(const uint32 * v)
 {
 #ifdef USE_LOONGSON_MMI
 	return _mm_unpacklo_pi8_f(*(__m32*)v, _mm_setzero_si64());
@@ -423,9 +423,9 @@ static force_inline __m64 load8888(const uint32_t * v)
 #endif
 }
 
-static force_inline __m64 load8888u(const uint32_t * v)
+static force_inline __m64 load8888u(const uint32 * v)
 {
-	uint32_t l = ldl_u(v);
+	uint32 l = ldl_u(v);
 	return load8888(&l);
 }
 
@@ -434,7 +434,7 @@ static force_inline __m64 pack8888(__m64 lo, __m64 hi)
 	return _mm_packs_pu16(lo, hi);
 }
 
-static force_inline void store(uint32_t * dest, __m64 v)
+static force_inline void store(uint32 * dest, __m64 v)
 {
 #ifdef USE_LOONGSON_MMI
 	asm ("swc1 %1, %0\n\t"
@@ -447,7 +447,7 @@ static force_inline void store(uint32_t * dest, __m64 v)
 #endif
 }
 
-static force_inline void store8888(uint32_t * dest, __m64 v)
+static force_inline void store8888(uint32 * dest, __m64 v)
 {
 	v = pack8888(v, _mm_setzero_si64());
 	store(dest, v);
@@ -661,7 +661,7 @@ static force_inline __m64 pix_add_mul(__m64 x, __m64 a, __m64 y, __m64 b)
 
 /* --------------- MMX code patch for fbcompose.c --------------------- */
 
-static force_inline __m64 combine(const uint32_t * src, const uint32_t * mask)
+static force_inline __m64 combine(const uint32 * src, const uint32 * mask)
 {
 	__m64 vsrc = load8888(src);
 
@@ -692,12 +692,12 @@ static force_inline __m64 core_combine_over_u_pixel_mmx(__m64 vsrc, __m64 vdst)
 
 static void mmx_combine_over_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 vsrc = combine(src, mask);
@@ -720,12 +720,12 @@ static void mmx_combine_over_u(pixman_implementation_t * imp,
 
 static void mmx_combine_over_reverse_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 d, da;
@@ -745,12 +745,12 @@ static void mmx_combine_over_reverse_u(pixman_implementation_t * imp,
 
 static void mmx_combine_in_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 a;
@@ -772,12 +772,12 @@ static void mmx_combine_in_u(pixman_implementation_t * imp,
 
 static void mmx_combine_in_reverse_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 a = combine(src, mask);
@@ -798,12 +798,12 @@ static void mmx_combine_in_reverse_u(pixman_implementation_t * imp,
 
 static void mmx_combine_out_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 a;
@@ -825,12 +825,12 @@ static void mmx_combine_out_u(pixman_implementation_t * imp,
 
 static void mmx_combine_out_reverse_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 a = combine(src, mask);
@@ -853,12 +853,12 @@ static void mmx_combine_out_reverse_u(pixman_implementation_t * imp,
 
 static void mmx_combine_atop_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 da, d, sia;
@@ -881,12 +881,12 @@ static void mmx_combine_atop_u(pixman_implementation_t * imp,
 
 static void mmx_combine_atop_reverse_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end;
+	const uint32 * end;
 
 	end = dest + width;
 
@@ -911,12 +911,12 @@ static void mmx_combine_atop_reverse_u(pixman_implementation_t * imp,
 
 static void mmx_combine_xor_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 dia, d, sia;
@@ -940,12 +940,12 @@ static void mmx_combine_xor_u(pixman_implementation_t * imp,
 
 static void mmx_combine_add_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
 		__m64 d;
@@ -965,16 +965,16 @@ static void mmx_combine_add_u(pixman_implementation_t * imp,
 
 static void mmx_combine_saturate_u(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = dest + width;
+	const uint32 * end = dest + width;
 
 	while(dest < end) {
-		uint32_t s, sa, da;
-		uint32_t d = *dest;
+		uint32 s, sa, da;
+		uint32 d = *dest;
 		__m64 ms = combine(src, mask);
 		__m64 md = load8888(dest);
 
@@ -983,7 +983,7 @@ static void mmx_combine_saturate_u(pixman_implementation_t * imp,
 		sa = s >> 24;
 
 		if(sa > da) {
-			uint32_t quot = DIV_UN8(da, sa) << 24;
+			uint32 quot = DIV_UN8(da, sa) << 24;
 			__m64 msa = load8888(&quot);
 			msa = expand_alpha(msa);
 			ms = pix_multiply(ms, msa);
@@ -1002,12 +1002,12 @@ static void mmx_combine_saturate_u(pixman_implementation_t * imp,
 
 static void mmx_combine_src_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1025,12 +1025,12 @@ static void mmx_combine_src_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_over_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1049,12 +1049,12 @@ static void mmx_combine_over_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_over_reverse_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1073,12 +1073,12 @@ static void mmx_combine_over_reverse_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_in_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1099,12 +1099,12 @@ static void mmx_combine_in_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_in_reverse_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1125,12 +1125,12 @@ static void mmx_combine_in_reverse_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_out_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1152,12 +1152,12 @@ static void mmx_combine_out_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_out_reverse_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1179,12 +1179,12 @@ static void mmx_combine_out_reverse_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_atop_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1208,12 +1208,12 @@ static void mmx_combine_atop_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_atop_reverse_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1237,12 +1237,12 @@ static void mmx_combine_atop_reverse_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_xor_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1267,12 +1267,12 @@ static void mmx_combine_xor_ca(pixman_implementation_t * imp,
 
 static void mmx_combine_add_ca(pixman_implementation_t * imp,
     pixman_op_t op,
-    uint32_t * dest,
-    const uint32_t * src,
-    const uint32_t * mask,
+    uint32 * dest,
+    const uint32 * src,
+    const uint32 * mask,
     int width)
 {
-	const uint32_t * end = src + width;
+	const uint32 * end = src + width;
 
 	while(src < end) {
 		__m64 a = load8888(mask);
@@ -1296,9 +1296,9 @@ static void mmx_composite_over_n_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-	uint32_t * dst_line, * dst;
-	int32_t w;
+	uint32 src;
+	uint32 * dst_line, * dst;
+	int32 w;
 	int dst_stride;
 	__m64 vsrc, vsrca;
 
@@ -1309,7 +1309,7 @@ static void mmx_composite_over_n_8888(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
@@ -1357,9 +1357,9 @@ static void mmx_composite_over_n_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-	uint16_t * dst_line, * dst;
-	int32_t w;
+	uint32 src;
+	uint16 * dst_line, * dst;
+	int32 w;
 	int dst_stride;
 	__m64 vsrc, vsrca;
 
@@ -1370,7 +1370,7 @@ static void mmx_composite_over_n_0565(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
@@ -1383,7 +1383,7 @@ static void mmx_composite_over_n_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w && (uintptr_t)dst & 7) {
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(over(vsrc, vsrca, vdest), vdest, 0);
@@ -1413,7 +1413,7 @@ static void mmx_composite_over_n_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w) {
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(over(vsrc, vsrca, vdest), vdest, 0);
@@ -1431,9 +1431,9 @@ static void mmx_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-	uint32_t * dst_line;
-	uint32_t * mask_line;
+	uint32 src;
+	uint32 * dst_line;
+	uint32 * mask_line;
 	int dst_stride, mask_stride;
 	__m64 vsrc, vsrca;
 
@@ -1444,19 +1444,19 @@ static void mmx_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32, mask_stride, mask_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
 
 	while(height--) {
 		int twidth = width;
-		uint32_t * p = (uint32_t *)mask_line;
-		uint32_t * q = (uint32_t *)dst_line;
+		uint32 * p = (uint32 *)mask_line;
+		uint32 * q = (uint32 *)dst_line;
 
 		while(twidth && (uintptr_t)q & 7) {
-			uint32_t m = *(uint32_t *)p;
+			uint32 m = *(uint32 *)p;
 
 			if(m) {
 				__m64 vdest = load8888(q);
@@ -1470,7 +1470,7 @@ static void mmx_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
 		}
 
 		while(twidth >= 2) {
-			uint32_t m0, m1;
+			uint32 m0, m1;
 			m0 = *p;
 			m1 = *(p + 1);
 
@@ -1492,7 +1492,7 @@ static void mmx_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
 		}
 
 		if(twidth) {
-			uint32_t m = *(uint32_t *)p;
+			uint32 m = *(uint32 *)p;
 
 			if(m) {
 				__m64 vdest = load8888(q);
@@ -1516,17 +1516,17 @@ static void mmx_composite_over_8888_n_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
-	uint32_t mask;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
+	uint32 mask;
 	__m64 vmask;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	mask = _pixman_image_get_solid(imp, mask_image, dest_image->bits.format);
 	vmask = expand_alpha(load8888(&mask));
@@ -1579,18 +1579,18 @@ static void mmx_composite_over_x888_n_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
-	uint32_t mask;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
+	uint32 mask;
 	__m64 vmask;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 	__m64 srca;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 	mask = _pixman_image_get_solid(imp, mask_image, dest_image->bits.format);
 
 	vmask = expand_alpha(load8888(&mask));
@@ -1604,7 +1604,7 @@ static void mmx_composite_over_x888_n_8888(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 7) {
-			uint32_t ssrc = *src | 0xff000000;
+			uint32 ssrc = *src | 0xff000000;
 			__m64 s = load8888(&ssrc);
 			__m64 d = load8888(dst);
 
@@ -1681,7 +1681,7 @@ static void mmx_composite_over_x888_n_8888(pixman_implementation_t * imp,
 		}
 
 		while(w) {
-			uint32_t ssrc = *src | 0xff000000;
+			uint32 ssrc = *src | 0xff000000;
 			__m64 s = load8888(&ssrc);
 			__m64 d = load8888(dst);
 
@@ -1700,17 +1700,17 @@ static void mmx_composite_over_8888_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
-	uint32_t s;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
+	uint32 s;
 	int dst_stride, src_stride;
-	uint8_t a;
-	int32_t w;
+	uint8 a;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -1743,15 +1743,15 @@ static void mmx_composite_over_8888_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint16 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 #if 0
 	/* FIXME */
@@ -1769,7 +1769,7 @@ static void mmx_composite_over_8888_0565(pixman_implementation_t * imp,
 
 		while(w && (uintptr_t)dst & 7) {
 			__m64 vsrc = load8888(src);
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(
@@ -1812,7 +1812,7 @@ static void mmx_composite_over_8888_0565(pixman_implementation_t * imp,
 
 		while(w) {
 			__m64 vsrc = load8888(src);
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(over(vsrc, expand_alpha(vsrc), vdest), vdest, 0);
@@ -1832,13 +1832,13 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint32_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint32 src, srca;
+	uint32 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 	__m64 vsrc, vsrca;
-	uint64_t srcsrc;
+	uint64 srcsrc;
 
 	CHECKPOINT();
 
@@ -1848,10 +1848,10 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	srcsrc = (uint64_t)src << 32 | src;
+	srcsrc = (uint64)src << 32 | src;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
@@ -1866,7 +1866,7 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w && (uintptr_t)dst & 7) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
 				__m64 vdest = in_over(vsrc, vsrca,
@@ -1884,13 +1884,13 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w >= 2) {
-			uint64_t m0, m1;
+			uint64 m0, m1;
 
 			m0 = *mask;
 			m1 = *(mask + 1);
 
 			if(srca == 0xff && (m0 & m1) == 0xff) {
-				*(uint64_t*)dst = srcsrc;
+				*(uint64*)dst = srcsrc;
 			}
 			else if(m0 | m1) {
 				__m64 vdest;
@@ -1914,7 +1914,7 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		if(w) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
 				__m64 vdest = load8888(dst);
@@ -1930,19 +1930,19 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 }
 
 static pixman_bool_t mmx_fill(pixman_implementation_t * imp,
-    uint32_t * bits,
+    uint32 * bits,
     int stride,
     int bpp,
     int x,
     int y,
     int width,
     int height,
-    uint32_t filler)
+    uint32 filler)
 {
-	uint64_t fill;
+	uint64 fill;
 	__m64 vfill;
-	uint32_t byte_width;
-	uint8_t * byte_line;
+	uint32 byte_width;
+	uint8 * byte_line;
 
 #if defined __GNUC__ && defined USE_X86_MMX
 	__m64 v1, v2, v3, v4, v5, v6, v7;
@@ -1952,27 +1952,27 @@ static pixman_bool_t mmx_fill(pixman_implementation_t * imp,
 		return FALSE;
 
 	if(bpp == 8) {
-		stride = stride * (int)sizeof(uint32_t) / 1;
-		byte_line = (uint8_t *)(((uint8_t *)bits) + stride * y + x);
+		stride = stride * (int)sizeof(uint32) / 1;
+		byte_line = (uint8 *)(((uint8 *)bits) + stride * y + x);
 		byte_width = width;
 		stride *= 1;
 		filler = (filler & 0xff) * 0x01010101;
 	}
 	else if(bpp == 16) {
-		stride = stride * (int)sizeof(uint32_t) / 2;
-		byte_line = (uint8_t *)(((uint16_t*)bits) + stride * y + x);
+		stride = stride * (int)sizeof(uint32) / 2;
+		byte_line = (uint8 *)(((uint16 *)bits) + stride * y + x);
 		byte_width = 2 * width;
 		stride *= 2;
 		filler = (filler & 0xffff) * 0x00010001;
 	}
 	else {
-		stride = stride * (int)sizeof(uint32_t) / 4;
-		byte_line = (uint8_t *)(((uint32_t *)bits) + stride * y + x);
+		stride = stride * (int)sizeof(uint32) / 4;
+		byte_line = (uint8 *)(((uint32 *)bits) + stride * y + x);
 		byte_width = 4 * width;
 		stride *= 4;
 	}
 
-	fill = ((uint64_t)filler << 32) | filler;
+	fill = ((uint64)filler << 32) | filler;
 	vfill = to_m64(fill);
 
 #if defined __GNUC__ && defined USE_X86_MMX
@@ -1991,25 +1991,25 @@ static pixman_bool_t mmx_fill(pixman_implementation_t * imp,
 
 	while(height--) {
 		int w;
-		uint8_t * d = byte_line;
+		uint8 * d = byte_line;
 
 		byte_line += stride;
 		w = byte_width;
 
 		if(w >= 1 && ((uintptr_t)d & 1)) {
-			*(uint8_t *)d = (filler & 0xff);
+			*(uint8 *)d = (filler & 0xff);
 			w--;
 			d++;
 		}
 
 		if(w >= 2 && ((uintptr_t)d & 3)) {
-			*(uint16_t*)d = filler;
+			*(uint16 *)d = filler;
 			w -= 2;
 			d += 2;
 		}
 
 		while(w >= 4 && ((uintptr_t)d & 7)) {
-			*(uint32_t *)d = filler;
+			*(uint32 *)d = filler;
 
 			w -= 4;
 			d += 4;
@@ -2046,18 +2046,18 @@ static pixman_bool_t mmx_fill(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			*(uint32_t *)d = filler;
+			*(uint32 *)d = filler;
 
 			w -= 4;
 			d += 4;
 		}
 		if(w >= 2) {
-			*(uint16_t*)d = filler;
+			*(uint16 *)d = filler;
 			w -= 2;
 			d += 2;
 		}
 		if(w >= 1) {
-			*(uint8_t *)d = (filler & 0xff);
+			*(uint8 *)d = (filler & 0xff);
 			w--;
 			d++;
 		}
@@ -2071,13 +2071,13 @@ static void mmx_composite_src_x888_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t * src_line, * src, s;
+	uint16 * dst_line, * dst;
+	uint32 * src_line, * src, s;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -2122,13 +2122,13 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint32_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint32 src, srca;
+	uint32 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 	__m64 vsrc;
-	uint64_t srcsrc;
+	uint64 srcsrc;
 
 	CHECKPOINT();
 
@@ -2142,10 +2142,10 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 		return;
 	}
 
-	srcsrc = (uint64_t)src << 32 | src;
+	srcsrc = (uint64)src << 32 | src;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	vsrc = load8888(&src);
 
@@ -2159,7 +2159,7 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w && (uintptr_t)dst & 7) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
 				__m64 vdest = in(vsrc, expand_alpha_rev(to_m64(m)));
@@ -2178,12 +2178,12 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w >= 2) {
-			uint64_t m0, m1;
+			uint64 m0, m1;
 			m0 = *mask;
 			m1 = *(mask + 1);
 
 			if(srca == 0xff && (m0 & m1) == 0xff) {
-				*(uint64_t*)dst = srcsrc;
+				*(uint64*)dst = srcsrc;
 			}
 			else if(m0 | m1) {
 				__m64 dest0, dest1;
@@ -2194,7 +2194,7 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 				*(__m64*)dst = pack8888(dest0, dest1);
 			}
 			else {
-				*(uint64_t*)dst = 0;
+				*(uint64*)dst = 0;
 			}
 
 			mask += 2;
@@ -2205,7 +2205,7 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		if(w) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
 				__m64 vdest = load8888(dst);
@@ -2226,11 +2226,11 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src, srca;
-	uint16_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint32 src, srca;
+	uint16 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
+	int32 w;
 	__m64 vsrc, vsrca, tmp;
 	__m64 srcsrcsrcsrc;
 
@@ -2242,8 +2242,8 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
@@ -2261,10 +2261,10 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w && (uintptr_t)dst & 7) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
-				uint64_t d = *dst;
+				uint64 d = *dst;
 				__m64 vd = to_m64(d);
 				__m64 vdest = in_over(
 					vsrc, vsrca, expand_alpha_rev(to_m64(m)), expand565(vd, 0));
@@ -2281,7 +2281,7 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w >= 4) {
-			uint64_t m0, m1, m2, m3;
+			uint64 m0, m1, m2, m3;
 			m0 = *mask;
 			m1 = *(mask + 1);
 			m2 = *(mask + 2);
@@ -2320,10 +2320,10 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
-				uint64_t d = *dst;
+				uint64 d = *dst;
 				__m64 vd = to_m64(d);
 				__m64 vdest = in_over(vsrc, vsrca, expand_alpha_rev(to_m64(m)),
 					expand565(vd, 0));
@@ -2344,15 +2344,15 @@ static void mmx_composite_over_pixbuf_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint16 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 #if 0
 	/* FIXME */
@@ -2370,7 +2370,7 @@ static void mmx_composite_over_pixbuf_0565(pixman_implementation_t * imp,
 
 		while(w && (uintptr_t)dst & 7) {
 			__m64 vsrc = load8888(src);
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(over_rev_non_pre(vsrc, vdest), vdest, 0);
@@ -2385,7 +2385,7 @@ static void mmx_composite_over_pixbuf_0565(pixman_implementation_t * imp,
 		CHECKPOINT();
 
 		while(w >= 4) {
-			uint32_t s0, s1, s2, s3;
+			uint32 s0, s1, s2, s3;
 			uchar a0, a1, a2, a3;
 
 			s0 = *src;
@@ -2434,7 +2434,7 @@ static void mmx_composite_over_pixbuf_0565(pixman_implementation_t * imp,
 
 		while(w) {
 			__m64 vsrc = load8888(src);
-			uint64_t d = *dst;
+			uint64 d = *dst;
 			__m64 vdest = expand565(to_m64(d), 0);
 
 			vdest = pack_565(over_rev_non_pre(vsrc, vdest), vdest, 0);
@@ -2454,15 +2454,15 @@ static void mmx_composite_over_pixbuf_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 #if 0
 	/* FIXME */
@@ -2488,7 +2488,7 @@ static void mmx_composite_over_pixbuf_8888(pixman_implementation_t * imp,
 		}
 
 		while(w >= 2) {
-			uint32_t s0, s1;
+			uint32 s0, s1;
 			uchar a0, a1;
 			__m64 d0, d1;
 
@@ -2533,9 +2533,9 @@ static void mmx_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-	uint16_t * dst_line;
-	uint32_t * mask_line;
+	uint32 src;
+	uint16 * dst_line;
+	uint32 * mask_line;
 	int dst_stride, mask_stride;
 	__m64 vsrc, vsrca;
 
@@ -2546,22 +2546,22 @@ static void mmx_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint32, mask_stride, mask_line, 1);
 
 	vsrc = load8888(&src);
 	vsrca = expand_alpha(vsrc);
 
 	while(height--) {
 		int twidth = width;
-		uint32_t * p = (uint32_t *)mask_line;
-		uint16_t * q = (uint16_t*)dst_line;
+		uint32 * p = (uint32 *)mask_line;
+		uint16 * q = (uint16 *)dst_line;
 
 		while(twidth && ((uintptr_t)q & 7)) {
-			uint32_t m = *(uint32_t *)p;
+			uint32 m = *(uint32 *)p;
 
 			if(m) {
-				uint64_t d = *q;
+				uint64 d = *q;
 				__m64 vdest = expand565(to_m64(d), 0);
 				vdest = pack_565(in_over(vsrc, vsrca, load8888(&m), vdest), vdest, 0);
 				*q = to_uint64(vdest);
@@ -2573,7 +2573,7 @@ static void mmx_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 		}
 
 		while(twidth >= 4) {
-			uint32_t m0, m1, m2, m3;
+			uint32 m0, m1, m2, m3;
 
 			m0 = *p;
 			m1 = *(p + 1);
@@ -2599,11 +2599,11 @@ static void mmx_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 		}
 
 		while(twidth) {
-			uint32_t m;
+			uint32 m;
 
-			m = *(uint32_t *)p;
+			m = *(uint32 *)p;
 			if(m) {
-				uint64_t d = *q;
+				uint64 d = *q;
 				__m64 vdest = expand565(to_m64(d), 0);
 				vdest = pack_565(in_over(vsrc, vsrca, load8888(&m), vdest), vdest, 0);
 				*q = to_uint64(vdest);
@@ -2625,16 +2625,16 @@ static void mmx_composite_in_n_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint8 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
-	uint32_t src;
-	uint8_t sa;
+	int32 w;
+	uint32 src;
+	uint8 sa;
 	__m64 vsrc, vsrca;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -2651,9 +2651,9 @@ static void mmx_composite_in_n_8_8(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 7) {
-			uint16_t tmp;
-			uint8_t a;
-			uint32_t m, d;
+			uint16 tmp;
+			uint8 a;
+			uint32 m, d;
 
 			a = *mask++;
 			d = *dst;
@@ -2669,10 +2669,10 @@ static void mmx_composite_in_n_8_8(pixman_implementation_t * imp,
 			__m64 vmask;
 			__m64 vdest;
 
-			vmask = load8888u((uint32_t *)mask);
-			vdest = load8888((uint32_t *)dst);
+			vmask = load8888u((uint32 *)mask);
+			vdest = load8888((uint32 *)dst);
 
-			store8888((uint32_t *)dst, in(in(vsrca, vmask), vdest));
+			store8888((uint32 *)dst, in(in(vsrca, vmask), vdest));
 
 			dst += 4;
 			mask += 4;
@@ -2680,9 +2680,9 @@ static void mmx_composite_in_n_8_8(pixman_implementation_t * imp,
 		}
 
 		while(w--) {
-			uint16_t tmp;
-			uint8_t a;
-			uint32_t m, d;
+			uint16 tmp;
+			uint8 a;
+			uint32 m, d;
 
 			a = *mask++;
 			d = *dst;
@@ -2701,13 +2701,13 @@ static void mmx_composite_in_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * src_line, * src;
+	uint8 * dst_line, * dst;
+	uint8 * src_line, * src;
 	int src_stride, dst_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8, src_stride, src_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -2717,8 +2717,8 @@ static void mmx_composite_in_8_8(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 3) {
-			uint8_t s, d;
-			uint16_t tmp;
+			uint8 s, d;
+			uint16 tmp;
 
 			s = *src;
 			d = *dst;
@@ -2731,8 +2731,8 @@ static void mmx_composite_in_8_8(pixman_implementation_t * imp,
 		}
 
 		while(w >= 4) {
-			uint32_t * s = (uint32_t *)src;
-			uint32_t * d = (uint32_t *)dst;
+			uint32 * s = (uint32 *)src;
+			uint32 * d = (uint32 *)dst;
 
 			store8888(d, in(load8888u(s), load8888(d)));
 
@@ -2742,8 +2742,8 @@ static void mmx_composite_in_8_8(pixman_implementation_t * imp,
 		}
 
 		while(w--) {
-			uint8_t s, d;
-			uint16_t tmp;
+			uint8 s, d;
+			uint16 tmp;
 
 			s = *src;
 			d = *dst;
@@ -2762,16 +2762,16 @@ static void mmx_composite_add_n_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * mask_line, * mask;
+	uint8 * dst_line, * dst;
+	uint8 * mask_line, * mask;
 	int dst_stride, mask_stride;
-	int32_t w;
-	uint32_t src;
-	uint8_t sa;
+	int32 w;
+	uint32 src;
+	uint8 sa;
 	__m64 vsrc, vsrca;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
@@ -2791,10 +2791,10 @@ static void mmx_composite_add_n_8_8(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 3) {
-			uint16_t tmp;
-			uint16_t a;
-			uint32_t m, d;
-			uint32_t r;
+			uint16 tmp;
+			uint16 a;
+			uint32 m, d;
+			uint32 r;
 
 			a = *mask++;
 			d = *dst;
@@ -2810,10 +2810,10 @@ static void mmx_composite_add_n_8_8(pixman_implementation_t * imp,
 			__m64 vmask;
 			__m64 vdest;
 
-			vmask = load8888u((uint32_t *)mask);
-			vdest = load8888((uint32_t *)dst);
+			vmask = load8888u((uint32 *)mask);
+			vdest = load8888((uint32 *)dst);
 
-			store8888((uint32_t *)dst, _mm_adds_pu8(in(vsrca, vmask), vdest));
+			store8888((uint32 *)dst, _mm_adds_pu8(in(vsrca, vmask), vdest));
 
 			dst += 4;
 			mask += 4;
@@ -2821,10 +2821,10 @@ static void mmx_composite_add_n_8_8(pixman_implementation_t * imp,
 		}
 
 		while(w--) {
-			uint16_t tmp;
-			uint16_t a;
-			uint32_t m, d;
-			uint32_t r;
+			uint16 tmp;
+			uint16 a;
+			uint32 m, d;
+			uint32 r;
 
 			a = *mask++;
 			d = *dst;
@@ -2843,17 +2843,17 @@ static void mmx_composite_add_8_8(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t * dst_line, * dst;
-	uint8_t * src_line, * src;
+	uint8 * dst_line, * dst;
+	uint8 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
-	uint8_t s, d;
-	uint16_t t;
+	int32 w;
+	uint8 s, d;
+	uint16 t;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint8, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint8, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -2901,17 +2901,17 @@ static void mmx_composite_add_0565_0565(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint16_t * dst_line, * dst;
-	uint32_t d;
-	uint16_t * src_line, * src;
-	uint32_t s;
+	uint16 * dst_line, * dst;
+	uint32 d;
+	uint16 * src_line, * src;
+	uint32 s;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint16_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint16, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -2976,15 +2976,15 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * dst_line, * dst;
-	uint32_t * src_line, * src;
+	uint32 * dst_line, * dst;
+	uint32 * src_line, * src;
 	int dst_stride, src_stride;
-	int32_t w;
+	int32 w;
 
 	CHECKPOINT();
 
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
 
 	while(height--) {
 		dst = dst_line;
@@ -2994,8 +2994,8 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 7) {
-			store(dst, _mm_adds_pu8(load((const uint32_t*)src),
-			    load((const uint32_t*)dst)));
+			store(dst, _mm_adds_pu8(load((const uint32*)src),
+			    load((const uint32*)dst)));
 			dst++;
 			src++;
 			w--;
@@ -3009,8 +3009,8 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 		}
 
 		if(w) {
-			store(dst, _mm_adds_pu8(load((const uint32_t*)src),
-			    load((const uint32_t*)dst)));
+			store(dst, _mm_adds_pu8(load((const uint32*)src),
+			    load((const uint32*)dst)));
 		}
 	}
 
@@ -3018,8 +3018,8 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 }
 
 static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
-    uint32_t * src_bits,
-    uint32_t * dst_bits,
+    uint32 * src_bits,
+    uint32 * dst_bits,
     int src_stride,
     int dst_stride,
     int src_bpp,
@@ -3031,27 +3031,27 @@ static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
     int width,
     int height)
 {
-	uint8_t * src_bytes;
-	uint8_t * dst_bytes;
+	uint8 * src_bytes;
+	uint8 * dst_bytes;
 	int byte_width;
 
 	if(src_bpp != dst_bpp)
 		return FALSE;
 
 	if(src_bpp == 16) {
-		src_stride = src_stride * (int)sizeof(uint32_t) / 2;
-		dst_stride = dst_stride * (int)sizeof(uint32_t) / 2;
-		src_bytes = (uint8_t *)(((uint16_t*)src_bits) + src_stride * (src_y) + (src_x));
-		dst_bytes = (uint8_t *)(((uint16_t*)dst_bits) + dst_stride * (dest_y) + (dest_x));
+		src_stride = src_stride * (int)sizeof(uint32) / 2;
+		dst_stride = dst_stride * (int)sizeof(uint32) / 2;
+		src_bytes = (uint8 *)(((uint16 *)src_bits) + src_stride * (src_y) + (src_x));
+		dst_bytes = (uint8 *)(((uint16 *)dst_bits) + dst_stride * (dest_y) + (dest_x));
 		byte_width = 2 * width;
 		src_stride *= 2;
 		dst_stride *= 2;
 	}
 	else if(src_bpp == 32) {
-		src_stride = src_stride * (int)sizeof(uint32_t) / 4;
-		dst_stride = dst_stride * (int)sizeof(uint32_t) / 4;
-		src_bytes = (uint8_t *)(((uint32_t *)src_bits) + src_stride * (src_y) + (src_x));
-		dst_bytes = (uint8_t *)(((uint32_t *)dst_bits) + dst_stride * (dest_y) + (dest_x));
+		src_stride = src_stride * (int)sizeof(uint32) / 4;
+		dst_stride = dst_stride * (int)sizeof(uint32) / 4;
+		src_bytes = (uint8 *)(((uint32 *)src_bits) + src_stride * (src_y) + (src_x));
+		dst_bytes = (uint8 *)(((uint32 *)dst_bits) + dst_stride * (dest_y) + (dest_x));
 		byte_width = 4 * width;
 		src_stride *= 4;
 		dst_stride *= 4;
@@ -3062,28 +3062,28 @@ static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
 
 	while(height--) {
 		int w;
-		uint8_t * s = src_bytes;
-		uint8_t * d = dst_bytes;
+		uint8 * s = src_bytes;
+		uint8 * d = dst_bytes;
 		src_bytes += src_stride;
 		dst_bytes += dst_stride;
 		w = byte_width;
 
 		if(w >= 1 && ((uintptr_t)d & 1)) {
-			*(uint8_t *)d = *(uint8_t *)s;
+			*(uint8 *)d = *(uint8 *)s;
 			w -= 1;
 			s += 1;
 			d += 1;
 		}
 
 		if(w >= 2 && ((uintptr_t)d & 3)) {
-			*(uint16_t*)d = *(uint16_t*)s;
+			*(uint16 *)d = *(uint16 *)s;
 			w -= 2;
 			s += 2;
 			d += 2;
 		}
 
 		while(w >= 4 && ((uintptr_t)d & 7)) {
-			*(uint32_t *)d = ldl_u((uint32_t *)s);
+			*(uint32 *)d = ldl_u((uint32 *)s);
 
 			w -= 4;
 			s += 4;
@@ -3139,14 +3139,14 @@ static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
 			d += 64;
 		}
 		while(w >= 4) {
-			*(uint32_t *)d = ldl_u((uint32_t *)s);
+			*(uint32 *)d = ldl_u((uint32 *)s);
 
 			w -= 4;
 			s += 4;
 			d += 4;
 		}
 		if(w >= 2) {
-			*(uint16_t*)d = *(uint16_t*)s;
+			*(uint16 *)d = *(uint16 *)s;
 			w -= 2;
 			s += 2;
 			d += 2;
@@ -3176,15 +3176,15 @@ static void mmx_composite_over_x888_8_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t * src, * src_line;
-	uint32_t * dst, * dst_line;
-	uint8_t * mask, * mask_line;
+	uint32 * src, * src_line;
+	uint32 * dst, * dst_line;
+	uint8 * mask, * mask_line;
 	int src_stride, mask_stride, dst_stride;
-	int32_t w;
+	int32 w;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8_t, mask_stride, mask_line, 1);
-	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint32, src_stride, src_line, 1);
 
 	while(height--) {
 		src = src_line;
@@ -3197,10 +3197,10 @@ static void mmx_composite_over_x888_8_8888(pixman_implementation_t * imp,
 		w = width;
 
 		while(w--) {
-			uint64_t m = *mask;
+			uint64 m = *mask;
 
 			if(m) {
-				uint32_t ssrc = *src | 0xff000000;
+				uint32 ssrc = *src | 0xff000000;
 				__m64 s = load8888(&ssrc);
 
 				if(m == 0xff) {
@@ -3228,9 +3228,9 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
     pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32_t src;
-	uint32_t * dst_line, * dst;
-	int32_t w;
+	uint32 src;
+	uint32 * dst_line, * dst;
+	int32 w;
 	int dst_stride;
 	__m64 vsrc;
 
@@ -3241,7 +3241,7 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
 	if(src == 0)
 		return;
 
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
 
 	vsrc = load8888(&src);
 
@@ -3287,9 +3287,9 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
 	_mm_empty();
 }
 
-static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32_t*       pd,
-    const uint32_t* ps,
-    int32_t w,
+static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32*       pd,
+    const uint32* ps,
+    int32 w,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t src_width_fixed,
@@ -3316,21 +3316,21 @@ static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32_t*   
 
 FAST_NEAREST_MAINLOOP(mmx_8888_8888_cover_OVER,
     scaled_nearest_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, COVER)
+    uint32, uint32, COVER)
 FAST_NEAREST_MAINLOOP(mmx_8888_8888_none_OVER,
     scaled_nearest_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, NONE)
+    uint32, uint32, NONE)
 FAST_NEAREST_MAINLOOP(mmx_8888_8888_pad_OVER,
     scaled_nearest_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, PAD)
+    uint32, uint32, PAD)
 FAST_NEAREST_MAINLOOP(mmx_8888_8888_normal_OVER,
     scaled_nearest_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, NORMAL)
+    uint32, uint32, NORMAL)
 
-static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint32_t * mask,
-    uint32_t *  dst,
-    const uint32_t * src,
-    int32_t w,
+static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint32 * mask,
+    uint32 *  dst,
+    const uint32 * src,
+    int32 w,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t src_width_fixed,
@@ -3347,7 +3347,7 @@ static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint
 	mm_mask = expand_alpha(load8888(mask));
 
 	while(w) {
-		uint32_t s = *(src + pixman_fixed_to_int(vx));
+		uint32 s = *(src + pixman_fixed_to_int(vx));
 		vx += unit_x;
 		while(vx >= 0)
 			vx -= src_width_fixed;
@@ -3369,16 +3369,16 @@ static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint
 
 FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_cover_OVER,
     scaled_nearest_scanline_mmx_8888_n_8888_OVER,
-    uint32_t, uint32_t, uint32_t, COVER, TRUE, TRUE)
+    uint32, uint32, uint32, COVER, TRUE, TRUE)
 FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_pad_OVER,
     scaled_nearest_scanline_mmx_8888_n_8888_OVER,
-    uint32_t, uint32_t, uint32_t, PAD, TRUE, TRUE)
+    uint32, uint32, uint32, PAD, TRUE, TRUE)
 FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_none_OVER,
     scaled_nearest_scanline_mmx_8888_n_8888_OVER,
-    uint32_t, uint32_t, uint32_t, NONE, TRUE, TRUE)
+    uint32, uint32, uint32, NONE, TRUE, TRUE)
 FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_normal_OVER,
     scaled_nearest_scanline_mmx_8888_n_8888_OVER,
-    uint32_t, uint32_t, uint32_t, NORMAL, TRUE, TRUE)
+    uint32, uint32, uint32, NORMAL, TRUE, TRUE)
 
 #define BSHIFT ((1 << BILINEAR_INTERPOLATION_BITS))
 #define BMSK (BSHIFT - 1)
@@ -3429,11 +3429,11 @@ FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_normal_OVER,
 		mm_x = _mm_add_pi16(mm_x, mm_ux);                                          \
 	} while(0)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32_t *  dst,
-    const uint32_t * mask,
-    const uint32_t * src_top,
-    const uint32_t * src_bottom,
-    int32_t w,
+static force_inline void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32 *  dst,
+    const uint32 * mask,
+    const uint32 * src_top,
+    const uint32 * src_bottom,
+    int32 w,
     int wt,
     int wb,
     pixman_fixed_t vx,
@@ -3455,26 +3455,26 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32_t *  
 
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_cover_SRC,
     scaled_bilinear_scanline_mmx_8888_8888_SRC,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     COVER, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_pad_SRC,
     scaled_bilinear_scanline_mmx_8888_8888_SRC,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     PAD, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_none_SRC,
     scaled_bilinear_scanline_mmx_8888_8888_SRC,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     NONE, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_normal_SRC,
     scaled_bilinear_scanline_mmx_8888_8888_SRC,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32_t *  dst,
-    const uint32_t * mask,
-    const uint32_t * src_top,
-    const uint32_t * src_bottom,
-    int32_t w,
+static force_inline void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32 *  dst,
+    const uint32 * mask,
+    const uint32 * src_top,
+    const uint32 * src_bottom,
+    int32 w,
     int wt,
     int wb,
     pixman_fixed_t vx,
@@ -3502,26 +3502,26 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32_t * 
 
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_cover_OVER,
     scaled_bilinear_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     COVER, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_pad_OVER,
     scaled_bilinear_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     PAD, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_none_OVER,
     scaled_bilinear_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     NONE, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_normal_OVER,
     scaled_bilinear_scanline_mmx_8888_8888_OVER,
-    uint32_t, uint32_t, uint32_t,
+    uint32, uint32, uint32,
     NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32_t *  dst,
-    const uint8_t * mask,
-    const uint32_t * src_top,
-    const uint32_t * src_bottom,
-    int32_t w,
+static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32 *  dst,
+    const uint8 * mask,
+    const uint32 * src_top,
+    const uint32 * src_bottom,
+    int32 w,
     int wt,
     int wb,
     pixman_fixed_t vx,
@@ -3531,10 +3531,10 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32_t 
 {
 	BILINEAR_DECLARE_VARIABLES;
 	__m64 pix1, pix2;
-	uint32_t m;
+	uint32 m;
 
 	while(w) {
-		m = (uint32_t)*mask++;
+		m = (uint32)*mask++;
 
 		if(m) {
 			BILINEAR_INTERPOLATE_ONE_PIXEL(pix1);
@@ -3568,27 +3568,27 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32_t 
 
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8_8888_cover_OVER,
     scaled_bilinear_scanline_mmx_8888_8_8888_OVER,
-    uint32_t, uint8_t, uint32_t,
+    uint32, uint8, uint32,
     COVER, FLAG_HAVE_NON_SOLID_MASK)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8_8888_pad_OVER,
     scaled_bilinear_scanline_mmx_8888_8_8888_OVER,
-    uint32_t, uint8_t, uint32_t,
+    uint32, uint8, uint32,
     PAD, FLAG_HAVE_NON_SOLID_MASK)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8_8888_none_OVER,
     scaled_bilinear_scanline_mmx_8888_8_8888_OVER,
-    uint32_t, uint8_t, uint32_t,
+    uint32, uint8, uint32,
     NONE, FLAG_HAVE_NON_SOLID_MASK)
 FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8_8888_normal_OVER,
     scaled_bilinear_scanline_mmx_8888_8_8888_OVER,
-    uint32_t, uint8_t, uint32_t,
+    uint32, uint8, uint32,
     NORMAL, FLAG_HAVE_NON_SOLID_MASK)
 
-static uint32_t *
-mmx_fetch_x8r8g8b8(pixman_iter_t *iter, const uint32_t *mask)
+static uint32 *
+mmx_fetch_x8r8g8b8(pixman_iter_t *iter, const uint32 *mask)
 {
 	int w = iter->width;
-	uint32_t * dst = iter->buffer;
-	uint32_t * src = (uint32_t *)iter->bits;
+	uint32 * dst = iter->buffer;
+	uint32 * src = (uint32 *)iter->bits;
 
 	iter->bits += iter->stride;
 
@@ -3622,16 +3622,16 @@ mmx_fetch_x8r8g8b8(pixman_iter_t *iter, const uint32_t *mask)
 	return iter->buffer;
 }
 
-static uint32_t * mmx_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * mmx_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 {
 	int w = iter->width;
-	uint32_t * dst = iter->buffer;
-	uint16_t * src = (uint16_t*)iter->bits;
+	uint32 * dst = iter->buffer;
+	uint16 * src = (uint16 *)iter->bits;
 
 	iter->bits += iter->stride;
 
 	while(w && ((uintptr_t)dst) & 0x0f) {
-		uint16_t s = *src++;
+		uint16 s = *src++;
 
 		*dst++ = convert_0565_to_8888(s);
 		w--;
@@ -3652,7 +3652,7 @@ static uint32_t * mmx_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 	}
 
 	while(w) {
-		uint16_t s = *src++;
+		uint16 s = *src++;
 
 		*dst++ = convert_0565_to_8888(s);
 		w--;
@@ -3662,11 +3662,11 @@ static uint32_t * mmx_fetch_r5g6b5(pixman_iter_t * iter, const uint32_t * mask)
 	return iter->buffer;
 }
 
-static uint32_t * mmx_fetch_a8(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * mmx_fetch_a8(pixman_iter_t * iter, const uint32 * mask)
 {
 	int w = iter->width;
-	uint32_t * dst = iter->buffer;
-	uint8_t * src = iter->bits;
+	uint32 * dst = iter->buffer;
+	uint8 * src = iter->bits;
 
 	iter->bits += iter->stride;
 

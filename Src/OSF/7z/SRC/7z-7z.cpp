@@ -4016,7 +4016,7 @@ namespace NArchive {
 		{
 			if(index < _fileInfoPopIDs.Size()) {
 				uint64 id = _fileInfoPopIDs[index];
-				for(uint i = 0; i < ARRAY_SIZE(kPropMap); i++) {
+				for(uint i = 0; i < SIZEOFARRAY(kPropMap); i++) {
 					const CPropMap & pr = kPropMap[i];
 					if(pr.FilePropID == id) {
 						const CStatProp & st = pr.StatProp;
@@ -4688,7 +4688,7 @@ namespace NArchive {
 
 		static bool IsExeExt(const wchar_t * ext)
 		{
-			for(uint i = 0; i < ARRAY_SIZE(g_ExeExts); i++)
+			for(uint i = 0; i < SIZEOFARRAY(g_ExeExts); i++)
 				if(sstreqi_ascii(ext, g_ExeExts[i]))
 					return true;
 			return false;

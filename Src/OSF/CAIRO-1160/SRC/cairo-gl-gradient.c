@@ -81,15 +81,15 @@ static int _cairo_gl_gradient_sample_width(uint n_stops,
 	return (width + 7) & -8;
 }
 
-static uint8_t premultiply(double c, double a)
+static uint8 premultiply(double c, double a)
 {
 	int v = c * a * 256;
 	return v - (v >> 8);
 }
 
-static uint32_t color_stop_to_pixel(const cairo_gradient_stop_t * stop)
+static uint32 color_stop_to_pixel(const cairo_gradient_stop_t * stop)
 {
-	uint8_t a, r, g, b;
+	uint8 a, r, g, b;
 
 	a = stop->color.alpha_short >> 8;
 	r = premultiply(stop->color.red,   stop->color.alpha);
@@ -156,7 +156,7 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	pixman_image_set_filter(gradient, PIXMAN_FILTER_BILINEAR, NULL, 0);
 	pixman_image_set_repeat(gradient, PIXMAN_REPEAT_PAD);
-	image = pixman_image_create_bits(gradient_pixman_format, width, 1, bytes, sizeof(uint32_t)*width);
+	image = pixman_image_create_bits(gradient_pixman_format, width, 1, bytes, sizeof(uint32)*width);
 	if(UNLIKELY(image == NULL)) {
 		pixman_image_unref(gradient);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -169,8 +169,8 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 	 * the neareset stop to the zeroth pixel centre in order to correctly
 	 * populate the border color. For completeness, do both edges.
 	 */
-	((uint32_t *)bytes)[0] = color_stop_to_pixel(&stops[0]);
-	((uint32_t *)bytes)[width-1] = color_stop_to_pixel(&stops[n_stops-1]);
+	((uint32 *)bytes)[0] = color_stop_to_pixel(&stops[0]);
+	((uint32 *)bytes)[width-1] = color_stop_to_pixel(&stops[n_stops-1]);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -251,7 +251,7 @@ cairo_int_status_t _cairo_gl_gradient_create(cairo_gl_context_t * ctx,
 	_cairo_gl_context_activate(ctx, CAIRO_GL_TEX_TEMP);
 	glBindTexture(ctx->tex_target, gradient->tex);
 
-	data = _cairo_malloc_ab(tex_width, sizeof(uint32_t));
+	data = _cairo_malloc_ab(tex_width, sizeof(uint32));
 	if(UNLIKELY(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto cleanup_gradient;

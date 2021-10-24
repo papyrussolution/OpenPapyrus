@@ -721,8 +721,8 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml, cairo_scale
 	cairo_output_stream_t * zlib_stream;
 	cairo_status_t status, status2;
 	ulong size;
-	uint32_t len;
-	uint8_t * buf;
+	uint32 len;
+	uint8 * buf;
 	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -730,7 +730,7 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml, cairo_scale
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(UNLIKELY(status))
 		return status;
-	buf = static_cast<uint8_t *>(_cairo_malloc(size));
+	buf = static_cast<uint8 *>(_cairo_malloc(size));
 	if(UNLIKELY(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = backend->load_truetype_table(scaled_font, 0, 0, buf, &size);

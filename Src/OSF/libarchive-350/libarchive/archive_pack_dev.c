@@ -291,8 +291,6 @@ static int compare_format(const void * key, const void * element)
 
 pack_t * pack_find(const char * name)
 {
-	struct format * format = static_cast<struct format *>(bsearch(name, formats, sizeof(formats)/sizeof(formats[0]), sizeof(formats[0]), compare_format));
-	if(format == 0)
-		return NULL;
-	return (format->pack);
+	struct format * format = static_cast<struct format *>(bsearch(name, formats, SIZEOFARRAY(formats), sizeof(formats[0]), compare_format));
+	return format ? format->pack : 0;
 }

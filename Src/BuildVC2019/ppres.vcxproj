@@ -1336,16 +1336,16 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\SC2C %(FullPath)
@@ -1354,16 +1354,16 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\SC2C %(FullPath)
@@ -1372,16 +1372,16 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\SC2C %(FullPath)
@@ -1390,16 +1390,16 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\SC2C %(FullPath)
@@ -1408,16 +1408,16 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\SC2C %(FullPath)
@@ -1426,34 +1426,34 @@ COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\SC2C %(FullPath)
 COPY %(RootDir)%(Directory)%(Filename).BIN $(OutDir)ppstr.bin
 COPY %(RootDir)%(Directory)%(Filename)-en.BIN $(OutDir)ppstr-en.bin
 COPY %(RootDir)%(Directory)%(Filename)-nl.BIN $(OutDir)ppstr-nl.bin
 COPY %(RootDir)%(Directory)%(Filename)-de.BIN $(OutDir)ppstr-de.bin
 COPY %(RootDir)%(Directory)%(Filename)-pt.BIN $(OutDir)ppstr-pt.bin
-</Command>
+COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)%(Extension)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)PPSTR.BIN;$(OutDir)PPSTR-EN.BIN;$(OutDir)PPSTR-NL.BIN;$(OutDir)PPSTR-DE.BIN;$(OutDir)PPSTR-PT.BIN;$(OutDir)PPSTR-ES.BIN;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

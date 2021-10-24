@@ -20,63 +20,53 @@
 
 #include <slib.h> // @sobolev
 #include "bzlib.h"
-
-/*-- General stuff. --*/
-
+//
+// General stuff
+//
 #define BZ_VERSION  "1.0.6, 6-Sept-2010"
-
 #ifndef __GNUC__
 	#define __inline__  /* */
 #endif
-
 #ifndef BZ_NO_STDIO
+	extern void BZ2_bz__AssertH__fail(int errcode);
+	#define AssertH(cond, errcode) { if(!(cond)) BZ2_bz__AssertH__fail(errcode); }
 
-extern void BZ2_bz__AssertH__fail(int errcode);
-#define AssertH(cond, errcode) { if(!(cond)) BZ2_bz__AssertH__fail(errcode); }
+	#if BZ_DEBUG
+		#define AssertD(cond, msg) { if(!(cond)) { slfprintf_stderr("\n\nlibbzip2(debug build): internal error\n\t%s\n", msg); exit(1); }}
+	#else
+		#define AssertD(cond, msg) /* */
+	#endif
 
-#if BZ_DEBUG
-#define AssertD(cond, msg) \
-	{ if(!(cond)) {	      \
-		  slfprintf_stderr("\n\nlibbzip2(debug build): internal error\n\t%s\n", msg); \
-		  exit(1); \
-	  }}
+	#define VPrintf0(zf) slfprintf_stderr(zf)
+	#define VPrintf1(zf, za1) slfprintf_stderr(zf, za1)
+	#define VPrintf2(zf, za1, za2) slfprintf_stderr(zf, za1, za2)
+	#define VPrintf3(zf, za1, za2, za3) slfprintf_stderr(zf, za1, za2, za3)
+	#define VPrintf4(zf, za1, za2, za3, za4) slfprintf_stderr(zf, za1, za2, za3, za4)
+	#define VPrintf5(zf, za1, za2, za3, za4, za5) slfprintf_stderr(zf, za1, za2, za3, za4, za5)
 #else
-#define AssertD(cond, msg) /* */
+	extern void bz_internal_error(int errcode);
+	#define AssertH(cond, errcode)            { if(!(cond)) bz_internal_error(errcode); }
+	#define AssertD(cond, msg)                do { } while(0)
+	#define VPrintf0(zf)                     do { } while(0)
+	#define VPrintf1(zf, za1)                 do { } while(0)
+	#define VPrintf2(zf, za1, za2)             do { } while(0)
+	#define VPrintf3(zf, za1, za2, za3)         do { } while(0)
+	#define VPrintf4(zf, za1, za2, za3, za4)     do { } while(0)
+	#define VPrintf5(zf, za1, za2, za3, za4, za5) do { } while(0)
 #endif
 
-#define VPrintf0(zf) slfprintf_stderr(zf)
-#define VPrintf1(zf, za1) slfprintf_stderr(zf, za1)
-#define VPrintf2(zf, za1, za2) slfprintf_stderr(zf, za1, za2)
-#define VPrintf3(zf, za1, za2, za3) slfprintf_stderr(zf, za1, za2, za3)
-#define VPrintf4(zf, za1, za2, za3, za4) slfprintf_stderr(zf, za1, za2, za3, za4)
-#define VPrintf5(zf, za1, za2, za3, za4, za5) slfprintf_stderr(zf, za1, za2, za3, za4, za5)
-
-#else
-
-extern void bz_internal_error(int errcode);
-#define AssertH(cond, errcode)            { if(!(cond)) bz_internal_error(errcode); }
-#define AssertD(cond, msg)                do { } while(0)
-#define VPrintf0(zf)                     do { } while(0)
-#define VPrintf1(zf, za1)                 do { } while(0)
-#define VPrintf2(zf, za1, za2)             do { } while(0)
-#define VPrintf3(zf, za1, za2, za3)         do { } while(0)
-#define VPrintf4(zf, za1, za2, za3, za4)     do { } while(0)
-#define VPrintf5(zf, za1, za2, za3, za4, za5) do { } while(0)
-
-#endif
-
-#define BZALLOC(nnn) (strm->bzalloc)(strm->opaque, (nnn), 1)
-#define BZFREE(ppp)  (strm->bzfree)(strm->opaque, (ppp))
-
-/*-- Header bytes. --*/
-
+//#define BZALLOC_Removed(nnn) SAlloc::M(nnn) //(strm->bzalloc)(strm->opaque, (nnn), 1)
+//#define BZFREE_Removed(ppp)  SAlloc::F(ppp) //(strm->bzfree)(strm->opaque, (ppp))
+//
+// Header bytes
+//
 #define BZ_HDR_B 0x42   /* 'B' */
 #define BZ_HDR_Z 0x5a   /* 'Z' */
 #define BZ_HDR_h 0x68   /* 'h' */
 #define BZ_HDR_0 0x30   /* '0' */
-
-/*-- Constants for the back end. --*/
-
+// 
+// Constants for the back end
+// 
 #define BZ_MAX_ALPHA_SIZE 258
 #define BZ_MAX_CODE_LEN    23
 
@@ -183,7 +173,6 @@ typedef struct {
 	int32 mtfFreq    [BZ_MAX_ALPHA_SIZE];
 	uchar selector   [BZ_MAX_SELECTORS];
 	uchar selectorMtf[BZ_MAX_SELECTORS];
-
 	uchar len     [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	int32 code    [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	int32 rfreq   [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];

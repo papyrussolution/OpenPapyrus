@@ -2246,7 +2246,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    goto failed;
 				    return ARCHIVE_OK;
 			    }
-			    ds->translation = lzx_br_bits(br, 1);
+			    ds->translation = (char)lzx_br_bits(br, 1);
 			    lzx_br_consume(br, 1);
 			// @fallthrough
 			case ST_RD_TRANSLATION_SIZE:
@@ -2271,7 +2271,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    goto failed;
 				    return ARCHIVE_OK;
 			    }
-			    ds->block_type = lzx_br_bits(br, 3);
+			    ds->block_type = (char)lzx_br_bits(br, 3);
 			    lzx_br_consume(br, 3);
 			    /* Check a block type. */
 			    switch(ds->block_type) {
@@ -2336,16 +2336,16 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    /* Drain bits in the cache buffer of
 				     * bit-stream. */
 				    if(lzx_br_has(br, 32)) {
-					    u16 = lzx_br_bits(br, 16);
+					    u16 = (uint16_t)lzx_br_bits(br, 16);
 					    lzx_br_consume(br, 16);
 					    archive_le16enc(ds->rbytes, u16);
-					    u16 = lzx_br_bits(br, 16);
+					    u16 = (uint16_t)lzx_br_bits(br, 16);
 					    lzx_br_consume(br, 16);
 					    archive_le16enc(ds->rbytes+2, u16);
 					    ds->rbytes_avail = 4;
 				    }
 				    else if(lzx_br_has(br, 16)) {
-					    u16 = lzx_br_bits(br, 16);
+					    u16 = (uint16_t)lzx_br_bits(br, 16);
 					    lzx_br_consume(br, 16);
 					    archive_le16enc(ds->rbytes, u16);
 					    ds->rbytes_avail = 2;
@@ -2451,7 +2451,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			    }
 			    memzero(ds->at.freq, sizeof(ds->at.freq));
 			    for(i = 0; i < ds->at.len_size; i++) {
-				    ds->at.bitlen[i] = lzx_br_bits(br, 3);
+				    ds->at.bitlen[i] = (uchar)lzx_br_bits(br, 3);
 				    ds->at.freq[ds->at.bitlen[i]]++;
 				    lzx_br_consume(br, 3);
 			    }
@@ -2849,7 +2849,7 @@ static int lzx_read_pre_tree(struct lzx_stream * strm)
 			ds->loop = i;
 			return 0;
 		}
-		ds->pt.bitlen[i] = lzx_br_bits(br, 4);
+		ds->pt.bitlen[i] = (uchar)lzx_br_bits(br, 4);
 		ds->pt.freq[ds->pt.bitlen[i]]++;
 		lzx_br_consume(br, 4);
 	}

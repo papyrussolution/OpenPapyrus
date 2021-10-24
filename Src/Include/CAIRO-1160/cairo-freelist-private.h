@@ -73,7 +73,7 @@ cairo_private void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * free
 
 static inline void * _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool)
 {
-	uint8_t * ptr;
+	uint8 * ptr;
 	cairo_freelist_pool_t * pool = freepool->pools;
 	if(UNLIKELY(freepool->nodesize > pool->rem))
 		return _cairo_freepool_alloc_from_new_pool(freepool);

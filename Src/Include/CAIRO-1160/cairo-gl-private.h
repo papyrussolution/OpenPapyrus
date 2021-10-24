@@ -227,7 +227,7 @@ typedef enum cairo_gl_primitive_type {
 } cairo_gl_primitive_type_t;
 
 typedef void (* cairo_gl_emit_rect_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
-typedef void (* cairo_gl_emit_span_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, uint8_t alpha);
+typedef void (* cairo_gl_emit_span_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, uint8 alpha);
 typedef void (* cairo_gl_emit_glyph_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat glyph_x1, GLfloat glyph_y1, GLfloat glyph_x2, GLfloat glyph_y2);
 
 #define cairo_gl_var_type_hash(src, mask, spans, dest) ((spans) << 5) | ((mask) << 3 | (src << 1) | (dest))

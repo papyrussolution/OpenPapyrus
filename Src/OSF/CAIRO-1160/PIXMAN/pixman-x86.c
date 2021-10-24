@@ -82,7 +82,7 @@ static pixman_bool_t have_cpuid(void)
 	return TRUE;
 
 #elif defined (__GNUC__)
-	uint32_t result;
+	uint32 result;
 
 	__asm__ volatile (
 		"pushf"                         "\n\t"
@@ -107,7 +107,7 @@ static pixman_bool_t have_cpuid(void)
 }
 
 #if 0 // @sobolev {
-static void pixman_cpuid(uint32_t feature, uint32_t * a, uint32_t * b, uint32_t * c, uint32_t * d)
+static void pixman_cpuid(uint32 feature, uint32 * a, uint32 * b, uint32 * c, uint32 * d)
 {
 #if defined (__GNUC__)
 
@@ -147,7 +147,7 @@ static void pixman_cpuid(uint32_t feature, uint32_t * a, uint32_t * b, uint32_t 
 #if 0 // @sobolev
 static cpu_features_t detect_cpu_features(void)
 {
-	uint32_t a, b, c, d;
+	uint32 a, b, c, d;
 	/*cpu_features_t*/int features = 0;
 	if(!have_cpuid())
 		return (cpu_features_t)features;

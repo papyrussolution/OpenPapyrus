@@ -194,7 +194,7 @@ PIXMAN_EXPORT const void * pixman_glyph_cache_insert(pixman_glyph_cache_t * cach
     void * font_key, void * glyph_key, int origin_x, int origin_y, pixman_image_t * image)
 {
 	glyph_t * glyph;
-	int32_t width, height;
+	int32 width, height;
 	return_val_if_fail(cache->freeze_count > 0, NULL);
 	return_val_if_fail(image->type == BITS, NULL);
 	width = image->bits.width;
@@ -287,13 +287,13 @@ static pixman_bool_t box32_intersect(pixman_box32_t * dest, const pixman_box32_t
 __attribute__((__force_align_arg_pointer__))
 #endif
 PIXMAN_EXPORT void pixman_composite_glyphs_no_mask(pixman_op_t op, pixman_image_t * src, pixman_image_t * dest,
-    int32_t src_x, int32_t src_y, int32_t dest_x, int32_t dest_y, pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs)
+    int32 src_x, int32 src_y, int32 dest_x, int32 dest_y, pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs)
 {
 	pixman_region32_t region;
 	pixman_format_code_t glyph_format = PIXMAN_null;
-	uint32_t glyph_flags = 0;
+	uint32 glyph_flags = 0;
 	pixman_format_code_t dest_format;
-	uint32_t dest_flags;
+	uint32 dest_flags;
 	pixman_composite_func_t func = NULL;
 	pixman_implementation_t * implementation = NULL;
 	pixman_composite_info_t info;
@@ -316,7 +316,7 @@ PIXMAN_EXPORT void pixman_composite_glyphs_no_mask(pixman_op_t op, pixman_image_
 		pixman_image_t * glyph_img = glyph->image;
 		pixman_box32_t glyph_box;
 		pixman_box32_t * pbox;
-		uint32_t extra = FAST_PATH_SAMPLES_COVER_CLIP_NEAREST;
+		uint32 extra = FAST_PATH_SAMPLES_COVER_CLIP_NEAREST;
 		pixman_box32_t composite_box;
 		int n;
 		glyph_box.x1 = dest_x + glyphs[i].x - glyph->origin_x;
@@ -355,11 +355,11 @@ out:
 static void add_glyphs(pixman_glyph_cache_t * cache, pixman_image_t * dest, int off_x, int off_y, int n_glyphs, const pixman_glyph_t * glyphs)
 {
 	pixman_format_code_t glyph_format = PIXMAN_null;
-	uint32_t glyph_flags = 0;
+	uint32 glyph_flags = 0;
 	pixman_composite_func_t func = NULL;
 	pixman_implementation_t * implementation = NULL;
 	pixman_format_code_t dest_format;
-	uint32_t dest_flags;
+	uint32 dest_flags;
 	pixman_box32_t dest_box;
 	pixman_composite_info_t info;
 	pixman_image_t * white_img = NULL;
@@ -457,7 +457,7 @@ out:
 __attribute__((__force_align_arg_pointer__))
 #endif
 PIXMAN_EXPORT void pixman_composite_glyphs(pixman_op_t op, pixman_image_t * src, pixman_image_t * dest, pixman_format_code_t mask_format,
-    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height,
+    int32 src_x, int32 src_y, int32 mask_x, int32 mask_y, int32 dest_x, int32 dest_y, int32 width, int32 height,
     pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs)
 {
 	pixman_image_t * mask;

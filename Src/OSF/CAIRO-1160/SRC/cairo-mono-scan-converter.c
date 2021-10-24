@@ -27,16 +27,16 @@
 #pragma hdrstop
 
 struct quorem {
-	int32_t quo;
-	int32_t rem;
+	int32 quo;
+	int32 rem;
 };
 
 struct edge {
 	struct edge * next, * prev;
-	int32_t height_left;
-	int32_t dir;
-	int32_t vertical;
-	int32_t dy;
+	int32 height_left;
+	int32 dir;
+	int32 vertical;
+	int32 dy;
 	struct quorem x;
 	struct quorem dxdy;
 };
@@ -46,7 +46,7 @@ struct edge {
  * converting. */
 struct polygon {
 	/* The vertical clip extents. */
-	int32_t ymin, ymax;
+	int32 ymin, ymax;
 	int num_edges;
 	struct edge * edges;
 	/* Array of edges all starting in the same bucket.	An edge is put
@@ -66,8 +66,8 @@ struct mono_scan_converter {
 	cairo_half_open_span_t spans_embedded[64];
 	int num_spans;
 	/* Clip box. */
-	int32_t xmin, xmax;
-	int32_t ymin, ymax;
+	int32 xmin, xmax;
+	int32 ymin, ymax;
 };
 
 #define I(x) _cairo_fixed_integer_round_down(x)
@@ -92,7 +92,7 @@ static struct quorem floored_muldivrem(int x, int a, int b)
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = static_cast<int32_t>(xa/b);
+	qr.quo = static_cast<int32>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;
@@ -185,7 +185,7 @@ inline static void polygon_add_edge(struct polygon * polygon,
 
 static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      {
 	struct edge * head, ** next, * prev;
-	int32_t x;
+	int32 x;
 
 	prev = head_a->prev;
 	next = &head;

@@ -1754,6 +1754,9 @@ public:
 	int    SetCtrlFont(uint ctlID, const SFontDescr & rFd);
 	int    SetCtrlsFont(const char * pFontName, int height, ...);
 	int    destroyCtrl(uint ctl);
+	TLabel * getCtlLabel(uint ctlID);
+	int    getLabelText(uint ctlID, SString & rText);
+	int    setLabelText(uint ctlID, const char * pText);
 	//
 	// Функции setCtrlData и getCtrlData возвращают !0 если существует
 	// управляющий элемент с ид. ctl и 0 в противном случае.
@@ -1851,7 +1854,9 @@ protected:
 	// Descr: Вспомогательная функция, используемая при динамическом формировании диалога или окна (в т.ч. из ресурсов)
 	//
 	int    InsertCtl(TView * pCtl, uint id, const char * pSymb);
+	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb);
 	int    SetCtlSymb(uint id, const char * pSymb);
+	TView * FASTCALL CtrlIdToView(long id) const;
 	int    RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
@@ -2546,16 +2551,17 @@ public:
 	//
 	enum {
 		// @# coChild ^ coPopup
-		coChild   = 0x0001,
-		coPopup   = 0x0002,
-		coMDI     = 0x0004,
-		coScX     = 0x0008, // Окно создавать с горизонтальным скроллером
-		coScY     = 0x0010, // Окно создавать с вертикальным скроллером
-		coScXY    = (coScX|coScY),
-		coMaxSize = 0x0020  // Окно создавать с максимальными размерами, допускаемыми родительским окном
+		coChild     = 0x0001,
+		coPopup     = 0x0002,
+		coMDI       = 0x0004,
+		coScX       = 0x0008, // Окно создавать с горизонтальным скроллером
+		coScY       = 0x0010, // Окно создавать с вертикальным скроллером
+		coScXY      = (coScX|coScY),
+		coMaxSize   = 0x0020, // Окно создавать с максимальными размерами, допускаемыми родительским окном
 	};
 
 	~TWindowBase();
+	long   GetWbCapability() const { return WbCapability; }
 	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
 	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout); // @v10.9.3
@@ -3263,9 +3269,6 @@ public:
 	int    FASTCALL getGroupData(ushort, void *);
 	CtrlGroup * FASTCALL getGroup(ushort);
 	long   getVirtButtonID(uint ctlID);
-	TLabel * getCtlLabel(uint ctlID);
-	int    getLabelText(uint ctlID, SString & rText);
-	int    setLabelText(uint ctlID, const char * pText);
 	int    SaveUserSettings();
 	int    RestoreUserSettings();
 #ifndef _WIN32_WCE // {
@@ -3367,7 +3370,6 @@ private:
 	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void    RemoveUnusedControls();
-	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
 	HWND   ToolTipsWnd;
@@ -3480,7 +3482,7 @@ protected:
 	//
 	struct InputStat {
 		InputStat();
-		void   Reset();
+		InputStat & Z();
 		void   CheckIn();
 
 		clock_t Last;
@@ -3610,7 +3612,14 @@ private:
 
 class TStaticText : public TView {
 public:
-	TStaticText(const TRect& bounds, const char * pText = 0);
+	explicit TStaticText(const TRect & bounds, const char * pText = 0);
+	const SString & GetRawText() const { return Text; }
+	//
+	// Descr: Возвращает текст, ассоциированный с native-элементом,
+	//   соответствующим экземпляру. То есть, не this->Text, а
+	//   извлекает строку из соответсвующего native-объекта
+	//   (TView::SGetWindowText(GetDlgItem(Parent, Id), rBuf))
+	//
 	SString & getText(SString & rBuf) const;
 	int    setText(const char *);
 protected:
@@ -3621,7 +3630,7 @@ protected:
 
 class TLabel : public TStaticText {
 public:
-	TLabel(const TRect& bounds, const char *aText, TView *aLink);
+	TLabel(const TRect& bounds, const char * pText, TView * pLink);
 protected:
 	DECL_HANDLE_EVENT;
 	TView * link;

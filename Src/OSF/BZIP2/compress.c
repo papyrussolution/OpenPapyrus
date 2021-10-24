@@ -267,7 +267,7 @@ static void sendMTFValues(EState* s)
 				ge--;
 			}
 			if(s->verbosity >= 3)
-				VPrintf5("      initial group %d, [%d .. %d], has %d syms (%4.1f%%)\n", nPart, gs, ge, aFreq, (100.0 * (float)aFreq) / (float)(s->nMTF) );
+				VPrintf5("      initial group %d, [%d .. %d], has %d syms (%4.1f%%)\n", nPart, gs, ge, aFreq, (100.0 * (float)aFreq) / (float)(s->nMTF));
 			for(v = 0; v < alphaSize; v++)
 				if(v >= gs && v <= ge)
 					s->len[nPart-1][v] = BZ_LESSER_ICOST; 
@@ -478,15 +478,14 @@ static void sendMTFValues(EState* s)
 	bsW(s, 3, nGroups);
 	bsW(s, 15, nSelectors);
 	for(i = 0; i < nSelectors; i++) {
-		for(j = 0; j < s->selectorMtf[i]; j++) bsW(s, 1, 1);
+		for(j = 0; j < s->selectorMtf[i]; j++) 
+			bsW(s, 1, 1);
 		bsW(s, 1, 0);
 	}
 	if(s->verbosity >= 3)
 		VPrintf1("selectors %d, ", s->numZ-nBytes);
-
 	/*--- Now the coding tables. ---*/
 	nBytes = s->numZ;
-
 	for(t = 0; t < nGroups; t++) {
 		int32 curr = s->len[t][0];
 		bsW(s, 5, curr);
@@ -571,17 +570,17 @@ void BZ2_compressBlock(EState* s, bool is_last_block)
 		bsPutUChar(s, BZ_HDR_B);
 		bsPutUChar(s, BZ_HDR_Z);
 		bsPutUChar(s, BZ_HDR_h);
-		bsPutUChar(s, (uchar)(BZ_HDR_0 + s->blockSize100k) );
+		bsPutUChar(s, (uchar)(BZ_HDR_0 + s->blockSize100k));
 	}
-
 	if(s->nblock > 0) {
-		bsPutUChar(s, 0x31); bsPutUChar(s, 0x41);
-		bsPutUChar(s, 0x59); bsPutUChar(s, 0x26);
-		bsPutUChar(s, 0x53); bsPutUChar(s, 0x59);
-
+		bsPutUChar(s, 0x31); 
+		bsPutUChar(s, 0x41);
+		bsPutUChar(s, 0x59); 
+		bsPutUChar(s, 0x26);
+		bsPutUChar(s, 0x53); 
+		bsPutUChar(s, 0x59);
 		/*-- Now the block's CRC, so it is in a known place. --*/
 		bsPutUInt32(s, s->blockCRC);
-
 		/*--
 		   Now a single bit indicating (non-)randomisation.
 		   As of version 0.9.5, we use a better sorting algorithm
@@ -598,9 +597,12 @@ void BZ2_compressBlock(EState* s, bool is_last_block)
 	}
 	/*-- If this is the last block, add the stream trailer. --*/
 	if(is_last_block) {
-		bsPutUChar(s, 0x17); bsPutUChar(s, 0x72);
-		bsPutUChar(s, 0x45); bsPutUChar(s, 0x38);
-		bsPutUChar(s, 0x50); bsPutUChar(s, 0x90);
+		bsPutUChar(s, 0x17); 
+		bsPutUChar(s, 0x72);
+		bsPutUChar(s, 0x45); 
+		bsPutUChar(s, 0x38);
+		bsPutUChar(s, 0x50); 
+		bsPutUChar(s, 0x90);
 		bsPutUInt32(s, s->combinedCRC);
 		if(s->verbosity >= 2)
 			VPrintf1("    final combined CRC = 0x%08x\n   ", s->combinedCRC);

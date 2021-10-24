@@ -215,7 +215,7 @@ generic_string NativeLangSpeaker::getLocalizedStrFromID(const char * strID, cons
 
 MenuPosition & getMenuPosition(const char * id)
 {
-	int nbSubMenuPos = sizeof(menuPos)/sizeof(MenuPosition);
+	int nbSubMenuPos = SIZEOFARRAY(menuPos);
 	for(int i = 0; i < nbSubMenuPos; ++i) {
 		if(sstreq(menuPos[i]._id, id))
 			return menuPos[i];
@@ -357,14 +357,13 @@ void NativeLangSpeaker::changeLangTabContextMenu(HMENU hCM)
 			tabBarMenu = tabBarMenu->FirstChild("TabBar");
 			if(tabBarMenu) {
 				WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-				int nbCMItems = sizeof(tabContextMenuItemPos)/sizeof(int);
+				const int nbCMItems = SIZEOFARRAY(tabContextMenuItemPos);
 				for(TiXmlNodeA * childNode = tabBarMenu->FirstChildElement("Item"); childNode; childNode = childNode->NextSibling("Item") ) {
 					TiXmlElementA * element = childNode->ToElement();
 					int index;
 					const char * indexStr = element->Attribute("CMID", &index);
 					if(!indexStr || (index < 0 || index >= nbCMItems-1))
 						continue;
-
 					int pos = tabContextMenuItemPos[index];
 					const char * pName = element->Attribute("name");
 					if(pName) {

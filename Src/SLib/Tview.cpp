@@ -405,9 +405,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	int    ok = 1;
 #ifdef UNICODE
-	SStringU temp_buf_u;
-	temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(temp_buf_u.ucptr())));
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	r_temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
+	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(r_temp_buf_u.ucptr())));
 #else
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
 #endif // UNICODE
@@ -464,7 +464,6 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	if(pV) {
 		HWND hw = 0;
 		HWND hw_parent = 0;
-		HWND test_handle = 0;
 		if(pV->Parent)
 			hw_parent = pV->Parent;
 		else {
@@ -477,15 +476,40 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			switch(pV->GetSubSign()) {
 				case TV_SUBSIGN_BUTTON:
 					{
-						TButton * p_b = (TButton *)(pV);
+						TButton * p_cv = (TButton *)(pV);
 						pV->Parent = hw_parent;
 						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							test_handle = pV->getHandle();
 							//::SetWindowText(hw, SUcSwitch(p_b->Title));
-							TView::SetWindowUserData(hw, p_b);
-							::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_b->Title)));
+							TView::SetWindowUserData(hw, p_cv);
+							::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->Title)));
+							SetupWindowCtrlTextProc(hw, 0);
+						}
+					}
+					break;
+				case TV_SUBSIGN_INPUTLINE:
+					{
+						TInputLine * p_cv = (TInputLine *)(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindow(_T("EDIT"), 0, WS_CHILD|BS_OWNERDRAW, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							TView::SetWindowUserData(hw, p_cv);
+						}
+					}
+					break;
+				case TV_SUBSIGN_LABEL:
+					{
+						TLabel * p_cv = (TLabel *)(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindow(_T("STATIC"), 0, WS_CHILD, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							SString temp_buf;
+							TView::SetWindowUserData(hw, p_cv);
+							TView::SSetWindowText(hw, p_cv->GetRawText());
+							//::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}

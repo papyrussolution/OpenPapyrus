@@ -1171,9 +1171,9 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 
 	/* We must invert the image manualy if we lack GL_MESA_pack_invert */
 	if(flipped && !mesa_invert) {
-		uint8_t stack[1024], * row = stack;
-		uint8_t * top = image->data;
-		uint8_t * bot = image->data + (image->height-1)*image->stride;
+		uint8 stack[1024], * row = stack;
+		uint8 * top = image->data;
+		uint8 * bot = image->data + (image->height-1)*image->stride;
 
 		if(image->stride > (int)sizeof(stack)) {
 			row = _cairo_malloc(image->stride);

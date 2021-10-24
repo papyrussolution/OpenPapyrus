@@ -402,7 +402,7 @@ static const CNameToPropID g_NameToPropID[] = {
 
 static int FindPropIdExact(const UString &name)
 {
-	for(uint i = 0; i < ARRAY_SIZE(g_NameToPropID); i++)
+	for(uint i = 0; i < SIZEOFARRAY(g_NameToPropID); i++)
 		if(sstreqi_ascii(name, g_NameToPropID[i].Name))
 			return i;
 	return -1;

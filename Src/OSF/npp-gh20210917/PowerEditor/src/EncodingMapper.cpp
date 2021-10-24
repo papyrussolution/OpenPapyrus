@@ -96,7 +96,7 @@ bool isInListA(const char * token, const char * list)
 
 int EncodingMapper::getEncodingFromIndex(int index) const
 {
-	size_t nbItem = sizeof(encodings)/sizeof(EncodingUnit);
+	size_t nbItem = SIZEOFARRAY(encodings);
 	if(index < 0 || (size_t)index >= nbItem)
 		return -1;
 	return encodings[index]._codePage;
@@ -105,7 +105,7 @@ int EncodingMapper::getEncodingFromIndex(int index) const
 int EncodingMapper::getIndexFromEncoding(int encoding) const
 {
 	bool found = false;
-	int nbItem = sizeof(encodings)/sizeof(EncodingUnit);
+	int nbItem = SIZEOFARRAY(encodings);
 	int i = 0;
 	if(encoding == -1)
 		return -1;
@@ -122,9 +122,8 @@ int EncodingMapper::getEncodingFromString(const char * encodingAlias) const
 {
 	if(isInListA(encodingAlias, "utf-8 utf8"))
 		return SC_CP_UTF8;
-	size_t nbItem = sizeof(encodings)/sizeof(EncodingUnit);
 	int enc = -1;
-	for(size_t i = 0; i < nbItem; ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(encodings); ++i) {
 		if(isInListA(encodingAlias, encodings[i]._aliasList)) {
 			enc = encodings[i]._codePage;
 			break;

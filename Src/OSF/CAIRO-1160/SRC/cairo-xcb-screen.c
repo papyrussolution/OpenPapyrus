@@ -223,7 +223,7 @@ error_screen:
 static xcb_gcontext_t _create_gc(cairo_xcb_screen_t * screen,
     xcb_drawable_t drawable)
 {
-	uint32_t values[] = { 0 };
+	uint32 values[] = { 0 };
 
 	return _cairo_xcb_connection_create_gc(screen->connection, drawable,
 		   XCB_GC_GRAPHICS_EXPOSURES,

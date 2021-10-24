@@ -602,7 +602,6 @@ static void _cairo_ft_unscaled_font_unlock_face(cairo_ft_unscaled_font_t * unsca
 
 static cairo_status_t _compute_transform(cairo_ft_font_transform_t * sf, cairo_matrix_t * scale, cairo_ft_unscaled_font_t * unscaled)
 {
-	cairo_status_t status;
 	double x_scale, y_scale;
 	cairo_matrix_t normalized = *scale;
 	/* The font matrix has x and y "scale" components which we extract and
@@ -611,17 +610,15 @@ static cairo_status_t _compute_transform(cairo_ft_font_transform_t * sf, cairo_m
 	 * hand-rendered fonts. We also copy the normalized matrix to
 	 * freetype's transformation.
 	 */
-	status = _cairo_matrix_compute_basis_scale_factors(scale, &x_scale, &y_scale, 1);
+	cairo_status_t status = _cairo_matrix_compute_basis_scale_factors(scale, &x_scale, &y_scale, 1);
 	if(UNLIKELY(status))
 		return status;
-	/* FreeType docs say this about x_scale and y_scale:
-	 * "A character width or height smaller than 1pt is set to 1pt;"
-	 * So, we cap them from below at 1.0 and let the FT transform
-	 * take care of sub-1.0 scaling. */
-	if(x_scale < 1.0)
-		x_scale = 1.0;
-	if(y_scale < 1.0)
-		y_scale = 1.0;
+	// FreeType docs say this about x_scale and y_scale:
+	// "A character width or height smaller than 1pt is set to 1pt;"
+	// So, we cap them from below at 1.0 and let the FT transform
+	// take care of sub-1.0 scaling. 
+	SETMAX(x_scale, 1.0);
+	SETMAX(y_scale, 1.0);
 	if(unscaled && (unscaled->face->face_flags & FT_FACE_FLAG_SCALABLE) == 0) {
 		double min_distance = DBL_MAX;
 		boolint magnify = TRUE;
@@ -682,7 +679,7 @@ static cairo_status_t _cairo_ft_unscaled_font_set_scale(cairo_ft_unscaled_font_t
 	unscaled->Current_Shape = mat;
 	cairo_matrix_init(&unscaled->current_shape, sf.shape[0][0], sf.shape[0][1], sf.shape[1][0], sf.shape[1][1], 0.0, 0.0);
 	FT_Set_Transform(unscaled->face, &mat, NULL);
-	error = FT_Set_Char_Size(unscaled->face, sf.x_scale * 64.0 + 0.5, sf.y_scale * 64.0 + 0.5, 0, 0);
+	error = FT_Set_Char_Size(unscaled->face, static_cast<FT_F26Dot6>(sf.x_scale * 64.0 + 0.5), static_cast<FT_F26Dot6>(sf.y_scale * 64.0 + 0.5), 0, 0);
 	if(error)
 		return _cairo_error(_ft_to_cairo_error(error));
 	return CAIRO_STATUS_SUCCESS;
@@ -990,10 +987,10 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap, FT_Library library
 		    }
 #ifndef WORDS_BIGENDIAN
 		    {
-			    uint8_t * d = data;
+			    uint8 * d = data;
 			    int count = stride * height;
 			    while(count--) {
-				    *d = static_cast<uint8_t>(CAIRO_BITSWAP8(*d));
+				    *d = static_cast<uint8>(CAIRO_BITSWAP8(*d));
 				    d++;
 			    }
 		    }
@@ -1043,7 +1040,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap, FT_Library library
 		    if(!_cairo_is_little_endian()) {
 			    /* Byteswap. */
 			    uint i, count = height * width;
-			    uint32_t * p = (uint32_t *)data;
+			    uint32 * p = (uint32 *)data;
 			    for(i = 0; i < count; i++)
 				    p[i] = be32_to_cpu(p[i]);
 		    }
@@ -2199,7 +2196,7 @@ FAIL:
 	return status;
 }
 
-static ulong _cairo_ft_ucs4_to_index(void * abstract_font, uint32_t ucs4)
+static ulong _cairo_ft_ucs4_to_index(void * abstract_font, uint32 ucs4)
 {
 	cairo_ft_scaled_font_t * scaled_font = static_cast<cairo_ft_scaled_font_t *>(abstract_font);
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
@@ -2244,7 +2241,7 @@ static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font, ul
 	return status;
 }
 
-static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong index, uint32_t * ucs4)
+static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong index, uint32 * ucs4)
 {
 	cairo_ft_scaled_font_t * scaled_font = static_cast<cairo_ft_scaled_font_t *>(abstract_font);
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
@@ -2253,7 +2250,7 @@ static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong in
 	FT_Face face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	*ucs4 = (uint32_t)-1;
+	*ucs4 = (uint32)-1;
 	charcode = FT_Get_First_Char(face, &gindex);
 	while(gindex != 0) {
 		if(gindex == index) {

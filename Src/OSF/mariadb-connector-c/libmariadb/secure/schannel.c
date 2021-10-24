@@ -412,7 +412,7 @@ int ma_tls_verify_server_cert(MARIADB_TLS * ctls)
 
 static const char * cipher_name(const SecPkgContext_CipherInfo * CipherInfo)
 {
-	for(size_t i = 0; i < sizeof(cipher_map)/sizeof(cipher_map[0]); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(cipher_map); i++) {
 		if(CipherInfo->dwCipherSuite == cipher_map[i].cipher_id)
 			return cipher_map[i].openssl_name;
 	}

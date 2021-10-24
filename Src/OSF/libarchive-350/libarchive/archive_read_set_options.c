@@ -58,7 +58,7 @@ static int archive_set_format_option(struct archive * _a, const char * m, const 
 	struct archive_read * a = (struct archive_read *)_a;
 	size_t i;
 	int r, rv = ARCHIVE_WARN, matched_modules = 0;
-	for(i = 0; i < sizeof(a->formats)/sizeof(a->formats[0]); i++) {
+	for(i = 0; i < SIZEOFARRAY(a->formats); i++) {
 		struct archive_read::archive_format_descriptor * format = &a->formats[i];
 		if(format->options == NULL || format->name == NULL)
 			/* This format does not support option. */

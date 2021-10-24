@@ -417,6 +417,7 @@ struct GravityValue;
 struct GravityErrorDescription;
 struct UfpFileSet;
 class  PPViewAlcoDeclRu;
+class  PPNamedFilt;
 struct bignum_st; // OpenSSL
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
@@ -1919,10 +1920,10 @@ class PPObjID_Base { // @flat @noctr
 public:
 	PPObjID_Base Set(PPID objType, PPID objID);
 	PPObjID_Base & Z();
-	int    IsZero() const;
-	int    IsEqual(PPID objType, PPID objID) const;
-	int    FASTCALL operator == (PPObjID_Base s) const;
-	int    FASTCALL operator != (PPObjID_Base s) const;
+	bool   IsZero() const;
+	bool   IsEqual(PPID objType, PPID objID) const;
+	bool   FASTCALL operator == (PPObjID_Base s) const;
+	bool   FASTCALL operator != (PPObjID_Base s) const;
 	operator double() const;
 	PPObjID_Base & FASTCALL operator = (double);
 	//
@@ -13495,7 +13496,7 @@ struct PPCommSyncID { // @persistent @size=6
 	explicit PPCommSyncID(const TempSyncCmpTbl::Rec & rRec);
 	int    FASTCALL operator == (const PPCommSyncID s) const;
 	int    FASTCALL operator != (const PPCommSyncID s) const;
-	int    IsZero() const;
+	bool   IsZero() const;
 	PPCommSyncID & Z();
 	PPCommSyncID FASTCALL operator = (const PPCommSyncID s);
 	PPCommSyncID FASTCALL operator = (const ObjSyncTbl::Rec & rRec);
@@ -15541,6 +15542,19 @@ public:
 	static int Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName);
+	static int ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, SString & rResultFileName);
+	//
+	// Descr: Экспортирует результат вычисления фильтра pNf в буфер rResult.
+	// ARG(pDl600Name IN): имя экспортной структуры DL600, которая должна использоваться для формирования данных.
+	//   Если этот параметр пустой (isempty(pDl600Name)), то функция пытается извлечь имя структуры
+	//   из pNf->VD.GetStrucSymb(). Если и этот вариант оказывается безуспешным, то из объекта PPView,
+	//   соответствующего описанию PPNamedFilt извлекается отчет по умолчанию (DefReportId). В случае,
+	//   если такой отчет существует, то применяется его структура данных.
+	//   При безуспешности получения имени экспортной структуры функция возвращает 0 (ошибка).
+	// ARG(format IN): либо SFileFormat::Xml, либо SFileFormat::Json. 
+	//   Возможен вариант 0 (SFileFormat::Unkn) - трактуется как SFileFormat::Xml.
+	//
+	static int ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, int format, SBuffer & rResult);
 
 	struct Rc {
 		long   Id;
@@ -15622,13 +15636,13 @@ public:
 	//
 	void   SetOuterTitle(const char * pOuterTitle);
 	int    GetOuterTitle(SString * pBuf) const;
+	long   GetDefReportId() const { return DefReportId; }
 private:
 	uint32 Sign; // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 	int    ExecFlags; // Флаги, с которыми была вызвана функция PPView::Execute()
 	LongArray * P_LastUpdatedObjects; // @v9.0.4 Список идентификаторов объектов, созданных, измененных
 		// или удаленный при последнем вызове PPView::ProcessCommand. Необходим для того,
 		// что бы порожденный класс мог отреагировать на обработку событий базовым классом.
-
 	static int FASTCALL CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
 	static int FASTCALL Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr);
 	int    Helper_Init(const PPBaseFilt * pFilt, int flags /* exefXXX */);
@@ -15750,7 +15764,9 @@ struct RegisterFilt : public PPBaseFilt {
 // @ModuleDecl(PPCommand)
 //
 typedef int (*CmdItemIterFunc)(const PPCommandItem *, long parentID, void * extraPtr);
-
+//
+// @todo Объединить на уровне базового класса с PPJobDescr
+//
 struct PPCommandDescr {
 	enum {
 		fNoParam = 0x0001 // Команда не имеет параметров
@@ -16005,7 +16021,7 @@ extern "C" typedef PPCommandHandler * (*FN_CMD_FACTORY)(PPCommandDescr *);
 	{ return new CMD_HDL_CLS(cmdSymb)(pDescr); }
 #define CMD_HDL_CLS(cmdSymb)      CmdHandler_##cmdSymb
 //
-//
+// @todo Объединить на уровне базового класса с PPJobDescr
 //
 class PPCommandMngr {
 public:
@@ -46394,6 +46410,7 @@ public:
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
+	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult);
 	enum {
 		gcisfMakeSecret = 0x0001
 	};
@@ -46422,11 +46439,15 @@ private:
 	int    CreateSrpPacket_Cli_Auth2(const SBinaryChunk & rM, const SBinaryChunk & rCliIdent, StyloQProtocol & rP, int * pSrpProtocolFault);
 	int    CreateSrpPacket_Cli_HAMK(SlSRP::User * pU, const SBinaryChunk & rHamk, StyloQProtocol & rP, int * pSrpProtocolFault);
 	int    CreateSrpPacket_Svc_Auth(StyloQProtocol & rP);
+	int    LoadViewSymbList();
 	StyloQCore * P_T;
 	enum {
-		stOuterStqC = 0x0001 // Экземпляр использует внешний указатель на StyloQCore (не следует разрушать)
+		stOuterStqC          = 0x0001, // Экземпляр использует внешний указатель на StyloQCore (не следует разрушать)
+		stViewSymbListLoaded = 0x0002  // ViewSymbList и ViewDescrList загружены из ресурсов
 	};
 	uint   State;
+	StrAssocArray ViewSymbList;  // Список ассоциация {ViewID->ViewSymb}
+	StrAssocArray ViewDescrList; // Список ассоциация {ViewID->ViewDescription}
 };
 //
 //
@@ -48893,8 +48914,9 @@ public:
 		pchzncfPretendEverythingIsOk = 0x0001
 	};
 	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
+	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
 	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
-	static int InputMark(SString & rMark, const char * pExtraInfoText);
+	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
 	~PPChZnPrcssr();
 	int    EditParam(Param * pParam);

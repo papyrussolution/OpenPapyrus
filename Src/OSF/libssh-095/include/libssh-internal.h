@@ -241,7 +241,7 @@ int ssh_connector_remove_event(ssh_connector connector);
 #define ZERO_STRUCT(x) memzero((char*)&(x), sizeof(x)) /** Zero a structure */
 /** Zero a structure given a pointer to the structure */
 #define ZERO_STRUCTP(x) do { if((x) != NULL) memzero((char*)(x), sizeof(*(x))); } while(0)
-#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0])) /** Get the size of an array */
+//#define ARRAY_SIZE_Removed(a) (sizeof(a)/sizeof(a[0])) /** Get the size of an array */
 #ifndef HAVE_EXPLICIT_BZERO
 void memzero(void * s, size_t n);
 #endif /* !HAVE_EXPLICIT_BZERO */

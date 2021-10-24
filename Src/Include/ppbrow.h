@@ -206,11 +206,11 @@
 	#define HELP_BROWSER_GOODSCARD                               82
 #define BROWSER_TRFRANLZ                                83 // @{view_trfranlz}
 	#define HELP_BROWSER_TRFRANLZ                                83
-#define BROWSER_TRFRGR_G                                84 // @{view_opgrouping} по товару
+#define BROWSER_TRFRGR_G                                84 // @{view_opgrouping} @{_bygoods}
 	#define HELP_BROWSER_TRFRGR_G                                84
-#define BROWSER_TRFRGR_CT_G                             85 // @{view_opgrouping} по товару
+#define BROWSER_TRFRGR_CT_G                             85 // @{view_opgrouping} @{_bygoods}
 	#define HELP_BROWSER_TRFRGR_CT_G                             85
-#define BROWSER_TRFRGR_CT_P                             86 // @{view_opgrouping} по контрагенту
+#define BROWSER_TRFRGR_CT_P                             86 // @{view_opgrouping} @{_bycontractor}
 	#define HELP_BROWSER_TRFRGR_CT_P                             86
 #define BROWSER_TRFRGR_CT_PD                            87 // @{view_opgrouping} по контрагенту с разбивкой по адресу доставк
 	#define HELP_BROWSER_TRFRGR_CT_PD                            87
@@ -218,11 +218,11 @@
 	#define HELP_BROWSER_TRFRGR_CT_GP                            88
 #define BROWSER_TRFRGR_CT_GPD                           89 // @{view_opgrouping} по товару и контрагенту с разбивкой по адрес
 	#define HELP_BROWSER_TRFRGR_CT_GPD                           89
-#define BROWSER_TRFRGR_GS                               90 // @{view_opgrouping} по товару
+#define BROWSER_TRFRGR_GS                               90 // @{view_opgrouping} @{_bygoods}
 	#define HELP_BROWSER_TRFRGR_GS                               90
-#define BROWSER_TRFRGR_P                                91 // @{view_opgrouping} по контрагенту
+#define BROWSER_TRFRGR_P                                91 // @{view_opgrouping} @{_bycontractor}
 	#define HELP_BROWSER_TRFRGR_P                                91
-#define BROWSER_TRFRGR_PS                               92 // @{view_opgrouping} по контрагенту
+#define BROWSER_TRFRGR_PS                               92 // @{view_opgrouping} @{_bycontractor}
 	#define HELP_BROWSER_TRFRGR_PS                               92
 #define BROWSER_TRFRGR_PD                               93 // @{view_opgrouping} по контрагенту и дате
 	#define HELP_BROWSER_TRFRGR_PD                               93
@@ -325,7 +325,7 @@
 	#define HELP_BROWSER_VATSELL                                141
 #define BROWSER_VATBUY                                 142 // @{purchaseledger}
 	#define HELP_BROWSER_VATBUY                                 142
-#define BROWSER_SIMPLELEDGER                           143 //  нига доходов и расходов, дл€ упрощенной системы налогообложени
+#define BROWSER_SIMPLELEDGER                           143 // @{incnexpsimplifiedledger}
 	#define HELP_BROWSER_SIMPLELEDGER                           143
 #define BROWSER_QUOT                                   144 // @{view_quot}
 	#define HELP_BROWSER_QUOT                                   144
@@ -342,7 +342,7 @@
 #define TOOLBAR_CCHECKGRP                     40
 #define BROWSER_CCHECKGRP_TM                           150 // @{view_ccheck} с группировкой по часам
 	#define HELP_BROWSER_CCHECKGRP_TM                           150
-#define BROWSER_CCHECKGRP_DT                           151 // @{view_ccheck} с группировкой по дн€м
+#define BROWSER_CCHECKGRP_DT                           151 // @{view_ccheck} @{_groupedbydate}
 	#define HELP_BROWSER_CCHECKGRP_DT                           151
 #define BROWSER_CCHECKGRP_DAYOFWEEK                    152 // @{view_ccheck} с группировкой по дн€м недели
 	#define HELP_BROWSER_CCHECKGRP_DAYOFWEEK                    152
@@ -350,7 +350,7 @@
 	#define HELP_BROWSER_CCHECKGRP_DOWNTIME                     153
 #define BROWSER_CCHECKGRP_CASH                         154 // @{view_ccheck} с группировкой по кассам
 	#define HELP_BROWSER_CCHECKGRP_CASH                         154
-#define BROWSER_CCHECKGRP_CASHNODE                     155 // @{view_ccheck} с группировкой по товарам
+#define BROWSER_CCHECKGRP_CASHNODE                     155 // @{view_ccheck} @{_groupedbygoods}
 	#define HELP_BROWSER_CCHECKGRP_CASHNODE                     155
 #define BROWSER_CCHECKGRP_CARD                         156 // @{view_ccheck} с группировкой по картам
 	#define HELP_BROWSER_CCHECKGRP_CARD                         156
@@ -362,7 +362,7 @@
 	#define HELP_BROWSER_CCHECKGRP_QTTY                         159
 #define BROWSER_CCHECKGRP_LNCOUNT                      160 // @{view_ccheck} с группировкой по количеству строк
 	#define HELP_BROWSER_CCHECKGRP_LNCOUNT                      160
-#define BROWSER_CCHECKGRP_GOODS                        161 // @{view_ccheck} с группировкой по товарам
+#define BROWSER_CCHECKGRP_GOODS                        161 // @{view_ccheck} @{_groupedbygoods}
 	#define HELP_BROWSER_CCHECKGRP_GOODS                        161
 #define BROWSER_CCHECKGRP_CASHIERS                     162 // @{view_ccheck} с группировкой по кассирам
 	#define HELP_BROWSER_CCHECKGRP_CASHIERS                     162
@@ -380,7 +380,7 @@
 	#define HELP_BROWSER_CCHECK_GOODSCORR                       168
 #define BROWSER_CCHECKGRP_AGENTSNHOUR                  169 // @{view_ccheck} с группировкой по агентам и часам
 	#define HELP_BROWSER_CCHECKGRP_AGENTSNHOUR                  169
-#define BROWSER_CCHECK_CT                              170 // @{view_ccheck} с группировкой по товару
+#define BROWSER_CCHECK_CT                              170 // @{view_ccheck} @{_groupedbygoods}
 	#define HELP_BROWSER_CCHECK_CT                              170
 #define BROWSER_PSNEV                                  171 // @{personevent_pl} {%s}
 	#define HELP_BROWSER_PSNEV                                  171
@@ -402,7 +402,7 @@
 	#define HELP_BROWSER_STAFFCAL_DT                            179
 #define BROWSER_STAFFCAL_OBJ                           180 // @{view_staffcal} {%s}
 	#define HELP_BROWSER_STAFFCAL_OBJ                           180
-#define BROWSER_STAFFCAL_DTGRP                         181 // @{view_staffcal} с группировкой по дате {%s}
+#define BROWSER_STAFFCAL_DTGRP                         181 // @{view_staffcal} @{_groupedbydate} {%s}
 	#define HELP_BROWSER_STAFFCAL_DTGRP                         181
 #define BROWSER_CURRATE                                182 // @{view_currate}
 	#define HELP_BROWSER_CURRATE                                182
@@ -498,7 +498,7 @@
 	#define HELP_BROWSER_TSESS_MANUFPLAN                        226
 #define BROWSER_TSESSLINE                              227 // @{view_tsessionlines} {%s}
 	#define HELP_BROWSER_TSESSLINE                              227
-#define BROWSER_TSESSLINEGOODS                         228 // @{view_tsessionlines} по товару {%s}
+#define BROWSER_TSESSLINEGOODS                         228 // @{view_tsessionlines} @{_bygoods} {%s}
 	#define HELP_BROWSER_TSESSLINEGOODS                         228
 #define BROWSER_TSESSLINEREST                          229 // @{view_tsessionlines_rest} {%s}
 	#define HELP_BROWSER_TSESSLINEREST                          229

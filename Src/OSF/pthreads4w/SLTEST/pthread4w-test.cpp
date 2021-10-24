@@ -215,7 +215,7 @@ static void Implement_AssertE(bool condition, int iE, const char * pE, const cha
 		}
 	}
 	else {
-		if(assertE <= (int)(sizeof(PThr4wErrorString)/sizeof(PThr4wErrorString[0]))) {
+		if(assertE <= (int)(SIZEOFARRAY(PThr4wErrorString))) {
 			slfprintf_stderr("Assertion failed: (%s %s %s), file %s, line %d, error %s\n", pE, pO, pR, pFile, line, PThr4wErrorString[assertE]);
 		}
 		else {

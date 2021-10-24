@@ -42,16 +42,16 @@ static force_inline double coordinates_to_parameter(double x, double y, double a
 	return 1 - t * (1 / (2 * M_PI)); // Scale t to [0, 1] and make rotation CCW
 }
 
-static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 * mask)
 {
 	pixman_image_t * image = iter->image;
 	int x = iter->x;
 	int y = iter->y;
 	int width = iter->width;
-	uint32_t * buffer = iter->buffer;
+	uint32 * buffer = iter->buffer;
 	gradient_t * gradient = (gradient_t*)image;
 	conical_gradient_t * conical = (conical_gradient_t*)image;
-	uint32_t * end = buffer + width;
+	uint32 * end = buffer + width;
 	pixman_gradient_walker_t walker;
 	pixman_bool_t affine = TRUE;
 	double cx = 1.0;
@@ -137,9 +137,9 @@ static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32
 	return iter->buffer;
 }
 
-static uint32_t * conical_get_scanline_wide(pixman_iter_t * iter, const uint32_t * mask)
+static uint32 * conical_get_scanline_wide(pixman_iter_t * iter, const uint32 * mask)
 {
-	uint32_t * buffer = conical_get_scanline_narrow(iter, NULL);
+	uint32 * buffer = conical_get_scanline_narrow(iter, NULL);
 	pixman_expand_to_float((argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return buffer;
 }

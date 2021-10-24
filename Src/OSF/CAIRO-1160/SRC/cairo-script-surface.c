@@ -793,86 +793,60 @@ static cairo_status_t _emit_recording_surface_pattern(cairo_script_surface_t * s
 	cairo_script_implicit_context_t old_cr;
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_script_surface_t * similar;
-	cairo_surface_t * snapshot;
 	cairo_rectangle_t r, * extents;
 	cairo_status_t status;
-
-	snapshot = _cairo_surface_has_snapshot(&source->base, &script_snapshot_backend);
+	cairo_surface_t * snapshot = _cairo_surface_has_snapshot(&source->base, &script_snapshot_backend);
 	if(snapshot) {
 		_cairo_output_stream_printf(ctx->stream, "s%d", snapshot->unique_id);
 		return CAIRO_INT_STATUS_SUCCESS;
 	}
-
 	extents = NULL;
 	if(_cairo_recording_surface_get_bounds(&source->base, &r))
 		extents = &r;
-
-	similar = _cairo_script_surface_create_internal(ctx,
-		source->base.content,
-		extents,
-		NULL);
+	similar = _cairo_script_surface_create_internal(ctx, source->base.content, extents, NULL);
 	if(UNLIKELY(similar->base.status))
 		return similar->base.status;
-
 	similar->base.is_clear = TRUE;
-
-	_cairo_output_stream_printf(ctx->stream, "//%s ",
-	    _content_to_string(source->base.content));
+	_cairo_output_stream_printf(ctx->stream, "//%s ", _content_to_string(source->base.content));
 	if(extents) {
-		_cairo_output_stream_printf(ctx->stream, "[%f %f %f %f]",
-		    extents->x, extents->y,
-		    extents->width, extents->height);
+		_cairo_output_stream_printf(ctx->stream, "[%f %f %f %f]", extents->x, extents->y, extents->width, extents->height);
 	}
 	else
 		_cairo_output_stream_puts(ctx->stream, "[]");
 	_cairo_output_stream_puts(ctx->stream, " record\n");
-
 	attach_snapshot(ctx, &source->base);
-
 	_cairo_output_stream_puts(ctx->stream, "dup context\n");
-
 	target_push(similar);
 	similar->emitted = TRUE;
-
 	old_cr = surface->cr;
 	_cairo_script_implicit_context_init(&surface->cr);
 	status = _cairo_recording_surface_replay(&source->base, &similar->base);
 	surface->cr = old_cr;
-
 	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&similar->base);
 		return status;
 	}
-
 	cairo_list_del(&similar->operand.link);
 	assert(target_is_active(surface));
-
 	_cairo_output_stream_puts(ctx->stream, "pop ");
 	cairo_surface_destroy(&similar->base);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _emit_script_surface_pattern(cairo_script_surface_t * surface,
-    cairo_script_surface_t * source)
+static cairo_status_t _emit_script_surface_pattern(cairo_script_surface_t * surface, cairo_script_surface_t * source)
 {
 	_get_target(source);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
-    const cairo_image_surface_t * image)
+static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const cairo_image_surface_t * image)
 {
-	int row, width;
-	ptrdiff_t stride;
-	uint8_t row_stack[CAIRO_STACK_BUFFER_SIZE];
-	uint8_t * rowdata;
-	uint8_t * data;
-
-	stride = image->stride;
-	width = image->width;
-	data = image->data;
+	int row;
+	uint8 row_stack[CAIRO_STACK_BUFFER_SIZE];
+	uint8 * rowdata;
+	ptrdiff_t stride = image->stride;
+	int width = image->width;
+	uint8 * data = image->data;
 #if WORDS_BIGENDIAN
 	switch(image->format) {
 		case CAIRO_FORMAT_A1:
@@ -917,7 +891,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 	}
 #else
 	if(stride > ARRAY_LENGTH(row_stack)) {
-		rowdata = (uint8_t *)_cairo_malloc(stride);
+		rowdata = (uint8 *)_cairo_malloc(stride);
 		if(UNLIKELY(rowdata == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -927,7 +901,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 		case CAIRO_FORMAT_A1:
 		    for(row = image->height; row--;) {
 			    for(int col = 0; col < (width + 7)/8; col++)
-				    rowdata[col] = static_cast<uint8_t>(CAIRO_BITSWAP8(data[col]));
+				    rowdata[col] = static_cast<uint8>(CAIRO_BITSWAP8(data[col]));
 			    _cairo_output_stream_write(output, rowdata, (width+7)/8);
 			    data += stride;
 		    }
@@ -940,10 +914,9 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 		    break;
 		case CAIRO_FORMAT_RGB16_565:
 		    for(row = image->height; row--;) {
-			    uint16_t * src = (uint16_t*)data;
-			    uint16_t * dst = (uint16_t*)rowdata;
-			    int col;
-			    for(col = 0; col < width; col++)
+			    const uint16 * src = (const uint16 *)data;
+			    uint16 * dst = (uint16 *)rowdata;
+			    for(int col = 0; col < width; col++)
 				    dst[col] = bswap_16(src[col]);
 			    _cairo_output_stream_write(output, rowdata, 2*width);
 			    data += stride;
@@ -951,9 +924,8 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 		    break;
 		case CAIRO_FORMAT_RGB24:
 		    for(row = image->height; row--;) {
-			    uint8_t * src = data;
-			    int col;
-			    for(col = 0; col < width; col++) {
+			    const uint8 * src = data;
+			    for(int col = 0; col < width; col++) {
 				    rowdata[3*col+2] = *src++;
 				    rowdata[3*col+1] = *src++;
 				    rowdata[3*col+0] = *src++;
@@ -966,10 +938,9 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 		case CAIRO_FORMAT_RGB30:
 		case CAIRO_FORMAT_ARGB32:
 		    for(row = image->height; row--;) {
-			    uint32_t * src = (uint32_t *)data;
-			    uint32_t * dst = (uint32_t *)rowdata;
-			    int col;
-			    for(col = 0; col < width; col++)
+			    const uint32 * src = (const uint32 *)data;
+			    uint32 * dst = (uint32 *)rowdata;
+			    for(int col = 0; col < width; col++)
 				    dst[col] = bswap_32(src[col]);
 			    _cairo_output_stream_write(output, rowdata, 4*width);
 			    data += stride;
@@ -983,7 +954,6 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 	if(rowdata != row_stack)
 		SAlloc::F(rowdata);
 #endif
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -992,7 +962,7 @@ static cairo_int_status_t _emit_png_surface(cairo_script_surface_t * surface, ca
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_output_stream_t * base85_stream;
 	cairo_status_t status;
-	const uint8_t * mime_data;
+	const uint8 * mime_data;
 	ulong mime_data_length;
 	cairo_surface_get_mime_data(&image->base, CAIRO_MIME_TYPE_PNG, &mime_data, &mime_data_length);
 	if(mime_data == NULL)
@@ -1022,7 +992,7 @@ static cairo_int_status_t _emit_image_surface(cairo_script_surface_t * surface, 
 	cairo_output_stream_t * base85_stream;
 	cairo_output_stream_t * zlib_stream;
 	cairo_int_status_t status, status2;
-	const uint8_t * mime_data;
+	const uint8 * mime_data;
 	ulong mime_data_length;
 	cairo_surface_t * snapshot = _cairo_surface_has_snapshot(&image->base, &script_snapshot_backend);
 	if(snapshot) {
@@ -1035,7 +1005,7 @@ static cairo_int_status_t _emit_image_surface(cairo_script_surface_t * surface, 
 	}
 	else if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 		cairo_image_surface_t * clone;
-		uint32_t len;
+		uint32 len;
 		if(image->format == CAIRO_FORMAT_INVALID) {
 			clone = _cairo_image_surface_coerce(image);
 		}
@@ -2113,8 +2083,8 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_
 	cairo_status_t status, status2;
 	ulong size;
 	uint load_flags;
-	uint32_t len;
-	uint8_t * buf;
+	uint32 len;
+	uint8 * buf;
 	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -2122,7 +2092,7 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(UNLIKELY(status))
 		return status;
-	buf = (uint8_t *)_cairo_malloc(size);
+	buf = (uint8 *)_cairo_malloc(size);
 	if(UNLIKELY(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -2621,11 +2591,11 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 			}
 		}
 		if(base85_stream) {
-			uint8_t c;
+			uint8 c;
 			if(font_private->has_sfnt)
-				c = static_cast<uint8_t>(glyphs[n].index);
+				c = static_cast<uint8>(glyphs[n].index);
 			else
-				c = (uint8_t)(ulong)scaled_glyph->dev_private; // @x64crit
+				c = (uint8)(ulong)scaled_glyph->dev_private; // @x64crit
 			_cairo_output_stream_write(base85_stream, &c, 1);
 		}
 		else {
@@ -2680,7 +2650,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 			_cairo_output_stream_puts(ctx->stream, "] <~");
 			base85_stream = _cairo_base85_stream_create(ctx->stream);
 			for(n = 0; n < num_clusters; n++) {
-				uint8_t c[2];
+				uint8 c[2];
 				c[0] = clusters[n].num_bytes;
 				c[1] = clusters[n].num_glyphs;
 				_cairo_output_stream_write(base85_stream, c, 2);

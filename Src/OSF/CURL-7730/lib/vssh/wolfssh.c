@@ -194,21 +194,16 @@ static void state(struct connectdata * conn, sshstate nowstate)
 		"SSH_SESSION_FREE",
 		"QUIT"
 	};
-
 	/* a precaution to make sure the lists are in sync */
-	DEBUGASSERT(sizeof(names)/sizeof(names[0]) == SSH_LAST);
-
+	DEBUGASSERT(SIZEOFARRAY(names) == SSH_LAST);
 	if(sshc->state != nowstate) {
-		infof(conn->data, "wolfssh %p state change from %s to %s\n",
-		    (void *)sshc, names[sshc->state], names[nowstate]);
+		infof(conn->data, "wolfssh %p state change from %s to %s\n", (void *)sshc, names[sshc->state], names[nowstate]);
 	}
 #endif
-
 	sshc->state = nowstate;
 }
 
-static ssize_t wscp_send(struct connectdata * conn, int sockindex,
-    const void * mem, size_t len, CURLcode * err)
+static ssize_t wscp_send(struct connectdata * conn, int sockindex, const void * mem, size_t len, CURLcode * err)
 {
 	ssize_t nwrite = 0;
 	(void)conn;
@@ -216,12 +211,10 @@ static ssize_t wscp_send(struct connectdata * conn, int sockindex,
 	(void)mem;
 	(void)len;
 	(void)err;
-
 	return nwrite;
 }
 
-static ssize_t wscp_recv(struct connectdata * conn, int sockindex,
-    char * mem, size_t len, CURLcode * err)
+static ssize_t wscp_recv(struct connectdata * conn, int sockindex, char * mem, size_t len, CURLcode * err)
 {
 	ssize_t nread = 0;
 	(void)conn;
@@ -229,7 +222,6 @@ static ssize_t wscp_recv(struct connectdata * conn, int sockindex,
 	(void)mem;
 	(void)len;
 	(void)err;
-
 	return nread;
 }
 

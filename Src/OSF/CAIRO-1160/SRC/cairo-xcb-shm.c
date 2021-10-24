@@ -61,7 +61,7 @@ typedef enum {
 
 struct _cairo_xcb_shm_mem_pool {
 	int shmid;
-	uint32_t shmseg;
+	uint32 shmseg;
 	void * shm;
 	cairo_mempool_t mem;
 	cairo_list_t link;

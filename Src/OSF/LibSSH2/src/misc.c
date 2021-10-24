@@ -338,7 +338,6 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format,
 	int len, msglen, buflen = sizeof(buffer);
 	va_list vargs;
 	struct timeval now;
-
 	static int firstsec;
 	static const char * const contexts[] = {
 		"Unknown",
@@ -359,7 +358,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format,
 		return;
 	}
 	/* Find the first matching context string for this message */
-	for(contextindex = 0; contextindex < ARRAY_SIZE(contexts); contextindex++) {
+	for(contextindex = 0; contextindex < SIZEOFARRAY(contexts); contextindex++) {
 		if((context & (1 << contextindex)) != 0) {
 			contexttext = contexts[contextindex];
 			break;

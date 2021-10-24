@@ -36,90 +36,6 @@ Data Matrix для табачной продукции и фармацевтик
 //
 // 46 bytes
 //
-#if 0 // @v10.6.9 {
-ChZnCodeStruc::ChZnCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
-{
-}
-	
-ChZnCodeStruc & ChZnCodeStruc::Z()
-{
-	GtinPrefixP = 0;
-	GtinP = 0;
-	SerialPrefixP = 0;
-	SerialP = 0;
-	SkuP = 0;
-	TailP = 0;
-	ClearS();
-	return *this;
-}
-
-int ChZnCodeStruc::Parse(const char * pRawCode)
-{
-	int    ok = 0;
-	Z();
-	const size_t raw_len = sstrlen(pRawCode);
-	if(raw_len >= 25) {
-		SString temp_buf;
-		SString raw_buf;
-		uint   forward_dig_count = 0;
-		{
-			int   non_dec = 0;
-			for(size_t i = 0; i < raw_len; i++) {
-				const char c = pRawCode[i];
-				if(isdec(c)) {
-					if(!non_dec)
-						forward_dig_count++;
-				}
-				else
-					non_dec = 1;
-				if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z') && !oneof4(c, '=', '/', '+', '-')) {
-					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
-					KeyDownCommand kd;
-					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
-					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
-						raw_buf.CatChar((char)tc);
-					else
-						raw_buf.CatChar(c);
-				}
-				else {
-					raw_buf.CatChar(c);
-				}
-			}
-		}
-		pRawCode = raw_buf.cptr();
-		size_t p = 0;
-		temp_buf.Z().CatN(pRawCode+p, 2);
-		p += 2;
-		AddS(temp_buf, &GtinPrefixP);
-		if(temp_buf == "01") {
-			temp_buf.Z().CatN(pRawCode+p, 14);
-			p += 14;
-			AddS(temp_buf, &GtinP);
-			while(temp_buf.C(0) == '0')
-				temp_buf.ShiftLeft();
-			//
-			temp_buf.Z().CatN(pRawCode+p, 2);
-			p += 2;
-			AddS(temp_buf, &SerialPrefixP);
-			if(temp_buf == "21") {
-				temp_buf.Z();
-				while(pRawCode[p] && strncmp(pRawCode+p, "240", 3) != 0) {
-					temp_buf.CatChar(pRawCode[p++]);
-				}
-				AddS(temp_buf, &SerialP);
-				/*if(strncmp(pRawCode, "240", 3) == 0) {
-
-				}*/
-				temp_buf.Z().Cat(pRawCode+p);
-				AddS(temp_buf, &TailP);
-				ok = 1;
-			}
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v10.6.9
-
 /*static*/int PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
 {
 	uint16 product_type_bytes = 0;
@@ -132,8 +48,70 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
 }
 
+/*static*/int PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
+{
+	int    ok = 0;
+	SString temp_buf;
+	rBuf.Z();
+	if(rS.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
+		if(temp_buf.Len() == 83) {
+			// CHZN-0121GS91GS92
+			SString _01;
+			SString _21;
+			SString _91;
+			SString _92;
+			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) &&
+				rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
+				if(_01.Len() == 14 && _21.Len() == 13 && _91.Len() == 4 && _92.Len() == 44) {
+					rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
+					ok = 2;
+				}
+			}
+		}
+		if(!ok) {
+			rBuf = temp_buf;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 /*static*/int PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS, long flags)
 {
+	// Это, на самом деле, один из вариантов. Здесь текст приведен для того, чтобы придумать как
+	// искусственно вставлять спецсимволы 
+	//
+	// Признак  символики  Data  Matrix – символ,  имеющий  код  «232» в  таблице 
+	// символов ASCII. Признак символики Data Matrix является «невидимым» символом. 
+	// Отображение при сканировании 2D сканером зависит от настроек сканера и средства 
+	// просмотра информации; 
+	// • Первая  группа  данных – глобальный  идентификационный  номер  торговой 
+	// единицы,  состоящий  из  14  цифровых  символов,  которому  предшествует 
+	// идентификатор применения (01); 
+	// • Вторая группа данных  –  индивидуальный  серийный  номер  торговой  единицы, 
+	// состоящий  из  13  символов  цифровой  или  буквенно-цифровой 
+	// последовательности  (латинского  алфавита),  которому  предшествует 
+	// идентификатор  применения (21).  Завершающим  символом  для  этой  группы 
+	// данных является специальный символ-разделитель, имеющий код «29» в таблице 
+	// символов ASCII (GS)  или символ «ФУНКЦИЯ 1»  (FNC1).  Символ-разделитель «GS» и символ «ФУНКЦИЯ 1» 
+	// являются «невидимыми» символами. Отображение при сканировании 2D сканером зависит от настроек сканера и средства просмотра информации; 
+	// • Третья  группа  данных  –  идентификатор  (индивидуальный  порядковый  номер) 
+	// ключа проверки, предоставляемый эмитентам средств идентификации оператором 
+	// системы мониторинга в составе кода проверки, состоящий из 4 символов  (цифр, 
+	// строчных  и  прописных  букв  латинского  алфавита),  которому  предшествует 
+	// идентификатор  применения (91).  Завершающим  символом  для  этой  группы данных является специальный символ-разделитель, 
+	// имеющий код «29» в таблице символов ASCII  (GS) или символ «ФУНКЦИЯ 1»  (FNC1).  Символ-разделитель 7 «GS» и символ «ФУНКЦИЯ 1» 
+	// являются «невидимыми» символами. Отображение при сканировании 2D  сканером зависит от настроек сканера и средства просмотра информации; 
+	// • Четвертая группа данных – значение кода проверки, предоставляемое эмитентам 
+	// средств идентификации оператором системы мониторинга в составе кода проверки, 
+	// которому  предшествует  идентификатор  применения  (92),  и  состоящее  из  44 
+	// символов  (цифр, строчных и прописных букв латинского алфавита, а также специальных символов).
+	//
+	// Назовем такую структуру CHZN-0121GS91GS92 без спецсимволов она имеет в точности 83 символа 
+	// 01 [14] 21 [13] \x29 91 [4] \x29 92 [44]
+	// example:
+	// 01 04603182002518 21 0100007852382 91 EE06 92 uy1H5DQr89ewuV4W/ssuZKTxmcX7r0A8/1KZU3tMLSY=
+	// 
 	int    ok = 0;
 	rS.Z();
 	rS.AddSpecialStopChar(0x1D); // @v10.9.9
@@ -170,10 +148,10 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 			// } @v11.0.1 
 			if(!temp_buf.IsAscii()) {
 				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
-				SStringU temp_buf_u;
-				temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
-				for(size_t i = 0; i < temp_buf_u.Len(); i++) {
-					const wchar_t c = temp_buf_u.C(i);
+				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+				r_temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
+				for(size_t i = 0; i < r_temp_buf_u.Len(); i++) {
+					const wchar_t c = r_temp_buf_u.C(i);
 					KeyDownCommand kd;
 					uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
 					raw_buf.CatChar(static_cast<char>(tc));
@@ -274,7 +252,7 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 	return result;
 }
 
-/*static*/int PPChZnPrcssr::InputMark(SString & rMark, const char * pExtraInfoText)
+/*static*/int PPChZnPrcssr::InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText)
 {
 	class ChZnMarkDialog : public TDialog {
 	public:
@@ -362,6 +340,9 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 		if(pczcr) {
 			gts.GetToken(GtinStruc::fldOriginalText, &rMark);
+			if(pReconstructedOriginal) {
+				ReconstructOriginalChZnCode(gts, *pReconstructedOriginal);
+			}
 			ok = 1;
 		}
 		else {
