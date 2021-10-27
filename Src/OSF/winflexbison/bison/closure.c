@@ -43,45 +43,45 @@ static bitsetv firsts = NULL;
 
 static void closure_print(char const * title, item_index const * array, size_t size)
 {
-	fprintf(stderr, "Closure: %s\n", title);
+	slfprintf_stderr("Closure: %s\n", title);
 	for(size_t i = 0; i < size; ++i) {
-		fprintf(stderr, "  %2d: .", array[i]);
+		slfprintf_stderr("  %2d: .", array[i]);
 		item_number * rp;
 		for(rp = &ritem[array[i]]; 0 <= *rp; ++rp)
-			fprintf(stderr, " %s", symbols[*rp]->tag);
-		fprintf(stderr, "  (rule %d)\n", item_number_as_rule_number(*rp));
+			slfprintf_stderr(" %s", symbols[*rp]->tag);
+		slfprintf_stderr("  (rule %d)\n", item_number_as_rule_number(*rp));
 	}
 	fputs("\n\n", stderr);
 }
 
 static void print_firsts()
 {
-	fprintf(stderr, "FIRSTS\n");
+	slfprintf_stderr("FIRSTS\n");
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
-		fprintf(stderr, "  %s firsts\n", symbols[i]->tag);
+		slfprintf_stderr("  %s firsts\n", symbols[i]->tag);
 		bitset_iterator iter;
 		symbol_number j;
 		BITSET_FOR_EACH(iter, FIRSTS(i), j, 0)
-		fprintf(stderr, "    %s\n", symbols[j + ntokens]->tag);
+		slfprintf_stderr("    %s\n", symbols[j + ntokens]->tag);
 	}
-	fprintf(stderr, "\n\n");
+	slfprintf_stderr("\n\n");
 }
 
 static void print_fderives()
 {
-	fprintf(stderr, "FDERIVES\n");
+	slfprintf_stderr("FDERIVES\n");
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
-		fprintf(stderr, "  %s derives\n", symbols[i]->tag);
+		slfprintf_stderr("  %s derives\n", symbols[i]->tag);
 		bitset_iterator iter;
 		rule_number r;
 		BITSET_FOR_EACH(iter, FDERIVES(i), r, 0)
 		{
-			fprintf(stderr, "    %3d ", r);
+			slfprintf_stderr("    %3d ", r);
 			rule_rhs_print(&rules[r], stderr);
-			fprintf(stderr, "\n");
+			slfprintf_stderr("\n");
 		}
 	}
-	fprintf(stderr, "\n\n");
+	slfprintf_stderr("\n\n");
 }
 
 /*-------------------------------------------------------------------.

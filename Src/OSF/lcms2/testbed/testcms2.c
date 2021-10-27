@@ -714,21 +714,19 @@ static cmsInt32Number CheckQuickFloorWord(void)
 static cmsFloat64Number MaxErr;
 static cmsFloat64Number AllowedErr = FIXED_PRECISION_15_16;
 
-cmsBool IsGoodVal(const char * title, cmsFloat64Number in, cmsFloat64Number out, cmsFloat64Number max)
+cmsBool STDCALL IsGoodVal(const char * title, cmsFloat64Number in, cmsFloat64Number out, cmsFloat64Number max)
 {
 	cmsFloat64Number Err = fabs(in - out);
-
-	if(Err > MaxErr) MaxErr = Err;
-
+	if(Err > MaxErr) 
+		MaxErr = Err;
 	if((Err > max )) {
 		Fail("(%s): Must be %f, But is %f ", title, in, out);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-cmsBool  IsGoodFixed15_16(const char * title, cmsFloat64Number in, cmsFloat64Number out)
+cmsBool STDCALL IsGoodFixed15_16(const char * title, cmsFloat64Number in, cmsFloat64Number out)
 {
 	return IsGoodVal(title, in, out, FIXED_PRECISION_15_16);
 }
@@ -738,23 +736,21 @@ cmsBool  IsGoodFixed8_8(const char * title, cmsFloat64Number in, cmsFloat64Numbe
 	return IsGoodVal(title, in, out, FIXED_PRECISION_8_8);
 }
 
-cmsBool  IsGoodWord(const char * title, cmsUInt16Number in, cmsUInt16Number out)
+cmsBool STDCALL IsGoodWord(const char * title, cmsUInt16Number in, cmsUInt16Number out)
 {
 	if((abs(in - out) > 0 )) {
 		Fail("(%s): Must be %x, But is %x ", title, in, out);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
-cmsBool  IsGoodWordPrec(const char * title, cmsUInt16Number in, cmsUInt16Number out, cmsUInt16Number maxErr)
+cmsBool STDCALL IsGoodWordPrec(const char * title, cmsUInt16Number in, cmsUInt16Number out, cmsUInt16Number maxErr)
 {
 	if((abs(in - out) > maxErr )) {
 		Fail("(%s): Must be %x, But is %x ", title, in, out);
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -765,7 +761,6 @@ static cmsInt32Number TestSingleFixed15_16(cmsFloat64Number d)
 	cmsS15Fixed16Number f = _cmsDoubleTo15Fixed16(d);
 	cmsFloat64Number RoundTrip = _cms15Fixed16toDouble(f);
 	cmsFloat64Number Error     = fabs(d - RoundTrip);
-
 	return ( Error <= FIXED_PRECISION_15_16);
 }
 

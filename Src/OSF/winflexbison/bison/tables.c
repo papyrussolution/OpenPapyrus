@@ -129,7 +129,7 @@ static void table_grow(int desired)
 	while(table_size <= desired)
 		table_size *= 2;
 	if(trace_flag & trace_resource)
-		fprintf(stderr, "growing tables from %d to %d\n", old_size, table_size);
+		slfprintf_stderr("growing tables from %d to %d\n", old_size, table_size);
 	table = (base_number *)xnrealloc(table, table_size, sizeof(*table));
 	memzero(table + old_size, sizeof *table * (table_size - old_size));
 	conflict_table = (int *)xnrealloc(conflict_table, table_size, sizeof(*conflict_table));

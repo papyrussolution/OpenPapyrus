@@ -139,13 +139,13 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_config(int what, void * where)
 		    *static_cast<int *>(where) = POSIX_MALLOC_THRESHOLD;
 		    break;
 		case PCRE_CONFIG_PARENS_LIMIT:
-		    *((unsigned long*)where) = PARENS_NEST_LIMIT;
+		    *((ulong *)where) = PARENS_NEST_LIMIT;
 		    break;
 		case PCRE_CONFIG_MATCH_LIMIT:
-		    *((unsigned long*)where) = MATCH_LIMIT;
+		    *((ulong *)where) = MATCH_LIMIT;
 		    break;
 		case PCRE_CONFIG_MATCH_LIMIT_RECURSION:
-		    *((unsigned long*)where) = MATCH_LIMIT_RECURSION;
+		    *((ulong *)where) = MATCH_LIMIT_RECURSION;
 		    break;
 		case PCRE_CONFIG_STACKRECURSE:
 #ifdef NO_RECURSE

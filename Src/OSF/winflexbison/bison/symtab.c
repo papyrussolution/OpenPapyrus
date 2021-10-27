@@ -193,13 +193,7 @@ void symbol_print(Symbol const * s, FILE * f)
 {
 	if(s) {
 		symbol_class c = s->content->Cls;
-		fprintf(f, "%s: %s",
-		    c == unknown_sym    ? "unknown"
-		    : c == pct_type_sym ? "%type"
-		    : c == token_sym    ? "token"
-		    : c == nterm_sym    ? "nterm"
-		    : NULL, /* abort.  */
-		    s->tag);
+		fprintf(f, "%s: %s", (c == unknown_sym) ? "unknown" : ((c == pct_type_sym) ? "%type" : ((c == token_sym) ? "token" : ((c == nterm_sym) ? "nterm" : NULL, /*abort*/s->tag))));
 		SYMBOL_ATTR_PRINT(type_name);
 		SYMBOL_CODE_PRINT(destructor);
 		SYMBOL_CODE_PRINT(printer);

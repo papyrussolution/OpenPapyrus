@@ -2734,7 +2734,7 @@ void line_warning(const char * str, int line)
 
 void line_pinpoint(const char * str, int line)
 {
-	fprintf(stderr, "%s:%d: %s\n", infilename, line, str);
+	slfprintf_stderr("%s:%d: %s\n", infilename, line, str);
 }
 
 /* yyerror - eat up an error message from the parser;

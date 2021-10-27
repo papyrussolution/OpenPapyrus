@@ -80,7 +80,7 @@ void uniqstr_assert(char const * str)
 // 
 static inline bool uniqstr_print(uniqstr ustr)
 {
-	fprintf(stderr, "%s\n", ustr);
+	slfprintf_stderr("%s\n", ustr);
 	return true;
 }
 

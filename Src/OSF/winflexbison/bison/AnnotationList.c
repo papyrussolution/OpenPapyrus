@@ -469,25 +469,25 @@ void AnnotationList__debug(AnnotationList const * self, size_t nitems, int space
 	const AnnotationList * a;
 	AnnotationIndex ai;
 	for(a = self, ai = 0; a; a = a->next, ++ai) {
-		fprintf(stderr, "%*sAnnotation %d (manifesting state %d):\n", spaces, "", ai, a->inadequacyNode->manifestingState->number);
+		slfprintf_stderr("%*sAnnotation %d (manifesting state %d):\n", spaces, "", ai, a->inadequacyNode->manifestingState->number);
 		bitset_bindex rulei = bitset_first(a->inadequacyNode->inadequacy.conflict.actions);
 		for(ContributionIndex ci = 0; ci < a->inadequacyNode->contributionCount; ++ci) {
 			symbol_number token = InadequacyList__getContributionToken(a->inadequacyNode, ci)->content->number;
-			fprintf(stderr, "%*s", spaces+2, "");
+			slfprintf_stderr("%*s", spaces+2, "");
 			if(ci == InadequacyList__getShiftContributionIndex(a->inadequacyNode))
-				fprintf(stderr, "Contributes shift of token %d.\n", token);
+				slfprintf_stderr("Contributes shift of token %d.\n", token);
 			else {
-				fprintf(stderr, "Contributes token %d", token);
+				slfprintf_stderr("Contributes token %d", token);
 				aver(rulei != BITSET_BINDEX_MAX);
-				fprintf(stderr, " as lookahead, rule number %d", a->inadequacyNode->manifestingState->reductions->rules[rulei]->number);
+				slfprintf_stderr(" as lookahead, rule number %d", a->inadequacyNode->manifestingState->reductions->rules[rulei]->number);
 				rulei = bitset_next(a->inadequacyNode->inadequacy.conflict.actions, rulei+1);
 				if(AnnotationList__isContributionAlways(a, ci))
-					fprintf(stderr, " always.");
+					slfprintf_stderr(" always.");
 				else {
-					fprintf(stderr, ", items: ");
+					slfprintf_stderr(", items: ");
 					Sbitset__fprint(a->contributions[ci], nitems, stderr);
 				}
-				fprintf(stderr, "\n");
+				slfprintf_stderr("\n");
 			}
 		}
 	}

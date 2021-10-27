@@ -44,11 +44,11 @@
 void DebugMemDontCheckThis(void *Ptr);
 
 
-cmsBool IsGoodVal(const char *title, cmsFloat64Number in, cmsFloat64Number out, cmsFloat64Number max);
-cmsBool IsGoodFixed15_16(const char *title, cmsFloat64Number in, cmsFloat64Number out);
+cmsBool STDCALL IsGoodVal(const char *title, cmsFloat64Number in, cmsFloat64Number out, cmsFloat64Number max);
+cmsBool STDCALL IsGoodFixed15_16(const char *title, cmsFloat64Number in, cmsFloat64Number out);
 cmsBool IsGoodFixed8_8(const char *title, cmsFloat64Number in, cmsFloat64Number out);
-cmsBool IsGoodWord(const char *title, cmsUInt16Number in, cmsUInt16Number out);
-cmsBool IsGoodWordPrec(const char *title, cmsUInt16Number in, cmsUInt16Number out, cmsUInt16Number maxErr);
+cmsBool STDCALL IsGoodWord(const char *title, cmsUInt16Number in, cmsUInt16Number out);
+cmsBool STDCALL IsGoodWordPrec(const char *title, cmsUInt16Number in, cmsUInt16Number out, cmsUInt16Number maxErr);
 
 void* PluginMemHandler(void);
 cmsContext WatchDogContext(void* usr);

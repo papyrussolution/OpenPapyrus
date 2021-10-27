@@ -85,7 +85,7 @@ static inline bool state_item_list_next(gl_list_iterator_t * it, state_item ** s
 	const void * p = NULL;
 	bool res = gl_list_iterator_next(it, &p, NULL);
 	if(res)
-		*si = (state_item*)p;
+		*si = (state_item *)p;
 	else
 		gl_list_iterator_free(it);
 	return res;

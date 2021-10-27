@@ -52,7 +52,7 @@ static state * state_list_append(symbol_number sym, size_t core_size, item_index
 	state_list * node = (state_list *)xmalloc(sizeof *node);
 	state * res = state_new(sym, core_size, core);
 	if(trace_flag & trace_automaton)
-		fprintf(stderr, "state_list_append (state = %d, symbol = %d (%s))\n", nstates, sym, symbols[sym]->tag);
+		slfprintf_stderr("state_list_append (state = %d, symbol = %d (%s))\n", nstates, sym, symbols[sym]->tag);
 	node->next = NULL;
 	node->state = res;
 	if(!first_state)
@@ -168,11 +168,11 @@ static void free_storage(void)
 static void new_itemsets(state * s)
 {
 	if(trace_flag & trace_automaton)
-		fprintf(stderr, "new_itemsets: begin: state = %d\n", s->number);
+		slfprintf_stderr("new_itemsets: begin: state = %d\n", s->number);
 	memzero(kernel_size, nsyms * sizeof *kernel_size);
 	bitset_zero(shift_symbol);
 	if(trace_flag & trace_automaton) {
-		fprintf(stderr, "initial kernel:\n");
+		slfprintf_stderr("initial kernel:\n");
 		kernel_print(stderr);
 	}
 	for(size_t i = 0; i < nitemset; ++i)
@@ -189,9 +189,9 @@ static void new_itemsets(state * s)
 		}
 
 	if(trace_flag & trace_automaton) {
-		fprintf(stderr, "final kernel:\n");
+		slfprintf_stderr("final kernel:\n");
 		kernel_print(stderr);
-		fprintf(stderr, "new_itemsets: end: state = %d\n\n", s->number);
+		slfprintf_stderr("new_itemsets: end: state = %d\n\n", s->number);
 	}
 	kernel_check();
 }
@@ -205,14 +205,14 @@ static void new_itemsets(state * s)
 static state * get_state(symbol_number sym, size_t core_size, item_index * core)
 {
 	if(trace_flag & trace_automaton) {
-		fprintf(stderr, "Entering get_state, symbol = %d (%s), core:\n", sym, symbols[sym]->tag);
+		slfprintf_stderr("Entering get_state, symbol = %d (%s), core:\n", sym, symbols[sym]->tag);
 		core_print(core_size, core, stderr);
 		fputc('\n', stderr);
 	}
 	state * s = state_hash_lookup(core_size, core);
 	SETIFZ(s, state_list_append(sym, core_size, core));
 	if(trace_flag & trace_automaton)
-		fprintf(stderr, "Exiting get_state => %d\n", s->number);
+		slfprintf_stderr("Exiting get_state => %d\n", s->number);
 	return s;
 }
 
@@ -226,7 +226,7 @@ static state * get_state(symbol_number sym, size_t core_size, item_index * core)
 static void append_states(state * s)
 {
 	if(trace_flag & trace_automaton)
-		fprintf(stderr, "append_states: begin: state = %d\n", s->number);
+		slfprintf_stderr("append_states: begin: state = %d\n", s->number);
 	bitset_iterator iter;
 	symbol_number sym;
 	int i = 0;
@@ -236,7 +236,7 @@ static void append_states(state * s)
 		++i;
 	}
 	if(trace_flag & trace_automaton)
-		fprintf(stderr, "append_states: end: state = %d\n", s->number);
+		slfprintf_stderr("append_states: end: state = %d\n", s->number);
 }
 
 /*----------------------------------------------------------------.
@@ -262,7 +262,7 @@ static void save_reductions(state * s)
 		}
 	}
 	if(trace_flag & trace_automaton) {
-		fprintf(stderr, "reduction[%d] = {\n", s->number);
+		slfprintf_stderr("reduction[%d] = {\n", s->number);
 		for(int i = 0; i < count; ++i) {
 			rule_print(redset[i], NULL, stderr);
 			fputc('\n', stderr);
@@ -316,7 +316,7 @@ void generate_states()
 	for(state_list * list = first_state; list; list = list->next) {
 		state * s = list->state;
 		if(trace_flag & trace_automaton)
-			fprintf(stderr, "Processing state %d (reached by %s)\n", s->number, symbols[s->accessing_symbol]->tag);
+			slfprintf_stderr("Processing state %d (reached by %s)\n", s->number, symbols[s->accessing_symbol]->tag);
 		/* Set up itemset for the transitions out of this state.  itemset gets a
 		   vector of all the items that could be accepted next.  */
 		closure(s->items, s->nitems);

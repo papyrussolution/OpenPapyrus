@@ -33,11 +33,11 @@ static void print_derives()
 {
 	fputs("DERIVES\n", stderr);
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
-		fprintf(stderr, "  %s derives\n", symbols[i]->tag);
+		slfprintf_stderr("  %s derives\n", symbols[i]->tag);
 		for(rule ** rp = derives[i - ntokens]; *rp; ++rp) {
-			fprintf(stderr, "    %3d ", (*rp)->code);
+			slfprintf_stderr("    %3d ", (*rp)->code);
 			rule_rhs_print(*rp, stderr);
-			fprintf(stderr, "\n");
+			slfprintf_stderr("\n");
 		}
 	}
 

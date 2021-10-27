@@ -156,7 +156,7 @@ void free_parse_state(parse_state * original_ps)
 size_t parse_state_hasher(const parse_state * ps, size_t max)
 {
 	const parse_state::si_chunk * sis = (const parse_state::si_chunk *)&ps->state_items;
-	return ((state_item*)sis->head_elt - state_items + (state_item*)sis->tail_elt - state_items + sis->total_size) % max;
+	return ((state_item *)sis->head_elt - state_items + (state_item *)sis->tail_elt - state_items + sis->total_size) % max;
 }
 
 bool parse_state_comparator(const parse_state * ps1, const parse_state * ps2)
@@ -393,7 +393,7 @@ parse_state_list simulate_reduction(parse_state * ps, int rule_len, bitset symbo
 	parse_state * new_root = empty_parse_state();
 	derivation_list popped_derivs = parser_pop(ps, d_size - rule_len, s_size - rule_len - 1, new_root);
 	// update derivation
-	state_item * si = (state_item*)ps->state_items.tail_elt;
+	state_item * si = (state_item *)ps->state_items.tail_elt;
 	const rule * r = item_rule(si->item);
 	symbol_number lhs = r->lhs->number;
 	derivation * deriv = derivation_new(lhs, popped_derivs);
@@ -401,7 +401,7 @@ parse_state_list simulate_reduction(parse_state * ps, int rule_len, bitset symbo
 	ps_derivs_append(new_root, deriv);
 
 	if(s_size != rule_len + 1) {
-		state_item * tail = (state_item*)new_root->state_items.tail_elt;
+		state_item * tail = (state_item *)new_root->state_items.tail_elt;
 		ps_si_append(new_root, &state_items[tail->trans]);
 		parse_state_list_append(result, new_root);
 	}
@@ -428,7 +428,7 @@ parse_state_list simulate_reduction(parse_state * ps, int rule_len, bitset symbo
 				const state_item * tail = sis->tail_elt;
 				ps_si_append(copy, &state_items[tail->trans]);
 				parse_state_list_append(result, copy);
-				nullable_closure(copy, (state_item*)sis->tail_elt, result);
+				nullable_closure(copy, (state_item *)sis->tail_elt, result);
 			}
 		}
 		gl_list_free(prev);

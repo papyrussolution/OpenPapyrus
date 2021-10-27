@@ -834,12 +834,12 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 		/* The first four bytes will be an unsigned int indicating number
 		   of bytes of data in the rest of the buffer. */
-		extension_len = (unsigned int*)(&alpn_buffer[cur]);
+		extension_len = (uint *)(&alpn_buffer[cur]);
 		cur += sizeof(uint);
 
 		/* The next four bytes are an indicator that this buffer will contain
 		   ALPN data, as opposed to NPN, for example. */
-		*(unsigned int*)&alpn_buffer[cur] =
+		*(uint *)&alpn_buffer[cur] =
 		    SecApplicationProtocolNegotiationExt_ALPN;
 		cur += sizeof(uint);
 

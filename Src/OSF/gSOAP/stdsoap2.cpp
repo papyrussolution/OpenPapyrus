@@ -10896,9 +10896,9 @@ SOAP_FMAC1 unsigned int * SOAP_FMAC2 soap_inunsignedInt(struct soap * soap, cons
 		return NULL;
 	}
  #endif
-	p = (unsigned int*)soap_id_enter(soap, soap->id, p, t, sizeof(uint), 0, 0, 0, 0);
+	p = (uint *)soap_id_enter(soap, soap->id, p, t, sizeof(uint), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (unsigned int*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(uint), 0, 0);
+		p = (uint *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(uint), 0, 0);
 	else if(p) {
 		if(soap_s2unsignedInt(soap, soap_value(soap), p))
 			return NULL;
@@ -10956,9 +10956,9 @@ SOAP_FMAC1 ulong * SOAP_FMAC2 soap_inunsignedLong(struct soap * soap, const char
 		return NULL;
 	}
  #endif
-	p = (unsigned long*)soap_id_enter(soap, soap->id, p, t, sizeof(ulong), 0, 0, 0, 0);
+	p = (ulong *)soap_id_enter(soap, soap->id, p, t, sizeof(ulong), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (unsigned long*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(ulong), 0, 0);
+		p = (ulong *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(ulong), 0, 0);
 	else if(p) {
 		if(soap_s2unsignedLong(soap, soap_value(soap), p))
 			return NULL;

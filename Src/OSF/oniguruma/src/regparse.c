@@ -254,7 +254,7 @@ static int bbuf_clone(BBuf** rto, BBuf* from)
 		return r;
 	}
 	to->used = from->used;
-	xmemcpy(to->p, from->p, from->used);
+	memcpy(to->p, from->p, from->used);
 	return 0;
 }
 
@@ -349,7 +349,7 @@ void onig_strcpy(uchar * dest, const uchar * src, const uchar * end)
 {
 	int len = (int)(end - src);
 	if(len > 0) {
-		xmemcpy(dest, src, len);
+		memcpy(dest, src, len);
 		dest[len] = (uchar)0;
 	}
 }
@@ -1749,7 +1749,7 @@ static int scan_env_add_mem_entry(ScanEnv* env)
 				alloc = INIT_SCANENV_MEMENV_ALLOC_SIZE;
 				p = (MemEnv*)SAlloc::M(sizeof(MemEnv) * alloc);
 				CHECK_NULL_RETURN_MEMERR(p);
-				xmemcpy(p, env->mem_env_static, sizeof(env->mem_env_static));
+				memcpy(p, env->mem_env_static, sizeof(env->mem_env_static));
 			}
 			else {
 				alloc = env->mem_alloc * 2;
@@ -1900,11 +1900,9 @@ int onig_node_copy(Node ** rcopy, Node* from)
 		    return ONIGERR_TYPE_BUG;
 		    break;
 	}
-
 	copy = node_new();
 	CHECK_NULL_RETURN_MEMERR(copy);
-	xmemcpy(copy, from, sizeof(*copy));
-
+	memcpy(copy, from, sizeof(*copy));
 	switch(NODE_TYPE(copy)) {
 		case NODE_STRING:
 		    r = onig_node_str_set(copy, STR_(from)->s, STR_(from)->end, FALSE);
@@ -6712,7 +6710,6 @@ static int prs_callout_args(int skip_mode, int cterm, uchar ** src, uchar * end,
 					break;
 				else {
 					size_t clen;
-
 add_char:
 					if(skip_mode == FALSE) {
 						clen = p - e;
@@ -6720,8 +6717,7 @@ add_char:
 							r = ONIGERR_INVALID_CALLOUT_ARG; /* too long argument */
 							goto err_clear;
 						}
-
-						xmemcpy(bufend, e, clen);
+						memcpy(bufend, e, clen);
 						bufend += clen;
 					}
 					cn++;
@@ -6734,7 +6730,6 @@ add_char:
 				r = ONIGERR_INVALID_CALLOUT_ARG;
 				goto err_clear;
 			}
-
 			if(skip_mode == FALSE) {
 				if((types[n] & ONIG_TYPE_LONG) != 0) {
 					int fixed = 0;
@@ -8282,7 +8277,6 @@ static int prs_alts(Node ** top, PToken* tok, int term, uchar ** src, uchar * en
 				onig_node_free(*top);
 				return ONIGERR_MEMORY;
 			}
-
 			headp = &(NODE_CDR(*headp));
 		}
 		if(tok->type != (enum TokenSyms)term)

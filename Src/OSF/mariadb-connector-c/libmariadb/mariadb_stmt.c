@@ -957,16 +957,16 @@ bool STDCALL mysql_stmt_attr_get(MYSQL_STMT * stmt, enum enum_stmt_attr_type att
 		    *(bool*)value = stmt->update_max_length;
 		    break;
 		case STMT_ATTR_CURSOR_TYPE:
-		    *(unsigned long*)value = stmt->flags;
+		    *(ulong *)value = stmt->flags;
 		    break;
 		case STMT_ATTR_PREFETCH_ROWS:
-		    *(unsigned long*)value = stmt->prefetch_rows;
+		    *(ulong *)value = stmt->prefetch_rows;
 		    break;
 		case STMT_ATTR_PREBIND_PARAMS:
-		    *(unsigned int*)value = stmt->prebind_params;
+		    *(uint *)value = stmt->prebind_params;
 		    break;
 		case STMT_ATTR_ARRAY_SIZE:
-		    *(unsigned int*)value = stmt->array_size;
+		    *(uint *)value = stmt->array_size;
 		    break;
 		case STMT_ATTR_ROW_SIZE:
 		    *(size_t*)value = stmt->row_size;
@@ -1006,10 +1006,10 @@ bool STDCALL mysql_stmt_attr_set(MYSQL_STMT * stmt, enum enum_stmt_attr_type att
 			    stmt->state = MYSQL_STMT_INITTED;
 			    stmt->params = 0;
 		    }
-		    stmt->prebind_params = *(unsigned int*)value;
+		    stmt->prebind_params = *(uint *)value;
 		    break;
 		case STMT_ATTR_ARRAY_SIZE:
-		    stmt->array_size = *(unsigned int*)value;
+		    stmt->array_size = *(uint *)value;
 		    break;
 		case STMT_ATTR_ROW_SIZE:
 		    stmt->row_size = *(size_t*)value;

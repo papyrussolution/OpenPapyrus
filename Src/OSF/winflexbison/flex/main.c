@@ -814,8 +814,8 @@ void flexend(int exit_status)
 			lerr(_("error closing backup file %s"), backing_name);
 	}
 	if(printstats) {
-		fprintf(stderr, _("%s version %s usage statistics:\n"), program_name, flex_version);
-		fprintf(stderr, _("  scanner options: -"));
+		slfprintf_stderr(_("%s version %s usage statistics:\n"), program_name, flex_version);
+		slfprintf_stderr(_("  scanner options: -"));
 		if(C_plus_plus)
 			putc('+', stderr);
 		if(backing_up_report)
@@ -864,7 +864,7 @@ void flexend(int exit_status)
 			putc('7', stderr);
 		else
 			putc('8', stderr);
-		fprintf(stderr, " -C");
+		slfprintf_stderr(" -C");
 		if(long_align)
 			putc('a', stderr);
 		if(fulltbl)
@@ -879,57 +879,57 @@ void flexend(int exit_status)
 			putc('r', stderr);
 
 		if(did_outfilename)
-			fprintf(stderr, " -o%s", outfilename);
+			slfprintf_stderr(" -o%s", outfilename);
 		if(skelname)
-			fprintf(stderr, " -S%s", skelname);
+			slfprintf_stderr(" -S%s", skelname);
 		if(strcmp(prefix, "yy"))
-			fprintf(stderr, " -P%s", prefix);
+			slfprintf_stderr(" -P%s", prefix);
 		putc('\n', stderr);
 
-		fprintf(stderr, _("  %d/%d NFA states\n"), lastnfa, current_mns);
-		fprintf(stderr, _("  %d/%d DFA states (%d words)\n"), lastdfa, current_max_dfas, totnst);
-		fprintf(stderr, _("  %d rules\n"), num_rules + num_eof_rules - 1 /* - 1 for def. rule */);
+		slfprintf_stderr(_("  %d/%d NFA states\n"), lastnfa, current_mns);
+		slfprintf_stderr(_("  %d/%d DFA states (%d words)\n"), lastdfa, current_max_dfas, totnst);
+		slfprintf_stderr(_("  %d rules\n"), num_rules + num_eof_rules - 1 /* - 1 for def. rule */);
 		if(num_backing_up == 0)
-			fprintf(stderr, _("  No backing up\n"));
+			slfprintf_stderr(_("  No backing up\n"));
 		else if(fullspd || fulltbl)
-			fprintf(stderr, _("  %d backing-up (non-accepting) states\n"), num_backing_up);
+			slfprintf_stderr(_("  %d backing-up (non-accepting) states\n"), num_backing_up);
 		else
-			fprintf(stderr, _("  Compressed tables always back-up\n"));
+			slfprintf_stderr(_("  Compressed tables always back-up\n"));
 		if(bol_needed)
-			fprintf(stderr, _("  Beginning-of-line patterns used\n"));
-		fprintf(stderr, _("  %d/%d start conditions\n"), lastsc, current_max_scs);
-		fprintf(stderr, _("  %d epsilon states, %d double epsilon states\n"), numeps, eps2);
+			slfprintf_stderr(_("  Beginning-of-line patterns used\n"));
+		slfprintf_stderr(_("  %d/%d start conditions\n"), lastsc, current_max_scs);
+		slfprintf_stderr(_("  %d epsilon states, %d double epsilon states\n"), numeps, eps2);
 		if(lastccl == 0)
-			fprintf(stderr, _("  no character classes\n"));
+			slfprintf_stderr(_("  no character classes\n"));
 		else
-			fprintf(stderr, _("  %d/%d character classes needed %d/%d words of storage, %d reused\n"),
+			slfprintf_stderr(_("  %d/%d character classes needed %d/%d words of storage, %d reused\n"),
 			    lastccl, current_maxccls, cclmap[lastccl] + ccllen[lastccl], current_max_ccl_tbl_size, cclreuse);
-		fprintf(stderr, _("  %d state/nextstate pairs created\n"), numsnpairs);
-		fprintf(stderr, _("  %d/%d unique/duplicate transitions\n"), numuniq, numdup);
+		slfprintf_stderr(_("  %d state/nextstate pairs created\n"), numsnpairs);
+		slfprintf_stderr(_("  %d/%d unique/duplicate transitions\n"), numuniq, numdup);
 		if(fulltbl) {
 			tblsiz = lastdfa * numecs;
-			fprintf(stderr, _("  %d table entries\n"), tblsiz);
+			slfprintf_stderr(_("  %d table entries\n"), tblsiz);
 		}
 		else {
 			tblsiz = 2 * (lastdfa + numtemps) + 2 * tblend;
-			fprintf(stderr, _("  %d/%d base-def entries created\n"), lastdfa + numtemps, current_max_dfas);
-			fprintf(stderr, _("  %d/%d (peak %d) nxt-chk entries created\n"), tblend, current_max_xpairs, peakpairs);
-			fprintf(stderr, _("  %d/%d (peak %d) template nxt-chk entries created\n"), numtemps * nummecs, current_max_template_xpairs, numtemps * numecs);
-			fprintf(stderr, _("  %d empty table entries\n"), nummt);
-			fprintf(stderr, _("  %d protos created\n"), numprots);
-			fprintf(stderr, _("  %d templates created, %d uses\n"), numtemps, tmpuses);
+			slfprintf_stderr(_("  %d/%d base-def entries created\n"), lastdfa + numtemps, current_max_dfas);
+			slfprintf_stderr(_("  %d/%d (peak %d) nxt-chk entries created\n"), tblend, current_max_xpairs, peakpairs);
+			slfprintf_stderr(_("  %d/%d (peak %d) template nxt-chk entries created\n"), numtemps * nummecs, current_max_template_xpairs, numtemps * numecs);
+			slfprintf_stderr(_("  %d empty table entries\n"), nummt);
+			slfprintf_stderr(_("  %d protos created\n"), numprots);
+			slfprintf_stderr(_("  %d templates created, %d uses\n"), numtemps, tmpuses);
 		}
 		if(useecs) {
 			tblsiz = tblsiz + csize;
-			fprintf(stderr, _("  %d/%d equivalence classes created\n"), numecs, csize);
+			slfprintf_stderr(_("  %d/%d equivalence classes created\n"), numecs, csize);
 		}
 		if(usemecs) {
 			tblsiz = tblsiz + numecs;
-			fprintf(stderr, _("  %d/%d meta-equivalence classes created\n"), nummecs, csize);
+			slfprintf_stderr(_("  %d/%d meta-equivalence classes created\n"), nummecs, csize);
 		}
-		fprintf(stderr, _("  %d (%d saved) hash collisions, %d DFAs equal\n"), hshcol, hshsave, dfaeql);
-		fprintf(stderr, _("  %d sets of reallocations needed\n"), num_reallocs);
-		fprintf(stderr, _("  %d total table entries needed\n"), tblsiz);
+		slfprintf_stderr(_("  %d (%d saved) hash collisions, %d DFAs equal\n"), hshcol, hshsave, dfaeql);
+		slfprintf_stderr(_("  %d sets of reallocations needed\n"), num_reallocs);
+		slfprintf_stderr(_("  %d total table entries needed\n"), tblsiz);
 	}
 	SAlloc::F(flex_temp_out_main);
 	flex_temp_out_main = 0;
@@ -992,13 +992,13 @@ void flexinit(int argc, char ** argv)
 	sopt = scanopt_init(flexopts, argc, argv, 0);
 	if(!sopt) {
 		/* This will only happen when flexopts array is altered. */
-		fprintf(stderr, _("Internal error. flexopts are malformed.\n"));
+		slfprintf_stderr(_("Internal error. flexopts are malformed.\n"));
 		FLEX_EXIT(1);
 	}
 	while((rv = scanopt((scanopt_t *)sopt, &arg, &optind)) != 0) { 
 		if(rv < 0) {
 			/* Scanopt has already printed an option-specific error message. */
-			fprintf(stderr, _("Try `%s --help' for more information.\n"), program_name);
+			slfprintf_stderr(_("Try `%s --help' for more information.\n"), program_name);
 			FLEX_EXIT(1);
 		}
 		switch((enum flexopt_flag_t)rv) {
@@ -1289,22 +1289,22 @@ void readin()
 		reject = false;
 	if(performance_report > 0) {
 		if(lex_compat) {
-			fprintf(stderr, _("-l AT&T lex compatibility option entails a large performance penalty\n"));
-			fprintf(stderr, _(" and may be the actual source of other reported performance penalties\n"));
+			slfprintf_stderr(_("-l AT&T lex compatibility option entails a large performance penalty\n"));
+			slfprintf_stderr(_(" and may be the actual source of other reported performance penalties\n"));
 		}
 		else if(do_yylineno) {
-			fprintf(stderr, _("%%option yylineno entails a performance penalty ONLY on rules that can match newline characters\n"));
+			slfprintf_stderr(_("%%option yylineno entails a performance penalty ONLY on rules that can match newline characters\n"));
 		}
 		if(performance_report > 1) {
 			if(interactive)
-				fprintf(stderr, _("-I (interactive) entails a minor performance penalty\n"));
+				slfprintf_stderr(_("-I (interactive) entails a minor performance penalty\n"));
 			if(yymore_used)
-				fprintf(stderr, _("yymore() entails a minor performance penalty\n"));
+				slfprintf_stderr(_("yymore() entails a minor performance penalty\n"));
 		}
 		if(reject)
-			fprintf(stderr, _("REJECT entails a large performance penalty\n"));
+			slfprintf_stderr(_("REJECT entails a large performance penalty\n"));
 		if(variable_trailing_context_rules)
-			fprintf(stderr, _("Variable trailing context rules entail a large performance penalty\n"));
+			slfprintf_stderr(_("Variable trailing context rules entail a large performance penalty\n"));
 	}
 	if(reject)
 		real_reject = true;

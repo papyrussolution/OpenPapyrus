@@ -2051,7 +2051,7 @@ int Memento_checkBytePointerOrNull(void * blk)
 		return 0;
 	Memento_checkPointerOrNull(blk);
 
-	i = *(unsigned int*)blk;
+	i = *(uint *)blk;
 
 	if(i == MEMENTO_PREFILL_UBYTE)
 		slfprintf_stderr("Prefill value found - buffer underrun?\n");
@@ -2109,7 +2109,7 @@ int Memento_checkIntPointerOrNull(void * blk)
 		return 0;
 	Memento_checkPointerOrNull(blk);
 
-	i = *(unsigned int*)blk;
+	i = *(uint *)blk;
 
 	if(i == MEMENTO_PREFILL_UINT)
 		slfprintf_stderr("Prefill value found - buffer underrun?\n");

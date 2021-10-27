@@ -107,7 +107,7 @@ uchar * onigenc_strdup(OnigEncoding enc, const uchar * s, const uchar * end)
 	int term_len = ONIGENC_MBC_MINLEN(enc);
 	uchar * r = (uchar *)SAlloc::M(slen + term_len);
 	CHECK_NULL_RETURN(r);
-	xmemcpy(r, s, slen);
+	memcpy(r, s, slen);
 	for(i = 0; i < term_len; i++)
 		r[slen + i] = (uchar)0;
 	return r;

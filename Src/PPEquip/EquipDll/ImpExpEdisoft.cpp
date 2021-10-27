@@ -1103,7 +1103,7 @@ int ExportCls::SendDoc()
 	}*/
 	//if(pos < RlnCfgList.getCount()) { // @vmiller comment
 		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
-		param.Name = (char *)(const char *)login;
+		param.Name = const_cast<char *>(login.cptr());
 		//param.Name = Header.EdiLogin;			// ИД пользователя
 		param.Password = Header.EdiPassword;	// Пароль
 		param.PartnerIln = Bill.GLN;			// ИД партнера, которому посылается документ

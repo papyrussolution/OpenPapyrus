@@ -313,7 +313,7 @@ void reduce_grammar(void)
 	}
 	if(trace_flag & trace_grammar) {
 		grammar_dump(stderr, "Reduced Grammar");
-		fprintf(stderr, "reduced %s defines %d terminals, %d nonterminals, and %d productions.\n", grammar_file, ntokens, nnterms, nrules);
+		slfprintf_stderr("reduced %s defines %d terminals, %d nonterminals, and %d productions.\n", grammar_file, ntokens, nnterms, nrules);
 	}
 }
 

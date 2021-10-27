@@ -163,7 +163,7 @@ void fixits_run()
 	gl_list_iterator_free(&iter);
 	xfclose(out);
 	xfclose(in);
-	fprintf(stderr, "%s: file %s was updated (backup: %s)\n", get_program_name(), quote_n(0, input), quote_n(1, backup));
+	slfprintf_stderr("%s: file %s was updated (backup: %s)\n", get_program_name(), quote_n(0, input), quote_n(1, backup));
 	if(backup != buf)
 		SAlloc::F(backup);
 }

@@ -2791,17 +2791,15 @@ int PPStyloQInterchange::Verification_ClientRequest(RoundTripBlock & rB)
 			//
 			// CreateSrpPacket_Cli_HAMK должна была затолкать в пакет наш вариант времени жизни сессии
 			//
-			if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk)) {
-				if(temp_chunk.Len() == sizeof(uint32))
-					cli_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
+			if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk) && temp_chunk.Len() == sizeof(uint32)) {
+				cli_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
 			}
 			THROW(SendHttpQuery(rB, tp, p_sess_secret));
 			{
 				THROW(tp.CheckRepError()); // —ервис вернул ошибку: можно уходить - верификаци€ пройдена, но что-то в последний момент пошло не так
 				THROW(tp.GetH().Type == PPSCMD_SQ_SRPAUTH_ACK && tp.GetH().Flags & tp.hfAck); // “о же, что и выше
-				if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk)) {
-					if(temp_chunk.Len() == sizeof(uint32))
-						svc_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
+				if(tp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk) && temp_chunk.Len() == sizeof(uint32)) {
+					svc_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
 				}
 			}
 			// Ёто было завершающее сообщение. ≈сли все OK то сервис ждет от нас команды, если нет, то можно уходить - свадьбы не будет
@@ -3990,9 +3988,11 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 	return ok;
 }
 
-int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult)
+int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
+	SString & rResult, SString & rDocDeclaration)
 {
 	int    ok = 1;
+	SString temp_buf;
 	SJson * p_js = 0;
 	PPView * p_view = 0;
 	PPBaseFilt * p_filt = 0;
@@ -4051,6 +4051,16 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 					THROW(p_js = p_rtm->ExportJson(ep));
 					THROW_SL(json_tree_to_string(p_js, rResult));
 				}
+				{
+					SJson js_decl(SJson::tOBJECT);
+					js_decl.InsertString("type", "view");
+					js_decl.InsertString("viewsymb", rCmdItem.ViewSymb);
+					js_decl.InsertString("dl600symb", dl600_name);
+					js_decl.InsertString("format", "json");
+					js_decl.InsertString("time", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601, 0));
+					js_decl.InsertString("displaymethod", "grid");
+					THROW_SL(json_tree_to_string(&js_decl, rDocDeclaration));
+				}
 			}
 		}
 	}
@@ -4087,6 +4097,8 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 	SBinaryChunk cmd_bch;
 	SBinaryChunk reply_config;
 	SBinaryChunk reply_face;
+	SBinaryChunk reply_doc;
+	SBinaryChunk reply_doc_declaration;
 	SString cmd_buf;
 	SString command;
 	SString reply_text_buf;
@@ -4248,14 +4260,16 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 										}
 										break;
 									case StyloQCommandList::Item::sqbcReport:
-										if(ProcessCommand_Report(temp_item, cli_pack, geopos, reply_text_buf)) {
+										if(ProcessCommand_Report(temp_item, cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
+											reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+											if(temp_buf.Len())
+												reply_doc_declaration.Put(temp_buf, temp_buf.Len());
 											cmd_reply_ok = true;
 										}
 										else {
 											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 											PPSetError(PPERR_SQ_CMDFAULT_REPORT);
 										}
-										//PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
 										break;
 									default:
 										PPSetError(PPERR_SQ_UNSUPPORTEDCMD);
@@ -4281,8 +4295,21 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 	ENDCATCH
 	if(do_reply) {
 		//StyloQProtocol reply_tp;
-		if(p_js_reply) {
+		rReplyPack.StartWriting(PPSCMD_SQ_COMMAND, cmd_reply_ok ? StyloQProtocol::psubtypeReplyOk : StyloQProtocol::psubtypeReplyError);
+		if(reply_config.Len())
+			rReplyPack.P.Put(SSecretTagPool::tagConfig, reply_config);
+		if(reply_face.Len())
+			rReplyPack.P.Put(SSecretTagPool::tagFace, reply_face);
+		if(reply_doc.Len()) {
+			if(reply_doc_declaration.Len()) {
+				rReplyPack.P.Put(SSecretTagPool::tagDocDeclaration, reply_doc_declaration);
+			}
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, reply_doc);
+		}
+		else if(p_js_reply) {
 			json_tree_to_string(p_js_reply, cmd_buf);
+			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
 		}
 		else {
 			p_js_reply = new SJson(SJson::tOBJECT);
@@ -4297,14 +4324,9 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 				p_js_reply->InsertString("msg", reply_text_buf);
 			}
 			json_tree_to_string(p_js_reply, cmd_buf);
+			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
 		}
-		rReplyPack.StartWriting(PPSCMD_SQ_COMMAND, cmd_reply_ok ? StyloQProtocol::psubtypeReplyOk : StyloQProtocol::psubtypeReplyError);
-		cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
-		if(reply_config.Len())
-			rReplyPack.P.Put(SSecretTagPool::tagConfig, reply_config);
-		if(reply_face.Len())
-			rReplyPack.P.Put(SSecretTagPool::tagFace, reply_face);
-		rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
 		rReplyPack.FinishWriting(pSessSecret);
 		/*{
 			PPMqbClient::MessageProperties props;

@@ -281,7 +281,7 @@ static derivation * complete_diverging_example(symbol_number conflict_sym,
 	for(gl_list_node_t state_node = list_get_end(path);
 	    state_node != NULL;
 	    state_node = gl_list_previous_node(path, state_node)) {
-		state_item * si = (state_item*)gl_list_node_value(path, state_node);
+		state_item * si = (state_item *)gl_list_node_value(path, state_node);
 		item_number * item = si->item;
 		item_number pos = *item;
 		// symbols after dot
@@ -377,15 +377,12 @@ static state_item_list nonunifying_shift_path(state_item_list reduce_path, state
 	gl_list_node_t node = gl_list_previous_node(reduce_path, next_node);
 	gl_list_remove_node(reduce_path, tmp);
 	state_item * si = shift_conflict;
-	state_item_list result =
-	    gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
+	state_item_list result = gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
 	// FIXME: bool paths_merged;
 	for(; node != NULL; next_node = node,
 	    node = gl_list_previous_node(reduce_path, node)) {
-		state_item * refsi =
-		    (state_item*)gl_list_node_value(reduce_path, node);
-		state_item * nextrefsi =
-		    (state_item*)gl_list_node_value(reduce_path, next_node);
+		state_item * refsi = (state_item *)gl_list_node_value(reduce_path, node);
+		state_item * nextrefsi = (state_item *)gl_list_node_value(reduce_path, next_node);
 		if(nextrefsi == si) {
 			gl_list_add_first(result, refsi);
 			si = refsi;
@@ -394,13 +391,9 @@ static state_item_list nonunifying_shift_path(state_item_list reduce_path, state
 		// skip reduction items
 		if(nextrefsi->item != refsi->item + 1 && refsi->item != ritem)
 			continue;
-
 		// bfs to find a shift to the right state
 		si_bfs_node * init = si_bfs_new(si - state_items, NULL);
-		si_bfs_node_list queue
-			= gl_list_create(GL_LINKED_LIST, NULL, NULL,
-			(gl_listelement_dispose_fn)si_bfs_free,
-			true, 1, (const void**)&init);
+		si_bfs_node_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, (gl_listelement_dispose_fn)si_bfs_free, true, 1, (const void**)&init);
 		si_bfs_node * sis = NULL;
 		state_item * prevsi = NULL;
 		while(gl_list_size(queue) > 0) {
@@ -953,7 +946,7 @@ static counterexample * unifying_example(state_item_number itm1, state_item_numb
 					assurance_printed = true;
 				}
 				if(time_passed > TIME_LIMIT) {
-					fprintf(stderr, "time limit exceeded: %f\n", time_passed);
+					slfprintf_stderr("time limit exceeded: %f\n", time_passed);
 					goto cex_search_end;
 				}
 			}

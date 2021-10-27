@@ -766,7 +766,7 @@ MYSQL_FIELD * unpack_fields(const MYSQL * mysql,
 
 			*(char **)(((char *)field) + rset_field_offsets[i*2]) =
 			    ma_strdup_root(alloc, (char *)row->data[i]);
-			*(unsigned int*)(((char *)field) + rset_field_offsets[i*2+1]) = length;
+			*(uint *)(((char *)field) + rset_field_offsets[i*2+1]) = length;
 		}
 
 		field->extension = NULL;
@@ -2481,7 +2481,7 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 		    mysql->options.named_pipe = 1; /* Force named pipe */
 		    break;
 		case MYSQL_OPT_LOCAL_INFILE:    /* Allow LOAD DATA LOCAL ?*/
-		    if(!arg1 || test(*(unsigned int*)arg1))
+		    if(!arg1 || test(*(uint *)arg1))
 			    mysql->options.client_flag |= CLIENT_LOCAL_FILES;
 		    else
 			    mysql->options.client_flag &= ~CLIENT_LOCAL_FILES;
@@ -2783,7 +2783,7 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 		    OPT_SET_VALUE_STR(&mysql->options, bind_address, arg1);
 		    break;
 		case MARIADB_OPT_TLS_CIPHER_STRENGTH:
-		    OPT_SET_EXTENDED_VALUE_INT(&mysql->options, tls_cipher_strength, *((unsigned int*)arg1));
+		    OPT_SET_EXTENDED_VALUE_INT(&mysql->options, tls_cipher_strength, *((uint *)arg1));
 		    break;
 		case MARIADB_OPT_SSL_FP:
 		case MARIADB_OPT_TLS_PEER_FP:
@@ -2975,11 +2975,11 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 	    }
 	    break;
 		case MYSQL_OPT_MAX_ALLOWED_PACKET:
-		    *((unsigned long*)arg) = (mysql) ? mysql->options.max_allowed_packet :
+		    *((ulong *)arg) = (mysql) ? mysql->options.max_allowed_packet :
 			max_allowed_packet;
 		    break;
 		case MYSQL_OPT_NET_BUFFER_LENGTH:
-		    *((unsigned long*)arg) = net_buffer_length;
+		    *((ulong *)arg) = net_buffer_length;
 		    break;
 		case MYSQL_SECURE_AUTH:
 		    *((bool*)arg) = mysql->options.secure_auth;
@@ -2988,7 +2988,7 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		    *((char **)arg) = mysql->options.bind_address;
 		    break;
 		case MARIADB_OPT_TLS_CIPHER_STRENGTH:
-		    *((unsigned int*)arg) = mysql->options.extension ? mysql->options.extension->tls_cipher_strength : 0;
+		    *((uint *)arg) = mysql->options.extension ? mysql->options.extension->tls_cipher_strength : 0;
 		    break;
 		case MARIADB_OPT_SSL_FP:
 		case MARIADB_OPT_TLS_PEER_FP:
@@ -3475,7 +3475,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		case MARIADB_CONNECTION_ERROR_ID:
 		    if(!mysql)
 			    goto error;
-		    *((unsigned int*)arg) = mysql->net.last_errno;
+		    *((uint *)arg) = mysql->net.last_errno;
 		    break;
 		case MARIADB_CONNECTION_ERROR:
 		    if(!mysql)
@@ -3498,7 +3498,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		case MARIADB_CONNECTION_TLS_VERSION_ID:
     #ifdef HAVE_TLS
 		    if(mysql && mysql->net.pvio && mysql->net.pvio->ctls)
-			    *((unsigned int*)arg) = ma_pvio_tls_get_protocol_version_id(mysql->net.pvio->ctls);
+			    *((uint *)arg) = ma_pvio_tls_get_protocol_version_id(mysql->net.pvio->ctls);
 		    else
     #endif
 		    goto error;
@@ -3536,7 +3536,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_PROTOCOL_VERSION_ID:
 		    if(mysql)
-			    *((unsigned int*)arg) = mysql->protocol_version;
+			    *((uint *)arg) = mysql->protocol_version;
 		    else
 			    goto error;
 		    break;
@@ -3560,15 +3560,15 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_ASYNC_TIMEOUT_MS:
 		    if(mysql && mysql->options.extension && mysql->options.extension->async_context)
-			    *((unsigned int*)arg) = mysql->options.extension->async_context->timeout_value;
+			    *((uint *)arg) = mysql->options.extension->async_context->timeout_value;
 		    break;
 		case MARIADB_CONNECTION_ASYNC_TIMEOUT:
 		    if(mysql && mysql->options.extension && mysql->options.extension->async_context) {
 			    unsigned int timeout = mysql->options.extension->async_context->timeout_value;
 			    if(timeout > UINT_MAX - 999)
-				    *((unsigned int*)arg) = (timeout - 1)/1000 + 1;
+				    *((uint *)arg) = (timeout - 1)/1000 + 1;
 			    else
-				    *((unsigned int*)arg) = (timeout+999)/1000;
+				    *((uint *)arg) = (timeout+999)/1000;
 		    }
 		    break;
 		case MARIADB_CHARSET_NAME:
@@ -3607,7 +3607,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_PVIO_TYPE:
 		    if(mysql && mysql->net.pvio)
-			    *((unsigned int*)arg) = (uint)mysql->net.pvio->type;
+			    *((uint *)arg) = (uint)mysql->net.pvio->type;
 		    else
 			    goto error;
 		    break;
@@ -3625,7 +3625,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_PORT:
 		    if(mysql)
-			    *((unsigned int*)arg) = mysql->port;
+			    *((uint *)arg) = mysql->port;
 		    else
 			    goto error;
 		    break;
@@ -3643,25 +3643,25 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_SERVER_STATUS:
 		    if(mysql)
-			    *((unsigned int*)arg) = mysql->server_status;
+			    *((uint *)arg) = mysql->server_status;
 		    else
 			    goto error;
 		    break;
 		case MARIADB_CONNECTION_SERVER_CAPABILITIES:
 		    if(mysql)
-			    *((unsigned long*)arg) = mysql->server_capabilities;
+			    *((ulong *)arg) = mysql->server_capabilities;
 		    else
 			    goto error;
 		    break;
 		case MARIADB_CONNECTION_EXTENDED_SERVER_CAPABILITIES:
 		    if(mysql)
-			    *((unsigned long*)arg) = mysql->extension->mariadb_server_capabilities;
+			    *((ulong *)arg) = mysql->extension->mariadb_server_capabilities;
 		    else
 			    goto error;
 		    break;
 		case MARIADB_CONNECTION_CLIENT_CAPABILITIES:
 		    if(mysql)
-			    *((unsigned long*)arg) = mysql->client_flag;
+			    *((ulong *)arg) = mysql->client_flag;
 		    else
 			    goto error;
 		    break;

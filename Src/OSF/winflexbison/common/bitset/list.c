@@ -976,14 +976,14 @@ void debug_lbitset(bitset bset)
 {
 	if(bset) {
 		for(lbitset_elt * elt = LBITSET_HEAD(bset); elt; elt = elt->next) {
-			fprintf(stderr, "Elt %lu\n", (ulong)elt->index);
+			slfprintf_stderr("Elt %lu\n", (ulong)elt->index);
 			for(uint i = 0; i < LBITSET_ELT_WORDS; i++) {
 				bitset_word word = elt->words[i];
-				fprintf(stderr, "  Word %u:", i);
+				slfprintf_stderr("  Word %u:", i);
 				for(uint j = 0; j < LBITSET_WORD_BITS; j++)
 					if((word & ((bitset_word)1 << j)))
-						fprintf(stderr, " %u", j);
-				fprintf(stderr, "\n");
+						slfprintf_stderr(" %u", j);
+				slfprintf_stderr("\n");
 			}
 		}
 	}

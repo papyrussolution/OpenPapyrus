@@ -404,11 +404,11 @@ static void error_message(const Location * loc, warnings flags, severity sever, 
 	if(loc)
 		location_print(*loc, stderr);
 	else
-		fprintf(stderr, "%s", grammar_file ? grammar_file : get_program_name());
-	fprintf(stderr, ": ");
+		slfprintf_stderr("%s", grammar_file ? grammar_file : get_program_name());
+	slfprintf_stderr(": ");
 	if(sever != severity_disabled) {
 		begin_use_class(style, stderr);
-		fprintf(stderr, "%s:", flags & note ? _("note") : severity_prefix(sever));
+		slfprintf_stderr("%s:", flags & note ? _("note") : severity_prefix(sever));
 		end_use_class(style, stderr);
 		fputc(' ', stderr);
 	}

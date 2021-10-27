@@ -409,7 +409,7 @@ void genecs()
 
 		for(j = 0; j < numrows; ++j) {
 			for(i = j; i < csize; i = i + numrows) {
-				fprintf(stderr, "%4s = %-2d",
+				slfprintf_stderr("%4s = %-2d",
 				    readable_form(i), ecgroup[i]);
 
 				putc(' ', stderr);
@@ -553,7 +553,7 @@ struct yytbl_data * mkftbl()
 		int anum = dfaacc[i].dfaacc_state;
 		tdata[i] = anum;
 		if(trace && anum)
-			fprintf(stderr, _("state # %d accepts: [%d]\n"), i, anum);
+			slfprintf_stderr(_("state # %d accepts: [%d]\n"), i, anum);
 	}
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_ACCEPT, (void**)&yy_accept, sizeof(%s)},\n", long_align ? "flex_int32_t" : "flex_int16_t");
 	return tbl;
@@ -571,7 +571,7 @@ void genftbl()
 		int anum = dfaacc[i].dfaacc_state;
 		mkdata(anum);
 		if(trace && anum)
-			fprintf(stderr, _("state # %d accepts: [%d]\n"), i, anum);
+			slfprintf_stderr(_("state # %d accepts: [%d]\n"), i, anum);
 	}
 	dataend();
 	if(useecs)
@@ -866,7 +866,7 @@ void gentabs()
 				accset = dfaacc[i].dfaacc_set;
 				nacc = accsiz[i];
 				if(trace)
-					fprintf(stderr, _("state # %d accepts: "), i);
+					slfprintf_stderr(_("state # %d accepts: "), i);
 				for(k = 1; k <= nacc; ++k) {
 					int accnum = accset[k];
 					++j;
@@ -881,7 +881,7 @@ void gentabs()
 					mkdata(accnum);
 					yyacclist_data[yyacclist_curr++] = accnum;
 					if(trace) {
-						fprintf(stderr, "[%d]", accset[k]);
+						slfprintf_stderr("[%d]", accset[k]);
 						if(k < nacc)
 							fputs(", ", stderr);
 						else
@@ -939,7 +939,7 @@ void gentabs()
 		mkdata(acc_array[i]);
 		yyacc_data[yyacc_curr++] = acc_array[i];
 		if(!reject && trace && acc_array[i])
-			fprintf(stderr, _("state # %d accepts: [%d]\n"), i, acc_array[i]);
+			slfprintf_stderr(_("state # %d accepts: [%d]\n"), i, acc_array[i]);
 	}
 	/* Add entry for "jam" state. */
 	mkdata(acc_array[i]);
@@ -988,7 +988,7 @@ void gentabs()
 		buf_prints(&yydmap_buf, "\t{YYTD_ID_META, (void**)&yy_meta, sizeof(%s)},\n", "YY_CHAR");
 		for(i = 1; i <= numecs; ++i) {
 			if(trace)
-				fprintf(stderr, "%d = %d\n", i, ABS(tecbck[i]));
+				slfprintf_stderr("%d = %d\n", i, ABS(tecbck[i]));
 			mkdata(ABS(tecbck[i]));
 			yymecs_data[i] = ABS(tecbck[i]);
 		}

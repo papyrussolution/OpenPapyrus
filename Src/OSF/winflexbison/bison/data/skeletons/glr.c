@@ -597,25 +597,20 @@ static const char * yysymbol_name(yysymbol_kind_t yysymbol)
 
 #if ]b4_api_PREFIX[DEBUG
 
-# ifndef YYFPRINTF
-#  define YYFPRINTF fprintf
-# endif
-
-# define YY_FPRINTF                             \
-  YY_IGNORE_USELESS_CAST_BEGIN YY_FPRINTF_
-
-# define YY_FPRINTF_(Args)                      \
+#ifndef YYFPRINTF
+	#define YYFPRINTF fprintf // @makr(glr.c)
+#endif
+#define YY_FPRINTF YY_IGNORE_USELESS_CAST_BEGIN YY_FPRINTF_
+#define YY_FPRINTF_(Args)                      \
   do {                                          \
     YYFPRINTF Args;                             \
     YY_IGNORE_USELESS_CAST_END                  \
   } while (0)
 
-# define YY_DPRINTF                             \
-  YY_IGNORE_USELESS_CAST_BEGIN YY_DPRINTF_
-
-# define YY_DPRINTF_(Args)                      \
+#define YY_DPRINTF YY_IGNORE_USELESS_CAST_BEGIN YY_DPRINTF_
+#define YY_DPRINTF_(Args)                      \
   do {                                          \
-    if (yydebug)                                \
+    if(yydebug)                                \
       YYFPRINTF Args;                           \
     YY_IGNORE_USELESS_CAST_END                  \
   } while (0)
@@ -624,10 +619,9 @@ static const char * yysymbol_name(yysymbol_kind_t yysymbol)
 
 ]b4_yy_symbol_print_define[
 
-# define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                  \
+#define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                  \
   do {                                                                  \
-    if (yydebug)                                                        \
-      {                                                                 \
+    if(yydebug) {                                                       \
         YY_FPRINTF ((stderr, "%s ", Title));                            \
         yy_symbol_print (stderr, Kind, Value]b4_locuser_args([Location])[);        \
         YY_FPRINTF ((stderr, "\n"));                                    \
@@ -640,27 +634,24 @@ int yydebug;
 
 static void yypstack (yyGLRStack* yystackp, YYPTRDIFF_T yyk) YY_ATTRIBUTE_UNUSED;
 static void yypdumpstack (yyGLRStack* yystackp) YY_ATTRIBUTE_UNUSED;
-
 #else /* !]b4_api_PREFIX[DEBUG */
-
-# define YY_DPRINTF(Args) do {} while (yyfalse)
-# define YY_SYMBOL_PRINT(Title, Kind, Value, Location)
-
+	#define YY_DPRINTF(Args) do {} while (yyfalse)
+	#define YY_SYMBOL_PRINT(Title, Kind, Value, Location)
 #endif /* !]b4_api_PREFIX[DEBUG */
 
 ]b4_parse_error_case(
          [simple],
 [[]],
 [[#ifndef yystrlen
-# define yystrlen(S) (YY_CAST (YYPTRDIFF_T, strlen (S)))
+	#define yystrlen(S) (YY_CAST (YYPTRDIFF_T, strlen (S)))
 #endif
 
 ]b4_parse_error_bmatch(
            [detailed\|verbose],
 [[#ifndef yystpcpy
-# if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
-#  define yystpcpy stpcpy
-# else
+#if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
+	#define yystpcpy stpcpy
+#else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in YYDEST.  */
 static char * yystpcpy (char *yydest, const char *yysrc)
 {
@@ -670,7 +661,7 @@ static char * yystpcpy (char *yydest, const char *yysrc)
 		continue;
 	return yyd - 1;
 }
-# endif
+#endif
 #endif]])[
 
 ]b4_parse_error_case(
@@ -685,40 +676,33 @@ static char * yystpcpy (char *yydest, const char *yysrc)
    would have been.  */
 static YYPTRDIFF_T yytnamerr (char *yyres, const char *yystr)
 {
-  if (*yystr == '"')
-    {
+  if(*yystr == '"') {
       YYPTRDIFF_T yyn = 0;
       char const *yyp = yystr;
-
-      for (;;)
-        switch (*++yyp)
-          {
+      for(;;)
+        switch (*++yyp) {
           case '\'':
           case ',':
             goto do_not_strip_quotes;
-
           case '\\':
-            if (*++yyp != '\\')
+            if(*++yyp != '\\')
               goto do_not_strip_quotes;
             else
               goto append;
-
           append:
           default:
-            if (yyres)
+            if(yyres)
               yyres[yyn] = *yyp;
             yyn++;
             break;
-
           case '"':
-            if (yyres)
+            if(yyres)
               yyres[yyn] = '\0';
             return yyn;
           }
     do_not_strip_quotes: ;
     }
-
-  if (yyres)
+  if(yyres)
     return yystpcpy (yyres, yystr) - yyres;
   else
     return yystrlen (yystr);

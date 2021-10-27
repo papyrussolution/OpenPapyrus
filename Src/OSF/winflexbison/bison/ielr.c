@@ -70,9 +70,9 @@ static bitset ielr_compute_ritem_sees_lookahead_set()
 			--i;
 	}
 	if(trace_flag & trace_ielr) {
-		fprintf(stderr, "ritem_sees_lookahead_set:\n");
+		slfprintf_stderr("ritem_sees_lookahead_set:\n");
 		debug_bitset(result);
-		fprintf(stderr, "\n");
+		slfprintf_stderr("\n");
 	}
 	return result;
 }
@@ -200,7 +200,7 @@ static void ielr_compute_follow_kernel_items(bitset ritem_sees_lookahead_set, go
 	relation_digraph(internal_follow_edges, ngotos, *follow_kernel_itemsp);
 
 	if(trace_flag & trace_ielr) {
-		fprintf(stderr, "follow_kernel_items:\n");
+		slfprintf_stderr("follow_kernel_items:\n");
 		debug_bitsetv(*follow_kernel_itemsp);
 	}
 }
@@ -247,7 +247,7 @@ static void ielr_compute_always_follows(goto_number *** edgesp, int const edge_c
 	relation_digraph(*edgesp, ngotos, *always_followsp);
 	if(trace_flag & trace_ielr) {
 		relation_print("always follow edges", *edgesp, ngotos, NULL, stderr);
-		fprintf(stderr, "always_follows:\n");
+		slfprintf_stderr("always_follows:\n");
 		debug_bitsetv(*always_followsp);
 	}
 }
@@ -416,13 +416,13 @@ static void ielr_compute_annotation_lists(bitsetv follow_kernel_items, bitsetv a
 	}
 	if(trace_flag & trace_ielr) {
 		for(state_number i = 0; i < nstates; ++i) {
-			fprintf(stderr, "Inadequacy annotations for state %d:\n", i);
+			slfprintf_stderr("Inadequacy annotations for state %d:\n", i);
 			AnnotationList__debug((*annotation_listsp)[i], states[i]->nitems, 2);
 		}
-		fprintf(stderr, "Number of LR(0)/LALR(1) states: %d\n", nstates);
-		fprintf(stderr, "Average number of annotations per state: %f\n", (float)total_annotations/nstates);
-		fprintf(stderr, "Max number of annotations per state: %d\n", *max_annotationsp);
-		fprintf(stderr, "Max number of contributions per annotation: %d\n", max_contributions);
+		slfprintf_stderr("Number of LR(0)/LALR(1) states: %d\n", nstates);
+		slfprintf_stderr("Average number of annotations per state: %f\n", (float)total_annotations/nstates);
+		slfprintf_stderr("Max number of annotations per state: %d\n", *max_annotationsp);
+		slfprintf_stderr("Max number of contributions per annotation: %d\n", max_contributions);
 	}
 	for(state_number i = 0; i < nstates; ++i)
 		if(item_lookahead_sets[i]) {

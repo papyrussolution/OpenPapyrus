@@ -51,14 +51,14 @@ char errbuf[1024];	/* to hold error messages */
 yyerror - called by parser from an error production with nonterminal `error'
 */
 void yyerror(char *s)
-{	fprintf(stderr, "%s(%d): %s\n", filename, yylineno, s);
+{	slfprintf_stderr("%s(%d): %s\n", filename, yylineno, s);
 }
 
 /*
 lexerror - called by lexical analyzer upon failure to recognize a token
 */
 void lexerror(const char *s)
-{	fprintf(stderr, "%s(%d): %s: %s\n", filename, yylineno, s, yytext);
+{	slfprintf_stderr("%s(%d): %s: %s\n", filename, yylineno, s, yytext);
 	if (lexerrno++ >= MAXERR)
 		execerror("too many syntactic errors, bailing out");
 }
@@ -67,7 +67,7 @@ void lexerror(const char *s)
 synerror - called by a semantic action in the yacc grammar
 */
 void synerror(const char *s)
-{	fprintf(stderr, "%s(%d): Syntax error: %s\n", filename, yylineno-1, s);
+{	slfprintf_stderr("%s(%d): Syntax error: %s\n", filename, yylineno-1, s);
 	if (synerrno++ >= MAXERR)
 		execerror("too many syntactic errors, bailing out");
 }
@@ -76,7 +76,7 @@ void synerror(const char *s)
 semerror - report semantic error from static checking
 */
 void semerror(const char *s)
-{	fprintf(stderr, "\n%s(%d): **ERROR**: %s\n\n", filename, yylineno, s);
+{	slfprintf_stderr("\n%s(%d): **ERROR**: %s\n\n", filename, yylineno, s);
 	if (semerrno++ >= MAXERR)
 		execerror("too many semantic errors, bailing out");
 }
@@ -85,7 +85,7 @@ void semerror(const char *s)
 semwarn - report semantic warning from static checking
 */
 void semwarn(const char *s)
-{	fprintf(stderr, "\n%s(%d): *WARNING*: %s\n\n", filename, yylineno, s);
+{	slfprintf_stderr("\n%s(%d): *WARNING*: %s\n\n", filename, yylineno, s);
 	semwarno++;
 }
 
@@ -93,14 +93,14 @@ void semwarn(const char *s)
 compliancewarn - report compliance warning
 */
 void compliancewarn(const char *s)
-{	fprintf(stderr, "Compliance warning: %s\n", s);
+{	slfprintf_stderr("Compliance warning: %s\n", s);
 }
 
 /*
 typerror - report type error (a semantic error)
 */
 void typerror(const char *s)
-{	fprintf(stderr, "%s(%d): Type error: %s\n", filename, yylineno, s);
+{	slfprintf_stderr("%s(%d): Type error: %s\n", filename, yylineno, s);
 	if (semerrno++ >= MAXERR)
 		execerror("too many semantic errors, bailing out");
 }
@@ -109,7 +109,7 @@ void typerror(const char *s)
 execerror - print error message and terminate execution
 */
 void execerror(const char *s)
-{	fprintf(stderr, "Critical error: %s\n", s);
+{	slfprintf_stderr("Critical error: %s\n", s);
 	exit(1);
 }
 
@@ -117,7 +117,7 @@ void execerror(const char *s)
 progerror - called when check(expr) failed, i.e. upon programming error
 */
 void progerror(const char *s, const char *f, int l)
-{	fprintf(stderr, "Program failure: %s in file %s line %d\n", s, f, l);
+{	slfprintf_stderr("Program failure: %s in file %s line %d\n", s, f, l);
 	exit(1);
 }
 
@@ -126,22 +126,22 @@ errstat - show error statistics
 */
 int errstat(void)
 {	if (!lexerrno && !synerrno && !semerrno)
-	{	fprintf(stderr, "\nCompilation successful ");
+	{	slfprintf_stderr("\nCompilation successful ");
 		if (semwarno)
-			fprintf(stderr, "(%d warning%s)\n\n", semwarno, semwarno>1?"s":"");
+			slfprintf_stderr("(%d warning%s)\n\n", semwarno, semwarno>1?"s":"");
 		else
-			fprintf(stderr, "\n\n");
+			slfprintf_stderr("\n\n");
 		return 0;
 	}
-	fprintf(stderr, "\nThere were errors:\n");
+	slfprintf_stderr("\nThere were errors:\n");
 	if (lexerrno)
-		fprintf(stderr, "%d lexical error%s\n", lexerrno, lexerrno>1?"s":"");
+		slfprintf_stderr("%d lexical error%s\n", lexerrno, lexerrno>1?"s":"");
 	if (synerrno)
-		fprintf(stderr, "%d syntax error%s\n", synerrno, synerrno>1?"s":"");
+		slfprintf_stderr("%d syntax error%s\n", synerrno, synerrno>1?"s":"");
 	if (semerrno)
-		fprintf(stderr, "%d semantic error%s\n", semerrno, semerrno>1?"s":"");
+		slfprintf_stderr("%d semantic error%s\n", semerrno, semerrno>1?"s":"");
 	if (semwarno)
-		fprintf(stderr, "%d warning%s\n", semwarno, semwarno>1?"s":"");
-	fprintf(stderr, "\n");
+		slfprintf_stderr("%d warning%s\n", semwarno, semwarno>1?"s":"");
+	slfprintf_stderr("\n");
 	return -1;
 }

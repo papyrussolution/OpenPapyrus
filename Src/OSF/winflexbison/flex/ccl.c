@@ -106,14 +106,14 @@ int ccl_set_diff(int a, int b)
 			ccladd(d, ch);
 	/* debug */
 	if(0) {
-		fprintf(stderr, "ccl_set_diff (");
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("ccl_set_diff (");
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, a);
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, b);
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, d);
-		fprintf(stderr, "\n)\n");
+		slfprintf_stderr("\n)\n");
 	}
 	return d;
 }
@@ -132,14 +132,14 @@ int ccl_set_union(int a, int b)
 		ccladd(d, ccltbl[cclmap[b] + i]);
 	/* debug */
 	if(0) {
-		fprintf(stderr, "ccl_set_union (%d + %d = %d", a, b, d);
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("ccl_set_union (%d + %d = %d", a, b, d);
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, a);
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, b);
-		fprintf(stderr, "\n    ");
+		slfprintf_stderr("\n    ");
 		dump_cclp(stderr, d);
-		fprintf(stderr, "\n)\n");
+		slfprintf_stderr("\n)\n");
 	}
 	return d;
 }

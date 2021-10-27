@@ -104,12 +104,12 @@
 	//#ifndef xmemset
 		//#define xmemset_Removed     memset
 	//#endif
-	#ifndef xmemcpy
-		#define xmemcpy     memcpy
-	#endif
-	#ifndef xmemmove
-		#define xmemmove    memmove
-	#endif
+	//#ifndef xmemcpy
+		//#define xmemcpy_Removed     memcpy
+	//#endif
+	//#ifndef xmemmove
+		//#define xmemmove_Removed    memmove
+	//#endif
 #endif // ONIG_NO_STANDARD_C_HEADERS 
 #define IS_NULL(p)                    (((void *)(p)) == (void *)0)
 #define IS_NOT_NULL(p)                (((void *)(p)) != (void *)0)
@@ -249,18 +249,9 @@ typedef uint MemStatusType;
 			(stats) |= 1; \
 } while(0)
 
-#define MEM_STATUS_ON_SIMPLE(stats, n) do { \
-		if((n) < (int)MEM_STATUS_BITS_NUM) \
-			(stats) |= ((MemStatusType)1 << (n)); \
-} while(0)
-
-#define MEM_STATUS_LIMIT_AT(stats, n) \
-	((n) < (int)MEM_STATUS_BITS_NUM  ?  ((stats) & ((MemStatusType)1 << n)) : 0)
-#define MEM_STATUS_LIMIT_ON(stats, n) do { \
-		if((n) < (int)MEM_STATUS_BITS_NUM && (n) != 0) { \
-			(stats) |= ((MemStatusType)1 << (n)); \
-		} \
-} while(0)
+#define MEM_STATUS_ON_SIMPLE(stats, n) do { if((n) < (int)MEM_STATUS_BITS_NUM) (stats) |= ((MemStatusType)1 << (n)); } while(0)
+#define MEM_STATUS_LIMIT_AT(stats, n) ((n) < (int)MEM_STATUS_BITS_NUM  ?  ((stats) & ((MemStatusType)1 << n)) : 0)
+#define MEM_STATUS_LIMIT_ON(stats, n) do { if((n) < (int)MEM_STATUS_BITS_NUM && (n) != 0) { (stats) |= ((MemStatusType)1 << (n)); } } while(0)
 
 #define IS_CODE_WORD_ASCII(enc, code)   (ONIGENC_IS_CODE_ASCII(code) && ONIGENC_IS_CODE_WORD(enc, code))
 #define IS_CODE_DIGIT_ASCII(enc, code)  (ONIGENC_IS_CODE_ASCII(code) && ONIGENC_IS_CODE_DIGIT(enc, code))
@@ -288,9 +279,9 @@ typedef uint MemStatusType;
 #define IS_INFINITE_REPEAT(n)   ((n) == INFINITE_REPEAT)
 
 /* bitset */
-#define BITS_PER_BYTE      8
-#define SINGLE_BYTE_SIZE   (1 << BITS_PER_BYTE)
-#define BITS_IN_ROOM       32   /* 4 * BITS_PER_BYTE */
+//#define BITS_PER_BYTE      8
+#define SINGLE_BYTE_SIZE   (1 << 8/*BITS_PER_BYTE*/)
+#define BITS_IN_ROOM       32 /* 4 * BITS_PER_BYTE */
 #define BITSET_REAL_SIZE   (SINGLE_BYTE_SIZE / BITS_IN_ROOM)
 
 typedef uint32_t Bits;
@@ -335,7 +326,7 @@ typedef struct _BBuf {
 #define BB_WRITE(buf, pos, bytes, n) do { \
 		int used = (pos) + (n); \
 		if((buf)->alloc < (uint)used) BB_EXPAND((buf), used); \
-		xmemcpy((buf)->p + (pos), (bytes), (n)); \
+		memcpy((buf)->p + (pos), (bytes), (n)); \
 		if((buf)->used < (uint)used) (buf)->used = used; \
 } while(0)
 
@@ -354,18 +345,18 @@ typedef struct _BBuf {
 /* from < to */
 #define BB_MOVE_RIGHT(buf, from, to, n) do { \
 		if((uint)((to)+(n)) > (buf)->alloc) BB_EXPAND((buf), (to) + (n)); \
-		xmemmove((buf)->p + (to), (buf)->p + (from), (n)); \
+		memmove((buf)->p + (to), (buf)->p + (from), (n)); \
 		if((uint)((to)+(n)) > (buf)->used) (buf)->used = (to) + (n); \
 } while(0)
 
 /* from > to */
 #define BB_MOVE_LEFT(buf, from, to, n) do { \
-		xmemmove((buf)->p + (to), (buf)->p + (from), (n)); \
+		memmove((buf)->p + (to), (buf)->p + (from), (n)); \
 } while(0)
 
 /* from > to */
 #define BB_MOVE_LEFT_REDUCE(buf, from, to) do { \
-		xmemmove((buf)->p + (to), (buf)->p + (from), (buf)->used - (from)); \
+		memmove((buf)->p + (to), (buf)->p + (from), (buf)->used - (from)); \
 		(buf)->used -= (from - to); \
 } while(0)
 
@@ -375,7 +366,7 @@ typedef struct _BBuf {
 		} \
 		else { \
 			BB_MOVE_RIGHT((buf), (pos), (pos) + (n), ((buf)->used - (pos))); \
-			xmemcpy((buf)->p + (pos), (bytes), (n)); \
+			memcpy((buf)->p + (pos), (bytes), (n)); \
 		} \
 } while(0)
 

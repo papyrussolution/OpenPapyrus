@@ -2597,7 +2597,9 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 					// в значение для нового документа (из конфигурации). Это - не верно.
 					// Необходимо чтобы документ имел тот же статус, что и в разделе-отправителе.
 					//
-					if(p_pack->Rec.StatusID)
+					// @v11.2.0 Сделано исключение для межскладского прихода
+					//
+					if(!(p_pack->IlbFlags & ILBillPacket::ilbfConvertedIntrExp) && p_pack->Rec.StatusID)
 						bp.Rec.StatusID = p_pack->Rec.StatusID;
 					if(warn >= 2 && pCtx->Cfg.Flags & DBDXF_SKIPINCOMPLBILL)
 						skip = 1;

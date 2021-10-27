@@ -1163,7 +1163,7 @@ struct OnigCalloutArgsStruct {
 			    + sizeof(StackType) * (msa)->stack_n; \
 			(msa)->stack_p = SAlloc::M(size); \
 			CHECK_NULL_RETURN_MEMERR((msa)->stack_p); \
-			xmemcpy((msa)->stack_p, (alloc_base), size); \
+			memcpy((msa)->stack_p, (alloc_base), size); \
 		} \
 		else { \
 			(msa)->stack_p = (alloc_base); \
@@ -1455,7 +1455,7 @@ static int stack_double(int* is_alloca, char** arg_alloc_base, StackType** arg_s
 			STACK_SAVE(msa, *is_alloca, alloc_base);
 			return ONIGERR_MEMORY;
 		}
-		xmemcpy(new_alloc_base, alloc_base, size);
+		memcpy(new_alloc_base, alloc_base, size);
 		*is_alloca = 0;
 	}
 	else {
@@ -2496,11 +2496,11 @@ typedef struct {
 				len = enclen(encode, q); \
 				while(len-- > 0) *bp++ = *q++; \
 			} \
-			if(q < end) { xmemcpy(bp, "...\"", 4); bp += 4; } \
-			else         { xmemcpy(bp, "\"",    1); bp += 1; } \
+			if(q < end) { memcpy(bp, "...\"", 4); bp += 4; } \
+			else         { memcpy(bp, "\"",    1); bp += 1; } \
 		} \
 		else { \
-			xmemcpy(bp, "\"", 1); bp += 1; \
+			memcpy(bp, "\"", 1); bp += 1; \
 		} \
 		*bp = 0; \
 		fputs((char *)buf, DBGFP); \

@@ -147,7 +147,7 @@ static void print_errno_message(int errnum)
 #if _LIBC
 	__fxprintf(NULL, ": %s", s);
 #else
-	fprintf(stderr, ": %s", s);
+	slfprintf_stderr(": %s", s);
 #endif
 }
 
@@ -241,7 +241,7 @@ void error(int status, int errnum, const char * message, ...)
 #if _LIBC
 		__fxprintf(NULL, "%s: ", get_program_name());
 #else
-		fprintf(stderr, "%s: ", get_program_name());
+		slfprintf_stderr("%s: ", get_program_name());
 #endif
 	}
 	va_start(args, message);
@@ -283,14 +283,14 @@ void error_at_line(int status, int errnum, const char * file_name, uint line_num
 #if _LIBC
 		__fxprintf(NULL, "%s:", get_program_name());
 #else
-		fprintf(stderr, "%s:", get_program_name());
+		slfprintf_stderr("%s:", get_program_name());
 #endif
 	}
 
 #if _LIBC
 	__fxprintf(NULL, file_name != NULL ? "%s:%d: " : " ", file_name, line_number);
 #else
-	fprintf(stderr, file_name != NULL ? "%s:%d: " : " ", file_name, line_number);
+	slfprintf_stderr(file_name != NULL ? "%s:%d: " : " ", file_name, line_number);
 #endif
 	va_start(args, message);
 	error_tail(status, errnum, message, args);

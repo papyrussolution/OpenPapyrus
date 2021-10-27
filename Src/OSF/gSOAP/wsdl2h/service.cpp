@@ -245,7 +245,7 @@ void Definitions::analyze(const wsdl__definitions &definitions)
 							o->input->name = (*operation).name; // RPC uses operation/@name
 							if(soap__operation_style == rpc && !input_body->namespace_) {
 								o->input->URI = "";
-								fprintf(stderr, "Error: no soap:body namespace attribute\n");
+								slfprintf_stderr("Error: no soap:body namespace attribute\n");
 							}
 							else
 								o->input->URI = input_body->namespace_;
@@ -426,7 +426,7 @@ void Definitions::analyze(const wsdl__definitions &definitions)
 									else if(h->URI && h->part && h->part->name && h->part->type)
 										h->name = types.aname(NULL, h->URI, h->part->name);
 									else{
-										fprintf(stderr, "Error in SOAP Header part definition: input part '%s' missing?\n",
+										slfprintf_stderr("Error in SOAP Header part definition: input part '%s' missing?\n",
 										    h->part && h->part->name ? h->part->name : "?");
 										h->name = "";
 									}
@@ -568,13 +568,13 @@ void Definitions::analyze(const wsdl__definitions &definitions)
 						}
 					}
 					else
-						fprintf(stderr, "Error: no wsdl:definitions/binding/operation/input/soap:body\n");
+						slfprintf_stderr("Error: no wsdl:definitions/binding/operation/input/soap:body\n");
 				}
 				else
-					fprintf(stderr, "Error: no wsdl:definitions/portType/operation/input\n");
+					slfprintf_stderr("Error: no wsdl:definitions/portType/operation/input\n");
 			}
 			else
-				fprintf(stderr, "Error: no wsdl:definitions/portType/operation\n");
+				slfprintf_stderr("Error: no wsdl:definitions/portType/operation\n");
 		}
 	}
 }
@@ -654,7 +654,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 		}
 		if(found) {
 			if(vflag)
-				fprintf(stderr, "import %s\n", *u);
+				slfprintf_stderr("import %s\n", *u);
 			fprintf(stream, "#import \"%s.h\"\t// %s = <%s>\n", types.nsprefix(NULL, *u), types.nsprefix(NULL, *u), *u);
 		}
 	}
@@ -750,7 +750,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 			}
 		}
 		else{
-			fprintf(stderr, "Error: no xsd__anyType defined in type map\n");
+			slfprintf_stderr("Error: no xsd__anyType defined in type map\n");
 			pflag = 0;
 		}
 	}
@@ -759,7 +759,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 	// produce built-in primitive types, limited to the ones that are used only
 	banner("Built-in Schema Types and Top-Level Elements and Attributes");
 	if(vflag)
-		fprintf(stderr, "\nGenerating built-in types\n");
+		slfprintf_stderr("\nGenerating built-in types\n");
 	for(SetOfString::const_iterator i = definitions.builtinTypes().begin(); i != definitions.builtinTypes().end(); ++i) {
 		const char * s, * t;
 		if(!cflag && !strcmp(*i, "xs:anyType"))
@@ -817,7 +817,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 	}
 	// produce built-in primitive elements, limited to the ones that are used only
 	if(vflag)
-		fprintf(stderr, "\nGenerating built-in elements\n");
+		slfprintf_stderr("\nGenerating built-in elements\n");
 	for(SetOfString::const_iterator j = definitions.builtinElements().begin(); j != definitions.builtinElements().end(); ++j) {
 		const char * s, * t;
 		t = types.cname("_", NULL, *j);
@@ -860,7 +860,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 	}
 	// produce built-in primitive attributes, limited to the ones that are used only
 	if(vflag)
-		fprintf(stderr, "\nGenerating built-in attributes\n");
+		slfprintf_stderr("\nGenerating built-in attributes\n");
 	for(SetOfString::const_iterator k = definitions.builtinAttributes().begin(); k != definitions.builtinAttributes().end(); ++k) {
 		const char * s, * t;
 		t = types.cname("_", NULL, *k);
@@ -912,13 +912,13 @@ void Definitions::compile(const wsdl__definitions& definitions)
 		    schema4 != definitions.types->xs__schema_.end();
 		    ++schema4) {
 			if(vflag)
-				fprintf(stderr, "\nDefining types in %s\n", (*schema4)->targetNamespace);
+				slfprintf_stderr("\nDefining types in %s\n", (*schema4)->targetNamespace);
 			for(vector<xs__complexType>::const_iterator complexType = (*schema4)->complexType.begin();
 			    complexType != (*schema4)->complexType.end();
 			    ++complexType)
 				types.define((*schema4)->targetNamespace, NULL, *complexType);
 			if(vflag)
-				fprintf(stderr, "\nDefining elements in %s\n", (*schema4)->targetNamespace);
+				slfprintf_stderr("\nDefining elements in %s\n", (*schema4)->targetNamespace);
 			for(vector<xs__element>::const_iterator element = (*schema4)->element.begin();
 			    element != (*schema4)->element.end();
 			    ++element) {
@@ -1052,7 +1052,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 		 */
 		for(vector<xs__schema*>::iterator schema = definitions.types->xs__schema_.begin(); schema != definitions.types->xs__schema_.end(); ++schema) {
 			if(vflag)
-				fprintf(stderr, "\nGenerating elements in %s\n", (*schema)->targetNamespace);
+				slfprintf_stderr("\nGenerating elements in %s\n", (*schema)->targetNamespace);
 			banner("Additional Top-Level Elements", (*schema)->targetNamespace);
 			for(vector<xs__element>::iterator element = (*schema)->element.begin(); element != (*schema)->element.end(); ++element) {
 				if((*element).name && (*element).type && !(*element).abstract) {
@@ -1090,7 +1090,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 				}
 			}
 			if(vflag)
-				fprintf(stderr, "\nGenerating attributes in %s\n", (*schema)->targetNamespace);
+				slfprintf_stderr("\nGenerating attributes in %s\n", (*schema)->targetNamespace);
 			banner("Additional Top-Level Attributes", (*schema)->targetNamespace);
 			for(vector<xs__attribute>::iterator attribute = (*schema)->attribute.begin();
 			    attribute != (*schema)->attribute.end();
@@ -1133,7 +1133,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 		}
 	}
 	if(vflag)
-		fprintf(stderr, "\nCollecting service bindings");
+		slfprintf_stderr("\nCollecting service bindings");
 	collect(definitions);
 	if(!services.empty()) {
 		banner("Services");
@@ -1964,7 +1964,7 @@ void Message::generate(Types &types, const char * sep, bool anonymous, bool rema
 	if(message) {
 		for(vector<wsdl__part>::const_iterator part = message->part.begin(); part != message->part.end(); ++part) {
 			if(!(*part).name)
-				fprintf(stderr, "Error: no part name in message '%s'\n", message->name ? message->name : "");
+				slfprintf_stderr("Error: no part name in message '%s'\n", message->name ? message->name : "");
 			else if(!body_parts || soap_tagsearch(body_parts, (*part).name)) {
 				if(remark && (*part).documentation)
 					comment("", (*part).name, "parameter", (*part).documentation);
@@ -2029,12 +2029,12 @@ void Message::generate(Types &types, const char * sep, bool anonymous, bool rema
 					}
 				}
 				else
-					fprintf(stderr, "Error: no wsdl:definitions/message/part/@type in part '%s'\n", (*part).name);
+					slfprintf_stderr("Error: no wsdl:definitions/message/part/@type in part '%s'\n", (*part).name);
 			}
 		}
 	}
 	else
-		fprintf(stderr, "Error: no wsdl:definitions/message\n");
+		slfprintf_stderr("Error: no wsdl:definitions/message\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2094,7 +2094,7 @@ static void banner(const char * text)
 		fputc('*', stream);
 	fprintf(stream, "/\n\n");
 	if(vflag)
-		fprintf(stderr, "\n----<< %s >>----\n\n", text);
+		slfprintf_stderr("\n----<< %s >>----\n\n", text);
 }
 
 static void banner(const char * text1, const char * text2)
@@ -2113,7 +2113,7 @@ static void banner(const char * text1, const char * text2)
 		fputc('*', stream);
 	fprintf(stream, "/\n\n");
 	if(vflag)
-		fprintf(stderr, "\n----<< %s: %s >>----\n\n", text1, text2 ? text2 : "");
+		slfprintf_stderr("\n----<< %s: %s >>----\n\n", text1, text2 ? text2 : "");
 }
 
 static void ident()

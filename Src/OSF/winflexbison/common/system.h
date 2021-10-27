@@ -95,7 +95,7 @@ typedef size_t uintptr_t;
    Bison's performance anyway.  */
 #define PACIFY_CC(Code) Code
 
-#define FUNCTION_PRINT() fprintf(stderr, "%s: ", __func__)
+#define FUNCTION_PRINT() slfprintf_stderr("%s: ", __func__)
 
 /*-------------.
 | Assertions.  |

@@ -557,23 +557,18 @@ cmsInt32Number CheckParametricCurvePlugin(void)
 	cmsFreeToneCurve(tangent);
 	cmsFreeToneCurve(reverse_sinus);
 	cmsFreeToneCurve(reverse_cosinus);
-
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	cmsDeleteContext(cpy2);
-
 	return 1;
-
 Error:
-
 	cmsFreeToneCurve(sinus);
 	cmsFreeToneCurve(reverse_sinus);
 	cmsFreeToneCurve(cosinus);
 	cmsFreeToneCurve(reverse_cosinus);
-
-	if(ctx != NULL) cmsDeleteContext(ctx);
-	if(cpy != NULL) cmsDeleteContext(cpy);
-	if(cpy2 != NULL) cmsDeleteContext(cpy2);
+	cmsDeleteContext(ctx);
+	cmsDeleteContext(cpy);
+	cmsDeleteContext(cpy2);
 	return 0;
 }
 
@@ -585,8 +580,7 @@ Error:
 
 #define TYPE_RGB_565  (COLORSPACE_SH(PT_RGB)|CHANNELS_SH(3)|BYTES_SH(0) | (1 << 23))
 
-cmsUInt8Number * my_Unroll565(struct _cmstransform_struct * /*nfo*/, cmsUInt16Number wIn[], cmsUInt8Number * accum,
-    cmsUInt32Number /*_stride*/)
+cmsUInt8Number * my_Unroll565(struct _cmstransform_struct * /*nfo*/, cmsUInt16Number wIn[], cmsUInt8Number * accum, cmsUInt32Number /*_stride*/)
 {
 	cmsUInt16Number pixel = *(cmsUInt16Number*)accum; // Take whole pixel
 	double r = floor(((double)(pixel & 31) * 65535.0) / 31.0 + 0.5);
@@ -600,9 +594,9 @@ cmsUInt8Number * my_Unroll565(struct _cmstransform_struct * /*nfo*/, cmsUInt16Nu
 
 cmsUInt8Number * my_Pack565(_cmsTRANSFORM * /*info*/, cmsUInt16Number wOut[], cmsUInt8Number* output, cmsUInt32Number /*_stride*/)
 {
-	int r = (int)floor(( wOut[2] * 31) / 65535.0 + 0.5);
-	int g = (int)floor(( wOut[1] * 63) / 65535.0 + 0.5);
-	int b = (int)floor(( wOut[0] * 31) / 65535.0 + 0.5);
+	const int r = (int)floor(( wOut[2] * 31) / 65535.0 + 0.5);
+	const int g = (int)floor(( wOut[1] * 63) / 65535.0 + 0.5);
+	const int b = (int)floor(( wOut[0] * 31) / 65535.0 + 0.5);
 	cmsUInt16Number pixel = (r & 31)  | (( g & 63) << 5) | ((b & 31) << 11);
 	*(cmsUInt16Number*)output = pixel;
 	return output + 2;
@@ -611,40 +605,23 @@ cmsUInt8Number * my_Pack565(_cmsTRANSFORM * /*info*/, cmsUInt16Number wOut[], cm
 cmsFormatter my_FormatterFactory(cmsUInt32Number Type, cmsFormatterDirection Dir, cmsUInt32Number dwFlags)
 {
 	cmsFormatter Result = { NULL };
-	if((Type == TYPE_RGB_565) && !(dwFlags & CMS_PACK_FLAGS_FLOAT) &&
-	    (Dir == cmsFormatterInput)) {
+	if((Type == TYPE_RGB_565) && !(dwFlags & CMS_PACK_FLAGS_FLOAT) && (Dir == cmsFormatterInput)) {
 		Result.Fmt16 = my_Unroll565;
 	}
 	return Result;
 }
 
-cmsFormatter my_FormatterFactory2(cmsUInt32Number Type,
-    cmsFormatterDirection Dir,
-    cmsUInt32Number dwFlags)
+cmsFormatter my_FormatterFactory2(cmsUInt32Number Type, cmsFormatterDirection Dir, cmsUInt32Number dwFlags)
 {
 	cmsFormatter Result = { NULL };
-
-	if((Type == TYPE_RGB_565) &&
-	    !(dwFlags & CMS_PACK_FLAGS_FLOAT) &&
-	    (Dir == cmsFormatterOutput)) {
+	if((Type == TYPE_RGB_565) && !(dwFlags & CMS_PACK_FLAGS_FLOAT) && (Dir == cmsFormatterOutput)) {
 		Result.Fmt16 = my_Pack565;
 	}
 	return Result;
 }
 
-static
-cmsPluginFormatters FormattersPluginSample = { {cmsPluginMagicNumber,
-						2060,
-						cmsPluginFormattersSig,
-						NULL},
-					       my_FormatterFactory };
-
-static
-cmsPluginFormatters FormattersPluginSample2 = { {cmsPluginMagicNumber,
-						 2060,
-						 cmsPluginFormattersSig,
-						 NULL},
-						my_FormatterFactory2 };
+static cmsPluginFormatters FormattersPluginSample = { {cmsPluginMagicNumber, 2060, cmsPluginFormattersSig, NULL}, my_FormatterFactory };
+static cmsPluginFormatters FormattersPluginSample2 = { {cmsPluginMagicNumber, 2060, cmsPluginFormattersSig, NULL}, my_FormatterFactory2 };
 
 cmsInt32Number CheckFormattersPlugin(void)
 {
@@ -655,27 +632,19 @@ cmsInt32Number CheckFormattersPlugin(void)
 	cmsUInt16Number stream[] = { 0xffffU, 0x1234U, 0x0000U, 0x33ddU };
 	cmsUInt16Number result[4];
 	int i;
-
 	cmsPluginTHR(ctx, &FormattersPluginSample);
-
 	cpy = DupContext(ctx, NULL);
-
 	cmsPluginTHR(cpy, &FormattersPluginSample2);
-
 	cpy2 = DupContext(cpy, NULL);
-
 	xform = cmsCreateTransformTHR(cpy2, NULL, TYPE_RGB_565, NULL, TYPE_RGB_565, INTENT_PERCEPTUAL, cmsFLAGS_NULLTRANSFORM);
-
 	cmsDoTransform(xform, stream, result, 4);
-
 	cmsDeleteTransform(xform);
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	cmsDeleteContext(cpy2);
-
 	for(i = 0; i < 4; i++)
-		if(stream[i] != result[i]) return 0;
-
+		if(stream[i] != result[i]) 
+			return 0;
 	return 1;
 }
 

@@ -349,7 +349,7 @@ static void print_and_abort(void)
 # ifdef _LIBC
 	(void)__fxprintf(NULL, "%s\n", _("memory exhausted"));
 #else
-	fprintf(stderr, "%s\n", _("memory exhausted"));
+	slfprintf_stderr("%s\n", _("memory exhausted"));
 #endif
 	exit(obstack_exit_failure);
 }

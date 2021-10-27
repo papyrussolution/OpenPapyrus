@@ -117,10 +117,10 @@ void bitsetv_dump(FILE * file, char const * title, char const * subtitle, bitset
 void debug_bitsetv(bitsetv bsetv)
 {
 	for(bitset_windex i = 0; bsetv[i]; i++) {
-		fprintf(stderr, "%lu: ", (ulong)i);
+		slfprintf_stderr("%lu: ", (ulong)i);
 		debug_bitset(bsetv[i]);
 	}
-	fprintf(stderr, "\n");
+	slfprintf_stderr("\n");
 }
 // 
 // Descr: Display the MATRIX array of SIZE bitsets of size SIZE

@@ -486,7 +486,7 @@ void ntod()
 		dset = dss[ds];
 		dsize = dfasiz[ds];
 		if(trace)
-			fprintf(stderr, _("state # %d:\n"), ds);
+			slfprintf_stderr(_("state # %d:\n"), ds);
 		sympartition(dset, dsize, symlist, duplist);
 		for(sym = 1; sym <= numecs; ++sym) {
 			if(symlist[sym]) {
@@ -504,7 +504,7 @@ void ntod()
 					}
 					state[sym] = newds;
 					if(trace)
-						fprintf(stderr, "\t%d\t%d\n", sym, newds);
+						slfprintf_stderr("\t%d\t%d\n", sym, newds);
 					targfreq[++targptr] = 1;
 					targstate[targptr] = newds;
 					++numuniq;
@@ -517,7 +517,7 @@ void ntod()
 					targ = state[duplist[sym]];
 					state[sym] = targ;
 					if(trace)
-						fprintf(stderr, "\t%d\t%d\n", sym, targ);
+						slfprintf_stderr("\t%d\t%d\n", sym, targ);
 					// Update frequency count for destination state.
 					i = 0;
 					while(targstate[++i] != targ)

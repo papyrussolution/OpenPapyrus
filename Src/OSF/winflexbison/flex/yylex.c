@@ -62,7 +62,7 @@ int yylex()
 	}
 	if(trace) {
 		if(beglin) {
-			fprintf(stderr, "%d\t", num_rules + 1);
+			slfprintf_stderr("%d\t", num_rules + 1);
 			beglin = 0;
 		}
 		switch(toktype) {
@@ -106,7 +106,7 @@ int yylex()
 				    beglin = 1;
 			    break;
 			case NAME:
-			    fprintf(stderr, "'%s'", nmstr);
+			    slfprintf_stderr("'%s'", nmstr);
 			    break;
 			case TOK_CHAR:
 			    switch(yylval) {
@@ -130,25 +130,25 @@ int yylex()
 				    case '*':
 				    case '+':
 				    case ',':
-					fprintf(stderr, "\\%c", yylval);
+					slfprintf_stderr("\\%c", yylval);
 					break;
 
 				    default:
 					if(!isascii(yylval) || !isprint(yylval)) {
 						if(trace_hex)
-							fprintf(stderr, "\\x%02x", (uint)yylval);
+							slfprintf_stderr("\\x%02x", (uint)yylval);
 						else
-							fprintf(stderr, "\\%.3o", (uint)yylval);
+							slfprintf_stderr("\\%.3o", (uint)yylval);
 					}
 					else
 						putc(yylval, stderr);
 					break;
 			    }
 			    break;
-			case NUMBER: fprintf(stderr, "%d", yylval); break;
-			case PREVCCL: fprintf(stderr, "[%d]", yylval); break;
-			case EOF_OP: fprintf(stderr, "<<EOF>>"); break;
-			case TOK_OPTION: fprintf(stderr, "%s ", yytext); break;
+			case NUMBER: slfprintf_stderr("%d", yylval); break;
+			case PREVCCL: slfprintf_stderr("[%d]", yylval); break;
+			case EOF_OP: slfprintf_stderr("<<EOF>>"); break;
+			case TOK_OPTION: slfprintf_stderr("%s ", yytext); break;
 			case TOK_OUTFILE:
 			case TOK_PREFIX:
 			case CCE_ALNUM:
@@ -162,9 +162,9 @@ int yylex()
 			case CCE_PUNCT:
 			case CCE_SPACE:
 			case CCE_UPPER:
-			case CCE_XDIGIT: fprintf(stderr, "%s", yytext); break;
-			case 0: fprintf(stderr, _("End Marker\n")); break;
-			default: fprintf(stderr, _("*Something Weird* - tok: %d val: %d\n"), toktype, yylval); break;
+			case CCE_XDIGIT: slfprintf_stderr("%s", yytext); break;
+			case 0: slfprintf_stderr(_("End Marker\n")); break;
+			default: slfprintf_stderr(_("*Something Weird* - tok: %d val: %d\n"), toktype, yylval); break;
 		}
 	}
 	return toktype;

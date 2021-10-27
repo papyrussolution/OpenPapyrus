@@ -82,7 +82,7 @@ static void double_free1()
 	p[3] = mi_malloc(786456);
 	// [BUG] Found overlap
 	// p[3]=0x429b2ea2000 (size=917504), p[1]=0x429b2e42000 (size=786432)
-	fprintf(stderr, "p3: %p-%p, p1: %p-%p, p2: %p\n", p[3], (uint8_t*)(p[3]) + 786456, p[1], (uint8_t*)(p[1]) + 655362, p[2]);
+	slfprintf_stderr("p3: %p-%p, p1: %p-%p, p2: %p\n", p[3], (uint8_t*)(p[3]) + 786456, p[1], (uint8_t*)(p[1]) + 655362, p[2]);
 }
 
 static void double_free2() {
@@ -100,7 +100,7 @@ static void double_free2() {
 	p[4] = malloc(786440);
 	// [BUG] Found overlap
 	// p[4]=0x433f1402000 (size=917504), p[1]=0x433f14c2000 (size=786432)
-	fprintf(stderr, "p1: %p-%p, p2: %p-%p\n", p[4], (uint8_t*)(p[4]) + 917504, p[1], (uint8_t*)(p[1]) + 786432);
+	slfprintf_stderr("p1: %p-%p, p2: %p-%p\n", p[4], (uint8_t*)(p[4]) + 917504, p[1], (uint8_t*)(p[1]) + 786432);
 }
 
 // Try to corrupt the heap through buffer overflow

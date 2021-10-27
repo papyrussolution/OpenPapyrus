@@ -85,7 +85,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 	if((re->flags & PCRE_MODE) == 0) return PCRE_ERROR_BADMODE;
 	switch(what) {
 		case PCRE_INFO_OPTIONS:
-		    *((unsigned long*)where) = re->options & PUBLIC_COMPILE_OPTIONS;
+		    *((ulong *)where) = re->options & PUBLIC_COMPILE_OPTIONS;
 		    break;
 		case PCRE_INFO_SIZE:
 		    *((size_t *)where) = re->size;

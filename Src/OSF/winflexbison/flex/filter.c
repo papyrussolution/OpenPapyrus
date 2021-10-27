@@ -133,7 +133,7 @@ void unlinktemp()
 	while(num_temp_file_names) {
 		--num_temp_file_names;
 		if(_unlink(temp_file_names[num_temp_file_names]))
-			fprintf(stderr, _("error delete file %s"), temp_file_names[num_temp_file_names]);
+			slfprintf_stderr(_("error delete file %s"), temp_file_names[num_temp_file_names]);
 		SAlloc::F(temp_file_names[num_temp_file_names]);
 		temp_file_names[num_temp_file_names] = NULL;
 	}

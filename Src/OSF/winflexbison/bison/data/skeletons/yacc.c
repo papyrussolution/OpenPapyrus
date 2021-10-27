@@ -545,26 +545,15 @@ static const char * yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED
 ]b4_parse_error_bmatch([simple\|verbose],
 [[/* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
-static const char *const yytname[] =
-{
-  ]b4_tname[
-};
-
-static const char * yysymbol_name (yysymbol_kind_t yysymbol)
-{
-	return yytname[yysymbol];
-}]],
+static const char *const yytname[] = { ]b4_tname[ };
+static const char * yysymbol_name (yysymbol_kind_t yysymbol) { return yytname[yysymbol]; }]],
 [[static const char * yysymbol_name(yysymbol_kind_t yysymbol)
 {
-  static const char *const yy_sname[] = {
-  ]b4_symbol_names[
-  };]b4_has_translations_if([[
+	static const char *const yy_sname[] = { ]b4_symbol_names[ };
+	]b4_has_translations_if([[
   /* YYTRANSLATABLE[SYMBOL-NUM] -- Whether YY_SNAME[SYMBOL-NUM] is
      internationalizable.  */
-  static ]b4_int_type_for([b4_translatable])[ yytranslatable[] =
-  {
-	]b4_translatable[
-  };
+  static ]b4_int_type_for([b4_translatable])[ yytranslatable[] = { ]b4_translatable[ };
   return (yysymbol < YYNTOKENS && yytranslatable[yysymbol] ? _(yy_sname[yysymbol]) : yy_sname[yysymbol]);]], [[
   return yy_sname[yysymbol];]])[
 }]])[
@@ -613,20 +602,19 @@ enum { YYENOMEM = -2 };
       }                                                           \
   while (0)
 
-/* Backward compatibility with an undocumented macro.
-   Use ]b4_symbol(1, id)[ or ]b4_symbol(2, id)[. */
+// Backward compatibility with an undocumented macro. Use ]b4_symbol(1, id)[ or ]b4_symbol(2, id)[.
 #define YYERRCODE ]b4_symbol(2, id)[
 ]b4_locations_if([[
 ]b4_yylloc_default_define[
 #define YYRHSLOC(Rhs, K) ((Rhs)[K])
 ]])[
 
-/* Enable debugging if requested.  */
+// Enable debugging if requested.
 #if ]b4_api_PREFIX[DEBUG
 
 #ifndef YYFPRINTF
 	#include <stdio.h> /* INFRINGES ON USER NAME SPACE */
-	#define YYFPRINTF fprintf
+	#define YYFPRINTF fprintf // @mark
 #endif
 #define YYDPRINTF(Args) do { if(yydebug) YYFPRINTF Args; } while (0)
 
@@ -634,7 +622,7 @@ enum { YYENOMEM = -2 };
 
 # define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                    \
 do {                                                                      \
-  if (yydebug) {                                                          \
+  if(yydebug) {                                                          \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr, Kind, Value]b4_locations_if([, Location])[]b4_user_args[); \
       YYFPRINTF (stderr, "\n");                                           \
@@ -642,16 +630,13 @@ do {                                                                      \
 } while (0)
 
 ]b4_yy_symbol_print_define[
-
-/*------------------------------------------------------------------.
-| yy_stack_print -- Print the state stack from its BOTTOM up to its |
-| TOP (included).                                                   |
-`------------------------------------------------------------------*/
-
+// 
+// yy_stack_print -- Print the state stack from its BOTTOM up to its TOP (included).                                                   |
+// 
 static void yy_stack_print(yy_state_t *yybottom, yy_state_t *yytop)
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; yybottom <= yytop; yybottom++) {
+  for(; yybottom <= yytop; yybottom++) {
       int yybot = *yybottom;
       YYFPRINTF (stderr, " %d", yybot);
     }
@@ -659,11 +644,9 @@ static void yy_stack_print(yy_state_t *yybottom, yy_state_t *yytop)
 }
 
 #define YY_STACK_PRINT(Bottom, Top) do { if(yydebug) yy_stack_print ((Bottom), (Top)); } while(0)
-
-/*------------------------------------------------.
-| Report that the YYRULE is going to be reduced.  |
-`------------------------------------------------*/
-
+// 
+// Report that the YYRULE is going to be reduced
+// 
 static void yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp,]b4_locations_if([[ YYLTYPE *yylsp,]])[int yyrule]b4_user_formals[)
 {
   int yylno = yyrline[yyrule];

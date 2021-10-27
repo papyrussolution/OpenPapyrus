@@ -134,28 +134,23 @@ scanopt_t * scanopt_init(const optspec_t * options, int argc, char ** argv, int 
 			s->has_short = 1;
 		}
 		aux->printlen = (int)strlen(opt->opt_fmt);
-
 		aux->namelen = 0;
 		for(p = pname + 1; *p; p++) {
 			/* detect required arg */
-			if(*p == '=' || isspace((uchar)*p)
-			    || !(aux->flags & IS_LONG)) {
-				if(aux->namelen == 0)
-					aux->namelen = (int)(p - pname);
+			if(*p == '=' || isspace((uchar)*p) || !(aux->flags & IS_LONG)) {
+				SETIFZ(aux->namelen, (int)(p - pname));
 				aux->flags |= ARG_REQ;
 				aux->flags &= ~ARG_NONE;
 			}
 			/* detect optional arg. This overrides required arg. */
 			if(*p == '[') {
-				if(aux->namelen == 0)
-					aux->namelen = (int)(p - pname);
+				SETIFZ(aux->namelen, (int)(p - pname));
 				aux->flags &= ~(ARG_REQ | ARG_NONE);
 				aux->flags |= ARG_OPT;
 				break;
 			}
 		}
-		if(aux->namelen == 0)
-			aux->namelen = (int)(p - pname);
+		SETIFZ(aux->namelen, (int)(p - pname));
 	}
 	return (scanopt_t*)s;
 }
@@ -249,11 +244,9 @@ int scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage)
 		ue = byr_val;
 		while(ue) {
 			usg_elem * ue2;
-
 			printf("%2d: %s\n", ue->idx, NAME(s, ue->idx));
 			for(ue2 = ue->alias; ue2; ue2 = ue2->next)
-				printf("  +---> %2d: %s\n", ue2->idx,
-				    NAME(s, ue2->idx));
+				printf("  +---> %2d: %s\n", ue2->idx, NAME(s, ue2->idx));
 			ue = ue->next;
 		}
 	}
@@ -270,7 +263,6 @@ int scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage)
 		else \
 			len +=  (nshort++||nlong) ? 2+PRINTLEN(s, i) : PRINTLEN(s, i); \
 		} while(0)
-
 		if(!(FLAGS(s, ue->idx) & IS_LONG))
 			CALC_LEN(ue->idx);
 		/* do short aliases first. */
@@ -416,25 +408,13 @@ static int scanopt_err(struct _scanopt_t * s, int is_short, int err)
 				optname = s->argv[s->index];
 			}
 		}
-		fprintf(stderr, "%s: ", s->argv[0]);
+		slfprintf_stderr("%s: ", s->argv[0]);
 		switch(err) {
-			case SCANOPT_ERR_ARG_NOT_ALLOWED:
-			    fprintf(stderr, _("option `%s' doesn't allow an argument\n"), optname);
-			    break;
-			case SCANOPT_ERR_ARG_NOT_FOUND:
-			    fprintf(stderr, _("option `%s' requires an argument\n"), optname);
-			    break;
-			case SCANOPT_ERR_OPT_AMBIGUOUS:
-			    fprintf(stderr, _("option `%s' is ambiguous\n"),
-				optname);
-			    break;
-			case SCANOPT_ERR_OPT_UNRECOGNIZED:
-			    fprintf(stderr, _("Unrecognized option `%s'\n"),
-				optname);
-			    break;
-			default:
-			    fprintf(stderr, _("Unknown error=(%d)\n"), err);
-			    break;
+			case SCANOPT_ERR_ARG_NOT_ALLOWED: slfprintf_stderr(_("option `%s' doesn't allow an argument\n"), optname); break;
+			case SCANOPT_ERR_ARG_NOT_FOUND: slfprintf_stderr(_("option `%s' requires an argument\n"), optname); break;
+			case SCANOPT_ERR_OPT_AMBIGUOUS: slfprintf_stderr(_("option `%s' is ambiguous\n"), optname); break;
+			case SCANOPT_ERR_OPT_UNRECOGNIZED: slfprintf_stderr(_("Unrecognized option `%s'\n"), optname); break;
+			default: slfprintf_stderr(_("Unknown error=(%d)\n"), err); break;
 		}
 	}
 	return err;

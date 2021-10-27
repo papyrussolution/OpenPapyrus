@@ -731,7 +731,7 @@ static void output_skeleton()
 		if(trace_flag & trace_tools) {
 			fputs("running:", stderr);
 			for(int j = 0; argv[j]; ++j)
-				fprintf(stderr, " %s", argv[j]);
+				slfprintf_stderr(" %s", argv[j]);
 			fputc('\n', stderr);
 		}
 

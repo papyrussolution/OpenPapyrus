@@ -441,7 +441,7 @@ void lalr()
 	if(trace_flag & trace_automaton) {
 		fputc('\n', stderr);
 		begin_use_class("trace0", stderr);
-		fprintf(stderr, "lalr: begin");
+		slfprintf_stderr("lalr: begin");
 		end_use_class("trace0", stderr);
 		fputc('\n', stderr);
 	}
@@ -456,7 +456,7 @@ void lalr()
 		lookaheads_print(stderr);
 	if(trace_flag & trace_automaton) {
 		begin_use_class("trace0", stderr);
-		fprintf(stderr, "lalr: done");
+		slfprintf_stderr("lalr: done");
 		end_use_class("trace0", stderr);
 		fputc('\n', stderr);
 	}

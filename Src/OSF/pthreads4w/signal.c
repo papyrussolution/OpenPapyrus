@@ -113,7 +113,7 @@ int pthread_sigmask(int how, sigset_t const * set, sigset_t * oset)
 		/* FIXME: this code assumes that sigmask is an even multiple of
 		   the size of a long integer. */
 		unsigned long * src = (unsigned long const*)set;
-		unsigned long * dest = (unsigned long*)&(thread.p->sigmask);
+		unsigned long * dest = (ulong *)&(thread.p->sigmask);
 		switch(how) {
 			case SIG_BLOCK:
 			    for(i = 0; i < (sizeof(sigset_t) / sizeof(unsigned long)); i++) {

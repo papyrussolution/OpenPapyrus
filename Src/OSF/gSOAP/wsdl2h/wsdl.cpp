@@ -157,7 +157,7 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 	if(!cwd)
 		cwd = cwd_path;
 	if(vflag)
-		fprintf(stderr, "\nOpening WSDL/XSD '%s' from '%s'\n", loc ? loc : "", cwd ? cwd : "");
+		slfprintf_stderr("\nOpening WSDL/XSD '%s' from '%s'\n", loc ? loc : "", cwd ? cwd : "");
 	if(loc) {
 #ifdef WITH_OPENSSL
 		if(!strncmp(loc, "http://", 7) || !strncmp(loc, "https://", 8))
@@ -170,14 +170,14 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 		}
 		else if(!strncmp(loc, "http://", 7))
 #endif
-		{ fprintf(stderr, "\nConnecting to '%s' to retrieve WSDL/XSD...\n", loc);
+		{ slfprintf_stderr("\nConnecting to '%s' to retrieve WSDL/XSD...\n", loc);
 		  location = soap_strdup(soap, loc);
 		  if(soap_connect_command(soap, SOAP_GET, location, NULL)) {
-			  fprintf(stderr, "Connection failed\n");
+			  slfprintf_stderr("Connection failed\n");
 			  soap_print_fault(soap, stderr);
 			  exit(1);
 		  }
-		  fprintf(stderr, "Connected, receiving...\n"); }
+		  slfprintf_stderr("Connected, receiving...\n"); }
 		else if(cwd && (!strncmp(cwd, "http://", 7) || !strncmp(cwd, "https://", 8))) {
 			char * s;
 			location = (char *)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
@@ -187,12 +187,12 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 				*s = '\0';
 			strcat(location, "/");
 			strcat(location, loc);
-			fprintf(stderr, "\nConnecting to '%s' to retrieve relative '%s' WSDL/XSD...\n", location, loc);
+			slfprintf_stderr("\nConnecting to '%s' to retrieve relative '%s' WSDL/XSD...\n", location, loc);
 			if(soap_connect_command(soap, SOAP_GET, location, NULL)) {
-				fprintf(stderr, "Connection failed\n");
+				slfprintf_stderr("Connection failed\n");
 				exit(1);
 			}
-			fprintf(stderr, "Connected, receiving...\n");
+			slfprintf_stderr("Connected, receiving...\n");
 		}
 		else{soap->recvfd = open(loc, O_RDONLY, 0);
 		     if(soap->recvfd < 0) {
@@ -223,13 +223,13 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 				     soap->recvfd = open(location, O_RDONLY, 0);
 			     }
 			     if(soap->recvfd < 0) {
-				     fprintf(stderr, "\nCannot open '%s'\n", loc);
+				     slfprintf_stderr("\nCannot open '%s'\n", loc);
 				     exit(1);
 			     }
 		     }
 		     else
 			     location = soap_strdup(soap, loc);
-		     fprintf(stderr, "\nReading file '%s'...\n", location); }
+		     slfprintf_stderr("\nReading file '%s'...\n", location); }
 	}
 	cwd_temp = cwd_path;
 	cwd_path = location;
@@ -242,7 +242,7 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 			xs__schema * schema = soap_new_xs__schema(soap, -1);
 			schema->soap_in(soap, "xs:schema", NULL);
 			if(soap->error) {
-				fprintf(stderr, "\nAn error occurred while parsing WSDL or XSD from '%s'\n", loc ? loc : "");
+				slfprintf_stderr("\nAn error occurred while parsing WSDL or XSD from '%s'\n", loc ? loc : "");
 				soap_print_fault(soap, stderr);
 				soap_print_fault_location(soap, stderr);
 				exit(1);
@@ -259,21 +259,21 @@ int wsdl__definitions::read(const char * cwd, const char * loc)
 		// check HTTP redirect (socket was closed)
 		else if((soap->error >= 301 && soap->error <= 303) || soap->error == 307) {
 			int r = SOAP_ERR;
-			fprintf(stderr, "Redirected to '%s'...\n", soap->endpoint);
+			slfprintf_stderr("Redirected to '%s'...\n", soap->endpoint);
 			if(redirs++ < 10)
 				r = read(cwd, soap->endpoint);
 			else
-				fprintf(stderr, "\nMax redirects exceeded\n");
+				slfprintf_stderr("\nMax redirects exceeded\n");
 			redirs--;
 			return r;
 		}
-		else{fprintf(stderr, "\nAn error occurred while parsing WSDL from '%s'\n", loc ? loc : "");
+		else{slfprintf_stderr("\nAn error occurred while parsing WSDL from '%s'\n", loc ? loc : "");
 		     soap_print_fault(soap, stderr);
 		     soap_print_fault_location(soap, stderr);
 		     exit(1); }
 	}
 	soap_end_recv(soap);
-	fprintf(stderr, "Done reading '%s'\n", loc ? loc : "");
+	slfprintf_stderr("Done reading '%s'\n", loc ? loc : "");
 	if(soap->recvfd > 2) {
 		close(soap->recvfd);
 		soap->recvfd = -1;
@@ -1466,7 +1466,7 @@ int wsdl__import::preprocess(wsdl__definitions& definitions)
 		map<const char*, wsdl__definitions*, ltstr>::iterator i = included.find(location);
 		if(i != included.end()) {
 			if(vflag)
-				fprintf(stderr, "\nWSDL/XSD '%s' already imported\n", location);
+				slfprintf_stderr("\nWSDL/XSD '%s' already imported\n", location);
 			found = true;
 			definitionsRef = (*i).second;
 		}
@@ -1594,12 +1594,12 @@ extern "C" {
 int warn_ignore(struct soap * soap, const char * tag)
 { // We don't warn if the omitted element was an annotation or a documentation in an unexpected place
 	if(soap->mustUnderstand)
-		fprintf(stderr, "Error: element '%s' at level %d must be understood\n", tag, soap->level);
+		slfprintf_stderr("Error: element '%s' at level %d must be understood\n", tag, soap->level);
 	if(!Wflag
 		    && soap_match_tag(soap, tag, "xs:annotation")
 		    && soap_match_tag(soap, tag, "xs:documentation")
 		    && soap_match_tag(soap, tag, "xs:appinfo"))
-		fprintf(stderr, "Warning: unexpected element '%s' at level %d is skipped (safe to ignore)\n", tag, soap->level);
+		slfprintf_stderr("Warning: unexpected element '%s' at level %d is skipped (safe to ignore)\n", tag, soap->level);
 	if(soap->body && !soap_string_in(soap, 0, -1, -1))
 		return soap->error;
 	return SOAP_OK;

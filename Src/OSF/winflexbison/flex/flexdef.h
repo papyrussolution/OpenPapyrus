@@ -763,7 +763,7 @@ extern void flexfatal(const char *); /* Report a fatal error message and termina
 #else /* ! HAVE_DECL___FUNC__ */
 #define flex_die(msg) \
     do { \
-        fprintf(stderr, _("%s: fatal internal error at %s:%d %s\n"), program_name, __FILE__, (int)__LINE__, msg);\
+        slfprintf_stderr(_("%s: fatal internal error at %s:%d %s\n"), program_name, __FILE__, (int)__LINE__, msg);\
         FLEX_EXIT(1);\
     }while(0)
 #endif /* ! HAVE_DECL___func__ */

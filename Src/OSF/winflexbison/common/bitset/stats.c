@@ -172,7 +172,7 @@ void bitset_stats_read(const char * file_name)
 			if(ferror(file))
 				perror(_("cannot read stats file"));
 			else
-				fprintf(stderr, _("bad stats file size\n"));
+				slfprintf_stderr(_("bad stats file size\n"));
 		}
 		if(fclose(file) != 0)
 			perror(_("cannot read stats file"));

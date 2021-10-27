@@ -244,7 +244,7 @@ static inline void gen_lookaheads()
 		// accessible through reverse transition steps, and set their
 		// lookaheads to the reduction items lookahead
 		while(gl_list_size(queue) > 0) {
-			state_item * prev = (state_item*)gl_list_get_at(queue, 0);
+			state_item * prev = (state_item *)gl_list_get_at(queue, 0);
 			gl_list_remove_at(queue, 0);
 			prev->lookahead = lookahead;
 			if(SI_TRANSITION(prev)) {
@@ -314,7 +314,7 @@ static void prune_forward(const state_item * si)
 {
 	state_item_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&si);
 	while(gl_list_size(queue) > 0) {
-		state_item * dsi = (state_item*)gl_list_get_at(queue, 0);
+		state_item * dsi = (state_item *)gl_list_get_at(queue, 0);
 		gl_list_remove_at(queue, 0);
 		if(dsi->trans >= 0)
 			gl_list_add_last(queue, &state_items[dsi->trans]);
@@ -342,7 +342,7 @@ static void prune_backward(const state_item * si)
 {
 	state_item_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&si);
 	while(gl_list_size(queue) > 0) {
-		state_item * dsi = (state_item*)gl_list_get_at(queue, 0);
+		state_item * dsi = (state_item *)gl_list_get_at(queue, 0);
 		gl_list_remove_at(queue, 0);
 		bitset_iterator biter;
 		state_item_number sin;

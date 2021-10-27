@@ -907,14 +907,14 @@ static void module(const char *name, const char *fullname)
 		}
 		imported = (char *)emalloc(strlen(fullname)+1);
 		strcpy(imported, fullname);
-		fprintf(stderr, "Importing module '%s'\n\n", fullname);
+		slfprintf_stderr("Importing module '%s'\n\n", fullname);
 	}
 	else { 
 		lflag = 1;
 		typeNO = magic(name);
 		prefix = (char *)emalloc(strlen(fullname)+1);
 		strcpy(prefix, fullname);
-		fprintf(stderr, "Compiling module '%s' (magic number = %d)\n\n", fullname, typeNO);
+		slfprintf_stderr("Compiling module '%s' (magic number = %d)\n\n", fullname, typeNO);
 	}
 }
 

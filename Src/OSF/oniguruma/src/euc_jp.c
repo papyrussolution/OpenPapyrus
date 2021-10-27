@@ -209,7 +209,7 @@ static int property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end)
 	int len = (int)(end - p);
 	char q[32];
 	if(len < sizeof(q) - 1) {
-		xmemcpy(q, p, (size_t)len);
+		memcpy(q, p, (size_t)len);
 		q[len] = '\0';
 		pc = onigenc_euc_jp_lookup_property_name(q, len);
 		if(pc != 0)

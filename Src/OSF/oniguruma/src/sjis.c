@@ -191,15 +191,13 @@ static int property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end)
 	struct PropertyNameCtype* pc;
 	int len = (int)(end - p);
 	char q[32];
-
 	if(len < sizeof(q) - 1) {
-		xmemcpy(q, p, (size_t)len);
+		memcpy(q, p, (size_t)len);
 		q[len] = '\0';
 		pc = onigenc_sjis_lookup_property_name(q, len);
 		if(pc != 0)
 			return pc->ctype;
 	}
-
 	return ONIGERR_INVALID_CHAR_PROPERTY_NAME;
 }
 
@@ -230,11 +228,9 @@ static int get_ctype_code_range(OnigCtype ctype, OnigCodePoint* sb_out, const On
 	}
 	else {
 		*sb_out = 0x80;
-
 		ctype -= (ONIGENC_MAX_STD_CTYPE + 1);
 		if(ctype >= (OnigCtype)(sizeof(PropertyList)/sizeof(PropertyList[0])))
 			return ONIGERR_TYPE_BUG;
-
 		*ranges = PropertyList[ctype];
 		return 0;
 	}

@@ -354,8 +354,7 @@ int uc_width(ucs4_t uc, const char * encoding)
 		return 2;
 	/* In ancient CJK encodings, Cyrillic and most other characters are
 	   double-width as well.  */
-	if(uc >= 0x00A1 && uc < 0xFF61 && uc != 0x20A9
-	    && is_cjk_encoding(encoding))
+	if(uc >= 0x00A1 && uc < 0xFF61 && uc != 0x20A9 && is_cjk_encoding(encoding))
 		return 2;
 	return 1;
 }

@@ -252,7 +252,7 @@ void dataflush()
 
 void flexerror(const char * msg)
 {
-	fprintf(stderr, "%s: %s\n", program_name, msg);
+	slfprintf_stderr("%s: %s\n", program_name, msg);
 	flexend(1);
 }
 // 
@@ -260,7 +260,7 @@ void flexerror(const char * msg)
 // 
 void flexfatal(const char * msg)
 {
-	fprintf(stderr, _("%s: fatal internal error, %s\n"), program_name, msg);
+	slfprintf_stderr(_("%s: fatal internal error, %s\n"), program_name, msg);
 	FLEX_EXIT(1);
 }
 

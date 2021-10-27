@@ -114,11 +114,11 @@ void argmatch_valid(const char * const * arglist, const void * vallist, size_t v
 	fputs(_("Valid arguments are:"), stderr);
 	for(i = 0; arglist[i]; i++)
 		if((i == 0) || memcmp(last_val, (char const*)vallist + valsize * i, valsize)) {
-			fprintf(stderr, "\n  - %s", quote(arglist[i]));
+			slfprintf_stderr("\n  - %s", quote(arglist[i]));
 			last_val = (char const*)vallist + valsize * i;
 		}
 		else {
-			fprintf(stderr, ", %s", quote(arglist[i]));
+			slfprintf_stderr(", %s", quote(arglist[i]));
 		}
 	putc('\n', stderr);
 }
@@ -189,7 +189,7 @@ int main(int argc, const char * const * argv)
 	const char * cp;
 	enum backup_type backup_type = no_backups;
 	if(argc > 2) {
-		fprintf(stderr, "Usage: %s [VERSION_CONTROL]\n", getprogname());
+		slfprintf_stderr("Usage: %s [VERSION_CONTROL]\n", getprogname());
 		exit(1);
 	}
 	if((cp = getenv("VERSION_CONTROL")))

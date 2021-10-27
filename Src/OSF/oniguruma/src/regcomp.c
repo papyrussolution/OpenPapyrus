@@ -290,7 +290,7 @@ static int ops_make_string_pool(regex_t* reg)
 			switch(opcode) {
 				case OP_STR_MBN:
 					len = op->exact_len_n.len * op->exact_len_n.n;
-					xmemcpy(curr, op->exact_len_n.s, len);
+					memcpy(curr, op->exact_len_n.s, len);
 					SAlloc::F(op->exact_len_n.s);
 					op->exact_len_n.s = curr;
 					curr += len;
@@ -298,7 +298,7 @@ static int ops_make_string_pool(regex_t* reg)
 				case OP_STR_N:
 					len = op->exact_n.n;
 	copy:
-					xmemcpy(curr, op->exact_n.s, len);
+					memcpy(curr, op->exact_n.s, len);
 					SAlloc::F(op->exact_n.s);
 					op->exact_n.s = curr;
 					curr += len;
@@ -977,7 +977,7 @@ static int FASTCALL add_compile_string(uchar * s, int mb_len, int str_len, regex
 	}
 	else {
 		memzero(COP(reg)->exact.s, sizeof(COP(reg)->exact.s));
-		xmemcpy(COP(reg)->exact.s, s, (size_t)byte_len);
+		memcpy(COP(reg)->exact.s, s, (size_t)byte_len);
 	}
 	return 0;
 }
@@ -1066,7 +1066,7 @@ static void * set_multi_byte_cclass(BBuf* mbuf, regex_t* reg)
 	void * p = SAlloc::M(len);
 	if(IS_NULL(p)) 
 		return NULL;
-	xmemcpy(p, mbuf->p, len);
+	memcpy(p, mbuf->p, len);
 	return p;
 }
 
@@ -1083,7 +1083,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 		if(r != 0) return r;
 		COP(reg)->cclass.bsp = (BitSetRef)SAlloc::M(SIZE_BITSET);
 		CHECK_NULL_RETURN_MEMERR(COP(reg)->cclass.bsp);
-		xmemcpy(COP(reg)->cclass.bsp, cc->bs, SIZE_BITSET);
+		memcpy(COP(reg)->cclass.bsp, cc->bs, SIZE_BITSET);
 	}
 	else {
 		void * p;
@@ -1101,7 +1101,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 				return r;
 			COP(reg)->cclass_mix.bsp = (BitSetRef)SAlloc::M(SIZE_BITSET);
 			CHECK_NULL_RETURN_MEMERR(COP(reg)->cclass_mix.bsp);
-			xmemcpy(COP(reg)->cclass_mix.bsp, cc->bs, SIZE_BITSET);
+			memcpy(COP(reg)->cclass_mix.bsp, cc->bs, SIZE_BITSET);
 			p = set_multi_byte_cclass(cc->mbuf, reg);
 			CHECK_NULL_RETURN_MEMERR(p);
 			COP(reg)->cclass_mix.mb = p;
@@ -5576,7 +5576,7 @@ static void FASTCALL clear_opt_map(OptMap * map)
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		}
 	};
-	xmemcpy(map, &clean_info, sizeof(OptMap));
+	memcpy(map, &clean_info, sizeof(OptMap));
 }
 
 static void FASTCALL copy_opt_map(OptMap * to, const OptMap * from)
@@ -6005,7 +6005,7 @@ static int set_optimize_exact(regex_t* reg, OptStr* e)
 	if(e->len != 0) {
 		reg->exact = (uchar *)SAlloc::M(e->len);
 		CHECK_NULL_RETURN_MEMERR(reg->exact);
-		xmemcpy(reg->exact, e->s, e->len);
+		memcpy(reg->exact, e->s, e->len);
 		reg->exact_end = reg->exact + e->len;
 		int allow_reverse = ONIGENC_IS_ALLOWED_REVERSE_MATCH(reg->enc, reg->exact, reg->exact_end);
 		if(e->len >= 2 || (e->len >= 1 && allow_reverse)) {

@@ -11760,7 +11760,7 @@ public:
 			// (например, по причене не полной загрузки).
 		pfIgnoreOpRtList        = 0x00040000, // При изменении документа игнорировать ограничения списка доступных операций.
 			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
-		pfZombie                = 0x00080000  // Документ восстановлен из истории версий (прямое изменение запрещено)
+		pfZombie                = 0x00080000, // Документ восстановлен из истории версий (прямое изменение запрещено)
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
@@ -46410,7 +46410,8 @@ public:
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
-	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult);
+	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
 	enum {
 		gcisfMakeSecret = 0x0001
 	};

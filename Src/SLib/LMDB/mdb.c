@@ -537,7 +537,7 @@ typedef MDB_ID txnid_t;
 	 *	Requires double parenthesis around 2 or more args.
 	 */
 	#define DPRINTF(args) ((void)((mdb_debug) && DPRINTF0 args))
-	#define DPRINTF0(fmt, ...) fprintf(stderr, "%s:%d " fmt "\n", mdb_func_, __LINE__, __VA_ARGS__)
+	#define DPRINTF0(fmt, ...) slfprintf_stderr("%s:%d " fmt "\n", mdb_func_, __LINE__, __VA_ARGS__)
 #else
 	#define DPRINTF(args)  ((void)0)
 #endif
@@ -1628,7 +1628,7 @@ char * mdb_strerror(int err)
 		sprintf(buf, "%.100s:%d: Assertion '%.200s' failed in %.40s()", file, line, expr_txt, func);
 		if(env->me_assert_func)
 			env->me_assert_func(env, buf);
-		fprintf(stderr, "%s\n", buf);
+		slfprintf_stderr("%s\n", buf);
 		abort();
 	}
 #else
@@ -1694,23 +1694,23 @@ void mdb_page_list(MDB_page * mp)
 		case P_LEAF|P_LEAF2:        type = "LEAF2 page";                break;
 		case P_LEAF|P_LEAF2|P_SUBP: type = "LEAF2 sub-page";    break;
 		case P_OVERFLOW:
-		    fprintf(stderr, "Overflow page %" Yu " pages %u%s\n", pgno, mp->mp_pages, state);
+		    slfprintf_stderr("Overflow page %" Yu " pages %u%s\n", pgno, mp->mp_pages, state);
 		    return;
 		case P_META:
-		    fprintf(stderr, "Meta-page %" Yu " txnid %" Yu "\n", pgno, ((MDB_meta*)METADATA(mp))->mm_txnid);
+		    slfprintf_stderr("Meta-page %" Yu " txnid %" Yu "\n", pgno, ((MDB_meta*)METADATA(mp))->mm_txnid);
 		    return;
 		default:
-		    fprintf(stderr, "Bad page %" Yu " flags 0x%X\n", pgno, mp->mp_flags);
+		    slfprintf_stderr("Bad page %" Yu " flags 0x%X\n", pgno, mp->mp_flags);
 		    return;
 	}
 	nkeys = NUMKEYS(mp);
-	fprintf(stderr, "%s %" Yu " numkeys %d%s\n", type, pgno, nkeys, state);
+	slfprintf_stderr("%s %" Yu " numkeys %d%s\n", type, pgno, nkeys, state);
 	for(i = 0; i<nkeys; i++) {
 		if(IS_LEAF2(mp)) {      /* LEAF2 pages have no mp_ptrs[] or node headers */
 			key.mv_size = nsize = mp->mp_pad;
 			key.mv_data = LEAF2KEY(mp, i, nsize);
 			total += nsize;
-			fprintf(stderr, "key %d: nsize %d, %s\n", i, nsize, DKEY(&key));
+			slfprintf_stderr("key %d: nsize %d, %s\n", i, nsize, DKEY(&key));
 			continue;
 		}
 		node = NODEPTR(mp, i);
@@ -1718,7 +1718,7 @@ void mdb_page_list(MDB_page * mp)
 		key.mv_data = node->mn_data;
 		nsize = NODESIZE + key.mv_size;
 		if(IS_BRANCH(mp)) {
-			fprintf(stderr, "key %d: page %" Yu ", %s\n", i, NODEPGNO(node), DKEY(&key));
+			slfprintf_stderr("key %d: page %" Yu ", %s\n", i, NODEPGNO(node), DKEY(&key));
 			total += nsize;
 		}
 		else {
@@ -1728,11 +1728,11 @@ void mdb_page_list(MDB_page * mp)
 				nsize += NODEDSZ(node);
 			total += nsize;
 			nsize += sizeof(indx_t);
-			fprintf(stderr, "key %d: nsize %d, %s%s\n", i, nsize, DKEY(&key), mdb_leafnode_type(node));
+			slfprintf_stderr("key %d: nsize %d, %s%s\n", i, nsize, DKEY(&key), mdb_leafnode_type(node));
 		}
 		total = EVEN(total);
 	}
-	fprintf(stderr, "Total: header %d + contents %d + unused %d\n", IS_LEAF2(mp) ? PAGEHDRSZ : PAGEBASE + mp->mp_lower, total, SIZELEFT(mp));
+	slfprintf_stderr("Total: header %d + contents %d + unused %d\n", IS_LEAF2(mp) ? PAGEHDRSZ : PAGEBASE + mp->mp_lower, total, SIZELEFT(mp));
 }
 
 void mdb_cursor_chk(MDB_cursor * mc)
@@ -1803,7 +1803,7 @@ static void mdb_audit(MDB_txn * txn)
 		}
 	}
 	if(freecount + count + NUM_METAS != txn->mt_next_pgno) {
-		fprintf(stderr, "audit: %" Yu " freecount: %" Yu " count: %" Yu " total: %" Yu " next_pgno: %" Yu "\n",
+		slfprintf_stderr("audit: %" Yu " freecount: %" Yu " count: %" Yu " total: %" Yu " next_pgno: %" Yu "\n",
 		    txn->mt_txnid, freecount, count+NUM_METAS, freecount+count+NUM_METAS, txn->mt_next_pgno);
 	}
 }

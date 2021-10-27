@@ -143,9 +143,8 @@ size_t hash_get_n_entries(const Hash_table * table) { return table->n_entries; }
 /* Return the length of the longest chain (bucket).  */
 size_t hash_get_max_bucket_length(const Hash_table * table)
 {
-	struct hash_entry const * bucket;
 	size_t max_bucket_length = 0;
-	for(bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
+	for(struct hash_entry const * bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
 		if(bucket->data) {
 			struct hash_entry const * cursor = bucket;
 			size_t bucket_length = 1;
@@ -163,10 +162,9 @@ size_t hash_get_max_bucket_length(const Hash_table * table)
 
 bool hash_table_ok(const Hash_table * table)
 {
-	struct hash_entry const * bucket;
 	size_t n_buckets_used = 0;
 	size_t n_entries = 0;
-	for(bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
+	for(struct hash_entry const * bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
 		if(bucket->data) {
 			struct hash_entry const * cursor = bucket;
 			/* Count bucket head.  */
@@ -271,11 +269,9 @@ void * hash_get_next(const Hash_table * table, const void * entry)
 size_t hash_get_entries(const Hash_table * table, void ** buffer, size_t buffer_size)
 {
 	size_t counter = 0;
-	struct hash_entry const * bucket;
-	struct hash_entry const * cursor;
-	for(bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
+	for(struct hash_entry const * bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
 		if(bucket->data) {
-			for(cursor = bucket; cursor; cursor = cursor->next) {
+			for(struct hash_entry const * cursor = bucket; cursor; cursor = cursor->next) {
 				if(counter >= buffer_size)
 					return counter;
 				buffer[counter++] = cursor->data;
@@ -296,11 +292,9 @@ size_t hash_get_entries(const Hash_table * table, void ** buffer, size_t buffer_
 size_t hash_do_for_each(const Hash_table * table, Hash_processor processor, void * processor_data)
 {
 	size_t counter = 0;
-	struct hash_entry const * bucket;
-	struct hash_entry const * cursor;
-	for(bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
+	for(struct hash_entry const * bucket = table->bucket; bucket < table->bucket_limit; bucket++) {
 		if(bucket->data) {
-			for(cursor = bucket; cursor; cursor = cursor->next) {
+			for(struct hash_entry const * cursor = bucket; cursor; cursor = cursor->next) {
 				if(!processor(cursor->data, processor_data))
 					return counter;
 				counter++;
@@ -635,13 +629,10 @@ static void * hash_find_entry(Hash_table * table, const void * entry, struct has
 {
 	struct hash_entry * bucket = safe_hasher(table, entry);
 	struct hash_entry * cursor;
-
 	*bucket_head = bucket;
-
 	/* Test for empty bucket.  */
 	if(bucket->data == NULL)
 		return NULL;
-
 	/* See if the entry is the first in the bucket.  */
 	if(entry == bucket->data || table->comparator(entry, bucket->data)) {
 		void * data = bucket->data;
@@ -684,20 +675,18 @@ static void * hash_find_entry(Hash_table * table, const void * entry, struct has
 
 static bool transfer_entries(Hash_table * dst, Hash_table * src, bool safe)
 {
-	struct hash_entry * bucket;
-	struct hash_entry * cursor;
-	struct hash_entry * next;
-	for(bucket = src->bucket; bucket < src->bucket_limit; bucket++)
+	for(struct hash_entry * bucket = src->bucket; bucket < src->bucket_limit; bucket++)
 		if(bucket->data) {
 			void * data;
 			struct hash_entry * new_bucket;
+			struct hash_entry * next;
 			/* Within each bucket, transfer overflow entries first and
 			   then the bucket head, to minimize memory pressure.  After
 			   all, the only time we might allocate is when moving the
 			   bucket head, but moving overflow entries first may create
 			   free entries that can be recycled by the time we finally
 			   get to the bucket head.  */
-			for(cursor = bucket->next; cursor; cursor = next) {
+			for(struct hash_entry * cursor = bucket->next; cursor; cursor = next) {
 				data = cursor->data;
 				new_bucket = safe_hasher(dst, data);
 				next = cursor->next;
@@ -917,38 +906,36 @@ void * hash_delete(Hash_table * table, const void * entry)
 {
 	struct hash_entry * bucket;
 	void * data = hash_find_entry(table, entry, &bucket, true);
-	if(!data)
-		return NULL;
-	table->n_entries--;
-	if(!bucket->data) {
-		table->n_buckets_used--;
-		/* If the shrink threshold of the buckets in use has been reached,
-		   rehash into a smaller table.  */
-		if(table->n_buckets_used
-		    < table->tuning->shrink_threshold * table->n_buckets) {
-			/* Check more fully, before starting real work.  If tuning arguments
-			   became invalid, the second check will rely on proper defaults.  */
-			check_tuning(table);
-			if(table->n_buckets_used
-			    < table->tuning->shrink_threshold * table->n_buckets) {
-				const Hash_tuning * tuning = table->tuning;
-				size_t candidate = (size_t)(tuning->is_n_buckets ? table->n_buckets * tuning->shrink_factor : (table->n_buckets * tuning->shrink_factor * tuning->growth_threshold));
-				if(!hash_rehash(table, candidate)) {
-					/* Failure to allocate memory in an attempt to
-					   shrink the table is not fatal.  But since memory
-					   is low, we can at least be kind and free any
-					   spare entries, rather than keeping them tied up
-					   in the free entry list.  */
+	if(data) {
+		table->n_entries--;
+		if(!bucket->data) {
+			table->n_buckets_used--;
+			/* If the shrink threshold of the buckets in use has been reached,
+			   rehash into a smaller table.  */
+			if(table->n_buckets_used < table->tuning->shrink_threshold * table->n_buckets) {
+				/* Check more fully, before starting real work.  If tuning arguments
+				   became invalid, the second check will rely on proper defaults.  */
+				check_tuning(table);
+				if(table->n_buckets_used < table->tuning->shrink_threshold * table->n_buckets) {
+					const Hash_tuning * tuning = table->tuning;
+					size_t candidate = (size_t)(tuning->is_n_buckets ? table->n_buckets * tuning->shrink_factor : (table->n_buckets * tuning->shrink_factor * tuning->growth_threshold));
+					if(!hash_rehash(table, candidate)) {
+						/* Failure to allocate memory in an attempt to
+						   shrink the table is not fatal.  But since memory
+						   is low, we can at least be kind and free any
+						   spare entries, rather than keeping them tied up
+						   in the free entry list.  */
 #if !USE_OBSTACK
-					struct hash_entry * cursor = table->free_entry_list;
-					struct hash_entry * next;
-					while(cursor) {
-						next = cursor->next;
-						SAlloc::F(cursor);
-						cursor = next;
-					}
-					table->free_entry_list = NULL;
+						struct hash_entry * cursor = table->free_entry_list;
+						struct hash_entry * next;
+						while(cursor) {
+							next = cursor->next;
+							SAlloc::F(cursor);
+							cursor = next;
+						}
+						table->free_entry_list = NULL;
 #endif
+					}
 				}
 			}
 		}

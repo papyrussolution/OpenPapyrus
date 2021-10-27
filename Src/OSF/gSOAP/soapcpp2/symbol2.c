@@ -958,7 +958,7 @@ Tnode * mktype(Type type, void * ref, int width)
 	p->maxLength = MAXLONG64;
 	p->num = typeNO++;
 	Tptr[type] = p;
-	DBGLOG(fprintf(stderr, "New type %s %s\n", c_type(p), p->imported));
+	DBGLOG(slfprintf_stderr("New type %s %s\n", c_type(p), p->imported));
 	if(type == Tpointer && ((Tnode *)ref)->imported &&
 	   (((Tnode *)ref)->type == Tenum || ((Tnode *)ref)->type == Tstruct || ((Tnode *)ref)->type == Tclass))
 		p->imported = ((Tnode *)ref)->imported;
@@ -987,7 +987,7 @@ Tnode * mksymtype(Tnode * typ, Symbol * sym)
 	p->maxLength = MAXLONG64;
 	p->num = typeNO++;
 	Tptr[typ->type] = p;
-	DBGLOG(fprintf(stderr, "New typedef %s %s\n", c_type(p), p->imported));
+	DBGLOG(slfprintf_stderr("New typedef %s %s\n", c_type(p), p->imported));
 	return p;
 }
 
@@ -1386,10 +1386,10 @@ void compile(Table * table)
 				fprintf(fout, "\n\tif(soap_peek_element(soap))\n\t\treturn NULL;");
 				fprintf(fout, "\n\tif(!*soap->id || !(*type = soap_lookup_type(soap, soap->id)))\n\t\t*type = soap_lookup_type(soap, soap->href);");
 				fprintf(fout, "\n\tswitch(*type) {");
-				DBGLOG(fprintf(stderr, "\n Calling in_defs( )."));
+				DBGLOG(slfprintf_stderr("\n Calling in_defs( )."));
 				fflush(fout);
 				in_defs(table);
-				DBGLOG(fprintf(stderr, "\n Completed in_defs( )."));
+				DBGLOG(slfprintf_stderr("\n Completed in_defs( )."));
 				fprintf(fout, "\n\tdefault:\n\t{\tconst char *t = soap->type;\n\t\tif(!*t)\n\t\t\tt = soap->tag;");
 				fflush(fout);
 				in_defs2(table);
@@ -1588,9 +1588,9 @@ void compile(Table * table)
 	fprintf(fheader, "\n\n/* End of %s */\n", soapStub);
 	fclose(fheader);
 	if(mflag) {
-		DBGLOG(fprintf(stderr, "\n Calling matlab_def_table( )."));
+		DBGLOG(slfprintf_stderr("\n Calling matlab_def_table( )."));
 		matlab_def_table(table);
-		DBGLOG(fprintf(stderr, "\n Completed matlab_def_table( )."));
+		DBGLOG(slfprintf_stderr("\n Completed matlab_def_table( )."));
 		fclose(fmatlab);
 		fclose(fmheader);
 	}
@@ -1672,7 +1672,7 @@ void gen_class(FILE * fd, Entry * p)
 		fprintf(fd, "/* %s */\n", x);
 	fflush(fd);
 	if(typ->type == Tstruct) {
-		DBGLOG(fprintf(stderr, "\nstruct %s\n", typ->id->name));
+		DBGLOG(slfprintf_stderr("\nstruct %s\n", typ->id->name));
 		if(typ->ref) {
 			int permission = -1;
 			fprintf(fd, "struct %s {\n", ident(typ->id->name));
@@ -1773,7 +1773,7 @@ void gen_class(FILE * fd, Entry * p)
 		}
 	}
 	else if(typ->type == Tclass) {
-		DBGLOG(fprintf(stderr, "\nclass %s\n", typ->id->name));
+		DBGLOG(slfprintf_stderr("\nclass %s\n", typ->id->name));
 		if(typ->ref) {
 			int permission = -1;
 			fprintf(fd, "class SOAP_CMAC %s", ident(typ->id->name));
@@ -2360,7 +2360,7 @@ void generate_schema(Table * t)
 							if(q)
 								p = (Entry *)q->info.typ->ref;
 							else {
-								fprintf(stderr, "Internal error: no table entry\n");
+								slfprintf_stderr("Internal error: no table entry\n");
 							      return; 
 							}
 							q = entry(classtable, method->sym);
@@ -4076,12 +4076,12 @@ void gen_proxy(FILE * fd, Table * table, Symbol * ns, char * name, char * URL, c
 			if(p)
 				q = (Entry *)p->info.typ->ref;
 			else {
-				fprintf(stderr, "Internal error: no table entry\n");
+				slfprintf_stderr("Internal error: no table entry\n");
 				return; 
 			}
 			p = entry(classtable, r->sym);
 			if(!p) {
-				fprintf(stderr, "Internal error: no parameter table entry\n");
+				slfprintf_stderr("Internal error: no parameter table entry\n");
 				return;
 			}
 			output = (Table *)p->info.typ->ref;
@@ -4175,7 +4175,7 @@ void gen_object(FILE * fd, Table * table, Symbol * ns, char * name, char * URL, 
 			if(q)
 				p = static_cast<Entry *>(q->info.typ->ref);
 			else {
-				fprintf(stderr, "Internal error: no table entry\n");
+				slfprintf_stderr("Internal error: no table entry\n");
 				return; 
 			}
 			q = entry(classtable, method->sym);
@@ -6012,7 +6012,7 @@ void generate_proto(Table * table, Entry * param)
 		fprintf(fheader, ";");
 	}
 	else
-		fprintf(stderr, "Internal error: no table entry\n");
+		slfprintf_stderr("Internal error: no table entry\n");
 }
 
 int tagcmp(const char * s, const char * t)
@@ -7634,7 +7634,7 @@ void func1(Table * table, Entry * param)
 	if(q)
 		pout = (Entry *)q->info.typ->ref;
 	else {
-		fprintf(stderr, "Internal error: no table entry\n");
+		slfprintf_stderr("Internal error: no table entry\n");
 	      return; 
 	}
 	q = entry(classtable, param->sym);
@@ -7682,7 +7682,7 @@ void matlab_def_table(Table * table)
 				if(e)
 					pout = (Entry *)e->info.typ->ref;
 				else {
-					fprintf(stderr, "Internal error: no table entry\n");
+					slfprintf_stderr("Internal error: no table entry\n");
 				      return; 
 				}
 				if(!is_response(pout->info.typ)) {

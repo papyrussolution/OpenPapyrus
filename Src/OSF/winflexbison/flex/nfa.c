@@ -68,7 +68,7 @@ int     copysingl(int singl, int num)
 // 
 void    dumpnfa(int state1)
 {
-	fprintf(stderr, _("\n\n********** beginning dump of nfa with start state %d\n"), state1);
+	slfprintf_stderr(_("\n\n********** beginning dump of nfa with start state %d\n"), state1);
 	/* We probably should loop starting at firstst[state1] and going to
 	 * lastst[state1], but they're not maintained properly when we "or"
 	 * all of the rules together.  So we use our knowledge that the machine
@@ -76,17 +76,17 @@ void    dumpnfa(int state1)
 	 */
 	/* for(ns = firstst[state1]; ns <= lastst[state1]; ++ns ) */
 	for(int ns = 1; ns <= lastnfa; ++ns) {
-		fprintf(stderr, _("state # %4d\t"), ns);
+		slfprintf_stderr(_("state # %4d\t"), ns);
 		int sym = transchar[ns];
 		int tsp1 = trans1[ns];
 		int tsp2 = trans2[ns];
 		int anum = accptnum[ns];
-		fprintf(stderr, "%3d:  %4d, %4d", sym, tsp1, tsp2);
+		slfprintf_stderr("%3d:  %4d, %4d", sym, tsp1, tsp2);
 		if(anum)
-			fprintf(stderr, "  [%d]", anum);
-		fprintf(stderr, "\n");
+			slfprintf_stderr("  [%d]", anum);
+		slfprintf_stderr("\n");
 	}
-	fprintf(stderr, _("********** end of dump\n"));
+	slfprintf_stderr(_("********** end of dump\n"));
 }
 
 /* dupmachine - make a duplicate of a given machine
@@ -166,7 +166,7 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 	if(variable_trail_rule) {
 		rule_type[num_rules] = RULE_VARIABLE;
 		if(performance_report > 0)
-			fprintf(stderr, _("Variable trailing context rule at line %d\n"), rule_linenum[num_rules]);
+			slfprintf_stderr(_("Variable trailing context rule at line %d\n"), rule_linenum[num_rules]);
 		variable_trailing_context_rules = true;
 	}
 	else {

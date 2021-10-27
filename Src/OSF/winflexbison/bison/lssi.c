@@ -108,7 +108,7 @@ static bitset eligible_state_items(state_item * target)
 	bitset result = bitset_create(nstate_items, BITSET_FIXED);
 	state_item_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&target);
 	while(gl_list_size(queue) > 0) {
-		state_item * si = (state_item*)gl_list_get_at(queue, 0);
+		state_item * si = (state_item *)gl_list_get_at(queue, 0);
 		gl_list_remove_at(queue, 0);
 		if(bitset_test(result, si - state_items))
 			continue;
@@ -215,7 +215,7 @@ state_item_list shortest_path_from_start(state_item_number target, symbol_number
 		gl_list_iterator_t it = gl_list_iterator(res);
 		const void * sip;
 		while(gl_list_iterator_next(&it, &sip, NULL))
-			state_item_print((state_item*)sip, stdout, "");
+			state_item_print((state_item *)sip, stdout, "");
 	}
 	return res;
 }

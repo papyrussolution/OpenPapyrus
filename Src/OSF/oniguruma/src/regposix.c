@@ -185,7 +185,7 @@ extern int onig_posix_regexec(onig_posix_regex_t* reg, const char* str, size_t n
 	if(r >= 0) {
 		r = 0; /* Match */
 		if(pm != pmatch && pm != NULL) {
-			xmemcpy(pmatch, pm, sizeof(onig_posix_regmatch_t) * nmatch);
+			memcpy(pmatch, pm, sizeof(onig_posix_regmatch_t) * nmatch);
 		}
 	}
 	else if(r == ONIG_MISMATCH) {

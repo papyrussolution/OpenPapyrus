@@ -261,7 +261,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 				uintptr_t items = (q[0] ^ cookie);
 				for(uintptr_t i = 0; i < items; i++) {
 					if((q[i] ^ cookie) != items - i) {
-						fprintf(stderr, "memory corruption at block %p at %zu\n", p, i);
+						slfprintf_stderr("memory corruption at block %p at %zu\n", p, i);
 						abort();
 					}
 				}
@@ -392,17 +392,17 @@ int MiMalloc_Test03()
 	#undef CHECK
 	#define CHECK_BODY(name, body) \
 		do { \
-			fprintf(stderr, "test: %s...  ", name); \
+			slfprintf_stderr("test: %s...  ", name); \
 			bool result = true;                                     \
 			do { body } while(false);                                \
 			if(!(result)) {                                        \
 				failed++; \
-				fprintf(stderr, "\n  FAILED: %s:%d:\n  %s\n", __FILE__, __LINE__, #body);                                       \
+				slfprintf_stderr("\n  FAILED: %s:%d:\n  %s\n", __FILE__, __LINE__, #body);                                       \
 				/* exit(1); */ \
 			} \
 			else { \
 				ok++;                               \
-				fprintf(stderr, "ok.\n");                    \
+				slfprintf_stderr("ok.\n");                    \
 			}                                             \
 		} while(false)
 
@@ -567,7 +567,7 @@ int MiMalloc_Test03()
 	//
 	// Done
 	//
-	fprintf(stderr, "\n\n---------------------------------------------\nsucceeded: %i\nfailed   : %i\n\n", ok, failed);
+	slfprintf_stderr("\n\n---------------------------------------------\nsucceeded: %i\nfailed   : %i\n\n", ok, failed);
 	return failed;
 	#undef CHECK_BODY
 	#undef CHECK

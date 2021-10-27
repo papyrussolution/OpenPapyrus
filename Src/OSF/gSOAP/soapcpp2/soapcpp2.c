@@ -295,7 +295,7 @@ infile	header file to parse (or stdin)\n\
 					stop_flag = 1;
 					break;
 				    default:
-					fprintf(stderr, "soapcpp2: Unknown option %s\n", a);
+					slfprintf_stderr("soapcpp2: Unknown option %s\n", a);
 					exit(1);
 				}
 		}

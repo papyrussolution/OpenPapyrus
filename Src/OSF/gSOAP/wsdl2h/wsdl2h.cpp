@@ -157,7 +157,7 @@ compiling, linking, and/or using OpenSSL is allowed.\n\
 int main(int argc, char ** argv)
 {
 	init();
-	fprintf(stderr, "%s", copyrightnotice);
+	slfprintf_stderr("%s", copyrightnotice);
 	options(argc, argv);
 	Definitions def;
 	wsdl__definitions definitions;
@@ -170,10 +170,10 @@ int main(int argc, char ** argv)
 	def.compile(definitions);
 	if(outfile) {
 		fclose(stream);
-		fprintf(stderr, "\nTo complete the process, compile with:\n> soapcpp2 %s\n", outfile);
+		slfprintf_stderr("\nTo complete the process, compile with:\n> soapcpp2 %s\n", outfile);
 		if(!cflag)
-			fprintf(stderr, "or to generate C++ proxy and object classes:\n> soapcpp2 -j %s\n", outfile);
-		fprintf(stderr, "\n");
+			slfprintf_stderr("or to generate C++ proxy and object classes:\n> soapcpp2 -j %s\n", outfile);
+		slfprintf_stderr("\n");
 	}
 	return 0;
 }
@@ -226,7 +226,7 @@ static void options(int argc, char ** argv)
 				  case 'c':
 				      cflag = 1;
 				      if(cppnamespace)
-					      fprintf(stderr, "wsdl2h: Options -c and -q clash\n");
+					      slfprintf_stderr("wsdl2h: Options -c and -q clash\n");
 				      break;
 				  case 'd':
 				      dflag = 1;
@@ -257,10 +257,10 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      import_path = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -I requires a path argument\n");
+					      slfprintf_stderr("wsdl2h: Option -I requires a path argument\n");
 				      break;
 				  case 'l':
-				      fprintf(stderr, "%s", licensenotice);
+				      slfprintf_stderr("%s", licensenotice);
 				      exit(0);
 				      break;
 				  case 'm':
@@ -274,7 +274,7 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      schema_prefix = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -n requires a prefix name argument\n");
+					      slfprintf_stderr("wsdl2h: Option -n requires a prefix name argument\n");
 				      break;
 				  case 'N':
 				      a++;
@@ -284,7 +284,7 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      service_prefix = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -N requires a prefix name argument\n");
+					      slfprintf_stderr("wsdl2h: Option -N requires a prefix name argument\n");
 				      break;
 				  case 'o':
 				      a++;
@@ -294,7 +294,7 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      outfile = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -o requires an output file argument\n");
+					      slfprintf_stderr("wsdl2h: Option -o requires an output file argument\n");
 				      break;
 				  case 'p':
 				      pflag = 1;
@@ -310,9 +310,9 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      cppnamespace = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -q requires a C++ namespace name argument\n");
+					      slfprintf_stderr("wsdl2h: Option -q requires a C++ namespace name argument\n");
 				      if(cflag)
-					      fprintf(stderr, "wsdl2h: Options -c and -q clash\n");
+					      slfprintf_stderr("wsdl2h: Options -c and -q clash\n");
 				      break;
 				  case 'r':
 				      a++;
@@ -322,7 +322,7 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      proxy_host = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -r requires a proxy host:port argument\n");
+					      slfprintf_stderr("wsdl2h: Option -r requires a proxy host:port argument\n");
 				      if(proxy_host) {
 					      char * s = static_cast<char *>(emalloc(strlen(proxy_host + 1)));
 					      strcpy(s, proxy_host);
@@ -354,7 +354,7 @@ static void options(int argc, char ** argv)
 				      else if(i < argc && argv[++i])
 					      mapfile = argv[i];
 				      else
-					      fprintf(stderr, "wsdl2h: Option -t requires a type map file argument\n");
+					      slfprintf_stderr("wsdl2h: Option -t requires a type map file argument\n");
 				      break;
 				  case 'u':
 				      uflag = 1;
@@ -428,13 +428,13 @@ infile.wsdl infile.xsd http://www... list of input sources (if none: use stdin)\
 \n"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               );
 				      exit(0);
 				  default:
-				      fprintf(stderr, "wsdl2h: Unknown option %s\n", a);
+				      slfprintf_stderr("wsdl2h: Unknown option %s\n", a);
 				      exit(1); }
 			}
 		}
 		else{infile[infiles++] = argv[i];
 		     if(infiles >= MAXINFILES) {
-			     fprintf(stderr, "wsdl2h: too many files\n");
+			     slfprintf_stderr("wsdl2h: too many files\n");
 			     exit(1);
 		     }
 		}
@@ -458,12 +458,12 @@ infile.wsdl infile.xsd http://www... list of input sources (if none: use stdin)\
 		if(outfile) {
 			stream = fopen(outfile, "w");
 			if(!stream) {
-				fprintf(stderr, "Cannot write to %s\n", outfile);
+				slfprintf_stderr("Cannot write to %s\n", outfile);
 				exit(1);
 			}
 			if(cppnamespace)
 				fprintf(stream, "namespace %s {\n", cppnamespace);
-			fprintf(stderr, "Saving %s\n\n", outfile);
+			slfprintf_stderr("Saving %s\n\n", outfile);
 		}
 	}
 }

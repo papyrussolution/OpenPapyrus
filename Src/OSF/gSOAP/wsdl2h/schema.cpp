@@ -138,29 +138,19 @@ int xs__schema::insert(xs__schema& schema)
 	bool found;
 	if(targetNamespace && schema.targetNamespace && strcmp(targetNamespace, schema.targetNamespace))
 		if(!Wflag)
-			fprintf(stderr,
-			    "Warning: attempt to include schema with mismatching targetNamespace '%s' in schema '%s'\n",
-			    schema.targetNamespace,
-			    targetNamespace);
+			slfprintf_stderr("Warning: attempt to include schema with mismatching targetNamespace '%s' in schema '%s'\n", schema.targetNamespace, targetNamespace);
 	if(elementFormDefault != schema.elementFormDefault)
 		if(!Wflag)
-			fprintf(stderr,
-			    "Warning: attempt to include schema with mismatching elementFormDefault in schema '%s'\n",
-			    targetNamespace ? targetNamespace : "");
+			slfprintf_stderr("Warning: attempt to include schema with mismatching elementFormDefault in schema '%s'\n", targetNamespace ? targetNamespace : "");
 	if(attributeFormDefault != schema.attributeFormDefault)
 		if(!Wflag)
-			fprintf(stderr,
-			    "Warning: attempt to include schema with mismatching attributeFormDefault in schema '%s'\n",
-			    targetNamespace ? targetNamespace : "");
+			slfprintf_stderr("Warning: attempt to include schema with mismatching attributeFormDefault in schema '%s'\n", targetNamespace ? targetNamespace : "");
 	// insert imports, but only add imports with new namespace
 	for(vector<xs__import>::const_iterator im = schema.import.begin(); im != schema.import.end(); ++im) {
 		found = false;
 		if((*im).namespace_) {
-			for(vector<xs__import>::const_iterator i = import.begin(); i != import.end(); ++i)                       {
-				if((*i).namespace_ &&
-				    !strcmp((*im).namespace_,
-					    (*i).namespace_))
-				{
+			for(vector<xs__import>::const_iterator i = import.begin(); i != import.end(); ++i) {
+				if((*i).namespace_ && !strcmp((*im).namespace_, (*i).namespace_)) {
 					found = true;
 					break;
 				}
@@ -178,7 +168,7 @@ int xs__schema::insert(xs__schema& schema)
 					found = true;
 					if((*at).type && (*a).type && strcmp((*at).type, (*a).type))
 						if(!Wflag)
-							fprintf(stderr, "Warning: attempt to redefine attribute '%s' with type '%s' in schema '%s'\n",
+							slfprintf_stderr("Warning: attempt to redefine attribute '%s' with type '%s' in schema '%s'\n",
 							    (*at).name, (*at).type, targetNamespace ? targetNamespace : "");
 					break;
 				}
@@ -198,8 +188,7 @@ int xs__schema::insert(xs__schema& schema)
 					found = true;
 					if((*el).type && (*e).type && strcmp((*el).type, (*e).type))
 						if(!Wflag)
-							fprintf(stderr, "Warning: attempt to redefine element '%s' with type '%s' in schema '%s'\n",
-							    (*el).name, (*el).type, targetNamespace ? targetNamespace : "");
+							slfprintf_stderr("Warning: attempt to redefine element '%s' with type '%s' in schema '%s'\n", (*el).name, (*el).type, targetNamespace ? targetNamespace : "");
 					break;
 				}
 			}
@@ -285,12 +274,12 @@ int xs__schema::traverse()
 	updated = true;
 	if(!targetNamespace) {
 		if(vflag)
-			fprintf(stderr, "Warning: Schema has no targetNamespace\n");
+			slfprintf_stderr("Warning: Schema has no targetNamespace\n");
 		targetNamespace = soap_strdup(soap, "");
 	}
 	else if(exturis.find(targetNamespace) != exturis.end()) {
 		if(vflag)
-			fprintf(stderr, "Warning: Built-in schema '%s' content encountered\n", targetNamespace);
+			slfprintf_stderr("Warning: Built-in schema '%s' content encountered\n", targetNamespace);
 	}
 	// process import
 	for(vector<xs__import>::iterator im = import.begin(); im != import.end(); ++im)
@@ -334,7 +323,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 	if(!cwd)
 		cwd = cwd_path;
 	if(vflag)
-		fprintf(stderr, "\nOpening schema '%s' from '%s'\n", loc ? loc : "", cwd ? cwd : "");
+		slfprintf_stderr("\nOpening schema '%s' from '%s'\n", loc ? loc : "", cwd ? cwd : "");
 	if(loc) {
 #ifdef WITH_OPENSSL
 		if(!strncmp(loc, "http://", 7) || !strncmp(loc, "https://", 8))
@@ -348,13 +337,13 @@ int xs__schema::read(const char * cwd, const char * loc)
 		else if(!strncmp(loc, "http://", 7))
 #endif
 		{ 
-			fprintf(stderr, "\nConnecting to '%s' to retrieve schema...\n", loc);
+			slfprintf_stderr("\nConnecting to '%s' to retrieve schema...\n", loc);
 		  location = soap_strdup(soap, loc);
 		  if(soap_connect_command(soap, SOAP_GET, location, NULL)) {
-			  fprintf(stderr, "\nConnection failed\n");
+			  slfprintf_stderr("\nConnection failed\n");
 			  exit(1);
 		  }
-		  fprintf(stderr, "Connected, receiving...\n"); }
+		  slfprintf_stderr("Connected, receiving...\n"); }
 		else if(cwd && (!strncmp(cwd, "http://", 7) || !strncmp(cwd, "https://", 8))) {
 			char * s;
 			location = (char *)soap_malloc(soap, strlen(cwd) + strlen(loc) + 2);
@@ -364,12 +353,12 @@ int xs__schema::read(const char * cwd, const char * loc)
 				*s = '\0';
 			strcat(location, "/");
 			strcat(location, loc);
-			fprintf(stderr, "\nConnecting to '%s' to retrieve relative '%s' schema...\n", location, loc);
+			slfprintf_stderr("\nConnecting to '%s' to retrieve relative '%s' schema...\n", location, loc);
 			if(soap_connect_command(soap, SOAP_GET, location, NULL)) {
-				fprintf(stderr, "\nConnection failed\n");
+				slfprintf_stderr("\nConnection failed\n");
 				exit(1);
 			}
-			fprintf(stderr, "Connected, receiving...\n");
+			slfprintf_stderr("Connected, receiving...\n");
 		}
 		else{soap->recvfd = open(loc, O_RDONLY, 0);
 		     if(soap->recvfd < 0) {
@@ -400,13 +389,13 @@ int xs__schema::read(const char * cwd, const char * loc)
 				     soap->recvfd = open(location, O_RDONLY, 0);
 			     }
 			     if(soap->recvfd < 0) {
-				     fprintf(stderr, "\nCannot open '%s' to retrieve schema\n", loc);
+				     slfprintf_stderr("\nCannot open '%s' to retrieve schema\n", loc);
 				     exit(1);
 			     }
 		     }
 		     else
 			     location = soap_strdup(soap, loc);
-		     fprintf(stderr, "\nReading schema file '%s'...\n", location); }
+		     slfprintf_stderr("\nReading schema file '%s'...\n", location); }
 	}
 	cwd_temp = cwd_path;
 	cwd_path = location;
@@ -414,16 +403,16 @@ int xs__schema::read(const char * cwd, const char * loc)
 		this->soap_in(soap, "xs:schema", NULL);
 	if((soap->error >= 301 && soap->error <= 303) || soap->error == 307) { // HTTP redirect, socket was closed
 		int r = SOAP_ERR;
-		fprintf(stderr, "Redirected to '%s'...\n", soap->endpoint);
+		slfprintf_stderr("Redirected to '%s'...\n", soap->endpoint);
 		if(redirs++ < 10)
 			r = read(cwd, soap->endpoint);
 		else
-			fprintf(stderr, "\nMax redirects exceeded\n");
+			slfprintf_stderr("\nMax redirects exceeded\n");
 		redirs--;
 		return r;
 	}
 	if(soap->error) {
-		fprintf(stderr, "\nAn error occurred while parsing schema from '%s'\n", loc ? loc : "");
+		slfprintf_stderr("\nAn error occurred while parsing schema from '%s'\n", loc ? loc : "");
 		soap_print_fault(soap, stderr);
 		soap_print_fault_location(soap, stderr);
 		fprintf(
@@ -431,7 +420,7 @@ int xs__schema::read(const char * cwd, const char * loc)
 		    "\nIf this schema namespace is considered \"built-in\", then add\n  namespaceprefix = <namespaceURI>\nto typemap.dat.\n");
 		exit(1);
 	}
-	fprintf(stderr, "Done reading '%s'\n", loc ? loc : "");
+	slfprintf_stderr("Done reading '%s'\n", loc ? loc : "");
 	soap_end_recv(soap);
 	if(soap->recvfd > 2) {
 		close(soap->recvfd);
@@ -668,7 +657,7 @@ int xs__import::traverse(xs__schema &schema)
 			}
 		}
 		else if(!Wflag)
-			fprintf(stderr, "Warning: no namespace in <import>\n");
+			slfprintf_stderr("Warning: no namespace in <import>\n");
 		if(!found && !iflag) { // don't import any of the schemas in the .nsmap table (or when -i option is
 		                       // used)
 			const char * s = schemaLocation;

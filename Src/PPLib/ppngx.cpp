@@ -736,10 +736,8 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						SBinaryChunk _sess_secret;
 						StyloQCore::StoragePacket sess_pack;
 						//
-						if(sp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk)) {
-							if(temp_chunk.Len() == sizeof(uint32)) {
-								cli_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
-							}
+						if(sp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk) && temp_chunk.Len() == sizeof(uint32)) {
+							cli_session_expiry_period = PTR32C(temp_chunk.PtrC())[0];
 						}
 						//
 						// Теперь надо сохранить параметры сессии дабы в следующий раз не проделывать столь сложную процедуру

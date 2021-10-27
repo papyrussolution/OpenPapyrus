@@ -784,7 +784,7 @@ unsigned int hb_ot_layout_language_get_feature_tags(hb_face_t * face,
 	const OT::LangSys &l = g.get_script(script_index).get_lang_sys(language_index);
 
 	static_assert((sizeof(uint) == sizeof(hb_tag_t)), "");
-	unsigned int ret = l.get_feature_indexes(start_offset, feature_count, (unsigned int*)feature_tags);
+	unsigned int ret = l.get_feature_indexes(start_offset, feature_count, (uint *)feature_tags);
 
 	if(feature_tags) {
 		unsigned int count = *feature_count;

@@ -306,7 +306,7 @@ static void usage(int);
 static void usage(int status)
 {
 	if(status != 0)
-		fprintf(stderr, _("Try '%s --help' for more information.\n"), get_program_name());
+		slfprintf_stderr(_("Try '%s --help' for more information.\n"), get_program_name());
 	else {
 		/* For ../build-aux/cross-options.pl to work, use the format:
 		          ^  -S, --long[=ARGS] (whitespace)

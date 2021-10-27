@@ -851,20 +851,15 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 		struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)ContextID;
 		struct _cmsContext_struct fakeContext;
 		struct _cmsContext_struct* prev;
-
 		memcpy(&fakeContext.DefaultMemoryManager, &ctx->DefaultMemoryManager, sizeof(ctx->DefaultMemoryManager));
-
 		fakeContext.chunks[UserPtr]     = ctx->chunks[UserPtr];
 		fakeContext.chunks[MemPlugin]   = &fakeContext.DefaultMemoryManager;
-
 		// Get rid of plugins
 		cmsUnregisterPluginsTHR(ContextID);
-
 		// Since all memory is allocated in the private pool, all what we need to do is destroy the pool
 		if(ctx->MemPool != NULL)
 			_cmsSubAllocDestroy(ctx->MemPool);
 		ctx->MemPool = NULL;
-
 		// Maintain list
 		_cmsEnterCriticalSectionPrimitive(&_cmsContextPoolHeadMutex);
 		if(_cmsContextPoolHead == ctx) {
@@ -882,7 +877,6 @@ void CMSEXPORT cmsDeleteContext(cmsContext ContextID)
 			}
 		}
 		_cmsLeaveCriticalSectionPrimitive(&_cmsContextPoolHeadMutex);
-
 		// free the memory block itself
 		_cmsFree(&fakeContext, ctx);
 	}

@@ -132,9 +132,7 @@ static bitset_bindex abitset_list_reverse(bitset src, bitset_bindex * list, bits
 		}
 		bitoff -= BITSET_WORD_BITS;
 		bitcnt = BITSET_WORD_BITS - 1;
-	}
-	while(windex--);
-
+	} while(windex--);
 	*next = n_bits - (bitoff + 1);
 	return count;
 }
@@ -488,7 +486,6 @@ static void abitset_or_and(bitset dst, bitset src1, bitset src2, bitset src3)
 	bitset_word * src3p = ABITSET_WORDS(src3);
 	bitset_word * dstp = ABITSET_WORDS(dst);
 	bitset_windex size = dst->b.csize;
-
 	for(bitset_windex i = 0; i < size; i++)
 		*dstp++ = (*src1p++ | *src2p++) & *src3p++;
 }
@@ -501,7 +498,6 @@ static bool abitset_or_and_cmp(bitset dst, bitset src1, bitset src2, bitset src3
 	bitset_word * src3p = ABITSET_WORDS(src3);
 	bitset_word * dstp = ABITSET_WORDS(dst);
 	bitset_windex size = dst->b.csize;
-
 	for(bitset_windex i = 0; i < size; i++, dstp++) {
 		bitset_word tmp = (*src1p++ | *src2p++) & *src3p++;
 		if(*dstp != tmp) {
@@ -598,15 +594,11 @@ size_t abitset_bytes(bitset_bindex n_bits)
 {
 	size_t header_size = offsetof(union bitset_union, a.words);
 	struct bitset_align_struct { char a; union bitset_union b; };
-
 	size_t bitset_alignment = offsetof(struct bitset_align_struct, b);
-
 	bitset_windex size = ABITSET_N_WORDS(n_bits);
 	size_t bytes = header_size + size * sizeof(bitset_word);
-
 	/* Align the size properly for a vector of abitset objects.  */
-	if(header_size % bitset_alignment != 0
-	    || sizeof(bitset_word) % bitset_alignment != 0) {
+	if(header_size % bitset_alignment != 0 || sizeof(bitset_word) % bitset_alignment != 0) {
 		bytes += bitset_alignment - 1;
 		bytes -= bytes % bitset_alignment;
 	}
@@ -618,7 +610,6 @@ bitset abitset_init(bitset bset, bitset_bindex n_bits)
 {
 	bitset_windex size = ABITSET_N_WORDS(n_bits);
 	BITSET_NBITS_(bset) = n_bits;
-
 	/* Use optimized routines if bitset fits within a single word.
 	   There is probably little merit if using caching since
 	   the small bitset will always fit in the cache.  */

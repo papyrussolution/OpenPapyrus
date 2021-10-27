@@ -4856,7 +4856,7 @@ static void yy_pop_state(void)
 
 static void yynoreturn yy_fatal_error(const char* msg)
 {
-	fprintf(stderr, "%s\n", msg);
+	slfprintf_stderr("%s\n", msg);
 	exit(YY_EXIT_FAILURE);
 }
 

@@ -160,10 +160,10 @@ int Types::read(const char * file)
 		fd = fopen(buf, "r");
 	}
 	if(!fd) {
-		fprintf(stderr, "Cannot open file '%s'\n", buf);
+		slfprintf_stderr("Cannot open file '%s'\n", buf);
 		return SOAP_EOF;
 	}
-	fprintf(stderr, "Reading type definitions from type map file '%s'\n", buf);
+	slfprintf_stderr("Reading type definitions from type map file '%s'\n", buf);
 	while(getline(buf, sizeof(buf), fd)) {
 		s = buf;
 		if(copy) {
@@ -178,7 +178,7 @@ int Types::read(const char * file)
 			s = fill(uri, sizeof(uri), s+1, -1);
 			infile[infiles++] = estrdup(uri);
 			if(infiles >= MAXINFILES) {
-				fprintf(stderr, "wsdl2h: too many files\n");
+				slfprintf_stderr("wsdl2h: too many files\n");
 				exit(1);
 			}
 		}
@@ -188,12 +188,12 @@ int Types::read(const char * file)
 				outfile = estrdup(uri);
 				stream = fopen(outfile, "w");
 				if(!stream) {
-					fprintf(stderr, "Cannot write to %s\n", outfile);
+					slfprintf_stderr("Cannot write to %s\n", outfile);
 					exit(1);
 				}
 				if(cppnamespace)
 					fprintf(stream, "namespace %s {\n", cppnamespace);
-				fprintf(stderr, "Saving %s\n\n", outfile);
+				slfprintf_stderr("Saving %s\n\n", outfile);
 			}
 		}
 		else if(*s && *s != '#') {
@@ -470,7 +470,7 @@ const char * Types::nsprefix(const char * prefix, const char * URI)
 			}
 			uris[URI] = s;
 			if(vflag)
-				fprintf(stderr, "namespace prefix %s = \"%s\"\n", s, URI);
+				slfprintf_stderr("namespace prefix %s = \"%s\"\n", s, URI);
 		}
 		// if *prefix == '_', then add prefix string to s
 		if(prefix && *prefix == '_') {
@@ -493,7 +493,7 @@ const char * Types::fname(const char * prefix, const char * URI, const char * qn
 	if(!qname) {
 		fprintf(stream, "// Warning: internal error, no QName in fname()\n");
 		if(vflag)
-			fprintf(stderr, "Internal error, no QName in fname()\n");
+			slfprintf_stderr("Internal error, no QName in fname()\n");
 		qname = "?";
 	}
 	name = qname;
@@ -643,7 +643,7 @@ const char * Types::tname(const char * prefix, const char * URI, const char * qn
 		      "\n// Warning: undefined QName '%s' for type '%s' in namespace '%s' (FIXME: check WSDL and schema definitions)\n",
 		      qname ? qname : "", t, URI ? URI : "?");
 	      if(vflag)
-		      fprintf(stderr, "Warning: undefined QName '%s' for type '%s' in namespace '%s'\n",
+		      slfprintf_stderr("Warning: undefined QName '%s' for type '%s' in namespace '%s'\n",
 			      qname ? qname : "", t,
 			      URI ? URI : "?"); 
 	}
@@ -681,7 +681,7 @@ const char * Types::pname(bool flag, const char * prefix, const char * URI, cons
 			      fprintf(stream, "\n// Warning: undefined QName '%s' for pointer to type '%s' (FIXME: check WSDL and schema definitions)\n",
 				      qname, t);
 			      if(vflag)
-				      fprintf(stderr, "Warning: undefined QName '%s' for pointer to type '%s' in namespace '%s'\n",
+				      slfprintf_stderr("Warning: undefined QName '%s' for pointer to type '%s' in namespace '%s'\n",
 					      qname, t, URI ? URI : "?");
 		      }
 		      r = s;
@@ -708,7 +708,7 @@ const char * Types::pname(bool flag, const char * prefix, const char * URI, cons
 		      "\n// Warning: undefined QName '%s' for type '%s' in namespace '%s' (FIXME: check WSDL and schema definitions)\n",
 		      qname, t, URI ? URI : "?");
 	      if(vflag)
-		      fprintf(stderr, "Warning: undefined QName '%s' for type '%s' in namespace '%s'\n", qname, t,
+		      slfprintf_stderr("Warning: undefined QName '%s' for type '%s' in namespace '%s'\n", qname, t,
 			      URI ? URI : "?"); }
 	return s;
 }
@@ -722,7 +722,7 @@ const char * Types::deftname(enum Type type, const char * pointer, bool is_point
 	const char * t = fname(prefix, URI, qname, NULL, LOOKUP, true);
 	if(deftypemap[t]) {
 		if(vflag)
-			fprintf(stderr, "Name %s already defined (probably in %s file)\n", qname, mapfile);
+			slfprintf_stderr("Name %s already defined (probably in %s file)\n", qname, mapfile);
 		return NULL;
 	}
 	switch(type) {
@@ -1139,7 +1139,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 		      }
 		      if(!simpleType.restriction->attribute.empty()) {
 			      if(!Wflag)
-				      fprintf(stderr, "\nWarning: simpleType '%s' should not have attributes\n", name ? name : "");
+				      slfprintf_stderr("\nWarning: simpleType '%s' should not have attributes\n", name ? name : "");
 		      }
 		      const char * s = tname(NULL, baseURI, base);
 		      if(!anonymous) {
@@ -2201,7 +2201,7 @@ void Types::gen(const char * URI, const xs__element & element, bool substok)
 		else if(substok && element.elementPtr()->substitutionsPtr() && !element.elementPtr()->substitutionsPtr()->empty()) {
 			fprintf(stream, "/// Warning: element ref '%s' stands as the head of a substitutionGroup but is not declared abstract.\n", element.ref);
 			if(vflag)
-				fprintf(stderr, "Warning: element ref '%s' stands as the head of a substitutionGroup but is not declared abstract\n", element.ref);
+				slfprintf_stderr("Warning: element ref '%s' stands as the head of a substitutionGroup but is not declared abstract\n", element.ref);
 			gen_substitutions(URI, element);
 		}
 		else if(element.maxOccurs && strcmp(element.maxOccurs, "1")) { // maxOccurs != "1"
@@ -2246,7 +2246,7 @@ void Types::gen(const char * URI, const xs__element & element, bool substok)
 		else if(substok && element.substitutionsPtr() && !element.substitutionsPtr()->empty()) {
 			fprintf(stream, "/// Warning: element '%s' stands as the head of a substitutionGroup but is not declared abstract.\n", name);
 			if(vflag)
-				fprintf(stderr, "Warning: element '%s' stands as the head of a substitutionGroup but is not declared abstract\n", name);
+				slfprintf_stderr("Warning: element '%s' stands as the head of a substitutionGroup but is not declared abstract\n", name);
 			gen_substitutions(URI, element);
 		}
 		else if(element.maxOccurs && strcmp(element.maxOccurs, "1")) { // maxOccurs != "1"
@@ -3087,7 +3087,7 @@ void * emalloc(size_t size)
 {
 	void * p = SAlloc::M(size);
 	if(!p) {
-		fprintf(stderr, "Error: Malloc failed\n");
+		slfprintf_stderr("Error: Malloc failed\n");
 		exit(1);
 	}
 	return p;

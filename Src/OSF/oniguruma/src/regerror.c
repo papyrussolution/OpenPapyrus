@@ -140,7 +140,7 @@ static int to_ascii(OnigEncoding enc, uchar * s, uchar * end, uchar buf[], int b
 	}
 	else {
 		len = MIN((int)(end - s), buf_size);
-		xmemcpy(buf, s, (size_t)len);
+		memcpy(buf, s, (size_t)len);
 		*is_over = ((buf_size < (end - s)) ? 1 : 0);
 	}
 	return len;
@@ -188,10 +188,10 @@ extern int ONIG_VARIADIC_FUNC_ATTR onig_error_code_to_str(uchar * s, int code, .
 			    if(*q == '%') {
 				    q++;
 				    if(*q == 'n') { /* '%n': name */
-					    xmemcpy(p, parbuf, len);
+					    memcpy(p, parbuf, len);
 					    p += len;
 					    if(is_over != 0) {
-						    xmemcpy(p, "...", 3);
+						    memcpy(p, "...", 3);
 						    p += 3;
 					    }
 					    q++;
@@ -210,7 +210,7 @@ normal_char:
 		default:
 		    q = onig_error_code_to_format(code);
 		    len = onigenc_str_bytelen_null(ONIG_ENCODING_ASCII, q);
-		    xmemcpy(s, q, len);
+		    memcpy(s, q, len);
 		    s[len] = '\0';
 		    break;
 	}
