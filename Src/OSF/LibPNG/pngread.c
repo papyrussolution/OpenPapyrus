@@ -2591,7 +2591,7 @@ bad_output:
 		// The following expression is designed to work correctly whether it gives
 		// a signed or an unsigned result.
 		if(row_bytes < 0) {
-			char * ptr = png_voidcast(char*, first_row);
+			char * ptr = png_voidcast(char *, first_row);
 			ptr += (image->height-1) * (-row_bytes);
 			first_row = png_voidcast(void *, ptr);
 		}
@@ -3289,7 +3289,7 @@ static int png_image_read_direct(void * argument)
 		 * a signed or an unsigned result.
 		 */
 		if(row_bytes < 0) {
-			char * ptr = png_voidcast(char*, first_row);
+			char * ptr = png_voidcast(char *, first_row);
 			ptr += (image->height-1) * (-row_bytes);
 			first_row = png_voidcast(void *, ptr);
 		}

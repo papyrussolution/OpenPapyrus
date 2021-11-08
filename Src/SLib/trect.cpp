@@ -1060,13 +1060,13 @@ bool   SPoint2F::IsZero() const { return (x == 0.0f && y == 0.0f); } // @v11.2.0
 bool   SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
 int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
 int    FASTCALL SPoint2F::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
-SPoint2F SPoint2F::Neg()   const { return SPoint2F(-x, -y); }
+SPoint2F SPoint2F::Neg() const { return SPoint2F(-x, -y); }
 float  SPoint2F::Ratio() const { return (y / x); }
-float  SPoint2F::Add()   const { return x + y; }
+float  SPoint2F::Add() const { return x + y; }
 SPoint2F SPoint2F::AddX(float _x) const { return SPoint2F(x + _x, y); }
 SPoint2F SPoint2F::AddY(float _y) const { return SPoint2F(x, y + _y); }
 float  SPoint2F::Sub()  const { return x - y; }
-float  SPoint2F::Sq()   const { return (x * x + y * y); }
+float  SPoint2F::Sq() const { return (x * x + y * y); }
 double SPoint2F::Hypot() const { return _hypot(x, y); }
 float  SPoint2F::Hypotf() const { return static_cast<float>(_hypot(x, y)); }
 SPoint2F SPoint2F::Swap() const { return SPoint2F(y, x); }

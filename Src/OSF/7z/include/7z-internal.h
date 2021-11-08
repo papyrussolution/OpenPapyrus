@@ -4002,7 +4002,7 @@ namespace NWindows {
 
 			bool IsDevicePath(CFSTR s) throw();   /* \\.\ */
 			bool IsSuperUncPath(CFSTR s) throw(); /* \\?\UNC\ */
-			bool IsNetworkPath(CFSTR s) throw();  /* \\?\UNC\ or \\SERVER */
+			bool IsNetworkPath(CFSTR s) throw(); /* \\?\UNC\ or \\SERVER */
 
 			/* GetNetworkServerPrefixSize() returns size of server prefix:
 				\\?\UNC\SERVER\
@@ -4011,7 +4011,7 @@ namespace NWindows {
 			*/
 
 			unsigned GetNetworkServerPrefixSize(CFSTR s) throw();
-			bool IsNetworkShareRootPath(CFSTR s) throw();  /* \\?\UNC\SERVER\share or \\SERVER\share or with slash */
+			bool IsNetworkShareRootPath(CFSTR s) throw(); /* \\?\UNC\SERVER\share or \\SERVER\share or with slash */
 			bool IsDrivePath_SuperAllowed(CFSTR s) throw();  // first chars are drive chars like "a:\" or "\\?\a:\"
 			bool IsDriveRootPath_SuperAllowed(CFSTR s) throw();  // exact drive root path "a:\" or "\\?\a:\"
 			bool IsDrivePath2(const wchar_t *s) throw(); // first 2 chars are drive chars like "a:"

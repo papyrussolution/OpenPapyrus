@@ -54,9 +54,9 @@ struct SMModel
   PRUint32 classFactor;
   nsPkgInt stateTable;
   const PRUint32* charLenTable;
-  const char* name;
+  const char * name;
   SMModel(){};
-  SMModel(nsPkgInt a,PRUint32 b,nsPkgInt c,const PRUint32* d, const char* e):
+  SMModel(nsPkgInt a,PRUint32 b,nsPkgInt c,const PRUint32* d, const char * e):
 	classTable(a), classFactor(b), stateTable(c), charLenTable(d), name(e){};
 } ;
 

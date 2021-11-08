@@ -1697,7 +1697,7 @@ static CURLcode ftp_epsv_disable(struct connectdata * conn)
 
 	if(conn->bits.ipv6
 #ifndef CURL_DISABLE_PROXY
-	    && !(conn->bits.tunnel_proxy || conn->bits.socksproxy)
+	  && !(conn->bits.tunnel_proxy || conn->bits.socksproxy)
 #endif
 	    ) {
 		/* We can't disable EPSV when doing IPv6, so this is instead a fail */

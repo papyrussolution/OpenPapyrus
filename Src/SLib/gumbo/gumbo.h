@@ -70,7 +70,7 @@ struct GumboSourcePosition {
 // (static) extern const GumboSourcePosition kGumboEmptySourcePosition;
 /**
  * A struct representing a string or part of a string.  Strings within the
- * parser are represented by a char* and a length; the char* points into
+ * parser are represented by a char * and a length; the char * points into
  * an existing data buffer owned by some other code (often the original input).
  * GumboStringPieces are assumed (by convention) to be immutable, because they
  * may share data.  Use GumboStringBuffer if you need to construct a string.
@@ -96,7 +96,7 @@ bool gumbo_string_equals(const GumboStringPiece * str1, const GumboStringPiece* 
 bool gumbo_string_equals_ignore_case(const GumboStringPiece * str1, const GumboStringPiece* str2);
 /**
  * A simple vector implementation.  This stores a pointer to a data array and a
- * length.  All elements are stored as void*; client code must cast to the
+ * length.  All elements are stored as void *; client code must cast to the
  * appropriate type.  Overflows upon addition result in reallocation of the data
  * array, with the size doubling to maintain O(1) amortized cost.  There is no
  * removal function, as this isn't needed for any of the operations within this
@@ -145,7 +145,7 @@ enum GumboTag {
  * tag name for an GumboTag enum.  Return value is static data owned by the
  * library.
  */
-const char* gumbo_normalized_tagname(GumboTag tag);
+const char * gumbo_normalized_tagname(GumboTag tag);
 /**
  * Extracts the tag name from the original_text field of an element or token by
  * stripping off </> characters and attributes and adjusting the passed-in
@@ -169,13 +169,13 @@ void gumbo_tag_from_original_text(GumboStringPiece* text);
  * no normalization is called for.  The return value is static data and owned by
  * the library.
  */
-const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tagname);
+const char * gumbo_normalize_svg_tagname(const GumboStringPiece* tagname);
 /**
  * Converts a tag name string (which may be in upper or mixed case) to a tag
  * enum. The `tag` version expects `tagname` to be NULL-terminated
  */
-GumboTag gumbo_tag_enum(const char* tagname);
-GumboTag gumbo_tagn_enum(const char* tagname, uint length);
+GumboTag gumbo_tag_enum(const char * tagname);
+GumboTag gumbo_tagn_enum(const char * tagname, uint length);
 /**
  * Attribute namespaces.
  * HTML includes special handling for XLink, XML, and XMLNS namespaces on
@@ -204,7 +204,7 @@ struct GumboAttribute {
 	 * The name of the attribute.  This is in a freshly-allocated buffer to deal
 	 * with case-normalization, and is null-terminated.
 	 */
-	const char* name;
+	const char * name;
 	/**
 	 * The original text of the attribute name, as a pointer into the original source buffer.
 	 */
@@ -355,9 +355,9 @@ struct GumboDocument {
 	GumboVector /* GumboNode* */ children;
 	bool has_doctype; // True if there was an explicit doctype token as opposed to it being omitted.
 	// Fields from the doctype token, copied verbatim.
-	const char* name;
-	const char* public_identifier;
-	const char* system_identifier;
+	const char * name;
+	const char * public_identifier;
+	const char * system_identifier;
 	/**
 	 * Whether or not the document is in QuirksMode, as determined by the values
 	 * in the GumboTokenDocType template.
@@ -373,7 +373,7 @@ struct GumboText {
 	 * The text of this node, after entities have been parsed and decoded.  For
 	 * comment/cdata nodes, this does not include the comment delimiters.
 	 */
-	const char* text;
+	const char * text;
 	/**
 	 * The original text of this node, as a pointer into the original buffer.  For
 	 * comment/cdata nodes, this includes the comment delimiters.
@@ -537,12 +537,12 @@ struct GumboOutput {
  *
  * This doesn't support buffers longer than 4 gigabytes.
  */
-GumboOutput* gumbo_parse(const char* buffer);
+GumboOutput* gumbo_parse(const char * buffer);
 /**
  * Extended version of gumbo_parse that takes an explicit options structure,
  * buffer, and length.
  */
-GumboOutput* gumbo_parse_with_options(const GumboOptions* options, const char* buffer, size_t buffer_length);
+GumboOutput* gumbo_parse_with_options(const GumboOptions* options, const char * buffer, size_t buffer_length);
 
 /** Release the memory used for the parse tree & parse errors. */
 void gumbo_destroy_output(GumboOutput * output);

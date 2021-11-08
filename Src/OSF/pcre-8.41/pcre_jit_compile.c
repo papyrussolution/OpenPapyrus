@@ -2431,7 +2431,7 @@ static SLJIT_INLINE void return_with_partial_match(compiler_common * common, str
 
 	SLJIT_COMPILE_ASSERT(STR_END == SLJIT_S1, str_end_must_be_saved_reg2);
 	SLJIT_ASSERT(common->start_used_ptr != 0 && common->start_ptr != 0
-	    && (common->mode == JIT_PARTIAL_SOFT_COMPILE ? common->hit_start != 0 : common->hit_start == 0));
+	  && (common->mode == JIT_PARTIAL_SOFT_COMPILE ? common->hit_start != 0 : common->hit_start == 0));
 
 	OP1(SLJIT_MOV, SLJIT_R1, 0, ARGUMENTS, 0);
 	OP1(SLJIT_MOV, SLJIT_RETURN_REG, 0, SLJIT_IMM, PCRE_ERROR_PARTIAL);
@@ -4818,9 +4818,9 @@ static BOOL check_class_ranges(compiler_common * common, const sljit_u8 * bits, 
 
 		case 4:
 		    if((ranges[1] - ranges[0]) == (ranges[3] - ranges[2])
-		    && (ranges[0] | (ranges[2] - ranges[0])) == ranges[2]
-		    && (ranges[1] & (ranges[2] - ranges[0])) == 0
-		    && is_powerof2(ranges[2] - ranges[0])) {
+		  && (ranges[0] | (ranges[2] - ranges[0])) == ranges[2]
+		  && (ranges[1] & (ranges[2] - ranges[0])) == 0
+		  && is_powerof2(ranges[2] - ranges[0])) {
 			    SLJIT_ASSERT(
 			    (ranges[0] & (ranges[2] - ranges[0])) == 0 && (ranges[2] & ranges[3] & (ranges[2] - ranges[0])) != 0);
 			    OP2(SLJIT_OR, TMP1, 0, TMP1, 0, SLJIT_IMM, ranges[2] - ranges[0]);
@@ -6217,7 +6217,7 @@ static pcre_uchar * compile_char1_matchingpath(compiler_common * common,
 		    if(common->utf && HAS_EXTRALEN(*cc)) length += GET_EXTRALEN(*cc);
 #endif
 		    if(common->mode == JIT_COMPILE && check_str_ptr
-		    && (type == OP_CHAR || !char_has_othercase(common, cc) || char_get_othercase_bit(common, cc) != 0)) {
+		  && (type == OP_CHAR || !char_has_othercase(common, cc) || char_get_othercase_bit(common, cc) != 0)) {
 			    OP2(SLJIT_ADD, STR_PTR, 0, STR_PTR, 0, SLJIT_IMM, IN_UCHARS(length));
 			    add_jump(compiler, backtracks, CMP(SLJIT_GREATER, STR_PTR, 0, STR_END, 0));
 
@@ -7424,10 +7424,10 @@ static SLJIT_INLINE int match_capture_common(compiler_common * common, int stack
                            OP_SCBRA   | OP_KETRMAX        0   C M S   ( C M S )*
    ()+?                     OP_CBRA    | OP_KETRMIN        0   C M S   ( C M S )*
                            OP_SCBRA   | OP_KETRMIN        0   C M S   ( C M S )*
-   (?:)?    OP_BRAZERO    | OP_BRA     | OP_KET            S ( A M 0 )
-   (?:)??   OP_BRAMINZERO | OP_BRA     | OP_KET            S ( A M 0 )
-   ()?      OP_BRAZERO    | OP_CBRA    | OP_KET            S ( C M 0 )
-   ()??     OP_BRAMINZERO | OP_CBRA    | OP_KET            S ( C M 0 )
+   (?:)?    OP_BRAZERO    | OP_BRA     | OP_KET            S ( A M 0)
+   (?:)??   OP_BRAMINZERO | OP_BRA     | OP_KET            S ( A M 0)
+   ()?      OP_BRAZERO    | OP_CBRA    | OP_KET            S ( C M 0)
+   ()??     OP_BRAMINZERO | OP_CBRA    | OP_KET            S ( C M 0)
    (?:)*    OP_BRAZERO    | OP_BRA     | OP_KETRMAX      S 0 ( A M S )*
            OP_BRAZERO    | OP_SBRA    | OP_KETRMAX      S 0 ( L M S )*
    (?:)*?   OP_BRAMINZERO | OP_BRA     | OP_KETRMIN      S 0 ( A M S )*
@@ -8392,7 +8392,7 @@ static pcre_uchar * compile_iterator_matchingpath(compiler_common * common, pcre
 		SLJIT_ASSERT(fast_str_ptr == 0);
 		if(common->mode == JIT_COMPILE
 #ifdef SUPPORT_UTF
-		    && !common->utf
+		  && !common->utf
 #endif
 		    ) {
 			OP2(SLJIT_ADD, TMP1, 0, STR_PTR, 0, SLJIT_IMM, IN_UCHARS(exact));
@@ -10979,7 +10979,7 @@ int PRIV(jit_get_size) (void * executable_funcs)
 	return (int)size;
 }
 
-const char* PRIV(jit_get_target) (void)
+const char * PRIV(jit_get_target) (void)
 {
 	return sljit_get_platform_name();
 }

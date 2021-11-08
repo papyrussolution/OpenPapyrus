@@ -13,8 +13,8 @@
 CtrlGroup::CtrlGroup() : Id(0) {}
 CtrlGroup::~CtrlGroup() {}
 void CtrlGroup::handleEvent(TDialog*, TEvent&) {}
-int CtrlGroup::setData(TDialog*, void*) { return -1; }
-int CtrlGroup::getData(TDialog*, void*) { return -1; }
+int CtrlGroup::setData(TDialog*, void *) { return -1; }
+int CtrlGroup::getData(TDialog*, void *) { return -1; }
 //
 //
 //

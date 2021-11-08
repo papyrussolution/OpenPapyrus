@@ -505,12 +505,12 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 				    mask = 0;
 			    }
 
-			    if(*p == '-') {     /* real dash */
+			    if(*p == '-') { /* real dash */
 				    i++;
 				    prevChar = *p;
 				    ChSet(*p++);
 			    }
-			    if(*p == ']') {     /* real brace */
+			    if(*p == ']') { /* real brace */
 				    i++;
 				    prevChar = *p;
 				    ChSet(*p++);

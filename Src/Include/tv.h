@@ -2425,6 +2425,47 @@ public:
 
 	int    InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */);
 	int    AddHomogeneousEntry(long id, float vf);
+	//
+	// Descr: Типы комплексных лейаутов
+	//
+	enum { // @persistent
+		cmplxtNone       = 0,
+		cmplxtInpLbl     = 1, // Поле ввода/этикетка
+		cmplxtInpLblBtn  = 2, // Поле ввода/этикетка/кнопка
+		cmplxtInpLblBtn2 = 3, // Поле ввода/этикетка/кнопка/кнопка
+	};
+	//
+	// Desc: Зарезервированные метки компонентов комплексного layout'а
+	//
+	enum {
+		cmlxcUndef   = 0,
+		cmlxcInput   = 1,
+		cmlxcLabel   = 2,
+		cmlxcButton1 = 3,
+		cmlxcButton2 = 4,
+	};
+
+	LayoutFlexItem * FASTCALL FindComplexComponentId(uint id);
+	//
+	// Descr: Опции комплексных layout'ов
+	//
+	enum {
+		clfLabelLeft = 0x0001, // Этикетка располагается слева от основного элемента. Иначе - сверху
+	};
+	static LayoutFlexItem * CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, LayoutFlexItem * pTopLevel);
+	//
+	// Descr: Создает комплексный layout { [input-line] [label] }
+	//   Внешние размеры результата не определены (должны быть установлены вызывающей функцией)
+	//
+	static LayoutFlexItem * CreateComplexLayout_IL(uint flags, LayoutFlexItem * pParent);
+	//
+	// Descr: Создает комплексный layout { [input-line] [label] [square-button] }
+	//
+	static LayoutFlexItem * CreateComplexLayout_ILB(uint flags, LayoutFlexItem * pParent);
+	//
+	// Descr: Создает комплексный layout { [input-line] [label] [square-button] [square-button] }
+	//
+	static LayoutFlexItem * CreateComplexLayout_ILB2(uint flags, LayoutFlexItem * pParent);
 protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(const Param & rP) const;
@@ -2490,12 +2531,14 @@ private:
 	};
 	AbstractLayoutBlock ALB;
 	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
-	// An item can provide a self_sizing callback function that will be called
-	// during layout and which can customize the dimensions (width and height) of the item.
+		// An item can provide a self_sizing callback function that will be called
+		// during layout and which can customize the dimensions (width and height) of the item.
 	FlexSelfSizingProc CbSelfSizing; // NULL
 	FlexSetupProc CbSetup; // NULL
 	LayoutFlexItem * P_Parent;
 	uint   State;
+	uint16 CplxComponentId;
+	uint16 Reserve;
 	const  LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
 		// в этом поле ссылку на порождающий реальный элемент. 
 	TSCollection <LayoutFlexItem> * P_Children;
@@ -2803,6 +2846,19 @@ public:
 		cmdGetSelRetBlock, // (TWhatmanObject::SelectObjRetBlock *)
 		cmdObjInserted     // Посылается объекту после того, как он был вставлен в контейнер.
 	};
+	//
+	// Descr: Структура, передаваемая с командой cmdSetupByTool
+	//
+	class SetupByToolCmdBlock {
+	public:
+		explicit SetupByToolCmdBlock(const TWhatmanToolArray::Item * pToolItem);
+		const TWhatmanToolArray::Item * P_ToolItem; // Инструмент, определяющий создание нового экземпляра объекта
+		TSCollection <TWhatmanObject> AfterInsertChain; // Опциональный список объектов, которые должны быть вставлены после нового экземпляра объекта
+			// Этот список может быть сформирован функцией HandleCommand для формирования комплексных объектов.
+	private:
+		SetupByToolCmdBlock(const SetupByToolCmdBlock & rS) {} // disable copy-constructor
+		SetupByToolCmdBlock & operator = (const SetupByToolCmdBlock & rS) {} // disable assignment
+	};
 	virtual int HandleCommand(int cmd, void * pExt);
 	virtual TWhatmanObject * Dup() const;
 	virtual int Draw(TCanvas2 & rCanv);
@@ -2841,7 +2897,7 @@ public:
 	// Descr: Устанавливает параметры объекта в соответствии с элементом
 	//   контейнера инструментов, посредством которого этот объект был создан.
 	//
-	int    Setup(const TWhatmanToolArray::Item * pWtaItem); // @>>HandleCommand(cmdSetupByTool, 0)
+	int    Setup__(SetupByToolCmdBlock & rBlk); // @>>HandleCommand(cmdSetupByTool, 0)
 	int    SetBounds(const TRect & rRect); // @>>HandleCommand(cmdSetBounds, 0)
 	void   FASTCALL Copy(const TWhatmanObject & rS);
 	TRect  GetBounds() const;
@@ -2866,7 +2922,9 @@ public:
 	int    Redraw();
 	TWhatman * GetOwner() const;
 	TWindow * GetOwnerWindow() const;
-	const  SString & GetSymb() const;
+	const  SString & GetObjTypeSymb() const;
+	const  SString & GetIdentSymb() const;
+	int    SetIdentSymb(const char * pIdent);
 	const  AbstractLayoutBlock & GetLayoutBlock() const;
 	void   SetLayoutBlock(const AbstractLayoutBlock * pBlk);
 	const  SString & GetLayoutContainerIdent() const;
@@ -2894,12 +2952,13 @@ public:
 	};
 protected:
 	explicit TWhatmanObject(const char * pSymb);
-
-	SString Symb;   //
+	
 	TextParam TextOptions;
 	long   Options;
 	long   State;       // @transient
 private:
+	SString WtmObjTypeSymb__;   // Символ идентификации класса объекта
+	SString IdentSymb; // @v11.2.2 Символ идентификации экземпляра
 	TRect  Bounds;
 	SString LayoutContainerIdent; // @v10.4.8 @persistent Символ родительского объекта типа Layout
 	AbstractLayoutBlock Le2; // @v10.9.8 @persistent 
@@ -2966,7 +3025,9 @@ public:
 		toolBrushRule,
 		toolPenGrid,
 		toolPenSubGrid,
-		toolPenLayoutBorder,    // @v10.4.8
+		toolPenLayoutBorder,     // @v10.4.8
+		toolPenLayoutEvenBorder, // @v11.2.2
+		toolPenLayoutOddBorder,  // @v11.2.2
 		toolPenContainerCandidateBorder // @v10.9.6
 	};
 	static uint32 GetSerializeSignature();
@@ -2982,7 +3043,7 @@ public:
 	int    InsertObject(TWhatmanObject * pObj, int beforeIdx = -1);
 	int    EditObject(int objIdx);
 	int    RemoveObject(int idx);
-	int    CheckUniqLayoutSymb(const TWhatmanObject * pObj) const;
+	int    CheckUniqLayoutSymb(const TWhatmanObject * pObj, const char * pIdentSymb) const;
 	int    GetLayoutSymbList(StrAssocArray & rList) const;
 	//
 	// Descr: Перемещает объект с индексом idx на передний план.
@@ -3039,6 +3100,22 @@ public:
 	uint   GetObjectsCount() const;
 	TWhatmanObject * FASTCALL GetObjectByIndex(int idx);
 	const  TWhatmanObject * FASTCALL GetObjectByIndexC(int idx) const;
+	const  WhatmanObjectLayoutBase * FASTCALL GetObjectAsLayoutByIndexC(int idx) const;
+	//
+	// Descr: Возвращает индекс корневого контейнера, содержащего лейаут pC.
+	// Return:
+	//   >= 0 - индекс корневого контейнера
+	//   <  0 - pC не является лейаутом либо не удалось найти корневой контейнер 
+	//
+	int    GetRootLayoutObjectIndex(const WhatmanObjectLayoutBase * pC) const;
+	//
+	// Descr: Возвращает родительский лейаут для объекта pC, который так же должен 
+	//   являться лейаутом.
+	// Returns:
+	//   !0 - указатель на родительский лейаут
+	//    0 - либо объект pC не является лейаутом, либо он, будучи лейаутом, находится на верхнем уровне (не имеет предка)
+	//
+	const  WhatmanObjectLayoutBase * GetParentLayoutObject(const WhatmanObjectLayoutBase * pC) const;
 	int    FASTCALL InvalidateObjScope(const TWhatmanObject * pObj);
 	int    GetObjTextLayout(const TWhatmanObject * pObj, STextLayout & rTl, int options);
 	int    Draw(TCanvas2 & rCanv);
@@ -3141,6 +3218,8 @@ private:
 	int    TidPenGrid;
 	int    TidPenSubGrid;
 	int    TidPenLayoutBorder; // @v10.4.8
+	int    TidPenLayoutEvenBorder; // @v11.2.2
+	int    TidPenLayoutOddBorder; // @v11.2.2
 	int    TidPenContainerCandidateBorder; // @v10.9.6
 };
 //

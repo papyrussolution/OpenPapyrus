@@ -71,7 +71,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryFloat(TIFF* tif, TIFFDirEntry* d
 static enum TIFFReadDirEntryErr TIFFReadDirEntryDouble(TIFF* tif, TIFFDirEntry* direntry, double* value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryIfd8(TIFF* tif, TIFFDirEntry* direntry, uint64* value);
 
-static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void** value);
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void ** value);
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntrySbyteArray(TIFF* tif, TIFFDirEntry* direntry, int8** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryShortArray(TIFF* tif, TIFFDirEntry* direntry, uint16** value);
@@ -187,12 +187,12 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlong8Long8(uint64 val
 #undef TIFF_INT64_MAX
 
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryData(TIFF* tif, uint64 offset, tmsize_t size, void * dest);
-static void FASTCALL TIFFReadDirEntryOutputErr(TIFF* tif, enum TIFFReadDirEntryErr err, const char* module, const char* tagname, int recover);
+static void FASTCALL TIFFReadDirEntryOutputErr(TIFF* tif, enum TIFFReadDirEntryErr err, const char * module, const char * tagname, int recover);
 static void TIFFReadDirectoryCheckOrder(TIFF* tif, TIFFDirEntry* dir, uint16 dircount);
 static TIFFDirEntry* TIFFReadDirectoryFindEntry(TIFF* tif, TIFFDirEntry* dir, uint16 dircount, uint16 tagid);
 static void TIFFReadDirectoryFindFieldInfo(TIFF* tif, uint16 tagid, uint32* fii);
 static int EstimateStripByteCounts(TIFF* tif, TIFFDirEntry* dir, uint16 dircount);
-static void MissingRequired(TIFF*, const char*);
+static void MissingRequired(TIFF*, const char *);
 static int TIFFCheckDirOffset(TIFF* tif, uint64 diroff);
 static int CheckDirCount(TIFF*, TIFFDirEntry*, uint32);
 static uint16 TIFFFetchDirectory(TIFF* tif, uint64 diroff, TIFFDirEntry** pdir, uint64* nextdiroff);
@@ -792,13 +792,13 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryIfd8(TIFF* tif, TIFFDirEntry* di
 #define THRESHOLD_MULTIPLIER 10
 #define MAX_THRESHOLD (THRESHOLD_MULTIPLIER * THRESHOLD_MULTIPLIER * THRESHOLD_MULTIPLIER * INITIAL_THRESHOLD)
 
-static enum TIFFReadDirEntryErr TIFFReadDirEntryDataAndRealloc(TIFF* tif, uint64 offset, tmsize_t size, void** pdest)                                           
+static enum TIFFReadDirEntryErr TIFFReadDirEntryDataAndRealloc(TIFF* tif, uint64 offset, tmsize_t size, void ** pdest)                                           
 {
 #if SIZEOF_VOIDP == 8 || SIZEOF_SIZE_T == 8
 	tmsize_t threshold = INITIAL_THRESHOLD;
 #endif
 	tmsize_t already_read = 0;
-	assert(!isMapped(tif) );
+	assert(!isMapped(tif));
 	if(!SeekOK(tif, offset))
 		return (TIFFReadDirEntryErrIo);
 
@@ -835,7 +835,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryDataAndRealloc(TIFF* tif, uint64
 }
 
 static enum TIFFReadDirEntryErr TIFFReadDirEntryArrayWithLimit(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize,
-    void** value, uint64 maxcount)
+    void ** value, uint64 maxcount)
 {
 	int typesize;
 	uint32 datasize;
@@ -910,7 +910,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryArrayWithLimit(TIFF* tif, TIFFDi
 	return TIFFReadDirEntryErrOk;
 }
 
-static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void** value)
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void ** value)
 {
 	return TIFFReadDirEntryArrayWithLimit(tif, direntry, count, desttypesize, value, ~((uint64)0));
 }
@@ -2706,7 +2706,7 @@ static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryData(TIFF* tif, uint64 
 	return TIFFReadDirEntryErrOk;
 }
 
-static void FASTCALL TIFFReadDirEntryOutputErr(TIFF* tif, enum TIFFReadDirEntryErr err, const char* module, const char* tagname, int recover)
+static void FASTCALL TIFFReadDirEntryOutputErr(TIFF* tif, enum TIFFReadDirEntryErr err, const char * module, const char * tagname, int recover)
 {
 	if(!recover) {
 		switch(err) {
@@ -3032,7 +3032,7 @@ int TIFFReadDirectory(TIFF* tif)
 			case TIFFTAG_TILEOFFSETS:
 #if defined(DEFER_STRILE_LOAD)
 			    memcpy(&(tif->tif_dir.td_stripoffset_entry),
-			    dp, sizeof(TIFFDirEntry) );
+			    dp, sizeof(TIFFDirEntry));
 #else
 			    if(tif->tif_dir.td_stripoffset != NULL) {
 				    TIFFErrorExt(tif->tif_clientdata, module, "tif->tif_dir.td_stripoffset is already allocated. Likely duplicated StripOffsets/TileOffsets tag");
@@ -3046,7 +3046,7 @@ int TIFFReadDirectory(TIFF* tif)
 			case TIFFTAG_TILEBYTECOUNTS:
 #if defined(DEFER_STRILE_LOAD)
 			    memcpy(&(tif->tif_dir.td_stripbytecount_entry),
-			    dp, sizeof(TIFFDirEntry) );
+			    dp, sizeof(TIFFDirEntry));
 #else
 			    if(tif->tif_dir.td_stripbytecount != NULL) {
 				    TIFFErrorExt(tif->tif_clientdata, module, "tif->tif_dir.td_stripbytecount is already allocated. Likely duplicated StripByteCounts/TileByteCounts tag");
@@ -3253,8 +3253,8 @@ int TIFFReadDirectory(TIFF* tif)
 #if !defined(DEFER_STRILE_LOAD)
 		}
 		else if(tif->tif_dir.td_planarconfig == PLANARCONFIG_CONTIG && tif->tif_dir.td_nstrips > 2
-		    && tif->tif_dir.td_compression == COMPRESSION_NONE && tif->tif_dir.td_stripbytecount[0] != tif->tif_dir.td_stripbytecount[1]
-		    && tif->tif_dir.td_stripbytecount[0] != 0 && tif->tif_dir.td_stripbytecount[1] != 0) {
+		  && tif->tif_dir.td_compression == COMPRESSION_NONE && tif->tif_dir.td_stripbytecount[0] != tif->tif_dir.td_stripbytecount[1]
+		  && tif->tif_dir.td_stripbytecount[0] != 0 && tif->tif_dir.td_stripbytecount[1] != 0) {
 			/*
 			 * XXX: Some vendors fill StripByteCount array with
 			 * absolutely wrong values (it can be equal to
@@ -3575,7 +3575,7 @@ static int EstimateStripByteCounts(TIFF* tif, TIFFDirEntry* dir, uint16 dircount
 	return 1;
 }
 
-static void MissingRequired(TIFF* tif, const char* tagname)
+static void MissingRequired(TIFF* tif, const char * tagname)
 {
 	static const char module[] = __FUNCTION__;
 	TIFFErrorExt(tif->tif_clientdata, module, "TIFF directory is missing required \"%s\" field", tagname);
@@ -3864,7 +3864,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 	}
 	fip = tif->tif_fields[fii];
 	assert(fip != NULL); /* should not happen */
-	assert(fip->set_field_type!=TIFF_SETGET_OTHER);  /* if so, we shouldn't arrive here but deal with this in specialized code */
+	assert(fip->set_field_type!=TIFF_SETGET_OTHER); /* if so, we shouldn't arrive here but deal with this in specialized code */
 	assert(fip->set_field_type!=TIFF_SETGET_INT);    /* if so, we shouldn't arrive here as this is only the case for pseudo-tags */
 	err = TIFFReadDirEntryErrOk;
 	switch(fip->set_field_type) {

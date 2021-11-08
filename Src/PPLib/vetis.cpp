@@ -3565,7 +3565,7 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 		SFile  f_log(temp_buf, SFile::mAppend);
 		if(f_log.IsValid()) {
 			if(!isempty(pPrefix)) {
-				temp_buf.Z().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CR();
+				temp_buf.Z().CatCurDateTime(DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CR();
 				f_log.WriteLine(temp_buf);
 			}
 			f_log.WriteLine(rMsg);
@@ -5547,7 +5547,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							}
 							n_req.PutInner("vetDocumentId", VGuidToStr(r_doc.Uuid, temp_buf));
 							n_req.PutInner("withdrawReason", "Ошибка в оформлении");
-							n_req.PutInner("withdrawDate", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+							n_req.PutInner("withdrawDate", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
 						}
 					}
 				}

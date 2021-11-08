@@ -709,7 +709,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_outline(cairo_pdf_surface_
  *  "A-2"   => "A-",    2
  *  "A-002" => "A-00",  2
  */
-static char * split_label(const char* label, int * num)
+static char * split_label(const char * label, int * num)
 {
 	int len, i;
 

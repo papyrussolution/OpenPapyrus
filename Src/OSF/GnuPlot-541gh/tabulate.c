@@ -183,7 +183,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 			text_label * this_label;
 			for(this_label = pPlot->labels->next; this_label; this_label = this_label->next) {
 				char * label = expand_newline(this_label->text);
-				line[0] = NUL;
+				line[0] = '\0';
 				len = 0;
 				OUTPUT_NUMBER(this_label->place.x, pPlot->AxIdx_X);
 				OUTPUT_NUMBER(this_label->place.y, pPlot->AxIdx_Y);
@@ -207,7 +207,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 					continue;
 				}
 				// FIXME HBB 20020405: had better use the real x/x2 axes of this plot 
-				line[0] = NUL;
+				line[0] = '\0';
 				len = 0;
 				OUTPUT_NUMBER(point->Pt.x, pPlot->AxIdx_X);
 				OUTPUT_NUMBER(point->Pt.y, pPlot->AxIdx_Y);
@@ -328,7 +328,7 @@ void GnuPlot::Print3DTable(int pcount)
 				{
 					for(text_label * this_label = this_plot->labels->next; this_label; this_label = this_label->next) {
 						char * label = expand_newline(this_label->text);
-						line[0] = NUL;
+						line[0] = '\0';
 						len = 0;
 						OUTPUT_NUMBER(this_label->place.x, FIRST_X_AXIS);
 						OUTPUT_NUMBER(this_label->place.y, FIRST_Y_AXIS);
@@ -383,7 +383,7 @@ void GnuPlot::Print3DTable(int pcount)
 				strappend(&line, &size, len, " type");
 				PrintLine(line);
 				for(i = 0, point = icrvs->points; i < icrvs->p_count; i++, point++) {
-					line[0] = NUL;
+					line[0] = '\0';
 					len = 0;
 					OUTPUT_NUMBER(point->Pt.x, FIRST_X_AXIS);
 					OUTPUT_NUMBER(point->Pt.y, FIRST_Y_AXIS);
@@ -424,7 +424,7 @@ void GnuPlot::Print3DTable(int pcount)
 					PrintLine(line);
 				}
 				for(; --count >= 0; ++point) {
-					line[0] = NUL;
+					line[0] = '\0';
 					len = 0;
 					OUTPUT_NUMBER(point->Pt.x, FIRST_X_AXIS);
 					OUTPUT_NUMBER(point->Pt.y, FIRST_Y_AXIS);
@@ -476,7 +476,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		size_t size = sizeof(buf);
 		char * line = (char *)SAlloc::M(size);
 		size_t len = 0;
-		line[0] = NUL;
+		line[0] = '\0';
 		for(col = 0; col < ncols; col++) {
 			if(str[col].Type == STRING) {
 				len = strappend(&line, &size, 0, str[col].v.string_val);

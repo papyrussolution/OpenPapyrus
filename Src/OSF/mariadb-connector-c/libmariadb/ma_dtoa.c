@@ -1543,7 +1543,7 @@ bump_up:
 	spec_case = 0;
 	if((mode < 2 || leftright)
 #ifdef Honor_FLT_ROUNDS
-	    && rounding == 1
+	  && rounding == 1
 #endif
 	    ) {
 		if(!word1(&u) && !(word0(&u) & Bndry_mask) &&
@@ -1628,7 +1628,7 @@ one_digit:
 			Bfree(delta, &alloc);
 			if(j1 == 0 && mode != 1 && !(word1(&u) & 1)
 #ifdef Honor_FLT_ROUNDS
-			    && rounding >= 1
+			  && rounding >= 1
 #endif
 			    ) {
 				if(dig == '9')
@@ -1653,7 +1653,7 @@ one_digit:
 					b = lshift(b, 1, &alloc);
 					j1 = cmp(b, S);
 					if((j1 > 0 || (j1 == 0 && dig & 1))
-					    && dig++ == '9')
+					  && dig++ == '9')
 						goto round_9_up;
 				}
 accept_dig:

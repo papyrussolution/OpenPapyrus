@@ -29,7 +29,7 @@ static inline bool isLispoperator(char ch) {
 }
 
 static inline bool isLispwordstart(char ch) {
-	return IsASCII(ch) && ch != ';'  && !isspacechar(ch) && !isLispoperator(ch) &&
+	return IsASCII(ch) && ch != ';' && !isspacechar(ch) && !isLispoperator(ch) &&
 	       ch != '\n' && ch != '\r' &&  ch != '\"';
 }
 

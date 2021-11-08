@@ -18,7 +18,7 @@
 #pragma hdrstop
 #include "gumbo-internal.h"
 
-const char* kGumboTagNames[] = {
+const char * kGumboTagNames[] = {
 #include "tag_strings.h"
 	"", // TAG_UNKNOWN
 	"", // TAG_LAST
@@ -30,7 +30,7 @@ static const uchar kGumboTagSizes[] = {
 	0, // TAG_LAST
 };
 
-const char* gumbo_normalized_tagname(GumboTag tag) 
+const char * gumbo_normalized_tagname(GumboTag tag) 
 {
 	assert(tag <= GUMBO_TAG_LAST);
 	return kGumboTagNames[tag];
@@ -54,7 +54,7 @@ void gumbo_tag_from_original_text(GumboStringPiece * text)
 			text->length -= 2;
 			// strnchr is apparently not a standard C library function, so I loop
 			// explicitly looking for whitespace or other illegal tag characters.
-			for(const char* c = text->data; c != text->data + text->length; ++c) {
+			for(const char * c = text->data; c != text->data + text->length; ++c) {
 				if(isspace(*c) || *c == '/') {
 					text->length = c - text->data;
 					break;
@@ -64,7 +64,7 @@ void gumbo_tag_from_original_text(GumboStringPiece * text)
 	}
 }
 
-static int case_memcmp(const char* s1, const char* s2, uint n) 
+static int case_memcmp(const char * s1, const char * s2, uint n) 
 {
 	while(n--) {
 		uchar c1 = tolower(*s1++);
@@ -77,7 +77,7 @@ static int case_memcmp(const char* s1, const char* s2, uint n)
 #include "tag_gperf.h"
 //#define TAG_MAP_SIZE (sizeof(kGumboTagMap) / sizeof(kGumboTagMap[0]))
 
-GumboTag gumbo_tagn_enum(const char* tagname, uint length) 
+GumboTag gumbo_tagn_enum(const char * tagname, uint length) 
 {
 	if(length) {
 		uint key = tag_hash(tagname, length);
@@ -90,7 +90,7 @@ GumboTag gumbo_tagn_enum(const char* tagname, uint length)
 	return GUMBO_TAG_UNKNOWN;
 }
 
-GumboTag gumbo_tag_enum(const char* tagname) 
+GumboTag gumbo_tag_enum(const char * tagname) 
 {
 	return gumbo_tagn_enum(tagname, strlen(tagname));
 }

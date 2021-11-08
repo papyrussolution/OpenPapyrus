@@ -1,5 +1,5 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -21,14 +21,13 @@ char * FASTCALL _commfmt(long fmt, char * pBuf)
 			pBuf[len] = '\0';
 		}
 		else if(src_len < len) {
-			const uint _fadj = static_cast<uint>(SFMTALIGN(fmt));
-			int    _adj = ADJ_RIGHT;
-			if(_fadj == ALIGN_LEFT)
-				_adj = ADJ_LEFT;
-			else if(_fadj == ALIGN_RIGHT)
-				_adj = ADJ_RIGHT;
-			else if(_fadj == ALIGN_CENTER)
-				_adj = ADJ_CENTER;
+			int    _adj;
+			switch(static_cast<uint>(SFMTALIGN(fmt))) {
+				case ALIGN_LEFT: _adj = ADJ_LEFT; break;
+				case ALIGN_RIGHT: _adj = ADJ_RIGHT; break;
+				case ALIGN_CENTER: _adj = ADJ_CENTER; break;
+				default: _adj = ADJ_RIGHT; break;
+			}
 			alignstr(pBuf, len, _adj);
 		}
 	}
@@ -46,14 +45,13 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 			rBuf.Trim(len);
 		}
 		else if(src_len < len) {
-			const uint _fadj = static_cast<uint>(SFMTALIGN(fmt));
-			int    _adj = ADJ_RIGHT;
-			if(_fadj == ALIGN_LEFT)
-				_adj = ADJ_LEFT;
-			else if(_fadj == ALIGN_RIGHT)
-				_adj = ADJ_RIGHT;
-			else if(_fadj == ALIGN_CENTER)
-				_adj = ADJ_CENTER;
+			int    _adj;
+			switch(static_cast<uint>(SFMTALIGN(fmt))) {
+				case ALIGN_LEFT: _adj = ADJ_LEFT; break;
+				case ALIGN_RIGHT: _adj = ADJ_RIGHT; break;
+				case ALIGN_CENTER: _adj = ADJ_CENTER; break;
+				default: _adj = ADJ_RIGHT;
+			}
 			rBuf.Align(len, _adj);
 		}
 	}

@@ -4624,7 +4624,7 @@ static void xmlRelaxNGCheckCombine(xmlRelaxNGDefine * define, xmlRelaxNGParserCt
 			}
 			cur = cur->nextHash;
 		}
-#ifdef DEBUG
+#ifndef NDEBUG
 		xmlGenericError(0, "xmlRelaxNGCheckCombine(): merging %s defines: %d\n", name, choiceOrInterleave);
 #endif
 		if(choiceOrInterleave == -1)
@@ -4729,7 +4729,7 @@ static void xmlRelaxNGCombineStart(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGGramma
 		}
 		cur = cur->next;
 	}
-#ifdef DEBUG
+#ifndef NDEBUG
 	xmlGenericError(0, "xmlRelaxNGCombineStart(): merging <start>: %d\n", choiceOrInterleave);
 #endif
 	if(choiceOrInterleave == -1)
@@ -5388,7 +5388,7 @@ static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxt * ctxt, xmlNod
 			xmlRelaxNGCheckRules(ctxt, schema->topgrammar->start, XML_RELAXNG_IN_START, XML_RELAXNG_NOOP);
 		}
 	}
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(schema == NULL)
 		xmlGenericError(0, "xmlRelaxNGParseDocument() failed\n");
 #endif
@@ -7441,7 +7441,7 @@ static int xmlRelaxNGValidateAttribute(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDe
 		else {
 			ret = -1;
 		}
-#ifdef DEBUG
+#ifndef NDEBUG
 		xmlGenericError(0, "xmlRelaxNGValidateAttribute(%s): %d\n", define->name, ret);
 #endif
 	}
@@ -7476,7 +7476,7 @@ static int xmlRelaxNGValidateAttribute(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDe
 		else {
 			ret = -1;
 		}
-#ifdef DEBUG
+#ifndef NDEBUG
 		if(define->ns)
 			xmlGenericError(0, "xmlRelaxNGValidateAttribute(nsName ns = %s): %d\n", define->ns, ret);
 		else
@@ -8069,7 +8069,7 @@ static int xmlRelaxNGValidateElementEnd(xmlRelaxNGValidCtxtPtr ctxt, int dolog)
  */
 static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine * define)
 {
-	xmlNode * P_Node;
+	xmlNode * p_node;
 	int ret = 0, i, tmp, oldflags, errNr;
 	xmlRelaxNGValidState * oldstate = NULL;
 	xmlRelaxNGValidState * state;
@@ -8077,66 +8077,65 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		VALID_ERR(XML_RELAXNG_ERR_NODEFINE);
 		return -1;
 	}
-	P_Node = ctxt->state ? ctxt->state->seq : NULL;
-#ifdef DEBUG
+	p_node = ctxt->state ? ctxt->state->seq : NULL;
+#ifndef NDEBUG
 	for(i = 0; i < ctxt->depth; i++)
 		xmlGenericError(0, " ");
 	xmlGenericError(0, "Start validating %s ", xmlRelaxNGDefName(define));
 	if(define->name)
 		xmlGenericError(0, "%s ", define->name);
-	if(node && node->name)
-		xmlGenericError(0, "on %s\n", node->name);
+	if(p_node && p_node->name)
+		xmlGenericError(0, "on %s\n", p_node->name);
 	else
 		xmlGenericError(0, "\n");
 #endif
 	ctxt->depth++;
 	switch(define->type) {
 		case XML_RELAXNG_EMPTY:
-		    P_Node = xmlRelaxNGSkipIgnored(ctxt, P_Node);
+		    p_node = xmlRelaxNGSkipIgnored(ctxt, p_node);
 		    ret = 0;
 		    break;
 		case XML_RELAXNG_NOT_ALLOWED:
 		    ret = -1;
 		    break;
 		case XML_RELAXNG_TEXT:
-		    while(P_Node && oneof4(P_Node->type, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE, XML_CDATA_SECTION_NODE))
-			    P_Node = P_Node->next;
-		    ctxt->state->seq = P_Node;
+		    while(p_node && oneof4(p_node->type, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE, XML_CDATA_SECTION_NODE))
+			    p_node = p_node->next;
+		    ctxt->state->seq = p_node;
 		    break;
 		case XML_RELAXNG_ELEMENT:
 		    errNr = ctxt->errNr;
-		    P_Node = xmlRelaxNGSkipIgnored(ctxt, P_Node);
-		    if(!P_Node) {
+		    p_node = xmlRelaxNGSkipIgnored(ctxt, p_node);
+		    if(!p_node) {
 			    VALID_ERR2(XML_RELAXNG_ERR_NOELEM, define->name);
 			    ret = -1;
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
-		    if(P_Node->type != XML_ELEMENT_NODE) {
+		    if(p_node->type != XML_ELEMENT_NODE) {
 			    VALID_ERR(XML_RELAXNG_ERR_NOTELEM);
 			    ret = -1;
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
-		    /*
-		 * This node was already validated successfully against
-		 * this definition.
-		     */
-		    if(P_Node->psvi == define) {
-			    ctxt->state->seq = xmlRelaxNGSkipIgnored(ctxt, P_Node->next);
+		    //
+			// This node was already validated successfully against this definition.
+		    //
+		    if(p_node->psvi == define) {
+			    ctxt->state->seq = xmlRelaxNGSkipIgnored(ctxt, p_node->next);
 			    if(ctxt->errNr > errNr)
 				    xmlRelaxNGPopErrors(ctxt, errNr);
 			    if(ctxt->errNr != 0) {
-				    while(ctxt->err && (((ctxt->err->err == XML_RELAXNG_ERR_ELEMNAME) && (sstreq(ctxt->err->arg2, P_Node->name)))
-					    || ((ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS) && (sstreq(ctxt->err->arg1, P_Node->name)))
+				    while(ctxt->err && (((ctxt->err->err == XML_RELAXNG_ERR_ELEMNAME) && (sstreq(ctxt->err->arg2, p_node->name)))
+					    || ((ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS) && (sstreq(ctxt->err->arg1, p_node->name)))
 					    || (ctxt->err->err == XML_RELAXNG_ERR_NOELEM) || (ctxt->err->err == XML_RELAXNG_ERR_NOTELEM)))
 					    xmlRelaxNGValidErrorPop(ctxt);
 			    }
 			    break;
 		    }
-		    ret = xmlRelaxNGElementMatch(ctxt, define, P_Node);
+		    ret = xmlRelaxNGElementMatch(ctxt, define, p_node);
 		    if(ret <= 0) {
 			    ret = -1;
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
@@ -8147,8 +8146,8 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    if(ctxt->errNr != 0) {
 			    if(ctxt->errNr > errNr)
 				    xmlRelaxNGPopErrors(ctxt, errNr);
-			    while(ctxt->err && ((ctxt->err->err == XML_RELAXNG_ERR_ELEMNAME && sstreq(ctxt->err->arg2, P_Node->name)) ||
-				    (ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS && sstreq(ctxt->err->arg1, P_Node->name)) ||
+			    while(ctxt->err && ((ctxt->err->err == XML_RELAXNG_ERR_ELEMNAME && sstreq(ctxt->err->arg2, p_node->name)) ||
+				    (ctxt->err->err == XML_RELAXNG_ERR_ELEMEXTRANS && sstreq(ctxt->err->arg1, p_node->name)) ||
 				    oneof2(ctxt->err->err, XML_RELAXNG_ERR_NOELEM, XML_RELAXNG_ERR_NOTELEM)))
 				    xmlRelaxNGValidErrorPop(ctxt);
 		    }
@@ -8157,7 +8156,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    if(ctxt->flags & FLAGS_MIXED_CONTENT) {
 			    ctxt->flags -= FLAGS_MIXED_CONTENT;
 		    }
-		    state = xmlRelaxNGNewValidState(ctxt, P_Node);
+		    state = xmlRelaxNGNewValidState(ctxt, p_node);
 		    if(!state) {
 			    ret = -1;
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
@@ -8170,14 +8169,14 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    tmp = xmlRelaxNGValidateAttributeList(ctxt, define->attrs);
 			    if(tmp != 0) {
 				    ret = -1;
-				    VALID_ERR2(XML_RELAXNG_ERR_ATTRVALID, P_Node->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_ATTRVALID, p_node->name);
 			    }
 		    }
 		    if(define->contModel) {
 			    xmlRelaxNGValidState * tmpstate = ctxt->state;
 			    xmlRelaxNGStates * tmpstates = ctxt->states;
 			    xmlNode * nseq;
-			    xmlRelaxNGValidState * nstate = xmlRelaxNGNewValidState(ctxt, P_Node);
+			    xmlRelaxNGValidState * nstate = xmlRelaxNGNewValidState(ctxt, p_node);
 			    ctxt->state = nstate;
 			    ctxt->states = NULL;
 			    tmp = xmlRelaxNGValidateCompiledContent(ctxt, define->contModel, ctxt->state->seq);
@@ -8233,11 +8232,11 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 					    ret = -1;
 					    if(ctxt->state == NULL) {
 						    ctxt->state = oldstate;
-						    VALID_ERR2(XML_RELAXNG_ERR_CONTENTVALID, P_Node->name);
+						    VALID_ERR2(XML_RELAXNG_ERR_CONTENTVALID, p_node->name);
 						    ctxt->state = NULL;
 					    }
 					    else {
-						    VALID_ERR2(XML_RELAXNG_ERR_CONTENTVALID, P_Node->name);
+						    VALID_ERR2(XML_RELAXNG_ERR_CONTENTVALID, p_node->name);
 					    }
 				    }
 			    }
@@ -8274,13 +8273,12 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 					xmlRelaxNGFreeValidState(ctxt, state);
 			    }
 		    }
-		    if(!ret) {
-			    P_Node->psvi = define;
-		    }
+		    if(!ret)
+			    p_node->psvi = define;
 		    ctxt->flags = oldflags;
 		    ctxt->state = oldstate;
 		    if(oldstate)
-			    oldstate->seq = xmlRelaxNGSkipIgnored(ctxt, P_Node->next);
+			    oldstate->seq = xmlRelaxNGSkipIgnored(ctxt, p_node->next);
 		    if(ret != 0) {
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0) {
 				    xmlRelaxNGDumpValidError(ctxt);
@@ -8296,9 +8294,8 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    if(ctxt->errNr > errNr)
 				    xmlRelaxNGPopErrors(ctxt, errNr);
 		    }
-
-#ifdef DEBUG
-		    xmlGenericError(0, "xmlRelaxNGValidateDefinition(): validated %s : %d", node->name, ret);
+#ifndef NDEBUG
+		    xmlGenericError(0, "xmlRelaxNGValidateDefinition(): validated %s : %d", p_node->name, ret);
 		    if(oldstate == NULL)
 			    xmlGenericError(0, ": no state\n");
 		    else if(oldstate->seq == NULL)
@@ -8484,34 +8481,34 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		case XML_RELAXNG_CHOICE: {
 		    xmlRelaxNGDefine * list = NULL;
 		    xmlRelaxNGStates * states = NULL;
-		    P_Node = xmlRelaxNGSkipIgnored(ctxt, P_Node);
+		    p_node = xmlRelaxNGSkipIgnored(ctxt, p_node);
 		    errNr = ctxt->errNr;
-		    if((define->dflags & IS_TRIABLE) && define->data && P_Node) {
-			    /*
-			 * node == NULL can't be optimized since IS_TRIABLE
-			 * doesn't account for choice which may lead to
-			 * only attributes.
-			     */
+		    if((define->dflags & IS_TRIABLE) && define->data && p_node) {
+			    //
+				// node == NULL can't be optimized since IS_TRIABLE
+				// doesn't account for choice which may lead to
+				// only attributes.
+			    //
 			    xmlHashTable * triage = (xmlHashTable *)define->data;
-			    /*
-			 * Something we can optimize cleanly there is only one
-			 * possble branch out !
-			     */
-			    if((P_Node->type == XML_TEXT_NODE) || (P_Node->type == XML_CDATA_SECTION_NODE)) {
+			    //
+				// Something we can optimize cleanly there is only one
+				// possble branch out !
+				//
+			    if(oneof2(p_node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, reinterpret_cast<const xmlChar *>("#text"), 0);
 			    }
-			    else if(P_Node->type == XML_ELEMENT_NODE) {
-				    if(P_Node->ns) {
-					    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, P_Node->name, P_Node->ns->href);
-						SETIFZ(list, (xmlRelaxNGDefine *)xmlHashLookup2(triage, reinterpret_cast<const xmlChar *>("#any"), P_Node->ns->href));
+			    else if(p_node->type == XML_ELEMENT_NODE) {
+				    if(p_node->ns) {
+					    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, p_node->name, p_node->ns->href);
+						SETIFZ(list, (xmlRelaxNGDefine *)xmlHashLookup2(triage, reinterpret_cast<const xmlChar *>("#any"), p_node->ns->href));
 				    }
 				    else
-					    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, P_Node->name, 0);
+					    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, p_node->name, 0);
 					SETIFZ(list, (xmlRelaxNGDefine *)xmlHashLookup2(triage, reinterpret_cast<const xmlChar *>("#any"), 0));
 			    }
 			    if(list == NULL) {
 				    ret = -1;
-				    VALID_ERR2(XML_RELAXNG_ERR_ELEMWRONG, P_Node->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_ELEMWRONG, p_node->name);
 				    break;
 			    }
 			    ret = xmlRelaxNGValidateDefinition(ctxt, list);
@@ -8578,10 +8575,10 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		case XML_RELAXNG_DATATYPE: 
 			{
 				xmlChar * content = NULL;
-				xmlNode * child = P_Node;
+				xmlNode * child = p_node;
 				while(child) {
 					if(child->type == XML_ELEMENT_NODE) {
-						VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, P_Node->P_ParentNode->name);
+						VALID_ERR2(XML_RELAXNG_ERR_DATAELEM, p_node->P_ParentNode->name);
 						ret = -1;
 						break;
 					}
@@ -8616,10 +8613,10 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		case XML_RELAXNG_VALUE: {
 		    xmlChar * content = NULL;
 		    xmlChar * oldvalue;
-		    xmlNode * child = P_Node;
+		    xmlNode * child = p_node;
 		    while(child) {
 			    if(child->type == XML_ELEMENT_NODE) {
-				    VALID_ERR2(XML_RELAXNG_ERR_VALELEM, P_Node->P_ParentNode->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_VALELEM, p_node->P_ParentNode->name);
 				    ret = -1;
 				    break;
 			    }
@@ -8657,14 +8654,14 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		case XML_RELAXNG_LIST: {
 		    xmlChar * oldvalue, * oldendvalue;
 		    int len;
-		    /*
-		 * Make sure it's only text nodes
-		     */
+		    //
+			// Make sure it's only text nodes
+		    //
 		    xmlChar * content = NULL;
-		    xmlNode * child = P_Node;
+		    xmlNode * child = p_node;
 		    while(child) {
 			    if(child->type == XML_ELEMENT_NODE) {
-				    VALID_ERR2(XML_RELAXNG_ERR_LISTELEM, P_Node->P_ParentNode->name);
+				    VALID_ERR2(XML_RELAXNG_ERR_LISTELEM, p_node->P_ParentNode->name);
 				    ret = -1;
 				    break;
 			    }
@@ -8697,8 +8694,8 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    if(ret == -1) {
 			    VALID_ERR(XML_RELAXNG_ERR_LIST);
 		    }
-		    else if((ret == 0) && P_Node) {
-			    ctxt->state->seq = P_Node->next;
+		    else if((ret == 0) && p_node) {
+			    ctxt->state->seq = p_node->next;
 		    }
 		    SAlloc::F(content);
 		    break;
@@ -8709,7 +8706,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    break;
 	}
 	ctxt->depth--;
-#ifdef DEBUG
+#ifndef NDEBUG
 	for(i = 0; i < ctxt->depth; i++)
 		xmlGenericError(0, " ");
 	xmlGenericError(0, "Validating %s ", xmlRelaxNGDefName(define));
@@ -8914,7 +8911,7 @@ static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 	}
 	if(ret != 0)
 		xmlRelaxNGDumpValidError(ctxt);
-#ifdef DEBUG
+#ifndef NDEBUG
 	else if(ctxt->errNr != 0) {
 		ctxt->error(ctxt->userData, "%d Extra error messages left on stack !\n", ctxt->errNr);
 		xmlRelaxNGDumpValidError(ctxt);

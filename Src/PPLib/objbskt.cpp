@@ -2073,7 +2073,7 @@ static int EditBasket2BillParam(Basket2BillParam * pParam)
 	DIALOG_PROC_BODY(Basket2BillDialog, pParam);
 }
 
-int PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack)
+int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPack)
 {
 	int    ok = 1;
 	int    is_expend = -1;
@@ -2108,6 +2108,11 @@ int PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPac
 	else if(op_type_id == PPOPT_GOODSMODIF) {
 		TDialog * p_sel_modif_dlg = 0;
 		THROW(CheckDialogPtr(&(p_sel_modif_dlg = new TDialog(DLG_SELMODIF))));
+		// @v11.2.2 {
+		if(!isempty(rBasket.Head.Name)) {
+			p_sel_modif_dlg->setStaticText(CTL_SELMODIF_ST_INFO, rBasket.Head.Name);
+		}
+		// } @v11.2.2 
 		p_sel_modif_dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		p_sel_modif_dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, 1);
 		if(ExecView(p_sel_modif_dlg) == cmOK) {
@@ -2137,7 +2142,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPac
 			if(ExtractPacket(pPack->Rec.LinkBillID, &link_pack) > 0)
 				use_link_bill = 1;
 		}
-		for(uint i = 0; !rollback && pBasket->Lots.enumItems(&i, (void **)&p_item);) {
+		for(uint i = 0; !rollback && rBasket.Lots.enumItems(&i, (void **)&p_item);) {
 			int    r = 0;
 			uint   cvt_ilti_flags = CILTIF_ABSQTTY;
 			double last_price = 0.0;

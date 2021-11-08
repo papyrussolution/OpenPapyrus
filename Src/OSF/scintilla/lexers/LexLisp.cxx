@@ -30,7 +30,7 @@ static bool FASTCALL isLispoperator(char ch)
 
 static bool FASTCALL isLispwordstart(char ch) 
 {
-	return IsASCII(ch) && ch != ';'  && !isspacechar(ch) && !isLispoperator(ch) && ch != '\n' && ch != '\r' &&  ch != '\"';
+	return IsASCII(ch) && ch != ';' && !isspacechar(ch) && !isLispoperator(ch) && ch != '\n' && ch != '\r' &&  ch != '\"';
 }
 
 static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, const WordList &keywords_kw, Accessor & styler) 

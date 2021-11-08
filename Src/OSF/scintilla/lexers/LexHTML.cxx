@@ -1275,7 +1275,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    state = SCE_H_DEFAULT;
 			    }
 			    if(ch != '#' && !(IsASCII(ch) && isalnum(ch)) // Should check that '#' follows '&', but it is unlikely anyway...
-			    && ch != '.' && ch != '-' && ch != '_' && ch != ':') {     // valid in XML
+			  && ch != '.' && ch != '-' && ch != '_' && ch != ':') {     // valid in XML
 				    if(!IsASCII(ch)) // Possibly start of a multibyte character so don't allow this byte to be in entity style
 					    styler.ColourTo(i-1, SCE_H_TAGUNKNOWN);
 				    else

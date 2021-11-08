@@ -67,7 +67,7 @@ void ssh_print_bignum(const char * name, const_bignum num)
 	if(num != NULL) {
 		bignum_bn2hex(num, &hex);
 	}
-	slfprintf_stderr("%s value: %s\n", name, hex ? (char*)hex : "(null)");
+	slfprintf_stderr("%s value: %s\n", name, hex ? (char *)hex : "(null)");
 #ifdef HAVE_LIBGCRYPT
 	SAFE_FREE(hex);
 #elif defined HAVE_LIBCRYPTO

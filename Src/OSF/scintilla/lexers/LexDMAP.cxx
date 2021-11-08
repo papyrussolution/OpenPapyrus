@@ -149,7 +149,7 @@ static void ColouriseDMAPDoc(Sci_PositionU startPos, Sci_Position length, int in
 
 /***************************************/
 // To determine the folding level depending on keywords
-static int classifyFoldPointDMAP(const char* s, const char* prevWord) {
+static int classifyFoldPointDMAP(const char * s, const char * prevWord) {
 	int lev = 0;
 	if((sstreq(prevWord, "else") && sstreq(s, "if")) || sstreq(s, "enddo") || sstreq(s, "endif")) {
 		lev = -1;

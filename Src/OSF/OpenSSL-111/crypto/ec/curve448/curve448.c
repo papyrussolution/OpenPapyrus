@@ -64,7 +64,7 @@ static void point_double_internal(curve448_point_t p, const curve448_point_t q, 
 	gf_add_nr(p->t, q->y, q->x); /* 2+e */
 	gf_sqr(b, p->t);
 	gf_subx_nr(b, b, d, 3); /* 4+e */
-	gf_sub_nr(p->t, a, c);  /* 3+e */
+	gf_sub_nr(p->t, a, c); /* 3+e */
 	gf_sqr(p->x, q->z);
 	gf_add_nr(p->z, p->x, p->x); /* 2+e */
 	gf_subx_nr(a, p->z, p->t, 4); /* 6+e */
@@ -127,8 +127,8 @@ static void add_niels_to_pt(curve448_point_t d, const niels_t e,
 	gf_add_nr(b, d->x, d->y); /* 2+e */
 	gf_mul(d->y, e->b, b);
 	gf_mul(d->x, e->c, d->t);
-	gf_add_nr(c, a, d->y);  /* 2+e */
-	gf_sub_nr(b, d->y, a);  /* 3+e */
+	gf_add_nr(c, a, d->y); /* 2+e */
+	gf_sub_nr(b, d->y, a); /* 3+e */
 	gf_sub_nr(d->y, d->z, d->x); /* 3+e */
 	gf_add_nr(a, d->x, d->z); /* 2+e */
 	gf_mul(d->z, a, d->y);
@@ -148,8 +148,8 @@ static void sub_niels_from_pt(curve448_point_t d, const niels_t e,
 	gf_add_nr(b, d->x, d->y); /* 2+e */
 	gf_mul(d->y, e->a, b);
 	gf_mul(d->x, e->c, d->t);
-	gf_add_nr(c, a, d->y);  /* 2+e */
-	gf_sub_nr(b, d->y, a);  /* 3+e */
+	gf_add_nr(c, a, d->y); /* 2+e */
+	gf_sub_nr(b, d->y, a); /* 3+e */
 	gf_add_nr(d->y, d->z, d->x); /* 2+e */
 	gf_sub_nr(a, d->z, d->x); /* 3+e */
 	gf_mul(d->z, a, d->y);

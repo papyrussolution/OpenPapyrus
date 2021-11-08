@@ -83,7 +83,7 @@ static char * max5data(curl_off_t bytes, char * max5)
 		/* 'XX.XM' is good as long as we're less than 100 megs */
 		msnprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0"
 		    CURL_FORMAT_CURL_OFF_T "M", bytes/ONE_MEGABYTE,
-		    (bytes%ONE_MEGABYTE) / (ONE_MEGABYTE/CURL_OFF_T_C(10)) );
+		    (bytes%ONE_MEGABYTE) / (ONE_MEGABYTE/CURL_OFF_T_C(10)));
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
 
@@ -95,7 +95,7 @@ static char * max5data(curl_off_t bytes, char * max5)
 		/* 10000 MB - 100 GB, we show it as XX.XG */
 		msnprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0"
 		    CURL_FORMAT_CURL_OFF_T "G", bytes/ONE_GIGABYTE,
-		    (bytes%ONE_GIGABYTE) / (ONE_GIGABYTE/CURL_OFF_T_C(10)) );
+		    (bytes%ONE_GIGABYTE) / (ONE_GIGABYTE/CURL_OFF_T_C(10)));
 
 	else if(bytes < CURL_OFF_T_C(10000) * ONE_GIGABYTE)
 		/* up to 10000GB, display without decimal: XXXXG */

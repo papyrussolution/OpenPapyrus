@@ -400,7 +400,7 @@ error:
  * @returns Number of bytes processed, or zero if the banner is not complete.
  */
 static int callback_receive_banner(const void * data, size_t len, void * user) {
-	char * buffer = (char*)data;
+	char * buffer = (char *)data;
 	ssh_session session = (ssh_session)user;
 	char * str = NULL;
 	size_t i;
@@ -646,7 +646,7 @@ int ssh_message_global_request_reply_success(ssh_message msg, uint16_t bound_por
 		}
 
 		if(msg->global_request.type == SSH_GLOBAL_REQUEST_TCPIP_FORWARD
-		    && msg->global_request.bind_port == 0) {
+		  && msg->global_request.bind_port == 0) {
 			rc = ssh_buffer_pack(msg->session->out_buffer, "d", bound_port);
 			if(rc != SSH_OK) {
 				ssh_set_error_oom(msg->session);
@@ -658,7 +658,7 @@ int ssh_message_global_request_reply_success(ssh_message msg, uint16_t bound_por
 	}
 
 	if(msg->global_request.type == SSH_GLOBAL_REQUEST_TCPIP_FORWARD
-	    && msg->global_request.bind_port == 0) {
+	  && msg->global_request.bind_port == 0) {
 		SSH_LOG(SSH_LOG_PACKET,
 		    "The client doesn't want to know the remote port!");
 	}

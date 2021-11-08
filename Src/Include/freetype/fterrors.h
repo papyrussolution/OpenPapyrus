@@ -83,7 +83,7 @@
  *     const struct
  *     {
  * int          err_code;
- * const char*  err_msg;
+ * const char *  err_msg;
  *     } ft_errors[] =
  *
  *     #include <freetype/fterrors.h>
@@ -115,7 +115,7 @@
 /*                                                                   */
 /* work for backward compatibility.                                  */
 /*                                                                   */
-#if !( defined( FTERRORS_H_ ) && defined ( __FTERRORS_H__ ) )
+#if !(defined( FTERRORS_H_ ) && defined ( __FTERRORS_H__ ) )
 #define FTERRORS_H_
 #define __FTERRORS_H__
 

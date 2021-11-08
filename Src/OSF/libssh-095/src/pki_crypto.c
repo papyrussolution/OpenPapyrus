@@ -1372,10 +1372,10 @@ static ssh_string pki_dsa_signature_to_blob(const ssh_signature sig)
 	s_offset_out = (s_len < 20) ? (20 - s_len) : 0;
 
 	memcpy(buffer + r_offset_out,
-	    ((char*)ssh_string_data(r)) + r_offset_in,
+	    ((char *)ssh_string_data(r)) + r_offset_in,
 	    r_len - r_offset_in);
 	memcpy(buffer + 20 + s_offset_out,
-	    ((char*)ssh_string_data(s)) + s_offset_in,
+	    ((char *)ssh_string_data(s)) + s_offset_in,
 	    s_len - s_offset_in);
 
 	DSA_SIG_free(dsa_sig);
@@ -1537,8 +1537,8 @@ static int pki_signature_from_rsa_blob(const ssh_key pubkey, const ssh_string si
 		if(sig_blob_padded == NULL) {
 			goto errout;
 		}
-		blob_padded_data = (char*)ssh_string_data(sig_blob_padded);
-		blob_orig = (char*)ssh_string_data(sig_blob);
+		blob_padded_data = (char *)ssh_string_data(sig_blob_padded);
+		blob_orig = (char *)ssh_string_data(sig_blob);
 		if(blob_padded_data == NULL || blob_orig == NULL) {
 			goto errout;
 		}
@@ -1600,7 +1600,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	if(s == NULL) {
 		goto error;
 	}
-	ssh_string_fill(s, (char*)ssh_string_data(sig_blob) + 20, 20);
+	ssh_string_fill(s, (char *)ssh_string_data(sig_blob) + 20, 20);
 
 	ps = ssh_make_string_bn(s);
 	ssh_string_burn(s);
@@ -2188,7 +2188,7 @@ int pki_verify_data_signature(ssh_signature signature,
 	if(pubkey == NULL || ssh_key_is_private(pubkey) || input == NULL ||
 	    signature == NULL || (signature->raw_sig == NULL
 #ifndef HAVE_OPENSSL_ED25519
-	    && signature->ed25519_sig == NULL
+	  && signature->ed25519_sig == NULL
 #endif
 	    )) {
 		SSH_LOG(SSH_LOG_TRACE, "Bad parameter provided to "

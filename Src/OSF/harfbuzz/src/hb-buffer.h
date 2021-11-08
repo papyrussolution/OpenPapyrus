@@ -65,7 +65,6 @@ typedef struct hb_glyph_info_t {
 	hb_mask_t mask;
 	/*< public >*/
 	uint32_t cluster;
-
 	/*< private >*/
 	hb_var_int_t var1;
 	hb_var_int_t var2;
@@ -94,14 +93,12 @@ typedef struct hb_glyph_info_t {
  */
 typedef enum { /*< flags >*/
 	HB_GLYPH_FLAG_UNSAFE_TO_BREAK         = 0x00000001,
-
 	HB_GLYPH_FLAG_DEFINED                 = 0x00000001/* OR of all defined flags */
 } hb_glyph_flags_t;
 
 HB_EXTERN hb_glyph_flags_t hb_glyph_info_get_glyph_flags(const hb_glyph_info_t * info);
 
-#define hb_glyph_info_get_glyph_flags(info) \
-	((hb_glyph_flags_t)((uint)(info)->mask & HB_GLYPH_FLAG_DEFINED))
+#define hb_glyph_info_get_glyph_flags(info) ((hb_glyph_flags_t)((uint)(info)->mask & HB_GLYPH_FLAG_DEFINED))
 
 /**
  * hb_glyph_position_t:
@@ -233,10 +230,8 @@ typedef enum { /*< flags >*/
 	HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE    = 0x00000010u
 } hb_buffer_flags_t;
 
-HB_EXTERN void hb_buffer_set_flags(hb_buffer_t * buffer,
-    hb_buffer_flags_t flags);
-
-HB_EXTERN hb_buffer_flags_t hb_buffer_get_flags(hb_buffer_t * buffer);
+HB_EXTERN void hb_buffer_set_flags(hb_buffer_t * buffer, hb_buffer_flags_t flags);
+HB_EXTERN hb_buffer_flags_t hb_buffer_get_flags(const hb_buffer_t * buffer);
 
 /**
  * hb_buffer_cluster_level_t:
@@ -256,11 +251,8 @@ typedef enum {
 	HB_BUFFER_CLUSTER_LEVEL_DEFAULT = HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES
 } hb_buffer_cluster_level_t;
 
-HB_EXTERN void hb_buffer_set_cluster_level(hb_buffer_t * buffer,
-    hb_buffer_cluster_level_t cluster_level);
-
-HB_EXTERN hb_buffer_cluster_level_t hb_buffer_get_cluster_level(hb_buffer_t * buffer);
-
+HB_EXTERN void hb_buffer_set_cluster_level(hb_buffer_t * buffer, hb_buffer_cluster_level_t cluster_level);
+HB_EXTERN hb_buffer_cluster_level_t hb_buffer_get_cluster_level(const hb_buffer_t * buffer);
 /**
  * HB_BUFFER_REPLACEMENT_CODEPOINT_DEFAULT:
  *
@@ -270,74 +262,25 @@ HB_EXTERN hb_buffer_cluster_level_t hb_buffer_get_cluster_level(hb_buffer_t * bu
  * Since: 0.9.31
  */
 #define HB_BUFFER_REPLACEMENT_CODEPOINT_DEFAULT 0xFFFDu
-
-HB_EXTERN void hb_buffer_set_replacement_codepoint(hb_buffer_t * buffer,
-    hb_codepoint_t replacement);
-
+HB_EXTERN void hb_buffer_set_replacement_codepoint(hb_buffer_t * buffer, hb_codepoint_t replacement);
 HB_EXTERN hb_codepoint_t hb_buffer_get_replacement_codepoint(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_set_invisible_glyph(hb_buffer_t * buffer,
-    hb_codepoint_t invisible);
-
+HB_EXTERN void hb_buffer_set_invisible_glyph(hb_buffer_t * buffer, hb_codepoint_t invisible);
 HB_EXTERN hb_codepoint_t hb_buffer_get_invisible_glyph(hb_buffer_t * buffer);
-
 HB_EXTERN void hb_buffer_reset(hb_buffer_t * buffer);
-
 HB_EXTERN void hb_buffer_clear_contents(hb_buffer_t * buffer);
-
-HB_EXTERN hb_bool_t hb_buffer_pre_allocate(hb_buffer_t * buffer,
-    unsigned int size);
-
+HB_EXTERN hb_bool_t hb_buffer_pre_allocate(hb_buffer_t * buffer, unsigned int size);
 HB_EXTERN hb_bool_t hb_buffer_allocation_successful(hb_buffer_t * buffer);
-
 HB_EXTERN void hb_buffer_reverse(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_reverse_range(hb_buffer_t * buffer,
-    unsigned int start, unsigned int end);
-
+HB_EXTERN void hb_buffer_reverse_range(hb_buffer_t * buffer, unsigned int start, unsigned int end);
 HB_EXTERN void hb_buffer_reverse_clusters(hb_buffer_t * buffer);
-
 /* Filling the buffer in */
-
-HB_EXTERN void hb_buffer_add(hb_buffer_t * buffer,
-    hb_codepoint_t codepoint,
-    unsigned int cluster);
-
-HB_EXTERN void hb_buffer_add_utf8(hb_buffer_t * buffer,
-    const char * text,
-    int text_length,
-    unsigned int item_offset,
-    int item_length);
-
-HB_EXTERN void hb_buffer_add_utf16(hb_buffer_t * buffer,
-    const uint16_t * text,
-    int text_length,
-    unsigned int item_offset,
-    int item_length);
-
-HB_EXTERN void hb_buffer_add_utf32(hb_buffer_t * buffer,
-    const uint32_t * text,
-    int text_length,
-    unsigned int item_offset,
-    int item_length);
-
-HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t * buffer,
-    const uint8_t * text,
-    int text_length,
-    unsigned int item_offset,
-    int item_length);
-
-HB_EXTERN void hb_buffer_add_codepoints(hb_buffer_t * buffer,
-    const hb_codepoint_t * text,
-    int text_length,
-    unsigned int item_offset,
-    int item_length);
-
-HB_EXTERN void hb_buffer_append(hb_buffer_t * buffer,
-    hb_buffer_t * source,
-    unsigned int start,
-    unsigned int end);
-
+HB_EXTERN void hb_buffer_add(hb_buffer_t * buffer, hb_codepoint_t codepoint, unsigned int cluster);
+HB_EXTERN void hb_buffer_add_utf8(hb_buffer_t * buffer, const char * text, int text_length, unsigned int item_offset, int item_length);
+HB_EXTERN void hb_buffer_add_utf16(hb_buffer_t * buffer, const uint16_t * text, int text_length, unsigned int item_offset, int item_length);
+HB_EXTERN void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_length, unsigned int item_offset, int item_length);
+HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8_t * text, int text_length, unsigned int item_offset, int item_length);
+HB_EXTERN void hb_buffer_add_codepoints(hb_buffer_t * buffer, const hb_codepoint_t * text, int text_length, unsigned int item_offset, int item_length);
+HB_EXTERN void hb_buffer_append(hb_buffer_t * buffer, hb_buffer_t * source, unsigned int start, unsigned int end);
 HB_EXTERN hb_bool_t hb_buffer_set_length(hb_buffer_t * buffer, unsigned int length);
 HB_EXTERN unsigned int hb_buffer_get_length(hb_buffer_t * buffer);
 

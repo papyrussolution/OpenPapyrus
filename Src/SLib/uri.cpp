@@ -18,9 +18,6 @@ static const char * const UriConstParent = _UT("..");
 //
 //
 //
-//
-//
-//
 static void FASTCALL uriWriteQuadToDoubleByte(const uchar * hexDigits, int digitCount, uchar * output)
 {
 	switch(digitCount) {
@@ -3029,7 +3026,7 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 				{
 					const char * afterZeroMoreSlashSegs;
 					const char * afterSegment;
-					if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) {     /* SEGMENT BOTH */
+					if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) { /* SEGMENT BOTH */
 						StopMalloc();
 						return NULL;
 					}
@@ -3039,7 +3036,7 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 						if(afterSegment == NULL) {
 							return NULL;
 						}
-						else if(!PushPathSegment(pFirst+1, afterSegment)) {       /* SEGMENT BOTH */
+						else if(!PushPathSegment(pFirst+1, afterSegment)) { /* SEGMENT BOTH */
 							StopMalloc();
 							return NULL;
 						}

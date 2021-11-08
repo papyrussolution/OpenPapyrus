@@ -165,11 +165,8 @@ static hb_bool_t hb_icu_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED, h
 	return true;
 }
 
-static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t ab,
-    hb_codepoint_t * a,
-    hb_codepoint_t * b,
-    void * user_data)
+static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t ab,
+    hb_codepoint_t * a, hb_codepoint_t * b, void * user_data)
 {
 	const UNormalizer2 * normalizer = (const UNormalizer2*)user_data;
 	UChar decomposed[4];
@@ -204,29 +201,23 @@ static struct hb_icu_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader_
 		UErrorCode icu_err = U_ZERO_ERROR;
 		user_data = (void *)unorm2_getNFCInstance(&icu_err);
 		assert(user_data);
-
 		hb_unicode_funcs_t * funcs = hb_unicode_funcs_create(nullptr);
-
 		hb_unicode_funcs_set_combining_class_func(funcs, hb_icu_unicode_combining_class, nullptr, nullptr);
 		hb_unicode_funcs_set_general_category_func(funcs, hb_icu_unicode_general_category, nullptr, nullptr);
 		hb_unicode_funcs_set_mirroring_func(funcs, hb_icu_unicode_mirroring, nullptr, nullptr);
 		hb_unicode_funcs_set_script_func(funcs, hb_icu_unicode_script, nullptr, nullptr);
 		hb_unicode_funcs_set_compose_func(funcs, hb_icu_unicode_compose, user_data, nullptr);
 		hb_unicode_funcs_set_decompose_func(funcs, hb_icu_unicode_decompose, user_data, nullptr);
-
 		hb_unicode_funcs_make_immutable(funcs);
-
 #if HB_USE_ATEXIT
 		atexit(free_static_icu_funcs);
 #endif
-
 		return funcs;
 	}
 } static_icu_funcs;
 
 #if HB_USE_ATEXIT
-static
-void free_static_icu_funcs()
+static void free_static_icu_funcs()
 {
 	static_icu_funcs.free_instance();
 }

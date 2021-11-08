@@ -462,7 +462,7 @@ pixman_bool_t pixman_blt(uint32 * src_bits, uint32 * dst_bits, int src_stride, i
     int src_x, int src_y, int dest_x, int dest_y, int width, int height);
 pixman_bool_t pixman_fill(uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 _xor);
 int           pixman_version(void);
-const char*   pixman_version_string(void);
+const char *   pixman_version_string(void);
 /*
  * Images
  */

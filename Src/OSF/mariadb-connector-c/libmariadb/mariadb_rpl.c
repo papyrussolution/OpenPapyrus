@@ -455,7 +455,7 @@ int mariadb_rpl_get_optionsv(MARIADB_RPL * rpl,
 	switch(option) {
 		case MARIADB_RPL_FILENAME:
 	    {
-		    const char ** name = (const char**)va_arg(ap, char **);
+		    const char ** name = (const char **)va_arg(ap, char **);
 		    size_t * len = (size_t*)va_arg(ap, size_t *);
 
 		    *name = rpl->filename;

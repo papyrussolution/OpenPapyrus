@@ -487,7 +487,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	/* check for an existing re-usable credential handle */
 	if(SSL_SET_OPTION(primary.sessionid)) {
 		Curl_ssl_sessionid_lock(conn);
-		if(!Curl_ssl_getsessionid(conn, (void**)&old_cred, NULL, sockindex)) {
+		if(!Curl_ssl_getsessionid(conn, (void **)&old_cred, NULL, sockindex)) {
 			BACKEND->cred = old_cred;
 			DEBUGF(infof(data, "schannel: re-using existing credential handle\n"));
 
@@ -1395,7 +1395,7 @@ static CURLcode schannel_connect_step3(struct connectdata * conn, int sockindex)
 		struct Curl_schannel_cred * old_cred = NULL;
 
 		Curl_ssl_sessionid_lock(conn);
-		incache = !(Curl_ssl_getsessionid(conn, (void**)&old_cred, NULL,
+		incache = !(Curl_ssl_getsessionid(conn, (void **)&old_cred, NULL,
 		    sockindex));
 		if(incache) {
 			if(old_cred != BACKEND->cred) {

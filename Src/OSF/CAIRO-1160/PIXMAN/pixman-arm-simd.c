@@ -59,13 +59,13 @@ static pixman_bool_t arm_simd_fill(pixman_implementation_t * imp, uint32 * bits,
 	uint32 byte_stride = stride * sizeof(uint32);
 	switch(bpp) {
 		case 8:
-		    pixman_composite_src_n_8_asm_armv6(width, height, (uint8*)(((char*)bits) + y * byte_stride + x), byte_stride, _xor & 0xff);
+		    pixman_composite_src_n_8_asm_armv6(width, height, (uint8*)(((char *)bits) + y * byte_stride + x), byte_stride, _xor & 0xff);
 		    return TRUE;
 		case 16:
-		    pixman_composite_src_n_0565_asm_armv6(width, height, (uint16*)(((char*)bits) + y * byte_stride + x * 2), byte_stride / 2, _xor & 0xffff);
+		    pixman_composite_src_n_0565_asm_armv6(width, height, (uint16*)(((char *)bits) + y * byte_stride + x * 2), byte_stride / 2, _xor & 0xffff);
 		    return TRUE;
 		case 32:
-		    pixman_composite_src_n_8888_asm_armv6(width, height, (uint32*)(((char*)bits) + y * byte_stride + x * 4), byte_stride / 4, _xor);
+		    pixman_composite_src_n_8888_asm_armv6(width, height, (uint32*)(((char *)bits) + y * byte_stride + x * 4), byte_stride / 4, _xor);
 		    return TRUE;
 		default:
 		    return FALSE;
@@ -82,25 +82,25 @@ static pixman_bool_t arm_simd_blt(pixman_implementation_t * imp, uint32 * src_bi
 		case 8:
 		    pixman_composite_src_8_8_asm_armv6(
 			    width, height,
-			    (uint8*)(((char*)dst_bits) +
+			    (uint8*)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 1), dst_stride * 4,
-			    (uint8*)(((char*)src_bits) +
+			    (uint8*)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 1), src_stride * 4);
 		    return TRUE;
 		case 16:
 		    pixman_composite_src_0565_0565_asm_armv6(
 			    width, height,
-			    (uint16*)(((char*)dst_bits) +
+			    (uint16*)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
-			    (uint16*)(((char*)src_bits) +
+			    (uint16*)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 2), src_stride * 2);
 		    return TRUE;
 		case 32:
 		    pixman_composite_src_8888_8888_asm_armv6(
 			    width, height,
-			    (uint32*)(((char*)dst_bits) +
+			    (uint32*)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 4), dst_stride,
-			    (uint32*)(((char*)src_bits) +
+			    (uint32*)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 4), src_stride);
 		    return TRUE;
 		default:

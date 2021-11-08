@@ -219,7 +219,7 @@ struct ssl_primary_config {
 	BIT(verifypeer); /* set TRUE if this is desired */
 	BIT(verifyhost); /* set TRUE if CN/SAN must match hostname */
 	BIT(verifystatus); /* set TRUE if certificate status must be checked */
-	BIT(sessionid);  /* cache session IDs or not */
+	BIT(sessionid); /* cache session IDs or not */
 };
 
 struct ssl_config_data {
@@ -1761,7 +1761,7 @@ struct UserDefined {
 	                           location: */
 	BIT(opt_no_body); /* as set with CURLOPT_NOBODY */
 	BIT(upload);   /* upload request */
-	BIT(verbose);  /* output verbosity */
+	BIT(verbose); /* output verbosity */
 	BIT(krb);      /* Kerberos connection requested */
 	BIT(reuse_forbid); /* forbidden to be reused, close after use */
 	BIT(reuse_fresh); /* do not re-use an existing connection  */

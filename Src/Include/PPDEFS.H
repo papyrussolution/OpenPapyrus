@@ -1853,6 +1853,7 @@
 #define cmRepeating              1183 // Вызов диалога повторений задания //
 #define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
 #define cmNow                    1185 // @v11.2.0 Кнопка [Сегодня] или [Сейчас] в календарях
+#define cmLayoutList             1186 // @v11.2.1 Команда отображения иерархического списка layout'ов
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -3810,6 +3811,8 @@
 	#define CTLSEL_EXTGSEL_MODIFMODE     (11 + WINDOWS_ID_BIAS)
 #define DLG_SELMODIF              284 // Выбор типа строки модифкации товара
 	#define CTL_SELMODIF_WHAT            (1 + WINDOWS_ID_BIAS)
+	#define CTL_SELMODIF_FLAGS           (2 + WINDOWS_ID_BIAS)
+	#define CTL_SELMODIF_ST_INFO         (3 + WINDOWS_ID_BIAS)
 #define DLG_GSTRUC                285 // Структура товара
 #define DLG_GSTRUCFOLDER          666 // Расширенная структура товара (структура верхнего уровня)
 	#define cmGStrucExpandReduce      131 // Кнопка расширения/редукции структуры
@@ -9337,6 +9340,8 @@
 	#define CTL_WTMTOOL_BKGOPTIONS     (14 + WINDOWS_ID_BIAS)
 	#define CTL_WTMTOOL_KIND           (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_WTMTOOL_KIND        (16 + WINDOWS_ID_BIAS)
+	#define CTL_WTMTOOL_CLOT           (17 + WINDOWS_ID_BIAS) // @v11.2.2 complex layout type
+	#define CTLSEL_WTMTOOL_CLOT        (18 + WINDOWS_ID_BIAS) // @v11.2.2 complex layout type
 #define DLG_MOVARCODE                1121 // MOVARCOD
 	#define CTL_MOVARCODE_DESTAR       (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MOVARCODE_DESTAR    (2 + WINDOWS_ID_BIAS)
@@ -11170,6 +11175,7 @@
 	#define CTL_STQFACE_RUINN                (16  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_RUKPP                (17  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_RUSNILS              (18  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_GEOLOC               (19  + WINDOWS_ID_BIAS)
 #define DLG_STQFACELIST           1406
 	#define CTL_STQFACELIST_LIST             (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACELIST_INFO             (2  + WINDOWS_ID_BIAS)
@@ -11177,6 +11183,12 @@
 	#define CTL_STQCFG_URL                   (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_MQBAUTH               (2  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_MQBSECR               (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_LOCLURL               (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_LOCLMQBAUTH           (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_LOCLMQBSECR           (6  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_FEATURES              (7  + WINDOWS_ID_BIAS)
+#define DLG_FLEXLAYOUTLIST        1408 // Иерархический список layout'ов
+	#define CTL_FLEXLAYOUTLIST_LIST          (1  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

@@ -89,7 +89,7 @@ nsSBCSGroupProber::~nsSBCSGroupProber()
 	}
 }
 
-const char* nsSBCSGroupProber::GetCharSetName()
+const char * nsSBCSGroupProber::GetCharSetName()
 {
 	//if we have no answer yet
 	if(mBestGuess == -1) {
@@ -118,7 +118,7 @@ void nsSBCSGroupProber::Reset(void)
 	mState = eDetecting;
 }
 
-nsProbingState nsSBCSGroupProber::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsSBCSGroupProber::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	nsProbingState st;
 	PRUint32 i;

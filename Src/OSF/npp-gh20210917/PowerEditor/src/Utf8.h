@@ -25,7 +25,7 @@ namespace Utf8 { // could be a static class, instead of a namespace, if it needs
 	inline static bool isPartOfMultibyte(UCHAR c)  { return c >= 0x80; }
 	inline static bool isFirstOfMultibyte(UCHAR c) { return c >= 0xC2 && c < 0xF5; } // 0xF5 to 0xFD are defined by UTF-8, but are not currently valid Unicode
 	inline static bool isContinuation(UCHAR c)     { return (c & 0xC0) == 0x80; }
-	inline static bool isValid(UCHAR c)            { return c < 0xC0 || isFirstOfMultibyte(c); }	// validates a byte, out of context
+	inline static bool isValid(UCHAR c) { return c < 0xC0 || isFirstOfMultibyte(c); }	// validates a byte, out of context
 
 	// number of continuation bytes for a given valid first character (0 for single byte characters)
 	inline static int  continuationBytes(UCHAR c)  
@@ -34,7 +34,7 @@ namespace Utf8 { // could be a static class, instead of a namespace, if it needs
 		return (c < 0xC0) ? 0 : _len[(c & 0x30) >>  4];
 	} 
 	// validates a full character
-	inline static bool isValid(const char* buf, int buflen) 
+	inline static bool isValid(const char * buf, int buflen) 
 	{
 		if(isSingleByte(buf[0])) return true; // single byte is valid
 		if(!isFirstOfMultibyte(buf[0])) return false; // not single byte, nor valid multi-byte first byte
@@ -45,7 +45,7 @@ namespace Utf8 { // could be a static class, instead of a namespace, if it needs
 		return true;  // the character is valid (if there are too many continuation bytes, it is the next character that will be invalid)
 	}
 	// rewinds to the first byte of a multi-byte character for any valid UTF-8 (and will not rewind too much on any other input)
-	inline static int characterStart(const char* buf, int startingIndex) 
+	inline static int characterStart(const char * buf, int startingIndex) 
 	{
 		int charContinuationBytes = 0;
 		while(charContinuationBytes < startingIndex	// rewind past start of buffer?

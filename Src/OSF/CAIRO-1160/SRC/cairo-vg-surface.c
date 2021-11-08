@@ -198,7 +198,7 @@ static void _vg_context_unlock(cairo_vg_context_t * context)
 }
 
 #ifdef OPENVG_DEBUG
-static void check_vg_errors(const char* function, int line)
+static void check_vg_errors(const char * function, int line)
 {
 	int err = vgGetError();
 	if(err != VG_NO_ERROR) {

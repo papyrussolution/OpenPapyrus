@@ -331,7 +331,7 @@ static int send_server_key_exchange(SSL * s)
 #ifndef OPENSSL_NO_PSK
 	    /* Only send SKE if we have identity hint for plain PSK */
 	    || ((alg_k & (SSL_kPSK | SSL_kRSAPSK))
-	    && s->cert->psk_identity_hint)
+	  && s->cert->psk_identity_hint)
 	    /* For other PSK always send SKE */
 	    || (alg_k & (SSL_PSK & (SSL_kDHEPSK | SSL_kECDHEPSK)))
 #endif
@@ -1853,10 +1853,10 @@ static int tls_early_post_process_client_hello(SSL * s)
 	}
 
 	if(!s->hit
-	    && s->version >= TLS1_VERSION
-	    && !SSL_IS_TLS13(s)
-	    && !SSL_IS_DTLS(s)
-	    && s->ext.session_secret_cb) {
+	  && s->version >= TLS1_VERSION
+	  && !SSL_IS_TLS13(s)
+	  && !SSL_IS_DTLS(s)
+	  && s->ext.session_secret_cb) {
 		const SSL_CIPHER * pref_cipher = NULL;
 		/*
 		 * s->session->master_key_length is a size_t, but this is an int for
@@ -1869,7 +1869,7 @@ static int tls_early_post_process_client_hello(SSL * s)
 		    &master_key_length, ciphers,
 		    &pref_cipher,
 		    s->ext.session_secret_cb_arg)
-		    && master_key_length > 0) {
+		  && master_key_length > 0) {
 			s->session->master_key_length = master_key_length;
 			s->hit = 1;
 			s->peer_ciphers = ciphers;
@@ -2052,7 +2052,7 @@ static int tls_handle_status_request(SSL * s)
 	 * influence which certificate is sent
 	 */
 	if(s->ext.status_type != TLSEXT_STATUSTYPE_nothing && s->ctx != NULL
-	    && s->ctx->ext.status_cb != NULL) {
+	  && s->ctx->ext.status_cb != NULL) {
 		int ret;
 
 		/* If no certificate can't return certificate status */
@@ -2328,7 +2328,7 @@ int tls_construct_server_hello(SSL * s, WPACKET * pkt)
 	 */
 	if(s->session->not_resumable ||
 	    (!(s->ctx->session_cache_mode & SSL_SESS_CACHE_SERVER)
-	    && !s->hit))
+	  && !s->hit))
 		s->session->session_id_length = 0;
 
 	if(usetls13) {
@@ -2385,7 +2385,7 @@ int tls_construct_server_hello(SSL * s, WPACKET * pkt)
 		}
 	}
 	else if(!(s->verify_mode & SSL_VERIFY_PEER)
-	    && !ssl3_digest_cached_records(s, 0)) {
+	  && !ssl3_digest_cached_records(s, 0)) {
 		/* SSLfatal() already called */;
 		return 0;
 	}
@@ -4053,9 +4053,9 @@ int tls_construct_new_session_ticket(SSL * s, WPACKET * pkt)
 	 * is no point in using full stateless tickets.
 	 */
 	if(SSL_IS_TLS13(s)
-	    && ((s->options & SSL_OP_NO_TICKET) != 0
+	  && ((s->options & SSL_OP_NO_TICKET) != 0
 	    || (s->max_early_data > 0
-	    && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0))) {
+	  && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0))) {
 		if(!construct_stateful_ticket(s, pkt, age_add_u.age_add, tick_nonce)) {
 			/* SSLfatal() already called */
 			goto err;
@@ -4175,7 +4175,7 @@ MSG_PROCESS_RETURN tls_process_end_of_early_data(SSL * s, PACKET * pkt)
 	}
 
 	if(s->early_data_state != SSL_EARLY_DATA_READING
-	    && s->early_data_state != SSL_EARLY_DATA_READ_RETRY) {
+	  && s->early_data_state != SSL_EARLY_DATA_READ_RETRY) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_END_OF_EARLY_DATA,
 		    ERR_R_INTERNAL_ERROR);
 		return MSG_PROCESS_ERROR;

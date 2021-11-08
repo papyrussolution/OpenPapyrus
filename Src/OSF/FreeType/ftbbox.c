@@ -227,7 +227,7 @@ static FT_Pos cubic_peak(FT_Pos q1, FT_Pos q2, FT_Pos q3, FT_Pos q4)
 	/* to be downscaled to avoid overflows during bisection.       */
 	/* It is called with either q2 or q3 positive, which is necessary    */
 	/* for the peak to exist and avoids undefined FT_MSB.   */
-	FT_Int shift = 27 - FT_MSB( (FT_UInt32)( FT_ABS(q1) | FT_ABS(q2) | FT_ABS(q3) | FT_ABS(q4) ) );
+	FT_Int shift = 27 - FT_MSB( (FT_UInt32)( FT_ABS(q1) | FT_ABS(q2) | FT_ABS(q3) | FT_ABS(q4) ));
 	if(shift > 0) {
 		/* upscaling too much just wastes time */
 		if(shift > 2)

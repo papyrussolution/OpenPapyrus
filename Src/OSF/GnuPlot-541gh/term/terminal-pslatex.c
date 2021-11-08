@@ -169,7 +169,7 @@ void PSTEX_reopen_output(GpTermEntry * pThis)
 		char * dotIndex;
 		// if there's no extension, append ".ps" 
 		if((dotIndex = strrchr(GPT.P_OutStr, '.')) == NULL)
-			dotIndex = strchr(GPT.P_OutStr, NUL);
+			dotIndex = strchr(GPT.P_OutStr, '\0');
 		// try to open the auxiliary file for the postscript parts. 
 		if(p_gp->TPsB.P_Params->useauxfile) {
 			// length of outstr plus ('.' or '\0') plus "eps" plus '\0' 

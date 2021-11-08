@@ -444,7 +444,7 @@ void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_in
 			    /*  uint8 bit_depth;      bit depth of samples */
 			    /*  uint8 channels;       number of channels (1-4) */
 			    /*  uint8 pixel_depth;    bits per pixel (depth*channels) */
-			    png_ptr->row_buf + 1);  /* start of pixel data for row */
+			    png_ptr->row_buf + 1); /* start of pixel data for row */
 #endif
 
 #ifdef PNG_WRITE_FILLER_SUPPORTED

@@ -854,7 +854,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.000000000000000058
 		};
 		static ChebSeries AE12_cs = { AE12_data, 24, -1, 1, 15 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x) );
+		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE12_cs, (40.0/x+7.0)/3.0, &result_c);
 		result->V  = s * (1.0 + result_c.V);
@@ -872,7 +872,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 		};
 		static ChebSeries E11_cs = { E11_data, 18, -1, 1, 13 };
 		const double ln_term = -log(fabs(x));
-		const double scale_factor = ( scale ? exp(x) : 1.0 );
+		const double scale_factor = ( scale ? exp(x) : 1.0);
 		SMathResult result_c;
 		cheb_eval_e(&E11_cs, (2.0*x+5.0)/3.0, &result_c);
 		result->V  = scale_factor * (ln_term + result_c.V);
@@ -902,7 +902,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 		};
 		static ChebSeries E12_cs = { E12_data, 15, -1, 1, 10 };
 		const double ln_term = -log(fabs(x));
-		const double scale_factor = ( scale ? exp(x) : 1.0 );
+		const double scale_factor = ( scale ? exp(x) : 1.0);
 		SMathResult result_c;
 		cheb_eval_e(&E12_cs, x, &result_c);
 		result->V  = scale_factor * (ln_term - 0.6875 + x + result_c.V);
@@ -937,7 +937,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			0.000000000000000023
 		};
 		static ChebSeries AE13_cs = { AE13_data, 24, -1, 1, 15 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x) );
+		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE13_cs, (8.0/x-5.0)/3.0, &result_c);
 		result->V  = s * (1.0 + result_c.V);
@@ -973,7 +973,7 @@ static int expint_E1_impl(double x, SMathResult * result, int scale)
 			-0.00000000000000005
 		};
 		static ChebSeries AE14_cs = { AE14_data, 25, -1, 1, 13 };
-		const double s = 1.0/x * ( scale ? 1.0 : exp(-x) );
+		const double s = 1.0/x * ( scale ? 1.0 : exp(-x));
 		SMathResult result_c;
 		cheb_eval_e(&AE14_cs, 8.0/x-1.0, &result_c);
 		result->V  = s * (1.0 +  result_c.V);
@@ -1383,7 +1383,7 @@ int fgamma(double x, SMathResult * result)
 	if(x < 0.5) {
 		int rint_x = ffloori(x+0.5);
 		double f_x = x - rint_x;
-		double sgn_gamma = (IS_EVEN(rint_x) ? 1.0 : -1.0 );
+		double sgn_gamma = (IS_EVEN(rint_x) ? 1.0 : -1.0);
 		double sin_term = sgn_gamma * sin(SMathConst::Pi * f_x) / SMathConst::Pi;
 		if(sin_term == 0.0) {
 			ok = result->SetDomainViolation();
@@ -1562,7 +1562,7 @@ static int gamma_inc_D(double a, double x, SMathResult * result)
 		}
 		else {
 			double mu = (x-a)/a;
-			log_1plusx_mx(mu, &ln_term);  /* log(1+mu) - mu */
+			log_1plusx_mx(mu, &ln_term); /* log(1+mu) - mu */
 		}
 		gammastar(a, &gstar);
 		term1 = exp(a*ln_term.V)/sqrt(SMathConst::Pi2 * a);
@@ -1625,7 +1625,7 @@ static int gamma_inc_Q_asymp_unif(double a, double x, SMathResult * result)
 	const double rta = sqrt(a);
 	const double eps = (x-a)/a;
 	SMathResult ln_term;
-	const int stat_ln = log_1plusx_mx(eps, &ln_term);  /* log(1+eps) - eps */
+	const int stat_ln = log_1plusx_mx(eps, &ln_term); /* log(1+eps) - eps */
 	const double eta  = fsign(eps) * sqrt(-2.0*ln_term.V);
 	SMathResult erfc;
 	double R;

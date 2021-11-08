@@ -155,8 +155,8 @@ static void ssh_gssapi_log_error(int verb,
 	SSH_LOG(verb,
 	    "GSSAPI(%s): %s - %s",
 	    msg,
-	    (const char*)msg_maj.value,
-	    (const char*)msg_min.value);
+	    (const char *)msg_maj.value,
+	    (const char *)msg_min.value);
 
 out:
 	if(msg_maj.value) {

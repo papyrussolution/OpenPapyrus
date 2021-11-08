@@ -292,11 +292,10 @@ static void PC_setup()
 	PC_save_text();
 	/* If environment PCTRM is set, try to initialize a specific card/mode.  */
 	pctrm = getenv("PCTRM");
-	if(pctrm != NULL)
+	if(pctrm)
 		strnzcpy(pc_modename, pctrm, sizeof(pc_modename));
 	else
-		pc_modename[0] = NUL;
-
+		pc_modename[0] = '\0';
 	_getvideoconfig(&VC);
 	if((pc_driver = VC.adapter) == 0) {
 		fprintf(stderr, "Unable to initialize graphics.\n");
@@ -931,7 +930,7 @@ TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis)
 	struct xycoord concat;
 	struct xycoord extent[4];
 	if(pc_enhanced_opened_string) {
-		*p_gp->Enht.P_CurText = NUL;
+		*p_gp->Enht.P_CurText = '\0';
 		// calculate length of string first 
 		_settextang(0);
 		_gettextextent(pc_x, pc_lasty - pc_y, str, &concat, extent);

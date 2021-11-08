@@ -362,8 +362,8 @@ static void calculate_H_AMK(SlSRP::HashAlgorithm alg, uchar * dest, const BIGNUM
 	HashCTX ctx;
 	hash_init(alg, &ctx);
 	update_hash_n(alg, &ctx, A);
-	hash_update(alg, &ctx, M, hash_length(alg) );
-	hash_update(alg, &ctx, K, hash_length(alg) );
+	hash_update(alg, &ctx, M, hash_length(alg));
+	hash_update(alg, &ctx, K, hash_length(alg));
 	hash_final(alg, &ctx, dest);
 }
 
@@ -391,7 +391,7 @@ static void init_random()
 	}
 #endif
 	if(g_initialized)
-		RAND_seed(buff, sizeof(buff) );
+		RAND_seed(buff, sizeof(buff));
 }
 //
 // Exported Functions
@@ -527,7 +527,7 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 	init_random(); // Only happens once 
 	P_Ng = ng;
 	//THROW(P_UserName = (char *)SAlloc::M(ulen));
-	//memcpy((char*)P_UserName, pUserName, ulen);
+	//memcpy((char *)P_UserName, pUserName, ulen);
 	//Authenticated = 0;
 	// SRP-6a safety check 
 	BN_mod(tmp1, p_A, ng->N, ctx);
@@ -616,13 +616,13 @@ SlSRP::Verifier::Verifier(SlSRP::HashAlgorithm alg, NGType ngType, const char * 
 		goto cleanup_and_exit;
 	//ver = (SrpVerifier *)SAlloc::M(sizeof(SrpVerifier));
 	init_random(); /* Only happens once */
-	P_UserName = (char*)SAlloc::M(ulen);
+	P_UserName = (char *)SAlloc::M(ulen);
 	HashAlg = alg;
 	P_Ng = ng;
 	if(!P_UserName) {
 		goto cleanup_and_exit;
 	}
-	memcpy((char*)P_UserName, pUserName, ulen);
+	memcpy((char *)P_UserName, pUserName, ulen);
 	Authenticated = 0;
 	// SRP-6a safety check 
 	BN_mod(tmp1, p_A, ng->N, ctx);
@@ -671,7 +671,7 @@ cleanup_and_exit:
 SlSRP::Verifier::~Verifier()
 {
 	//delete_ng(P_Ng);
-	//SAlloc::F((char*)P_UserName);
+	//SAlloc::F((char *)P_UserName);
 	//SAlloc::F((uchar *)P_BytesB);
 	THISZERO();
 }

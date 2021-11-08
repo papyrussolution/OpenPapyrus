@@ -42,7 +42,7 @@ enum ssh_des_e {
 };
 
 struct ssh_hmac_struct {
-	const char* name;
+	const char * name;
 	enum ssh_hmac_e hmac_type;
 	bool etm;
 };

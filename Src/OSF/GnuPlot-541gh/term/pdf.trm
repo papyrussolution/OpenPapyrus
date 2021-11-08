@@ -1050,7 +1050,7 @@ TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font)
 		int sep = strcspn(font, ",");
 		if(sep > 0) {
 			strncpy(PDF_fontNameCur, font, sep);
-			PDF_fontNameCur[sep] = NUL;
+			PDF_fontNameCur[sep] = '\0';
 		}
 		if(font[sep] == ',')
 			sscanf(&(font[sep+1]), "%lf", &PDF_fontSizeCur);

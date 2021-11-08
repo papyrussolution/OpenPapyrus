@@ -410,7 +410,7 @@ static int LineType(Sci_Position line, Accessor & styler)
 	while( (i < eol_pos) && (wlen < 255) ) {
 		c = styler.SafeGetCharAt(i);
 		ch = static_cast<char>(LowerCase(c));
-		if( (!IsSpace(c)) && (!IsIdentifier(c)) )
+		if((!IsSpace(c)) && (!IsIdentifier(c)) )
 			break;
 		if(IsIdentifier(c) ) {
 			word[wlen] = ch;
@@ -434,7 +434,7 @@ static void FASTCALL SafeSetLevel(Sci_Position line, int level, Accessor & style
 	if(line < 0)
 		return;
 	int mask = ((~SC_FOLDLEVELHEADERFLAG) | (~SC_FOLDLEVELWHITEFLAG));
-	if( (level & mask) < 0)
+	if((level & mask) < 0)
 		return;
 	if(styler.LevelAt(line) != level)
 		styler.SetLevel(line, level);
@@ -483,7 +483,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 			}
 		}
 		// Check for data line
-		if( (lineType == 1) || (lineType == 3) ) {
+		if((lineType == 1) || (lineType == 3) ) {
 			if(beginData < 0) {
 				if(beginComment >= 0) {
 					beginData = beginComment;

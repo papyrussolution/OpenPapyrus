@@ -51,15 +51,15 @@ public:
   {mCodingSM = new nsCodingStateMachine(&GB18030SMModel);
     Reset();}
   virtual ~nsGB18030Prober(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return "gb18030";}
+  nsProbingState HandleData(const char * aBuf, PRUint32 aLen);
+  const char * GetCharSetName() {return "gb18030";}
   nsProbingState GetState(void) {return mState;}
   void      Reset(void);
   float     GetConfidence(void);
   void      SetOpion() {}
 
 protected:
-  void      GetDistribution(PRUint32 aCharLen, const char* aStr);
+  void      GetDistribution(PRUint32 aCharLen, const char * aStr);
   
   nsCodingStateMachine* mCodingSM;
   nsProbingState mState;

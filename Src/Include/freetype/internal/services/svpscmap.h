@@ -28,18 +28,18 @@ FT_BEGIN_HEADER
  * Adobe glyph name to unicode value.
  */
 typedef FT_UInt32
-(* PS_Unicode_ValueFunc)(const char*  glyph_name);
+(* PS_Unicode_ValueFunc)(const char *  glyph_name);
 
 /*
  * Macintosh name id to glyph name.  `NULL` if invalid index.
  */
-typedef const char*
+typedef const char *
 (* PS_Macintosh_NameFunc)(FT_UInt name_index);
 
 /*
  * Adobe standard string ID to glyph name.  `NULL` if invalid index.
  */
-typedef const char*
+typedef const char *
 (* PS_Adobe_Std_StringsFunc)(FT_UInt string_index);
 
 /*
@@ -62,7 +62,7 @@ typedef struct  PS_UnicodesRec_ {
  * A function which returns a glyph name for a given index.  Returns
  * `NULL` if invalid index.
  */
-typedef const char*
+typedef const char *
 (* PS_GetGlyphNameFunc)(FT_Pointer data,
     FT_UInt string_index);
 
@@ -72,7 +72,7 @@ typedef const char*
  */
 typedef void
 (* PS_FreeGlyphNameFunc)(FT_Pointer data,
-    const char*  name);
+    const char *  name);
 
 typedef FT_Error
 (* PS_Unicodes_InitFunc)(FT_Memory memory,

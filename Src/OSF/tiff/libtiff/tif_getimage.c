@@ -947,7 +947,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 #define UNROLL4(w, op1, op2) { uint32 _x; for(_x = w; _x >= 4; _x -= 4) { op1; REPEAT4(op2); } if(_x > 0) { op1; CASE4(_x, op2); } }
 #define UNROLL2(w, op1, op2) { uint32 _x; for(_x = w; _x >= 2; _x -= 2) { op1; REPEAT2(op2); } if(_x) { op1; op2; } }
 
-#define SKEW(r, g, b, skew)        { r += skew; g += skew; b += skew; }
+#define SKEW(r, g, b, skew) { r += skew; g += skew; b += skew; }
 #define SKEW4(r, g, b, a, skew)     { r += skew; g += skew; b += skew; a += skew; }
 
 #define A1 (((uint32)0xffL)<<24)
@@ -1701,7 +1701,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr41tile)
 			x--;
 		}
 
-		if( (w&3) != 0) {
+		if((w&3) != 0) {
 			int32 Cb = pp[4];
 			int32 Cr = pp[5];
 
@@ -1800,7 +1800,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr21tile)
 			x--;
 		}
 
-		if( (w&1) != 0) {
+		if((w&1) != 0) {
 			int32 Cb = pp[2];
 			int32 Cr = pp[3];
 
@@ -2422,7 +2422,7 @@ int TIFFReadRGBAStripExt(TIFF* tif, uint32 row, uint32 * raster, int stop_on_err
 		return 0;
 	}
 	TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
-	if( (row % rowsperstrip) != 0) {
+	if((row % rowsperstrip) != 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Row passed to TIFFReadRGBAStrip() must be first in a strip.");
 		return 0;
 	}
@@ -2470,7 +2470,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	}
 	TIFFGetFieldDefaulted(tif, TIFFTAG_TILEWIDTH, &tile_xsize);
 	TIFFGetFieldDefaulted(tif, TIFFTAG_TILELENGTH, &tile_ysize);
-	if( (col % tile_xsize) != 0 || (row % tile_ysize) != 0) {
+	if((col % tile_xsize) != 0 || (row % tile_ysize) != 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Row/col passed to TIFFReadRGBATile() must be topleft corner of a tile.");
 		return 0;
 	}
@@ -2479,7 +2479,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	 */
 	if(!TIFFRGBAImageOK(tif, emsg) || !TIFFRGBAImageBegin(&img, tif, stop_on_error, emsg)) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "%s", emsg);
-		return ( 0 );
+		return ( 0);
 	}
 	/*
 	 * The TIFFRGBAImageGet() function doesn't allow us to get off the
@@ -2512,8 +2512,8 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	if(read_xsize == tile_xsize && read_ysize == tile_ysize)
 		return ( ok );
 	for(i_row = 0; i_row < read_ysize; i_row++) {
-		memmove(raster + (tile_ysize - i_row - 1) * tile_xsize, raster + (read_ysize - i_row - 1) * read_xsize, read_xsize * sizeof(uint32) );
-		memzero(raster + (tile_ysize - i_row - 1) * tile_xsize+read_xsize, sizeof(uint32) * (tile_xsize - read_xsize) );
+		memmove(raster + (tile_ysize - i_row - 1) * tile_xsize, raster + (read_ysize - i_row - 1) * read_xsize, read_xsize * sizeof(uint32));
+		memzero(raster + (tile_ysize - i_row - 1) * tile_xsize+read_xsize, sizeof(uint32) * (tile_xsize - read_xsize));
 	}
 	for(i_row = read_ysize; i_row < tile_ysize; i_row++) {
 		memzero(raster + (tile_ysize - i_row - 1) * tile_xsize, sizeof(uint32) * tile_xsize);

@@ -86,7 +86,7 @@ void expandEnv(generic_string& s)
 		if(ret == static_cast<DWORD>(lstrlen(buffer) + 1)) {
 			s = buffer;
 		}
-		else{
+		else {
 			// Buffer was too small, try with a bigger buffer of the required size.
 			std::vector<TCHAR> buffer2(ret, 0);
 			ret = ExpandEnvironmentStrings(s.c_str(), buffer2.data(), static_cast<DWORD>(buffer2.size()));
@@ -179,7 +179,7 @@ private:
 class FileDialogEventHandler : public IFileDialogEvents, public IFileDialogControlEvents {
 public:
 	// IUnknown methods
-	IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv) override
+	IFACEMETHODIMP QueryInterface(REFIID riid, void ** ppv) override
 	{
 		// Always set out parameter to NULL, validating it first.
 		if(!ppv)
@@ -298,7 +298,7 @@ public:
 			if(bChecked) {
 				newFileType = _lastSelectedType;
 			}
-			else{
+			else {
 				if(_currentType != 0 && _currentType != _wildcardType)
 					_lastSelectedType = _currentType;
 				newFileType = _wildcardType;
@@ -331,9 +331,9 @@ public:
 
 private:
 	FileDialogEventHandler(const FileDialogEventHandler&) = delete;
-	FileDialogEventHandler& operator=(const FileDialogEventHandler&) = delete;
+	FileDialogEventHandler& operator = (const FileDialogEventHandler&) = delete;
 	FileDialogEventHandler(FileDialogEventHandler&&) = delete;
-	FileDialogEventHandler& operator=(FileDialogEventHandler&&) = delete;
+	FileDialogEventHandler& operator = (FileDialogEventHandler&&) = delete;
 
 	// Overrides window procedures for file name edit and ok button.
 	// Call this as late as possible to ensure all the controls of the dialog are created.
@@ -484,7 +484,7 @@ private:
 									inst->_hwndButton = hwnd;
 							}
 						}
-						else{
+						else {
 							isRTL = GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_LAYOUTRTL;
 							inst->_hwndButton = hwnd;
 						}

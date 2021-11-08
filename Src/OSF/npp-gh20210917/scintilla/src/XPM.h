@@ -27,8 +27,8 @@ public:
 	explicit XPM(const char *const *linesForm);
 	XPM(const XPM &) = default;
 	XPM(XPM &&) noexcept = default;
-	XPM &operator=(const XPM &) = default;
-	XPM &operator=(XPM &&) noexcept = default;
+	XPM & operator = (const XPM &) = default;
+	XPM & operator = (XPM &&) noexcept = default;
 	~XPM();
 	void Init(const char *textForm);
 	void Init(const char *const *linesForm);
@@ -55,8 +55,8 @@ public:
 	explicit RGBAImage(const XPM &xpm);
 	RGBAImage(const RGBAImage &) = default;
 	RGBAImage(RGBAImage &&) noexcept = default;
-	RGBAImage &operator=(const RGBAImage &) = default;
-	RGBAImage &operator=(RGBAImage &&) noexcept = default;
+	RGBAImage & operator = (const RGBAImage &) = default;
+	RGBAImage & operator = (RGBAImage &&) noexcept = default;
 	virtual ~RGBAImage();
 	int GetHeight() const noexcept { return height; }
 	int GetWidth() const noexcept { return width; }
@@ -82,8 +82,8 @@ public:
 	// Deleted so RGBAImageSet objects can not be copied.
 	RGBAImageSet(const RGBAImageSet &) = delete;
 	RGBAImageSet(RGBAImageSet &&) = delete;
-	RGBAImageSet &operator=(const RGBAImageSet &) = delete;
-	RGBAImageSet &operator=(RGBAImageSet &&) = delete;
+	RGBAImageSet & operator = (const RGBAImageSet &) = delete;
+	RGBAImageSet & operator = (RGBAImageSet &&) = delete;
 	~RGBAImageSet();
 	/// Remove all images.
 	void Clear() noexcept;

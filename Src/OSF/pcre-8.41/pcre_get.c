@@ -423,7 +423,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_get_substring_list(PCRE_SPTR32 sub
 	if(stringlist == NULL) return PCRE_ERROR_NOMEMORY;
 
 #if defined COMPILE_PCRE8
-	*listptr = (const char**)stringlist;
+	*listptr = (const char **)stringlist;
 #elif defined COMPILE_PCRE16
 	*listptr = (PCRE_SPTR16*)stringlist;
 #elif defined COMPILE_PCRE32

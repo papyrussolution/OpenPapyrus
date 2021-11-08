@@ -42,18 +42,18 @@ class TiXmlParsingDataA
 {
 	friend class TiXmlDocumentA;
 public:
-	//TiXmlParsingDataA( const char* now, const TiXmlParsingDataA* prevData );
-	void Stamp(const char* now);
+	//TiXmlParsingDataA( const char * now, const TiXmlParsingDataA* prevData );
+	void Stamp(const char * now);
 
 	const TiXmlCursorA& Cursor()    {
 		return cursor;
 	}
 
-	//void Update( const char* now );
+	//void Update( const char * now );
 
 private:
 	// Only used by the document!
-	TiXmlParsingDataA(const char* start, int _tabsize, int row, int col)
+	TiXmlParsingDataA(const char * start, int _tabsize, int row, int col)
 	{
 		assert(start);
 		stamp = start;
@@ -63,11 +63,11 @@ private:
 	}
 
 	TiXmlCursorA cursor;
-	const char*             stamp;
+	const char *             stamp;
 	int tabsize;
 };
 
-void TiXmlParsingDataA::Stamp(const char* now)
+void TiXmlParsingDataA::Stamp(const char * now)
 {
 	assert(now);
 
@@ -79,7 +79,7 @@ void TiXmlParsingDataA::Stamp(const char* now)
 	// Get the current row, column.
 	int row = cursor.row;
 	int col = cursor.col;
-	const char* p = stamp;
+	const char * p = stamp;
 	assert(p);
 
 	while(p < now) {
@@ -144,13 +144,13 @@ void TiXmlParsingDataA::Stamp(const char* now)
 	assert(stamp);
 }
 
-const char* TiXmlBaseA::SkipWhiteSpace(const char* p)
+const char * TiXmlBaseA::SkipWhiteSpace(const char * p)
 {
 	if(!p || !*p) {
 		return 0;
 	}
 	while(p && *p) {
-		if(isspace(*p) || *p == '\n' || *p =='\r')              // Still using old rules for white space.
+		if(isspace(*p) || *p == '\n' || *p =='\r') // Still using old rules for white space.
 			++p;
 		else
 			break;
@@ -187,7 +187,7 @@ const char* TiXmlBaseA::SkipWhiteSpace(const char* p)
 
 #endif
 
-const char* TiXmlBaseA::ReadName(const char* p, TIXMLA_STRING * name)
+const char * TiXmlBaseA::ReadName(const char * p, TIXMLA_STRING * name)
 {
 	*name = "";
 	assert(p);
@@ -197,9 +197,9 @@ const char* TiXmlBaseA::ReadName(const char* p, TIXMLA_STRING * name)
 	// hyphens, or colons. (Colons are valid ony for namespaces,
 	// but tinyxml can't tell namespaces from names.)
 	if(p && *p
-	    && (isalpha(static_cast<uchar>(*p)) || *p == '_')) {
+	  && (isalpha(static_cast<uchar>(*p)) || *p == '_')) {
 		while(p && *p
-		    &&      (               isalnum( (uchar)*p)
+		  &&      (               isalnum( (uchar)*p)
 		    || *p == '_'
 		    || *p == '-'
 		    || *p == '.'
@@ -212,7 +212,7 @@ const char* TiXmlBaseA::ReadName(const char* p, TIXMLA_STRING * name)
 	return 0;
 }
 
-const char* TiXmlBaseA::GetEntity(const char* p, char* value)
+const char * TiXmlBaseA::GetEntity(const char * p, char * value)
 {
 	// Presume an entity, and pull it out.
 	TIXMLA_STRING ent;
@@ -220,9 +220,9 @@ const char* TiXmlBaseA::GetEntity(const char* p, char* value)
 
 	// Handle the &#x entities.
 	if(strncmp("&#x", p, 3) == 0
-	    && *(p+3)
-	    && *(p+4)
-	    && ( *(p+4) == ';' || *(p+5) == ';' )
+	  && *(p+3)
+	  && *(p+4)
+	  && ( *(p+4) == ';' || *(p+5) == ';' )
 	    ) {
 		*value = 0;
 
@@ -263,8 +263,8 @@ const char* TiXmlBaseA::GetEntity(const char* p, char* value)
 	return p+1;
 }
 
-bool TiXmlBaseA::StringEqual(const char* p,
-    const char* tag,
+bool TiXmlBaseA::StringEqual(const char * p,
+    const char * tag,
     bool ignoreCase)
 {
 	assert(p);
@@ -274,7 +274,7 @@ bool TiXmlBaseA::StringEqual(const char* p,
 	}
 
 	if(tolower(*p) == tolower(*tag) ) {
-		const char* q = p;
+		const char * q = p;
 
 		if(ignoreCase) {
 			while(*q && *tag && *q == *tag) {
@@ -300,10 +300,10 @@ bool TiXmlBaseA::StringEqual(const char* p,
 	return false;
 }
 
-const char* TiXmlBaseA::ReadText(const char* p,
+const char * TiXmlBaseA::ReadText(const char * p,
     TIXMLA_STRING * text,
     bool trimWhiteSpace,
-    const char* endTag,
+    const char * endTag,
     bool caseInsensitive)
 {
 	*text = "";
@@ -311,7 +311,7 @@ const char* TiXmlBaseA::ReadText(const char* p,
 	    || !condenseWhiteSpace) {           // if true, whitespace is always kept
 		// Keep all the white space.
 		while(p && *p
-		    && !StringEqual(p, endTag, caseInsensitive)
+		  && !StringEqual(p, endTag, caseInsensitive)
 		    ) {
 			char c;
 			p = GetChar(p, &c);
@@ -324,7 +324,7 @@ const char* TiXmlBaseA::ReadText(const char* p,
 		// Remove leading white space:
 		p = SkipWhiteSpace(p);
 		while(p && *p
-		    && !StringEqual(p, endTag, caseInsensitive) ) {
+		  && !StringEqual(p, endTag, caseInsensitive) ) {
 			if(*p == '\r' || *p == '\n') {
 				whitespace = true;
 				++p;
@@ -402,7 +402,7 @@ void TiXmlDocumentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlDocumentA::Parse(const char* p, TiXmlParsingDataA* prevData)
+const char * TiXmlDocumentA::Parse(const char * p, TiXmlParsingDataA* prevData)
 {
 	ClearError();
 
@@ -451,7 +451,7 @@ const char* TiXmlDocumentA::Parse(const char* p, TiXmlParsingDataA* prevData)
 	return p;
 }
 
-void TiXmlDocumentA::SetError(int err, const char* pError, TiXmlParsingDataA* data)
+void TiXmlDocumentA::SetError(int err, const char * pError, TiXmlParsingDataA* data)
 {
 	// The first error in a chain is more accurate - don't set again!
 	if(error)
@@ -470,7 +470,7 @@ void TiXmlDocumentA::SetError(int err, const char* pError, TiXmlParsingDataA* da
 	}
 }
 
-TiXmlNodeA* TiXmlNodeA::Identify(const char* p)
+TiXmlNodeA* TiXmlNodeA::Identify(const char * p)
 {
 	TiXmlNodeA* returnNode = 0;
 
@@ -493,8 +493,8 @@ TiXmlNodeA* TiXmlNodeA::Identify(const char* p)
 	// - Everthing else is unknown to tinyxml.
 	//
 
-	const char* xmlHeader = { "<?xml" };
-	const char* commentHeader = { "<!--" };
+	const char * xmlHeader = { "<?xml" };
+	const char * commentHeader = { "<!--" };
 
 	if(StringEqual(p, xmlHeader, true) ) {
 		#ifdef DEBUG_PARSER
@@ -553,7 +553,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 	// If not, identify and stream.
 
 	if(tag->at(tag->length() - 1) == '>'
-	    && tag->at(tag->length() - 2) == '/') {
+	  && tag->at(tag->length() - 2) == '/') {
 		// All good!
 		return;
 	}
@@ -615,7 +615,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 			}
 			else {
 				// If not a closing tag, id it, and stream.
-				const char* tagloc = tag->c_str() + tagIndex;
+				const char * tagloc = tag->c_str() + tagIndex;
 				TiXmlNodeA* node = Identify(tagloc);
 				if(!node)
 					return;
@@ -631,7 +631,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlElementA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlElementA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	p = SkipWhiteSpace(p);
 	TiXmlDocumentA* document = GetDocument();
@@ -655,7 +655,7 @@ const char* TiXmlElementA::Parse(const char* p, TiXmlParsingDataA* data)
 	p = SkipWhiteSpace(p+1);
 
 	// Read the name.
-	const char* pErr = p;
+	const char * pErr = p;
 
 	p = ReadName(p, &value);
 	if(!p || !*p) {
@@ -714,7 +714,7 @@ const char* TiXmlElementA::Parse(const char* p, TiXmlParsingDataA* data)
 			}
 
 			attrib->SetDocument(document);
-			const char* pErr = p;
+			const char * pErr = p;
 			p = attrib->Parse(p, data);
 
 			if(!p || !*p) {
@@ -724,9 +724,9 @@ const char* TiXmlElementA::Parse(const char* p, TiXmlParsingDataA* data)
 			}
 
 			// Handle the strange case of double attributes:
-			TiXmlAttributeA* node = attributeSet.Find(attrib->Name() );
+			TiXmlAttributeA* node = attributeSet.Find(attrib->Name());
 			if(node) {
-				node->SetValue(attrib->Value() );
+				node->SetValue(attrib->Value());
 				delete attrib;
 				return 0;
 			}
@@ -737,7 +737,7 @@ const char* TiXmlElementA::Parse(const char* p, TiXmlParsingDataA* data)
 	return p;
 }
 
-const char* TiXmlElementA::ReadValue(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlElementA::ReadValue(const char * p, TiXmlParsingDataA* data)
 {
 	TiXmlDocumentA* document = GetDocument();
 
@@ -802,7 +802,7 @@ void TiXmlUnknownA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlUnknownA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlUnknownA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	TiXmlDocumentA* document = GetDocument();
 	p = SkipWhiteSpace(p);
@@ -840,8 +840,8 @@ void TiXmlCommentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 		(*tag) += static_cast<char>(c);
 
 		if(c == '>'
-		    && tag->at(tag->length() - 2) == '-'
-		    && tag->at(tag->length() - 3) == '-') {
+		  && tag->at(tag->length() - 2) == '-'
+		  && tag->at(tag->length() - 3) == '-') {
 			// All is well.
 			return;
 		}
@@ -850,7 +850,7 @@ void TiXmlCommentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlCommentA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlCommentA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	TiXmlDocumentA* document = GetDocument();
 	value = "";
@@ -862,8 +862,8 @@ const char* TiXmlCommentA::Parse(const char* p, TiXmlParsingDataA* data)
 		data->Stamp(p);
 		location = data->Cursor();
 	}
-	const char* startTag = "<!--";
-	const char* endTag   = "-->";
+	const char * startTag = "<!--";
+	const char * endTag   = "-->";
 
 	if(!StringEqual(p, startTag, false) ) {
 		document->SetError(TIXMLA_ERROR_PARSING_COMMENT, p, data);
@@ -874,7 +874,7 @@ const char* TiXmlCommentA::Parse(const char* p, TiXmlParsingDataA* data)
 	return p;
 }
 
-const char* TiXmlAttributeA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlAttributeA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	p = SkipWhiteSpace(p);
 	if(!p || !*p) return 0;
@@ -889,7 +889,7 @@ const char* TiXmlAttributeA::Parse(const char* p, TiXmlParsingDataA* data)
 		location = data->Cursor();
 	}
 	// Read the name, the '=' and the value.
-	const char* pErr = p;
+	const char * pErr = p;
 	p = ReadName(p, &name);
 	if(!p || !*p) {
 		if(document) document->SetError(TIXMLA_ERROR_READING_ATTRIBUTES, pErr, data);
@@ -908,7 +908,7 @@ const char* TiXmlAttributeA::Parse(const char* p, TiXmlParsingDataA* data)
 		return 0;
 	}
 
-	const char* end;
+	const char * end;
 
 	if(*p == '\'') {
 		++p;
@@ -926,8 +926,8 @@ const char* TiXmlAttributeA::Parse(const char* p, TiXmlParsingDataA* data)
 		// its best, even without them.
 		value = "";
 		while(p && *p                                                                                   // existence
-		    && !isspace(*p) && *p != '\n' && *p != '\r'                 // whitespace
-		    && *p != '/' && *p != '>') {                                                        // tag end
+		  && !isspace(*p) && *p != '\n' && *p != '\r'                 // whitespace
+		  && *p != '/' && *p != '>') {                                                        // tag end
 			value += *p;
 			++p;
 		}
@@ -950,7 +950,7 @@ void TiXmlTextA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlTextA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlTextA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	value = "";
 //	TiXmlParsingDataA data( p, prevData );
@@ -960,7 +960,7 @@ const char* TiXmlTextA::Parse(const char* p, TiXmlParsingDataA* data)
 	}
 	bool ignoreWhite = true;
 
-	const char* end = "<";
+	const char * end = "<";
 	p = ReadText(p, &value, ignoreWhite, end, false);
 	if(p)
 		return p-1;     // don't truncate the '<'
@@ -983,7 +983,7 @@ void TiXmlDeclarationA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 
 #endif
 
-const char* TiXmlDeclarationA::Parse(const char* p, TiXmlParsingDataA* data)
+const char * TiXmlDeclarationA::Parse(const char * p, TiXmlParsingDataA* data)
 {
 	p = SkipWhiteSpace(p);
 	// Find the beginning, find the end, and look for

@@ -214,7 +214,7 @@ static const GumboStringPiece kLimitedQuirksRequiresSystemIdPublicIdPrefixes[] =
  GUMBO_STRING("-//W3C//DTD HTML 4.01 Transitional//"), TERMINATOR};
 
 // Indexed by GumboNamespaceEnum; keep in sync with that.
-static const char* kLegalXmlns[] = {"http://www.w3.org/1999/xhtml",
+static const char * kLegalXmlns[] = {"http://www.w3.org/1999/xhtml",
 				    "http://www.w3.org/2000/svg", "http://www.w3.org/1998/Math/MathML"};
 
 typedef struct _ReplacementEntry {
@@ -331,8 +331,8 @@ static const ReplacementEntry kSvgTagReplacements[] = {
 };
 
 typedef struct _NamespacedAttributeReplacement {
-	const char* from;
-	const char* local_name;
+	const char * from;
+	const char * local_name;
 	const GumboAttributeNamespaceEnum attr_namespace;
 } NamespacedAttributeReplacement;
 
@@ -422,7 +422,7 @@ struct GumboParserState {
 	GumboToken * _current_token; // The current token.
 };
 
-static bool token_has_attribute(const GumboToken* token, const char* name) 
+static bool token_has_attribute(const GumboToken* token, const char * name) 
 {
 	assert(token->type == GUMBO_TOKEN_START_TAG);
 	return gumbo_get_attribute(&token->v.start_tag.attributes, name) != NULL;
@@ -430,7 +430,7 @@ static bool token_has_attribute(const GumboToken* token, const char* name)
 
 // Checks if the value of the specified attribute is a case-insensitive match
 // for the specified string.
-static bool attribute_matches(const GumboVector* attributes, const char* name, const char* value) 
+static bool attribute_matches(const GumboVector* attributes, const char * name, const char * value) 
 {
 	const GumboAttribute * attr = gumbo_get_attribute(attributes, name);
 	return attr ? strcasecmp(value, attr->value) == 0 : false;
@@ -1682,7 +1682,7 @@ static void merge_attributes(GumboParser * parser, GumboToken* token, GumboNode*
 #endif
 }
 
-const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) 
+const char * gumbo_normalize_svg_tagname(const GumboStringPiece* tag) 
 {
 	for(size_t i = 0; i < sizeof(kSvgTagReplacements) / sizeof(ReplacementEntry); ++i) {
 		const ReplacementEntry* entry = &kSvgTagReplacements[i];
@@ -4312,7 +4312,7 @@ GumboOutput * gumbo_parse(const char * buffer)
 	return gumbo_parse_with_options(&kGumboDefaultOptions, buffer, strlen(buffer));
 }
 
-GumboOutput * gumbo_parse_with_options(const GumboOptions* options, const char* buffer, size_t length) 
+GumboOutput * gumbo_parse_with_options(const GumboOptions* options, const char * buffer, size_t length) 
 {
 	GumboParser parser;
 	parser._options = options;
@@ -4337,7 +4337,7 @@ GumboOutput * gumbo_parse_with_options(const GumboOptions* options, const char* 
 			gumbo_tokenizer_set_is_current_node_foreign(&parser, current_node && current_node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML);
 			has_error = !gumbo_lex(&parser, &token) || has_error;
 		}
-		const char* token_type = "text";
+		const char * token_type = "text";
 		switch(token.type) {
 			case GUMBO_TOKEN_DOCTYPE: token_type = "doctype"; break;
 			case GUMBO_TOKEN_START_TAG: token_type = gumbo_normalized_tagname(token.v.start_tag.tag); break;

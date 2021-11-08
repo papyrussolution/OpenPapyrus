@@ -68,7 +68,7 @@ static void FoldCamlDoc(Sci_PositionU startPos, Sci_Position length,
 static void InternalLexOrFold(int lexOrFold, Sci_PositionU startPos, Sci_Position length,
     int initStyle, char * words[], WindowID window, char * props);
 
-static const char* LexerName = "caml";
+static const char * LexerName = "caml";
 
 #ifdef TRACE
 void Platform::DebugPrintf(const char * format, ...) {
@@ -214,7 +214,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 				    state2 = SCE_CAML_NUMBER, chBase = 10;
 				    if(sc.Match('0')) {
 					    // there MAY be a base specified...
-					    const char* baseC = "bBoOxX";
+					    const char * baseC = "bBoOxX";
 					    if(isSML) {
 						    if(sc.chNext == 'w')
 							    sc.Forward(); // (consume SML "word" indicator)
@@ -285,7 +285,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 
 			case SCE_CAML_OPERATOR: {
 			    // [try to] interpret as [additional] operator char
-			    const char* o = 0;
+			    const char * o = 0;
 			    if(iscaml(sc.ch) || isspace(sc.ch)                  // ident or whitespace
 				|| (o = strchr(")]};,\'\"#", sc.ch), o)  // "termination" chars
 				|| (!isSML && sc.Match('`'))                    // Caml extra term char

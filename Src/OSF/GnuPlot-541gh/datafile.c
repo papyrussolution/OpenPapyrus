@@ -481,7 +481,7 @@ int GnuPlot::DfTokenise(char * s)
 					} while(*s && *s != '"');
 					in_string = FALSE;
 				}
-				while(!isspace((uchar)*s) && (*s != NUL) && NOTSEP)
+				while(!isspace((uchar)*s) && *s && NOTSEP)
 					++s;
 			}
 			// it might be a fortran double or quad precision. 'used' is only safe if count is 1
@@ -2270,7 +2270,7 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 		sprintf(temp_string, "%d", _Df.LineCount);
 		Push(Gstring(&a, temp_string));
 	}
-	else if(column == 0) {     /* $0 = df_datum */
+	else if(column == 0) { /* $0 = df_datum */
 		char temp_string[32];
 		sprintf(temp_string, "%d", _Df.df_datum);
 		Push(Gstring(&a, temp_string));

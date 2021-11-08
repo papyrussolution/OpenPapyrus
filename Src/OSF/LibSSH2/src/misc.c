@@ -39,7 +39,7 @@
 #include "libssh2_priv.h"
 #pragma hdrstop
 
-int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags)
+int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char * errmsg, int errflags)
 {
 	if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
 		LIBSSH2_FREE(session, (char *)session->err_msg);
@@ -66,7 +66,7 @@ int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const c
 	return errcode;
 }
 
-int FASTCALL _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
+int FASTCALL _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char * errmsg)
 {
 	return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
@@ -351,7 +351,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format,
 		"Publickey",
 		"Socket",
 	};
-	const char* contexttext = contexts[0];
+	const char * contexttext = contexts[0];
 	uint contextindex;
 	if(!(session->showmask & context)) {
 		/* no such output asked for */

@@ -3391,7 +3391,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						*/
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
 						n_dt.PutInner(SXml::nst("qp", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07
@@ -3404,7 +3404,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						*/
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
 						n_dt.PutInner(SXml::nst("qp", "AWORegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB) {

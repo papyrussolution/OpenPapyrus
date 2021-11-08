@@ -328,7 +328,7 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 	all_num_blocks = num_blocks + ctx->sess.blocks_processed;
 
 	if(num_blocks && all_num_blocks == (size_t)all_num_blocks
-	    && ctx->stream != NULL) {
+	  && ctx->stream != NULL) {
 		size_t max_idx = 0, top = (size_t)all_num_blocks;
 
 		/*
@@ -421,7 +421,7 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 	all_num_blocks = num_blocks + ctx->sess.blocks_processed;
 
 	if(num_blocks && all_num_blocks == (size_t)all_num_blocks
-	    && ctx->stream != NULL) {
+	  && ctx->stream != NULL) {
 		size_t max_idx = 0, top = (size_t)all_num_blocks;
 
 		/*

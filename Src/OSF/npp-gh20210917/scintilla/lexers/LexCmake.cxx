@@ -69,7 +69,7 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
 
 	char s[20]; // The key word we are looking for has atmost 13 characters
 	for(unsigned int i = 0; i < end - start + 1 && i < 19; i++) {
-		s[i] = static_cast<char>( styler[ start + i ] );
+		s[i] = static_cast<char>( styler[ start + i ]);
 		s[i + 1] = '\0';
 	}
 
@@ -99,7 +99,7 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 	WordList &UserDefined = *keywordLists[2];
 
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 99; i++) {
-		word[i] = static_cast<char>( styler[ start + i ] );
+		word[i] = static_cast<char>( styler[ start + i ]);
 		lowercaseWord[i] = static_cast<char>(tolower(word[i]));
 	}
 
@@ -291,7 +291,7 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 				    state = SCE_CMAKE_DEFAULT;
 			    else if(cCurrChar == '\\' && (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' ) )
 				    state = SCE_CMAKE_DEFAULT;
-			    else if( (isCmakeChar(cCurrChar) && !isCmakeChar(cNextChar) && cNextChar != '}') || cCurrChar == '}') {
+			    else if((isCmakeChar(cCurrChar) && !isCmakeChar(cNextChar) && cNextChar != '}') || cCurrChar == '}') {
 				    state = classifyWordCmake(styler.GetStartSegment(), i, keywordLists, styler);
 				    styler.ColourTo(i, state);
 				    state = SCE_CMAKE_DEFAULT;

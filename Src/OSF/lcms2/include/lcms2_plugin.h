@@ -174,7 +174,7 @@ CMSAPI cmsBool             CMSEXPORT _cmsReadAlignment(cmsIOHANDLER* io);
 CMSAPI cmsBool             CMSEXPORT _cmsWriteAlignment(cmsIOHANDLER* io);
 
 // To deal with text streams. 2K at most
-CMSAPI cmsBool             CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char* frm, ...);
+CMSAPI cmsBool             CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char * frm, ...);
 
 // Fixed point helper functions
 CMSAPI cmsFloat64Number    CMSEXPORT _cms8Fixed8toDouble(cmsUInt16Number fixed8);
@@ -489,7 +489,7 @@ CMSAPI cmsPipeline*  CMSEXPORT _cmsDefaultICCintents(cmsContext       ContextID,
 // Pipelines, Multi Process Elements.
 
 typedef void (* _cmsStageEvalFn)     (const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage* mpe);
-typedef void*(* _cmsStageDupElemFn)  (cmsStage* mpe);
+typedef void *(* _cmsStageDupElemFn)  (cmsStage* mpe);
 typedef void (* _cmsStageFreeElemFn) (cmsStage* mpe);
 
 
@@ -601,7 +601,7 @@ typedef void     (*_cmsTransform2Fn)(struct _cmstransform_struct *CMMcargo,
                                      const cmsStride* Stride);  
 
 typedef cmsBool  (* _cmsTransformFactory)(_cmsTransformFn* xform,
-                                         void** UserData,
+                                         void ** UserData,
                                          _cmsFreeUserDataFn* FreePrivateDataFn,
                                          cmsPipeline** Lut,
                                          cmsUInt32Number* InputFormat,
@@ -609,7 +609,7 @@ typedef cmsBool  (* _cmsTransformFactory)(_cmsTransformFn* xform,
                                          cmsUInt32Number* dwFlags);
 
 typedef cmsBool  (* _cmsTransform2Factory)(_cmsTransform2Fn* xform,
-                                         void** UserData,
+                                         void ** UserData,
                                          _cmsFreeUserDataFn* FreePrivateDataFn,
                                          cmsPipeline** Lut,
                                          cmsUInt32Number* InputFormat,

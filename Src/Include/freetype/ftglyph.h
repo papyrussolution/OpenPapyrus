@@ -514,7 +514,7 @@ FT_Glyph_Get_CBox(FT_Glyph glyph,
  *
  *     for ( idx = 0; i < MAX_GLYPHS; i++ )
  * error = FT_Load_Glyph( face, idx, FT_LOAD_DEFAULT ) ||
- *         FT_Get_Glyph ( face->glyph, &glyphs[idx] );
+ *         FT_Get_Glyph ( face->glyph, &glyphs[idx]);
  *
  *     ...
  *
@@ -527,7 +527,7 @@ FT_Glyph_Get_CBox(FT_Glyph glyph,
  *
  * // after this call, `bitmap' no longer points into
  * // the `glyphs' array (and the old value isn't destroyed)
- * FT_Glyph_To_Bitmap( &bitmap, FT_RENDER_MODE_MONO, 0, 0 );
+ * FT_Glyph_To_Bitmap( &bitmap, FT_RENDER_MODE_MONO, 0, 0);
  *
  * ...
  *
@@ -537,7 +537,7 @@ FT_Glyph_Get_CBox(FT_Glyph glyph,
  *     ...
  *
  *     for ( idx = 0; i < MAX_GLYPHS; i++ )
- * FT_Done_Glyph( glyphs[idx] );
+ * FT_Done_Glyph( glyphs[idx]);
  *   ```
  */
 FT_EXPORT(FT_Error)

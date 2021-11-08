@@ -726,7 +726,7 @@ static bool almost_equal_string(const char * test, const char * str)
 	if(test == NULL || str == NULL)
 		return FALSE;
 	for(i = 0, j = 0; i < length + after; i++, j++) {
-		/* ignore spaces and underscores */
+		// ignore spaces and underscores 
 		while(str[i] == ' ' || str[i] == '_' || str[i] == '-') i++;
 		while(test[start + j] == ' ' || test[start + j] == '_' || test[start + j] == '-') j++;
 		if(toupper(str[i]) != toupper(test[start + j])) {
@@ -735,12 +735,12 @@ static bool almost_equal_string(const char * test, const char * str)
 			}
 			else {
 				after = 1;
-				start--; /* back up token ptr */
+				start--; // back up token ptr 
 			}
 		}
 	}
-	/* i now beyond end of test string */
-	return (after || str[i] == '$' || str[i] == NUL);
+	// i now beyond end of test string 
+	return (after || str[i] == '$' || !str[i]);
 }
 
 TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
@@ -771,7 +771,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    HPGL2_point_size = HPGL2_DEF_POINT;
 				    }
 				    HPGL2_point_size_current = HPGL2_point_size;
-				    if(*s != NUL) {
+				    if(*s) {
 					    for(i = 0; i < HPGL2_FONTS && !almost_equal_string(s, HPGL2_font_table[i].compare) && !almost_equal_string(s, HPGL2_font_table[i].alt); i++)
 							;
 					    if(i < HPGL2_FONTS) {
@@ -1536,7 +1536,7 @@ TERM_PUBLIC int HPGL2_set_font(GpTermEntry * pThis, const char * font)
 	sep = strcspn(font, ",");
 	strncpy(name, font, sizeof(name)-1);
 	if(sep < sizeof(name))
-		name[sep] = NUL;
+		name[sep] = '\0';
 	// determine font size, use default from options if invalid 
 	int_size = 0;
 	// FIXME: use strtod instead 
@@ -1563,8 +1563,8 @@ static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double si
 		italic = TRUE;
 	if((p2 = (char *)strstr(font, ":Bold")) != NULL) // @badcast
 		bold = TRUE;
-	ASSIGN_PTR(p1, NUL);
-	ASSIGN_PTR(p2, NUL);
+	ASSIGN_PTR(p1, '\0');
+	ASSIGN_PTR(p2, '\0');
 	for(i = 0; i < HPGL2_FONTS && !almost_equal_string(font, HPGL2_font_table[i].compare) && !almost_equal_string(font, HPGL2_font_table[i].alt); i++)
 		;
 	if(i >= HPGL2_FONTS)

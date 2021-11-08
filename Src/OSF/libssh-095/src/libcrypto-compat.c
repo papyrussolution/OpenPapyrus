@@ -251,10 +251,10 @@ int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 	 * sometimes only copies of the context are ever finalised.
 	 */
 	if(ctx->digest && ctx->digest->cleanup
-	    && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
+	  && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
 		ctx->digest->cleanup(ctx);
 	if(ctx->digest && ctx->digest->ctx_size && ctx->md_data
-	    && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {
+	  && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {
 		OPENSSL_clear_free(ctx->md_data, ctx->digest->ctx_size);
 	}
 	EVP_PKEY_CTX_free(ctx->pctx);

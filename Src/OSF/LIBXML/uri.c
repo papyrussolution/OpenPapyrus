@@ -2150,7 +2150,7 @@ path_processing:
 	 * Create a URI structure
 	 */
 	uri = xmlCreateURI();
-	if(!uri) {       /* Guard against 'out of memory' */
+	if(!uri) { /* Guard against 'out of memory' */
 		return 0;
 	}
 	len = sstrlen(path);

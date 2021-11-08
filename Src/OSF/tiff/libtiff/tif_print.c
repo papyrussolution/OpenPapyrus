@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static void _TIFFprintAsciiBounded(FILE* fd, const char* cp, size_t max_chars);
+static void _TIFFprintAsciiBounded(FILE* fd, const char * cp, size_t max_chars);
 
 static const char * const photoNames[] = {
 	"min-is-white",                         /* PHOTOMETRIC_MINISWHITE */
@@ -287,7 +287,7 @@ void TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 		fprintf(fd, ">\n");
 	}
 	if(TIFFFieldSet(tif, FIELD_INKNAMES)) {
-		char* cp;
+		char * cp;
 		uint16 i;
 		fprintf(fd, "  Ink Names: ");
 		i = td->td_samplesperpixel;
@@ -500,12 +500,12 @@ void TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 	}
 }
 
-void _TIFFprintAscii(FILE* fd, const char* cp)
+void _TIFFprintAscii(FILE* fd, const char * cp)
 {
 	_TIFFprintAsciiBounded(fd, cp, strlen(cp));
 }
 
-static void _TIFFprintAsciiBounded(FILE* fd, const char* cp, size_t max_chars)
+static void _TIFFprintAsciiBounded(FILE* fd, const char * cp, size_t max_chars)
 {
 	for(; max_chars > 0 && *cp != '\0'; cp++, max_chars--) {
 		const char * tp;
@@ -523,7 +523,7 @@ static void _TIFFprintAsciiBounded(FILE* fd, const char* cp, size_t max_chars)
 	}
 }
 
-void _TIFFprintAsciiTag(FILE* fd, const char* name, const char* value)
+void _TIFFprintAsciiTag(FILE* fd, const char * name, const char * value)
 {
 	fprintf(fd, "  %s: \"", name);
 	_TIFFprintAscii(fd, value);

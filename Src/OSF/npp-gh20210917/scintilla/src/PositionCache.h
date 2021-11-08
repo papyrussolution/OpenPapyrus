@@ -91,8 +91,8 @@ public:
 	// Deleted so LineLayout objects can not be copied.
 	LineLayout(const LineLayout &) = delete;
 	LineLayout(LineLayout &&) = delete;
-	void operator=(const LineLayout &) = delete;
-	void operator=(LineLayout &&) = delete;
+	void operator = (const LineLayout &) = delete;
+	void operator = (LineLayout &&) = delete;
 	virtual ~LineLayout();
 	void Resize(int maxLineLength_);
 	void EnsureBidiData();
@@ -129,8 +129,8 @@ struct ScreenLine : public IScreenLine {
 	// Deleted so ScreenLine objects can not be copied.
 	ScreenLine(const ScreenLine &) = delete;
 	ScreenLine(ScreenLine &&) = delete;
-	void operator=(const ScreenLine &) = delete;
-	void operator=(ScreenLine &&) = delete;
+	void operator = (const ScreenLine &) = delete;
+	void operator = (ScreenLine &&) = delete;
 	virtual ~ScreenLine();
 
 	std::string_view Text() const override;
@@ -160,8 +160,8 @@ public:
 	// Deleted so LineLayoutCache objects can not be copied.
 	LineLayoutCache(const LineLayoutCache &) = delete;
 	LineLayoutCache(LineLayoutCache &&) = delete;
-	void operator=(const LineLayoutCache &) = delete;
-	void operator=(LineLayoutCache &&) = delete;
+	void operator = (const LineLayoutCache &) = delete;
+	void operator = (LineLayoutCache &&) = delete;
 	virtual ~LineLayoutCache();
 	void Deallocate() noexcept;
 	enum {
@@ -189,8 +189,8 @@ public:
 	PositionCacheEntry(const PositionCacheEntry &);
 	PositionCacheEntry(PositionCacheEntry &&) noexcept = default;
 	// Deleted so PositionCacheEntry objects can not be assigned.
-	void operator=(const PositionCacheEntry &) = delete;
-	void operator=(PositionCacheEntry &&) = delete;
+	void operator = (const PositionCacheEntry &) = delete;
+	void operator = (PositionCacheEntry &&) = delete;
 	~PositionCacheEntry();
 	void Set(unsigned int styleNumber_, const char *s_, unsigned int len_, const XYPOSITION *positions_, unsigned int clock_);
 	void Clear() noexcept;
@@ -258,8 +258,8 @@ public:
 	// Deleted so BreakFinder objects can not be copied.
 	BreakFinder(const BreakFinder &) = delete;
 	BreakFinder(BreakFinder &&) = delete;
-	void operator=(const BreakFinder &) = delete;
-	void operator=(BreakFinder &&) = delete;
+	void operator = (const BreakFinder &) = delete;
+	void operator = (BreakFinder &&) = delete;
 	~BreakFinder();
 	TextSegment Next();
 	bool More() const noexcept;
@@ -274,8 +274,8 @@ public:
 	// Deleted so PositionCache objects can not be copied.
 	PositionCache(const PositionCache &) = delete;
 	PositionCache(PositionCache &&) = delete;
-	void operator=(const PositionCache &) = delete;
-	void operator=(PositionCache &&) = delete;
+	void operator = (const PositionCache &) = delete;
+	void operator = (PositionCache &&) = delete;
 	~PositionCache();
 	void Clear() noexcept;
 	void SetSize(size_t size_);

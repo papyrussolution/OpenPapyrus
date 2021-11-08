@@ -188,7 +188,7 @@ SRegExp2 & SRegExp2::Z()
 	return *this;
 }
 	
-int SRegExp2::Compile(const char * pPattern, SCodepage cp, int syntax, uint flags) // Compiles char* --> regexp
+int SRegExp2::Compile(const char * pPattern, SCodepage cp, int syntax, uint flags) // Compiles char * --> regexp
 {
 	int    ok = 1;
 	Z();
@@ -217,7 +217,7 @@ int SRegExp2::Compile(const char * pPattern, SCodepage cp, int syntax, uint flag
 	return ok;
 }
 	
-int SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) // TRUE if regexp in char* arg
+int SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) // TRUE if regexp in char * arg
 {
 	int    ok = 0;
 	CALLPTRMEMB(pResult, Z());

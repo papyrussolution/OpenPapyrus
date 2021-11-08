@@ -251,7 +251,7 @@ bool FASTCALL utf8_is_invalid_code_point(int c);
 
 // Initializes a new Utf8Iterator from the given byte buffer.  The source does
 // not have to be NUL-terminated, but the length must be passed in explicitly.
-void utf8iterator_init(GumboParser * parser, const char* source, size_t source_length, Utf8Iterator* iter);
+void utf8iterator_init(GumboParser * parser, const char * source, size_t source_length, Utf8Iterator* iter);
 
 // Advances the current position by one code point.
 void FASTCALL utf8iterator_next(Utf8Iterator* iter);
@@ -277,7 +277,7 @@ const char * FASTCALL utf8iterator_get_end_pointer(const Utf8Iterator* iter);
 // this returns false.  Note that prefix should not contain null bytes because
 // of the use of strncmp/strncasecmp internally.  All existing use-cases adhere
 // to this.
-bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char* prefix, size_t length, bool case_sensitive);
+bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char * prefix, size_t length, bool case_sensitive);
 
 // "Marks" a particular location of interest in the input stream, so that it can
 // later be reset() to.  There's also the ability to record an error at the
@@ -346,7 +346,7 @@ void FASTCALL gumbo_string_buffer_append_codepoint(int c, GumboStringBuffer* out
 // Appends a string onto the end of the GumboStringBuffer.
 void gumbo_string_buffer_append_string(GumboStringPiece * str, GumboStringBuffer* output);
 
-// Converts this string buffer to const char*, alloctaing a new buffer for it.
+// Converts this string buffer to const char *, alloctaing a new buffer for it.
 char * FASTCALL gumbo_string_buffer_to_string(GumboStringBuffer * input);
 
 // Reinitialize this string buffer.  This clears it by setting length=0.  It
@@ -364,9 +364,9 @@ void gumbo_string_copy(GumboStringPiece * dest, const GumboStringPiece * source)
 
 // Struct containing all information pertaining to doctype tokens.
 typedef struct GumboInternalTokenDocType {
-	const char* name;
-	const char* public_identifier;
-	const char* system_identifier;
+	const char * name;
+	const char * public_identifier;
+	const char * system_identifier;
 	bool force_quirks;
 	// There's no way to tell a 0-length public or system ID apart from the
 	// absence of a public or system ID, but they're handled different by the
@@ -393,14 +393,14 @@ typedef struct GumboInternalToken {
 		GumboTokenDocType doc_type;
 		GumboTokenStartTag start_tag;
 		GumboTag end_tag;
-		const char* text; // For comments.
+		const char * text; // For comments.
 		int character; // For character, whitespace, null, and EOF tokens.
 	} v;
 } GumboToken;
 
 // Initializes the tokenizer state within the GumboParser object, setting up a
 // parse of the specified text.
-void gumbo_tokenizer_state_init(GumboParser * parser, const char* text, size_t text_length);
+void gumbo_tokenizer_state_init(GumboParser * parser, const char * text, size_t text_length);
 
 // Destroys the tokenizer state within the GumboParser object, freeing any
 // dynamically-allocated structures within it.
@@ -444,7 +444,7 @@ void FASTCALL gumbo_token_destroy(GumboToken * token);
 
 // Additional data for duplicated attributes.
 typedef struct GumboInternalDuplicateAttrError {
-	const char* name; // The name of the attribute.  Owned by this struct.
+	const char * name; // The name of the attribute.  Owned by this struct.
 	uint original_index; // The (0-based) index within the attributes vector of the original occurrence.
 	uint new_index; // The (0-based) index where the new occurrence would be.
 } GumboDuplicateAttrError;
@@ -520,17 +520,17 @@ void gumbo_error_to_string(GumboParser * parser, const GumboError* error, GumboS
 // caller is responsible for deleting the buffer.  (Note that the buffer is
 // allocated with the allocator specified in the GumboParser config and hence
 // should be freed by gumbo_parser_deallocate().)
-void gumbo_caret_diagnostic_to_string(GumboParser * parser, const GumboError* error, const char* source_text, GumboStringBuffer* output);
+void gumbo_caret_diagnostic_to_string(GumboParser * parser, const GumboError* error, const char * source_text, GumboStringBuffer* output);
 // Like gumbo_caret_diagnostic_to_string, but prints the text to stdout instead of writing to a string.
-void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error, const char* source_text);
+void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error, const char * source_text);
 //
 // Utility function for allocating & copying a null-terminated string into a
 // freshly-allocated buffer.  This is necessary for proper memory management; we
-// have the convention that all const char* in parse tree structures are
+// have the convention that all const char * in parse tree structures are
 // freshly-allocated, so if we didn't copy, we'd try to delete a literal string
 // when the parse tree is destroyed.
 //
-//char * gumbo_copy_stringz(GumboParser * parser, const char* str);
+//char * gumbo_copy_stringz(GumboParser * parser, const char * str);
 // Allocate a chunk of memory, using the allocator specified in the Parser's config options.
 //void * gumbo_parser_allocate(GumboParser * parser, size_t num_bytes);
 // Deallocate a chunk of memory, using the deallocator specified in the Parser's config options.

@@ -384,7 +384,7 @@ TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	}
 	putc('(', GPT.P_GpOutFile);
 	ch = *str++;
-	while(ch != NUL) {
+	while(ch) {
 		if((ch == '(') || (ch == ')') || (ch == '\\'))
 			putc('\\', GPT.P_GpOutFile);
 		putc(ch, GPT.P_GpOutFile);

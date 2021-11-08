@@ -62,7 +62,7 @@ MARIADB_CHARSET_INFO * find_compiled_charset_by_name(const char * name);
 
 size_t mysql_cset_escape_quotes(const MARIADB_CHARSET_INFO * cset, char * newstr,  const char * escapestr, size_t escapestr_len);
 size_t mysql_cset_escape_slashes(const MARIADB_CHARSET_INFO * cset, char * newstr, const char * escapestr, size_t escapestr_len);
-const char* madb_get_os_character_set(void);
+const char * madb_get_os_character_set(void);
 #ifdef _WIN32
 int madb_get_windows_cp(const char * charset);
 #endif

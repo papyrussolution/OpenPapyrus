@@ -40,7 +40,7 @@
 #pragma hdrstop
 #include "nsSBCharSetProber.h"
 
-nsProbingState nsSingleByteCharSetProber::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsSingleByteCharSetProber::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	uchar order;
 
@@ -109,7 +109,7 @@ float nsSingleByteCharSetProber::GetConfidence(void)
 #endif
 }
 
-const char* nsSingleByteCharSetProber::GetCharSetName()
+const char * nsSingleByteCharSetProber::GetCharSetName()
 {
 	if(!mNameProber)
 		return mModel->charsetName;

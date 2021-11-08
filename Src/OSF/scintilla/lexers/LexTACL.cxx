@@ -102,7 +102,7 @@ static int classifyWordTACL(Sci_PositionU start,
 	return ret;
 }
 
-static int classifyFoldPointTACL(const char* s)
+static int classifyFoldPointTACL(const char * s)
 {
 	int lev = 0;
 	if(s[0] == '[')

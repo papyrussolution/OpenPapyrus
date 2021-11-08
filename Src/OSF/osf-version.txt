@@ -36,7 +36,7 @@ tiff         4.0.9
 libarchive   3.5.0
 gravity
 @v9.6.12 giflib encapsulated in slib
-sqlite       3.33.00
+sqlite       3.36.00
 tinyxml2     8.0.0 (git clone 2020-11-23)
 capstone     4.0.2 (git clone 2020-11-18)
 rehex        0.3.1 (git clone 2020-11-17)

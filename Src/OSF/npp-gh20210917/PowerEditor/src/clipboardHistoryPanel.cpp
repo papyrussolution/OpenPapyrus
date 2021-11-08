@@ -29,7 +29,7 @@ ClipboardData ClipboardHistoryPanel::getClipboadData()
 		return clipboardData;
 	HGLOBAL hglb = GetClipboardData(CLIPBOARD_TEXTFORMAT);
 	if(hglb != NULL) {
-		char * lpchar = (char*)GlobalLock(hglb);
+		char * lpchar = (char *)GlobalLock(hglb);
 		wchar_t * lpWchar = (wchar_t*)GlobalLock(hglb);
 		if(lpchar != NULL) {
 			UINT cf_nppTextLen = RegisterClipboardFormat(CF_NPPTEXTLEN);
@@ -205,7 +205,7 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 							codepage = SC_CP_UTF8;
 
 						ByteArray ba(_clipboardDataVector[i]);
-						char* c = nullptr;
+						char * c = nullptr;
 						try {
 							int nbChar = WideCharToMultiByte(codepage,
 								0,

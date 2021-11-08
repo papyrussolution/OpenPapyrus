@@ -268,7 +268,7 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 				    numFloat = true;
 				    continue;
 			    }
-			    else if( ( sc.ch == '-' || sc.ch == '+' ) && (                      /*sign and*/
+			    else if(( sc.ch == '-' || sc.ch == '+') && (                     /*sign and*/
 					( !numHex && ( sc.chPrev == 'e' || sc.chPrev == 'E' ) ) || /*decimal or*/
 					( sc.chPrev == 'p' || sc.chPrev == 'P' ) ) ) {          /*hex*/
 				    // Parse exponent sign in float literals: 2e+10 0x2e+10
@@ -437,8 +437,8 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 				// Remember hex literal
 				numHex = sc.ch == '0' && ( sc.chNext == 'x' || sc.chNext == 'X' );
 			}
-			else if( (sc.ch == 'r' || sc.ch == 'x' || sc.ch == 'q')
-			    && sc.chNext == '"') {
+			else if((sc.ch == 'r' || sc.ch == 'x' || sc.ch == 'q')
+			  && sc.chNext == '"') {
 				// Limited support for hex and delimited strings: parse as r""
 				sc.SetState(SCE_D_STRINGR);
 				sc.Forward();

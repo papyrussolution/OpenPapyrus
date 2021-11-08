@@ -63,8 +63,8 @@ bool followsReturnKeyword(const StyleContext &sc, LexAccessor &styler) {
 	const char * retBack = "nruter";
 	const char * s = retBack;
 	while(*s
-	    && pos >= lineStartPos
-	    && styler.SafeGetCharAt(pos) == *s) {
+	  && pos >= lineStartPos
+	  && styler.SafeGetCharAt(pos) == *s) {
 		s++;
 		pos--;
 	}
@@ -532,7 +532,7 @@ class LexerCPP : public ILexer5 {
 		SymbolValue(const std::string &value_, const std::string &arguments_) : value(value_), arguments(arguments_) {
 		}
 
-		SymbolValue &operator =(const std::string &value_) {
+		SymbolValue & operator =(const std::string &value_) {
 			value = value_;
 			arguments.clear();
 			return *this;
@@ -568,8 +568,8 @@ public:
 	// Deleted so LexerCPP objects can not be copied.
 	LexerCPP(const LexerCPP &) = delete;
 	LexerCPP(LexerCPP &&) = delete;
-	void operator=(const LexerCPP &) = delete;
-	void operator=(LexerCPP &&) = delete;
+	void operator = (const LexerCPP &) = delete;
+	void operator = (LexerCPP &&) = delete;
 	virtual ~LexerCPP() {
 	}
 
@@ -1351,9 +1351,9 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 					sc.SetState(SCE_C_COMMENTLINE|activitySet);
 			}
 			else if(sc.ch == '/'
-			    && (setOKBeforeRE.Contains(chPrevNonWhite)
+			  && (setOKBeforeRE.Contains(chPrevNonWhite)
 			    || followsReturnKeyword(sc, styler))
-			    && (!setCouldBePostOp.Contains(chPrevNonWhite)
+			  && (!setCouldBePostOp.Contains(chPrevNonWhite)
 			    || !FollowsPostfixOperator(sc, styler))) {
 				sc.SetState(SCE_C_REGEX|activitySet);   // JavaScript's RegEx
 				inRERange = false;

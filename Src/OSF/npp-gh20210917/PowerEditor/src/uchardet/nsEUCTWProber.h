@@ -49,15 +49,15 @@ public:
   {mCodingSM = new nsCodingStateMachine(&EUCTWSMModel);
     Reset();}
   virtual ~nsEUCTWProber(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return "x-euc-tw";}
+  nsProbingState HandleData(const char * aBuf, PRUint32 aLen);
+  const char * GetCharSetName() {return "x-euc-tw";}
   nsProbingState GetState(void) {return mState;}
   void      Reset(void);
   float     GetConfidence(void);
   void      SetOpion() {}
 
 protected:
-  void      GetDistribution(PRUint32 aCharLen, const char* aStr);
+  void      GetDistribution(PRUint32 aCharLen, const char * aStr);
   
   nsCodingStateMachine* mCodingSM;
   nsProbingState mState;

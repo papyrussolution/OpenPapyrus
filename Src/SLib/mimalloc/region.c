@@ -448,7 +448,7 @@ void _mi_mem_free(void * p, size_t size, size_t id, bool full_commit, bool any_r
 
 		// reset the blocks to reduce the working set.
 		if(!info.x.is_large && !info.x.is_pinned && mi_option_is_enabled(mi_option_segment_reset)
-		    && (mi_option_is_enabled(mi_option_eager_commit) ||
+		  && (mi_option_is_enabled(mi_option_eager_commit) ||
 		    mi_option_is_enabled(mi_option_reset_decommits))) { // cannot reset halfway committed segments, use
 		                                                        // only `option_page_reset` instead
 			bool any_unreset;

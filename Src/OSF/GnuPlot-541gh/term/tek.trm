@@ -220,7 +220,7 @@ TERM_PUBLIC void TEK40linetype(int linetype)
 
 TERM_PUBLIC void TEK40move(uint x, uint y)
 {
-	putc('\035', GPT.P_GpOutFile);  /* into graphics */
+	putc('\035', GPT.P_GpOutFile); /* into graphics */
 	TEK40vector(x, y);
 }
 

@@ -539,7 +539,7 @@ static void FillBuffer(Sci_PositionU uiStart, Sci_PositionU uiEnd, Accessor &acc
 
 // Classify Clarion Fold SciPoint
 
-static int ClassifyClarionFoldPoint(int iLevel, const char* szString)
+static int ClassifyClarionFoldPoint(int iLevel, const char * szString)
 {
 	if(!(isdec(szString[0]) || (szString[0] == '.'))) {
 		if(sstreq(szString, "PROCEDURE")) {

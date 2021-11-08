@@ -338,7 +338,7 @@ static const char * const metapostWordListDesc[] = {
 	0
 };
 
-static int classifyFoldPointMetapost(const char* s, WordList * keywordlists[]) {
+static int classifyFoldPointMetapost(const char * s, WordList * keywordlists[]) {
 	WordList& keywordsStart = *keywordlists[3];
 	WordList& keywordsStop1 = *keywordlists[4];
 

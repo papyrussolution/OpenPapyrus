@@ -67,11 +67,11 @@ class TiXmlParsingDataA;
         in the XML file.
  */
 struct TiXmlCursorA {
-	TiXmlCursorA()          {
+	TiXmlCursorA() {
 		Clear();
 	}
 
-	void Clear()            {
+	void Clear() {
 		row = col = -1;
 	}
 
@@ -134,7 +134,7 @@ public:
 	        into a single space or not. The default is to condense. Note changing this
 	        values is not thread safe.
 	 */
-	static void SetCondenseWhiteSpace(bool condense)              {
+	static void SetCondenseWhiteSpace(bool condense) {
 		condenseWhiteSpace = condense;
 	}
 
@@ -170,11 +170,11 @@ protected:
 public:
 		StringToBuffer(const TIXMLA_STRING& str);
 		~StringToBuffer();
-		char* buffer;
+		char * buffer;
 	};
 
-	static const char*      SkipWhiteSpace(const char*);
-	inline static bool      IsWhiteSpace(int c)           {
+	static const char *      SkipWhiteSpace(const char *);
+	inline static bool      IsWhiteSpace(int c) {
 		return ( isspace(c) || c == '\n' || c == '\r' );
 	}
 
@@ -189,24 +189,24 @@ public:
 	        a pointer just past the last character of the name,
 	        or 0 if the function has an error.
 	 */
-	static const char* ReadName(const char* p, TIXMLA_STRING* name);
+	static const char * ReadName(const char * p, TIXMLA_STRING* name);
 
 	/*	Reads text. Returns a pointer past the given end tag.
 	        Wickedly complex options, but it keeps the (sensitive) code in one place.
 	 */
-	static const char* ReadText(const char* in, // where to start
+	static const char * ReadText(const char * in, // where to start
 	    TIXMLA_STRING* text, // the string read
 	    bool ignoreWhiteSpace, // whether to keep the white space
-	    const char* endTag, // what ends this text
+	    const char * endTag, // what ends this text
 	    bool ignoreCase); // whether to ignore case in the end tag
 
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data) = 0;
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data) = 0;
 
 	// If an entity has been found, transform it into a character.
-	static const char* GetEntity(const char* in, char* value);
+	static const char * GetEntity(const char * in, char * value);
 
 	// Get a character, while interpreting entities.
-	inline static const char* GetChar(const char* p, char* _value)
+	inline static const char * GetChar(const char * p, char * _value)
 	{
 		assert(p);
 		if(*p == '&') {
@@ -225,8 +225,8 @@ public:
 	static void PutString(const TIXMLA_STRING& str, TIXMLA_STRING* out);
 
 	// Return true if the next characters in the stream are any of the endTag sequences.
-	static bool StringEqual(const char* p,
-	    const char* endTag,
+	static bool StringEqual(const char * p,
+	    const char * endTag,
 	    bool ignoreCase);
 
 	enum {
@@ -248,13 +248,13 @@ public:
 		TIXMLA_ERROR_STRING_COUNT
 	};
 
-	static const char* errorString[ TIXMLA_ERROR_STRING_COUNT ];
+	static const char * errorString[ TIXMLA_ERROR_STRING_COUNT ];
 
 	TiXmlCursorA location;
 
 private:
 	struct Entity {
-		const char*     str;
+		const char *     str;
 		uint strLength;
 		char chr;
 	};
@@ -306,7 +306,7 @@ public:
 	friend std ::ostream& operator<<(std::ostream& out, const TiXmlNodeA& base);
 
 	/// Appends the XML node or attribute to a std::string.
-	friend std ::string& operator<<(std::string& out, const TiXmlNodeA& base);
+	friend std ::string & operator<<(std::string & out, const TiXmlNodeA& base);
 
 	#else
 	// Used internally, not part of the public API.
@@ -359,7 +359,7 @@ public:
 
     #ifdef TIXMLA_USE_STL
 	/// STL std::string form.
-	void SetValue(const std::string& _value)
+	void SetValue(const std::string & _value)
 	{
 		StringToBuffer buf(_value);
 		SetValue(buf.buffer ? buf.buffer : "");
@@ -380,8 +380,8 @@ public:
 	TiXmlNodeA* LastChild(const char * value) const; /// The last child of this node matching 'value'. Will be null if there are no children.
 
     #ifdef TIXMLA_USE_STL
-	TiXmlNodeA* FirstChild(const std::string& _value) const { return FirstChild(_value.c_str()); } ///< STL std::string form.
-	TiXmlNodeA* LastChild(const std::string& _value) const { return LastChild(_value.c_str()); } ///< STL std::string form.
+	TiXmlNodeA* FirstChild(const std::string & _value) const { return FirstChild(_value.c_str()); } ///< STL std::string form.
+	TiXmlNodeA* LastChild(const std::string & _value) const { return LastChild(_value.c_str()); } ///< STL std::string form.
 	#endif
 
 	/** An alternate way to walk the children of a node.
@@ -406,7 +406,7 @@ public:
 	TiXmlNodeA* IterateChildren(const char * value, TiXmlNodeA* previous) const;
 
     #ifdef TIXMLA_USE_STL
-		TiXmlNodeA* IterateChildren(const std::string& _value, TiXmlNodeA* previous) const { return IterateChildren(_value.c_str(), previous); } ///< STL std::string form.
+		TiXmlNodeA* IterateChildren(const std::string & _value, TiXmlNodeA* previous) const { return IterateChildren(_value.c_str(), previous); } ///< STL std::string form.
 	#endif
 	/** Add a new node related to this. Adds a child past the LastChild.
 	        Returns a pointer to the new object or NULL if an error occured.
@@ -448,8 +448,8 @@ public:
 	/// Navigate to a sibling node.
 	TiXmlNodeA* PreviousSibling(const char *) const;
     #ifdef TIXMLA_USE_STL
-		TiXmlNodeA* PreviousSibling(const std::string& _value) const { return PreviousSibling(_value.c_str()); } ///< STL std::string form.
-		TiXmlNodeA* NextSibling(const std::string& _value) const { return NextSibling(_value.c_str()); } ///< STL std::string form.
+		TiXmlNodeA* PreviousSibling(const std::string & _value) const { return PreviousSibling(_value.c_str()); } ///< STL std::string form.
+		TiXmlNodeA* NextSibling(const std::string & _value) const { return NextSibling(_value.c_str()); } ///< STL std::string form.
 	#endif
 
 	/// Navigate to a sibling node.
@@ -473,7 +473,7 @@ public:
 	TiXmlElementA* NextSiblingElement(const char *) const;
 
     #ifdef TIXMLA_USE_STL
-	TiXmlElementA* NextSiblingElement(const std::string& _value) const {
+	TiXmlElementA* NextSiblingElement(const std::string & _value) const {
 		return NextSiblingElement(_value.c_str());
 	} ///< STL std::string form.
 	#endif
@@ -482,7 +482,7 @@ public:
 	/// Convenience function to get through elements.
 	TiXmlElementA* FirstChildElement(const char * value) const;
     #ifdef TIXMLA_USE_STL
-	TiXmlElementA* FirstChildElement(const std::string& _value) const {
+	TiXmlElementA* FirstChildElement(const std::string & _value) const {
 		return FirstChildElement(_value.c_str());
 	} ///< STL std::string form.
 	#endif
@@ -534,10 +534,10 @@ protected:
 	#endif
 
 	// Figure out what is at *p, and parse it. Returns null if it is not an xml node.
-	TiXmlNodeA* Identify(const char* start);
+	TiXmlNodeA* Identify(const char * start);
 	void CopyToClone(TiXmlNodeA* target) const 
 	{
-		target->SetValue(value.c_str() );
+		target->SetValue(value.c_str());
 		target->userData = userData;
 	}
 
@@ -571,7 +571,7 @@ public:
 	}
 	#ifdef TIXMLA_USE_STL
 	/// std::string constructor.
-	TiXmlAttributeA(const std::string& _name, const std::string& _value)
+	TiXmlAttributeA(const std::string & _name, const std::string & _value)
 	{
 		name = _name;
 		value = _value;
@@ -587,8 +587,8 @@ public:
 		document = 0;
 		prev = next = 0;
 	}
-	const char* Name()  const { return name.c_str(); } ///< Return the name of this attribute.
-	const char* Value() const { return value.c_str(); } ///< Return the value of this attribute.
+	const char * Name()  const { return name.c_str(); } ///< Return the name of this attribute.
+	const char * Value() const { return value.c_str(); } ///< Return the value of this attribute.
 	const int IntValue() const; ///< Return the value of this attribute, converted to an integer.
 	const double    DoubleValue() const; ///< Return the value of this attribute, converted to a double.
 	/** QueryIntValue examines the value string. It is an alternative to the
@@ -603,10 +603,10 @@ public:
 	int QueryIntValue(int* value) const;
 	/// QueryDoubleValue examines the value string. See QueryIntValue().
 	int QueryDoubleValue(double* value) const;
-	void SetName(const char* _name) {
+	void SetName(const char * _name) {
 		name = _name;
 	} ///< Set the name of this attribute.
-	void SetValue(const char* _value)     {
+	void SetValue(const char * _value)     {
 		value = _value;
 	} ///< Set the value.
 
@@ -614,14 +614,14 @@ public:
 	void SetDoubleValue(double value); ///< Set the value from a double.
     #ifdef TIXMLA_USE_STL
 	/// STL std::string form.
-	void SetName(const std::string& _name)
+	void SetName(const std::string & _name)
 	{
 		StringToBuffer buf(_name);
 		SetName(buf.buffer ? buf.buffer : "error");
 	}
 
 	/// STL std::string form.
-	void SetValue(const std::string& _value)
+	void SetValue(const std::string & _value)
 	{
 		StringToBuffer buf(_value);
 		SetValue(buf.buffer ? buf.buffer : "error");
@@ -641,7 +641,7 @@ public:
 	        Attribtue parsing starts: first letter of the name
 	                                         returns: the next char after the value end quote
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 
 	// [internal use]
 	virtual void Print(FILE* cfile, int depth) const;
@@ -698,7 +698,7 @@ public:
 
 	#ifdef TIXMLA_USE_STL
 	/// std::string constructor.
-	TiXmlElementA(const std::string& _value) :    TiXmlNodeA(TiXmlNodeA::ELEMENT)
+	TiXmlElementA(const std::string & _value) :    TiXmlNodeA(TiXmlNodeA::ELEMENT)
 	{
 		firstChild = lastChild = 0;
 		value = _value;
@@ -711,7 +711,7 @@ public:
 	/** Given an attribute name, Attribute() returns the value
 	        for the attribute of that name, or null if none exists.
 	 */
-	const char* Attribute(const char* name) const;
+	const char * Attribute(const char * name) const;
 
 	/** Given an attribute name, Attribute() returns the value
 	        for the attribute of that name, or null if none exists.
@@ -719,7 +719,7 @@ public:
 	        the integer value will be put in the return 'i', if 'i'
 	        is non-null.
 	 */
-	const char* Attribute(const char* name, int* i) const;
+	const char * Attribute(const char * name, int* i) const;
 
 	/** Given an attribute name, Attribute() returns the value
 	        for the attribute of that name, or null if none exists.
@@ -727,7 +727,7 @@ public:
 	        the double value will be put in the return 'd', if 'd'
 	        is non-null.
 	 */
-	const char* Attribute(const char* name, double* d) const;
+	const char * Attribute(const char * name, double* d) const;
 
 	/** QueryIntAttribute examines the attribute - it is an alternative to the
 	        Attribute() method with richer error checking.
@@ -736,26 +736,26 @@ public:
 	        an integer, it returns TIXMLA_WRONG_TYPE. If the attribute
 	        does not exist, then TIXMLA_NO_ATTRIBUTE is returned.
 	 */
-	int QueryIntAttribute(const char* name, int* value) const;
+	int QueryIntAttribute(const char * name, int* value) const;
 	/// QueryDoubleAttribute examines the attribute - see QueryIntAttribute().
-	int QueryDoubleAttribute(const char* name, double* value) const;
+	int QueryDoubleAttribute(const char * name, double* value) const;
 
 	/** Sets an attribute of name to a given value. The attribute
 	        will be created if it does not exist, or changed if it does.
 	 */
-	void SetAttribute(const char* name, const char * value);
+	void SetAttribute(const char * name, const char * value);
 
     #ifdef TIXMLA_USE_STL
-	const char* Attribute(const std::string& name) const {
-		return Attribute(name.c_str() );
+	const char * Attribute(const std::string & name) const {
+		return Attribute(name.c_str());
 	}
 
-	const char* Attribute(const std::string& name, int* i) const {
+	const char * Attribute(const std::string & name, int* i) const {
 		return Attribute(name.c_str(), i);
 	}
 
 	/// STL std::string form.
-	void SetAttribute(const std::string& name, const std::string& _value)
+	void SetAttribute(const std::string & name, const std::string & _value)
 	{
 		StringToBuffer n(name);
 		StringToBuffer v(_value);
@@ -764,7 +764,7 @@ public:
 	}
 
 	///< STL std::string form.
-	void SetAttribute(const std::string& name, int _value)
+	void SetAttribute(const std::string & name, int _value)
 	{
 		StringToBuffer n(name);
 		if(n.buffer)
@@ -782,7 +782,7 @@ public:
 	 */
 	void RemoveAttribute(const char * name);
     #ifdef TIXMLA_USE_STL
-	void RemoveAttribute(const std::string& name) {
+	void RemoveAttribute(const std::string & name) {
 		RemoveAttribute(name.c_str());
 	} ///< STL std::string form.
 
@@ -809,13 +809,13 @@ protected:
 	        Attribtue parsing starts: next char past '<'
 	                                         returns: next char past '>'
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 
 	/*	[internal use]
 	        Reads the "value" of the element -- another element, or text.
 	        This should terminate with the current end tag.
 	 */
-	const char* ReadValue(const char* in, TiXmlParsingDataA* prevData);
+	const char * ReadValue(const char * in, TiXmlParsingDataA* prevData);
 
 private:
 	TiXmlAttributeSetA attributeSet;
@@ -830,7 +830,7 @@ public:
 	TiXmlCommentA() : TiXmlNodeA(TiXmlNodeA::COMMENT) {
 	}
 
-	virtual ~TiXmlCommentA()        {
+	virtual ~TiXmlCommentA() {
 	}
 
 	// [internal use] Creates a new Element and returs it.
@@ -847,7 +847,7 @@ protected:
 	        Attribtue parsing starts: at the ! of the !--
 	                                         returns: next char past '>'
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 };
 
 /** XML text. Contained in an element.
@@ -867,7 +867,7 @@ public:
 
 	#ifdef TIXMLA_USE_STL
 	/// Constructor.
-	TiXmlTextA(const std::string& initValue) : TiXmlNodeA(TiXmlNodeA::TEXT)
+	TiXmlTextA(const std::string & initValue) : TiXmlNodeA(TiXmlNodeA::TEXT)
 	{
 		SetValue(initValue);
 	}
@@ -887,7 +887,7 @@ protected:
 	                Attribtue parsing starts: First char of the text
 	                                                 returns: next char past '>'
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 	// [internal use]
 	#ifdef TIXMLA_USE_STL
 	virtual void StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag);
@@ -916,9 +916,9 @@ public:
 
 #ifdef TIXMLA_USE_STL
 	/// Constructor.
-	TiXmlDeclarationA(const std::string& _version,
-	    const std::string& _encoding,
-	    const std::string& _standalone)
+	TiXmlDeclarationA(const std::string & _version,
+	    const std::string & _encoding,
+	    const std::string & _standalone)
 		: TiXmlNodeA(TiXmlNodeA::DECLARATION)
 	{
 		version = _version;
@@ -929,9 +929,9 @@ public:
 #endif
 
 	/// Construct.
-	TiXmlDeclarationA(const char* _version,
-	    const char* _encoding,
-	    const char* _standalone);
+	TiXmlDeclarationA(const char * _version,
+	    const char * _encoding,
+	    const char * _standalone);
 
 	virtual ~TiXmlDeclarationA()    {
 	}
@@ -966,7 +966,7 @@ protected:
 	//	Attribtue parsing starts: next char past '<'
 	//					 returns: next char past '>'
 
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 
 private:
 	TIXMLA_STRING version;
@@ -1001,7 +1001,7 @@ protected:
 	        Attribute parsing starts: First char of the text
 	                                         returns: next char past '>'
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
 };
 
 /** Always the top level node. A document binds together all the
@@ -1018,7 +1018,7 @@ public:
 
 	#ifdef TIXMLA_USE_STL
 	/// Constructor.
-	TiXmlDocumentA(const std::string& documentName) :
+	TiXmlDocumentA(const std::string & documentName) :
 		TiXmlNodeA(TiXmlNodeA::DOCUMENT)
 	{
 		value = documentName;
@@ -1047,13 +1047,13 @@ public:
 	bool SaveUnicodeFilePath(const TCHAR* filename) const;
 
 	#ifdef TIXMLA_USE_STL
-	bool LoadFile(const std::string& filename)                      ///< STL std::string version.
+	bool LoadFile(const std::string & filename)                      ///< STL std::string version.
 	{
 		StringToBuffer f(filename);
 		return ( f.buffer && LoadFile(f.buffer));
 	}
 
-	bool SaveFile(const std::string& filename) const                ///< STL std::string version.
+	bool SaveFile(const std::string & filename) const                ///< STL std::string version.
 	{
 		StringToBuffer f(filename);
 		return ( f.buffer && SaveFile(f.buffer));
@@ -1063,7 +1063,7 @@ public:
 
 	/** Parse the given null terminated block of xml data.
 	 */
-	virtual const char* Parse(const char* p, TiXmlParsingDataA* data = 0);
+	virtual const char * Parse(const char * p, TiXmlParsingDataA* data = 0);
 
 	/** Get the root element -- the only top level element -- of the document.
 	        In well formed XML, there should only be one. TinyXml is tolerant of
@@ -1129,7 +1129,7 @@ public:
 
 	        @sa Row, Column
 	 */
-	void SetTabSize(int _tabsize)         {
+	void SetTabSize(int _tabsize) {
 		tabsize = _tabsize;
 	}
 
@@ -1156,7 +1156,7 @@ public:
 	// [internal use]
 	virtual void Print(FILE* cfile, int depth = 0) const;
 	// [internal use]
-	void SetError(int err, const char* errorLocation, TiXmlParsingDataA* prevData);
+	void SetError(int err, const char * errorLocation, TiXmlParsingDataA* prevData);
 
 protected:
 	virtual void StreamOut(TIXMLA_OSTREAM * out) const;
@@ -1282,7 +1282,7 @@ public:
 	/** Return a handle to the "index" child with the given name.
 	        The first child is 0, the second 1, etc.
 	 */
-	TiXmlHandleA Child(const char* value, int index) const;
+	TiXmlHandleA Child(const char * value, int index) const;
 	/** Return a handle to the "index" child.
 	        The first child is 0, the second 1, etc.
 	 */
@@ -1291,7 +1291,7 @@ public:
 	        The first child element is 0, the second 1, etc. Note that only TiXmlElements
 	        are indexed: other types are not counted.
 	 */
-	TiXmlHandleA ChildElement(const char* value, int index) const;
+	TiXmlHandleA ChildElement(const char * value, int index) const;
 	/** Return a handle to the "index" child element.
 	        The first child element is 0, the second 1, etc. Note that only TiXmlElements
 	        are indexed: other types are not counted.
@@ -1299,16 +1299,16 @@ public:
 	TiXmlHandleA ChildElement(int index) const;
 
 	#ifdef TIXMLA_USE_STL
-	TiXmlHandleA FirstChild(const std::string& _value) const {
-		return FirstChild(_value.c_str() );
+	TiXmlHandleA FirstChild(const std::string & _value) const {
+		return FirstChild(_value.c_str());
 	}
-	TiXmlHandleA FirstChildElement(const std::string& _value) const {
-		return FirstChildElement(_value.c_str() );
+	TiXmlHandleA FirstChildElement(const std::string & _value) const {
+		return FirstChildElement(_value.c_str());
 	}
-	TiXmlHandleA Child(const std::string& _value, int index) const {
+	TiXmlHandleA Child(const std::string & _value, int index) const {
 		return Child(_value.c_str(), index);
 	}
-	TiXmlHandleA ChildElement(const std::string& _value, int index) const {
+	TiXmlHandleA ChildElement(const std::string & _value, int index) const {
 		return ChildElement(_value.c_str(), index);
 	}
 	#endif
@@ -1319,11 +1319,11 @@ public:
 	}
 	/// Return the handle as a TiXmlElementA. This may return null.
 	TiXmlElementA* Element() const {
-		return ( ( node && node->ToElement() ) ? node->ToElement() : 0 );
+		return ((node && node->ToElement() ) ? node->ToElement() : 0);
 	}
 	/// Return the handle as a TiXmlTextA. This may return null.
 	TiXmlTextA* Text() const {
-		return ( ( node && node->ToText() ) ? node->ToText() : 0 );
+		return ((node && node->ToText() ) ? node->ToText() : 0);
 	}
 
 private:

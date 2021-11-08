@@ -3897,7 +3897,7 @@ int iSalesPepsi::SendStocks()
 							const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
 							if(p_gp) {
 								(temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER);
-								line_buf.Z().Cat(temp_buf).Tab().Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().
+								line_buf.Z().Cat(temp_buf).Tab().CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().
 									Cat(p_loc_item->WhID).Tab().Cat(p_gp->NativeCode).Tab().Cat(p_item->OuterCode).Tab();
 								if(GObj.Fetch(p_gp->NativeCode.ToLong(), &goods_rec) > 0)
 									temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
@@ -4704,7 +4704,7 @@ int iSalesPepsi::SendInvoices()
 						//const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
 						line_buf.Z();
 						line_buf.Cat((temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER)).Tab();
-						line_buf.Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab();
+						line_buf.CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab();
 						line_buf.Cat(p_bill_item->DocType).Tab();
 						line_buf.Cat((temp_buf = p_bill_item->Code).Transf(CTRANSF_UTF8_TO_OUTER)).Tab();
 						line_buf.Cat(p_bill_item->Dtm.d, DATF_GERMAN|DATF_CENTURY).Tab();

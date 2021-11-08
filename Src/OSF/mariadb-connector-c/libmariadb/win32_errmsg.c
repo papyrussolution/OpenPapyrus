@@ -30,9 +30,9 @@
    with encodings.
  */
 #if _MSC_VER < 1900
-void ma_format_win32_error(char* buf, size_t buflen, DWORD code, const char* fmt, ...)
+void ma_format_win32_error(char * buf, size_t buflen, DWORD code, const char * fmt, ...)
 #else
-void ma_format_win32_error(char* buf, size_t buflen, DWORD code, _Printf_format_string_ const char* fmt, ...)
+void ma_format_win32_error(char * buf, size_t buflen, DWORD code, _Printf_format_string_ const char * fmt, ...)
 #endif
 {
 	char * cur = buf;

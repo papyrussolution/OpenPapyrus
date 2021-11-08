@@ -538,7 +538,7 @@ int LZAri::EncodeEnd()
 	int    ok = 1;
 	Shifts++;
 	THROW(Output((Low < Q1) ? 0 : 1) > 0);
-	THROW(P_Bit->FlushBitBuffer() > 0);  /* flush bits remaining in buffer */
+	THROW(P_Bit->FlushBitBuffer() > 0); /* flush bits remaining in buffer */
 	CATCHZOK
 	return ok;
 }

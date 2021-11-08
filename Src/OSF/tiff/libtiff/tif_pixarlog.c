@@ -496,7 +496,7 @@ static int PixarLogMakeTables(PixarLogState * sp)
 	b = exp(-c*ONE); /* multiplicative scale factor [b*exp(c*ONE) = 1] */
 	linstep = b*c*exp(1.);
 
-	LogK1 = (float)(1./c);  /* if (v >= 2)  token = k1*log(v*k2) */
+	LogK1 = (float)(1./c); /* if (v >= 2)  token = k1*log(v*k2) */
 	LogK2 = (float)(1./b);
 	lt2size = (int)(2./linstep) + 1;
 	FromLT2 = static_cast<uint16 *>(SAlloc::M(lt2size*sizeof(uint16)));
@@ -659,7 +659,7 @@ static int PixarLogSetupDecode(TIFF* tif)
 	/* This function can possibly be called several times by */
 	/* PredictorSetupDecode() if this function succeeds but */
 	/* PredictorSetup() fails */
-	if( (sp->state & PLSTATE_INIT) != 0)
+	if((sp->state & PLSTATE_INIT) != 0)
 		return 1;
 	strip_height = td->td_rowsperstrip;
 	if(strip_height > td->td_imagelength)
@@ -881,7 +881,7 @@ static int PixarLogPreEncode(TIFF* tif, uint16 s)
 	(void)s;
 	assert(sp != NULL);
 	sp->stream.next_out = tif->tif_rawdata;
-	assert(sizeof(sp->stream.avail_out)==4);  /* if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely
+	assert(sizeof(sp->stream.avail_out)==4); /* if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely
 		updated to deal with 8byte memory sizes, though this code will respond appropriately even before we simplify it */
 	sp->stream.avail_out = (uInt)tif->tif_rawdatasize;
 	if((tmsize_t)sp->stream.avail_out != tif->tif_rawdatasize) {
@@ -1097,7 +1097,7 @@ static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 	}
 
 	sp->stream.next_in = (uchar *)sp->tbuf;
-	assert(sizeof(sp->stream.avail_in)==4);  /* if this assert gets raised,
+	assert(sizeof(sp->stream.avail_in)==4); /* if this assert gets raised,
 	                                            we need to simplify this code to reflect a ZLib that is likely
 	                                               updated
 	                                            to deal with 8byte memory sizes, though this code will respond

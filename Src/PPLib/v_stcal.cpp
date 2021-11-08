@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -155,21 +155,9 @@ int PPViewStaffCal::EditBaseFilt(PPBaseFilt * pFilt)
 
 IMPL_CMPFUNC(StaffCalendarKey0, i1, i2)
 {
-	const StaffCalendarTbl::Key0 * p_i1 = static_cast<const StaffCalendarTbl::Key0 *>(i1);
-	const StaffCalendarTbl::Key0 * p_i2 = static_cast<const StaffCalendarTbl::Key0 *>(i2);
-	if(p_i1->CalID < p_i2->CalID)
-		return -1;
-	else if(p_i1->CalID > p_i2->CalID)
-		return 1;
-	else if(p_i1->DtVal < p_i2->DtVal)
-		return -1;
-	else if(p_i1->DtVal > p_i2->DtVal)
-		return 1;
-	else if(p_i1->TmStart < p_i2->TmStart)
-		return -1;
-	else if(p_i1->TmStart > p_i2->TmStart)
-		return 1;
-	return 0;
+	int    si = 0;
+	CMPCASCADE3(si, static_cast<const StaffCalendarTbl::Key0 *>(i1), static_cast<const StaffCalendarTbl::Key0 *>(i2), CalID, DtVal, TmStart);
+	return si;
 }
 
 int PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * pNameList, int refresh)
@@ -688,12 +676,8 @@ int PPViewStaffCal::StaffCalTimeChunkGrid::GetText(int item, long id, SString & 
 		rBuf = "TEST";
 		ok = 1;
 	}
-	else if(item == iRow) {
-		if(id < 0)
-			ok = 1;
-		else
-			ok = STimeChunkGrid::GetText(item, id, rBuf);
-	}
+	else if(item == iRow)
+		ok = (id < 0) ? 1 : STimeChunkGrid::GetText(item, id, rBuf);
 	else if(item == iChunk)
 		ok = P_View->GetTimeGridItemText(id, rBuf);
 	return ok;
@@ -734,8 +718,7 @@ int PPViewStaffCal::StaffCalTimeChunkGrid::GetColor(long id, STimeChunkGrid::Col
 	}
 	else
 		ok = -1;
-	if(pClr->C == 0)
-		pClr->C = SClrCoral;
+	SETIFZ(pClr->C, SClrCoral);
 	return ok;
 }
 

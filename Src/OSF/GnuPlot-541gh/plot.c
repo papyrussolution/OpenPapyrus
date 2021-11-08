@@ -45,7 +45,7 @@ static RETSIGTYPE inter(int anint);
 static RETSIGTYPE inter(int /*anint*/)
 {
 	signal(SIGINT, (sigfunc)inter);
-	signal(SIGFPE, SIG_DFL);  /* turn off FPE trapping */
+	signal(SIGFPE, SIG_DFL); /* turn off FPE trapping */
 #if defined(WGP_CONSOLE)
 	// The Windows console Ctrl-C handler runs in another thread. So a
 	// longjmp() would result in crash. Instead, we handle these

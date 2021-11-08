@@ -532,8 +532,8 @@ public:
 	// Deleted so LexState objects can not be copied.
 	LexState(const LexState &) = delete;
 	LexState(LexState &&) = delete;
-	LexState &operator=(const LexState &) = delete;
-	LexState &operator=(LexState &&) = delete;
+	LexState & operator = (const LexState &) = delete;
+	LexState & operator = (LexState &&) = delete;
 	~LexState() override;
 	void SetLexer(uptr_t wParam);
 	void SetLexerLanguage(const char *languageName);

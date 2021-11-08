@@ -3863,7 +3863,7 @@ static xmlSchemaElementPtr xmlSchemaGetElem(xmlSchemaPtr schema, const xmlChar *
 		WXS_FIND_GLOBAL_ITEM(elemDecl, xmlSchemaElementPtr)
 	}
 exit:
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(!ret) {
 		if(nsName == NULL)
 			slfprintf_stderr("Unable to lookup element decl. %s", name);
@@ -3904,7 +3904,7 @@ static xmlSchemaType * xmlSchemaGetType(xmlSchemaPtr schema, const xmlChar * nam
 		WXS_FIND_GLOBAL_ITEM(typeDecl, xmlSchemaType *)
 	}
 exit:
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(!ret) {
 		if(nsName == NULL)
 			slfprintf_stderr("Unable to lookup type %s", name);
@@ -3934,7 +3934,7 @@ static xmlSchemaAttribute * xmlSchemaGetAttributeDecl(xmlSchemaPtr schema, const
 		WXS_FIND_GLOBAL_ITEM(attrDecl, xmlSchemaAttribute *)
 	}
 exit:
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(!ret) {
 		if(nsName == NULL)
 			slfprintf_stderr("Unable to lookup attribute %s", name);
@@ -3967,7 +3967,7 @@ exit:
 	    ret = ret->redef;
 	   }
 	 */
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(!ret) {
 		if(nsName == NULL)
 			slfprintf_stderr("Unable to lookup attribute group %s", name);
@@ -3996,8 +3996,7 @@ static xmlSchemaModelGroupDefPtr xmlSchemaGetGroup(xmlSchemaPtr schema, const xm
 		WXS_FIND_GLOBAL_ITEM(groupDecl, xmlSchemaModelGroupDefPtr)
 	}
 exit:
-
-#ifdef DEBUG
+#ifndef NDEBUG
 	if(!ret) {
 		if(nsName == NULL)
 			slfprintf_stderr("Unable to lookup group %s", name);
@@ -4469,7 +4468,7 @@ static xmlSchemaParticlePtr xmlSchemaAddParticle(xmlSchemaParserCtxtPtr ctxt, xm
 	xmlSchemaParticlePtr ret = NULL;
 	if(!ctxt)
 		return 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 	slfprintf_stderr("Adding particle component\n");
 #endif
 	ret = (xmlSchemaParticlePtr)SAlloc::M(sizeof(xmlSchemaParticle));
@@ -4884,7 +4883,7 @@ static int xmlGetMaxOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int mi
 			return (def);
 		}
 		else
-			return (UNBOUNDED);  /* encoding it with -1 might be another option */
+			return (UNBOUNDED); /* encoding it with -1 might be another option */
 	}
 	cur = val;
 	while(IS_BLANK_CH(*cur))

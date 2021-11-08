@@ -54,7 +54,7 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 			// @v10.4.0 {
 			{
 				SString temp_buf;
-				temp_buf.Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS).Space().Cat("SWaitableObject::Wait _CheckTimeout overflow");
+				temp_buf.CatCurDateTime(DATF_DMY, TIMF_HMS).Space().Cat("SWaitableObject::Wait _CheckTimeout overflow");
 				SLS.LogMessage(0, temp_buf, 0); 
 			}
 			// } @v10.4.0

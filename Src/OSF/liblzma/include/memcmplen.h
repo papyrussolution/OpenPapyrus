@@ -46,7 +46,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 	while(len < limit) {
 		const uint64_t x = read64ne(buf1 + len) - read64ne(buf2 + len);
 		if(x != 0) {
-#	if defined(_M_X64) // MSVC or Intel C compiler on Windows
+#if defined(_M_X64) // MSVC or Intel C compiler on Windows
 			unsigned long tmp;
 			_BitScanForward64(&tmp, x);
 			len += (uint32_t)tmp >> 3;

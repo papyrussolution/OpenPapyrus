@@ -187,7 +187,7 @@ size_t combine_file_extensions(size_t * extension_index, size_t len, char ** ext
 	// Keep it fixed as 100 for the reason that if you have more than 100
 	// file types to search, you'd better search all the files.
 	size_t ext_capacity = 100;
-	(*exts) = (char*)ag_malloc(ext_capacity * SINGLE_EXT_LEN);
+	(*exts) = (char *)ag_malloc(ext_capacity * SINGLE_EXT_LEN);
 	memzero((*exts), ext_capacity * SINGLE_EXT_LEN);
 	size_t num_of_extensions = 0;
 	for(size_t i = 0; i < len; ++i) {

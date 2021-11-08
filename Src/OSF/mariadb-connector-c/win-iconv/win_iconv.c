@@ -1599,7 +1599,7 @@ static int iso2022jp_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushor
 	/* Check for conversion error.  Assuming defaultChar is 0x3F. */
 	/* ascii should be converted from ascii */
 	if(wbuf[0] == buf[0]
-	    && cv->mode != ISO2022_MODE(ISO2022JP_CS_ASCII, ISO2022_SI))
+	  && cv->mode != ISO2022_MODE(ISO2022JP_CS_ASCII, ISO2022_SI))
 		return seterror(EILSEQ);
 
 	/* reset the mode for informal sequence */

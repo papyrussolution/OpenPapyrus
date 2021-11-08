@@ -691,8 +691,8 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 
 						    // We have either 1) chosen neither the left- or rightmost position,
 						    // or 2) chosen both left- and rightmost position.
-						    assert( (leftmost_position == -1 && rightmost_position == -1) ||
-							(leftmost_position >= 0 && rightmost_position >= 0) );
+						    assert((leftmost_position == -1 && rightmost_position == -1) ||
+							(leftmost_position >= 0 && rightmost_position >= 0));
 
 						    // Note: cast of leftmost_position to uint is safe, since if
 						    // leftmost_position is not -1 then it is guaranteed to be positive.

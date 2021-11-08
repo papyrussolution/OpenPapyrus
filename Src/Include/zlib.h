@@ -2128,7 +2128,7 @@ struct gzFile_s {
 	z_off64_t pos;
 };
 
-ZEXTERN int ZEXPORT gzgetc_(gzFile file);  /* backward compatibility */
+ZEXTERN int ZEXPORT gzgetc_(gzFile file); /* backward compatibility */
 #ifdef Z_PREFIX_SET
 	#undef z_gzgetc
 	#define z_gzgetc(g) ((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (gzgetc)(g))
@@ -2410,7 +2410,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	//
 	#ifdef ZLIB_DEBUG
 		extern int ZLIB_INTERNAL z_verbose;
-		extern void ZLIB_INTERNAL z_error OF((char* m));
+		extern void ZLIB_INTERNAL z_error OF((char * m));
 		#define Assert(cond, msg) {if(!(cond)) z_error(msg); }
 		#define Trace(x) {if(z_verbose>=0) fprintf x; }
 		#define Tracev(x) {if(z_verbose>0) fprintf x; }

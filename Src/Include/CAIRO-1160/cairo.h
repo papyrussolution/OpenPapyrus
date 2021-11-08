@@ -66,7 +66,7 @@ CAIRO_BEGIN_DECLS
 #define CAIRO_VERSION_STRING CAIRO_VERSION_STRINGIZE(CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO)
 
 cairo_public int cairo_version(void);
-cairo_public const char* cairo_version_string(void);
+cairo_public const char * cairo_version_string(void);
 /**
  * boolint:
  *
@@ -1463,7 +1463,7 @@ typedef cairo_status_t (* cairo_user_scaled_font_text_to_glyphs_func_t) (cairo_s
     int utf8_len,
     cairo_glyph_t ** glyphs,
     int * num_glyphs,
-    cairo_text_cluster_t     ** clusters,
+    cairo_text_cluster_t  ** clusters,
     int * num_clusters,
     cairo_text_cluster_flags_t * cluster_flags);
 

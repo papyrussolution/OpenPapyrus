@@ -1554,7 +1554,7 @@ int PPViewInventory::ConvertBillToBasket()
 	return ok;
 }
 
-int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta)
+int PPViewInventory::ConvertBasket(const PPBasketPacket & rPack, int sgoption, int priceByLastLot, int use_ta)
 {
 	int    ok = 1;
 	const  PPID   bill_id = Filt.GetSingleBillID();
@@ -1567,7 +1567,7 @@ int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, i
 		IterCounter cntr;
 		PPBillPacket bpack;
 		THROW(P_BObj->ExtractPacket(bill_id, &bpack) > 0);
-		cntr.Init(pPack->Lots.getCount());
+		cntr.Init(rPack.Lots.getCount());
 		THROW_PP_S(!bpack.Rec.StatusID || !P_BObj->CheckStatusFlag(bpack.Rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&bpack.Rec, 1, temp_buf));
 		for(SEnum en = InvTbl.Enum(bill_id); en.Next(&inv_rec) > 0;)
 			THROW_PP(!(inv_rec.Flags & INVENTF_WRITEDOFF), PPERR_UPDWROFFINV);
@@ -1581,9 +1581,8 @@ int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, i
 				PPObjBill::InvBlock blk(ib_flags);
 				PPObjBill::InvItem inv_item;
 				THROW(P_BObj->InitInventoryBlock(bill_id, blk));
-				//for(i = 0; pPack->Lots.enumItems(&i, (void **)&p_item);) {
-				for(i = 0; i < pPack->Lots.getCount(); i++) {
-					const ILTI & r_item = pPack->Lots.at(i);
+				for(i = 0; i < rPack.Lots.getCount(); i++) {
+					const ILTI & r_item = rPack.Lots.at(i);
 					inv_item.Init(r_item.GoodsID, 0);
 					inv_item.Qtty = r_item.Quantity;
 					inv_item.Cost = r_item.Price;
@@ -1632,7 +1631,7 @@ int PPViewInventory::ConvertBasketToBill()
 				default: sgo = PPObjBill::imsgoAdd; break;
 			}
 			v = p_dlg->getCtrlUInt16(CTL_BSKTTOINV_RULEPRICE);
-			THROW(ok = ConvertBasket(&basket.Pack, sgo, (int)v, 1));
+			THROW(ok = ConvertBasket(basket.Pack, sgo, (int)v, 1));
 		}
 	}
 	CATCHZOKPPERR

@@ -52,7 +52,7 @@ void nsGB18030Prober::Reset(void)
 	//mContextAnalyser.Reset();
 }
 
-nsProbingState nsGB18030Prober::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsGB18030Prober::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	nsSMState codingState;
 

@@ -85,7 +85,7 @@ extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uin
 
 	if(rep_len >= 2) {
 		if(rep_len + 1 >= len_main || (rep_len + 2 >= len_main && back_main > (UINT32_C(1) << 9)) || (rep_len + 3 >= len_main
-		    && back_main > (UINT32_C(1) << 15))) {
+		  && back_main > (UINT32_C(1) << 15))) {
 			*back_res = rep_index;
 			*len_res = rep_len;
 			mf_skip(mf, rep_len - 1);
@@ -103,7 +103,7 @@ extern void lzma_lzma_optimum_fast(lzma_lzma1_encoder * coder, lzma_mf * mf, uin
 	if(coder->longest_match_length >= 2) {
 		const uint32 new_dist = coder->matches[coder->matches_count - 1].dist;
 		if((coder->longest_match_length >= len_main && new_dist < back_main) || (coder->longest_match_length == len_main + 1
-		    && !change_pair(back_main, new_dist)) || (coder->longest_match_length > len_main + 1)
+		  && !change_pair(back_main, new_dist)) || (coder->longest_match_length > len_main + 1)
 		    || (coder->longest_match_length + 1 >= len_main && len_main >= 3 && change_pair(new_dist, back_main))) {
 			*back_res = UINT32_MAX;
 			*len_res = 1;

@@ -41,7 +41,7 @@ static cmsInt32Number SimultaneousErrors;
 #define cmsmin(a, b) (((a) < (b)) ? (a) : (b))
 
 // Die, a fatal unexpected error is detected!
-void Die(const char* Reason, ...)
+void Die(const char * Reason, ...)
 {
 	va_list args;
 	va_start(args, Reason);
@@ -151,7 +151,7 @@ void DebugMemDontCheckThis(void * Ptr)
 }
 
 // Memory string
-static const char* MemStr(cmsUInt32Number size)
+static const char * MemStr(cmsUInt32Number size)
 {
 	static char Buffer[1024];
 	if(size > 1024*1024) {
@@ -211,14 +211,14 @@ void Dot(void)
 	fprintf(stdout, "."); fflush(stdout);
 }
 
-void Say(const char* str)
+void Say(const char * str)
 {
 	fprintf(stdout, "%s", str); fflush(stdout);
 }
 
 // Keep track of the reason to fail
 
-void Fail(const char* frm, ...)
+void Fail(const char * frm, ...)
 {
 	va_list args;
 	va_start(args, frm);
@@ -228,7 +228,7 @@ void Fail(const char* frm, ...)
 
 // Keep track of subtest
 
-void SubTest(const char* frm, ...)
+void SubTest(const char * frm, ...)
 {
 	va_list args;
 
@@ -239,7 +239,7 @@ void SubTest(const char* frm, ...)
 }
 
 // The check framework
-static void Check(const char* Title, TestFn Fn)
+static void Check(const char * Title, TestFn Fn)
 {
 	printf("Checking %s ...", Title);
 	fflush(stdout);
@@ -271,7 +271,7 @@ static void Check(const char* Title, TestFn Fn)
 }
 
 // Dump a tone curve, for easy diagnostic
-void DumpToneCurve(cmsToneCurve* gamma, const char* FileName)
+void DumpToneCurve(cmsToneCurve* gamma, const char * FileName)
 {
 	cmsHANDLE hIT8 = cmsIT8Alloc(gamma->InterpParams->ContextID);
 	cmsIT8SetPropertyDbl(hIT8, "NUMBER_OF_FIELDS", 2);
@@ -504,7 +504,7 @@ static cmsHPROFILE CreateFakeCMYK(cmsFloat64Number InkLimit, cmsBool lUseAboveRG
 // Does create several profiles for latter
 // use------------------------------------------------------------------------------------------------
 
-static cmsInt32Number OneVirtual(cmsHPROFILE h, const char* SubTestTxt, const char* FileName)
+static cmsInt32Number OneVirtual(cmsHPROFILE h, const char * SubTestTxt, const char * FileName)
 {
 	SubTest(SubTestTxt);
 	if(h == NULL) return 0;
@@ -738,7 +738,7 @@ cmsBool  IsGoodFixed8_8(const char * title, cmsFloat64Number in, cmsFloat64Numbe
 
 cmsBool STDCALL IsGoodWord(const char * title, cmsUInt16Number in, cmsUInt16Number out)
 {
-	if((abs(in - out) > 0 )) {
+	if((abs(in - out) > 0)) {
 		Fail("(%s): Must be %x, But is %x ", title, in, out);
 		return FALSE;
 	}
@@ -2494,7 +2494,7 @@ static cmsFloat32Number sigmoidal(cmsFloat32Number x, const cmsFloat64Number Par
 	return (cmsFloat32Number)Val;
 }
 
-static cmsBool CheckSingleParametric(const char* Name, dblfnptr fn, cmsInt32Number Type, const cmsFloat64Number Params[])
+static cmsBool CheckSingleParametric(const char * Name, dblfnptr fn, cmsInt32Number Type, const cmsFloat64Number Params[])
 {
 	cmsInt32Number i;
 	char InverseText[256];
@@ -3239,7 +3239,7 @@ Error:
 
 static cmsBool FormatterFailed;
 
-static void CheckSingleFormatter16(cmsContext id, cmsUInt32Number Type, const char* Text)
+static void CheckSingleFormatter16(cmsContext id, cmsUInt32Number Type, const char * Text)
 {
 	cmsUInt16Number Values[cmsMAXCHANNELS];
 	cmsUInt8Number Buffer[1024];
@@ -3481,7 +3481,7 @@ cmsInt32Number CheckFormatters16(void)
 #undef C
 
 static
-void CheckSingleFormatterFloat(cmsUInt32Number Type, const char* Text)
+void CheckSingleFormatterFloat(cmsUInt32Number Type, const char * Text)
 {
 	cmsFloat32Number Values[cmsMAXCHANNELS];
 	cmsUInt8Number Buffer[1024];
@@ -5275,7 +5275,7 @@ cmsInt32Number CheckSeveralLab(cmsHTRANSFORM xform)
 }
 
 static
-cmsInt32Number OneTrivialLab(cmsHPROFILE hLab1, cmsHPROFILE hLab2, const char* txt)
+cmsInt32Number OneTrivialLab(cmsHPROFILE hLab1, cmsHPROFILE hLab2, const char * txt)
 {
 	cmsHTRANSFORM xform;
 	cmsInt32Number rc;
@@ -5631,7 +5631,7 @@ int CheckRGBPrimaries(void)
 // This function will check CMYK -> CMYK transforms. It uses FOGRA29 and SWOP ICC profiles
 
 static
-cmsInt32Number CheckCMYK(cmsInt32Number Intent, const char * Profile1, const char* Profile2)
+cmsInt32Number CheckCMYK(cmsInt32Number Intent, const char * Profile1, const char * Profile2)
 {
 	cmsHPROFILE hSWOP  = cmsOpenProfileFromFileTHR(DbgThread(), Profile1, "r");
 	cmsHPROFILE hFOGRA = cmsOpenProfileFromFileTHR(DbgThread(), Profile2, "r");
@@ -6109,7 +6109,7 @@ cmsInt32Number CheckCGATS2(void)
 	cmsHANDLE handle;
 	const cmsUInt8Number junk[] = { 0x0, 0xd, 0xd, 0xa, 0x20, 0xd, 0x20, 0x20, 0x20, 0x3a, 0x31, 0x3d, 0x3d, 0x3d, 0x3d };
 
-	handle = cmsIT8LoadFromMem(0, (const void*)junk, sizeof(junk));
+	handle = cmsIT8LoadFromMem(0, (const void *)junk, sizeof(junk));
 	if(handle)
 		cmsIT8Free(handle);
 
@@ -6122,7 +6122,7 @@ cmsInt32Number CheckCGATS_Overflow(void)
 	cmsHANDLE handle;
 	const cmsUInt8Number junk[] = { "@\nA 1.e2147483648\n" };
 
-	handle = cmsIT8LoadFromMem(0, (const void*)junk, sizeof(junk));
+	handle = cmsIT8LoadFromMem(0, (const void *)junk, sizeof(junk));
 	if(handle)
 		cmsIT8Free(handle);
 
@@ -6130,11 +6130,11 @@ cmsInt32Number CheckCGATS_Overflow(void)
 }
 
 // Create CSA/CRD
-static void GenerateCSA(const char* cInProf, const char* FileName)
+static void GenerateCSA(const char * cInProf, const char * FileName)
 {
 	cmsHPROFILE hProfile;
 	cmsUInt32Number n;
-	char* Buffer;
+	char * Buffer;
 	cmsContext BuffThread = DbgThread();
 	FILE* o;
 	if(cInProf == NULL)
@@ -6157,11 +6157,11 @@ static void GenerateCSA(const char* cInProf, const char* FileName)
 		remove(FileName);
 }
 
-static void GenerateCRD(const char* cOutProf, const char* FileName)
+static void GenerateCRD(const char * cOutProf, const char * FileName)
 {
 	cmsHPROFILE hProfile;
 	cmsUInt32Number n;
-	char* Buffer;
+	char * Buffer;
 	cmsUInt32Number dwFlags = 0;
 	cmsContext BuffThread = DbgThread();
 	if(cOutProf == NULL)
@@ -6346,7 +6346,7 @@ cmsInt32Number CheckV4gamma(void)
 	return 1;
 }
 
-// cmsBool cmsGBDdumpVRML(cmsHANDLE hGBD, const char* fname);
+// cmsBool cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname);
 
 // Gamut descriptor routines
 static
@@ -6756,7 +6756,7 @@ static cmsFloat32Number StraightLine(cmsFloat32Number x)
 	return (cmsFloat32Number)(0.1 + 0.9 * x);
 }
 
-static cmsInt32Number TestCurve(const char* label, cmsToneCurve* curve, Function fn)
+static cmsInt32Number TestCurve(const char * label, cmsToneCurve* curve, Function fn)
 {
 	cmsInt32Number ok = 1;
 	for(int i = 0; i < kNumPoints*3; i++) {
@@ -7196,7 +7196,7 @@ typedef struct {cmsUInt8Number r, g, b;}       Scanline_rgb8;
 typedef struct {cmsUInt16Number r, g, b;}      Scanline_rgb16;
 typedef struct {cmsFloat32Number r, g, b;}     Scanline_rgb32;
 
-static void TitlePerformance(const char* Txt)
+static void TitlePerformance(const char * Txt)
 {
 	printf("%-45s: ", Txt); fflush(stdout);
 }
@@ -7597,7 +7597,7 @@ static void SpeedTest(void)
 static void PrintSupportedIntents(void)
 {
 	cmsUInt32Number Codes[200];
-	char* Descriptions[200];
+	char * Descriptions[200];
 	cmsUInt32Number n = cmsGetSupportedIntents(200, Codes, Descriptions);
 	printf("Supported intents:\n");
 	for(cmsUInt32Number i = 0; i < n; i++) {

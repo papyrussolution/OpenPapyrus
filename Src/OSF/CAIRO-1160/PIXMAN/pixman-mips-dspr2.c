@@ -37,78 +37,41 @@
 //#include "pixman-private.h"
 #include "pixman-mips-dspr2.h"
 
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_x888_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_8888_0565,
-    uint32, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0565_8888,
-    uint16, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_0565_0565,
-    uint16, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_8888_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_0888_0888,
-    uint8, 3, uint8, 3)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_x888_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_8888_0565, uint32, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0565_8888, uint16, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_0565_0565, uint16, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_8888_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(DO_FAST_MEMCPY, src_0888_0888, uint8, 3, uint8, 3)
 #if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0888_8888_rev,
-    uint8, 3, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0888_0565_rev,
-    uint8, 3, uint16, 1)
+	PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0888_8888_rev, uint8, 3, uint32, 1)
+	PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_0888_0565_rev, uint8, 3, uint16, 1)
 #endif
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_pixbuf_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_rpixbuf_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, over_8888_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, over_8888_0565,
-    uint32, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, add_8_8,
-    uint8, 1, uint8, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, add_8888_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, out_reverse_8_0565,
-    uint8, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, out_reverse_8_8888,
-    uint8,  1, uint32, 1)
-
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(0, src_n_8_8888,
-    uint8, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(0, src_n_8_8,
-    uint8, 1, uint8, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8888_8888_ca,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8888_0565_ca,
-    uint32, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_8,
-    uint8, 1, uint8, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_8888,
-    uint8, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_0565,
-    uint8, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, add_n_8_8,
-    uint8, 1, uint8, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, add_n_8_8888,
-    uint8, 1, uint32, 1)
-
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_8888_n_8888,
-    uint32, 1, uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_8888_n_0565,
-    uint32, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_0565_n_0565,
-    uint16, 1, uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, add_8888_n_8888,
-    uint32, 1, uint32, 1)
-
-PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_n_0565,
-    uint16, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_n_8888,
-    uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_reverse_n_8888,
-    uint32, 1)
-PIXMAN_MIPS_BIND_FAST_PATH_N_DST(0, in_n_8,
-    uint8, 1)
-
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_pixbuf_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, src_rpixbuf_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, over_8888_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, over_8888_0565, uint32, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, add_8_8, uint8, 1, uint8, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, add_8888_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, out_reverse_8_0565, uint8, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_DST(0, out_reverse_8_8888, uint8,  1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(0, src_n_8_8888, uint8, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(0, src_n_8_8, uint8, 1, uint8, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8888_8888_ca, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8888_0565_ca, uint32, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_8, uint8, 1, uint8, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_8888, uint8, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, over_n_8_0565, uint8, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, add_n_8_8, uint8, 1, uint8, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_MASK_DST(SKIP_ZERO_SRC, add_n_8_8888, uint8, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_8888_n_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_8888_n_0565, uint32, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, over_0565_n_0565, uint16, 1, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_SRC_N_DST(SKIP_ZERO_MASK, add_8888_n_8888, uint32, 1, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_n_0565, uint16, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_n_8888, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_DST(SKIP_ZERO_SRC, over_reverse_n_8888, uint32, 1)
+PIXMAN_MIPS_BIND_FAST_PATH_N_DST(0, in_n_8, uint8, 1)
 PIXMAN_MIPS_BIND_FAST_PATH_SRC_MASK_DST(add_8_8_8, uint8,  1, uint8,  1, uint8,  1)
 PIXMAN_MIPS_BIND_FAST_PATH_SRC_MASK_DST(add_8888_8_8888, uint32, 1, uint8, 1, uint32, 1)
 PIXMAN_MIPS_BIND_FAST_PATH_SRC_MASK_DST(add_8888_8888_8888, uint32, 1, uint32, 1, uint32, 1)
@@ -169,19 +132,8 @@ static pixman_bool_t mips_dspr2_fill(pixman_implementation_t * imp, uint32 * bit
 	}
 }
 
-static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp,
-    uint32 * src_bits,
-    uint32 * dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height)
+static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
+    int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
 	if(src_bpp != dst_bpp)
 		return FALSE;

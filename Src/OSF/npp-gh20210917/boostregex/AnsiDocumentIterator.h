@@ -27,7 +27,7 @@ public:
 	using iterator_category = std::bidirectional_iterator_tag;
 	using value_type = char;
 	using difference_type = ptrdiff_t;
-	using pointer = char*;
+	using pointer = char *;
 	using reference = char&;
 
 	AnsiDocumentIterator() {};

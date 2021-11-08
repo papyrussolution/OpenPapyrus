@@ -588,8 +588,8 @@ uint GnuPlot::GpBitmap::GetPixel(uint x, uint y)
 //void b_makebitmap(uint x, uint y, uint planes)
 void GnuPlot::BmpMakeBitmap(uint x, uint y, uint planes)
 {
-	x = 8 * ((x + 7) / 8);  /* round up to multiple of 8 */
-	y = 8 * ((y + 7) / 8);  /* round up to multiple of 8 */
+	x = 8 * ((x + 7) / 8); /* round up to multiple of 8 */
+	y = 8 * ((y + 7) / 8); /* round up to multiple of 8 */
 	_Bmp.b_psize = y / 8;        /* size of each plane */
 	uint rows = _Bmp.b_psize * planes; /* total number of rows of 8 pixels high */
 	_Bmp.b_xsize = x;

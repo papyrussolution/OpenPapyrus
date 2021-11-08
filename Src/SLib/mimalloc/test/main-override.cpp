@@ -76,10 +76,10 @@ void various_tests()
 	void * p2 = mi_malloc_aligned(16, 24);
 	free(p1);
 	p1 = malloc(8);
-	char* s = mi_strdup("hello\n");
+	char * s = mi_strdup("hello\n");
 
-	//char* s = _strdup("hello\n");
-	//char* buf = NULL;
+	//char * s = _strdup("hello\n");
+	//char * buf = NULL;
 	//size_t len;
 	//_dupenv_s(&buf,&len,"MIMALLOC_VERBOSE");
 	//mi_free(buf);
@@ -197,10 +197,10 @@ void heap_thread_free_large()
 void test_mt_shutdown()
 {
 	const int threads = 5;
-	std::vector< std::future< std::vector< char* > > > ts;
+	std::vector< std::future< std::vector< char * > > > ts;
 	auto fn = [&]()
 	    {
-		    std::vector< char* > ps;
+		    std::vector< char * > ps;
 		    ps.reserve(1000);
 		    for(int i = 0; i < 1000; i++)
 			    ps.emplace_back(new char[1]);

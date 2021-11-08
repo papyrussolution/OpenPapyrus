@@ -459,7 +459,7 @@ inline static struct quorem floored_divrem(int a, int b)
 	struct quorem qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
-	if((a^b)<0 && qr.rem) {
+	if((a^b) < 0 && qr.rem) {
 		qr.quo -= 1;
 		qr.rem += b;
 	}

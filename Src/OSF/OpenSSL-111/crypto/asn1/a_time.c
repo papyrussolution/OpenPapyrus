@@ -258,7 +258,7 @@ err:
 
 ASN1_TIME * asn1_time_from_tm(ASN1_TIME * s, struct tm * ts, int type)
 {
-	char* p;
+	char * p;
 	ASN1_TIME * tmps = NULL;
 	const size_t len = 20;
 

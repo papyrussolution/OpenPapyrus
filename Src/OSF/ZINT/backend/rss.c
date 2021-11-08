@@ -1817,15 +1817,15 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 				    last_mode = NUMERIC;
 			    } /* FNC1/Numeric latch */
 			    if(general_field[i] == '*') 
-					strcat(binary_string, "111010");  /* asterisk */
+					strcat(binary_string, "111010"); /* asterisk */
 			    if(general_field[i] == ',') 
-					strcat(binary_string, "111011");  /* comma */
+					strcat(binary_string, "111011"); /* comma */
 			    if(general_field[i] == '-') 
-					strcat(binary_string, "111100");  /* minus or hyphen */
+					strcat(binary_string, "111100"); /* minus or hyphen */
 			    if(general_field[i] == '.') 
-					strcat(binary_string, "111101");  /* period or full stop */
+					strcat(binary_string, "111101"); /* period or full stop */
 			    if(general_field[i] == '/') 
-					strcat(binary_string, "111110");  /* slash or solidus */
+					strcat(binary_string, "111110"); /* slash or solidus */
 			    i++;
 			    break;
 			case ISOIEC:
@@ -1870,27 +1870,27 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 				    strcat(binary_string, "01111");
 				    last_mode = NUMERIC;
 			    } /* FNC1/Numeric latch */
-			    if(general_field[i] == '!') strcat(binary_string, "11101000");  /* exclamation mark */
-			    if(general_field[i] == 34) strcat(binary_string, "11101001");  /* quotation mark */
-			    if(general_field[i] == 37) strcat(binary_string, "11101010");  /* percent sign */
-			    if(general_field[i] == '&') strcat(binary_string, "11101011");  /* ampersand */
-			    if(general_field[i] == 39) strcat(binary_string, "11101100");  /* apostrophe */
-			    if(general_field[i] == '(') strcat(binary_string, "11101101");  /* left parenthesis */
-			    if(general_field[i] == ')') strcat(binary_string, "11101110");  /* right parenthesis */
-			    if(general_field[i] == '*') strcat(binary_string, "11101111");  /* asterisk */
-			    if(general_field[i] == '+') strcat(binary_string, "11110000");  /* plus sign */
-			    if(general_field[i] == ',') strcat(binary_string, "11110001");  /* comma */
-			    if(general_field[i] == '-') strcat(binary_string, "11110010");  /* minus or hyphen */
-			    if(general_field[i] == '.') strcat(binary_string, "11110011");  /* period or full stop */
-			    if(general_field[i] == '/') strcat(binary_string, "11110100");  /* slash or solidus */
-			    if(general_field[i] == ':') strcat(binary_string, "11110101");  /* colon */
-			    if(general_field[i] == ';') strcat(binary_string, "11110110");  /* semicolon */
-			    if(general_field[i] == '<') strcat(binary_string, "11110111");  /* less-than sign */
-			    if(general_field[i] == '=') strcat(binary_string, "11111000");  /* equals sign */
-			    if(general_field[i] == '>') strcat(binary_string, "11111001");  /* greater-than sign */
-			    if(general_field[i] == '?') strcat(binary_string, "11111010");  /* question mark */
-			    if(general_field[i] == '_') strcat(binary_string, "11111011");  /* underline or low line */
-			    if(general_field[i] == ' ') strcat(binary_string, "11111100");  /* space */
+			    if(general_field[i] == '!') strcat(binary_string, "11101000"); /* exclamation mark */
+			    if(general_field[i] == 34) strcat(binary_string, "11101001"); /* quotation mark */
+			    if(general_field[i] == 37) strcat(binary_string, "11101010"); /* percent sign */
+			    if(general_field[i] == '&') strcat(binary_string, "11101011"); /* ampersand */
+			    if(general_field[i] == 39) strcat(binary_string, "11101100"); /* apostrophe */
+			    if(general_field[i] == '(') strcat(binary_string, "11101101"); /* left parenthesis */
+			    if(general_field[i] == ')') strcat(binary_string, "11101110"); /* right parenthesis */
+			    if(general_field[i] == '*') strcat(binary_string, "11101111"); /* asterisk */
+			    if(general_field[i] == '+') strcat(binary_string, "11110000"); /* plus sign */
+			    if(general_field[i] == ',') strcat(binary_string, "11110001"); /* comma */
+			    if(general_field[i] == '-') strcat(binary_string, "11110010"); /* minus or hyphen */
+			    if(general_field[i] == '.') strcat(binary_string, "11110011"); /* period or full stop */
+			    if(general_field[i] == '/') strcat(binary_string, "11110100"); /* slash or solidus */
+			    if(general_field[i] == ':') strcat(binary_string, "11110101"); /* colon */
+			    if(general_field[i] == ';') strcat(binary_string, "11110110"); /* semicolon */
+			    if(general_field[i] == '<') strcat(binary_string, "11110111"); /* less-than sign */
+			    if(general_field[i] == '=') strcat(binary_string, "11111000"); /* equals sign */
+			    if(general_field[i] == '>') strcat(binary_string, "11111001"); /* greater-than sign */
+			    if(general_field[i] == '?') strcat(binary_string, "11111010"); /* question mark */
+			    if(general_field[i] == '_') strcat(binary_string, "11111011"); /* underline or low line */
+			    if(general_field[i] == ' ') strcat(binary_string, "11111100"); /* space */
 
 			    i++;
 			    break;

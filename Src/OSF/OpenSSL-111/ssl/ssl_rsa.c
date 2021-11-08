@@ -153,7 +153,7 @@ static int ssl_set_pkey(CERT * c, EVP_PKEY * pkey)
 		 * cards.
 		 */
 		if(EVP_PKEY_id(pkey) == EVP_PKEY_RSA
-		    && RSA_flags(EVP_PKEY_get0_RSA(pkey)) & RSA_METHOD_FLAG_NO_CHECK);
+		  && RSA_flags(EVP_PKEY_get0_RSA(pkey)) & RSA_METHOD_FLAG_NO_CHECK);
 		else
 #endif
 		if(!X509_check_private_key(c->pkeys[i].x509, pkey)) {
@@ -352,7 +352,7 @@ static int ssl_set_cert(CERT * c, X509 * x)
 		 * cards.
 		 */
 		if(EVP_PKEY_id(c->pkeys[i].privatekey) == EVP_PKEY_RSA
-		    && RSA_flags(EVP_PKEY_get0_RSA(c->pkeys[i].privatekey)) &
+		  && RSA_flags(EVP_PKEY_get0_RSA(c->pkeys[i].privatekey)) &
 		    RSA_METHOD_FLAG_NO_CHECK);
 		else
 #endif                          /* OPENSSL_NO_RSA */
@@ -683,7 +683,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 		/* When the while loop ends, it's usually just EOF. */
 		err = ERR_peek_last_error();
 		if(ERR_GET_LIB(err) == ERR_LIB_PEM
-		    && ERR_GET_REASON(err) == PEM_R_NO_START_LINE)
+		  && ERR_GET_REASON(err) == PEM_R_NO_START_LINE)
 			ERR_clear_error();
 		else
 			ret = 0; /* some real error */

@@ -33,7 +33,7 @@ FT_EXPORT_DEF(FT_Error) FT_OpenType_Validate(FT_Face face, FT_UInt validation_fl
 		error = FT_THROW(Invalid_Face_Handle);
 		goto Exit;
 	}
-	if(!( BASE_table && GDEF_table && GPOS_table && GSUB_table && JSTF_table ) ) {
+	if(!(BASE_table && GDEF_table && GPOS_table && GSUB_table && JSTF_table ) ) {
 		error = FT_THROW(Invalid_Argument);
 		goto Exit;
 	}

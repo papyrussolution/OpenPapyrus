@@ -285,7 +285,7 @@ public:
 		switch(sc.state) {
 			case SCE_SH_OPERATOR:
 			    sc.SetState(SCE_SH_DEFAULT);
-			    if(cmdState == BASH_CMD_DELIM)              // if command delimiter, start new command
+			    if(cmdState == BASH_CMD_DELIM) // if command delimiter, start new command
 				    cmdStateNew = BASH_CMD_START;
 			    else if(sc.chPrev == '\\')                          // propagate command state if line continued
 				    cmdStateNew = cmdState;
@@ -873,10 +873,10 @@ static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 		// Comment folding
 		if(foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			    && IsCommentLine(lineCurrent + 1, styler))
+			  && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			    && !IsCommentLine(lineCurrent + 1, styler))
+			  && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		if(style == SCE_SH_OPERATOR) {

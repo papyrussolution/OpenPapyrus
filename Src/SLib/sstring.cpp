@@ -2811,6 +2811,11 @@ SString & SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long t
 	return *this;
 }
 
+SString & SString::CatCurDateTime(long datFmt/*= DATF_DMY*/, long timFmt/*= TIMF_HMS*/)
+{
+	return Cat(getcurdatetime_(), datFmt, timFmt);
+}
+
 SString & SString::Cat(const DateRange & rPeriod, int ext)
 {
 	char   temp_buf[64];
@@ -3024,7 +3029,7 @@ bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS)
 	memcpy(&val, pS, 8);
 	// a branchy method might be faster:
 	// return (( val & 0xF0F0F0F0F0F0F0F0 ) == 0x3030303030303030)
-	//  && (( (val + 0x0606060606060606) & 0xF0F0F0F0F0F0F0F0 ) ==
+	// && (( (val + 0x0606060606060606) & 0xF0F0F0F0F0F0F0F0 ) ==
 	//  0x3030303030303030);
 	return (((val & 0xF0F0F0F0F0F0F0F0) | (((val + 0x0606060606060606) & 0xF0F0F0F0F0F0F0F0) >> 4)) == 0x3333333333333333);
 }

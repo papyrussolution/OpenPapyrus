@@ -511,7 +511,8 @@ TERM_PUBLIC int GRASS_set_font(const char * font)
 	int R_text_size(), dots_per_line;
 	// G_warning(font); 
 	sep = strcspn(font, ",");
-	strncpy(name, font, sep); name[sep] = NUL;
+	strncpy(name, font, sep); 
+	name[sep] = '\0';
 	sscanf(&(font[sep+1]), "%d", &size);
 	if(size == 0)
 		size = 3;

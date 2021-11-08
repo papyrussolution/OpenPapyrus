@@ -549,7 +549,7 @@ typedef struct FT_CharMapRec_*  FT_CharMap;
 
 #ifndef FT_ENC_TAG
 #define FT_ENC_TAG(value, a, b, c, d)         \
-	value = ( ( (FT_UInt32)(a) << 24 ) |  \
+	value = (((FT_UInt32)(a) << 24 ) |  \
 	    ( (FT_UInt32)(b) << 16 ) |  \
 	    ( (FT_UInt32)(c) <<  8 ) |  \
 	    (FT_UInt32)(d)         )
@@ -1121,7 +1121,7 @@ typedef struct  FT_FaceRec_ {
  *     @FT_Set_Var_Design_Coordinates, or @FT_Set_Var_Blend_Coordinates.
  *     This flag is unset by a call to @FT_Set_Named_Instance.
  */
-#define FT_FACE_FLAG_SCALABLE          ( 1L <<  0 )
+#define FT_FACE_FLAG_SCALABLE          ( 1L <<  0)
 #define FT_FACE_FLAG_FIXED_SIZES       ( 1L <<  1 )
 #define FT_FACE_FLAG_FIXED_WIDTH       ( 1L <<  2 )
 #define FT_FACE_FLAG_SFNT              ( 1L <<  3 )
@@ -1151,7 +1151,7 @@ typedef struct  FT_FaceRec_ {
  *   @FT_HAS_VERTICAL can be used to check for vertical metrics.
  *
  */
-#define FT_HAS_HORIZONTAL(face) (!!( (face)->face_flags & FT_FACE_FLAG_HORIZONTAL))
+#define FT_HAS_HORIZONTAL(face) (!!((face)->face_flags & FT_FACE_FLAG_HORIZONTAL))
 
 /**************************************************************************
  *
@@ -1206,7 +1206,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_SFNT(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_SFNT ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_SFNT ) )
 
 /**************************************************************************
  *
@@ -1220,7 +1220,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_FIXED_WIDTH(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_FIXED_WIDTH ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_FIXED_WIDTH ) )
 
 /**************************************************************************
  *
@@ -1234,7 +1234,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_HAS_FIXED_SIZES(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_FIXED_SIZES ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_FIXED_SIZES ) )
 
 /**************************************************************************
  *
@@ -1258,7 +1258,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_HAS_GLYPH_NAMES(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_GLYPH_NAMES ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_GLYPH_NAMES ) )
 
 /**************************************************************************
  *
@@ -1272,7 +1272,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_HAS_MULTIPLE_MASTERS(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS ) )
 
 /**************************************************************************
  *
@@ -1293,7 +1293,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_NAMED_INSTANCE(face) \
-	( !!( (face)->face_index & 0x7FFF0000L ) )
+	( !!((face)->face_index & 0x7FFF0000L ) )
 
 /**************************************************************************
  *
@@ -1310,7 +1310,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_VARIATION(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_VARIATION ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_VARIATION ) )
 
 /**************************************************************************
  *
@@ -1326,7 +1326,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_CID_KEYED(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_CID_KEYED ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_CID_KEYED ) )
 
 /**************************************************************************
  *
@@ -1339,7 +1339,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_IS_TRICKY(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_TRICKY ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_TRICKY ) )
 
 /**************************************************************************
  *
@@ -1355,7 +1355,7 @@ typedef struct  FT_FaceRec_ {
  *
  */
 #define FT_HAS_COLOR(face) \
-	( !!( (face)->face_flags & FT_FACE_FLAG_COLOR ) )
+	( !!((face)->face_flags & FT_FACE_FLAG_COLOR ) )
 
 /**************************************************************************
  *
@@ -1379,7 +1379,7 @@ typedef struct  FT_FaceRec_ {
  *   example, by analyzing various fields of the 'OS/2' table in SFNT based
  *   fonts).
  */
-#define FT_STYLE_FLAG_ITALIC  ( 1 << 0 )
+#define FT_STYLE_FLAG_ITALIC  ( 1 << 0)
 #define FT_STYLE_FLAG_BOLD    ( 1 << 1 )
 
 /**************************************************************************
@@ -1483,9 +1483,9 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *    do_native_bytecode_hinting         )
  *     {
  * ascender  = ROUND( FT_MulFix( face->ascender,
- *                               size_metrics->y_scale ) );
+ *                               size_metrics->y_scale ));
  * descender = ROUND( FT_MulFix( face->descender,
- *                               size_metrics->y_scale ) );
+ *                               size_metrics->y_scale ));
  *     }
  *     else
  *     {
@@ -1719,7 +1719,7 @@ typedef struct FT_Slot_InternalRec_*  FT_Slot_Internal;
  *     for all glyphs do
  * <load glyph with `FT_Load_Glyph'>
  *
- * FT_Outline_Translate( slot->outline, origin_x & 63, 0 );
+ * FT_Outline_Translate( slot->outline, origin_x & 63, 0);
  *
  * <save glyph image, or render glyph, or ...>
  *
@@ -2021,7 +2021,7 @@ typedef struct  FT_Open_Args_ {
  *   Use @FT_Done_Face to destroy the created @FT_Face object (along with
  *   its slot and sizes).
  */
-FT_EXPORT(FT_Error) FT_New_Face(FT_Library library, const char*  filepathname, FT_Long face_index, FT_Face     *aface);
+FT_EXPORT(FT_Error) FT_New_Face(FT_Library library, const char *  filepathname, FT_Long face_index, FT_Face     *aface);
 
 /**************************************************************************
  *
@@ -2216,7 +2216,7 @@ FT_EXPORT(FT_Error) FT_Open_Face(FT_Library library, const FT_Open_Args*  args, 
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error) FT_Attach_File(FT_Face face, const char*  filepathname);
+FT_EXPORT(FT_Error) FT_Attach_File(FT_Face face, const char *  filepathname);
 
 /**************************************************************************
  *
@@ -2830,7 +2830,7 @@ FT_EXPORT(FT_Error) FT_Load_Char(FT_Face face, FT_ULong char_code, FT_Int32 load
  *
  */
 #define FT_LOAD_DEFAULT                      0x0
-#define FT_LOAD_NO_SCALE                     ( 1L << 0 )
+#define FT_LOAD_NO_SCALE                     ( 1L << 0)
 #define FT_LOAD_NO_HINTING                   ( 1L << 1 )
 #define FT_LOAD_RENDER                       ( 1L << 2 )
 #define FT_LOAD_NO_BITMAP                    ( 1L << 3 )
@@ -2960,7 +2960,7 @@ FT_EXPORT(FT_Error) FT_Load_Char(FT_Face face, FT_ULong char_code, FT_Int32 load
  *   @FT_LOAD_TARGET_XXX value.
  *
  */
-#define FT_LOAD_TARGET_MODE(x)  ( (FT_Render_Mode)( ( (x) >> 16 ) & 15 ) )
+#define FT_LOAD_TARGET_MODE(x)  ( (FT_Render_Mode)(((x) >> 16 ) & 15 ) )
 
 /**************************************************************************
  *
@@ -3508,7 +3508,7 @@ FT_EXPORT(FT_UInt) FT_Get_Char_Index(FT_Face face, FT_ULong charcode);
  *
  *
  *     charcode = FT_Get_First_Char( face, &gindex );
- *     while ( gindex != 0 )
+ *     while ( gindex != 0)
  *     {
  * ... do something with (charcode,gindex) pair ...
  *

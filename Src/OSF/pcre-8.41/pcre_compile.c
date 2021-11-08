@@ -989,9 +989,9 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			            /* In JavaScript, \u must be followed by four hexadecimal numbers.
 			               Otherwise it is a lowercase u letter. */
 				    if(MAX_255(ptr[1]) && (digitab[ptr[1]] & ctype_xdigit) != 0
-				    && MAX_255(ptr[2]) && (digitab[ptr[2]] & ctype_xdigit) != 0
-				    && MAX_255(ptr[3]) && (digitab[ptr[3]] & ctype_xdigit) != 0
-				    && MAX_255(ptr[4]) && (digitab[ptr[4]] & ctype_xdigit) != 0) {
+				  && MAX_255(ptr[2]) && (digitab[ptr[2]] & ctype_xdigit) != 0
+				  && MAX_255(ptr[3]) && (digitab[ptr[3]] & ctype_xdigit) != 0
+				  && MAX_255(ptr[4]) && (digitab[ptr[4]] & ctype_xdigit) != 0) {
 					    c = 0;
 					    for(i = 0; i < 4; ++i) {
 						    uint32 cc = *(++ptr);

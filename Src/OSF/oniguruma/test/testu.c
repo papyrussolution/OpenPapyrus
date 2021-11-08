@@ -11,7 +11,7 @@ static OnigTestBlock OnigTB;
 
 #define ulen(p) onigenc_str_bytelen_null(OnigTB.ENC, (uchar *)p)
 
-static void uconv(char* from, char* to, int len)
+static void uconv(char * from, char * to, int len)
 {
 	char * q = to;
 	for(int i = 0; i < len; i += 2) {
@@ -119,9 +119,9 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 #endif
 }
 
-static void x2(char* pattern, char* str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
-static void x3(char* pattern, char* str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
-static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
+static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
+static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
+static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1); }
 
 int OnigTestU_main(FILE * fOut)
 {

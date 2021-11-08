@@ -35,7 +35,7 @@ FT_BEGIN_HEADER
 #define FT_FRAME_OP_COMMAND(x)  ( x >> FT_FRAME_OP_SHIFT )
 
 #define FT_MAKE_FRAME_OP(command, little, sign) \
-	( ( command << FT_FRAME_OP_SHIFT ) | ( little << 1 ) | sign )
+	((command << FT_FRAME_OP_SHIFT ) | ( little << 1 ) | sign )
 
 #define FT_FRAME_OP_END    0
 #define FT_FRAME_OP_START  1  /* start a new frame     */
@@ -85,7 +85,7 @@ typedef struct  FT_Frame_Field_ {
 	(FT_Byte)sizeof( ((FT_STRUCTURE*)0)->f )
 
 #define FT_FIELD_SIZE_DELTA(f)                       \
-	(FT_Byte)sizeof( ((FT_STRUCTURE*)0)->f[0] )
+	(FT_Byte)sizeof( ((FT_STRUCTURE*)0)->f[0])
 
 #define FT_FIELD_OFFSET(f)                         \
 	(FT_UShort)( offsetof(FT_STRUCTURE, f) )
@@ -134,10 +134,10 @@ typedef struct  FT_Frame_Field_ {
 /**************************************************************************
  *
  * Integer extraction macros -- the 'buffer' parameter must ALWAYS be of
- * type 'char*' or equivalent (1-byte elements).
+ * type 'char *' or equivalent (1-byte elements).
  */
 
-#define FT_BYTE_(p, i)  ( ((const FT_Byte*)(p))[(i)] )
+#define FT_BYTE_(p, i)  ( ((const FT_Byte*)(p))[(i)])
 
 #define FT_INT16(x)   ( (FT_Int16)(x)  )
 #define FT_UINT16(x)  ( (FT_UInt16)(x) )
@@ -330,7 +330,7 @@ typedef struct  FT_Frame_Field_ {
 /* initialize a stream for reading a regular system stream */
 FT_BASE(FT_Error)
 FT_Stream_Open(FT_Stream stream,
-    const char*  filepathname);
+    const char *  filepathname);
 
 #endif /* FT_CONFIG_OPTION_NO_DEFAULT_SYSTEM */
 

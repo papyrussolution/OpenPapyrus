@@ -37,8 +37,8 @@ public:
 	LineMarker() noexcept = default;
 	LineMarker(const LineMarker &other);
 	LineMarker(LineMarker &&) noexcept = default;
-	LineMarker &operator=(const LineMarker& other);
-	LineMarker &operator=(LineMarker&&) noexcept = default;
+	LineMarker & operator = (const LineMarker& other);
+	LineMarker & operator = (LineMarker&&) noexcept = default;
 	virtual ~LineMarker() = default;
 
 	void SetXPM(const char *textForm);

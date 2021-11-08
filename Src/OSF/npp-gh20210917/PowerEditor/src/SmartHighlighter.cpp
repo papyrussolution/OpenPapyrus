@@ -99,7 +99,7 @@ void SmartHighlighter::highlightView(ScintillaEditView * pHighlightView, Scintil
 	// If nothing selected or smart highlighting disabled, don't mark anything
 	if((!nppGUI._enableSmartHilite) || (pHighlightView->execute(SCI_GETSELECTIONEMPTY) == 1)) {
 		if(nppGUI._smartHiliteOnAnotherView && unfocusView && unfocusView->isVisible()
-		    && unfocusView->getCurrentBufferID() != pHighlightView->getCurrentBufferID()) {
+		  && unfocusView->getCurrentBufferID() != pHighlightView->getCurrentBufferID()) {
 			unfocusView->clearIndicator(SCE_UNIVERSAL_FOUND_STYLE_SMART);
 		}
 		return;

@@ -264,7 +264,7 @@ FT_TrueTypeGX_Free(FT_Face face,
  *    FT_VALIDATE_CKERN ::
  *      Handle the 'kern' as either classic Apple or Microsoft kern table.
  */
-#define FT_VALIDATE_MS     ( FT_VALIDATE_GX_START << 0 )
+#define FT_VALIDATE_MS     ( FT_VALIDATE_GX_START << 0)
 #define FT_VALIDATE_APPLE  ( FT_VALIDATE_GX_START << 1 )
 
 #define FT_VALIDATE_CKERN  ( FT_VALIDATE_MS | FT_VALIDATE_APPLE )

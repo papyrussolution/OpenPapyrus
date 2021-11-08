@@ -200,7 +200,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 						if(len > 0)
 							--len;
 						if(Pgm.P_InputLine[len] == '\r') { /* remove any carriage return */
-							Pgm.P_InputLine[len] = NUL;
+							Pgm.P_InputLine[len] = '\0';
 							if(len > 0)
 								--len;
 						}
@@ -228,7 +228,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 						// Strip off trailing comment and count curly braces 
 						Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 						if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#') {
-							Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
+							Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = '\0';
 							start = Pgm.P_Token[Pgm.NumTokens].StartIdx;
 							left = Pgm.InputLineLen - start;
 						}

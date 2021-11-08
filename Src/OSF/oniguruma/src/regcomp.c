@@ -6960,7 +6960,7 @@ static void Indent(FILE* f, int indent)
 
 static void print_indent_tree(FILE* f, Node * node, int indent)
 {
-	static char* emptiness_name[] = { "", " empty", " empty_mem", " empty_rec" };
+	static char * emptiness_name[] = { "", " empty", " empty_mem", " empty_rec" };
 	int i;
 	NodeType type;
 	uchar * p;
@@ -6991,8 +6991,8 @@ static void print_indent_tree(FILE* f, Node * node, int indent)
 
 		case NODE_STRING:
 	    {
-		    char* str;
-		    char* mode;
+		    char * str;
+		    char * mode;
 		    if(NODE_STRING_IS_CRUDE(node))
 			    mode = "-crude";
 		    else if(NODE_IS_IGNORECASE(node))

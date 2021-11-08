@@ -164,7 +164,7 @@ static cairo_status_t _cairo_win32_printing_surface_acquire_image_pattern(cairo_
     cairo_surface_pattern_t * image_pattern,
     int * width,
     int * height,
-    void      ** image_extra)
+    void   ** image_extra)
 {
 	cairo_status_t status;
 	cairo_image_surface_t * image;

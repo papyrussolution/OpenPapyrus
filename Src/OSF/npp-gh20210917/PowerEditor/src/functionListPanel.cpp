@@ -252,10 +252,10 @@ bool FunctionListPanel::serialize(const generic_string & outputFilename)
 		fname2write = outputFilename;
 	}
 
-	const char* rootLabel = "root";
-	const char* nodesLabel = "nodes";
-	const char* leavesLabel = "leaves";
-	const char* nameLabel = "name";
+	const char * rootLabel = "root";
+	const char * nodesLabel = "nodes";
+	const char * leavesLabel = "leaves";
+	const char * nameLabel = "name";
 
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 	json j;

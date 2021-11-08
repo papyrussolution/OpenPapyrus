@@ -447,7 +447,7 @@ typedef struct  FT_Generic_ {
  */
 #define FT_MAKE_TAG(_x1, _x2, _x3, _x4) \
 	(FT_Tag)                        \
-	( ( (FT_ULong)_x1 << 24 ) |     \
+	(((FT_ULong)_x1 << 24 ) |     \
 	( (FT_ULong)_x2 << 16 ) |     \
 	( (FT_ULong)_x3 <<  8 ) |     \
 	(FT_ULong)_x4         )
@@ -536,8 +536,8 @@ typedef struct  FT_ListRec_ {
 
 /* */
 
-#define FT_IS_EMPTY(list)  ( (list).head == 0 )
-#define FT_BOOL(x)  ( (FT_Bool)( (x) != 0 ) )
+#define FT_IS_EMPTY(list)  ( (list).head == 0)
+#define FT_BOOL(x)  ( (FT_Bool)( (x) != 0) )
 
 /* concatenate C tokens */
 #define FT_ERR_XCAT(x, y)  x ## y

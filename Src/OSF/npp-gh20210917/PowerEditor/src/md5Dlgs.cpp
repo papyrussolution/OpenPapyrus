@@ -309,7 +309,7 @@ public:
 		return digestChars;
 	}
 	/// Digests a byte-array already in memory
-	char* digestMemory(BYTE * memchunk, int len)
+	char * digestMemory(BYTE * memchunk, int len)
 	{
 		Init();
 		Update(memchunk, len);
@@ -317,10 +317,10 @@ public:
 		return digestChars;
 	}
 	// Digests a string and prints the result.
-	char* digestString(const char * string)
+	char * digestString(const char * string)
 	{
 		Init();
-		Update( (uchar*)string, static_cast<uint>(strlen(string)) );
+		Update( (uchar*)string, static_cast<uint>(strlen(string)));
 		Final();
 		return digestChars;
 	}

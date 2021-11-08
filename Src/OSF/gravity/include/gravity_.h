@@ -1784,21 +1784,21 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 
 /* @sobolev #if GRAVITY_COMPUTED_GOTO
 #define DECLARE_DISPATCH_TABLE      static void * dispatchTable[] = {                                \
-                                    &&RET0,         &&HALT,         &&NOP,          &&RET,          \
-                                    &&CALL,         &&LOAD,         &&LOADS,        &&LOADAT,       \
-                                    &&LOADK,        &&LOADG,        &&LOADI,        &&LOADU,        \
-                                    &&MOVE,         &&STORE,        &&STOREAT,      &&STOREG,       \
-                                    &&STOREU,       &&JUMP,         &&JUMPF,        &&SWITCH,       \
-                                    &&ADD,          &&SUB,          &&DIV,          &&MUL,          \
-                                    &&REM,          &&AND,          &&OR,           &&LT,           \
-                                    &&GT,           &&EQ,           &&LEQ,          &&GEQ,          \
-                                    &&NEQ,          &&EQQ,          &&NEQQ,         &&ISA,          \
-                                    &&MATCH,        &&NEG,          &&NOT,          &&LSHIFT,       \
-                                    &&RSHIFT,       &&BAND,         &&BOR,          &&BXOR,         \
-                                    &&BNOT,         &&MAPNEW,       &&LISTNEW,      &&RANGENEW,     \
-                                    &&SETLIST,      &&CLOSURE,      &&CLOSE,        &&CHECK,        \
-                                    &&RESERVED2,    &&RESERVED3,    &&RESERVED4,    &&RESERVED5,    \
-                                    &&RESERVED6                                                        };
+                                  &&RET0,       &&HALT,       &&NOP,        &&RET,          \
+                                  &&CALL,       &&LOAD,       &&LOADS,      &&LOADAT,       \
+                                  &&LOADK,      &&LOADG,      &&LOADI,      &&LOADU,        \
+                                  &&MOVE,       &&STORE,      &&STOREAT,    &&STOREG,       \
+                                  &&STOREU,     &&JUMP,       &&JUMPF,      &&SWITCH,       \
+                                  &&ADD,        &&SUB,        &&DIV,        &&MUL,          \
+                                  &&REM,        &&AND,        &&OR,         &&LT,           \
+                                  &&GT,         &&EQ,         &&LEQ,        &&GEQ,          \
+                                  &&NEQ,        &&EQQ,        &&NEQQ,       &&ISA,          \
+                                  &&MATCH,      &&NEG,        &&NOT,        &&LSHIFT,       \
+                                  &&RSHIFT,     &&BAND,       &&BOR,        &&BXOR,         \
+                                  &&BNOT,       &&MAPNEW,     &&LISTNEW,    &&RANGENEW,     \
+                                  &&SETLIST,    &&CLOSURE,    &&CLOSE,      &&CHECK,        \
+                                  &&RESERVED2,  &&RESERVED3,  &&RESERVED4,  &&RESERVED5,    \
+                                  &&RESERVED6                                                        };
 #define INTERPRET_LOOP              DISPATCH();
 #define CASE_CODE(name)             START_MICROBENCH(vm); name
 #if GRAVITY_VM_STATS
@@ -2222,7 +2222,7 @@ const char * gravity_disassemble(gravity_vm *vm, gravity_function_t *f, const ch
 //    ===       Identical (130)
 //    !==       Not identical (130)
 //    ~=        Pattern match (130)
-//    &&        Logical AND (120) (associativity left)
+//  &&        Logical AND (120) (associativity left)
 //    ||        Logical OR (110) (associativity left)
 //    ?:        Ternary conditional (100) (associativity right)
 //    =         Assign (90) (associativity right)
@@ -2757,7 +2757,7 @@ void    FASTCALL gnode_free(gnode_t * node);
 #define gnode_array_eachbase(r, block)      gtype_array_each(r, block, gnode_base_t*)
 #define cstring_array_free(r)               (r)->Z()
 #define cstring_array_push(r, s)            (r)->insert(s)
-#define cstring_array_each(r, block)        gtype_array_each(r, block, const char*)
+#define cstring_array_each(r, block)        gtype_array_each(r, block, const char *)
 //#define NODE_TOKEN_TYPE(_node)              _node->Token.type
 //#define NODE_TAG(_node)                     (_node)->Tag
 //#define NODE_ISA(_node, _tag)               ((_node) && (_node)->GetTag() == _tag)

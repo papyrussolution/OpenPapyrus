@@ -401,7 +401,7 @@ double calculatePerceivedLighness(COLORREF c)
 	return lighness;
 }
 
-COLORREF getBackgroundColor()         {
+COLORREF getBackgroundColor() {
 	return getTheme()._colors.background;
 }
 
@@ -421,11 +421,11 @@ COLORREF getErrorBackgroundColor()    {
 	return getTheme()._colors.errorBackground;
 }
 
-COLORREF getTextColor()               {
+COLORREF getTextColor() {
 	return getTheme()._colors.text;
 }
 
-COLORREF getDarkerTextColor()         {
+COLORREF getDarkerTextColor() {
 	return getTheme()._colors.darkerText;
 }
 
@@ -433,15 +433,15 @@ COLORREF getDisabledTextColor() {
 	return getTheme()._colors.disabledText;
 }
 
-COLORREF getLinkTextColor()           {
+COLORREF getLinkTextColor() {
 	return getTheme()._colors.linkText;
 }
 
-COLORREF getEdgeColor()               {
+COLORREF getEdgeColor() {
 	return getTheme()._colors.edge;
 }
 
-HBRUSH getBackgroundBrush()           {
+HBRUSH getBackgroundBrush() {
 	return getTheme()._brushes.background;
 }
 
@@ -449,7 +449,7 @@ HBRUSH getSofterBackgroundBrush()     {
 	return getTheme()._brushes.softerBackground;
 }
 
-HBRUSH getHotBackgroundBrush()        {
+HBRUSH getHotBackgroundBrush() {
 	return getTheme()._brushes.hotBackground;
 }
 
@@ -461,7 +461,7 @@ HBRUSH getErrorBackgroundBrush()      {
 	return getTheme()._brushes.errorBackground;
 }
 
-HPEN getDarkerTextPen()               {
+HPEN getDarkerTextPen() {
 	return getTheme()._pens.darkerTextPen;
 }
 

@@ -1111,7 +1111,7 @@ private:
 	void SetFont(SciFont &font_);
 	// Private so SurfaceD2D objects can not be copied
 	SurfaceD2D(const SurfaceD2D &);
-	SurfaceD2D &operator=(const SurfaceD2D &);
+	SurfaceD2D & operator = (const SurfaceD2D &);
 };
 
 SurfaceD2D::SurfaceD2D() : x(0), y(0), codePage(0), codePageText(0), pRenderTarget(NULL), unicodeMode(false), ownRenderTarget(false),

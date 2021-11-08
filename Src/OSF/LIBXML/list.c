@@ -30,7 +30,7 @@ struct xmlLink {
 struct xmlList {
 	xmlLink * sentinel;
 	void (* linkDeallocator)(xmlLink *);
-	int (* linkCompare)(const void *, const void*);
+	int (* linkCompare)(const void *, const void *);
 };
 //
 // Interfaces

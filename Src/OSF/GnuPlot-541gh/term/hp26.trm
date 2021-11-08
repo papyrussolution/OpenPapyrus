@@ -390,7 +390,7 @@ TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 	HP26_gnu_map[4 + 2] = BN_create(6, 256, LINE8); /* plot 4 */
 	HP26_gnu_map[5 + 2] = BN_create(7, 128, LINE9); /* plot 5 */
 	HP26_gnu_map[6 + 2] = BN_create(8, 128, LINE10); /* plot 6 */
-	HP26_gnu_map[7 + 2] = BN_create(9, 64, LINE6);  /* plot 7 */
+	HP26_gnu_map[7 + 2] = BN_create(9, 64, LINE6); /* plot 7 */
 	HP26_gnu_map[8 + 2] = BN_create(10, 64, LINE4); /* plot 8 */
 	HP26_gnu_map[9 + 2] = BN_create(11, 512, POINT); /* point plot */
 	HP26_buff = HP26_gnu_map[10];   /* set to an unlikely linetype */

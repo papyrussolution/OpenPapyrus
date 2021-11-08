@@ -412,8 +412,9 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				};
 				for(uint i = 0; i < SIZEOFARRAY(flags_to_cluster_item_list); i++) {
 					if(!(opPrnFlags & flags_to_cluster_item_list[i].Key))
-						clu->disableItem(i, flags_to_cluster_item_list[i].Val);
+						clu->disableItem(i+1, flags_to_cluster_item_list[i].Val); // @v11.2.2 @fix i-->i+1
 				}
+				clu->disableItem(10, 0); // @v11.2.2 Наряд на складскую сборку
 				/*
 				#define DELETE_CLUSTER_ITEM(c,i) (c)->disableItem(i, 1)
 				if(!(opPrnFlags & OPKF_PRT_LOTTAGIMG))

@@ -148,7 +148,7 @@ const EVP_PKEY_ASN1_METHOD * ENGINE_get_pkey_asn1_meth_str(ENGINE * e,
 	for(i = 0; i < nidcount; i++) {
 		e->pkey_asn1_meths(e, &ameth, NULL, nids[i]);
 		if(((int)strlen(ameth->pem_str) == len)
-		    && strncasecmp(ameth->pem_str, str, len) == 0)
+		  && strncasecmp(ameth->pem_str, str, len) == 0)
 			return ameth;
 	}
 	return NULL;
@@ -172,8 +172,8 @@ static void look_str_cb(int nid, STACK_OF(ENGINE) * sk, ENGINE * def, void * arg
 		EVP_PKEY_ASN1_METHOD * ameth;
 		e->pkey_asn1_meths(e, &ameth, NULL, nid);
 		if(ameth != NULL
-		    && ((int)strlen(ameth->pem_str) == lk->len)
-		    && strncasecmp(ameth->pem_str, lk->str, lk->len) == 0) {
+		  && ((int)strlen(ameth->pem_str) == lk->len)
+		  && strncasecmp(ameth->pem_str, lk->str, lk->len) == 0) {
 			lk->e = e;
 			lk->ameth = ameth;
 			return;

@@ -772,7 +772,7 @@ void xmlCleanupThreads()
 	xmlGenericError(0, "xmlCleanupThreads()\n");
 #endif
 #ifdef HAVE_PTHREAD_H
-	if((libxml_is_threaded)  && (pthread_key_delete != NULL))
+	if((libxml_is_threaded) && (pthread_key_delete != NULL))
 		pthread_key_delete(globalkey);
 	once_control = once_control_init;
 #elif defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && (!defined(LIBXML_STATIC) || defined(LIBXML_STATIC_FOR_DLL))

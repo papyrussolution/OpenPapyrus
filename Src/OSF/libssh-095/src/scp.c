@@ -139,7 +139,7 @@ int ssh_scp_init(ssh_scp scp)
 		return SSH_ERROR;
 	}
 
-	quoted_location = (char*)SAlloc::C(1, quoted_location_len);
+	quoted_location = (char *)SAlloc::C(1, quoted_location_len);
 	if(quoted_location == NULL) {
 		ssh_set_error(scp->session, SSH_FATAL,
 		    "Failed to allocate memory for quoted location");
@@ -312,7 +312,7 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	}
 
 	vis_encoded_len = (2 * strlen(dir)) + 1;
-	vis_encoded = (char*)SAlloc::C(1, vis_encoded_len);
+	vis_encoded = (char *)SAlloc::C(1, vis_encoded_len);
 	if(vis_encoded == NULL) {
 		ssh_set_error(scp->session, SSH_FATAL,
 		    "Failed to allocate buffer to vis encode directory name");
@@ -449,7 +449,7 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	}
 
 	vis_encoded_len = (2 * strlen(file)) + 1;
-	vis_encoded = (char*)SAlloc::C(1, vis_encoded_len);
+	vis_encoded = (char *)SAlloc::C(1, vis_encoded_len);
 	if(vis_encoded == NULL) {
 		ssh_set_error(scp->session, SSH_FATAL,
 		    "Failed to allocate buffer to vis encode file name");

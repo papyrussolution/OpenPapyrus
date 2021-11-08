@@ -46,7 +46,7 @@ typedef struct mi_option_desc_s {
 	long value;   // the value
 	mi_init_t init; // is it initialized yet? (from the environment)
 	mi_option_t option; // for debugging: the option index should match the option
-	const char* name; // option name without `mimalloc_` prefix
+	const char * name; // option name without `mimalloc_` prefix
 } mi_option_desc_t;
 
 #define MI_OPTION(opt)        mi_option_ ## opt, #opt
@@ -167,7 +167,7 @@ void mi_option_disable(mi_option_t option)
 	mi_option_set_enabled(option, false);
 }
 
-static void mi_out_stderr(const char* msg, void * arg) 
+static void mi_out_stderr(const char * msg, void * arg) 
 {
 	UNUSED(arg);
   #ifdef _WIN32
@@ -191,7 +191,7 @@ static void mi_out_stderr(const char* msg, void * arg)
 static char out_buf[MI_MAX_DELAY_OUTPUT+1];
 static _Atomic(uintptr_t) out_len;
 
-static void mi_out_buf(const char* msg, void * arg) 
+static void mi_out_buf(const char * msg, void * arg) 
 {
 	UNUSED(arg);
 	size_t n = sstrlen(msg);
@@ -227,7 +227,7 @@ static void mi_out_buf_flush(mi_output_fun* out, bool no_more_buf, void * arg)
 
 // Once this module is loaded, switch to this routine
 // which outputs to stderr and the delayed output buffer.
-static void mi_out_buf_stderr(const char* msg, void * arg) 
+static void mi_out_buf_stderr(const char * msg, void * arg) 
 {
 	mi_out_stderr(msg, arg);
 	mi_out_buf(msg, arg);
@@ -242,7 +242,7 @@ static void mi_out_buf_stderr(const char* msg, void * arg)
 static mi_output_fun* volatile mi_out_default; // = NULL
 static _Atomic(void *) mi_out_arg; // = NULL
 
-static mi_output_fun* mi_out_get_default(void** parg) {
+static mi_output_fun* mi_out_get_default(void ** parg) {
 	if(parg != NULL) {
 		*parg = mi_atomic_load_ptr_acquire(void, &mi_out_arg);
 	}
@@ -289,7 +289,7 @@ static void mi_recurse_exit(void) {
 	recurse = false;
 }
 
-void _mi_fputs(mi_output_fun* out, void * arg, const char* prefix, const char* message) {
+void _mi_fputs(mi_output_fun* out, void * arg, const char * prefix, const char * message) {
 	if(out==NULL || (FILE*)out==stdout || (FILE*)out==stderr) { // TODO: use mi_out_stderr for stderr?
 		if(!mi_recurse_enter()) return;
 		out = mi_out_get_default(&arg);
@@ -305,7 +305,7 @@ void _mi_fputs(mi_output_fun* out, void * arg, const char* prefix, const char* m
 
 // Define our own limited `fprintf` that avoids memory allocation.
 // We do this using `snprintf` with a limited buffer.
-static void mi_vfprintf(mi_output_fun* out, void * arg, const char* prefix, const char* fmt, va_list args) {
+static void mi_vfprintf(mi_output_fun* out, void * arg, const char * prefix, const char * fmt, va_list args) {
 	char buf[512];
 	if(fmt==NULL) return;
 	if(!mi_recurse_enter()) return;
@@ -314,14 +314,14 @@ static void mi_vfprintf(mi_output_fun* out, void * arg, const char* prefix, cons
 	_mi_fputs(out, arg, prefix, buf);
 }
 
-void _mi_fprintf(mi_output_fun* out, void * arg, const char* fmt, ...) {
+void _mi_fprintf(mi_output_fun* out, void * arg, const char * fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	mi_vfprintf(out, arg, NULL, fmt, args);
 	va_end(args);
 }
 
-void _mi_trace_message(const char* fmt, ...) {
+void _mi_trace_message(const char * fmt, ...) {
 	if(mi_option_get(mi_option_verbose) <= 1) return; // only with verbose level 2 or higher
 	va_list args;
 	va_start(args, fmt);
@@ -329,7 +329,7 @@ void _mi_trace_message(const char* fmt, ...) {
 	va_end(args);
 }
 
-void _mi_verbose_message(const char* fmt, ...) {
+void _mi_verbose_message(const char * fmt, ...) {
 	if(!mi_option_is_enabled(mi_option_verbose)) return;
 	va_list args;
 	va_start(args, fmt);
@@ -337,13 +337,13 @@ void _mi_verbose_message(const char* fmt, ...) {
 	va_end(args);
 }
 
-static void mi_show_error_message(const char* fmt, va_list args) {
+static void mi_show_error_message(const char * fmt, va_list args) {
 	if(!mi_option_is_enabled(mi_option_show_errors) && !mi_option_is_enabled(mi_option_verbose)) return;
 	if(mi_atomic_increment_acq_rel(&error_count) > mi_max_error_count) return;
 	mi_vfprintf(NULL, NULL, "mimalloc: error: ", fmt, args);
 }
 
-void _mi_warning_message(const char* fmt, ...) 
+void _mi_warning_message(const char * fmt, ...) 
 {
 	if(!mi_option_is_enabled(mi_option_show_errors) && !mi_option_is_enabled(mi_option_verbose)) return;
 	if(mi_atomic_increment_acq_rel(&warning_count) > mi_max_warning_count) return;
@@ -354,7 +354,7 @@ void _mi_warning_message(const char* fmt, ...)
 }
 
 #if MI_DEBUG
-	void _mi_assert_fail(const char* assertion, const char* fname, unsigned line, const char* func) 
+	void _mi_assert_fail(const char * assertion, const char * fname, unsigned line, const char * func) 
 	{
 		_mi_fprintf(NULL, NULL, "mimalloc: assertion failed: at \"%s\":%u, %s\n  assertion: \"%s\"\n",
 			fname, line, (func==NULL ? "" : func), assertion);
@@ -396,7 +396,7 @@ void mi_register_error(mi_error_fun* fun, void * arg) {
 	mi_atomic_store_ptr_release(void, &mi_error_arg, arg);
 }
 
-void _mi_error_message(int err, const char* fmt, ...) {
+void _mi_error_message(int err, const char * fmt, ...) {
 	// show detailed error message
 	va_list args;
 	va_start(args, fmt);
@@ -415,18 +415,18 @@ void _mi_error_message(int err, const char* fmt, ...) {
 // Initialize options by checking the environment
 // --------------------------------------------------------
 
-static void mi_strlcpy(char* dest, const char* src, size_t dest_size) {
+static void mi_strlcpy(char * dest, const char * src, size_t dest_size) {
 	dest[0] = 0;
 	strncpy(dest, src, dest_size - 1);
 	dest[dest_size - 1] = 0;
 }
 
-static void mi_strlcat(char* dest, const char* src, size_t dest_size) {
+static void mi_strlcat(char * dest, const char * src, size_t dest_size) {
 	strncat(dest, src, dest_size - 1);
 	dest[dest_size - 1] = 0;
 }
 
-static inline int mi_strnicmp(const char* s, const char* t, size_t n) {
+static inline int mi_strnicmp(const char * s, const char * t, size_t n) {
 	if(n==0) return 0;
 	for(; *s != 0 && *t != 0 && n > 0; s++, t++, n--) {
 		if(toupper(*s) != toupper(*t)) break;
@@ -440,7 +440,7 @@ static inline int mi_strnicmp(const char* s, const char* t, size_t n) {
 // i.e. when `_mi_preloading() == true`.
 // Note: on windows, environment names are not case sensitive.
 #include <windows.h>
-static bool mi_getenv(const char* name, char* result, size_t result_size) {
+static bool mi_getenv(const char * name, char * result, size_t result_size) {
 	result[0] = 0;
 	size_t len = GetEnvironmentVariableA(name, result, (DWORD)result_size);
 	return (len > 0 && len < result_size);
@@ -451,29 +451,29 @@ static bool mi_getenv(const char* name, char* result, size_t result_size) {
 // even before the C runtime is initialized.
 #if defined(__APPLE__) && defined(__has_include) && __has_include(<crt_externs.h>)
 #include <crt_externs.h>
-static char** mi_get_environ(void) 
+static char ** mi_get_environ(void) 
 {
 	return (*_NSGetEnviron());
 }
 
 #else
-extern char** environ;
+extern char ** environ;
 
-static char** mi_get_environ(void) 
+static char ** mi_get_environ(void) 
 {
 	return environ;
 }
 
 #endif
-static bool mi_getenv(const char* name, char* result, size_t result_size) {
+static bool mi_getenv(const char * name, char * result, size_t result_size) {
 	if(name==NULL) return false;
 	const size_t len = strlen(name);
 	if(len == 0) return false;
-	char** env = mi_get_environ();
+	char ** env = mi_get_environ();
 	if(env == NULL) return false;
 	// compare up to 256 entries
 	for(int i = 0; i < 256 && env[i] != NULL; i++) {
-		const char* s = env[i];
+		const char * s = env[i];
 		if(mi_strnicmp(name, s, len) == 0 && s[len] == '=') { // case insensitive
 			// found it
 			mi_strlcpy(result, s + len + 1, result_size);
@@ -485,10 +485,10 @@ static bool mi_getenv(const char* name, char* result, size_t result_size) {
 
 #else
 // fallback: use standard C `getenv` but this cannot be used while initializing the C runtime
-static bool mi_getenv(const char* name, char* result, size_t result_size) {
+static bool mi_getenv(const char * name, char * result, size_t result_size) {
 	// cannot call getenv() when still initializing the C runtime.
 	if(_mi_preloading()) return false;
-	const char* s = getenv(name);
+	const char * s = getenv(name);
 	if(s == NULL) {
 		// we check the upper case name too.
 		char buf[64+1];
@@ -535,7 +535,7 @@ static void mi_option_init(mi_option_desc_t* desc)
 			desc->init = INITIALIZED;
 		}
 		else {
-			char* end = buf;
+			char * end = buf;
 			long value = strtol(buf, &end, 10);
 			if(desc->option == mi_option_reserve_os_memory) {
 				// this option is interpreted in KiB to prevent overflow of `long`

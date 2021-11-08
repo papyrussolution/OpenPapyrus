@@ -209,7 +209,7 @@ int PPDrvSession::Log(const char * pMsg, long flags)
 	Cs_Log.Enter();
 	SString msg_buf;
 	if(flags & logfTime) {
-		msg_buf.Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS).Tab();
+		msg_buf.CatCurDateTime(DATF_DMY, TIMF_HMS).Tab();
 	}
 	if(flags & logfName) {
 		msg_buf.Cat(Name).Tab();

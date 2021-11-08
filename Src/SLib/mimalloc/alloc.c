@@ -463,7 +463,7 @@ static void mi_decl_noinline mi_free_generic(const mi_segment_t* segment, bool l
 // Get the segment data belonging to a pointer
 // This is just a single `and` in assembly but does further checks in debug mode
 // (and secure mode) if this was a valid pointer.
-static inline mi_segment_t* mi_checked_ptr_segment(const void * p, const char* msg)
+static inline mi_segment_t* mi_checked_ptr_segment(const void * p, const char * msg)
 {
 	UNUSED(msg);
 #if (MI_DEBUG>0)
@@ -546,7 +546,7 @@ bool _mi_free_delayed_block(mi_block_t* block)
 }
 
 // Bytes available in a block
-static size_t _mi_usable_size(const void * p, const char* msg) NOEXCEPT {
+static size_t _mi_usable_size(const void * p, const char * msg) NOEXCEPT {
 	const mi_segment_t* const segment = mi_checked_ptr_segment(p, msg);
 	if(segment==NULL) return 0;
 	const mi_page_t* const page = _mi_segment_page_of(segment, p);
@@ -727,31 +727,31 @@ void * mi_recalloc(void * p, size_t count, size_t size) NOEXCEPT
 // ------------------------------------------------------
 
 // `strdup` using mi_malloc
-mi_decl_restrict char* mi_heap_strdup(mi_heap_t* heap, const char* s) NOEXCEPT 
+mi_decl_restrict char * mi_heap_strdup(mi_heap_t* heap, const char * s) NOEXCEPT 
 {
 	if(s == NULL) 
 		return NULL;
 	size_t n = strlen(s);
-	char * t = (char*)mi_heap_malloc(heap, n+1);
+	char * t = (char *)mi_heap_malloc(heap, n+1);
 	if(t != NULL) 
 		_mi_memcpy(t, s, n + 1);
 	return t;
 }
 
-mi_decl_restrict char* mi_strdup(const char* s) NOEXCEPT 
+mi_decl_restrict char * mi_strdup(const char * s) NOEXCEPT 
 {
 	return mi_heap_strdup(mi_get_default_heap(), s);
 }
 
 // `strndup` using mi_malloc
-mi_decl_restrict char* mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n) NOEXCEPT 
+mi_decl_restrict char * mi_heap_strndup(mi_heap_t* heap, const char * s, size_t n) NOEXCEPT 
 {
 	if(s == NULL) 
 		return NULL;
-	const char* end = (const char*)memchr(s, 0, n); // find end of string in the first `n` characters (returns NULL if not found)
+	const char * end = (const char *)memchr(s, 0, n); // find end of string in the first `n` characters (returns NULL if not found)
 	const size_t m = (end != NULL ? (size_t)(end - s) : n); // `m` is the minimum of `n` or the end-of-string
 	mi_assert_internal(m <= n);
-	char * t = (char*)mi_heap_malloc(heap, m+1);
+	char * t = (char *)mi_heap_malloc(heap, m+1);
 	if(t == NULL) 
 		return NULL;
 	_mi_memcpy(t, s, m);
@@ -759,7 +759,7 @@ mi_decl_restrict char* mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n)
 	return t;
 }
 
-mi_decl_restrict char* mi_strndup(const char* s, size_t n) NOEXCEPT 
+mi_decl_restrict char * mi_strndup(const char * s, size_t n) NOEXCEPT 
 {
 	return mi_heap_strndup(mi_get_default_heap(), s, n);
 }
@@ -771,7 +771,7 @@ mi_decl_restrict char* mi_strndup(const char* s, size_t n) NOEXCEPT
 	#define PATH_MAX MAX_PATH
 #endif
 // @sobolev #include <windows.h>
-mi_decl_restrict char* mi_heap_realpath(mi_heap_t* heap, const char* fname, char* resolved_name) NOEXCEPT 
+mi_decl_restrict char * mi_heap_realpath(mi_heap_t* heap, const char * fname, char * resolved_name) NOEXCEPT 
 {
 	// todo: use GetFullPathNameW to allow longer file names
 	char buf[PATH_MAX];
@@ -804,24 +804,24 @@ static size_t mi_path_max()
 	return path_max;
 }
 
-char* mi_heap_realpath(mi_heap_t* heap, const char* fname, char* resolved_name) NOEXCEPT 
+char * mi_heap_realpath(mi_heap_t* heap, const char * fname, char * resolved_name) NOEXCEPT 
 {
 	if(resolved_name != NULL) {
 		return realpath(fname, resolved_name);
 	}
 	else {
 		size_t n  = mi_path_max();
-		char* buf = (char*)mi_malloc(n+1);
+		char * buf = (char *)mi_malloc(n+1);
 		if(buf==NULL) return NULL;
-		char* rname  = realpath(fname, buf);
-		char* result = mi_heap_strndup(heap, rname, n); // ok if `rname==NULL`
+		char * rname  = realpath(fname, buf);
+		char * result = mi_heap_strndup(heap, rname, n); // ok if `rname==NULL`
 		mi_free(buf);
 		return result;
 	}
 }
 #endif
 
-mi_decl_restrict char* mi_realpath(const char* fname, char* resolved_name) NOEXCEPT 
+mi_decl_restrict char * mi_realpath(const char * fname, char * resolved_name) NOEXCEPT 
 {
 	return mi_heap_realpath(mi_get_default_heap(), fname, resolved_name);
 }

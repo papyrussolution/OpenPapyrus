@@ -1283,7 +1283,7 @@ static int __ham_dup_return(DBC*dbc, DBT * val, uint32 flags)
 	 * Now, everything is initialized, grab a duplicate if
 	 * necessary.
 	 */
-	if(F_ISSET(hcp, H_ISDUP)) {     /* Case 3 */
+	if(F_ISSET(hcp, H_ISDUP)) { /* Case 3 */
 		/*
 		 * Copy the DBT in case we are retrieving into user
 		 * memory and we need the parameters for it.  If the

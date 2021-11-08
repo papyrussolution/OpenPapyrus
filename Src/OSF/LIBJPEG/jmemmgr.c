@@ -35,7 +35,7 @@
 #include "jmemsys.h"            /* import the system-dependent declarations */
 #ifndef NO_GETENV
 	#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare getenv() */
-		extern char * getenv(const char* name);
+		extern char * getenv(const char * name);
 	#endif
 #endif
 /*
@@ -237,14 +237,14 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	size_t odd_bytes, min_request, slop;
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(small_pool_hdr)))
-		out_of_memory(cinfo, 1);  /* request exceeds SAlloc::M's ability */
+		out_of_memory(cinfo, 1); /* request exceeds SAlloc::M's ability */
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
 	if(odd_bytes > 0)
 		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
 	/* See if space is available in any existing pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
-		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
+		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	prev_hdr_ptr = NULL;
 	hdr_ptr = mem->small_list[pool_id];
 	while(hdr_ptr) {
@@ -271,7 +271,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 				break;
 			slop /= 2;
 			if(slop < MIN_SLOP) /* give up when it gets real small */
-				out_of_memory(cinfo, 2);  /* jpeg_get_small failed */
+				out_of_memory(cinfo, 2); /* jpeg_get_small failed */
 		}
 		mem->total_space_allocated += min_request + slop;
 		/* Success, initialize the new pool header and add to end of list */
@@ -311,17 +311,17 @@ METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeof
 	size_t odd_bytes;
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)))
-		out_of_memory(cinfo, 3);  /* request exceeds SAlloc::M's ability */
+		out_of_memory(cinfo, 3); /* request exceeds SAlloc::M's ability */
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
 	if(odd_bytes > 0)
 		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
 	/* Always make a new pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
-		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
+		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	hdr_ptr = (large_pool_ptr)jpeg_get_large(cinfo, sizeofobject + SIZEOF(large_pool_hdr));
 	if(hdr_ptr == NULL)
-		out_of_memory(cinfo, 4);  /* jpeg_get_large failed */
+		out_of_memory(cinfo, 4); /* jpeg_get_large failed */
 	mem->total_space_allocated += sizeofobject + SIZEOF(large_pool_hdr);
 
 	/* Success, initialize the new pool header and add to list */
@@ -456,7 +456,7 @@ METHODDEF(jvirt_sarray_ptr) request_virt_sarray(j_common_ptr cinfo, int pool_id,
 	jvirt_sarray_ptr result;
 	/* Only IMAGE-lifetime virtual arrays are currently supported */
 	if(pool_id != JPOOL_IMAGE)
-		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
+		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	/* get control block */
 	result = (jvirt_sarray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_sarray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
@@ -478,7 +478,7 @@ METHODDEF(jvirt_barray_ptr) request_virt_barray(j_common_ptr cinfo, int pool_id,
 	jvirt_barray_ptr result;
 	/* Only IMAGE-lifetime virtual arrays are currently supported */
 	if(pool_id != JPOOL_IMAGE)
-		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
+		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	/* get control block */
 	result = (jvirt_barray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_barray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
@@ -802,10 +802,10 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	large_pool_ptr lhdr_ptr;
 	size_t space_freed;
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
-		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
+		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 #ifdef MEM_STATS
 	if(cinfo->err->trace_level > 1)
-		print_mem_stats(cinfo, pool_id);  /* print pool's memory usage statistics */
+		print_mem_stats(cinfo, pool_id); /* print pool's memory usage statistics */
 #endif
 
 	/* If freeing IMAGE pool, close any virtual arrays first */

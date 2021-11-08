@@ -1098,7 +1098,7 @@ char * curl_maprintf(const char * format, ...)
 
 static int storebuffer(int output, FILE * data)
 {
-	char ** buffer = (char**)data;
+	char ** buffer = (char **)data;
 	uchar outc = (uchar)output;
 	**buffer = outc;
 	(*buffer)++;

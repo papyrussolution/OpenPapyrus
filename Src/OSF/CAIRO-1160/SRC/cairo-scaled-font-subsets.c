@@ -310,7 +310,7 @@ int FASTCALL _cairo_unicode_to_winansi(ulong uni)
 }
 
 static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t * scaled_font, ulong scaled_font_glyph_index,
-    uint32 * unicode_out, char     ** utf8_out, int * utf8_len_out)
+    uint32 * unicode_out, char  ** utf8_out, int * utf8_len_out)
 {
 	char buf[8];
 	int len;

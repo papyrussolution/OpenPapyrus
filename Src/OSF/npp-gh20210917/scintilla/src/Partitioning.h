@@ -24,8 +24,8 @@ public:
 	// Deleted so SplitVectorWithRangeAdd objects can not be copied.
 	SplitVectorWithRangeAdd(const SplitVectorWithRangeAdd &) = delete;
 	SplitVectorWithRangeAdd(SplitVectorWithRangeAdd &&) = delete;
-	void operator=(const SplitVectorWithRangeAdd &) = delete;
-	void operator=(SplitVectorWithRangeAdd &&) = delete;
+	void operator = (const SplitVectorWithRangeAdd &) = delete;
+	void operator = (SplitVectorWithRangeAdd &&) = delete;
 	~SplitVectorWithRangeAdd() {
 	}
 	void RangeAddDelta(ptrdiff_t start, ptrdiff_t end, T delta) noexcept {
@@ -100,8 +100,8 @@ public:
 	// Deleted so Partitioning objects can not be copied.
 	Partitioning(const Partitioning &) = delete;
 	Partitioning(Partitioning &&) = delete;
-	void operator=(const Partitioning &) = delete;
-	void operator=(Partitioning &&) = delete;
+	void operator = (const Partitioning &) = delete;
+	void operator = (Partitioning &&) = delete;
 
 	~Partitioning() {
 	}

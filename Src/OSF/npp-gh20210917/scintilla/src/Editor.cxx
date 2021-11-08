@@ -62,9 +62,9 @@ constexpr bool CanEliminate(const DocModification &mh) noexcept {
 constexpr bool IsLastStep(const DocModification &mh) noexcept {
 	return
 	    (mh.modificationType & (SC_PERFORMED_UNDO | SC_PERFORMED_REDO)) != 0
-	    && (mh.modificationType & SC_MULTISTEPUNDOREDO) != 0
-	    && (mh.modificationType & SC_LASTSTEPINUNDOREDO) != 0
-	    && (mh.modificationType & SC_MULTILINEUNDOREDO) != 0;
+	  && (mh.modificationType & SC_MULTISTEPUNDOREDO) != 0
+	  && (mh.modificationType & SC_LASTSTEPINUNDOREDO) != 0
+	  && (mh.modificationType & SC_MULTILINEUNDOREDO) != 0;
 }
 
 }

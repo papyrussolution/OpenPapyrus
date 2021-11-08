@@ -244,7 +244,7 @@ bool TiXmlString::operator ==(const TiXmlString & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( lstrcmp(cstring, compare.cstring) == 0 );
+		return ( lstrcmp(cstring, compare.cstring) == 0);
 	}
 	return false;
 }
@@ -254,7 +254,7 @@ bool TiXmlString::operator <(const TiXmlString & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( lstrcmp(cstring, compare.cstring) > 0 );
+		return ( lstrcmp(cstring, compare.cstring) > 0);
 	}
 	return false;
 }
@@ -264,7 +264,7 @@ bool TiXmlString::operator >(const TiXmlString & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( lstrcmp(cstring, compare.cstring) < 0 );
+		return ( lstrcmp(cstring, compare.cstring) < 0);
 	}
 	return false;
 }

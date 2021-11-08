@@ -762,7 +762,7 @@ static cmsBool  IsProperColorSpace(cmsColorSpaceSignature Check, cmsUInt32Number
 	if(Space1 == PT_ANY) return TRUE;
 	if(Space1 == Space2) return TRUE;
 	if(Space1 == PT_LabV2 && Space2 == PT_Lab) return TRUE;
-	if(Space1 == PT_Lab   && Space2 == PT_LabV2) return TRUE;
+	if(Space1 == PT_Lab && Space2 == PT_LabV2) return TRUE;
 	return FALSE;
 }
 

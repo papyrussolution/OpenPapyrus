@@ -231,7 +231,7 @@ static void FoldAsyDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 			if(lineCurrent==0 && IsASYDrawingLine(lineCurrent + 1, styler))
 				levelNext++;
 			else if(lineCurrent!=0 && !IsASYDrawingLine(lineCurrent - 1, styler)
-			    && IsASYDrawingLine(lineCurrent + 1, styler)
+			  && IsASYDrawingLine(lineCurrent + 1, styler)
 			    )
 				levelNext++;
 			else if(lineCurrent!=0 && IsASYDrawingLine(lineCurrent - 1, styler) &&

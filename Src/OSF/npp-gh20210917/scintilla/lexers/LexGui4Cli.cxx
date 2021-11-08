@@ -157,7 +157,7 @@ static void ColouriseGui4CliDoc(Sci_PositionU startPos, Sci_Position length, int
 			    if(sc.state == SCE_GC_COMMENTBLOCK || sc.state == SCE_GC_COMMENTLINE)
 				    break;
 			    if(sc.state == SCE_GC_STRING) {
-				    if(sc.ch == quotestart)                                {// match same quote char..
+				    if(sc.ch == quotestart) {// match same quote char..
 					    styler.ColourTo(sc.currentPos, sc.state);
 					    sc.ChangeState(SCE_GC_DEFAULT);
 					    quotestart = 0;

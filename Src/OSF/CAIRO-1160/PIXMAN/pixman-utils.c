@@ -63,7 +63,7 @@ static force_inline uint16 float_to_unorm(float f, int n_bits)
 		f = 0.0f;
 	u = static_cast<uint32>(f * (1 << n_bits));
 	u -= (u >> n_bits);
-	return u;
+	return static_cast<uint16>(u);
 }
 
 static force_inline float unorm_to_float(uint16 u, int n_bits)
@@ -177,34 +177,31 @@ void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_
 
 pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman_region32_t * src)
 {
-	int n_boxes, i;
-	pixman_box32_t * boxes32;
-	pixman_box16_t * boxes16;
-	pixman_bool_t retval;
-	boxes32 = pixman_region32_rectangles(src, &n_boxes);
-	boxes16 = static_cast<pixman_box16_t *>(pixman_malloc_ab(n_boxes, sizeof(pixman_box16_t)));
-	if(!boxes16)
-		return FALSE;
-	for(i = 0; i < n_boxes; ++i) {
-		boxes16[i].x1 = boxes32[i].x1;
-		boxes16[i].y1 = boxes32[i].y1;
-		boxes16[i].x2 = boxes32[i].x2;
-		boxes16[i].y2 = boxes32[i].y2;
+	int n_boxes;
+	pixman_bool_t retval = FALSE;
+	const pixman_box32_t * boxes32 = pixman_region32_rectangles(src, &n_boxes);
+	pixman_box16_t * boxes16 = static_cast<pixman_box16_t *>(pixman_malloc_ab(n_boxes, sizeof(pixman_box16_t)));
+	if(boxes16) {
+		for(int i = 0; i < n_boxes; ++i) {
+			boxes16[i].x1 = static_cast<int16>(boxes32[i].x1);
+			boxes16[i].y1 = static_cast<int16>(boxes32[i].y1);
+			boxes16[i].x2 = static_cast<int16>(boxes32[i].x2);
+			boxes16[i].y2 = static_cast<int16>(boxes32[i].y2);
+		}
+		pixman_region_fini(dst);
+		retval = pixman_region_init_rects(dst, boxes16, n_boxes);
+		SAlloc::F(boxes16);
 	}
-	pixman_region_fini(dst);
-	retval = pixman_region_init_rects(dst, boxes16, n_boxes);
-	SAlloc::F(boxes16);
 	return retval;
 }
 
 pixman_bool_t pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src)
 {
 	int n_boxes, i;
-	pixman_box16_t * boxes16;
 	pixman_box32_t * boxes32;
 	pixman_box32_t tmp_boxes[N_TMP_BOXES];
 	pixman_bool_t retval;
-	boxes16 = pixman_region_rectangles(src, &n_boxes);
+	pixman_box16_t * boxes16 = pixman_region_rectangles(src, &n_boxes);
 	if(n_boxes > N_TMP_BOXES)
 		boxes32 = (pixman_box32_t *)pixman_malloc_ab(n_boxes, sizeof(pixman_box32_t));
 	else

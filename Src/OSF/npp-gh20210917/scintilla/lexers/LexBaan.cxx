@@ -339,7 +339,7 @@ static bool IsInnerLevelFold(Sci_Position line, LexAccessor &styler) {
 	return false;
 }
 
-static inline bool wordInArray(const std::string& value, std::string * array, int length)
+static inline bool wordInArray(const std::string & value, std::string * array, int length)
 {
 	for(int i = 0; i < length; i++) {
 		if(value == array[i]) {
@@ -773,20 +773,20 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 		}
 		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			    && IsCommentLine(lineCurrent + 1, styler))
+			  && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			    && !IsCommentLine(lineCurrent + 1, styler))
+			  && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		// PreProcessor Folding
 		if(options.foldPreprocessor) {
 			if(atEOL && IsPreProcLine(lineCurrent, styler)) {
 				if(!IsPreProcLine(lineCurrent - 1, styler)
-				    && IsPreProcLine(lineCurrent + 1, styler))
+				  && IsPreProcLine(lineCurrent + 1, styler))
 					levelCurrent++;
 				else if(IsPreProcLine(lineCurrent - 1, styler)
-				    && !IsPreProcLine(lineCurrent + 1, styler))
+				  && !IsPreProcLine(lineCurrent + 1, styler))
 					levelCurrent--;
 			}
 			else if(style == SCE_BAAN_PREPROCESSOR) {
@@ -813,10 +813,10 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 		if(options.baanFoldKeywordsBased) {
 			if(atEOL && IsDeclarationLine(lineCurrent, styler)) {
 				if(!IsDeclarationLine(lineCurrent - 1, styler)
-				    && IsDeclarationLine(lineCurrent + 1, styler))
+				  && IsDeclarationLine(lineCurrent + 1, styler))
 					levelCurrent++;
 				else if(IsDeclarationLine(lineCurrent - 1, styler)
-				    && !IsDeclarationLine(lineCurrent + 1, styler))
+				  && !IsDeclarationLine(lineCurrent + 1, styler))
 					levelCurrent--;
 			}
 			else if(style == SCE_BAAN_WORD) {
@@ -926,7 +926,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 					levelCurrent++;
 			}
 			else if(nextLineStyle != 0 && currLineStyle != nextLineStyle
-			    && (priorSectionIsSubSection(lineCurrent -1, styler)
+			  && (priorSectionIsSubSection(lineCurrent -1, styler)
 			    || !nextSectionIsSubSection(lineCurrent + 1, styler))) {
 				for(Sci_Position j = styler.LineStart(lineCurrent + 1); j < styler.LineStart(lineCurrent + 1 + 1) - 1;
 				    j++) {

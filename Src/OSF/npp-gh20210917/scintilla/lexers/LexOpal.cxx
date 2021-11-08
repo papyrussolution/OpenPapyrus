@@ -16,8 +16,8 @@ using namespace Scintilla;
 inline static void getRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
-	while( ( i < end - start + 1 ) && ( i < len - 1 ) ) {
-		s[i] = static_cast<char>( styler[ start + i ] );
+	while((i < end - start + 1) && (i < len - 1 ) ) {
+		s[i] = static_cast<char>( styler[ start + i ]);
 		i++;
 	}
 	s[ i ] = '\0';
@@ -37,7 +37,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if( ( ch == '\015' ) || ( ch == '\012' ) ) { // Deny multi-line strings
+		if(( ch == '\015' ) || ( ch == '\012' ) ) { // Deny multi-line strings
 			styler.ColourTo(cur - 1, SCE_OPAL_STRING);
 			styler.StartSegment(cur);
 			return true;
@@ -145,7 +145,7 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if( ( ch != ' ' ) && ( ch != '\t' ) ) {
+		if(( ch != ' ') && (ch != '\t' ) ) {
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			styler.StartSegment(cur);
 			return true;
@@ -245,7 +245,7 @@ inline bool HandleInteger(Sci_PositionU & cur, Sci_PositionU one_too_much, Acces
 		}
 
 		ch = styler.SafeGetCharAt(cur);
-		if(!( IsASCII(ch) && isdigit(ch) ) ) {
+		if(!(IsASCII(ch) && isdigit(ch) ) ) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
 			styler.StartSegment(cur);
 			return true;
@@ -261,8 +261,8 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	cur++;
 	for(;;) {
 		ch = styler.SafeGetCharAt(cur);
-		if( ( ch != '_' ) && ( ch != '-' ) &&
-		    !( IsASCII(ch) && ( islower(ch) || isupper(ch) || isdigit(ch) ) ) ) break;
+		if(( ch != '_') && (ch != '-' ) &&
+		    !(IsASCII(ch) && ( islower(ch) || isupper(ch) || isdigit(ch) ) ) ) break;
 
 		cur++;
 		if(cur >= one_too_much) {

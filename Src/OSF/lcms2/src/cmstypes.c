@@ -577,7 +577,7 @@ static void Type_Signature_Free(struct _cms_typehandler_struct* self, void * Ptr
 
 static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number SizeOfTag)
 {
-	char* Text = NULL;
+	char * Text = NULL;
 	// Create a container
 	cmsMLU* mlu = cmsMLUalloc(self->ContextID, 1);
 	if(mlu == NULL) return NULL;
@@ -614,7 +614,7 @@ static cmsBool Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	cmsUInt32Number size;
 	cmsBool rc;
-	char* Text;
+	char * Text;
 
 	// Get the size of the string. Note there is an extra "\0" at the end
 	size = cmsMLUgetASCII(mlu, cmsNoLanguage, cmsNoCountry, NULL, 0);
@@ -717,7 +717,7 @@ static void Type_Data_Free(struct _cms_typehandler_struct* self, void * Ptr)
 static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems,
     cmsUInt32Number SizeOfTag)
 {
-	char* Text = NULL;
+	char * Text = NULL;
 	cmsMLU* mlu = NULL;
 	cmsUInt32Number AsciiCount;
 	cmsUInt32Number i, UnicodeCode, UnicodeCount;
@@ -3136,7 +3136,7 @@ void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, c
 {
 	cmsUcrBg* n = (cmsUcrBg*)_cmsMallocZero(self->ContextID, sizeof(cmsUcrBg));
 	cmsUInt32Number CountUcr, CountBg;
-	char* ASCIIString;
+	char * ASCIIString;
 
 	*nItems = 0;
 	if(n == NULL) return NULL;
@@ -3184,7 +3184,7 @@ cmsBool  Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 {
 	cmsUcrBg* Value = (cmsUcrBg*)Ptr;
 	cmsUInt32Number TextSize;
-	char* Text;
+	char * Text;
 
 	// First curve is Under color removal
 	if(!_cmsWriteUInt32Number(io, Value->Ucr->nEntries)) return FALSE;
@@ -3259,10 +3259,10 @@ cmsBool  ReadCountAndSting(struct _cms_typehandler_struct* self,
     cmsIOHANDLER* io,
     cmsMLU* mlu,
     cmsUInt32Number* SizeOfTag,
-    const char* Section)
+    const char * Section)
 {
 	cmsUInt32Number Count;
-	char* Text;
+	char * Text;
 	if(*SizeOfTag < sizeof(cmsUInt32Number)) return FALSE;
 	if(!_cmsReadUInt32Number(io, &Count)) return FALSE;
 	if(Count > UINT_MAX - sizeof(cmsUInt32Number)) return FALSE;
@@ -3280,10 +3280,10 @@ cmsBool  ReadCountAndSting(struct _cms_typehandler_struct* self,
 	return TRUE;
 }
 
-static cmsBool  WriteCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, const char* Section)
+static cmsBool  WriteCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, const char * Section)
 {
 	cmsUInt32Number TextSize = cmsMLUgetASCII(mlu, "PS", Section, NULL, 0);
-	char* Text     = (char *)_cmsMalloc(self->ContextID, TextSize);
+	char * Text     = (char *)_cmsMalloc(self->ContextID, TextSize);
 	if(!_cmsWriteUInt32Number(io, TextSize)) return FALSE;
 	if(cmsMLUgetASCII(mlu, "PS", Section, Text, TextSize) == 0) return FALSE;
 	if(!io->Write(io, TextSize, Text)) return FALSE;

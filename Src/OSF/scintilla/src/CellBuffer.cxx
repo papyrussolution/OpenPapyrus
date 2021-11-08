@@ -414,7 +414,7 @@ int Document::CellBuffer::GapPosition() const
 	return substance.GapPosition();
 }
 
-// The char* returned is to an allocation owned by the undo history
+// The char * returned is to an allocation owned by the undo history
 const char * Document::CellBuffer::InsertString(int position, const char * s, int insertLength, bool &startSequence)
 {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur
@@ -457,7 +457,7 @@ bool Document::CellBuffer::SetStyleFor(int position, int lengthStyle, char style
 	return changed;
 }
 
-// The char* returned is to an allocation owned by the undo history
+// The char * returned is to an allocation owned by the undo history
 const char * Document::CellBuffer::DeleteChars(int position, int deleteLength, bool &startSequence)
 {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur

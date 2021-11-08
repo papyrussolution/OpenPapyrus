@@ -291,7 +291,7 @@ static int internal_find(OPENSSL_STACK * st, const void * data,
 	r = OBJ_bsearch_ex_(&data, st->data, st->num, sizeof(void *), st->comp,
 		ret_val_options);
 
-	return r == NULL ? -1 : (int)((const void**)r - st->data);
+	return r == NULL ? -1 : (int)((const void **)r - st->data);
 }
 
 int OPENSSL_sk_find(OPENSSL_STACK * st, const void * data)

@@ -718,7 +718,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 		jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, segment->number, "text region has SBDSOFFSET %d", params.SBDSOFFSET);
 	}
 
-	if(params.SBHUFF) {     /* Huffman coding */
+	if(params.SBHUFF) { /* Huffman coding */
 		/* 7.4.3.1.2 */
 		if(segment->data_length - offset < 2) {
 			code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");

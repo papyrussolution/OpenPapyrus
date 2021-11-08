@@ -865,7 +865,7 @@ ZIP_EXTERN void zip_source_rollback_write(zip_source_t * src)
 	}
 }
 
-int64 zip_source_supports(zip_source_t * src)
+int64 zip_source_supports(const zip_source_t * src)
 {
 	return src->supports;
 }
@@ -3076,7 +3076,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 	zip_encoding_type_t com_enc = _zip_guess_encoding(de->comment, ZIP_ENCODING_UNKNOWN);
 	if((name_enc == ZIP_ENCODING_UTF8_KNOWN && com_enc == ZIP_ENCODING_ASCII) ||
 	    (name_enc == ZIP_ENCODING_ASCII && com_enc == ZIP_ENCODING_UTF8_KNOWN) ||
-	    (name_enc == ZIP_ENCODING_UTF8_KNOWN  && com_enc == ZIP_ENCODING_UTF8_KNOWN))
+	    (name_enc == ZIP_ENCODING_UTF8_KNOWN && com_enc == ZIP_ENCODING_UTF8_KNOWN))
 		de->bitflags |= ZIP_GPBF_ENCODING_UTF_8;
 	else {
 		de->bitflags &= (uint16) ~ZIP_GPBF_ENCODING_UTF_8;

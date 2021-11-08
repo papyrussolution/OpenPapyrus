@@ -1572,7 +1572,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
 		    /* RGB_TO_GRAY needs to have non-gamma-corrected values! */
-		    && ((png_ptr->transformations & PNG_EXPAND) == 0 || (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
+		  && ((png_ptr->transformations & PNG_EXPAND) == 0 || (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
 #endif
 		    ) {
 			png_colorp palette = png_ptr->palette;
@@ -4199,7 +4199,7 @@ void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_inf
 			    /*  uint8 bit_depth;      bit depth of samples */
 			    /*  uint8 channels;       number of channels (1-4) */
 			    /*  uint8 pixel_depth;    bits per pixel (depth*channels) */
-			    png_ptr->row_buf + 1);  /* start of pixel data for row */
+			    png_ptr->row_buf + 1); /* start of pixel data for row */
 #ifdef PNG_USER_TRANSFORM_PTR_SUPPORTED
 		if(png_ptr->user_transform_depth != 0)
 			row_info->bit_depth = png_ptr->user_transform_depth;

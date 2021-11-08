@@ -461,7 +461,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 
 		pre_comp = group->pre_comp.ec;
 		if(pre_comp && pre_comp->numblocks
-		    && (EC_POINT_cmp(group, generator, pre_comp->points[0], ctx) ==
+		  && (EC_POINT_cmp(group, generator, pre_comp->points[0], ctx) ==
 		    0)) {
 			blocksize = pre_comp->blocksize;
 

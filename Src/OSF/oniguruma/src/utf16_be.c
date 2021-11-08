@@ -8,7 +8,7 @@ static int init(void)
 {
 #ifdef USE_CALLOUT
 	int id;
-	char* name;
+	char * name;
 	uint args[4];
 	OnigValue opts[4];
 	OnigEncoding enc = ONIG_ENCODING_UTF16_BE;

@@ -238,9 +238,9 @@ int ssh_connector_remove_event(ssh_connector connector);
 /** Free memory space */
 #define SAFE_FREE(x) do { if((x) != NULL) { SAlloc::F(x); x = NULL;} } while(0)
 
-#define ZERO_STRUCT(x) memzero((char*)&(x), sizeof(x)) /** Zero a structure */
+#define ZERO_STRUCT(x) memzero((char *)&(x), sizeof(x)) /** Zero a structure */
 /** Zero a structure given a pointer to the structure */
-#define ZERO_STRUCTP(x) do { if((x) != NULL) memzero((char*)(x), sizeof(*(x))); } while(0)
+#define ZERO_STRUCTP(x) do { if((x) != NULL) memzero((char *)(x), sizeof(*(x))); } while(0)
 //#define ARRAY_SIZE_Removed(a) (sizeof(a)/sizeof(a[0])) /** Get the size of an array */
 #ifndef HAVE_EXPLICIT_BZERO
 void memzero(void * s, size_t n);
@@ -388,7 +388,7 @@ bool is_ssh_initialized();
 	int ssh_list_append(struct ssh_list * list, const void * data);
 	int ssh_list_prepend(struct ssh_list * list, const void * data);
 	void ssh_list_remove(struct ssh_list * list, struct ssh_iterator * iterator);
-	char * ssh_lowercase(const char* str);
+	char * ssh_lowercase(const char * str);
 	char * ssh_hostport(const char * host, int port);
 	const void * _ssh_list_pop_head(struct ssh_list * list);
 

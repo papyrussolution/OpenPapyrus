@@ -538,14 +538,14 @@ static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initS
 		atEOL = ((ch == '\r') && (chNext != '\n')) || (ch == '\n');
 
 		if(stylePrev != SCE_ERLANG_KEYWORD
-		    && style == SCE_ERLANG_KEYWORD) {
+		  && style == SCE_ERLANG_KEYWORD) {
 			keyword_start = i;
 		}
 
 		// Fold on keywords
 		if(stylePrev == SCE_ERLANG_KEYWORD
-		    && style != SCE_ERLANG_KEYWORD
-		    && style != SCE_ERLANG_ATOM
+		  && style != SCE_ERLANG_KEYWORD
+		  && style != SCE_ERLANG_ATOM
 		    ) {
 			currentLevel += ClassifyErlangFoldPoint(styler,
 			    styleNext,

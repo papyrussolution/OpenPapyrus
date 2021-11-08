@@ -273,7 +273,7 @@ int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) ** x, int nid, void * value,
 
 	ret = *x;
 	if(*x == NULL
-	    && (ret = sk_X509_EXTENSION_new_null()) == NULL)
+	  && (ret = sk_X509_EXTENSION_new_null()) == NULL)
 		goto m_fail;
 	if(!sk_X509_EXTENSION_push(ret, ext))
 		goto m_fail;

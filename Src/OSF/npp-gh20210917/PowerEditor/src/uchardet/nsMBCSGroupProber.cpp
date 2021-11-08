@@ -84,7 +84,7 @@ nsMBCSGroupProber::~nsMBCSGroupProber()
 	}
 }
 
-const char* nsMBCSGroupProber::GetCharSetName()
+const char * nsMBCSGroupProber::GetCharSetName()
 {
 	if(mBestGuess == -1) {
 		GetConfidence();
@@ -111,7 +111,7 @@ void nsMBCSGroupProber::Reset(void)
 	mKeepNext = 0;
 }
 
-nsProbingState nsMBCSGroupProber::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsMBCSGroupProber::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	nsProbingState st;
 	PRUint32 start = 0;

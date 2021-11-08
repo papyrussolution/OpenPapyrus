@@ -2295,7 +2295,7 @@ void Notepad_plus::findMatchingBracePos(int & braceAtCaret, int & braceOpposite)
 	if(charBefore && generic_strchr(TEXT("[](){}"), charBefore)) {
 		braceAtCaret = caretPos - 1;
 	}
-	if(lengthDoc > 0  && (braceAtCaret < 0)) {
+	if(lengthDoc > 0 && (braceAtCaret < 0)) {
 		// No brace found so check other side
 		TCHAR charAfter = TCHAR(_pEditView->execute(SCI_GETCHARAT, caretPos, 0));
 		if(charAfter && generic_strchr(TEXT("[](){}"), charAfter)) {
@@ -5674,8 +5674,8 @@ generic_string Notepad_plus::getLangFromMenu(const Buffer * buf)
 	const int nbChar = 32;
 	TCHAR menuLangName[nbChar];
 
-	id = (NppParameters::getInstance()).langTypeToCommandID(buf->getLangType() );
-	if( ( id != IDM_LANG_USER ) || !( buf->isUserDefineLangExt() ) ) {
+	id = (NppParameters::getInstance()).langTypeToCommandID(buf->getLangType());
+	if(( id != IDM_LANG_USER ) || !(buf->isUserDefineLangExt() ) ) {
 		::GetMenuString(_mainMenuHandle, id, menuLangName, nbChar-1, MF_BYCOMMAND);
 		userLangName = menuLangName;
 	}
@@ -7216,8 +7216,8 @@ bool Notepad_plus::undoStreamComment(bool tryBlockComment)
 
 		//-- First, check if there is a stream-comment around the selectionStart position:
 		if((blnStartCommentBefore[iSelStart] && blnEndCommentAfter[iSelStart])
-		    && (!blnEndCommentBefore[iSelStart] || (posStartCommentBefore[iSelStart] >= posEndCommentBefore[iSelStart]))
-		    && (!blnStartCommentAfter[iSelStart] || (posEndCommentAfter[iSelStart] <= posStartCommentAfter[iSelStart]))) {
+		  && (!blnEndCommentBefore[iSelStart] || (posStartCommentBefore[iSelStart] >= posEndCommentBefore[iSelStart]))
+		  && (!blnStartCommentAfter[iSelStart] || (posEndCommentAfter[iSelStart] <= posStartCommentAfter[iSelStart]))) {
 			posStartComment = posStartCommentBefore[iSelStart];
 			posEndComment   = posEndCommentAfter[iSelStart];
 		}
@@ -7246,14 +7246,14 @@ bool Notepad_plus::undoStreamComment(bool tryBlockComment)
 			(posEndCommentAfter[iSelEnd] == -1 ? blnEndCommentAfter[iSelEnd] = false : blnEndCommentAfter[iSelEnd] = true);
 
 			if((blnStartCommentBefore[iSelEnd] && blnEndCommentAfter[iSelEnd])
-			    && (!blnEndCommentBefore[iSelEnd] || (posStartCommentBefore[iSelEnd] >= posEndCommentBefore[iSelEnd]))
-			    && (!blnStartCommentAfter[iSelEnd] || (posEndCommentAfter[iSelEnd] <= posStartCommentAfter[iSelEnd]))) {
+			  && (!blnEndCommentBefore[iSelEnd] || (posStartCommentBefore[iSelEnd] >= posEndCommentBefore[iSelEnd]))
+			  && (!blnStartCommentAfter[iSelEnd] || (posEndCommentAfter[iSelEnd] <= posStartCommentAfter[iSelEnd]))) {
 				posStartComment = posStartCommentBefore[iSelEnd];
 				posEndComment   = posEndCommentAfter[iSelEnd];
 			}
 			//-- Third, check if there is a stream-comment within the selected area:
-			else if( (blnStartCommentAfter[iSelStart] && (posStartCommentAfter[iSelStart] < selectionEnd))
-			    && (blnEndCommentBefore[iSelEnd] && (posEndCommentBefore[iSelEnd] >  selectionStart))) {
+			else if((blnStartCommentAfter[iSelStart] && (posStartCommentAfter[iSelStart] < selectionEnd))
+			  && (blnEndCommentBefore[iSelEnd] && (posEndCommentBefore[iSelEnd] >  selectionStart))) {
 				//-- If there are more than one stream-comment within the selection, take the first one
 				// after selectionStart!!
 				posStartComment = posStartCommentAfter[iSelStart];

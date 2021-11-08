@@ -262,7 +262,7 @@ marq_res_t GnuPlot::Marquardt(double a[], double ** C, double * chisq, double * 
 	static double ** deriv = 0;
 	double tmp_chisq;
 	// Initialization when lambda == -1 
-	if(*lambda == -1) {     /* Get first chi-square check */
+	if(*lambda == -1) { /* Get first chi-square check */
 		temp_a = vec(_Fit.num_params);
 		d = vec(_Fit.num_data + _Fit.num_params);
 		tmp_d = vec(_Fit.num_data + _Fit.num_params);
@@ -956,7 +956,7 @@ static char * pack_float(char * num)
 			if(*p == '0') {
 				do {
 					*p = *(p + 1);
-				} while(*++p != NUL);
+				} while(*++p);
 			}
 		}
 	}
@@ -1710,7 +1710,7 @@ out_of_range:
 			if(!fgets(s = sstr, sizeof(sstr), _Fit.via_f)) // EOF found 
 				break;
 			if((tmp = strstr(s, GP_FIXED)) != NULL) { /* ignore fixed params */
-				*tmp = NUL;
+				*tmp = '\0';
 				if(!_Fit.fit_suppress_log)
 					fprintf(_Fit.log_f, "FIXED:  %s\n", s);
 				fixed = TRUE;
@@ -1718,7 +1718,7 @@ out_of_range:
 			else
 				fixed = FALSE;
 			if((tmp = strchr(s, '#')) != NULL)
-				*tmp = NUL;
+				*tmp = '\0';
 			if(!GpFit::IsEmptyString(s)) {
 				tmp = get_next_word(&s, &c);
 				if(!legal_identifier(tmp) || strlen(tmp) > MAX_ID_LEN)

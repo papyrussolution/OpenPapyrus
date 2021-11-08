@@ -320,8 +320,8 @@ static int ssh_execute_client_request(ssh_session session, ssh_message msg)
 	int rc = SSH_AGAIN;
 
 	if(msg->type == SSH_REQUEST_CHANNEL_OPEN
-	    && msg->channel_request_open.type == SSH_CHANNEL_X11
-	    && ssh_callbacks_exists(session->common.callbacks, channel_open_request_x11_function)) {
+	  && msg->channel_request_open.type == SSH_CHANNEL_X11
+	  && ssh_callbacks_exists(session->common.callbacks, channel_open_request_x11_function)) {
 		channel = session->common.callbacks->channel_open_request_x11_function(session,
 			msg->channel_request_open.originator,
 			msg->channel_request_open.originator_port,
@@ -338,8 +338,8 @@ static int ssh_execute_client_request(ssh_session session, ssh_message msg)
 		return SSH_OK;
 	}
 	else if(msg->type == SSH_REQUEST_CHANNEL_OPEN
-	    && msg->channel_request_open.type == SSH_CHANNEL_AUTH_AGENT
-	    && ssh_callbacks_exists(session->common.callbacks, channel_open_request_auth_agent_function)) {
+	  && msg->channel_request_open.type == SSH_CHANNEL_AUTH_AGENT
+	  && ssh_callbacks_exists(session->common.callbacks, channel_open_request_auth_agent_function)) {
 		channel = session->common.callbacks->channel_open_request_auth_agent_function(session,
 			session->common.callbacks->userdata);
 
@@ -1203,7 +1203,7 @@ error:
 	SSH_MESSAGE_FREE(msg);
 end:
 	SAFE_FREE(type_c);
-	if(msg != NULL)
+	if(msg)
 		ssh_message_queue(session, msg);
 
 	return SSH_PACKET_USED;

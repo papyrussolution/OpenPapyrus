@@ -90,7 +90,7 @@
  *   const struct
  *   {
  *     int          mod_err_offset;
- *     const char*  mod_err_msg
+ *     const char *  mod_err_msg
  *   } ft_mod_errors[] =
  *
  *   #include <freetype/ftmoderr.h>

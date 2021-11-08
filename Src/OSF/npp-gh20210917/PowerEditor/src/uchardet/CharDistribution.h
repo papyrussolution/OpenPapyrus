@@ -52,11 +52,11 @@ public:
 	}
 
 	//feed a block of data and do distribution analysis
-	void HandleData(const char*, PRUint32) {
+	void HandleData(const char *, PRUint32) {
 	}
 
 	//Feed a character with known length
-	void HandleOneChar(const char* aStr, PRUint32 aCharLen)
+	void HandleOneChar(const char * aStr, PRUint32 aCharLen)
 	{
 		//we only care about 2-bytes character in our distribution analysis
 		PRInt32 order = (aCharLen == 2) ? GetOrder(aStr) : -1;
@@ -95,7 +95,7 @@ protected:
 	//we do not handle character base on its original encoding string, but
 	//convert this encoding string to a number, here called order.
 	//This allow multiple encoding of a language to share one frequency table
-	virtual PRInt32 GetOrder(const char*) {
+	virtual PRInt32 GetOrder(const char *) {
 		return -1;
 	}
 
@@ -132,7 +132,7 @@ protected:
 	//  first  byte range: 0xc4 -- 0xfe
 	//  second byte range: 0xa1 -- 0xfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str) {
+	PRInt32 GetOrder(const char * str) {
 		if((uchar)*str >= (uchar)0xc4)
 			return 94*((uchar)str[0]-(uchar)0xc4) + (uchar)str[1] - (uchar)0xa1;
 		else
@@ -149,7 +149,7 @@ protected:
 	//  first  byte range: 0xb0 -- 0xfe
 	//  second byte range: 0xa1 -- 0xfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str)
+	PRInt32 GetOrder(const char * str)
 	{
 		if((uchar)*str >= (uchar)0xb0)
 			return 94*((uchar)str[0]-(uchar)0xb0) + (uchar)str[1] - (uchar)0xa1;
@@ -167,7 +167,7 @@ protected:
 	//  first  byte range: 0xb0 -- 0xfe
 	//  second byte range: 0xa1 -- 0xfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str)
+	PRInt32 GetOrder(const char * str)
 	{
 		if((uchar)*str >= (uchar)0xb0 && (uchar)str[1] >= (uchar)0xa1)
 			return 94*((uchar)str[0]-(uchar)0xb0) + (uchar)str[1] - (uchar)0xa1;
@@ -185,7 +185,7 @@ protected:
 	//  first  byte range: 0xa4 -- 0xfe
 	//  second byte range: 0x40 -- 0x7e , 0xa1 -- 0xfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str)
+	PRInt32 GetOrder(const char * str)
 	{
 		if((uchar)*str >= (uchar)0xa4)
 			if((uchar)str[1] >= (uchar)0xa1)
@@ -205,7 +205,7 @@ protected:
 	//  first  byte range: 0x81 -- 0x9f , 0xe0 -- 0xfe
 	//  second byte range: 0x40 -- 0x7e,  0x81 -- oxfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str)
+	PRInt32 GetOrder(const char * str)
 	{
 		PRInt32 order;
 		if((uchar)*str >= (uchar)0x81 && (uchar)*str <= (uchar)0x9f)
@@ -229,7 +229,7 @@ protected:
 	//  first  byte range: 0xa0 -- 0xfe
 	//  second byte range: 0xa1 -- 0xfe
 	//no validation needed here. State machine has done that
-	PRInt32 GetOrder(const char* str)
+	PRInt32 GetOrder(const char * str)
 	{
 		if((uchar)*str >= (uchar)0xa0)
 			return 94*((uchar)str[0]-(uchar)0xa1) + (uchar)str[1] - (uchar)0xa1;

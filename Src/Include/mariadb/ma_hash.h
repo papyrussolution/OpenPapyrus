@@ -50,7 +50,7 @@ typedef struct st_hash {
 
 #define hash_init(A, B, C, D, E, F, G) _hash_init(A, B, C, D, E, F, G CALLER_INFO)
 bool _hash_init(HASH * hash, uint default_array_elements, uint key_offset, uint key_length, hash_get_key get_key, void (* free_element)(
-	    void*), uint flags CALLER_INFO_PROTO);
+	    void *), uint flags CALLER_INFO_PROTO);
 void hash_free(HASH * tree);
 uchar * hash_element(HASH * hash, uint idx);
 void * hash_search(HASH * info, const uchar * key, uint length);

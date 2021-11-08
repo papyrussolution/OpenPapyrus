@@ -106,7 +106,7 @@ static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlev
 	char s[20]; // The key word we are looking for has atmost 13 characters
 	s[0] = '\0';
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 19; i++) {
-		s[i] = static_cast<char>( styler[ start + i ] );
+		s[i] = static_cast<char>( styler[ start + i ]);
 		s[i+1] = '\0';
 	}
 
@@ -162,9 +162,9 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	WordList &UserDefined = *keywordLists[3];
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 99; i++) {
 		if(bIgnoreCase)
-			s[i] = static_cast<char>( tolower(styler[ start + i ]) );
+			s[i] = static_cast<char>( tolower(styler[ start + i ]));
 		else
-			s[i] = static_cast<char>( styler[ start + i ] );
+			s[i] = static_cast<char>( styler[ start + i ]);
 		s[i+1] = '\0';
 	}
 
@@ -398,7 +398,7 @@ static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    state = SCE_NSIS_DEFAULT;
 			    else if(cCurrChar == '\\' && (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' ) )
 				    state = SCE_NSIS_DEFAULT;
-			    else if( (isNsisChar(cCurrChar) && !isNsisChar(cNextChar) && cNextChar != '}') || cCurrChar == '}') {
+			    else if((isNsisChar(cCurrChar) && !isNsisChar(cNextChar) && cNextChar != '}') || cCurrChar == '}') {
 				    state = classifyWordNsis(styler.GetStartSegment(), i, keywordLists, styler);
 				    styler.ColourTo(i, state);
 				    state = SCE_NSIS_DEFAULT;

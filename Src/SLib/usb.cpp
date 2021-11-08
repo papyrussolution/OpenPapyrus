@@ -405,7 +405,7 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 				DWORD  device_ret = 0;
 				DWORD  device_next = did.DevInst;
 				TCHAR  buf[1024];
-				buf[0] = 0;
+				PTR32(buf)[0] = 0;
 				while(CM_Get_Child(&device_next, device_next, 0) == 0) {
 					device_ret = device_next;
 					// Получим строку вида:

@@ -908,7 +908,7 @@ cmsToneCurve* CMSEXPORT cmsReverseToneCurveEx(cmsUInt32Number nResultSamples, co
 			x2 = InCurve->Table16[j+1];
 
 			y1 = (cmsFloat64Number)(j * 65535.0) / (InCurve->nEntries - 1);
-			y2 = (cmsFloat64Number)((j+1) * 65535.0 ) / (InCurve->nEntries - 1);
+			y2 = (cmsFloat64Number)((j+1) * 65535.0) / (InCurve->nEntries - 1);
 
 			// If collapsed, then use any
 			if(x1 == x2) {

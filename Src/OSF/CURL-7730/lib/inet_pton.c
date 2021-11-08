@@ -91,20 +91,16 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 static int inet_pton4(const char * src, uchar * dst)
 {
 	static const char digits[] = "0123456789";
-	int saw_digit, octets, ch;
+	int ch;
 	uchar tmp[INADDRSZ], * tp;
-
-	saw_digit = 0;
-	octets = 0;
+	int saw_digit = 0;
+	int octets = 0;
 	tp = tmp;
 	*tp = 0;
 	while((ch = *src++) != '\0') {
-		const char * pch;
-
-		pch = strchr(digits, ch);
+		const char * pch = strchr(digits, ch);
 		if(pch) {
 			unsigned int val = *tp * 10 + (uint)(pch - digits);
-
 			if(saw_digit && *tp == 0)
 				return 0;
 			if(val > 255)

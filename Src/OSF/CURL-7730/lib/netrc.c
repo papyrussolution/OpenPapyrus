@@ -225,7 +225,7 @@ int Curl_parsenetrc(const char * host,
 			struct passwd pw, * pw_res;
 			char pwbuf[1024];
 			if(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res)
-			    && pw_res) {
+			  && pw_res) {
 				home = pw.pw_dir;
 			}
 #elif defined(HAVE_GETPWUID) && defined(HAVE_GETEUID)

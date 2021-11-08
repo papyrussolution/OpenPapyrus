@@ -99,7 +99,7 @@ static char * skip_spaces(char * str)
 struct resource_parser {
 	int buffer_size;
 	int bytes_in_buffer;
-	char* buffer;
+	char * buffer;
 	cairo_xcb_resources_t * resources;
 };
 

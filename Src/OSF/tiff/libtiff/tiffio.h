@@ -253,20 +253,20 @@ typedef struct {
 #if defined(c_plusplus) || defined(__cplusplus)
 extern "C" {
 #endif
-typedef void (*TIFFErrorHandler)(const char*, const char*, va_list);
-typedef void (*TIFFErrorHandlerExt)(thandle_t, const char*, const char*, va_list);
-typedef tmsize_t (*TIFFReadWriteProc)(thandle_t, void*, tmsize_t);
+typedef void (*TIFFErrorHandler)(const char *, const char *, va_list);
+typedef void (*TIFFErrorHandlerExt)(thandle_t, const char *, const char *, va_list);
+typedef tmsize_t (*TIFFReadWriteProc)(thandle_t, void *, tmsize_t);
 typedef toff_t (*TIFFSeekProc)(thandle_t, toff_t, int);
 typedef int (*TIFFCloseProc)(thandle_t);
 typedef toff_t (*TIFFSizeProc)(thandle_t);
-typedef int (*TIFFMapFileProc)(thandle_t, void** base, toff_t* size);
+typedef int (*TIFFMapFileProc)(thandle_t, void ** base, toff_t* size);
 typedef void (*TIFFUnmapFileProc)(thandle_t, void * base, toff_t size);
 typedef void (*TIFFExtendProc)(TIFF*);
 
-extern const char* TIFFGetVersion(void);
+extern const char * TIFFGetVersion(void);
 
 extern const TIFFCodec* TIFFFindCODEC(uint16);
-extern TIFFCodec* TIFFRegisterCODEC(uint16, const char*, TIFFInitMethod);
+extern TIFFCodec* TIFFRegisterCODEC(uint16, const char *, TIFFInitMethod);
 extern void TIFFUnRegisterCODEC(TIFFCodec *);
 extern int TIFFIsCODECConfigured(uint16);
 extern TIFFCodec* TIFFGetConfiguredCODECs(void);
@@ -303,7 +303,7 @@ extern const TIFFField* TIFFFieldWithTag(TIFF*, uint32);
 extern const TIFFField* TIFFFieldWithName(TIFF*, const char *);
 
 extern uint32 TIFFFieldTag(const TIFFField*);
-extern const char* TIFFFieldName(const TIFFField*);
+extern const char * TIFFFieldName(const TIFFField*);
 extern TIFFDataType TIFFFieldDataType(const TIFFField*);
 extern int TIFFFieldPassCount(const TIFFField*);
 extern int TIFFFieldReadCount(const TIFFField*);
@@ -417,19 +417,19 @@ extern int TIFFRGBAImageOK(TIFF*, char [1024]);
 extern int TIFFRGBAImageBegin(TIFFRGBAImage*, TIFF*, int, char [1024]);
 extern int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
 extern void TIFFRGBAImageEnd(TIFFRGBAImage*);
-extern TIFF* TIFFOpen(const char*, const char*);
+extern TIFF* TIFFOpen(const char *, const char *);
 #ifdef __WIN32__
-extern TIFF* TIFFOpenW(const wchar_t*, const char*);
+extern TIFF* TIFFOpenW(const wchar_t*, const char *);
 #endif /* __WIN32__ */
-extern TIFF * TIFFFdOpen(int, const char*, const char*);
-extern TIFF * TIFFClientOpen(const char*, const char*, thandle_t, TIFFReadWriteProc, TIFFReadWriteProc, TIFFSeekProc, TIFFCloseProc, TIFFSizeProc, TIFFMapFileProc, TIFFUnmapFileProc);
+extern TIFF * TIFFFdOpen(int, const char *, const char *);
+extern TIFF * TIFFClientOpen(const char *, const char *, thandle_t, TIFFReadWriteProc, TIFFReadWriteProc, TIFFSeekProc, TIFFCloseProc, TIFFSizeProc, TIFFMapFileProc, TIFFUnmapFileProc);
 extern const char * TIFFFileName(TIFF*);
 extern const char * TIFFSetFileName(TIFF*, const char *);
-extern void TIFFError(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
-extern void TIFFErrorExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
-extern void FASTCALL TIFFErrorExtOutOfMemory(thandle_t, const char*);
-extern void TIFFWarning(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
-extern void TIFFWarningExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
+extern void TIFFError(const char *, const char *, ...) __attribute__((__format__ (__printf__,2,3)));
+extern void TIFFErrorExt(thandle_t, const char *, const char *, ...) __attribute__((__format__ (__printf__,3,4)));
+extern void FASTCALL TIFFErrorExtOutOfMemory(thandle_t, const char *);
+extern void TIFFWarning(const char *, const char *, ...) __attribute__((__format__ (__printf__,2,3)));
+extern void TIFFWarningExt(thandle_t, const char *, const char *, ...) __attribute__((__format__ (__printf__,3,4)));
 extern TIFFErrorHandler TIFFSetErrorHandler(TIFFErrorHandler);
 extern TIFFErrorHandlerExt TIFFSetErrorHandlerExt(TIFFErrorHandlerExt);
 extern TIFFErrorHandler TIFFSetWarningHandler(TIFFErrorHandler);

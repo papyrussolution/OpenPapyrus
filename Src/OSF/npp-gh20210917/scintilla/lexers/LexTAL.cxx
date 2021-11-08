@@ -102,7 +102,7 @@ static int classifyWordTAL(Sci_PositionU start,
 	return ret;
 }
 
-static int classifyFoldPointTAL(const char* s) {
+static int classifyFoldPointTAL(const char * s) {
 	int lev = 0;
 	if(!(isdigit(s[0]) || (s[0] == '.'))) {
 		if(strcmp(s, "begin") == 0 ||

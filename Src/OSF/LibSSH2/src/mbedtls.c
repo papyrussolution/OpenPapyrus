@@ -215,7 +215,7 @@ int _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx ** rsa,
 	else
 		return -1;
 
-	if( (ret = mbedtls_mpi_read_binary(&(ctx->E), edata, elen) ) != 0 ||
+	if((ret = mbedtls_mpi_read_binary(&(ctx->E), edata, elen) ) != 0 ||
 	    (ret = mbedtls_mpi_read_binary(&(ctx->N), ndata, nlen) ) != 0) {
 		ret = -1;
 	}
@@ -273,7 +273,7 @@ int _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa, LIBSSH2_
 {
 	int ret;
 	mbedtls_pk_context pkey;
-	*rsa = (libssh2_rsa_ctx*)mbedtls_calloc(1, sizeof( libssh2_rsa_ctx ) );
+	*rsa = (libssh2_rsa_ctx*)mbedtls_calloc(1, sizeof( libssh2_rsa_ctx ));
 	if(*rsa == NULL)
 		return -1;
 	mbedtls_pk_init(&pkey);

@@ -359,8 +359,8 @@ CURLcode Curl_resolver_is_resolved(struct connectdata * conn,
 	   any responses still pending when the EXPIRE_HAPPY_EYEBALLS_DNS timer
 	   expires. */
 	if(res && res->num_pending /* This is only set to non-zero if the timer was started. */
-	    && (res->happy_eyeballs_dns_time.tv_sec || res->happy_eyeballs_dns_time.tv_usec)
-	    && (Curl_timediff(Curl_now(), res->happy_eyeballs_dns_time)
+	  && (res->happy_eyeballs_dns_time.tv_sec || res->happy_eyeballs_dns_time.tv_usec)
+	  && (Curl_timediff(Curl_now(), res->happy_eyeballs_dns_time)
 	    >= HAPPY_EYEBALLS_DNS_TIMEOUT)) {
 		/* Remember that the EXPIRE_HAPPY_EYEBALLS_DNS timer is no longer
 		   running. */
@@ -557,7 +557,7 @@ static void query_completed_cb(void * arg,  /* (struct connectdata *) */
 		       either a result of bad input (which should affect all parallel
 		       requests), local or network conditions, non-definitive server
 		       responses, or us cancelling the request. */
-		    && (status == ARES_SUCCESS || status == ARES_ENOTFOUND)) {
+		  && (status == ARES_SUCCESS || status == ARES_ENOTFOUND)) {
 			/* Right now, there can only be up to two parallel queries, so don't
 			   bother handling any other cases. */
 			DEBUGASSERT(res->num_pending == 1);

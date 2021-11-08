@@ -95,7 +95,7 @@ public:
 	}
 	// Deleted so StyleContext objects can not be copied.
 	StyleContext(const StyleContext &) = delete;
-	StyleContext &operator=(const StyleContext &) = delete;
+	StyleContext & operator = (const StyleContext &) = delete;
 	void Complete() {
 		styler.ColourTo(currentPos - ((currentPos > lengthDocument) ? 2 : 1), state);
 		styler.Flush();

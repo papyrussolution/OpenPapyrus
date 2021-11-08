@@ -763,7 +763,7 @@ whitespace:
 										goto e_alloc_failure;
 									if(!state.first_pass) {
 										while(isdigit(b) || b == '+' || b == '-' || b == 'e' || b == 'E' || b == '.') {
-											if( (++state.ptr) == end) {
+											if((++state.ptr) == end) {
 												b = 0;
 												break;
 											}
@@ -867,7 +867,7 @@ whitespace:
 					    }
 
 					    if(b == '+' || b == '-') {
-						    if( (flags & flag_num_e) && !(flags & flag_num_e_got_sign)) {
+						    if((flags & flag_num_e) && !(flags & flag_num_e_got_sign)) {
 							    flags |= flag_num_e_got_sign;
 
 							    if(b == '-')
@@ -957,7 +957,7 @@ whitespace:
 						    break;
 					};
 				}
-				if( (++top->parent->u.array.length) > state.uint_max)
+				if((++top->parent->u.array.length) > state.uint_max)
 					goto e_overflow;
 
 				top = top->parent;

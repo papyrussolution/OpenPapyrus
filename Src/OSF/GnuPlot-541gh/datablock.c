@@ -59,7 +59,7 @@ void GnuPlot::DatablockCommand()
 		// Strip trailing newline character 
 		n = strlen(dataline);
 		if(n > 0 && dataline[n-1] == '\n')
-			dataline[n-1] = NUL;
+			dataline[n-1] = '\0';
 		datablock->udv_value.v.data_array[nlines] = sstrdup(dataline);
 	}
 	Pgm.inline_num += nlines + 1; // Update position in input file 
@@ -161,7 +161,7 @@ void append_multiline_to_datablock(GpValue * datablock_value, const char * lines
 		else if(*p == '\\' && !escaped)
 			escaped = true;
 		else if(*p == '\n' && !inquote) {
-			*p = NUL;
+			*p = '\0';
 			append_to_datablock(datablock_value, sstrdup(l));
 			l = p + 1;
 		}

@@ -84,11 +84,11 @@ void hash_free(HASH * hash)
 /* some helper functions */
 
 /*
-   This function is char* instead of uchar* as HPUX11 compiler can't
+   This function is char * instead of uchar* as HPUX11 compiler can't
    handle inline functions that are not defined as native types
  */
 
-static inline char* hash_key(HASH * hash, const uchar * record, uint * length, bool first)
+static inline char * hash_key(HASH * hash, const uchar * record, uint * length, bool first)
 {
 	if(hash->get_key)
 		return (char *)(*hash->get_key)(record, (uint*)length, first);

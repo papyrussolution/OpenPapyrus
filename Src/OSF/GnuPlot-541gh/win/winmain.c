@@ -184,7 +184,7 @@ char * appdata_directory()
 		FreeModule(hShell32);
 		return dir;
 	}
-	if(dir[0] == NUL) { // use APPDATA environment variable as fallback 
+	if(!dir[0]) { // use APPDATA environment variable as fallback 
 		char * appdata = getenv("APPDATA");
 		if(appdata) {
 			strcpy(dir, appdata);
@@ -227,7 +227,7 @@ void GpWinMainBlock::WinCloseHelp()
 static LPTSTR GetLanguageCode()
 {
 	static TCHAR lang[6] = TEXT("");
-	if(lang[0] == NUL) {
+	if(!lang[0]) {
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, lang, sizeof(lang));
 		//strcpy(lang, "JPN"); //TEST
 		// language definition files for Japanese already use "ja" as abbreviation 
@@ -237,7 +237,7 @@ static LPTSTR GetLanguageCode()
 		lang[0] = tolower((uchar)lang[0]);
 		lang[1] = tolower((uchar)lang[1]);
 		// only use two character sequence 
-		lang[2] = NUL;
+		lang[2] = '\0';
 	}
 	return lang;
 }
@@ -267,7 +267,7 @@ void GpWinMainBlock::ReadMainIni(LPTSTR file, LPTSTR section)
 	const TCHAR name[] = TEXT("wgnuplot-");
 	// Language code override 
 	GetPrivateProfileString(section, TEXT("Language"), TEXT(""), profile, 80, file);
-	szLanguageCode = (profile[0] != NUL) ? _tcsdup(profile) : NULL;
+	szLanguageCode = profile[0] ? _tcsdup(profile) : NULL;
 	// help file name 
 	GetPrivateProfileString(section, TEXT("HelpFile"), TEXT(""), profile, 80, file);
 	if(profile[0]) {
@@ -283,7 +283,7 @@ void GpWinMainBlock::ReadMainIni(LPTSTR file, LPTSTR section)
 	}
 	// menu file name 
 	GetPrivateProfileString(section, TEXT("MenuFile"), TEXT(""), profile, 80, file);
-	if(profile[0] != NUL) {
+	if(profile[0]) {
 		szMenuName = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
 		if(szMenuName) {
 			_tcscpy(szMenuName, szModuleName);
@@ -347,7 +347,7 @@ int _tmain(int argc, TCHAR ** argv)
 		_WinM.szPackageDir = (LPTSTR)SAlloc::M((len + 1) * sizeof(TCHAR));
 		CheckMemory(_WinM.szPackageDir);
 		_tcsncpy(_WinM.szPackageDir, _WinM.szModuleName, len);
-		_WinM.szPackageDir[len] = NUL;
+		_WinM.szPackageDir[len] = '\0';
 	}
 	else {
 		_WinM.szPackageDir = _WinM.szModuleName;
@@ -491,7 +491,7 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 	/* works for utf8 and sjis */
 	if(ch < 32) {
 		mbwait = mbcount = 0;
-		mbstr[0] = NUL;
+		mbstr[0] = '\0';
 	}
 	if(GPT._Encoding == S_ENC_UTF8) { // combine UTF8 byte sequences
 		if(mbwait == 0) {
@@ -636,7 +636,7 @@ char * MyFGetS(char * str, uint size, FILE * file)
 			if(str[i] == '\n')
 				break;
 		}
-		str[i] = NUL;
+		str[i] = '\0';
 		return str;
 #endif
 	}
@@ -759,7 +759,7 @@ size_t MyFRead(void * ptr, size_t size, size_t n, FILE * file)
 
 #ifdef USE_FAKEPIPES
 
-static char pipe_type = NUL;
+static char pipe_type = '\0';
 static char * pipe_filename = NULL;
 static char * pipe_command = NULL;
 
@@ -771,7 +771,7 @@ FILE * fake_popen(const char * command, const char * type)
 	DWORD ret;
 	if(type == NULL)
 		return NULL;
-	pipe_type = NUL;
+	pipe_type = '\0';
 	SAlloc::F(pipe_filename);
 	// Random temp file name in %TEMP% 
 	ret = GetTempPathA(sizeof(tmppath), tmppath);
@@ -879,7 +879,7 @@ int ConsoleGetch()
 		if(waitResult == WAIT_OBJECT_0) {
 			if(_isatty(fd)) {
 				DWORD c = ConsoleReadCh();
-				if(c != NUL)
+				if(c)
 					return c;
 			}
 			else {
@@ -921,7 +921,7 @@ int ConsoleReadCh()
 	}
 	h = GetStdHandle(STD_INPUT_HANDLE);
 	if(h == NULL)
-		return NUL;
+		return '\0';
 	ReadConsoleInputW(h, &rec, 1, &recRead);
 	/* FIXME: We should handle rec.Event.KeyEvent.wRepeatCount > 1, too. */
 	if(recRead == 1 && rec.EventType == KEY_EVENT && rec.Event.KeyEvent.bKeyDown &&
@@ -955,7 +955,7 @@ int ConsoleReadCh()
 	}
 	/* Error reading event or, key up or, one of the following event records:
 	    MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_RECORD, MENU_EVENT_RECORD, FOCUS_EVENT_RECORD */
-	return NUL;
+	return '\0';
 }
 
 #ifdef WGP_CONSOLE
@@ -1048,7 +1048,7 @@ FILE * open_printer()
 	else {
 		strnzcpy(win_prntmp, temp, MAX_PRT_LEN);
 		// stop X's in path being converted by _mktemp 
-		for(temp = win_prntmp; *temp != NUL; temp++)
+		for(temp = win_prntmp; *temp; temp++)
 			*temp = tolower((uchar)*temp);
 		if(strlen(win_prntmp) && win_prntmp[strlen(win_prntmp)-1] != '\\')
 			strcat(win_prntmp, "\\");

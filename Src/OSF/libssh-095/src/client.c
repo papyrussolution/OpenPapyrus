@@ -71,7 +71,7 @@ static void socket_callback_connected(int code, int errno_code, void * user)
  */
 static int callback_receive_banner(const void * data, size_t len, void * user)
 {
-	char * buffer = (char*)data;
+	char * buffer = (char *)data;
 	ssh_session session = (ssh_session)user;
 	char * str = NULL;
 	size_t i;
@@ -571,7 +571,7 @@ void ssh_disconnect(ssh_session session)
 		return;
 	}
 	if(session->socket != NULL && ssh_socket_is_open(session->socket)) {
-		rc = ssh_buffer_pack(session->out_buffer, "bdss", SSH2_MSG_DISCONNECT, SSH2_DISCONNECT_BY_APPLICATION, "Bye Bye", "");  /* language tag */
+		rc = ssh_buffer_pack(session->out_buffer, "bdss", SSH2_MSG_DISCONNECT, SSH2_DISCONNECT_BY_APPLICATION, "Bye Bye", ""); /* language tag */
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;

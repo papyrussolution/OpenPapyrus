@@ -450,7 +450,7 @@ exit_failure:
 	goto exit_status;
 exit_success:
 	/* Sort directory entries */
-	qsort(files, size, sizeof(void *), (int (*)(const void*, const void*))compare);
+	qsort(files, size, sizeof(void *), (int (*)(const void *, const void *))compare);
 	/* Pass pointer table to caller */
 	if(namelist)
 		*namelist = files;
@@ -1473,12 +1473,12 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	for(k = 0; k < 10; k++) {
 		char c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26]; /* Generate random character */
 		/* Append character to paths */
-		assert(i < MAX_PATH  &&  j < MAX_PATH);
+		assert(i < MAX_PATH &&  j < MAX_PATH);
 		wpath[i++] = c;
 		path[j++] = c;
 	}
 	/* Terminate paths */
-	assert(i < MAX_PATH  &&  j < MAX_PATH);
+	assert(i < MAX_PATH &&  j < MAX_PATH);
 	wpath[i] = '\0';
 	path[j] = '\0';
 	k = i; /* Remember the end of directory name */
@@ -1490,7 +1490,7 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 		abort();
 	}
 	/* Overwrite zero terminator with path separator */
-	assert(i < MAX_PATH  &&  j < MAX_PATH);
+	assert(i < MAX_PATH &&  j < MAX_PATH);
 	wpath[i++] = '\\';
 	/* Append a few unicode characters */
 	assert(i < MAX_PATH);

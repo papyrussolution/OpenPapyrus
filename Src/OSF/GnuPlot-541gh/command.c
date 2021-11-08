@@ -68,7 +68,7 @@ void GnuPlot::ExtendInputLine()
 		// first time 
 		Pgm.P_InputLine = (char *)SAlloc::M(MAX_LINE_LEN);
 		Pgm.InputLineLen = MAX_LINE_LEN;
-		Pgm.P_InputLine[0] = NUL;
+		Pgm.P_InputLine[0] = '\0';
 	}
 	else {
 		Pgm.P_InputLine = (char *)SAlloc::R(Pgm.P_InputLine, Pgm.InputLineLen + MAX_LINE_LEN);
@@ -137,14 +137,14 @@ int GnuPlot::DoLine()
 		if(strchr(inlptr, '#')) {
 			Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 			if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#')
-				Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
+				Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = '\0';
 		}
 		if(inlptr != Pgm.P_InputLine) {
 			// If there was leading whitespace, copy the actual
 			// command string to the front. use memmove() because
 			// source and target may overlap 
 			memmove(Pgm.P_InputLine, inlptr, strlen(inlptr));
-			Pgm.P_InputLine[strlen(inlptr)] = NUL; // Terminate resulting string 
+			Pgm.P_InputLine[strlen(inlptr)] = '\0'; // Terminate resulting string 
 		}
 		FPRINTF((stderr, "  echo: \"%s\"\n", Pgm.P_InputLine));
 		Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
@@ -180,7 +180,7 @@ int GnuPlot::DoLine()
 				StringExpandMacros();
 				Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 				if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#')
-					Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
+					Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = '\0';
 			}
 			else {
 				// Non-interactive mode here means that we got a string from -e.
@@ -379,7 +379,7 @@ void GnuPlot::UndefineCommand()
 void GnuPlot::Command()
 {
 	for(int i = 0; i < MAX_NUM_VAR; i++)
-		_Pb.c_dummy_var[i][0] = NUL; /* no dummy variables */
+		_Pb.c_dummy_var[i][0] = '\0'; /* no dummy variables */
 	if(IsDefinition(Pgm.GetCurTokenIdx()))
 		Define();
 	else if(IsArrayAssignment())
@@ -1708,7 +1708,7 @@ void GnuPlot::PrintCommand()
 	SETIFZ(Pgm.print_out, stderr);
 	if(Pgm.print_out_var) { // print to datablock 
 		dataline = (char *)SAlloc::M(size);
-		*dataline = NUL;
+		*dataline = '\0';
 	}
 	GpU.screen_ok = FALSE;
 	do {
@@ -2441,7 +2441,7 @@ void GnuPlot::HelpCommand()
 		// subtopics only 
 		subtopics = 1;
 		only = true;
-		helpbuf[base] = NUL; /* cut off question mark */
+		helpbuf[base] = '\0'; // cut off question mark 
 	}
 	else {
 		// normal help request 
@@ -2488,7 +2488,7 @@ void GnuPlot::HelpCommand()
 		    IntError(NO_CARET, "Impossible case in switch");
 		    break;
 	}
-	helpbuf[base] = NUL;    /* cut it off where we started */
+	helpbuf[base] = '\0'; // cut it off where we started 
 }
 
 #endif /* !NO_GIH */
@@ -2536,7 +2536,7 @@ static bool is_history_command(const char * pLine)
 	while(isblank((uchar)pLine[start]))
 		start++;
 	// find end of "token" 
-	while(pLine[start+length] != NUL && !isblank((uchar)pLine[start + length]))
+	while(pLine[start+length] && !isblank((uchar)pLine[start + length]))
 		length++;
 	for(i = 0; i < length + after; i++) {
 		if(str[i] != pLine[start + i]) {
@@ -2549,7 +2549,7 @@ static bool is_history_command(const char * pLine)
 		}
 	}
 	// i now beyond end of token string 
-	return (after || str[i] == '$' || str[i] == NUL);
+	return (after || str[i] == '$' || !str[i]);
 }
 
 #ifdef USE_READLINE
@@ -2604,7 +2604,7 @@ char * GnuPlot::RlGets(char * s, size_t n, const char * pPrompt)
 		// s will be NUL-terminated here 
 		strnzcpy(s, p_line_ + leftover, n);
 		leftover += strlen(s);
-		if(p_line_[leftover] == NUL)
+		if(!p_line_[leftover])
 			leftover = -1;
 		return s;
 	}
@@ -2730,7 +2730,7 @@ int GnuPlot::ReadLine(const char * pPrompt, int start)
 			// end-of-file 
 			if(_Plt.interactive)
 				putc('\n', stderr);
-			Pgm.P_InputLine[start] = NUL;
+			Pgm.P_InputLine[start] = '\0';
 			Pgm.inline_num++;
 			if(start > 0 && Pgm.CurlyBraceCount == 0) // don't quit yet - process what we have 
 				more = FALSE;
@@ -2743,10 +2743,10 @@ int GnuPlot::ReadLine(const char * pPrompt, int start)
 			// the bounds of this array 
 			int last = strlen(Pgm.P_InputLine) - 1;
 			if(last >= 0) {
-				if(Pgm.P_InputLine[last] == '\n') { /* remove any newline */
-					Pgm.P_InputLine[last] = NUL;
+				if(Pgm.P_InputLine[last] == '\n') { // remove any newline 
+					Pgm.P_InputLine[last] = '\0';
 					if(last > 0 && Pgm.P_InputLine[last-1] == '\r')
-						Pgm.P_InputLine[--last] = NUL;
+						Pgm.P_InputLine[--last] = '\0';
 					// Watch out that we don't backup beyond 0 (1-1-1) 
 					if(last > 0)
 						--last;
@@ -2884,7 +2884,7 @@ int GnuPlot::DoSystemFunc(const char * cmd, char ** output)
 	result_pos = 0;
 	result_allocated = MAX_LINE_LEN;
 	result = (char *)SAlloc::M(MAX_LINE_LEN);
-	result[0] = NUL;
+	result[0] = '\0';
 	while(1) {
 		if((c = getc(f)) == EOF)
 			break;
@@ -2902,7 +2902,7 @@ int GnuPlot::DoSystemFunc(const char * cmd, char ** output)
 			}
 		}
 	}
-	result[result_pos] = NUL;
+	result[result_pos] = '\0';
 	// close stream 
 	ierr = pclose(f);
 	ierr = ReportError(ierr);

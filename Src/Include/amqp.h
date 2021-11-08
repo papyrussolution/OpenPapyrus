@@ -2251,10 +2251,10 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_get_rpc_reply(const amqp_connection_s
  *     methods are implemented:
  *     -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
  *        should be followed by two arguments in this order:
- *        const char* username, and const char* password.
+ *        const char * username, and const char * password.
  *     -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
  *        argument should be followed one argument:
- *        const char* identity.
+ *        const char * identity.
  * \return amqp_rpc_reply_t indicating success or failure.
  *  - r.reply_type == AMQP_RESPONSE_NORMAL. Login completed successfully
  *  - r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION. In most cases errors
@@ -2313,10 +2313,10 @@ AMQP_PUBLIC_FUNCTION amqp_rpc_reply_t amqp_login(amqp_connection_state_t state, 
  *    methods are implemented:
  *    -  AMQP_SASL_METHOD_PLAIN, the AMQP_SASL_METHOD_PLAIN argument
  *       should be followed by two arguments in this order:
- *       const char* username, and const char* password.
+ *       const char * username, and const char * password.
  *    -  AMQP_SASL_METHOD_EXTERNAL, the AMQP_SASL_METHOD_EXTERNAL
  *       argument should be followed one argument:
- *       const char* identity.
+ *       const char * identity.
  * \return amqp_rpc_reply_t indicating success or failure.
  *  - r.reply_type == AMQP_RESPONSE_NORMAL. Login completed successfully
  *  - r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION. In most cases errors
@@ -2693,7 +2693,7 @@ AMQP_PUBLIC_FUNCTION void amqp_default_connection_info(struct amqp_connection_in
  * \note This function modifies url parameter.
  *
  * \param [in] url URI to parse, note that this parameter is modified by the function.
- * \param [out] parsed the connection info gleaned from the URI. The char*
+ * \param [out] parsed the connection info gleaned from the URI. The char *
  *    members will point to parts of the url input parameter.
  *    Memory management will depend on how the url is allocated.
  * \returns AMQP_STATUS_OK on success, AMQP_STATUS_BAD_URL on failure

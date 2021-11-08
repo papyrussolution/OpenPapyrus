@@ -54,7 +54,7 @@
 	#else
 		#if !defined(_WINDOWS_)
 			void * __stdcall GetModuleHandleA(const char *);
-			unsigned long __stdcall GetModuleFileNameA(void*, char*, unsigned long);
+			unsigned long __stdcall GetModuleFileNameA(void *, char *, unsigned long);
 		#endif
 	#endif
 #endif

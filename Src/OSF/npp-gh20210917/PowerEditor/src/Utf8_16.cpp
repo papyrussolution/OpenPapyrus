@@ -73,7 +73,7 @@ u78 Utf8_16_Read::utf8_7bits_8bits()
 			if(std::distance(sx, endx) < 2) {
 				rv = 0; break;
 			}
-			if( (sx[1]&(0x80+0x40)) != 0x80) {
+			if((sx[1]&(0x80+0x40)) != 0x80) {
 				rv = 0; break;
 			}
 			sx += 2;
@@ -112,7 +112,7 @@ u78 Utf8_16_Read::utf8_7bits_8bits()
 	return ascii8bits;
 }
 
-size_t Utf8_16_Read::convert(char* buf, size_t len)
+size_t Utf8_16_Read::convert(char * buf, size_t len)
 {
 	// bugfix by Jens Lorenz
 	static size_t nSkip = 0;
@@ -319,7 +319,7 @@ size_t Utf8_16_Write::fwrite(const void * p, size_t _size)
 	return ret;
 }
 
-size_t Utf8_16_Write::convert(char* p, size_t _size)
+size_t Utf8_16_Write::convert(char * p, size_t _size)
 {
 	ZDELETEARRAY(m_pNewBuf);
 	switch(m_eEncoding) {
@@ -362,7 +362,7 @@ size_t Utf8_16_Write::convert(char* p, size_t _size)
 				    iter8.get(pCur++);
 			    }
 		    }
-		    m_nBufSize = (const char*)pCur - (const char*)m_pNewBuf;
+		    m_nBufSize = (const char *)pCur - (const char *)m_pNewBuf;
 		    break;
 	    }
 		default:

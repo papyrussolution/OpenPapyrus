@@ -46,8 +46,8 @@
 
 /* it is better to use FreeType memory routines instead of raw 'malloc/free' */
 
-typedef void *(* alloc_func)(void*, int, int);
-typedef void (* free_func)(void*, void*);
+typedef void *(* alloc_func)(void *, int, int);
+typedef void (* free_func)(void *, void *);
 
 // @sobolev static void * ft_bzip2_alloc(FT_Memory memory, int items, int size)
 static void * ft_bzip2_alloc(FT_Memory memory, size_t items, size_t size) // @sobolev 
@@ -268,7 +268,7 @@ static FT_ULong ft_bzip2_file_io(FT_BZip2File zip, FT_ULong pos, FT_Byte * buffe
 	}
 	/* skip unwanted bytes */
 	if(pos > zip->pos) {
-		error = ft_bzip2_file_skip_output(zip, (FT_ULong)( pos - zip->pos ) );
+		error = ft_bzip2_file_skip_output(zip, (FT_ULong)( pos - zip->pos ));
 		if(error)
 			goto Exit;
 	}

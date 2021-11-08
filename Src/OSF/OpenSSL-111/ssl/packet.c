@@ -182,11 +182,11 @@ static int wpacket_intern_close(WPACKET * pkt, WPACKET_SUB * sub, int doclose)
 	size_t packlen = pkt->written - sub->pwritten;
 
 	if(packlen == 0
-	    && (sub->flags & WPACKET_FLAGS_NON_ZERO_LENGTH) != 0)
+	  && (sub->flags & WPACKET_FLAGS_NON_ZERO_LENGTH) != 0)
 		return 0;
 
 	if(packlen == 0
-	    && sub->flags & WPACKET_FLAGS_ABANDON_ON_ZERO_LENGTH) {
+	  && sub->flags & WPACKET_FLAGS_ABANDON_ON_ZERO_LENGTH) {
 		/* We can't handle this case. Return an error */
 		if(!doclose)
 			return 0;
@@ -204,7 +204,7 @@ static int wpacket_intern_close(WPACKET * pkt, WPACKET_SUB * sub, int doclose)
 
 	/* Write out the WPACKET length if needed */
 	if(sub->lenbytes > 0
-	    && !put_value(&GETBUF(pkt)[sub->packet_len], packlen,
+	  && !put_value(&GETBUF(pkt)[sub->packet_len], packlen,
 	    sub->lenbytes))
 		return 0;
 

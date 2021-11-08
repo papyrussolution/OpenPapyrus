@@ -927,7 +927,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		    // get text of current scintilla
 		    auto length = pSci->execute(SCI_GETTEXTLENGTH, 0, 0) + 1;
-		    char* buffer = new char[length];
+		    char * buffer = new char[length];
 		    pSci->execute(SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
 
 		    // convert here
@@ -965,7 +965,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		    // get text of current scintilla
 		    auto length = pSci->execute(SCI_GETTEXTLENGTH, 0, 0) + 1;
-		    char* buffer = new char[length];
+		    char * buffer = new char[length];
 		    pSci->execute(SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
 
 		    Utf8_16_Read UnicodeConvertor;
@@ -1105,7 +1105,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					    deltaLastLine = static_cast<int32_t>(_pEditView->execute(SCI_GETLINECOUNT)) - 1 - lastLine;
 					    deltaCurrLine = static_cast<int32_t>(_pEditView->getCurrentLineNumber()) - currLine;
 
-					    if(( deltaCurrLine == 0 )           // line no. not changed?
+					    if(( deltaCurrLine == 0)           // line no. not changed?
 						&& (deltaLastLine >= 0))          // and no lines removed?
 						    break;     // exit
 

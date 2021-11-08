@@ -458,9 +458,9 @@ bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name)
 	MYSQL * mysql = pvio->mysql;
 	SC_CTX * sctx = (SC_CTX*)ctls->ssl;
 	const char * ca_file = mysql->options.ssl_ca;
-	const char* ca_path = mysql->options.ssl_capath;
+	const char * ca_path = mysql->options.ssl_capath;
 	const char * crl_file = mysql->options.extension ? mysql->options.extension->ssl_crl : NULL;
-	const char* crl_path = mysql->options.extension ? mysql->options.extension->ssl_crlpath : NULL;
+	const char * crl_path = mysql->options.extension ? mysql->options.extension->ssl_crlpath : NULL;
 	PCCERT_CONTEXT pServerCert = NULL;
 	char errmsg[256];
 	HCERTSTORE store = NULL;

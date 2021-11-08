@@ -91,7 +91,7 @@ FT_EXPORT_DEF(void) FT_GlyphSlot_Embolden(FT_GlyphSlot slot)
 		 *      unfortunately, this function return no informations
 		 *      about the cause of error.
 		 */
-		if( ( ystr >> 6 ) > FT_INT_MAX || ( ystr >> 6 ) < FT_INT_MIN) {
+		if(( ystr >> 6 ) > FT_INT_MAX || ( ystr >> 6 ) < FT_INT_MIN) {
 			FT_TRACE1(( "FT_GlyphSlot_Embolden:" ));
 			FT_TRACE1(( "too strong emboldening parameter ystr=%ld\n", ystr ));
 			return;

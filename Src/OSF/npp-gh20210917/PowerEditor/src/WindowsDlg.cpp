@@ -114,7 +114,7 @@ struct NumericStringEquivalence {
 				++str1, ++str2;
 			}
 		}
-		return ( lcmp < 0 ) ? -1 : (lcmp > 0 ? 1 : 0);
+		return ( lcmp < 0) ? -1 : (lcmp > 0 ? 1 : 0);
 	}
 };
 

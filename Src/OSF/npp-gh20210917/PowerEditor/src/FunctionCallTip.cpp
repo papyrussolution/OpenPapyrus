@@ -66,7 +66,7 @@ int testNameNoCase(const TCHAR * name1, const TCHAR * name2, int len = -1)
 	int subs1 = lower(name1[i]) ? 32 : 0;
 	int subs2 = lower(name2[i]) ? 32 : 0;
 
-	return ( (name1[i]-subs1) - (name2[i]-subs2) );
+	return ( (name1[i]-subs1) - (name2[i]-subs2));
 }
 
 void FunctionCallTip::setLanguageXML(TiXmlElement * pXmlKeyword)

@@ -1226,7 +1226,7 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		if(gs1 && (source[i] == '['))
-			strcat(intermediate, "*");  /* FNC1 */
+			strcat(intermediate, "*"); /* FNC1 */
 		else
 			strcat(intermediate, c49_table7[source[i]]);
 	}

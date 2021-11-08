@@ -310,7 +310,7 @@ void ssh_free(ssh_session session)
  *
  * @return Returns the client banner string or NULL.
  */
-const char* ssh_get_clientbanner(ssh_session session) 
+const char * ssh_get_clientbanner(ssh_session session) 
 {
 	if(session == NULL) {
 		return NULL;
@@ -325,7 +325,7 @@ const char* ssh_get_clientbanner(ssh_session session)
  *
  * @return Returns the server banner string or NULL.
  */
-const char* ssh_get_serverbanner(ssh_session session) {
+const char * ssh_get_serverbanner(ssh_session session) {
 	if(!session) {
 		return NULL;
 	}
@@ -339,7 +339,7 @@ const char* ssh_get_serverbanner(ssh_session session) {
  *
  * @return Returns the key exchange algorithm string or NULL.
  */
-const char* ssh_get_kex_algo(ssh_session session) {
+const char * ssh_get_kex_algo(ssh_session session) {
 	if((session == NULL) ||
 	    (session->current_crypto == NULL)) {
 		return NULL;
@@ -380,7 +380,7 @@ const char* ssh_get_kex_algo(ssh_session session) {
  *
  * @return Returns cipher name or NULL.
  */
-const char* ssh_get_cipher_in(ssh_session session) {
+const char * ssh_get_cipher_in(ssh_session session) {
 	if((session != NULL) &&
 	    (session->current_crypto != NULL) &&
 	    (session->current_crypto->in_cipher != NULL)) {
@@ -396,7 +396,7 @@ const char* ssh_get_cipher_in(ssh_session session) {
  *
  * @return Returns cipher name or NULL.
  */
-const char* ssh_get_cipher_out(ssh_session session) {
+const char * ssh_get_cipher_out(ssh_session session) {
 	if((session != NULL) &&
 	    (session->current_crypto != NULL) &&
 	    (session->current_crypto->out_cipher != NULL)) {
@@ -412,7 +412,7 @@ const char* ssh_get_cipher_out(ssh_session session) {
  *
  * @return Returns HMAC algorithm name or NULL if unknown.
  */
-const char* ssh_get_hmac_in(ssh_session session) {
+const char * ssh_get_hmac_in(ssh_session session) {
 	if((session != NULL) &&
 	    (session->current_crypto != NULL)) {
 		return ssh_hmac_type_to_string(session->current_crypto->in_hmac, session->current_crypto->in_hmac_etm);
@@ -427,7 +427,7 @@ const char* ssh_get_hmac_in(ssh_session session) {
  *
  * @return Returns HMAC algorithm name or NULL if unknown.
  */
-const char* ssh_get_hmac_out(ssh_session session) {
+const char * ssh_get_hmac_out(ssh_session session) {
 	if((session != NULL) &&
 	    (session->current_crypto != NULL)) {
 		return ssh_hmac_type_to_string(session->current_crypto->out_hmac, session->current_crypto->out_hmac_etm);

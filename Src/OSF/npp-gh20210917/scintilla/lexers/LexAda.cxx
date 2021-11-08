@@ -53,8 +53,8 @@ static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostrophe
 
 static inline bool IsDelimiterCharacter(int ch);
 static inline bool IsSeparatorOrDelimiterCharacter(int ch);
-static bool IsValidIdentifier(const std::string& identifier);
-static bool IsValidNumber(const std::string& number);
+static bool IsValidIdentifier(const std::string & identifier);
+static bool IsValidNumber(const std::string & number);
 static inline bool IsWordStartCharacter(int ch);
 static inline bool IsWordCharacter(int ch);
 
@@ -299,7 +299,7 @@ static inline bool IsSeparatorOrDelimiterCharacter(int ch) {
 	return IsASpace(ch) || IsDelimiterCharacter(ch);
 }
 
-static bool IsValidIdentifier(const std::string& identifier) {
+static bool IsValidIdentifier(const std::string & identifier) {
 	// First character can't be '_', so initialize the flag to true
 	bool lastWasUnderscore = true;
 
@@ -333,7 +333,7 @@ static bool IsValidIdentifier(const std::string& identifier) {
 	return true;
 }
 
-static bool IsValidNumber(const std::string& number) {
+static bool IsValidNumber(const std::string & number) {
 	size_t hashPos = number.find("#");
 	bool seenDot = false;
 

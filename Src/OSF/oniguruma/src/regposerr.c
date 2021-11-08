@@ -46,7 +46,7 @@
 	//#endif
 //#endif
 
-static char* ESTRING[] = {
+static char * ESTRING[] = {
 	NULL,
 	"failed to match",                   /* REG_NOMATCH    */
 	"Invalid regular expression",        /* REG_BADPAT     */
@@ -68,7 +68,7 @@ static char* ESTRING[] = {
 	"invalid argument"                   /* REG_EONIG_BADARG   */
 };
 
-extern size_t onig_posix_regerror(int posix_ecode, const onig_posix_regex_t* reg ARG_UNUSED, char* buf, size_t size)
+extern size_t onig_posix_regerror(int posix_ecode, const onig_posix_regex_t* reg ARG_UNUSED, char * buf, size_t size)
 {
 	char * s;
 	char tbuf[35];
@@ -93,7 +93,7 @@ extern size_t onig_posix_regerror(int posix_ecode, const onig_posix_regex_t* reg
 }
 
 #ifdef USE_BINARY_COMPATIBLE_POSIX_API
-	extern size_t regerror(int posix_ecode, const onig_posix_regex_t* reg ARG_UNUSED, char* buf, size_t size)
+	extern size_t regerror(int posix_ecode, const onig_posix_regex_t* reg ARG_UNUSED, char * buf, size_t size)
 	{
 		return onig_posix_regerror(posix_ecode, reg, buf, size);
 	}

@@ -1416,7 +1416,7 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 		if(autoOrder) {
 			SString temp_buf, memo_buf;
 			PPLoadString("autoorder", temp_buf);
-			memo_buf.Z().CatChar('#').Cat(temp_buf).Space().Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS);
+			memo_buf.Z().CatChar('#').Cat(temp_buf).Space().CatCurDateTime(DATF_DMY, TIMF_HMS);
 			// @v11.1.12 STRNSCPY(pPack->Rec.Memo, memo_buf);
 			pPack->SMemo = memo_buf; // @v11.1.12
 		}

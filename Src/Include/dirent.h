@@ -25,21 +25,12 @@
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
 #endif
-//#include <windows.h>
-//#include <stdio.h>
-//#include <stdarg.h>
-//#include <wchar.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#include <malloc.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <errno.h>
-//#include <ctype.h>
 
 #define _DIRENT_HAVE_D_TYPE /* Indicates that d_type field is available in dirent structure */
 #define _DIRENT_HAVE_D_NAMLEN /* Indicates that d_namlen field is available in dirent structure */
-/* Entries missing from MSVC 6.0 */
+// Entries missing from MSVC 6.0 
 #if !defined(FILE_ATTRIBUTE_DEVICE)
 	#define FILE_ATTRIBUTE_DEVICE 0x40
 #endif

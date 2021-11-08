@@ -117,9 +117,9 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_config(int what, void * where)
 		    break;
 		case PCRE_CONFIG_JITTARGET:
 #ifdef SUPPORT_JIT
-		    *((const char**)where) = PRIV(jit_get_target) ();
+		    *((const char **)where) = PRIV(jit_get_target) ();
 #else
-		    *((const char**)where) = NULL;
+		    *((const char **)where) = NULL;
 #endif
 		    break;
 		case PCRE_CONFIG_NEWLINE:

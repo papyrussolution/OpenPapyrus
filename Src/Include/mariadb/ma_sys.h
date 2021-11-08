@@ -214,7 +214,7 @@ struct my_rnd_struct {
 };
 
 #endif
-typedef struct st_typelib {     /* Different types saved here */
+typedef struct st_typelib { /* Different types saved here */
 	uint count;             /* How many types */
 	const char * name;              /* Name of typelib */
 	const char ** type_names;
@@ -369,7 +369,7 @@ extern int my_chsize(File fd, my_off_t newlength, myf MyFlags);
 extern int ma_error _VARARGS((int nr, myf MyFlags, ...));
 extern int ma_printf_error _VARARGS((uint my_err, const char * format, myf MyFlags, ...) __attribute__ ((format(printf, 2, 4))));
 extern int ma_vsnprintf(char * str, size_t n, const char * format, va_list ap);
-extern int ma_snprintf(char* to, size_t n, const char* fmt, ...);
+extern int ma_snprintf(char * to, size_t n, const char * fmt, ...);
 extern int ma_message(uint my_err, const char * str, myf MyFlags);
 extern int _mariadb_stderr_out(unsigned int error, const char * errmsg, myf MyFlags);
 
@@ -466,8 +466,8 @@ extern int end_io_cache(IO_CACHE * info);
 extern uint my_b_fill(IO_CACHE * info);
 extern void my_b_seek(IO_CACHE * info, my_off_t pos);
 extern uint my_b_gets(IO_CACHE * info, char * to, uint max_length);
-extern uint my_b_printf(IO_CACHE * info, const char* fmt, ...);
-extern uint my_b_vprintf(IO_CACHE * info, const char* fmt, va_list ap);
+extern uint my_b_printf(IO_CACHE * info, const char * fmt, ...);
+extern uint my_b_vprintf(IO_CACHE * info, const char * fmt, va_list ap);
 extern bool open_cached_file(IO_CACHE * cache, const char * dir,
     const char * prefix, uint cache_size,
     myf cache_myflags);

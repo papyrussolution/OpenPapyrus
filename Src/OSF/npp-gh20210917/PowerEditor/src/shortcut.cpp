@@ -158,7 +158,7 @@ Shortcut::Shortcut(const Shortcut & sc)
 
 BYTE Shortcut::getAcceleratorModifiers() 
 {
-	return ( FVIRTKEY | (_keyCombo._isCtrl ? FCONTROL : 0) | (_keyCombo._isAlt ? FALT : 0) | (_keyCombo._isShift ? FSHIFT : 0) );
+	return ( FVIRTKEY | (_keyCombo._isCtrl ? FCONTROL : 0) | (_keyCombo._isAlt ? FALT : 0) | (_keyCombo._isShift ? FSHIFT : 0));
 }
 	
 Shortcut & Shortcut::operator = (const Shortcut & sc) 
@@ -184,7 +184,7 @@ Shortcut & Shortcut::operator = (const Shortcut & sc)
 	if(_keyCombo._key == 0)
 		return true;    //disabled _keyCombo always valid, just disabled
 	//These keys need a modifier, else invalid
-	if( ((_keyCombo._key >= 'A') && (_keyCombo._key <= 'Z')) || ((_keyCombo._key >= '0') && (_keyCombo._key <= '9')) ||
+	if(((_keyCombo._key >= 'A') && (_keyCombo._key <= 'Z')) || ((_keyCombo._key >= '0') && (_keyCombo._key <= '9')) ||
 		_keyCombo._key == VK_SPACE || _keyCombo._key == VK_CAPITAL || _keyCombo._key == VK_BACK ||
 		_keyCombo._key == VK_RETURN) {
 		return ((_keyCombo._isCtrl) || (_keyCombo._isAlt));
@@ -992,7 +992,7 @@ void ScintillaKeyMap::validateDialog()
 	bool isDisabled = !isEnabled(); //true if this shortcut already is
 	bool isDuplicate = false; //true if already in the list
 	for(size_t i = 0; i < _size; ++i) {
-		if(_keyCombo._key   == _keyCombos[i]._key   && _keyCombo._isCtrl  == _keyCombos[i]._isCtrl &&
+		if(_keyCombo._key   == _keyCombos[i]._key && _keyCombo._isCtrl  == _keyCombos[i]._isCtrl &&
 		    _keyCombo._isAlt == _keyCombos[i]._isAlt && _keyCombo._isShift == _keyCombos[i]._isShift) {
 			isDuplicate = true;
 			break;

@@ -45,7 +45,7 @@ static bool FASTCALL IsANumberChar(int ch)
 static void CheckForKeyword(StyleContext& sc, WordList* keywordlists[], int activeState)
 {
 	int length = sc.LengthCurrent() + 1; // +1 for the next char
-	char* s = new char[length];
+	char * s = new char[length];
 	sc.GetCurrentLowered(s, length);
 	if(keywordlists[0]->InList(s))
 		sc.ChangeState(SCE_MYSQL_MAJORKEYWORD | activeState);
@@ -129,7 +129,7 @@ static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int i
 			case SCE_MYSQL_SYSTEMVARIABLE:
 			    if(!IsAWordChar(sc.ch)) {
 				    Sci_Position length = sc.LengthCurrent() + 1;
-				    char* s = new char[length];
+				    char * s = new char[length];
 				    sc.GetCurrentLowered(s, length);
 
 				    // Check for known system variables here.

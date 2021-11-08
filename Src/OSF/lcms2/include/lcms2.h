@@ -971,7 +971,7 @@ CMSAPI int CMSEXPORT cmsGetEncodedCMMversion(void);
 // Support of non-standard functions
 // --------------------------------------------------------------------------------------
 
-CMSAPI int CMSEXPORT cmsstrcasecmp(const char* s1, const char* s2);
+CMSAPI int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2);
 CMSAPI long int CMSEXPORT cmsfilelength(FILE* f);
 
 // Context handling
@@ -1274,14 +1274,14 @@ CMSAPI cmsMLU*           CMSEXPORT cmsMLUdup(const cmsMLU* mlu);
 
 CMSAPI cmsBool CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    const char* ASCIIString);
+    const char * ASCIIString);
 CMSAPI cmsBool CMSEXPORT cmsMLUsetWide(cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
     const wchar_t* WideString);
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    char* Buffer,    cmsUInt32Number BufferSize);
+    char * Buffer,    cmsUInt32Number BufferSize);
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
@@ -1343,21 +1343,21 @@ typedef struct _cms_NAMEDCOLORLIST_struct cmsNAMEDCOLORLIST;
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
     cmsUInt32Number n,
     cmsUInt32Number ColorantCount,
-    const char* Prefix, const char* Suffix);
+    const char * Prefix, const char * Suffix);
 
 CMSAPI void CMSEXPORT cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v);
-CMSAPI cmsBool CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char* Name,
+CMSAPI cmsBool CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name,
     cmsUInt16Number PCS[3],
     cmsUInt16Number Colorant[cmsMAXCHANNELS]);
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
-CMSAPI cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char* Name);
+CMSAPI cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char * Name);
 
 CMSAPI cmsBool CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
-    char* Name,
-    char* Prefix,
-    char* Suffix,
+    char * Name,
+    char * Prefix,
+    char * Suffix,
     cmsUInt16Number* PCS,
     cmsUInt16Number* Colorant);
 
@@ -1501,17 +1501,17 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfo
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
     const char LanguageCode[3], const char CountryCode[3],
-    char* Buffer, cmsUInt32Number BufferSize);
+    char * Buffer, cmsUInt32Number BufferSize);
 
 // IO handlers
 // ----------------------------------------------------------------------------------------------------------
 
 typedef struct _cms_io_handler cmsIOHANDLER;
 
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char* FileName, const char* AccessMode);
+CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode);
 CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* Stream);
 CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size,
-    const char* AccessMode);
+    const char * AccessMode);
 CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID);
 CMSAPI cmsIOHANDLER*     CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile);
 CMSAPI cmsBool CMSEXPORT cmsCloseIOhandler(cmsIOHANDLER* io);
@@ -1525,15 +1525,15 @@ CMSAPI cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromFile(const char * ICCProfile, const char * sAccess);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromFileTHR(cmsContext ContextID, const char * ICCProfile, const char * sAccess);
-CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStream(FILE* ICCProfile, const char* sAccess);
-CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStreamTHR(cmsContext ContextID, FILE* ICCProfile, const char* sAccess);
+CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStream(FILE* ICCProfile, const char * sAccess);
+CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStreamTHR(cmsContext ContextID, FILE* ICCProfile, const char * sAccess);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void * MemPtr, cmsUInt32Number dwSize);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void * MemPtr, cmsUInt32Number dwSize);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandlerTHR(cmsContext ContextID, cmsIOHANDLER* io);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandler2THR(cmsContext ContextID, cmsIOHANDLER* io, cmsBool write);
 CMSAPI cmsBool CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile);
 
-CMSAPI cmsBool CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char* FileName);
+CMSAPI cmsBool CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName);
 CMSAPI cmsBool CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
 CMSAPI cmsBool CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, cmsUInt32Number* BytesNeeded);
 CMSAPI cmsUInt32Number CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
@@ -1620,11 +1620,11 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, c
 #define INTENT_PRESERVE_K_PLANE_SATURATION            15
 
 // Call with NULL as parameters to get the intent count
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntents(cmsUInt32Number nMax, cmsUInt32Number* Codes, char** Descriptions);
+CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntents(cmsUInt32Number nMax, cmsUInt32Number* Codes, char ** Descriptions);
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID,
     cmsUInt32Number nMax,
     cmsUInt32Number* Codes,
-    char** Descriptions);
+    char ** Descriptions);
 
 // Flags
 
@@ -1808,46 +1808,46 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8);
 CMSAPI cmsInt32Number CMSEXPORT cmsIT8SetTable(cmsHANDLE hIT8, cmsUInt32Number nTable);
 
 // Persistence
-CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char* cFileName);
+CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char * cFileName);
 CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cmsUInt32Number len);
 // CMSAPI cmsHANDLE        CMSEXPORT cmsIT8LoadFromIOhandler(cmsContext ContextID, cmsIOHANDLER* io);
 
-CMSAPI cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char* cFileName);
+CMSAPI cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
 CMSAPI cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded);
 // Properties
-CMSAPI const char*      CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char* Type);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char* cComment);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char* cProp, const char * Str);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char* cProp, cmsFloat64Number Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char* cProp, cmsUInt32Number Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char* Key, const char* SubKey, const char * Buffer);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char* Key, const char* Buffer);
-CMSAPI const char*      CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char* cProp);
-CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char* cProp);
-CMSAPI const char*      CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char* Key, const char * SubKey);
+CMSAPI const char *      CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * cComment);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * cProp, const char * Str);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, cmsFloat64Number Val);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer);
+CMSAPI const char *      CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * cProp);
+CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp);
+CMSAPI const char *      CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey);
 CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames);
-CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char* cProp, const char *** SubpropertyNames);
+CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames);
 // Datasets
-CMSAPI const char*      CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
+CMSAPI const char *      CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
 CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char* Val);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, cmsFloat64Number Val);
-CMSAPI const char*      CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char* cPatch, const char* cSample);
-CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE hIT8, const char* cPatch, const char* cSample);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char* cPatch, const char* cSample, const char * Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char* cPatch, const char* cSample, cmsFloat64Number Val);
+CMSAPI const char *      CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
+CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample, cmsFloat64Number Val);
 
-CMSAPI int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char* cSample);
+CMSAPI int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char * cSample);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE hIT8, int n, const char * Sample);
 CMSAPI int CMSEXPORT cmsIT8EnumDataFormat(cmsHANDLE hIT8, char *** SampleNames);
-CMSAPI const char*      CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char* buffer);
+CMSAPI const char *      CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buffer);
 CMSAPI int CMSEXPORT cmsIT8GetPatchByName(cmsHANDLE hIT8, const char * cPatch);
 // The LABEL extension
-CMSAPI int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char* cSet, const char* cField, const char* ExpectedType);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char* cSample);
+CMSAPI int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const char * cField, const char * ExpectedType);
+CMSAPI cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample);
 // Formatter for double
-CMSAPI void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char* Formatter);
+CMSAPI void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatter);
 
 // Gamut boundary description routines ------------------------------------------------------------------------------
 

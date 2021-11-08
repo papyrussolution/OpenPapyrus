@@ -419,8 +419,8 @@
 #ifdef __cplusplus
 #define png_voidcast(type, value) static_cast<type>(value)
 #define png_constcast(type, value) const_cast<type>(value)
-#define png_aligncast(type, value) static_cast<type>(static_cast<void*>(value))
-#define png_aligncastconst(type, value) static_cast<type>(static_cast<const void*>(value))
+#define png_aligncast(type, value) static_cast<type>(static_cast<void *>(value))
+#define png_aligncastconst(type, value) static_cast<type>(static_cast<const void *>(value))
 #else
 #define png_voidcast(type, value) (value)
 #define png_constcast(type, value) ((type)(value))
@@ -780,7 +780,7 @@
 #define png_tRNS PNG_U32(116,  82,  78,  83)
 #define png_zTXt PNG_U32(122,  84,  88, 116)
 
-/* The following will work on (signed char*) strings, whereas the get_uint_32
+/* The following will work on (signed char *) strings, whereas the get_uint_32
  * macro will fail on top-bit-set values because of the sign extension.
  */
 #define PNG_CHUNK_FROM_STRING(s) \

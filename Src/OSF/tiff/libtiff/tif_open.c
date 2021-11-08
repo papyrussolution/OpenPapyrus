@@ -31,7 +31,7 @@
 /*
  * Dummy functions to fill the omitted client procedures.
  */
-static int _tiffDummyMapProc(thandle_t fd, void** pbase, toff_t* psize)
+static int _tiffDummyMapProc(thandle_t fd, void ** pbase, toff_t* psize)
 {
 	(void)fd; (void)pbase; (void)psize;
 	return 0;
@@ -42,7 +42,7 @@ static void _tiffDummyUnmapProc(thandle_t fd, void * base, toff_t size)
 	(void)fd; (void)base; (void)size;
 }
 
-int _TIFFgetMode(const char* mode, const char* module)
+int _TIFFgetMode(const char * mode, const char * module)
 {
 	int m = -1;
 	switch(mode[0]) {
@@ -70,7 +70,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	static const char module[] = __FUNCTION__;
 	TIFF * tif;
 	int m;
-	const char* cp;
+	const char * cp;
 	/* The following are configuration checks. They should be redundant, but should not
 	 * compile to any actual code in an optimised release build anyway. If any of them
 	 * fail, (makefile-based or other) configuration is not correct */
@@ -313,7 +313,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	if(tif->tif_header.common.tiff_magic != TIFF_BIGENDIAN &&
 	    tif->tif_header.common.tiff_magic != TIFF_LITTLEENDIAN
 	    #if MDI_SUPPORT
-	    &&
+	  &&
 	    #if HOST_BIGENDIAN
 	    tif->tif_header.common.tiff_magic != MDI_BIGENDIAN
 	    #else
@@ -445,7 +445,7 @@ const char * TIFFFileName(TIFF* tif)
  */
 const char * TIFFSetFileName(TIFF* tif, const char * name)
 {
-	const char* old_name = tif->tif_name;
+	const char * old_name = tif->tif_name;
 	tif->tif_name = (char *)name;
 	return (old_name);
 }

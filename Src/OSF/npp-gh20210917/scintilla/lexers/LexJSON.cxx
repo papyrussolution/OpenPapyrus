@@ -451,7 +451,7 @@ void SCI_METHOD LexerJSON::Lex(Sci_PositionU startPos,
 			    (context.ch == '-' || context.ch == '+') &&
 			    ((tolower(context.chPrev) == 'e' && IsADigit(context.chNext)) ||
 			    ((IsASpace(context.chPrev) || setOperators.Contains(context.chPrev))
-			    && IsADigit(context.chNext)));
+			  && IsADigit(context.chNext)));
 			bool adjacentDigit =
 			    IsADigit(context.ch) && IsADigit(context.chPrev);
 			bool afterExponent = IsADigit(context.ch) && tolower(context.chPrev) == 'e';

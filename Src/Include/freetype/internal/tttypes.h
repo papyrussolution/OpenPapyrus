@@ -990,7 +990,7 @@ typedef enum TT_SbitTableType_ {
 /* actually requested.                                         */
 
 /* FVAR */
-#define TT_FACE_FLAG_VAR_FVAR  ( 1 << 0 )
+#define TT_FACE_FLAG_VAR_FVAR  ( 1 << 0)
 
 /* HVAR */
 #define TT_FACE_FLAG_VAR_HADVANCE  ( 1 << 1 )
@@ -1431,7 +1431,7 @@ typedef struct  TT_FaceRec_ {
 
 	FT_Generic extra;
 
-	const char*           postscript_name;
+	const char *           postscript_name;
 
 	FT_ULong glyf_len;
 	FT_ULong glyf_offset;             /* since 2.7.1 */
@@ -1444,7 +1444,7 @@ typedef struct  TT_FaceRec_ {
 
 	FT_UInt32 variation_support;             /* since 2.7.1 */
 
-	const char*           var_postscript_prefix; /* since 2.7.2 */
+	const char *           var_postscript_prefix; /* since 2.7.2 */
 	FT_UInt var_postscript_prefix_len;           /* since 2.7.2 */
 
 #endif

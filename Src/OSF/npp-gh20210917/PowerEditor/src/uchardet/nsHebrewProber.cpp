@@ -107,7 +107,7 @@ PRBool nsHebrewProber::isNonFinal(char c)
  * The input buffer should not contain any white spaces that are not (' ')
  * or any low-ascii punctuation marks. 
  */
-nsProbingState nsHebrewProber::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsHebrewProber::HandleData(const char * aBuf, PRUint32 aLen)
 {
   // Both model probers say it's not them. No reason to continue.
   if (GetState() == eNotMe)
@@ -116,7 +116,7 @@ nsProbingState nsHebrewProber::HandleData(const char* aBuf, PRUint32 aLen)
   const char *curPtr, *endPtr = aBuf+aLen;
   char cur;
 
-  for (curPtr = (char*)aBuf; curPtr < endPtr; ++curPtr)
+  for (curPtr = (char *)aBuf; curPtr < endPtr; ++curPtr)
   {
     cur = *curPtr;
     if (cur == ' ') // We stand on a space - a word just ended
@@ -143,7 +143,7 @@ nsProbingState nsHebrewProber::HandleData(const char* aBuf, PRUint32 aLen)
 }
 
 // Make the decision: is it Logical or Visual?
-const char* nsHebrewProber::GetCharSetName()
+const char * nsHebrewProber::GetCharSetName()
 {
   // If the final letter score distance is dominant enough, rely on it.
   PRInt32 finalsub = mFinalCharLogicalScore - mFinalCharVisualScore;

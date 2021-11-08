@@ -388,7 +388,7 @@ const char * GnuPlot::HistoryFind(char * pCmd)
 		return NULL;
 	len = strlen(pCmd);
 	if(pCmd[len-1] == '"')
-		pCmd[--len] = NUL;
+		pCmd[--len] = '\0';
 	if(!*pCmd)
 		return NULL;
 	// Start at latest entry 

@@ -310,7 +310,7 @@ static void ColouriseLuaDoc(Sci_PositionU startPos,
 						break;
 					}
 					ident += identSeg;
-					const char* s = ident.c_str();
+					const char * s = ident.c_str();
 					int newStyle = SCE_LUA_IDENTIFIER;
 					if(keywords.InList(s)) {
 						newStyle = SCE_LUA_WORD;

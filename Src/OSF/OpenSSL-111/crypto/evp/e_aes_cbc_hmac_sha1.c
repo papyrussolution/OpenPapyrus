@@ -55,7 +55,7 @@ static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX * ctx, const uchar * inke
 			EVP_CIPHER_CTX_key_length(ctx) * 8,
 			&key->ks);
 
-	SHA1_Init(&key->head);  /* handy when benchmarking */
+	SHA1_Init(&key->head); /* handy when benchmarking */
 	key->tail = key->head;
 	key->md = key->head;
 
@@ -408,7 +408,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 
 #if defined(STITCHED_CALL)
 		if(plen > (sha_off + iv)
-		    && (blocks = (plen - (sha_off + iv)) / SHA_CBLOCK)) {
+		  && (blocks = (plen - (sha_off + iv)) / SHA_CBLOCK)) {
 			SHA1_Update(&key->md, in + iv, sha_off);
 
 			aesni_cbc_sha1_enc(in, out, blocks, &key->ks,

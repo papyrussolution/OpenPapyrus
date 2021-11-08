@@ -69,7 +69,7 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 	int quote;
 	char brace;
 	Pgm.CurlyBraceCount = 0;
-	for(current = Pgm.__TNum = 0; p_expression[current] != NUL; current++) {
+	for(current = Pgm.__TNum = 0; p_expression[current]; current++) {
 		if((Pgm.__TNum+1) >= Pgm.TokenTableSize) {
 			Pgm.ExtendTokenTable(); // leave space for dummy end token 
 		}
@@ -119,7 +119,7 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			Pgm.Tok().Len += 2;
 			while(p_expression[++current] != RBRACE) {
 				Pgm.Tok().Len++;
-				if(p_expression[current] == NUL) /* { for vi % */
+				if(!p_expression[current]) // { for vi % 
 					IntError(Pgm.__TNum, "no matching '}'");
 			}
 		}
@@ -129,7 +129,7 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			while(p_expression[++current] != quote) {
 				if(!p_expression[current]) {
 					p_expression[current] = quote;
-					p_expression[current+1] = NUL;
+					p_expression[current+1] = '\0';
 					break;
 				}
 				else if(quote == '\"' && p_expression[current] == '\\' && p_expression[current+1]) {
@@ -288,10 +288,10 @@ void GnuPlot::Substitute(char ** ppStr, size_t * pStrLen, int current)
 	}
 	pgm_len = last - str;
 	pgm = (char *)SAlloc::M(pgm_len);
-	strnzcpy(pgm, str + 1, pgm_len); /* omit ` to leave room for NUL */
+	strnzcpy(pgm, str + 1, pgm_len); // omit ` to leave room for NUL 
 	// save rest of line, if any 
 	if(*last) {
-		last++;         /* advance past ` */
+		last++; // advance past `
 		rest_len = strlen(last) + 1;
 		if(rest_len > 1) {
 			rest = (char *)SAlloc::M(rest_len);

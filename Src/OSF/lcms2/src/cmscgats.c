@@ -77,10 +77,10 @@ typedef enum {
 // Linked list of variable names
 typedef struct _KeyVal {
 	struct _KeyVal*  Next;
-	char*            Keyword;       // Name of variable
+	char *            Keyword;       // Name of variable
 	struct _KeyVal*  NextSubkey;    // If key is a dictionary, points to the next item
-	char*            Subkey;        // If key is a dictionary, points to the subkey name
-	char*            Value;         // Points to value
+	char *            Subkey;        // If key is a dictionary, points to the subkey name
+	char *            Value;         // Points to value
 	WRITEMODE WriteAs;              // How to write the value
 } KEYVALUE;
 
@@ -106,8 +106,8 @@ typedef struct _Table {
 
 	KEYVALUE*      HeaderList;            // The properties
 
-	char**         DataFormat;            // The binary stream descriptor
-	char**         Data;                  // The binary stream
+	char **         DataFormat;            // The binary stream descriptor
+	char **         Data;                  // The binary stream
 } TABLE;
 
 // File stream being parsed
@@ -141,13 +141,13 @@ typedef struct {
 	KEYVALUE*      ValidKeywords;
 	KEYVALUE*      ValidSampleID;
 
-	char*          Source;                // Points to loc. being parsed
+	char *          Source;                // Points to loc. being parsed
 	cmsInt32Number lineno;                // line counter for error reporting
 
 	FILECTX*       FileStack[MAXINCLUDE]; // Stack of files being parsed
 	cmsInt32Number IncludeSP;             // Include Stack Pointer
 
-	char*          MemoryBlock;           // The stream if holded in memory
+	char *          MemoryBlock;           // The stream if holded in memory
 
 	char DoubleFormatter[MAXID];          // Printf-like 'cmsFloat64Number' formatter
 
@@ -299,7 +299,7 @@ static PROPERTY PredefinedProperties[] = {
 #define NUMPREDEFINEDPROPS (sizeof(PredefinedProperties)/sizeof(PROPERTY))
 
 // Predefined sample types on dataset
-static const char* PredefinedSampleID[] = {
+static const char * PredefinedSampleID[] = {
 	"SAMPLE_ID",      // Identifies sample that data represents
 	"STRING",         // Identifies label, or other non-machine readable value.
 	                  // Value must begin and end with a " symbol
@@ -427,7 +427,7 @@ static cmsBool BuildAbsolutePath(const char * relPath, const char * basePath, ch
 }
 
 // Make sure no exploit is being even tried
-static const char* NoMeta(const char* str)
+static const char * NoMeta(const char * str)
 {
 	if(strchr(str, '%') != NULL)
 		return "**** CORRUPTED FORMAT STRING ***";
@@ -452,7 +452,7 @@ static cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
 }
 
 // Check if current symbol is same as specified. issue an error else.
-static cmsBool Check(cmsIT8* it8, SYMBOL sy, const char* Err)
+static cmsBool Check(cmsIT8* it8, SYMBOL sy, const char * Err)
 {
 	if(it8->sy != sy)
 		return SynError(it8, NoMeta(Err));
@@ -888,7 +888,7 @@ static void SkipEOLN(cmsIT8* it8)
 }
 
 // Returns a string holding current value
-static cmsBool GetVal(cmsIT8* it8, char* Buffer, cmsUInt32Number max, const char* ErrorTitle)
+static cmsBool GetVal(cmsIT8* it8, char * Buffer, cmsUInt32Number max, const char * ErrorTitle)
 {
 	switch(it8->sy) {
 		case SEOLN: // Empty value
@@ -991,7 +991,7 @@ void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 }
 
 // Allocates a string
-static char * AllocString(cmsIT8* it8, const char* str)
+static char * AllocString(cmsIT8* it8, const char * str)
 {
 	cmsUInt32Number Size = (cmsUInt32Number)strlen(str)+1;
 	char * ptr = (char *)AllocChunk(it8, Size);
@@ -1002,7 +1002,7 @@ static char * AllocString(cmsIT8* it8, const char* str)
 
 // Searches through linked list
 
-static cmsBool IsAvailableOnList(KEYVALUE* p, const char* Key, const char* Subkey, KEYVALUE** LastPtr)
+static cmsBool IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Subkey, KEYVALUE** LastPtr)
 {
 	ASSIGN_PTR(LastPtr, p);
 	for(; p != NULL; p = p->Next) {
@@ -1027,7 +1027,7 @@ static cmsBool IsAvailableOnList(KEYVALUE* p, const char* Key, const char* Subke
 }
 
 // Add a property into a linked list
-static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char* xValue, WRITEMODE WriteAs)
+static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char * xValue, WRITEMODE WriteAs)
 {
 	KEYVALUE* p;
 	KEYVALUE* last;
@@ -1086,13 +1086,13 @@ static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const
 }
 
 static
-KEYVALUE* AddAvailableProperty(cmsIT8* it8, const char* Key, WRITEMODE as)
+KEYVALUE* AddAvailableProperty(cmsIT8* it8, const char * Key, WRITEMODE as)
 {
 	return AddToList(it8, &it8->ValidKeywords, Key, NULL, NULL, as);
 }
 
 static
-KEYVALUE* AddAvailableSampleID(cmsIT8* it8, const char* Key)
+KEYVALUE* AddAvailableSampleID(cmsIT8* it8, const char * Key)
 {
 	return AddToList(it8, &it8->ValidSampleID, Key, NULL, NULL, WRITE_UNCOOKED);
 }
@@ -1178,19 +1178,19 @@ cmsHANDLE CMSEXPORT cmsIT8Alloc(cmsContext ContextID)
 	return (cmsHANDLE)it8;
 }
 
-const char* CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8)
+const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8)
 {
 	return GetTable((cmsIT8*)hIT8)->SheetType;
 }
 
-cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char* Type)
+cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type)
 {
 	TABLE* t = GetTable((cmsIT8*)hIT8);
 	strnzcpy(t->SheetType, Type, MAXSTR);
 	return TRUE;
 }
 
-cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char* Val)
+cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	if(isempty(Val))
@@ -1199,7 +1199,7 @@ cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char* Val)
 }
 
 // Sets a property
-cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char* Key, const char * Val)
+cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * Key, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	if(!Val) return FALSE;
@@ -1207,7 +1207,7 @@ cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char* Key, const ch
 	return AddToList(it8, &GetTable(it8)->HeaderList, Key, NULL, Val, WRITE_STRINGIFY) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char* cProp, cmsFloat64Number Val)
+cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, cmsFloat64Number Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buffer[1024];
@@ -1215,7 +1215,7 @@ cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char* cProp, cmsFlo
 	return AddToList(it8, &GetTable(it8)->HeaderList, cProp, NULL, Buffer, WRITE_UNCOOKED) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char* cProp, cmsUInt32Number Val)
+cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buffer[1024];
@@ -1223,13 +1223,13 @@ cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char* cProp, cmsUIn
 	return AddToList(it8, &GetTable(it8)->HeaderList, cProp, NULL, Buffer, WRITE_HEXADECIMAL) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char* Key, const char* Buffer)
+cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	return AddToList(it8, &GetTable(it8)->HeaderList, Key, NULL, Buffer, WRITE_UNCOOKED) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char* Key, const char* SubKey, const char * Buffer)
+cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -1237,7 +1237,7 @@ cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char* Key, const 
 }
 
 // Gets a property
-const char* CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char* Key)
+const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * Key)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE* p;
@@ -1248,7 +1248,7 @@ const char* CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char* Key)
 	return NULL;
 }
 
-cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char* cProp)
+cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp)
 {
 	const char * v = cmsIT8GetProperty(hIT8, cProp);
 
@@ -1257,7 +1257,7 @@ cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char* cPro
 	return ParseFloatNumber(v);
 }
 
-const char* CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char* Key, const char * SubKey)
+const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE* p;
@@ -1284,7 +1284,7 @@ void AllocateDataFormat(cmsIT8* it8)
 		t->nSamples = 10;
 	}
 
-	t->DataFormat = (char**)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * sizeof(char *));
+	t->DataFormat = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * sizeof(char *));
 	if(t->DataFormat == NULL) {
 		SynError(it8, "AllocateDataFormat: Unable to allocate dataFormat array");
 	}
@@ -1341,7 +1341,7 @@ void AllocateDataSet(cmsIT8* it8)
 		SynError(it8, "AllocateDataSet: too much data");
 	}
 	else {
-		t->Data = (char**)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
+		t->Data = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
 		if(t->Data == NULL) {
 			SynError(it8, "AllocateDataSet: Unable to allocate data array");
 		}
@@ -1349,7 +1349,7 @@ void AllocateDataSet(cmsIT8* it8)
 }
 
 static
-char* GetData(cmsIT8* it8, int nSet, int nField)
+char * GetData(cmsIT8* it8, int nSet, int nField)
 {
 	TABLE* t = GetTable(it8);
 	int nSamples    = t->nSamples;
@@ -1421,7 +1421,7 @@ void WriteStr(SAVESTREAM* f, const char * str)
 // Write formatted
 
 static
-void Writef(SAVESTREAM* f, const char* frm, ...)
+void Writef(SAVESTREAM* f, const char * frm, ...)
 {
 	char Buffer[4096];
 	va_list args;
@@ -1446,7 +1446,7 @@ void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 
 	for(p = t->HeaderList; (p != NULL); p = p->Next) {
 		if(*p->Keyword == '#') {
-			char* Pt;
+			char * Pt;
 
 			WriteStr(fp, "#\n# ");
 			for(Pt = p->Value; *Pt; Pt++) {
@@ -1563,7 +1563,7 @@ void WriteData(SAVESTREAM* fp, cmsIT8* it8)
 }
 
 // Saves whole file
-cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char* cFileName)
+cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
 {
 	SAVESTREAM sd;
 	cmsUInt32Number i;
@@ -1794,7 +1794,7 @@ cmsBool HeaderSection(cmsIT8* it8)
 }
 
 static
-void ReadType(cmsIT8* it8, char* SheetTypePtr)
+void ReadType(cmsIT8* it8, char * SheetTypePtr)
 {
 	cmsInt32Number cnt = 0;
 
@@ -1815,7 +1815,7 @@ void ReadType(cmsIT8* it8, char* SheetTypePtr)
 static
 cmsBool ParseIT8(cmsIT8* it8, cmsBool nosheet)
 {
-	char* SheetTypePtr = it8->Tab[0].SheetType;
+	char * SheetTypePtr = it8->Tab[0].SheetType;
 
 	if(nosheet == 0) {
 		ReadType(it8, SheetTypePtr);
@@ -1889,7 +1889,7 @@ static
 void CookPointers(cmsIT8* it8)
 {
 	int idField, i;
-	char* Fld;
+	char * Fld;
 	cmsUInt32Number j;
 	cmsUInt32Number nOldTable = it8->nTable;
 
@@ -1917,7 +1917,7 @@ void CookPointers(cmsIT8* it8)
 			if((cmsstrcasecmp(Fld, "LABEL") == 0) || Fld[0] == '$') {
 				// Search for table references...
 				for(i = 0; i < t->nPatches; i++) {
-					char* Label = GetData(it8, i, idField);
+					char * Label = GetData(it8, i, idField);
 
 					if(Label) {
 						cmsUInt32Number k;
@@ -1933,7 +1933,7 @@ void CookPointers(cmsIT8* it8)
 								// Available, keep type and table
 								char Buffer[256];
 
-								char* Type = p->Value;
+								char * Type = p->Value;
 								int nTable = (int)k;
 
 								snprintf(Buffer, 255, "%s %d %s", Label, nTable, Type);
@@ -1991,7 +1991,7 @@ int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
 }
 
 static
-cmsBool IsMyFile(const char* FileName)
+cmsBool IsMyFile(const char * FileName)
 {
 	FILE * fp;
 	cmsUInt32Number Size;
@@ -2048,7 +2048,7 @@ cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cm
 	return hIT8;
 }
 
-cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char* cFileName)
+cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char * cFileName)
 {
 	cmsHANDLE hIT8;
 	cmsIT8*  it8;
@@ -2114,7 +2114,7 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** Property
 		n++;
 	}
 
-	Props = (char**)AllocChunk(it8, sizeof(char *) * n);
+	Props = (char **)AllocChunk(it8, sizeof(char *) * n);
 
 	// Pass#2 - Fill pointers
 	n = 0;
@@ -2126,7 +2126,7 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** Property
 	return n;
 }
 
-cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char* cProp, const char *** SubpropertyNames)
+cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE * p, * tmp;
@@ -2151,7 +2151,7 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char* cP
 			n++;
 	}
 
-	Props = (const char**)AllocChunk(it8, sizeof(char *) * n);
+	Props = (const char **)AllocChunk(it8, sizeof(char *) * n);
 
 	// Pass#2 - Fill pointers
 	n = 0;
@@ -2165,7 +2165,7 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char* cP
 }
 
 static
-int LocatePatch(cmsIT8* it8, const char* cPatch)
+int LocatePatch(cmsIT8* it8, const char * cPatch)
 {
 	int i;
 	const char * data;
@@ -2202,7 +2202,7 @@ int LocateEmptyPatch(cmsIT8* it8)
 }
 
 static
-int LocateSample(cmsIT8* it8, const char* cSample)
+int LocateSample(cmsIT8* it8, const char * cSample)
 {
 	int i;
 	const char * fld;
@@ -2219,7 +2219,7 @@ int LocateSample(cmsIT8* it8, const char* cSample)
 	return -1;
 }
 
-int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char* cSample)
+int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -2228,7 +2228,7 @@ int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char* cSample)
 	return LocateSample(it8, cSample);
 }
 
-const char* CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
+const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -2239,7 +2239,7 @@ const char* CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
 
 cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col)
 {
-	const char* Buffer;
+	const char * Buffer;
 
 	Buffer = cmsIT8GetDataRowCol(hIT8, row, col);
 
@@ -2248,7 +2248,7 @@ cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int c
 	return ParseFloatNumber(Buffer);
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char* Val)
+cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -2269,7 +2269,7 @@ cmsBool CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, cmsFl
 	return SetData(it8, row, col, Buff);
 }
 
-const char* CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char* cPatch, const char* cSample)
+const char * CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int iField, iSet;
@@ -2289,16 +2289,16 @@ const char* CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char* cPatch, const ch
 	return GetData(it8, iSet, iField);
 }
 
-cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE it8, const char* cPatch, const char* cSample)
+cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE it8, const char * cPatch, const char * cSample)
 {
-	const char* Buffer;
+	const char * Buffer;
 
 	Buffer = cmsIT8GetData(it8, cPatch, cSample);
 
 	return ParseFloatNumber(Buffer);
 }
 
-cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char* cPatch, const char* cSample, const char * Val)
+cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int iField, iSet;
@@ -2337,8 +2337,8 @@ cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char* cPatch, const char* 
 	return SetData(it8, iSet, iField, Val);
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char* cPatch,
-    const char* cSample,
+cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch,
+    const char * cSample,
     cmsFloat64Number Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
@@ -2352,11 +2352,11 @@ cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char* cPatch,
 
 // Buffer should get MAXSTR at least
 
-const char* CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char* buffer)
+const char * CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	TABLE* t;
-	char* Data;
+	char * Data;
 	_cmsAssert(hIT8 != NULL);
 	t = GetTable(it8);
 	Data = GetData(it8, nPatch, t->SampleID);
@@ -2384,9 +2384,9 @@ cmsUInt32Number CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8)
 // This handles the "LABEL" extension.
 // Label, nTable, Type
 
-int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char* cSet, const char* cField, const char* ExpectedType)
+int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const char * cField, const char * ExpectedType)
 {
-	const char* cLabelFld;
+	const char * cLabelFld;
 	char Type[256], Label[256];
 	cmsUInt32Number nTable;
 	_cmsAssert(hIT8 != NULL);
@@ -2406,7 +2406,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char* cSet, const char
 	return cmsIT8SetTable(hIT8, nTable);
 }
 
-cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char* cSample)
+cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int pos;
@@ -2418,7 +2418,7 @@ cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char* cSample)
 	return TRUE;
 }
 
-void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char* Formatter)
+void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatter)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	_cmsAssert(hIT8 != NULL);

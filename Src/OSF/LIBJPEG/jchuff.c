@@ -562,7 +562,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	if(r > 0) {             /* If there are trailing zeroes, */
 		entropy->EOBRUN++; /* count an EOB */
 		if(entropy->EOBRUN == 0x7FFF)
-			emit_eobrun(entropy);  /* force it out to avoid overflow */
+			emit_eobrun(entropy); /* force it out to avoid overflow */
 	}
 	cinfo->dest->next_output_byte = entropy->next_output_byte;
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;

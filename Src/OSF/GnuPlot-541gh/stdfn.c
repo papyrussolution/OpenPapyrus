@@ -121,7 +121,7 @@ uint sleep(uint delay)
 	{
 		char * ret = strncpy(d, s, n);
 		if(strlen(s) >= n)
-			d[n > 0 ? n - 1 : 0] = NUL;
+			d[n > 0 ? n - 1 : 0] = '\0';
 		return ret;
 	}
 #endif // } 0

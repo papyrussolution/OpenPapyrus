@@ -290,7 +290,7 @@ static void set_fixed_header_named(DYNAMIC_COLUMN * str, DYN_HEADER * hdr)
 	str->str[0] =
 	    (char)((str->str[0] & ~(DYNCOL_FLG_OFFSET | DYNCOL_FLG_NMOFFSET)) |
 	    (hdr->offset_size - 2) | DYNCOL_FLG_NAMES);
-	int2store(str->str + 1, hdr->column_count);  /* columns number */
+	int2store(str->str + 1, hdr->column_count); /* columns number */
 	int2store(str->str + 3, hdr->nmpool_size);
 	hdr->header = (uchar *)str->str + FIXED_HEADER_SIZE_NM;
 	hdr->nmpool = hdr->header + hdr->header_size;
@@ -1509,7 +1509,7 @@ static void set_fixed_header(DYNAMIC_COLUMN * str,
 	DBUG_ASSERT(offset_size <= MAX_OFFSET_LENGTH);
 	str->str[0] = ((str->str[0] & ~DYNCOL_FLG_OFFSET) |
 	    (offset_size - 1));                 /* size of offset */
-	int2store(str->str + 1, column_count);  /* columns number */
+	int2store(str->str + 1, column_count); /* columns number */
 	DBUG_ASSERT((str->str[0] & (~DYNCOL_FLG_KNOWN)) == 0);
 }
 
@@ -2342,7 +2342,7 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
 			(*names)[i].length = tmp.length;
 			(*names)[i].str = pool;
 			pool += tmp.length + 1;
-			memcpy((*names)[i].str, (const void*)tmp.str, tmp.length);
+			memcpy((*names)[i].str, (const void *)tmp.str, tmp.length);
 			(*names)[i].str[tmp.length] = '\0'; // just for safety
 		}
 	}

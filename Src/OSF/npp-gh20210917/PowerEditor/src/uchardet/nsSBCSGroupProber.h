@@ -47,8 +47,8 @@ class nsSBCSGroupProber: public nsCharSetProber {
 public:
   nsSBCSGroupProber();
   virtual ~nsSBCSGroupProber();
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName();
+  nsProbingState HandleData(const char * aBuf, PRUint32 aLen);
+  const char * GetCharSetName();
   nsProbingState GetState(void) {return mState;}
   void      Reset(void);
   float     GetConfidence(void);

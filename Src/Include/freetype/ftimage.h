@@ -317,7 +317,7 @@ typedef struct  FT_Outline_ {
 	short n_points;          /* number of points in the glyph      */
 
 	FT_Vector*  points;      /* the outline's points               */
-	char*       tags;        /* the points flags                   */
+	char *       tags;        /* the points flags                   */
 	short*      contours;    /* the contour end points             */
 
 	int flags;               /* outline masks                      */
@@ -657,11 +657,7 @@ typedef struct  FT_Outline_Funcs_ {
  *   to get a simple enumeration without assigning special numbers.
  */
 #ifndef FT_IMAGE_TAG
-#define FT_IMAGE_TAG(value, _x1, _x2, _x3, _x4)  \
-	value = ( ( (unsigned long)_x1 << 24 ) | \
-	    ( (unsigned long)_x2 << 16 ) | \
-	    ( (unsigned long)_x3 << 8  ) | \
-	    (unsigned long)_x4         )
+	#define FT_IMAGE_TAG(value, _x1, _x2, _x3, _x4) value = (((ulong)_x1 << 24 ) | ( (ulong)_x2 << 16 ) | ( (ulong)_x3 << 8  ) | (ulong)_x4)
 #endif /* FT_IMAGE_TAG */
 
 /**************************************************************************

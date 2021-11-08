@@ -224,10 +224,10 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	// shut up gcc warnings  - SB 
 	xleftpos = yleftpos = xrightpos = yrightpos = 1.0; /* dummy */
 	// ignore empty strings 
-	if(str[0] == NUL)
+	if(!str[0])
 		return;
 	stl = 0;
-	while(str[stl] != NUL)
+	while(str[stl])
 		++stl;          /* get string length */
 	if(vector_was_last)
 		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);

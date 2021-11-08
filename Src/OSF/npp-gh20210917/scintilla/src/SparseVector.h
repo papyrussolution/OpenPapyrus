@@ -34,8 +34,8 @@ public:
 	// Deleted so SparseVector objects can not be copied.
 	SparseVector(const SparseVector &) = delete;
 	SparseVector(SparseVector &&) = delete;
-	void operator=(const SparseVector &) = delete;
-	void operator=(SparseVector &&) = delete;
+	void operator = (const SparseVector &) = delete;
+	void operator = (SparseVector &&) = delete;
 	~SparseVector() {
 		starts.reset();
 		// starts dead here but not used by ClearValue.

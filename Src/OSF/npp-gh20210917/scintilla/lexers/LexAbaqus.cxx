@@ -130,7 +130,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = KW_LINE_VAL;
 			    }
-			    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+			    else if((sc.ch == '\'') || (sc.ch == '\"') ) {
 				    sc.SetState(SCE_ABAQUS_STRING);
 				    state = KW_LINE_VAL;
 			    }
@@ -225,7 +225,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = DAT_LINE_VAL;
 			    }
-			    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+			    else if((sc.ch == '\'') || (sc.ch == '\"') ) {
 				    sc.SetState(SCE_ABAQUS_STRING);
 				    state = DAT_LINE_VAL;
 			    }
@@ -275,7 +275,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    sc.SetState(SCE_ABAQUS_DEFAULT);
 					    state = DAT_LINE_VAL;
 				    }
-				    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+				    else if((sc.ch == '\'') || (sc.ch == '\"') ) {
 					    sc.SetState(SCE_ABAQUS_STRING);
 					    state = DAT_LINE_VAL;
 				    }
@@ -415,7 +415,7 @@ static int LineType(Sci_Position line, Accessor &styler) {
 		c = styler.SafeGetCharAt(i);
 		ch = static_cast<char>(LowerCase(c));
 
-		if( (!IsSpace(c)) && (!IsIdentifier(c)) )
+		if((!IsSpace(c)) && (!IsIdentifier(c)) )
 			break;
 
 		if(IsIdentifier(c) ) {
@@ -453,7 +453,7 @@ static void SafeSetLevel(Sci_Position line, int level, Accessor &styler)
 
 	int mask = ((~SC_FOLDLEVELHEADERFLAG) | (~SC_FOLDLEVELWHITEFLAG));
 
-	if( (level & mask) < 0)
+	if((level & mask) < 0)
 		return;
 
 	if(styler.LevelAt(line) != level)
@@ -506,7 +506,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int,
 		}
 
 		// Check for data line
-		if( (lineType == 1) || (lineType == 3) ) {
+		if((lineType == 1) || (lineType == 3) ) {
 			if(beginData < 0) {
 				if(beginComment >= 0) {
 					beginData = beginComment;

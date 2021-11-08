@@ -501,7 +501,7 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 			    }
 			    else { /* 2nd or later SOS marker */
 				    if(!inputctl->pub.has_multiple_scans)
-					    ERREXIT(cinfo, JERR_EOI_EXPECTED);  /* Oops, I wasn't expecting this! */
+					    ERREXIT(cinfo, JERR_EOI_EXPECTED); /* Oops, I wasn't expecting this! */
 				    if(cinfo->comps_in_scan == 0) /* unexpected pseudo SOS marker */
 					    break;
 				    start_input_pass(cinfo);

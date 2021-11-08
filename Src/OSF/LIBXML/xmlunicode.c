@@ -16,7 +16,7 @@
 #ifdef LIBXML_UNICODE_ENABLED
 //#include <libxml/xmlunicode.h>
 
-typedef int (xmlIntFunc)(int);  /* just to keep one's mind untwisted */
+typedef int (xmlIntFunc)(int); /* just to keep one's mind untwisted */
 
 typedef struct {
 	const char * rangename;

@@ -973,7 +973,7 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 				filters &= ~(PNG_FILTER_SUB|PNG_FILTER_AVG|PNG_FILTER_PAETH);
 
 			if((filters & (PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH)) != 0
-			    && png_ptr->prev_row == NULL) {
+			  && png_ptr->prev_row == NULL) {
 				/* This is the error case, however it is benign - the previous row
 				 * is not available so the filter can't be used.  Just warn here.
 				 */
@@ -1871,7 +1871,7 @@ static int png_image_write_main(void * argument)
 	 * before it is written.  This only applies when the input is 16-bit and
 	 * either there is an alpha channel or it is converted to 8-bit.
 	 */
-	if((linear != 0 && alpha != 0 ) ||
+	if((linear != 0 && alpha != 0) ||
 	    (colormap == 0 && display->convert_to_8bit != 0)) {
 		png_bytep row = png_voidcast(png_bytep, png_malloc(png_ptr,
 			    png_get_rowbytes(png_ptr, info_ptr)));

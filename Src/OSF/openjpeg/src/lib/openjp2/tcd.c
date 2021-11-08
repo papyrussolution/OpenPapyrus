@@ -325,7 +325,7 @@ void opj_tcd_makelayer_fixed(opj_tcd_t * tcd, OPJ_UINT32 layno,
 						opj_tcd_layer_t * layer = &cblk->layers[layno];
 						OPJ_UINT32 n;
 						OPJ_INT32 imsb = (OPJ_INT32)(tcd->image->comps[compno].prec -
-						    cblk->numbps);  /* number of bit-plan equal to zero */
+						    cblk->numbps); /* number of bit-plan equal to zero */
 
 						/* Correction of the matrix of coefficient to include the IMSB
 						   information */

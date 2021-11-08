@@ -31,8 +31,8 @@ public:
 	// Deleted so MarkerHandleSet objects can not be copied.
 	MarkerHandleSet(const MarkerHandleSet &) = delete;
 	MarkerHandleSet(MarkerHandleSet &&) = delete;
-	void operator=(const MarkerHandleSet &) = delete;
-	void operator=(MarkerHandleSet &&) = delete;
+	void operator = (const MarkerHandleSet &) = delete;
+	void operator = (MarkerHandleSet &&) = delete;
 	~MarkerHandleSet();
 	bool Empty() const noexcept;
 	int MarkValue() const noexcept;	///< Bit set of marker numbers.
@@ -54,8 +54,8 @@ public:
 	// Deleted so LineMarkers objects can not be copied.
 	LineMarkers(const LineMarkers &) = delete;
 	LineMarkers(LineMarkers &&) = delete;
-	void operator=(const LineMarkers &) = delete;
-	void operator=(LineMarkers &&) = delete;
+	void operator = (const LineMarkers &) = delete;
+	void operator = (LineMarkers &&) = delete;
 	~LineMarkers() override;
 	void Init() override;
 	void InsertLine(Sci::Line line) override;
@@ -81,8 +81,8 @@ public:
 	// Deleted so LineLevels objects can not be copied.
 	LineLevels(const LineLevels &) = delete;
 	LineLevels(LineLevels &&) = delete;
-	void operator=(const LineLevels &) = delete;
-	void operator=(LineLevels &&) = delete;
+	void operator = (const LineLevels &) = delete;
+	void operator = (LineLevels &&) = delete;
 	~LineLevels() override;
 	void Init() override;
 	void InsertLine(Sci::Line line) override;
@@ -103,8 +103,8 @@ public:
 	// Deleted so LineState objects can not be copied.
 	LineState(const LineState &) = delete;
 	LineState(LineState &&) = delete;
-	void operator=(const LineState &) = delete;
-	void operator=(LineState &&) = delete;
+	void operator = (const LineState &) = delete;
+	void operator = (LineState &&) = delete;
 	~LineState() override;
 	void Init() override;
 	void InsertLine(Sci::Line line) override;
@@ -124,8 +124,8 @@ public:
 	// Deleted so LineAnnotation objects can not be copied.
 	LineAnnotation(const LineAnnotation &) = delete;
 	LineAnnotation(LineAnnotation &&) = delete;
-	void operator=(const LineAnnotation &) = delete;
-	void operator=(LineAnnotation &&) = delete;
+	void operator = (const LineAnnotation &) = delete;
+	void operator = (LineAnnotation &&) = delete;
 	~LineAnnotation() override;
 	void Init() override;
 	void InsertLine(Sci::Line line) override;
@@ -154,8 +154,8 @@ public:
 	// Deleted so LineTabstops objects can not be copied.
 	LineTabstops(const LineTabstops &) = delete;
 	LineTabstops(LineTabstops &&) = delete;
-	void operator=(const LineTabstops &) = delete;
-	void operator=(LineTabstops &&) = delete;
+	void operator = (const LineTabstops &) = delete;
+	void operator = (LineTabstops &&) = delete;
 	~LineTabstops() override;
 	void Init() override;
 	void InsertLine(Sci::Line line) override;

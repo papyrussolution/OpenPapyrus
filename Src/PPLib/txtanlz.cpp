@@ -2317,7 +2317,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 			LogF.Close();
 			LogF.Open(temp_buf, SFile::mWrite);
 			if(LogF.IsValid()) {
-				line_buf.Z().Cat(getcurdatetime_());
+				line_buf.Z().CatCurDateTime();
 				//
 				if(!SGetComputerName(temp_buf))
 					temp_buf = "?COMP?";

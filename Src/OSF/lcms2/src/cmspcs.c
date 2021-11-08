@@ -592,12 +592,12 @@ cmsFloat64Number CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIEL
     cmsFloat64Number L1  = Lab1->L;
     cmsFloat64Number a1  = Lab1->a;
     cmsFloat64Number b1  = Lab1->b;
-    cmsFloat64Number C   = sqrt( Sqr(a1) + Sqr(b1) );
+    cmsFloat64Number C   = sqrt( Sqr(a1) + Sqr(b1));
 
     cmsFloat64Number Ls = Lab2 ->L;
     cmsFloat64Number as = Lab2 ->a;
     cmsFloat64Number bs = Lab2 ->b;
-    cmsFloat64Number Cs = sqrt( Sqr(as) + Sqr(bs) );
+    cmsFloat64Number Cs = sqrt( Sqr(as) + Sqr(bs));
 
     cmsFloat64Number G = 0.5 * ( 1 - sqrt(pow((C + Cs) / 2 , 7.0) / (pow((C + Cs) / 2, 7.0) + pow(25.0, 7.0) ) ));
 
@@ -635,7 +635,7 @@ cmsFloat64Number CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIEL
                  + 0.32 * cos(RADIANS(3*meanh_p + 6))
                  - 0.2  * cos(RADIANS(4*meanh_p - 63));
 
-    cmsFloat64Number Sl = 1 + (0.015 * Sqr((Ls + L1) /2- 50) )/ sqrt(20 + Sqr( (Ls+L1)/2 - 50) );
+    cmsFloat64Number Sl = 1 + (0.015 * Sqr((Ls + L1) /2- 50) )/ sqrt(20 + Sqr( (Ls+L1)/2 - 50));
 
     cmsFloat64Number Sc = 1 + 0.045 * (C_p + C_ps)/2;
     cmsFloat64Number Sh = 1 + 0.015 * ((C_ps + C_p)/2) * T;

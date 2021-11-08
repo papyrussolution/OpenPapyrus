@@ -232,7 +232,7 @@ cmsBool  MemoryClose(struct _cms_io_handler* iohandler)
 // Create a iohandler for memory block. AccessMode=='r' assumes the iohandler is going to read, and makes
 // a copy of the memory block for letting user to free the memory after invoking open profile. In write
 // mode ("w"), Buffer points to the begin of memory block to be written.
-cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size, const char* AccessMode)
+cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size, const char * AccessMode)
 {
 	cmsIOHANDLER* iohandler = NULL;
 	FILEMEM* fm = NULL;
@@ -363,7 +363,7 @@ cmsBool  FileClose(cmsIOHANDLER* iohandler)
 }
 
 // Create a iohandler for disk based files.
-cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char* FileName, const char* AccessMode)
+cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode)
 {
 	cmsIOHANDLER* iohandler = NULL;
 	FILE* fm = NULL;
@@ -1303,7 +1303,7 @@ Error:
 }
 
 // Low-level save to disk.
-cmsBool CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char* FileName)
+cmsBool CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName)
 {
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsIOHANDLER* io = cmsOpenIOhandlerFromFile(ContextID, FileName, "w");

@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -284,7 +284,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	} while(_err == BE_RECLOCK && ++nwl_try_n < r_dbcfg.NWaitLockTries);
 	if(_err == BE_RECLOCK) {
 		SString msg_buf;
-		msg_buf.Cat(getcurdatetime_()).Tab().Cat("Btrieve locking failed").CatDiv(':', 2).
+		msg_buf.CatCurDateTime().Tab().Cat("Btrieve locking failed").CatDiv(':', 2).
 			Cat(tableName).CatParStr(fileName).Space().
 			CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 		SLS.LogMessage("dbwarn.log", msg_buf);
@@ -292,7 +292,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	else if(_err == 0) {
 		if(nwl_try_n) {
 			SString msg_buf;
-			msg_buf.Cat(getcurdatetime_()).Tab().Cat("Btrieve locking acquired after").Space().Cat(nwl_try_n).Space().Cat("tries").CatDiv(':', 2).
+			msg_buf.CatCurDateTime().Tab().Cat("Btrieve locking acquired after").Space().Cat(nwl_try_n).Space().Cat("tries").CatDiv(':', 2).
 				Cat(tableName).CatParStr(fileName).Space().
 				CatChar('[').Cat(r_dbcfg.NWaitLockTries).CatChar(',').Cat(r_dbcfg.NWaitLockTryTimeout).CatChar(']');
 			SLS.LogMessage("dbwarn.log", msg_buf);

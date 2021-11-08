@@ -146,7 +146,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 	sc.Complete();
 }
 
-static int classifyFoldPointESCRIPT(const char* s, const char* prevWord) {
+static int classifyFoldPointESCRIPT(const char * s, const char * prevWord) {
 	int lev = 0;
 	if(strcmp(prevWord, "end") == 0) return lev;
 	if((strcmp(prevWord, "else") == 0 && strcmp(s, "if") == 0) || strcmp(s, "elseif") == 0)
@@ -230,7 +230,7 @@ static void FoldESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int init
 			if(iswordchar(ch) && !iswordchar(chNext)) {
 				char s[32];
 				Sci_PositionU j;
-				for(j = 0; ( j < 31 ) && ( j < i-lastStart+1 ); j++) {
+				for(j = 0; ( j < 31) && (j < i-lastStart+1 ); j++) {
 					s[j] = static_cast<char>(tolower(styler[lastStart + j]));
 				}
 				s[j] = '\0';

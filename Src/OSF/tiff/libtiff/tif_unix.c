@@ -136,7 +136,7 @@ static uint64 _tiffSizeProc(thandle_t fd)
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 
-static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
+static int _tiffMapProc(thandle_t fd, void ** pbase, toff_t* psize)
 {
 	uint64 size64 = _tiffSizeProc(fd);
 	tmsize_t sizem = (tmsize_t)size64;
@@ -159,7 +159,7 @@ static void _tiffUnmapProc(thandle_t fd, void * base, toff_t size)
 }
 
 #else /* !HAVE_MMAP */
-static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
+static int _tiffMapProc(thandle_t fd, void ** pbase, toff_t* psize)
 {
 	(void)fd; (void)pbase; (void)psize;
 	return 0;
@@ -173,7 +173,7 @@ static void _tiffUnmapProc(thandle_t fd, void * base, toff_t size)
 /*
  * Open a TIFF file descriptor for read/writing.
  */
-TIFF* TIFFFdOpen(int fd, const char* name, const char* mode)
+TIFF* TIFFFdOpen(int fd, const char * name, const char * mode)
 {
 	TIFF* tif;
 	fd_as_handle_union_t fdh;
@@ -186,7 +186,7 @@ TIFF* TIFFFdOpen(int fd, const char* name, const char* mode)
 /*
  * Open a TIFF file for read/writing.
  */
-TIFF* TIFFOpen(const char* name, const char* mode)
+TIFF* TIFFOpen(const char * name, const char * mode)
 {
 	static const char module[] = __FUNCTION__;
 	int m, fd;
@@ -201,7 +201,7 @@ TIFF* TIFFOpen(const char* name, const char* mode)
 	fd = _open(name, m, 0666);
 	if(fd < 0) {
 		if(errno > 0 && strerror(errno) != NULL) {
-			TIFFErrorExt(0, module, "%s: %s", name, strerror(errno) );
+			TIFFErrorExt(0, module, "%s: %s", name, strerror(errno));
 		}
 		else {
 			TIFFErrorExt(0, module, "%s: Cannot open", name);
@@ -219,7 +219,7 @@ TIFF* TIFFOpen(const char* name, const char* mode)
 /*
  * Open a TIFF file with a Unicode filename, for read/writing.
  */
-TIFF* TIFFOpenW(const wchar_t* name, const char* mode)
+TIFF* TIFFOpenW(const wchar_t* name, const char * mode)
 {
 	static const char module[] = __FUNCTION__;
 	int fd;
@@ -293,7 +293,7 @@ int _TIFFmemcmp(const void * p1, const void * p2, tmsize_t c)
 	return (memcmp(p1, p2, (size_t)c));
 }
 
-static void unixWarningHandler(const char* module, const char* fmt, va_list ap)
+static void unixWarningHandler(const char * module, const char * fmt, va_list ap)
 {
 	if(module)
 		slfprintf_stderr("%s: ", module);
@@ -304,7 +304,7 @@ static void unixWarningHandler(const char* module, const char* fmt, va_list ap)
 
 TIFFErrorHandler _TIFFwarningHandler = unixWarningHandler;
 
-static void unixErrorHandler(const char* module, const char* fmt, va_list ap)
+static void unixErrorHandler(const char * module, const char * fmt, va_list ap)
 {
 	if(module != NULL)
 		slfprintf_stderr("%s: ", module);

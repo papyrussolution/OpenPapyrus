@@ -918,7 +918,7 @@ static void FoldIHexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 		}
 		else if(style == SCE_HEX_DATAADDRESS
 		    || (style == SCE_HEX_DEFAULT
-		    && i == (Sci_PositionU)styler.LineStart(lineCurrent))) {
+		  && i == (Sci_PositionU)styler.LineStart(lineCurrent))) {
 			// data record or no record start code at all
 			if(levelCurrent & SC_FOLDLEVELHEADERFLAG) {
 				levelNext = SC_FOLDLEVELBASE + 1;

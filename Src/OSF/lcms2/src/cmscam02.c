@@ -201,7 +201,7 @@ static CAM02COLOR InverseCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
 	cmsFloat64Number t, e, p1, p2, p3, p4, p5, hr;
 	cmsFloat64Number d2r = SMathConst::PiDiv180; //3.141592654 / 180.0;
-	t = pow( (clr.C / (pow((clr.J / 100.0), 0.5) * (pow((1.64 - pow(0.29, pMod->n)), 0.73)))), (1.0 / 0.9) );
+	t = pow( (clr.C / (pow((clr.J / 100.0), 0.5) * (pow((1.64 - pow(0.29, pMod->n)), 0.73)))), (1.0 / 0.9));
 	e = ((12500.0 / 13.0) * pMod->Nc * pMod->Ncb) * (cos((clr.h * d2r + 2.0)) + 3.8);
 	clr.A = pMod->adoptedWhite.A * pow((clr.J / 100.0), (1.0 / (pMod->c * pMod->z)));
 	p1 = e / t;

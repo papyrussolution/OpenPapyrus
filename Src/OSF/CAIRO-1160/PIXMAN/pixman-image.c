@@ -283,7 +283,7 @@ static void compute_image_info(pixman_image_t * image)
 				 * now just skip BILINEAR->NEAREST optimization in this case.
 				     */
 				    pixman_fixed_t magic_limit = pixman_int_to_fixed(30000);
-				    if(image->common.transform->matrix[0][2] <= magic_limit  && image->common.transform->matrix[1][2] <= magic_limit  &&
+				    if(image->common.transform->matrix[0][2] <= magic_limit && image->common.transform->matrix[1][2] <= magic_limit &&
 					image->common.transform->matrix[0][2] >= -magic_limit && image->common.transform->matrix[1][2] >= -magic_limit) {
 					    flags |= FAST_PATH_NEAREST_FILTER;
 				    }

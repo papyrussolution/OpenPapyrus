@@ -2913,6 +2913,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 	PPEgaisProcessor * p_eg_prc = 0;
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket  gc_pack;
+	PPObjGoodsStruc gs_obj;
 	GoodsViewItem item;
 	GoodsRecoverParam param;
 	SString temp_buf;
@@ -3011,6 +3012,19 @@ int PPViewGoods::Repair(PPID /*id*/)
 						pack.Rec.Flags &= ~GF_VOLUMEVAL;
 						to_turn_packet = 1;
 					}
+					// @v11.2.2 {
+					if(pack.Rec.StrucID) {
+						if(gs_obj.Search(pack.Rec.StrucID, 0) > 0) {
+							;
+						}
+						else {
+							temp_buf.Z().Cat(pack.Rec.Name).CatDiv(';', 2).CatEq("strucid", pack.Rec.StrucID);
+							logger.LogString(PPTXT_LOG_GOODSHANGSTRUC, pack.Rec.Name);
+							pack.Rec.StrucID = 0;
+							to_turn_packet = 1;
+						}
+					}
+					// } @v11.2.2 
 					if(param.Flags & GoodsRecoverParam::fBarcode) {
 						for(uint i = 0; i < pack.Codes.getCount(); i++) {
 							temp_buf = pack.Codes.at(i).Code;

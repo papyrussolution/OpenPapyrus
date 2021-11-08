@@ -129,7 +129,7 @@ int dtls1_do_write(SSL * s, int type)
 
 	if(s->write_hash) {
 		if(s->enc_write_ctx
-		    && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) &
+		  && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) &
 		    EVP_CIPH_FLAG_AEAD_CIPHER) != 0)
 			mac_size = 0;
 		else
@@ -817,9 +817,9 @@ redo:
 	}
 
 	if(!s->server
-	    && s->d1->r_msg_hdr.frag_off == 0
-	    && s->statem.hand_state != TLS_ST_OK
-	    && wire[0] == SSL3_MT_HELLO_REQUEST) {
+	  && s->d1->r_msg_hdr.frag_off == 0
+	  && s->statem.hand_state != TLS_ST_OK
+	  && wire[0] == SSL3_MT_HELLO_REQUEST) {
 		/*
 		 * The server may always send 'Hello Request' messages -- we are
 		 * doing a handshake anyway now, so ignore them if their format is

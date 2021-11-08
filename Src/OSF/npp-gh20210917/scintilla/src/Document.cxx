@@ -2779,8 +2779,8 @@ public:
 
 	BuiltinRegex(const BuiltinRegex &) = delete;
 	BuiltinRegex(BuiltinRegex &&) = delete;
-	BuiltinRegex &operator=(const BuiltinRegex &) = delete;
-	BuiltinRegex &operator=(BuiltinRegex &&) = delete;
+	BuiltinRegex & operator = (const BuiltinRegex &) = delete;
+	BuiltinRegex & operator = (BuiltinRegex &&) = delete;
 	~BuiltinRegex() override = default;
 
 	Sci::Position FindText(Document * doc, Sci::Position minPos, Sci::Position maxPos, const char * s,
@@ -2849,8 +2849,8 @@ public:
 
 	DocumentIndexer(const DocumentIndexer &) = delete;
 	DocumentIndexer(DocumentIndexer &&) = delete;
-	DocumentIndexer &operator=(const DocumentIndexer &) = delete;
-	DocumentIndexer &operator=(DocumentIndexer &&) = delete;
+	DocumentIndexer & operator = (const DocumentIndexer &) = delete;
+	DocumentIndexer & operator = (DocumentIndexer &&) = delete;
 
 	~DocumentIndexer() override = default;
 
@@ -2869,7 +2869,7 @@ public:
 	typedef std::bidirectional_iterator_tag iterator_category;
 	typedef char value_type;
 	typedef ptrdiff_t difference_type;
-	typedef char* pointer;
+	typedef char * pointer;
 	typedef char& reference;
 
 	const Document * doc;
@@ -2889,7 +2889,7 @@ public:
 		position = other.position;
 	}
 
-	ByteIterator &operator=(const ByteIterator &other) noexcept {
+	ByteIterator & operator = (const ByteIterator &other) noexcept {
 		if(this != &other) {
 			doc = other.doc;
 			position = other.position;
@@ -2897,43 +2897,31 @@ public:
 		return *this;
 	}
 
-	ByteIterator &operator=(ByteIterator &&) noexcept = default;
+	ByteIterator & operator = (ByteIterator &&) noexcept = default;
 	~ByteIterator() = default;
 	char operator*() const noexcept {
 		return doc->CharAt(position);
 	}
 
-	ByteIterator &operator++() noexcept {
+	ByteIterator & operator++() noexcept {
 		position++;
 		return *this;
 	}
-
-	ByteIterator operator++(int) noexcept {
+	ByteIterator operator++(int) noexcept 
+	{
 		ByteIterator retVal(*this);
 		position++;
 		return retVal;
 	}
-
-	ByteIterator &operator--() noexcept {
+	ByteIterator & operator--() noexcept 
+	{
 		position--;
 		return *this;
 	}
-
-	bool operator==(const ByteIterator &other) const noexcept {
-		return doc == other.doc && position == other.position;
-	}
-
-	bool operator!=(const ByteIterator &other) const noexcept {
-		return doc != other.doc || position != other.position;
-	}
-
-	Sci::Position Pos() const noexcept {
-		return position;
-	}
-
-	Sci::Position PosRoundUp() const noexcept {
-		return position;
-	}
+	bool operator==(const ByteIterator &other) const noexcept { return doc == other.doc && position == other.position; }
+	bool operator!=(const ByteIterator &other) const noexcept { return doc != other.doc || position != other.position; }
+	Sci::Position Pos() const noexcept { return position; }
+	Sci::Position PosRoundUp() const noexcept { return position; }
 };
 
 // On Windows, wchar_t is 16 bits wide and on Unix it is 32 bits wide.
@@ -2988,7 +2976,7 @@ public:
 	}
 
 	UTF8Iterator(UTF8Iterator &&other) noexcept = default;
-	UTF8Iterator &operator=(const UTF8Iterator &other) noexcept {
+	UTF8Iterator & operator = (const UTF8Iterator &other) noexcept {
 		if(this != &other) {
 			doc = other.doc;
 			position = other.position;
@@ -3001,14 +2989,14 @@ public:
 		return *this;
 	}
 
-	UTF8Iterator &operator=(UTF8Iterator &&) noexcept = default;
+	UTF8Iterator & operator = (UTF8Iterator &&) noexcept = default;
 	~UTF8Iterator() = default;
 	wchar_t operator*() const noexcept {
 		assert(lenCharacters != 0);
 		return buffered[characterIndex];
 	}
 
-	UTF8Iterator &operator++() noexcept {
+	UTF8Iterator & operator++() noexcept {
 		if((characterIndex + 1) < (lenCharacters)) {
 			characterIndex++;
 		}
@@ -3033,7 +3021,7 @@ public:
 		return retVal;
 	}
 
-	UTF8Iterator &operator--() noexcept {
+	UTF8Iterator & operator--() noexcept {
 		if(characterIndex) {
 			characterIndex--;
 		}
@@ -3108,7 +3096,7 @@ public:
 	}
 
 	UTF8Iterator(UTF8Iterator &&other) noexcept = default;
-	UTF8Iterator &operator=(const UTF8Iterator &other) noexcept {
+	UTF8Iterator & operator = (const UTF8Iterator &other) noexcept {
 		if(this != &other) {
 			doc = other.doc;
 			position = other.position;
@@ -3116,14 +3104,14 @@ public:
 		return *this;
 	}
 
-	UTF8Iterator &operator=(UTF8Iterator &&) noexcept = default;
+	UTF8Iterator & operator = (UTF8Iterator &&) noexcept = default;
 	~UTF8Iterator() = default;
 	wchar_t operator*() const noexcept {
 		const Document::CharacterExtracted charExtracted = doc->ExtractCharacter(position);
 		return charExtracted.character;
 	}
 
-	UTF8Iterator &operator++() noexcept {
+	UTF8Iterator & operator++() noexcept {
 		position = doc->NextPosition(position, 1);
 		return *this;
 	}
@@ -3134,7 +3122,7 @@ public:
 		return retVal;
 	}
 
-	UTF8Iterator &operator--() noexcept {
+	UTF8Iterator & operator--() noexcept {
 		position = doc->NextPosition(position, -1);
 		return *this;
 	}

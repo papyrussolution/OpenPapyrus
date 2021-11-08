@@ -298,7 +298,7 @@ static void colorizeSmalltalkDoc(Sci_PositionU startPos, Sci_Position length, in
 	sc.Complete();
 }
 
-static const char* const smalltalkWordListDesc[] = {
+static const char * const smalltalkWordListDesc[] = {
 	"Special selectors",
 	0
 };

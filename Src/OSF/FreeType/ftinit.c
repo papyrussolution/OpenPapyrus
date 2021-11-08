@@ -97,9 +97,9 @@ FT_EXPORT_DEF(void) FT_Add_Default_Modules(FT_Library library)
 
 FT_EXPORT_DEF(void) FT_Set_Default_Properties(FT_Library library)
 {
-	const char*  env;
-	const char*  p;
-	const char*  q;
+	const char *  env;
+	const char *  p;
+	const char *  q;
 	char module_name[MAX_LENGTH + 1];
 	char property_name[MAX_LENGTH + 1];
 	char property_value[MAX_LENGTH + 1];
@@ -145,7 +145,7 @@ FT_EXPORT_DEF(void) FT_Set_Default_Properties(FT_Library library)
 		}
 		property_value[i] = '\0';
 
-		if(!( *p == '\0' || *p == ' ' || *p == '\t' ) || p == q)
+		if(!(*p == '\0' || *p == ' ' || *p == '\t' ) || p == q)
 			break;
 
 		/* we completely ignore errors */

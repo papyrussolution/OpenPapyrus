@@ -43,7 +43,7 @@ static bool IsBSeparator(char ch) {
 }
 
 // Tests for escape character
-static bool IsEscaped(char* wordStr, Sci_PositionU pos) {
+static bool IsEscaped(char * wordStr, Sci_PositionU pos) {
 	bool isQoted = false;
 	while(pos>0) {
 		pos--;
@@ -176,7 +176,7 @@ static void ColouriseBatchDoc(Sci_PositionU startPos,
 			}
 
 			// Read remainder of line word-at-a-time or remainder-of-word-at-a-time
-			while(offset < lengthLine  && !stopLineProcessing) {
+			while(offset < lengthLine && !stopLineProcessing) {
 				if(offset > startLine) {
 					// Colorize Default Text
 					styler.ColourTo(startLine + offset - 1, SCE_BAT_DEFAULT);
@@ -526,8 +526,8 @@ static void ColouriseBatchDoc(Sci_PositionU startPos,
 						// Colorize Other Operators
 						// Do not Colorize Paranthesis, quoted text and escaped operators
 						if(((wordBuffer[0] != ')') && (wordBuffer[0] != '(')
-						    && !textQuoted(lineBuffer, offset - wbl)  && !IsEscaped(lineBuffer, offset - wbl + wbo))
-						    && !((wordBuffer[0] == '=') && !isNotAssigned ))
+						  && !textQuoted(lineBuffer, offset - wbl) && !IsEscaped(lineBuffer, offset - wbl + wbo))
+						  && !((wordBuffer[0] == '=') && !isNotAssigned ))
 							styler.ColourTo(startLine + offset - 1 - (wbl - 1), SCE_BAT_OPERATOR);
 						else
 							styler.ColourTo(startLine + offset - 1 - (wbl - 1), SCE_BAT_DEFAULT);

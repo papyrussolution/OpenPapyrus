@@ -6318,7 +6318,7 @@ static int PThr4wTest_Cancel9()
 			}
 			addr_len = sizeof(struct sockaddr);
 			nbyte = 512;
-			(void)recvfrom(UDPSocket, (char*)buffer, nbyte, 0, (struct sockaddr *)&clientAddress, &addr_len);
+			(void)recvfrom(UDPSocket, (char *)buffer, nbyte, 0, (struct sockaddr *)&clientAddress, &addr_len);
 			closesocket(UDPSocket);
 			WSACleanup();
 			return NULL;
@@ -8903,7 +8903,7 @@ static int PThr4wTest_Exception1()
 // Fail Criteria:
 // - Process returns non-zero exit status.
 // 
-static int PThr4wTest_Exception2(int argc, char* argv[])
+static int PThr4wTest_Exception2(int argc, char * argv[])
 {
 	class InnerBlock {
 	public:
@@ -8952,7 +8952,7 @@ static int PThr4wTest_Exception2(int argc, char* argv[])
 		slfprintf_stderr("Test N/A for this compiler environment.\n");
 		return 0;
 	}
-	static int PThr4wTest_Exception2(int argc, char* argv[])
+	static int PThr4wTest_Exception2(int argc, char * argv[])
 	{
 		slfprintf_stderr("Test N/A for this compiler environment.\n");
 		return 0;
@@ -10208,7 +10208,7 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		}
 		static uint q_remove(queue_t * q, void * msg, uint msize)
 		{
-			char * pm = (char*)q->msg_array;
+			char * pm = (char *)q->msg_array;
 			// Remove oldest ("first") message 
 			memcpy(msg, pm + (q->q_first * msize), msize);
 			// Invalidate the message
@@ -10217,7 +10217,7 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		}
 		static uint q_insert(queue_t * q, void * msg, uint msize)
 		{
-			char * pm = (char*)q->msg_array;
+			char * pm = (char *)q->msg_array;
 			// Add a new youngest ("last") message 
 			if(q_full(q)) 
 				return 1; /* Error - Q is full */

@@ -370,7 +370,7 @@ ZIP_EXTERN int zip_unchange_archive(zip_t *);
 	ZIP_EXTERN int64 zip_add(zip_t *, const char *, zip_source_t *); /* use zip_file_add */
 	ZIP_EXTERN int64 zip_add_dir(zip_t *, const char *); /* use zip_dir_add */
 	ZIP_EXTERN const char *zip_get_file_comment(zip_t *, uint64, int *, int); /* use zip_file_get_comment */
-	ZIP_EXTERN int zip_get_num_files(zip_t *);  /* use zip_get_num_entries instead */
+	ZIP_EXTERN int zip_get_num_files(zip_t *); /* use zip_get_num_entries instead */
 	ZIP_EXTERN int zip_rename(zip_t *, uint64, const char *); /* use zip_file_rename */
 	ZIP_EXTERN int zip_replace(zip_t *, uint64, zip_source_t *); /* use zip_file_replace */
 	ZIP_EXTERN int zip_set_file_comment(zip_t *, uint64, const char *, int); /* use zip_file_set_comment */

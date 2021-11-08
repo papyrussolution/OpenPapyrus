@@ -53,7 +53,7 @@ public:
 		other.size = 0;
 		other.bset = nullptr;
 	}
-	CharacterSet &operator=(const CharacterSet &other) {
+	CharacterSet & operator = (const CharacterSet &other) {
 		if (this != &other) {
 			bool *bsetNew = new bool[other.size];
 			for (int i = 0; i < other.size; i++) {
@@ -66,7 +66,7 @@ public:
 		}
 		return *this;
 	}
-	CharacterSet &operator=(CharacterSet &&other) noexcept {
+	CharacterSet & operator = (CharacterSet &&other) noexcept {
 		if (this != &other) {
 			delete []bset;
 			size = other.size;

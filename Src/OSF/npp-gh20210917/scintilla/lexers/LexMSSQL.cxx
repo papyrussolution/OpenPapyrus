@@ -129,7 +129,7 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 		}
 
 		// When the last char isn't part of the state (have to deal with it too)...
-		if( (state == SCE_MSSQL_IDENTIFIER) ||
+		if((state == SCE_MSSQL_IDENTIFIER) ||
 		    (state == SCE_MSSQL_STORED_PROCEDURE) ||
 		    (state == SCE_MSSQL_DATATYPE) ||
 		    //~ (state == SCE_MSSQL_COLUMN_NAME) ||

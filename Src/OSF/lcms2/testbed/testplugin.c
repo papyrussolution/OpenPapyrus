@@ -697,7 +697,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 	cmsHPROFILE h = NULL;
 	cmsUInt32Number myTag = 1234;
 	cmsUInt32Number rc = 0;
-	char* data = NULL;
+	char * data = NULL;
 	cmsUInt32Number * ptr = NULL;
 	cmsUInt32Number clen = 0;
 
@@ -723,7 +723,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char*)SAlloc::M(clen);
+	data = (char *)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -823,7 +823,7 @@ cmsInt32Number CheckMPEPlugin(void)
 	cmsHPROFILE h = NULL;
 	cmsUInt32Number myTag = 1234;
 	cmsUInt32Number rc = 0;
-	char* data = NULL;
+	char * data = NULL;
 	cmsUInt32Number clen = 0;
 	cmsFloat32Number In[3], Out[3];
 	cmsPipeline* pipe;
@@ -868,7 +868,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char*)SAlloc::M(clen);
+	data = (char *)SAlloc::M(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;

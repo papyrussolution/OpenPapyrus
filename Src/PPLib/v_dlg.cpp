@@ -239,7 +239,7 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInne
 				Rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 		}
 		{
-			TRect bounds(Rect.L.X.Val, Rect.L.Y.Val, Rect.R.X.Val, Rect.R.Y.Val); // UiRelRect
+			TRect bounds(R0i(Rect.L.X.Val), R0i(Rect.L.Y.Val), R0i(Rect.R.X.Val), R0i(Rect.R.Y.Val)); // UiRelRect
 			SetBounds(bounds);
 		}
 	}
@@ -580,7 +580,8 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 	switch(cmd) {
 		case cmdSetupByTool:
 			{
-				const TWhatmanToolArray::Item * p_item = static_cast<const TWhatmanToolArray::Item *>(pExt);
+				SetupByToolCmdBlock * p_cb = static_cast<SetupByToolCmdBlock *>(pExt);
+				const TWhatmanToolArray::Item * p_item = p_cb ? p_cb->P_ToolItem : 0;
 				if(p_item) {
 					const ToolItemExtData * p_ext = (p_item->ExtSize >= sizeof(ToolItemExtData)) ? reinterpret_cast<const ToolItemExtData *>(p_item->ExtData) : 0;
 					if(p_ext && p_ext->UiKindID) {

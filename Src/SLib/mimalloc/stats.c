@@ -135,11 +135,11 @@ static void FASTCALL mi_stats_add(mi_stats_t* stats, const mi_stats_t* src)
 // unit > 0 : size in binary bytes
 // unit == 0: count as decimal
 // unit < 0 : count in binary
-static void mi_printf_amount(int64_t n, int64_t unit, mi_output_fun* out, void * arg, const char* fmt) 
+static void mi_printf_amount(int64_t n, int64_t unit, mi_output_fun* out, void * arg, const char * fmt) 
 {
 	char buf[32];
 	int len = 32;
-	const char* suffix = (unit <= 0 ? " " : "b");
+	const char * suffix = (unit <= 0 ? " " : "b");
 	const int64_t base = (unit == 0 ? 1000 : 1024);
 	if(unit>0) n *= unit;
 
@@ -149,7 +149,7 @@ static void mi_printf_amount(int64_t n, int64_t unit, mi_output_fun* out, void *
 	}
 	else {
 		int64_t divider = base;
-		const char* magnitude = "k";
+		const char * magnitude = "k";
 		if(pos >= divider*base) {
 			divider *= base; magnitude = "m";
 		}
@@ -177,7 +177,7 @@ static void STDCALL mi_print_count(int64_t n, int64_t unit, mi_output_fun* out, 
 		mi_print_amount(n, 0, out, arg);
 }
 
-static void mi_stat_print(const mi_stat_count_t* stat, const char* msg, int64_t unit, mi_output_fun* out, void * arg) 
+static void mi_stat_print(const mi_stat_count_t* stat, const char * msg, int64_t unit, mi_output_fun* out, void * arg) 
 {
 	_mi_fprintf(out, arg, "%10s:", msg);
 	if(unit>0) {
@@ -218,13 +218,13 @@ static void mi_stat_print(const mi_stat_count_t* stat, const char* msg, int64_t 
 	}
 }
 
-static void mi_stat_counter_print(const mi_stat_counter_t* stat, const char* msg, mi_output_fun* out, void * arg) {
+static void mi_stat_counter_print(const mi_stat_counter_t* stat, const char * msg, mi_output_fun* out, void * arg) {
 	_mi_fprintf(out, arg, "%10s:", msg);
 	mi_print_amount(stat->total, -1, out, arg);
 	_mi_fprintf(out, arg, "\n");
 }
 
-static void mi_stat_counter_print_avg(const mi_stat_counter_t* stat, const char* msg, mi_output_fun* out, void * arg) {
+static void mi_stat_counter_print_avg(const mi_stat_counter_t* stat, const char * msg, mi_output_fun* out, void * arg) {
 	const int64_t avg_tens = (stat->count == 0 ? 0 : (stat->total*10 / stat->count));
 	const long avg_whole = (long)(avg_tens/10);
 	const long avg_frac1 = (long)(avg_tens%10);
@@ -245,7 +245,7 @@ static void mi_print_header(mi_output_fun* out, void * arg) {
 }
 
 #if MI_STAT>1
-	static void mi_stats_print_bins(const mi_stat_count_t* bins, size_t max, const char* fmt, mi_output_fun* out, void * arg) 
+	static void mi_stats_print_bins(const mi_stat_count_t* bins, size_t max, const char * fmt, mi_output_fun* out, void * arg) 
 	{
 		bool found = false;
 		char buf[64];
@@ -271,7 +271,7 @@ static void mi_print_header(mi_output_fun* out, void * arg) {
 typedef struct buffered_s {
 	mi_output_fun* out; // original output function
 	void *      arg;// and state
-	char*          buf;// local buffer of at least size `count+1`
+	char *          buf;// local buffer of at least size `count+1`
 	size_t used;    // currently used chars `used <= count`
 	size_t count;   // total chars available for output
 } buffered_t;
@@ -283,11 +283,11 @@ static void mi_buffered_flush(buffered_t* buf)
 	buf->used = 0;
 }
 
-static void mi_buffered_out(const char* msg, void * arg) 
+static void mi_buffered_out(const char * msg, void * arg) 
 {
 	if(msg && arg) {
 		buffered_t * buf = (buffered_t*)arg;
-		for(const char* src = msg; *src != 0; src++) {
+		for(const char * src = msg; *src != 0; src++) {
 			char c = *src;
 			if(buf->used >= buf->count) 
 				mi_buffered_flush(buf);
@@ -405,7 +405,7 @@ void mi_stats_reset(void) NOEXCEPT
 
 void mi_stats_merge(void) NOEXCEPT 
 {
-	mi_stats_merge_from(mi_stats_get_default() );
+	mi_stats_merge_from(mi_stats_get_default());
 }
 
 void _mi_stats_done(mi_stats_t* stats) // called from `mi_thread_done`

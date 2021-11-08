@@ -71,7 +71,7 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 		}
 		else {
 			if(!ossl_assert(s->psksession != NULL
-			    && s->psksession->ext.max_early_data > 0)) {
+			  && s->psksession->ext.max_early_data > 0)) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_ENC,
 				    ERR_R_INTERNAL_ERROR);
 				return -1;
@@ -174,7 +174,7 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	 * any AAD.
 	 */
 	if(((alg_enc & SSL_AESCCM) != 0
-	    && EVP_CipherUpdate(ctx, NULL, &lenu, NULL,
+	  && EVP_CipherUpdate(ctx, NULL, &lenu, NULL,
 	    (uint)rec->length) <= 0)
 	    || EVP_CipherUpdate(ctx, NULL, &lenu, recheader,
 	    sizeof(recheader)) <= 0

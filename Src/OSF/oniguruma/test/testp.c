@@ -45,9 +45,9 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 	regfree(&reg);
 }
 
-static void x2(char* pattern, char* str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
-static void x3(char* pattern, char* str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
-static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
+static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
+static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
+static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestP_main(FILE * fOut)
 {

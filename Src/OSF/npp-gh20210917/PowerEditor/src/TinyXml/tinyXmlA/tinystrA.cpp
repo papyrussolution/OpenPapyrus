@@ -31,7 +31,7 @@
 #include "tinystrA.h"
 
 // TiXmlStringA constructor, based on a C string
-TiXmlStringA::TiXmlStringA (const char* instring)
+TiXmlStringA::TiXmlStringA (const char * instring)
 {
 	unsigned newlen;
 	char * newstring;
@@ -123,7 +123,7 @@ void TiXmlStringA ::operator =(const TiXmlStringA & copy)
 //}
 
 // append a const char * to an existing TiXmlStringA
-void TiXmlStringA::append(const char* str, int len)
+void TiXmlStringA::append(const char * str, int len)
 {
 	char * new_string;
 	unsigned new_alloc, new_size, size_suffix;
@@ -232,7 +232,7 @@ bool TiXmlStringA::operator ==(const TiXmlStringA & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( strcmp(cstring, compare.cstring) == 0 );
+		return ( strcmp(cstring, compare.cstring) == 0);
 	}
 	return false;
 }
@@ -242,7 +242,7 @@ bool TiXmlStringA::operator <(const TiXmlStringA & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( strcmp(cstring, compare.cstring) > 0 );
+		return ( strcmp(cstring, compare.cstring) > 0);
 	}
 	return false;
 }
@@ -252,7 +252,7 @@ bool TiXmlStringA::operator >(const TiXmlStringA & compare) const
 	if(allocated && compare.allocated) {
 		assert(cstring);
 		assert(compare.cstring);
-		return ( strcmp(cstring, compare.cstring) < 0 );
+		return ( strcmp(cstring, compare.cstring) < 0);
 	}
 	return false;
 }

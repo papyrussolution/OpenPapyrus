@@ -74,10 +74,10 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not, i
 	onig_free(reg);
 }
 
-static void xx2(char* pattern, char* str, int from, int to, int line_no) { xx(pattern, str, from, to, 0, 0, 0, line_no); }
-static void xx3(char* pattern, char* str, int from, int to, int mem, int line_no) { xx(pattern, str, from, to, mem, 0, 0, line_no); }
-static void xn(char* pattern, char* str, int line_no) { xx(pattern, str, 0, 0, 0, 1, 0, line_no); }
-static void xe(char* pattern, char* str, int error_no, int line_no) { xx(pattern, str, 0, 0, 0, 0, error_no, line_no); }
+static void xx2(char * pattern, char * str, int from, int to, int line_no) { xx(pattern, str, from, to, 0, 0, 0, line_no); }
+static void xx3(char * pattern, char * str, int from, int to, int mem, int line_no) { xx(pattern, str, from, to, mem, 0, 0, line_no); }
+static void xn(char * pattern, char * str, int line_no) { xx(pattern, str, 0, 0, 0, 1, 0, line_no); }
+static void xe(char * pattern, char * str, int error_no, int line_no) { xx(pattern, str, 0, 0, 0, 0, error_no, line_no); }
 
 #define x2(p, s, f, t)    xx2(p, s, f, t, __LINE__)
 #define x3(p, s, f, t, m)  xx3(p, s, f, t, m, __LINE__)

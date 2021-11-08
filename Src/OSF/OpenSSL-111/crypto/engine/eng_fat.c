@@ -37,10 +37,10 @@ int ENGINE_set_default(ENGINE * e, uint flags)
 	if((flags & ENGINE_METHOD_RAND) && !ENGINE_set_default_RAND(e))
 		return 0;
 	if((flags & ENGINE_METHOD_PKEY_METHS)
-	    && !ENGINE_set_default_pkey_meths(e))
+	  && !ENGINE_set_default_pkey_meths(e))
 		return 0;
 	if((flags & ENGINE_METHOD_PKEY_ASN1_METHS)
-	    && !ENGINE_set_default_pkey_asn1_meths(e))
+	  && !ENGINE_set_default_pkey_asn1_meths(e))
 		return 0;
 	return 1;
 }

@@ -2638,7 +2638,7 @@ void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 	}
 	// Copy the H into 512-bits into W[0..15]
 	for(i = 0; i < 16; i++) {
-		SHA256_LOAD32H(W[i], PTR8C(pBuffer) + (4*i) );
+		SHA256_LOAD32H(W[i], PTR8C(pBuffer) + (4*i));
 	}
 	// Fill W[16..63]
 	for(i = 16; i < 64; i++) {
@@ -2736,7 +2736,7 @@ void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 			}
 			// Copy output
 			for(int i = 0; i < 8; i++) {
-				SHA256_STORE32H(r_ctx.H[i], PTR8(&result) + (4*i) );
+				SHA256_STORE32H(r_ctx.H[i], PTR8(&result) + (4*i));
 			}
 			r_ctx.Z();
 		}

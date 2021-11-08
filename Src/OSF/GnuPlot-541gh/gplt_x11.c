@@ -1119,16 +1119,13 @@ static int read_input()
 			if(c == '\n')
 				break;
 		}
-
 		if(buf_offset == X11_COMMAND_BUFFER_LENGTH) {
-			fputs("\ngplt_x11.c: buffer overflow in read_input!\n"
-			    "            X11 aborted.\n", stderr);
+			fputs("\ngplt_x11.c: buffer overflow in read_input!\n            X11 aborted.\n", stderr);
 			EXIT(1);
 		}
 		else
-			buf[buf_offset] = NUL;
+			buf[buf_offset] = '\0';
 	}
-
 	if(rdbuf_offset == total_chars) {
 		buffered_input_available = 0;
 		if(buf[buf_offset-1] != '\n')
@@ -2289,7 +2286,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 			}
 		}
 	}
-	else if(*buffer == 'F') {       /* fill box */
+	else if(*buffer == 'F') { /* fill box */
 		int style, xtmp, ytmp, w, h;
 
 		if(sscanf(buffer + 1, "%d %d %d %d %d", &style, &xtmp, &ytmp, &w, &h) == 5) {
@@ -2617,7 +2614,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		}
 	}
 
-	else if(*buffer == X11_GR_BINARY_POLYGON) {     /* filled polygon */
+	else if(*buffer == X11_GR_BINARY_POLYGON) { /* filled polygon */
 		if(have_pm3d) { /* ignore, if your X server is not supported */
 			static bool transferring = 0;
 			static uchar * iptr;
@@ -4901,8 +4898,8 @@ static void preset(int argc, char * argv[])
 			strncpy(X_Name, Argv[1], sizeof(X_Name) - 1);
 			strncpy(X_Class, Argv[1], sizeof(X_Class) - 1);
 			// just in case 
-			X_Name[sizeof(X_Name)-1] = NUL;
-			X_Class[sizeof(X_Class)-1] = NUL;
+			X_Name[sizeof(X_Name)-1] = '\0';
+			X_Class[sizeof(X_Class)-1] = '\0';
 			if(X_Class[0] >= 'a' && X_Class[0] <= 'z')
 				X_Class[0] -= 0x20;
 		}
@@ -6620,7 +6617,7 @@ static cmap_t * Add_CMap_To_Linked_List(void)
 	CmapClear(cmp);
 	cmp->colormap = XCreateColormap(dpy, root, vis, AllocNone);
 	assert(cmp->colormap);
-	pr_color(cmp);  /* set default colors for lines */
+	pr_color(cmp); /* set default colors for lines */
 	return cmp;
 }
 

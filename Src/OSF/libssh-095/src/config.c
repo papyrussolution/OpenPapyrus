@@ -237,7 +237,7 @@ static void local_parse_glob(ssh_session session, const char * fileglob, int * p
 
 #endif /* HAVE_GLOB HAVE_GLOB_GL_FLAGS_MEMBER */
 
-static enum ssh_config_match_e ssh_config_get_match_opcode(const char * keyword)                                {
+static enum ssh_config_match_e ssh_config_get_match_opcode(const char * keyword) {
 	size_t i;
 
 	for(i = 0; ssh_config_match_keyword_table[i].name != NULL; i++) {

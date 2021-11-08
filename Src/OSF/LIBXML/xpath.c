@@ -3499,16 +3499,14 @@ static xmlNodeSet * xmlXPathNodeSetMergeAndClearNoDupls(xmlNodeSet * set1, xmlNo
 void xmlXPathNodeSetDel(xmlNodeSet * cur, xmlNode * val) 
 {
 	int i;
-	if(!cur) return;
-	if(!val) return;
-	/*
-	 * find node in nodeTab
-	 */
+	if(!cur || !val) 
+		return;
+	// find node in nodeTab
 	for(i = 0; i < cur->nodeNr; i++)
 		if(cur->PP_NodeTab[i] == val) 
 			break;
 	if(i >= cur->nodeNr) {  /* not found */
-#ifdef DEBUG
+#ifndef NDEBUG
 		xmlGenericError(0, "xmlXPathNodeSetDel: Node %s wasn't found in NodeList\n", val->name);
 #endif
 		return;
@@ -10354,7 +10352,7 @@ static void xmlXPathCompLocationPath(xmlXPathParserContext * ctxt)
 			else if(CUR == '/') {
 				NEXT;
 				SKIP_BLANKS;
-				if((CUR != 0 ) &&
+				if((CUR != 0) &&
 				    ((IS_ASCII_LETTER(CUR)) || (CUR == '_') || (CUR == '.') ||
 					    (CUR == '@') || (CUR == '*')))
 					xmlXPathCompRelativeLocationPath(ctxt);

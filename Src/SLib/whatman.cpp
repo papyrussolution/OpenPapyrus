@@ -136,6 +136,10 @@ static WhatmanObjectRegTable * GetRegTable()
 	return p_tab;
 }
 
+TWhatmanObject::SetupByToolCmdBlock::SetupByToolCmdBlock(const TWhatmanToolArray::Item * pToolItem) : P_ToolItem(pToolItem)
+{
+}
+
 /*static*/int TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory)
 {
 	int    ok = 1;
@@ -187,7 +191,7 @@ static WhatmanObjectRegTable * GetRegTable()
 	return p_tab ? p_tab->MakeStrAssocList() : 0;
 }
 
-TWhatmanObject::TWhatmanObject(const char * pSymb) : Symb(pSymb), State(0), Options(0), P_Owner(0)
+TWhatmanObject::TWhatmanObject(const char * pSymb) : WtmObjTypeSymb__(pSymb), State(0), Options(0), P_Owner(0)
 {
 }
 
@@ -197,7 +201,7 @@ TWhatmanObject::~TWhatmanObject()
 
 void FASTCALL TWhatmanObject::Copy(const TWhatmanObject & rS)
 {
-	Symb = rS.Symb;
+	WtmObjTypeSymb__ = rS.WtmObjTypeSymb__;
 	State = rS.State;
 	Options = rS.Options;
 	TextOptions = rS.TextOptions;
@@ -217,7 +221,7 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 	if(cmd == cmdGetSelRetBlock) {
 		SelectObjRetBlock * p_blk = static_cast<SelectObjRetBlock *>(pExt);
 		if(p_blk) {
-			p_blk->WtmObjTypeSymb = Symb;
+			p_blk->WtmObjTypeSymb = WtmObjTypeSymb__;
 			p_blk->Val1 = p_blk->Val2 = 0;
 			p_blk->ExtString.Z();
 		}
@@ -236,23 +240,30 @@ int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
 const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
 TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
 TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
-const  SString & TWhatmanObject::GetSymb() const { return Symb; }
+const  SString & TWhatmanObject::GetObjTypeSymb() const { return WtmObjTypeSymb__; }
+const  SString & TWhatmanObject::GetIdentSymb() const { return IdentSymb; }
 const  AbstractLayoutBlock & TWhatmanObject::GetLayoutBlock() const { return Le2; }
 void   TWhatmanObject::SetLayoutBlock(const AbstractLayoutBlock * pBlk) { RVALUEPTR(Le2, pBlk); }
 const  SString & TWhatmanObject::GetLayoutContainerIdent() const { return LayoutContainerIdent; }
 void   TWhatmanObject::SetLayoutContainerIdent(const char * pIdent) { (LayoutContainerIdent = pIdent).Strip(); }
 
-int TWhatmanObject::Setup(const TWhatmanToolArray::Item * pWtaItem)
+int TWhatmanObject::SetIdentSymb(const char * pIdent)
+{
+	(IdentSymb = pIdent).Strip();
+	return 1;
+}
+
+int TWhatmanObject::Setup__(SetupByToolCmdBlock & rBlk)
 {
 	int    ok = 1;
-	if(pWtaItem) {
-		THROW(Symb == pWtaItem->WtmObjSymb);
+	if(rBlk.P_ToolItem) {
+		THROW(WtmObjTypeSymb__ == rBlk.P_ToolItem->WtmObjSymb);
 		if(Options & oBackground && P_Owner && P_Owner->GetOwnerWindow())
 			Bounds = P_Owner->GetOwnerWindow()->getRect();
 		else
-			Bounds = pWtaItem->FigSize;
-		SetLayoutBlock(&pWtaItem->Alb); // @v10.9.10
-		HandleCommand(cmdSetupByTool, (void *)pWtaItem); // @badcast
+			Bounds = rBlk.P_ToolItem->FigSize;
+		SetLayoutBlock(&rBlk.P_ToolItem->Alb); // @v10.9.10
+		HandleCommand(cmdSetupByTool, &rBlk);
 	}
 	CATCHZOK
 	return ok;
@@ -336,7 +347,7 @@ int TWhatmanObject::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	assert(dir != 0);
-	THROW(pCtx->Serialize(dir, Symb, rBuf));
+	THROW(pCtx->Serialize(dir, WtmObjTypeSymb__, rBuf));
 	THROW(pCtx->Serialize(dir, Bounds.a, rBuf));
 	THROW(pCtx->Serialize(dir, Bounds.b, rBuf));
 	THROW(pCtx->Serialize(dir, Options, rBuf));
@@ -527,6 +538,12 @@ const  TRect & TWhatman::GetArea() const { return Area; }
 const  TRect & TWhatman::GetSelArea() const { return SelArea; }
 void   TWhatman::SetScrollPos(SPoint2S p) { ScrollPos = p; }
 
+const  WhatmanObjectLayoutBase * FASTCALL TWhatman::GetObjectAsLayoutByIndexC(int idx) const
+{
+	const TWhatmanObject * p_obj = GetObjectByIndexC(idx);
+	return (p_obj && p_obj->GetObjTypeSymb().IsEqiAscii("Layout")) ? static_cast<const WhatmanObjectLayoutBase *>(p_obj) : 0;
+}
+
 int TWhatman::SetParam(const TWhatman::Param & rP)
 {
 	P = rP;
@@ -591,18 +608,21 @@ int TWhatman::RemoveObject(int idx)
 	return ok;
 }
 
-int TWhatman::CheckUniqLayoutSymb(const TWhatmanObject * pObj) const
+int TWhatman::CheckUniqLayoutSymb(const TWhatmanObject * pObj, const char * pIdentSymb) const
 {
 	int    ok = 1;
 	if(pObj) {
 		const WhatmanObjectLayoutBase * p_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(pObj);
 		if(p_layout_obj->GetContainerIdent().NotEmpty()) {
 			for(uint i = 0; ok && i < ObjList.getCount(); i++) {
-				const TWhatmanObject * p_iter_obj = ObjList.at(i);
-				if(p_iter_obj && p_iter_obj != pObj && p_iter_obj->Symb.IsEqiAscii("Layout")) {
-					const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
+				const WhatmanObjectLayoutBase * p_iter_layout_obj = GetObjectAsLayoutByIndexC(i);
+				if(p_iter_layout_obj && p_iter_layout_obj != pObj) {
 					if(p_iter_layout_obj->GetContainerIdent() == p_layout_obj->GetContainerIdent()) {
 						SLS.SetError(SLERR_WTM_DUPLAYOUTSYMB, p_layout_obj->GetContainerIdent());
+						ok = 0;
+					}
+					else if(!isempty(pIdentSymb) && p_iter_layout_obj->GetIdentSymb().IsEqiAscii(pIdentSymb)) {
+						SLS.SetError(SLERR_WTM_DUPLAYOUTSYMB, p_layout_obj->GetIdentSymb());
 						ok = 0;
 					}
 				}
@@ -619,12 +639,9 @@ int TWhatman::GetLayoutSymbList(StrAssocArray & rList) const
 	rList.Z();
 	int    ok = -1;
 	for(uint i = 0; i < ObjList.getCount(); i++) {
-		const TWhatmanObject * p_iter_obj = ObjList.at(i);
-		if(p_iter_obj && p_iter_obj->Symb.IsEqiAscii("Layout")) {
-			const WhatmanObjectLayoutBase * p_iter_layout_obj = static_cast<const WhatmanObjectLayoutBase *>(p_iter_obj);
-			if(p_iter_layout_obj->GetContainerIdent().NotEmpty()) {
-				rList.Add(i+1, p_iter_layout_obj->GetContainerIdent());
-			}
+		const WhatmanObjectLayoutBase * p_iter_layout_obj = GetObjectAsLayoutByIndexC(i);
+		if(p_iter_layout_obj && p_iter_layout_obj->GetContainerIdent().NotEmpty()) {
+			rList.Add(i+1, p_iter_layout_obj->GetContainerIdent());
 		}
 	}
 	if(rList.getCount())
@@ -952,6 +969,37 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 	}	
 }
 
+const WhatmanObjectLayoutBase * TWhatman::GetParentLayoutObject(const WhatmanObjectLayoutBase * pC) const
+{
+	const WhatmanObjectLayoutBase * p_result = 0;
+	if(pC) {
+		for(uint i = 0; !p_result && i < ObjList.getCount(); i++) {
+			const WhatmanObjectLayoutBase * p_iter_lo = GetObjectAsLayoutByIndexC(i);
+			if(p_iter_lo && p_iter_lo->GetContainerIdent().IsEqiAscii(pC->GetLayoutContainerIdent()))
+				p_result = p_iter_lo;
+		}		
+	}
+	return p_result;
+}
+
+int TWhatman::GetRootLayoutObjectIndex(const WhatmanObjectLayoutBase * pC) const
+{
+	int    idx = -1;
+	if(pC) {
+		for(uint i = 0; i < ObjList.getCount(); i++) {
+			const WhatmanObjectLayoutBase * p_iter_lo = GetObjectAsLayoutByIndexC(i);
+			if(p_iter_lo && p_iter_lo->GetContainerIdent().IsEqiAscii(pC->GetLayoutContainerIdent())) {
+				if(p_iter_lo->GetLayoutContainerIdent().IsEmpty())
+					idx = static_cast<int>(i);
+				else
+					idx = GetRootLayoutObjectIndex(p_iter_lo); // @recursion
+				break;
+			}
+		}
+	}
+	return idx;
+}
+
 int TWhatman::Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, WhatmanObjectLayoutBase * pC)
 {
 	int    ok = -1;
@@ -1189,7 +1237,7 @@ int TWhatman::FindContainerCandidateForObjectByPoint(SPoint2S p, const TWhatmanO
 		if(c) do {
 			const TWhatmanObject * p_obj = ObjList.at(--c);
 			if(p_obj && p_obj != pObj && p_obj->HasOption(TWhatmanObject::oContainer) && p_obj->Bounds.contains(p)) {
-				if(r_current_container_symb.IsEmpty() || p_obj->Symb != r_current_container_symb) {
+				if(r_current_container_symb.IsEmpty() || p_obj->LayoutContainerIdent != r_current_container_symb) {
 					ASSIGN_PTR(pIdx, static_cast<int>(c));				
 					ok = 1;		
 				}
@@ -1214,6 +1262,8 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 		case toolPenGrid:    TidPenGrid = paintObjIdent; break;
 		case toolPenSubGrid: TidPenSubGrid = paintObjIdent; break;
 		case toolPenLayoutBorder: TidPenLayoutBorder = paintObjIdent; break; // @v10.4.8
+		case toolPenLayoutEvenBorder: TidPenLayoutEvenBorder = paintObjIdent; break; // @v11.2.2
+		case toolPenLayoutOddBorder: TidPenLayoutOddBorder = paintObjIdent; break; // @v11.2.2
 		case toolPenContainerCandidateBorder: TidPenContainerCandidateBorder = paintObjIdent; break; // @v10.9.6
 		default: ok = 0; break;
 	}
@@ -1234,6 +1284,8 @@ int TWhatman::GetTool(int toolId) const
 		case toolPenGrid:    return TidPenGrid;
 		case toolPenSubGrid: return TidPenSubGrid;
 		case toolPenLayoutBorder: return TidPenLayoutBorder; // @v10.4.8
+		case toolPenLayoutEvenBorder: return TidPenLayoutEvenBorder; // @v11.2.2
+		case toolPenLayoutOddBorder: return TidPenLayoutOddBorder; // @v11.2.2
 		case toolPenContainerCandidateBorder: return TidPenContainerCandidateBorder; // @v10.9.6
 	}
 	return 0;
@@ -1360,14 +1412,25 @@ void TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) c
 int TWhatman::EditObject(int objIdx)
 {
 	int    ok = -1;
-	if(objIdx >= 0 && objIdx < static_cast<int>(ObjList.getCount())) {
+	if(objIdx >= 0 && objIdx < ObjList.getCountI()) {
 		TWhatmanObject * p_obj = ObjList.at(objIdx);
 		if(p_obj) {
 			ok = p_obj->Edit();
 			if(ok > 0) {
-				if(p_obj->HasOption(TWhatmanObject::oContainer)) {
-					ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(p_obj));
+				// @v11.2.2 {
+				const WhatmanObjectLayoutBase * p_lo = GetObjectAsLayoutByIndexC(objIdx);
+				const WhatmanObjectLayoutBase * p_lo_root = 0;
+				if(p_lo) {
+					int root_idx = GetRootLayoutObjectIndex(p_lo);
+					p_lo_root = (root_idx >= 0 && root_idx < ObjList.getCountI()) ? GetObjectAsLayoutByIndexC(root_idx) : p_lo;
+					if(p_lo_root) {
+						ArrangeLayoutContainer(const_cast<WhatmanObjectLayoutBase *>(p_lo_root));
+					}
 				}
+				// } @v11.2.2 
+				/* @v11.2.2 if(p_obj->HasOption(TWhatmanObject::oContainer)) {
+					ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(p_obj));
+				}*/
 			}
 		}
 	}

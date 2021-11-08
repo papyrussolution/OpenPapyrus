@@ -44,12 +44,12 @@ static uint FASTCALL GetBatchVarLen(char * wordBuffer)
 	if(wordBuffer[0] == '%') {
 		if(wordBuffer[1] == '~')
 			nLength = 2;
-		else if(( wordBuffer[1] == '%' ) && ( wordBuffer[2] == '~' ))
+		else if(( wordBuffer[1] == '%') && (wordBuffer[2] == '~' ))
 			nLength++;
 		else
 			return 0;
 
-		for(; ( wordBuffer[nLength] ); nLength++) {
+		for(; ( wordBuffer[nLength]); nLength++) {
 			switch(toupper(wordBuffer[nLength]) ) {
 				case 'A':
 				// file attributes
@@ -127,7 +127,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 		// Check for Comment - return if found
 	}
 	else if(( CompareNCaseInsensitive(lineBuffer+offset, "rem",
-			    3) == 0 ) && (( lineBuffer[offset+3] == 0 ) || ( isspace(lineBuffer[offset+3])))) {
+			    3) == 0) && (( lineBuffer[offset+3] == 0) || ( isspace(lineBuffer[offset+3])))) {
 		styler.ColourTo(endPos, SCE_TCMD_COMMENT);
 		return;
 
@@ -179,7 +179,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 
 			// Check for Regular expression
 		}
-		else if(( wordBuffer[0] == ':' ) && ( wordBuffer[1] == ':' ) && (continueProcessing)) {
+		else if(( wordBuffer[0] == ':') && (wordBuffer[1] == ':' ) && (continueProcessing)) {
 			// Colorize Regular exoressuin
 			styler.ColourTo(startLine + offset - 1, SCE_TCMD_DEFAULT);
 			// No need to Reset Offset
@@ -283,7 +283,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 
 			// Check for Argument (%n) or (%*)
 			if(((isdec(wordBuffer[1])) || (wordBuffer[1] == '*')) && (wordBuffer[wbo] != '%')) {
-				while(( wordBuffer[n] ) && ( sstrchr("%0123456789*#$", wordBuffer[n]) != NULL ))
+				while(( wordBuffer[n]) && (sstrchr("%0123456789*#$", wordBuffer[n]) != NULL ))
 					n++;
 ColorizeArg:
 				// Colorize Argument
@@ -301,7 +301,7 @@ ColorizeArg:
 
 				// Check for Environment Variable (%x...%)
 			}
-			else if(( wordBuffer[1] ) && ( wordBuffer[1] != '%')) {
+			else if(( wordBuffer[1]) && (wordBuffer[1] != '%')) {
 				if(wordBuffer[wbo] == '%')
 					wbo++;
 
@@ -315,7 +315,7 @@ ColorizeArg:
 			else if(     (wbl > 2) && (wordBuffer[1] == '%') && (wordBuffer[2] != '%') && (!IsBOperator(wordBuffer[2])) &&
 			    (!IsBSeparator(wordBuffer[2]))) {
 				n = 2;
-				while(( wordBuffer[n] ) && (!IsBOperator(wordBuffer[n])) && (!IsBSeparator(wordBuffer[n])))
+				while(( wordBuffer[n]) && (!IsBOperator(wordBuffer[n])) && (!IsBSeparator(wordBuffer[n])))
 					n++;
 
 				// Colorize Local Variable
@@ -451,7 +451,7 @@ static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 			}
 		}
 
-		if(( bLineStart ) && ( style == SCE_TCMD_WORD )) {
+		if(( bLineStart) && (style == SCE_TCMD_WORD )) {
 			for(Sci_PositionU j = 0; j < 10; j++) {
 				if(!iswordchar(styler[i + j])) {
 					break;

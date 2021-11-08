@@ -97,8 +97,8 @@ FT_BEGIN_HEADER
 #define  ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U  || ((uint)(x) - 'A' ) < 6U)
 
 /* the next two macros assume ASCII representation */
-#define  ft_isupper(x)  ( ( (uint)(x) - 'A' ) < 26U )
-#define  ft_islower(x)  ( ( (uint)(x) - 'a' ) < 26U )
+#define  ft_isupper(x)  (((uint)(x) - 'A' ) < 26U )
+#define  ft_islower(x)  (((uint)(x) - 'a' ) < 26U )
 #define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x) )
 #define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x) )
 
@@ -460,7 +460,7 @@ typedef struct  FT_ModuleRec_ {
 #define FT_DRIVER_IS_SCALABLE(x)  ( FT_MODULE_CLASS(x)->module_flags & \
 	FT_MODULE_DRIVER_SCALABLE )
 
-#define FT_DRIVER_USES_OUTLINES(x)  !( FT_MODULE_CLASS(x)->module_flags & \
+#define FT_DRIVER_USES_OUTLINES(x)  !(FT_MODULE_CLASS(x)->module_flags & \
 	FT_MODULE_DRIVER_NO_OUTLINES )
 
 #define FT_DRIVER_HAS_HINTER(x)  ( FT_MODULE_CLASS(x)->module_flags & \
@@ -492,13 +492,13 @@ typedef struct  FT_ModuleRec_ {
  *   You should better be familiar with FreeType internals to know which
  *   module to look for, and what its interface is :-)
  */
-FT_BASE(const void*)
+FT_BASE(const void *)
 FT_Get_Module_Interface(FT_Library library,
-    const char*  mod_name);
+    const char *  mod_name);
 
 FT_BASE(FT_Pointer)
 ft_module_get_service(FT_Module module,
-    const char*  service_id,
+    const char *  service_id,
     FT_Bool global);
 
 #ifdef FT_CONFIG_OPTION_ENVIRONMENT_PROPERTIES
@@ -804,7 +804,7 @@ FT_Render_Glyph_Internal(FT_Library library,
     FT_GlyphSlot slot,
     FT_Render_Mode render_mode);
 
-typedef const char*
+typedef const char *
 (* FT_Face_GetPostscriptNameFunc)(FT_Face face);
 
 typedef FT_Error

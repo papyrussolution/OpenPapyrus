@@ -56,7 +56,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature,
 
 	i2d(data, &p);
 	ret = EVP_VerifyInit_ex(ctx, type, NULL)
-	    && EVP_VerifyUpdate(ctx, (uchar *)buf_in, inl);
+	  && EVP_VerifyUpdate(ctx, (uchar *)buf_in, inl);
 
 	OPENSSL_clear_free(buf_in, (uint)inl);
 

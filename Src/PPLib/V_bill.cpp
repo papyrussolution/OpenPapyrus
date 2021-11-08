@@ -4618,7 +4618,8 @@ struct PrvdrDllLink {
 };
 
 int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
+// pHeaderSymb: "ON_NSCHFDOPPRMARK" || "ON_NSCHFDOPPR"
+int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName); // @prototype 
 int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
@@ -4694,7 +4695,8 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
-				if(oneof5(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, piefNalogR_ON_NSCHFDOPPRMARK)) {
+				if(oneof6(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
+					piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
 					SString result_file_name_;
 					PPWaitStart();
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
@@ -4705,12 +4707,32 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
 							{
 								const SString nominal_file_name = b_e.BillParam.FileName;
-								switch(b_e.BillParam.PredefFormat) {
-									case piefNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
-									case piefNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
-									case piefNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
-									case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, nominal_file_name, result_file_name_); break;
-									case piefExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
+								// @v11.2.2 {
+								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {
+									bool pack_has_marks = false;
+									PPLotExtCodeContainer::MarkSet ext_codes_set;
+									StringSet ss;
+									for(uint tiidx = 0; !pack_has_marks && tiidx < pack.GetTCount(); tiidx++) {
+										if(pack.XcL.Get(tiidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+											ext_codes_set.GetByBoxID(0, ss);
+											for(uint ecsp = 0; !pack_has_marks && ss.get(&ecsp, temp_buf);) {
+												if(temp_buf.NotEmptyS())
+													pack_has_marks = true;
+											}
+										}
+									}
+									const char * p_header_symb = pack_has_marks ? "ON_NSCHFDOPPRMARK" : "ON_NSCHFDOPPR";
+									r = WriteBill_NalogRu2_Invoice2(pack, p_header_symb, nominal_file_name, result_file_name_);
+								}
+								else { // } @v11.2.2 
+									switch(b_e.BillParam.PredefFormat) {
+										case piefNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
+										case piefNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
+										case piefNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
+										//case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_Invoice2(pack, "ON_NSCHFDOPPRMARK", nominal_file_name, result_file_name_); break;
+										//case piefNalogR_ON_NSCHFDOPPR: r = WriteBill_NalogRu2_Invoice2(pack, "ON_NSCHFDOPPR", nominal_file_name, result_file_name_); break; // @v11.2.1
+										case piefExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
+									}
 								}
 								if(r > 0)
 									result_file_list.add(result_file_name_);

@@ -122,7 +122,7 @@ cairo_private cairo_surface_t * _cairo_image_surface_create_similar(void * abstr
 cairo_private cairo_image_surface_t * _cairo_image_surface_map_to_image(void * abstract_other, const cairo_rectangle_int_t * extents);
 cairo_private cairo_int_status_t _cairo_image_surface_unmap_image(void * abstract_surface, cairo_image_surface_t * image);
 cairo_private cairo_surface_t * _cairo_image_surface_source(void * abstract_surface, cairo_rectangle_int_t * extents);
-cairo_private cairo_status_t _cairo_image_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t  ** image_out, void    ** image_extra);
+cairo_private cairo_status_t _cairo_image_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t  ** image_out, void ** image_extra);
 cairo_private void _cairo_image_surface_release_source_image(void * abstract_surface, cairo_image_surface_t * image, void * image_extra);
 cairo_private cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface);
 cairo_private_no_warn boolint _cairo_image_surface_get_extents(void * abstract_surface,

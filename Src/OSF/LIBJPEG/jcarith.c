@@ -597,7 +597,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	for(k = cinfo->Ss - 1; k < ke; ) {
 		st = entropy->ac_stats[tbl] + 3 * k;
 		if(k >= kex)
-			arith_encode(cinfo, st, 0);  /* EOB decision */
+			arith_encode(cinfo, st, 0); /* EOB decision */
 		for(;; ) {
 			if((v = (*block)[natural_order[++k]]) >= 0) {
 				if(v >>= cinfo->Al) {

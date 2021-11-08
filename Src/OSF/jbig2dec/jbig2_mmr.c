@@ -720,7 +720,7 @@ const mmr_table_node jbig2_mmr_black_decode[] = {
 	{0, 3}
 };
 
-#define getbit(buf, x) ( ( buf[x >> 3] >> ( 7 - (x & 7) ) ) & 1 )
+#define getbit(buf, x) ((buf[x >> 3] >> ( 7 - (x & 7) ) ) & 1 )
 
 /* On platforms that enforce aligned memory accesses, we can't just
  * cast the byte * to the type of object we are accessing, we have
@@ -762,7 +762,7 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 	   [Would it be worth looking at top 4 bits, then at 2 bits then at 1 bit,
 	   instead of iterating over all 8 bits? */
 
-	if( ((uint8_t*)line)[ x / 8] == all8) {
+	if(((uint8_t*)line)[ x / 8] == all8) {
 		/* Don't bother checking individual bits if the enclosing uint8 equals
 		   all8 - just move to the next byte. */
 		x = x / 8 * 8 + 8;
@@ -792,7 +792,7 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 		if(w - x < 8) {
 			goto check1;
 		}
-		if( ((uint8_t*)line)[ x / 8] != all8) {
+		if(((uint8_t*)line)[ x / 8] != all8) {
 			goto check1;
 		}
 		x += 8; /* This will make x a multiple of 16. */
@@ -848,7 +848,7 @@ check8:
 	}
 check8_no_eof:
 	assert(w - x >= 8);
-	if( ((uint8_t*)line)[x/8] != all8) {
+	if(((uint8_t*)line)[x/8] != all8) {
 		goto check1;
 	}
 	x += 8;
@@ -856,7 +856,7 @@ check8_no_eof:
 	/* Check up to the next 8 bits. */
 check1:
 	assert(x % 8 == 0);
-	if( ((uint8_t*)line)[ x / 8] == all8) {
+	if(((uint8_t*)line)[ x / 8] == all8) {
 		x = w;
 		goto end;
 	}

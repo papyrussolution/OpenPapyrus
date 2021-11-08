@@ -205,13 +205,13 @@ void DUMB_text(GpTermEntry * pThis)
 #ifndef NO_DUMB_COLOR_SUPPORT
 			t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x*y + x];
 			const char * colorstring = p_gp->AnsiColorString(color, &p_gp->TDumbB.PrevColor);
-			if(colorstring[0] != NUL)
+			if(colorstring[0])
 				fputs(colorstring, GPT.P_GpOutFile);
 			memcpy(&p_gp->TDumbB.PrevColor, color, sizeof(t_colorspec));
 #endif
 			c = (char *)(&p_gp->TDumbB.P_Matrix[p_gp->TDumbB.PtMax.x*y + x]);
 			// The UTF-8 character might be four bytes long and so there's no guarantee that the charcell ends in a NUL. 
-			for(i = 0; i < sizeof(charcell) && *c != NUL; i++, c++)
+			for(i = 0; i < sizeof(charcell) && *c; i++, c++)
 				fputc(*c, GPT.P_GpOutFile);
 		}
 		if(p_gp->TDumbB.Feed || y > 0)

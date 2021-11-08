@@ -878,11 +878,10 @@ static const long dayInLeapYearByMonth[12] = { 0, 31, 60, 91, 121, 152, 182, 213
 
 #define DAY_IN_YEAR(day, month, year) ((IsLeapYear(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #define DEBUG_DATE(dt)							\
 	xmlGenericError(0, "type=%o %04ld-%02u-%02uT%02u:%02u:%03f",			    \
-	    dt->type, dt->value.date.year, dt->value.date.mon,		      \
-	    dt->value.date.day, dt->value.date.hour, dt->value.date.min, dt->value.date.sec); \
+	    dt->type, dt->value.date.year, dt->value.date.mon, dt->value.date.day, dt->value.date.hour, dt->value.date.min, dt->value.date.sec); \
 	if(dt->value.date.tz_flag)					   \
 		if(dt->value.date.tzo != 0)				       \
 			xmlGenericError(0, "%+05d\n", dt->value.date.tzo); \
@@ -1708,7 +1707,7 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
 	int ret = 0, i = 0;
 	if(!((*cur >= '0') && (*cur <= '9')))
 		return -2;
-	while(*cur == '0') {     /* ignore leading zeroes */
+	while(*cur == '0') { /* ignore leading zeroes */
 		cur++;
 	}
 	tmp = cur;

@@ -225,7 +225,7 @@ public:
 	 *
 	 * @see ssh_userauth_kbdint
 	 */
-	int userauthKbdint(const char* username, const char* submethods)
+	int userauthKbdint(const char * username, const char * submethods)
 	{
 		int ret = ssh_userauth_kbdint(c_session, username, submethods);
 		ssh_throw(ret);
@@ -475,7 +475,7 @@ protected:
 private:
 	/* No copy constructor, no = operator */
 	Session(const Session &);
-	Session& operator=(const Session &);
+	Session& operator = (const Session &);
 };
 
 /** @brief the ssh::Channel class describes the state of an SSH
@@ -720,7 +720,7 @@ private:
 
 	/* No copy and no = operator */
 	Channel(const Channel &);
-	Channel &operator=(const Channel &);
+	Channel & operator = (const Channel &);
 };
 
 inline Channel * Session::acceptForward(int timeout_ms){

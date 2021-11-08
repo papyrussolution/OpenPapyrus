@@ -588,8 +588,8 @@ XXH_FORCE_INLINE void XXH3_accumulate_512(void * XXH_RESTRICT acc, const void * 
 
 	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64 *)acc; /* presumed aligned on 32-bytes boundaries, little hint
 	                                                         for the auto-vectorizer */
-	const char* const xdata = (const char *)data; /* no alignment restriction */
-	const char* const xkey  = (const char *)key; /* no alignment restriction */
+	const char * const xdata = (const char *)data; /* no alignment restriction */
+	const char * const xkey  = (const char *)key; /* no alignment restriction */
 	size_t i;
 	assert(((size_t)acc & (XXH_ACC_ALIGN-1)) == 0);
 	for(i = 0; i < ACC_NB; i += 2) {
@@ -721,7 +721,7 @@ XXH_FORCE_INLINE void XXH3_scrambleAcc(void * XXH_RESTRICT acc, const void * XXH
 	}
 #else   /* scalar variant of Scrambler - universal */
 	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64 *)acc; // presumed aligned on 32-bytes boundaries, little hint for the auto-vectorizer 
-	const char* const xkey = (const char *)key; /* no alignment restriction */
+	const char * const xkey = (const char *)key; /* no alignment restriction */
 	int i;
 	assert((((size_t)acc) & (XXH_ACC_ALIGN-1)) == 0);
 	for(i = 0; i < (int)ACC_NB; i++) {
@@ -791,7 +791,7 @@ XXH3_hashLong_internal_loop(uint64* XXH_RESTRICT acc, const void * XXH_RESTRICT 
 XXH_FORCE_INLINE uint64 XXH3_mix2Accs(const uint64* XXH_RESTRICT acc, const void * XXH_RESTRICT secret)
 {
 	const uint64* const key64 = (const uint64*)secret;
-	return XXH3_mul128_fold64(acc[0] ^ XXH_readLE64(key64), acc[1] ^ XXH_readLE64(key64+1) );
+	return XXH3_mul128_fold64(acc[0] ^ XXH_readLE64(key64), acc[1] ^ XXH_readLE64(key64+1));
 }
 
 static XXH64_hash_t XXH3_mergeAccs(const uint64* XXH_RESTRICT acc, const void * XXH_RESTRICT secret, uint64 start)
@@ -841,8 +841,8 @@ XXH_FORCE_INLINE void XXH_writeLE64(void * dst, uint64 v64)
  */
 XXH_FORCE_INLINE void XXH3_initKeySeed(void * customSecret, uint64 seed64)
 {
-	char* const dst = (char *)customSecret;
-	const char* const src = (const char *)kSecret;
+	char * const dst = (char *)customSecret;
+	const char * const src = (const char *)kSecret;
 	int const nbRounds = XXH_SECRET_DEFAULT_SIZE / 16;
 	int i;
 	STATIC_ASSERT((XXH_SECRET_DEFAULT_SIZE & 15) == 0);
@@ -874,14 +874,14 @@ XXH_FORCE_INLINE uint64 XXH3_mix16B(const void * XXH_RESTRICT data, const void *
 	const uint64* const key64 = (const uint64*)key;
 	uint64 const ll1 = XXH_readLE64(data);
 	uint64 const ll2 = XXH_readLE64((const BYTE *)data+8);
-	return XXH3_mul128_fold64(ll1 ^ (XXH_readLE64(key64)   + seed64), ll2 ^ (XXH_readLE64(key64+1) - seed64) );
+	return XXH3_mul128_fold64(ll1 ^ (XXH_readLE64(key64)   + seed64), ll2 ^ (XXH_readLE64(key64+1) - seed64));
 }
 
 XXH_FORCE_INLINE XXH64_hash_t XXH3_len_17to128_64b(const void * XXH_RESTRICT data, size_t len,
     const void * XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = PTRCHRC(secret);
+	const char * const key = PTRCHRC(secret);
 	assert(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	assert(16 < len && len <= 128);
 	{   
@@ -910,7 +910,7 @@ XXH_NO_INLINE XXH64_hash_t XXH3_len_129to240_64b(const void * XXH_RESTRICT data,
     const void * XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = PTRCHRC(secret);
+	const char * const key = PTRCHRC(secret);
 	assert(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	assert(128 < len && len <= XXH3_MIDSIZE_MAX);
     #define XXH3_MIDSIZE_STARTOFFSET 3
@@ -1258,7 +1258,7 @@ XXH_NO_INLINE XXH128_hash_t XXH3_len_129to240_128b(const void * XXH_RESTRICT dat
     const void * XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = PTRCHRC(secret);
+	const char * const key = PTRCHRC(secret);
 	assert(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	assert(128 < len && len <= XXH3_MIDSIZE_MAX);
 	{   
@@ -1293,7 +1293,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_17to128_128b(const void * XXH_RESTRICT d
     const void * XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = PTRCHRC(secret);
+	const char * const key = PTRCHRC(secret);
 	assert(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	assert(16 < len && len <= 128);
 	{   

@@ -211,15 +211,15 @@ public:
 	}
 	int SCI_METHOD Version() const { return lvSubStyles; }
 	void SCI_METHOD Release() { delete this; }
-	const char* SCI_METHOD PropertyNames() { return osVerilog.PropertyNames(); }
-	int SCI_METHOD PropertyType(const char* name) { return osVerilog.PropertyType(name); }
-	const char* SCI_METHOD DescribeProperty(const char* name) { return osVerilog.DescribeProperty(name); }
-	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val) { return osVerilog.PropertySet(&options, key, val); }
-	const char* SCI_METHOD DescribeWordListSets() { return osVerilog.DescribeWordListSets(); }
-	Sci_Position SCI_METHOD WordListSet(int n, const char* wl);
+	const char * SCI_METHOD PropertyNames() { return osVerilog.PropertyNames(); }
+	int SCI_METHOD PropertyType(const char * name) { return osVerilog.PropertyType(name); }
+	const char * SCI_METHOD DescribeProperty(const char * name) { return osVerilog.DescribeProperty(name); }
+	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val) { return osVerilog.PropertySet(&options, key, val); }
+	const char * SCI_METHOD DescribeWordListSets() { return osVerilog.DescribeWordListSets(); }
+	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-	void * SCI_METHOD PrivateCall(int, void*)
+	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}

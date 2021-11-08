@@ -163,7 +163,7 @@ int X509_TRUST_add(int id, int flags, int (*ck)(X509_TRUST *, X509 *, int), cons
 	/* If its a new entry manage the dynamic table */
 	if(idx == -1) {
 		if(trtable == NULL
-		    && (trtable = sk_X509_TRUST_new(tr_cmp)) == NULL) {
+		  && (trtable = sk_X509_TRUST_new(tr_cmp)) == NULL) {
 			X509err(X509_F_X509_TRUST_ADD, ERR_R_MALLOC_FAILURE);
 			goto err;;
 		}

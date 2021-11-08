@@ -44,7 +44,7 @@ int GpProgram::Equals(int t_num, const char * pStr) const
 			if(P_InputLine[P_Token[t_num].StartIdx + i] != pStr[i])
 				return FALSE;
 		}
-		return (pStr[i] == NUL); // now return TRUE if at end of str[], FALSE if not 
+		return (!pStr[i]); // now return TRUE if at end of str[], FALSE if not 
 	}
 }
 // 
@@ -75,7 +75,7 @@ int GpProgram::AlmostEquals(int t_num, const char * pStr) const
 				}
 			}
 		}
-		return (after || pStr[i] == '$' || pStr[i] == NUL); // i now beyond end of token string 
+		return (after || pStr[i] == '$' || !pStr[i]); // i now beyond end of token string 
 	}
 }
 //
@@ -187,7 +187,7 @@ int GnuPlot::IsDefinition(int t_num) const
 void GpProgram::CopyStr(char * pStr, int tokNum, int maxCount) const
 {
 	if(tokNum >= NumTokens) {
-		*pStr = NUL;
+		*pStr = '\0';
 	}
 	else {
 		int i = 0;
@@ -200,7 +200,7 @@ void GpProgram::CopyStr(char * pStr, int tokNum, int maxCount) const
 		do {
 			pStr[i++] = P_InputLine[start++];
 		} while(i != count);
-		pStr[i] = NUL;
+		pStr[i] = '\0';
 	}
 }
 //
@@ -220,9 +220,9 @@ void GpProgram::Capture(char * pStr, int start, int end, int max) const
 		e = P_Token[start].StartIdx + max - 1;
 		FPRINTF((stderr, "str buffer overflow in capture"));
 	}
-	for(i = P_Token[start].StartIdx; i < e && P_InputLine[i] != NUL; i++)
+	for(i = P_Token[start].StartIdx; i < e && P_InputLine[i]; i++)
 		*pStr++ = P_InputLine[i];
-	*pStr = NUL;
+	*pStr = '\0';
 }
 // 
 // m_capture() is similar to capture(), but it mallocs storage for the string.
@@ -237,7 +237,7 @@ void GpProgram::MCapture(char ** ppStr, int start, int end)
 	s = *ppStr;
 	for(i = P_Token[start].StartIdx; i < e && P_InputLine[i]; i++)
 		*s++ = P_InputLine[i];
-	*s = NUL;
+	*s = '\0';
 }
 // 
 // m_quote_capture() is similar to m_capture(), but it removes
@@ -252,7 +252,7 @@ void GnuPlot::MQuoteCapture(char ** ppStr, int start, int end)
 	s = *ppStr;
 	for(int i = Pgm.P_Token[start].StartIdx + 1; i < e && Pgm.P_InputLine[i]; i++)
 		*s++ = Pgm.P_InputLine[i];
-	*s = NUL;
+	*s = '\0';
 	if(Pgm.P_InputLine[Pgm.P_Token[start].StartIdx] == '"')
 		ParseEsc(*ppStr);
 	else
@@ -1030,7 +1030,7 @@ void squash_spaces(char * s, int remain)
 	char * r = s;   /* reading point */
 	char * w = s;   /* writing point */
 	bool space = FALSE; /* TRUE if we've already copied a space */
-	for(w = r = s; *r != NUL; r++) {
+	for(w = r = s; *r; r++) {
 		if(isspace((uchar)*r)) {
 			/* white space; only copy if we haven't just copied a space */
 			if(!space && remain > 0) {
@@ -1044,7 +1044,7 @@ void squash_spaces(char * s, int remain)
 			space = FALSE;
 		}
 	}
-	*w = NUL; // null terminate string
+	*w = '\0'; // null terminate string
 }
 
 /* postprocess single quoted strings: replace "''" by "'"
@@ -1053,12 +1053,12 @@ void parse_sq(char * instr)
 {
 	char * s = instr, * t = instr;
 	// the string will always get shorter, so we can do the conversion in situ
-	while(*s != NUL) {
+	while(*s) {
 		if(*s == '\'' && *(s+1) == '\'')
 			s++;
 		*t++ = *s++;
 	}
-	*t = NUL;
+	*t = '\0';
 }
 
 //void parse_esc(char * pInStr)
@@ -1066,7 +1066,7 @@ void GnuPlot::ParseEsc(char * pInStr)
 {
 	char * s = pInStr, * t = pInStr;
 	// the string will always get shorter, so we can do the conversion in situ
-	while(*s != NUL) {
+	while(*s) {
 		if(*s == '\\') {
 			s++;
 			if(*s == '\\') {
@@ -1112,11 +1112,10 @@ void GnuPlot::ParseEsc(char * pInStr)
 			// For parsing CSV strings with quoted quotes 
 			*t++ = *s++; s++;
 		}
-		else {
+		else
 			*t++ = *s++;
-		}
 	}
-	*t = NUL;
+	*t = '\0';
 }
 //
 // This function does nothing if dirent.h and windows.h not available. 
@@ -1265,9 +1264,8 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 				    sprintf(s[j], "\"%s\"", cstr);
 			    }
 		    }
-		    else {
-			    s[j][0] = NUL;
-		    }
+		    else
+			    s[j][0] = '\0';
 		    break;
 		case DATABLOCK:
 		    sprintf(s[j], "<%d line data block>", pVal->GetDatablockSize());

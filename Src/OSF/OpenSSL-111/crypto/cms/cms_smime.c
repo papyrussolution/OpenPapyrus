@@ -445,7 +445,7 @@ CMS_ContentInfo * CMS_sign(X509 * signcert, EVP_PKEY * pkey,
 	if(cms == NULL || !CMS_SignedData_init(cms))
 		goto merr;
 	if(flags & CMS_ASCIICRLF
-	    && !CMS_set1_eContentType(cms,
+	  && !CMS_set1_eContentType(cms,
 	    OBJ_nid2obj(NID_id_ct_asciiTextWithCRLF)))
 		goto err;
 

@@ -109,7 +109,7 @@ static int LZMAPreDecode(TIFF* tif, uint16 s)
 	lzma_ret ret;
 	(void)s;
 	assert(sp != NULL);
-	if( (sp->state & LSTATE_INIT_DECODE) == 0)
+	if((sp->state & LSTATE_INIT_DECODE) == 0)
 		tif->tif_setupdecode(tif);
 	sp->stream.next_in = tif->tif_rawdata;
 	sp->stream.avail_in = (size_t)tif->tif_rawcc;

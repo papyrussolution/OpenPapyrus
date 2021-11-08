@@ -109,7 +109,7 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 			 * for modified window NAFs, it may also be 2^w
 			 */
 			if(window_val != 0 && window_val != next_bit
-			    && window_val != bit) {
+			  && window_val != bit) {
 				BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_INTERNAL_ERROR);
 				goto err;
 			}

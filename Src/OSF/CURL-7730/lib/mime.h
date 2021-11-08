@@ -72,8 +72,8 @@ enum mimestrategy {
 struct mime_encoder {
   const char *   name;          /* Encoding name. */
   size_t         (*encodefunc)(char *buffer, size_t size, bool ateof,
-                               curl_mimepart *part);  /* Encoded read. */
-  curl_off_t     (*sizefunc)(curl_mimepart *part);  /* Encoded size. */
+                               curl_mimepart *part); /* Encoded read. */
+  curl_off_t     (*sizefunc)(curl_mimepart *part); /* Encoded size. */
 };
 
 /* Content transfer encoder state. */

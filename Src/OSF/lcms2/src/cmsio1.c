@@ -928,7 +928,7 @@ cmsUInt32Number CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType In
 
 cmsUInt32Number CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
     const char LanguageCode[3], const char CountryCode[3],
-    char* Buffer, cmsUInt32Number BufferSize)
+    char * Buffer, cmsUInt32Number BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
 	if(mlu == NULL) return 0;

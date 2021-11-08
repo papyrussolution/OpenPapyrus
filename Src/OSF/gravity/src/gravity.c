@@ -183,7 +183,7 @@ static void unittest_scan(const char * folder_path, unittest_data * data)
 		char winbuffer[MAX_PATH];
 		// @sobolev WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)target_file, -1, winbuffer, sizeof(winbuffer), NULL, NULL);
 		STRNSCPY(winbuffer, target_file); // @sobolev
-		target_file = (const char*)winbuffer;
+		target_file = (const char *)winbuffer;
 	#endif
 
 		// if file is a folder then start recursion
@@ -268,7 +268,7 @@ static void print_help(void)
 	printf("file_name          compile file_name and executes it\n");
 }
 
-static op_type parse_args(int argc, const char* argv[]) 
+static op_type parse_args(int argc, const char * argv[]) 
 {
 	if(argc == 1) return OP_REPL;
 	if(argc == 2 && strcmp(argv[1], "--version") == 0) {
@@ -383,7 +383,7 @@ static void gravity_unittest(void)
 
 // MARK: -
 
-int main(int argc, const char* argv[]) 
+int main(int argc, const char * argv[]) 
 {
 	// parse arguments and return operation type
 	op_type type = parse_args(argc, argv);

@@ -42,7 +42,7 @@ typedef FT_Error
 /*
  * Used to implement FT_Get_Sfnt_Table().
  */
-typedef void*
+typedef void *
 (* FT_SFNT_TableGetFunc)(FT_Face face,
     FT_Sfnt_Tag tag);
 

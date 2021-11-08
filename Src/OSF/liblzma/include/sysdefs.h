@@ -36,7 +36,7 @@
 // Note that this duplicates some code from lzma.h, but this is better since
 // we can work without inttypes.h thanks to Autoconf tests.
 #ifndef UINT32_C
-#	if UINT_MAX != 4294967295U
+#if UINT_MAX != 4294967295U
 #		error UINT32_C is not defined and unsigned int is not 32-bit.
 #	endif
 #	define UINT32_C(n) n ## U
@@ -95,7 +95,7 @@
 
 // The code currently assumes that size_t is either 32-bit or 64-bit.
 #ifndef SIZE_MAX
-#	if SIZEOF_SIZE_T == 4
+#if SIZEOF_SIZE_T == 4
 #		define SIZE_MAX UINT32_MAX
 #	elif SIZEOF_SIZE_T == 8
 #		define SIZE_MAX UINT64_MAX

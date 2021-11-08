@@ -95,7 +95,7 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 		it = ssh_list_get_iterator(src->opts.identity);
 		while(it) {
 			int rc;
-			id = _strdup((char*)it->data);
+			id = _strdup((char *)it->data);
 			if(id == NULL) {
 				ssh_free(p_new);
 				return -1;
@@ -1077,7 +1077,7 @@ int ssh_options_get_port(ssh_session session, uint* port_target) {
  * @brief This function can get ssh options, it does not support all options provided for
  *  ssh options set, but mostly those which a user-space program may care about having
  *  trusted the ssh driver to infer these values from underlaying configuration files.
- *  It operates only on those SSH_OPTIONS_* which return char*. If you wish to receive
+ *  It operates only on those SSH_OPTIONS_* which return char *. If you wish to receive
  *  the port then please use ssh_options_get_port() which returns an uint.
  *
  * @param  session An allocated SSH session structure.
@@ -1109,16 +1109,16 @@ int ssh_options_get_port(ssh_session session, uint* port_target) {
  *        - SSH_OPTIONS_KNOWNHOSTS:
  *          Get the path to the known_hosts file being used.
  *
- * @param  value The value to get into. As a char**, space will be
+ * @param  value The value to get into. As a char **, space will be
  *         allocated by the function for the value, it is
  *         your responsibility to free the memory using
  *         ssh_string_free_char().
  *
  * @return       SSH_OK on success, SSH_ERROR on error.
  */
-int ssh_options_get(ssh_session session, enum ssh_options_e type, char** value)
+int ssh_options_get(ssh_session session, enum ssh_options_e type, char ** value)
 {
-	char* src = NULL;
+	char * src = NULL;
 
 	if(session == NULL) {
 		return SSH_ERROR;
@@ -1258,7 +1258,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 		    {
 			    char optv[3] = "- ";
 			    optv[1] = optopt;
-			    tmp = SAlloc::R(save, (current + 1) * sizeof(char*));
+			    tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
 			    if(tmp == NULL) {
 				    SAFE_FREE(save);
 				    ssh_set_error_oom(session);
@@ -1279,7 +1279,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 		} /* switch */
 	} /* while */
 	opterr = saveopterr;
-	tmp = SAlloc::R(save, (current + (argc - optind)) * sizeof(char*));
+	tmp = SAlloc::R(save, (current + (argc - optind)) * sizeof(char *));
 	if(tmp == NULL) {
 		SAFE_FREE(save);
 		ssh_set_error_oom(session);
@@ -1287,7 +1287,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	}
 	save = tmp;
 	while(optind < argc) {
-		tmp = SAlloc::R(save, (current + 1) * sizeof(char*));
+		tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
 		if(tmp == NULL) {
 			SAFE_FREE(save);
 			ssh_set_error_oom(session);
@@ -1479,7 +1479,7 @@ int ssh_options_apply(ssh_session session) {
 	for(it = ssh_list_get_iterator(session->opts.identity);
 	    it != NULL;
 	    it = it->next) {
-		char * id = (char*)it->data;
+		char * id = (char *)it->data;
 		if(strncmp(id, "pkcs11:", 6) == 0) {
 			/* PKCS#11 URIs are using percent-encoding so we can not mix
 			 * it with ssh expansion of ssh escape characters.

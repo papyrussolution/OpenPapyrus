@@ -274,7 +274,7 @@ const TCHAR* TiXmlBase::ReadText(const TCHAR* p, TIXML_STRING * text, bool trimW
 		// Remove leading white space:
 		p = SkipWhiteSpace(p);
 		while(p && *p
-		    && !StringEqual(p, endTag, caseInsensitive) ) {
+		  && !StringEqual(p, endTag, caseInsensitive) ) {
 			if(*p == '\r' || *p == '\n') {
 				whitespace = true;
 				++p;
@@ -326,7 +326,7 @@ void TiXmlDocument::StreamIn(TIXML_ISTREAM * in, TIXML_STRING * tag)
 			// We now have something we presume to be a node of
 			// some sort. Identify it, and call the node to
 			// continue streaming.
-			TiXmlNode* node = Identify(tag->c_str() + tagIndex);
+			TiXmlNode * node = Identify(tag->c_str() + tagIndex);
 
 			if(node) {
 				node->StreamIn(in, tag);
@@ -386,7 +386,7 @@ const TCHAR* TiXmlDocument::Parse(const TCHAR* p, TiXmlParsingData* prevData)
 	}
 
 	while(p && *p) {
-		TiXmlNode* node = Identify(p);
+		TiXmlNode * node = Identify(p);
 		if(node) {
 			p = node->Parse(p, &data);
 			LinkEndChild(node);
@@ -418,9 +418,9 @@ void TiXmlDocument::SetError(int err, const TCHAR* pError, TiXmlParsingData* dat
 	}
 }
 
-TiXmlNode* TiXmlNode::Identify(const TCHAR* p)
+TiXmlNode * TiXmlNode::Identify(const TCHAR* p)
 {
-	TiXmlNode* returnNode = 0;
+	TiXmlNode * returnNode = 0;
 	p = SkipWhiteSpace(p);
 	if(!p || !*p || *p != '<') {
 		return 0;
@@ -450,7 +450,7 @@ TiXmlNode* TiXmlNode::Identify(const TCHAR* p)
 		#ifdef DEBUG_PARSER
 		TIXML_LOG("XML parsing Element\n");
 		#endif
-		returnNode = new TiXmlElement(TEXT("") );
+		returnNode = new TiXmlElement(TEXT(""));
 	}
 	else if(StringEqual(p, commentHeader, false) ) {
 		#ifdef DEBUG_PARSER
@@ -507,7 +507,7 @@ void TiXmlElement::StreamIn(TIXML_ISTREAM * in, TIXML_STRING * tag)
 			// Do we have text?
 			if(in->good() && in->peek() != '<') {
 				// Yep, text.
-				TiXmlText text(TEXT("") );
+				TiXmlText text(TEXT(""));
 				text.StreamIn(in, tag);
 
 				// What follows text is a closing tag or another node.
@@ -550,7 +550,7 @@ void TiXmlElement::StreamIn(TIXML_ISTREAM * in, TIXML_STRING * tag)
 			else {
 				// If not a closing tag, id it, and stream.
 				const TCHAR* tagloc = tag->c_str() + tagIndex;
-				TiXmlNode* node = Identify(tagloc);
+				TiXmlNode * node = Identify(tagloc);
 				if(!node)
 					return;
 				node->StreamIn(in, tag);
@@ -658,9 +658,9 @@ const TCHAR* TiXmlElement::Parse(const TCHAR* p, TiXmlParsingData* data)
 			}
 
 			// Handle the strange case of double attributes:
-			TiXmlAttribute* node = attributeSet.Find(attrib->Name() );
+			TiXmlAttribute* node = attributeSet.Find(attrib->Name());
 			if(node) {
-				node->SetValue(attrib->Value() );
+				node->SetValue(attrib->Value());
 				delete attrib;
 				return 0;
 			}
@@ -679,7 +679,7 @@ const TCHAR* TiXmlElement::ReadValue(const TCHAR* p, TiXmlParsingData* data)
 	while(p && *p) {
 		if(*p != '<') {
 			// Take what we have, make a text element.
-			TiXmlText* textNode = new TiXmlText(TEXT("") );
+			TiXmlText* textNode = new TiXmlText(TEXT(""));
 			if(!textNode) {
 				if(document) document->SetError(TIXML_ERROR_OUT_OF_MEMORY, 0, 0);
 				return 0;
@@ -697,7 +697,7 @@ const TCHAR* TiXmlElement::ReadValue(const TCHAR* p, TiXmlParsingData* data)
 				return p;
 			}
 			else {
-				TiXmlNode* node = Identify(p);
+				TiXmlNode * node = Identify(p);
 				if(node) {
 					p = node->Parse(p, data);
 					LinkEndChild(node);

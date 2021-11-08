@@ -308,7 +308,7 @@ static int TIFFjpeg_has_multiple_scans(JPEGState* sp)
 
 static int TIFFjpeg_start_decompress(JPEGState* sp)
 {
-	const char* sz_max_allowed_scan_number;
+	const char * sz_max_allowed_scan_number;
 	/* progress monitor */
 	sp->cinfo.d.progress = &sp->progress;
 	sp->progress.progress_monitor = TIFFjpeg_progress_monitor;
@@ -1347,7 +1347,7 @@ static int JPEGDecode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 						((uchar *)buf)[i] = tmpbuf[i] & 0xff;
 					}
 				}
-				else {     /* 12-bit */
+				else { /* 12-bit */
 					int value_pairs = (sp->cinfo.d.output_width * sp->cinfo.d.num_components) / 2;
 					int iPair;
 					for(iPair = 0; iPair < value_pairs; iPair++) {
@@ -1967,7 +1967,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    /* XXX */
 			    return 0;
 		    }
-		    _TIFFsetByteArray(&sp->jpegtables, va_arg(ap, void*), v32);
+		    _TIFFsetByteArray(&sp->jpegtables, va_arg(ap, void *), v32);
 		    sp->jpegtables_length = v32;
 		    TIFFSetFieldBit(tif, FIELD_JPEGTABLES);
 		    break;
@@ -2014,7 +2014,7 @@ static int JPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
 	switch(tag) {
 		case TIFFTAG_JPEGTABLES:
 		    *va_arg(ap, uint32*) = sp->jpegtables_length;
-		    *va_arg(ap, void**) = sp->jpegtables;
+		    *va_arg(ap, void **) = sp->jpegtables;
 		    break;
 		case TIFFTAG_JPEGQUALITY:
 		    *va_arg(ap, int*) = sp->jpegquality;

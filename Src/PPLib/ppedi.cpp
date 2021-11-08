@@ -3731,7 +3731,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 		THROW(GetArticleGLN(rBp.Rec.Object, temp_buf));
 		n_hdr.PutInner("recipient", temp_buf);
 		n_hdr.PutInner("documentType", "ORDERS");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "1");
 	}
 	{
@@ -3859,7 +3859,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 		THROW(GetArticleGLN(rBp.Rec.Object, temp_buf));
 		n_hdr.PutInner("recipient", temp_buf);
 		n_hdr.PutInner("documentType", "ORDRSP");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "1");
 	}
 	{
@@ -4008,7 +4008,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 		THROW(GetArticleGLN(rBp.Rec.Object, temp_buf));
 		n_hdr.PutInner("recipient", temp_buf);
 		n_hdr.PutInner("documentType", "DESADV");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "0");
 	}
 	{
@@ -4162,7 +4162,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 		THROW(GetArticleGLN(rBp.Rec.Object, temp_buf));
 		n_hdr.PutInner("recipient", temp_buf);
 		n_hdr.PutInner("documentType", "ALCRPT");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "0");
 	}
 	{
@@ -4357,7 +4357,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		THROW(GetArticleGLN(rBp.Rec.Object, temp_buf));
 		n_hdr.PutInner("recipient", temp_buf);
 		n_hdr.PutInner("documentType", "INVOIC");
-		n_hdr.PutInner("creationDateTime", temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "0");
 	}
 	{

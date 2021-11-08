@@ -218,7 +218,7 @@ zip_source_t *zip_source_layered(zip_t *, zip_source_t *, zip_source_layered_cal
 zip_source_t *zip_source_layered_create(zip_source_t *src, zip_source_layered_callback cb, void *ud, zip_error_t *error);
 zip_source_t *zip_source_pkware(zip_t *, zip_source_t *, uint16, int, const char *);
 int zip_source_remove(zip_source_t *);
-int64 zip_source_supports(zip_source_t *src);
+int64 zip_source_supports(const zip_source_t *src);
 zip_source_t *zip_source_window(zip_t *, zip_source_t *, uint64, uint64);
 //
 // error source for layered sources 

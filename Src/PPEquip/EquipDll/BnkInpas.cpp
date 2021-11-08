@@ -347,7 +347,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	GetReceiptData(p_res, rSlip);
 	// @v10.2.0 {
 	{
-		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+		temp_buf.Z().CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}
@@ -431,7 +431,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	GetReceiptData(p_res, rSlip);
 	// @v10.2.0 {
 	{
-		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
+		temp_buf.Z().CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 		SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 	}

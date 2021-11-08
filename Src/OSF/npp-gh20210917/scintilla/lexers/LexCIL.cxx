@@ -120,7 +120,7 @@ public:
 
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val) override;
 
-	const char * SCI_METHOD PropertyGet(const char* key) override {
+	const char * SCI_METHOD PropertyGet(const char * key) override {
 		return osCIL.PropertyGet(key);
 	}
 

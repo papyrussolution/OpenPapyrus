@@ -220,7 +220,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 		return FT_THROW(Invalid_Library_Handle);
 	if(!bitmap || !bitmap->buffer)
 		return FT_THROW(Invalid_Argument);
-	if( ( ( FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) || ( ( FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ) )
+	if(((FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) || ((FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ) )
 		return FT_THROW(Invalid_Argument);
 	xstr = (FT_Int)FT_PIX_ROUND(xStrength) >> 6;
 	ystr = (FT_Int)FT_PIX_ROUND(yStrength) >> 6;
@@ -294,7 +294,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 							break;
 						}
 						else {
-							p[x] = (uchar)( p[x] + p[x - i] );
+							p[x] = (uchar)( p[x] + p[x - i]);
 							if(p[x] == bitmap->num_grays - 1)
 								break;
 						}
@@ -345,7 +345,7 @@ static FT_Byte ft_gray_for_premultiplied_srgb_bgra(const FT_Byte*  bgra)
 
 	l = (  4732UL /* 0.0722 * 65536 */ * bgra[0] * bgra[0] +
 	    46871UL /* 0.7152 * 65536 */ * bgra[1] * bgra[1] +
-	    13933UL /* 0.2126 * 65536 */ * bgra[2] * bgra[2] ) >> 16;
+	    13933UL /* 0.2126 * 65536 */ * bgra[2] * bgra[2]) >> 16;
 
 	/*
 	 * Final transparency can be determined as follows.
@@ -429,13 +429,13 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 			    /* get the full bytes */
 			    for(j = source->width >> 3; j > 0; j--) {
 				    FT_Int val = ss[0]; /* avoid a byte->int cast on each line */
-				    tt[0] = (FT_Byte)( ( val & 0x80 ) >> 7 );
-				    tt[1] = (FT_Byte)( ( val & 0x40 ) >> 6 );
-				    tt[2] = (FT_Byte)( ( val & 0x20 ) >> 5 );
-				    tt[3] = (FT_Byte)( ( val & 0x10 ) >> 4 );
-				    tt[4] = (FT_Byte)( ( val & 0x08 ) >> 3 );
-				    tt[5] = (FT_Byte)( ( val & 0x04 ) >> 2 );
-				    tt[6] = (FT_Byte)( ( val & 0x02 ) >> 1 );
+				    tt[0] = (FT_Byte)((val & 0x80 ) >> 7 );
+				    tt[1] = (FT_Byte)((val & 0x40 ) >> 6 );
+				    tt[2] = (FT_Byte)((val & 0x20 ) >> 5 );
+				    tt[3] = (FT_Byte)((val & 0x10 ) >> 4 );
+				    tt[4] = (FT_Byte)((val & 0x08 ) >> 3 );
+				    tt[5] = (FT_Byte)((val & 0x04 ) >> 2 );
+				    tt[6] = (FT_Byte)((val & 0x02 ) >> 1 );
 				    tt[7] = (FT_Byte)(   val & 0x01 );
 
 				    tt += 8;
@@ -448,7 +448,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 				    FT_Int val = *ss;
 
 				    for(; j > 0; j--) {
-					    tt[0] = (FT_Byte)( ( val & 0x80 ) >> 7);
+					    tt[0] = (FT_Byte)((val & 0x80 ) >> 7);
 					    val <<= 1;
 					    tt   += 1;
 				    }
@@ -493,10 +493,10 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 			    for(j = source->width >> 2; j > 0; j--) {
 				    FT_Int val = ss[0];
 
-				    tt[0] = (FT_Byte)( ( val & 0xC0 ) >> 6 );
-				    tt[1] = (FT_Byte)( ( val & 0x30 ) >> 4 );
-				    tt[2] = (FT_Byte)( ( val & 0x0C ) >> 2 );
-				    tt[3] = (FT_Byte)( ( val & 0x03 ) );
+				    tt[0] = (FT_Byte)((val & 0xC0 ) >> 6 );
+				    tt[1] = (FT_Byte)((val & 0x30 ) >> 4 );
+				    tt[2] = (FT_Byte)((val & 0x0C ) >> 2 );
+				    tt[3] = (FT_Byte)((val & 0x03 ));
 
 				    ss += 1;
 				    tt += 4;
@@ -507,7 +507,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 				    FT_Int val = ss[0];
 
 				    for(; j > 0; j--) {
-					    tt[0]  = (FT_Byte)( ( val & 0xC0 ) >> 6 );
+					    tt[0]  = (FT_Byte)((val & 0xC0 ) >> 6 );
 					    val  <<= 2;
 					    tt    += 1;
 				    }
@@ -534,15 +534,15 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 			    for(j = source->width >> 1; j > 0; j--) {
 				    FT_Int val = ss[0];
 
-				    tt[0] = (FT_Byte)( ( val & 0xF0 ) >> 4 );
-				    tt[1] = (FT_Byte)( ( val & 0x0F ) );
+				    tt[0] = (FT_Byte)((val & 0xF0 ) >> 4 );
+				    tt[1] = (FT_Byte)((val & 0x0F ));
 
 				    ss += 1;
 				    tt += 2;
 			    }
 
 			    if(source->width & 1)
-				    tt[0] = (FT_Byte)( ( ss[0] & 0xF0 ) >> 4 );
+				    tt[0] = (FT_Byte)((ss[0] & 0xF0 ) >> 4 );
 
 			    s += source->pitch;
 			    t += target->pitch;
@@ -604,7 +604,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 
 	memory = library->memory;
 
-	if(!( target->pixel_mode == FT_PIXEL_MODE_NONE     ||
+	if(!(target->pixel_mode == FT_PIXEL_MODE_NONE     ||
 	    ( target->pixel_mode == FT_PIXEL_MODE_BGRA &&
 	    target->buffer                           ) ) )
 		return FT_THROW(Invalid_Argument);
@@ -617,7 +617,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	    ( source_->pitch ^ target->pitch ) < 0)
 		return FT_THROW(Invalid_Argument);
 
-	if(!( source_->width && source_->rows ) )
+	if(!(source_->width && source_->rows ) )
 		return FT_Err_Ok;     /* nothing to do */
 
 	/* assure integer pixel offsets */
@@ -693,7 +693,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		FT_TRACE5(( "  final bitmap: empty\n" ));
 #endif /* FT_DEBUG_LEVEL_TRACE */
 
-	if(!( final_width && final_rows ) )
+	if(!(final_width && final_rows ) )
 		return FT_Err_Ok;     /* nothing to do */
 
 	/* for blending, set offset vector of final bitmap */
@@ -835,7 +835,7 @@ Error:
 /* documentation is in ftbitmap.h */
 FT_EXPORT_DEF(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot)
 {
-	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP   && !( slot->internal->flags & FT_GLYPH_OWN_BITMAP ) ) {
+	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP && !(slot->internal->flags & FT_GLYPH_OWN_BITMAP ) ) {
 		FT_Bitmap bitmap;
 		FT_Error error;
 		FT_Bitmap_Init(&bitmap);

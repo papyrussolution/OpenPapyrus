@@ -71,7 +71,7 @@ PNG_ALLOCATED void * /* PRIVATE */ png_malloc_base(png_const_structrp png_ptr, p
 	 */
 	if(size > 0 && size <= PNG_SIZE_MAX
 #ifdef PNG_MAX_MALLOC_64K
-	    && size <= 65536U
+	  && size <= 65536U
 #endif
 	    ) {
 #ifdef PNG_USER_MEM_SUPPORTED
@@ -135,7 +135,7 @@ PNG_ALLOCATED void * PNGAPI png_malloc(png_const_structrp png_ptr, png_alloc_siz
 	if(png_ptr) {
 		ret = png_malloc_base(png_ptr, size);
 		if(!ret)
-			png_error(png_ptr, "Out of memory");  /* 'm' means png_malloc */
+			png_error(png_ptr, "Out of memory"); /* 'm' means png_malloc */
 	}
 	return ret;
 }

@@ -138,7 +138,7 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 	ret = a->type - b->type;
 	if(ret == 0) {
 		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+		  && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
 			ret = sk_NAME_FUNCS_value(name_funcs_stack,
 				a->type)->cmp_func(a->name, b->name);
 		}
@@ -153,7 +153,7 @@ static ulong obj_name_hash(const OBJ_NAME * a)
 	ulong ret;
 
 	if((name_funcs_stack != NULL)
-	    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+	  && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
 		ret =
 		    sk_NAME_FUNCS_value(name_funcs_stack,
 			a->type)->hash_func(a->name);
@@ -227,7 +227,7 @@ int OBJ_NAME_add(const char * name, int type, const char * data)
 	if(ret != NULL) {
 		/* free things */
 		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
+		  && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
 			/*
 			 * XXX: I'm not sure I understand why the free function should
 			 * get three arguments... -- Richard Levitte
@@ -270,7 +270,7 @@ int OBJ_NAME_remove(const char * name, int type)
 	if(ret != NULL) {
 		/* free things */
 		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
+		  && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
 			/*
 			 * XXX: I'm not sure I understand why the free function should
 			 * get three arguments... -- Richard Levitte

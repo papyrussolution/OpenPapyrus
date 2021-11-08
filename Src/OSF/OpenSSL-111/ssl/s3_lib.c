@@ -3813,10 +3813,10 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    ctx->ext.status_arg = parg;
 		    return 1;
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG:
-		    *(void**)parg = ctx->ext.status_arg;
+		    *(void **)parg = ctx->ext.status_arg;
 		    break;
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB:
-		    *(int (**)(SSL*, void*))parg = ctx->ext.status_cb;
+		    *(int (**)(SSL*, void *))parg = ctx->ext.status_cb;
 		    break;
 #ifndef OPENSSL_NO_SRP
 		case SSL_CTRL_SET_TLS_EXT_SRP_USERNAME:
@@ -4201,7 +4201,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 				continue;
 #if !defined(OPENSSL_NO_EC)
 			if((alg_k & SSL_kECDHE) && (alg_a & SSL_aECDSA)
-			    && s->s3->is_probably_safari) {
+			  && s->s3->is_probably_safari) {
 				if(!ret)
 					ret = sk_SSL_CIPHER_value(allow, ii);
 				continue;
@@ -4243,8 +4243,8 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 #ifndef OPENSSL_NO_GOST
 	if(s->version >= TLS1_VERSION && (alg_k & SSL_kGOST))
 		return WPACKET_put_bytes_u8(pkt, TLS_CT_GOST01_SIGN)
-		       && WPACKET_put_bytes_u8(pkt, TLS_CT_GOST12_SIGN)
-		       && WPACKET_put_bytes_u8(pkt, TLS_CT_GOST12_512_SIGN);
+		     && WPACKET_put_bytes_u8(pkt, TLS_CT_GOST12_SIGN)
+		     && WPACKET_put_bytes_u8(pkt, TLS_CT_GOST12_512_SIGN);
 #endif
 
 	if((s->version == SSL3_VERSION) && (alg_k & SSL_kDHE)) {
@@ -4273,8 +4273,8 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 	 * need to check for SSL_kECDH or SSL_kECDHE
 	 */
 	if(s->version >= TLS1_VERSION
-	    && !(alg_a & SSL_aECDSA)
-	    && !WPACKET_put_bytes_u8(pkt, TLS_CT_ECDSA_SIGN))
+	  && !(alg_a & SSL_aECDSA)
+	  && !WPACKET_put_bytes_u8(pkt, TLS_CT_ECDSA_SIGN))
 		return 0;
 #endif
 	return 1;
@@ -4416,8 +4416,8 @@ int ssl3_renegotiate_check(SSL * s, int initok)
 
 	if(s->s3->renegotiate) {
 		if(!RECORD_LAYER_read_pending(&s->rlayer)
-		    && !RECORD_LAYER_write_pending(&s->rlayer)
-		    && (initok || !SSL_in_init(s))) {
+		  && !RECORD_LAYER_write_pending(&s->rlayer)
+		  && (initok || !SSL_in_init(s))) {
 			/*
 			 * if we are the server, and we have sent a 'RENEGOTIATE'
 			 * message, we need to set the state machine into the renegotiate
@@ -4612,7 +4612,7 @@ EVP_PKEY * ssl_generate_pkey_group(SSL * s, uint16_t id)
 		goto err;
 	}
 	if(gtype != TLS_CURVE_CUSTOM
-	    && EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, ginf->nid) <= 0) {
+	  && EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, ginf->nid) <= 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
 		    ERR_R_EVP_LIB);
 		goto err;

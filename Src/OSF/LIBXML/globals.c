@@ -53,10 +53,10 @@ void xmlCleanupGlobals()
 //#undef  xmlRealloc_
 
 #if defined(DEBUG_MEMORY_LOCATION) || defined(DEBUG_MEMORY)
-	xmlFreeFunc free = (xmlFreeFunc)xmlMemFree;
-	xmlMallocFunc xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
-	xmlMallocFunc xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
-	xmlReallocFunc xmlRealloc_ = (xmlReallocFunc)xmlMemRealloc;
+	//xmlFreeFunc free = (xmlFreeFunc)xmlMemFree;
+	//xmlMallocFunc xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
+	//xmlMallocFunc xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
+	//xmlReallocFunc xmlRealloc_ = (xmlReallocFunc)xmlMemRealloc;
 	//xmlStrdupFunc xmlMemStrdup_Removed = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	/**
@@ -485,7 +485,7 @@ void xmlInitializeGlobalState(xmlGlobalState * gs)
 	// @sobolev gs->xmlFree = (xmlFreeFunc)xmlMemFree;
 	//gs->xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
 	//gs->xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
-	gs->xmlRealloc = (xmlReallocFunc)xmlMemRealloc;
+	//gs->xmlRealloc_ = (xmlReallocFunc)xmlMemRealloc;
 	//gs->xmlMemStrdup_Removed = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	// @sobolev gs->xmlFree = (xmlFreeFunc)free;

@@ -252,7 +252,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		goto end;
 
 	/* x := a^((q-1)/2) */
-	if(BN_is_zero(t)) {     /* special case: p = 2^e + 1 */
+	if(BN_is_zero(t)) { /* special case: p = 2^e + 1 */
 		if(!BN_nnmod(t, A, p, ctx))
 			goto end;
 		if(BN_is_zero(t)) {

@@ -194,7 +194,7 @@ LRESULT TaskList::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	    {
 		    MSG * msg = (MSG*)lParam;
 
-		    if(msg != NULL) {
+		    if(msg) {
 			    if((msg->message == WM_KEYDOWN) && (0x80 & GetKeyState(VK_CONTROL))) {
 				    // Shift+Tab is cool but I think VK_UP and VK_LEFT are also cool :-)
 				    if(((msg->wParam == VK_TAB) && (0x80 & GetKeyState(VK_SHIFT))) ||

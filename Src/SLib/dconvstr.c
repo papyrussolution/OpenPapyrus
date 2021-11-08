@@ -1832,7 +1832,7 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 				// 7. Handle denormalized numbers
 				//    and unintentional zero (due to exponent underflow)
 				input_binary_mantissa >>= 11;
-				while(( input_binary_mantissa != 0 )&&( input_binary_exponent < -1022 )) {
+				while(( input_binary_mantissa != 0)&&( input_binary_exponent < -1022 )) {
 					input_binary_mantissa >>= 1;
 					++input_binary_exponent;
 				}
@@ -2284,7 +2284,7 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 //   0  if there was internal error during conversion.
 // In general, interface of this function is similar to strtod(3), except for returning overflow
 // condition instead of setting errno. If you want just to convert C-style string to double with
-// error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
+// error checking, then set input_end != NULL and use ( ret_value != 0)&&( **input_end == 0)
 // condition as an indication of successful conversion.
 // 
 int STDCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)

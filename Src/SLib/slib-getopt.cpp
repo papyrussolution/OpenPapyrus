@@ -389,7 +389,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 			// If we have just processed some options following some non-options,
 			// exchange them so that the options come first. 
 			if(d->__first_nonopt != d->__last_nonopt && d->__last_nonopt != d->optind)
-				exchange((char**)argv, d);
+				exchange((char **)argv, d);
 			else if(d->__last_nonopt != d->optind)
 				d->__first_nonopt = d->optind;
 			// Skip any additional non-options and extend the range of non-options previously skipped.  */
@@ -404,7 +404,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 		if(d->optind != argc && sstreq(argv[d->optind], "--")) {
 			d->optind++;
 			if(d->__first_nonopt != d->__last_nonopt && d->__last_nonopt != d->optind)
-				exchange((char**)argv, d);
+				exchange((char **)argv, d);
 			else if(d->__first_nonopt == d->__last_nonopt)
 				d->__first_nonopt = d->optind;
 			d->__last_nonopt = argc;
@@ -860,7 +860,7 @@ int _getopt_internal(int argc, char ** argv, const char * optstring, const struc
 
 int getopt(int argc, char * const * argv, const char * optstring)
 {
-	return _getopt_internal(argc, (char**)argv, optstring, (const struct option *)0, (int*)0, 0, POSIXLY_CORRECT);
+	return _getopt_internal(argc, (char **)argv, optstring, (const struct option *)0, (int*)0, 0, POSIXLY_CORRECT);
 }
 
 #ifdef _LIBC
@@ -874,7 +874,7 @@ int __posix_getopt(int argc, char * const * argv, const char * optstring)
 //
 int getopt_long(int argc, char * const * argv, char const * options, struct option const * long_options, int * opt_index)
 {
-	return _getopt_internal(argc, (char**)argv, options, long_options, opt_index, 0, 0);
+	return _getopt_internal(argc, (char **)argv, options, long_options, opt_index, 0, 0);
 }
 
 int _getopt_long_r(int argc, char ** argv, const char * options, const struct option * long_options, int * opt_index, struct _getopt_data * d)
@@ -888,7 +888,7 @@ int _getopt_long_r(int argc, char ** argv, const char * options, const struct op
 // 
 int getopt_long_only(int argc, char ** argv, const char * options, const struct option * long_options, int * opt_index)
 {
-	return _getopt_internal(argc, (char**)argv, options, long_options, opt_index, 1, 0);
+	return _getopt_internal(argc, (char **)argv, options, long_options, opt_index, 1, 0);
 }
 
 int _getopt_long_only_r(int argc, char ** argv, const char * options, const struct option * long_options, int * opt_index, struct _getopt_data * d)

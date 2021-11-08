@@ -102,7 +102,7 @@ Style::Style(const Style &source) noexcept : FontSpecification(), FontMeasuremen
 Style::~Style() {
 }
 
-Style &Style::operator=(const Style &source) noexcept {
+Style &Style::operator = (const Style &source) noexcept {
 	if(this == &source)
 		return *this;
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),

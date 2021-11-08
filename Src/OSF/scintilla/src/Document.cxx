@@ -2686,7 +2686,7 @@ public:
 		doc = other.doc;
 		position = other.position;
 	}
-	ByteIterator &operator=(const ByteIterator &other)
+	ByteIterator & operator = (const ByteIterator &other)
 	{
 		if(this != &other) {
 			doc = other.doc;
@@ -2698,7 +2698,7 @@ public:
 	{
 		return doc->CharAt(position);
 	}
-	ByteIterator &operator++()
+	ByteIterator & operator++()
 	{
 		position++;
 		return *this;
@@ -2709,7 +2709,7 @@ public:
 		position++;
 		return retVal;
 	}
-	ByteIterator &operator--()
+	ByteIterator & operator--()
 	{
 		position--;
 		return *this;
@@ -2777,7 +2777,7 @@ public:
 		buffered[0] = other.buffered[0];
 		buffered[1] = other.buffered[1];
 	}
-	UTF8Iterator & operator=(const UTF8Iterator &other)
+	UTF8Iterator & operator = (const UTF8Iterator &other)
 	{
 		if(this != &other) {
 			doc = other.doc;
@@ -2820,7 +2820,7 @@ public:
 		}
 		return retVal;
 	}
-	UTF8Iterator &operator--()
+	UTF8Iterator & operator--()
 	{
 		if(characterIndex) {
 			characterIndex--;
@@ -2881,7 +2881,7 @@ public:
 		doc = other.doc;
 		position = other.position;
 	}
-	UTF8Iterator &operator=(const UTF8Iterator &other)
+	UTF8Iterator & operator = (const UTF8Iterator &other)
 	{
 		if(this != &other) {
 			doc = other.doc;
@@ -2894,7 +2894,7 @@ public:
 		Document::CharacterExtracted charExtracted = doc->ExtractCharacter(position);
 		return charExtracted.character;
 	}
-	UTF8Iterator &operator++()
+	UTF8Iterator & operator++()
 	{
 		position = doc->NextPosition(position, 1);
 		return *this;
@@ -2905,7 +2905,7 @@ public:
 		position = doc->NextPosition(position, 1);
 		return retVal;
 	}
-	UTF8Iterator &operator--()
+	UTF8Iterator & operator--()
 	{
 		position = doc->NextPosition(position, -1);
 		return *this;

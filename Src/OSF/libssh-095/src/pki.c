@@ -1862,7 +1862,7 @@ int ssh_pki_export_pubkey_base64(const ssh_key key,
 	if(b64 == NULL) {
 		return SSH_ERROR;
 	}
-	*b64_key = (char*)b64;
+	*b64_key = (char *)b64;
 	return SSH_OK;
 }
 

@@ -208,7 +208,7 @@ public:
 		return osBash.PropertyNames();
 	}
 
-	int SCI_METHOD PropertyType(const char* name) override {
+	int SCI_METHOD PropertyType(const char * name) override {
 		return osBash.PropertyType(name);
 	}
 
@@ -217,7 +217,7 @@ public:
 	}
 
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val) override;
-	const char * SCI_METHOD PropertyGet(const char* key) override {
+	const char * SCI_METHOD PropertyGet(const char * key) override {
 		return osBash.PropertyGet(key);
 	}
 
@@ -489,7 +489,7 @@ public:
 		switch(sc.state) {
 			case SCE_SH_OPERATOR:
 			    sc.SetState(SCE_SH_DEFAULT);
-			    if(cmdState == BASH_CMD_DELIM)              // if command delimiter, start new command
+			    if(cmdState == BASH_CMD_DELIM) // if command delimiter, start new command
 				    cmdStateNew = BASH_CMD_START;
 			    else if(sc.chPrev == '\\')                          // propagate command state if line
 				                                                // continued
@@ -1098,10 +1098,10 @@ void SCI_METHOD LexerBash::Fold(Sci_PositionU startPos, Sci_Position length, int
 		// Comment folding
 		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			    && IsCommentLine(lineCurrent + 1, styler))
+			  && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			    && !IsCommentLine(lineCurrent + 1, styler))
+			  && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		if(style == SCE_SH_WORD) {

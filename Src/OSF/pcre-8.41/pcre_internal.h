@@ -1820,9 +1820,9 @@ enum {
 	2,                       /* Chari  - the minimum length            */ \
 	2,                       /* not                                    */ \
 	2,                       /* noti                                   */ \
-        /* Positive single-char repeats                             ** These are */ \
-	2, 2, 2, 2, 2, 2,        /* *, *?, +, +?, ?, ??       ** minima in */ \
-	2+IMM2_SIZE, 2+IMM2_SIZE, /* upto, minupto             ** mode      */ \
+        /* Positive single-char repeats                       ** These are */ \
+	2, 2, 2, 2, 2, 2,        /* *, *?, +, +?, ?, ?? ** minima in */ \
+	2+IMM2_SIZE, 2+IMM2_SIZE, /* upto, minupto       ** mode      */ \
 	2+IMM2_SIZE,             /* exact                                  */ \
 	2, 2, 2, 2+IMM2_SIZE,    /* *+, ++, ?+, upto+                      */ \
 	2, 2, 2, 2, 2, 2,        /* *I, *?I, +I, +?I, ?I, ??I ** UTF-8     */ \
@@ -2329,7 +2329,7 @@ extern BOOL PRIV(xclass)(uint32, const pcre_uchar *, BOOL);
 	extern int PRIV(jit_exec) (const PUBL(extra) *, const pcre_uchar *, int, int, int, int *, int);
 	extern void PRIV(jit_free) (void *);
 	extern int PRIV(jit_get_size) (void *);
-	extern const char*       PRIV(jit_get_target) (void);
+	extern const char *       PRIV(jit_get_target) (void);
 #endif
 //
 // Unicode character database (UCD) 

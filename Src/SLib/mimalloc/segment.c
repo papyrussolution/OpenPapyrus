@@ -446,7 +446,7 @@ static size_t mi_segment_size(size_t capacity, size_t required, size_t* pre_size
 
 	if(info_size != NULL) *info_size = isize;
 	if(pre_size != NULL) *pre_size  = isize + guardsize;
-	return (required==0 ? MI_SEGMENT_SIZE : _mi_align_up(required + isize + 2*guardsize, MI_PAGE_HUGE_ALIGN) );
+	return (required==0 ? MI_SEGMENT_SIZE : _mi_align_up(required + isize + 2*guardsize, MI_PAGE_HUGE_ALIGN));
 }
 
 /* ----------------------------------------------------------------------------
@@ -511,7 +511,7 @@ static bool mi_segment_cache_full(mi_segments_tld_t* tld)
 	// thread
 	size_t max_cache = mi_option_get(mi_option_segment_cache);
 	if(tld->cache_count < max_cache
-	    && tld->cache_count < (1 + (tld->peak_count / MI_SEGMENT_CACHE_FRACTION)) // at least allow a 1 element
+	  && tld->cache_count < (1 + (tld->peak_count / MI_SEGMENT_CACHE_FRACTION)) // at least allow a 1 element
 	                                                                              // cache
 	    ) {
 		return false;
@@ -603,7 +603,7 @@ static mi_segment_t* mi_segment_init(mi_segment_t* segment,
 		if(page_kind <= MI_PAGE_MEDIUM && segment->page_kind == page_kind && segment->segment_size == segment_size) {
 			pages_still_good = true;
 		}
-		else{
+		else {
 			if(MI_SECURE!=0) {
 				mi_assert_internal(!segment->mem_is_pinned);
 				mi_segment_protect(segment, false, tld->os); // reset protection if the page kind

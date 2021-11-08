@@ -141,8 +141,8 @@ ss_combination:
 	}
 	else if(0x61 <= *p && *p <= 0x7a) {
 		if(*p == SMALL_S && end > p + 1
-		    && (*(p+1) == SMALL_S || *(p+1) == LARGE_S)
-		    && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) { /* ss */
+		  && (*(p+1) == SMALL_S || *(p+1) == LARGE_S)
+		  && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) { /* ss */
 			goto ss_combination;
 		}
 

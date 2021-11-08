@@ -47,7 +47,7 @@ void nsEUCKRProber::Reset(void)
 	//mContextAnalyser.Reset();
 }
 
-nsProbingState nsEUCKRProber::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsEUCKRProber::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	nsSMState codingState;
 

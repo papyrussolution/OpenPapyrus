@@ -546,14 +546,14 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 				SVG_fontNameDef = s;
 				if(italic) {
 					SVG_fontStyleDef = "italic";
-					SVG_fontNameDef[strlen(s) - strlen(italic)] = NUL;
+					SVG_fontNameDef[strlen(s) - strlen(italic)] = '\0';
 				}
 				else {
 					SVG_fontStyleDef = "normal";
 				}
 				if(bold) {
 					SVG_fontWeightDef = "bold";
-					SVG_fontNameDef[strlen(s) - strlen(bold)] = NUL;
+					SVG_fontNameDef[strlen(s) - strlen(bold)] = '\0';
 				}
 				else {
 					SVG_fontWeightDef = "normal";
@@ -1346,19 +1346,19 @@ TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
 			SVG_fontNameCur = sstrdup(font);
 			if(italic) {
 				SVG_fontStyleCur = "italic";
-				SVG_fontNameCur[strlen(font) - strlen(italic)] = NUL;
+				SVG_fontNameCur[strlen(font) - strlen(italic)] = '\0';
 			}
 			else {
 				SVG_fontStyleCur = "normal";
 			}
 			if(bold) {
 				SVG_fontWeightCur = "bold";
-				SVG_fontNameCur[strlen(font) - strlen(bold)] = NUL;
+				SVG_fontNameCur[strlen(font) - strlen(bold)] = '\0';
 			}
 			else {
 				SVG_fontWeightCur = "normal";
 			}
-			SVG_fontNameCur[sep] = NUL;
+			SVG_fontNameCur[sep] = '\0';
 		}
 		if(font[sep] == ',')
 			sscanf(font + sep + 1, "%lf", &SVG_fontSizeCur);
@@ -1675,7 +1675,7 @@ TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 			fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile); /* everything up to the escape */
 			fputs("&#x", GPT.P_GpOutFile);        /* xml escape sequence */
 			s += 3;                         /* start of hex codepoint */
-			for(i = 0; i<5; i++, s++) {     /* copy up to 5 hex characters */
+			for(i = 0; i<5; i++, s++) { /* copy up to 5 hex characters */
 				if(isxdigit(*s))
 					fputc(*s, GPT.P_GpOutFile);
 				else

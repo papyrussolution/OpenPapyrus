@@ -60,7 +60,7 @@
 #if !defined( __PTW32_CLEANUP_SEH ) && !defined( __PTW32_CLEANUP_CXX ) && !defined( __PTW32_CLEANUP_C )
 	#define __PTW32_CLEANUP_C
 #endif
-#if defined( __PTW32_CLEANUP_SEH ) && ( !defined( _MSC_VER ) && !defined (__PTW32_RC_MSC))
+#if defined( __PTW32_CLEANUP_SEH) && (!defined( _MSC_VER ) && !defined (__PTW32_RC_MSC))
 	#error ERROR [__FILE__, line __LINE__]: SEH is not supported for this compiler.
 #endif
 #include <_ptw32.h>
@@ -533,7 +533,7 @@ struct __ptw32_cleanup_t {
 	/*
 	 * C implementation of PThreads cancel cleanup
 	 */
-	#define pthread_cleanup_push(_rout, _arg) { __ptw32_cleanup_t _cleanup; __ptw32_push_cleanup(&_cleanup, (__ptw32_cleanup_callback_t)(_rout), (_arg) );
+	#define pthread_cleanup_push(_rout, _arg) { __ptw32_cleanup_t _cleanup; __ptw32_push_cleanup(&_cleanup, (__ptw32_cleanup_callback_t)(_rout), (_arg));
 	#define pthread_cleanup_pop(_execute)     __ptw32_pop_cleanup(_execute); }
 #else /* __PTW32_CLEANUP_C */
 

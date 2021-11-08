@@ -26,7 +26,7 @@ long Buffer::_recentTagCtr = 0;
 
 namespace // anonymous
 {
-static EolType getEOLFormatForm(const char* const data, size_t length, EolType defvalue = EolType::osdefault)
+static EolType getEOLFormatForm(const char * const data, size_t length, EolType defvalue = EolType::osdefault)
 {
 	assert(length == 0 or data != nullptr && "invalid buffer for getEOLFormatForm()");
 	for(size_t i = 0; i != length; ++i) {
@@ -740,7 +740,7 @@ bool FileManager::backupCurrentBuffer()
 			FILE * fp = UnicodeConvertor.fopen(fullpath, TEXT("wbc"));
 			if(fp) {
 				int lengthDoc = _pNotepadPlus->_pEditView->getCurrentDocLen();
-				char* buf = (char*)_pNotepadPlus->_pEditView->execute(SCI_GETCHARACTERPOINTER); //to get characters directly from Scintilla buffer
+				char * buf = (char *)_pNotepadPlus->_pEditView->execute(SCI_GETCHARACTERPOINTER); //to get characters directly from Scintilla buffer
 				size_t items_written = 0;
 				if(encoding == -1) { //no special encoding; can be handled directly by Utf8_16_Write
 					items_written = UnicodeConvertor.fwrite(buf, lengthDoc);
@@ -845,7 +845,7 @@ SavingStatus FileManager::saveBuffer(BufferID id, const TCHAR * filename, bool i
 	else {
 		_pscratchTilla->execute(SCI_SETDOCPOINTER, 0, buffer->_doc);    //generate new document
 		int lengthDoc = _pscratchTilla->getCurrentDocLen();
-		char* buf = (char*)_pscratchTilla->execute(SCI_GETCHARACTERPOINTER); //to get characters directly from Scintilla buffer
+		char * buf = (char *)_pscratchTilla->execute(SCI_GETCHARACTERPOINTER); //to get characters directly from Scintilla buffer
 		size_t items_written = 0;
 		if(encoding == -1) { //no special encoding; can be handled directly by Utf8_16_Write
 			items_written = UnicodeConvertor.fwrite(buf, lengthDoc);
@@ -982,12 +982,12 @@ BufferID FileManager::bufferFromDocument(Document doc, bool dontIncrease, bool d
 	return id;
 }
 
-int FileManager::detectCodepage(char* buf, size_t len)
+int FileManager::detectCodepage(char * buf, size_t len)
 {
 	uchardet_t ud = uchardet_new();
 	uchardet_handle_data(ud, buf, len);
 	uchardet_data_end(ud);
-	const char* cs = uchardet_get_charset(ud);
+	const char * cs = uchardet_get_charset(ud);
 	int codepage = EncodingMapper::getInstance().getEncodingFromString(cs);
 	uchardet_delete(ud);
 	return codepage;
@@ -1019,14 +1019,14 @@ LangType FileManager::detectLanguageFromTextBegining(const uchar * data, size_t 
 
 	// Create the buffer to need to test
 	const size_t longestLength = 40; // shebangs can be large
-	std::string buf2Test = std::string((const char*)data + i, longestLength);
+	std::string buf2Test = std::string((const char *)data + i, longestLength);
 
 	// Is there a \r or \n in the buffer? If so, truncate it
 	auto cr = buf2Test.find("\r");
 	auto nl = buf2Test.find("\n");
 	auto crnl = min(cr, nl);
 	if(crnl != std::string::npos && crnl < longestLength)
-		buf2Test = std::string((const char*)data + i, crnl);
+		buf2Test = std::string((const char *)data + i, crnl);
 
 	// First test for a Unix-like Shebang
 	// See https://en.wikipedia.org/wiki/Shebang_%28Unix%29 for more details about Shebang
@@ -1078,7 +1078,7 @@ LangType FileManager::detectLanguageFromTextBegining(const uchar * data, size_t 
 	return L_TEXT;
 }
 
-bool FileManager::loadFileData(Document doc, const TCHAR * filename, char* data, Utf8_16_Read * unicodeConvertor, LoadedFileFormat& fileFormat)
+bool FileManager::loadFileData(Document doc, const TCHAR * filename, char * data, Utf8_16_Read * unicodeConvertor, LoadedFileFormat& fileFormat)
 {
 	FILE * fp = generic_fopen(filename, TEXT("rb"));
 	if(!fp)

@@ -387,35 +387,35 @@ static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
 	}
 
 	if((flags & TS_VFY_SIGNATURE)
-	    && !TS_RESP_verify_signature(token, ctx->certs, ctx->store, &signer))
+	  && !TS_RESP_verify_signature(token, ctx->certs, ctx->store, &signer))
 		goto err;
 	if((flags & TS_VFY_VERSION)
-	    && TS_TST_INFO_get_version(tst_info) != 1) {
+	  && TS_TST_INFO_get_version(tst_info) != 1) {
 		TSerr(TS_F_INT_TS_RESP_VERIFY_TOKEN, TS_R_UNSUPPORTED_VERSION);
 		goto err;
 	}
 	if((flags & TS_VFY_POLICY)
-	    && !ts_check_policy(ctx->policy, tst_info))
+	  && !ts_check_policy(ctx->policy, tst_info))
 		goto err;
 	if((flags & TS_VFY_IMPRINT)
-	    && !ts_check_imprints(ctx->md_alg, ctx->imprint, ctx->imprint_len,
+	  && !ts_check_imprints(ctx->md_alg, ctx->imprint, ctx->imprint_len,
 	    tst_info))
 		goto err;
 	if((flags & TS_VFY_DATA)
-	    && (!ts_compute_imprint(ctx->data, tst_info,
+	  && (!ts_compute_imprint(ctx->data, tst_info,
 	    &md_alg, &imprint, &imprint_len)
 	    || !ts_check_imprints(md_alg, imprint, imprint_len, tst_info)))
 		goto err;
 	if((flags & TS_VFY_NONCE)
-	    && !ts_check_nonces(ctx->nonce, tst_info))
+	  && !ts_check_nonces(ctx->nonce, tst_info))
 		goto err;
 	if((flags & TS_VFY_SIGNER)
-	    && tsa_name && !ts_check_signer_name(tsa_name, signer)) {
+	  && tsa_name && !ts_check_signer_name(tsa_name, signer)) {
 		TSerr(TS_F_INT_TS_RESP_VERIFY_TOKEN, TS_R_TSA_NAME_MISMATCH);
 		goto err;
 	}
 	if((flags & TS_VFY_TSA_NAME)
-	    && !ts_check_signer_name(ctx->tsa_name, signer)) {
+	  && !ts_check_signer_name(ctx->tsa_name, signer)) {
 		TSerr(TS_F_INT_TS_RESP_VERIFY_TOKEN, TS_R_TSA_UNTRUSTED);
 		goto err;
 	}
@@ -446,7 +446,7 @@ static int ts_check_status_info(TS_RESP * response)
 		status_text = "unknown code";
 
 	if(sk_ASN1_UTF8STRING_num(info->text) > 0
-	    && (embedded_status_text = ts_get_status_text(info->text)) == NULL)
+	  && (embedded_status_text = ts_get_status_text(info->text)) == NULL)
 		return 0;
 
 	/* Fill in failure_text with the failure information. */
@@ -587,9 +587,9 @@ static int ts_check_imprints(X509_ALGOR * algor_a, const uchar * imprint_a, unsi
 			goto err;
 		/* The parameter must be NULL in both. */
 		if((algor_a->parameter
-		    && ASN1_TYPE_get(algor_a->parameter) != V_ASN1_NULL)
+		  && ASN1_TYPE_get(algor_a->parameter) != V_ASN1_NULL)
 		    || (algor_b->parameter
-		    && ASN1_TYPE_get(algor_b->parameter) != V_ASN1_NULL))
+		  && ASN1_TYPE_get(algor_b->parameter) != V_ASN1_NULL))
 			goto err;
 	}
 	ret = len_a == (uint)ASN1_STRING_length(b->hashed_msg) &&

@@ -2666,7 +2666,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 		else {
 			xmlGenericError(0, "Unknown command %s\n", command);
 		}
-		SAlloc::F(cmdline);  /* not free here ! */
+		SAlloc::F(cmdline); /* not free here ! */
 		cmdline = NULL;
 	}
 #ifdef LIBXML_XPATH_ENABLED
@@ -2677,7 +2677,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 	}
 	SAlloc::F(ctxt->filename);
 	SAlloc::F(ctxt);
-	SAlloc::F(cmdline);  /* not free here ! */
+	SAlloc::F(cmdline); /* not free here ! */
 }
 #endif // } 0 @v10.9.0
 

@@ -170,7 +170,7 @@ TERM_PUBLIC void QMS_put_text(uint x, uint y, const char str[])
 	QMS_move(x, y + QMS_VCHAR / 3);
 	fputs("^IGE\n", GPT.P_GpOutFile);
 	ch = *str++;
-	while(ch != NUL) {
+	while(ch) {
 		if(ch == '^')
 			putc('^', GPT.P_GpOutFile);
 		putc(ch, GPT.P_GpOutFile);

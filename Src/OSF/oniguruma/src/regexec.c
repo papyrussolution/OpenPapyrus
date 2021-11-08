@@ -152,7 +152,7 @@ typedef enum {
 
 typedef struct {
 	short int opcode;
-	char*     name;
+	char *     name;
 } OpInfoType;
 
 static OpInfoType OpInfo[] = {
@@ -255,7 +255,7 @@ static OpInfoType OpInfo[] = {
 	{ -1, ""}
 };
 
-static char* op2name(int opcode)
+static char * op2name(int opcode)
 {
 	int i;
 
@@ -289,9 +289,9 @@ static void p_len_string(FILE* f, LengthType len, int mb_len, uchar * s)
 
 static void p_rel_addr(FILE* f, RelAddrType rel_addr, Operation* p, Operation* start)
 {
-	char* flag;
-	char* space1;
-	char* space2;
+	char * flag;
+	char * space1;
+	char * space2;
 	RelAddrType curr;
 	AbsAddrType abs_addr;
 	curr = (RelAddrType)(p - start);
@@ -320,8 +320,8 @@ static int bitset_on_num(BitSetRef bs)
 
 static void print_compiled_byte_code(FILE* f, regex_t* reg, int index, Operation* start, OnigEncoding enc)
 {
-	static char* SaveTypeNames[] = { "KEEP", "S", "RIGHT_RANGE" };
-	static char* UpdateVarTypeNames[] = {
+	static char * SaveTypeNames[] = { "KEEP", "S", "RIGHT_RANGE" };
+	static char * UpdateVarTypeNames[] = {
 		"KEEP_FROM_STACK_LAST",
 		"S_FROM_STACK",
 		"RIGHT_RANGE_FROM_STACK",
@@ -1436,7 +1436,7 @@ extern int onig_set_callout_data_by_callout_args_self(OnigCalloutArgs * args, in
 #define ADJUST_MATCH_PARAM(reg, mp)
 #endif /* USE_CALLOUT */
 
-static int stack_double(int* is_alloca, char** arg_alloc_base, StackType** arg_stk_base, StackType** arg_stk_end, StackType** arg_stk, MatchArg* msa)
+static int stack_double(int* is_alloca, char ** arg_alloc_base, StackType** arg_stk_base, StackType** arg_stk_end, StackType** arg_stk, MatchArg* msa)
 {
 	int used;
 	size_t new_size;
@@ -1599,7 +1599,7 @@ static int stack_double(int* is_alloca, char** arg_alloc_base, StackType** arg_s
 		while(k > stk_base) { \
 			k--; \
 			if((k->type & STK_MASK_MEM_END_OR_MARK) != 0 \
-			    && k->zid == (mnum)) { \
+			  && k->zid == (mnum)) { \
 				level++; \
 			} \
 			else if(k->type == STK_MEM_START && k->zid == (mnum)) { \
@@ -1709,7 +1709,7 @@ static int stack_double(int* is_alloca, char** arg_alloc_base, StackType** arg_s
 			k--; \
 			STACK_BASE_CHECK(k, "STACK_GET_SAVE_VAL_TYPE_LAST_ID"); \
 			if(k->type == STK_SAVE_VAL && k->u.val.type == (stype) \
-			    && k->zid == (sid)) { \
+			  && k->zid == (sid)) { \
 				if(level == 0) { \
 					(sval) = k->u.val.v; \
 					if(clear != 0) k->type = STK_VOID; \
@@ -1730,7 +1730,7 @@ static int stack_double(int* is_alloca, char** arg_alloc_base, StackType** arg_s
 			k--; \
 			STACK_BASE_CHECK(k, "STACK_GET_SAVE_VAL_TYPE_LAST_ID"); \
 			if(k->type == STK_SAVE_VAL && k->u.val.type == (stype) \
-			    && k->zid == (sid)) { \
+			  && k->zid == (sid)) { \
 				if(level == 0) { \
 					(sval) = k->u.val.v; \
 					break; \
@@ -4637,7 +4637,7 @@ extern int onig_match_with_param(regex_t* reg, const uchar * str, const uchar * 
 	MATCH_ARG_INIT(msa, reg, option, region, at, mp);
 	if(region
 #ifdef USE_POSIX_API
-	    && !OPTON_POSIX_REGION(option)
+	  && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		r = onig_region_resize_clear(region, reg->num_mem + 1);
@@ -4870,7 +4870,7 @@ static int search_in_range(regex_t* reg, const uchar * str, const uchar * end, c
 #endif
 	if(region
 #ifdef USE_POSIX_API
-	    && !OPTON_POSIX_REGION(option)
+	  && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		r = onig_region_resize_clear(region, reg->num_mem + 1);
@@ -5103,7 +5103,7 @@ finish:
 	// If result is mismatch and no FIND_NOT_EMPTY option, then the region is not set in match_at(). 
 	if(OPTON_FIND_NOT_EMPTY(reg->options) && region
 #ifdef USE_POSIX_API
-	    && !OPTON_POSIX_REGION(option)
+	  && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		onig_region_clear(region);
@@ -5134,7 +5134,7 @@ extern int onig_search_with_param(regex_t* reg, const uchar * str, const uchar *
 }
 
 extern int onig_scan(regex_t* reg, const uchar * str, const uchar * end, OnigRegion* region, OnigOptionType option,
-    int (*scan_callback)(int, int, OnigRegion*, void*), void * callback_arg)
+    int (*scan_callback)(int, int, OnigRegion*, void *), void * callback_arg)
 {
 	int r;
 	int n;

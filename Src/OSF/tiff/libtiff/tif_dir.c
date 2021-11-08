@@ -39,7 +39,7 @@
 #define DATATYPE_UINT           2       /* !unsigned integer data */
 #define DATATYPE_IEEEFP         3       /* !IEEE floating point data */
 
-static void setByteArray(void** vpp, void * vp, size_t nmemb, size_t elem_size)
+static void setByteArray(void ** vpp, void * vp, size_t nmemb, size_t elem_size)
 {
 	SAlloc::F(*vpp);
 	*vpp = 0;
@@ -52,9 +52,9 @@ static void setByteArray(void** vpp, void * vp, size_t nmemb, size_t elem_size)
 	}
 }
 
-void _TIFFsetByteArray(void** vpp, void * vp, uint32 n) { setByteArray(vpp, vp, n, 1); }
-void _TIFFsetString(char** cpp, char* cp) { setByteArray((void **)cpp, (void *)cp, strlen(cp)+1, 1); }
-static void _TIFFsetNString(char** cpp, char* cp, uint32 n) { setByteArray((void **)cpp, (void *)cp, n, 1); }
+void _TIFFsetByteArray(void ** vpp, void * vp, uint32 n) { setByteArray(vpp, vp, n, 1); }
+void _TIFFsetString(char ** cpp, char * cp) { setByteArray((void **)cpp, (void *)cp, strlen(cp)+1, 1); }
+static void _TIFFsetNString(char ** cpp, char * cp, uint32 n) { setByteArray((void **)cpp, (void *)cp, n, 1); }
 void _TIFFsetShortArray(uint16** wpp, uint16* wp, uint32 n) { setByteArray((void **)wpp, (void *)wp, n, sizeof(uint16)); }
 void _TIFFsetLongArray(uint32** lpp, uint32* lp, uint32 n) { setByteArray((void **)lpp, (void *)lp, n, sizeof(uint32)); }
 static void _TIFFsetLong8Array(uint64** lpp, uint64* lp, uint32 n) { setByteArray((void **)lpp, (void *)lp, n, sizeof(uint64)); }
@@ -111,13 +111,13 @@ static int setExtraSamples(TIFFDirectory* td, va_list ap, uint32* v)
  * Confirm we have "samplesperpixel" ink names separated by \0.  Returns
  * zero if the ink names are not as expected.
  */
-static uint32 checkInkNamesString(TIFF* tif, uint32 slen, const char* s)
+static uint32 checkInkNamesString(TIFF* tif, uint32 slen, const char * s)
 {
 	TIFFDirectory* td = &tif->tif_dir;
 	uint16 i = td->td_samplesperpixel;
 	if(slen > 0) {
-		const char* ep = s+slen;
-		const char* cp = s;
+		const char * ep = s+slen;
+		const char * cp = s;
 		for(; i > 0; i--) {
 			for(; cp < ep && *cp != '\0'; cp++) {
 			}
@@ -150,7 +150,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 	int status = 1;
 	uint32 v32, i, v;
 	double dblval;
-	char* s;
+	char * s;
 	const TIFFField * fip = TIFFFindField(tif, tag, TIFF_ANY);
 	uint32 standard_tag = tag;
 	if(fip == NULL)   /* cannot happen since OkToChangeTag() already checks it */
@@ -208,7 +208,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    /*
 		 * Setup new compression routine state.
 		     */
-		    if( (status = TIFFSetCompressionScheme(tif, v)) != 0)
+		    if((status = TIFFSetCompressionScheme(tif, v)) != 0)
 			    td->td_compression = static_cast<uint16>(v);
 		    else
 			    status = 0;
@@ -292,10 +292,10 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    td->td_planarconfig = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_XPOSITION:
-		    td->td_xposition = TIFFClampDoubleToFloat(va_arg(ap, double) );
+		    td->td_xposition = TIFFClampDoubleToFloat(va_arg(ap, double));
 		    break;
 		case TIFFTAG_YPOSITION:
-		    td->td_yposition = TIFFClampDoubleToFloat(va_arg(ap, double) );
+		    td->td_yposition = TIFFClampDoubleToFloat(va_arg(ap, double));
 		    break;
 		case TIFFTAG_RESOLUTIONUNIT:
 		    v = (uint16)va_arg(ap, uint16_vap);
@@ -407,7 +407,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    break;
 		case TIFFTAG_INKNAMES:
 		    v = (uint16)va_arg(ap, uint16_vap);
-		    s = va_arg(ap, char*);
+		    s = va_arg(ap, char *);
 		    v = checkInkNamesString(tif, v, s);
 		    status = v > 0;
 		    if(v > 0) {
@@ -484,10 +484,10 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    if(fip->field_passcount) {
 				    assert(fip->field_writecount==TIFF_VARIABLE2);
 				    ma = (uint32)va_arg(ap, uint32);
-				    mb = (char *)va_arg(ap, char*);
+				    mb = (char *)va_arg(ap, char *);
 			    }
 			    else {
-				    mb = (char *)va_arg(ap, char*);
+				    mb = (char *)va_arg(ap, char *);
 				    ma = (uint32)(strlen(mb)+1);
 			    }
 			    tv->count = ma;
@@ -867,7 +867,7 @@ static int _TIFFVGetField(TIFF * tif, uint32 tag, va_list ap)
 		    }
 		    break;
 		case TIFFTAG_REFERENCEBLACKWHITE: *va_arg(ap, float**) = td->td_refblackwhite; break;
-		case TIFFTAG_INKNAMES: *va_arg(ap, char**) = td->td_inknames; break;
+		case TIFFTAG_INKNAMES: *va_arg(ap, char **) = td->td_inknames; break;
 		default:
 	    {
 		    int i;

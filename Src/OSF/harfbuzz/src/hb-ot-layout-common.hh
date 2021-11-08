@@ -561,14 +561,11 @@ public:
 			out->featureIndex.serialize(c->serializer, l, it);
 			return_trace(ret);
 		}
-
-		bool sanitize(hb_sanitize_context_t * c,
-		    const Record_sanitize_closure_t * = nullptr) const
+		bool sanitize(hb_sanitize_context_t * c, const Record_sanitize_closure_t * = nullptr) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) && featureIndex.sanitize(c));
 		}
-
 		Offset16 lookupOrderZ; /* = Null (reserved for an offset to a
 		 * reordering table) */
 		HBUINT16 reqFeatureIndex; /* Index of a feature required for this
@@ -656,14 +653,11 @@ public:
 
 			return_trace(bool (out->langSys.len) || defaultLang || l->table_tag == HB_OT_TAG_GSUB);
 		}
-
-		bool sanitize(hb_sanitize_context_t * c,
-		    const Record_sanitize_closure_t * = nullptr) const
+		bool sanitize(hb_sanitize_context_t * c, const Record_sanitize_closure_t * = nullptr) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(defaultLangSys.sanitize(c, this) && langSys.sanitize(c, this));
 		}
-
 protected:
 		OffsetTo<LangSys>
 		defaultLangSys; /* Offset to DefaultLangSys table--from

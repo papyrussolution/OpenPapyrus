@@ -233,7 +233,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 #endif
 
 #ifdef LIBXML_ICU_ENABLED
-static uconv_t* openIcuConverter(const char* name, int toUnicode)
+static uconv_t* openIcuConverter(const char * name, int toUnicode)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	uconv_t * conv = (uconv_t*)SAlloc::M(sizeof(uconv_t));
@@ -1125,7 +1125,7 @@ int xmlDelEncodingAlias(const char * alias)
  * Returns one of the XML_CHAR_ENCODING_... values or XML_CHAR_ENCODING_NONE
  * if not recognized.
  */
-xmlCharEncoding xmlParseCharEncoding(const char* name)
+xmlCharEncoding xmlParseCharEncoding(const char * name)
 {
 	const char * alias;
 	char upper[500];
@@ -1198,7 +1198,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
  *
  * Returns the canonical name for the given encoding
  */
-const char* xmlGetCharEncodingName(xmlCharEncoding enc)
+const char * xmlGetCharEncodingName(xmlCharEncoding enc)
 {
 	switch(enc) {
 		case XML_CHAR_ENCODING_ERROR: return 0;
@@ -1395,7 +1395,7 @@ static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * 
 	}
 	icv_inlen = *inlen;
 	icv_outlen = *outlen;
-	ret = iconv(cd, (ICONV_CONST char**)&icv_in, &icv_inlen, &icv_out, &icv_outlen);
+	ret = iconv(cd, (ICONV_CONST char **)&icv_in, &icv_inlen, &icv_out, &icv_outlen);
 	*inlen -= icv_inlen;
 	*outlen -= icv_outlen;
 	if((icv_inlen != 0) || (ret == -1)) {

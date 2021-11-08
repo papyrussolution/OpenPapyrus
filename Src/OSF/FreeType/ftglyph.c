@@ -457,7 +457,7 @@ FT_EXPORT_DEF(FT_Error) FT_Glyph_To_Bitmap(FT_Glyph*       the_glyph, FT_Render_
 	*the_glyph = FT_GLYPH(bitmap);
 Exit:
 	if(error && bitmap)
-		FT_Done_Glyph(FT_GLYPH(bitmap) );
+		FT_Done_Glyph(FT_GLYPH(bitmap));
 	return error;
 Bad:
 	error = FT_THROW(Invalid_Argument);

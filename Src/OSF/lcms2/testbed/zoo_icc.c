@@ -130,7 +130,7 @@ static void ReadAllLUTS(cmsHPROFILE h)
 // Check one specimen in the ZOO
 
 static
-cmsInt32Number CheckSingleSpecimen(const char* Profile)
+cmsInt32Number CheckSingleSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];
@@ -162,7 +162,7 @@ cmsInt32Number CheckSingleSpecimen(const char* Profile)
 }
 
 static
-cmsInt32Number CheckRAWSpecimen(const char* Profile)
+cmsInt32Number CheckRAWSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];
@@ -200,7 +200,7 @@ static int rgb = 0,
     gray = 0,
     other = 0;
 
-static int count_stats(const char* Profile)
+static int count_stats(const char * Profile)
 {
 	char BuffSrc[256];
 	cmsHPROFILE h;
@@ -235,7 +235,7 @@ void CheckProfileZOO(void)
 	struct _finddata_t c_file;
 	intptr_t hFile;
 	cmsSetLogErrorHandler(NULL);
-	if( (hFile = _findfirst("c:\\colormaps\\*.*", &c_file)) == -1L)
+	if((hFile = _findfirst("c:\\colormaps\\*.*", &c_file)) == -1L)
 		printf("No files in current directory");
 	else {
 		do {

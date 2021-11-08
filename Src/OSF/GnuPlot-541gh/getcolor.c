@@ -483,7 +483,7 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 double GetColorValueFromFormula(int formula, double x)
 {
 	/* the input gray x is supposed to be in interval [0,1] */
-	if(formula < 0) {       /* negate the value for negative formula */
+	if(formula < 0) { /* negate the value for negative formula */
 		x = 1 - x;
 		formula = -formula;
 	}

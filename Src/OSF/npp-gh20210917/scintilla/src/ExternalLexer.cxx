@@ -27,7 +27,7 @@ typedef int (EXT_LEXER_DECL *GetLexerCountFn)();
 typedef void (EXT_LEXER_DECL *GetLexerNameFn)(unsigned int Index, char * name, int buflength);
 typedef LexerFactoryFunction (EXT_LEXER_DECL *GetLexerFactoryFunction)(unsigned int Index);
 
-/// Generic function to convert from a void* to a function pointer.
+/// Generic function to convert from a void * to a function pointer.
 /// This avoids undefined and conditionally defined behaviour.
 template <typename T>
 T FunctionPointer(void * function) noexcept {

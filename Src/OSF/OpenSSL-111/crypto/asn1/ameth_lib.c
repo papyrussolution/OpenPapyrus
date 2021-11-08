@@ -123,7 +123,7 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe,
 		if(ameth->pkey_flags & ASN1_PKEY_ALIAS)
 			continue;
 		if((int)strlen(ameth->pem_str) == len
-		    && strncasecmp(ameth->pem_str, str, len) == 0)
+		  && strncasecmp(ameth->pem_str, str, len) == 0)
 			return ameth;
 	}
 	return NULL;
@@ -142,9 +142,9 @@ int EVP_PKEY_asn1_add0(const EVP_PKEY_ASN1_METHOD * ameth)
 	 * Anything else is an error and may lead to a corrupt ASN1 method table
 	 */
 	if(!((ameth->pem_str == NULL
-	    && (ameth->pkey_flags & ASN1_PKEY_ALIAS) != 0)
+	  && (ameth->pkey_flags & ASN1_PKEY_ALIAS) != 0)
 	    || (ameth->pem_str != NULL
-	    && (ameth->pkey_flags & ASN1_PKEY_ALIAS) == 0))) {
+	  && (ameth->pkey_flags & ASN1_PKEY_ALIAS) == 0))) {
 		EVPerr(EVP_F_EVP_PKEY_ASN1_ADD0, ERR_R_PASSED_INVALID_ARGUMENT);
 		return 0;
 	}

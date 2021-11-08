@@ -150,7 +150,7 @@ static hb_codepoint_t thai_pua_shape(hb_codepoint_t u, thai_action_t action, hb_
 	return u;
 }
 
-static enum thai_above_state_t {     /* Cluster above looks like: */
+static enum thai_above_state_t { /* Cluster above looks like: */
 	T0, /*  ⣤                      */
 	T1, /*     ⣼                   */
 	T2, /*        ⣾                */

@@ -10,13 +10,16 @@
 #include <StyloConduit.h>
 #include <tchar.h>
 #include <commctrl.H>
-#include <condres.h>
+// @v11.2.1 #include <condres.h>
 #include <ucl/ucl.h>
 
 int ForceExportObsoleteData = 0; // @declared(StyloConduit.h)
 
 #ifndef __GENERIC_MAIN_CONDUIT__
 #pragma warn -stv
+
+struct SyncFindDbByNameParams;
+struct SyncDatabaseInfoType;
 
 long SyncFindDbByName(SyncFindDbByNameParams & rParam, SyncDatabaseInfoType & rInfo)
 {
@@ -250,7 +253,6 @@ int SyncTable::Find(const char * pName, Stat * pStat, int fromPalmCompressedFile
 			in_param.bOptFlags |= SYNC_DB_INFO_OPT_GET_ATTRIBUTES;
 			in_param.dwCardNum = 0;
 			in_param.pcDatabaseName = STRNSCPY(db_name, pName);
-
 			MEMSZERO(out_param);
 			THROW(!(P_Ctx->LastErr = SyncFindDbByName(in_param, out_param)));
 			//LastErr = (!LastErr && out_param.baseInfo.m_Creator != 'SPII') ? SYNCERR_NOT_FOUND : LastErr;
@@ -1534,6 +1536,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			::createDir((exp_path = temp_path).Cat("IN"));
 			::createDir((imp_path = temp_path).Cat("OUT"));
 		}
+#if 0 // @v11.2.1 {
 		if(!pTcpExch || CopyFiles(root_path, temp_path, 1, ctx) > 0) {
 			SCDBObjConfig obj_cfg(&ctx);
 			THROW(obj_cfg.Init(exp_path, imp_path));
@@ -1622,6 +1625,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			}
 			THROW(obj_cfg.Export(pFn, pProps));
 		}
+#endif // } 0 @v11.2.1
 		if(pTcpExch) {
 			pTcpExch->QuitSess();
 			sess_quited = 1;

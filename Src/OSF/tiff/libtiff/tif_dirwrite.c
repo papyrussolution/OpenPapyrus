@@ -47,7 +47,7 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 static int TIFFWriteDirectoryTagSampleformatPerSample(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, double value);
 #endif
 
-static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value);
+static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char * value);
 static int TIFFWriteDirectoryTagUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #ifdef notdef
 static int TIFFWriteDirectoryTagByte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value);
@@ -124,7 +124,7 @@ static int TIFFWriteDirectoryTagColormap(TIFF* tif, uint32* ndir, TIFFDirEntry* 
 static int TIFFWriteDirectoryTagTransferfunction(TIFF* tif, uint32* ndir, TIFFDirEntry* dir);
 static int TIFFWriteDirectoryTagSubifd(TIFF* tif, uint32* ndir, TIFFDirEntry* dir);
 
-static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value);
+static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char * value);
 static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value);
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedByte(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint8 value);
@@ -552,7 +552,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 							case TIFF_SETGET_ASCII:
 						    {
 							    uint32 pa;
-							    char* pb;
+							    char * pb;
 							    assert(o->field_type==TIFF_ASCII);
 							    assert(o->field_readcount==TIFF_VARIABLE);
 							    assert(o->field_passcount==0);
@@ -962,7 +962,7 @@ static int TIFFWriteDirectoryTagSampleformatPerSample(TIFF* tif, uint32* ndir, T
 
 #endif
 
-static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value)
+static int TIFFWriteDirectoryTagAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char * value)
 {
 	if(!dir) {
 		(*ndir)++;
@@ -1717,7 +1717,7 @@ static int TIFFWriteDirectoryTagSubifd(TIFF* tif, uint32* ndir, TIFFDirEntry* di
 	return 1;
 }
 
-static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char* value)
+static int TIFFWriteDirectoryTagCheckedAscii(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char * value)
 {
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(char)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_ASCII, count, count, value));
@@ -2378,7 +2378,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 			TIFFErrorExt(tif->tif_clientdata, module, "%s: Can not read TIFF directory entry.", tif->tif_name);
 			return 0;
 		}
-		memcpy(&entry_tag, direntry_raw + 0, sizeof(uint16) );
+		memcpy(&entry_tag, direntry_raw + 0, sizeof(uint16));
 		if(tif->tif_flags&TIFF_SWAB)
 			TIFFSwabShort(&entry_tag);
 		if(entry_tag == tag)
@@ -2392,25 +2392,25 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 /* -------------------------------------------------------------------- */
 /*      Extract the type, count and offset for this entry.              */
 /* -------------------------------------------------------------------- */
-	memcpy(&entry_type, direntry_raw + 2, sizeof(uint16) );
+	memcpy(&entry_type, direntry_raw + 2, sizeof(uint16));
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabShort(&entry_type);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		uint32 value;
-		memcpy(&value, direntry_raw + 4, sizeof(uint32) );
+		memcpy(&value, direntry_raw + 4, sizeof(uint32));
 		if(tif->tif_flags&TIFF_SWAB)
 			TIFFSwabLong(&value);
 		entry_count = value;
-		memcpy(&value, direntry_raw + 8, sizeof(uint32) );
+		memcpy(&value, direntry_raw + 8, sizeof(uint32));
 		if(tif->tif_flags&TIFF_SWAB)
 			TIFFSwabLong(&value);
 		entry_offset = value;
 	}
 	else {
-		memcpy(&entry_count, direntry_raw + 4, sizeof(uint64) );
+		memcpy(&entry_count, direntry_raw + 4, sizeof(uint64));
 		if(tif->tif_flags&TIFF_SWAB)
 			TIFFSwabLong8(&entry_count);
-		memcpy(&entry_offset, direntry_raw + 12, sizeof(uint64) );
+		memcpy(&entry_offset, direntry_raw + 12, sizeof(uint64));
 		if(tif->tif_flags&TIFF_SWAB)
 			TIFFSwabLong8(&entry_offset);
 	}
@@ -2437,7 +2437,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	if(!buf_to_write)
 		return 0;
 	if(datatype == in_datatype)
-		memcpy(buf_to_write, data, count * TIFFDataWidth(datatype) );
+		memcpy(buf_to_write, data, count * TIFFDataWidth(datatype));
 	else if(datatype == TIFF_SLONG && in_datatype == TIFF_SLONG8) {
 		for(tmsize_t i = 0; i < count; i++) {
 			((int32 *)buf_to_write)[i] = (int32)((int64 *)data)[i];
@@ -2524,26 +2524,26 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 /*      Adjust the directory entry.                                     */
 /* -------------------------------------------------------------------- */
 	entry_type = datatype;
-	memcpy(direntry_raw + 2, &entry_type, sizeof(uint16) );
+	memcpy(direntry_raw + 2, &entry_type, sizeof(uint16));
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabShort((uint16 *)(direntry_raw + 2));
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		uint32 value = (uint32)entry_count;
-		memcpy(direntry_raw + 4, &value, sizeof(uint32) );
+		memcpy(direntry_raw + 4, &value, sizeof(uint32));
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong( (uint32 *)(direntry_raw + 4) );
+			TIFFSwabLong( (uint32 *)(direntry_raw + 4));
 		value = (uint32)entry_offset;
-		memcpy(direntry_raw + 8, &value, sizeof(uint32) );
+		memcpy(direntry_raw + 8, &value, sizeof(uint32));
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong( (uint32 *)(direntry_raw + 8) );
+			TIFFSwabLong( (uint32 *)(direntry_raw + 8));
 	}
 	else {
-		memcpy(direntry_raw + 4, &entry_count, sizeof(uint64) );
+		memcpy(direntry_raw + 4, &entry_count, sizeof(uint64));
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8( (uint64 *)(direntry_raw + 4) );
-		memcpy(direntry_raw + 12, &entry_offset, sizeof(uint64) );
+			TIFFSwabLong8( (uint64 *)(direntry_raw + 4));
+		memcpy(direntry_raw + 12, &entry_offset, sizeof(uint64));
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8( (uint64 *)(direntry_raw + 12) );
+			TIFFSwabLong8( (uint64 *)(direntry_raw + 12));
 	}
 /* -------------------------------------------------------------------- */
 /*      Write the directory entry out to disk.                          */

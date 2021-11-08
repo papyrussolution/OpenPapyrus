@@ -1384,7 +1384,7 @@ namespace Scintilla {
 		virtual void RegisterRGBAImage(int type, int width, int height, const uchar * pixelsImage) = 0;
 		virtual void ClearRegisteredImages() = 0;
 		virtual void SetDoubleClickAction(CallBackAction, void *) = 0;
-		virtual void SetList(const char* list, char separator, char typesep) = 0;
+		virtual void SetList(const char * list, char separator, char typesep) = 0;
 	};
 	// 
 	// SciMenu management.
@@ -2009,7 +2009,7 @@ namespace Scintilla {
 		SciStyle();
 		SciStyle(const SciStyle &source);
 		~SciStyle();
-		SciStyle & operator=(const SciStyle &source);
+		SciStyle & operator = (const SciStyle &source);
 		//void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char *fontName_, int characterSet_,
 		//	int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_);
 		void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_, int weight_, bool italic_, ecaseForced caseForce_, long flags);

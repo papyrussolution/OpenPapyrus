@@ -520,7 +520,7 @@ static int ClassifyErlangFoldPoint(Accessor &styler,
 	if(styler.Match(keyword_start, "case")
 	    || (
 		    styler.Match(keyword_start, "fun")
-		    && (SCE_ERLANG_FUNCTION_NAME != styleNext)
+		  && (SCE_ERLANG_FUNCTION_NAME != styleNext)
 		    )
 	    || styler.Match(keyword_start, "if")
 	    || styler.Match(keyword_start, "query")
@@ -562,14 +562,14 @@ static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initS
 		atEOL = ((ch == '\r') && (chNext != '\n')) || (ch == '\n');
 
 		if(stylePrev != SCE_ERLANG_KEYWORD
-		    && style == SCE_ERLANG_KEYWORD) {
+		  && style == SCE_ERLANG_KEYWORD) {
 			keyword_start = i;
 		}
 
 		// Fold on keywords
 		if(stylePrev == SCE_ERLANG_KEYWORD
-		    && style != SCE_ERLANG_KEYWORD
-		    && style != SCE_ERLANG_ATOM
+		  && style != SCE_ERLANG_KEYWORD
+		  && style != SCE_ERLANG_ATOM
 		    ) {
 			currentLevel += ClassifyErlangFoldPoint(styler,
 				styleNext,

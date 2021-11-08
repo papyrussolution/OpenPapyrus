@@ -327,9 +327,7 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 		    /* construct a fan around the common midpoint */
 		    if((in->dev_slope.x * out->dev_slope.x +
 			in->dev_slope.y * out->dev_slope.y) < stroker->spline_cusp_tolerance) {
-			    add_fan(stroker,
-				&in->dev_vector, &out->dev_vector, &in->point,
-				clockwise, outer);
+			    add_fan(stroker, &in->dev_vector, &out->dev_vector, &in->point, clockwise, outer);
 			    break;
 		    }
 

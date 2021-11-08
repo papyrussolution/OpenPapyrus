@@ -245,7 +245,7 @@ static void FASTCALL emit_dri(j_compress_ptr cinfo)
 /* Emit a DRI marker */
 {
 	emit_marker(cinfo, M_DRI);
-	emit_2bytes(cinfo, 4);  /* fixed length */
+	emit_2bytes(cinfo, 4); /* fixed length */
 	emit_2bytes(cinfo, (int)cinfo->restart_interval);
 }
 
@@ -264,14 +264,14 @@ static void FASTCALL emit_lse_ict(j_compress_ptr cinfo)
 	emit_byte(cinfo, cinfo->comp_info[0].component_id);
 	emit_byte(cinfo, cinfo->comp_info[2].component_id);
 	emit_byte(cinfo, 0x80); /* F1: CENTER1=1, NORM1=0 */
-	emit_2bytes(cinfo, 0);  /* A(1,1)=0 */
-	emit_2bytes(cinfo, 0);  /* A(1,2)=0 */
+	emit_2bytes(cinfo, 0); /* A(1,1)=0 */
+	emit_2bytes(cinfo, 0); /* A(1,2)=0 */
 	emit_byte(cinfo, 0);    /* F2: CENTER2=0, NORM2=0 */
-	emit_2bytes(cinfo, 1);  /* A(2,1)=1 */
-	emit_2bytes(cinfo, 0);  /* A(2,2)=0 */
+	emit_2bytes(cinfo, 1); /* A(2,1)=1 */
+	emit_2bytes(cinfo, 0); /* A(2,2)=0 */
 	emit_byte(cinfo, 0);    /* F3: CENTER3=0, NORM3=0 */
-	emit_2bytes(cinfo, 1);  /* A(3,1)=1 */
-	emit_2bytes(cinfo, 0);  /* A(3,2)=0 */
+	emit_2bytes(cinfo, 1); /* A(3,1)=1 */
+	emit_2bytes(cinfo, 0); /* A(3,2)=0 */
 }
 
 static void FASTCALL emit_sof(j_compress_ptr cinfo, JPEG_MARKER code)
@@ -392,8 +392,8 @@ static void emit_adobe_app14(j_compress_ptr cinfo)
 	emit_byte(cinfo, 0x62);
 	emit_byte(cinfo, 0x65);
 	emit_2bytes(cinfo, 100); /* Version */
-	emit_2bytes(cinfo, 0);  /* Flags0 */
-	emit_2bytes(cinfo, 0);  /* Flags1 */
+	emit_2bytes(cinfo, 0); /* Flags0 */
+	emit_2bytes(cinfo, 0); /* Flags1 */
 	switch(cinfo->jpeg_color_space) {
 		case JCS_YCbCr:
 		    emit_byte(cinfo, 1); /* Color transform = 1 */
@@ -499,17 +499,17 @@ METHODDEF(void) write_frame_header(j_compress_ptr cinfo)
 	/* Emit the proper SOF marker */
 	if(cinfo->arith_code) {
 		if(cinfo->progressive_mode)
-			emit_sof(cinfo, M_SOF10);  /* SOF code for progressive arithmetic */
+			emit_sof(cinfo, M_SOF10); /* SOF code for progressive arithmetic */
 		else
-			emit_sof(cinfo, M_SOF9);  /* SOF code for sequential arithmetic */
+			emit_sof(cinfo, M_SOF9); /* SOF code for sequential arithmetic */
 	}
 	else {
 		if(cinfo->progressive_mode)
-			emit_sof(cinfo, M_SOF2);  /* SOF code for progressive Huffman */
+			emit_sof(cinfo, M_SOF2); /* SOF code for progressive Huffman */
 		else if(is_baseline)
-			emit_sof(cinfo, M_SOF0);  /* SOF code for baseline implementation */
+			emit_sof(cinfo, M_SOF0); /* SOF code for baseline implementation */
 		else
-			emit_sof(cinfo, M_SOF1);  /* SOF code for non-baseline Huffman file */
+			emit_sof(cinfo, M_SOF1); /* SOF code for non-baseline Huffman file */
 	}
 
 	/* Check to emit LSE inverse color transform specification marker */

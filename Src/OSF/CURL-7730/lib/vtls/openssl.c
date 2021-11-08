@@ -796,7 +796,7 @@ int cert_stuff(struct connectdata * conn,
 						"BIO_new return NULL, " OSSL_PACKAGE
 						" error %s",
 						ossl_strerror(ERR_get_error(), error_buffer,
-						sizeof(error_buffer)) );
+						sizeof(error_buffer)));
 					    return 0;
 				    }
 
@@ -825,7 +825,7 @@ int cert_stuff(struct connectdata * conn,
 					"could not parse PKCS12 file, check password, " OSSL_PACKAGE
 					" error %s",
 					ossl_strerror(ERR_get_error(), error_buffer,
-					sizeof(error_buffer)) );
+					sizeof(error_buffer)));
 				    PKCS12_free(p12);
 				    return 0;
 			    }
@@ -837,7 +837,7 @@ int cert_stuff(struct connectdata * conn,
 					"could not load PKCS12 client certificate, " OSSL_PACKAGE
 					" error %s",
 					ossl_strerror(ERR_get_error(), error_buffer,
-					sizeof(error_buffer)) );
+					sizeof(error_buffer)));
 				    goto fail;
 			    }
 
@@ -2022,7 +2022,7 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 	 */
 	if(ssl_ver
 #ifdef SSL3_RT_INNER_CONTENT_TYPE
-	    && content_type != SSL3_RT_INNER_CONTENT_TYPE
+	  && content_type != SSL3_RT_INNER_CONTENT_TYPE
 #endif
 	    ) {
 		const char * msg_name, * tls_rt_name;
@@ -2647,7 +2647,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-		    && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+		  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 		    ) {
 			protocols[cur++] = NGHTTP2_PROTO_VERSION_ID_LEN;
@@ -3709,12 +3709,12 @@ static CURLcode servercert(struct connectdata * conn,
 	{
 		long len;
 		ASN1_TIME_print(mem, X509_get0_notBefore(backend->server_cert));
-		len = BIO_get_mem_data(mem, (char**)&ptr);
+		len = BIO_get_mem_data(mem, (char **)&ptr);
 		infof(data, " start date: %.*s\n", len, ptr);
 		(void)BIO_reset(mem);
 
 		ASN1_TIME_print(mem, X509_get0_notAfter(backend->server_cert));
-		len = BIO_get_mem_data(mem, (char**)&ptr);
+		len = BIO_get_mem_data(mem, (char **)&ptr);
 		infof(data, " expire date: %.*s\n", len, ptr);
 		(void)BIO_reset(mem);
 	}
@@ -3756,7 +3756,7 @@ static CURLcode servercert(struct connectdata * conn,
 					    "BIO_new return NULL, " OSSL_PACKAGE
 					    " error %s",
 					    ossl_strerror(ERR_get_error(), error_buffer,
-					    sizeof(error_buffer)) );
+					    sizeof(error_buffer)));
 					X509_free(backend->server_cert);
 					backend->server_cert = NULL;
 					return CURLE_OUT_OF_MEMORY;

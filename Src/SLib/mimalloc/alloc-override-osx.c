@@ -84,7 +84,7 @@ static void zone_destroy(malloc_zone_t* zone) {
 	// todo: ignore for now?
 }
 
-static unsigned zone_batch_malloc(malloc_zone_t* zone, size_t size, void** ps, unsigned count) {
+static unsigned zone_batch_malloc(malloc_zone_t* zone, size_t size, void ** ps, unsigned count) {
 	size_t i;
 	for(i = 0; i < count; i++) {
 		ps[i] = zone_malloc(zone, size);
@@ -93,7 +93,7 @@ static unsigned zone_batch_malloc(malloc_zone_t* zone, size_t size, void** ps, u
 	return i;
 }
 
-static void zone_batch_free(malloc_zone_t* zone, void** ps, unsigned count) {
+static void zone_batch_free(malloc_zone_t* zone, void ** ps, unsigned count) {
 	for(size_t i = 0; i < count; i++) {
 		zone_free(zone, ps[i]);
 		ps[i] = NULL;
@@ -239,7 +239,7 @@ __attribute__((used)) static struct {
 	const void * replacement;
 	const void * target;
 } replace_malloc_default_zone[] __attribute__((section("__DATA, __interpose"))) = {
-	{ (const void*)mi_malloc_default_zone, (const void*)malloc_default_zone },
+	{ (const void *)mi_malloc_default_zone, (const void *)malloc_default_zone },
 };
 #endif
 

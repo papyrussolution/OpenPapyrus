@@ -24,7 +24,7 @@ struct latexFoldSave {
 		for(int i = 0; i < 8; ++i) openBegins[i] = save.openBegins[i];
 	}
 
-	latexFoldSave &operator=(const latexFoldSave &save) {
+	latexFoldSave & operator = (const latexFoldSave &save) {
 		if(this != &save) {
 			structLev = save.structLev;
 			for(int i = 0; i < 8; ++i) openBegins[i] = save.openBegins[i];

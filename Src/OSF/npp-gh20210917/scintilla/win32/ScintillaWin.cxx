@@ -222,8 +222,8 @@ public:
 	// Deleted so IMContext objects can not be copied.
 	IMContext(const IMContext &) = delete;
 	IMContext(IMContext &&) = delete;
-	IMContext &operator=(const IMContext &) = delete;
-	IMContext &operator=(IMContext &&) = delete;
+	IMContext & operator = (const IMContext &) = delete;
+	IMContext & operator = (IMContext &&) = delete;
 	~IMContext() {
 		if (hIMC)
 			::ImmReleaseContext(hwnd, hIMC);
@@ -259,8 +259,8 @@ public:
 	// Deleted so ReverseArrowCursor objects can not be copied.
 	ReverseArrowCursor(const ReverseArrowCursor &) = delete;
 	ReverseArrowCursor(ReverseArrowCursor &&) = delete;
-	ReverseArrowCursor &operator=(const ReverseArrowCursor &) = delete;
-	ReverseArrowCursor &operator=(ReverseArrowCursor &&) = delete;
+	ReverseArrowCursor & operator = (const ReverseArrowCursor &) = delete;
+	ReverseArrowCursor & operator = (ReverseArrowCursor &&) = delete;
 	~ReverseArrowCursor() {
 		if (cursor) {
 			::DestroyCursor(cursor);
@@ -328,8 +328,8 @@ class ScintillaWin :
 	// Deleted so ScintillaWin objects can not be copied.
 	ScintillaWin(const ScintillaWin &) = delete;
 	ScintillaWin(ScintillaWin &&) = delete;
-	ScintillaWin &operator=(const ScintillaWin &) = delete;
-	ScintillaWin &operator=(ScintillaWin &&) = delete;
+	ScintillaWin & operator = (const ScintillaWin &) = delete;
+	ScintillaWin & operator = (ScintillaWin &&) = delete;
 	// ~ScintillaWin() in public section
 
 	void Init();
@@ -2453,8 +2453,8 @@ public:
 	// Deleted so GlobalMemory objects can not be copied.
 	GlobalMemory(const GlobalMemory &) = delete;
 	GlobalMemory(GlobalMemory &&) = delete;
-	GlobalMemory &operator=(const GlobalMemory &) = delete;
-	GlobalMemory &operator=(GlobalMemory &&) = delete;
+	GlobalMemory & operator = (const GlobalMemory &) = delete;
+	GlobalMemory & operator = (GlobalMemory &&) = delete;
 	~GlobalMemory() {
 		assert(!ptr);
 		assert(!hand);
@@ -2885,7 +2885,7 @@ void ScintillaWin::ImeStartComposition() {
 			lf.lfCharSet = DEFAULT_CHARSET;
 			lf.lfFaceName[0] = L'\0';
 			if (vs.styles[styleHere].fontName) {
-				const char* fontName = vs.styles[styleHere].fontName;
+				const char * fontName = vs.styles[styleHere].fontName;
 				UTF16FromUTF8(std::string_view(fontName), lf.lfFaceName, LF_FACESIZE);
 			}
 

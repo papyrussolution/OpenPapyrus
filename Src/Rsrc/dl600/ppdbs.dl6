@@ -23,7 +23,7 @@
 //
 table Reference_ {         // size=88
 	long   ObjType;        // Тип объекта
-	long   ObjID;          // Ид. объекта
+	long   ObjID;          // Ид объекта
 	string ObjName[48];    // Наименование объекта
 	string AltText[20];    // Альтернативный текст
 	long   Flags;          // Флаги объекта
@@ -45,7 +45,7 @@ file:
 //
 table Reference2 {         // size=148
 	long   ObjType;        // Тип объекта
-	long   ObjID;          // Ид. объекта
+	long   ObjID;          // Ид объекта
 	string ObjName[48];    // Наименование объекта
 	string Symb[20];       // Альтернативный текст
 	raw    ExtData[64];    // Произвольные данные (зависят от типа объекта)
@@ -71,8 +71,8 @@ file:
 //
 table Property {           // size=84+2048
 	long   ObjType;        // ->Reference.ObjType Тип объекта
-	long   ObjID;          // ->Reference.ObjID   Ид. объекта
-	long   Prop;           // Ид. свойства
+	long   ObjID;          // ->Reference.ObjID   Ид объекта
+	long   Prop;           // Ид свойства
 	raw    Text[64];       //
 	long   Val1;           // Значение 1
 	long   Val2;           // Значение 2

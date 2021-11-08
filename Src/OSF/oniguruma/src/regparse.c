@@ -29,8 +29,8 @@
 
 #define OPTON_IS_ASCII_MODE_CTYPE(ctype, options) \
 	((ctype) >= 0 && \
-	(((ctype) < ONIGENC_CTYPE_ASCII  && OPTON_POSIX_ASCII(options)) || \
-	((ctype) == ONIGENC_CTYPE_WORD  && OPTON_WORD_ASCII(options))  || \
+	(((ctype) < ONIGENC_CTYPE_ASCII && OPTON_POSIX_ASCII(options)) || \
+	((ctype) == ONIGENC_CTYPE_WORD && OPTON_WORD_ASCII(options))  || \
 	((ctype) == ONIGENC_CTYPE_DIGIT && OPTON_DIGIT_ASCII(options)) || \
 	((ctype) == ONIGENC_CTYPE_SPACE && OPTON_SPACE_ASCII(options))))
 
@@ -139,7 +139,7 @@ typedef enum {
 	CV_CPROP
 } CVAL;
 
-void onig_null_warn(const char* s ARG_UNUSED) 
+void onig_null_warn(const char * s ARG_UNUSED) 
 {
 }
 
@@ -165,7 +165,7 @@ void onig_set_verb_warn_func(OnigWarnFunc f)
 	onig_verb_warn = f;
 }
 
-void onig_warning(const char* s)
+void onig_warning(const char * s)
 {
 	if(onig_warn == onig_null_warn) 
 		return;
@@ -657,7 +657,7 @@ static NameEntry* name_find(regex_t* reg, const uchar * name, const uchar * name
 }
 
 typedef struct {
-	int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*);
+	int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void *);
 	regex_t* reg;
 	void * arg;
 	int ret;
@@ -678,7 +678,7 @@ static int i_names(uchar * key ARG_UNUSED, NameEntry* e, INamesArg* arg)
 	return ST_CONTINUE;
 }
 
-int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void * arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void *), void * arg)
 {
 	INamesArg narg;
 	NameTable* t = (NameTable*)reg->name_table;
@@ -822,7 +822,7 @@ static NameEntry* name_find(regex_t* reg, uchar * name, uchar * name_end)
 	return (NameEntry*)NULL;
 }
 
-int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void*), void * arg)
+int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, regex_t*, void *), void * arg)
 {
 	int i, r;
 	NameEntry* e;
@@ -7570,11 +7570,11 @@ end:
 	return 0;
 }
 
-static const char* PopularQStr[] = {
+static const char * PopularQStr[] = {
 	"?", "*", "+", "??", "*?", "+?"
 };
 
-static const char* ReduceQStr[] = {
+static const char * ReduceQStr[] = {
 	"", "", "*", "*?", "??", "+ and ??", "+? and ?"
 };
 
@@ -7766,7 +7766,7 @@ static int i_apply_case_fold(OnigCodePoint from, OnigCodePoint to[], int to_len,
 		uchar buf[ONIGENC_CODE_TO_MBC_MAXLEN];
 		if(onig_is_code_in_cc(enc, from, cc)
 #ifdef CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS
-		    && !IS_NCCLASS_NOT(cc)
+		  && !IS_NCCLASS_NOT(cc)
 #endif
 		    ) {
 			int j, m, index;

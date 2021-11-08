@@ -25,11 +25,11 @@ static int utf32le_is_mbc_newline(const uchar * p, const uchar * end)
 			    *p == 0x0d ||
 #endif
 			    *p == 0x85)
-		    && *(p+1) == 0x00 && (p+2) == 0x00 && *(p+3) == 0x00)
+		  && *(p+1) == 0x00 && (p+2) == 0x00 && *(p+3) == 0x00)
 			return 1;
 
 		if(*(p+1) == 0x20 && (*p == 0x29 || *p == 0x28)
-		    && *(p+2) == 0x00 && *(p+3) == 0x00)
+		  && *(p+2) == 0x00 && *(p+3) == 0x00)
 			return 1;
 #endif
 	}

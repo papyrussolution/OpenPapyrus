@@ -281,7 +281,7 @@ typedef union UUdata {
 ** (Access to 'ttuv_' ensures that value is really a 'Udata'.)
 */
 #define getudatamem(u)  \
-	check_exp(sizeof((u)->ttuv_), (cast(char*, (u)) + sizeof(UUdata)))
+	check_exp(sizeof((u)->ttuv_), (cast(char *, (u)) + sizeof(UUdata)))
 
 #define setuservalue(L, u, o) \
 	{ const TValue * io = (o); Udata * iu = (u); \

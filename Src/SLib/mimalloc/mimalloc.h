@@ -106,9 +106,9 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void * FASTCALL mi_calloc(size
 mi_decl_nodiscard mi_decl_export void * FASTCALL mi_realloc(void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(2);
 mi_decl_export void * mi_expand(void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(2);
 mi_decl_export void FASTCALL mi_free(void * p) NOEXCEPT;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_strdup(const char* s) NOEXCEPT mi_attr_malloc;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_strndup(const char* s, size_t n) NOEXCEPT mi_attr_malloc;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_realpath(const char* fname, char* resolved_name) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_strdup(const char * s) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_strndup(const char * s, size_t n) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_realpath(const char * fname, char * resolved_name) NOEXCEPT mi_attr_malloc;
 
 // ------------------------------------------------------
 // Extended functionality
@@ -132,7 +132,7 @@ mi_decl_nodiscard mi_decl_export size_t mi_good_size(size_t size) NOEXCEPT;
 typedef void (mi_cdecl mi_deferred_free_fun)(bool force, unsigned long long heartbeat, void * arg);
 mi_decl_export void mi_register_deferred_free(mi_deferred_free_fun* deferred_free, void * arg) NOEXCEPT;
 
-typedef void (mi_cdecl mi_output_fun)(const char* msg, void * arg);
+typedef void (mi_cdecl mi_output_fun)(const char * msg, void * arg);
 mi_decl_export void mi_register_output(mi_output_fun* out, void * arg) NOEXCEPT;
 
 typedef void (mi_cdecl mi_error_fun)(int err, void * arg);
@@ -187,9 +187,9 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_malloc_small(mi
 mi_decl_nodiscard mi_decl_export void * mi_heap_realloc(mi_heap_t* heap, void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(3);
 mi_decl_nodiscard mi_decl_export void * mi_heap_reallocn(mi_heap_t* heap, void * p, size_t count, size_t size)  NOEXCEPT mi_attr_alloc_size2(3, 4);
 mi_decl_nodiscard mi_decl_export void * mi_heap_reallocf(mi_heap_t* heap, void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(3);
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_heap_strdup(mi_heap_t* heap, const char* s) NOEXCEPT mi_attr_malloc;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n) NOEXCEPT mi_attr_malloc;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict char* mi_heap_realpath(mi_heap_t* heap, const char* fname, char* resolved_name) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_heap_strdup(mi_heap_t* heap, const char * s) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_heap_strndup(mi_heap_t* heap, const char * s, size_t n) NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_heap_realpath(mi_heap_t* heap, const char * fname, char * resolved_name) NOEXCEPT mi_attr_malloc;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_malloc_aligned(mi_heap_t* heap, size_t size, size_t alignment) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(2) mi_attr_alloc_align(3);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_malloc_aligned_at(mi_heap_t* heap, size_t size, size_t alignment, size_t offset) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(2);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_zalloc_aligned(mi_heap_t* heap, size_t size, size_t alignment) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(2) mi_attr_alloc_align(3);
@@ -320,7 +320,7 @@ mi_decl_export void * mi__expand(void * p, size_t newsize) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export size_t mi_malloc_size(const void * p) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export size_t mi_malloc_usable_size(const void * p) NOEXCEPT;
 
-mi_decl_export int mi_posix_memalign(void** p, size_t alignment, size_t size) NOEXCEPT;
+mi_decl_export int mi_posix_memalign(void ** p, size_t alignment, size_t size) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_memalign(size_t alignment, size_t size) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(2) mi_attr_alloc_align(1);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_valloc(size_t size)  NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_pvalloc(size_t size) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1);
@@ -330,7 +330,7 @@ mi_decl_nodiscard mi_decl_export void * mi_aligned_recalloc(void * p, size_t new
 mi_decl_nodiscard mi_decl_export void * mi_aligned_offset_recalloc(void * p, size_t newcount, size_t size, size_t alignment, size_t offset) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict unsigned short * mi_wcsdup(const unsigned short* s) NOEXCEPT mi_attr_malloc;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict uchar *  mi_mbsdup(const uchar* s)  NOEXCEPT mi_attr_malloc;
-mi_decl_export int mi_dupenv_s(char** buf, size_t* size, const char* name) NOEXCEPT;
+mi_decl_export int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT;
 mi_decl_export int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name) NOEXCEPT;
 mi_decl_export void mi_free_size(void * p, size_t size) NOEXCEPT;
 mi_decl_export void mi_free_size_aligned(void * p, size_t size, size_t alignment) NOEXCEPT;
@@ -389,7 +389,7 @@ template <class T> struct mi_stl_allocator {
 	{
 		return static_cast<T*>(mi_new_n(count, sizeof(T)));
 	}
-	mi_decl_nodiscard T* allocate(size_type count, const void*) 
+	mi_decl_nodiscard T* allocate(size_type count, const void *) 
 	{
 		return allocate(count);
 	}

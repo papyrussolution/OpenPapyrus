@@ -163,9 +163,9 @@ error:
 	return NULL;
 }
 
-#define BLOCK(letter, n) do {ptr = strchr((const char*)alphabet, source[n]); \
+#define BLOCK(letter, n) do {ptr = strchr((const char *)alphabet, source[n]); \
 			     if(!ptr) return -1; \
-			     i = ptr - (const char*)alphabet; \
+			     i = ptr - (const char *)alphabet; \
 			     SET_ ## letter(*block, i); \
 } while(0)
 

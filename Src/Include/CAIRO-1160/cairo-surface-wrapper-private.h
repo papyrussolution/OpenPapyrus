@@ -58,7 +58,7 @@ static inline boolint _cairo_surface_wrapper_has_fill_stroke(cairo_surface_wrapp
 	return wrapper->target->backend->fill_stroke != NULL;
 }
 
-cairo_private cairo_status_t _cairo_surface_wrapper_acquire_source_image(cairo_surface_wrapper_t * wrapper, cairo_image_surface_t  ** image_out, void    ** image_extra);
+cairo_private cairo_status_t _cairo_surface_wrapper_acquire_source_image(cairo_surface_wrapper_t * wrapper, cairo_image_surface_t  ** image_out, void ** image_extra);
 cairo_private void _cairo_surface_wrapper_release_source_image(cairo_surface_wrapper_t * wrapper, cairo_image_surface_t  * image, void  * image_extra);
 cairo_private cairo_status_t _cairo_surface_wrapper_paint(cairo_surface_wrapper_t * wrapper, cairo_operator_t op,
     const cairo_pattern_t * source, const cairo_clip_t  * clip);

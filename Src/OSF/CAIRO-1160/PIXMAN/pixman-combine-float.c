@@ -627,7 +627,7 @@ MAKE_SEPARABLE_PDF_COMBINERS(exclusion)
  *
  * set_sat (C, s):
  * if Cmax > Cmin
- * Cmid = ( ( ( Cmid – Cmin ) × s ) ⁄ ( Cmax – Cmin ) )
+ * Cmid = (((Cmid – Cmin ) × s ) ⁄ ( Cmax – Cmin ) )
  * Cmax = s
  * else
  * Cmid = Cmax = 0.0

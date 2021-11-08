@@ -212,7 +212,7 @@ static CURLcode add_certs_to_store(HCERTSTORE trust_store,
 				    NULL,
 				    NULL,
 				    NULL,
-				    (const void**)&cert_context)) {
+				    (const void **)&cert_context)) {
 					char buffer[STRERROR_LEN];
 					failf(data, "schannel: failed to extract certificate from CA file '%s': %s", ca_file,
 					    Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));

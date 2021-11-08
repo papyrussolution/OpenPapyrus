@@ -106,10 +106,10 @@ class nsUniversalDetector {
 public:
 	nsUniversalDetector(uint32 aLanguageFilter);
 	virtual ~nsUniversalDetector();
-	virtual nsresult HandleData(const char* aBuf, uint32 aLen);
+	virtual nsresult HandleData(const char * aBuf, uint32 aLen);
 	virtual void DataEnd();
 protected:
-	virtual void Report(const char* aCharset) = 0;
+	virtual void Report(const char * aCharset) = 0;
 	virtual void Reset();
 	nsInputState mInputState;
 	enum {

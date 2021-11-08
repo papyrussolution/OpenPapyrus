@@ -44,7 +44,7 @@
 
 /* documentation is in ftdebug.h */
 
-FT_BASE_DEF(void) FT_Message(const char*  fmt, ...)
+FT_BASE_DEF(void) FT_Message(const char *  fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -54,7 +54,7 @@ FT_BASE_DEF(void) FT_Message(const char*  fmt, ...)
 
 /* documentation is in ftdebug.h */
 
-FT_BASE_DEF(void) FT_Panic(const char*  fmt, ...)
+FT_BASE_DEF(void) FT_Panic(const char *  fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -65,11 +65,11 @@ FT_BASE_DEF(void) FT_Panic(const char*  fmt, ...)
 
 /* documentation is in ftdebug.h */
 
-FT_BASE_DEF(int) FT_Throw(FT_Error error, int line, const char*  file)
+FT_BASE_DEF(int) FT_Throw(FT_Error error, int line, const char *  file)
 {
 #if 0
 	/* activating the code in this block makes FreeType very chatty */
-	slfprintf_stderr("%s:%d: error 0x%02x: %s\n", file, line, error, FT_Error_String(error) );
+	slfprintf_stderr("%s:%d: error 0x%02x: %s\n", file, line, error, FT_Error_String(error));
 #else
 	FT_UNUSED(error);
 	FT_UNUSED(line);
@@ -96,7 +96,7 @@ int *  ft_trace_levels;
 /* define array of trace toggle names */
 #define FT_TRACE_DEF(x)  #x,
 
-static const char*  ft_trace_toggles[trace_count + 1] =
+static const char *  ft_trace_toggles[trace_count + 1] =
 {
 #include <freetype/internal/fttrace.h>
 	NULL
@@ -156,10 +156,10 @@ FT_BASE_DEF(void) FT_Trace_Enable(void)
  */
 FT_BASE_DEF(void) ft_debug_init(void)
 {
-	const char*  ft2_debug = ft_getenv("FT2_DEBUG");
+	const char *  ft2_debug = ft_getenv("FT2_DEBUG");
 	if(ft2_debug) {
-		const char*  p = ft2_debug;
-		const char*  q;
+		const char *  p = ft2_debug;
+		const char *  q;
 		for(; *p; p++) {
 			/* skip leading whitespace and separators */
 			if(*p == ' ' || *p == '\t' || *p == ',' || *p == ';' || *p == '=')
@@ -174,7 +174,7 @@ FT_BASE_DEF(void) ft_debug_init(void)
 				FT_Int n, i, len = (FT_Int)( p - q );
 				FT_Int level = -1, found = -1;
 				for(n = 0; n < trace_count; n++) {
-					const char*  toggle = ft_trace_toggles[n];
+					const char *  toggle = ft_trace_toggles[n];
 					for(i = 0; i < len; i++) {
 						if(toggle[i] != q[i])
 							break;

@@ -438,7 +438,7 @@ static void CheckBackComLines(Accessor &styler, bool isFixFormat, Sci_Position l
 
 /***************************************/
 // To determine the folding level depending on keywords
-static int classifyFoldPointFortran(const char* s, const char* prevWord, const char chNextNonBlank) {
+static int classifyFoldPointFortran(const char * s, const char * prevWord, const char chNextNonBlank) {
 	int lev = 0;
 
 	if((strcmp(prevWord, "module") == 0 && strcmp(s, "subroutine") == 0)
@@ -631,7 +631,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 										tmpLineCurrent++;
 										j = styler.LineStart(tmpLineCurrent);
 										if(styler.StyleAt(j+5) == SCE_F_CONTINUATION
-										    && !IsABlank(styler.SafeGetCharAt(j+5)) &&
+										  && !IsABlank(styler.SafeGetCharAt(j+5)) &&
 										    styler.SafeGetCharAt(j+5) != '0') {
 											j += 5;
 											continue;

@@ -66,12 +66,12 @@ static DWORD get_last_error()
 /*
    Load file into memory. Add null terminator at the end, so it will be a valid C string.
  */
-static char* pem_file_to_string(const char* file, char* errmsg, size_t errmsg_len)
+static char * pem_file_to_string(const char * file, char * errmsg, size_t errmsg_len)
 {
 	LARGE_INTEGER file_size;
 	size_t file_bufsize = 0;
 	size_t total_bytes_read = 0;
-	char* file_buffer = NULL;
+	char * file_buffer = NULL;
 	SECURITY_STATUS status = SEC_E_OK;
 
 	HANDLE file_handle = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -129,9 +129,9 @@ cleanup:
 
 // Structure for parsing BEGIN/END sections inside pem.
 typedef struct _pem_type_desc {
-	const char* begin_tag;
+	const char * begin_tag;
 	size_t begin_tag_len;
-	const char* end_tag;
+	const char * end_tag;
 	size_t end_tag_len;
 } pem_type_desc;
 
@@ -163,10 +163,10 @@ static const pem_type_desc pem_sections[] = {
    'end' = NULL. This is generally a format error, meaning that
    the end tag was not found
  */
-void pem_locate(char* pem_str,
+void pem_locate(char * pem_str,
     PEM_TYPE type,
-    char** begin,
-    char** end)
+    char ** begin,
+    char ** end)
 {
 	*begin = NULL;
 	*end = NULL;
@@ -198,18 +198,18 @@ void pem_locate(char* pem_str,
    Add certificates, or CRLs from a PEM file to Wincrypt store
  */
 static SECURITY_STATUS add_certs_to_store(HCERTSTORE trust_store,
-    const char* file,
+    const char * file,
     PEM_TYPE type,
-    char* errmsg,
+    char * errmsg,
     size_t errmsg_len)
 {
-	char* file_buffer = NULL;
-	char* cur = NULL;
+	char * file_buffer = NULL;
+	char * cur = NULL;
 	SECURITY_STATUS status = SEC_E_OK;
 	CRL_CONTEXT* crl_context = NULL;
 	CERT_CONTEXT* cert_context = NULL;
-	char* begin;
-	char* end;
+	char * begin;
+	char * end;
 
 	file_buffer = pem_file_to_string(file, errmsg, errmsg_len);
 	if(!file_buffer)
@@ -236,7 +236,7 @@ static SECURITY_STATUS add_certs_to_store(HCERTSTORE trust_store,
 			    CERT_QUERY_OBJECT_BLOB, &cert_blob,
 			    CERT_QUERY_CONTENT_FLAG_CERT | CERT_QUERY_CONTENT_FLAG_CRL,
 			    CERT_QUERY_FORMAT_FLAG_ALL, 0, NULL, &actual_content_type,
-			    NULL, NULL, NULL, (const void**)&context)) {
+			    NULL, NULL, NULL, (const void **)&context)) {
 			FAIL("failed to extract certificate from PEM file '%s'", file);
 		}
 
@@ -279,7 +279,7 @@ cleanup:
 
    @return 0 on success, error only if directory is invalid.
  */
-SECURITY_STATUS add_dir_to_store(HCERTSTORE trust_store, const char* dir, PEM_TYPE type, char* errmsg, size_t errmsg_len)
+SECURITY_STATUS add_dir_to_store(HCERTSTORE trust_store, const char * dir, PEM_TYPE type, char * errmsg, size_t errmsg_len)
 {
 	WIN32_FIND_DATAA ffd;
 	char path[MAX_PATH];
@@ -338,8 +338,8 @@ static int count_certificates(HCERTSTORE store)
    The function throws an error, if none of the files in CAFile/CAPath have a valid certificate.
    It is also an error if CRLFile does not exist.
  */
-SECURITY_STATUS schannel_create_store(const char* CAFile, const char* CAPath, const char* CRLFile, const char* CRLPath, HCERTSTORE* out_store,
-    char* errmsg, size_t errmsg_len)
+SECURITY_STATUS schannel_create_store(const char * CAFile, const char * CAPath, const char * CRLFile, const char * CRLPath, HCERTSTORE* out_store,
+    char * errmsg, size_t errmsg_len)
 {
 	HCERTSTORE store = NULL;
 	HCERTSTORE system_store = NULL;
@@ -493,9 +493,9 @@ void schannel_free_store(HCERTSTORE store)
 SECURITY_STATUS schannel_verify_server_certificate(const CERT_CONTEXT* cert,
     HCERTSTORE store,
     BOOL check_revocation,
-    const char* server_name,
+    const char * server_name,
     BOOL check_server_name,
-    char* errmsg,
+    char * errmsg,
     size_t errmsg_len)
 {
 	SECURITY_STATUS status = SEC_E_OK;
@@ -530,7 +530,7 @@ cleanup:
 }
 
 /* Attach private key (in PEM format) to client certificate */
-static SECURITY_STATUS load_private_key(CERT_CONTEXT* cert, char* private_key_str, size_t len, char* errmsg, size_t errmsg_len)
+static SECURITY_STATUS load_private_key(CERT_CONTEXT* cert, char * private_key_str, size_t len, char * errmsg, size_t errmsg_len)
 {
 	DWORD derlen = (DWORD)len;
 	BYTE* derbuf = NULL;
@@ -608,11 +608,11 @@ cleanup:
    Given PEM strings for certificate and private key,
    create a client certificate*
  */
-static CERT_CONTEXT* create_client_certificate_mem(char* cert_file_content, char* key_file_content, char* errmsg, size_t errmsg_len)
+static CERT_CONTEXT* create_client_certificate_mem(char * cert_file_content, char * key_file_content, char * errmsg, size_t errmsg_len)
 {
 	CERT_CONTEXT* ctx = NULL;
-	char* begin;
-	char* end;
+	char * begin;
+	char * end;
 	CERT_BLOB cert_blob;
 	DWORD actual_content_type = 0;
 	SECURITY_STATUS status = SEC_E_OK;
@@ -632,7 +632,7 @@ static CERT_CONTEXT* create_client_certificate_mem(char* cert_file_content, char
 		    CERT_QUERY_OBJECT_BLOB, &cert_blob,
 		    CERT_QUERY_CONTENT_FLAG_CERT,
 		    CERT_QUERY_FORMAT_FLAG_ALL, 0, NULL, &actual_content_type,
-		    NULL, NULL, NULL, (const void**)&ctx)) {
+		    NULL, NULL, NULL, (const void **)&ctx)) {
 		FAIL("Can't parse client certficate");
 	}
 
@@ -661,11 +661,11 @@ cleanup:
 }
 
 /* Given cert and key, as PEM file names, create a client certificate */
-CERT_CONTEXT* schannel_create_cert_context(char* cert_file, char* key_file, char* errmsg, size_t errmsg_len)
+CERT_CONTEXT* schannel_create_cert_context(char * cert_file, char * key_file, char * errmsg, size_t errmsg_len)
 {
 	CERT_CONTEXT* ctx = NULL;
-	char* key_file_content = NULL;
-	char* cert_file_content = NULL;
+	char * key_file_content = NULL;
+	char * cert_file_content = NULL;
 
 	cert_file_content = pem_file_to_string(cert_file, errmsg, errmsg_len);
 

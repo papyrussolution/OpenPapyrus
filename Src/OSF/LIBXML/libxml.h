@@ -1857,7 +1857,7 @@ int xmlNop(void);
 
 			XMLPUBFUN int XMLCALL xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);
 			XMLPUBFUN int XMLCALL xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr);
-			XMLPUBFUN int XMLCALL xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, const char* filename, int compression);
+			XMLPUBFUN int XMLCALL xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression);
 			/**
 			 * This is the core C14N function
 			 */

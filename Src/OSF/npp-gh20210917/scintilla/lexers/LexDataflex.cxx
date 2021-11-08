@@ -150,14 +150,14 @@ static void ClassifyDataFlexWord(WordList * keywordlists[], StyleContext &sc, Ac
 	}
 	if(oldState != newState && newState == SCE_DF_WORD) {
 		// a for loop must have for at the start of the line, for is also used in "define abc for 123"
-		if( (strcmp(s, "for") == 0) && (IsFirstDataFlexWord(sc.currentPos-3, styler)) ) {
+		if((strcmp(s, "for") == 0) && (IsFirstDataFlexWord(sc.currentPos-3, styler)) ) {
 			newState = SCE_DF_SCOPEWORD;
 		}
 	}
 	if(oldState != newState && newState == SCE_DF_WORD) {
 		// a repeat loop must have repeat at the start of the line, repeat is also used in 'move (repeat("d",5))
 		// to sFoo'
-		if( (strcmp(s, "repeat") == 0) && (IsFirstDataFlexWord(sc.currentPos-6, styler)) ) {
+		if((strcmp(s, "repeat") == 0) && (IsFirstDataFlexWord(sc.currentPos-6, styler)) ) {
 			newState = SCE_DF_SCOPEWORD;
 		}
 	}
@@ -535,17 +535,17 @@ static void FoldDataFlexDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		}
 		if(foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			    && IsCommentLine(lineCurrent + 1, styler))
+			  && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			    && !IsCommentLine(lineCurrent+1, styler))
+			  && !IsCommentLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
 		if(foldPreprocessor) {
 			if(style == SCE_DF_PREPROCESSOR) {
 				iWordSize = ClassifyDataFlexPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 1, styler);
 				//} else if (style == SCE_DF_PREPROCESSOR2 && ch == '(' && chNext == '*'
-				//           && styler.SafeGetCharAt(i + 2) == '$') {
+				//         && styler.SafeGetCharAt(i + 2) == '$') {
 				//	ClassifyDataFlexPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 3,
 				// styler);
 				i = i + iWordSize;

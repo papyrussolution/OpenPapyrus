@@ -23,7 +23,7 @@ ssize_t search_buf(const char * buf, const size_t buf_len, const char * dir_full
 		binary = 0;
 	}
 	else if(!opts.search_binary_files && opts.mmap) { /* if not using mmap, binary files have already been skipped */
-		binary = is_binary((const void*)buf, buf_len);
+		binary = is_binary((const void *)buf, buf_len);
 		if(binary) {
 			log_debug("File %s is binary. Skipping...", dir_full_path);
 			return -1;
@@ -171,7 +171,7 @@ multiline_done:
 	}
 	if(!opts.print_nonmatching_files && (matches_len > 0 || opts.print_all_paths)) {
 		if(binary == -1 && !opts.print_filename_only) {
-			binary = is_binary((const void*)buf, buf_len);
+			binary = is_binary((const void *)buf, buf_len);
 		}
 		pthread_mutex_lock(&print_mtx);
 		if(opts.print_filename_only) {
@@ -308,7 +308,7 @@ void search_file(const char * file_full_path)
 #ifdef _WIN32
 	{
 		HANDLE hmmap = CreateFileMapping((HANDLE)_get_osfhandle(fd), 0, PAGE_READONLY, 0, f_len, NULL);
-		buf = (char*)MapViewOfFile(hmmap, FILE_SHARE_READ, 0, 0, f_len);
+		buf = (char *)MapViewOfFile(hmmap, FILE_SHARE_READ, 0, 0, f_len);
 		if(hmmap != NULL)
 			CloseHandle(hmmap);
 	}

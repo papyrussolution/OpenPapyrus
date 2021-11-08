@@ -22,7 +22,7 @@ int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 	return ret;
 }
 
-char * STDCALL CRYPTO_strdup(const char * str, const char* file, int line)
+char * STDCALL CRYPTO_strdup(const char * str, const char * file, int line)
 {
 	char * ret;
 	if(str == NULL)
@@ -33,7 +33,7 @@ char * STDCALL CRYPTO_strdup(const char * str, const char* file, int line)
 	return ret;
 }
 
-char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
+char * CRYPTO_strndup(const char * str, size_t s, const char * file, int line)
 {
 	size_t maxlen;
 	char * ret;
@@ -51,7 +51,7 @@ char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
 	return ret;
 }
 
-void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
+void * CRYPTO_memdup(const void * data, size_t siz, const char * file, int line)
 {
 	void * ret;
 

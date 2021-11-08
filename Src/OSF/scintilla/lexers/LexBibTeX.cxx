@@ -19,8 +19,8 @@ using namespace Scintilla;
 namespace {
 bool IsAlphabetic(uint ch) { return IsASCII(ch) && std::isalpha(ch) != 0; }
 // @v10.9.6 (replaced with isasciialnum) bool IsAlphaNumeric(char ch) { return IsASCII(ch) && std::isalnum(ch); }
-//bool EqualCaseInsensitive(const char* a, const char* b) { return CompareCaseInsensitive(a, b) == 0; }
-bool EntryWithoutKey(const char* name) { return sstreqi_ascii(name, "string"); }
+//bool EqualCaseInsensitive(const char * a, const char * b) { return CompareCaseInsensitive(a, b) == 0; }
+bool EntryWithoutKey(const char * name) { return sstreqi_ascii(name, "string"); }
 
 char GetClosingBrace(char openbrace)
 {

@@ -401,7 +401,7 @@ static int wait_random_seeded(void)
 				kernel[1] = p == NULL ? 0 : atoi(p + 1);
 				if(kernel[0] > kernel_version[0]
 				    || (kernel[0] == kernel_version[0]
-				    && kernel[1] >= kernel_version[1])) {
+				  && kernel[1] >= kernel_version[1])) {
 					return 0;
 				}
 			}
@@ -411,7 +411,7 @@ static int wait_random_seeded(void)
 					FD_ZERO(&fds);
 					FD_SET(fd, &fds);
 					while((r = select(fd + 1, &fds, NULL, NULL, NULL)) < 0
-					    && errno == EINTR);
+					  && errno == EINTR);
 				}
 				else {
 					while((r = read(fd, &c, 1)) < 0 && errno == EINTR);
@@ -459,11 +459,11 @@ static int check_random_device(struct random_device * rd)
 	struct stat st;
 
 	return rd->fd != -1
-	       && fstat(rd->fd, &st) != -1
-	       && rd->dev == st.st_dev
-	       && rd->ino == st.st_ino
-	       && ((rd->mode ^ st.st_mode) & ~(S_IRWXU | S_IRWXG | S_IRWXO)) == 0
-	       && rd->rdev == st.st_rdev;
+	     && fstat(rd->fd, &st) != -1
+	     && rd->dev == st.st_dev
+	     && rd->ino == st.st_ino
+	     && ((rd->mode ^ st.st_mode) & ~(S_IRWXU | S_IRWXG | S_IRWXO)) == 0
+	     && rd->rdev == st.st_rdev;
 }
 
 /*

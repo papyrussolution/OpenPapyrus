@@ -1858,7 +1858,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 
 	/* do not use SSL cache if disabled or we are not going to verify peer */
 	ssl_no_cache = (SSL_SET_OPTION(primary.sessionid)
-	    && SSL_CONN_CONFIG(verifypeer)) ? PR_FALSE : PR_TRUE;
+	  && SSL_CONN_CONFIG(verifypeer)) ? PR_FALSE : PR_TRUE;
 	if(SSL_OptionSet(model, SSL_NO_CACHE, ssl_no_cache) != SECSuccess)
 		goto error;
 
@@ -2057,7 +2057,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-		    && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+		  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 		    ) {
 			protocols[cur++] = NGHTTP2_PROTO_VERSION_ID_LEN;

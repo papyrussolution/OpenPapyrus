@@ -235,7 +235,7 @@ typedef struct ASN1_VALUE_st ASN1_VALUE;
 #define CHECKED_I2D_OF(type, i2d) ((i2d_of_void*)(1 ? i2d : ((I2D_OF(type)) 0)))
 #define CHECKED_NEW_OF(type, xnew) ((void *(*)(void))(1 ? xnew : ((type *(*)(void)) 0)))
 #define CHECKED_PTR_OF(type, p) ((void *)(1 ? p : (type*)0))
-#define CHECKED_PPTR_OF(type, p) ((void**)(1 ? p : (type**)0))
+#define CHECKED_PPTR_OF(type, p) ((void **)(1 ? p : (type**)0))
 
 #define TYPEDEF_D2I_OF(type) typedef type * d2i_of_ ## type (type **, const uchar **, long)
 #define TYPEDEF_I2D_OF(type) typedef int i2d_of_ ## type (type *, uchar **)

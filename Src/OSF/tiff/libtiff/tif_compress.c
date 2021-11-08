@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static int TIFFNoEncode(TIFF* tif, const char* method)
+static int TIFFNoEncode(TIFF* tif, const char * method)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
 	if(c) {
@@ -61,7 +61,7 @@ int _TIFFNoTileEncode(TIFF* tif, uint8 * pp, tmsize_t cc, uint16 s)
 	return (TIFFNoEncode(tif, "tile"));
 }
 
-static int TIFFNoDecode(TIFF* tif, const char* method)
+static int TIFFNoDecode(TIFF* tif, const char * method)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
 	if(c)
@@ -182,7 +182,7 @@ const TIFFCodec* TIFFFindCODEC(uint16 scheme)
 	return ((const TIFFCodec*)0);
 }
 
-TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char* name, TIFFInitMethod init)
+TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char * name, TIFFInitMethod init)
 {
 	codec_t* cd = (codec_t*)SAlloc::M((tmsize_t)(sizeof(codec_t) + sizeof(TIFFCodec) + strlen(name)+1));
 	if(cd) {

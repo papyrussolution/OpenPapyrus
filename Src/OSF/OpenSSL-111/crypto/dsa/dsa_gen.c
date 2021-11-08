@@ -91,15 +91,11 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 		}
 		memcpy(seed, seed_in, seed_len);
 	}
-
 	if((mont = BN_MONT_CTX_new()) == NULL)
 		goto err;
-
 	if((ctx = BN_CTX_new()) == NULL)
 		goto err;
-
 	BN_CTX_start(ctx);
-
 	r0 = BN_CTX_get(ctx);
 	g = BN_CTX_get(ctx);
 	W = BN_CTX_get(ctx);
@@ -108,21 +104,16 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	c = BN_CTX_get(ctx);
 	p = BN_CTX_get(ctx);
 	test = BN_CTX_get(ctx);
-
 	if(test == NULL)
 		goto err;
-
 	if(!BN_lshift(test, BN_value_one(), bits - 1))
 		goto err;
-
 	for(;;) {
-		for(;;) {       /* find q */
+		for(;;) { /* find q */
 			int use_random_seed = (seed_in == NULL);
-
 			/* step 1 */
 			if(!BN_GENCB_call(cb, 0, m++))
 				goto err;
-
 			if(use_random_seed) {
 				if(RAND_bytes(seed, qsize) <= 0)
 					goto err;
@@ -396,7 +387,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 	if(!BN_lshift(test, BN_value_one(), L - 1))
 		goto err;
 	for(;;) {
-		for(;;) {       /* find q */
+		for(;;) { /* find q */
 			uchar * pmd;
 			/* step 1 */
 			if(!BN_GENCB_call(cb, 0, m++))

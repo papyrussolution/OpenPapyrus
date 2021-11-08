@@ -170,7 +170,7 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer,
 	if(pos < zip->pos) {
 		/* If the new position is within the output buffer, simply */
 		/* decrement pointers, otherwise we reset the stream completely! */
-		if( ( zip->pos - pos ) <= (FT_ULong)( zip->cursor - zip->buffer ) ) {
+		if(( zip->pos - pos ) <= (FT_ULong)( zip->cursor - zip->buffer ) ) {
 			zip->cursor -= zip->pos - pos;
 			zip->pos     = pos;
 		}
@@ -182,7 +182,7 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer,
 	}
 	/* skip unwanted bytes */
 	if(pos > zip->pos) {
-		error = ft_lzw_file_skip_output(zip, (FT_ULong)( pos - zip->pos ) );
+		error = ft_lzw_file_skip_output(zip, (FT_ULong)( pos - zip->pos ));
 		if(error)
 			goto Exit;
 	}

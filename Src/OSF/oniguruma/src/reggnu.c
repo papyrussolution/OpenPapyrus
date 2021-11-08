@@ -11,7 +11,7 @@ extern void re_free_registers(OnigRegion* r)
 	onig_region_free(r, 0);
 }
 
-extern int re_adjust_startpos(regex_t* reg, const char* string, int size, int startpos, int range)
+extern int re_adjust_startpos(regex_t* reg, const char * string, int size, int startpos, int range)
 {
 	if(startpos > 0 && ONIGENC_MBC_MAXLEN(reg->enc) != 1 && startpos < size) {
 		uchar * p;
@@ -27,17 +27,17 @@ extern int re_adjust_startpos(regex_t* reg, const char* string, int size, int st
 	return startpos;
 }
 
-extern int re_match(regex_t* reg, const char* str, int size, int pos, struct re_registers* regs)
+extern int re_match(regex_t* reg, const char * str, int size, int pos, struct re_registers* regs)
 {
 	return onig_match(reg, (uchar *)str, (uchar *)(str + size), (uchar *)(str + pos), regs, ONIG_OPTION_NONE);
 }
 
-extern int re_search(regex_t* bufp, const char* string, int size, int startpos, int range, struct re_registers* regs)
+extern int re_search(regex_t* bufp, const char * string, int size, int startpos, int range, struct re_registers* regs)
 {
 	return onig_search(bufp, (uchar *)string, (uchar *)(string + size), (uchar *)(string + startpos), (uchar *)(string + startpos + range), regs, ONIG_OPTION_NONE);
 }
 
-extern int re_compile_pattern(const char* pattern, int size, regex_t* reg, char* ebuf)
+extern int re_compile_pattern(const char * pattern, int size, regex_t* reg, char * ebuf)
 {
 	OnigErrorInfo einfo;
 	int r = onig_compile(reg, (uchar *)pattern, (uchar *)(pattern + size), &einfo);
@@ -61,7 +61,7 @@ extern int re_alloc_pattern(regex_t** reg)
 	return onig_reg_init(*reg, ONIG_OPTION_DEFAULT, ONIGENC_CASE_FOLD_DEFAULT, OnigEncDefaultCharEncoding, OnigDefaultSyntax);
 }
 
-extern void re_set_casetable(const char* table)
+extern void re_set_casetable(const char * table)
 {
 	onigenc_set_default_caseconv_table((uchar *)table);
 }

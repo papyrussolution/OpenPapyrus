@@ -462,7 +462,7 @@ typedef struct {
 
 XXH_PUBLIC_API XXH128_hash_t XXH128(const void * data, size_t len, XXH64_hash_t seed);
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits(const void * data, size_t len);
-XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void * data, size_t len, XXH64_hash_t seed);  /* == XXH128() */
+XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void * data, size_t len, XXH64_hash_t seed); /* == XXH128() */
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset(XXH3_state_t* statePtr);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed);

@@ -3986,7 +3986,7 @@ int PPBillImporter::Run()
 		param.Period = Period;
 		THROW(prcssr.Run(param));
 	}
-	if(oneof2(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK)) {
+	if(oneof3(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
 		PPOprKind op_rec;
@@ -4394,7 +4394,8 @@ int PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpEx
 		if(Flags & fPaymOrdersExp) {
 		}
 		else {
-			if(BillParam.PredefFormat && oneof4(BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefNalogR_ON_NSCHFDOPPRMARK)) {
+			if(BillParam.PredefFormat && oneof5(BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, 
+				piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
 				BillParam.DataFormat = PPImpExpParam::dfXml;
 			}
 			THROW_MEM(P_IEBill = new PPImpExp(&BillParam, pFirstPack));
@@ -5312,11 +5313,8 @@ DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0)
 	// @v10.9.9 {
 	PPIniFile ini_file;
 	int    iv = 0;
-	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0) {
-		if(iv == 1) {
-			Flags |= fExpChZnMarksGTINSER;
-		}
-	}
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1)
+		Flags |= fExpChZnMarksGTINSER;
 	// } @v10.9.9
 }
 
@@ -5823,7 +5821,7 @@ int DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDAT
 			PPClientAgreement cli_agt;
 			if(ArObj.GetClientAgreement(arID, cli_agt, 0) > 0) {
 				// @v11.2.0 if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
-				if(cli_agt.Code_.IsEmpty()) { // @v11.2.0
+				if(cli_agt.Code_.NotEmpty()) { // @v11.2.0 // @v11.2.1 @fix IsEmpty-->NotEmpty
 					// @v11.2.0 rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
 					rAgtCode = cli_agt.Code_; // @v11.2.0
 					if(checkdate(cli_agt.BegDt))
@@ -6044,11 +6042,13 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 	return ok;
 }
 
-int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
+int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
 	rResultFileName.Z(); // @v10.9.8
+	assert(!isempty(pHeaderSymb)); // @v11.2.1
 	DocNalogRu_Generator g;
+	THROW(!isempty(pHeaderSymb)); // @v11.2.1
 	{
 		PPObjAccSheet acs_obj;
 		PPOprKind op_rec;
@@ -6059,13 +6059,11 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 		rBp.GetMainOrgID_(&main_org_id);
 		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
 		DocNalogRu_Generator::FileInfo _hi;
-
 		SString agt_code;
 		LDATE  agt_date;
 		LDATE  agt_expiry;
 		g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry);
-
-		THROW(g.CreateHeaderInfo("ON_NSCHFDOPPRMARK", main_org_id, contragent_id, dto_id, rFileName, _hi));
+		THROW(g.CreateHeaderInfo(pHeaderSymb/*"ON_NSCHFDOPPRMARK"*/, main_org_id, contragent_id, dto_id, rFileName, _hi));
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);

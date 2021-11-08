@@ -159,7 +159,7 @@ char * curl_dbg_strdup(const char * str, int line, const char * source)
 	if(mem)
 		memcpy(mem, str, len);
 	if(source)
-		curl_dbg_log("MEM %s:%d sstrdup(%p) (%zu) = %p\n", source, line, (const void*)str, len, (const void*)mem);
+		curl_dbg_log("MEM %s:%d sstrdup(%p) (%zu) = %p\n", source, line, (const void *)str, len, (const void *)mem);
 	return mem;
 }
 

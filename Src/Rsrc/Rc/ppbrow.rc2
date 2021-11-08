@@ -1917,10 +1917,10 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tAlt-F8"
 		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
 		separator
-		BUILD         : kbF8,      TBBM_REFRESH,      "Автозаполнение инвентарной ведомости\tF8"
-		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,     "Пересчет учетных остатков\tCtrl-R"
-		RECALCPRICE   : kbCtrlP,   PPDV_NOICON,       "Пересчет учетных цен\tCtrl-P"
-		RECALCDFCT    : kbCtrlD,   PPDV_NOICON,       "Пересчет дефицита\tCtrl-D"
+		BUILD         : kbF8,      TBBM_REFRESH,      "@{doinventoryautofill}\tF8"
+		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,     "@{doinventoryrecalcstock}\tCtrl-R"
+		RECALCPRICE   : kbCtrlP,   PPDV_NOICON,       "@{doinventoryrecalcprices}\tCtrl-P"
+		RECALCDFCT    : kbCtrlD,   PPDV_NOICON,       "@{doinventoryrecalcdeficit}\tCtrl-D"
 		TOTAL         : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
 		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,     "@{filter}\tCtrl-V"
@@ -7188,7 +7188,7 @@ record CliBnkData {
 	Purpose          zstring(160) "@{paymentpurpose}";
 	Amount           double       format(10.2) "@{paymentamount}";
 	PayerID          long         format(10)   "ИД персоналии плательщика";
-	PayerName        zstring(255) "Наименование плательщика"; // @v8.6.4 (128)-->(255)
+	PayerName        zstring(255) "@{payername}"; // @v8.6.4 (128)-->(255)
 	PayerINN         zstring(24)  "@{payersinn}";
 	PayerKPP         zstring(24)  "@{payerskpp}"; // @v7.4.5
 	PayerBankAcc     zstring(32)  "@{payersbankaccount}";
@@ -7196,7 +7196,7 @@ record CliBnkData {
 	PayerBankCode    zstring(24)  "@{payersbankbic}";
 	PayerBankCorr    zstring(32)  "Корр счет банка плательщика";
 	ReceiverID       long         format(10)   "ИД персоналии получателя";
-	ReceiverName     zstring(255) "Наименование получателя"; // @v8.6.4 (128)-->(255)
+	ReceiverName     zstring(255) "@{receivername}"; // @v8.6.4 (128)-->(255)
 	ReceiverINN      zstring(24)  "@{receiversinn}";
 	ReceiverKPP      zstring(24)  "@{receiverskpp}"; // @v7.4.5
 	ReceiverBankAcc  zstring(32)  "@{receiversbankaccount}";
@@ -7763,7 +7763,7 @@ record WorldObjStatus {
 }
 
 record WorldObj {
-	Name       zstring(48) "Наименование географического объекта";
+	Name       zstring(48) "@{world_name_amp}";
 	Abbr       zstring(20) "@{shortappellation}";
 	StatusText zstring(32) "Статус (полный идентификатор)";
 	StatusAbbr zstring(32) "Статус (сокращенный идентификатор)";
@@ -7800,9 +7800,9 @@ record BizScoreVal {
 	DbUuid     zstring(40)         "@{dbguid}";
 	UserID     long                "@{userid}";
 	UserName   zstring(48)         "@{username}";
-	ScoreID    long                "ИД показателя";
-	ScoreName  zstring(48)         "Наименование показателя";
-	ScoreDescr zstring(252)        "Описание показателя";
+	ScoreID    long                "@{indicatorid}";
+	ScoreName  zstring(48)         "@{indicatorname}";
+	ScoreDescr zstring(252)        "@{indicatordescr}";
 	ObjType    long                "Тип связанного объекта";
 	ObjID      long                "ИД связанного объекта";
 	Flags      long                "Флаги значения";
@@ -7832,7 +7832,7 @@ record SBIISuppl {
 }
 
 record SBIIOpRestr {
-	OpID     long                  "Ид операции";
+	OpID     long                  "@{opid}";
 	AccSheet long                  "@{accsheet}";
 	ToBhtOp  long                  "Операция на Bht терминале";
 	BhtOkCA  long                  "Действия по ошибке (отмена или продолжить)";
@@ -8314,7 +8314,7 @@ record TestRec {
 
 record CPosHeader {
 	FormatVersion  long        "Версия формата";
-	ProductName    zstring(32) "Наименование продукта";
+	ProductName    zstring(32) "@{productname}";
 	ProductVersion long        "Версия продукта";
 	TableName      zstring(32) "Наименование таблицы данных";
 }

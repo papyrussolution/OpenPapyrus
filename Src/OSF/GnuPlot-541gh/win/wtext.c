@@ -659,8 +659,8 @@ static void DoLine(TW * lptw, HDC hdc, int xpos, int ypos, int x, int y, int cou
 		a = (PBYTE)SAlloc::M(sizeof(PBYTE) * (count + 1));
 		wmemset(w, L' ', count);
 		memset(a, NOTEXT, count);
-		w[count] = NUL;
-		a[count] = NUL;
+		w[count] = '\0';
+		a[count] = '\0';
 	}
 	num = count;
 	pa = a;
@@ -836,7 +836,7 @@ static void TextCopyClip(TW * lptw)
 			cp += count;
 		}
 	}
-	*cp = NUL;
+	*cp = '\0';
 	size = (wcslen(cbuf) + 1) * sizeof(WCHAR);
 	GlobalUnlock(hGMem);
 	hGMem = GlobalReAlloc(hGMem, size, GMEM_MOVEABLE);
@@ -864,11 +864,11 @@ static void TextMakeFont(TW * lptw)
 	lf.lfQuality = IsWindowsXPorLater() ? CLEARTYPE_QUALITY : PROOF_QUALITY;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	if((p = _tcsstr(lptw->fontname, TEXT(" Italic"))) != NULL) {
-		lf.lfFaceName[(uint)(p - lptw->fontname)] = NUL;
+		lf.lfFaceName[(uint)(p - lptw->fontname)] = '\0';
 		lf.lfItalic = TRUE;
 	}
 	if((p = _tcsstr(lptw->fontname, TEXT(" Bold"))) != NULL) {
-		lf.lfFaceName[(uint)(p - lptw->fontname)] = NUL;
+		lf.lfFaceName[(uint)(p - lptw->fontname)] = '\0';
 		lf.lfWeight = FW_BOLD;
 	}
 	if(lptw->hfont != 0)
@@ -899,14 +899,14 @@ static void TextSelectFont(TW * lptw)
 	_tcsncpy(lf.lfFaceName, lptw->fontname, LF_FACESIZE);
 	if((p = _tcsstr(lptw->fontname, TEXT(" Bold"))) != NULL) {
 		lf.lfWeight = FW_BOLD;
-		lf.lfFaceName[p - lptw->fontname] = NUL;
+		lf.lfFaceName[p - lptw->fontname] = '\0';
 	}
 	else {
 		lf.lfWeight = FW_NORMAL;
 	}
 	if((p = _tcsstr(lptw->fontname, TEXT(" Italic"))) != NULL) {
 		lf.lfItalic = TRUE;
-		lf.lfFaceName[p - lptw->fontname] = NUL;
+		lf.lfFaceName[p - lptw->fontname] = '\0';
 	}
 	else {
 		lf.lfItalic = FALSE;
@@ -2186,7 +2186,7 @@ void ReadTextIni(TW * lptw)
 	LPTSTR p;
 	UINT dpi;
 	BOOL bOKINI = (file && section);
-	profile[0] = NUL;
+	profile[0] = '\0';
 	if(bOKINI)
 		GetPrivateProfileString(section, TEXT("TextOrigin"), TEXT(""), profile, 80, file);
 	if((p = GetInt(profile, (LPINT)&lptw->Origin.x)) == NULL)
@@ -2214,7 +2214,7 @@ void ReadTextIni(TW * lptw)
 	{
 		LPTSTR size = _tcschr(profile, ',');
 		if(size) {
-			*size++ = NUL;
+			*size++ = '\0';
 			if((p = GetInt(size, (LPINT)&lptw->fontsize)) == NULL)
 				lptw->fontsize = TEXTFONTSIZE;
 		}

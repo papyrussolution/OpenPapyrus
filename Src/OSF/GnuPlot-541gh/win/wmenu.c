@@ -123,7 +123,7 @@ void SendMacro(TW * lptw, UINT m)
 	if(buf && static_cast<int>(m) < lpmw->nCountMenu) {
 		BYTE * s = lpmw->macro[m];
 		LPWSTR d = buf;
-		*d = NUL;
+		*d = '\0';
 		while(s && *s && (d - buf < MAXSTR)) {
 			if(*s >= CMDMIN && *s <= CMDMAX) {
 				switch(*s) {
@@ -147,12 +147,12 @@ void SendMacro(TW * lptw, UINT m)
 						s++;
 						for(i = 0; (*s >= 32) && (*s <= 126); i++)
 							str[i] = *s++; /* get dialog box title */
-						str[i] = NUL;
+						str[i] = '\0';
 						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
 						s++;
 						for(i = 0; (*s >= 32) && (*s <= 126); i++)
 							str[i] = *s++; /* temporary copy of filter */
-						str[i++] = NUL;
+						str[i++] = '\0';
 						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szFile, MAXSTR + 1);
 						wcscpy(szFilter, L"Default (");
 						wcscat(szFilter, szFile);
@@ -168,11 +168,9 @@ void SendMacro(TW * lptw, UINT m)
 						wcscpy(szFilter + i, L"*.*");
 						i += wcslen(szFilter + i);
 						i++; /* move past NUL */
-						szFilter[i++] = NUL; /* add a second NUL */
+						szFilter[i++] = '\0'; /* add a second NUL */
 						flag = 0;
-
-						szFile[0] = NUL;
-
+						szFile[0] = '\0';
 						/* clear the structure */
 						memzero(&ofn, sizeof(ofn));
 						ofn.lStructSize = sizeof(ofn);
@@ -205,7 +203,7 @@ void SendMacro(TW * lptw, UINT m)
 						s++;
 						for(i = 0; (*s >= 32 && *s <= 126); i++)
 							lpmw->szPrompt[i] = *s++;
-						lpmw->szPrompt[i] = NUL;
+						lpmw->szPrompt[i] = '\0';
 						flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
 						if(flag) {
 							for(i = 0; i < lpmw->nChar; i++)
@@ -225,7 +223,7 @@ void SendMacro(TW * lptw, UINT m)
 						s++;
 						for(i = 0; (*s >= 32 && *s <= 126); i++)
 							str[i] = *s++;
-						str[i] = NUL;
+						str[i] = '\0';
 						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
 						flag = 0;
 						/* Use the Shell's internal directory chooser. */
@@ -313,8 +311,8 @@ void SendMacro(TW * lptw, UINT m)
 				*d++ = *s++;
 			}
 		}
-		*d = NUL;
-		if(buf[0] != NUL) {
+		*d = '\0';
+		if(buf[0]) {
 			d = buf;
 			while(*d) {
 				SendMessageW(lptw->hWndText, WM_CHAR, *d, 1L);
@@ -368,7 +366,7 @@ static int Gfgets(LPSTR lp, int size, GFILE * gfile)
 		}
 	}
 	if(i < size)
-		*lp++ = NUL;
+		*lp++ = '\0';
 	return i;
 }
 //
@@ -386,7 +384,7 @@ static int GetLine(char * buffer, int len, GFILE * gfile)
 		nLine++;
 	}
 	if(!isempty(buffer))
-		buffer[strlen(buffer)-1] = NUL; // remove trailing \n
+		buffer[strlen(buffer)-1] = '\0'; // remove trailing \n
 	if(!status)
 		nLine = 0; // zero lines if file error
 	return nLine;
@@ -477,7 +475,7 @@ void LoadMacros(TW * lptw)
 	while((nInc = GetLine(buf, MAXSTR, menufile)) != 0) {
 		nLine += nInc;
 		LeftJustify(buf, buf);
-		if(buf[0] == NUL) {
+		if(!buf[0]) {
 			// ignore blank lines 
 		}
 		else if(sstreqi_ascii(buf, "[Menu]")) {
@@ -551,7 +549,7 @@ void LoadMacros(TW * lptw)
 			ButtonIcon[lpmw->nButton] = I_IMAGENONE; /* comctl 5.81, Win 2000 */
 			if((icon = strchr((char *)macroptr, ';'))) {
 				int inumber;
-				*icon = NUL;
+				*icon = '\0';
 				errno = 0;
 				inumber = strtoul(++icon, NULL, 10);
 				if(errno == 0 && inumber != 0) {
@@ -563,7 +561,7 @@ void LoadMacros(TW * lptw)
 					/* strip trailing white space */
 					char * end = icon + strlen(icon) - 1;
 					while(isspace((uchar)*end)) {
-						*end = NUL;
+						*end = '\0';
 						end--;
 					}
 					ButtonIcon[lpmw->nButton] = ButtonIndex;

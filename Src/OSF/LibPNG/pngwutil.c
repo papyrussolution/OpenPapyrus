@@ -1012,7 +1012,7 @@ void /* PRIVATE */ png_write_iCCP(png_structrp png_ptr, const char * name, png_c
 	 * before when it was stored.
 	 */
 	if(profile == NULL)
-		png_error(png_ptr, "No profile for iCCP chunk");  /* internal error */
+		png_error(png_ptr, "No profile for iCCP chunk"); /* internal error */
 	profile_len = png_get_uint_32(profile);
 	if(profile_len < 132)
 		png_error(png_ptr, "ICC profile too short");

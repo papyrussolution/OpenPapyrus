@@ -355,7 +355,7 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    uActFontSize =  (int)(fontsize+0.5);
 				    if(0 < sep && sep < sizeof(sActFont)) {
 					    strncpy(sActFont, s, sizeof(sActFont));
-					    sActFont[sep] = NUL;
+					    sActFont[sep] = '\0';
 				    }
 				    strcpy(sDefaultFont, sActFont);
 				    SAlloc::F(s);
@@ -1624,13 +1624,12 @@ TERM_PUBLIC void TGIF_set_linewidth(double size)
 TERM_PUBLIC int TGIF_set_font(const char * font)
 {
 	int sep;
-
 	if(!font || !(*font))
 		font = sDefaultFont;
 	sep = strcspn(font, ",");
 	if(sep > 0) {
 		strncpy(sActFont, font, sep);
-		sActFont[sep] = NUL;
+		sActFont[sep] = '\0';
 	}
 	sscanf(&(font[sep + 1]), "%d", &uActFontSize);
 	return TRUE;

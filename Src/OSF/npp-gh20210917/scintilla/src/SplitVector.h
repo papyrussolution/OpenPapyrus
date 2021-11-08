@@ -70,8 +70,8 @@ public:
 	// Deleted so SplitVector objects can not be copied.
 	SplitVector(const SplitVector &) = delete;
 	SplitVector(SplitVector &&) = delete;
-	void operator=(const SplitVector &) = delete;
-	void operator=(SplitVector &&) = delete;
+	void operator = (const SplitVector &) = delete;
+	void operator = (SplitVector &&) = delete;
 
 	~SplitVector() {
 	}
@@ -145,7 +145,7 @@ public:
 
 	/// Retrieve the element at a particular position.
 	/// The position must be within bounds or an assertion is triggered.
-	const T &operator[](ptrdiff_t position) const noexcept {
+	const T & operator[](ptrdiff_t position) const noexcept {
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
 		if (position < part1Length) {
 			return body[position];
@@ -157,7 +157,7 @@ public:
 	/// Retrieve reference to the element at a particular position.
 	/// This, instead of the const variant, can be used to mutate in-place.
 	/// The position must be within bounds or an assertion is triggered.
-	T &operator[](ptrdiff_t position) noexcept {
+	T & operator[](ptrdiff_t position) noexcept {
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
 		if (position < part1Length) {
 			return body[position];

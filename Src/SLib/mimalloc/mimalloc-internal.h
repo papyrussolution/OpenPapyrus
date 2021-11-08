@@ -32,13 +32,13 @@
 #endif
 
 // "options.c"
-void       _mi_fputs(mi_output_fun* out, void * arg, const char* prefix, const char* message);
-void       _mi_fprintf(mi_output_fun* out, void * arg, const char* fmt, ...);
-void       _mi_warning_message(const char* fmt, ...);
-void       _mi_verbose_message(const char* fmt, ...);
-void       _mi_trace_message(const char* fmt, ...);
+void       _mi_fputs(mi_output_fun* out, void * arg, const char * prefix, const char * message);
+void       _mi_fprintf(mi_output_fun* out, void * arg, const char * fmt, ...);
+void       _mi_warning_message(const char * fmt, ...);
+void       _mi_verbose_message(const char * fmt, ...);
+void       _mi_trace_message(const char * fmt, ...);
 void       _mi_options_init(void);
-void       _mi_error_message(int err, const char* fmt, ...);
+void       _mi_error_message(int err, const char * fmt, ...);
 
 // random.c
 void       _mi_random_init(mi_random_ctx_t* ctx);
@@ -246,7 +246,7 @@ static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) {
   #define MI_MUL_NO_OVERFLOW ((size_t)1 << (4*sizeof(size_t)))  // sqrt(SIZE_MAX)
 	*total = count * size;
 	return ((size >= MI_MUL_NO_OVERFLOW || count >= MI_MUL_NO_OVERFLOW)
-	       && size > 0 && (SIZE_MAX / size) < count);
+	     && size > 0 && (SIZE_MAX / size) < count);
 }
 
 #endif
@@ -735,22 +735,22 @@ static inline void * mi_tls_slot(size_t slot) NOEXCEPT
 	void * res;
 	const size_t ofs = (slot*sizeof(void *));
 #if defined(__i386__)
-	__asm__ ("movl %%gs:%1, %0" : "=r" (res) : "m" (*((void**)ofs)) : ); // 32-bit always uses GS
+	__asm__ ("movl %%gs:%1, %0" : "=r" (res) : "m" (*((void **)ofs)) : ); // 32-bit always uses GS
 #elif defined(__APPLE__) && defined(__x86_64__)
-	__asm__ ("movq %%gs:%1, %0" : "=r" (res) : "m" (*((void**)ofs)) : ); // x86_64 macOSX uses GS
+	__asm__ ("movq %%gs:%1, %0" : "=r" (res) : "m" (*((void **)ofs)) : ); // x86_64 macOSX uses GS
 #elif defined(__x86_64__) && (MI_INTPTR_SIZE==4)
-	__asm__ ("movl %%fs:%1, %0" : "=r" (res) : "m" (*((void**)ofs)) : ); // x32 ABI
+	__asm__ ("movl %%fs:%1, %0" : "=r" (res) : "m" (*((void **)ofs)) : ); // x32 ABI
 #elif defined(__x86_64__)
-	__asm__ ("movq %%fs:%1, %0" : "=r" (res) : "m" (*((void**)ofs)) : ); // x86_64 Linux, BSD uses FS
+	__asm__ ("movq %%fs:%1, %0" : "=r" (res) : "m" (*((void **)ofs)) : ); // x86_64 Linux, BSD uses FS
 #elif defined(__arm__)
-	void** tcb; UNUSED(ofs);
+	void ** tcb; UNUSED(ofs);
 	__asm__ volatile ("mrc p15, 0, %0, c13, c0, 3\nbic %0, %0, #3" : "=r" (tcb));
 	res = tcb[slot];
 #elif defined(__aarch64__)
-	void** tcb; UNUSED(ofs);
+	void ** tcb; UNUSED(ofs);
 #if defined(__APPLE__) // M1, issue #343
 	__asm__ volatile ("mrs %0, tpidrro_el0" : "=r" (tcb));
-	tcb = (void**)((uintptr_t)tcb & ~0x07UL); // clear lower 3 bits
+	tcb = (void **)((uintptr_t)tcb & ~0x07UL); // clear lower 3 bits
 #else
 	__asm__ volatile ("mrs %0, tpidr_el0" : "=r" (tcb));
 #endif
@@ -763,22 +763,22 @@ static inline void * mi_tls_slot(size_t slot) NOEXCEPT
 static inline void mi_tls_slot_set(size_t slot, void * value) NOEXCEPT {
 	const size_t ofs = (slot*sizeof(void *));
 #if defined(__i386__)
-	__asm__ ("movl %1,%%gs:%0" : "=m" (*((void**)ofs)) : "rn" (value) : ); // 32-bit always uses GS
+	__asm__ ("movl %1,%%gs:%0" : "=m" (*((void **)ofs)) : "rn" (value) : ); // 32-bit always uses GS
 #elif defined(__APPLE__) && defined(__x86_64__)
-	__asm__ ("movq %1,%%gs:%0" : "=m" (*((void**)ofs)) : "rn" (value) : ); // x86_64 macOSX uses GS
+	__asm__ ("movq %1,%%gs:%0" : "=m" (*((void **)ofs)) : "rn" (value) : ); // x86_64 macOSX uses GS
 #elif defined(__x86_64__) && (MI_INTPTR_SIZE==4)
-	__asm__ ("movl %1,%%fs:%1" : "=m" (*((void**)ofs)) : "rn" (value) : ); // x32 ABI
+	__asm__ ("movl %1,%%fs:%1" : "=m" (*((void **)ofs)) : "rn" (value) : ); // x32 ABI
 #elif defined(__x86_64__)
-	__asm__ ("movq %1,%%fs:%1" : "=m" (*((void**)ofs)) : "rn" (value) : ); // x86_64 Linux, BSD uses FS
+	__asm__ ("movq %1,%%fs:%1" : "=m" (*((void **)ofs)) : "rn" (value) : ); // x86_64 Linux, BSD uses FS
 #elif defined(__arm__)
-	void** tcb; UNUSED(ofs);
+	void ** tcb; UNUSED(ofs);
 	__asm__ volatile ("mrc p15, 0, %0, c13, c0, 3\nbic %0, %0, #3" : "=r" (tcb));
 	tcb[slot] = value;
 #elif defined(__aarch64__)
-	void** tcb; UNUSED(ofs);
+	void ** tcb; UNUSED(ofs);
 #if defined(__APPLE__) // M1, issue #343
 	__asm__ volatile ("mrs %0, tpidrro_el0" : "=r" (tcb));
-	tcb = (void**)((uintptr_t)tcb & ~0x07UL); // clear lower 3 bits
+	tcb = (void **)((uintptr_t)tcb & ~0x07UL); // clear lower 3 bits
 #else
 	__asm__ volatile ("mrs %0, tpidr_el0" : "=r" (tcb));
 #endif

@@ -38,8 +38,8 @@ int TIFFFillTile(TIFF* tif, uint32 tile);
 static int TIFFStartStrip(TIFF* tif, uint32 strip);
 static int TIFFStartTile(TIFF* tif, uint32 tile);
 static int TIFFCheckRead(TIFF*, int);
-static tmsize_t TIFFReadRawStrip1(TIFF* tif, uint32 strip, void * buf, tmsize_t size, const char* module);
-static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void * buf, tmsize_t size, const char* module);
+static tmsize_t TIFFReadRawStrip1(TIFF* tif, uint32 strip, void * buf, tmsize_t size, const char * module);
+static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void * buf, tmsize_t size, const char * module);
 
 #define NOSTRIP ((uint32)(-1))       /* undefined state */
 #define NOTILE ((uint32)(-1))         /* undefined state */
@@ -50,7 +50,7 @@ static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void * buf, tmsize_t si
 
 /* Read 'size' bytes in tif_rawdata buffer starting at offset 'rawdata_offset'
  * Returns 1 in case of success, 0 otherwise. */
-static int TIFFReadAndRealloc(TIFF* tif, tmsize_t size, tmsize_t rawdata_offset, int is_strip, uint32 strip_or_tile, const char* module)
+static int TIFFReadAndRealloc(TIFF* tif, tmsize_t size, tmsize_t rawdata_offset, int is_strip, uint32 strip_or_tile, const char * module)
 {
 #if SIZEOF_VOIDP == 8 || SIZEOF_SIZE_T == 8
 	tmsize_t threshold = INITIAL_THRESHOLD;
@@ -173,7 +173,7 @@ static int TIFFFillStripPartial(TIFF * tif, int strip, tmsize_t read_ahead, int 
 	** How much do we want to read?
 	*/
 	to_read = (read_ahead_mod > tif->tif_rawdatasize) ? (read_ahead_mod - unused_data) : (tif->tif_rawdatasize - unused_data);
-	if( (uint64)to_read > td->td_stripbytecount[strip] - tif->tif_rawdataoff - tif->tif_rawdataloaded) {
+	if((uint64)to_read > td->td_stripbytecount[strip] - tif->tif_rawdataoff - tif->tif_rawdataloaded) {
 		to_read = (tmsize_t)td->td_stripbytecount[strip] - tif->tif_rawdataoff - tif->tif_rawdataloaded;
 	}
 	assert((tif->tif_flags&TIFF_BUFFERMMAP)==0);
@@ -325,7 +325,7 @@ int TIFFReadScanline(TIFF* tif, void * buf, uint32 row, uint16 sample)
 	int e;
 	if(!TIFFCheckRead(tif, 0))
 		return -1;
-	if( (e = TIFFSeek(tif, row, sample)) != 0) {
+	if((e = TIFFSeek(tif, row, sample)) != 0) {
 		/*
 		 * Decompress desired row into user buffer.
 		 */
@@ -433,7 +433,7 @@ tmsize_t _TIFFReadEncodedStripAndAllocBuffer(TIFF* tif, uint32 strip, void ** bu
 	return (this_stripsize);
 }
 
-static tmsize_t TIFFReadRawStrip1(TIFF* tif, uint32 strip, void * buf, tmsize_t size, const char* module)
+static tmsize_t TIFFReadRawStrip1(TIFF* tif, uint32 strip, void * buf, tmsize_t size, const char * module)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	if(!_TIFFFillStriles(tif))
@@ -489,10 +489,10 @@ static tmsize_t TIFFReadRawStrip1(TIFF* tif, uint32 strip, void * buf, tmsize_t 
 	return (size);
 }
 
-static tmsize_t TIFFReadRawStripOrTile2(TIFF* tif, uint32 strip_or_tile, int is_strip, tmsize_t size, const char* module)
+static tmsize_t TIFFReadRawStripOrTile2(TIFF* tif, uint32 strip_or_tile, int is_strip, tmsize_t size, const char * module)
 {
 	TIFFDirectory * td = &tif->tif_dir;
-	assert(!isMapped(tif) );
+	assert(!isMapped(tif));
 	assert((tif->tif_flags&TIFF_NOREADRAW)==0);
 	if(!SeekOK(tif, td->td_stripoffset[strip_or_tile])) {
 		if(is_strip) {
@@ -577,7 +577,7 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 			tmsize_t stripsize = TIFFStripSize(tif);
 			if(stripsize != 0 && (bytecount - 4096) / 10 > (uint64)stripsize) {
 				uint64 newbytecount = (uint64)stripsize * 10 + 4096;
-				if( (int64)newbytecount >= 0) {
+				if((int64)newbytecount >= 0) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
 					TIFFWarningExt(tif->tif_clientdata, module, "Too large strip byte count %I64u, strip %lu. Limiting to %I64u",
 					    (uint64)bytecount, (ulong)strip, (uint64)newbytecount);
@@ -801,7 +801,7 @@ tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void ** buf,
 		return static_cast<tmsize_t>(-1);
 }
 
-static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void * buf, tmsize_t size, const char* module)
+static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void * buf, tmsize_t size, const char * module)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	if(!_TIFFFillStriles(tif))
@@ -912,7 +912,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 			if(stripsize != 0 &&
 			    (bytecount - 4096) / 10 > (uint64)stripsize) {
 				uint64 newbytecount = (uint64)stripsize * 10 + 4096;
-				if( (int64)newbytecount >= 0) {
+				if((int64)newbytecount >= 0) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
 					TIFFWarningExt(tif->tif_clientdata, module, "Too large tile byte count %I64u, tile %lu. Limiting to %I64u",
 					    (uint64)bytecount, (ulong)tile, (uint64)newbytecount);

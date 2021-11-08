@@ -638,8 +638,8 @@ UNITTEST DOHcode doh_decode(const uchar * doh, size_t dohlen, DNStype dnstype, s
 			return DOH_DNS_OUT_OF_RANGE;
 		type = get16bit(doh, index);
 		if((type != DNS_TYPE_CNAME) /* may be synthesized from DNAME */
-		    && (type != DNS_TYPE_DNAME) /* if present, accept and ignore */
-		    && (type != dnstype))
+		  && (type != DNS_TYPE_DNAME) /* if present, accept and ignore */
+		  && (type != dnstype))
 			/* Not the same type as was asked for nor CNAME nor DNAME */
 			return DOH_DNS_UNEXPECTED_TYPE;
 		index += 2;
@@ -771,7 +771,7 @@ static void showdoh(struct Curl_easy * data,
  * must be an associated call later to Curl_freeaddrinfo().
  */
 
-static struct Curl_addrinfo * doh2ai(const struct dohentry * de, const char * hostname, int port)                                {
+static struct Curl_addrinfo * doh2ai(const struct dohentry * de, const char * hostname, int port) {
 	struct Curl_addrinfo * ai;
 	struct Curl_addrinfo * prevai = NULL;
 	struct Curl_addrinfo * firstai = NULL;

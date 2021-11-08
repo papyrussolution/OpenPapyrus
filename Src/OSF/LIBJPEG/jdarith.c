@@ -272,9 +272,9 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
 				entropy->dc_context[ci] = 0;  /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
-				entropy->dc_context[ci] = 12 + (sign * 4);  /* large diff category */
+				entropy->dc_context[ci] = 12 + (sign * 4); /* large diff category */
 			else
-				entropy->dc_context[ci] = 4 + (sign * 4);  /* small diff category */
+				entropy->dc_context[ci] = 4 + (sign * 4); /* small diff category */
 			v = m;
 			/* Figure F.24: Decoding the magnitude bit pattern of v */
 			st += 14;
@@ -530,9 +530,9 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
 				entropy->dc_context[ci] = 0;  /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
-				entropy->dc_context[ci] = 12 + (sign * 4);  /* large diff category */
+				entropy->dc_context[ci] = 12 + (sign * 4); /* large diff category */
 			else
-				entropy->dc_context[ci] = 4 + (sign * 4);  /* small diff category */
+				entropy->dc_context[ci] = 4 + (sign * 4); /* small diff category */
 			v = m;
 			/* Figure F.24: Decoding the magnitude bit pattern of v */
 			st += 14;

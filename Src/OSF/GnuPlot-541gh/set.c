@@ -5361,7 +5361,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 	// The remaining command options cannot work for parametric or parallel axes 
 	if(axis >= NUMBER_OF_MAIN_VISIBLE_AXES)
 		return;
-	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOSTRING */
+	if(Pgm.AlmostEqualsCur(nocmd)) { /* NOSTRING */
 		pThisAxis->ticmode &= ~TICS_MASK;
 		Pgm.Shift();
 	}
@@ -5375,7 +5375,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 		pThisAxis->ticdef.type = TIC_MONTH;
 		Pgm.Shift();
 	}
-	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NOMONTH */
+	if(Pgm.AlmostEqualsCur(nocmd)) { /* NOMONTH */
 		pThisAxis->ticdef.type = TIC_COMPUTED;
 		Pgm.Shift();
 	}
@@ -5388,13 +5388,13 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 		pThisAxis->ticdef.type = TIC_DAY;
 		Pgm.Shift();
 	}
-	if(Pgm.AlmostEqualsCur(nocmd)) {     /* NODAYS */
+	if(Pgm.AlmostEqualsCur(nocmd)) { /* NODAYS */
 		pThisAxis->ticdef.type = TIC_COMPUTED;
 		Pgm.Shift();
 	}
 	*cmdptr = 'm';
 	strcpy(cmdptr + 1, axis_name(axis));
-	strcat(cmdptr, "t$ics");  /* MINISTRING */
+	strcat(cmdptr, "t$ics"); /* MINISTRING */
 	if(Pgm.AlmostEqualsCur(cmdptr)) {
 		Pgm.Shift();
 		if(Pgm.EndOfCommand()) {

@@ -84,7 +84,7 @@ fail:
  * @brief decrypts an encrypted private key blob in OpenSSH format.
  *
  */
-static int pki_private_key_decrypt(ssh_string blob, const char* passphrase, const char * ciphername,
+static int pki_private_key_decrypt(ssh_string blob, const char * passphrase, const char * ciphername,
     const char * kdfname, ssh_string kdfoptions, ssh_auth_callback auth_fn, void * auth_data)
 {
 	struct ssh_cipher_struct * ciphers = ssh_get_ciphertab();
@@ -340,7 +340,7 @@ static int pki_openssh_export_privkey_blob(const ssh_key privkey,
  *
  */
 static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
-    const char* passphrase,
+    const char * passphrase,
     const char * ciphername,
     const char * kdfname,
     ssh_auth_callback auth_fn,
@@ -562,7 +562,7 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey, const char * pa
 	/* we can reuse the buffer */
 	ssh_buffer_reinit(buffer);
 	rc = ssh_buffer_pack(buffer, "tttttt", OPENSSH_HEADER_BEGIN, "\n", b64, "\n", OPENSSH_HEADER_END, "\n");
-	memzero(b64, strlen((char*)b64));
+	memzero(b64, strlen((char *)b64));
 	SAFE_FREE(b64);
 	if(rc != SSH_OK) {
 		goto error;

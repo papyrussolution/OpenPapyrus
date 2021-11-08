@@ -153,7 +153,7 @@ int tls_parse_ctos_server_name(SSL * s, PACKET * pkt, uint context,
 		 * fall back to a full handshake.
 		 */
 		s->servername_done = (s->session->ext.hostname != NULL)
-		    && PACKET_equal(&hostname, s->session->ext.hostname,
+		  && PACKET_equal(&hostname, s->session->ext.hostname,
 			strlen(s->session->ext.hostname));
 
 		if(!s->servername_done && s->session->ext.hostname != NULL)
@@ -592,7 +592,7 @@ int tls_parse_ctos_psk_kex_modes(SSL * s, PACKET * pkt, uint context,
 		if(mode == TLSEXT_KEX_MODE_KE_DHE)
 			s->ext.psk_kex_mode |= TLSEXT_KEX_MODE_FLAG_KE_DHE;
 		else if(mode == TLSEXT_KEX_MODE_KE
-		    && (s->options & SSL_OP_ALLOW_NO_DHE_KEX) != 0)
+		  && (s->options & SSL_OP_ALLOW_NO_DHE_KEX) != 0)
 			s->ext.psk_kex_mode |= TLSEXT_KEX_MODE_FLAG_KE;
 	}
 #endif
@@ -677,7 +677,7 @@ int tls_parse_ctos_key_share(SSL * s, PACKET * pkt, uint context, X509 * x,
 		 * we requested, and must be the only key_share sent.
 		 */
 		if(s->s3->group_id != 0
-		    && (group_id != s->s3->group_id
+		  && (group_id != s->s3->group_id
 		    || PACKET_remaining(&key_share_list) != 0)) {
 			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
 			    SSL_F_TLS_PARSE_CTOS_KEY_SHARE, SSL_R_BAD_KEY_SHARE);
@@ -1064,7 +1064,7 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 
 		idlen = PACKET_remaining(&identity);
 		if(s->psk_find_session_cb != NULL
-		    && !s->psk_find_session_cb(s, PACKET_data(&identity), idlen,
+		  && !s->psk_find_session_cb(s, PACKET_data(&identity), idlen,
 		    &sess)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR,
 			    SSL_F_TLS_PARSE_CTOS_PSK, SSL_R_BAD_EXTENSION);
@@ -1073,8 +1073,8 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 
 #ifndef OPENSSL_NO_PSK
 		if(sess == NULL
-		    && s->psk_server_callback != NULL
-		    && idlen <= PSK_MAX_IDENTITY_LEN) {
+		  && s->psk_server_callback != NULL
+		  && idlen <= PSK_MAX_IDENTITY_LEN) {
 			char * pskid = NULL;
 			uchar pskdata[PSK_MAX_PSK_LEN];
 			uint pskdatalen;
@@ -1159,7 +1159,7 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 			 */
 			if((s->options & SSL_OP_NO_TICKET) != 0
 			    || (s->max_early_data > 0
-			    && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0))
+			  && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0))
 				ret = tls_get_stateful_ticket(s, &identity, &sess);
 			else
 				ret = tls_decrypt_ticket(s, PACKET_data(&identity),
@@ -1183,8 +1183,8 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 
 			/* Check for replay */
 			if(s->max_early_data > 0
-			    && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0
-			    && !SSL_CTX_remove_session(s->session_ctx, sess)) {
+			  && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0
+			  && !SSL_CTX_remove_session(s->session_ctx, sess)) {
 				SSL_SESSION_free(sess);
 				sess = NULL;
 				continue;
@@ -1205,10 +1205,10 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 			 * rounding errors.
 			 */
 			if(id == 0
-			    && sess->timeout >= (long)agesec
-			    && agems / (uint32_t)1000 == agesec
-			    && ticket_age <= agems + 1000
-			    && ticket_age + TICKET_AGE_ALLOWANCE >= agems + 1000) {
+			  && sess->timeout >= (long)agesec
+			  && agems / (uint32_t)1000 == agesec
+			  && ticket_age <= agems + 1000
+			  && ticket_age + TICKET_AGE_ALLOWANCE >= agems + 1000) {
 				/*
 				 * Ticket age is within tolerance and not expired. We allow it
 				 * for early data
@@ -1363,7 +1363,7 @@ EXT_RETURN tls_construct_stoc_ec_pt_formats(SSL * s, WPACKET * pkt,
 	ulong alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 	ulong alg_a = s->s3->tmp.new_cipher->algorithm_auth;
 	int using_ecc = ((alg_k & SSL_kECDHE) || (alg_a & SSL_aECDSA))
-	    && (s->ext.peer_ecpointformats != NULL);
+	  && (s->ext.peer_ecpointformats != NULL);
 	const uchar * plist;
 	size_t plistlen;
 
@@ -1885,7 +1885,7 @@ EXT_RETURN tls_construct_stoc_cryptopro_bug(SSL * s, WPACKET * pkt,
 	};
 
 	if(((s->s3->tmp.new_cipher->id & 0xFFFF) != 0x80
-	    && (s->s3->tmp.new_cipher->id & 0xFFFF) != 0x81)
+	  && (s->s3->tmp.new_cipher->id & 0xFFFF) != 0x81)
 	    || (SSL_get_options(s) & SSL_OP_CRYPTOPRO_TLSEXT_BUG) == 0)
 		return EXT_RETURN_NOT_SENT;
 

@@ -154,7 +154,7 @@ typedef union {
 } OCB_BLOCK;
 #define ocb_block16_xor(in1,in2,out) \
     ( (out)->a[0]=(in1)->a[0]^(in2)->a[0], \
-      (out)->a[1]=(in1)->a[1]^(in2)->a[1] )
+      (out)->a[1]=(in1)->a[1]^(in2)->a[1])
 #if STRICT_ALIGNMENT
 #define ocb_block16_xor_misaligned(in1,in2,out) \
     ocb_block_xor((in1)->c,(in2)->c,16,(out)->c)

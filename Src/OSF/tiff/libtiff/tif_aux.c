@@ -31,7 +31,7 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-uint32 FASTCALL _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const char* where)
+uint32 FASTCALL _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const char * where)
 {
 	uint32 bytes = first * second;
 	if(second && bytes / second != first) {
@@ -41,7 +41,7 @@ uint32 FASTCALL _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const ch
 	return bytes;
 }
 
-uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const char* where)
+uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const char * where)
 {
 	uint64 bytes = first * second;
 	if(second && bytes / second != first) {
@@ -51,7 +51,7 @@ uint64 FASTCALL _TIFFMultiply64(TIFF* tif, uint64 first, uint64 second, const ch
 	return bytes;
 }
 
-void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem_size, const char* what)
+void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem_size, const char * what)
 {
 	void * cp = NULL;
 	tmsize_t bytes = nmemb * elem_size;
@@ -66,7 +66,7 @@ void * _TIFFCheckRealloc(TIFF* tif, void * buffer, tmsize_t nmemb, tmsize_t elem
 	return cp;
 }
 
-void * FASTCALL _TIFFCheckMalloc(TIFF* tif, tmsize_t nmemb, tmsize_t elem_size, const char* what)
+void * FASTCALL _TIFFCheckMalloc(TIFF* tif, tmsize_t nmemb, tmsize_t elem_size, const char * what)
 {
 	return _TIFFCheckRealloc(tif, NULL, nmemb, elem_size, what);
 }

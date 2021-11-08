@@ -25,17 +25,17 @@ static uint SpaceCount(char * lineBuffer)
 {
 	if(lineBuffer == NULL)
 		return 0;
-	char* headBuffer = lineBuffer;
+	char * headBuffer = lineBuffer;
 	while(*headBuffer == ' ')
 		headBuffer++;
 	return static_cast<uint>(headBuffer - lineBuffer);
 }
 
-static bool KeywordAtChar(char* lineBuffer, char* startComment, const WordList &keywords)
+static bool KeywordAtChar(char * lineBuffer, char * startComment, const WordList &keywords)
 {
 	if(lineBuffer == NULL || startComment <= lineBuffer)
 		return false;
-	char* endValue = startComment - 1;
+	char * endValue = startComment - 1;
 	while(endValue >= lineBuffer && *endValue == ' ')
 		endValue--;
 	Sci_PositionU len = static_cast<Sci_PositionU>(endValue - lineBuffer) + 1;
@@ -158,7 +158,7 @@ static void ColouriseYAMLLine(char * lineBuffer, Sci_PositionU currentLine, Sci_
 			Sci_PositionU i2 = i;
 			while((i < startComment) && lineBuffer[i]) {
 				if(!(IsASCII(lineBuffer[i]) && isdec(lineBuffer[i])) && lineBuffer[i] != '-'
-				    && lineBuffer[i] != '.' && lineBuffer[i] != ',' && lineBuffer[i] != ' ') {
+				  && lineBuffer[i] != '.' && lineBuffer[i] != ',' && lineBuffer[i] != ' ') {
 					styler.ColourTo(startLine + startComment - 1, SCE_YAML_DEFAULT);
 					if(startComment < lengthLine)
 						styler.ColourTo(endPos, SCE_YAML_COMMENT);

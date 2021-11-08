@@ -103,7 +103,7 @@ public:
 	{
 	}
 	virtual const char * GetCharSetName() = 0;
-	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen) = 0;
+	virtual nsProbingState HandleData(const char * aBuf, uint32 aLen) = 0;
 	virtual nsProbingState GetState() const { return mState; }
 	virtual void  Reset()  = 0;
 	virtual float GetConfidence() const = 0;
@@ -116,8 +116,8 @@ public:
 	// both functions Allocate a new buffer for newBuf. This buffer should be
 	// freed by the caller using PR_FREEIF.
 	// Both functions return false in case of memory allocation failure.
-	static bool FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen);
-	static bool FilterWithEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen);
+	static bool FilterWithoutEnglishLetters(const char * aBuf, uint32 aLen, char ** newBuf, uint32& newLen);
+	static bool FilterWithEnglishLetters(const char * aBuf, uint32 aLen, char ** newBuf, uint32& newLen);
 protected:
 	class JapaneseContextAnalysis {
 	public:
@@ -182,7 +182,7 @@ public:
 	nsSingleByteCharSetProber(const SequenceModel * model);
 	nsSingleByteCharSetProber(const SequenceModel * model, bool reversed, nsCharSetProber* nameProber);
 	virtual const char * GetCharSetName();
-	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	virtual nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	virtual void  Reset();
 	virtual float GetConfidence() const;
 	// This feature is not implemented yet. any current language model
@@ -269,7 +269,7 @@ class nsEscCharSetProber : public nsCharSetProber {
 public:
 	nsEscCharSetProber(uint32 aLanguageFilter);
 	virtual ~nsEscCharSetProber();
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return mDetectedCharset; }
 	void   Reset();
 	float  GetConfidence() const
@@ -277,7 +277,7 @@ public:
 		return 0.99f;
 	}
 protected:
-	//void   GetDistribution(uint32 aCharLen, const char* aStr);
+	//void   GetDistribution(uint32 aCharLen, const char * aStr);
 	//#define NUM_OF_ESC_CHARSETS  4
 	nsCodingStateMachine * mCodingSM[4];
 	uint32 mActiveSM;
@@ -297,7 +297,7 @@ public:
 	virtual ~nsHebrewProber() 
 	{
 	}
-	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	virtual nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	virtual const char * GetCharSetName();
 	virtual void Reset();
 	virtual nsProbingState GetState() const;
@@ -430,7 +430,7 @@ public:
 	virtual ~nsLatin1Prober()
 	{
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "WINDOWS-1252"; }
 	void   Reset();
 	float  GetConfidence() const;
@@ -448,7 +448,7 @@ class nsMBCSGroupProber : public nsCharSetProber {
 public:
 	nsMBCSGroupProber(uint32 aLanguageFilter);
 	virtual ~nsMBCSGroupProber();
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName();
 	void   Reset();
 	float  GetConfidence() const;
@@ -472,7 +472,7 @@ class nsSBCSGroupProber : public nsCharSetProber {
 public:
 	nsSBCSGroupProber();
 	virtual ~nsSBCSGroupProber();
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName();
 	void   Reset();
 	float  GetConfidence() const;
@@ -2772,7 +2772,7 @@ void nsSBCSGroupProber::Reset()
 	mState = eDetecting;
 }
 
-nsProbingState nsSBCSGroupProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsSBCSGroupProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	char * newBuf1 = 0;
 	uint32 newLen1 = 0;
@@ -2861,7 +2861,7 @@ public:
 	//
 	// feed a block of data and do distribution analysis
 	//
-	void HandleData(const char* aBuf, uint32 aLen) 
+	void HandleData(const char * aBuf, uint32 aLen) 
 	{
 	}
 	//
@@ -3020,7 +3020,7 @@ protected:
 	//  first  byte range: 0x81 -- 0x9f , 0xe0 -- 0xfe
 	//  second byte range: 0x40 -- 0x7e,  0x81 -- oxfe
 	//no validation needed here. State machine has done that
-	int32 GetOrder(const char* str) const
+	int32 GetOrder(const char * str) const
 	{
 		int32 order;
 		if((uchar)*str >= (uchar)0x81 && (uchar)*str <= (uchar)0x9f)
@@ -3247,7 +3247,7 @@ static const uint8 jp2CharContext[83][83] =
 	  3, 4, 5, 5, 3, 2, 2, 3, 3, 3, 3, 2, 3, 3, 1, 2, 3, 2, 4, 3, 3, 3, 4, 0, 4, 0, 2, 0, 4, 3, 2, 2, 1, 2, 0, 3, 0, 0, 4, 1, },
 };
 
-void nsCharSetProber::JapaneseContextAnalysis::HandleData(const char* aBuf, uint32 aLen)
+void nsCharSetProber::JapaneseContextAnalysis::HandleData(const char * aBuf, uint32 aLen)
 {
 	if(!mDone) {
 		// The buffer we got is byte oriented, and a character may span in more than one
@@ -3314,7 +3314,7 @@ float nsCharSetProber::JapaneseContextAnalysis::GetConfidence() const
 //
 // This filter applies to all scripts which do not use English characters
 //
-bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen)
+bool nsCharSetProber::FilterWithoutEnglishLetters(const char * aBuf, uint32 aLen, char ** newBuf, uint32& newLen)
 {
 	char * newptr = static_cast<char *>(SAlloc::M(aLen));
 	*newBuf = newptr;
@@ -3351,7 +3351,7 @@ bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen,
 }
 
 //This filter applies to all scripts which contain both English characters and upper ASCII characters.
-bool nsCharSetProber::FilterWithEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen)
+bool nsCharSetProber::FilterWithEnglishLetters(const char * aBuf, uint32 aLen, char ** newBuf, uint32& newLen)
 {
 	//do filtering to reduce load to probers
 	char * prevPtr, * curPtr;
@@ -3398,12 +3398,12 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "BIG5"; }
 	void      Reset();
 	float     GetConfidence() const;
 protected:
-	//void      GetDistribution(uint32 aCharLen, const char* aStr);
+	//void      GetDistribution(uint32 aCharLen, const char * aStr);
 
 	nsCodingStateMachine * mCodingSM;
 	//Big5ContextAnalysis mContextAnalyser;
@@ -3420,7 +3420,7 @@ void nsBig5Prober::Reset()
 	mDistributionAnalyser.Reset(mIsPreferredLanguage);
 }
 
-nsProbingState nsBig5Prober::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsBig5Prober::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -3469,14 +3469,14 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "EUC-JP"; }
 	void   Reset();
 	float  GetConfidence() const;
 protected:
 	class EUCJPContextAnalysis : public JapaneseContextAnalysis {
 	protected:
-		int32 GetOrder(const char* str, uint32 * charLen) const;
+		int32 GetOrder(const char * str, uint32 * charLen) const;
 		int32 GetOrder(const char * str) const
 		{
 			// We only interested in Hiragana, so first byte is '\244'
@@ -3491,7 +3491,7 @@ protected:
 	uint8  Reserve; // @alignment
 };
 
-int32 nsEUCJPProber::EUCJPContextAnalysis::GetOrder(const char* str, uint32 * charLen) const
+int32 nsEUCJPProber::EUCJPContextAnalysis::GetOrder(const char * str, uint32 * charLen) const
 {
 	//find out current char's byte length
 	if((uchar)*str == (uchar)0x8e || ((uchar)*str >= (uchar)0xa1 && (uchar)*str <= (uchar)0xfe))
@@ -3514,7 +3514,7 @@ void nsEUCJPProber::Reset()
 	mDistributionAnalyser.Reset(mIsPreferredLanguage);
 }
 
-nsProbingState nsEUCJPProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsEUCJPProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -3560,12 +3560,12 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "EUC-KR"; }
 	void   Reset();
 	float  GetConfidence() const;
 protected:
-	//void   GetDistribution(uint32 aCharLen, const char* aStr);
+	//void   GetDistribution(uint32 aCharLen, const char * aStr);
 
 	nsCodingStateMachine* mCodingSM;
 	//EUCKRContextAnalysis mContextAnalyser;
@@ -3582,7 +3582,7 @@ void nsEUCKRProber::Reset()
 	//mContextAnalyser.Reset();
 }
 
-nsProbingState nsEUCKRProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsEUCKRProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -3628,12 +3628,12 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "EUC-TW"; }
 	void   Reset();
 	float  GetConfidence() const;
 protected:
-	//void   GetDistribution(uint32 aCharLen, const char* aStr);
+	//void   GetDistribution(uint32 aCharLen, const char * aStr);
 
 	nsCodingStateMachine* mCodingSM;
 	//EUCTWContextAnalysis mContextAnalyser;
@@ -3650,7 +3650,7 @@ void nsEUCTWProber::Reset()
 	//mContextAnalyser.Reset();
 }
 
-nsProbingState nsEUCTWProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsEUCTWProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -3695,12 +3695,12 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "GB18030"; }
 	void   Reset();
 	float  GetConfidence() const;
 protected:
-	//void      GetDistribution(uint32 aCharLen, const char* aStr);
+	//void      GetDistribution(uint32 aCharLen, const char * aStr);
 
 	nsCodingStateMachine* mCodingSM;
 	//GB2312ContextAnalysis mContextAnalyser;
@@ -3722,7 +3722,7 @@ void nsGB18030Prober::Reset()
 	//mContextAnalyser.Reset();
 }
 
-nsProbingState nsGB18030Prober::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsGB18030Prober::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -3823,7 +3823,7 @@ bool FASTCALL nsHebrewProber::isNonFinal(char c)
  * The input buffer should not contain any white spaces that are not (' ')
  * or any low-ascii punctuation marks.
  */
-nsProbingState nsHebrewProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsHebrewProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	// Both model probers say it's not them. No reason to continue.
 	if(GetState() == eNotMe)
@@ -3971,7 +3971,7 @@ void nsLatin1Prober::Reset()
 	memzero(mFreqCounter, sizeof(mFreqCounter));
 }
 
-nsProbingState nsLatin1Prober::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsLatin1Prober::HandleData(const char * aBuf, uint32 aLen)
 {
 	char * newBuf1 = 0;
 	uint32 newLen1 = 0;
@@ -4037,7 +4037,7 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "SHIFT_JIS"; }
 	void   Reset();
 	float  GetConfidence() const;
@@ -4060,7 +4060,7 @@ protected:
 	uint8  Reserve; // @alignment
 };
 
-int32 nsSJISProber::SJISContextAnalysis::GetOrder(const char* str, uint32 * charLen) const
+int32 nsSJISProber::SJISContextAnalysis::GetOrder(const char * str, uint32 * charLen) const
 {
 	const uchar c0 = (uchar)str[0];
 	const uchar c1 = (uchar)str[1];
@@ -4083,7 +4083,7 @@ void nsSJISProber::Reset()
 	mDistributionAnalyser.Reset(mIsPreferredLanguage);
 }
 
-nsProbingState nsSJISProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsSJISProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -4129,7 +4129,7 @@ nsSingleByteCharSetProber::nsSingleByteCharSetProber(const SequenceModel * model
 	Reset();
 }
 
-nsProbingState nsSingleByteCharSetProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsSingleByteCharSetProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const uchar order = mModel->charToOrderMap[(uchar)aBuf[i]];
@@ -4237,7 +4237,7 @@ public:
 	{
 		delete mCodingSM;
 	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
+	nsProbingState HandleData(const char * aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "UTF-8"; }
 	void   Reset();
 	float  GetConfidence() const;
@@ -4253,7 +4253,7 @@ void nsUTF8Prober::Reset()
 	mState = eDetecting;
 }
 
-nsProbingState nsUTF8Prober::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsUTF8Prober::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen; i++) {
 		const nsSMState codingState = mCodingSM->NextState(aBuf[i]);
@@ -4343,7 +4343,7 @@ void nsMBCSGroupProber::Reset()
 	mKeepNext = 0;
 }
 
-nsProbingState nsMBCSGroupProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsMBCSGroupProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	nsProbingState st;
 	uint32 start = 0;
@@ -5169,7 +5169,7 @@ void nsEscCharSetProber::Reset()
 	mDetectedCharset = nsnull;
 }
 
-nsProbingState nsEscCharSetProber::HandleData(const char* aBuf, uint32 aLen)
+nsProbingState nsEscCharSetProber::HandleData(const char * aBuf, uint32 aLen)
 {
 	for(uint32 i = 0; i < aLen && mState == eDetecting; i++) {
 		for(int32 j = mActiveSM-1; j>= 0; j--) {
@@ -5232,7 +5232,7 @@ void nsUniversalDetector::Reset()
 			mCharSetProbers[i]->Reset();
 }
 
-nsresult nsUniversalDetector::HandleData(const char* aBuf, uint32 aLen)
+nsresult nsUniversalDetector::HandleData(const char * aBuf, uint32 aLen)
 {
 	if(Flags & fDone)
 		return NS_OK;

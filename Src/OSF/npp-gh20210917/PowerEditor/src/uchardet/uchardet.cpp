@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	virtual void Report(const char* charset)
+	virtual void Report(const char * charset)
 	{
 		m_charset = charset;
 	}
@@ -70,7 +70,7 @@ public:
 		m_charset = "";
 	}
 
-	const char* GetCharset() const
+	const char * GetCharset() const
 	{
 		return m_charset.c_str();
 	}
@@ -102,7 +102,7 @@ void uchardet_reset(uchardet_t ud)
 	reinterpret_cast<HandleUniversalDetector*>(ud)->Reset();
 }
 
-const char* uchardet_get_charset(uchardet_t ud)
+const char * uchardet_get_charset(uchardet_t ud)
 {
 	return reinterpret_cast<HandleUniversalDetector*>(ud)->GetCharset();
 }

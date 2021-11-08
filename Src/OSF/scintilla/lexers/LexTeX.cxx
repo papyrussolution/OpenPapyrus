@@ -256,7 +256,7 @@ static int ParseTeXCommand(Sci_PositionU pos, Accessor & styler, char * command)
 	}
 }
 
-static int classifyFoldPointTeXPaired(const char* s)
+static int classifyFoldPointTeXPaired(const char * s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {
@@ -271,7 +271,7 @@ static int classifyFoldPointTeXPaired(const char* s)
 	return lev;
 }
 
-static int classifyFoldPointTeXUnpaired(const char* s)
+static int classifyFoldPointTeXUnpaired(const char * s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {

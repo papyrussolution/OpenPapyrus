@@ -411,9 +411,9 @@ TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
 #endif
 	GrClearContext(GrAllocColor2ID(dj_background));
 	/* initialize font */
-	DJSVGA_fontname[0] = NUL; /* enforce init */
+	DJSVGA_fontname[0] = '\0'; // enforce init 
 	DJSVGA_default_font = NULL;
-	if(!DJSVGA_set_font("") && DJSVGA_default_fontname[0] != NUL) {
+	if(!DJSVGA_set_font("") && DJSVGA_default_fontname[0]) {
 		fprintf(stderr, "svga error: could not load font \"%s\"\n", DJSVGA_default_fontname);
 	}
 	DJSVGA_TextOption.txo_direct = GR_TEXT_RIGHT;
@@ -431,7 +431,7 @@ TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
 #endif
 	dj_lastx = dj_lasty = 0;
 #ifdef USE_MOUSE
-	dj_statusline[0] = NUL;
+	dj_statusline[0] = '\0';
 	dj_ruler_x = dj_ruler_y = -1;
 #ifdef MSDOS
 #ifdef HAVE_MGRX
@@ -539,12 +539,10 @@ TERM_PUBLIC void DJSVGA_linetype(int linetype)
 TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern)
 {
 	DJSVGA_flush_line();
-
 	if(dj_dashpatlen > 0) {
-		dj_dashpat[0] = NUL;
+		dj_dashpat[0] = '\0';
 		dj_dashpatlen = 0;
 	}
-
 	if(type == DASHTYPE_AXIS) /* map axis dashpattern */
 		type = 1;
 	if(type > 0) {
@@ -556,7 +554,6 @@ TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern)
 		};
 		const int dashstyle_len[4] = { 2, 2, 4, 6 };
 		int i;
-
 		type %= 5;
 		if(type > 0) {
 			dj_dashpatlen = dashstyle_len[type-1];
@@ -740,13 +737,12 @@ TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 
 static GP_INLINE void DJSVGA_trim_font_string(const char * fontspec, char * fontname, size_t fontnamesize)
 {
-	char * cp;
 	strnzcpy(fontname, fontspec, fontnamesize);
 	/* ignore font size and attributes */
-	cp = fontname;
-	while(*cp != NUL) {
+	char * cp = fontname;
+	while(*cp) {
 		if((*cp == ',') || ((*cp == ':') && ((cp - fontname) != 1))) {
-			*cp = NUL;
+			*cp = '\0';
 			break;
 		}
 		cp++;
@@ -777,7 +773,7 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontspec)
 	DJSVGA_flush_line();
 	if(!isempty(fontspec)) {
 		DJSVGA_trim_font_string(fontspec, fontname, sizeof(fontname));
-		if(fontname[0] != NUL) {
+		if(fontname[0]) {
 			/* eliminate duplicate font requests */
 			if(strcmp(fontname, DJSVGA_fontname) == 0)
 				return TRUE;
@@ -790,7 +786,7 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontspec)
 	}
 	if(font == NULL) {
 		/* empty fontspec or unsuccessful attempt above resets default font */
-		if(DJSVGA_default_fontname[0] != NUL) {
+		if(DJSVGA_default_fontname[0]) {
 			if(DJSVGA_default_font != NULL) {
 				/* cached result */
 				strnzcpy(DJSVGA_fontname, DJSVGA_default_fontname, sizeof(DJSVGA_fontname));
@@ -805,17 +801,17 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontspec)
 				font = DJSVGA_LoadFont(DJSVGA_fontname);
 				DJSVGA_default_font = (font != NULL) ? font : grx_default_font();
 			}
-			res = !(fontspec != NULL && fontspec[0] != NUL);
+			res = !(fontspec && fontspec[0]);
 		}
 		if(font == NULL) {
-			DJSVGA_fontname[0] = NUL;
+			DJSVGA_fontname[0] = '\0';
 			font = grx_default_font();
-			/* indicate that we could not load the requested font */
+			// indicate that we could not load the requested font 
 			res = FALSE;
 		}
 	}
-	/* handle fontscale for the GRX/MGRX default font */
-	if(font == grx_default_font() && dj_fontscale != 1.) {
+	// handle fontscale for the GRX/MGRX default font 
+	if(font == grx_default_font() && dj_fontscale != 1.0) {
 		GrFont * scaled;
 		int w, h;
 
@@ -1001,7 +997,7 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 		// DJSVGA_set_font(fontname);
 		if(!isempty(fontname)) {
 			DJSVGA_trim_font_string(fontname, filename, sizeof(filename));
-			if(filename[0] == NUL)
+			if(!filename[0])
 				strnzcpy(filename, DJSVGA_fontname, sizeof(filename));
 		}
 		else {
@@ -1011,12 +1007,10 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 			font = DJSVGA_LoadFont(filename);
 		}
 		if(font == NULL) {
-			if(DJSVGA_default_font != NULL) {
+			if(DJSVGA_default_font != NULL)
 				font = DJSVGA_default_font;
-			}
-			else if(DJSVGA_default_fontname[0] != NUL) {
+			else if(DJSVGA_default_fontname[0])
 				font = DJSVGA_LoadFont(DJSVGA_default_fontname);
-			}
 		}
 		if(font == NULL) {
 			font = grx_default_font();
@@ -1050,7 +1044,7 @@ TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis)
 	int height = 0;
 	if(!dj_enhanced_opened_string)
 		return;
-	*p_gp->Enht.P_CurText = NUL;
+	*p_gp->Enht.P_CurText = '\0';
 	// calculate length of string first 
 	len = GrFontStringWidth(DJSVGA_TextOption.txo_font, str, strlen(str), DJSVGA_TextOption.txo_chrtype);
 	switch(DJSVGA_TextOption.txo_direct) {
@@ -1912,7 +1906,7 @@ TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode)
 	if(mode == TERM_ONLY_CHECK_MOUSING) {
 		if(dj_initialized)
 			grx_check_event();
-		return NUL;
+		return '\0';
 	}
 	else
 #ifdef HAVE_SELECT
@@ -1956,20 +1950,18 @@ TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode)
 TERM_PUBLIC void DJSVGA_put_tmptext(int location, const char str[])
 {
 	int x, y;
-
 	switch(location) {
 		case 0: /* status line */
 		    x = 0;
 		    y = dj_ylast - 16;
-		    if(dj_statusline[0] != NUL)
+		    if(dj_statusline[0])
 			    GrTextXY(x, y, dj_statusline, GrWhite() | GrXOR, GrNOCOLOR);
 		    if(str != NULL) {
 			    strnzcpy(dj_statusline, str, sizeof(dj_statusline));
 			    GrTextXY(x, y, dj_statusline, GrWhite() | GrXOR, GrNOCOLOR);
 		    }
-		    else {
-			    dj_statusline[0] = NUL;
-		    }
+		    else
+			    dj_statusline[0] = '\0';
 		    break;
 		case 1: /* zoom box */
 		    break;

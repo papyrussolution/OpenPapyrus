@@ -918,7 +918,7 @@ bool NppParameters::reloadStylers(const TCHAR* stylePath)
 	getUserStylersFromXmlTree();
 	//  Reload plugin styles.
 	for(size_t i = 0; i < getExternalLexerDoc()->size(); ++i) {
-		getExternalLexerFromXmlTree(getExternalLexerDoc()->at(i) );
+		getExternalLexerFromXmlTree(getExternalLexerDoc()->at(i));
 	}
 	return true;
 }
@@ -1684,7 +1684,7 @@ void NppParameters::initMenuKeys()
 	for(int i = 0; i < SIZEOFARRAY(winKeyDefs); ++i) {
 		wkd = winKeyDefs[i];
 		Shortcut sc((wkd.specialName ? wkd.specialName : TEXT("")), wkd.isCtrl, wkd.isAlt, wkd.isShift, static_cast<uchar>(wkd.vKey));
-		_shortcuts.push_back(CommandShortcut(sc, wkd.functionId) );
+		_shortcuts.push_back(CommandShortcut(sc, wkd.functionId));
 	}
 }
 
@@ -2904,7 +2904,7 @@ void NppParameters::writeSession(const Session & session, const TCHAR * fileName
 
 		if(session._includeFileBrowser) {
 			// Node structure and naming corresponds to config.xml
-			TiXmlNode* fileBrowserRootNode = sessionNode->InsertEndChild(TiXmlElement(TEXT("FileBrowser")));
+			TiXmlNode * fileBrowserRootNode = sessionNode->InsertEndChild(TiXmlElement(TEXT("FileBrowser")));
 			fileBrowserRootNode->ToElement()->SetAttribute(TEXT("latestSelectedItem"),
 			    session._fileBrowserSelectedItem.c_str());
 			for(const auto& root : session._fileBrowserRoots) {
@@ -5101,7 +5101,7 @@ void NppParameters::feedDockingManager(TiXmlNode * node)
 	}
 }
 
-void NppParameters::duplicateDockingManager(TiXmlNode* dockMngNode, TiXmlElement* dockMngElmt2Clone)
+void NppParameters::duplicateDockingManager(TiXmlNode * dockMngNode, TiXmlElement* dockMngElmt2Clone)
 {
 	if(!dockMngNode || !dockMngElmt2Clone) 
 		return;
@@ -5233,7 +5233,7 @@ void NppParameters::createXmlTreeFromGUIParams()
 	SETIFZQ(nppRoot, _pXmlUserDoc->InsertEndChild(TiXmlElement(TEXT("NotepadPlus"))));
 	TiXmlNode * oldGUIRoot = nppRoot->FirstChildElement(TEXT("GUIConfigs"));
 	TiXmlElement* dockMngNodeDup = nullptr;
-	TiXmlNode* dockMngNodeOriginal = nullptr;
+	TiXmlNode * dockMngNodeOriginal = nullptr;
 	if(oldGUIRoot && _nppGUI._isCmdlineNosessionActivated) {
 		for(TiXmlNode * childNode = oldGUIRoot->FirstChildElement(TEXT("GUIConfig")); childNode; childNode = childNode->NextSibling(TEXT("GUIConfig"))) {
 			TiXmlElement* element = childNode->ToElement();
@@ -6134,8 +6134,8 @@ generic_string NppParameters::writeStyles(LexerStylerArray & lexersStylers, Styl
 		}
 	}
 	for(size_t x = 0; x < _pXmlExternalLexerDoc.size(); ++x) {
-		TiXmlNode* lexersRoot2 = ( _pXmlExternalLexerDoc[x]->FirstChild(TEXT("NotepadPlus")))->FirstChildElement(TEXT("LexerStyles"));
-		for(TiXmlNode* childNode = lexersRoot2->FirstChildElement(TEXT("LexerType")); childNode; childNode = childNode->NextSibling(TEXT("LexerType"))) {
+		TiXmlNode * lexersRoot2 = ( _pXmlExternalLexerDoc[x]->FirstChild(TEXT("NotepadPlus")))->FirstChildElement(TEXT("LexerStyles"));
+		for(TiXmlNode * childNode = lexersRoot2->FirstChildElement(TEXT("LexerType")); childNode; childNode = childNode->NextSibling(TEXT("LexerType"))) {
 			TiXmlElement * element = childNode->ToElement();
 			const TCHAR * nm = element->Attribute(TEXT("name"));
 			LexerStyler * pLs = _lexerStylerVect.getLexerStylerByName(nm);

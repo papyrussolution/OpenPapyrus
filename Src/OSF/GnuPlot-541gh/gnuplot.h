@@ -942,7 +942,7 @@ enum t_fillstyle {
 
 	// (replaced with GnuPlot::SmPltt) extern t_sm_palette sm_palette_Removed; // @global
 
-	//void   init_color();  /* call once to initialize variables */
+	//void   init_color(); /* call once to initialize variables */
 	// 
 	// Make the colour palette. Return 0 on success
 	// Put number of allocated colours into sm_palette.colors

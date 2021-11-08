@@ -401,7 +401,7 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 
 	/* skip unwanted bytes */
 	if(pos > zip->pos) {
-		error = ft_gzip_file_skip_output(zip, (FT_ULong)( pos - zip->pos ) );
+		error = ft_gzip_file_skip_output(zip, (FT_ULong)( pos - zip->pos ));
 		if(error)
 			goto Exit;
 	}

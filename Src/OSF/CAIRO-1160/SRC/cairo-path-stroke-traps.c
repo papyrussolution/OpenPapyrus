@@ -253,26 +253,21 @@ static void join(struct stroker * stroker,
 					    tri[1] = tri[2];
 					    edges[0] = edges[2];
 					    edges[1] = edges[3];
-
 					    if(start-- == 0)
 						    start += pen->num_vertices;
 				    }
 			    }
 			    else {
-				    _cairo_pen_find_active_cw_vertices(pen,
-					&in->dev_vector, &out->dev_vector,
-					&start, &stop);
+				    _cairo_pen_find_active_cw_vertices(pen, &in->dev_vector, &out->dev_vector, &start, &stop);
 				    while(start != stop) {
 					    tri[2] = in->point;
 					    translate_point(&tri[2], &pen->vertices[start].point);
 					    edges[2] = in->point;
 					    edges[3] = tri[2];
-					    _cairo_traps_tessellate_triangle_with_edges(stroker->traps,
-						tri, edges);
+					    _cairo_traps_tessellate_triangle_with_edges(stroker->traps, tri, edges);
 					    tri[1] = tri[2];
 					    edges[0] = edges[2];
 					    edges[1] = edges[3];
-
 					    if(++start == pen->num_vertices)
 						    start = 0;
 				    }
@@ -280,8 +275,7 @@ static void join(struct stroker * stroker,
 			    tri[2] = *outpt;
 			    edges[2] = out->cw;
 			    edges[3] = out->ccw;
-			    _cairo_traps_tessellate_triangle_with_edges(stroker->traps,
-				tri, edges);
+			    _cairo_traps_tessellate_triangle_with_edges(stroker->traps, tri, edges);
 		    }
 		    else {
 			    cairo_point_t t[] = { { in->point.x, in->point.y}, { inpt->x, inpt->y }, { outpt->x, outpt->y } };

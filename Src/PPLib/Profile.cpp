@@ -404,7 +404,7 @@ int Profile::InitUserProfile(const char * pUserName)
 						temp_buf.Z();
 					line_buf.Semicol().Cat(temp_buf);
 				}
-				line_buf.Semicol().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+				line_buf.Semicol().CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 				PPLogMessage(fname, line_buf, LOGMSGF_UNLIMITSIZE|LOGMSGF_NODUPFORJOB);
 			}
 		}

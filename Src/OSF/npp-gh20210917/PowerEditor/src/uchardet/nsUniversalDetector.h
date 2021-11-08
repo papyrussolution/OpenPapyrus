@@ -65,11 +65,11 @@ class nsUniversalDetector {
 public:
    nsUniversalDetector(PRUint32 aLanguageFilter);
    virtual ~nsUniversalDetector();
-   virtual nsresult HandleData(const char* aBuf, PRUint32 aLen);
+   virtual nsresult HandleData(const char * aBuf, PRUint32 aLen);
    virtual void DataEnd(void);
 
 protected:
-   virtual void Report(const char* aCharset) = 0;
+   virtual void Report(const char * aCharset) = 0;
    virtual void Reset();
    nsInputState  mInputState;
    PRBool  mDone;

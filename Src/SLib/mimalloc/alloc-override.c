@@ -51,7 +51,7 @@ struct mi_interpose_s {
 	const void * target;
 };
 
-  #define MI_INTERPOSE_FUN(oldfun, newfun) { (const void*)&newfun, (const void*)&oldfun }
+  #define MI_INTERPOSE_FUN(oldfun, newfun) { (const void *)&newfun, (const void *)&oldfun }
   #define MI_INTERPOSE_MI(fun)            MI_INTERPOSE_FUN(fun, mi_ ## fun)
 __attribute__((used)) static struct mi_interpose_s _mi_interposes[]  __attribute__((section("__DATA, __interpose"))) =
 {
@@ -154,21 +154,10 @@ void _ZdlPv(void * p)            MI_FORWARD0(mi_free, p)  // delete
 void _ZdaPv(void * p)            MI_FORWARD0(mi_free, p)  // delete[]
 void _ZdlPvm(void * p, size_t n) MI_FORWARD02(mi_free_size, p, n)
 void _ZdaPvm(void * p, size_t n) MI_FORWARD02(mi_free_size, p, n)
-void _ZdlPvSt11align_val_t(void * p, size_t al)            {
-	mi_free_aligned(p, al);
-}
-
-void _ZdaPvSt11align_val_t(void * p, size_t al)            {
-	mi_free_aligned(p, al);
-}
-
-void _ZdlPvmSt11align_val_t(void * p, size_t n, size_t al) {
-	mi_free_size_aligned(p, n, al);
-}
-
-void _ZdaPvmSt11align_val_t(void * p, size_t n, size_t al) {
-	mi_free_size_aligned(p, n, al);
-}
+void _ZdlPvSt11align_val_t(void * p, size_t al) { mi_free_aligned(p, al); }
+void _ZdaPvSt11align_val_t(void * p, size_t al) { mi_free_aligned(p, al); }
+void _ZdlPvmSt11align_val_t(void * p, size_t n, size_t al) { mi_free_size_aligned(p, n, al); }
+void _ZdaPvmSt11align_val_t(void * p, size_t n, size_t al) { mi_free_size_aligned(p, n, al); }
 
 typedef struct mi_nothrow_s { int _tag; } mi_nothrow_t;
   #if (MI_INTPTR_SIZE==8)
@@ -254,7 +243,7 @@ void * memalign(size_t alignment, size_t size)
 	return mi_memalign(alignment, size);
 }
 
-int   posix_memalign(void** p, size_t alignment, size_t size) 
+int   posix_memalign(void ** p, size_t alignment, size_t size) 
 {
 	return mi_posix_memalign(p, alignment, size);
 }
@@ -284,18 +273,18 @@ void * __libc_realloc(void * p, size_t size)        MI_FORWARD2(mi_realloc, p, s
 void  __libc_free(void * p)                        MI_FORWARD0(mi_free, p)
 void  __libc_cfree(void * p)                       MI_FORWARD0(mi_free, p)
 
-void * __libc_valloc(size_t size)                                {
+void * __libc_valloc(size_t size) {
 	return mi_valloc(size);
 }
 void * __libc_pvalloc(size_t size)                               {
 	return mi_pvalloc(size);
 }
 
-void * __libc_memalign(size_t alignment, size_t size)            {
+void * __libc_memalign(size_t alignment, size_t size) {
 	return mi_memalign(alignment, size);
 }
 
-int   __posix_memalign(void** p, size_t alignment, size_t size) {
+int   __posix_memalign(void ** p, size_t alignment, size_t size) {
 	return mi_posix_memalign(p, alignment, size);
 }
 

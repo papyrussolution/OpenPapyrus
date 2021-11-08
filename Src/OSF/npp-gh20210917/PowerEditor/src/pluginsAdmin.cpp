@@ -759,9 +759,9 @@ bool PluginsAdminDlg::updateListAndLoadFromJson()
 		}
 
 		auto size = ::SizeofResource(hLib, rc);
-		auto data = static_cast<const char*>(::LockResource(rcData));
+		auto data = static_cast<const char *>(::LockResource(rcData));
 
-		char* buffer = new char[size + 1];
+		char * buffer = new char[size + 1];
 		::memcpy(buffer, data, size);
 		buffer[size] = '\0';
 

@@ -331,7 +331,7 @@ DSO * DSO_dsobyaddr(void * addr, int flags)
 
 	filename = static_cast<char *>(OPENSSL_malloc(len));
 	if(filename != NULL
-	    && DSO_pathbyaddr(addr, filename, len) == len)
+	  && DSO_pathbyaddr(addr, filename, len) == len)
 		ret = DSO_load(NULL, filename, NULL, flags);
 
 	OPENSSL_free(filename);

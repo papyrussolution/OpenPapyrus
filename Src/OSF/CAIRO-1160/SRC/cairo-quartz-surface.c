@@ -2399,7 +2399,7 @@ boolint _cairo_surface_is_quartz(const cairo_surface_t * surface)
 
 #include <Movies.h>
 
-void ExportCGImageToPNGFile(CGImageRef inImageRef, char* dest)
+void ExportCGImageToPNGFile(CGImageRef inImageRef, char * dest)
 {
 	Handle dataRef = NULL;
 	OSType dataRefType;

@@ -439,7 +439,7 @@ void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 	PPGetFilePath(PPPATH_LOG, "TsStakeEnvironment.log", file_name);
 	SFile f_out(file_name, SFile::mAppend);
 	const double evaluated_used_margin = EvaluateUsedMargin();
-	line_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().Cat("Account").CatDiv(':', 2)/*.Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0)*/.Space().
+	line_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().Cat("Account").CatDiv(':', 2)/*.Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0)*/.Space().
 		Cat(rEnv.Acc.ID).Space().
 		CatEq("Balance", rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
 		CatEq("MarginFree", rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().

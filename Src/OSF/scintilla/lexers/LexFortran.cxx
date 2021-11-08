@@ -282,7 +282,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 
 /***************************************/
 // To determine the folding level depending on keywords
-static int classifyFoldPointFortran(const char* s, const char* prevWord, const char chNextNonBlank)
+static int classifyFoldPointFortran(const char * s, const char * prevWord, const char chNextNonBlank)
 {
 	int lev = 0;
 	if((sstreq(prevWord, "module") && sstreq(s, "subroutine")) || (sstreq(prevWord, "module") && sstreq(s, "function"))) {

@@ -1418,7 +1418,7 @@ int SOraDbProvider::LobWrite(OD & rLob, TYPEID typ, SLob * pBuf, size_t dataLen)
 /*virtual*/ int SOraDbProvider::Login(const DbLoginBlock * pBlk, long options)
 {
 	/*
-void ConnectBase::MakeTNSString (std::string& str, const char* host, const char* port, const char* sid, bool serviceInsteadOfSid)
+void ConnectBase::MakeTNSString (std::string & str, const char * host, const char * port, const char * sid, bool serviceInsteadOfSid)
 {
     str = std::string("(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(Host=") + host + ")(Port=" + port + ")))"
         "(CONNECT_DATA=(" + (serviceInsteadOfSid ? "SERVICE_NAME" : "SID") + "=" + sid +")))";

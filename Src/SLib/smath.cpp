@@ -172,7 +172,7 @@ double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a
 double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
 double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
 
-int    FASTCALL sclamp(int v, int lo, int up)          { return (v < lo) ? lo : ((v > up) ? up : v); }
+int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }

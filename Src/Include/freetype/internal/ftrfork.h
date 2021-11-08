@@ -39,7 +39,7 @@ typedef FT_Error
 (* ft_raccess_guess_func)(FT_Library library,
     FT_Stream stream,
     char       * base_file_name,
-    char      ** result_file_name,
+    char   ** result_file_name,
     FT_Long    * result_offset);
 
 typedef enum  FT_RFork_Rule_ {
@@ -117,8 +117,8 @@ typedef struct ft_raccess_guess_rec_ {
 FT_BASE(void)
 FT_Raccess_Guess(FT_Library library,
     FT_Stream stream,
-    char*       base_name,
-    char**      new_names,
+    char *       base_name,
+    char **      new_names,
     FT_Long*    offsets,
     FT_Error*   errors);
 

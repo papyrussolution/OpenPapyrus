@@ -41,8 +41,8 @@ public:
 	Action() noexcept;
 	// Deleted so Action objects can not be copied.
 	Action(const Action &other) = delete;
-	Action &operator=(const Action &other) = delete;
-	Action &operator=(const Action &&other) = delete;
+	Action & operator = (const Action &other) = delete;
+	Action & operator = (const Action &&other) = delete;
 	// Move constructor allows vector to be resized without reallocating.
 	Action(Action &&other) noexcept = default;
 	~Action();
@@ -68,8 +68,8 @@ public:
 	// Deleted so UndoHistory objects can not be copied.
 	UndoHistory(const UndoHistory &) = delete;
 	UndoHistory(UndoHistory &&) = delete;
-	void operator=(const UndoHistory &) = delete;
-	void operator=(UndoHistory &&) = delete;
+	void operator = (const UndoHistory &) = delete;
+	void operator = (UndoHistory &&) = delete;
 	~UndoHistory();
 
 	const char *AppendAction(actionType at, Sci::Position position, const char *data, Sci::Position lengthData, bool &startSequence, bool mayCoalesce=true);
@@ -137,8 +137,8 @@ public:
 	// Deleted so CellBuffer objects can not be copied.
 	CellBuffer(const CellBuffer &) = delete;
 	CellBuffer(CellBuffer &&) = delete;
-	void operator=(const CellBuffer &) = delete;
-	void operator=(CellBuffer &&) = delete;
+	void operator = (const CellBuffer &) = delete;
+	void operator = (CellBuffer &&) = delete;
 	~CellBuffer();
 
 	/// Retrieving positions outside the range of the buffer works and returns 0

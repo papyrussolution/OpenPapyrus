@@ -536,7 +536,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    CONTEXT_fontstring_parse(tmp_string, tmp_font, MAX_ID_LEN+1, &tmp_fontsize);
 				    /* copies font name to parameters */
 				    strnzcpy(CONTEXT_params.font, tmp_font, sizeof(CONTEXT_params.font));
-				    tmp_font[MAX_ID_LEN] = NUL;
+				    tmp_font[MAX_ID_LEN] = '\0';
 				    SAlloc::F(tmp_string);
 				    /* save font size:
 				     *
@@ -1158,7 +1158,7 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
 	if(static_cast<int>(n) >= to_size)
 		n = to_size - 1;
 	memcpy(to_string, from_string, n);
-	to_string[n] = NUL;
+	to_string[n] = '\0';
 }
 /* -------------------------
  * CONTEXT_adjust_dimensions
@@ -1220,7 +1220,7 @@ TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
 		CONTEXT_fontsize = CONTEXT_fontsize_explicit;
 		snprintf(tmp_fontstring, sizeof(tmp_fontstring), ",%gpt", CONTEXT_fontsize_explicit);
 		strncat(CONTEXT_font_explicit, tmp_fontstring, sizeof(CONTEXT_font_explicit) - strlen(CONTEXT_font_explicit)-1);
-		tmp_fontstring[MAX_ID_LEN] = NUL;
+		tmp_fontstring[MAX_ID_LEN] = '\0';
 		// no fontsize has been provided: switch back to default terminal fontsize 
 	}
 	else if(CONTEXT_fontsize_explicit == 0) {

@@ -39,7 +39,7 @@ typedef struct tagTHREADNAME_INFO {
 } THREADNAME_INFO;
 #pragma pack(pop)
 
-void SetThreadName(DWORD dwThreadID, char* threadName)
+void SetThreadName(DWORD dwThreadID, char * threadName)
 {
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;

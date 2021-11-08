@@ -86,7 +86,7 @@ static inline void _cairo_box_add_box(cairo_box_t * box, const cairo_box_t * add
 /* assumes box->p1 is top-left, p2 bottom-right */
 static inline boolint _cairo_box_contains_point(const cairo_box_t * box, const cairo_point_t * point)
 {
-	return box->p1.x <= point->x  && point->x <= box->p2.x && box->p1.y <= point->y  && point->y <= box->p2.y;
+	return box->p1.x <= point->x && point->x <= box->p2.x && box->p1.y <= point->y && point->y <= box->p2.y;
 }
 
 static inline boolint _cairo_box_is_pixel_aligned(const cairo_box_t * box)

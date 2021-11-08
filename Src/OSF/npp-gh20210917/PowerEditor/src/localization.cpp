@@ -236,7 +236,7 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle, generic_string & plugin
 	TiXmlNodeA * entriesRoot = mainMenu->FirstChild("Entries");
 	if(nullptr == entriesRoot)
 		return;
-	const char* idName = nullptr;
+	const char * idName = nullptr;
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 	for(TiXmlNodeA * childNode = entriesRoot->FirstChildElement("Item"); childNode; childNode = childNode->NextSibling("Item") ) {
 		TiXmlElementA * element = childNode->ToElement();
@@ -280,8 +280,8 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle, generic_string & plugin
 		TiXmlElementA* element = childNode->ToElement();
 		//const char *xStr = element->Attribute("posX", &x);
 		//const char *yStr = element->Attribute("posY", &y);
-		const char* subMenuIdStr = element->Attribute("subMenuId");
-		const char* name = element->Attribute("name");
+		const char * subMenuIdStr = element->Attribute("subMenuId");
+		const char * name = element->Attribute("name");
 
 		if(nullptr == subMenuIdStr or nullptr == name)
 			continue;
@@ -623,7 +623,7 @@ void NativeLangSpeaker::changeFindReplaceDlgLang(FindReplaceDlg & findReplaceDlg
 					nppParam.getFindDlgTabTitiles()._find = nameW;
 					findReplaceDlg.changeTabName(FIND_DLG, nppParam.getFindDlgTabTitiles()._find.c_str());
 				}
-				if(titre2  && titre2[0]) {
+				if(titre2 && titre2[0]) {
 					basic_string<wchar_t> nameW = wmc.char2wchar(titre2, _nativeLangEncoding);
 					nppParam.getFindDlgTabTitiles()._replace = nameW;
 					findReplaceDlg.changeTabName(REPLACE_DLG, nppParam.getFindDlgTabTitiles()._replace.c_str());
@@ -685,7 +685,7 @@ void NativeLangSpeaker::changePluginsAdminDlgLang(PluginsAdminDlg & pluginsAdmin
 					basic_string<wchar_t> nameW = wmc.char2wchar(titre1, _nativeLangEncoding);
 					pluginsAdminDlg.changeTabName(AVAILABLE_LIST, nameW.c_str());
 				}
-				if(titre2  && titre2[0]) {
+				if(titre2 && titre2[0]) {
 					basic_string<wchar_t> nameW = wmc.char2wchar(titre2, _nativeLangEncoding);
 					pluginsAdminDlg.changeTabName(UPDATES_LIST, nameW.c_str());
 				}

@@ -3187,7 +3187,7 @@ private:
 //
 //
 //
-typedef void*(EXT_LEXER_DECL *GetLexerFunction)(uint Index);
+typedef void *(EXT_LEXER_DECL *GetLexerFunction)(uint Index);
 typedef int (EXT_LEXER_DECL *GetLexerCountFn)();
 typedef void (EXT_LEXER_DECL *GetLexerNameFn)(uint Index, char *name, int buflength);
 typedef LexerFactoryFunction(EXT_LEXER_DECL *GetLexerFactoryFunction)(uint Index);

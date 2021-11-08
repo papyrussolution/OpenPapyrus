@@ -455,8 +455,8 @@ static int i2r_idp(const X509V3_EXT_METHOD * method, void * pidp, BIO * out, int
 	if(idp->onlyattr > 0)
 		BIO_printf(out, "%*sOnly Attribute Certificates\n", indent, "");
 	if(!idp->distpoint && (idp->onlyuser <= 0) && (idp->onlyCA <= 0)
-	    && (idp->indirectCRL <= 0) && !idp->onlysomereasons
-	    && (idp->onlyattr <= 0))
+	  && (idp->indirectCRL <= 0) && !idp->onlysomereasons
+	  && (idp->onlyattr <= 0))
 		BIO_printf(out, "%*s<EMPTY>\n", indent, "");
 
 	return 1;

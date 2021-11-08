@@ -100,7 +100,7 @@ void TermDumbBlock::DumbRgbColor(rgb255_color rgb255, char * pColorString)
 const char * GnuPlot::AnsiColorString(const t_colorspec * pColor, const t_colorspec * pPrevColor)
 {
 	static char colorstring[256];
-	colorstring[0] = NUL;
+	colorstring[0] = '\0';
 	switch(pColor->type) {
 		case TC_LT: {
 		    int n;

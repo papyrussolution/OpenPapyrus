@@ -671,7 +671,7 @@ void SCI_METHOD LexerSQL::Fold(Sci_PositionU startPos, Sci_Position length, int 
 				    ++tempPos) {
 					int tempStyle = styler.StyleAt(tempPos);
 					if(!IsCommentStyle(tempStyle)
-					    && tempStyle != SCE_SQL_DEFAULT) {
+					  && tempStyle != SCE_SQL_DEFAULT) {
 						isAllClear = false;
 						break;
 					}

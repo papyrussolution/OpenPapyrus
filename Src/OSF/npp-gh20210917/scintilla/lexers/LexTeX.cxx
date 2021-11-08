@@ -328,7 +328,7 @@ static Sci_Position ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char * 
 	return length+1;
 }
 
-static int classifyFoldPointTeXPaired(const char* s) {
+static int classifyFoldPointTeXPaired(const char * s) {
 	int lev = 0;
 	if(!(isdigit(s[0]) || (s[0] == '.'))) {
 		if(strcmp(s, "begin")==0||strcmp(s, "FoldStart")==0||
@@ -347,7 +347,7 @@ static int classifyFoldPointTeXPaired(const char* s) {
 	return lev;
 }
 
-static int classifyFoldPointTeXUnpaired(const char* s) {
+static int classifyFoldPointTeXUnpaired(const char * s) {
 	int lev = 0;
 	if(!(isdigit(s[0]) || (s[0] == '.'))) {
 		if(strcmp(s, "part")==0||
@@ -454,7 +454,7 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			    )
 				levelCurrent++;
 			else if(lineCurrent!=0 && !IsTeXCommentLine(lineCurrent - 1, styler)
-			    && IsTeXCommentLine(lineCurrent + 1, styler)
+			  && IsTeXCommentLine(lineCurrent + 1, styler)
 			    )
 				levelCurrent++;
 			else if(lineCurrent!=0 && IsTeXCommentLine(lineCurrent - 1, styler) &&

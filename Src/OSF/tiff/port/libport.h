@@ -51,7 +51,7 @@ int strcasecmp(const char * s1, const char * s2);
 
 	//#undef snprintf
 	//#define snprintf _TIFF_snprintf_f
-	//int snprintf(char* str, size_t size, const char* format, ...);
+	//int snprintf(char * str, size_t size, const char * format, ...);
 #endif
 
 #endif /* ndef _LIBPORT_ */

@@ -61,8 +61,8 @@ public:
 	// Deleted so CallTip objects can not be copied.
 	CallTip(const CallTip &) = delete;
 	CallTip(CallTip &&) = delete;
-	CallTip &operator=(const CallTip &) = delete;
-	CallTip &operator=(CallTip &&) = delete;
+	CallTip & operator = (const CallTip &) = delete;
+	CallTip & operator = (CallTip &&) = delete;
 	~CallTip();
 
 	void PaintCT(Surface *surfaceWindow);

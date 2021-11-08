@@ -67,7 +67,7 @@
 
 static boolint FASTCALL _cairo_image_surface_is_size_valid(int width, int height)
 {
-	return (0 <= width  &&  width <= MAX_IMAGE_SIZE && 0 <= height && height <= MAX_IMAGE_SIZE);
+	return (0 <= width &&  width <= MAX_IMAGE_SIZE && 0 <= height && height <= MAX_IMAGE_SIZE);
 }
 
 cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pixman_format)

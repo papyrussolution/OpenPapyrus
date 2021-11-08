@@ -104,7 +104,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = auth_fn("Passphrase for private key:", (char*)tmp,
+				    valid = auth_fn("Passphrase for private key:", (char *)tmp,
 					    MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
 				    if(valid < 0) {
 					    goto fail;
@@ -113,7 +113,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 				    valid = mbedtls_pk_parse_key(rsa,
 					    (const uchar*)b64_key,
 					    b64len, tmp,
-					    strnlen((const char*)tmp, MAX_PASSPHRASE_SIZE));
+					    strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
 				    valid = mbedtls_pk_parse_key(rsa,
@@ -148,7 +148,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = auth_fn("Passphrase for private key:", (char*)tmp,
+				    valid = auth_fn("Passphrase for private key:", (char *)tmp,
 					    MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
 				    if(valid < 0) {
 					    goto fail;
@@ -156,7 +156,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 				    valid = mbedtls_pk_parse_key(ecdsa,
 					    (const uchar*)b64_key,
 					    b64len, tmp,
-					    strnlen((const char*)tmp, MAX_PASSPHRASE_SIZE));
+					    strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
 				    valid = mbedtls_pk_parse_key(ecdsa,
@@ -620,7 +620,7 @@ ssh_string make_ecpoint_string(const mbedtls_ecp_group * g, const
 	return s;
 }
 
-static const char* pki_key_ecdsa_nid_to_char(int nid)
+static const char * pki_key_ecdsa_nid_to_char(int nid)
 {
 	switch(nid) {
 		case NID_mbedtls_nistp256:
@@ -891,8 +891,8 @@ static ssh_signature pki_signature_from_rsa_blob(const ssh_key pubkey, const
 			goto errout;
 		}
 
-		blob_padded_data = (char*)ssh_string_data(sig_blob_padded);
-		blob_orig = (char*)ssh_string_data(sig_blob);
+		blob_padded_data = (char *)ssh_string_data(sig_blob_padded);
+		blob_orig = (char *)ssh_string_data(sig_blob);
 
 		memzero(blob_padded_data, pad_len);
 		memcpy(blob_padded_data + pad_len, blob_orig, len);

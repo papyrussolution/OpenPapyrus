@@ -1433,7 +1433,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 		IntError(NO_CARET, "String produced by time format is too long");
 	// Remove trailing space 
 	assert(buffer[length-1] == ' ');
-	buffer[length-1] = NUL;
+	buffer[length-1] = '\0';
 	gpfree_string(&val);
 	gpfree_string(&fmt);
 	SAlloc::F(fmtstr);
@@ -1575,7 +1575,7 @@ void GnuPlot::F_System(union argument * arg)
 	// chomp result 
 	output_len = strlen(output);
 	if(output_len > 0 && output[output_len-1] == '\n')
-		output[output_len-1] = NUL;
+		output[output_len-1] = '\0';
 	FPRINTF((stderr, " f_system result = \"%s\"\n", output));
 	Push(Gstring(&result, output));
 	gpfree_string(&result); /* free output */

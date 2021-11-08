@@ -251,7 +251,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			chPrev = styler.SafeGetCharAt(back-1);
 			// isSentenceStart is a non-visible state, used to identify where statements and preprocessor
 			// declerations can start
-			if(checkIsSentenceStart && st != SCE_ABL_COMMENT && st != SCE_ABL_LINECOMMENT && st != SCE_ABL_CHARACTER  &&
+			if(checkIsSentenceStart && st != SCE_ABL_COMMENT && st != SCE_ABL_LINECOMMENT && st != SCE_ABL_CHARACTER &&
 			    st != SCE_ABL_STRING) {
 				chPrev_1 = styler.SafeGetCharAt(back-2);
 				chPrev_2 = styler.SafeGetCharAt(back-3);
@@ -550,7 +550,7 @@ void SCI_METHOD LexerABL::Fold(Sci_PositionU startPos, Sci_Position length, int 
 			if(style == SCE_ABL_BLOCK && !IsAlphaNumeric(chNext)) {
 				levelNext++;
 			}
-			else if(style == SCE_ABL_END  && (ch == 'e' || ch == 'f')) {
+			else if(style == SCE_ABL_END && (ch == 'e' || ch == 'f')) {
 				levelNext--;
 			}
 		}

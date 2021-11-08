@@ -1473,8 +1473,8 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	Test_Launch_SCalendarPicker();
-	//Test_PPStyloQInterchange();
+	//Test_Launch_SCalendarPicker();
+	Test_PPStyloQInterchange();
 	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);

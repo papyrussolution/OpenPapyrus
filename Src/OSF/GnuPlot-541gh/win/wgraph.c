@@ -902,11 +902,11 @@ static void MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc)
 	lpgw->lf.lfHeight = -MulDiv(static_cast<int>(lpgw->fontsize * lpgw->fontscale), GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	lpgw->lf.lfCharSet = DEFAULT_CHARSET;
 	if(((p = _tcsstr(lpgw->fontname, TEXT(" Italic"))) != NULL) || ((p = _tcsstr(lpgw->fontname, TEXT(":Italic"))) != NULL)) {
-		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = NUL;
+		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = '\0';
 		lpgw->lf.lfItalic = TRUE;
 	}
 	if(((p = _tcsstr(lpgw->fontname, TEXT(" Bold"))) != NULL) || ((p = _tcsstr(lpgw->fontname, TEXT(":Bold"))) != NULL)) {
-		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = NUL;
+		lpgw->lf.lfFaceName[(uint)(p - lpgw->fontname)] = '\0';
 		lpgw->lf.lfWeight = FW_BOLD;
 	}
 	lpgw->lf.lfOutPrecision = OUT_OUTLINE_PRECIS;
@@ -1018,14 +1018,14 @@ static void SelFont(GW * lpgw)
 	_tcsncpy(lf.lfFaceName, lpgw->fontname, LF_FACESIZE);
 	if((p = _tcsstr(lpgw->fontname, TEXT(" Bold"))) != NULL) {
 		lf.lfWeight = FW_BOLD;
-		lf.lfFaceName[p - lpgw->fontname] = NUL;
+		lf.lfFaceName[p - lpgw->fontname] = '\0';
 	}
 	else {
 		lf.lfWeight = FW_NORMAL;
 	}
 	if((p = _tcsstr(lpgw->fontname, TEXT(" Italic"))) != NULL) {
 		lf.lfItalic = TRUE;
-		lf.lfFaceName[p - lpgw->fontname] = NUL;
+		lf.lfFaceName[p - lpgw->fontname] = '\0';
 	}
 	else {
 		lf.lfItalic = FALSE;
@@ -3588,7 +3588,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 	    ((par1 == 2) && (paused_for_mouse & PAUSE_BUTTON2)) || ((par1 == 3) && (paused_for_mouse & PAUSE_BUTTON3)))) {
 		paused_for_mouse = 0;
 	}
-	if((type == GE_keypress) && (paused_for_mouse & PAUSE_KEYSTROKE) && (par1 != NUL)) {
+	if((type == GE_keypress) && (paused_for_mouse & PAUSE_KEYSTROKE) && par1) {
 		paused_for_mouse = 0;
 	}
 }

@@ -789,10 +789,10 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 			if(min_tls && (min_tls != cp->min_tls))
 				continue;
 			if((algo_strength & SSL_STRONG_MASK)
-			    && !(algo_strength & SSL_STRONG_MASK & cp->algo_strength))
+			  && !(algo_strength & SSL_STRONG_MASK & cp->algo_strength))
 				continue;
 			if((algo_strength & SSL_DEFAULT_MASK)
-			    && !(algo_strength & SSL_DEFAULT_MASK & cp->algo_strength))
+			  && !(algo_strength & SSL_DEFAULT_MASK & cp->algo_strength))
 				continue;
 		}
 
@@ -1005,7 +1005,7 @@ static int ssl_cipher_process_rulestr(const char * rule_str,
 			cipher_id = 0;
 			while(ca_list[j]) {
 				if(strncmp(buf, ca_list[j]->name, buflen) == 0
-				    && (ca_list[j]->name[buflen] == '\0')) {
+				  && (ca_list[j]->name[buflen] == '\0')) {
 					found = 1;
 					break;
 				}
@@ -1277,7 +1277,7 @@ static __owur int set_ciphersuites(STACK_OF(SSL_CIPHER) ** currciphers, const ch
 
 	/* Parse the list. We explicitly allow an empty list */
 	if(*str != '\0'
-	    && !CONF_parse_list(str, ':', 1, ciphersuite_cb, newciphers)) {
+	  && !CONF_parse_list(str, ':', 1, ciphersuite_cb, newciphers)) {
 		sk_SSL_CIPHER_free(newciphers);
 		return 0;
 	}
@@ -1529,7 +1529,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	if(ok && (strlen(rule_p) > 0))
 		ok = ssl_cipher_process_rulestr(rule_p, &head, &tail, ca_list, c);
 
-	OPENSSL_free(ca_list);  /* Not needed anymore */
+	OPENSSL_free(ca_list); /* Not needed anymore */
 
 	if(!ok) {               /* Rule processing failure */
 		OPENSSL_free(co_list);
@@ -1570,7 +1570,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 #endif
 		}
 	}
-	OPENSSL_free(co_list);  /* Not needed any longer */
+	OPENSSL_free(co_list); /* Not needed any longer */
 
 	if(!update_cipher_list_by_id(cipher_list_by_id, cipherstack)) {
 		sk_SSL_CIPHER_free(cipherstack);

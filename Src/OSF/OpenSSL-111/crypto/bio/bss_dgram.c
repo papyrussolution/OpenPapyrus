@@ -238,7 +238,7 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 		 */
 		if((data->socket_timeout.tv_sec == 0 && data->socket_timeout.tv_usec == 0)
 		    || (data->socket_timeout.tv_sec > timeleft.tv_sec) || (data->socket_timeout.tv_sec == timeleft.tv_sec
-		    && data->socket_timeout.tv_usec >= timeleft.tv_usec)) {
+		  && data->socket_timeout.tv_usec >= timeleft.tv_usec)) {
 #ifdef OPENSSL_SYS_WINDOWS
 			timeout = timeleft.tv_sec * 1000 + timeleft.tv_usec / 1000;
 			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) < 0) {
@@ -517,7 +517,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 #ifdef IN6_IS_ADDR_V4MAPPED
 				struct in6_addr tmp_addr;
 				if(BIO_ADDR_rawaddress(&data->peer, &tmp_addr, NULL)
-				    && IN6_IS_ADDR_V4MAPPED(&tmp_addr))
+				  && IN6_IS_ADDR_V4MAPPED(&tmp_addr))
 					ret += 576;
 				else
 #endif
@@ -1571,7 +1571,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	n = recvmsg(b->num, &msg, MSG_PEEK);
 	if(n <= 0) {
 		if((n < 0) && (get_last_socket_error() != EAGAIN)
-		    && (get_last_socket_error() != EWOULDBLOCK))
+		  && (get_last_socket_error() != EWOULDBLOCK))
 			return -1;
 		else
 			return 0;
@@ -1593,7 +1593,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		n = recvmsg(b->num, &msg, 0);
 		if(n <= 0) {
 			if((n < 0) && (get_last_socket_error() != EAGAIN)
-			    && (get_last_socket_error() != EWOULDBLOCK))
+			  && (get_last_socket_error() != EWOULDBLOCK))
 				return -1;
 			else
 				return is_dry;
@@ -1652,7 +1652,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 
 		if(n <= 0) {
 			if((n < 0) && (get_last_socket_error() != EAGAIN)
-			    && (get_last_socket_error() != EWOULDBLOCK))
+			  && (get_last_socket_error() != EWOULDBLOCK))
 				return -1;
 			else
 				return is_dry;

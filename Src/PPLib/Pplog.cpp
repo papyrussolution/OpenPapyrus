@@ -1284,7 +1284,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 						uint32  FalseNonEmptyEvSwitchCount; // Количество срабатываний события PPLogMsgQueue::NonEmptyEv при которых очередь была пуста
 					*/
 					P_Queue->GetStat(S);
-					diag_msg_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+					diag_msg_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
                         CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
                         CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
 					DS.SetThreadNotification(PPSession::stntMessage, diag_msg_buf);
@@ -1297,7 +1297,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 	diag_msg_buf.Z().Cat("PPLogMsgSession is out");
 	if(P_Queue) {
 		P_Queue->GetStat(S);
-		diag_msg_buf.Space().Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+		diag_msg_buf.Space().CatCurDateTime(DATF_ISO8601, 0).Space().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
 			CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
 			CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
 	}
@@ -1383,7 +1383,7 @@ int PPSession::Log(const char * pFileName, const char * pStr, long options)
 		item.Text = pStr;
 	if(item.FileName.NotEmptyS() || PPGetFilePath(PPPATH_LOG, "pp.log", item.FileName)) {
 		if(options & LOGMSGF_TIME)
-			item.Prefix.Cat(getcurdatetime_()).Tab();
+			item.Prefix.CatCurDateTime().Tab();
 		if(options & LOGMSGF_DBINFO) {
 			DbProvider * p_dict = CurDict;
 			if(p_dict)

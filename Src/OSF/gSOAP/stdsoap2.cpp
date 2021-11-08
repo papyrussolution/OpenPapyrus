@@ -1213,7 +1213,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv(struct soap * soap)
 		if(err)
 			soap->bufidx = soap->buflen = 0;
 		else
-			err = soap_recv_raw(soap);  /* do not call again after EOF */
+			err = soap_recv_raw(soap); /* do not call again after EOF */
 		if((soap->error = soap->ffilterrecv(soap, soap->buf, &soap->buflen, sizeof(soap->buf))))
 			return soap->error;
 		else if(soap->buflen) {
@@ -1804,7 +1804,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_getbase64(struct soap * soap, int * n, int ma
 		return NULL;
 	for(;; ) {
 		int i;
-		char * s = (char *)soap_push_block(soap, NULL, 3*SOAP_BLKLEN);  /* must be multiple of 3 */
+		char * s = (char *)soap_push_block(soap, NULL, 3*SOAP_BLKLEN); /* must be multiple of 3 */
 		if(!s) {
 			soap_end_block(soap, 0);
 			return NULL;
@@ -4030,7 +4030,7 @@ static int FASTCALL tcp_select(struct soap * soap, SOAP_SOCKET s, int flags, int
 static SOAP_SOCKET tcp_accept(struct soap * soap, SOAP_SOCKET s, struct sockaddr * a, int * n)
 {
 	(void)soap;
-	SOAP_SOCKET fd = accept(s, a, (SOAP_SOCKLEN_T*)n);  /* portability note: see SOAP_SOCKLEN_T definition in stdsoap2.h */
+	SOAP_SOCKET fd = accept(s, a, (SOAP_SOCKLEN_T*)n); /* portability note: see SOAP_SOCKLEN_T definition in stdsoap2.h */
   #ifdef SOCKET_CLOSE_ON_EXEC
    #ifdef WIN32
     #ifndef UNDER_CE
@@ -5128,7 +5128,7 @@ static int http_post(struct soap * soap, const char * endpoint, const char * hos
 	{
   #ifdef WITH_IPV6
 		if(*host != '[' && sstrchr(host, ':'))
-			sprintf(soap->tmpbuf, "[%s]:%d", host, port);  /* RFC 2732 */
+			sprintf(soap->tmpbuf, "[%s]:%d", host, port); /* RFC 2732 */
 		else
   #endif
 		sprintf(soap->tmpbuf, "%s:%d", host, port);
@@ -7162,10 +7162,10 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_end_send(struct soap * soap)
  #ifdef WITH_TCPFIN
   #ifdef WITH_OPENSSL
 	if(!soap->ssl && soap_valid_socket(soap->socket) && !soap->keep_alive && !(soap->omode&SOAP_IO_UDP))
-		soap->fshutdownsocket(soap, soap->socket, SOAP_SHUT_WR);  /* Send TCP FIN */
+		soap->fshutdownsocket(soap, soap->socket, SOAP_SHUT_WR); /* Send TCP FIN */
   #else
 	if(soap_valid_socket(soap->socket) && !soap->keep_alive && !(soap->omode&SOAP_IO_UDP))
-		soap->fshutdownsocket(soap, soap->socket, SOAP_SHUT_WR);  /* Send TCP FIN */
+		soap->fshutdownsocket(soap, soap->socket, SOAP_SHUT_WR); /* Send TCP FIN */
   #endif
  #endif
 	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "End of send phase\n"));
@@ -9130,7 +9130,7 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 		if((c = soap_get1(soap)) == 0xBF)
 			soap->mode &= ~SOAP_ENC_LATIN;
 		else
-			soap_unget(soap, (0x0F<<12)|(0xBB<<6)|(c&0x3F));  /* UTF-8 */
+			soap_unget(soap, (0x0F<<12)|(0xBB<<6)|(c&0x3F)); /* UTF-8 */
 	}
 	else if((c == 0xFE && soap_get0(soap) == 0xFF) || /* UTF-16 BE */ (c == 0xFF && soap_get0(soap) == 0xFE)) // UTF-16LE 
 		return soap->error = SOAP_UTF_ERROR;
@@ -11782,7 +11782,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_getline(struct soap * soap, char * s,
 			*s++ = (char)c;
 		}
 		if(c != '\n')
-			c = soap_getchar(soap);  /* got \r or something else, now get \n */
+			c = soap_getchar(soap); /* got \r or something else, now get \n */
 		if(c == '\n') {
 			*s = '\0';
 			if(i+1 == len) /* empty line: end of HTTP/MIME header */
@@ -12784,7 +12784,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 				c = soap_getchar(soap);
 			}
 			else
-				c = (0x0F<<12)|(0xBB<<6)|(c&0x3F);  /* UTF-8 */
+				c = (0x0F<<12)|(0xBB<<6)|(c&0x3F); /* UTF-8 */
 		}
 		else if((c == 0xFE && soap_get0(soap) == 0xFF) || /* UTF-16 BE */ (c == 0xFF && soap_get0(soap) == 0xFE)) /* UTF-16 LE */
 			return soap->error = SOAP_UTF_ERROR;

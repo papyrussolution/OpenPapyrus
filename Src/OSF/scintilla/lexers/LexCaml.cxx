@@ -60,7 +60,7 @@ static void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int in
 static void FoldCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
 static void InternalLexOrFold(int lexOrFold, Sci_PositionU startPos, Sci_Position length, int initStyle, char * words[], WindowID window, char * props);
 
-static const char* LexerName = "caml";
+static const char * LexerName = "caml";
 
 #ifdef TRACE
 void Platform::DebugPrintf(const char * format, ...) 
@@ -201,7 +201,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    state2 = SCE_CAML_NUMBER, chBase = 10;
 				    if(sc.Match('0')) {
 					    // there MAY be a base specified...
-					    const char* baseC = "bBoOxX";
+					    const char * baseC = "bBoOxX";
 					    if(isSML) {
 						    if(sc.chNext == 'w')
 							    sc.Forward();  // (consume SML "word" indicator)
@@ -272,13 +272,13 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 
 			case SCE_CAML_OPERATOR: {
 			    // [try to] interpret as [additional] operator char
-			    const char* o = 0;
+			    const char * o = 0;
 			    if(iscaml(sc.ch) || isspace(sc.ch)                  // ident or whitespace
 				    || (o = sstrchr(")]};,\'\"#", sc.ch), o) // "termination" chars
 				    || (!isSML && sc.Match('`'))                // Caml extra term char
 				    || (!sstrchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
 			                    // SML extra ident chars
-					    && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
+					  && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
 				    // check for INCLUSIVE termination
 				    if(o && sstrchr(")]};,", sc.ch)) {
 					    if((sc.Match(')') && sc.chPrev == '(')
@@ -300,24 +300,24 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    break;
 			    // how about an integer suffix?
 			    if(!isSML && (sc.Match('l') || sc.Match('L') || sc.Match('n'))
-			    && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
+			  && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
 				    break;
 			    // or a floating-point literal?
 			    if(chBase == 10) {
 				    // with a decimal point?
 				    if(sc.Match('.')
-				    && ((!isSML && sc.chPrev == '_')
+				  && ((!isSML && sc.chPrev == '_')
 					    || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (I)
 				    if((sc.Match('e') || sc.Match('E'))
-				    && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_'))
+				  && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_'))
 					    || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (II)
 				    if(((!isSML && (sc.Match('+') || sc.Match('-')))
 					    || (isSML && sc.Match('~')))
-				    && (sc.chPrev == 'e' || sc.chPrev == 'E'))
+				  && (sc.chPrev == 'e' || sc.chPrev == 'E'))
 					    break;
 			    }
 			    // it looks like we have run out of number
@@ -397,7 +397,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    // enable "magic" (read-only) comment AS REQUIRED
 			    }
 			    else if(useMagic && sc.currentPos - chToken == 4
-			    && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
+			  && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
 				    sc.state |= 0x10;   // (switch to read-only comment style)
 			    break;
 		}

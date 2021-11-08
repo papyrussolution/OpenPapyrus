@@ -77,7 +77,7 @@ static int classifyWordTAL(Sci_PositionU start, Sci_PositionU end, /*WordList &k
 	return ret;
 }
 
-static int classifyFoldPointTAL(const char* s)
+static int classifyFoldPointTAL(const char * s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {

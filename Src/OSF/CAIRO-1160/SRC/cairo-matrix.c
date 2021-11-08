@@ -624,9 +624,9 @@ boolint FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
 	double det = _cairo_matrix_compute_determinant(matrix);
 	if(fabs(det * det - 1.0) < SCALING_EPSILON) {
 		// check that one axis is close to zero 
-		if(fabs(matrix->xy) < SCALING_EPSILON  && fabs(matrix->yx) < SCALING_EPSILON)
+		if(fabs(matrix->xy) < SCALING_EPSILON && fabs(matrix->yx) < SCALING_EPSILON)
 			return TRUE;
-		if(fabs(matrix->xx) < SCALING_EPSILON  && fabs(matrix->yy) < SCALING_EPSILON)
+		if(fabs(matrix->xx) < SCALING_EPSILON && fabs(matrix->yy) < SCALING_EPSILON)
 			return TRUE;
 		// If rotations are allowed then it must instead test for orthogonality. This is xx*xy+yx*yy ~= 0.
 	}

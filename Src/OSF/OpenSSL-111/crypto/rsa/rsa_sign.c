@@ -170,7 +170,7 @@ int int_rsa_verify(int type, const uchar * m, uint m_len,
 		}
 	}
 	else if(type == NID_mdc2 && decrypt_len == 2 + 16
-	    && decrypt_buf[0] == 0x04 && decrypt_buf[1] == 0x10) {
+	  && decrypt_buf[0] == 0x04 && decrypt_buf[1] == 0x10) {
 		/*
 		 * Oddball MDC2 case: signature can be OCTET STRING. check for correct
 		 * tag and length octets.

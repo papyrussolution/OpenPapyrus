@@ -814,7 +814,7 @@ static FT_Error FNT_Size_Request(FT_Size size, FT_Size_Request req)
 	height = ( height + 32 ) >> 6;
 	switch(req->type) {
 		case FT_SIZE_REQUEST_TYPE_NOMINAL:
-		    if(height == ( ( bsize->y_ppem + 32 ) >> 6 ) )
+		    if(height == ((bsize->y_ppem + 32 ) >> 6 ) )
 			    error = FT_Err_Ok;
 		    break;
 
@@ -892,7 +892,7 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_in
 	slot->metrics.horiAdvance  = (FT_Pos)( bitmap->width << 6 );
 	slot->metrics.horiBearingX = 0;
 	slot->metrics.horiBearingY = slot->bitmap_top << 6;
-	ft_synthesize_vertical_metrics(&slot->metrics, (FT_Pos)( bitmap->rows << 6 ) );
+	ft_synthesize_vertical_metrics(&slot->metrics, (FT_Pos)( bitmap->rows << 6 ));
 	if(load_flags & FT_LOAD_BITMAP_METRICS_ONLY)
 		goto Exit;
 	/* jump to glyph data */

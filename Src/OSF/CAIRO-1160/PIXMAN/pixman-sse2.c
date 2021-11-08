@@ -3894,7 +3894,7 @@ static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
 		}
 
 		while(w >= 16) {
-			save_128_aligned((__m128i*)d, load_128_unaligned((__m128i*)s) );
+			save_128_aligned((__m128i*)d, load_128_unaligned((__m128i*)s));
 
 			w -= 16;
 			d += 16;

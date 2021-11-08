@@ -1309,7 +1309,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 												/* Steal the profile for info_ptr. */
 												if(info_ptr) {
 													png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, 0);
-													info_ptr->iccp_name = png_voidcast(char*, png_malloc_base(png_ptr, keyword_length+1));
+													info_ptr->iccp_name = png_voidcast(char *, png_malloc_base(png_ptr, keyword_length+1));
 													if(info_ptr->iccp_name) {
 														memcpy(info_ptr->iccp_name, keyword, keyword_length+1);
 														info_ptr->iccp_proflen = profile_length;

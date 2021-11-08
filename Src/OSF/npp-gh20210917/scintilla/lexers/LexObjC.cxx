@@ -355,7 +355,7 @@ static bool matchKeyword(size_t start, WordList &keywords, Accessor &styler, int
 	    strlen(keywords.WordAt(i)) > 0 && !FoundKeyword;
 	    i++) {
 		if(atoi(keywords.WordAt(i)) == keywordtype) {
-			FoundKeyword = styler.Match(start, ((char*)keywords.WordAt(i)) + 2);
+			FoundKeyword = styler.Match(start, ((char *)keywords.WordAt(i)) + 2);
 		}
 	}
 	return FoundKeyword;
@@ -367,11 +367,11 @@ static bool IsCommentLine(int line, Accessor &styler) {
 		int PosStyle = styler.StyleAt(Pos);
 
 		if(!IsStreamCommentStyle(PosStyle)
-		    &&
+		  &&
 		    PosStyle != SCE_C_COMMENTLINEDOC
-		    &&
+		  &&
 		    PosStyle != SCE_C_COMMENTLINE
-		    &&
+		  &&
 		    !IsASpace(styler.SafeGetCharAt(Pos))
 		    )
 			return false;
@@ -475,15 +475,15 @@ static void FoldObjCDoc(Sci_PositionU startPos, Sci_Position length, int initSty
 
 		/* Check for fold header keyword at beginning of word */
 		if((style == SCE_C_WORD || style == SCE_C_COMMENT || style == SCE_C_COMMENTLINE)
-		    && (style != stylePrev)) {
+		  && (style != stylePrev)) {
 			if(matchKeyword(i, keywords4, styler, KEYWORD_BOXHEADER)) {
 				int line;
 				// Loop backwards all empty or comment lines
 				for(line = lineCurrent - 1;
 				    line >= 0
-				    &&
+				  &&
 				    levelCurrent == (styler.LevelAt(line) & SC_FOLDLEVELNUMBERMASK)
-				    &&
+				  &&
 				    IsCommentLine(line, styler);
 				    line--) {
 					// just loop backwards;

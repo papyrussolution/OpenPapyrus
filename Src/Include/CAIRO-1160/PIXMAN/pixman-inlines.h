@@ -270,7 +270,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 				uint8 a1 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s1)); \
 				uint8 a2 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s2)); \
 				if(a1 == 0xff) { \
-					*dst = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                   \
+					*dst = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1)); \
 				}                                                                               \
 				else if(s1) { \
 					d  = convert_ ## DST_FORMAT ## _to_8888(*dst);                              \
@@ -281,7 +281,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 				}                                                                               \
 				dst++;                                                                          \
 				if(a2 == 0xff) { \
-					*dst = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s2);                   \
+					*dst = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s2)); \
 				}                                                                               \
 				else if(s2) { \
 					d = convert_ ## DST_FORMAT ## _to_8888(*dst);                               \
@@ -293,8 +293,8 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 				dst++;                                                                          \
 			}                                                                                   \
 			else { /* PIXMAN_OP_SRC */                                                            \
-				*dst++ = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                     \
-				*dst++ = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s2);                     \
+				*dst++ = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1)); \
+				*dst++ = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s2)); \
 			}                                                                                   \
 		}                                                                                       \
 		if(w & 1) { \
@@ -303,19 +303,19 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 			if(PIXMAN_OP_ ## OP == PIXMAN_OP_OVER) { \
 				uint8 a1 = static_cast<uint8>(GET_ ## SRC_FORMAT ## _ALPHA(s1)); \
 				if(a1 == 0xff) { \
-					*dst = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                   \
+					*dst = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1)); \
 				}                                                                               \
 				else if(s1) { \
 					d  = convert_ ## DST_FORMAT ## _to_8888(*dst);                               \
 					s1 = convert_ ## SRC_FORMAT ## _to_8888(s1);                               \
 					a1 ^= 0xff;                                                                 \
 					UN8x4_MUL_UN8_ADD_UN8x4(d, a1, s1);                                        \
-					*dst = convert_8888_to_ ## DST_FORMAT(d);                                  \
+					*dst = static_cast<dst_type_t>(convert_8888_to_ ## DST_FORMAT(d)); \
 				}                                                                               \
 				dst++;                                                                          \
 			}                                                                                   \
 			else { /* PIXMAN_OP_SRC */                                                            \
-				*dst++ = convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1);                     \
+				*dst++ = static_cast<dst_type_t>(convert_ ## SRC_FORMAT ## _to_ ## DST_FORMAT(s1)); \
 			}                                                                                   \
 		}                                                                                       \
 	}
@@ -457,12 +457,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 	FAST_NEAREST_SCANLINE(scaled_nearest_scanline_ ## scale_func_name ## _ ## OP, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
 	FAST_NEAREST_MAINLOOP_NOMASK(_ ## scale_func_name ## _ ## OP, scaled_nearest_scanline_ ## scale_func_name ## _ ## OP, src_type_t, dst_type_t, repeat_mode)
 
-#define SCALED_NEAREST_FLAGS                                            \
-	(FAST_PATH_SCALE_TRANSFORM  |                                       \
-	FAST_PATH_NO_ALPHA_MAP     |                                       \
-	FAST_PATH_NEAREST_FILTER   |                                       \
-	FAST_PATH_NO_ACCESSORS     |                                       \
-	FAST_PATH_NARROW_FORMAT)
+#define SCALED_NEAREST_FLAGS (FAST_PATH_SCALE_TRANSFORM  | FAST_PATH_NO_ALPHA_MAP | FAST_PATH_NEAREST_FILTER | FAST_PATH_NO_ACCESSORS | FAST_PATH_NARROW_FORMAT)
 
 #define SIMPLE_NEAREST_FAST_PATH_NORMAL(op, s, d, func)                    \
 	{   PIXMAN_OP_ ## op,                                               \
@@ -788,8 +783,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 				if(left_pad > 0) { \
 					buf1[0] = buf1[1] = src1[0];                                                    \
 					buf2[0] = buf2[1] = src2[0];                                                    \
-					scanline_func(dst, mask,                                                       \
-					    buf1, buf2, left_pad, weight1, weight2, 0, 0, 0, FALSE);         \
+					scanline_func(dst, mask, buf1, buf2, left_pad, weight1, weight2, 0, 0, 0, FALSE); \
 					dst += left_pad;                                                                \
 					if(flags & FLAG_HAVE_NON_SOLID_MASK)                                           \
 						mask += left_pad;                                                           \
@@ -955,19 +949,12 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define FAST_BILINEAR_MAINLOOP_COMMON(scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, flags) \
 	FAST_BILINEAR_MAINLOOP_INT(_ ## scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, flags)
 
-#define SCALED_BILINEAR_FLAGS                                           \
-	(FAST_PATH_SCALE_TRANSFORM  |                                       \
-	FAST_PATH_NO_ALPHA_MAP     |                                       \
-	FAST_PATH_BILINEAR_FILTER  |                                       \
-	FAST_PATH_NO_ACCESSORS     |                                       \
-	FAST_PATH_NARROW_FORMAT)
+#define SCALED_BILINEAR_FLAGS (FAST_PATH_SCALE_TRANSFORM|FAST_PATH_NO_ALPHA_MAP|FAST_PATH_BILINEAR_FILTER|FAST_PATH_NO_ACCESSORS|FAST_PATH_NARROW_FORMAT)
 
 #define SIMPLE_BILINEAR_FAST_PATH_PAD(op, s, d, func)                      \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_PAD_REPEAT           |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_PAD_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_null, 0,                                                 \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _pad ## _ ## op,     \
@@ -976,9 +963,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_FAST_PATH_NONE(op, s, d, func)                     \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NONE_REPEAT          |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NONE_REPEAT|FAST_PATH_X_UNIT_POSITIVE),\
 	    PIXMAN_null, 0,                                                 \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _none ## _ ## op,    \
@@ -996,9 +981,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_FAST_PATH_NORMAL(op, s, d, func)                   \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NORMAL_REPEAT        |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NORMAL_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_null, 0,                                                 \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _normal ## _ ## op,  \
@@ -1007,9 +990,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_A8_MASK_FAST_PATH_PAD(op, s, d, func)              \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_PAD_REPEAT           |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_PAD_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_a8, MASK_FLAGS(a8, FAST_PATH_UNIFIED_ALPHA),            \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _pad ## _ ## op,     \
@@ -1018,9 +999,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_A8_MASK_FAST_PATH_NONE(op, s, d, func)             \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NONE_REPEAT          |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NONE_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_a8, MASK_FLAGS(a8, FAST_PATH_UNIFIED_ALPHA),            \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _none ## _ ## op,    \
@@ -1038,9 +1017,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_A8_MASK_FAST_PATH_NORMAL(op, s, d, func)           \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NORMAL_REPEAT        |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NORMAL_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_a8, MASK_FLAGS(a8, FAST_PATH_UNIFIED_ALPHA),            \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _normal ## _ ## op,  \
@@ -1049,9 +1026,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_SOLID_MASK_FAST_PATH_PAD(op, s, d, func)           \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_PAD_REPEAT           |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_PAD_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_solid, MASK_FLAGS(solid, FAST_PATH_UNIFIED_ALPHA),      \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _pad ## _ ## op,     \
@@ -1060,9 +1035,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_SOLID_MASK_FAST_PATH_NONE(op, s, d, func)          \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NONE_REPEAT          |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NONE_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_solid, MASK_FLAGS(solid, FAST_PATH_UNIFIED_ALPHA),      \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _none ## _ ## op,    \
@@ -1080,9 +1053,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 #define SIMPLE_BILINEAR_SOLID_MASK_FAST_PATH_NORMAL(op, s, d, func)        \
 	{   PIXMAN_OP_ ## op,                                               \
 	    PIXMAN_ ## s,                                                   \
-	    (SCALED_BILINEAR_FLAGS          |                               \
-	    FAST_PATH_NORMAL_REPEAT        |                               \
-	    FAST_PATH_X_UNIT_POSITIVE),                                    \
+	    (SCALED_BILINEAR_FLAGS|FAST_PATH_NORMAL_REPEAT|FAST_PATH_X_UNIT_POSITIVE), \
 	    PIXMAN_solid, MASK_FLAGS(solid, FAST_PATH_UNIFIED_ALPHA),      \
 	    PIXMAN_ ## d, FAST_PATH_STD_DEST_FLAGS,                         \
 	    fast_composite_scaled_bilinear_ ## func ## _normal ## _ ## op,  \

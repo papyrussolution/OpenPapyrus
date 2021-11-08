@@ -568,11 +568,11 @@ int AbstractLayoutBlock::SizeFromString(const char * pBuf)
 //
 // Descr: Определяет являются ли координаты по оси X фиксированными.
 //
-bool AbstractLayoutBlock::IsNominalFullDefinedX() const { return LOGIC((Flags & (fNominalDefL|fNominalDefR)) == (fNominalDefL|fNominalDefR)); }
+bool AbstractLayoutBlock::IsNominalFullDefinedX() const { return ((Flags & (fNominalDefL|fNominalDefR)) == (fNominalDefL|fNominalDefR)); }
 //
 // Descr: Определяет являются ли координаты по оси Y фиксированными.
 //
-bool AbstractLayoutBlock::IsNominalFullDefinedY() const { return LOGIC((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
+bool AbstractLayoutBlock::IsNominalFullDefinedY() const { return ((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
 //
 // Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
 //   направления direction.
@@ -730,6 +730,309 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 /*static*/void * LayoutFlexItem::GetParentsManagedPtr(LayoutFlexItem * pItem)
 {
 	return pItem ? GetManagedPtr(pItem->P_Parent) : 0;
+}
+
+/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, LayoutFlexItem * pTopLevel)
+{
+	LayoutFlexItem * p_result = pTopLevel;
+	switch(type) {
+		case cmplxtInpLbl:
+			{
+				SETIFZ(p_result, new LayoutFlexItem());
+				if(flags & clfLabelLeft) {
+					AbstractLayoutBlock alb(DIREC_HORZ);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{ // Input
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcInput;
+					}		
+				}
+				else { // label above
+					AbstractLayoutBlock alb(DIREC_VERT);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{ // Input
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcInput;
+					}		
+				}
+			}
+			break;
+		case cmplxtInpLblBtn:
+			{
+				SETIFZ(p_result, new LayoutFlexItem());
+				if(flags & clfLabelLeft) {
+					AbstractLayoutBlock alb(DIREC_HORZ);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{ // Input
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcInput;
+					}		
+					{ // Button
+						AbstractLayoutBlock alb;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						alb.AspectRatio = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcButton1;
+					}
+				}
+				else { // label above
+					AbstractLayoutBlock alb(DIREC_VERT);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{
+						AbstractLayoutBlock alb_frame(DIREC_HORZ);
+						alb_frame.AlignContent = AbstractLayoutBlock::alignStart;
+						alb_frame.GrowFactor = 1.0f;
+						alb_frame.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_frame = p_result->InsertItem(0, &alb_frame);
+						{ // Input
+							AbstractLayoutBlock alb;
+							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							//alb.Margin.Set(4);
+							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							p_lo_item->CplxComponentId = cmlxcInput;
+						}		
+						{ // Button
+							AbstractLayoutBlock alb;
+							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							alb.AspectRatio = 1.0f;
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							//alb.Margin.Set(4);
+							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							p_lo_item->CplxComponentId = cmlxcButton1;
+						}
+					}
+				}
+			}
+			break;
+		case cmplxtInpLblBtn2:
+			{
+				SETIFZ(p_result, new LayoutFlexItem());
+				if(flags & clfLabelLeft) {
+					AbstractLayoutBlock alb(DIREC_HORZ);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{ // Input
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcInput;
+					}		
+					{ // Button
+						AbstractLayoutBlock alb;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						alb.ShrinkFactor = 0.0f;
+						alb.AspectRatio = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcButton1;
+					}		
+					{ // Button
+						AbstractLayoutBlock alb;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						alb.ShrinkFactor = 0.0f;
+						alb.AspectRatio = 1.0f;
+						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcButton2;
+					}		
+				}
+				else { // Label above
+					AbstractLayoutBlock alb(DIREC_VERT);
+					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					p_result->SetLayoutBlock(alb);
+					{ // Label
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						p_lo_item->CplxComponentId = cmlxcLabel;
+					}
+					{
+						AbstractLayoutBlock alb_frame(DIREC_HORZ);
+						alb_frame.AlignContent = AbstractLayoutBlock::alignStart;
+						alb_frame.GrowFactor = 1.0f;
+						alb_frame.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_frame = p_result->InsertItem(0, &alb_frame);
+						{ // Input
+							AbstractLayoutBlock alb;
+							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							//alb.Margin.Set(4);
+							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							p_lo_item->CplxComponentId = cmlxcInput;
+						}		
+						{ // Button
+							AbstractLayoutBlock alb;
+							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							alb.ShrinkFactor = 0.0f;
+							alb.AspectRatio = 1.0f;
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							//alb.Margin.Set(4);
+							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							p_lo_item->CplxComponentId = cmlxcButton1;
+						}
+						{ // Button2
+							AbstractLayoutBlock alb;
+							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							alb.ShrinkFactor = 0.0f;
+							alb.AspectRatio = 1.0f;
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							//alb.Margin.Set(4);
+							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							p_lo_item->CplxComponentId = cmlxcButton2;
+						}
+					}
+				}
+			}
+			break;
+	}
+	return p_result;
+}
+
+/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_IL(uint flags, LayoutFlexItem * pParent)
+{
+	LayoutFlexItem * p_result = pParent ? pParent->InsertItem() : new LayoutFlexItem();
+	if(flags & clfLabelLeft) {
+		AbstractLayoutBlock alb(DIREC_HORZ);
+		alb.AlignContent = AbstractLayoutBlock::alignStart;
+		alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+		p_result->SetLayoutBlock(alb);
+		{
+			//
+			// Label
+			// 
+			AbstractLayoutBlock alb;
+			alb.GrowFactor = 1.0f;
+			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+			//alb.Margin.Set(4);
+			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+			p_lo_item->CplxComponentId = cmlxcLabel;
+		}
+		{
+			//
+			// Input
+			// 
+			AbstractLayoutBlock alb;
+			alb.GrowFactor = 1.0f;
+			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+			//alb.Margin.Set(4);
+			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+			p_lo_item->CplxComponentId = cmlxcInput;
+		}		
+	}
+	else { // label above
+		AbstractLayoutBlock alb(DIREC_VERT);
+		alb.AlignContent = AbstractLayoutBlock::alignStart;
+		alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+		p_result->SetLayoutBlock(alb);
+		{
+			//
+			// Label
+			// 
+			AbstractLayoutBlock alb;
+			alb.GrowFactor = 1.0f;
+			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+			//alb.Margin.Set(4);
+			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+			p_lo_item->CplxComponentId = cmlxcLabel;
+		}
+		{
+			//
+			// Input
+			// 
+			AbstractLayoutBlock alb;
+			alb.GrowFactor = 1.0f;
+			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+			//alb.Margin.Set(4);
+			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+			p_lo_item->CplxComponentId = cmlxcInput;
+		}		
+	}
+	return p_result;
+}
+	
+/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_ILB(uint flags, LayoutFlexItem * pParent)
+{
+	LayoutFlexItem * p_result = 0;
+	return p_result;
+}
+	
+/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_ILB2(uint flags, LayoutFlexItem * pParent)
+{
+	LayoutFlexItem * p_result = 0;
+	return p_result;
 }
 
 LayoutFlexItem::LayoutFlexItem() : P_Parent(0), P_Link(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0)
@@ -932,6 +1235,17 @@ int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
 		ok = -1;
 	ASSIGN_PTR(pResult, rf);
 	return ok;
+}
+
+LayoutFlexItem * FASTCALL LayoutFlexItem::FindComplexComponentId(uint id)
+{
+	LayoutFlexItem * p_result = 0;
+	for(uint i = 0; !p_result && i < GetChildrenCount(); i++) {
+		LayoutFlexItem * p_child = GetChild(i);
+		if(p_child && p_child->CplxComponentId == id)
+			p_result = p_child;
+	}
+	return p_result;
 }
 //
 // Descr: Возвращает корневой элемент дерева, компонентом которого является this.

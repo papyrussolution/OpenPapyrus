@@ -650,7 +650,7 @@ static int session_startup(LIBSSH2_SESSION * session, libssh2_socket_t sock)
 LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION * session, libssh2_socket_t sock)
 {
 	int rc;
-	BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+	BLOCK_ADJUST(rc, session, session_startup(session, sock));
 	return rc;
 }
 
@@ -818,7 +818,7 @@ static int session_free(LIBSSH2_SESSION * session)
 LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION * session)
 {
 	int rc;
-	BLOCK_ADJUST(rc, session, session_free(session) );
+	BLOCK_ADJUST(rc, session, session_free(session));
 	return rc;
 }
 /*
@@ -959,7 +959,7 @@ LIBSSH2_API int FASTCALL libssh2_session_last_errno(LIBSSH2_SESSION * session)
  * language wrappers (i.e. Python or Perl) that may extend the library
  * features while still relying on its error reporting mechanism.
  */
-LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION * session, int errcode, const char* errmsg)
+LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION * session, int errcode, const char * errmsg)
 {
 	return _libssh2_error_flags(session, errcode, errmsg, LIBSSH2_ERR_FLAG_DUP);
 }

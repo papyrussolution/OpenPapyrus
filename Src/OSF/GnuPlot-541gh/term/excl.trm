@@ -222,7 +222,7 @@ TERM_PUBLIC void EXCL_put_text(uint x, uint y, const char str[])
 	char ch;
 	EXCL_move(x, y - EXCL_VCHAR / 3);
 	ch = *str++;
-	while(ch != NUL) {
+	while(ch) {
 		putc(ch, GPT.P_GpOutFile);
 		ch = *str++;
 	}

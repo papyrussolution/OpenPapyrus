@@ -2410,7 +2410,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 	for(i = 0; i < size; i++) {
 		*entry = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
 		if((*entry)->id && global_id && (*entry)->id_length == global_id_length
-		    && memcmp((*entry)->id, global_id, global_id_length) == 0) {
+		  && memcmp((*entry)->id, global_id, global_id_length) == 0) {
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}

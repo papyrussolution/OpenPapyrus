@@ -9,7 +9,7 @@
 //
 // Version helper macro 
 //
-#define URI_ANSI_TO_UNICODE(x) L ## x 
+// @v11.2.1 #define URI_ANSI_TO_UNICODE(x) L ## x 
 //
 // Version 
 //

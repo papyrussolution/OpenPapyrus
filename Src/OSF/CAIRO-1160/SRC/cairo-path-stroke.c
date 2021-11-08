@@ -311,7 +311,7 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 	const cairo_point_t * inpt, * outpt;
 	cairo_point_t points[4];
 	cairo_status_t status;
-	if(in->cw.x  == out->cw.x  && in->cw.y  == out->cw.y &&
+	if(in->cw.x  == out->cw.x && in->cw.y  == out->cw.y &&
 	    in->ccw.x == out->ccw.x && in->ccw.y == out->ccw.y) {
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -740,9 +740,9 @@ static cairo_status_t _cairo_stroker_add_caps(cairo_stroker_t * stroker)
 
 	/* check for a degenerative sub_path */
 	if(stroker->has_initial_sub_path
-	    && !stroker->has_first_face
-	    && !stroker->has_current_face
-	    && stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
+	  && !stroker->has_first_face
+	  && !stroker->has_current_face
+	  && stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
 		/* pick an arbitrary slope to use */
 		double dx = 1.0, dy = 0.0;
 		cairo_slope_t slope = { CAIRO_FIXED_ONE, 0 };

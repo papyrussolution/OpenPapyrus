@@ -569,7 +569,7 @@ TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 static void eps60_dump(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	fprintf(GPT.P_GpOutFile, "\033%c\030", '3');  /* set line spacing 24/216" = 8 dots */
+	fprintf(GPT.P_GpOutFile, "\033%c\030", '3'); /* set line spacing 24/216" = 8 dots */
 	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		// select printer graphics mode 'K' 
 		fputs("\r\n\033K", GPT.P_GpOutFile);

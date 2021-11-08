@@ -2205,7 +2205,7 @@ static OPJ_BOOL opj_j2k_write_cod(opj_j2k_t * p_j2k,
 	l_current_data = p_j2k->m_specific_param.m_encoder.m_header_tile_data;
 	opj_write_bytes(l_current_data, J2K_MS_COD, 2);       /* COD */
 	l_current_data += 2;
-	opj_write_bytes(l_current_data, l_code_size - 2, 2);  /* L_COD */
+	opj_write_bytes(l_current_data, l_code_size - 2, 2); /* L_COD */
 	l_current_data += 2;
 	opj_write_bytes(l_current_data, l_tcp->csty, 1);      /* Scod */
 	++l_current_data;

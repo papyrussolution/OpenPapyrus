@@ -123,7 +123,7 @@ class TiXmlStringA
     // single char extraction
     const char& at (unsigned index) const
     {
-        assert( index < length ());
+        assert(index < length ());
         return cstring [index];
     }
 
@@ -154,7 +154,7 @@ class TiXmlStringA
     // [] operator 
     char& operator [] (unsigned index) const
     {
-        assert( index < length ());
+        assert(index < length ());
         return cstring [index];
     }
 

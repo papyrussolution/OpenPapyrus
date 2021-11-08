@@ -81,8 +81,8 @@ public:
 	// Deleted so LineStartIndex objects can not be copied.
 	LineStartIndex(const LineStartIndex &) = delete;
 	LineStartIndex(LineStartIndex &&) = delete;
-	void operator=(const LineStartIndex &) = delete;
-	void operator=(LineStartIndex &&) = delete;
+	void operator = (const LineStartIndex &) = delete;
+	void operator = (LineStartIndex &&) = delete;
 	virtual ~LineStartIndex() {
 	}
 	bool Allocate(Sci::Line lines) {
@@ -143,8 +143,8 @@ public:
 	// Deleted so LineVector objects can not be copied.
 	LineVector(const LineVector &) = delete;
 	LineVector(LineVector &&) = delete;
-	LineVector &operator=(const LineVector &) = delete;
-	LineVector &operator=(LineVector &&) = delete;
+	LineVector & operator = (const LineVector &) = delete;
+	LineVector & operator = (LineVector &&) = delete;
 	~LineVector() override {
 	}
 	void Init() override {
@@ -622,7 +622,7 @@ Sci::Position CellBuffer::GapPosition() const noexcept {
 	return substance.GapPosition();
 }
 
-// The char* returned is to an allocation owned by the undo history
+// The char * returned is to an allocation owned by the undo history
 const char *CellBuffer::InsertString(Sci::Position position, const char *s, Sci::Position insertLength, bool &startSequence) {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur
 	const char *data = s;
@@ -669,7 +669,7 @@ bool CellBuffer::SetStyleFor(Sci::Position position, Sci::Position lengthStyle, 
 	return changed;
 }
 
-// The char* returned is to an allocation owned by the undo history
+// The char * returned is to an allocation owned by the undo history
 const char *CellBuffer::DeleteChars(Sci::Position position, Sci::Position deleteLength, bool &startSequence) {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur
 	PLATFORM_ASSERT(deleteLength > 0);

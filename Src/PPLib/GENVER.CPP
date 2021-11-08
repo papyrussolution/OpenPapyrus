@@ -187,7 +187,7 @@ int PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 			THROW(gencpp.IsValid());
 			gencpp.Wr_Comment(0);
 			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat(pFileName));
-			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+			gencpp.Wr_Comment(temp_buf.Z().Tab().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
 			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat("Automaticaly generated file"));
 			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat("Don't modify!"));
 			gencpp.Wr_Comment(0);

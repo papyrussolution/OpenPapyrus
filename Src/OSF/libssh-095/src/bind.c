@@ -56,7 +56,7 @@ static socket_t bind_socket(ssh_bind sshbind, const char * hostname,
 		freeaddrinfo(ai);
 		return -1;
 	}
-	if(setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0) {
+	if(setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
 		ssh_set_error(sshbind, SSH_FATAL, "Setting socket options failed: %s", strerror(errno));
 		freeaddrinfo(ai);
 		CLOSE_SOCKET(s);

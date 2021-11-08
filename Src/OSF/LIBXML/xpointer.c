@@ -592,14 +592,12 @@ xmlLocationSet * xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet *
 void xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObject * val)
 {
 	if(cur && val) {
-		/*
-		* check against doublons
-		*/
+		// check against doublons
 		int i;
 		for(i = 0; i < cur->locNr; i++)
 			if(cur->locTab[i] == val) break;
 		if(i >= cur->locNr) {
-#ifdef DEBUG
+#ifndef NDEBUG
 			xmlGenericError(0, "xmlXPtrLocationSetDel: Range wasn't found in RangeList\n");
 #endif
 			return;

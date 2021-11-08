@@ -289,8 +289,8 @@ public:
 	// Deleted so Document objects can not be copied.
 	Document(const Document &) = delete;
 	Document(Document &&) = delete;
-	void operator=(const Document &) = delete;
-	Document &operator=(Document &&) = delete;
+	void operator = (const Document &) = delete;
+	Document & operator = (Document &&) = delete;
 	~Document() override;
 
 	int AddRef();
@@ -522,8 +522,8 @@ public:
 	// Deleted so UndoGroup objects can not be copied.
 	UndoGroup(const UndoGroup &) = delete;
 	UndoGroup(UndoGroup &&) = delete;
-	void operator=(const UndoGroup &) = delete;
-	UndoGroup &operator=(UndoGroup &&) = delete;
+	void operator = (const UndoGroup &) = delete;
+	UndoGroup & operator = (UndoGroup &&) = delete;
 	~UndoGroup() {
 		if (groupNeeded) {
 			pdoc->EndUndoAction();

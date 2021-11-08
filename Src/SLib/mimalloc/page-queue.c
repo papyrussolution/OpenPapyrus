@@ -217,7 +217,7 @@ static void mi_page_queue_remove(mi_page_queue_t* queue, mi_page_t* page)
 	heap->page_count--;
 	page->next = NULL;
 	page->prev = NULL;
-	// mi_atomic_store_ptr_release(mi_atomic_cast(void*, &page->heap), NULL);
+	// mi_atomic_store_ptr_release(mi_atomic_cast(void *, &page->heap), NULL);
 	mi_page_set_in_full(page, false);
 }
 
@@ -230,7 +230,7 @@ static void mi_page_queue_push(mi_heap_t* heap, mi_page_queue_t* queue, mi_page_
 	    (page->xblock_size > MI_LARGE_OBJ_SIZE_MAX && mi_page_queue_is_huge(queue)) ||
 	    (mi_page_is_in_full(page) && mi_page_queue_is_full(queue)));
 	mi_page_set_in_full(page, mi_page_queue_is_full(queue));
-	// mi_atomic_store_ptr_release(mi_atomic_cast(void*, &page->heap), heap);
+	// mi_atomic_store_ptr_release(mi_atomic_cast(void *, &page->heap), heap);
 	page->next = queue->first;
 	page->prev = NULL;
 	if(queue->first != NULL) {

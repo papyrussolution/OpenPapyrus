@@ -258,7 +258,7 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 		enum PICT2E_id cmd = (enum PICT2E_id)pGp->Pgm.LookupTableForCurrentToken(&PICT2E_opts[0]);
 		switch(cmd) {
 			case PICT2E_DEFAULT:
-			    _Pict2E.pict2e_font[0] = NUL;
+			    _Pict2E.pict2e_font[0] = '\0';
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_FONT:
@@ -270,9 +270,9 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    _Pict2E.pict2e_fontsize = fontsize;
 					    if(_Pict2E.pict2e_fontsize <= 1)
 						    _Pict2E.pict2e_fontsize = 10;
-					    *comma = NUL;
+					    *comma = '\0';
 				    }
-				    if(*s != NUL)
+				    if(*s)
 					    strnzcpy(_Pict2E.pict2e_font, s, MAX_ID_LEN);
 				    SAlloc::F(s);
 			    }
@@ -388,9 +388,8 @@ TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 		pThis->MaxY = PICT2E_YMAX;
 	}
 	fprintf(GPT.P_GpOutFile, "\\begin{picture}(%d,%d)(0,0)\n", pThis->MaxX, pThis->MaxY);
-	if(_Pict2E.pict2e_font[0] != NUL) {
+	if(_Pict2E.pict2e_font[0])
 		fprintf(GPT.P_GpOutFile, "\\font\\gnuplot=%s10 at %dpt\n\\gnuplot\n", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
-	}
 	if(_Pict2E.pict2e_rounded)
 		fputs("\\roundjoin\\roundcap\n", GPT.P_GpOutFile);
 	else
@@ -638,7 +637,7 @@ TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char
 {
 	static const char * justify[] = { "[l]", "", "[r]" };
 	// ignore empty strings 
-	if(str[0] == NUL)
+	if(!str[0])
 		return;
 	PICT2E_endline();
 	PICT2E_apply_color();
@@ -781,7 +780,7 @@ static int PICT2E_fill(int style)
 		case FS_SOLID:
 		    if(_Pict2E.pict2e_use_color) {
 			    if(opt != 100) {
-				    _Pict2E.pict2e_color[0] = NUL;
+				    _Pict2E.pict2e_color[0] = '\0';
 				    fprintf(GPT.P_GpOutFile, "\\color{.!%d}\n", opt);
 				    fill = pict2e_fill_and_restore;
 			    }
@@ -800,7 +799,7 @@ static int PICT2E_fill(int style)
 				    _Pict2E.pict2e_new_opacity = opt;
 				    fill = pict2e_fill_transparent;
 #else
-				    pict2e_color[0] = NUL;
+				    pict2e_color[0] = '\0';
 				    fprintf(GPT.P_GpOutFile, "\\color{.!%d}\n", opt);
 				    fill = pict2e_fill_and_restore;
 #endif
@@ -826,10 +825,10 @@ static int PICT2E_fill(int style)
 			    else if(opt == 3)
 				    if(strcmp(_Pict2E.pict2e_color, "\\color{black}\n") != 0) {
 					    fputs("\\color{black}\n", GPT.P_GpOutFile);
-					    _Pict2E.pict2e_color[0] = NUL;
+					    _Pict2E.pict2e_color[0] = '\0';
 				    }
 			    if(opt != 3)
-				    _Pict2E.pict2e_color[0] = NUL;
+				    _Pict2E.pict2e_color[0] = '\0';
 			    fill = pict2e_fill_and_restore;
 		    }
 		    else {
@@ -841,7 +840,7 @@ static int PICT2E_fill(int style)
 		    break;
 		case FS_EMPTY:
 		    if(_Pict2E.pict2e_use_color) {
-			    _Pict2E.pict2e_color[0] = NUL;
+			    _Pict2E.pict2e_color[0] = '\0';
 			    fputs("\\color{white}\n", GPT.P_GpOutFile);
 			    fill = pict2e_fill_and_restore;
 		    }

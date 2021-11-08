@@ -1331,13 +1331,13 @@ GLOBAL(void) jpeg_idct_11x11(j_decompress_ptr cinfo, jpeg_component_info * compp
 		z4 -= z2;
 		tmp25 = tmp10 + MULTIPLY(z4, FIX(1.356927976)); /* c2 */
 		tmp21 = tmp20 + tmp23 + tmp25 -
-		    MULTIPLY(z2, FIX(1.821790775));  /* c2+c4+c10-c6 */
+		    MULTIPLY(z2, FIX(1.821790775)); /* c2+c4+c10-c6 */
 		tmp20 += tmp25 + MULTIPLY(z3, FIX(2.115825087)); /* c4+c6 */
 		tmp23 += tmp25 - MULTIPLY(z1, FIX(1.513598477)); /* c6+c8 */
 		tmp24 += tmp25;
 		tmp22 = tmp24 - MULTIPLY(z3, FIX(0.788749120)); /* c8+c10 */
 		tmp24 += MULTIPLY(z2, FIX(1.944413522)) - /* c2+c8 */
-		    MULTIPLY(z1, FIX(1.390975730));  /* c4+c10 */
+		    MULTIPLY(z1, FIX(1.390975730)); /* c4+c10 */
 		tmp25 = tmp10 - MULTIPLY(z4, FIX(1.414213562)); /* c0 */
 
 		/* Odd part */
@@ -1400,13 +1400,13 @@ GLOBAL(void) jpeg_idct_11x11(j_decompress_ptr cinfo, jpeg_component_info * compp
 		z4 -= z2;
 		tmp25 = tmp10 + MULTIPLY(z4, FIX(1.356927976)); /* c2 */
 		tmp21 = tmp20 + tmp23 + tmp25 -
-		    MULTIPLY(z2, FIX(1.821790775));  /* c2+c4+c10-c6 */
+		    MULTIPLY(z2, FIX(1.821790775)); /* c2+c4+c10-c6 */
 		tmp20 += tmp25 + MULTIPLY(z3, FIX(2.115825087)); /* c4+c6 */
 		tmp23 += tmp25 - MULTIPLY(z1, FIX(1.513598477)); /* c6+c8 */
 		tmp24 += tmp25;
 		tmp22 = tmp24 - MULTIPLY(z3, FIX(0.788749120)); /* c8+c10 */
 		tmp24 += MULTIPLY(z2, FIX(1.944413522)) - /* c2+c8 */
-		    MULTIPLY(z1, FIX(1.390975730));  /* c4+c10 */
+		    MULTIPLY(z1, FIX(1.390975730)); /* c4+c10 */
 		tmp25 = tmp10 - MULTIPLY(z4, FIX(1.414213562)); /* c0 */
 
 		/* Odd part */
@@ -1560,8 +1560,8 @@ GLOBAL(void) jpeg_idct_12x12(j_decompress_ptr cinfo, jpeg_component_info * compp
 		z1 -= z4;
 		z2 -= z3;
 		z3 = MULTIPLY(z1 + z2, FIX_0_541196100);     /* c9 */
-		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865);  /* c3-c9 */
-		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065);  /* c3+c9 */
+		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865); /* c3-c9 */
+		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065); /* c3+c9 */
 
 		/* Final output stage */
 
@@ -1637,8 +1637,8 @@ GLOBAL(void) jpeg_idct_12x12(j_decompress_ptr cinfo, jpeg_component_info * compp
 		z1 -= z4;
 		z2 -= z3;
 		z3 = MULTIPLY(z1 + z2, FIX_0_541196100);     /* c9 */
-		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865);  /* c3-c9 */
-		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065);  /* c3+c9 */
+		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865); /* c3-c9 */
+		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065); /* c3+c9 */
 
 		/* Final output stage */
 
@@ -1759,7 +1759,7 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp15 = z1 + z4;
 		tmp13 = MULTIPLY(tmp15, FIX(0.937797057)); /* c7 */
 		tmp10 = tmp11 + tmp12 + tmp13 -
-		    MULTIPLY(z1, FIX(2.020082300));  /* c7+c5+c3-c1 */
+		    MULTIPLY(z1, FIX(2.020082300)); /* c7+c5+c3-c1 */
 		tmp14 = MULTIPLY(z2 + z3, -FIX(0.338443458)); /* -c11 */
 		tmp11 += tmp14 + MULTIPLY(z2, FIX(0.837223564)); /* c5+c9+c11-c3 */
 		tmp12 += tmp14 - MULTIPLY(z3, FIX(1.572116027)); /* c1+c5-c9-c11 */
@@ -1771,11 +1771,11 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp13 += tmp14;
 		tmp15 = MULTIPLY(tmp15, FIX(0.338443458)); /* c11 */
 		tmp14 = tmp15 + MULTIPLY(z1, FIX(0.318774355)) - /* c9-c11 */
-		    MULTIPLY(z2, FIX(0.466105296));  /* c1-c7 */
+		    MULTIPLY(z2, FIX(0.466105296)); /* c1-c7 */
 		z1    = MULTIPLY(z3 - z2, FIX(0.937797057)); /* c7 */
 		tmp14 += z1;
 		tmp15 += z1 + MULTIPLY(z3, FIX(0.384515595)) - /* c3-c7 */
-		    MULTIPLY(z4, FIX(1.742345811));  /* c1+c11 */
+		    MULTIPLY(z4, FIX(1.742345811)); /* c1+c11 */
 
 		/* Final output stage */
 
@@ -1841,7 +1841,7 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp15 = z1 + z4;
 		tmp13 = MULTIPLY(tmp15, FIX(0.937797057)); /* c7 */
 		tmp10 = tmp11 + tmp12 + tmp13 -
-		    MULTIPLY(z1, FIX(2.020082300));  /* c7+c5+c3-c1 */
+		    MULTIPLY(z1, FIX(2.020082300)); /* c7+c5+c3-c1 */
 		tmp14 = MULTIPLY(z2 + z3, -FIX(0.338443458)); /* -c11 */
 		tmp11 += tmp14 + MULTIPLY(z2, FIX(0.837223564)); /* c5+c9+c11-c3 */
 		tmp12 += tmp14 - MULTIPLY(z3, FIX(1.572116027)); /* c1+c5-c9-c11 */
@@ -1853,11 +1853,11 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp13 += tmp14;
 		tmp15 = MULTIPLY(tmp15, FIX(0.338443458)); /* c11 */
 		tmp14 = tmp15 + MULTIPLY(z1, FIX(0.318774355)) - /* c9-c11 */
-		    MULTIPLY(z2, FIX(0.466105296));  /* c1-c7 */
+		    MULTIPLY(z2, FIX(0.466105296)); /* c1-c7 */
 		z1    = MULTIPLY(z3 - z2, FIX(0.937797057)); /* c7 */
 		tmp14 += z1;
 		tmp15 += z1 + MULTIPLY(z3, FIX(0.384515595)) - /* c3-c7 */
-		    MULTIPLY(z4, FIX(1.742345811));  /* c1+c11 */
+		    MULTIPLY(z4, FIX(1.742345811)); /* c1+c11 */
 
 		/* Final output stage */
 
@@ -3101,8 +3101,8 @@ GLOBAL(void) jpeg_idct_12x6(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		z1 -= z4;
 		z2 -= z3;
 		z3 = MULTIPLY(z1 + z2, FIX_0_541196100);     /* c9 */
-		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865);  /* c3-c9 */
-		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065);  /* c3+c9 */
+		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865); /* c3-c9 */
+		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065); /* c3+c9 */
 
 		/* Final output stage */
 
@@ -4168,8 +4168,8 @@ GLOBAL(void) jpeg_idct_6x12(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		z1 -= z4;
 		z2 -= z3;
 		z3 = MULTIPLY(z1 + z2, FIX_0_541196100);     /* c9 */
-		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865);  /* c3-c9 */
-		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065);  /* c3+c9 */
+		tmp11 = z3 + MULTIPLY(z1, FIX_0_765366865); /* c3-c9 */
+		tmp14 = z3 - MULTIPLY(z2, FIX_1_847759065); /* c3+c9 */
 
 		/* Final output stage */
 

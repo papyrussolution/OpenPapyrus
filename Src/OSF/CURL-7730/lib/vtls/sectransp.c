@@ -276,7 +276,7 @@ static OSStatus SocketWrite(SSLConnectionRef connection,
 			(char *)dataPtr + bytesSent,
 			dataLen - bytesSent);
 	} while((length > 0) &&
-	    ( (bytesSent += length) < dataLen) );
+	    ( (bytesSent += length) < dataLen));
 
 	if(length <= 0) {
 		theErr = errno;
@@ -1069,8 +1069,8 @@ static OSStatus CopyIdentityWithLabel(char * label,
 		/* match the name of the certificate (doesn't work in macOS 10.12.1) */
 		values[4] = label_cf;
 		keys[4] = kSecAttrLabel;
-		query_dict = CFDictionaryCreate(NULL, (const void**)keys,
-			(const void**)values, 5L,
+		query_dict = CFDictionaryCreate(NULL, (const void **)keys,
+			(const void **)values, 5L,
 			&kCFCopyStringDictionaryKeyCallBacks,
 			&kCFTypeDictionaryValueCallBacks);
 		CFRelease(values[3]);
@@ -1608,7 +1608,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 #ifdef USE_NGHTTP2
 			if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-			    && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+			  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 			    ) {
 				CFArrayAppendValue(alpnArr, CFSTR(NGHTTP2_PROTO_VERSION_ID));
@@ -1682,7 +1682,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 					return result;
 			}
 			certs_c[0] = cert_and_key;
-			certs = CFArrayCreate(NULL, (const void**)certs_c, 1L,
+			certs = CFArrayCreate(NULL, (const void **)certs_c, 1L,
 				&kCFTypeArrayCallBacks);
 			err = SSLSetCertificate(backend->ssl_ctx, certs);
 			if(certs)
@@ -1948,7 +1948,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 		size_t ssl_sessionid_len;
 
 		Curl_ssl_sessionid_lock(conn);
-		if(!Curl_ssl_getsessionid(conn, (void**)&ssl_sessionid,
+		if(!Curl_ssl_getsessionid(conn, (void **)&ssl_sessionid,
 		    &ssl_sessionid_len, sockindex)) {
 			/* we got a session id, use it! */
 			err = SSLSetPeerID(backend->ssl_ctx, ssl_sessionid, ssl_sessionid_len);

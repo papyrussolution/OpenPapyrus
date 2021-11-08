@@ -206,7 +206,7 @@ enum state {
 };
 
 #ifdef DEBUG_GB18030
-static char* StateNames[] = {
+static char * StateNames[] = {
 	"S_START",
 	"S_one_C2",
 	"S_one_C4",

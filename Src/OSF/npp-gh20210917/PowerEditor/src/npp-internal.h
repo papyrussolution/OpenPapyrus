@@ -153,7 +153,7 @@ class ISorter;
 #define CF_NPPTEXTLEN TEXT("Notepad++ Binary Text Length")
 //
 #include "npp-resource.h"
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 //#include "Common.h"
 const bool dirUp = true;
 const bool dirDown = false;
@@ -234,10 +234,10 @@ private:
 	// Since there's no public ctor, we need to void the default assignment operator and copy ctor.
 	// Since these are marked as deleted does not matter under which access specifier are kept
 	WcharMbcsConvertor(const WcharMbcsConvertor&) = delete;
-	WcharMbcsConvertor& operator=(const WcharMbcsConvertor&) = delete;
+	WcharMbcsConvertor& operator = (const WcharMbcsConvertor&) = delete;
 	// No move ctor and assignment
 	WcharMbcsConvertor(WcharMbcsConvertor&&) = delete;
-	WcharMbcsConvertor& operator=(WcharMbcsConvertor&&) = delete;
+	WcharMbcsConvertor& operator = (WcharMbcsConvertor&&) = delete;
 
 	template <class T> class StringBuffer final {
 	public:
@@ -299,7 +299,7 @@ HWND CreateToolTip(int toolID, HWND hDlg, HINSTANCE hInst, const PTSTR pszText);
 HWND CreateToolTipRect(int toolID, HWND hWnd, HINSTANCE hInst, const PTSTR pszText, const RECT rc);
 bool isCertificateValidated(const generic_string & fullFilePath, const generic_string & subjectName2check);
 bool isAssoCommandExisting(LPCTSTR FullPathName);
-std::wstring s2ws(const std::string& str);
+std::wstring s2ws(const std::string & str);
 std::string ws2s(const std::wstring& wstr);
 bool deleteFileOrFolder(const generic_string& f2delete);
 void getFilesInFolder(std::vector<generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder);
@@ -2054,7 +2054,7 @@ public:
 	bool writeHistory(const TCHAR * fullpath);
 	bool writeProjectPanelsSettings() const;
 	bool writeFileBrowserSettings(const std::vector<generic_string> & rootPath, const generic_string & latestSelectedItemPath) const;
-	TiXmlNode* getChildElementByAttribut(TiXmlNode * pere, const TCHAR * childName, const TCHAR * attributName, const TCHAR * attributVal) const;
+	TiXmlNode * getChildElementByAttribut(TiXmlNode * pere, const TCHAR * childName, const TCHAR * attributName, const TCHAR * attributVal) const;
 	bool writeScintillaParams();
 	void createXmlTreeFromGUIParams();
 	// return "" if saving file succeeds, otherwise return the new saved file path
@@ -2201,10 +2201,10 @@ private:
 	~NppParameters();
 	// No copy ctor and assignment
 	NppParameters(const NppParameters&) = delete;
-	NppParameters& operator=(const NppParameters&) = delete;
+	NppParameters& operator = (const NppParameters&) = delete;
 	// No move ctor and assignment
 	NppParameters(NppParameters&&) = delete;
-	NppParameters & operator=(NppParameters&&) = delete;
+	NppParameters & operator = (NppParameters&&) = delete;
 
 	TiXmlDocument * _pXmlDoc = nullptr;
 	TiXmlDocument * _pXmlUserDoc = nullptr;
@@ -2466,12 +2466,12 @@ private:
 	~FileManager();
 	// No copy ctor and assignment
 	FileManager(const FileManager&) = delete;
-	FileManager& operator=(const FileManager&) = delete;
+	FileManager& operator = (const FileManager&) = delete;
 	// No move ctor and assignment
 	FileManager(FileManager&&) = delete;
-	FileManager& operator=(FileManager&&) = delete;
-	int detectCodepage(char* buf, size_t len);
-	bool loadFileData(Document doc, const TCHAR* filename, char* buffer, Utf8_16_Read* UnicodeConvertor, LoadedFileFormat& fileFormat);
+	FileManager& operator = (FileManager&&) = delete;
+	int detectCodepage(char * buf, size_t len);
+	bool loadFileData(Document doc, const TCHAR* filename, char * buffer, Utf8_16_Read* UnicodeConvertor, LoadedFileFormat& fileFormat);
 	LangType detectLanguageFromTextBegining(const uchar * data, size_t dataLen);
 private:
 	Notepad_plus* _pNotepadPlus = nullptr;
@@ -4419,7 +4419,7 @@ public:
 	~Progress();
 	// Disable copy construction and operator=
 	Progress(const Progress&) = delete;
-	const Progress& operator=(const Progress&) = delete;
+	const Progress& operator = (const Progress&) = delete;
 	HWND open(HWND hCallerWnd, const TCHAR* header = NULL);
 	void close();
 	bool isCancelled() const;
@@ -5246,14 +5246,14 @@ public:
 	static WINRECT* InitMap(WINRECT* map, WINRECT* parent=NULL);
 	WINRECT* Prev()			{ return prev; }
 	WINRECT* Next()			{ return next; }
-	WINRECT* Children()		{ return IsGroup() ? this+1 : NULL; }
+	WINRECT* Children() { return IsGroup() ? this+1 : NULL; }
 	WINRECT* Parent();
 	WORD GetFlags()			{ return flags; }
 	WORD SetFlags(WORD f)	{ return flags=f; }
 	LONG GetParam()			{ return param; }
 	LONG SetParam(LONG p)	{ return param=p; }
-	UINT GetID()				{ return nID; }
-	UINT SetID(UINT id)		{ return nID=id; }
+	UINT GetID() { return nID; }
+	UINT SetID(UINT id) { return nID=id; }
 	RECT& GetRect()					{ return rc; }
 	void SetRect(const RECT& r)	{ rc = r; }
 	WORD Type() const			{ return flags & WRCF_TYPEMASK; }
@@ -5313,7 +5313,7 @@ public:
 	CWinGroupIterator() : pCur(NULL)
 	{ 
 	}
-	CWinGroupIterator & operator=(WINRECT* pg) 
+	CWinGroupIterator & operator = (WINRECT* pg) 
 	{
 		assert(pg->IsGroup()); // can only iterate a group!
 		pCur = pg->Children();
@@ -5321,7 +5321,7 @@ public:
 	}
 	operator WINRECT*()	{ return pCur; }
 	WINRECT* pWINRECT()	{ return pCur; }
-	WINRECT* Next()		{ return pCur = pCur ? pCur->Next() : NULL;}
+	WINRECT* Next() { return pCur = pCur ? pCur->Next() : NULL;}
 };
 
 extern const UINT WM_WINMGR; // Registered WinMgr message
@@ -6857,10 +6857,10 @@ private:
 	~EncodingMapper() = default;
 	// No copy ctor and assignment
 	EncodingMapper(const EncodingMapper&) = delete;
-	EncodingMapper& operator=(const EncodingMapper&) = delete;
+	EncodingMapper& operator = (const EncodingMapper&) = delete;
 	// No move ctor and assignment
 	EncodingMapper(EncodingMapper&&) = delete;
-	EncodingMapper& operator=(EncodingMapper&&) = delete;
+	EncodingMapper& operator = (EncodingMapper&&) = delete;
 };
 //
 //#include "TreeView.h"
@@ -7687,8 +7687,8 @@ private:
 	// Allowed whitespace characters in XML
 	bool isWhitespace(int ch) const { return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'; }
 	FindResult findText(const char * text, int start, int end, int flags = 0);
-	FindResult findOpenTag(const std::string& tagName, int start, int end);
-	FindResult findCloseTag(const std::string& tagName, int start, int end);
+	FindResult findOpenTag(const std::string & tagName, int start, int end);
+	FindResult findCloseTag(const std::string & tagName, int start, int end);
 	int findCloseAngle(int startPosition, int endPosition);
 	std::vector< std::pair<int, int> > getAttributesPos(int start, int end);
 };
@@ -8403,7 +8403,7 @@ class Win32Exception : public std::exception {
 public:
 	static void installHandler();
 	static void removeHandler();
-	virtual const char* what()  const throw() { return _event; }
+	virtual const char * what()  const throw() { return _event; }
 	ExceptionAddress where() const { return _location; }
 	uint code()  const { return _code; }
 	EXCEPTION_POINTERS * info()  const { return _info; }

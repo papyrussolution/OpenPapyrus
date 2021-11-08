@@ -146,8 +146,8 @@ void ToCartesian(cmsVEC3* v, const cmsSpherical* sp)
 static
 void QuantizeToSector(const cmsSpherical* sp, int* alpha, int* theta)
 {
-	*alpha = (int)floor(((sp->alpha * (SECTORS)) / 360.0) );
-	*theta = (int)floor(((sp->theta * (SECTORS)) / 180.0) );
+	*alpha = (int)floor(((sp->alpha * (SECTORS)) / 360.0));
+	*theta = (int)floor(((sp->theta * (SECTORS)) / 180.0));
 
 	if(*alpha >= SECTORS)
 		*alpha = SECTORS-1;
@@ -522,7 +522,7 @@ cmsBool CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, cmsUInt32Number dwFlags)
 // Great for debug, but not suitable for real use
 
 #if 0
-cmsBool cmsGBDdumpVRML(cmsHANDLE hGBD, const char* fname)
+cmsBool cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname)
 {
 	FILE* fp;
 	int i, j;

@@ -273,7 +273,7 @@ bool WordList::InListAbridged(const char * s, const char marker) const noexcept 
 				}
 				b++;
 			}
-			if(!*a  && !*b)
+			if(!*a && !*b)
 				return true;
 			j++;
 		}

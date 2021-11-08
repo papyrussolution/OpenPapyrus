@@ -113,13 +113,13 @@ void nsLatin1Prober::Reset(void)
 		mFreqCounter[i] = 0;
 }
 
-nsProbingState nsLatin1Prober::HandleData(const char* aBuf, PRUint32 aLen)
+nsProbingState nsLatin1Prober::HandleData(const char * aBuf, PRUint32 aLen)
 {
 	char * newBuf1 = 0;
 	PRUint32 newLen1 = 0;
 
 	if(!FilterWithEnglishLetters(aBuf, aLen, &newBuf1, newLen1)) {
-		newBuf1 = (char*)aBuf;
+		newBuf1 = (char *)aBuf;
 		newLen1 = aLen;
 	}
 

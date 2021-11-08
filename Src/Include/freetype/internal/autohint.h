@@ -96,7 +96,7 @@ typedef struct FT_AutoHinterRec_  * FT_AutoHinter;
 typedef void
 (* FT_AutoHinter_GlobalGetFunc)(FT_AutoHinter hinter,
     FT_Face face,
-    void**         global_hints,
+    void **         global_hints,
     long*          global_len);
 
 /**************************************************************************

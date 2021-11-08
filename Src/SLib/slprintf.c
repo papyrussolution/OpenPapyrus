@@ -409,7 +409,7 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 					case 's': 
 						{
 							char zero[16];
-							const char * p = va_arg(va, char*);
+							const char * p = va_arg(va, char *);
 							uint l;
 							if(p) {
 								if(precision) {
@@ -452,9 +452,9 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 							width = sizeof(void *) * 2U;
 							flags |= FLAGS_ZEROPAD | FLAGS_UPPERCASE;
 							if(sizeof(uintptr_t) == sizeof(int64))
-								_ntoa_long_long(rBuf, (uintptr_t)va_arg(va, void*), false, 16U, precision, width, flags);
+								_ntoa_long_long(rBuf, (uintptr_t)va_arg(va, void *), false, 16U, precision, width, flags);
 							else
-								_ntoa_long(rBuf, (ulong)((uintptr_t)va_arg(va, void*)), false, 16U, precision, width, flags);
+								_ntoa_long(rBuf, (ulong)((uintptr_t)va_arg(va, void *)), false, 16U, precision, width, flags);
 							pFormat++;
 						}
 						break;

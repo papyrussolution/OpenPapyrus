@@ -491,7 +491,7 @@ static int tree_calculate_authority_set(X509_POLICY_TREE * tree,
 		for(j = 0; j < sk_X509_POLICY_NODE_num(curr->nodes); j++) {
 			node = sk_X509_POLICY_NODE_value(curr->nodes, j);
 			if((node->parent == anyptr)
-			    && !tree_add_auth_node(addnodes, node)) {
+			  && !tree_add_auth_node(addnodes, node)) {
 				if(addnodes == pnodes) {
 					sk_X509_POLICY_NODE_free(*pnodes);
 					*pnodes = NULL;
@@ -584,7 +584,7 @@ static int tree_evaluate(X509_POLICY_TREE * tree)
 			return X509_PCY_TREE_INTERNAL;
 
 		if(!(curr->flags & X509_V_FLAG_INHIBIT_ANY)
-		    && !tree_link_any(curr, cache, tree))
+		  && !tree_link_any(curr, cache, tree))
 			return X509_PCY_TREE_INTERNAL;
 #ifdef OPENSSL_POLICY_DEBUG
 		tree_print("before tree_prune()", tree, curr);

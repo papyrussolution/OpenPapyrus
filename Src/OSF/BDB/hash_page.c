@@ -2278,7 +2278,7 @@ int __ham_get_cpage(DBC * dbc, db_lockmode_t mode)
 	 */
 	LOCK_INIT(tmp_lock);
 	if(STD_LOCKING(dbc)) {
-		if(hcp->lbucket != hcp->bucket) {       /* Case 4 */
+		if(hcp->lbucket != hcp->bucket) { /* Case 4 */
 			if((ret = __TLPUT(dbc, hcp->lock)) != 0)
 				return ret;
 			LOCK_INIT(hcp->lock);

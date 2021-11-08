@@ -602,12 +602,12 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 				}
 			}
 			else if(((sc.state == SCE_P_STRING || sc.state == SCE_P_FSTRING))
-			    && (sc.ch == '\"')) {
+			  && (sc.ch == '\"')) {
 				sc.ForwardSetState(SCE_P_DEFAULT);
 				needEOLCheck = true;
 			}
 			else if(((sc.state == SCE_P_CHARACTER) || (sc.state == SCE_P_FCHARACTER))
-			    && (sc.ch == '\'')) {
+			  && (sc.ch == '\'')) {
 				sc.ForwardSetState(SCE_P_DEFAULT);
 				needEOLCheck = true;
 			}

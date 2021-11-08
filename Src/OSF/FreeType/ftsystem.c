@@ -147,7 +147,7 @@ FT_CALLBACK_DEF(void) ft_free(FT_Memory memory, void * block)
  */
 FT_CALLBACK_DEF(void) ft_ansi_stream_close(FT_Stream stream)
 {
-	ft_fclose(STREAM_FILE(stream) );
+	ft_fclose(STREAM_FILE(stream));
 	stream->descriptor.pointer = NULL;
 	stream->size               = 0;
 	stream->base               = NULL;
@@ -190,7 +190,7 @@ FT_CALLBACK_DEF(unsigned long) ft_ansi_stream_io(FT_Stream stream, unsigned long
 }
 
 /* documentation is in ftstream.h */
-FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char*  filepathname)
+FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char *  filepathname)
 {
 	FT_FILE*  file;
 	if(!stream)

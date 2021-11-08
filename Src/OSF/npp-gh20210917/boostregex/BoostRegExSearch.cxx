@@ -56,11 +56,11 @@ private:
 		Match() : _document(NULL), _documentModified(false), _position(-1), _endPosition(-1), _endPositionForContinuationCheck(-1)  {}
 		~Match() { setDocument(NULL); }
 		Match(Document* document, Sci::Position position = -1, Sci::Position endPosition = -1) : _document(NULL) { set(document, position, endPosition); }
-		Match& operator=(Match& m) {
+		Match& operator = (Match& m) {
 			set(m._document, m.position(), m.endPosition());
 			return *this;
 		}
-		Match& operator=(int /*nullptr*/) {
+		Match& operator = (int /*nullptr*/) {
 			_position = -1;
 			return *this;
 		}
@@ -112,7 +112,7 @@ private:
 		}
 		
 		// DocWatcher, so we can track modifications to know if we should consider a search to be a continuation of last search:
-		virtual void NotifyModified(Document* modifiedDocument, DocModification mh, void* /*userData*/)
+		virtual void NotifyModified(Document* modifiedDocument, DocModification mh, void * /*userData*/)
 		{
 			if (modifiedDocument == _document)
 			{
@@ -134,7 +134,7 @@ private:
 			}
 		}
 
-		virtual void NotifyDeleted(Document* deletedDocument, void* /*userData*/) noexcept
+		virtual void NotifyDeleted(Document* deletedDocument, void * /*userData*/) noexcept
 		{
 			if (deletedDocument == _document)
 			{
@@ -145,11 +145,11 @@ private:
 				set(NULL);
 			}
 		}
-		virtual void NotifyModifyAttempt(Document* /*document*/, void* /*userData*/) {}
-		virtual void NotifySavePoint(Document* /*document*/, void* /*userData*/, bool /*atSavePoint*/) {}
-		virtual void NotifyStyleNeeded(Document* /*document*/, void* /*userData*/, Sci::Position /*endPos*/) {}
-		virtual void NotifyLexerChanged(Document* /*document*/, void* /*userData*/) {}
-		virtual void NotifyErrorOccurred(Document* /*document*/, void* /*userData*/, int /*status*/) {}
+		virtual void NotifyModifyAttempt(Document* /*document*/, void * /*userData*/) {}
+		virtual void NotifySavePoint(Document* /*document*/, void * /*userData*/, bool /*atSavePoint*/) {}
+		virtual void NotifyStyleNeeded(Document* /*document*/, void * /*userData*/, Sci::Position /*endPos*/) {}
+		virtual void NotifyLexerChanged(Document* /*document*/, void * /*userData*/) {}
+		virtual void NotifyErrorOccurred(Document* /*document*/, void * /*userData*/, int /*status*/) {}
 		
 		Document* _document;
 		bool _documentModified;
@@ -157,13 +157,13 @@ private:
 		Sci::Position _endPositionForContinuationCheck;
 	};
 	
-	class CharTPtr { // Automatically translatable from utf8 to wchar_t*, if required, with allocation and deallocation on destruction; char* is not deallocated.
+	class CharTPtr { // Automatically translatable from utf8 to wchar_t*, if required, with allocation and deallocation on destruction; char * is not deallocated.
 	public:
-		CharTPtr(const char* ptr) : _charPtr(ptr), _wcharPtr(NULL) {}
+		CharTPtr(const char * ptr) : _charPtr(ptr), _wcharPtr(NULL) {}
 		~CharTPtr() {
 			delete[] _wcharPtr;
 		}
-		operator const char*() {
+		operator const char *() {
 			return _charPtr;
 		}
 		operator const wchar_t*() {
@@ -172,7 +172,7 @@ private:
 			return _wcharPtr;
 		}
 	private:
-		const char* _charPtr;
+		const char * _charPtr;
 		wchar_t* _wcharPtr;
 	};
 
@@ -219,7 +219,7 @@ private:
 	
 	static wchar_t *utf8ToWchar(const char *utf8);
 	static char    *wcharToUtf8(const wchar_t *w);
-	static char    *stringToCharPtr(const std::string& str);
+	static char    *stringToCharPtr(const std::string & str);
 	static char    *stringToCharPtr(const std::wstring& str);
 	
 	EncodingDependent<char,    AnsiDocumentIterator> _ansi;
@@ -470,7 +470,7 @@ char *BoostRegexSearch::wcharToUtf8(const wchar_t *w)
 	return c;
 }
 
-char *BoostRegexSearch::stringToCharPtr(const std::string& str)
+char *BoostRegexSearch::stringToCharPtr(const std::string & str)
 {
 	char *charPtr = new char[str.length() + 1];
 	strcpy(charPtr, str.c_str());

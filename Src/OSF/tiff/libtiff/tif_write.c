@@ -37,7 +37,7 @@
 #define WRITECHECKTILES(tif, module)  (((tif)->tif_flags&TIFF_BEENWRITING) || TIFFWriteCheck((tif), 1, module))
 #define BUFFERCHECK(tif)              ((((tif)->tif_flags & TIFF_BUFFERSETUP) && tif->tif_rawdata) ||	TIFFWriteBufferSetup((tif), NULL, (tmsize_t)-1))
 
-static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module);
+static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char * module);
 static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8 * data, tmsize_t cc);
 
 int TIFFWriteScanline(TIFF* tif, void * buf, uint32 row, uint16 sample)
@@ -492,7 +492,7 @@ int TIFFSetupStrips(TIFF* tif)
  * we also "freeze" the state of the directory so
  * that important information is not changed.
  */
-int FASTCALL TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
+int FASTCALL TIFFWriteCheck(TIFF* tif, int tiles, const char * module)
 {
 	if(tif->tif_mode == O_RDONLY) {
 		TIFFErrorExt(tif->tif_clientdata, module, "File not open for writing");
@@ -596,7 +596,7 @@ int TIFFWriteBufferSetup(TIFF* tif, void * bp, tmsize_t size)
 /*
  * Grow the strip data structures by delta strips.
  */
-static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
+static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char * module)
 {
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64* new_stripoffset;
@@ -670,7 +670,7 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8 * data, tmsize_t cc)
 	}
 	tif->tif_curoff = m;
 	td->td_stripbytecount[strip] += cc;
-	if( (int64)td->td_stripbytecount[strip] != old_byte_count)
+	if((int64)td->td_stripbytecount[strip] != old_byte_count)
 		tif->tif_flags |= TIFF_DIRTYSTRIP;
 	return 1;
 }

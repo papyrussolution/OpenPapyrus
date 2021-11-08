@@ -263,7 +263,7 @@ public:
 	int    Select(int mode /* TcpSocket::mXXX */, int timeout = -1, size_t * pAvailableSize = 0);
 		// @>>::select
 	int    Listen(); // @>>::listen
-	int    Accept(TcpSocket *, InetAddr *); // @>>::accept
+	int    Accept(TcpSocket &, InetAddr &); // @>>::accept
 	//
 	// Descr: Читает из сокета данные в буфер pBuf размер которого ограничен
 	//   величиной bufLen. По указателю pRcvdSize присваивается количество

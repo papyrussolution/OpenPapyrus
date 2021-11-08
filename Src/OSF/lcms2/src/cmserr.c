@@ -35,7 +35,7 @@ int CMSEXPORT cmsGetEncodedCMMversion(void)
 // that hopefully would be fully portable.
 
 // compare two strings ignoring case
-int CMSEXPORT cmsstrcasecmp(const char* s1, const char* s2)
+int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2)
 {
 	CMSREGISTER const uchar * us1 = (const uchar *)s1,
 	    * us2 = (const uchar *)s2;

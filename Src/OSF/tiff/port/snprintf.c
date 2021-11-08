@@ -9,7 +9,7 @@
 
 #ifdef _MSC_VER
 
-int _TIFF_vsnprintf_f(char* str, size_t size, const char* format, va_list ap)
+int _TIFF_vsnprintf_f(char * str, size_t size, const char * format, va_list ap)
 {
 	int count = -1;
 	if(size != 0) {
@@ -22,7 +22,7 @@ int _TIFF_vsnprintf_f(char* str, size_t size, const char* format, va_list ap)
 	return count;
 }
 
-int _TIFF_snprintf_f(char* str, size_t size, const char* format, ...)
+int _TIFF_snprintf_f(char * str, size_t size, const char * format, ...)
 {
 	int count;
 	va_list ap;

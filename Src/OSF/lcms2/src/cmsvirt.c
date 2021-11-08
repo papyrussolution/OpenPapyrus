@@ -59,7 +59,7 @@ Error:
 }
 
 static
-cmsBool  SetSeqDescTag(cmsHPROFILE hProfile, const char* Model)
+cmsBool  SetSeqDescTag(cmsHPROFILE hProfile, const char * Model)
 {
 	cmsBool rc = FALSE;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);

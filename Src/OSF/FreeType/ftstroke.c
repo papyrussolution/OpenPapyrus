@@ -126,7 +126,7 @@ static FT_Bool ft_conic_is_small_enough(FT_Vector*  base,
 		}
 	}
 
-	theta = ft_pos_abs(FT_Angle_Diff(*angle_in, *angle_out) );
+	theta = ft_pos_abs(FT_Angle_Diff(*angle_in, *angle_out));
 
 	return FT_BOOL(theta < FT_SMALL_CONIC_THRESHOLD);
 }
@@ -241,8 +241,8 @@ static FT_Bool ft_cubic_is_small_enough(FT_Vector*  base,
 		}
 	}
 
-	theta1 = ft_pos_abs(FT_Angle_Diff(*angle_in,  *angle_mid) );
-	theta2 = ft_pos_abs(FT_Angle_Diff(*angle_mid, *angle_out) );
+	theta1 = ft_pos_abs(FT_Angle_Diff(*angle_in,  *angle_mid));
+	theta2 = ft_pos_abs(FT_Angle_Diff(*angle_mid, *angle_out));
 
 	return FT_BOOL(theta1 < FT_SMALL_CUBIC_THRESHOLD &&
 		   theta2 < FT_SMALL_CUBIC_THRESHOLD);
@@ -347,7 +347,7 @@ static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border, FT_Vector*      
 	}
 	else {
 		/* don't add zero-length lineto, but always add moveto */
-		if(border->num_points > (FT_UInt)border->start                     &&
+		if(border->num_points > (FT_UInt)border->start                   &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].x - to->x) &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].y - to->y) )
 			return error;
@@ -439,7 +439,7 @@ static FT_Error ft_stroke_border_arcto(FT_StrokeBorder border,
 		arcs++;
 
 	/* control tangents */
-	coef  = FT_Tan(angle_diff / ( 4 * arcs ) );
+	coef  = FT_Tan(angle_diff / ( 4 * arcs ));
 	coef += coef / 3;
 
 	/* compute start and first control point */
@@ -795,9 +795,9 @@ static FT_Error ft_stroker_inside(FT_Stroker stroker,
 
 		FT_Vector_Unit(&sigma, theta);
 		min_length =
-		    ft_pos_abs(FT_MulDiv(stroker->radius, sigma.y, sigma.x) );
+		    ft_pos_abs(FT_MulDiv(stroker->radius, sigma.y, sigma.x));
 
-		intersect = FT_BOOL(min_length                         &&
+		intersect = FT_BOOL(min_length                       &&
 			stroker->line_length >= min_length &&
 			line_length          >= min_length);
 	}
@@ -979,7 +979,7 @@ static FT_Error ft_stroker_process_corner(FT_Stroker stroker,
 
 	/* when we turn to the right, the inside side is 0 */
 	/* otherwise, the inside side is 1 */
-	inside_side = ( turn < 0 );
+	inside_side = ( turn < 0);
 
 	/* process the inside side */
 	error = ft_stroker_inside(stroker, inside_side, line_length);
@@ -1135,7 +1135,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ConicTo(FT_Stroker stroker, FT_Vector*  contr
 		/* initialize with current direction */
 		angle_in = angle_out = stroker->angle_in;
 
-		if(arc < limit                                             &&
+		if(arc < limit                                           &&
 		    !ft_conic_is_small_enough(arc, &angle_in, &angle_out) ) {
 			if(stroker->first_point)
 				stroker->angle_in = angle_in;
@@ -1184,7 +1184,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ConicTo(FT_Stroker stroker, FT_Vector*  contr
 
 			theta  = FT_Angle_Diff(angle_in, angle_out) / 2;
 			phi    = angle_in + theta;
-			length = FT_DivFix(stroker->radius, FT_Cos(theta) );
+			length = FT_DivFix(stroker->radius, FT_Cos(theta));
 
 			/* compute direction of original arc */
 			if(stroker->handle_wide_strokes)
@@ -1232,8 +1232,8 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ConicTo(FT_Stroker stroker, FT_Vector*  contr
 
 						blen = FT_Vector_Length(&bvec);
 
-						sinA = ft_pos_abs(FT_Sin(alpha1 - gamma) );
-						sinB = ft_pos_abs(FT_Sin(beta - gamma) );
+						sinA = ft_pos_abs(FT_Sin(alpha1 - gamma));
+						sinB = ft_pos_abs(FT_Sin(beta - gamma));
 
 						alen = FT_MulDiv(blen, sinA, sinB);
 
@@ -1320,7 +1320,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_CubicTo(FT_Stroker stroker, FT_Vector*  contr
 		/* initialize with current direction */
 		angle_in = angle_out = angle_mid = stroker->angle_in;
 
-		if(arc < limit                                         &&
+		if(arc < limit                                       &&
 		    !ft_cubic_is_small_enough(arc, &angle_in,
 		    &angle_mid, &angle_out) ) {
 			if(stroker->first_point)
@@ -1372,8 +1372,8 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_CubicTo(FT_Stroker stroker, FT_Vector*  contr
 			theta2  = FT_Angle_Diff(angle_mid, angle_out) / 2;
 			phi1    = ft_angle_mean(angle_in,  angle_mid);
 			phi2    = ft_angle_mean(angle_mid, angle_out);
-			length1 = FT_DivFix(stroker->radius, FT_Cos(theta1) );
-			length2 = FT_DivFix(stroker->radius, FT_Cos(theta2) );
+			length1 = FT_DivFix(stroker->radius, FT_Cos(theta1));
+			length2 = FT_DivFix(stroker->radius, FT_Cos(theta2));
 
 			/* compute direction of original arc */
 			if(stroker->handle_wide_strokes)
@@ -1425,8 +1425,8 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_CubicTo(FT_Stroker stroker, FT_Vector*  contr
 
 						blen = FT_Vector_Length(&bvec);
 
-						sinA = ft_pos_abs(FT_Sin(alpha1 - gamma) );
-						sinB = ft_pos_abs(FT_Sin(beta - gamma) );
+						sinA = ft_pos_abs(FT_Sin(alpha1 - gamma));
+						sinB = ft_pos_abs(FT_Sin(beta - gamma));
 
 						alen = FT_MulDiv(blen, sinA, sinB);
 
@@ -1499,8 +1499,8 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_BeginSubPath(FT_Stroker stroker, FT_Vector*  
 	/* cover the negative sector created with wide strokes.  */
 	stroker->handle_wide_strokes =
 	    FT_BOOL(stroker->line_join != FT_STROKER_LINEJOIN_ROUND  ||
-		( stroker->subpath_open                        &&
-		stroker->line_cap == FT_STROKER_LINECAP_BUTT ) );
+		( stroker->subpath_open                      &&
+		stroker->line_cap == FT_STROKER_LINECAP_BUTT ));
 
 	/* record the subpath start point for each border */
 	stroker->subpath_start = *to;
@@ -1622,7 +1622,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_EndSubPath(FT_Stroker stroker)
 		if(turn != 0) {
 			/* when we turn to the right, the inside side is 0 */
 			/* otherwise, the inside side is 1 */
-			inside_side = ( turn < 0 );
+			inside_side = ( turn < 0);
 			error = ft_stroker_inside(stroker, inside_side, stroker->subpath_line_length);
 			if(error)
 				goto Exit;
@@ -1713,7 +1713,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline* 
 	FT_Vector v_start;
 	FT_Vector*  point;
 	FT_Vector*  limit;
-	char*       tags;
+	char *       tags;
 	FT_Error error;
 	FT_Int n;          /* index of contour in outline     */
 	FT_UInt first;     /* index of first point in contour */

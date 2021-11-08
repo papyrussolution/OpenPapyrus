@@ -92,7 +92,7 @@ cmsBool CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline* Lut, cmsU
 	cmsUInt32Number i;
 	cmsStage* mpe;
 	cmsStageSignature Type;
-	void** ElemPtr;
+	void ** ElemPtr;
 	// Make sure same number of elements
 	if(cmsPipelineStageCount(Lut) != n) 
 		return FALSE;
@@ -111,7 +111,7 @@ cmsBool CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline* Lut, cmsU
 	// Found a combination, fill pointers if not NULL
 	mpe = Lut->Elements;
 	for(i = 0; i < n; i++) {
-		ElemPtr = va_arg(args, void**);
+		ElemPtr = va_arg(args, void **);
 		if(ElemPtr != NULL)
 			*ElemPtr = mpe;
 		mpe = mpe->Next;

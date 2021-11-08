@@ -620,7 +620,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-		    && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+		  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 		    ) {
 			protocols[cur].data = (uchar *)NGHTTP2_PROTO_VERSION_ID;
@@ -841,9 +841,9 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 		    SSL_SET_OPTION(issuercert)) {
 #ifdef HAVE_GNUTLS_SRP
 			if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP
-			    && SSL_SET_OPTION(username) != NULL
-			    && !SSL_CONN_CONFIG(verifypeer)
-			    && gnutls_cipher_get(session)) {
+			  && SSL_SET_OPTION(username) != NULL
+			  && !SSL_CONN_CONFIG(verifypeer)
+			  && gnutls_cipher_get(session)) {
 				/* no peer cert, but auth is ok if we have SRP user and cipher and no
 				   peer verify */
 			}
@@ -1488,7 +1488,7 @@ static int Curl_gtls_shutdown(struct connectdata * conn, int sockindex)
 
 #ifdef HAVE_GNUTLS_SRP
 	if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP
-	    && SSL_SET_OPTION(username) != NULL)
+	  && SSL_SET_OPTION(username) != NULL)
 		gnutls_srp_free_client_credentials(backend->srp_client_cred);
 #endif
 

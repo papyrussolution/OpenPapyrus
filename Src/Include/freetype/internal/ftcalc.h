@@ -59,9 +59,9 @@ static __inline FT_Int32 FT_MulFix_arm(FT_Int32 a,
 
 #ifdef __GNUC__
 
-#if defined( __arm__ )                                 && \
+#if defined( __arm__ )                               && \
 	( !defined( __thumb__ ) || defined( __thumb2__ ) ) && \
-	!( defined( __CC_ARM ) || defined( __ARMCC__ ) )
+	!(defined( __CC_ARM ) || defined( __ARMCC__ ) )
 
 #define FT_MULFIX_ASSEMBLER  FT_MulFix_arm
 
@@ -90,9 +90,9 @@ static __inline__ FT_Int32 FT_MulFix_arm(FT_Int32 a,
 	return a;
 }
 
-#endif /* __arm__                      && */
+#endif /* __arm__                    && */
        /* ( __thumb2__ || !__thumb__ ) && */
-       /* !( __CC_ARM || __ARMCC__ )      */
+       /* !(__CC_ARM || __ARMCC__ )      */
 
 #if defined( __i386__ )
 
@@ -325,13 +325,13 @@ ft_corner_is_flat(FT_Pos in_x,
  * Return the most significant bit index.
  */
 #ifndef  FT_CONFIG_OPTION_NO_ASSEMBLER
-#if defined( __GNUC__ ) && ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ) )
+#if defined( __GNUC__) && (__GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ) )
 	#if FT_SIZEOF_INT == 4
 		#define FT_MSB(x)  ( 31 - __builtin_clz(x) )
 	#elif FT_SIZEOF_LONG == 4
 		#define FT_MSB(x)  ( 31 - __builtin_clzl(x) )
 	#endif /* __GNUC__ */
-#elif defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
+#elif defined( _MSC_VER) && (_MSC_VER >= 1400 )
 
 #if FT_SIZEOF_INT == 4
 
@@ -399,7 +399,7 @@ FT_SqrtFixed(FT_Int32 x);
 #define F2DOT14_TO_FIXED(x)  ( (FT_Long)(x) * 4 )        /* << 2  */
 #define FIXED_TO_INT(x)      ( FT_RoundFix(x) >> 16 )
 
-#define ROUND_F26DOT6(x)     ( ( (x) + 32 - ( x < 0 ) ) & -64 )
+#define ROUND_F26DOT6(x)     (((x) + 32 - ( x < 0) ) & -64 )
 
 /*
  * The following macros have two purposes.

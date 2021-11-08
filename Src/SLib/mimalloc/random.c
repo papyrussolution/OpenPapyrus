@@ -233,7 +233,7 @@ static bool os_random_buf(void * buf, size_t buf_len) {
 	if(fd < 0) return false;
 	size_t count = 0;
 	while(count < buf_len) {
-		ssize_t ret = read(fd, (char*)buf + count, buf_len - count);
+		ssize_t ret = read(fd, (char *)buf + count, buf_len - count);
 		if(ret<=0) {
 			if(errno!=EAGAIN && errno!=EINTR) break;
 		}

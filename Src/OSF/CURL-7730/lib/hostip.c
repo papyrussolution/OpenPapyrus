@@ -144,14 +144,14 @@ void Curl_printable_address(const struct Curl_addrinfo * ai, char * buf,
 		case AF_INET: {
 		    const struct sockaddr_in * sa4 = (const struct sockaddr_in *)ai->ai_addr;
 		    const struct in_addr * ipaddr4 = &sa4->sin_addr;
-		    (void)Curl_inet_ntop(ai->ai_family, (const void*)ipaddr4, buf, bufsize);
+		    (void)Curl_inet_ntop(ai->ai_family, (const void *)ipaddr4, buf, bufsize);
 		    break;
 	    }
 #ifdef ENABLE_IPV6
 		case AF_INET6: {
 		    const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6 *)ai->ai_addr;
 		    const struct in6_addr * ipaddr6 = &sa6->sin6_addr;
-		    (void)Curl_inet_ntop(ai->ai_family, (const void*)ipaddr6, buf, bufsize);
+		    (void)Curl_inet_ntop(ai->ai_family, (const void *)ipaddr6, buf, bufsize);
 		    break;
 	    }
 #endif
@@ -194,7 +194,7 @@ static int hostcache_timestamp_remove(void * datap, void * hc)
 	struct Curl_dns_entry * c = (struct Curl_dns_entry *)hc;
 
 	return (0 != c->timestamp)
-	       && (data->now - c->timestamp >= data->cache_timeout);
+	     && (data->now - c->timestamp >= data->cache_timeout);
 }
 
 /*

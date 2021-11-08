@@ -85,7 +85,7 @@ typedef int (* OnigApplyAllCaseFoldFunc)(OnigCodePoint from, OnigCodePoint* to, 
 
 typedef struct OnigEncodingTypeST {
 	int (*mbc_enc_len)(const uchar* p);
-	const char*   name;
+	const char *   name;
 	int max_enc_len;
 	int min_enc_len;
 	int (*is_mbc_newline)(const uchar* p, const uchar* end);
@@ -592,8 +592,8 @@ typedef struct {
 	int upper;
 } OnigRepeatRange;
 
-typedef void (*OnigWarnFunc)(const char* s);
-extern void onig_null_warn(const char* s);
+typedef void (*OnigWarnFunc)(const char * s);
+extern void onig_null_warn(const char * s);
 #define ONIG_NULL_WARN       onig_null_warn
 #define ONIG_CHAR_TABLE_SIZE   256
 
@@ -704,7 +704,7 @@ ONIG_EXTERN int onig_new_deluxe(OnigRegex* reg, const uchar* pattern, const ucha
 ONIG_EXTERN void onig_free(OnigRegex);
 ONIG_EXTERN void onig_free_body(OnigRegex);
 ONIG_EXTERN int onig_scan(OnigRegex reg, const uchar* str, const uchar* end, OnigRegion* region, OnigOptionType option, int (* scan_callback)(
-	int, int, OnigRegion*, void*), void * callback_arg);
+	int, int, OnigRegion*, void *), void * callback_arg);
 ONIG_EXTERN int onig_search(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range, OnigRegion* region, OnigOptionType option);
 ONIG_EXTERN int onig_search_with_param(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range,
     OnigRegion* region, OnigOptionType option, OnigMatchParam* mp);
@@ -731,12 +731,12 @@ ONIG_EXTERN int onig_region_resize(OnigRegion* region, int n);
 ONIG_EXTERN int onig_region_set(OnigRegion* region, int at, int beg, int end);
 ONIG_EXTERN int onig_name_to_group_numbers(OnigRegex reg, const uchar* name, const uchar* name_end, int** nums);
 ONIG_EXTERN int onig_name_to_backref_number(OnigRegex reg, const uchar* name, const uchar* name_end, OnigRegion * region);
-ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar*, const uchar*, int, int*, OnigRegex, void*), void * arg);
+ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar*, const uchar*, int, int*, OnigRegex, void *), void * arg);
 ONIG_EXTERN int onig_number_of_names(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_captures(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_capture_histories(OnigRegex reg);
 ONIG_EXTERN OnigCaptureTreeNode* onig_get_capture_tree(OnigRegion* region);
-ONIG_EXTERN int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void*), void * arg);
+ONIG_EXTERN int onig_capture_tree_traverse(OnigRegion* region, int at, int (* callback_func)(int, int, int, int, int, void *), void * arg);
 ONIG_EXTERN int onig_noname_group_capture_is_active(OnigRegex reg);
 ONIG_EXTERN OnigEncoding onig_get_encoding(OnigRegex reg);
 ONIG_EXTERN OnigOptionType onig_get_options(OnigRegex reg);
@@ -769,7 +769,7 @@ ONIG_EXTERN ulong onig_get_subexp_call_limit_in_search(void);
 ONIG_EXTERN int onig_set_subexp_call_limit_in_search(ulong n);
 ONIG_EXTERN int onig_get_subexp_call_max_nest_level(void);
 ONIG_EXTERN int onig_set_subexp_call_max_nest_level(int level);
-ONIG_EXTERN int onig_unicode_define_user_property(const char* name, OnigCodePoint* ranges);
+ONIG_EXTERN int onig_unicode_define_user_property(const char * name, OnigCodePoint* ranges);
 ONIG_EXTERN int onig_end(void);
 ONIG_EXTERN const char * onig_version(void);
 ONIG_EXTERN const char * onig_copyright(void);

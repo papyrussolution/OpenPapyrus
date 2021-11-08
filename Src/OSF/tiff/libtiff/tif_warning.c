@@ -48,7 +48,7 @@ TIFFSetWarningHandlerExt(TIFFErrorHandlerExt handler)
 }
 
 void
-TIFFWarning(const char* module, const char* fmt, ...)
+TIFFWarning(const char * module, const char * fmt, ...)
 {
 	va_list ap;
 	if (_TIFFwarningHandler) {
@@ -64,7 +64,7 @@ TIFFWarning(const char* module, const char* fmt, ...)
 }
 
 void
-TIFFWarningExt(thandle_t fd, const char* module, const char* fmt, ...)
+TIFFWarningExt(thandle_t fd, const char * module, const char * fmt, ...)
 {
 	va_list ap;
 	if (_TIFFwarningHandler) {

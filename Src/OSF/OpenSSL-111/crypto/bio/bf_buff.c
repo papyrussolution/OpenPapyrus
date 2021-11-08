@@ -174,7 +174,7 @@ start:
 	/* else */
 	/* stuff already in buffer, so add to it first, then flush */
 	if(ctx->obuf_len != 0) {
-		if(i > 0) {     /* lets fill it up if we can */
+		if(i > 0) { /* lets fill it up if we can */
 			memcpy(&(ctx->obuf[ctx->obuf_off + ctx->obuf_len]), in, i);
 			in += i;
 			inl -= i;

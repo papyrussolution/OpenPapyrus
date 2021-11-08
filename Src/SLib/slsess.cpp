@@ -948,7 +948,8 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 			}
 			counter = 30;
 			do {
-				if(!(f = fopen(file_name, "a+"))) {
+				f = fopen(file_name, "a+");
+				if(!f) {
 					if(CheckStopFlag()) {
 						ok = 0;
 						break;

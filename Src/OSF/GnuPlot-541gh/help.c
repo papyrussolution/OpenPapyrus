@@ -260,7 +260,7 @@ static LINEBUF * storeline(char * text)
 //
 static LINKEY * storekey(char * key)
 {
-	key[strlen(key)-1] = NUL; /* cut off \n  */
+	key[strlen(key)-1] = '\0'; // cut off \n 
 	LINKEY * p_new = (LINKEY*)SAlloc::M(sizeof(LINKEY));
 	if(key)
 		p_new->key = sstrdup(key);
@@ -387,7 +387,7 @@ static bool Ambiguous(KEY * key, size_t len)
 	bool status = FALSE;    /* assume not ambiguous */
 	int compare;
 	size_t sublen;
-	if(key->key[len] == NUL)
+	if(!key->key[len])
 		return FALSE;
 	for(prev = first = key->key, compare = 0, key++; key->key && compare == 0; key++) {
 		compare = strncmp(first, key->key, len);
@@ -450,7 +450,7 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 #define MAXSTARTS 256
 	int stopics = 0;        /* count of (and index to next) subtopic name */
 	char * starts[MAXSTARTS]; /* saved positions of subnames */
-	*line = NUL;
+	*line = '\0';
 	len = strlen(key->key);
 	for(subkey = key + 1; subkey->key; subkey++) {
 		if(strncmp(subkey->key, key->key, len) == 0) {
@@ -479,7 +479,7 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 					else
 						strcpy(line, "\nHelp topics available:\n");
 					OutLine_InternalPager(line);
-					*line = NUL;
+					*line = '\0';
 				}
 				starts[stopics++] = start;
 				prev = start;
@@ -516,7 +516,7 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 			if(pos >= PER_LINE) {
 				strcat(line, "\n");
 				OutLine_InternalPager(line);
-				*line = NUL;
+				*line = '\0';
 				pos = 0;
 			}
 		}
@@ -534,7 +534,7 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 		int row, col;
 		int rows = (int)(stopics / PER_LINE) + 1;
 		for(row = 0; row < rows; row++) {
-			*line = NUL;
+			*line = '\0';
 			for(ispacelen = 0; ispacelen < FIRSTCOL; ispacelen++)
 				strcat(line, " ");
 			for(col = 0; col < PER_LINE; col++) {

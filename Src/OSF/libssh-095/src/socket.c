@@ -236,7 +236,7 @@ int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
 		/* Check if we are in a connecting state */
 		if(s->state == SSH_SOCKET_CONNECTING) {
 			s->state = SSH_SOCKET_ERROR;
-			rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&err, &errlen);
+			rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, (char *)&err, &errlen);
 			if(rc < 0) {
 				err = errno;
 			}
@@ -868,7 +868,7 @@ void ssh_execute_command(const char * command, socket_t in, socket_t out)
 	dup2(devnull, STDERR_FILENO);
 	close(in);
 	close(out);
-	execv(args[0], (char* const*)args);
+	execv(args[0], (char * const*)args);
 	exit(1);
 }
 

@@ -55,8 +55,8 @@ public:
   {mCodingSM = new nsCodingStateMachine(&EUCJPSMModel);
     Reset();}
   virtual ~nsEUCJPProber(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return "EUC-JP";}
+  nsProbingState HandleData(const char * aBuf, PRUint32 aLen);
+  const char * GetCharSetName() {return "EUC-JP";}
   nsProbingState GetState(void) {return mState;}
   void      Reset(void);
   float     GetConfidence(void);

@@ -106,7 +106,7 @@ void resolveLinkFile(generic_string& linkFilePath)
 		hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
 		if(SUCCEEDED(hres)) {
 			IPersistFile* ppf;
-			hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
+			hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
 			if(SUCCEEDED(hres)) {
 				// Load the shortcut.
 				hres = ppf->Load(linkFilePath.c_str(), STGM_READ);
@@ -354,9 +354,9 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 
 					patterns.push_back(substring + 1);
 					generic_string dir(targetFileName.c_str(), pos + 1); // use char * to evoke:
-					// string (const char* s, size_t n);
+					// string (const char * s, size_t n);
 					// and avoid to call (if pass string) :
-					// string (const string& str, size_t pos, size_t len = npos);
+					// string (const string & str, size_t pos, size_t len = npos);
 
 					getMatchedFileNames(dir.c_str(), patterns, fileNames, isRecursive, false);
 				}

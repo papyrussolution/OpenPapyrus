@@ -2246,7 +2246,7 @@ typedef enum {
 /* structure to be used as parameter for CURLFORM_ARRAY */
 struct curl_forms {
 	CURLformoption option;
-	const char     * value;
+	const char * value;
 };
 
 /* use this for multipart formpost building */

@@ -365,7 +365,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_CONNECT:
 		    if(ptr != NULL) {
-			    pptr = (const char**)ptr;
+			    pptr = (const char **)ptr;
 			    if(num == 0) {
 				    *pptr = data->param_hostname;
 			    }

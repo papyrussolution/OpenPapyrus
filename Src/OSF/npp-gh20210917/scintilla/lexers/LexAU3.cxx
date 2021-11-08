@@ -105,7 +105,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 	char szSpecial[100];
 
 	// split the portion of the sendkey in the part before and after the spaces
-	while( ( (cTemp = szLine[nPos]) != '\0')) {
+	while(((cTemp = szLine[nPos]) != '\0')) {
 		// skip leading Ctrl/Shift/Alt state
 		if(cTemp == '{') {
 			nStartFound = 1;
@@ -755,7 +755,7 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			    ((!(IsStreamCommentStyle(style)) || foldInComment)) ) {
 				szKeyword[szKeywordlen] = '\0';
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(strcmp(szKeyword, "if") == 0  && ThenFoundLast) {
+				if(strcmp(szKeyword, "if") == 0 && ThenFoundLast) {
 					levelNext++;
 				}
 				// create new fold for these words
@@ -819,15 +819,15 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 				}
 				// fold till the last line for normal comment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				    && !(styleNext == SCE_AU3_COMMENT)
-				    && stylePrev == SCE_AU3_COMMENT
-				    && style == SCE_AU3_COMMENT) {
+				  && !(styleNext == SCE_AU3_COMMENT)
+				  && stylePrev == SCE_AU3_COMMENT
+				  && style == SCE_AU3_COMMENT) {
 					levelNext--;
 				}
 				// fold till the one but last line for Blockcomment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				    && !(styleNext == SCE_AU3_COMMENTBLOCK)
-				    && style == SCE_AU3_COMMENTBLOCK) {
+				  && !(styleNext == SCE_AU3_COMMENTBLOCK)
+				  && style == SCE_AU3_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

@@ -70,7 +70,7 @@ typedef struct FT_MemoryRec_*  FT_Memory;
  *   Address of new memory block.  0~in case of failure.
  *
  */
-typedef void*
+typedef void *
 (* FT_Alloc_Func)(FT_Memory memory,
     long size);
 
@@ -122,7 +122,7 @@ typedef void
  *   In case of error, the old block must still be available.
  *
  */
-typedef void*
+typedef void *
 (* FT_Realloc_Func)(FT_Memory memory,
     long cur_size,
     long new_size,

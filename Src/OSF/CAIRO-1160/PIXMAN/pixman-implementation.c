@@ -75,13 +75,13 @@ void _pixman_implementation_lookup_composite(pixman_implementation_t * toplevel,
 		 * us from selecting an overly general fast path
 		 * when a more specific one would work.
 		 */
-		if(info->op == op                      &&
-		    info->src_format == src_format      &&
-		    info->mask_format == mask_format    &&
-		    info->dest_format == dest_format    &&
-		    info->src_flags == src_flags        &&
-		    info->mask_flags == mask_flags      &&
-		    info->dest_flags == dest_flags      &&
+		if(info->op == op                    &&
+		    info->src_format == src_format    &&
+		    info->mask_format == mask_format  &&
+		    info->dest_format == dest_format  &&
+		    info->src_flags == src_flags      &&
+		    info->mask_flags == mask_flags    &&
+		    info->dest_flags == dest_flags    &&
 		    info->func) {
 			*out_imp = cache->cache[i].imp;
 			*out_func = cache->cache[i].fast_path.func;
@@ -94,17 +94,17 @@ void _pixman_implementation_lookup_composite(pixman_implementation_t * toplevel,
 		const pixman_fast_path_t * info = imp->fast_paths;
 
 		while(info->op != PIXMAN_OP_NONE) {
-			if((info->op == op || info->op == PIXMAN_OP_any)           &&
+			if((info->op == op || info->op == PIXMAN_OP_any)         &&
 			    /* Formats */
 			    ((info->src_format == src_format) ||
-			    (info->src_format == PIXMAN_any))                      &&
+			    (info->src_format == PIXMAN_any))                    &&
 			    ((info->mask_format == mask_format) ||
-			    (info->mask_format == PIXMAN_any))                     &&
+			    (info->mask_format == PIXMAN_any))                   &&
 			    ((info->dest_format == dest_format) ||
-			    (info->dest_format == PIXMAN_any))                     &&
+			    (info->dest_format == PIXMAN_any))                   &&
 			    /* Flags */
-			    (info->src_flags & src_flags) == info->src_flags        &&
-			    (info->mask_flags & mask_flags) == info->mask_flags     &&
+			    (info->src_flags & src_flags) == info->src_flags      &&
+			    (info->mask_flags & mask_flags) == info->mask_flags   &&
 			    (info->dest_flags & dest_flags) == info->dest_flags) {
 				*out_imp = imp;
 				*out_func = info->func;

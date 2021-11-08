@@ -187,7 +187,7 @@ void strFrom16(char str[3], cmsUInt16Number n)
 }
 
 // Add an ASCII entry. Do not add any \0 termination (ICC1v43_2010-12.pdf page 61)
-cmsBool CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char* ASCIIString)
+cmsBool CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString)
 {
 	cmsUInt32Number i, len = (cmsUInt32Number)strlen(ASCIIString);
 	wchar_t* WStr;
@@ -336,7 +336,7 @@ static const wchar_t* _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 // Obtain an ASCII representation of the wide string. Setting buffer to NULL returns the len
 cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    char* Buffer, cmsUInt32Number BufferSize)
+    char * Buffer, cmsUInt32Number BufferSize)
 {
 	const wchar_t * Wide;
 	cmsUInt32Number StrLen = 0;
@@ -497,8 +497,8 @@ cmsBool  GrowNamedColorList(cmsNAMEDCOLORLIST* v)
 cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
     cmsUInt32Number n,
     cmsUInt32Number ColorantCount,
-    const char* Prefix,
-    const char* Suffix)
+    const char * Prefix,
+    const char * Suffix)
 {
 	cmsNAMEDCOLORLIST* v = (cmsNAMEDCOLORLIST*)_cmsMallocZero(ContextID, sizeof(cmsNAMEDCOLORLIST));
 
@@ -559,7 +559,7 @@ cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v)
 
 // Append a color to a list. List pointer may change if reallocated
 cmsBool CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* NamedColorList,
-    const char* Name,
+    const char * Name,
     cmsUInt16Number PCS[3], cmsUInt16Number Colorant[cmsMAXCHANNELS])
 {
 	cmsUInt32Number i;
@@ -596,9 +596,9 @@ cmsUInt32Number CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* NamedColor
 
 // Info aboout a given color
 cmsBool CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
-    char* Name,
-    char* Prefix,
-    char* Suffix,
+    char * Name,
+    char * Prefix,
+    char * Suffix,
     cmsUInt16Number* PCS,
     cmsUInt16Number* Colorant)
 {
@@ -621,7 +621,7 @@ cmsBool CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cms
 }
 
 // Search for a given color name (no prefix or suffix)
-cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* NamedColorList, const char* Name)
+cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* NamedColorList, const char * Name)
 {
 	cmsUInt32Number i;
 	cmsUInt32Number n;

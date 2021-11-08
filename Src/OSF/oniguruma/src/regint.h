@@ -868,7 +868,7 @@ struct re_pattern_buffer {
 #define COP_CURR_OFFSET_BYTES(reg, p)  ((int)((char *)(&((reg)->ops_curr->p)) - (char *)((reg)->ops)))
 
 extern void onig_add_end_call(void (* func)(void));
-extern void onig_warning(const char* s);
+extern void onig_warning(const char * s);
 extern uchar * onig_error_code_to_format(int code);
 extern void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize, OnigEncoding enc, uchar * pat, uchar * pat_end, const uchar * fmt, ...);
 extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end, OnigErrorInfo* einfo);

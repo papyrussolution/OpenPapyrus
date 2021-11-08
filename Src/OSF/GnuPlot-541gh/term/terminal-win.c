@@ -768,7 +768,7 @@ TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char s[])
 	TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int options)
 	{
 		// Not required: message handling already done elsewhere. 
-		return (options == TERM_ONLY_CHECK_MOUSING) ? NUL : ConsoleGetch();
+		return (options == TERM_ONLY_CHECK_MOUSING) ? '\0' : ConsoleGetch();
 	}
 #endif /* WGP_CONSOLE */
 #endif /* USE_MOUSE */

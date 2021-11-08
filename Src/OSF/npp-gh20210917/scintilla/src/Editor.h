@@ -264,8 +264,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	// Deleted so Editor objects can not be copied.
 	Editor(const Editor &) = delete;
 	Editor(Editor &&) = delete;
-	Editor &operator=(const Editor &) = delete;
-	Editor &operator=(Editor &&) = delete;
+	Editor & operator = (const Editor &) = delete;
+	Editor & operator = (Editor &&) = delete;
 	// ~Editor() in public section
 	virtual void Initialise() = 0;
 	virtual void Finalise();
@@ -662,8 +662,8 @@ public:
 	// Deleted so AutoSurface objects can not be copied.
 	AutoSurface(const AutoSurface &) = delete;
 	AutoSurface(AutoSurface &&) = delete;
-	void operator=(const AutoSurface &) = delete;
-	void operator=(AutoSurface &&) = delete;
+	void operator = (const AutoSurface &) = delete;
+	void operator = (AutoSurface &&) = delete;
 	~AutoSurface() {
 	}
 	Surface *operator->() const noexcept {

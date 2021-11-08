@@ -2037,7 +2037,7 @@ static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller
 	}
 	else
 		name = sstrdup(font);
-	name[sep] = NUL;
+	name[sep] = '\0';
 	// Check for set font "/:Bold" or set font ":Bold" 
 	wants_italic = strstr(name, ":Italic");
 	wants_bold = strstr(name, ":Bold");

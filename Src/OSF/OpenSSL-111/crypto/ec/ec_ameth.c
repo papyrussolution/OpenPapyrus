@@ -31,7 +31,7 @@ static int eckey_param2type(int * pptype, void ** ppval, EC_KEY * ec_key)
 		return 0;
 	}
 	if(EC_GROUP_get_asn1_flag(group)
-	    && (nid = EC_GROUP_get_curve_name(group))) {
+	  && (nid = EC_GROUP_get_curve_name(group))) {
 		/* we have a 'named curve' => just set the OID */
 		*ppval = OBJ_nid2obj(nid);
 		*pptype = V_ASN1_OBJECT;

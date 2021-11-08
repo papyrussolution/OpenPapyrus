@@ -423,13 +423,13 @@ mi_decl_export void _mi_redirect_entry(DWORD reason) {
 	}
 }
 
-__declspec(dllimport) bool mi_allocator_init(const char** message);
+__declspec(dllimport) bool mi_allocator_init(const char ** message);
 __declspec(dllimport) void mi_allocator_done(void);
 #ifdef __cplusplus
 }
 #endif
 #else
-static bool mi_allocator_init(const char** message) {
+static bool mi_allocator_init(const char ** message) {
 	if(message != NULL) *message = NULL;
 	return true;
 }
@@ -457,7 +457,7 @@ static void mi_process_load(void)
 	if(mi_redirected) _mi_verbose_message("malloc is redirected.\n");
 
 	// show message from the redirector (if present)
-	const char* msg = NULL;
+	const char * msg = NULL;
 	mi_allocator_init(&msg);
 	if(msg != NULL && (mi_option_is_enabled(mi_option_verbose) || mi_option_is_enabled(mi_option_show_errors))) {
 		_mi_fputs(NULL, NULL, NULL, msg);

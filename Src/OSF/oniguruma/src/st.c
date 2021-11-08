@@ -139,7 +139,7 @@ st_table* st_init_table_with_size(struct st_hash_type * type, int size)
 		atexit(stat_col);
 	}
 #endif
-	size = new_size(size);  /* round up to prime number */
+	size = new_size(size); /* round up to prime number */
 	if(size > 0) {
 		tbl = alloc(st_table);
 		if(tbl) {

@@ -5199,7 +5199,7 @@ static void FASTCALL fill_window(deflate_state * s)
 		 * => more >= window_size - (MIN_LOOKAHEAD-1 + WSIZE + MAX_DIST-1)
 		 * => more >= window_size - 2*WSIZE + 2
 		 * In the BIG_MEM or MMAP case (not yet supported),
-		 * window_size == input_size + MIN_LOOKAHEAD  &&
+		 * window_size == input_size + MIN_LOOKAHEAD &&
 		 * strstart + s->lookahead <= input_size => more >= MIN_LOOKAHEAD.
 		 * Otherwise, window_size == 2*WSIZE so more >= 2.
 		 * If there was sliding, more >= WSIZE. So in all cases, more >= 2.
@@ -7071,7 +7071,7 @@ dodist:
 				break;
 			}
 		}
-		else if((op & 64) == 0) {       /* 2nd level length code */
+		else if((op & 64) == 0) { /* 2nd level length code */
 			here = lcode[here.val + (hold & ((1U << op) - 1))];
 			goto dolen;
 		}

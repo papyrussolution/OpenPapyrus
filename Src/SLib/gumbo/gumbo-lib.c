@@ -140,7 +140,7 @@ static void FASTCALL read_char(Utf8Iterator * iter)
 			// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#preprocessing-the-input-stream
 			if(code_point == '\r') {
 				assert(iter->_width == 1);
-				const char* next = c + 1;
+				const char * next = c + 1;
 				if(next < iter->_end && *next == '\n') {
 					// Advance the iter, as if the carriage return didn't exist.
 					++iter->_start;
@@ -201,7 +201,7 @@ bool FASTCALL utf8_is_invalid_code_point(int c)
 	       ((c & 0xFFFF) == 0xFFFE) || ((c & 0xFFFF) == 0xFFFF);
 }
 
-void utf8iterator_init(GumboParser * parser, const char* source, size_t source_length, Utf8Iterator* iter) 
+void utf8iterator_init(GumboParser * parser, const char * source, size_t source_length, Utf8Iterator* iter) 
 {
 	iter->_start = source;
 	iter->_end = source + source_length;
@@ -226,7 +226,7 @@ void   FASTCALL utf8iterator_get_position(const Utf8Iterator* iter, GumboSourceP
 const  char * FASTCALL utf8iterator_get_char_pointer(const Utf8Iterator* iter) { return iter->_start; }
 const  char * FASTCALL utf8iterator_get_end_pointer(const Utf8Iterator* iter) { return iter->_end; }
 
-bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char* prefix, size_t length, bool case_sensitive) 
+bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char * prefix, size_t length, bool case_sensitive) 
 {
 	bool matched = (iter->_start + length <= iter->_end) && (case_sensitive ? !strncmp(iter->_start, prefix, length) : !strncasecmp(iter->_start, prefix, length));
 	if(matched) {
@@ -457,7 +457,7 @@ void * FASTCALL gumbo_vector_remove_at(uint index, GumboVector * vector)
 //
 // Prints a formatted message to a StringBuffer.  This automatically resizes the
 // StringBuffer as necessary to fit the message.  Returns the number of bytes written.
-static int print_message(GumboParser * parser, GumboStringBuffer* output, const char* format, ...) 
+static int print_message(GumboParser * parser, GumboStringBuffer* output, const char * format, ...) 
 {
 	va_list args;
 	int remaining_capacity = output->capacity - output->length;
@@ -552,10 +552,10 @@ static void handle_parser_error(GumboParser * parser, const GumboParserError* er
 // Finds the preceding newline in an original source buffer from a given byte
 // location.  Returns a character pointer to the character after that, or a
 // pointer to the beginning of the string if this is the first line.
-static const char * FASTCALL find_last_newline(const char* original_text, const char* error_location) 
+static const char * FASTCALL find_last_newline(const char * original_text, const char * error_location) 
 {
 	assert(error_location >= original_text);
-	const char* c = error_location;
+	const char * c = error_location;
 	for(; c != original_text && *c != '\n'; --c) {
 		// There may be an error at EOF, which would be a nul byte.
 		assert(*c || c == error_location);
@@ -567,7 +567,7 @@ static const char * FASTCALL find_last_newline(const char* original_text, const 
 // location.  Returns a character pointer to that newline, or a pointer to the
 // terminating null byte if this is the last line.
 //
-static const char * find_next_newline(const char* original_text, const char* error_location) 
+static const char * find_next_newline(const char * original_text, const char * error_location) 
 {
 	const char * c = error_location;
 	for(; *c && *c != '\n'; ++c)
@@ -650,7 +650,7 @@ void gumbo_caret_diagnostic_to_string(GumboParser * parser, const GumboError* er
 	gumbo_string_buffer_append_codepoint('\n', output);
 }
 
-void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error, const char* source_text) 
+void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error, const char * source_text) 
 {
 	GumboStringBuffer text;
 	gumbo_string_buffer_init(&text);

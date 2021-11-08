@@ -38,7 +38,7 @@
  * representative value (grid plane) for that component; this index is
  * multiplied by the array stride for component i, so that the
  * index of the colormap entry closest to a given pixel value is just
- *  sum( colorindex[component-number][pixel-component-value] )
+ *  sum( colorindex[component-number][pixel-component-value])
  * Aside from being fast, this scheme allows for variable spacing between
  * representative values with no additional lookup cost.
  *

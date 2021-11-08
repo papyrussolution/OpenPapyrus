@@ -292,9 +292,9 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 				sc.Forward();
 			}
 			else if(sc.ch == '/'
-			    && (setOKBeforeRE.Contains(chPrevNonWhite)
+			  && (setOKBeforeRE.Contains(chPrevNonWhite)
 			    || followsKeyword(sc, styler))
-			    && (!setCouldBePostOp.Contains(chPrevNonWhite)
+			  && (!setCouldBePostOp.Contains(chPrevNonWhite)
 			    || !FollowsPostfixOperator(sc, styler))) {
 				sc.SetState(SCE_COFFEESCRIPT_REGEX);    // JavaScript's RegEx
 			}
@@ -379,7 +379,7 @@ static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int
 		lineCurrent--;
 		indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
 		if(!(indentCurrent & SC_FOLDLEVELWHITEFLAG)
-		    && !IsCommentLine(lineCurrent, styler))
+		  && !IsCommentLine(lineCurrent, styler))
 			break;
 	}
 	int indentCurrentLevel = indentCurrent & SC_FOLDLEVELNUMBERMASK;

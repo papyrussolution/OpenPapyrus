@@ -61,31 +61,23 @@ extern HB_INTERNAL const uint8_t _hb_modified_combining_class[256];
 
 struct hb_unicode_funcs_t {
 	hb_object_header_t header;
-
 	hb_unicode_funcs_t * parent;
-
 #define HB_UNICODE_FUNC_IMPLEMENT(return_type, name) \
 	return_type name(hb_codepoint_t unicode) { return func.name(this, unicode, user_data.name); }
 	HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE
 #undef HB_UNICODE_FUNC_IMPLEMENT
-
-	hb_bool_t compose(hb_codepoint_t a, hb_codepoint_t b,
-	    hb_codepoint_t * ab)
+	hb_bool_t compose(hb_codepoint_t a, hb_codepoint_t b, hb_codepoint_t * ab)
 	{
 		* ab = 0;
 		if(UNLIKELY(!a || !b)) return false;
 		return func.compose(this, a, b, ab, user_data.compose);
 	}
-
-	hb_bool_t decompose(hb_codepoint_t ab,
-	    hb_codepoint_t * a, hb_codepoint_t * b)
+	hb_bool_t decompose(hb_codepoint_t ab, hb_codepoint_t * a, hb_codepoint_t * b)
 	{
 		* a = ab; * b = 0;
 		return func.decompose(this, ab, a, b, user_data.decompose);
 	}
-
-	unsigned int decompose_compatibility(hb_codepoint_t u,
-	    hb_codepoint_t * decomposed)
+	unsigned int decompose_compatibility(hb_codepoint_t u, hb_codepoint_t * decomposed)
 	{
 #ifdef HB_DISABLE_DEPRECATED
 		unsigned int ret  = 0;
@@ -99,13 +91,11 @@ struct hb_unicode_funcs_t {
 		decomposed[ret] = 0;
 		return ret;
 	}
-
 	unsigned int modified_combining_class(hb_codepoint_t u)
 	{
 		/* XXX This hack belongs to the USE shaper (for Tai Tham):
 		 * Reorder SAKOT to ensure it comes after any tone marks. */
 		if(UNLIKELY(u == 0x1A60u)) return 254;
-
 		/* XXX This hack belongs to the Tibetan shaper:
 		 * Reorder PADMA to ensure it comes after any vowel marks. */
 		if(UNLIKELY(u == 0x0FC6u)) return 254;
@@ -173,9 +163,7 @@ struct hb_unicode_funcs_t {
 				case 0x06: return UNLIKELY(ch == 0x061Cu);
 				case 0x17: return hb_in_range<hb_codepoint_t> (ch, 0x17B4u, 0x17B5u);
 				case 0x18: return hb_in_range<hb_codepoint_t> (ch, 0x180Bu, 0x180Eu);
-				case 0x20: return hb_in_ranges<hb_codepoint_t> (ch, 0x200Bu, 0x200Fu,
-					   0x202Au, 0x202Eu,
-					   0x2060u, 0x206Fu);
+				case 0x20: return hb_in_ranges<hb_codepoint_t> (ch, 0x200Bu, 0x200Fu, 0x202Au, 0x202Eu, 0x2060u, 0x206Fu);
 				case 0xFE: return hb_in_range<hb_codepoint_t> (ch, 0xFE00u, 0xFE0Fu) || ch == 0xFEFFu;
 				case 0xFF: return hb_in_range<hb_codepoint_t> (ch, 0xFFF0u, 0xFFF8u);
 				default: return false;
@@ -213,8 +201,7 @@ struct hb_unicode_funcs_t {
 
 	static space_t space_fallback_type(hb_codepoint_t u)
 	{
-		switch(u)
-		{
+		switch(u) {
 			/* All GC=Zs chars that can use a fallback. */
 			default:      return NOT_SPACE; /* U+1680 OGHAM SPACE MARK */
 			case 0x0020u: return SPACE; /* U+0020 SPACE */

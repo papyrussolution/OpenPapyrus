@@ -280,16 +280,15 @@ int TcpSocket::Listen()
 	return ::listen(S, MaxConn) ? (SLibError = SLERR_SOCK_LISTEN, 0) : 1;
 }
 
-int TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
+int TcpSocket::Accept(TcpSocket & rCliSock, InetAddr & rCliAdr)
 {
 	int    ok = 1;
 	struct sockaddr_in cli_addr;
 	int    addr_size = sizeof(cli_addr);
-	SOCKET cli_sock = ::accept(S, pCliAdr ? reinterpret_cast<sockaddr *>(&cli_addr) : 0, pCliAdr ? &addr_size : 0);
+	SOCKET cli_sock = ::accept(S, reinterpret_cast<sockaddr *>(&cli_addr), &addr_size);
 	if(cli_sock != INVALID_SOCKET) {
-		pCliSock->Init(cli_sock);
-		if(pCliAdr)
-			pCliAdr->Set(&cli_addr);
+		rCliSock.Init(cli_sock);
+		rCliAdr.Set(&cli_addr);
 	}
 	else {
 #ifdef _DEBUG
@@ -569,7 +568,7 @@ int TcpServer::Run()
 			ENTER_CRITICAL_SECTION
 			InetAddr cli_addr;
 			TcpSocket cli_sock(60000); // @v6.1.2 timeout: 0-->300000 @v7.8.10 timeout: 300000-->60000
-			if(Accept(&cli_sock, &cli_addr)) {
+			if(Accept(cli_sock, cli_addr)) {
 				ExecSession(cli_sock, cli_addr);
 			}
 			else {
@@ -1809,7 +1808,7 @@ int SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 	if(Phase == phsStop)
 		ok = -1;
 	else if(Phase == phsHeader) {
-		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE);
+		temp_buf.Z().Cat("Date").CatDiv(':', 2).CatCurDateTime(DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE);
 		out_buf.Cat(temp_buf).CRB();
 		R_Msg.GetField(SMailMessage::fldFrom, temp_buf);
 		if(temp_buf.NotEmptyS()) {

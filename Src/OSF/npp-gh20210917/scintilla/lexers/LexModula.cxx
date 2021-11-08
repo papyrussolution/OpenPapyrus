@@ -28,8 +28,8 @@ static inline bool IsDigitOfBase(unsigned ch, unsigned base) {
 	else {
 		if(ch > '9') {
 			unsigned nb = base - 10;
-			if( ( ch < 'A' ) || ( ch >= ( 'A' + nb ) ) ) {
-				if( ( ch < 'a' ) || ( ch >= ( 'a' + nb ) ) ) {
+			if(( ch < 'A' ) || ( ch >= ( 'A' + nb ) ) ) {
+				if(( ch < 'a' ) || ( ch >= ( 'a' + nb ) ) ) {
 					return false;
 				}
 			}
@@ -46,15 +46,15 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op) {
 	s[1] = sc.chNext;
 	s[2] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( strlen(op.WordAt(i) ) == 2 ) &&
-		    ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1] ) ) {
+		if(( strlen(op.WordAt(i) ) == 2 ) &&
+		    ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1]) ) {
 			return 2;
 		}
 	}
 	s[1] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( strlen(op.WordAt(i) ) == 1 ) &&
-		    ( s[0] == op.WordAt(i)[0] ) ) {
+		if(( strlen(op.WordAt(i) ) == 1 ) &&
+		    ( s[0] == op.WordAt(i)[0]) ) {
 			return 1;
 		}
 	}
@@ -63,7 +63,7 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op) {
 
 static inline bool IsEOL(Accessor &styler, Sci_PositionU curPos) {
 	unsigned ch = styler.SafeGetCharAt(curPos);
-	if( ( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) ||
+	if(( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) ||
 	    ( ch == '\n' ) ) {
 		return true;
 	}
@@ -102,7 +102,7 @@ static inline bool checkEndSemicolon(Accessor &styler,
 	}
 	while(isspace(styler.SafeGetCharAt(curPos + i) ) ) {
 		i++;
-		if( ( curPos + i ) >= endPos) return false;
+		if(( curPos + i ) >= endPos) return false;
 	}
 	if(styler.SafeGetCharAt(curPos + i) != ';') {
 		return false;
@@ -223,7 +223,7 @@ static void FoldModulaDoc(Sci_PositionU startPos,
 					    if(clv_new < clv_old) {
 						    nextLevel--;
 						    pos = styler.LineStart(cln);
-						    while( ( ch = styler.SafeGetCharAt(pos) ) != '\n') {
+						    while((ch = styler.SafeGetCharAt(pos) ) != '\n') {
 							    if(ch == 'P') {
 								    if(styler.StyleAt(pos) == SCE_MODULA_KEYWORD) {
 									    if(checkKeyIdentOper(styler, pos, endPos,
@@ -626,7 +626,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 				    sc.SetState(SCE_MODULA_DEFAULT);
 				    continue;
 			    }
-			    else if( ( sc.currentPos - charPos ) == 1)      {
+			    else if(( sc.currentPos - charPos ) == 1)      {
 				    if(sc.ch == '\\') {
 					    i = 1;
 					    if(IsDigitOfBase(sc.chNext, 8) ) {

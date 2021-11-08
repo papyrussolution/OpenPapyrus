@@ -679,7 +679,7 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 
 	if(s->early_data_state != SSL_EARLY_DATA_CONNECTING
 	    || (s->session->ext.max_early_data == 0
-	    && (psksess == NULL || psksess->ext.max_early_data == 0))) {
+	  && (psksess == NULL || psksess->ext.max_early_data == 0))) {
 		s->max_early_data = 0;
 		return EXT_RETURN_NOT_SENT;
 	}
@@ -689,7 +689,7 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 	if(edsess->ext.hostname != NULL) {
 		if(s->ext.hostname == NULL
 		    || (s->ext.hostname != NULL
-		    && strcmp(s->ext.hostname, edsess->ext.hostname) != 0)) {
+		  && strcmp(s->ext.hostname, edsess->ext.hostname) != 0)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CTOS_EARLY_DATA, SSL_R_INCONSISTENT_EARLY_DATA_SNI);
 			return EXT_RETURN_FAIL;
 		}
@@ -943,7 +943,7 @@ dopsksess:
 	}
 	if(!WPACKET_close(pkt) || !WPACKET_get_total_written(pkt, &binderoffset) || !WPACKET_start_sub_packet_u16(pkt)
 	    || (dores && !WPACKET_sub_allocate_bytes_u8(pkt, reshashsize, &resbinder)) || (s->psksession != NULL
-	    && !WPACKET_sub_allocate_bytes_u8(pkt, pskhashsize, &pskbinder))
+	  && !WPACKET_sub_allocate_bytes_u8(pkt, pskhashsize, &pskbinder))
 	    || !WPACKET_close(pkt)
 	    || !WPACKET_close(pkt)
 	    || !WPACKET_get_total_written(pkt, &msglen)
@@ -1446,8 +1446,8 @@ int tls_parse_stoc_etm(SSL * s, PACKET * pkt, uint context, X509 * x,
 {
 	/* Ignore if inappropriate ciphersuite */
 	if(!(s->options & SSL_OP_NO_ENCRYPT_THEN_MAC)
-	    && s->s3->tmp.new_cipher->algorithm_mac != SSL_AEAD
-	    && s->s3->tmp.new_cipher->algorithm_enc != SSL_RC4)
+	  && s->s3->tmp.new_cipher->algorithm_mac != SSL_AEAD
+	  && s->s3->tmp.new_cipher->algorithm_enc != SSL_RC4)
 		s->ext.use_etm = 1;
 
 	return 1;
@@ -1696,7 +1696,7 @@ int tls_parse_stoc_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 	 * early_secret across that we generated earlier.
 	 */
 	if((s->early_data_state != SSL_EARLY_DATA_WRITE_RETRY
-	    && s->early_data_state != SSL_EARLY_DATA_FINISHED_WRITING)
+	  && s->early_data_state != SSL_EARLY_DATA_FINISHED_WRITING)
 	    || s->session->ext.max_early_data > 0
 	    || s->psksession->ext.max_early_data == 0)
 		memcpy(s->early_secret, s->psksession->early_secret, EVP_MAX_MD_SIZE);

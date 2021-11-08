@@ -287,7 +287,7 @@ ssize_t pvio_socket_read(MARIADB_PVIO * pvio, uchar * buffer, size_t length)
 		int err = socket_errno;
 		if((err != SOCKET_EAGAIN
 #ifdef HAVE_SOCKET_EWOULDBLOCK
-		    && err != SOCKET_EWOULDBLOCK
+		  && err != SOCKET_EWOULDBLOCK
 #endif
 		    ) || timeout == 0)
 			return r;
@@ -453,7 +453,7 @@ ssize_t pvio_socket_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t leng
 		int err = socket_errno;
 		if((err != SOCKET_EAGAIN
 #ifdef HAVE_SOCKET_EWOULDBLOCK
-		    && err != SOCKET_EWOULDBLOCK
+		  && err != SOCKET_EWOULDBLOCK
 #endif
 		    ) || timeout == 0)
 			return r;
@@ -619,7 +619,7 @@ int pvio_socket_keepalive(MARIADB_PVIO * pvio)
 	csock = (struct st_pvio_socket *)pvio->data;
 	return setsockopt(csock->socket, SOL_SOCKET, SO_KEEPALIVE,
 #ifndef _WIN32
-		   (const void*)&opt, sizeof(opt));
+		   (const void *)&opt, sizeof(opt));
 #else
 		   (char *)&opt, (int)sizeof(opt));
 #endif
@@ -638,7 +638,7 @@ int pvio_socket_fast_send(MARIADB_PVIO * pvio)
 #if !defined(_WIN32) && defined(IPTOS_THROUGHPUT)
 	{
 		int tos = IPTOS_THROUGHPUT;
-		r = setsockopt(csock->socket, IPPROTO_IP, IP_TOS, (const void*)&tos, sizeof(tos));
+		r = setsockopt(csock->socket, IPPROTO_IP, IP_TOS, (const void *)&tos, sizeof(tos));
 	}
 #endif /* !_WIN32 && IPTOS_THROUGHPUT */
 	if(!r) {
@@ -648,7 +648,7 @@ int pvio_socket_fast_send(MARIADB_PVIO * pvio)
 #ifdef _WIN32
 			(const char *)&opt, (int)sizeof(opt));
 #else
-			(const void*)&opt, sizeof(opt));
+			(const void *)&opt, sizeof(opt));
 #endif
 	}
 	return r;

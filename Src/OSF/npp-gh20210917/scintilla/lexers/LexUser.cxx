@@ -651,8 +651,8 @@ static inline void GenerateVector(vvstring & vec, const char * s, const char * p
 				temp[j] = 0;
 		}
 
-		if( (s[i] == ' ' && s[i+1] == prefix[0] && s[i+2] == prefix[1] && s[i+3] != ' ') ||
-		    (   i == 0   &&   s[0] == prefix[0] &&   s[1] == prefix[1] && s[i+2] != ' ') ) {
+		if((s[i] == ' ' && s[i+1] == prefix[0] && s[i+2] == prefix[1] && s[i+3] != ' ') ||
+		    (   i == 0 &&   s[0] == prefix[0] &&   s[1] == prefix[1] && s[i+2] != ' ') ) {
 			if(i > 0) i += 1; // skip space
 			i += 2; // skip prefix
 			copy = true;
@@ -719,7 +719,7 @@ static inline void ReColoringCheck(Sci_PositionU & startPos, int & nestedLevel, 
 
 	// special exception for multipart keywords
 	initStyle = styler.StyleAt(startPos-1); // check style of previous new line character
-	if( (initStyle >= SCE_USER_STYLE_KEYWORD1 && initStyle < (SCE_USER_STYLE_KEYWORD1+SCE_USER_TOTAL_KEYWORD_GROUPS)) // keywords1-8
+	if((initStyle >= SCE_USER_STYLE_KEYWORD1 && initStyle < (SCE_USER_STYLE_KEYWORD1+SCE_USER_TOTAL_KEYWORD_GROUPS)) // keywords1-8
 	    || initStyle == SCE_USER_STYLE_FOLDER_IN_COMMENT
 	    || initStyle == SCE_USER_STYLE_FOLDER_IN_CODE2) {
 		// we are in middle of multi-part keyword that contains newline characters, go back until current style
@@ -1326,13 +1326,13 @@ static void ColouriseUserDoc(Sci_PositionU startPos, Sci_Position length, int in
 		SubGroup(sFoldersInCode1Close,    foldersInCode1Close,      true);
 		SubGroup(sOperators1,             operators1,               true);
 
-		char * numberPrefix1        = (char*)styler.pprops->Get("userDefine.numberPrefix1");
-		char * numberPrefix2        = (char*)styler.pprops->Get("userDefine.numberPrefix2");
-		char * numberExtras1        = (char*)styler.pprops->Get("userDefine.numberExtras1");
-		char * numberExtras2        = (char*)styler.pprops->Get("userDefine.numberExtras2");
-		char * numberSuffix1        = (char*)styler.pprops->Get("userDefine.numberSuffix1");
-		char * numberSuffix2        = (char*)styler.pprops->Get("userDefine.numberSuffix2");
-		char * numberRange          = (char*)styler.pprops->Get("userDefine.numberRange");
+		char * numberPrefix1        = (char *)styler.pprops->Get("userDefine.numberPrefix1");
+		char * numberPrefix2        = (char *)styler.pprops->Get("userDefine.numberPrefix2");
+		char * numberExtras1        = (char *)styler.pprops->Get("userDefine.numberExtras1");
+		char * numberExtras2        = (char *)styler.pprops->Get("userDefine.numberExtras2");
+		char * numberSuffix1        = (char *)styler.pprops->Get("userDefine.numberSuffix1");
+		char * numberSuffix2        = (char *)styler.pprops->Get("userDefine.numberSuffix2");
+		char * numberRange          = (char *)styler.pprops->Get("userDefine.numberRange");
 
 		prefixTokens1.clear();
 		prefixTokens2.clear();

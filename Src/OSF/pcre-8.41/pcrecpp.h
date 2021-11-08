@@ -71,8 +71,8 @@
 // Example: creating a temporary RE object:
 //    pcrecpp::RE("h.*o").FullMatch("hello");
 //
-// You can pass in a "const char*" or a "string" for "text".  The
-// examples below tend to use a const char*.
+// You can pass in a "const char *" or a "string" for "text".  The
+// examples below tend to use a const char *.
 //
 // You can, as in the different examples above, store the RE object
 // explicitly in a variable or use a temporary RE object.  The
@@ -109,7 +109,7 @@
 // type, or one of
 //    string        (matched piece is copied to string)
 //    StringPiece   (StringPiece is mutated to point to matched piece)
-//    T             (where "bool T::ParseFrom(const char*, int)" exists)
+//    T             (where "bool T::ParseFrom(const char *, int)" exists)
 //    NULL          (the corresponding matched sub-pattern is not copied)
 //
 // CAVEAT: An optional sub-pattern that does not exist in the matched
@@ -487,22 +487,22 @@ static inline RE_Options EXTENDED() {
 class PCRECPP_EXP_DEFN RE {
  public:
   // We provide implicit conversions from strings so that users can
-  // pass in a string or a "const char*" wherever an "RE" is expected.
-  RE(const string& pat) { Init(pat, NULL); }
-  RE(const string& pat, const RE_Options& option) { Init(pat, &option); }
-  RE(const char* pat) { Init(pat, NULL); }
-  RE(const char* pat, const RE_Options& option) { Init(pat, &option); }
+  // pass in a string or a "const char *" wherever an "RE" is expected.
+  RE(const string & pat) { Init(pat, NULL); }
+  RE(const string & pat, const RE_Options& option) { Init(pat, &option); }
+  RE(const char * pat) { Init(pat, NULL); }
+  RE(const char * pat, const RE_Options& option) { Init(pat, &option); }
   RE(const uchar* pat) {
-    Init(reinterpret_cast<const char*>(pat), NULL);
+    Init(reinterpret_cast<const char *>(pat), NULL);
   }
   RE(const uchar* pat, const RE_Options& option) {
-    Init(reinterpret_cast<const char*>(pat), &option);
+    Init(reinterpret_cast<const char *>(pat), &option);
   }
 
   // Copy constructor & assignment - note that these are expensive
   // because they recompile the expression.
   RE(const RE& re) { Init(re.pattern_, &re.options_); }
-  const RE& operator=(const RE& re) {
+  const RE& operator = (const RE& re) {
     if (this != &re) {
       Cleanup();
 
@@ -521,11 +521,11 @@ class PCRECPP_EXP_DEFN RE {
   // The string specification for this RE.  E.g.
   //   RE re("ab*c?d+");
   //   re.pattern();    // "ab*c?d+"
-  const string& pattern() const { return pattern_; }
+  const string & pattern() const { return pattern_; }
 
   // If RE could not be created properly, returns an error string.
   // Else returns the empty string.
-  const string& error() const { return *error_; }
+  const string & error() const { return *error_; }
 
   /***** The useful part: the matching interface *****/
 
@@ -657,7 +657,7 @@ class PCRECPP_EXP_DEFN RE {
 
  private:
 
-  void Init(const string& pattern, const RE_Options* options);
+  void Init(const string & pattern, const RE_Options* options);
   void Cleanup();
 
   // Match against "text", filling in "vec" (up to "vecsize" * 2/3) with

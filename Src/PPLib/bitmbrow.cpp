@@ -1906,6 +1906,13 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
 	TDialog * dlg = 0;
 	if(sign == TISIGN_UNDEF) {
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SELMODIF))));
+		// @v11.2.2 {
+		if(pInitData && pInitData->GoodsID) {
+			SString temp_buf;
+			GetGoodsName(pInitData->GoodsID, temp_buf);
+			dlg->setStaticText(CTL_SELMODIF_ST_INFO, temp_buf);
+		}
+		// } @v11.2.2 
 		dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, BIN(P_Pack->Rec.Flags & BILLF_RECOMPLETE));
 		if(ExecView(dlg) == cmOK) {
@@ -1919,7 +1926,8 @@ int BillItemBrowser::addModifItem(int * pSign, TIDlgInitData * pInitData)
 	if(oneof3(sign, TISIGN_MINUS, TISIGN_PLUS, TISIGN_RECOMPLETE))
 		ok = 1;
 	if(P_Pack->Rec.Flags & BILLF_RECOMPLETE && sign == TISIGN_PLUS) {
-		PPID  recompl_lot_id = 0, lot_id = 0;
+		PPID  recompl_lot_id = 0;
+		PPID  lot_id = 0;
 		PPTransferItem * p_ti;
 		CompleteArray compl_list;
 		for(uint i = 0; !recompl_lot_id && P_Pack->EnumTItems(&i, &p_ti);)
@@ -2166,7 +2174,7 @@ int BillItemBrowser::ConvertBasketToBill()
 	PPBasketCombine basket;
 	THROW(r = gb_obj.SelectBasket(basket));
 	if(r > 0) {
-		THROW(r = P_BObj->ConvertBasket(&basket.Pack, P_Pack));
+		THROW(r = P_BObj->ConvertBasket(basket.Pack, P_Pack));
 		if(r > 0) {
 			State |= stIsModified;
 			update(pos_bottom);

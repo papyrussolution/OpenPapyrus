@@ -100,8 +100,8 @@ class Utf8_16_Read : public Utf8_16 {
 public:
 	Utf8_16_Read();
 	~Utf8_16_Read();
-	size_t convert(char* buf, size_t len);
-	const char* getNewBuf() const { return (const char*) m_pNewBuf; }
+	size_t convert(char * buf, size_t len);
+	const char * getNewBuf() const { return (const char *) m_pNewBuf; }
 	size_t getNewSize() const { return m_nNewBufSize; }
 	UniMode getEncoding() const { return m_eEncoding; }
     static UniMode determineEncoding(const uchar *buf, size_t bufLen);
@@ -131,8 +131,8 @@ public:
 	FILE * fopen(const TCHAR *_name, const TCHAR *_type);
 	size_t fwrite(const void * p, size_t _size);
 	void   fclose();
-	size_t convert(char* p, size_t _size);
-	char* getNewBuf() { return reinterpret_cast<char*>(m_pNewBuf); }
+	size_t convert(char * p, size_t _size);
+	char * getNewBuf() { return reinterpret_cast<char *>(m_pNewBuf); }
 protected:
 	UniMode m_eEncoding;
 	FILE* m_pFile;

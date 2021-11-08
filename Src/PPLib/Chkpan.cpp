@@ -11905,7 +11905,7 @@ int CheckPaneDialog::PrintCashReports()
 									PPGetFilePath(PPPATH_LOG, "bnkterm_zrep_dump.txt", temp_buf);
 									SFile f_debug(temp_buf, SFile::mAppend|SFile::mBinary);
 									if(f_debug.IsValid()) {
-										temp_buf.Z().CR().Cat(getcurdatetime_(), DATF_ISO8601, 0).CR();
+										temp_buf.Z().CR().CatCurDateTime(DATF_ISO8601, 0).CR();
 										f_debug.WriteLine(temp_buf);
 										f_debug.Write(zcheck.cptr(), zcheck.Len());
 									}

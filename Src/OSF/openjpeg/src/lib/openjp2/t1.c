@@ -378,7 +378,7 @@ static INLINE void opj_t1_dec_sigpass_step_raw(opj_t1_t * t1,
     OPJ_UINT32 ci)
 {
 	OPJ_UINT32 v;
-	opj_mqc_t * mqc = &(t1->mqc);  /* RAW component */
+	opj_mqc_t * mqc = &(t1->mqc); /* RAW component */
 
 	OPJ_UINT32 const flags = *flagsp;
 
@@ -429,7 +429,7 @@ static INLINE void opj_t1_dec_sigpass_step_mqc(opj_t1_t * t1,
 {
 	OPJ_UINT32 v;
 
-	opj_mqc_t * mqc = &(t1->mqc);  /* MQC component */
+	opj_mqc_t * mqc = &(t1->mqc); /* MQC component */
 	opj_t1_dec_sigpass_step_mqc_macro(*flagsp, flagsp, flags_stride, datap,
 	    0, ci, mqc, mqc->curctx,
 	    v, mqc->a, mqc->c, mqc->ct, oneplushalf, vsc);
@@ -727,7 +727,7 @@ static INLINE void opj_t1_dec_refpass_step_raw(opj_t1_t * t1,
 {
 	OPJ_UINT32 v;
 
-	opj_mqc_t * mqc = &(t1->mqc);  /* RAW component */
+	opj_mqc_t * mqc = &(t1->mqc); /* RAW component */
 
 	if((*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci * 3U))) ==
 	    (T1_SIGMA_THIS << (ci * 3U))) {
@@ -758,7 +758,7 @@ static INLINE void opj_t1_dec_refpass_step_mqc(opj_t1_t * t1,
 {
 	OPJ_UINT32 v;
 
-	opj_mqc_t * mqc = &(t1->mqc);  /* MQC component */
+	opj_mqc_t * mqc = &(t1->mqc); /* MQC component */
 	opj_t1_dec_refpass_step_mqc_macro(*flagsp, datap, 0, ci,
 	    mqc, mqc->curctx, v, mqc->a, mqc->c,
 	    mqc->ct, poshalf);

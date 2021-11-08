@@ -103,7 +103,7 @@ extern "C" {
 /* accepts a 'long' input value (3rd parameter to ENGINE_ctrl) */
 #define ENGINE_CMD_FLAG_NUMERIC         (uint)0x0001
 /*
- * accepts string input (cast from 'void*' to 'const char *', 4th parameter
+ * accepts string input (cast from 'void *' to 'const char *', 4th parameter
  * to ENGINE_ctrl)
  */
 #define ENGINE_CMD_FLAG_STRING          (uint)0x0002
@@ -186,7 +186,7 @@ extern "C" {
  */
 #define ENGINE_CTRL_GET_NEXT_CMD_TYPE           12
 /*
- * The 'void*' argument is a command name (cast from 'const char *'), and the
+ * The 'void *' argument is a command name (cast from 'const char *'), and the
  * return value is the command that corresponds to it.
  */
 #define ENGINE_CTRL_GET_CMD_FROM_NAME           13
@@ -194,7 +194,7 @@ extern "C" {
  * The next two allow a command to be converted into its corresponding string
  * form. In each case, the 'long' argument supplies the command. In the
  * NAME_LEN case, the return value is the length of the command name (not
- * counting a trailing EOL). In the NAME case, the 'void*' argument must be a
+ * counting a trailing EOL). In the NAME case, the 'void *' argument must be a
  * string buffer large enough, and it will be populated with the name of the
  * command (WITH a trailing EOL).
  */

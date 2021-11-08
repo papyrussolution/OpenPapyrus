@@ -182,7 +182,7 @@ class LexerVerilog : public DefaultLexer {
 		SymbolValue(const std::string &value_ = "", const std::string &arguments_ = "") : value(value_), arguments(arguments_) {
 		}
 
-		SymbolValue &operator =(const std::string &value_) {
+		SymbolValue & operator =(const std::string &value_) {
 			value = value_;
 			arguments.clear();
 			return *this;
@@ -228,19 +228,19 @@ public:
 		delete this;
 	}
 
-	const char* SCI_METHOD PropertyNames() override {
+	const char * SCI_METHOD PropertyNames() override {
 		return osVerilog.PropertyNames();
 	}
 
-	int SCI_METHOD PropertyType(const char* name) override {
+	int SCI_METHOD PropertyType(const char * name) override {
 		return osVerilog.PropertyType(name);
 	}
 
-	const char* SCI_METHOD DescribeProperty(const char* name) override {
+	const char * SCI_METHOD DescribeProperty(const char * name) override {
 		return osVerilog.DescribeProperty(name);
 	}
 
-	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val) override {
+	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val) override {
 		return osVerilog.PropertySet(&options, key, val);
 	}
 
@@ -248,14 +248,14 @@ public:
 		return osVerilog.PropertyGet(key);
 	}
 
-	const char* SCI_METHOD DescribeWordListSets() override {
+	const char * SCI_METHOD DescribeWordListSets() override {
 		return osVerilog.DescribeWordListSets();
 	}
 
-	Sci_Position SCI_METHOD WordListSet(int n, const char* wl) override;
+	Sci_Position SCI_METHOD WordListSet(int n, const char * wl) override;
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess) override;
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess) override;
-	void* SCI_METHOD PrivateCall(int, void*) override {
+	void * SCI_METHOD PrivateCall(int, void *) override {
 		return 0;
 	}
 
@@ -925,10 +925,10 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 			}
 			if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 				if(!IsCommentLine(lineCurrent - 1, styler)
-				    && IsCommentLine(lineCurrent + 1, styler))
+				  && IsCommentLine(lineCurrent + 1, styler))
 					levelNext++;
 				else if(IsCommentLine(lineCurrent - 1, styler)
-				    && !IsCommentLine(lineCurrent+1, styler))
+				  && !IsCommentLine(lineCurrent+1, styler))
 					levelNext--;
 			}
 			if(options.foldComment && (style == SCE_V_COMMENTLINE)) {

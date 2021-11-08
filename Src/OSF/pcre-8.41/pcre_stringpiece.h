@@ -31,7 +31,7 @@
 //
 // A string like object that points into another piece of memory.
 // Useful for providing an interface that allows clients to easily
-// pass in either a "const char*" or a "string".
+// pass in either a "const char *" or a "string".
 //
 // Arghh!  I wish C++ literals were automatically of type "string".
 
@@ -59,26 +59,26 @@ using std::string;
 
 class PCRECPP_EXP_DEFN StringPiece {
 private:
-	const char*   ptr_;
+	const char *   ptr_;
 	int length_;
 
 public:
 	// We provide non-explicit singleton constructors so users can pass
-	// in a "const char*" or a "string" wherever a "StringPiece" is
+	// in a "const char *" or a "string" wherever a "StringPiece" is
 	// expected.
 	StringPiece() : ptr_(NULL), length_(0) 
 	{
 	}
-	StringPiece(const char* str) : ptr_(str), length_(static_cast<int>(strlen(ptr_))) 
+	StringPiece(const char * str) : ptr_(str), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
-	StringPiece(const uchar* str) : ptr_(reinterpret_cast<const char*>(str)), length_(static_cast<int>(strlen(ptr_))) 
+	StringPiece(const uchar* str) : ptr_(reinterpret_cast<const char *>(str)), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
-	StringPiece(const string& str) : ptr_(str.data()), length_(static_cast<int>(str.size())) 
+	StringPiece(const string & str) : ptr_(str.data()), length_(static_cast<int>(str.size())) 
 	{
 	}
-	StringPiece(const char* offset, int len) : ptr_(offset), length_(len) 
+	StringPiece(const char * offset, int len) : ptr_(offset), length_(len) 
 	{
 	}
 	// data() may return a pointer to a buffer with embedded NULs, and the
@@ -87,7 +87,7 @@ public:
 	// terminated string.  Use "as_string().c_str()" if you really need to do
 	// this.  Or better yet, change your routine so it does not rely on NUL
 	// termination.
-	const char* data() const 
+	const char * data() const 
 	{
 		return ptr_;
 	}
@@ -103,18 +103,18 @@ public:
 	{
 		ptr_ = NULL; length_ = 0;
 	}
-	void set(const char* buffer, int len) 
+	void set(const char * buffer, int len) 
 	{
 		ptr_ = buffer; length_ = len;
 	}
-	void set(const char* str) 
+	void set(const char * str) 
 	{
 		ptr_ = str;
 		length_ = static_cast<int>(strlen(str));
 	}
 	void set(const void * buffer, int len) 
 	{
-		ptr_ = reinterpret_cast<const char*>(buffer);
+		ptr_ = reinterpret_cast<const char *>(buffer);
 		length_ = len;
 	}
 	char operator[](int i) const 
@@ -177,7 +177,7 @@ public:
 // ------------------------------------------------------------------
 // Functions used to create STL containers that use StringPiece
 //  Remember that a StringPiece's lifetime had better be less than
-//  that of the underlying string or char*.  If it is not, then you
+//  that of the underlying string or char *.  If it is not, then you
 //  cannot safely store a StringPiece into an STL container
 // ------------------------------------------------------------------
 

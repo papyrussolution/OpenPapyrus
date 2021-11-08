@@ -432,7 +432,7 @@ void Notepad_plus::command(int id)
 			    return;
 		    HGLOBAL hglb = GetClipboardData(CF_TEXT);
 		    if(hglb != NULL) {
-			    char * lpchar = (char*)GlobalLock(hglb);
+			    char * lpchar = (char *)GlobalLock(hglb);
 			    if(lpchar != NULL) {
 				    UINT cf_nppTextLen = RegisterClipboardFormat(CF_NPPTEXTLEN);
 				    if(IsClipboardFormatAvailable(cf_nppTextLen)) {
@@ -1050,7 +1050,7 @@ void Notepad_plus::command(int id)
 		    }
 
 		    _pEditView->getGenericSelectedText(str, strSize, false);
-		    if(0 != str[0])              // the selected text is not empty, then use it
+		    if(0 != str[0]) // the selected text is not empty, then use it
 			    _incrementFindDlg.setSearchText(str, _pEditView->getCurrentBuffer()->getUnicodeMode() != uni8Bit);
 
 		    _incrementFindDlg.display();

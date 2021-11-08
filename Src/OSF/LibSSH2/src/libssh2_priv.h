@@ -153,8 +153,8 @@ struct list_node {
     struct list_head *head;
 };
 
-int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags);
-int FASTCALL _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg);
+int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char * errmsg, int errflags);
+int FASTCALL _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char * errmsg);
 void FASTCALL _libssh2_list_init(struct list_head *head);
 /* add a node last in the list */
 void FASTCALL _libssh2_list_add(struct list_head *head, struct list_node *entry);
@@ -1259,9 +1259,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session);
 //
 // Conveniance-macros to allow code like this;
 //
-// int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+// int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock));
 //
-// int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock) );
+// int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock));
 //
 // The point of course being to make sure that while in non-blocking mode
 // these always return no matter what the return code is, but in blocking mode

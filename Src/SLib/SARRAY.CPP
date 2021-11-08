@@ -2117,10 +2117,9 @@ StrAssocArray & FASTCALL StrAssocArray::operator = (const StrAssocArray & rS)
 
 int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 {
-	//Assoc = rS.Assoc;
 	LAssocArray::copy(rS);
 	SStrGroup::CopyS(rS);
-	TextCmpProc = rS.TextCmpProc; // @v9.5.9
+	TextCmpProc = rS.TextCmpProc;
 	ParentList = rS.ParentList;
 	return 1;
 }

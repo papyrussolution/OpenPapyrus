@@ -29,6 +29,7 @@
 // @v10.9.6 #include <palmcdk\403\palm_cmn.H>
 #include <palmcdk\403\userdata.h>
 // } Palm CDK includes
+
 #include <stylopalm.h>
 //
 // Клиенты:
@@ -83,7 +84,7 @@ extern "C" {
 extern "C" {
 	typedef  long (*PROGRESSFN) (char *);
 	CXX_EXPORT long OpenConduit(PROGRESSFN, CSyncProperties&);
-	CXX_EXPORT long GetConduitName(char*,WORD);
+	CXX_EXPORT long GetConduitName(char *,WORD);
 	CXX_EXPORT DWORD GetConduitVersion();
 	CXX_EXPORT long ConfigureConduit(CSyncPreference& pref);
 	CXX_EXPORT long GetConduitInfo(ConduitInfoEnum infoType, void *pInArgs, void *pOut, DWORD *dwOutSize);
@@ -97,7 +98,7 @@ extern "C" {
 #define EXPIMP_IMPORT 0x0002
 
 #ifndef SETFLAG
-	#define SETFLAG(v,f,b)         {if(b) {(v)|=(f);} else {(v)&=~(f);}}
+	#define SETFLAG(v,f,b) {if(b) {(v)|=(f);} else {(v)&=~(f);}}
 #endif
 
 int32  dbltointmoney(double);

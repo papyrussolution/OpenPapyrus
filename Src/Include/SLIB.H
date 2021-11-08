@@ -1686,7 +1686,7 @@ struct LDATE { // @noctr
 	LDATE  Z() { v = 0; return *this; }
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
-	int    day()   const { return static_cast<int>(v & 0x00ff); }
+	int    day() const { return static_cast<int>(v & 0x00ff); }
 	int    month() const { return static_cast<int>((v & 0xff00) >> 8); }
 	int    year()  const { return static_cast<int>(v >> 16); }
 	int    weekno() const;
@@ -1761,7 +1761,7 @@ struct LTIME {
 	LTIME  encode(int h, int m, int s, int ms);
 	int    hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
 	int    minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
-	int    sec()   const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
+	int    sec() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
 	int    hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
 	long   totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
@@ -1793,7 +1793,7 @@ public:
 	STIME  encode(int h, int m, int s, int ms, int tz);
 	int    hour()  const;
 	int    minut() const;
-	int    sec()   const;
+	int    sec() const;
 	int    ms()    const;
 	int    zone()  const;
 	long   totalsec() const;
@@ -2285,19 +2285,19 @@ private:
 // Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
 // Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
 #define SETIFZ(v,a)                 (!!(v) || !!((v)=(a)))
-#define SETIFZQ(v,a)                {if(!(v)) (v)=(a);} // @v11.1.12
-#define SETMAX(v,b)                 {if((v)<(b)) (v)=(b);}
-#define SETMIN(v,b)                 {if((v)>(b)) (v)=(b);}
-#define SETMINMAX(v,i,x)            {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
+#define SETIFZQ(v,a) {if(!(v)) (v)=(a);} // @v11.1.12
+#define SETMAX(v,b) {if((v)<(b)) (v)=(b);}
+#define SETMIN(v,b) {if((v)>(b)) (v)=(b);}
+#define SETMINMAX(v,i,x) {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
 #define MINMAX(v,i,x)               (((v)<(i)) ? (i) : (((v)>(x)) ? (x) : (v)))
 #define ICEIL(v,quant)              (((v)+((quant)-1))/(quant)*(quant))
 #define IFLOOR(v,quant)             ((v)/(quant)*(quant))
 
-#define SETFLAG(v,f,b)              {if(b) {(v)|=(f);} else {(v)&=~(f);}}
+#define SETFLAG(v,f,b) {if(b) {(v)|=(f);} else {(v)&=~(f);}}
 #define SETFLAGBYSAMPLE(v,f,b)      {if((b)&(f)) {(v)|=(f);} else {(v)&=~(f);}}
 #define TESTFLAG(v1,v2,f)           (((v1)&(f))==((v2)&(f)))
 #define TESTMULTFLAG(v,f)           (((v)&(f))==(f))
-#define INVERSEFLAG(v,f)            {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
+#define INVERSEFLAG(v,f) {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
 #define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
 #define SETUPFLAGS(value, andFlags, notFlags) { (value) |= (andFlags); (value) &= ~(notFlags); }
 #define BIN(x)                      ((x)?1:0)
@@ -2305,7 +2305,7 @@ private:
 #define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
 #define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
 #define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
-#define ZDELETEFAST(p)              {if(p) ((delete (p)), (p) = 0);}
+#define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = 0);}
 #define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
 #define ZFREE(p)                    FREEANDASSIGN(p, 0)
@@ -2318,15 +2318,15 @@ private:
 #define CALLEXCEPT_S(val)      {SLS.SetError(val);goto __scatch;}
 #define CALLEXCEPT_S_S(val,s)  {SLS.SetError(val, s);goto __scatch;}
 #define CALLEXCEPTV(val) {*__sexcept=val;goto __scatch;}
-#define THROW(expr)            {if(!(expr)){goto __scatch;}}
-#define THROWEC(expr)          {if(!!(expr)){goto __scatch;}}
+#define THROW(expr) {if(!(expr)){goto __scatch;}}
+#define THROWEC(expr) {if(!!(expr)){goto __scatch;}}
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
 #define THROW_S_S(expr,val,s)  {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_P()              {if(!_AX){goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_VP(val)          {if(!_AX){*__sexcept=val;goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_L()              {if(!_AX&&!_DX){goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_VL(val)          {if(!_AX&&!_DX){*__sexcept=val;goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_P() {if(!_AX){goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_VP(val) {if(!_AX){*__sexcept=val;goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_L() {if(!_AX&&!_DX){goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_VL(val) {if(!_AX&&!_DX){*__sexcept=val;goto __scatch;}}
 #define CATCH                  goto __sendcatch;__scatch:
 #define ENDCATCH               __sendcatch:;
 #define CATCHZOK               \
@@ -4082,6 +4082,11 @@ public:
 	//
 	SString & FASTCALL Cat(LTIME);
 	SString & Cat(const LDATETIME &, long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
+	//
+	// Descr: Специализированная функция, конкатенирующая текущие дату/время к строке.
+	//   Полный аналог CatCurDateTime(dateFmt, timFmt)
+	//
+	SString & CatCurDateTime(long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
 	SString & Cat(const DateRange &, int ext = 0);
 	SString & Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
 	//
@@ -4714,6 +4719,10 @@ int64  FASTCALL satoi64(const char * pT);
 int64  FASTCALL satoi64(const wchar_t * pT);
 int    FASTCALL satof(const char * pBuf, double * pVal);
 double FASTCALL satof(const char * pBuf);
+SString & FASTCALL FormatInt(int value, SString & rBuf);
+SString & FASTCALL FormatUInt(uint value, SString & rBuf);
+SString & FASTCALL FormatInt64(int64 value, SString & rBuf);
+SString & FASTCALL FormatUInt64(uint64 value, SString & rBuf);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
 //
 // Descr: Добавляет по указателю pStr разделительный символ div, возможно (addSpaces != 0), обрамленный
@@ -5024,7 +5033,7 @@ public:
 	// Descr: Convert string to IEEE 754 floating-point double precision value
 	//   In general, interface of this function is similar to strtod(3), except for returning overflow
 	//   condition instead of setting errno. If you want just to convert C-style string to double with
-	//   error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
+	//   error checking, then set input_end != NULL and use ( ret_value != 0)&&( **input_end == 0)
 	//   condition as an indication of successful conversion.
 	// ARG(pInput     IN): Input buffer, C-style string
 	// ARG(ppInputEnd OUT): @#{vptr0} Address of pointer to end of scanned value in input buffer
@@ -10601,7 +10610,7 @@ public:
 	explicit SRegExp2(const char * pPattern, SCodepage cp, int syntax, uint flags);
 	~SRegExp2();
 	SRegExp2 & Z();
-	int    Compile(const char * pPattern, SCodepage cp, int syntax, uint flags); // Compiles char* --> regexp
+	int    Compile(const char * pPattern, SCodepage cp, int syntax, uint flags); // Compiles char * --> regexp
 	//
 	// Descr: Ищет предварительно скомпилированный паттерн в тексте pText длиной textLen.
 	// ARG(pText   IN): Указательн на строку, в которой необходимо найти скомпилированный образец
@@ -10609,7 +10618,7 @@ public:
 	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString,
 	//   fNotEndString, fNotBeginPosition.
 	//
-	int    Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char* arg
+	int    Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char * arg
 	int    Find(const char * pText);
 	int    Find(SStrScan * pScan, uint flags);
 	int    Find(SStrScan * pScan);
@@ -10626,8 +10635,8 @@ public:
 	explicit CRegExp_Depricated(const char * s);
 	CRegExp_Depricated(const CRegExp_Depricated &);
 	~CRegExp_Depricated();
-	int    Compile(const char * pPattern);      // Compiles char* --> regexp
-	int    Find(const char * pText);            // TRUE if regexp in char* arg
+	int    Compile(const char * pPattern);      // Compiles char * --> regexp
+	int    Find(const char * pText);            // TRUE if regexp in char * arg
 	int    Find(SStrScan *);
 	int    GetLastErr() const;
 	int    IsValid() const;

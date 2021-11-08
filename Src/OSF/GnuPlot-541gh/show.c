@@ -504,7 +504,7 @@ void GnuPlot::ShowVersion(FILE * fp)
 	char fmt[2048];
 	prefix[0] = '#';
 	prefix[1] = prefix[2] = prefix[3] = prefix[4] = ' ';
-	prefix[5] = NUL;
+	prefix[5] = '\0';
 	// Construct string of configuration options used to build 
 	// this particular copy of gnuplot. Executed once only.    
 	if(!compile_options) {
@@ -2879,7 +2879,7 @@ const char * FASTCALL conv_text(const char * t)
 		// is this enough? 
 		r = (char *)SAlloc::R(r, 4 * (strlen(t) + 1));
 		s = r;
-		while(*t != NUL) {
+		while(*t) {
 			switch(*t) {
 				case '\t':
 					*s++ = '\\';
@@ -2906,14 +2906,14 @@ const char * FASTCALL conv_text(const char * t)
 					else {
 						*s++ = '\\';
 						sprintf(s, "%03o", (uchar)*t);
-						while(*s != NUL)
+						while(*s)
 							s++;
 					}
 					break;
 			}
 			t++;
 		}
-		*s = NUL;
+		*s = '\0';
 		return r;
 	}
 }

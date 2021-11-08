@@ -153,7 +153,7 @@ const char * ssh_string_get_char(struct ssh_string_struct * s)
 	}
 	s->data[ssh_string_len(s)] = '\0';
 
-	return (const char*)s->data;
+	return (const char *)s->data;
 }
 
 /**

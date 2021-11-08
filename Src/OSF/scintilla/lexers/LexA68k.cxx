@@ -131,15 +131,15 @@ static void ColouriseA68kDoc(Sci_PositionU startPos, Sci_Position length, int in
 			    || ((sc.state == SCE_A68K_NUMBER_BIN) && IsBin(sc.ch))                          // Binary number
 			    || ((sc.state == SCE_A68K_NUMBER_HEX) && isxdigit(sc.ch))                       // Hexa number
 			    || ((sc.state == SCE_A68K_MACRO_ARG) && isdec(sc.ch))          // Macro argument
-			    || ((sc.state == SCE_A68K_STRING1)    && (sc.ch != '\''))                       // String single-quoted
-			    || ((sc.state == SCE_A68K_STRING2)    && (sc.ch != '\"'))                       // String double-quoted
+			    || ((sc.state == SCE_A68K_STRING1)  && (sc.ch != '\''))                       // String single-quoted
+			    || ((sc.state == SCE_A68K_STRING2)  && (sc.ch != '\"'))                       // String double-quoted
 			    || ((sc.state == SCE_A68K_MACRO_DECLARATION) && IsIdentifierChar(sc.ch)) // Macro declaration (or global label,
 			                                                                             // we don't know at this point)
-			    || ((sc.state == SCE_A68K_IDENTIFIER)        && IsIdentifierChar(sc.ch)) // Identifier
-			    || ((sc.state == SCE_A68K_LABEL)             && IsIdentifierChar(sc.ch)) // Label (local)
-			    || ((sc.state == SCE_A68K_COMMENT_DOXYGEN)   && IsDoxygenChar(sc.ch))    // Doxygen keyword
-			    || ((sc.state == SCE_A68K_COMMENT_SPECIAL)   && isalpha(sc.ch))          // Alert
-			    || ((sc.state == SCE_A68K_COMMENT)           && !isalpha(sc.ch) && (sc.ch != '\\'))) { // Normal comment
+			    || ((sc.state == SCE_A68K_IDENTIFIER)      && IsIdentifierChar(sc.ch)) // Identifier
+			    || ((sc.state == SCE_A68K_LABEL)           && IsIdentifierChar(sc.ch)) // Label (local)
+			    || ((sc.state == SCE_A68K_COMMENT_DOXYGEN) && IsDoxygenChar(sc.ch))    // Doxygen keyword
+			    || ((sc.state == SCE_A68K_COMMENT_SPECIAL) && isalpha(sc.ch))          // Alert
+			    || ((sc.state == SCE_A68K_COMMENT)         && !isalpha(sc.ch) && (sc.ch != '\\'))) { // Normal comment
 				continue;
 			}
 

@@ -108,7 +108,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    // if we find a non-alphanumeric char,
 			    // we simply go to default state
 			    // else we're still dealing with an extension...
-			    if( (IsASCII(ch) && isalnum(ch)) || (ch == '_') ||
+			    if((IsASCII(ch) && isalnum(ch)) || (ch == '_') ||
 				(ch == '-') || (ch == '$') ||
 				(ch == '/') || (ch == '.') || (ch == '*') ) {
 				    styler.ColourTo(i, SCE_CONF_EXTENSION);
@@ -122,7 +122,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			case SCE_CONF_STRING:
 			    // if we find the end of a string char, we simply go to default state
 			    // else we're still dealing with an string...
-			    if( (ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || (ch == '\n') || (ch == '\r') ) {
+			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || (ch == '\n') || (ch == '\r') ) {
 				    state = SCE_CONF_DEFAULT;
 			    }
 			    styler.ColourTo(i, SCE_CONF_STRING);
@@ -130,7 +130,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 
 			case SCE_CONF_IDENTIFIER:
 			    // stay  in CONF_IDENTIFIER state until we find a non-alphanumeric
-			    if( (IsASCII(ch) && isalnum(ch)) || (ch == '_') || (ch == '-') || (ch == '/') || (ch == '$') || (ch == '.') ||
+			    if((IsASCII(ch) && isalnum(ch)) || (ch == '_') || (ch == '-') || (ch == '/') || (ch == '$') || (ch == '.') ||
 				(ch == '*')) {
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 			    }
@@ -159,7 +159,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 
 			case SCE_CONF_NUMBER:
 			    // stay  in CONF_NUMBER state until we find a non-numeric
-			    if( (IsASCII(ch) && isdigit(ch)) || ch == '.') {
+			    if((IsASCII(ch) && isdigit(ch)) || ch == '.') {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

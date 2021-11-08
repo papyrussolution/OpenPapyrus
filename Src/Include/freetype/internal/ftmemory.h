@@ -96,7 +96,7 @@ FT_BASE(void) ft_mem_free(FT_Memory memory, const void *  P);
 
 #define FT_MEM_FREE(ptr)                                  \
 	FT_BEGIN_STMNT                                    \
-	FT_DEBUG_INNER(ft_mem_free(memory, (ptr) ) ); \
+	FT_DEBUG_INNER(ft_mem_free(memory, (ptr) )); \
 	(ptr) = NULL;                                   \
 	FT_END_STMNT
 
@@ -157,7 +157,7 @@ FT_BASE(void) ft_mem_free(FT_Memory memory, const void *  P);
 	    (ptr),             \
 	    &error) )
 
-#define FT_MEM_SET_ERROR(cond)  ( (cond), error != 0 )
+#define FT_MEM_SET_ERROR(cond)  ( (cond), error != 0)
 
 #define FT_MEM_SET(dest, byte, count) ft_memset(dest, byte, (FT_Offset)(count) )
 #define FT_MEM_COPY(dest, source, count) ft_memcpy(dest, source, (FT_Offset)(count) )
@@ -228,7 +228,7 @@ FT_BASE(void) ft_mem_free(FT_Memory memory, const void *  P);
 #define FT_QNEW_ARRAY(ptr, count) FT_MEM_SET_ERROR(FT_MEM_NEW_ARRAY(ptr, count) )
 #define FT_QRENEW_ARRAY(ptr, curcnt, newcnt) FT_MEM_SET_ERROR(FT_MEM_RENEW_ARRAY(ptr, curcnt, newcnt) )
 
-FT_BASE(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char*  str, FT_Error    *p_error);
+FT_BASE(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char *  str, FT_Error    *p_error);
 FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void *  address, FT_ULong size, FT_Error    *p_error);
 
 #define FT_MEM_STRDUP(dst, str) (dst) = (char *)ft_mem_strdup(memory, (const char *)(str), &error)
@@ -239,7 +239,7 @@ FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void *  address, FT_ULong
 /* Return >= 1 if a truncation occurs.            */
 /* Return 0 if the source string fits the buffer. */
 /* This is *not* the same as strlcpy().           */
-FT_BASE(FT_Int) ft_mem_strcpyn(char * dst, const char*  src, FT_ULong size);
+FT_BASE(FT_Int) ft_mem_strcpyn(char * dst, const char *  src, FT_ULong size);
 
 #define FT_STRCPYN(dst, src, size) ft_mem_strcpyn( (char *)dst, (const char *)(src), (FT_ULong)(size) )
 

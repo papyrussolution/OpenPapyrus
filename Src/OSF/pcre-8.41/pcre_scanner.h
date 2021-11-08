@@ -54,7 +54,7 @@ namespace pcrecpp {
 class PCRECPP_EXP_DEFN Scanner {
 public:
 	Scanner();
-	explicit Scanner(const std::string& input);
+	explicit Scanner(const std::string & input);
 	~Scanner();
 
 	// Return current line number.  The returned line-number is
@@ -91,8 +91,8 @@ public:
 	// control repetition explicitly via the function call API.
 	//
 	// You can pass NULL for "re" if you do not want any data to be skipped.
-	void Skip(const char* re); // DEPRECATED; does *not* repeat
-	void SetSkipExpression(const char* re);
+	void Skip(const char * re); // DEPRECATED; does *not* repeat
+	void SetSkipExpression(const char * re);
 
 	// Temporarily pause "skip"ing. This
 	//   Skip("Foo"); code ; DisableSkip(); code; EnableSkip()

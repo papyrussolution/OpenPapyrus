@@ -442,7 +442,7 @@ static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type
 		len = mysql_ps_fetch_functions[type].pack_len;
 		if(len > 0)
 			return (void *)((char *)buffer + len * row_nr);
-		return ((void**)buffer)[row_nr];
+		return ((void **)buffer)[row_nr];
 	}
 	return buffer;
 }
@@ -972,7 +972,7 @@ bool STDCALL mysql_stmt_attr_get(MYSQL_STMT * stmt, enum enum_stmt_attr_type att
 		    *(size_t*)value = stmt->row_size;
 		    break;
 		case STMT_ATTR_CB_USER_DATA:
-		    *((void**)value) = stmt->user_data;
+		    *((void **)value) = stmt->user_data;
 		    break;
 		default:
 		    return 1;
@@ -1677,7 +1677,7 @@ int stmt_read_execute_response(MYSQL_STMT * stmt)
 				stmt->fields[i].extension = mysql->fields[i].extension ? ma_field_extension_deep_dup(fields_ma_alloc_root, (MA_FIELD_EXTENSION *)mysql->fields[i].extension) : NULL;
 			}
 		}
-		if((stmt->upsert_status.server_status & SERVER_STATUS_CURSOR_EXISTS)  && (stmt->flags & CURSOR_TYPE_READ_ONLY)) {
+		if((stmt->upsert_status.server_status & SERVER_STATUS_CURSOR_EXISTS) && (stmt->flags & CURSOR_TYPE_READ_ONLY)) {
 			stmt->cursor_exists = TRUE;
 			mysql->status = MYSQL_STATUS_READY;
 			/* Only cursor read */

@@ -8,7 +8,7 @@ static OnigTestBlock OnigTB;
 
 #define SLEN(s)  strlen(s)
 
-static void xx(char* pattern, char* str, int from, int to, int mem, int not)
+static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 {
 #ifdef __TRUSTINSOFT_ANALYZER__
 	if(nall++ % TIS_TEST_CHOOSE_MAX != TIS_TEST_CHOOSE_CURRENT) return;
@@ -48,9 +48,9 @@ static void xx(char* pattern, char* str, int from, int to, int mem, int not)
 	onig_free(reg);
 }
 
-static void x2(char* pattern, char* str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
-static void x3(char* pattern, char* str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
-static void n(char* pattern, char* str) { xx(pattern, str, 0, 0, 0, 1); }
+static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
+static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
+static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestC_main(FILE * fOut)
 {

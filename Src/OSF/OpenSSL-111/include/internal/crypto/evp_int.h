@@ -223,7 +223,7 @@ static int cname##_cfb##cbits##_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uc
         int num = EVP_CIPHER_CTX_num(ctx);\
         cprefix##_cfb##cbits##_encrypt(in, out, (long) \
             ((cbits == 1) \
-                && !EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS) \
+              && !EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS) \
                 ? chunk*8 : chunk), \
             &EVP_C_DATA(kstruct, ctx)->ksched, EVP_CIPHER_CTX_iv_noconst(ctx),\
             &num, EVP_CIPHER_CTX_encrypting(ctx));\

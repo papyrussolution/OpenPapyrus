@@ -111,7 +111,7 @@ class IdentifierClassifier {
 	WordList &objects;   // Passed from keywords6 property.
 
 	IdentifierClassifier(IdentifierClassifier const&);
-	IdentifierClassifier& operator=(IdentifierClassifier const&);
+	IdentifierClassifier& operator = (IdentifierClassifier const&);
 
 public:
 	IdentifierClassifier(WordList * keywordlists[]) :

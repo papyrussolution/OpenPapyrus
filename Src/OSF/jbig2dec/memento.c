@@ -770,8 +770,8 @@ static void Memento_showStacktrace(void ** stack, int numberOfFrames)
 #include <dlfcn.h>
 
 /* From cxxabi.h */
-extern char* __cxa_demangle(const char* mangled_name,
-    char*       output_buffer,
+extern char * __cxa_demangle(const char * mangled_name,
+    char *       output_buffer,
     size_t*     length,
     int*        status);
 
@@ -1303,8 +1303,8 @@ static void doNestedDisplay(Memento_BlkHeader * b,
 
 static int ptrcmp(const void * a_, const void * b_)
 {
-	const char ** a = (const char**)a_;
-	const char ** b = (const char**)b_;
+	const char ** a = (const char **)a_;
+	const char ** b = (const char **)b_;
 	return (int)(*a-*b);
 }
 
@@ -1355,7 +1355,7 @@ int Memento_listBlocksNested(void)
 		char * p = MEMBLK_TOBLK(b);
 		int end = (b->rawsize < MEMENTO_PTRSEARCH ? b->rawsize : MEMENTO_PTRSEARCH);
 		for(i = MEMENTO_SEARCH_SKIP; i < end; i += sizeof(void *)) {
-			void * q = *(void**)(&p[i]);
+			void * q = *(void **)(&p[i]);
 			void ** r;
 
 			/* Do trivial checks on pointer */

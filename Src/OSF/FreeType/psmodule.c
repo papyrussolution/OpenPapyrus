@@ -48,7 +48,7 @@
 /* the name, as in `A.swash' or `e.final'; in this case, the     */
 /* VARIANT_BIT is set in the return value.          */
 /*                                                  */
-static FT_UInt32 ps_unicode_value(const char*  glyph_name)
+static FT_UInt32 ps_unicode_value(const char *  glyph_name)
 {
 	/* If the name begins with `uni', then the glyph name may be a */
 	/* hard-coded unicode character code.       */
@@ -63,7 +63,7 @@ static FT_UInt32 ps_unicode_value(const char*  glyph_name)
 
 		FT_Int count;
 		FT_UInt32 value = 0;
-		const char*  p     = glyph_name + 3;
+		const char *  p     = glyph_name + 3;
 
 		for(count = 4; count > 0; count--, p++) {
 			char c = *p;
@@ -101,7 +101,7 @@ static FT_UInt32 ps_unicode_value(const char*  glyph_name)
 	if(glyph_name[0] == 'u') {
 		FT_Int count;
 		FT_UInt32 value = 0;
-		const char*  p     = glyph_name + 1;
+		const char *  p     = glyph_name + 1;
 
 		for(count = 6; count > 0; count--, p++) {
 			char c = *p;
@@ -133,8 +133,8 @@ static FT_UInt32 ps_unicode_value(const char*  glyph_name)
 	/* Look for a non-initial dot in the glyph name in order to */
 	/* find variants like `A.swash', `e.final', etc.      */
 	{
-		const char*  p   = glyph_name;
-		const char*  dot = NULL;
+		const char *  p   = glyph_name;
+		const char *  dot = NULL;
 
 		for(; *p; p++) {
 			if(*p == '.' && p > glyph_name) {
@@ -231,7 +231,7 @@ static const FT_Int
 	72
 };
 
-static void ps_check_extra_glyph_name(const char*  gname,
+static void ps_check_extra_glyph_name(const char *  gname,
     FT_UInt glyph,
     FT_UInt*     extra_glyphs,
     FT_UInt     * states)
@@ -293,7 +293,7 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 		map = table->maps;
 
 		for(n = 0; n < num_glyphs; n++) {
-			const char*  gname = get_glyph_name(glyph_data, n);
+			const char *  gname = get_glyph_name(glyph_data, n);
 
 			if(gname) {
 				ps_check_extra_glyph_name(gname, n,
@@ -361,7 +361,7 @@ static FT_UInt ps_unicodes_char_index(PS_Unicodes table, FT_UInt32 unicode)
 	max = min + table->num_maps - 1;
 	while(min <= max) {
 		FT_UInt32 base_glyph;
-		mid = min + ( ( max - min ) >> 1 );
+		mid = min + ((max - min ) >> 1 );
 		if(mid->unicode == unicode) {
 			result = mid;
 			break;
@@ -396,7 +396,7 @@ static FT_UInt32 ps_unicodes_char_next(PS_Unicodes table, FT_UInt32   * unicode)
 		PS_UniMap*  map;
 		FT_UInt32 base_glyph;
 		while(min < max) {
-			mid = min + ( ( max - min ) >> 1 );
+			mid = min + ((max - min ) >> 1 );
 			map = table->maps + mid;
 			if(map->unicode == char_code) {
 				result = map->glyph_index;
@@ -428,14 +428,14 @@ Exit:
 
 #endif /* FT_CONFIG_OPTION_ADOBE_GLYPH_LIST */
 
-static const char* ps_get_macintosh_name(FT_UInt name_index)
+static const char * ps_get_macintosh_name(FT_UInt name_index)
 {
 	if(name_index >= FT_NUM_MAC_NAMES)
 		name_index = 0;
 	return ft_standard_glyph_names + ft_mac_names[name_index];
 }
 
-static const char* ps_get_standard_strings(FT_UInt sid)
+static const char * ps_get_standard_strings(FT_UInt sid)
 {
 	if(sid >= FT_NUM_SID_NAMES)
 		return 0;
@@ -480,7 +480,7 @@ FT_DEFINE_SERVICE_PSCMAPSREC(
 
 FT_DEFINE_SERVICEDESCREC1(pscmaps_services, FT_SERVICE_ID_POSTSCRIPT_CMAPS, &pscmaps_interface)
 
-static FT_Pointer psnames_get_service(FT_Module module, const char*  service_id)
+static FT_Pointer psnames_get_service(FT_Module module, const char *  service_id)
 {
 	FT_UNUSED(module);
 	return ft_service_list_lookup(pscmaps_services, service_id);

@@ -216,7 +216,7 @@ typedef void
 
 /* structure type used to model object fields */
 typedef struct  T1_FieldRec_ {
-	const char*         ident;    /* field identifier               */
+	const char *         ident;    /* field identifier               */
 	T1_FieldLocation location;
 	T1_FieldType type;            /* type of field                  */
 	T1_Field_ParseFunc reader;
@@ -233,7 +233,7 @@ typedef struct  T1_FieldRec_ {
 	FT_UInt dict;                 /* where we expect it             */
 } T1_FieldRec;
 
-#define T1_FIELD_DICT_FONTDICT ( 1 << 0 ) /* also FontInfo and FDArray */
+#define T1_FIELD_DICT_FONTDICT ( 1 << 0) /* also FontInfo and FDArray */
 #define T1_FIELD_DICT_PRIVATE  ( 1 << 1 )
 
 #define T1_NEW_SIMPLE_FIELD(_ident, _type, _fname, _dict) \
@@ -377,14 +377,14 @@ typedef struct  PS_Parser_FuncsRec_ {
 	FT_Error
 	(* load_field)(PS_Parser parser,
 	    const T1_Field field,
-	    void**          objects,
+	    void **          objects,
 	    FT_UInt max_objects,
 	    FT_ULong*       pflags);
 
 	FT_Error
 	(* load_field_table)(PS_Parser parser,
 	    const T1_Field field,
-	    void**          objects,
+	    void **          objects,
 	    FT_UInt max_objects,
 	    FT_ULong*       pflags);
 } PS_Parser_FuncsRec;
@@ -1188,7 +1188,7 @@ typedef struct  AFM_ParserRec_ {
 	AFM_FontInfo FontInfo;
 
 	FT_Int
-	(* get_index)(const char*  name,
+	(* get_index)(const char *  name,
 	    FT_Offset len,
 	    void *    user_data);
 

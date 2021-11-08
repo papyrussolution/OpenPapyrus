@@ -319,7 +319,7 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 		nextbits -= nbits;					\
 }
 
-static void codeLoop(TIFF* tif, const char* module)
+static void codeLoop(TIFF* tif, const char * module)
 {
 	TIFFErrorExt(tif->tif_clientdata, module, "Bogus encoding, loop in the code table; scanline %d", tif->tif_row);
 }
@@ -760,7 +760,7 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
 	 */
 	sp->enc_rawlimit = tif->tif_rawdata + tif->tif_rawdatasize-1 - 4;
 	cl_hash(sp);            /* clear hash table */
-	sp->enc_oldcode = static_cast<hcode_t>(-1);  /* generates CODE_CLEAR in LZWEncode */
+	sp->enc_oldcode = static_cast<hcode_t>(-1); /* generates CODE_CLEAR in LZWEncode */
 	return 1;
 }
 

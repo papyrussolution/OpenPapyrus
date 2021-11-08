@@ -252,7 +252,7 @@ void GnuPlot::MousePosToGraphPosReal(SPoint2I pt, double * x, double * y, double
 static char * xy_format()
 {
 	static char format[64];
-	format[0] = NUL;
+	format[0] = '\0';
 	strncat(format, mouse_setting.fmt, 30);
 	strncat(format, ", ", 3);
 	strncat(format, mouse_setting.fmt, 30);
@@ -262,7 +262,7 @@ static char * xy_format()
 static char * zoombox_format()
 {
 	static char format[64];
-	format[0] = NUL;
+	format[0] = '\0';
 	strncat(format, mouse_setting.fmt, 30);
 	strncat(format, "\r", 2);
 	strncat(format, mouse_setting.fmt, 30);
@@ -2104,7 +2104,7 @@ bool exec_event(char type, int mx, int my, int par1, int par2, int winid)
 		paused_for_mouse = 0;
 		return true;
 	}
-	else if(type == GE_keypress && (paused_for_mouse & PAUSE_KEYSTROKE) && (par1 != NUL)) {
+	else if(type == GE_keypress && (paused_for_mouse & PAUSE_KEYSTROKE) && par1) {
 		paused_for_mouse = 0;
 		return true;
 	}

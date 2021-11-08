@@ -153,7 +153,7 @@ int PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skip
 			switch(c) {
 				case '\n': rBuf.CatChar('\\').CatChar('n'); break;
 				case '\r': rBuf.CatChar('\\').CatChar('r'); break;
-				case '\t': rBuf.CatChar('\\').Tab(); break;
+				case '\t': rBuf.CatChar('\\').CatChar('t'); break;
 				case ';' : rBuf.CatChar('\\').Semicol(); break;
 				case '\\': rBuf.CatChar('\\').CatChar('\\'); break;
 				default: rBuf.CatChar(c); break;
@@ -163,7 +163,8 @@ int PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skip
 	}
 	else if(dir == tfdBufToData) {
 		rData.Z();
-		rBuf.ToOem();
+		// @v11.2.2 rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER); // @v11.2.2
 		for(uint i = 0; i < rBuf.Len(); i++) {
 			char c = rBuf.C(i);
 			if(c == '\\') {

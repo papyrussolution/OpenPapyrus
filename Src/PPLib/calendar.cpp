@@ -2072,6 +2072,12 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			{
 				TView * p = getCtrlView(CTL_CALENDAR_PERIODEDIT);
 				if(p) {
+					{
+						//LayoutFlexItem * p_lo_inp2 = LayoutFlexItem::CreateComplexLayout_IL(0, p_lo_result);
+						
+					}
+
+
 					LayoutFlexItem * p_lo_inp = p_lo_result->InsertItem(0, 0);
 					AbstractLayoutBlock alb(DIREC_VERT);
 					alb.AlignContent = AbstractLayoutBlock::alignStart;

@@ -396,7 +396,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     ColorSpace = cmsGetColorSpace(hProfile);
     if (!cmsIsCLUT(hProfile, Intent, LCMS_USED_AS_OUTPUT ) ||
         (ColorSpace != cmsSigGrayData &&
-         ColorSpace != cmsSigRgbData  &&
+         ColorSpace != cmsSigRgbData &&
          ColorSpace != cmsSigCmykData)) {
 
         // In this case, handle as input case
@@ -471,7 +471,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
         for (l=0; l < 256; l++) {
 
             if (! ((inRamp[l] <= MinL + 0.2 * (MaxL - MinL) ) ||   
-                (fabs(inRamp[l] - outRamp[l]) < 4.0 )))
+                (fabs(inRamp[l] - outRamp[l]) < 4.0)))
                 NearlyStraightMidrange = FALSE;
         }
 

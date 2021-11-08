@@ -373,62 +373,31 @@ private:
 	struct hb_ot_apply_context_t :
 	hb_dispatch_context_t<hb_ot_apply_context_t, bool, HB_DEBUG_APPLY>{
 		struct matcher_t {
-			matcher_t() :
-				lookup_props(0),
-				ignore_zwnj(false),
-				ignore_zwj(false),
-				mask(-1),
+			matcher_t() : lookup_props(0), ignore_zwnj(false), ignore_zwj(false), mask(-1),
 #define arg1(arg) (arg) /* Remove the macro to see why it's needed! */
 				syllable arg1(0),
 #undef arg1
-				match_func(nullptr),
-				match_data(nullptr) {
-			}
-
-			typedef bool (* match_func_t) (hb_codepoint_t glyph_id, const HBUINT16 &value, const void * data);
-
-			void set_ignore_zwnj(bool ignore_zwnj_) {
-				ignore_zwnj = ignore_zwnj_;
-			}
-
-			void set_ignore_zwj(bool ignore_zwj_) {
-				ignore_zwj = ignore_zwj_;
-			}
-
-			void set_lookup_props(unsigned int lookup_props_) {
-				lookup_props = lookup_props_;
-			}
-
-			void set_mask(hb_mask_t mask_) {
-				mask = mask_;
-			}
-
-			void set_syllable(uint8_t syllable_)  {
-				syllable = syllable_;
-			}
-
-			void set_match_func(match_func_t match_func_,
-			    const void * match_data_)
+				match_func(nullptr), match_data(nullptr) 
 			{
-				match_func = match_func_; match_data = match_data_;
 			}
-
+			typedef bool (* match_func_t) (hb_codepoint_t glyph_id, const HBUINT16 &value, const void * data);
+			void set_ignore_zwnj(bool ignore_zwnj_) { ignore_zwnj = ignore_zwnj_; }
+			void set_ignore_zwj(bool ignore_zwj_) { ignore_zwj = ignore_zwj_; }
+			void set_lookup_props(unsigned int lookup_props_) { lookup_props = lookup_props_; }
+			void set_mask(hb_mask_t mask_) { mask = mask_; }
+			void set_syllable(uint8_t syllable_)  { syllable = syllable_; }
+			void set_match_func(match_func_t match_func_, const void * match_data_) { match_func = match_func_; match_data = match_data_; }
 			enum may_match_t {
 				MATCH_NO,
 				MATCH_YES,
 				MATCH_MAYBE
 			};
-
-			may_match_t may_match(const hb_glyph_info_t &info,
-			    const HBUINT16 * glyph_data) const
+			may_match_t may_match(const hb_glyph_info_t &info, const HBUINT16 * glyph_data) const
 			{
-				if(!(info.mask & mask) ||
-				    (syllable && syllable != info.syllable()))
+				if(!(info.mask & mask) || (syllable && syllable != info.syllable()))
 					return MATCH_NO;
-
 				if(match_func)
 					return match_func(info.codepoint, *glyph_data, match_data) ? MATCH_YES : MATCH_NO;
-
 				return MATCH_MAYBE;
 			}
 
@@ -438,20 +407,16 @@ private:
 				SKIP_MAYBE
 			};
 
-			may_skip_t may_skip(const hb_ot_apply_context_t * c,
-			    const hb_glyph_info_t       &info) const
+			may_skip_t may_skip(const hb_ot_apply_context_t * c, const hb_glyph_info_t       &info) const
 			{
 				if(!c->check_glyph_property(&info, lookup_props))
 					return SKIP_YES;
-
 				if(UNLIKELY(_hb_glyph_info_is_default_ignorable_and_not_hidden(&info) &&
 				    (ignore_zwnj || !_hb_glyph_info_is_zwnj(&info)) &&
 				    (ignore_zwj || !_hb_glyph_info_is_zwj(&info))))
 					return SKIP_MAYBE;
-
 				return SKIP_NO;
 			}
-
 protected:
 			unsigned int lookup_props;
 			bool ignore_zwnj;
@@ -461,7 +426,6 @@ protected:
 			match_func_t match_func;
 			const void * match_data;
 		};
-
 		struct skipping_iterator_t {
 			void init(hb_ot_apply_context_t * c_, bool context_match = false)
 			{
@@ -475,140 +439,103 @@ protected:
 				matcher.set_ignore_zwj(context_match || c->auto_zwj);
 				matcher.set_mask(context_match ? -1 : c->lookup_mask);
 			}
-
 			void set_lookup_props(unsigned int lookup_props)
 			{
 				matcher.set_lookup_props(lookup_props);
 			}
-
-			void set_match_func(matcher_t::match_func_t match_func_,
-			    const void * match_data_,
-			    const HBUINT16 glyph_data[])
+			void set_match_func(matcher_t::match_func_t match_func_, const void * match_data_, const HBUINT16 glyph_data[])
 			{
 				matcher.set_match_func(match_func_, match_data_);
 				match_glyph_data = glyph_data;
 			}
-
-			void reset(unsigned int start_index_,
-			    unsigned int num_items_)
+			void reset(unsigned int start_index_, unsigned int num_items_)
 			{
 				idx = start_index_;
 				num_items = num_items_;
 				end = c->buffer->len;
 				matcher.set_syllable(start_index_ == c->buffer->idx ? c->buffer->cur().syllable() : 0);
 			}
-
 			void reject()
 			{
 				num_items++;
 				if(match_glyph_data) match_glyph_data--;
 			}
-
 			matcher_t::may_skip_t may_skip(const hb_glyph_info_t &info) const
 			{
 				return matcher.may_skip(c, info);
 			}
-
 			bool next()
 			{
 				assert(num_items > 0);
 				while(idx + num_items < end) {
 					idx++;
 					const hb_glyph_info_t &info = c->buffer->info[idx];
-
 					matcher_t::may_skip_t skip = matcher.may_skip(c, info);
 					if(UNLIKELY(skip == matcher_t::SKIP_YES))
 						continue;
-
 					matcher_t::may_match_t match = matcher.may_match(info, match_glyph_data);
-					if(match == matcher_t::MATCH_YES ||
-					    (match == matcher_t::MATCH_MAYBE &&
-					    skip == matcher_t::SKIP_NO)) {
+					if(match == matcher_t::MATCH_YES || (match == matcher_t::MATCH_MAYBE && skip == matcher_t::SKIP_NO)) {
 						num_items--;
-						if(match_glyph_data) match_glyph_data++;
+						if(match_glyph_data) 
+							match_glyph_data++;
 						return true;
 					}
-
 					if(skip == matcher_t::SKIP_NO)
 						return false;
 				}
 				return false;
 			}
-
 			bool prev()
 			{
 				assert(num_items > 0);
 				while(idx > num_items - 1) {
 					idx--;
 					const hb_glyph_info_t &info = c->buffer->out_info[idx];
-
 					matcher_t::may_skip_t skip = matcher.may_skip(c, info);
 					if(UNLIKELY(skip == matcher_t::SKIP_YES))
 						continue;
-
 					matcher_t::may_match_t match = matcher.may_match(info, match_glyph_data);
-					if(match == matcher_t::MATCH_YES ||
-					    (match == matcher_t::MATCH_MAYBE &&
-					    skip == matcher_t::SKIP_NO)) {
+					if(match == matcher_t::MATCH_YES || (match == matcher_t::MATCH_MAYBE && skip == matcher_t::SKIP_NO)) {
 						num_items--;
-						if(match_glyph_data) match_glyph_data++;
+						if(match_glyph_data) 
+							match_glyph_data++;
 						return true;
 					}
-
 					if(skip == matcher_t::SKIP_NO)
 						return false;
 				}
 				return false;
 			}
-
 			unsigned int idx;
 protected:
 			hb_ot_apply_context_t * c;
 			matcher_t matcher;
 			const HBUINT16 * match_glyph_data;
-
 			unsigned int num_items;
 			unsigned int end;
 		};
-
-		const char * get_name() {
-			return "APPLY";
-		}
-
+		const char * get_name() { return "APPLY"; }
 		typedef return_t (* recurse_func_t) (hb_ot_apply_context_t * c, unsigned int lookup_index);
 		template <typename T>
-		return_t dispatch(const T &obj) {
-			return obj.apply(this);
-		}
-
-		static return_t default_return_value() {
-			return false;
-		}
-
-		bool stop_sublookup_iteration(return_t r) const {
-			return r;
-		}
-
+		return_t dispatch(const T &obj) { return obj.apply(this); }
+		static return_t default_return_value() { return false; }
+		bool stop_sublookup_iteration(return_t r) const { return r; }
 		return_t recurse(unsigned int sub_lookup_index)
 		{
 			if(UNLIKELY(nesting_level_left == 0 || !recurse_func || buffer->max_ops-- <= 0))
 				return default_return_value();
-
 			nesting_level_left--;
 			bool ret = recurse_func(this, sub_lookup_index);
 			nesting_level_left++;
 			return ret;
 		}
-
 		skipping_iterator_t iter_input, iter_context;
-
 		hb_font_t * font;
 		hb_face_t * face;
 		hb_buffer_t * buffer;
 		recurse_func_t recurse_func;
 		const GDEF &gdef;
 		const VariationStore &var_store;
-
 		hb_direction_t direction;
 		hb_mask_t lookup_mask;
 		unsigned int table_index; /* GSUB/GPOS */
@@ -3242,28 +3169,24 @@ protected:
 /*
  * GSUB/GPOS Common
  */
-
 	struct hb_ot_layout_lookup_accelerator_t {
 		template <typename TLookup>
 		void init(const TLookup &lookup)
 		{
 			digest.init();
 			lookup.collect_coverage(&digest);
-
 			subtables.init();
 			OT::hb_get_subtables_context_t c_get_subtables(subtables);
 			lookup.dispatch(&c_get_subtables);
 		}
-
-		void fini() {
+		void fini() 
+		{
 			subtables.fini();
 		}
-
 		bool may_have(hb_codepoint_t g) const
 		{
 			return digest.may_have(g);
 		}
-
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			for(uint i = 0; i < subtables.length; i++)
@@ -3271,100 +3194,44 @@ protected:
 					return true;
 			return false;
 		}
-
 private:
 		hb_set_digest_t digest;
 		hb_get_subtables_context_t::array_t subtables;
 	};
 
 	struct GSUBGPOS {
-		bool has_data() const {
-			return version.to_int();
-		}
-
-		unsigned int get_script_count() const
-		{
-			return (this+scriptList).len;
-		}
-
-		const Tag& get_script_tag(unsigned int i) const
-		{
-			return (this+scriptList).get_tag(i);
-		}
-
-		unsigned int get_script_tags(unsigned int start_offset,
-		    unsigned int * script_count /* IN/OUT */,
-		    hb_tag_t * script_tags /* OUT */) const
+		bool has_data() const { return version.to_int(); }
+		unsigned int get_script_count() const { return (this+scriptList).len; }
+		const Tag& get_script_tag(unsigned int i) const { return (this+scriptList).get_tag(i); }
+		unsigned int get_script_tags(unsigned int start_offset, unsigned int * script_count /* IN/OUT */, hb_tag_t * script_tags /* OUT */) const
 		{
 			return (this+scriptList).get_tags(start_offset, script_count, script_tags);
 		}
-
-		const Script& get_script(unsigned int i) const
-		{
-			return (this+scriptList)[i];
-		}
-
-		bool find_script_index(hb_tag_t tag, unsigned int * index) const
-		{
-			return (this+scriptList).find_index(tag, index);
-		}
-
-		unsigned int get_feature_count() const
-		{
-			return (this+featureList).len;
-		}
-
-		hb_tag_t get_feature_tag(unsigned int i) const
-		{
-			return i == Index::NOT_FOUND_INDEX ? HB_TAG_NONE : (this+featureList).get_tag(i);
-		}
-
-		unsigned int get_feature_tags(unsigned int start_offset,
-		    unsigned int * feature_count /* IN/OUT */,
-		    hb_tag_t * feature_tags /* OUT */) const
+		const Script& get_script(unsigned int i) const { return (this+scriptList)[i]; }
+		bool find_script_index(hb_tag_t tag, unsigned int * index) const { return (this+scriptList).find_index(tag, index); }
+		unsigned int get_feature_count() const { return (this+featureList).len; }
+		hb_tag_t get_feature_tag(unsigned int i) const { return i == Index::NOT_FOUND_INDEX ? HB_TAG_NONE : (this+featureList).get_tag(i); }
+		unsigned int get_feature_tags(unsigned int start_offset, unsigned int * feature_count /* IN/OUT */, hb_tag_t * feature_tags /* OUT */) const
 		{
 			return (this+featureList).get_tags(start_offset, feature_count, feature_tags);
 		}
-
-		const Feature& get_feature(unsigned int i) const
-		{
-			return (this+featureList)[i];
-		}
-
-		bool find_feature_index(hb_tag_t tag, unsigned int * index) const
-		{
-			return (this+featureList).find_index(tag, index);
-		}
-
-		unsigned int get_lookup_count() const
-		{
-			return (this+lookupList).len;
-		}
-
-		const Lookup& get_lookup(unsigned int i) const
-		{
-			return (this+lookupList)[i];
-		}
-
-		bool find_variations_index(const int * coords, unsigned int num_coords,
-		    unsigned int * index) const
+		const Feature& get_feature(unsigned int i) const { return (this+featureList)[i]; }
+		bool find_feature_index(hb_tag_t tag, unsigned int * index) const { return (this+featureList).find_index(tag, index); }
+		unsigned int get_lookup_count() const { return (this+lookupList).len; }
+		const Lookup& get_lookup(unsigned int i) const { return (this+lookupList)[i]; }
+		bool find_variations_index(const int * coords, unsigned int num_coords, unsigned int * index) const
 		{
 #ifdef HB_NO_VAR
 			*index = FeatureVariations::NOT_FOUND_INDEX;
 			return false;
 #endif
-			return (version.to_int() >= 0x00010001u ? this+featureVars : Null(FeatureVariations))
-			       .find_index(coords, num_coords, index);
+			return (version.to_int() >= 0x00010001u ? this+featureVars : Null(FeatureVariations)).find_index(coords, num_coords, index);
 		}
-
-		const Feature& get_feature_variation(unsigned int feature_index,
-		    unsigned int variations_index) const
+		const Feature& get_feature_variation(unsigned int feature_index, unsigned int variations_index) const
 		{
 #ifndef HB_NO_VAR
-			if(FeatureVariations::NOT_FOUND_INDEX != variations_index &&
-			    version.to_int() >= 0x00010001u) {
-				const Feature * feature = (this+featureVars).find_substitute(variations_index,
-					feature_index);
+			if(FeatureVariations::NOT_FOUND_INDEX != variations_index && version.to_int() >= 0x00010001u) {
+				const Feature * feature = (this+featureVars).find_substitute(variations_index, feature_index);
 				if(feature)
 					return *feature;
 			}
@@ -3372,32 +3239,23 @@ private:
 			return get_feature(feature_index);
 		}
 
-		void feature_variation_collect_lookups(const hb_set_t * feature_indexes,
-		    hb_set_t * lookup_indexes /* OUT */) const
+		void feature_variation_collect_lookups(const hb_set_t * feature_indexes, hb_set_t * lookup_indexes /* OUT */) const
 		{
 #ifndef HB_NO_VAR
 			if(version.to_int() >= 0x00010001u)
 				(this+featureVars).collect_lookups(feature_indexes, lookup_indexes);
 #endif
 		}
-
-		template <typename TLookup>
-		void closure_lookups(hb_face_t * face,
-		    const hb_set_t * glyphs,
-		    hb_set_t * lookup_indexes /* IN/OUT */) const
+		template <typename TLookup> void closure_lookups(hb_face_t * face, const hb_set_t * glyphs, hb_set_t * lookup_indexes /* IN/OUT */) const
 		{
 			hb_set_t visited_lookups, inactive_lookups;
 			OT::hb_closure_lookups_context_t c(face, glyphs, &visited_lookups, &inactive_lookups);
-
 			for(unsigned lookup_index : +hb_iter(lookup_indexes))
 				reinterpret_cast<const TLookup &> (get_lookup(lookup_index)).closure_lookups(&c, lookup_index);
-
 			hb_set_union(lookup_indexes, &visited_lookups);
 			hb_set_subtract(lookup_indexes, &inactive_lookups);
 		}
-
-		template <typename TLookup>
-		bool subset(hb_subset_layout_context_t * c) const
+		template <typename TLookup> bool subset(hb_subset_layout_context_t * c) const
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->subset_context->serializer->embed(*this);

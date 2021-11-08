@@ -1376,7 +1376,7 @@ static void * xmlCreateZMemBuff(int compression)
 	xmlZMemBuffPtr buff = NULL;
 	if((compression >= 1) && (compression <= 9)) {
 		/*  Create the control and data areas  */
-		buff = SAlloc::M(sizeof( xmlZMemBuff ) );
+		buff = SAlloc::M(sizeof( xmlZMemBuff ));
 		if(buff == NULL) {
 			xmlIOErrMemory("creating buffer context");
 		}
@@ -1435,7 +1435,7 @@ static int xmlZMemBuffExtend(xmlZMemBuffPtr buff, size_t ext_amt)
 	if(buff == NULL)
 		return ( -1 );
 	else if(ext_amt == 0)
-		return ( 0 );
+		return ( 0);
 	cur_used = buff->zctrl.next_out - buff->zbuff;
 	new_size = buff->size + ext_amt;
 #ifdef DEBUG_HTTP
@@ -1808,7 +1808,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			char * dump_name = NULL;
 			int avail;
 			xmlGenericError(0, "xmlNanoHTTPCloseWrite:  HTTP %s to\n%s returned %d.\n",
-			    http_mthd, ctxt->uri, xmlNanoHTTPReturnCode(http_ctxt) );
+			    http_mthd, ctxt->uri, xmlNanoHTTPReturnCode(http_ctxt));
 			/*
 			**  Since either content or reply may be gzipped,
 			**  dump them to separate files instead of the
@@ -1836,7 +1836,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			}
 #endif  /*  DEBUG_HTTP  */
 			http_rtn = xmlNanoHTTPReturnCode(http_ctxt);
-			if(( http_rtn >= 200 ) && ( http_rtn < 300 ) )
+			if(( http_rtn >= 200) && (http_rtn < 300 ) )
 				close_rc = 0;
 			else {
 				xmlChar msg[500];

@@ -105,7 +105,7 @@ typedef struct BDF_PropertyRec_*  BDF_Property;
 typedef struct  BDF_PropertyRec_ {
 	BDF_PropertyType type;
 	union {
-		const char*     atom;
+		const char *     atom;
 		FT_Int32 integer;
 		FT_UInt32 cardinal;
 	} u;
@@ -137,7 +137,7 @@ typedef struct  BDF_PropertyRec_ {
  * @note:
  *   This function only works with BDF faces, returning an error otherwise.
  */
-FT_EXPORT(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char** acharset_encoding, const char** acharset_registry);
+FT_EXPORT(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char ** acharset_encoding, const char ** acharset_registry);
 
 /**************************************************************************
  *
@@ -177,7 +177,7 @@ FT_EXPORT(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char** acharset_en
  *   In case of error, `aproperty->type` is always set to
  *   @BDF_PROPERTY_TYPE_NONE.
  */
-FT_EXPORT(FT_Error) FT_Get_BDF_Property(FT_Face face, const char*       prop_name, BDF_PropertyRec  *aproperty);
+FT_EXPORT(FT_Error) FT_Get_BDF_Property(FT_Face face, const char *       prop_name, BDF_PropertyRec  *aproperty);
 
 /* */
 FT_END_HEADER

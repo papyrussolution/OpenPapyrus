@@ -165,7 +165,7 @@ PBYTE lb_subattr(LB * lb, uint offset, uint count)
 			memset(retval + len - offset, lb->def_attr, count + offset - len);
 		}
 	}
-	retval[count] = NUL;
+	retval[count] = '\0';
 	return retval;
 }
 

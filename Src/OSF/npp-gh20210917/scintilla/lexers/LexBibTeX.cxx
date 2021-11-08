@@ -23,12 +23,12 @@ bool IsAlphaNumeric(char ch)
 	return IsASCII(ch) && std::isalnum(ch);
 }
 
-bool EqualCaseInsensitive(const char* a, const char* b)
+bool EqualCaseInsensitive(const char * a, const char * b)
 {
 	return CompareCaseInsensitive(a, b) == 0;
 }
 
-bool EntryWithoutKey(const char* name)
+bool EntryWithoutKey(const char * name)
 {
 	return EqualCaseInsensitive(name, "string");
 }
@@ -106,7 +106,7 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 				collect_entry_name = true;
 			}
 			else if((sc.state == SCE_BIBTEX_ENTRY || sc.state == SCE_BIBTEX_UNKNOWN_ENTRY)
-			    && (sc.ch == '{' || sc.ch == '(')) {
+			  && (sc.ch == '{' || sc.ch == '(')) {
 				// Entry name colorization done
 				// Found either a { or a ( after entry's name, e.g. @entry(...) @entry{...}
 				// Closing counterpart needs to be stored.

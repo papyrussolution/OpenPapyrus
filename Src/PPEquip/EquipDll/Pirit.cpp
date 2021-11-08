@@ -266,20 +266,39 @@ private:
 	public:
 		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg), LogFileName(pLogFileName)
 		{
-			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
-				SString line_buf;
-				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
-				if(ExtMsg.NotEmpty())
-					line_buf.Tab().Cat(ExtMsg);
-				SLS.LogMessage(LogFileName, line_buf, 8192);
-			}
+			Construct();
+		}
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pParam, const char * pExtMsg) : StartClk(clock()), Op(pOp), 
+			Param(pParam), ExtMsg(pExtMsg), LogFileName(pLogFileName)
+		{
+			Construct();
 		}
 		~OpLogBlock()
 		{
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				const long end_clk = clock();
 				SString line_buf;
-				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk-StartClk);
+				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk-StartClk);
+				if(Reply.NotEmpty())
+					line_buf.Tab().Cat(Reply);
+				SLS.LogMessage(LogFileName, line_buf, 8192);
+			}
+		}
+		void   SetReply(const char * pReply) 
+		{
+			Reply = pReply;
+		}
+	private:
+		void   Construct()
+		{
+			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
+				SString line_buf;
+				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
+				line_buf.Tab();
+				if(Param.NotEmpty())
+					line_buf.Cat(Param);
+				if(ExtMsg.NotEmpty())
+					line_buf.Tab().Cat(ExtMsg);
 				SLS.LogMessage(LogFileName, line_buf, 8192);
 			}
 		}
@@ -287,6 +306,8 @@ private:
 		SString LogFileName;
 		SString Op;
 		SString ExtMsg;
+		SString Param;
+		SString Reply;
 	};
 	//
 	// Налоговой ставки, установленная в аппарате
@@ -584,9 +605,10 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 int PiritEquip::ExecCmd(const char * pHexCmd, const char * pInput, SString & rOut, SString & rError)
 {
 	int    ok = 1;
-	OpLogBlock __oplb(LogFileName, pHexCmd, 0);
+	OpLogBlock __oplb(LogFileName, pHexCmd, pInput, 0);
 	THROWERR(PutData(pHexCmd, pInput), PIRIT_NOTSENT);
 	THROW(GetWhile(rOut, rError));
+	__oplb.SetReply(rOut);
 	CATCHZOK
 	return ok;
 }
@@ -2342,9 +2364,64 @@ int PiritEquip::RunCheck(int opertype)
 							CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (тег 2106)
 							CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
 							THROW(ExecCmd("79", in_data, out_data, r_error));
-						}
-						else
 							set_chzn_mark = false;
+							//
+							{
+								/*
+								str.Z();
+								for(int si = 0; si < rl; si++) {
+									if(si < 8)
+										str.CatChar('$').CatHex(chzn_1162_bytes[si]);
+									else
+										str.CatChar(chzn_1162_bytes[si]);
+									//str.CatHex(chzn_1162_bytes[si]);
+								}
+								CreateStr(str, in_data); // Код товарной номенклатуры
+								*/
+								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
+								if(Check.ChZnProdType == 4)  // #2 (tag 1191) GTCHZNPT_MEDICINE
+									CreateStr("mdlp", in_data);
+								else
+									CreateStr("[M]", in_data);
+								CreateStr("", in_data);     // #3 (tag 1197)
+								CreateStr((int)0, in_data); // #4 (tag 1222)
+								CreateStr("", in_data); // #5 (tag 1226) ИНН поставщика 
+								CreateStr("", in_data); // #6 (tag 1171) Телефон(ы) поставщика
+								CreateStr("", in_data); // #7 (tag 1225) Наименование поставщика
+								CreateStr("", in_data); // #8 (tag 1005) Адрес оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+								CreateStr("", in_data); // #9 (tag 1016) ИНН оператора перевода (для банк.пл.агента/субагента, иначе пустой)
+								CreateStr("", in_data); // #10 (tag 1026) Наименование оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+								CreateStr("", in_data); // #11 (tag 1075) Телефон(ы) оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+								CreateStr("", in_data); // #12 (tag 1044) Операция платежного агента (для банк.пл.агента/субагента, иначе пустой) 
+								CreateStr("", in_data); // #13 (tag 1073) Телефон(ы) платежного агента (для пл.агента/субагента, иначе пустой) 
+								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
+								{
+									if(Check.ChZnProdType == 4)
+										str = "020";
+									else
+										str.Z();
+									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								}
+								CreateStr(""/*date*/, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
+									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								CreateStr("", in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
+									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								CreateStr("", in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
+									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								{
+									const int do_check_ret = 1;
+									OpLogBlock __oplb(LogFileName, "24", str);
+									THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
+									if(do_check_ret) {
+										THROW(GetWhile(out_data, r_error));
+									}
+									else {
+										out_data.Z();
+										r_error = "00";
+									}
+								}								
+							}
+						}
 					}
 					if(set_chzn_mark) {
 					// } @v11.1.10

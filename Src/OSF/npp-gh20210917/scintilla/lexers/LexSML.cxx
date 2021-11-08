@@ -117,7 +117,7 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 			    break;
 
 			case SCE_SML_OPERATOR: {
-			    const char* o = 0;
+			    const char * o = 0;
 			    if(issml(sc.ch) || isspace(sc.ch)
 				|| (o = strchr(")]};,\'\"`#", sc.ch), o)
 				|| !strchr("!$%&*+-./:<=>?@^|~", sc.ch)) {

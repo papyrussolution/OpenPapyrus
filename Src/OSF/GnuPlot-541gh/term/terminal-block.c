@@ -371,7 +371,7 @@ static const char * ansi_bg_colorstring(GpTermEntry * pThis, t_colorspec * color
 		// Hack alert: We change foreground color commands to
 		// background color commands by changing a single byte only.
 		char * c = (char *)pThis->P_Gp->AnsiColorString(color, NULL);
-		if(c[0] != NUL && c[2] == '3')
+		if(c[0] && c[2] == '3')
 			c[2] = '4';
 		return c;
 	}
@@ -458,7 +458,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 				// Handle the character's color first.
 				t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x * yd + xd];
 				c = p_gp->AnsiColorString(color, &p_gp->TDumbB.PrevColor);
-				if(c[0] != NUL) {
+				if(c[0]) {
 					strcpy((char *)s, c);
 					s += strlen(c);
 				}
@@ -466,7 +466,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 #endif
 				// Copy the character.
 				c = reinterpret_cast<const char *>(&p_gp->TDumbB.Pixel(xd, yd));
-				for(i = 0; i < sizeof(charcell) && *c != NUL; i++, c++, s++)
+				for(i = 0; i < sizeof(charcell) && *c; i++, c++, s++)
 					*s = *c;
 			}
 			else {
@@ -581,7 +581,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 					color.type = TC_RGB;
 					color.lt = ((uint)sqrt(r / n) << 16) + ((uint)sqrt(g / n) <<  8) + ((uint)sqrt(b / n));
 					c = p_gp->AnsiColorString(&color, &p_gp->TDumbB.PrevColor);
-					if(c[0] != NUL) {
+					if(c[0]) {
 						strcpy((char *)s, c);
 						s += strlen(c);
 					}
@@ -623,7 +623,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 			}
 		}
 		*s++ = '\n';
-		*s = NUL;
+		*s = '\0';
 		fputs(line, GPT.P_GpOutFile);
 	}
 	// printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");

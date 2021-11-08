@@ -221,8 +221,8 @@ static int pkey_sm2_ctrl_str(EVP_PKEY_CTX * ctx,
 		int nid = NID_undef;
 
 		if(((nid = EC_curve_nist2nid(value)) == NID_undef)
-		    && ((nid = OBJ_sn2nid(value)) == NID_undef)
-		    && ((nid = OBJ_ln2nid(value)) == NID_undef)) {
+		  && ((nid = OBJ_sn2nid(value)) == NID_undef)
+		  && ((nid = OBJ_ln2nid(value)) == NID_undef)) {
 			SM2err(SM2_F_PKEY_SM2_CTRL_STR, SM2_R_INVALID_CURVE);
 			return 0;
 		}

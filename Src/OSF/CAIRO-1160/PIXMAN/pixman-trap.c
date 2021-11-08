@@ -353,7 +353,7 @@ PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t * 
 		return;
 	_pixman_image_validate(src);
 	_pixman_image_validate(dst);
-	if(op == PIXMAN_OP_ADD && (src->common.flags & FAST_PATH_IS_OPAQUE)  && (mask_format == dst->common.extended_format_code) &&
+	if(op == PIXMAN_OP_ADD && (src->common.flags & FAST_PATH_IS_OPAQUE) && (mask_format == dst->common.extended_format_code) &&
 	    !(dst->common.have_clip_region)) {
 		for(i = 0; i < n_traps; ++i) {
 			const pixman_trapezoid_t * trap = &(traps[i]);

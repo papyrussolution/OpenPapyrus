@@ -460,7 +460,7 @@ cmsBool CMSEXPORT _cmsWriteAlignment(cmsIOHANDLER* io)
 }
 
 // To deal with text streams. 2K at most
-cmsBool CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char* frm, ...)
+cmsBool CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char * frm, ...)
 {
 	va_list args;
 	int len;
@@ -714,12 +714,12 @@ cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData)
 		static volatile HANDLE* mutex = &_cmsWindowsInitMutex;
 		if(*mutex == NULL) {
 			HANDLE p = CreateMutex(NULL, FALSE, NULL);
-			if(p && InterlockedCompareExchangePointer((void**)mutex, (void *)p, NULL) != NULL)
+			if(p && InterlockedCompareExchangePointer((void **)mutex, (void *)p, NULL) != NULL)
 				CloseHandle(p);
 		}
 		if(*mutex == NULL || WaitForSingleObject(*mutex, INFINITE) == WAIT_FAILED)
 			return NULL;
-		if(((void**)&_cmsContextPoolHeadMutex)[0] == NULL)
+		if(((void **)&_cmsContextPoolHeadMutex)[0] == NULL)
 			InitializeCriticalSection(&_cmsContextPoolHeadMutex);
 		if(*mutex == NULL || !ReleaseMutex(*mutex))
 			return NULL;

@@ -293,7 +293,7 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 				}
 				break;
 			case TK_NOBACKGROUND:
-			    tk_background[0] = NUL;
+			    tk_background[0] = '\0';
 			    SAlloc::F(tk_background_opt);
 			    tk_background_opt = NULL;
 			    pGp->Pgm.Shift();
@@ -357,7 +357,7 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->flags &= ~TERM_ENHANCED_TEXT;
 	slprintf(GPT._TermOptions, "%s%s %s %s%s %s %s %s size %d,%d", tk_script_languages[tk_script_language],
 	    tk_interactive ? " interactive" : "", tk_standalone ? "standalone" : "input",
-	    (tk_background[0] == NUL) ? "nobackground " : "background ", (tk_background[0] == NUL) ? "" : tk_background_opt,
+	    (!tk_background[0]) ? "nobackground " : "background ", (!tk_background[0]) ? "" : tk_background_opt,
 	    tk_rounded ? "rounded" : "butt", pThis->text_angle == GnuPlot::NullTextAngle ? "norottext" : "rottext",
 	    pThis->image == NULL ? "pixels" : "externalimages", tk_width, tk_height);
 }
@@ -570,10 +570,10 @@ TERM_PUBLIC void TK_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 		    int linetype = colorspec->lt;
 		    char * color = NULL;
 		    if(linetype == LT_BACKGROUND)
-			    color = (tk_background[0] != NUL) ? tk_background : "white";
+			    color = tk_background[0] ? tk_background : "white";
 		    if(linetype == LT_NODRAW)
 			    color = "";
-		    if(color == NULL) {
+		    if(!color) {
 			    if(linetype < LT_BLACK)
 				    linetype = LT_BLACK;
 			    color = (char *)tk_colors[(linetype + 2) % 8];
@@ -622,19 +622,19 @@ TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_da
 		strcpy(tmp_dashpattern, tk_dashtypes[dt]);
 	}
 	else if(dt == DASHTYPE_SOLID) {
-		tmp_dashpattern[0] = NUL;
+		tmp_dashpattern[0] = '\0';
 	}
 	else if(dt == DASHTYPE_AXIS) {
 		strcpy(tmp_dashpattern, tk_dashtypes[1]);
 	}
 	else if(dt == DASHTYPE_CUSTOM) {
-		if(custom_dash_pattern->dstring[0] != NUL) {
-			/* Tk and gnuplot support the very same dash pattern syntax. */
+		if(custom_dash_pattern->dstring[0]) {
+			// Tk and gnuplot support the very same dash pattern syntax. 
 			strncpy(tmp_dashpattern, custom_dash_pattern->dstring, sizeof(tmp_dashpattern)-1);
-			preserve = TRUE; /* do not change pattern */
+			preserve = TRUE; // do not change pattern 
 		}
 		else {
-			tmp_dashpattern[0] = NUL;
+			tmp_dashpattern[0] = '\0';
 			for(i = 0; (i < DASHPATTERN_LENGTH/2) && (fabs(custom_dash_pattern->pattern[2*i]) > FLT_EPSILON); i++) {
 				char buf[32];
 				snprintf(buf, sizeof(buf), "%d %d ",
@@ -642,12 +642,12 @@ TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_da
 				    (int)(custom_dash_pattern->pattern[2*i + 1] * tk_linewidth));
 				strncat(tmp_dashpattern, buf, sizeof(tmp_dashpattern) - strlen(tmp_dashpattern)-1);
 			}
-			tmp_dashpattern[strlen(tmp_dashpattern)-1] = NUL;
+			tmp_dashpattern[strlen(tmp_dashpattern)-1] = '\0';
 		}
 	}
 
 	if((tk_script_language == TK_LANG_PYTHON) && !preserve) {
-		for(i = 0; tmp_dashpattern[i] != NUL; i++)
+		for(i = 0; tmp_dashpattern[i]; i++)
 			if(tmp_dashpattern[i] == ' ')
 				tmp_dashpattern[i] = ',';
 	}
@@ -908,7 +908,7 @@ static void TK_flush_line(GpTermEntry * pThis)
 	for(i = 0; i < tk_polygon_points; i++)
 		fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
 	fprintf(GPT.P_GpOutFile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
-	if(tk_dashpattern[0] != NUL)
+	if(tk_dashpattern[0])
 		fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
 	fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
 
@@ -1177,7 +1177,7 @@ static char * tk_font_end[TK_LANG_MAX] = {
 
 TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 {
-	if(!font || *font == NUL) {
+	if(isempty(font)) {
 		tk_next_text_use_font = FALSE;
 		fputs(tk_undef_font[tk_script_language], GPT.P_GpOutFile);
 	}
@@ -1192,14 +1192,13 @@ TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 		if(!name)
 			return FALSE;
 		strncpy(name, font, sep);
-		name[sep] = NUL;
-		/* bold, italic */
+		name[sep] = '\0';
+		// bold, italic 
 		isbold = (strstr(font, ":Bold") != NULL);
 		isitalic = (strstr(font, ":Italic") != NULL);
-		/* font size */
+		// font size 
 		if(sep1 < strlen(font))
 			sscanf(&(font[sep1 + 1]), "%d", &size);
-
 		fprintf(GPT.P_GpOutFile, tk_set_font[tk_script_language], name);
 		if(size > 0)
 			fprintf(GPT.P_GpOutFile, tk_set_fsize[tk_script_language], size);
@@ -1243,7 +1242,7 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		// set new font 
 		family = sstrdup(fontname);
 		sep = strchr(family, ':');
-		ASSIGN_PTR(sep, NUL);
+		ASSIGN_PTR(sep, '\0');
 		isbold = (strstr(fontname, ":Bold") != NULL);
 		isitalic = (strstr(fontname, ":Italic") != NULL);
 		fprintf(GPT.P_GpOutFile, tk_set_font[tk_script_language], family);
@@ -1302,7 +1301,7 @@ TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 	const char * str = p_gp->Enht.Text; /* The fragment to print */
 	if(!tk_enhanced_opened_string)
 		return;
-	*p_gp->Enht.P_CurText = NUL;
+	*p_gp->Enht.P_CurText = '\0';
 	/* print the string fragment in any case */
 	/* NB: base expresses offset from current y pos */
 	fprintf(GPT.P_GpOutFile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * SMathConst::PiDiv180)));
@@ -1499,7 +1498,7 @@ TERM_PUBLIC void TK_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uin
 			fprintf(GPT.P_GpOutFile, tk_line_arrow[tk_script_language], arrow[ (head & BOTH_HEADS) ]);
 			fprintf(GPT.P_GpOutFile, tk_line_arrowshape[tk_script_language], length, length, width);
 		}
-		if(tk_dashpattern[0] != NUL)
+		if(tk_dashpattern[0])
 			fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
 		fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
 		fputs(tk_nobind[tk_script_language], GPT.P_GpOutFile);
@@ -1765,7 +1764,7 @@ TERM_PUBLIC void TK_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint
 		    break;
 	    }
 		case FS_EMPTY:
-		    color = (tk_background[0] != NUL) ? tk_background : "white";
+		    color = tk_background[0] ? tk_background : "white";
 		    break;
 		case FS_DEFAULT:
 		default:
@@ -1834,7 +1833,7 @@ TERM_PUBLIC void TK_path(GpTermEntry * pThis, int p)
 				fprintf(GPT.P_GpOutFile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
 			fprintf(GPT.P_GpOutFile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
 			    tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
-			if(tk_dashpattern[0] != NUL)
+			if(tk_dashpattern[0])
 				fprintf(GPT.P_GpOutFile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
 			fputs(tk_line_segment_end[tk_script_language], GPT.P_GpOutFile);
 			fputs(tk_nobind[tk_script_language], GPT.P_GpOutFile);

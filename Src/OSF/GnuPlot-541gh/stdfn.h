@@ -420,8 +420,8 @@ void gp_rewinddir(GPDIR *);
 	{ char * p = path; \
 	  p += strlen(path); \
 	  if(p!=path) p --; \
-	  if(* p && (* p != DIRSEP1) && (* p != DIRSEP2)) { \
-		  if(* p) p ++; * p ++ = DIRSEP1; * p = NUL; \
+	  if(*p && (*p != DIRSEP1) && (*p != DIRSEP2)) { \
+		  if(*p) p++; *p++ = DIRSEP1; *p = '\0'; \
 	  } \
 	  strcat(path, file); \
 	}

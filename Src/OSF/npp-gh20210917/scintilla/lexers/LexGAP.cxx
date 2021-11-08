@@ -173,7 +173,7 @@ static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	sc.Complete();
 }
 
-static int ClassifyFoldPointGAP(const char* s) {
+static int ClassifyFoldPointGAP(const char * s) {
 	int level = 0;
 	if(strcmp(s, "function") == 0 ||
 	    strcmp(s, "do") == 0 ||

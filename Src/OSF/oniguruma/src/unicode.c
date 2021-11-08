@@ -582,7 +582,7 @@ typedef struct {
 
 #include "unicode_wb_data.c"
 
-static enum WB_TYPE wb_get_type(OnigCodePoint code)                    {
+static enum WB_TYPE wb_get_type(OnigCodePoint code) {
 	OnigCodePoint low, high, x;
 	enum WB_TYPE type;
 
@@ -898,7 +898,7 @@ static enum EGCB_BREAK_TYPE unicode_egcb_is_break_2code(OnigCodePoint from_code,
 		if(from == EGCB_L && to != EGCB_T) return EGCB_NOT_BREAK;
 		/* GB7 */
 		if((from == EGCB_LV || from == EGCB_V)
-		    && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
+		  && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
 
 		/* GB8 */
 		if((to == EGCB_T) && (from == EGCB_LVT || from == EGCB_T))
@@ -1018,7 +1018,7 @@ static int UserDefinedPropertyNum;
 static UserDefinedPropertyValue UserDefinedPropertyRanges[USER_DEFINED_PROPERTY_MAX_NUM];
 static st_table* UserDefinedPropertyTable;
 
-extern int onig_unicode_define_user_property(const char* name, OnigCodePoint* ranges)
+extern int onig_unicode_define_user_property(const char * name, OnigCodePoint* ranges)
 {
 	UserDefinedPropertyValue* e;
 	int r;
@@ -1026,7 +1026,7 @@ extern int onig_unicode_define_user_property(const char* name, OnigCodePoint* ra
 	int n;
 	int len;
 	int c;
-	char* s;
+	char * s;
 	uchar * uname;
 	if(UserDefinedPropertyNum >= USER_DEFINED_PROPERTY_MAX_NUM)
 		return ONIGERR_TOO_MANY_USER_DEFINED_OBJECTS;

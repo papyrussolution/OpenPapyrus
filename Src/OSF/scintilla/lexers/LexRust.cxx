@@ -204,7 +204,7 @@ static void ScanWhitespace(Accessor & styler, Sci_Position& pos, Sci_Position ma
 	styler.ColourTo(pos-1, SCE_RUST_DEFAULT);
 }
 
-static void GrabString(char* s, Accessor & styler, Sci_Position start, Sci_Position len)
+static void GrabString(char * s, Accessor & styler, Sci_Position start, Sci_Position len)
 {
 	for(Sci_Position ii = 0; ii < len; ii++)
 		s[ii] = styler[ii + start];

@@ -4654,7 +4654,7 @@ FANN_EXTERNAL void FANN_API fann_scale_output(Fann2 * ann, float * output_vector
 		if(ann->scale_deviation_out[ cur_neuron ] != 0.0)
 			output_vector[ cur_neuron ] =
 			    (
-				( output_vector[ cur_neuron ] - ann->scale_mean_out[ cur_neuron ] )
+				( output_vector[ cur_neuron ] - ann->scale_mean_out[ cur_neuron ])
 				/ ann->scale_deviation_out[ cur_neuron ]
 				- (-1.0f) /* This is old_min */
 			    )
@@ -4762,7 +4762,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train(Fann2 * ann, struct fann_train_da
 		ann->scale_factor_ ## where[ cur_neuron ] =                                                                                                               \
 		    ( new_ ## where ## put_max - new_ ## where ## put_min )                                                                                         \
 		    /                                                                                                                                                                                       \
-		    ( 1.0f - ( -1.0f ) );                                                                                                                                           \
+		    ( 1.0f - ( -1.0f ));                                                                                                                                           \
 	/* Copy new minimum. */                                                                                                                                                         \
 	/* Looks like we dont need whole array of new minimums? */                                                                                      \
 	for(cur_neuron = 0; cur_neuron < ann->num_ ## where ## put; cur_neuron++)                                                         \

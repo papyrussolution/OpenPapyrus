@@ -511,10 +511,10 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 			// if a keyword is found on the current line and the line doesn't end with ;;+ (continuation)
 			//    and we are not inside a commentblock.
 			if(firstWordLen > 0
-			    && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';'
-			    && (!IsStreamCommentStyle(style) || foldInComment) ) {
+			  && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';'
+			  && (!IsStreamCommentStyle(style) || foldInComment) ) {
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(strcmp(szFirstWord, "if") == 0  && isDoLastWord)
+				if(strcmp(szFirstWord, "if") == 0 && isDoLastWord)
 					levelNext++;
 
 				// create new fold for these words
@@ -564,14 +564,14 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 					levelNext++;
 				} // fold till the last line for normal comment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				    && styleNext != SCE_POWERPRO_COMMENTLINE
-				    && stylePrev == SCE_POWERPRO_COMMENTLINE
-				    && style == SCE_POWERPRO_COMMENTLINE) {
+				  && styleNext != SCE_POWERPRO_COMMENTLINE
+				  && stylePrev == SCE_POWERPRO_COMMENTLINE
+				  && style == SCE_POWERPRO_COMMENTLINE) {
 					levelNext--;
 				} // fold till the one but last line for Blockcomment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				    && styleNext != SCE_POWERPRO_COMMENTBLOCK
-				    && style == SCE_POWERPRO_COMMENTBLOCK) {
+				  && styleNext != SCE_POWERPRO_COMMENTBLOCK
+				  && style == SCE_POWERPRO_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

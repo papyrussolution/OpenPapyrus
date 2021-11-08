@@ -343,7 +343,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 		gss_enc = 1;
 
 	infof(data, "SOCKS5 server supports GSS-API %s data protection.\n",
-	    (gss_enc == 0) ? "no" : ((gss_enc == 1) ? "integrity" : "confidentiality") );
+	    (gss_enc == 0) ? "no" : ((gss_enc == 1) ? "integrity" : "confidentiality"));
 	/* force to no data protection, avoid encryption/decryption for now */
 	gss_enc = 0;
 	/*

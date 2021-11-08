@@ -35,8 +35,8 @@ static bool FASTCALL IsDigitOfBase(unsigned ch, unsigned base)
 	else {
 		if(ch > '9') {
 			unsigned nb = base - 10;
-			if( ( ch < 'A' ) || ( ch >= ( 'A' + nb ) ) ) {
-				if( ( ch < 'a' ) || ( ch >= ( 'a' + nb ) ) ) {
+			if(( ch < 'A' ) || ( ch >= ( 'A' + nb ) ) ) {
+				if(( ch < 'a' ) || ( ch >= ( 'a' + nb ) ) ) {
 					return false;
 				}
 			}
@@ -53,13 +53,13 @@ static inline unsigned IsOperator(const StyleContext & sc, const WordList & op)
 	s[1] = sc.chNext;
 	s[2] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( sstrlen(op.WordAt(i) ) == 2 ) && ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1] ) ) {
+		if(( sstrlen(op.WordAt(i) ) == 2) && (s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1]) ) {
 			return 2;
 		}
 	}
 	s[1] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( sstrlen(op.WordAt(i) ) == 1 ) && ( s[0] == op.WordAt(i)[0] ) ) {
+		if(( sstrlen(op.WordAt(i) ) == 1) && (s[0] == op.WordAt(i)[0]) ) {
 			return 1;
 		}
 	}
@@ -102,7 +102,7 @@ static bool FASTCALL checkEndSemicolon(Accessor & styler, Sci_Position &curPos, 
 	}
 	while(isspace(styler.SafeGetCharAt(curPos + i) ) ) {
 		i++;
-		if( ( curPos + i ) >= endPos) return false;
+		if(( curPos + i ) >= endPos) return false;
 	}
 	if(styler.SafeGetCharAt(curPos + i) != ';') {
 		return false;
@@ -219,7 +219,7 @@ static void FoldModulaDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 					    if(clv_new < clv_old) {
 						    nextLevel--;
 						    pos = styler.LineStart(cln);
-						    while( ( ch = styler.SafeGetCharAt(pos) ) != '\n') {
+						    while((ch = styler.SafeGetCharAt(pos) ) != '\n') {
 							    if(ch == 'P') {
 								    if(styler.StyleAt(pos) == SCE_MODULA_KEYWORD) {
 									    if(checkKeyIdentOper(styler, pos, endPos,
@@ -624,7 +624,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 				    sc.SetState(SCE_MODULA_DEFAULT);
 				    continue;
 			    }
-			    else if( ( sc.currentPos - charPos ) == 1) {
+			    else if(( sc.currentPos - charPos ) == 1) {
 				    if(sc.ch == '\\') {
 					    i = 1;
 					    if(IsDigitOfBase(sc.chNext, 8) ) {

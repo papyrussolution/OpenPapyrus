@@ -1783,16 +1783,13 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 	int    ok = 1;
 	size_t zc_len = sstrlen(pZCheck);
 	if(zc_len) {
-		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);
 		const char * p_delim = 0;
-		if(eolf == eolWindows)
-			p_delim = "\xD\xA";
-		else if(eolf == eolUnix)
-			p_delim = "\xA";
-		else if(eolf == eolMac)
-			p_delim = "\xD";
-		else
-			p_delim = "\n";
+		switch(SDetermineEOLFormat(pZCheck, zc_len)) {
+			case eolWindows: p_delim = "\xD\xA"; break;
+			case eolUnix: p_delim = "\xA"; break;
+			case eolMac: p_delim = "\xD"; break;
+			default: p_delim = "\n"; break;
+		}
 		SString str;
 		//StringSet str_set('\n', pZCheck);
 		StringSet str_set(p_delim);

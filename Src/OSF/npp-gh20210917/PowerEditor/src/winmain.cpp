@@ -371,7 +371,7 @@ bool MiniDumper::writeDump(EXCEPTION_POINTERS * pExceptionInfo)
 	TCHAR szScratch[MAX_PATH];
 	LPCTSTR szResult = NULL;
 	bool retval = false;
-	HMODULE hDll = ::LoadLibrary(TEXT("DBGHELP.DLL") ); // that wont work on older windows version than XP, #care :)
+	HMODULE hDll = ::LoadLibrary(TEXT("DBGHELP.DLL")); // that wont work on older windows version than XP, #care :)
 	if(hDll) {
 		MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress(hDll, "MiniDumpWriteDump");
 		if(pDump) {
@@ -402,7 +402,7 @@ bool MiniDumper::writeDump(EXCEPTION_POINTERS * pExceptionInfo)
 					::CloseHandle(hFile);
 				}
 				else {
-					wsprintf(szScratch, TEXT("Failed to create dump file '%s' (error %d)"), szDumpPath, GetLastError() );
+					wsprintf(szScratch, TEXT("Failed to create dump file '%s' (error %d)"), szDumpPath, GetLastError());
 					szResult = szScratch;
 				}
 			}

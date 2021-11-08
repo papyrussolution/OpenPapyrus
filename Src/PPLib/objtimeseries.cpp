@@ -124,7 +124,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	int    ok = 1;
 	SString temp_buf;
 	rBuf.Z();
-	//rBuf.Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+	//rBuf.CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0);
 	(temp_buf = Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 	rBuf.CR().CatChar('#').Cat(Rec.ID).Space().Cat(temp_buf);
 	if(Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart)
@@ -7493,7 +7493,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 					}
 				}
 			}
-			msg_buf.Z().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS).Space().Cat(p_blk->R_TsPack.GetSymb());
+			msg_buf.Z().CatCurDateTime(DATF_YMD|DATF_CENTURY, TIMF_HMS).Space().Cat(p_blk->R_TsPack.GetSymb());
 			rFOutTotal.WriteLine(msg_buf.CR());
 			SForEachVectorItem(sc_selection, si) { rFOutTotal.WriteLine(PPObjTimeSeries::StrategyToString(sc_selection, si, 0, 0, msg_buf).CR()); }
 			OutputStategyResultEntry(sre, msg_buf);
@@ -7738,7 +7738,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		SFile f_out_total(out_total_file_name, SFile::mAppend);
 		f_out.WriteLine(msg_buf.Z().CatCharN('-', 20).CR());
 		{
-			msg_buf.Z().CatCharN('=', 8).Space().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
+			msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
 			if(checkdate(P.UseDataForStrategiesTill))
 				msg_buf.CR().CatEq("p.use_data_for_strategies_till", P.UseDataForStrategiesTill, DATF_DMY|DATF_CENTURY);
 			if(checkdate(P.UseDataForStrategiesTill2)) // @v10.8.9
@@ -8271,7 +8271,7 @@ int PrcssrTsStrategyAnalyze::AnalyzeRegression(PPID tsID)
 					RealArray cov11_list;
 					RealArray temp_real_list;
 					THROW_SL(ts.GetValueVecIndex("close", &vec_idx));
-					f_out.WriteLine(msg_buf.Z().CatCharN('-', 8).Space().Cat(getcurdatetime_(), DATF_ISO8601, 0).CR());
+					f_out.WriteLine(msg_buf.Z().CatCharN('-', 8).Space().CatCurDateTime(DATF_ISO8601, 0).CR());
 					for(uint ifsidx = 0; ifsidx < trend_list_set.getCount(); ifsidx++) {
 						const PPObjTimeSeries::TrendEntry * p_te = trend_list_set.at(ifsidx);
 						if(p_te) {
@@ -8441,7 +8441,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 								PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 								SFile f_out(out_file_name, SFile::mAppend);
 
-								msg_buf.Z().CatCharN('=', 8).Space().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
+								msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
 								f_out.WriteLine(msg_buf.CR());
 
 								tss_model.Output(msg_buf);
@@ -8525,7 +8525,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 		SString out_file_name;
 		SString symb;
 		PPTimeSeries ts_rec;
-		(temp_buf = "tsscsim").CatChar('-').Cat("collection").CatChar('-').Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_NODIV);
+		(temp_buf = "tsscsim").CatChar('-').Cat("collection").CatChar('-').CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_NODIV);
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 		SFile f_out(out_file_name, SFile::mWrite);
 		rRc.GetTsList(result_ts_list);

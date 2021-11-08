@@ -503,7 +503,7 @@ static void LUA_set_term_vars(void)
 	lua_setfield(P_LuaS, luaterm, "TERM_CAN_DASH");
 	lua_pushinteger(P_LuaS, TERM_ALPHA_CHANNEL); /* alpha channel transparency      */
 	lua_setfield(P_LuaS, luaterm, "TERM_ALPHA_CHANNEL");
-	lua_pushinteger(P_LuaS, TERM_MONOCHROME);  /* term is running in mono mode    */
+	lua_pushinteger(P_LuaS, TERM_MONOCHROME); /* term is running in mono mode    */
 	lua_setfield(P_LuaS, luaterm, "TERM_MONOCHROME");
 	lua_pushinteger(P_LuaS, TERM_LINEWIDTH);   /* support for set term linewidth  */
 	lua_setfield(P_LuaS, luaterm, "TERM_LINEWIDTH");

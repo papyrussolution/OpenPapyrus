@@ -620,7 +620,7 @@ void GnuPlot::TabCompletion(bool forward)
 			memmove(RlB_.P_CurLine + last_tab_pos + completion_len, RlB_.P_CurLine + last_tab_pos + last_completion_len, RlB_.MaxPos-last_tab_pos-last_completion_len);
 		memcpy(RlB_.P_CurLine + last_tab_pos, p_completion, completion_len);
 		RlB_.MaxPos += completion_len - last_completion_len;
-		RlB_.P_CurLine[RlB_.MaxPos] = NUL;
+		RlB_.P_CurLine[RlB_.MaxPos] = '\0';
 		// draw new completion 
 		for(i = 0; i < completion_len; i++)
 			user_putc(RlB_.P_CurLine[last_tab_pos+i]);
@@ -1306,7 +1306,7 @@ int GnuPlot::MsDosGetch(GpTermEntry * pTerm)
 			    break;
 		}
 	}
-	else if(c == 033) {     /* ESC */
+	else if(c == 033) { /* ESC */
 		c = 025;
 	}
 	return c;

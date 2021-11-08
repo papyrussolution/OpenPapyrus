@@ -163,7 +163,7 @@ static int Fax3PreDecode(TIFF* tif, uint16 s)
  * Note how they are "glued into the decoder" by
  * overriding the definitions used by the decoder.
  */
-static void Fax3Unexpected(const char* module, TIFF* tif, uint32 line, uint32 a0)
+static void Fax3Unexpected(const char * module, TIFF* tif, uint32 line, uint32 a0)
 {
 	TIFFErrorExt(tif->tif_clientdata, module, "Bad code word at line %u of %s %u (x %u)",
 	    line, isTiled(tif) ? "tile" : "strip", (isTiled(tif) ? tif->tif_curtile : tif->tif_curstrip), a0);
@@ -171,7 +171,7 @@ static void Fax3Unexpected(const char* module, TIFF* tif, uint32 line, uint32 a0
 
 #define unexpected(table, a0)   Fax3Unexpected(module, tif, sp->line, a0)
 
-static void Fax3Extension(const char* module, TIFF* tif, uint32 line, uint32 a0)
+static void Fax3Extension(const char * module, TIFF* tif, uint32 line, uint32 a0)
 {
 	TIFFErrorExt(tif->tif_clientdata, module, "Uncompressed data (not supported) at line %u of %s %u (x %u)",
 	    line, isTiled(tif) ? "tile" : "strip", (isTiled(tif) ? tif->tif_curtile : tif->tif_curstrip), a0);
@@ -179,7 +179,7 @@ static void Fax3Extension(const char* module, TIFF* tif, uint32 line, uint32 a0)
 
 #define extension(a0)   Fax3Extension(module, tif, sp->line, a0)
 
-static void Fax3BadLength(const char* module, TIFF* tif, uint32 line, uint32 a0, uint32 lastx)
+static void Fax3BadLength(const char * module, TIFF* tif, uint32 line, uint32 a0, uint32 lastx)
 {
 	TIFFWarningExt(tif->tif_clientdata, module, "%s at line %u of %s %u (got %u, expected %u)",
 	    a0 < lastx ? "Premature EOL" : "Line length mismatch", line, isTiled(tif) ? "tile" : "strip",
@@ -188,7 +188,7 @@ static void Fax3BadLength(const char* module, TIFF* tif, uint32 line, uint32 a0,
 
 #define badlength(a0, lastx)     Fax3BadLength(module, tif, sp->line, a0, lastx)
 
-static void Fax3PrematureEOF(const char* module, TIFF* tif, uint32 line, uint32 a0)
+static void Fax3PrematureEOF(const char * module, TIFF* tif, uint32 line, uint32 a0)
 {
 	TIFFWarningExt(tif->tif_clientdata, module, "Premature EOF at line %u of %s %u (x %u)",
 	    line, isTiled(tif) ? "tile" : "strip", (isTiled(tif) ? tif->tif_curtile : tif->tif_curstrip), a0);
@@ -388,7 +388,7 @@ void _TIFFFax3fillruns(uchar* buf, uint32* runs, uint32* erun, uint32 lastx)
 					*cp++ &= 0xff << (8-bx);
 					run -= 8-bx;
 				}
-				if( (n = run >> 3) != 0) { /* multiple bytes to fill */
+				if((n = run >> 3) != 0) { /* multiple bytes to fill */
 					if((n/sizeof(long)) > 1) {
 						/*
 						 * Align to longword boundary and fill.
@@ -424,7 +424,7 @@ void _TIFFFax3fillruns(uchar* buf, uint32* runs, uint32* erun, uint32 lastx)
 					*cp++ |= 0xff >> bx;
 					run -= 8-bx;
 				}
-				if( (n = run>>3) != 0) { /* multiple bytes to fill */
+				if((n = run>>3) != 0) { /* multiple bytes to fill */
 					if((n/sizeof(long)) > 1) {
 						/*
 						 * Align to longword boundary and fill.
@@ -518,7 +518,7 @@ static int Fax3SetupState(TIFF* tif)
 	memzero(dsp->runs, TIFFSafeMultiply(uint32, nruns, 2)*sizeof(uint32));
 	dsp->curruns = dsp->runs;
 	dsp->refruns = needsRefLine ? (dsp->runs + nruns) : NULL;
-	if(td->td_compression == COMPRESSION_CCITTFAX3 && is2DEncoding(dsp)) {     /* NB: default is 1D routine */
+	if(td->td_compression == COMPRESSION_CCITTFAX3 && is2DEncoding(dsp)) { /* NB: default is 1D routine */
 		tif->tif_decoderow = Fax3Decode2D;
 		tif->tif_decodestrip = Fax3Decode2D;
 		tif->tif_decodetile = Fax3Decode2D;
@@ -1172,7 +1172,7 @@ static void Fax3PrintDir(TIFF* tif, FILE* fd, long flags)
 	assert(sp != 0);
 	(void)flags;
 	if(TIFFFieldSet(tif, FIELD_OPTIONS)) {
-		const char* sep = " ";
+		const char * sep = " ";
 		if(tif->tif_dir.td_compression == COMPRESSION_CCITTFAX4) {
 			fprintf(fd, "  Group 4 Options:");
 			if(sp->groupoptions & GROUP4OPT_UNCOMPRESSED)

@@ -270,10 +270,10 @@ typedef struct {
 	int FirstComponent;
 	int SecondComponent;
 
-	const char* PreMaj;
-	const char* PostMaj;
-	const char* PreMin;
-	const char* PostMin;
+	const char * PreMaj;
+	const char * PostMaj;
+	const char * PreMin;
+	const char * PostMin;
 
 	int FixWhite; // Force mapping of pure white
 
@@ -307,10 +307,10 @@ void WriteByte(cmsIOHANDLER* m, cmsUInt8Number b)
 // Removes offending carriage returns
 
 static
-char* RemoveCR(const char* txt)
+char * RemoveCR(const char * txt)
 {
 	static char Buffer[2048];
-	char* pt;
+	char * pt;
 
 	strncpy(Buffer, txt, 2047);
 	Buffer[2047] = 0;
@@ -321,7 +321,7 @@ char* RemoveCR(const char* txt)
 }
 
 static
-void EmitHeader(cmsIOHANDLER* m, const char* Title, cmsHPROFILE hProfile)
+void EmitHeader(cmsIOHANDLER* m, const char * Title, cmsHPROFILE hProfile)
 {
 	time_t timer;
 	cmsMLU * Description, * Copyright;
@@ -417,14 +417,14 @@ void EmitLab2XYZ(cmsIOHANDLER* m)
 }
 
 static
-void EmitSafeGuardBegin(cmsIOHANDLER* m, const char* name)
+void EmitSafeGuardBegin(cmsIOHANDLER* m, const char * name)
 {
 	_cmsIOPrintf(m, "%%LCMS2: Save previous definition of %s on the operand stack\n", name);
 	_cmsIOPrintf(m, "currentdict /%s known { /%s load } { null } ifelse\n", name, name);
 }
 
 static
-void EmitSafeGuardEnd(cmsIOHANDLER* m, const char* name, int depth)
+void EmitSafeGuardEnd(cmsIOHANDLER* m, const char * name, int depth)
 {
 	_cmsIOPrintf(m, "%%LCMS2: Restore previous definition of %s\n", name);
 	if(depth > 1) {
@@ -437,7 +437,7 @@ void EmitSafeGuardEnd(cmsIOHANDLER* m, const char* name, int depth)
 // Outputs a table of words. It does use 16 bits
 
 static
-void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve* Table, const char* name)
+void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve* Table, const char * name)
 {
 	cmsUInt32Number i;
 	cmsFloat64Number gamma;
@@ -520,7 +520,7 @@ cmsBool GammaTableEquals(cmsUInt16Number* g1, cmsUInt16Number* g2, cmsUInt32Numb
 // Does write a set of gamma curves
 
 static
-void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve* g[], const char* nameprefix)
+void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve* g[], const char * nameprefix)
 {
 	cmsUInt32Number i;
 	static char buffer[2048];
@@ -617,10 +617,10 @@ static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTE
 // Writes a Pipeline on memstream. Could be 8 or 16 bits based
 
 static
-void WriteCLUT(cmsIOHANDLER* m, cmsStage* mpe, const char* PreMaj,
-    const char* PostMaj,
-    const char* PreMin,
-    const char* PostMin,
+void WriteCLUT(cmsIOHANDLER* m, cmsStage* mpe, const char * PreMaj,
+    const char * PostMaj,
+    const char * PreMin,
+    const char * PostMin,
     int FixWhite,
     cmsColorSpaceSignature ColorSpace)
 {
@@ -726,9 +726,9 @@ int EmitCIEBasedABC(cmsIOHANDLER* m, cmsFloat64Number* Matrix, cmsToneCurve** Cu
 static
 int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline* Pipeline, cmsUInt32Number Intent, cmsCIEXYZ* BlackPoint)
 {
-	const char* PreMaj;
-	const char* PostMaj;
-	const char* PreMin, * PostMin;
+	const char * PreMaj;
+	const char * PostMaj;
+	const char * PreMin, * PostMin;
 	cmsStage* mpe;
 	int i, numchans;
 	static char buffer[2048];

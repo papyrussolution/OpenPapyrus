@@ -207,7 +207,7 @@ private:
 	explicit ScintillaWin(HWND hwnd);
 	ScintillaWin(const ScintillaWin &);
 	virtual ~ScintillaWin();
-	ScintillaWin & operator=(const ScintillaWin &);
+	ScintillaWin & operator = (const ScintillaWin &);
 
 	virtual void Initialise();
 	virtual void Finalise();
@@ -1560,8 +1560,8 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 #ifdef SCI_LEXER
 			case SCI_LOADLEXERLIBRARY: LexerManager::GetInstance()->Load(reinterpret_cast<const char *>(lParam)); break;
 #endif
-			case SCI_TARGETASUTF8: return TargetAsUTF8(reinterpret_cast<char*>(lParam));
-			case SCI_ENCODEDFROMUTF8: return EncodedFromUTF8(reinterpret_cast<char*>(wParam), reinterpret_cast<char*>(lParam));
+			case SCI_TARGETASUTF8: return TargetAsUTF8(reinterpret_cast<char *>(lParam));
+			case SCI_ENCODEDFROMUTF8: return EncodedFromUTF8(reinterpret_cast<char *>(wParam), reinterpret_cast<char *>(lParam));
 			default: return ScintillaBase::WndProc(iMessage, wParam, lParam);
 		}
 	} 
@@ -2478,7 +2478,7 @@ void ScintillaWin::ImeStartComposition()
 			lf.lfCharSet = DEFAULT_CHARSET;
 			lf.lfFaceName[0] = L'\0';
 			if(vs.styles[styleHere].fontName) {
-				const char* fontName = vs.styles[styleHere].fontName;
+				const char * fontName = vs.styles[styleHere].fontName;
 				UTF16FromUTF8(fontName, sstrlen(fontName)+1, lf.lfFaceName, LF_FACESIZE);
 			}
 			::ImmSetCompositionFontW(imc.hIMC, &lf);

@@ -64,7 +64,7 @@ typedef struct st_ma_const_string {
 
 #ifndef ST_MA_USED_MEM_DEFINED
 #define ST_MA_USED_MEM_DEFINED
-typedef struct st_ma_used_mem {     /* struct for once_alloc */
+typedef struct st_ma_used_mem { /* struct for once_alloc */
 	struct st_ma_used_mem * next; /* Next block in use */
 	size_t left;             /* memory left in block  */
 	size_t size;             /* Size of block */
@@ -472,7 +472,7 @@ void STDCALL mysql_set_local_infile_handler(MYSQL * mysql,
     int (* local_infile_init)(void **, const char *, void *),
     int (* local_infile_read)(void *, char *, unsigned int),
     void (* local_infile_end)(void *),
-    int (* local_infile_error)(void *, char*, unsigned int),
+    int (* local_infile_error)(void *, char *, unsigned int),
     void *);
 
 void mysql_set_local_infile_default(MYSQL * mysql);

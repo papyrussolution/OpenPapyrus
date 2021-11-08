@@ -36,8 +36,8 @@ public:
 	// FontAlias objects can be copy or move constructed but not be assigned
 	FontAlias(const FontAlias &) noexcept;
 	FontAlias(FontAlias &&) noexcept;
-	FontAlias &operator=(const FontAlias &) = delete;
-	FontAlias &operator=(FontAlias &&) = delete;
+	FontAlias & operator = (const FontAlias &) = delete;
+	FontAlias & operator = (FontAlias &&) = delete;
 	~FontAlias() override;
 	void MakeAlias(const Font &fontOrigin) noexcept;
 	void ClearFont() noexcept;
@@ -74,8 +74,8 @@ public:
 	Style(const Style &source) noexcept;
 	Style(Style &&) noexcept = default;
 	~Style();
-	Style &operator=(const Style &source) noexcept;
-	Style &operator=(Style &&) = delete;
+	Style & operator = (const Style &source) noexcept;
+	Style & operator = (Style &&) = delete;
 	void Clear(ColourDesired fore_, ColourDesired back_,
 	           int size_,
 	           const char *fontName_, int characterSet_,

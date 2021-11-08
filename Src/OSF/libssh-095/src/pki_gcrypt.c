@@ -290,7 +290,7 @@ static int privatekey_decrypt(int algo, int mode, uint key_len,
 		}
 	}
 	else if(cb == NULL && userdata != NULL) {
-		snprintf(passphrase, MAX_PASSPHRASE_SIZE, "%s", (char*)userdata);
+		snprintf(passphrase, MAX_PASSPHRASE_SIZE, "%s", (char *)userdata);
 	}
 
 	if(passphrase_to_key(passphrase, strlen(passphrase), iv, key, key_len) < 0) {
@@ -374,7 +374,7 @@ static int privatekey_dek_header(const char * header, uint header_len,
 			eol = true;                                                 \
 		else          /* calculate length */                    \
 			for(p += len, len = 0; p[len] && p[len] != '\n'             \
-			    && p[len] != '\r'; len++);    \
+			  && p[len] != '\r'; len++);    \
 }
 
 static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
@@ -820,7 +820,7 @@ static int asn1_oi_to_nid(const ssh_string oi)
 	size_t len = ssh_string_len(oi);
 	for(e = mapping; e->length; e++) {
 		if(len == e->length
-		    && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
+		  && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
 			return e->nid;
 		}
 	}

@@ -47,7 +47,7 @@ int EC_GROUP_get_trinomial_basis(const EC_GROUP * group, uint * k)
 	if(EC_METHOD_get_field_type(EC_GROUP_method_of(group)) !=
 	    NID_X9_62_characteristic_two_field
 	    || !((group->poly[0] != 0) && (group->poly[1] != 0)
-	    && (group->poly[2] == 0))) {
+	  && (group->poly[2] == 0))) {
 		ECerr(EC_F_EC_GROUP_GET_TRINOMIAL_BASIS,
 		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
@@ -68,8 +68,8 @@ int EC_GROUP_get_pentanomial_basis(const EC_GROUP * group, uint * k1,
 	if(EC_METHOD_get_field_type(EC_GROUP_method_of(group)) !=
 	    NID_X9_62_characteristic_two_field
 	    || !((group->poly[0] != 0) && (group->poly[1] != 0)
-	    && (group->poly[2] != 0) && (group->poly[3] != 0)
-	    && (group->poly[4] == 0))) {
+	  && (group->poly[2] != 0) && (group->poly[3] != 0)
+	  && (group->poly[4] == 0))) {
 		ECerr(EC_F_EC_GROUP_GET_PENTANOMIAL_BASIS,
 		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
@@ -675,7 +675,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 
 			if(!
 			    (char_two->m > penta->k3 && penta->k3 > penta->k2
-			    && penta->k2 > penta->k1 && penta->k1 > 0)) {
+			  && penta->k2 > penta->k1 && penta->k1 > 0)) {
 				ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS,
 				    EC_R_INVALID_PENTANOMIAL_BASIS);
 				goto err;

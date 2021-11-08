@@ -2540,7 +2540,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 	t = __archive_read_ahead(a, 1, &bytes_read);
 	if(bytes_read <= 0)
 		return ARCHIVE_FATAL;
-	s = static_cast<const char *>(t);  /* Start of line? */
+	s = static_cast<const char *>(t); /* Start of line? */
 	p = memchr(t, '\n', bytes_read);
 	/* If we found '\n' in the read buffer, return pointer to that. */
 	if(p != NULL) {
@@ -2581,7 +2581,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 		t = __archive_read_ahead(a, 1, &bytes_read);
 		if(bytes_read <= 0)
 			return ARCHIVE_FATAL;
-		s = static_cast<const char *>(t);  /* Start of line? */
+		s = static_cast<const char *>(t); /* Start of line? */
 		p = memchr(t, '\n', bytes_read);
 		/* If we found '\n', trim the read. */
 		if(p != NULL) {

@@ -550,8 +550,8 @@ enum PredefinedImpExpFormat { // @persistent
 	piefExport_Marks             = 4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
 	piefNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
 	piefNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-
-	piefICalendar                = 7  // @v11.0.1 iCalendar
+	piefICalendar                = 7, // @v11.0.1 iCalendar
+	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура 
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -6279,6 +6279,7 @@ private:
 	uint16 Reserve; // @alignment
 	SString Host;
 	int    Port;
+	SStrCollection ConsumeTagList; // @v11.2.2
 };
 
 class MqbEventResponder {
@@ -33769,7 +33770,7 @@ public:
 	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive);
 	int    AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    CmpSnrWithLotSnr(PPID lotID, const char * pSerial);
-	int    ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack);
+	int    ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPack);
 	//
 	// Descr: конвертирует докумет srcID общей (не расширенной)
 	//   бух проводки в документ расширенной бух операции opID.
@@ -39112,7 +39113,7 @@ private:
 	int    Correct();
 	int    ConvertBillToBasket();
 	int    ConvertBasketToBill();
-	int    ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta);
+	int    ConvertBasket(const PPBasketPacket & rPack, int sgoption, int priceByLastLot, int use_ta);
 	int    MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleIDTbl::Rec * pOutRec);
 
 	static int DynFuncInvLnWrOff;
@@ -45991,14 +45992,23 @@ class StyloQConfig {
 public:
 	enum { // @persistent
 		tagUnkn           = 0,
-		tagUrl            = 1,
-		tagMqbAuth        = 2,
-		tagMqbSecret      = 3 
+		tagUrl            = 1, // URL сервера централизованной обработки
+		tagMqbAuth        = 2, // Login MQ-брокера сервера централизованной обработки
+		tagMqbSecret      = 3, // Secret MQ-брокера сервера централизованной обработки
+		tagLoclUrl        = 4, // URL локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbAuth    = 5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbSecret  = 6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagFeatures       = 7, // Флаги особенностей сервиса
+	};
+	enum { // @persistent
+		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
 	};
 	StyloQConfig();
 	StyloQConfig & Z();
 	int   Set(int tag, const char * pText);
 	int   Get(int tag, SString & rResult) const;
+	int   SetFeatures(uint64 ff);
+	uint64 GetFeatures() const;
 	int   FromJson(const char * pJsonText);
 	int   ToJson(SString & rResult) const;
 private:
@@ -54580,6 +54590,8 @@ public:
 		curOdious, // @debug
 		penLayoutBorder, // @v10.4.8
 		penContainerCandidateBorder, // @v10.9.6
+		penLayoutEvenBorder, // @v11.2.2 Цвет рамки лейаутов четного уровня 
+		penLayoutOddBorder, // @v11.2.2 Цвет рамки лейаутов нечетного уровня 
 
 		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};
@@ -54595,6 +54607,8 @@ public:
 	int    FileSave();
 	int    FileOpen();
 	int    LoadTools(const char * pFileName);
+	void   SetCurrentObject(int objIdx);
+	int    EditObject(int objIdx);
 protected:
 	DECL_HANDLE_EVENT;
 
@@ -54697,6 +54711,7 @@ private:
 		TWhatmanToolArray::Item WtaItem;
 	};
 
+	void   Helper_SetCurrentObject(int objIdx, const SPoint2S * pStartResizePt);
 	int    Resize(int mode, SPoint2S p);
 	int    Locate(SPoint2S p, Loc * pLoc) const;
 	int    Rearrange();
@@ -54704,6 +54719,7 @@ private:
 	int    InvalidateObjScope(const TWhatmanObject * pObj);
 	int    InsertDlScopeView(DlContext & rCtx, const DlScope * pParent, const DlScope * pS);
 	int    Test_LoadDl600View();
+	void   MakeLayoutList(const WhatmanObjectLayoutBase * pItem, uint itemIdx, uint parentIdx, StrAssocArray & rList);
 	static int Helper_MakeFrameWindow(TWindowBase * pFrame, const char * pWtmFileName, const char * pWtaFileName);
 
 	State_ St;

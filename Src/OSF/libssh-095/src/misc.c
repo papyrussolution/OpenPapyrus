@@ -320,7 +320,7 @@ int ssh_is_ipaddr(const char * str) {
 
 #endif /* _WIN32 */
 
-char * ssh_lowercase(const char* str) 
+char * ssh_lowercase(const char * str) 
 {
 	char * p_new;
 	char * p;
@@ -1015,7 +1015,7 @@ char * ssh_path_expand_tilde(const char * d) {
 	}
 	else {
 		ld = strlen(d);
-		p = (char*)d;
+		p = (char *)d;
 		h = ssh_get_user_home_dir();
 	}
 	if(h == NULL) {

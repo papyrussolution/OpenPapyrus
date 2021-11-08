@@ -499,11 +499,11 @@ static int ssl_check_allowed_versions(int min_version, int max_version)
 		if(0
 #ifdef OPENSSL_NO_DTLS1
 		    || (DTLS_VERSION_GE(min_version, DTLS1_VERSION)
-		    && DTLS_VERSION_GE(DTLS1_VERSION, max_version))
+		  && DTLS_VERSION_GE(DTLS1_VERSION, max_version))
 #endif
 #ifdef OPENSSL_NO_DTLS1_2
 		    || (DTLS_VERSION_GE(min_version, DTLS1_2_VERSION)
-		    && DTLS_VERSION_GE(DTLS1_2_VERSION, max_version))
+		  && DTLS_VERSION_GE(DTLS1_2_VERSION, max_version))
 #endif
 		    )
 			return 0;
@@ -2091,7 +2091,7 @@ int SSL_key_update(SSL * s, int updatetype)
 	}
 
 	if(updatetype != SSL_KEY_UPDATE_NOT_REQUESTED
-	    && updatetype != SSL_KEY_UPDATE_REQUESTED) {
+	  && updatetype != SSL_KEY_UPDATE_REQUESTED) {
 		SSLerr(SSL_F_SSL_KEY_UPDATE, SSL_R_INVALID_KEY_UPDATE_TYPE);
 		return 0;
 	}
@@ -2232,13 +2232,13 @@ long SSL_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    return 0;
 		case SSL_CTRL_SET_MIN_PROTO_VERSION:
 		    return ssl_check_allowed_versions(larg, s->max_proto_version)
-			   && ssl_set_version_bound(s->ctx->method->version, (int)larg,
+			 && ssl_set_version_bound(s->ctx->method->version, (int)larg,
 			       &s->min_proto_version);
 		case SSL_CTRL_GET_MIN_PROTO_VERSION:
 		    return s->min_proto_version;
 		case SSL_CTRL_SET_MAX_PROTO_VERSION:
 		    return ssl_check_allowed_versions(s->min_proto_version, larg)
-			   && ssl_set_version_bound(s->ctx->method->version, (int)larg,
+			 && ssl_set_version_bound(s->ctx->method->version, (int)larg,
 			       &s->max_proto_version);
 		case SSL_CTRL_GET_MAX_PROTO_VERSION:
 		    return s->max_proto_version;
@@ -2372,13 +2372,13 @@ long SSL_CTX_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    return (ctx->cert->cert_flags &= ~larg);
 		case SSL_CTRL_SET_MIN_PROTO_VERSION:
 		    return ssl_check_allowed_versions(larg, ctx->max_proto_version)
-			   && ssl_set_version_bound(ctx->method->version, (int)larg,
+			 && ssl_set_version_bound(ctx->method->version, (int)larg,
 			       &ctx->min_proto_version);
 		case SSL_CTRL_GET_MIN_PROTO_VERSION:
 		    return ctx->min_proto_version;
 		case SSL_CTRL_SET_MAX_PROTO_VERSION:
 		    return ssl_check_allowed_versions(ctx->min_proto_version, larg)
-			   && ssl_set_version_bound(ctx->method->version, (int)larg,
+			 && ssl_set_version_bound(ctx->method->version, (int)larg,
 			       &ctx->max_proto_version);
 		case SSL_CTRL_GET_MAX_PROTO_VERSION:
 		    return ctx->max_proto_version;
@@ -2630,7 +2630,7 @@ const char * SSL_get_servername(const SSL * s, const int type)
 int SSL_get_servername_type(const SSL * s)
 {
 	if(s->session
-	    && (!s->ext.hostname ? s->session->
+	  && (!s->ext.hostname ? s->session->
 	    ext.hostname : s->ext.hostname))
 		return TLSEXT_NAMETYPE_host_name;
 	return -1;
@@ -3276,8 +3276,8 @@ void ssl_set_masks(SSL * s)
 	 */
 
 	if(rsa_enc || rsa_sign || (ssl_has_cert(s, SSL_PKEY_RSA_PSS_SIGN)
-	    && pvalid[SSL_PKEY_RSA_PSS_SIGN] & CERT_PKEY_EXPLICIT_SIGN
-	    && TLS1_get_version(s) == TLS1_2_VERSION))
+	  && pvalid[SSL_PKEY_RSA_PSS_SIGN] & CERT_PKEY_EXPLICIT_SIGN
+	  && TLS1_get_version(s) == TLS1_2_VERSION))
 		mask_a |= SSL_aRSA;
 
 	if(dsa_sign) {
@@ -3302,14 +3302,14 @@ void ssl_set_masks(SSL * s)
 	}
 	/* Allow Ed25519 for TLS 1.2 if peer supports it */
 	if(!(mask_a & SSL_aECDSA) && ssl_has_cert(s, SSL_PKEY_ED25519)
-	    && pvalid[SSL_PKEY_ED25519] & CERT_PKEY_EXPLICIT_SIGN
-	    && TLS1_get_version(s) == TLS1_2_VERSION)
+	  && pvalid[SSL_PKEY_ED25519] & CERT_PKEY_EXPLICIT_SIGN
+	  && TLS1_get_version(s) == TLS1_2_VERSION)
 		mask_a |= SSL_aECDSA;
 
 	/* Allow Ed448 for TLS 1.2 if peer supports it */
 	if(!(mask_a & SSL_aECDSA) && ssl_has_cert(s, SSL_PKEY_ED448)
-	    && pvalid[SSL_PKEY_ED448] & CERT_PKEY_EXPLICIT_SIGN
-	    && TLS1_get_version(s) == TLS1_2_VERSION)
+	  && pvalid[SSL_PKEY_ED448] & CERT_PKEY_EXPLICIT_SIGN
+	  && TLS1_get_version(s) == TLS1_2_VERSION)
 		mask_a |= SSL_aECDSA;
 #endif
 
@@ -3384,12 +3384,12 @@ void ssl_update_cache(SSL * s, int mode)
 	 * (clients can set SSL_VERIFY_PEER without needing a sid_ctx set).
 	 */
 	if(s->server && s->session->sid_ctx_length == 0
-	    && (s->verify_mode & SSL_VERIFY_PEER) != 0)
+	  && (s->verify_mode & SSL_VERIFY_PEER) != 0)
 		return;
 
 	i = s->session_ctx->session_cache_mode;
 	if((i & mode) != 0
-	    && (!s->hit || SSL_IS_TLS13(s))) {
+	  && (!s->hit || SSL_IS_TLS13(s))) {
 		/*
 		 * Add the session to the internal cache. In server side TLSv1.3 we
 		 * normally don't do this because by default it's a full stateless ticket
@@ -3402,10 +3402,10 @@ void ssl_update_cache(SSL * s, int mode)
 		 * - SSL_OP_NO_TICKET is set in which case it is a stateful ticket
 		 */
 		if((i & SSL_SESS_CACHE_NO_INTERNAL_STORE) == 0
-		    && (!SSL_IS_TLS13(s)
+		  && (!SSL_IS_TLS13(s)
 		    || !s->server
 		    || (s->max_early_data > 0
-		    && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0)
+		  && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0)
 		    || s->session_ctx->remove_session_cb != NULL
 		    || (s->options & SSL_OP_NO_TICKET) != 0))
 			SSL_CTX_add_session(s->session_ctx, s->session);
@@ -5232,10 +5232,10 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 		    raw += TLS_CIPHER_LEN) {
 			if(!PACKET_get_1(&sslv2ciphers, &leadbyte)
 			    || (leadbyte == 0
-			    && !PACKET_copy_bytes(&sslv2ciphers, raw,
+			  && !PACKET_copy_bytes(&sslv2ciphers, raw,
 			    TLS_CIPHER_LEN))
 			    || (leadbyte != 0
-			    && !PACKET_forward(&sslv2ciphers, TLS_CIPHER_LEN))) {
+			  && !PACKET_forward(&sslv2ciphers, TLS_CIPHER_LEN))) {
 				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST,
 				    SSL_R_BAD_PACKET);
 				OPENSSL_free(s->s3->tmp.ciphers_raw);

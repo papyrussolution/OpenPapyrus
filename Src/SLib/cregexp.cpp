@@ -153,7 +153,7 @@ int FASTCALL CRegExp_Depricated::deep_equal(const CRegExp_Depricated & rxp) cons
 #else
 	#define UCHARAT(p)	((int) *(p) & CHARBITS)
 #endif
-#define FAIL(m)		{ regerror(m); return NULL; }
+#define FAIL(m) { regerror(m); return NULL; }
 #define ISMULT(c)	oneof3(c, '*', '+', '?')
 #define META		"^$.[()|?+*\\"
 //

@@ -33,7 +33,7 @@
 	};
 
 	XMLPUBFUN xmlModule * XMLCALL xmlModuleOpen(const char * filename, int options);
-	XMLPUBFUN int XMLCALL xmlModuleSymbol(xmlModule * module, const char* name, void ** result);
+	XMLPUBFUN int XMLCALL xmlModuleSymbol(xmlModule * module, const char * name, void ** result);
 	XMLPUBFUN int XMLCALL xmlModuleClose(xmlModule * module);
 	XMLPUBFUN int XMLCALL xmlModuleFree(xmlModule * module);
 

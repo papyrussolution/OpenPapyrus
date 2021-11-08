@@ -419,7 +419,7 @@ static void FASTCALL free_old_query(MYSQL * mysql)
 
 #if defined(HAVE_GETPWUID) && defined(NO_GETPWUID_DECL)
 struct passwd * getpwuid(uid_t);
-char* getlogin(void);
+char * getlogin(void);
 #endif
 
 #if !defined(_WIN32)
@@ -1786,7 +1786,7 @@ int STDCALL mysql_query(MYSQL * mysql, const char * query)
    finish processing it.
  */
 
-int STDCALL mysql_send_query(MYSQL* mysql, const char* query, unsigned long length)
+int STDCALL mysql_send_query(MYSQL* mysql, const char * query, unsigned long length)
 {
 	return ma_simple_command(mysql, COM_QUERY, query, length, 1, 0);
 }
@@ -2870,7 +2870,7 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		    break;
 		case MYSQL_SET_CHARSET_NAME:
 		    if(mysql->charset)
-			    *((const char**)arg) = mysql->charset->csname;
+			    *((const char **)arg) = mysql->charset->csname;
 		    else
 			    *((char **)arg) = mysql->options.charset_name;
 		    break;
@@ -2945,11 +2945,11 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		    char ** val = NULL;
 
 		    if(arg)
-			    key = *(char***)arg;
+			    key = *(char ***)arg;
 
 		    arg1 = va_arg(ap, char **);
 		    if(arg1)
-			    val = *(char***)arg1;
+			    val = *(char ***)arg1;
 
 		    if(!(elements = va_arg(ap, unsigned int *)))
 			    goto error;
@@ -3014,11 +3014,11 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 			(p = (uchar *)hash_search(&mysql->options.extension->userdata, (uchar *)key,
 			(uint)strlen((char *)key)))) {
 			    p += strlen(key) + 1;
-			    *((void**)data) = *((void**)p);
+			    *((void **)data) = *((void **)p);
 			    break;
 		    }
 		    if(data)
-			    *((void**)data) = NULL;
+			    *((void **)data) = NULL;
 	    }
 	    break;
 		case MARIADB_OPT_CONNECTION_HANDLER:
@@ -3505,13 +3505,13 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_TLS_LIBRARY:
 #ifdef HAVE_TLS
-		    *((const char**)arg) = tls_library_version;
+		    *((const char **)arg) = tls_library_version;
 #else
-		    *((const char**)arg) = "Off";
+		    *((const char **)arg) = "Off";
 #endif
 		    break;
 		case MARIADB_CLIENT_VERSION:
-		    *((const char**)arg) = MARIADB_CLIENT_VERSION_STR;
+		    *((const char **)arg) = MARIADB_CLIENT_VERSION_STR;
 		    break;
 		case MARIADB_CLIENT_VERSION_ID:
 		    *((size_t*)arg) = MARIADB_VERSION_ID;
@@ -3524,7 +3524,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CONNECTION_SERVER_TYPE:
 		    if(mysql)
-			    *((const char**)arg) = mariadb_connection(mysql) ? "MariaDB" : "MySQL";
+			    *((const char **)arg) = mariadb_connection(mysql) ? "MariaDB" : "MySQL";
 		    else
 			    goto error;
 		    break;
@@ -3553,7 +3553,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 			    goto error;
 		    break;
 		case MARIADB_CONNECTION_TYPE:
-		    if(mysql  && mysql->net.pvio)
+		    if(mysql && mysql->net.pvio)
 			    *((int*)arg) = (int)mysql->net.pvio->type;
 		    else
 			    goto error;
@@ -3597,7 +3597,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    goto error;
 		    break;
 		case MARIADB_CLIENT_ERRORS:
-		    *((char***)arg) = (char **)client_errors;
+		    *((char ***)arg) = (char **)client_errors;
 		    break;
 		case MARIADB_CONNECTION_INFO:
 		    if(mysql)

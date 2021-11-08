@@ -501,11 +501,11 @@ struct ThreadKeyAssoc {
 #define SE_ERROR                0x03
 
 #define MAKE_SOFTWARE_EXCEPTION(_severity, _facility, _exception) \
-	( (DWORD)( ( (_severity) << 30 ) | /* Severity code        */ \
+	( (DWORD)(((_severity) << 30 ) | /* Severity code        */ \
 	( 1 << 29 ) |                   /* MS=0, User=1         */ \
 	( 0 << 28 ) |                   /* Reserved             */ \
 	( (_facility) << 16 ) |         /* Facility Code        */ \
-	( (_exception) <<  0 )          /* Exception Code       */ \
+	( (_exception) <<  0)          /* Exception Code       */ \
 	) )
 
 /*

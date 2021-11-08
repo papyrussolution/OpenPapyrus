@@ -413,6 +413,16 @@ int PPMqbClient::Disconnect()
 {
 	int    ok = -1;
 	if(P_Conn) {
+		{
+			// @v11.2.2 {
+			for(uint i = 0; i < ConsumeTagList.getCount(); i++) {
+				const char * p_consume_tag = ConsumeTagList.at(i);
+				if(!isempty(p_consume_tag)) {
+					Cancel(p_consume_tag, 0);
+				}
+			}
+			// } @v11.2.2 
+		}
 		if(ChannelN) {
 			amqp_channel_close(GetNativeConnHandle(P_Conn), ChannelN, AMQP_REPLY_SUCCESS);
 			ChannelN = 0;
@@ -591,8 +601,13 @@ int PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long consu
 		amqp_basic_consume_ok_t * p_bco = amqp_basic_consume(GetNativeConnHandle(P_Conn), ChannelN, queue, consumer_tag,
 			BIN(consumeFlags & mqofNoLocal), BIN(consumeFlags & mqofNoAck), BIN(consumeFlags & mqofExclusive), amqp_empty_table);
 		THROW(VerifyRpcReply());
-		if(pConsumerTag) {
-			AmpqBytesToSString(p_bco->consumer_tag, *pConsumerTag);
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			AmpqBytesToSString(p_bco->consumer_tag, r_temp_buf);
+			if(pConsumerTag) {
+				*pConsumerTag = r_temp_buf;
+			}
+			ConsumeTagList.insert(newStr(r_temp_buf));
 		}
 	}
 	CATCHZOK

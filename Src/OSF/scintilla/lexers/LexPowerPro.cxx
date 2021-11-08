@@ -507,7 +507,7 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 			//    and we are not inside a commentblock.
 			if(firstWordLen > 0 && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';' && (!IsStreamCommentStyle(style) || foldInComment) ) {
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(sstreq(szFirstWord, "if")  && isDoLastWord)
+				if(sstreq(szFirstWord, "if") && isDoLastWord)
 					levelNext++;
 
 				// create new fold for these words

@@ -350,7 +350,7 @@ size_t LZ4F_compressFrame_usingCDict(LZ4F_cctx* cctx, void * dstBuffer, size_t d
     if(dstCapacity < LZ4F_compressFrameBound(srcSize, &prefs))  /* condition to guarantee success */
         return err0r(LZ4F_ERROR_dstMaxSize_tooSmall);
     { 
-		size_t const headerSize = LZ4F_compressBegin_usingCDict(cctx, dstBuffer, dstCapacity, cdict, &prefs);  /* write header */
+		size_t const headerSize = LZ4F_compressBegin_usingCDict(cctx, dstBuffer, dstCapacity, cdict, &prefs); /* write header */
 		if(LZ4F_isError(headerSize)) 
 			return headerSize;
 		dstPtr += headerSize;   /* header size */ 
@@ -661,7 +661,7 @@ static size_t LZ4F_makeBlock(void * dst, const void * src, size_t srcSize, compr
         memcpy(cSizePtr+4, src, srcSize);
     }
     if(crcFlag) {
-        uint32 const crc32 = XXH32(cSizePtr+4, cSize, 0);  /* checksum of compressed data */
+        uint32 const crc32 = XXH32(cSizePtr+4, cSize, 0); /* checksum of compressed data */
         LZ4F_writeLE32(cSizePtr+4+cSize, crc32);
     }
     return 4 + cSize + ((uint32)crcFlag)*4;
@@ -1056,7 +1056,7 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void * src, size_t srcSiz
         /* validate */
         if(((BD>>7)&_1BIT) != 0) return err0r(LZ4F_ERROR_reservedFlag_set);   /* Reserved bit */
         if(blockSizeID < 4) return err0r(LZ4F_ERROR_maxBlockSize_invalid);    /* 4-7 only supported values for the time being */
-        if(((BD>>0)&_4BITS) != 0) return err0r(LZ4F_ERROR_reservedFlag_set);  /* Reserved bits */
+        if(((BD>>0)&_4BITS) != 0) return err0r(LZ4F_ERROR_reservedFlag_set); /* Reserved bits */
     }
 
     /* check header */
@@ -1231,7 +1231,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
         switch(dctx->dStage) {
         case dstage_getFrameHeader:
             if((size_t)(srcEnd-srcPtr) >= maxFHSize) {  /* enough to decode - shortcut */
-                size_t const hSize = LZ4F_decodeHeader(dctx, srcPtr, srcEnd-srcPtr);  /* will update dStage appropriately */
+                size_t const hSize = LZ4F_decodeHeader(dctx, srcPtr, srcEnd-srcPtr); /* will update dStage appropriately */
                 if(LZ4F_isError(hSize)) return hSize;
                 srcPtr += hSize;
                 break;
@@ -1253,7 +1253,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                 doAnotherStage = 0;   /* not enough src data, ask for some more */
                 break;
             }
-            {   size_t const hSize = LZ4F_decodeHeader(dctx, dctx->header, dctx->tmpInTarget);  /* will update dStage appropriately */
+            {   size_t const hSize = LZ4F_decodeHeader(dctx, dctx->header, dctx->tmpInTarget); /* will update dStage appropriately */
                 if(LZ4F_isError(hSize)) return hSize;
             }
             break;
@@ -1433,7 +1433,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
             /* At this stage, input is large enough to decode a block */
             if(dctx->frameInfo.blockChecksumFlag) {
                 dctx->tmpInTarget -= 4;
-                assert(selectedIn != NULL);  /* selectedIn is defined at this stage (either srcPtr, or dctx->tmpIn) */
+                assert(selectedIn != NULL); /* selectedIn is defined at this stage (either srcPtr, or dctx->tmpIn) */
                 {   
 					uint32 const readBlockCrc = LZ4F_readLE32(selectedIn + dctx->tmpInTarget);
                     uint32 const calcBlockCrc = XXH32(selectedIn, dctx->tmpInTarget, 0);

@@ -511,8 +511,8 @@ static void EMF_setfont()
 	EMF_write_long(EMF_HANDLE_FONT);
 	EMF_write_long((long)(-_EMF.emf_fontsize * EMF_PT2HM * _EMF.emf_fontscale)); /* height */
 	EMF_write_long(0);              /* width */
-	EMF_write_long(_EMF.emf_vert_text);  /* escapement */
-	EMF_write_long(_EMF.emf_vert_text);  /* orientation */
+	EMF_write_long(_EMF.emf_vert_text); /* escapement */
+	EMF_write_long(_EMF.emf_vert_text); /* orientation */
 	EMF_write_long(bold);           /* weight */
 	EMF_write_byte(italic);         /* italic */
 	EMF_write_byte(underline);      /* underline */
@@ -835,7 +835,7 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	EMF_write_long(0);      /* descSize */
 	EMF_write_long(0);      /* descOff */
 	EMF_write_long(0);      /* nPalEntries */
-	EMF_write_long(width);  /* ref dev pixwidth, default 1024 */
+	EMF_write_long(width); /* ref dev pixwidth, default 1024 */
 	EMF_write_long(height); /* ref dev pixheight, default 768 */
 	EMF_write_long(mmwidth); /* ref dev mwidth, default 270 */
 	EMF_write_long(mmheight); /* ref dev mheight, default 200 */
@@ -1327,7 +1327,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	else
 #endif
 	for(i = 0; i < alen; i++)
-		EMF_write_byte(i < slen ? str[i] : 0);  /* writing text */
+		EMF_write_byte(i < slen ? str[i] : 0); /* writing text */
 	for(i = 0; i < nchars; i++)
 		// writing intercharacter spacing array (but we don't use it) 
 		EMF_write_long(300);

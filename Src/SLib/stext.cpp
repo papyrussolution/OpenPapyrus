@@ -2503,9 +2503,9 @@ const int    SUtfConst::HalfShift = 10; // used for shifting by 10 bits
 //   нет такого pattern`а) функция возвращает '-1'. В случае ошибки функция возвращает '0'.
 //
 // Params:
-//   const char* pPattern -
+//   const char * pPattern -
 //   Ключевая строка поиска.
-//   const char* pBuf -
+//   const char * pBuf -
 //   Строка, где должно искаться значение.
 //   double* mVal -
 //   Если в конце поиска максимальное значение score на позиции pos
@@ -3106,7 +3106,7 @@ SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 #if 0 // {
 int main(int argc, char **argv )
 {
-	const char* input = "<title>Foo</title><p>Foo!";
+	const char * input = "<title>Foo</title><p>Foo!";
 	TidyBuffer output;
 	TidyBuffer errbuf;
 	int rc = -1;

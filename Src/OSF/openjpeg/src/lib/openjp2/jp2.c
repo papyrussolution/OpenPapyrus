@@ -657,7 +657,7 @@ static OPJ_BYTE * opj_jp2_write_ihdr(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_wr
 	l_current_ihdr_ptr += 4;
 	opj_write_bytes(l_current_ihdr_ptr, jp2->w, 4); /* WIDTH */
 	l_current_ihdr_ptr += 4;
-	opj_write_bytes(l_current_ihdr_ptr, jp2->numcomps, 2);  /* NC */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->numcomps, 2); /* NC */
 	l_current_ihdr_ptr += 2;
 	opj_write_bytes(l_current_ihdr_ptr, jp2->bpc, 1);   /* BPC */
 	++l_current_ihdr_ptr;
@@ -2555,7 +2555,7 @@ static OPJ_BOOL opj_jp2_read_ftyp(opj_jp2_t * jp2,
 		return OPJ_FALSE;
 	}
 
-	opj_read_bytes(p_header_data, &jp2->brand, 4);  /* BR */
+	opj_read_bytes(p_header_data, &jp2->brand, 4); /* BR */
 	p_header_data += 4;
 
 	opj_read_bytes(p_header_data, &jp2->minversion, 4); /* MinV */

@@ -1396,7 +1396,7 @@ int __bam_rcuradj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 		 * we're undoing it, the delete flag must be set.
 		 */
 		F_SET(cp, C_DELETED);
-		F_SET(cp, C_RENUMBER);  /* Just in case. */
+		F_SET(cp, C_RENUMBER); /* Just in case. */
 		cp->order = argp->order;
 		if((ret = __ram_ca(rdbc, CA_ICURRENT, NULL)) != 0)
 			goto out;

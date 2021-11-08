@@ -476,7 +476,7 @@ static int padlock_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 	static const EVP_CIPHER * padlock_aes_ ## ksize ## _ ## lmode(void) \
 	{                                                                       \
 		if(_hidden_aes_ ## ksize ## _ ## lmode == NULL                           \
-		    && ((_hidden_aes_ ## ksize ## _ ## lmode =                            \
+		  && ((_hidden_aes_ ## ksize ## _ ## lmode =                            \
 		    EVP_CIPHER_meth_new(NID_aes_ ## ksize ## _ ## lmode,             \
 		    EVP_CIPHER_block_size_ ## umode,         \
 		    AES_KEY_SIZE_ ## ksize)) == NULL         \

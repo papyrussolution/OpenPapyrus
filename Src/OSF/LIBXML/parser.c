@@ -2584,7 +2584,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 //
 // Routines to parse Name, NCName and NmToken
 //
-#ifdef DEBUG
+#ifndef NDEBUG
 	static ulong nbParseName = 0;
 	static ulong nbParseNmToken = 0;
 	static ulong nbParseNCName = 0;
@@ -2662,12 +2662,12 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 	int len = 0, l;
 	int c;
 	int count = 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseNameComplex++;
 #endif
-	/*
-	 * Handler for more complex cases
-	 */
+	//
+	// Handler for more complex cases
+	//
 	GROW;
 	if(ctxt->IsEof())
 		return 0;
@@ -2780,7 +2780,7 @@ const xmlChar * FASTCALL xmlParseName(xmlParserCtxt * ctxt)
 {
 	const xmlChar * ret = 0;
 	GROW;
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseName++;
 #endif
 	//
@@ -2818,12 +2818,12 @@ static const xmlChar * xmlParseNCNameComplex(xmlParserCtxt * ctxt)
 	int c;
 	int count = 0;
 	const xmlChar * end; /* needed because CUR_CHAR() can move cur on \r\n */
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseNCNameComplex++;
 #endif
-	/*
-	 * Handler for more complex cases
-	 */
+	//
+	// Handler for more complex cases
+	//
 	GROW;
 	end = ctxt->input->cur;
 	c = CUR_CHAR(l);
@@ -2886,12 +2886,12 @@ static const xmlChar * xmlParseNCNameComplex(xmlParserCtxt * ctxt)
 static const xmlChar * FASTCALL xmlParseNCName(xmlParserCtxt * ctxt)
 {
 	const xmlChar * ret = 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseNCName++;
 #endif
-	/*
-	 * Accelerator for simple ASCII names
-	 */
+	//
+	// Accelerator for simple ASCII names
+	//
 	const xmlChar * in = ctxt->input->cur;
 	if(((*in >= 0x61) && (*in <= 0x7A)) || ((*in >= 0x41) && (*in <= 0x5A)) || (*in == '_')) {
 		in++;
@@ -2975,7 +2975,7 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
 	const xmlChar * cur = *str;
 	int len = 0, l;
 	int c;
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseStringName++;
 #endif
 	c = CUR_SCHAR(cur, l);
@@ -3054,7 +3054,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 	int len = 0, l;
 	int c;
 	int count = 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 	nbParseNmToken++;
 #endif
 	GROW;
@@ -12304,7 +12304,7 @@ xmlDoc * xmlRecoverFile(const char * filename)
  * contents from the parser context. The buffer parameter must not be
  * NULL, but the filename parameter can be
  */
-void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const char* filename)
+void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const char * filename)
 {
 	if(ctxt && buffer) {
 		xmlParserInput * input = xmlNewInputStream(ctxt);

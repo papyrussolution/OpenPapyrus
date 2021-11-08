@@ -31,7 +31,7 @@ LineMarker::LineMarker(const LineMarker &other) {
 	customDraw = other.customDraw;
 }
 
-LineMarker &LineMarker::operator=(const LineMarker &other) {
+LineMarker &LineMarker::operator = (const LineMarker &other) {
 	// Defined to avoid pxpm and image being blindly copied, not as a complete assignment operator.
 	if(this != &other) {
 		markType = other.markType;

@@ -218,7 +218,7 @@ static FT_Int ft_trig_prenorm(FT_Vector*  vec)
 {
 	FT_Pos x = vec->x;
 	FT_Pos y = vec->y;
-	FT_Int shift = FT_MSB( (FT_UInt32)( FT_ABS(x) | FT_ABS(y) ) );
+	FT_Int shift = FT_MSB( (FT_UInt32)( FT_ABS(x) | FT_ABS(y) ));
 	if(shift <= FT_TRIG_SAFE_MSB) {
 		shift  = FT_TRIG_SAFE_MSB - shift;
 		vec->x = (FT_Pos)( (FT_ULong)x << shift );
@@ -257,14 +257,14 @@ static void ft_trig_pseudo_rotate(FT_Vector*  vec, FT_Angle theta)
 	/* Pseudorotations, with right shifts */
 	for(i = 1, b = 1; i < FT_TRIG_MAX_ITERS; b <<= 1, i++) {
 		if(theta < 0) {
-			xtemp  = x + ( ( y + b ) >> i );
-			y      = y - ( ( x + b ) >> i );
+			xtemp  = x + ((y + b ) >> i );
+			y      = y - ((x + b ) >> i );
 			x      = xtemp;
 			theta += *arctanptr++;
 		}
 		else {
-			xtemp  = x - ( ( y + b ) >> i );
-			y      = y + ( ( x + b ) >> i );
+			xtemp  = x - ((y + b ) >> i );
+			y      = y + ((x + b ) >> i );
 			x      = xtemp;
 			theta -= *arctanptr++;
 		}
@@ -310,14 +310,14 @@ static void ft_trig_pseudo_polarize(FT_Vector*  vec)
 	/* Pseudorotations, with right shifts */
 	for(i = 1, b = 1; i < FT_TRIG_MAX_ITERS; b <<= 1, i++) {
 		if(y > 0) {
-			xtemp  = x + ( ( y + b ) >> i );
-			y      = y - ( ( x + b ) >> i );
+			xtemp  = x + ((y + b ) >> i );
+			y      = y - ((x + b ) >> i );
 			x      = xtemp;
 			theta += *arctanptr++;
 		}
 		else {
-			xtemp  = x - ( ( y + b ) >> i );
-			y      = y + ( ( x + b ) >> i );
+			xtemp  = x - ((y + b ) >> i );
+			y      = y + ((x + b ) >> i );
 			x      = xtemp;
 			theta -= *arctanptr++;
 		}
@@ -397,8 +397,8 @@ FT_EXPORT_DEF(void) FT_Vector_Rotate(FT_Vector*  vec, FT_Angle angle)
 	v.y = ft_trig_downscale(v.y);
 	if(shift > 0) {
 		FT_Int32 half = (FT_Int32)1L << ( shift - 1 );
-		vec->x = ( v.x + half - ( v.x < 0 ) ) >> shift;
-		vec->y = ( v.y + half - ( v.y < 0 ) ) >> shift;
+		vec->x = ( v.x + half - ( v.x < 0) ) >> shift;
+		vec->y = ( v.y + half - ( v.y < 0) ) >> shift;
 	}
 	else {
 		shift  = -shift;
@@ -576,13 +576,13 @@ FT_BASE_DEF(FT_Pointer) ft_mem_dup(FT_Memory memory, const void *  address, FT_U
 	return p;
 }
 
-FT_BASE_DEF(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char*  str, FT_Error    *p_error)
+FT_BASE_DEF(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char *  str, FT_Error    *p_error)
 {
 	FT_ULong len = str ? (FT_ULong)ft_strlen(str) + 1 : 0;
 	return ft_mem_dup(memory, str, len, p_error);
 }
 
-FT_BASE_DEF(FT_Int) ft_mem_strcpyn(char * dst, const char*  src, FT_ULong size)
+FT_BASE_DEF(FT_Int) ft_mem_strcpyn(char * dst, const char *  src, FT_ULong size)
 {
 	while(size > 1 && *src != 0) {
 		*dst++ = *src++;

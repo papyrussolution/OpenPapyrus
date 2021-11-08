@@ -116,7 +116,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			case SCE_CONF_STRING:
 			    // if we find the end of a string char, we simply go to default state
 			    // else we're still dealing with an string...
-			    if( (ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || oneof2(ch, '\n', '\r')) {
+			    if((ch == '"' && styler.SafeGetCharAt(i-1)!='\\') || oneof2(ch, '\n', '\r')) {
 				    state = SCE_CONF_DEFAULT;
 			    }
 			    styler.ColourTo(i, SCE_CONF_STRING);
@@ -149,7 +149,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    break;
 			case SCE_CONF_NUMBER:
 			    // stay  in CONF_NUMBER state until we find a non-numeric
-			    if( (IsASCII(ch) && isdec(ch)) || ch == '.') {
+			    if((IsASCII(ch) && isdec(ch)) || ch == '.') {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

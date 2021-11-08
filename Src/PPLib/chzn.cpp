@@ -54,7 +54,7 @@ Data Matrix для табачной продукции и фармацевтик
 	SString temp_buf;
 	rBuf.Z();
 	if(rS.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
-		if(temp_buf.Len() == 83) {
+		/*if(temp_buf.Len() == 83)*/{
 			// CHZN-0121GS91GS92
 			SString _01;
 			SString _21;
@@ -62,7 +62,7 @@ Data Matrix для табачной продукции и фармацевтик
 			SString _92;
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) &&
 				rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
-				if(_01.Len() == 14 && _21.Len() == 13 && _91.Len() == 4 && _92.Len() == 44) {
+				if(_01.Len() == 14 && _21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
 					rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
 					ok = 2;
 				}
@@ -957,7 +957,7 @@ int ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SSt
 
 static void _PutOperationDate(SXml::WNode & rN, SString & rTempBuf)
 {
-	rTempBuf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+	rTempBuf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0);
 	TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, rTempBuf);
 	rN.PutInner("operation_date", rTempBuf);
 }

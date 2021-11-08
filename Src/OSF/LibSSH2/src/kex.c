@@ -2046,7 +2046,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int metho
  * a negative number on failure
  */
 
-LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int method_type, const char*** algs)
+LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int method_type, const char *** algs)
 {
 	uint i;
 	uint j;
@@ -2091,7 +2091,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	if(0==ialg)
 		return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 	/* allocate buffer */
-	*algs = (const char**)LIBSSH2_ALLOC(session, ialg*sizeof(const char *));
+	*algs = (const char **)LIBSSH2_ALLOC(session, ialg*sizeof(const char *));
 	if(NULL==*algs) {
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Memory allocation failed");
 	}

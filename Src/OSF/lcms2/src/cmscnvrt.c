@@ -1010,7 +1010,7 @@ cmsPipeline* _cmsLinkProfiles(cmsContext ContextID,
 // Get information about available intents. nMax is the maximum space for the supplied "Codes"
 // and "Descriptions" the function returns the total number of intents, which may be greater
 // than nMax, although the matrices are not populated beyond this level.
-cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, cmsUInt32Number nMax, cmsUInt32Number* Codes, char** Descriptions)
+cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, cmsUInt32Number nMax, cmsUInt32Number* Codes, char ** Descriptions)
 {
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
@@ -1042,7 +1042,7 @@ cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, cmsUIn
 	return nIntents;
 }
 
-cmsUInt32Number CMSEXPORT cmsGetSupportedIntents(cmsUInt32Number nMax, cmsUInt32Number* Codes, char** Descriptions)
+cmsUInt32Number CMSEXPORT cmsGetSupportedIntents(cmsUInt32Number nMax, cmsUInt32Number* Codes, char ** Descriptions)
 {
 	return cmsGetSupportedIntentsTHR(NULL, nMax, Codes, Descriptions);
 }

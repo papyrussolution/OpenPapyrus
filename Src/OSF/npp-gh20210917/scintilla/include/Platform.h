@@ -320,8 +320,8 @@ public:
 	// Deleted so Font objects can not be copied
 	Font(const Font &) = delete;
 	Font(Font &&) = delete;
-	Font &operator=(const Font &) = delete;
-	Font &operator=(Font &&) = delete;
+	Font & operator = (const Font &) = delete;
+	Font & operator = (Font &&) = delete;
 	virtual ~Font();
 
 	virtual void Create(const FontParameters &fp);
@@ -369,8 +369,8 @@ public:
 	Surface() noexcept = default;
 	Surface(const Surface &) = delete;
 	Surface(Surface &&) = delete;
-	Surface &operator=(const Surface &) = delete;
-	Surface &operator=(Surface &&) = delete;
+	Surface & operator = (const Surface &) = delete;
+	Surface & operator = (Surface &&) = delete;
 	virtual ~Surface() {}
 	static Surface *Allocate(int technology);
 
@@ -432,14 +432,14 @@ public:
 	}
 	Window(const Window &source) = delete;
 	Window(Window &&) = delete;
-	Window &operator=(WindowID wid_) noexcept 
+	Window & operator = (WindowID wid_) noexcept 
 	{
 		wid = wid_;
 		cursorLast = cursorInvalid;
 		return *this;
 	}
-	Window &operator=(const Window &) = delete;
-	Window &operator=(Window &&) = delete;
+	Window & operator = (const Window &) = delete;
+	Window & operator = (Window &&) = delete;
 	virtual ~Window();
 	WindowID GetID() const noexcept { return wid; }
 	bool Created() const noexcept { return wid != nullptr; }
@@ -500,7 +500,7 @@ public:
 	virtual void RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) = 0;
 	virtual void ClearRegisteredImages()=0;
 	virtual void SetDelegate(IListBoxDelegate *lbDelegate)=0;
-	virtual void SetList(const char* list, char separator, char typesep)=0;
+	virtual void SetList(const char * list, char separator, char typesep)=0;
 };
 
 /**
@@ -540,7 +540,7 @@ public:
 #  define CLANG_ANALYZER_NORETURN
 # endif
 #else
-# define CLANG_ANALYZER_NORETURN
+#define CLANG_ANALYZER_NORETURN
 #endif
 
 /**
@@ -552,8 +552,8 @@ public:
 	Platform() = default;
 	Platform(const Platform &) = delete;
 	Platform(Platform &&) = delete;
-	Platform &operator=(const Platform &) = delete;
-	Platform &operator=(Platform &&) = delete;
+	Platform & operator = (const Platform &) = delete;
+	Platform & operator = (Platform &&) = delete;
 	~Platform() = default;
 	static ColourDesired Chrome();
 	static ColourDesired ChromeHighlight();

@@ -350,7 +350,7 @@ const wchar_t * WcharMbcsConvertor::char2wchar(const char * mbcs2Convert, UINT c
 	return _wideCharStr;
 }
 
-const char* WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UINT codepage, int lenWc, int * pLenMbcs)
+const char * WcharMbcsConvertor::wchar2char(const wchar_t * wcharStr2Convert, UINT codepage, int lenWc, int * pLenMbcs)
 {
 	if(nullptr == wcharStr2Convert)
 		return nullptr;
@@ -1016,7 +1016,7 @@ bool isAssoCommandExisting(LPCTSTR FullPathName)
 	return isAssoCommandExisting;
 }
 
-std::wstring s2ws(const std::string& str)
+std::wstring s2ws(const std::string & str)
 {
 	using convert_typeX = std::codecvt_utf8<wchar_t>;
 	std::wstring_convert<convert_typeX, wchar_t> converterX;

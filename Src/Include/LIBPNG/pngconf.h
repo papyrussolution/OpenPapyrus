@@ -376,7 +376,7 @@
 #      endif /* __GNUC__.__GNUC_MINOR__ > 3.0 */
 #endif /* __GNUC__ >= 3 */
 
-#elif defined(_MSC_VER)  && (_MSC_VER >= 1300)
+#elif defined(_MSC_VER) && (_MSC_VER >= 1300)
 #    ifndef PNG_USE_RESULT
 #define PNG_USE_RESULT /* not supported */
 #endif
@@ -570,16 +570,16 @@ typedef const size_t * png_const_size_tp;
 #endif
 
 /* Pointers to pointers; i.e. arrays */
-typedef uint8        ** png_bytepp;
-typedef uint32     ** png_uint_32pp;
-typedef png_int_32      ** png_int_32pp;
-typedef png_uint_16     ** png_uint_16pp;
-typedef png_int_16      ** png_int_16pp;
-typedef const char      ** png_const_charpp_Removed;
-typedef char            ** png_charpp;
+typedef uint8  ** png_bytepp;
+typedef uint32  ** png_uint_32pp;
+typedef png_int_32   ** png_int_32pp;
+typedef png_uint_16  ** png_uint_16pp;
+typedef png_int_16   ** png_int_16pp;
+typedef const char   ** png_const_charpp_Removed;
+typedef char      ** png_charpp;
 typedef png_fixed_point ** png_fixed_point_pp;
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-typedef double          ** png_doublepp;
+typedef double    ** png_doublepp;
 #endif
 
 /* Pointers to pointers to pointers; i.e., pointer to array */

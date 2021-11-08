@@ -10,13 +10,12 @@
 	do {                                            \
 		char * s = arg;                              \
 		while((s = strchr(s, PATHSEP)) != NULL)    \
-			* s ++ = NUL;                             \
+			* s ++ = '\0';                         \
 	} while(0)
 
 #define PRINT_PATHLIST(start, limit)            \
 	do {                                            \
 		char * s = start;                            \
-                                                \
 		while(s < limit) {                         \
 			fprintf(stderr, "\"%s\" ", s);          \
 			s += strlen(s) + 1;                     \

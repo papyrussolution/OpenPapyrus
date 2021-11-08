@@ -190,7 +190,7 @@ int TS_RESP_CTX_add_policy(TS_RESP_CTX * ctx, const ASN1_OBJECT * policy)
 	ASN1_OBJECT * copy = NULL;
 
 	if(ctx->policies == NULL
-	    && (ctx->policies = sk_ASN1_OBJECT_new_null()) == NULL)
+	  && (ctx->policies = sk_ASN1_OBJECT_new_null()) == NULL)
 		goto err;
 	if((copy = OBJ_dup(policy)) == NULL)
 		goto err;
@@ -207,7 +207,7 @@ err:
 int TS_RESP_CTX_add_md(TS_RESP_CTX * ctx, const EVP_MD * md)
 {
 	if(ctx->mds == NULL
-	    && (ctx->mds = sk_EVP_MD_new_null()) == NULL)
+	  && (ctx->mds = sk_EVP_MD_new_null()) == NULL)
 		goto err;
 	if(!sk_EVP_MD_push(ctx->mds, md))
 		goto err;
@@ -231,15 +231,15 @@ int TS_RESP_CTX_set_accuracy(TS_RESP_CTX * ctx,
 {
 	TS_RESP_CTX_accuracy_free(ctx);
 	if(secs
-	    && ((ctx->seconds = ASN1_INTEGER_new()) == NULL
+	  && ((ctx->seconds = ASN1_INTEGER_new()) == NULL
 	    || !ASN1_INTEGER_set(ctx->seconds, secs)))
 		goto err;
 	if(millis
-	    && ((ctx->millis = ASN1_INTEGER_new()) == NULL
+	  && ((ctx->millis = ASN1_INTEGER_new()) == NULL
 	    || !ASN1_INTEGER_set(ctx->millis, millis)))
 		goto err;
 	if(micros
-	    && ((ctx->micros = ASN1_INTEGER_new()) == NULL
+	  && ((ctx->micros = ASN1_INTEGER_new()) == NULL
 	    || !ASN1_INTEGER_set(ctx->micros, micros)))
 		goto err;
 
@@ -290,7 +290,7 @@ int TS_RESP_CTX_set_status_info(TS_RESP_CTX * ctx,
 		    || !ASN1_STRING_set(utf8_text, text, strlen(text)))
 			goto err;
 		if(si->text == NULL
-		    && (si->text = sk_ASN1_UTF8STRING_new_null()) == NULL)
+		  && (si->text = sk_ASN1_UTF8STRING_new_null()) == NULL)
 			goto err;
 		if(!sk_ASN1_UTF8STRING_push(si->text, utf8_text))
 			goto err;
@@ -323,7 +323,7 @@ int TS_RESP_CTX_add_failure_info(TS_RESP_CTX * ctx, int failure)
 {
 	TS_STATUS_INFO * si = ctx->response->status_info;
 	if(si->failure_info == NULL
-	    && (si->failure_info = ASN1_BIT_STRING_new()) == NULL)
+	  && (si->failure_info = ASN1_BIT_STRING_new()) == NULL)
 		goto err;
 	if(!ASN1_BIT_STRING_set_bit(si->failure_info, failure, 1))
 		goto err;
@@ -535,7 +535,7 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 		goto end;
 
 	if((ctx->seconds || ctx->millis || ctx->micros)
-	    && (accuracy = TS_ACCURACY_new()) == NULL)
+	  && (accuracy = TS_ACCURACY_new()) == NULL)
 		goto end;
 	if(ctx->seconds && !TS_ACCURACY_set_seconds(accuracy, ctx->seconds))
 		goto end;
@@ -547,11 +547,11 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 		goto end;
 
 	if((ctx->flags & TS_ORDERING)
-	    && !TS_TST_INFO_set_ordering(tst_info, 1))
+	  && !TS_TST_INFO_set_ordering(tst_info, 1))
 		goto end;
 
 	if((nonce = ctx->request->nonce) != NULL
-	    && !TS_TST_INFO_set_nonce(tst_info, nonce))
+	  && !TS_TST_INFO_set_nonce(tst_info, nonce))
 		goto end;
 
 	if(ctx->flags & TS_TSA_NAME) {
@@ -719,7 +719,7 @@ static ESS_SIGNING_CERT * ess_SIGNING_CERT_new_init(X509 * signcert,
 	if((sc = ESS_SIGNING_CERT_new()) == NULL)
 		goto err;
 	if(sc->cert_ids == NULL
-	    && (sc->cert_ids = sk_ESS_CERT_ID_new_null()) == NULL)
+	  && (sc->cert_ids = sk_ESS_CERT_ID_new_null()) == NULL)
 		goto err;
 
 	if((cid = ess_CERT_ID_new_init(signcert, 0)) == NULL
@@ -756,7 +756,7 @@ static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed)
 	/* Setting the issuer/serial if requested. */
 	if(issuer_needed) {
 		if(cid->issuer_serial == NULL
-		    && (cid->issuer_serial = ESS_ISSUER_SERIAL_new()) == NULL)
+		  && (cid->issuer_serial = ESS_ISSUER_SERIAL_new()) == NULL)
 			goto err;
 		if((name = GENERAL_NAME_new()) == NULL)
 			goto err;
@@ -1008,7 +1008,7 @@ static ASN1_GENERALIZEDTIME * TS_RESP_set_genTime_with_precision(ASN1_GENERALIZE
 	*p++ = '\0';
 
 	if(asn1_time == NULL
-	    && (asn1_time = ASN1_GENERALIZEDTIME_new()) == NULL)
+	  && (asn1_time = ASN1_GENERALIZEDTIME_new()) == NULL)
 		goto err;
 	if(!ASN1_GENERALIZEDTIME_set_string(asn1_time, genTime_str)) {
 		ASN1_GENERALIZEDTIME_free(asn1_time);

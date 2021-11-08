@@ -26,8 +26,8 @@ FT_BEGIN_HEADER
 
 typedef FT_Error
 (* FT_CID_GetRegistryOrderingSupplementFunc)(FT_Face face,
-    const char** registry,
-    const char** ordering,
+    const char ** registry,
+    const char ** ordering,
     FT_Int       * supplement);
 typedef FT_Error
 (* FT_CID_GetIsInternallyCIDKeyedFunc)(FT_Face face,

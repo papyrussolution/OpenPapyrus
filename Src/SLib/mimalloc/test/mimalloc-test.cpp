@@ -41,7 +41,7 @@ int MiMalloc_Test01()
 			const size_t N = 1000;
 			for(size_t i = 0; i < N; ++i) {
 				size_t sz = 1ull << 21;
-				char* a = mi_mallocn_tp(char, sz);
+				char * a = mi_mallocn_tp(char, sz);
 				for(size_t k = 0; k < sz; k++) {
 					a[k] = 'x';
 				}
@@ -80,7 +80,7 @@ int MiMalloc_Test01()
 #define TRANSFERS     (1000)
 typedef uintptr_t * random_t;
 
-//static void * atomic_exchange_ptr(volatile void** p, void * newval);
+//static void * atomic_exchange_ptr(volatile void ** p, void * newval);
 //static void run_os_threads(size_t nthreads, void (*entry)(intptr_t tid));
 
 int MiMalloc_Test02_Stress(int argc, char ** argv) 
@@ -142,7 +142,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 		#endif
 			}
 		}
-		static void * atomic_exchange_ptr(volatile void** p, void * newval) 
+		static void * atomic_exchange_ptr(volatile void ** p, void * newval) 
 		{
 		#if (INTPTR_MAX == INT32_MAX)
 			return (void *)InterlockedExchange((volatile LONG*)p, (LONG)newval);
@@ -172,13 +172,13 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 		}
 		#ifdef __cplusplus
 			#include <atomic>
-			static void * atomic_exchange_ptr(volatile void** p, void * newval) 
+			static void * atomic_exchange_ptr(volatile void ** p, void * newval) 
 			{
-				return std::atomic_exchange((volatile std::atomic<void*>*)p, newval);
+				return std::atomic_exchange((volatile std::atomic<void *>*)p, newval);
 			}
 		#else
 			#include <stdatomic.h>
-			static void * atomic_exchange_ptr(volatile void** p, void * newval) 
+			static void * atomic_exchange_ptr(volatile void ** p, void * newval) 
 			{
 				return atomic_exchange((volatile _Atomic(void *)*)p, newval);
 			}
@@ -279,7 +279,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 			void ** data = NULL;
 			size_t data_size = 0;
 			size_t data_top = 0;
-			void ** retained = (void**)custom_calloc(retain, sizeof(void *));
+			void ** retained = (void **)custom_calloc(retain, sizeof(void *));
 			size_t retain_top = 0;
 			while(allocs > 0 || retain > 0) {
 				if(retain == 0 || (chance(50, &r) && allocs > 0)) {
@@ -287,7 +287,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 					allocs--;
 					if(data_top >= data_size) {
 						data_size += 100000;
-						data = (void**)custom_realloc(data, data_size * sizeof(void *));
+						data = (void **)custom_realloc(data, data_size * sizeof(void *));
 					}
 					data[data_top++] = alloc_items(1ULL << (pick(&r) % max_item_shift), &r);
 				}
@@ -326,7 +326,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 	thread_entry_fun = InnerBlock::stress;
 	// > mimalloc-test-stress [THREADS] [SCALE] [ITER]
 	if(argc >= 2) {
-		char* end;
+		char * end;
 		long n = strtol(argv[1], &end, 10);
 		if(n > 0) 
 			THREADS = n;
@@ -338,7 +338,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 			SCALE = n;
 	}
 	if(argc >= 4) {
-		char* end;
+		char * end;
 		long n = (strtol(argv[3], &end, 10));
 		if(n > 0) 
 			ITER = n;
@@ -558,7 +558,7 @@ int MiMalloc_Test03()
 	// various
 	// ---------------------------------------------------
 	CHECK_BODY("realpath", {
-		char* s = mi_realpath(".", NULL);
+		char * s = mi_realpath(".", NULL);
 		// printf("realpath: %s\n",s);
 		mi_free(s);
 	});

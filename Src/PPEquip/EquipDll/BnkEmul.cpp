@@ -83,7 +83,7 @@ private:
 			LogFileName = pLogFileName;
 			if (LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;
-				line_buf.Cat(getcurdatetime_(), DATF_DMY | DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
+				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
 				if (ExtMsg.NotEmpty())
 					line_buf.Tab().Cat(ExtMsg);
 				SLS.LogMessage(LogFileName, line_buf, 8192);
@@ -94,7 +94,7 @@ private:
 			if (LogFileName.NotEmpty() && Op.NotEmpty()) {
 				const long end_clk = clock();
 				SString line_buf;
-				line_buf.Cat(getcurdatetime_(), DATF_DMY | DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk - StartClk);
+				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk - StartClk);
 				SLS.LogMessage(LogFileName, line_buf, 8192);
 			}
 		}

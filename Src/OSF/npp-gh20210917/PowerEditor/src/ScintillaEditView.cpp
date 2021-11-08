@@ -945,7 +945,7 @@ void ScintillaEditView::setTypeScriptLexer()
 	execute(SCI_SETLEXER, SCLEX_CPP);
 	if(doxygenKeyWords) {
 		WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-		const char* doxygenKeyWords_char = wmc.wchar2char(doxygenKeyWords, CP_ACP);
+		const char * doxygenKeyWords_char = wmc.wchar2char(doxygenKeyWords, CP_ACP);
 		execute(SCI_SETKEYWORDS, 2, reinterpret_cast<LPARAM>(doxygenKeyWords_char));
 	}
 	const TCHAR* pKwArray[10] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
@@ -960,10 +960,10 @@ void ScintillaEditView::setTypeScriptLexer()
 	    };
 
 	auto keywordListInstruction = getKeywordList(LANG_INDEX_INSTR);
-	const char* tsInstructions = getCompleteKeywordList(keywordListInstruction, L_TYPESCRIPT, LANG_INDEX_INSTR);
+	const char * tsInstructions = getCompleteKeywordList(keywordListInstruction, L_TYPESCRIPT, LANG_INDEX_INSTR);
 
 	string keywordListType = getKeywordList(LANG_INDEX_TYPE);
-	const char* tsTypes = getCompleteKeywordList(keywordListType, L_TYPESCRIPT, LANG_INDEX_TYPE);
+	const char * tsTypes = getCompleteKeywordList(keywordListType, L_TYPESCRIPT, LANG_INDEX_TYPE);
 	execute(SCI_SETKEYWORDS, 0, reinterpret_cast<LPARAM>(tsInstructions));
 	execute(SCI_SETKEYWORDS, 1, reinterpret_cast<LPARAM>(tsTypes));
 	execute(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), reinterpret_cast<LPARAM>("1"));
@@ -2817,7 +2817,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 		bool isInSection = false;
 		for(auto i = searchStart; i < maxLines; ++i) {
 			auto state = execute(SCI_MARKERGET, i);
-			if( ((state & (1 << MARK_HIDELINESEND)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESEND)) != 0) ) {
 				if(isInSection) {
 					execute(SCI_HIDELINES, startHiding, i-1);
 					if(!endOfDoc) {
@@ -2826,7 +2826,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 				}
 				isInSection = false;
 			}
-			if( ((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
 				isInSection = true;
 				startHiding = i+1;
 			}
@@ -2837,7 +2837,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 		bool isInSection = false;
 		for(auto i = searchStart; i < maxLines; ++i) {
 			auto state = execute(SCI_MARKERGET, i);
-			if( ((state & (1 << MARK_HIDELINESEND)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESEND)) != 0) ) {
 				if(doDelete) {
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESEND);
 					if(!endOfDoc) {
@@ -2860,7 +2860,7 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 					isInSection = false;
 				}
 			}
-			if( ((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
+			if(((state & (1 << MARK_HIDELINESBEGIN | 1 << MARK_HIDELINESUNDERLINE)) != 0) ) {
 				if(doDelete) {
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESBEGIN);
 					execute(SCI_MARKERDELETE, i, MARK_HIDELINESUNDERLINE);

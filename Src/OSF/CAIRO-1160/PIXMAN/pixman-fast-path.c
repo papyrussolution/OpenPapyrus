@@ -423,33 +423,26 @@ static void fast_composite_over_n_8_0888(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_over_n_8_0565(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_over_n_8_0565(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint32 src, srca;
 	uint16 * dst_line, * dst;
 	uint32 d;
 	uint8 * mask_line, * mask, m;
 	int dst_stride, mask_stride;
 	int32 w;
-
-	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
-
-	srca = src >> 24;
+	uint32 src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
+	uint32 srca = src >> 24;
 	if(src == 0)
 		return;
-
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
-
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
 		mask = mask_line;
 		mask_line += mask_stride;
 		w = width;
-
 		while(w--) {
 			m = *mask++;
 			if(m == 0xff) {
@@ -458,13 +451,13 @@ static void fast_composite_over_n_8_0565(pixman_implementation_t * imp,
 				}
 				else {
 					d = *dst;
-					d = over(src, convert_0565_to_0888(d));
+					d = over(src, convert_0565_to_0888(static_cast<uint16>(d)));
 				}
 				*dst = convert_8888_to_0565(d);
 			}
 			else if(m) {
 				d = *dst;
-				d = over(in(src, m), convert_0565_to_0888(d));
+				d = over(in(src, m), convert_0565_to_0888(static_cast<uint16>(d)));
 				*dst = convert_8888_to_0565(d);
 			}
 			dst++;
@@ -472,8 +465,7 @@ static void fast_composite_over_n_8_0565(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_over_n_8888_0565_ca(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32 src, srca, s;
@@ -510,21 +502,18 @@ static void fast_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 				}
 				else {
 					d = *dst;
-					d = over(src, convert_0565_to_0888(d));
+					d = over(src, convert_0565_to_0888(static_cast<uint16>(d)));
 					*dst = convert_8888_to_0565(d);
 				}
 			}
 			else if(ma) {
 				d = *dst;
-				d = convert_0565_to_0888(d);
-
+				d = convert_0565_to_0888(static_cast<uint16>(d));
 				s = src;
-
 				UN8x4_MUL_UN8x4(s, ma);
 				UN8x4_MUL_UN8(ma, srca);
 				ma = ~ma;
 				UN8x4_MUL_UN8x4_ADD_UN8x4(d, ma, s);
-
 				*dst = convert_8888_to_0565(d);
 			}
 			dst++;
@@ -658,7 +647,7 @@ static void fast_composite_over_8888_0565(pixman_implementation_t * imp,
 				}
 				else {
 					d = *dst;
-					d = over(s, convert_0565_to_0888(d));
+					d = over(s, convert_0565_to_0888(static_cast<uint16>(d)));
 				}
 				*dst = convert_8888_to_0565(d);
 			}
@@ -703,8 +692,7 @@ static void fast_composite_add_8_8(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_add_0565_0565(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_add_0565_0565(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint16 * dst_line, * dst;
@@ -713,24 +701,21 @@ static void fast_composite_add_0565_0565(pixman_implementation_t * imp,
 	uint32 s;
 	int dst_stride, src_stride;
 	int32 w;
-
 	PIXMAN_IMAGE_GET_LINE(src_image, src_x, src_y, uint16, src_stride, src_line, 1);
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
-
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
 		src = src_line;
 		src_line += src_stride;
 		w = width;
-
 		while(w--) {
 			s = *src++;
 			if(s) {
 				d = *dst;
-				s = convert_0565_to_8888(s);
+				s = convert_0565_to_8888(static_cast<uint16>(s));
 				if(d) {
-					d = convert_0565_to_8888(d);
+					d = convert_0565_to_8888(static_cast<uint16>(d));
 					UN8x4_ADD_UN8x4(s, d);
 				}
 				*dst = convert_8888_to_0565(s);
@@ -2333,7 +2318,7 @@ static uint32 * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter, c
 	/* Main part */
 	w = pixman_int_to_fixed(bits->width - 1);
 
-	while(buffer < end  &&  x < w) {
+	while(buffer < end &&  x < w) {
 		if(*mask) {
 			uint32 tl, tr, bl, br;
 			int32 distx;
@@ -2357,7 +2342,7 @@ static uint32 * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter, c
 
 	/* Right Edge */
 	w = pixman_int_to_fixed(bits->width);
-	while(buffer < end  &&  x < w) {
+	while(buffer < end &&  x < w) {
 		if(*mask) {
 			uint32 tl, bl;
 			int32 distx;

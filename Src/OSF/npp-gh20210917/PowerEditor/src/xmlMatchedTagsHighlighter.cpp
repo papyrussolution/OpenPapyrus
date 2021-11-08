@@ -373,7 +373,7 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 	return tagFound;
 }
 
-XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findOpenTag(const std::string& tagName, int start, int end)
+XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findOpenTag(const std::string & tagName, int start, int end)
 {
 	std::string search("<");
 	search.append(tagName);
@@ -461,7 +461,7 @@ int XmlMatchedTagsHighlighter::findCloseAngle(int startPosition, int endPosition
 	return returnPosition;
 }
 
-XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(const std::string& tagName, int start, int end)
+XmlMatchedTagsHighlighter::FindResult XmlMatchedTagsHighlighter::findCloseTag(const std::string & tagName, int start, int end)
 {
 	std::string search("</");
 	search.append(tagName);

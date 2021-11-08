@@ -34,8 +34,8 @@ public:
 	// FontRealised objects can not be copied.
 	FontRealised(const FontRealised &) = delete;
 	FontRealised(FontRealised &&) = delete;
-	FontRealised &operator=(const FontRealised &) = delete;
-	FontRealised &operator=(FontRealised &&) = delete;
+	FontRealised & operator = (const FontRealised &) = delete;
+	FontRealised & operator = (FontRealised &&) = delete;
 	virtual ~FontRealised();
 	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
 };
@@ -169,8 +169,8 @@ public:
 	ViewStyle(const ViewStyle &source);
 	ViewStyle(ViewStyle &&) = delete;
 	// Can only be copied through copy constructor which ensures font names initialised correctly
-	ViewStyle &operator=(const ViewStyle &) = delete;
-	ViewStyle &operator=(ViewStyle &&) = delete;
+	ViewStyle & operator = (const ViewStyle &) = delete;
+	ViewStyle & operator = (ViewStyle &&) = delete;
 	~ViewStyle();
 	void CalculateMarginWidthAndMask() noexcept;
 	void Init(size_t stylesSize_=256);

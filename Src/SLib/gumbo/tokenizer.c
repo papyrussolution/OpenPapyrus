@@ -64,7 +64,7 @@ typedef struct GumboInternalTagState {
 	GumboStringBuffer _buffer;
 	// A pointer to the start of the original text corresponding to the contents
 	// of the buffer.
-	const char* _original_text;
+	const char * _original_text;
 	// The current tag enum, computed once the tag name state has finished so that
 	// the buffer can be re-used for building up attributes.
 	GumboTag _tag;
@@ -138,7 +138,7 @@ struct GumboTokenizerState {
 	GumboStringBuffer _temporary_buffer;
 	// The current cursor position we're emitting from within
 	// _temporary_buffer.data.  NULL whenever we're not flushing the buffer.
-	const char* _temporary_buffer_emit;
+	const char * _temporary_buffer_emit;
 	// The temporary buffer is also used by the spec to check whether we should
 	// enter the script data double escaped state, but we can't use the same
 	// buffer for both because we have to flush out "<s" as emits while still
@@ -148,7 +148,7 @@ struct GumboTokenizerState {
 	GumboStringBuffer _script_data_buffer;
 	// Pointer to the beginning of the current token in the original buffer; used
 	// to record the original text.
-	const char* _token_start;
+	const char * _token_start;
 	// GumboSourcePosition recording the source location of the start of the
 	// current token.
 	GumboSourcePosition _token_start_pos;
@@ -332,7 +332,7 @@ static void FASTCALL append_char_to_temporary_buffer(GumboParser * parser, int c
 // Checks to see if the temporary buffer equals a certain string.
 // Make sure this remains side-effect free; it's used in assertions.
 #ifndef NDEBUG
-	static bool FASTCALL temporary_buffer_equals(GumboParser * parser, const char* text) 
+	static bool FASTCALL temporary_buffer_equals(GumboParser * parser, const char * text) 
 	{
 		GumboStringBuffer * buffer = &parser->_tokenizer_state->_temporary_buffer;
 		// TODO(jdtang): See if the extra strlen is a performance problem, and replace
@@ -381,7 +381,7 @@ static void reset_tag_buffer_start_point(GumboParser * parser)
 
 // Moves the temporary buffer contents over to the specified output string,
 // and clears the temporary buffer.
-static void finish_temporary_buffer(GumboParser * parser, const char** output) 
+static void finish_temporary_buffer(GumboParser * parser, const char ** output) 
 {
 	GumboTokenizerState * tokenizer = parser->_tokenizer_state;
 	*output = gumbo_string_buffer_to_string(&tokenizer->_temporary_buffer);
@@ -668,8 +668,8 @@ static void start_new_tag(GumboParser * parser, bool is_start_tag)
 	gumbo_debug("Starting new tag.\n");
 }
 
-// Fills in the specified char* with the contents of the tag buffer.
-static void copy_over_tag_buffer(GumboParser * parser, const char** output) 
+// Fills in the specified char * with the contents of the tag buffer.
+static void copy_over_tag_buffer(GumboParser * parser, const char ** output) 
 {
 	GumboTokenizerState * tokenizer = parser->_tokenizer_state;
 	GumboTagState* tag_state = &tokenizer->_tag_state;
@@ -719,7 +719,7 @@ static void FASTCALL finish_tag_name(GumboParser * parser)
 }
 
 // Adds an ERR_DUPLICATE_ATTR parse error to the parser's error struct.
-static void add_duplicate_attr_error(GumboParser * parser, const char* attr_name, int original_index, int new_index) 
+static void add_duplicate_attr_error(GumboParser * parser, const char * attr_name, int original_index, int new_index) 
 {
 	GumboError * error = gumbo_add_error(parser);
 	if(error) {
@@ -796,7 +796,7 @@ static bool is_appropriate_end_tag(GumboParser * parser)
 	return tag_state->_last_start_tag != GUMBO_TAG_LAST && tag_state->_last_start_tag == gumbo_tagn_enum(tag_state->_buffer.data, tag_state->_buffer.length);
 }
 
-void gumbo_tokenizer_state_init(GumboParser * parser, const char* text, size_t text_length) 
+void gumbo_tokenizer_state_init(GumboParser * parser, const char * text, size_t text_length) 
 {
 	GumboTokenizerState * tokenizer = static_cast<GumboTokenizerState *>(SAlloc::M(sizeof(GumboTokenizerState)));
 	parser->_tokenizer_state = tokenizer;

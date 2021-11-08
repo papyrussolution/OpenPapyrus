@@ -269,7 +269,7 @@ typedef struct sh_list_st {
 } SH_LIST;
 
 typedef struct sh_st {
-	char* map_result;
+	char * map_result;
 	size_t map_size;
 	char * arena;
 	size_t arena_size;

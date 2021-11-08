@@ -16,7 +16,7 @@ void PPGlobalServiceLogTalkingHelper::Log(const char * pPrefix, const char * pTa
 		if(f_log.IsValid()) {
 			if(!isempty(pPrefix)) {
 				SString temp_buf;
-				temp_buf.Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CatDiv(':', 2);
+				temp_buf.CatCurDateTime(DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CatDiv(':', 2);
 				if(!isempty(pTargetUrl))
 					temp_buf.Space().CatEq("url", pTargetUrl);
 				f_log.WriteLine(temp_buf.CR());

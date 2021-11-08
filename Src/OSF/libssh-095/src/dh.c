@@ -633,7 +633,7 @@ int ssh_dh_get_next_server_publickey_blob(ssh_session session, ssh_string * pubk
 static char * ssh_get_b64_unpadded(const uchar * hash, size_t len)
 {
 	char * b64_unpadded = NULL;
-	char * b64_padded = (char*)bin_to_base64(hash, (int)len);
+	char * b64_padded = (char *)bin_to_base64(hash, (int)len);
 	if(b64_padded) {
 		size_t k;
 		for(k = strlen(b64_padded); k != 0 && b64_padded[k-1] == '='; k--)

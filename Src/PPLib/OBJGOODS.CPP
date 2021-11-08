@@ -3167,7 +3167,7 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 				len = sstrlen(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
 				if(!(P_Cfg->Flags & GCF_BCNDIG))
 					for(p = k; *p && ok; p++)
-						THROW_PP((is_group_code && p == k && *p == '@') || (*p >= '0' && *p <= '9'), PPERR_INVBARCODE);
+						THROW_PP((is_group_code && p == k && *p == '@') || isdec(*p), PPERR_INVBARCODE);
 				if(!is_group_code) {
 					THROW_PP_S(!code_len_list.getCount() || code_len_list.lsearch(len), PPERR_INVBCODELEN, k);
 					strip(P_Cfg->WghtPrefix);

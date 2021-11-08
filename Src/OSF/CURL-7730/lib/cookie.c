@@ -307,7 +307,7 @@ static char * sanitize_cookie_path(const char * cookie_path)
 	/* some stupid site sends path attribute with '"'. */
 	len = strlen(new_path);
 	if(new_path[0] == '\"') {
-		memmove((void *)new_path, (const void*)(new_path + 1), len);
+		memmove((void *)new_path, (const void *)(new_path + 1), len);
 		len--;
 	}
 	if(len && (new_path[len - 1] == '\"')) {

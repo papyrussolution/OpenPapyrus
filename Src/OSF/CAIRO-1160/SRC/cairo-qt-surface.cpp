@@ -995,7 +995,7 @@ struct PatternToBrushConverter {
 			delete grad;
 		}
 
-		if(mBrush.style() != Qt::NoBrush  &&
+		if(mBrush.style() != Qt::NoBrush &&
 		    pattern->type != CAIRO_PATTERN_TYPE_SOLID &&
 		    !_cairo_matrix_is_identity(&pattern->matrix)) {
 			cairo_matrix_t pm = pattern->matrix;

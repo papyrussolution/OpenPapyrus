@@ -282,7 +282,7 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 		else
 			size *= 4;  /* exponential growth */
 		if(size < 4 * (namelen + plen + 1))
-			size = 4 * (namelen + plen + 1);  /* just in case ! */
+			size = 4 * (namelen + plen + 1); /* just in case ! */
 		pool = (xmlDictStrings *)SAlloc::M(sizeof(xmlDictStrings) + size);
 		if(!pool)
 			return 0;

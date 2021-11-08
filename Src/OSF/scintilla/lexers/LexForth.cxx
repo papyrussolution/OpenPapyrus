@@ -121,7 +121,7 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 				while(sc.More() && IsASCII(sc.chNext) && isxdigit(sc.chNext))
 					sc.Forward();
 			}
-			else if( (sc.ch == '%' && (IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1'))) ) {
+			else if((sc.ch == '%' && (IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1'))) ) {
 				// number starting with % is binary
 				sc.SetState(SCE_FORTH_NUMBER);
 				while(sc.More() && IsASCII(sc.chNext) && (sc.chNext == '0' || sc.chNext == '1'))

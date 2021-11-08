@@ -186,7 +186,7 @@ int ecdh_build_k(ssh_session session)
 
 	err = gcry_mpi_scan(&session->next_crypto->shared_secret,
 		GCRYMPI_FMT_USG,
-		(const char*)ssh_string_data(s) + 1,
+		(const char *)ssh_string_data(s) + 1,
 		k_len / 2,
 		NULL);
 	ssh_string_burn(s);

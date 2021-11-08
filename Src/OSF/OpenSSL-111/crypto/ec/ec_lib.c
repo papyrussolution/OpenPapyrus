@@ -668,8 +668,8 @@ int EC_POINT_copy(EC_POINT * dest, const EC_POINT * src)
 	}
 	if(dest->meth != src->meth
 	    || (dest->curve_name != src->curve_name
-	    && dest->curve_name != 0
-	    && src->curve_name != 0)) {
+	  && dest->curve_name != 0
+	  && src->curve_name != 0)) {
 		ECerr(EC_F_EC_POINT_COPY, EC_R_INCOMPATIBLE_OBJECTS);
 		return 0;
 	}

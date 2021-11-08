@@ -103,7 +103,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 	char szSpecial[100];
 
 	// split the portion of the sendkey in the part before and after the spaces
-	while( ( (cTemp = szLine[nPos]) != '\0')) {
+	while(((cTemp = szLine[nPos]) != '\0')) {
 		// skip leading Ctrl/Shift/Alt state
 		if(cTemp == '{') {
 			nStartFound = 1;
@@ -715,7 +715,7 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			if(szKeywordlen > 0 && (!(chPrev == '_')) && ((!(IsStreamCommentStyle(style)) || foldInComment)) ) {
 				szKeyword[szKeywordlen] = '\0';
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(sstreq(szKeyword, "if")  && ThenFoundLast) {
+				if(sstreq(szKeyword, "if") && ThenFoundLast) {
 					levelNext++;
 				}
 				// create new fold for these words

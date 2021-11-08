@@ -32,7 +32,7 @@ int main()
 	void * p2 = malloc(24);
 	free(p1);
 	p1 = mi_malloc(8);
-	char* s = strdup("hello\n");
+	char * s = strdup("hello\n");
 	free(p2);
 
 	p2 = malloc(16);
