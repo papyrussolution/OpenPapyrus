@@ -1,0 +1,1932 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{CF06828F-F188-4C89-889A-AC8E7A57278A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{1329B1AC-36B6-4F40-A5DF-0B7ABC0CBD08}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubidi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubidi_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubidiln.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubiditransform.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubidiwrt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ushape.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\localebuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\localematcher.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\localeprioritylist.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locavailable.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locbased.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locdispnames.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locdistance.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locid.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\loclikely.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\loclikelysubtags.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locresdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\lsr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\resbund.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\resbund_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\resource.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uloc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uloc_keytype.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uloc_tag.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ures_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uresbund.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uresdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\brkeng.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\brkiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\dictbe.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\dictionarydata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\filteredbrk.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\lstmbe.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbi_cache.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbidata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbinode.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbirb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbiscan.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbisetb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbistbl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\rbbitblb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ubrk.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\appendable.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bytesinkutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bytestream.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\chariter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\charstr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\cstr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\cstring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\cwchar.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\edits.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\schriter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\stringpiece.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucasemap.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucasemap_titlecase_brkiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uchriter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uinvchar.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr_case.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr_case_locale.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unistr_titlecase_brkiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustr_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustr_titlecase_brkiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustr_wcs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustrcase.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustrcase_locale.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustrtrns.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utext.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utf_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\usprep.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\icuplug.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\serv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servlk.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servlkf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servls.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servnotf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servrbf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\servslkf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bmpset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\characterproperties.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\emojiprops.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\patternprops.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\propname.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ruleiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucase.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uchar.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unames.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unifilt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unifunct.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uniset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uniset_closure.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uniset_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unisetspan.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uprops.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\usc_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uscript.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uscript_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uset_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\usetiter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\caniter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\filterednormalizer2.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\loadednormalizer2impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\normalizer2.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\normalizer2impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\normlzr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unorm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unormcmp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\punycode.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uidna.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uts46.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucol_swp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bytestrie.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bytestriebuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\bytestrieiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\pluralmap.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\propsvec.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\stringtriebuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uarrsort.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucharstrie.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucharstriebuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucharstrieiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucptrie.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uenum.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uhash.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uhash_us.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ulist.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\umutablecptrie.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\unifiedcache.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustack.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustrenum.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utrie.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utrie_swap.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utrie2.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utrie2_builder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uvector.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uvectr32.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uvectr64.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\errorcode.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\icudataver.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locmap.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\putil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\umath.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\umutex.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utrace.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\utypes.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\wintz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\dtintrv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\locdspnm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\messagepattern.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\parsepos.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\simpleformatter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\static_unicode_sets.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucurr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ustrfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\util.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\util_props.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_bld.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_cb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_ct.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_err.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_ext.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_io.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_lmb.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_set.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_u7.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_u8.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_u16.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv_u32.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnv2022.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvbocu.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvdisp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvhz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvisci.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvlat1.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvmbcs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvscsu.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucnvsel.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\cmemory.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\restrace.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\sharedobject.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucln_cmn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\ucmndata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\udata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\udatamem.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\udataswp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uinit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\umapfile.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\common\uobject.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\locbund.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\sprintf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\sscanf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\ucln_io.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\ufile.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\ufmt_cmn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\uprintf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\uprntf_p.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\uscanf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\uscanf_p.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\ustdio.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\io\ustream.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\alphaindex.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\anytrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\astro.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\basictz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\bocsu.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\brktrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\buddhcal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\calendar.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\casetrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\cecal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\chnsecal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\choicfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\coleitr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\coll.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collation.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationbuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationcompare.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationdatabuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationdatareader.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationdatawriter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationfastlatin.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationfastlatinbuilder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationfcd.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationkeys.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationroot.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationrootelements.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationruleparser.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationsets.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationsettings.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationtailoring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\collationweights.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\compactdecimalformat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\coptccal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\cpdtrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csdetect.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csmatch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csr2022.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csrecog.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csrmbcs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csrsbcs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csrucode.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\csrutf8.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\curramt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\currfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\currpinf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\currunit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dangical.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\datefmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dayperiodrules.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dcfmtsym.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\decContext.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\decimfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\decNumber.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-bignum.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-bignum-dtoa.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-cached-powers.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-double-to-string.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-fast-dtoa.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-string-to-double.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\double-conversion-strtod.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dtfmtsym.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dtitvfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dtitvinf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dtptngen.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\dtrule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\erarules.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\esctrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ethpccal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\fmtable.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\fmtable_cnv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\format.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\formatted_string_builder.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\formattedval_iterimpl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\formattedval_sbimpl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\formattedvalue.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\fphdlimp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\fpositer.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\funcrepl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\gender.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\gregocal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\gregoimp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\hebrwcal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\indiancal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\inputext.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\islamcal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\japancal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\listformatter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\measfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\measunit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\measunit_extra.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\measure.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\msgfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\name2uni.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\nfrs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\nfrule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\nfsubs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\nortrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\nultrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_affixutils.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_asformat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_capi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_compact.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_currencysymbols.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_decimalquantity.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_decimfmtprops.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_fluent.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_formatimpl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_grouping.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_integerwidth.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_longnames.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_mapper.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_modifiers.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_multiplier.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_notation.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_output.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_padding.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_patternmodifier.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_patternstring.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_rounding.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_scientific.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_skeletons.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_symbolswrapper.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_usageprefs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\number_utils.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_affixes.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_compositions.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_currency.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_decimal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_parsednumber.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_scientific.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_symbols.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numparse_validators.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numrange_capi.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numrange_fluent.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numrange_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\numsys.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\olsontz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\persncal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\pluralranges.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\plurfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\plurrule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\quant.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\quantityformatter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbnf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbt_data.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbt_pars.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbt_rule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbt_set.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rbtz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\regexcmp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\regeximp.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\regexst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\regextxt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\region.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\reldatefmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\reldtfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rematch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\remtrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\repattrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\rulebasedcollator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\scientificnumberformatter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\scriptset.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\search.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\selfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\sharedbreakiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\simpletz.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\smpdtfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\smpdtfst.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\sortkey.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\standardplural.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\string_segment.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\strmatch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\strrepl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\stsearch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\taiwncal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\timezone.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\titletrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tmunit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tmutamt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tmutfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tolowtrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\toupptrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\translit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\transreg.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tridpars.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tzfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tzgnames.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tznames.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tznames_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tzrule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\tztrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucal.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucln_in.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucol.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucol_res.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucol_sit.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucoleitr.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ucsdet.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\udat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\udateintervalformat.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\udatpg.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ufieldpositer.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uitercollationiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ulistformatter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ulocdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\umsg.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\unesctrn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uni2name.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\units_complexconverter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\units_converter.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\units_data.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\units_router.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\unum.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\unumsys.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\upluralrules.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uregex.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uregexc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uregion.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\usearch.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uspoof.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uspoof_build.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uspoof_conf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\uspoof_impl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\utf8collationiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\utf16collationiterator.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\utmscale.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\utrans.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\vtzone.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\vzone.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\windtfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\winnmfmt.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\wintzimpl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\zonemeta.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\zrule.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\i18n\ztrans.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\icu\icu4c\source\common\common.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\alphaindex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\appendable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\basictz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\brkiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\bytestream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\bytestrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\bytestriebuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\calendar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\caniter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\casemap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\char16ptr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\chariter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\choicfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\coleitr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\coll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\compactdecimalformat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\curramt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\currpinf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\currunit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\datefmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dbbi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dcfmtsym.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\decimfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\docmain.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtfmtsym.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtintrv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtitvfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtitvinf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtptngen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\dtrule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\edits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\enumset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\errorcode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\fieldpos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\filteredbrk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\fmtable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\format.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\formattedvalue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\fpositer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\gender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\gregocal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\icudataver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\icuplug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\idna.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\listformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\localebuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\localematcher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\localpointer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\locdspnm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\locid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\measfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\measunit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\measure.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\messagepattern.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\msgfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\normalizer2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\normlzr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\nounit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numberformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numberrangeformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numsys.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\parseerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\parsepos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\plurfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\plurrule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ptypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\putil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\rbbi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\rbnf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\rbtz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\regex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\region.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\reldatefmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\rep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\resbund.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\schriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\scientificnumberformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\search.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\selfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\simpleformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\simpletz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\smpdtfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\sortkey.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\std_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\strenum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\stringoptions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\stringpiece.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\stringtriebuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\stsearch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\symtable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tblcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\timezone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tmunit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tmutamt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tmutfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\translit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tzfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tznames.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tzrule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\tztrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ubidi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ubiditransform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ubrk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucasemap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uchar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucharstrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucharstriebuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uchriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uclean.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnv_cb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnv_err.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnvsel.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucoleitr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uconfig.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucpmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucptrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucsdet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucurr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\udat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\udata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\udateintervalformat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\udatpg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\udisplaycontext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uenum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ufieldpositer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uformattable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uformattedvalue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ugender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uidna.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uldnames.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ulistformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ulocdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umachine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umisc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umutablecptrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unifilt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unifunct.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unimatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unirepl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uniset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unistr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unorm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unorm2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unumberformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unumberrangeformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\unumsys.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uobject.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\upluralrules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uregex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uregion.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ureldatefmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\urename.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\urep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ures.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uscript.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\usearch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\usetiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ushape.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uspoof.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\usprep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ustdio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ustream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ustring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ustringtrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utf_old.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utf8.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utf16.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utf32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utmscale.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utrace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\utypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uvernum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\uversion.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\vtzone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\anytrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\astro.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\bmpset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\bocsu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\brkeng.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\brktrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\buddhcal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\bytesinkutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\capi_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\casetrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cecal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\charstr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\charstrmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\chnsecal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cmemory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collation.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationbuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationcompare.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationdatabuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationdatareader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationdatawriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationfastlatin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationfastlatinbuilder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationfcd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationiterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationkeys.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationroot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationrootelements.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationruleparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationsets.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationsettings.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationtailoring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collationweights.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\collunsafe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\coptccal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cpdtrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cpputils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csdetect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csr2022.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csrecog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csrmbcs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csrsbcs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csrucode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\csrutf8.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cstr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cstring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\currfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\cwchar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dangical.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dayperiodrules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\decContext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\decNumber.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\decNumberLocal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dictbe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dictionarydata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-bignum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-bignum-dtoa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-cached-powers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-diy-fp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-double-to-string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-fast-dtoa.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-ieee.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-string-to-double.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-strtod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\double-conversion-utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dt_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dtitv_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\dtptngen_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\emojiprops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\erarules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\esctrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ethpccal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\fmtableimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\formatted_string_builder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\formattedval_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\fphdlimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\funcrepl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\gregoimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\hebrwcal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\icuplugimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\indiancal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\inputext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\islamcal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\japancal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\localeprioritylist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\localsvc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\locbased.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\locbund.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\locdistance.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\loclikelysubtags.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\locmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\locutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\lsr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\lstmbe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\measunit_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\messageimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\msgfmt_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\msvcres.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\mutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\name2uni.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nfrlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nfrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nfrule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nfsubs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\norm2_nfc_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\norm2allmodes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\normalizer2impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nortrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\nultrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_affixutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_asformat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_compact.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_currencysymbols.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_decimalquantity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_decimfmtprops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_decnum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_formatimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_longnames.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_mapper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_microprops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_modifiers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_multiplier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_patternmodifier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_patternstring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_roundingutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_scientific.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_skeletons.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_usageprefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\number_utypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_affixes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_compositions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_currency.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_decimal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_scientific.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_symbols.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numparse_validators.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numrange_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\numsys_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\olsontz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\patternprops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\persncal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\pluralmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\pluralranges.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\plurrule_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\propname.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\propname_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\propsvec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\punycode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\putilimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\quant.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\quantityformatter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbi_cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbidata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbinode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbirb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbirpt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbiscan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbisetb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbbitblb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbt_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbt_pars.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbt_rule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\rbt_set.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\regexcmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\regexcst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\regeximp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\regexst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\regextxt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\region_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\reldtfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\remtrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\resource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\restrace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ruleiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\scriptset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\selfmtimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\serv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\servloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\servnotf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sharedbreakiterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sharedcalendar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\shareddateformatsymbols.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sharednumberformat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sharedobject.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sharedpluralrules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\smpdtfst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\sprpimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\standardplural.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\static_unicode_sets.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\string_segment.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\strmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\strrepl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\taiwncal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\titletrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\tolowtrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\toupptrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\transreg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\tridpars.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\tzgnames.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\tznames_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uarrsort.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uassert.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ubidi_props.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ubidi_props_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ubidiimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ubrkimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucase.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucase_props_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucasemap_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uchar_props_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucln.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucln_cmn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucln_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucln_in.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucln_io.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucmndata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnv_bld.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnv_cnv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnv_ext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnv_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnv_io.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucnvmbcs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucol_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucol_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucol_swp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucptrie_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ucurrimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\udatamem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\udataswp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uelement.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uenumimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ufile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ufmt_cmn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uhash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uinvchar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uitercollationiterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ulayout_props.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ulist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ulocimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\umapfile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\umsg_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\umutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\unesctrn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uni2name.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\unifiedcache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uniquecharstr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\unisetspan.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\unistrappender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\units_complexconverter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\units_converter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\units_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\units_router.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\unormimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uposixdefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uprintf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uprops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uresdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uresimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ureslocs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\usc_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uscanf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uset_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uspoof_conf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uspoof_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\usrchimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ustr_cnv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ustr_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ustrenum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ustrfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utf8collationiterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utf16collationiterator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utracimp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utrie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utrie2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utrie2_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\utypeinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uvector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uvectr32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\uvectr64.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\vzone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\windtfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\winnmfmt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\wintz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\wintzimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\zonemeta.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\zrule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\internal\ztrans.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\include\icu-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
