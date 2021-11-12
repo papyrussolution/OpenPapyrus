@@ -79,8 +79,8 @@
 #define close   _close
 #define popen   _popen
 #define pclose  _pclose
-#ifndef R_OK   /* mingw defines this, for instance */
-#define R_OK    04           /* read-only (for access()) */
+#ifndef R_OK   // mingw defines this, for instance 
+	#define R_OK    04 // read-only (for access()) 
 #endif
 #define S_ISDIR(m)  (((m) & _S_IFMT) == _S_IFDIR)
 

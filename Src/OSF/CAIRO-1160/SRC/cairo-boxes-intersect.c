@@ -323,7 +323,7 @@ static inline void active_edges(sweep_line_t * sweep, cairo_boxes_t * out)
 			}
 
 			right = right->next;
-		} while(TRUE);
+		} while(true);
 
 		start_or_continue_box(sweep, left, right, top, out);
 
@@ -376,7 +376,7 @@ static inline void insert_edge(edge_t * edge, edge_t * pos)
 						break;
 					pos = pos->prev;
 				})
-			} while(TRUE);
+			} while(true);
 		}
 		else {
 			do {
@@ -385,7 +385,7 @@ static inline void insert_edge(edge_t * edge, edge_t * pos)
 					if(pos->x >= edge->x)
 						break;
 				})
-			} while(TRUE);
+			} while(true);
 		}
 	}
 

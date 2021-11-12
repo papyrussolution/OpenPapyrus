@@ -1289,6 +1289,12 @@ LAssoc::LAssoc(const LAssoc & rS)
 	Val = rS.Val;
 }
 
+void LAssoc::Set(int32 key, int32 val)
+{
+	Key = key;
+	Val = val;
+}
+
 int FASTCALL LAssoc::operator == (const LAssoc & s) const
 {
 	return BIN(Key == s.Key && Val == s.Val);
@@ -2095,13 +2101,18 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 //
 //
 //
-StrAssocArray::StrAssocArray() : LAssocArray(), SStrGroup(), TextCmpProc(0)
+StrAssocArray::StrAssocArray() : LAssocArray(), SStrGroup(), TextCmpProc(0), P_ParentIndex(0)
 {
 }
 
-StrAssocArray::StrAssocArray(const StrAssocArray & rS) : SStrGroup()
+StrAssocArray::StrAssocArray(const StrAssocArray & rS) : SStrGroup(), P_ParentIndex(0)
 {
 	Copy(rS);
+}
+
+StrAssocArray::~StrAssocArray() // @v11.2.3 
+{
+	delete P_ParentIndex;
 }
 
 void FASTCALL StrAssocArray::SetTextCmpProc(CompFunc fcmp)
@@ -2700,18 +2711,30 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 		LAssocArray recur_tracer;
 		SETIFZ(pRecurTracer, &recur_tracer);
 		LAssoc pi[2];
-		uint p = 0;
-		if(par[0] && pArray->Search(par[0], &(p = 0)))
-			pi[0] = pArray->LAssocArray::at(p);
-		else {
-			pi[0].Key = par[0];
-			pi[0].Val = 0;
+		// @v11.2.3 {
+		/* (пока не получилось) if(pArray->P_ParentIndex) {
+			long _val = 0;
+			if(par[0] && pArray->P_ParentIndex->BSearch(par[0], &_val, 0))
+				pi[0].Set(par[0], _val);
+			else
+				pi[0].Set(par[0], 0);
+			if(par[1] && pArray->P_ParentIndex->BSearch(par[1], &_val, 0))
+				pi[1].Set(par[1], _val);
+			else
+				pi[1].Set(par[1], 0);
 		}
-		if(par[1] && pArray->Search(par[1], &(p = 0)))
-			pi[1] = pArray->LAssocArray::at(p);
-		else {
-			pi[1].Key = par[1];
-			pi[1].Val = 0;
+		else 
+		// } @v11.2.3 */ 
+		{ 
+			uint p = 0;
+			if(par[0] && pArray->Search(par[0], &(p = 0)))
+				pi[0] = pArray->LAssocArray::at(p);
+			else
+				pi[0].Set(par[0], 0);
+			if(par[1] && pArray->Search(par[1], &(p = 0)))
+				pi[1] = pArray->LAssocArray::at(p);
+			else
+				pi[1].Set(par[1], 0);
 		}
 		if(pRecurTracer->SearchPair(pi[0].Key, pi[1].Key, 0)) {
 			// cycle
@@ -2776,6 +2799,23 @@ void StrAssocArray::SortByID()
 void StrAssocArray::SortByText()
 {
 	ParentList.Sort();
+	// @v11.2.3 {
+	/* (пока не получается)
+	if(P_ParentIndex)
+		P_ParentIndex->clear();
+	else
+		P_ParentIndex = new LAssocArray;
+	if(P_ParentIndex) {
+		for(uint i = 0; i < LAssocArray::getCount(); i++) {
+			const long _id = LAssocArray::at(i).Key;
+			long _val = 0;
+			uint pos = 0;
+			if(ParentList.BSearch(_id, &_val, &pos))
+				P_ParentIndex->Add(_id, _val);
+		}
+		P_ParentIndex->Sort();
+	}*/
+	// } @v11.2.3 
 	LAssocArray::sort(PTR_CMPFUNC(StrAssoc_ByText), this);
 }
 

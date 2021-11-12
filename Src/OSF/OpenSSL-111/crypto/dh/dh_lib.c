@@ -169,19 +169,19 @@ int DH_set0_pqg(DH * dh, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 	// parameters MUST be non-NULL.  q may remain NULL.
 	if((dh->p == NULL && p == NULL) || (dh->g == NULL && g == NULL))
 		return 0;
-	if(p != NULL) {
+	if(p) {
 		BN_free(dh->p);
 		dh->p = p;
 	}
-	if(q != NULL) {
+	if(q) {
 		BN_free(dh->q);
 		dh->q = q;
 	}
-	if(g != NULL) {
+	if(g) {
 		BN_free(dh->g);
 		dh->g = g;
 	}
-	if(q != NULL) {
+	if(q) {
 		dh->length = BN_num_bits(q);
 	}
 	return 1;

@@ -4740,7 +4740,7 @@ static int xmlBase64Decode(const uchar * in, unsigned long * inlen, uchar * to, 
 			cur = cur - 'A';
 		else if((cur >= 'a') && (cur <= 'z'))
 			cur = cur - 'a' + 26;
-		else if((cur >= '0') && (cur <= '9'))
+		else if(isdec(cur))
 			cur = cur - '0' + 52;
 		else if(cur == '+')
 			cur = 62;

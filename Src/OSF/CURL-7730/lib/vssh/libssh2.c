@@ -2558,14 +2558,12 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 				    if(rc < 0) {
 					    char * err_msg = NULL;
-					    (void)libssh2_session_last_error(sshc->ssh_session,
-						&err_msg, NULL, 0);
+					    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
 					    infof(data, "Failed to free libssh2 scp subsystem: %d %s\n",
 						rc, err_msg);
 				    }
 				    sshc->ssh_channel = NULL;
 			    }
-
 			    if(sshc->ssh_session) {
 				    rc = libssh2_session_disconnect(sshc->ssh_session, "Shutdown");
 				    if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -2573,8 +2571,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 				    if(rc < 0) {
 					    char * err_msg = NULL;
-					    (void)libssh2_session_last_error(sshc->ssh_session,
-						&err_msg, NULL, 0);
+					    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
 					    infof(data, "Failed to disconnect libssh2 session: %d %s\n",
 						rc, err_msg);
 				    }

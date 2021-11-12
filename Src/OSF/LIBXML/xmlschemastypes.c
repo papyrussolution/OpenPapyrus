@@ -916,7 +916,7 @@ static int _xmlSchemaParseGYear(xmlSchemaValDatePtr dt, const xmlChar ** str)
 		cur++;
 	}
 	firstChar = cur;
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		dt->year = dt->year * 10 + (*cur - '0');
 		cur++;
 		digcnt++;
@@ -1189,10 +1189,10 @@ static int FASTCALL _xmlSchemaBase64Decode(const xmlChar ch)
  * @cur are undefined.
  */
 #define PARSE_DIGITS(num, cur, num_type)			\
-	if((*cur < '0') || (*cur > '9'))		       \
+	if(!isdec(*cur))		       \
 		num_type = -1;					    \
 	else							\
-		while((*cur >= '0') && (*cur <= '9')) {		   \
+		while(isdec(*cur)) {		   \
 			num = num * 10 + (*cur - '0');			\
 			cur++;						\
 		}
@@ -1216,11 +1216,11 @@ static int FASTCALL _xmlSchemaBase64Decode(const xmlChar ch)
 	if(!num_type && (*cur == '.')) {		       \
 		double mult = 1;				    \
 		cur++;						    \
-		if((*cur < '0') || (*cur > '9'))		   \
+		if(!isdec(*cur))		   \
 			num_type = -1;					\
 		else						    \
 			num_type = 1;					\
-		while((*cur >= '0') && (*cur <= '9')) {		   \
+		while(isdec(*cur)) {		   \
 			mult /= 10;					\
 			num += (*cur - '0') * mult;			\
 			cur++;						\
@@ -1259,7 +1259,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 		return -1;
 	if(collapse)
 		while IS_WSP_BLANK_CH(*cur) cur++;
-	if((*cur != '-') && (*cur < '0') && (*cur > '9'))
+	if((*cur != '-') && !isdec(*cur)) // @sobolev (it sees as an error) ((*cur < '0') && (*cur > '9'))-->!isdec(*cur)
 		return 1;
 	dt = xmlSchemaNewValue(XML_SCHEMAS_UNKNOWN);
 	if(dt == NULL)
@@ -1322,7 +1322,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 	 * It's a right-truncated date or an xs:time.
 	 * Try to parse an xs:time then fallback on right-truncated dates.
 	 */
-	if((*cur >= '0') && (*cur <= '9')) {
+	if(isdec(*cur)) {
 		ret = _xmlSchemaParseTime(&(dt->value.date), &cur);
 		if(!ret) {
 			/* it's an xs:time */

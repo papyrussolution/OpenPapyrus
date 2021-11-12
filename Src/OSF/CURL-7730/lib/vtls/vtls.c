@@ -1167,16 +1167,14 @@ static CURLcode Curl_multissl_connect(struct connectdata * conn, int sockindex)
 	return Curl_ssl->connect_blocking(conn, sockindex);
 }
 
-static CURLcode Curl_multissl_connect_nonblocking(struct connectdata * conn,
-    int sockindex, bool * done)
+static CURLcode Curl_multissl_connect_nonblocking(struct connectdata * conn, int sockindex, bool * done)
 {
 	if(multissl_init(NULL))
 		return CURLE_FAILED_INIT;
 	return Curl_ssl->connect_nonblocking(conn, sockindex, done);
 }
 
-static void * Curl_multissl_get_internals(struct ssl_connect_data * connssl,
-    CURLINFO info)
+static void * Curl_multissl_get_internals(struct ssl_connect_data * connssl, CURLINFO info)
 {
 	if(multissl_init(NULL))
 		return NULL;

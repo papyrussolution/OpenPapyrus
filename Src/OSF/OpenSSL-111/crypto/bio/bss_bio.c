@@ -597,7 +597,7 @@ static int bio_make_pair(BIO * bio1, BIO * bio2)
 static void bio_destroy_pair(BIO * bio)
 {
 	struct bio_bio_st * b = static_cast<bio_bio_st *>(bio->ptr);
-	if(b != NULL) {
+	if(b) {
 		BIO * peer_bio = b->peer;
 		if(peer_bio != NULL) {
 			struct bio_bio_st * peer_b = static_cast<bio_bio_st *>(peer_bio->ptr);

@@ -19,7 +19,7 @@ static const char * skip_dot(const char * name)
 {
 	const char * p = strchr(name, '.');
 
-	if(p != NULL)
+	if(p)
 		return p + 1;
 	return name;
 }

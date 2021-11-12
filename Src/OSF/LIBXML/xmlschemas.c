@@ -4893,7 +4893,7 @@ static int xmlGetMaxOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int mi
 		    NULL, (xmlNode *)attr, NULL, expected, val, NULL, 0, 0);
 		return (def);
 	}
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		ret = ret * 10 + (*cur - '0');
 		cur++;
 	}
@@ -4934,7 +4934,7 @@ static int xmlGetMinOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int mi
 		xmlSchemaPSimpleTypeErr(ctxt, XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, /* XML_SCHEMAP_INVALID_MINOCCURS, */ NULL, (xmlNode *)attr, NULL, expected, val, NULL, 0, 0);
 		return (def);
 	}
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		ret = ret * 10 + (*cur - '0');
 		cur++;
 	}

@@ -1208,7 +1208,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 	*/
 #ifndef _WIN32
 #if defined(HAVE_SYS_UN_H)
-	if((!host ||  strcmp(host, LOCAL_HOST) == 0) && mysql->options.protocol != MYSQL_PROTOCOL_TCP && (unix_socket || mysql_unix_port)) {
+	if((!host || sstreq(host, LOCAL_HOST)) && mysql->options.protocol != MYSQL_PROTOCOL_TCP && (unix_socket || mysql_unix_port)) {
 		cinfo.host = LOCAL_HOST;
 		cinfo.unix_socket = (unix_socket) ? unix_socket : mysql_unix_port;
 		cinfo.type = PVIO_TYPE_UNIXSOCKET;
@@ -1223,7 +1223,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 		sprintf(host_info = buff, ER(CR_SHARED_MEMORY_CONNECTION), cinfo.host ? cinfo.host : SHM_DEFAULT_NAME);
 	}
 	/* named pipe */
-	else if(mysql->options.protocol == MYSQL_PROTOCOL_PIPE || (host && strcmp(host, LOCAL_HOST_NAMEDPIPE) == 0)) {
+	else if(mysql->options.protocol == MYSQL_PROTOCOL_PIPE || (host && sstreq(host, LOCAL_HOST_NAMEDPIPE))) {
 		cinfo.type = PVIO_TYPE_NAMEDPIPE;
 		sprintf(host_info = buff, ER(CR_NAMEDPIPE_CONNECTION), cinfo.host);
 	}

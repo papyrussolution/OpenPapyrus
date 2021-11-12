@@ -165,18 +165,16 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 int SMessageWindow::SetFont(HWND hCtl)
 {
 	if(hCtl) {
-		const long height = (Flags & SMessageWindow::fLargeText) ? 26 : 13;
-		const long weight = (Flags & SMessageWindow::fLargeText) ? FW_HEAVY : FW_MEDIUM;
 		LOGFONT log_font;
 		MEMSZERO(log_font);
 		log_font.lfCharSet = RUSSIAN_CHARSET;
 		STRNSCPY(log_font.lfFaceName, _T("MS Shell Dlg"));
-		log_font.lfHeight = height;
-		log_font.lfWeight = weight;
+		log_font.lfHeight = (Flags & SMessageWindow::fLargeText) ? 26 : 13;
+		log_font.lfWeight = (Flags & SMessageWindow::fLargeText) ? FW_HEAVY : FW_MEDIUM;
 		ZDeleteWinGdiObject(&Font);
 		Font = CreateFontIndirect(&log_font);
 		if(Font)
-			::SendMessage(hCtl, WM_SETFONT, (WPARAM)Font, TRUE);
+			::SendMessage(hCtl, WM_SETFONT, reinterpret_cast<WPARAM>(Font), TRUE);
 	}
 	return 1;
 }

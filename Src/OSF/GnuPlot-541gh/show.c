@@ -312,7 +312,6 @@ void GnuPlot::ShowCommand()
 // process 'show actiontable|at' command
 // not documented
 //
-//static void show_at()
 void GnuPlot::ShowAt()
 {
 	putc('\n', stderr);
@@ -322,7 +321,6 @@ void GnuPlot::ShowAt()
 //
 // called by show_at(), and recursively by itself 
 //
-//static void disp_at(const at_type * pCurrAt, int level)
 void GnuPlot::DispAt(const at_type * pCurrAt, int level)
 {
 	for(int i = 0; i < pCurrAt->a_count; i++) {
@@ -392,7 +390,6 @@ void GnuPlot::DispAt(const at_type * pCurrAt, int level)
 //
 // process 'show all' command 
 //
-//static void show_all()
 void GnuPlot::ShowAll()
 {
 	VarShowAll = true;
@@ -731,7 +728,6 @@ void GnuPlot::ShowVersion(FILE * fp)
 //
 // process 'show autoscale' command 
 //
-//static void show_autoscale()
 void GnuPlot::ShowAutoScale()
 {
 	ShowAllNl();
@@ -764,7 +760,6 @@ void GnuPlot::ShowAutoScale()
 //
 // process 'show border' command 
 //
-//static void show_border()
 void GnuPlot::ShowBorder()
 {
 	ShowAllNl();
@@ -780,7 +775,6 @@ void GnuPlot::ShowBorder()
 //
 // process 'show boxwidth' command 
 //
-//static void show_boxwidth()
 void GnuPlot::ShowBoxWidth()
 {
 	ShowAllNl();
@@ -794,7 +788,6 @@ void GnuPlot::ShowBoxWidth()
 //
 // process 'show boxplot' command 
 //
-//static void show_boxplot()
 void GnuPlot::ShowBoxPlot()
 {
 	fprintf(stderr, "\tboxplot representation is %s\n", Gg.boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
@@ -817,7 +810,6 @@ void GnuPlot::ShowBoxPlot()
 //
 // process 'show fillstyle' command 
 //
-//static void show_fillstyle()
 void GnuPlot::ShowFillStyle()
 {
 	ShowAllNl();
@@ -844,7 +836,6 @@ void GnuPlot::ShowFillStyle()
 //
 // process 'show clip' command 
 //
-//static void show_clip()
 void GnuPlot::ShowClip()
 {
 	ShowAllNl();
@@ -856,7 +847,6 @@ void GnuPlot::ShowClip()
 //
 // process 'show cntrparam|cntrlabel|contour' commands 
 //
-//static void show_contour()
 void GnuPlot::ShowContour()
 {
 	ShowAllNl();
@@ -907,7 +897,6 @@ void GnuPlot::ShowContour()
 //
 // process 'show dashtype' command (tag 0 means show all) 
 //
-//static void show_dashtype(int tag)
 void GnuPlot::ShowDashType(int tag)
 {
 	bool showed = FALSE;
@@ -925,7 +914,6 @@ void GnuPlot::ShowDashType(int tag)
 //
 // process 'show dgrid3d' command 
 //
-//static void show_dgrid3d()
 void GnuPlot::ShowDGrid3D()
 {
 	ShowAllNl();
@@ -947,7 +935,6 @@ void GnuPlot::ShowDGrid3D()
 //
 // process 'show mapping' command 
 //
-//static void show_mapping()
 void GnuPlot::ShowMapping()
 {
 	ShowAllNl();
@@ -961,7 +948,6 @@ void GnuPlot::ShowMapping()
 //
 // process 'show dummy' command 
 //
-//static void show_dummy()
 void GnuPlot::ShowDummy()
 {
 	ShowAllNl();
@@ -978,7 +964,6 @@ void GnuPlot::ShowDummy()
 //
 // process 'show format' command 
 //
-//static void show_format()
 void GnuPlot::ShowFormat()
 {
 	ShowAllNl();
@@ -994,7 +979,6 @@ void GnuPlot::ShowFormat()
 //
 // process 'show style' sommand 
 //
-//static void show_style()
 void GnuPlot::ShowStyle()
 {
 	int tag = 0;
@@ -1087,7 +1071,6 @@ void GnuPlot::ShowStyle()
 //
 // called by show_style() - defined for aesthetic reasons 
 //
-//static void show_style_rectangle()
 void GnuPlot::ShowStyleRectangle()
 {
 	ShowAllNl();
@@ -1098,7 +1081,6 @@ void GnuPlot::ShowStyleRectangle()
 	save_fillstyle(stderr, &Gg.default_rectangle.fillstyle);
 }
 
-//static void show_style_circle()
 void GnuPlot::ShowStyleCircle()
 {
 	ShowAllNl();
@@ -1108,7 +1090,6 @@ void GnuPlot::ShowStyleCircle()
 	fputs("\n", stderr);
 }
 
-//static void show_style_ellipse()
 void GnuPlot::ShowStyleEllipse()
 {
 	ShowAllNl();
@@ -1124,7 +1105,6 @@ void GnuPlot::ShowStyleEllipse()
 //
 // called by show_data() and show_func() 
 //
-//static void show_styles(const char * name, enum PLOT_STYLE style)
 void GnuPlot::ShowStyles(const char * pName, enum PLOT_STYLE style)
 {
 	fprintf(stderr, "\t%s are plotted with ", pName);
@@ -1133,7 +1113,6 @@ void GnuPlot::ShowStyles(const char * pName, enum PLOT_STYLE style)
 //
 // called by show_func() 
 //
-//static void show_functions()
 void GnuPlot::ShowFunctions()
 {
 	udft_entry * udf = Ev.P_FirstUdf;
@@ -1149,7 +1128,6 @@ void GnuPlot::ShowFunctions()
 //
 // process 'show grid' command 
 //
-//static void show_grid()
 void GnuPlot::ShowGrid()
 {
 	ShowAllNl();
@@ -1188,13 +1166,11 @@ void GnuPlot::ShowGrid()
 	}
 }
 
-//static void show_raxis()
 void GnuPlot::ShowRAxis()
 {
 	fprintf(stderr, "\traxis is %sdrawn\n", AxS.raxis ? "" : "not ");
 }
 
-//static void show_paxis()
 void GnuPlot::ShowPAxis()
 {
 	const int p = IntExpression();
@@ -1219,7 +1195,6 @@ void GnuPlot::ShowPAxis()
 //
 // process 'show {x|y|z}zeroaxis' command 
 //
-//static void show_zeroaxis(AXIS_INDEX axis)
 void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 {
 	ShowAllNl();
@@ -1234,7 +1209,6 @@ void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 //
 // Show label number <tag> (0 means show all) 
 //
-//static void show_label(int tag)
 void GnuPlot::ShowLabel(int tag)
 {
 	bool showed = FALSE;
@@ -1285,7 +1259,6 @@ void GnuPlot::ShowLabel(int tag)
 //
 // Show arrow number <tag> (0 means show all) 
 //
-//static void show_arrow(int tag)
 void GnuPlot::ShowArrow(int tag)
 {
 	bool showed = FALSE;
@@ -1332,7 +1305,6 @@ void GnuPlot::ShowArrow(int tag)
 //
 // process 'show keytitle' command 
 //
-//static void show_keytitle()
 void GnuPlot::ShowKeyTitle()
 {
 	legend_key * key = &Gg.KeyT;
@@ -1344,7 +1316,6 @@ void GnuPlot::ShowKeyTitle()
 //
 // process 'show key' command 
 //
-//static void show_key()
 void GnuPlot::ShowKey()
 {
 	legend_key * key = &Gg.KeyT;
@@ -1477,7 +1448,6 @@ static int show_log(GpAxis * axis)
 //
 // process 'show logscale' command 
 //
-//static void show_logscale()
 void GnuPlot::ShowLogScale()
 {
 	int count = 0;
@@ -1495,7 +1465,6 @@ void GnuPlot::ShowLogScale()
 //
 // process 'show offsets' command 
 //
-//static void show_offsets()
 void GnuPlot::ShowOffsets()
 {
 	ShowAllNl();
@@ -1504,7 +1473,6 @@ void GnuPlot::ShowOffsets()
 //
 // process 'show margin' command 
 //
-//static void show_margin()
 void GnuPlot::ShowMargin()
 {
 	ShowAllNl();
@@ -1536,7 +1504,6 @@ void GnuPlot::ShowMargin()
 //
 // process 'show output' command 
 //
-//static void show_output()
 void GnuPlot::ShowOutput()
 {
 	ShowAllNl();
@@ -1548,7 +1515,6 @@ void GnuPlot::ShowOutput()
 //
 // process 'show print' command 
 //
-//static void show_print()
 void GnuPlot::ShowPrint()
 {
 	ShowAllNl();
@@ -1560,7 +1526,6 @@ void GnuPlot::ShowPrint()
 //
 // process 'show print' command 
 //
-//static void show_psdir()
 void GnuPlot::ShowPsDir()
 {
 	ShowAllNl();
@@ -1580,7 +1545,6 @@ void GnuPlot::ShowPsDir()
 //
 // process 'show overflow' command 
 //
-//static void show_overflow()
 void GnuPlot::ShowOverflow()
 {
 	fprintf(stderr, "\t64-bit integer overflow %s\n", Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED ? "is treated as an undefined value" :
@@ -1590,14 +1554,12 @@ void GnuPlot::ShowOverflow()
 //
 // process 'show parametric' command 
 //
-//static void show_parametric()
 void GnuPlot::ShowParametric()
 {
 	ShowAllNl();
 	fprintf(stderr, "\tparametric is %s\n", (Gg.Parametric ? "ON" : "OFF"));
 }
 
-//static void show_palette_rgbformulae()
 void GnuPlot::ShowPalette_RgbFormulae()
 {
 	fprintf(stderr, "\t  * there are %i available rgb color mapping formulae:", SmPltt.colorFormulae);
@@ -1615,7 +1577,6 @@ void GnuPlot::ShowPalette_RgbFormulae()
 	Pgm.Shift();
 }
 
-//static void show_palette_fit2rgbformulae()
 void GnuPlot::ShowPalette_Fit2RgbFormulae()
 {
 #define rgb_distance(r, g, b) ((r)*(r) + (g)*(g) + (b)*(b))
@@ -1684,7 +1645,6 @@ void GnuPlot::ShowPalette_Fit2RgbFormulae()
 	SAlloc::F(currRGB);
 }
 
-//static void show_palette_palette()
 void GnuPlot::ShowPalette_Palette()
 {
 	int i;
@@ -1754,7 +1714,6 @@ void GnuPlot::ShowPalette_Palette()
 	}
 }
 
-//static void show_palette_gradient()
 void GnuPlot::ShowPalette_Gradient()
 {
 	double gray, r, g, b;
@@ -1776,7 +1735,6 @@ void GnuPlot::ShowPalette_Gradient()
 //
 // Helper function for show_palette_colornames() 
 //
-//static void show_colornames(const gen_table * tbl)
 void GnuPlot::ShowColorNames(const gen_table * tbl)
 {
 	int i = 0;
@@ -1794,14 +1752,12 @@ void GnuPlot::ShowColorNames(const gen_table * tbl)
 	Pgm.Shift();
 }
 
-//static void show_palette_colornames()
 void GnuPlot::ShowPaletteColorNames()
 {
 	fprintf(stderr, "\tThere are %d predefined color names:", num_predefined_colors);
 	ShowColorNames(pm3d_color_names_tbl);
 }
 
-//static void show_palette()
 void GnuPlot::ShowPalette()
 {
 	// no option given, i.e. "show palette" 
@@ -1882,7 +1838,6 @@ void GnuPlot::ShowPalette()
 	}
 }
 
-//static void show_colorbox()
 void GnuPlot::ShowColorBox()
 {
 	Pgm.Shift();
@@ -1930,7 +1885,6 @@ void GnuPlot::ShowColorBox()
 		fprintf(stderr, "\tcolor gradient is horizontal\n");
 }
 
-//static void show_pm3d()
 void GnuPlot::ShowPm3D()
 {
 	Pgm.Shift();
@@ -2000,7 +1954,6 @@ void GnuPlot::ShowPm3D()
 //
 // process 'show pointsize' command 
 //
-//static void show_pointsize()
 void GnuPlot::ShowPointSize()
 {
 	ShowAllNl();
@@ -2009,7 +1962,6 @@ void GnuPlot::ShowPointSize()
 //
 // process 'show pointintervalbox' command 
 //
-//static void show_pointintervalbox()
 void GnuPlot::ShowPointIntervalBox()
 {
 	ShowAllNl();
@@ -2018,7 +1970,6 @@ void GnuPlot::ShowPointIntervalBox()
 //
 // process 'show rgbmax' command 
 //
-//static void show_rgbmax()
 void GnuPlot::ShowRgbMax()
 {
 	ShowAllNl();
@@ -2027,7 +1978,6 @@ void GnuPlot::ShowRgbMax()
 //
 // process 'show encoding' command 
 //
-//static void show_encoding()
 void GnuPlot::ShowEncoding()
 {
 	ShowAllNl();
@@ -2039,7 +1989,6 @@ void GnuPlot::ShowEncoding()
 //
 // process 'show decimalsign' command 
 //
-//static void show_decimalsign()
 void GnuPlot::ShowDecimalSign()
 {
 	ShowAllNl();
@@ -2055,7 +2004,6 @@ void GnuPlot::ShowDecimalSign()
 //
 // process 'show micro' command 
 //
-//static void show_micro()
 void GnuPlot::ShowMicro()
 {
 	ShowAllNl();
@@ -2064,7 +2012,6 @@ void GnuPlot::ShowMicro()
 //
 // process 'show minus_sign' command 
 //
-//static void show_minus_sign()
 void GnuPlot::ShowMinusSign()
 {
 	ShowAllNl();
@@ -2076,7 +2023,6 @@ void GnuPlot::ShowMinusSign()
 //
 // process 'show fit' command 
 //
-//static void show_fit()
 void GnuPlot::ShowFit()
 {
 	udvt_entry * v = NULL;
@@ -2147,7 +2093,6 @@ void GnuPlot::ShowFit()
 //
 // process 'show polar' command 
 //
-//static void show_polar()
 void GnuPlot::ShowPolar()
 {
 	ShowAllNl();
@@ -2156,7 +2101,6 @@ void GnuPlot::ShowPolar()
 //
 // process 'show angles' command 
 //
-//static void show_angles()
 void GnuPlot::ShowAngles()
 {
 	ShowAllNl();
@@ -2169,7 +2113,6 @@ void GnuPlot::ShowAngles()
 //
 // process 'show samples' command 
 //
-//static void show_samples()
 void GnuPlot::ShowSamples()
 {
 	ShowAllNl();
@@ -2178,7 +2121,6 @@ void GnuPlot::ShowSamples()
 //
 // process 'show isosamples' command
 //
-//static void show_isosamples()
 void GnuPlot::ShowIsoSamples()
 {
 	ShowAllNl();
@@ -2187,7 +2129,6 @@ void GnuPlot::ShowIsoSamples()
 //
 // process 'show view' command 
 //
-//static void show_view()
 void GnuPlot::ShowView()
 {
 	ShowAllNl();
@@ -2212,7 +2153,6 @@ void GnuPlot::ShowView()
 //
 // process 'show surface' command 
 //
-//static void show_surface()
 void GnuPlot::ShowSurface()
 {
 	ShowAllNl();
@@ -2221,7 +2161,6 @@ void GnuPlot::ShowSurface()
 //
 // process 'show hidden3d' command 
 //
-//static void show_hidden3d()
 void GnuPlot::ShowHidden3D()
 {
 	ShowAllNl();
@@ -2229,7 +2168,6 @@ void GnuPlot::ShowHidden3D()
 	ShowHidden3DOptions();
 }
 
-//static void show_increment()
 void GnuPlot::ShowIncrement()
 {
 	fprintf(stderr, "\tPlot lines increment over ");
@@ -2239,14 +2177,12 @@ void GnuPlot::ShowIncrement()
 		fprintf(stderr, "default linetypes\n");
 }
 
-//static void show_histogram()
 void GnuPlot::ShowHistogram()
 {
 	fprintf(stderr, "\tHistogram style is ");
 	SaveHistogramOpts(stderr);
 }
 
-//static void show_textbox()
 void GnuPlot::ShowTextBox()
 {
 	SaveStyleTextBox(stderr);
@@ -2254,7 +2190,6 @@ void GnuPlot::ShowTextBox()
 //
 // process 'show history' command 
 //
-//static void show_history()
 void GnuPlot::ShowHistory()
 {
 #ifndef GNUPLOT_HISTORY
@@ -2266,7 +2201,6 @@ void GnuPlot::ShowHistory()
 //
 // process 'show size' command 
 //
-//static void show_size()
 void GnuPlot::ShowSize()
 {
 	ShowAllNl();
@@ -2281,7 +2215,6 @@ void GnuPlot::ShowSize()
 //
 // process 'show origin' command 
 //
-//static void show_origin()
 void GnuPlot::ShowOrigin()
 {
 	ShowAllNl();
@@ -2290,7 +2223,6 @@ void GnuPlot::ShowOrigin()
 //
 // process 'show term' command 
 //
-//static void show_term()
 void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 {
 	ShowAllNl();
@@ -2302,7 +2234,6 @@ void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 //
 // process 'show tics|[xyzx2y2cb]tics' commands 
 //
-//static void show_tics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
 void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
 {
 	int i;
@@ -2328,7 +2259,6 @@ void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool sho
 //
 // process 'show m[xyzx2y2cb]tics' commands 
 //
-//static void show_mtics(GpAxis * axis)
 void GnuPlot::ShowMTics(const GpAxis * pAx)
 {
 	char * name = axis_name((AXIS_INDEX)pAx->index);
@@ -2352,7 +2282,6 @@ void GnuPlot::ShowMTics(const GpAxis * pAx)
 //
 // process 'show timestamp' command 
 //
-//static void show_timestamp()
 void GnuPlot::ShowTimeStamp()
 {
 	ShowAllNl();
@@ -2362,7 +2291,6 @@ void GnuPlot::ShowTimeStamp()
 //
 // process 'show [xyzx2y2rtuv]range' commands 
 //
-//static void show_range(AXIS_INDEX axis)
 void GnuPlot::ShowRange(AXIS_INDEX axis)
 {
 	ShowAllNl();
@@ -2374,7 +2302,6 @@ void GnuPlot::ShowRange(AXIS_INDEX axis)
 //
 // called by the functions below 
 //
-//static void show_xyzlabel(const char * name, const char * suffix, text_label * label)
 void GnuPlot::ShowXyzLabel(const char * pName, const char * pSuffix, text_label * pLabel)
 {
 	if(pLabel) {
@@ -2399,7 +2326,6 @@ void GnuPlot::ShowXyzLabel(const char * pName, const char * pSuffix, text_label 
 //
 // process 'show title' command 
 //
-//static void show_title()
 void GnuPlot::ShowTitle()
 {
 	ShowAllNl();
@@ -2408,7 +2334,6 @@ void GnuPlot::ShowTitle()
 //
 // process 'show {x|y|z|x2|y2}label' command 
 //
-//static void show_axislabel(AXIS_INDEX axis)
 void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 {
 	ShowAllNl();
@@ -2417,7 +2342,6 @@ void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 //
 // process 'show [xyzx2y2]data' commands 
 //
-//static void show_data_is_timedate(AXIS_INDEX axis)
 void GnuPlot::ShowDataIsTimeDate(AXIS_INDEX axIdx)
 {
 	ShowAllNl();
@@ -2427,7 +2351,6 @@ void GnuPlot::ShowDataIsTimeDate(AXIS_INDEX axIdx)
 //
 // process 'show timeformat' command 
 //
-//static void show_timefmt()
 void GnuPlot::ShowTimeFmt()
 {
 	ShowAllNl();
@@ -2436,7 +2359,6 @@ void GnuPlot::ShowTimeFmt()
 //
 // process 'show link' command 
 //
-//static void show_link()
 void GnuPlot::ShowLink()
 {
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("x$2"))
@@ -2449,7 +2371,6 @@ void GnuPlot::ShowLink()
 //
 // process 'show link' command 
 //
-//static void show_nonlinear()
 void GnuPlot::ShowNonLinear()
 {
 	for(int axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++)
@@ -2458,7 +2379,6 @@ void GnuPlot::ShowNonLinear()
 //
 // process 'show locale' command 
 //
-//static void show_locale()
 void GnuPlot::ShowLocale()
 {
 	ShowAllNl();
@@ -2467,7 +2387,6 @@ void GnuPlot::ShowLocale()
 //
 // process 'show loadpath' command 
 //
-//static void show_loadpath()
 void GnuPlot::ShowLoadPath()
 {
 	ShowAllNl();
@@ -2476,7 +2395,6 @@ void GnuPlot::ShowLoadPath()
 //
 // process 'show fontpath' command 
 //
-//static void show_fontpath()
 void GnuPlot::ShowFontPath()
 {
 	const char * env_fontpath = getenv("GNUPLOT_FONTPATH");
@@ -2487,7 +2405,6 @@ void GnuPlot::ShowFontPath()
 //
 // process 'show zero' command 
 //
-//static void show_zero()
 void GnuPlot::ShowZero()
 {
 	ShowAllNl();
@@ -2496,7 +2413,6 @@ void GnuPlot::ShowZero()
 //
 // process 'show datafile' command 
 //
-//static void show_datafile()
 void GnuPlot::ShowDataFile()
 {
 	ShowAllNl();
@@ -2548,7 +2464,6 @@ void GnuPlot::ShowDataFile()
 //
 // process 'show table' command 
 //
-//static void show_table()
 void GnuPlot::ShowTable()
 {
 	char foo[2] = {0, 0};
@@ -2562,7 +2477,6 @@ void GnuPlot::ShowTable()
 //
 // process 'show mouse' command 
 //
-//static void show_mouse()
 void GnuPlot::ShowMouse()
 {
 #ifdef USE_MOUSE
@@ -2614,7 +2528,6 @@ void GnuPlot::ShowMouse()
 //
 // process 'show plot' command 
 //
-//static void show_plot()
 void GnuPlot::ShowPlot()
 {
 	ShowAllNl();
@@ -2623,7 +2536,6 @@ void GnuPlot::ShowPlot()
 //
 // process 'show variables' command 
 //
-//static void show_variables()
 void GnuPlot::ShowVariables()
 {
 	udvt_entry * udv = Ev.P_FirstUdv;
@@ -2674,7 +2586,6 @@ void GnuPlot::ShowVariables()
 //
 // Show line style number <tag> (0 means show all) 
 //
-//static void show_linestyle(int tag)
 void GnuPlot::ShowLineStyle(int tag)
 {
 	bool showed = FALSE;
@@ -2692,7 +2603,6 @@ void GnuPlot::ShowLineStyle(int tag)
 //
 // Show linetype number <tag> (0 means show all) 
 //
-//static void show_linetype(linestyle_def * pListHead, int tag)
 void GnuPlot::ShowLineType(linestyle_def * pListHead, int tag)
 {
 	bool showed = FALSE;
@@ -2717,7 +2627,6 @@ void GnuPlot::ShowLineType(linestyle_def * pListHead, int tag)
 //
 // Show arrow style number <tag> (0 means show all) 
 //
-//static void show_arrowstyle(int tag)
 void GnuPlot::ShowArrowStyle(int tag)
 {
 	bool showed = FALSE;
@@ -2753,7 +2662,6 @@ void GnuPlot::ShowArrowStyle(int tag)
 //
 // called by show_tics 
 //
-//static void show_ticdefp(const GpAxis * pAx)
 void GnuPlot::ShowTicDefp(const GpAxis * pAx)
 {
 	ticmark * t;
@@ -2853,7 +2761,6 @@ void GnuPlot::ShowTicDefp(const GpAxis * pAx)
 //
 // called by show_tics 
 //
-//static void show_ticdef(AXIS_INDEX axis)
 void GnuPlot::ShowTicdef(AXIS_INDEX axis)
 {
 	ShowTicDefp(&AxS[axis]);

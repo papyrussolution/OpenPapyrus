@@ -166,7 +166,7 @@ void * _mi_arena_alloc_aligned(size_t size, size_t alignment, bool* commit, bool
 			    (*large || !arena->is_large)) { // large OS pages allowed, or arena is not large OS pages
 				void * p = mi_arena_alloc_from(arena, i, bcount, commit, large, is_pinned, is_zero, memid, tld);
 				mi_assert_internal((uintptr_t)p % alignment == 0);
-				if(p != NULL) return p;
+				if(p) return p;
 			}
 		}
 		// try from another numa node instead..
@@ -177,7 +177,7 @@ void * _mi_arena_alloc_aligned(size_t size, size_t alignment, bool* commit, bool
 			    (*large || !arena->is_large)) { // large OS pages allowed, or arena is not large OS pages
 				void * p = mi_arena_alloc_from(arena, i, bcount, commit, large, is_pinned, is_zero, memid, tld);
 				mi_assert_internal((uintptr_t)p % alignment == 0);
-				if(p != NULL) return p;
+				if(p) return p;
 			}
 		}
 	}
@@ -189,7 +189,7 @@ void * _mi_arena_alloc_aligned(size_t size, size_t alignment, bool* commit, bool
 	*is_zero = true;
 	*memid   = MI_MEMID_OS;
 	void * p = _mi_os_alloc_aligned(size, alignment, *commit, large, tld->stats);
-	if(p != NULL) *is_pinned = *large;
+	if(p) *is_pinned = *large;
 	return p;
 }
 

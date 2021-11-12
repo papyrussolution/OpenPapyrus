@@ -218,7 +218,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		bytes >>= 1;
 		if(errno != EINVAL || bytes < size)
 			break;
-	} while(TRUE);
+	} while(true);
 	if(pool->shmid == -1) {
 		int err = errno;
 		if(!(err == EINVAL || err == ENOMEM))

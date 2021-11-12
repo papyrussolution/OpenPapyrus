@@ -695,7 +695,7 @@ static double TkValueY(GpTermEntry * pThis, double value)
 	return (double)((TK_YMAX-value)-r_bb.ybot)/(double)(r_bb.ytop-r_bb.ybot);
 }
 
-static char * tk_bind_init[TK_LANG_MAX] = {
+static const char * tk_bind_init[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv bind [\n  ",
 	/* Perl */
@@ -710,7 +710,7 @@ static char * tk_bind_init[TK_LANG_MAX] = {
 	"  $cv->bind(\n  "
 };
 
-static char * tk_line_segment_start[TK_LANG_MAX] = {
+static const char * tk_line_segment_start[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv create line\\\n",
 	/* Perl */
@@ -725,7 +725,7 @@ static char * tk_line_segment_start[TK_LANG_MAX] = {
 	"  $cv->create_line(\n"
 };
 
-static char * tk_poly_point[TK_LANG_MAX] = {
+static const char * tk_poly_point[TK_LANG_MAX] = {
 	/* Tcl */
 	"    [expr $cmx*%d/1000] [expr $cmy*%d/1000]\\\n",
 	/* Perl */
@@ -740,7 +740,7 @@ static char * tk_poly_point[TK_LANG_MAX] = {
 	"    $cmx*%d/1000, $cmy*%d/1000,\n"
 };
 
-static char * tk_line_segment_opt[TK_LANG_MAX] = {
+static const char * tk_line_segment_opt[TK_LANG_MAX] = {
 	/* Tcl */
 	"    -fill {%s} -width %.1f -capstyle %s -joinstyle %s",
 	/* Perl */
@@ -755,7 +755,7 @@ static char * tk_line_segment_opt[TK_LANG_MAX] = {
 	"    -fill => q{%s}, -width => %.1f, -capstyle => q{%s}, -joinstyle => q{%s}",
 };
 
-static char * tk_line_segment_dash[TK_LANG_MAX] = {
+static const char * tk_line_segment_dash[TK_LANG_MAX] = {
 	/* Tcl */
 	" -dash {%s}",
 	/* Perl */
@@ -770,7 +770,7 @@ static char * tk_line_segment_dash[TK_LANG_MAX] = {
 	", -dash => q{%s}"
 };
 
-static char * tk_line_segment_end[TK_LANG_MAX] = {
+static const char * tk_line_segment_end[TK_LANG_MAX] = {
 	/* Tcl */
 	"\n",
 	/* Perl */
@@ -785,7 +785,7 @@ static char * tk_line_segment_end[TK_LANG_MAX] = {
 	")"
 };
 
-static char * tk_bind_main[TK_LANG_MAX] = {
+static const char * tk_bind_main[TK_LANG_MAX] = {
 	/* Tcl */
 	"    ] <Button> \"gnuplot_xy %%W %f %f %f %f\\\n"
 	"       %f %f %f %f",
@@ -810,7 +810,7 @@ static char * tk_bind_main[TK_LANG_MAX] = {
 	"       %f, %f, %f, %f"
 };
 
-static char * tk_bind_f[TK_LANG_MAX] = {
+static const char * tk_bind_f[TK_LANG_MAX] = {
 	/* Tcl */
 	" %f",
 	/* Perl */
@@ -825,49 +825,31 @@ static char * tk_bind_f[TK_LANG_MAX] = {
 	", %f",
 };
 
-static char * tk_bind_nil[TK_LANG_MAX] = {
-	/* Tcl */
-	" {}",
-	/* Perl */
-	", \"\"",
-	/* Python */
-	"",
-	/* Ruby */
-	", ''",
-	/* Rexx */
-	" || ', \'\''",
-	/* Perl/Tkx */
-	", \"\""
+static const char * tk_bind_nil[TK_LANG_MAX] = {
+	" {}", /* Tcl */
+	", \"\"", /* Perl */
+	"", /* Python */
+	", ''", /* Ruby */
+	" || ', \'\''", /* Rexx */
+	", \"\"" /* Perl/Tkx */
 };
 
-static char * tk_bind_end[TK_LANG_MAX] = {
-	/* Tcl */
-	"\"\n",
-	/* Perl */
-	"]);\n",
-	/* Python */
-	"",
-	/* Ruby */
-	") })\n",
-	/* Rexx */
-	"\n",
-	/* Perl/Tkx */
-	"]);\n"
+static const char * tk_bind_end[TK_LANG_MAX] = {
+	"\"\n", /* Tcl */
+	"]);\n", /* Perl */
+	"", /* Python */
+	") })\n", /* Ruby */
+	"\n", /* Rexx */
+	"]);\n" /* Perl/Tkx */
 };
 
-static char * tk_nobind[TK_LANG_MAX] = {
-	/* Tcl */
-	"",
-	/* Perl */
-	";\n",
-	/* Python */
-	"",
-	/* Ruby */
-	"",
-	/* Rexx */
-	"",
-	/* Perl/Tkx */
-	";\n"
+static const char * tk_nobind[TK_LANG_MAX] = {
+	"", /* Tcl */
+	";\n", /* Perl */
+	"", /* Python */
+	"", /* Ruby */
+	"", /* Rexx */
+	";\n" /* Perl/Tkx */
 };
 
 TERM_PUBLIC void TK_vector(GpTermEntry * pThis, uint x, uint y)
@@ -1101,18 +1083,12 @@ static char * tk_undef_font[TK_LANG_MAX] = {
 };
 
 static char * tk_set_font[TK_LANG_MAX] = {
-	/* Tcl */
-	"  set font [font create -family {%s}",
-	/* Perl */
-	"  $font = $cv->fontCreate(-family => q{%s}",
-	/* Python */
-	"\tgfont = font.Font(family='%s'",
-	/* Ruby */
-	"  font = TkFont.new :family => '%s'",
-	/* Rexx */
-	"  font = TkFontCreate( , '-family', '%s'",
-	/* Perl/Tkx */
-	"  $font = Tkx::font_create(-family => q{%s}"
+	"  set font [font create -family {%s}", /* Tcl */
+	"  $font = $cv->fontCreate(-family => q{%s}", /* Perl */
+	"\tgfont = font.Font(family='%s'", /* Python */
+	"  font = TkFont.new :family => '%s'", /* Ruby */
+	"  font = TkFontCreate( , '-family', '%s'", /* Rexx */
+	"  $font = Tkx::font_create(-family => q{%s}" /* Perl/Tkx */
 };
 
 static char * tk_set_fsize[TK_LANG_MAX] = {

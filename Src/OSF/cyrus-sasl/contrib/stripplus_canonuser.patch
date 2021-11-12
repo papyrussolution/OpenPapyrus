@@ -1,0 +1,315 @@
+Index: configure.in
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/configure.in,v
+retrieving revision 1.192
+diff -u -r1.192 configure.in
+--- configure.in	16 Mar 2004 21:52:01 -0000	1.192
++++ configure.in	7 May 2004 17:17:03 -0000
+@@ -713,6 +713,23 @@
+ 	AC_DEFINE(DO_DLOPEN,[],[Should we build a shared plugin (via dlopen) library?])
+ fi
+ 
++dnl STRIPPLUS
++AC_ARG_ENABLE(stripplus, [  --enable-stripplus      enable STRIPPLUS user canonification [[no]] ],
++  stripplus=$enableval,
++  stripplus=no)
++
++AC_MSG_CHECKING(STRIPPLUS)
++if test "$stripplus" != no; then
++  AC_MSG_RESULT(enabled)
++  SASL_MECHS="$SASL_MECHS libstripplus.la"
++  if test "$enable_static" = yes; then
++    SASL_STATIC_OBJS="$SASL_STATIC_OBJS ../plugins/stripplus.o"
++    AC_DEFINE(STATIC_STRIPPLUS, [], [Link STRIPPLUS Staticly])
++  fi
++else
++  AC_MSG_RESULT(disabled)
++fi
++
+ AC_SUBST(SASL_MECHS)
+ AC_SUBST(SASL_STATIC_OBJS)
+ AC_SUBST(SASL_STATIC_LIBS)
+Index: plugins/Makefile.am
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/plugins/Makefile.am,v
+retrieving revision 1.70
+diff -u -r1.70 Makefile.am
+--- plugins/Makefile.am	9 Mar 2004 16:54:18 -0000	1.70
++++ plugins/Makefile.am	7 May 2004 17:17:10 -0000
+@@ -58,6 +58,7 @@
+ otp_version = 2:18:0
+ sql_version = 2:18:0
+ srp_version = 2:18:0
++stripplus_version = 2:18:0
+ 
+ INCLUDES=-I$(top_srcdir)/include -I$(top_srcdir)/lib -I$(top_srcdir)/sasldb -I$(top_builddir)/include
+ AM_LDFLAGS = -module -export-dynamic -rpath $(plugindir)
+@@ -77,7 +78,7 @@
+ sasl_LTLIBRARIES = @SASL_MECHS@
+ EXTRA_LTLIBRARIES = libplain.la libanonymous.la libkerberos4.la libcrammd5.la \
+ 	libgssapiv2.la libdigestmd5.la liblogin.la libsrp.la libotp.la \
+-	libntlm.la libsasldb.la libsql.la
++	libntlm.la libsasldb.la libsql.la libstripplus.la
+ 
+ libplain_la_SOURCES = plain.c plain_init.c $(common_sources)
+ libplain_la_LDFLAGS = -version-info $(plain_version)
+@@ -140,12 +141,18 @@
+ libsql_la_DEPENDENCIES = $(COMPAT_OBJS)
+ libsql_la_LIBADD = $(COMPAT_OBJS)
+ 
++# Canonuser Plugins
++libstripplus_la_SOURCES = stripplus.c stripplus_init.c $(common_sources)
++libstripplus_la_LDFLAGS = -version-info $(stripplus_version)
++libstripplus_la_DEPENDENCIES = $(COMPAT_OBJS)
++libstripplus_la_LIBADD = $(COMPAT_OBJS)
++
+ 
+ # Instructions for making the _init files
+ 
+ init_src=anonymous_init.c crammd5_init.c digestmd5_init.c gssapiv2_init.c \
+ kerberos4_init.c login_init.c plain_init.c srp_init.c otp_init.c ntlm_init.c \
+-sasldb_init.c sql_init.c
++sasldb_init.c sql_init.c stripplus_init.c
+ 
+ 
+ CLEANFILES=$(init_src)
+Index: plugins/makeinit.sh
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/plugins/makeinit.sh,v
+retrieving revision 1.8
+diff -u -r1.8 makeinit.sh
+--- plugins/makeinit.sh	15 Jul 2003 17:38:59 -0000	1.8
++++ plugins/makeinit.sh	7 May 2004 17:17:10 -0000
+@@ -87,3 +87,46 @@
+ " > ${mech}_init.c
+ done
+ 
++
++for mech in stripplus ; do
++
++echo "
++#include <config.h>
++
++#include <string.h>
++#include <stdlib.h>
++#include <stdio.h>
++#ifndef macintosh
++#include <sys/stat.h>
++#endif
++#include <fcntl.h>
++#include <assert.h>
++
++#include <sasl.h>
++#include <saslplug.h>
++#include <saslutil.h>
++
++#include \"plugin_common.h\"
++
++#ifdef WIN32
++BOOL APIENTRY DllMain( HANDLE hModule, 
++                       DWORD  ul_reason_for_call, 
++                       LPVOID lpReserved
++					 )
++{
++    switch (ul_reason_for_call)
++	{
++		case DLL_PROCESS_ATTACH:
++		case DLL_THREAD_ATTACH:
++		case DLL_THREAD_DETACH:
++		case DLL_PROCESS_DETACH:
++			break;
++    }
++    return TRUE;
++}
++#endif
++
++SASL_CANONUSER_PLUG_INIT( $mech )
++" > ${mech}_init.c
++done
++
+Index: plugins/stripplus.c
+===================================================================
+RCS file: plugins/stripplus.c
+diff -N plugins/stripplus.c
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ plugins/stripplus.c	7 May 2004 17:17:10 -0000
+@@ -0,0 +1,179 @@
++/* stripplus.c - user canonicalization plugin which strips any plus content
++ * Ken Murchison
++ * $Id: stripplus_canonuser.patch,v 1.1 2004/05/07 17:26:57 ken3 Exp $
++ */
++/* 
++ * Copyright (c) 1998-2004 Carnegie Mellon University.  All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer. 
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * 3. The name "Carnegie Mellon University" must not be used to
++ *    endorse or promote products derived from this software without
++ *    prior written permission. For permission or any other legal
++ *    details, please contact  
++ *      Office of Technology Transfer
++ *      Carnegie Mellon University
++ *      5000 Forbes Avenue
++ *      Pittsburgh, PA  15213-3890
++ *      (412) 268-4387, fax: (412) 268-7395
++ *      tech-transfer@andrew.cmu.edu
++ *
++ * 4. Redistributions of any form whatsoever must retain the following
++ *    acknowledgment:
++ *    "This product includes software developed by Computing Services
++ *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
++ *
++ * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
++ * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
++ * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
++ * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++#include <config.h>
++#include <string.h>
++#include <ctype.h>
++#include <stdio.h>
++
++#include <sasl.h>
++#include <saslplug.h>
++
++#ifdef MIN
++#undef MIN
++#endif
++#define MIN(a,b) (((a) < (b))? (a):(b))
++
++/*
++ * This plugin is a straight port of the INTERNAL canonuser plugin.
++ * It functions identical to to INTERNAL, but also strips any +detail
++ * in the auth[z]id.
++ */
++static int _canonuser_stripplus(const sasl_utils_t *utils,
++				const char *user, unsigned ulen,
++				const char *user_realm,
++				unsigned flags __attribute__((unused)),
++				char *out_user,
++				unsigned out_umax, unsigned *out_ulen) 
++{
++    unsigned i;
++    char *in_buf, *userin, *p;
++    const char *begin_u;
++    size_t u_apprealm = 0;
++
++    if(!utils || !user) return SASL_BADPARAM;
++
++    in_buf = utils->malloc((ulen + 2) * sizeof(char));
++    if(!in_buf) return SASL_NOMEM;
++
++    userin = in_buf;
++
++    memcpy(userin, user, ulen);
++    userin[ulen] = '\0';
++    
++    /* Strip User ID */
++    for(i=0;isspace((int)userin[i]) && i<ulen;i++);
++    begin_u = &(userin[i]);
++    if(i>0) ulen -= i;
++
++    for(;ulen > 0 && isspace((int)begin_u[ulen-1]); ulen--);
++    if(begin_u == &(userin[ulen])) {
++	utils->free(in_buf);
++	utils->seterror(utils->conn, 0, "All-whitespace username.");
++	return SASL_FAIL;
++    }
++
++    /* Need to append realm if necessary (see sasl.h) */
++    if(user_realm && !strchr(user, '@')) {
++	u_apprealm = strlen(user_realm) + 1;
++    }
++
++    /* Now Copy */
++    memcpy(out_user, begin_u, MIN(ulen, out_umax));
++    if(u_apprealm) {
++	if(ulen >= out_umax) return SASL_BUFOVER;
++	out_user[ulen] = '@';
++	memcpy(&(out_user[ulen+1]), user_realm,
++	       MIN(u_apprealm-1, out_umax-ulen-1));
++    }
++    out_user[MIN(ulen + u_apprealm,out_umax)] = '\0';
++
++    /* Strip any plus content */
++    if ((p = strchr(out_user, '+'))) {
++	size_t n = strcspn(p, "@");
++	memmove(p, p+n, strlen(p+n)+1);
++	ulen -= n;
++    }
++
++    if(ulen + u_apprealm > out_umax) return SASL_BUFOVER;
++
++    if(out_ulen) *out_ulen = MIN(ulen + u_apprealm,out_umax);
++    
++    utils->free(in_buf);
++    return SASL_OK;
++}
++
++static int _cu_stripplus_server(void *glob_context __attribute__((unused)),
++				sasl_server_params_t *sparams,
++				const char *user, unsigned ulen,
++				unsigned flags,
++				char *out_user,
++				unsigned out_umax, unsigned *out_ulen) 
++{
++    return _canonuser_stripplus(sparams->utils,
++				user, ulen, sparams->user_realm,
++				flags, out_user, out_umax, out_ulen);
++}
++
++static int _cu_stripplus_client(void *glob_context __attribute__((unused)),
++				sasl_client_params_t *cparams,
++				const char *user, unsigned ulen,
++				unsigned flags,
++				char *out_user,
++				unsigned out_umax, unsigned *out_ulen) 
++{
++    return _canonuser_stripplus(cparams->utils,
++				user, ulen, NULL,
++				flags, out_user, out_umax, out_ulen);
++}
++
++static sasl_canonuser_plug_t canonuser_stripplus_plugin = {
++        0, /* features */
++	0, /* spare */
++	NULL, /* glob_context */
++	"STRIPPLUS", /* name */
++	NULL, /* canon_user_free */
++	_cu_stripplus_server,
++	_cu_stripplus_client,
++	NULL,
++	NULL,
++	NULL
++};
++
++int stripplus_canonuser_plug_init(const sasl_utils_t *utils __attribute__((unused)),
++				  int max_version,
++				  int *out_version,
++				  sasl_canonuser_plug_t **plug,
++				  const char *plugname __attribute__((unused))) 
++{
++    if(!out_version || !plug) return SASL_BADPARAM;
++
++    if(max_version < SASL_CANONUSER_PLUG_VERSION) return SASL_BADVERS;
++    
++    *out_version = SASL_CANONUSER_PLUG_VERSION;
++
++    *plug = &canonuser_stripplus_plugin;
++
++    return SASL_OK;
++}

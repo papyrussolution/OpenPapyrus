@@ -123,7 +123,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 			X509err(X509_F_X509_NAME_ONELINE, X509_R_NAME_TOO_LONG);
 			goto end;
 		}
-		if(b != NULL) {
+		if(b) {
 			if(!BUF_MEM_grow(b, l + 1))
 				goto err;
 			p = &(b->data[lold]);
@@ -169,7 +169,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 		}
 		*p = '\0';
 	}
-	if(b != NULL) {
+	if(b) {
 		p = b->data;
 		OPENSSL_free(b);
 	}

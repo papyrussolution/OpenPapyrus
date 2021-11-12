@@ -275,7 +275,6 @@ void PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
 SArray * PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
-	uint   brw_id = BROWSER_STAFFLIST;
 	if(pSubTitle) {
 		PersonTbl::Rec psn_rec;
 		*pSubTitle = 0;
@@ -287,7 +286,7 @@ SArray * PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(div_name);
 		}
 	}
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_STAFFLIST);
 	return p_array;
 }
 

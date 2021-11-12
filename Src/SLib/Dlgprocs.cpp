@@ -82,24 +82,6 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 #undef GETKEYCODE
 }
 
-/*static*/int TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	int    ok = 0;
-	TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-	if(p_dlg) {
-		const short  cntlid = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
-		TView * v = p_dlg->P_Last;
-		if(v) do {
-			if(v->TestId(CLUSTER_ID(LOWORD(cntlid)))) {
-				ok = v->handleWindowsMessage(uMsg, wParam, lParam) ? 1 : -1;
-				break;
-			}
-			v = v->prev();
-		} while(v != p_dlg->P_Last);
-	}
-	return ok;
-}
-
 void TDialog::RemoveUnusedControls()
 {
 	const HWND h_wnd = H();
@@ -120,28 +102,6 @@ void TDialog::RemoveUnusedControls()
 		}
 		v = v->prev();
 	} while(v != P_Last);
-}
-
-static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
-{
-	SString temp_buf;
-	TView::SGetWindowText(hwnd, temp_buf);
-	if(temp_buf.NotEmpty()) {
-		SString subst;
-		if(SLS.SubstString(temp_buf, 1, subst) > 0) {
-			TView::SSetWindowText(hwnd, subst);
-		}
-		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) {
-			TView::SSetWindowText(hwnd, temp_buf);
-		}
-		// @v10.5.4 {
-		else if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
-			temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
-			TView::SSetWindowText(hwnd, temp_buf);
-		}
-		// } @v10.5.4 
-	}
-	return TRUE;
 }
 
 /*static*/INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)

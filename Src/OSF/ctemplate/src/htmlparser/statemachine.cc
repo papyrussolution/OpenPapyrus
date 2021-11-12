@@ -110,16 +110,16 @@ void statemachine_exit_state(statemachine_definition * def, int st, state_event_
  */
 statemachine_definition * statemachine_definition_new(int states)
 {
-	statemachine_definition * def = CAST(statemachine_definition *, malloc(sizeof(statemachine_definition)));
+	statemachine_definition * def = CAST(statemachine_definition *, SAlloc::M(sizeof(statemachine_definition)));
 	if(def == NULL)
 		return NULL;
-	def->in_state_events = CAST(state_event_function *, calloc(states, sizeof(state_event_function)));
+	def->in_state_events = CAST(state_event_function *, SAlloc::C(states, sizeof(state_event_function)));
 	if(def->in_state_events == NULL)
 		return NULL;
-	def->enter_state_events = CAST(state_event_function *, calloc(states, sizeof(state_event_function)));
+	def->enter_state_events = CAST(state_event_function *, SAlloc::C(states, sizeof(state_event_function)));
 	if(def->enter_state_events == NULL)
 		return NULL;
-	def->exit_state_events = CAST(state_event_function *, calloc(states, sizeof(state_event_function)));
+	def->exit_state_events = CAST(state_event_function *, SAlloc::C(states, sizeof(state_event_function)));
 	if(def->exit_state_events == NULL)
 		return NULL;
 	def->num_states = states;
@@ -132,10 +132,10 @@ statemachine_definition * statemachine_definition_new(int states)
 void statemachine_definition_delete(statemachine_definition * def)
 {
 	assert(def != NULL);
-	free(def->in_state_events);
-	free(def->enter_state_events);
-	free(def->exit_state_events);
-	free(def);
+	SAlloc::F(def->in_state_events);
+	SAlloc::F(def->enter_state_events);
+	SAlloc::F(def->exit_state_events);
+	SAlloc::F(def);
 }
 
 /* Returns the current state.
@@ -153,28 +153,16 @@ int statemachine_get_state(statemachine_ctx * ctx) { return ctx->current_state; 
 void statemachine_set_state(statemachine_ctx * ctx, int state)
 {
 	statemachine_definition * def;
-
 	assert(ctx != NULL);
 	assert(ctx->definition != NULL);
-
 	def = ctx->definition;
-
 	assert(state < def->num_states);
-
 	ctx->next_state = state;
-
 	if(ctx->current_state != ctx->next_state) {
 		if(def->exit_state_events[ctx->current_state])
-			def->exit_state_events[ctx->current_state](ctx,
-			    ctx->current_state,
-			    '\0',
-			    ctx->next_state);
-
+			def->exit_state_events[ctx->current_state](ctx, ctx->current_state, '\0', ctx->next_state);
 		if(def->enter_state_events[ctx->next_state])
-			def->enter_state_events[ctx->next_state](ctx,
-			    ctx->current_state,
-			    '\0',
-			    ctx->next_state);
+			def->enter_state_events[ctx->next_state](ctx, ctx->current_state, '\0', ctx->next_state);
 	}
 	ctx->current_state = state;
 }
@@ -213,7 +201,7 @@ void statemachine_reset(statemachine_ctx * ctx)
 statemachine_ctx * statemachine_new(statemachine_definition * def, void * user)
 {
 	assert(def != NULL);
-	statemachine_ctx * ctx = CAST(statemachine_ctx *, malloc(sizeof(statemachine_ctx)));
+	statemachine_ctx * ctx = CAST(statemachine_ctx *, SAlloc::M(sizeof(statemachine_ctx)));
 	if(ctx) {
 		statemachine_reset(ctx);
 		ctx->definition = def;
@@ -231,9 +219,8 @@ statemachine_ctx * statemachine_duplicate(statemachine_ctx * src, statemachine_d
 {
 	assert(src != NULL);
 	statemachine_ctx * dst = statemachine_new(def, user);
-	if(dst == NULL)
-		return NULL;
-	statemachine_copy(dst, src, def, user);
+	if(dst)
+		statemachine_copy(dst, src, def, user);
 	return dst;
 }
 
@@ -254,7 +241,7 @@ void statemachine_copy(statemachine_ctx * dst, statemachine_ctx * src, statemach
 void statemachine_delete(statemachine_ctx * ctx)
 {
 	assert(ctx != NULL);
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 /* Starts recording the current input stream into an internal buffer.

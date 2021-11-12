@@ -210,12 +210,12 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 	    || (r->q == NULL && q == NULL))
 		return 0;
 
-	if(p != NULL) {
+	if(p) {
 		BN_clear_free(r->p);
 		r->p = p;
 		BN_set_flags(r->p, BN_FLG_CONSTTIME);
 	}
-	if(q != NULL) {
+	if(q) {
 		BN_clear_free(r->q);
 		r->q = q;
 		BN_set_flags(r->q, BN_FLG_CONSTTIME);
@@ -335,9 +335,9 @@ void RSA_get0_key(const RSA * r,
 
 void RSA_get0_factors(const RSA * r, const BIGNUM ** p, const BIGNUM ** q)
 {
-	if(p != NULL)
+	if(p)
 		*p = r->p;
-	if(q != NULL)
+	if(q)
 		*q = r->q;
 }
 

@@ -1,0 +1,84 @@
+
+IPC API Documentation
+--------------------------
+
+
+BASICS:
+
+
+We'll explain what the ipc api is doing and how to implement new ipc 
+methods into saslauthd. 
+
+The ipc api is how saslauthd communicates with the end client. The ipc modules
+are responsible for marshalling authentication requests, passing those requests
+off to the do_auth() routine, and then returning the results back to the client.
+In addition to handling authentication requests, the ipc modules also may have
+to decide on other factors. Such as, what process model saslauthd will run
+under, alterting saslauthd when it's safe to detach from the controlling tty,
+etc.
+
+
+IMPLEMENTATION:
+
+
+An ipc module is required to implement three main functions.
+
+
+void ipc_init()
+
+  The ipc_init() function must setup any requirements for the ipc method to
+  operate. In addition to any setup it must perform for itself, it also must:
+
+  1> Call void detach_tty() once during its execution. If necessary, this
+  will daemonize the instance of saslauthd. It should delay the call as long as
+  possible so that any error conditions that arise can be returned via stderr.
+
+  2> If the ipc module wishes to implement the standard unix process model, it
+  must set the global flag USE_PROCESS_MODEL (see unix_ipc.c).
+
+
+void ipc_loop()
+
+  The ipc_loop() function is the main processing loop for saslauthd. It should
+  perform four basic tasks. 
+
+  1> Marshall in the request from the client.
+
+  2> Pass the request elements off to the do_auth() function.
+
+  3> Send the results of do_auth() back to the client.
+
+  4> Free the pointer returned from do_auth().
+
+
+void ipc_cleanup()
+
+  Void ipc_cleanup should perform and basic cleanup the module requires. If no
+  cleanup is required, an empty function should be provided.
+
+
+HEADERS
+
+
+The three main functions above are declared in the header file saslauthd-main.h.
+Any other helper functions in the source module, can either be declared in a
+separate header file, or more conveniently defined at the top of the module's source
+file.
+
+
+BUILD
+
+
+To keep the build process relatively simple, all source modules will be compiled
+at build time. Each ipc module should implement proper #ifdef statements around
+its entire code block. The chosen source module for the required ipc method will
+be fully compiled with the required function symbols defined. The remaning
+source modules will be compiled into empty object files. The logic for
+determining which source module will be fully compiled is placed in the
+saslauthd-main.h header file.
+
+
+Jeremy Rumpf
+jrumpf@heavyload.net
+
+

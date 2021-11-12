@@ -1345,8 +1345,7 @@ int madb_get_windows_cp(const char * charset)
 {
 	unsigned int i = 0;
 	while(MADB_OS_CHARSET[i].identifier) {
-		if(MADB_OS_CHARSET[i].supported > MADB_CS_UNSUPPORTED &&
-		    strcmp(MADB_OS_CHARSET[i].charset, charset) == 0)
+		if(MADB_OS_CHARSET[i].supported > MADB_CS_UNSUPPORTED && sstreq(MADB_OS_CHARSET[i].charset, charset))
 			return atoi(MADB_OS_CHARSET[i].identifier);
 		i++;
 	}

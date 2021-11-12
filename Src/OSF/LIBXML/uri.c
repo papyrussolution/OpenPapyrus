@@ -1407,14 +1407,14 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 		while(len > 0) {
 			if((len > 2) && (*in == '%') && (ishex(in[1])) && (ishex(in[2]))) {
 				in++;
-				if((*in >= '0') && (*in <= '9'))
+				if(isdec(*in))
 					*out = (*in - '0');
 				else if((*in >= 'a') && (*in <= 'f'))
 					*out = (*in - 'a') + 10;
 				else if((*in >= 'A') && (*in <= 'F'))
 					*out = (*in - 'A') + 10;
 				in++;
-				if((*in >= '0') && (*in <= '9'))
+				if(isdec(*in))
 					*out = *out * 16 + (*in - '0');
 				else if((*in >= 'a') && (*in <= 'f'))
 					*out = *out * 16 + (*in - 'a') + 10;

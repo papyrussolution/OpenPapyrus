@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{0638fe1b-842e-4db0-b609-7da558bbad33}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\makeconv\gencnvex.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\makeconv\genmbcs.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\makeconv\makeconv.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\makeconv\ucnvstat.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\makeconv\genmbcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\makeconv\makeconv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

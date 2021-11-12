@@ -82,7 +82,7 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 				return v->value;
 			if(sstreq(section, "ENV")) {
 				p = ossl_safe_getenv(name);
-				if(p != NULL)
+				if(p)
 					return p;
 			}
 		}

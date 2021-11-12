@@ -466,7 +466,8 @@ public:
 		WrParam_UseDuplexPrinting("UseDuplexPrinting"),
 		WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
 		WrParam_LastSelectedPrinter("LastSelectedPrinter"),
-		WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2") // @v11.2.0
+		WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2"), // @v11.2.0
+		WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid") // @v11.2.3
 	{
 	}
 	enum {
@@ -511,6 +512,7 @@ public:
 	const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter" // @v10.7.10
 	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
 	const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
+	const char * WrParam_StyloQLoclMachineUuid;        // @v11.2.3
 };
 
 extern const PPConstParam _PPConst;
@@ -31088,7 +31090,7 @@ private:
 	struct CommonProcessingBlock {
 		CommonProcessingBlock();
 		CommonProcessingBlock(const CommonProcessingBlock & rS);
-		int    CommonProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndID, int checkExistance);
+		int    CommonProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, int checkExistance);
 		PPObjGoodsStruc GSObj;
 		PPObjGoods GObj;
 		TSVector <StrucEntry> StrucList;
@@ -45991,18 +45993,26 @@ private:
 class StyloQConfig {
 public:
 	enum { // @persistent
-		tagUnkn           = 0,
-		tagUrl            = 1, // URL сервера централизованной обработки
-		tagMqbAuth        = 2, // Login MQ-брокера сервера централизованной обработки
-		tagMqbSecret      = 3, // Secret MQ-брокера сервера централизованной обработки
-		tagLoclUrl        = 4, // URL локальной обработки запросов (отдельная машина или сеанс)
-		tagLoclMqbAuth    = 5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
-		tagLoclMqbSecret  = 6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
-		tagFeatures       = 7, // Флаги особенностей сервиса
+		tagUnkn            = 0,
+		tagUrl             = 1, // URL сервера централизованной обработки
+		tagMqbAuth         = 2, // Login MQ-брокера сервера централизованной обработки
+		tagMqbSecret       = 3, // Secret MQ-брокера сервера централизованной обработки
+		tagLoclUrl         = 4, // URL локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbAuth     = 5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbSecret   = 6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagFeatures        = 7, // Флаги особенностей сервиса
+		//
+		// Замечание по сроку действия: одна сторона передает другой период истечения срока действия в секундах.
+		//   Принимающая сторона складывает это значение с текущим epoch-временем и сохраняет на своей стороне
+		//   для того, чтобы в последующем принять решение о запросе обновления.
+		//
+		tagExpiryPeriodSec = 8, // @v11.2.3 Период истечения срока действия в секундах
+		tagExpiryEpochSec  = 9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970) 
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
 	};
+	static int MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson);
 	StyloQConfig();
 	StyloQConfig & Z();
 	int   Set(int tag, const char * pText);
@@ -46018,30 +46028,37 @@ private:
 class StyloQFace {
 public:
 	enum { // @persistent
-		tagUnkn           =  0, //
-		tagVerifiable     =  1, // verifiable : bool ("true" || "false")
-		tagCommonName     =  2, // cn : string with optional language shifted on 16 bits left
-		tagName           =  3, // name : string with optional language shifted on 16 bits left
-		tagSurName        =  4, // surname : string with optional language shifted on 16 bits left
-		tagPatronymic     =  5, // patronymic : string with optional language shifted on 16 bits left
-		tagDOB            =  6, // dob : ISO-8601 date representation
-		tagPhone          =  7, // phone : string
-		tagGLN            =  8, // gln : string (numeric)
-		tagCountryIsoSymb =  9, // countryisosymb : string
-		tagCountryIsoCode = 10, // countryisocode : string (numeric)
-		tagCountryName    = 11, // country : string with optional language shifted on 16 bits left
-		tagZIP            = 12, // zip : string
-		tagCityName       = 13, // city : string with optional language shifted on 16 bits left
-		tagStreet         = 14, // street : string with optional language shifted on 16 bits left
-		tagAddress        = 15, // address : string with optional language shifted on 16 bits left
-		tagImage          = 16, // image : mimeformat:mime64
-		tagRuINN          = 17, // ru_inn : string (numeric)
-		tagRuKPP          = 18, // ru_kpp : string (numeric)
-		tagRuSnils        = 19, // ru_snils : string (numeric)
-		tagModifTime      = 20, // modtime : ISO-8601 date-time representation (UTC)
-		tagDescr          = 21, // descr : string
-		tagLatitude       = 22, // lat : real
-		tagLongitude      = 23, // lon : real
+		tagUnkn            =  0, //
+		tagVerifiable      =  1, // verifiable : bool ("true" || "false")
+		tagCommonName      =  2, // cn : string with optional language shifted on 16 bits left
+		tagName            =  3, // name : string with optional language shifted on 16 bits left
+		tagSurName         =  4, // surname : string with optional language shifted on 16 bits left
+		tagPatronymic      =  5, // patronymic : string with optional language shifted on 16 bits left
+		tagDOB             =  6, // dob : ISO-8601 date representation
+		tagPhone           =  7, // phone : string
+		tagGLN             =  8, // gln : string (numeric)
+		tagCountryIsoSymb  =  9, // countryisosymb : string
+		tagCountryIsoCode  = 10, // countryisocode : string (numeric)
+		tagCountryName     = 11, // country : string with optional language shifted on 16 bits left
+		tagZIP             = 12, // zip : string
+		tagCityName        = 13, // city : string with optional language shifted on 16 bits left
+		tagStreet          = 14, // street : string with optional language shifted on 16 bits left
+		tagAddress         = 15, // address : string with optional language shifted on 16 bits left
+		tagImage           = 16, // image : mimeformat:mime64
+		tagRuINN           = 17, // ru_inn : string (numeric)
+		tagRuKPP           = 18, // ru_kpp : string (numeric)
+		tagRuSnils         = 19, // ru_snils : string (numeric)
+		tagModifTime       = 20, // modtime : ISO-8601 date-time representation (UTC)
+		tagDescr           = 21, // descr : string
+		tagLatitude        = 22, // lat : real
+		tagLongitude       = 23, // lon : real
+		//
+		// Замечание по сроку действия: одна сторона передает другой период истечения срока действия в секундах.
+		//   Принимающая сторона складывает это значение с текущим epoch-временем и сохраняет на своей стороне
+		//   для того, чтобы в последующем принять решение о запросе обновления.
+		//
+		tagExpiryPeriodSec = 24, // @v11.2.3 Период истечения срока действия в секундах
+		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970) 
 	};
 	enum {
 		fVerifiable = 0x0001
@@ -46067,6 +46084,8 @@ public:
 	int   Get(int tag, int lang, SString & rResult) const;
 	int   GetExactly(int tag, int lang, SString & rResult) const;
 	LDATE GetDob() const;
+	int   SetGeoLoc(const SGeoPosLL & rPos);
+	int   GetGeoLoc(SGeoPosLL & rPos) const;
 	bool  IsVerifiable() const;
 	int   GetImage(SImageBuffer * pImg) const;
 	int   FromJson(const char * pJsonText);
@@ -46257,6 +46276,8 @@ public:
 
 class PPStyloQInterchange {
 public:
+	static int64 EvaluateExpiryTime(int expiryPeriodSec);
+	static bool  IsExpired(int64 expiration);
 	PPStyloQInterchange();
 	PPStyloQInterchange(StyloQCore * pStQC);
 	~PPStyloQInterchange();
@@ -46271,11 +46292,13 @@ public:
 		};
 		uint32 Capabilities; // capXXX
 		SBinaryChunk SvcIdent;
+		SBinaryChunk LoclAddendum; // @v11.2.3 Специальное дополнение, индицирующее локальный сервер (то есть, ассоциированный с конкретной машиной или сеансом)
 		SString AccessPoint;
 	};
 	struct RunServerParam : public ServerParamBase {
 		RunServerParam();
 		RunServerParam & Z();
+		uint   MakeMqbQueueIdent(SBinaryChunk & rResult) const;
 		PPMqbClient::InitParam MqbInitParam;
 	};
 	struct Invitation : public ServerParamBase {
@@ -46303,7 +46326,10 @@ public:
 	// Descr: Флаги функции SetupMqbParam
 	//
 	enum {
-		smqbpfInitAccessPoint = 0x0001 // Инициализировать 
+		smqbpfInitAccessPoint = 0x0001, // Инициализировать 
+		smqbpfLocalMachine    = 0x0002, // Локальный сервер, ассоциированный с компьютером
+		smqbpfLocalSession    = 0x0004, // Локальный сервер, ассоциированный с сеансом
+			// Flags smqbpfLocalMachine and smqbpfLocalSession mutualy exclusive
 	};
 
 	int    SetupMqbParam(const StyloQCore::StoragePacket & rOwnPack, long flags, PPStyloQInterchange::RunServerParam & rP);
@@ -46345,7 +46371,7 @@ public:
 	class RoundTripBlock {
 	public:
 		RoundTripBlock();
-		RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint);
+		RoundTripBlock(const SBinaryChunk * pSvcIdent, const SBinaryChunk * pSvcLoclAddendum, const char * pSvcAccsPoint);
 		~RoundTripBlock();
 
 		SSecretTagPool Other; // Блок параметров сервиса, к которому осуществляется запрос
@@ -46433,6 +46459,14 @@ private:
 	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
 	//
 	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
+	//
+	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера. 
+	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
+	//   извлекается из реестра, если же flag == smqbpfLocalSession то в качестве дополнения используется GUID сессии SLIB.
+	// Returns:
+	//   GUID дополнения. Если возвращенный GUID оказался нулевым, то это - признак ошибки.
+	//
+	static S_GUID GetLocalAddendum(long flag/*smqbpfLocalMachine || smqbpfLocalSession*/);
 public: // @debug временно 
 	//
 	// Descr: Утилитная функция, отправляющая http запрос сервису.

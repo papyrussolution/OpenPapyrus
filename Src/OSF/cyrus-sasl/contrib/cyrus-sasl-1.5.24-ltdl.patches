@@ -1,0 +1,340 @@
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/Makefile.am cyrus-sasl-1.5.24.new/Makefile.am
+--- cyrus-sasl-1.5.24.orig/Makefile.am	Fri Apr 28 19:16:11 2000
++++ cyrus-sasl-1.5.24.new/Makefile.am	Tue Jul 17 12:41:06 2001
+@@ -58,7 +58,7 @@
+ JAV =
+ endif
+ 
+-SUBDIRS=include lib plugins utils doc man $(PWC) $(SAM) $(JAV)
++SUBDIRS=include libltdl lib plugins utils doc man $(PWC) $(SAM) $(JAV)
+ EXTRA_DIST=config cmulocal win32 testing.txt
+ 
+ dist-hook:
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/configure.in cyrus-sasl-1.5.24.new/configure.in
+--- cyrus-sasl-1.5.24.orig/configure.in	Fri Jul 21 04:35:01 2000
++++ cyrus-sasl-1.5.24.new/configure.in	Tue Jul 17 13:20:18 2001
+@@ -71,8 +71,14 @@
+ 
+ AM_DISABLE_STATIC
+ 
++AC_LIBLTDL_INSTALLABLE
++AC_SUBST(INCLTDL)
++AC_SUBST(LIBLTDL)
++AC_LIBTOOL_DLOPEN
++
+ CMU_PROG_LIBTOOL
+ 
++
+ if test "$ac_cv_prog_gcc" = yes; then
+   CFLAGS="-Wall -W ${CFLAGS}"
+ fi
+@@ -374,11 +380,11 @@
+   fi
+ fi
+ 
+-
+-
+ if test "$with_des" != no; then
+   AC_DEFINE(WITH_DES)
+-  LIB_DES="-ldes"
++  if test "x$LIB_DES" = x; then
++    LIB_DES="-ldes"
++  fi
+ fi
+ 
+ AC_SUBST(LIB_DES)
+@@ -716,5 +722,7 @@
+ fi
+ 
+ AC_SUBST(DIRS)
++
++AC_CONFIG_SUBDIRS(libltdl)
+ 
+ AC_OUTPUT(Makefile include/Makefile lib/Makefile plugins/Makefile utils/Makefile doc/Makefile sample/Makefile java/Makefile java/CyrusSasl/Makefile pwcheck/Makefile man/Makefile)
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/Makefile.am cyrus-sasl-1.5.24.new/lib/Makefile.am
+--- cyrus-sasl-1.5.24.orig/lib/Makefile.am	Fri Jul 21 04:35:02 2000
++++ cyrus-sasl-1.5.24.new/lib/Makefile.am	Tue Jul 17 12:41:08 2001
+@@ -43,7 +43,10 @@
+ # Library version info - here at the top, for sanity
+ sasl_version = 8:8:1
+ 
+-INCLUDES=-I$(top_srcdir)/include
++INCLTDL= @INCLTDL@
++LIBLTDL= @LIBLTDL@
++
++INCLUDES=-I$(top_srcdir)/include $(INCLTDL)
+ 
+ EXTRA_DIST = saslint.h windlopen.c
+ 
+@@ -53,5 +56,5 @@
+ EXTRA_libsasl_la_SOURCES = db_none.c db_ndbm.c db_gdbm.c db_berkeley.c db_testw32.c
+ libsasl_la_LDFLAGS = -version-info $(sasl_version)
+ libsasl_la_DEPENDENCIES = $(SASL_DB_BACKEND) @LTLIBOBJS@
+-libsasl_la_LIBADD = @LTLIBOBJS@ $(SASL_DB_BACKEND) $(SASL_DB_LIB) $(SASL_DL_LIB) $(PLAIN_LIBS)
++libsasl_la_LIBADD = @LTLIBOBJS@ $(LIBLTDL) $(SASL_DB_BACKEND) $(SASL_DB_LIB) $(SASL_DL_LIB) $(PLAIN_LIBS)
+ # PLAIN_LIBS are linked in for sasl_checkpass
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/client.c cyrus-sasl-1.5.24.new/lib/client.c
+--- cyrus-sasl-1.5.24.orig/lib/client.c	Thu Apr  6 16:50:22 2000
++++ cyrus-sasl-1.5.24.new/lib/client.c	Tue Jul 17 12:41:08 2001
+@@ -49,6 +49,7 @@
+ #include <string.h>
+ #include <sasl.h>
+ #include <saslutil.h>
++#include <ltdl.h>
+ #include "saslint.h"
+ 
+ static int
+@@ -218,7 +219,7 @@
+ {
+   int version;
+   const sasl_client_plug_t *plug;
+-  void *library;
++  lt_dlhandle library;
+ 
+   struct cmechanism *next;  
+ } cmechanism_t;
+@@ -370,6 +371,10 @@
+ 
+   cmechlist->mech_list=NULL;
+   cmechlist->mech_length=0;
++
++  /* init libltdl */
++  if (lt_dlinit() != 0)
++    return SASL_FAIL;
+ 
+   add_plugin((void *) &external_client_init, NULL);
+ 
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/common.c cyrus-sasl-1.5.24.new/lib/common.c
+--- cyrus-sasl-1.5.24.orig/lib/common.c	Mon Jul 17 19:21:02 2000
++++ cyrus-sasl-1.5.24.new/lib/common.c	Tue Jul 17 16:26:01 2001
+@@ -117,6 +117,11 @@
+   _sasl_mutex_utils.lock=l;
+   _sasl_mutex_utils.unlock=u;
+   _sasl_mutex_utils.dispose=d;
++  /* XXX seb FIXME: add a call to lt_dlmutex_register() for libltdl.
++     sasl_set_mutex args must surely be modified to add func ptr
++     for libtool's callbacks SETERROR and GETERROR; n/l/u can 
++     certainly be reused for libtool's callbacks LOCK and UNLOCK.
++     see (libtool.info) Thread Saftey in libltdl */
+ }
+ 
+ 
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/dlopen.c cyrus-sasl-1.5.24.new/lib/dlopen.c
+--- cyrus-sasl-1.5.24.orig/lib/dlopen.c	Thu Mar  9 21:53:47 2000
++++ cyrus-sasl-1.5.24.new/lib/dlopen.c	Tue Jul 17 12:45:35 2001
+@@ -50,6 +50,7 @@
+ #include <limits.h>
+ #include <sys/param.h>
+ #include <sasl.h>
++#include <ltdl.h>
+ #include "saslint.h"
+ 
+ #if HAVE_DIRENT_H
+@@ -91,61 +92,7 @@
+ #  define NAME_MAX 8
+ #endif
+ 
+-#ifdef __hpux
+-#include <dl.h>
+-
+-typedef shl_t dll_handle;
+-typedef void * dll_func;
+-
+-dll_handle
+-dlopen(char *fname, int mode)
+-{
+-    shl_t h = shl_load(fname, BIND_DEFERRED, 0L);
+-    shl_t *hp = NULL;
+-    
+-    if (h) {
+-	hp = (shl_t *)malloc(sizeof (shl_t));
+-	if (!hp) {
+-	    shl_unload(h);
+-	} else {
+-	    *hp = h;
+-	}
+-    }
+-
+-    return (dll_handle)hp;
+-}
+-
+-int
+-dlclose(dll_handle h)
+-{
+-    shl_t hp = *((shl_t *)h);
+-    if (hp != NULL) free(hp);
+-    return shl_unload(h);
+-}
+-
+-dll_func
+-dlsym(dll_handle h, char *n)
+-{
+-    dll_func handle;
+-    
+-    if (shl_findsym ((shl_t *)h, n, TYPE_PROCEDURE, &handle))
+-	return NULL;
+-    
+-    return (dll_func)handle;
+-}
+-
+-char *dlerror()
+-{
+-    if (errno != 0) {
+-	return strerror(errno);
+-    }
+-    return "Generic shared library error";
+-}
+-
+-#define SO_SUFFIX	".sl"
+-#else /* __hpux */
+-#define SO_SUFFIX	".so"
+-#endif /* __hpux */
++#define LA_SUFFIX	".la"
+ 
+ 
+ /* gets the list of mechanisms */
+@@ -159,11 +106,6 @@
+    * checks appropriately. */
+   int result;
+   char str[PATH_MAX], tmp[PATH_MAX+2], c, prefix[PATH_MAX+2]; /* 1 for '/' 1 for trailing '\0' */
+-#if __OpenBSD__
+-  char adj_entryname[1024];
+-#else
+-#define adj_entryname entryname
+-#endif
+   int pos;
+   char *path=NULL;
+   int position;
+@@ -180,10 +122,6 @@
+       || ! add_plugin)
+     return SASL_BADPARAM;
+ 
+-#if __OpenBSD__
+-  snprintf(adj_entryname, sizeof adj_entryname, "_%s", entryname);
+-#endif
+-
+   /* get the path to the plugins */
+   result = ((sasl_getpath_t *)(getpath_cb->proc))(getpath_cb->context,
+ 						  &path);
+@@ -214,10 +152,9 @@
+       while ((dir=readdir(dp)) != NULL)
+       {
+ 	size_t length;
+-	void *library;
+-	void *entry_point;
++	lt_dlhandle library;
++	lt_ptr entry_point;
+ 	char name[PATH_MAX];
+-	int flag;
+ 
+ 
+ 	length = NAMLEN(dir);
+@@ -225,7 +162,7 @@
+ 
+ 	if (length + pos>=PATH_MAX) continue; /* too big */
+ 
+-	if (strcmp(dir->d_name + (length - 3), SO_SUFFIX)) continue;
++	if (strcmp(dir->d_name + (length - 3), LA_SUFFIX)) continue;
+ 
+ 	memcpy(name,dir->d_name,length);
+ 	name[length]='\0';
+@@ -243,28 +180,23 @@
+ 	
+ 	if (result != SASL_OK) return result;
+ 	
+-#ifdef RTLD_NOW
+-	flag = RTLD_NOW;
+-#else
+-	flag = 0;
+-#endif
+-	if (!(library = dlopen(tmp, flag))) {
++	if (!(library = lt_dlopen(tmp))) {
+ 	    _sasl_log(NULL, SASL_LOG_ERR, NULL, 0, 0,
+-		      "unable to dlopen %s: %s", tmp, dlerror());
++		      "unable to lt_dlopen %s: %s", tmp, lt_dlerror());
+ 	    continue;
+ 	}
+ 	entry_point = NULL;
+-	entry_point = dlsym(library, adj_entryname);
++	entry_point = lt_dlsym(library, entryname);
+ 
+ 	if (entry_point == NULL) {
+ 	  VL(("can't get an entry point\n"));
+-	  dlclose(library);
++	  lt_dlclose(library);
+ 	  continue;
+ 	}
+ 
+ 	if ((*add_plugin)(entry_point, library) != SASL_OK) {
+ 	  VL(("add_plugin to list failed\n"));
+-	  dlclose(library);
++	  lt_dlclose(library);
+ 	  continue;
+ 	}
+ 	VL(("added [%s] successfully\n",dir->d_name));
+@@ -281,12 +213,12 @@
+ }
+ 
+ int
+-_sasl_done_with_plugin(void *plugin)
++_sasl_done_with_plugin(lt_dlhandle plugin)
+ {
+   if (! plugin)
+     return SASL_BADPARAM;
+ 
+-  dlclose(plugin);
++  lt_dlclose(plugin);
+ 
+   return SASL_OK;
+ }
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/saslint.h cyrus-sasl-1.5.24.new/lib/saslint.h
+--- cyrus-sasl-1.5.24.orig/lib/saslint.h	Thu Apr  6 16:50:22 2000
++++ cyrus-sasl-1.5.24.new/lib/saslint.h	Tue Jul 17 12:43:27 2001
+@@ -45,6 +45,7 @@
+ #define SASLINT_H
+ 
+ #include <config.h>
++#include <ltdl.h>
+ #include "sasl.h"
+ #include "saslplug.h"
+ 
+@@ -61,7 +62,7 @@
+ extern const sasl_callback_t *
+ _sasl_find_verifyfile_callback(const sasl_callback_t *callbacks);
+ 
+-extern int _sasl_done_with_plugin(void *plugin);
++extern int _sasl_done_with_plugin(lt_dlhandle plugin);
+ 
+ extern void (*_sasl_client_cleanup_hook)(void);
+ extern void (*_sasl_server_cleanup_hook)(void);
+diff -x ltcf-c.sh -x ltconfig -x ltmain.sh -x libltdl -x config.guess -x config.sub -x configure -x aclocal.m4 -x Makefile.in -uNr cyrus-sasl-1.5.24.orig/lib/server.c cyrus-sasl-1.5.24.new/lib/server.c
+--- cyrus-sasl-1.5.24.orig/lib/server.c	Mon Aug 14 04:04:42 2000
++++ cyrus-sasl-1.5.24.new/lib/server.c	Tue Jul 17 12:56:40 2001
+@@ -54,6 +54,7 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <string.h>
++#include <ltdl.h>
+ 
+ #define DEFAULT_PLAIN_MECHANISM "sasldb"
+ 
+@@ -238,7 +239,7 @@
+   int condition; /* set to SASL_NOUSER if no available users */
+   const sasl_server_plug_t *plug;
+   struct mechanism *next;
+-  void *library; /* this a pointer to shared library returned by dlopen 
++  lt_dlhandle library; /* this a pointer to shared library returned by dlopen 
+ 		    or some similar function on other platforms */
+ } mechanism_t;
+ 
+@@ -668,6 +669,10 @@
+ 
+   /* check db */
+   ret = _sasl_server_check_db(vf);
++
++  /* init libltdl */
++  if (lt_dlinit() != 0)
++    return SASL_FAIL;
+ 
+   /* load plugins */
+   add_plugin((void *)&external_server_init, NULL);

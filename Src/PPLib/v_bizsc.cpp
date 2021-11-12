@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1308,11 +1308,10 @@ SArray * PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString * pSub
 		BizScValByTemplViewItem * p_item = p_array->CreateNewItem();
 		*p_item = *Data.at(i);
 	}
-	uint   brw_id = BROWSER_BIZSCVALBYTEMPL;
 	GetObjectName(PPOBJ_BIZSCTEMPL, Filt.TemplateID, subtitle);
 	ASSIGN_PTR(pSubTitle, subtitle);
-	ASSIGN_PTR(pBrwId, brw_id);
-	return (SArray*)p_array;
+	ASSIGN_PTR(pBrwId, BROWSER_BIZSCVALBYTEMPL);
+	return static_cast<SArray *>(p_array);
 }
 
 int PPViewBizScValByTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

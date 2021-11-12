@@ -2178,7 +2178,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 						*pID = 0;
 					}
 					else {
-						if(strcmp(org_pack.Name, pPack->Name) != 0)
+						if(!sstreq(org_pack.Name, pPack->Name))
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Name, 0) == DBRPL_OK);
 						if(do_index_phones) {
 							LocationCore::GetExField(pPack, LOCEXSTR_PHONE, temp_buf);
@@ -2274,7 +2274,7 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 						*pID = 0;
 					}
 					else {
-						if(strcmp(org_rec.Name, pPack->Name) != 0)
+						if(!sstreq(org_rec.Name, pPack->Name))
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Name, 0) == DBRPL_OK);
 						if(do_index_phones) {
 							LocationCore::GetExField(pPack, LOCEXSTR_PHONE, temp_buf);

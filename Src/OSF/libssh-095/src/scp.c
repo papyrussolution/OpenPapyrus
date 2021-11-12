@@ -764,7 +764,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 	}
 
 	p = strchr(buffer, '\n');
-	if(p != NULL) {
+	if(p) {
 		*p = '\0';
 	}
 

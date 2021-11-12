@@ -1763,17 +1763,14 @@ static int cab_read_data(struct archive_read * a, const void ** buff, size_t * s
 		cab->end_of_entry = 1;
 		return ARCHIVE_OK;
 	}
-
 	*buff = cab_read_ahead_cfdata(a, &bytes_avail);
 	if(bytes_avail <= 0) {
 		*buff = NULL;
 		*size = 0;
 		*offset = 0;
-		if(bytes_avail == 0 &&
-		    cab->entry_cfdata->uncompressed_size == 0) {
+		if(bytes_avail == 0 && cab->entry_cfdata->uncompressed_size == 0) {
 			/* All of CFDATA in a folder has been handled. */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT, "Invalid CFDATA");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid CFDATA");
 			return ARCHIVE_FATAL;
 		}
 		else
@@ -1781,7 +1778,6 @@ static int cab_read_data(struct archive_read * a, const void ** buff, size_t * s
 	}
 	if(bytes_avail > cab->entry_bytes_remaining)
 		bytes_avail = (ssize_t)cab->entry_bytes_remaining;
-
 	*size = bytes_avail;
 	*offset = cab->entry_offset;
 	cab->entry_offset += bytes_avail;
@@ -1799,15 +1795,11 @@ static int cab_read_data(struct archive_read * a, const void ** buff, size_t * s
 
 static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 {
-	struct cab * cab;
 	int64 bytes_skipped;
 	int r;
-
-	cab = (struct cab *)(a->format->data);
-
+	struct cab * cab = (struct cab *)(a->format->data);
 	if(cab->end_of_archive)
 		return (ARCHIVE_EOF);
-
 	if(!cab->read_data_invoked) {
 		cab->bytes_skipped += cab->entry_bytes_remaining;
 		cab->entry_bytes_remaining = 0;
@@ -1815,7 +1807,6 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 		cab->end_of_entry_cleanup = cab->end_of_entry = 1;
 		return ARCHIVE_OK;
 	}
-
 	if(cab->entry_unconsumed) {
 		/* Consume as much as the compressor actually used. */
 		r = (int)cab_consume_cfdata(a, cab->entry_unconsumed);
@@ -1828,11 +1819,9 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 		if(r < 0)
 			return r;
 	}
-
 	/* if we've already read to end of data, we're done. */
 	if(cab->end_of_entry_cleanup)
 		return ARCHIVE_OK;
-
 	/*
 	 * If the length is at the beginning, we can skip the
 	 * compressed data much more quickly.
@@ -1840,13 +1829,10 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 	bytes_skipped = cab_consume_cfdata(a, cab->entry_bytes_remaining);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
-
 	/* If the compression type is none(uncompressed), we've already
 	 * consumed data as much as the current entry size. */
-	if(cab->entry_cffolder->comptype == COMPTYPE_NONE &&
-	    cab->entry_cfdata != NULL)
+	if(cab->entry_cffolder->comptype == COMPTYPE_NONE && cab->entry_cfdata != NULL)
 		cab->entry_cfdata->unconsumed = 0;
-
 	/* This entry is finished and done. */
 	cab->end_of_entry_cleanup = cab->end_of_entry = 1;
 	return ARCHIVE_OK;
@@ -1857,7 +1843,6 @@ static int archive_read_format_cab_cleanup(struct archive_read * a)
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfheader * hd = &cab->cfheader;
 	int i;
-
 	if(hd->folder_array != NULL) {
 		for(i = 0; i < hd->folder_count; i++)
 			SAlloc::F(hd->folder_array[i].cfdata.memimage);
@@ -1946,7 +1931,6 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 			return ARCHIVE_FATAL;
 		lzx_huffman_free(&(ds->mt));
 	}
-
 	for(footer = 0; footer < 18; footer++)
 		base_inc[footer] = 1 << footer;
 	base = footer = 0;
@@ -1966,32 +1950,24 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 		ds->pos_tbl[slot].base = base;
 		ds->pos_tbl[slot].footer_bits = footer;
 	}
-
 	ds->w_pos = 0;
 	ds->state = 0;
 	ds->br.cache_buffer = 0;
 	ds->br.cache_avail = 0;
 	ds->r0 = ds->r1 = ds->r2 = 1;
-
 	/* Initialize aligned offset tree. */
 	if(lzx_huffman_init(&(ds->at), 8, 8) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Initialize pre-tree. */
 	if(lzx_huffman_init(&(ds->pt), 20, 10) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Initialize Main tree. */
-	if(lzx_huffman_init(&(ds->mt), 256+(w_slot<<3), 16)
-	    != ARCHIVE_OK)
+	if(lzx_huffman_init(&(ds->mt), 256+(w_slot<<3), 16) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Initialize Length tree. */
 	if(lzx_huffman_init(&(ds->lt), 249, 16) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	ds->error = 0;
-
 	return ARCHIVE_OK;
 }
 
@@ -2000,16 +1976,16 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
  */
 static void lzx_decode_free(struct lzx_stream * strm)
 {
-	if(strm->ds == NULL)
-		return;
-	SAlloc::F(strm->ds->w_buff);
-	SAlloc::F(strm->ds->pos_tbl);
-	lzx_huffman_free(&(strm->ds->at));
-	lzx_huffman_free(&(strm->ds->pt));
-	lzx_huffman_free(&(strm->ds->mt));
-	lzx_huffman_free(&(strm->ds->lt));
-	SAlloc::F(strm->ds);
-	strm->ds = NULL;
+	if(strm->ds) {
+		SAlloc::F(strm->ds->w_buff);
+		SAlloc::F(strm->ds->pos_tbl);
+		lzx_huffman_free(&(strm->ds->at));
+		lzx_huffman_free(&(strm->ds->pt));
+		lzx_huffman_free(&(strm->ds->mt));
+		lzx_huffman_free(&(strm->ds->lt));
+		SAlloc::F(strm->ds);
+		strm->ds = NULL;
+	}
 }
 /*
  * E8 Call Translation reversal.
@@ -2895,7 +2871,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 				    goto getdata;
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    same = lzx_br_bits(br, 5) + 20;
-			    if(i + same > end)
+			    if((i + same) > end)
 				    return -1; /* Invalid */
 			    lzx_br_consume(br, 5);
 			    memzero(d->bitlen + i, same);
@@ -2907,7 +2883,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 				    goto getdata;
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    same = lzx_br_bits(br, 1) + 4;
-			    if(i + same > end)
+			    if((i + same) > end)
 				    return -1;
 			    lzx_br_consume(br, 1);
 			    rbits = lzx_br_bits(br, ds->pt.max_bits);

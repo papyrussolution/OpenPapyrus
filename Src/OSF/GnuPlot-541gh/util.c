@@ -25,7 +25,6 @@
 //
 // internal prototypes 
 //
-//static void mant_exp(double, double, bool, double *, int *, const char *);
 static void parse_sq(char *);
 static char * utf8_strchrn(const char * s, int N);
 static char * num_to_str(double r);

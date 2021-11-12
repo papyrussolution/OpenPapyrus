@@ -259,48 +259,27 @@ SECURITY_STATUS ma_schannel_client_handshake(MARIADB_TLS * ctls)
 	DWORD r;
 	SC_CTX * sctx;
 	SecBuffer ExtraData;
-	DWORD SFlags = ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT |
-	    ISC_REQ_CONFIDENTIALITY | ISC_RET_EXTENDED_ERROR |
-	    ISC_REQ_USE_SUPPLIED_CREDS |
-	    ISC_REQ_ALLOCATE_MEMORY | ISC_REQ_STREAM;
-
+	DWORD SFlags = ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT |ISC_REQ_CONFIDENTIALITY | ISC_RET_EXTENDED_ERROR |
+	    ISC_REQ_USE_SUPPLIED_CREDS |ISC_REQ_ALLOCATE_MEMORY | ISC_REQ_STREAM;
 	SecBufferDesc BufferOut;
 	SecBuffer BuffersOut;
-
 	if(!ctls || !ctls->pvio)
 		return 1;
-
 	pvio = ctls->pvio;
 	sctx = (SC_CTX*)ctls->ssl;
-
 	/* Initialie securifty context */
 	BuffersOut.BufferType = SECBUFFER_TOKEN;
 	BuffersOut.cbBuffer = 0;
 	BuffersOut.pvBuffer = NULL;
-
 	BufferOut.cBuffers = 1;
 	BufferOut.pBuffers = &BuffersOut;
 	BufferOut.ulVersion = SECBUFFER_VERSION;
-
-	sRet = InitializeSecurityContext(&sctx->CredHdl,
-		NULL,
-		pvio->mysql->host,
-		SFlags,
-		0,
-		SECURITY_NATIVE_DREP,
-		NULL,
-		0,
-		&sctx->hCtxt,
-		&BufferOut,
-		&OutFlags,
-		NULL);
-
+	sRet = InitializeSecurityContextA(&sctx->CredHdl, NULL, pvio->mysql->host, SFlags, 0, SECURITY_NATIVE_DREP, NULL, 0, &sctx->hCtxt, &BufferOut, &OutFlags, NULL);
 	if(sRet != SEC_I_CONTINUE_NEEDED) {
 		ma_schannel_set_sec_error(pvio, sRet);
 		return sRet;
 	}
-
-	/* send client hello packaet */
+	// send client hello packaet 
 	if(BuffersOut.cbBuffer != 0 && BuffersOut.pvBuffer != NULL) {
 		ssize_t nbytes = (DWORD)pvio->methods->write(pvio, (uchar *)BuffersOut.pvBuffer, (size_t)BuffersOut.cbBuffer);
 		if(nbytes <= 0) {
@@ -349,12 +328,7 @@ end:
     SEC_E_OK         on success
     SEC_E_*          if an error occurred
  */
-
-SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
-    CtxtHandle * phContext,
-    DWORD * DecryptLength,
-    uchar * ReadBuffer,
-    DWORD ReadBufferSize)
+SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio, CtxtHandle * phContext, DWORD * DecryptLength, uchar * ReadBuffer, DWORD ReadBufferSize)
 {
 	ssize_t nbytes = 0;
 	DWORD dwOffset = 0;
@@ -363,13 +337,10 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 	SecBufferDesc Msg;
 	SecBuffer Buffers[4];
 	int i;
-
 	if(!pvio || !pvio->methods || !pvio->methods->read || !pvio->ctls || !DecryptLength)
 		return SEC_E_INTERNAL_ERROR;
-
 	sctx = (SC_CTX*)pvio->ctls->ssl;
 	*DecryptLength = 0;
-
 	if(sctx->dataBuf.cbBuffer) {
 		/* Have unread decrypted data from the last time, copy. */
 		nbytes = MIN(ReadBufferSize, sctx->dataBuf.cbBuffer);
@@ -379,7 +350,6 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 		*DecryptLength = (DWORD)nbytes;
 		return SEC_E_OK;
 	}
-
 	while(1) {
 		/* Check for any encrypted data returned by last DecryptMessage() in SECBUFFER_EXTRA buffer. */
 		if(sctx->extraBuf.cbBuffer) {
@@ -387,7 +357,6 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 			dwOffset = sctx->extraBuf.cbBuffer;
 			sctx->extraBuf.cbBuffer = 0;
 		}
-
 		do {
 			assert(sctx->IoBufferSize > dwOffset);
 			if(dwOffset == 0 || sRet == SEC_E_INCOMPLETE_MESSAGE) {
@@ -452,8 +421,6 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 #include "win32_errmsg.h"
 bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name)
 {
-	SECURITY_STATUS status;
-
 	MARIADB_PVIO * pvio = ctls->pvio;
 	MYSQL * mysql = pvio->mysql;
 	SC_CTX * sctx = (SC_CTX*)ctls->ssl;
@@ -465,35 +432,21 @@ bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name)
 	char errmsg[256];
 	HCERTSTORE store = NULL;
 	int ret = 0;
-
-	status = schannel_create_store(ca_file, ca_path, crl_file, crl_path, &store, errmsg, sizeof(errmsg));
+	SECURITY_STATUS status = schannel_create_store(ca_file, ca_path, crl_file, crl_path, &store, errmsg, sizeof(errmsg));
 	if(status)
 		goto end;
-
 	status = QueryContextAttributesA(&sctx->hCtxt, SECPKG_ATTR_REMOTE_CERT_CONTEXT, (PVOID)&pServerCert);
 	if(status) {
-		ma_format_win32_error(errmsg, sizeof(errmsg), GetLastError(),
-		    "QueryContextAttributes(SECPKG_ATTR_REMOTE_CERT_CONTEXT) failed.");
+		ma_format_win32_error(errmsg, sizeof(errmsg), GetLastError(), "QueryContextAttributes(SECPKG_ATTR_REMOTE_CERT_CONTEXT) failed.");
 		goto end;
 	}
-
-	status = schannel_verify_server_certificate(
-		pServerCert,
-		store,
-		crl_file != 0 || crl_path != 0,
-		mysql->host,
-		verify_server_name,
-		errmsg, sizeof(errmsg));
-
+	status = schannel_verify_server_certificate(pServerCert, store, crl_file != 0 || crl_path != 0, mysql->host, verify_server_name, errmsg, sizeof(errmsg));
 	if(status)
 		goto end;
-
 	ret = 1;
-
 end:
 	if(!ret) {
-		pvio->set_error(mysql, CR_SSL_CONNECTION_ERROR, SQLSTATE_UNKNOWN,
-		    "SSL connection error: %s", errmsg);
+		pvio->set_error(mysql, CR_SSL_CONNECTION_ERROR, SQLSTATE_UNKNOWN, "SSL connection error: %s", errmsg);
 	}
 	if(pServerCert)
 		CertFreeCertificateContext(pServerCert);
@@ -520,9 +473,7 @@ end:
     SEC_E_OK         on success
     SEC_E_*          if an error occurred
  */
-ssize_t ma_schannel_write_encrypt(MARIADB_PVIO * pvio,
-    uchar * WriteBuffer,
-    size_t WriteBufferSize)
+ssize_t ma_schannel_write_encrypt(MARIADB_PVIO * pvio, uchar * WriteBuffer, size_t WriteBufferSize)
 {
 	SECURITY_STATUS scRet;
 	SecBufferDesc Message;
@@ -530,32 +481,24 @@ ssize_t ma_schannel_write_encrypt(MARIADB_PVIO * pvio,
 	DWORD cbMessage;
 	PBYTE pbMessage;
 	SC_CTX * sctx = (SC_CTX*)pvio->ctls->ssl;
-	size_t payload;
 	ssize_t nbytes;
 	DWORD write_size;
-
-	payload = MIN(WriteBufferSize, sctx->Sizes.cbMaximumMessage);
-
+	size_t payload = MIN(WriteBufferSize, sctx->Sizes.cbMaximumMessage);
 	memcpy(&sctx->IoBuffer[sctx->Sizes.cbHeader], WriteBuffer, payload);
 	pbMessage = sctx->IoBuffer + sctx->Sizes.cbHeader;
 	cbMessage = (DWORD)payload;
-
 	Buffers[0].pvBuffer     = sctx->IoBuffer;
 	Buffers[0].cbBuffer     = sctx->Sizes.cbHeader;
 	Buffers[0].BufferType   = SECBUFFER_STREAM_HEADER;// Type of the buffer
-
 	Buffers[1].pvBuffer     = &sctx->IoBuffer[sctx->Sizes.cbHeader];
 	Buffers[1].cbBuffer     = (DWORD)payload;
 	Buffers[1].BufferType   = SECBUFFER_DATA;
-
 	Buffers[2].pvBuffer     = &sctx->IoBuffer[sctx->Sizes.cbHeader] + payload;
 	Buffers[2].cbBuffer     = sctx->Sizes.cbTrailer;
 	Buffers[2].BufferType   = SECBUFFER_STREAM_TRAILER;
-
 	Buffers[3].pvBuffer     = SECBUFFER_EMPTY;              // Pointer to buffer 4
 	Buffers[3].cbBuffer     = SECBUFFER_EMPTY;              // length of buffer 4
 	Buffers[3].BufferType   = SECBUFFER_EMPTY;              // Type of the buffer 4
-
 	Message.ulVersion       = SECBUFFER_VERSION;
 	Message.cBuffers        = 4;
 	Message.pBuffers        = Buffers;
@@ -577,24 +520,15 @@ int ma_tls_get_protocol_version(MARIADB_TLS * ctls)
 	SecPkgContext_ConnectionInfo ConnectionInfo;
 	if(!ctls->ssl)
 		return 1;
-
 	sctx = (SC_CTX*)ctls->ssl;
-
 	if(QueryContextAttributes(&sctx->hCtxt, SECPKG_ATTR_CONNECTION_INFO, &ConnectionInfo) != SEC_E_OK)
 		return -1;
-
-	switch(ConnectionInfo.dwProtocol)
-	{
-		case SP_PROT_SSL3_CLIENT:
-		    return PROTOCOL_SSLV3;
-		case SP_PROT_TLS1_CLIENT:
-		    return PROTOCOL_TLS_1_0;
-		case SP_PROT_TLS1_1_CLIENT:
-		    return PROTOCOL_TLS_1_1;
-		case SP_PROT_TLS1_2_CLIENT:
-		    return PROTOCOL_TLS_1_2;
-		default:
-		    return -1;
+	switch(ConnectionInfo.dwProtocol) {
+		case SP_PROT_SSL3_CLIENT: return PROTOCOL_SSLV3;
+		case SP_PROT_TLS1_CLIENT: return PROTOCOL_TLS_1_0;
+		case SP_PROT_TLS1_1_CLIENT: return PROTOCOL_TLS_1_1;
+		case SP_PROT_TLS1_2_CLIENT: return PROTOCOL_TLS_1_2;
+		default: return -1;
 	}
 }
 

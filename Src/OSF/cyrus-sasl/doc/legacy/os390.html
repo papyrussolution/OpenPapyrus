@@ -1,0 +1,56 @@
+<html><head>
+<title>Building and Using Cyrus SASL on OS/390</title>
+<!-- $Id: os390.html,v 1.1 2002/09/06 16:07:35 rjs3 Exp $ -->
+</head>
+<body>
+<h1>Cyrus SASLv2 on OS/390</h1><p>
+
+Cyrus SASLv2 can be made to build on OS/390 with some minimal changes.  Here
+are the suggestions provided by Howard Chu of the OpenLDAP project
+(<i><a href=mailto:hyc@highlandsun.com>hyc@highlandsun.com</a></i>).
+
+<hr>
+
+Cyrus SASL must be compiled in ASCII mode.  This can be accomplished with
+a special invocation of c89.  For ease of use, you can use a shell script
+("acc" is a good name) and set the environment variable CC = acc before
+configuring anything. The shell script is simple:<pre>
+    #! /bin/sh
+    exec /bin/c89 -Wc,CONVLIT\(ISO8859-1\) -Wc,LANGLVL\(EXTENDED\) -D__LIBASCII $*<br></pre>
+To build the source, you'll need to set these environment variables, at a minimum: <pre>
+    _C89_CCMODE=1
+    CC=acc
+    CPP="c89 -E"
+    LD=c89
+    CPPFLAGS=-D_ALL_SOURCE
+</pre>
+That should allow you to run configure and get a coherent build environment. Before you type "make" from the top level though, do this:
+<pre>
+    cd include
+    make CC=c89
+</pre>
+In the include directory is a small program that generates an md5global.h
+header file. This file must be generated in native EBCDIC. If you just
+typed make from the top level, the program and header file would be
+generated in ASCII, with an ASCII filename, which would be very confusing
+and not very useful.
+<p>
+In my initial tests I was able to use SASL/EXTERNAL to perform X.509-based
+authentication with slapd.  I have subsequently tested the DIGEST-MD5
+mechanism, using OpenLDAP's slapd for storage of the secrets. It worked
+without any trouble. Note, I configured sasl --with-dblib=none to prevent
+it from trying to use its own sasldb. This is simply because I haven't had
+the time to fix the EBCDIC/ASCII dependencies in the rest of the SASL
+library. Run as-is with a real database backend, the sasldb would try to
+create ASCII-named database files, which would be very unpleasant. The
+required fixes are trivial, but they are also numerous, and it is a very
+time-consuming task to track down all the dependencies.
+<p>
+Note that this minimal-effort port of SASL will probably only work in the
+context of OpenLDAP (though it may work with other special-case auxprop plugins).
+No effort has been made to fix the ASCII filenames in
+the library, this SASL library will be unable to create/parse/handle
+native config files or database files. This is why I've only tested it
+using secrets stored in slapd, and why I only tried SASL/EXTERNAL at
+first. (EXTERNAL has no config parameters, and is part of libsasl2 itself,
+so it doesn't need to be dynamically loaded from anywhere.)

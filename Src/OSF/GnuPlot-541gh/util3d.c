@@ -798,7 +798,6 @@ SPoint2I GnuPlot::Map3D_XY(double x, double y, double z)
 	return SPoint2I(static_cast<int>(xtd), static_cast<int>(ytd));
 }
 
-//void map3d_xy_double(double x, double y, double z, double * xt, double * yt)
 void GnuPlot::Map3D_XY_double(double x, double y, double z, double * xt, double * yt)
 {
 	GpVertex v;
@@ -823,7 +822,6 @@ void GnuPlot::Map3D_XY_double(const SPoint3R & rPt, double * xt, double * yt)
 // HBB 20020313: New routine, broken out of draw3d_point, to be used
 // to output a single point without any checks for hidden3d 
 //
-//void draw3d_point_unconditional(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 void GnuPlot::Draw3DPointUnconditional(GpTermEntry * pTerm, const GpVertex * pV, const lp_style_type * pLp)
 {
 	int x, y;
@@ -893,7 +891,6 @@ void GnuPlot::Draw3DLine(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_s
 //
 // HBB 20000621: new routine, to allow for hiding point symbols behind the surface 
 //
-//void draw3d_point(GpVertex * v, lp_style_type * lp)
 void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
@@ -906,9 +903,6 @@ void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 // HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
 // like term->move() and term->vector() 
 //
-//static GpVertex polyline3d_previous_vertex; // @global Previous points 3D position 
-
-//void polyline3d_start(GpVertex * v1)
 void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 {
 	int x1, y1;
@@ -921,7 +915,6 @@ void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 	pTerm->move(pTerm, x1, y1);
 }
 
-//void polyline3d_next(GpVertex * v2, lp_style_type * lp)
 void GnuPlot::Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type * lp)
 {
 	// v5: Indicate that line properties are already set so that draw3d_*

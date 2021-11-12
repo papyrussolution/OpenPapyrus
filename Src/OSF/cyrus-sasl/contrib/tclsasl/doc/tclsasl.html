@@ -1,0 +1,1576 @@
+<html><head><title>Tcl SASL</title>
+<meta http-equiv="Expires" content="Sun, 20 Jan 2002 23:35:28 +0000">
+<STYLE type='text/css'>
+    .title { color: #990000; font-size: 22px; line-height: 22px; font-weight: bold; text-align: right;
+             font-family: helvetica, arial, sans-serif }
+    .filename { color: #666666; font-size: 18px; line-height: 28px; font-weight: bold; text-align: right;
+                  font-family: helvetica, arial, sans-serif }
+    p.copyright { color: #000000; font-size: 10px;
+                  font-family: verdana, charcoal, helvetica, arial, sans-serif }
+    p { margin-left: 2em; margin-right: 2em; }
+    li { margin-left: 3em;  }
+    ol { margin-left: 2em; margin-right: 2em; }
+    ul.text { margin-left: 2em; margin-right: 2em; }
+    pre { margin-left: 3em; color: #333333 }
+    ul.toc { color: #000000; line-height: 16px;
+             font-family: verdana, charcoal, helvetica, arial, sans-serif }
+    H3 { color: #333333; font-size: 16px; line-height: 16px; font-family: helvetica, arial, sans-serif }
+    H4 { color: #000000; font-size: 14px; font-family: helvetica, arial, sans-serif }
+    TD.header { color: #ffffff; font-size: 10px; font-family: arial, helvetica, san-serif; valign: top }
+    TD.author-text { color: #000000; font-size: 10px;
+                     font-family: verdana, charcoal, helvetica, arial, sans-serif }
+    TD.author { color: #000000; font-weight: bold; margin-left: 4em; font-size: 10px; font-family: verdana, charcoal, helvetica, arial, sans-serif }
+    A:link { color: #990000; font-size: 10px; text-transform: uppercase; font-weight: bold;
+             font-family: MS Sans Serif, verdana, charcoal, helvetica, arial, sans-serif }
+    A:visited { color: #333333; font-weight: bold; font-size: 10px; text-transform: uppercase;
+                font-family: MS Sans Serif, verdana, charcoal, helvetica, arial, sans-serif }
+    A:name { color: #333333; font-weight: bold; font-size: 10px; text-transform: uppercase;
+             font-family: MS Sans Serif, verdana, charcoal, helvetica, arial, sans-serif }
+    .link2 { color:#ffffff; font-weight: bold; text-decoration: none;
+             font-family: monaco, charcoal, geneva, MS Sans Serif, helvetica, monotype, verdana, sans-serif;
+             font-size: 9px }
+    .RFC { color:#666666; font-weight: bold; text-decoration: none;
+           font-family: monaco, charcoal, geneva, MS Sans Serif, helvetica, monotype, verdana, sans-serif;
+           font-size: 9px }
+    .hotText { color:#ffffff; font-weight: normal; text-decoration: none;
+               font-family: charcoal, monaco, geneva, MS Sans Serif, helvetica, monotype, verdana, sans-serif;
+               font-size: 9px }
+</style>
+</head>
+<body bgcolor="#ffffff" text="#000000" alink="#000000" vlink="#666666" link="#990000">
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<table width="66%" border="0" cellpadding="0" cellspacing="0"><tr><td><table width="100%" border="0" cellpadding="2" cellspacing="1">
+<tr valign="top"><td width="33%" bgcolor="#666666" class="header"> </td><td width="33%" bgcolor="#666666" class="header">M. Rose</td></tr>
+<tr valign="top"><td width="33%" bgcolor="#666666" class="header">&nbsp;</td><td width="33%" bgcolor="#666666" class="header">Dover Beach Consulting, Inc.</td></tr>
+<tr valign="top"><td width="33%" bgcolor="#666666" class="header">&nbsp;</td><td width="33%" bgcolor="#666666" class="header">January 20, 2002</td></tr>
+</table></td></tr></table>
+<div align="right"><font face="monaco, MS Sans Serif" color="#990000" size="+3"><b><br><span class="title">Tcl SASL</span></b></font></div>
+<font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<h3>Abstract</h3>
+
+<p>
+Tcl SASL provides a Tcl interface to the Cyrus SASLv2
+library.
+</p>
+<a name="toc"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>Table of Contents</h3>
+<ul compact class="toc">
+<b><a href="#anchor1">1.</a>&nbsp;
+SYNOPSIS<br></b>
+<b><a href="#anchor2">1.1</a>&nbsp;
+Installation<br></b>
+<b><a href="#anchor3">2.</a>&nbsp;
+CONVENTIONS<br></b>
+<b><a href="#anchor4">2.1</a>&nbsp;
+Return Codes<br></b>
+<b><a href="#anchor5">2.2</a>&nbsp;
+Data Types<br></b>
+<b><a href="#anchor6">2.3</a>&nbsp;
+Interactions<br></b>
+<b><a href="#anchor7">2.4</a>&nbsp;
+Callbacks<br></b>
+<b><a href="#anchor8">2.4.1</a>&nbsp;
+Client/Server callbacks<br></b>
+<b><a href="#anchor9">2.4.2</a>&nbsp;
+Client-only callbacks<br></b>
+<b><a href="#anchor10">2.4.3</a>&nbsp;
+Server-only callbacks<br></b>
+<b><a href="#anchor11">3.</a>&nbsp;
+PROCEDURES<br></b>
+<b><a href="#anchor12">3.1</a>&nbsp;
+Server-only calls<br></b>
+<b><a href="#anchor13">3.2</a>&nbsp;
+Client-only calls<br></b>
+<b><a href="#anchor14">3.3</a>&nbsp;
+Client/Server calls<br></b>
+<b><a href="#anchor15">3.4</a>&nbsp;
+Miscellaneous calls<br></b>
+<b><a href="#anchor16">4.</a>&nbsp;
+EXAMPLES<br></b>
+<b><a href="#anchor17">4.1</a>&nbsp;
+Server<br></b>
+<b><a href="#anchor18">4.2</a>&nbsp;
+Client<br></b>
+<b><a href="#rfc.references1">&#167;</a>&nbsp;
+References<br></b>
+<b><a href="#rfc.authors">&#167;</a>&nbsp;
+Author's Address<br></b>
+<b><a href="#anchor19">A.</a>&nbsp;
+TODO List<br></b>
+<b><a href="#anchor20">B.</a>&nbsp;
+Copyrights<br></b>
+<b><a href="#rfc.index">&#167;</a>&nbsp;
+Index<br></b>
+</ul>
+<br clear="all">
+
+<a name="anchor1"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>1.&nbsp;SYNOPSIS</h3>
+</font><pre>
+    package provide sasl 2.0
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Tcl SASL provides a Tcl interface to the
+<a href="https://www.cyrusimap.org/sasl/">Cyrus SASLv2 library</a>.
+</p>
+
+<p>
+This document won't tell you what 
+<a href="#RFC2222">SASL</a>[1] is.
+What it will tell you,
+the Tcl programmer,
+is how you can access the Cyrus SASLv2 library from your Tcl script.
+</p>
+
+<h4><a name="anchor2">1.1</a>&nbsp;Installation</h4>
+
+<p>
+First,
+you'll need to have 
+<a href="http://www.scriptics.com/software/tcltk/downloadnow83.tml">Tcl 8.3</a>
+(or later) already installed.
+</p>
+</font><pre>
+    ./configure ... --with-tcl=...
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<a name="anchor3"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>2.&nbsp;CONVENTIONS</h3>
+
+<h4><a name="anchor4">2.1</a>&nbsp;Return Codes</h4>
+
+<p>
+If an exception occurs in a Cyrus SASL library function,
+an error is thrown and the <b>errorCode</b> global is set to a list
+containing four elements:
+
+<ul class="text">
+
+<li>
+the literal string <b>"SASL"</b>;
+</li>
+
+<li>
+a string naming the Cyrus SASL library function that failed;
+</li>
+
+<li>
+an integer identifying the Cyrus SASL result code that was returned;
+and,
+</li>
+
+<li>
+a string containing the associated diagnostic.
+</li>
+
+</ul>
+<p>
+
+</p>
+
+<p>
+In addition to the usual "normal" return,
+four routines
+(<a href="#server_start">sasl::server_start</a>,
+<a href="#server_step">sasl::server_step</a>,
+<a href="#client_start">sasl::client_start</a>, and
+<a href="#client_step">sasl::client_step</a>)
+may also use the "continue" return.
+This occurs when the corresponding Cyrus SASL library function returns
+<b>SASL_CONTINUE</b>.
+</p>
+
+<h4><a name="anchor5">2.2</a>&nbsp;Data Types</h4>
+
+<p>
+A serialized array is a list that contains an series of keywords
+and values.
+</p>
+
+<p>
+A serialized array can be traversed using <b>foreach</b>,
+e.g.,
+</p>
+</font><pre>
+    foreach {k v} $aList {
+        puts stdout "$k has value $v"
+    }
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Alternatively,
+an array can be initialized and accessed,
+e.g.,
+</p>
+</font><pre>
+    array set data $aList
+    if {[info exists data(plugin)]} {
+        puts stdout "plugin entry is present"
+    }
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Several routines accept serialized arrays as arguments.
+In particular,
+the Cyrus SASL security properties is expressed as a serialized array
+with these elements:
+
+<ul class="text">
+
+<li>
+min_ssf
+</li>
+
+<li>
+max_ssf
+</li>
+
+<li>
+max_bufsize
+</li>
+
+<li>
+flags
+</li>
+
+</ul>
+<p>
+
+With the exception of <b>flags</b>,
+each of these takes an integer value.
+The <b>flags</b> entry takes a list value.
+To find out what flags are known,
+try <b>sasl::info sec_flags</b>.
+</p>
+
+<h4><a name="anchor6">2.3</a>&nbsp;Interactions</h4>
+
+<p>
+Two routines
+(<a href="#client_start">sasl::client_start</a> and
+<a href="#client_step">sasl::client_step</a>)
+have an optional <b>-interact</b> switch that takes a script argument.
+</p>
+
+<p>
+When evaluated,
+the script is given one argument,
+a serialized array.
+At a minimum,
+the <b>id</b> element is present in the serialized array.
+Optionally,
+three other elements
+(<b>challenge</b>, <b>prompt</b>, and <b>default</b>)
+may also be present.
+</p>
+
+<p>
+If the script makes a normal return,
+the return value is supplied to the Cyrus SASL library.
+</p>
+
+<h4><a name="anchor7">2.4</a>&nbsp;Callbacks</h4>
+
+<p>
+Four routines
+(<a href="#server_init">sasl::server_init</a>,
+<a href="#server_new">sasl::server_new</a>,
+<a href="#client_init">sasl::client_init</a>, and
+<a href="#client_new">sasl::client_new</a>)
+have a <b>-callbacks</b> switch that takes a list argument.
+Each element of the list is either:
+
+<ul class="text">
+
+<li>
+the name of a callback; or,
+</li>
+
+<li>
+a list containing two elements,
+the name of a callback and a script.
+</li>
+
+</ul>
+<p>
+
+The former case is used by clients to tell the Cyrus SASL library
+what information may be determined using an interaction.
+Otherwise,
+the supplied script is evaluated to get the indicated information.
+</p>
+
+<p>
+In this latter case,
+the script is given one argument,
+a serialized array containing callback-specific elements.
+</p>
+
+<h4><a name="anchor8">2.4.1</a>&nbsp;Client/Server callbacks</h4>
+
+<p>
+
+<blockquote class="text"><dl>
+
+<dt>getopt:</dt>
+<dd>
+<a name="anchor21"></a>
+Returns a string.
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+?plugin?
+</li>
+
+<li>
+option
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>log:</dt>
+<dd>
+<a name="anchor22"></a>
+Elements:
+
+<ul class="text">
+
+<li>
+level
+</li>
+
+<li>
+message
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>getpath:</dt>
+<dd>
+<a name="anchor23"></a>
+Returns a string.
+<br>
+
+Elements: none.
+<br>
+<br>
+
+</dd>
+
+<dt>verifyfile:</dt>
+<dd>
+<a name="anchor24"></a>
+Returns an integer (a SASL result code),
+either 0 (<b>SASL_OK</b>), 1 (<b>SASL_CONTINUE</b>), or -1 (<b>SASL_FAIL</b>).
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+file
+</li>
+
+<li>
+type
+</li>
+
+</ul>
+<p>
+
+To find out what types are known,
+try <b>sasl::info verify_types</b>.
+</dd>
+
+</dl></blockquote>
+<p>
+
+</p>
+
+<h4><a name="anchor9">2.4.2</a>&nbsp;Client-only callbacks</h4>
+
+<p>
+
+<blockquote class="text"><dl>
+
+<dt>user:</dt>
+<dd>
+<a name="anchor25"></a>
+Returns a string.
+<br>
+
+Elements: id
+<br>
+<br>
+
+</dd>
+
+<dt>authname:</dt>
+<dd>
+<a name="anchor26"></a>
+Returns a string.
+<br>
+
+Elements: id
+<br>
+<br>
+
+</dd>
+
+<dt>language:</dt>
+<dd>
+<a name="anchor27"></a>
+Returns a string.
+<br>
+
+Elements: id
+<br>
+<br>
+
+</dd>
+
+<dt>cnonce:</dt>
+<dd>
+<a name="anchor28"></a>
+Returns a string.
+<br>
+
+Elements: id
+<br>
+<br>
+
+</dd>
+
+<dt>pass:</dt>
+<dd>
+<a name="anchor29"></a>
+Returns a string.
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+token (a client token)
+</li>
+
+<li>
+id
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>?no?echoprompt:</dt>
+<dd>
+<a name="anchor30"></a><a name="anchor31"></a>
+Returns a string.
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+id
+</li>
+
+<li>
+challenge
+</li>
+
+<li>
+prompt
+</li>
+
+<li>
+default
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>getrealm:</dt>
+<dd>
+<a name="anchor32"></a>
+Returns a string.
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+id
+</li>
+
+<li>
+?available? (a list of possible choices)
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+</dl></blockquote>
+<p>
+
+</p>
+
+<h4><a name="anchor10">2.4.3</a>&nbsp;Server-only callbacks</h4>
+
+<p>
+
+<blockquote class="text"><dl>
+
+<dt>proxy:</dt>
+<dd>
+<a name="anchor33"></a>
+Returns an integer (a SASL result code),
+usually either 0 (<b>SASL_OK</b>), or -14 (<b>SASL_NOAUTHZ</b>).
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+token (a server token)
+</li>
+
+<li>
+target
+</li>
+
+<li>
+user
+</li>
+
+<li>
+?realm?
+</li>
+
+<li>
+?propctx? (a propctx token)
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>checkpass:</dt>
+<dd>
+<a name="anchor34"></a>
+Returns an integer (a SASL result code).
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+token (a server token)
+</li>
+
+<li>
+user
+</li>
+
+<li>
+pass
+</li>
+
+<li>
+?propctx? (a propctx token)
+</li>
+
+</ul>
+<p>
+
+</dd>
+
+<dt>setpass:</dt>
+<dd>
+<a name="anchor35"></a>
+Returns an integer (a SASL result code).
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+token (a server token)
+</li>
+
+<li>
+user
+</li>
+
+<li>
+pass
+</li>
+
+<li>
+flags
+</li>
+
+<li>
+?propctx? (a propctx token)
+</li>
+
+</ul>
+<p>
+
+To find out what flags are known,
+try <b>sasl::info setpass_flags</b>.
+<br>
+<br>
+
+</dd>
+
+<dt>canonuser:</dt>
+<dd>
+<a name="anchor36"></a>
+Returns a string.
+<br>
+
+Elements:
+
+<ul class="text">
+
+<li>
+token (a server token)
+</li>
+
+<li>
+in
+</li>
+
+<li>
+?realm?
+</li>
+
+<li>
+outmax
+</li>
+
+<li>
+flags
+</li>
+
+</ul>
+<p>
+
+To find out what flags are known,
+try <b>sasl::info canon_flags</b>.
+</dd>
+
+</dl></blockquote>
+<p>
+
+</p>
+
+<a name="anchor11"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>3.&nbsp;PROCEDURES</h3>
+
+<h4><a name="anchor12">3.1</a>&nbsp;Server-only calls</h4>
+
+<p>
+The calling sequence is:
+
+<ol class="text">
+
+<li>
+Invoke <a href="#server_init">sasl::server_init</a> to load
+plugins.
+</li>
+
+<li>
+On each incoming connection,
+invoke <a href="#server_new">sasl::server_new</a> to get a
+server token.
+</li>
+
+<li>
+Invoke <a href="#setprop">$token -operation setprop</a> to
+set the security properties for the connection.
+</li>
+
+<li>
+Invoke <a href="#server_list">$token -operation list</a> to
+get the list of mechanisms to send to the client.
+</li>
+
+<li>
+When client selects a mechanism,
+invoke <a href="#server_start">$token -operation start</a>,
+and go to Step 7.
+</li>
+
+<li>
+Invoke <a href="#server_step">$token -operation step</a>.
+</li>
+
+<li>
+Look at the result:
+
+<blockquote class="text"><dl>
+
+<dt>normal return:</dt>
+<dd>
+Tell the client it's successful and goto
+Step 8.
+</dd>
+
+<dt>continue return:</dt>
+<dd>
+Send the result to the client,
+wait for more input,
+and goto Step 6.
+</dd>
+
+<dt>error return:</dt>
+<dd>
+Tell the client it loses and abort.
+</dd>
+
+</dl></blockquote>
+<p>
+
+</li>
+
+<li>
+Invoke <a href="#getprop">$token -operation getprop</a> to
+get the new security properties for the connection.
+</li>
+
+</ol>
+<p>
+
+Now, let's look at the actual procedures.
+</p>
+<a name="server_init"></a>
+
+<p>
+<a name="anchor37"></a>
+</p>
+</font><pre>sasl::server_init     \
+    -callbacks list   \
+   ?-appname   string?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Initialize server-side code,
+supplying default <b>-callbacks</b> and an <b>-appname</b> for logging.
+</p>
+<a name="server_new"></a>
+
+<p>
+<a name="anchor38"></a>
+</p>
+</font><pre>sasl::server_new          \
+    -service      string  \
+   ?-serverFQDN   string? \
+   ?-realm        string? \
+   ?-iplocalport  string? \
+   ?-ipremoteport string? \
+   ?-callbacks    script? \
+   ?-flags        list?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a "server token" for a single SASL connection,
+supplying the registered name of the <b>-service</b>.
+To find out what flags are known,
+try <b>sasl::info servernew_flags</b>.
+
+</p>
+<a name="server_list"></a>
+
+<p>
+<a name="anchor39"></a>
+</p>
+</font><pre>$token -operation list    \
+      ?-user      string?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a list of mechanisms available to the server.
+</p>
+<a name="server_start"></a>
+
+<p>
+<a name="anchor40"></a>
+</p>
+</font><pre>$token -operation start   \
+       -mechanism string  \
+       ?-input    string?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Start a <b>-mechanism</b>
+(optionally, with an <b>-input</b> string from the client),
+returning an output string for the client.
+</p>
+<a name="server_step"></a>
+
+<p>
+<a name="anchor41"></a>
+</p>
+</font><pre>$token -operation step   \
+       -input     string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Perform another exchange,
+taking an <b>input</b> string from the client,
+returning an output string for the client.
+</p>
+
+<p>
+<a name="anchor42"></a>
+</p>
+</font><pre>$token -operation checkpass \
+       -user      string    \
+       -pass      string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Determine if a plaintext password is valid;
+if not, throw an error.
+</p>
+
+<p>
+<a name="anchor43"></a>
+</p>
+</font><pre>$token -operation userexists \
+       -server    string     \
+      ?-realm     string?    \
+       -user      string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Determine if a user exists;
+it not, throw an error.
+</p>
+
+<p>
+<a name="anchor44"></a>
+</p>
+</font><pre>$token -operation setpass \
+       -user      string  \
+      ?-newpass   string? \
+      ?-oldpass   string? \
+      ?-flags     list?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Set the password for a user;
+on failure, throw an error.
+To find out what flags are known,
+try <b>sasl::info setpass_flags</b>.
+</p>
+
+<p>
+<a name="anchor45"></a>
+</p>
+</font><pre>$token -operation   auxprop_request \
+       ?-properties list?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Request a set of auxiliary <b>-properties</b>
+(or reset the list if this switch is absent);
+on failure,
+throw an error.
+</p>
+
+<p>
+<a name="anchor46"></a>
+</p>
+</font><pre>$token -operation auxprop_getctx
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a "propctx token" containing the current auxiliary
+properties.
+</p>
+
+<h4><a name="anchor13">3.2</a>&nbsp;Client-only calls</h4>
+
+<p>
+The calling sequence is:
+
+<ol class="text">
+
+<li>
+Invoke <a href="#client_init">sasl::client_init</a> to load
+plugins.
+</li>
+
+<li>
+On each outgoing connection,
+invoke <a href="#client_new">sasl::client_new</a> to get a
+client token.
+</li>
+
+<li>
+Invoke <a href="#setprop">$token -operation setprop</a> to
+set the security properties for the connection.
+</li>
+
+<li>
+When the server indicates which mechanisms are available
+invoke <a href="#client_start">$token -operation start</a>,
+and go to Step 6.
+</li>
+
+<li>
+Invoke <a href="#client_step">$token -operation step</a>.
+</li>
+
+<li>
+Look at the result:
+
+<blockquote class="text"><dl>
+
+<dt>normal return:</dt>
+<dd>
+If the result is empty, goto Step 8;
+otherwise, send the result to the server and goto Step 7
+</dd>
+
+<dt>continue return:</dt>
+<dd>
+Send the result to the server,
+wait for more input,
+and goto Step 5.
+</dd>
+
+<dt>error return:</dt>
+<dd>
+You lose, abort.
+</dd>
+
+</dl></blockquote>
+<p>
+
+(If you're familiar with the Cyrus SASL library API,
+you'll notice there is no "interaction" return &#151;
+Tcl SASL handles this through a callback for you.)
+</li>
+
+<li>
+Wait for the server's confirmation.
+</li>
+
+<li>
+Invoke <a href="#getprop">$token -operation getprop</a> to
+get the new security properties for the connection.
+</li>
+
+</ol>
+<p>
+
+Now, let's look at the actual procedures.
+</p>
+<a name="client_init"></a>
+
+<p>
+<a name="anchor47"></a>
+</p>
+</font><pre>sasl::client_init   \
+    -callbacks list
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Initialize client-side code,
+supplying default <b>-callbacks</b>.
+</p>
+<a name="client_new"></a>
+
+<p>
+<a name="anchor48"></a>
+</p>
+</font><pre>sasl::client_new          \
+    -service      string  \
+    -serverFQDN   string  \
+   ?-iplocalport  string? \
+   ?-ipremoteport string? \
+   ?-callbacks    script? \
+   ?-flags        list?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a "client token" for a single SASL connection,
+supplying the registered name of the <b>-service</b>,
+and the <b>-serverFQDN</b> of the server.
+To find out what flags are known,
+try <b>sasl::info clientnew_flags</b>.
+</p>
+<a name="client_start"></a>
+
+<p>
+<a name="anchor49"></a>
+</p>
+</font><pre>$token -operation  start \
+       -mechanisms list  \
+      ?-interact   script?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Select one of the given <b>-mechanisms</b>,
+and return a serialized array containing two elements:
+the <b>mechanism</b> to use,
+and,
+an <b>output</b> string for the server.
+</p>
+<a name="client_step"></a>
+
+<p>
+<a name="anchor50"></a>
+</p>
+</font><pre>$token -operation step   \
+       -input     string \
+      ?-interact  script?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+
+<p>
+Perform another exchange,
+taking an <b>input</b> string from the server,
+returning an output string for the server.
+</p>
+
+</p>
+
+<h4><a name="anchor14">3.3</a>&nbsp;Client/Server calls</h4>
+
+<p>
+<a name="anchor51"></a>
+</p>
+</font><pre>$token -operation info
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a list of known operations for the token.
+</p>
+<a name="getprop"></a>
+
+<p>
+<a name="anchor52"></a>
+</p>
+</font><pre>$token -operation getprop \
+       -property  string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a string corresponding to the value of the 
+given <b>-property</b>.
+To find out what properties are known,
+try <b>sasl::info getprops</b>.
+</p>
+<a name="setprop"></a>
+
+<p>
+<a name="anchor53"></a>
+</p>
+</font><pre>$token -operation setprop \
+       -property  string  \
+       -value     string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Set the <b>-value</b> of the given <b>-property</b>.
+To find out what properties are known,
+try <b>sasl::info setprops</b>.
+</p>
+
+<p>
+<a name="anchor54"></a>
+</p>
+</font><pre>$token -operation errdetail
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+
+Return the detail for the last error encountered for the token.
+</p>
+
+<p>
+<a name="anchor55"></a>
+</p>
+</font><pre>$token -operation decode \
+       -input     string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+
+Take an <b>-input</b> string and decipher/verify it
+(using the previously-negotiated security layer),
+and return a plaintext string.
+</p>
+
+<p>
+<a name="anchor56"></a>
+</p>
+</font><pre>$token -operation encode \
+       -input     string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Take an <b>-output</b> string and encipher/sign it
+(using the previously-negotiated security layer),
+and return a string to be sent over the network.
+</p>
+
+<h4><a name="anchor15">3.4</a>&nbsp;Miscellaneous calls</h4>
+
+<p>
+<a name="anchor57"></a>
+</p>
+</font><pre>sasl::decode64 string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a string decoded from base64.
+</p>
+
+<p>
+<a name="anchor58"></a>
+</p>
+</font><pre>sasl::done
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Release all resources associated with this package.
+</p>
+
+<p>
+<a name="anchor59"></a>
+</p>
+</font><pre>sasl::encode64 string
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a string encoded to base64.
+</p>
+
+<p>
+<a name="anchor60"></a>
+</p>
+</font><pre>sasl::errstring
+    -code      number  \
+   ?-languages string?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Take a SASL result <b>-code</b> and
+a list of <b>-languages</b> (e.g., "en-US"),
+and return a serialized array containing two elements:
+the corresponding <b>diagnostic</b> string,
+and,
+optionally,
+the <b>language</b> used to localize the diagnostic.
+</p>
+
+<p>
+<a name="anchor61"></a>
+</p>
+</font><pre>sasl::info ?option?
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a list of known options,
+or a list of known choices for a given <b>option</b>.
+</p>
+
+<p>
+<a name="anchor62"></a>
+</p>
+</font><pre>sasl::mechanisms
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+Return a list of all known mechanisms.
+</p>
+
+<a name="anchor16"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>4.&nbsp;EXAMPLES</h3>
+
+<h4><a name="anchor17">4.1</a>&nbsp;Server</h4>
+</font><pre>
+proc sasl_log {data} {
+    array set params $data
+
+# look at data(level) and data(message)
+}
+
+
+proc server_callback {id data} {
+    array set params $data
+
+# look at data(level) and data(message)
+    global server
+
+    array set params $data
+
+    switch -- $id {
+        getopt {
+            if {![info exists params(plugin)]} {
+                set params(plugin) ""
+            }
+            switch -- $params(plugin)/$params(option) {
+                /auto_transition
+                    -
+                /canon_user_plugin
+                    -
+                /mech_list
+                    -
+                /sasldb_path
+                    -
+                OTP/opiekeys 
+                    -
+                default {
+# if value isn't set, an error is thrown below
+# that's okay, the Cyrus SASL library will use a default value
+                }
+            }
+        }
+
+        verifyfile {
+# set value...
+        }
+
+        proxy {
+# set value...
+        }
+
+        checkpass {
+# set value...
+        }
+    }
+
+    return $value
+}
+
+
+sasl::server_init -callbacks [list [list log sasl_log]]
+
+
+set callbacks {}
+foreach id [list getopt verifyfile proxy checkpass] {
+    lappend callbacks [list $id "server_callback $id"]
+}
+
+set token [sasl::server_new -service    $service   \
+                            -callbacks  $callbacks \
+                            -flags      [list success_data]]
+
+
+if {$ssf > 0} {
+    $token -operation setprop ssf_external $ssf
+}
+
+if {[string length $clientID] > 0} {
+    $token -operation setprop auth_external $clientID
+}
+
+$token -operation setprop sec_props \
+       [list min_ssf     $min    \
+             max_ssf     $max    \
+             max_bufsize $bufsiz \
+             flags       $flags]
+
+set mechlist [$token -operation list]
+
+
+# send $mechlist to client
+# recv mechanism and input from client
+
+set code 4
+for {set operation start} {$code == 4} {set operation step} {
+    set cmd [list $token -operation $operation \
+                         -input     $input] 
+    if {![string compare $operation start]} {
+        lappend cmd -mechanism $mechanism
+    }
+
+    switch -- [set code [catch { eval $cmd } output]] {
+        0 {
+# send success to client
+
+            set ssf [$token -operation getprop ssf]
+          }
+
+    4 {
+# send continue to client with output
+# recv input from client
+    }
+
+    default {
+# send error to client
+    }
+}
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<h4><a name="anchor18">4.2</a>&nbsp;Client</h4>
+</font><pre>
+proc client_callback {data} {
+    global client
+
+    array set params $data
+
+    switch -- $params(id) {
+        pass
+            -
+        echoprompt
+            -
+        noechoprompt {
+# ask the user...
+        }
+
+        getrealm {
+            if {[info exists params(available)]} {
+# ask the user to pick one from the list...
+            } else {
+# ask the user to supply one...
+            }
+        }
+    }
+
+    return $value
+}
+
+proc client_interact {data} {
+    global client
+
+    array set params $data
+    set id $params(id)
+
+    catch { set value $params(default) }
+
+# ask the user to enter the $id using $params(prompt)...
+
+    return $value
+}
+
+
+sasl::client_init -callbacks [list [list log sasl_log]]
+
+
+# interact script will supply these
+set callbacks [list authname cnonce language user]
+
+# callback script will supply these
+foreach id [list pass echoprompt noechoprompt] {
+    lappend callbacks [list $id client_callback]
+}
+
+set token [sasl::client_new -service    $service   \
+                            -serverFQDN $fqdn      \
+                            -callbacks  $callbacks \
+                            -flags      [list success_data]]
+
+
+if {$ssf > 0} {
+    $token -operation setprop ssf_external $ssf
+}
+
+if {[string length $serverID] > 0} {
+    $token -operation setprop auth_external $serverID
+}
+
+$token -operation setprop sec_props \
+       [list min_ssf     $min    \
+             max_ssf     $max    \
+             max_bufsize $bufsiz \
+             flags       $flags]
+
+
+# recv mechlist from server
+
+switch -- [set code [catch { $token -operation  start     \
+                                    -mechanisms $mechlist \
+                                    -interact   client_interact } result]] {
+    0 - 4 {
+        array set data $result
+# send data(mechanism) and optionally data(output) to server
+# recv input from server
+        set code 4
+    }
+
+    default {
+# error!
+    }
+}
+
+while {$code == 4} {
+    switch -- [set code [catch { $token -operation step   \
+                                        -input     $input \
+                                        -interact  client_interact
+                               } output]] {
+        0 {
+            if {![string compare $output ""]} {
+                break
+            }
+          }
+
+        4 {
+        }
+
+        default {
+# error!
+        }
+
+# make sure that server response says to continue...
+
+# send output to server
+# recv input from server
+    }
+    
+# make sure that server's last response says complete...
+}
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<a name="rfc.references1"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>References</h3>
+<table width="99%" border="0">
+<tr><td class="author-text" valign="top"><b><a name="RFC2222">[1]</a></b></td>
+<td class="author-text"><a href="mailto:jgmyers@netscape.com">Myers, J.</a>, "<a href="ftp://ftp.isi.edu/in-notes/rfc2222.txt">Simple Authentication and Security Layer (SASL)</a>", RFC 2222, October 1997.</td></tr>
+</table>
+
+<a name="rfc.authors"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>Author's Address</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Marshall T. Rose</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Dover Beach Consulting, Inc.</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">POB 255268</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Sacramento, CA  95865-5268</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">US</td></tr>
+<tr><td class="author" align="right">Phone:&nbsp;</td>
+<td class="author-text">+1 916 483 8878</td></tr>
+<tr><td class="author" align="right">Fax:&nbsp;</td>
+<td class="author-text">+1 916 483 8848</td></tr>
+<tr><td class="author" align="right">EMail:&nbsp;</td>
+<td class="author-text"><a href="mailto:mrose@dbc.mtview.ca.us">mrose@dbc.mtview.ca.us</a></td></tr>
+</table>
+
+<a name="anchor19"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>Appendix A.&nbsp;TODO List</h3>
+
+<p>
+
+<ul class="text">
+
+<li>
+Add routines for propctx tokens.
+</li>
+
+<li>
+Handle <b>property_names</b> and  <b>property_values</b> in security properties.
+</li>
+
+</ul>
+<p>
+
+</p>
+
+<a name="anchor20"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>Appendix B.&nbsp;Copyrights</h3>
+
+<p>
+(c) 2002 Marshall T. Rose
+</p>
+
+<p>
+Hold harmless the author, and any lawful use is allowed.
+</p>
+<a name="rfc.index"><br><hr size="1" shade="0"></a>
+<table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>
+<h3>Index</h3>
+<table>
+<tr><td><b>C</b></td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>callbacks</td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor26">authname</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor36">canonuser</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor34">checkpass</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor28">cnonce</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor30">echoprompt</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor21">getopt</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor23">getpath</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor32">getrealm</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor27">language</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor22">log</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor31">noechoprompt</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor29">pass</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor33">proxy</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor35">setpass</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor25">user</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor24">verifyfile</a></td></tr>
+<tr><td><b>P</b></td><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td><td>procedures</td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor49">client -operation start</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor50">client -operation step</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor47">sasl::client_init</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor48">sasl::client_new</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor57">sasl::decode64</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor58">sasl::done</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor59">sasl::encode64</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor60">sasl::errstring</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor61">sasl::info</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor62">sasl::mechanisms</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor37">sasl::server_init</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor38">sasl::server_new</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor46">server -operation auxprop_getctx</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor45">server -operation auxprop_request</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor42">server -operation checkpass</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor39">server -operation list</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor44">server -operation setpass</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor40">server -operation start</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor41">server -operation step</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor43">server -operation userexists</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor55">token -operation decode</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor56">token -operation encode</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor54">token -operation errdetail</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor52">token -operation getprop</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor51">token -operation info</a></td></tr>
+<tr><td>&nbsp;</td><td>&nbsp;&nbsp;<a href="#anchor53">token -operation setprop</a></td></tr>
+</table>
+</font></body></html>

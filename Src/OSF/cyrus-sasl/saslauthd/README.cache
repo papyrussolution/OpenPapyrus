@@ -1,0 +1,252 @@
+
+Credential Cache Operation
+--------------------------
+
+BASICS:
+
+
+ The idea here is to try and explain the operation behind the credentials
+cache. The cache is actually implemented as an open hash table with fixed
+length bucket chains attached to each table slot (aka row).  The cache is
+disabled in the default operation of saslauthd, and may be enabled by
+specifying the -c option at runtime.  Note that caching of authentication
+credentials may not be acceptable within the site policy at all sites.
+
+ The table will also only cache the username, realm, and service
+credentials if they are under a certain length. The combined length of the
+username, realm, and service must be less than the CACHE_MAX_CREDS_LENGTH
+define in cache.h:
+
+
+#define CACHE_MAX_CREDS_LENGTH           60
+
+
+Each bucket in the hash table has the following declaration:
+
+struct bucket {
+        char            creds[CACHE_MAX_CREDS_LENGTH];
+        unsigned int    user_offt;
+        unsigned int    realm_offt;
+        unsigned int    service_offt;;
+        unsigned char   pwd_digest[16];
+        time_t          created;
+};
+
+
+Logical layout could be viewed as:
+
+x = bucket
+
+       bucket chains
+----------------------
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+slot-> x x x x x x
+.....
+...
+.
+
+
+ A combined string composed of the username + realm + service is hashed to
+determine the proper slot that the entry should be located in. The associated
+bucket chain (at the hashed location) is then traversed to attempt to locate the
+entry. 
+ 
+ If the entry is not located in the bucket chain (cache miss), then the criteria
+(username, realm, service) will be written into the first empty or expired
+bucket. Further, if no buckets are empty or expired, the oldest entry in the
+bucket chain will be forcefully evicted and the new entry written in its place.
+
+ The hash table's size can be adjusted two ways. One is to increase the length
+of the bucket chains (CACHE_MAX_BUCKETS_PER define in cache.h). The second is to
+increase the number of slots available. The length of the bucket chains is hard
+coded to a length of 6 buckets per slot. It is not recommended to increase this
+value beyond about 8. Testing has shown that if the number of slots is sized
+properly, buckets further out than 8 seldom get allocated.
+
+ By default, the CACHE_DEFAULT_TABLE_SIZE define sets the number of slots to
+1711. Generating a total number of 10266 buckets. Techically this would cache
+10266 individual users, but the maximum hash table load only grows to be around
+.90. This effectively drops the number of cachable individual users to approx
+9230. The size of the hash table is also runtime configurable. The option -s
+to saslauthd accepts the desired size in kilobytes and calculates the number of
+slots to allocate.
+
+ To increase the efficiency of the hashing function the number of slots in the
+hash table needs to be kept relatively prime (hence all the default 111 stuff).
+The efficiency of the hashing function may drop as much a 15% by changing the
+number slots from 8001 to 8000. One shouldn't really worry about this though,
+the calculator behind the -s option has a built in prime number generator.
+
+ Items in the credental cache are stamped with an epoch stamp to gauge timeouts.
+The idea would be to set the cache timeout to a very long time (default is 8
+hours). This would allow the cache to fill up with the credentials of the user
+base, but would also expire entries that haven't been accessed for long time
+spans. The default timeout can be set with the CACHE_DEFAULT_TIMEOUT define in
+cache.h. The timeout is also runtime configurable by setting the timeout in
+seconds with the -t option.
+
+
+PROGRAMMING:
+
+
+ Programatically using the cache is pretty simple and straight forward. To check
+if a set of credentials is in the cache, call:
+
+ int cache_lookup(char *user, char *realm, char *service, char *password, struct cache_result *result)
+
+ and then (if needed) a following:
+
+ void cache_commit(struct cache_result *result)
+
+ The lookup process goes as follows:
+
+  1) memset() the result pointer to eliminate stray data. Set the default
+     result->status to CACHE_NON_FLUSHABLE.
+  2) If the combined length of the username, service, and realm is longer
+     than CACHE_MAX_CREDS_LENGTH (default 60), return CACHE_TOO_BIG.
+  3) Hash the username, service, and realm to obtain the slot (row) location
+     that should have the entry.
+  4) Acquire a read lock on the slot (row).
+  5) Traverse the bucket chain looking for the cached entry. If a cached 
+     entry is found with a matching password, unlock the slot (row), 
+     return CACHE_OK.
+  6) If the password in the bucket doesn't match the given password,
+     write an updated bucket into result->bucket, set the reference pointer 
+     (result->read_bucket) to the local read_bucket, set result->status ==
+     CACHE_FLUSH, release the lock, and return CACHE_FAIL. A pending
+     cache_commit() should follow.
+  7) If the entry could not be found in the bucket chain, write the new information
+     into result->bucket, set result->status == CACHE_FLUSH_WITH_RESCAN, release
+     the lock and return CACHE_FAIL. A pending cache_commit() should follow.
+
+ 
+ If the return value is CACHE_OK, then the user, realm, service, and password
+have been previously seen. Nothing more is really required after this point.
+Since the lookup was successful and result->status == CACHE_NO_FLUSH, any
+ancillary call to cache_commit() does nothing.
+
+ If a CACHE_FAIL is returned, the credentials should be checked against their
+native authentication mechanism. If that mechanism succeeds, then a call to
+cache_commit() will write the pending entry (saved via cache_result *) to its
+final location in the hash table. If the native authentication fails, skip the 
+call to cache_commit(), which will effectively discard the data.
+
+ If a CACHE_TOO_BIG is returned, the credentials should be checked against 
+their native authentication mechanism. Secondary calls to cache_commit() 
+will do nothing since result->status == CACHE_NO_FLUSH.
+
+ Cache_commit() flushes the result->bucket out to the hash table. The location 
+is determined by result->status. If result->status == CACHE_FLUSH, then the
+result->bucket needs to be written to the location pointed to via result->read_bucket.
+If result->status == CACHE_FLUSH_WITH_RESCAN, then the bucket is new or hasn't
+been seen before. We should rescan the bucket chain at result->hash_offset and 
+evict the oldest entry.
+
+ It should also be noted that all passwords in the credential cache are
+comprised of md5 digests of the original clear text passwords. The goal is
+to only keep passwords in clear text as long as needed.
+
+
+LOCKING:
+
+
+ Two methods are utilized to perform the required read/write locks on the hash
+table slots. One uses the fcntl() call (used elsewhere in saslauthd), the second
+utilizes the pthread rwlock interface (pthread_rwlock_wrlock(),
+pthread_rwlock_rdlock(), etc). The intention is to use the fcntl() interface
+when using the unix IPC mechanism and the rwlock interface when using the doors
+IPC mechanism.
+
+ The fcntl() interface opens a temporary locking file in the same path as the
+mux communication socket and has a .flock extension appended to it, example:
+/var/run/saslauthd/mux.flock . Each byte in the temporary file corresponds to a
+slot in the hash table. By employing fcntl() region locks (either F_WRLCK or
+F_RDLCK) on selected bytes, we can simulate advisory locks in the hash
+table.
+
+ The rwlock method initializes and array of pthread_rwlock_t types, one for each
+slot in the table. Successive calls are then made with the desired slot to lock
+being the offset into the pthread_rwlock_t table.
+
+
+DEBUGGING:
+
+
+ For those testing the cache code. It would be beneficial to enable verbose output
+regardless of what the rest of saslauthd is doing. By uncommenting the define in
+cache.h:
+
+/* If debugging uncomment this for always verbose  */
+//#define CACHE_DEFAULT_FLAGS           CACHE_VERBOSE
+
+extra data is logged about cache hits/misses, (un)locking events, etc. under the
+syslog facility LOG_INFO|LOG_AUTH (auth.info).
+
+
+SASLCACHE:
+
+
+ Upon startup, saslauthd will write the shared mmaped file out to the saslauthd
+state directory with the name cache.mmap. There is an included utility called saslcache
+that can be used to look into the mmaped file and gather some statistics about the
+cache. To build the saslcache utility:
+
+cd saslauthd
+make saslcache
+
+Examples of the saslcache utility:
+
+./saslcache -s		dumps out some information about the cache
+
+----------------------------------------
+Saslauthd Cache Detail:
+
+  timeout (seconds)           :  28800
+  total slots allocated       :  3643
+  slots in use                :  3
+  total buckets               :  21858
+  buckets per slot            :  6
+  buckets in use              :  3
+  hash table size (bytes)     :  2098536
+  bucket size (bytes)         :  96
+  minimum slot allocation     :  0
+  maximum slot allocation     :  1
+  slots at maximum allocation :  3
+  slots at minimum allocation :  3640
+  overall hash table load     :  0.00
+
+  hits*                       :  19
+  misses*                     :  3
+  total lookup attempts*      :  22
+  hit ratio*                  :  86.36
+----------------------------------------
+* May not be completely accurate
+----------------------------------------
+
+
+./saslcache -d		dumps the contents of the cache in a csv format
+
+"user","realm","service","created","created_localtime"
+"m3","","imap","1042513583","Mon Jan 13 22:06:23 2003"
+"m2","","imap","1042513256","Mon Jan 13 22:00:56 2003"
+"m1","","imap","1042513355","Mon Jan 13 22:02:35 2003"
+
+
+./saslcache -d -m /var/run/saslauthd/cache.mmap   with alternate mmaped file path
+
+
+ Overall, the whole goal of the cache is to provide relief to the authentication
+mechanisms without placing a lot of additional burden on the server. Hopefully
+the above methodology will be lightweight and effective at this task.
+
+As always, additional comments and/or suggestions are more than welcome.
+
+Jeremy Rumpf
+jrumpf@heavyload.net
+

@@ -389,12 +389,12 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 	StrAssocArray msvs_ver_list;
 	{
 		const char * p_sub_msvs = "Software\\Microsoft\\VisualStudio";
-		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs, 1); // @v9.2.0 readonly 0-->1
+		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs, 1/*readonly*/);
 		for(uint kidx = 0; reg_key.EnumKeys(&kidx, temp_buf);) {
 			if(temp_buf.Divide('.', major, minor) > 0) {
 				long msvs_ver = (major.ToLong() << 16) | (minor.ToLong() & 0xffff);
 				(subkey_buf = p_sub_msvs).SetLastSlash().Cat(temp_buf); //.Cat("InstallDir");
-				WinRegKey reg_key_ver(HKEY_LOCAL_MACHINE, subkey_buf, 1); // @v9.2.0 readonly 0-->1
+				WinRegKey reg_key_ver(HKEY_LOCAL_MACHINE, subkey_buf, 1/*readonly*/);
 				if(reg_key_ver.GetString("InstallDir", path_buf) > 0 && path_buf.NotEmpty() && fileExists(path_buf)) {
 					rList.Add(msvs_ver, path_buf);
 					ok = 1;
@@ -404,7 +404,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 	}
 	{
 		const char * p_sub_msvs_2 = "Software\\Microsoft\\VisualStudio\\SxS\\VS7";
-		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs_2, 1); // @v9.2.0 readonly 0-->1
+		WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_sub_msvs_2, 1/*readonly*/);
 		WinRegValue reg_val;
 		for(uint vidx = 0; reg_key.EnumValues(&vidx, &temp_buf, &reg_val);) {
 			if(temp_buf.Divide('.', major, minor) > 0) {
@@ -422,8 +422,8 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 	if(ok > 0 && pPrefPath) {
 		for(uint i = 0; pPrefPath->IsEmpty() && i < rList.getCount(); i++) {
 			StrAssocArray::Item item = rList.Get(i);
-			int    msvs_ver_major = (item.Id >> 16);
-			int    msvs_ver_minor = (item.Id & 0xffff);
+			const int msvs_ver_major = (item.Id >> 16);
+			const int msvs_ver_minor = (item.Id & 0xffff);
 			if(prefMsvsVerMajor) {
 				if(msvs_ver_major == prefMsvsVerMajor) {
 					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").DotCat("exe");
@@ -441,10 +441,8 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 
 /*static*/int PrcssrBuild::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 {
-	SString msg_buf;
-	(msg_buf = scfd->P_Src).Space().Cat("-->").Space().Cat(scfd->P_Dest);
-	long   pct = (long)(100L * scfd->SizeDone / scfd->SizeTotal);
-	PPWaitPercent(pct, msg_buf);
+	const long pct = (long)(100L * scfd->SizeDone / scfd->SizeTotal);
+	PPWaitPercent(pct, SString(scfd->P_Src).Space().Cat("-->").Space().Cat(scfd->P_Dest));
 	return SPRGRS_CONTINUE;
 }
 
@@ -787,7 +785,6 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 		MEMSZERO(si);
 		si.cb = sizeof(si);
 		MEMSZERO(pi);
-
 		PPGetFilePath(PPPATH_BIN, "dl600c.exe", temp_buf);
 		THROW_SL(fileExists(temp_buf));
 		cmd_line.Z().CatQStr(temp_buf);
@@ -867,8 +864,7 @@ int SelfBuild()
 
 int BuildLocalDL600()
 {
-	PrcssrBuild prc;
-	return prc.BuildLocalDl600(0);
+	return PrcssrBuild().BuildLocalDl600(0);
 }
 
 int ParseWinRcForNativeText()

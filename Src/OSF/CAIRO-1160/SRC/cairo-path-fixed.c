@@ -190,7 +190,7 @@ boolint _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_f
 	num_ops_b = buf_b->num_ops;
 	ops_b = buf_b->op;
 	points_b = buf_b->points;
-	while(TRUE) {
+	while(true) {
 		int num_ops = MIN(num_ops_a, num_ops_b);
 		int num_points = MIN(num_points_a, num_points_b);
 		if(memcmp(ops_a, ops_b, num_ops * sizeof(cairo_path_op_t)))

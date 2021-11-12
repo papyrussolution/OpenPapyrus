@@ -363,10 +363,6 @@
     <ProjectReference Include="win_flex.vcxproj">
       <Project>{47c40ef9-255c-475f-b5a6-b9cb85d40ad0}</Project>
     </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

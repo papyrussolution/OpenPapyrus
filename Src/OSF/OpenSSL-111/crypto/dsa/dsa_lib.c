@@ -242,11 +242,11 @@ err:
 void DSA_get0_pqg(const DSA * d,
     const BIGNUM ** p, const BIGNUM ** q, const BIGNUM ** g)
 {
-	if(p != NULL)
+	if(p)
 		*p = d->p;
-	if(q != NULL)
+	if(q)
 		*q = d->q;
-	if(g != NULL)
+	if(g)
 		*g = d->g;
 }
 
@@ -260,15 +260,15 @@ int DSA_set0_pqg(DSA * d, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 	    || (d->g == NULL && g == NULL))
 		return 0;
 
-	if(p != NULL) {
+	if(p) {
 		BN_free(d->p);
 		d->p = p;
 	}
-	if(q != NULL) {
+	if(q) {
 		BN_free(d->q);
 		d->q = q;
 	}
-	if(g != NULL) {
+	if(g) {
 		BN_free(d->g);
 		d->g = g;
 	}

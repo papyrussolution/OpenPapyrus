@@ -128,7 +128,7 @@ err:
 	/* Cleanup ! */
 	OPENSSL_free(filename);
 	OPENSSL_free(p);
-	if(h != NULL)
+	if(h)
 		FreeLibrary(h);
 	return 0;
 }

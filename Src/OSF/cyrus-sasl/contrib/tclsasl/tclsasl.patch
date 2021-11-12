@@ -1,0 +1,265 @@
+Index: Makefile.am
+===================================================================
+RCS file: /cvs/src/sasl/Makefile.am,v
+retrieving revision 1.24
+diff -u -r1.24 Makefile.am
+--- Makefile.am	2001/12/04 17:46:35	1.24
++++ Makefile.am	2002/01/21 07:07:29
+@@ -68,7 +68,8 @@
+ INSTALLOSX = 
+ endif
+ 
+-SUBDIRS=include sasldb plugins lib utils doc man $(PWC) $(SAM) $(JAV) $(SAD)
++SUBDIRS=include sasldb plugins lib utils doc man $(PWC) $(SAM) $(JAV) $(SAD) \
++        tcl
+ EXTRA_DIST=config cmulocal win32 mac dlcompat-20010505
+ 
+ dist-hook:
+Index: acconfig.h
+===================================================================
+RCS file: /cvs/src/sasl/acconfig.h,v
+retrieving revision 1.31
+diff -u -r1.31 acconfig.h
+--- acconfig.h	2001/12/11 17:35:29	1.31
++++ acconfig.h	2002/01/21 07:07:29
+@@ -155,6 +155,9 @@
+ /* do we have a wierd location of db.h? */
+ #undef HAVE_DB3_DB_H
+ 
++/* is Tcl available? */
++#undef	TCLSASL
++
+ /* define if your compile has __attribute__ */
+ #undef HAVE___ATTRIBUTE__
+ 
+Index: configure.in
+===================================================================
+RCS file: /cvs/src/sasl/configure.in,v
+retrieving revision 1.122
+diff -u -r1.122 configure.in
+--- configure.in	2002/01/10 22:49:35	1.122
++++ configure.in	2002/01/21 07:07:29
+@@ -592,6 +592,45 @@
+ AC_SUBST(SASL_UTIL_LIBS_EXTRA)
+ AC_SUBST(SASL_UTIL_HEADERS_EXTRA)
+ 
++dnl check for tcl
++AC_MSG_CHECKING(for tcl support)
++AC_ARG_WITH(tcl, [  --with-tcl=DIR          with Tcl support [no] ],
++	with_tcl=$withval,
++	with_tcl=no)
++
++if test "$with_tcl" != "no"; then
++    AC_CACHE_VAL(ac_cv_c_tclconfig,[
++	if test "$with_tcl" = "yes"; then
++	    for i in `ls -d ${prefix}/lib 2>/dev/null` \
++		     `ls -d /usr/lib 2>/dev/null`      \
++		     `ls -d /usr/local/lib 2>/dev/null` ; do
++		if test -f "$i/tclConfig.sh" ; then
++		    ac_cv_c_tclconfig=`(cd $i; pwd)`
++		    break
++		fi
++	    done
++	    with_tcl=`dirname ${ac_cv_c_tclconfig}`
++	elif test -f "${with_tcl}/tclConfig.sh" ; then
++	    :
++	else
++	    AC_MSG_ERROR([${with_tcl}/lib directory doesn't contain tclConfig.sh])
++	fi
++    ])
++
++    . ${ac_cv_c_tclconfig}/tclConfig.sh
++    LIB_TCL="${TCL_LIB_SPEC} ${TCL_LIBS}"
++    PKG_TCL=${TCL_PACKAGE_PATH}/sasl
++    INSTALL_TCLSASL=install-tclsasl
++
++    AC_DEFINE(TCLSASL)
++    AC_MSG_RESULT(yes)
++else
++    AC_MSG_RESULT(no)    
++fi
++AC_SUBST(LIB_TCL)
++AC_SUBST(PKG_TCL)
++AC_SUBST(INSTALL_TCLSASL)
++
+ dnl check for getsubopt
+ sasl_cv_getsubopt=no
+ AC_CHECK_FUNC(getsubopt, [AC_DEFINE(HAVE_GETSUBOPT)], [sasl_cv_getsubopt=yes])
+@@ -695,6 +734,7 @@
+ java/javax/security/Makefile
+ java/javax/security/auth/Makefile
+ java/javax/security/auth/callback/Makefile
++tcl/Makefile
+ pwcheck/Makefile
+ man/Makefile)
+ 
+Index: config/kerberos_v4.m4
+===================================================================
+RCS file: /cvs/src/sasl/config/kerberos_v4.m4,v
+retrieving revision 1.2
+diff -u -r1.2 kerberos_v4.m4
+--- kerberos_v4.m4	2001/12/04 02:05:09	1.2
++++ kerberos_v4.m4	2002/01/21 07:07:30
+@@ -11,8 +11,19 @@
+     CPPFLAGS="$CPPFLAGS -I${with_des}/include"
+     LDFLAGS="$LDFLAGS -L${with_des}/lib"
+   fi
+-  AC_CHECK_LIB(des, des_pcbc_encrypt, [LIB_DES="-ldes";
+-				       with_des=yes], with_des=no)
++
++dnl check for openssl installing -lcrypto, then make vanilla check
++  AC_CHECK_LIB(crypto, des_pcbc_encrypt, 
++      AC_CHECK_HEADER(openssl/des.h, [AC_DEFINE(WITH_SSL_DES)
++				      LIB_DES="-lcrypto";
++				      with_des=yes],
++		      with_des=no),
++      with_des=no, $LIB_RSAREF)
++
++  if test "$with_des" = no; then
++    AC_CHECK_LIB(des, des_pcbc_encrypt, [LIB_DES="-ldes";
++				         with_des=yes], with_des=no)
++  fi
+ 
+   if test "$with_des" = no; then
+      AC_CHECK_LIB(des524, des_pcbc_encrypt, [LIB_DES="-ldes524";
+Index: config/sasldb.m4
+===================================================================
+RCS file: /cvs/src/sasl/config/sasldb.m4,v
+retrieving revision 1.4
+diff -u -r1.4 sasldb.m4
+--- sasldb.m4	2001/12/10 17:02:36	1.4
++++ sasldb.m4	2002/01/21 07:07:30
+@@ -76,10 +76,26 @@
+ 	BERKELEY_DB_CHK()
+ 	;;
+   gdbm)
+-	AC_CHECK_HEADER(gdbm.h,
++        AC_ARG_WITH(with-gdbm,[  --with-gdbm=PATH        use gdbm from PATH],
++    	      with_gdbm="${withval}")
++
++        case "$with_gdbm" in
++	""|yes) 
++	        AC_CHECK_HEADER(gdbm.h,
+ 			AC_CHECK_LIB(gdbm, gdbm_open, SASL_DB_LIB="-lgdbm",
+                                            dblib="no"),
+ 			dblib="no")
++
++		;;
++	*)
++		if test -d $with_gdbm; then
++		  CPPFLAGS="${CPPFLAGS} -I${with_gdbm}/include"
++		  LDFLAGS="${LDFLAGS} -L${with_gdbm}/lib"
++		  SASL_DB_LIB="-lgdbm"
++		else
++		  with_gdbm="no"
++		fi
++	esac
+ 	;;
+   ndbm)
+ 	dnl We want to attempt to use -lndbm if we can, just in case
+Index: doc/index.html
+===================================================================
+RCS file: /cvs/src/sasl/doc/index.html,v
+retrieving revision 1.11
+diff -u -r1.11 index.html
+--- index.html	2002/01/18 16:40:06	1.11
++++ index.html	2002/01/21 07:07:30
+@@ -33,6 +33,7 @@
+ <li> <a href="options.html">Options for use with Cyrus SASL</A></li>
+ <li> <a href="programming.html">The SASL Application Programmer's Guide</A></li>
+ <li> <a href="plugprog.html">The SASL Plugin Programmer's Guide</A></li>
++<li> <a href="tclsasl.html">Using SASL with Tcl</A></li>
+ <li> <a href="advanced.html">Advanced SASL usage</A></li>
+ </ul>
+ 
+Index: sasldb/db_gdbm.c
+===================================================================
+RCS file: /cvs/src/sasl/sasldb/db_gdbm.c,v
+retrieving revision 1.2
+diff -u -r1.2 db_gdbm.c
+--- db_gdbm.c	2001/12/04 02:06:59	1.2
++++ db_gdbm.c	2002/01/21 07:07:30
+@@ -99,7 +99,8 @@
+   }
+   db = gdbm_open((char *)path, 0, GDBM_READER, S_IRUSR | S_IWUSR, NULL);
+   if (! db) {
+-      utils->seterror(cntxt, 0, "Could not open db");
++      utils->seterror(conn, 0, "Could not open %s: gdbm_errno=%d",
++		      path, gdbm_errno);
+       result = SASL_FAIL;
+       goto cleanup;
+   }
+@@ -108,8 +109,17 @@
+   gvalue = gdbm_fetch(db, gkey);
+   gdbm_close(db);
+   if (! gvalue.dptr) {
+-      utils->seterror(cntxt, 0, "no user in db");
+-      result = SASL_NOUSER;
++      if (gdbm_errno == GDBM_ITEM_NOT_FOUND) {
++          utils->seterror(conn, SASL_NOLOG,
++		          "user: %s@%s property: %s not found in %s",
++			  authid, realm, propName, path);
++	  result = SASL_NOUSER;
++      } else {
++	  utils->seterror(conn, 0,
++			  "Couldn't fetch entry from %s: gdbm_errno=%d",
++			  path, gdbm_errno);
++	  result = SASL_FAIL;
++      }
+       goto cleanup;
+   }
+ 
+@@ -177,7 +187,8 @@
+       utils->log(conn, SASL_LOG_ERR,
+ 		 "SASL error opening password file. "
+ 		 "Do you have write permissions?\n");
+-      utils->seterror(conn, 0, "Could not open db for write");
++      utils->seterror(conn, 0, "Could not open %s for write: gdbm_errno=%d",
++		      path, gdbm_errno);
+       result = SASL_FAIL;
+       goto cleanup;
+   }
+@@ -190,13 +201,15 @@
+     gvalue.dsize = data_len;
+     if (gdbm_store(db, gkey, gvalue, GDBM_REPLACE)) {
+ 	utils->seterror(conn, 0,
+-			"Couldn't update db");
++			"Couldn't replace entry in %s: gdbm_errno=%d",
++			path, gdbm_errno);
+ 	result = SASL_FAIL;
+     }
+   } else {
+       if (gdbm_delete(db, gkey)) {
+ 	  utils->seterror(conn, 0,
+-			  "Couldn't update db");	  
++			  "Couldn't delete entry in %s: gdbm_errno=%d",
++			  path, gdbm_errno);
+ 	  result = SASL_NOUSER;
+       }
+   }
+@@ -285,7 +298,8 @@
+     db = gdbm_open((char *)path, 0, GDBM_READER, S_IRUSR | S_IWUSR, NULL);
+ 
+     if(!db) {
+-	utils->seterror(conn, 0, "Could not open db");
++        utils->seterror(conn, 0, "Could not open %s: gdbm_errno=%d",
++			path, gdbm_errno);
+ 	return NULL;
+     }
+ 
+Index: utils/dbconverter-2.c
+===================================================================
+RCS file: /cvs/src/sasl/utils/dbconverter-2.c,v
+retrieving revision 1.2
+diff -u -r1.2 dbconverter-2.c
+--- dbconverter-2.c	2001/12/04 02:07:01	1.2
++++ dbconverter-2.c	2002/01/21 07:07:30
+@@ -349,6 +349,8 @@
+ 
+ #else 
+ 
++/* ARGSUSED */
++
+ int listusers(const char *path, listcb_t *cb)
+ {
+     fprintf(stderr,"Unsupported DB format");

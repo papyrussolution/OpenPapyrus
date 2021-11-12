@@ -5951,7 +5951,7 @@ static int xmlXPathEqualNodeSets(xmlXPathObject * arg1, xmlXPathObject * arg2, i
 			else {
 				SETIFZ(values1[i], xmlNodeGetContent(ns1->PP_NodeTab[i]));
 				SETIFZ(values2[j], xmlNodeGetContent(ns2->PP_NodeTab[j]));
-				ret = sstreq(values1[i], values2[j]) ^ neq;
+				ret = BIN(sstreq(values1[i], values2[j])) ^ neq;
 				if(ret)
 					break;
 			}

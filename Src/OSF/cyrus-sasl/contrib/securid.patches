@@ -1,0 +1,151 @@
+Index: configure.in
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/configure.in,v
+retrieving revision 1.125
+diff -c -r1.125 configure.in
+*** configure.in	2002/02/11 15:43:34	1.125
+--- configure.in	2002/03/07 14:38:31
+***************
+*** 449,454 ****
+--- 449,504 ----
+    AC_MSG_RESULT(disabled)
+  fi
+  
++ dnl
++ dnl SECURID
++ dnl
++ 
++ dnl Test for ACE (required for SecurID)
++ AC_ARG_WITH(with-ace,[  --with-ace=PATH         use ACE from PATH],
++ 	with_ace="${withval}")
++ 
++ case "$with_ace" in
++ 	""|yes) 
++ 		AC_CHECK_LIB(sdiclient, sd_init,
++ 			AC_CHECK_HEADER(sdi_defs.h, with_ace="yes",
++ 					with_ace="no"),
++ 			with_ace="no")
++ 		;;
++ 	*)
++ 		if test -d $with_ace; then
++ 		  CPPFLAGS="${CPPFLAGS} -I${with_ace}"
++ 		  LDFLAGS="${LDFLAGS} -L${with_ace}"
++ 		else
++ 		  with_ace="no"
++ 		fi
++ 		;;
++ esac
++ 
++ AC_MSG_CHECKING(for ACE)
++ AC_MSG_RESULT($with_ace)
++ 
++ AC_ARG_ENABLE(securid, [  --enable-securid        enable SECURID authentication [no] ],
++   securid=$enableval,
++   securid=no)
++ 
++ if test "$with_ace" = no; then
++   AC_WARN([ACE not found -- SecurID will be disabled])
++   securid=no
++ fi
++ 
++ AC_MSG_CHECKING(SECURID)
++ if test "$securid" != no; then
++   AC_MSG_RESULT(enabled)
++   SECURID_LIBS="-lsdiclient"
++ 
++   SASL_MECHS="$SASL_MECHS libsecurid.la"
++   SASL_STATIC_OBJS="$SASL_STATIC_OBJS ../plugins/securid.o"
++   AC_DEFINE(STATIC_SECURID)
++   AC_SUBST(SECURID_LIBS)
++ else
++   AC_MSG_RESULT(disabled)
++ fi
++ 
+  SASL_KERBEROS_V4_CHK
+  SASL_GSSAPI_CHK
+  SASL_PLAIN_CHK
+Index: plugins/Makefile.am
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/plugins/Makefile.am,v
+retrieving revision 1.45
+diff -c -r1.45 Makefile.am
+*** Makefile.am	2002/02/05 00:25:53	1.45
+--- Makefile.am	2002/03/07 14:38:37
+***************
+*** 56,61 ****
+--- 56,62 ----
+  sasldb_version = 2:1:0
+  srp_version = 2:1:0
+  otp_version = 2:1:0
++ securid_version = 2:1:0
+  
+  INCLUDES=-I$(top_srcdir)/include -I$(top_srcdir)/lib
+  LDFLAGS = @LDFLAGS@ -module -export-dynamic -rpath $(plugindir)
+***************
+*** 73,79 ****
+  sasl_LTLIBRARIES = @SASL_MECHS@
+  EXTRA_LTLIBRARIES = libplain.la libanonymous.la libkerberos4.la libcrammd5.la \
+  	libgssapiv2.la libdigestmd5.la liblogin.la libsrp.la libotp.la \
+! 	libsasldb.la
+  
+  libplain_la_SOURCES = plain.c plain_init.c $(common_sources)
+  libplain_la_LDFLAGS = -version-info $(plain_version)
+--- 74,80 ----
+  sasl_LTLIBRARIES = @SASL_MECHS@
+  EXTRA_LTLIBRARIES = libplain.la libanonymous.la libkerberos4.la libcrammd5.la \
+  	libgssapiv2.la libdigestmd5.la liblogin.la libsrp.la libotp.la \
+! 	libsecurid.la libsasldb.la
+  
+  libplain_la_SOURCES = plain.c plain_init.c $(common_sources)
+  libplain_la_LDFLAGS = -version-info $(plain_version)
+***************
+*** 120,125 ****
+--- 121,131 ----
+  libotp_la_DEPENDENCIES = $(COMPAT_OBJS)
+  libotp_la_LIBADD = $(OTP_LIBS) $(COMPAT_OBJS)
+  
++ libsecurid_la_SOURCES = securid.c securid_init.c securid.h $(common_sources)
++ libsecurid_la_LDFLAGS = -version-info $(securid_version)
++ libsecurid_la_DEPENDENCIES = $(COMPAT_OBJS)
++ libsecurid_la_LIBADD = $(SECURID_LIBS) $(COMPAT_OBJS)
++ 
+  # Auxprop Plugins
+  libsasldb_la_SOURCES = sasldb.c sasldb_init.c $(common_sources)
+  libsasldb_la_LDFLAGS = -version-info $(sasldb_version)
+***************
+*** 129,135 ****
+  # Instructions for making the _init files
+  
+  init_src=anonymous_init.c crammd5_init.c digestmd5_init.c gssapiv2_init.c \
+! kerberos4_init.c login_init.c plain_init.c srp_init.c otp_init.c sasldb_init.c
+  
+  CLEANFILES=$(init_src)
+  
+--- 135,142 ----
+  # Instructions for making the _init files
+  
+  init_src=anonymous_init.c crammd5_init.c digestmd5_init.c gssapiv2_init.c \
+! kerberos4_init.c login_init.c plain_init.c srp_init.c srp_otp.c \
+! securid_init.c sasldb_init.c
+  
+  CLEANFILES=$(init_src)
+  
+Index: plugins/makeinit.sh
+===================================================================
+RCS file: /afs/andrew/system/cvs/src/sasl/plugins/makeinit.sh,v
+retrieving revision 1.2
+diff -c -r1.2 makeinit.sh
+*** makeinit.sh	2001/12/04 02:06:48	1.2
+--- makeinit.sh	2002/03/07 14:38:37
+***************
+*** 1,4 ****
+! for mech in anonymous crammd5 digestmd5 gssapiv2 kerberos4 login plain srp otp; do
+  
+  echo "
+  #include <string.h>
+--- 1,5 ----
+! for mech in anonymous crammd5 digestmd5 gssapiv2 kerberos4 login plain \
+!     srp otp securid; do
+  
+  echo "
+  #include <string.h>

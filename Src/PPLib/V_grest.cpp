@@ -3259,7 +3259,9 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 /*virtual*/void PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	uint   brw_id = 0;
-	int    deficit_col = 0, minstock_col = 0, draft_rcpt_col = 0;
+	int    deficit_col = 0;
+	int    minstock_col = 0;
+	int    draft_rcpt_col = 0;
 	const long   fmt_qtty = MKSFMTD(0, 3, NMBF_NOZERO | NMBF_NOTRAILZ | ALIGN_RIGHT);
 	const long   fmt_pct  = MKSFMTD(0, 2, NMBF_NOZERO | ALIGN_RIGHT);
 	const long   fmt_amt  = MKSFMTD(0, 2, NMBF_NOZERO | ALIGN_RIGHT);

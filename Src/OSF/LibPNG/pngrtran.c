@@ -524,7 +524,7 @@ void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette, int num_p
 						break;
 				}
 
-				if(t != NULL)
+				if(t)
 					for(i = 0; i <= max_d; i++) {
 						if(hash[i] != NULL) {
 							png_dsortp p;

@@ -1443,17 +1443,13 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 	return ARCHIVE_OK;
 }
 
-static int decompress(struct archive_read * a, const void ** buff, size_t * outbytes,
-    const void * b, size_t * used)
+static int decompress(struct archive_read * a, const void ** buff, size_t * outbytes, const void * b, size_t * used)
 {
-	struct xar * xar;
-	void * outbuff;
-	size_t avail_in, avail_out;
+	size_t avail_out;
 	int r;
-
-	xar = (struct xar *)(a->format->data);
-	avail_in = *used;
-	outbuff = (void *)(uintptr_t)*buff;
+	struct xar * xar = (struct xar *)(a->format->data);
+	size_t avail_in = *used;
+	void * outbuff = (void *)(uintptr_t)*buff;
 	if(outbuff == NULL) {
 		if(xar->outbuff == NULL) {
 			xar->outbuff = static_cast<uchar *>(SAlloc::M(OUTBUFF_SIZE));
@@ -1565,11 +1561,8 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 
 static int decompression_cleanup(struct archive_read * a)
 {
-	struct xar * xar;
-	int r;
-
-	xar = (struct xar *)(a->format->data);
-	r = ARCHIVE_OK;
+	struct xar * xar = (struct xar *)(a->format->data);
+	int r = ARCHIVE_OK;
 	if(xar->stream_valid) {
 		if(inflateEnd(&(xar->stream)) != Z_OK) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up zlib decompressor");
@@ -1598,11 +1591,9 @@ static int decompression_cleanup(struct archive_read * a)
 	return r;
 }
 
-static void checksum_cleanup(struct archive_read * a) {
-	struct xar * xar;
-
-	xar = (struct xar *)(a->format->data);
-
+static void checksum_cleanup(struct archive_read * a) 
+{
+	struct xar * xar = (struct xar *)(a->format->data);
 	_checksum_final(&(xar->a_sumwrk), NULL, 0);
 	_checksum_final(&(xar->e_sumwrk), NULL, 0);
 }
@@ -1696,20 +1687,18 @@ static void xattr_free(struct xattr * xattr)
 
 static int getencoding(struct xmlattr_list * list)
 {
-	struct xmlattr * attr;
 	enum enctype encoding = NONE;
-
-	for(attr = list->first; attr != NULL; attr = attr->next) {
-		if(strcmp(attr->name, "style") == 0) {
-			if(strcmp(attr->value, "application/octet-stream") == 0)
+	for(struct xmlattr * attr = list->first; attr; attr = attr->next) {
+		if(sstreq(attr->name, "style")) {
+			if(sstreq(attr->value, "application/octet-stream"))
 				encoding = NONE;
-			else if(strcmp(attr->value, "application/x-gzip") == 0)
+			else if(sstreq(attr->value, "application/x-gzip"))
 				encoding = GZIP;
-			else if(strcmp(attr->value, "application/x-bzip2") == 0)
+			else if(sstreq(attr->value, "application/x-bzip2"))
 				encoding = BZIP2;
-			else if(strcmp(attr->value, "application/x-lzma") == 0)
+			else if(sstreq(attr->value, "application/x-lzma"))
 				encoding = LZMA;
-			else if(strcmp(attr->value, "application/x-xz") == 0)
+			else if(sstreq(attr->value, "application/x-xz"))
 				encoding = XZ;
 		}
 	}
@@ -1718,20 +1707,13 @@ static int getencoding(struct xmlattr_list * list)
 
 static int getsumalgorithm(struct xmlattr_list * list)
 {
-	struct xmlattr * attr;
 	int alg = CKSUM_NONE;
-
-	for(attr = list->first; attr != NULL; attr = attr->next) {
+	for(struct xmlattr * attr = list->first; attr; attr = attr->next) {
 		if(strcmp(attr->name, "style") == 0) {
 			const char * v = attr->value;
-			if((v[0] == 'S' || v[0] == 's') &&
-			    (v[1] == 'H' || v[1] == 'h') &&
-			    (v[2] == 'A' || v[2] == 'a') &&
-			    v[3] == '1' && v[4] == '\0')
+			if((v[0] == 'S' || v[0] == 's') && (v[1] == 'H' || v[1] == 'h') && (v[2] == 'A' || v[2] == 'a') && v[3] == '1' && v[4] == '\0')
 				alg = CKSUM_SHA1;
-			if((v[0] == 'M' || v[0] == 'm') &&
-			    (v[1] == 'D' || v[1] == 'd') &&
-			    v[2] == '5' && v[3] == '\0')
+			if((v[0] == 'M' || v[0] == 'm') && (v[1] == 'D' || v[1] == 'd') && v[2] == '5' && v[3] == '\0')
 				alg = CKSUM_MD5;
 		}
 	}
@@ -1761,9 +1743,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 
 static void unknowntag_end(struct xar * xar, const char * name)
 {
-	struct unknown_tag * tag;
-
-	tag = xar->unknowntags;
+	struct unknown_tag * tag = xar->unknowntags;
 	if(tag == NULL || name == NULL)
 		return;
 	if(strcmp(tag->name.s, name) == 0) {
@@ -1781,16 +1761,12 @@ static void unknowntag_end(struct xar * xar, const char * name)
 
 static int xml_start(struct archive_read * a, const char * name, struct xmlattr_list * list)
 {
-	struct xar * xar;
 	struct xmlattr * attr;
-
-	xar = (struct xar *)(a->format->data);
-
+	struct xar * xar = (struct xar *)(a->format->data);
 #if DEBUG
 	slfprintf_stderr("xml_sta:[%s]\n", name);
-	for(attr = list->first; attr != NULL; attr = attr->next)
-		slfprintf_stderr("    attr:\"%s\"=\"%s\"\n",
-		    attr->name, attr->value);
+	for(attr = list->first; attr; attr = attr->next)
+		slfprintf_stderr("    attr:\"%s\"=\"%s\"\n", attr->name, attr->value);
 #endif
 	xar->base64text = 0;
 	switch(xar->xmlsts) {
@@ -1865,8 +1841,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 			    xar->xmlsts = FILE_LINK;
 		    else if(strcmp(name, "type") == 0) {
 			    xar->xmlsts = FILE_TYPE;
-			    for(attr = list->first; attr != NULL;
-				attr = attr->next) {
+			    for(attr = list->first; attr != NULL; attr = attr->next) {
 				    if(strcmp(attr->name, "link") != 0)
 					    continue;
 				    if(strcmp(attr->value, "original") == 0) {
@@ -1874,8 +1849,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 					    xar->hdlink_orgs = xar->file;
 				    }
 				    else {
-					    xar->file->link = (uint)atol10(attr->value,
-						    strlen(attr->value));
+					    xar->file->link = (uint)atol10(attr->value, strlen(attr->value));
 					    if(xar->file->link > 0)
 						    if(add_link(a, xar, xar->file) != ARCHIVE_OK) {
 							    return ARCHIVE_FATAL;
@@ -1886,10 +1860,8 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    }
 		    else if(strcmp(name, "name") == 0) {
 			    xar->xmlsts = FILE_NAME;
-			    for(attr = list->first; attr != NULL;
-				attr = attr->next) {
-				    if(strcmp(attr->name, "enctype") == 0 &&
-					strcmp(attr->value, "base64") == 0)
+			    for(attr = list->first; attr; attr = attr->next) {
+				    if(strcmp(attr->name, "enctype") == 0 && strcmp(attr->value, "base64") == 0)
 					    xar->base64text = 1;
 			    }
 		    }
@@ -2055,12 +2027,8 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 
 static void xml_end(void * userData, const char * name)
 {
-	struct archive_read * a;
-	struct xar * xar;
-
-	a = (struct archive_read *)userData;
-	xar = (struct xar *)(a->format->data);
-
+	struct archive_read * a = (struct archive_read *)userData;
+	struct xar * xar = (struct xar *)(a->format->data);
 #if DEBUG
 	slfprintf_stderr("xml_end:[%s]\n", name);
 #endif
@@ -2068,33 +2036,32 @@ static void xml_end(void * userData, const char * name)
 		case INIT:
 		    break;
 		case XAR:
-		    if(strcmp(name, "xar") == 0)
+		    if(sstreq(name, "xar"))
 			    xar->xmlsts = INIT;
 		    break;
 		case TOC:
-		    if(strcmp(name, "toc") == 0)
+		    if(sstreq(name, "toc"))
 			    xar->xmlsts = XAR;
 		    break;
 		case TOC_CREATION_TIME:
-		    if(strcmp(name, "creation-time") == 0)
+		    if(sstreq(name, "creation-time"))
 			    xar->xmlsts = TOC;
 		    break;
 		case TOC_CHECKSUM:
-		    if(strcmp(name, "checksum") == 0)
+		    if(sstreq(name, "checksum"))
 			    xar->xmlsts = TOC;
 		    break;
 		case TOC_CHECKSUM_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = TOC_CHECKSUM;
 		    break;
 		case TOC_CHECKSUM_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = TOC_CHECKSUM;
 		    break;
 		case TOC_FILE:
-		    if(strcmp(name, "file") == 0) {
-			    if(xar->file->parent != NULL &&
-				((xar->file->mode & AE_IFMT) == AE_IFDIR))
+		    if(sstreq(name, "file")) {
+			    if(xar->file->parent && ((xar->file->mode & AE_IFMT) == AE_IFDIR))
 				    xar->file->parent->subdirs++;
 			    xar->file = xar->file->parent;
 			    if(xar->file == NULL)
@@ -2102,281 +2069,281 @@ static void xml_end(void * userData, const char * name)
 		    }
 		    break;
 		case FILE_DATA:
-		    if(strcmp(name, "data") == 0)
+		    if(sstreq(name, "data"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DATA_LENGTH:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_ENCODING:
-		    if(strcmp(name, "encoding") == 0)
+		    if(sstreq(name, "encoding"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_A_CHECKSUM:
-		    if(strcmp(name, "archived-checksum") == 0)
+		    if(sstreq(name, "archived-checksum"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_E_CHECKSUM:
-		    if(strcmp(name, "extracted-checksum") == 0)
+		    if(sstreq(name, "extracted-checksum"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_CONTENT:
-		    if(strcmp(name, "content") == 0)
+		    if(sstreq(name, "content"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_EA:
-		    if(strcmp(name, "ea") == 0) {
+		    if(sstreq(name, "ea")) {
 			    xar->xmlsts = TOC_FILE;
 			    xar->xattr = NULL;
 		    }
 		    break;
 		case FILE_EA_LENGTH:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_ENCODING:
-		    if(strcmp(name, "encoding") == 0)
+		    if(sstreq(name, "encoding"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_A_CHECKSUM:
-		    if(strcmp(name, "archived-checksum") == 0)
+		    if(sstreq(name, "archived-checksum"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_E_CHECKSUM:
-		    if(strcmp(name, "extracted-checksum") == 0)
+		    if(sstreq(name, "extracted-checksum"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_NAME:
-		    if(strcmp(name, "name") == 0)
+		    if(sstreq(name, "name"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_FSTYPE:
-		    if(strcmp(name, "fstype") == 0)
+		    if(sstreq(name, "fstype"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_CTIME:
-		    if(strcmp(name, "ctime") == 0)
+		    if(sstreq(name, "ctime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_MTIME:
-		    if(strcmp(name, "mtime") == 0)
+		    if(sstreq(name, "mtime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ATIME:
-		    if(strcmp(name, "atime") == 0)
+		    if(sstreq(name, "atime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_GROUP:
-		    if(strcmp(name, "group") == 0)
+		    if(sstreq(name, "group"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_GID:
-		    if(strcmp(name, "gid") == 0)
+		    if(sstreq(name, "gid"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_USER:
-		    if(strcmp(name, "user") == 0)
+		    if(sstreq(name, "user"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_UID:
-		    if(strcmp(name, "uid") == 0)
+		    if(sstreq(name, "uid"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_MODE:
-		    if(strcmp(name, "mode") == 0)
+		    if(sstreq(name, "mode"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DEVICE:
-		    if(strcmp(name, "device") == 0)
+		    if(sstreq(name, "device"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DEVICE_MAJOR:
-		    if(strcmp(name, "major") == 0)
+		    if(sstreq(name, "major"))
 			    xar->xmlsts = FILE_DEVICE;
 		    break;
 		case FILE_DEVICE_MINOR:
-		    if(strcmp(name, "minor") == 0)
+		    if(sstreq(name, "minor"))
 			    xar->xmlsts = FILE_DEVICE;
 		    break;
 		case FILE_DEVICENO:
-		    if(strcmp(name, "deviceno") == 0)
+		    if(sstreq(name, "deviceno"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_INODE:
-		    if(strcmp(name, "inode") == 0)
+		    if(sstreq(name, "inode"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_LINK:
-		    if(strcmp(name, "link") == 0)
+		    if(sstreq(name, "link"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_TYPE:
-		    if(strcmp(name, "type") == 0)
+		    if(sstreq(name, "type"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_NAME:
-		    if(strcmp(name, "name") == 0)
+		    if(sstreq(name, "name"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ACL:
-		    if(strcmp(name, "acl") == 0)
+		    if(sstreq(name, "acl"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ACL_DEFAULT:
-		    if(strcmp(name, "default") == 0)
+		    if(sstreq(name, "default"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_ACL_ACCESS:
-		    if(strcmp(name, "access") == 0)
+		    if(sstreq(name, "access"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_ACL_APPLEEXTENDED:
-		    if(strcmp(name, "appleextended") == 0)
+		    if(sstreq(name, "appleextended"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_FLAGS:
-		    if(strcmp(name, "flags") == 0)
+		    if(sstreq(name, "flags"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_FLAGS_USER_NODUMP:
-		    if(strcmp(name, "UserNoDump") == 0)
+		    if(sstreq(name, "UserNoDump"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_IMMUTABLE:
-		    if(strcmp(name, "UserImmutable") == 0)
+		    if(sstreq(name, "UserImmutable"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_APPEND:
-		    if(strcmp(name, "UserAppend") == 0)
+		    if(sstreq(name, "UserAppend"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_OPAQUE:
-		    if(strcmp(name, "UserOpaque") == 0)
+		    if(sstreq(name, "UserOpaque"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_NOUNLINK:
-		    if(strcmp(name, "UserNoUnlink") == 0)
+		    if(sstreq(name, "UserNoUnlink"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_ARCHIVED:
-		    if(strcmp(name, "SystemArchived") == 0)
+		    if(sstreq(name, "SystemArchived"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_IMMUTABLE:
-		    if(strcmp(name, "SystemImmutable") == 0)
+		    if(sstreq(name, "SystemImmutable"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_APPEND:
-		    if(strcmp(name, "SystemAppend") == 0)
+		    if(sstreq(name, "SystemAppend"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_NOUNLINK:
-		    if(strcmp(name, "SystemNoUnlink") == 0)
+		    if(sstreq(name, "SystemNoUnlink"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_SNAPSHOT:
-		    if(strcmp(name, "SystemSnapshot") == 0)
+		    if(sstreq(name, "SystemSnapshot"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_EXT2:
-		    if(strcmp(name, "ext2") == 0)
+		    if(sstreq(name, "ext2"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_EXT2_SecureDeletion:
-		    if(strcmp(name, "SecureDeletion") == 0)
+		    if(sstreq(name, "SecureDeletion"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Undelete:
-		    if(strcmp(name, "Undelete") == 0)
+		    if(sstreq(name, "Undelete"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Compress:
-		    if(strcmp(name, "Compress") == 0)
+		    if(sstreq(name, "Compress"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Synchronous:
-		    if(strcmp(name, "Synchronous") == 0)
+		    if(sstreq(name, "Synchronous"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Immutable:
-		    if(strcmp(name, "Immutable") == 0)
+		    if(sstreq(name, "Immutable"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_AppendOnly:
-		    if(strcmp(name, "AppendOnly") == 0)
+		    if(sstreq(name, "AppendOnly"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoDump:
-		    if(strcmp(name, "NoDump") == 0)
+		    if(sstreq(name, "NoDump"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoAtime:
-		    if(strcmp(name, "NoAtime") == 0)
+		    if(sstreq(name, "NoAtime"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompDirty:
-		    if(strcmp(name, "CompDirty") == 0)
+		    if(sstreq(name, "CompDirty"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompBlock:
-		    if(strcmp(name, "CompBlock") == 0)
+		    if(sstreq(name, "CompBlock"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoCompBlock:
-		    if(strcmp(name, "NoCompBlock") == 0)
+		    if(sstreq(name, "NoCompBlock"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompError:
-		    if(strcmp(name, "CompError") == 0)
+		    if(sstreq(name, "CompError"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_BTree:
-		    if(strcmp(name, "BTree") == 0)
+		    if(sstreq(name, "BTree"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_HashIndexed:
-		    if(strcmp(name, "HashIndexed") == 0)
+		    if(sstreq(name, "HashIndexed"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_iMagic:
-		    if(strcmp(name, "iMagic") == 0)
+		    if(sstreq(name, "iMagic"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Journaled:
-		    if(strcmp(name, "Journaled") == 0)
+		    if(sstreq(name, "Journaled"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoTail:
-		    if(strcmp(name, "NoTail") == 0)
+		    if(sstreq(name, "NoTail"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_DirSync:
-		    if(strcmp(name, "DirSync") == 0)
+		    if(sstreq(name, "DirSync"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_TopDir:
-		    if(strcmp(name, "TopDir") == 0)
+		    if(sstreq(name, "TopDir"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Reserved:
-		    if(strcmp(name, "Reserved") == 0)
+		    if(sstreq(name, "Reserved"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case UNKNOWN:
@@ -2703,14 +2670,12 @@ static void xml_data(void * userData, const char * s, int len)
 		    break;
 	}
 }
-
 /*
  * BSD file flags.
  */
 static int xml_parse_file_flags(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-
 	if(strcmp(name, "UserNoDump") == 0) {
 		xar->xmlsts = FILE_FLAGS_USER_NODUMP;
 		flag = "nodump";
@@ -2751,7 +2716,6 @@ static int xml_parse_file_flags(struct xar * xar, const char * name)
 		xar->xmlsts = FILE_FLAGS_SYS_SNAPSHOT;
 		flag = "snapshot";
 	}
-
 	if(flag == NULL)
 		return 0;
 	xar->file->has |= HAS_FFLAGS;
@@ -2760,14 +2724,12 @@ static int xml_parse_file_flags(struct xar * xar, const char * name)
 	archive_strcat(&(xar->file->fflags_text), flag);
 	return 1;
 }
-
 /*
  * Linux file flags.
  */
 static int xml_parse_file_ext2(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-
 	if(strcmp(name, "SecureDeletion") == 0) {
 		xar->xmlsts = FILE_EXT2_SecureDeletion;
 		flag = "securedeletion";
@@ -2848,7 +2810,6 @@ static int xml_parse_file_ext2(struct xar * xar, const char * name)
 		xar->xmlsts = FILE_EXT2_Reserved;
 		flag = "reserved";
 	}
-
 	if(flag == NULL)
 		return 0;
 	if(archive_strlen(&(xar->file->fflags_text)) > 0)
@@ -2878,8 +2839,7 @@ static int xml2_xmlattr_setup(struct archive_read * a, struct xmlattr_list * lis
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
-		attr->value = sstrdup(
-			(const char *)xmlTextReaderConstValue(reader));
+		attr->value = sstrdup((const char *)xmlTextReaderConstValue(reader));
 		if(attr->value == NULL) {
 			SAlloc::F(attr->name);
 			SAlloc::F(attr);
@@ -2896,16 +2856,12 @@ static int xml2_xmlattr_setup(struct archive_read * a, struct xmlattr_list * lis
 
 static int xml2_read_cb(void * context, char * buffer, int len)
 {
-	struct archive_read * a;
-	struct xar * xar;
 	const void * d;
 	size_t outbytes;
 	size_t used = 0;
 	int r;
-
-	a = (struct archive_read *)context;
-	xar = (struct xar *)(a->format->data);
-
+	struct archive_read * a = (struct archive_read *)context;
+	struct xar * xar = (struct xar *)(a->format->data);
 	if(xar->toc_remaining <= 0)
 		return 0;
 	d = buffer;
@@ -2928,23 +2884,19 @@ static int xml2_close_cb(void * context)
 	return 0;
 }
 
-static void xml2_error_hdr(void * arg, const char * msg, xmlParserSeverities severity,
-    xmlTextReaderLocatorPtr locator)
+static void xml2_error_hdr(void * arg, const char * msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
 {
 	struct archive_read * a;
-
 	(void)locator; /* UNUSED */
 	a = (struct archive_read *)arg;
 	switch(severity) {
 		case XML_PARSER_SEVERITY_VALIDITY_WARNING:
 		case XML_PARSER_SEVERITY_WARNING:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			"XML Parsing error: %s", msg);
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "XML Parsing error: %s", msg);
 		    break;
 		case XML_PARSER_SEVERITY_VALIDITY_ERROR:
 		case XML_PARSER_SEVERITY_ERROR:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			"XML Parsing error: %s", msg);
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "XML Parsing error: %s", msg);
 		    break;
 	}
 }
@@ -2956,18 +2908,15 @@ static int xml2_read_toc(struct archive_read * a)
 	int r;
 	reader = xmlReaderForIO(xml2_read_cb, xml2_close_cb, a, NULL, NULL, 0);
 	if(reader == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Couldn't allocate memory for xml parser");
+		archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory for xml parser");
 		return ARCHIVE_FATAL;
 	}
 	xmlTextReaderSetErrorHandler(reader, xml2_error_hdr, a);
-
 	while((r = xmlTextReaderRead(reader)) == 1) {
-		const char * name, * value;
-		int type, empty;
-
-		type = xmlTextReaderNodeType(reader);
-		name = (const char *)xmlTextReaderConstLocalName(reader);
+		const char * value;
+		int empty;
+		int type = xmlTextReaderNodeType(reader);
+		const char * name = (const char *)xmlTextReaderConstLocalName(reader);
 		switch(type) {
 			case XML_READER_TYPE_ELEMENT:
 			    empty = xmlTextReaderIsEmptyElement(reader);
@@ -3035,9 +2984,7 @@ static void expat_start_cb(void * userData, const XML_Char * name, const XML_Cha
 	struct expat_userData * ud = (struct expat_userData *)userData;
 	struct archive_read * a = ud->archive;
 	struct xmlattr_list list;
-	int r;
-
-	r = expat_xmlattr_setup(a, &list, atts);
+	int r = expat_xmlattr_setup(a, &list, atts);
 	if(r == ARCHIVE_OK)
 		r = xml_start(a, (const char *)name, &list);
 	xmlattr_cleanup(&list);
@@ -3047,14 +2994,12 @@ static void expat_start_cb(void * userData, const XML_Char * name, const XML_Cha
 static void expat_end_cb(void * userData, const XML_Char * name)
 {
 	struct expat_userData * ud = (struct expat_userData *)userData;
-
 	xml_end(ud->archive, (const char *)name);
 }
 
 static void expat_data_cb(void * userData, const XML_Char * s, int len)
 {
 	struct expat_userData * ud = (struct expat_userData *)userData;
-
 	xml_data(ud->archive, s, len);
 }
 
@@ -3063,17 +3008,13 @@ static int expat_read_toc(struct archive_read * a)
 	struct xar * xar;
 	XML_Parser parser;
 	struct expat_userData ud;
-
 	ud.state = ARCHIVE_OK;
 	ud.archive = a;
-
 	xar = (struct xar *)(a->format->data);
-
 	/* Initialize XML Parser library. */
 	parser = XML_ParserCreate(NULL);
 	if(parser == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Couldn't allocate memory for xml parser");
+		archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory for xml parser");
 		return ARCHIVE_FATAL;
 	}
 	XML_SetUserData(parser, &ud);
@@ -3095,13 +3036,11 @@ static int expat_read_toc(struct archive_read * a)
 		xar->offset += used;
 		xar->toc_total += outbytes;
 		PRINT_TOC(d, outbytes);
-
 		xr = XML_Parse(parser, d, outbytes, xar->toc_remaining == 0);
 		__archive_read_consume(a, used);
 		if(xr == XML_STATUS_ERROR) {
 			XML_ParserFree(parser);
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "XML Parsing failed");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "XML Parsing failed");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -3110,5 +3049,4 @@ static int expat_read_toc(struct archive_read * a)
 }
 
 #endif /* defined(HAVE_BSDXML_H) || defined(HAVE_EXPAT_H) */
-
 #endif /* Support xar format */

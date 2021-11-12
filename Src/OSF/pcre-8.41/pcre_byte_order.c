@@ -145,7 +145,7 @@ PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re, pcre32
 	utf16_char = FALSE;
 #endif /* SUPPORT_UTF && COMPILE_PCRE16 */
 
-	while(TRUE) {
+	while(true) {
 		/* Swap previous characters. */
 		while(length-- > 0) {
 #if defined COMPILE_PCRE16

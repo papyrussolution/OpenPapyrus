@@ -573,7 +573,7 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 	if((a == NULL) || (b == NULL)) {
 		if(a != NULL)
 			return -1;
-		else if(b != NULL)
+		else if(b)
 			return 1;
 		else
 			return 0;

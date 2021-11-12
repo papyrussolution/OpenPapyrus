@@ -1,0 +1,317 @@
+X-Added: With Flames (bblib $Revision: 1.1 $)
+Return-path: <m.taylor@rbgkew.org.uk>
+X-Andrew-Authenticated-as: 0;andrew.cmu.edu;Network-Mail
+Received: from po5.andrew.cmu.edu via trymail for cyrus-bugs+@andrew.cmu.edu (->acs+asg.project.mail.cyrus-bugs)
+          ID </afs/andrew.cmu.edu/data/spool/ams/acs/Mailbox/4thxRwO00Udd1huk40>;
+          Thu,  7 Sep 2000 13:59:24 -0400 (EDT)
+Received: from lion.rbgkew.org.uk (lion.rbgkew.org.uk [193.128.240.22])
+	by po5.andrew.cmu.edu (8.9.3/8.9.3) with ESMTP id NAA28106
+	for <cyrus-bugs+@andrew.cmu.edu>; Thu, 7 Sep 2000 13:59:08 -0400 (EDT)
+Received: from ns.rbgkew.org.uk
+	([193.128.240.7] helo=unicorn.rbgkew.org.uk ident=mta)
+	by lion.rbgkew.org.uk with esmtp (Exim 3.16 #1)
+	id 13X5wt-0006Mp-00
+	for cyrus-bugs+@andrew.cmu.edu; Thu, 07 Sep 2000 18:58:55 +0100
+Received: from matts-pc.rbgkew.org.uk
+	([193.128.240.137] helo=rbgkew.org.uk ident=mt00kg)
+	by unicorn.rbgkew.org.uk with esmtp (Exim 3.16 #1)
+	id 13X5c6-000226-00
+	for cyrus-bugs+@andrew.cmu.edu; Thu, 07 Sep 2000 18:37:26 +0100
+Sender: M.Taylor@rbgkew.org.uk
+Message-ID: <39B7D254.767CD1DC@rbgkew.org.uk>
+Date: Thu, 07 Sep 2000 18:37:24 +0100
+From: Matthew Taylor <m.taylor@rbgkew.org.uk>
+Organization: Royal Botanic Gardens,Kew
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: cyrus-bugs+@andrew.cmu.edu
+Subject: patch to add pam support to pwcheck
+Content-Type: multipart/mixed;
+ boundary="------------5D5A22F6F4E5731441F886DF"
+
+This is a multi-part message in MIME format.
+--------------5D5A22F6F4E5731441F886DF
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Here is a patch to add pam support to pwcheck. This was to over come a
+problems we had with some pam modules not working correctly when not run
+as root.  It also makes pwcheck fork for each connection as some pam
+modules take a while to return.
+
+--
+*Matthew Taylor:Computer section  email: M.Taylor@rbgkew.org.uk *
+* The Royal Botanic Gardens, Kew, Tel : +44 (0)181 332 5714      *
+* Richmond, Surrey, TW9 3AB, UK   Fax : +44 (0)181 332 5736      *
+
+
+
+--------------5D5A22F6F4E5731441F886DF
+Content-Type: text/plain; charset=us-ascii;
+ name="pwcheck_pam.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pwcheck_pam.patch"
+
+diff --new-file -r -u cyrus-sasl-1.5.24/configure.in cyrus-sasl-1.5.24.new/configure.in
+--- cyrus-sasl-1.5.24/configure.in	Fri Jul 21 03:35:01 2000
++++ cyrus-sasl-1.5.24.new/configure.in	Thu Sep  7 17:45:53 2000
+@@ -306,6 +306,10 @@
+    AC_DEFINE(HAVE_PWCHECK)
+    AC_DEFINE_UNQUOTED(PWCHECKDIR, "$with_pwcheck")
+    AC_CHECK_FUNC(getspnam,PWCHECKMETH="getspnam",PWCHECKMETH="getpwnam")
++
++   if test "$with_pam" != no; then
++	PWCHECKMETH="pam"
++   fi
+    AC_SUBST(PWCHECKMETH)
+ fi
+ AM_CONDITIONAL(PWCHECK, test "$with_pwcheck" != no)
+
+diff --new-file -r -u cyrus-sasl-1.5.24/pwcheck/Makefile.in cyrus-sasl-1.5.24.new/pwcheck/Makefile.in
+--- cyrus-sasl-1.5.24/pwcheck/Makefile.in	Fri Jul 21 03:36:07 2000
++++ cyrus-sasl-1.5.24.new/pwcheck/Makefile.in	Thu Sep  7 17:45:53 2000
+@@ -129,9 +129,9 @@
+ sbin_PROGRAMS = pwcheck
+ 
+ pwcheck_SOURCES = pwcheck.c
+-EXTRA_pwcheck_SOURCES = pwcheck_getpwnam.c pwcheck_getspnam.c
++EXTRA_pwcheck_SOURCES = pwcheck_getpwnam.c pwcheck_getspnam.c pwcheck_pam.c
+ pwcheck_DEPENDECIES = pwcheck_@PWCHECKMETH@.lo
+-pwcheck_LDADD = pwcheck_@PWCHECKMETH@.lo @LIB_CRYPT@ @LIB_SOCKET@
++pwcheck_LDADD = pwcheck_@PWCHECKMETH@.lo @LIB_CRYPT@ @LIB_SOCKET@ @LIB_PAM@
+ mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+ CONFIG_HEADER = ../config.h
+ CONFIG_CLEAN_FILES = 
+diff --new-file -r -u cyrus-sasl-1.5.24/pwcheck/pwcheck.c cyrus-sasl-1.5.24.new/pwcheck/pwcheck.c
+--- cyrus-sasl-1.5.24/pwcheck/pwcheck.c	Tue Jul 18 02:05:37 2000
++++ cyrus-sasl-1.5.24.new/pwcheck/pwcheck.c	Thu Sep  7 17:45:53 2000
+@@ -52,6 +52,28 @@
+ void newclient(int);
+ int retry_write(int, const char *, unsigned int);
+ 
++#ifdef HAVE_PAM
++#include <sys/wait.h>
++#include <signal.h>
++
++static void sigchld_handler(int sig)
++{
++  int status;
++  signal(SIGCHLD,sigchld_handler);
++  sig = sig;    /* Keep picky compilers happy */
++  wait(&status);
++  waitpid(-1,&status,WNOHANG);
++}
++
++
++
++
++
++#endif 
++
++
++
++
+ /*
+  * Unix pwcheck daemon-authenticated login (shadow password)
+  */
+@@ -68,6 +90,9 @@
+     struct sockaddr_un clientaddr;
+     int r;
+     int len;
++#ifdef HAVE_PAM
++    pid_t cpid;
++#endif
+     mode_t oldumask;
+     char *pid_file = _PATH_PWCHECKPID;
+     FILE *fp = NULL;
+@@ -177,6 +202,11 @@
+ 	exit(1);
+     }
+ 
++#ifdef HAVE_PAM
++    signal(SIGCHLD,sigchld_handler);
++#endif
++
++
+     for (;;) {
+ 	len = sizeof(clientaddr);
+ 	c = accept(s, (struct sockaddr *)&clientaddr, &len);
+@@ -184,8 +214,20 @@
+ 	    syslog(LOG_WARNING, "accept: %m");
+ 	    continue;
+ 	}
++#ifdef HAVE_PAM
++	if((cpid=fork())==0) {
++	  newclient(c);
++	  exit(0);
++	}
++	if(cpid == -1) {
++	   perror("fork");
++	}
++	close(c);
++	
++#else
+ 
+ 	newclient(c);
++#endif
+     }
+ }
+ 
+
+diff --new-file -r -u cyrus-sasl-1.5.24/pwcheck/pwcheck_pam.c cyrus-sasl-1.5.24.new/pwcheck/pwcheck_pam.c
+--- cyrus-sasl-1.5.24/pwcheck/pwcheck_pam.c	Thu Jan  1 01:00:00 1970
++++ cyrus-sasl-1.5.24.new/pwcheck/pwcheck_pam.c	Thu Sep  7 17:48:26 2000
+@@ -0,0 +1,148 @@
++/* pwcheck_pam.c -- check passwords using getpwname()
++   $Id: pwcheck-pam.patch,v 1.1 2000/09/07 18:48:55 leg Exp $
++
++Copyright 1998, 1999 Carnegie Mellon University
++
++                      All Rights Reserved
++
++Permission to use, copy, modify, and distribute this software and its
++documentation for any purpose and without fee is hereby granted,
++provided that the above copyright notice appear in all copies and that
++both that copyright notice and this permission notice appear in
++supporting documentation, and that the name of Carnegie Mellon
++University not be used in advertising or publicity pertaining to
++distribution of the software without specific, written prior
++permission.
++
++CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
++THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE FOR
++ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
++OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++******************************************************************/
++
++
++#include <stdlib.h>
++
++#include <security/pam_appl.h>
++#define SASL_OK 1
++#define SASL_NOMEM 0
++
++
++
++int _sasl_strdup(const char *in, char **out, int *outlen);
++
++struct sasl_pam_data {
++    const char *userid;
++    const char *password;
++    int pam_error;
++};
++
++static int sasl_pam_conv(int num_msg, const struct pam_message **msg,
++			 struct pam_response **resp, void *appdata_ptr)
++{
++    struct pam_response *reply = NULL;
++    struct sasl_pam_data *pd = (struct sasl_pam_data *) appdata_ptr;
++    int i;
++    int ret;
++
++    if (pd == NULL) {
++	/* solaris bug? */
++	return PAM_CONV_ERR;
++    }
++
++    reply = (struct pam_response *) malloc(sizeof(struct pam_response) * 
++					   num_msg); 
++      
++
++
++    
++
++    if (reply == NULL)
++	return PAM_CONV_ERR;
++
++    for (i = 0; i < num_msg; i++) {
++	switch (msg[i]->msg_style) {
++	    /* making the blatant assumption that echo on means user,
++	       echo off means password */
++	case PAM_PROMPT_ECHO_ON:
++	    reply[i].resp_retcode = PAM_SUCCESS;
++	    ret = _sasl_strdup(pd->userid, &reply[i].resp, NULL);
++	    if (ret != SASL_OK)
++		return PAM_CONV_ERR;
++	    break;
++	case PAM_PROMPT_ECHO_OFF:
++	    reply[i].resp_retcode = PAM_SUCCESS;
++	    ret = _sasl_strdup(pd->password, &reply[i].resp, NULL);
++	    if (ret != SASL_OK)
++		return PAM_CONV_ERR;
++	    break;
++	case PAM_TEXT_INFO:
++	case PAM_ERROR_MSG:
++	    /* ignore it, but pam still wants a NULL response... */
++	    reply[i].resp_retcode = PAM_SUCCESS;
++	    reply[i].resp = NULL;
++	    break;
++	default:		/* error! */
++	    free(reply);
++	    pd->pam_error = 1;
++	    return PAM_CONV_ERR;
++	}
++    }
++    *resp = reply;
++    return PAM_SUCCESS;
++}
++
++static struct pam_conv my_conv = {
++    &sasl_pam_conv,		/* int (*conv) */
++    NULL			/* appdata_ptr */
++};
++
++
++char *pwcheck(userid, password)
++     char *userid;
++     char *password;
++{
++  pam_handle_t *pamh;
++  struct sasl_pam_data pd;
++  int pam_error;
++
++ 
++ 
++
++  my_conv.appdata_ptr = &pd;
++
++  pd.userid = userid;
++  pd.password = password;
++  pd.pam_error = 0;
++
++  pam_error = pam_start("pwcheck", userid, &my_conv, &pamh);
++  if (pam_error != PAM_SUCCESS) {
++    return (char*)pam_strerror(pamh,pam_error);
++    
++  }
++  pam_error = pam_authenticate(pamh, PAM_SILENT);
++  if (pam_error != PAM_SUCCESS) {
++    return (char*)pam_strerror(pamh,pam_error); 
++   
++  }
++  pam_end(pamh, PAM_SUCCESS);
++
++  return "OK";    
++
++
++ 
++}
++
++/* copy a string to malloced memory */
++int _sasl_strdup(const char *in, char **out, int *outlen)
++{
++  size_t len = strlen(in);
++  if (outlen) *outlen = len;
++  *out=malloc(len + 1);
++  if (! *out) return SASL_NOMEM;
++  strcpy((char *) *out, in);
++  return SASL_OK;
++}
+
+--------------5D5A22F6F4E5731441F886DF--
+

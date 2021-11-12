@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -1806,14 +1806,13 @@ void PPViewUserMenu::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewUserMenu::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_USERMENU;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_USERMENU);
 	return p_array;
 }
 

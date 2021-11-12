@@ -76,10 +76,8 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 
 SArray * PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = new SArray(List);
-	uint   brw_id = BROWSER_DIALOG;
-	ASSIGN_PTR(pBrwId, brw_id);
-	return p_array;
+	ASSIGN_PTR(pBrwId, BROWSER_DIALOG);
+	return new SArray(List);
 }
 
 int PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)

@@ -1006,14 +1006,13 @@ int PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 
 SArray * PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_EVENT;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_EVENT);
 	return p_array;
 }
 

@@ -807,12 +807,10 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						bc.Z();
 						if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
 							assert(bc.Len());
-							StyloQConfig cfg_pack;
+							SString transmission_cfg_json;
 							temp_buf.Z().CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
-							if(cfg_pack.FromJson(temp_buf)) {
-								// Здесь можно удалить те компоненты конфигурации, которые передавать клиенту не следует
-								cfg_pack.ToJson(temp_buf);
-								bc.Z().Put(temp_buf.cptr(), temp_buf.Len());
+							if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
+								bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 								reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
 							}
 						}

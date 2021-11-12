@@ -732,13 +732,15 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 	return pItem ? GetManagedPtr(pItem->P_Parent) : 0;
 }
 
-/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, LayoutFlexItem * pTopLevel)
+/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, LayoutFlexItem * pTopLevel)
 {
-	LayoutFlexItem * p_result = pTopLevel;
+	const float lbl_to_inp_height_ratio = 0.75f;
+	const float lbl_to_inp_width_ratio  = 1.5f;
+	LayoutFlexItem * p_result = 0/*pTopLevel*/;
 	switch(type) {
 		case cmplxtInpLbl:
 			{
-				SETIFZ(p_result, new LayoutFlexItem());
+				p_result = pTopLevel ? pTopLevel->InsertItem() : new LayoutFlexItem();
 				if(flags & clfLabelLeft) {
 					AbstractLayoutBlock alb(DIREC_HORZ);
 					alb.AlignContent = AbstractLayoutBlock::alignStart;
@@ -746,8 +748,11 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 					p_result->SetLayoutBlock(alb);
 					{ // Label
 						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.GrowFactor = lbl_to_inp_width_ratio;
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
+						else
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
 						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
@@ -755,7 +760,10 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 					{ // Input
 						AbstractLayoutBlock alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure);
+						else
+							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
 						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
@@ -768,17 +776,29 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 					p_result->SetLayoutBlock(alb);
 					{ // Label
 						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
 						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-						//alb.Margin.Set(4);
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
+						else
+							alb.GrowFactor = lbl_to_inp_height_ratio;
+						alb.Margin.a.x = 4.0f;
+						alb.Margin.a.y = 2.0f;
+						alb.Margin.b.x = 4.0f;
+						alb.Margin.b.y = 1.0f;
 						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{ // Input
 						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
 						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-						//alb.Margin.Set(4);
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure);
+						else
+							alb.GrowFactor = 1.0f;
+						alb.Margin.a.x = 4.0f;
+						alb.Margin.a.y = 1.0f;
+						alb.Margin.b.x = 4.0f;
+						alb.Margin.b.y = 2.0f;
 						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
 					}		
@@ -787,7 +807,7 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 			break;
 		case cmplxtInpLblBtn:
 			{
-				SETIFZ(p_result, new LayoutFlexItem());
+				p_result = pTopLevel ? pTopLevel->InsertItem() : new LayoutFlexItem();
 				if(flags & clfLabelLeft) {
 					AbstractLayoutBlock alb(DIREC_HORZ);
 					alb.AlignContent = AbstractLayoutBlock::alignStart;
@@ -958,80 +978,6 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 			}
 			break;
 	}
-	return p_result;
-}
-
-/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_IL(uint flags, LayoutFlexItem * pParent)
-{
-	LayoutFlexItem * p_result = pParent ? pParent->InsertItem() : new LayoutFlexItem();
-	if(flags & clfLabelLeft) {
-		AbstractLayoutBlock alb(DIREC_HORZ);
-		alb.AlignContent = AbstractLayoutBlock::alignStart;
-		alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-		p_result->SetLayoutBlock(alb);
-		{
-			//
-			// Label
-			// 
-			AbstractLayoutBlock alb;
-			alb.GrowFactor = 1.0f;
-			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-			//alb.Margin.Set(4);
-			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
-			p_lo_item->CplxComponentId = cmlxcLabel;
-		}
-		{
-			//
-			// Input
-			// 
-			AbstractLayoutBlock alb;
-			alb.GrowFactor = 1.0f;
-			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-			//alb.Margin.Set(4);
-			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
-			p_lo_item->CplxComponentId = cmlxcInput;
-		}		
-	}
-	else { // label above
-		AbstractLayoutBlock alb(DIREC_VERT);
-		alb.AlignContent = AbstractLayoutBlock::alignStart;
-		alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-		p_result->SetLayoutBlock(alb);
-		{
-			//
-			// Label
-			// 
-			AbstractLayoutBlock alb;
-			alb.GrowFactor = 1.0f;
-			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-			//alb.Margin.Set(4);
-			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
-			p_lo_item->CplxComponentId = cmlxcLabel;
-		}
-		{
-			//
-			// Input
-			// 
-			AbstractLayoutBlock alb;
-			alb.GrowFactor = 1.0f;
-			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-			//alb.Margin.Set(4);
-			LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
-			p_lo_item->CplxComponentId = cmlxcInput;
-		}		
-	}
-	return p_result;
-}
-	
-/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_ILB(uint flags, LayoutFlexItem * pParent)
-{
-	LayoutFlexItem * p_result = 0;
-	return p_result;
-}
-	
-/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout_ILB2(uint flags, LayoutFlexItem * pParent)
-{
-	LayoutFlexItem * p_result = 0;
 	return p_result;
 }
 

@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\collationinfo.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\denseranges.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\filestrm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\filetools.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\flagparser.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\package.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_genc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_gencmn.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_icu.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\pkgitems.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\ppucd.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\swapimpl.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\toolutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\ucbuf.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\ucm.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\ucmstate.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\unewdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\uoptions.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\uparse.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\writesrc.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\xmlparser.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\dbgutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\udbgutil.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\toolutil\ucln_tu.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\collationinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\dbgutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\denseranges.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\filestrm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\filetools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\flagparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\package.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_genc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_gencmn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_icu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\pkg_imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\ppucd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\swapimpl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\toolutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\ucbuf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\ucm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\udbgutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\unewdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\uoptions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\uparse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\writesrc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\toolutil\xmlparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{fedfc55e-a441-424b-9e34-c9aca0e27a05}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -483,6 +483,19 @@ int Release()
 #define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
 
 static void FASTCALL CreateStr(const char * pValue, SString & dst) { dst.Cat(pValue).Cat(FS_STR); }
+static void FASTCALL CreateChZnCode(const char * pValue, SString & dst) 
+{ 
+	//dst.Cat(pValue).Cat(FS_STR); 
+	const size_t len = sstrlen(pValue);
+	for(size_t i = 0; i < len; i++) {
+		const char c = pValue[i];
+		if(c == 0x1D)
+			dst.Cat("$1D");
+		else
+			dst.CatChar(c);
+	}
+	dst.Cat(FS_STR);
+}
 static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
 static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
@@ -2091,7 +2104,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags
 		*/
 		in_data.Z();
 		CreateStr(1, in_data);
-		CreateStr(pMarkCode, in_data);
+		CreateChZnCode(pMarkCode, in_data);
 		CreateStr(0, in_data);
 		int   ps = 1; // Планируемый статус товара(тег 2003)
 		if(flags & pchznmfReturn)
@@ -2358,11 +2371,12 @@ int PiritEquip::RunCheck(int opertype)
 							// 79
 							in_data.Z();
 							CreateStr(15, in_data);
-							CreateStr(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
+							CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
 							CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (тег 2110)
 							CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (тег 2102) = 0
 							CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (тег 2106)
-							CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
+							// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
+							CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (тег 2108) // @v11.2.3
 							THROW(ExecCmd("79", in_data, out_data, r_error));
 							set_chzn_mark = false;
 							//
@@ -2378,7 +2392,11 @@ int PiritEquip::RunCheck(int opertype)
 								}
 								CreateStr(str, in_data); // Код товарной номенклатуры
 								*/
+								in_data.Z(); // @v11.2.3 @fix
+								//
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
+								//CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
+								//
 								if(Check.ChZnProdType == 4)  // #2 (tag 1191) GTCHZNPT_MEDICINE
 									CreateStr("mdlp", in_data);
 								else
@@ -2408,7 +2426,8 @@ int PiritEquip::RunCheck(int opertype)
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								CreateStr("", in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								{
+								THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
+								/* @v11.2.3 {
 									const int do_check_ret = 1;
 									OpLogBlock __oplb(LogFileName, "24", str);
 									THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
@@ -2419,12 +2438,13 @@ int PiritEquip::RunCheck(int opertype)
 										out_data.Z();
 										r_error = "00";
 									}
-								}								
+								}*/								
 							}
 						}
 					}
 					if(set_chzn_mark) {
 					// } @v11.1.10
+						in_data.Z(); // @v11.2.3 @fix
 						if(OfdVer.IsGe(1, 2, 0)) {
 							str.CatChar('@');
 						}
@@ -2442,7 +2462,8 @@ int PiritEquip::RunCheck(int opertype)
 							CreateStr("mdlp", in_data);
 						else
 							CreateStr("[M]", in_data);
-						{
+						THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
+						/*@v11.2.3 {
 							const int do_check_ret = 1;
 							OpLogBlock __oplb(LogFileName, "24", str);
 							THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
@@ -2453,7 +2474,7 @@ int PiritEquip::RunCheck(int opertype)
 								out_data.Z();
 								r_error = "00";
 							}
-						}
+						}*/
 					}
 				}
 			}
@@ -2478,9 +2499,10 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Stt, in_data); // @erikO v10.4.12 Признак предмета расчета(integer)
 			{
 				// @v9.9.4 const int do_check_ret = 0;
-				const int do_check_ret = BIN(Check.Price == 0.0); // @v9.9.4
+				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v9.9.4 // @v11.2.3 =1
 				Check.Z();
-				{
+				THROW(ExecCmd("42", in_data, out_data, r_error)); // @v11.2.3
+				/* @v11.2.3 {
 					OpLogBlock __oplb(LogFileName, "42", 0);
 					THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
 					if(do_check_ret) {
@@ -2490,7 +2512,7 @@ int PiritEquip::RunCheck(int opertype)
 						out_data.Z();
 						r_error = "00";
 					}
-				}
+				}*/
 				Check.Z();
 			}
 			break;

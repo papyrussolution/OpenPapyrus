@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -320,9 +320,8 @@ void PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_GOODSTOOBJASSC;
 	SArray * p_array = P_Assoc ? new SArray(*P_Assoc) : 0;
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_GOODSTOOBJASSC);
 	if(pSubTitle) {
 		SString obj_name, temp_buf;
 		GetObjectTitle(Filt.ObjType, temp_buf);

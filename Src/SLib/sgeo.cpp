@@ -85,11 +85,11 @@
 static int IsGeoPosValid(double lat, double lon)
 {
 	int    ok = 1;
-	if(lat < -90. || lat > 90.) {
+	if(lat < -90.0 || lat > 90.0) {
 		SLS.SetError(SLERR_INVGEOLATITUDE);
 		ok = 0;
 	}
-	else if(lon < -180. || lon > 180.) {
+	else if(lon < -180.0 || lon > 180.0) {
 		SLS.SetError(SLERR_INVGEOLONGITUDE);
 		ok = 0;
 	}
@@ -100,7 +100,7 @@ static SString & GeoPosToStr(double lat, double lon, SString & rBuf)
 {
 	rBuf.Z();
 	if(lat != 0.0 || lon != 0.0) {
-		rBuf.Cat(lat, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatDiv(',', 2).Cat(lon, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+		rBuf.Cat(lat, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatDiv(',', 2).Cat(lon, MKSFMTD(0, 12, NMBF_NOTRAILZ)); // @v11.2.3 prec 7-->12
 	}
 	return rBuf;
 }
@@ -133,6 +133,13 @@ SGeoPosLL::SGeoPosLL() : Lat(0.0), Lon(0.0)
 
 SGeoPosLL::SGeoPosLL(double lat, double lon) : Lat(lat), Lon(lon)
 {
+}
+
+SGeoPosLL & SGeoPosLL::Z()
+{
+	Lat = 0.0;
+	Lon = 0.0;
+	return *this;
 }
 
 int FASTCALL SGeoPosLL::operator == (const SGeoPosLL & s) const { return BIN(Cmp(s) == 0); }

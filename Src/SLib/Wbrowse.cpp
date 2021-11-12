@@ -1211,9 +1211,8 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	UserInterfaceSettings ui_cfg;
 	if(ui_cfg.Restore() > 0)
 		UICfg = ui_cfg;
-	if(labs(UICfg.TableFont.Size) > 0 && UICfg.TableFont.Face.NotEmpty()) {
-		Font = TView::CreateFont(UICfg.TableFont);
-	}
+	if(labs(UICfg.TableFont.Size) > 0 && UICfg.TableFont.Face.NotEmpty())
+		Font = TView::CreateFont_(UICfg.TableFont);
 	else
 		Font = static_cast<HFONT>(GetStockObject(DEFAULT_GUI_FONT));
 	SelectObject(dc, Font);

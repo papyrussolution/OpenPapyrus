@@ -103,7 +103,7 @@ mi_decl_restrict unsigned short* mi_wcsdup(const unsigned short* s) NOEXCEPT {
 	}
 	size_t size = (len+1)*sizeof(unsigned short);
 	unsigned short* p = (unsigned short*)mi_malloc(size);
-	if(p != NULL) {
+	if(p) {
 		_mi_memcpy(p, s, size);
 	}
 	return p;

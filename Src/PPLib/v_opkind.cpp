@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -450,14 +450,11 @@ int PPViewOprKind::MakeList(PPViewBrowser * pBrw)
 
 void PPViewOprKind::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(pBrw) {
-		pBrw->Helper_SetAllColumnsSortable();
-	}
+	CALLPTRMEMB(pBrw, Helper_SetAllColumnsSortable());
 }
 
 SArray * PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_OPRKIND;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	THROW_MEM(p_array = new SArray(sizeof(OprKindBrwItem)));
@@ -466,7 +463,7 @@ SArray * PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 		ZDELETE(P_DsList);
 		ZDELETE(p_array);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_OPRKIND);
 	return p_array;
 }
 

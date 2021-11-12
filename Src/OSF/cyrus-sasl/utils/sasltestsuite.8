@@ -1,0 +1,22 @@
+.\" sasltestsuite - SASL2 test tool
+.\" Dima Barsky 23/11/2002
+.\"
+
+.\"
+.TH SASLTESTSUITE 8 "December 23, 2002" "CMU SASL"
+.SH NAME
+sasltestsuite \- SASL2 test tool
+.SH SYNOPSIS
+.B  sasltestsuite [-g name] [-s seed] [-r tests] -a -M
+    g -- gssapi service name to use (default: host)
+    r -- # of random tests to do (default: 25)
+    a -- do all corruption tests (and ignores random ones unless -r specified)
+    n -- skip the initial "do correctly" tests
+    h -- show this screen
+    s -- random seed to use
+    M -- detailed memory debugging ON
+
+.SH DESCRIPTION
+This tool is for testing the SASL2 installation. Do not use it
+unless you know what you are doing. Read the source code if you need 
+more information.

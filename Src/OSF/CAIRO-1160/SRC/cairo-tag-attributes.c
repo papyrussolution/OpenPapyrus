@@ -286,7 +286,7 @@ static cairo_int_status_t parse_array(const char * p, attribute_type_t type, cai
 		return _cairo_error(CAIRO_STATUS_TAG_ERROR);
 	if(*p++ != '[')
 		return _cairo_error(CAIRO_STATUS_TAG_ERROR);
-	while(TRUE) {
+	while(true) {
 		p = skip_space(p);
 		if(!*p)
 			return _cairo_error(CAIRO_STATUS_TAG_ERROR);
@@ -593,33 +593,24 @@ cairo_int_status_t _cairo_tag_parse_ccitt_params(const char * attributes, cairo_
 	status = parse_attributes(attributes, _ccitt_params_spec, &list);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{
-		if(strcmp(attr->name, "Columns") == 0) {
+		if(sstreq(attr->name, "Columns"))
 			ccitt_params->columns = attr->scalar.i;
-		}
-		else if(strcmp(attr->name, "Rows") == 0) {
+		else if(sstreq(attr->name, "Rows"))
 			ccitt_params->rows = attr->scalar.i;
-		}
-		else if(strcmp(attr->name, "K") == 0) {
+		else if(sstreq(attr->name, "K"))
 			ccitt_params->k = attr->scalar.i;
-		}
-		else if(strcmp(attr->name, "EndOfLine") == 0) {
+		else if(sstreq(attr->name, "EndOfLine"))
 			ccitt_params->end_of_line = attr->scalar.b;
-		}
-		else if(strcmp(attr->name, "EncodedByteAlign") == 0) {
+		else if(sstreq(attr->name, "EncodedByteAlign"))
 			ccitt_params->encoded_byte_align = attr->scalar.b;
-		}
-		else if(strcmp(attr->name, "EndOfBlock") == 0) {
+		else if(sstreq(attr->name, "EndOfBlock"))
 			ccitt_params->end_of_block = attr->scalar.b;
-		}
-		else if(strcmp(attr->name, "BlackIs1") == 0) {
+		else if(sstreq(attr->name, "BlackIs1"))
 			ccitt_params->black_is_1 = attr->scalar.b;
-		}
-		else if(strcmp(attr->name, "DamagedRowsBeforeError") == 0) {
+		else if(sstreq(attr->name, "DamagedRowsBeforeError"))
 			ccitt_params->damaged_rows_before_error = attr->scalar.b;
-		}
 	}
 
 cleanup:

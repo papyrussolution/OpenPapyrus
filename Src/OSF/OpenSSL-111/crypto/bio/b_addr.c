@@ -144,7 +144,7 @@ int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 	if(addrptr == NULL)
 		return 0;
 
-	if(p != NULL) {
+	if(p) {
 		memcpy(p, addrptr, len);
 	}
 	if(l != NULL)
@@ -484,7 +484,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 		if(p != p2)
 			goto amb_err;
 
-		if(p != NULL) {
+		if(p) {
 			h = hostserv;
 			hl = p - h;
 			p++;

@@ -1703,7 +1703,7 @@ const Sdr_Bill * PPBillImporter::SearchBillForRow(const SString & rBillIdent, co
 	while(Bills.lsearch(rBillIdent, &p, PTR_CMPFUNC(Pchar)) > 0) {
 		const long _int_bill_id = rBillIdent.ToLong(); // @debug
 		const Sdr_Bill * p_bill = &Bills.at(p);
-		if((!rRow.BillDate || rRow.BillDate == p_bill->Date) && (!rRow.INN[0] || strcmp(rRow.INN, p_bill->INN) == 0)) {
+		if((!rRow.BillDate || rRow.BillDate == p_bill->Date) && (!rRow.INN[0] || sstreq(rRow.INN, p_bill->INN))) {
 			return p_bill;
 		}
 		else
@@ -1717,7 +1717,7 @@ int PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) co
     uint p = DEREFPTRORZ(pPos);
 	while(BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar))) {
 		const Sdr_BRow * p_row = &BillsRows.at(p);
-		if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || strcmp(p_row->INN, rBill.INN) == 0)) {
+		if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || sstreq(p_row->INN, rBill.INN))) {
 			ASSIGN_PTR(pPos, p);
 			return 1;
 		}

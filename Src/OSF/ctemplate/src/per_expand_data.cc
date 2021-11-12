@@ -39,16 +39,17 @@
 namespace ctemplate {
 using std::string;
 
-bool PerExpandData::DataEq::operator()(const char* s1, const char* s2) const {
-	return ((s1 == 0 && s2 == 0) ||
-	       (s1 && s2 && *s1 == *s2 && strcmp(s1, s2) == 0));
+bool PerExpandData::DataEq::operator()(const char* s1, const char* s2) const 
+{
+	return ((s1 == 0 && s2 == 0) || (s1 && s2 && *s1 == *s2 && sstreq(s1, s2)));
 }
 
 PerExpandData::~PerExpandData() {
 	delete map_;
 }
 
-TemplateAnnotator* PerExpandData::annotator() const {
+TemplateAnnotator* PerExpandData::annotator() const 
+{
 	if(annotator_ != NULL) {
 		return annotator_;
 	}

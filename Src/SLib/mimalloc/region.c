@@ -394,7 +394,7 @@ void * _mi_mem_alloc_aligned(size_t size,
 		*memid = mi_memid_create_from_arena(arena_memid);
 	}
 
-	if(p != NULL) {
+	if(p) {
 		mi_assert_internal((uintptr_t)p % alignment == 0);
 #if (MI_DEBUG>=2)
 		if(*commit) {

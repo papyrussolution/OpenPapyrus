@@ -1,0 +1,9 @@
+{
+    "event":"ApplePushService",
+    "user": "john@example.org",
+    "apsVersion": "",
+    "apsAccountId": "",
+    "apsDeviceToken": "",
+    "apsSubtopic": "",
+    "mailboxes": "[array of mailboxIDs]"
+}

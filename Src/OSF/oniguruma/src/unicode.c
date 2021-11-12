@@ -609,7 +609,7 @@ static int wb_get_next_main_code(OnigEncoding enc, uchar * p, const uchar * end,
 {
 	OnigCodePoint code;
 	enum WB_TYPE type;
-	while(TRUE) {
+	while(true) {
 		p += enclen(enc, p);
 		if(p >= end) 
 			break;

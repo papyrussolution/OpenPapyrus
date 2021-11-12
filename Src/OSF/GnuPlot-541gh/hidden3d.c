@@ -80,8 +80,8 @@ struct GpMeshTriangle {
 // cell borders 
 //
 struct qtreelist {
-	long p;                 /* the polygon */
-	long next;              /* next element in this chain */
+	long p;    // the polygon 
+	long next; // next element in this chain 
 };
 //typedef qtreelist * p_qtreelist;
 // 
@@ -94,11 +94,11 @@ struct qtreelist {
 #ifndef QUADTREE_GRANULARITY
 	#define QUADTREE_GRANULARITY 30
 #endif
-static long quadtree[QUADTREE_GRANULARITY][QUADTREE_GRANULARITY];
-static long pfirst; // first polygon in zsorted chain
-static long efirst; // first edges in zsorted chain 
-static dynarray qtree; // the dynarray to actually store all that stuff in
-#define qlist ((qtreelist *)qtree.v)
+//static long quadtree[QUADTREE_GRANULARITY][QUADTREE_GRANULARITY];
+//static long pfirst; // first polygon in zsorted chain
+//static long efirst; // first edges in zsorted chain 
+//static dynarray qtree; // the dynarray to actually store all that stuff in
+//#define qlist ((qtreelist *)qtree.v)
 //
 // and a routine to calculate the cells' position in that array: 
 //
@@ -214,7 +214,7 @@ void GnuPlot::InitHiddenLineRemoval()
 	init_dynarray(&_Plt.HiddenVertices, sizeof(GpVertex ), 100, 100);
 	init_dynarray(&_Plt.HiddenEdges, sizeof(GpEdge), 100, 100);
 	init_dynarray(&_Plt.HiddenPolygons, sizeof(GpMeshTriangle), 100, 100);
-	init_dynarray(&qtree, sizeof(qtreelist), 100, 100);
+	init_dynarray(&Hid3D.QTree, sizeof(qtreelist), 100, 100);
 }
 //
 // Reset the hidden line data to a fresh start. 
@@ -225,7 +225,7 @@ void GnuPlot::ResetHiddenLineRemoval()
 	_Plt.HiddenVertices.end = 0;
 	_Plt.HiddenEdges.end = 0;
 	_Plt.HiddenPolygons.end = 0;
-	qtree.end = 0;
+	Hid3D.QTree.end = 0;
 }
 //
 // Terminates the hidden line removal process.
@@ -237,7 +237,7 @@ void GnuPlot::TermHiddenLineRemoval()
 	free_dynarray(&_Plt.HiddenPolygons);
 	free_dynarray(&_Plt.HiddenEdges);
 	free_dynarray(&_Plt.HiddenVertices);
-	free_dynarray(&qtree);
+	free_dynarray(&Hid3D.QTree);
 }
 
 #if 0 /* UNUSED ! */
@@ -360,15 +360,13 @@ long GnuPlot::StoreEdge(long vnum1, edge_direction direction, long crvlen, lp_st
 bool GnuPlot::GetPlane(GpMeshTriangle * poly, t_plane plane)
 {
 	int i;
-	GpVertex * v1;
-	GpVertex * v2;
 	double x, y, z, s;
-	bool frontfacing = TRUE;
+	bool frontfacing = true;
 	// calculate the signed areas of the polygon projected onto the
 	// planes x=0, y=0 and z=0, respectively. The three areas form
 	// the components of the plane's normal vector: 
-	v1 = vlist + poly->vertex[POLY_NVERT-1];
-	v2 = vlist + poly->vertex[0];
+	GpVertex * v1 = vlist + poly->vertex[POLY_NVERT-1];
+	GpVertex * v2 = vlist + poly->vertex[0];
 	plane[0] = (v1->y - v2->y) * (v1->z + v2->z);
 	plane[1] = (v1->z - v2->z) * (v1->x + v2->x);
 	plane[2] = (v1->x - v2->x) * (v1->y + v2->y);
@@ -557,7 +555,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 		min = vlist[*v++].var;                  \
 		for(int i = 1; i< POLY_NVERT; i++, v++)    \
 			SETMIN(min, vlist[*v].var);            \
-		if(min < -_3DBlk.SurfaceScale) disable_mouse_z = TRUE;       \
+		if(min < -_3DBlk.SurfaceScale) disable_mouse_z = true; \
 	} while(0)
 	// Gets Maximum 'var' value of polygon 'poly', as with GET_MIN 
 #define GET_MAX(poly, var, max)                 \
@@ -566,7 +564,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 		max = vlist[*v++].var;                  \
 		for(int i = 1; i< POLY_NVERT; i++, v++)    \
 			SETMAX(max, vlist[*v].var);            \
-		if(max > _3DBlk.SurfaceScale) disable_mouse_z = TRUE;        \
+		if(max > _3DBlk.SurfaceScale) disable_mouse_z = true; \
 	} while(0)
 	GET_MIN(p, x, p->xmin);
 	GET_MIN(p, y, p->ymin);
@@ -1126,7 +1124,7 @@ void GnuPlot::SortEdgesByZ()
 			p_this->next = -1L;
 		}
 		// 'efirst' is the index of the leading element of plist 
-		efirst = sortarray[0];
+		Hid3D.EFirst = sortarray[0];
 		SAlloc::F(sortarray);
 	}
 }
@@ -1156,7 +1154,7 @@ void GnuPlot::SortPolysByZ()
 			int grid_y;
 			for(grid_x = 0; grid_x < QUADTREE_GRANULARITY; grid_x++)
 				for(grid_y = 0; grid_y < QUADTREE_GRANULARITY; grid_y++)
-					quadtree[grid_x][grid_y] = -1;
+					Hid3D.Quadtree[grid_x][grid_y] = -1;
 			for(i = _Plt.HiddenPolygons.end - 1; i >= 0; i--) {
 				GpMeshTriangle * p_this = plist + sortarray[i];
 				int grid_x_low = CoordToTreeCell(p_this->xmin);
@@ -1165,15 +1163,15 @@ void GnuPlot::SortPolysByZ()
 				int grid_y_high = CoordToTreeCell(p_this->ymax);
 				for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++) {
 					for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++) {
-						qtreelist * newhead = (qtreelist *)NextFromDynArray(&qtree);
-						newhead->next = quadtree[grid_x][grid_y];
+						qtreelist * newhead = (qtreelist *)NextFromDynArray(&Hid3D.QTree);
+						newhead->next = Hid3D.Quadtree[grid_x][grid_y];
 						newhead->p = sortarray[i];
-						quadtree[grid_x][grid_y] = newhead - qlist;
+						Hid3D.Quadtree[grid_x][grid_y] = newhead - ((qtreelist *)Hid3D.QTree.v);
 					}
 				}
 			}
 		}
-		pfirst = sortarray[0];
+		Hid3D.PFirst = sortarray[0];
 		SAlloc::F(sortarray);
 	}
 }
@@ -1356,11 +1354,10 @@ long GnuPlot::SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line t
 
 static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3)
 {
-	double
-	    dx12 = v2->x - v1->x, /* x/y components of (v2-v1) and (v3-v1) */
-	    dx13 = v3->x - v1->x,
-	    dy12 = v2->y - v1->y,
-	    dy13 = v3->y - v1->y;
+	double dx12 = v2->x - v1->x; /* x/y components of (v2-v1) and (v3-v1) */
+	double dx13 = v3->x - v1->x;
+	double dy12 = v2->y - v1->y;
+	double dy13 = v3->y - v1->y;
 	return (dx12 * dy13 - dy12 * dx13);
 }
 
@@ -1416,18 +1413,8 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 		vnum1 = v1 - vlist;                     \
 		vnum2 = v2 - vlist;                     \
 		zmin = v2->z;                           \
-                                                \
-		if(v1->x > v2->x) {                    \
-			xmin = v2->x;       xmax = v1->x;   \
-		} else {                                \
-			xmin = v1->x;       xmax = v2->x;   \
-		}                                       \
-                                                \
-		if(v1->y > v2->y) {                    \
-			ymin = v2->y;       ymax = v1->y;   \
-		} else {                                \
-			ymin = v1->y;       ymax = v2->y;   \
-		}                                       \
+		if(v1->x > v2->x) { xmin = v2->x; xmax = v1->x; } else { xmin = v1->x; xmax = v2->x; } \
+		if(v1->y > v2->y) { ymin = v2->y; ymax = v1->y; } else { ymin = v1->y; ymax = v2->y; } \
 	} while(0) /* end macro setup_edge */
 
 	/* use the macro for initial setup, too: */
@@ -1440,14 +1427,13 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	grid_y_high = CoordToTreeCell(ymax);
 	for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++)
 		for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++)
-			for(listhead = quadtree[grid_x][grid_y]; listhead >= 0; listhead = qlist[listhead].next) {
-				/* shortcut variables for the three vertices of 'p':*/
+			for(listhead = Hid3D.Quadtree[grid_x][grid_y]; listhead >= 0; listhead = ((qtreelist *)Hid3D.QTree.v)[listhead].next) {
+				// shortcut variables for the three vertices of 'p':
 				GpVertex * w1;
 				GpVertex * w2;
 				GpVertex * w3;
-				polynum = qlist[listhead].p;
+				polynum = ((qtreelist *)Hid3D.QTree.v)[listhead].p;
 				p = plist + polynum;
-
 				/* OK, off we go with the real work. This algorithm had its
 				 * beginnings as the one of 'HLines.java', as described in
 				 * the book 'Computer Graphics for Java Programmers', by
@@ -1518,12 +1504,10 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 					double u_seg[6]; /* Sorted subsegment points */
 					int segs; /* Number of segments */
 					int i;
-
 					u_int[0] = intersect_line_plane(v1, v2, p->plane);
 					u_int[1] = intersect_line_line(v1, v2, w1, w2);
 					u_int[2] = intersect_line_line(v1, v2, w2, w3);
 					u_int[3] = intersect_line_line(v1, v2, w3, w1);
-
 					/* Check if between v1 and v2 */
 					u_seg[0] = 0;
 					segs = 1;
@@ -1540,9 +1524,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 						int j = i+1;
 						for(; j < segs; j++) {
 							if(u_seg[i] > u_seg[j]) {
-								double temp = u_seg[i];
-								u_seg[i] = u_seg[j];
-								u_seg[j] = temp;
+								Exchange(u_seg+i, u_seg+j);
 							}
 						}
 					}
@@ -1660,7 +1642,7 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 		// store the edge into the hidden3d datastructures 
 		edgenum = MakeEdge(vstore1, vstore2, lp, lp->l_type, -1);
 		// remove hidden portions of the line, and draw what remains 
-		temp_pfirst = pfirst;
+		temp_pfirst = Hid3D.PFirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
 		// release allocated storage slots: 
 		DropLastDynArray(&_Plt.HiddenEdges);
@@ -1688,7 +1670,7 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 		lp->flags |= LP_SHOW_POINTS; /* Labels can use the code for hidden points */
 		edgenum = MakeEdge(thisvertex, thisvertex, lp, lp->l_type, -1);
 		FPRINTF((stderr, "label: \"%s\" at [%d %d]  vertex %ld edge %ld\n", v->label->text, x, y, thisvertex, edgenum));
-		temp_pfirst = pfirst;
+		temp_pfirst = Hid3D.PFirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
 		DropLastDynArray(&_Plt.HiddenEdges);
 		DropLastDynArray(&_Plt.HiddenVertices);
@@ -1710,20 +1692,20 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 	if(!_Plt.HiddenPolygons.end) {
 		// No polygons anything could be hidden behind... 
 		SortEdgesByZ();
-		while(efirst >= 0) {
-			DrawEdge(pTerm, elist+efirst, vlist + elist[efirst].v1, vlist + elist[efirst].v2);
-			efirst = elist[efirst].next;
+		while(Hid3D.EFirst >= 0) {
+			DrawEdge(pTerm, elist+Hid3D.EFirst, vlist + elist[Hid3D.EFirst].v1, vlist + elist[Hid3D.EFirst].v2);
+			Hid3D.EFirst = elist[Hid3D.EFirst].next;
 		}
 	}
 	else {
 		long int temporary_pfirst;
 		SortEdgesByZ(); // Presort edges in z order 
 		SortPolysByZ(); // Presort polygons in z order 
-		temporary_pfirst = pfirst;
-		while(efirst >=0) {
-			if(elist[efirst].style != LT_NODRAW) // skip invisible edges 
-				InFront(pTerm, efirst, elist[efirst].v1, elist[efirst].v2, &temporary_pfirst);
-			efirst = elist[efirst].next;
+		temporary_pfirst = Hid3D.PFirst;
+		while(Hid3D.EFirst >=0) {
+			if(elist[Hid3D.EFirst].style != LT_NODRAW) // skip invisible edges 
+				InFront(pTerm, Hid3D.EFirst, elist[Hid3D.EFirst].v1, elist[Hid3D.EFirst].v2, &temporary_pfirst);
+			Hid3D.EFirst = elist[Hid3D.EFirst].next;
 		}
 	}
 }

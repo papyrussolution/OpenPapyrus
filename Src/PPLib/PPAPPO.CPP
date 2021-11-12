@@ -956,19 +956,23 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 			PPStyloQInterchange::RunServerParam rsparam;
 			p_ic = new PPStyloQInterchange(p_ldb->P_Sqc);
 			THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
-			THROW(p_ic->SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint, rsparam));
+			// @debug @! В следующем вызове должен применяться флаг PPStyloQInterchange::smqbpfLocalSession, а не PPStyloQInterchange::smqbpfLocalMachine
+			// Сейчас мы устанавливаем smqbpfLocalMachine для того, чтобы можно было отладить механизм на эмуляторе клиента.
+			THROW(p_ic->SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
 			{
 				PPMqbClient::RoutingParamEntry rpe;
-				if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
+				SBinaryChunk qi;
+				rsparam.MakeMqbQueueIdent(qi);
+				if(rpe.SetupStyloQRpcListener(/*rsparam.SvcIdent*/qi)) {
 					PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
 					ASSIGN_PTR(p_new_entry, rpe);
 				}
 			}
 			PPStyloQInterchange::Invitation inv(rsparam);
 			{
-				SJson * p_js = new SJson(SJson::tOBJECT);
-				p_js->Insert("cmd", json_new_string("DTLOGIN"));
-				json_tree_to_string(p_js, inv.CommandJson);
+				SJson js(SJson::tOBJECT);
+				js.InsertString("cmd", "DTLOGIN");
+				json_tree_to_string(&js, inv.CommandJson);
 			}
 			{
 				p_ic->RunStyloQServer(rsparam, &rDlb);

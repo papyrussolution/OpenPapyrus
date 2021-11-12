@@ -170,7 +170,7 @@ cmsInterpParams* CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, cmsUInt
 // Free all associated memory
 void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams* p)
 {
-	if(p != NULL) _cmsFree(p->ContextID, p);
+	if(p) _cmsFree(p->ContextID, p);
 }
 
 // Inline fixed point interpolation

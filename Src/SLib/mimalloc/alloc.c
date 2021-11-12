@@ -83,7 +83,7 @@ extern inline mi_decl_restrict void * mi_heap_malloc_small(mi_heap_t* heap, size
 	void * p = _mi_page_malloc(heap, page, size + MI_PADDING_SIZE);
 	mi_assert_internal(p==NULL || mi_usable_size(p) >= size);
   #if MI_STAT>1
-	if(p != NULL) {
+	if(p) {
 		if(!mi_heap_is_initialized(heap)) {
 			heap = mi_get_default_heap();
 		}
@@ -110,7 +110,7 @@ extern inline mi_decl_restrict void * mi_heap_malloc(mi_heap_t* heap, size_t siz
 		void * const p = _mi_malloc_generic(heap, size + MI_PADDING_SIZE); // note: size can overflow but it is detected in malloc_generic
 		mi_assert_internal(p == NULL || mi_usable_size(p) >= size);
     #if MI_STAT>1
-		if(p != NULL) {
+		if(p) {
 			if(!mi_heap_is_initialized(heap)) {
 				heap = mi_get_default_heap();
 			}
@@ -149,7 +149,7 @@ void _mi_block_zero_init(const mi_page_t* page, void * p, size_t size)
 mi_decl_restrict void * mi_zalloc_small(size_t size) NOEXCEPT 
 {
 	void * p = mi_malloc_small(size);
-	if(p != NULL) {
+	if(p) {
 		_mi_block_zero_init(_mi_ptr_page(p), p, size); // todo: can we avoid getting the page again?
 	}
 	return p;
@@ -733,7 +733,7 @@ mi_decl_restrict char * mi_heap_strdup(mi_heap_t* heap, const char * s) NOEXCEPT
 		return NULL;
 	size_t n = strlen(s);
 	char * t = (char *)mi_heap_malloc(heap, n+1);
-	if(t != NULL) 
+	if(t) 
 		_mi_memcpy(t, s, n + 1);
 	return t;
 }

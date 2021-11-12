@@ -6340,7 +6340,9 @@ public:
 		tagPrivateConfig           = 30,  // @reserve json Приватная конфигурация //
 		tagRoundTripIdent          = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
 			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
-		tagDocDeclaration          = 32   // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData 
+		tagDocDeclaration          = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData 
+		tagSvcLoclAddendum         = 33   // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
+			// Участвует в формировании символа очереди в случае MQB-обмена.
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -7663,6 +7665,7 @@ struct LAssoc : public LAssocBase {
 	LAssoc(int32 key, int32 val);
 	LAssoc(const LAssoc & rS);
 	int    FASTCALL operator == (const LAssoc &) const;
+	void   Set(int32 key, int32 val);
 };
 
 class LAssocArray : public TSVector <LAssoc> {
@@ -7984,6 +7987,7 @@ public:
 	};
 	StrAssocArray();
 	StrAssocArray(const StrAssocArray & rS);
+	~StrAssocArray();
 	StrAssocArray & FASTCALL operator = (const StrAssocArray & rS);
 	int    FASTCALL Copy(const StrAssocArray & rS);
 	StrAssocArray & Z();
@@ -8172,6 +8176,7 @@ protected:
 private:
 	int    Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
 	void   Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList);
+	LAssocArray * P_ParentIndex; // @v11.2.3 @transient Индекс родительских элементов для ускорения сортировки
 };
 //
 //
@@ -15613,6 +15618,7 @@ extern long   SAry_SortExtraData;
 struct SGeoPosLL { // @persistent
 	SGeoPosLL();
 	SGeoPosLL(double lat, double lon);
+	SGeoPosLL & Z();
 	int    FASTCALL operator == (const SGeoPosLL & rS) const;
 	int    FASTCALL operator != (const SGeoPosLL & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;

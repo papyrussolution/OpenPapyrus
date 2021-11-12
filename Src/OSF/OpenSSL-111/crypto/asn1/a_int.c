@@ -160,7 +160,7 @@ static size_t c2i_ibuf(uchar * b, int * pneg,
 		*pneg = neg;
 	/* Handle common case where length is 1 octet separately */
 	if(plen == 1) {
-		if(b != NULL) {
+		if(b) {
 			if(neg)
 				b[0] = (p[0] ^ 0xFF) + 1;
 			else
@@ -194,7 +194,7 @@ static size_t c2i_ibuf(uchar * b, int * pneg,
 	p += pad;
 	plen -= pad;
 
-	if(b != NULL)
+	if(b)
 		twos_complement(b, p, plen, neg ? 0xffU : 0);
 
 	return plen;

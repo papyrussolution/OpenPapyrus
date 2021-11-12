@@ -5,9 +5,6 @@
     <ClCompile Include="..\OSF\ZLIB\zlib-pch.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\ZLIB\inffixed.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\zlib.h">
       <Filter>Header</Filter>
     </ClInclude>

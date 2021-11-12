@@ -1,0 +1,69 @@
+From Stoned.Elipot@script.jussieu.fr Thu Jul 19 12:42:33 2001
+Date: Wed, 18 Jul 2001 00:30:00 +0200
+From: Stoned Elipot <Stoned.Elipot@script.jussieu.fr>
+To: cyrus-bugs@andrew.cmu.edu
+Subject: Re: question/suggestion regarding libtool usage in cyrus-sasl lib 
+
+On Mon, 16 Jul 2001 12:33:17 -0400 (EDT)  Rob Siemborski wrote:
+> On Mon, 16 Jul 2001, Stoned Elipot wrote:
+> 
+> > handling of `_' in symbol names. I had made crude patches on cyrus-sasl-1.5
+.24
+> > which use the libtool installed .la files to get the right shared object to
+> > dlopen() and I'm considering using LTDL API to get extra portability withou
+t
+> > too much trouble. Would you be interested in theses ?
+> 
+> I would be interested in seeing them, and possibly include (similar)
+> patches in/with SASLv2.
+
+Hi,
+I had made a couple of patches to implement the usage of GNU libltdl in
+cyrus-sasl-1.5.24. They can be found at :
+ftp://ftp.pbox.org/pub/cyrus-sasl-1.5.24-ltdl.patches.gz
+
+These patches bring :
+
+- libtool linking of libsasl.* with libtldl
+
+- Enabling or not the use of the included libtldl with --enable-ltdl-install
+argument to configure (that's standard libtool integration, see libtool's 
+manual)
+
+- lib/dlopen.c simplification and portability improvement (IMHO) by using
+ltdl API (no more hack for `_' symbols prefixing, let libtool figure out
+the shared lib naming convention)
+
+*Not* included in these patches :
+
+- (new) subdirectory 'libltdl' which should contains the GNU libltdl in
+case the target system does not already have libtool installed. This
+directory can be created by libtoolize --ltdl and then the
+required and missing files for autoconf in there should be added (install-sh
+and all; I didn't find a way to use those in ../config :( ).
+See 'Distributing libltdl' in libtool's manual.
+
+- config/<libtool scripts,support files> : I found myself updating libtool 
+scripts in config/ and so new files add to be added there for supporting latest
+version of it.
+
+- update of config/config.{guess,sub} : during testing on old netbsd systems I
+came across the need to use more uptodate (how strange) version of these files.
+I grabbed those available at ftp.gnu.org/pub/gnu/config
+
+- Makefile.in, aclocal.m4 and configure which of course have to be rebuild
+as my patches touch some of their sources files
+
+(So theses previous point regards files that can be generated/added/updated by
+auto* tools so I didn't put them in the above mentionned patches)
+
+- the thread-safe issue is not resolved: I'm not a thread expert, please see
+the comments I added in the patched lib/common.c:sasl_set_mutex()
+
+Anyway, this allowed me to compile and test (just by cheking that saslpasswd
+is picking the plugins shared libs and produce good result as far as I can see)
+the whole thing on Solaris8/sparc, HPUX11, HPUX10.20 and NetBSD/sparc 1.2.1 
+(a.out) and 1.5.1 (elf). So I guess
+I had the opportunity to test various shared libs handling/convention/...
+
+Hoping this can help. Best regards, Stoned.

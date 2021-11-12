@@ -69,18 +69,8 @@ static struct Zoombox {
 	LPCSTR text2;    /* texts in the corners (i.e. positions) */
 } zoombox = { FALSE, {0, 0}, {0, 0}, NULL, NULL };
 
-// Pointer definitions 
-//HCURSOR hptrDefault;
-//HCURSOR hptrCrossHair;
-//HCURSOR hptrScaling;
-//HCURSOR hptrRotating;
-//HCURSOR hptrZooming;
-//HCURSOR hptrCurrent;
-
 // Mouse support routines 
 static void     Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1);
-//static void     Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam);
-//static void     Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam);
 static void     GetMousePosViewport(GW * lpgw, int * mx, int * my);
 static void     Draw_XOR_Text(GW * lpgw, const char * text, size_t length, int x, int y);
 #endif

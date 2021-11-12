@@ -383,10 +383,9 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		ctxt->inputMax = oldinputMax;
 		ctxt->inputTab = oldinputTab;
 		ctxt->charset = oldcharset;
-		if(ctxt->encoding && ((ctxt->dict == NULL) || (!xmlDictOwns(ctxt->dict, ctxt->encoding))))
-			SAlloc::F((xmlChar *)ctxt->encoding);
+		XmlDestroyStringWithDict(ctxt->dict, const_cast<xmlChar *>(ctxt->encoding)); // @badcast
 		ctxt->encoding = oldencoding;
-		/* ctxt->wellFormed = oldwellFormed; */
+		// ctxt->wellFormed = oldwellFormed; 
 	}
 }
 

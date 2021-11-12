@@ -262,8 +262,7 @@ static size_t set_cipher(char * cipher_str, DWORD protocol, ALG_ID * arr, size_t
 	size_t pos = 0;
 	while(token) {
 		for(size_t i = 0; i < sizeof(cipher_map)/sizeof(cipher_map[0]); i++) {
-			if((pos + 4 < arr_size && strcmp(cipher_map[i].openssl_name, token) == 0) ||
-			    (cipher_map[i].protocol <= protocol)) {
+			if((pos + 4 < arr_size && sstreq(cipher_map[i].openssl_name, token)) || (cipher_map[i].protocol <= protocol)) {
 				memcpy(arr + pos, cipher_map[i].algs, sizeof(ALG_ID)* 4);
 				pos += 4;
 				break;

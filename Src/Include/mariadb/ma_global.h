@@ -898,7 +898,7 @@ do { doubleget_union _tmp; \
 #ifdef HAVE_DLOPEN
 	#ifdef _WIN32
 		#define dlsym(lib, name) GetProcAddress((HMODULE)(lib), name)
-		#define dlopen(libname, unused) LoadLibraryEx(libname, NULL, 0)
+		#define dlopen(libname, unused) LoadLibraryExA(libname, NULL, 0)
 		#define dlclose(lib) FreeLibrary((HMODULE)(lib))
 	#elif defined(HAVE_DLFCN_H)
 		#include <dlfcn.h>

@@ -788,9 +788,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->LocalTouchScrID = 0;
 		{
 			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 1/*readonly*/);
-			SString param_buf;
-			(param_buf = "LocalTouchScreen").Colon().Cat(id);
-			if(reg_key.GetString(param_buf, temp_buf)) {
+			if(reg_key.GetString(SString("LocalTouchScreen").Colon().Cat(id), temp_buf)) {
 				pSCN->LocalTouchScrID = temp_buf.ToLong();
 				if(pSCN->LocalTouchScrID) {
 					PPObjTouchScreen ts_obj;

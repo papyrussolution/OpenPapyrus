@@ -183,6 +183,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
+    <SonarQubeTestProject>True</SonarQubeTestProject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -2045,6 +2046,7 @@
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
+    <ClCompile Include="..\SLib\szlib.c" />
     <ClCompile Include="..\SLib\tab.cpp" />
     <ClCompile Include="..\SLib\TCanvas.cpp" />
     <ClCompile Include="..\SLib\tcontrol.cpp" />
@@ -3996,6 +3998,7 @@
     <ClInclude Include="..\Include\Uri.h" />
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
+    <ClInclude Include="..\Include\zlib.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
@@ -6503,9 +6506,6 @@
     </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
-    </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

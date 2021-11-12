@@ -1632,12 +1632,12 @@ void Memento_info(void * addr)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
-	if(data.blk != NULL)
+	if(data.blk)
 		showInfo(data.blk, NULL);
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
-	if(data.blk != NULL)
+	if(data.blk)
 		showInfo(data.blk, NULL);
 	MEMENTO_UNLOCK();
 #else
@@ -2694,11 +2694,9 @@ int Memento_find(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
-		slfprintf_stderr("Address "FMTP " is in %sallocated block ",
-		    data.addr,
-		    (data.flags == 1 ? "" : (data.flags == 2 ?
-		    "preguard of " : "postguard of ")));
+	if(data.blk) {
+		slfprintf_stderr("Address "FMTP " is in %sallocated block ", data.addr,
+		    (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		s = showBlock(data.blk, ' ');
 		slfprintf_stderr("\n");
 		MEMENTO_UNLOCK();
@@ -2707,7 +2705,7 @@ int Memento_find(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
+	if(data.blk) {
 		slfprintf_stderr("Address "FMTP " is in %sfreed block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		s = showBlock(data.blk, ' ');
 		slfprintf_stderr("\n");
@@ -2726,7 +2724,7 @@ void Memento_breakOnFree(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
+	if(data.blk) {
 		slfprintf_stderr("Will stop when address "FMTP " (in %sallocated block ", data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');
 		slfprintf_stderr(") is freed\n");
@@ -2739,7 +2737,7 @@ void Memento_breakOnFree(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
+	if(data.blk) {
 		slfprintf_stderr("Can't stop on free; address "FMTP " is in %sfreed block ",
 		    data.addr,
 		    (data.flags == 1 ? "" : (data.flags == 2 ?
@@ -2762,7 +2760,7 @@ void Memento_breakOnRealloc(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.used, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
+	if(data.blk) {
 		slfprintf_stderr("Will stop when address "FMTP " (in %sallocated block ",
 		    data.addr,
 		    (data.flags == 1 ? "" : (data.flags == 2 ?
@@ -2778,7 +2776,7 @@ void Memento_breakOnRealloc(void * a)
 	data.blk   = NULL;
 	data.flags = 0;
 	Memento_appBlocks(&memento.free, Memento_containsAddr, &data);
-	if(data.blk != NULL) {
+	if(data.blk) {
 		slfprintf_stderr("Can't stop on free/realloc; address "FMTP " is in %sfreed block ",
 		    data.addr, (data.flags == 1 ? "" : (data.flags == 2 ? "preguard of " : "postguard of ")));
 		showBlock(data.blk, ' ');

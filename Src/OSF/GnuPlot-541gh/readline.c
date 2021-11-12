@@ -326,7 +326,6 @@ static int strwidth(const char * str)
 #endif
 }
 
-//static int isdoublewidth(size_t pos)
 int GnuPlot::IsDoubleWidth(size_t pos)
 {
 #if defined(_WIN32)
@@ -338,7 +337,6 @@ int GnuPlot::IsDoubleWidth(size_t pos)
 // 
 // Determine length of multi-byte sequence starting at current position
 //
-//static int char_seqlen()
 int GnuPlot::CharSeqLen()
 {
 	switch(GPT._Encoding) {
@@ -359,7 +357,6 @@ int GnuPlot::CharSeqLen()
 // Back up over one multi-byte character sequence immediately preceding
 // the current position.  Non-destructive.  Affects both cur_pos and screen cursor.
 //
-//static int backspace()
 int GnuPlot::BackSpace()
 {
 	switch(GPT._Encoding) {
@@ -401,7 +398,6 @@ int GnuPlot::BackSpace()
 // We don't assume a non-destructive forward space, so we have
 // to redraw the character as we go.
 // 
-//static void step_forward()
 void GnuPlot::StepForward()
 {
 	int i, seqlen;
@@ -420,7 +416,6 @@ void GnuPlot::StepForward()
 // 
 // Delete the character we are on and collapse all subsequent characters back one
 // 
-//static void delete_forward()
 void GnuPlot::DeleteForward()
 {
 	if(RlB_.CurPos < RlB_.MaxPos) {
@@ -436,7 +431,6 @@ void GnuPlot::DeleteForward()
 // 
 // Delete the previous character and collapse all subsequent characters back one
 // 
-//static void delete_backward()
 void GnuPlot::DeleteBackward()
 {
 	if(RlB_.CurPos > 0) {
@@ -449,7 +443,6 @@ void GnuPlot::DeleteBackward()
 	}
 }
 
-//static void extend_cur_line()
 void GnuPlot::ExtendCurLine()
 {
 	// extend input line length 
@@ -464,7 +457,6 @@ void GnuPlot::ExtendCurLine()
 }
 
 #if defined(HAVE_DIRENT)
-//static char * fn_completion(size_t anchor_pos, int direction)
 char * GnuPlot::FnCompletion(size_t anchor_pos, int direction)
 {
 	static char * completions[MAX_COMPLETIONS];
@@ -578,7 +570,6 @@ char * GnuPlot::FnCompletion(size_t anchor_pos, int direction)
 	return NULL;
 }
 
-//static void tab_completion(bool forward)
 void GnuPlot::TabCompletion(bool forward)
 {
 	size_t i;
@@ -972,7 +963,6 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 	}
 }
 
-//static int do_search(int dir)
 int GnuPlot::DoSearch(int dir)
 {
 	int ret = HistorySearch(RlB_.P_CurLine, dir);
@@ -1010,7 +1000,6 @@ void GnuPlot::PrintSearchResult(const HIST_ENTRY * result)
 	RESUMEOUTPUT;
 }
 
-//static void switch_prompt(const char * pOldPrompt, const char * pNewPrompt)
 void GnuPlot::SwitchPrompt(const char * pOldPrompt, const char * pNewPrompt)
 {
 	int i, len;
@@ -1041,7 +1030,6 @@ void GnuPlot::SwitchPrompt(const char * pOldPrompt, const char * pNewPrompt)
 // Does not need any terminal capabilities except backspace,
 // and space overwrites a character
 //
-//static void fix_line()
 void GnuPlot::FixLine()
 {
 	size_t i;
@@ -1072,7 +1060,6 @@ void GnuPlot::FixLine()
 //
 // redraw the entire line, putting the cursor where it belongs 
 //
-//static void redraw_line(const char * pPrompt)
 void GnuPlot::RedrawLine(const char * pPrompt)
 {
 	size_t i;
@@ -1088,7 +1075,6 @@ void GnuPlot::RedrawLine(const char * pPrompt)
 //
 // clear cur_line and the screen line 
 //
-//static void clear_line(const char * pPrompt)
 void GnuPlot::ClearLine(const char * pPrompt)
 {
 	SUSPENDOUTPUT;
@@ -1111,7 +1097,6 @@ void GnuPlot::ClearLine(const char * pPrompt)
 //
 // clear to end of line and the screen end of line 
 //
-//static void clear_eoline(const char * pPrompt)
 void GnuPlot::ClearEoline(const char * pPrompt)
 {
 	const size_t save_pos = RlB_.CurPos;
@@ -1133,7 +1118,6 @@ void GnuPlot::ClearEoline(const char * pPrompt)
 //
 // delete the full or partial word immediately before cursor position 
 //
-//static void delete_previous_word()
 void GnuPlot::DeletePreviousWord()
 {
 	const size_t save_pos = RlB_.CurPos;
@@ -1171,7 +1155,6 @@ void GnuPlot::DeletePreviousWord()
 //
 // copy line to cur_line, draw it and set cur_pos and max_pos 
 //
-//static void copy_line(char * line)
 void GnuPlot::CopyLine(const char * pLine)
 {
 	while((strlen(pLine) + 1) > RlB_.LineLen) {
@@ -1234,7 +1217,6 @@ static int ansi_getc(GpTermEntry * pTerm)
 
 #if defined(_WIN32)
 #ifdef WGP_CONSOLE
-	//static int win_getch()
 	int GnuPlot::WinGetch(GpTermEntry * pTerm)
 	{
 		return (pTerm && pTerm->waitforinput) ? pTerm->waitforinput(pTerm, 0) : ConsoleGetch();
@@ -1243,7 +1225,6 @@ static int ansi_getc(GpTermEntry * pTerm)
 //
 // Convert Arrow keystrokes to Control characters: 
 //
-//static int msdos_getch()
 int GnuPlot::MsDosGetch(GpTermEntry * pTerm)
 {
 	int c;

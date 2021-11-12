@@ -138,14 +138,45 @@ const long __DefMqbConsumeTimeout = 5000;
 //      Прием ответов на инициирующие сообщения: Exchange=StyloQ; Queue=round-trip-ident
 //
 static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
-	{ StyloQConfig::tagUrl,       "url" },
-	{ StyloQConfig::tagMqbAuth,   "mqbauth" },
-	{ StyloQConfig::tagMqbSecret, "mqbsecret" },
-	{ StyloQConfig::tagLoclUrl,   "loclurl" },
-	{ StyloQConfig::tagLoclMqbAuth, "loclmqbauth" },
-	{ StyloQConfig::tagLoclMqbSecret, "loclmqbsecret" }, 
-	{ StyloQConfig::tagFeatures, "features" }, 
+	{ StyloQConfig::tagUrl,             "url" },
+	{ StyloQConfig::tagMqbAuth,         "mqbauth" },
+	{ StyloQConfig::tagMqbSecret,       "mqbsecret" },
+	{ StyloQConfig::tagLoclUrl,         "loclurl" },
+	{ StyloQConfig::tagLoclMqbAuth,     "loclmqbauth" },
+	{ StyloQConfig::tagLoclMqbSecret,   "loclmqbsecret" }, 
+	{ StyloQConfig::tagFeatures,        "features" }, 
+	{ StyloQConfig::tagExpiryPeriodSec, "expiryperiodsec" },
+	{ StyloQConfig::tagExpiryEpochSec,  "expiryepochsec" },
 };
+
+/*static*/int StyloQConfig::MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson)
+{
+	rTransmissionJson.Z();
+	int    ok = 1;
+	SString temp_buf(pSrcJson);
+	THROW(temp_buf.NotEmptyS());
+	{
+		StyloQConfig cfg_pack;
+		THROW(cfg_pack.FromJson(temp_buf));
+		// Здесь удаляем те компоненты конфигурации, которые передавать клиенту не следует
+		cfg_pack.Set(StyloQConfig::tagLoclUrl, 0);
+		cfg_pack.Set(StyloQConfig::tagLoclMqbAuth, 0);
+		cfg_pack.Set(StyloQConfig::tagLoclMqbSecret, 0);
+		cfg_pack.Set(StyloQConfig::tagExpiryEpochSec, 0);
+		//
+		{
+			cfg_pack.Get(StyloQConfig::tagExpiryPeriodSec, temp_buf);
+			long ep = temp_buf.ToLong();
+			if(ep <= 0) {
+				ep = 3600; // Значение по умолчанию. Для отладки небольшое, в реальности должно быть сутки или более.
+				cfg_pack.Set(StyloQConfig::tagExpiryPeriodSec, temp_buf.Z().Cat(ep));
+			}
+		}
+		cfg_pack.ToJson(rTransmissionJson);
+	}
+	CATCHZOK
+	return ok;
+}
 
 StyloQConfig::StyloQConfig()
 {
@@ -259,29 +290,31 @@ StyloQFace & StyloQFace::Z()
 }
 
 static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
-	{ StyloQFace::tagModifTime,      "modtime" },
-	{ StyloQFace::tagVerifiable,     "verifialbe" },
-	{ StyloQFace::tagCommonName,     "cn" },
-	{ StyloQFace::tagName,           "name" },
-	{ StyloQFace::tagSurName,        "surname" },
-	{ StyloQFace::tagPatronymic,     "patronymic" },
-	{ StyloQFace::tagDOB,            "dob" },
-	{ StyloQFace::tagPhone,          "phone" },
-	{ StyloQFace::tagGLN,            "gln" },
-	{ StyloQFace::tagCountryIsoSymb, "countryisosymb" },
-	{ StyloQFace::tagCountryIsoCode, "countryisocode" },
-	{ StyloQFace::tagCountryName,    "country" },
-	{ StyloQFace::tagZIP,            "zip" },
-	{ StyloQFace::tagCityName,       "city" },
-	{ StyloQFace::tagStreet,         "street" },
-	{ StyloQFace::tagAddress,        "address" },
-	{ StyloQFace::tagLatitude,       "lat" },
-	{ StyloQFace::tagLongitude,      "lon" },
-	{ StyloQFace::tagDescr,          "descr" },
-	{ StyloQFace::tagImage,          "image" },
-	{ StyloQFace::tagRuINN,          "ruinn" },
-	{ StyloQFace::tagRuKPP,          "rukpp" },
-	{ StyloQFace::tagRuSnils,        "rusnils" },
+	{ StyloQFace::tagModifTime,       "modtime" },
+	{ StyloQFace::tagVerifiable,      "verifialbe" },
+	{ StyloQFace::tagCommonName,      "cn" },
+	{ StyloQFace::tagName,            "name" },
+	{ StyloQFace::tagSurName,         "surname" },
+	{ StyloQFace::tagPatronymic,      "patronymic" },
+	{ StyloQFace::tagDOB,             "dob" },
+	{ StyloQFace::tagPhone,           "phone" },
+	{ StyloQFace::tagGLN,             "gln" },
+	{ StyloQFace::tagCountryIsoSymb,  "countryisosymb" },
+	{ StyloQFace::tagCountryIsoCode,  "countryisocode" },
+	{ StyloQFace::tagCountryName,     "country" },
+	{ StyloQFace::tagZIP,             "zip" },
+	{ StyloQFace::tagCityName,        "city" },
+	{ StyloQFace::tagStreet,          "street" },
+	{ StyloQFace::tagAddress,         "address" },
+	{ StyloQFace::tagLatitude,        "lat" },
+	{ StyloQFace::tagLongitude,       "lon" },
+	{ StyloQFace::tagDescr,           "descr" },
+	{ StyloQFace::tagImage,           "image" },
+	{ StyloQFace::tagRuINN,           "ruinn" },
+	{ StyloQFace::tagRuKPP,           "rukpp" },
+	{ StyloQFace::tagRuSnils,         "rusnils" },
+	{ StyloQFace::tagExpiryPeriodSec, "expiryperiodsec" },
+	{ StyloQFace::tagExpiryEpochSec,  "expiryepochsec" },
 };
 
 int StyloQFace::FromJson(const char * pJsonText)
@@ -494,6 +527,37 @@ LDATE StyloQFace::GetDob() const
 		dob = strtodate_(r_temp_buf, DATF_ISO8601|DATF_CENTURY);
 	}
 	return dob;
+}
+
+int StyloQFace::SetGeoLoc(const SGeoPosLL & rPos)
+{
+	int    ok = -1;
+	if(rPos.IsValid()) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		Set(tagLatitude, 0, r_temp_buf.Z().Cat(rPos.Lat, MKSFMTD(0, 7, NMBF_NOTRAILZ)));
+		Set(tagLongitude, 0, r_temp_buf.Z().Cat(rPos.Lon, MKSFMTD(0, 7, NMBF_NOTRAILZ)));
+		ok = 1;
+	}
+	return ok;
+}
+
+int StyloQFace::GetGeoLoc(SGeoPosLL & rPos) const
+{
+	int    ok = -1;
+	SString & r_temp_lat_buf = SLS.AcquireRvlStr();
+	SString & r_temp_lon_buf = SLS.AcquireRvlStr();
+	if(Get(tagLatitude, 0, r_temp_lat_buf) && Get(tagLongitude, 0, r_temp_lon_buf)) {
+		rPos.Lat = r_temp_lat_buf.ToReal();
+		rPos.Lon = r_temp_lon_buf.ToReal();
+		if(rPos.IsValid()) {
+			ok = 1;
+		}
+		else {
+			rPos.Z();
+			ok = 0;
+		}
+	}
+	return ok;
 }
 
 bool  StyloQFace::IsVerifiable() const
@@ -766,8 +830,8 @@ int StyloQCommandList::Load(const char * pFileName)
 	SJson * p_result = new SJson(SJson::tOBJECT);
 	//LDATETIME dtm_now = getcurdatetime_();
 	//temp_buf.Z().Cat(dtm_now, DATF_ISO8601|DATF_CENTURY, 0);
-	p_result->Insert("doctype", json_new_string("commandlist"));
-	p_result->Insert("time", json_new_string(temp_buf.Z().Cat(time(0))));
+	p_result->InsertString("doctype", "commandlist");
+	p_result->InsertString("time", temp_buf.Z().Cat(time(0)));
 	if(expirationSec > 0) {
 		p_result->Insert("expiration_period_sec", json_new_number(temp_buf.Z().Cat(expirationSec)));
 	}
@@ -778,10 +842,10 @@ int StyloQCommandList::Load(const char * pFileName)
 				const Item * p_item = pSelf->L.at(i);
 				if(p_item) {
 					SJson * p_jitem = new SJson(SJson::tOBJECT);
-					p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(p_item->Uuid)));
-					p_jitem->Insert("name", json_new_string(p_item->Name));
+					p_jitem->InsertString("uuid", temp_buf.Z().Cat(p_item->Uuid));
+					p_jitem->InsertString("name", p_item->Name);
 					if(p_item->Description.NotEmpty()) {
-						p_jitem->Insert("descr", json_new_string(p_item->Description));
+						p_jitem->InsertString("descr", p_item->Description);
 					}
 					// @todo transmit image
 					json_insert_child(p_array, p_jitem);
@@ -1215,7 +1279,13 @@ static int EditStyloQConfig(StyloQConfig & rData)
 			//
 			AddClusterAssoc(CTL_STQCFG_FEATURES, 0, StyloQConfig::featrfMediator);
 			SetClusterData(CTL_STQCFG_FEATURES, static_cast<long>(Data.GetFeatures()));
-			// } @v11.2.2 
+			// } @v11.2.2
+			// @v11.2.3 {
+			{
+				Data.Get(StyloQConfig::tagExpiryPeriodSec, temp_buf);
+				setCtrlLong(CTL_STQCFG_EXPIRYP, temp_buf.ToLong());
+			}
+			// } @v11.2.3 
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -1237,6 +1307,15 @@ static int EditStyloQConfig(StyloQConfig & rData)
 			Data.Set(StyloQConfig::tagLoclMqbSecret, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			Data.SetFeatures(static_cast<uint64>(GetClusterData(CTL_STQCFG_FEATURES)));
 			// } @v11.2.2 
+			// @v11.2.3 {
+			{
+				long p = getCtrlLong(CTL_STQCFG_EXPIRYP);
+				temp_buf.Z();
+				if(p > 0)
+					temp_buf.Cat(p);
+				Data.Set(StyloQConfig::tagExpiryPeriodSec, temp_buf);
+			}
+			// } @v11.2.3 
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -1653,6 +1732,23 @@ static int EditStyloQFace(StyloQFace & rData)
 		{
 			TDialog::handleEvent(event);
 		}
+		void SetGeoCoord()
+		{
+			SString temp_buf;
+			SGeoPosLL pos;
+			if(Data.GetGeoLoc(pos) > 0)
+				pos.ToStr(temp_buf);
+			setCtrlString(CTL_STQFACE_GEOLOC, temp_buf);
+		}
+		void GetGeoCoord()
+		{
+			SGeoPosLL pos;
+			SString temp_buf;
+			getCtrlString(CTL_STQFACE_GEOLOC, temp_buf);
+			if(pos.FromStr(temp_buf) > 0) {
+				Data.SetGeoLoc(pos);
+			}
+		}
 		void SetupPage()
 		{
 			SString temp_buf;
@@ -1687,6 +1783,11 @@ static int EditStyloQFace(StyloQFace & rData)
 			setCtrlString(CTL_STQFACE_RUSNILS, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			LDATE dob = Data.GetDob();
 			setCtrlDate(CTL_STQFACE_DOB, dob);
+			SetGeoCoord();
+			{
+				Data.Get(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
+				setCtrlLong(CTL_STQFACE_EXPIRYP, temp_buf.ToLong());
+			}
 		}
 		int GetPage()
 		{
@@ -1723,6 +1824,14 @@ static int EditStyloQFace(StyloQFace & rData)
 			Data.Set(StyloQFace::tagRuSnils, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			LDATE dob = getCtrlDate(CTL_STQFACE_DOB);
 			Data.SetDob(dob);
+			GetGeoCoord();
+			{
+				long p = getCtrlLong(CTL_STQFACE_EXPIRYP);
+				temp_buf.Z();
+				if(p > 0)
+					temp_buf.Cat(p);
+				Data.Set(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
+			}
 			return ok;
 		}
 	};
@@ -1773,6 +1882,7 @@ PPStyloQInterchange::ServerParamBase & PPStyloQInterchange::ServerParamBase::Z()
 {
 	Capabilities = 0;
 	SvcIdent.Z();
+	LoclAddendum.Z(); // @v11.2.3
 	AccessPoint.Z();
 	return *this;
 }
@@ -1785,6 +1895,17 @@ PPStyloQInterchange::RunServerParam & PPStyloQInterchange::RunServerParam::Z()
 {
 	ServerParamBase::Z();
 	return *this;
+}
+
+uint PPStyloQInterchange::RunServerParam::MakeMqbQueueIdent(SBinaryChunk & rResult) const
+{
+	rResult.Z();
+	if(SvcIdent.Len()) {
+		rResult.Cat(SvcIdent.PtrC(), SvcIdent.Len());
+		if(LoclAddendum.Len())
+			rResult.Cat(LoclAddendum.PtrC(), LoclAddendum.Len());
+	}
+	return static_cast<uint>(rResult.Len());
 }
 
 PPStyloQInterchange::Invitation::Invitation() : ServerParamBase()
@@ -1986,12 +2107,17 @@ PPStyloQInterchange::RoundTripBlock::RoundTripBlock() :
 	P_Mqbc(0), P_MqbRpe(0), P_SrpV(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0), LastRcvCmd(0), LastSndCmd(0)
 {
 }
-		
-PPStyloQInterchange::RoundTripBlock::RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint) : 
+
+//PPStyloQInterchange::RoundTripBlock::RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint) : 		
+PPStyloQInterchange::RoundTripBlock::RoundTripBlock(const SBinaryChunk * pSvcIdent, const SBinaryChunk * pSvcLoclAddendum, const char * pSvcAccsPoint) :
 	P_Mqbc(0), P_MqbRpe(0), P_SrpV(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0), LastRcvCmd(0), LastSndCmd(0)
 {
-	if(pSvcIdent && svcIdentLen)
-		Other.Put(SSecretTagPool::tagSvcIdent, pSvcIdent, svcIdentLen);
+	if(pSvcIdent && pSvcIdent->Len())
+		Other.Put(SSecretTagPool::tagSvcIdent, *pSvcIdent);
+	// @v11.2.3 {
+	if(pSvcLoclAddendum && pSvcLoclAddendum->Len())
+		Other.Put(SSecretTagPool::tagSvcLoclAddendum, *pSvcLoclAddendum);
+	// } @v11.2.3 
 	if(!isempty(pSvcAccsPoint)) {
 		Other.Put(SSecretTagPool::tagSvcAccessPoint, pSvcAccsPoint, strlen(pSvcAccsPoint)+1);
 	}
@@ -2006,7 +2132,7 @@ PPStyloQInterchange::RoundTripBlock::~RoundTripBlock()
 
 int    FASTCALL PPStyloQInterchange::Invitation::IsEqual(const PPStyloQInterchange::Invitation & rS) const
 {
-	return (Capabilities == rS.Capabilities && SvcIdent == rS.SvcIdent && AccessPoint == rS.AccessPoint && 
+	return (Capabilities == rS.Capabilities && SvcIdent == rS.SvcIdent && LoclAddendum == rS.LoclAddendum && AccessPoint == rS.AccessPoint && 
 		CommandJson == rS.CommandJson);
 }
 
@@ -2017,9 +2143,9 @@ int PPStyloQInterchange::AcceptInvitation(const char * pInvitationData, Invitati
 	THROW_PP(!isempty(pInvitationData), PPERR_SQ_INVITATPARSEFAULT_EMPTY);
 	{
 		STempBuffer temp_binary(4096);
-		StringSet ss;
 		SString temp_buf(pInvitationData);
-		temp_buf.Tokenize("&", ss);
+		//temp_buf.Tokenize("&", ss);
+		StringSet ss('&', temp_buf);
 		uint   tokn = 0;
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			tokn++;
@@ -2031,12 +2157,19 @@ int PPStyloQInterchange::AcceptInvitation(const char * pInvitationData, Invitati
 				THROW_SL(rInv.SvcIdent.FromMime64(temp_buf));
 				//THROW(rInv.SvcIdent.Len() == 20); // @error invalid service public id
 			}
-			else if(tokn == 2) { // capabilities
+			else if(tokn == 2) { // @v11.2.3 locl addendum
+				if(temp_buf.Len()) {
+					THROW_SL(rInv.LoclAddendum.FromMime64(temp_buf));
+				}
+				else
+					rInv.LoclAddendum.Z();
+			}
+			else if(tokn == 3) { // capabilities // @v11.2.3 2-->3
 				temp_buf.DecodeMime64(temp_binary, temp_binary.GetSize(), &actual_size);
 				THROW_PP_S(actual_size == sizeof(rInv.Capabilities), PPERR_SQ_INVITATPARSEFAULT, pInvitationData); // @error invalid capabilities
 				memcpy(&rInv.Capabilities, temp_binary, actual_size);
 			}
-			else if(tokn == 3) { // access point
+			else if(tokn == 4) { // access point // @v11.2.3 3-->4
 				temp_buf.DecodeMime64(temp_binary, temp_binary.GetSize(), &actual_size);
 				temp_buf.Z().CatN(temp_binary, actual_size);
 				InetUrl url(temp_buf);
@@ -2048,7 +2181,7 @@ int PPStyloQInterchange::AcceptInvitation(const char * pInvitationData, Invitati
 				}
 				rInv.AccessPoint = temp_buf;
 			}
-			else if(tokn == 4) { // command
+			else if(tokn == 5) { // command // @v11.2.3 4-->5
 				temp_buf.DecodeMime64(temp_binary, temp_binary.GetSize(), &actual_size);
 				temp_buf.Z().CatN(temp_binary, actual_size);
 				rInv.CommandJson.CatN(temp_binary, actual_size);
@@ -3014,32 +3147,32 @@ int PPStyloQInterchange::TestDatabase()
 				//"doctype"
 				SJson js(SJson::tOBJECT);
 				if(docType == StyloQCore::doctypCommandList)
-					js.Insert("doctype", json_new_string("commandlist"));
-				js.Insert("time", json_new_string(temp_buf.Z().Cat(Timestamp)));
+					js.InsertString("doctype", "commandlist");
+				js.InsertString("time", temp_buf.Z().Cat(Timestamp));
 				js.Insert("expiration_period_sec", json_new_number(temp_buf.Z().Cat(3 * 24 * 3600)));
 				{
 					SJson * p_array = new SJson(SJson::tARRAY);
 					{
 						SJson * p_jitem = new SJson(SJson::tOBJECT);
-						p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(S_GUID(SCtrGenerate_))));
-						p_jitem->Insert("name", json_new_string("command #1"));
-						p_jitem->Insert("descr", json_new_string("command #1 description"));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("name", "command #1");
+						p_jitem->InsertString("descr", "command #1 description");
 						// @todo transmit image
 						json_insert_child(p_array, p_jitem);
 					}
 					{
 						SJson * p_jitem = new SJson(SJson::tOBJECT);
-						p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(S_GUID(SCtrGenerate_))));
-						p_jitem->Insert("name", json_new_string("command #2"));
-						p_jitem->Insert("descr", json_new_string("command #2 description"));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("name", "command #2");
+						p_jitem->InsertString("descr", "command #2 description");
 						// @todo transmit image
 						json_insert_child(p_array, p_jitem);
 					}
 					{
 						SJson * p_jitem = new SJson(SJson::tOBJECT);
-						p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(S_GUID(SCtrGenerate_))));
-						p_jitem->Insert("name", json_new_string("command #3"));
-						p_jitem->Insert("descr", json_new_string("command #3 description"));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("name", "command #3");
+						p_jitem->InsertString("descr", "command #3 description");
 						// @todo transmit image
 						json_insert_child(p_array, p_jitem);
 					}
@@ -3401,6 +3534,34 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 // Registration {
 //
 //
+/*static*/int64 PPStyloQInterchange::EvaluateExpiryTime(int expiryPeriodSec)
+{
+	int64 result = 0;
+	if(expiryPeriodSec > 0) {
+		const time_t now_ = time(0);
+		result = now_ + expiryPeriodSec;
+	}
+	return result;
+}
+
+/*static*/bool PPStyloQInterchange::IsExpired(int64 expiration)
+{
+	boolean result = false;
+	if(expiration <= 0)
+		result = true;
+	else {
+		const time_t now_ = time(0);
+		// Эксперсс-проверка на валидность expiration (из-за ошибки на начальной фазе разработки)
+		if(expiration > now_) {
+			expiration = 0;
+		}
+		//
+		if(expiration <= 0 || expiration <= now_)
+			result = true;
+	}
+	return result;
+}
+
 PPStyloQInterchange::PPStyloQInterchange() : State(0), P_T(new StyloQCore)
 {
 }
@@ -3423,7 +3584,7 @@ int PPStyloQInterchange::MakeInvitation(const Invitation & rInv, SString & rInvi
 	int    ok = 1;
 	SString temp_buf;
 	rInvitationData.Z();
-	// prefix SVCPID SVCCAP URL [SVCCMD [SVCCMDPARAM]]
+	// prefix SVCPID LOCLADDENDUM SVCCAP URL [SVCCMD [SVCCMDPARAM]] // @v11.2.3 LOCLADDENDUM
 	THROW_PP(rInv.SvcIdent.Len(), PPERR_SQ_UNDEFSVCID);
 	THROW_PP(rInv.AccessPoint.NotEmpty(), PPERR_SQ_UNDEFSVCACCSPOINT);
 	assert(rInv.CommandJson.NotEmpty());
@@ -3431,6 +3592,12 @@ int PPStyloQInterchange::MakeInvitation(const Invitation & rInv, SString & rInvi
 	rInvitationData.CatChar('A'); // prefix
 	rInv.SvcIdent.Mime64(temp_buf);
 	rInvitationData.Cat(temp_buf);
+	// @v11.2.3 LoclAddendum {
+	temp_buf.Z();
+	if(rInv.LoclAddendum.Len())
+		rInv.LoclAddendum.Mime64(temp_buf);
+	rInvitationData.CatChar('&').Cat(temp_buf);
+	// } @v11.2.3 LoclAddendum
 	{
 		temp_buf.Z().EncodeMime64(&rInv.Capabilities, sizeof(rInv.Capabilities));
 		rInvitationData.CatChar('&').Cat(temp_buf);
@@ -3657,8 +3824,41 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 	CATCHZOK
 	return ok;
 }
-//
-//static int _EcdhCryptModelling();
+
+/*static*/S_GUID PPStyloQInterchange::GetLocalAddendum(long flag/*smqbpfLocalMachine || smqbpfLocalSession*/)
+{
+	S_GUID result;
+	assert(oneof2(flag, smqbpfLocalMachine, smqbpfLocalSession));
+	if(flag == smqbpfLocalMachine) {
+		S_GUID lmid;
+		SString temp_buf;
+		{
+			WinRegKey reg_key_r(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+			reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+			if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
+				result = lmid;
+		}
+		if(!result) {
+			{
+				lmid.Generate();
+				WinRegKey reg_key_w(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				temp_buf.Z().Cat(lmid, S_GUID::fmtLower|S_GUID::fmtPlain);
+				reg_key_w.PutString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+			}
+			{ // Так как нам очень важно, что ключ постоянно один для всех сеансов на этой машине, 
+				// то мы не просто воспользуемся сгенерированным ключем, а для страховки извлечем его и реестра.
+				WinRegKey reg_key_r(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
+				reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+				if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
+					result = lmid;
+			}
+		}
+	}
+	else if(flag == smqbpfLocalSession) {
+		result = SLS.GetSessUuid();
+	}
+	return result;
+}
 
 int PPStyloQInterchange::SetupMqbParam(const StyloQCore::StoragePacket & rOwnPack, long flags, PPStyloQInterchange::RunServerParam & rP)
 {
@@ -3674,11 +3874,14 @@ int PPStyloQInterchange::SetupMqbParam(const StyloQCore::StoragePacket & rOwnPac
 			StyloQConfig cfg_pack;
 			temp_buf.Z().CatN(static_cast<const char *>(bc_cfg.PtrC()), bc_cfg.Len());
 			if(cfg_pack.FromJson(temp_buf)) {
-				if(cfg_pack.Get(StyloQConfig::tagUrl, temp_buf)) {
+				const int locl_accsp_tag_list[] = { StyloQConfig::tagLoclUrl, StyloQConfig::tagLoclMqbAuth, StyloQConfig::tagLoclMqbSecret };
+				const int glob_accsp_tag_list[] = { StyloQConfig::tagUrl, StyloQConfig::tagMqbAuth, StyloQConfig::tagMqbSecret };
+				const int * p_glob_accsp_tag_list = (flags & (smqbpfLocalMachine|smqbpfLocalSession)) ? locl_accsp_tag_list : glob_accsp_tag_list;
+				if(cfg_pack.Get(p_glob_accsp_tag_list[0], temp_buf)) {
 					rP.MqbInitParam.Host = temp_buf.Strip();
-					if(cfg_pack.Get(StyloQConfig::tagMqbAuth, temp_buf))
+					if(cfg_pack.Get(p_glob_accsp_tag_list[1], temp_buf))
 						rP.MqbInitParam.Auth = temp_buf;
-					if(cfg_pack.Get(StyloQConfig::tagMqbSecret, temp_buf))
+					if(cfg_pack.Get(p_glob_accsp_tag_list[2], temp_buf))
 						rP.MqbInitParam.Secret = temp_buf;
 					rP.MqbInitParam.VHost = p_vhost;
 					rP.MqbInitParam.Method = 1;
@@ -3690,6 +3893,11 @@ int PPStyloQInterchange::SetupMqbParam(const StyloQCore::StoragePacket & rOwnPac
 			THROW(PPMqbClient::SetupInitParam(rP.MqbInitParam, p_vhost, 0));
 		}
 		THROW(rP.MqbInitParam.Host.NotEmpty());
+		if(flags & (smqbpfLocalMachine|smqbpfLocalSession)) {
+			S_GUID locl_uuid = PPStyloQInterchange::GetLocalAddendum(flags & (smqbpfLocalMachine|smqbpfLocalSession));
+			THROW(locl_uuid);
+			rP.LoclAddendum.Put(&locl_uuid, sizeof(locl_uuid));
+		}
 		if(flags & smqbpfInitAccessPoint) {
 			InetUrl url;
 			url.SetProtocol(InetUrl::protAMQP);
@@ -3702,6 +3910,66 @@ int PPStyloQInterchange::SetupMqbParam(const StyloQCore::StoragePacket & rOwnPac
 		ok = 1;
 	}
 	CATCHZOK
+	return ok;
+}
+
+int Test_StyloQInvitation()
+{
+	class InnerBlock {
+	public:
+		static int TestRound(PPStyloQInterchange & rIc, int roundNo, const SBinaryChunk & rLoclAddendum)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			PPStyloQInterchange::Invitation inv_source;
+			PPStyloQInterchange::Invitation inv_result;
+			inv_source.SvcIdent.Randomize(20);
+			inv_source.LoclAddendum = rLoclAddendum;
+			inv_source.AccessPoint = "AMQP://192.168.0.1/test";
+			inv_source.Capabilities = 0;
+			{
+				SJson js(SJson::tOBJECT);
+				js.InsertString("cmd", "SomeCommand");
+				js.InsertString("arg", "SomeArgument");
+				json_tree_to_string(&js, inv_source.CommandJson);
+			}
+			rIc.MakeInvitation(inv_source, temp_buf);
+			if(!rIc.AcceptInvitation(temp_buf, inv_result))
+				ok = 0;
+			else if(!inv_result.IsEqual(inv_source))
+				ok = 0;
+			{
+				PPBarcode::BarcodeImageParam bip;
+				bip.ColorFg = SClrBlack;
+				bip.ColorBg = SClrWhite;
+				bip.Code = temp_buf;
+				bip.Std = BARCSTD_QR;
+				//bip.Size.Set(600, 600);
+				bip.OutputFormat = SFileFormat::Png;
+				PPGetFilePath(PPPATH_OUT, SString("styloq-invitation").CatChar('-').Cat(roundNo).Dot().Cat("png"), bip.OutputFileName);
+				if(PPBarcode::CreateImage(bip)) {
+					//
+					TSCollection <PPBarcode::Entry> bce_list;
+					if(PPBarcode::RecognizeImage(bip.OutputFileName, bce_list)) {
+						for(uint i = 0; i < bce_list.getCount(); i++) {
+							temp_buf = bce_list.at(i)->Code;
+						}
+					}
+				}
+			}
+			return ok;
+		}
+	};
+	int    ok = 0;
+	SString temp_buf;
+	PPStyloQInterchange ic;
+	SBinaryChunk la;
+	la.Randomize(16);
+	if(InnerBlock::TestRound(ic, 1, la))
+		ok++;
+	la.Z();
+	if(InnerBlock::TestRound(ic, 2, la))
+		ok++;
 	return ok;
 }
 
@@ -3743,7 +4011,9 @@ int Test_PPStyloQInterchange()
 		//}
 		{
 			PPMqbClient::RoutingParamEntry rpe;
-			if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
+			SBinaryChunk qi;
+			rsparam.MakeMqbQueueIdent(qi);
+			if(rpe.SetupStyloQRpcListener(/*rsparam.SvcIdent*/qi)) {
 				PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
 				ASSIGN_PTR(p_new_entry, rpe);
 			}
@@ -3752,7 +4022,7 @@ int Test_PPStyloQInterchange()
 			PPStyloQInterchange::Invitation inv(rsparam);
 			{
 				SJson * p_js = new SJson(SJson::tOBJECT);
-				p_js->Insert("cmd", json_new_string("REGISTER"));
+				p_js->InsertString("cmd", "REGISTER");
 				json_tree_to_string(p_js, inv.CommandJson);
 			}
 			ic.ExecuteInvitationDialog(inv);
@@ -3771,7 +4041,9 @@ int Test_PPStyloQInterchange()
 			//THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, "styloq", 0));
 			{
 				PPMqbClient::RoutingParamEntry rpe;
-				if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
+				SBinaryChunk qi;
+				rsparam.MakeMqbQueueIdent(qi);
+				if(rpe.SetupStyloQRpcListener(/*rsparam.SvcIdent*/qi)) {
 					PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
 					ASSIGN_PTR(p_new_entry, rpe);
 				}
@@ -3788,7 +4060,7 @@ int Test_PPStyloQInterchange()
 				//uint  test_count_ok = 0;
 				const char * p_amq_server = "amqp://213.166.70.221";
 				const char * p_http_server = "http://192.168.0.205/styloq";
-				PPStyloQInterchange::RoundTripBlock rtb(svc_ident.PtrC(), svc_ident.Len(), /*p_http_server*/p_amq_server);
+				PPStyloQInterchange::RoundTripBlock rtb(&svc_ident, 0, /*p_http_server*/p_amq_server);
 				if(ic.InitRoundTripBlock(rtb)) {
 					/*{
 						//
@@ -3817,9 +4089,9 @@ int Test_PPStyloQInterchange()
 							SString cmd_reply_buf;
 							SJson * p_query = new SJson(SJson::tOBJECT);
 							SJson * p_reply = 0;
-							p_query->Insert("cmd", json_new_string("ECHO"));
-							p_query->Insert("arg1", json_new_string("arg1-value"));
-							p_query->Insert("arg2", json_new_string("arg2-value"));
+							p_query->InsertString("cmd", "ECHO");
+							p_query->InsertString("arg1", "arg1-value");
+							p_query->InsertString("arg2", "arg2-value");
 							json_tree_to_string(p_query, cmd_buf);
 							if(ic.Command_ClientRequest(rtb, cmd_buf, cmd_reply_buf)) {
 								SString svc_result;
@@ -3867,81 +4139,6 @@ int Test_PPStyloQInterchange()
 			}
 		}
 	}
-#if 0 // @model {
-	//__KeyGenerationEc();
-	//
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "AMQP://192.168.0.1/test";
-		inv_source.Capabitities = 0;
-		inv_source.Command = "comein";
-		inv_source.CommandParam = "yourpromo=100";
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-		{
-			PPBarcode::BarcodeImageParam bip;
-			bip.ColorFg = SClrBlack;
-			bip.ColorBg = SClrWhite;
-			bip.Code = temp_buf;
-			bip.Std = BARCSTD_QR;
-			bip.Size.Set(400, 400);
-			bip.OutputFormat = SFileFormat::Png;
-			PPGetFilePath(PPPATH_OUT, "styloq-invitation.png", bip.OutputFileName);
-			if(PPBarcode::CreateImage(bip)) {
-				//
-				TSCollection <PPBarcode::Entry> bce_list;
-				if(PPBarcode::RecognizeImage(bip.OutputFileName, bce_list)) {
-					for(uint i = 0; i < bce_list.getCount(); i++) {
-						temp_buf = bce_list.at(i)->Code;
-					}
-				}
-			}
-		}
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://dummy-host.com";
-		inv_source.Capabitities = 0;
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
-		inv_source.Capabitities = 0;
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
-		inv_source.Capabitities = 0;
-		inv_source.Command = "some-command";
-		inv_source.CommandParam = "xyz";
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-#endif // } 0
 	CATCHZOK
 	return ok;
 }
@@ -4165,12 +4362,10 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 				if(GetOwnPeerEntry(&own_pack) > 0) {
 					if(own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
 						assert(reply_config.Len());
-						StyloQConfig cfg_pack;
+						SString transmission_cfg_json;
 						temp_buf.Z().CatN(static_cast<const char *>(reply_config.PtrC()), reply_config.Len());
-						if(cfg_pack.FromJson(temp_buf)) {
-							// Здесь можно удалить те компоненты конфигурации, которые передавать клиенту не следует
-							cfg_pack.ToJson(temp_buf);
-							reply_config.Z().Put(temp_buf.cptr(), temp_buf.Len());
+						if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
+							reply_config.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 							cmd_reply_ok = true;
 						}
 						else
@@ -4705,12 +4900,10 @@ public:
 										bc.Z();
 										if(B.StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
 											assert(bc.Len());
-											StyloQConfig cfg_pack;
+											SString transmission_cfg_json;
 											temp_buf.Z().CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
-											if(cfg_pack.FromJson(temp_buf)) {
-												// Здесь можно удалить те компоненты конфигурации, которые передавать клиенту не следует
-												cfg_pack.ToJson(temp_buf);
-												bc.Z().Put(temp_buf.cptr(), temp_buf.Len());
+											if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
+												bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 												reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
 											}
 										}

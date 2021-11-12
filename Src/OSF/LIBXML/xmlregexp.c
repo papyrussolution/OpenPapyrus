@@ -4626,7 +4626,7 @@ static int xmlFAParseQuantExact(xmlRegParserCtxt * ctxt)
 {
 	int ret = 0;
 	int ok = 0;
-	while((CUR >= '0') && (CUR <= '9')) {
+	while(isdec(CUR)) {
 		ret = ret * 10 + (CUR - '0');
 		ok = 1;
 		NEXT;
@@ -7047,9 +7047,9 @@ static int xmlExpParseNumber(xmlExpCtxtPtr ctxt)
 		NEXT
 		return -1;
 	}
-	if((CUR < '0') || (CUR > '9'))
+	if(!isdec(CUR))
 		return -1;
-	while((CUR >= '0') && (CUR <= '9')) {
+	while(isdec(CUR)) {
 		ret = ret * 10 + (CUR - '0');
 		NEXT
 	}

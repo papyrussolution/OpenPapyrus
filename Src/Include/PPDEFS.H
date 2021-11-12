@@ -11176,6 +11176,7 @@
 	#define CTL_STQFACE_RUKPP                (17  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_RUSNILS              (18  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACE_GEOLOC               (19  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_EXPIRYP              (20  + WINDOWS_ID_BIAS)
 #define DLG_STQFACELIST           1406
 	#define CTL_STQFACELIST_LIST             (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACELIST_INFO             (2  + WINDOWS_ID_BIAS)
@@ -11187,6 +11188,7 @@
 	#define CTL_STQCFG_LOCLMQBAUTH           (5  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_LOCLMQBSECR           (6  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_FEATURES              (7  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_EXPIRYP               (8  + WINDOWS_ID_BIAS)
 #define DLG_FLEXLAYOUTLIST        1408 // Иерархический список layout'ов
 	#define CTL_FLEXLAYOUTLIST_LIST          (1  + WINDOWS_ID_BIAS)
 

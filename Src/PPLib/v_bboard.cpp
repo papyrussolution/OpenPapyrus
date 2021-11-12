@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -131,11 +131,9 @@ void PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewServerStat::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = new SArray(Data);
-	uint   brw_id = BROWSER_SERVERSTAT;
 	ASSIGN_PTR(pSubTitle, Filt.ServerAddr);
-	ASSIGN_PTR(pBrwId, brw_id);
-	return p_array;
+	ASSIGN_PTR(pBrwId, BROWSER_SERVERSTAT);
+	return new SArray(Data);
 }
 
 int PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

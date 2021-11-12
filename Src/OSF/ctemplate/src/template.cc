@@ -42,17 +42,10 @@ static int kVerbosity = 0;   // you can change this by hand to get vlogs
 #define VLOG(level)  if(kVerbosity >= level) LOG(level)
 
 // TODO(csilvers): use our own tables for these?
-static bool ascii_isalnum(char c) {
-	return ((c & 0x80) == 0) && isalnum(c); // 7-bit ascii, and an alnum
-}
+static bool ascii_isalnum(char c) { return ((c & 0x80) == 0) && isalnum(c); } // 7-bit ascii, and an alnum
+static bool ascii_isspace(char c) { return ((c & 0x80) == 0) && isspace(c); } // 7-bit ascii, and a space
 
-static bool ascii_isspace(char c) {
-	return ((c & 0x80) == 0) && isspace(c); // 7-bit ascii, and a space
-}
-
-#define strsuffix(str, suffix)                                          \
-	( strlen(str) > (sizeof("" suffix "") - 1) &&                            \
-	strcmp(str + strlen(str) - (sizeof(suffix) - 1), suffix) == 0)
+#define strsuffix(str, suffix) (strlen(str) > (sizeof("" suffix "") - 1) && sstreq(str + strlen(str) - (sizeof(suffix) - 1), suffix))
 
 using std::endl;
 using std::string;
@@ -65,10 +58,7 @@ using HASH_NAMESPACE::unordered_map;
 namespace ctemplate {
 using ctemplate_htmlparser::HtmlParser;
 
-TemplateId GlobalIdForSTS_INIT(const TemplateString& s) {
-	return s.GetGlobalId(); // normally this method is private
-}
-
+TemplateId GlobalIdForSTS_INIT(const TemplateString& s) { return s.GetGlobalId(); } // normally this method is private
 int Template::num_deletes_ = 0;
 
 namespace {
@@ -201,21 +191,17 @@ public:
 	// {{%ID [[name1=\"value1"] ...]}}. On error (unable to parse
 	// the marker), returns an error description in error_msg. On
 	// success, error_msg is cleared.
-	PragmaMarker(const char* token_start, const char* token_end,
-	    string* error_msg);
-
+	PragmaMarker(const char* token_start, const char* token_end, string* error_msg);
 	// Returns the attribute value for the corresponding attribute name
 	// or NULL if none is found (as is the case with optional attributes).
 	// Ensure you only call it on attribute names registered in g_pragmas
 	// for that PragmaId.
 	const string* GetAttributeValue(const char* attribute_name) const;
-
 private:
 	// Checks that the identifier given matches one of the pragma
 	// identifiers we know of, in which case returns the corresponding
 	// PragmaId. In case of error, returns PI_ERROR.
 	static PragmaId GetPragmaId(const char* id, size_t id_len);
-
 	// Parses an attribute value enclosed in double quotes and updates
 	// value_end to point at ending double quotes. Returns the attribute
 	// value. If an error occurred, error_msg is set with information.
@@ -235,7 +221,8 @@ private:
 	vector<pair<string, string> > names_and_values_;
 };
 
-PragmaId PragmaMarker::GetPragmaId(const char* id, size_t id_len) {
+PragmaId PragmaMarker::GetPragmaId(const char* id, size_t id_len) 
+{
 	for(int i = 0; i < NUM_PRAGMA_IDS; ++i) {
 		if(g_pragmas[i].identifier == NULL) // PI_UNUSED, PI_ERROR
 			continue;
@@ -246,10 +233,9 @@ PragmaId PragmaMarker::GetPragmaId(const char* id, size_t id_len) {
 	return PI_ERROR;
 }
 
-bool PragmaMarker::IsValidAttribute(PragmaId pragma_id, const char* name,
-    size_t namelen) {
-	const int kMaxAttributes = sizeof(g_pragmas[0].attribute_names) /
-	    sizeof(*g_pragmas[0].attribute_names);
+bool PragmaMarker::IsValidAttribute(PragmaId pragma_id, const char* name, size_t namelen) 
+{
+	const int kMaxAttributes = sizeof(g_pragmas[0].attribute_names) / sizeof(*g_pragmas[0].attribute_names);
 	for(int i = 0; i < kMaxAttributes; ++i) {
 		const char* attr_name = g_pragmas[pragma_id].attribute_names[i];
 		if(attr_name == NULL)

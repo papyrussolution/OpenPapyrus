@@ -4564,7 +4564,7 @@ static uchar * sunday_quick_search(regex_t* reg, const uchar * target, const uch
 	s = text + target_len - 1;
 #ifdef USE_STRICT_POINTER_ADDRESS
 	if(s < end) {
-		while(TRUE) {
+		while(true) {
 			p = s;
 			t = tail;
 			while(*p == *t) {

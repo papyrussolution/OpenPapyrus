@@ -33,10 +33,8 @@ AssociationInfo::AssociationInfo(int id, int langID, const TCHAR * ext, const TC
 
 FunctionParsersManager::~FunctionParsersManager()
 {
-	for(size_t i = 0, len = L_EXTERNAL + nbMaxUserDefined; i < len; ++i) {
-		if(_parsers[i] != nullptr)
-			delete _parsers[i];
-	}
+	for(size_t i = 0, len = L_EXTERNAL + nbMaxUserDefined; i < len; ++i)
+		delete _parsers[i];
 }
 
 bool FunctionParsersManager::init(const generic_string& xmlDirPath, const generic_string& xmlInstalledPath, ScintillaEditView ** ppEditView)
@@ -116,9 +114,7 @@ bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
 	}
 	TiXmlNode * classNameParser = functionParser->FirstChild(TEXT("className"));
 	if(classNameParser) {
-		for(TiXmlNode * childNode = classNameParser->FirstChildElement(TEXT("nameExpr"));
-		    childNode;
-		    childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
+		for(TiXmlNode * childNode = classNameParser->FirstChildElement(TEXT("nameExpr")); childNode; childNode = childNode->NextSibling(TEXT("nameExpr")) ) {
 			const TCHAR * expr = (childNode->ToElement())->Attribute(TEXT("expr"));
 			if(expr && expr[0])
 				classNameExprArray.push_back(expr);
@@ -162,27 +158,21 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 	TiXmlNode * root = xmlFuncListDoc.FirstChild(TEXT("NotepadPlus"));
 	if(!root)
 		return false;
-
 	root = root->FirstChild(TEXT("functionList"));
 	if(!root)
 		return false;
-
 	TiXmlNode * parserRoot = root->FirstChild(TEXT("parser"));
 	if(!parserRoot)
 		return false;
-
 	const TCHAR * id = (parserRoot->ToElement())->Attribute(TEXT("id"));
 	if(!id || !id[0])
 		return false;
-
 	generic_string commentExpr(TEXT(""));
 	const TCHAR * pCommentExpr = (parserRoot->ToElement())->Attribute(TEXT("commentExpr"));
 	if(pCommentExpr && pCommentExpr[0])
 		commentExpr = pCommentExpr;
-
 	std::vector<generic_string> classNameExprArray;
 	std::vector<generic_string> functionNameExprArray;
-
 	const TCHAR * displayName = (parserRoot->ToElement())->Attribute(TEXT("displayName"));
 	if(!displayName || !displayName[0])
 		displayName = id;
@@ -191,66 +181,27 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 	TiXmlNode * functionParser = parserRoot->FirstChild(TEXT("function"));
 	if(classRangeParser && functionParser) {
 		generic_string mainExpr, openSymbole, closeSymbole, functionExpr;
-		getZonePaserParameters(classRangeParser,
-		    mainExpr,
-		    openSymbole,
-		    closeSymbole,
-		    classNameExprArray,
-		    functionExpr,
-		    functionNameExprArray);
-
+		getZonePaserParameters(classRangeParser, mainExpr, openSymbole, closeSymbole, classNameExprArray, functionExpr, functionNameExprArray);
 		generic_string mainExpr2;
 		std::vector<generic_string> classNameExprArray2;
 		std::vector<generic_string> functionNameExprArray2;
 		getUnitPaserParameters(functionParser, mainExpr2, functionNameExprArray2, classNameExprArray2);
-		FunctionUnitParser * funcUnitPaser = new FunctionUnitParser(id,
-			displayName,
-			commentExpr.c_str(),
-			mainExpr2.c_str(),
-			functionNameExprArray2,
-			classNameExprArray2);
-
-		_parsers[index]->_parser = new FunctionMixParser(id,
-			displayName,
-			commentExpr.c_str(),
-			mainExpr.c_str(),
-			openSymbole.c_str(),
-			closeSymbole.c_str(),
-			classNameExprArray,
-			functionExpr.c_str(),
-			functionNameExprArray,
-			funcUnitPaser);
+		FunctionUnitParser * funcUnitPaser = new FunctionUnitParser(id, displayName, commentExpr.c_str(), mainExpr2.c_str(), functionNameExprArray2, classNameExprArray2);
+		_parsers[index]->_parser = new FunctionMixParser(id, displayName, commentExpr.c_str(), mainExpr.c_str(), openSymbole.c_str(),
+			closeSymbole.c_str(), classNameExprArray, functionExpr.c_str(), functionNameExprArray, funcUnitPaser);
 	}
 	else if(classRangeParser) {
 		generic_string mainExpr, openSymbole, closeSymbole, functionExpr;
-		getZonePaserParameters(classRangeParser,
-		    mainExpr,
-		    openSymbole,
-		    closeSymbole,
-		    classNameExprArray,
-		    functionExpr,
-		    functionNameExprArray);
-		_parsers[index]->_parser = new FunctionZoneParser(id,
-			displayName,
-			commentExpr.c_str(),
-			mainExpr.c_str(),
-			openSymbole.c_str(),
-			closeSymbole.c_str(),
-			classNameExprArray,
-			functionExpr.c_str(),
-			functionNameExprArray);
+		getZonePaserParameters(classRangeParser, mainExpr, openSymbole, closeSymbole, classNameExprArray,
+		    functionExpr, functionNameExprArray);
+		_parsers[index]->_parser = new FunctionZoneParser(id, displayName, commentExpr.c_str(), mainExpr.c_str(),
+			openSymbole.c_str(), closeSymbole.c_str(), classNameExprArray, functionExpr.c_str(), functionNameExprArray);
 	}
 	else if(functionParser) {
 		generic_string mainExpr;
 		getUnitPaserParameters(functionParser, mainExpr, functionNameExprArray, classNameExprArray);
-		_parsers[index]->_parser = new FunctionUnitParser(id,
-			displayName,
-			commentExpr.c_str(),
-			mainExpr.c_str(),
-			functionNameExprArray,
-			classNameExprArray);
+		_parsers[index]->_parser = new FunctionUnitParser(id, displayName, commentExpr.c_str(), mainExpr.c_str(), functionNameExprArray, classNameExprArray);
 	}
-
 	return true;
 }
 
@@ -638,7 +589,7 @@ void FunctionUnitParser::parse(std::vector<foundInfo> & foundInfos, size_t begin
 // SortClass for vector<pair<int, int>>
 // sort in _selLpos : increased order
 struct SortZones final {
-	bool operator()(pair<int, int> & l, pair<int, int> & r)
+	bool operator()(pair<int, int> & l, pair<int, int> & r) const
 	{
 		return (l.first < r.first);
 	}

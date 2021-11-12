@@ -1073,7 +1073,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 				cur += 3;
 				tmp = (cur < end) ? *cur : 0;
 				while(tmp != ';') { /* Non input consuming loop */
-					if((tmp >= '0') && (tmp <= '9'))
+					if(isdec(tmp))
 						charval = charval * 16 + (tmp - '0');
 					else if((tmp >= 'a') && (tmp <= 'f'))
 						charval = charval * 16 + (tmp - 'a') + 10;
@@ -1098,7 +1098,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 				cur += 2;
 				tmp = (cur < end) ? *cur : 0;
 				while(tmp != ';') { // Non input consuming loops 
-					if((tmp >= '0') && (tmp <= '9'))
+					if(isdec(tmp))
 						charval = charval * 10 + (tmp - '0');
 					else {
 						xmlTreeErr(XML_TREE_INVALID_DEC, (xmlNode *)doc, NULL);
@@ -1256,7 +1256,7 @@ xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 				cur += 3;
 				tmp = *cur;
 				while(tmp != ';') { /* Non input consuming loop */
-					if((tmp >= '0') && (tmp <= '9'))
+					if(isdec(tmp))
 						charval = charval * 16 + (tmp - '0');
 					else if((tmp >= 'a') && (tmp <= 'f'))
 						charval = charval * 16 + (tmp - 'a') + 10;
@@ -1278,7 +1278,7 @@ xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 				cur += 2;
 				tmp = *cur;
 				while(tmp != ';') { /* Non input consuming loops */
-					if((tmp >= '0') && (tmp <= '9'))
+					if(isdec(tmp))
 						charval = charval * 10 + (tmp - '0');
 					else {
 						xmlTreeErr(XML_TREE_INVALID_DEC, (xmlNode *)doc, NULL);

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{b2dfb7a8-10dc-4668-bc01-42b2b3403944}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\ctest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\datamap.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\testdata.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\tstdtmod.cpp" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\ucln_ct.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\tools\ctestfw\uperf.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\ctest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\datamap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\testdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\testlog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\testtype.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\tstdtmod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\uperf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\tools\ctestfw\unicode\utimer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

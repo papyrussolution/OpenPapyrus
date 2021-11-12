@@ -1,0 +1,1003 @@
+<?xml version='1.0'?>
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc compact='no'?>
+<?rfc emoticonic='yes'?>
+<?rfc toc='yes'?>
+<?rfc private=' '?>
+
+<rfc>
+<front>
+<title>Tcl SASL</title>
+
+<author initials='M.T.' surname='Rose' fullname='Marshall T. Rose'>
+<organization>Dover Beach Consulting, Inc.</organization>
+<address>
+<postal>
+<street>POB 255268</street>
+<city>Sacramento</city> <region>CA</region> <code>95865-5268</code>
+<country>US</country>
+</postal>
+<phone>+1 916 483 8878</phone>
+<facsimile>+1 916 483 8848</facsimile>
+<email>mrose@dbc.mtview.ca.us</email>
+</address>
+</author>
+
+<date month='January' year='2002' />
+
+<abstract><t>Tcl SASL provides a Tcl interface to the Cyrus SASLv2
+library.</t></abstract> 
+</front>
+
+<middle>
+
+<section title='SYNOPSIS'>
+<figure><artwork><![CDATA[
+    package provide sasl 2.0
+]]></artwork></figure>
+
+<t>Tcl SASL provides a Tcl interface to the
+<eref target='https://www.cyrusimap.org/sasl/'>Cyrus SASLv2 library</eref>.</t>
+
+<t>This document won't tell you what 
+<xref target='RFC2222'>SASL</xref> is.
+What it will tell you,
+the Tcl programmer,
+is how you can access the Cyrus SASLv2 library from your Tcl script.</t>
+
+<vspace blankLines='1000' />
+
+<section title='Installation'>
+<t>First,
+you'll need to have 
+<eref target='http://www.scriptics.com/software/tcltk/downloadnow83.tml'>Tcl 8.3</eref>
+(or later) already installed.</t>
+
+<figure>
+<preface>Then, when configuring the Cyrus SASLv2 library,
+use the |"--with-tcl| switch, e.g.,</preface>
+<artwork><![CDATA[
+    ./configure ... --with-tcl=...
+]]></artwork>
+</figure>
+</section>
+</section>
+
+
+<section title='CONVENTIONS'>
+<section title='Return Codes'>
+<t>If an exception occurs in a Cyrus SASL library function,
+an error is thrown and the |"errorCode| global is set to a list
+containing four elements:
+<list style='symbols'>
+<t>the literal string |""SASL"|;</t>
+
+<t>a string naming the Cyrus SASL library function that failed;</t>
+
+<t>an integer identifying the Cyrus SASL result code that was returned;
+and,</t>
+
+<t>a string containing the associated diagnostic.</t>
+</list></t>
+
+<t>In addition to the usual "normal" return,
+four routines
+(<xref target='server_start'>sasl::server_start</xref>,
+<xref target='server_step'>sasl::server_step</xref>,
+<xref target='client_start'>sasl::client_start</xref>, and
+<xref target='client_step'>sasl::client_step</xref>)
+may also use the "continue" return.
+This occurs when the corresponding Cyrus SASL library function returns
+|"SASL_CONTINUE|.</t>
+</section>
+
+<section title='Data Types'>
+<t>A serialized array is a list that contains an series of keywords
+and values.</t>
+
+<figure>
+<preamble>A serialized array can be traversed using |"foreach|,
+e.g.,</preamble> 
+<artwork><![CDATA[
+    foreach {k v} $aList {
+        puts stdout "$k has value $v"
+    }
+]]></artwork>
+</figure>
+
+<figure>
+<preamble>Alternatively,
+an array can be initialized and accessed,
+e.g.,</preamble> 
+<artwork><![CDATA[
+    array set data $aList
+    if {[info exists data(plugin)]} {
+        puts stdout "plugin entry is present"
+    }
+]]></artwork>
+</figure>
+
+<t>Several routines accept serialized arrays as arguments.
+In particular,
+the Cyrus SASL security properties is expressed as a serialized array
+with these elements:
+<list style='symbols'>
+<t>min_ssf</t>
+
+<t>max_ssf</t>
+
+<t>max_bufsize</t>
+
+<t>flags</t>
+</list>
+With the exception of |"flags|,
+each of these takes an integer value.
+The |"flags| entry takes a list value.
+To find out what flags are known,
+try |"sasl::info sec_flags|.</t>
+</section>
+
+<section title='Interactions'>
+<t>Two routines
+(<xref target='client_start'>sasl::client_start</xref> and
+<xref target='client_step'>sasl::client_step</xref>)
+have an optional |"-interact| switch that takes a script argument.</t>
+
+<t>When evaluated,
+the script is given one argument,
+a serialized array.
+At a minimum,
+the |"id| element is present in the serialized array.
+Optionally,
+three other elements
+(|"challenge|, |"prompt|, and |"default|)
+may also be present.</t>
+
+<t>If the script makes a normal return,
+the return value is supplied to the Cyrus SASL library.</t>
+</section>
+
+<section title='Callbacks'>
+<t>Four routines
+(<xref target='server_init'>sasl::server_init</xref>,
+<xref target='server_new'>sasl::server_new</xref>,
+<xref target='client_init'>sasl::client_init</xref>, and
+<xref target='client_new'>sasl::client_new</xref>)
+have a |"-callbacks| switch that takes a list argument.
+Each element of the list is either:
+<list style='symbols'>
+<t>the name of a callback; or,</t>
+
+<t>a list containing two elements,
+the name of a callback and a script.</t>
+</list>
+The former case is used by clients to tell the Cyrus SASL library
+what information may be determined using an interaction.
+Otherwise,
+the supplied script is evaluated to get the indicated information.</t>
+
+<t>In this latter case,
+the script is given one argument,
+a serialized array containing callback-specific elements.</t>
+
+<section title='Client/Server callbacks'>
+<t><list style='hanging'>
+<t hangText='getopt:'><iref item='callbacks' subitem='getopt' />
+Returns a string.
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>?plugin?</t>
+<t>option</t>
+</list></t>
+
+<t hangText='log:'><iref item='callbacks' subitem='log' />
+Elements:
+<list style='symbols'>
+<t>level</t>
+<t>message</t>
+</list></t>
+
+<t hangText='getpath:'><iref item='callbacks' subitem='getpath' />
+Returns a string.
+<vspace blankLines='1' />
+Elements: none.
+<vspace blankLines='1' /></t>
+
+<t hangText='verifyfile:'><iref item='callbacks' subitem='verifyfile' />
+Returns an integer (a SASL result code),
+either 0 (|"SASL_OK|), 1 (|"SASL_CONTINUE|), or -1 (|"SASL_FAIL|).
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>file</t>
+<t>type</t>
+</list>
+To find out what types are known,
+try |"sasl::info verify_types|.</t>
+</list></t>
+</section>
+
+<section title='Client-only callbacks'>
+<t><list style='hanging'>
+<t hangText='user:'><iref item='callbacks' subitem='user' />
+Returns a string.
+<vspace blankLines='1' />
+Elements: id
+<vspace blankLines='1' /></t>
+
+<t hangText='authname:'><iref item='callbacks' subitem='authname' />
+Returns a string.
+<vspace blankLines='1' />
+Elements: id
+<vspace blankLines='1' /></t>
+
+<t hangText='language:'><iref item='callbacks' subitem='language' />
+Returns a string.
+<vspace blankLines='1' />
+Elements: id
+<vspace blankLines='1' /></t>
+
+<t hangText='cnonce:'><iref item='callbacks' subitem='cnonce' />
+Returns a string.
+<vspace blankLines='1' />
+Elements: id
+<vspace blankLines='1' /></t>
+
+<t hangText='pass:'><iref item='callbacks' subitem='pass' />
+Returns a string.
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>token (a client token)</t>
+<t>id</t>
+</list></t>
+
+<t hangText='?no?echoprompt:'><iref item='callbacks' subitem='echoprompt' />
+<iref item='callbacks' subitem='noechoprompt' />
+Returns a string.
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>id</t>
+<t>challenge</t>
+<t>prompt</t>
+<t>default</t>
+</list></t>
+
+<t hangText='getrealm:'><iref item='callbacks' subitem='getrealm' />
+Returns a string.
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>id</t>
+<t>?available? (a list of possible choices)</t>
+</list></t>
+</list></t>
+</section>
+
+<section title='Server-only callbacks'>
+<t><list style='hanging'>
+<t hangText='proxy:'><iref item='callbacks' subitem='proxy' />
+Returns an integer (a SASL result code),
+usually either 0 (|"SASL_OK|), or -14 (|"SASL_NOAUTHZ|).
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>token (a server token)</t>
+<t>target</t>
+<t>user</t>
+<t>?realm?</t>
+<t>?propctx? (a propctx token)</t>
+</list></t>
+
+<t hangText='checkpass:'><iref item='callbacks' subitem='checkpass' />
+Returns an integer (a SASL result code).
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>token (a server token)</t>
+<t>user</t>
+<t>pass</t>
+<t>?propctx? (a propctx token)</t>
+</list></t>
+
+<t hangText='setpass:'><iref item='callbacks' subitem='setpass' />
+Returns an integer (a SASL result code).
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>token (a server token)</t>
+<t>user</t>
+<t>pass</t>
+<t>flags</t>
+<t>?propctx? (a propctx token)</t>
+</list>
+To find out what flags are known,
+try |"sasl::info setpass_flags|.
+<vspace blankLines='1' /></t>
+
+<t hangText='canonuser:'><iref item='callbacks' subitem='canonuser' />
+Returns a string.
+<vspace blankLines='1' />
+Elements:
+<list style='symbols'>
+<t>token (a server token)</t>
+<t>in</t>
+<t>?realm?</t>
+<t>outmax</t>
+<t>flags</t>
+</list>
+To find out what flags are known,
+try |"sasl::info canon_flags|.</t>
+</list></t>
+</section>
+</section>
+</section>
+
+<section title='PROCEDURES'>
+<section title='Server-only calls'>
+<t>The calling sequence is:
+<list style='numbers'>
+<t>Invoke <xref target='server_init'>sasl::server_init</xref> to load
+plugins.</t>
+
+<t>On each incoming connection,
+invoke <xref target='server_new'>sasl::server_new</xref> to get a
+server token.</t>
+
+<t>Invoke <xref target='setprop'>$token -operation setprop</xref> to
+set the security properties for the connection.</t>
+
+<t>Invoke <xref target='server_list'>$token -operation list</xref> to
+get the list of mechanisms to send to the client.</t>
+
+<t>When client selects a mechanism,
+invoke <xref target='server_start'>$token -operation start</xref>,
+and go to Step 7.</t>
+
+<t>Invoke <xref target='server_step'>$token -operation step</xref>.</t>
+
+<t>Look at the result:
+<list style='hanging'>
+<t hangText='normal return:'>Tell the client it's successful and goto
+Step 8.</t>
+
+<t hangText='continue return:'>Send the result to the client,
+wait for more input,
+and goto Step 6.</t>
+
+<t hangText='error return:'>Tell the client it loses and abort.</t>
+</list></t>
+
+<t>Invoke <xref target='getprop'>$token -operation getprop</xref> to
+get the new security properties for the connection.</t>
+</list>
+Now, let's look at the actual procedures.</t>
+
+
+<figure anchor='server_init'>
+<preamble><iref item='procedures' subitem='sasl::server_init' /></preamble>
+<artwork><![CDATA[sasl::server_init     \
+    -callbacks list   \
+   ?-appname   string?
+]]></artwork>
+<postamble>Initialize server-side code,
+supplying default |"-callbacks| and an |"-appname| for logging.</postamble>
+</figure>
+
+<figure anchor='server_new'>
+<preamble><iref item='procedures' subitem='sasl::server_new' /></preamble>
+<artwork><![CDATA[sasl::server_new          \
+    -service      string  \
+   ?-serverFQDN   string? \
+   ?-realm        string? \
+   ?-iplocalport  string? \
+   ?-ipremoteport string? \
+   ?-callbacks    script? \
+   ?-flags        list?
+]]></artwork>
+<postamble>Return a "server token" for a single SASL connection,
+supplying the registered name of the |"-service|.
+To find out what flags are known,
+try |"sasl::info servernew_flags|.
+</postamble>
+</figure>
+
+<figure anchor='server_list'>
+<preamble><iref item='procedures' subitem='server -operation list' /></preamble>
+<artwork><![CDATA[$token -operation list    \
+      ?-user      string?
+]]></artwork>
+<postamble>Return a list of mechanisms available to the server.</postamble>
+</figure>
+
+
+<figure anchor='server_start'>
+<preamble><iref item='procedures' subitem='server -operation start' /></preamble>
+<artwork><![CDATA[$token -operation start   \
+       -mechanism string  \
+       ?-input    string?
+]]></artwork>
+<postamble>Start a |"-mechanism|
+(optionally, with an |"-input| string from the client),
+returning an output string for the client.</postamble>
+</figure>
+
+
+<figure anchor='server_step'>
+<preamble><iref item='procedures' subitem='server -operation step' /></preamble>
+<artwork><![CDATA[$token -operation step   \
+       -input     string
+]]></artwork>
+<postamble>Perform another exchange,
+taking an |"input| string from the client,
+returning an output string for the client.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='server -operation checkpass' /></preamble>
+<artwork><![CDATA[$token -operation checkpass \
+       -user      string    \
+       -pass      string
+]]></artwork>
+<postamble>Determine if a plaintext password is valid;
+if not, throw an error.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='server -operation userexists' /></preamble>
+<artwork><![CDATA[$token -operation userexists \
+       -server    string     \
+      ?-realm     string?    \
+       -user      string
+]]></artwork>
+<postamble>Determine if a user exists;
+it not, throw an error.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='server -operation setpass' /></preamble>
+<artwork><![CDATA[$token -operation setpass \
+       -user      string  \
+      ?-newpass   string? \
+      ?-oldpass   string? \
+      ?-flags     list?
+]]></artwork>
+<postamble>Set the password for a user;
+on failure, throw an error.
+To find out what flags are known,
+try |"sasl::info setpass_flags|.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='server -operation auxprop_request' /></preamble>
+<artwork><![CDATA[$token -operation   auxprop_request \
+       ?-properties list?
+]]></artwork>
+<postamble>Request a set of auxiliary |"-properties|
+(or reset the list if this switch is absent);
+on failure,
+throw an error.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='server -operation auxprop_getctx' /></preamble>
+<artwork><![CDATA[$token -operation auxprop_getctx
+]]></artwork>
+<postamble>Return a "propctx token" containing the current auxiliary
+properties.</postamble>
+</figure>
+</section>
+
+<section title='Client-only calls'>
+<t>The calling sequence is:
+<list style='numbers'>
+<t>Invoke <xref target='client_init'>sasl::client_init</xref> to load
+plugins.</t>
+
+<t>On each outgoing connection,
+invoke <xref target='client_new'>sasl::client_new</xref> to get a
+client token.</t>
+
+<t>Invoke <xref target='setprop'>$token -operation setprop</xref> to
+set the security properties for the connection.</t>
+
+<t>When the server indicates which mechanisms are available
+invoke <xref target='client_start'>$token -operation start</xref>,
+and go to Step 6.</t>
+
+<t>Invoke <xref target='client_step'>$token -operation step</xref>.</t>
+
+<t>Look at the result:
+<list style='hanging'>
+<t hangText='normal return:'>If the result is empty, goto Step 8;
+otherwise, send the result to the server and goto Step 7</t>
+
+<t hangText='continue return:'>Send the result to the server,
+wait for more input,
+and goto Step 5.</t>
+
+<t hangText='error return:'>You lose, abort.</t>
+</list>
+(If you're familiar with the Cyrus SASL library API,
+you'll notice there is no "interaction" return &#151;
+Tcl SASL handles this through a callback for you.)</t>
+
+<t>Wait for the server's confirmation.</t>
+
+<t>Invoke <xref target='getprop'>$token -operation getprop</xref> to
+get the new security properties for the connection.</t>
+</list>
+Now, let's look at the actual procedures.</t>
+
+<figure anchor='client_init'>
+<preamble><iref item='procedures' subitem='sasl::client_init' /></preamble>
+<artwork><![CDATA[sasl::client_init   \
+    -callbacks list
+]]></artwork>
+<postamble>Initialize client-side code,
+supplying default |"-callbacks|.</postamble>
+</figure>
+
+<figure anchor='client_new'>
+<preamble><iref item='procedures' subitem='sasl::client_new' /></preamble>
+<artwork><![CDATA[sasl::client_new          \
+    -service      string  \
+    -serverFQDN   string  \
+   ?-iplocalport  string? \
+   ?-ipremoteport string? \
+   ?-callbacks    script? \
+   ?-flags        list?
+]]></artwork>
+<postamble>Return a "client token" for a single SASL connection,
+supplying the registered name of the |"-service|,
+and the |"-serverFQDN| of the server.
+To find out what flags are known,
+try |"sasl::info clientnew_flags|.</postamble>
+</figure>
+
+<figure anchor='client_start'>
+<preamble><iref item='procedures' subitem='client -operation start' /></preamble>
+<artwork><![CDATA[$token -operation  start \
+       -mechanisms list  \
+      ?-interact   script?
+]]></artwork>
+<postamble>Select one of the given |"-mechanisms|,
+and return a serialized array containing two elements:
+the |"mechanism| to use,
+and,
+an |"output| string for the server.</postamble>
+</figure>
+
+
+<figure anchor='client_step'>
+<preamble><iref item='procedures' subitem='client -operation step' /></preamble>
+<artwork><![CDATA[$token -operation step   \
+       -input     string \
+      ?-interact  script?
+]]></artwork>
+<postamble>
+<postamble>Perform another exchange,
+taking an |"input| string from the server,
+returning an output string for the server.</postamble>
+</postamble>
+</figure>
+</section>
+
+<section title='Client/Server calls'>
+<figure>
+<preamble><iref item='procedures' subitem='token -operation info' /></preamble>
+<artwork><![CDATA[$token -operation info
+]]></artwork>
+<postamble>Return a list of known operations for the token.</postamble>
+</figure>
+
+
+<figure anchor='getprop'>
+<preamble><iref item='procedures' subitem='token -operation getprop' /></preamble>
+<artwork><![CDATA[$token -operation getprop \
+       -property  string
+]]></artwork>
+<postamble>Return a string corresponding to the value of the 
+given |"-property|.
+To find out what properties are known,
+try |"sasl::info getprops|.</postamble>
+</figure>
+
+
+<figure anchor='setprop'>
+<preamble><iref item='procedures' subitem='token -operation setprop' /></preamble>
+<artwork><![CDATA[$token -operation setprop \
+       -property  string  \
+       -value     string
+]]></artwork>
+<postamble>Set the |"-value| of the given |"-property|.
+To find out what properties are known,
+try |"sasl::info setprops|.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='token -operation errdetail' /></preamble>
+<artwork><![CDATA[$token -operation errdetail
+]]></artwork>
+<postamble>
+Return the detail for the last error encountered for the token.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='token -operation decode' /></preamble>
+<artwork><![CDATA[$token -operation decode \
+       -input     string
+]]></artwork>
+<postamble>
+Take an |"-input| string and decipher/verify it
+(using the previously-negotiated security layer),
+and return a plaintext string.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='token -operation encode' /></preamble>
+<artwork><![CDATA[$token -operation encode \
+       -input     string
+]]></artwork>
+<postamble>Take an |"-output| string and encipher/sign it
+(using the previously-negotiated security layer),
+and return a string to be sent over the network.</postamble>
+</figure>
+</section>
+
+<section title='Miscellaneous calls'>
+<figure>
+<preamble><iref item='procedures' subitem='sasl::decode64' /></preamble>
+<artwork><![CDATA[sasl::decode64 string
+]]></artwork>
+<postamble>Return a string decoded from base64.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='sasl::done' /></preamble>
+<artwork><![CDATA[sasl::done
+]]></artwork>
+<postamble>Release all resources associated with this package.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='sasl::encode64' /></preamble>
+<artwork><![CDATA[sasl::encode64 string
+]]></artwork>
+<postamble>Return a string encoded to base64.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='sasl::errstring' /></preamble>
+<artwork><![CDATA[sasl::errstring
+    -code      number  \
+   ?-languages string?
+]]></artwork>
+<postamble>Take a SASL result |"-code| and
+a list of |"-languages| (e.g., "en-US"),
+and return a serialized array containing two elements:
+the corresponding |"diagnostic| string,
+and,
+optionally,
+the |"language| used to localize the diagnostic.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='sasl::info' /></preamble>
+<artwork><![CDATA[sasl::info ?option?
+]]></artwork>
+<postamble>Return a list of known options,
+or a list of known choices for a given |"option|.</postamble>
+</figure>
+
+
+<figure>
+<preamble><iref item='procedures' subitem='sasl::mechanisms' /></preamble>
+<artwork><![CDATA[sasl::mechanisms
+]]></artwork>
+<postamble>Return a list of all known mechanisms.</postamble>
+</figure>
+</section>
+</section>
+
+
+<section title='EXAMPLES'>
+<section title='Server'>
+<figure>
+<artwork><![CDATA[
+proc sasl_log {data} {
+    array set params $data
+
+# look at data(level) and data(message)
+}
+
+
+proc server_callback {id data} {
+    array set params $data
+
+# look at data(level) and data(message)
+    global server
+
+    array set params $data
+
+    switch -- $id {
+        getopt {
+            if {![info exists params(plugin)]} {
+                set params(plugin) ""
+            }
+            switch -- $params(plugin)/$params(option) {
+                /auto_transition
+                    -
+                /canon_user_plugin
+                    -
+                /mech_list
+                    -
+                /sasldb_path
+                    -
+                OTP/opiekeys 
+                    -
+                default {
+# if value isn't set, an error is thrown below
+# that's okay, the Cyrus SASL library will use a default value
+                }
+            }
+        }
+
+        verifyfile {
+# set value...
+        }
+
+        proxy {
+# set value...
+        }
+
+        checkpass {
+# set value...
+        }
+    }
+
+    return $value
+}
+
+
+sasl::server_init -callbacks [list [list log sasl_log]]
+
+
+set callbacks {}
+foreach id [list getopt verifyfile proxy checkpass] {
+    lappend callbacks [list $id "server_callback $id"]
+}
+
+set token [sasl::server_new -service    $service   \
+                            -callbacks  $callbacks \
+                            -flags      [list success_data]]
+
+
+if {$ssf > 0} {
+    $token -operation setprop ssf_external $ssf
+}
+
+if {[string length $clientID] > 0} {
+    $token -operation setprop auth_external $clientID
+}
+
+$token -operation setprop sec_props \
+       [list min_ssf     $min    \
+             max_ssf     $max    \
+             max_bufsize $bufsiz \
+             flags       $flags]
+
+set mechlist [$token -operation list]
+
+
+# send $mechlist to client
+# recv mechanism and input from client
+
+set code 4
+for {set operation start} {$code == 4} {set operation step} {
+    set cmd [list $token -operation $operation \
+                         -input     $input] 
+    if {![string compare $operation start]} {
+        lappend cmd -mechanism $mechanism
+    }
+
+    switch -- [set code [catch { eval $cmd } output]] {
+        0 {
+# send success to client
+
+            set ssf [$token -operation getprop ssf]
+          }
+
+    4 {
+# send continue to client with output
+# recv input from client
+    }
+
+    default {
+# send error to client
+    }
+}
+]]></artwork>
+</figure>
+</section>
+
+<section title='Client'>
+<figure>
+<artwork><![CDATA[
+proc client_callback {data} {
+    global client
+
+    array set params $data
+
+    switch -- $params(id) {
+        pass
+            -
+        echoprompt
+            -
+        noechoprompt {
+# ask the user...
+        }
+
+        getrealm {
+            if {[info exists params(available)]} {
+# ask the user to pick one from the list...
+            } else {
+# ask the user to supply one...
+            }
+        }
+    }
+
+    return $value
+}
+
+proc client_interact {data} {
+    global client
+
+    array set params $data
+    set id $params(id)
+
+    catch { set value $params(default) }
+
+# ask the user to enter the $id using $params(prompt)...
+
+    return $value
+}
+
+
+sasl::client_init -callbacks [list [list log sasl_log]]
+
+
+# interact script will supply these
+set callbacks [list authname cnonce language user]
+
+# callback script will supply these
+foreach id [list pass echoprompt noechoprompt] {
+    lappend callbacks [list $id client_callback]
+}
+
+set token [sasl::client_new -service    $service   \
+                            -serverFQDN $fqdn      \
+                            -callbacks  $callbacks \
+                            -flags      [list success_data]]
+
+
+if {$ssf > 0} {
+    $token -operation setprop ssf_external $ssf
+}
+
+if {[string length $serverID] > 0} {
+    $token -operation setprop auth_external $serverID
+}
+
+$token -operation setprop sec_props \
+       [list min_ssf     $min    \
+             max_ssf     $max    \
+             max_bufsize $bufsiz \
+             flags       $flags]
+
+
+# recv mechlist from server
+
+switch -- [set code [catch { $token -operation  start     \
+                                    -mechanisms $mechlist \
+                                    -interact   client_interact } result]] {
+    0 - 4 {
+        array set data $result
+# send data(mechanism) and optionally data(output) to server
+# recv input from server
+        set code 4
+    }
+
+    default {
+# error!
+    }
+}
+
+while {$code == 4} {
+    switch -- [set code [catch { $token -operation step   \
+                                        -input     $input \
+                                        -interact  client_interact
+                               } output]] {
+        0 {
+            if {![string compare $output ""]} {
+                break
+            }
+          }
+
+        4 {
+        }
+
+        default {
+# error!
+        }
+
+# make sure that server response says to continue...
+
+# send output to server
+# recv input from server
+    }
+    
+# make sure that server's last response says complete...
+}
+]]></artwork>
+</figure>
+</section>
+</section>
+
+</middle>
+
+<back>
+<references>
+
+<reference anchor='RFC2222'>
+<front>
+<title abbrev='SASL'>Simple Authentication and Security Layer (SASL)</title>
+<author initials='J.G.' surname='Myers' fullname='John G. Myers'>
+<organization>Netscape Communications</organization>
+<address>
+<postal>
+<street>501 E. Middlefield Road</street>
+<street>Mail Stop MV-029</street>
+<street>Mountain View</street>
+<street>CA 94043-4042</street></postal>
+<email>jgmyers@netscape.com</email></address></author>
+<date month='October' year='1997'></date>
+<area>Security</area>
+<keyword>authentication</keyword>
+<keyword>security</keyword></front>
+<seriesInfo name='RFC' value='2222' />
+</reference>
+
+</references>
+
+<section title='TODO List'>
+<t><list style='symbols'>
+<t>Add routines for propctx tokens.</t>
+
+<t>Handle |"property_names| and  |"property_values| in security properties.</t>
+</list></t>
+</section>
+
+
+<section title='Copyrights'>
+<t>(c) 2002 Marshall T. Rose</t>
+
+<t>Hold harmless the author, and any lawful use is allowed.</t>
+</section>
+</back>
+</rfc>

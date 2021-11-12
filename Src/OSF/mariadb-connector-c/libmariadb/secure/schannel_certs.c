@@ -73,32 +73,25 @@ static char * pem_file_to_string(const char * file, char * errmsg, size_t errmsg
 	size_t total_bytes_read = 0;
 	char * file_buffer = NULL;
 	SECURITY_STATUS status = SEC_E_OK;
-
-	HANDLE file_handle = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE file_handle = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(file_handle == INVALID_HANDLE_VALUE) {
 		FAIL("failed to open file '%s'", file);
 	}
-
 	if(!GetFileSizeEx(file_handle, &file_size)) {
 		FAIL("GetFileSizeEx failed on '%s'", file);
 	}
-
 	if(file_size.QuadPart > ULONG_MAX - 1) {
 		SetLastError(SEC_E_INVALID_PARAMETER);
 		FAIL("file '%s' too large", file);
 	}
-
 	file_bufsize = (size_t)file_size.QuadPart;
 	file_buffer = (char *)LocalAlloc(0, file_bufsize + 1);
 	if(!file_buffer) {
 		FAIL("LocalAlloc(0,%zu) failed", file_bufsize + 1);
 	}
-
 	while(total_bytes_read < file_bufsize) {
 		DWORD bytes_to_read = (DWORD)(file_bufsize - total_bytes_read);
 		DWORD bytes_read = 0;
-
 		if(!ReadFile(file_handle, file_buffer + total_bytes_read,
 		    bytes_to_read, &bytes_read, NULL)) {
 			FAIL("ReadFile() failed to read  file '%s'", file);
@@ -111,10 +104,8 @@ static char * pem_file_to_string(const char * file, char * errmsg, size_t errmsg
 			total_bytes_read += bytes_read;
 		}
 	}
-
 	/* Null terminate the buffer */
 	file_buffer[file_bufsize] = '\0';
-
 cleanup:
 	if(file_handle != INVALID_HANDLE_VALUE) {
 		CloseHandle(file_handle);
@@ -272,7 +263,6 @@ cleanup:
 		CertFreeCRLContext(crl_context);
 	return status;
 }
-
 /*
    Add a directory to store, i.e try to load all files.
    (extract certificates and add them to store)
@@ -284,10 +274,10 @@ SECURITY_STATUS add_dir_to_store(HCERTSTORE trust_store, const char * dir, PEM_T
 	WIN32_FIND_DATAA ffd;
 	char path[MAX_PATH];
 	char pattern[MAX_PATH];
-	DWORD dwAttr;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	SECURITY_STATUS status = SEC_E_OK;
-	if((dwAttr = GetFileAttributes(dir)) == INVALID_FILE_ATTRIBUTES) {
+	DWORD dwAttr = GetFileAttributesA(dir);
+	if(dwAttr == INVALID_FILE_ATTRIBUTES) {
 		SetLastError(SEC_E_INVALID_PARAMETER);
 		FAIL("directory '%s' does not exist", dir);
 	}
@@ -296,7 +286,7 @@ SECURITY_STATUS add_dir_to_store(HCERTSTORE trust_store, const char * dir, PEM_T
 		FAIL("'%s' is not a directory", dir);
 	}
 	sprintf_s(pattern, sizeof(pattern), "%s\\*", dir);
-	hFind = FindFirstFile(pattern, &ffd);
+	hFind = FindFirstFileA(pattern, &ffd);
 	if(hFind == INVALID_HANDLE_VALUE) {
 		FAIL("FindFirstFile(%s) failed", pattern);
 	}
@@ -307,8 +297,7 @@ SECURITY_STATUS add_dir_to_store(HCERTSTORE trust_store, const char * dir, PEM_T
 		// ignore error from add_certs_to_store(), not all file
 		// maybe PEM.
 		add_certs_to_store(trust_store, path, type, errmsg, errmsg_len);
-	} while(FindNextFile(hFind, &ffd) != 0);
-
+	} while(FindNextFileA(hFind, &ffd) != 0);
 cleanup:
 	if(hFind != INVALID_HANDLE_VALUE)
 		FindClose(hFind);

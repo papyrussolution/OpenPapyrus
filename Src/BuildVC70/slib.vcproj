@@ -1204,6 +1204,9 @@
 				RelativePath="..\SLib\sxmlad.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\szlib.c">
+			</File>
+			<File
 				RelativePath="..\SLib\tab.cpp">
 			</File>
 			<File
@@ -3549,6 +3552,9 @@
 			</File>
 			<File
 				RelativePath="..\Include\xxhash.h">
+			</File>
+			<File
+				RelativePath="..\Include\zlib.h">
 			</File>
 		</Filter>
 		<Filter

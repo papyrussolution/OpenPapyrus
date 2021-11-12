@@ -177,12 +177,12 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-			THROW_SL(p_query->Insert("card_number", json_new_string(pScBlk->ScPack.Rec.Code)));
+			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->Insert("phone_number", json_new_string(phone_buf)));
+			THROW_SL(p_query->InsertString("phone_number", phone_buf));
 			//THROW_SL(p_query->Insert("trust_key", json_new_string("")));
 			THROW_SL(json_tree_to_string(p_query, temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
@@ -231,8 +231,8 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-			THROW_SL(p_query->Insert("code", json_new_string(temp_buf.Z().Cat(check_code))));
+			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(p_query->InsertString("code", temp_buf.Z().Cat(check_code)));
 			THROW_SL(json_tree_to_string(p_query, temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
@@ -312,12 +312,12 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-			THROW_SL(p_query->Insert("card_number", json_new_string(pScBlk->ScPack.Rec.Code)));
+			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->Insert("phone_number", json_new_string(phone_buf)));
+			THROW_SL(p_query->InsertString("phone_number", phone_buf));
 			{
 				SJson * p_array = new SJson(SJson::tARRAY);
 				THROW_SL(p_array);
@@ -454,13 +454,13 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->Insert("pos_id", json_new_string(pScBlk->PosNodeCode)));
-			THROW_SL(p_query->Insert("card_number", json_new_string(pScBlk->ScPack.Rec.Code)));
+			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->Insert("phone_number", json_new_string(phone_buf)));
-			THROW_SL(p_query->Insert("any_data", json_new_string("")));
+			THROW_SL(p_query->InsertString("phone_number", phone_buf));
+			THROW_SL(p_query->InsertString("any_data", ""));
 			{
 				SJson * p_array = new SJson(SJson::tARRAY);
 				THROW_SL(p_array);
@@ -485,11 +485,11 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 						if(barcode.NotEmpty()) {
 							SJson * p_item = new SJson(SJson::tOBJECT);
 							THROW_SL(p_item);
-							THROW_SL(p_item->Insert("barcode", json_new_string(barcode)));
+							THROW_SL(p_item->InsertString("barcode", barcode));
 							THROW_SL(p_item->Insert("count", json_new_number(temp_buf.Z().Cat(r_line.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)))));
 							const double net_price = r_line.InPrice; //fdiv100i(r_line.Price) - r_line.Dscnt;
 							THROW_SL(p_item->Insert("price", json_new_number(temp_buf.Z().Cat(net_price, MKSFMTD(0, 2, 0)))));
-							THROW_SL(p_item->Insert("any_data", json_new_string(temp_buf.Z().Cat(i+1))));
+							THROW_SL(p_item->InsertString("any_data", temp_buf.Z().Cat(i+1)));
 							THROW_SL(json_insert_child(p_array, p_item));
 						}
 					}

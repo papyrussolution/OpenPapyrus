@@ -862,4 +862,22 @@
 	#define strncasecmp _strnicmp
 	#define ftruncate   _chsize_s // @v11.0.1
 #endif
+//
+// @v11.2.3 {
+// Аргументы функции _access() /access()/, используемые в unix-like systems
+// F_OK, R_OK, W_OK точно соответствуют по значениям аналогу в Windows
+//
+#ifndef F_OK
+	#define	F_OK	0
+#endif
+#ifndef R_OK
+	#define	R_OK	4
+#endif
+#ifndef W_OK
+	#define	W_OK	2
+#endif
+#ifndef X_OK
+	#define	X_OK	1
+#endif
+// } @v11.2.3
 #endif // } __SLPORT_H

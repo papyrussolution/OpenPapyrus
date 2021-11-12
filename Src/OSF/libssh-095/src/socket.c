@@ -261,7 +261,7 @@ int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
 		s->read_wontblock = 1;
 		nread = ssh_socket_unbuffered_read(s, buffer, sizeof(buffer));
 		if(nread < 0) {
-			if(p != NULL) {
+			if(p) {
 				ssh_poll_remove_events(p, POLLIN);
 			}
 
@@ -273,7 +273,7 @@ int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
 			return -2;
 		}
 		if(nread == 0) {
-			if(p != NULL) {
+			if(p) {
 				ssh_poll_remove_events(p, POLLIN);
 			}
 			if(s->callbacks != NULL && s->callbacks->exception != NULL) {
@@ -317,7 +317,7 @@ int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
 		if(s->state == SSH_SOCKET_CONNECTING) {
 			SSH_LOG(SSH_LOG_PACKET, "Received POLLOUT in connecting state");
 			s->state = SSH_SOCKET_CONNECTED;
-			if(p != NULL) {
+			if(p) {
 				ssh_poll_set_events(p, POLLOUT | POLLIN);
 			}
 
@@ -337,7 +337,7 @@ int ssh_socket_pollcallback(struct ssh_poll_handle_struct * p,
 
 		/* So, we can write data */
 		s->write_wontblock = 1;
-		if(p != NULL) {
+		if(p) {
 			ssh_poll_remove_events(p, POLLOUT);
 		}
 

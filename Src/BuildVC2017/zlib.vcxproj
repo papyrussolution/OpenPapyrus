@@ -892,7 +892,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\zlib.h" />
-    <ClInclude Include="..\OSF\ZLIB\inffixed.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

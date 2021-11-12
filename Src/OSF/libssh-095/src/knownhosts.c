@@ -688,7 +688,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	}
 	/* comment */
 	p = strtok(NULL, " ");
-	if(p != NULL) {
+	if(p) {
 		const char * p2 = strstr(line, p);
 		if(p2) {
 			e->comment = _strdup(p2);

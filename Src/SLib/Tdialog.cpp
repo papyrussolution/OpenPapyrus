@@ -234,7 +234,8 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	TView * p_view = 0, * p_ctl = 0;
 	SString temp_buf, symb, cmd_symb;
 	char   buf[256];
-	long   sz = 0L, ofs = 0L;
+	long   sz = 0L;
+	long   ofs = 0L;
 	StrAssocArray symb_list;
 	if(rez->findResource(dialogID, TV_DIALOG, &ofs, &sz)) {
 		r = rez->getRect();

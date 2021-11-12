@@ -1117,29 +1117,22 @@ static HMODULE find_imported_module_by_funcname(HMODULE hModule, const char * fu
 	PIMAGE_IMPORT_DESCRIPTOR Imp;
 	PIMAGE_THUNK_DATA Name;     /* Import Name Table */
 	PIMAGE_IMPORT_BY_NAME ImpName;
-
 	Base = (DWORD_PTR)hModule;
-	Imp = (PIMAGE_IMPORT_DESCRIPTOR)MyImageDirectoryEntryToData(
-		(LPVOID)Base,
-		TRUE,
-		IMAGE_DIRECTORY_ENTRY_IMPORT,
-		&Size);
+	Imp = (PIMAGE_IMPORT_DESCRIPTOR)MyImageDirectoryEntryToData((LPVOID)Base, TRUE, IMAGE_DIRECTORY_ENTRY_IMPORT, &Size);
 	if(Imp == NULL)
 		return NULL;
 	for(; Imp->OriginalFirstThunk != 0; ++Imp) {
 		Name = (PIMAGE_THUNK_DATA)(Base + Imp->OriginalFirstThunk);
 		for(; Name->u1.Ordinal != 0; ++Name) {
 			if(!IMAGE_SNAP_BY_ORDINAL(Name->u1.Ordinal)) {
-				ImpName = (PIMAGE_IMPORT_BY_NAME)
-				    (Base + (DWORD_PTR)Name->u1.AddressOfData);
-				if(strcmp((char *)ImpName->Name, funcname) == 0)
+				ImpName = (PIMAGE_IMPORT_BY_NAME)(Base + (DWORD_PTR)Name->u1.AddressOfData);
+				if(sstreq((char *)ImpName->Name, funcname))
 					return GetModuleHandleA((char *)(Base + Imp->Name));
 			}
 		}
 	}
 	return NULL;
 }
-
 #endif
 
 static int sbcs_mblen(csconv_t * cv UNUSED, const uchar * buf UNUSED, int bufsize UNUSED)
@@ -1767,18 +1760,18 @@ int main(int argc, char ** argv)
 	_setmode(_fileno(stdin), _O_BINARY);
 	_setmode(_fileno(stdout), _O_BINARY);
 	for(i = 1; i < argc; ++i) {
-		if(strcmp(argv[i], "-l") == 0) {
+		if(sstreq(argv[i], "-l")) {
 			for(i = 0; codepage_alias[i].name != NULL; ++i)
 				printf("%s\n", codepage_alias[i].name);
 			return 0;
 		}
-		if(strcmp(argv[i], "-f") == 0)
+		if(sstreq(argv[i], "-f"))
 			fromcode = argv[++i];
-		else if(strcmp(argv[i], "-t") == 0)
+		else if(sstreq(argv[i], "-t"))
 			tocode = argv[++i];
-		else if(strcmp(argv[i], "-c") == 0)
+		else if(sstreq(argv[i], "-c"))
 			ignore = 1;
-		else if(strcmp(argv[i], "--output") == 0) {
+		else if(sstreq(argv[i], "--output")) {
 			out = fopen(argv[++i], "wb");
 			if(out == NULL) {
 				slfprintf_stderr("cannot open %s\n", argv[i]);

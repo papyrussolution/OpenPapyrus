@@ -1693,8 +1693,7 @@ void hb_font_funcs_set_glyph_func(hb_font_funcs_t * ffuncs, hb_font_get_glyph_fu
 			destroy(user_data);
 		return;
 	}
-	hb_font_get_glyph_trampoline_t * trampoline;
-	trampoline = trampoline_create(func, user_data, destroy);
+	hb_font_get_glyph_trampoline_t * trampoline = trampoline_create(func, user_data, destroy);
 	if(UNLIKELY(!trampoline)) {
 		if(destroy)
 			destroy(user_data);

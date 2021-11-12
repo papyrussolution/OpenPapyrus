@@ -128,12 +128,11 @@ static struct st_mysql_client_plugin * find_plugin(const char * name, int type)
 	if(!name)
 		return plugin_list[plugin_nr]->plugin;
 	for(p = plugin_list[plugin_nr]; p; p = p->next) {
-		if(strcmp(p->plugin->name, name) == 0)
+		if(sstreq(p->plugin->name, name))
 			return p->plugin;
 	}
 	return NULL;
 }
-
 /**
    verifies the plugin and adds it to the list
 
@@ -318,25 +317,20 @@ struct st_mysql_client_plugin * STDCALL mysql_load_plugin_v(MYSQL * mysql, const
 		errmsg = "it is already loaded";
 		goto err;
 	}
-
 	/* Compile dll path */
-	snprintf(dlpath, sizeof(dlpath) - 1, "%s/%s%s",
-	    mysql->options.extension && mysql->options.extension->plugin_dir ?
-	    mysql->options.extension->plugin_dir : (env_plugin_dir) ? env_plugin_dir :
-	    MARIADB_PLUGINDIR, name, SO_EXT);
-
+	snprintf(dlpath, sizeof(dlpath) - 1, "%s/%s%s", mysql->options.extension && mysql->options.extension->plugin_dir ? 
+		mysql->options.extension->plugin_dir : (env_plugin_dir) ? env_plugin_dir : MARIADB_PLUGINDIR, name, SO_EXT);
 	if(strpbrk(name, "()[]!@#$%^&/*;.,'?\\")) {
 		errmsg = "invalid plugin name";
 		goto err;
 	}
-
-	/* Open new dll handle */
+	// Open new dll handle 
 	if(!(dlhandle = dlopen((const char *)dlpath, RTLD_NOW))) {
 #ifdef _WIN32
 		char winmsg[255];
 		size_t len;
 		winmsg[0] = 0;
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), winmsg, 255, NULL);
+		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), winmsg, 255, NULL);
 		len = strlen(winmsg);
 		while(len > 0 && (winmsg[len - 1] == '\n' || winmsg[len - 1] == '\r'))
 			len--;
@@ -359,7 +353,7 @@ struct st_mysql_client_plugin * STDCALL mysql_load_plugin_v(MYSQL * mysql, const
 		errmsg = "type mismatch";
 		goto err;
 	}
-	if(strcmp(name, plugin->name)) {
+	if(!sstreq(name, plugin->name)) {
 		errmsg = "name mismatch";
 		goto err;
 	}

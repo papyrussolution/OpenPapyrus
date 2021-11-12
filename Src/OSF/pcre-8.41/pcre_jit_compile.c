@@ -998,7 +998,7 @@ static SLJIT_INLINE BOOL detect_fast_forward_skip(compiler_common * common, int 
 	pcre_uchar * end;
 
 /* Skip not repeated brackets. */
-	while(TRUE) {
+	while(true) {
 		switch(*cc)
 		{
 			case OP_SOD:
@@ -1058,7 +1058,7 @@ static SLJIT_INLINE void detect_fast_fail(compiler_common * common, pcre_uchar *
 
 		cc += 1 + LINK_SIZE + ((*cc == OP_CBRA) ? IMM2_SIZE : 0);
 
-		while(TRUE) {
+		while(true) {
 			switch(*cc)
 			{
 				case OP_SOD:
@@ -3358,7 +3358,7 @@ static int scan_prefix(compiler_common * common, pcre_uchar * cc, pcre_uchar * c
 #endif
 
 	repeat = 1;
-	while(TRUE) {
+	while(true) {
 		if(*rec_count == 0)
 			return 0;
 		(*rec_count)--;
@@ -3692,7 +3692,7 @@ static int scan_prefix(compiler_common * common, pcre_uchar * cc, pcre_uchar * c
 
 		len_save = len;
 		cc_save = cc;
-		while(TRUE) {
+		while(true) {
 			oc = othercase;
 			do {
 				chr = *cc;
@@ -6929,7 +6929,7 @@ static SLJIT_INLINE pcre_uchar * compile_callout_matchingpath(compiler_common * 
 
 static SLJIT_INLINE BOOL assert_needs_str_ptr_saving(pcre_uchar * cc)
 {
-	while(TRUE) {
+	while(true) {
 		switch(*cc)
 		{
 			case OP_NOT_WORD_BOUNDARY:

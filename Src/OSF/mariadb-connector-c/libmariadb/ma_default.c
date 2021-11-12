@@ -73,14 +73,14 @@ char ** get_default_configuration_dirs()
 	   3. Windows directory
 	   4. C:\
 	 */
-	if(!GetSystemWindowsDirectory(dirname, FN_REFLEN) || add_cfg_dir(configuration_dirs, dirname))
+	if(!GetSystemWindowsDirectoryA(dirname, FN_REFLEN) || add_cfg_dir(configuration_dirs, dirname))
 		goto error;
-	if(!GetWindowsDirectory(dirname, FN_REFLEN) || add_cfg_dir(configuration_dirs, dirname))
+	if(!GetWindowsDirectoryA(dirname, FN_REFLEN) || add_cfg_dir(configuration_dirs, dirname))
 		goto error;
 	if(add_cfg_dir(configuration_dirs, "C:"))
 		goto error;
-	if(GetModuleFileName(NULL, dirname, FN_REFLEN)) {
-		PathRemoveFileSpec(dirname);
+	if(GetModuleFileNameA(NULL, dirname, FN_REFLEN)) {
+		PathRemoveFileSpecA(dirname);
 		if(add_cfg_dir(configuration_dirs, dirname))
 			goto error;
 	}

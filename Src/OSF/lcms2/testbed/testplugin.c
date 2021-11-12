@@ -768,7 +768,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 	cmsDeleteContext(cpy2);
 	return rc;
 Error:
-	if(h != NULL) cmsCloseProfile(h);
+	if(h) cmsCloseProfile(h);
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);
@@ -919,7 +919,7 @@ cmsInt32Number CheckMPEPlugin(void)
 	cmsDeleteContext(cpy2);
 	return rc;
 Error:
-	if(h != NULL) cmsCloseProfile(h);
+	if(h) cmsCloseProfile(h);
 	if(ctx != NULL) cmsDeleteContext(ctx);
 	if(cpy != NULL) cmsDeleteContext(cpy);
 	if(cpy2 != NULL) cmsDeleteContext(cpy2);

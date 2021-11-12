@@ -3517,7 +3517,7 @@ int PrcssrPersonImport::Run()
 								for(uint i = 0; !addr_found && pack.EnumDlvrLoc(&i, &dlvr_loc);) {
 									if(dlvr_loc.CityID != addr_pack.CityID)
 										continue;
-									else if(strcmp(dlvr_loc.Code, addr_pack.Code) != 0)
+									else if(!sstreq(dlvr_loc.Code, addr_pack.Code))
 										continue;
 									else if(!feqeps(dlvr_loc.Latitude, addr_pack.Latitude, 1.0E-14))
 										continue;

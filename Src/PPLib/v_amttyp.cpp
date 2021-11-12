@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021
 // @codepage UTF-8
 //
 // Типы сумм документа
@@ -354,10 +354,8 @@ void PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = new SArray(Data);
-	uint   brw_id = BROWSER_AMOUNTTYPE;
-	ASSIGN_PTR(pBrwId, brw_id);
-	return p_array;
+	ASSIGN_PTR(pBrwId, BROWSER_AMOUNTTYPE);
+	return new SArray(Data);
 }
 
 int PPViewAmountType::Transmit(int isCharry)

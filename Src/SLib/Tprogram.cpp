@@ -1346,6 +1346,25 @@ int TProgram::InitUiToolBox()
 			UiToolBox.SetPen(tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
 			UiToolBox.SetPen(tbiButtonPen_F+tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox.SetPen(tbiButtonPen_F+tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
+			// @v11.2.3 {
+			{
+				UiToolBox.CreateFont_(tbiControlFont, "MS Sans Serif", 12, 0);
+				/*
+				HFONT hf = 0;
+				{
+					LOGFONT lf;
+					MEMSZERO(lf);
+					lf.lfCharSet = DEFAULT_CHARSET;
+					lf.lfHeight  = 9;
+					STRNSCPY(lf.lfFaceName, _T("MS Sans Serif"));
+					hf = ::CreateFontIndirect(&lf);
+				}
+				if(hf) {
+					UiToolBox.SetFont(tbiControlFont, hf);
+				}
+				*/
+			}
+			// } @v11.2.3
 			State |= stUiToolBoxInited;
 		}
         LEAVE_CRITICAL_SECTION
@@ -1439,7 +1458,8 @@ static COLORREF _GetAssetColor(int _asset)
 int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = -1;
-	int    draw_checkbox = 0, draw_radiobtn = 0;
+	int    draw_checkbox = 0;
+	int    draw_radiobtn = 0;
 	long   checkbox_size = 14;
 	const DRAWITEMSTRUCT * p_di = reinterpret_cast<const DRAWITEMSTRUCT *>(lParam);
 	int    focused = BIN(p_di->itemAction == ODA_FOCUS || (p_di->itemState & ODS_FOCUS));
@@ -1448,20 +1468,15 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	long   style = TView::GetWindowStyle(p_di->hwndItem);
 	long   text_out_fmt = DT_SINGLELINE|DT_VCENTER|DT_EXTERNALLEADING|DT_LEFT;
 	RECT   out_r = p_di->rcItem, elem_r = p_di->rcItem;
-	COLORREF brush_color = RGB(0xD5, 0xD5, 0xE6);
-	COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
-	COLORREF text_color = GetColorRef(SClrBlack);
+	COLORREF brush_color = RGB(0xDD, 0xDD, 0xF1);
+	COLORREF pen_color   = RGB(0xDD, 0xDD, 0xF1);
+	COLORREF text_color  = GetColorRef(SClrBlack);
 	COLORREF adv_brush_color = RGB(0xF2, 0xF2, 0xF7);
-	COLORREF adv_pen_color = pen_color;
+	COLORREF adv_pen_color = _GetAssetColor(_assetCtrlBorderColor);
 	HBRUSH brush = 0, old_brush = 0;
 	HPEN   pen   = 0, old_pen   = 0;
-	// @v9.1.5 char   buf[128];
-	// @v9.1.5 memzero(buf, sizeof(buf));
-	// @v9.1.5 ::GetWindowText(p_di->hwndItem, buf, sizeof(buf));
 	SString text_buf;
-	TView::SGetWindowText(p_di->hwndItem, text_buf); // @v9.1.5
-	brush_color = RGB(0xDD, 0xDD, 0xF1);
-	pen_color   = RGB(0xDD, 0xDD, 0xF1);
+	TView::SGetWindowText(p_di->hwndItem, text_buf);
 	if(disabled) {
 		adv_brush_color = RGB(0xDD, 0xCC, 0xCC);
 		text_color = RGB(0xFF, 0xFF, 0xFF);

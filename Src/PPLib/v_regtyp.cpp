@@ -187,10 +187,8 @@ void PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = new SArray(Data);
-	uint   brw_id = BROWSER_REGISTERTYPE;
-	ASSIGN_PTR(pBrwId, brw_id);
-	return p_array;
+	ASSIGN_PTR(pBrwId, BROWSER_REGISTERTYPE);
+	return new SArray(Data);
 }
 
 int PPViewRegisterType::Transmit(int isCharry)

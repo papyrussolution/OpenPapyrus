@@ -273,7 +273,7 @@ static void * mi_win_virtual_allocx(void * addr, size_t size, size_t try_alignme
 	void * hint;
 	if(addr == NULL && (hint = mi_os_get_aligned_hint(try_alignment, size)) != NULL) {
 		void * p = VirtualAlloc(hint, size, flags, PAGE_READWRITE);
-		if(p != NULL) return p;
+		if(p) return p;
 		DWORD err = GetLastError();
 		if(err != ERROR_INVALID_ADDRESS && // If linked with multiple instances, we may have tried to allocate
 		                                   // at an already allocated area (#210)
@@ -582,7 +582,7 @@ static void * mi_os_mem_alloc(size_t size, size_t try_alignment, bool commit, bo
 	p = mi_unix_mmap(NULL, size, try_alignment, protect_flags, false, allow_large, is_large);
   #endif
 	mi_stat_counter_increase(stats->mmap_calls, 1);
-	if(p != NULL) {
+	if(p) {
 		_mi_stat_increase(&stats->reserved, size);
 		if(commit) {
 			_mi_stat_increase(&stats->committed, size);
@@ -633,7 +633,7 @@ static void * mi_os_mem_alloc_aligned(size_t size, size_t alignment, bool commit
 				void * aligned_p = mi_align_up_ptr(p, alignment);
 				p = mi_win_virtual_alloc(aligned_p, size, alignment, flags, false, allow_large, is_large);
 				if(p == aligned_p) break; // success!
-				if(p != NULL) { // should not happen?
+				if(p) { // should not happen?
 					mi_os_mem_free(p, size, commit, stats);
 					p = NULL;
 				}
@@ -1134,7 +1134,7 @@ void * _mi_os_alloc_huge_os_pages(size_t pages, int numa_node, mi_msecs_t max_ms
 		// Did we succeed at a contiguous address?
 		if(p != addr) {
 			// no success, issue a warning and break
-			if(p != NULL) {
+			if(p) {
 				_mi_warning_message("could not allocate contiguous huge page %zu at %p\n", page, addr);
 				_mi_os_free(p, MI_HUGE_OS_PAGE_SIZE, &_mi_stats_main);
 			}

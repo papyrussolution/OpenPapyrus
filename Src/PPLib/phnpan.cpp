@@ -1578,7 +1578,6 @@ int PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 
 SArray * PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_PHNSVCMONITOR;
 	SArray * p_array = new TSArray <uint>; // Array - not Vector
 	if(p_array) {
 		for(uint i = 0; i < List.GetCount(); i++) {
@@ -1586,7 +1585,7 @@ SArray * PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 			p_array->insert(&pos);
 		}
 	}
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_PHNSVCMONITOR);
 	return p_array;
 }
 

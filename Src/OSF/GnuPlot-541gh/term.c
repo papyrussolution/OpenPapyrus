@@ -104,7 +104,6 @@ enum {
 //int    mono_recycle_count = 0;
 
 // Internal prototypes: 
-//static void term_close_output();
 static void null_linewidth(GpTermEntry * pTerm, double);
 static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_dash_pattern);
 static void null_layer(GpTermEntry * pThis, t_termlayer layer);
@@ -150,7 +149,6 @@ static int strlen_tex(const char *);
 	static bool output_pipe_open = FALSE;
 #endif
 
-//static void term_close_output()
 void GnuPlot::TermCloseOutput(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_close_output\n"));
@@ -375,7 +373,6 @@ void GnuPlot::TermEndPlot(GpTermEntry * pTerm)
 	}
 }
 
-//static void term_suspend()
 void GnuPlot::TermSuspend(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_suspend()\n"));
@@ -602,7 +599,6 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 	}
 }
 
-//static void do_point(uint x, uint y, int number)
 /*static*/void GnuPlot::DoPoint(GpTermEntry * pTerm, uint x, uint y, int number)
 {
 	// use solid lines for point symbols 
@@ -682,7 +678,6 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 	}
 }
 
-//static void do_pointsize(double size)
 /*static*/void GnuPlot::DoPointSize(GpTermEntry * pThis, double size)
 {
 	pThis->P_Gp->TermPointSize = (size >= 0.0) ? size : 1.0;
@@ -690,7 +685,6 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 // 
 // general point routine
 // 
-//static void line_and_point(uint x, uint y, int number)
 /*static*/void GnuPlot::LineAndPoint(GpTermEntry * pTerm, uint x, uint y, int number)
 {
 	// temporary(?) kludge to allow terminals with bad linetypes to make nice marks 
@@ -937,7 +931,6 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 // change angle of text.  0 is horizontal left to right.
 // 1 is vertical bottom to top (90 deg rotate)
 //
-//static int null_text_angle(int ang)
 /*static*/int GnuPlot::NullTextAngle(GpTermEntry * pThis, int ang)
 {
 	return (ang == 0);
@@ -946,7 +939,6 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 // change justification of text.
 // modes are LEFT (flush left), CENTRE (centred), RIGHT (flush right)
 //
-//static int null_justify_text(enum JUSTIFY just)
 /*static*/int GnuPlot::NullJustifyText(GpTermEntry * pThis, enum JUSTIFY just)
 {
 	return (just == LEFT);
@@ -964,7 +956,6 @@ static void null_layer(GpTermEntry * pThis, t_termlayer layer)
 {
 }
 
-//static void options_null()
 /*static*/void GnuPlot::OptionsNull(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	GPT._TermOptions.Z(); // we have no options
@@ -1004,7 +995,6 @@ static int null_set_font(GpTermEntry * pThis, const char * font)
 	return FALSE; // Never used!! 
 }
 
-//static void null_set_color(t_colorspec * pColorSpec)
 /*static*/void GnuPlot::NullSetColor(GpTermEntry * pTerm, const t_colorspec * pColorSpec)
 {
 	if(pColorSpec->type == TC_LT)
@@ -1234,7 +1224,6 @@ GpTermEntry * GnuPlot::SetTerm()
 // 
 // returns NULL for unknown or ambiguous, otherwise is terminal driver pointer
 // 
-//GpTermEntry * change_term(const char * pOrigName, int length)
 GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 {
 	int i;
@@ -2398,7 +2387,6 @@ void GnuPlot::InitMonochrome()
 		}
 	}
 }
-
 /*
  * Totally bogus estimate of TeX string lengths.
  * Basically
@@ -2413,33 +2401,33 @@ int strlen_tex(const char * str)
 	if(!strpbrk(s, "{}$[]\\")) {
 		len = strlen(s);
 		FPRINTF((stderr, "strlen_tex(\"%s\") = %d\n", s, len));
-		return len;
 	}
-	while(*s) {
-		switch(*s) {
-			case '[':
-			    while(*s && *s != ']') s++;
-			    if(*s) s++;
-			    break;
-			case '\\':
-			    s++;
-			    while(*s && isalpha((uchar)*s)) s++;
-			    len++;
-			    break;
-			case '{':
-			case '}':
-			case '$':
-			case '_':
-			case '^':
-			    s++;
-			    break;
-			default:
-			    s++;
-			    len++;
+	else {
+		while(*s) {
+			switch(*s) {
+				case '[':
+					while(*s && *s != ']') s++;
+					if(*s) s++;
+					break;
+				case '\\':
+					s++;
+					while(*s && isalpha((uchar)*s)) s++;
+					len++;
+					break;
+				case '{':
+				case '}':
+				case '$':
+				case '_':
+				case '^':
+					s++;
+					break;
+				default:
+					s++;
+					len++;
+			}
 		}
+		FPRINTF((stderr, "strlen_tex(\"%s\") = %d\n", str, len));
 	}
-
-	FPRINTF((stderr, "strlen_tex(\"%s\") = %d\n", str, len));
 	return len;
 }
 // 
@@ -2496,168 +2484,308 @@ char * escape_reserved_chars(const char * str, const char * reserved)
 //
 //
 //
-GpTerminalBase::GpTerminalBase() : MaxX(0), MaxY(0), ChrV(0), ChrH(0),  TicV(0), TicH(0), Flags(0), TScale(1.0), P_Gp(0)
+GpTerminalBase::GpTerminalBase() : MaxX(0), MaxY(0), ChrV(0), ChrH(0),  TicV(0), TicH(0), Flags(0), TScale(1.0), P_Gp(0), P_Oit(0)
 {
 }
 
 void GpTerminalBase::Options(GnuPlot * pGp)
 {
+	if(P_Oit)
+		P_Oit->options(P_Oit, pGp);
 }
 
 void GpTerminalBase::Init()
 {
+	if(P_Oit)
+		P_Oit->init(P_Oit);
 }
 
 void GpTerminalBase::Reset()
 {
+	if(P_Oit)
+		P_Oit->reset(P_Oit);
 }
 
 void GpTerminalBase::Text()
 {
+	if(P_Oit)
+		P_Oit->text(P_Oit);
 }
 
-int  GpTerminalBase::Scale(double, double)
+int  GpTerminalBase::Scale(double x, double y)
 {
-	return 0;
+	if(P_Oit)
+		return P_Oit->scale(P_Oit, x, y);
+	else {
+		return 0;
+	}
 }
 
 void GpTerminalBase::Graphics()
 {
+	if(P_Oit)
+		P_Oit->graphics(P_Oit);
 }
 
-void GpTerminalBase::Move(uint, uint)
+void GpTerminalBase::Move(uint x, uint y)
 {
+	if(P_Oit)
+		P_Oit->move(P_Oit, x, y);
 }
 
-void GpTerminalBase::Vector(uint, uint)
+void GpTerminalBase::Vector(uint x, uint y)
 {
+	if(P_Oit)
+		P_Oit->vector(P_Oit, x, y);
 }
 
-void GpTerminalBase::LineType(int)
+void GpTerminalBase::LineType(int lt)
 {
+	if(P_Oit)
+		P_Oit->linetype(P_Oit, lt);
 }
 
-void GpTerminalBase::PutText(uint, uint, const char *)
+void GpTerminalBase::PutText(uint x, uint y, const char * pText)
 {
+	if(P_Oit)
+		P_Oit->put_text(P_Oit, x, y, pText);
 }
 
-int  GpTerminalBase::TextAngle(int)
+int  GpTerminalBase::TextAngle(int angle)
 {
-	return 0;
+	if(P_Oit)
+		return P_Oit->text_angle(P_Oit, angle);
+	else {
+		return 0;
+	}
 }
 
-int  GpTerminalBase::JustifyText(enum JUSTIFY)
+int  GpTerminalBase::JustifyText(enum JUSTIFY j)
 {
-	return 0;
+	if(P_Oit)
+		return P_Oit->justify_text(P_Oit, j);
+	else {
+		return 0;
+	}
 }
 
-void GpTerminalBase::Point(uint, uint, int)
+void GpTerminalBase::Point(uint x, uint y, int ps)
 {
+	if(P_Oit)
+		P_Oit->point(P_Oit, x, y, ps);
+	else {
+		;
+	}
 }
 
-void GpTerminalBase::Arrow(uint, uint, uint, uint, int headstyle)
+void GpTerminalBase::Arrow(uint sx, uint sy, uint ex, uint ey, int headstyle)
 {
+	if(P_Oit)
+		P_Oit->arrow(P_Oit, sx, sy, ex, ey, headstyle);
 }
 
-int  GpTerminalBase::SetFont(const char * font)
+int  GpTerminalBase::SetFont(const char * pFont)
 {
-	return 0;
+	if(P_Oit)
+		return P_Oit->set_font(P_Oit, pFont);
+	else {
+		return 0;
+	}
 }
 
-void GpTerminalBase::PointSize(double)
+void GpTerminalBase::PointSize(double ps)
 {
+	if(P_Oit)
+		P_Oit->pointsize(P_Oit, ps);
 }
 
 void GpTerminalBase::Suspend()
 {
+	if(P_Oit)
+		P_Oit->suspend(P_Oit);
 }
 
 void GpTerminalBase::Resume()
 {
+	if(P_Oit)
+		P_Oit->resume(P_Oit);
 }
 
-void GpTerminalBase::FillBox(int, uint, uint, uint, uint)
+void GpTerminalBase::FillBox(int style, uint x, uint y, uint width, uint height)
 {
+	if(P_Oit) {
+		if(P_Oit->fillbox)
+			P_Oit->fillbox(P_Oit, style, x, y, width, height);
+	}
+	else {
+		;
+	}
 }
 
 void GpTerminalBase::LineWidth(double linewidth)
 {
+	if(P_Oit)
+		P_Oit->linewidth(P_Oit, linewidth);
+	else {
+		;
+	}
 }
 
-int  GpTerminalBase::WaitForInput(int)
+int  GpTerminalBase::WaitForInput(int mode)
 {
-	return 0;
+	if(P_Oit) {
+		return P_Oit->waitforinput ? P_Oit->waitforinput(P_Oit, mode) : 0;
+	}
+	else {
+		return 0;
+	}
 }
 
 void GpTerminalBase::PutTmpText(int, const char [])
 {
 }
 
-void GpTerminalBase::SetRuler(int, int)
+void GpTerminalBase::SetRuler(int x, int y)
 {
+	if(P_Oit)
+		P_Oit->set_ruler(P_Oit, x, y);
+	else {
+		;
+	}
 }
 
-void GpTerminalBase::SetCursor(int, int, int)
+void GpTerminalBase::SetCursor(int action, int x, int y)
 {
+	if(P_Oit)
+		P_Oit->set_cursor(P_Oit, action, x, y);
+	else {
+		;
+	}
 }
 
-void GpTerminalBase::SetClipboard(const char[])
+void GpTerminalBase::SetClipboard(const char pS[])
 {
+	if(P_Oit)
+		P_Oit->set_clipboard(P_Oit, pS);
+	else {
+		;
+	}
 }
 
 int  GpTerminalBase::MakePalette(t_sm_palette * pPalette)
 {
-	return 0;
+	if(P_Oit)
+		return P_Oit->make_palette(P_Oit, pPalette);
+	else {
+		return 0;
+	}
 }
 
 void  GpTerminalBase::PreviousPalette()
 {
+	if(P_Oit)
+		P_Oit->previous_palette(P_Oit);
+	else {
+		;
+	}
 }
 
-void  GpTerminalBase::SetColor(const t_colorspec *)
+void  GpTerminalBase::SetColor(const t_colorspec * pCs)
 {
+	if(P_Oit)
+		P_Oit->set_color(P_Oit, pCs);
+	else {
+		;
+	}
 }
 
-void  GpTerminalBase::FilledPolygon(int points, gpiPoint *corners)
+void  GpTerminalBase::FilledPolygon(int points, gpiPoint * pCorners)
 {
+	if(P_Oit)
+		P_Oit->filled_polygon(P_Oit, points, pCorners);
+	else {
+		;
+	}
 }
 
-void  GpTerminalBase::Image(uint, uint, coordval *, const gpiPoint * pCorners, t_imagecolor)
+void  GpTerminalBase::Image(uint m, uint n, coordval * pImg, const gpiPoint * pCorners, t_imagecolor clr)
 {
+	if(P_Oit)
+		P_Oit->image(P_Oit, m, n, pImg, pCorners, clr);
+	else {
+		;
+	}
 }
 
 void  GpTerminalBase::EnhancedOpen(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	if(P_Oit)
+		P_Oit->enhanced_open(P_Oit, fontname, fontsize, base, widthflag, showflag, overprint);
+	else {
+		;
+	}
 }
 
 void  GpTerminalBase::EnhancedFlush()
 {
+	if(P_Oit)
+		P_Oit->enhanced_flush(P_Oit);
+	else {
+		;
+	}
 }
 
 void  GpTerminalBase::EnhancedWriteC(int c)
 {
+	if(P_Oit)
+		P_Oit->enhanced_writec(P_Oit, c);
 }
 
-void  GpTerminalBase::Layer(t_termlayer)
+void  GpTerminalBase::Layer(t_termlayer _layer)
 {
+	if(P_Oit)
+		P_Oit->layer(P_Oit, _layer);
 }
 
 void  GpTerminalBase::Path(int p)
 {
+	if(P_Oit)
+		P_Oit->path(P_Oit, p);
 }
 
 void  GpTerminalBase::Hypertext(int type, const char * text)
 {
+	if(P_Oit)
+		P_Oit->hypertext(P_Oit, type, text);
+	else {
+		;
+	}
 }
 
-void  GpTerminalBase::BoxedText(uint, uint, int)
+void  GpTerminalBase::BoxedText(uint x, uint y, int options)
 {
+	if(P_Oit)
+		P_Oit->boxed_text(P_Oit, x, y, options);
+	else {
+		;
+	}
 }
 
 void  GpTerminalBase::ModifyPlots(uint operations, int plotno)
 {
+	if(P_Oit) {
+		//P_Oit->modify_plots(P_Oit, operations, plotno);
+	}
+	else {
+		;
+	}
 }
 
-void  GpTerminalBase::DashType(int type, t_dashtype * custom_dash_pattern)
+void  GpTerminalBase::DashType(int type, t_dashtype * pCustomDashPattern)
 {
+	if(P_Oit)
+		P_Oit->dashtype(P_Oit, type, pCustomDashPattern);
+	else {
+		;
+	}
 }

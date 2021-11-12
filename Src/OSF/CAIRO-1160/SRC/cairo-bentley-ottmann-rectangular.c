@@ -463,7 +463,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 					break;
 
 				right = right->next;
-			} while(TRUE);
+			} while(true);
 
 			edge_start_or_continue_box(sweep, left, right, top);
 
@@ -485,7 +485,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 					break;
 
 				right = right->next;
-			} while(TRUE);
+			} while(true);
 
 			edge_start_or_continue_box(sweep, pos, right, top);
 

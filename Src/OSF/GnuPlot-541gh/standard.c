@@ -24,26 +24,10 @@ static double ri1(double x);
 #ifndef HAVE_LIBM
 // 
 // June 2017
-// These hard-coded Bessel approximations are used only if we
-// can't use the functions in libm
+// These hard-coded Bessel approximations are used only if we can't use the functions in libm
 // 
-//static double jzero(double x);
-//static double pzero(double x);
-//static double qzero(double x);
-//static double yzero(double x);
-//static double rj0(double x);
-//static double ry0(double x);
-//static double jone(double x);
-//static double pone(double x);
-//static double qone(double x);
-//static double yone(double x);
-//static double rj1(double x);
-//static double ry1(double x);
-// 
-// The bessel function approximations here are from
-// "Computer Approximations"
-// by Hart, Cheney et al.
-// John Wiley & Sons, 1968
+// The bessel function approximations here are from "Computer Approximations"
+// by Hart, Cheney et al. John Wiley & Sons, 1968
 // 
 static double dzero = 0.0; // don't make const: compiler will answer with "divide of mod by zero" error
 // 

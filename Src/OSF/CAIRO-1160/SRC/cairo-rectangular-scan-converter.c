@@ -210,7 +210,7 @@ static inline void add_cell(sweep_line_t * sweep, int x, int covered, int uncove
 					break;
 				cell = cell->prev;
 			})
-		} while(TRUE);
+		} while(true);
 	}
 	else {
 		if(cell->x == x)
@@ -222,7 +222,7 @@ static inline void add_cell(sweep_line_t * sweep, int x, int covered, int uncove
 				if(cell->x >= x)
 					break;
 			})
-		} while(TRUE);
+		} while(true);
 	}
 	if(x != cell->x) {
 		struct sweep_line_t::coverage::cell * c;
@@ -366,7 +366,7 @@ static inline void sweep_line_insert(sweep_line_t * sweep, rectangle_t * rectang
 						break;
 					pos = pos->prev;
 				})
-			} while(TRUE);
+			} while(true);
 		}
 		else {
 			do {
@@ -375,7 +375,7 @@ static inline void sweep_line_insert(sweep_line_t * sweep, rectangle_t * rectang
 					if(pos->left >= rectangle->left)
 						break;
 				});
-			} while(TRUE);
+			} while(true);
 		}
 	}
 	pos->prev->next = rectangle;
@@ -420,7 +420,7 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 				goto end;
 			if(start->top_y != sweep_line.current_y)
 				break;
-		} while(TRUE);
+		} while(true);
 		render_rows(&sweep_line, renderer, 1);
 		stop = peek_stop(&sweep_line);
 		while(stop->bottom_y == sweep_line.current_y) {
@@ -446,7 +446,7 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 
 			sweep_line.current_y++;
 		}
-	} while(TRUE);
+	} while(true);
 
 end:
 	render_rows(&sweep_line, renderer, 1);

@@ -398,7 +398,7 @@ public:
 			temp_buf.Z();
 			for(uint sblidx = 0; sblidx < Data.StakeBoundList.getCount(); sblidx++) {
 				const LAssoc & r_sbl_item = Data.StakeBoundList.at(sblidx);
-				temp_buf.CatDivConditionally(';', 2, sblidx);
+				temp_buf.CatDivConditionally(';', 2, LOGIC(sblidx));
 				temp_buf.Cat(r_sbl_item.Key).CatDiv(',', 0).Cat(r_sbl_item.Val);
 			}
 			setCtrlString(CTL_TSSMODEL_SBL, temp_buf);
@@ -2334,7 +2334,6 @@ void PPViewTimeSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_TIMESERIES;
 	SArray * p_array = 0;
 	PPTimeSeries ds_item;
 	THROW(MakeList(0));
@@ -2342,7 +2341,7 @@ SArray * PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSubTitle
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_TIMESERIES);
 	return p_array;
 }
 
@@ -9007,14 +9006,13 @@ int PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 
 SArray * PPViewTimSerDetail::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_TIMSERDETAIL;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_TIMSERDETAIL);
 	return p_array;
 }
 

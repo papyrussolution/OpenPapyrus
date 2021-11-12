@@ -52,7 +52,7 @@ bool set_default_charset(uint cs, myf flags __attribute__((unused)))
 MARIADB_CHARSET_INFO * STDCALL mysql_get_charset_by_name(const char * cs_name)
 {
 	int i = 0;
-	while(mariadb_compiled_charsets[i].nr && strcmp(cs_name, mariadb_compiled_charsets[i].csname) != 0)
+	while(mariadb_compiled_charsets[i].nr && !sstreq(cs_name, mariadb_compiled_charsets[i].csname))
 		i++;
 	return (mariadb_compiled_charsets[i].nr) ? (MARIADB_CHARSET_INFO*)&mariadb_compiled_charsets[i] : NULL;
 }

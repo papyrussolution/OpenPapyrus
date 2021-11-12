@@ -1027,7 +1027,7 @@ const char * xmlGetEncodingAlias(const char * alias)
 		// Walk down the list looking for a definition of the alias
 		// 
 		for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
-			if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0)
+			if(sstreq(EncBlk.xmlCharEncodingAliases[i].alias, upper))
 				return EncBlk.xmlCharEncodingAliases[i].name;
 		}
 	}
@@ -1070,7 +1070,7 @@ int xmlAddEncodingAlias(const char * name, const char * alias)
 	// Walk down the list looking for a definition of the alias
 	//
 	for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
-		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0) {
+		if(sstreq(EncBlk.xmlCharEncodingAliases[i].alias, upper)) {
 			// Replace the definition.
 			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].name);
 			EncBlk.xmlCharEncodingAliases[i].name = sstrdup(name);
@@ -1104,7 +1104,7 @@ int xmlDelEncodingAlias(const char * alias)
 	 * Walk down the list looking for a definition of the alias
 	 */
 	for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
-		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, alias) == 0) {
+		if(sstreq(EncBlk.xmlCharEncodingAliases[i].alias, alias)) {
 			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].name);
 			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].alias);
 			EncBlk.xmlCharEncodingAliasesNb--;
@@ -2838,7 +2838,7 @@ xmlCharEncodingHandler * LibXmlEncoderBlock::FindCharEncodingHandler(const char 
 		upper[i] = 0;
 		if(PP_Tab) {
 			for(i = 0; i < nbCharEncodingHandler; i++) {
-				if(strcmp(upper, PP_Tab[i]->name) == 0) {
+				if(sstreq(upper, PP_Tab[i]->name)) {
 	#ifdef DEBUG_ENCODING
 					xmlGenericError(0, "Found registered handler for encoding %s\n", name);
 	#endif
@@ -2918,7 +2918,7 @@ xmlCharEncodingHandler * LibXmlEncoderBlock::FindCharEncodingHandler(const char 
 		alias = xmlParseCharEncoding(norig);
 		if(alias != XML_CHAR_ENCODING_ERROR) {
 			const char * canon = xmlGetCharEncodingName(alias);
-			if(canon && (strcmp(name, canon)))
+			if(canon && strcmp(name, canon))
 				return xmlFindCharEncodingHandler(canon);
 		}
 		// If "none of the above", give up

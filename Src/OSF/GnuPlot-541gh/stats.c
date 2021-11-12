@@ -31,7 +31,6 @@ static int comparator(const void * a, const void * b)
 	return 0;
 }
 
-//static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
 GpFileStats GnuPlot::AnalyzeFile(long n, int outofrange, int invalid, int blank, int dblblank, int headers)
 {
 	GpFileStats res;
@@ -194,8 +193,6 @@ static TwoColumnStats analyze_two_columns(double * x, double * y, SglColumnStats
 
 /* Output */
 /* Note: print_out is a FILE ptr, set by the "set print" command */
-
-//static void ensure_output()
 void GnuPlot::EnsureOutput()
 {
 	SETIFZ(Pgm.print_out, stderr);

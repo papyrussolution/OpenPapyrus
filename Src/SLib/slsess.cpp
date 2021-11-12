@@ -454,6 +454,26 @@ static void InitTest()
 			}
 		}*/
 	}
+	// @v11.2.3 {
+	{
+		//
+		// Проверка работоспособности передачи временного строкового объекта в качестве параметра в функцию
+		// с целью убедиться, что указатель целый и невредимый будет доставлен в функцию (здесь вопрос
+		// в порядке разрушения объекта).
+		//
+		class InnerBlock {
+		public:
+			static void StringFunc(const char * pInput, SString & rOutput)
+			{
+				rOutput.Z().Cat(pInput).Space().CatChar('A');
+			}
+		};
+		SString result("B");
+		InnerBlock::StringFunc(SString("00000000").Space().Cat("00000z00").Space().Cat(7L), result);
+		// Temporary obj SString("00000000") has been destroyed here and func InnerBlock::StringFunc can operate it safely
+		assert(result == "00000000 00000z00 7 A");
+	}
+	// } @v11.2.3
 	// @v11.0.0 {
 #if CXX_OS_WINDOWS != 0
 	{
@@ -1063,4 +1083,3 @@ void __LinkFile_HASHFUNC()
 #pragma init_seg(lib)
 SlSession SLS; // @global
 DbSession DBS; // @global
-

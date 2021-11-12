@@ -1605,6 +1605,7 @@ enum t_fillstyle {
 		virtual ~GpTerminalBase()
 		{
 		}
+		operator GpTermEntry * () { return P_Oit; }
 		virtual void Options(GnuPlot * pGp);
 		virtual void Init();
 		virtual void Reset();
@@ -1683,6 +1684,7 @@ enum t_fillstyle {
 		SString Name;
 		SString Descr;
 		GnuPlot * P_Gp;
+		GpTermEntry * P_Oit; // Old implementation terminal pointer 
 	};
 
 	enum set_encoding_id {
@@ -6274,6 +6276,20 @@ public:
 		bool   ContourSortLevels;
 		dynarray dyn_contour_levels_list; // storage for z levels to draw contours at 
 	};
+
+	#define QUADTREE_GRANULARITY 30
+
+	class GpHidden3D {
+	public:
+		GpHidden3D() : PFirst(0), EFirst(0)
+		{
+			memzero(Quadtree, sizeof(Quadtree));
+		}
+		long Quadtree[QUADTREE_GRANULARITY][QUADTREE_GRANULARITY];
+		long PFirst; // first polygon in zsorted chain
+		long EFirst; // first edges in zsorted chain 
+		dynarray QTree; // the dynarray to actually store all that stuff in
+	};
 	GpEval Ev;
 	GpAxisSet AxS;
 	GpProgram Pgm;
@@ -6302,6 +6318,7 @@ private:
 	GpReadLineBlock RlB_;
 	GpParseBlock _Pb;
 	GpDataFile _Df;
+	GpHidden3D Hid3D;
 
 	palette_color_mode Pm3dLastSetPaletteMode/*= SMPAL_COLOR_MODE_NONE*/;
 	int    EnableResetPalette/*= 1*/; // is resetting palette enabled? note: reset_palette() is disabled within 'test palette'

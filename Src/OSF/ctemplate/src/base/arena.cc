@@ -109,20 +109,20 @@ BaseArena::BaseArena(char* first, const size_t block_size, bool align_to_page)
 			PCHECK(NULL != first_blocks_[0].mem);
 		}
 		else {
-			first_blocks_[0].mem = reinterpret_cast<char*>(malloc(block_size_));
+			first_blocks_[0].mem = reinterpret_cast<char*>(SAlloc::M(block_size_));
 		}
 	}
 	first_blocks_[0].size = block_size_;
-
 	Reset();
 }
 
-BaseArena::~BaseArena() {
+BaseArena::~BaseArena() 
+{
 	FreeBlocks();
 	assert(overflow_blocks_ == NULL); // FreeBlocks() should do that
 	// The first X blocks stay allocated always by default.  Delete them now.
 	for(int i = first_block_we_own_; i < blocks_alloced_; ++i)
-		free(first_blocks_[i].mem);
+		SAlloc::F(first_blocks_[i].mem);
 }
 
 // ----------------------------------------------------------------------
@@ -205,7 +205,7 @@ BaseArena::AllocatedBlock*  BaseArena::AllocNewBlock(const size_t block_size) {
 		block->size = new_block_size;
 	}
 	else {
-		block->mem = reinterpret_cast<char*>(malloc(block_size));
+		block->mem = reinterpret_cast<char*>(SAlloc::M(block_size));
 		block->size = block_size;
 	}
 	ARENASET(status_.bytes_allocated_ += block_size);
@@ -295,10 +295,10 @@ void * BaseArena::GetMemoryFallback(const size_t size, const int align_as_int)
 //       FreeBlocks() does the work for Reset(), actually freeing all
 //    memory allocated in one fell swoop.
 // ----------------------------------------------------------------------
-
-void BaseArena::FreeBlocks() {
+void BaseArena::FreeBlocks() 
+{
 	for(int i = 1; i < blocks_alloced_; ++i) { // keep first block alloced
-		free(first_blocks_[i].mem);
+		SAlloc::F(first_blocks_[i].mem);
 		first_blocks_[i].mem = NULL;
 		first_blocks_[i].size = 0;
 	}
@@ -306,7 +306,7 @@ void BaseArena::FreeBlocks() {
 	if(overflow_blocks_ != NULL) {
 		vector<AllocatedBlock>::iterator it;
 		for(it = overflow_blocks_->begin(); it != overflow_blocks_->end(); ++it) {
-			free(it->mem);
+			SAlloc::F(it->mem);
 		}
 		delete overflow_blocks_; // These should be used very rarely
 		overflow_blocks_ = NULL;

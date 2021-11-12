@@ -806,9 +806,8 @@ public:
 	//   Если pBrush == 0, то просто разрушает объект.
 	//
 	int    CreateBrush(const Brush * pBrush);
-	int    CreateFont(const char * pFace, int height, int flags);
+	int    CreateFont_(const char * pFace, int height, int flags);
 	int    CreateGradient(const Gradient * pGradient);
-
 	int    CreateGradientLinear(const FRect & rBound);
 	int    CreateGradientRadial(const FShape::Circle & rBound);
 	int    AddGradientStop(float offs, SColor c);
@@ -1421,7 +1420,7 @@ public:
 	// Descr: Создает экземляр шрифта по описанию rFd.
 	// Note: Эту функцию следует использовать везде вместо wingdi-функции CreateFontIndirect().
 	//
-	static void * CreateFont(const SFontDescr & rFd);
+	static void * CreateFont_(const SFontDescr & rFd);
 	static void * SetWindowProp(HWND hWnd, int propIndex, void * ptr);
 	static void * FASTCALL SetWindowUserData(HWND hWnd, void * ptr);
 	static long SetWindowProp(HWND hWnd, int propIndex, long value);
@@ -1850,6 +1849,8 @@ public:
 	HWND   HW; // hWnd;
 	ToolbarList Toolbar;
 protected:
+	static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam);
+	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	//
 	// Descr: Вспомогательная функция, используемая при динамическом формировании диалога или окна (в т.ч. из ресурсов)
 	//
@@ -2430,16 +2431,17 @@ public:
 	//
 	enum { // @persistent
 		cmplxtNone       = 0,
-		cmplxtInpLbl     = 1, // Поле ввода/этикетка
-		cmplxtInpLblBtn  = 2, // Поле ввода/этикетка/кнопка
-		cmplxtInpLblBtn2 = 3, // Поле ввода/этикетка/кнопка/кнопка
+		// Для следующих 3 комплексов фиксированное базовое измерение - высота поля ввода
+		cmplxtInpLbl     = 1, // Комплексный layout { [input-line] [label] }
+		cmplxtInpLblBtn  = 2, // Комплексный layout { [input-line] [label] [square-button] }
+		cmplxtInpLblBtn2 = 3, // Комплексный layout { [input-line] [label] [square-button] [square-button] }
 	};
 	//
 	// Desc: Зарезервированные метки компонентов комплексного layout'а
 	//
 	enum {
 		cmlxcUndef   = 0,
-		cmlxcInput   = 1,
+		cmlxcInput   = 1, 
 		cmlxcLabel   = 2,
 		cmlxcButton1 = 3,
 		cmlxcButton2 = 4,
@@ -2452,20 +2454,11 @@ public:
 	enum {
 		clfLabelLeft = 0x0001, // Этикетка располагается слева от основного элемента. Иначе - сверху
 	};
-	static LayoutFlexItem * CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, LayoutFlexItem * pTopLevel);
 	//
-	// Descr: Создает комплексный layout { [input-line] [label] }
+	// Descr: Создает комплексный layout типа type.
 	//   Внешние размеры результата не определены (должны быть установлены вызывающей функцией)
 	//
-	static LayoutFlexItem * CreateComplexLayout_IL(uint flags, LayoutFlexItem * pParent);
-	//
-	// Descr: Создает комплексный layout { [input-line] [label] [square-button] }
-	//
-	static LayoutFlexItem * CreateComplexLayout_ILB(uint flags, LayoutFlexItem * pParent);
-	//
-	// Descr: Создает комплексный layout { [input-line] [label] [square-button] [square-button] }
-	//
-	static LayoutFlexItem * CreateComplexLayout_ILB2(uint flags, LayoutFlexItem * pParent);
+	static LayoutFlexItem * CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, LayoutFlexItem * pTopLevel);
 protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(const Param & rP) const;
@@ -3446,7 +3439,6 @@ protected:
 	long   DlgFlags;
 	void * P_PrevData;
 private:
-	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void    RemoveUnusedControls();
 	uint   GrpCount;
@@ -3512,11 +3504,11 @@ public:
 	void   setupCombo(ComboBox *);
 	void   setupFreeTextWordSelector(WordSel_ExtraBlock * pBlk);
 	void   setFormat(long fmt);
-	long   getFormat() const { return format; }
+	long   getFormat() const { return Format; }
 	void   setType(TYPEID typ);
-	TYPEID getType() const { return type; }
+	TYPEID getType() const { return Type; }
 	const char * getText();
-	size_t getMaxLen() const { return maxLen; }
+	size_t getMaxLen() const { return MaxLen; }
 	void   setMaxLen(int newMaxLen);
 	size_t getCaret();
 	void   setCaret(size_t);
@@ -3546,9 +3538,9 @@ protected:
 	void   Implement_Draw();
 
 	SString Data;
-	uint32 maxLen;
-	TYPEID type;
-	long   format;
+	uint32 MaxLen;
+	TYPEID Type;
+	long   Format;
 	enum {
 		stValidStr      = 0x0001,
 		stDisableDelSel = 0x0002,
@@ -3572,6 +3564,7 @@ protected:
 	ComboBox * P_Combo;
 private:
 	void   Init();
+	void   Setup(void * pThisHandle, void * pParentHandle);
 	int    OnMouseWheel(int delta);
 	int    OnPaste();
 };
@@ -4685,6 +4678,7 @@ public:
 		tbiListSelBrush     = 87, // Кисть отрисовки selected строки списка
 		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
 		//
+		tbiControlFont      = 89, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
 	};
 
     int    InitUiToolBox();

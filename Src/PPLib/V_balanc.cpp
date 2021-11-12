@@ -1,5 +1,5 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -364,11 +364,10 @@ void PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_BALANCE;
 	TSArray <BalanceViewItem> * p_array = new TSArray <BalanceViewItem>;
 	ASSIGN_PTR(p_array, List);
 	CALLPTRMEMB(pSubTitle, Cat(Filt.Period, 1));
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_BALANCE);
 	return p_array;
 }
 

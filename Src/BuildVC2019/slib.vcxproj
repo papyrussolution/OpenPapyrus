@@ -129,11 +129,13 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -1527,6 +1529,9 @@
     <ClCompile Include="..\SLib\layout-flex.cpp" />
     <ClCompile Include="..\SLib\Lbxdef.cpp" />
     <ClCompile Include="..\SLib\Listwin.cpp" />
+    <ClCompile Include="..\SLib\LMDB\mdb.c" />
+    <ClCompile Include="..\SLib\LMDB\midl.c" />
+    <ClCompile Include="..\SLib\LMDB\mtest.c" />
     <ClCompile Include="..\SLib\lss_lin.cpp" />
     <ClCompile Include="..\SLib\Lvect.cpp" />
     <ClCompile Include="..\SLib\lzari.cpp" />
@@ -1852,6 +1857,7 @@
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
     <ClCompile Include="..\SLib\sxmlad.cpp" />
+    <ClCompile Include="..\SLib\szlib.c" />
     <ClCompile Include="..\SLib\tab.cpp" />
     <ClCompile Include="..\SLib\TCanvas.cpp" />
     <ClCompile Include="..\SLib\tcontrol.cpp" />
@@ -3803,12 +3809,15 @@
     <ClInclude Include="..\Include\Uri.h" />
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
+    <ClInclude Include="..\Include\zlib.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
     <ClInclude Include="..\SLib\gumbo\tag_gperf.h" />
     <ClInclude Include="..\SLib\gumbo\tag_sizes.h" />
     <ClInclude Include="..\SLib\gumbo\tag_strings.h" />
+    <ClInclude Include="..\SLib\LMDB\lmdb.h" />
+    <ClInclude Include="..\SLib\LMDB\midl.h" />
     <ClInclude Include="..\SLib\mimalloc\bitmap.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-atomic.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-internal.h" />
@@ -6308,9 +6317,6 @@
     </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
-    </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

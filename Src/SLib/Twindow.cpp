@@ -270,6 +270,46 @@ int ToolbarList::moveItem(uint pos, int up)
 	return (cls_name == "MDICLIENT");
 }
 
+/*static*/BOOL CALLBACK TWindow::SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
+{
+	SString temp_buf;
+	TView::SGetWindowText(hwnd, temp_buf);
+	if(temp_buf.NotEmpty()) {
+		SString subst;
+		if(SLS.SubstString(temp_buf, 1, subst) > 0) {
+			TView::SSetWindowText(hwnd, subst);
+		}
+		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) {
+			TView::SSetWindowText(hwnd, temp_buf);
+		}
+		// @v10.5.4 {
+		else if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
+			temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+			TView::SSetWindowText(hwnd, temp_buf);
+		}
+		// } @v10.5.4 
+	}
+	return TRUE;
+}
+
+/*static*/int TWindow::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	int    ok = 0;
+	TWindow * p_this = static_cast<TWindow *>(TView::GetWindowUserData(hwndDlg));
+	if(p_this) {
+		const short  cntlid = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
+		TView * v = p_this->P_Last;
+		if(v) do {
+			if(v->TestId(CLUSTER_ID(LOWORD(cntlid)))) {
+				ok = v->handleWindowsMessage(uMsg, wParam, lParam) ? 1 : -1;
+				break;
+			}
+			v = v->prev();
+		} while(v != p_this->P_Last);
+	}
+	return ok;
+}
+
 int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    result = FALSE;
@@ -674,7 +714,7 @@ int TWindow::SetFont(const SFontDescr & rFd)
 {
 	int    ok = 0;
 	if(rFd.Face.NotEmpty() && rFd.Size) {
-		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd));
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont_(rFd));
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
 			::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
@@ -688,7 +728,7 @@ int TWindow::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
 	int    ok = 0;
 	HWND   h_ctl = GetDlgItem(H(), ctlID);
 	if(h_ctl && rFd.Face.NotEmpty() && rFd.Size) {
-		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd));
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont_(rFd));
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
 			::SendMessage(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
@@ -1672,6 +1712,27 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 					//p_view->RegisterMouseTracking(1);
 					TView::SetWindowUserData(hWnd, p_view);
 					TView::messageCommand(p_view, cmInit, &cr_blk);
+					// @v11.2.3 {
+					{
+						SetupCtrlTextProc(p_view->H(), 0);
+						TView * p_child_view = p_view->P_Last;
+						if(p_child_view) {
+							do {
+								HWND   ctrl = GetDlgItem(hWnd, p_child_view->GetId());
+								SETIFZ(ctrl, GetDlgItem(hWnd, MAKE_BUTTON_ID(p_child_view->GetId(), 1)));
+								if(IsWindow(ctrl)) {
+									p_child_view->Parent = hWnd;
+									// Теоретически, в качестве первого аргумента должно быть message (WM_CREATE),
+									// но учитывая то, что блок перенесен из TDialog для унификации взаимодействия с
+									// управляющими элементами и из иных окон, пока для совместимости оставим WM_INITDIALOG
+									p_child_view->handleWindowsMessage(WM_INITDIALOG, wParam, lParam);
+									EnableWindow(ctrl, !p_child_view->IsInState(sfDisabled));
+								}
+							} while((p_child_view = p_child_view->prev()) != p_view->P_Last);
+						}
+						EnumChildWindows(hWnd, SetupCtrlTextProc, 0);
+					}
+					// } @v11.2.3 
 					return 0;
 				}
 				else

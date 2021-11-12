@@ -568,21 +568,16 @@ static statemachine_definition * create_statemachine_definition()
 jsparser_ctx * jsparser_new()
 {
 	jsparser_ctx * js;
-
-	js = CAST(jsparser_ctx *, calloc(1, sizeof(jsparser_ctx)));
+	js = CAST(jsparser_ctx *, SAlloc::C(1, sizeof(jsparser_ctx)));
 	if(js == NULL)
 		return NULL;
-
 	js->statemachine_def = create_statemachine_definition();
 	if(js->statemachine_def == NULL)
 		return NULL;
-
 	js->statemachine = statemachine_new(js->statemachine_def, js);
 	if(js->statemachine == NULL)
 		return NULL;
-
 	jsparser_reset(js);
-
 	return js;
 }
 
@@ -643,7 +638,7 @@ void jsparser_delete(jsparser_ctx * ctx)
 	assert(ctx != NULL);
 	statemachine_delete(ctx->statemachine);
 	statemachine_definition_delete(ctx->statemachine_def);
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 #ifdef __cplusplus

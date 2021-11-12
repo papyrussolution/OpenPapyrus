@@ -22388,11 +22388,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 			}
 		}
 		if(z[1]=='-') z++;
-		if(strcmp(z, "-separator")==0
-		    || strcmp(z, "-nullvalue")==0
-		    || strcmp(z, "-newline")==0
-		    || strcmp(z, "-cmd")==0
-		    ) {
+		if(strcmp(z, "-separator")==0 || strcmp(z, "-nullvalue")==0 || strcmp(z, "-newline")==0 || strcmp(z, "-cmd")==0) {
 			(void)cmdline_option_value(argc, argv, ++i);
 		}
 		else if(strcmp(z, "-init")==0) {
@@ -22407,11 +22403,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 		}
 		else if(strcmp(z, "-heap")==0) {
 #if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
-			const char * zSize;
-			sqlite3_int64 szHeap;
-
-			zSize = cmdline_option_value(argc, argv, ++i);
-			szHeap = integerValue(zSize);
+			const char * zSize = cmdline_option_value(argc, argv, ++i);
+			sqlite3_int64 szHeap = integerValue(zSize);
 			if(szHeap>0x7fff0000) szHeap = 0x7fff0000;
 			sqlite3_config(SQLITE_CONFIG_HEAP, malloc((int)szHeap), (int)szHeap, 64);
 #else

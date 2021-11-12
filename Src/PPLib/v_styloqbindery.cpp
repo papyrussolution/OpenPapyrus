@@ -97,14 +97,13 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 
 /*virtual*/SArray * PPViewStyloQBindery::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_STYLOQBINDERY;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_STYLOQBINDERY);
 	return p_array;
 }
 
@@ -361,14 +360,13 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 
 /*virtual*/SArray * PPViewStyloQCommand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	uint   brw_id = BROWSER_STYLOQCOMMANDS;
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, brw_id);
+	ASSIGN_PTR(pBrwId, BROWSER_STYLOQCOMMANDS);
 	return p_array;
 }
 

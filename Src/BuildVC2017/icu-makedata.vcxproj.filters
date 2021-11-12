@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Make Files">
+      <UniqueIdentifier>{12c0c174-84f5-4043-bda0-f9f87baf361d}</UniqueIdentifier>
+      <Extensions>mak;mk</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\osf\icu\icu4c\source\data\brkitr\brkfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\coll\colfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\makedata.mak">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\misc\miscfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\rbnf\rbnffiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\locales\resfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\..\test\testdata\testdata.mak">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\translit\trnsfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\mappings\ucmcore.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\mappings\ucmebcdic.mk">
+      <Filter>Make Files</Filter>
+    </None>
+    <None Include="..\osf\icu\icu4c\source\data\mappings\ucmfiles.mk">
+      <Filter>Make Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

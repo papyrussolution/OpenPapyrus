@@ -458,8 +458,8 @@ static void client_mpvio_info(MYSQL_PLUGIN_VIO * vio, MYSQL_PLUGIN_VIO_INFO * in
 	}
 	if(!(auth_plugin = (auth_plugin_t*)mysql_client_find_plugin(mysql, auth_plugin_name, MYSQL_CLIENT_AUTHENTICATION_PLUGIN)))
 		auth_plugin = &dummy_fallback_client_plugin;
-	mysql->net.last_errno = 0; /* just in case */
-	if(data_plugin && strcmp(data_plugin, auth_plugin_name)) {
+	mysql->net.last_errno = 0; // just in case 
+	if(data_plugin && !sstreq(data_plugin, auth_plugin_name)) {
 		// data was prepared for a different plugin, so we don't send any data 
 		data = 0;
 		data_len = 0;

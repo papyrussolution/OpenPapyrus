@@ -484,7 +484,7 @@ int TInputLine::OnMouseWheel(int delta)
 {
 	int    ok = -1;
 	if(delta && !IsInState(sfReadOnly)) {
-		if(GETSTYPE(type) == S_DATE) {
+		if(GETSTYPE(Type) == S_DATE) {
 			LDATE dt;
 			TransmitData(-1, &dt);
 			SETIFZ(dt, getcurdate_());
@@ -492,32 +492,32 @@ int TInputLine::OnMouseWheel(int delta)
 			TransmitData(+1, &dt);
 			ok = 1;
 		}
-		else if(GETSTYPE(type) == S_INT) {
-			size_t sz = GETSSIZE(type);
+		else if(GETSTYPE(Type) == S_INT) {
+			size_t sz = GETSSIZE(Type);
 			long   i = 0;
 			TransmitData(-1, &i);
 			i += (delta > 0) ? +1 : -1;
 			TransmitData(+1, &i);
 			ok = 1;
 		}
-		else if(GETSTYPE(type) == S_FLOAT) {
-			int p = GETSPRECD(type);
+		else if(GETSTYPE(Type) == S_FLOAT) {
+			int p = GETSPRECD(Type);
 			if(p == 0) {
 				double v = 0.0;
-				if(GETSSIZED(type) == 8)
+				if(GETSSIZED(Type) == 8)
 					TransmitData(-1, &v);
-				else if(GETSSIZED(type) == 4) {
+				else if(GETSSIZED(Type) == 4) {
 					float f = 0.0f;
 					TransmitData(-1, &f);
-					v = (double)f;
+					v = static_cast<double>(f);
 				}
 				v += (delta > 0) ? +1.0 : -1.0;
-				if(GETSSIZED(type) == 8) {
+				if(GETSSIZED(Type) == 8) {
 					TransmitData(+1, &v);
 					ok = 1;
 				}
-				else if(GETSSIZED(type) == 4) {
-					float f = (float)v;
+				else if(GETSSIZED(Type) == 4) {
+					float f = static_cast<float>(v);
 					TransmitData(+1, &f);
 					ok = 1;
 				}
@@ -532,8 +532,23 @@ int TInputLine::Implement_GetText()
 	int    ok = 1;
 	TView::SGetWindowText(GetDlgItem(Parent, Id), Data);
 	Data.Transf(CTRANSF_OUTER_TO_INNER);
-	Data.Trim((maxLen > 0) ? maxLen : (4096-1));
+	Data.Trim((MaxLen > 0) ? MaxLen : (4096-1));
 	return ok;
+}
+
+void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
+{
+	HWND hw_parent = static_cast<HWND>(pParentHandle);
+	HWND hw_this = static_cast<HWND>(pThisHandle);
+	SendDlgItemMessage(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
+	if(Format & STRF_PASSWORD)
+		SendDlgItemMessage(hw_parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
+	Draw_();
+	//HWND h_wnd = getHandle();
+	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
+	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hw_this, GWLP_WNDPROC, TInputLine::DlgProc));
+	if(TView::GetWindowStyle(hw_this) & ES_READONLY)
+		Sf |= sfReadOnly;
 }
 
 int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -541,6 +556,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			{
+				/* @v11.2.3
 				SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, maxLen ? (maxLen-1) : 0, 0);
 				if(format & STRF_PASSWORD)
 					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
@@ -550,6 +566,8 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc));
 				if(TView::GetWindowStyle(h_wnd) & ES_READONLY)
 					Sf |= sfReadOnly;
+				*/
+				Setup(getHandle(), Parent); // @v11.2.3
 			}
 			break;
 		case WM_VKEYTOITEM:
@@ -623,11 +641,11 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 void TInputLine::Init()
 {
 	SubSign = TV_SUBSIGN_INPUTLINE;
-	maxLen = DEFAULT_MAX_LEN;
+	MaxLen = DEFAULT_MAX_LEN;
 	Sf      |= sfMsgToParent;
 	ViewOptions |= ofSelectable;
-	format   = 0;
-	type     = 0;
+	Format   = 0;
+	Type     = 0;
 	P_Combo = 0;
 	InlSt = stValidStr;
 }
@@ -635,9 +653,9 @@ void TInputLine::Init()
 TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bounds), Helper_WordSelector(0, 0)
 {
 	TInputLine::Init();
-	maxLen = SFMTLEN(fmt);
-	format   = fmt;
-	type     = typ;
+	MaxLen = SFMTLEN(fmt);
+	Format = fmt;
+	Type   = typ;
 }
 
 TInputLine::~TInputLine() 
@@ -650,8 +668,8 @@ ComboBox * TInputLine::GetCombo() { return P_Combo; }
 
 void TInputLine::setMaxLen(int newMaxLen)
 {
-	maxLen = newMaxLen;
-	::SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, (maxLen > 0) ? (maxLen-1) : 0, 0);
+	MaxLen = newMaxLen;
+	::SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, (MaxLen > 0) ? (MaxLen-1) : 0, 0);
 }
 
 void TInputLine::selectAll(int enable)
@@ -692,18 +710,18 @@ void TInputLine::Implement_Draw()
 
 void TInputLine::setType(TYPEID typ)
 {
-	type = typ;
-	setMaxLen(SFMTLEN(format));
+	Type = typ;
+	setMaxLen(SFMTLEN(Format));
 }
 
 void TInputLine::setFormat(long f)
 {
-	if(f != format) {
+	if(f != Format) {
 		char   buf[1024];
 		TransmitData(-1, buf);
-		format = f;
-		setMaxLen(SFMTLEN(format));
-		if(format & STRF_PASSWORD)
+		Format = f;
+		setMaxLen(SFMTLEN(Format));
+		if(Format & STRF_PASSWORD)
 			::SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
 		TransmitData(+1, buf);
 	}
@@ -711,7 +729,7 @@ void TInputLine::setFormat(long f)
 
 int TInputLine::TransmitData(int dir, void * pData)
 {
-	int    s = stsize(type);
+	int    s = stsize(Type);
 	if(dir > 0) {
 		char   temp[4096];
 		if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
@@ -721,8 +739,8 @@ int TInputLine::TransmitData(int dir, void * pData)
 			if(pData == 0)
 				PTR32(temp)[0] = 0;
 			else {
-				const long f = MKSFMTD(0, SFMTPRC(format), SFMTFLAG(format)) & ~(SFALIGNMASK|STRF_PASSWORD);
-				sttostr(type, pData, f, temp);
+				const long f = MKSFMTD(0, SFMTPRC(Format), SFMTFLAG(Format)) & ~(SFALIGNMASK|STRF_PASSWORD);
+				sttostr(Type, pData, f, temp);
 			}
 			setText(temp);
 		}
@@ -740,7 +758,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 		else {
 			if(Data.cptr() == 0)
 				Data.Space().Z();
-			SETFLAG(InlSt, stValidStr, stfromstr(type, pData, format, Data));
+			SETFLAG(InlSt, stValidStr, stfromstr(Type, pData, Format, Data));
 		}
 	}
 	return s;
@@ -768,8 +786,8 @@ void TInputLine::getText(SString & rBuf) const
 void TInputLine::setText(const char * b)
 {
 	(Data = b).Strip();
-	if(maxLen)
-		Data.Trim(maxLen).Strip();
+	if(MaxLen)
+		Data.Trim(MaxLen).Strip();
 	Draw_();
 }
 
@@ -856,8 +874,8 @@ int ComboBoxInputLine::TransmitData(int dir, void * pData)
 		s = TInputLine::TransmitData(dir, pData);
 	else if(dir > 0) {
 		Data = static_cast<const char *>(pData);
-		if(maxLen)
-			Data.Trim(maxLen-1);
+		if(MaxLen)
+			Data.Trim(MaxLen-1);
 	}
 	else if(dir < 0) {
 		Implement_GetText();

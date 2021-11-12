@@ -1,0 +1,61 @@
+.\" sasldbconverter-2 - Convert sasldb file into the new format
+.\" Original version by Dima Barsky 25/10/2002
+.\"
+
+.\" Copyright (c) 2009 Carnegie Mellon University.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer. 
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" 3. The name ""Carnegie Mellon University"" must not be used to
+.\"    endorse or promote products derived from this software without
+.\"    prior written permission. For permission or any other legal
+.\"    details, please contact  
+.\"      Office of Technology Transfer
+.\"      Carnegie Mellon University
+.\"      5000 Forbes Avenue
+.\"      Pittsburgh, PA  15213-3890
+.\"      (412) 268-4387, fax: (412) 268-7395
+.\"      tech-transfer@andrew.cmu.edu
+.\"
+.\" 4. Redistributions of any form whatsoever must retain the following
+.\"    acknowledgment:
+.\"    ""This product includes software developed by Computing Services
+.\"     at Carnegie Mellon University (http://www.cmu.edu/computing/).""
+.\"
+.\" CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
+.\" THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
+.\" FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\" AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
+.\" OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+.\"
+.TH SASLDBCONVERTER2 8 "April 11, 2009" "CMU SASL"
+.SH NAME
+sasldbconverter2 \- Convert sasldb file into the new format
+.SH SYNOPSIS
+.B sasldbconverter2 [old_sasldb_file [new_sasldb_file]]
+.SH DESCRIPTION
+.I sasldbconverter2
+takes the sasldb file specified on the
+command line and convert it to a new sasldb file in the default
+location (usually /etc/sasldb2). It is STRONGLY RECOMMENDED that you
+backup sasldb before allowing this program to run.
+.SH OPTIONS
+.TP
+.SH KNOWN BUGS
+This only works for sasldb files that use the gdbm library.
+.TP
+.SH SEE ALSO
+rfc4422 \- Simple Authentication and Security Layer (SASL)

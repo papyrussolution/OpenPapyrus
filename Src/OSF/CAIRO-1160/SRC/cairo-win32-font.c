@@ -599,7 +599,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
 		goto FAIL1;
-	while(TRUE) {
+	while(true) {
 		SAlloc::F(glyph_indices);
 		glyph_indices = NULL;
 		SAlloc::F(dx);

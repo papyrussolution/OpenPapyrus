@@ -152,7 +152,7 @@ public:
 		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
 		char   Text[256];       //
 		char   Code[32];        //
-		char   ChZnCode[64];    // @v10.6.8
+		char   ChZnCode[256];   // @v10.6.8 // @v11.2.3 [64]-->[256]
 		char   ChZnGTIN[16];    // @v10.7.2
 		char   ChZnSerial[32];  // @v10.7.2
 		char   ChZnPartN[32];   // @v10.7.8

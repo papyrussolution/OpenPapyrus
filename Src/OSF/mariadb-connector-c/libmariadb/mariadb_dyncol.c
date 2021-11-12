@@ -3494,8 +3494,7 @@ enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMI
 		    char * alloc = NULL;
 		    char * from = val->x.string.value.str;
 		    ulong bufflen;
-		    bool conv = ((val->x.string.charset == cs) ||
-			!strcmp(val->x.string.charset->name, cs->name));
+		    bool conv = ((val->x.string.charset == cs) || sstreq(val->x.string.charset->name, cs->name));
 		    bool rc;
 		    len = val->x.string.value.length;
 		    bufflen = (ulong)(len * (conv ? cs->char_maxlen : 1));

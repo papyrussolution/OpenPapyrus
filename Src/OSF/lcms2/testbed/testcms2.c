@@ -3117,7 +3117,7 @@ static cmsInt32Number CheckMLU(void)
 
 Error:
 
-	if(h != NULL) cmsCloseProfile(h);
+	if(h) cmsCloseProfile(h);
 	remove("mlucheck.icc");
 
 	return rc;
@@ -4861,62 +4861,54 @@ void ErrorReportingFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, con
 	cmsUNUSED_PARAMETER(ErrorCode);
 }
 
-static
-cmsInt32Number CheckBadProfiles(void)
+static cmsInt32Number CheckBadProfiles(void)
 {
-	cmsHPROFILE h;
-
-	h = cmsOpenProfileFromFileTHR(DbgThread(), "IDoNotExist.icc", "r");
-	if(h != NULL) {
+	cmsHPROFILE h = cmsOpenProfileFromFileTHR(DbgThread(), "IDoNotExist.icc", "r");
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
-
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "IAmIllFormed*.icc", "r");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
-
 	// No profile name given
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "", "r");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
-
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "..", "r");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
-
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "IHaveBadAccessMode.icc", "@");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
-
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "bad.icc", "r");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
 
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "toosmall.icc", "r");
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
 
 	h = cmsOpenProfileFromMemTHR(DbgThread(), NULL, 3);
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
 
 	h = cmsOpenProfileFromMemTHR(DbgThread(), "123", 3);
-	if(h != NULL) {
+	if(h) {
 		cmsCloseProfile(h);
 		return 0;
 	}
@@ -4926,15 +4918,12 @@ cmsInt32Number CheckBadProfiles(void)
 	return 1;
 }
 
-static
-cmsInt32Number CheckErrReportingOnBadProfiles(void)
+static cmsInt32Number CheckErrReportingOnBadProfiles(void)
 {
 	cmsInt32Number rc;
-
 	cmsSetLogErrorHandler(ErrorReportingFunction);
 	rc = CheckBadProfiles();
 	cmsSetLogErrorHandler(FatalErrorQuit);
-
 	// Reset the error state
 	TrappedError = FALSE;
 	return rc;
@@ -4945,25 +4934,21 @@ cmsInt32Number CheckBadTransforms(void)
 {
 	cmsHPROFILE h1 = cmsCreate_sRGBProfile();
 	cmsHTRANSFORM x1;
-
 	x1 = cmsCreateTransform(NULL, 0, NULL, 0, 0, 0);
 	if(x1 != NULL) {
 		cmsDeleteTransform(x1);
 		return 0;
 	}
-
 	x1 = cmsCreateTransform(h1, TYPE_RGB_8, h1, TYPE_RGB_8, 12345, 0);
 	if(x1 != NULL) {
 		cmsDeleteTransform(x1);
 		return 0;
 	}
-
 	x1 = cmsCreateTransform(h1, TYPE_CMYK_8, h1, TYPE_RGB_8, 0, 0);
 	if(x1 != NULL) {
 		cmsDeleteTransform(x1);
 		return 0;
 	}
-
 	x1 = cmsCreateTransform(h1, TYPE_RGB_8, h1, TYPE_CMYK_8, 1, 0);
 	if(x1 != NULL) {
 		cmsDeleteTransform(x1);

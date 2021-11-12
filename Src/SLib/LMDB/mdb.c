@@ -7279,7 +7279,6 @@ more:
 				}
 				xdata.mv_size = olddata.mv_size + offset;
 			}
-
 			fp_flags = fp->mp_flags;
 			if(NODESIZE + NODEKSZ(leaf) + xdata.mv_size > env->me_nodemax) {
 				/* Too big for a sub-page, convert to sub-DB */
@@ -7319,14 +7318,12 @@ prep_subDB:
 					memcpy(METADATA(mp), METADATA(fp), NUMKEYS(fp) * fp->mp_pad);
 				}
 				else {
-					memcpy((char *)mp + mp->mp_upper + PAGEBASE, (char *)fp + fp->mp_upper + PAGEBASE,
-					    olddata.mv_size - fp->mp_upper - PAGEBASE);
+					memcpy((char *)mp + mp->mp_upper + PAGEBASE, (char *)fp + fp->mp_upper + PAGEBASE, olddata.mv_size - fp->mp_upper - PAGEBASE);
 					memcpy((char *)(&mp->mp_ptrs), (char *)(&fp->mp_ptrs), NUMKEYS(fp) * sizeof(mp->mp_ptrs[0]));
 					for(i = 0; i<NUMKEYS(fp); i++)
 						mp->mp_ptrs[i] += offset;
 				}
 			}
-
 			rdata = &xdata;
 			flags |= F_DUPDATA;
 			do_sub = 1;
@@ -7343,7 +7340,6 @@ current:
 			MDB_page * omp;
 			pgno_t pg;
 			int level, ovpages, dpages = OVPAGES(data->mv_size, env->me_psize);
-
 			memcpy(&pg, olddata.mv_data, sizeof(pg));
 			if((rc2 = mdb_page_get(mc, pg, &omp, &level)) != 0)
 				return rc2;
@@ -7351,8 +7347,7 @@ current:
 
 			/* Is the ov page large enough? */
 			if(ovpages >= dpages) {
-				if(!(omp->mp_flags & P_DIRTY) &&
-				    (level || (env->me_flags & MDB_WRITEMAP))) {
+				if(!(omp->mp_flags & P_DIRTY) && (level || (env->me_flags & MDB_WRITEMAP))) {
 					rc = mdb_page_unspill(mc->mc_txn, omp, &omp);
 					if(rc)
 						return rc;
@@ -7366,7 +7361,8 @@ current:
 					 */
 					if(level > 1) {
 						/* It is writable only in a parent txn */
-						size_t sz = (size_t)env->me_psize * ovpages, off;
+						size_t sz = (size_t)env->me_psize * ovpages;
+						size_t off;
 						MDB_page * np = mdb_page_malloc(mc->mc_txn, ovpages);
 						MDB_ID2 id2;
 						if(!np)
@@ -7420,34 +7416,29 @@ current:
 		}
 		mdb_node_del(mc, 0);
 	}
-
 	rdata = data;
-
 new_sub:
 	nflags = flags & NODE_ADD_FLAGS;
 	nsize = IS_LEAF2(mc->mc_pg[mc->mc_top]) ? key->mv_size : mdb_leaf_size(env, key, rdata);
 	if(SIZELEFT(mc->mc_pg[mc->mc_top]) < nsize) {
-		if(( flags & (F_DUPDATA|F_SUBDATA)) == F_DUPDATA)
+		if((flags & (F_DUPDATA|F_SUBDATA)) == F_DUPDATA)
 			nflags &= ~MDB_APPEND; /* sub-page may need room to grow */
 		if(!insert_key)
 			nflags |= MDB_SPLIT_REPLACE;
 		rc = mdb_page_split(mc, key, rdata, P_INVALID, nflags);
 	}
 	else {
-		/* There is room already in this leaf page. */
+		// There is room already in this leaf page. 
 		rc = mdb_node_add(mc, mc->mc_ki[mc->mc_top], key, rdata, 0, nflags);
 		if(rc == 0) {
-			/* Adjust other cursors pointing to mp */
-			MDB_cursor * m2, * m3;
+			// Adjust other cursors pointing to mp 
 			MDB_dbi dbi = mc->mc_dbi;
 			uint i = mc->mc_top;
 			MDB_page * mp = mc->mc_pg[i];
-			for(m2 = mc->mc_txn->mt_cursors[dbi]; m2; m2 = m2->mc_next) {
-				if(mc->mc_flags & C_SUB)
-					m3 = &m2->mc_xcursor->mx_cursor;
-				else
-					m3 = m2;
-				if(m3 == mc || m3->mc_snum < mc->mc_snum || m3->mc_pg[i] != mp) continue;
+			for(MDB_cursor * m2 = mc->mc_txn->mt_cursors[dbi]; m2; m2 = m2->mc_next) {
+				MDB_cursor * m3 = (mc->mc_flags & C_SUB) ? &m2->mc_xcursor->mx_cursor : m2;
+				if(m3 == mc || m3->mc_snum < mc->mc_snum || m3->mc_pg[i] != mp) 
+					continue;
 				if(m3->mc_ki[i] >= mc->mc_ki[i] && insert_key) {
 					m3->mc_ki[i]++;
 				}

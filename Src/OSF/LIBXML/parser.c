@@ -4936,8 +4936,7 @@ xmlEnumeration * xmlParseNotationType(xmlParserCtxt * ctxt)
 		for(tmp = ret; tmp; tmp = tmp->next) {
 			if(sstreq(name, tmp->name)) {
 				xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute notation value token %s duplicated\n", name, 0);
-				if(!xmlDictOwns(ctxt->dict, name))
-					SAlloc::F((xmlChar *)name);
+				XmlDestroyStringWithDict(ctxt->dict, const_cast<xmlChar *>(name)); // @badcast
 				break;
 			}
 		}
@@ -4964,7 +4963,6 @@ xmlEnumeration * xmlParseNotationType(xmlParserCtxt * ctxt)
 	NEXT;
 	return ret;
 }
-
 /**
  * xmlParseEnumerationType:
  * @ctxt:  an XML parser context
@@ -5004,16 +5002,14 @@ xmlEnumeration * xmlParseEnumerationType(xmlParserCtxt * ctxt)
 			while(tmp) {
 				if(sstreq(name, tmp->name)) {
 					xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute enumeration value token %s duplicated\n", name, 0);
-					if(!xmlDictOwns(ctxt->dict, name))
-						SAlloc::F(name);
+					XmlDestroyStringWithDict(ctxt->dict, name);
 					break;
 				}
 				tmp = tmp->next;
 			}
 			if(!tmp) {
 				cur = xmlCreateEnumeration(name);
-				if(!xmlDictOwns(ctxt->dict, name))
-					SAlloc::F(name);
+				XmlDestroyStringWithDict(ctxt->dict, name);
 				if(!cur) {
 					xmlFreeEnumeration(ret);
 					return 0;

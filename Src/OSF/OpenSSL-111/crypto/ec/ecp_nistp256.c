@@ -1835,7 +1835,7 @@ static NISTP256_PRE_COMP * nistp256_pre_comp_new(void)
 NISTP256_PRE_COMP * EC_nistp256_pre_comp_dup(NISTP256_PRE_COMP * p)
 {
 	int i;
-	if(p != NULL)
+	if(p)
 		CRYPTO_UP_REF(&p->references, &i, p->lock);
 	return p;
 }

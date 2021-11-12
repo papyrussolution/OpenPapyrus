@@ -65,11 +65,9 @@
 #ifndef UNISP_NAME_A
 #define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME_W
 #define UNISP_NAME_W L"Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME
 #ifdef UNICODE
 #define UNISP_NAME  UNISP_NAME_W
@@ -1778,35 +1776,24 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 			if(reallocated_length < min_encdata_length) {
 				reallocated_length = min_encdata_length;
 			}
-			reallocated_buffer = SAlloc::R(BACKEND->encdata_buffer,
-				reallocated_length);
+			reallocated_buffer = SAlloc::R(BACKEND->encdata_buffer, reallocated_length);
 			if(reallocated_buffer == NULL) {
 				*err = CURLE_OUT_OF_MEMORY;
 				failf(data, "schannel: unable to re-allocate memory");
 				goto cleanup;
 			}
-
 			BACKEND->encdata_buffer = reallocated_buffer;
 			BACKEND->encdata_length = reallocated_length;
 			size = BACKEND->encdata_length - BACKEND->encdata_offset;
-			DEBUGF(infof(data, "schannel: encdata_buffer resized %zu\n",
-			    BACKEND->encdata_length));
+			DEBUGF(infof(data, "schannel: encdata_buffer resized %zu\n", BACKEND->encdata_length));
 		}
-
-		DEBUGF(infof(data,
-		    "schannel: encrypted data buffer: offset %zu length %zu\n",
-		    BACKEND->encdata_offset, BACKEND->encdata_length));
-
+		DEBUGF(infof(data, "schannel: encrypted data buffer: offset %zu length %zu\n", BACKEND->encdata_offset, BACKEND->encdata_length));
 		/* read encrypted data from socket */
-		*err = Curl_read_plain(conn->sock[sockindex],
-			(char *)(BACKEND->encdata_buffer +
-			BACKEND->encdata_offset),
-			size, &nread);
+		*err = Curl_read_plain(conn->sock[sockindex], (char *)(BACKEND->encdata_buffer + BACKEND->encdata_offset), size, &nread);
 		if(*err) {
 			nread = -1;
 			if(*err == CURLE_AGAIN)
-				DEBUGF(infof(data,
-				    "schannel: Curl_read_plain returned CURLE_AGAIN\n"));
+				DEBUGF(infof(data, "schannel: Curl_read_plain returned CURLE_AGAIN\n"));
 			else if(*err == CURLE_RECV_ERROR)
 				infof(data, "schannel: Curl_read_plain returned CURLE_RECV_ERROR\n");
 			else

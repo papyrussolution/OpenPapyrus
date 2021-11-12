@@ -414,7 +414,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return ok;
 }
 
-/*static*/void * TView::CreateFont(const SFontDescr & rFd)
+/*static*/void * TView::CreateFont_(const SFontDescr & rFd)
 {
 	LOGFONT log_font;
  	MEMSZERO(log_font);
@@ -483,6 +483,13 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						if(hw) {
 							//::SetWindowText(hw, SUcSwitch(p_b->Title));
 							TView::SetWindowUserData(hw, p_cv);
+							/*{
+								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+								if(p_f) {
+									HFONT f = static_cast<HFONT>(*p_f);
+									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+								}
+							}*/
 							::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->Title)));
 							SetupWindowCtrlTextProc(hw, 0);
 						}
@@ -490,26 +497,44 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					break;
 				case TV_SUBSIGN_INPUTLINE:
 					{
-						TInputLine * p_cv = (TInputLine *)(pV);
+						TInputLine * p_cv = static_cast<TInputLine *>(pV);
+						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
+						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
-						hw = ::CreateWindow(_T("EDIT"), 0, WS_CHILD|BS_OWNERDRAW, pV->ViewOrigin.x,
+						hw = ::CreateWindow(_T("EDIT"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
+							{
+								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+								if(p_f) {
+									HFONT f = static_cast<HFONT>(*p_f);
+									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+								}
+							}
 							TView::SetWindowUserData(hw, p_cv);
 						}
 					}
 					break;
 				case TV_SUBSIGN_LABEL:
 					{
-						TLabel * p_cv = (TLabel *)(pV);
+						TLabel * p_cv = static_cast<TLabel *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindow(_T("STATIC"), 0, WS_CHILD, pV->ViewOrigin.x,
+						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
+						hw = ::CreateWindow(_T("STATIC"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							SString temp_buf;
 							TView::SetWindowUserData(hw, p_cv);
+							//p_cv->setFont()
 							TView::SSetWindowText(hw, p_cv->GetRawText());
 							//::SendMessage(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
+							{
+								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+								if(p_f) {
+									HFONT f = static_cast<HFONT>(*p_f);
+									::SendMessage(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+								}
+							}
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}

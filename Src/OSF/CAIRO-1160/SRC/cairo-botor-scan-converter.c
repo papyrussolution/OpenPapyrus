@@ -918,7 +918,7 @@ inline static struct cell * coverage_find(sweep_line_t * sweep_line, int x)
 			if(cell->prev->x < x)
 				break;
 			cell = cell->prev;
-		} while(TRUE);
+		} while(true);
 	}
 	else {
 		if(cell->x == x)
@@ -929,7 +929,7 @@ inline static struct cell * coverage_find(sweep_line_t * sweep_line, int x)
 				if(cell->x >= x)
 					break;
 			});
-		} while(TRUE);
+		} while(true);
 	}
 	if(cell->x != x)
 		cell = coverage_alloc(sweep_line, cell, x);
@@ -971,7 +971,7 @@ static void coverage_render_cells(sweep_line_t * sweep_line, cairo_fixed_t left,
 					if(cell->prev->x < ix1)
 						break;
 					cell = cell->prev;
-				} while(TRUE);
+				} while(true);
 			}
 			else {
 				do {
@@ -980,7 +980,7 @@ static void coverage_render_cells(sweep_line_t * sweep_line, cairo_fixed_t left,
 							break;
 						cell = cell->next;
 					});
-				} while(TRUE);
+				} while(true);
 			}
 			if(cell->x != ix1)
 				cell = coverage_alloc(sweep_line, cell, ix1);
@@ -1080,7 +1080,7 @@ static void full_nonzero(sweep_line_t * sweep_line)
 			}
 			if(!right->vertical)
 				full_inc_edge(right);
-		} while(TRUE);
+		} while(true);
 
 		full_add_edge(sweep_line, left,  +1);
 		full_add_edge(sweep_line, right, -1);
@@ -1118,7 +1118,7 @@ static void full_evenodd(sweep_line_t * sweep_line)
 			}
 			if(!right->vertical)
 				full_inc_edge(right);
-		} while(TRUE);
+		} while(true);
 		full_add_edge(sweep_line, left,  +1);
 		full_add_edge(sweep_line, right, -1);
 	} while(pos != &sweep_line->active);
@@ -1320,7 +1320,7 @@ static void sub_nonzero(sweep_line_t * sweep_line)
 
 			if(right->current_sign)
 				sub_add_run(sweep_line, right, fy, 0);
-		} while(TRUE);
+		} while(true);
 
 		if(left->current_sign != +1)
 			sub_add_run(sweep_line, left, fy, +1);
@@ -1360,7 +1360,7 @@ static void sub_evenodd(sweep_line_t * sweep_line)
 
 			if(right->current_sign)
 				sub_add_run(sweep_line, right, fy, 0);
-		} while(TRUE);
+		} while(true);
 
 		if(left->current_sign != +1)
 			sub_add_run(sweep_line, left, fy, +1);
@@ -1647,7 +1647,7 @@ static cairo_status_t botor_generate(cairo_botor_scan_converter_t * self, event_
 		sub_emit(self, &sweep_line, renderer);
 		sweep_line.current_subrow = bottom;
 		sweep_line.current_row = sweep_line.current_subrow;
-	} while(TRUE);
+	} while(true);
 
 end:
 	/* flush any partial spans */

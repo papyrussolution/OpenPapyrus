@@ -249,6 +249,7 @@
     <ClCompile Include="..\SLib\mimalloc\test\mimalloc-test.cpp">
       <Filter>MiMalloc\Test</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\szlib.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -364,6 +365,9 @@
     </ClInclude>
     <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h">
       <Filter>MiMalloc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\zlib.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

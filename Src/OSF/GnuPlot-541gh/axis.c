@@ -111,65 +111,11 @@ const struct gen_table axisname_tbl[] = {
 	{ NULL, -1}
 };
 
-//#define DEFAULT_GRID_LP {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 0, 0.5, 0.0, DEFAULT_P_CHAR, {TC_LT, LT_AXIS, 0.0}, DEFAULT_DASHPATTERN}
-
-// penalty for doing tics by callback in gen_tics is need for global
-// variables to communicate with the tic routines. Dont need to be arrays for this 
-// HBB 20000416: they may not need to be array[]ed, but it'd sure
-// make coding easier, in some places... 
-// HBB 20000416: for the testing, these are global... 
-//int tic_start;
-//int tic_direction;
-//int tic_mirror;
-//int tic_text;
-//int rotate_tics;
-//JUSTIFY tic_hjust;
-//VERT_JUSTIFY tic_vjust;
-
 const text_label default_axis_label;// = EMPTY_LABELSTRUCT; // axis labels 
 const lp_style_type default_axis_zeroaxis(lp_style_type::defZeroAxis); // = DEFAULT_AXIS_ZEROAXIS; // zeroaxis drawing 
 const lp_style_type default_grid_lp(lp_style_type::defGrid); // = DEFAULT_GRID_LP;
 const t_ticdef default_axis_ticdef; // = DEFAULT_AXIS_TICDEF;
-// These are declare volatile in order to fool the compiler into not 
-// optimizing out intermediate values, thus hiding loss of precision.
-//volatile double vol_this_tic;
-//volatile double vol_previous_tic;
-//double ticscale[MAX_TICLEVEL] = { 1.0, 0.5, 1.0, 1.0, 1.0 }; // Tic scale for tics with level > 1.  0 means 'inherit minitics scale' 
-//char * P_TimeFormat = NULL; /* global default time format */
-//lp_style_type grid_lp(lp_style_type::defGrid);               // = DEFAULT_GRID_LP;
-//lp_style_type mgrid_lp(lp_style_type::defGrid);              // = DEFAULT_GRID_LP;
-//int    grid_layer = LAYER_BEHIND;
-//double polar_grid_angle = 0.0; // nonzero means a polar grid 
-//double theta_origin = 0.0;  // default origin at right side
-//double theta_direction = 1; // counterclockwise from origin 
-//int    widest_tic_strlen; // Length of the longest tics label, set by widest_tic_callback()
-//bool   grid_tics_in_front = FALSE;
-//bool   grid_vertical_lines = FALSE;
-//bool   grid_spiderweb = FALSE;
-//bool   raxis = FALSE;
-//bool   inside_zoom; // flag to indicate that in-line axis ranges should be ignored 
-//
-// axes being used by the current plot 
-// These are mainly convenience variables, replacing separate copies of
-// such variables originally found in the 2D and 3D plotting code 
-//AXIS_INDEX x_axis = FIRST_X_AXIS;
-//AXIS_INDEX y_axis = FIRST_Y_AXIS;
-//AXIS_INDEX z_axis = FIRST_Z_AXIS;
 
-// Only accessed by save_autoscaled_ranges() and restore_autoscaled_ranges() 
-//static RealRange SaveAutoscaledRangeX;
-//static RealRange SaveAutoscaledRangeY;
-
-/* --------- internal prototypes ------------------------- */
-//static double make_auto_time_minitics(t_timelevel, double);
-//static double make_tics(GpAxis *, int);
-//static double quantize_time_tics(GpAxis *, double, double, int);
-//static double time_tic_just(t_timelevel, double);
-//static double round_outward(const GpAxis *, bool, double);
-//static bool axis_position_zeroaxis(AXIS_INDEX);
-//static double quantize_duodecimal_tics(double, int);
-
-//void check_log_limits(const GpAxis * pAx, double min, double max)
 void GnuPlot::CheckAxisLogLimits(const GpAxis * pAx, double min, double max)
 {
 	if(pAx->log) {
@@ -184,7 +130,6 @@ void axis_invert_if_requested(GpAxis * pAx)
 		reorder_if_necessary(pAx->max, pAx->min); // NB: The whole point of this is that we want max < min !!! 
 }
 
-//void FASTCALL axis_init(GpAxis * pAx, bool resetAutoscale)
 void GpAxis::Init(bool resetAutoscale)
 {
 	autoscale = set_autoscale;
@@ -194,8 +139,6 @@ void GpAxis::Init(bool resetAutoscale)
 	data_max = -VERYLARGE;
 }
 
-//void FASTCALL axis_check_range(AXIS_INDEX axis)
-//void  FASTCALL GpAxisSet::CheckRange(AXIS_INDEX idx)
 void FASTCALL GnuPlot::CheckAxisRange(AXIS_INDEX idx)
 {
 	GpAxis & r_ax = AxS[idx];
@@ -203,7 +146,6 @@ void FASTCALL GnuPlot::CheckAxisRange(AXIS_INDEX idx)
 	CheckAxisLogLimits(&r_ax, r_ax.min, r_ax.max);
 }
 
-//double axis_log_value_checked(AXIS_INDEX axis, double coord, const char * what)
 double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat)
 {
 	if(AxS[axis].log && !(coord > 0.0))
@@ -227,7 +169,6 @@ char * FASTCALL axis_name(AXIS_INDEX axis)
 	return (char *)axis_defaults[axis].name;
 }
 
-//void init_sample_range(const GpAxis * axis, enum PLOT_TYPE plot_type)
 void FASTCALL GpAxisSet::InitSampleRange(const GpAxis * pAxis, enum PLOT_TYPE plot_type)
 {
 	AxArray[SAMPLE_AXIS].range_flags = 0;
@@ -278,7 +219,6 @@ void GpAxisSet::ExtendParallelAxis(int paxis)
 // but even apart from that autoscaling bad data could cause a fault.
 // NB: Some platforms may need help with isnan() and isinf().
 // 
-//bool FASTCALL bad_axis_range(const GpAxis * axis)
 bool GpAxis::BadRange() const
 {
 	if(isnan(this->min) || isnan(this->max))
@@ -290,7 +230,6 @@ bool GpAxis::BadRange() const
 	return (this->max == -VERYLARGE || this->min == VERYLARGE) ? true : false;
 }
 
-//static void flip_projection_axis(GpAxis * pAx)
 void GpAxis::FlipProjection()
 {
 	Exchange(&min, &max);
@@ -299,7 +238,6 @@ void GpAxis::FlipProjection()
 		Exchange(&p_ax->min, &p_ax->max);
 	}
 }
-
 /* {{{ axis_checked_extend_empty_range() */
 /*
  * === SYNOPSIS ===
@@ -367,7 +305,6 @@ void GpAxis::FlipProjection()
  * c_token = (in) (defined in plot.h) Used in formatting an error message.
  *
  */
-//void FASTCALL axis_checked_extend_empty_range(AXIS_INDEX axis, const char * mesg)
 void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 {
 	GpAxis * p_this_axis = &AxS[axis];
@@ -405,7 +342,6 @@ void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 //
 // Simpler alternative routine for nonlinear axes (including log scale) 
 //
-//void FASTCALL axis_check_empty_nonlinear(const GpAxis * pAx)
 void FASTCALL GnuPlot::AxisCheckEmptyNonLinear(const GpAxis * pAx)
 {
 	// Poorly defined via/inv nonlinear mappings can leave NaN in derived range 
@@ -536,7 +472,6 @@ static int FASTCALL looks_like_numeric(const char * format)
 // at the range of values.  Considers time/date fields that don't
 // change across the range to be unimportant 
 // 
-//char * copy_or_invent_formatstring(GpAxis * pAx)
 char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 {
 	struct tm t_min, t_max;
@@ -758,7 +693,6 @@ static double quantize_time_tics(GpAxis * pAx, double tic, double xr, int guide)
 // ticking interval for the given axis. For the meaning of the guide
 // parameter, see the comment on quantize_normal_tics() 
 // 
-//static double make_tics(GpAxis * pAx, int guide)
 double GnuPlot::MakeTics(GpAxis * pAx, int guide)
 {
 	double xr = fabs(pAx->min - pAx->max);
@@ -780,7 +714,6 @@ double GnuPlot::MakeTics(GpAxis * pAx, int guide)
 // one, take care to round towards the next whole time unit, not just
 // a multiple of the (averaged) tic size 
 //
-//static double round_outward(const GpAxis * pAx/* Axis to work on */, bool upwards/* extend upwards or downwards? */, double input/* the current endpoint */)
 double GnuPlot::RoundOutward(const GpAxis * pAx/* Axis to work on */, bool upwards/* extend upwards or downwards? */, double input/* the current endpoint */)
 {
 	double tic = pAx->ticstep;
@@ -798,7 +731,6 @@ double GnuPlot::RoundOutward(const GpAxis * pAx/* Axis to work on */, bool upwar
 // like it to change with size and font, so we always call with max=20.
 // Note that if format is '', yticlin = 0, so this gives division by zero.
 // 
-//void setup_tics(GpAxis * pAx, int max)
 void GnuPlot::SetupTics(GpAxis * pAx, int max)
 {
 	double tic = 0.0;
@@ -866,7 +798,6 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 /*
  * Mar 2015: Modified to take an axis pointer rather than an index into GnuPlot::AxS[].
  */
-//void gen_tics(GpAxis * pThis, tic_callback callback)
 void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 {
 	t_ticdef * def = &pThis->ticdef;
@@ -1274,7 +1205,6 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 //
 // justify ticplace to a proper date-time value 
 //
-//static double time_tic_just(t_timelevel level, double ticplace)
 double GnuPlot::TimeTicJust(t_timelevel level, double ticplace)
 {
 	struct tm tm;
@@ -1326,8 +1256,6 @@ double GnuPlot::TimeTicJust(t_timelevel level, double ticplace)
  * directions, here. One is the direction of the axis itself (the one
  * it's "running" along). I refer to the one orthogonal to it as
  * "non-running", below. */
-//void axis_output_tics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
-    //AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, tic_callback callback/* tic-drawing callback function */)
 void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number we're dealing with */, int * ticlabel_position/* 'non-running' coordinate */,
 		AXIS_INDEX zeroaxis_basis/* axis to base 'non-running' position of * zeroaxis on */, GpTicCallback callback/* tic-drawing callback function */)
 {
@@ -1438,7 +1366,6 @@ void axis_set_scale_and_range(GpAxis * pAx, int lower, int upper)
 /* }}} */
 
 /* {{{ axis_position_zeroaxis */
-//static bool axis_position_zeroaxis(AXIS_INDEX axis)
 bool GnuPlot::AxisPositionZeroAxis(AXIS_INDEX axis)
 {
 	bool is_inside = false;
@@ -1459,7 +1386,6 @@ bool GnuPlot::AxisPositionZeroAxis(AXIS_INDEX axis)
 }
 /* }}} */
 
-//void axis_draw_2d_zeroaxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
 void GnuPlot::AxisDraw2DZeroAxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
 {
 	GpAxis * p_this = &AxS[axis];
@@ -1483,7 +1409,6 @@ void GnuPlot::AxisDraw2DZeroAxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDE
 // This routine replaces the interpreted string with a direct update of the
 // axis min/max.   Called from mouse.c (apply_zoom)
 // 
-//void set_explicit_range(GpAxis * pAx, double newmin, double newmax)
 void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 {
 	pAx->set_min = newmin;
@@ -1500,7 +1425,6 @@ void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 		CloneLinkedAxes(pAx, pAx->linked_to_primary);
 }
 
-//double FASTCALL get_num_or_time(const GpAxis * axis)
 double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 {
 	double value = 0.0;
@@ -1518,7 +1442,6 @@ double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 	return value;
 }
 
-//static void load_one_range(GpAxis * pAx, double * a, t_autoscale * autoscale, t_autoscale which)
 void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, t_autoscale which)
 {
 	double number;
@@ -1649,7 +1572,6 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 // {{{ load_range() */
 // loads a range specification from the input line into variables 'a' and 'b' 
 //
-//t_autoscale load_range(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale)
 t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale)
 {
 	if(Pgm.EqualsCur("]")) {
@@ -1682,8 +1604,6 @@ t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autosca
 /* we determine length of the widest tick label by getting gen_ticks to
  * call this routine with every label
  */
-
-//void widest_tic_callback(GpAxis * this_axis, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
 void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels) // callback
 {
 	// historically, minitics used to have no text,
@@ -1696,7 +1616,6 @@ void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double 
 //
 // get and set routines for range writeback ULIG
 //
-//void save_writeback_all_axes()
 void GnuPlot::SaveWritebackAllAxes()
 {
 	for(int axis = 0; axis < AXIS_ARRAY_SIZE; axis++) {
@@ -1707,7 +1626,6 @@ void GnuPlot::SaveWritebackAllAxes()
 	}
 }
 
-//void check_axis_reversed(AXIS_INDEX axIdx)
 void GnuPlot::CheckAxisReversed(AXIS_INDEX axIdx)
 {
 	GpAxis * p_ax = &AxS[axIdx];
@@ -1717,7 +1635,6 @@ void GnuPlot::CheckAxisReversed(AXIS_INDEX axIdx)
 	}
 }
 
-//bool some_grid_selected()
 bool GnuPlot::SomeGridSelected()
 {
 	for(/*AXIS_INDEX*/int i = (AXIS_INDEX)0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
@@ -1733,7 +1650,6 @@ bool GnuPlot::SomeGridSelected()
 //
 // Range checks for the color axis.
 //
-//void set_cbminmax()
 void GnuPlot::SetCbMinMax()
 {
 	GpAxis & r_cb_ax = AxS.__CB();
@@ -1752,7 +1668,6 @@ void GnuPlot::SetCbMinMax()
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }
 
-//void save_autoscaled_ranges(const GpAxis * pAxX, const GpAxis * pAxY)
 void GpAxisSet::SaveAutoscaledRanges(const GpAxis * pAxX, const GpAxis * pAxY)
 {
 	if(pAxX) {
@@ -1765,7 +1680,6 @@ void GpAxisSet::SaveAutoscaledRanges(const GpAxis * pAxX, const GpAxis * pAxY)
 	}
 }
 
-//void restore_autoscaled_ranges(GpAxis * pAxX, GpAxis * pAxY)
 void GpAxisSet::RestoreAutoscaledRanges(GpAxis * pAxX, GpAxis * pAxY) const
 {
 	if(pAxX) {
@@ -1778,7 +1692,6 @@ void GpAxisSet::RestoreAutoscaledRanges(GpAxis * pAxX, GpAxis * pAxY) const
 	}
 }
 
-//static void get_position_type(enum position_type * type, AXIS_INDEX * axes)
 void GnuPlot::GetPositionType(enum position_type * type, AXIS_INDEX * axes)
 {
 	if(Pgm.AlmostEqualsCur("fir$st")) {
@@ -1815,7 +1728,6 @@ void GnuPlot::GetPositionType(enum position_type * type, AXIS_INDEX * axes)
 //
 // get_position() - reads a position for label,arrow,key,... 
 //
-//void get_position(GpPosition * pos)
 void GnuPlot::GetPosition(GpPosition * pos)
 {
 	GetPositionDefault(pos, first_axes, 3);
@@ -1839,7 +1751,6 @@ void GnuPlot::GetPosition(GpPosition * pos)
 // ndim = 2 only reads x,y
 // otherwise it reads x,y,z
 // 
-//void get_position_default(GpPosition * pos, enum position_type default_type, int ndim)
 void GnuPlot::GetPositionDefault(GpPosition * pos, enum position_type default_type, int ndim)
 {
 	AXIS_INDEX axes;
@@ -1882,7 +1793,6 @@ void GnuPlot::GetPositionDefault(GpPosition * pos, enum position_type default_ty
 // EAM - called from set.c during `set xtics` (level >= 0)
 //   called from datafile.c during `plot using ::xtic()` (level = -1)
 // 
-//void add_tic_user(GpAxis * pAx, const char * pLabel, double position, int level)
 void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int level)
 {
 	ticmark * tic, * newtic;
@@ -1942,7 +1852,6 @@ void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int
  *  %E                  = E/W instead of +/-
  *  %N                  = N/S instead of +/-
  */
-//void gstrdms(char * pLabel, char * pFormat, double value)
 void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 {
 	double Degrees, Minutes, Seconds;
@@ -2036,7 +1945,6 @@ void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 //   -1 = range spec with no attached variable name
 //   >0 = token indexing the attached variable name
 // 
-//int parse_range(AXIS_INDEX axis)
 int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 {
 	GpAxis * this_axis = &AxS[axisIdx];
@@ -2087,7 +1995,6 @@ int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 //
 // Called if an in-line range is encountered while inside a zoom command 
 //
-//void parse_skip_range()
 void GpProgram::ParseSkipRange()
 {
 	while(!Equals(CToken++, "]"))
@@ -2098,7 +2005,6 @@ void GpProgram::ParseSkipRange()
 // When a secondary axis (axis2) is linked to the corresponding primary
 // axis (axis1), this routine copies the relevant range/scale data
 //
-//void clone_linked_axes(GpAxis * pAx1, GpAxis * pAx2)
 void GnuPlot::CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2)
 {
 	double testmin, testmax, scale;
@@ -2152,7 +2058,6 @@ void GnuPlot::CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2)
 //
 // Evaluate the function linking secondary axis to primary axis 
 //
-//double eval_link_function(const GpAxis * pAx, double raw_coord)
 double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 {
 	udft_entry * link_udf = pAx->link_udf;
@@ -2198,8 +2103,6 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 // Obtain and initialize a shadow axis.
 // The details are hidden from the rest of the code (dynamic/static allocation, etc).
 // 
-//GpAxis * get_shadow_axis(GpAxis * axis)
-//GpAxis * GpAxisSet::GetShadowAxis(GpAxis * pAxis)
 GpAxis * GnuPlot::GetShadowAxis(GpAxis * pAx)
 {
 	GpAxis * p_primary = 0;
@@ -2240,7 +2143,6 @@ void GpAxisSet::DestroyParallelAxes()
 // nearest power of 10.
 // Transfer the new limits over to the user-visible secondary axis.
 // 
-//void extend_primary_ticrange(GpAxis * axis)
 void GnuPlot::ExtendPrimaryTicRange(GpAxis * pAx)
 {
 	GpAxis * primary = pAx->linked_to_primary;
@@ -2264,7 +2166,6 @@ void GnuPlot::ExtendPrimaryTicRange(GpAxis * pAx)
 // for the secondary (visible) axes but not for the linked primary (linear) axis.
 // This routine fills in the primary min/max from the secondary axis.
 // 
-//void update_primary_axis_range(GpAxis * secondary)
 void GnuPlot::UpdatePrimaryAxisRange(GpAxis * pAxSecondary)
 {
 	GpAxis * p_ax_primary = pAxSecondary->linked_to_primary;
@@ -2280,7 +2181,6 @@ void GnuPlot::UpdatePrimaryAxisRange(GpAxis * pAxSecondary)
 // Same thing but in the opposite direction.  We read in data on the primary axis
 // and want the autoscaling on a linked secondary axis to match.
 // 
-//void update_secondary_axis_range(GpAxis * pAxPrimary)
 void GnuPlot::UpdateSecondaryAxisRange(GpAxis * pAxPrimary)
 {
 	GpAxis * p_ax_secondary = pAxPrimary->linked_to_secondary;
@@ -2298,7 +2198,6 @@ void GnuPlot::UpdateSecondaryAxisRange(GpAxis * pAxPrimary)
 // However if x1 and x2 are linked to each other we must reconcile
 // their data limits before plotting.
 // 
-//void reconcile_linked_axes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 void GnuPlot::ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 {
 	double dummy;
@@ -2321,7 +2220,6 @@ void GnuPlot::ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 // If we are plotting on the secondary axis in this case, apply the inverse
 // transform to get back to the primary coordinate system before mapping.
 // 
-//double map_x_double(double value)
 double GnuPlot::MapX(double value)
 {
 	if(AxS[AxS.Idx_X].linked_to_primary) {
@@ -2334,14 +2232,12 @@ double GnuPlot::MapX(double value)
 	return AxS[AxS.Idx_X].Map(value);
 }
 
-//int map_x(double value)
 int GnuPlot::MapiX(double value)
 {
 	const double x = MapX(value);
 	return isnan(x) ? intNaN : GpAxis::MapRealToInt(x);
 }
 
-//double map_y_double(double value)
 double GnuPlot::MapY(double value)
 {
 	if(AxS[AxS.Idx_Y].linked_to_primary) {
@@ -2354,7 +2250,6 @@ double GnuPlot::MapY(double value)
 	return AxS[AxS.Idx_Y].Map(value);
 }
 
-//int map_y(double value)
 int GnuPlot::MapiY(double value)
 {
 	const double y = MapY(value);
@@ -2364,7 +2259,6 @@ int GnuPlot::MapiY(double value)
 // Convert polar coordinates [theta;r] to the corresponding [x;y]
 // If update is TRUE then check and update rrange autoscaling
 // 
-//coord_type polar_to_xy(double theta, double r, double * x, double * y, bool update)
 coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bool update)
 {
 	coord_type status = INRANGE;
@@ -2433,7 +2327,6 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 // converts polar coordinate r into a magnitude on x
 // allowing for GnuPlot::AxS.__R().min != 0, axis inversion, nonlinearity, etc.
 // 
-//double polar_radius(double r)
 double GnuPlot::PolarRadius(double r)
 {
 	double px, py;

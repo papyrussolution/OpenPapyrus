@@ -3462,13 +3462,13 @@ int SPaintObj::CreateBrush(int style, SColor c, int32 hatch)
 	return ok;
 }
 
-int SPaintObj::CreateFont(const char * pFace, int height, int flags)
+int SPaintObj::CreateFont_(const char * pFace, int height, int flags)
 {
 	int    ok = 1;
 	Font * p_font = new Font;
 	if(p_font) {
 		p_font->Face = pFace;
-		p_font->Size = (int16)height;
+		p_font->Size = static_cast<int16>(height);
 		p_font->Flags = flags;
 		Destroy();
 		T = tFont;
@@ -4137,7 +4137,7 @@ int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int fl
 		THROW(p_obj = CreateObj(ident));
 	}
 	if(p_obj)
-		THROW(p_obj->CreateFont(pFace, height, flags));
+		THROW(p_obj->CreateFont_(pFace, height, flags));
 	CATCH
 		ident = 0;
 	ENDCATCH

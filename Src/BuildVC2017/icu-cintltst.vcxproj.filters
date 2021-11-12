@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\unumberformattertst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\uformattedvaluetst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\unumberrangeformattertst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cbididat.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cbiditransformtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cbiditst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cbiapts.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cbkittst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\callcoll.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\capitst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ccolltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ccurrtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cdetst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cestst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cfintst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cfrtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cg7coll.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\citertst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cjaptst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cmsccoll.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cturtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\encoll.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\usrchdat.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\usrchtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\chashtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\sorttest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\trie2test.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\trietest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ucptrietest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\uenumtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\bocu1tst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ccapitst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cconvtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cctest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\eurocreg.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\nccbtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ncnvfbts.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ncnvtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\nucnvtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\stdnmtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ucnvseltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ucsdetst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\udatatst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ccaltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cdateintervalformattest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cdattst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cdtdptst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cdtrgtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cformtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cgendtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cmsgtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cnmdptst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cnumtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cpluralrulestest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\crelativedateformattest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\currtest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\udatpg_test.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\ulistfmttest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\uregiontest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\utmstest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cldrtest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cloctst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cposxtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\crestst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\creststn.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\calltest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cintltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cutiltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\hpmufn.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\putiltst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\tracetst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cnormtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cucdapi.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cucdtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\usettest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\reapits.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\spooftest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\idnatest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\nfsprep.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\spreptst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\sprpdata.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cstrcase.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\cstrtest.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\custrtrn.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\custrtst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\utexttst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\utf8tst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\utf16tst.c" />
+    <ClCompile Include="..\osf\icu\icu4c\source\test\cintltst\utransts.c" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\callcoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\capitst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cbiapts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cbiditst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ccaltst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ccapitst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ccolltst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ccurrtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cdattst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cdetst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cdtdptst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cdtrgtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cestst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cfintst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cformtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cfrtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cg7coll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cintltst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\citertst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cjaptst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cloctst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cmsgtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cnmdptst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cnormtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cnumtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\crestst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\creststn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cturtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\cucdapi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\encoll.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\nccbtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ncnvfbts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\nfsprep.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\nucnvtst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\icu\icu4c\source\test\cintltst\ucnvseltst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{d2d1ee14-fe90-47be-b605-2311500559cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -469,7 +469,7 @@ protected:
 								uint   clf = 0;
 								//if(oneof2(complex_lo_type, LayoutFlexItem::cmplxtInpLblBtn, LayoutFlexItem::cmplxtInpLblBtn2))
 									//clf |= LayoutFlexItem::clfLabelLeft;
-								LayoutFlexItem * p_lo_ = LayoutFlexItem::CreateComplexLayout(complex_lo_type, clf, 0);
+								LayoutFlexItem * p_lo_ = LayoutFlexItem::CreateComplexLayout(complex_lo_type, clf, 0.0f, 0);
 								if(p_lo_) {
 									SString temp_buf;
 									SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));

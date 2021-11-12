@@ -406,7 +406,7 @@ void * search_file_worker(void * i)
 	work_queue_t * queue_item;
 	int worker_id = *(int*)i;
 	log_debug("Worker %i started", worker_id);
-	while(TRUE) {
+	while(true) {
 		pthread_mutex_lock(&work_queue_mtx);
 		while(work_queue == NULL) {
 			if(done_adding_files) {

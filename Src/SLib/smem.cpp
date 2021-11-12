@@ -5,7 +5,10 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-#if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/
+//
+// @v11.2.3 Поступила информация, что JobServer в последних резах "падает". Отключаем для сервера mimalloc и проверям.
+//
+#if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/ && !defined(_PPSERVER)
 	#define USE_MIMALLOC
 #endif
 #ifdef USE_MIMALLOC

@@ -53,7 +53,7 @@ namespace ctemplate_htmlparser {
 #include "htmlparser/htmlparser_fsm.h" // Generated state machine definition
 
 #define is_js_attribute(attr) ((attr)[0] == 'o' && (attr)[1] == 'n')
-#define is_style_attribute(attr) (strcmp((attr), "style") == 0)
+#define is_style_attribute(attr) (sstreq((attr), "style"))
 
 /* html entity filter */
 static struct entityfilter_table_s {
@@ -71,13 +71,10 @@ static struct entityfilter_table_s {
 /* Utility functions */
 
 /* Similar to strncpy() but avoids the NULL padding. */
-static inline void nopad_strncpy(char * dst, const char * src, size_t dst_size,
-    size_t src_size)
+static inline void nopad_strncpy(char * dst, const char * src, size_t dst_size, size_t src_size)
 {
-	size_t size;
-
 	/* size = min(dst_size, src_size) */
-	size = dst_size > src_size ? src_size : dst_size;
+	size_t size = dst_size > src_size ? src_size : dst_size;
 	strncpy(dst, src, size);
 	if(size > 0)
 		dst[size - 1] = '\0';
@@ -87,10 +84,7 @@ static inline void nopad_strncpy(char * dst, const char * src, size_t dst_size,
  */
 static int state_external(int st)
 {
-	if(st == STATEMACHINE_ERROR)
-		return HTMLPARSER_STATE_ERROR;
-	else
-		return htmlparser_states_external[st];
+	return (st == STATEMACHINE_ERROR) ? HTMLPARSER_STATE_ERROR : htmlparser_states_external[st];
 }
 
 /* Returns true if the character is considered an html whitespace character.
@@ -99,12 +93,7 @@ static int state_external(int st)
  */
 static inline int html_isspace(char chr)
 {
-	if(chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r') {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	return BIN(chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r');
 }
 
 /* Returns true if the attribute is expected to contain a url
@@ -114,61 +103,51 @@ static int is_uri_attribute(char * attr)
 {
 	if(attr == NULL)
 		return 0;
-
 	switch(attr[0]) {
 		case 'a':
-		    if(strcmp(attr, "action") == 0)
+		    if(sstreq(attr, "action"))
 			    return 1;
 		    /* TODO(falmeida): This is a uri list. Should we treat it diferently? */
-		    if(strcmp(attr, "archive") == 0) /* This is a uri list */
+		    if(sstreq(attr, "archive")) /* This is a uri list */
 			    return 1;
 		    break;
-
 		case 'b':
-		    if(strcmp(attr, "background") == 0)
+		    if(sstreq(attr, "background"))
 			    return 1;
 		    break;
-
 		case 'c':
-		    if(strcmp(attr, "cite") == 0)
+		    if(sstreq(attr, "cite"))
 			    return 1;
-		    if(strcmp(attr, "classid") == 0)
+		    if(sstreq(attr, "classid"))
 			    return 1;
-		    if(strcmp(attr, "codebase") == 0)
+		    if(sstreq(attr, "codebase"))
 			    return 1;
 		    break;
-
 		case 'd':
-		    if(strcmp(attr, "data") == 0)
+		    if(sstreq(attr, "data"))
 			    return 1;
-		    if(strcmp(attr, "dynsrc") == 0) /* from msdn */
+		    if(sstreq(attr, "dynsrc")) /* from msdn */
 			    return 1;
 		    break;
-
 		case 'h':
-		    if(strcmp(attr, "href") == 0)
+		    if(sstreq(attr, "href"))
 			    return 1;
 		    break;
-
 		case 'l':
-		    if(strcmp(attr, "longdesc") == 0)
+		    if(sstreq(attr, "longdesc"))
 			    return 1;
 		    break;
-
 		case 's':
-		    if(strcmp(attr, "src") == 0)
+		    if(sstreq(attr, "src"))
 			    return 1;
 		    break;
-
 		case 'u':
-		    if(strcmp(attr, "usemap") == 0)
+		    if(sstreq(attr, "usemap"))
 			    return 1;
 		    break;
 	}
-
 	return 0;
 }
-
 /* Convert a string to lower case characters inplace.
  */
 static void tolower_str(char * s)
@@ -304,15 +283,12 @@ void entityfilter_reset(entityfilter_ctx * ctx)
 entityfilter_ctx * entityfilter_new()
 {
 	entityfilter_ctx * ctx;
-	ctx = CAST(entityfilter_ctx *,
-		malloc(sizeof(entityfilter_ctx)));
-
+	ctx = CAST(entityfilter_ctx *, SAlloc::M(sizeof(entityfilter_ctx)));
 	if(ctx == NULL)
 		return NULL;
 	ctx->buffer[0] = 0;
 	ctx->buffer_pos = 0;
 	ctx->in_entity = 0;
-
 	return ctx;
 }
 
@@ -331,7 +307,7 @@ void entityfilter_copy(entityfilter_ctx * dst, entityfilter_ctx * src)
  */
 void entityfilter_delete(entityfilter_ctx * ctx)
 {
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 /* Converts a string containing an hexadecimal number to a string containing
@@ -578,15 +554,12 @@ static void tag_close(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
 	assert(html != NULL);
-
-	if(strcmp(html->tag, "script") == 0) {
+	if(sstreq(html->tag, "script")) {
 		ctx->next_state = HTMLPARSER_STATE_INT_CDATA_TEXT;
 		jsparser_reset(html->jsparser);
 		html->in_js = 1;
 	}
-	else if(strcmp(html->tag, "style") == 0 ||
-	    strcmp(html->tag, "title") == 0 ||
-	    strcmp(html->tag, "textarea") == 0) {
+	else if(sstreq(html->tag, "style") || sstreq(html->tag, "title") || sstreq(html->tag, "textarea")) {
 		ctx->next_state = HTMLPARSER_STATE_INT_CDATA_TEXT;
 		html->in_js = 0;
 	}
@@ -754,12 +727,9 @@ static statemachine_definition * create_statemachine_definition()
  */
 htmlparser_ctx * htmlparser_new()
 {
-	htmlparser_ctx * html;
-
-	html = CAST(htmlparser_ctx *, calloc(1, sizeof(htmlparser_ctx)));
+	htmlparser_ctx * html = CAST(htmlparser_ctx *, SAlloc::C(1, sizeof(htmlparser_ctx)));
 	if(html == NULL)
 		return NULL;
-
 	html->statemachine_def = create_statemachine_definition();
 	if(html->statemachine_def == NULL)
 		return NULL;
@@ -888,22 +858,19 @@ const char * htmlparser_attr(htmlparser_ctx * ctx)
 
 /* Returns true if the parser is currently inside a CSS construct.
  */
-int htmlparser_in_css(htmlparser_ctx * ctx) {
+int htmlparser_in_css(htmlparser_ctx * ctx) 
+{
 	int state = statemachine_get_state(ctx->statemachine);
 	const char * tag = htmlparser_tag(ctx);
 	int external_state = state_external(state);
-
-	if(state == HTMLPARSER_STATE_INT_CSS_FILE ||
-	    (external_state == HTMLPARSER_STATE_VALUE &&
-	    htmlparser_attr_type(ctx) == HTMLPARSER_ATTR_STYLE) ||
-	    (tag && strcmp(tag, "style") == 0)) {
+	if(state == HTMLPARSER_STATE_INT_CSS_FILE ||(external_state == HTMLPARSER_STATE_VALUE &&
+	    htmlparser_attr_type(ctx) == HTMLPARSER_ATTR_STYLE) || (tag && sstreq(tag, "style"))) {
 		return 1;
 	}
 	else {
 		return 0;
 	}
 }
-
 /* Returns the contents of the current attribute value.
  */
 const char * htmlparser_value(htmlparser_ctx * ctx)
@@ -967,11 +934,7 @@ int htmlparser_is_url_start(htmlparser_ctx * ctx)
 	if(htmlparser_attr_type(ctx) == HTMLPARSER_ATTR_URI) {
 		const char* tag = htmlparser_tag(ctx);
 		/*const char* attr =*/ htmlparser_attr(ctx);
-
-		if((tag && strcmp(tag, "meta") == 0 &&
-		    meta_redirect_type(htmlparser_value(ctx)) ==
-		    META_REDIRECT_TYPE_URL_START) ||
-		    htmlparser_value_index(ctx) == 0)
+		if((tag && sstreq(tag, "meta") && meta_redirect_type(htmlparser_value(ctx)) == META_REDIRECT_TYPE_URL_START) || htmlparser_value_index(ctx) == 0)
 			return 1;
 	}
 	return 0;
@@ -997,16 +960,12 @@ int htmlparser_attr_type(htmlparser_ctx * ctx)
 	const char* attr = htmlparser_attr(ctx);
 
 	/* Special logic to handle meta redirect type tags. */
-	if(tag && strcmp(tag, "meta") == 0 &&
-	    attr && strcmp(attr, "content") == 0) {
+	if(tag && sstreq(tag, "meta") && attr && sstreq(attr, "content")) {
 		const char* value = htmlparser_value(ctx);
 		meta_redirect_type_enum redirect_type = meta_redirect_type(value);
-
-		if(redirect_type == META_REDIRECT_TYPE_URL ||
-		    redirect_type == META_REDIRECT_TYPE_URL_START)
+		if(redirect_type == META_REDIRECT_TYPE_URL || redirect_type == META_REDIRECT_TYPE_URL_START)
 			return HTMLPARSER_ATTR_URI;
 	}
-
 	return HTMLPARSER_ATTR_REGULAR;
 }
 
@@ -1059,7 +1018,7 @@ void htmlparser_delete(htmlparser_ctx * ctx)
 	statemachine_delete(ctx->statemachine);
 	jsparser_delete(ctx->jsparser);
 	entityfilter_delete(ctx->entityfilter);
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 #ifdef __cplusplus

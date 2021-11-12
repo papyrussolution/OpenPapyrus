@@ -721,11 +721,10 @@ int ssh_kex_select_methods(ssh_session session)
 {
 	struct ssh_kex_struct * server = &session->next_crypto->server_kex;
 	struct ssh_kex_struct * client = &session->next_crypto->client_kex;
-	char * ext_start = NULL;
 	int i;
-	/* Here we should drop the  ext-info-c  from the list so we avoid matching.
-	 * it. We added it to the end, so we can just truncate the string here */
-	ext_start = strstr(client->methods[SSH_KEX], "," KEX_EXTENSION_CLIENT);
+	// Here we should drop the  ext-info-c  from the list so we avoid matching.
+	// it. We added it to the end, so we can just truncate the string here 
+	char * ext_start = strstr(client->methods[SSH_KEX], "," KEX_EXTENSION_CLIENT);
 	if(ext_start != NULL) {
 		ext_start[0] = '\0';
 	}
@@ -737,46 +736,46 @@ int ssh_kex_select_methods(ssh_session session)
 			return SSH_ERROR;
 		}
 		else if((i >= SSH_LANG_C_S) && (session->next_crypto->kex_methods[i] == NULL)) {
-			/* we can safely do that for languages */
+			// we can safely do that for languages 
 			session->next_crypto->kex_methods[i] = _strdup("");
 		}
 	}
-	if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group1-sha1") == 0) {
+	if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group1-sha1")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GROUP1_SHA1;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group14-sha1") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group14-sha1")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GROUP14_SHA1;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group14-sha256") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group14-sha256")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GROUP14_SHA256;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group16-sha512") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group16-sha512")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GROUP16_SHA512;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group18-sha512") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group18-sha512")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GROUP18_SHA512;
 #ifdef WITH_GEX
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group-exchange-sha1") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group-exchange-sha1")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GEX_SHA1;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group-exchange-sha256") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "diffie-hellman-group-exchange-sha256")) {
 		session->next_crypto->kex_type = SSH_KEX_DH_GEX_SHA256;
 #endif /* WITH_GEX */
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp256") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp256")) {
 		session->next_crypto->kex_type = SSH_KEX_ECDH_SHA2_NISTP256;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp384") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp384")) {
 		session->next_crypto->kex_type = SSH_KEX_ECDH_SHA2_NISTP384;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp521") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "ecdh-sha2-nistp521")) {
 		session->next_crypto->kex_type = SSH_KEX_ECDH_SHA2_NISTP521;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "curve25519-sha256@libssh.org") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "curve25519-sha256@libssh.org")) {
 		session->next_crypto->kex_type = SSH_KEX_CURVE25519_SHA256_LIBSSH_ORG;
 	}
-	else if(strcmp(session->next_crypto->kex_methods[SSH_KEX], "curve25519-sha256") == 0) {
+	else if(sstreq(session->next_crypto->kex_methods[SSH_KEX], "curve25519-sha256")) {
 		session->next_crypto->kex_type = SSH_KEX_CURVE25519_SHA256;
 	}
 	SSH_LOG(SSH_LOG_INFO, "Negotiated %s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
@@ -795,32 +794,23 @@ int ssh_kex_select_methods(ssh_session session)
 }
 
 /* this function only sends the predefined set of kex methods */
-int ssh_send_kex(ssh_session session, int server_kex) {
-	struct ssh_kex_struct * kex = (server_kex ? &session->next_crypto->server_kex :
-	    &session->next_crypto->client_kex);
+int ssh_send_kex(ssh_session session, int server_kex) 
+{
+	struct ssh_kex_struct * kex = (server_kex ? &session->next_crypto->server_kex : &session->next_crypto->client_kex);
 	ssh_string str = NULL;
 	int i;
-	int rc;
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bP",
-		SSH2_MSG_KEXINIT,
-		16,
-		kex->cookie);        /* cookie */
+	int rc = ssh_buffer_pack(session->out_buffer, "bP", SSH2_MSG_KEXINIT, 16, kex->cookie/* cookie */);
 	if(rc != SSH_OK)
 		goto error;
 	if(ssh_hashbufout_add_cookie(session) < 0) {
 		goto error;
 	}
-
 	ssh_list_kex(kex);
-
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		str = ssh_string_from_char(kex->methods[i]);
 		if(str == NULL) {
 			goto error;
 		}
-
 		if(ssh_buffer_add_ssh_string(session->out_hashbuf, str) < 0) {
 			goto error;
 		}
@@ -830,29 +820,21 @@ int ssh_send_kex(ssh_session session, int server_kex) {
 		SSH_STRING_FREE(str);
 		str = NULL;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bd",
-		0,
-		0);
+	rc = ssh_buffer_pack(session->out_buffer, "bd", 0, 0);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
 	if(ssh_packet_send(session) == SSH_ERROR) {
 		return -1;
 	}
-
 	SSH_LOG(SSH_LOG_PACKET, "SSH_MSG_KEXINIT sent");
 	return 0;
 error:
 	ssh_buffer_reinit(session->out_buffer);
 	ssh_buffer_reinit(session->out_hashbuf);
 	SSH_STRING_FREE(str);
-
 	return -1;
 }
-
 /*
  * Key re-exchange (rekey) is triggered by this function.
  * It can not be called again after the rekey is initialized!
@@ -860,7 +842,6 @@ error:
 int ssh_send_rekex(ssh_session session)
 {
 	int rc;
-
 	if(session->dh_handshake_state != DH_STATE_FINISHED) {
 		/* Rekey/Key exchange is already in progress */
 		SSH_LOG(SSH_LOG_PACKET, "Attempting rekey in bad state");

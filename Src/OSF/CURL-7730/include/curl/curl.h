@@ -305,31 +305,15 @@ typedef int (* curl_fnmatch_callback)(void * ptr,
 #define CURL_SEEKFUNC_FAIL     1 /* fail the entire transfer */
 #define CURL_SEEKFUNC_CANTSEEK 2 /* tell libcurl seeking can't be done, so
 	                            libcurl might try other means instead */
-typedef int (* curl_seek_callback)(void * instream,
-    curl_off_t offset,
-    int origin);                               /* 'whence' */
+typedef int (* curl_seek_callback)(void * instream, curl_off_t offset, int origin/* 'whence' */);
 
-/* This is a return code for the read callback that, when returned, will
-   signal libcurl to immediately abort the current transfer. */
-#define CURL_READFUNC_ABORT 0x10000000
-/* This is a return code for the read callback that, when returned, will
-   signal libcurl to pause sending data on the current transfer. */
-#define CURL_READFUNC_PAUSE 0x10000001
+#define CURL_READFUNC_ABORT 0x10000000 /* This is a return code for the read callback that, when returned, will signal libcurl to immediately abort the current transfer. */
+#define CURL_READFUNC_PAUSE 0x10000001 /* This is a return code for the read callback that, when returned, will signal libcurl to pause sending data on the current transfer. */
+#define CURL_TRAILERFUNC_OK 0 /* Return code for when the trailing headers' callback has terminated without any errors*/
+#define CURL_TRAILERFUNC_ABORT 1 /* Return code for when was an error in the trailing header's list and we want to abort the request */
 
-/* Return code for when the trailing headers' callback has terminated
-   without any errors*/
-#define CURL_TRAILERFUNC_OK 0
-/* Return code for when was an error in the trailing header's list and we
-   want to abort the request */
-#define CURL_TRAILERFUNC_ABORT 1
-
-typedef size_t (* curl_read_callback)(char * buffer,
-    size_t size,
-    size_t nitems,
-    void * instream);
-
-typedef int (* curl_trailer_callback)(struct curl_slist ** list,
-    void * userdata);
+typedef size_t (* curl_read_callback)(char * buffer, size_t size, size_t nitems, void * instream);
+typedef int (* curl_trailer_callback)(struct curl_slist ** list, void * userdata);
 
 typedef enum {
 	CURLSOCKTYPE_IPCXN, /* socket created for a specific IP connection */
@@ -340,13 +324,10 @@ typedef enum {
 /* The return code from the sockopt_callback can signal information back
    to libcurl: */
 #define CURL_SOCKOPT_OK 0
-#define CURL_SOCKOPT_ERROR 1 /* causes libcurl to abort and return
-	                        CURLE_ABORTED_BY_CALLBACK */
+#define CURL_SOCKOPT_ERROR 1 /* causes libcurl to abort and return CURLE_ABORTED_BY_CALLBACK */
 #define CURL_SOCKOPT_ALREADY_CONNECTED 2
 
-typedef int (* curl_sockopt_callback)(void * clientp,
-    curl_socket_t curlfd,
-    curlsocktype purpose);
+typedef int (* curl_sockopt_callback)(void * clientp, curl_socket_t curlfd, curlsocktype purpose);
 
 struct curl_sockaddr {
 	int family;
@@ -358,13 +339,8 @@ struct curl_sockaddr {
 	struct sockaddr addr;
 };
 
-typedef curl_socket_t
-(* curl_opensocket_callback)(void * clientp,
-    curlsocktype purpose,
-    struct curl_sockaddr * address);
-
-typedef int
-(* curl_closesocket_callback)(void * clientp, curl_socket_t item);
+typedef curl_socket_t (* curl_opensocket_callback)(void * clientp, curlsocktype purpose, struct curl_sockaddr * address);
+typedef int (* curl_closesocket_callback)(void * clientp, curl_socket_t item);
 
 typedef enum {
 	CURLIOE_OK,      /* I/O operation successful */
@@ -1149,31 +1125,22 @@ typedef enum {
 	   callbacks */
 	CURLOPT(CURLOPT_XFERINFODATA, CURLOPTTYPE_CBPOINT, 57),
 #define CURLOPT_PROGRESSDATA CURLOPT_XFERINFODATA
-
 	/* We want the referrer field set automatically when following locations */
 	CURLOPT(CURLOPT_AUTOREFERER, CURLOPTTYPE_LONG, 58),
-
-	/* Port of the proxy, can be set in the proxy string as well with:
-	   "[host]:[port]" */
+	/* Port of the proxy, can be set in the proxy string as well with: "[host]:[port]" */
 	CURLOPT(CURLOPT_PROXYPORT, CURLOPTTYPE_LONG, 59),
-
 	/* size of the POST input data, if strlen() is not good to use */
 	CURLOPT(CURLOPT_POSTFIELDSIZE, CURLOPTTYPE_LONG, 60),
-
 	/* tunnel non-http operations through a HTTP proxy */
 	CURLOPT(CURLOPT_HTTPPROXYTUNNEL, CURLOPTTYPE_LONG, 61),
-
 	/* Set the interface string to use as outgoing network interface */
 	CURLOPT(CURLOPT_INTERFACE, CURLOPTTYPE_STRINGPOINT, 62),
-
 	/* Set the krb4/5 security level, this also enables krb4/5 awareness.  This
 	 * is a string, 'clear', 'safe', 'confidential' or 'private'.  If the string
 	 * is set but doesn't match one of these, 'private' will be used.  */
 	CURLOPT(CURLOPT_KRBLEVEL, CURLOPTTYPE_STRINGPOINT, 63),
-
 	/* Set if we should verify the peer in ssl handshake, set 1 to verify. */
 	CURLOPT(CURLOPT_SSL_VERIFYPEER, CURLOPTTYPE_LONG, 64),
-
 	/* The CApath or CAfile used to validate the peer certificate
 	   this option is used only if SSL_VERIFYPEER is true */
 	CURLOPT(CURLOPT_CAINFO, CURLOPTTYPE_STRINGPOINT, 65),
@@ -1183,47 +1150,34 @@ typedef enum {
 
 	/* Maximum number of http redirects to follow */
 	CURLOPT(CURLOPT_MAXREDIRS, CURLOPTTYPE_LONG, 68),
-
-	/* Pass a long set to 1 to get the date of the requested document (if
-	   possible)! Pass a zero to shut it off. */
+	/* Pass a long set to 1 to get the date of the requested document (if possible)! Pass a zero to shut it off. */
 	CURLOPT(CURLOPT_FILETIME, CURLOPTTYPE_LONG, 69),
-
 	/* This points to a linked list of telnet options */
 	CURLOPT(CURLOPT_TELNETOPTIONS, CURLOPTTYPE_SLISTPOINT, 70),
-
 	/* Max amount of cached alive connections */
 	CURLOPT(CURLOPT_MAXCONNECTS, CURLOPTTYPE_LONG, 71),
-
 	/* OBSOLETE, do not use! */
 	CURLOPT(CURLOPT_OBSOLETE72, CURLOPTTYPE_LONG, 72),
-
 	/* 73 = OBSOLETE */
 
 	/* Set to explicitly use a new connection for the upcoming transfer.
 	   Do not use this unless you're absolutely sure of this, as it makes the
 	   operation slower and is less friendly for the network. */
 	CURLOPT(CURLOPT_FRESH_CONNECT, CURLOPTTYPE_LONG, 74),
-
 	/* Set to explicitly forbid the upcoming transfer's connection to be re-used
 	   when done. Do not use this unless you're absolutely sure of this, as it
 	   makes the operation slower and is less friendly for the network. */
 	CURLOPT(CURLOPT_FORBID_REUSE, CURLOPTTYPE_LONG, 75),
-
 	/* Set to a file name that contains random data for libcurl to use to
 	   seed the random engine when doing SSL connects. */
 	CURLOPT(CURLOPT_RANDOM_FILE, CURLOPTTYPE_STRINGPOINT, 76),
-
 	/* Set to the Entropy Gathering Daemon socket pathname */
 	CURLOPT(CURLOPT_EGDSOCKET, CURLOPTTYPE_STRINGPOINT, 77),
-
-	/* Time-out connect operations after this amount of seconds, if connects are
-	   OK within this time, then fine... This only aborts the connect phase. */
+	/* Time-out connect operations after this amount of seconds, if connects are OK within this time, then fine... This only aborts the connect phase. */
 	CURLOPT(CURLOPT_CONNECTTIMEOUT, CURLOPTTYPE_LONG, 78),
-
 	/* Function that will be called to store headers (instead of fwrite). The
 	 * parameters will use fwrite() syntax, make sure to follow them. */
 	CURLOPT(CURLOPT_HEADERFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 79),
-
 	/* Set this to force the HTTP request to get back to GET. Only really usable
 	   if POST, PUT or a custom request have been used first.
 	 */
@@ -1879,89 +1833,64 @@ typedef enum {
 
 	/* Enable/disable SSH compression */
 	CURLOPT(CURLOPT_SSH_COMPRESSION, CURLOPTTYPE_LONG, 268),
-
 	/* Post MIME data. */
 	CURLOPT(CURLOPT_MIMEPOST, CURLOPTTYPE_OBJECTPOINT, 269),
-
 	/* Time to use with the CURLOPT_TIMECONDITION. Specified in number of
 	   seconds since 1 Jan 1970. */
 	CURLOPT(CURLOPT_TIMEVALUE_LARGE, CURLOPTTYPE_OFF_T, 270),
-
 	/* Head start in milliseconds to give happy eyeballs. */
 	CURLOPT(CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS, CURLOPTTYPE_LONG, 271),
-
 	/* Function that will be called before a resolver request is made */
 	CURLOPT(CURLOPT_RESOLVER_START_FUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 272),
-
 	/* User data to pass to the resolver start callback. */
 	CURLOPT(CURLOPT_RESOLVER_START_DATA, CURLOPTTYPE_CBPOINT, 273),
-
 	/* send HAProxy PROXY protocol header? */
 	CURLOPT(CURLOPT_HAPROXYPROTOCOL, CURLOPTTYPE_LONG, 274),
-
 	/* shuffle addresses before use when DNS returns multiple */
 	CURLOPT(CURLOPT_DNS_SHUFFLE_ADDRESSES, CURLOPTTYPE_LONG, 275),
-
 	/* Specify which TLS 1.3 ciphers suites to use */
 	CURLOPT(CURLOPT_TLS13_CIPHERS, CURLOPTTYPE_STRINGPOINT, 276),
 	CURLOPT(CURLOPT_PROXY_TLS13_CIPHERS, CURLOPTTYPE_STRINGPOINT, 277),
-
 	/* Disallow specifying username/login in URL. */
 	CURLOPT(CURLOPT_DISALLOW_USERNAME_IN_URL, CURLOPTTYPE_LONG, 278),
-
 	/* DNS-over-HTTPS URL */
 	CURLOPT(CURLOPT_DOH_URL, CURLOPTTYPE_STRINGPOINT, 279),
-
 	/* Preferred buffer size to use for uploads */
 	CURLOPT(CURLOPT_UPLOAD_BUFFERSIZE, CURLOPTTYPE_LONG, 280),
-
 	/* Time in ms between connection upkeep calls for long-lived connections. */
 	CURLOPT(CURLOPT_UPKEEP_INTERVAL_MS, CURLOPTTYPE_LONG, 281),
-
 	/* Specify URL using CURL URL API. */
 	CURLOPT(CURLOPT_CURLU, CURLOPTTYPE_OBJECTPOINT, 282),
-
 	/* add trailing data just after no more data is available */
 	CURLOPT(CURLOPT_TRAILERFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 283),
-
 	/* pointer to be passed to HTTP_TRAILER_FUNCTION */
 	CURLOPT(CURLOPT_TRAILERDATA, CURLOPTTYPE_CBPOINT, 284),
-
 	/* set this to 1L to allow HTTP/0.9 responses or 0L to disallow */
 	CURLOPT(CURLOPT_HTTP09_ALLOWED, CURLOPTTYPE_LONG, 285),
-
 	/* alt-svc control bitmask */
 	CURLOPT(CURLOPT_ALTSVC_CTRL, CURLOPTTYPE_LONG, 286),
-
 	/* alt-svc cache file name to possibly read from/write to */
 	CURLOPT(CURLOPT_ALTSVC, CURLOPTTYPE_STRINGPOINT, 287),
-
 	/* maximum age of a connection to consider it for reuse (in seconds) */
 	CURLOPT(CURLOPT_MAXAGE_CONN, CURLOPTTYPE_LONG, 288),
-
 	/* SASL authorisation identity */
 	CURLOPT(CURLOPT_SASL_AUTHZID, CURLOPTTYPE_STRINGPOINT, 289),
-
 	/* allow RCPT TO command to fail for some recipients */
 	CURLOPT(CURLOPT_MAIL_RCPT_ALLLOWFAILS, CURLOPTTYPE_LONG, 290),
-
 	/* the private SSL-certificate as a "blob" */
 	CURLOPT(CURLOPT_SSLCERT_BLOB, CURLOPTTYPE_BLOB, 291),
 	CURLOPT(CURLOPT_SSLKEY_BLOB, CURLOPTTYPE_BLOB, 292),
 	CURLOPT(CURLOPT_PROXY_SSLCERT_BLOB, CURLOPTTYPE_BLOB, 293),
 	CURLOPT(CURLOPT_PROXY_SSLKEY_BLOB, CURLOPTTYPE_BLOB, 294),
 	CURLOPT(CURLOPT_ISSUERCERT_BLOB, CURLOPTTYPE_BLOB, 295),
-
 	/* Issuer certificate for proxy */
 	CURLOPT(CURLOPT_PROXY_ISSUERCERT, CURLOPTTYPE_STRINGPOINT, 296),
 	CURLOPT(CURLOPT_PROXY_ISSUERCERT_BLOB, CURLOPTTYPE_BLOB, 297),
-
 	/* the EC curves requested by the TLS client (RFC 8422, 5.1);
 	 * OpenSSL support via 'set_groups'/'set_curves':
 	 * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set1_groups.html
 	 */
 	CURLOPT(CURLOPT_SSL_EC_CURVES, CURLOPTTYPE_STRINGPOINT, 298),
-
 	CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
 
