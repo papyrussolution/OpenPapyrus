@@ -499,7 +499,7 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 				}
 				assert(temp_id == id);
 			}
-			// } @v9.9.9 @paranoic 
+			// } @v9.9.9 @paranoic
 			pRec->ID = id; // @v9.7.11 @fix
 		}
 		ok = 1;
@@ -577,7 +577,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 SrNgInvertedIndexTbl::SrNgInvertedIndexTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->nginvidx", 0, SKILOBYTE(16), 0), pDb)
 {
 }
-	
+
 SrNgInvertedIndexTbl::~SrNgInvertedIndexTbl()
 {
 }
@@ -1897,7 +1897,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 	StrAssocArray afx_list;
 	TSVector <SrWordAssoc> wa_list;
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
-		int    inv_pfx = 0; // Если !0, то префикс не допустимый
+		int    inv_pfx = 0; // Если !0, то префикс недопустимый
 		LEXID  pfx_id = 0;
 		if(pfx_len) {
 			word_buf.Sub(0, pfx_len, pfx_buf_u);
@@ -1913,7 +1913,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 		if(!inv_pfx) { // Если префикс не пустой и не содержится в БД, то перебирать оставшуюся часть слова нет смысла
 			const  uint __len = len-pfx_len;
 			for(uint afx_len = 0; afx_len <= __len; afx_len++) {
-				int    inv_afx = 0; // Если !0, то аффикс не допустимый
+				int    inv_afx = 0; // Если !0, то аффикс недопустимый
 				LEXID  base_id = 0, afx_id = 0;
 				const  uint base_len = __len-afx_len;
 				if(base_len == 0) {
@@ -3175,7 +3175,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 		SString main_concept_symb;
 		SString text;
 		StringSet ss;
-		StringSet ss_name; // Коллекция вариантов наименований 
+		StringSet ss_name; // Коллекция вариантов наименований
 		SrWordForm wordform;
 		TSVector <SrWordInfo> info_list;
 		STokenizer::Item titem, titem_next;
@@ -3212,7 +3212,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					char   OKTMO[16];
 					LDATE  UPDATEDATE;
 					char   SHORTNAME[16]; // сокращение сущности (г, ул, etc)
-					char   AOLEVEL[16];   // 
+					char   AOLEVEL[16];   //
 					S_GUID PARENTGUID;
 					S_GUID AOID;
 					S_GUID PREVID;
@@ -3380,13 +3380,13 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 							assert(concept_hier.getCount());
 							const CONCEPTID first_hier_cid = concept_hier.get(0);
 							switch(aolevel) {
-								case 1: 
+								case 1:
 									if(first_hier_cid == p_blk->CUrbs) {
 										candidate_concept_list.add(item_id);
 										break;
 									}
 									// @fallthrough
-								case 2: 
+								case 2:
 								case 3:
 									if(first_hier_cid == p_blk->CRegion)
 										candidate_concept_list.add(item_id);
@@ -3466,8 +3466,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
 							}
 						}
-						// } @v10.0.11 
-						/* @v10.0.11 
+						// } @v10.0.11
+						/* @v10.0.11
 						ng.Z();
 						for(uint tidx = 0; tidx < idx_count; tidx++) {
 							LEXID word_id = 0;

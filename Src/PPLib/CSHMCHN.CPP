@@ -1234,6 +1234,7 @@ int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtt
 	THROW(GetNode() > 0);
 	if(GetSyncIntrf()) {
 		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, rResult);
+		PPSyncCashSession::LogPreprocessChZnCodeResult(ok, op, pCode, qtty, rResult); // @v11.2.3
 	}
 	CATCHZOK
 	return ok;

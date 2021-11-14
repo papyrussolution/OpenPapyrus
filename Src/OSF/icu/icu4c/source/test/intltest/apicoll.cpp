@@ -1160,7 +1160,7 @@ void CollationAPITest::TestSortKeyOverflow()
 	int32_t length = col->getSortKey(i_and_phi, 2, sortKey, UPRV_LENGTHOF(sortKey));
 	uint8_t sortKey2[12];
 	for(int32_t capacity = 0; capacity < length; ++capacity) {
-		uprv_memset(sortKey2, 2, UPRV_LENGTHOF(sortKey2));
+		memset(sortKey2, 2, UPRV_LENGTHOF(sortKey2));
 		int32_t length2 = col->getSortKey(i_and_phi, 2, sortKey2, capacity);
 		if(length2 != length || 0 != uprv_memcmp(sortKey, sortKey2, capacity)) {
 			errln("getSortKey(i_and_phi, capacity=%d) failed to write proper prefix", capacity);
@@ -2077,7 +2077,7 @@ UClassID TestCollator::getDynamicClassID(void) const
 void TestCollator::getVersion(UVersionInfo info) const
 {
 	// api not used, this is to make the compiler happy
-	memset(info, 0, U_MAX_VERSION_LENGTH);
+	memzero(info, U_MAX_VERSION_LENGTH);
 }
 
 void TestCollator::setAttribute(UColAttribute /*attr*/, UColAttributeValue /*value*/,

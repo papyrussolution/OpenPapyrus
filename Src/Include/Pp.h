@@ -553,7 +553,7 @@ enum PredefinedImpExpFormat { // @persistent
 	piefNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
 	piefNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
 	piefICalendar                = 7, // @v11.0.1 iCalendar
-	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура 
+	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -1423,7 +1423,7 @@ public:
 //
 // Descr: Утилита, используемая для инициализации размера строки, возвращаемой динамической функцией.
 //
-int FASTCALL DbeInitSize(int option, DBConst * result, size_t s); 
+int FASTCALL DbeInitSize(int option, DBConst * result, size_t s);
 //
 //
 //
@@ -4162,7 +4162,7 @@ private:
 // Descr: Структура товарной котировки.
 // Note: Замечание по передаче при синхронизации: эта структура синхронизируется по полям
 //   функцией PPObjGoods::SerializePacket. То есть, добавлять новые поля в эту структуру можно,
-//   однако менять типы существующий полей не допустимо.
+//   однако менять типы существующий полей недопустимо.
 //
 struct PPQuot { // @persistent(DBX see Note above)
 	//
@@ -5745,13 +5745,13 @@ public:
 		hfMore       = 0x0020, // Пакет не полностью передал данные. Требуется дополнительный
 			// запрос на продолжение передачи. Пока этот флаг используется для передачи больших файлов порциями.
 		// Замечания по следующим флагам, регламентирующим сжатие и шифрование сообщения:
-		// -- если hfEncrypted установлен, то тело сообщения, следующее за заголовком зашифровано. Алгоритм 
+		// -- если hfEncrypted установлен, то тело сообщения, следующее за заголовком зашифровано. Алгоритм
 		//    и ключ шифрования определяется вне протокола. То есть, сообщение не несет никакой информации
 		//    об этом.
 		// -- предполагается, сжатие будет работать по различным алгоритмам. Для начала мы ввели самый
 		//    популярный вариант - ZLIB. Не должно быть ситуации при которой заголово содержит более одного
 		//    флага с признаком сжатия.
-		// -- если к сообщению одновременно должны быть применены и сжатие и шифрование, то исходное сообщение 
+		// -- если к сообщению одновременно должны быть применены и сжатие и шифрование, то исходное сообщение
 		//    сначала сжимается, затем шифруется.
 		// -- поле заголовка DataLen содержит размер сжатого и зашифрованного пакета (не исходного)
 		// -- если необходимо включить в пакет хэш для контроля целостности, то это должно быть реализовано
@@ -5769,7 +5769,7 @@ public:
 		int16  Zero;        // Два нулевых байта, позволяющие отличить структурированную бинарную команду от текстовой
 		uint8  ProtocolVer; // Версия протокола. (1..) @v11.0.10 int16-->uint8
 		uint8  Padding;     // @v11.0.10 Если данные шифруются, то в это поле вносится размер "набивки" (padding) до величины блока шифрования
-		int32  DataLen;     // Полный размер пакета (включая и этот заголовок). Это - размер передаваемый транспортом. Следовательно, 
+		int32  DataLen;     // Полный размер пакета (включая и этот заголовок). Это - размер передаваемый транспортом. Следовательно,
 			// при блочном шифровании эффективные данные имеют размер (DataLen-Padding)
 		int32  Type;        // Для команды: идент команды, для ответа: тип данных.
 		uint32 Flags;       // @flags
@@ -6249,7 +6249,7 @@ public:
 	int    ApplyRoutingParamEntry(const RoutingParamEntry & rP);
 	//
 	// Descr: Устанавливает время жизни сообщения (ttlMs) в свойствах pProps и возвращает
-	//   установленную величину. 
+	//   установленную величину.
 	//   Используется как маркерная функция в комбинациях запрос-ответ (RPC)
 	//
 	static long SetupMessageTtl(long ttlMs, MessageProperties * pProps);
@@ -7099,7 +7099,7 @@ private:
 	};
 	struct CDbEntry {
 		long   DbPathId;
-		long   State;              // 
+		long   State;              //
 		LDATETIME LastCacheUpdate; // Время последнего обновления кэшей по системному журналу
 	};
 	SArray DbEntryList;
@@ -7176,7 +7176,7 @@ public:
 		LDATETIME StartMoment; // Время запуска
 		SString Text;          // Текстовое обозначение потока (зависит от Kind)
 		SString LastMsg;       //
-		int32   UniqueSessID;  // 
+		int32   UniqueSessID;  //
 	};
 	//
 	// Descr: Вид потоков
@@ -7261,7 +7261,7 @@ private:
 		char   Signature[64]; // Собственно, сигнатура. Реализована в виде плоского массива символов
 			// с целью снизить накладные расходы на обработку.
 		mutable SMtLock Lck; // Блокировка (возможно, правильнее будет read-write, но пока сделаем по-проще)
-		int64 Tm; // Epoch-time время установки. Используется для сброса, если время жизни превысило 
+		int64 Tm; // Epoch-time время установки. Используется для сброса, если время жизни превысило
 			// допустимый таймаут (другими словами, для освобождения потока, чтобы он мог заняться иной работой).
 	};
 	OuterSignatureBlock OtrSigntr;
@@ -7749,7 +7749,7 @@ private:
 	PPVersionInfo Ver;
 	SString BinPath;       // @*PPSession::Init()
 	PPPaths CommonPaths;
-	StringSet AvailableHostList; // @v11.1.2 
+	StringSet AvailableHostList; // @v11.1.2
 	StringSet UnavailableHostList; // @v11.1.2
 	PPDriveMapping DrvMap;
 	ObjIdentBlock * P_ObjIdentBlk;
@@ -7801,7 +7801,7 @@ private:
 		//   Если !isempty(pSignature), то ищет поток с заданной сигнатурой.
 		//   Если поток с заданной сигнатурой не найден, то ищет первый поток, имеющий
 		//   пустую сигнатуру и имеющий статус SlThread::stIdle.
-		// Returns: 
+		// Returns:
 		//   !0 - указатель на поток, отвечающий перечисленным выше критериям
 		//    0 - поток по заданаым критериям не найден.
 		//
@@ -8447,7 +8447,7 @@ class PPObject {
 public:
 	//
 	// Descr: Сигнатура сериализации для объектных пакетов. Вводится начиная с версии @v11.1.12
-	//   для обратной совместимости при считывании старых версий пакетов. Важный элемент применения 
+	//   для обратной совместимости при считывании старых версий пакетов. Важный элемент применения
 	//   заключается в том, чтобы можно было отличить пакеты, которые не имеют такой сигнатуры.
 	//
 	struct SerializeSignature { // @v11.1.12
@@ -8456,7 +8456,7 @@ public:
 		//
 		SerializeSignature();
 		//
-		// Descr: Конструктор, создающий экземпляр с заданным типом объекта objType 
+		// Descr: Конструктор, создающий экземпляр с заданным типом объекта objType
 		//   и текущим номером версии.
 		//
 		explicit SerializeSignature(PPID objType);
@@ -8482,7 +8482,7 @@ public:
 		//   варианте сборки в этом случае возникает исключение assert.
 		// Returns:
 		//   >0 - запись осуществлена успешно
-		//    0 - ошибка. 
+		//    0 - ошибка.
 		//
 		int    Write(SBuffer & rBuf) const;
 
@@ -9389,10 +9389,10 @@ public:
 	//   0 - ошибка
 	//
 	static int EditDialog(PPID opTypeID, BillMultiPrintParam * pData);
-	// 
+	//
 	// Descr: Перечисление печатных форм по документам.
 	// Note: Значения используются как смещения битовой маски поля FormBits //
-	// 
+	//
 	enum { // @persistent (не менять значения элементов ни в коем случае!)
 		pbBill           =  0,
 		pbQCert          =  1,
@@ -9408,8 +9408,8 @@ public:
 		pbLotTagImage    = 11, // Изображения из тегов лотов
 		pbUniBill        = 12, // Универсальный передаточный документ
 		// Следующий вариант вставлять сюда
-		pb__Count              // Общее количество вариантов      
-	};	
+		pb__Count              // Общее количество вариантов
+	};
 	enum {
 		fMakeOutCopies     = 0x0001, // Разобрать по копиям
 		fUpdatedPricesOnly = 0x0002  // Печатать только позиции с изменившимися ценами (специализированный флаг)
@@ -9512,11 +9512,11 @@ struct PPClientAgreement { // @persistent
 	long   PaymDateBase;   // База для определения даты оплаты по документу.
 	PPID   EdiPrvID;       // @v10.0.0 ->Ref(PPOBJ_EDIPROVIDER)
 	// @v10.0.0 uint8  Reserve2[4];    // @reserve
-	// @v11.2.0 char   Code2[24];      // @v10.2.9 Номер соглашения 
+	// @v11.2.0 char   Code2[24];      // @v10.2.9 Номер соглашения
 	uint8  Reserve3[24];   // @v11.2.0 Переведено в резерв. Номер соглашения - в поле Code_
 	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов
 	SString Code_;            // @v11.2.0 Номер соглашения //
-	BillMultiPrintParam Bmpp; // @v11.2.0 Параметры множественной печати документов. Позволит быстро установить эти параметры для документа 
+	BillMultiPrintParam Bmpp; // @v11.2.0 Параметры множественной печати документов. Позволит быстро установить эти параметры для документа
 		// по конкретному контрагенту.
 };
 
@@ -10398,7 +10398,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
 	PPID   AgtBillID;          // @v10.1.12 @transient. Проекция BillTbl::Rec::AgtBillID
 	PPID   CcID;               // @v10.9.7  Ид чека, сформированного по этому документу для печати
-	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах. 
+	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах.
 };
 //
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
@@ -10774,7 +10774,7 @@ public:
 	int    Set_2(int rowIdx, const MarkSet * pS);
 	int    Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) const;
 	//
-	// Descr: Находит все марки в контейнере, ассоциированные с боксом boxId и возвращает их в 
+	// Descr: Находит все марки в контейнере, ассоциированные с боксом boxId и возвращает их в
 	//   StringSet'е rSs.
 	//   rSs предварительно очищается функцией.
 	//   Сам номер бокса в сет не заносится.
@@ -14173,7 +14173,7 @@ public:
 
 		enum {
 			fEdit     = 0x0001, // @transient Признак операции, уже отраженной в БД. Для такой
-				// операции не допустимо изменене даты/времени и установка карты-приемника (DestSCardID)
+				// операции недопустимо изменене даты/времени и установка карты-приемника (DestSCardID)
 			fRemove   = 0x0002, // @transient Признак требования удалить записи
 			fFreezing = 0x0004, // @persistent Операция приостановки действия карты
 			fLeveling = 0x0008  // @v10.9.0 @persistent Специальная операция выравнивания остатка по карте
@@ -14628,7 +14628,7 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 #define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
 #define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
 #define CCAMTTYP_MANDIS     15 // @v11.0.9 Скидка на чек в абсолютном выражении, предоставленная вручную
-#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную 
+#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную
 	// @#{Один чек не может одновременно иметь ненулевые значения CCAMTTYP_MANDIS и CCAMTTYP_MANPCTDIS}
 //
 // Invariants:
@@ -14780,7 +14780,7 @@ public:
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
 		PreprocessChZnCodeResult & Z();
-		uint   LineIdx;          // [1..] Индекс строки в чеке  
+		uint   LineIdx;          // [1..] Индекс строки в чеке
 		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
 			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
 			// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
@@ -15554,7 +15554,7 @@ public:
 	//   соответствующего описанию PPNamedFilt извлекается отчет по умолчанию (DefReportId). В случае,
 	//   если такой отчет существует, то применяется его структура данных.
 	//   При безуспешности получения имени экспортной структуры функция возвращает 0 (ошибка).
-	// ARG(format IN): либо SFileFormat::Xml, либо SFileFormat::Json. 
+	// ARG(format IN): либо SFileFormat::Xml, либо SFileFormat::Json.
 	//   Возможен вариант 0 (SFileFormat::Unkn) - трактуется как SFileFormat::Xml.
 	//
 	static int ExecuteNF(const PPNamedFilt * pNf, const char * pDl600Name, int format, SBuffer & rResult);
@@ -15857,7 +15857,7 @@ public:
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
-	SPoint2S P;             // Позиция левого верхнего угла иконки на рабочем столе 
+	SPoint2S P;             // Позиция левого верхнего угла иконки на рабочем столе
 	uint8  Reserve[4];    // @reserve
 	mutable LayoutFlexItem::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
 	SBuffer Param;
@@ -16161,8 +16161,8 @@ protected:
 	int    CheckParamBuf(const SBuffer *, size_t neededSize) const;
 private:
 	PPJobDescr D;
-protected: 
-	SString JobDbSymb; // @v11.0.0 @transient @crutch Символ базы данных, к которой привязана задача, 
+protected:
+	SString JobDbSymb; // @v11.0.0 @transient @crutch Символ базы данных, к которой привязана задача,
 		// передаваемый перед вызовом EditParam() и Run().
 		// Включен ради единственной (возможно, пока) задачи резервного копирования, в которой иногда возникает
 		// коллизия, связанная с тем, что параметры задачи редактируются из сеанса, авторизованного не в той базе
@@ -21601,11 +21601,12 @@ public:
 		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
 		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
 	*/
+	static void LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult);
 	//
 	// Descr: Функция реализует препроцессинг кодов маркировки товаров в соответствии с российскими правилами ОФД 1.2
-	// ARG(op IN): 
+	// ARG(op IN):
 	//   0 - проверка марки
-	//   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...) 
+	//   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 	//   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 	// Returns:
 	//  <0 - функция не поддерживается либо pCode не является валидным кодом честный знак
@@ -26132,9 +26133,9 @@ public:
 		enum {
 			attrUUID = 1,
 			attrCommonName,
-			attrGLN, 
+			attrGLN,
 			attrINN,
-			attrPhone, 
+			attrPhone,
 			attrEMail
 		};
 		long   Flags;
@@ -26147,7 +26148,7 @@ public:
 		SString Phone; // Поиск по телефону работает только если телефоны проиндексированы
 		SString EMail;
 		// default priority is: attrUUID, attrGLN, attrINN, attrPhone, attrEMail, attrCommonName
-		LongArray AttrPriorityList; 
+		LongArray AttrPriorityList;
 	};
 	int    Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList, int use_ta);
 	//
@@ -28509,7 +28510,7 @@ struct RetailGoodsInfo {   // @transient
 	};
 	PPID   ID;             // ->Goods.ID
 	char   Name[128];      // =Goods(ID).Name
-	char   BarCode[24];    // 
+	char   BarCode[24];    //
 	char   UnitName[48];   //
 	char   Manuf[48];      //
 	char   ManufCountry[48];
@@ -30395,7 +30396,7 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_ALBATROSCFG2
 	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и имеет размер sizeof(PropertyTbl)
-	char   Reserve[20];    // @reserve 
+	char   Reserve[20];    // @reserve
 	int16  VetisCertDelay; // @v10.1.10 Максимальная задержка в днях от даты выпуска сертификата до получения накладной с ним
 		// Примениятся для фильтрации документов при связывании с сертификатами.
 	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
@@ -30670,13 +30671,13 @@ public:
 	//   Если параметр pProcessedMark != 0, то при правильной длине и нахождении в коде pMark недопустимого
 	//   символа функция пытается спроецировать этот символ на латинский в соответствии с текущей
 	//   раскладкой клавиатуры. Если все такие попытки оказались успешными, то преобразованный код
-	//   марки заносится в буфер *pProcessedMark. Если все же pMark имеет не допустимый формат, то
+	//   марки заносится в буфер *pProcessedMark. Если все же pMark имеет недопустимый формат, то
 	//   *pProcessedMark при выходе из функции содержит пустую строку.
 	//
 	static int FASTCALL IsEgaisMark(const char * pMark, SString * pProcessedMark);
 	static int ParseEgaisMark(const char * pMark, EgaisMarkBlock & rMb);
 	//
-	// Descr: Определяет относится ли код категории алкогольной продукции pCode 
+	// Descr: Определяет относится ли код категории алкогольной продукции pCode
 	//   к пиву и иной пивной продукции (пиво, пуаре, медовуха и пр.)
 	//   Функция применяется для автоматического разделения операций по товарам
 	//   с целью правильного формирования регламентированных отчетов.
@@ -30952,9 +30953,9 @@ private:
 			fAltGroup       = 0x0002,
 			fRemoveExtTextA = 0x0004,
 			fRemoveExtTextB = 0x0008,
-			fRemoveExtTextC = 0x0010, // 
-			fRemoveExtTextD = 0x0020, // 
-			fRemoveExtTextE = 0x0040, // 
+			fRemoveExtTextC = 0x0010, //
+			fRemoveExtTextD = 0x0020, //
+			fRemoveExtTextE = 0x0040, //
 			fInit           = 0x0080  // Структура была иницализирована (может быть использована для редактирования)
 		};
 		long   Action;
@@ -31596,7 +31597,7 @@ public:
 	//   Допустимые значения refType: PPOBJ_GOODSGROUP, PPOBJ_UNIT, PPOBJ_GOODSCLASS, PPOBJ_GOODSTYPE
 	// Returns:
 	//   !0 - список объектов
-	//    0 - ошибка (например, refType задает не допустимый тип объекта)
+	//    0 - ошибка (например, refType задает недопустимый тип объекта)
 	//
 	const PPIDArray * FASTCALL GetRefList(int refType) const;
 private:
@@ -32842,7 +32843,7 @@ public:
 	//
 	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
 	//
-	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами 
+	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами
 	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
 	//   Если parentTokId == 0, то применяется тег с идентификатором PPHSC_RU_FIO.
 	//
@@ -32872,7 +32873,7 @@ public:
 		fImpRowsFromSameFile  = 0x0001,
 		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
-		fRestrictByMatrix     = 0x0004, // 
+		fRestrictByMatrix     = 0x0004, //
 		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
 		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
 		fDontIdentGoodsByName = 0x0020  // @v10.5.0  При идентификации товаров
@@ -32934,7 +32935,7 @@ public:
 		fCreateCc       = 0x0008,  // При создании документа одновременно создавать чек заказа
 		fDisableLogger  = 0x0010,  // Не выводить сообщения в окно журнала
 		fEgaisImpExp    = 0x0020,  // Обмен данными с ЕГАИС
-		fTestMode       = 0x0040,  // 
+		fTestMode       = 0x0040,  //
 		fDontRemoveTags = 0x0080,  // Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
 		fPaymOrdersExp  = 0x0100,  // Экспорт платежных поручений
 		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
@@ -36038,7 +36039,7 @@ private:
 	// то при создании нового объекта автоматически создавать и процессор в этой группе, соответствующий новому объекту.
 #define PRCF_HASEXT                0x00200000L // С процессором связана запись расширения в PropertyTbl
 #define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
-#define PRCF_ALLOWREPEATING        0x00800000L // @v11.0.4 Допускается ввод параметров повтора для сессий 
+#define PRCF_ALLOWREPEATING        0x00800000L // @v11.0.4 Допускается ввод параметров повтора для сессий
 //
 // Флаг передаваемый с дополнительным параметром, и сигнализирующий о том, что
 // речь идет о группе процессоров
@@ -37107,13 +37108,13 @@ public:
 	int    MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const DateRange & rPeriod, PPIDArray & rResultList, int use_ta);
 	//
 	// Descr: Реализация сохранения расширения сессии в таблице Property (посредством объекта Reference).
-	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции PutExtension так и 
+	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции PutExtension так и
 	//   для работы служебных процедур (в частности, конвертации).
 	//
 	static int Implement_PutExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta);
 	//
 	// Descr: Реализация извлечения расширения сессии из таблицы Property (посредством объекта Reference).
-	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции GutExtension так и 
+	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции GutExtension так и
 	//   для работы служебных процедур (в частности, конвертации).
 	//
 	static int Implement_GetExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt);
@@ -37195,7 +37196,7 @@ public:
 		uint8  Reserve[28]; // @reserve @v11.0.4 [32]-->[28]
 		long   Action;      // @v11.0.4 flags
 		DateRange Period;   // Период обзора сессий (по StDt)
-		long   Flags_;      // 
+		long   Flags_;      //
 		long   Reserve2;    // @reserve
 	};
 	PrcssrTSessMaintenance();
@@ -37239,7 +37240,7 @@ struct TSessionFilt : public PPBaseFilt {
 		fSubSess       = 0x0008  // Если флаг установлен и SuperSessID != 0, то показываются субсессии для сессии SuperSessID.
 	};
 	char   ReserveStart[18]; // @anchor
-	int16  Ft_WritedOff; // @v11.0.6 
+	int16  Ft_WritedOff; // @v11.0.6
 	PPID   QuotKindID;   // Вид котировки, испольуземый для извлечения цен
 	PPID   UhttStoreID;  // ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
 	int32  Order;        // Порядок сортировки
@@ -38732,7 +38733,7 @@ struct BillViewItem : public BillTbl::Rec {
 	double Credit;
 	double Saldo;
 	LDATE  LastPaymDate; // Дата последнего платежа по документу
-	char   SMemo[512];   // @v11.1.12 
+	char   SMemo[512];   // @v11.1.12
 };
 
 typedef int (*BillViewEnumProc)(const BillViewItem * pItem, void * pExtraPtr);
@@ -38909,7 +38910,7 @@ private:
 	PPObjLocation LocObj;     //
 	PPObjArticle  ArObj;      //
 	PPObjGoods    GObj;       //
-	PPObjPerson   PsnObj;     // @v11.1.9 
+	PPObjPerson   PsnObj;     // @v11.1.9
 	PPObjBill    * P_BObj;    //
 	TempBillTbl  * P_TempTbl; //
 	TempOrderTbl * P_TempOrd; //
@@ -43008,7 +43009,7 @@ public:
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
 		fNotSpFinished    = 0x20000000, // На чеке не установлен флаг CCHKF_SPFINISHED
 		fAvoidExt         = 0x40000000, // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
-		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные 
+		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные
 	};
 	enum {
 		ctNone = 0,
@@ -43445,7 +43446,7 @@ public:
 	// Descr: Варианты отображения дополнительных факторов отчета
 	//
 	enum {
-		extfNone                = 0, // 
+		extfNone                = 0, //
 		extfPersonTag           = 1, // [0x40000000] Тег персоналии
 		extfPersonRegister      = 2, // [0x20000000] Регистр персоналии
 		extfLocTag              = 3, // @v11.1.0 [0x10000000] Тег локации (Flags & fDiffByDlvrAddr only)
@@ -43871,7 +43872,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		ffldDiff       = 0x00000004L
 	};
 
-	char   ReserveStart[8];    // @anchor 
+	char   ReserveStart[8];    // @anchor
 	PPID   FreightAgentID;     // ->Person.ID Транспортный брокер
 	SubstGrpBill Sgb;          // Подстановка документа.
 		// Если !!Sgb то отчет строится не в разрезе товаров (или их подстановок), а в разрезе подстановочного
@@ -44102,7 +44103,7 @@ struct SCardFilt : public PPBaseFilt {
 		fNoEmployer            = 0x0040, // @internal Не заполнять поле SCardViewItem::EmployerID (для увеличения производительности)
 		fInnerFilter           = 0x0080  // Внутренний флаг, используемый для ограничений редактирования внутреннего фильтра
 	};
-	uint8  ReserveStart[12]; // @anchor 
+	uint8  ReserveStart[12]; // @anchor
 	PPID   LocID;            // -->Location.ID Локация, которой принадлежат карты
 	DateRange IssuePeriod;   // Период даты выпуска карты
 	DateRange ExpiryPeriod;  // Период срока истечения годности карты
@@ -44110,8 +44111,8 @@ struct SCardFilt : public PPBaseFilt {
 	PPID   SeriesID;      // Серия карт. Если ScsList.NotEmpty(), то SeriesID игнорируется.
 	PPID   PersonID;      //
 	PPID   EmployerID;    // Работодатель, чьи сотрудники владеют картами
-	RealRange PDisR;      // 
-	RealRange TurnoverR;  // 
+	RealRange PDisR;      //
+	RealRange TurnoverR;  //
 	int16  Ft_Inherited;  //
 	int16  Ft_Closed;     //
 	long   Order;         // PPViewSCard::IterOrder
@@ -45740,7 +45741,7 @@ public:
 	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	int    SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
-	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList); // @v11.0.3 
+	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList); // @v11.0.3
 	int    SearchAnalog(const PPPrjTaskPacket * pPack, PPID * pAnalogID);
 	int    InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
@@ -46007,7 +46008,7 @@ public:
 		//   для того, чтобы в последующем принять решение о запросе обновления.
 		//
 		tagExpiryPeriodSec = 8, // @v11.2.3 Период истечения срока действия в секундах
-		tagExpiryEpochSec  = 9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970) 
+		tagExpiryEpochSec  = 9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
@@ -46058,7 +46059,7 @@ public:
 		//   для того, чтобы в последующем принять решение о запросе обновления.
 		//
 		tagExpiryPeriodSec = 24, // @v11.2.3 Период истечения срока действия в секундах
-		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970) 
+		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 	};
 	enum {
 		fVerifiable = 0x0001
@@ -46122,7 +46123,7 @@ public:
 		int    FASTCALL Copy(const SvcDbSymbMap & rS);
 		int    Store(const char * pFilePath);
 		//
-		// Descr: Загружает экземпляр из файла pFilePath. 
+		// Descr: Загружает экземпляр из файла pFilePath.
 		// ARG(pFilePath IN): Имя файла, из которого следует загрузить экзмепляр.
 		//   Если isempty(pFilePath), то читает из штатного хранилища, определяемого методом this->InitFilePath().
 		// ARG(loadTimeUsage IN): Опция, определяющая использования времени последней загрузки LoadTime:
@@ -46180,7 +46181,7 @@ public:
 	int    PutDocument(PPID * pID, int direction, int docType, const SBinaryChunk & rIdent, SSecretTagPool & rPool, int use_ta);
 	int    GetDocIdListByType(int direction, int docType, const SBinaryChunk & rIdent, LongArray & rIdList);
 	//
-	// OwnPeerEntry содержит следующие теги: 
+	// OwnPeerEntry содержит следующие теги:
 	//    SSecretTagPool::tagPrimaryRN - первичный ключ (длинное случайное число)
 	//    SSecretTagPool::tagSvcIdent - публичный идентификатор. Это - идентификатор, которым узел представляется в широковещательном контексте.
 	//    SSecretTagPool::tagAG
@@ -46198,7 +46199,7 @@ private:
 
 class StyloQCommandList { // @construction
 public:
-	struct Item { 
+	struct Item {
 		Item();
 		enum { // @persistent
 			sqbcEmpty       = 0,
@@ -46210,15 +46211,15 @@ public:
 		int32  Ver;                 //
 		int32  BaseCmdId;           //
 		int32  Flags;               //
-		S_GUID Uuid;                //   
+		S_GUID Uuid;                //
 		int32  ObjTypeRestriction;  //
 		int32  ObjGroupRestriction; //
-		SString DbSymb;             // 
+		SString DbSymb;             //
 		SString Name;               // utf8
 		SString ViewSymb;           //
 		SString Description;        // utf8 Подробное описание команды
 		SString Image;              // Ссылка на изображение, ассоциированное с командой
-		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
+		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId
 		PPNamedFilt::ViewDefinition Vd;
 	};
 	//
@@ -46243,9 +46244,9 @@ public:
 	//   в противном случае вставляет объект с именем pName в родительский json-контейнер.
 	//   Если pParent != 0, то для аргумента pName должно выполнятся условие isempty(pName) == false
 	// ARG(expirationSec IN): если > 0, то в json-описание вставляется параметр expiration_period_sec=expirationSec.
-	// Returns: 
+	// Returns:
 	//   0 - ошибка
-	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть 
+	//   !0 - Если pParent == 0, то возвращает указатель на сформированный json-объект, который должен быть
 	//      разрушен вызывающей функцией.
 	//      Если же pParent != 0, то возвращает pParent который, естественно, полностью управляется вызывающей функцией.
 	//
@@ -46326,7 +46327,7 @@ public:
 	// Descr: Флаги функции SetupMqbParam
 	//
 	enum {
-		smqbpfInitAccessPoint = 0x0001, // Инициализировать 
+		smqbpfInitAccessPoint = 0x0001, // Инициализировать
 		smqbpfLocalMachine    = 0x0002, // Локальный сервер, ассоциированный с компьютером
 		smqbpfLocalSession    = 0x0004, // Локальный сервер, ассоциированный с сеансом
 			// Flags smqbpfLocalMachine and smqbpfLocalSession mutualy exclusive
@@ -46367,7 +46368,7 @@ public:
 	//
 	int    KexGenerateKeys(SSecretTagPool & rSessCtx, BIGNUM * DebugPubX, BIGNUM * DebugPubY);
 	int    KexGenerageSecret(SSecretTagPool & rSessCtx, const SSecretTagPool & rOtherCtx);
-	
+
 	class RoundTripBlock {
 	public:
 		RoundTripBlock();
@@ -46418,7 +46419,7 @@ public:
 	int    GetOwnPeerEntry(StyloQCore::StoragePacket * pPack);
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
 	//
-	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы 
+	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы
 	//   быстро установить соединение с противоположной стороной.
 	//   Пакет pPack (если не нулевой) должен содержать следующие теги:
 	//     SSecretTagPool::tagSessionPublicKey
@@ -46441,12 +46442,12 @@ public:
 	int    ProcessCommand(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent, const SBinaryChunk * pSessSecret, StyloQProtocol & rReplyPack);
 	//
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
-	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, 
+	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
 private:
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
-	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
 	enum {
 		gcisfMakeSecret = 0x0001
@@ -46460,17 +46461,17 @@ private:
 	//
 	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
 	//
-	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера. 
+	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
 	//   извлекается из реестра, если же flag == smqbpfLocalSession то в качестве дополнения используется GUID сессии SLIB.
 	// Returns:
 	//   GUID дополнения. Если возвращенный GUID оказался нулевым, то это - признак ошибки.
 	//
 	static S_GUID GetLocalAddendum(long flag/*smqbpfLocalMachine || smqbpfLocalSession*/);
-public: // @debug временно 
+public: // @debug временно
 	//
 	// Descr: Утилитная функция, отправляющая http запрос сервису.
-	// ARG(rB IN): 
+	// ARG(rB IN):
 	// ARG(rPack IN/OUT): Протокольный пакет для отправки. При успешном завершении ответ будет скопирован
 	//   в этот же пакет.
 	// Return:
@@ -46513,7 +46514,7 @@ public:
 	//
 	int    EditConfig(PPID id);
 	//
-	// Descr: Интерактивная функция редактированя параметров лика записи 
+	// Descr: Интерактивная функция редактированя параметров лика записи
 	//
 	int    EditFace(PPID id);
 public:
@@ -46545,7 +46546,7 @@ class PPViewStyloQBindery : public PPView {
 public:
 	struct BrwItem : public StyloQBinderyViewItem { // @flat
 		uint   ObjNameP;
-		uint   FaceP; 
+		uint   FaceP;
 	};
 	PPViewStyloQBindery();
 	~PPViewStyloQBindery();
@@ -46594,7 +46595,7 @@ class PPViewStyloQCommand : public PPView {
 public:
 	struct BrwItem : public StyloQBinderyViewItem { // @flat
 		uint   ObjNameP;
-		uint   FaceP; 
+		uint   FaceP;
 	};
 	PPViewStyloQCommand();
 	~PPViewStyloQCommand();
@@ -49256,7 +49257,7 @@ private:
 	PPID   ToEnterpriseID;
 };
 //
-// 
+//
 //
 class AlcoDeclRuFilt : public PPBaseFilt {
 public:
@@ -49275,17 +49276,17 @@ public:
 		fShowAsRcpt      = 0x0004, // Показывать таблицу приходов (иначе - движение)
 		fDetail          = 0x0008  // Специальный вариант детализации для анализа содержимого строк отчета
 	};
-	char   ReserveStart[104]; // @anchor 
+	char   ReserveStart[104]; // @anchor
 private:
 	uint64 ParentViewPtr;     // @v11.0.7 Указатель на родительский объект PPViewAlcoDeclRu. Используется при отображении детализации.
 public:
 	PPID   ManufID;           // @v11.0.7 For detail
 	PPID   DivID;             // @v11.0.7 For detail
 	PPID   MainOrgID;         // ->Person.ID Главная организация. Если 0, то из текущего состояния //
-	uint32 CorrectionNo;      // Номер корректировки. Если ноль, то - основная выгрузка, иначе - корректирующая //  
-	DateRange Period;         // 
+	uint32 CorrectionNo;      // Номер корректировки. Если ноль, то - основная выгрузка, иначе - корректирующая //
+	DateRange Period;         //
 	long   Flags;
-	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра	
+	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt DivList;    // Список подразделений
 	SString AlcoCodeList;     // Список символов видов алкогольной продукции, которыми следует ограничить отчет
 };
@@ -49401,7 +49402,7 @@ private:
 		PPID   GoodsID;
 		PPID   BillID;
 		LDATE  Dt;         // Дат
-		uint   OpCat;      // opcatXXX Категория операции 
+		uint   OpCat;      // opcatXXX Категория операции
 		double Qtty;       // Количество (дал)
 		double Rest;       // Остаток после операции (дал)
 	};
@@ -51444,7 +51445,7 @@ public:
 	//
 	// Descr: Утилитная функция, объявляющая все колонки таблицы сортируемыми.
 	//   Используется только из тех контроллеров данных, которые реализуют механизм сортировки по выбранным колонкам.
-	//   Прямое использование не допустимо.
+	//   Прямое использование недопустимо.
 	//
 	void   Helper_SetAllColumnsSortable();
 	PPView * P_View;
@@ -52228,13 +52229,13 @@ public:
 		explicit Rec(const ObjIdListFilt * pLocList = 0, PPID parentID = 0, PPID ownerID = 0);
 		ObjIdListFilt LocList;
 		PPID   OwnerID;
-		PPID   ParentID; 
+		PPID   ParentID;
 	};
 	enum {
 		fEnableSelUpLevel  = 0x0001, // Допускается выбор группы складов
 		fWarehouseCell     = 0x0002, // Применять для выбора складской ячейки
 		fStandaloneByPhone = 0x0004, // Выбор автономной локации по номеру телефона
-		fDivision          = 0x0008  // @v11.0.7 Применять для выбора подразделения //  
+		fDivision          = 0x0008  // @v11.0.7 Применять для выбора подразделения //
 	};
 	LocationCtrlGroup(uint ctlselLoc, uint ctlCode, uint ctlPhone, uint cmEditLocList, uint cmEditLoc, long flags, const PPIDArray * pExtLocList);
 	void   SetExtLocList(const PPIDArray * pExtLocList);
@@ -52259,7 +52260,7 @@ private:
 	long   Flags;          // @flags
 	PPID   GoodsID;        // Товар, по наличию которого следует отбирать ячейки
 	PPIDArray ExtLocList;  // Список дополнительных локаций, которые не относятся к основному списку.
-	PPObjLocation LocObj;  // 
+	PPObjLocation LocObj;  //
 };
 //
 // Descr: Группа выбора кассового (POS) узла либо списка узлов.
@@ -53920,7 +53921,7 @@ protected:
 		char   Code[32];         // Номер карты
 	};
 	//
-	// Descr: Блок параметров ручной скидки на весь чек. Скидка может быть предоставлена как в процентах, 
+	// Descr: Блок параметров ручной скидки на весь чек. Скидка может быть предоставлена как в процентах,
 	//   так и в суммовом выражении.
 	//   Структура считается неопределенной если Discount <= 0.0
 	//   Отрицательная скидка (искусственное увеличение цены) не допускается.
@@ -54624,8 +54625,8 @@ public:
 		curOdious, // @debug
 		penLayoutBorder, // @v10.4.8
 		penContainerCandidateBorder, // @v10.9.6
-		penLayoutEvenBorder, // @v11.2.2 Цвет рамки лейаутов четного уровня 
-		penLayoutOddBorder, // @v11.2.2 Цвет рамки лейаутов нечетного уровня 
+		penLayoutEvenBorder, // @v11.2.2 Цвет рамки лейаутов четного уровня
+		penLayoutOddBorder, // @v11.2.2 Цвет рамки лейаутов нечетного уровня
 
 		anchorLastTool // Значение для выравнивания идентификаторов инструментов в производных окнах
 	};
@@ -54673,7 +54674,7 @@ protected:
 			fUseScrlrX = 0x0001, // Использовать ScrlrX вместо (Rx, ScX)
 			fUseScrlrY = 0x0002  // Использовать ScrlrY вместо (Ry, ScY)
 		};
-		uint   Flags;		
+		uint   Flags;
 		IntRange Rx;        // Диапазон горизонтального скроллирования //
 		IntRange Ry;        // Диапазон вертикального скроллирования   //
 		int    ScX;         // Горизонтальная позиция скроллера        //
@@ -54848,7 +54849,7 @@ public:
 		MarketWareItem();
 		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS);
 		int64  OuterId;      // Идентификатор в VK полученный предварительным запросом всех позиций на ресурсе
-		int64  OwnerId;      // Сообщество-владелец 
+		int64  OwnerId;      // Сообщество-владелец
 		int    Availability;
 		int    CurrencyId;
 		double CartQtty;

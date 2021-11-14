@@ -65,7 +65,7 @@ NewConverter * CnvExtOpen(UCMFile * ucm)
 		printf("out of memory\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
-	uprv_memset(extData, 0, sizeof(CnvExtData));
+	memset(extData, 0, sizeof(CnvExtData));
 	extData->ucm = ucm; /* aliased, not owned */
 	extData->newConverter.close = CnvExtClose;
 	extData->newConverter.isValid = CnvExtIsValid;
@@ -881,7 +881,7 @@ static void addFromUTrieEntry(CnvExtData * extData, UChar32 c, uint32_t value) {
 					/* point to the previous such block and remove this block from stage3 */
 					extData->stage2[i2] = extData->stage3Sub1Block;
 					extData->stage3Top -= MBCS_STAGE_3_BLOCK_SIZE;
-					uprv_memset(extData->stage3+extData->stage3Top, 0, MBCS_STAGE_3_BLOCK_SIZE*2);
+					memset(extData->stage3+extData->stage3Top, 0, MBCS_STAGE_3_BLOCK_SIZE*2);
 				}
 				else {
 					/* remember this block's stage2 entry */

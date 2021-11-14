@@ -6205,43 +6205,43 @@ void LocaleTest::TestUndCAPI() {
 
 	// uloc_getName()
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(empty, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(root, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", root);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(und, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(empty_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty_script, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(empty_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_region);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty_region, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(und_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getName()", empty_script, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getName(und_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_region);
 	assertTrue("reslen >= 0", reslen >= 0);
@@ -6249,43 +6249,43 @@ void LocaleTest::TestUndCAPI() {
 
 	// uloc_getBaseName()
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(empty, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(root, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", root);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(und, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(empty_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty_script, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(empty_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_region);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty_region, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(und_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getBaseName()", empty_script, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getBaseName(und_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_region);
 	assertTrue("reslen >= 0", reslen >= 0);
@@ -6293,43 +6293,43 @@ void LocaleTest::TestUndCAPI() {
 
 	// uloc_getParent()
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(empty, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(root, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", root);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(und, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(empty_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(empty_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_region);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(und_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getParent()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getParent(und_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_region);
 	assertTrue("reslen >= 0", reslen >= 0);
@@ -6337,43 +6337,43 @@ void LocaleTest::TestUndCAPI() {
 
 	// uloc_getLanguage()
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(empty, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(root, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", root);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(und, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(empty_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(empty_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", empty_region);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(und_script, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_script);
 	assertTrue("reslen >= 0", reslen >= 0);
 	assertEquals("uloc_getLanguage()", empty, tmp);
 
-	uprv_memset(tmp, '!', sizeof tmp);
+	memset(tmp, '!', sizeof tmp);
 	reslen = uloc_getLanguage(und_region, tmp, sizeof tmp, status);
 	status.errIfFailureAndReset("\"%s\"", und_region);
 	assertTrue("reslen >= 0", reslen >= 0);

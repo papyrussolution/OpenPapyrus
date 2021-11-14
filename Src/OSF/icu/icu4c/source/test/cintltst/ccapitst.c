@@ -2493,7 +2493,7 @@ static void TestConvertExFromUTF8_C5F0()
 		}
 		src = bad_utf8;
 		target = dest;
-		uprv_memset(dest, 9, sizeof(dest));
+		memset(dest, 9, sizeof(dest));
 		if(i==UPRV_LENGTHOF(converterNames)-1) {
 			/* conversion to UTF-8 yields two U+FFFD directly */
 			expected = twoFFFD;

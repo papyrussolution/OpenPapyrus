@@ -324,7 +324,7 @@ static int32_t _internal_toASCII(const UChar * src, int32_t srcLength,
 			// do not preserve the case flags for now!
 			// TODO: Preserve the case while implementing the RFE
 			// caseFlags = (bool*) uprv_malloc(b1Len * sizeof(bool));
-			// uprv_memset(caseFlags,TRUE,b1Len);
+			// memset(caseFlags,TRUE,b1Len);
 
 			b2Len = u_strToPunycode(b1, b1Len, b2, b2Capacity, caseFlags, status);
 

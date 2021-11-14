@@ -1028,37 +1028,26 @@ static void TestVariableTop(void)
 		    myErrorName(status));
 		return;
 	}
-	myCollation = ucol_openRules(rules, len, UCOL_OFF,
-		UCOL_PRIMARY, NULL, &status);
+	myCollation = ucol_openRules(rules, len, UCOL_OFF, UCOL_PRIMARY, NULL, &status);
 	if(U_FAILURE(status)) {
 		ucol_close(enCollation);
-		log_err("ERROR: in creation of rule based collator :%s\n",
-		    myErrorName(status));
+		log_err("ERROR: in creation of rule based collator :%s\n", myErrorName(status));
 		return;
 	}
-
 	ucol_setStrength(enCollation, UCOL_PRIMARY);
-	ucol_setAttribute(enCollation, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED,
-	    &status);
-	ucol_setAttribute(myCollation, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED,
-	    &status);
-
+	ucol_setAttribute(enCollation, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, &status);
+	ucol_setAttribute(myCollation, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, &status);
 	if(ucol_getAttribute(myCollation, UCOL_ALTERNATE_HANDLING, &status) !=
 	    UCOL_SHIFTED || U_FAILURE(status)) {
 		log_err("ERROR: ALTERNATE_HANDLING value can not be set to SHIFTED\n");
 	}
-
-	uprv_memset(expected, 0, 20);
-
+	memset(expected, 0, 20);
 	/* space is supposed to be a variable */
 	source[0] = ' ';
-	len = ucol_getSortKey(enCollation, source, 1, result,
-		sizeof(result));
-
+	len = ucol_getSortKey(enCollation, source, 1, result, sizeof(result));
 	if(uprv_memcmp(expected, result, len) != 0) {
 		log_err("ERROR: SHIFTED alternate does not return 0 for primary of space\n");
 	}
-
 	ch = 'a';
 	while(ch < 'z') {
 		source[0] = ch;

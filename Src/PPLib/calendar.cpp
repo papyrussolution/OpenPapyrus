@@ -1793,11 +1793,14 @@ protected:
 		loiMonth,
 		loiWeekday,
 		loiDay,
+		loiHour,        // 
+		loiMinute,      //
 		loiFrame_Main,
 		loiFrame_Years,
 		loiFrame_Monthes,
 		loiFrame_Days,
-		loiFrame_Buttons, // 0 - frame, 1 - now, 2 - ok, 3 - cancel
+		loiFrame_Buttons, // 0 - frame, 1 - now, 2 - ok, 3 - cancel, 4 - left-opened-period, 5 - right-opened-period, 6 - reset period
+		loiFrame_PeriodTypeButtons, // 0 - frame, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUARD, PRD_ANNUAL
 	};
 	struct LayoutExtra {
 		LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
@@ -1860,6 +1863,12 @@ static const uint NumYearsInView = 5;
 		vec.insert(&LayoutExtra(loiFrame_Buttons, 1)); // now button
 		vec.insert(&LayoutExtra(loiFrame_Buttons, 2)); // ok button
 		vec.insert(&LayoutExtra(loiFrame_Buttons, 3)); // cancel button
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, 0)); // period buttons frame
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, PRD_DAY)); // period button 
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, PRD_WEEK)); // period button 
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, PRD_MONTH)); // period button 
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, PRD_QUART)); // period button 
+		vec.insert(&LayoutExtra(loiFrame_PeriodTypeButtons, PRD_ANNUAL)); // period button 
 	}
 	LEAVE_CRITICAL_SECTION
 	return vec;
@@ -1944,17 +1953,10 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			alb.Margin.Set(4);
 			return pLoParent->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiDay, day)), &alb);
 		}
-	};
-	LayoutFlexItem * p_lo_result = new LayoutFlexItem();
-	if(Kind == kDate) {
-		{
-			AbstractLayoutBlock alb(DIREC_VERT);
-			alb.AlignContent = AbstractLayoutBlock::alignStretch;
-			p_lo_result->SetLayoutBlock(alb);
-		}
+		static void MakeYearsLayout(SCalendarPicker * pMaster, LayoutFlexItem * pLoParent)
 		{
 			// Года. Располагаются в 1 строку со служебными элементами по краям (стрелки для скроллинга)
-			LayoutFlexItem * p_lo_years = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Years, 0)), 0);
+			LayoutFlexItem * p_lo_years = pLoParent->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiFrame_Years, 0)), 0);
 			{
 				AbstractLayoutBlock alb(DIREC_HORZ);
 				alb.AlignContent = AbstractLayoutBlock::alignStretch;
@@ -1968,27 +1970,27 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				alb.GrowFactor = 0.8f;
 				alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
 				alb.Margin.Set(4);
-				p_lo_years->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiYearArrow, SIDE_LEFT)), &alb);
+				p_lo_years->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiYearArrow, SIDE_LEFT)), &alb);
 			}
-			SETIFZ(StartLoYear, SelectedValue.d.year()-2);
 			for(uint i = 0; i < NumYearsInView; i++) {
 				AbstractLayoutBlock alb;
 				alb.GrowFactor = 1.0f;
 				alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
 				alb.Margin.Set(4);
-				p_lo_years->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiYear, i)), &alb);
+				p_lo_years->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiYear, i)), &alb);
 			}
 			{
 				AbstractLayoutBlock alb;
 				alb.GrowFactor = 0.8f;
 				alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
 				alb.Margin.Set(4);
-				p_lo_years->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiYearArrow, SIDE_RIGHT)), &alb);
+				p_lo_years->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiYearArrow, SIDE_RIGHT)), &alb);
 			}
 		}
+		static void MakeMonthesLayout(SCalendarPicker * pMaster, LayoutFlexItem * pLoParent)
 		{
 			// Месяцы. Располагаются в 2 строки по 6 ячеек
-			LayoutFlexItem * p_lo_monthes = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Monthes, 0)), 0);
+			LayoutFlexItem * p_lo_monthes = pLoParent->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiFrame_Monthes, 0)), 0);
 			{
 				AbstractLayoutBlock alb(DIREC_VERT);
 				alb.AlignContent = AbstractLayoutBlock::alignStretch;
@@ -2003,12 +2005,83 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				alb_row.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
 				LayoutFlexItem * p_lo_row = p_lo_monthes->InsertItem(0, &alb_row);
 				for(uint i = 1; i <= 12; i++) {
-					InnerBlock::MakeMonthLayoutEntry(this, p_lo_row, i);
+					InnerBlock::MakeMonthLayoutEntry(pMaster, p_lo_row, i);
 					if(i == 6)
 						p_lo_row = p_lo_monthes->InsertItem(0, &alb_row);
 				}
 			}
 		}
+		static void MakeWeekdaysLayout(SCalendarPicker * pMaster, LayoutFlexItem * pLoParent)
+		{
+			// Заголовки дней недели		
+			LayoutFlexItem * p_lo_weekdays = pLoParent->InsertItem();
+			{
+				AbstractLayoutBlock alb(DIREC_HORZ);
+				alb.AlignContent = AbstractLayoutBlock::alignStart;
+				alb.GrowFactor = 1.0f;
+				alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+				p_lo_weekdays->SetLayoutBlock(alb);
+			}
+			{
+				for(uint i = 1; i <= 7; i++) {
+					AbstractLayoutBlock alb;
+					alb.GrowFactor = 1.0f;
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+					alb.Margin.Set(4);
+					p_lo_weekdays->InsertItem(const_cast<LayoutExtra *>(pMaster->GetLayoutExtra(loiWeekday, i)), &alb);
+				}
+			}
+		}
+		static void MakeMonthdaysLayout(SCalendarPicker * pMaster, LayoutFlexItem * pLoParent, LDATE selectedDate)
+		{
+			// Дни месяца. Располагаются в 6-ти строковых лейаутах
+			LayoutFlexItem * p_lo_days = pLoParent->InsertItem();
+			{
+				AbstractLayoutBlock alb(DIREC_VERT);
+				alb.AlignContent = AbstractLayoutBlock::alignStart;
+				alb.GrowFactor = 6.0;
+				alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+				p_lo_days->SetLayoutBlock(alb);
+			}
+			{
+				AbstractLayoutBlock alb_row(DIREC_HORZ);
+				alb_row.AlignContent = AbstractLayoutBlock::alignStart;
+				alb_row.GrowFactor = 1.0f;
+				alb_row.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+				const uint dpm = dayspermonth(selectedDate.month(), selectedDate.year());
+				// Дни месяца будем располагать строго в 6 строк 
+				LayoutFlexItem * p_lo_row = p_lo_days->InsertItem();
+				p_lo_row->SetLayoutBlock(alb_row);
+				for(uint i = 1; i <= dpm; i++) {
+					const LDATE dt = encodedate(i, selectedDate.month(), selectedDate.year());
+					const uint  dow = dayofweek(&dt, 1);
+					if(i == 1 && dow > 1) {
+						for(uint k = 1; k < dow; k++)
+							InnerBlock::MakeDayLayoutEntry(pMaster, p_lo_row, 0);
+					}
+					InnerBlock::MakeDayLayoutEntry(pMaster, p_lo_row, i);
+					if(i == dpm && dow < 7) {
+						for(uint k = dow+1; k <= 7; k++)
+							InnerBlock::MakeDayLayoutEntry(pMaster, p_lo_row, 0);
+					}
+					if(dow == 7 && i < dpm)
+						p_lo_row = p_lo_days->InsertItem(0, &alb_row);
+				}
+			}
+		}
+	};
+	SETIFZ(StartLoYear, SelectedValue.d.year()-2);
+	LayoutFlexItem * p_lo_result = new LayoutFlexItem();
+	{
+		AbstractLayoutBlock alb(DIREC_VERT);
+		alb.AlignContent = AbstractLayoutBlock::alignStretch;
+		p_lo_result->SetLayoutBlock(alb);
+	}
+	if(Kind == kDate) {
+		// Года. Располагаются в 1 строку со служебными элементами по краям (стрелки для скроллинга)
+		InnerBlock::MakeYearsLayout(this, p_lo_result);
+		// Месяцы. Располагаются в 2 строки по 6 ячеек
+		InnerBlock::MakeMonthesLayout(this, p_lo_result);
 		{
 			LayoutFlexItem * p_lo_days_group = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Days, 0)), 0);
 			{
@@ -2020,140 +2093,179 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				alb.Margin.Set(4);
 				p_lo_days_group->SetLayoutBlock(alb);
 			}
+			// Заголовки дней недели		
+			InnerBlock::MakeWeekdaysLayout(this, p_lo_days_group);
+			// Дни месяца. Располагаются в 6-ти строковых лейаутах
+			InnerBlock::MakeMonthdaysLayout(this, p_lo_days_group, selectedDate);
+		}
+		{
+			LayoutFlexItem * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), 0);
 			{
-				// Заголовки дней недели		
-				LayoutFlexItem * p_lo_weekdays = p_lo_days_group->InsertItem();
+				AbstractLayoutBlock alb(DIREC_HORZ);
+				alb.AlignContent = AbstractLayoutBlock::alignEnd;
+				alb.GrowFactor = 1.0f;
+				alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+				p_lo_buttons->SetLayoutBlock(alb);
 				{
-					AbstractLayoutBlock alb(DIREC_HORZ);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
+					TView * p = getCtrlView(CTL_CALENDAR_TODAY);
+					if(p) {
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
+						alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
+					}
+				}
+				{
+					AbstractLayoutBlock alb;
 					alb.GrowFactor = 1.0f;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-					p_lo_weekdays->SetLayoutBlock(alb);
-				}
-				{
-					for(uint i = 1; i <= 7; i++) {
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+					alb.Margin.Set(4);
+					TView * p = getCtrlView(STDCTL_OKBUTTON);
+					if(p) {
 						AbstractLayoutBlock alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
 						alb.Margin.Set(4);
-						p_lo_weekdays->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiWeekday, i)), &alb);
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
 					}
 				}
-			}
-			{
-				// Дни месяца. Располагаются в 6-ти строковых лейаутах
-				LayoutFlexItem * p_lo_days = p_lo_days_group->InsertItem();
 				{
-					AbstractLayoutBlock alb(DIREC_VERT);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.GrowFactor = 6.0;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-					p_lo_days->SetLayoutBlock(alb);
-				}
-				{
-					AbstractLayoutBlock alb_row(DIREC_HORZ);
-					alb_row.AlignContent = AbstractLayoutBlock::alignStart;
-					alb_row.GrowFactor = 1.0f;
-					alb_row.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-					const uint dpm = dayspermonth(selectedDate.month(), selectedDate.year());
-					// Дни месяца будем располагать строго в 6 строк 
-					LayoutFlexItem * p_lo_row = p_lo_days->InsertItem();
-					p_lo_row->SetLayoutBlock(alb_row);
-					for(uint i = 1; i <= dpm; i++) {
-						const LDATE dt = encodedate(i, selectedDate.month(), selectedDate.year());
-						const uint  dow = dayofweek(&dt, 1);
-						if(i == 1 && dow > 1) {
-							for(uint k = 1; k < dow; k++)
-								InnerBlock::MakeDayLayoutEntry(this, p_lo_row, 0);
-						}
-						InnerBlock::MakeDayLayoutEntry(this, p_lo_row, i);
-						if(i == dpm && dow < 7) {
-							for(uint k = dow+1; k <= 7; k++)
-								InnerBlock::MakeDayLayoutEntry(this, p_lo_row, 0);
-						}
-						if(dow == 7 && i < dpm)
-							p_lo_row = p_lo_days->InsertItem(0, &alb_row);
-					}
-				}
-			}
-			{
-				TView * p = getCtrlView(CTL_CALENDAR_PERIODEDIT);
-				if(p) {
-					LayoutFlexItem * p_lo_inp2 = LayoutFlexItem::CreateComplexLayout(LayoutFlexItem::cmplxtInpLbl, /*LayoutFlexItem::clfLabelLeft*/0, 20.0f, p_lo_result);
-					if(p_lo_inp2) {
-						{
-							AbstractLayoutBlock alb = p_lo_inp2->GetLayoutBlock();
-							alb.GrowFactor = 2.0f;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-							p_lo_inp2->SetLayoutBlock(alb);
-						}
-						LayoutFlexItem * p_lo_inp = p_lo_inp2->FindComplexComponentId(LayoutFlexItem::cmlxcInput);
-						if(p_lo_inp)
-							p_lo_inp->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);							
-						LayoutFlexItem * p_lo_lbl = p_lo_inp2->FindComplexComponentId(LayoutFlexItem::cmlxcLabel);
-						TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_PERIODEDIT);
-						if(p_lo_lbl && p_lbl)
-							p_lo_lbl->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
-					}
-				}
-			}
-			{
-				LayoutFlexItem * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), 0);
-				{
-					AbstractLayoutBlock alb(DIREC_HORZ);
-					alb.AlignContent = AbstractLayoutBlock::alignEnd;
+					AbstractLayoutBlock alb;
 					alb.GrowFactor = 1.0f;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-					p_lo_buttons->SetLayoutBlock(alb);
-					{
-						TView * p = getCtrlView(CTL_CALENDAR_TODAY);
-						if(p) {
-							AbstractLayoutBlock alb;
-							alb.GrowFactor = 1.0f;
-							//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-							alb.SetFixedSizeY(20.0f);
-							alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
-							p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
-						}
-					}
-					{
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+					alb.Margin.Set(4);
+					TView * p = getCtrlView(STDCTL_CANCELBUTTON);
+					if(p) {
 						AbstractLayoutBlock alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
 						alb.Margin.Set(4);
-						TView * p = getCtrlView(STDCTL_OKBUTTON);
-						if(p) {
-							AbstractLayoutBlock alb;
-							alb.GrowFactor = 1.0f;
-							//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-							alb.SetFixedSizeY(20.0f);
-							alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
-							p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
-						}
-					}
-					{
-						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-						alb.Margin.Set(4);
-						TView * p = getCtrlView(STDCTL_CANCELBUTTON);
-						if(p) {
-							AbstractLayoutBlock alb;
-							alb.GrowFactor = 1.0f;
-							//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-							alb.SetFixedSizeY(20.0f);
-							alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
-							p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
-						}
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
 					}
 				}
 			}
 		}
 	}
 	else if(Kind == kPeriod) {
+		{
+			// Псевдо-кнопки выбора типа периода: дни, недели, месяцы, кварталы, годы
+			AbstractLayoutBlock alb_row(DIREC_HORZ);
+			alb_row.GrowFactor = 1.0f;
+			alb_row.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+			LayoutFlexItem * p_lo_prdtypes = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, 0)), &alb_row);
+			{
+				AbstractLayoutBlock alb;
+				alb.GrowFactor = 1.0f;
+				alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+				alb.Margin.Set(4);
+				p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, PRD_DAY)), &alb);
+				p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, PRD_WEEK)), &alb);
+				p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, PRD_MONTH)), &alb);
+				p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, PRD_QUART)), &alb);
+				p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, PRD_ANNUAL)), &alb);
+			}
+		}
+		{
+			TView * p = getCtrlView(CTL_CALENDAR_PERIODEDIT);
+			if(p) {
+				LayoutFlexItem * p_lo_inp2 = LayoutFlexItem::CreateComplexLayout(LayoutFlexItem::cmplxtInpLbl, /*LayoutFlexItem::clfLabelLeft*/0, 20.0f, p_lo_result);
+				if(p_lo_inp2) {
+					{
+						AbstractLayoutBlock alb = p_lo_inp2->GetLayoutBlock();
+						alb.GrowFactor = 2.0f;
+						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						p_lo_inp2->SetLayoutBlock(alb);
+					}
+					LayoutFlexItem * p_lo_inp = p_lo_inp2->FindComplexComponentId(LayoutFlexItem::cmlxcInput);
+					if(p_lo_inp)
+						p_lo_inp->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);							
+					LayoutFlexItem * p_lo_lbl = p_lo_inp2->FindComplexComponentId(LayoutFlexItem::cmlxcLabel);
+					TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_PERIODEDIT);
+					if(p_lo_lbl && p_lbl)
+						p_lo_lbl->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
+				}
+			}
+		}
+		// Года. Располагаются в 1 строку со служебными элементами по краям (стрелки для скроллинга)
+		InnerBlock::MakeYearsLayout(this, p_lo_result);
+		// Месяцы. Располагаются в 2 строки по 6 ячеек
+		InnerBlock::MakeMonthesLayout(this, p_lo_result);
+		{
+			LayoutFlexItem * p_lo_days_group = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Days, 0)), 0);
+			{
+				// Группа дней недели и дней месяца
+				AbstractLayoutBlock alb(DIREC_VERT);
+				alb.AlignContent = AbstractLayoutBlock::alignStart;
+				alb.GrowFactor = 6.0f;
+				alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+				alb.Margin.Set(4);
+				p_lo_days_group->SetLayoutBlock(alb);
+			}
+			// Заголовки дней недели		
+			InnerBlock::MakeWeekdaysLayout(this, p_lo_days_group);
+			// Дни месяца. Располагаются в 6-ти строковых лейаутах
+			InnerBlock::MakeMonthdaysLayout(this, p_lo_days_group, selectedDate);
+		}
+		{
+			AbstractLayoutBlock alb_buttons(DIREC_HORZ);
+			alb_buttons.AlignContent = AbstractLayoutBlock::alignEnd;
+			alb_buttons.GrowFactor = 1.0f;
+			alb_buttons.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+			LayoutFlexItem * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
+			{
+				/*{
+					TView * p = getCtrlView(CTL_CALENDAR_TODAY);
+					if(p) {
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
+						alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
+					}
+				}*/
+				{
+					AbstractLayoutBlock alb;
+					alb.GrowFactor = 1.0f;
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+					alb.Margin.Set(4);
+					TView * p = getCtrlView(STDCTL_OKBUTTON);
+					if(p) {
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
+						alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
+					}
+				}
+				{
+					AbstractLayoutBlock alb;
+					alb.GrowFactor = 1.0f;
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+					alb.Margin.Set(4);
+					TView * p = getCtrlView(STDCTL_CANCELBUTTON);
+					if(p) {
+						AbstractLayoutBlock alb;
+						alb.GrowFactor = 1.0f;
+						//alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetFixedSizeY(20.0f);
+						alb.Margin.Set(4);
+						LayoutFlexItem * p_lo_item = p_lo_buttons->InsertItem(p, &alb);
+						p_lo_item->SetCallbacks(0, CalendarItem_SetupLayoutItemFrameProc, p);
+					}
+				}
+			}
+		}
 	}
 	else if(Kind == kTime) {
 	}
@@ -2191,6 +2303,22 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const LayoutFlexItem * pLo)
 				SString text_utf8;
 				SString symb;
 				switch(p_lo_extra->Ident) {
+					case loiFrame_PeriodTypeButtons:
+						{
+							pen_ident = TProgram::tbiIconRegColor;
+							const int prd = static_cast<int>(p_lo_extra->Value);
+							switch(prd) {
+								case PRD_DAY: symb = "day_pl"; break;
+								case PRD_WEEK: symb = "week_pl"; break;
+								case PRD_MONTH: symb = "month_pl"; break;
+								case PRD_QUART: symb = "calquarter_pl"; break;
+								case PRD_ANNUAL: symb = "year_pl"; break;
+							}
+							if(symb.NotEmpty()) {
+								PPLoadString(symb, text_utf8);
+							}
+						}
+						break;
 					case loiYear:
 						{
 							const int year = p_lo_extra->Value+StartLoYear;
@@ -2205,12 +2333,10 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const LayoutFlexItem * pLo)
 						}
 						break;
 					case loiYearArrow:
-						if(p_lo_extra->Value == SIDE_LEFT) {
+						if(p_lo_extra->Value == SIDE_LEFT)
 							p_fig = APPL->LoadDrawFigureById(PPDV_ANGLEARROWLEFT01, &tool_item);
-						}
-						else if(p_lo_extra->Value == SIDE_RIGHT) {
+						else if(p_lo_extra->Value == SIDE_RIGHT)
 							p_fig = APPL->LoadDrawFigureById(PPDV_ANGLEARROWRIGHT01, &tool_item);
-						}
 						break;
 					case loiMonth:
 						//brush_ident = TProgram::tbiIconRegColor;
@@ -2354,19 +2480,8 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 	if(TVINFOPTR) {
 		if(event.isCmd(cmInit)) {
 			CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
-			/*{
-				LOGFONT log_font;
-				MEMSZERO(log_font);
-				log_font.lfCharSet = RUSSIAN_CHARSET;
-				STRNSCPY(log_font.lfFaceName, _T("MS Sans Serif"));
-				log_font.lfHeight = 8;
-				log_font.lfWeight = FW_MEDIUM;
-				HFONT hf = CreateFontIndirect(&log_font);
-				if(hf)
-					::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(hf), TRUE);
-			}*/
 			{
-				{
+				if(Kind == kPeriod) {
 					TInputLine * p_il = new TInputLine(TRect(0, 0, 10, 10), MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
 					TLabel * p_lbl = new TLabel(TRect(0, 0, 10, 10), "@daterange", p_il);
 					InsertCtlWithCorrespondingNativeItem(p_il, CTL_CALENDAR_PERIODEDIT, 0);
@@ -2375,12 +2490,6 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				InsertCtlWithCorrespondingNativeItem(new TButton(TRect(0, 0, 10, 10), "@today", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0);
 				InsertCtlWithCorrespondingNativeItem(new TButton(TRect(0, 0, 10, 10), "@but_ok", cmOK, bfDefault, 0), STDCTL_OKBUTTON, 0);
 				InsertCtlWithCorrespondingNativeItem(new TButton(TRect(0, 0, 10, 10), "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
-				{
-					//SetCtrlFont(CTL_CALENDAR_PERIODEDIT, "MS Sans Serif", 8);
-					//SetCtrlFont(CTL_CALENDAR_TODAY, "MS Sans Serif", 9);
-					//SetCtrlFont(STDCTL_OKBUTTON, "MS Sans Serif", 9);
-					//SetCtrlFont(STDCTL_CANCELBUTTON, "MS Sans Serif", 9);
-				}
 			}
 			CreateLayout(NZOR(SelectedValue.d, getcurdate_()));
 			EvaluateLayout(p_blk->Coord);
@@ -2548,7 +2657,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 int Test_Launch_SCalendarPicker()
 {
 	int    ok = 1;
-	SCalendarPicker * p_win = new SCalendarPicker(SCalendarPicker::kDate);
+	SCalendarPicker * p_win = new SCalendarPicker(SCalendarPicker::/*kDate*/kPeriod);
 	THROW_MEM(p_win);
 	p_win->setBounds(TRect(0, 0, 300, 400));
 	ok = APPL->P_DeskTop->execView(p_win);

@@ -136,7 +136,7 @@ U_CAPI UNewDataMemory * U_EXPORT2 udata_create(const char * dir, const char * ty
 	headerSize &= 0xf;
 	if(headerSize!=0) {
 		headerSize = (uint16_t)(16-headerSize);
-		uprv_memset(bytes, 0, headerSize);
+		memset(bytes, 0, headerSize);
 		T_FileStream_write(pData->file, bytes, headerSize);
 	}
 

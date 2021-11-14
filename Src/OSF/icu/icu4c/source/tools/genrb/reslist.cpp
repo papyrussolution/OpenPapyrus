@@ -1,20 +1,11 @@
+// reslist.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2000-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *
- * File reslist.cpp
- *
+ *   Copyright (C) 2000-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   02/21/00    weiv        Creation.
- *******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -451,7 +442,7 @@ void StringResource::handlePreflightStrings(SRBRoot * bundle, UHashtable * strin
 
 void ContainerResource::handlePreflightStrings(SRBRoot * bundle, UHashtable * stringSet,
     UErrorCode &errorCode) {
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		current->preflightStrings(bundle, stringSet, errorCode);
 	}
 }
@@ -476,7 +467,8 @@ void SResource::handlePreflightStrings(SRBRoot * /*bundle*/, UHashtable * /*stri
 	/* Neither a string nor a container. */
 }
 
-int32_t SRBRoot::makeRes16(uint32_t resWord) const {
+int32_t SRBRoot::makeRes16(uint32_t resWord) const 
+{
 	if(resWord == 0) {
 		return 0; /* empty string */
 	}
@@ -499,16 +491,16 @@ int32_t SRBRoot::makeRes16(uint32_t resWord) const {
 	return -1;
 }
 
-int32_t SRBRoot::mapKey(int32_t oldpos) const {
+int32_t SRBRoot::mapKey(int32_t oldpos) const 
+{
 	const KeyMapEntry * map = fKeyMap;
 	if(map == NULL) {
 		return oldpos;
 	}
-	int32_t i, start, limit;
-
+	int32_t i;
 	/* do a binary search for the old, pre-compactKeys() key offset */
-	start = fUsePoolBundle->fKeysCount;
-	limit = start + fKeysCount;
+	int32_t start = fUsePoolBundle->fKeysCount;
+	int32_t limit = start + fKeysCount;
 	while(start < limit - 1) {
 		i = (start + limit) / 2;
 		if(oldpos < map[i].oldpos) {
@@ -538,7 +530,7 @@ void StringResource::handleWrite16(SRBRoot * /*bundle*/) {
 }
 
 void ContainerResource::writeAllRes16(SRBRoot * bundle) {
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		bundle->f16BitUnits.append((UChar)current->fRes16);
 	}
 	fWritten = TRUE;
@@ -552,7 +544,7 @@ void ArrayResource::handleWrite16(SRBRoot * bundle) {
 	}
 
 	int32_t res16 = 0;
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		current->write16(bundle);
 		res16 |= current->fRes16;
 	}
@@ -572,7 +564,7 @@ void TableResource::handleWrite16(SRBRoot * bundle) {
 	/* Find the smallest table type that fits the data. */
 	int32_t key16 = 0;
 	int32_t res16 = 0;
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		current->write16(bundle);
 		key16 |= current->fKey16;
 		res16 |= current->fRes16;
@@ -585,7 +577,7 @@ void TableResource::handleWrite16(SRBRoot * bundle) {
 			/* 16-bit count, key offsets and values */
 			fRes = URES_MAKE_RESOURCE(URES_TABLE16, bundle->f16BitUnits.length());
 			bundle->f16BitUnits.append((UChar)fCount);
-			for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+			for(SResource * current = fFirst; current; current = current->fNext) {
 				bundle->f16BitUnits.append((UChar)current->fKey16);
 			}
 			writeAllRes16(bundle);
@@ -670,10 +662,10 @@ void IntVectorResource::handlePreWrite(uint32_t * byteOffset) {
 	}
 }
 
-void BinaryResource::handlePreWrite(uint32_t * byteOffset) {
+void BinaryResource::handlePreWrite(uint32_t * byteOffset) 
+{
 	uint32_t pad       = 0;
 	uint32_t dataStart = *byteOffset + sizeof(fLength);
-
 	if(dataStart % BIN_ALIGNMENT) {
 		pad = (BIN_ALIGNMENT - dataStart % BIN_ALIGNMENT);
 		*byteOffset += pad; /* pad == 4 or 8 or 12 */
@@ -682,8 +674,9 @@ void BinaryResource::handlePreWrite(uint32_t * byteOffset) {
 	*byteOffset += 4 + fLength;
 }
 
-void ContainerResource::preWriteAllRes(uint32_t * byteOffset) {
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+void ContainerResource::preWriteAllRes(uint32_t * byteOffset) 
+{
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		current->preWrite(byteOffset);
 	}
 }
@@ -741,14 +734,14 @@ void StringBaseResource::handleWrite(UNewDataMemory * mem, uint32_t * byteOffset
 
 void ContainerResource::writeAllRes(UNewDataMemory * mem, uint32_t * byteOffset) {
 	uint32_t i = 0;
-	for(SResource * current = fFirst; current != NULL; ++i, current = current->fNext) {
+	for(SResource * current = fFirst; current; ++i, current = current->fNext) {
 		current->write(mem, byteOffset);
 	}
 	assert(i == fCount);
 }
 
 void ContainerResource::writeAllRes32(UNewDataMemory * mem, uint32_t * byteOffset) {
-	for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+	for(SResource * current = fFirst; current; current = current->fNext) {
 		udata_write32(mem, current->fRes);
 	}
 	*byteOffset += fCount * 4;
@@ -790,7 +783,7 @@ void TableResource::handleWrite(UNewDataMemory * mem, uint32_t * byteOffset) {
 	writeAllRes(mem, byteOffset);
 	if(fTableType == URES_TABLE) {
 		udata_write16(mem, (uint16_t)fCount);
-		for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+		for(SResource * current = fFirst; current; current = current->fNext) {
 			udata_write16(mem, current->fKey16);
 		}
 		*byteOffset += (1 + fCount)* 2;
@@ -803,7 +796,7 @@ void TableResource::handleWrite(UNewDataMemory * mem, uint32_t * byteOffset) {
 	}
 	else { /* URES_TABLE32 */
 		udata_write32(mem, fCount);
-		for(SResource * current = fFirst; current != NULL; current = current->fNext) {
+		for(SResource * current = fFirst; current; current = current->fNext) {
 			udata_write32(mem, (uint32_t)current->fKey);
 		}
 		*byteOffset += (1 + fCount)* 4;
@@ -865,15 +858,11 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 	else {
 		fLocalKeyLimit = 0;
 	}
-
 	UHashtable * stringSet;
 	if(gFormatVersion > 1) {
 		stringSet = uhash_open(string_hash, string_comp, string_comp, &errorCode);
-		if(U_SUCCESS(errorCode) &&
-		    fUsePoolBundle != NULL && fUsePoolBundle->fStrings != NULL) {
-			for(SResource * current = fUsePoolBundle->fStrings->fFirst;
-			    current != NULL;
-			    current = current->fNext) {
+		if(U_SUCCESS(errorCode) && fUsePoolBundle != NULL && fUsePoolBundle->fStrings != NULL) {
+			for(SResource * current = fUsePoolBundle->fStrings->fFirst; current; current = current->fNext) {
 				StringResource * sr = static_cast<StringResource *>(current);
 				sr->fNumCopies = 0;
 				sr->fNumUnitsSaved = 0;
@@ -892,7 +881,6 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	int32_t formatVersion = gFormatVersion;
 	if(fPoolStringIndexLimit != 0) {
 		int32_t sum = fPoolStringIndexLimit + fLocalStringIndexLimit;
@@ -993,7 +981,7 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 	 * write int32_t indexes[] after root and before the key strings
 	 * to make it easier to parse resource bundles in icuswap or from Java etc.
 	 */
-	uprv_memset(indexes, 0, sizeof(indexes));
+	memset(indexes, 0, sizeof(indexes));
 	indexes[URES_INDEX_LENGTH] =             fIndexLength;
 	indexes[URES_INDEX_KEYS_TOP] =           fKeysTop>>2;
 	indexes[URES_INDEX_RESOURCES_TOP] =      (int32_t)(top>>2);
@@ -1123,38 +1111,27 @@ struct SResource * int_open(struct SRBRoot * bundle, const char * tag, int32_t v
 	return U_SUCCESS(*status) ? res.orphan() : NULL;
 }
 
-struct SResource * bin_open(struct SRBRoot * bundle,
-    const char * tag,
-    uint32_t length,
-    uint8_t * data,
-    const char * fileName,
-    const struct UString* comment,
-    UErrorCode * status) {
-	LocalPointer<SResource> res(
-		new BinaryResource(bundle, tag, length, data, fileName, comment, *status), *status);
+struct SResource * bin_open(struct SRBRoot * bundle, const char * tag, uint32_t length, uint8_t * data,
+    const char * fileName, const struct UString* comment, UErrorCode * status) 
+{
+	LocalPointer<SResource> res(new BinaryResource(bundle, tag, length, data, fileName, comment, *status), *status);
 	return U_SUCCESS(*status) ? res.orphan() : NULL;
 }
 
-SRBRoot::SRBRoot(const UString * comment, bool isPoolBundle, UErrorCode &errorCode)
-	: fRoot(NULL), fLocale(NULL), fIndexLength(0), fMaxTableLength(0), fNoFallback(FALSE),
-	fStringsForm(STRINGS_UTF16_V1), fIsPoolBundle(isPoolBundle),
-	fKeys(NULL), fKeyMap(NULL),
-	fKeysBottom(0), fKeysTop(0), fKeysCapacity(0),
-	fKeysCount(0), fLocalKeyLimit(0),
-	f16BitUnits(), f16BitStringsLength(0),
-	fUsePoolBundle(&kNoPoolBundle),
-	fPoolStringIndexLimit(0), fPoolStringIndex16Limit(0), fLocalStringIndexLimit(0),
-	fWritePoolBundle(NULL) {
+SRBRoot::SRBRoot(const UString * comment, bool isPoolBundle, UErrorCode &errorCode) : fRoot(NULL), fLocale(NULL), fIndexLength(0), 
+	fMaxTableLength(0), fNoFallback(FALSE), fStringsForm(STRINGS_UTF16_V1), fIsPoolBundle(isPoolBundle),
+	fKeys(NULL), fKeyMap(NULL), fKeysBottom(0), fKeysTop(0), fKeysCapacity(0),
+	fKeysCount(0), fLocalKeyLimit(0), f16BitUnits(), f16BitStringsLength(0),
+	fUsePoolBundle(&kNoPoolBundle), fPoolStringIndexLimit(0), fPoolStringIndex16Limit(0), fLocalStringIndexLimit(0), fWritePoolBundle(NULL) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	if(gFormatVersion > 1) {
 		// f16BitUnits must start with a zero for empty resources.
 		// We might be able to omit it if there are no empty 16-bit resources.
 		f16BitUnits.append((UChar)0);
 	}
-
 	fKeys = (char *)uprv_malloc(sizeof(char) * KEY_SPACE_SIZE);
 	if(isPoolBundle) {
 		fRoot = new PseudoListResource(this, errorCode);
@@ -1168,7 +1145,6 @@ SRBRoot::SRBRoot(const UString * comment, bool isPoolBundle, UErrorCode &errorCo
 		}
 		return;
 	}
-
 	fKeysCapacity = KEY_SPACE_SIZE;
 	/* formatVersion 1.1 and up: start fKeysTop after the root item and indexes[] */
 	if(gUsePoolBundle || isPoolBundle) {
@@ -1181,24 +1157,20 @@ SRBRoot::SRBRoot(const UString * comment, bool isPoolBundle, UErrorCode &errorCo
 		fIndexLength = URES_INDEX_ATTRIBUTES + 1;
 	}
 	fKeysBottom = (1 /* root */ + fIndexLength) * 4;
-	uprv_memset(fKeys, 0, fKeysBottom);
+	memzero(fKeys, fKeysBottom);
 	fKeysTop = fKeysBottom;
-
-	if(gFormatVersion == 1) {
-		fStringsForm = STRINGS_UTF16_V1;
-	}
-	else {
-		fStringsForm = STRINGS_UTF16_V2;
-	}
+	fStringsForm = (gFormatVersion == 1) ? STRINGS_UTF16_V1 : STRINGS_UTF16_V2;
 }
 
 /* Closing Functions */
 
-void res_close(struct SResource * res) {
+void res_close(struct SResource * res) 
+{
 	delete res;
 }
 
-SRBRoot::~SRBRoot() {
+SRBRoot::~SRBRoot() 
+{
 	delete fRoot;
 	uprv_free(fLocale);
 	uprv_free(fKeys);

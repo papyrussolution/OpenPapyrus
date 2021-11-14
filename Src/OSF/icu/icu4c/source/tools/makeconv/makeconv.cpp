@@ -44,7 +44,7 @@ typedef struct ConvData {
 
 static void initConvData(ConvData * data) 
 {
-	uprv_memset(data, 0, sizeof(ConvData));
+	memzero(data, sizeof(ConvData));
 	data->sharedData.structSize = sizeof(UConverterSharedData);
 	data->staticData.structSize = sizeof(UConverterStaticData);
 	data->sharedData.staticData = &data->staticData;

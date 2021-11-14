@@ -208,7 +208,7 @@ static bool text_open(TestText * tt)
 	FILE * f;
 	char * s;
 	int32_t length;
-	uprv_memset(tt, 0, sizeof(TestText));
+	memzero(tt, sizeof(TestText));
 	f = fopenOrError("ConverterSelectorTestUTF8.txt");
 	if(!f) {
 		return FALSE;
@@ -240,7 +240,8 @@ static void text_close(TestText * tt) {
 	uprv_free(tt->text);
 }
 
-static int32_t findIndex(const char * converterName) {
+static int32_t findIndex(const char * converterName) 
+{
 	int32_t i;
 	for(i = 0; i < gCountAvailable; i++) {
 		if(ucnv_compareNames(gAvailableNames[i], converterName) == 0) {
@@ -251,14 +252,12 @@ static int32_t findIndex(const char * converterName) {
 }
 
 static bool * getResultsManually(const char ** encodings, int32_t num_encodings,
-    const char * utf8, int32_t length,
-    const USet* excludedCodePoints, const UConverterUnicodeSet whichSet) {
+    const char * utf8, int32_t length, const USet* excludedCodePoints, const UConverterUnicodeSet whichSet) 
+{
 	bool* resultsManually;
 	int32_t i;
-
 	resultsManually = (bool*)uprv_malloc(gCountAvailable);
-	uprv_memset(resultsManually, 0, gCountAvailable);
-
+	memzero(resultsManually, gCountAvailable);
 	for(i = 0; i < num_encodings; i++) {
 		UErrorCode status = U_ZERO_ERROR;
 		/* get unicode set for that converter */
@@ -312,7 +311,7 @@ static void verifyResult(UEnumeration* res, const bool * resultsManually)
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t i;
 	/* fill the bool for the selector results! */
-	uprv_memset(resultsFromSystem, 0, gCountAvailable);
+	memzero(resultsFromSystem, gCountAvailable);
 	while((name = uenum_next(res, NULL, &status)) != NULL) {
 		resultsFromSystem[findIndex(name)] = TRUE;
 	}

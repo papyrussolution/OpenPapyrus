@@ -152,7 +152,7 @@
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
 	#undef min // @v9.8.11
 	#undef max // @v9.8.11
-#endif 
+#endif
 
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
@@ -207,6 +207,18 @@
 #ifndef FALSE
 	#define FALSE              0
 #endif
+//
+// @v11.2.3
+// Descr: Мнемоники специальных символов
+//
+#define CHR_SOH 0x01 // Start Of Heading
+#define CHR_STX 0x02 // Start Of Text
+#define CHR_ETX 0x03 // End Of Text
+#define CHR_EOT 0x04 // End Of Transmission
+#define CHR_ENQ 0x05 // Enquiry
+#define CHR_ACK 0x06 // Acknowledge
+#define CHR_NAK 0x15 // Negative Acknowledge
+#define CHR_CAN 0x18 // Прервать выполнение отчета
 //
 // Descr: Далее следует список макроопределений, используемых в разнообразных формулах и парсерах.
 //   Крайне желательно при написании очередного парсера использовать именно эти определения.
@@ -378,7 +390,7 @@
 	// @v11.2.0 (moved to slport.h) #define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
 		// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
 		// зрения оптимизации распределения регистров в вызывающих функциях.
-		// @v11.2.0 Небольшое изучение замены __fastcall на __stdcall показало: 
+		// @v11.2.0 Небольшое изучение замены __fastcall на __stdcall показало:
 		//  размер кода при такой замене снижается значительно, но общее быстродействие становиться на несколько процентов меньше.
 		//  Пока оставляем как было.
 		//  При этом есть резон standalone-функции с любым числом аргументом объявлять как __stdcall - это снизит общий размер кода.
@@ -572,13 +584,13 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 // @v11.2.0 {
 #ifdef _MSC_VER
-	// don't use _rotl with MINGW. It can insert slow call to function. 
-	// #if(_MSC_VER >= 1200) 
+	// don't use _rotl with MINGW. It can insert slow call to function.
+	// #if(_MSC_VER >= 1200)
 	#pragma intrinsic(_rotl)
 	#pragma intrinsic(_rotr)
 	#pragma intrinsic(_rotl64)
 	#pragma intrinsic(_rotr64)
-	// #endif 
+	// #endif
 	#define slrotl32(x, n) _rotl((x), (n))
 	#define slrotr32(x, n) _rotr((x), (n))
 	#define slrotl64(x, n) _rotl64((x), (n))
@@ -1852,6 +1864,7 @@ private:
 //   (применяется в диапазонах).
 //
 struct LDATETIME {
+	//LDATETIME();
 	SYSTEMTIME & FASTCALL Get(SYSTEMTIME &) const;
 	LDATETIME FASTCALL operator = (const SYSTEMTIME &);
 	LDATETIME FASTCALL operator = (const FILETIME &);
@@ -2519,15 +2532,15 @@ private:
 //
 #define SLERR_INVDBSYMB                        400 // Неверный символ базы данных '%s'
 #define SLERR_UTFCVT_SRCEXHAUSTED              401 // Не полный входной буфер UTF8
-#define SLERR_UTFCVT_ILLUTF8                   402 // Не допустимый входной символ UTF8
-#define SLERR_UTFCVT_ILLUTF16                  403 // Не допустимый входной символ UTF16
+#define SLERR_UTFCVT_ILLUTF8                   402 // Недопустимый входной символ UTF8
+#define SLERR_UTFCVT_ILLUTF16                  403 // Недопустимый входной символ UTF16
 #define SLERR_TAB_NFOUND                       404 // Таблица STab '%s' не найдена
 #define SLERR_INVIMAGEPIXFORMAT                405 // Недопустимый формат пикселя.
 #define SLERR_IMAGEFILENOTJPEG                 406 // Файл '%s' не является JPEG-файлом.
 #define SLERR_JPEGLOADFAULT                    407 // Ошибка загрузки JPEG-Файла '%s'
 #define SLERR_IMAGEFILENOTPNG                  408 // Файл '%s' не является PNG-файлом.
 #define SLERR_PNGLOADFAULT                     409 // Ошибка загрузки PNG-изображения: '%s'
-#define SLERR_UNSUPPIMGFILEFORMAT              410 // Не поддерживаемый или не допустимый формат файла изображения: '%s'
+#define SLERR_UNSUPPIMGFILEFORMAT              410 // Не поддерживаемый или недопустимый формат файла изображения: '%s'
 #define SLERR_SFILRDSIZE                       411 // Ошибка чтения из файла: размер считанных данных не равен запрошенному (%s)
 #define SLERR_IMAGEFILENOTICO                  412 // Файл '%s' не является ICO-файлом.
 #define SLERR_PNGSTOREFAULT                    413 // Ошибка сохранения PNG-изображения: '%s'
@@ -2550,7 +2563,7 @@ private:
 #define SLERR_USB_HIDUSBCLASSFAILED	           430 // Устройство не относится к классу USB или HID
 #define SLERR_SFILRDNULLOUTP                   431 // Попытка чтения из NullOutput-файла
 #define SLERR_MAIL_NOTCONNECTED                432 // Внутренняя ошибка - не установлено соединение почтового клиента
-#define SLERR_MAIL_INVPROTOCOL                 433 // Внутренняя ошибка - не допустимый протокол '%s' почтового клиента
+#define SLERR_MAIL_INVPROTOCOL                 433 // Внутренняя ошибка - недопустимый протокол '%s' почтового клиента
 #define SLERR_MAIL_SMTP_NOREPLY                434 // Почтовый сервер SMTP не ответил на запрос.
 #define SLERR_MAIL_SMTP_REPLYERR               435 // Почтовый сервер SMTP вернул ошибку %s.
 #define SLERR_MAIL_POP3_NOREPLY                436 // Почтовый сервер POP3 не ответил на запрос.
@@ -2588,9 +2601,9 @@ private:
 #define SLERR_FANN_INPUT_NO_MATCH              518 // The number of input neurons in the ann and data don't match
 #define SLERR_FANN_OUTPUT_NO_MATCH             519 // The number of output neurons in the ann and data don't match
 #define SLERR_FANN_WRONG_PARAMETERS_FOR_CREATE 520 // The parameters for create_standard are wrong, either too few parameters provided or a negative/very high value provided
-#define SLERR_FANN_INVLAYERCOUNT               521 // Не допустимое количество слоев нейронной сети
-#define SLERR_FANN_INVLAYERSIZE                522 // Не допустимый размер слоя нейронной сети
-#define SLERR_FANN_INVTRAINALG                 523 // Не допустимый алгоритм обучения нейронной сети
+#define SLERR_FANN_INVLAYERCOUNT               521 // Недопустимое количество слоев нейронной сети
+#define SLERR_FANN_INVLAYERSIZE                522 // Недопустимый размер слоя нейронной сети
+#define SLERR_FANN_INVTRAINALG                 523 // Недопустимый алгоритм обучения нейронной сети
 //#define SLERR_JSON_OK = 1,                  // everything went smoothly
 //#define SLERR_JSON_MEMORY,                   // an error occurred when allocating memory
 #define SLERR_JSON_INCOMPLETE_DOCUMENT         550 // the parsed document didn't ended
@@ -6278,7 +6291,7 @@ public:
 	};
 	//
 	// Общий подход к использованию следующих функций:
-	//  -- если надо получить хэш по фиксированному буферу за один проход, то вызываем 
+	//  -- если надо получить хэш по фиксированному буферу за один проход, то вызываем
 	//     result = Fun(0, pData, dataSize)
 	//  -- если необходимо получить хэш в несколько итераций, то делаем так:
 	//     SlHash hs;
@@ -6340,7 +6353,7 @@ public:
 		tagPrivateConfig           = 30,  // @reserve json Приватная конфигурация //
 		tagRoundTripIdent          = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
 			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
-		tagDocDeclaration          = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData 
+		tagDocDeclaration          = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
 		tagSvcLoclAddendum         = 33   // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
 			// Участвует в формировании символа очереди в случае MQB-обмена.
 	};
@@ -12481,7 +12494,7 @@ private:
 	FloatArray * P_List;
 };
 //
-// 
+//
 //
 class SPoint2I {
 public:
@@ -12778,7 +12791,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrDarkcyan       		 = 0x00008b8b,
 	SClrDarkgoldenrod  		 = 0x00b8860b,
 	SClrDarkgrey       		 = 0x00555555,
-	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++ 
+	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++
 	SClrDarkgreen      		 = 0x00006400,
 	SClrDarkkhaki      		 = 0x00bdb76b,
 	SClrDarkmagenta    		 = 0x008b008b,

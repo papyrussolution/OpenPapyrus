@@ -2322,7 +2322,7 @@ void UnicodeStringTest::TestLargeAppend() {
 	char16_t * buf = str.getBuffer(len);
 	// A fast way to set buffer to valid Unicode.
 	// 4E4E is a valid unicode character
-	uprv_memset(buf, 0x4e, len * 2);
+	memset(buf, 0x4e, len * 2);
 	str.releaseBuffer(len);
 	UnicodeString dest;
 	// Append it 16 times
@@ -2356,7 +2356,7 @@ void UnicodeStringTest::TestLargeAppend() {
 				// if somehow memory allocation fail, return the test
 				return;
 			}
-			uprv_memset(buf2, 0x4e, remain * 2);
+			memset(buf2, 0x4e, remain * 2);
 			str2.releaseBuffer(remain);
 			dest.append(str2);
 			total += remain;

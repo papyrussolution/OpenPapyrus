@@ -194,7 +194,7 @@ columns_def :
 {
 	if(GP_CurData) {
 		DL2_Column col;
-		memset(&col, 0, sizeof(col));
+		memzero(&col, sizeof(col));
 		col.P_Title = "Default";
 		col.CiType = DL2CIT_REAL;
 		GP_CurData->AddColumn(&col);
@@ -232,7 +232,7 @@ column_def_list : column_def
 column_def : T_STRING T_COLUMNTYPE columnmaxsize
 {
 	DL2_Column col;
-	memset(&col, 0, sizeof(col));
+	memzero(&col, sizeof(col));
 	col.P_Title = newStr($1);
 	col.CiType = (uint16)$2;
 	col.MaxOutSize = (uint16)$3;
@@ -242,7 +242,7 @@ column_def : T_STRING T_COLUMNTYPE columnmaxsize
 } | T_COLUMNTYPE columnmaxsize
 {
 	DL2_Column col;
-	memset(&col, 0, sizeof(col));
+	memzero(&col, sizeof(col));
 	col.CiType = (uint16)$1;
 	col.MaxOutSize = (uint16)$2;
 	if(col.MaxOutSize != 0 && col.CiType != DL2CIT_STRING)
@@ -251,7 +251,7 @@ column_def : T_STRING T_COLUMNTYPE columnmaxsize
 } | T_STRING T_ACCVAL
 {
 	DL2_Column col;
-	memset(&col, 0, sizeof(col));
+	memzero(&col, sizeof(col));
 	col.P_Title = newStr($1);
 	col.CiType = DL2CIT_ACC;
 	col.CiAc = $2;
@@ -259,7 +259,7 @@ column_def : T_STRING T_COLUMNTYPE columnmaxsize
 } | T_ACCVAL
 {
 	DL2_Column col;
-	memset(&col, 0, sizeof(col));
+	memzero(&col, sizeof(col));
 	col.CiType = DL2CIT_ACC;
 	col.CiAc = $1;
 	$$ = col;

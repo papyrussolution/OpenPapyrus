@@ -823,7 +823,7 @@ void UTextTest::ErrorTest()
 	// Close of an uninitialized UText.  Shouldn't blow up.
 	{
 		UText ut;
-		memset(&ut, 0, sizeof(UText));
+		memzero(&ut, sizeof(UText));
 		utext_close(&ut);
 		utext_close(NULL);
 	}

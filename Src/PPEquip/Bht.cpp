@@ -2119,14 +2119,14 @@ int BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
 //
 // BhtProtocol
 //
-#define EOT 0x04 // End Of Transmission
-#define ENQ 0x05 // Enquiry
-#define ACK 0x06 // Acknowledge
-#define NAK 0x15 // Negative Acknowledge
-
-#define SOH 0x01 // Start Of Heading
-#define STX 0x02 // Start Of Text
-#define ETX 0x03 // End Of Text
+// @v11.2.3 Следующие определения заменены на CHR_XXX определенные в SLIB.H
+// @v11.2.3 #define EOT 0x04 // End Of Transmission
+// @v11.2.3 #define ENQ 0x05 // Enquiry
+// @v11.2.3 #define ACK 0x06 // Acknowledge
+// @v11.2.3 #define NAK 0x15 // Negative Acknowledge
+// @v11.2.3 #define SOH 0x01 // Start Of Heading
+// @v11.2.3 #define STX 0x02 // Start Of Text
+// @v11.2.3 #define ETX 0x03 // End Of Text
 
 BhtProtocol::BhtProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
@@ -2147,14 +2147,14 @@ int BhtProtocol::SetConnection()
 {
 	int    ok = 0, c = 0;
 	for(uint i = 0; !ok && i < MaxTries; i++) {
-		PutChr(ENQ);
-		if((c = GetChr()) == ACK)
+		PutChr(CHR_ENQ);
+		if((c = GetChr()) == CHR_ACK)
 			ok = 1;
 		else
 			SDelay(Timeout);
 	}
 	if(!ok) {
-		PutChr(EOT);
+		PutChr(CHR_EOT);
 		char   addmsg[32];
 		PPSetError(PPERR_BHT_NOHANDSHAKEACK, itoa(c, addmsg, 10));
 	}
@@ -2168,14 +2168,14 @@ int BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	size_t i, p = 0;
 	int    enq = 0, nak = 0, j;
 	if(recNo > 0) {
-		buf[p++] = STX;
+		buf[p++] = CHR_STX;
 		PutIntToBuf(recNo, RECNOLEN, buf+p); p += RECNOLEN;
 	}
 	else
-		buf[p++] = SOH;
+		buf[p++] = CHR_SOH;
 	memcpy(buf+p, pBlk, size);
 	p += size;
-	buf[p++] = ETX;
+	buf[p++] = CHR_ETX;
 	bcc = 0;
 	for(i = 1; i < p; i++)
 		bcc ^= ((uchar)buf[i]);
@@ -2187,14 +2187,14 @@ int BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 			for(i = 0; i < p; i++)
 				THROW_SL(PutChr(buf[i]));
 		switch(GetChr()) {
-			case ACK: ok =  1; enq = 0; break;
-			case NAK: ok =  0; nak = 1; break;
-			case EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
+			case CHR_ACK: ok =  1; enq = 0; break;
+			case CHR_NAK: ok =  0; nak = 1; break;
+			case CHR_EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
 			default:  ok =  0; enq = 1; SDelay(Timeout); break;
 		}
 	}
 	if(enq) {
-		PutChr(EOT);
+		PutChr(CHR_EOT);
 		PPSetError(PPERR_BHT_NOREPLY);
 	}
 	if(nak) {
@@ -2210,8 +2210,8 @@ int BhtProtocol::ReleaseConnection()
 {
 	int    ok = 0, c;
 	for(int i = 0; !ok && i < MaxTries; i++) {
-		PutChr(EOT);
-		if((c = GetChr()) == ACK)
+		PutChr(CHR_EOT);
+		if((c = GetChr()) == CHR_ACK)
 			ok = 1;
 		else
 			SDelay(Timeout);
@@ -2252,10 +2252,10 @@ int BhtProtocol::SendRecord(uint recNo, const BhtRecord * pRec)
 
 int BhtProtocol::WaitOnConnection(int releaseLink, long timeout)
 {
-	int    expected_chr = releaseLink ? EOT : ENQ;
+	int    expected_chr = releaseLink ? CHR_EOT : CHR_ENQ;
 	for(uint i = 0; i < 100; i++)
 		if(GetChr() == expected_chr) {
-			PutChr(ACK);
+			PutChr(CHR_ACK);
 			return 1;
 		}
 		else
@@ -2273,8 +2273,8 @@ int BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, siz
 
 	SDelay(100);
 	c = GetChr();
-	THROW_PP(c == SOH || c == STX, PPERR_BHT_NOTSOHSTXSYMB);
-	if(c == STX) {
+	THROW_PP(oneof2(c, CHR_SOH, CHR_STX), PPERR_BHT_NOTSOHSTXSYMB);
+	if(c == CHR_STX) {
 		char recno_buf[16];
 		for(int i = 0; i < RECNOLEN; i++) {
 		   	c = GetChr();
@@ -2286,21 +2286,21 @@ int BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, siz
 		recno = atoi(recno_buf);
 		THROW(recno > 0);
 	}
-	while((c = GetChr()) != ETX && c != 0) {
+	while((c = GetChr()) != CHR_ETX && c != 0) {
 		buf[p++] = c;
 		bcc ^= (char)c;
 	}
-	THROW(c == ETX);
+	THROW(c == CHR_ETX);
 	bcc ^= (char)c;
 	c = GetChr();
 	THROW(bcc == c);
-	PutChr(ACK);
+	PutChr(CHR_ACK);
 	ASSIGN_PTR(pRecNo, recno);
 	memcpy(pBuf, buf, MIN(p, bufLen));
 	ASSIGN_PTR(pDataLen, p);
 	CATCH
 		ok = 0;
-		PutChr(NAK);
+		PutChr(CHR_NAK);
 	ENDCATCH
 	return ok;
 }
@@ -2442,14 +2442,14 @@ int CipherProtocol::SetConnection()
 {
 	int    ok = 0, c = 0;
 	for(uint i = 0; !ok && i < MaxTries; i++) {
-		PutChrEx(ENQ);
-		if((c = GetChrEx()) == ACK)
+		PutChrEx(CHR_ENQ);
+		if((c = GetChrEx()) == CHR_ACK)
 			ok = 1;
 		else
 			SDelay(Timeout);
 	}
 	if(!ok) {
-		PutChrEx(EOT);
+		PutChrEx(CHR_EOT);
 		char   addmsg[32];
 		PPSetError(PPERR_BHT_NOHANDSHAKEACK, itoa(c, addmsg, 10));
 	}
@@ -2460,8 +2460,8 @@ int CipherProtocol::ReleaseConnection()
 {
 	int    ok = 0, c;
 	for(int i = 0; !ok && i < MaxTries; i++) {
-		PutChrEx(EOT);
-		if((c = GetChrEx()) == ACK)
+		PutChrEx(CHR_EOT);
+		if((c = GetChrEx()) == CHR_ACK)
 			ok = 1;
 		else
 			SDelay(Timeout);
@@ -2528,11 +2528,11 @@ int CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	size_t i, p = 0;
 	int enq = 0, nak = 0, j;
 	if(recNo > 0) {
-		buf[p++] = STX;
+		buf[p++] = CHR_STX;
 		PutIntToBuf(recNo, RECNOLEN, buf+p); p += RECNOLEN;
 	}
 	else
-		buf[p++] = SOH;
+		buf[p++] = CHR_SOH;
 	for(i = 0; i < size; i++)
 		buf[p++] = pBlk[i];
 	for(i = 1; i < p; i++)
@@ -2546,14 +2546,14 @@ int CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 			for(i = 0; i < p; i++)
 				THROW_SL(PutChr(buf[i]));
 		switch(GetChrEx()) {
-			case ACK: ok =  1; enq = 0; break;
-			case NAK: ok =  0; nak = 1; break;
-			case EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
+			case CHR_ACK: ok =  1; enq = 0; break;
+			case CHR_NAK: ok =  0; nak = 1; break;
+			case CHR_EOT: ok = (PPSetError(PPERR_BHT_EOT), -1); break;
 			default:  ok =  0; enq = 1; SDelay(Timeout); break;
 		}
 	}
 	if(enq) {
-		PutChrEx(EOT);
+		PutChrEx(CHR_EOT);
 		PPSetError(PPERR_BHT_NOREPLY);
 	}
 	if(nak) {
@@ -2579,14 +2579,14 @@ int CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 
 int CipherProtocol::WaitOnConnection(int releaseLink, long timeout)
 {
-	int expected_chr = releaseLink ? EOT : ENQ;
+	int expected_chr = releaseLink ? CHR_EOT : CHR_ENQ;
 	for(uint i = 0; i < 100; i++)
 		if(GetChrEx() == expected_chr) {
-			PutChrEx(ACK);
+			PutChrEx(CHR_ACK);
 			return 1;
 		}
 		else {
-			PutChrEx(NAK);
+			PutChrEx(CHR_NAK);
 			SDelay((uint)(timeout / 100));
 		}
 	return 0;
@@ -2632,8 +2632,8 @@ int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, 
 	for(int i = 0; !r && i < 100; i++) {
 		SDelay(300);
 		c = GetChr();
-		if(c == SOH || c == STX) {
-			if(c == STX) {
+		if(oneof2(c, CHR_SOH, CHR_STX)) {
+			if(c == CHR_STX) {
 				char recno_buf[16];
 				for(int i = 0; i < RECNOLEN; i++) {
 		   			c = GetChr();
@@ -2656,21 +2656,21 @@ int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, 
 			THROW((uint)(uchar)buf[p-1] == ((sum % 256 == EOS) ? 14 : sum % 256));
 			buf[p-2] = '\0';
 			p -= 2;
-			PutChrEx(ACK);
+			PutChrEx(CHR_ACK);
 			ASSIGN_PTR(pRecNo, recno);
 			memcpy(pBuf, buf, MIN(p, bufLen));
 			ASSIGN_PTR(pDataLen, p);
 			r = 1;
 		}
 		else {
-			PutChrEx(NAK);
+			PutChrEx(CHR_NAK);
 			PPSetError(PPERR_BHT_NOTSOHSTXSYMB);
 		}
 	}
 	THROW(r);
 	CATCH
 		ok = 0;
-		PutChrEx(EOT);
+		PutChrEx(CHR_EOT);
 	ENDCATCH
 	return ok;
 }

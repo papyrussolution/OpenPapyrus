@@ -19,6 +19,8 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
+#include "unicode/ustdio.h"
+#include "ufile.h"
 #include "charstr.h"
 #include "uresimp.h"
 #include "uoptions.h"
@@ -299,7 +301,6 @@ extern int main(int argc, char * argv[]) {
 				u_fprintf(out, "%.*s%.*S", (int32_t)(ext - filename),  filename, UPRV_LENGTHOF(sp), sp);
 			}
 			printOutBundle(out, bundle, 0, pname, &status);
-
 			if(!tostdout) {
 				u_fclose(out);
 			}
@@ -307,19 +308,17 @@ extern int main(int argc, char * argv[]) {
 		else {
 			reportError(pname, &status, "opening resource file");
 		}
-
 		ures_close(bundle);
 	}
-
 	return 0;
 }
 
-static UChar * quotedString(const UChar * string) {
+static UChar * quotedString(const UChar * string) 
+{
 	int len = u_strlen(string);
 	int alen = len;
 	const UChar * sp;
 	UChar * newstr, * np;
-
 	for(sp = string; *sp; ++sp) {
 		switch(*sp) {
 			case '\n':
@@ -346,15 +345,16 @@ static UChar * quotedString(const UChar * string) {
 		}
 	}
 	*np = 0;
-
 	return newstr;
 }
 
-static void printString(UFILE * out, const UChar * str, int32_t len) {
+static void printString(UFILE * out, const UChar * str, int32_t len) 
+{
 	u_file_write(str, len, out);
 }
 
-static void printCString(UFILE * out, const char * str, int32_t len) {
+static void printCString(UFILE * out, const char * str, int32_t len) 
+{
 	if(len==-1) {
 		u_fprintf(out, "%s", str);
 	}
@@ -363,28 +363,24 @@ static void printCString(UFILE * out, const char * str, int32_t len) {
 	}
 }
 
-static void printIndent(UFILE * out, int32_t indent) {
+static void printIndent(UFILE * out, int32_t indent) 
+{
 	icu::UnicodeString inchar(indent, 0x20, indent);
 	printString(out, inchar.getBuffer(), indent);
 }
 
-static void printHex(UFILE * out, uint8_t what) {
+static void printHex(UFILE * out, uint8_t what) 
+{
 	static const char map[] = "0123456789ABCDEF";
 	UChar hex[2];
-
 	hex[0] = map[what >> 4];
 	hex[1] = map[what & 0xf];
-
 	printString(out, hex, 2);
 }
 
-static void printOutAlias(UFILE * out,
-    UResourceBundle * parent,
-    Resource r,
-    const char * key,
-    int32_t indent,
-    const char * pname,
-    UErrorCode * status) {
+static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, const char * key,
+    int32_t indent, const char * pname, UErrorCode * status) 
+{
 	static const UChar cr[] = { 0xA }; // LF
 	int32_t len = 0;
 	const UChar * thestr = res_getAlias(&(parent->getResData()), r, &len);
@@ -392,17 +388,12 @@ static void printOutAlias(UFILE * out,
 	if(opt_truncate && len > truncsize) {
 		char msg[128];
 		printIndent(out, indent);
-		sprintf(msg, "// WARNING: this resource, size %li is truncated to %li\n",
-		    (long)len, (long)truncsize/2);
+		sprintf(msg, "// WARNING: this resource, size %li is truncated to %li\n", (long)len, (long)truncsize/2);
 		printCString(out, msg, -1);
 		len = truncsize;
 	}
 	if(U_SUCCESS(*status)) {
-		static const UChar openStr[] = { 0x003A, 0x0061, 0x006C, 0x0069, 0x0061, 0x0073, 0x0020, 0x007B, 0x0020, 0x0022 }; /*
-		                                                                                                                      ":alias
-		                                                                                                                      {
-		                                                                                                                      \""
-		 */
+		static const UChar openStr[] = { 0x003A, 0x0061, 0x006C, 0x0069, 0x0061, 0x0073, 0x0020, 0x007B, 0x0020, 0x0022 }; // ":alias { \"" 
 		static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D, 0x0020 }; /* "\" } " */
 		printIndent(out, indent);
 		if(key != NULL) {
@@ -429,7 +420,6 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 /*    int32_t noOfElements = ures_getSize(resource);*/
 	int32_t i = 0;
 	const char * key = ures_getKey(resource);
-
 	switch(ures_getType(resource)) {
 		case URES_STRING:
 	    {
@@ -441,8 +431,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    if(opt_truncate && len > truncsize) {
 			    char msg[128];
 			    printIndent(out, indent);
-			    sprintf(msg, "// WARNING: this resource, size %li is truncated to %li\n",
-				(long)len, (long)(truncsize/2));
+			    sprintf(msg, "// WARNING: this resource, size %li is truncated to %li\n", (long)len, (long)(truncsize/2));
 			    printCString(out, msg, -1);
 			    len = truncsize/2;
 		    }

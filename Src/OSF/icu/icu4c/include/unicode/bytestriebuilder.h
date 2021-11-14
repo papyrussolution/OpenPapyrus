@@ -1,24 +1,17 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2010-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
+ *   Copyright (C) 2010-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   file name:  bytestriebuilder.h
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2010sep25
  *   created by: Markus W. Scherer
  */
-
 /**
  * \file
  * \brief C++ API: Builder for icu::BytesTrie
  */
-
 #ifndef __BYTESTRIEBUILDER_H__
 #define __BYTESTRIEBUILDER_H__
 

@@ -1,13 +1,7 @@
+// regextxt.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 2008-2011, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-//
-//  file:  regextxt.cpp
-//
+// Copyright (c) 2008-2011, International Business Machines Corporation and others. All Rights Reserved.
 //  This file contains utility code for supporting UText in the regular expression engine.
 //
 #include <icu-internal.h>
@@ -16,7 +10,8 @@
 
 U_NAMESPACE_BEGIN
 
-U_CFUNC UChar U_CALLCONV uregex_utext_unescape_charAt(int32_t offset, void * ct) {
+U_CFUNC UChar U_CALLCONV uregex_utext_unescape_charAt(int32_t offset, void * ct) 
+{
 	struct URegexUTextUnescapeCharContext * context = (struct URegexUTextUnescapeCharContext *)ct;
 	UChar32 c;
 	if(offset == context->lastOffset + 1) {
@@ -32,7 +27,6 @@ U_CFUNC UChar U_CALLCONV uregex_utext_unescape_charAt(int32_t offset, void * ct)
 		c = UTEXT_NEXT32(context->text);
 		context->lastOffset = offset;
 	}
-
 	// !!!: Doesn't handle characters outside BMP
 	if(U_IS_BMP(c)) {
 		return (UChar)c;
@@ -42,7 +36,8 @@ U_CFUNC UChar U_CALLCONV uregex_utext_unescape_charAt(int32_t offset, void * ct)
 	}
 }
 
-U_CFUNC UChar U_CALLCONV uregex_ucstr_unescape_charAt(int32_t offset, void * context) {
+U_CFUNC UChar U_CALLCONV uregex_ucstr_unescape_charAt(int32_t offset, void * context) 
+{
 	return ((UChar *)context)[offset];
 }
 

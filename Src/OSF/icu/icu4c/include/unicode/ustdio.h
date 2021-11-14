@@ -24,16 +24,12 @@
 #ifndef USTDIO_H
 #define USTDIO_H
 
-#include <stdio.h>
-#include <stdarg.h>
-
 #include "unicode/utypes.h"
 #include "unicode/ucnv.h"
 #include "unicode/utrans.h"
 #include "unicode/unum.h"
-
 #if U_SHOW_CPLUSPLUS_API
-#include "unicode/localpointer.h"
+	#include "unicode/localpointer.h"
 #endif   // U_SHOW_CPLUSPLUS_API
 
 #if !UCONFIG_NO_CONVERSION
@@ -471,10 +467,7 @@ U_CAPI int32_t U_EXPORT2 u_printf(const char * patternSpecification,
  * @return The number of Unicode characters written to <TT>f</TT>.
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_fprintf(UFILE         * f,
-    const char    * patternSpecification,
-    ...);
-
+U_CAPI int32_t U_EXPORT2 u_fprintf(UFILE         * f, const char    * patternSpecification, ...);
 /**
  * Write formatted data to a UFILE.
  * This is identical to <TT>u_fprintf</TT>, except that it will
@@ -487,10 +480,7 @@ U_CAPI int32_t U_EXPORT2 u_fprintf(UFILE         * f,
  * @see u_fprintf
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_vfprintf(UFILE        * f,
-    const char   * patternSpecification,
-    va_list ap);
-
+U_CAPI int32_t U_EXPORT2 u_vfprintf(UFILE        * f, const char   * patternSpecification, va_list ap);
 /**
  * Write formatted data to <TT>stdout</TT>.
  * @param patternSpecification A pattern specifying how <TT>u_printf_u</TT> will
@@ -516,10 +506,7 @@ U_CAPI UFILE * U_EXPORT2 u_get_stdout(void);
  * @return The number of Unicode characters written to <TT>f</TT>.
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_fprintf_u(UFILE       * f,
-    const UChar * patternSpecification,
-    ...);
-
+U_CAPI int32_t U_EXPORT2 u_fprintf_u(UFILE       * f, const UChar * patternSpecification, ...);
 /**
  * Write formatted data to a UFILE.
  * This is identical to <TT>u_fprintf_u</TT>, except that it will
@@ -532,9 +519,7 @@ U_CAPI int32_t U_EXPORT2 u_fprintf_u(UFILE       * f,
  * @see u_fprintf_u
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_vfprintf_u(UFILE      * f,
-    const UChar * patternSpecification,
-    va_list ap);
+U_CAPI int32_t U_EXPORT2 u_vfprintf_u(UFILE      * f, const UChar * patternSpecification, va_list ap);
 #endif
 /**
  * Write a Unicode to a UFILE.  The null (U+0000) terminated UChar*
@@ -546,9 +531,7 @@ U_CAPI int32_t U_EXPORT2 u_vfprintf_u(UFILE      * f,
  * @see u_file_write
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_fputs(const UChar * s,
-    UFILE       * f);
-
+U_CAPI int32_t U_EXPORT2 u_fputs(const UChar * s, UFILE       * f);
 /**
  * Write a UChar to a UFILE.
  * @param uc The UChar to write.
@@ -556,9 +539,7 @@ U_CAPI int32_t U_EXPORT2 u_fputs(const UChar * s,
  * @return The character written if successful, EOF otherwise.
  * @stable ICU 3.0
  */
-U_CAPI UChar32 U_EXPORT2 u_fputc(UChar32 uc,
-    UFILE  * f);
-
+U_CAPI UChar32 U_EXPORT2 u_fputc(UChar32 uc, UFILE  * f);
 /**
  * Write Unicode to a UFILE.
  * The ustring passed in will be converted to the UFILE's underlying
@@ -948,9 +929,7 @@ U_CAPI int32_t U_EXPORT2 u_sscanf_u(const UChar  * buffer,
  * @see u_sscanf_u
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 u_vsscanf_u(const UChar * buffer,
-    const UChar * patternSpecification,
-    va_list ap);
+U_CAPI int32_t U_EXPORT2 u_vsscanf_u(const UChar * buffer, const UChar * patternSpecification, va_list ap);
 
 #endif
 #endif

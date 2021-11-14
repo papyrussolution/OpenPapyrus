@@ -960,7 +960,7 @@ static void ures_closeBundle(UResourceBundle * resB, bool freeBundleObj)
 #if 0 /*U_DEBUG*/
 		else {
 			/* poison the data */
-			uprv_memset(resB, -1, sizeof(UResourceBundle));
+			memset(resB, -1, sizeof(UResourceBundle));
 		}
 #endif
 	}

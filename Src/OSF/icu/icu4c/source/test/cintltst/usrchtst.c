@@ -322,7 +322,7 @@ static void TestInitialization(void)
 	for(i = 0; i < 512; i++) {
 		pattern[i] = 0x41;
 	}
-	/*uprv_memset(pattern, 0x41, 512);*/
+	/*memset(pattern, 0x41, 512);*/
 	result = usearch_openFromCollator(pattern, 512, text, 3, EN_US_, NULL,
 		&status);
 	if(U_FAILURE(status)) {
@@ -1224,9 +1224,8 @@ static void TestGetSetOffset(void)
 	UChar text[128];
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
-	memset(pattern, 0, 32*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(pattern, 32*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -1325,10 +1324,8 @@ static void TestGetSetAttribute(void)
 	UChar pattern[32];
 	UChar text[128];
 	UStringSearch  * strsrch;
-
-	memset(pattern, 0, 32*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(pattern, 32*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -1663,10 +1660,9 @@ static void TestContraction(void)
 	UErrorCode status = U_ZERO_ERROR;
 	int count = 0;
 	UStringSearch * strsrch;
-	memset(rules, 0, 128*sizeof(UChar));
-	memset(pattern, 0, 128*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(rules, 128*sizeof(UChar));
+	memzero(pattern, 128*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	u_unescape(CONTRACTIONRULE, rules, 128);
 	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON,
 		UCOL_TERTIARY, NULL, &status);
@@ -1707,11 +1703,9 @@ static void TestIgnorable(void)
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
 	uint32_t count = 0;
-
-	memset(rules, 0, 128*sizeof(UChar));
-	memset(pattern, 0, 128*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(rules, 128*sizeof(UChar));
+	memzero(pattern, 128*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	u_unescape(IGNORABLERULE, rules, 128);
 	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON,
 		IGNORABLE[count].strength, NULL, &status);
@@ -1752,16 +1746,13 @@ static void TestDiacriticMatch(void)
 	UCollator * coll = NULL;
 	uint32_t count = 0;
 	SearchData search;
-
-	memset(pattern, 0, 128*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(pattern, 128*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	strsrch = usearch_open(pattern, 1, text, 1, uloc_getDefault(), NULL, &status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Error opening string search %s\n", u_errorName(status));
 		return;
 	}
-
 	search = DIACRITICMATCH[count];
 	while(search.text != NULL) {
 		if(search.collator != NULL) {
@@ -2280,10 +2271,8 @@ static void TestGetSetOffsetCanonical(void)
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
 	UCollator     * collator;
-
-	memset(pattern, 0, 32*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(pattern, 32*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -2397,13 +2386,11 @@ static void TestContractionCanonical(void)
 	UErrorCode status = U_ZERO_ERROR;
 	int count = 0;
 	UStringSearch * strsrch = NULL;
-	memset(rules, 0, 128*sizeof(UChar));
-	memset(pattern, 0, 128*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(rules, 128*sizeof(UChar));
+	memzero(pattern, 128*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	u_unescape(CONTRACTIONRULE, rules, 128);
-	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON,
-		UCOL_TERTIARY, NULL, &status);
+	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON, UCOL_TERTIARY, NULL, &status);
 	if(status == U_FILE_ACCESS_ERROR) {
 		log_data_err("Is your data around?\n");
 		return;
@@ -2435,26 +2422,22 @@ static void TestContractionCanonical(void)
 	ucol_close(collator);
 }
 
-static void TestNumeric() {
+static void TestNumeric() 
+{
 	UCollator     * coll = NULL;
 	UStringSearch * strsrch = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-
 	UChar pattern[128];
 	UChar text[128];
-	memset(pattern, 0, 128*sizeof(UChar));
-	memset(text, 0, 128*sizeof(UChar));
-
+	memzero(pattern, 128*sizeof(UChar));
+	memzero(text, 128*sizeof(UChar));
 	coll = ucol_open("", &status);
 	if(U_FAILURE(status)) {
 		log_data_err("Could not open UCA. Is your data around?\n");
 		return;
 	}
-
 	ucol_setAttribute(coll, UCOL_NUMERIC_COLLATION, UCOL_ON, &status);
-
 	strsrch = usearch_openFromCollator(pattern, 1, text, 1, coll, NULL, &status);
-
 	if(status != U_UNSUPPORTED_ERROR || U_SUCCESS(status)) {
 		log_err("Expected U_UNSUPPORTED_ERROR when trying to instantiate a search object from a CODAN collator, got %s instead\n",
 		    u_errorName(status));
@@ -2939,13 +2922,10 @@ static void TestUInt16Overflow()
 	}
 	u_memset(pattern, 'A', uint16_overflow);
 	UChar text[] = { 'B' };
-
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UStringSearch* usearch = usearch_open(pattern, uint16_overflow, text, 1, "en-US", NULL, &errorCode);
-
 	if(U_SUCCESS(errorCode)) {
 		int32_t match = usearch_first(usearch, &errorCode);
-
 		if(U_SUCCESS(errorCode)) {
 			if(match != USEARCH_DONE) {
 				log_err("Err: match was not expected, got %d\n", match);

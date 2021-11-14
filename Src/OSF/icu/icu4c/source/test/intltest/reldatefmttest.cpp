@@ -12,7 +12,6 @@
  */
 #include <icu-internal.h>
 #pragma hdrstop
-
 #include "intltest.h"
 
 #if !UCONFIG_NO_FORMATTING && !UCONFIG_NO_BREAK_ITERATION
@@ -1171,24 +1170,15 @@ void RelativeDateTimeFormatterTest::CheckExpectedResult(const RelativeDateTimeFo
 	UnicodeString expected(expectedResult.expected, -1, US_INV);
 	expected = expected.unescape();
 	char buffer[256];
-	sprintf(
-		buffer,
-		"%s, %f, %s, %s",
-		description,
-		expectedResult.value,
-		DirectionStr(expectedResult.direction),
-		RelativeUnitStr(expectedResult.unit));
+	sprintf(buffer, "%s, %f, %s, %s", description, expectedResult.value, DirectionStr(expectedResult.direction), RelativeUnitStr(expectedResult.unit));
 	if(actual != expected) {
-		errln(UnicodeString("Fail: Expected: ") + expected
-		    + ", Got: " + actual
-		    + ", For: " + buffer);
+		errln(UnicodeString("Fail: Expected: ") + expected + ", Got: " + actual + ", For: " + buffer);
 	}
 }
 
 void RelativeDateTimeFormatterTest::CheckExpectedResult(const RelativeDateTimeFormatter& fmt,
-    const WithQuantityExpectedRelativeDateTimeUnit& expectedResult,
-    const char * description,
-    bool numeric) {
+    const WithQuantityExpectedRelativeDateTimeUnit& expectedResult, const char * description, bool numeric) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString actual;
 	if(numeric) {
@@ -1200,44 +1190,29 @@ void RelativeDateTimeFormatterTest::CheckExpectedResult(const RelativeDateTimeFo
 	UnicodeString expected(expectedResult.expected, -1, US_INV);
 	expected = expected.unescape();
 	char buffer[256];
-	sprintf(
-		buffer,
-		"%s, %f, %s",
-		description,
-		expectedResult.value,
-		RelativeDateTimeUnitStr(expectedResult.unit));
+	sprintf(buffer, "%s, %f, %s", description, expectedResult.value, RelativeDateTimeUnitStr(expectedResult.unit));
 	if(actual != expected) {
-		errln(UnicodeString("Fail: Expected: ") + expected
-		    + ", Got: " + actual
-		    + ", For: " + buffer);
+		errln(UnicodeString("Fail: Expected: ") + expected + ", Got: " + actual + ", For: " + buffer);
 	}
 }
 
 void RelativeDateTimeFormatterTest::CheckExpectedResult(const RelativeDateTimeFormatter& fmt,
-    const WithoutQuantityExpected& expectedResult,
-    const char * description) {
+    const WithoutQuantityExpected& expectedResult, const char * description) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString actual;
 	fmt.format(expectedResult.direction, expectedResult.unit, actual, status);
 	UnicodeString expected(expectedResult.expected, -1, US_INV);
 	expected = expected.unescape();
 	char buffer[256];
-	sprintf(
-		buffer,
-		"%s, %s, %s",
-		description,
-		DirectionStr(expectedResult.direction),
-		AbsoluteUnitStr(expectedResult.unit));
+	sprintf(buffer, "%s, %s, %s", description, DirectionStr(expectedResult.direction), AbsoluteUnitStr(expectedResult.unit));
 	if(actual != expected) {
-		errln(UnicodeString("Fail: Expected: ") + expected
-		    + ", Got: " + actual
-		    + ", For: " + buffer);
+		errln(UnicodeString("Fail: Expected: ") + expected + ", Got: " + actual + ", For: " + buffer);
 	}
 }
 
-void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTimeFormatter& fmt,
-    UDateDirection direction,
-    UDateRelativeUnit unit) {
+void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTimeFormatter& fmt, UDateDirection direction, UDateRelativeUnit unit) 
+{
 	UnicodeString appendTo;
 	UErrorCode status = U_ZERO_ERROR;
 	fmt.format(1.0, direction, unit, appendTo, status);
@@ -1246,9 +1221,8 @@ void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTime
 	}
 }
 
-void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTimeFormatter& fmt,
-    UDateDirection direction,
-    UDateAbsoluteUnit unit) {
+void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTimeFormatter& fmt, UDateDirection direction, UDateAbsoluteUnit unit) 
+{
 	UnicodeString appendTo;
 	UErrorCode status = U_ZERO_ERROR;
 	fmt.format(direction, unit, appendTo, status);
@@ -1258,43 +1232,35 @@ void RelativeDateTimeFormatterTest::VerifyIllegalArgument(const RelativeDateTime
 }
 
 /* Add tests to check "sideways" data loading. */
-void RelativeDateTimeFormatterTest::TestSidewaysDataLoading() {
+void RelativeDateTimeFormatterTest::TestSidewaysDataLoading() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString actual;
 	UnicodeString expected;
 	Locale enGbLocale("en_GB");
-
-	RelativeDateTimeFormatter fmt(enGbLocale, NULL, UDAT_STYLE_NARROW,
-	    UDISPCTX_CAPITALIZATION_NONE, status);
+	RelativeDateTimeFormatter fmt(enGbLocale, NULL, UDAT_STYLE_NARROW, UDISPCTX_CAPITALIZATION_NONE, status);
 	if(U_FAILURE(status)) {
 		dataerrln("Unable to create RelativeDateTimeFormatter - %s", u_errorName(status));
 		return;
 	}
-
 	status = U_ZERO_ERROR;
 	actual = "";
 	fmt.format(3.0, UDAT_DIRECTION_NEXT, UDAT_RELATIVE_MONTHS, actual, status);
 	expected = "in 3 mo";
 	assertEquals("narrow in 3 mo", expected, actual);
-
 	fmt.format(3.0, UDAT_DIRECTION_LAST, UDAT_RELATIVE_DAYS, actual.remove(), status);
 	expected = "3 days ago";
 	assertEquals("3 days ago (positive 3.0): ", expected, actual);
-
 	expected = "-3 days ago";
 	fmt.format(-3.0, UDAT_DIRECTION_LAST, UDAT_RELATIVE_DAYS, actual.remove(), status);
 	assertEquals("3 days ago (negative 3.0): ", expected, actual);
-
 	expected = "next yr";
 	fmt.format(UDAT_DIRECTION_NEXT, UDAT_ABSOLUTE_YEAR, actual.remove(), status);
 	assertEquals("next year: ", expected, actual);
-
 	// Testing the SHORT style
-	RelativeDateTimeFormatter fmtshort(enGbLocale, NULL, UDAT_STYLE_SHORT,
-	    UDISPCTX_CAPITALIZATION_NONE, status);
+	RelativeDateTimeFormatter fmtshort(enGbLocale, NULL, UDAT_STYLE_SHORT, UDISPCTX_CAPITALIZATION_NONE, status);
 	expected = "now";
 	fmtshort.format(0.0, UDAT_DIRECTION_NEXT, UDAT_RELATIVE_SECONDS, actual.remove(), status);
-
 	expected = "next yr";
 	fmt.format(UDAT_DIRECTION_NEXT, UDAT_ABSOLUTE_YEAR, actual.remove(), status);
 	assertEquals("next year: ", expected, actual);
@@ -1323,9 +1289,7 @@ void RelativeDateTimeFormatterTest::TestLocales() {
 
 void RelativeDateTimeFormatterTest::TestFields() {
 	IcuTestErrorCode status(*this, "TestFields");
-
 	RelativeDateTimeFormatter fmt("en-US", status);
-
 	{
 		const char16_t* message = u"automatic absolute unit";
 		FormattedRelativeDateTime fv = fmt.formatToValue(1, UDAT_REL_UNIT_DAY, status);
@@ -1333,12 +1297,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 0, 8}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"automatic numeric unit";
@@ -1350,12 +1309,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 3, 4},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 5, 9}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual absolute unit";
@@ -1364,12 +1318,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 0, 11}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual numeric unit";
@@ -1383,12 +1332,7 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 3, 6},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 7, 12}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 	{
 		const char16_t* message = u"manual numeric resolved unit";
@@ -1399,14 +1343,8 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 0, 2},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 3, 12}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
-
 	// Test when the number field is at the end
 	fmt = RelativeDateTimeFormatter("sw", status);
 	{
@@ -1418,33 +1356,23 @@ void RelativeDateTimeFormatterTest::TestFields() {
 			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD, 13, 15},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 13, 15}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 }
 
-void RelativeDateTimeFormatterTest::TestRBNF() {
+void RelativeDateTimeFormatterTest::TestRBNF() 
+{
 	IcuTestErrorCode status(*this, "TestRBNF");
-
 	LocalPointer<RuleBasedNumberFormat> rbnf(new RuleBasedNumberFormat(URBNF_SPELLOUT, "en-us", status));
 	if(status.errIfFailureAndReset()) {
 		return;
 	}
 	RelativeDateTimeFormatter fmt("en-us", rbnf.orphan(), status);
 	UnicodeString result;
-	assertEquals("format (direction)", "in five seconds",
-	    fmt.format(5, UDAT_DIRECTION_NEXT, UDAT_RELATIVE_SECONDS, result, status));
-	assertEquals("formatNumeric", "one week ago",
-	    fmt.formatNumeric(-1, UDAT_REL_UNIT_WEEK, result.remove(), status));
-	assertEquals("format (absolute)", "yesterday",
-	    fmt.format(UDAT_DIRECTION_LAST, UDAT_ABSOLUTE_DAY, result.remove(), status));
-	assertEquals("format (relative)", "in forty-two months",
-	    fmt.format(42, UDAT_REL_UNIT_MONTH, result.remove(), status));
-
+	assertEquals("format (direction)", "in five seconds", fmt.format(5, UDAT_DIRECTION_NEXT, UDAT_RELATIVE_SECONDS, result, status));
+	assertEquals("formatNumeric", "one week ago", fmt.formatNumeric(-1, UDAT_REL_UNIT_WEEK, result.remove(), status));
+	assertEquals("format (absolute)", "yesterday", fmt.format(UDAT_DIRECTION_LAST, UDAT_ABSOLUTE_DAY, result.remove(), status));
+	assertEquals("format (relative)", "in forty-two months", fmt.format(42, UDAT_REL_UNIT_MONTH, result.remove(), status));
 	{
 		const char16_t* message = u"formatToValue (relative)";
 		FormattedRelativeDateTime fv = fmt.formatToValue(-100, UDAT_REL_UNIT_YEAR, status);
@@ -1453,12 +1381,7 @@ void RelativeDateTimeFormatterTest::TestRBNF() {
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_NUMERIC_FIELD, 0, 11},
 			{UFIELD_CATEGORY_RELATIVE_DATETIME, UDAT_REL_LITERAL_FIELD, 12, 21}
 		};
-		checkMixedFormattedValue(
-			message,
-			fv,
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, fv, expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 }
 
@@ -1501,44 +1424,31 @@ static const char * kNow = "Now";
 
 static const char * kUndefined = "Undefined";
 
-static const char * DirectionStr(UDateDirection direction) {
+static const char * DirectionStr(UDateDirection direction) 
+{
 	switch(direction) {
-		case UDAT_DIRECTION_LAST_2:
-		    return kLast2;
-		case UDAT_DIRECTION_LAST:
-		    return kLast;
-		case UDAT_DIRECTION_THIS:
-		    return kThis;
-		case UDAT_DIRECTION_NEXT:
-		    return kNext;
-		case UDAT_DIRECTION_NEXT_2:
-		    return kNext2;
-		case UDAT_DIRECTION_PLAIN:
-		    return kPlain;
-		default:
-		    return kUndefined;
+		case UDAT_DIRECTION_LAST_2: return kLast2;
+		case UDAT_DIRECTION_LAST: return kLast;
+		case UDAT_DIRECTION_THIS: return kThis;
+		case UDAT_DIRECTION_NEXT: return kNext;
+		case UDAT_DIRECTION_NEXT_2: return kNext2;
+		case UDAT_DIRECTION_PLAIN: return kPlain;
+		default: return kUndefined;
 	}
 	return kUndefined;
 }
 
-static const char * RelativeUnitStr(UDateRelativeUnit unit) {
+static const char * RelativeUnitStr(UDateRelativeUnit unit) 
+{
 	switch(unit) {
-		case UDAT_RELATIVE_SECONDS:
-		    return kSeconds;
-		case UDAT_RELATIVE_MINUTES:
-		    return kMinutes;
-		case UDAT_RELATIVE_HOURS:
-		    return kHours;
-		case UDAT_RELATIVE_DAYS:
-		    return kDays;
-		case UDAT_RELATIVE_WEEKS:
-		    return kWeeks;
-		case UDAT_RELATIVE_MONTHS:
-		    return kMonths;
-		case UDAT_RELATIVE_YEARS:
-		    return kYears;
-		default:
-		    return kUndefined;
+		case UDAT_RELATIVE_SECONDS: return kSeconds;
+		case UDAT_RELATIVE_MINUTES: return kMinutes;
+		case UDAT_RELATIVE_HOURS: return kHours;
+		case UDAT_RELATIVE_DAYS: return kDays;
+		case UDAT_RELATIVE_WEEKS: return kWeeks;
+		case UDAT_RELATIVE_MONTHS: return kMonths;
+		case UDAT_RELATIVE_YEARS: return kYears;
+		default: return kUndefined;
 	}
 	return kUndefined;
 }
@@ -1587,8 +1497,6 @@ static const char * AbsoluteUnitStr(UDateAbsoluteUnit unit)
 	return kUndefined;
 }
 
-extern IntlTest * createRelativeDateTimeFormatterTest() {
-	return new RelativeDateTimeFormatterTest();
-}
+extern IntlTest * createRelativeDateTimeFormatterTest() { return new RelativeDateTimeFormatterTest(); }
 
 #endif

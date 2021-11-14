@@ -847,7 +847,7 @@ static void testTrieSerialize(const char * testName, UMutableCPTrie * mutableTri
 			UDataSwapper * ds;
 
 			/* swap to opposite-endian */
-			uprv_memset(swapped, 0x55, length2);
+			memset(swapped, 0x55, length2);
 			ds = udata_openSwapper(U_IS_BIG_ENDIAN, U_CHARSET_FAMILY,
 				!U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &errorCode);
 			swappedLength = ucptrie_swap(ds, storage, -1, NULL, &errorCode);
@@ -867,7 +867,7 @@ static void testTrieSerialize(const char * testName, UMutableCPTrie * mutableTri
 			}
 
 			/* swap back to platform-endian */
-			uprv_memset(storage, 0xaa, length2);
+			memset(storage, 0xaa, length2);
 			ds = udata_openSwapper(!U_IS_BIG_ENDIAN, U_CHARSET_FAMILY,
 				U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &errorCode);
 			swappedLength = ucptrie_swap(ds, swapped, -1, NULL, &errorCode);
@@ -906,7 +906,7 @@ static void testTrieSerialize(const char * testName, UMutableCPTrie * mutableTri
 			break;
 		}
 		/* overwrite the storage that is not supposed to be needed */
-		uprv_memset((char *)storage+length3, 0xfa, (int32_t)(sizeof(storage)-length3));
+		memset((char *)storage+length3, 0xfa, (int32_t)(sizeof(storage)-length3));
 
 		{
 			errorCode = U_ZERO_ERROR;

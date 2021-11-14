@@ -2901,6 +2901,169 @@ int StrAssocArray::Read(SFile & rFile, long o)
 
 #endif // } _WIN32_WCE
 //
+// @construction {
+//
+class StrAssocArray2Entry {
+public:
+	class BaseList : public TSArray <StrAssocArray2Entry> {
+	public:
+		BaseList() : TSArray <StrAssocArray2Entry>(aryDataOwner|aryEachItem)
+		{
+		}
+		BaseList(const BaseList & rS) : TSArray <StrAssocArray2Entry>(aryDataOwner|aryEachItem)
+		{
+			Copy(rS);
+		}
+		BaseList & Z()
+		{
+			clear();
+			return *this;
+		}
+		int    FASTCALL Copy(const BaseList & rS)
+		{
+			clear();
+			int    ok = 1;
+			for(uint i = 0; i < rS.SArray::getCount(); i++) {
+				{
+					StrAssocArray2Entry new_entry;
+					THROW(insert(&new_entry));
+				}
+				assert(getCount() == (i+1));
+				StrAssocArray2Entry & r_new_entry = at(i);
+				THROW(r_new_entry.Copy(rS.at(i)));
+			}
+			CATCHZOK
+			return ok;			
+		}
+		int    Implement_Add(int32 key, uint strP)
+		{
+			StrAssocArray2Entry new_entry(key, strP);
+			return insert(&new_entry);
+		}
+		/*int    Implement_AddWithParent(int32 key, int32 parentId, uint strP)
+		{
+			//StrAssocArray2Entry new_entry(key, strP);
+			//return insert(&new_entry);
+			uint   idx = 0;
+			if(lsearch(&parentId, &idx, CMPF_LONG)) {
+				StrAssocArray2Entry & r_entry = at(idx);
+				assert(r_entry.Key == parentId);
+				SETIFZ(r_entry.P_Children, new BaseList());
+				r_entry.P_Children->Implement_Add(key, strP);
+			}
+			else {
+				for(uint i = 0; i < getCount(); i++) {
+					StrAssocArray2Entry & r_entry = at(idx);
+					if(r_entry.P_Children) {
+						
+					}
+				}
+			}
+		}*/
+		int    Implement_Search(int32 key, int32 currentParentId, int32 * pParentId, uint * pStrP) const
+		{
+			int    ok = 0;
+			uint   idx = 0;
+			if(lsearch(&key, &idx, CMPF_LONG)) {
+				const StrAssocArray2Entry & r_entry = at(idx);
+				assert(r_entry.Key == key);
+				ASSIGN_PTR(pParentId, currentParentId);
+				ASSIGN_PTR(pStrP, r_entry.StrP);
+				ok = 1;
+			}
+			else {
+				for(uint i = 0; !ok && i < getCount(); i++) {
+					const StrAssocArray2Entry & r_entry = at(i);
+					if(r_entry.P_Children)
+						ok = r_entry.P_Children->Implement_Search(key, r_entry.Key, pParentId, pStrP); // @recursion
+				}
+			}
+			return ok;
+		}
+	private:
+		virtual void FASTCALL freeItem(void * pItem)
+		{
+			CALLPTRMEMB(static_cast<StrAssocArray2Entry *>(pItem), Destroy());
+		}
+	};
+
+	int32  Key;
+	uint32 StrP;
+	BaseList * P_Children;
+
+	StrAssocArray2Entry() : Key(0), StrP(0), P_Children(0)
+	{
+	}
+	StrAssocArray2Entry(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
+	{
+	}
+	void Destroy()
+	{
+		Key = 0;
+		StrP = 0;
+		ZDELETEFAST(P_Children);
+	}
+	int Copy(const StrAssocArray2Entry & rS)
+	{
+		int    ok = 1;
+		Key = rS.Key;
+		StrP = rS.StrP;
+		if(rS.P_Children) {
+			if(P_Children) {
+				P_Children->Copy(*rS.P_Children);
+			}
+			else
+				P_Children = new BaseList(*rS.P_Children);
+		}
+		else {
+			ZDELETE(P_Children);
+		}
+		return ok;
+	}
+};
+
+class StrAssocArray2 : private SStrGroup {
+public:
+	StrAssocArray2() : SStrGroup(), TextCmpProc(0)
+	{
+	}
+	StrAssocArray2(const StrAssocArray2 & rS) : SStrGroup(static_cast<SStrGroup>(rS))
+	{
+		Copy(rS);
+	}
+	int    FASTCALL Copy(const StrAssocArray2 & rS)
+	{
+		Z();
+		int    ok = 1;
+		THROW(L.Copy(rS.L));
+		SStrGroup::CopyS(rS);
+		CATCHZOK
+		return ok;
+	}
+	StrAssocArray2 & Z()
+	{
+		L.Z();
+		SStrGroup::ClearS();
+		return *this;
+	}
+	int    Add(long id, const char * pStr, int replaceDup = 1)
+	{
+		int    ok = 1;
+		return ok;
+	}
+	int    Add(long id, long parentId, const char * pStr, int replaceDup = 1)
+	{
+		int    ok = 1;
+		return ok;
+	}
+protected:
+	CompFunc TextCmpProc;
+	LAssocArray ParentList;
+private:
+	StrAssocArray2Entry::BaseList L;
+};
+// } @construction
+//
 //
 //
 StrStrAssocArray::StrStrAssocArray() : SStrGroup()

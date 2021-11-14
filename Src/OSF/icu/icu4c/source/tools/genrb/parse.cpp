@@ -353,7 +353,7 @@ static struct SResource * parseUCARules(ParseState* state,
 	 */
 	size        = ucbuf_size(ucbuf) + 1;
 	pTarget     = (UChar *)uprv_malloc(U_SIZEOF_UCHAR * size);
-	uprv_memset(pTarget, 0, size*U_SIZEOF_UCHAR);
+	memset(pTarget, 0, size*U_SIZEOF_UCHAR);
 	target      = pTarget;
 	targetLimit = pTarget+size;
 
@@ -480,7 +480,7 @@ static struct SResource * parseTransliterator(ParseState* state,
 	 */
 	pSource = ucbuf_getBuffer(ucbuf, &size, status);
 	pTarget     = (UChar *)uprv_malloc(U_SIZEOF_UCHAR * (size + 1));
-	uprv_memset(pTarget, 0, size*U_SIZEOF_UCHAR);
+	memset(pTarget, 0, size*U_SIZEOF_UCHAR);
 
 #if !UCONFIG_NO_TRANSLITERATION
 	size = utrans_stripRules(pSource, size, pTarget, status);
@@ -895,7 +895,7 @@ static TableResource * addCollation(ParseState* state, TableResource  * result, 
 	}
 	UErrorCode intStatus = U_ZERO_ERROR;
 	UParseError parseError;
-	uprv_memset(&parseError, 0, sizeof(parseError));
+	memset(&parseError, 0, sizeof(parseError));
 	GenrbImporter importer(state->inputdir, state->outputdir);
 	const icu::CollationTailoring * base = icu::CollationRoot::getRoot(intStatus);
 	if(U_FAILURE(intStatus)) {

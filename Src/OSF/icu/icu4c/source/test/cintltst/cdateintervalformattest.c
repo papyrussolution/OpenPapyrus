@@ -409,12 +409,7 @@ static void TestFormatToResult()
 			{UFIELD_CATEGORY_DATE, UDAT_HOUR_OF_DAY0_FIELD, 42, 44},
 			{UFIELD_CATEGORY_DATE, UDAT_MINUTE_FIELD, 45, 47}
 		};
-		checkMixedFormattedValue(
-			message,
-			udtitvfmt_resultAsValue(fdi, &ec),
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
 	{
 		const char * message = "Field position test 2";
@@ -434,14 +429,8 @@ static void TestFormatToResult()
 			{UFIELD_CATEGORY_DATE, UDAT_MINUTE_FIELD, 29, 31},
 			{UFIELD_CATEGORY_DATE, UDAT_AM_PM_FIELD, 32, 35}
 		};
-		checkMixedFormattedValue(
-			message,
-			udtitvfmt_resultAsValue(fdi, &ec),
-			expectedString,
-			expectedFieldPositions,
-			UPRV_LENGTHOF(expectedFieldPositions));
+		checkMixedFormattedValue(message, udtitvfmt_resultAsValue(fdi, &ec), expectedString, expectedFieldPositions, UPRV_LENGTHOF(expectedFieldPositions));
 	}
-
 	udtitvfmt_close(fmt);
 	udtitvfmt_closeResult(fdi);
 }

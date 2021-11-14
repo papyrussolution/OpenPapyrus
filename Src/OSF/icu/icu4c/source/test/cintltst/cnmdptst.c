@@ -662,13 +662,13 @@ static void TestSecondaryGrouping() {
 	if(pos.beginIndex != 0 && pos.endIndex != 12) {
 		log_err("Fail: Formatting \"#,##,###\" pattern pos = (%d, %d) expected pos = (0, 12)\n", pos.beginIndex, pos.endIndex);
 	}
-	memset(resultBuffer, 0, sizeof(UChar)*512);
+	memzero(resultBuffer, sizeof(UChar)*512);
 	unum_toPattern(f, FALSE, resultBuffer, 512, &status);
 	u_uastrcpy(buffer, "#,##,##0");
 	if((u_strcmp(resultBuffer, buffer) != 0) || U_FAILURE(status)) {
 		log_err("Fail: toPattern() got %s, expected %s\n", austrdup(resultBuffer), "#,##,##0");
 	}
-	memset(resultBuffer, 0, sizeof(UChar)*512);
+	memzero(resultBuffer, sizeof(UChar)*512);
 	u_uastrcpy(buffer, "#,###");
 	unum_applyPattern(f, FALSE, buffer, -1, NULL, NULL);
 	if(U_FAILURE(status)) {
@@ -680,18 +680,17 @@ static void TestSecondaryGrouping() {
 	if((u_strcmp(resultBuffer, buffer) != 0) || U_FAILURE(status)) {
 		log_err("Fail: Formatting \"#,###\" pattern with 123456789 got %s, expected %s\n", austrdup(resultBuffer), "12,3456,789");
 	}
-	memset(resultBuffer, 0, sizeof(UChar)*512);
+	memzero(resultBuffer, sizeof(UChar)*512);
 	unum_toPattern(f, FALSE, resultBuffer, 512, &status);
 	u_uastrcpy(buffer, "#,####,##0");
 	if((u_strcmp(resultBuffer, buffer) != 0) || U_FAILURE(status)) {
 		log_err("Fail: toPattern() got %s, expected %s\n", austrdup(resultBuffer), "#,####,##0");
 	}
-	memset(resultBuffer, 0, sizeof(UChar)*512);
+	memzero(resultBuffer, sizeof(UChar)*512);
 	g = unum_open(UNUM_DECIMAL, NULL, 0, "hi_IN", NULL, &status);
 	if(U_FAILURE(status)) {
 		log_err("Fail: Cannot create UNumberFormat for \"hi_IN\" locale.\n");
 	}
-
 	unum_format(g, l, resultBuffer, 512, &pos, &status);
 	unum_close(g);
 	/* expect "1,87,65,43,210", but with Hindi digits */

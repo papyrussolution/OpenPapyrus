@@ -650,7 +650,7 @@ static void testTrieSerialize(const char * testName, UTrie2 * trie, UTrie2ValueB
 			int32_t swappedLength;
 			UDataSwapper * ds;
 			/* swap to opposite-endian */
-			uprv_memset(swapped, 0x55, length2);
+			memset(swapped, 0x55, length2);
 			ds = udata_openSwapper(U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, !U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &errorCode);
 			swappedLength = utrie2_swap(ds, storage, -1, NULL, &errorCode);
 			if(U_FAILURE(errorCode) || swappedLength!=length2) {
@@ -665,7 +665,7 @@ static void testTrieSerialize(const char * testName, UTrie2 * trie, UTrie2ValueB
 				break;
 			}
 			/* swap back to platform-endian */
-			uprv_memset(storage, 0xaa, length2);
+			memset(storage, 0xaa, length2);
 			ds = udata_openSwapper(!U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, U_IS_BIG_ENDIAN, U_CHARSET_FAMILY, &errorCode);
 			swappedLength = utrie2_swap(ds, swapped, -1, NULL, &errorCode);
 			if(U_FAILURE(errorCode) || swappedLength!=length2) {
@@ -694,7 +694,7 @@ static void testTrieSerialize(const char * testName, UTrie2 * trie, UTrie2ValueB
 			break;
 		}
 		/* overwrite the storage that is not supposed to be needed */
-		uprv_memset((char *)storage+length3, 0xfa, (int32_t)(sizeof(storage)-length3));
+		memset((char *)storage+length3, 0xfa, (int32_t)(sizeof(storage)-length3));
 		utrie2_freeze(trie, valueBits, &errorCode);
 		if(U_FAILURE(errorCode) || !utrie2_isFrozen(trie)) {
 			log_err("error: utrie2_freeze(unserialized %s) failed: %s isFrozen: %d\n", testName, u_errorName(errorCode), utrie2_isFrozen(trie));
@@ -717,7 +717,7 @@ static void testTrieSerialize(const char * testName, UTrie2 * trie, UTrie2ValueB
 			else {
 				utrie2_close(trie);
 				trie = clone;
-				uprv_memset(storage, 0, sizeof(storage));
+				memset(storage, 0, sizeof(storage));
 			}
 		}
 		testFrozenTrie(testName, trie, valueBits, checkRanges, countCheckRanges);

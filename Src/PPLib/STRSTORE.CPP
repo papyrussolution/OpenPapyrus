@@ -459,7 +459,7 @@ enum {
 	sc2eInvSlashX        = PPERR_SC2_INVSLASHX,         // Не оконченная конструкция '\x00'
 	sc2eInvSlashDigit    = PPERR_SC2_INVSLASHDIGIT,     // Не оконченная конструкция '\000'
 	sc2eStxLangGrp01     = PPERR_SC2_STXLANGGRP01,      // Ошибка в определении группы языка (ожидается '/')
-	sc2eInvLangSymb      = PPERR_SC2_INVLANGSYMB,       // Не допустимый символ языка
+	sc2eInvLangSymb      = PPERR_SC2_INVLANGSYMB,       // Недопустимый символ языка
 	sc2eLangDescrDup     = PPERR_SC2_LANGDESCRDUP,      // Дублирование определения языка для одной строки
 	sc2eStrNotIdent      = PPERR_SC2_STRNOTIDENT,       // Строка не идентифицирована (нет определителя и не задан язык)
 	sc2eSrcFileNotFound  = PPERR_SC2_SRCFILENOTFOUND,   // Исходный файл не найден
@@ -505,10 +505,10 @@ int StringStore2::Error(int errCode, long flags)
 		{ PPERR_SC2_STXSTRSYMBSTART,        "Символ строки должен начинаться с прописной латинской буквы или '_'" },
 		{ PPERR_SC2_STXSTRSYMBCHR,          "Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'" },
 		{ PPERR_SC2_STXSTR01,               "Ошибка в определении строки (symb=number)" },
-		{ PPERR_SC2_INVSLASHX,              "Не законченная конструкция '\x00'" },
-		{ PPERR_SC2_INVSLASHDIGIT,          "Не законченная конструкция '\000'" },
+		{ PPERR_SC2_INVSLASHX,              "Незаконченная конструкция '\x00'" },
+		{ PPERR_SC2_INVSLASHDIGIT,          "Незаконченная конструкция '\000'" },
 		{ PPERR_SC2_STXLANGGRP01,           "Ошибка в определении группы языка (ожидается '/')" },
-		{ PPERR_SC2_INVLANGSYMB,            "Не допустимый символ языка" },
+		{ PPERR_SC2_INVLANGSYMB,            "Недопустимый символ языка" },
 		{ PPERR_SC2_LANGDESCRDUP,           "Дублирование определения языка для одной строки" },
 		{ PPERR_SC2_STRNOTIDENT,            "Строка не идентифицирована (нет определителя и не задан язык)" },
 		{ PPERR_SC2_SRCFILENOTFOUND,        "Исходный файл не найден" },
@@ -521,7 +521,7 @@ int StringStore2::Error(int errCode, long flags)
 	// @v10.4.5 {
 	SIntToSymbTab_GetSymb(ErrMsgList, SIZEOFARRAY(ErrMsgList), errCode, temp_buf);
 	temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
-	// } @v10.4.5 
+	// } @v10.4.5
 	/* @v10.4.5
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsgList); i++) {
 		if(ErrMsgList[i].Code == errCode) {
@@ -809,7 +809,7 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 			there_is_a_problem = 1;
 		}
 	}
-	// } @debug 
+	// } @debug
 	rBuf.ReplaceStr("  ", " ", 0);
 }
 
@@ -1123,7 +1123,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 			ps.Merge(file_name);
 			THROW(GenerateJavaFile(file_name.ToLower(), pFileName));
 		}
-		// } @v11.1.5 
+		// } @v11.1.5
 		/* @v8.9.10
 		{
 			SPathStruc::ReplaceExt(file_name, "rc", 1);
@@ -1168,7 +1168,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 		temp_buf.Z().Cat("Execution time").CatDiv(':', 2).Cat(_clk_end-_clk_start).Cat("ms").CR();
 		puts(temp_buf);
 	}
-	// } @v11.1.11 
+	// } @v11.1.11
 	CATCH
 		ok = Error(ErrCode, 0);
 	ENDCATCH
@@ -1447,7 +1447,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 			// @v10.6.1 {
 			while(oneof2(TempBuf.C(0), ' ', '\t'))
 				TempBuf.ShiftLeft();
-			// } @v10.6.1 
+			// } @v10.6.1
 			left = TempBuf;
 			if(left.Last() == '\\') {
 				rItem.Flags |= StringStore2::ParseItem::fNextLine;
@@ -1777,7 +1777,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 	gen.Wr_Indent();
 	gen.WriteLine(temp_buf.CR());
 	gen.WriteBlancLine();
-	// 
+	//
 	gen.Wr_Indent();
 	gen.Wr_StartClassDecl(Generator_CPP::clsClass, ps.Nam, 0);
 	gen.IndentInc();

@@ -708,7 +708,6 @@ static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[],
 			else {
 				c = U_SENTINEL;
 			}
-
 			codePoints[b&0x1f] = c;
 			anyCodePoints &= c;
 		}
@@ -729,13 +728,11 @@ static bool enumToU(UConverterMBCSTable * mbcsTable, int8_t stateProps[],
  * A recursive call may do stateProps[state]|=0x40 if this state is the target of an
  * MBCS_STATE_CHANGE_ONLY.
  */
-static int8_t getStateProp(const int32_t (*stateTable)[256], int8_t stateProps[], int state) {
-	const int32_t * row;
+static int8_t getStateProp(const int32_t (*stateTable)[256], int8_t stateProps[], int state) 
+{
 	int32_t min, max, entry, nextState;
-
-	row = stateTable[state];
+	const int32_t * row = stateTable[state];
 	stateProps[state] = 0;
-
 	/* find first non-ignorable state */
 	for(min = 0;; ++min) {
 		entry = row[min];
@@ -825,7 +822,7 @@ static void ucnv_MBCSEnumToUnicode(UConverterMBCSTable * mbcsTable,
 	 */
 	int8_t stateProps[MBCS_MAX_STATE_COUNT];
 	int32_t state;
-	uprv_memset(stateProps, -1, sizeof(stateProps));
+	memset(stateProps, -1, sizeof(stateProps));
 	/* recurse from state 0 and set all stateProps */
 	getStateProp(mbcsTable->stateTable, stateProps, 0);
 	for(state = 0; state<mbcsTable->countStates; ++state) {
@@ -5962,7 +5959,8 @@ static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs,
 	ucnv_cbFromUWriteBytes(pArgs, subchar, length, offsetIndex, pErrorCode);
 }
 
-U_CFUNC UConverterType ucnv_MBCSGetType(const UConverter * converter) {
+U_CFUNC UConverterType ucnv_MBCSGetType(const UConverter * converter) 
+{
 	/* SBCS, DBCS, and EBCDIC_STATEFUL are replaced by MBCS, but here we cheat a little */
 	if(converter->sharedData->mbcs.countStates==1) {
 		return (UConverterType)UCNV_SBCS;

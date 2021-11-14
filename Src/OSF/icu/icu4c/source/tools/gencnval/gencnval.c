@@ -241,12 +241,12 @@ extern int main(int argc, char * argv[])
 		path = pathBuf;
 	}
 
-	uprv_memset(stringStore, 0, sizeof(stringStore));
-	uprv_memset(tagStore, 0, sizeof(tagStore));
-	uprv_memset(converters, 0, sizeof(converters));
-	uprv_memset(tags, 0, sizeof(tags));
-	uprv_memset(aliasLists, 0, sizeof(aliasLists));
-	uprv_memset(knownAliases, 0, sizeof(aliasLists));
+	memset(stringStore, 0, sizeof(stringStore));
+	memset(tagStore, 0, sizeof(tagStore));
+	memset(converters, 0, sizeof(converters));
+	memset(tags, 0, sizeof(tags));
+	memset(aliasLists, 0, sizeof(aliasLists));
+	memset(knownAliases, 0, sizeof(aliasLists));
 
 	in = T_FileStream_open(path, "r");
 	if(in==NULL) {
@@ -920,7 +920,7 @@ static void createNormalizedAliasStrings(char * normalizedStrings, const char * 
 			ucnv_io_stripForCompare(normalizedStrings, origStringBlock);
 			normStrLen = (int32_t)uprv_strlen(normalizedStrings);
 			if(normStrLen > 0) {
-				uprv_memset(normalizedStrings + normStrLen, 0, currStrSize - normStrLen);
+				memset(normalizedStrings + normStrLen, 0, currStrSize - normStrLen);
 			}
 		}
 		stringBlockLength -= currStrSize;

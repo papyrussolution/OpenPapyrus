@@ -114,9 +114,9 @@ static inline char * printBytes(char * buffer, const uint8_t * bytes, int32_t le
 
 static MBCSData gDummy;
 
-U_CFUNC const MBCSData * MBCSGetDummy() {
-	uprv_memset(&gDummy, 0, sizeof(MBCSData));
-
+U_CFUNC const MBCSData * MBCSGetDummy() 
+{
+	memzero(&gDummy, sizeof(MBCSData));
 	/*
 	 * Set "pessimistic" values which may sometimes move too many
 	 * mappings to the extension table (but never too few).
@@ -135,24 +135,23 @@ U_CFUNC const MBCSData * MBCSGetDummy() {
 	return &gDummy;
 }
 
-static void MBCSInit(MBCSData * mbcsData, UCMFile * ucm) {
-	uprv_memset(mbcsData, 0, sizeof(MBCSData));
-
+static void MBCSInit(MBCSData * mbcsData, UCMFile * ucm) 
+{
+	memzero(mbcsData, sizeof(MBCSData));
 	mbcsData->ucm = ucm; /* aliased, not owned */
-
 	mbcsData->newConverter.close = MBCSClose;
 	mbcsData->newConverter.isValid = MBCSIsValid;
 	mbcsData->newConverter.addTable = MBCSAddTable;
 	mbcsData->newConverter.write = MBCSWrite;
 }
 
-U_CFUNC NewConverter * MBCSOpen(UCMFile * ucm) {
+U_CFUNC NewConverter * MBCSOpen(UCMFile * ucm) 
+{
 	MBCSData * mbcsData = (MBCSData*)uprv_malloc(sizeof(MBCSData));
 	if(mbcsData==NULL) {
 		printf("out of memory\n");
 		exit(U_MEMORY_ALLOCATION_ERROR);
 	}
-
 	MBCSInit(mbcsData, ucm);
 	return &mbcsData->newConverter;
 }
@@ -215,8 +214,7 @@ static bool MBCSStartMappings(MBCSData * mbcsData) {
 		fprintf(stderr, "error: out of memory allocating %ld B for target mappings\n", (long)sum);
 		return FALSE;
 	}
-	uprv_memset(mbcsData->fromUBytes, 0, sum);
-
+	memzero(mbcsData->fromUBytes, sum);
 	/*
 	 * UTF-8-friendly fromUnicode tries: allocate multiple blocks at a time.
 	 * See ucnvmbcs.h for details.

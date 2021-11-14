@@ -24,14 +24,14 @@ int	   ErrorCode = 0;
 char   FS = 0x1C;
 // @v10.9.4 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
+// @v11.2.3 Следующие мнемоники заменены на CHR_XXX определенные в SLIB.H
 // Для формирования пакета данных
-#define	STX		0x02	// Начало пакета
-#define	ETX		0x03	// Конец пакета
-
+// @v11.2.3 #define	STX		0x02	// Начало пакета
+// @v11.2.3 #define	ETX		0x03	// Конец пакета
 // Коды команд ККМ
-#define ENQ	0x05	// Проверка связи
-#define ACK	0x06	// ККМ на связи
-#define CAN	0x18	// Прервать выполнение отчета
+// @v11.2.3 #define ENQ	    0x05	// Проверка связи
+// @v11.2.3 #define ACK	    0x06	// ККМ на связи
+// @v11.2.3 #define CAN	    0x18	// Прервать выполнение отчета
 
 // Коды ошибок
 #define PIRIT_ERRSTATUSFORFUNC     1 // 01h Функция невыполнима при данном статусе ККМ
@@ -116,7 +116,8 @@ struct Config {
 
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0),
-		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0) //@erik v10.4.12 add "Stt(0),"
+		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
+		Timestamp(ZERODATETIME) /*v11.2.3*/
 	{
 	}
 	CheckStruct & Z()
@@ -142,6 +143,7 @@ struct CheckStruct {
 		ChZnProdType = 0; // @v10.7.2
 		ChZnPpResult = 0; // @v11.1.11
 		ChZnPpStatus = 0; // @v11.1.11
+		Timestamp.Z(); // @v11.2.3
 		return *this;
 	}
 	int    CheckType;
@@ -170,6 +172,7 @@ struct CheckStruct {
 	double IncassAmt;
 	int    ChZnPpResult; // @v11.1.11
 	int    ChZnPpStatus; // @v11.1.11
+	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
 	SString Text;
 	SString Code;        //
 	SString ChZnCode;    // @v10.6.12
@@ -1148,6 +1151,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			if(pb.Get("CHECKNUM", param_val) > 0)
 				Check.CheckNum = param_val.ToLong();
+			if(pb.Get("CHECKTIMESTAMP", param_val) > 0) { // @v11.2.3
+				LDATETIME dtm;
+				if(dtm.Set(param_val, DATF_ISO8601|DATF_CENTURY, 0))
+					Check.Timestamp = dtm;
+			}
 			if(pb.Get("TAXSYSTEM", param_val) > 0) {
 				int    pp_tax_sys_id = param_val.ToLong();
 				// Pirit values of tax system:
@@ -1224,7 +1232,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			STRNSCPY(blk.OperName, CshrName);
 			if(pb.Get("PAYMCASH", param_val) > 0)
 				blk.CashAmt = R2(param_val.ToReal());
-			if(pb.Get("PAYMCARD", param_val) > 0)
+			else if(pb.Get("PAYMCARD", param_val) > 0)
 				blk.BankAmt = R2(param_val.ToReal());
 			if(pb.Get("PREPAY", param_val) > 0) {
 			}
@@ -1706,11 +1714,11 @@ int PiritEquip::ENQ_ACK()
 	uint  try_no = 0;
 	SDelay(try_dealy);
 	do {
-		CommPort.PutChr(ENQ); // Проверка связи с ККМ
+		CommPort.PutChr(CHR_ENQ); // Проверка связи с ККМ
 		int r = CommPort.GetChr();
 		// @debug @v10.1.5 if(r == ACK || r == 0x30 || r == 0x34) // @v10.1.5 (|| r == 0x30 || r == 0x34)
 		// @debug if(r > 0) { // @v10.1.5
-		if(r == ACK) {
+		if(r == CHR_ACK) {
 			return 1;
 		}
 		else {
@@ -2356,7 +2364,7 @@ int PiritEquip::RunCheck(int opertype)
 				if(rl > 0) {
 					PreprocessChZnCodeResult pczcr;
 					str.Z();
-					bool set_chzn_mark = true;
+					//bool set_chzn_mark = true;
 					// @v11.1.10 {
 					if(OfdVer.IsGe(1, 2, 0)) {
 						if(Check.ChZnPpStatus > 0) {
@@ -2378,7 +2386,7 @@ int PiritEquip::RunCheck(int opertype)
 							// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (тег 2108)
 							CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (тег 2108) // @v11.2.3
 							THROW(ExecCmd("79", in_data, out_data, r_error));
-							set_chzn_mark = false;
+							//set_chzn_mark = false;
 							//
 							{
 								/*
@@ -2420,13 +2428,31 @@ int PiritEquip::RunCheck(int opertype)
 										str.Z();
 									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
-								CreateStr(""/*date*/, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
+								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_GERMAN|DATF_CENTURY); // @v11.2.3
+								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								CreateStr("", in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
+								if(Check.CheckNum > 0)
+									str.Z().Cat(Check.CheckNum);
+								else
+									str = "83d185d1";
+								CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								CreateStr("", in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
-									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
+								// @v11.2.3 {
+								{
+									// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
+									if(Check.ChZnProdType == 4) {
+										str.Z().CatEq("tm", "mdlp");
+										if(Check.ChZnCid.NotEmpty())
+											str.CatChar('&').CatEq("sid", Check.ChZnCid);
+										str.CatChar('&');
+									}
+									else
+										str.Z();
+									CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
+										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								}
+								THROW(ExecCmd("24", in_data, out_data, r_error));
+								// } @v11.2.3 
 								/* @v11.2.3 {
 									const int do_check_ret = 1;
 									OpLogBlock __oplb(LogFileName, "24", str);
@@ -2442,12 +2468,9 @@ int PiritEquip::RunCheck(int opertype)
 							}
 						}
 					}
-					if(set_chzn_mark) {
+					else {
 					// } @v11.1.10
 						in_data.Z(); // @v11.2.3 @fix
-						if(OfdVer.IsGe(1, 2, 0)) {
-							str.CatChar('@');
-						}
 						for(int si = 0; si < rl; si++) {
 							if(si < 8)
 								str.CatChar('$').CatHex(chzn_1162_bytes[si]);
@@ -2828,7 +2851,7 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 		do {
 			r_buf.CatChar(c);
 			c = CommPort.GetChr();
-		} while(c != ETX && c != 0);
+		} while(c != CHR_ETX && c != 0);
 		{
 			int    crc = 0;
 			char   str_crc2[2];
@@ -2840,13 +2863,13 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 			r_buf.CatChar(c);
 			c = CommPort.GetChr(); // Получили 2-й байт контрольной суммы
 			r_buf.CatChar(c);
-			THROW(r_buf.C(0) == STX);
+			THROW(r_buf.C(0) == CHR_STX);
 			// Выделяем байты с информацией об ошибке
 			r_buf.Sub(4, 2, rError);
 			//
 			// Считываем данные
 			//
-			for(i = 6; r_buf.C(i) != ETX; i++)
+			for(i = 6; r_buf.C(i) != CHR_ETX; i++)
 				rData.CatChar(r_buf.C(i));
 			// Считаем контрольную сумму
 			for(i = 1; i < r_buf.Len()-2; i++)
@@ -2884,7 +2907,7 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	for(p = 0; p < r_pack.Len(); p++) {// STX в контрольную сумму не входит
 		crc ^= static_cast<uchar>(r_pack.C(p));
 	}
-	crc ^= static_cast<uchar>(ETX); // Учитываем в контрольной сумме байт конца пакета
+	crc ^= static_cast<uchar>(CHR_ETX); // Учитываем в контрольной сумме байт конца пакета
 	_itoa(crc, buf, 16); // @vmiler comment
 	if(buf[1] == 0) {
 		buf[1] = buf[0];
@@ -2897,25 +2920,25 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	if(fill_debug_buffer) {
 		// блок для отладки
 		memzero(debug_packet, sizeof(debug_packet));
-		THROW(CommPort.PutChr(STX));
-		debug_packet[debug_packet_pos++] = STX;
+		THROW(CommPort.PutChr(CHR_STX));
+		debug_packet[debug_packet_pos++] = CHR_STX;
 		for(p = 0; p < r_pack.Len(); p++) {
 			const char v = r_pack.C(p);
 			THROW(CommPort.PutChr(v));
 			debug_packet[debug_packet_pos++] = v;
 		}
-		THROW(CommPort.PutChr(ETX));
-		debug_packet[debug_packet_pos++] = ETX;
+		THROW(CommPort.PutChr(CHR_ETX));
+		debug_packet[debug_packet_pos++] = CHR_ETX;
 		THROW(CommPort.PutChr(buf[0]));
 		debug_packet[debug_packet_pos++] = buf[0];
 		THROW(CommPort.PutChr(buf[1]));
 		debug_packet[debug_packet_pos++] = buf[1];
 	}
 	else {
-		THROW(CommPort.PutChr(STX));
+		THROW(CommPort.PutChr(CHR_STX));
 		for(p = 0; p < r_pack.Len(); p++)
 			THROW(CommPort.PutChr(r_pack.C(p)));
-		THROW(CommPort.PutChr(ETX));
+		THROW(CommPort.PutChr(CHR_ETX));
 		THROW(CommPort.PutChr(buf[0]));
 		THROW(CommPort.PutChr(buf[1]));
 	}
@@ -3008,7 +3031,7 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 		THROWERR(PutData("15", in_data), PIRIT_NOTSENT);
 		do {
 			r = CommPort.GetChr();
-		} while(r && r != ACK);
+		} while(r && r != CHR_ACK);
 	}
 	{
 		OpLogBlock __oplb(LogFileName, "1B", 0);

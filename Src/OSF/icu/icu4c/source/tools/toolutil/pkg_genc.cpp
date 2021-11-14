@@ -1192,18 +1192,14 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 			paddingSize = 0x10-paddingSize;
 			sectionHeaders64[4].sh_offset += paddingSize;
 		}
-
 		sectionHeaders64[4].sh_size = (Elf64_Xword)size;
-
 		symbols64[1].st_size = (Elf64_Xword)size;
-
 		/* write .o headers */
 		T_FileStream_write(out, &header64, (int32_t)sizeof(header64));
 		T_FileStream_write(out, sectionHeaders64, (int32_t)sizeof(sectionHeaders64));
 		T_FileStream_write(out, symbols64, (int32_t)sizeof(symbols64));
 #endif
 	}
-
 	T_FileStream_write(out, sectionStrings, (int32_t)sizeof(sectionStrings));
 	T_FileStream_write(out, entry, (int32_t)sizeof(entry));
 	if(paddingSize!=0) {
@@ -1211,10 +1207,9 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 	}
 #elif U_PLATFORM_HAS_WIN32_API
 	/* populate the .obj headers */
-	uprv_memset(&objHeader, 0, sizeof(objHeader));
-	uprv_memset(&symbols, 0, sizeof(symbols));
-	uprv_memset(&symbolNames, 0, sizeof(symbolNames));
-
+	memzero(&objHeader, sizeof(objHeader));
+	memzero(&symbols, sizeof(symbols));
+	memzero(&symbolNames, sizeof(symbolNames));
 	/* write the linker export directive */
 	if(optWinDllExport) {
 		uprv_strcpy(objHeader.linkerOptions, "-export:");
@@ -1227,19 +1222,12 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 	else {
 		length = 0;
 	}
-
 	/* set the file header */
 	objHeader.fileHeader.Machine = cpu;
 	objHeader.fileHeader.NumberOfSections = 2;
 	objHeader.fileHeader.TimeDateStamp = (DWORD)time(NULL);
-	objHeader.fileHeader.PointerToSymbolTable = IMAGE_SIZEOF_FILE_HEADER+2*IMAGE_SIZEOF_SECTION_HEADER+length+size; /*
-	                                                                                                                   start
-	                                                                                                                   of
-	                                                                                                                   symbol
-	                                                                                                                   table
-	       */
+	objHeader.fileHeader.PointerToSymbolTable = IMAGE_SIZEOF_FILE_HEADER+2*IMAGE_SIZEOF_SECTION_HEADER+length+size; // start of symbol table 
 	objHeader.fileHeader.NumberOfSymbols = 1;
-
 	/* set the section for the linker options */
 	uprv_strncpy((char *)objHeader.sections[0].Name, ".drectve", 8);
 	objHeader.sections[0].SizeOfRawData = length;

@@ -1,20 +1,17 @@
+// strtst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 2004-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  strtst.c
+ *   Copyright (C) 2004-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
  *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2004apr06
  *   created by: George Rhoten
  */
 #include <icu-internal.h>
 #pragma hdrstop
+#include "unicode/ustdio.h"
 #include "iotest.h"
 
 static void TestString() 
@@ -329,22 +326,20 @@ static void TestLocalizedString() {
 
 #endif
 
-static void TestSnprintf() {
+static void TestSnprintf() 
+{
 #if !UCONFIG_NO_FORMATTING
 	UChar testStr[256];
 	char cTestResult[256];
 	int32_t size;
-
 	Test_u_snprintf(0, "%d", 123, 3, "xxxxxxxxxxxxxx");
 	Test_u_snprintf(2, "%d", 123, 3, "12xxxxxxxxxxxx");
 	Test_u_snprintf(3, "%d", 123, 3, "123xxxxxxxxxxx");
 	Test_u_snprintf(4, "%d", 123, 3, "123");
-
 	Test_u_snprintf(0, "%s", "abcd", 4, "xxxxxxxxxxxxxx");
 	Test_u_snprintf(3, "%s", "abcd", 4, "abcxxxxxxxxxxx");
 	Test_u_snprintf(4, "%s", "abcd", 4, "abcdxxxxxxxxxx");
 	Test_u_snprintf(5, "%s", "abcd", 4, "abcd");
-
 	Test_u_snprintf(0, "%e", 12.34, 13, "xxxxxxxxxxxxxx");
 	Test_u_snprintf(1, "%e", 12.34, 13, "1xxxxxxxxxxxxx");
 	Test_u_snprintf(2, "%e", 12.34, 13, "1.xxxxxxxxxxxx");

@@ -456,30 +456,23 @@ public:
 	 * @param status input-output error code
 	 * @stable ICU 2.8
 	 */
-	UnicodeSet(const UnicodeString &pattern, ParsePosition& pos,
-	    uint32_t options,
-	    const SymbolTable* symbols,
-	    UErrorCode & status);
-
+	UnicodeSet(const UnicodeString &pattern, ParsePosition& pos, uint32_t options, const SymbolTable* symbols, UErrorCode & status);
 	/**
 	 * Constructs a set that is identical to the given UnicodeSet.
 	 * @stable ICU 2.0
 	 */
 	UnicodeSet(const UnicodeSet &o);
-
 	/**
 	 * Destructs the set.
 	 * @stable ICU 2.0
 	 */
 	virtual ~UnicodeSet();
-
 	/**
 	 * Assigns this object to be a copy of another.
 	 * A frozen set will not be modified.
 	 * @stable ICU 2.0
 	 */
 	UnicodeSet & operator =(const UnicodeSet & o);
-
 	/**
 	 * Compares the specified object with this set for equality.  Returns
 	 * <tt>true</tt> if the two sets
@@ -492,14 +485,12 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual bool operator==(const UnicodeSet & o) const;
-
 	/**
 	 * Compares the specified object with this set for equality.  Returns
 	 * <tt>true</tt> if the specified set is not equal to this set.
 	 * @stable ICU 2.0
 	 */
 	inline bool operator !=(const UnicodeSet & o) const;
-
 	/**
 	 * Returns a copy of this object.  All UnicodeFunctor objects have
 	 * to support cloning in order to allow classes using
@@ -510,7 +501,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual UnicodeSet* clone() const override;
-
 	/**
 	 * Returns the hash code value for this set.
 	 *
@@ -519,7 +509,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual int32_t hashCode() const;
-
 	/**
 	 * Get a UnicodeSet pointer from a USet
 	 *
@@ -529,7 +518,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	inline static UnicodeSet * fromUSet(USet * uset);
-
 	/**
 	 * Get a UnicodeSet pointer from a const USet
 	 *
@@ -539,7 +527,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	inline static const UnicodeSet * fromUSet(const USet * uset);
-
 	/**
 	 * Produce a USet * pointer for this UnicodeSet.
 	 * USet is the plain C type for UnicodeSet
@@ -548,7 +535,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	inline USet * toUSet();
-
 	/**
 	 * Produce a const USet * pointer for this UnicodeSet.
 	 * USet is the plain C type for UnicodeSet
@@ -557,7 +543,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	inline const USet * toUSet() const;
-
 	//----------------------------------------------------------------
 	// Freezable API
 	//----------------------------------------------------------------
@@ -571,7 +556,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	inline bool isFrozen() const;
-
 	/**
 	 * Freeze the set (make it immutable).
 	 * Once frozen, it cannot be unfrozen and is therefore thread-safe
@@ -596,7 +580,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	UnicodeSet * cloneAsThawed() const;
-
 	//----------------------------------------------------------------
 	// Public API
 	//----------------------------------------------------------------
@@ -611,15 +594,12 @@ public:
 	 * @stable ICU 2.4
 	 */
 	UnicodeSet & set(UChar32 start, UChar32 end);
-
 	/**
 	 * Return true if the given position, in the given pattern, appears
 	 * to be the start of a UnicodeSet pattern.
 	 * @stable ICU 2.4
 	 */
-	static bool resemblesPattern(const UnicodeString & pattern,
-	    int32_t pos);
-
+	static bool resemblesPattern(const UnicodeString & pattern, int32_t pos);
 	/**
 	 * Modifies this set to represent the set specified by the given
 	 * pattern, ignoring Unicode Pattern_White_Space characters.
@@ -632,8 +612,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.0
 	 */
-	UnicodeSet & applyPattern(const UnicodeString & pattern,
-	    UErrorCode & status);
+	UnicodeSet & applyPattern(const UnicodeString & pattern, UErrorCode & status);
 
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -652,10 +631,7 @@ public:
 	 * @return a reference to this
 	 * @internal
 	 */
-	UnicodeSet & applyPattern(const UnicodeString & pattern,
-	    uint32_t options,
-	    const SymbolTable* symbols,
-	    UErrorCode & status);
+	UnicodeSet & applyPattern(const UnicodeString & pattern, uint32_t options, const SymbolTable* symbols, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
 	/**
@@ -689,12 +665,7 @@ public:
 	 * @return a reference to this
 	 * @stable ICU 2.8
 	 */
-	UnicodeSet & applyPattern(const UnicodeString & pattern,
-	    ParsePosition& pos,
-	    uint32_t options,
-	    const SymbolTable* symbols,
-	    UErrorCode & status);
-
+	UnicodeSet & applyPattern(const UnicodeString & pattern, ParsePosition& pos, uint32_t options, const SymbolTable* symbols, UErrorCode & status);
 	/**
 	 * Returns a string representation of this set.  If the result of
 	 * calling this function is passed to a UnicodeSet constructor, it
@@ -708,9 +679,7 @@ public:
 	 * U+000A, U+0020..U+007E.
 	 * @stable ICU 2.0
 	 */
-	virtual UnicodeString & toPattern(UnicodeString & result,
-	    bool escapeUnprintable = false) const override;
-
+	virtual UnicodeString & toPattern(UnicodeString & result, bool escapeUnprintable = false) const override;
 	/**
 	 * Modifies this set to contain those code points which have the given value
 	 * for the given binary or enumerated property, as returned by

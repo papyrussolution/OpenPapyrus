@@ -102,11 +102,11 @@ static void write_tabs(FileStream* os) {
 static char * getID(const char * id, const char * curKey, char * result) {
     if(curKey == NULL) {
         result = (char *)uprv_malloc(sizeof(char)*uprv_strlen(id) + 1);
-        uprv_memset(result, 0, sizeof(char)*uprv_strlen(id) + 1);
+        memset(result, 0, sizeof(char)*uprv_strlen(id) + 1);
         uprv_strcpy(result, id);
     } else {
         result = (char *)uprv_malloc(sizeof(char)*(uprv_strlen(id) + 1 + uprv_strlen(curKey)) + 1);
-        uprv_memset(result, 0, sizeof(char)*(uprv_strlen(id) + 1 + uprv_strlen(curKey)) + 1);
+        memset(result, 0, sizeof(char)*(uprv_strlen(id) + 1 + uprv_strlen(curKey)) + 1);
         if(id[0]!='\0') {
             uprv_strcpy(result, id);
             uprv_strcat(result, "_");
@@ -1039,7 +1039,7 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
     }
     index = (int32_t)(uprv_strlen(filename) - uprv_strlen(textExt) - first);
     originalFileName = (char *)uprv_malloc(sizeof(char)*index+1);
-    uprv_memset(originalFileName, 0, sizeof(char)*index+1);
+    memset(originalFileName, 0, sizeof(char)*index+1);
     uprv_strncpy(originalFileName, filename + first, index);
 
     if(uprv_strcmp(originalFileName, srBundle->fLocale) != 0) {
@@ -1048,7 +1048,7 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
 
     temp = originalFileName;
     originalFileName = (char *)uprv_malloc(sizeof(char)* (uprv_strlen(temp)+uprv_strlen(textExt)) + 1);
-    uprv_memset(originalFileName, 0, sizeof(char)* (uprv_strlen(temp)+uprv_strlen(textExt)) + 1);
+    memset(originalFileName, 0, sizeof(char)* (uprv_strlen(temp)+uprv_strlen(textExt)) + 1);
     uprv_strcat(originalFileName, temp);
     uprv_strcat(originalFileName, textExt);
     uprv_free(temp);
@@ -1084,26 +1084,26 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
        /* }*/
     } else {
         lang = (char *)uprv_malloc(sizeof(char)*uprv_strlen(language) +1);
-        uprv_memset(lang, 0, sizeof(char)*uprv_strlen(language) +1);
+        memset(lang, 0, sizeof(char)*uprv_strlen(language) +1);
         uprv_strcpy(lang, language);
     }
 
     if(outFileName) {
         outputFileName = (char *)uprv_malloc(sizeof(char)*uprv_strlen(outFileName) + 1);
-        uprv_memset(outputFileName, 0, sizeof(char)*uprv_strlen(outFileName) + 1);
+        memset(outputFileName, 0, sizeof(char)*uprv_strlen(outFileName) + 1);
         uprv_strcpy(outputFileName,outFileName);
     } else {
         outputFileName = (char *)uprv_malloc(sizeof(char)*uprv_strlen(srBundle->fLocale) + 1);
-        uprv_memset(outputFileName, 0, sizeof(char)*uprv_strlen(srBundle->fLocale) + 1);
+        memset(outputFileName, 0, sizeof(char)*uprv_strlen(srBundle->fLocale) + 1);
         uprv_strcpy(outputFileName,srBundle->fLocale);
     }
 
     if(outputDir) {
         xmlfileName = (char *)uprv_malloc(sizeof(char)*(uprv_strlen(outputDir) + uprv_strlen(outputFileName) + uprv_strlen(xliffExt) + 1) +1);
-        uprv_memset(xmlfileName, 0, sizeof(char)*(uprv_strlen(outputDir)+ uprv_strlen(outputFileName) + uprv_strlen(xliffExt) + 1) +1);
+        memset(xmlfileName, 0, sizeof(char)*(uprv_strlen(outputDir)+ uprv_strlen(outputFileName) + uprv_strlen(xliffExt) + 1) +1);
     } else {
         xmlfileName = (char *)uprv_malloc(sizeof(char)*(uprv_strlen(outputFileName) + uprv_strlen(xliffExt)) +1);
-        uprv_memset(xmlfileName, 0, sizeof(char)*(uprv_strlen(outputFileName) + uprv_strlen(xliffExt)) +1);
+        memset(xmlfileName, 0, sizeof(char)*(uprv_strlen(outputFileName) + uprv_strlen(xliffExt)) +1);
     }
 
     if(outputDir) {

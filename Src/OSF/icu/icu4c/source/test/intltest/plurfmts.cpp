@@ -307,7 +307,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	// add id lo ms th zh
 	const char * oneRuleLocales[8] = {"id", "ja", "ko", "lo", "ms", "th", "vi", "zh"};
 	UnicodeString testPattern = UNICODE_STRING_SIMPLE("other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER; // other
 	helperTestResults(oneRuleLocales, 8, testPattern, pluralResults);
 
@@ -321,7 +321,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 					     "nb", "ne", "nn", "no", "nr", "om", "or", "pap", "ps", "rm", "rof", "sn",
 					     "so", "sq", "ta", "te", "tk", "tn", "tr", "ts", "vo", "wae", "xh", "xog"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	pluralResults[2] = PFT_OTHER;
@@ -332,7 +332,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	// for CLDR 24, here add hy
 	const char * singular01Locales[4] = {"ff", "fr", "hy", "kab"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_ONE;
 	pluralResults[2] = PFT_OTHER;
 	helperTestResults(singular01Locales, 4, testPattern, pluralResults);
@@ -341,7 +341,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing singular1 locales.");
 	const char * zeroSingularLocales[1] = {"lv"};
 	testPattern = UNICODE_STRING_SIMPLE("zero{zero} one{one} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_ZERO;
 	pluralResults[1] = PFT_ONE;
 	for(int32_t i = 2; i<20; ++i) {
@@ -358,7 +358,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing singular1 locales.");
 	const char * singularDualLocales[1] = {"ga"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} two{two} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	pluralResults[2] = PFT_TWO;
@@ -369,7 +369,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing singular1 locales.");
 	const char * singularZeroSomeLocales[1] = {"ro"};
 	testPattern = UNICODE_STRING_SIMPLE("few{few} one{one} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_FEW;
 	for(int32_t i = 1; i<20; ++i) {
 		pluralResults[i] = PFT_FEW; // note override after loop
@@ -383,7 +383,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing special 12 and 19.");
 	const char * special12_19Locales[1] = {"lt"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	for(int32_t i = 2; i<20; ++i) {
@@ -399,7 +399,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Paucal Except 11 and 14, set A.");
 	const char * paucal01LocalesA[2] = {"hr", "sr"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	for(int32_t i = 2; i<20; ++i) {
@@ -418,7 +418,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Paucal Except 11 and 14, set B.");
 	const char * paucal01LocalesB[1] = {"ru"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} many{many} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_MANY;
 	pluralResults[1] = PFT_ONE;
 	for(int32_t i = 2; i<20; ++i) {
@@ -438,7 +438,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Paucal Except 11 and 14, set C.");
 	const char * paucal01LocalesC[1] = {"uk"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} many{many} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_MANY;
 	pluralResults[1] = PFT_ONE;
 	for(int32_t i = 2; i<20; ++i) {
@@ -459,7 +459,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Singular Paucal.");
 	const char * singularPaucalLocales[2] = {"cs", "sk"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	pluralResults[2] = PFT_FEW;
@@ -470,7 +470,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Paucal (1), (2,3,4).");
 	const char * paucal02Locales[1] = {"pl"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} many{many} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	for(int32_t i = 0; i<20; ++i) {
 		pluralResults[i*10+0] = PFT_MANY;
 		pluralResults[i*10+1] = PFT_MANY; // note override after loop
@@ -493,7 +493,7 @@ void PluralFormatTest::pluralFormatLocaleTest(/*char *par*/)
 	logln("Testing Paucal (1), (2), (3,4).");
 	const char * paucal03Locales[1] = {"sl"};
 	testPattern = UNICODE_STRING_SIMPLE("one{one} two{two} few{few} other{other}");
-	uprv_memset(pluralResults, -1, sizeof(pluralResults));
+	memset(pluralResults, -1, sizeof(pluralResults));
 	pluralResults[0] = PFT_OTHER;
 	pluralResults[1] = PFT_ONE;
 	pluralResults[2] = PFT_TWO;

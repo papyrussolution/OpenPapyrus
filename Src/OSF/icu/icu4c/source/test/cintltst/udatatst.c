@@ -1638,7 +1638,7 @@ static void TestSwapCase(UDataMemory * pData, const char * name,
 		}
 
 		/* print the original bytes */
-		uprv_memset(diff, 0, sizeof(diff));
+		memset(diff, 0, sizeof(diff));
 		for(j = i; j<length2; ++j) {
 			diff[j-i] = original[j];
 		}
@@ -1646,7 +1646,7 @@ static void TestSwapCase(UDataMemory * pData, const char * name,
 		    diff[0], diff[1], diff[2], diff[3], diff[4], diff[5], diff[6], diff[7]);
 
 		/* print the swapped bytes */
-		uprv_memset(diff, 0, sizeof(diff));
+		memset(diff, 0, sizeof(diff));
 		for(j = i; j<length2; ++j) {
 			diff[j-i] = buffer2[j];
 		}

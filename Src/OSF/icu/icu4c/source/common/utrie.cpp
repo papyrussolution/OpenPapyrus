@@ -539,7 +539,7 @@ static void _findUnusedBlocks(UNewTrie * trie)
 {
 	int32_t i;
 	/* fill the entire map with "not used" */
-	uprv_memset(trie->map, 0xff, (UTRIE_MAX_BUILD_TIME_DATA_LENGTH>>UTRIE_SHIFT)*4);
+	memset(trie->map, 0xff, (UTRIE_MAX_BUILD_TIME_DATA_LENGTH>>UTRIE_SHIFT)*4);
 	/* mark each block that _is_ used with 0 */
 	for(i = 0; i<trie->indexLength; ++i) {
 		trie->map[ABS(trie->index[i])>>UTRIE_SHIFT] = 0;

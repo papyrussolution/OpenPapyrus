@@ -2206,7 +2206,7 @@ void TimeZoneRuleTest::TestVTimeZoneWrapper() {
 	VZone*  v1;
 	VZone*  v2;
 
-	uprv_memset(uname, 0, sizeof(uname));
+	memset(uname, 0, sizeof(uname));
 	u_uastrcpy(uname, name);
 
 	// create rules

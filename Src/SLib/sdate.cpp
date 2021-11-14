@@ -1228,6 +1228,10 @@ int FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s
 
 #ifndef _WIN32_WCE // {
 
+/*LDATETIME::LDATETIME() : d(ZERODATE), t(ZEROTIME)
+{
+}*/
+
 SYSTEMTIME & FASTCALL LDATETIME::Get(SYSTEMTIME & rSt) const
 {
 	rSt.wYear = d.year();

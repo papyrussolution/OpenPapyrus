@@ -285,7 +285,8 @@ int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 	const char * p = pBuf;
 	if(p) {
 		int    done = 0;
-		char   dt_buf[128], tm_buf[128];
+		char   dt_buf[128];
+		char   tm_buf[128];
 		while(oneof2(*p, ' ', '\t'))
 			p++;
 		if(!isdec(*p)) {
@@ -297,8 +298,8 @@ int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 		}
 		if(!done) {
 			const  char * p_div = sstrchr(p, ' ');
-			dt_buf[0] = 0;
-			tm_buf[0] = 0;
+			PTR32(dt_buf)[0] = 0;
+			PTR32(tm_buf)[0] = 0;
 			SETIFZ(p_div, sstrchr(p, 'T'));
 			SETIFZ(p_div, sstrchr(p, 't'));
 			if(p_div) {

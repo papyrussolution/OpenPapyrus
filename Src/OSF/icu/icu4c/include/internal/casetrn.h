@@ -1,23 +1,14 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2001-2008, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
+ *   Copyright (C) 2001-2008, International Business Machines Corporation and others.  All Rights Reserved.
  *   file name:  casetrn.h
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2004sep03
  *   created by: Markus W. Scherer
- *
  *   Implementation class for lower-/upper-/title-casing transliterators.
  */
-
 #ifndef __CASETRN_H__
 #define __CASETRN_H__
 
@@ -59,7 +50,6 @@ public:
 	 * @return a copy of the object.
 	 */
 	virtual CaseMapTransliterator* clone() const override = 0;
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
 	 */
@@ -69,7 +59,6 @@ public:
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
 	 */
 	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
-
 protected:
 	/**
 	 * Implements {@link Transliterator#handleTransliterate}.
@@ -80,12 +69,8 @@ protected:
 	 * @param incremental if true, assume more text may be coming after
 	 *                    pos.contextLimit.  Otherwise, assume the text is complete.
 	 */
-	virtual void handleTransliterate(Replaceable& text,
-	    UTransPosition& offsets,
-	    bool isIncremental) const override;
-
+	virtual void handleTransliterate(Replaceable& text, UTransPosition& offsets, bool isIncremental) const override;
 	UCaseMapFull * fMap;
-
 private:
 	/**
 	 * Assignment operator.
@@ -99,5 +84,4 @@ U_NAMESPACE_END
 U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8_t dir);
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
-
 #endif

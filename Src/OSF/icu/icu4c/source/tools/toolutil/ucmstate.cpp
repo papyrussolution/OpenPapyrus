@@ -652,7 +652,7 @@ static void compactToUnicode2(UCMStates * states,
 	}
 
 	/* find the main trail state: the most used target state */
-	uprv_memset(count, 0, sizeof(count));
+	memset(count, 0, sizeof(count));
 	for(i = 0; i<256; ++i) {
 		entry = states->stateTable[leadState][i];
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
@@ -667,7 +667,7 @@ static void compactToUnicode2(UCMStates * states,
 	}
 
 	/* count possible savings from lead bytes with all-unassigned results in all trail bytes */
-	uprv_memset(count, 0, sizeof(count));
+	memset(count, 0, sizeof(count));
 	savings = 0;
 	/* for each lead byte */
 	for(i = 0; i<256; ++i) {

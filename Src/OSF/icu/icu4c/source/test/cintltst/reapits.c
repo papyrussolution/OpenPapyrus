@@ -1905,19 +1905,14 @@ static void TestUTextAPI()
 		TEST_ASSERT_SUCCESS(status);
 		/* The TEST_ASSERT_SUCCESS call above should change too... */
 		if(U_SUCCESS(status)) {
-			memset(fields, 0, sizeof(fields));
+			memzero(fields, sizeof(fields));
 			numFields = uregex_splitUText(re, fields, 10, &status);
 			TEST_ASSERT_SUCCESS(status);
-
 			/* The TEST_ASSERT_SUCCESS call above should change too... */
 			if(U_SUCCESS(status)) {
 				const char str_first[] = { 0x66, 0x69, 0x72, 0x73, 0x74, 0x20, 0x00 }; /* 'first ' */
-				const char str_second[] = { 0x20, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x00 }; /* '
-				                                                                                  second'
-				         */
-				const char str_third[] = { 0x20, 0x20, 0x74, 0x68, 0x69, 0x72, 0x64, 0x00 }; /* '
-				                                                                                 third'
-				        */
+				const char str_second[] = { 0x20, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x00 }; // 'second' 
+				const char str_third[] = { 0x20, 0x20, 0x74, 0x68, 0x69, 0x72, 0x64, 0x00 }; // 'third'
 				TEST_ASSERT(numFields == 3);
 				TEST_ASSERT_UTEXT(str_first,  fields[0]);
 				TEST_ASSERT_UTEXT(str_second, fields[1]);
@@ -1928,9 +1923,7 @@ static void TestUTextAPI()
 				utext_close(fields[i]);
 			}
 		}
-
 		uregex_close(re);
-
 		/*  Split with too few output strings available */
 		status = U_ZERO_ERROR;
 		re = uregex_openC(":", 0, NULL, &status);
@@ -1962,7 +1955,6 @@ static void TestUTextAPI()
 
 		uregex_close(re);
 	}
-
 	/* splitUText(), part 2.  Patterns with capture groups.  The capture group text
 	 *                   comes out as additional fields.  */
 	{
@@ -1975,10 +1967,9 @@ static void TestUTextAPI()
 		re = uregex_openC("<(.*?)>", 0, NULL, &status);
 		uregex_setText(re, textToSplit, -1, &status);
 		TEST_ASSERT_SUCCESS(status);
-
 		/* The TEST_ASSERT_SUCCESS call above should change too... */
 		if(U_SUCCESS(status)) {
-			memset(fields, 0, sizeof(fields));
+			memzero(fields, sizeof(fields));
 			numFields = uregex_splitUText(re, fields, 10, &status);
 			TEST_ASSERT_SUCCESS(status);
 			/* The TEST_ASSERT_SUCCESS call above should change too... */
@@ -2091,20 +2082,17 @@ static void TestUTextAPI()
 
 		/* The TEST_ASSERT_SUCCESS call above should change too... */
 		if(U_SUCCESS(status)) {
-			memset(fields, 0, sizeof(fields));
+			memzero(fields, sizeof(fields));
 			fields[9] = &patternText;
 			numFields = uregex_splitUText(re, fields, 9, &status);
 			TEST_ASSERT_SUCCESS(status);
-
 			/* The TEST_ASSERT_SUCCESS call above should change too... */
 			if(U_SUCCESS(status)) {
 				const char str_first[] = { 0x66, 0x69, 0x72, 0x73, 0x74, 0x20, 0x00 }; /* first  */
 				const char str_taga[] = { 0x74, 0x61, 0x67, 0x2d, 0x61, 0x00 }; /* tag-a */
-				const char str_second[] = { 0x20, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x00 }; /*  second
-				         */
+				const char str_second[] = { 0x20, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x00 }; // second 
 				const char str_tagb[] = { 0x74, 0x61, 0x67, 0x2d, 0x62, 0x00 }; /* tag-b */
 				const char str_empty[] = { 0x00 };
-
 				TEST_ASSERT(numFields == 5);
 				TEST_ASSERT_UTEXT(str_first,  fields[0]);
 				TEST_ASSERT_UTEXT(str_taga,   fields[1]);
@@ -2170,38 +2158,36 @@ static void TestRefreshInput() {
 	uregex_close(re);
 }
 
-static void TestBug8421() {
+static void TestBug8421() 
+{
 	/* Bug 8421:  setTimeLimit on a regular expression before setting text to be matched
 	 *             was failing.
 	 */
-	URegularExpression * re;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t limit = -1;
-
-	re = uregex_openC("abc", 0, 0, &status);
+	URegularExpression * re = uregex_openC("abc", 0, 0, &status);
 	TEST_ASSERT_SUCCESS(status);
-
 	limit = uregex_getTimeLimit(re, &status);
 	TEST_ASSERT_SUCCESS(status);
 	TEST_ASSERT(limit == 0);
-
 	uregex_setTimeLimit(re, 100, &status);
 	TEST_ASSERT_SUCCESS(status);
 	limit = uregex_getTimeLimit(re, &status);
 	TEST_ASSERT_SUCCESS(status);
 	TEST_ASSERT(limit == 100);
-
 	uregex_close(re);
 }
 
-static bool U_CALLCONV FindCallback(const void * context, int64_t matchIndex) {
+static bool U_CALLCONV FindCallback(const void * context, int64_t matchIndex) 
+{
 	// suppress compiler warnings about unused variables
 	(void)context;
 	(void)matchIndex;
 	return FALSE;
 }
 
-static bool U_CALLCONV MatchCallback(const void * context, int32_t steps) {
+static bool U_CALLCONV MatchCallback(const void * context, int32_t steps) 
+{
 	// suppress compiler warnings about unused variables
 	(void)context;
 	(void)steps;

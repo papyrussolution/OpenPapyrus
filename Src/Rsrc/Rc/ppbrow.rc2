@@ -746,7 +746,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,         "Штатные суммы работодателя\tShift-F5"
 	RELATIONS      : kbF6,        TBBM_PERSONRELLIST,   "@{relation_pl}\tF6"
 	REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "@{personrellist_reverse}\tShift-F6"
-	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,    "Добавить отношение\tCtrl-F6"
+	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,    "@{doaddpersonrelation}\tCtrl-F6"
 	RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "@{doremovehangaddr}\tCtrl-X"
 	PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
 	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
@@ -1241,7 +1241,7 @@ browser PERSONREL north(100), 1, 0, "@{personrelation_pl}", OWNER|GRID, 0
 	"@personreltype_s",        6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
-		ADDREVERSEITEM: kbCtrlA,  PPDV_ADDFILE02,    "Добавить обратное отношение\tInsert"
+		ADDREVERSEITEM: kbCtrlA,  PPDV_ADDFILE02,    "@{doaddpersonrelationrev}\tInsert"
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		EDITPERSON    : kbF2,     TBBM_PERSONS,      "@{person}\tF2"
 		separator
@@ -3530,7 +3530,7 @@ browser QCERT north(100), 2, 1, "@{qcert}", OWNER|GRID, 0
 		ADDITEM      : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDBYSAMPLE  : kbAltF2,   PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		DELETEITEM   : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
-		VIEWLOTS     : kbF3,      PPDV_LOTS,         "Лоты по сертификату\tF3"
+		VIEWLOTS     : kbF3,      PPDV_LOTS,         "@{lotsbyqcert}\tF3"
 		separator
 		SETPASSIVTAG : kbShiftF3, TBBM_CHGFLAGS,     "Установить признак пассивности на выборку\tShift-F3"
 		SYSJ         : kbCtrlJ,   PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
@@ -3726,14 +3726,14 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 	"@card",          7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter,  PPDV_LINS01,            "@{doviewccheck}\tEnter"
-		TOGGLE      : kbCtrlT,  TBBM_TOGGLESHIPMTAG,    "Пометить как доставленный\tCtrl-T"
+		TOGGLE      : kbCtrlT,  TBBM_TOGGLESHIPMTAG,    "@{domarkasdelivered}\tCtrl-T"
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "@{createnewdraftbillbyccheck}\tF2"
 		ADDTOBASKET : kbCtrlF4, PPDV_SHOPPINGCART01,    "@{doputtobasket_goodsfromccheck}\tCtrl-F4"
 		EXPORTCHZN  : kbAltF8,  PPDV_LOGOCHZN,          "Отправить чеки в @{brand_chzn}\tAlt-F8"
 		separator
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"
-		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "Удалить все чеки с неопределенной сессией\tCtrl-F8"
+		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,       "@{dodeletecheckswithundefsess}\tCtrl-F8"
 		TOTAL       : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
 		PRINT       : kbF7,     PPDV_PRINTER01,         "@{print}\tF7"
 		POSPRINT    : kbCtrlZ,  TBBM_POSPRINT,          "@{printcheck_toposregistrar}\tCtrl-Z"
@@ -5626,7 +5626,7 @@ browser REPORT north(100), 1, 1, "@cmd_report", GRID, 0
 		ADDITEM		: kbIns,	PPDV_ADDFILE02,    "@{add}\tInsert"
 		EDITITEM	: kbEnter,	PPDV_EDITFILE02,   "@{edit}\tEnter"
 		DELETEITEM	: kbDel,	PPDV_DELETEFILE02, "@{delete}\tDelete"
-		VERIFY		: kbF2,		PPDV_REPAIR02,     "Верифицировать\tF2"
+		VERIFY		: kbF2,		PPDV_REPAIR02,     "@{doverify}\tF2"
 		MAILRPT		: kbF3,		TBBM_MAIL,	       "@{sendemail}\tF3"
 		CALLCRR		: kbF4,		TBBM_EXTRAVIEW,    "Редактировать форму отчета\tF4"
     	PRINT		: kbF7,		PPDV_PRINTER01,    "@{print}\tF7"
@@ -7284,9 +7284,9 @@ record Bill {
 	LocCode       zstring(16)  "@{warehousecode}";
 	City          zstring(48)  "@{warehousecity}";
 	Addr          zstring(255) "@{warehouseaddress}";
-	OrderBillID   zstring(32)  "Ид связанного документа заказа";
+	OrderBillID   zstring(32)  "ИД связанного документа заказа";
 	OrderBillNo   zstring(24)  "Номер связанного документа заказа";
-	DesadvBillID  zstring(32)  "Ид связанного документа DESADV"; // @v8.6.12
+	DesadvBillID  zstring(32)  "ИД связанного документа DESADV"; // @v8.6.12
 	DesadvBillNo  zstring(24)  "Номер связанного документа DESADV"; // @v8.6.12
 	DesadvBillDt  date         "Дата связанного документа DESADV"; // @v8.6.12
 	DlvrAddrID    long         "@{daddressid}";
@@ -7326,7 +7326,7 @@ record BRow {
 	Barcode       zstring(24)  "@{barcode}";
 	ArCode        zstring(24)  "@{goodsarcode}";
 	ArCodeOwn     zstring(24)  "Собственный артикул товара";     // @v9.1.11
-	AlcoCatCode   zstring(24)  "Код вида алкогольной продукции";
+	AlcoCatCode   zstring(24)  "@{goodsalcocode}";
 	Quantity      double       format(10.3) "@{qtty}";
 	PhQtty        double       format(10.3) "@{phqtty}";
 	UnitPerPack   double       format(10.3) "@{unitperpack}";
@@ -7378,7 +7378,7 @@ record BRow {
 	LocCode       zstring(16)     "@{warehousecode}";
 	City          zstring(48)     "@{warehousecity}";
 	Addr          zstring(255)    "@{warehouseaddress}";
-	OrderBillID   zstring(32)     "Ид документа заказа, к которому привязан данный документ";
+	OrderBillID   zstring(32)     "ИД документа заказа, к которому привязан данный документ";
 	OrderBillNo   zstring(24)     "Номер документа заказа, к которому привязан данных документ";
 	DlvrAddrID    long            "@{daddressid}";
 	DlvrAddrCode  zstring(16)     "@{daddresscode}";
@@ -7388,7 +7388,7 @@ record BRow {
 	AgentPersonID long            "@{agentpersonid}"; // @v9.8.7
 	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
 	GoodKindCode  long	          "Код вида товара (dll)";
-	GoodGrpID     long	          "Ид группы товара (dll)";
+	GoodGrpID     long	          "ИД группы товара (dll)";
 	TTN	          zstring(32)     "@{waybillno} (dll)";
 	GTD	          zstring(32)     "@{cargocustomsdeclarationno}";
 	LicenseID     long	          "@{licenseid} (dll)";
@@ -7482,7 +7482,7 @@ record SCard {
 
 record CSessComplex {
 	StoreID      long         format(8)    "@{warehouseid}";
-	PosNodeID    long         format(8)    "Ид кассового узла";
+	PosNodeID    long         format(8)    "ИД кассового узла";
 	PosN         long         format(8)    "@{posnodeno}";
 	SessN        long         format(8)    "@{sessionno}";
 	SessID       long         format(8)    "@{sessionid}";
@@ -7684,7 +7684,7 @@ record SupplBillLine {
 	DocumentTypeId    zstring(32)         "@{typeofdocument}";
 	DocumentNumber    zstring(24)         "@{billno}";    // @v10.2.3 (16)-->(24)
 	DocumentDate      date                "@{billdate}";
-    SrcCRMDbId        zstring(36)         "Ид базы данных-источника";
+    SrcCRMDbId        zstring(36)         "ИД базы данных-источника";
 	PayDate           date                "@{paymdate}";
 	WareHouseId       zstring(24)         "@{warehouse}";
 	WareId            zstring(24)         "@{goodscode}";
@@ -7860,7 +7860,7 @@ record SBIISampleBillRow {
 
 record SBIIBill {
 	ID       long                  "@{id}";
-	SampleID long                  "Ид документа образца";
+	SampleID long                  "ИД документа образца";
 	Date     date                  "@{date}";
 	Time     zstring(6)            "@{creationtime}";
 	Article  long                  "@{contractor}";
@@ -7915,7 +7915,7 @@ record Goods2 {
 	UnitName       zstring(48)         "@{munitname}";
 	UnitCode       zstring(20)         "@{munitcode}"; // @v8.1.1
 	PhUnitName     zstring(48)         "@{munitphname}";
-	PhUPerU        zstring(48)         "Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}";
+	PhUPerU        zstring(48)         "@{goods_phuperu}";
 	UnitsPerPack   double format(10.6) "Емкость упаковки лота";
 	Cost           double format(10.2) "@{termcost}";
 	Price          double format(10.2) "@{termprice}";
@@ -8200,7 +8200,7 @@ record Lot {
 	SupplID       long                "@{supplierid}";
 	CloseDate     date                "@{lot_closedate}";
 	Expiry        date                "@{expirationdate_amp}";
-	InTaxGrpID    long                "Ид налоговой группы прихода";
+	InTaxGrpID    long                "ИД налоговой группы прихода";
 	BegRest       double format(10.3) "@{lot_operestbeg}";
 	EndRest       double format(10.3) "@{lot_operestend}";
 	QttyPlus      double format(10.3) "Приход за операционный период (количество)";
@@ -8336,7 +8336,7 @@ record CPosGoods {
 
 record CPosGoodsGroup {
 	Id         long        "@{groupid}";
-	ParentId   long        "Ид группы верхнего уровня";
+	ParentId   long        "ИД группы верхнего уровня";
 	Name       zstring(64) "@{appellation}";
 	Code       long        "@{code}";
 }
@@ -8517,7 +8517,7 @@ reportstub CSess_KM6        { dl600data=CSessionKM,      "@{csession}" }
 reportstub PaymPlanDetail   { dl600data=PaymPlan,        "План платежей с детализацией по документам" }
 reportstub GoodsOpAnlzDraftWrOff { dl600data=GoodsOpAnlz,     "Товарный отчет по драфт-операции в сравнении со списанием" }
 reportstub Budget           { dl600data=Budget,               "@{budget}" }
-reportstub CheckOpJrnl      { dl600data=CheckOpJrnl,          "Журнал чековых операций" }
+reportstub CheckOpJrnl      { dl600data=CheckOpJrnl,          "@{view_checkopjrnl}" }
 reportstub GTaxAnlz_LedgByLots { dl600data=GoodsTaxAnlz,      "Книга учета частного предпринимателя (приходы)" }
 reportstub GoodsMov2        { dl600data=GoodsMov2,            "@{view_goodsmov}" }
 reportstub CCheckDetailOrd  { dl600data=CCheckPacket,         "@{tablebooking}" }
@@ -8598,7 +8598,7 @@ reportstub BillOpGrpng		{ dl600data=OpGrouping,			"@{opgrouping_bydocs}"}
 reportstub MrpLines			{ dl600data=MrpLines,			"@{view_mrpline}"}
 reportstub LotOps			{ dl600data=LotOps,				"@{view_lotop}"}
 reportstub OrderLotsS		{ dl600data=Lots,				"Лоты товарных заказов по заказчику"}
-reportstub OrderLots		{ dl600data=Lots,				"Лоты товарных заказов"}
+reportstub OrderLots		{ dl600data=Lots,				"@{orderlots}"}
 reportstub LotsS			{ dl600data=Lots,				"Лоты по поставщику"}
 reportstub Lots				{ dl600data=Lots,				"@{view_lot}"}
 reportstub LotsSOper		{ dl600data=Lots,				"Лоты по поставщику с операционным периодом"}
@@ -8752,7 +8752,7 @@ reportstub CCheckDetailViewLoc { dl600data=CCheckDetail,	"@{poscheck}"}
 reportstub CCheckDetailView	{ dl600data=CCheckDetail,		"@{poscheck}"}
 reportstub Complete			{ dl600data=Complete,			"@{productcomposition}"}
 reportstub BillInfo			{ dl600data=BillInfo,			"@{billspecialinfo}"}
-reportstub PUGL				{ dl600data=PUGL,				"ДЕФИЦИТ ТОВАРОВ"}
+reportstub PUGL				{ dl600data=PUGL,				"@{pugl}"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
 reportstub GeoTracking      { dl600data=GeoTracking,        "@{view_geotracking}" } // @v10.1.5
 //
@@ -8884,7 +8884,7 @@ file pperror_log  { "pperror.log"  LOG TEXT             "Журнал сообщений об оши
 file pperrmsg_log { "pperrmsg.log" LOG TEXT             "Журнал дубликатов сообщений об ошибках, выводимых на экран пользователям" }
 file verhist_log  { "verhist.log"  LOG TEXT             "Журнал истории обновления версия системы. Формируется из data\verhist.bin." }
 file ppinfo_log   { "ppinfo.log"   LOG TEXT             "Журнал информационных сообщений системы" }
-file ccheck_log   { "ccheck.log"   LOG TEXT             "Журнал чековых операций" }
+file ccheck_log   { "ccheck.log"   LOG TEXT             "@{view_checkopjrnl}" }
 file scale_log    { "scale.log"    LOG TEXT             "Журнал загрузки данных на электронные весы" }
 file debug_log    { "debug.log"    LOG TEXT             "Журнал отладочных сообщений" }
 file psales_log   { "psales.log"   LOG TEXT             "Журнал заполнения таблицы продаж" }

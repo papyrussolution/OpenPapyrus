@@ -693,7 +693,7 @@ static void toolutil_findDirname(void)
 		const char * input = STRNULL(testCases[i].inBuf);
 		const char * expect = STRNULL(testCases[i].expectResult);
 		UErrorCode status = U_ZERO_ERROR;
-		uprv_memset(toolutil_testBuf, 0x55, TOOLUTIL_TESTBUF_SIZE);
+		memset(toolutil_testBuf, 0x55, TOOLUTIL_TESTBUF_SIZE);
 
 		log_verbose("Test case [%d/%d]: %s\n", i, count-1, input);
 		result = STRNULL(findDirname(testCases[i].inBuf, toolutil_testBuf, testCases[i].outBufLen, &status));

@@ -288,7 +288,7 @@ U_CAPI const UBiDiLevel * U_EXPORT2 ubidi_getLevels(UBiDi * pBiDi, UErrorCode * 
 		}
 		/* pBiDi->paraLevel is ok even if contextual multiple paragraphs,
 		   since pBidi is a line object */
-		uprv_memset(levels+start, pBiDi->paraLevel, length-start);
+		memset(levels+start, pBiDi->paraLevel, length-start);
 		/* this new levels array is set for the line and reflects the WS run */
 		pBiDi->trailingWSStart = length;
 		return pBiDi->levels = levels;
@@ -1133,7 +1133,7 @@ U_CAPI void U_EXPORT2 ubidi_getLogicalMap(UBiDi * pBiDi, int32_t * indexMap, UEr
 			return;
 		}
 		if(pBiDi->length>pBiDi->resultLength) {
-			uprv_memset(indexMap, 0xFF, pBiDi->length*sizeof(int32_t));
+			memset(indexMap, 0xFF, pBiDi->length*sizeof(int32_t));
 		}
 		visualStart = 0;
 		for(j = 0; j<pBiDi->runCount; ++j) {
@@ -1341,7 +1341,7 @@ U_CAPI void U_EXPORT2 ubidi_invertMap(const int32_t * srcMap, int32_t * destMap,
 		destLength++;   /* add 1 for origin 0 */
 		if(count<destLength) {
 			/* we must fill unmatched destMap entries with -1 */
-			uprv_memset(destMap, 0xFF, destLength*sizeof(int32_t));
+			memset(destMap, 0xFF, destLength*sizeof(int32_t));
 		}
 		pi = srcMap+length;
 		while(length>0) {

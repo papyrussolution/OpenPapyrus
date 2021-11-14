@@ -3025,18 +3025,8 @@ static int TestJitterbug930(const char * enc) {
 	in[1] = 0x4E01;
 	in[2] = 0x4E02;
 	in[3] = 0x4E03;
-
 	memset(off, '*', sizeof(off));
-
-	ucnv_fromUnicode(converter,
-	    &target,
-	    target+2,
-	    &source,
-	    source+3,
-	    offsets,
-	    flush,
-	    &err);
-
+	ucnv_fromUnicode(converter, &target, target+2, &source, source+3, offsets, flush, &err);
 	/* writes three bytes into the output buffer: 41 1B 24
 	 * but offsets contains 0 1 1
 	 */
@@ -3048,21 +3038,11 @@ static int TestJitterbug930(const char * enc) {
 	if(numOffWritten!= (int)(target-out)) {
 		log_err("Jitterbug 930 test for enc: %s failed. Expected: %i Got: %i", enc, (int)(target-out), numOffWritten);
 	}
-
 	err = U_ZERO_ERROR;
-
 	memset(off, '*', sizeof(off));
-
 	flush = 1;
 	offsets = off;
-	ucnv_fromUnicode(converter,
-	    &target,
-	    target+4,
-	    &source,
-	    source,
-	    offsets,
-	    flush,
-	    &err);
+	ucnv_fromUnicode(converter, &target, target+4, &source, source, offsets, flush, &err);
 	numOffWritten = 0;
 	while(*offsets< off[10]) {
 		numOffWritten++;
@@ -3071,7 +3051,6 @@ static int TestJitterbug930(const char * enc) {
 		}
 		offsets++;
 	}
-
 	/* writes 42 43 7A into output buffer,
 	 * offsets contains -1 -1 -1
 	 */
@@ -3561,7 +3540,7 @@ static void TestFullRoundtrip(const char * cp) {
 		nsrc[2] = usource[1];
 		nsrc[len+1] = 0x5555;
 		TestConv((const uint16_t *)nsrc, len+2, cp, "", NULL, 0);
-		uprv_memset(usource, 0, sizeof(UChar)*10);
+		memzero(usource, sizeof(UChar)*10);
 	}
 }
 
@@ -5590,9 +5569,7 @@ static void TestJB5275() {
 	}
 	targetLimit = target;
 	target = dest;
-
 	printUSeq(target, (int)(targetLimit-target));
-
 	while(target<targetLimit) {
 		if(*exp!=*target) {
 			log_err("did not get the expected output. \\u%04X != \\u%04X (got)\n", *exp, *target);
@@ -5603,44 +5580,39 @@ static void TestJB5275() {
 	ucnv_close(conv);
 }
 
-static void TestIsFixedWidth() {
+static void TestIsFixedWidth() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UConverter * cnv = NULL;
 	int32_t i;
-
 	const char * fixedWidth[] = {
 		"US-ASCII",
 		"UTF32",
 		"ibm-5478_P100-1995"
 	};
-
 	const char * notFixedWidth[] = {
 		"GB18030",
 		"UTF8",
 		"windows-949-2000",
 		"UTF16"
 	};
-
 	for(i = 0; i < UPRV_LENGTHOF(fixedWidth); i++) {
 		cnv = ucnv_open(fixedWidth[i], &status);
 		if(cnv == NULL || U_FAILURE(status)) {
 			log_data_err("Error open converter: %s - %s \n", fixedWidth[i], u_errorName(status));
 			continue;
 		}
-
 		if(!ucnv_isFixedWidth(cnv, &status)) {
 			log_err("%s is a fixedWidth converter but returned FALSE.\n", fixedWidth[i]);
 		}
 		ucnv_close(cnv);
 	}
-
 	for(i = 0; i < UPRV_LENGTHOF(notFixedWidth); i++) {
 		cnv = ucnv_open(notFixedWidth[i], &status);
 		if(cnv == NULL || U_FAILURE(status)) {
 			log_data_err("Error open converter: %s - %s \n", notFixedWidth[i], u_errorName(status));
 			continue;
 		}
-
 		if(ucnv_isFixedWidth(cnv, &status)) {
 			log_err("%s is NOT a fixedWidth converter but returned TRUE.\n", notFixedWidth[i]);
 		}

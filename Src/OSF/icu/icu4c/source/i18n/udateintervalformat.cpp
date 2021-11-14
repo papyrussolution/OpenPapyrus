@@ -23,25 +23,18 @@ UPRV_FORMATTED_VALUE_CAPI_AUTO_IMPL(FormattedDateInterval,
     udtitvfmt,
     0x46444956)
 
-U_CAPI UDateIntervalFormat* U_EXPORT2 udtitvfmt_open(const char * locale,
-    const UChar * skeleton,
-    int32_t skeletonLength,
-    const UChar * tzID,
-    int32_t tzIDLength,
-    UErrorCode *  status)
+U_CAPI UDateIntervalFormat* U_EXPORT2 udtitvfmt_open(const char * locale, const UChar * skeleton, int32_t skeletonLength,
+    const UChar * tzID, int32_t tzIDLength, UErrorCode *  status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	if((skeleton == NULL ? skeletonLength != 0 : skeletonLength < -1) ||
-	    (tzID == NULL ? tzIDLength != 0 : tzIDLength < -1)
-	    ) {
+	if((skeleton == NULL ? skeletonLength != 0 : skeletonLength < -1) || (tzID == NULL ? tzIDLength != 0 : tzIDLength < -1)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
 	UnicodeString skel((bool)(skeletonLength == -1), skeleton, skeletonLength);
-	LocalPointer<DateIntervalFormat> formatter(
-		DateIntervalFormat::createInstance(skel, Locale(locale), *status));
+	LocalPointer<DateIntervalFormat> formatter(DateIntervalFormat::createInstance(skel, Locale(locale), *status));
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}

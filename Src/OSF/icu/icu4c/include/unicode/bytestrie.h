@@ -1,19 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2010-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
+ *   Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
  *   file name:  bytestrie.h
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2010sep25
  *   created by: Markus W. Scherer
  */
-
 #ifndef __BYTESTRIE_H__
 #define __BYTESTRIE_H__
 

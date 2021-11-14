@@ -572,14 +572,12 @@ static void TestComposeDecompose() {
 	t = (tester**)SAlloc::M(charsToTestSize * sizeof(tester *));
 	t[0] = (tester*)SAlloc::M(sizeof(tester));
 	log_verbose("Testing UCA extensively for %d characters\n", charsToTestSize);
-
 	for(u = 0; u < charsToTestSize; u++) {
 		UChar32 ch = uset_charAt(charsToTest, u);
 		len = 0;
 		U16_APPEND_UNSAFE(comp, len, ch);
 		nfcSize = unorm_normalize(comp, len, UNORM_NFC, 0, t[noCases]->NFC, NORM_BUFFER_TEST_LEN, &status);
 		nfdSize = unorm_normalize(comp, len, UNORM_NFD, 0, t[noCases]->NFD, NORM_BUFFER_TEST_LEN, &status);
-
 		if(nfcSize != nfdSize || (uprv_memcmp(t[noCases]->NFC, t[noCases]->NFD, nfcSize * sizeof(UChar)) != 0)
 		 || (len != nfdSize || (uprv_memcmp(comp, t[noCases]->NFD, nfdSize * sizeof(UChar)) != 0))) {
 			t[noCases]->u = ch;
@@ -589,7 +587,7 @@ static void TestComposeDecompose() {
 			}
 			noCases++;
 			t[noCases] = (tester*)SAlloc::M(sizeof(tester));
-			uprv_memset(t[noCases], 0, sizeof(tester));
+			memzero(t[noCases], sizeof(tester));
 		}
 	}
 	log_verbose("Testing %d/%d of possible test cases\n", noCases, charsToTestSize);
@@ -607,7 +605,7 @@ static void TestComposeDecompose() {
 	   if(!(u&0xFFFF)) {
 	    log_verbose("%08X ", u);
 	   }
-	   uprv_memset(t[noCases], 0, sizeof(tester));
+	   memset(t[noCases], 0, sizeof(tester));
 	   t[noCases]->u = u;
 	   len = 0;
 	   U16_APPEND_UNSAFE(comp, len, u);
@@ -1914,34 +1912,32 @@ static void TestNonChars() {
 	else {
 		log_err_status(status, "Unable to open collator\n");
 	}
-
 	ucol_close(coll);
 }
 
-static void TestExtremeCompression() {
+static void TestExtremeCompression() 
+{
 	static char * test[4];
 	int32_t j = 0, i = 0;
-
 	for(i = 0; i<4; i++) {
 		test[i] = (char *)SAlloc::M(2048*sizeof(char));
 	}
-
 	for(j = 20; j < 500; j++) {
 		for(i = 0; i<4; i++) {
-			uprv_memset(test[i], 'a', (j-1)*sizeof(char));
+			memset(test[i], 'a', (j-1)*sizeof(char));
 			test[i][j-1] = (char)('a'+i);
 			test[i][j] = 0;
 		}
 		genericLocaleStarter("en_US", (const char **)test, 4);
 	}
-
 	for(i = 0; i<4; i++) {
 		SAlloc::F(test[i]);
 	}
 }
 
 #if 0
-static void TestExtremeCompression() {
+static void TestExtremeCompression() 
+{
 	static char * test[4];
 	int32_t j = 0, i = 0;
 	UErrorCode status = U_ZERO_ERROR;
@@ -1951,16 +1947,15 @@ static void TestExtremeCompression() {
 	}
 	for(j = 10; j < 2048; j++) {
 		for(i = 0; i<4; i++) {
-			uprv_memset(test[i], 'a', (j-2)*sizeof(char));
+			memset(test[i], 'a', (j-2)*sizeof(char));
 			test[i][j-1] = (char)('a'+i);
 			test[i][j] = 0;
 		}
 	}
 	genericLocaleStarter("en_US", (const char **)test, 4);
-
 	for(j = 10; j < 2048; j++) {
 		for(i = 0; i<1; i++) {
-			uprv_memset(test[i], 'a', (j-1)*sizeof(char));
+			memset(test[i], 'a', (j-1)*sizeof(char));
 			test[i][j] = 0;
 		}
 	}

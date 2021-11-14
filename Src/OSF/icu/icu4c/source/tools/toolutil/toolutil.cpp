@@ -319,14 +319,12 @@ static bool utm_hasCapacity(UToolMemory * mem, int32_t capacity) {
 		else {
 			mem->array = uprv_realloc(mem->array, newCapacity*mem->size);
 		}
-
 		if(mem->array==NULL) {
 			fprintf(stderr, "error: %s - out of memory\n", mem->name);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 		mem->capacity = newCapacity;
 	}
-
 	return TRUE;
 }
 
@@ -338,7 +336,7 @@ U_CAPI void * U_EXPORT2 utm_alloc(UToolMemory * mem)
 	if(utm_hasCapacity(mem, newIndex)) {
 		p = (char *)mem->array+oldIndex*mem->size;
 		mem->idx = newIndex;
-		uprv_memset(p, 0, mem->size);
+		memzero(p, mem->size);
 	}
 	return p;
 }
@@ -351,7 +349,7 @@ U_CAPI void * U_EXPORT2 utm_allocN(UToolMemory * mem, int32_t n)
 	if(utm_hasCapacity(mem, newIndex)) {
 		p = (char *)mem->array+oldIndex*mem->size;
 		mem->idx = newIndex;
-		uprv_memset(p, 0, n*mem->size);
+		memzero(p, n*mem->size);
 	}
 	return p;
 }

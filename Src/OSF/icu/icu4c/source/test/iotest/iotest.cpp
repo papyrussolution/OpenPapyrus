@@ -1,21 +1,17 @@
+// iotest.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 2002-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  iotest.cpp
+ *   Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2002feb21
  *   created by: George Rhoten
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
+#include "unicode/ustdio.h"
 #include "ustr_cnv.h"
 #include "iotest.h"
 #include "unicode/tstdtmod.h"
@@ -36,25 +32,25 @@ public:
 		buffer[3999] = 0; /* NULL terminate */
 		log_err(buffer);
 	}
-	virtual void logln(const UnicodeString & message) override {
+	virtual void logln(const UnicodeString & message) override 
+	{
 		char buffer[4000];
 		message.extract(0, message.length(), buffer, sizeof(buffer));
 		buffer[3999] = 0; /* NULL terminate */
 		log_info(buffer);
 	}
-	virtual void dataerrln(const UnicodeString & message) override {
+	virtual void dataerrln(const UnicodeString & message) override 
+	{
 		char buffer[4000];
 		message.extract(0, message.length(), buffer, sizeof(buffer));
 		buffer[3999] = 0; /* NULL terminate */
 		log_data_err(buffer);
 	}
-
 	static const char * pathToDataDirectory(void)
 	{
 		if(fgDataDir != NULL) {
 			return fgDataDir;
 		}
-
 		/* U_TOPSRCDIR is set by the makefiles on UNIXes when building cintltst and intltst
 		   //              to point to the top of the build hierarchy, which may or
 		   //              may not be the same as the source directory, depending on
@@ -77,7 +73,6 @@ public:
 			static char p[sizeof(__FILE__) + 10];
 			char * pBackSlash;
 			int i;
-
 			strcpy(p, __FILE__);
 			/* We want to back over three '\' chars. */
 			/*   Only Windows should end up here, so looking for '\' is safe.   */
@@ -87,7 +82,6 @@ public:
 					*pBackSlash = 0; /* Truncate the string at the '\'   */
 				}
 			}
-
 			if(pBackSlash != NULL) {
 				/* We found and truncated three names from the path.
 				 *  Now append "source\data" and set the environment
@@ -97,21 +91,17 @@ public:
 			}
 			else {
 				/* __FILE__ on MSVC7 does not contain the directory */
-				FILE * file = fopen(".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING "data" U_FILE_SEP_STRING "Makefile.in",
-					"r");
+				FILE * file = fopen(".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING "data" U_FILE_SEP_STRING "Makefile.in", "r");
 				if(file) {
 					fclose(file);
 					fgDataDir = ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING "data" U_FILE_SEP_STRING;
 				}
 				else {
-					fgDataDir =
-					    ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING
-					    "data" U_FILE_SEP_STRING;
+					fgDataDir = ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING ".." U_FILE_SEP_STRING "data" U_FILE_SEP_STRING;
 				}
 			}
 		}
     #endif
-
 		return fgDataDir;
 	}
 	static const char * loadTestData(UErrorCode & err) 

@@ -535,8 +535,8 @@ class SrConcept {
 public:
 	enum {
 		surrsymbsrcUndef  = 0, // Не определен
-		surrsymbsrcFIAS   = 1, // База данных ФИАС (российский классификатор адресов) 
-		surrsymbsrcGBIF   = 2, // База данных GBIF (биологическая таксономия) 
+		surrsymbsrcFIAS   = 1, // База данных ФИАС (российский классификатор адресов)
+		surrsymbsrcGBIF   = 2, // База данных GBIF (биологическая таксономия)
 		surrsymbsrcTICKER = 3  // Биржевой тикер
 	};
 	//
@@ -754,9 +754,9 @@ struct SrWordInfo { // @flat
 class SRevolver_BDbTable_Buffer : public TSRevolver <BDbTable::Buffer> {
 public:
 	explicit SRevolver_BDbTable_Buffer(uint c) : TSRevolver <BDbTable::Buffer> (c) {}
-	BDbTable::Buffer & Get() 
-	{ 
-		BDbTable::Buffer & r_buf = Implement_Get(); 
+	BDbTable::Buffer & Get()
+	{
+		BDbTable::Buffer & r_buf = Implement_Get();
 		r_buf.Reset();
 		return r_buf;
 	}
@@ -768,7 +768,7 @@ public:
 	// Descr: Формирует текст специальной лексемы с префиксом, определенным параметром spcTag.
 	// Returns:
 	//   >0 - специальная лексема успешно сформирована
-	//   0  - ошибка (не допустимое значение spcTag)
+	//   0  - ошибка (недопустимое значение spcTag)
 	//
 	static int MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
 	//
@@ -787,7 +787,7 @@ public:
 	enum {
 		oReadOnly         = 0x0001, // База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x0002, // При закрытии базы данных сохранять статистику
-		oExclusive        = 0x0004  // @v10.0.12 Таблицы в базе данных будут открываться в эксклюзивном режиме 
+		oExclusive        = 0x0004  // @v10.0.12 Таблицы в базе данных будут открываться в эксклюзивном режиме
 	};
 
 	int    Open(const char * pDbPath, long flags);
@@ -819,7 +819,7 @@ public:
 	// ARG(pResultWaId OUT): @#{vptr0} Идентификатор найденной или созданной структуры SrWordAssoc
 	// Returns:
 	//   1 - теги успешно ассоциированы с wordID. При этом была созданная новая запись SrWordAssoc.
-	//   2 - теги уже ассоциированы с wordID. Запись SrWordAssoc не создана, по указателю pResultId 
+	//   2 - теги уже ассоциированы с wordID. Запись SrWordAssoc не создана, по указателю pResultId
 	//     присвоен ид существующей записи.
 	//  -1 - Список тегов rWf пустой
 	//   0 - ошибка
@@ -942,7 +942,7 @@ public:
 	// Returns:
 	//   1 - n-грамма не пустая и была найдена уже существующая.
 	//   2 - n-грамма не пустая и была создана новая.
-	//  -1 - n-грамма пустая 
+	//  -1 - n-грамма пустая
 	//   0 - ошибка
 	//
 	int    ResolveNgFromTokenizer(const STokenizer & rTknz, uint idxFirst, uint idxCount, const SrWordForm * pWfToSet, long options, SrNGram & rNg);
@@ -1025,7 +1025,7 @@ public:
 		uint64 RSymb;  // Идентификатор разрешенного символа SymbP в базе данных (для oneof3(K, kConcept, kConceptInstance, kConceptSubclass))
 		uint   VarP;   // Если !0 то с конструкцией ассоциирован символ переменной, на который можно ссылаться из других операндов
 			// Если SymbP == 0 && VarP != 0, то вместо символа подставляется переменная.
-		int    VarItemRef; // @*SrSyntaxRuleSet::ResolveSyntaxRules Если (VarP && !SymbP), то в этом поле устанавливается индекс 
+		int    VarItemRef; // @*SrSyntaxRuleSet::ResolveSyntaxRules Если (VarP && !SymbP), то в этом поле устанавливается индекс
 			// ExprItem в ExprStack, на который ссылается VarP. Значение <0 означает, что символ не разрешен.
 	};
 

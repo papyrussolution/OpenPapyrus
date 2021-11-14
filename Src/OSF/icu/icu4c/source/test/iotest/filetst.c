@@ -1,28 +1,21 @@
+// filetst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 2004-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  filetst.c
+ *   Copyright (C) 2004-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
  *   indentation:4
- *
  *   created on: 2004apr06
  *   created by: George Rhoten
  */
 #include <icu-internal.h>
 #pragma hdrstop
+#include "unicode/ustdio.h"
 #include "iotest.h"
 
 const char * STANDARD_TEST_FILE = "iotest-c.txt";
 const char * STANDARD_TEST_LOCALE = "en_US_POSIX";
-const char * MEDIUMNAME_TEST_FILE =
-    "iotest_medium_filename_4567_30_234567_40_234567_50_234567_60_234567_70_234567_80_234567_90_23456_100"
-    "_23456_110_23456_120.txt"; // 124 chars
-
+const char * MEDIUMNAME_TEST_FILE = "iotest_medium_filename_4567_30_234567_40_234567_50_234567_60_234567_70_234567_80_234567_90_23456_100_23456_110_23456_120.txt"; // 124 chars
 const char * LONGNAME_TEST_FILE =
     "iotest_long_filename_234567_30_234567_40_234567_50_234567_60_234567_70_234567_80_234567_90_23456_100"
     "_23456_110_23456_120_23456_130_23456_140_23456_150_23456_160_23456_170_23456_180_23456_190_23456_200"
@@ -392,67 +385,50 @@ static void TestCodepageAndLocale() {
 		log_err("Can't write test file.\n");
 		return;
 	}
-	if(u_fgetcodepage(myFile) == NULL
-	 || strcmp(u_fgetcodepage(myFile), ucnv_getDefaultName()) != 0) {
-		log_err("Didn't get the proper default codepage. Got %s expected: %s\n",
-		    u_fgetcodepage(myFile), ucnv_getDefaultName());
+	if(u_fgetcodepage(myFile) == NULL || strcmp(u_fgetcodepage(myFile), ucnv_getDefaultName()) != 0) {
+		log_err("Didn't get the proper default codepage. Got %s expected: %s\n", u_fgetcodepage(myFile), ucnv_getDefaultName());
 	}
 #if !UCONFIG_NO_FORMATTING
-	if(u_fgetlocale(myFile) == NULL
-	 || strcmp(u_fgetlocale(myFile), uloc_getDefault()) != 0) {
-		log_err("Didn't get the proper default locale. Got %s expected: %s\n",
-		    u_fgetlocale(myFile), uloc_getDefault());
+	if(u_fgetlocale(myFile) == NULL || strcmp(u_fgetlocale(myFile), uloc_getDefault()) != 0) {
+		log_err("Didn't get the proper default locale. Got %s expected: %s\n", u_fgetlocale(myFile), uloc_getDefault());
 	}
 #endif
 	u_fclose(myFile);
 
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", "es", NULL);
-	if(u_fgetcodepage(myFile) == NULL
-	 || strcmp(u_fgetcodepage(myFile), ucnv_getDefaultName()) != 0) {
-		log_err("Didn't get the proper default codepage for \"es\". Got %s expected: iso-8859-1\n",
-		    u_fgetcodepage(myFile));
+	if(u_fgetcodepage(myFile) == NULL || strcmp(u_fgetcodepage(myFile), ucnv_getDefaultName()) != 0) {
+		log_err("Didn't get the proper default codepage for \"es\". Got %s expected: iso-8859-1\n", u_fgetcodepage(myFile));
 	}
 #if !UCONFIG_NO_FORMATTING
-	if(u_fgetlocale(myFile) == NULL
-	 || strcmp(u_fgetlocale(myFile), "es") != 0) {
-		log_err("Didn't get the proper default locale. Got %s expected: %s\n",
-		    u_fgetlocale(myFile), "es");
+	if(u_fgetlocale(myFile) == NULL || strcmp(u_fgetlocale(myFile), "es") != 0) {
+		log_err("Didn't get the proper default locale. Got %s expected: %s\n", u_fgetlocale(myFile), "es");
 	}
 #endif
 	u_fclose(myFile);
-
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, "UTF-16");
-	if(u_fgetcodepage(myFile) == NULL
-	 || strcmp(u_fgetcodepage(myFile), "UTF-16") != 0) {
-		log_err("Didn't get the proper default codepage for \"en\". Got %s expected: iso-8859-1\n",
-		    u_fgetcodepage(myFile));
+	if(u_fgetcodepage(myFile) == NULL || strcmp(u_fgetcodepage(myFile), "UTF-16") != 0) {
+		log_err("Didn't get the proper default codepage for \"en\". Got %s expected: iso-8859-1\n", u_fgetcodepage(myFile));
 	}
 #if !UCONFIG_NO_FORMATTING
-	if(u_fgetlocale(myFile) == NULL
-	 || strcmp(u_fgetlocale(myFile), uloc_getDefault()) != 0) {
-		log_err("Didn't get the proper default locale. Got %s expected: %s\n",
-		    u_fgetlocale(myFile), uloc_getDefault());
+	if(u_fgetlocale(myFile) == NULL || strcmp(u_fgetlocale(myFile), uloc_getDefault()) != 0) {
+		log_err("Didn't get the proper default locale. Got %s expected: %s\n", u_fgetlocale(myFile), uloc_getDefault());
 	}
 #endif
 	u_fclose(myFile);
-
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", "zh", "UTF-16");
-	if(u_fgetcodepage(myFile) == NULL
-	 || strcmp(u_fgetcodepage(myFile), "UTF-16") != 0) {
-		log_err("Didn't get the proper default codepage for \"en\". Got %s expected: iso-8859-1\n",
-		    u_fgetcodepage(myFile));
+	if(u_fgetcodepage(myFile) == NULL || strcmp(u_fgetcodepage(myFile), "UTF-16") != 0) {
+		log_err("Didn't get the proper default codepage for \"en\". Got %s expected: iso-8859-1\n", u_fgetcodepage(myFile));
 	}
 #if !UCONFIG_NO_FORMATTING
-	if(u_fgetlocale(myFile) == NULL
-	 || strcmp(u_fgetlocale(myFile), "zh") != 0) {
-		log_err("Didn't get the proper default locale. Got %s expected: %s\n",
-		    u_fgetlocale(myFile), "zh");
+	if(u_fgetlocale(myFile) == NULL || strcmp(u_fgetlocale(myFile), "zh") != 0) {
+		log_err("Didn't get the proper default locale. Got %s expected: %s\n", u_fgetlocale(myFile), "zh");
 	}
 #endif
 	u_fclose(myFile);
 }
 
-static void TestfgetsBuffers() {
+static void TestfgetsBuffers() 
+{
 	UChar buffer[2048];
 	UChar expectedBuffer[2048];
 	static const char testStr[] = "This is a test string that tests u_fgets. It makes sure that we don't try to read too much!";
@@ -460,7 +436,6 @@ static void TestfgetsBuffers() {
 	int32_t expectedSize = (int32_t)strlen(testStr);
 	int32_t readSize;
 	int32_t repetitions;
-
 	if(myFile == NULL) {
 		log_err("Can't write test file.\n");
 		return;
@@ -1586,21 +1561,10 @@ static void TestFileWriteRetval(const char * a_pszEncoding) {
 	u_fclose(myFile);
 }
 
-static void TestFileWriteRetvalUTF16() {
-	TestFileWriteRetval("UTF-16");
-}
-
-static void TestFileWriteRetvalUTF8() {
-	TestFileWriteRetval("UTF-8");
-}
-
-static void TestFileWriteRetvalASCII() {
-	TestFileWriteRetval("ASCII");
-}
-
-static void TestFileWriteRetvalNONE() {
-	TestFileWriteRetval("");
-}
+static void TestFileWriteRetvalUTF16() { TestFileWriteRetval("UTF-16"); }
+static void TestFileWriteRetvalUTF8() { TestFileWriteRetval("UTF-8"); }
+static void TestFileWriteRetvalASCII() { TestFileWriteRetval("ASCII"); }
+static void TestFileWriteRetvalNONE() { TestFileWriteRetval(""); }
 
 U_CFUNC void addFileTest(TestNode** root) {
 #if !UCONFIG_NO_FORMATTING

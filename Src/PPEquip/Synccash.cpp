@@ -434,6 +434,29 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	return ok;
 }
 
+/*static*/void PPSyncCashSession::LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.3
+{
+	SString msg;
+	msg.Cat("PreprocessChZnCode").CatDiv(':', 2).CatChar('(').Cat(ret).CatChar(')').Space();
+	{
+		const char * p_op_text = 0;
+		switch(op) {
+			case 0: p_op_text = "check"; break;
+			case 1: p_op_text = "accept"; break;
+			case 2: p_op_text = "reject"; break;
+		}
+		if(p_op_text)
+			msg.Cat(p_op_text).Space();
+	}
+	msg.Cat(pCode).Space().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
+	if(op == 0) {
+		msg.Cat("result").CatChar('[').CatHex(static_cast<long>(rResult.CheckResult)).Space().Cat(rResult.Reason).Space().
+			CatHex(static_cast<long>(rResult.ProcessingResult)).Space().
+			Cat(rResult.ProcessingCode).Space().Cat(rResult.Status).CatChar(']');
+	}
+	PPLogMessage(PPFILNAM_CCHECK_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);	
+}
+
 int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
@@ -668,12 +691,15 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
 							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code); // @v11.2.0
 							const double chzn_qtty = fabs(ccl.Quantity);
-							if(PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result) > 0 && chzn_pp_result.Status == 1) {
+							int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result);
+							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+							if(pczcr > 0 && chzn_pp_result.Status == 1) {
 								chzn_pp_result.LineIdx = pos;
 								int accept_op = 1; // 1 - accept, 2 - reject
-								if(PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, chzn_pp_result) > 0) {
+								pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, chzn_pp_result);
+								PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+								if(pczcr > 0)
 									pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
-								}
 							}
 						}
 					}
@@ -706,6 +732,13 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					PROFILE_START_S("DVCCMD_OPENCHECK")
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+					// @v11.2.3 {
+					{
+						LDATETIME ccts;
+						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
+					}
+					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
@@ -717,6 +750,13 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					//THROW(ExecFRPrintOper(PrintDocumentTitle));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+					// @v11.2.3 {
+					{
+						LDATETIME ccts;
+						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
+					}
+					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
@@ -1194,12 +1234,20 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	int    ok = 1;
 	int    is_format = 0;
+	SString temp_buf;
 	SlipDocCommonParam  sdc_param;
 	THROW_INVARG(pPack);
 	THROW(Connect());
 	Arr_In.Z();
 	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 	THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+	// @v11.2.3 {
+	{
+		LDATETIME ccts;
+		temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
+	}
+	// } @v11.2.3 
 	THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 	if(P_SlipFmt) {
 		int   r = 0;
@@ -1228,7 +1276,6 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 	if(!is_format) {
 		uint    pos;
 		SString prn_str;
-		SString temp_str;
 		SString word_buf;
 		CCheckLineTbl::Rec ccl;
 		Arr_In.Z();
@@ -1254,27 +1301,27 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			if(qtty != 1.0) {
-				temp_str.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
+				temp_buf.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
 				Arr_In.Z();
-				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			}
-			temp_str.Z().CatEq(0, qtty * price, SFMT_MONEY);
+			temp_buf.Z().CatEq(0, qtty * price, SFMT_MONEY);
 			Arr_In.Z();
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
 		THROW(PrintDiscountInfo(pPack, flags));
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		temp_str.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
+		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_TOTAL, word_buf); // ИТОГ
 		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		// } @v10.4.9
 		prn_str = word_buf; // @cstr #12
-		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_str.Len()).Cat(temp_str);
+		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));

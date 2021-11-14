@@ -784,7 +784,7 @@ void ConversionTest::TestUTF8ToUTF8Overflow() {
 
 	ucnv_reset(cnv1.getAlias());
 	ucnv_reset(cnv2.getAlias());
-	memset(result, 0, sizeof(result));
+	memzero(result, sizeof(result));
 	static const char * text2 = "a🚲"; // U+1F6B2 bicycle: 4 bytes
 	source = text2;
 	sourceLimit = text2 + strlen(text2);
@@ -803,21 +803,17 @@ void ConversionTest::TestUTF8ToUTF8Overflow() {
 	assertEquals("text2 next byte not clobbered", 5, result[3]);
 
 	// Convert the rest and flush.
-	ucnv_convertEx(cnv2.getAlias(), cnv1.getAlias(),
-	    &target, targetLimit, &source, sourceLimit,
-	    buffer16, &pivotSource, &pivotTarget, pivotLimit,
-	    FALSE, TRUE, errorCode);
-
+	ucnv_convertEx(cnv2.getAlias(), cnv1.getAlias(), &target, targetLimit, &source, sourceLimit,
+	    buffer16, &pivotSource, &pivotTarget, pivotLimit, FALSE, TRUE, errorCode);
 	assertSuccess("text2 UTF-8->UTF-8", errorCode);
 	length = (int32_t)(target - result);
 	assertEquals("text2 5 bytes", 5, length);
 	if(length == 5) {
 		assertTrue("text2 result same as input", memcmp(text2, result, length) == 0);
 	}
-
 	ucnv_reset(cnv1.getAlias());
 	ucnv_reset(cnv2.getAlias());
-	memset(result, 0, sizeof(result));
+	memzero(result, sizeof(result));
 	static const char * illFormed = "\xf1\x91\x93\x96\x91\x94"; // U+514D6 + two more trail bytes
 	source = illFormed;
 	sourceLimit = illFormed + strlen(illFormed);
@@ -1225,11 +1221,11 @@ static int32_t stepToUnicode(ConversionCase &cc, UConverter * cnv,
 			}
 		}
 	}
-
 	return (int32_t)(target-result);
 }
 
-bool ConversionTest::ToUnicodeCase(ConversionCase &cc, UConverterToUCallback callback, const char * option) {
+bool ConversionTest::ToUnicodeCase(ConversionCase &cc, UConverterToUCallback callback, const char * option) 
+{
 	// open the converter
 	IcuTestErrorCode errorCode(*this, "ToUnicodeCase");
 	LocalUConverterPointer cnv(cnv_open(cc.charset, errorCode));
@@ -1274,7 +1270,6 @@ bool ConversionTest::ToUnicodeCase(ConversionCase &cc, UConverterToUCallback cal
 		{ -13, "getNext+toU(5)" },
 	};
 	int32_t i, step;
-
 	ok = TRUE;
 	for(i = 0; i<UPRV_LENGTHOF(steps) && ok; ++i) {
 		step = steps[i].step;
@@ -1296,67 +1291,41 @@ bool ConversionTest::ToUnicodeCase(ConversionCase &cc, UConverterToUCallback cal
 			result[i] = -1;
 		}
 		errorCode.reset();
-		resultLength = stepToUnicode(cc, cnv.getAlias(),
-			result, UPRV_LENGTHOF(result),
-			step==0 ? resultOffsets : NULL,
-			step, errorCode);
-		ok = checkToUnicode(
-			cc, cnv.getAlias(), steps[i].name,
-			result, resultLength,
-			cc.offsets!=NULL ? resultOffsets : NULL,
-			errorCode);
+		resultLength = stepToUnicode(cc, cnv.getAlias(), result, UPRV_LENGTHOF(result), step==0 ? resultOffsets : NULL, step, errorCode);
+		ok = checkToUnicode(cc, cnv.getAlias(), steps[i].name, result, resultLength, cc.offsets!=NULL ? resultOffsets : NULL, errorCode);
 		if(errorCode.isFailure() || !cc.finalFlush) {
 			// reset if an error occurred or we did not flush
 			// otherwise do nothing to make sure that flushing resets
 			ucnv_resetToUnicode(cnv.getAlias());
 		}
 		if(cc.offsets != NULL && resultOffsets[resultLength] != -1) {
-			errln("toUnicode[%d](%s) Conversion wrote too much to offsets at index %d",
-			    cc.caseNr, cc.charset, resultLength);
+			errln("toUnicode[%d](%s) Conversion wrote too much to offsets at index %d", cc.caseNr, cc.charset, resultLength);
 		}
 		if(result[resultLength] != (UChar)-1) {
-			errln("toUnicode[%d](%s) Conversion wrote too much to result at index %d",
-			    cc.caseNr, cc.charset, resultLength);
+			errln("toUnicode[%d](%s) Conversion wrote too much to result at index %d", cc.caseNr, cc.charset, resultLength);
 		}
 	}
 
 	// not a real loop, just a convenience for breaking out of the block
 	while(ok && cc.finalFlush) {
 		// test ucnv_toUChars()
-		memset(result, 0, sizeof(result));
-
+		memzero(result, sizeof(result));
 		errorCode.reset();
-		resultLength = ucnv_toUChars(cnv.getAlias(),
-			result, UPRV_LENGTHOF(result),
-			(const char *)cc.bytes, cc.bytesLength,
-			errorCode);
-		ok = checkToUnicode(
-			cc, cnv.getAlias(), "toUChars",
-			result, resultLength,
-			NULL,
-			errorCode);
+		resultLength = ucnv_toUChars(cnv.getAlias(), result, UPRV_LENGTHOF(result), (const char *)cc.bytes, cc.bytesLength, errorCode);
+		ok = checkToUnicode(cc, cnv.getAlias(), "toUChars", result, resultLength, NULL, errorCode);
 		if(!ok) {
 			break;
 		}
-
 		// test preflighting
 		// keep the correct result for simple checking
 		errorCode.reset();
-		resultLength = ucnv_toUChars(cnv.getAlias(),
-			NULL, 0,
-			(const char *)cc.bytes, cc.bytesLength,
-			errorCode);
+		resultLength = ucnv_toUChars(cnv.getAlias(), NULL, 0, (const char *)cc.bytes, cc.bytesLength, errorCode);
 		if(errorCode.get()==U_STRING_NOT_TERMINATED_WARNING || errorCode.get()==U_BUFFER_OVERFLOW_ERROR) {
 			errorCode.reset();
 		}
-		ok = checkToUnicode(
-			cc, cnv.getAlias(), "preflight toUChars",
-			result, resultLength,
-			NULL,
-			errorCode);
+		ok = checkToUnicode(cc, cnv.getAlias(), "preflight toUChars", result, resultLength, NULL, errorCode);
 		break;
 	}
-
 	errorCode.reset(); // all errors have already been reported
 	return ok;
 }
@@ -1799,40 +1768,23 @@ bool ConversionTest::FromUnicodeCase(ConversionCase &cc, UConverterFromUCallback
 	// not a real loop, just a convenience for breaking out of the block
 	while(ok && cc.finalFlush) {
 		// test ucnv_fromUChars()
-		memset(result, 0, sizeof(result));
-
+		memzero(result, sizeof(result));
 		errorCode = U_ZERO_ERROR;
-		resultLength = ucnv_fromUChars(cnv,
-			result, UPRV_LENGTHOF(result),
-			cc.unicode, cc.unicodeLength,
-			&errorCode);
-		ok = checkFromUnicode(
-			cc, cnv, "fromUChars",
-			(uint8_t*)result, resultLength,
-			NULL,
-			errorCode);
+		resultLength = ucnv_fromUChars(cnv, result, UPRV_LENGTHOF(result), cc.unicode, cc.unicodeLength, &errorCode);
+		ok = checkFromUnicode(cc, cnv, "fromUChars", (uint8_t*)result, resultLength, NULL, errorCode);
 		if(!ok) {
 			break;
 		}
-
 		// test preflighting
 		// keep the correct result for simple checking
 		errorCode = U_ZERO_ERROR;
-		resultLength = ucnv_fromUChars(cnv,
-			NULL, 0,
-			cc.unicode, cc.unicodeLength,
-			&errorCode);
+		resultLength = ucnv_fromUChars(cnv, NULL, 0, cc.unicode, cc.unicodeLength, &errorCode);
 		if(errorCode==U_STRING_NOT_TERMINATED_WARNING || errorCode==U_BUFFER_OVERFLOW_ERROR) {
 			errorCode = U_ZERO_ERROR;
 		}
-		ok = checkFromUnicode(
-			cc, cnv, "preflight fromUChars",
-			(uint8_t*)result, resultLength,
-			NULL,
-			errorCode);
+		ok = checkFromUnicode(cc, cnv, "preflight fromUChars", (uint8_t*)result, resultLength, NULL, errorCode);
 		break;
 	}
-
 	ucnv_close(cnv);
 	return ok;
 }

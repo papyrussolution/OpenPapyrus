@@ -731,7 +731,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	uprv_memset(mask, ~0, columns *4);
+	memset(mask, ~0, columns *4);
 	if(s!=NULL) {
 		const UChar * limit;
 		if(length >= 0) {
@@ -772,7 +772,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* 
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	uprv_memset(mask, ~0, columns *4);
+	memset(mask, ~0, columns *4);
 
 	if(length < 0) {
 		length = (int32_t)uprv_strlen(s);

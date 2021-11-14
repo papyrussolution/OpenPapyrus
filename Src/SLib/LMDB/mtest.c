@@ -57,7 +57,8 @@ static int Lmdb_Test01()
 	MDB_val key, data;
 	MDB_txn * txn;
 	MDB_stat mst;
-	MDB_cursor * cursor, * cur2;
+	MDB_cursor * cursor;
+	MDB_cursor * cur2;
 	MDB_cursor_op op;
 	char sval[32] = "";
 	SString db_path;

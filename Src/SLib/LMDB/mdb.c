@@ -7608,7 +7608,6 @@ int mdb_cursor_del(MDB_cursor * mc, uint flags)
 			}
 			/* otherwise fall thru and delete the sub-DB */
 		}
-
 		if(leaf->mn_flags & F_SUBDATA) {
 			/* add all the child DB's pages to the free list */
 			rc = mdb_drop0(&mc->mc_xcursor->mx_cursor, 0);
@@ -7621,7 +7620,6 @@ int mdb_cursor_del(MDB_cursor * mc, uint flags)
 		rc = MDB_INCOMPATIBLE;
 		goto fail;
 	}
-
 	/* add overflow pages to free list */
 	if(F_ISSET(leaf->mn_flags, F_BIGDATA)) {
 		MDB_page * omp;
@@ -7631,10 +7629,8 @@ int mdb_cursor_del(MDB_cursor * mc, uint flags)
 		    (rc = mdb_ovpage_free(mc, omp)))
 			goto fail;
 	}
-
 del_key:
 	return mdb_cursor_del0(mc);
-
 fail:
 	mc->mc_txn->mt_flags |= MDB_TXN_ERROR;
 	return rc;
@@ -7652,23 +7648,23 @@ fail:
 static int mdb_page_new(MDB_cursor * mc, uint32_t flags, int num, MDB_page ** mp)
 {
 	MDB_page * np;
-	int rc;
-	if((rc = mdb_page_alloc(mc, num, &np)))
-		return rc;
-	DPRINTF(("allocated new mpage %" Yu ", page size %u", np->mp_pgno, mc->mc_txn->mt_env->me_psize));
-	np->mp_flags = flags | P_DIRTY;
-	np->mp_lower = (PAGEHDRSZ-PAGEBASE);
-	np->mp_upper = mc->mc_txn->mt_env->me_psize - PAGEBASE;
-	if(IS_BRANCH(np))
-		mc->mc_db->md_branch_pages++;
-	else if(IS_LEAF(np))
-		mc->mc_db->md_leaf_pages++;
-	else if(IS_OVERFLOW(np)) {
-		mc->mc_db->md_overflow_pages += num;
-		np->mp_pages = num;
+	const int rc = mdb_page_alloc(mc, num, &np);
+	if(rc == 0) {
+		DPRINTF(("allocated new mpage %" Yu ", page size %u", np->mp_pgno, mc->mc_txn->mt_env->me_psize));
+		np->mp_flags = flags | P_DIRTY;
+		np->mp_lower = (PAGEHDRSZ-PAGEBASE);
+		np->mp_upper = mc->mc_txn->mt_env->me_psize - PAGEBASE;
+		if(IS_BRANCH(np))
+			mc->mc_db->md_branch_pages++;
+		else if(IS_LEAF(np))
+			mc->mc_db->md_leaf_pages++;
+		else if(IS_OVERFLOW(np)) {
+			mc->mc_db->md_overflow_pages += num;
+			np->mp_pages = num;
+		}
+		*mp = np;
 	}
-	*mp = np;
-	return 0;
+	return rc;
 }
 
 /** Calculate the size of a leaf node.
@@ -7735,10 +7731,10 @@ static int mdb_node_add(MDB_cursor * mc, indx_t indx, MDB_val * key, MDB_val * d
 	size_t node_size = NODESIZE;
 	ssize_t room;
 	indx_t ofs;
-	MDB_node        * node;
-	MDB_page        * mp = mc->mc_pg[mc->mc_top];
-	MDB_page        * ofp = NULL;            /* overflow page */
-	void            * ndata;
+	MDB_node * node;
+	MDB_page * mp = mc->mc_pg[mc->mc_top];
+	MDB_page * ofp = NULL;            /* overflow page */
+	void * ndata;
 	DKBUF;
 	mdb_cassert(mc, mp->mp_upper >= mp->mp_lower);
 	DPRINTF(("add to %s %spage %" Yu " index %i, data size %"Z "u key size %"Z "u [%s]", IS_LEAF(mp) ? "leaf" : "branch",
@@ -7846,8 +7842,8 @@ static void mdb_node_del(MDB_cursor * mc, int ksize)
 	indx_t indx = mc->mc_ki[mc->mc_top];
 	uint sz;
 	indx_t i, j, numkeys, ptr;
-	MDB_node        * node;
-	char            * base;
+	MDB_node * node;
+	char * base;
 	DPRINTF(("delete node %u on %s page %" Yu, indx, IS_LEAF(mp) ? "leaf" : "branch", mdb_dbg_pgno(mp)));
 	numkeys = NUMKEYS(mp);
 	mdb_cassert(mc, indx < numkeys);
@@ -7860,7 +7856,6 @@ static void mdb_node_del(MDB_cursor * mc, int ksize)
 		mp->mp_upper += ksize - sizeof(indx_t);
 		return;
 	}
-
 	node = NODEPTR(mp, indx);
 	sz = NODESIZE + node->mn_ksize;
 	if(IS_LEAF(mp)) {
@@ -7870,7 +7865,6 @@ static void mdb_node_del(MDB_cursor * mc, int ksize)
 			sz += NODEDSZ(node);
 	}
 	sz = EVEN(sz);
-
 	ptr = mp->mp_ptrs[indx];
 	for(i = j = 0; i < numkeys; i++) {
 		if(i != indx) {
@@ -7880,21 +7874,18 @@ static void mdb_node_del(MDB_cursor * mc, int ksize)
 			j++;
 		}
 	}
-
 	base = (char *)mp + mp->mp_upper + PAGEBASE;
 	memmove(base + sz, base, ptr - mp->mp_upper);
-
 	mp->mp_lower -= sizeof(indx_t);
 	mp->mp_upper += sz;
 }
-
-/** Compact the main page after deleting a node on a subpage.
- * @param[in] mp The main page to operate on.
- * @param[in] indx The index of the subpage on the main page.
- */
+// 
+// Compact the main page after deleting a node on a subpage.
+// @param[in] mp The main page to operate on.
+// @param[in] indx The index of the subpage on the main page.
+// 
 static void mdb_node_shrink(MDB_page * mp, indx_t indx)
 {
-	MDB_page * xp;
 	char * base;
 	indx_t len, ptr;
 	int i;
@@ -7909,7 +7900,7 @@ static void mdb_node_shrink(MDB_page * mp, indx_t indx)
 			return; // do not make the node uneven-sized 
 	}
 	else {
-		xp = (MDB_page*)((char *)sp + delta);   /* destination subpage */
+		MDB_page * xp = (MDB_page*)((char *)sp + delta);   /* destination subpage */
 		for(i = NUMKEYS(sp); --i >= 0;)
 			xp->mp_ptrs[i] = sp->mp_ptrs[i] - delta;
 		len = PAGEHDRSZ;
@@ -8061,7 +8052,7 @@ static void mdb_cursor_init(MDB_cursor * mc, MDB_txn * txn, MDB_dbi dbi, MDB_xcu
 
 int mdb_cursor_open(MDB_txn * txn, MDB_dbi dbi, MDB_cursor ** ret)
 {
-	MDB_cursor      * mc;
+	MDB_cursor * mc;
 	size_t size = sizeof(MDB_cursor);
 	if(!ret || !TXN_DBI_EXIST(txn, dbi, DB_VALID))
 		return EINVAL;
