@@ -422,7 +422,7 @@ private:
 					}
 				}
 			}
-			SetupStrAssocCombo(p_dlg, CTLSEL_RTLOCLI_LOC, &loc_list, pItem->ObjID, 0, 0, 0);
+			SetupStrAssocCombo(p_dlg, CTLSEL_RTLOCLI_LOC, loc_list, pItem->ObjID, 0, 0, 0);
 			// SetupPPObjCombo(dlg, CTLSEL_RTLOCLI_LOC, PPOBJ_LOCATION, pItem->ObjID, 0, 0);
 			while(!valid_data && ExecView(p_dlg) == cmOK) {
 				p_dlg->getCtrlData(CTLSEL_RTLOCLI_LOC, &pItem->ObjID);
@@ -529,11 +529,10 @@ int RtCfgListDialog::addItem(long * pPos, long * pID)
 		StrAssocArray t_ary;
 		SString buf, title;
 		PPGetConfigList(&t_ary);
-		// @v9.2.5 PPGetWord(PPWORD_CONFIG, 0, title);
-		PPLoadString("@config", title); // @v9.2.5
+		PPLoadString("config", title); // @v11.2.4 @fix "@config"-->"config"
 		p_dlg->setSubTitle(title);
 		p_dlg->setLabelText(CTL_CBXSEL_COMBO, title);
-		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, &t_ary, 0, 0);
+		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, t_ary, 0, 0);
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			uint   pos = 0;
 			PPID   id = p_dlg->getCtrlLong(CTLSEL_CBXSEL_COMBO);
@@ -654,8 +653,8 @@ private:
 				for(uint i = 0; i < Data.getCount(); i++)
 					if(Data.at(i).ObjID != pItem->ObjID)
 						p_acc_list->Remove(Data.at(i).ObjID);
+				SetupStrAssocCombo(p_dlg, CTLSEL_RTACCLI_ACC, *p_acc_list, pItem->ObjID, 0, 0, 0);
 			}
-			SetupStrAssocCombo(p_dlg, CTLSEL_RTACCLI_ACC, p_acc_list, pItem->ObjID, 0, 0, 0);
 			p_dlg->disableCtrl(CTLSEL_RTACCLI_ACC, others_acc);
 			while(!valid_data && ExecView(p_dlg) == cmOK) {
 				p_dlg->getCtrlData(CTLSEL_RTACCLI_ACC, &pItem->ObjID);
@@ -775,7 +774,8 @@ private:
 	}
 	int editItemDialog(ObjRestrictItem * pItem, int isNew)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTPOSLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
@@ -785,8 +785,8 @@ private:
 				for(uint i = 0; i < Data.getCount(); i++)
 					if(Data.at(i).ObjID != pItem->ObjID)
 						p_list->Remove(Data.at(i).ObjID);
+				SetupStrAssocCombo(p_dlg, CTLSEL_RTPOSLI_ITEM, *p_list, pItem->ObjID, 0, 0, 0);
 			}
-			SetupStrAssocCombo(p_dlg, CTLSEL_RTPOSLI_ITEM, p_list, pItem->ObjID, 0, 0, 0);
 			p_dlg->disableCtrl(CTLSEL_RTPOSLI_ITEM, others);
 			while(!valid_data && ExecView(p_dlg) == cmOK) {
 				p_dlg->getCtrlData(CTLSEL_RTPOSLI_ITEM, &pItem->ObjID);
@@ -907,7 +907,8 @@ private:
 	}
 	int editItemDialog(ObjRestrictItem * pItem, int isNew)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTQKLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
@@ -917,8 +918,8 @@ private:
 				for(uint i = 0; i < Data.getCount(); i++)
 					if(Data.at(i).ObjID != pItem->ObjID)
 						p_list->Remove(Data.at(i).ObjID);
+				SetupStrAssocCombo(p_dlg, CTLSEL_RTQKLI_ITEM, *p_list, pItem->ObjID, 0, 0, 0);
 			}
-			SetupStrAssocCombo(p_dlg, CTLSEL_RTQKLI_ITEM, p_list, pItem->ObjID, 0, 0, 0);
 			p_dlg->disableCtrl(CTLSEL_RTQKLI_ITEM, others);
 			while(!valid_data && ExecView(p_dlg) == cmOK) {
 				p_dlg->getCtrlData(CTLSEL_RTQKLI_ITEM, &pItem->ObjID);

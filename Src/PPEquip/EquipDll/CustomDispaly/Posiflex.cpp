@@ -46,7 +46,7 @@ EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputD
 		SString params, s_param, param_val;
 		THROWERR(Init(), CUSTDISP_NOTINITED);
 		THROW(P_PosiflexDisp);
-		for(uint i = 0; set_pairs.get(&i, params) > 0;) {
+		for(uint i = 0; set_pairs.get(&i, params);) {
 			params.Divide('=', s_param, param_val);
 			if(s_param.CmpNC("DLLPATH") == 0)
 				P_PosiflexDisp->UsbDllPath.Z().Cat(param_val).Cat("USBPD.DLL");

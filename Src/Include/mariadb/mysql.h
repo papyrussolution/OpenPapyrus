@@ -502,7 +502,7 @@ unsigned long STDCALL mysql_thread_id(MYSQL * mysql);
 const char * STDCALL mysql_character_set_name(MYSQL * mysql);
 void STDCALL mysql_get_character_set_info(MYSQL * mysql, MY_CHARSET_INFO * cs);
 int STDCALL mysql_set_character_set(MYSQL * mysql, const char * csname);
-bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...);
+/*bool*/int mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...); // @sobolev ret: bool-->int
 bool STDCALL mariadb_get_info(MYSQL * mysql, enum mariadb_value value, void * arg);
 MYSQL * STDCALL mysql_init(MYSQL * mysql);
 int STDCALL mysql_ssl_set(MYSQL * mysql, const char * key, const char * cert, const char * ca, const char * capath, const char * cipher);
@@ -672,14 +672,14 @@ struct st_mariadb_api {
 	const char * (STDCALL *mysql_info)(MYSQL *mysql);
 	unsigned long(STDCALL * mysql_thread_id)(MYSQL *mysql);
 	const char * (STDCALL *mysql_character_set_name)(MYSQL *mysql);
-	void(STDCALL *mysql_get_character_set_info)(MYSQL *mysql, MY_CHARSET_INFO *cs);
-	int(STDCALL *mysql_set_character_set)(MYSQL *mysql, const char * csname);
-	bool (* mariadb_get_infov)(MYSQL * mysql, enum mariadb_value value, void * arg, ...);
-	bool(STDCALL *mariadb_get_info)(MYSQL *mysql, enum mariadb_value value, void * arg);
+	void (STDCALL *mysql_get_character_set_info)(MYSQL *mysql, MY_CHARSET_INFO *cs);
+	int  (STDCALL *mysql_set_character_set)(MYSQL *mysql, const char * csname);
+	/*bool*/int (* mariadb_get_infov)(MYSQL * mysql, enum mariadb_value value, void * arg, ...); // @sobolev bool-->int
+	bool (STDCALL *mariadb_get_info)(MYSQL *mysql, enum mariadb_value value, void * arg);
 	MYSQL * (STDCALL *mysql_init)(MYSQL *mysql);
 	int(STDCALL *mysql_ssl_set)(MYSQL *mysql, const char * key, const char * cert, const char * ca, const char * capath, const char * cipher);
 	const char * (STDCALL *mysql_get_ssl_cipher)(MYSQL *mysql);
-	bool(STDCALL *mysql_change_user)(MYSQL *mysql, const char * user, const char * passwd, const char * db);
+	bool (STDCALL *mysql_change_user)(MYSQL *mysql, const char * user, const char * passwd, const char * db);
 	MYSQL * (STDCALL *mysql_real_connect)(MYSQL *mysql, const char * host, const char * user, const char * passwd, const char * db,
 	    unsigned int port, const char * unix_socket, unsigned long clientflag);
 	void(STDCALL *mysql_close)(MYSQL *sock);

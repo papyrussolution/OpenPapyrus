@@ -1,14 +1,9 @@
+// CALENDAR.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
  * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- *
- * File CALENDAR.CPP
- *
  * Modification History:
- *
  *   Date        Name        Description
  *   02/03/97    clhuang     Creation.
  *   04/22/97    aliu        Cleaned up, fixed memory leak, made
@@ -22,7 +17,6 @@
  *   09/02/98    stephen     Sync with JDK 1.2 8/31 build (getActualMin/Max)
  *   03/17/99    stephen     Changed adoptTimeZone() - now fAreFieldsSet is
  *        set to FALSE to force update of time.
- *******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -197,8 +191,8 @@ SharedCalendar::~SharedCalendar() {
 	delete ptr;
 }
 
-template <> U_I18N_API
-const SharedCalendar * LocaleCacheKey<SharedCalendar>::createObject(const void * /*unusedCreationContext*/, UErrorCode & status) const {
+template <> U_I18N_API const SharedCalendar * LocaleCacheKey<SharedCalendar>::createObject(const void * /*unusedCreationContext*/, UErrorCode & status) const 
+{
 	Calendar * calendar = Calendar::makeInstance(fLoc, status);
 	if(U_FAILURE(status)) {
 		return NULL;
@@ -213,7 +207,8 @@ const SharedCalendar * LocaleCacheKey<SharedCalendar>::createObject(const void *
 	return shared;
 }
 
-static ECalType getCalendarType(const char * s) {
+static ECalType getCalendarType(const char * s) 
+{
 	for(int i = 0; gCalTypes[i] != NULL; i++) {
 		if(uprv_stricmp(s, gCalTypes[i]) == 0) {
 			return (ECalType)i;
@@ -224,23 +219,24 @@ static ECalType getCalendarType(const char * s) {
 
 #if !UCONFIG_NO_SERVICE
 // Only used with service registration.
-static bool isStandardSupportedKeyword(const char * keyword, UErrorCode & status) {
-	if(U_FAILURE(status)) {
+static bool isStandardSupportedKeyword(const char * keyword, UErrorCode & status) 
+{
+	if(U_FAILURE(status))
 		return FALSE;
+	else {
+		ECalType calType = getCalendarType(keyword);
+		return (calType != CALTYPE_UNKNOWN);
 	}
-	ECalType calType = getCalendarType(keyword);
-	return (calType != CALTYPE_UNKNOWN);
 }
 
 // only used with service registration.
-static void getCalendarKeyword(const UnicodeString & id, char * targetBuffer, int32_t targetBufferSize) {
+static void getCalendarKeyword(const UnicodeString & id, char * targetBuffer, int32_t targetBufferSize) 
+{
 	UnicodeString calendarKeyword = UNICODE_STRING_SIMPLE("calendar=");
 	int32_t calKeyLen = calendarKeyword.length();
 	int32_t keyLen = 0;
-
 	int32_t keywordIdx = id.indexOf((UChar)0x003D); /* '=' */
-	if(id[0] == 0x40/*'@'*/
-	  && id.compareBetween(1, keywordIdx+1, calendarKeyword, 0, calKeyLen) == 0) {
+	if(id[0] == 0x40/*'@'*/ && id.compareBetween(1, keywordIdx+1, calendarKeyword, 0, calKeyLen) == 0) {
 		keyLen = id.extract(keywordIdx+1, id.length(), targetBuffer, targetBufferSize, US_INV);
 	}
 	targetBuffer[keyLen] = 0;
@@ -248,13 +244,12 @@ static void getCalendarKeyword(const UnicodeString & id, char * targetBuffer, in
 
 #endif
 
-static ECalType getCalendarTypeForLocale(const char * locid) {
+static ECalType getCalendarTypeForLocale(const char * locid) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	ECalType calType = CALTYPE_UNKNOWN;
-
 	//TODO: ULOC_FULL_NAME is out of date and too small..
 	char canonicalName[256];
-
 	// Canonicalize, so that an old-style variant will be transformed to keywords.
 	// e.g ja_JP_TRADITIONAL -> ja_JP@calendar=japanese
 	// NOTE: Since ICU-20187, ja_JP_TRADITIONAL no longer canonicalizes, and
@@ -3814,14 +3809,11 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	//     the likely subtags.
 	// 2). If the locale has a script designation then we ignore it,
 	//     then remove it ( i.e. "en_Latn_US" becomes "en_US" )
-
 	UErrorCode myStatus = U_ZERO_ERROR;
-
 	Locale min(desiredLocale);
 	min.minimizeSubtags(myStatus);
 	Locale useLocale;
-	if(uprv_strlen(desiredLocale.getCountry()) == 0 ||
-	    (uprv_strlen(desiredLocale.getScript()) > 0 && uprv_strlen(min.getScript()) == 0) ) {
+	if(uprv_strlen(desiredLocale.getCountry()) == 0 || (uprv_strlen(desiredLocale.getScript()) > 0 && uprv_strlen(min.getScript()) == 0) ) {
 		myStatus = U_ZERO_ERROR;
 		Locale max(desiredLocale);
 		max.addLikelySubtags(myStatus);

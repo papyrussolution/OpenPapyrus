@@ -38,17 +38,11 @@ static void lzma2_header_lzma(lzma_lzma2_encoder_coder * coder)
 	size_t pos;
 	if(coder->need_properties) {
 		pos = 0;
-		if(coder->need_dictionary_reset)
-			coder->buf[pos] = 0x80 + (3 << 5);
-		else
-			coder->buf[pos] = 0x80 + (2 << 5);
+		coder->buf[pos] = coder->need_dictionary_reset ? (0x80 + (3 << 5)) : (0x80 + (2 << 5));
 	}
 	else {
 		pos = 1;
-		if(coder->need_state_reset)
-			coder->buf[pos] = 0x80 + (1 << 5);
-		else
-			coder->buf[pos] = 0x80;
+		coder->buf[pos] = coder->need_state_reset ? (0x80 + (1 << 5)) : 0x80;
 	}
 	// Set the start position for copying.
 	coder->buf_pos = pos;
@@ -78,10 +72,7 @@ static void lzma2_header_uncompressed(lzma_lzma2_encoder_coder * coder)
 	assert(coder->uncompressed_size <= LZMA2_CHUNK_MAX);
 	// If this is the first chunk, we need to include dictionary
 	// reset indicator.
-	if(coder->need_dictionary_reset)
-		coder->buf[0] = 1;
-	else
-		coder->buf[0] = 2;
+	coder->buf[0] = coder->need_dictionary_reset ? 1 : 2;
 	coder->need_dictionary_reset = false;
 	// "Compressed" size
 	coder->buf[1] = static_cast<uint8_t>((coder->uncompressed_size - 1) >> 8);
@@ -141,8 +132,7 @@ static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8_t * out, size
 			    // and makes decoding faster.
 			    if(coder->compressed_size >= coder->uncompressed_size) {
 				    coder->uncompressed_size += mf->read_ahead;
-				    assert(coder->uncompressed_size
-					<= LZMA2_UNCOMPRESSED_MAX);
+				    assert(coder->uncompressed_size <= LZMA2_UNCOMPRESSED_MAX);
 				    mf->read_ahead = 0;
 				    lzma2_header_uncompressed(coder);
 				    coder->need_state_reset = true;
@@ -205,7 +195,6 @@ static lzma_ret lzma2_encoder_options_update(void * coder_ptr, const lzma_filter
 		// Validate the options.
 		if(opt->lc > LZMA_LCLP_MAX || opt->lp > LZMA_LCLP_MAX || opt->lc + opt->lp > LZMA_LCLP_MAX || opt->pb > LZMA_PB_MAX)
 			return LZMA_OPTIONS_ERROR;
-
 		// The new options will be used when the encoder starts
 		// a new LZMA2 chunk.
 		coder->opt_cur.lc = opt->lc;
@@ -214,7 +203,6 @@ static lzma_ret lzma2_encoder_options_update(void * coder_ptr, const lzma_filter
 		coder->need_properties = true;
 		coder->need_state_reset = true;
 	}
-
 	return LZMA_OK;
 }
 
@@ -237,23 +225,16 @@ static lzma_ret lzma2_encoder_init(lzma_lz_encoder * lz, const lzma_allocator * 
 	coder->sequence = lzma_lzma2_encoder_coder::SEQ_INIT;
 	coder->need_properties = true;
 	coder->need_state_reset = false;
-	coder->need_dictionary_reset
-		= coder->opt_cur.preset_dict == NULL
-	    || coder->opt_cur.preset_dict_size == 0;
-
+	coder->need_dictionary_reset = coder->opt_cur.preset_dict == NULL || coder->opt_cur.preset_dict_size == 0;
 	// Initialize LZMA encoder
-	return_if_error(lzma_lzma_encoder_create(&coder->lzma, allocator,
-	    &coder->opt_cur, lz_options));
-
+	return_if_error(lzma_lzma_encoder_create(&coder->lzma, allocator, &coder->opt_cur, lz_options));
 	// Make sure that we will always have enough history available in
 	// case we need to use uncompressed chunks. They are used when the
 	// compressed size of a chunk is not smaller than the uncompressed
 	// size, so we need to have at least LZMA2_COMPRESSED_MAX bytes
 	// history available.
 	if(lz_options->before_size + lz_options->dict_size < LZMA2_CHUNK_MAX)
-		lz_options->before_size
-			= LZMA2_CHUNK_MAX - lz_options->dict_size;
-
+		lz_options->before_size = LZMA2_CHUNK_MAX - lz_options->dict_size;
 	return LZMA_OK;
 }
 
@@ -265,9 +246,7 @@ extern lzma_ret lzma_lzma2_encoder_init(lzma_next_coder * next, const lzma_alloc
 extern uint64_t lzma_lzma2_encoder_memusage(const void * options)
 {
 	const uint64_t lzma_mem = lzma_lzma_encoder_memusage(options);
-	if(lzma_mem == UINT64_MAX)
-		return UINT64_MAX;
-	return sizeof(lzma_lzma2_encoder_coder) + lzma_mem;
+	return (lzma_mem == UINT64_MAX) ? UINT64_MAX : (sizeof(lzma_lzma2_encoder_coder) + lzma_mem);
 }
 
 extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8_t * out)
@@ -283,10 +262,7 @@ extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8_t * out)
 	d |= d >> 8;
 	d |= d >> 16;
 	// Get the highest two bits using the proper encoding:
-	if(d == UINT32_MAX)
-		out[0] = 40;
-	else
-		out[0] = get_dist_slot(d + 1) - 24;
+	out[0] = (d == UINT32_MAX) ? 40 : (get_dist_slot(d + 1) - 24);
 	return LZMA_OK;
 }
 

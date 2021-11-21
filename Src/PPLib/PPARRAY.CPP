@@ -393,9 +393,9 @@ ObjIdListFilt & FASTCALL ObjIdListFilt::operator = (long value)
 	return *this;
 }
 
-int FASTCALL ObjIdListFilt::IsEqual(const ObjIdListFilt & s) const
+int FASTCALL ObjIdListFilt::IsEq(const ObjIdListFilt & s) const
 {
-	return P_List ? P_List->IsEqual(s.P_List) : (s.P_List ? 0 : 1);
+	return P_List ? P_List->IsEq(s.P_List) : (s.P_List ? 0 : 1);
 }
 
 ObjIdListFilt & ObjIdListFilt::InitEmpty()
@@ -643,7 +643,7 @@ PPObjID_Base PPObjID_Base::Set(PPID objType, PPID objID)
 	return *this;
 }
 
-bool PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
+bool PPObjID_Base::IsEq(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
 bool FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
 bool FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
 PPObjID_Base::operator double() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }

@@ -2428,7 +2428,7 @@ int PiritEquip::RunCheck(int opertype)
 										str.Z();
 									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
-								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_GERMAN|DATF_CENTURY); // @v11.2.3
+								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_ANSI|DATF_NODIV); // @v11.2.3
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								if(Check.CheckNum > 0)
@@ -2663,7 +2663,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 	SString str;
 	SString s_output;
 	StringSet params(';', rInput);
-	for(uint i = 0; params.get(&i, buf) > 0;) {
+	for(uint i = 0; params.get(&i, buf);) {
 		in_data.Z();
 		out_data.Z();
 		if(buf.IsEqiAscii("AMOUNT")) {

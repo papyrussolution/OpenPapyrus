@@ -434,8 +434,8 @@ char * STDCALL timefmt(LTIME t, long fmt, char * pBuf)
 
 char * STDCALL datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen)
 {
-	int    df = SFMTFLAG(dtfmt);
-	int    tf = SFMTFLAG(tmfmt);
+	const int df = SFMTFLAG(dtfmt);
+	const int tf = SFMTFLAG(tmfmt);
 	char   temp_buf[256];
 	if(df == DATF_SQL || tf == TIMF_SQL) {
 		//const char * p_format = "TIMESTAMP '%04d-%02d-%02d %02d:%02d:%02d.%02d'";

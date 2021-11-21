@@ -134,12 +134,12 @@ void ssh_key_clean(ssh_key key){
 #elif defined HAVE_LIBMBEDCRYPTO
 	if(key->rsa != NULL) {
 		mbedtls_pk_free(key->rsa);
-		SAFE_FREE(key->rsa);
+		ZFREE(key->rsa);
 	}
 
 	if(key->ecdsa != NULL) {
 		mbedtls_ecdsa_free(key->ecdsa);
-		SAFE_FREE(key->ecdsa);
+		ZFREE(key->ecdsa);
 	}
 #endif
 	if(key->ed25519_privkey != NULL) {
@@ -151,9 +151,9 @@ void ssh_key_clean(ssh_key key){
 #else
 		memzero(key->ed25519_privkey, sizeof(ed25519_privkey));
 #endif
-		SAFE_FREE(key->ed25519_privkey);
+		ZFREE(key->ed25519_privkey);
 	}
-	SAFE_FREE(key->ed25519_pubkey);
+	ZFREE(key->ed25519_pubkey);
 	if(key->cert != NULL) {
 		SSH_BUFFER_FREE(key->cert);
 	}
@@ -174,7 +174,7 @@ void ssh_key_clean(ssh_key key){
 void ssh_key_free(ssh_key key){
 	if(key) {
 		ssh_key_clean(key);
-		SAFE_FREE(key);
+		ZFREE(key);
 	}
 }
 
@@ -664,7 +664,7 @@ void ssh_signature_free(ssh_signature sig)
 #ifdef HAVE_LIBGCRYPT
 		    gcry_sexp_release(sig->rsa_sig);
 #elif defined HAVE_LIBMBEDCRYPTO
-		    SAFE_FREE(sig->rsa_sig);
+		    ZFREE(sig->rsa_sig);
 #endif
 		    break;
 		case SSH_KEYTYPE_ECDSA_P256:
@@ -680,7 +680,7 @@ void ssh_signature_free(ssh_signature sig)
 		case SSH_KEYTYPE_ED25519:
 #ifndef HAVE_OPENSSL_ED25519
 		    /* When using OpenSSL, the signature is stored in sig->raw_sig */
-		    SAFE_FREE(sig->ed25519_sig);
+		    ZFREE(sig->ed25519_sig);
 #endif
 		    break;
 		case SSH_KEYTYPE_DSS_CERT01:
@@ -698,7 +698,7 @@ void ssh_signature_free(ssh_signature sig)
 	/* Explicitly zero the signature content before free */
 	ssh_string_burn(sig->raw_sig);
 	SSH_STRING_FREE(sig->raw_sig);
-	SAFE_FREE(sig);
+	ZFREE(sig);
 }
 
 /**
@@ -862,7 +862,7 @@ int ssh_pki_import_privkey_file(const char * filename,
 	fclose(file);
 
 	if(size != sb.st_size) {
-		SAFE_FREE(key_buf);
+		ZFREE(key_buf);
 		SSH_LOG(SSH_LOG_WARN,
 		    "Error reading %s: %s",
 		    filename,
@@ -877,7 +877,7 @@ int ssh_pki_import_privkey_file(const char * filename,
 		auth_data,
 		pkey);
 
-	SAFE_FREE(key_buf);
+	ZFREE(key_buf);
 	return rc;
 }
 
@@ -1570,7 +1570,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
 	size = fread(key_buf, 1, sb.st_size, file);
 	fclose(file);
 	if(size != sb.st_size) {
-		SAFE_FREE(key_buf);
+		ZFREE(key_buf);
 		SSH_LOG(SSH_LOG_WARN, "Error reading %s: %s", filename, strerror(errno));
 		return SSH_ERROR;
 	}
@@ -1580,7 +1580,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
 	cmp = strncmp(key_buf, OPENSSH_HEADER_BEGIN, strlen(OPENSSH_HEADER_BEGIN));
 	if(cmp == 0) {
 		*pkey = ssh_pki_openssh_pubkey_import(key_buf);
-		SAFE_FREE(key_buf);
+		ZFREE(key_buf);
 		if(*pkey == NULL) {
 			SSH_LOG(SSH_LOG_WARN, "Failed to import public key from OpenSSH private key file");
 			return SSH_ERROR;
@@ -1597,7 +1597,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
 	}
 	type = ssh_key_type_from_name(q);
 	if(type == SSH_KEYTYPE_UNKNOWN) {
-		SAFE_FREE(key_buf);
+		ZFREE(key_buf);
 		return SSH_ERROR;
 	}
 	q = &p[i + 1];
@@ -1608,7 +1608,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
 		}
 	}
 	rc = ssh_pki_import_pubkey_base64(q, type, pkey);
-	SAFE_FREE(key_buf);
+	ZFREE(key_buf);
 	return rc;
 }
 

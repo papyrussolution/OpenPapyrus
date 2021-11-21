@@ -1,13 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1999-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   10/20/99    alan        Creation.
- **********************************************************************
+	Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+	Date        Name        Description
+	10/20/99    alan        Creation.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -19,18 +15,14 @@
 #include "bmpset.h"
 #include "unisetspan.h"
 
-// HIGH_VALUE > all valid values. 110000 for codepoints
-#define UNICODESET_HIGH 0x0110000
-
-// LOW <= all valid values. ZERO for codepoints
-#define UNICODESET_LOW 0x000000
-
-/** Max list [0, 1, 2, ..., max code point, HIGH] */
-constexpr int32_t MAX_LENGTH = UNICODESET_HIGH + 1;
+#define UNICODESET_HIGH 0x0110000 // HIGH_VALUE > all valid values. 110000 for codepoints
+#define UNICODESET_LOW 0x000000 // LOW <= all valid values. ZERO for codepoints
+constexpr int32_t MAX_LENGTH = UNICODESET_HIGH + 1; /** Max list [0, 1, 2, ..., max code point, HIGH] */
 
 U_NAMESPACE_BEGIN
 
-SymbolTable::~SymbolTable() {
+SymbolTable::~SymbolTable() 
+{
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(UnicodeSet)
@@ -130,7 +122,8 @@ UnicodeSet::UnicodeSet()
  * @param start first character, inclusive, of range
  * @param end last character, inclusive, of range
  */
-UnicodeSet::UnicodeSet(UChar32 start, UChar32 end) {
+UnicodeSet::UnicodeSet(UChar32 start, UChar32 end) 
+{
 	list[0] = UNICODESET_HIGH;
 	add(start, end);
 	_dbgct(this);
@@ -139,13 +132,15 @@ UnicodeSet::UnicodeSet(UChar32 start, UChar32 end) {
 /**
  * Constructs a set that is identical to the given UnicodeSet.
  */
-UnicodeSet::UnicodeSet(const UnicodeSet & o) : UnicodeFilter(o) {
+UnicodeSet::UnicodeSet(const UnicodeSet & o) : UnicodeFilter(o) 
+{
 	*this = o;
 	_dbgct(this);
 }
 
 // Copy-construct as thawed.
-UnicodeSet::UnicodeSet(const UnicodeSet & o, bool /* asThawed */) : UnicodeFilter(o) {
+UnicodeSet::UnicodeSet(const UnicodeSet & o, bool /* asThawed */) : UnicodeFilter(o) 
+{
 	if(ensureCapacity(o.len)) {
 		// *this = o except for bmpSet and stringSpan
 		len = o.len;
@@ -164,11 +159,11 @@ UnicodeSet::UnicodeSet(const UnicodeSet & o, bool /* asThawed */) : UnicodeFilte
 		_dbgct(this);
 	}
 }
-
 /**
  * Destructs the set.
  */
-UnicodeSet::~UnicodeSet() {
+UnicodeSet::~UnicodeSet() 
+{
 	_dbgdt(this); // first!
 	if(list != stackList) {
 		uprv_free(list);
@@ -185,11 +180,10 @@ UnicodeSet::~UnicodeSet() {
 /**
  * Assigns this object to be a copy of another.
  */
-UnicodeSet & UnicodeSet::operator = (const UnicodeSet & o) {
-	return copyFrom(o, FALSE);
-}
+UnicodeSet & UnicodeSet::operator = (const UnicodeSet & o) { return copyFrom(o, FALSE); }
 
-UnicodeSet & UnicodeSet::copyFrom(const UnicodeSet & o, bool asThawed) {
+UnicodeSet & UnicodeSet::copyFrom(const UnicodeSet & o, bool asThawed) 
+{
 	if(this == &o) {
 		return *this;
 	}

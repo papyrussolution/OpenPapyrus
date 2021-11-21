@@ -624,7 +624,7 @@ static int archive_read_format_7zip_read_header(struct archive_read * a, struct 
 		ret = ARCHIVE_WARN;
 	}
 	/* Populate some additional entry fields: */
-	archive_entry_set_mode(entry, zip_entry->mode);
+	archive_entry_set_mode(entry, static_cast<ushort>(zip_entry->mode));
 	if(zip_entry->flg & MTIME_IS_SET)
 		archive_entry_set_mtime(entry, zip_entry->mtime, zip_entry->mtime_ns);
 	if(zip_entry->flg & CTIME_IS_SET)
@@ -679,12 +679,11 @@ static int archive_read_format_7zip_read_header(struct archive_read * a, struct 
 			 * file. */
 			zip_entry->mode &= ~AE_IFMT;
 			zip_entry->mode |= AE_IFREG;
-			archive_entry_set_mode(entry, zip_entry->mode);
+			archive_entry_set_mode(entry, static_cast<ushort>(zip_entry->mode));
 		}
 		else {
 			symname[symsize] = '\0';
-			archive_entry_copy_symlink(entry,
-			    (const char *)symname);
+			archive_entry_copy_symlink(entry, (const char *)symname);
 		}
 		SAlloc::F(symname);
 		archive_entry_set_size(entry, 0);
@@ -3074,7 +3073,7 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 		const void * buff;
 		ssize_t bytes;
 		uchar * b[3] = {NULL, NULL, NULL};
-		uint64 sunpack[3] = {-1, -1, -1};
+		uint64 sunpack[3] = {static_cast<uint64>(-1), static_cast<uint64>(-1), static_cast<uint64>(-1)};
 		size_t s[3] = {0, 0, 0};
 		int idx[3] = {0, 1, 2};
 

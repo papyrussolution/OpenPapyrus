@@ -106,7 +106,7 @@ struct ssh_buffer_struct * ssh_buffer_new()
 	 */
 	rc = ssh_buffer_allocate_size(buf, 64 - 1);
 	if(rc != 0) {
-		SAFE_FREE(buf);
+		ZFREE(buf);
 		return NULL;
 	}
 	buffer_verify(buf);
@@ -128,13 +128,13 @@ void ssh_buffer_free(struct ssh_buffer_struct * buffer)
 	if(buffer->secure && buffer->allocated > 0) {
 		/* burn the data */
 		memzero(buffer->data, buffer->allocated);
-		SAFE_FREE(buffer->data);
+		ZFREE(buffer->data);
 		memzero(buffer, sizeof(struct ssh_buffer_struct));
 	}
 	else {
-		SAFE_FREE(buffer->data);
+		ZFREE(buffer->data);
 	}
-	SAFE_FREE(buffer);
+	ZFREE(buffer);
 }
 
 /**
@@ -173,7 +173,7 @@ static int realloc_buffer(struct ssh_buffer_struct * buffer, size_t needed)
 		}
 		memcpy(p_new, buffer->data, buffer->used);
 		memzero(buffer->data, buffer->used);
-		SAFE_FREE(buffer->data);
+		ZFREE(buffer->data);
 	}
 	else {
 		p_new = (uint8 *)SAlloc::R(buffer->data, needed);
@@ -702,7 +702,7 @@ struct ssh_string_struct * ssh_buffer_get_ssh_string(struct ssh_buffer_struct * 
 	stringlen = ssh_buffer_get_data(buffer, ssh_string_data(str), hostlen);
 	if(stringlen != hostlen) {
 		/* should never happen */
-		SAFE_FREE(str);
+		ZFREE(str);
 		return NULL;
 	}
 
@@ -906,7 +906,7 @@ int ssh_buffer_pack_va(struct ssh_buffer_struct * buffer, const char * format, s
 				    break;
 			    }
 			    rc = ssh_buffer_add_ssh_string(buffer, o.string);
-			    SAFE_FREE(o.string);
+			    ZFREE(o.string);
 			    break;
 			case 't':
 			    cstring = va_arg(ap, char *);
@@ -1108,7 +1108,7 @@ int ssh_buffer_unpack_va(struct ssh_buffer_struct * buffer,
 			    }
 			    rlen = ssh_buffer_get_data(buffer, *o.cstring, len);
 			    if(rlen != len) {
-				    SAFE_FREE(*o.cstring);
+				    ZFREE(*o.cstring);
 				    rc = SSH_ERROR;
 				    break;
 			    }
@@ -1139,7 +1139,7 @@ int ssh_buffer_unpack_va(struct ssh_buffer_struct * buffer,
 			    }
 			    rlen = ssh_buffer_get_data(buffer, *o.data, len);
 			    if(rlen != len) {
-				    SAFE_FREE(*o.data);
+				    ZFREE(*o.data);
 				    rc = SSH_ERROR;
 				    break;
 			    }
@@ -1209,14 +1209,14 @@ cleanup:
 				    if(buffer->secure) {
 					    ssh_string_burn(*o.string);
 				    }
-				    SAFE_FREE(*o.string);
+				    ZFREE(*o.string);
 				    break;
 				case 's':
 				    o.cstring = va_arg(ap_copy, char **);
 				    if(buffer->secure) {
 					    memzero(*o.cstring, strlen(*o.cstring));
 				    }
-				    SAFE_FREE(*o.cstring);
+				    ZFREE(*o.cstring);
 				    break;
 				case 'P':
 				    len = va_arg(ap_copy, size_t);
@@ -1224,7 +1224,7 @@ cleanup:
 				    if(buffer->secure) {
 					    memzero(*o.data, len);
 				    }
-				    SAFE_FREE(*o.data);
+				    ZFREE(*o.data);
 				    break;
 				default:
 				    (void)va_arg(ap_copy, void *);

@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -299,7 +299,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		PPLoadString("recompl", temp_buf);
 		mod_item_list.AddFast(TIDlgInitData::mmRecompl, temp_buf);
 		PPID   init_mm = (Flags & fExistsOnly) ? TIDlgInitData::mmExpend : TIDlgInitData::mmIncoming;
-		SetupStrAssocCombo(this, CTLSEL_EXTGSEL_MODIFMODE, &mod_item_list, init_mm, 0, 0, 0);
+		SetupStrAssocCombo(this, CTLSEL_EXTGSEL_MODIFMODE, mod_item_list, init_mm, 0, 0, 0);
 	}
 	else {
 		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, 0);

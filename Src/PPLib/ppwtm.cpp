@@ -45,15 +45,15 @@ private:
 	PPWhatmanWindow * P_Win;
 };
 
-LayoutEntryDialogBlock::LayoutEntryDialogBlock(const AbstractLayoutBlock * pS)
+LayoutEntryDialogBlock::LayoutEntryDialogBlock(const SUiLayoutParam * pS)
 {
 	Setup(pS);
 }
 	
-void LayoutEntryDialogBlock::Setup(const AbstractLayoutBlock * pS)
+void LayoutEntryDialogBlock::Setup(const SUiLayoutParam * pS)
 {
 	if(pS)
-		*static_cast<AbstractLayoutBlock *>(this) = *pS;
+		*static_cast<SUiLayoutParam *>(this) = *pS;
 }
 
 class LayoutContainerDialog : public TDialog {
@@ -72,9 +72,9 @@ public:
 		AddClusterAssoc(CTL_WOLAYC_LAY, 1, DIREC_HORZ);
 		AddClusterAssoc(CTL_WOLAYC_LAY, 2, DIREC_VERT);
 		SetClusterData(CTL_WOLAYC_LAY, Data.GetContainerDirection());
-		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, AbstractLayoutBlock::fContainerWrap);
-		AddClusterAssoc(CTL_WOLAYC_FLAGS, 1, AbstractLayoutBlock::fContainerReverseDir);
-		AddClusterAssoc(CTL_WOLAYC_FLAGS, 2, AbstractLayoutBlock::fContainerWrapReverse);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 0, SUiLayoutParam::fContainerWrap);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 1, SUiLayoutParam::fContainerReverseDir);
+		AddClusterAssoc(CTL_WOLAYC_FLAGS, 2, SUiLayoutParam::fContainerWrapReverse);
 		SetClusterData(CTL_WOLAYC_FLAGS, Data.Flags);
 		{
 			SetupStringCombo(this, CTLSEL_WOLAYC_JUSTC, PPTXT_LAYOUTALIGNMENT, Data.JustifyContent);
@@ -82,7 +82,7 @@ public:
 			SetupStringCombo(this, CTLSEL_WOLAYC_ALGNI, PPTXT_LAYOUTALIGNMENT, Data.AlignItems);
 		}
 		//
-		AbstractLayoutBlock::MarginsToString(Data.Padding, temp_buf);
+		SUiLayoutParam::MarginsToString(Data.Padding, temp_buf);
 		setCtrlString(CTL_WOLAYC_MARG, temp_buf);
 		return ok;
 	}
@@ -97,9 +97,9 @@ public:
 		{
 			long   flags = 0;
 			GetClusterData(CTL_WOLAYC_FLAGS, &flags);
-			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerWrap, flags);
-			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerReverseDir, flags);
-			SETFLAGBYSAMPLE(Data.Flags, AbstractLayoutBlock::fContainerWrapReverse, flags);
+			SETFLAGBYSAMPLE(Data.Flags, SUiLayoutParam::fContainerWrap, flags);
+			SETFLAGBYSAMPLE(Data.Flags, SUiLayoutParam::fContainerReverseDir, flags);
+			SETFLAGBYSAMPLE(Data.Flags, SUiLayoutParam::fContainerWrapReverse, flags);
 		}
 		{
 			long   temp_alignment = 0;
@@ -115,7 +115,7 @@ public:
 		}
 		//
 		getCtrlString(sel = CTL_WOLAYC_MARG, temp_buf);
-		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
+		THROW_PP(SUiLayoutParam::MarginsFromString(temp_buf, Data.Padding), PPERR_USERINPUT);
 		//
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -144,14 +144,14 @@ public:
 					init_parent_id = layout_symb_list.Get(pos).Id;
 				}
 			}
-			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, &layout_symb_list, init_parent_id, 0, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, layout_symb_list, init_parent_id, 0, 0, 0);
 		}
 		else {
 			disableCtrl(CTLSEL_LAYOENTRY_PARENT, 1);
 		}
 		Data.SizeToString(temp_buf);
 		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
-		AbstractLayoutBlock::MarginsToString(Data.Margin, temp_buf);
+		SUiLayoutParam::MarginsToString(Data.Margin, temp_buf);
 		setCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
 		setCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
 		setCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
@@ -185,7 +185,7 @@ public:
 		getCtrlString(sel = CTL_LAYOENTRY_SIZE, temp_buf);
 		THROW_PP(Data.SizeFromString(temp_buf), PPERR_USERINPUT);
 		getCtrlString(CTL_LAYOENTRY_MARG, temp_buf);
-		THROW_PP(AbstractLayoutBlock::MarginsFromString(temp_buf, Data.Margin), PPERR_USERINPUT);
+		THROW_PP(SUiLayoutParam::MarginsFromString(temp_buf, Data.Margin), PPERR_USERINPUT);
 		getCtrlData(CTL_LAYOENTRY_GROWF, &Data.GrowFactor);
 		getCtrlData(CTL_LAYOENTRY_SHRNKF, &Data.ShrinkFactor);
 		getCtrlData(CTL_LAYOENTRY_ASPR, &Data.AspectRatio);
@@ -262,9 +262,9 @@ public:
 			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_CLOT));
 			if(p_combo) {
 				StrAssocArray * p_cmpx_lo_types = new StrAssocArray;
-				p_cmpx_lo_types->Add(LayoutFlexItem::cmplxtInpLbl, 0, PPLoadStringS("complexlayouttype_inplbl", temp_buf));
-				p_cmpx_lo_types->Add(LayoutFlexItem::cmplxtInpLblBtn, 0, PPLoadStringS("complexlayouttype_inplblbtn", temp_buf));
-				p_cmpx_lo_types->Add(LayoutFlexItem::cmplxtInpLblBtn2, 0, PPLoadStringS("complexlayouttype_inplblbtn2", temp_buf));
+				p_cmpx_lo_types->Add(SUiLayout::cmplxtInpLbl, 0, PPLoadStringS("complexlayouttype_inplbl", temp_buf));
+				p_cmpx_lo_types->Add(SUiLayout::cmplxtInpLblBtn, 0, PPLoadStringS("complexlayouttype_inplblbtn", temp_buf));
+				p_cmpx_lo_types->Add(SUiLayout::cmplxtInpLblBtn2, 0, PPLoadStringS("complexlayouttype_inplblbtn2", temp_buf));
 				p_combo->setListWindow(CreateListWindow(p_cmpx_lo_types, lbtDisposeData|lbtDblClkNotify), complex_lo_type);
 			}
 		}
@@ -436,12 +436,12 @@ protected:
 		rCanv.Rect(b.grow(-1, -1), tool, 0);
 		return 1;
 	}
-	void Helper_SetupComplex(SetupByToolCmdBlock * pCb, const LayoutFlexItem * pParentLo, WhatmanObjectLayout * pParentObj)
+	void Helper_SetupComplex(SetupByToolCmdBlock * pCb, const SUiLayout * pParentLo, WhatmanObjectLayout * pParentObj)
 	{
 		if(pCb && pParentLo) {
 			SString temp_buf;
 			for(uint ci = 0; ci < pParentLo->GetChildrenCount(); ci++) {
-				const LayoutFlexItem * p_child_lo = pParentLo->GetChildC(ci);
+				const SUiLayout * p_child_lo = pParentLo->GetChildC(ci);
 				if(p_child_lo) {
 					WhatmanObjectLayout * p_child_wo_item = static_cast<WhatmanObjectLayout *>(TWhatmanObject::CreateInstance("Layout"));
 					p_child_wo_item->SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
@@ -465,11 +465,11 @@ protected:
 						uint32 complex_lo_type = 0;
 						if(p_item->ExtSize >= sizeof(uint32)) {
 							complex_lo_type = reinterpret_cast<const uint32 *>(p_item->ExtData)[0];
-							if(oneof3(complex_lo_type, LayoutFlexItem::cmplxtInpLbl, LayoutFlexItem::cmplxtInpLblBtn, LayoutFlexItem::cmplxtInpLblBtn2)) {
+							if(oneof3(complex_lo_type, SUiLayout::cmplxtInpLbl, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2)) {
 								uint   clf = 0;
-								//if(oneof2(complex_lo_type, LayoutFlexItem::cmplxtInpLblBtn, LayoutFlexItem::cmplxtInpLblBtn2))
-									//clf |= LayoutFlexItem::clfLabelLeft;
-								LayoutFlexItem * p_lo_ = LayoutFlexItem::CreateComplexLayout(complex_lo_type, clf, 0.0f, 0);
+								//if(oneof2(complex_lo_type, SUiLayout::cmplxtInpLblBtn, SUiLayout::cmplxtInpLblBtn2))
+									//clf |= SUiLayout::clfLabelLeft;
+								SUiLayout * p_lo_ = SUiLayout::CreateComplexLayout(complex_lo_type, clf, 0.0f, 0);
 								if(p_lo_) {
 									SString temp_buf;
 									SetContainerIdent(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf));
@@ -486,11 +486,11 @@ protected:
 						if(p_item->FigSize.x > 0 && p_item->FigSize.y > 0) {
 							float _sx = 0.0f;
 							float _sy = 0x0f;
-							const AbstractLayoutBlock & r_lb = GetLayoutBlock();
+							const SUiLayoutParam & r_lb = GetLayoutBlock();
 							int   szx = r_lb.GetSizeX(&_sx);
 							int   szy = r_lb.GetSizeX(&_sy);
-							if(szx == AbstractLayoutBlock::szUndef && szy == AbstractLayoutBlock::szUndef) {
-								AbstractLayoutBlock new_lb = GetLayoutBlock();
+							if(szx == SUiLayoutParam::szUndef && szy == SUiLayoutParam::szUndef) {
+								SUiLayoutParam new_lb = GetLayoutBlock();
 								new_lb.SetFixedSizeX(p_item->FigSize.x);
 								new_lb.SetFixedSizeY(p_item->FigSize.y);
 								SetLayoutBlock(&new_lb);
@@ -524,7 +524,7 @@ protected:
 						{
 							int    ok = 1;
 							uint   sel = 0;
-							AbstractLayoutBlock lb = Data.GetLayoutBlock();
+							SUiLayoutParam lb = Data.GetLayoutBlock();
 							SString ident_symb;
 							getCtrlString(sel = CTL_WOLAYOUT_SYMB, ident_symb);
 							const TWhatman * p_wtm = Data.GetOwner();
@@ -3201,13 +3201,13 @@ int PPWhatmanWindow::FileOpen()
 	if(pFrame) {
 		PPWhatmanWindow * p_tool_win = 0;
 		PPWhatmanWindow * p_edit_win = 0;
-		LayoutFlexItem * p_frame_layout = static_cast<LayoutFlexItem *>(pFrame->GetLayout());
+		SUiLayout * p_frame_layout = static_cast<SUiLayout *>(pFrame->GetLayout());
 		{
 			THROW_MEM(p_tool_win = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox));
 			{
-				LayoutFlexItem * p_lo = 0;
+				SUiLayout * p_lo = 0;
 				if(p_frame_layout) {
-					AbstractLayoutBlock alb;
+					SUiLayoutParam alb;
 					p_lo = p_frame_layout->InsertItem();
 					alb.GrowFactor = 1.0f;
 					p_lo->SetLayoutBlock(alb);
@@ -3220,9 +3220,9 @@ int PPWhatmanWindow::FileOpen()
 		{
 			THROW_MEM(p_edit_win = new PPWhatmanWindow(PPWhatmanWindow::modeEdit));
 			{
-				LayoutFlexItem * p_lo = 0;
+				SUiLayout * p_lo = 0;
 				if(p_frame_layout) {
-					AbstractLayoutBlock alb;
+					SUiLayoutParam alb;
 					p_lo = p_frame_layout->InsertItem();
 					alb.GrowFactor = 3.0f;
 					p_lo->SetLayoutBlock(alb);
@@ -3272,7 +3272,7 @@ int PPWhatmanWindow::InsertDlScopeView(DlContext & rCtx, const DlScope * pParent
 			p_obj->SetBounds(bounds);
 		}
 		if(rCtx.GetConstData(pS->GetConst(DlScope::cuifLayoutBlock), c_buf, sizeof(c_buf))) {
-			AbstractLayoutBlock alb(*reinterpret_cast<const AbstractLayoutBlock *>(c_buf));
+			SUiLayoutParam alb(*reinterpret_cast<const SUiLayoutParam *>(c_buf));
 			p_obj->SetLayoutBlock(&alb);
 		}
 		W.InsertObject(p_obj);
@@ -3329,9 +3329,8 @@ TWhatmanBrowser::~TWhatmanBrowser()
 
 void TWhatmanBrowser::InitLayout()
 {
-	P_Lfc = new LayoutFlexItem();
-	AbstractLayoutBlock alb(DIREC_HORZ);
-	alb.AlignContent = AbstractLayoutBlock::alignStretch;
+	P_Lfc = new SUiLayout();
+	SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
 	P_Lfc->SetLayoutBlock(alb);
 	P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 }
@@ -3537,10 +3536,8 @@ int TWhatmanBrowser::WMHCreate()
 		public:
 			FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 			{
-				AbstractLayoutBlock alb;
-				P_Lfc = new LayoutFlexItem();
-				alb.SetContainerDirection(DIREC_HORZ);
-				alb.AlignContent = AbstractLayoutBlock::alignStretch;
+				SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+				P_Lfc = new SUiLayout();
 				P_Lfc->SetLayoutBlock(alb);
 				P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 			}

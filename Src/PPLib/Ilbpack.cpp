@@ -286,7 +286,7 @@ int PPObjBill::CmpSnrWithLotSnr(PPID lotID, const char * pSerial)
 {
 	SString serial;
 	GetSerialNumberByLot(lotID, serial, 0);
-	return (pSerial && serial.IsEqual(pSerial));
+	return (pSerial && serial.IsEq(pSerial));
 }
 
 int PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice)
@@ -1301,7 +1301,8 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		bpack.SMemo = SMemo; // @v11.1.12
 		bpack.Amounts        = Amounts;
 		bpack.Rec.Amount     = Rec.Amount;
-		*static_cast<PPBill *>(this) = *static_cast<const PPBill *>(&bpack);
+		// @v11.2.4 *static_cast<PPBill *>(this) = *static_cast<const PPBill *>(&bpack);
+		static_cast<PPBill *>(this)->Copy(bpack); // @v11.2.4
 	}
 	LocObj = PPObjLocation::WarehouseToObj(Rec.LocID);
 	if(op_type_id == PPOPT_ACCTURN) {
@@ -2764,11 +2765,11 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 						}
 					}
 					if(do_update_withoutlots) {
-						if(!bp.Ext.IsEqual(p_pack->Ext)) {
+						if(!bp.Ext.IsEq(p_pack->Ext)) {
 							bp.Ext = p_pack->Ext;
 							to_update = 1;
 						}
-						if(p_pack->P_Freight && (!bp.P_Freight || !bp.P_Freight->IsEqual(*p_pack->P_Freight))) {
+						if(p_pack->P_Freight && (!bp.P_Freight || !bp.P_Freight->IsEq(*p_pack->P_Freight))) {
 							bp.SetFreight(p_pack->P_Freight);
 							to_update = 1;
 						}

@@ -343,7 +343,7 @@ int Crosstab::CreateTable()
 				THROW(p_fld);
 				key.addSegment(p_fld->Id, XIF_EXT | XIF_MOD | XIF_DUP);
 			}
-			for(uint p = 0; SortIdxList.get(&p, seg_name) > 0;) {
+			for(uint p = 0; SortIdxList.get(&p, seg_name);) {
 				uint   fld_pos = 0;
 				const  BNField * p_fld = &P_RTbl->GetFields().getField(seg_name, &fld_pos);
 				THROW(p_fld);
@@ -641,7 +641,7 @@ DBQuery * Crosstab::CreateBrowserQuery()
 				p_q->addOrderField(fld);
 			}
 		}
-		for(uint p = 0; SortIdxList.get(&p, seg_name) > 0;) {
+		for(uint p = 0; SortIdxList.get(&p, seg_name);) {
 			uint   fld_pos = 0;
 			if(&p_tbl->GetFields().getField(seg_name, &fld_pos) != 0) {
 				p_tbl->getField(fld_pos, &fld);

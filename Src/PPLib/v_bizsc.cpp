@@ -1196,7 +1196,7 @@ int PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					StringSet ss(SLBColumnDelim);
 					ss.setBuf(p_item->P_Vals, sstrlen(p_item->P_Vals) + 1);
 					temp_buf.Z();
-					for(uint i = 0, p = 0; ss.get(&p, temp_buf.Z()) > 0; i++) {
+					for(uint i = 0, p = 0; ss.get(&p, temp_buf); i++) {
 						if(i == pBlk->ColumnN - 2) {
 							found = 1;
 							break;

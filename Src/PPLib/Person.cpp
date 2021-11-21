@@ -520,7 +520,7 @@ PPELinkArray::PPELinkArray() : TSArray <PPELink>()
 {
 }
 
-int FASTCALL PPELinkArray::IsEqual(const PPELinkArray & rS) const
+int FASTCALL PPELinkArray::IsEq(const PPELinkArray & rS) const
 {
 	int    eq = 1;
 	const uint c = getCount();
@@ -679,7 +679,7 @@ CashierInfo::CashierInfo()
 	THISZERO();
 }
 
-int FASTCALL CashierInfo::IsEqual(const CashierInfo & rS) const
+int FASTCALL CashierInfo::IsEq(const CashierInfo & rS) const
 {
 	int    eq = 1;
 	if(Rights != rS.Rights)

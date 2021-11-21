@@ -162,7 +162,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 	else {
 		ctx = hmac_init(crypto->encryptMAC, hmac_digest_len(type), type);
 		if(ctx == NULL) {
-			SAFE_FREE(out);
+			ZFREE(out);
 			return NULL;
 		}
 
@@ -190,7 +190,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 #endif
 	}
 	memzero(out, len);
-	SAFE_FREE(out);
+	ZFREE(out);
 
 	return crypto->hmacbuf;
 }

@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1530,7 +1530,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 	StringSet ss_ext;
 	StrAssocArray items_list, ext_list;
 	StringSet ss(',', PPLoadTextS(PPTXT_LNKFILESEXTS, exts));
-	for(uint i = 0, k = 0; ss.get(&i, pattern) > 0; k++) {
+	for(uint i = 0, k = 0; ss.get(&i, pattern); k++) {
 		if(k > 0) {
 			uint   ext_start = 0, ext_len = 0;
 			if(pattern.Divide(':', descr, ext) > 0) {
@@ -1550,7 +1550,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 		}
 	}
 	sel_id = 1;
-	while(!selected && ComboBoxSelDialog2(&items_list, PPTXT_CREATEFILETYPE, PPTXT_CREATEFILETYPE, &sel_id, 0) > 0)
+	while(!selected && ComboBoxSelDialog2(items_list, PPTXT_CREATEFILETYPE, PPTXT_CREATEFILETYPE, &sel_id, 0) > 0)
 		if(sel_id)
 			selected = 1;
 		else
@@ -3111,15 +3111,12 @@ int PPObjBill::ViewBillInfo(PPID billID)
 		{
 			AmtListDialog::handleEvent(event);
 			if(event.isCmd(cmPrint)) {
-				if(P_Pack) {
-					PView pf(P_Pack);
-					PPAlddPrint(REPORT_BILLINFO, &pf);
-				}
+				if(P_Pack)
+					PPAlddPrint(REPORT_BILLINFO, PView(P_Pack), 0);
 			}
 			else if(event.isCmd(cmObjSyncTab)) {
-				if(P_Pack) {
+				if(P_Pack)
 					ViewObjSyncTab(PPObjID(PPOBJ_BILL, P_Pack->Rec.ID));
-				}
 			}
 			else
 				return;
@@ -3707,7 +3704,7 @@ int PPObjBill::EditBillFreight(PPID billID)
 			if(r > 0) {
 				const int freight_state = BIN(pack.Rec.Flags & BILLF_FREIGHT);
 				const int shipped_state = BIN(pack.Rec.Flags & BILLF_SHIPPED);
-				const int is_eq = (p_preserve_freight && pack.P_Freight) ? pack.P_Freight->IsEqual(*p_preserve_freight) : BIN(!p_preserve_freight && !pack.P_Freight);
+				const int is_eq = (p_preserve_freight && pack.P_Freight) ? pack.P_Freight->IsEq(*p_preserve_freight) : BIN(!p_preserve_freight && !pack.P_Freight);
 				if(!is_eq || (prev_freight_state != freight_state) || (prev_shipped_state != shipped_state)) {
 					PPTransaction tra(1);
 					THROW(tra);

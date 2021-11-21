@@ -1214,7 +1214,7 @@ SMailMessage::Boundary * SMailMessage::Helper_SearchBoundary(const SString & rId
 	Boundary * p_result = 0;
 	if(pParent) {
 		SString boundary_ident;
-		if(pParent->Ct.BoundaryP && GetS(pParent->Ct.BoundaryP, boundary_ident) > 0 && rIdent.HasPrefixNC(boundary_ident)) {
+		if(pParent->Ct.BoundaryP && GetS(pParent->Ct.BoundaryP, boundary_ident) && rIdent.HasPrefixNC(boundary_ident)) {
 			p_result = pParent;
 		}
 		else {
@@ -1346,33 +1346,33 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 int SMailMessage::DebugOutput(SString & rBuf) const
 {
 	SString temp_buf;
-	if(GetS(HFP.FromP, temp_buf) > 0)
+	if(GetS(HFP.FromP, temp_buf))
 		rBuf.CatEq("from", temp_buf).CR();
-	if(GetS(HFP.ToP, temp_buf) > 0)
+	if(GetS(HFP.ToP, temp_buf))
 		rBuf.CatEq("to", temp_buf).CR();
-	if(GetS(HFP.CcP, temp_buf) > 0)
+	if(GetS(HFP.CcP, temp_buf))
 		rBuf.CatEq("cc", temp_buf).CR();
-	if(GetS(HFP.SubjP, temp_buf) > 0)
+	if(GetS(HFP.SubjP, temp_buf))
 		rBuf.CatEq("subj", temp_buf).CR();
-	if(GetS(HFP.MailerP, temp_buf) > 0)
+	if(GetS(HFP.MailerP, temp_buf))
 		rBuf.CatEq("mailer", temp_buf).CR();
-	if(GetS(HFP.MsgIdP, temp_buf) > 0)
+	if(GetS(HFP.MsgIdP, temp_buf))
 		rBuf.CatEq("msgid", temp_buf).CR();
-	if(GetS(HFP.UserAgentP, temp_buf) > 0)
+	if(GetS(HFP.UserAgentP, temp_buf))
 		rBuf.CatEq("useragent", temp_buf).CR();
-	if(GetS(HFP.OrganizationP, temp_buf) > 0)
+	if(GetS(HFP.OrganizationP, temp_buf))
 		rBuf.CatEq("organization", temp_buf).CR();
-	if(GetS(HFP.ReturnPathP, temp_buf) > 0)
+	if(GetS(HFP.ReturnPathP, temp_buf))
 		rBuf.CatEq("returnpath", temp_buf).CR();
-	if(GetS(HFP.DeliveredToP, temp_buf) > 0)
+	if(GetS(HFP.DeliveredToP, temp_buf))
 		rBuf.CatEq("deliveredto", temp_buf).CR();
-	if(GetS(HFP.ReplyToP, temp_buf) > 0)
+	if(GetS(HFP.ReplyToP, temp_buf))
 		rBuf.CatEq("replyto", temp_buf).CR();
-	if(GetS(HFP.ContentLangP, temp_buf) > 0)
+	if(GetS(HFP.ContentLangP, temp_buf))
 		rBuf.CatEq("contentlang", temp_buf).CR();
-	if(GetS(HFP.AcceptLangP, temp_buf) > 0)
+	if(GetS(HFP.AcceptLangP, temp_buf))
 		rBuf.CatEq("acceptlang", temp_buf).CR();
-	if(GetS(HFP.XOrgIpP, temp_buf) > 0)
+	if(GetS(HFP.XOrgIpP, temp_buf))
 		rBuf.CatEq("xorgip", temp_buf).CR();
 	temp_buf.Z().Cat(HFP.Dtm, DATF_ISO8601|DATF_CENTURY, 0);
 	rBuf.CatEq("date", temp_buf).CR();

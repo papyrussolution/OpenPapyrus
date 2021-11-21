@@ -85,7 +85,7 @@ int CustomDisplayEquip::RunOneCommand(const char * pCmd, const char * pInputData
 	else { // if(LastError != NOTENOUGHMEM)
 		StringSet set_pairs(';', pInputData);
 		if(sstreqi_ascii(pCmd, "CONNECT")) {
-			for(uint i = 0; set_pairs.get(&i, params) > 0;) {
+			for(uint i = 0; set_pairs.get(&i, params);) {
 				params.Divide('=', s_param, param_val);
 				if(s_param.CmpNC("PORT") == 0)
 					Port = param_val.ToLong();
@@ -106,7 +106,7 @@ int CustomDisplayEquip::RunOneCommand(const char * pCmd, const char * pInputData
 		else if(sstreqi_ascii(pCmd, "GETLASTERRORTEXT")) 
 			ok = GetLastErrorText(pOutputData, outSize);
 		else if(sstreqi_ascii(pCmd, "PUTLINE")) {
-			for(uint i = 0; set_pairs.get(&i, params) > 0;) {
+			for(uint i = 0; set_pairs.get(&i, params);) {
 				params.Divide('=', s_param, param_val);
 				if(s_param.CmpNC("TEXT") == 0)
 					Text = param_val;

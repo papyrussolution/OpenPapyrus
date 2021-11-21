@@ -1970,7 +1970,7 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			dbf_rec.put(12, R2(pScalePLU->Price));           // PRD_PRCE
 			dbf_rec.put(13, "");                             // PRD_CERT
 
-			for(uint p = 0, j = 0; ss.get(&p, temp_buf.Z()) > 0 && j < 2; j++)
+			for(uint p = 0, j = 0; ss.get(&p, temp_buf) && j < 2; j++)
 				dbf_rec.put(14 + j, temp_buf.Transf(CTRANSF_INNER_TO_OUTER).cptr());  // PRD_CMP1, PRD_CMP2
 			dbf_rec.put(16, "0");                            // PRD_TARE
 			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
@@ -4489,7 +4489,7 @@ int PPObjScale::CheckDup(PPID objID, const PPScalePacket * pPack)
 					if(GetPacket(rec.ID, &test_pack) > 0) {
 						//if(memcmp(rec.Port, pPack->Port, 4) == 0)
 						const int fld_id_list[] = { PPScalePacket::extssPort };
-						if(pPack->IsEqual(test_pack, SIZEOFARRAY(fld_id_list), fld_id_list))
+						if(pPack->IsEq(test_pack, SIZEOFARRAY(fld_id_list), fld_id_list))
 							return PPSetError(PPERR_DUPSCALEIP, rec.Name);
 					}
 				}

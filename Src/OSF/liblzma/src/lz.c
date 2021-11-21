@@ -463,7 +463,7 @@ extern lzma_ret lzma_lz_encoder_init(lzma_next_coder * next, const lzma_allocato
 	return lzma_next_filter_init(&coder->next, allocator, filters + 1);
 }
 
-lzma_bool lzma_mf_is_supported(lzma_match_finder mf)
+bool lzma_mf_is_supported(lzma_match_finder mf)
 {
 	bool ret = false;
 #ifdef HAVE_MF_HC3

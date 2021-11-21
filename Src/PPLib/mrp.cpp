@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -23,7 +23,7 @@ int MrpReqArray::Add(PPID goodsID, long flags, double req, double price)
 		MrpReqItem & r_item = at(pos);
 		r_item.Req += req;
 		r_item.Price += price;
-		r_item.Flags |= (flags & MRPLF_IGNOREREST); // @v9.1.7
+		r_item.Flags |= (flags & MRPLF_IGNOREREST);
 		ok = 2;
 	}
 	else {
@@ -1337,8 +1337,7 @@ int PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf
 	if(ext_req > 0.0) {
 		PPObjGoods goods_obj;
 		PPGoodsStruc gs;
-		const PPGoodsStruc::Ident gs_ident(goods_id, GSF_COMPL, GSF_PARTITIAL, pLeaf->Dt);
-		THROW(r = goods_obj.LoadGoodsStruc(&gs_ident, &gs));
+		THROW(r = goods_obj.LoadGoodsStruc(PPGoodsStruc::Ident(goods_id, GSF_COMPL, GSF_PARTITIAL, pLeaf->Dt), &gs));
 		if(r > 0) {
 			PPGoodsStrucItem gs_item;
 			int    r2 = 0;

@@ -227,13 +227,8 @@ int PPViewAccturn::PrintItem(PPID billID)
 /*virtual*/int PPViewAccturn::Print(const void *)
 {
 	int    ok = 1;
-	uint   rpt_id;
-	PView pv(this);
-	if(Filt.GrpAco)
-		rpt_id = Filt.Cycl.Cycle ? REPORT_ATURNCYCLEGRPNG : REPORT_ATURNGRPNG;
-	else
-		rpt_id = REPORT_ATURNLIST;
-	PPAlddPrint(rpt_id, &pv);
+	uint   rpt_id = Filt.GrpAco ? (Filt.Cycl.Cycle ? REPORT_ATURNCYCLEGRPNG : REPORT_ATURNGRPNG) : REPORT_ATURNLIST;
+	PPAlddPrint(rpt_id, PView(this), 0);
 	return ok;
 }
 

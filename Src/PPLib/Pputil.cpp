@@ -285,9 +285,9 @@ PPDimention & PPDimention::Z()
 }
 
 int    PPDimention::operator !() const { return BIN(Length == 0 && Width == 0 && Height == 0); }
-int    FASTCALL PPDimention::IsEqual(const PPDimention & rS) const { return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height); }
-int    FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEqual(rS); }
-int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEqual(rS); }
+int    FASTCALL PPDimention::IsEq(const PPDimention & rS) const { return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height); }
+int    FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEq(rS); }
+int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEq(rS); }
 double PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
 double PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
 
@@ -1525,7 +1525,7 @@ int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext 
 void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
 const  SString & PPExtStrContainer::GetBuffer() const { return ExtString; }
 
-int PPExtStrContainer::IsEqual(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
+int PPExtStrContainer::IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
 {
 	int    yes = 1;
 	assert(fldCount > 0);

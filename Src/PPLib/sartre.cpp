@@ -44,7 +44,7 @@ int FASTCALL SrSList::Copy(const SrSList & rS)
 	ASSIGN_PTR(P_Buf, 0);
 }
 
-/*virtual*/int SrSList::IsEqual(const SrSList & rS) const
+/*virtual*/int SrSList::IsEq(const SrSList & rS) const
 {
 	if(Type != rS.Type || Len != rS.Len)
 		return 0;
@@ -139,7 +139,7 @@ int FASTCALL SrWordForm::IsSubsetOf(const SrWordForm & rS) const
 	return r;
 }
 
-int FASTCALL SrWordForm::IsEqual(const SrWordForm & rS) const
+int FASTCALL SrWordForm::IsEq(const SrWordForm & rS) const
 {
 	int    r = 0;
 	if(Len == rS.Len) {
@@ -557,7 +557,7 @@ int SrFlexiaModel::Normalize()
 	return ok;
 }
 
-int FASTCALL SrFlexiaModel::IsEqual(const SrFlexiaModel & rS) const
+int FASTCALL SrFlexiaModel::IsEq(const SrFlexiaModel & rS) const
 {
 	int    ok = 0;
 	Item item;
@@ -572,7 +572,7 @@ int FASTCALL SrFlexiaModel::IsEqual(const SrFlexiaModel & rS) const
 			THROW(list2.insert(&item));
 		}
 	}
-	if(list1.IsEqual(list2))
+	if(list1.IsEq(list2))
 		ok = 1;
 	CATCHZOK
 	return ok;
@@ -717,13 +717,13 @@ SrCPropDecl::~SrCPropDecl()
 	Tail.Destroy();
 }
 
-int FASTCALL SrCPropDecl::IsEqual(const SrCPropDecl & rS) const
+int FASTCALL SrCPropDecl::IsEq(const SrCPropDecl & rS) const
 {
 	if(PropID != rS.PropID)
 		return 0;
 	else if(SymbID != rS.SymbID)
 		return 0;
-	else if(!Tail.IsEqual(rS.Tail))
+	else if(!Tail.IsEq(rS.Tail))
 		return 0;
 	else
 		return 1;
@@ -863,7 +863,7 @@ int SrCPropDeclList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-int FASTCALL SrCPropDeclList::IsEqual(const SrCPropDeclList & rS) const
+int FASTCALL SrCPropDeclList::IsEq(const SrCPropDeclList & rS) const
 {
 	if(D.getCount() != rS.D.getCount())
 		return 0;
@@ -890,7 +890,7 @@ int FASTCALL SrCPropDeclList::IsEqual(const SrCPropDeclList & rS) const
 int FASTCALL SrCPropDeclList::Merge(const SrCPropDeclList & rS)
 {
 	int    ok = -1;
-	if(!IsEqual(rS)) { // Равенство списков свойств достаточно популярная ситуация при повторной обработке того же источника данных
+	if(!IsEq(rS)) { // Равенство списков свойств достаточно популярная ситуация при повторной обработке того же источника данных
 		const uint sc = rS.D.getCount();
 		for(uint i = 0; i < sc; i++) {
 			const Item & rsi = rS.D.at(i);
@@ -1015,7 +1015,7 @@ SrConcept::SrConcept() : ID(0), SymbID(0), Ver(0)
 {
 }
 
-int FASTCALL SrConcept::IsEqual(const SrConcept & rS) const
+int FASTCALL SrConcept::IsEq(const SrConcept & rS) const
 {
 	int    ok = 1;
 	if(ID != rS.ID)
@@ -1024,7 +1024,7 @@ int FASTCALL SrConcept::IsEqual(const SrConcept & rS) const
 		ok = 0;
 	else if(Ver != rS.Ver)
 		ok = 0;
-	else if(!Pdl.IsEqual(rS.Pdl))
+	else if(!Pdl.IsEq(rS.Pdl))
 		ok = 0;
 	return ok;
 }
@@ -1048,14 +1048,14 @@ SrCProp::SrCProp(CONCEPTID cID, CONCEPTID propID) : CID(cID), PropID(propID)
 {
 }
 
-int FASTCALL SrCProp::IsEqual(const SrCProp & rS) const
+int FASTCALL SrCProp::IsEq(const SrCProp & rS) const
 {
 	int    ok = 1;
 	if(CID != rS.CID)
 		ok = 0;
 	else if(PropID != rS.PropID)
 		ok = 0;
-	else if(!Value.IsEqual(rS.Value))
+	else if(!Value.IsEq(rS.Value))
 		ok = 0;
 	return ok;
 }
@@ -1289,7 +1289,7 @@ SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaMo
 {
 }
 
-int FASTCALL SrWordAssoc::IsEqual(const SrWordAssoc & rS) const
+int FASTCALL SrWordAssoc::IsEq(const SrWordAssoc & rS) const
 {
 #define CMPFLD(f) if(f != rS.f) return 0
 	CMPFLD(ID);

@@ -676,10 +676,10 @@ int PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * p
 	return r;
 }
 
-int LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
+int LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs)
 {
 	PPObjGoods gobj;
-	return gobj.LoadGoodsStruc(pIdent, pGs);
+	return gobj.LoadGoodsStruc(rIdent, pGs);
 }
 
 int PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStrucID)
@@ -696,17 +696,17 @@ int PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStruc
 	return gs_id ? 1 : -1;
 }
 
-int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
+int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
-	if(pIdent && pIdent->GoodsID && (ok = Fetch(pIdent->GoodsID, &goods_rec)) > 0) {
+	if(rIdent.GoodsID && (ok = Fetch(rIdent.GoodsID, &goods_rec)) > 0) {
 		PPID   gs_id = goods_rec.StrucID;
 		if(!gs_id)
-			GetAltGoodsStrucID(pIdent->GoodsID, 0, &gs_id);
+			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
 		PPObjGoodsStruc gs_obj;
 		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(pIdent, pGs))
+		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(&rIdent, pGs))
 			ok = 1;
 		else
 			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
@@ -714,19 +714,18 @@ int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc 
 	return ok;
 }
 
-int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, TSCollection <PPGoodsStruc> & rGsList)
+int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection <PPGoodsStruc> & rGsList)
 {
 	rGsList.freeAll();
-
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
-	if(pIdent && pIdent->GoodsID && (ok = Fetch(pIdent->GoodsID, &goods_rec)) > 0) {
+	if(rIdent.GoodsID && (ok = Fetch(rIdent.GoodsID, &goods_rec)) > 0) {
 		PPID   gs_id = goods_rec.StrucID;
 		if(!gs_id)
-			GetAltGoodsStrucID(pIdent->GoodsID, 0, &gs_id);
+			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
 		PPObjGoodsStruc gs_obj;
 		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(pIdent, rGsList) > 0)
+		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(&rIdent, rGsList) > 0)
 			ok = 1;
 		else
 			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
@@ -952,7 +951,7 @@ int PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) const
 	SString item_buf;
 	StringSet ss(',', len_str.Strip());
 	CALLPTRMEMB(pList, freeAll());
-	for(uint i = 0; ss.get(&i, item_buf) > 0;) {
+	for(uint i = 0; ss.get(&i, item_buf);) {
 		item_buf.Strip();
 		if(item_buf.C(0) == '+' && item_buf.Len() == 1)
 			allow_empty = 0;

@@ -10,7 +10,7 @@ PPGoodsTaxEntry::PPGoodsTaxEntry()
 	THISZERO();
 }
 
-int FASTCALL PPGoodsTaxEntry::IsEqual(const PPGoodsTaxEntry & rS) const
+int FASTCALL PPGoodsTaxEntry::IsEq(const PPGoodsTaxEntry & rS) const
 {
 #define CMP_FLD(f) if(f != rS.f) return 0;
 	CMP_FLD(TaxGrpID);
@@ -514,7 +514,7 @@ int PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPack
 	}
 	else {
 		for(uint i = 0; i < _c1; i++) {
-			if(!rS1.Get(i).IsEqual(rS2.Get(i))) {
+			if(!rS1.Get(i).IsEq(rS2.Get(i))) {
 				return 0;
 			}
 		}

@@ -1,5 +1,5 @@
 // DL200PRS.CPP
-// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -38,7 +38,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			const DL2SPD_Bill * p_s = static_cast<const DL2SPD_Bill *>(pS);
-			if(Period.IsEqual(p_s->Period) && OpID == p_s->OpID && LocList.IsEqual(p_s->LocList))
+			if(Period.IsEq(p_s->Period) && OpID == p_s->OpID && LocList.IsEq(p_s->LocList))
 				return 1;
 		}
 		return 0;
@@ -149,7 +149,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			const DL2SPD_CCheck * p_s = static_cast<const DL2SPD_CCheck *>(pS);
-			if(Period.IsEqual(p_s->Period) && LocList.IsEqual(p_s->LocList) && GgList.IsEqual(p_s->GgList))
+			if(Period.IsEq(p_s->Period) && LocList.IsEq(p_s->LocList) && GgList.IsEq(p_s->GgList))
 				return 1;
 		}
 		return 0;
@@ -220,7 +220,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			const DL2SPD_GoodsRest * p_s = static_cast<const DL2SPD_GoodsRest *>(pS);
-			if(Period.IsEqual(p_s->Period) && LocList.IsEqual(p_s->LocList) && GgList.IsEqual(p_s->GgList))
+			if(Period.IsEq(p_s->Period) && LocList.IsEq(p_s->LocList) && GgList.IsEq(p_s->GgList))
 				return 1;
 		}
 		return 0;
@@ -297,7 +297,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			const DL2SPD_Debt * p_s = static_cast<const DL2SPD_Debt *>(pS);
-			if(Period.IsEqual(p_s->Period) && AccSheetID == p_s->AccSheetID)
+			if(Period.IsEq(p_s->Period) && AccSheetID == p_s->AccSheetID)
 				return 1;
 		}
 		return 0;
@@ -366,7 +366,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			const DL2SPD_BizScore * p_s = static_cast<const DL2SPD_BizScore *>(pS);
-			if(Period.IsEqual(p_s->Period) && ScoreID == p_s->ScoreID)
+			if(Period.IsEq(p_s->Period) && ScoreID == p_s->ScoreID)
 				return 1;
 		}
 		return 0;
@@ -431,7 +431,7 @@ public:
 	{
 		if(pS && pS->Kind == Kind) {
 			DL2SPD_PersonEvent * p_s = (DL2SPD_PersonEvent *)pS;
-			if(Period.IsEqual(p_s->Period) && OpSymb.CmpNC(p_s->OpSymb) == 0)
+			if(Period.IsEq(p_s->Period) && OpSymb.CmpNC(p_s->OpSymb) == 0)
 				return 1;
 		}
 		return 0;
@@ -454,7 +454,7 @@ DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), Cur
 	SString buf;
 	PPLoadText(PPTXT_DL200_NAMEVARS, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0, j = 0; ss.get(&i, buf) > 0; j++)
+	for(uint i = 0, j = 0; ss.get(&i, buf); j++)
 		NameVars.Add(j + 1, buf);
 	NameVars.SortByText();
 }

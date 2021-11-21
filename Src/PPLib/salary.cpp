@@ -57,7 +57,7 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 				while(r < 0 && (r2 = search(1, &k1, sp)) && k1.PostID == pRec->PostID && k1.SalChargeID == pRec->SalChargeID && k1.ExtObjID == pRec->ExtObjID) {
 					DateRange temp;
 					temp.Set(data.Beg, data.End);
-					if(temp.IsEqual(period)) {
+					if(temp.IsEq(period)) {
 						copyBufTo(&intr_rec);
 						r = 2;
 					}
@@ -157,7 +157,7 @@ int SalaryCore::GetIntersection(PPID postID, PPID salChargeID, const DateRange &
 	while(ok < 0 && (r = search(1, &k1, sp)) && k1.PostID == postID && k1.SalChargeID == salChargeID) {
 		DateRange temp;
 		temp.Set(data.Beg, data.End);
-		if(temp.IsEqual(rPeriod)) {
+		if(temp.IsEq(rPeriod)) {
 			copyBufTo(pRec);
 			ok = 2;
 		}

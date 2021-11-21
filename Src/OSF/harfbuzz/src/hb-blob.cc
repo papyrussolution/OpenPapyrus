@@ -74,7 +74,6 @@ hb_blob_t * hb_blob_create(const char * data, unsigned int length, hb_memory_mod
 	blob->mode = mode;
 	blob->user_data = user_data;
 	blob->destroy = destroy;
-
 	if(blob->mode == HB_MEMORY_MODE_DUPLICATE) {
 		blob->mode = HB_MEMORY_MODE_READONLY;
 		if(!blob->try_make_writable()) {
@@ -82,7 +81,6 @@ hb_blob_t * hb_blob_create(const char * data, unsigned int length, hb_memory_mod
 			return hb_blob_get_empty();
 		}
 	}
-
 	return blob;
 }
 
@@ -90,7 +88,6 @@ static void _hb_blob_destroy(void * data)
 {
 	hb_blob_destroy((hb_blob_t*)data);
 }
-
 /**
  * hb_blob_create_sub_blob:
  * @parent: Parent blob.
@@ -111,26 +108,16 @@ static void _hb_blob_destroy(void * data)
  *
  * Since: 0.9.2
  **/
-hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent,
-    unsigned int offset,
-    unsigned int length)
+hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent, unsigned int offset, unsigned int length)
 {
 	hb_blob_t * blob;
-
 	if(!length || !parent || offset >= parent->length)
 		return hb_blob_get_empty();
-
 	hb_blob_make_immutable(parent);
-
-	blob = hb_blob_create(parent->data + offset,
-		hb_min(length, parent->length - offset),
-		HB_MEMORY_MODE_READONLY,
-		hb_blob_reference(parent),
-		_hb_blob_destroy);
-
+	blob = hb_blob_create(parent->data + offset, hb_min(length, parent->length - offset),
+		HB_MEMORY_MODE_READONLY, hb_blob_reference(parent), _hb_blob_destroy);
 	return blob;
 }
-
 /**
  * hb_blob_copy_writable_or_fail:
  * @blob: A blob.
@@ -143,18 +130,11 @@ hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent,
  **/
 hb_blob_t * hb_blob_copy_writable_or_fail(hb_blob_t * blob)
 {
-	blob = hb_blob_create(blob->data,
-		blob->length,
-		HB_MEMORY_MODE_DUPLICATE,
-		nullptr,
-		nullptr);
-
+	blob = hb_blob_create(blob->data, blob->length, HB_MEMORY_MODE_DUPLICATE, nullptr, nullptr);
 	if(UNLIKELY(blob == hb_blob_get_empty()))
 		blob = nullptr;
-
 	return blob;
 }
-
 /**
  * hb_blob_get_empty:
  *
@@ -170,7 +150,6 @@ hb_blob_t * hb_blob_get_empty()
 {
 	return const_cast<hb_blob_t *> (&Null(hb_blob_t));
 }
-
 /**
  * hb_blob_reference: (skip)
  * @blob: a blob.
@@ -187,7 +166,6 @@ hb_blob_t * hb_blob_reference(hb_blob_t * blob)
 {
 	return hb_object_reference(blob);
 }
-
 /**
  * hb_blob_destroy: (skip)
  * @blob: a blob.
@@ -202,12 +180,11 @@ hb_blob_t * hb_blob_reference(hb_blob_t * blob)
  **/
 void hb_blob_destroy(hb_blob_t * blob)
 {
-	if(!hb_object_destroy(blob)) 
-		return;
-	blob->fini_shallow();
-	SAlloc::F(blob);
+	if(hb_object_destroy(blob)) {
+		blob->fini_shallow();
+		SAlloc::F(blob);
+	}
 }
-
 /**
  * hb_blob_set_user_data: (skip)
  * @blob: a blob.
@@ -220,63 +197,45 @@ void hb_blob_destroy(hb_blob_t * blob)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_blob_set_user_data(hb_blob_t * blob,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+hb_bool_t hb_blob_set_user_data(hb_blob_t * blob, hb_user_data_key_t * key, void * data,
+    hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(blob, key, data, destroy, replace);
 }
-
 /**
  * hb_blob_get_user_data: (skip)
  * @blob: a blob.
  * @key: key for data to get.
- *
- *
- *
  * Return value: (transfer none):
  *
  * Since: 0.9.2
  **/
-void * hb_blob_get_user_data(hb_blob_t * blob,
-    hb_user_data_key_t * key)
+void * hb_blob_get_user_data(hb_blob_t * blob, hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(blob, key);
 }
-
 /**
  * hb_blob_make_immutable:
  * @blob: a blob.
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_blob_make_immutable(hb_blob_t * blob)
 {
 	if(hb_object_is_immutable(blob))
 		return;
-
 	hb_object_make_immutable(blob);
 }
-
 /**
  * hb_blob_is_immutable:
  * @blob: a blob.
- *
- *
- *
  * Return value: TODO
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_blob_is_immutable(hb_blob_t * blob)
+hb_bool_t hb_blob_is_immutable(const hb_blob_t * blob)
 {
 	return hb_object_is_immutable(blob);
 }
-
 /**
  * hb_blob_get_length:
  * @blob: a blob.
@@ -291,26 +250,19 @@ unsigned int hb_blob_get_length(hb_blob_t * blob)
 {
 	return blob->length;
 }
-
 /**
  * hb_blob_get_data:
  * @blob: a blob.
  * @length: (out):
- *
- *
- *
  * Returns: (transfer none) (array length=length):
  *
  * Since: 0.9.2
  **/
 const char * hb_blob_get_data(hb_blob_t * blob, unsigned int * length)
 {
-	if(length)
-		*length = blob->length;
-
+	ASSIGN_PTR(length, blob->length);
 	return blob->data;
 }
-
 /**
  * hb_blob_get_data_writable:
  * @blob: a blob.
@@ -319,8 +271,7 @@ const char * hb_blob_get_data(hb_blob_t * blob, unsigned int * length)
  * Tries to make blob data writable (possibly copying it) and
  * return pointer to data.
  *
- * Fails if blob has been made immutable, or if memory allocation
- * fails.
+ * Fails if blob has been made immutable, or if memory allocation fails.
  *
  * Returns: (transfer none) (array length=length): Writable blob data,
  * or %NULL if failed.
@@ -330,15 +281,10 @@ const char * hb_blob_get_data(hb_blob_t * blob, unsigned int * length)
 char * hb_blob_get_data_writable(hb_blob_t * blob, unsigned int * length)
 {
 	if(!blob->try_make_writable()) {
-		if(length)
-			*length = 0;
-
+		ASSIGN_PTR(length, 0);
 		return nullptr;
 	}
-
-	if(length)
-		*length = blob->length;
-
+	ASSIGN_PTR(length, blob->length);
 	return const_cast<char *> (blob->data);
 }
 
@@ -381,7 +327,7 @@ bool hb_blob_t::try_make_writable_inplace()
 	if(this->try_make_writable_inplace_unix())
 		return true;
 	DEBUG_MSG_FUNC(BLOB, this, "making writable -> FAILED\n");
-	/* Failed to make writable inplace, mark that */
+	// Failed to make writable inplace, mark that 
 	this->mode = HB_MEMORY_MODE_READONLY;
 	return false;
 }
@@ -442,39 +388,32 @@ struct hb_mapped_file_t {
 };
 
 #if (defined(HAVE_MMAP) || defined(_WIN32)) && !defined(HB_NO_MMAP)
-static void _hb_mapped_file_destroy(void * file_)
-{
-	hb_mapped_file_t * file = (hb_mapped_file_t*)file_;
-#ifdef HAVE_MMAP
-	munmap(file->contents, file->length);
-#elif defined(_WIN32)
-	UnmapViewOfFile(file->contents);
-	CloseHandle(file->mapping);
-#else
-	assert(0); // If we don't have mmap we shouldn't reach here
+	static void _hb_mapped_file_destroy(void * file_)
+	{
+		hb_mapped_file_t * file = (hb_mapped_file_t*)file_;
+	#ifdef HAVE_MMAP
+		munmap(file->contents, file->length);
+	#elif defined(_WIN32)
+		UnmapViewOfFile(file->contents);
+		CloseHandle(file->mapping);
+	#else
+		assert(0); // If we don't have mmap we shouldn't reach here
+	#endif
+		SAlloc::F(file);
+	}
 #endif
-
-	SAlloc::F(file);
-}
-
-#endif
-
 #ifdef _PATH_RSRCFORKSPEC
 static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 {
 	size_t name_len = strlen(file_name);
 	size_t len = name_len + sizeof(_PATH_RSRCFORKSPEC);
-
 	char * rsrc_name = (char *)SAlloc::M(len);
-	if(UNLIKELY(!rsrc_name)) return -1;
-
+	if(UNLIKELY(!rsrc_name)) 
+		return -1;
 	strncpy(rsrc_name, file_name, name_len);
-	strncpy(rsrc_name + name_len, _PATH_RSRCFORKSPEC,
-	    sizeof(_PATH_RSRCFORKSPEC) - 1);
-
+	strncpy(rsrc_name + name_len, _PATH_RSRCFORKSPEC, sizeof(_PATH_RSRCFORKSPEC) - 1);
 	int fd = open(rsrc_name, O_RDONLY | O_BINARY, 0);
 	SAlloc::F(rsrc_name);
-
 	if(fd != -1) {
 		struct stat st;
 		if(fstat(fd, &st) != -1)
@@ -484,12 +423,9 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 			fd = -1;
 		}
 	}
-
 	return fd;
 }
-
 #endif
-
 /**
  * hb_blob_create_from_file:
  * @file_name: font filename.
@@ -500,20 +436,19 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
  **/
 hb_blob_t * hb_blob_create_from_file(const char * file_name)
 {
-	/* Adopted from glib's gmappedfile.c with Matthias Clasen and
-	   Allison Lortie permission but changed a lot to suit our need. */
+	// Adopted from glib's gmappedfile.c with Matthias Clasen and
+	// Allison Lortie permission but changed a lot to suit our need. 
 #if defined(HAVE_MMAP) && !defined(HB_NO_MMAP)
 	hb_mapped_file_t * file = (hb_mapped_file_t*)SAlloc::C(1, sizeof(hb_mapped_file_t));
-	if(UNLIKELY(!file)) return hb_blob_get_empty();
-
+	if(UNLIKELY(!file)) 
+		return hb_blob_get_empty();
 	int fd = open(file_name, O_RDONLY | O_BINARY, 0);
-	if(UNLIKELY(fd == -1)) goto fail_without_close;
-
+	if(UNLIKELY(fd == -1)) 
+		goto fail_without_close;
 	struct stat st;
-	if(UNLIKELY(fstat(fd, &st) == -1)) goto fail;
-
+	if(UNLIKELY(fstat(fd, &st) == -1)) 
+		goto fail;
 	file->length = (unsigned long)st.st_size;
-
 #ifdef _PATH_RSRCFORKSPEC
 	if(UNLIKELY(file->length == 0)) {
 		int rfd = _open_resource_fork(file_name, file);
@@ -523,31 +458,24 @@ hb_blob_t * hb_blob_create_from_file(const char * file_name)
 		}
 	}
 #endif
-
-	file->contents = (char *)mmap(nullptr, file->length, PROT_READ,
-		MAP_PRIVATE | MAP_NORESERVE, fd, 0);
-
-	if(UNLIKELY(file->contents == MAP_FAILED)) goto fail;
-
+	file->contents = (char *)mmap(nullptr, file->length, PROT_READ, MAP_PRIVATE | MAP_NORESERVE, fd, 0);
+	if(UNLIKELY(file->contents == MAP_FAILED)) 
+		goto fail;
 	close(fd);
-
-	return hb_blob_create(file->contents, file->length,
-		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file,
-		   (hb_destroy_func_t)_hb_mapped_file_destroy);
-
+	return hb_blob_create(file->contents, file->length, HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file, (hb_destroy_func_t)_hb_mapped_file_destroy);
 fail:
 	close(fd);
 fail_without_close:
 	SAlloc::F(file);
-
 #elif defined(_WIN32) && !defined(HB_NO_MMAP)
-	hb_mapped_file_t * file = (hb_mapped_file_t*)SAlloc::C(1, sizeof(hb_mapped_file_t));
-	if(UNLIKELY(!file)) return hb_blob_get_empty();
-
+	hb_mapped_file_t * file = (hb_mapped_file_t *)SAlloc::C(1, sizeof(hb_mapped_file_t));
+	if(UNLIKELY(!file)) 
+		return hb_blob_get_empty();
 	HANDLE fd;
-	unsigned int size = strlen(file_name) + 1;
-	wchar_t * wchar_file_name = (wchar_t*)SAlloc::M(sizeof(wchar_t) * size);
-	if(UNLIKELY(!wchar_file_name)) goto fail_without_close;
+	uint   size = strlen(file_name) + 1;
+	wchar_t * wchar_file_name = (wchar_t *)SAlloc::M(sizeof(wchar_t) * size);
+	if(UNLIKELY(!wchar_file_name)) 
+		goto fail_without_close;
 	mbstowcs(wchar_file_name, file_name, size);
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	{
@@ -558,18 +486,14 @@ fail_without_close:
 		ceparams.dwSecurityQosFlags = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED & 0x000F0000;
 		ceparams.lpSecurityAttributes = nullptr;
 		ceparams.hTemplateFile = nullptr;
-		fd = CreateFile2(wchar_file_name, GENERIC_READ, FILE_SHARE_READ,
-			OPEN_EXISTING, &ceparams);
+		fd = CreateFile2(wchar_file_name, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &ceparams);
 	}
 #else
-	fd = CreateFileW(wchar_file_name, GENERIC_READ, FILE_SHARE_READ, nullptr,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL|FILE_FLAG_OVERLAPPED,
-		nullptr);
+	fd = CreateFileW(wchar_file_name, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL|FILE_FLAG_OVERLAPPED, nullptr);
 #endif
 	SAlloc::F(wchar_file_name);
-
-	if(UNLIKELY(fd == INVALID_HANDLE_VALUE)) goto fail_without_close;
-
+	if(UNLIKELY(fd == INVALID_HANDLE_VALUE)) 
+		goto fail_without_close;
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	{
 		LARGE_INTEGER length;
@@ -578,56 +502,55 @@ fail_without_close:
 		file->mapping = CreateFileMappingFromApp(fd, nullptr, PAGE_READONLY, length.QuadPart, nullptr);
 	}
 #else
-	file->length = (unsigned long)GetFileSize(fd, nullptr);
+	file->length = (ulong)GetFileSize(fd, nullptr);
 	file->mapping = CreateFileMapping(fd, nullptr, PAGE_READONLY, 0, 0, nullptr);
 #endif
-	if(UNLIKELY(!file->mapping)) goto fail;
-
+	if(UNLIKELY(!file->mapping)) 
+		goto fail;
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	file->contents = (char *)MapViewOfFileFromApp(file->mapping, FILE_MAP_READ, 0, 0);
 #else
 	file->contents = (char *)MapViewOfFile(file->mapping, FILE_MAP_READ, 0, 0, 0);
 #endif
-	if(UNLIKELY(!file->contents)) goto fail;
-
+	if(UNLIKELY(!file->contents)) 
+		goto fail;
 	CloseHandle(fd);
-	return hb_blob_create(file->contents, file->length,
-		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file,
-		   (hb_destroy_func_t)_hb_mapped_file_destroy);
-
+	return hb_blob_create(file->contents, file->length, HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file, (hb_destroy_func_t)_hb_mapped_file_destroy);
 fail:
 	CloseHandle(fd);
 fail_without_close:
 	SAlloc::F(file);
-
 #endif
-
-	/* The following tries to read a file without knowing its size beforehand
-	   It's used as a fallback for systems without mmap or to read from pipes */
-	unsigned long len = 0, allocated = BUFSIZ * 16;
+	// The following tries to read a file without knowing its size beforehand
+	// It's used as a fallback for systems without mmap or to read from pipes 
+	ulong len = 0;
+	ulong allocated = BUFSIZ * 16;
 	char * data = (char *)SAlloc::M(allocated);
-	if(UNLIKELY(!data)) return hb_blob_get_empty();
+	if(UNLIKELY(!data)) 
+		return hb_blob_get_empty();
 	FILE * fp = fopen(file_name, "rb");
 	if(UNLIKELY(!fp)) 
 		goto fread_fail_without_close;
 	while(!feof(fp)) {
-		if(allocated - len < BUFSIZ) {
+		if((allocated - len) < BUFSIZ) {
 			allocated *= 2;
-			/* Don't allocate and go more than ~536MB, our mmap reader still
-			   can cover files like that but lets limit our fallback reader */
-			if(UNLIKELY(allocated > (2 << 28))) goto fread_fail;
+			// Don't allocate and go more than ~536MB, our mmap reader still
+			// can cover files like that but lets limit our fallback reader 
+			if(UNLIKELY(allocated > (2 << 28))) 
+				goto fread_fail;
 			char * new_data = (char *)SAlloc::R(data, allocated);
 			if(UNLIKELY(!new_data)) 
 				goto fread_fail;
 			data = new_data;
 		}
-		unsigned long addition = fread(data + len, 1, allocated - len, fp);
+		ulong addition = fread(data + len, 1, allocated - len, fp);
 		int err = ferror(fp);
 #ifdef EINTR // armcc doesn't have it
-		if(UNLIKELY(err == EINTR)) continue;
+		if(UNLIKELY(err == EINTR)) 
+			continue;
 #endif
-		if(UNLIKELY(err)) goto fread_fail;
-
+		if(UNLIKELY(err)) 
+			goto fread_fail;
 		len += addition;
 	}
 	fclose(fp);

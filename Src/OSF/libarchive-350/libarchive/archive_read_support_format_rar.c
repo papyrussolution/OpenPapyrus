@@ -122,12 +122,9 @@
 #define OFFSETCODE_SIZE    60
 #define LOWOFFSETCODE_SIZE 17
 #define LENGTHCODE_SIZE    28
-#define HUFFMAN_TABLE_SIZE \
-	MAINCODE_SIZE + OFFSETCODE_SIZE + LOWOFFSETCODE_SIZE + LENGTHCODE_SIZE
-
+#define HUFFMAN_TABLE_SIZE MAINCODE_SIZE + OFFSETCODE_SIZE + LOWOFFSETCODE_SIZE + LENGTHCODE_SIZE
 #define MAX_SYMBOL_LENGTH 0xF
 #define MAX_SYMBOLS       20
-
 /*
  * Considering L1,L2 cache miss and a calling of write system-call,
  * the best size of the output buffer(uncompressed buffer) is 128K.
@@ -135,14 +132,13 @@
  * might be researched again.
  */
 #define UNP_BUFFER_SIZE   (128 * 1024)
-
-/* Define this here for non-Windows platforms */
+// Define this here for non-Windows platforms 
 #if !((defined(__WIN32__) || defined(_WIN32) || defined(__WIN32)) && !defined(__CYGWIN__))
-#define FILE_ATTRIBUTE_DIRECTORY 0x10
+	#define FILE_ATTRIBUTE_DIRECTORY 0x10
 #endif
 
-#undef minimum
-#define minimum(a, b)   ((a)<(b) ? (a) : (b))
+// @sobolev #undef minimum_Removed
+// @sobolev #define minimum_Removed(a, b)   ((a)<(b) ? (a) : (b))
 
 /* Stack overflow check */
 #define MAX_COMPRESS_DEPTH 1024
@@ -2369,10 +2365,8 @@ static int make_table_recurse(struct archive_read * a, struct huffman_code * cod
 			table[0].value = node;
 		}
 		else {
-			ret |= make_table_recurse(a, code, code->tree[node].branches[0], table,
-				depth + 1, maxdepth);
-			ret |= make_table_recurse(a, code, code->tree[node].branches[1],
-				table + currtablesize / 2, depth + 1, maxdepth);
+			ret |= make_table_recurse(a, code, code->tree[node].branches[0], table, depth + 1, maxdepth);
+			ret |= make_table_recurse(a, code, code->tree[node].branches[1], table + currtablesize / 2, depth + 1, maxdepth);
 		}
 	}
 	return ret;
@@ -2380,19 +2374,10 @@ static int make_table_recurse(struct archive_read * a, struct huffman_code * cod
 
 static int64 expand(struct archive_read * a, int64 end)
 {
-	static const uchar lengthbases[] = {   0,   1,   2,   3,   4,   5,   6,
-	    7,   8,  10,  12,  14,  16,  20,
-	    24,  28,  32,  40,  48,  56,  64,
-	    80,  96, 112, 128, 160, 192, 224 };
-	static const uchar lengthbits[] =
-	{ 0, 0, 0, 0, 0, 0, 0,
-	  0, 1, 1, 1, 1, 2, 2,
-	  2, 2, 3, 3, 3, 3, 4,
-	  4, 4, 4, 5, 5, 5, 5 };
-	static const int lengthb_min = minimum(
-		(int)(sizeof(lengthbases)/sizeof(lengthbases[0])),
-		(int)(sizeof(lengthbits)/sizeof(lengthbits[0]))
-		);
+	static const uchar lengthbases[] = {   0,   1,   2,   3,   4,   5,   6, 
+		7,   8,  10,  12,  14,  16,  20, 24,  28,  32,  40,  48,  56,  64, 80,  96, 112, 128, 160, 192, 224 };
+	static const uchar lengthbits[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5 };
+	static const int lengthb_min = MIN((int)(sizeof(lengthbases)/sizeof(lengthbases[0])), (int)(sizeof(lengthbits)/sizeof(lengthbits[0])));
 	static const unsigned int offsetbases[] = {       0,       1,       2,       3,       4,       6,
 		8,      12,      16,      24,      32,      48,
 		64,      96,     128,     192,     256,     384,
@@ -2409,22 +2394,15 @@ static int64 expand(struct archive_read * a, int64 end)
 	   11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 	   16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
 	   18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18 };
-	static const int offsetb_min = minimum(
-		(int)(sizeof(offsetbases)/sizeof(offsetbases[0])),
-		(int)(sizeof(offsetbits)/sizeof(offsetbits[0]))
-		);
-	static const uchar shortbases[] =
-	{ 0, 4, 8, 16, 32, 64, 128, 192 };
-	static const uchar shortbits[] =
-	{ 2, 2, 3, 4, 5, 6, 6, 6 };
-
+	static const int offsetb_min = MIN((int)(sizeof(offsetbases)/sizeof(offsetbases[0])), (int)(sizeof(offsetbits)/sizeof(offsetbits[0])));
+	static const uchar shortbases[] = { 0, 4, 8, 16, 32, 64, 128, 192 };
+	static const uchar shortbits[] = { 2, 2, 3, 4, 5, 6, 6, 6 };
 	int symbol, offs, len, offsindex, lensymbol, i, offssymbol, lowoffsetsymbol;
 	uchar newfile;
 	struct rar * rar = (struct rar *)(a->format->data);
 	struct rar::rar_br * br = &(rar->br);
 	if(rar->filterstart < end)
 		end = rar->filterstart;
-
 	while(1) {
 		if(rar->output_last_match && lzss_position(&rar->lzss) + rar->lastlength <= end) {
 			lzss_emit_match(rar, rar->lastoffset, rar->lastlength);

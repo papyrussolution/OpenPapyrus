@@ -165,7 +165,7 @@ bool BillMultiPrintParam::IsEmpty() const
 	return (FormBits == 0);
 }
 
-bool FASTCALL BillMultiPrintParam::IsEqual(const BillMultiPrintParam & rS) const
+bool FASTCALL BillMultiPrintParam::IsEq(const BillMultiPrintParam & rS) const
 {
 	return (FormBits == rS.FormBits && Flags == rS.Flags && memcmp(CopyCounter, rS.CopyCounter, sizeof(CopyCounter)) == 0 &&
 		CustomFormNames == rS.CustomFormNames);
@@ -244,7 +244,7 @@ int BillMultiPrintParam::LocalRestore()
 			old_key.GetString(BillMultiplePrintCfg, temp_buf);
 			if(temp_buf.NotEmptyS()) {
 				StringSet ss(';', temp_buf);
-				for(uint p = 0, i = 0; ss.get(&p, temp_buf) > 0; i++) {
+				for(uint p = 0, i = 0; ss.get(&p, temp_buf); i++) {
 					uint   p1 = 0;
 					StringSet ss1(',', temp_buf);
 					ss1.get(&p1, temp_buf);   // ID
@@ -502,7 +502,8 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 
 static int PrintInvoice(PPBillPacket * pPack, int prnflags)
 {
-	int    ok = 1, val = 0;
+	int    ok = 1;
+	int    val = 0;
 	PPReportEnv env;
 	PPIniFile ini_file;
 	env.PrnFlags |= prnflags;
@@ -510,8 +511,7 @@ static int PrintInvoice(PPBillPacket * pPack, int prnflags)
 		env.PrnFlags |= SReport::FooterOnBottom;
 	pPack->GetContextEmailAddr(env.EmailAddr);
 	pPack->Rec.Flags |= BILLF_PRINTINVOICE;
-	PPFilt pf(pPack);
-	ok = PPAlddPrint(REPORT_INVOICE, &pf, &env);
+	ok = PPAlddPrint(REPORT_INVOICE, PPFilt(pPack), &env);
 	pPack->Rec.Flags &= ~BILLF_PRINTINVOICE;
 	return ok;
 }
@@ -609,20 +609,17 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 		GetReportIDByName(env.DefPrnForm, &alt_rpt_id);
 	//
 	if(pPack->Rec.Flags & BILLF_BANKING) {
-		PPFilt pf(pPack);
 		uint rpt_id = (pPack->P_PaymOrder && pPack->P_PaymOrder->Flags & BNKPAYMF_REQ) ? REPORT_BNKPAYMREQ : REPORT_BNKPAYMORDER;
-		ok = PPAlddPrint(rpt_id, &pf, &env);
+		ok = PPAlddPrint(rpt_id, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_GOODSREVAL) {
 		long   f = (opk.PrnFlags & (OPKF_PRT_BUYING | OPKF_PRT_SELLING));
 		uint   rpt_id = (f == (OPKF_PRT_BUYING | OPKF_PRT_SELLING) || f == 0) ? REPORT_GREVALBILL : REPORT_GREVALBILLP;
-		PPFilt pf(pPack);
-		ok = PPAlddPrint(rpt_id, &pf, &env);
+		ok = PPAlddPrint(rpt_id, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
-		PPFilt pf(pPack);
 		const  int is_exp_correction = BIN(pPack->P_LinkPack && pPack->P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND); // @v10.3.8
-		ok = PPAlddPrint(is_exp_correction ? REPORT_INVOICECORR_EXP : REPORT_INVOICECORR, &pf, &env);
+		ok = PPAlddPrint(is_exp_correction ? REPORT_INVOICECORR_EXP : REPORT_INVOICECORR, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_INVENTORY) {
 		PPViewInventory iv;
@@ -635,17 +632,15 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 		ok = PrintInvoice(pPack, 0);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_WARRANT) {
-		PPFilt pf(pPack);
-		ok = PPAlddPrint(REPORT_WARRANT, &pf, &env);
+		ok = PPAlddPrint(REPORT_WARRANT, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_ADVANCEREP) {
-		PPFilt pf(pPack);
-		ok = PPAlddPrint(REPORT_ADVANCEREP, &pf, &env);
+		ok = PPAlddPrint(REPORT_ADVANCEREP, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && !alt_rpt_id) {
 		long   f = (opk.PrnFlags & (OPKF_PRT_CASHORD | OPKF_PRT_INVOICE | OPKF_PRT_PAYPLAN));
 		long   prf = 0;
-		if(f == 0 || f == OPKF_PRT_CASHORD)
+		if(oneof2(f, 0, OPKF_PRT_CASHORD))
 			prf = OPKF_PRT_CASHORD;
 		else if(f == OPKF_PRT_INVOICE)
 			prf = OPKF_PRT_INVOICE;
@@ -675,26 +670,24 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 			ok = PrintCashOrder(pPack, (opk.Flags & OPKF_PROFITABLE) ? 0 : 1);
 		else if(prf == OPKF_PRT_INVOICE)
 			ok = PrintInvoice(pPack, 0);
-		else if(prf == OPKF_PRT_PAYPLAN) {
-			PPFilt pf(pPack);
-			ok = PPAlddPrint(REPORT_BILLPAYPLAN, &pf, &env);
-		}
+		else if(prf == OPKF_PRT_PAYPLAN)
+			ok = PPAlddPrint(REPORT_BILLPAYPLAN, PPFilt(pPack), &env);
 	}
 	else {
 		TSVector <RptSel> rpt_ids;
 		TSVector <RptSel> copy_rpt_ids;
-		if(/*prn_no_ask*/interactive == 0 && ppAry && *ppAry)
+		if(!interactive && ppAry && *ppAry)
 			rpt_ids.copy(**ppAry);
-		if(pPack->Rec.CurID && /*!prn_no_ask*/interactive != 0) {
+		else if(interactive && pPack->Rec.CurID) { // @v11.2.4 @fix (if)-->(else if)
 			RptSel rs(0, NZOR(alt_rpt_id, REPORT_INVOICECUR));
 			THROW(rpt_ids.insert(&rs));
 			amt_types = 3;
 		}
-		else if(pPack->OpTypeID == PPOPT_GOODSMODIF && /*!prn_no_ask*/interactive != 0) {
+		else if(interactive && pPack->OpTypeID == PPOPT_GOODSMODIF) {
 			RptSel rs(0, NZOR(alt_rpt_id, REPORT_GOODSBILLMODIF));
 			THROW(rpt_ids.insert(&rs));
 		}
-		else /*if(interactive != 0)*/ {
+		else {
 			RptSel rs(0, 0);
 			if(opk.PrnFlags & OPKF_PRT_BUYING && opk.PrnFlags & OPKF_PRT_SELLING) {
 				rs.RptID = NZOR(alt_rpt_id, REPORT_GOODSBILLCP);
@@ -721,7 +714,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 			pPack->OutAmtType = amt_types;
 			if(opk.PrnFlags & (OPKF_PRT_EXTFORMFLAGS|OPKF_PRT_SELPRICE)) {
 				LAssocArray sel_ary;
-				PPID   ar_id = /*printingNoAsk*/(interactive < 0) ? 0 : pPack->Rec.Object;
+				PPID   ar_id = (interactive < 0) ? 0 : pPack->Rec.Object;
 				uint * p_amt_types = (opk.PrnFlags & OPKF_PRT_SELPRICE) ? &amt_types : 0;
 				THROW(ok = SelectForm(interactive, opk.PrnFlags, ar_id, p_amt_types, sel_ary, pPack->OpTypeID, &out_prn_flags));
 				pPack->OutAmtType = amt_types;
@@ -797,7 +790,6 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 		if(ok > 0) {
 			const bool dont_print_really = false; // for @debug set to true
 			if(interactive >= 0 && !dont_print_really) {
-				PPFilt pf(pPack);
 				env.PrnFlags = SReport::NoRepError;
 				if(rpt_ids.getCount() > 1 || /*printingNoAsk*/!interactive)
 					env.PrnFlags |= SReport::PrintingNoAsk;
@@ -823,7 +815,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 							else if(r_rs.SelID == 12) // Печать изображений из тегов лотов
 								ok = PrintBillImages(pPack, env.PrnFlags);
 							else
-								ok = PPAlddPrint(r_rs.RptID, &pf, &env);
+								ok = PPAlddPrint(r_rs.RptID, PPFilt(pPack), &env);
 						}
 						r_rs.NumCopies -= num_copies;
 					}
@@ -898,5 +890,5 @@ int STDCALL PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 	env.PrnFlags = prnflags;
 	pPack->GetContextEmailAddr(env.EmailAddr);
 	uint   rpt_id = pay_rcv ? REPORT_CASHPAYORDER : REPORT_CASHRCVORDER;
-	return PPAlddPrint(rpt_id, &pf, &env);
+	return PPAlddPrint(rpt_id, pf, &env);
 }

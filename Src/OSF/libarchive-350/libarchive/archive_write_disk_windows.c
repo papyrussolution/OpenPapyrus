@@ -1827,23 +1827,15 @@ static int _archive_write_disk_close(struct archive * _a)
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * next, * p;
 	int ret;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_disk_close");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_close");
 	ret = _archive_write_disk_finish_entry(&a->archive);
-
 	/* Sort dir list so directories are fixed up in depth-first order. */
 	p = sort_dir_list(a->fixup_list);
-
 	while(p != NULL) {
 		a->pst = NULL; /* Mark stat cache as out-of-date. */
 		if(p->fixup & TODO_TIMES) {
-			set_times(a, INVALID_HANDLE_VALUE, p->mode, p->name,
-			    p->atime, p->atime_nanos,
-			    p->birthtime, p->birthtime_nanos,
-			    p->mtime, p->mtime_nanos,
-			    p->ctime, p->ctime_nanos);
+			set_times(a, INVALID_HANDLE_VALUE, p->mode, p->name, p->atime, p->atime_nanos,
+			    p->birthtime, p->birthtime_nanos, p->mtime, p->mtime_nanos, p->ctime, p->ctime_nanos);
 		}
 		if(p->fixup & TODO_MODE_BASE)
 			la_chmod(p->name, p->mode);
@@ -1867,8 +1859,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	int ret;
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
+	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
 	a = (struct archive_write_disk *)_a;
 	ret = _archive_write_disk_close(&a->archive);
 	archive_write_disk_set_group_lookup(&a->archive, NULL, NULL, NULL);
@@ -1888,15 +1879,14 @@ static int _archive_write_disk_free(struct archive * _a)
  * Simple O(n log n) merge sort to order the fixup list.  In
  * particular, we want to restore dir timestamps depth-first.
  */
-static struct fixup_entry * sort_dir_list(struct fixup_entry * p)                             {
+static struct fixup_entry * sort_dir_list(struct fixup_entry * p)                             
+{
 	struct fixup_entry * a, * b, * t;
-
 	if(!p)
 		return NULL;
 	/* A one-item list is already sorted. */
 	if(p->next == NULL)
 		return (p);
-
 	/* Step 1: split the list. */
 	t = p;
 	a = p->next->next;

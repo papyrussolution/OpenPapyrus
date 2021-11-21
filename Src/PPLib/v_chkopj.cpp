@@ -102,7 +102,7 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				SString actions_buf, temp_buf;
 				PPLoadText(PPTXT_CHKOPACTIONLIST, actions_buf);
 				StringSet ss(';', actions_buf);
-				for(uint p = 0, j = 0; ss.get(&p, temp_buf) > 0;j++)
+				for(uint p = 0, j = 0; ss.get(&p, temp_buf); j++)
 					ActionList.Add((long)(j + 1), temp_buf);
 			}
 		}
@@ -111,7 +111,7 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Data.Period);
 			SetupPPObjCombo(this, CTLSEL_CHKOPJFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
-			SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, &ActionList, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, ActionList, 0, 0);
 			if(Data.ActionIDList.isList()) {
 				SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
 				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);

@@ -177,10 +177,10 @@ bool   RealRange::IsNegative() const { return (low < 0.0 && upp < 0.0); }
 bool   RealRange::IsNormalized() const { return (low <= upp); }
 bool   RealRange::IsStrictlyNormalized() const { return (low < upp); }
 RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((double)rS.low, (double)rS.upp); }
-int FASTCALL RealRange::IsEqual(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
+int FASTCALL RealRange::IsEq(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
 int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
 int FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
-int  FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEqual(rS); }
+int  FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEq(rS); }
 bool RealRange::IsZero() const { return (low == 0.0 && upp == 0.0); }
 bool RealRange::CheckVal(double v) const { return (low == 0.0 || v >= low) && (upp == 0.0 || v <= upp); }
 
@@ -311,7 +311,7 @@ IMPL_INVARIANT_C(DateRange)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-int FASTCALL DateRange::IsEqual(const DateRange & rS) const
+int FASTCALL DateRange::IsEq(const DateRange & rS) const
 {
 	return (low == rS.low && upp == rS.upp);
 }
@@ -333,7 +333,7 @@ long DateRange::GetLength() const
 
 int FASTCALL DateRange::Cmp(const DateRange & rS) const
 {
-	int    r = IsEqual(rS);
+	int    r = IsEq(rS);
 	if(r)
 		return 0;
 	else if(low < rS.low)
@@ -344,7 +344,7 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 		//
 		// Нижние границы равны
 		//
-		// Случай upp == rS.upp здесь не возможен из-за того, что он был охвачен вызовом IsEqual (see above)
+		// Случай upp == rS.upp здесь не возможен из-за того, что он был охвачен вызовом IsEq (see above)
 		//
 		assert(upp != rS.upp); // paranoic assertion
 		if(upp) {
@@ -560,6 +560,65 @@ DateRange & DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
 	low = low.getactualcmp(rel, cmp);
 	upp = upp.getactualcmp(rel, cmp);
 	return *this;
+}
+
+int DateRange::SetPredefined(int predefPrdId, LDATE rel)
+{
+	int    ok = 1;
+	if(!rel)
+		rel = getcurdate_();
+	if(checkdate(rel)) {
+		switch(predefPrdId) {
+			case PREDEFPRD_TODAY:
+				SetDate(rel);
+				break;
+			case PREDEFPRD_YESTERDAY:
+				SetDate(plusdate(rel, -1));
+				break;
+			case PREDEFPRD_LAST7DAYS:
+				Set(plusdate(rel, -7), plusdate(rel, -1));
+				break;
+			case PREDEFPRD_LASTWEEK:
+				{
+					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(&rel, 1)));
+					LDATE d2 = plusdate(d1, 6);
+					Set(d1, d2);
+				}
+				break;
+			case PREDEFPRD_LASTWORKWEEK:
+				{
+					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(&rel, 1)));
+					LDATE d2 = plusdate(d1, 4);
+					Set(d1, d2);
+				}
+				break;
+			case PREDEFPRD_THISMONTH:
+				{
+					LDATE d1;
+					LDATE d2;
+					(d1 = rel).setday(1);
+					(d2 = rel).setday(rel.dayspermonth());
+					Set(d1, d2);
+				}
+				break;
+			case PREDEFPRD_LASTMONTH:
+				{
+					LDATE d = rel;
+					plusperiod(&d, PRD_MONTH, -1, 0);
+					LDATE d1;
+					LDATE d2;
+					(d1 = d).setday(1);
+					(d2 = d).setday(d.dayspermonth());
+					Set(d1, d2);
+				}
+				break;
+			default:
+				ok = 0;
+		}	
+	}
+	else
+		ok = 0;
+	return ok;
 }
 //
 //

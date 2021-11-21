@@ -1973,10 +1973,7 @@ public:
 			return -1;
 		}
 	}
-	int GetString(uint pos, SString & rBuf) const
-	{
-		return StrPool.getnz(pos, rBuf);
-	}
+	bool GetString(uint pos, SString & rBuf) const { return StrPool.getnz(pos, rBuf); }
 	int Import(const char * pPath);
 
 	struct Country {
@@ -2086,10 +2083,10 @@ int GeoCityImportBlock::Import(const char * pPath)
 		for(i = 0; i < CountryList.getCount(); i++) {
 			GeoCityImportBlock::Country & r_rec = CountryList.at(i);
 			name_buf.Z();
-			if(GetString(r_rec.NameRuPos, name_buf) > 0) {
+			if(GetString(r_rec.NameRuPos, name_buf)) {
 				;
 			}
-			else if(GetString(r_rec.NameEnPos, name_buf) > 0) {
+			else if(GetString(r_rec.NameEnPos, name_buf)) {
 				;
 			}
 			if(name_buf.NotEmpty()) {
@@ -2118,10 +2115,10 @@ int GeoCityImportBlock::Import(const char * pPath)
 			GeoCityImportBlock::City & r_rec = CityList.at(i);
 			uint   country_pos = 0;
 			name_buf.Z();
-			if(GetString(r_rec.NameRuPos, name_buf) > 0) {
+			if(GetString(r_rec.NameRuPos, name_buf)) {
 				;
 			}
-			else if(GetString(r_rec.NameEnPos, name_buf) > 0) {
+			else if(GetString(r_rec.NameEnPos, name_buf)) {
 				;
 			}
 			if(name_buf.NotEmpty() && r_rec.CountryId && CountryList.bsearch(&r_rec.CountryId, &country_pos, CMPF_LONG) && CountryList.at(country_pos).PapyrusID) {

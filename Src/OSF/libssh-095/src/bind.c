@@ -322,15 +322,15 @@ void ssh_bind_free(ssh_bind sshbind){
 	sshbind->bindfd = SSH_INVALID_SOCKET;
 
 	/* options */
-	SAFE_FREE(sshbind->banner);
-	SAFE_FREE(sshbind->bindaddr);
-	SAFE_FREE(sshbind->config_dir);
-	SAFE_FREE(sshbind->pubkey_accepted_key_types);
+	ZFREE(sshbind->banner);
+	ZFREE(sshbind->bindaddr);
+	ZFREE(sshbind->config_dir);
+	ZFREE(sshbind->pubkey_accepted_key_types);
 
-	SAFE_FREE(sshbind->dsakey);
-	SAFE_FREE(sshbind->rsakey);
-	SAFE_FREE(sshbind->ecdsakey);
-	SAFE_FREE(sshbind->ed25519key);
+	ZFREE(sshbind->dsakey);
+	ZFREE(sshbind->rsakey);
+	ZFREE(sshbind->ecdsakey);
+	ZFREE(sshbind->ed25519key);
 
 	ssh_key_free(sshbind->dsa);
 	sshbind->dsa = NULL;
@@ -343,11 +343,11 @@ void ssh_bind_free(ssh_bind sshbind){
 
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		if(sshbind->wanted_methods[i]) {
-			SAFE_FREE(sshbind->wanted_methods[i]);
+			ZFREE(sshbind->wanted_methods[i]);
 		}
 	}
 
-	SAFE_FREE(sshbind);
+	ZFREE(sshbind);
 }
 
 int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
@@ -380,7 +380,7 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 	if(sshbind->bindaddr == NULL)
 		session->opts.bindaddr = NULL;
 	else {
-		SAFE_FREE(session->opts.bindaddr);
+		ZFREE(session->opts.bindaddr);
 		session->opts.bindaddr = sstrdup(sshbind->bindaddr);
 		if(session->opts.bindaddr == NULL) {
 			return SSH_ERROR;
@@ -406,7 +406,7 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 				return SSH_ERROR;
 			}
 
-			SAFE_FREE(session->opts.pubkey_accepted_types);
+			ZFREE(session->opts.pubkey_accepted_types);
 			session->opts.pubkey_accepted_types = p;
 		}
 	}

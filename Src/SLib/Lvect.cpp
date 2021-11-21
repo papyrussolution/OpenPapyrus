@@ -430,11 +430,11 @@ static int read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, si
 	THROW(c == '\n');
 	ss.setBuf(buf, strlen(buf)+1);
 	p = 0;
-	THROW(ss.get(&p, sub, sizeof(sub)) > 0);
+	THROW(ss.get(&p, sub, sizeof(sub)));
 	strnzcpy(pName, strip(sub), bufSize);
-	THROW(ss.get(&p, sub, sizeof(sub)) > 0);
+	THROW(ss.get(&p, sub, sizeof(sub)));
 	THROW(num_rows = atol(strip(sub)));
-	THROW(ss.get(&p, sub, sizeof(sub)) > 0);
+	THROW(ss.get(&p, sub, sizeof(sub)));
 	THROW(num_cols = atol(strip(sub)));
 	CATCHZOK
 	ASSIGN_PTR(pRows, num_rows);

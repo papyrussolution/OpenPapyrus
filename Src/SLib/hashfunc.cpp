@@ -4302,7 +4302,7 @@ SLTEST_R(BDT)
 					//InnerBlock::digest_to_hex(reinterpret_cast<const uint8 *>(&s1), hex_outp);
 					//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
 				}
-				SLTEST_CHECK_NZ(hex.IsEqual(jbig2dec_test_results[i]));
+				SLTEST_CHECK_NZ(hex.IsEq(jbig2dec_test_results[i]));
 			}
 		}
 		/*{ // SHA-256

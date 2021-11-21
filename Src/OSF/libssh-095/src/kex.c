@@ -437,7 +437,7 @@ SSH_PACKET_CALLBACK(ssh_packet_kexinit)
 					if(is_allowed != NULL) {
 						session->extensions |= SSH_EXT_SIG_RSA_SHA512;
 					}
-					SAFE_FREE(is_allowed);
+					ZFREE(is_allowed);
 				}
 			}
 			ok = ssh_match_group(hostkeys, "rsa-sha2-256");
@@ -450,7 +450,7 @@ SSH_PACKET_CALLBACK(ssh_packet_kexinit)
 					if(is_allowed != NULL) {
 						session->extensions |= SSH_EXT_SIG_RSA_SHA256;
 					}
-					SAFE_FREE(is_allowed);
+					ZFREE(is_allowed);
 				}
 			}
 
@@ -473,10 +473,10 @@ SSH_PACKET_CALLBACK(ssh_packet_kexinit)
 					session->extensions |= SSH_EXT_SIG_RSA_SHA256;
 				}
 				else {
-					SAFE_FREE(rsa_sig_ext);
+					ZFREE(rsa_sig_ext);
 					goto error; /* should never happen */
 				}
-				SAFE_FREE(rsa_sig_ext);
+				ZFREE(rsa_sig_ext);
 			}
 
 			SSH_LOG(SSH_LOG_DEBUG, "The client supports extension "
@@ -514,7 +514,7 @@ error:
 		else { /* client */
 			session->next_crypto->server_kex.methods[i] = NULL;
 		}
-		SAFE_FREE(strings[i]);
+		ZFREE(strings[i]);
 	}
 
 	session->session_state = SSH_SESSION_STATE_ERROR;
@@ -596,7 +596,7 @@ char * ssh_client_select_hostkeys(ssh_session session)
 	/* Filter and order the keys from known_hosts according to wanted list */
 	known_hosts_ordered = ssh_find_all_matching(known_hosts_algorithms,
 		wanted_without_certs);
-	SAFE_FREE(known_hosts_algorithms);
+	ZFREE(known_hosts_algorithms);
 	if(known_hosts_ordered == NULL) {
 		SSH_LOG(SSH_LOG_DEBUG,
 		    "No key found in known_hosts is allowed; "
@@ -610,8 +610,8 @@ char * ssh_client_select_hostkeys(ssh_session session)
 	 * This function tolerates NULL pointers in parameters */
 	new_hostkeys = ssh_append_without_duplicates(known_hosts_ordered,
 		wanted_without_certs);
-	SAFE_FREE(known_hosts_ordered);
-	SAFE_FREE(wanted_without_certs);
+	ZFREE(known_hosts_ordered);
+	ZFREE(wanted_without_certs);
 	if(new_hostkeys == NULL) {
 		ssh_set_error_oom(session);
 		return NULL;
@@ -620,7 +620,7 @@ char * ssh_client_select_hostkeys(ssh_session session)
 	if(ssh_fips_mode()) {
 		/* Filter out algorithms not allowed in FIPS mode */
 		fips_hostkeys = ssh_keep_fips_algos(SSH_HOSTKEYS, new_hostkeys);
-		SAFE_FREE(new_hostkeys);
+		ZFREE(new_hostkeys);
 		if(fips_hostkeys == NULL) {
 			SSH_LOG(SSH_LOG_WARNING,
 			    "None of the wanted host keys or keys in known_hosts files "

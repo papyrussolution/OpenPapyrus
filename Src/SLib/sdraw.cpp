@@ -1955,7 +1955,7 @@ int FASTCALL SImageBuffer::Copy(const SImageBuffer & rS)
 	return SBaseBuffer::Copy(rS);
 }
 
-int FASTCALL SImageBuffer::IsEqual(const SImageBuffer & rS) const
+int FASTCALL SImageBuffer::IsEq(const SImageBuffer & rS) const
 {
 	if(F.S != rS.F.S)
 		return 0;
@@ -3779,7 +3779,7 @@ SLTEST_R(SDraw)
 			SBuffer * p_buf = out_file;
 			THROW(SLTEST_CHECK_NZ(p_buf));
 			THROW(SLTEST_CHECK_NZ(img_buf2.Load(SFileFormat::Png, *p_buf)));
-			THROW(SLTEST_CHECK_NZ(img_buf2.IsEqual(img_buf)));
+			THROW(SLTEST_CHECK_NZ(img_buf2.IsEq(img_buf)));
 		}
 		{
 			THROW(SLTEST_CHECK_NZ(img_buf.Load(MakeInputFilePath("test10.jpg"))));

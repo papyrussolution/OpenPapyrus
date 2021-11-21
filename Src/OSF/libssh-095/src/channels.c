@@ -74,14 +74,14 @@ ssh_channel ssh_channel_new(ssh_session session)
 	channel->stdout_buffer = ssh_buffer_new();
 	if(channel->stdout_buffer == NULL) {
 		ssh_set_error_oom(session);
-		SAFE_FREE(channel);
+		ZFREE(channel);
 		return NULL;
 	}
 	channel->stderr_buffer = ssh_buffer_new();
 	if(channel->stderr_buffer == NULL) {
 		ssh_set_error_oom(session);
 		SSH_BUFFER_FREE(channel->stdout_buffer);
-		SAFE_FREE(channel);
+		ZFREE(channel);
 		return NULL;
 	}
 
@@ -189,7 +189,7 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open_fail)
 	}
 	ssh_set_error(session, SSH_REQUEST_DENIED, "Channel opening failure: channel %u error (%" PRIu32 ") %s",
 	    channel->local_channel, (uint32_t)code, error);
-	SAFE_FREE(error);
+	ZFREE(error);
 	channel->state = SSH_CHANNEL_STATE_OPEN_DENIED;
 	return SSH_PACKET_USED;
 error:
@@ -599,7 +599,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 	}
 
 	if(strcmp(request, "exit-status") == 0) {
-		SAFE_FREE(request);
+		ZFREE(request);
 		rc = ssh_buffer_unpack(packet, "d", &channel->exit_status);
 		if(rc != SSH_OK) {
 			SSH_LOG(SSH_LOG_PACKET, "Invalid exit-status packet");
@@ -618,7 +618,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 	}
 	if(strcmp(request, "signal") == 0) {
 		char * sig = NULL;
-		SAFE_FREE(request);
+		ZFREE(request);
 		SSH_LOG(SSH_LOG_PACKET, "received signal");
 		rc = ssh_buffer_unpack(packet, "s", &sig);
 		if(rc != SSH_OK) {
@@ -634,7 +634,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 		    channel->session,
 		    channel,
 		    sig);
-		SAFE_FREE(sig);
+		ZFREE(sig);
 
 		return SSH_PACKET_USED;
 	}
@@ -646,7 +646,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 		char * lang = NULL;
 		uint8 core_dumped;
 
-		SAFE_FREE(request);
+		ZFREE(request);
 
 		rc = ssh_buffer_unpack(packet, "sbss",
 			&sig, /* signal name */
@@ -674,14 +674,14 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 		    errmsg,
 		    lang);
 
-		SAFE_FREE(lang);
-		SAFE_FREE(errmsg);
-		SAFE_FREE(sig);
+		ZFREE(lang);
+		ZFREE(errmsg);
+		ZFREE(sig);
 
 		return SSH_PACKET_USED;
 	}
 	if(strcmp(request, "keepalive@openssh.com")==0) {
-		SAFE_FREE(request);
+		ZFREE(request);
 		SSH_LOG(SSH_LOG_PROTOCOL, "Responding to Openssh's keepalive");
 
 		rc = ssh_buffer_pack(session->out_buffer,
@@ -697,7 +697,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 	}
 
 	if(strcmp(request, "auth-agent-req@openssh.com") == 0) {
-		SAFE_FREE(request);
+		ZFREE(request);
 		SSH_LOG(SSH_LOG_PROTOCOL, "Received an auth-agent-req request");
 		ssh_callbacks_execute_list(channel->callbacks,
 		    ssh_channel_callbacks,
@@ -717,7 +717,7 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 	SSH_LOG(SSH_LOG_WARNING, "Unhandled channel request %s", request);
 #endif
 
-	SAFE_FREE(request);
+	ZFREE(request);
 
 	return SSH_PACKET_USED;
 }
@@ -1074,7 +1074,7 @@ void ssh_channel_do_free(ssh_channel channel)
 	}
 
 	channel->session = NULL;
-	SAFE_FREE(channel);
+	ZFREE(channel);
 }
 
 /**
@@ -1962,7 +1962,7 @@ int ssh_channel_request_x11(ssh_channel channel, int single_connection, const ch
 		cookie ? cookie : c,
 		screen_number);
 	if(c != NULL) {
-		SAFE_FREE(c);
+		ZFREE(c);
 	}
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
@@ -3204,13 +3204,13 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 	}
 	wchans = (ssh_channel *)SAlloc::C(count_ptrs(writechans) + 1, sizeof(ssh_channel));
 	if(wchans == NULL) {
-		SAFE_FREE(rchans);
+		ZFREE(rchans);
 		return SSH_ERROR;
 	}
 	echans = (ssh_channel *)SAlloc::C(count_ptrs(exceptchans) + 1, sizeof(ssh_channel));
 	if(echans == NULL) {
-		SAFE_FREE(rchans);
-		SAFE_FREE(wchans);
+		ZFREE(rchans);
+		ZFREE(wchans);
 		return SSH_ERROR;
 	}
 	/*
@@ -3227,9 +3227,9 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 		if(event == NULL) {
 			event = ssh_event_new();
 			if(event == NULL) {
-				SAFE_FREE(rchans);
-				SAFE_FREE(wchans);
-				SAFE_FREE(echans);
+				ZFREE(rchans);
+				ZFREE(wchans);
+				ZFREE(echans);
 
 				return SSH_ERROR;
 			}
@@ -3253,9 +3253,9 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 		/* Here we go */
 		rc = ssh_event_dopoll(event, tm);
 		if(rc != SSH_OK) {
-			SAFE_FREE(rchans);
-			SAFE_FREE(wchans);
-			SAFE_FREE(echans);
+			ZFREE(rchans);
+			ZFREE(wchans);
+			ZFREE(echans);
 			ssh_event_free(event);
 			return rc;
 		}
@@ -3266,9 +3266,9 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 	memcpy(readchans, rchans, (count_ptrs(rchans) + 1) * sizeof(ssh_channel ));
 	memcpy(writechans, wchans, (count_ptrs(wchans) + 1) * sizeof(ssh_channel ));
 	memcpy(exceptchans, echans, (count_ptrs(echans) + 1) * sizeof(ssh_channel ));
-	SAFE_FREE(rchans);
-	SAFE_FREE(wchans);
-	SAFE_FREE(echans);
+	ZFREE(rchans);
+	ZFREE(wchans);
+	ZFREE(echans);
 	if(event)
 		ssh_event_free(event);
 	return 0;

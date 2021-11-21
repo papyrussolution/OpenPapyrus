@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Test Suits
 //
@@ -27,7 +27,7 @@ const STestDataArray::Item & STestDataArray::Get(uint idx) const
 	return (idx < L.getCount()) ? L.at(idx) : EmptyItem;
 }
 
-int STestDataArray::GetDataByPos(uint pos, SString & rData) const
+bool STestDataArray::GetDataByPos(uint pos, SString & rData) const
 {
 	return HexPool.getnz(pos, rData);
 }

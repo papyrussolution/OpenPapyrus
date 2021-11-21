@@ -132,7 +132,7 @@ static int chacha20_poly1305_aead_decrypt(struct ssh_cipher_struct * cipher, voi
 
 static void chacha20_cleanup(struct ssh_cipher_struct * cipher) 
 {
-	SAFE_FREE(cipher->chacha20_schedule);
+	ZFREE(cipher->chacha20_schedule);
 }
 
 /*const struct ssh_cipher_struct chacha20poly1305_cipher = {

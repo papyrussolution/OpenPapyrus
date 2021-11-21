@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -170,12 +170,9 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	Data.Copy(pData, 1);
 	if(StdReportList.SearchByText(Data.StdName, 1, &pos) > 0)
 		_id = StdReportList.Get(pos).Id;
-	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, &StdReportList, _id, 0);
-	if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
-		_id = StrucList.Get(pos).Id;
-	else
-		_id = 0;
-	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, &StrucList, _id, 0);
+	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, StdReportList, _id, 0);
+	_id = (StrucList.SearchByText(Data.StrucName, 1, &pos) > 0) ? StrucList.Get(pos).Id : 0;
+	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, StrucList, _id, 0);
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
 	AddClusterAssocDef(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  1, ReportFilt::rpttStandart);
@@ -538,7 +535,7 @@ int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 		p_file = new PPIniFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, filename));
 	}
 	THROW(p_file->GetSections(&sections));
-	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
+	for(i = 0, id = 0; sections.get(&i, sect); id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
 			int    icp = 0;
 			p_file->GetIntParam(sect, CodepageParam, &icp);
@@ -638,7 +635,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 		do_close_file = 1;
 	}
 	THROW(p_file->GetSections(&sections));
-	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
+	for(i = 0, id = 0; sections.get(&i, sect); id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
 			p_file->GetIntParam(sect, CodepageParam, &codepage);
 			SETIFZ(LocalRptCodepage, 866);
@@ -648,7 +645,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 			SString   entry;
 			StringSet entries("\n");
 			p_file->GetEntries(sect, &entries, 1);
-			for(uint j = 0; entries.get(&j, entry) > 0;) {
+			for(uint j = 0; entries.get(&j, entry);) {
 				if(SplitLocalRptStr(p_file, LocalRptCodepage, sect, entry, &item) > 0)
 					THROW_SL(pList->insert(&item));
 			}
@@ -726,12 +723,12 @@ public:
 		setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 		if(RptList.SearchByText(Data.StdName, 1, &pos) > 0)
 			_id = RptList.Get(pos).Id;
-		SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, &RptList, _id,   0);
+		SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, RptList, _id,   0);
 		if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
 			_id = StrucList.Get(pos).Id;
 		else
 			_id = 0;
-		SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, &StrucList,   _id, 0);
+		SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, StrucList,   _id, 0);
 		setCtrlData(CTL_REPORT_PATH,  Data.Path);
 		setCtrlData(CTL_REPORT_DESCR, Data.Descr);
 		AddClusterAssocDef(CTL_REPORT_TYPE, 0, ReportFilt::rpttStandart);

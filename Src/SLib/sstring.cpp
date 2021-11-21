@@ -869,10 +869,10 @@ int    SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
 SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
 SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom(reinterpret_cast<const char *>(pS)); }
-int    FASTCALL SString::operator == (const char * pS) const { return IsEqual(pS); }
-int    FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEqual(pS)); }
-int    FASTCALL SString::operator == (const SString & rS) const { return IsEqual(rS); }
-int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEqual(rS)); }
+int    FASTCALL SString::operator == (const char * pS) const { return IsEq(pS); }
+int    FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEq(pS)); }
+int    FASTCALL SString::operator == (const SString & rS) const { return IsEq(rS); }
+int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEq(rS)); }
 int    FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
 int    FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
@@ -2038,7 +2038,7 @@ SString & SString::NumberToLat(uint value)
 	return *this;
 }
 
-int FASTCALL SString::IsEqual(const SString & rS) const
+int FASTCALL SString::IsEq(const SString & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
@@ -2059,7 +2059,7 @@ int FASTCALL SString::IsEqual(const SString & rS) const
 		return 0;
 }
 
-int FASTCALL SString::IsEqual(const char * pS) const
+int FASTCALL SString::IsEq(const char * pS) const
 {
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
@@ -2135,7 +2135,7 @@ bool FASTCALL SString::IsEqiUtf8(const char * pS) const
 			if(r_us_this.CopyFromUtf8Strict(P_Buf, L-1) && r_us_s.CopyFromUtf8Strict(pS, s_len)) {
 				r_us_this.ToLower();
 				r_us_s.ToLower();
-				yes = r_us_this.IsEqual(r_us_s);
+				yes = r_us_this.IsEq(r_us_s);
 			}
 		}
 	}
@@ -3743,7 +3743,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 	SString src(pSrc);
 	StringSet ss(';', pEncodeStr);
 	uint   p;
-	for(p = 0; ss.get(&p, buf) > 0;)
+	for(p = 0; ss.get(&p, buf);)
 		list.AddFast(MAXLONG - static_cast<long>(buf.Len()), buf); // Без проверки на дублирование идентификатора
 	list.SortByID();
 	ss.setDelim(",");
@@ -3840,7 +3840,7 @@ int FASTCALL SStringU::Alloc(size_t sz)
 	return ok;
 }
 
-int FASTCALL SStringU::IsEqual(const SStringU & rS) const
+int FASTCALL SStringU::IsEq(const SStringU & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
@@ -3866,7 +3866,7 @@ int FASTCALL SStringU::IsEqual(const SStringU & rS) const
 		return 0;
 }
 
-int FASTCALL SStringU::IsEqual(const wchar_t * pS) const
+int FASTCALL SStringU::IsEq(const wchar_t * pS) const
 {
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);

@@ -1362,9 +1362,10 @@ ComboBox::ComboBox(const TRect & bounds, ListBoxDef * aDef) : TView(bounds)
 	setDef(aDef);
 }
 
-ComboBox::ComboBox(const TRect & bounds, ushort aFlags) : TView(bounds)
+ComboBox::ComboBox(const TRect & bounds, ushort aFlags, TInputLine * pCorrespondCtrl) : TView(bounds)
 {
 	Init(aFlags);
+	CALLPTRMEMB(pCorrespondCtrl, setupCombo(this));
 }
 
 ComboBox::~ComboBox()
@@ -1686,6 +1687,14 @@ IMPL_HANDLE_EVENT(ComboBox)
 			PostMessage(h_link, WM_KEYDOWN, VK_DOWN, 0);
 		}
 		clearEvent(event);
+	}
+	else if(event.isCmd(cmSetBounds)) { // @v11.2.4
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
 	}
 }
 

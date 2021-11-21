@@ -1319,7 +1319,7 @@ int TProgram::InitUiToolBox()
 			UiToolBox.CreatePen(tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
 			UiToolBox.CreateBrush(tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
 			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
 			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
@@ -1654,7 +1654,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			text_rect.bottom = height;
 			text_rect.left   = out_r.left;
 			text_rect.right  = out_r.right;
-			for(uint i = 0; ss.get(&i, text_buf) > 0; text_rect.top += height, text_rect.bottom += height)
+			for(uint i = 0; ss.get(&i, text_buf); text_rect.top += height, text_rect.bottom += height)
 				::DrawText(pDi->hDC, SUcSwitch(text_buf), (int)text_buf.Len(), &text_rect, text_out_fmt);
 		}
 		else {
@@ -1790,7 +1790,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				SplitBuf(canv, text_buf, out_r.right - out_r.left, text_h);
 				StringSet ss('\n', text_buf);
 				rect_text.set(out_r.left, out_r.top, out_r.right, height);
-				for(uint i = 0; ss.get(&i, text_buf) > 0; rect_text.move(0, height)) {
+				for(uint i = 0; ss.get(&i, text_buf); rect_text.move(0, height)) {
 					canv.DrawText_(rect_text, text_buf, text_out_fmt);
 				}
 			}

@@ -113,11 +113,11 @@ void ssh_knownhosts_entry_free(struct ssh_knownhosts_entry * entry)
 		return;
 	}
 
-	SAFE_FREE(entry->hostname);
-	SAFE_FREE(entry->unparsed);
+	ZFREE(entry->hostname);
+	ZFREE(entry->unparsed);
 	ssh_key_free(entry->publickey);
-	SAFE_FREE(entry->comment);
-	SAFE_FREE(entry);
+	ZFREE(entry->comment);
+	ZFREE(entry);
 }
 
 static int known_hosts_read_line(FILE * fp,
@@ -290,7 +290,7 @@ static char * ssh_session_get_host_port(ssh_session session)
 	}
 	else {
 		host_port = ssh_hostport(host, session->opts.port);
-		SAFE_FREE(host);
+		ZFREE(host);
 		if(host_port == NULL) {
 			ssh_set_error_oom(session);
 			return NULL;
@@ -338,7 +338,7 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
 
 	list = ssh_list_new();
 	if(list == NULL) {
-		SAFE_FREE(host_port);
+		ZFREE(host_port);
 		return NULL;
 	}
 
@@ -354,7 +354,7 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
 	rc = ssh_known_hosts_read_entries(host_port,
 		session->opts.global_knownhosts,
 		&entry_list);
-	SAFE_FREE(host_port);
+	ZFREE(host_port);
 	if(rc != 0) {
 		ssh_list_free(entry_list);
 		ssh_list_free(list);
@@ -499,7 +499,7 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 		session->opts.knownhosts,
 		&entry_list);
 	if(rc != 0) {
-		SAFE_FREE(host_port);
+		ZFREE(host_port);
 		ssh_list_free(entry_list);
 		return NULL;
 	}
@@ -507,7 +507,7 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 	rc = ssh_known_hosts_read_entries(host_port,
 		session->opts.global_knownhosts,
 		&entry_list);
-	SAFE_FREE(host_port);
+	ZFREE(host_port);
 	if(rc != 0) {
 		ssh_list_free(entry_list);
 		return NULL;
@@ -643,7 +643,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	}
 
 	/* Restart parsing */
-	SAFE_FREE(known_host);
+	ZFREE(known_host);
 	known_host = _strdup(line);
 	if(known_host == NULL) {
 		rc = SSH_ERROR;
@@ -699,10 +699,10 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 		}
 	}
 	*entry = e;
-	SAFE_FREE(known_host);
+	ZFREE(known_host);
 	return SSH_OK;
 out:
-	SAFE_FREE(known_host);
+	ZFREE(known_host);
 	ssh_knownhosts_entry_free(e);
 	return rc;
 }
@@ -779,7 +779,7 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 			session->opts.knownhosts,
 			&entry_list);
 		if(rc != 0) {
-			SAFE_FREE(host_port);
+			ZFREE(host_port);
 			ssh_list_free(entry_list);
 			return SSH_KNOWN_HOSTS_ERROR;
 		}
@@ -790,13 +790,13 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 			session->opts.global_knownhosts,
 			&entry_list);
 		if(rc != 0) {
-			SAFE_FREE(host_port);
+			ZFREE(host_port);
 			ssh_list_free(entry_list);
 			return SSH_KNOWN_HOSTS_ERROR;
 		}
 	}
 
-	SAFE_FREE(host_port);
+	ZFREE(host_port);
 
 	if(ssh_list_count(entry_list) == 0) {
 		ssh_list_free(entry_list);
@@ -858,23 +858,23 @@ int ssh_session_export_known_hosts_entry(ssh_session session,
 
 	if(session->current_crypto == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No current crypto context, please connect first");
-		SAFE_FREE(host);
+		ZFREE(host);
 		return SSH_ERROR;
 	}
 	server_pubkey = ssh_dh_get_current_server_publickey(session);
 	if(server_pubkey == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No public key present");
-		SAFE_FREE(host);
+		ZFREE(host);
 		return SSH_ERROR;
 	}
 	rc = ssh_pki_export_pubkey_base64(server_pubkey, &b64_key);
 	if(rc < 0) {
-		SAFE_FREE(host);
+		ZFREE(host);
 		return SSH_ERROR;
 	}
 	snprintf(entry_buf, sizeof(entry_buf), "%s %s %s\n", host, server_pubkey->type_c, b64_key);
-	SAFE_FREE(host);
-	SAFE_FREE(b64_key);
+	ZFREE(host);
+	ZFREE(b64_key);
 	*pentry_string = _strdup(entry_buf);
 	if(*pentry_string == NULL) {
 		return SSH_ERROR;
@@ -919,10 +919,10 @@ int ssh_session_update_known_hosts(ssh_session session)
 			rc = ssh_mkdirs(dir, 0700);
 			if(rc < 0) {
 				ssh_set_error(session, SSH_FATAL, "Cannot create %s directory: %s", dir, strerror(errno));
-				SAFE_FREE(dir);
+				ZFREE(dir);
 				return SSH_ERROR;
 			}
-			SAFE_FREE(dir);
+			ZFREE(dir);
 			errno = 0;
 			fp = fopen(session->opts.knownhosts, "a");
 			if(fp == NULL) {
@@ -942,7 +942,7 @@ int ssh_session_update_known_hosts(ssh_session session)
 	}
 	len = strlen(entry);
 	nwritten = fwrite(entry, sizeof(char), len, fp);
-	SAFE_FREE(entry);
+	ZFREE(entry);
 	if(nwritten != len || ferror(fp)) {
 		ssh_set_error(session, SSH_FATAL, "Couldn't append to known_hosts file %s: %s", session->opts.knownhosts, strerror(errno));
 		fclose(fp);
@@ -1111,7 +1111,7 @@ enum ssh_known_hosts_e ssh_session_get_known_hosts_entry_file(ssh_session sessio
 		filename,
 		server_pubkey,
 		pentry);
-	SAFE_FREE(host_port);
+	ZFREE(host_port);
 
 	return found;
 }

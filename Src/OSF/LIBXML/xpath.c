@@ -5973,10 +5973,10 @@ static int xmlXPathEqualNodeSets(xmlXPathObject * arg1, xmlXPathObject * arg2, i
 static int xmlXPathEqualValuesCommon(xmlXPathParserContext * ctxt, xmlXPathObject * arg1, xmlXPathObject * arg2)
 {
 	int ret = 0;
-	/*
-	   *At this point we are assured neither arg1 nor arg2
-	   *is a nodeset, so we can just pick the appropriate routine.
-	 */
+	// 
+	// At this point we are assured neither arg1 nor arg2
+	// is a nodeset, so we can just pick the appropriate routine.
+	// 
 	switch(arg1->type) {
 		case XPATH_UNDEFINED:
 #ifdef DEBUG_EXPR
@@ -6391,11 +6391,10 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
 		xmlXPathReleaseObject(ctxt->context, arg2);
 		XP_ERROR0(XPATH_INVALID_OPERAND);
 	}
-	/*
-	 * Add tests for infinity and nan
-	 * => feedback on 3.4 for Inf and NaN
-	 */
-	/* Hand check NaN and Infinity comparisons */
+	// 
+	// Add tests for infinity and nan => feedback on 3.4 for Inf and NaN
+	// 
+	// Hand check NaN and Infinity comparisons 
 	if(fisnan(arg1->floatval) || fisnan(arg2->floatval)) {
 		ret = 0;
 	}
@@ -6403,8 +6402,7 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
 		arg1i = xmlXPathIsInf(arg1->floatval);
 		arg2i = xmlXPathIsInf(arg2->floatval);
 		if(inf && strict) {
-			if((arg1i == -1 && arg2i != -1) ||
-			    (arg2i == 1 && arg1i != 1)) {
+			if((arg1i == -1 && arg2i != -1) || (arg2i == 1 && arg1i != 1)) {
 				ret = 1;
 			}
 			else if(arg1i == 0 && arg2i == 0) {
@@ -6426,8 +6424,7 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
 			}
 		}
 		else if(!inf && strict) {
-			if((arg1i == 1 && arg2i != 1) ||
-			    (arg2i == -1 && arg1i != -1)) {
+			if((arg1i == 1 && arg2i != 1) || (arg2i == -1 && arg1i != -1)) {
 				ret = 1;
 			}
 			else if(arg1i == 0 && arg2i == 0) {
@@ -6453,7 +6450,6 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
 	xmlXPathReleaseObject(ctxt->context, arg2);
 	return ret;
 }
-
 /**
  * xmlXPathValueFlipSign:
  * @ctxt:  the XPath Parser context
@@ -6464,23 +6460,24 @@ int xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict)
  */
 void xmlXPathValueFlipSign(xmlXPathParserContext * ctxt) 
 {
-	if(!ctxt || !ctxt->context) return;
-	CAST_TO_NUMBER;
-	CHECK_TYPE(XPATH_NUMBER);
-	if(fisnan(ctxt->value->floatval))
-		ctxt->value->floatval = xmlXPathNAN;
-	else if(xmlXPathIsInf(ctxt->value->floatval) == 1)
-		ctxt->value->floatval = xmlXPathNINF;
-	else if(xmlXPathIsInf(ctxt->value->floatval) == -1)
-		ctxt->value->floatval = xmlXPathPINF;
-	else if(ctxt->value->floatval == 0) {
-		if(xmlXPathGetSign(ctxt->value->floatval) == 0)
-			ctxt->value->floatval = xmlXPathNZERO;
+	if(ctxt && ctxt->context) {
+		CAST_TO_NUMBER;
+		CHECK_TYPE(XPATH_NUMBER);
+		if(fisnan(ctxt->value->floatval))
+			ctxt->value->floatval = xmlXPathNAN;
+		else if(xmlXPathIsInf(ctxt->value->floatval) == 1)
+			ctxt->value->floatval = xmlXPathNINF;
+		else if(xmlXPathIsInf(ctxt->value->floatval) == -1)
+			ctxt->value->floatval = xmlXPathPINF;
+		else if(ctxt->value->floatval == 0) {
+			if(xmlXPathGetSign(ctxt->value->floatval) == 0)
+				ctxt->value->floatval = xmlXPathNZERO;
+			else
+				ctxt->value->floatval = 0;
+		}
 		else
-			ctxt->value->floatval = 0;
+			ctxt->value->floatval = -ctxt->value->floatval;
 	}
-	else
-		ctxt->value->floatval = -ctxt->value->floatval;
 }
 
 /**
@@ -6524,7 +6521,6 @@ void xmlXPathSubValues(xmlXPathParserContext * ctxt)
 	CHECK_TYPE(XPATH_NUMBER);
 	ctxt->value->floatval -= val;
 }
-
 /**
  * xmlXPathMultValues:
  * @ctxt:  the XPath Parser context
@@ -6696,12 +6692,10 @@ xmlNode * xmlXPathNextChild(xmlXPathParserContext * ctxt, xmlNode * cur)
 		}
 		return 0;
 	}
-	if((cur->type == XML_DOCUMENT_NODE) ||
-	    (cur->type == XML_HTML_DOCUMENT_NODE))
+	if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
 		return 0;
 	return (cur->next);
 }
-
 /**
  * xmlXPathNextChildElement:
  * @ctxt:  the XPath Parser context
@@ -6714,10 +6708,12 @@ xmlNode * xmlXPathNextChild(xmlXPathParserContext * ctxt, xmlNode * cur)
  */
 static xmlNode * xmlXPathNextChildElement(xmlXPathParserContext * ctxt, xmlNode * cur) 
 {
-	if(!ctxt || !ctxt->context) return 0;
+	if(!ctxt || !ctxt->context) 
+		return 0;
 	if(!cur) {
 		cur = ctxt->context->P_Node;
-		if(!cur) return 0;
+		if(!cur) 
+			return 0;
 		/*
 		 * Get the first element child.
 		 */

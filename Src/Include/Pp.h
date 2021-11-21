@@ -532,7 +532,7 @@ public:
 	//   !0 - объекты this и rS эквивалентны по множетсву pFldList[fldCount]
 	//   0 - объекты this и rS не эквивалентны
 	//
-	int    IsEqual(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const;
+	int    IsEq(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const;
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pStr);
 	int    SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -561,7 +561,7 @@ enum PredefinedImpExpFormat { // @persistent
 struct PPDimention { // @noctr @novtbl
 	PPDimention & Z();
 	int    operator !() const;
-	int    FASTCALL IsEqual(const PPDimention & rS) const;
+	int    FASTCALL IsEq(const PPDimention & rS) const;
 	int    FASTCALL operator == (const PPDimention & rS) const;
 	int    FASTCALL operator != (const PPDimention & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -809,7 +809,7 @@ public:
 	ObjIdListFilt & FASTCALL operator = (long value);
 	int    operator ! () const { return (P_List == 0); }
 	int    IsExists() const { return BIN(P_List); }
-	int    FASTCALL IsEqual(const ObjIdListFilt &) const;
+	int    FASTCALL IsEq(const ObjIdListFilt &) const;
 	int    IsEmpty() const;
 	int    FASTCALL CheckID(PPID) const;
 	const  PPIDArray & Get() const { return *P_List; }
@@ -1923,7 +1923,7 @@ public:
 	PPObjID_Base Set(PPID objType, PPID objID);
 	PPObjID_Base & Z();
 	bool   IsZero() const;
-	bool   IsEqual(PPID objType, PPID objID) const;
+	bool   IsEq(PPID objType, PPID objID) const;
 	bool   FASTCALL operator == (PPObjID_Base s) const;
 	bool   FASTCALL operator != (PPObjID_Base s) const;
 	operator double() const;
@@ -2833,7 +2833,7 @@ class PPViewDisplayExtList : private SStrGroup {
 public:
 	PPViewDisplayExtList();
 	PPViewDisplayExtList & Z();
-	int    FASTCALL IsEqual(const PPViewDisplayExtList & rS) const;
+	int    FASTCALL IsEq(const PPViewDisplayExtList & rS) const;
 	int    SetItem(int dataId, int position, const char * pTitle);
 	int    GetItemByPos(uint pos, PPViewDisplayExtItem * pItem) const;
 	int    GetItemByDataId(int dataId, PPViewDisplayExtItem * pItem) const;
@@ -2882,7 +2882,7 @@ public:
 	// Descr: Эта функция должна сравнить фильтры и, если они эквивалентны,
 	//   вернуть значение >0.
 	//
-	virtual int IsEqual(const PPBaseFilt *, int) const;
+	virtual int IsEq(const PPBaseFilt *, int) const;
 	virtual int IsEmpty() const;
 	//
 	// Descr: описание внутреннего состояния фильтра
@@ -2931,7 +2931,7 @@ protected:
 	virtual int ReadText(const char * pText, long); // @<<PPBaseFilt::Read
 	//
 	// Descr: Устанавливает "плоский" участок фильтра. Такой участок фильтра базовый класс
-	//   обрабатывает самостоятельно. Это касается методов Init, Write, Read, Copy, IsEqual.
+	//   обрабатывает самостоятельно. Это касается методов Init, Write, Read, Copy, IsEq.
 	//
 	void   SetFlatChunk(size_t offs, size_t len);
 	int    FASTCALL SetBranchSString(size_t offs);
@@ -3438,7 +3438,7 @@ public:
 	void   SetAnonym();
 	int    IsAnonym() const;
 	//
-	// Descr: Опции функции PPCheckInPersonItem::IsEqual
+	// Descr: Опции функции PPCheckInPersonItem::IsEq
 	//
 	enum {
 		eqoNoID    = 0x0001, // Сравнивать без учета ID
@@ -3447,7 +3447,7 @@ public:
 			// Если запись оба объекта анонимные, то PersonID не сравниваются.
 			// Если одна запись анонимная, а другая - нет, то записи разные.
 	};
-	int    FASTCALL IsEqual(const PPCheckInPersonItem & rS, long options) const;
+	int    FASTCALL IsEq(const PPCheckInPersonItem & rS, long options) const;
 	int    FASTCALL operator == (const PPCheckInPersonItem & rS) const;
 
 	struct Total {
@@ -3714,7 +3714,7 @@ public:
 	~ObjTagList();
 	ObjTagList & FASTCALL operator = (const ObjTagList & s);
 	uint   GetCount() const;
-	int    FASTCALL IsEqual(const ObjTagList & rS) const;
+	int    FASTCALL IsEq(const ObjTagList & rS) const;
 	//
 	// Descr: Возвращает указатель на тег с идентификатором типа tagID.
 	//   Если список не содержит такого тега, то, при forceEmpty != 0
@@ -4227,7 +4227,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 		cmpNoID  = 0x0001, // Не брать в рассмотрение ИД котировки
 		cmpNoVal = 0x0002  // Не брать в рассмотрение значение котировки
 	};
-	int    IsEqual(const PPQuot & rS, long cmpFlags = 0) const;
+	int    IsEq(const PPQuot & rS, long cmpFlags = 0) const;
 	int    IsRelative() const;
 	int    IsEmpty() const;
 	double CalcPrice(double cost, double price) const;
@@ -4776,7 +4776,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	GoodsStockExt();
 	void   Init();
 	GoodsStockExt & FASTCALL operator = (const GoodsStockExt & rSrc);
-	int    FASTCALL IsEqual(const GoodsStockExt & rS) const;
+	int    FASTCALL IsEq(const GoodsStockExt & rS) const;
 	int    IsEmpty() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
@@ -5265,7 +5265,7 @@ void RegisterSTAcct();
 struct PPAccTurn { // @persistent
 	PPAccTurn();
 	void   SwapDbtCrd();
-	int    FASTCALL IsEqual(const PPAccTurn & rS) const;
+	int    FASTCALL IsEq(const PPAccTurn & rS) const;
 
 	AcctID DbtID;
 	PPID   DbtSheet;
@@ -6094,7 +6094,7 @@ public:
 	struct LoginParam {
 		LoginParam();
 		int    FASTCALL Copy(const LoginParam & rS);
-		int    FASTCALL IsEqual(const LoginParam & rS) const;
+		int    FASTCALL IsEq(const LoginParam & rS) const;
 		const char * GetVHost(const char * pDefault = 0) const;
 
 		int    Method;
@@ -6184,7 +6184,7 @@ public:
 	struct RoutingParamEntry {
 		RoutingParamEntry();
 		RoutingParamEntry & Z();
-		int    FASTCALL IsEqual(const RoutingParamEntry & rS) const;
+		int    FASTCALL IsEq(const RoutingParamEntry & rS) const;
 		int    SetupReserved(int rtrsrv, const char * pDomain, const S_GUID * pDestGuid, long destId, RoutingParamEntry * pReplyEntry);
 		int    SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv);
 		int    SetupStyloQRpcListener(const SBinaryChunk & rIdent);
@@ -6206,7 +6206,7 @@ public:
 		InitParam(const InitParam & rS);
 		InitParam & FASTCALL operator = (const InitParam & rS);
 		int    FASTCALL Copy(const InitParam & rS);
-		int    FASTCALL IsEqual(const InitParam & rS) const;
+		int    FASTCALL IsEq(const InitParam & rS) const;
 		//
 		// Descr: Сравнивает this с rS только по параметрам подключения (Host && Port)
 		//
@@ -8869,7 +8869,7 @@ public:
 	RegisterArray();
 	RegisterArray(const RegisterArray & s);
 	RegisterTbl::Rec & FASTCALL at(uint pos) const;
-	int    FASTCALL IsEqual(const RegisterArray & rS) const;
+	int    FASTCALL IsEq(const RegisterArray & rS) const;
 	int    FASTCALL HasEqual(const RegisterTbl::Rec & rRec) const;
 	//
 	// Descr: Ищет регистр типа regTyp начиная с позиции *pPos или 0 если pPos == 0.
@@ -9362,7 +9362,7 @@ class BillMultiPrintParam { // @persistent
 public:
 	BillMultiPrintParam();
 	bool   IsEmpty() const;
-	bool   FASTCALL IsEqual(const BillMultiPrintParam & rS) const;
+	bool   FASTCALL IsEq(const BillMultiPrintParam & rS) const;
 	BillMultiPrintParam & Z();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
@@ -9451,7 +9451,7 @@ struct PPClientAgreement { // @persistent
 	PPClientAgreement(const PPClientAgreement &);
 	PPClientAgreement & Z();
 	bool   IsEmpty() const;
-	int    FASTCALL IsEqual(const PPClientAgreement & rS) const;
+	int    FASTCALL IsEq(const PPClientAgreement & rS) const;
 	PPClientAgreement & FASTCALL operator = (const PPClientAgreement &);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
@@ -9525,7 +9525,7 @@ public:
 	PPSupplAgreement();
 	PPSupplAgreement & Z();
 	bool   IsEmpty() const;
-	int    FASTCALL IsEqual(const PPSupplAgreement & rS) const;
+	int    FASTCALL IsEq(const PPSupplAgreement & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	void   FASTCALL RestoreAutoOrderParams(const PPSupplAgreement & rS);
 
@@ -9551,7 +9551,7 @@ public:
 		//
 		ExchangeParam & FASTCALL operator = (const PPSupplExchangeCfg & rS);
 		int    FASTCALL Copy(const ExchangeParam & rS);
-		int    FASTCALL IsEqual(const ExchangeParam & rS) const;
+		int    FASTCALL IsEq(const ExchangeParam & rS) const;
 		ExchangeParam & Z();
 		int    IsEmpty() const;
 		int    GetExtStrData(int fldID, SString & rBuf) const;
@@ -9621,7 +9621,7 @@ public:
 	//
 	struct OrderParamEntry { // @flat
 		OrderParamEntry();
-		int    FASTCALL IsEqual(const OrderParamEntry & rS) const;
+		int    FASTCALL IsEq(const OrderParamEntry & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		PPID   GoodsGrpID;       // ->Goods2.ID
@@ -9698,7 +9698,7 @@ struct AmtEntry { // @persistent
 	explicit AmtEntry(PPID amtTypeID);
 	AmtEntry(PPID amtTypeID, PPID curID);
 	AmtEntry(PPID amtTypeID, PPID curID, double amt);
-	int    FASTCALL IsEqual(const AmtEntry & rS) const;
+	int    FASTCALL IsEq(const AmtEntry & rS) const;
 
 	PPID   AmtTypeID; // ->Ref(PPOBJ_AMOUNTTYPE)
 	PPID   CurID;     // ->Ref(PPOBJ_CURRENCY)
@@ -9712,7 +9712,7 @@ public:
 	int    Search(PPID amtTypeID, PPID curID, uint * pPos) const;
 	int    FASTCALL HasAmtTypeID(PPID amtTypeID) const;
 	int    FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
-	int    FASTCALL IsEqual(const AmtList *) const;
+	int    FASTCALL IsEq(const AmtList *) const;
 	//
 	// Descr: возвращает список валют, для которых существует
 	//   сумма amtTypeID в списке сумм. Если amtTypeID < 0, то возвращаетс
@@ -9742,7 +9742,7 @@ public:
 struct StaffAmtEntry { // @flat
 	DECL_INVARIANT_C();
 	explicit StaffAmtEntry(PPID amtTypeID = 0, PPID curID = 0, double amt = 0.0);
-	int    FASTCALL IsEqual(const StaffAmtEntry & rS) const;
+	int    FASTCALL IsEq(const StaffAmtEntry & rS) const;
 
 	PPID   AmtTypeID; // ->Ref(PPOBJ_AMOUNTTYPE)
 	PPID   CurID;     // ->Ref(PPOBJ_CURRENCY)
@@ -9755,7 +9755,7 @@ struct StaffAmtEntry { // @flat
 class StaffAmtList : public TSVector <StaffAmtEntry> {
 public:
 	StaffAmtList();
-	int    FASTCALL IsEqual(const StaffAmtList & rS) const;
+	int    FASTCALL IsEq(const StaffAmtList & rS) const;
 	int    Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos) const;
 	int    Search(PPID amtTypeID, uint * pPos) const;
 	//
@@ -10047,7 +10047,7 @@ public:
 	//   документам и оплатам, а также при заполнении книги продаж/покупок.
 	//
 	int    InitAccturnInvoice(const PPBillPacket * pPack);
-	int    FASTCALL IsEqual(const PPTransferItem & rS) const;
+	int    FASTCALL IsEq(const PPTransferItem & rS) const;
 	//
 	// Descr: Возвращает !0 если строка является корректировкой прихода.
 	// Note: Признаком такой корректировки является одновременно установленные флаги PPTFR_CORRECTION и PPTFR_REVAL.
@@ -10373,7 +10373,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	//   !0 - экземпляры this и pS одинаковы
 	//   0  - экземпляры this и pS не одинаковы
 	//
-	int    FASTCALL IsEqual(const PPBillExt & rS) const;
+	int    FASTCALL IsEq(const PPBillExt & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	PPID   PayerID;            // ->Article.ID Плательщик
@@ -10429,7 +10429,7 @@ protected:
 
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
 	int    IsEmpty() const;
-	int    FASTCALL IsEqual(const PPRentCondition & rS) const;
+	int    FASTCALL IsEq(const PPRentCondition & rS) const;
 	int    GetCycleList(PPCycleArray *) const;
 	int    GetChargeDate(const PPCycleArray *, uint cycleNo, LDATE *) const;
 	int    CalcRent(LDATE chargeDt, double * pAmount) const;
@@ -10545,7 +10545,7 @@ struct PPFreight {         // @persistent @store(PropertyTbl)
 	PPFreight();
 	PPFreight & Z();
 	int    IsEmpty() const;
-	int    FASTCALL IsEqual(const PPFreight &) const;
+	int    FASTCALL IsEq(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
 
 	PPID   Tag;            // Const=PPOBJ_BILL
@@ -10594,7 +10594,7 @@ struct PPAdvanceRep {      // @persistent @store(PropertyTbl)
 class PayPlanArray : public TSVector <PayPlanTbl::Rec> {
 public:
 	PayPlanArray();
-	int    FASTCALL IsEqual(const PayPlanArray & rS) const;
+	int    FASTCALL IsEq(const PayPlanArray & rS) const;
 	int    GetLast(LDATE * pDt, double * pAmount, double * pInterest) const;
 	//
 	// Descr: Ищет запись с датой dt. Если запись найдена, то возвращает !0
@@ -10620,7 +10620,7 @@ public:
 	//
 	struct Item {     // @persistent @flat @store(AdvBillItem)
 		Item();
-		int    FASTCALL IsEqual(const Item & rS) const;
+		int    FASTCALL IsEq(const Item & rS) const;
 		enum {
 			fWritedOff = 0x0001 // Строка документа списана (для долговой инвентаризации)
 		};
@@ -10653,7 +10653,7 @@ public:
 		char   Memo[128];  //
 	};
 	PPAdvBillItemList();
-	int    FASTCALL IsEqual(const PPAdvBillItemList & rS) const;
+	int    FASTCALL IsEq(const PPAdvBillItemList & rS) const;
 	uint   GetCount() const;
 	Item & FASTCALL Get(uint) const;
 	int    SearchBillLink(PPID billID, uint * pPos) const;
@@ -10764,7 +10764,7 @@ public:
 	PPLotExtCodeContainer & FASTCALL operator = (const PPLotExtCodeContainer & rS);
 	int    FASTCALL Copy(const PPLotExtCodeContainer & rS);
 	void   Release();
-	int    FASTCALL IsEqual(const PPLotExtCodeContainer & rS) const;
+	int    FASTCALL IsEq(const PPLotExtCodeContainer & rS) const;
 	uint   GetCount() const;
 	int    Add(int rowIdx, long boxId, int16 flags, const char * pCode, uint * pIdx);
 	int    AddValidation(long boxId, int16 flags, const char * pCode, uint * pIdx);
@@ -10815,7 +10815,7 @@ public:
 	PPBill & FASTCALL operator = (const PPBill & rS);
 	void   BaseDestroy();
 	int    FASTCALL Copy(const PPBill & rS);
-	int    FASTCALL IsEqual(const PPBill & rS) const;
+	int    FASTCALL IsEq(const PPBill & rS) const;
 	int    FASTCALL GetLastPayDate(LDATE *) const;
 	int    AddPayDate(LDATE, double amount);
 	//
@@ -10875,7 +10875,7 @@ public:
 		Agreement(const Agreement & rS);
 		Agreement & FASTCALL operator = (const Agreement & rS);
 		int    IsEmpty() const;
-		int    FASTCALL IsEqual(const Agreement & rS) const;
+		int    FASTCALL IsEq(const Agreement & rS) const;
 		int    FASTCALL Copy(const Agreement & rS);
 
 		long   ObjType;          // Const=PPOBJ_BILL
@@ -11596,7 +11596,7 @@ public:
 	int    RemoveRow(uint);
 	int    RemoveRows(LongArray * pPositions, int lowStop = 0);
 	int    ShrinkTRows(long fl = (ETIEF_DIFFBYLOT | ETIEF_UNITEBYGOODS));
-	int    InsertComplete(PPGoodsStruc * pGs, uint pos, PUGL *, int pcug, const GoodsReplacementArray * pGra = 0);
+	int    InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL *, int pcug, const GoodsReplacementArray * pGra, bool recursive);
 	int    InsertPartitialStruc();
 	int    InsertAutoComplRow(uint pos, int pcug = PCUG_CANCEL);
 	int    UpdateAutoComplRow(uint pos, int pcug = PCUG_CANCEL);
@@ -14642,7 +14642,7 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 //
 struct CcAmountEntry {
 	CcAmountEntry();
-	int    FASTCALL IsEqual(const CcAmountEntry & rS) const;
+	int    FASTCALL IsEq(const CcAmountEntry & rS) const;
 	int    GetTypeText(SString & rBuf) const;
 
 	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
@@ -14841,7 +14841,7 @@ public:
 	~CCheckPacket();
 	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
 	CCheckPacket & Z();
-	int    IsEqual(const CCheckPacket & rS, long options) const;
+	int    IsEq(const CCheckPacket & rS, long options) const;
 	int    Copy(const CCheckPacket & rS);
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
@@ -15832,7 +15832,7 @@ public:
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
+	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	virtual void FASTCALL SetUniqueID(long * pID);
@@ -15853,13 +15853,13 @@ public:
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
+	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
 	SPoint2S P;             // Позиция левого верхнего угла иконки на рабочем столе
 	uint8  Reserve[4];    // @reserve
-	mutable LayoutFlexItem::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
+	mutable SUiLayout::Result LoR; // @v11.0.0 @transient. Функция ранжирования меняет это значение, потому mutable
 	SBuffer Param;
 };
 
@@ -15931,7 +15931,7 @@ public:
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
+	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
@@ -15978,7 +15978,7 @@ public:
 	virtual int Read_Depricated(SBuffer &, long);
 	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
+	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	void   FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
@@ -16776,7 +16776,7 @@ private:
 //
 struct PPEventSubscription {
 	PPEventSubscription();
-	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
+	int    FASTCALL IsEq(const PPEventSubscription & rS) const;
 	long   Tag;                  // Const=PPOBJ_EVENTSUBSCRIPTION
 	long   ID;                   // @id
 	char   Name[48];             // @name @!refname
@@ -16800,7 +16800,7 @@ public:
 	~PPEventSubscriptionPacket();
 	PPEventSubscriptionPacket & FASTCALL operator = (const PPEventSubscriptionPacket & rS);
 	int    FASTCALL Copy(const PPEventSubscriptionPacket & rS);
-	int    FASTCALL IsEqual(const PPEventSubscriptionPacket & rS) const;
+	int    FASTCALL IsEq(const PPEventSubscriptionPacket & rS) const;
 	PPEventSubscription Rec;
 	PPBaseFilt * P_Filt;
 	ObjIdListFilt GuaList;
@@ -17127,7 +17127,7 @@ class PPELinkArray : public TSArray <PPELink> {
 public:
 	static int SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry);
 	PPELinkArray();
-	int    FASTCALL IsEqual(const PPELinkArray & rS) const;
+	int    FASTCALL IsEq(const PPELinkArray & rS) const;
 	int    AddItem(PPID kindID, const char * pAddr);
 	int    GetItem(PPID kindID, SString & rBuf) const;
 	int    SearchByText(const char * pText, uint * pPos) const;
@@ -17422,7 +17422,7 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	static const uint16 Default_CqaMatchPromille; // 18
 
 	PPTssModel();
-	int    FASTCALL IsEqual(const PPTssModel & rS) const;
+	int    FASTCALL IsEq(const PPTssModel & rS) const;
 	PPID   Tag;            // Const=PPOBJ_TSSMODEL
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -17499,14 +17499,14 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 class PPTssModelPacket {
 public:
 	PPTssModelPacket();
-	int    FASTCALL IsEqual(const PPTssModelPacket & rS) const;
+	int    FASTCALL IsEq(const PPTssModelPacket & rS) const;
 	int    SerializeTail(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    Output(SString & rBuf) const;
 
 	PPTssModel Rec;
 	struct Extension {
 		Extension();
-		int    FASTCALL IsEqual(const Extension & rS) const;
+		int    FASTCALL IsEq(const Extension & rS) const;
 		SVerT  Ver;               // Версия системы, создавшей запись
 		//
 		// 4 поля для финишной адаптивной подстройки лимитов стратегии.
@@ -17550,7 +17550,7 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 		tStocks = 2,
 		tCrypto = 3 // @v10.8.7
 	};
-	int    FASTCALL IsEqual(const PPTimeSeries & rS) const;
+	int    FASTCALL IsEq(const PPTimeSeries & rS) const;
 	PPID   Tag;            // Const=PPOBJ_TIMESERIES
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -17576,14 +17576,14 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 class PPTimeSeriesPacket {
 public:
 	PPTimeSeriesPacket();
-	int    FASTCALL IsEqual(const PPTimeSeriesPacket & rS) const;
+	int    FASTCALL IsEq(const PPTimeSeriesPacket & rS) const;
 	double GetMargin(int sell) const;
 	const char * GetSymb() const;
 
 	struct Extension {
 		Extension();
 		int    IsEmpty() const;
-		int    FASTCALL IsEqual(const Extension & rS) const;
+		int    FASTCALL IsEq(const Extension & rS) const;
 		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
 			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
 		double FixedStakeVolume;  // @v10.6.3 Фиксированный размер ставки (не привязанный к доступному объему и коэффициенту запаса)
@@ -17623,7 +17623,7 @@ public:
 
 		Config();
 		Config & Z();
-		int    FASTCALL IsEqual(const Config & rS) const;
+		int    FASTCALL IsEq(const Config & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		const  Config::Entry * FASTCALL SearchEntry(PPID tsID) const;
 
@@ -18500,7 +18500,7 @@ struct PPAmountType2 {     // @persistent @store(Reference2Tbl+)
 
 struct PPAmountTypePacket {
 	PPAmountTypePacket();
-	int    FASTCALL IsEqual(const PPAmountTypePacket & rS) const;
+	int    FASTCALL IsEq(const PPAmountTypePacket & rS) const;
 
 	PPAmountType Rec;
 	SString Formula;
@@ -19718,7 +19718,7 @@ struct PPGlobalUserAcc {
 class PPGlobalUserAccPacket {
 public:
 	PPGlobalUserAccPacket();
-	int    FASTCALL IsEqual(const PPGlobalUserAccPacket & rS) const;
+	int    FASTCALL IsEq(const PPGlobalUserAccPacket & rS) const;
 	PPGlobalUserAccPacket & Z();
 
 	PPGlobalUserAcc Rec;
@@ -20006,7 +20006,7 @@ private:
 //
 struct PPEdiProvider {
 	PPEdiProvider();
-	int    FASTCALL IsEqual(const PPEdiProvider & rS) const;
+	int    FASTCALL IsEq(const PPEdiProvider & rS) const;
 
 	enum {
 		fPassive = 0x0001
@@ -20038,7 +20038,7 @@ public:
 
 	PPEdiProviderPacket();
 	~PPEdiProviderPacket();
-	int    FASTCALL IsEqual(const PPEdiProviderPacket & rS) const;
+	int    FASTCALL IsEq(const PPEdiProviderPacket & rS) const;
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char *);
 	int    MakeUrl(int reserved, InetUrl & rUrl);
@@ -22944,7 +22944,7 @@ struct PPSmsAccount { // size=sizeof(Reference2Tbl::Rec)
 		smacfUseUHTT     = 0x0002
 	};
 	PPSmsAccount();
-	int    FASTCALL IsEqual(const PPSmsAccount & rS) const;
+	int    FASTCALL IsEq(const PPSmsAccount & rS) const;
 
 	long   Tag;            // Const=PPOBJ_SMSPRVACCOUNT
 	long   ID;             //
@@ -22972,7 +22972,7 @@ class PPSmsAccPacket {
 public:
 	PPSmsAccPacket();
 	void   Init();
-	int    FASTCALL IsEqual(const PPSmsAccPacket & rS) const;
+	int    FASTCALL IsEq(const PPSmsAccPacket & rS) const;
 	//
 	// Descr: Опции функции PPSmsAccPacket::Verify
 	//
@@ -23100,7 +23100,7 @@ public:
 
 	PPUhttStoreSelDescr();
 	PPUhttStoreSelDescr & Destroy();
-	int    FASTCALL IsEqual(const PPUhttStoreSelDescr & rS) const;
+	int    FASTCALL IsEq(const PPUhttStoreSelDescr & rS) const;
 	uint   GetCount() const;
 	int    ValidateEntry(const Entry * pEntry) const;
 	int    AddEntry(uint * pPos, const Entry * pEntry);
@@ -23124,7 +23124,7 @@ class PPUhttStorePacket {
 public:
 	PPUhttStorePacket();
 	~PPUhttStorePacket();
-	int    FASTCALL IsEqual(const PPUhttStorePacket & rS) const;
+	int    FASTCALL IsEq(const PPUhttStorePacket & rS) const;
 	void   destroy();
 	//
 	// Descr: Возвращает список селекторов, откорректированный с учетом
@@ -23205,7 +23205,7 @@ class PPWorkbookPacket {
 public:
 	PPWorkbookPacket();
 	~PPWorkbookPacket();
-	int    FASTCALL IsEqual(const PPWorkbookPacket & rS) const;
+	int    FASTCALL IsEq(const PPWorkbookPacket & rS) const;
 	void   destroy();
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pBuf);
@@ -23757,7 +23757,7 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	PPGoodsStrucItem();
 	int    FASTCALL operator == (const PPGoodsStrucItem & rS) const;
 	int    FASTCALL operator != (const PPGoodsStrucItem & rS) const;
-	int    FASTCALL IsEqual(const PPGoodsStrucItem & rS) const;
+	int    FASTCALL IsEq(const PPGoodsStrucItem & rS) const;
 	int    SetEstimationString(const char *);
 	SString & GetEstimationString(SString &, long format = 0) const;
 	int    SetFormula(const char * pStr, const PPGoodsStruc * pStruc);
@@ -23810,7 +23810,7 @@ public:
 	void   Init();
 	PPGoodsStruc & FASTCALL operator = (const PPGoodsStruc &);
 	PPGoodsStruc & FASTCALL Copy(const PPGoodsStruc & rS);
-	int    FASTCALL IsEqual(const PPGoodsStruc &) const;
+	int    FASTCALL IsEq(const PPGoodsStruc &) const;
 	int    IsEmpty() const;
 	int    IsNamed() const;
 	int    CanExpand() const;
@@ -23880,7 +23880,10 @@ public:
 	int    Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const;
 	int    GetItemQtty(PPID goodsID, double complQtty, double * pQtty) const;
 	SString & MakeChildDefaultName(SString & rBuf) const;
-	int    InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData);
+	//
+	// ARG(recursiveUnrollIncome IN): @v11.2.4 рекурсивно "раскручивать" входящие позиции, которые имеют собственную структуру декомплектации
+	//
+	int    InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData, bool recursiveUnrollIncome);
 	int    InitCompleteData2(/*const PPTransferItem & rTi,*/PPID goodsID, double needQty, PPComplBlock & rData);
 	//
 	// Поле GoodsID не является неотъемлемой частью структуры товара, поскольку одна структура
@@ -23898,6 +23901,7 @@ private:
 	int    SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const;
 		// @<<PPGoodsStruc::EnumItemsExt
 	int    Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const;
+	int    RecursiveUnrollIncome(PPID goodsID, double reqQtty, const PPBillPacket * pBillPack, PPComplBlock & rData);
 };
 
 struct GStrucRecurItem { // @flat
@@ -24065,7 +24069,7 @@ private:
 	int    SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 
-int LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs);
+int LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 //
 // @ModuleDecl(PPObjGoodsTax)
 // Товарные налоговые группы
@@ -24079,7 +24083,7 @@ int LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs);
 
 struct PPGoodsTaxEntry { // @flat
 	PPGoodsTaxEntry();
-	int    FASTCALL IsEqual(const PPGoodsTaxEntry & rS) const;
+	int    FASTCALL IsEq(const PPGoodsTaxEntry & rS) const;
 	double GetVatRate() const;
 	char * FormatVAT(char *, size_t) const;
 	char * FormatExcise(char *, size_t) const;
@@ -24572,7 +24576,7 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 	// Descr: Сравнивает объект this с экземпляром rS. Если они равны (за исключением
 	//   полей Tag и ID, то возвращает !0, в противном случае - 0.
 	//
-	int    FASTCALL IsEqual(const PPPsnOpKind2 & rS) const;
+	int    FASTCALL IsEq(const PPPsnOpKind2 & rS) const;
 
 	PPID   Tag;            // Const=PPOBJ_PERSONOPKIND
 	PPID   ID;             // @id
@@ -24650,7 +24654,7 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 class PoClause_ {
 public:
 	PoClause_();
-	int    FASTCALL IsEqual(const PoClause_ & rS) const;
+	int    FASTCALL IsEq(const PoClause_ & rS) const;
 	PPID   GetDirObjType() const;
 	long   GetDirFlags() const;
 	//
@@ -24680,7 +24684,7 @@ public:
 	PoClauseArray_();
 	PoClauseArray_ & FASTCALL operator = (const PoClauseArray_ & rS);
 	PoClauseArray_ & Z();
-	int    IsEqual(const PoClauseArray_ & rS, int options = 0) const;
+	int    IsEq(const PoClauseArray_ & rS, int options = 0) const;
 	uint   GetCount() const;
 	int    Get(uint pos, PoClause_ & rItem) const;
 	int    Add(const PoClause_ & rItem);
@@ -24728,7 +24732,7 @@ public:
 
 	PPPsnOpKindPacket();
 	PPPsnOpKindPacket & FASTCALL operator = (const PPPsnOpKindPacket &);
-	int    FASTCALL IsEqual(const PPPsnOpKindPacket & rS) const;
+	int    FASTCALL IsEq(const PPPsnOpKindPacket & rS) const;
 	void   destroy();
 	int    CheckExVal();
 	PPPsnOpKind  Rec;
@@ -25853,7 +25857,7 @@ struct PersonReq { // @flat
 
 struct CashierInfo {
 	CashierInfo();
-	int    FASTCALL IsEqual(const CashierInfo & rS) const;
+	int    FASTCALL IsEq(const CashierInfo & rS) const;
 
 	char   Password[20]; // Пароль кассира
 	long   Rights;	     // Права  кассира
@@ -28301,7 +28305,7 @@ struct ClsdGoodsFilt {
 	//
 	ClsdGoodsFilt();
 	ClsdGoodsFilt & Z();
-	int    FASTCALL IsEqual(const ClsdGoodsFilt & rS) const;
+	int    FASTCALL IsEq(const ClsdGoodsFilt & rS) const;
 	//
 	// Descr: Возвращает !0 если фильтр содержит ограничение
 	//   хотя бы по одному из классифицирующих атрибутов.
@@ -29350,8 +29354,8 @@ public:
 	//   0  - ошибка
 	//
 	int    GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStrucID);
-	int    LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs);
-	int    LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, TSCollection <PPGoodsStruc> & rGsList);
+	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
+	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection <PPGoodsStruc> & rGsList);
 	int    EditGoodsStruc(PPID);
 	int    GetValueAddedData(PPID, PPGoodsPacket *);
 	int    InitPacket(PPGoodsPacket *, GoodsPacketKind, PPID parentID, PPID clsID, const char * pBarCode);
@@ -29725,7 +29729,7 @@ private:
 	int    IsRef(const char *, size_t * pPos, SString & rRef);
 	int    ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double * pVal);
 	int    ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, double * pVal);
-	int    AllocGoodsStruc();
+	void   AllocGoodsStruc();
 
 	const  PPGoodsPacket  * P_Pack;
 	const  PPGdsClsPacket * P_ClsPack;
@@ -30140,7 +30144,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 		vantypVentilated  = 4
 	};
 	PPTransport();
-	int    FASTCALL IsEqual(const PPTransport & rS) const;
+	int    FASTCALL IsEq(const PPTransport & rS) const;
 
 	PPID   ID;             // @id
 	long   TrType;         // PPTRTYP_XXX (Stored as Goods2.GdsClsID)
@@ -30305,7 +30309,7 @@ struct PPSuprWare {
 	//   !0 - *this == rS
 	//   0  - *this != rS
 	//
-	int    FASTCALL IsEqual(const PPSuprWare & rS) const;
+	int    FASTCALL IsEq(const PPSuprWare & rS) const;
 
 	PPID   ID;             // @id
 	char   Name[128];      // Наименование на родном языке
@@ -30464,7 +30468,7 @@ public:
 		};
 		Item();
 		void   Clear();
-		int    IsEqual(const Item & rItem, long cmpFlags) const;
+		int    IsEq(const Item & rItem, long cmpFlags) const;
 
 		PPID   ID;
 		char   RarIdent[16];
@@ -30512,7 +30516,7 @@ public:
 		};
 		Item();
 		void   Clear();
-		int    IsEqual(const Item & rItem, long cmpflags) const;
+		int    IsEq(const Item & rItem, long cmpflags) const;
 
 		PPID   ID;
 		char   AlcoCode[24];
@@ -31262,8 +31266,8 @@ private:
 //
 class PPQuotImpExpParam : public PPImpExpParam {
 public:
-	PPQuotImpExpParam(uint recId = 0, long flags = 0);
-	void   Clear();
+	explicit PPQuotImpExpParam(uint recId = 0, long flags = 0);
+	PPQuotImpExpParam & Z();
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
@@ -32650,18 +32654,29 @@ struct ComplItem {
 	PPID   GoodsID;
 	long   GoodsFlags;
 	uint   SrcGsPos;       // [1..] Позиция строки в исходной структуре (+1), к которой относится данных элемент
+	long   GsID;           // @v11.2.4 Ид структуры, из которой сформирован элемент. Необходим в случаях, когда контейнер PPComplBlock формируется из нескольких структур
 	long   GsiFlags;       // Флаги элемента структуры
+	uint   FormulaP;       // @v11.2.4 Если количество элемента рассчитывается по формуле, то здесь хранится ненулевая позиция формулы в PPComplBlock::FPool
 	double PartQty;
 	double NeedQty;
 	double FreeQty;
 };
 
-//typedef TSArray <ComplItem> ComplArray;
-
 class PPComplBlock : public TSVector <ComplItem> {
 public:
-	int    Add(const PPComplBlock & rS);
+	PPComplBlock();
+	int    Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty);
+	bool   GetFormula(uint idx/*0..*/, SString & rFormula) const;
+	//
+	// Descr: Возвращает указатель на структуру, ассоциированную с элементом по индексу idx.
+	//   Если индекс idx неверный либо структура не найдена, то возвращает 0 
+	//   (в контексте использования данного класса, это - серьезная ошибка).
+	//
+	const  PPGoodsStruc * GetGoodsStruc(uint idx/*0..*/) const;
 	ComplItem Head;
+private:
+	SStrGroup FPool; // @v11.2.4 Пул формул
+	TSCollection <PPGoodsStruc> GsList; // @v11.2.4
 };
 //
 // Descr: Структура, содержащая информацию о заменах дефицитного товара DestID
@@ -34398,7 +34413,7 @@ struct LocTransfOpBlock {
 	LocTransfOpBlock(int op, PPID locID);
 	LocTransfOpBlock & FASTCALL operator = (const LocTransfTbl::Rec * pRec);
 	LocTransfOpBlock & Init(int op, PPID locID);
-	int    FASTCALL IsEqual(const LocTransfTbl::Rec & rRec) const;
+	int    FASTCALL IsEq(const LocTransfTbl::Rec & rRec) const;
 
 	int    Op;             // LOCTRFROP_XXX
 	PPID   BillID;         //
@@ -35157,7 +35172,7 @@ enum {
 
 struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	PPSCardSeries2();
-	int    FASTCALL IsEqual(const PPSCardSeries2 & rS) const;
+	int    FASTCALL IsEq(const PPSCardSeries2 & rS) const;
 	int    GetType() const;
 	int    SetType(int type);
 	int    Verify();
@@ -35215,7 +35230,7 @@ public:
 	PPSCardSerRule();
 	PPSCardSerRule & FASTCALL operator = (const PPSCardSerRule & s);
 	void   Init();
-	int    FASTCALL IsEqual(const PPSCardSerRule & rS) const;
+	int    FASTCALL IsEq(const PPSCardSerRule & rS) const;
 	int    ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const;
 	int    IsList() const;
 	int    CheckTrnovrRng(const RealRange & rR, long pos) const;
@@ -35250,7 +35265,7 @@ struct PPSCardSerPacket {
 	//   В частности, согласовывает поле Rec.QuotKindID_s со списком QuotKindList и флагом SCRDSF_USEQUOTKINDLIST.
 	//
 	int    Normalize();
-	int    FASTCALL IsEqual(const PPSCardSerPacket & rS) const;
+	int    FASTCALL IsEq(const PPSCardSerPacket & rS) const;
 	int    GetDisByRule(double trnovr, TrnovrRngDis & rEntry) const;
 
 	enum {
@@ -35272,7 +35287,7 @@ struct PPSCardSerPacket {
 		Ext();
 		void   Init();
 		int    IsEmpty() const;
-		int    FASTCALL IsEqual(const Ext & rS) const;
+		int    FASTCALL IsEq(const Ext & rS) const;
 		char   CodeTempl[32]; // Шаблон номеров карт
 		uint8  Reserve[20];   // @reserve
 		LTIME  UsageTmStart;
@@ -40605,9 +40620,9 @@ private:
 		Cache();
 		Cache & Clear();
 		int    SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial);
-		int    GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
+		bool   GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
 		int    SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal);
-		int    GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
+		bool   GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
 	};
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -43249,7 +43264,7 @@ struct ObjSyncFilt : public PPBaseFilt {
 	virtual int Write(SBuffer &, long) const;
 	virtual int Read(SBuffer &, long);
 	virtual int Copy(const PPBaseFilt *, int);
-	virtual int IsEqual(const PPBaseFilt *, int) const;
+	virtual int IsEq(const PPBaseFilt *, int) const;
 
 	char   ReserveStart[32]; // @anchor
 	PPID   ObjType;
@@ -46166,7 +46181,7 @@ public:
 		doctypCommandList = 1
 	};
 	struct StoragePacket {
-		int FASTCALL IsEqual(const StoragePacket & rS) const;
+		int FASTCALL IsEq(const StoragePacket & rS) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
@@ -46306,7 +46321,7 @@ public:
 		Invitation();
 		Invitation(const RunServerParam & rRsP);
 		Invitation & Z();
-		int    FASTCALL IsEqual(const Invitation & rS) const;
+		int    FASTCALL IsEq(const Invitation & rS) const;
 
 		SString CommandJson;
 	};
@@ -47972,7 +47987,7 @@ public:
 		//   по равенству Code (если не пустой).
 		//   Если и Uuid и Code у обоих экземпляров пустые, то экземпляры считаются эквивалентными.
 		//
-		int    FASTCALL IsEqual(const RouteBlock & rS) const;
+		int    FASTCALL IsEq(const RouteBlock & rS) const;
 
 		S_GUID Uuid;
 		SString System;
@@ -50927,7 +50942,7 @@ public:
 	//
     struct NPoint { // @flat
     	NPoint();
-		int    FASTCALL IsEqual(const NPoint & rS) const;
+		int    FASTCALL IsEq(const NPoint & rS) const;
 		int    FASTCALL operator == (const NPoint & rS) const;
 		int    FASTCALL operator != (const NPoint & rS) const;
 
@@ -50939,7 +50954,7 @@ public:
 	//
     struct Node : public NPoint { // @flat
     	Node();
-		int    FASTCALL IsEqual(const Node & rS) const;
+		int    FASTCALL IsEq(const Node & rS) const;
 		int    FASTCALL operator == (const Node & rS) const;
 		int    FASTCALL operator != (const Node & rS) const;
 
@@ -50948,7 +50963,7 @@ public:
     class NodeRefs {
 	public:
 		NodeRefs();
-		int    FASTCALL IsEqual(const NodeRefs & rS) const;
+		int    FASTCALL IsEq(const NodeRefs & rS) const;
 		int    AddWayRef(uint64 nodeID, uint64 wayID);
 		int    AddRelRef(uint64 nodeID, uint64 relID);
 		void   Clear();
@@ -50960,7 +50975,7 @@ public:
     struct Way {
     	Way();
 		void   Clear();
-    	int    FASTCALL IsEqual(const Way & rS) const;
+    	int    FASTCALL IsEq(const Way & rS) const;
 		int    FASTCALL operator == (const Way & rS) const;
 		int    FASTCALL operator != (const Way & rS) const;
 
@@ -52441,11 +52456,12 @@ private:
 //
 // Диалог расширенного выбора товара для товарной операции
 //
-#define TIDIF_PACKS     0x00000001L // TIDlgInitData::Quantity in packs
-#define TIDIF_AUTOCLOSE 0x00000002L // Автоматом закрывать диалог если Quantity != 0
-#define TIDIF_DSBLGSEL  0x00000004L // Запретить выбор товара, отличного от TIDlgInitData::GoodsID
-#define TIDIF_AUTOQTTY  0x00000008L // автоматическое добавление 1-цы товара, без вывода диалога
-#define TIDIF_SEQQREQ   0x00000010L // @v10.5.8 Последовательный запрос котировки
+#define TIDIF_PACKS            0x00000001L // TIDlgInitData::Quantity in packs
+#define TIDIF_AUTOCLOSE        0x00000002L // Автоматом закрывать диалог если Quantity != 0
+#define TIDIF_DSBLGSEL         0x00000004L // Запретить выбор товара, отличного от TIDlgInitData::GoodsID
+#define TIDIF_AUTOQTTY         0x00000008L // автоматическое добавление 1-цы товара, без вывода диалога
+#define TIDIF_SEQQREQ          0x00000010L // @v10.5.8 Последовательный запрос котировки
+#define TIDIF_RECURUNROLLMODIF 0x00000020L // @v11.2.4 Рекурсивная декомплектация товаров по структурам
 
 struct TIDlgInitData {
 	TIDlgInitData();
@@ -54762,9 +54778,9 @@ private:
 	DdotInfoBlock Dib;
 };
 
-struct LayoutEntryDialogBlock : public AbstractLayoutBlock {
-	explicit LayoutEntryDialogBlock(const AbstractLayoutBlock * pS);
-	void   Setup(const AbstractLayoutBlock * pS);
+struct LayoutEntryDialogBlock : public SUiLayoutParam {
+	explicit LayoutEntryDialogBlock(const SUiLayoutParam * pS);
+	void   Setup(const SUiLayoutParam * pS);
 	int    EditEntry(const TWhatman * pWtm);
 	int    EditContainer();
 
@@ -55966,8 +55982,8 @@ int    STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr);
 int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags);
 int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags);
 int    STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags);
-int    ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags);
-int    AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags);
+int    ComboBoxSelDialog2(const StrAssocArray & rAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags);
+int    AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags);
 //
 #define INIREPF_FORCELANDSCAPE 0x0001L
 #define INIREPF_NOSHOWDIALOG   0x0002L
@@ -56072,7 +56088,7 @@ int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const cha
 int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int    GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
-int    STDCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
+int    STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
 int    STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);
 int    STDCALL ViewSysJournal(const SysJournalFilt *, int modeless);
 int    STDCALL ViewSysJournal(PPID objType, PPID objID, int modeless);

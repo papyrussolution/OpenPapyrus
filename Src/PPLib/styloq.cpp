@@ -902,7 +902,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid) const
 	return p_result;
 }
 
-int FASTCALL StyloQCore::StoragePacket::IsEqual(const StyloQCore::StoragePacket & rS) const
+int FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & rS) const
 {
 	#define FE(f) if(Rec.f != rS.Rec.f) return 0;
 	FE(ID);
@@ -914,7 +914,7 @@ int FASTCALL StyloQCore::StoragePacket::IsEqual(const StyloQCore::StoragePacket 
 	#undef FE
 	if(memcmp(Rec.BI, rS.Rec.BI, sizeof(Rec.BI)) != 0)
 		return 0;
-	if(!Pool.IsEqual(rS.Pool))
+	if(!Pool.IsEq(rS.Pool))
 		return 0;
 	return 1;
 }
@@ -1022,7 +1022,7 @@ int StyloQCore::SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, St
 	MEMSZERO(k1);
 	k1.Kind = kind;
 	memcpy(k1.BI, rIdent.PtrC(), rIdent.Len());
-	if(search(1, &k1, spGe) && data.Kind == kind && rIdent.IsEqual(data.BI, rIdent.Len())) {
+	if(search(1, &k1, spGe) && data.Kind == kind && rIdent.IsEq(data.BI, rIdent.Len())) {
 		THROW(ReadCurrentPacket(pPack));
 		ok = 1;			
 	}
@@ -1158,7 +1158,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 						memcpy(pPack->Rec.BI, &guid, sizeof(guid));
 					}
 				}
-				if(pPack->IsEqual(preserve_pack)) {
+				if(pPack->IsEq(preserve_pack)) {
 					ok = -1;
 				}
 				else {
@@ -2096,7 +2096,7 @@ int StyloQProtocol::ReadMime64(const SString & rSrcMime64, const SBinaryChunk * 
 			THROW(pack_src.FinishWriting(&crypto_key));
 			//
 			THROW(pack_dest.Read(pack_src, &crypto_key));
-			THROW(pack_dest.P.IsEqual(pack_src.P));
+			THROW(pack_dest.P.IsEq(pack_src.P));
 		}
 	}
 	CATCHZOK
@@ -2130,7 +2130,7 @@ PPStyloQInterchange::RoundTripBlock::~RoundTripBlock()
 	delete P_SrpV;
 }
 
-int    FASTCALL PPStyloQInterchange::Invitation::IsEqual(const PPStyloQInterchange::Invitation & rS) const
+int    FASTCALL PPStyloQInterchange::Invitation::IsEq(const PPStyloQInterchange::Invitation & rS) const
 {
 	return (Capabilities == rS.Capabilities && SvcIdent == rS.SvcIdent && LoclAddendum == rS.LoclAddendum && AccessPoint == rS.AccessPoint && 
 		CommandJson == rS.CommandJson);
@@ -3225,9 +3225,9 @@ int PPStyloQInterchange::TestDatabase()
 			THROW(rReadPack.Rec.Kind == Kind);
 			//THROW(rReadPack.Rec.Expiration == Expiration);
 			//THROW(rReadPack.Rec.TimeStamp == Timestamp);
-			THROW(Ident.IsEqual(rReadPack.Rec.BI, sizeof(rReadPack.Rec.BI)));
+			THROW(Ident.IsEq(rReadPack.Rec.BI, sizeof(rReadPack.Rec.BI)));
 			THROW_SL(rReadPack.Pool.Get(SSecretTagPool::tagClientIdent, &bc_temp));
-			THROW(bc_temp.IsEqual(rReadPack.Rec.BI, sizeof(rReadPack.Rec.BI)));
+			THROW(bc_temp.IsEq(rReadPack.Rec.BI, sizeof(rReadPack.Rec.BI)));
 			THROW_SL(rReadPack.Pool.Get(SSecretTagPool::tagRawData, &bc_temp));
 			{
 				temp_buf.Z().CatN(static_cast<const char *>(bc_temp.PtrC()), bc_temp.Len());
@@ -3312,12 +3312,12 @@ int PPStyloQInterchange::TestDatabase()
 				//THROW(rpack.Rec.TimeStamp == doc_pack.Rec.TimeStamp);
 				THROW(rpack.Rec.LinkObjType == 0);
 				THROW(rpack.Rec.LinkObjID == 0);
-				THROW(__tb.Ident.IsEqual(rpack.Rec.BI, sizeof(rpack.Rec.BI)));
+				THROW(__tb.Ident.IsEq(rpack.Rec.BI, sizeof(rpack.Rec.BI)));
 				{
 					SBinaryChunk bc_temp;
 					const int _other_id_tag = (doc_direction > 0) ? SSecretTagPool::tagClientIdent : SSecretTagPool::tagSvcIdent;
 					THROW_SL(rpack.Pool.Get(_other_id_tag, &bc_temp));
-					THROW(bc_temp.IsEqual(rpack.Rec.BI, sizeof(rpack.Rec.BI)));
+					THROW(bc_temp.IsEq(rpack.Rec.BI, sizeof(rpack.Rec.BI)));
 					THROW_SL(rpack.Pool.Get(SSecretTagPool::tagRawData, &bc_temp));
 					{
 						temp_buf.Z().CatN(static_cast<const char *>(bc_temp.PtrC()), bc_temp.Len());
@@ -3936,7 +3936,7 @@ int Test_StyloQInvitation()
 			rIc.MakeInvitation(inv_source, temp_buf);
 			if(!rIc.AcceptInvitation(temp_buf, inv_result))
 				ok = 0;
-			else if(!inv_result.IsEqual(inv_source))
+			else if(!inv_result.IsEq(inv_source))
 				ok = 0;
 			{
 				PPBarcode::BarcodeImageParam bip;

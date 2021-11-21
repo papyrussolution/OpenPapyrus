@@ -79,14 +79,14 @@ static void ssh_gssapi_free(ssh_session session){
 	OM_uint32 min;
 	if(session->gssapi == NULL)
 		return;
-	SAFE_FREE(session->gssapi->user);
-	SAFE_FREE(session->gssapi->mech.elements);
+	ZFREE(session->gssapi->user);
+	ZFREE(session->gssapi->mech.elements);
 	gss_release_cred(&min, &session->gssapi->server_creds);
 	if(session->gssapi->client.creds !=
 	    session->gssapi->client.client_deleg_creds) {
 		gss_release_cred(&min, &session->gssapi->client.creds);
 	}
-	SAFE_FREE(session->gssapi);
+	ZFREE(session->gssapi);
 }
 
 SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token){
@@ -118,10 +118,7 @@ static int ssh_gssapi_send_response(ssh_session session, ssh_string oid){
 
 #endif /* WITH_SERVER */
 
-static void ssh_gssapi_log_error(int verb,
-    const char * msg,
-    int maj_stat,
-    int min_stat)
+static void ssh_gssapi_log_error(int verb, const char * msg, int maj_stat, int min_stat)
 {
 	gss_buffer_desc msg_maj = {
 		.length = 0,
@@ -390,7 +387,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_server){
 	}
 	hexa = ssh_get_hexa((const uchar *)ssh_string_data(token), ssh_string_len(token));
 	SSH_LOG(SSH_LOG_PACKET, "GSSAPI Token : %s", hexa);
-	SAFE_FREE(hexa);
+	ZFREE(hexa);
 	input_token.length = ssh_string_len(token);
 	input_token.value = ssh_string_data(token);
 
@@ -420,7 +417,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_server){
 	if(output_token.length != 0) {
 		hexa = ssh_get_hexa(output_token.value, output_token.length);
 		SSH_LOG(SSH_LOG_PACKET, "GSSAPI: sending token %s", hexa);
-		SAFE_FREE(hexa);
+		ZFREE(hexa);
 		ssh_buffer_pack(session->out_buffer,
 		    "bdP",
 		    SSH2_MSG_USERAUTH_GSSAPI_TOKEN,
@@ -685,7 +682,7 @@ static int ssh_gssapi_match(ssh_session session, gss_OID_set * valid_oids)
 			gss_add_oid_set_member(&min_stat, oid, valid_oids);
 			ptr = ssh_get_hexa(oid->elements, oid->length);
 			SSH_LOG(SSH_LOG_DEBUG, "GSSAPI valid oid %d : %s", i, ptr);
-			SAFE_FREE(ptr);
+			ZFREE(ptr);
 		}
 	}
 
@@ -800,12 +797,12 @@ static gss_OID ssh_gssapi_oid_from_string(ssh_string oid_s)
 	}
 
 	if(len > 256 || len <= 2) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 		return NULL;
 	}
 
 	if(data[0] != SSH_OID_TAG || data[1] != len - 2) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 		return NULL;
 	}
 
@@ -816,7 +813,7 @@ static gss_OID ssh_gssapi_oid_from_string(ssh_string oid_s)
 
 	ret->elements = SAlloc::M(len - 2);
 	if(ret->elements == NULL) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 		return NULL;
 	}
 	memcpy(ret->elements, &data[2], len-2);
@@ -876,7 +873,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_response){
 	if(output_token.length != 0) {
 		hexa = ssh_get_hexa(output_token.value, output_token.length);
 		SSH_LOG(SSH_LOG_PACKET, "GSSAPI: sending token %s", hexa);
-		SAFE_FREE(hexa);
+		ZFREE(hexa);
 		ssh_buffer_pack(session->out_buffer,
 		    "bdP",
 		    SSH2_MSG_USERAUTH_GSSAPI_TOKEN,
@@ -960,7 +957,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_client){
 
 	hexa = ssh_get_hexa(ssh_string_data(token), ssh_string_len(token));
 	SSH_LOG(SSH_LOG_PACKET, "GSSAPI Token : %s", hexa);
-	SAFE_FREE(hexa);
+	ZFREE(hexa);
 	input_token.length = ssh_string_len(token);
 	input_token.value = ssh_string_data(token);
 	maj_stat = gss_init_sec_context(&min_stat,
@@ -987,7 +984,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_client){
 	if(output_token.length != 0) {
 		hexa = ssh_get_hexa(output_token.value, output_token.length);
 		SSH_LOG(SSH_LOG_PACKET, "GSSAPI: sending token %s", hexa);
-		SAFE_FREE(hexa);
+		ZFREE(hexa);
 		ssh_buffer_pack(session->out_buffer, "bdP", SSH2_MSG_USERAUTH_GSSAPI_TOKEN, output_token.length, (size_t)output_token.length, output_token.value);
 		ssh_packet_send(session);
 	}

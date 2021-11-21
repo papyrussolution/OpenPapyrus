@@ -883,7 +883,7 @@ int STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) c
 	int    ok = 0;
 	for(uint i = startPos; !ok && i < T.getCount(); i++) {
 		const SUniTime & r_ut = T.at(i);
-		int cr = r_ut.IsEqual(rUt);
+		int cr = r_ut.IsEq(rUt);
 		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
 			ASSIGN_PTR(pIdx, i);
 			ok = cr;
@@ -913,7 +913,7 @@ int STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * 
 	uint   i = startPos;
 	if(i) do {
 		const SUniTime & r_ut = T.at(--i);
-		const int cr = r_ut.IsEqual(rUt);
+		const int cr = r_ut.IsEq(rUt);
 		if(oneof2(cr, SUniTime::cmprSureTrue, SUniTime::cmprUncertainTrue)) {
 			ASSIGN_PTR(pIdx, i);
 			ok = cr;

@@ -309,7 +309,7 @@ static int privatekey_decrypt(int algo, int mode, uint key_len,
 
 	memcpy(ssh_buffer_get(data), tmp, ssh_buffer_get_len(data));
 
-	SAFE_FREE(tmp);
+	ZFREE(tmp);
 	gcry_cipher_close(cipher);
 
 	return 0;
@@ -461,13 +461,13 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 			if(privatekey_dek_header(p, len, &algo, &mode, &key_len,
 			    &iv, &iv_len) < 0) {
 				SSH_BUFFER_FREE(buffer);
-				SAFE_FREE(iv);
+				ZFREE(iv);
 				return NULL;
 			}
 		}
 		else {
 			SSH_BUFFER_FREE(buffer);
-			SAFE_FREE(iv);
+			ZFREE(iv);
 			return NULL;
 		}
 	}
@@ -475,7 +475,7 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 		if(len > 0) {
 			if(ssh_buffer_add_data(buffer, p, len) < 0) {
 				SSH_BUFFER_FREE(buffer);
-				SAFE_FREE(iv);
+				ZFREE(iv);
 				return NULL;
 			}
 		}
@@ -485,7 +485,7 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 	while(!eol && strncmp(p, header_end, header_end_size) != 0) {
 		if(ssh_buffer_add_data(buffer, p, len) < 0) {
 			SSH_BUFFER_FREE(buffer);
-			SAFE_FREE(iv);
+			ZFREE(iv);
 			return NULL;
 		}
 		get_next_line(p, len);
@@ -493,20 +493,20 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 
 	if(eol || strncmp(p, header_end, header_end_size) != 0) {
 		SSH_BUFFER_FREE(buffer);
-		SAFE_FREE(iv);
+		ZFREE(iv);
 		return NULL;
 	}
 
 	if(ssh_buffer_add_data(buffer, "\0", 1) < 0) {
 		SSH_BUFFER_FREE(buffer);
-		SAFE_FREE(iv);
+		ZFREE(iv);
 		return NULL;
 	}
 
 	out = base64_to_bin(ssh_buffer_get(buffer));
 	SSH_BUFFER_FREE(buffer);
 	if(out == NULL) {
-		SAFE_FREE(iv);
+		ZFREE(iv);
 		return NULL;
 	}
 
@@ -514,11 +514,11 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 		if(privatekey_decrypt(algo, mode, key_len, iv, iv_len, out,
 		    cb, userdata, desc) < 0) {
 			SSH_BUFFER_FREE(out);
-			SAFE_FREE(iv);
+			ZFREE(iv);
 			return NULL;
 		}
 	}
-	SAFE_FREE(iv);
+	ZFREE(iv);
 
 	return out;
 }

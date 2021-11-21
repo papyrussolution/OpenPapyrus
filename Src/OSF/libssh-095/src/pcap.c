@@ -265,7 +265,7 @@ int ssh_pcap_file_close(ssh_pcap_file pcap)
 void ssh_pcap_file_free(ssh_pcap_file pcap)
 {
 	ssh_pcap_file_close(pcap);
-	SAFE_FREE(pcap);
+	ZFREE(pcap);
 }
 
 /** @internal
@@ -286,7 +286,7 @@ ssh_pcap_context ssh_pcap_context_new(ssh_session session)
 
 void ssh_pcap_context_free(ssh_pcap_context ctx)
 {
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 }
 
 void ssh_pcap_context_set_file(ssh_pcap_context ctx, ssh_pcap_file pcap)

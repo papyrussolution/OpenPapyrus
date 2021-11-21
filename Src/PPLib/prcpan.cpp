@@ -511,9 +511,9 @@ int PrcPaneDialog::setupPrice(double price)
 static int IsRuTextEq(const SString & rText, const char * pPatternUtf8)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	if((r_temp_buf = rText).Transf(CTRANSF_INNER_TO_UTF8).IsEqual(pPatternUtf8))
+	if((r_temp_buf = rText).Transf(CTRANSF_INNER_TO_UTF8).IsEq(pPatternUtf8))
 		return 1;
-	else if((r_temp_buf = rText).Transf(CTRANSF_OUTER_TO_UTF8).IsEqual(pPatternUtf8))
+	else if((r_temp_buf = rText).Transf(CTRANSF_OUTER_TO_UTF8).IsEq(pPatternUtf8))
 		return 1;
 	else
 		return 0;
@@ -575,9 +575,9 @@ void PrcPaneDialog::ProcessEnter()
 			const char * p_ru_stop = "СТОП";
 			const char * p_ru_ost = "ОСТ";
 			const char * p_ru_font = "ШРИФТ";
-			if(tb.IsEqual("STOP") || IsRuTextEq(tb, p_ru_stop))
+			if(tb.IsEq("STOP") || IsRuTextEq(tb, p_ru_stop))
 				stopSession();
-			else if(tb.IsEqual("PRCREST") || IsRuTextEq(tb, p_ru_ost)) {
+			else if(tb.IsEq("PRCREST") || IsRuTextEq(tb, p_ru_ost)) {
 				if(State == sEMPTY_SESS)
 					State = sREST;
 				else if(State == sGOODS_NOQTTY)
@@ -588,7 +588,7 @@ void PrcPaneDialog::ProcessEnter()
 					;
 				}
 			}
-			else if(tb.IsEqual("PRCFONT") || IsRuTextEq(tb, p_ru_font)) {
+			else if(tb.IsEq("PRCFONT") || IsRuTextEq(tb, p_ru_font)) {
 				if(H.PrcRec.PrinterID) {
 					if(!BarcodeLabelPrinter::UpLoad(H.PrcRec.PrinterID, "FONTS", 1))
 						showMessage(mfError, 0, 0);

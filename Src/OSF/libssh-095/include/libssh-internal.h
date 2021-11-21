@@ -234,10 +234,8 @@ int ssh_connector_remove_event(ssh_connector connector);
 //#ifndef MAX
 	//#define MAX(a, b) ((a) > (b) ? (a) : (b))
 //#endif
-
-/** Free memory space */
-#define SAFE_FREE(x) do { if((x) != NULL) { SAlloc::F(x); x = NULL;} } while(0)
-
+// Free memory space 
+// @sobolev #define SAFE_FREE_Removed(x) do { if((x) != NULL) { SAlloc::F(x); x = NULL;} } while(0)
 #define ZERO_STRUCT(x) memzero((char *)&(x), sizeof(x)) /** Zero a structure */
 /** Zero a structure given a pointer to the structure */
 #define ZERO_STRUCTP(x) do { if((x) != NULL) memzero((char *)(x), sizeof(*(x))); } while(0)

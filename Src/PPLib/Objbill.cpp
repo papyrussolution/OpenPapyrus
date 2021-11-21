@@ -349,7 +349,7 @@ int FASTCALL PPObjBill::GetEdiUserStatus(const BillTbl::Rec & rRec)
 int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, long flags)
 {
 	int    eq = 1;
-	if(!rS1.PPBill::IsEqual(rS2))
+	if(!rS1.PPBill::IsEq(rS2))
 		eq = 0;
 	else if(rS1.LnkFiles.getCount()) // Увы, если есть хоть один прикрепленный файл, то придется признать документ изменившимся в любом случае. @todo Решить это проблему.
 		eq = 0;
@@ -364,13 +364,13 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 			for(uint i = 0; eq && i < c1; i++) {
 				const PPTransferItem & r_ti1 = rS1.ConstTI(i);
 				const PPTransferItem & r_ti2 = rS2.ConstTI(i);
-				if(!r_ti1.IsEqual(r_ti2))
+				if(!r_ti1.IsEq(r_ti2))
 					eq = 0;
 				else if((r_ti1.Flags & PPTFR_RECEIPT) || is_intr || rS1.IsDraft()){
 					const ObjTagList * p_t1 = rS1.LTagL.Get(i);
 					const ObjTagList * p_t2 = rS2.LTagL.Get(i);
 					if(p_t1 != 0 && p_t2 != 0) {
-						if(!p_t1->IsEqual(*p_t2))
+						if(!p_t1->IsEq(*p_t2))
 							eq = 0;
 					}
 					else if(BIN(p_t1) != BIN(p_t2))
@@ -380,7 +380,7 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 					const ObjTagList * p_t1 = rS1.P_MirrorLTagL ? rS1.P_MirrorLTagL->Get(i) : 0;
 					const ObjTagList * p_t2 = rS2.P_MirrorLTagL ? rS2.P_MirrorLTagL->Get(i) : 0;
 					if(p_t1 != 0 && p_t2 != 0) {
-						if(!p_t1->IsEqual(*p_t2))
+						if(!p_t1->IsEq(*p_t2))
 							eq = 0;
 					}
 					else if(BIN(p_t1) != BIN(p_t2))
@@ -1385,7 +1385,7 @@ int PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec, PPBil
 				SBuffer ov_buf;
 				PPObjID oid;
 				ov_buf.Z();
-				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(ev_mod.ObjType, ev_mod.ObjID)) {
+				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEq(ev_mod.ObjType, ev_mod.ObjID)) {
 					PPBillPacket org_pack;
 					THROW(SerializePacket__(-1, &org_pack, ov_buf, &r_sctx));
 					org_pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited);
@@ -2357,7 +2357,7 @@ int PPObjBill::EditAccTurn(PPID id)
 		flags = ATTF_TO_ATDF(att_list.at(0).Flags);
 	flags |= (ATDF_DSBLDACC | ATDF_DSBLDART | ATDF_DSBLCACC | ATDF_DSBLCART);
 	THROW(r = EditGenericAccTurn(&pack, flags));
-	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEqual(&org_amt_list) || pack.Rec.LocID != org_loc_id ||
+	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEq(&org_amt_list) || pack.Rec.LocID != org_loc_id ||
 		org_mem != pack.SMemo)) { // @v11.1.12 (org_mem.Cmp(pack.Rec.Memo, 0) != 0)--->(org_mem != pack.SMemo)
 		THROW(UpdatePacket(&pack, 1));
 	}
@@ -7785,12 +7785,12 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				CpTrfrExt cte;
 				for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, &ti, &cte)) > 0;) {
 					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на
-						// сравнении PPTransferItem::IsEqual()
+						// сравнении PPTransferItem::IsEq()
 					for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
 						if(p_ti->BillID == id && p_ti->RByBill == rbybill && !(p_ti->Flags & PPTransferItem::tfForceReplace)) {
 							pPack->ErrLine = i-1;
 							found = 1;
-							if(p_ti->IsEqual(ti)) {
+							if(p_ti->IsEq(ti)) {
 								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
 								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
 									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
@@ -7855,7 +7855,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 								force_remove = 1;
 							if(p_ti->Flags & PPTFR_RECEIPT)
 								p_ti->LotID = ti.LotID;
-							if(p_ti->IsEqual(ti) && !chg_closedorder_tag)
+							if(p_ti->IsEq(ti) && !chg_closedorder_tag)
 								not_changed_lines.add(i);
 						}
 					}
@@ -8021,7 +8021,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_new_ord_bill_list);
 					_debug_org_ord_bill_list.sortAndUndup();
 					_debug_new_ord_bill_list.sortAndUndup();
-					if(!_debug_org_ord_bill_list.IsEqual(&_debug_new_ord_bill_list)) {
+					if(!_debug_org_ord_bill_list.IsEq(&_debug_new_ord_bill_list)) {
 						PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code);
 						PPLoadText(PPTXT_LOG_BILLCHGLINKTOORD, fmt_buf);
 						{

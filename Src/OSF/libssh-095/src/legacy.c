@@ -107,7 +107,7 @@ int ssh_userauth_privatekey_file(ssh_session session, const char * username, con
 	privatekey_free(privkey);
 
 error:
-	SAFE_FREE(pubkeyfile);
+	ZFREE(pubkeyfile);
 	ssh_string_free(pubkey);
 
 	return rc;
@@ -356,13 +356,13 @@ void publickey_free(ssh_public_key key) {
 		    RSA_free(key->rsa_pub);
 #elif defined HAVE_LIBMBEDCRYPTO
 		    mbedtls_pk_free(key->rsa_pub);
-		    SAFE_FREE(key->rsa_pub);
+		    ZFREE(key->rsa_pub);
 #endif
 		    break;
 		default:
 		    break;
 	}
-	SAFE_FREE(key);
+	ZFREE(key);
 }
 
 ssh_public_key publickey_from_privatekey(ssh_private_key prv) 
@@ -449,10 +449,10 @@ void privatekey_free(ssh_private_key prv)
 	RSA_free(prv->rsa_priv);
 #elif defined HAVE_LIBMBEDCRYPTO
 	mbedtls_pk_free(prv->rsa_priv);
-	SAFE_FREE(prv->rsa_priv);
+	ZFREE(prv->rsa_priv);
 #endif
 	memset(prv, 0, sizeof(struct ssh_private_key_struct));
-	SAFE_FREE(prv);
+	ZFREE(prv);
 }
 
 ssh_string publickey_from_file(ssh_session session, const char * filename,
@@ -567,58 +567,44 @@ int ssh_publickey_to_file(ssh_session session, const char * file, ssh_string pub
 
 	user = ssh_get_local_username();
 	if(user == NULL) {
-		SAFE_FREE(pubkey_64);
+		ZFREE(pubkey_64);
 		return SSH_ERROR;
 	}
 
 	rc = gethostname(host, sizeof(host));
 	if(rc < 0) {
-		SAFE_FREE(user);
-		SAFE_FREE(pubkey_64);
+		ZFREE(user);
+		ZFREE(pubkey_64);
 		return SSH_ERROR;
 	}
-
-	snprintf(buffer, sizeof(buffer), "%s %s %s@%s\n",
-	    ssh_type_to_char(type),
-	    pubkey_64,
-	    user,
-	    host);
-
-	SAFE_FREE(pubkey_64);
-	SAFE_FREE(user);
-
+	snprintf(buffer, sizeof(buffer), "%s %s %s@%s\n", ssh_type_to_char(type), pubkey_64, user, host);
+	ZFREE(pubkey_64);
+	ZFREE(user);
 	SSH_LOG(SSH_LOG_RARE, "Trying to write public key file: %s", file);
 	SSH_LOG(SSH_LOG_PACKET, "public key file content: %s", buffer);
-
 	fp = fopen(file, "w+");
 	if(fp == NULL) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Error opening %s: %s", file, strerror(errno));
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Error opening %s: %s", file, strerror(errno));
 		return SSH_ERROR;
 	}
 
 	len = strlen(buffer);
 	if(fwrite(buffer, len, 1, fp) != 1 || ferror(fp)) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Unable to write to %s", file);
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Unable to write to %s", file);
 		fclose(fp);
-		unlink(file);
+		_unlink(file);
 		return SSH_ERROR;
 	}
-
 	fclose(fp);
 	return SSH_OK;
 }
 
-int ssh_try_publickey_from_file(ssh_session session,
-    const char * keyfile,
-    ssh_string * publickey,
-    int * type) {
+int ssh_try_publickey_from_file(ssh_session session, const char * keyfile, ssh_string * publickey, int * type) 
+{
 	char * pubkey_file;
 	size_t len;
 	ssh_string pubkey_string;
 	int pubkey_type;
-
 	if(session == NULL || keyfile == NULL || publickey == NULL || type == NULL) {
 		return -1;
 	}
@@ -642,7 +628,7 @@ int ssh_try_publickey_from_file(ssh_session session,
 	SSH_LOG(SSH_LOG_PACKET, "Trying to open publickey %s", pubkey_file);
 	if(!ssh_file_readaccess_ok(pubkey_file)) {
 		SSH_LOG(SSH_LOG_PACKET, "Failed to open publickey %s", pubkey_file);
-		SAFE_FREE(pubkey_file);
+		ZFREE(pubkey_file);
 		return 1;
 	}
 	SSH_LOG(SSH_LOG_PACKET, "Success opening public and private key");
@@ -657,11 +643,11 @@ int ssh_try_publickey_from_file(ssh_session session,
 		    "Wasn't able to open public key file %s: %s",
 		    pubkey_file,
 		    ssh_get_error(session));
-		SAFE_FREE(pubkey_file);
+		ZFREE(pubkey_file);
 		return -1;
 	}
 
-	SAFE_FREE(pubkey_file);
+	ZFREE(pubkey_file);
 
 	*publickey = pubkey_string;
 	*type = pubkey_type;

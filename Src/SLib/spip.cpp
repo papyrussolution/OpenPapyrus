@@ -328,7 +328,7 @@ bool SVerT::IsGe(int j, int n, int r) const
 	return ((V > v2.V) || (V == v2.V && R >= v2.R));
 }
 
-bool SVerT::IsEqual(int j, int n, int r) const
+bool SVerT::IsEq(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
 	return (V == v2.V && R == v2.R);

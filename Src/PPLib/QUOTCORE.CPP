@@ -257,7 +257,7 @@ QuotIdent & FASTCALL PPQuot::MakeIdent(QuotIdent & rQi) const
 	return rQi;
 }
 
-int PPQuot::IsEqual(const PPQuot & rS, long flags) const
+int PPQuot::IsEq(const PPQuot & rS, long flags) const
 {
 	if(!(flags & cmpNoID) && ID != rS.ID)
 		return 0;
@@ -788,7 +788,7 @@ int PPQuotArray::Correct721(PPLogger * pLogger)
 		PPQuot & r_q = at(i);
 		for(uint j = i+1; j < c; j++) {
 			PPQuot & r_q2 = at(j);
-			if(r_q2.IsEqual(r_q, PPQuot::cmpNoID|PPQuot::cmpNoVal)) {
+			if(r_q2.IsEq(r_q, PPQuot::cmpNoID|PPQuot::cmpNoVal)) {
 				if(r_q2.ID < r_q.ID)
 					to_remove_list.addUnique((long)j);
 				else

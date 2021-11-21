@@ -158,9 +158,9 @@ int PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket 
 	if(rS1.Assoc != rS2.Assoc)
 		return 0;
 	if(!BOOLXOR(rS1.P_CliAgt, rS2.P_CliAgt)) return 0;
-	if(rS1.P_CliAgt && rS2.P_CliAgt && !rS1.P_CliAgt->IsEqual(*rS2.P_CliAgt)) return 0;
+	if(rS1.P_CliAgt && rS2.P_CliAgt && !rS1.P_CliAgt->IsEq(*rS2.P_CliAgt)) return 0;
 	if(!BOOLXOR(rS1.P_SupplAgt, rS2.P_SupplAgt)) return 0;
-	if(rS1.P_SupplAgt && rS2.P_SupplAgt && !rS1.P_SupplAgt->IsEqual(*rS2.P_SupplAgt)) return 0;
+	if(rS1.P_SupplAgt && rS2.P_SupplAgt && !rS1.P_SupplAgt->IsEq(*rS2.P_SupplAgt)) return 0;
 	if(!(options & peoDontCmpAliasSubst)) { // @v8.1.3
 		if(!BOOLXOR(rS1.P_AliasSubst, rS2.P_AliasSubst)) return 0;
 		if(rS1.P_AliasSubst && rS2.P_AliasSubst && !(*rS1.P_AliasSubst == *rS2.P_AliasSubst)) return 0;

@@ -2238,9 +2238,9 @@ int PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmP
 	CMP_MEMB(InhBillTagVal);
 #undef CMP_MEMBS
 #undef CMP_MEMB
-	if(!rS1.LocList.IsEqual(rS2.LocList))
+	if(!rS1.LocList.IsEq(rS2.LocList))
 		return 0;
-	else if(!rS1.QkList__.IsEqual(rS2.QkList__))
+	else if(!rS1.QkList__.IsEq(rS2.QkList__))
 		return 0;
 	else {
 		SString temp_buf1, temp_buf2;
@@ -3597,7 +3597,7 @@ struct PalmExpStruc {
 			else if(pItem->GoodsGrpID == GoodsGrpID && (pItem->Flags & PLMF_EXPBRAND) == (Flags & PLMF_EXPBRAND) &&
 				(pItem->Flags & PLMF_EXPCLIDEBT) == (Flags & PLMF_EXPCLIDEBT) &&
 				(pItem->Flags & PLMF_EXPLOC) == (Flags & PLMF_EXPLOC) &&
-				LocList.IsEqual(&pItem->LocList) && QkList.IsEqual(&pItem->QkList))
+				LocList.IsEq(&pItem->LocList) && QkList.IsEq(&pItem->QkList))
 				yes = 1;
 		}
 		return yes;

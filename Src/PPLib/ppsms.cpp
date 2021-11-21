@@ -335,7 +335,7 @@ PPSmsAccount::PPSmsAccount()
 	THISZERO();
 }
 
-int FASTCALL PPSmsAccount::IsEqual(const PPSmsAccount & rS) const
+int FASTCALL PPSmsAccount::IsEq(const PPSmsAccount & rS) const
 {
     int    yes = 1;
 	if(Flags != rS.Flags)
@@ -371,10 +371,10 @@ void PPSmsAccPacket::Init()
 	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
-int FASTCALL PPSmsAccPacket::IsEqual(const PPSmsAccPacket & rS) const
+int FASTCALL PPSmsAccPacket::IsEq(const PPSmsAccPacket & rS) const
 {
 	int    yes = 1;
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		yes = 0;
 	else if(PPCmpExtStrData(SMEXTSTR_HOST, ExtStr, rS.ExtStr, 0) != 0)
 		yes = 0;

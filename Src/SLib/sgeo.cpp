@@ -347,7 +347,7 @@ SGeoGridTab::SGeoGridTab(uint dim) : Dim(dim), SrcCountLat(0), SrcCountLon(0)
 	assert(dim >= 4 && dim <= 32);
 }
 
-int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
+int FASTCALL SGeoGridTab::IsEq(const SGeoGridTab & rS) const
 {
 	//
 	// При сравнении SrcCountLat и SrcCountLon не учитываем поскольку
@@ -366,12 +366,12 @@ int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const
 
 int FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
 int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
 {
-	return !IsEqual(rS);
+	return !IsEq(rS);
 }
 
 void SGeoGridTab::SetSrcCountLat(uint64 c)
@@ -2148,7 +2148,7 @@ struct GeodTestRecord {
 		M12 = 0.0;
 		S12 = 0.0;
 	}
-	int    FASTCALL IsEqual(const GeodTestRecord & rS) const
+	int    FASTCALL IsEq(const GeodTestRecord & rS) const
 	{
 		int    ok = 1;
 		THROW(P1 == rS.P1);
@@ -2215,7 +2215,7 @@ SLTEST_R(SGeo)
 					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, 0, rec.GeodDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.Azi1 = rec.Azi1;
-					//SLTEST_CHECK_NZ(test_rec.IsEqual(rec));
+					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
 
 					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
 					SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);
@@ -2229,7 +2229,7 @@ SLTEST_R(SGeo)
 					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, sg.GEOD_ARCMODE, rec.ArcDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.Azi1 = rec.Azi1;
-					//SLTEST_CHECK_NZ(test_rec.IsEqual(rec));
+					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
 
 					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
 					SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);
@@ -2247,7 +2247,7 @@ SLTEST_R(SGeo)
 					test_rec.ArcDistance = sg.Inverse(rec.P1, rec.P2, &test_rec.GeodDistance, &test_rec.Azi1, &test_rec.Azi2, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.P2 = rec.P2;
-					//SLTEST_CHECK_NZ(test_rec.IsEqual(rec));
+					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
 
 					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
 					//SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);

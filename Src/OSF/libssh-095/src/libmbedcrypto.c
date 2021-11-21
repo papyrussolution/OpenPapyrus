@@ -63,13 +63,13 @@ SHACTX sha1_init()
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -85,7 +85,7 @@ void sha1_final(uchar * md, SHACTX c)
 {
 	mbedtls_md_finish(c, md);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 void sha1(const uchar * digest, int len, uchar * hash)
@@ -144,13 +144,13 @@ EVPCTX evp_init(int nid)
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -167,7 +167,7 @@ void evp_final(EVPCTX ctx, uchar * md, uint * mdlen)
 	*mdlen = mbedtls_md_get_size(ctx->md_info);
 	mbedtls_md_finish(ctx, md);
 	mbedtls_md_free(ctx);
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 }
 
 SHA256CTX sha256_init()
@@ -185,13 +185,13 @@ SHA256CTX sha256_init()
 	mbedtls_md_init(ctx);
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -207,7 +207,7 @@ void sha256_final(uchar * md, SHA256CTX c)
 {
 	mbedtls_md_finish(c, md);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 void sha256(const uchar * digest, int len, uchar * hash)
@@ -234,13 +234,13 @@ SHA384CTX sha384_init()
 	mbedtls_md_init(ctx);
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -256,7 +256,7 @@ void sha384_final(uchar * md, SHA384CTX c)
 {
 	mbedtls_md_finish(c, md);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 void sha384(const uchar * digest, int len, uchar * hash)
@@ -287,13 +287,13 @@ SHA512CTX sha512_init()
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -309,7 +309,7 @@ void sha512_final(uchar * md, SHA512CTX c)
 {
 	mbedtls_md_finish(c, md);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 void sha512(const uchar * digest, int len, uchar * hash)
@@ -340,13 +340,13 @@ MD5CTX md5_init()
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
 	if(rc != 0) {
-		SAFE_FREE(ctx);
+		ZFREE(ctx);
 		return NULL;
 	}
 
@@ -362,7 +362,7 @@ void md5_final(uchar * md, MD5CTX c)
 {
 	mbedtls_md_finish(c, md);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 int ssh_kdf(struct ssh_crypto_struct * crypto, uchar * key, size_t key_len, int key_type, uchar * output, size_t requested_len)
@@ -406,7 +406,7 @@ HMACCTX hmac_init(const void * key, int len, enum ssh_hmac_e type)
 	return ctx;
 error:
 	mbedtls_md_free(ctx);
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 	return NULL;
 }
 
@@ -420,7 +420,7 @@ void hmac_final(HMACCTX c, uchar * hashmacbuf, uint * len)
 	*len = mbedtls_md_get_size(c->md_info);
 	mbedtls_md_hmac_finish(c, hashmacbuf);
 	mbedtls_md_free(c);
-	SAFE_FREE(c);
+	ZFREE(c);
 }
 
 static int cipher_init(struct ssh_cipher_struct * cipher,

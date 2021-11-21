@@ -746,7 +746,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 								}
 								else if(rParam.Flags & rParam.fTest) {
 									THROW(r = P_GrT->Search(model_id, &model_test));
-									THROW(model.IsEqual(model_test));
+									THROW(model.IsEq(model_test));
 								}
 								fm_assoc.Add(i, model_id, 0);
 							}

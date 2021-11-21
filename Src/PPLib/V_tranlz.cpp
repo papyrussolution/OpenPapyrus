@@ -264,20 +264,20 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(Sgd))
 		return 0;
-	if(!BillList.IsEqual(rS.BillList))
+	if(!BillList.IsEq(rS.BillList))
 		return 0;
-	if(!RcptBillList.IsEqual(rS.RcptBillList))
+	if(!RcptBillList.IsEq(rS.RcptBillList))
 		return 0;
-	if(!LocList.IsEqual(rS.LocList))
+	if(!LocList.IsEq(rS.LocList))
 		return 0;
-	if(!ArList.IsEqual(rS.ArList))
+	if(!ArList.IsEq(rS.ArList))
 		return 0;
-	if(!AgentList.IsEqual(rS.AgentList))
+	if(!AgentList.IsEq(rS.AgentList))
 		return 0;
 	if(!(flags & eqxCrosstab)) {
 		if(NEQ_FLD(CtKind))
 			return 0;
-		if(!CtValList.IsEqual(rS.CtValList))
+		if(!CtValList.IsEq(rS.CtValList))
 			return 0;
 	}
 	if(!(flags & eqxOrder)) {
@@ -2880,10 +2880,9 @@ int PPViewTrfrAnlz::Print(const void *)
 		}
 	}
 	PPReportEnv env;
-	PView pv(this);
 	env.Sort = CurViewOrd;
 	env.PrnFlags = disable_grpng ? SReport::DisableGrouping : 0;
-	return PPAlddPrint(rpt_id, &pv, &env);
+	return PPAlddPrint(rpt_id, PView(this), &env);
 }
 
 int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
@@ -3412,7 +3411,7 @@ class TrfrAnlzGrpngDialog : public TDialog {
 		}
 		StrAssocArray ext_factor_list;
 		MakeExtFactorStringList(ext_factor_list);
-		SetupStrAssocCombo(this, CTLSEL_TAGRPNG_EXTF1, &ext_factor_list, sel_id, 0);
+		SetupStrAssocCombo(this, CTLSEL_TAGRPNG_EXTF1, ext_factor_list, sel_id, 0);
 	}
 public:
 	TrfrAnlzGrpngDialog() : TDialog(DLG_TAGRPNG)
@@ -3642,7 +3641,7 @@ private:
 		SString buf;
 		StringSet text_list(';', CtValNames);
 		StringSet ss(SLBColumnDelim);
-		for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
+		for(uint i = 0, j = 1; ok && text_list.get(&i, buf); j++) {
 			ss.clear();
 			ss.add(buf);
 			buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');

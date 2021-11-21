@@ -616,8 +616,8 @@ error:
 		ssh_buffer_reinit(session->out_hashbuf);
 	}
 	session->auth.supported_methods = 0;
-	SAFE_FREE(session->serverbanner);
-	SAFE_FREE(session->clientbanner);
+	ZFREE(session->serverbanner);
+	ZFREE(session->clientbanner);
 	if(session->ssh_message_list) {
 		ssh_message msg;
 		while((msg = ssh_list_pop_head(ssh_message, session->ssh_message_list)) != NULL) {

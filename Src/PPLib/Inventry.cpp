@@ -1394,13 +1394,11 @@ int PrcssrInvImport::EditParam(Param * pParam)
 		{
 			RVALUEPTR(Data, pData);
 			int    ok = 1;
-			long   cfg_id = 0;
 			StringSet ss;
 			PPIDArray op_type_list;
 			op_type_list.add(PPOPT_INVENTORY);
-			if(CfgList.getCount() == 1)
-				cfg_id = CfgList.Get(0).Id;
-			SetupStrAssocCombo(this, CTLSEL_IEINV_CFG, &CfgList, cfg_id, 0, 0, 0);
+			const long cfg_id = (CfgList.getCount() == 1) ? CfgList.Get(0).Id : 0;
+			SetupStrAssocCombo(this, CTLSEL_IEINV_CFG, CfgList, cfg_id, 0, 0, 0);
 			SetupOprKindCombo(this, CTLSEL_IEINV_OP, Data.OpID, 0, &op_type_list, 0);
 			SetupPPObjCombo(this, CTLSEL_IEINV_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 			setCtrlDate(CTL_IEINV_DATE, Data.Dt);

@@ -591,54 +591,54 @@ void ssh_message_free(ssh_message msg){
 
 	switch(msg->type) {
 		case SSH_REQUEST_AUTH:
-		    SAFE_FREE(msg->auth_request.username);
+		    ZFREE(msg->auth_request.username);
 		    if(msg->auth_request.password) {
 			    memzero(msg->auth_request.password,
 				strlen(msg->auth_request.password));
-			    SAFE_FREE(msg->auth_request.password);
+			    ZFREE(msg->auth_request.password);
 		    }
 		    ssh_key_free(msg->auth_request.pubkey);
 		    break;
 		case SSH_REQUEST_CHANNEL_OPEN:
-		    SAFE_FREE(msg->channel_request_open.originator);
-		    SAFE_FREE(msg->channel_request_open.destination);
+		    ZFREE(msg->channel_request_open.originator);
+		    ZFREE(msg->channel_request_open.destination);
 		    break;
 		case SSH_REQUEST_CHANNEL:
-		    SAFE_FREE(msg->channel_request.TERM);
-		    SAFE_FREE(msg->channel_request.modes);
-		    SAFE_FREE(msg->channel_request.var_name);
-		    SAFE_FREE(msg->channel_request.var_value);
-		    SAFE_FREE(msg->channel_request.command);
-		    SAFE_FREE(msg->channel_request.subsystem);
+		    ZFREE(msg->channel_request.TERM);
+		    ZFREE(msg->channel_request.modes);
+		    ZFREE(msg->channel_request.var_name);
+		    ZFREE(msg->channel_request.var_value);
+		    ZFREE(msg->channel_request.command);
+		    ZFREE(msg->channel_request.subsystem);
 		    switch(msg->channel_request.type) {
 			    case SSH_CHANNEL_REQUEST_EXEC:
-				SAFE_FREE(msg->channel_request.command);
+				ZFREE(msg->channel_request.command);
 				break;
 			    case SSH_CHANNEL_REQUEST_ENV:
-				SAFE_FREE(msg->channel_request.var_name);
-				SAFE_FREE(msg->channel_request.var_value);
+				ZFREE(msg->channel_request.var_name);
+				ZFREE(msg->channel_request.var_value);
 				break;
 			    case SSH_CHANNEL_REQUEST_PTY:
-				SAFE_FREE(msg->channel_request.TERM);
+				ZFREE(msg->channel_request.TERM);
 				break;
 			    case SSH_CHANNEL_REQUEST_SUBSYSTEM:
-				SAFE_FREE(msg->channel_request.subsystem);
+				ZFREE(msg->channel_request.subsystem);
 				break;
 			    case SSH_CHANNEL_REQUEST_X11:
-				SAFE_FREE(msg->channel_request.x11_auth_protocol);
-				SAFE_FREE(msg->channel_request.x11_auth_cookie);
+				ZFREE(msg->channel_request.x11_auth_protocol);
+				ZFREE(msg->channel_request.x11_auth_cookie);
 				break;
 		    }
 		    break;
 		case SSH_REQUEST_SERVICE:
-		    SAFE_FREE(msg->service_request.service);
+		    ZFREE(msg->service_request.service);
 		    break;
 		case SSH_REQUEST_GLOBAL:
-		    SAFE_FREE(msg->global_request.bind_address);
+		    ZFREE(msg->global_request.bind_address);
 		    break;
 	}
 	ZERO_STRUCTP(msg);
-	SAFE_FREE(msg);
+	ZFREE(msg);
 }
 
 #ifdef WITH_SERVER
@@ -668,7 +668,7 @@ SSH_PACKET_CALLBACK(ssh_packet_service_request)
 
 	msg = ssh_message_new(session);
 	if(msg == NULL) {
-		SAFE_FREE(service_c);
+		ZFREE(service_c);
 		goto error;
 	}
 
@@ -830,7 +830,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 		uint8 has_sign;
 
 		msg->auth_request.method = SSH_AUTH_METHOD_PUBLICKEY;
-		SAFE_FREE(method);
+		ZFREE(method);
 		rc = ssh_buffer_unpack(packet, "bSS",
 			&has_sign,
 			&algo,
@@ -928,9 +928,9 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 			oid = ssh_buffer_get_ssh_string(packet);
 			if(oid == NULL) {
 				for(i = i-1; i>=0; --i) {
-					SAFE_FREE(oids[i]);
+					ZFREE(oids[i]);
 				}
-				SAFE_FREE(oids);
+				ZFREE(oids);
 				ssh_set_error(session, SSH_LOG_PACKET, "USERAUTH_REQUEST: gssapi-with-mic missing OID");
 				goto error;
 			}
@@ -938,18 +938,18 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 			if(session->common.log_verbosity >= SSH_LOG_PACKET) {
 				hexa = ssh_get_hexa((const uchar *)ssh_string_data(oid), ssh_string_len(oid));
 				SSH_LOG(SSH_LOG_PACKET, "gssapi: OID %d: %s", i, hexa);
-				SAFE_FREE(hexa);
+				ZFREE(hexa);
 			}
 		}
 		ssh_gssapi_handle_userauth(session, msg->auth_request.username, n_oid, oids);
 
 		for(i = 0; i<(int)n_oid; ++i) {
-			SAFE_FREE(oids[i]);
+			ZFREE(oids[i]);
 		}
-		SAFE_FREE(oids);
+		ZFREE(oids);
 		/* bypass the message queue thing */
-		SAFE_FREE(service);
-		SAFE_FREE(method);
+		ZFREE(service);
+		ZFREE(method);
 		SSH_MESSAGE_FREE(msg);
 
 		return SSH_PACKET_USED;
@@ -957,18 +957,18 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 #endif
 
 	msg->auth_request.method = SSH_AUTH_METHOD_UNKNOWN;
-	SAFE_FREE(method);
+	ZFREE(method);
 	goto end;
 error:
-	SAFE_FREE(service);
-	SAFE_FREE(method);
+	ZFREE(service);
+	ZFREE(method);
 
 	SSH_MESSAGE_FREE(msg);
 
 	return SSH_PACKET_USED;
 end:
-	SAFE_FREE(service);
-	SAFE_FREE(method);
+	ZFREE(service);
+	ZFREE(method);
 
 	ssh_message_queue(session, msg);
 
@@ -1046,9 +1046,9 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 		for(n = 0; n < session->kbdint->nanswers; n++) {
 			memzero(session->kbdint->answers[n],
 			    strlen(session->kbdint->answers[n]));
-			SAFE_FREE(session->kbdint->answers[n]);
+			ZFREE(session->kbdint->answers[n]);
 		}
-		SAFE_FREE(session->kbdint->answers);
+		ZFREE(session->kbdint->answers);
 		session->kbdint->nanswers = 0;
 	}
 
@@ -1142,7 +1142,7 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open){
 
 	if(strcmp(type_c, "session") == 0) {
 		msg->channel_request_open.type = SSH_CHANNEL_SESSION;
-		SAFE_FREE(type_c);
+		ZFREE(type_c);
 		goto end;
 	}
 
@@ -1202,7 +1202,7 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open){
 error:
 	SSH_MESSAGE_FREE(msg);
 end:
-	SAFE_FREE(type_c);
+	ZFREE(type_c);
 	if(msg)
 		ssh_message_queue(session, msg);
 
@@ -1507,7 +1507,7 @@ SSH_PACKET_CALLBACK(ssh_packet_global_request){
 			session->common.callbacks->global_request_function(session, msg, session->common.callbacks->userdata);
 		}
 		else {
-			SAFE_FREE(request);
+			ZFREE(request);
 			ssh_message_queue(session, msg);
 			return rc;
 		}
@@ -1535,7 +1535,7 @@ SSH_PACKET_CALLBACK(ssh_packet_global_request){
 			session->common.callbacks->global_request_function(session, msg, session->common.callbacks->userdata);
 		}
 		else {
-			SAFE_FREE(request);
+			ZFREE(request);
 			ssh_message_queue(session, msg);
 			return rc;
 		}
@@ -1557,8 +1557,8 @@ SSH_PACKET_CALLBACK(ssh_packet_global_request){
 		goto reply_with_failure;
 	}
 
-	SAFE_FREE(msg);
-	SAFE_FREE(request);
+	ZFREE(msg);
+	ZFREE(request);
 	return rc;
 
 reply_with_failure:
@@ -1584,8 +1584,8 @@ reply_with_failure:
 	/* Consume the message to avoid sending UNIMPLEMENTED later */
 	rc = SSH_PACKET_USED;
 error:
-	SAFE_FREE(msg);
-	SAFE_FREE(request);
+	ZFREE(msg);
+	ZFREE(request);
 	SSH_LOG(SSH_LOG_WARNING, "Invalid SSH_MSG_GLOBAL_REQUEST packet");
 	return rc;
 }

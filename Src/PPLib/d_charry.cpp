@@ -2639,7 +2639,7 @@ int PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SString &
 					StringSet ss(";");
 					Data.DaysOfWeek = 0;
 					ss.setBuf(rBuf, rBuf.Len() + 1);
-					for(uint i = 0; ss.get(&i, buf) > 0;) {
+					for(uint i = 0; ss.get(&i, buf);) {
 						int day = GetDayOfWeekByText(buf);
 						Data.DaysOfWeek |= (1 << day);
 					}

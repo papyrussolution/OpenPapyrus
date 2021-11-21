@@ -2671,8 +2671,7 @@ int PPViewLot::Print(const void *)
 				rpt_id = single_suppl_id ? REPORT_LOTSS : REPORT_LOTS;
 			else
 				rpt_id = single_suppl_id ? REPORT_LOTSSOPER : REPORT_LOTSOPER;
-			PView  pf(this);
-			ok = PPAlddPrint(rpt_id, &pf, &env);
+			ok = PPAlddPrint(rpt_id, PView(this), &env);
 			Filt.Flags &= ~0x0001;
 		}
 		else

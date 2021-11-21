@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Виды персональных операций
 //
@@ -41,7 +41,7 @@ PoClauseArray_ & FASTCALL PoClauseArray_::operator = (const PoClauseArray_ & rS)
 	return *this;
 }
 
-int PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
+int PoClauseArray_::IsEq(const PoClauseArray_ & rS, int options) const
 {
 	if(L.getCount() != rS.L.getCount())
 		return 0;
@@ -50,7 +50,7 @@ int PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
 		for(uint i = 0; i < L.getCount(); i++) {
 			Get(i, c);
 			rS.Get(i, sc);
-			if(!c.IsEqual(sc))
+			if(!c.IsEq(sc))
 				return 0;
 		}
 		return 1;
@@ -215,7 +215,7 @@ PoClause_::PoClause_() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
 {
 }
 
-int FASTCALL PoClause_::IsEqual(const PoClause_ & rS) const
+int FASTCALL PoClause_::IsEq(const PoClause_ & rS) const
 {
 	if(Num != rS.Num)
 		return 0;
@@ -268,7 +268,7 @@ PPPsnOpKind2::PPPsnOpKind2()
 	THISZERO();
 }
 
-int FASTCALL PPPsnOpKind2::IsEqual(const PPPsnOpKind2 & rS) const
+int FASTCALL PPPsnOpKind2::IsEq(const PPPsnOpKind2 & rS) const
 {
 #define TEST_FLD(fld) if(fld != rS.fld) return 0
 	if(stricmp(Name, rS.Name) != 0)
@@ -289,10 +289,10 @@ int FASTCALL PPPsnOpKind2::IsEqual(const PPPsnOpKind2 & rS) const
 #undef TEST_FLD
 }
 
-int FASTCALL PPPsnOpKindPacket::IsEqual(const PPPsnOpKindPacket & rS) const
+int FASTCALL PPPsnOpKindPacket::IsEq(const PPPsnOpKindPacket & rS) const
 {
 #define TEST_FLD(fld) if(fld != rS.fld) return 0
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		return 0;
 	TEST_FLD(PCPrmr.PersonKindID);
 	TEST_FLD(PCPrmr.StatusType);
@@ -304,9 +304,9 @@ int FASTCALL PPPsnOpKindPacket::IsEqual(const PPPsnOpKindPacket & rS) const
 	TEST_FLD(PCScnd.DefaultID);
 	TEST_FLD(PCScnd.RestrictTagID);
 	TEST_FLD(PCScnd.RestrictScSerList);
-	if(!ClauseList.IsEqual(rS.ClauseList))
+	if(!ClauseList.IsEq(rS.ClauseList))
 		return 0;
-	if(!AllowedTags.IsEqual(rS.AllowedTags))
+	if(!AllowedTags.IsEq(rS.AllowedTags))
 		return 0;
 	return 1;
 #undef TEST_FLD
@@ -448,10 +448,7 @@ IMPL_HANDLE_EVENT(PsnOpKindView)
 					ViewSysJournal(PPOBJ_PERSONOPKIND, id, 1);
 				break;
 			case cmPrint:
-				{
-					PView  pv(this);
-					PPAlddPrint(REPORT_PSNOPKINDVIEW, &pv, 0);
-				}
+				PPAlddPrint(REPORT_PSNOPKINDVIEW, PView(this), 0);
 				break;
 			case cmTransmit:
 				{
@@ -596,10 +593,7 @@ long PPObjPsnOpKind::GetLevel(PPID id)
 				if(TVCOMMAND) {
 					switch(TVCMD) {
 						case cmPrint:
-							{
-								PView  pv(this);
-								PPAlddPrint(REPORT_PSNOPKINDVIEW, &pv, 0);
-							}
+							PPAlddPrint(REPORT_PSNOPKINDVIEW, PView(this), 0);
 							break;
 						case cmaMore:
 							if(id) {
@@ -990,7 +984,7 @@ int PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				*pID = same_id;
 			}
 			if(*pID) {
-				if(GetPacket(*pID, &same_pack) > 0 && p_pack->IsEqual(same_pack)) {
+				if(GetPacket(*pID, &same_pack) > 0 && p_pack->IsEq(same_pack)) {
 					ok = 1; // Пакет в БД не отличается от принятого пакета
 				}
 				else {
@@ -1528,7 +1522,7 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 						ok = PPSetError(PPERR_INADMISSPOVERB);
 					else {
 						disableCtrl(CTLSEL_POVERB_LINK, 0);
-						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, &TagList, Data.DirObj, 0);
+						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, TagList, Data.DirObj, 0);
 					}
 					break;
 				case POVERB_REMOVETAG:

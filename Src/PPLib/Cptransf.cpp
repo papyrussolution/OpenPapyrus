@@ -465,9 +465,8 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 	for(i = 0; i < pPugl->getCount();) {
 		PUGI   pugi = *static_cast<const PUGI *>(pPugl->at(i++));
 		PPGoodsStruc gs;
-		const  PPGoodsStruc::Ident gs_ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt);
 		uint   acpos = 0;
-		const  int lgs_r = LoadGoodsStruc(&gs_ident, &gs);
+		const  int lgs_r = LoadGoodsStruc(PPGoodsStruc::Ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt), &gs);
 		if(lgs_r > 0) {
 			int    r = 0;
 			pPugl->atFree(--i);
@@ -519,7 +518,7 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 				}
 				// } @v10.5.12
 			}
-			THROW(r = pack.InsertComplete(&gs, acpos, &compl_pugl, PCUG_CANCEL, pGra));
+			THROW(r = pack.InsertComplete(gs, acpos, &compl_pugl, PCUG_CANCEL, pGra, false/*recursive*/));
 			THROW(pack.ShrinkTRows());
 		}
 	}
@@ -565,8 +564,7 @@ int PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 		rows.clear();
 		THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
 		if(!ilti.HasDeficit()) {
-			const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
-			if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+			if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 				// @v11.1.10 {
 				uint j = rows.getCount();
 				if(j && !incomplete) do {
@@ -680,8 +678,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 			for(uint i = 0; i < rows.getCount(); i++) {
 				PPGoodsStruc gs;
 				PPTransferItem & r_ti = p_pack->TI(rows.at(i));
-				const PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, GSF_PARTITIAL, 0, p_pack->Rec.Dt);
-				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+				if(LoadGoodsStruc(PPGoodsStruc::Ident(r_ti.GoodsID, GSF_PARTITIAL, 0, p_pack->Rec.Dt), &gs) > 0) {
 					THROW(gs.InitCompleteData2(r_ti.GoodsID, r_ti.Quantity_, compl_list));
 				}
 			}
@@ -888,13 +885,11 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 			ti.TFlags &= ~PPTransferItem::tfDirty;
 			rows.clear();
 			THROW(p_pack->InsertRow(&ti, &rows));
-			// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
-			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
+			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
-				const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 				const uint pos = rows.at(j);
 				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf));
-				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+				if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(pos);
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
 				}
@@ -947,14 +942,11 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 			ti.TFlags &= ~PPTransferItem::tfDirty;
 			rows.clear();
 			THROW(p_pack->InsertRow(&ti, &rows));
-			// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
 			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
-				const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 				const uint pos = rows.at(j);
-				// @v9.8.11 THROW(p_pack->ClbL.AddNumber(pos, serial_buf));
-				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf)); // @v9.8.11
-				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf));
+				if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(pos);
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
 				}
@@ -1070,8 +1062,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 							rows.clear();
 							THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
 							if(ilti.Rest == 0.0) {
-								PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
-								if(LoadGoodsStruc(&gs_ident, &gs) > 0)
+								if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0)
 									for(j = rows.getCount()-1; !incomplete && j >= 0; j--)
 										THROW(InitCompleteData2(&gs, p_pack->ConstTI(rows.at(j)), &compl_list));
 							}

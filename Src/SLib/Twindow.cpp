@@ -1083,10 +1083,24 @@ int TWindow::GetCtlSymb(uint id, SString & rBuf) const
 	return BIN(P_SymbList && P_SymbList->GetText(static_cast<long>(id), rBuf) > 0);
 }
 
+void TWindow::InvalidateLayoutRefList(const SUiLayout::RefCollection & rRedrawLoList, int erase)
+{
+	for(uint i = 0; i < rRedrawLoList.GetCount(); i++) {
+		const SUiLayout * p_lo = rRedrawLoList.Get(i);
+		if(p_lo->IsConsistent())
+			invalidateRect(p_lo->GetFrameAdjustedToParent(), erase);
+	}
+}
+
 int TWindow::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 {
 	int    ok = 0;
 	if(pCtl) {
+		if(pCtl->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
+			ComboBox * p_cb = static_cast<ComboBox *>(pCtl);
+			if(p_cb->link())
+				Insert_(p_cb->link());
+		}
 		Insert_(&pCtl->SetId(id));
 		SetCtlSymb(id, pSymb);
 		ok = 1;
@@ -1347,9 +1361,9 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		return -1;
 }
 
-/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR) // @v10.9.3
+/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR) // @v10.9.3
 {
-	TView * p_view = static_cast<TView *>(LayoutFlexItem::GetManagedPtr(pItem));
+	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 	if(p_view) {
 		TRect b;
 		const FRect rbb = rR;
@@ -1491,7 +1505,7 @@ void * TWindowBase::GetLayout()
 void TWindowBase::SetupLayoutItem(void * pLayout)
 {
 	if(pLayout) {
-		P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
+		P_Lfc = static_cast<SUiLayout *>(pLayout);
 		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 	}
 }
@@ -1621,7 +1635,7 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 			break;
 		case WM_MOUSEWHEEL:
 			rMe.Type = MouseEvent::tWeel;
-			rMe.WeelDelta = HIWORD(wParam);
+			rMe.WeelDelta = static_cast<signed short>(HIWORD(wParam)); // @v11.2.4 static_cast<signed short>()
 			break;
 		default:
 			return 0;
@@ -1946,6 +1960,12 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				}
 			}
 			break;
+		case WM_VKEYTOITEM: // @v11.2.4 (сделано по аналогии с аналогичным сообщением в TDialog::DialogProc)
+			if(PassMsgToCtrl(hWnd, message, wParam, lParam) == -1) {
+				CALLPTRMEMB(p_view, HandleKeyboardEvent(LOWORD(wParam)));
+			}
+			::SendMessage(hWnd, WM_USER_KEYDOWN, wParam, lParam);
+			return 0;
 		default:
 			break;
 	}

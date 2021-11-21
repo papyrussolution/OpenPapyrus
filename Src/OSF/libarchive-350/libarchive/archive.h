@@ -226,41 +226,28 @@ typedef la_ssize_t archive_read_callback (struct archive *, void * _client_data,
  * If you do skip fewer bytes than requested, libarchive will invoke your
  * read callback and discard data as necessary to make up the full skip.
  */
-typedef la_int64_t archive_skip_callback (struct archive *,
-    void * _client_data, la_int64_t request);
+typedef la_int64_t archive_skip_callback (struct archive *, void * _client_data, la_int64_t request);
 
 /* Seeks to specified location in the file and returns the position.
  * Whence values are SEEK_SET, SEEK_CUR, SEEK_END from stdio.h.
  * Return ARCHIVE_FATAL if the seek fails for any reason.
  */
-typedef la_int64_t archive_seek_callback (struct archive *,
-    void * _client_data, la_int64_t offset, int whence);
-
+typedef la_int64_t archive_seek_callback (struct archive *, void * _client_data, la_int64_t offset, int whence);
 /* Returns size actually written, zero on EOF, -1 on error. */
-typedef la_ssize_t archive_write_callback (struct archive *,
-    void * _client_data,
-    const void * _buffer, size_t _length);
-
+typedef la_ssize_t archive_write_callback (struct archive *, void * _client_data, const void * _buffer, size_t _length);
 typedef int archive_open_callback (struct archive *, void * _client_data);
-
 typedef int archive_close_callback (struct archive *, void * _client_data);
-
 typedef int archive_free_callback (struct archive *, void * _client_data);
-
 /* Switches from one client data object to the next/prev client data object.
  * This is useful for reading from different data blocks such as a set of files
  * that make up one large file.
  */
-typedef int archive_switch_callback (struct archive *, void * _client_data1,
-    void * _client_data2);
-
+typedef int archive_switch_callback (struct archive *, void * _client_data1, void * _client_data2);
 /*
  * Returns a passphrase used for encryption or decryption, NULL on nothing
  * to do and give it up.
  */
-typedef const char * archive_passphrase_callback (struct archive *,
-    void * _client_data);
-
+typedef const char * archive_passphrase_callback (struct archive *, void * _client_data);
 /*
  * Codes to identify various stream filters.
  */
@@ -1073,5 +1060,4 @@ __LA_DECL int archive_utility_string_sort(char **);
 
 /* These are meaningless outside of this header. */
 #undef __LA_DECL
-
 #endif /* !ARCHIVE_H_INCLUDED */

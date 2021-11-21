@@ -4,7 +4,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-int BNField::IsEqual(const BNField & rS, int nameAndTypeOnly) const
+int BNField::IsEq(const BNField & rS, int nameAndTypeOnly) const
 {
 	if(T != rS.T)
 		return 0;
@@ -86,13 +86,13 @@ void BNFieldList::reset()
 	}
 }
 
-int BNFieldList::IsEqual(const BNFieldList & rS, int nameAndTypeOnly) const
+int BNFieldList::IsEq(const BNFieldList & rS, int nameAndTypeOnly) const
 {
 	if(count != rS.count)
 		return 0;
 	else {
 		for(uint i = 0; i < count; i++) {
-			if(!fields[i].IsEqual(rS.fields[i], nameAndTypeOnly))
+			if(!fields[i].IsEq(rS.fields[i], nameAndTypeOnly))
 				return 0;
 		}
 	}

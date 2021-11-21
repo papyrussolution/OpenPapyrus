@@ -202,7 +202,7 @@ static int match_hashed_host(const char * host, const char * sourcehash)
 	b64hash = strchr(source, '|');
 	if(b64hash == NULL) {
 		/* Invalid hash */
-		SAFE_FREE(source);
+		ZFREE(source);
 
 		return 0;
 	}
@@ -212,13 +212,13 @@ static int match_hashed_host(const char * host, const char * sourcehash)
 
 	salt = base64_to_bin(source);
 	if(salt == NULL) {
-		SAFE_FREE(source);
+		ZFREE(source);
 
 		return 0;
 	}
 
 	hash = base64_to_bin(b64hash);
-	SAFE_FREE(source);
+	ZFREE(source);
 	if(hash == NULL) {
 		ssh_buffer_free(salt);
 
@@ -308,8 +308,8 @@ int ssh_is_server_known(ssh_session session)
 	hostport = ssh_hostport(host, session->opts.port > 0 ? session->opts.port : 22);
 	if(host == NULL || hostport == NULL) {
 		ssh_set_error_oom(session);
-		SAFE_FREE(host);
-		SAFE_FREE(hostport);
+		ZFREE(host);
+		ZFREE(hostport);
 
 		return SSH_SERVER_ERROR;
 	}
@@ -399,8 +399,8 @@ int ssh_is_server_known(ssh_session session)
 		}
 	}
 
-	SAFE_FREE(host);
-	SAFE_FREE(hostport);
+	ZFREE(host);
+	ZFREE(hostport);
 	if(file != NULL) {
 		fclose(file);
 	}
@@ -430,7 +430,7 @@ char * ssh_dump_knownhost(ssh_session session)
 	/* If using a nonstandard port, save the host in the [host]:port format */
 	if(session->opts.port > 0 && session->opts.port != 22) {
 		hostport = ssh_hostport(host, session->opts.port);
-		SAFE_FREE(host);
+		ZFREE(host);
 		if(hostport == NULL) {
 			return NULL;
 		}
@@ -439,29 +439,29 @@ char * ssh_dump_knownhost(ssh_session session)
 	}
 	if(session->current_crypto==NULL) {
 		ssh_set_error(session, SSH_FATAL, "No current crypto context");
-		SAFE_FREE(host);
+		ZFREE(host);
 		return NULL;
 	}
 	server_pubkey = ssh_dh_get_current_server_publickey(session);
 	if(server_pubkey == NULL) {
 		ssh_set_error(session, SSH_FATAL, "No public key present");
-		SAFE_FREE(host);
+		ZFREE(host);
 		return NULL;
 	}
 	buffer = (char *)SAlloc::C(1, 4096);
 	if(!buffer) {
-		SAFE_FREE(host);
+		ZFREE(host);
 		return NULL;
 	}
 	rc = ssh_pki_export_pubkey_base64(server_pubkey, &b64_key);
 	if(rc < 0) {
-		SAFE_FREE(buffer);
-		SAFE_FREE(host);
+		ZFREE(buffer);
+		ZFREE(host);
 		return NULL;
 	}
 	snprintf(buffer, len, "%s %s %s\n", host, server_pubkey->type_c, b64_key);
-	SAFE_FREE(host);
-	SAFE_FREE(b64_key);
+	ZFREE(host);
+	ZFREE(b64_key);
 	return buffer;
 }
 /**
@@ -492,10 +492,10 @@ int ssh_write_knownhost(ssh_session session)
 			rc = ssh_mkdirs(dir, 0700);
 			if(rc < 0) {
 				ssh_set_error(session, SSH_FATAL, "Cannot create %s directory: %s", dir, strerror(errno));
-				SAFE_FREE(dir);
+				ZFREE(dir);
 				return SSH_ERROR;
 			}
-			SAFE_FREE(dir);
+			ZFREE(dir);
 			errno = 0;
 			file = fopen(session->opts.knownhosts, "a");
 			if(file == NULL) {
@@ -514,11 +514,11 @@ int ssh_write_knownhost(ssh_session session)
 		return SSH_ERROR;
 	}
 	if(fwrite(buffer, strlen(buffer), 1, file) != 1 || ferror(file)) {
-		SAFE_FREE(buffer);
+		ZFREE(buffer);
 		fclose(file);
 		return -1;
 	}
-	SAFE_FREE(buffer);
+	ZFREE(buffer);
 	fclose(file);
 	return 0;
 }

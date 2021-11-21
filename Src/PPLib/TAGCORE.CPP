@@ -768,7 +768,7 @@ ObjTagList & FASTCALL ObjTagList::operator = (const ObjTagList & s)
 	return *this;
 }
 
-int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
+int FASTCALL ObjTagList::IsEq(const ObjTagList & rS) const
 {
 	int    eq = 1;
 	if(GetCount() != rS.GetCount())
@@ -776,14 +776,14 @@ int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
 	else if(GetCount() > 0) {
 		LongArray eq_pos_list;
 		for(uint i = 0; eq && i < GetCount(); i++) {
-			const ObjTagItem * p_item = GetItemByPos(i);
-			int    found = 0;
+			const  ObjTagItem * p_item = GetItemByPos(i);
+			bool   found = false;
 			for(uint j = 0; !found && j < rS.GetCount(); j++) {
 				if(!eq_pos_list.lsearch((long)j)) {
 					const ObjTagItem * p_s_item = rS.GetItemByPos(j);
 					if(p_item->Cmp(*p_s_item) == 0) {
-						found = 1;
-						eq_pos_list.add((long)j);
+						found = true;
+						eq_pos_list.add(static_cast<long>(j));
 					}
 				}
 			}

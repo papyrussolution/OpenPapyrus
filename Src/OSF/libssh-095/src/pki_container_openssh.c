@@ -64,7 +64,7 @@ static int pki_openssh_import_privkey_blob(ssh_buffer key_blob_buffer,
 		SSH_LOG(SSH_LOG_WARN, "Unknown key type '%s' found!", type_s);
 		return SSH_ERROR;
 	}
-	SAFE_FREE(type_s);
+	ZFREE(type_s);
 
 	rc = pki_import_privkey_buffer(type, key_blob_buffer, &key);
 	if(rc != SSH_OK) {
@@ -143,20 +143,20 @@ static int pki_private_key_decrypt(ssh_string blob, const char * passphrase, con
 	SSH_LOG(SSH_LOG_DEBUG, "Decryption: %d key, %d IV, %d rounds, %zu bytes salt", cipher.keysize/8, cipher.blocksize, rounds, ssh_string_len(salt));
 	if(passphrase == NULL) {
 		if(auth_fn == NULL) {
-			SAFE_FREE(salt);
+			ZFREE(salt);
 			SSH_LOG(SSH_LOG_WARN, "No passphrase provided");
 			return SSH_ERROR;
 		}
 		rc = auth_fn("Passphrase", passphrase_buffer, sizeof(passphrase_buffer), 0, 0, auth_data);
 		if(rc != SSH_OK) {
-			SAFE_FREE(salt);
+			ZFREE(salt);
 			return SSH_ERROR;
 		}
 		passphrase = passphrase_buffer;
 	}
 	rc = bcrypt_pbkdf(passphrase, strlen(passphrase), (const uint8 *)ssh_string_data(salt), ssh_string_len(salt),
 		key_material, key_material_len, rounds); 
-	SAFE_FREE(salt);
+	ZFREE(salt);
 	if(rc < 0) {
 		return SSH_ERROR;
 	}
@@ -213,7 +213,7 @@ static ssh_key ssh_pki_openssh_import(const char * text_key, const char * passph
 	}
 	base64[i] = '\0';
 	buffer = base64_to_bin(base64);
-	SAFE_FREE(base64);
+	ZFREE(base64);
 	if(buffer == NULL) {
 		SSH_LOG(SSH_LOG_WARN, "Not an OpenSSH private key (base64 error)");
 		goto out;
@@ -265,7 +265,7 @@ static ssh_key ssh_pki_openssh_import(const char * text_key, const char * passph
 		goto out;
 	}
 	comment = ssh_buffer_get_ssh_string(privkey_buffer);
-	SAFE_FREE(comment);
+	ZFREE(comment);
 	/* verify that the remaining data is correct padding */
 	for(i = 1; ssh_buffer_get_len(privkey_buffer) > 0; ++i) {
 		ssh_buffer_get_u8(privkey_buffer, &padding);
@@ -285,12 +285,12 @@ out:
 		SSH_BUFFER_FREE(privkey_buffer);
 		privkey_buffer = NULL;
 	}
-	SAFE_FREE(magic);
-	SAFE_FREE(ciphername);
-	SAFE_FREE(kdfname);
-	SAFE_FREE(kdfoptions);
-	SAFE_FREE(pubkey0);
-	SAFE_FREE(privkeys);
+	ZFREE(magic);
+	ZFREE(ciphername);
+	ZFREE(kdfname);
+	ZFREE(kdfoptions);
+	ZFREE(pubkey0);
+	ZFREE(privkeys);
 	return key;
 }
 
@@ -563,7 +563,7 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey, const char * pa
 	ssh_buffer_reinit(buffer);
 	rc = ssh_buffer_pack(buffer, "tttttt", OPENSSH_HEADER_BEGIN, "\n", b64, "\n", OPENSSH_HEADER_END, "\n");
 	memzero(b64, strlen((char *)b64));
-	SAFE_FREE(b64);
+	ZFREE(b64);
 	if(rc != SSH_OK) {
 		goto error;
 	}
@@ -586,9 +586,9 @@ error:
 		memzero(bufptr, ssh_buffer_get_len(privkey_buffer));
 		SSH_BUFFER_FREE(privkey_buffer);
 	}
-	SAFE_FREE(pubkey_s);
-	SAFE_FREE(kdf_options);
-	SAFE_FREE(salt);
+	ZFREE(pubkey_s);
+	ZFREE(kdf_options);
+	ZFREE(salt);
 	if(buffer != NULL) {
 		SSH_BUFFER_FREE(buffer);
 	}

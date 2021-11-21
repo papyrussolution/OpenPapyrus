@@ -659,7 +659,7 @@ public:
 		//   отсортированный по описанию список {id PPView, описание PPView}
 		//   активным элементом сделать элемент с идентификатором view_id
 		//
-		SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, &CmdTextList, view_id, 0);
+		SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, CmdTextList, view_id, 0);
 		AddClusterAssoc(CTL_FILTITEM_FLAGS, 0, PPNamedFilt::fDontWriteXmlDTD);
 		AddClusterAssoc(CTL_FILTITEM_FLAGS, 1, PPNamedFilt::fCompressXml); // @v10.6.0
 		SetClusterData(CTL_FILTITEM_FLAGS, Data.Flags);

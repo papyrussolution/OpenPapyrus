@@ -265,7 +265,7 @@ int SmartListBox::RemoveColumn(int pos)
 		return 0;
 }
 
-int SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
+bool SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
 {
 	return StrPool.getnz(ColumnsSpcPos, rBuf.Z());
 }
@@ -1537,23 +1537,21 @@ void SmartListBox::Implement_Draw()
 							::GetClientRect(h_lb, &view_rect);
 							const int vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
 							const float szy = 20.0f; // any positive value 
-							LayoutFlexItem layout;
-							AbstractLayoutBlock alb;
-							alb.SetContainerDirection(DIREC_HORZ);
+							SUiLayout layout;
+							SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
 							alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width));
 							alb.SetFixedSizeY(szy);
-							alb.JustifyContent = AbstractLayoutBlock::alignStart;
 							layout.SetLayoutBlock(alb);
 							{
 								for(uint cidx = 0; cidx < cc; cidx++) {
-									AbstractLayoutBlock alb_c;
-									alb_c.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
-									alb_c.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+									SUiLayoutParam alb_c;
+									alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+									alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 									float _w = static_cast<float>(column_text_size_list.get(cidx));
 									if(auto_calc_column_sizes == auotocalccolszLogContent)
 										_w = logf(_w);
 									alb_c.GrowFactor = _w;
-									LayoutFlexItem * p_lo = layout.InsertItem();
+									SUiLayout * p_lo = layout.InsertItem();
 									p_lo->SetLayoutBlock(alb_c);
 								}
 								layout.Evaluate(0);
@@ -1561,7 +1559,7 @@ void SmartListBox::Implement_Draw()
 							}
 							{
 								for(uint cidx = 0; cidx < cc; cidx++) {
-									const LayoutFlexItem * p_lo = layout.GetChildC(cidx);
+									const SUiLayout * p_lo = layout.GetChildC(cidx);
 									const FRect lo_frame = p_lo->GetFrame();
 									ListView_SetColumnWidth(h_lb, cidx, static_cast<int>(lo_frame.Width()));
 								}

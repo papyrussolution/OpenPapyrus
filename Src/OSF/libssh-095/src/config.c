@@ -349,11 +349,11 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 	rv = SSH_OK;
 
 out:
-	SAFE_FREE(username);
-	SAFE_FREE(hostname);
-	SAFE_FREE(port);
-	SAFE_FREE(next);
-	SAFE_FREE(c);
+	ZFREE(username);
+	ZFREE(hostname);
+	ZFREE(port);
+	ZFREE(next);
+	ZFREE(c);
 	return rv;
 }
 
@@ -395,7 +395,7 @@ static int ssh_config_parse_line(ssh_session session,
 	keyword = ssh_config_get_token(&s);
 	if(keyword == NULL || *keyword == '#' ||
 	    *keyword == '\0' || *keyword == '\n') {
-		SAFE_FREE(x);
+		ZFREE(x);
 		return 0;
 	}
 
@@ -407,7 +407,7 @@ static int ssh_config_parse_line(ssh_session session,
 	    opcode > SOC_UNSUPPORTED) { /* Ignore all unknown types here */
 		/* Skip all the options that were already applied */
 		if(seen[opcode] != 0) {
-			SAFE_FREE(x);
+			ZFREE(x);
 			return 0;
 		}
 		seen[opcode] = 1;
@@ -467,7 +467,7 @@ static int ssh_config_parse_line(ssh_session session,
 					ssh_set_error(session, SSH_FATAL,
 					    "line %d: ERROR - Match all cannot be combined with "
 					    "other Match attributes", count);
-					SAFE_FREE(x);
+					ZFREE(x);
 					return -1;
 
 				    case MATCH_FINAL:
@@ -486,7 +486,7 @@ static int ssh_config_parse_line(ssh_session session,
 					if(p == NULL || p[0] == '\0') {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument", count, p2);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					args++;
@@ -504,18 +504,18 @@ static int ssh_config_parse_line(ssh_session session,
 						ssh_set_error(session, SSH_FATAL,
 						    "line %d: ERROR - Match user keyword "
 						    "requires argument", count);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					localuser = ssh_get_local_username();
 					if(localuser == NULL) {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Can not get local username "
 						    "for conditional matching.", count);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					result &= ssh_config_match(localuser, p, negate);
-					SAFE_FREE(localuser);
+					ZFREE(localuser);
 					args++;
 					break;
 
@@ -525,7 +525,7 @@ static int ssh_config_parse_line(ssh_session session,
 					if(p == NULL || p[0] == '\0') {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument", count, p2);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					args++;
@@ -543,7 +543,7 @@ static int ssh_config_parse_line(ssh_session session,
 						ssh_set_error(session, SSH_FATAL,
 						    "line %d: ERROR - Match host keyword "
 						    "requires argument", count);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					result &= ssh_config_match(session->opts.host, p, negate);
@@ -557,7 +557,7 @@ static int ssh_config_parse_line(ssh_session session,
 						ssh_set_error(session, SSH_FATAL,
 						    "line %d: ERROR - Match user keyword "
 						    "requires argument", count);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					result &= ssh_config_match(session->opts.username, p, negate);
@@ -568,14 +568,14 @@ static int ssh_config_parse_line(ssh_session session,
 				    default:
 					ssh_set_error(session, SSH_FATAL,
 					    "ERROR - Unknown argument '%s' for Match keyword", p);
-					SAFE_FREE(x);
+					ZFREE(x);
 					return -1;
 			    }
 		    } while(p != NULL && p[0] != '\0');
 		    if(args == 0) {
 			    ssh_set_error(session, SSH_FATAL,
 				"ERROR - Match keyword requires an argument");
-			    SAFE_FREE(x);
+			    ZFREE(x);
 			    return -1;
 		    }
 		    *parsing = result;
@@ -599,7 +599,7 @@ static int ssh_config_parse_line(ssh_session session,
 				    }
 			    }
 		    }
-		    SAFE_FREE(lowerhost);
+		    ZFREE(lowerhost);
 		    if(result != -1) {
 			    *parsing = result;
 		    }
@@ -667,7 +667,7 @@ static int ssh_config_parse_line(ssh_session session,
 			    char * a, * b;
 			    b = _strdup(p);
 			    if(b == NULL) {
-				    SAFE_FREE(x);
+				    ZFREE(x);
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -686,7 +686,7 @@ static int ssh_config_parse_line(ssh_session session,
 						break;
 				    }
 			    }
-			    SAFE_FREE(b);
+			    ZFREE(b);
 		    }
 		    break;
 		case SOC_TIMEOUT:
@@ -717,14 +717,14 @@ static int ssh_config_parse_line(ssh_session session,
 		case SOC_PROXYJUMP:
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p == NULL) {
-			    SAFE_FREE(x);
+			    ZFREE(x);
 			    return -1;
 		    }
 		    /* We share the seen value with the ProxyCommand */
 		    rv = ssh_config_parse_proxy_jump(session, p,
 			    (*parsing && !seen[SOC_PROXYCOMMAND]));
 		    if(rv != SSH_OK) {
-			    SAFE_FREE(x);
+			    ZFREE(x);
 			    return -1;
 		    }
 		    break;
@@ -984,12 +984,12 @@ static int ssh_config_parse_line(ssh_session session,
 		default:
 		    ssh_set_error(session, SSH_FATAL, "ERROR - unimplemented opcode: %d",
 			opcode);
-		    SAFE_FREE(x);
+		    ZFREE(x);
 		    return -1;
 		    break;
 	}
 
-	SAFE_FREE(x);
+	ZFREE(x);
 	return 0;
 }
 

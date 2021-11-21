@@ -119,24 +119,24 @@ static inline uint32 archive_le32dec(const void *pp)
 
 static inline uint64 archive_le64dec(const void *pp)
 {
-	uchar const * p = (uchar const *)pp;
+	const uchar * p = (const uchar *)pp;
 	return (((uint64)archive_le32dec(p + 4) << 32) | archive_le32dec(p));
 }
 
-static inline void archive_be16enc(void *pp, uint16_t u)
+static inline void archive_be16enc(void * pp, uint16_t u)
 {
 	uchar * p = static_cast<uchar *>(pp);
 	p[0] = (u >> 8) & 0xff;
 	p[1] = u & 0xff;
 }
 
-static inline void archive_be32enc(void *pp, uint32 u)
+static inline void archive_be32enc(void * pp, uint32 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
-	p[0] = (u >> 24) & 0xff;
-	p[1] = (u >> 16) & 0xff;
-	p[2] = (u >> 8) & 0xff;
-	p[3] = u & 0xff;
+	p[0] = static_cast<uchar>((u >> 24) & 0xff);
+	p[1] = static_cast<uchar>((u >> 16) & 0xff);
+	p[2] = static_cast<uchar>((u >> 8) & 0xff);
+	p[3] = static_cast<uchar>(u & 0xff);
 }
 
 static inline void archive_be64enc(void *pp, uint64 u)
@@ -156,10 +156,10 @@ static inline void archive_le16enc(void *pp, uint16_t u)
 static inline void archive_le32enc(void *pp, uint32 u)
 {
 	uchar * p = static_cast<uchar *>(pp);
-	p[0] = u & 0xff;
-	p[1] = (u >> 8) & 0xff;
-	p[2] = (u >> 16) & 0xff;
-	p[3] = (u >> 24) & 0xff;
+	p[0] = static_cast<uchar>(u & 0xff);
+	p[1] = static_cast<uchar>((u >> 8) & 0xff);
+	p[2] = static_cast<uchar>((u >> 16) & 0xff);
+	p[3] = static_cast<uchar>((u >> 24) & 0xff);
 }
 
 static inline void archive_le64enc(void *pp, uint64 u)

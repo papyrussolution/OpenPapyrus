@@ -254,19 +254,16 @@ static ssize_t get_line_size(const char * b, ssize_t avail, ssize_t * nlsize)
 	while(len < avail) {
 		switch(*b) {
 			case '\0':/* Non-ascii character or control character. */
-			    if(nlsize != NULL)
-				    *nlsize = 0;
+				ASSIGN_PTR(nlsize, 0);
 			    return -1;
 			case '\r':
 			    if(avail-len > 1 && b[1] == '\n') {
-				    if(nlsize != NULL)
-					    *nlsize = 2;
+					ASSIGN_PTR(nlsize, 2);
 				    return (len+2);
 			    }
 			// @fallthrough
 			case '\n':
-			    if(nlsize != NULL)
-				    *nlsize = 1;
+				ASSIGN_PTR(nlsize, 1);
 			    return (len+1);
 			default:
 			    b++;
@@ -274,11 +271,9 @@ static ssize_t get_line_size(const char * b, ssize_t avail, ssize_t * nlsize)
 			    break;
 		}
 	}
-	if(nlsize != NULL)
-		*nlsize = 0;
+	ASSIGN_PTR(nlsize, 0);
 	return (avail);
 }
-
 /*
  *  <---------------- ravail --------------------->
  *  <-- diff ------> <---  avail ----------------->
@@ -1807,7 +1802,6 @@ static int64 mtree_atol(char ** p, int base)
 {
 	int64 l, limit;
 	int digit, last_digit_limit;
-
 	if(base == 0) {
 		if(**p != '0')
 			base = 10;
@@ -1819,12 +1813,10 @@ static int64 mtree_atol(char ** p, int base)
 			base = 8;
 		}
 	}
-
 	if(**p == '-') {
 		limit = INT64_MIN / base;
-		last_digit_limit = INT64_MIN % base;
+		last_digit_limit = static_cast<int>(INT64_MIN % base);
 		++(*p);
-
 		l = 0;
 		digit = parsedigit(**p);
 		while(digit >= 0 && digit < base) {
@@ -1837,8 +1829,7 @@ static int64 mtree_atol(char ** p, int base)
 	}
 	else {
 		limit = INT64_MAX / base;
-		last_digit_limit = INT64_MAX % base;
-
+		last_digit_limit = static_cast<int>(INT64_MAX % base);
 		l = 0;
 		digit = parsedigit(**p);
 		while(digit >= 0 && digit < base) {

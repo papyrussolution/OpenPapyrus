@@ -1624,8 +1624,7 @@ void GoodsDialog::printInfoLabel()
 				MEMSZERO(param);
 				param.GoodsID = pack.Rec.ID;
 				param.NumCopies = num_copies;
-				PView pf(&param);
-				PPAlddPrint(rpt_id, &pf);
+				PPAlddPrint(rpt_id, PView(&param), 0);
 			}
 		}
 		else
@@ -2400,7 +2399,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
-		if(P_Filt && P_Filt->IsEqual(pFilt, 0)) {
+		if(P_Filt && P_Filt->IsEq(pFilt, 0)) {
 			ok = -1;
 		}
 		else {

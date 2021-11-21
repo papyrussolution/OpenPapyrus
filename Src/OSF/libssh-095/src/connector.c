@@ -1,6 +1,5 @@
 /*
  * This file is part of the SSH Library
- *
  * Copyright (c) 2015 by Aris Adamantiadis <aris@badcode.be>
  *
  * The SSH Library is free software; you can redistribute it and/or modify
@@ -42,52 +41,31 @@
 
 struct ssh_connector_struct {
 	ssh_session session;
-
 	ssh_channel in_channel;
 	ssh_channel out_channel;
-
 	socket_t in_fd;
 	socket_t out_fd;
-
 	bool fd_is_socket;
-
 	ssh_poll_handle in_poll;
 	ssh_poll_handle out_poll;
-
 	ssh_event event;
-
 	int in_available;
 	int out_wontblock;
-
 	struct ssh_channel_callbacks_struct in_channel_cb;
 	struct ssh_channel_callbacks_struct out_channel_cb;
-
 	enum ssh_connector_flags_e in_flags;
 	enum ssh_connector_flags_e out_flags;
 };
 
-static int ssh_connector_channel_data_cb(ssh_session session,
-    ssh_channel channel,
-    void * data,
-    uint32_t len,
-    int is_stderr,
-    void * userdata);
-static int ssh_connector_channel_write_wontblock_cb(ssh_session session,
-    ssh_channel channel,
-    size_t bytes,
-    void * userdata);
-static ssize_t ssh_connector_fd_read(ssh_connector connector,
-    void * buffer,
-    uint32_t len);
-static ssize_t ssh_connector_fd_write(ssh_connector connector,
-    const void * buffer,
-    uint32_t len);
+static int ssh_connector_channel_data_cb(ssh_session session, ssh_channel channel, void * data, uint32_t len, int is_stderr, void * userdata);
+static int ssh_connector_channel_write_wontblock_cb(ssh_session session, ssh_channel channel, size_t bytes, void * userdata);
+static ssize_t ssh_connector_fd_read(ssh_connector connector, void * buffer, uint32_t len);
+static ssize_t ssh_connector_fd_write(ssh_connector connector, const void * buffer, uint32_t len);
 static bool ssh_connector_fd_is_socket(socket_t socket);
 
 ssh_connector ssh_connector_new(ssh_session session)
 {
-	ssh_connector connector;
-	connector = (ssh_connector)SAlloc::C(1, sizeof(struct ssh_connector_struct));
+	ssh_connector connector = (ssh_connector)SAlloc::C(1, sizeof(struct ssh_connector_struct));
 	if(connector == NULL) {
 		ssh_set_error_oom(session);
 		return NULL;
@@ -108,55 +86,42 @@ ssh_connector ssh_connector_new(ssh_session session)
 void ssh_connector_free(ssh_connector connector)
 {
 	if(connector->in_channel != NULL) {
-		ssh_remove_channel_callbacks(connector->in_channel,
-		    &connector->in_channel_cb);
+		ssh_remove_channel_callbacks(connector->in_channel, &connector->in_channel_cb);
 	}
 	if(connector->out_channel != NULL) {
-		ssh_remove_channel_callbacks(connector->out_channel,
-		    &connector->out_channel_cb);
+		ssh_remove_channel_callbacks(connector->out_channel, &connector->out_channel_cb);
 	}
-
 	if(connector->event != NULL) {
 		ssh_connector_remove_event(connector);
 	}
-
 	if(connector->in_poll != NULL) {
 		ssh_poll_free(connector->in_poll);
 		connector->in_poll = NULL;
 	}
-
 	if(connector->out_poll != NULL) {
 		ssh_poll_free(connector->out_poll);
 		connector->out_poll = NULL;
 	}
-
 	SAlloc::F(connector);
 }
 
-int ssh_connector_set_in_channel(ssh_connector connector,
-    ssh_channel channel,
-    enum ssh_connector_flags_e flags)
+int ssh_connector_set_in_channel(ssh_connector connector, ssh_channel channel, enum ssh_connector_flags_e flags)
 {
 	connector->in_channel = channel;
 	connector->in_fd = SSH_INVALID_SOCKET;
 	connector->in_flags = flags;
-
 	/* Fallback to default value for invalid flags */
 	if(!(flags & SSH_CONNECTOR_STDOUT) && !(flags & SSH_CONNECTOR_STDERR)) {
 		connector->in_flags = SSH_CONNECTOR_STDOUT;
 	}
-
 	return ssh_add_channel_callbacks(channel, &connector->in_channel_cb);
 }
 
-int ssh_connector_set_out_channel(ssh_connector connector,
-    ssh_channel channel,
-    enum ssh_connector_flags_e flags)
+int ssh_connector_set_out_channel(ssh_connector connector, ssh_channel channel, enum ssh_connector_flags_e flags)
 {
 	connector->out_channel = channel;
 	connector->out_fd = SSH_INVALID_SOCKET;
 	connector->out_flags = flags;
-
 	/* Fallback to default value for invalid flags */
 	if(!(flags & SSH_CONNECTOR_STDOUT) && !(flags & SSH_CONNECTOR_STDERR)) {
 		connector->in_flags = SSH_CONNECTOR_STDOUT;
@@ -713,7 +678,6 @@ static ssize_t ssh_connector_fd_read(ssh_connector connector, void * buffer, uin
 	}
 	return nread;
 }
-
 /**
  * @internal
  *
@@ -731,7 +695,7 @@ static ssize_t ssh_connector_fd_write(ssh_connector connector, const void * buff
 		bwritten = send(connector->out_fd, (const char *)buffer, len, flags);
 	}
 	else {
-		bwritten = write(connector->out_fd, buffer, len);
+		bwritten = _write(connector->out_fd, buffer, len);
 	}
 	return bwritten;
 }

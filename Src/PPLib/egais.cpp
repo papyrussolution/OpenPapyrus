@@ -9256,7 +9256,7 @@ void EgaisPersonCore::Item::Clear()
 	ActualDate = ZERODATE;
 }
 
-int EgaisPersonCore::Item::IsEqual(const EgaisPersonCore::Item & rS, long cmpflags) const
+int EgaisPersonCore::Item::IsEq(const EgaisPersonCore::Item & rS, long cmpflags) const
 {
     int    yes = 1;
     if(!(cmpflags & cmpfExceptID) && ID != rS.ID)
@@ -9395,7 +9395,7 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
 				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), static_cast<const wchar_t *>(0), 0));
 			}
-			else if(pItem->IsEqual(org_item, 0)) {
+			else if(pItem->IsEq(org_item, 0)) {
 				ok = -1;
 			}
 			else {
@@ -9660,7 +9660,7 @@ void EgaisProductCore::Item::Clear()
 	ActualDate = ZERODATE;
 }
 
-int EgaisProductCore::Item::IsEqual(const Item & rS, long cmpflags) const
+int EgaisProductCore::Item::IsEq(const Item & rS, long cmpflags) const
 {
 	int    yes = 1;
 	if(!(cmpflags & cmpfExceptID) && ID != rS.ID)
@@ -9793,7 +9793,7 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
 				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, *pID, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
 			}
-			else if(pItem->IsEqual(org_item, 0)) {
+			else if(pItem->IsEq(org_item, 0)) {
 				ok = -1;
 			}
 			else {
@@ -10339,7 +10339,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetPerson(const EgaisPersonCore::It
 	int    result_pos = -1;
 	for(uint pos = 0; result_pos < 0 && PersonList.lsearch(rItem.RarIdent, &pos, PTR_CMPFUNC(Pchar), offsetof(EgaisPersonCore::Item, RarIdent));) {
 		EgaisPersonCore::Item * p_item = PersonList.at(pos);
-		if(p_item && p_item->IsEqual(rItem, EgaisPersonCore::Item::cmpfExceptFlags)) {
+		if(p_item && p_item->IsEq(rItem, EgaisPersonCore::Item::cmpfExceptFlags)) {
 			p_item->Flags |= rItem.Flags;
 			result_pos = static_cast<int>(pos);
 		}
@@ -10365,7 +10365,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetProduct(const EgaisProductCore::
 	int    result_pos = -1;
 	for(uint pos = 0; result_pos < 0 && ProductList.lsearch(rItem.AlcoCode, &pos, PTR_CMPFUNC(Pchar), offsetof(EgaisProductCore::Item, AlcoCode));) {
 		const EgaisProductCore::Item * p_item = ProductList.at(pos);
-		if(p_item && p_item->IsEqual(rItem, 0)) {
+		if(p_item && p_item->IsEq(rItem, 0)) {
 			result_pos = static_cast<int>(pos);
 		}
 		pos++;

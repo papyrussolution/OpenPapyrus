@@ -827,7 +827,7 @@ void lzma_index_iter_rewind(lzma_index_iter *iter)
 	iter->internal[ITER_METHOD].s = ITER_METHOD_NORMAL;
 }
 
-lzma_bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode)
+bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode)
 {
 	// Catch unsupported mode values.
 	if((uint)(mode) > LZMA_INDEX_ITER_NONEMPTY_BLOCK)
@@ -921,7 +921,7 @@ again:
 	return false;
 }
 
-lzma_bool lzma_index_iter_locate(lzma_index_iter *iter, lzma_vli target)
+bool lzma_index_iter_locate(lzma_index_iter *iter, lzma_vli target)
 {
 	const lzma_index * i = static_cast<const lzma_index *>(iter->internal[ITER_INDEX].p);
 	// If the target is past the end of the file, return immediately.

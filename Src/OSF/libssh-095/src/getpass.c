@@ -80,7 +80,7 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 			fflush(stdout);
 			if(!fgets(key_string, len, stdin)) {
 				memzero(key_string, len);
-				SAFE_FREE(key_string);
+				ZFREE(key_string);
 				clearerr(stdin);
 				continue;
 			}
@@ -91,12 +91,12 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 			if(strcmp(buf, key_string)) {
 				printf("\n\07\07Mismatch - try again\n");
 				memzero(key_string, len);
-				SAFE_FREE(key_string);
+				ZFREE(key_string);
 				fflush(stdout);
 				continue;
 			}
 			memzero(key_string, len);
-			SAFE_FREE(key_string);
+			ZFREE(key_string);
 		}
 		ok = 1;
 	}

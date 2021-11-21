@@ -951,7 +951,7 @@ fail:
 	EC_KEY_free(ecdsa);
 #endif
 #ifdef HAVE_OPENSSL_ED25519
-	SAFE_FREE(ed25519);
+	ZFREE(ed25519);
 #endif
 	return NULL;
 }
@@ -1656,7 +1656,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 
 	memzero(raw_sig_data, raw_sig_len);
-	SAFE_FREE(raw_sig_data);
+	ZFREE(raw_sig_data);
 	DSA_SIG_free(dsa_sig);
 
 	return SSH_OK;
@@ -1664,7 +1664,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 error:
 	bignum_safe_free(ps);
 	bignum_safe_free(pr);
-	SAFE_FREE(raw_sig_data);
+	ZFREE(raw_sig_data);
 	DSA_SIG_free(dsa_sig);
 	return SSH_ERROR;
 }
@@ -1788,7 +1788,7 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 
 	memzero(raw_sig_data, raw_sig_len);
-	SAFE_FREE(raw_sig_data);
+	ZFREE(raw_sig_data);
 	ECDSA_SIG_free(ecdsa_sig);
 	return SSH_OK;
 
@@ -1796,7 +1796,7 @@ error:
 	SSH_BUFFER_FREE(buf);
 	bignum_safe_free(ps);
 	bignum_safe_free(pr);
-	SAFE_FREE(raw_sig_data);
+	ZFREE(raw_sig_data);
 	if(ecdsa_sig != NULL) {
 		ECDSA_SIG_free(ecdsa_sig);
 	}
@@ -2150,7 +2150,7 @@ out:
 	if(raw_sig_data != NULL) {
 		memzero(raw_sig_data, raw_sig_len);
 	}
-	SAFE_FREE(raw_sig_data);
+	ZFREE(raw_sig_data);
 	if(pkey != NULL) {
 		EVP_PKEY_free(pkey);
 	}
@@ -2340,8 +2340,8 @@ error:
 	if(pkey != NULL) {
 		EVP_PKEY_free(pkey);
 	}
-	SAFE_FREE(key->ed25519_privkey);
-	SAFE_FREE(key->ed25519_pubkey);
+	ZFREE(key->ed25519_privkey);
+	ZFREE(key->ed25519_pubkey);
 
 	return SSH_ERROR;
 }

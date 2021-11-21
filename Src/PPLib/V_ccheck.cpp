@@ -332,7 +332,7 @@ int CCheckFiltCtDialog::setupList()
 	SString buf;
 	StringSet text_list(';', CtValNames);
 	StringSet ss(SLBColumnDelim);
-	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
+	for(uint i = 0, j = 1; ok && text_list.get(&i, buf); j++) {
 		ss.clear();
 		ss.add(buf);
 		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');

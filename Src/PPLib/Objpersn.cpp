@@ -1158,21 +1158,21 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 		eq = 0;
 	else if(rS1.Kinds != rS2.Kinds)
 		eq = 0;
-	else if(!rS1.Regs.IsEqual(rS2.Regs))
+	else if(!rS1.Regs.IsEq(rS2.Regs))
 		eq = 0;
 	else if(!LocObj.IsPacketEq(rS1.Loc, rS2.Loc, 0))
 		eq = 0;
 	else if(!LocObj.IsPacketEq(rS1.RLoc, rS2.RLoc, 0))
 		eq = 0;
-	else if(!rS1.ELA.IsEqual(rS2.ELA))
+	else if(!rS1.ELA.IsEq(rS2.ELA))
 		eq = 0;
-	else if(!rS1.CshrInfo.IsEqual(rS2.CshrInfo))
+	else if(!rS1.CshrInfo.IsEq(rS2.CshrInfo))
 		eq = 0;
-	else if(!rS1.TagL.IsEqual(rS2.TagL))
+	else if(!rS1.TagL.IsEq(rS2.TagL))
 		eq = 0;
 	else if(rS1.LinkFiles.IsChanged(rS1.Rec.ID, 0L))
 		eq = 0;
-	else if(!rS1.Amounts.IsEqual(rS2.Amounts))
+	else if(!rS1.Amounts.IsEq(rS2.Amounts))
 		eq = 0;
 	if(eq) {
 		const LAssocArray & rl1 = rS1.GetRelList();
@@ -1306,7 +1306,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 				p_array->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
 				p_array->Move(p_array->getCount()-1, 0);
 			}
-			// } @v11.1.10 
+			// } @v11.1.10
 			p_def = new StrAssocListBoxDef(p_array, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		}
 		THROW_MEM(p_def);
@@ -1320,7 +1320,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 				p_array->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
 				p_array->Move(p_array->getCount()-1, 0);
 			}
-			// } @v11.1.10 
+			// } @v11.1.10
 			static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_array);
 		}
 		p_def = pDef;
@@ -1480,7 +1480,7 @@ int BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) const
 			buf.Space().Cat(w_buf).Space().Cat(temp_buf);
 		}
 		if(InitFlags & BADIF_INITCACC && (temp_buf = Bnk.CorrAcc).NotEmptyS()) {
-			PPLoadString("correspondentaccount_s", w_buf);
+			PPLoadString("correspondentaccount_ss", w_buf);
 			buf.Space().Cat(w_buf).Space().Cat(temp_buf);
 		}
 	}
@@ -1947,9 +1947,7 @@ public:
 							temp_list.at(tlp).Val = tlv;
 						}
 						else {
-							RAssoc new_item;
-							new_item.Key = id;
-							new_item.Val = 1.0 + (0.01 * (_c - j));
+							RAssoc new_item(id, 1.0 + (0.01 * (_c - j)));
 							temp_list.insert(&new_item);
 						}
 					}
@@ -2451,11 +2449,11 @@ int PPObjPerson::SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf
 	SString ext_name;
 	PPIDArray addr_id_list;
 	LAssocArray rel_list;
-	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
+	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	// @v11.1.12 {
 	if(srzs.V.IsGe(11, 1, 12)) {
-		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
+		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf));
 	}
 	// } @v11.1.12
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Kinds, rBuf));
@@ -4091,7 +4089,7 @@ public:
 		// @v11.1.12 getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
 		// @v11.1.12 strip(Data.Rec.Memo);
 		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
-		Data.SMemo.Strip(); // @v11.1.12 
+		Data.SMemo.Strip(); // @v11.1.12
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
 		// @v10.9.0 {
 		if(getCtrlView(CTL_PERSON_GENDER))
@@ -5671,8 +5669,8 @@ int MainOrg2Dialog::getDTS()
 	// Get Memo
 	// @v11.1.12 getCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
 	// @v11.1.12 strip(P_Pack->Rec.Memo);
-	getCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12 
-	P_Pack->SMemo.Strip(); // @v11.1.12 
+	getCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12
+	P_Pack->SMemo.Strip(); // @v11.1.12
 	// Get Memo
 
 	// Get Phone

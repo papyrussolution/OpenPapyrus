@@ -79,7 +79,7 @@ int FASTCALL BitArray::insert(int val)
 size_t BitArray::getBufSize() const
 	{ return ((Count + 31) / 32) * 4; }
 
-int FASTCALL BitArray::IsEqual(const BitArray & rS) const
+int FASTCALL BitArray::IsEq(const BitArray & rS) const
 {
 	int    eq = 0;
 	const  size_t c = getCount();

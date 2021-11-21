@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -735,7 +735,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 	int    ok = 1;
 	SString buf;
 	StringSet ss(';', Items);
-	for(uint p = 0, id = 1; ss.get(&p, buf) > 0; id++)
+	for(uint p = 0, id = 1; ss.get(&p, buf); id++)
 		if(!addStringToList(id, buf))
 			ok = 0;
 	return ok;
@@ -4183,8 +4183,7 @@ int PPViewGoodsOpAnalyze::Print(const void *)
 		PPReportEnv env;
 		env.Sort = ord;
 		env.PrnFlags = disable_grouping ? SReport::DisableGrouping : 0;
-		PView  pf(this);
-		PPAlddPrint(rpt_id, &pf, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	Filt = old_filt;
 	delete dlg;

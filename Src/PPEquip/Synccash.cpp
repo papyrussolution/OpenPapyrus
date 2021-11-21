@@ -686,13 +686,17 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
 					if(chzn_code.NotEmptyS()) {
 						GtinStruc gts;
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
+						int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
 						if(pczcr > 0) {
 							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
 							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code); // @v11.2.0
 							const double chzn_qtty = fabs(ccl.Quantity);
-							int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result);
+							pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result);
 							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+							// @debug {
+							//pczcr = 0;
+							//chzn_pp_result.Z();
+							// } @debug
 							if(pczcr > 0 && chzn_pp_result.Status == 1) {
 								chzn_pp_result.LineIdx = pos;
 								int accept_op = 1; // 1 - accept, 2 - reject
@@ -708,8 +712,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		// } @v11.1.11
 		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
-			int    is_cash;
-			THROW(is_cash = CheckForCash(amt));
+			const int is_cash = CheckForCash(amt);
+			THROW(is_cash);
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		}
 		if(P_SlipFmt) {
@@ -1850,7 +1854,7 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 			THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 			THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
 			THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+			for(uint pos = 0; str_set.get(&pos, str);) {
 				str.Chomp();
 				Arr_In.Z();
 				// @v10.7.6 {

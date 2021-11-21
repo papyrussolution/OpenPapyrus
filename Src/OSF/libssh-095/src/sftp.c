@@ -68,20 +68,20 @@ static void sftp_ext_free(sftp_ext ext)
 	if(ext->count > 0) {
 		if(ext->name != NULL) {
 			for(i = 0; i < ext->count; i++) {
-				SAFE_FREE(ext->name[i]);
+				ZFREE(ext->name[i]);
 			}
-			SAFE_FREE(ext->name);
+			ZFREE(ext->name);
 		}
 
 		if(ext->data != NULL) {
 			for(i = 0; i < ext->count; i++) {
-				SAFE_FREE(ext->data[i]);
+				ZFREE(ext->data[i]);
 			}
-			SAFE_FREE(ext->data);
+			ZFREE(ext->data);
 		}
 	}
 
-	SAFE_FREE(ext);
+	ZFREE(ext);
 }
 
 sftp_session sftp_new(ssh_session session)
@@ -140,9 +140,9 @@ error:
 		if(sftp->read_packet->payload != NULL) {
 			SSH_BUFFER_FREE(sftp->read_packet->payload);
 		}
-		SAFE_FREE(sftp->read_packet);
+		ZFREE(sftp->read_packet);
 	}
-	SAFE_FREE(sftp);
+	ZFREE(sftp);
 	return NULL;
 }
 
@@ -161,7 +161,7 @@ sftp_session sftp_new_channel(ssh_session session, ssh_channel channel)
 	sftp->ext = sftp_ext_new();
 	if(sftp->ext == NULL) {
 		ssh_set_error_oom(session);
-		SAFE_FREE(sftp);
+		ZFREE(sftp);
 		return NULL;
 	}
 	sftp->session = session;
@@ -199,9 +199,9 @@ error:
 		if(sftp->read_packet->payload != NULL) {
 			SSH_BUFFER_FREE(sftp->read_packet->payload);
 		}
-		SAFE_FREE(sftp->read_packet);
+		ZFREE(sftp->read_packet);
 	}
-	SAFE_FREE(sftp);
+	ZFREE(sftp);
 	return NULL;
 }
 
@@ -281,17 +281,17 @@ void sftp_server_free(sftp_session sftp)
 		sftp_request_queue old;
 		sftp_message_free(ptr->message);
 		old = ptr->next;
-		SAFE_FREE(ptr);
+		ZFREE(ptr);
 		ptr = old;
 	}
 
-	SAFE_FREE(sftp->handles);
+	ZFREE(sftp->handles);
 	SSH_BUFFER_FREE(sftp->read_packet->payload);
-	SAFE_FREE(sftp->read_packet);
+	ZFREE(sftp->read_packet);
 
 	sftp_ext_free(sftp->ext);
 
-	SAFE_FREE(sftp);
+	ZFREE(sftp);
 }
 
 #endif /* WITH_SERVER */
@@ -311,7 +311,7 @@ void sftp_free(sftp_session sftp)
 			sftp_request_queue old;
 			sftp_message_free(ptr->message);
 			old = ptr->next;
-			SAFE_FREE(ptr);
+			ZFREE(ptr);
 			ptr = old;
 		}
 
@@ -319,13 +319,13 @@ void sftp_free(sftp_session sftp)
 		sftp->channel = NULL;
 	}
 
-	SAFE_FREE(sftp->handles);
+	ZFREE(sftp->handles);
 	SSH_BUFFER_FREE(sftp->read_packet->payload);
-	SAFE_FREE(sftp->read_packet);
+	ZFREE(sftp->read_packet);
 
 	sftp_ext_free(sftp->ext);
 
-	SAFE_FREE(sftp);
+	ZFREE(sftp);
 }
 
 ssize_t sftp_packet_write(sftp_session sftp, uint8 type, ssh_buffer payload)
@@ -517,7 +517,7 @@ static void sftp_message_free(sftp_message msg)
 	}
 
 	SSH_BUFFER_FREE(msg->payload);
-	SAFE_FREE(msg);
+	ZFREE(msg);
 }
 
 static sftp_message sftp_get_message(sftp_packet packet)
@@ -665,8 +665,8 @@ int sftp_init(sftp_session sftp) {
 		tmp = (char **)SAlloc::R(sftp->ext->name, count * sizeof(char *));
 		if(tmp == NULL) {
 			ssh_set_error_oom(sftp->session);
-			SAFE_FREE(ext_name);
-			SAFE_FREE(ext_data);
+			ZFREE(ext_name);
+			ZFREE(ext_data);
 			sftp_set_error(sftp, SSH_FX_FAILURE);
 			return -1;
 		}
@@ -675,8 +675,8 @@ int sftp_init(sftp_session sftp) {
 		tmp = (char **)SAlloc::R(sftp->ext->data, count * sizeof(char *));
 		if(tmp == NULL) {
 			ssh_set_error_oom(sftp->session);
-			SAFE_FREE(ext_name);
-			SAFE_FREE(ext_data);
+			ZFREE(ext_name);
+			ZFREE(ext_data);
 			sftp_set_error(sftp, SSH_FX_FAILURE);
 			return -1;
 		}
@@ -771,7 +771,7 @@ static void request_queue_free(sftp_request_queue queue)
 		return;
 	}
 	ZERO_STRUCTP(queue);
-	SAFE_FREE(queue);
+	ZFREE(queue);
 }
 
 static int sftp_enqueue(sftp_session sftp, sftp_message msg) {
@@ -867,7 +867,7 @@ static sftp_status_message parse_status_msg(sftp_message msg)
 	status->id = msg->id;
 	rc = ssh_buffer_unpack(msg->payload, "d", &status->status);
 	if(rc != SSH_OK) {
-		SAFE_FREE(status);
+		ZFREE(status);
 		ssh_set_error(msg->sftp->session, SSH_FATAL, "Invalid SSH_FXP_STATUS message");
 		sftp_set_error(msg->sftp, SSH_FX_FAILURE);
 		return NULL;
@@ -875,7 +875,7 @@ static sftp_status_message parse_status_msg(sftp_message msg)
 	rc = ssh_buffer_unpack(msg->payload, "ss", &status->errormsg, &status->langmsg);
 	if(rc != SSH_OK && msg->sftp->version >=3) {
 		/* These are mandatory from version 3 */
-		SAFE_FREE(status);
+		ZFREE(status);
 		ssh_set_error(msg->sftp->session, SSH_FATAL,
 		    "Invalid SSH_FXP_STATUS message");
 		sftp_set_error(msg->sftp, SSH_FX_FAILURE);
@@ -900,9 +900,9 @@ static void status_msg_free(sftp_status_message status){
 		return;
 	}
 
-	SAFE_FREE(status->errormsg);
-	SAFE_FREE(status->langmsg);
-	SAFE_FREE(status);
+	ZFREE(status->errormsg);
+	ZFREE(status->langmsg);
+	ZFREE(status);
 }
 
 static sftp_file parse_handle_msg(sftp_message msg)
@@ -921,7 +921,7 @@ static sftp_file parse_handle_msg(sftp_message msg)
 	file->handle = ssh_buffer_get_ssh_string(msg->payload);
 	if(file->handle == NULL) {
 		ssh_set_error(msg->sftp->session, SSH_FATAL, "Invalid SSH_FXP_HANDLE message");
-		SAFE_FREE(file);
+		ZFREE(file);
 		sftp_set_error(msg->sftp, SSH_FX_FAILURE);
 		return NULL;
 	}
@@ -1006,12 +1006,12 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 			    dir->sftp = sftp;
 			    dir->name = _strdup(path);
 			    if(dir->name == NULL) {
-				    SAFE_FREE(dir);
-				    SAFE_FREE(file);
+				    ZFREE(dir);
+				    ZFREE(file);
 				    return NULL;
 			    }
 			    dir->handle = file->handle;
-			    SAFE_FREE(file);
+			    ZFREE(file);
 		    }
 		    return dir;
 		default:
@@ -1180,9 +1180,9 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 		SSH_STRING_FREE(attr->acl);
 		SSH_STRING_FREE(attr->extended_type);
 		SSH_STRING_FREE(attr->extended_data);
-		SAFE_FREE(attr->owner);
-		SAFE_FREE(attr->group);
-		SAFE_FREE(attr);
+		ZFREE(attr->owner);
+		ZFREE(attr->group);
+		ZFREE(attr);
 
 		ssh_set_error(sftp->session, SSH_FATAL, "Invalid ATTR structure");
 
@@ -1351,8 +1351,8 @@ static sftp_attributes sftp_parse_attr_3(sftp_session sftp, ssh_buffer buf, int 
 			if(rc != SSH_OK) {
 				goto error;
 			}
-			SAFE_FREE(tmp1);
-			SAFE_FREE(tmp2);
+			ZFREE(tmp1);
+			ZFREE(tmp2);
 			attr->extended_count--;
 		}
 	}
@@ -1362,11 +1362,11 @@ static sftp_attributes sftp_parse_attr_3(sftp_session sftp, ssh_buffer buf, int 
 error:
 	SSH_STRING_FREE(attr->extended_type);
 	SSH_STRING_FREE(attr->extended_data);
-	SAFE_FREE(attr->name);
-	SAFE_FREE(attr->longname);
-	SAFE_FREE(attr->owner);
-	SAFE_FREE(attr->group);
-	SAFE_FREE(attr);
+	ZFREE(attr->name);
+	ZFREE(attr->longname);
+	ZFREE(attr->owner);
+	ZFREE(attr->group);
+	ZFREE(attr);
 	ssh_set_error(sftp->session, SSH_FATAL, "Invalid ATTR structure");
 	sftp_set_error(sftp, SSH_FX_FAILURE);
 
@@ -1572,12 +1572,12 @@ void sftp_attributes_free(sftp_attributes file){
 	SSH_STRING_FREE(file->extended_data);
 	SSH_STRING_FREE(file->extended_type);
 
-	SAFE_FREE(file->name);
-	SAFE_FREE(file->longname);
-	SAFE_FREE(file->group);
-	SAFE_FREE(file->owner);
+	ZFREE(file->name);
+	ZFREE(file->longname);
+	ZFREE(file->group);
+	ZFREE(file->owner);
 
-	SAFE_FREE(file);
+	ZFREE(file);
 }
 
 static int sftp_handle_close(sftp_session sftp, ssh_string handle)
@@ -1656,13 +1656,13 @@ static int sftp_handle_close(sftp_session sftp, ssh_string handle)
 int sftp_close(sftp_file file){
 	int err = SSH_NO_ERROR;
 
-	SAFE_FREE(file->name);
+	ZFREE(file->name);
 	if(file->handle) {
 		err = sftp_handle_close(file->sftp, file->handle);
 		SSH_STRING_FREE(file->handle);
 	}
 	/* FIXME: check server response and implement errno */
-	SAFE_FREE(file);
+	ZFREE(file);
 
 	return err;
 }
@@ -1671,14 +1671,14 @@ int sftp_close(sftp_file file){
 int sftp_closedir(sftp_dir dir){
 	int err = SSH_NO_ERROR;
 
-	SAFE_FREE(dir->name);
+	ZFREE(dir->name);
 	if(dir->handle) {
 		err = sftp_handle_close(dir->sftp, dir->handle);
 		SSH_STRING_FREE(dir->handle);
 	}
 	/* FIXME: check server response and implement errno */
 	SSH_BUFFER_FREE(dir->buffer);
-	SAFE_FREE(dir);
+	ZFREE(dir);
 
 	return err;
 }
@@ -2394,7 +2394,7 @@ int sftp_mkdir(sftp_session sftp, const char * directory, mode_t mode)
 			     */
 			    errno_attr = sftp_lstat(sftp, directory);
 			    if(errno_attr != NULL) {
-				    SAFE_FREE(errno_attr);
+				    ZFREE(errno_attr);
 				    sftp_set_error(sftp, SSH_FX_FILE_ALREADY_EXISTS);
 			    }
 			    break;
@@ -2846,7 +2846,7 @@ static sftp_statvfs_t sftp_parse_statvfs(sftp_session sftp, ssh_buffer buf)
 		&statvfs->f_namemax/* maximum filename length */
 		);
 	if(rc != SSH_OK) {
-		SAFE_FREE(statvfs);
+		ZFREE(statvfs);
 		ssh_set_error(sftp->session, SSH_FATAL, "Invalid statvfs structure");
 		sftp_set_error(sftp, SSH_FX_FAILURE);
 		return NULL;
@@ -3123,7 +3123,7 @@ void sftp_statvfs_free(sftp_statvfs_t statvfs) {
 		return;
 	}
 
-	SAFE_FREE(statvfs);
+	ZFREE(statvfs);
 }
 
 /* another code written by Nick */

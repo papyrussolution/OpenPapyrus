@@ -60,7 +60,7 @@ int    PPGoodsStruc::GetKind() const
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
 
-int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
+int FASTCALL PPGoodsStruc::IsEq(const PPGoodsStruc & rS) const
 {
 	int   eq = 1;
 #define CMPRECF(f) if(Rec.f != rS.Rec.f) return 0;
@@ -84,7 +84,7 @@ int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 				eq = 0;
 			else {
 				for(uint i = 0; eq && i < c; i++) {
-					if(!Items.at(i).IsEqual(rS.Items.at(i)))
+					if(!Items.at(i).IsEq(rS.Items.at(i)))
 						eq = 0;
 				}
 			}
@@ -98,7 +98,7 @@ int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 					const PPGoodsStruc * p_child = Children.at(i);
 					const PPGoodsStruc * p_s_child = rS.Children.at(i);
 					if(p_child && p_s_child) {
-						if(!p_child->IsEqual(*p_s_child))
+						if(!p_child->IsEq(*p_s_child))
 							eq = 0;
 					}
 					else if(p_child && !p_s_child) // @paranoic
@@ -381,9 +381,8 @@ void PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int 
 		double iprice = 0.0, tprice = 0.0;
 		int    is_inner_struc = 0;
 		if(calcInner) {
-			const PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
 			PPGoodsStruc inner_struc;
-			if(LoadGoodsStruc(&ident, &inner_struc) > 0) {
+			if(LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST), &inner_struc) > 0) {
 				int    uncert = 0;
 				inner_struc.CalcEstimationPrice(&iprice, &uncert, 1); // @recursion
 				p_item->GetQtty(iprice / GetDenom(), &iprice);
@@ -680,7 +679,7 @@ PPGoodsStrucItem::PPGoodsStrucItem()
 	THISZERO();
 }
 
-int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
+int FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
 {
 #define CMPF(f) if(f != rS.f) return 0;
 	CMPF(GoodsID);
@@ -697,8 +696,8 @@ int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
 	return 1;
 }
 
-int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEqual(rS); }
-int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEqual(rS); }
+int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEq(rS); }
+int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEq(rS); }
 
 int PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * pStruc)
 {
@@ -1062,7 +1061,7 @@ int GSDialog::IsChanged()
 {
 	PPGoodsStruc temp = Data;
 	PPGoodsStruc gs;
-	return NZOR(Changed, (getDTS(&gs), Data = temp, !temp.IsEqual(gs)));
+	return NZOR(Changed, (getDTS(&gs), Data = temp, !temp.IsEq(gs)));
 }
 
 int GSDialog::setDTS(const PPGoodsStruc * pData)
@@ -1187,9 +1186,8 @@ int GSDialog::enableEditRecurStruc()
 		P_Box->def->getCurID(&pos);
 		if(pos > 0 && pos-1 < (long)Data.Items.getCount()) {
 			int r = 0;
-			const PPGoodsStruc::Ident ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL);
 			RecurData.Init();
-			THROW(r = GObj.LoadGoodsStruc(&ident, &RecurData));
+			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL), &RecurData));
 			enable = BIN(r > 0 && RecurData.Rec.ID);
 		}
 	}
@@ -1313,9 +1311,8 @@ int GSDialog::setupList()
 		double price = 0.0, sum = 0.0;
 		Goods2Tbl::Rec goods_rec;
 		StringSet ss(SLBColumnDelim);
-		const PPGoodsStruc::Ident ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL);
 		PPGoodsStruc inner_struc;
-		THROW(GObj.LoadGoodsStruc(&ident, &inner_struc));
+		THROW(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc));
 		if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0)
 			sub = goods_rec.Name;
 		else {
@@ -2420,8 +2417,7 @@ int PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 		}
 		GStrucIterator gs_iter;
 		gs_iter.Init(pGoodsStruc, is_hier);
-		PView  pv(&gs_iter);
-		PPAlddPrint(rpt_id, &pv);
+		PPAlddPrint(rpt_id, PView(&gs_iter), 0);
 		ok = 1;
 	}
 	return ok;
@@ -2457,9 +2453,8 @@ int GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, d
 			gsr_item.HasInner = 0;
 			{
 				int    r = 0;
-				const PPGoodsStruc::Ident ident(gsr_item.Item.GoodsID);
 				PPObjGoodsStruc gs_obj;
-				THROW(r = g_obj.LoadGoodsStruc(&ident, &inner_struc));
+				THROW(r = g_obj.LoadGoodsStruc(PPGoodsStruc::Ident(gsr_item.Item.GoodsID), &inner_struc));
 				if(r > 0 && gs_obj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
 					int    uncert = 0;
 					inner_struc.CalcEstimationPrice(&gsr_item.Price, &uncert, 1);
@@ -2581,9 +2576,8 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 				int    g = 0;
 				double price = 0.0;
 				// @v10.3.0 (never used) double sum = 0.0;
-				const  PPGoodsStruc::Ident ident(p_item->GoodsID);
 				gstruc.Init();
-				THROW(goods_obj.LoadGoodsStruc(&ident, &gstruc));
+				THROW(goods_obj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID), &gstruc));
 				if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
 					recur = 1;
 					PPID   goods_id = (pGoodsIDs->getCount() > 0) ? pGoodsIDs->at(pGoodsIDs->getCount() - 1) : 0;
@@ -2906,7 +2900,7 @@ int FASTCALL SaGiftArray::Gift::IsEqualForResult(const Gift & rS) const
 		eq = 0;
 	else if(List != rS.List)
 		eq = 0;
-	else if(!CheckList.IsEqual(rS.CheckList))
+	else if(!CheckList.IsEq(rS.CheckList))
 		eq = 0;
 	return eq;
 }

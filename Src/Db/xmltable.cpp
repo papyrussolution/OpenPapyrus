@@ -290,12 +290,11 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 			if(pRec)
 				WriteDTDS(*pRec);
 			if(r_param.RootTag.NotEmpty()) {
-				SString tag;
-				tag = r_param.RootTag;
+				SString tag(r_param.RootTag);
 				if(IsUtf8())
 					tag.ToUtf8();
 				StringSet ss('\\', tag);
-				for(uint i = 0; ss.get(&i, tag) > 0;)
+				for(uint i = 0; ss.get(&i, tag);)
 					xmlTextWriterStartElement(P_Writer, tag.ucptr());
 			}
 		}
@@ -339,7 +338,7 @@ int XmlDbFile::Helper_CloseWriter()
 		if(St.GetParam().RootTag.NotEmpty()) {
 			SString tag;
 			StringSet ss('\\', St.GetParam().RootTag);
-			for(uint i = 0; ss.get(&i, tag) > 0;)
+			for(uint i = 0; ss.get(&i, tag);)
 				xmlTextWriterEndElement(P_Writer);
 		}
 		xmlTextWriterEndDocument(P_Writer);
@@ -392,7 +391,7 @@ int XmlDbFile::Pop()
 				if(IsUtf8())
 					tag.ToUtf8();
 				StringSet ss('\\', tag);
-				for(uint i = 0, j = 0; ss.get(&i, tag) > 0;)
+				for(uint i = 0, j = 0; ss.get(&i, tag);)
 					xmlTextWriterEndElement(P_Writer);
 			}
 		}
@@ -419,7 +418,7 @@ int XmlDbFile::Pop()
 				if(IsUtf8())
 					tag.ToUtf8();
 				StringSet ss('\\', tag);
-				for(uint i = 0; ss.get(&i, tag) > 0;)
+				for(uint i = 0; ss.get(&i, tag);)
 					xmlTextWriterEndElement(P_Writer);
 			}
 			else {
@@ -577,7 +576,7 @@ int XmlDbFile::AppendRecord(const char * pRecTag, const SdRecord & rRec, const v
 		if(IsUtf8())
 			tag.ToUtf8();
 		ss.setBuf(tag);
-		for(uint i = 0; ss.get(&i, tag) > 0;)
+		for(uint i = 0; ss.get(&i, tag);)
 			xmlTextWriterStartElement(P_Writer, tag.ucptr());
 		for(uint i = 0; rRec.EnumFields(&i, &fld);) {
 			field_name = fld.Name;
@@ -660,13 +659,13 @@ int XmlDbFile::WriteDTDS(const SdRecord & rRec)
 				ss.add(field_name);
 			}
 			xmlTextWriterStartDTD(P_Writer, root_tag.ucptr(), 0, 0);
-			if(!(pflags & XmlDbFile::Param::fSkipEntityList)) // @v8.6.8
+			if(!(pflags & XmlDbFile::Param::fSkipEntityList))
 				XMLWriteSpecSymbEntities(P_Writer);
 			buf.Printf("(%s+)", rec_tag.cptr());
 			xmlTextWriterWriteDTDElement(P_Writer, root_tag.ucptr(), buf.ucptr());
 			buf.Printf("(%s)", ss.getBuf());
 			xmlTextWriterWriteDTDElement(P_Writer, rec_tag.ucptr(), buf.ucptr());
-			for(i = 0; ss.get(&i, buf.Z()) > 0;)
+			for(i = 0; ss.get(&i, buf.Z());)
 				WriteField(buf, 0, 1);
 			xmlTextWriterEndDTD(P_Writer);
 		}

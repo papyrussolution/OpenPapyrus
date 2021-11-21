@@ -1207,10 +1207,7 @@ int PPViewPriceList::Print(const void * pHdr)
 		else if(v == 5) // маленькие ценники к прайс листу
 			rpt_id = REPORT_PLABELSMALL;
 		Filt.PctAdd = pctadd;
-		{
-			PView pv(this);
-			PPAlddPrint(rpt_id, &pv, &env);
-		}
+		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	else
 		ok = -1;
@@ -2531,19 +2528,19 @@ static int ParsePriceListExportSpec(const char * pRowDef, const char * pVarStr, 
 {
 	SString row, row_name, sub;
 	StringSet ss(';', pRowDef);
-	for(uint i = 0; ss.get(&i, row) > 0;) {
+	for(uint i = 0; ss.get(&i, row);) {
 		PriceListExportSpecItem item;
 		MEMSZERO(item);
 		StringSet ss2(',', row);
 		uint   j = 0;
-		if(ss2.get(&j, row_name) > 0) {
+		if(ss2.get(&j, row_name)) {
 			int    var_idx = -1;
 			if(row_name.NotEmptyS() && PPSearchSubStr(pVarStr, &var_idx, row_name, 1)) {
 				item.Var = (PriceListExportVarStr)var_idx;
-				if(ss2.get(&j, item.Title, sizeof(item.Title)) > 0) {
+				if(ss2.get(&j, item.Title, sizeof(item.Title))) {
 					strip(item.Title);
 					SOemToChar(item.Title);
-					if(ss2.get(&j, sub) > 0) {
+					if(ss2.get(&j, sub)) {
 						item.Size = sub.ToLong();
 						if(item.Size < 0)
 							item.Size = 0;

@@ -145,14 +145,14 @@ ssh_socket ssh_socket_new(ssh_session session)
 	s->in_buffer = ssh_buffer_new();
 	if(s->in_buffer == NULL) {
 		ssh_set_error_oom(session);
-		SAFE_FREE(s);
+		ZFREE(s);
 		return NULL;
 	}
 	s->out_buffer = ssh_buffer_new();
 	if(s->out_buffer == NULL) {
 		ssh_set_error_oom(session);
 		SSH_BUFFER_FREE(s->in_buffer);
-		SAFE_FREE(s);
+		ZFREE(s);
 		return NULL;
 	}
 	s->read_wontblock = 0;
@@ -388,7 +388,7 @@ void ssh_socket_free(ssh_socket s)
 	ssh_socket_close(s);
 	SSH_BUFFER_FREE(s->in_buffer);
 	SSH_BUFFER_FREE(s->out_buffer);
-	SAFE_FREE(s);
+	ZFREE(s);
 }
 
 #ifndef _WIN32

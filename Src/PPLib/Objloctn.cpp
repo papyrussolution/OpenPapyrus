@@ -1,5 +1,6 @@
 // OBJLOCTN.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// @codepage Windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1527,7 +1528,7 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 				Data.Z();
 			}
 			// @v10.7.11 SetupTaggedStringCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0);
-			SetupStrAssocCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0); // @v10.7.11
+			SetupStrAssocCombo(this, CTLSEL_ADDEXTFLD_FLD, FieldNames, Data.Id, 0); // @v10.7.11
 			setCtrlString(CTL_ADDEXTFLD_VAL, Data);
 			return 1;
 		}
@@ -2105,11 +2106,11 @@ int PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocationPack
 	int    eq = 1;
 	if(!LocationCore::IsEqualRec(rS1, rS2))
 		eq = 0;
-	else if(!rS1.Regs.IsEqual(rS2.Regs))
+	else if(!rS1.Regs.IsEq(rS2.Regs))
 		eq = 0;
-	else if(!rS1.TagL.IsEqual(rS2.TagL))
+	else if(!rS1.TagL.IsEq(rS2.TagL))
 		eq = 0;
-	else if(!rS1.WarehouseList.IsEqual(rS2.WarehouseList)) // @v11.0.6
+	else if(!rS1.WarehouseList.IsEq(rS2.WarehouseList)) // @v11.0.6
 		eq = 0;
 	return eq;
 }

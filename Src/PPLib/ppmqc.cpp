@@ -28,7 +28,7 @@ const char * PPMqbClient::LoginParam::GetVHost(const char * pDefault) const
 	return VHost.NotEmpty() ? VHost.cptr() : (isempty(pDefault) ? "papyrus" : pDefault);
 }
 
-int FASTCALL PPMqbClient::LoginParam::IsEqual(const LoginParam & rS) const
+int FASTCALL PPMqbClient::LoginParam::IsEq(const LoginParam & rS) const
 {
 	return (Method == rS.Method && Auth == rS.Auth && Secret == rS.Secret);
 }
@@ -38,7 +38,7 @@ PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), 
 {
 }
 
-int FASTCALL PPMqbClient::RoutingParamEntry::IsEqual(const RoutingParamEntry & rS) const
+int FASTCALL PPMqbClient::RoutingParamEntry::IsEq(const RoutingParamEntry & rS) const
 {
 	#define ISEQF(f) ((f)==(rS.f))
 	return (ISEQF(RtRsrv) && ISEQF(QueueFlags) && ISEQF(ExchangeType) && ISEQF(ExchangeFlags) && 
@@ -284,7 +284,7 @@ int FASTCALL PPMqbClient::InitParam::Copy(const PPMqbClient::InitParam & rS)
 	return 1;
 }
 
-int FASTCALL PPMqbClient::InitParam::IsEqual(const InitParam & rS) const
+int FASTCALL PPMqbClient::InitParam::IsEq(const InitParam & rS) const
 {
 	int    eq = 1;
 	if(Host == rS.Host && Port == rS.Port && ConsumeParamList.getCount() == rS.ConsumeParamList.getCount()) {
@@ -292,7 +292,7 @@ int FASTCALL PPMqbClient::InitParam::IsEqual(const InitParam & rS) const
 			const RoutingParamEntry * p_rp = ConsumeParamList.at(i);
 			const RoutingParamEntry * p_rp2 = rS.ConsumeParamList.at(i);
 			if(p_rp && p_rp2)
-				eq = p_rp->IsEqual(*p_rp2);
+				eq = p_rp->IsEq(*p_rp2);
 			else if((!p_rp && p_rp2) || (p_rp && !p_rp2))
 				eq = 0;
 		}
@@ -317,7 +317,7 @@ int FASTCALL PPMqbClient::InitParam::SearchRoutingEntry(const RoutingParamEntry 
 {
 	for(uint i = 0; i < ConsumeParamList.getCount(); i++) {
 		const RoutingParamEntry * p_item = ConsumeParamList.at(i);
-		if(p_item && p_item->IsEqual(rPattern)) {
+		if(p_item && p_item->IsEq(rPattern)) {
 			ASSIGN_PTR(pPos, i);
 			return 1;
 		}

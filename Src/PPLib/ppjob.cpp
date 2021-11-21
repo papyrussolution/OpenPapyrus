@@ -1388,7 +1388,8 @@ private:
 
 int CashNodeDialog::setDTS(const CashNodeParam * pData)
 {
-	int    r = 1, ok = 1;
+	int    ok = 1;
+	int    r = 1;
 	PPID   id = 0;
 	StrAssocArray node_list;
 	PPCashNode node;
@@ -1400,7 +1401,7 @@ int CashNodeDialog::setDTS(const CashNodeParam * pData)
 			THROW_SL(node_list.Add(id, node.Name));
 		}
 	THROW(r);
-	SetupStrAssocCombo(this, CTLSEL_SELCNODE_CNODE, &node_list, Data.CashNodeID, 0);
+	SetupStrAssocCombo(this, CTLSEL_SELCNODE_CNODE, node_list, Data.CashNodeID, 0);
 	SetPeriod();
 	CATCHZOKPPERR
 	return ok;
@@ -2287,7 +2288,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				}
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
 				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, id, 0);
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, id, 0);
 			}
 			else {
 				HdrList.Z();
@@ -2295,9 +2296,9 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				bill_param.Init();
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
 				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, id, 0);
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, id, 0);
 				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? LineList.Get(p).Id : 0;
-				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, id, 0);
+				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, LineList, id, 0);
 			}
 		}
 		// } @vmiller
@@ -2317,14 +2318,15 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		if(!oneof2(Data.Filt.Bbt, bbtGoodsBills, bbtDraftBills))
 			Data.Filt.SetupBrowseBillsType(Data.Filt.Bbt = bbtGoodsBills);
 		{
-			uint    p  = 0, id = 0;
+			uint    p  = 0;
+			uint    id = 0;
 			SString sect;
 			PPBillImpExpParam bill_param, brow_param;
 			GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
 			id = (HdrList.SearchByText(bill_param.Name, 1, &p) > 0) ? (uint)HdrList.Get(p).Id : 0;
-			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
+			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, (long)id, 0);
 			id = (LineList.SearchByText(brow_param.Name, 1, &p) > 0) ? (uint)LineList.Get(p).Id : 0;
-			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, (long)id, 0);
+			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, LineList, (long)id, 0);
 		}
 	}//@vmiller
 	// @vmiller {
@@ -2347,7 +2349,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		}
 		GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
 		id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
-		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
+		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, (long)id, 0);
 	}
 	// } @vmiller
 	AddClusterAssocDef(CTL_BILLEXPFILT_BILLTYP, 0, bbtGoodsBills);
@@ -2548,7 +2550,7 @@ public:
 			PPGoodsImpExpParam param;
 			GetParamByName(Data.ExpCfg, &param);
 			const uint id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
-			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, &CfgList, static_cast<long>(id), 0);
+			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, CfgList, static_cast<long>(id), 0);
 			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0); // @v10.9.5
 		}
 		return ok;

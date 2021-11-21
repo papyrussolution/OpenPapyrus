@@ -515,13 +515,13 @@ static int __hstat(HANDLE handle, struct ustat * st)
 
 static void copy_stat(struct stat * st, struct ustat * us)
 {
-	st->st_atime = us->st_atime;
-	st->st_ctime = us->st_ctime;
-	st->st_mtime = us->st_mtime;
+	st->st_atime = static_cast<time_t>(us->st_atime);
+	st->st_ctime = static_cast<time_t>(us->st_ctime);
+	st->st_mtime = static_cast<time_t>(us->st_mtime);
 	st->st_gid = us->st_gid;
 	st->st_ino = getino(us);
 	st->st_mode = us->st_mode;
-	st->st_nlink = us->st_nlink;
+	st->st_nlink = static_cast<short>(us->st_nlink);
 	st->st_size = (off_t)us->st_size;
 	st->st_uid = us->st_uid;
 	st->st_dev = us->st_dev;

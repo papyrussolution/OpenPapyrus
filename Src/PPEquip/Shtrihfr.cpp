@@ -2392,7 +2392,7 @@ int SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
 	CheckForRibbonUsing(SlipLineParam::fRegRegular);
 	THROW(SetFR(DocumentName, ""));
 	THROW(ExecFRPrintOper(PrintDocumentTitle));
-	for(uint pos = 0; str_set.get(&pos, line_buf) > 0;) {
+	for(uint pos = 0; str_set.get(&pos, line_buf);) {
 		CheckForRibbonUsing(SlipLineParam::fRegRegular);
 		CutLongTail(line_buf);
 		THROW(SetFR(StringForPrinting, line_buf));

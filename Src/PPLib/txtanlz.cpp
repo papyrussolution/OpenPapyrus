@@ -159,7 +159,7 @@ uint PPTextAnalyzer::Replacer::SearchTarget(const Replacer::Chain & rChain) cons
 	uint   idx = 0;
 	for(uint i = 0; !idx && i < TargetList.getCount(); i++) {
 		const TargetItem * p_target = TargetList.at(i);
-		if(p_target->List.IsEqual(rChain)) {
+		if(p_target->List.IsEq(rChain)) {
 			idx = i+1;
 		}
 	}
@@ -3909,7 +3909,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 
 					temp_buf.Z();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
-						const RAssoc item = freq_list.at(i);
+						const RAssoc item(freq_list.at(i));
                         uchar c = (uchar)item.Key;
 						item_buf.Z();
 						if(c == 0)
@@ -3936,7 +3936,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				if(ffr > 0 && pFileTypeToFreqOrderOutFile) {
 					temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
-						const RAssoc item = freq_list.at(i);
+						const RAssoc item(freq_list.at(i));
 						uchar c = static_cast<uchar>(item.Key);
                         temp_buf.CatHex(c);
 					}

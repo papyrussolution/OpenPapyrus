@@ -364,7 +364,7 @@ void ssh_poll_free(ssh_poll_handle p)
 		ssh_poll_ctx_remove(p->ctx, p);
 		p->ctx = NULL;
 	}
-	SAFE_FREE(p);
+	ZFREE(p);
 }
 /**
  * @brief  Get the poll context of a poll object.
@@ -512,11 +512,11 @@ void ssh_poll_ctx_free(ssh_poll_ctx ctx) {
 			ssh_poll_free(p);
 		}
 
-		SAFE_FREE(ctx->pollptrs);
-		SAFE_FREE(ctx->pollfds);
+		ZFREE(ctx->pollptrs);
+		ZFREE(ctx->pollfds);
 	}
 
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 }
 
 static int ssh_poll_ctx_resize(ssh_poll_ctx ctx, size_t new_size) 
@@ -962,7 +962,7 @@ int ssh_event_remove_fd(ssh_event event, socket_t fd)
 			}
 			if(p->cb == ssh_event_fd_wrapper_callback) {
 				struct ssh_event_fd_wrapper * pw = (struct ssh_event_fd_wrapper *)p->cb_data;
-				SAFE_FREE(pw);
+				ZFREE(pw);
 			}
 			/*
 			 * The free function calls ssh_poll_ctx_remove() and decrements

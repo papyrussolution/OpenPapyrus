@@ -22,7 +22,7 @@ ClsdGoodsFilt & ClsdGoodsFilt::Z()
 	return *this;
 }
 
-int FASTCALL ClsdGoodsFilt::IsEqual(const ClsdGoodsFilt & rS) const
+int FASTCALL ClsdGoodsFilt::IsEq(const ClsdGoodsFilt & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
 	CMP_FLD(GdsClsID);
@@ -32,7 +32,7 @@ int FASTCALL ClsdGoodsFilt::IsEqual(const ClsdGoodsFilt & rS) const
 	CMP_FLD(DimZ_Rng);
 	CMP_FLD(DimW_Rng);
 #undef CMP_FLD
-#define CMP_LST(f) if(!f.IsEqual(rS.f)) return 0
+#define CMP_LST(f) if(!f.IsEq(rS.f)) return 0
 	CMP_LST(KindList);
 	CMP_LST(GradeList);
 	CMP_LST(AddObjList);

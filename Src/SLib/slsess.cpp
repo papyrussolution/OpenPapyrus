@@ -439,7 +439,7 @@ static void InitTest()
 	assert(isasciialpha('z'+1) == 0);
 	assert(isasciialpha('a'-1) == 0);
 	// } @v10.9.3 
-	// assert(sizeof(LayoutFlexItem::Result) == 24); // @v11.0.0
+	// assert(sizeof(SUiLayout::Result) == 24); // @v11.0.0
 	{
 		//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
 		assert(IsMadeOfEightDigitsFast(PTR8C("00000000")));

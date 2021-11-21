@@ -178,9 +178,9 @@ static uchar equal(signed char b, signed char c)
 
 static uchar negative(signed char b)
 {
-	uint64 x = b; /* 18446744073709551361..18446744073709551615: yes; 0..255: no */
-	x >>= 63; /* 1: yes; 0: no */
-	return x;
+	uint64 x = b; // 18446744073709551361..18446744073709551615: yes; 0..255: no 
+	x >>= 63; // 1: yes; 0: no 
+	return static_cast<uchar>(x);
 }
 
 static void choose_t(ge25519_aff * t, uint64 pos, signed char b)

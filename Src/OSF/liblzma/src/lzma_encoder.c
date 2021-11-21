@@ -498,7 +498,7 @@ extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8_t *
 	}
 #endif
 
-lzma_bool lzma_mode_is_supported(lzma_mode mode)
+bool lzma_mode_is_supported(lzma_mode mode)
 {
 	return mode == LZMA_MODE_FAST || mode == LZMA_MODE_NORMAL;
 }

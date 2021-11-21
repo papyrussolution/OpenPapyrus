@@ -19,7 +19,7 @@
 #pragma hdrstop
 #include "fann2.h"
 
-int FASTCALL Fann2::IsEqual(const Fann2 & rS) const // @construction
+int FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
 {
 	/*
 		num_layers=5
@@ -5254,7 +5254,7 @@ static int AssertCreateAndCopy(STestCase * pTc, Fann * pNet, uint numLayers, con
     AssertCreate(pTc, pNet, numLayers, pLayers, neurons, connections);
     Fann * p_copy = fann_copy(pNet);
     AssertCreate(pTc, p_copy, numLayers, pLayers, neurons, connections);
-	pTc->SLTEST_CHECK_NZ(p_copy->IsEqual(*pNet, 0));
+	pTc->SLTEST_CHECK_NZ(p_copy->IsEq(*pNet, 0));
     fann_destroy(p_copy);
 	return pTc->GetCurrentStatus();
 }
@@ -5360,7 +5360,7 @@ SLTEST_R(FANN2)
 					SSerializeContext sctx;
 					Fann new_ann(sbuf, &sctx);
 					SLTEST_CHECK_NZ(new_ann.IsValid());
-					SLTEST_CHECK_NZ(new_ann.IsEqual(*p_ann, 0));
+					SLTEST_CHECK_NZ(new_ann.IsEq(*p_ann, 0));
 				}
 			}
 			fann_destroy(p_ann);
@@ -5395,7 +5395,7 @@ SLTEST_R(FANN2)
 					SSerializeContext sctx;
 					Fann new_ann(sbuf, &sctx);
 					SLTEST_CHECK_NZ(new_ann.IsValid());
-					SLTEST_CHECK_NZ(new_ann.IsEqual(ann, 0));
+					SLTEST_CHECK_NZ(new_ann.IsEq(ann, 0));
 				}
 			}
 			/*

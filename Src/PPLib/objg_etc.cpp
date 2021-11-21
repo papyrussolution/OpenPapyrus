@@ -640,7 +640,7 @@ int PPObjGoodsValRestr::IsPacketEq(const PPGoodsValRestrPacket & rS1, const PPGo
 		return 0;
 	if(rS1.UppBoundFormula != rS2.UppBoundFormula)
 		return 0;
-	if(!rS1.BillArRestr.IsEqual(rS2.BillArRestr))
+	if(!rS1.BillArRestr.IsEq(rS2.BillArRestr))
 		return 0;
 	return 1;
 }

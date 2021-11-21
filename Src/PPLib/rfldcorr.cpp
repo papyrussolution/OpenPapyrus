@@ -19,7 +19,7 @@ static int SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdReco
 		else
 			list.Add(fld.ID, fld.Name);
 	}
-	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(id), 0);
+	return SetupStrAssocCombo(dlg, ctlID, list, static_cast<long>(id), 0);
 }
 
 static int SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
@@ -32,7 +32,7 @@ static int SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
 		const long bt = bt_list.get(i);
 		list.Add(bt, GetBaseTypeString(bt, BTSF_NATIVE|BTSF_OEM, text));
 	}
-	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(typ), 0);
+	return SetupStrAssocCombo(dlg, ctlID, list, static_cast<long>(typ), 0);
 }
 
 static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int direction)
@@ -3040,7 +3040,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	SString str_cfgs, buf;
 	PPLoadText(PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
 	StringSet ss(';', str_cfgs);
-	for(uint i = 0, p = 0; ss.get(&i, buf) > 0; p++)
+	for(uint i = 0, p = 0; ss.get(&i, buf); p++)
 		CfgsList.Add(sdrecs_id[p], 0, buf);
 	uint   pp = 0;
 	P_ParamList[pp++] = &GoodsParam;

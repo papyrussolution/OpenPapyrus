@@ -41,7 +41,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read.c 201157 2009-12-29 05:30:2
 #include "archive_private.h"
 #include "archive_read_private.h"
 
-#define minimum(a, b) (a < b ? a : b)
+// @sobolev #define minimum_Removed(a, b) (a < b ? a : b)
 
 static int      choose_filters(struct archive_read *);
 static int      choose_format(struct archive_read *);
@@ -1295,35 +1295,28 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 		}
 	}
 }
-
 /*
  * Move the file pointer forward.
  */
-int64 __archive_read_consume(struct archive_read * a, int64 request)
+int64 FASTCALL __archive_read_consume(struct archive_read * a, int64 request)
 {
 	return (__archive_read_filter_consume(a->filter, request));
 }
 
-int64 __archive_read_filter_consume(struct archive_read_filter * filter,
-    int64 request)
+int64 __archive_read_filter_consume(struct archive_read_filter * filter, int64 request)
 {
 	int64 skipped;
-
 	if(request < 0)
 		return ARCHIVE_FATAL;
 	if(request == 0)
 		return 0;
-
 	skipped = advance_file_pointer(filter, request);
 	if(skipped == request)
 		return (skipped);
 	/* We hit EOF before we satisfied the skip request. */
 	if(skipped < 0)   /* Map error code to 0 for error message below. */
 		skipped = 0;
-	archive_set_error(&filter->archive->archive,
-	    ARCHIVE_ERRNO_MISC,
-	    "Truncated input file (needed %jd bytes, only %jd available)",
-	    (intmax_t)request, (intmax_t)skipped);
+	archive_set_error(&filter->archive->archive, ARCHIVE_ERRNO_MISC, "Truncated input file (needed %jd bytes, only %jd available)", (intmax_t)request, (intmax_t)skipped);
 	return ARCHIVE_FATAL;
 }
 
@@ -1338,13 +1331,11 @@ static int64 advance_file_pointer(struct archive_read_filter * filter, int64 req
 	int64 bytes_skipped, total_bytes_skipped = 0;
 	ssize_t bytes_read;
 	size_t min;
-
 	if(filter->fatal)
 		return -1;
-
 	/* Use up the copy buffer first. */
 	if(filter->avail > 0) {
-		min = (size_t)minimum(request, (int64)filter->avail);
+		min = (size_t)MIN(request, (int64)filter->avail);
 		filter->next += min;
 		filter->avail -= min;
 		request -= min;
@@ -1354,7 +1345,7 @@ static int64 advance_file_pointer(struct archive_read_filter * filter, int64 req
 
 	/* Then use up the client buffer. */
 	if(filter->client_avail > 0) {
-		min = (size_t)minimum(request, (int64)filter->client_avail);
+		min = (size_t)MIN(request, (int64)filter->client_avail);
 		filter->client_next += min;
 		filter->client_avail -= min;
 		request -= min;

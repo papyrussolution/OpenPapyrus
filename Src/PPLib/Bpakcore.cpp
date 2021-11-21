@@ -22,7 +22,7 @@ AmtEntry::AmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID
 {
 }
 
-int FASTCALL AmtEntry::IsEqual(const AmtEntry & rS) const
+int FASTCALL AmtEntry::IsEq(const AmtEntry & rS) const
 {
 	return BIN(AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt);
 }
@@ -54,7 +54,7 @@ int FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 	return yes;
 }
 
-int FASTCALL AmtList::IsEqual(const AmtList * pS) const
+int FASTCALL AmtList::IsEq(const AmtList * pS) const
 {
 	int    ok = 1;
 	if(getCount() == pS->getCount()) {
@@ -64,7 +64,7 @@ int FASTCALL AmtList::IsEqual(const AmtList * pS) const
 			int found = 0;
 			for(uint j = 0; !found && pS->enumItems(&j, (void **)&p_e2);) {
 				const long p = static_cast<long>(j);
-				if(!saw_list.lsearch(p) && p_e1->IsEqual(*p_e2)) {
+				if(!saw_list.lsearch(p) && p_e1->IsEq(*p_e2)) {
 					saw_list.add(p);
 					found = 1;
 				}
@@ -229,7 +229,7 @@ PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>()
 {
 }
 
-int FASTCALL PayPlanArray::IsEqual(const PayPlanArray & rS) const
+int FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
 {
 	int    ok = 1;
 	if(getCount() == rS.getCount()) {
@@ -527,7 +527,7 @@ int PPFreight::IsEmpty() const
 		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID); // @v10.9.2 Captain2ID
 }
 
-int FASTCALL PPFreight::IsEqual(const PPFreight & s) const
+int FASTCALL PPFreight::IsEq(const PPFreight & s) const
 {
 	if(DlvrAddrID != s.DlvrAddrID)
 		return 0;
@@ -591,7 +591,7 @@ int FASTCALL PPBill::Agreement::Copy(const Agreement & rS)
 	return 1;
 }
 
-int FASTCALL PPBill::Agreement::IsEqual(const Agreement & rS) const
+int FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
 {
 	#define CF(f) if(f != rS.f) return 0
 	CF(Flags);
@@ -639,7 +639,7 @@ void PPBill::BaseDestroy()
 	Ver = DS.GetVersion();
 }
 
-int FASTCALL PPBill::IsEqual(const PPBill & rS) const
+int FASTCALL PPBill::IsEq(const PPBill & rS) const
 {
 	int    yes = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -652,13 +652,13 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 	if(yes) {
 		if(SMemo != rS.SMemo) // @v11.1.12
 			yes = 0;
-		else if(!Amounts.IsEqual(&rS.Amounts))
+		else if(!Amounts.IsEq(&rS.Amounts))
 			yes = 0;
-		else if(!Pays.IsEqual(rS.Pays))
+		else if(!Pays.IsEq(rS.Pays))
 			yes = 0;
-		else if(!Ext.IsEqual(rS.Ext))
+		else if(!Ext.IsEq(rS.Ext))
 			yes = 0;
-		else if(!Rent.IsEqual(rS.Rent))
+		else if(!Rent.IsEq(rS.Rent))
 			yes = 0;
 		else if((P_PaymOrder && !rS.P_PaymOrder) || (!P_PaymOrder && rS.P_PaymOrder))
 			yes = 0;
@@ -666,25 +666,25 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 			yes = 0;
 		else if((P_Freight && !rS.P_Freight) || (!P_Freight && rS.P_Freight))
 			yes = 0;
-		else if(P_Freight && rS.P_Freight && !P_Freight->IsEqual(*rS.P_Freight))
+		else if(P_Freight && rS.P_Freight && !P_Freight->IsEq(*rS.P_Freight))
 			yes = 0;
 		// @v10.1.12 {
 		else if((P_Agt && !rS.P_Agt) || (!P_Agt && rS.P_Agt))
 			yes = 0;
-		else if(P_Agt && rS.P_Agt && !P_Agt->IsEqual(*rS.P_Agt))
+		else if(P_Agt && rS.P_Agt && !P_Agt->IsEq(*rS.P_Agt))
 			yes = 0;
 		// } @v10.1.12
 		else if((P_AdvRep && !rS.P_AdvRep) || (!P_AdvRep && rS.P_AdvRep))
 			yes = 0;
 		else if(P_AdvRep && rS.P_AdvRep && memcmp(P_AdvRep, rS.P_AdvRep, sizeof(*P_AdvRep)) != 0)
 			yes = 0;
-		else if(!AdvList.IsEqual(rS.AdvList))
+		else if(!AdvList.IsEq(rS.AdvList))
 			yes = 0;
-		else if(!BTagL.IsEqual(rS.BTagL))
+		else if(!BTagL.IsEq(rS.BTagL))
 			yes = 0;
-		else if(!XcL.IsEqual(rS.XcL))
+		else if(!XcL.IsEq(rS.XcL))
 			yes = 0;
-		else if(!_VXcL.IsEqual(rS._VXcL)) // @v10.3.0
+		else if(!_VXcL.IsEq(rS._VXcL)) // @v10.3.0
 			yes = 0;
 		else {
 			const uint c1 = Turns.getCount();
@@ -699,7 +699,7 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 					for(uint j = 0; !found && j < c2; j++) {
 						if(!s2_fpos_list.lsearch(j)) {
 							const PPAccTurn & r_at2 = rS.Turns.at(j);
-							if(r_at1.IsEqual(r_at2)) {
+							if(r_at1.IsEq(r_at2)) {
 								s2_fpos_list.add(j);
 								found = 1;
 							}
@@ -737,14 +737,13 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 		P_Agt = new Agreement(*rS.P_Agt);
 	}
 	// } @v10.1.12
-	// @v9.8.11 {
 	Turns = rS.Turns;
 	AdvList = rS.AdvList;
 	LTagL = rS.LTagL;
 	BTagL = rS.BTagL;
 	XcL = rS.XcL;
 	Ver = rS.Ver;
-	// } @v9.8.11
+	SMemo = rS.SMemo; // @v11.2.4 @fix (это - серьезная недоработка - должно было быть сделано в @v11.1.12)!
 	return ok;
 }
 
@@ -1308,7 +1307,7 @@ uint PPLotExtCodeContainer::GetCount() const
 	return SVector::getCount();
 }
 
-int FASTCALL PPLotExtCodeContainer::IsEqual(const PPLotExtCodeContainer & rS) const
+int FASTCALL PPLotExtCodeContainer::IsEq(const PPLotExtCodeContainer & rS) const
 {
 	int    eq = 1;
 	const  uint _c = getCount();
@@ -2552,7 +2551,7 @@ int PPBillExt::IsEmpty() const
 		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? 0 : 1; 
 }
 
-int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
+int FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
 {
 	if(AgentID != rS.AgentID)
 		return 0;

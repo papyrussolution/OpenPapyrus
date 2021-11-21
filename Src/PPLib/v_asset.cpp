@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -555,11 +555,9 @@ int PPViewAsset::Print(const void * pHdr)
 	AssetCard card;
 	MEMSZERO(card);
 	if(P_BObj->IsAssetLot(lot_id) > 0) {
-		int    r;
-		if((r = P_BObj->MakeAssetCard(lot_id, &card)) > 0) {
-			PPFilt pf(&card);
-			ok = PPAlddPrint(REPORT_ASSETCARD, &pf);
-		}
+		const int r = P_BObj->MakeAssetCard(lot_id, &card);
+		if(r > 0)
+			ok = PPAlddPrint(REPORT_ASSETCARD, PPFilt(&card), 0);
 		else if(r == 0)
 			ok = PPErrorZ();
 		else

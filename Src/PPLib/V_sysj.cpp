@@ -319,7 +319,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 								EvVerEntry ev_entry;
 								MEMSZERO(ev_entry);
 								ov_buf.Z();
-								if(p_ovc->Search(r_rec.Extra, &ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(r_rec.ObjType, r_rec.ObjID)) {
+								if(p_ovc->Search(r_rec.Extra, &ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEq(r_rec.ObjType, r_rec.ObjID)) {
 									PPObject * ppobj = P_ObjColl->GetObjectPtr(ev_entry.Obj);
 									if(ev_entry.Obj == PPOBJ_BILL) {
 										PPBillPacket pack;
@@ -339,7 +339,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 													EvVerEntry next_ev_entry;
 													MEMSZERO(next_ev_entry);
 													ov_buf.Z();
-													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(next_rec.ObjType, next_rec.ObjID)) {
+													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEq(next_rec.ObjType, next_rec.ObjID)) {
 														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx)) {
 															next_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
 															next_bill_rec = next_pack.Rec;

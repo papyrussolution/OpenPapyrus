@@ -68,7 +68,7 @@ PPAdvBillItemList::Item::Item()
 	THISZERO();
 }
 
-int FASTCALL PPAdvBillItemList::Item::IsEqual(const PPAdvBillItemList::Item & rS) const
+int FASTCALL PPAdvBillItemList::Item::IsEq(const PPAdvBillItemList::Item & rS) const
 {
 #define CMPF(f) if(f != rS.f) return 0;
 	CMPF(BillID);
@@ -95,7 +95,7 @@ PPAdvBillItemList::PPAdvBillItemList() : SArray(sizeof(PPAdvBillItemList::Item))
 {
 }
 
-int FASTCALL PPAdvBillItemList::IsEqual(const PPAdvBillItemList & rS) const
+int FASTCALL PPAdvBillItemList::IsEq(const PPAdvBillItemList & rS) const
 {
 	int    eq = 1;
 	const  uint c = getCount();
@@ -109,7 +109,7 @@ int FASTCALL PPAdvBillItemList::IsEqual(const PPAdvBillItemList & rS) const
 		for(uint i = 0; eq && i < c; i++) {
 			const Item & r_rec = Get(i);
 			const Item & r_rec2 = rS.Get(i);
-			if(!r_rec.IsEqual(r_rec2))
+			if(!r_rec.IsEq(r_rec2))
 				eq = 0;
 		}
 	}

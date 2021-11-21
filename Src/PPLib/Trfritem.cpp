@@ -461,7 +461,7 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 	return ok;
 }
 
-int FASTCALL PPTransferItem::IsEqual(const PPTransferItem & rS) const
+int FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
 {
 #define RETIFNEQ(f) if((f)!=rS.f) return 0
 	RETIFNEQ(Date);

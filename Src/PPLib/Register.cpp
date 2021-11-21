@@ -100,7 +100,7 @@ void RegisterArray::Sort()
 	sort(PTR_CMPFUNC(RegisterTbl_Rec_TDE));
 }
 
-int FASTCALL RegisterArray::IsEqual(const RegisterArray & rS) const
+int FASTCALL RegisterArray::IsEq(const RegisterArray & rS) const
 {
 	int    eq = 1;
 	const uint c = getCount();
@@ -774,7 +774,7 @@ int RegisterFilt::IsEmpty() const
 			ok = 0;
 		else if(pFilt->Oid.Obj != rRec.ObjType && (pFilt->Oid.Obj || rRec.ObjType != PPOBJ_PERSON)) // @v10.0.1
 			ok = 0;
-		else if((pFilt->Oid.Obj && pFilt->Oid.Id) && !pFilt->Oid.IsEqual(rRec.ObjType, rRec.ObjID))
+		else if((pFilt->Oid.Obj && pFilt->Oid.Id) && !pFilt->Oid.IsEq(rRec.ObjType, rRec.ObjID))
 			ok = 0;
 		else if(pFilt->ExclPersonID && rRec.ObjType == PPOBJ_PERSON && rRec.ObjID == pFilt->ExclPersonID)
 			ok = 0;

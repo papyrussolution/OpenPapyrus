@@ -57,9 +57,9 @@ public:
 		uint   pos = 0;
 		if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
 			cmd_id = CmdSymbList.Get(pos).Id;
-		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, &cmd_txt_list, cmd_id, 0);
+		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, cmd_txt_list, cmd_id, 0);
 		SetupWordSelector(CTLSEL_JOBITEM_CMD, 0, cmd_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
-		SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, &JobList, Data.NextJobID, 0, 0, 0);
+		SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, JobList, Data.NextJobID, 0, 0, 0);
 		disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
 		{
 			PPJobDescr job_descr;
@@ -214,10 +214,8 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		PPListDialog::handleEvent(event);
-		if(event.isCmd(cmPrint)) {
-			PView pv(P_Data);
-			PPAlddPrint(REPORT_JOBPOOL, &pv, 0);
-		}
+		if(event.isCmd(cmPrint))
+			PPAlddPrint(REPORT_JOBPOOL, PView(P_Data), 0);
 		else if(event.isClusterClk(CTL_JOBPOOL_FLAGS)) {
 			ForAllDb = BIN(getCtrlUInt16(CTL_JOBPOOL_FLAGS) & 0x0001);
 			updateList(-1);
@@ -456,7 +454,7 @@ public:
 			StrAssocArray cmd_txt_list;
 			R_Mngr.GetResourceList(1, cmd_txt_list);
 			cmd_txt_list.SortByText();
-			SetupStrAssocCombo(this, CTLSEL_JOBFILT_CMD, &cmd_txt_list, Data.CmdId, 0);
+			SetupStrAssocCombo(this, CTLSEL_JOBFILT_CMD, cmd_txt_list, Data.CmdId, 0);
 		}
 		AddClusterAssoc(CTL_JOBFILT_FLAGS, 0, JobFilt::fForAllDb);
 		SetClusterData(CTL_JOBFILT_FLAGS, Data.Flags);
@@ -692,12 +690,7 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 
 /*virtual*/int PPViewJob::Print(const void *)
 {
-	int    ok = -1;
-	if(P_Pool) {
-		PView pv(P_Pool);
-		ok = PPAlddPrint(REPORT_JOBPOOL, &pv, 0);
-	}
-	return ok;
+	return P_Pool ? PPAlddPrint(REPORT_JOBPOOL, PView(P_Pool), 0) : -1;
 }
 
 int PPViewJob::CheckForFilt(PPJob & rJob)

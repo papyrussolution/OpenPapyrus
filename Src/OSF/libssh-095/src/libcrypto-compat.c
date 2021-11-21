@@ -30,7 +30,6 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 	 */
 	if((r->n == NULL && n == NULL) || (r->e == NULL && e == NULL))
 		return 0;
-
 	if(n != NULL) {
 		BN_free(r->n);
 		r->n = n;
@@ -51,10 +50,8 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 	/* If the fields p and q in r are NULL, the corresponding input
 	 * parameters MUST be non-NULL.
 	 */
-	if((r->p == NULL && p == NULL)
-	    || (r->q == NULL && q == NULL))
+	if((r->p == NULL && p == NULL) || (r->q == NULL && q == NULL))
 		return 0;
-
 	if(p) {
 		BN_free(r->p);
 		r->p = p;
@@ -63,7 +60,6 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 		BN_free(r->q);
 		r->q = q;
 	}
-
 	return 1;
 }
 
@@ -72,11 +68,8 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 	/* If the fields dmp1, dmq1 and iqmp in r are NULL, the corresponding input
 	 * parameters MUST be non-NULL.
 	 */
-	if((r->dmp1 == NULL && dmp1 == NULL)
-	    || (r->dmq1 == NULL && dmq1 == NULL)
-	    || (r->iqmp == NULL && iqmp == NULL))
+	if((r->dmp1 == NULL && dmp1 == NULL) || (r->dmq1 == NULL && dmq1 == NULL) || (r->iqmp == NULL && iqmp == NULL))
 		return 0;
-
 	if(dmp1 != NULL) {
 		BN_free(r->dmp1);
 		r->dmp1 = dmp1;

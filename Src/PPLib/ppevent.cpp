@@ -11,7 +11,7 @@ PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0)
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL PPEventSubscription::IsEqual(const PPEventSubscription & rS) const
+int FASTCALL PPEventSubscription::IsEq(const PPEventSubscription & rS) const
 {
 	int    eq = 1;
 	if(!sstreq(Name, rS.Name))
@@ -65,20 +65,20 @@ int FASTCALL PPEventSubscriptionPacket::Copy(const PPEventSubscriptionPacket & r
 	return ok;
 }
 
-int FASTCALL PPEventSubscriptionPacket::IsEqual(const PPEventSubscriptionPacket & rS) const
+int FASTCALL PPEventSubscriptionPacket::IsEq(const PPEventSubscriptionPacket & rS) const
 {
 	int    eq = 1;
 	const  int exfl[] = { extssMessage };
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
-	else if(!PPExtStrContainer::IsEqual(rS, SIZEOFARRAY(exfl), exfl))
+	else if(!PPExtStrContainer::IsEq(rS, SIZEOFARRAY(exfl), exfl))
 		eq = 0;
-	else if(!GuaList.IsEqual(rS.GuaList))
+	else if(!GuaList.IsEq(rS.GuaList))
 		eq = 0;
-	else if(!UserList.IsEqual(rS.UserList))
+	else if(!UserList.IsEq(rS.UserList))
 		eq = 0;
 	else if(P_Filt && rS.P_Filt) {
-		if(!P_Filt->IsEqual(rS.P_Filt, 0))
+		if(!P_Filt->IsEq(rS.P_Filt, 0))
 			eq = 0;
 	}
 	else if(P_Filt && !rS.P_Filt)
@@ -145,7 +145,7 @@ int PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pP
 		else {
 			THROW(CheckRightsModByID(pID));
 			if(_id) {
-				if(pPack->IsEqual(org_pack))
+				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
 					THROW(SerializePacket_WithoutRec(+1, pPack, sbuf, &sctx));
@@ -198,7 +198,7 @@ static void SetupEventTypeCombo(TDialog * pDlg, uint ctlselId, long initId)
 	type_list.Add(PPEVENTTYPE_SPCBILLCHANGE, PPLoadStringS("eventtype_spcbillchange", temp_buf));
 	type_list.Add(PPEVENTTYPE_SYSJOURNAL, PPLoadStringS("eventtype_sysjournal", temp_buf));
 	type_list.Add(PPEVENTTYPE_LOTEXPIRATION, PPLoadStringS("eventtype_lotexpiration", temp_buf));
-	SetupStrAssocCombo(pDlg, ctlselId, &type_list, initId, 0);
+	SetupStrAssocCombo(pDlg, ctlselId, type_list, initId, 0);
 }
 
 int PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)

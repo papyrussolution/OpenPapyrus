@@ -48,7 +48,7 @@ SSH_PACKET_CALLBACK(ssh_packet_disconnect_callback){
 	}
 	SSH_LOG(SSH_LOG_PACKET, "Received SSH_MSG_DISCONNECT %d:%s", code, error != NULL ? error : "no error");
 	ssh_set_error(session, SSH_FATAL, "Received SSH_MSG_DISCONNECT: %d:%s", code, error != NULL ? error : "no error");
-	SAFE_FREE(error);
+	ZFREE(error);
 	ssh_socket_close(session->socket);
 	session->alive = 0;
 	session->session_state = SSH_SESSION_STATE_ERROR;

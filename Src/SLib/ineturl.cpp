@@ -13,7 +13,7 @@
 	SString buf;
 	StringSet ss('.', pIP);
 	THROW(ss.getCount() == 4);
-	for(uint i = 0, j = 4; j > 0 && ss.get(&i, buf) > 0; j--) {
+	for(uint i = 0, j = 4; j > 0 && ss.get(&i, buf); j--) {
 		const ulong elem = buf.ToLong();
 		THROW(elem >= 0 && elem <= 255);
 		addr |= (elem << (8 * (j - 1)));
@@ -64,9 +64,9 @@ InetAddr & InetAddr::Z()
 	return *this;
 }
 
-int FASTCALL InetAddr::IsEqual(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
-int FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEqual(rS); }
-int FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEqual(rS)); }
+int FASTCALL InetAddr::IsEq(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
+int FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEq(rS); }
+int FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEq(rS)); }
 int InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.IsEmpty()); }
 int InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
 

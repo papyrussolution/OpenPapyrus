@@ -381,7 +381,7 @@ private:
 						if(rel_item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 							list.Add(rel_item.ID, rel_item.Name);
 						}
-					SetupStrAssocCombo(this, CTLSEL_ACCANLZ_RELSUBST, &list, Data.SubstRelTypeID, 0);
+					SetupStrAssocCombo(this, CTLSEL_ACCANLZ_RELSUBST, list, Data.SubstRelTypeID, 0);
 					RelComboInited = 1;
 				}
 				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, 0);
@@ -398,7 +398,7 @@ private:
 		StrAssocArray list;
 		PPLoadText(PPTXT_SUBSTACCANLZ, buf);
 		StringSet ss(';', buf);
-		for(uint i = 0; ss.get(&i, buf) > 0;)
+		for(uint i = 0; ss.get(&i, buf);)
 			if(buf.Divide(',', id_buf, txt_buf) > 0)
 				list.Add(id_buf.ToLong(), txt_buf);
 		{
@@ -412,7 +412,7 @@ private:
 					list.Add(rel_id + (long)AccAnlzFilt::aafgFirstRelation, buf);
 				}
 		}
-		return SetupStrAssocCombo(this, CTLSEL_ACCANLZ_SUBST, &list, Data.CorAco, 0);
+		return SetupStrAssocCombo(this, CTLSEL_ACCANLZ_SUBST, list, Data.CorAco, 0);
 	}
 
 	PPObjAccTurn * ATObj;
@@ -2258,10 +2258,9 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 	else
 		rpt_id = REPORT_ACCGRPNGCYCLE;
 	if(!done && ok > 0) {
-		PView  pv(this);
 		PPReportEnv env;
 		env.PrnFlags = disable_grpng ? SReport::DisableGrouping : 0;
-		PPAlddPrint(rpt_id, &pv, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	CATCHZOKPPERR
 	IterFlags = 0;

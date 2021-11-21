@@ -40,8 +40,8 @@ int pki_key_generate_ed25519(ssh_key key)
 	}
 	return SSH_OK;
 error:
-	SAFE_FREE(key->ed25519_privkey);
-	SAFE_FREE(key->ed25519_pubkey);
+	ZFREE(key->ed25519_privkey);
+	ZFREE(key->ed25519_pubkey);
 	return SSH_ERROR;
 }
 
@@ -66,10 +66,10 @@ int pki_ed25519_sign(const ssh_key privkey, ssh_signature sig, const uchar * has
 		goto error;
 	}
 	memcpy(sig->ed25519_sig, buffer, ED25519_SIG_LEN);
-	SAFE_FREE(buffer);
+	ZFREE(buffer);
 	return SSH_OK;
 error:
-	SAFE_FREE(buffer);
+	ZFREE(buffer);
 	return SSH_ERROR;
 }
 
@@ -95,8 +95,8 @@ int pki_ed25519_verify(const ssh_key pubkey, ssh_signature sig, const uchar * ha
 	rc = crypto_sign_ed25519_open(buffer2, &mlen, buffer, hlen + ED25519_SIG_LEN, pubkey->ed25519_pubkey);
 	memzero(buffer, hlen + ED25519_SIG_LEN);
 	memzero(buffer2, hlen);
-	SAFE_FREE(buffer);
-	SAFE_FREE(buffer2);
+	ZFREE(buffer);
+	ZFREE(buffer2);
 	if(rc == 0) {
 		return SSH_OK;
 	}
@@ -104,7 +104,7 @@ int pki_ed25519_verify(const ssh_key pubkey, ssh_signature sig, const uchar * ha
 		return SSH_ERROR;
 	}
 error:
-	SAFE_FREE(buffer);
-	SAFE_FREE(buffer2);
+	ZFREE(buffer);
+	ZFREE(buffer2);
 	return SSH_ERROR;
 }

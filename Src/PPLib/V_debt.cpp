@@ -2427,46 +2427,47 @@ static int SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ushort *p
 
 int PPViewDebtTrnovr::Print(const void *)
 {
-	int    what_prn = 0;
 	uint   rpt_id = 0;
-	ushort v = 0;
-	LDATE  expiry = ExpiryDate;
 	PPReportEnv env;
-	PView  pf(this);
-	if(Filt.CycleKind) {
-		PPAlddPrint(REPORT_DEBTTRNOVR_CT, &pf, &env);
+	if(Filt.CycleKind)
+		rpt_id = REPORT_DEBTTRNOVR_CT;
+	else if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart)
+		rpt_id = REPORT_DEBTTRNOVR_EXPIRYPART;
+	else if(Filt.ExtKind == DebtTrnovrFilt::ekTurnover)
+		rpt_id = REPORT_DEBTTRNOVR_TURNOVER;
+	if(rpt_id) {
+		PPAlddPrint(rpt_id, PView(this), &env);
 	}
-	else if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart) {
-		PPAlddPrint(REPORT_DEBTTRNOVR_EXPIRYPART, &pf, &env);
-	}
-	else if(Filt.ExtKind == DebtTrnovrFilt::ekTurnover) {
-		PPAlddPrint(REPORT_DEBTTRNOVR_TURNOVER, &pf, &env);
-	}
-	else if(SelectPrintingDebtTrnovrSheet(&what_prn, &expiry, &v) > 0) {
-		if(what_prn < 2) {
-			if(v == 0)
-				env.Sort = OrdByArticleName;
-			else if(v == 1)
-				env.Sort = OrdByDebit;
-			else
-				env.Sort = OrdByDebt;
-			if(what_prn == 1) {
-				Filt.Flags |= DebtTrnovrFilt::fPrintExt;
-				rpt_id = REPORT_SELLTRNOVREXT;
+	else {
+		int    what_prn = 0;
+		ushort v = 0;
+		LDATE  expiry = ExpiryDate;
+		if(SelectPrintingDebtTrnovrSheet(&what_prn, &expiry, &v) > 0) {
+			if(what_prn < 2) {
+				if(v == 0)
+					env.Sort = OrdByArticleName;
+				else if(v == 1)
+					env.Sort = OrdByDebit;
+				else
+					env.Sort = OrdByDebt;
+				if(what_prn == 1) {
+					Filt.Flags |= DebtTrnovrFilt::fPrintExt;
+					rpt_id = REPORT_SELLTRNOVREXT;
+				}
+				else if(what_prn == 0) {
+					Filt.Flags &= ~DebtTrnovrFilt::fPrintExt;
+					rpt_id = (Filt.Flags & DebtTrnovrFilt::fExtended) ? REPORT_SELLTRNOVR2 : REPORT_SELLTRNOVR;
+				}
 			}
-			else if(what_prn == 0) {
+			else {
 				Filt.Flags &= ~DebtTrnovrFilt::fPrintExt;
-				rpt_id = (Filt.Flags & DebtTrnovrFilt::fExtended) ? REPORT_SELLTRNOVR2 : REPORT_SELLTRNOVR;
+				ExpiryDate = expiry;
+				rpt_id = REPORT_DEBTACK1;
 			}
+			PView pf(this);
+			pf.ID = v;
+			PPAlddPrint(rpt_id, pf, &env);
 		}
-		else {
-			Filt.Flags &= ~DebtTrnovrFilt::fPrintExt;
-			ExpiryDate = expiry;
-			rpt_id = REPORT_DEBTACK1;
-		}
-		pf.ID = v;
-		pf.Ptr = this;
-		PPAlddPrint(rpt_id, &pf, &env);
 	}
 	return 1;
 }

@@ -79,11 +79,11 @@ int DlScope::Copy(const DlScope & s, int withoutChilds)
 	return 1;
 }
 
-int FASTCALL DlScope::IsEqual(const DlScope & rPat) const
+int FASTCALL DlScope::IsEq(const DlScope & rPat) const
 {
 	int    ok = 1;
 	uint   c = 0;
-	THROW(SdRecord::IsEqual(rPat));
+	THROW(SdRecord::IsEq(rPat));
 	THROW(Kind == rPat.Kind);
 	THROW(ScFlags == rPat.ScFlags);
 	THROW(DvFlags == rPat.DvFlags);
@@ -103,21 +103,21 @@ int FASTCALL DlScope::IsEqual(const DlScope & rPat) const
 		THROW(P_IfaceBaseList == 0 && rPat.P_IfaceBaseList == 0);
 	}
 	//
-	THROW(CList.IsEqual(rPat.CList));
+	THROW(CList.IsEq(rPat.CList));
 	//
 	if(P_DbIdxSegFlags && rPat.P_DbIdxSegFlags) {
-		THROW(P_DbIdxSegFlags->IsEqual(rPat.P_DbIdxSegFlags));
+		THROW(P_DbIdxSegFlags->IsEq(rPat.P_DbIdxSegFlags));
 	}
 	else {
 		THROW(P_DbIdxSegFlags == 0 && rPat.P_DbIdxSegFlags == 0);
 	}
 	//
-	THROW(FuncPool.IsEqual(rPat.FuncPool));
+	THROW(FuncPool.IsEq(rPat.FuncPool));
 	c = ChildList.getCount();
 	THROW(c == rPat.ChildList.getCount());
 	if(c) do {
 		--c;
-		THROW(ChildList.at(c)->IsEqual(*rPat.ChildList.at(c))); // @recursion
+		THROW(ChildList.at(c)->IsEq(*rPat.ChildList.at(c))); // @recursion
 	} while(c);
 	CATCHZOK
 	return ok;

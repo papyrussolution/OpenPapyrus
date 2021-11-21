@@ -1175,7 +1175,7 @@ int PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 		PPIDArray ary;
 		if(cash_nn.NotEmptyS()) {
 			StringSet ss(static_cast<char>(delim), cash_nn);
-			for(uint pos = 0; ss.get(&pos, buf) > 0;)
+			for(uint pos = 0; ss.get(&pos, buf);)
 				if(buf.Strip().IsDigit())
 					ary.addUnique(buf.ToLong());
 				else {
@@ -2245,11 +2245,7 @@ int PPViewCSess::Print(const void * pHdr)
 int PPViewCSess::PrintSession(PPID sessID)
 {
 	CSessionTbl::Rec ses_rec;
-	if(CsObj.Search(sessID, &ses_rec) > 0) {
-		PView  pv(sessID);
-		PPAlddPrint(REPORT_CSESS_KM6, &pv);
-	}
-	return -1;
+	return (CsObj.Search(sessID, &ses_rec) > 0) ? PPAlddPrint(REPORT_CSESS_KM6, PView(sessID), 0) : -1;
 }
 //
 // @ModuleDef(PPViewCSessExc)

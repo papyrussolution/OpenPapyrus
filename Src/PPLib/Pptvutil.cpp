@@ -1685,18 +1685,18 @@ int SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, ui
 	return ok;
 } @v9.5.0 */
 
-int STDCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
+int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
 	int    ok = 1;
-	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
-		uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
+	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
+	if(p_cb) {
+		const uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
 		StrAssocArray * p_list = new StrAssocArray;
 		THROW_MEM(p_list);
 		if(offs) {
-			for(uint i = 0; i < pList->getCount(); i++) {
-				StrAssocArray::Item item = pList->at_WithoutParent(i);
+			for(uint i = 0; i < rList.getCount(); i++) {
+				StrAssocArray::Item item = rList.at_WithoutParent(i);
 				const size_t len = sstrlen(item.Txt);
 				if(offs < len)
 					p_list->Add(item.Id, item.Txt+offs);
@@ -1705,7 +1705,7 @@ int STDCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * 
 			}
 		}
 		else
-			*p_list = *pList;
+			*p_list = rList;
 		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, options), 0, 0));
 		p_cb->setListWindow(p_lw, initID);
 	}
@@ -1755,7 +1755,7 @@ int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp
 	PPObjPersonRelType relt_obj;
 	PPLoadText(PPTXT_SUBSTPERSONLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf.Z()) > 0;)
+	for(uint i = 0; ss.get(&i, buf);)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
 	// @v10.5.9 PPGetWord(PPWORD_RELATION, 0, word_rel);
@@ -1766,7 +1766,7 @@ int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp
 			ary.Add(id + (long)sgpFirstRelation, buf);
 		}
 	init_id = (long)sgp;
-	return SetupStrAssocCombo(pDlg, ctlID, &ary, init_id, 0);
+	return SetupStrAssocCombo(pDlg, ctlID, ary, init_id, 0);
 }
 
 int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
@@ -1825,10 +1825,10 @@ int SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb)
 	StrAssocArray ary;
 	PPLoadText(PPTXT_SUBSTBILLLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf) > 0;)
+	for(uint i = 0; ss.get(&i, buf);)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
-	return SetupStrAssocCombo(pDlg, ctlID, &ary, (long)sgb.S, 0);
+	return SetupStrAssocCombo(pDlg, ctlID, ary, (long)sgb.S, 0);
 }
 
 int SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
@@ -1837,10 +1837,10 @@ int SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
 	StrAssocArray ary;
 	PPLoadText(PPTXT_SUBSTSCARDLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf) > 0;)
+	for(uint i = 0; ss.get(&i, buf);)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
-	return SetupStrAssocCombo(pDlg, ctlID, &ary, (long)sgc, 0);
+	return SetupStrAssocCombo(pDlg, ctlID, ary, static_cast<long>(sgc), 0);
 }
 //
 //
@@ -1929,7 +1929,7 @@ int CycleCtrlGroup::Recalc(TDialog * pDlg, uint leaderCtl)
 		}
 		ca.init(&prd, cf);
 		ca.getCycleParams(&prd, &cf);
-		if(!prd.IsEqual(prev_prd) && (leaderCtl && leaderCtl != CtlPeriod))
+		if(!prd.IsEq(prev_prd) && (leaderCtl && leaderCtl != CtlPeriod))
 			SetPeriodInput(NZOR(P_PrdDialog, pDlg), CtlPeriod, &prd);
 		if(leaderCtl && leaderCtl != CtlNumCycles)
 			pDlg->setCtrlData(CtlNumCycles, &cf.NumCycles);
@@ -2336,7 +2336,7 @@ int PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
 	if(PPLoadTextWin(strID, temp_buf)) {
 		StringSet ss_pat;
 		StringSet ss(',', temp_buf);
-		for(uint i = 0; ss.get(&i, temp_buf) > 0;) {
+		for(uint i = 0; ss.get(&i, temp_buf);) {
 			if(temp_buf.Divide(':', name, pattern) > 0) {
 				ss_pat.add(name);
 				ss_pat.add(pattern);
@@ -2539,7 +2539,7 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint 
 	uint patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
 	PPLoadTextWin(/*patternsID*/patterns_id, buf);
 	StringSet ss(',', buf);
-	for(uint i = 0; ss.get(&i, buf) > 0;) {
+	for(uint i = 0; ss.get(&i, buf);) {
 		if(buf.Divide(':', name, ext) > 0) {
 			Patterns.add(name);
 			Patterns.add(ext);
@@ -2810,22 +2810,18 @@ int STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint 
 	return ok;
 }
 
-int ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
+int ComboBoxSelDialog2(const StrAssocArray & rAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
 {
 	int    ok = -1;
 	long   sel_id = DEREFPTRORZ(pSelectedId);
-	TDialog * p_dlg = 0;
-	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_CBXSEL)))) {
-		SString subtitle, label;
-		if(subTitleStrId) {
-			PPLoadText(subTitleStrId, subtitle);
-			p_dlg->setSubTitle(subtitle);
-		}
-		if(labelStrId) {
-			PPLoadText(labelStrId, label);
-			p_dlg->setLabelText(CTL_CBXSEL_COMBO, label);
-		}
-		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, pAry, sel_id, flags);
+	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
+	if(CheckDialogPtrErr(&p_dlg)) {
+		SString temp_buf;
+		if(subTitleStrId)
+			p_dlg->setSubTitle(PPLoadTextS(subTitleStrId, temp_buf));
+		if(labelStrId)
+			p_dlg->setLabelText(CTL_CBXSEL_COMBO, PPLoadTextS(labelStrId, temp_buf));
+		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, rAry, sel_id, flags);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getCtrlData(CTLSEL_CBXSEL_COMBO, &sel_id);
 			ok = 1;
@@ -2838,18 +2834,18 @@ int ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labe
 	return ok;
 }
 
-int  AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
+int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
 {
 	int    ok = -1;
-	TDialog * p_dlg = 0;
-	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_ADVCBXSEL)))) {
+	TDialog * p_dlg = new TDialog(DLG_ADVCBXSEL);
+	if(CheckDialogPtrErr(&p_dlg)) {
 		PPID   id = DEREFPTRORZ(pID);
 		SString subtitle, label;
 		if(rTitle.Len())
 			p_dlg->setSubTitle(rTitle); // @v10.4.6 setSubTitle-->setTitle
 		if(rLabel.Len())
 			p_dlg->setLabelText(CTL_CBXSEL_COMBO, rLabel);
-		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, pAry, id, flags);
+		SetupStrAssocCombo(p_dlg, CTLSEL_CBXSEL_COMBO, rAry, id, flags);
 		if(pName)
 			p_dlg->setCtrlString(CTL_CBXSEL_NAME, *pName);
 		p_dlg->disableCtrl(CTL_CBXSEL_NAME, !pName);
@@ -5538,7 +5534,7 @@ public:
 		StringSet ss(_PPConst.P_ObjMemoDelim);
 		Memos.Z();
 		ss.setBuf(rMemos);
-		for(uint i = 0, j = 1; ss.get(&i, buf) > 0; j++)
+		for(uint i = 0, j = 1; ss.get(&i, buf); j++)
 			Memos.Add((long)j, 0, buf, 0);
 		updateList(-1);
 		return 1;
@@ -6210,7 +6206,7 @@ int EmailCtrlGroup::getData(TDialog * pDlg, void * pData)
 		p_rec->AddrList.Z();
 		if(addr_list.NotEmptyS())
 			ss.setBuf(addr_list, addr_list.Len() + 1);
-		for(uint p = 0; ss.get(&p, buf) > 0;)
+		for(uint p = 0; ss.get(&p, buf);)
 			p_rec->AddrList.Add(p_rec->AddrList.getCount() + 1, buf, 0);
 	}
 	return 1;

@@ -1198,7 +1198,7 @@ void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 	int    ok = 1;
 	SString buf;
 	StringSet ss(';', ErrList);
-	for(uint i = 0; ss.get(&i, buf.Z()) > 0;) {
+	for(uint i = 0; ss.get(&i, buf);) {
 		long id = 0;
 		uint j = 0;
 		StringSet ss1(',', buf);
@@ -1246,7 +1246,7 @@ public:
 			else
 				user_id = UserList.Get(pos).Id;
 		}
-		SetupStrAssocCombo(this, CTLSEL_SBIICFG_USER, &UserList, user_id, 0, 0, 0);
+		SetupStrAssocCombo(this, CTLSEL_SBIICFG_USER, UserList, user_id, 0, 0, 0);
 		InetAddr::ULongToIP(Data.ServerAddr, buf);
 		setCtrlString(CTL_SBIICFG_SERVADDR,    buf);
 		InetAddr::ULongToIP(Data.ServerMask, buf);

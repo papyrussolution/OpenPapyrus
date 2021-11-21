@@ -596,7 +596,7 @@ int SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
 		PrnLinesArray prn_list;
 		StringSet str_set('\n', pZCheck);
 		SString str;
-		for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+		for(uint pos = 0; str_set.get(&pos, str);) {
 			sl_param.FontSize = 8; // какое значение? // @v9.7.6 1-->8
 			sl_param.Flags = SlipLineParam::fRegRegular;
 			PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();

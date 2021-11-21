@@ -321,7 +321,7 @@ int SrWordAssocTbl::Update(SrWordAssoc & rRec)
 	int    ok = 1;
 	SrWordAssoc org_rec;
 	THROW(Search(rRec.ID, &org_rec) > 0);
-	if(org_rec.IsEqual(rRec))
+	if(org_rec.IsEq(rRec))
 		ok = -1;
 	else {
 		assert(rRec.ID == org_rec.ID);
@@ -779,7 +779,7 @@ int SrConceptTbl::Update(SrConcept & rRec)
 	data_buf.Get(rec_buf);
 	THROW(SerializeRecBuf(-1, &org_rec, rec_buf));
 	org_rec.ID = rRec.ID;
-	if(rRec.IsEqual(org_rec))
+	if(rRec.IsEq(org_rec))
 		ok = -1;
 	else {
 		rec_buf.Z();
@@ -924,7 +924,7 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 		THROW(SerializeRecBuf(-1, &org_rec, rec_buf));
 		org_rec.CID = rProp.CID;
 		org_rec.PropID = rProp.PropID;
-		if(!org_rec.IsEqual(rProp)) {
+		if(!org_rec.IsEq(rProp)) {
 			THROW(SerializeRecBuf(+1, &rProp, rec_buf.Z()));
 			THROW_DB(UpdateRec(key_buf, data_buf = rec_buf));
 		}
@@ -2901,8 +2901,8 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 						ref_list_test.Clear();
 						node_list_test.clear();
 						THROW(nc.Get(_logical_id, node_list_test, &ref_list_test));
-						assert(node_list_test.IsEqual(node_list));
-						assert(ref_list_test.IsEqual(ref_list));
+						assert(node_list_test.IsEq(node_list));
+						assert(ref_list_test.IsEq(ref_list));
 
 					}
 					THROW(P_GnT->Update(nc, _logical_id));

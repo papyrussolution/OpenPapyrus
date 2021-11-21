@@ -455,7 +455,7 @@ int TCanvas2::Helper_SelectPen(SPaintToolBox * pTb, int penId)
 		}
 		else if(p_obj->GetType() == SPaintObj::tColor) {
 			SetCairoColor(*p_obj);
-			cairo_set_line_width(P_Cr, 1.0);
+			cairo_set_line_width(P_Cr, 0.5); // @v11.2.4 1.0-->0.5 (так, вроде, лучше получается)
 			cairo_set_dash(P_Cr, 0, 0, 0);
 			r = 1;
 		}
@@ -1744,12 +1744,12 @@ int SPaintObj::Pen::AddDashItem(float f)
 		return SLS.SetError(SLERR_NOMEM);
 }
 
-int FASTCALL SPaintObj::Pen::IsEqual(const Pen & rS) const
+int FASTCALL SPaintObj::Pen::IsEq(const Pen & rS) const
 {
 	if(!(C == rS.C && W__ == rS.W__ && LineCap == rS.LineCap && Join == rS.Join && MiterLimit == rS.MiterLimit && DashOffs == rS.DashOffs))
 		return 0;
 	else if(P_DashRule != 0 && rS.P_DashRule != 0)
-		return P_DashRule->IsEqual(rS.P_DashRule);
+		return P_DashRule->IsEq(rS.P_DashRule);
 	else if(P_DashRule == 0 && rS.P_DashRule == 0)
 		return 1;
 	else
@@ -1787,10 +1787,10 @@ SPaintObj::Brush::Brush(const Brush & rS) : Base(rS), S(rS.S), Hatch(rS.Hatch), 
 
 int FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
-int FASTCALL SPaintObj::Brush::IsEqual(const Brush & rS) const
+int FASTCALL SPaintObj::Brush::IsEq(const Brush & rS) const
 {
 	return BIN(C == rS.C && S == rS.S && Hatch == rS.Hatch && Rule == rS.Rule && IdPattern == rS.IdPattern);
 }
@@ -1858,7 +1858,7 @@ void SFontDescr::Init()
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL SFontDescr::IsEqual(const SFontDescr & rS) const
+int FASTCALL SFontDescr::IsEq(const SFontDescr & rS) const
 {
 	return BIN(Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet);
 }
@@ -2211,7 +2211,7 @@ SPaintObj::CStyle::CStyle(int fontId, int penId, int brushId) : SPaintObj::Base(
 	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL SPaintObj::CStyle::IsEqual(const CStyle & rS) const
+int FASTCALL SPaintObj::CStyle::IsEq(const CStyle & rS) const
 {
 	return BIN(FontId == rS.FontId && PenId == rS.PenId && BrushId == rS.BrushId);
 }
@@ -2933,7 +2933,7 @@ int SParaDescr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int FASTCALL SParaDescr::IsEqual(const SParaDescr & rS) const
+int FASTCALL SParaDescr::IsEq(const SParaDescr & rS) const
 {
 	return BIN(LuIndent == rS.LuIndent && RlIndent == rS.RlIndent && StartIndent == rS.StartIndent &&
 		Spacing == rS.Spacing && Flags == rS.Flags);
@@ -4056,7 +4056,7 @@ int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {
 			const SPaintObj::Pen * p_pen = at(i).GetPen();
-			if(p_pen && p_pen->IsEqual(pen))
+			if(p_pen && p_pen->IsEq(pen))
 				ident = at(i).GetId();
 		}
 		if(!ident) {
@@ -4092,7 +4092,7 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {
 			const SPaintObj::Brush * p_brush = at(i).GetBrush();
-			if(p_brush && p_brush->IsEqual(brush))
+			if(p_brush && p_brush->IsEq(brush))
 				ident = at(i).GetId();
 		}
 		if(!ident) {
@@ -4125,7 +4125,7 @@ int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int fl
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {
 			const SPaintObj::Font * p_font = at(i).GetFont();
-			if(p_font && p_font->IsEqual(fd))
+			if(p_font && p_font->IsEq(fd))
 				ident = at(i).GetId();
 		}
 		if(!ident) {
@@ -4164,7 +4164,7 @@ int SPaintToolBox::CreateParagraph(int ident, const SParaDescr * pDescr)
 		RVALUEPTR(fd, pDescr);
 		for(uint i = 0; !ident && i < getCount(); i++) {
 			const SPaintObj::Para * p_para = at(i).GetParagraph();
-			if(p_para && p_para->IsEqual(fd))
+			if(p_para && p_para->IsEq(fd))
 				ident = at(i).GetId();
 		}
 		if(!ident) {
@@ -4222,7 +4222,7 @@ int SPaintToolBox::CreateCStyle(int ident, int fontId, int penId, int brushId)
 		SPaintObj::CStyle key(fontId, penId, brushId);
 		for(uint i = 0; !ident && i < getCount(); i++) {
 			const SPaintObj::CStyle * p_cs = at(i).GetCStyle();
-			if(p_cs && p_cs->IsEqual(key))
+			if(p_cs && p_cs->IsEq(key))
 				ident = at(i).GetId();
 		}
 		if(!ident) {

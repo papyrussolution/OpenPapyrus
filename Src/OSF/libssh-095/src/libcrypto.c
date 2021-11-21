@@ -386,7 +386,7 @@ void hmac_final(HMACCTX ctx, uchar * hashmacbuf, uint * len)
 	ctx = NULL;
 #else
 	HMAC_cleanup(ctx);
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 	ctx = NULL;
 #endif
 }
@@ -529,7 +529,7 @@ static int aes_ctr_set_key(struct ssh_cipher_struct * cipher, void * key, void *
 	/* CTR doesn't need a decryption key */
 	rc = AES_set_encrypt_key(key, cipher->keysize, &cipher->aes_key->key);
 	if(rc < 0) {
-		SAFE_FREE(cipher->aes_key);
+		ZFREE(cipher->aes_key);
 		return SSH_ERROR;
 	}
 	memcpy(cipher->aes_key->IV, IV, AES_BLOCK_SIZE);
@@ -559,7 +559,7 @@ static void aes_ctr_cleanup(struct ssh_cipher_struct * cipher)
 		if(cipher->aes_key != NULL) {
 			memzero(cipher->aes_key, sizeof(*cipher->aes_key));
 		}
-		SAFE_FREE(cipher->aes_key);
+		ZFREE(cipher->aes_key);
 	}
 }
 

@@ -1180,7 +1180,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
 			if(RollbackQuots(&date_time_test)) {
 				qc2_test.DumpCurrent(buf_after_test, qc2_test.dumpfIgnoreTimestamp, &items_count_after_test);
-				THROW(buf_after_test.IsEqual(buf_before_test));
+				THROW(buf_after_test.IsEq(buf_before_test));
 			}
 		}
 		// } @erik v10.5.8
@@ -1282,7 +1282,7 @@ int RollbackQuots(const LDATETIME * pDateTime)
 					PPQuot r_vola_q = org_qlist_by_goods.at(j);
 					for(uint i = 0; i < qlist_after.getCount(); i++) {
 						const PPQuot & r_org_q = qlist_after.at(i);
-						if(r_vola_q.IsEqual(r_org_q)) {
+						if(r_vola_q.IsEq(r_org_q)) {
 							q_before.Clear();
 							state_flag = p_qc2->GetBeforeDT(date_time, r_vola_q.GoodsID, r_vola_q.RelID, &q_before);
 							if(state_flag == 1) {
@@ -1292,7 +1292,7 @@ int RollbackQuots(const LDATETIME * pDateTime)
 							}
 							else if(state_flag == 2) {
 								for(uint del_index = 0; del_index < tmp_qlist.getCount(); del_index++) {
-									if(tmp_qlist.at(del_index).IsEqual(r_vola_q)) {
+									if(tmp_qlist.at(del_index).IsEq(r_vola_q)) {
 										tmp_qlist.atFree(del_index);
 									}
 								}
@@ -1590,13 +1590,13 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 						if(r_item.ID == r_item2.ID) {
 							found = 1;
 							if(r_item.ID != rQuot.ID) {
-								if(!r_item.IsEqual(r_item2)) {
+								if(!r_item.IsEq(r_item2)) {
 									// @error Исказилась котировка, отличная от rQuot
 									ok = -1;
 								}
 							}
 							else {
-								if(!r_item.IsEqual(rQuot)) {
+								if(!r_item.IsEq(rQuot)) {
 									// @error Исказаласть котировка rQuot
 									ok = -1;
 								}
@@ -1623,13 +1623,13 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 						if(r_item.ID == r_item2.ID) {
 							found = 1;
 							if(r_item.ID != rQuot.ID) {
-								if(!r_item.IsEqual(r_item2)) {
+								if(!r_item.IsEq(r_item2)) {
 									// @error Исказилась котировка, отличная от rQuot
 									ok = -1;
 								}
 							}
 							else {
-								if(!r_item.IsEqual(rQuot)) {
+								if(!r_item.IsEq(rQuot)) {
 									// @error Исказаласть котировка rQuot
 									ok = -1;
 								}
@@ -1640,7 +1640,7 @@ int PrcssrQuotTester::Test_SetQuot(const PPQuot & rQuot, int use_ta)
 						//
 						// После записи в списке появился новый элемент r_item.
 						//
-						if(!rQuot.IsEqual(r_item2, PPQuot::cmpNoID)) {
+						if(!rQuot.IsEq(r_item2, PPQuot::cmpNoID)) {
 							// @error Появилась котировка не эквивалентная той, что мы передавали
 						}
 						else if(rQuot.IsEmpty()) {

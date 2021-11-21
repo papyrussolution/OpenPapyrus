@@ -4141,7 +4141,7 @@ int TSessWrOffOrder::ArrangeTSessList(const PPIDArray * pSrcList, PPIDArray * pD
 		ShortSort(&prc_list);
 		for(i = 0; i < prc_list.getCount(); i++)
 			THROW(pDestList->add(static_cast<const ArrngItem *>(prc_list.at(i))->SessID));
-		ok = pDestList->IsEqual(pSrcList) ? -1 : 1;
+		ok = pDestList->IsEq(pSrcList) ? -1 : 1;
 	}
 	CATCHZOK
 	return ok;

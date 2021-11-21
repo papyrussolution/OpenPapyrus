@@ -27,7 +27,7 @@ SdbField & SdbField::Z()
 	return *this;
 }
 
-int FASTCALL SdbField::IsEqual(const SdbField & rPat) const
+int FASTCALL SdbField::IsEq(const SdbField & rPat) const
 {
 	int    ok = 1;
 	THROW(ID == rPat.ID);
@@ -436,7 +436,7 @@ int SdRecord::DestroyDataBuf()
 		return -1;
 }
 
-int FASTCALL SdRecord::IsEqual(const SdRecord & rPat) const
+int FASTCALL SdRecord::IsEq(const SdRecord & rPat) const
 {
 	int    ok = 1;
 	uint   c;
@@ -450,7 +450,7 @@ int FASTCALL SdRecord::IsEqual(const SdRecord & rPat) const
 		--c;
 		THROW(GetFieldByPos(c, &f1));
 		THROW(rPat.GetFieldByPos(c, &f2));
-		THROW(f1.IsEqual(f2));
+		THROW(f1.IsEq(f2));
 	} while(c);
 	CATCHZOK
 	return ok;

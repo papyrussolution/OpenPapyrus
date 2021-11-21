@@ -495,8 +495,7 @@ IMPL_HANDLE_EVENT(PuglDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmMsgNCmplPrint)) {
-		PPFilt pf(&Data);
-		PPAlddPrint(REPORT_PUGL, &pf);
+		PPAlddPrint(REPORT_PUGL, PPFilt(&Data), 0);
 	}
 	else if(event.isCmd(cmLBItemSelected)) {
 		long   sel_id = 0;
@@ -608,62 +607,191 @@ int ProcessUnsuffisientGoods(PPID goods, PUGP param)
 	return PCUG_CANCEL;
 }
 
-int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData)
+PPComplBlock::PPComplBlock() : TSVector <ComplItem>()
+{
+}
+
+int PPGoodsStruc::RecursiveUnrollIncome(PPID goodsID, double reqQtty, const PPBillPacket * pBillPack, PPComplBlock & rData)
+{
+	int    ok = -1;
+	if(pBillPack) {
+		PPGoodsStruc gs;
+		if(LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, 0, GSF_DECOMPL, pBillPack->Rec.Dt), &gs) > 0) {
+			PPGoodsStrucItem gsi;
+			double sqtty = 0.0;
+			for(uint i = 0; EnumItemsExt(&i, &gsi, goodsID, reqQtty, &sqtty) > 0;) {
+			}
+		}
+	}
+	return ok;
+}
+
+bool PPComplBlock::GetFormula(uint idx, SString & rFormula) const
+{
+	rFormula.Z();
+	return (idx < getCount() && FPool.GetS(at(idx).FormulaP, rFormula));
+}
+
+const PPGoodsStruc * PPComplBlock::GetGoodsStruc(uint idx/*0..*/) const
+{
+	const PPGoodsStruc * p_result = 0;
+	if(idx < getCount()) {
+		const PPID gs_id = at(idx).GsID;
+		if(gs_id) {
+			for(uint i = 0; !p_result && i < GsList.getCount(); i++) {
+				const PPGoodsStruc * p_gs = GsList.at(i);
+				if(p_gs && p_gs->Rec.ID == gs_id) 
+					p_result = p_gs;
+			}
+		}
+	}
+	return p_result;
+}
+
+int PPComplBlock::Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty)
 {
 	int    ok = 1;
-	int    r;
-	PPObjGoods     goods_obj;
-	Goods2Tbl::Rec goods_rec;
+	double sqtty = 0.0;
 	PPGoodsStrucItem gsi;
+	THROW(srcGsPos < rGs.Items.getCount());
+	if(rGs.GetItemExt(srcGsPos, &gsi, parentGoodsID, srcQtty, &sqtty) > 0) {
+		double _qtty = 0.0;
+		ComplItem s;
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		s.SrcGsPos = srcGsPos;
+		s.GsiFlags = gsi.Flags;
+		// 
+		// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
+		// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
+		// от ввода этого участка кода для существующих клиентов, все-таки, ограничение важно.
+		//
+		if(sqtty == 0.0 && gsi.Formula__[0]) {
+			s.GsiFlags |= GSIF_FORMULA;
+			FPool.AddS(gsi.Formula__, &s.FormulaP);
+		}
+		else
+			s.GsiFlags &= ~GSIF_FORMULA;
+		_qtty = sqtty;
+		{
+			s.GsID = rGs.Rec.ID;
+			bool gs_found = false;
+			for(uint gsidx = 0; !gs_found && gsidx < GsList.getCount(); gsidx++) {
+				if(GsList.at(gsidx)->Rec.ID == rGs.Rec.ID)
+					gs_found = true;
+			}
+			if(!gs_found) {
+				PPGoodsStruc * p_new_gs_entry = GsList.CreateNewItem();
+				THROW(p_new_gs_entry);
+				p_new_gs_entry->Copy(rGs);
+			}
+		}
+		s.GoodsID = gsi.GoodsID;
+		s.GoodsFlags = (goods_obj.Fetch(s.GoodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
+		s.NeedQty = _qtty;
+		s.PartQty = fdivnz(_qtty, Head.NeedQty);
+		s.FreeQty = 0.0;
+		THROW_SL(insert(&s));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData, bool recursiveUnrollIncome)
+{
+	int    ok = 1;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
 	rData.Head.GoodsID = goodsID;
 	rData.Head.PartQty = 1.0;
 	rData.Head.NeedQty = needQty;
 	rData.Head.FreeQty = 0.0;
 	rData.Head.GoodsFlags = (goods_obj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
-	double sqtty = 0.0;
-	int    is_there_formula = 0;
-	for(uint i = 0; (r = EnumItemsExt(&i, &gsi, goodsID, rData.Head.NeedQty, &sqtty)) > 0;) {
-		ComplItem s;
-		double qtty = 0.0;
-		s.SrcGsPos = i;
-		s.GsiFlags = gsi.Flags;
-		// 
-		// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
-		// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
-		// от ввода этого участка кода для существующих клиентов все-таки ограничение важно.
-		//
-		if(sqtty == 0.0 && gsi.Formula__[0]) {
-			s.GsiFlags |= GSIF_FORMULA;
-			is_there_formula = 1;
-			qtty = sqtty;
+	{
+		for(uint i = 0; i < Items.getCount(); i++) {
+			/*if(recursiveUnrollIncome && RecursiveUnrollIncome(gsi.GoodsID, 0.0, pBillPack, rData) > 0) {
+			}*/
+			THROW(rData.Add(*this, i, goodsID, needQty));
 		}
-		else {
-			s.GsiFlags &= ~GSIF_FORMULA;
-			qtty = sqtty;
-		}
-		s.GoodsID = gsi.GoodsID;
-		s.GoodsFlags = (goods_obj.Fetch(s.GoodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
-		s.NeedQty = qtty;
-		s.PartQty = fdivnz(qtty, rData.Head.NeedQty);
-		s.FreeQty = 0.0;
-		THROW_SL(rData.insert(&s));
 	}
-	THROW(r);
-	if(is_there_formula) {
+	{
+		SString formula;
 		P_Cb = &rData;
-		for(uint j = 0; j < rData.getCount(); j++) {
-			ComplItem & r_item = rData.at(j);
-			if(r_item.GsiFlags & GSIF_FORMULA && r_item.SrcGsPos > 0 && r_item.SrcGsPos <= Items.getCount()) {
+		for(uint i = 0; i < rData.getCount(); i++) {
+			ComplItem & r_item = rData.at(i);
+			if(r_item.GsiFlags & GSIF_FORMULA) {
+				rData.GetFormula(i, formula);
+				assert(formula.NotEmpty());
+				//
 				double v = 0.0;
-				const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
-				GdsClsCalcExprContext ctx(this, pBillPack);
-				THROW(PPCalcExpression(r_gsi.Formula__, &v, &ctx));
+				//const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
+				const PPGoodsStruc * p_gs = rData.GetGoodsStruc(i);
+				assert(p_gs);
+				GdsClsCalcExprContext ctx(p_gs, pBillPack);
+				THROW(PPCalcExpression(formula, &v, &ctx));
 				r_item.NeedQty = v;
-				r_item.PartQty = fdivnz(v, rData.Head.NeedQty);
+				r_item.PartQty = fdivnz(v, needQty);
 			}
 		}
 		P_Cb = 0;
 	}
+#if 0 // @v11.2.4 {
+	{
+		int    r;
+		bool   is_there_formula = false;
+		double sqtty = 0.0;
+		PPGoodsStrucItem gsi;
+		for(uint i = 0; (r = EnumItemsExt(&i, &gsi, goodsID, rData.Head.NeedQty, &sqtty)) > 0;) {
+			// @v11.2.4 {
+			if(recursiveUnrollIncome && RecursiveUnrollIncome(gsi.GoodsID, 0.0, pBillPack, rData) > 0) {
+				;
+			}
+			else {
+			// } @v11.2.4 
+				ComplItem s;
+				double qtty = 0.0;
+				s.SrcGsPos = i;
+				s.GsiFlags = gsi.Flags;
+				// 
+				// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
+				// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
+				// от ввода этого участка кода для существующих клиентов, все-таки, ограничение важно.
+				//
+				if(sqtty == 0.0 && gsi.Formula__[0]) {
+					s.GsiFlags |= GSIF_FORMULA;
+					is_there_formula = true;
+					qtty = sqtty;
+				}
+				else {
+					s.GsiFlags &= ~GSIF_FORMULA;
+					qtty = sqtty;
+				}
+				s.GoodsID = gsi.GoodsID;
+				s.GoodsFlags = (goods_obj.Fetch(s.GoodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
+				s.NeedQty = qtty;
+				s.PartQty = fdivnz(qtty, rData.Head.NeedQty);
+				s.FreeQty = 0.0;
+				THROW_SL(rData.insert(&s));
+			}
+		}
+		THROW(r);
+		if(is_there_formula) {
+			P_Cb = &rData;
+			for(uint j = 0; j < rData.getCount(); j++) {
+				ComplItem & r_item = rData.at(j);
+				if(r_item.GsiFlags & GSIF_FORMULA && r_item.SrcGsPos > 0 && r_item.SrcGsPos <= Items.getCount()) {
+					double v = 0.0;
+					const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
+					GdsClsCalcExprContext ctx(this, pBillPack);
+					THROW(PPCalcExpression(r_gsi.Formula__, &v, &ctx));
+					r_item.NeedQty = v;
+					r_item.PartQty = fdivnz(v, rData.Head.NeedQty);
+				}
+			}
+			P_Cb = 0;
+		}
+	}
+#endif // } 0 @v11.2.4
 	CATCHZOK
 	return ok;
 }
@@ -673,7 +801,7 @@ int PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplBlock &
 	int    ok = 1;
 	const double need_qtty = needQty;
 	PPComplBlock temp_blk;
-	THROW(InitCompleteData(goodsID, needQty, /*(const PPBillPacket *)*/0, temp_blk));
+	THROW(InitCompleteData(goodsID, needQty, /*(const PPBillPacket *)*/0, temp_blk, false/*recursiveUnrollIncome*/));
 	for(uint j = 0; j < temp_blk.getCount(); j++) {
 		const ComplItem & r_src_item = temp_blk.at(j);
 		uint   pos = 0;
@@ -702,15 +830,14 @@ int PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplBlock &
 	return ok;
 }
 
-int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
+int PPBillPacket::InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra, bool recursive)
 {
 	int    ok = 1;
 	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя. В этом случае функция возвращает -1
-	uint   i;
 	PPObjGoods goods_obj;
 	LongArray positions;
 	const  PPTransferItem * p_ti = & ConstTI(pos);
-	int    sign = (p_ti->Flags & PPTFR_PLUS) ? -1 : 1;
+	const  int sign = (p_ti->Flags & PPTFR_PLUS) ? -1 : 1;
 	const  int out_price_by_quot = BIN(P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT);
 	double need_qty = p_ti->Quantity_;
 	//
@@ -719,7 +846,8 @@ int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList,
 	// автоматическая разукомплектация учтет все введенное израсходованное количество.
 	//
 	if(p_ti->Flags & PPTFR_MINUS) {
-		if((i = pos) != 0) do {
+		uint i = pos;
+		if(i) do {
 			const PPTransferItem * p_prev_ti = & ConstTI(--i);
 			if(p_prev_ti->GoodsID == p_ti->GoodsID && p_prev_ti->Flags & PPTFR_MINUS)
 				need_qty += p_prev_ti->Quantity_;
@@ -737,18 +865,18 @@ int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList,
 		PUGL   deficit_list;
 		PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
 		ComplItem * ps;
-		THROW(pGS->InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary));
-		for(i = 0; ary.enumItems(&i, (void **)&ps);) {
+		THROW(rGs.InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary, recursive));
+		for(uint i = 0; ary.enumItems(&i, (void **)&ps);) {
 			if(ps->PartQty != 0.0 && ps->NeedQty != 0.0) {
 				ILTI   ilti;
 				long   convert_ilti_flags = CILTIF_OPTMZLOTS|CILTIF_USESUBST;
-				serial.Z();
 				double out_quot  = 0.0;
 				double out_price = 0.0;
+				serial.Z();
 				ilti.GoodsID = ps->GoodsID;
 				if(sign > 0) {
 					ilti.SetQtty(ps->NeedQty, 0, PPTFR_RECEIPT|PPTFR_PLUS);
-					SETFLAG(ilti.Flags, PPTFR_COSTWOVAT, pGS->Rec.Flags & GSF_OUTPWOVAT);
+					SETFLAG(ilti.Flags, PPTFR_COSTWOVAT, rGs.Rec.Flags & GSF_OUTPWOVAT);
 					if(ps->GoodsFlags & GF_UNLIM) {
 						if(goods_obj.GetQuot(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, 0L/*@curID*/), 0, 0, &out_quot) <= 0)
 							out_quot = 0.0;
@@ -827,7 +955,7 @@ int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList,
 					TI(pos).Quantity_ = fabs(ary.Head.NeedQty);
 				}
 				else
-					pGS->Items.at(lim).Median = 0;
+					rGs.Items.at(lim).Median = 0;
 				RemoveRows(&positions);
 				if(ary.Head.NeedQty == 0) {
 					RemoveRow(pos);
@@ -889,8 +1017,7 @@ int PPBillPacket::InsertPartitialStruc()
 			//
 			local_pos_list.clear();
 			if(!positions.lsearch(i) && !(p_ti->Flags & PPTFR_PARTSTRUSED)) {
-				const PPGoodsStruc::Ident gs_ident(p_ti->GoodsID, GSF_PARTITIAL, 0, Rec.Dt);
-				if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+				if(LoadGoodsStruc(PPGoodsStruc::Ident(p_ti->GoodsID, GSF_PARTITIAL, 0, Rec.Dt), &gs) > 0) {
 					RAssocArray local_qtty_list;
 					double qtty = p_ti->Qtty();
 					double src_qtty  = qtty;
@@ -1071,8 +1198,7 @@ int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 	PPTransferItem loti;
 	PPTransferItem & r_ti = TI(pos);
 	if(r_ti.Flags & PPTFR_AUTOCOMPL) {
-		const PPGoodsStruc::Ident gs_ident(r_ti.GoodsID, 0, GSF_PARTITIAL, Rec.Dt);
-		THROW(LoadGoodsStruc(&gs_ident, &gs) > 0);
+		THROW(LoadGoodsStruc(PPGoodsStruc::Ident(r_ti.GoodsID, 0, GSF_PARTITIAL, Rec.Dt), &gs) > 0);
 		if(!P_ACPack)
 			THROW(InitACPacket());
 		THROW(loti.Init(&P_ACPack->Rec, 1, TISIGN_PLUS));
@@ -1089,7 +1215,7 @@ int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 		loti.LotID = ac_lot_id;
 		acpos = P_ACPack->GetTCount();
 		THROW(P_ACPack->InsertRow(&loti, 0));
-		THROW(P_ACPack->InsertComplete(&gs, acpos, 0, pcug) > 0);
+		THROW(P_ACPack->InsertComplete(gs, acpos, 0, pcug, 0/*goods-replacement-array*/, false) > 0);
 		r_ti.Quantity_ = P_ACPack->ConstTI(acpos).Quantity_;
 		P_ACPack->CalcModifCost();
 	}

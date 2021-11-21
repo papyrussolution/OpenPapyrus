@@ -9633,8 +9633,8 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 			R_Ec.MakeSubProductList(SubProdList, GuidAsscList, &SprToPrList);
 			ProdList.SortByText();
 			SubProdList.SortByText();
-			SetupStrAssocCombo(this, CTLSEL_VETISPI_PROD, &ProdList, ProdIdent, 0, 0, 0);
-			SetupStrAssocCombo(this, CTLSEL_VETISPI_SUBPROD, &SubProdList, SubProdIdent, 0, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_VETISPI_PROD, ProdList, ProdIdent, 0, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_VETISPI_SUBPROD, SubProdList, SubProdIdent, 0, 0, 0);
 			Setup();
 			return ok;
 		}
@@ -9815,10 +9815,10 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 			}
 			SetupPersonCombo(this, CTLSEL_VETISENT_ORG, (Data.P_Owner ? Data.P_Owner->NativePsnID : 0), 0, PPPRK_MAIN, 1);
 			SetupLocationCombo(this, CTLSEL_VETISENT_LOC, Data.NativeLocID, 0, 0);
-			SetupStrAssocCombo(this, CTLSEL_VETISENT_COUNTRY, &CountryList, CountryIdent, 0, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_VETISENT_COUNTRY, CountryList, CountryIdent, 0, 0, 0);
 			if(CountryIdent) {
 				R_Ec.MakeRegionList(CountryIdent, RegionList, GuidAsscList);
-				SetupStrAssocCombo(this, CTLSEL_VETISENT_REGION, &RegionList, RegionIdent, 0, 0, 0);
+				SetupStrAssocCombo(this, CTLSEL_VETISENT_REGION, RegionList, RegionIdent, 0, 0, 0);
 			}
 			Setup();
 			return ok;
@@ -9853,7 +9853,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 						R_Ec.MakeLocalityList(RegionIdent, CityList, GuidAsscList);
 					else
 						CityList.Z();
-					SetupStrAssocCombo(this, CTLSEL_VETISENT_LOCALITY, &CityList, LocalityIdent, 0, 0, 0);
+					SetupStrAssocCombo(this, CTLSEL_VETISENT_LOCALITY, CityList, LocalityIdent, 0, 0, 0);
 				}
 			}
 			else if(event.isCmd(cmCreateVetisEnterprise)) {

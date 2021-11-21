@@ -88,7 +88,7 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 	for(id = ssh_list_pop_head(char *, p_new->opts.identity);
 	    id != NULL;
 	    id = ssh_list_pop_head(char *, p_new->opts.identity)) {
-		SAFE_FREE(id);
+		ZFREE(id);
 	}
 	/* Copy the new identities from the source list */
 	if(src->opts.identity != NULL) {
@@ -201,7 +201,7 @@ int ssh_options_set_algo(ssh_session session, enum ssh_kex_types_e algo, const c
 		return -1;
 	}
 
-	SAFE_FREE(session->opts.wanted_methods[algo]);
+	ZFREE(session->opts.wanted_methods[algo]);
 	session->opts.wanted_methods[algo] = p;
 
 	return 0;
@@ -461,20 +461,20 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    }
 			    p = strchr(q, '@');
 
-			    SAFE_FREE(session->opts.host);
+			    ZFREE(session->opts.host);
 
 			    if(p) {
 				    *p = '\0';
 				    session->opts.host = _strdup(p + 1);
 				    if(session->opts.host == NULL) {
-					    SAFE_FREE(q);
+					    ZFREE(q);
 					    ssh_set_error_oom(session);
 					    return -1;
 				    }
 
-				    SAFE_FREE(session->opts.username);
+				    ZFREE(session->opts.username);
 				    session->opts.username = _strdup(q);
-				    SAFE_FREE(q);
+				    ZFREE(q);
 				    if(session->opts.username == NULL) {
 					    ssh_set_error_oom(session);
 					    return -1;
@@ -514,9 +514,9 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    }
 			    i = strtol(q, &p, 10);
 			    if(q == p) {
-				    SAFE_FREE(q);
+				    ZFREE(q);
 			    }
-			    SAFE_FREE(q);
+			    ZFREE(q);
 			    if(i <= 0) {
 				    ssh_set_error_invalid(session);
 				    return -1;
@@ -553,12 +553,12 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    if(q == NULL) {
 			    return -1;
 		    }
-		    SAFE_FREE(session->opts.bindaddr);
+		    ZFREE(session->opts.bindaddr);
 		    session->opts.bindaddr = q;
 		    break;
 		case SSH_OPTIONS_USER:
 		    v = static_cast<const char *>(value);
-		    SAFE_FREE(session->opts.username);
+		    ZFREE(session->opts.username);
 		    if(v == NULL) {
 			    q = ssh_get_local_username();
 			    if(q == NULL) {
@@ -581,7 +581,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_SSH_DIR:
 		    v = static_cast<const char *>(value);
-		    SAFE_FREE(session->opts.sshdir);
+		    ZFREE(session->opts.sshdir);
 		    if(v == NULL) {
 			    session->opts.sshdir = ssh_path_expand_tilde("~/.ssh");
 			    if(session->opts.sshdir == NULL) {
@@ -619,7 +619,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_KNOWNHOSTS:
 		    v = static_cast<const char *>(value);
-		    SAFE_FREE(session->opts.knownhosts);
+		    ZFREE(session->opts.knownhosts);
 		    if(v == NULL) {
 			    /* The default value will be set by the ssh_options_apply() */
 		    }
@@ -637,7 +637,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    break;
 		case SSH_OPTIONS_GLOBAL_KNOWNHOSTS:
 		    v = static_cast<const char *>(value);
-		    SAFE_FREE(session->opts.global_knownhosts);
+		    ZFREE(session->opts.global_knownhosts);
 		    if(v == NULL) {
 			    session->opts.global_knownhosts =
 				_strdup("/etc/ssh/ssh_known_hosts");
@@ -723,9 +723,9 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    }
 			    i = strtol(q, &p, 10);
 			    if(q == p) {
-				    SAFE_FREE(q);
+				    ZFREE(q);
 			    }
-			    SAFE_FREE(q);
+			    ZFREE(q);
 			    if(i < 0) {
 				    ssh_set_error_invalid(session);
 				    return -1;
@@ -799,7 +799,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 				    return -1;
 			    }
 
-			    SAFE_FREE(session->opts.pubkey_accepted_types);
+			    ZFREE(session->opts.pubkey_accepted_types);
 			    session->opts.pubkey_accepted_types = p;
 		    }
 		    break;
@@ -911,7 +911,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    return -1;
 		    }
 		    else {
-			    SAFE_FREE(session->opts.ProxyCommand);
+			    ZFREE(session->opts.ProxyCommand);
 			    /* Setting the command to 'none' disables this option. */
 			    rc = strcasecmp(v, "none");
 			    if(rc != 0) {
@@ -930,7 +930,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    return -1;
 		    }
 		    else {
-			    SAFE_FREE(session->opts.gss_server_identity);
+			    ZFREE(session->opts.gss_server_identity);
 			    session->opts.gss_server_identity = _strdup(v);
 			    if(session->opts.gss_server_identity == NULL) {
 				    ssh_set_error_oom(session);
@@ -945,7 +945,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    return -1;
 		    }
 		    else {
-			    SAFE_FREE(session->opts.gss_client_identity);
+			    ZFREE(session->opts.gss_client_identity);
 			    session->opts.gss_client_identity = _strdup(v);
 			    if(session->opts.gss_client_identity == NULL) {
 				    ssh_set_error_oom(session);
@@ -1260,14 +1260,14 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 			    optv[1] = optopt;
 			    tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
 			    if(tmp == NULL) {
-				    SAFE_FREE(save);
+				    ZFREE(save);
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
 			    save = tmp;
 			    save[current] = _strdup(optv);
 			    if(save[current] == NULL) {
-				    SAFE_FREE(save);
+				    ZFREE(save);
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -1281,7 +1281,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	opterr = saveopterr;
 	tmp = SAlloc::R(save, (current + (argc - optind)) * sizeof(char *));
 	if(tmp == NULL) {
-		SAFE_FREE(save);
+		ZFREE(save);
 		ssh_set_error_oom(session);
 		return -1;
 	}
@@ -1289,7 +1289,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	while(optind < argc) {
 		tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
 		if(tmp == NULL) {
-			SAFE_FREE(save);
+			ZFREE(save);
 			ssh_set_error_oom(session);
 			return -1;
 		}
@@ -1309,7 +1309,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	optind = saveoptind;
 
 	if(!cont) {
-		SAFE_FREE(save);
+		ZFREE(save);
 		return -1;
 	}
 
@@ -1320,7 +1320,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	}
 	argv[current + 1] = NULL;
 	*argcptr = current + 1;
-	SAFE_FREE(save);
+	ZFREE(save);
 
 	/* set a new option struct */
 	if(compress) {
@@ -1512,7 +1512,7 @@ static int ssh_bind_set_key(ssh_bind sshbind, char ** key_loc, const void * valu
 		return -1;
 	}
 	else {
-		SAFE_FREE(*key_loc);
+		ZFREE(*key_loc);
 		*key_loc = _strdup(static_cast<const char *>(value));
 		if(*key_loc == NULL) {
 			ssh_set_error_oom(sshbind);
@@ -1541,7 +1541,7 @@ static int ssh_bind_set_algo(ssh_bind sshbind,
 		return -1;
 	}
 
-	SAFE_FREE(sshbind->wanted_methods[algo]);
+	ZFREE(sshbind->wanted_methods[algo]);
 	sshbind->wanted_methods[algo] = p;
 
 	return 0;
@@ -1804,7 +1804,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    return -1;
 		    }
 		    else {
-			    SAFE_FREE(sshbind->bindaddr);
+			    ZFREE(sshbind->bindaddr);
 			    sshbind->bindaddr = _strdup(static_cast<const char *>(value));
 			    if(sshbind->bindaddr == NULL) {
 				    ssh_set_error_oom(sshbind);
@@ -1834,9 +1834,9 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    }
 			    i = strtol(q, &p, 10);
 			    if(q == p) {
-				    SAFE_FREE(q);
+				    ZFREE(q);
 			    }
-			    SAFE_FREE(q);
+			    ZFREE(q);
 
 			    sshbind->bindport = i & 0xffffU;
 		    }
@@ -1863,9 +1863,9 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    }
 			    i = strtol(q, &p, 10);
 			    if(q == p) {
-				    SAFE_FREE(q);
+				    ZFREE(q);
 			    }
-			    SAFE_FREE(q);
+			    ZFREE(q);
 
 			    ssh_set_log_level(i & 0xffffU);
 		    }
@@ -1894,7 +1894,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    return -1;
 		    }
 		    else {
-			    SAFE_FREE(sshbind->banner);
+			    ZFREE(sshbind->banner);
 			    sshbind->banner = _strdup(static_cast<const char *>(value));
 			    if(sshbind->banner == NULL) {
 				    ssh_set_error_oom(sshbind);
@@ -1961,7 +1961,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    break;
 		case SSH_BIND_OPTIONS_CONFIG_DIR:
 		    v = static_cast<const char *>(value);
-		    SAFE_FREE(sshbind->config_dir);
+		    ZFREE(sshbind->config_dir);
 		    if(v == NULL) {
 			    break;
 		    }
@@ -1994,7 +1994,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 				    ssh_set_error(sshbind, SSH_REQUEST_DENIED, "Setting method: no known public key algorithm (%s)", v);
 				    return -1;
 			    }
-			    SAFE_FREE(sshbind->pubkey_accepted_key_types);
+			    ZFREE(sshbind->pubkey_accepted_key_types);
 			    sshbind->pubkey_accepted_key_types = p;
 		    }
 		    break;
@@ -2097,7 +2097,7 @@ static char * ssh_bind_options_expand_escape(ssh_bind sshbind, const char * s)
 		l = strlen(buf);
 		strncpy(buf + l, x, sizeof(buf) - l - 1);
 		buf[i] = '\0';
-		SAFE_FREE(x);
+		ZFREE(x);
 	}
 
 	SAlloc::F(r);

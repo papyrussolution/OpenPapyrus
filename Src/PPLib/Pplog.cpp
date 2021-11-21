@@ -199,10 +199,8 @@ int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw
 			SearchAndReplace(0);
 			break;
 		case PPVCMD_PRINT:
-			if(P_MsgLog) {
-				PView  pv(P_MsgLog);
-				PPAlddPrint(REPORT_LOGLIST, &pv, 0);
-			}
+			if(P_MsgLog)
+				PPAlddPrint(REPORT_LOGLIST, PView(P_MsgLog), 0);
 			break;
 	}
 	return ok;
@@ -719,8 +717,7 @@ int PPMsgLog::SaveLogFile(const char * pFileName, long options)
 
 int PPMsgLog::Print()
 {
-	PView  pv(this);
-	return PPAlddPrint(REPORT_LOGLIST, &pv, 0);
+	return PPAlddPrint(REPORT_LOGLIST, PView(this), 0);
 }
 
 int PPMsgLog::InitIteration()

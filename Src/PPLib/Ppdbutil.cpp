@@ -3066,7 +3066,7 @@ int TestLargeVlrInputOutput()
 			//
 			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
-			THROW(dest_buf.IsEqual(src_buf));
+			THROW(dest_buf.IsEq(src_buf));
 		}
 		{
 			//
@@ -3087,7 +3087,7 @@ int TestLargeVlrInputOutput()
 			//
 			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
-			THROW(dest_buf.IsEqual(src_buf));
+			THROW(dest_buf.IsEq(src_buf));
 		}
 		{
 			//
@@ -3108,7 +3108,7 @@ int TestLargeVlrInputOutput()
 			//
 			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
-			THROW(dest_buf.IsEqual(src_buf));
+			THROW(dest_buf.IsEq(src_buf));
 		}
 		{
 			//
@@ -3129,7 +3129,7 @@ int TestLargeVlrInputOutput()
 			//
 			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) > 0);
-			THROW(dest_buf.IsEqual(src_buf));
+			THROW(dest_buf.IsEq(src_buf));
 		}
 		{
 			//
@@ -3140,7 +3140,7 @@ int TestLargeVlrInputOutput()
 			//
 			dest_buf.Z();
 			THROW(p_ref->GetPropSBuffer(test_obj_type, test_obj_id, test_prop_id, dest_buf) < 0);
-			THROW(dest_buf.IsEqual(src_buf));
+			THROW(dest_buf.IsEq(src_buf));
 		}
 		//
 		THROW(tra.Commit());

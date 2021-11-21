@@ -116,9 +116,9 @@ int GoodsRestFilt::IsEqualExcept(const GoodsRestFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(DeficitDt))
 		return 0;
-	if(!LocList.IsEqual(rS.LocList))
+	if(!LocList.IsEq(rS.LocList))
 		return 0;
-	if(!GoodsList.IsEqual(rS.GoodsList))
+	if(!GoodsList.IsEq(rS.GoodsList))
 		return 0;
 	if(!(flags & eqxExhaustTerm))
 		if(NEQ_FLD(ExhaustTerm))
@@ -838,14 +838,10 @@ PPViewGoodsRest::Cache & PPViewGoodsRest::Cache::Clear()
 	return *this;
 }
 
-int PPViewGoodsRest::Cache::SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial)
-	{ return AddS(pSerial, &rItem.SerialP); }
-int PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
-	{ return GetS(rItem.SerialP, rBuf); }
-int PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal)
-	{ return AddS(pTagVal, &rItem.LotTagP); }
-int PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
-	{ return GetS(rItem.LotTagP, rBuf); }
+int PPViewGoodsRest::Cache::SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial) { return AddS(pSerial, &rItem.SerialP); }
+bool PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const { return GetS(rItem.SerialP, rBuf); }
+int PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal) { return AddS(pTagVal, &rItem.LotTagP); }
+bool PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const { return GetS(rItem.LotTagP, rBuf); }
 
 IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
 {
@@ -4061,8 +4057,7 @@ int PPViewGoodsRest::PrintTotal(const GoodsRestTotal * pTotal)
 	GoodsRestTotalPrintData grtpd;
 	grtpd.P_Total = pTotal;
 	grtpd.P_Filt = &Filt;
-	PView pv(&grtpd);
-	return PPAlddPrint(REPORT_GOODSRESTTOTAL, &pv, 0);
+	return PPAlddPrint(REPORT_GOODSRESTTOTAL, PView(&grtpd), 0);
 }
 
 struct GoodsRestReport {
@@ -4236,7 +4231,7 @@ int PPViewGoodsRest::Print(const void * pExtra)
 			pf.ID |= 0x10000l;
 		env.Sort = ord;
 		env.PrnFlags = (flags & GoodsRestReport::fDisableGrpng) ? (SReport::DisableGrouping | SReport::NoRepError) : SReport::NoRepError;
-		THROW(PPAlddPrint(rpt_id, &pf, &env));
+		THROW(PPAlddPrint(rpt_id, pf, &env));
 	}
 	CATCHZOKPPERR
 	return ok;

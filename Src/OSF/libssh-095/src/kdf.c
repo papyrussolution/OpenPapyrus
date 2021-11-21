@@ -45,7 +45,7 @@ static ssh_mac_ctx ssh_mac_ctx_init(enum ssh_kdf_digest type)
 		case SSH_KDF_SHA256: ctx->ctx.sha256_ctx = sha256_init(); return ctx;
 		case SSH_KDF_SHA384: ctx->ctx.sha384_ctx = sha384_init(); return ctx;
 		case SSH_KDF_SHA512: ctx->ctx.sha512_ctx = sha512_init(); return ctx;
-		default: SAFE_FREE(ctx); return NULL;
+		default: ZFREE(ctx); return NULL;
 	}
 }
 
@@ -67,7 +67,7 @@ static void ssh_mac_final(uchar * md, ssh_mac_ctx ctx)
 		case SSH_KDF_SHA384: sha384_final(md, ctx->ctx.sha384_ctx); break;
 		case SSH_KDF_SHA512: sha512_final(md, ctx->ctx.sha512_ctx); break;
 	}
-	SAFE_FREE(ctx);
+	ZFREE(ctx);
 }
 
 int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key_len, int key_type, uchar * output, size_t requested_len)

@@ -1,6 +1,7 @@
 // V_USPROF.CPP
 // Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
-// @codepage windows-1251
+// @codepage UTF-8
+// Профиль пользовательских функций
 //
 #include <pp.h>
 #pragma hdrstop
@@ -32,7 +33,8 @@ public:
 		long   db_pos = 0;
 		uint   i;
 		SString temp_buf;
-		StrAssocArray db_list, func_list;
+		StrAssocArray db_list;
+		StrAssocArray func_list;
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
 		for(i = 0; i < R_UfpDbList.getCount(); i++) {
@@ -50,8 +52,8 @@ public:
 			if(temp_buf.NotEmptyS())
 				func_list.Add(i, 0, temp_buf);
 		}
-		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, &db_list, db_pos, 0);
-		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, &func_list, Data.FuncID, 0);
+		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, db_list, db_pos, 0);
+		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, func_list, Data.FuncID, 0);
 		SetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Data.Period); // @v10.9.12 @fix CTLCAL_FLTUSRPROF_PRD-->CTL_FLTUSRPROF_PRD
 		SetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Data.TmPeriod);
 		return 1;

@@ -321,7 +321,7 @@ int PPDrvIngenicoTrmnl::ProcessCommand(const SString & rCmd, const char * pInput
 			ZDELETE(P_Lib);
 		}
 		else if(rCmd == "CONNECT") {
-			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
+			for(uint i = 0; pairs.get(&i, s_pair);) {
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("PORT"))
 					Port = param_val.ToLong();
@@ -332,7 +332,7 @@ int PPDrvIngenicoTrmnl::ProcessCommand(const SString & rCmd, const char * pInput
 			THROW(Disconnect())
 		}
 		else if(rCmd == "SETCONFIG") {
-			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
+			for(uint i = 0; pairs.get(&i, s_pair);) {
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("LOGNUM"))
 					LogNum = param_val;

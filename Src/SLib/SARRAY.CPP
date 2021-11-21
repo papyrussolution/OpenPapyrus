@@ -893,7 +893,7 @@ SVector & FASTCALL SVector::operator = (const SVector & rS)
 	return *this;
 }
 
-int FASTCALL SVector::IsEqual(const SVector & rS) const
+int FASTCALL SVector::IsEq(const SVector & rS) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
 	if(!(VFlags & tf) && !(rS.VFlags & tf))
@@ -1063,7 +1063,7 @@ int FASTCALL SArray::copy(const SArray & rS)
     return SVectorBase::CopyS(rS);
 }
 
-int FASTCALL SArray::IsEqual(const SArray & src) const
+int FASTCALL SArray::IsEq(const SArray & src) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
 	if(!(VFlags & tf) && !(src.VFlags & tf))
@@ -1821,9 +1821,7 @@ int RAssocArray::Add(long key, double val, int additive, int binary)
 		ok = 2;
 	}
 	else {
-		RAssoc item;
-		item.Key = key;
-		item.Val = val;
+		RAssoc item(key, val);
 		ok = binary ? ordInsert(&item, 0, CMPF_LONG) : insert(&item);
 	}
 	return ok;
@@ -2010,7 +2008,7 @@ int FASTCALL SV_Uint32::Copy(const SV_Uint32 & s)
 	return 1;
 }
 
-int FASTCALL SV_Uint32::IsEqual(const SV_Uint32 & rPat) const
+int FASTCALL SV_Uint32::IsEq(const SV_Uint32 & rPat) const
 {
 	int    ok = 0;
 	if(P_Data == 0 && rPat.P_Data == 0)
@@ -2135,7 +2133,7 @@ int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 	return 1;
 }
 
-int FASTCALL StrAssocArray::IsEqual(const StrAssocArray & s) const
+int FASTCALL StrAssocArray::IsEq(const StrAssocArray & s) const
 {
 	int    ok = 0;
 	uint   c = LAssocArray::getCount();
@@ -2903,14 +2901,14 @@ int StrAssocArray::Read(SFile & rFile, long o)
 //
 // @construction {
 //
-class StrAssocArray2Entry {
+class StrAssocTreeEntry {
 public:
-	class BaseList : public TSArray <StrAssocArray2Entry> {
+	class BaseList : public TSArray <StrAssocTreeEntry> {
 	public:
-		BaseList() : TSArray <StrAssocArray2Entry>(aryDataOwner|aryEachItem)
+		BaseList() : TSArray <StrAssocTreeEntry>(aryDataOwner|aryEachItem)
 		{
 		}
-		BaseList(const BaseList & rS) : TSArray <StrAssocArray2Entry>(aryDataOwner|aryEachItem)
+		BaseList(const BaseList & rS) : TSArray <StrAssocTreeEntry>(aryDataOwner|aryEachItem)
 		{
 			Copy(rS);
 		}
@@ -2925,11 +2923,11 @@ public:
 			int    ok = 1;
 			for(uint i = 0; i < rS.SArray::getCount(); i++) {
 				{
-					StrAssocArray2Entry new_entry;
+					StrAssocTreeEntry new_entry;
 					THROW(insert(&new_entry));
 				}
 				assert(getCount() == (i+1));
-				StrAssocArray2Entry & r_new_entry = at(i);
+				StrAssocTreeEntry & r_new_entry = at(i);
 				THROW(r_new_entry.Copy(rS.at(i)));
 			}
 			CATCHZOK
@@ -2937,53 +2935,31 @@ public:
 		}
 		int    Implement_Add(int32 key, uint strP)
 		{
-			StrAssocArray2Entry new_entry(key, strP);
+			StrAssocTreeEntry new_entry(key, strP);
 			return insert(&new_entry);
 		}
-		/*int    Implement_AddWithParent(int32 key, int32 parentId, uint strP)
+		StrAssocTreeEntry * Implement_Search(int32 key, int32 currentParentId) const
 		{
-			//StrAssocArray2Entry new_entry(key, strP);
-			//return insert(&new_entry);
-			uint   idx = 0;
-			if(lsearch(&parentId, &idx, CMPF_LONG)) {
-				StrAssocArray2Entry & r_entry = at(idx);
-				assert(r_entry.Key == parentId);
-				SETIFZ(r_entry.P_Children, new BaseList());
-				r_entry.P_Children->Implement_Add(key, strP);
-			}
-			else {
-				for(uint i = 0; i < getCount(); i++) {
-					StrAssocArray2Entry & r_entry = at(idx);
-					if(r_entry.P_Children) {
-						
-					}
-				}
-			}
-		}*/
-		int    Implement_Search(int32 key, int32 currentParentId, int32 * pParentId, uint * pStrP) const
-		{
-			int    ok = 0;
+			StrAssocTreeEntry * p_result = 0;
 			uint   idx = 0;
 			if(lsearch(&key, &idx, CMPF_LONG)) {
-				const StrAssocArray2Entry & r_entry = at(idx);
+				StrAssocTreeEntry & r_entry = at(idx);
 				assert(r_entry.Key == key);
-				ASSIGN_PTR(pParentId, currentParentId);
-				ASSIGN_PTR(pStrP, r_entry.StrP);
-				ok = 1;
+				p_result = &r_entry;
 			}
 			else {
-				for(uint i = 0; !ok && i < getCount(); i++) {
-					const StrAssocArray2Entry & r_entry = at(i);
+				for(uint i = 0; !p_result && i < getCount(); i++) {
+					StrAssocTreeEntry & r_entry = at(i);
 					if(r_entry.P_Children)
-						ok = r_entry.P_Children->Implement_Search(key, r_entry.Key, pParentId, pStrP); // @recursion
+						p_result = r_entry.P_Children->Implement_Search(key, r_entry.Key); // @recursion
 				}
 			}
-			return ok;
+			return p_result;
 		}
 	private:
 		virtual void FASTCALL freeItem(void * pItem)
 		{
-			CALLPTRMEMB(static_cast<StrAssocArray2Entry *>(pItem), Destroy());
+			CALLPTRMEMB(static_cast<StrAssocTreeEntry *>(pItem), Destroy());
 		}
 	};
 
@@ -2991,10 +2967,10 @@ public:
 	uint32 StrP;
 	BaseList * P_Children;
 
-	StrAssocArray2Entry() : Key(0), StrP(0), P_Children(0)
+	StrAssocTreeEntry() : Key(0), StrP(0), P_Children(0)
 	{
 	}
-	StrAssocArray2Entry(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
+	StrAssocTreeEntry(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
 	{
 	}
 	void Destroy()
@@ -3003,7 +2979,7 @@ public:
 		StrP = 0;
 		ZDELETEFAST(P_Children);
 	}
-	int Copy(const StrAssocArray2Entry & rS)
+	int Copy(const StrAssocTreeEntry & rS)
 	{
 		int    ok = 1;
 		Key = rS.Key;
@@ -3021,17 +2997,24 @@ public:
 		return ok;
 	}
 };
-
-class StrAssocArray2 : private SStrGroup {
+//
+// Descr: Древовидная коллекция ассоциаций {int32; string}.
+//   Во-многом повторяет StrAssocArray но быстрее за счет хранения элементов в виде дерева, а не в виде
+//   линейного массива.
+//   Соответственно, есть и ограничения: 
+//     -- ключевой элемент строго не нулевой
+//     -- дубликаты по ключу не допускаются
+//
+class StrAssocTree : private SStrGroup {
 public:
-	StrAssocArray2() : SStrGroup(), TextCmpProc(0)
+	StrAssocTree() : SStrGroup(), TextCmpProc(0)
 	{
 	}
-	StrAssocArray2(const StrAssocArray2 & rS) : SStrGroup(static_cast<SStrGroup>(rS))
+	StrAssocTree(const StrAssocTree & rS) : SStrGroup(static_cast<SStrGroup>(rS))
 	{
 		Copy(rS);
 	}
-	int    FASTCALL Copy(const StrAssocArray2 & rS)
+	int    FASTCALL Copy(const StrAssocTree & rS)
 	{
 		Z();
 		int    ok = 1;
@@ -3040,27 +3023,62 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	StrAssocArray2 & Z()
+	StrAssocTree & Z()
 	{
 		L.Z();
 		SStrGroup::ClearS();
 		return *this;
 	}
-	int    Add(long id, const char * pStr, int replaceDup = 1)
+	bool Search(long id, long * pParentId, SString * pBuf) const
+	{
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
+		if(p_entry) {
+			if(pBuf)
+				GetS(p_entry->StrP, *pBuf);
+			return true;
+		}
+		else
+			return false;
+	}
+	bool Search(long id) const
+	{
+		return LOGIC(L.Implement_Search(id, 0));
+	}
+	int    Add(long id, const char * pStr, int replaceDup)
 	{
 		int    ok = 1;
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
+		if(p_entry) {
+			if(replaceDup) {
+				AddS(pStr, &p_entry->StrP);
+				ok = 2;
+			}
+			else
+				ok = -1;
+		}
+		else {
+			uint strp = 0;
+			AddS(pStr, &strp);
+			ok = L.Implement_Add(id, strp);
+		}
 		return ok;
 	}
-	int    Add(long id, long parentId, const char * pStr, int replaceDup = 1)
+	int    Add(long id, long parentId, const char * pStr, int replaceDup)
 	{
 		int    ok = 1;
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
+		StrAssocTreeEntry * p_parent_entry = L.Implement_Search(id, 0);
+		if(p_entry) {
+		}
+		else {
+			
+		}
 		return ok;
 	}
 protected:
 	CompFunc TextCmpProc;
-	LAssocArray ParentList;
 private:
-	StrAssocArray2Entry::BaseList L;
+	StrAssocTreeEntry::BaseList L;
 };
 // } @construction
 //
@@ -3087,7 +3105,7 @@ int FASTCALL StrStrAssocArray::Copy(const StrStrAssocArray & rS)
 	return 1;
 }
 
-int FASTCALL StrStrAssocArray::IsEqual(const StrStrAssocArray & src) const
+int FASTCALL StrStrAssocArray::IsEq(const StrStrAssocArray & src) const
 {
 	return 0;
 }
@@ -3195,15 +3213,9 @@ RealArray & FASTCALL RealArray::operator = (const RealArray & s)
 	return *this;
 }
 
-double & FASTCALL RealArray::operator [] (size_t i) const
-{
-	return at(i);
-}
-
-int RealArray::add(double v)
-{
-	return insert(&v);
-}
+double & FASTCALL RealArray::operator [] (size_t i) const { return at(i); }
+int  RealArray::add(double v) { return insert(&v); }
+void RealArray::Sort() { sort(PTR_CMPFUNC(double)); }
 
 int FASTCALL RealArray::dim(uint numItems)
 {
@@ -3226,11 +3238,6 @@ double RealArray::Sum() const
 	}
 	return sum;*/
 }
-
-void RealArray::Sort()
-{
-	sort(PTR_CMPFUNC(double));
-}
 //
 // LongArray
 //
@@ -3248,7 +3255,7 @@ LongArray & FASTCALL LongArray::operator = (const LongArray & s)
 	return *this;
 }
 
-int FASTCALL LongArray::IsEqual(const LongArray * pS) const
+int FASTCALL LongArray::IsEq(const LongArray * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
@@ -3335,8 +3342,8 @@ int FASTCALL LongArray::removeByID(long id)
 	return lsearch(id, &pos) ? atFree(pos) : -1;
 }
 
-int    FASTCALL LongArray::operator == (const LongArray & rS) const { return IsEqual(&rS); }
-int    FASTCALL LongArray::operator != (const LongArray & rS) const { return BIN(!IsEqual(&rS)); }
+int    FASTCALL LongArray::operator == (const LongArray & rS) const { return IsEq(&rS); }
+int    FASTCALL LongArray::operator != (const LongArray & rS) const { return BIN(!IsEq(&rS)); }
 int    FASTCALL LongArray::add(long id) { return insert(&id); }
 int    FASTCALL LongArray::addnz(long id) { return id ? insert(&id) : -1; }
 int    FASTCALL LongArray::addUnique(long id) { return lsearch(id) ? -1 : add(id); }
@@ -3538,7 +3545,7 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 	return *this;
 }
 
-int FASTCALL Int64Array::IsEqual(const Int64Array * pS) const
+int FASTCALL Int64Array::IsEq(const Int64Array * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
@@ -3552,8 +3559,8 @@ int FASTCALL Int64Array::IsEqual(const Int64Array * pS) const
 	return 0;
 }
 
-int    FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEqual(&rS); }
-int    FASTCALL Int64Array::operator != (const Int64Array & rS) const { return BIN(!IsEqual(&rS)); }
+int    FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEq(&rS); }
+int    FASTCALL Int64Array::operator != (const Int64Array & rS) const { return BIN(!IsEq(&rS)); }
 int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
 int    Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
 int    FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, PTR_CMPFUNC(int64)); }
@@ -3607,8 +3614,8 @@ void Int64Array::intersect(const Int64Array * pList, int binary)
 //
 //
 FloatArray::FloatArray() : TSVector <float>() {}
-int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEqual(&rS); }
-int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEqual(&rS)); }
+int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEq(&rS); }
+int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEq(&rS)); }
 int    FASTCALL FloatArray::add(float item) { return insert(&item); }
 int    FASTCALL FloatArray::add(SPoint2F p) { return insertChunk(2, &p); }
 float  FASTCALL FloatArray::get(uint i) const { return at(i); }
@@ -3626,7 +3633,7 @@ const SPoint2F & FASTCALL FloatArray::getPoint(uint i) const
 	return *static_cast<const SPoint2F *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
 }
 
-int FASTCALL FloatArray::IsEqual(const FloatArray * pS) const
+int FASTCALL FloatArray::IsEq(const FloatArray * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
@@ -3646,20 +3653,9 @@ DateTimeArray::DateTimeArray() : TSVector <LDATETIME>()
 {
 }
 
-int FASTCALL DateTimeArray::add(LDATETIME dtm)
-{
-	return insert(&dtm);
-}
-
-LDATETIME FASTCALL DateTimeArray::get(uint idx) const
-{
-	return at(idx);
-}
-
-void DateTimeArray::sort()
-{
-	SVector::sort(PTR_CMPFUNC(LDATETIME));
-}
+int FASTCALL DateTimeArray::add(LDATETIME dtm) { return insert(&dtm); }
+LDATETIME FASTCALL DateTimeArray::get(uint idx) const { return at(idx); }
+void DateTimeArray::sort() { SVector::sort(PTR_CMPFUNC(LDATETIME)); }
 //
 //
 //
@@ -3673,8 +3669,7 @@ void FloatStack::pushPoint(SPoint2F p)
 	push(p.x);
 }
 
-int FloatStack::popPoint(SPoint2F & rP)
-	{ return BIN(pop(rP.x) && pop(rP.y)); }
+int FloatStack::popPoint(SPoint2F & rP) { return BIN(pop(rP.x) && pop(rP.y)); }
 //
 //
 //
@@ -4017,20 +4012,9 @@ STree::Iter::Iter(uint32 parentP) : ParentP(parentP), CurrP(0), CurrDataP(0), Ne
 {
 }
 
-void * STree::Iter::GetData() const
-{
-	return CurrP ? P_Data : 0; // Нулевая позиция дерева не может ссылаться на данные.
-}
-
-uint32 STree::Iter::GetCurrentPos() const
-{
-	return CurrP;
-}
-
-uint32 STree::Iter::GetParentPos() const
-{
-	return ParentP;
-}
+void * STree::Iter::GetData() const { return CurrP ? P_Data : 0; } // Нулевая позиция дерева не может ссылаться на данные.
+uint32 STree::Iter::GetCurrentPos() const { return CurrP; }
+uint32 STree::Iter::GetParentPos() const { return ParentP; }
 //
 //
 //
@@ -4396,11 +4380,7 @@ int STree::Delete(uint32 pos)
 	return ok;
 }
 
-
-/*int STree::Sort(CompFunc fcmp, long extraData)
-{
-
-}*/
+/*int STree::Sort(CompFunc fcmp, long extraData) {}*/
 //
 //
 //

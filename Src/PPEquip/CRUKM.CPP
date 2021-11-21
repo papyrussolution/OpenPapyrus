@@ -268,7 +268,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 		//
 		// Making output files paths
 		//
-		if(GetExpPathSet(&ss) > 0 && ss.get(&pos, path_goods) > 0) {
+		if(GetExpPathSet(&ss) > 0 && ss.get(&pos, path_goods)) {
 			SString fname;
 			path_goods.RmvLastSlash();
 			THROW_PP_S(::access(path_goods, 0) == 0, PPERR_NEXISTPATH, path_goods);

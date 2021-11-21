@@ -597,7 +597,7 @@ static const lzma_filter_encoder * encoder_find(lzma_vli id)
 	return 0;
 }
 
-lzma_bool lzma_filter_encoder_is_supported(lzma_vli id)
+bool lzma_filter_encoder_is_supported(lzma_vli id)
 {
 	return encoder_find(id) != NULL;
 }
@@ -867,7 +867,7 @@ static const lzma_filter_decoder * decoder_find(lzma_vli id)
 	return 0;
 }
 
-lzma_bool lzma_filter_decoder_is_supported(lzma_vli id)
+bool lzma_filter_decoder_is_supported(lzma_vli id)
 {
 	return decoder_find(id) != NULL;
 }

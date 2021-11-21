@@ -807,8 +807,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 
 int PPObjGoodsClass::Print(PPID id)
 {
-	PView  pv((void *)0);
-	return PPAlddPrint(REPORT_GOODSCLASSVIEW, &pv, 0);
+	return PPAlddPrint(REPORT_GOODSCLASSVIEW, PView((void *)0), 0);
 }
 
 int PPObjGoodsClass::Browse(void * extraPtr)

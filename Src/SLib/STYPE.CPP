@@ -212,7 +212,7 @@ int STypEx::IsPure() const
 	return BIN(Mod == 0 && !(Flags & (fStruct|fOf)));
 }
 
-int FASTCALL STypEx::IsEqual(const STypEx & s) const
+int FASTCALL STypEx::IsEq(const STypEx & s) const
 {
 	if(Typ == s.Typ && Dim == s.Dim && Link == s.Link && Mod == s.Mod) {
 		if((Flags & (fStruct | fOf)) == (s.Flags & (fStruct | fOf)))

@@ -515,7 +515,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString prop_key;
 	SString prop_val;
 	//
-	AbstractLayoutBlock alb;
+	SUiLayoutParam alb;
 	SString class_ident;
 	SString font_ident;
 	SString var_ident;
@@ -623,21 +623,21 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 								prop_val = p_prop->Value.U.S;
 								if(prop_val.IsEqiAscii("auto"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignAuto;
+									*r_entry.P_Var = SUiLayoutParam::alignAuto;
 								else if(prop_val.IsEqiAscii("stretch"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignStretch;
+									*r_entry.P_Var = SUiLayoutParam::alignStretch;
 								else if(prop_val.IsEqiAscii("center"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignCenter;
+									*r_entry.P_Var = SUiLayoutParam::alignCenter;
 								else if(prop_val.IsEqiAscii("start"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignStart;
+									*r_entry.P_Var = SUiLayoutParam::alignStart;
 								else if(prop_val.IsEqiAscii("end"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignEnd;
+									*r_entry.P_Var = SUiLayoutParam::alignEnd;
 								else if(prop_val.IsEqiAscii("spacebetween"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignSpaceBetween;
+									*r_entry.P_Var = SUiLayoutParam::alignSpaceBetween;
 								else if(prop_val.IsEqiAscii("spacearound"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignSpaceAround;
+									*r_entry.P_Var = SUiLayoutParam::alignSpaceAround;
 								else if(prop_val.IsEqiAscii("spaceevenly"))
-									*r_entry.P_Var = AbstractLayoutBlock::alignSpaceEvenly;
+									*r_entry.P_Var = SUiLayoutParam::alignSpaceEvenly;
 								else {
 									// @erro invalid [r_entry.P_Prop] value
 								}
@@ -654,11 +654,11 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						prop_val = p_prop->Value.U.S;
 					}
 					if(prop_val.IsEqiAscii("horizontal") || prop_val.IsEqiAscii("horz") || prop_val.IsEqiAscii("horiz")) {
-						THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+						THROW(!(alb.Flags & (SUiLayoutParam::fContainerRow|SUiLayoutParam::fContainerCol))); // @err dup feature
 						alb.Flags |= alb.fContainerRow;					
 					}
 					else if(prop_val.IsEqiAscii("vertical") || prop_val.IsEqiAscii("vert")) {
-						THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+						THROW(!(alb.Flags & (SUiLayoutParam::fContainerRow|SUiLayoutParam::fContainerCol))); // @err dup feature
 						alb.Flags |= alb.fContainerCol;										
 					}
 					else {
@@ -669,11 +669,11 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					//CtmExprConst c;
 					//THROW(AddConst((uint32)scopeID, &c));
 					//THROW(p_scope->AddConst(DlScope::cuifCtrlScope, c, 1));
-					THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+					THROW(!(alb.Flags & (SUiLayoutParam::fContainerRow|SUiLayoutParam::fContainerCol))); // @err dup feature
 					alb.Flags |= alb.fContainerRow;
 				}
 				else if(prop_key == "vertical") {
-					THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+					THROW(!(alb.Flags & (SUiLayoutParam::fContainerRow|SUiLayoutParam::fContainerCol))); // @err dup feature
 					alb.Flags |= alb.fContainerCol;
 				}
 				else if(prop_key == "wrap") {
@@ -769,14 +769,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "height") {
 					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid height value
-					if(alb.GetSizeY(0) == AbstractLayoutBlock::szUndef) { // @err dup feature
+					if(alb.GetSizeY(0) == SUiLayoutParam::szUndef) { // @err dup feature
 						const float fv = p_prop->Value.U.UIC.Val;
 						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
 							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid height value
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, fv / 100.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, fv / 100.0f);
 						}
 						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContent, 0.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContent, 0.0f);
 						}
 						else {
 							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
@@ -786,14 +786,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "width") {
 					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
-					if(alb.GetSizeX(0) == AbstractLayoutBlock::szUndef) { // @err dup feature
+					if(alb.GetSizeX(0) == SUiLayoutParam::szUndef) { // @err dup feature
 						const float fv = p_prop->Value.U.UIC.Val;
 						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
 							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid width value
-							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, fv / 100.0f);
+							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, fv / 100.0f);
 						}
 						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
-							alb.SetVariableSizeX(AbstractLayoutBlock::szByContent, 0.0f);
+							alb.SetVariableSizeX(SUiLayoutParam::szByContent, 0.0f);
 						}
 						else {
 							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value

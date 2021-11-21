@@ -22,7 +22,7 @@ PPAmountTypePacket::PPAmountTypePacket()
 	// @v10.7.4 @ctr MEMSZERO(Rec);
 }
 
-int FASTCALL PPAmountTypePacket::IsEqual(const PPAmountTypePacket & rS) const
+int FASTCALL PPAmountTypePacket::IsEq(const PPAmountTypePacket & rS) const
 {
 #define CMPF(f) if(Rec.f!=rS.Rec.f) return 0;
 	CMPF(Tag);
@@ -418,7 +418,7 @@ int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_t
 			if(pPack) {
 				PPAmountTypePacket org_pack;
 				THROW(GetPacket(*pID, &org_pack) > 0);
-				if(pPack->IsEqual(org_pack)) {
+				if(pPack->IsEq(org_pack)) {
 					ok = -1;
 				}
 				else {

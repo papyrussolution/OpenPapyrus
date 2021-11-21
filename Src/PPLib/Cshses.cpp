@@ -1204,7 +1204,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 				THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 		}
 		ok = -1;
-		for(uint i = 0; ss.get(&i, path) > 0;) {
+		for(uint i = 0; ss.get(&i, path);) {
 			if(!isempty(pSubDir)) {
 				SPathStruc sp(path);
 				sp.Dir.RmvLastSlash();

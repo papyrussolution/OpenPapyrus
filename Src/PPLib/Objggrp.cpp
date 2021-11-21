@@ -890,8 +890,7 @@ int FASTCALL GoodsGroupView::NextIteration(GoodsGroupItem * pItem)
 
 int GoodsGroupView::Print()
 {
-	PView  pv(this);
-	return PPAlddPrint(REPORT_GOODSGROUPVIEW, &pv, 0);
+	return PPAlddPrint(REPORT_GOODSGROUPVIEW, PView(this), 0);
 }
 //
 //
@@ -1328,7 +1327,7 @@ PPTransport::PPTransport()
 	THISZERO();
 }
 
-int FASTCALL PPTransport::IsEqual(const PPTransport & rS) const
+int FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 {
 #define CMP_FLD(f) if(f != rS.f) return 0;
 	CMP_FLD(ID);
@@ -1450,7 +1449,7 @@ int PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 		if(*pID) {
 			THROW(Get(*pID, &org_rec) > 0);
 			if(pRec) {
-				if(!pRec->IsEqual(org_rec)) {
+				if(!pRec->IsEq(org_rec)) {
 					THROW(MakeStorage(*pID, pRec, &raw_rec, &bc_list));
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
 					THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));
@@ -2317,7 +2316,7 @@ PPSuprWare::PPSuprWare()
 	THISZERO();
 }
 
-int FASTCALL PPSuprWare::IsEqual(const PPSuprWare & rS) const
+int FASTCALL PPSuprWare::IsEq(const PPSuprWare & rS) const
 {
 	if(SuprWareType != rS.SuprWareType)
 		return 0;
@@ -2488,7 +2487,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 		if(*pID) {
 			THROW(Get(*pID, &org_pack) > 0);
 			if(pPack) {
-				if(!pPack->Rec.IsEqual(org_pack.Rec)) {
+				if(!pPack->Rec.IsEq(org_pack.Rec)) {
 					THROW(MakeStorage(*pID, &pPack->Rec, &raw_rec, &bc_list));
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
 					THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));

@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -1161,7 +1161,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 					dttm2 = dtm;
 					ss.get(&pos, buf);       // #07 пропускаем
 					ss.get(&pos, card_code); // #08 Код дисконтной карты
-					for(field_no = 8; field_no < 13 && ss.get(&pos, buf) > 0; field_no++); // #9-12 пропускаем
+					for(field_no = 8; field_no < 13 && ss.get(&pos, buf); field_no++); // #9-12 пропускаем
 					chk_type = buf.ToLong(); // #13 Тип чека
 					ss.get(&pos, buf);       // #14 Номер смены
 					nsmena = buf.ToLong();
@@ -1194,7 +1194,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 			ss.add(buf);
 			pos = 0;
 			//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
-			for(field_no = 0; field_no < 4 && ss.get(&pos, buf) > 0; field_no++);
+			for(field_no = 0; field_no < 4 && ss.get(&pos, buf); field_no++);
 										 // #01 Номер транзакции
 										 // #02 Дата транзакции
 										 // #03 Время транзакции

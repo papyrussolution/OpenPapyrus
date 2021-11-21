@@ -589,13 +589,9 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 		int    r = 0;
 		PPGoodsStruc gs;
 		PPID   gen_goods_id = 0;
-		{
-			const PPGoodsStruc::Ident gs_ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
-			THROW(r = GObj.LoadGoodsStruc(&gs_ident, &gs));
-		}
+		THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_()), &gs));
 		if(r < 0 && GObj.BelongToGen(goodsID, &gen_goods_id, 0) > 0) {
-			const PPGoodsStruc::Ident gs_ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_());
-			THROW(r = GObj.LoadGoodsStruc(&gs_ident, &gs));
+			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(gen_goods_id, GSF_PARTITIAL|GSF_POSMODIFIER, 0, getcurdate_()), &gs));
 		}
 		if(r > 0) {
 			SString temp_buf;
@@ -1952,8 +1948,7 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 
 int CPosProcessor::LoadPartialStruc(PPID goodsID, PPGoodsStruc & rGs)
 {
-	const PPGoodsStruc::Ident gs_ident(goodsID, GSF_PARTITIAL, GSF_PRESENT|GSF_COMPLEX|GSF_SUBST, getcurdate_());
-	return (GObj.LoadGoodsStruc(&gs_ident, &rGs) > 0 && !rGs.IsEmpty()) ? 1 : -1;
+	return (GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_PARTITIAL, GSF_PRESENT|GSF_COMPLEX|GSF_SUBST, getcurdate_()), &rGs) > 0 && !rGs.IsEmpty()) ? 1 : -1;
 }
 
 int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
@@ -1962,9 +1957,8 @@ int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
 	Goods2Tbl::Rec goods_rec, item_goods_rec;
 	rComplex.Init(goodsID, 0, 1.0);
 	if(GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.Flags & GF_GENERIC) {
-		const PPGoodsStruc::Ident gs_ident(goodsID, GSF_COMPLEX, 0, getcurdate_());
 		PPGoodsStruc gs;
-		if(GObj.LoadGoodsStruc(&gs_ident, &gs) > 0) {
+		if(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_COMPLEX, 0, getcurdate_()), &gs) > 0) {
 			rComplex.Init(goodsID, gs.Rec.ID, 1.0);
 			SString temp_buf;
 			StringSet ss(SLBColumnDelim);
@@ -8522,10 +8516,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
 										int    dup_mark = 0;
 										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-											if(egais_mark.IsEqual(P.at(i).EgaisMark))
+											if(egais_mark.IsEq(P.at(i).EgaisMark))
 												dup_mark = 1;
 										}
-										if(!dup_mark && egais_mark.IsEqual(P.GetCur().EgaisMark))
+										if(!dup_mark && egais_mark.IsEq(P.GetCur().EgaisMark))
 											dup_mark = 1;
 										if(!dup_mark) {
 											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
@@ -8602,9 +8596,9 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
-									int    dup_mark = chzn_mark.IsEqual(P.GetCur().ChZnMark);
+									int    dup_mark = chzn_mark.IsEq(P.GetCur().ChZnMark);
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
+										if(chzn_mark.IsEq(P.at(i).ChZnMark))
 											dup_mark = 1;
 									}
 									if(!dup_mark) {
@@ -11544,7 +11538,6 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		uint   rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
 		SString loc_prn_port(pLocPrn ? pLocPrn->Port : 0);
 		loc_prn_port.Strip();
-		PView  pv(this);
 		CCheckItemArray saved_items(P);
 		PPReportEnv env;
 		env.ContextSymb = CnSymb;
@@ -11585,7 +11578,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 			DS.GetTLA().PrintDevice = RptPrnPort;
 			is_print_dvc_setted = 1;
 		}
-		PPAlddPrint(rpt_id, &pv, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 		P = saved_items;
 		if(pLocPrn) {
 			if(pLocPrn->Flags & PPLocPrinter::fHasKitchenBell && KitchenBellCmd.NotEmpty()) {

@@ -1424,14 +1424,12 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			uint   rpt_id = REPORT_BARCODELABELLIST;
 			SString loc_prn_port(PrnPack.PortEx.NotEmptyS() ? PrnPack.PortEx.cptr() : static_cast<const char *>(0));
 			loc_prn_port.Strip();
-			PView  pv(&rList);
 			PPReportEnv env;
 			if(!(rBclpp.Flags & rBclpp.fInteractive))
 				env.PrnFlags = SReport::PrintingNoAsk;
-			if(loc_prn_port.NotEmpty()) {
+			if(loc_prn_port.NotEmpty())
 				DS.GetTLA().PrintDevice = loc_prn_port;
-			}
-			PPAlddPrint(rpt_id, &pv, &env);
+			PPAlddPrint(rpt_id, PView(&rList), &env);
 		}
 		else {
 			SString file_name, file_path;

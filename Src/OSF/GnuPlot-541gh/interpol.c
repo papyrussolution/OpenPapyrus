@@ -1497,7 +1497,7 @@ static int do_curve_cleanup(GpCoordinate * point, int npoints)
 		if(i != keep)
 			point[keep] = point[i];
 		// FIXME: should probably check fabs(this-prev) < EPS 
-		if(keep > 0 && point[keep].Pt.IsEqual(point[keep-1].Pt))
+		if(keep > 0 && point[keep].Pt.IsEq(point[keep-1].Pt))
 			continue;
 		keep++;
 	}

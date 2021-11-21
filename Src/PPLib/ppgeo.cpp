@@ -938,45 +938,45 @@ PPOsm::NPoint::NPoint() : ID(0)
 {
 }
 
-int FASTCALL PPOsm::NPoint::IsEqual(const PPOsm::NPoint & rS) const
+int FASTCALL PPOsm::NPoint::IsEq(const PPOsm::NPoint & rS) const
 {
 	return BIN(ID == rS.ID && C == rS.C);
 }
 
 int FASTCALL PPOsm::NPoint::operator == (const PPOsm::NPoint & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
 int FASTCALL PPOsm::NPoint::operator != (const PPOsm::NPoint & rS) const
 {
-	return BIN(!IsEqual(rS));
+	return BIN(!IsEq(rS));
 }
 
 PPOsm::Node::Node() : NPoint()
 {
 }
 
-int FASTCALL PPOsm::Node::IsEqual(const Node & rS) const
+int FASTCALL PPOsm::Node::IsEq(const Node & rS) const
 {
-	return BIN(NPoint::IsEqual(rS) && T.V == rS.T.V);
+	return BIN(NPoint::IsEq(rS) && T.V == rS.T.V);
 }
 
 int FASTCALL PPOsm::Node::operator == (const Node & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
 int FASTCALL PPOsm::Node::operator != (const Node & rS) const
 {
-	return BIN(!IsEqual(rS));
+	return BIN(!IsEq(rS));
 }
 
 PPOsm::NodeRefs::NodeRefs()
 {
 }
 
-int FASTCALL PPOsm::NodeRefs::IsEqual(const NodeRefs & rS) const
+int FASTCALL PPOsm::NodeRefs::IsEq(const NodeRefs & rS) const
 {
 	return BIN(WayRefs == rS.WayRefs && RelRefs == rS.RelRefs);
 }
@@ -1020,7 +1020,7 @@ void PPOsm::Way::Clear()
 	NodeRefs.clear();
 }
 
-int FASTCALL PPOsm::Way::IsEqual(const Way & rS) const
+int FASTCALL PPOsm::Way::IsEq(const Way & rS) const
 {
     int    ok = 1;
     THROW(ID == rS.ID);
@@ -1032,12 +1032,12 @@ int FASTCALL PPOsm::Way::IsEqual(const Way & rS) const
 
 int FASTCALL PPOsm::Way::operator == (const Way & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
 int FASTCALL PPOsm::Way::operator != (const Way & rS) const
 {
-	return BIN(!IsEqual(rS));
+	return BIN(!IsEq(rS));
 }
 
 PPOsm::RelMember::RelMember() : RefID(0), TypeSymbID(0), RoleSymbID(0)

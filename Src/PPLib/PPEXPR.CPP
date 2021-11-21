@@ -1091,39 +1091,29 @@ int GoodsContext::SetParam(const GoodsContext::Param & rP)
     return 1;
 }
 
-int GoodsContext::AllocGoodsStruc()
+void GoodsContext::AllocGoodsStruc()
 {
-	int    ok = -1;
-	if(P_Gs == 0) {
+	if(!P_Gs) {
 		if(P.TSessID) {
 			TSessionTbl::Rec tses_rec;
 			if(P_TSesObj->Search(P.TSessID, &tses_rec) > 0 && tses_rec.TechID) {
 				TechTbl::Rec tec_rec;
 				if(P_TSesObj->GetTech(tses_rec.TechID, &tec_rec, 1) > 0 && tec_rec.GStrucID) {
-					if(GObj.GSObj.Get(tec_rec.GStrucID, &ProperGs) > 0) {
+					if(GObj.GSObj.Get(tec_rec.GStrucID, &ProperGs) > 0)
 						P_Gs = &ProperGs;
-						ok = 1;
-					}
 				}
 			}
 		}
 		else if(P_Pack) {
-			if(P_Pack->GS.Rec.ID) {
+			if(P_Pack->GS.Rec.ID)
 				P_Gs = &P_Pack->GS;
-				ok = 1;
-			}
 		}
 		else if(P.GoodsID) {
 			Goods2Tbl::Rec goods_rec;
-			if(GObj.Fetch(P.GoodsID, &goods_rec) > 0 && goods_rec.StrucID && GObj.GSObj.Get(goods_rec.StrucID, &ProperGs) > 0) {
+			if(GObj.Fetch(P.GoodsID, &goods_rec) > 0 && goods_rec.StrucID && GObj.GSObj.Get(goods_rec.StrucID, &ProperGs) > 0)
 				P_Gs = &ProperGs;
-				ok = 1;
-			}
 		}
 	}
-	else
-		ok = 1;
-	return ok;
 }
 
 int GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
@@ -1245,13 +1235,13 @@ int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, doub
 		// @v11.0.7 {
 		if(P_TslRec) {
 			if(isPhQtty) {
-				double phqtty = 0;
+				double phqtty = 0.0;
 				if(P_TslRec->Flags & TSESLF_INDEPPHQTTY)
 					phqtty = P_TslRec->WtQtty;
 				else if(P_TslRec->Flags & TSESLF_PLAN_PHUNIT)
 					phqtty = P_TslRec->Qtty;
 				else {
-					double phuperu;
+					double phuperu = 0.0;
 					GObj.GetPhUPerU(P_TslRec->GoodsID, 0, &phuperu);
 					phqtty = P_TslRec->Qtty * phuperu;
 				}
@@ -1389,7 +1379,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			PPID   ref_goods_id = 0;
 			int    ref_gscb_item = -1;
 			if(ref.IsEqiAscii("MAIN")) {
-				THROW(AllocGoodsStruc());
+				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				ref_goods_id = P_Gs->GoodsID;
 				if(P_Gs->P_Cb)
@@ -1397,7 +1387,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			}
 			else if(ref.IsEqiAscii("MAINCOM")) {
 				const PPGoodsStrucItem * p_gsi = 0;
-				THROW(AllocGoodsStruc());
+				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				THROW(p_gsi = P_Gs->GetMainItem(0));
 				ref_goods_id = p_gsi->GoodsID;
@@ -1418,7 +1408,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			else if(ref.IsEqiAscii("TAG"))
 				spcref = spcrefGoodsTag;
 			else {
-				THROW(AllocGoodsStruc());
+				AllocGoodsStruc();
 				if(P_Gs) {
 					uint   gs_pos = 0;
 					BarcodeTbl::Rec bc_rec;
@@ -1519,7 +1509,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 1, &v));
 			}
 			else if(ref.IsEqiAscii("QTTYCOM")) {
-				THROW(AllocGoodsStruc());
+				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				THROW(P_Gs->GetItemQtty(ref_goods_id, 1, &v));
 			}
@@ -1700,7 +1690,7 @@ GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
 	GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
-GdsClsCalcExprContext::GdsClsCalcExprContext(const const  TSessLineTbl::Rec * pTslRec) // @v11.0.7
+GdsClsCalcExprContext::GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec) // @v11.0.7
 {
 	THISZERO();
 	P_TslRec = pTslRec;

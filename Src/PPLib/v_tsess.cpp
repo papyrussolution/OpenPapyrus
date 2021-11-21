@@ -895,10 +895,8 @@ void PPViewTSession::ViewTotal()
 int PPViewTSession::Print(const void * pHdr)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
-	if(id) {
-		PPFilt pf(id);
-		PPAlddPrint(REPORT_TSESSION, &pf);
-	}
+	if(id)
+		PPAlddPrint(REPORT_TSESSION, PPFilt(id), 0);
 	return -1;
 }
 
@@ -1039,7 +1037,7 @@ int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 				if(TSesObj.Search(id, &rec) > 0 && rec.PrcID) {
 					TSessionFilt filt;
 					filt.PrcID = rec.PrcID;
-					if(!filt.IsEqual(&Filt, 1))
+					if(!filt.IsEq(&Filt, 1))
 						::ViewTSession(&filt);
 				}
 				break;

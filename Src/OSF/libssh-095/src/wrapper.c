@@ -111,7 +111,7 @@ void ssh_cipher_clear(struct ssh_cipher_struct * cipher)
 		for(i = 0; i < (cipher->keylen / sizeof(gcry_cipher_hd_t)); i++) {
 			gcry_cipher_close(cipher->key[i]);
 		}
-		SAFE_FREE(cipher->key);
+		ZFREE(cipher->key);
 	}
 #endif
 	if(cipher->cleanup != NULL) {
@@ -122,7 +122,7 @@ void ssh_cipher_clear(struct ssh_cipher_struct * cipher)
 static void cipher_free(struct ssh_cipher_struct * cipher) 
 {
 	ssh_cipher_clear(cipher);
-	SAFE_FREE(cipher);
+	ZFREE(cipher);
 }
 
 struct ssh_crypto_struct * crypto_new() 
@@ -145,8 +145,8 @@ void crypto_free(struct ssh_crypto_struct * crypto)
 	ssh_dh_cleanup(crypto);
 	bignum_safe_free(crypto->shared_secret);
 #ifdef HAVE_ECDH
-	SAFE_FREE(crypto->ecdh_client_pubkey);
-	SAFE_FREE(crypto->ecdh_server_pubkey);
+	ZFREE(crypto->ecdh_client_pubkey);
+	ZFREE(crypto->ecdh_server_pubkey);
 	if(crypto->ecdh_privkey != NULL) {
 #ifdef HAVE_OPENSSL_ECC
 		EC_KEY_free(crypto->ecdh_privkey);
@@ -158,47 +158,47 @@ void crypto_free(struct ssh_crypto_struct * crypto)
 #endif
 	if(crypto->session_id != NULL) {
 		memzero(crypto->session_id, crypto->digest_len);
-		SAFE_FREE(crypto->session_id);
+		ZFREE(crypto->session_id);
 	}
 	if(crypto->secret_hash != NULL) {
 		memzero(crypto->secret_hash, crypto->digest_len);
-		SAFE_FREE(crypto->secret_hash);
+		ZFREE(crypto->secret_hash);
 	}
 #ifdef WITH_ZLIB
 	if(crypto->compress_out_ctx && (deflateEnd((z_streamp)crypto->compress_out_ctx) != 0)) {
 		inflateEnd((z_streamp)crypto->compress_out_ctx);
 	}
-	SAFE_FREE(crypto->compress_out_ctx);
+	ZFREE(crypto->compress_out_ctx);
 	if(crypto->compress_in_ctx && (deflateEnd((z_streamp)crypto->compress_in_ctx) != 0)) {
 		inflateEnd((z_streamp)crypto->compress_in_ctx);
 	}
-	SAFE_FREE(crypto->compress_in_ctx);
+	ZFREE(crypto->compress_in_ctx);
 #endif /* WITH_ZLIB */
-	SAFE_FREE(crypto->encryptIV);
-	SAFE_FREE(crypto->decryptIV);
-	SAFE_FREE(crypto->encryptMAC);
-	SAFE_FREE(crypto->decryptMAC);
+	ZFREE(crypto->encryptIV);
+	ZFREE(crypto->decryptIV);
+	ZFREE(crypto->encryptMAC);
+	ZFREE(crypto->decryptMAC);
 	if(crypto->encryptkey != NULL) {
 		memzero(crypto->encryptkey, crypto->out_cipher->keysize / 8);
-		SAFE_FREE(crypto->encryptkey);
+		ZFREE(crypto->encryptkey);
 	}
 	if(crypto->decryptkey != NULL) {
 		memzero(crypto->decryptkey, crypto->in_cipher->keysize / 8);
-		SAFE_FREE(crypto->decryptkey);
+		ZFREE(crypto->decryptkey);
 	}
 
 	cipher_free(crypto->in_cipher);
 	cipher_free(crypto->out_cipher);
 
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
-		SAFE_FREE(crypto->client_kex.methods[i]);
-		SAFE_FREE(crypto->server_kex.methods[i]);
-		SAFE_FREE(crypto->kex_methods[i]);
+		ZFREE(crypto->client_kex.methods[i]);
+		ZFREE(crypto->server_kex.methods[i]);
+		ZFREE(crypto->kex_methods[i]);
 	}
 
 	memzero(crypto, sizeof(struct ssh_crypto_struct));
 
-	SAFE_FREE(crypto);
+	ZFREE(crypto);
 }
 
 static int crypt_set_algorithms2(ssh_session session)

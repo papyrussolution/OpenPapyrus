@@ -37,7 +37,7 @@ static z_stream * initcompress(ssh_session session, int level)
 	}
 	status = deflateInit(stream, level);
 	if(status != Z_OK) {
-		SAFE_FREE(stream);
+		ZFREE(stream);
 		ssh_set_error(session, SSH_FATAL, "status %d inititalising zlib deflate", status);
 		return NULL;
 	}
@@ -119,7 +119,7 @@ static z_stream * initdecompress(ssh_session session)
 	}
 	status = inflateInit(stream);
 	if(status != Z_OK) {
-		SAFE_FREE(stream);
+		ZFREE(stream);
 		ssh_set_error(session, SSH_FATAL, "Status = %d initiating inflate context!", status);
 		return NULL;
 	}

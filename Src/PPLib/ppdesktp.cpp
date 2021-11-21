@@ -766,7 +766,7 @@ int PPDesktop::DrawText(TCanvas & rC, SPoint2S coord, COLORREF color, const char
 		text_h = (IconSize - 2) / tm.tmHeight;
 		SplitBuf(rC, text, IconSize * 2 - 4, text_h);
 		StringSet ss('\n', text);
-		for(uint i = 0; ss.get(&i, text) > 0; text_rect.top += tm.tmHeight, text_rect.bottom += tm.tmHeight)
+		for(uint i = 0; ss.get(&i, text); text_rect.top += tm.tmHeight, text_rect.bottom += tm.tmHeight)
 			::DrawText(rC, SUcSwitch(text), text.Len(), &text_rect, DT_CENTER); // @unicodeproblem
 		rC.PopObject();
 	}
@@ -1066,11 +1066,11 @@ struct DesktopLayoutHelperEntry {
 	void * Ptr;
 };
 
-//typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, /*float size[4]*/const LayoutFlexItem::Result & rR);
+//typedef void (__stdcall * FlexSetupProc)(SUiLayout * pItem, /*float size[4]*/const SUiLayout::Result & rR);
 
-static void __stdcall Desktop_LayoutEntrySetupProc(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR)
+static void __stdcall Desktop_LayoutEntrySetupProc(SUiLayout * pItem, const SUiLayout::Result & rR)
 {
-	DesktopLayoutHelperEntry * p_entry = static_cast<DesktopLayoutHelperEntry *>(LayoutFlexItem::GetManagedPtr(pItem));
+	DesktopLayoutHelperEntry * p_entry = static_cast<DesktopLayoutHelperEntry *>(SUiLayout::GetManagedPtr(pItem));
 	if(p_entry) {
 		switch(p_entry->SvcView) {
 			case 0:
@@ -1078,7 +1078,7 @@ static void __stdcall Desktop_LayoutEntrySetupProc(LayoutFlexItem * pItem, const
 			case PPDesktop::svcviewCommand:
 				if(p_entry->Ptr) {
 					FRect fr = rR;
-					const LayoutFlexItem * p_parent = pItem->GetParent();
+					const SUiLayout * p_parent = pItem->GetParent();
 					if(p_parent) {
 						const FRect parent_frame = p_parent->GetFrame();
 						fr.Move__(parent_frame.a.x, parent_frame.a.y);
@@ -1090,9 +1090,9 @@ static void __stdcall Desktop_LayoutEntrySetupProc(LayoutFlexItem * pItem, const
 				break;
 			case PPDesktop::svcviewBizScore:
 				if(p_entry->Ptr) {
-					//LayoutFlexItem * p_root = pItem->GetRoot();
-					/*if(LayoutFlexItem::GetManagedPtr(p_root))*/ {
-						//const FRect desktop_rect = static_cast<DesktopLayoutHelperEntry *>(LayoutFlexItem::GetManagedPtr(p_root))->InitSize;
+					//SUiLayout * p_root = pItem->GetRoot();
+					/*if(SUiLayout::GetManagedPtr(p_root))*/ {
+						//const FRect desktop_rect = static_cast<DesktopLayoutHelperEntry *>(SUiLayout::GetManagedPtr(p_root))->InitSize;
 						PPBizScoreWindow * p_bs_win = static_cast<PPBizScoreWindow *>(p_entry->Ptr);
 						p_bs_win->MoveOnLayout(rR);
 					}
@@ -1106,9 +1106,9 @@ void PPDesktop::Layout()
 {
 	const TRect cli_rect = getClientRect();
 	TSCollection <DesktopLayoutHelperEntry> layout_helper_entry_list;
-	LayoutFlexItem layout;
+	SUiLayout layout;
 	{
-		AbstractLayoutBlock alb;
+		SUiLayoutParam alb;
 		alb.SetContainerDirection(DIREC_UNKN);
 		alb.SetFixedSize(cli_rect);
 		layout.SetLayoutBlock(alb);
@@ -1123,12 +1123,12 @@ void PPDesktop::Layout()
 	{
 		TWindow * p_bizsc_win = GetServiceView(svcviewBizScore);
 		if(p_bizsc_win) {
-			AbstractLayoutBlock alb;
-			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 0.3f);
-			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 0.3f);
+			SUiLayoutParam alb;
+			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 0.3f);
+			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 0.3f);
 			alb.GravityX = SIDE_RIGHT;
 			alb.GravityY = SIDE_BOTTOM;
-			LayoutFlexItem * p_lo_item = layout.InsertItem();
+			SUiLayout * p_lo_item = layout.InsertItem();
 			p_lo_item->SetLayoutBlock(alb);
 			{
 				DesktopLayoutHelperEntry * p_helper_entry = layout_helper_entry_list.CreateNewItem();
@@ -1139,17 +1139,14 @@ void PPDesktop::Layout()
 		}
 	}
 	{
-		LayoutFlexItem * p_lo_center_frame = layout.InsertItem();
+		SUiLayout * p_lo_center_frame = layout.InsertItem();
 		{
-			AbstractLayoutBlock alb;
+			SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 			alb.GravityX = SIDE_CENTER;
 			alb.GravityY = SIDE_CENTER;
-			alb.SetContainerDirection(DIREC_HORZ);
-			alb.Flags |= AbstractLayoutBlock::fContainerWrap;
-			alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-			alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
-			alb.JustifyContent = alb.alignStart;
-			alb.AlignContent = alb.alignStart;
+			alb.Flags |= SUiLayoutParam::fContainerWrap;
+			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 			p_lo_center_frame->SetLayoutBlock(alb);
 		}
 		{
@@ -1157,8 +1154,8 @@ void PPDesktop::Layout()
 			for(uint i = 0; p_item = P_ActiveDesktop->Next(&i);) {
 				const PPCommand * p_cmd = (p_item->Kind == PPCommandItem::kCommand) ? static_cast<const PPCommand *>(p_item) : 0;
 				if(p_cmd) {
-					LayoutFlexItem * p_lo_item = p_lo_center_frame->InsertItem();
-					AbstractLayoutBlock alb;
+					SUiLayout * p_lo_item = p_lo_center_frame->InsertItem();
+					SUiLayoutParam alb;
 					alb.SetFixedSizeX(static_cast<float>(IconSize * 2));
 					alb.SetFixedSizeY(static_cast<float>(IconSize * 2));
 					alb.Margin.Set(static_cast<float>(IconGap));

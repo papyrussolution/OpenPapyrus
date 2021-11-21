@@ -61,13 +61,13 @@ char * ssh_gcry_bn2dec(bignum bn) {
 	else {
 		ten = bignum_new();
 		if(ten == NULL) {
-			SAFE_FREE(ret);
+			ZFREE(ret);
 			return NULL;
 		}
 
 		num = bignum_new();
 		if(num == NULL) {
-			SAFE_FREE(ret);
+			ZFREE(ret);
 			bignum_safe_free(ten);
 			return NULL;
 		}

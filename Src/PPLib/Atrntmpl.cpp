@@ -11,7 +11,7 @@ PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RB
 	PTR32(BillCode)[0] = 0;
 }
 
-int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
+int FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 {
 	int    eq = 1;
 	if(DbtID != rS.DbtID)

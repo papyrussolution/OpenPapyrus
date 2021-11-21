@@ -576,7 +576,7 @@ void BillFiltDialog::SetupLocationCombo()
 
 int BillFiltDialog::setDTS(const BillFilt * pFilt)
 {
-	if(!Data.IsEqual(pFilt, 0)) {
+	if(!Data.IsEq(pFilt, 0)) {
 		const  PPID cur_user_id = LConfig.UserID;
 		ushort v;
 		PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
@@ -5544,8 +5544,7 @@ int PPViewBill::PrintTotal(const BillTotal * pTotal)
 	BillTotalPrintData btpd;
 	btpd.P_Total = pTotal;
 	btpd.P_Filt = &Filt;
-	PView  pv(&btpd);
-	return PPAlddPrint(REPORT_BILLTOTAL, &pv, 0);
+	return PPAlddPrint(REPORT_BILLTOTAL, PView(&btpd), 0);
 }
 
 // AHTOXA {
@@ -5569,7 +5568,7 @@ int PPViewBill::PrintBillInfoList()
 {
 	BillInfoListPrintData bilpd(this, 0);
 	PView  pv(&bilpd);
-	int    ok = PPAlddPrint(REPORT_BILLINFOLIST, &pv, 0);
+	int    ok = PPAlddPrint(REPORT_BILLINFOLIST, pv, 0);
 	ZDELETE(static_cast<BillInfoListPrintData *>(pv.Ptr)->P_Pack);
 	return ok;
 }
@@ -5577,7 +5576,9 @@ int PPViewBill::PrintBillInfoList()
 
 int PPViewBill::Print()
 {
-	int    ok = 1, reply, ext = 0;
+	int    ok = 1;
+	int    reply;
+	int    ext = 0;
 	uint   form;
 	IterOrder order = OrdByDefault;
 	if(Filt.SortOrder == BillFilt::ordByDate)
@@ -5590,10 +5591,9 @@ int PPViewBill::Print()
 		order = OrdByObjectName;
 	THROW(reply = SelectBillListForm(&form, &ext, &order));
 	if(reply > 0) {
-		PView pv(this);
 		PPReportEnv env;
 		env.Sort = order;
-		PPAlddPrint(form, &pv, &env);
+		PPAlddPrint(form, PView(this), &env);
 	}
 	CATCHZOKPPERR
 	return ok;

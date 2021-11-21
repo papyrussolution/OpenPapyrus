@@ -186,24 +186,18 @@ int ssh_is_ipaddr_v4(const char * str)
 	return 0;
 }
 
-int ssh_is_ipaddr(const char * str) {
+int ssh_is_ipaddr(const char * str) 
+{
 	int rc = SOCKET_ERROR;
-
 	if(strchr(str, ':')) {
 		struct sockaddr_storage ss;
 		int sslen = sizeof(ss);
-
 		/* TODO link-local (IP:v6:addr%ifname). */
-		rc = WSAStringToAddressA((LPSTR)str,
-			AF_INET6,
-			NULL,
-			(struct sockaddr*)&ss,
-			&sslen);
+		rc = WSAStringToAddressA((LPSTR)str, AF_INET6, NULL, (struct sockaddr*)&ss, &sslen);
 		if(rc == 0) {
 			return 1;
 		}
 	}
-
 	return ssh_is_ipaddr_v4(str);
 }
 
@@ -636,10 +630,10 @@ void FASTCALL ssh_list_free(struct ssh_list * list)
 		struct ssh_iterator * ptr = list->root;
 		while(ptr) {
 			struct ssh_iterator * next = ptr->next;
-			SAFE_FREE(ptr);
+			ZFREE(ptr);
 			ptr = next;
 		}
-		SAFE_FREE(list);
+		ZFREE(list);
 	}
 }
 
@@ -751,7 +745,7 @@ void ssh_list_remove(struct ssh_list * list, struct ssh_iterator * iterator)
 	/* if iterator was the tail */
 	if(list->end == iterator)
 		list->end = prev;
-	SAFE_FREE(iterator);
+	ZFREE(iterator);
 }
 
 /**
@@ -781,7 +775,7 @@ const void * _ssh_list_pop_head(struct ssh_list * list){
 	list->root = iterator->next;
 	if(list->end==iterator)
 		list->end = NULL;
-	SAFE_FREE(iterator);
+	ZFREE(iterator);
 	return data;
 }
 
@@ -953,11 +947,11 @@ int ssh_mkdirs(const char * pathname, mode_t mode)
 			rc = ssh_mkdirs(parent, mode);
 			if(rc < 0) {
 				/* We could not create the parent */
-				SAFE_FREE(parent);
+				ZFREE(parent);
 				return -1;
 			}
 
-			SAFE_FREE(parent);
+			ZFREE(parent);
 
 			/* Try again */
 			errno = 0;
@@ -1024,13 +1018,13 @@ char * ssh_path_expand_tilde(const char * d) {
 	lh = strlen(h);
 	r = (char *)SAlloc::M(ld + lh + 1);
 	if(r == NULL) {
-		SAFE_FREE(h);
+		ZFREE(h);
 		return NULL;
 	}
 	if(lh > 0) {
 		memcpy(r, h, lh);
 	}
-	SAFE_FREE(h);
+	ZFREE(h);
 	memcpy(r + lh, p, ld + 1);
 	return r;
 }
@@ -1141,7 +1135,7 @@ escape:
 		l = strlen(buf);
 		strncpy(buf + l, x, sizeof(buf) - l - 1);
 		buf[i] = '\0';
-		SAFE_FREE(x);
+		ZFREE(x);
 	}
 
 	SAlloc::F(r);
@@ -1387,7 +1381,6 @@ int ssh_match_group(const char * group, const char * object)
 		}
 		z = a + 1;
 	} while(1);
-
 	/* not reached */
 	return 0;
 }

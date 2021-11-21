@@ -81,7 +81,7 @@ StringSet::~StringSet()
 		SAlloc::F(P_Buf);
 }
 
-bool FASTCALL StringSet::IsEqual(const StringSet & rS) const
+bool FASTCALL StringSet::IsEq(const StringSet & rS) const
 {
 	bool   eq = true;   
 	if(sstreq(Delim, rS.Delim)) {
@@ -317,18 +317,18 @@ int StringSet::reverse()
 	uint prev_pos = 0;
 	uint pos = 0;
 	while((prev_pos = pos), get(&pos, temp_buf)) {
-		pos_list.add(static_cast<long>(prev_pos));
+		THROW(pos_list.add(static_cast<long>(prev_pos)));
 	}
 	const uint plc = pos_list.getCount();
 	if(plc > 1) {
 		pos_list.reverse(0, plc);
 		for(uint i = 0; i < plc; i++) {
-			pos = static_cast<uint>(pos_list.get(i));
-			get(pos, temp_buf);
-			temp_ss.add(temp_buf);
+			get(static_cast<uint>(pos_list.get(i)), temp_buf);
+			THROW(temp_ss.add(temp_buf));
 		}
 		*this = temp_ss;
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -403,35 +403,35 @@ int StringSet::add(const char * pStr, uint * pPos)
 	return ok;
 }
 
-int StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
+bool StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.9.8 SLS.AcquireRvlStr()
-	for(uint prev_pos = pos; get(&pos, r_temp_buf) > 0; prev_pos = pos) {
+	for(uint prev_pos = pos; get(&pos, r_temp_buf); prev_pos = pos) {
 		if(r_temp_buf.Cmp(pPattern, ignoreCase) == 0) {
 			ASSIGN_PTR(pPos, prev_pos);
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
-int StringSet::searchNcAscii(const char * pPattern, uint * pPos) const
+bool StringSet::searchNcAscii(const char * pPattern, uint * pPos) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
 	SString temp_buf;
-	for(uint prev_pos = pos; get(&pos, temp_buf) > 0; prev_pos = pos) {
+	for(uint prev_pos = pos; get(&pos, temp_buf); prev_pos = pos) {
 		if(temp_buf.IsEqiAscii(pPattern)) {
 			ASSIGN_PTR(pPos, prev_pos);
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
-int StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
+bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	uint   p = DEREFPTRORZ(pPos);
 	uint   next_pos = p+1;
 	const  uint fix_delim_len = Delim[0] ? sstrlen(Delim) : 1;
@@ -458,17 +458,17 @@ int StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * 
 				temp_buf.CopyFromN(P_Buf+p, len);
 				if(fcmp) {
 					if(fcmp(temp_buf.cptr(), pPattern, 0) == 0)
-						ok = 1;
+						ok = true;
 				}
 				else if(temp_buf.Cmp(pPattern, 0) == 0)
-					ok = 1;
+					ok = true;
 			}
 			else if(fcmp) {
 				if(fcmp(c, pPattern, 0) == 0)
-					ok = 1;
+					ok = true;
 			}
 			else if(sstreq(c, pPattern))
-				ok = 1;
+				ok = true;
 			if(ok)
 				next_pos = (p + len + delim_len);
 			else
@@ -498,14 +498,17 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 	return len;
 }
 
-int StringSet::get(uint * pos, char * str, size_t maxlen) const
+bool StringSet::get(uint * pos, char * str, size_t maxlen) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	const  char * c = 0;
-	uint   p = *pos, len = 0, delim_len = 0;
+	uint   p = *pos;
+	uint   len = 0;
+	uint   delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {
-			if((c = strstr(P_Buf + p, Delim)) != 0) {
+			c = strstr(P_Buf + p, Delim);
+			if(c) {
 				delim_len = sstrlen(Delim);
 				len = static_cast<uint>(c - (P_Buf + p));
 			}
@@ -522,12 +525,12 @@ int StringSet::get(uint * pos, char * str, size_t maxlen) const
 				len = sstrlen(c);
 			else {
 				c = 0;
-				ok = 0;
+				ok = false;
 			}
 		}
 	}
 	else
-		ok = 0;
+		ok = false;
 	p += (len + delim_len);
 	if(str) {
 		if(maxlen)
@@ -543,16 +546,17 @@ int StringSet::get(uint * pos, char * str, size_t maxlen) const
 	return ok;
 }
 
-int StringSet::get(uint * pPos, SString & s) const
+bool StringSet::get(uint * pPos, SString & s) const
 {
-	int    ok = 1;
+	int    ok = true;
 	const  char * c = 0;
 	uint   p = *pPos;
 	uint   len = 0;
 	uint   delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {
-			if((c = strstr(P_Buf + p, Delim)) != 0) {
+			c = strstr(P_Buf + p, Delim);
+			if(c) {
 				delim_len = sstrlen(Delim);
 				len = static_cast<uint>(c - (P_Buf + p));
 			}
@@ -569,29 +573,29 @@ int StringSet::get(uint * pPos, SString & s) const
 				len = sstrlen(c);
 			else {
 				c = 0;
-				ok = 0;
+				ok = false;
 			}
 		}
 	}
 	else
-		ok = 0;
+		ok = false;
 	s.CopyFromN(c, len);
 	*pPos = p + len + delim_len;
 	return ok;
 }
 
-int StringSet::get(uint pos, SString & s) const
+bool StringSet::get(uint pos, SString & s) const
 {
 	return get(&pos, s);
 }
 
-int StringSet::getnz(uint pos, SString & rBuf) const
+bool StringSet::getnz(uint pos, SString & rBuf) const
 {
 	if(pos)
 		return get(&pos, rBuf);
 	else {
 		rBuf.Z();
-		return 1;
+		return false; // @v11.2.4 @fix true-->false (я не уверен в последствиях, но по логике, здесь должно быть false)
 	}
 }
 
@@ -620,7 +624,7 @@ SStrGroup::SStrGroup(const SStrGroup & rS) : Pool(rS.Pool) // @v10.3.4
 size_t SStrGroup::GetPoolDataLen() const { return Pool.getDataLen(); }
 size_t SStrGroup::GetPoolSize() const { return Pool.getSize(); }
 SStrGroup & FASTCALL SStrGroup::operator = (const SStrGroup & rS) { return CopyS(rS); }
-int    SStrGroup::GetS(uint pos, SString & rStr) const { return Pool.getnz(pos, rStr); }
+bool   SStrGroup::GetS(uint pos, SString & rStr) const { return Pool.getnz(pos, rStr); }
 int    FASTCALL SStrGroup::WriteS(SBuffer & rBuf) const { return Pool.Write(rBuf); }
 int    FASTCALL SStrGroup::ReadS(SBuffer & rBuf) { return Pool.Read(rBuf); }
 int    SStrGroup::SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx) { return Pool.Serialize(dir, rBuf, pCtx); }

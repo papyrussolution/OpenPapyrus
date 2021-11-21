@@ -1944,7 +1944,6 @@ int mthd_my_read_query_result(MYSQL * mysql)
 	MYSQL_DATA * fields;
 	ulong length;
 	bool can_local_infile = (mysql->options.extension) && (mysql->extension->auto_local_infile != WAIT_FOR_QUERY);
-
 	if(mysql->options.extension && mysql->extension->auto_local_infile == ACCEPT_FILE_REQUEST)
 		mysql->extension->auto_local_infile = WAIT_FOR_QUERY;
 
@@ -3459,12 +3458,10 @@ MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_nr(unsigned int csnr)
 	return (MARIADB_CHARSET_INFO*)mysql_find_charset_nr(csnr);
 }
 
-bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
+/*bool*/int mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 {
 	va_list ap;
-
 	va_start(ap, arg);
-
 	switch(value) {
 		case MARIADB_MAX_ALLOWED_PACKET:
 		    *((size_t*)arg) = (size_t)max_allowed_packet;
@@ -3573,8 +3570,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		case MARIADB_CHARSET_NAME:
 	    {
-		    char * name;
-		    name = va_arg(ap, char *);
+		    char * name = va_arg(ap, char *);
 		    if(name)
 			    *((MARIADB_CHARSET_INFO**)arg) = (MARIADB_CHARSET_INFO*)mysql_find_charset_name(name);
 		    else
@@ -3583,8 +3579,7 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 	    break;
 		case MARIADB_CHARSET_ID:
 	    {
-		    unsigned int nr;
-		    nr = va_arg(ap, unsigned int);
+		    unsigned int nr = va_arg(ap, unsigned int);
 		    *((MARIADB_CHARSET_INFO**)arg) = (MARIADB_CHARSET_INFO*)mysql_find_charset_nr(nr);
 	    }
 	    break;
@@ -3680,7 +3675,6 @@ bool STDCALL mariadb_get_info(MYSQL * mysql, enum mariadb_value value, void * ar
 {
 	return mariadb_get_infov(mysql, value, arg);
 }
-
 /*
    Immediately aborts connection, making all subsequent read/write operations fail.
    Does not invalidate memory used for mysql structure, nor closes any communication
@@ -3734,21 +3728,16 @@ MYSQL_PARAMETERS * STDCALL mysql_get_parameters(void)
 int STDCALL mysql_reset_connection(MYSQL * mysql)
 {
 	int rc;
-
 	/* check if connection handler is active */
 	if(IS_CONNHDLR_ACTIVE(mysql)) {
 		if(mysql->extension->conn_hdlr->plugin && mysql->extension->conn_hdlr->plugin->reset)
 			return(mysql->extension->conn_hdlr->plugin->reset(mysql));
 	}
-
 	/* skip result sets */
-	if(mysql->status == MYSQL_STATUS_USE_RESULT ||
-	    mysql->status == MYSQL_STATUS_GET_RESULT ||
-	    mysql->status & SERVER_MORE_RESULTS_EXIST) {
+	if(mysql->status == MYSQL_STATUS_USE_RESULT || mysql->status == MYSQL_STATUS_GET_RESULT || mysql->status & SERVER_MORE_RESULTS_EXIST) {
 		mthd_my_skip_result(mysql);
 		mysql->status = MYSQL_STATUS_READY;
 	}
-
 	rc = ma_simple_command(mysql, COM_RESET_CONNECTION, 0, 0, 0, 0);
 	if(rc && mysql->options.reconnect) {
 		/* There is no big sense in resetting but we need reconnect */

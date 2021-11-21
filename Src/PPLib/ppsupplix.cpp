@@ -2163,7 +2163,7 @@ int PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
 			SString loc_symb;
 			StringSet ss(",");
 			ss.setBuf(loc_symb_list, loc_symb_list.Len() + 1);
-			for(uint p = 0; ss.get(&p, loc_symb) > 0;) {
+			for(uint p = 0; ss.get(&p, loc_symb);) {
 				PPID loc_id = 0;
 				LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, loc_symb, &loc_id);
 				if(pList && loc_id)
@@ -2492,12 +2492,12 @@ int PPSupplExchange_Baltika::Import(const char * pPath)
 		}
 		THROW_PP(buf.Len() > 0, PPERR_UNEXPEOF);
 		ss.setBuf(buf, buf.Len() + 1);
-		for(uint i = 0, j = 0; ss.get(&i, buf) > 0; j++) {
+		for(uint i = 0, j = 0; ss.get(&i, buf); j++) {
 			if(j != 0) {
 				ResolveGoodsItem gitem;
 				StringSet ss2("<f>");
 				ss2.setBuf(buf, buf.Len() + 1);
-				for(uint k = 0, m = 0; ss2.get(&k, buf) > 0; m++) {
+				for(uint k = 0, m = 0; ss2.get(&k, buf); m++) {
 					uint p = 0;
 					StringSet ss3("</f>");
 					ss3.setBuf(buf, buf.Len() + 1);
@@ -4430,7 +4430,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 							long   vv = 0;
 							PPObjID oid;
 							ov_buf.Z();
-							if(p_ovc->Search(r_ev.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(r_ev.ObjType, r_ev.ObjID)) {
+							if(p_ovc->Search(r_ev.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEq(r_ev.ObjType, r_ev.ObjID)) {
 								if(P_BObj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
 									pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited);
 									if(pack.BTagL.GetItemStr(bill_ack_tag_id, org_isales_code) > 0 && !test_uuid.FromStr(org_isales_code)) {

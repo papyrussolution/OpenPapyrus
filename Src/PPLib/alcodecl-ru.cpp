@@ -22,7 +22,7 @@ int AlcoDeclRuFilt::IsEqualExcept(const AlcoDeclRuFilt & rS, long flags) const
 		return 0;
 	if(NEQ_FLD(AlcoCodeList))
 		return 0;
-	if(!DivList.IsEqual(rS.DivList))
+	if(!DivList.IsEq(rS.DivList))
 		return 0;
 	#undef NEQ_FLD
 	if(flags & eqxShowMode) {

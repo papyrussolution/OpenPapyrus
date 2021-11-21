@@ -42,9 +42,9 @@ void ssh_tokens_free(struct ssh_tokens_st * tokens)
 			memzero(tokens->tokens[i], strlen(tokens->tokens[i]));
 		}
 	}
-	SAFE_FREE(tokens->buffer);
-	SAFE_FREE(tokens->tokens);
-	SAFE_FREE(tokens);
+	ZFREE(tokens->buffer);
+	ZFREE(tokens->tokens);
+	ZFREE(tokens);
 }
 
 /**
@@ -205,13 +205,13 @@ char * ssh_find_all_matching(const char * available_list, const char * preferred
 
 	a_tok = ssh_tokenize(available_list, ',');
 	if(a_tok == NULL) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 		goto out;
 	}
 
 	p_tok = ssh_tokenize(preferred_list, ',');
 	if(p_tok == NULL) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 		goto out;
 	}
 
@@ -233,7 +233,7 @@ char * ssh_find_all_matching(const char * available_list, const char * preferred
 	}
 
 	if(ret[0] == '\0') {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 	}
 
 out:
@@ -324,10 +324,10 @@ char * ssh_remove_duplicates(const char * list)
 	}
 	// If no comma is needed, nothing was copied 
 	if(!need_comma) {
-		SAFE_FREE(ret);
+		ZFREE(ret);
 	}
 out:
-	SAFE_FREE(should_copy);
+	ZFREE(should_copy);
 	ssh_tokens_free(tok);
 	return ret;
 }
@@ -377,6 +377,6 @@ char * ssh_append_without_duplicates(const char * list,
 		strncat(concat, appended_list, concat_len - strlen(concat) - 1);
 	}
 	ret = ssh_remove_duplicates(concat);
-	SAFE_FREE(concat);
+	ZFREE(concat);
 	return ret;
 }

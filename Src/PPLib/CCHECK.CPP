@@ -23,7 +23,7 @@ CcAmountEntry::CcAmountEntry()
 	THISZERO();
 }
 
-int FASTCALL CcAmountEntry::IsEqual(const CcAmountEntry & rS) const
+int FASTCALL CcAmountEntry::IsEq(const CcAmountEntry & rS) const
 {
 	return BIN(CheckID == rS.CheckID && Type == rS.Type && AddedID == rS.AddedID && Amount == rS.Amount &&
 		CurID == rS.CurID && CurAmount == rS.CurAmount);
@@ -736,7 +736,7 @@ int CCheckPacket::Copy(const CCheckPacket & rS)
 	return ok;
 }
 
-int CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
+int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 {
 	/*
 	struct Rec {

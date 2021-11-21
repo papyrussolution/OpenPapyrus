@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 // Налоговый анализ товарооборота
 //
@@ -860,10 +860,9 @@ int PPViewGoodsTaxAnalyze::Print(const void *)
 			Filt.GoodsGrpID = 0;
 		}
 		//
-		PView  pf(this);
 		PPReportEnv env;
 		env.Sort = order;
-		PPAlddPrint(rpt_id, &pf, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 		if(cur_grp_id)
 			Filt.GoodsGrpID = cur_grp_id;
 		return 1;
@@ -878,8 +877,7 @@ int PPViewGoodsTaxAnalyze::PrintTotal(const GoodsTaxAnalyzeTotal * pTotal)
 	gtatpd.P_Total   = pTotal;
 	gtatpd.P_Filt    = &Filt;
 	gtatpd.P_VATList = P_InOutVATList;
-	PView  pv(&gtatpd);
-	return PPAlddPrint(REPORT_GTAXANLZTOTAL, &pv, 0);
+	return PPAlddPrint(REPORT_GTAXANLZTOTAL, PView(&gtatpd), 0);
 }
 
 int PPViewGoodsTaxAnalyze::Detail(const void * pHdr, PPViewBrowser *)

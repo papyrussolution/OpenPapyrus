@@ -1,17 +1,10 @@
+// locid.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * File locid.cpp
- *
+ *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Created by: Richard Gillam
- *
  * Modification History:
- *
  *   Date        Name        Description
  *   02/11/97    aliu        Changed gLocPath to fgDataDirectory and added
  *        methods to get and set it.
@@ -28,9 +21,7 @@
  *   11/09/99    weiv        Added const char * getName() const;
  *   04/12/00    srl         removing unicodestring api's and cached hash code
  *   08/10/01    grhoten     Change the static Locales to accessor functions
- ******************************************************************************
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 #include "bytesinkutil.h"
@@ -100,11 +91,8 @@ static void U_CALLCONV deleteLocale(void * obj) {
 static bool U_CALLCONV locale_cleanup(void)
 {
 	U_NAMESPACE_USE
-
-	delete [] gLocaleCache;
-	gLocaleCache = NULL;
+	ZDELETEARRAY(gLocaleCache);
 	gLocaleCacheInitOnce.reset();
-
 	if(gDefaultLocalesHashT) {
 		uhash_close(gDefaultLocalesHashT); // Automatically deletes all elements, using deleter func.
 		gDefaultLocalesHashT = NULL;
@@ -113,9 +101,9 @@ static bool U_CALLCONV locale_cleanup(void)
 	return TRUE;
 }
 
-static void U_CALLCONV locale_init(UErrorCode & status) {
+static void U_CALLCONV locale_init(UErrorCode & status) 
+{
 	U_NAMESPACE_USE
-
 	    U_ASSERT(gLocaleCache == NULL);
 	gLocaleCache = new Locale[(int)eMAX_LOCALES];
 	if(gLocaleCache == NULL) {
@@ -148,12 +136,11 @@ U_CDECL_END
 
 U_NAMESPACE_BEGIN
 
-Locale * locale_set_default_internal(const char * id, UErrorCode & status) {
+Locale * locale_set_default_internal(const char * id, UErrorCode & status) 
+{
 	// Synchronize this entire function.
 	Mutex lock(&gDefaultLocaleMutex);
-
 	bool canonicalize = FALSE;
-
 	// If given a NULL string for the locale id, grab the default
 	//   name from the system.
 	//   (Different from most other locale APIs, where a null name means use
@@ -162,7 +149,6 @@ Locale * locale_set_default_internal(const char * id, UErrorCode & status) {
 		id = uprv_getDefaultLocaleID(); // This function not thread safe? TODO: verify.
 		canonicalize = TRUE; // always canonicalize host ID
 	}
-
 	CharString localeNameBuf;
 	{
 		CharStringByteSink sink(&localeNameBuf);
@@ -173,11 +159,9 @@ Locale * locale_set_default_internal(const char * id, UErrorCode & status) {
 			ulocimp_getName(id, sink, &status);
 		}
 	}
-
 	if(U_FAILURE(status)) {
 		return gDefaultLocale;
 	}
-
 	if(gDefaultLocalesHashT == NULL) {
 		gDefaultLocalesHashT = uhash_open(uhash_hashChars, uhash_compareChars, NULL, &status);
 		if(U_FAILURE(status)) {
@@ -186,7 +170,6 @@ Locale * locale_set_default_internal(const char * id, UErrorCode & status) {
 		uhash_setValueDeleter(gDefaultLocalesHashT, deleteLocale);
 		ucln_common_registerCleanup(UCLN_COMMON_LOCALE, locale_cleanup);
 	}
-
 	Locale * newDefault = (Locale*)uhash_get(gDefaultLocalesHashT, localeNameBuf.data());
 	if(newDefault == NULL) {
 		newDefault = new Locale(Locale::eBOGUS);
@@ -243,8 +226,7 @@ Locale::~Locale()
 	}
 }
 
-Locale::Locale()
-	: UObject(), fullName(fullNameBuffer), baseName(NULL)
+Locale::Locale() : UObject(), fullName(fullNameBuffer), baseName(NULL)
 {
 	init(NULL, FALSE);
 }
@@ -254,17 +236,13 @@ Locale::Locale()
  *   NO side effects.   (Default constructor tries to get
  *   the default locale.)
  */
-Locale::Locale(Locale::ELocaleType)
-	: UObject(), fullName(fullNameBuffer), baseName(NULL)
+Locale::Locale(Locale::ELocaleType) : UObject(), fullName(fullNameBuffer), baseName(NULL)
 {
 	setToBogus();
 }
 
-Locale::Locale(const char * newLanguage,
-    const char * newCountry,
-    const char * newVariant,
-    const char * newKeywords)
-	: UObject(), fullName(fullNameBuffer), baseName(NULL)
+Locale::Locale(const char * newLanguage, const char * newCountry, const char * newVariant, const char * newKeywords) : 
+	UObject(), fullName(fullNameBuffer), baseName(NULL)
 {
 	if((newLanguage==NULL) && (newCountry == NULL) && (newVariant == NULL) ) {
 		init(NULL, FALSE); /* shortcut */
@@ -275,9 +253,7 @@ Locale::Locale(const char * newLanguage,
 		int32_t csize = 0;
 		int32_t vsize = 0;
 		int32_t ksize = 0;
-
 		// Check the sizes of the input strings.
-
 		// Language
 		if(newLanguage != NULL) {
 			lsize = (int32_t)uprv_strlen(newLanguage);
@@ -286,9 +262,7 @@ Locale::Locale(const char * newLanguage,
 				return;
 			}
 		}
-
 		CharString togo(newLanguage, lsize, status); // start with newLanguage
-
 		// _Country
 		if(newCountry != NULL) {
 			csize = (int32_t)uprv_strlen(newCountry);
@@ -297,14 +271,12 @@ Locale::Locale(const char * newLanguage,
 				return;
 			}
 		}
-
 		// _Variant
 		if(newVariant != NULL) {
 			// remove leading _'s
 			while(newVariant[0] == SEP_CHAR) {
 				newVariant++;
 			}
-
 			// remove trailing _'s
 			vsize = (int32_t)uprv_strlen(newVariant);
 			if(vsize < 0 || vsize > ULOC_STRING_LIMIT) { // int32 wrap

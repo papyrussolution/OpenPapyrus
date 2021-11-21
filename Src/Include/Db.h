@@ -121,7 +121,7 @@ class SdbField { // @transient
 public:
 	SdbField();
 	SdbField & Z();
-	int    FASTCALL IsEqual(const SdbField & rPat) const;
+	int    FASTCALL IsEq(const SdbField & rPat) const;
 	//
 	// Descr: транслирует строку rScan.P_Buf+Offs в базовый тип и, возможно, формат вывода
 	//   поля. Допускаются следующие варианты синтаксиса:
@@ -196,7 +196,7 @@ public:
 	SdRecord & FASTCALL operator = (const SdRecord &);
 	int    FASTCALL Copy(const SdRecord & rSrc);
 	void   Clear();
-	int    FASTCALL IsEqual(const SdRecord & rPat) const;
+	int    FASTCALL IsEq(const SdRecord & rPat) const;
 	void   FASTCALL SetDescription(const char *);
 	int    GetDescription(SString &) const;
 	//

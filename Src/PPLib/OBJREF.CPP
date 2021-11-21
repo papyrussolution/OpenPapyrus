@@ -1995,7 +1995,7 @@ PPGlobalUserAccPacket & PPGlobalUserAccPacket::Z()
 	return *this;
 }
 
-int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) const
+int FASTCALL PPGlobalUserAccPacket::IsEq(const PPGlobalUserAccPacket & rS) const
 {
 #define NRECFLD(f) Rec.f != rS.Rec.f
 	if(NRECFLD(Tag))
@@ -2018,7 +2018,7 @@ int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) co
 		return 0;
 	else if(stricmp(Rec.Password, rS.Rec.Password) != 0)
 		return 0;
-	else if(!TagL.IsEqual(rS.TagL))
+	else if(!TagL.IsEq(rS.TagL))
 		return 0;
 	else
 		return 1;
@@ -2130,7 +2130,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 			}
 			// } @v10.6.6 
 			if(_id) {
-				if(pPack->IsEqual(org_pack))
+				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
 					if(strcmp(pPack->Rec.Name, org_pack.Rec.Name) != 0)
@@ -2274,9 +2274,9 @@ private:
 					StringSet ss('&', temp_buf);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						temp_buf.Divide('=', left, right);
-						if(left.IsEqual("access_token"))
+						if(left.IsEq("access_token"))
 							Data.CliAccsKey.Z().Cat(right);
-						else if(left.IsEqual("user_id"))
+						else if(left.IsEq("user_id"))
 							Data.PageId.Z().Cat(right);
 					}
 				}
@@ -2926,7 +2926,7 @@ PPUhttStorePacket::~PPUhttStorePacket()
 	destroy();
 }
 
-int FASTCALL PPUhttStorePacket::IsEqual(const PPUhttStorePacket & rS) const
+int FASTCALL PPUhttStorePacket::IsEq(const PPUhttStorePacket & rS) const
 {
 #define NRECFLD(f) if(Rec.f != rS.Rec.f) return 0
 	NRECFLD(ID);
@@ -2939,9 +2939,9 @@ int FASTCALL PPUhttStorePacket::IsEqual(const PPUhttStorePacket & rS) const
 		return 0;
 	if(strcmp(Rec.Symb, rS.Rec.Symb) != 0)
 		return 0;
-	if(!TagL.IsEqual(rS.TagL))
+	if(!TagL.IsEq(rS.TagL))
 		return 0;
-	if(!Sd.IsEqual(rS.Sd))
+	if(!Sd.IsEq(rS.Sd))
 		return 0;
 	return 1;
 #undef NRECFLD
@@ -3360,7 +3360,7 @@ int PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int use_ta)
 			}
 			THROW(CheckRightsModByID(pID));
 			if(_id) {
-				if(pPack->IsEqual(org_pack))
+				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
 					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0, 0));
@@ -3545,7 +3545,7 @@ uint PPUhttStoreSelDescr::GetCount() const
 	return L.getCount();
 }
 
-int FASTCALL PPUhttStoreSelDescr::IsEqual(const PPUhttStoreSelDescr & rS) const
+int FASTCALL PPUhttStoreSelDescr::IsEq(const PPUhttStoreSelDescr & rS) const
 {
 	int    eq = 1;
 	const  uint c = L.getCount();
@@ -3754,7 +3754,7 @@ PPEdiProvider::PPEdiProvider()
 	THISZERO();
 }
 
-int FASTCALL PPEdiProvider::IsEqual(const PPEdiProvider & rS) const
+int FASTCALL PPEdiProvider::IsEq(const PPEdiProvider & rS) const
 {
 	int    eq = 1;
 	if(!sstreq(Name, rS.Name))
@@ -3820,10 +3820,10 @@ int PPEdiProviderPacket::MakeUrl(int reserved, InetUrl & rUrl)
 int PPEdiProviderPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int PPEdiProviderPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-int FASTCALL PPEdiProviderPacket::IsEqual(const PPEdiProviderPacket & rS) const
+int FASTCALL PPEdiProviderPacket::IsEq(const PPEdiProviderPacket & rS) const
 {
 	int    eq = 1;
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
 	else if(PPCmpExtStrData(extssDllModuleName, ExtString, rS.ExtString, 0) != 0)
 		eq = 0;
@@ -3873,7 +3873,7 @@ int PPObjEdiProvider::PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use
 			if(pPack) {
 				PPEdiProviderPacket org_pack;
 				THROW(GetPacket(*pID, &org_pack) > 0);
-				if(pPack->IsEqual(org_pack)) {
+				if(pPack->IsEq(org_pack)) {
 					ok = -1;
 				}
 				else {

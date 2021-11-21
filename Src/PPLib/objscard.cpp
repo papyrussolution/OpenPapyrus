@@ -222,7 +222,7 @@ PPSCardSeries2::PPSCardSeries2()
 	VerifTag = 2; // @v9.8.9
 }
 
-int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
+int FASTCALL PPSCardSeries2::IsEq(const PPSCardSeries2 & rS) const
 {
 	int    eq = 1;
 	if(BonusChrgGrpID != rS.BonusChrgGrpID)
@@ -396,7 +396,7 @@ int PPSCardSerRule::ValidateItem(int ruleType, const TrnovrRngDis & rItem, long 
 	return ok;
 }
 
-int FASTCALL PPSCardSerRule::IsEqual(const PPSCardSerRule & rS) const
+int FASTCALL PPSCardSerRule::IsEq(const PPSCardSerRule & rS) const
 {
 	int    eq = 1;
 	if(Ver != rS.Ver)
@@ -495,7 +495,7 @@ int PPSCardSerPacket::Ext::IsEmpty() const
 		(!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
 }
 
-int FASTCALL PPSCardSerPacket::Ext::IsEqual(const Ext & rS) const
+int FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const
 {
 	int    yes = 1;
 	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd || strcmp(CodeTempl, rS.CodeTempl) != 0)
@@ -552,20 +552,20 @@ int PPSCardSerPacket::Normalize()
 	return ok;
 }
 
-int FASTCALL PPSCardSerPacket::IsEqual(const PPSCardSerPacket & rS) const
+int FASTCALL PPSCardSerPacket::IsEq(const PPSCardSerPacket & rS) const
 {
 	int    eq = 1;
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
-	else if(!Rule.IsEqual(rS.Rule))
+	else if(!Rule.IsEq(rS.Rule))
 		eq = 0;
-	else if(!CcAmtDisRule.IsEqual(rS.CcAmtDisRule))
+	else if(!CcAmtDisRule.IsEq(rS.CcAmtDisRule))
 		eq = 0;
-	else if(!BonusRule.IsEqual(rS.BonusRule))
+	else if(!BonusRule.IsEq(rS.BonusRule))
 		eq = 0;
-	else if(!QuotKindList_.IsEqual(&rS.QuotKindList_))
+	else if(!QuotKindList_.IsEq(&rS.QuotKindList_))
 		eq = 0;
-	else if(!Eb.IsEqual(rS.Eb))
+	else if(!Eb.IsEq(rS.Eb))
 		eq = 0;
 	return eq;
 }
@@ -1069,7 +1069,7 @@ int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta
 				PPSCardSerPacket pattern;
 				THROW(CheckRights(PPR_MOD));
 				THROW(GetPacket(*pID, &pattern) > 0);
-				if(pattern.IsEqual(*pPack))
+				if(pattern.IsEq(*pPack))
 					eq = 1;
 				else {
 					pPack->Rec.VerifTag = 2; // @v9.8.9
@@ -1636,9 +1636,9 @@ int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
 	if(pRec && P_List && P_List->def) {
-		SArray * p_scs_ary = ((StdListBoxDef *)P_List->def)->P_Data;
+		const SArray * p_scs_ary = static_cast<const StdListBoxDef *>(P_List->def)->P_Data;
 		if(p_scs_ary && p_scs_ary->getCount() > CurPrnPos) {
-			PPID   id = *(PPID *)(p_scs_ary->at(CurPrnPos++));
+			PPID   id = *static_cast<const PPID *>(p_scs_ary->at(CurPrnPos++));
 			if(P_Obj && P_Obj->Search(id, pRec) > 0)
 				ok = 1;
 		}
@@ -1648,8 +1648,7 @@ int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 
 int SCardSeriesView::Print()
 {
-	PView  pv(this);
-	return PPAlddPrint(REPORT_SCARDSERIESVIEW, &pv, 0);
+	return PPAlddPrint(REPORT_SCARDSERIESVIEW, PView(this), 0);
 }
 
 int PPObjSCardSeries::Browse(void * extraPtr)
@@ -1721,10 +1720,7 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 					}
 					break;
 				case cmPrint:
-					{
-						PView  pv(this);
-						PPAlddPrint(REPORT_SCARDSERIESVIEW, &pv, 0);
-					}
+					PPAlddPrint(REPORT_SCARDSERIESVIEW, PView(this), 0);
 					break;
 				default:
 					break;

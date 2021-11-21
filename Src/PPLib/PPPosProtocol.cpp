@@ -969,7 +969,7 @@ int PPPosProtocol::RouteBlock::IsEmpty() const
 	return BIN(Uuid.IsZero() && System.IsEmpty() && Version.IsEmpty() && Code.IsEmpty());
 }
 
-int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
+int FASTCALL PPPosProtocol::RouteBlock::IsEq(const RouteBlock & rS) const
 {
 	int    yes = 1;
 	if(!Uuid.IsZero())
@@ -5421,7 +5421,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										RdB.GetRouteItem(r_blk, rb_src);
 										for(uint j = 0; !qpb_list_idx && j < rPib.QpBlkList.getCount(); j++) {
 											QueryProcessBlock * p_qpb = rPib.QpBlkList.at(j);
-											if(p_qpb->PosNodeID == my_cn_id && p_qpb->R.IsEqual(rb_src))
+											if(p_qpb->PosNodeID == my_cn_id && p_qpb->R.IsEq(rb_src))
 												qpb_list_idx = j+1;
 										}
 										if(!qpb_list_idx) {

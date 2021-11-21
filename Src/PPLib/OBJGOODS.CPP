@@ -675,7 +675,7 @@ int PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2,
 			eq = 0;
 		else if(!ext_empty1 && !P_Tbl->GetExtTbl_().GetFields().IsEqualRecords(&rS1.ExtRec, &rS2.ExtRec))
 			eq = 0;
-		else if(!rS1.Stock.IsEqual(rS2.Stock))
+		else if(!rS1.Stock.IsEq(rS2.Stock))
 			eq = 0;
 	}
 	if(eq) {
@@ -694,15 +694,15 @@ int PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2,
 			eq = 0;
 		else if(rS1.ExTitles != rS2.ExTitles)
 			eq = 0;
-		else if(!rS1.GS.IsEqual(rS2.GS))
+		else if(!rS1.GS.IsEq(rS2.GS))
 			eq = 0;
 		else if(rS1.P_Filt && !rS2.P_Filt)
 			eq = 0;
 		else if(!rS1.P_Filt && rS2.P_Filt)
 			eq = 0;
-		else if(rS1.P_Filt && rS2.P_Filt && !rS1.P_Filt->IsEqual(rS2.P_Filt, 0))
+		else if(rS1.P_Filt && rS2.P_Filt && !rS1.P_Filt->IsEq(rS2.P_Filt, 0))
 			eq = 0;
-		else if(!rS1.TagL.IsEqual(rS2.TagL))
+		else if(!rS1.TagL.IsEq(rS2.TagL))
 			eq = 0;
 		else if(rS1.LinkFiles.IsChanged(rS1.Rec.ID, 0L))
 			eq = 0;
@@ -4042,7 +4042,7 @@ int GoodsStockExt::IsEmpty() const
 	return (min_stock_empty && !Brutto && !PckgDim && !RtlDim && !Package && !ExpiryPeriod && !MinShippmQtty && !NettBruttCoeff && !PltList.getCount());
 }
 
-int FASTCALL GoodsStockExt::IsEqual(const GoodsStockExt & rS) const
+int FASTCALL GoodsStockExt::IsEq(const GoodsStockExt & rS) const
 {
 	if(Brutto != rS.Brutto)
 		return 0;
@@ -4060,9 +4060,9 @@ int FASTCALL GoodsStockExt::IsEqual(const GoodsStockExt & rS) const
 		return 0;
 	else if(RtlDim != rS.RtlDim)
 		return 0;
-	else if(!MinStockList.IsEqual(rS.MinStockList))
+	else if(!MinStockList.IsEq(rS.MinStockList))
 		return 0;
-	else if(!PltList.IsEqual(rS.PltList))
+	else if(!PltList.IsEq(rS.PltList))
 		return 0;
 	else
 		return 1;
@@ -4331,10 +4331,9 @@ int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPGoodsStruc gs;
-	const PPGoodsStruc::Ident gsid(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL);
-	if(LoadGoodsStruc(&gsid, &gs) > 0) {
+	if(LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL), &gs) > 0) {
 		PPGoodsStrucItem gsi;
-		double ratio = 0;
+		double ratio = 0.0;
 		for(uint j = 0; gs.EnumItemsExt(&j, &gsi, goodsID, 1, &ratio) > 0;)
 			if(gsi.GoodsID != goodsID && ratio != 0) {
 				if(pList && !pList->Search(gsi.GoodsID, 0, 0, 0))

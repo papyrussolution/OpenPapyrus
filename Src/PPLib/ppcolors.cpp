@@ -790,7 +790,7 @@ ColorCtrlGroup::~ColorCtrlGroup()
 
 int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	for(int i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++) {
 		if(OwnerDrawCtrls[i].CtrlType == 0 && OwnerDrawCtrls[i].CtrlID == 0) {
 			OwnerDrawCtrls[i].CtrlType = ctListBox;
 			OwnerDrawCtrls[i].CtrlID   = CTL_OWNDRAWLBX_LIST;
@@ -808,7 +808,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 		else
 			Data.AddColorItem(GetColorRef(SClrWhite), userdef);
 	}
-	SetupStrAssocCombo(pDlg, CtlSel, &Data.ColorList, Data.C, 0, 0, 1);
+	SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, Data.C, 0, 0, 1);
 	//SetupTaggedStringCombo(pDlg, CtlSel, &Data.ColorList, Data.ColorId, 0, 0, 1);
 	return 1;
 }
@@ -832,7 +832,7 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 					if(!Data.SearchColorItem(c, &cpos)) {
 						Data.ColorList.UpdateByPos(cc-1, c);
 						Data.AddUndefColorItem();
-						SetupStrAssocCombo(pDlg, CtlSel, &Data.ColorList, c, 0, 0, 1);
+						SetupStrAssocCombo(pDlg, CtlSel, Data.ColorList, c, 0, 0, 1);
 					}
 					pDlg->setCtrlData(CtlSel, &c);
 				}

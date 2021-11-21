@@ -260,7 +260,7 @@ void ssh_free(ssh_session session)
 		for(id = ssh_list_pop_head(char *, session->opts.identity);
 		    id != NULL;
 		    id = ssh_list_pop_head(char *, session->opts.identity)) {
-			SAFE_FREE(id);
+			ZFREE(id);
 		}
 		ssh_list_free(session->opts.identity);
 	}
@@ -276,31 +276,31 @@ void ssh_free(ssh_session session)
 #endif
 	session->agent_state = NULL;
 
-	SAFE_FREE(session->auth.auto_state);
-	SAFE_FREE(session->serverbanner);
-	SAFE_FREE(session->clientbanner);
-	SAFE_FREE(session->banner);
+	ZFREE(session->auth.auto_state);
+	ZFREE(session->serverbanner);
+	ZFREE(session->clientbanner);
+	ZFREE(session->banner);
 
-	SAFE_FREE(session->opts.bindaddr);
-	SAFE_FREE(session->opts.custombanner);
-	SAFE_FREE(session->opts.username);
-	SAFE_FREE(session->opts.host);
-	SAFE_FREE(session->opts.sshdir);
-	SAFE_FREE(session->opts.knownhosts);
-	SAFE_FREE(session->opts.global_knownhosts);
-	SAFE_FREE(session->opts.ProxyCommand);
-	SAFE_FREE(session->opts.gss_server_identity);
-	SAFE_FREE(session->opts.gss_client_identity);
-	SAFE_FREE(session->opts.pubkey_accepted_types);
+	ZFREE(session->opts.bindaddr);
+	ZFREE(session->opts.custombanner);
+	ZFREE(session->opts.username);
+	ZFREE(session->opts.host);
+	ZFREE(session->opts.sshdir);
+	ZFREE(session->opts.knownhosts);
+	ZFREE(session->opts.global_knownhosts);
+	ZFREE(session->opts.ProxyCommand);
+	ZFREE(session->opts.gss_server_identity);
+	ZFREE(session->opts.gss_client_identity);
+	ZFREE(session->opts.pubkey_accepted_types);
 
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		if(session->opts.wanted_methods[i]) {
-			SAFE_FREE(session->opts.wanted_methods[i]);
+			ZFREE(session->opts.wanted_methods[i]);
 		}
 	}
 	/* burn connection, it could contain sensitive data */
 	memzero(session, sizeof(struct ssh_session_struct));
-	SAFE_FREE(session);
+	ZFREE(session);
 }
 
 /**
@@ -988,14 +988,14 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 
 	ctx = md5_init();
 	if(ctx == NULL) {
-		SAFE_FREE(h);
+		ZFREE(h);
 		return SSH_ERROR;
 	}
 
 	rc = ssh_get_server_publickey(session, &pubkey);
 	if(rc != SSH_OK) {
 		md5_final(h, ctx);
-		SAFE_FREE(h);
+		ZFREE(h);
 		return SSH_ERROR;
 	}
 
@@ -1003,7 +1003,7 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 	ssh_key_free(pubkey);
 	if(rc != SSH_OK) {
 		md5_final(h, ctx);
-		SAFE_FREE(h);
+		ZFREE(h);
 		return SSH_ERROR;
 	}
 
@@ -1027,7 +1027,7 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
  * @see ssh_get_pubkey_hash()
  */
 void ssh_clean_pubkey_hash(uchar ** hash) {
-	SAFE_FREE(*hash);
+	ZFREE(*hash);
 }
 
 /**

@@ -417,7 +417,7 @@ private:
 			}
 		}
 		PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
-		SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, &persons, s, 0);
+		SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, persons, s, 0);
 	}
 	const  SArray * P_A;
 };
@@ -849,7 +849,7 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 			{
 				long   paym_method = 0;
 				StringSet ss(';', P.PaymMethodTransl);
-				for(uint i = 0; ss.get(&i, buf) > 0;) {
+				for(uint i = 0; ss.get(&i, buf);) {
 					uint j = 0;
 					StringSet ss1(',', buf);
 					ss1.get(&j, temp_buf);
@@ -1282,7 +1282,7 @@ int CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rSection
 				show_sections.Add(++str_id, sect);
 			}
 		}
-		SetupStrAssocCombo(dlg, CTLSEL_GRPSEL_GROUP, &show_sections, 0, 0, 0, 0);
+		SetupStrAssocCombo(dlg, CTLSEL_GRPSEL_GROUP, show_sections, 0, 0, 0, 0);
 		if(ExecView(dlg) == cmOK) {
 			long   id = dlg->getCtrlLong(CTLSEL_GRPSEL_GROUP);
 			long   i = 1;

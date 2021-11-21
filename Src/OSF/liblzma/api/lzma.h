@@ -57,7 +57,7 @@
  * seen as an unnecessary mess, since most systems already provide all the
  * necessary types and macros in the standard headers.
  *
- * Note that liblzma API still has lzma_bool, because using stdbool.h would
+ * Note that liblzma API still has bool, because using stdbool.h would
  * break C89 and C++ programs on many systems. sizeof(bool) in C99 isn't
  * necessarily the same as sizeof(bool) in C++.
  */
@@ -334,12 +334,12 @@ const char * lzma_version_string(void) lzma_attr_const;
  * \brief       Boolean
  *
  * This is here because C89 doesn't have stdbool.h. To set a value for
- * variables having type lzma_bool, you can use
+ * variables having type bool, you can use
  *   - C99's `true' and `false' from stdbool.h;
  *   - C++'s internal `true' and `false'; or
  *   - integers one (true) and zero (false).
  */
-typedef uchar lzma_bool;
+// @sobolev typedef uchar lzma_bool_Removed;
 /**
  * \brief       Type of reserved enumeration variable in structures
  *
@@ -1114,7 +1114,7 @@ typedef enum {
  * You can assume that LZMA_CHECK_NONE and LZMA_CHECK_CRC32 are always
  * supported (even if liblzma is built with limited features).
  */
-lzma_bool lzma_check_is_supported(lzma_check check) lzma_attr_const;
+bool lzma_check_is_supported(lzma_check check) lzma_attr_const;
 /**
  * \brief       Get the size of the Check field with the given Check ID
  *
@@ -1223,14 +1223,14 @@ typedef struct {
  * liblzma version and build. It would be useless, because the application
  * couldn't know what kind of options the filter would need.
  */
-lzma_bool lzma_filter_encoder_is_supported(lzma_vli id) lzma_attr_const;
+bool lzma_filter_encoder_is_supported(lzma_vli id) lzma_attr_const;
 /**
  * \brief       Test if the given Filter ID is supported for decoding
  *
  * Return true if the give Filter ID is supported for decoding by this
  * liblzma build. Otherwise false is returned.
  */
-lzma_bool lzma_filter_decoder_is_supported(lzma_vli id) lzma_attr_const;
+bool lzma_filter_decoder_is_supported(lzma_vli id) lzma_attr_const;
 /**
  * \brief       Copy the filters array
  *
@@ -1726,7 +1726,7 @@ typedef enum {
  * could require giving additional options to the encoder that the older
  * match finders don't need.
  */
-lzma_bool lzma_mf_is_supported(lzma_match_finder match_finder) lzma_attr_const;
+bool lzma_mf_is_supported(lzma_match_finder match_finder) lzma_attr_const;
 /**
  * \brief       Compression modes
  *
@@ -1757,7 +1757,7 @@ typedef enum {
  * mode, which the application developer wasn't aware, could require giving
  * additional options to the encoder that the older modes don't need.
  */
-lzma_bool lzma_mode_is_supported(lzma_mode mode) lzma_attr_const;
+bool lzma_mode_is_supported(lzma_mode mode) lzma_attr_const;
 /**
  * \brief       Options specific to the LZMA1 and LZMA2 filters
  *
@@ -1995,7 +1995,7 @@ struct lzma_options_lzma {
  * \return      On success, false is returned. If the preset is not
  *        supported, true is returned.
  */
-lzma_bool lzma_lzma_preset(lzma_options_lzma *options, uint32_t preset);
+bool lzma_lzma_preset(lzma_options_lzma *options, uint32_t preset);
 //
 // Container formats 
 //#include "container.h"
@@ -2630,14 +2630,14 @@ struct lzma_stream_flags {
 	lzma_reserved_enum reserved_enum2;
 	lzma_reserved_enum reserved_enum3;
 	lzma_reserved_enum reserved_enum4;
-	lzma_bool reserved_bool1;
-	lzma_bool reserved_bool2;
-	lzma_bool reserved_bool3;
-	lzma_bool reserved_bool4;
-	lzma_bool reserved_bool5;
-	lzma_bool reserved_bool6;
-	lzma_bool reserved_bool7;
-	lzma_bool reserved_bool8;
+	bool reserved_bool1;
+	bool reserved_bool2;
+	bool reserved_bool3;
+	bool reserved_bool4;
+	bool reserved_bool5;
+	bool reserved_bool6;
+	bool reserved_bool7;
+	bool reserved_bool8;
 	uint32_t reserved_int1;
 	uint32_t reserved_int2;
 };
@@ -2982,14 +2982,14 @@ struct lzma_block {
 	 * Written by (.version is ignored):
 	 *   - lzma_block_header_decode() always sets this to false
 	 */
-	lzma_bool ignore_check;
-	lzma_bool reserved_bool2;
-	lzma_bool reserved_bool3;
-	lzma_bool reserved_bool4;
-	lzma_bool reserved_bool5;
-	lzma_bool reserved_bool6;
-	lzma_bool reserved_bool7;
-	lzma_bool reserved_bool8;
+	bool ignore_check;
+	bool reserved_bool2;
+	bool reserved_bool3;
+	bool reserved_bool4;
+	bool reserved_bool5;
+	bool reserved_bool6;
+	bool reserved_bool7;
+	bool reserved_bool8;
 };
 /**
  * \brief       Decode the Block Header Size field
@@ -3647,7 +3647,7 @@ void lzma_index_iter_rewind(lzma_index_iter *iter);
  *        and this function returns true. If mode is set to an unknown
  *        value, *iter is not modified and this function returns true.
  */
-lzma_bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode) lzma_attr_warn_unused_result;
+bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode) lzma_attr_warn_unused_result;
 /**
  * \brief       Locate a Block
  *
@@ -3671,7 +3671,7 @@ lzma_bool lzma_index_iter_next(lzma_index_iter *iter, lzma_index_iter_mode mode)
  * If target is greater than the uncompressed size of the Stream, *iter
  * is not modified, and this function returns true.
  */
-lzma_bool lzma_index_iter_locate(lzma_index_iter *iter, lzma_vli target);
+bool lzma_index_iter_locate(lzma_index_iter *iter, lzma_vli target);
 /**
  * \brief       Concatenate lzma_indexes
  *

@@ -203,7 +203,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_failure)
 
 end:
 	session->auth.current_method = SSH_AUTH_METHOD_UNKNOWN;
-	SAFE_FREE(auth_methods);
+	ZFREE(auth_methods);
 
 	return SSH_PACKET_USED;
 }
@@ -995,7 +995,7 @@ int ssh_userauth_publickey_auto(ssh_session session,
 				    SSH_FATAL,
 				    "Failed to import public key: %s",
 				    pubkey_file);
-				SAFE_FREE(session->auth.auto_state);
+				ZFREE(session->auth.auto_state);
 				return SSH_AUTH_ERROR;
 			}
 			else if(rc == SSH_EOF) {
@@ -1025,7 +1025,7 @@ int ssh_userauth_publickey_auto(ssh_session session,
 				rc = ssh_pki_export_privkey_to_pubkey(state->privkey, &state->pubkey);
 				if(rc == SSH_ERROR) {
 					ssh_key_free(state->privkey);
-					SAFE_FREE(session->auth.auto_state);
+					ZFREE(session->auth.auto_state);
 					return SSH_AUTH_ERROR;
 				}
 
@@ -1048,7 +1048,7 @@ int ssh_userauth_publickey_auto(ssh_session session,
 				state->privkey = NULL;
 				ssh_key_free(state->pubkey);
 				state->pubkey = NULL;
-				SAFE_FREE(session->auth.auto_state);
+				ZFREE(session->auth.auto_state);
 				return rc;
 			}
 			else if(rc == SSH_AUTH_AGAIN) {
@@ -1104,7 +1104,7 @@ int ssh_userauth_publickey_auto(ssh_session session,
 			if(rc != SSH_AUTH_AGAIN && rc != SSH_AUTH_DENIED) {
 				ssh_key_free(state->privkey);
 				ssh_key_free(state->pubkey);
-				SAFE_FREE(session->auth.auto_state);
+				ZFREE(session->auth.auto_state);
 				if(rc == SSH_AUTH_SUCCESS) {
 					SSH_LOG(SSH_LOG_INFO,
 					    "Successfully authenticated using %s",
@@ -1128,7 +1128,7 @@ int ssh_userauth_publickey_auto(ssh_session session,
 	}
 	SSH_LOG(SSH_LOG_INFO,
 	    "Tried every public key, none matched");
-	SAFE_FREE(session->auth.auto_state);
+	ZFREE(session->auth.auto_state);
 	return SSH_AUTH_DENIED;
 }
 
@@ -1274,18 +1274,18 @@ void ssh_kbdint_free(ssh_kbdint kbd)
 	if(kbd == NULL) {
 		return;
 	}
-	SAFE_FREE(kbd->name);
-	SAFE_FREE(kbd->instruction);
-	SAFE_FREE(kbd->echo);
+	ZFREE(kbd->name);
+	ZFREE(kbd->instruction);
+	ZFREE(kbd->echo);
 	n = kbd->nprompts;
 	if(kbd->prompts) {
 		for(i = 0; i < n; i++) {
 			if(kbd->prompts[i] != NULL) {
 				memzero(kbd->prompts[i], strlen(kbd->prompts[i]));
 			}
-			SAFE_FREE(kbd->prompts[i]);
+			ZFREE(kbd->prompts[i]);
 		}
-		SAFE_FREE(kbd->prompts);
+		ZFREE(kbd->prompts);
 	}
 
 	n = kbd->nanswers;
@@ -1294,12 +1294,12 @@ void ssh_kbdint_free(ssh_kbdint kbd)
 			if(kbd->answers[i] != NULL) {
 				memzero(kbd->answers[i], strlen(kbd->answers[i]));
 			}
-			SAFE_FREE(kbd->answers[i]);
+			ZFREE(kbd->answers[i]);
 		}
-		SAFE_FREE(kbd->answers);
+		ZFREE(kbd->answers);
 	}
 
-	SAFE_FREE(kbd);
+	ZFREE(kbd);
 }
 
 void ssh_kbdint_clean(ssh_kbdint kbd) {
@@ -1309,17 +1309,17 @@ void ssh_kbdint_clean(ssh_kbdint kbd) {
 		return;
 	}
 
-	SAFE_FREE(kbd->name);
-	SAFE_FREE(kbd->instruction);
-	SAFE_FREE(kbd->echo);
+	ZFREE(kbd->name);
+	ZFREE(kbd->instruction);
+	ZFREE(kbd->echo);
 
 	n = kbd->nprompts;
 	if(kbd->prompts) {
 		for(i = 0; i < n; i++) {
 			memzero(kbd->prompts[i], strlen(kbd->prompts[i]));
-			SAFE_FREE(kbd->prompts[i]);
+			ZFREE(kbd->prompts[i]);
 		}
-		SAFE_FREE(kbd->prompts);
+		ZFREE(kbd->prompts);
 	}
 
 	n = kbd->nanswers;
@@ -1327,9 +1327,9 @@ void ssh_kbdint_clean(ssh_kbdint kbd) {
 	if(kbd->answers) {
 		for(i = 0; i < n; i++) {
 			memzero(kbd->answers[i], strlen(kbd->answers[i]));
-			SAFE_FREE(kbd->answers[i]);
+			ZFREE(kbd->answers[i]);
 		}
-		SAFE_FREE(kbd->answers);
+		ZFREE(kbd->answers);
 	}
 
 	kbd->nprompts = 0;
@@ -1791,7 +1791,7 @@ int ssh_userauth_kbdint_setanswer(ssh_session session, uint i, const char * answ
 
 	if(session->kbdint->answers[i]) {
 		memzero(session->kbdint->answers[i], strlen(session->kbdint->answers[i]));
-		SAFE_FREE(session->kbdint->answers[i]);
+		ZFREE(session->kbdint->answers[i]);
 	}
 	session->kbdint->answers[i] = _strdup(answer);
 	if(session->kbdint->answers[i] == NULL) {

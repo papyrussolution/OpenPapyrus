@@ -216,13 +216,13 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 
 error:
 	if(username != NULL) {
-		SAFE_FREE(*username);
+		ZFREE(*username);
 	}
 	if(hostname != NULL) {
-		SAFE_FREE(*hostname);
+		ZFREE(*hostname);
 	}
 	if(port != NULL) {
-		SAFE_FREE(*port);
+		ZFREE(*port);
 	}
 	return SSH_ERROR;
 }

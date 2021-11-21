@@ -1593,14 +1593,12 @@ static time_t lha_win_time(uint64 wintime, long * ns)
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 
 	if(wintime >= EPOC_TIME) {
-		wintime -= EPOC_TIME;   /* 1970-01-01 00:00:00 (UTC) */
-		if(ns != NULL)
-			*ns = (long)(wintime % 10000000) * 100;
-		return (wintime / 10000000);
+		wintime -= EPOC_TIME; // 1970-01-01 00:00:00 (UTC) 
+		ASSIGN_PTR(ns, static_cast<long>((wintime % 10000000) * 100));
+		return static_cast<time_t>(wintime / 10000000);
 	}
 	else {
-		if(ns != NULL)
-			*ns = 0;
+		ASSIGN_PTR(ns, 0);
 		return 0;
 	}
 }
@@ -1608,7 +1606,6 @@ static time_t lha_win_time(uint64 wintime, long * ns)
 static uchar lha_calcsum(uchar sum, const void * pp, int offset, size_t size)
 {
 	uchar const * p = (uchar const*)pp;
-
 	p += offset;
 	for(; size > 0; --size)
 		sum += *p++;
@@ -1620,11 +1617,9 @@ static void lha_crc16_init(void)
 {
 	unsigned int i;
 	static int crc16init = 0;
-
 	if(crc16init)
 		return;
 	crc16init = 1;
-
 	for(i = 0; i < 256; i++) {
 		unsigned int j;
 		uint16_t crc = (uint16_t)i;
@@ -1632,10 +1627,8 @@ static void lha_crc16_init(void)
 			crc = (crc >> 1) ^ ((crc & 1) * 0xA001);
 		crc16tbl[0][i] = crc;
 	}
-
 	for(i = 0; i < 256; i++) {
-		crc16tbl[1][i] = (crc16tbl[0][i] >> 8)
-		    ^ crc16tbl[0][crc16tbl[0][i] & 0xff];
+		crc16tbl[1][i] = (crc16tbl[0][i] >> 8) ^ crc16tbl[0][crc16tbl[0][i] & 0xff];
 	}
 }
 
@@ -1647,10 +1640,8 @@ static uint16_t lha_crc16(uint16_t crc, const void * pp, size_t len)
 		uint32 i;
 		char c[4];
 	} u = { 0x01020304 };
-
 	if(len == 0)
 		return crc;
-
 	/* Process unaligned address. */
 	if(((uintptr_t)p) & (uintptr_t)0x1) {
 		crc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];

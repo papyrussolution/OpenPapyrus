@@ -2395,7 +2395,7 @@ int TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use
 				THROW_DB(rereadForUpdate(1, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
-			else if(_t.IsEqual(pText)) {
+			else if(_t.IsEq(pText)) {
 				ok = -1;
 			}
 			else {
@@ -2587,7 +2587,7 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int 
 				THROW_DB(rereadForUpdate(0, 0)); // @v9.0.5 @fix index 1-->0
 				THROW_DB(deleteRec()); // @sfu
 			}
-			else if(_t.IsEqual(pText)) {
+			else if(_t.IsEq(pText)) {
 				ok = -1;
 			}
 			else {
@@ -2659,7 +2659,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
-			/*else if(_t.IsEqual(pText)) {
+			/*else if(_t.IsEq(pText)) {
 				ok = -1;
 			}*/
 			else {
@@ -2814,7 +2814,7 @@ SLTEST_R(Reference_EnumItems)
 		}
 	}
 	if(!pBenchmark) {
-		THROW(SLTEST_CHECK_NZ(item_list1.IsEqual(item_list2)));
+		THROW(SLTEST_CHECK_NZ(item_list1.IsEq(item_list2)));
 	}
 	CATCH
 		ok = CurrentStatus = 0;

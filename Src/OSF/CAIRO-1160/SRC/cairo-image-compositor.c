@@ -1750,7 +1750,7 @@ static cairo_status_t _fill_a8_lerp_opaque_spans(void * abstract_renderer, int y
 					memset(d + spans[0].x, r->u.fill.pixel, len);
 				}
 				else {
-					uint8 s = mul8_8(a, r->u.fill.pixel);
+					uint8 s = mul8_8(a, static_cast<uint8>(r->u.fill.pixel));
 					uint8 * dst = d + spans[0].x;
 					a = ~a;
 					while(len-- > 0) {
@@ -1776,7 +1776,7 @@ static cairo_status_t _fill_a8_lerp_opaque_spans(void * abstract_renderer, int y
 					} while(--hh);
 				}
 				else {
-					uint8 s = mul8_8(a, r->u.fill.pixel);
+					uint8 s = mul8_8(a, static_cast<uint8>(r->u.fill.pixel));
 					a = ~a;
 					do {
 						int len = spans[1].x - spans[0].x;
@@ -1880,7 +1880,7 @@ static cairo_status_t _fill_a8_lerp_spans(void * abstract_renderer, int y, int h
 			if(a) {
 				int len = spans[1].x - spans[0].x;
 				uint8 * d = r->u.fill.data + r->u.fill.stride*y + spans[0].x;
-				uint16 p = (uint16)a * r->u.fill.pixel + 0x7f;
+				uint16 p = static_cast<uint16>(static_cast<uint16>(a) * r->u.fill.pixel + 0x7f);
 				uint16 ia = ~a;
 				while(len-- > 0) {
 					uint16 t = *d*ia + p;
@@ -1895,7 +1895,7 @@ static cairo_status_t _fill_a8_lerp_spans(void * abstract_renderer, int y, int h
 			uint8 a = mul8_8(spans[0].coverage, r->bpp);
 			if(a) {
 				int yy = y, hh = h;
-				uint16 p = (uint16)a * r->u.fill.pixel + 0x7f;
+				uint16 p = static_cast<uint16>(static_cast<uint16>(a) * r->u.fill.pixel + 0x7f);
 				uint16 ia = ~a;
 				do {
 					int len = spans[1].x - spans[0].x;

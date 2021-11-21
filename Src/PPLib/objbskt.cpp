@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1179,8 +1179,7 @@ int PPViewGoodsBasket::Print()
 			p_dlg->getCtrlData(CTL_GBPRINT_FLAGS, &(v = 0));
 			if(v & 0x01)
 				Flags |= PPViewGoodsBasket::fHideCost;
-			PView  pv(this);
-			PPAlddPrint(rpt_id, &pv, &env);
+			PPAlddPrint(rpt_id, PView(this), &env);
 			ok = 1;
 		}
 	}
@@ -2115,6 +2114,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 		// } @v11.2.2 
 		p_sel_modif_dlg->setCtrlUInt16(CTL_SELMODIF_WHAT, 0);
 		p_sel_modif_dlg->DisableClusterItem(CTL_SELMODIF_WHAT, 2, 1);
+		p_sel_modif_dlg->DisableClusterItem(CTL_SELMODIF_FLAGS, 0, 1); // @v11.2.4
 		if(ExecView(p_sel_modif_dlg) == cmOK) {
 			ushort v = p_sel_modif_dlg->getCtrlUInt16(CTL_SELMODIF_WHAT);
 			if(v == 0) {

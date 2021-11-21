@@ -1925,7 +1925,7 @@ const CERT_CONTEXT * ChZnInterface::GetClientSslCertificate(InitBlock & rIb)
 			p_cert_info = p_cert_next->pCertInfo;
 			DWORD para_type = 0;
 			CertGetNameString(p_cert_next, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, &para_type, cert_text, SIZEOFARRAY(cert_text));
-			if(cnu.IsEqual(cert_text)) {
+			if(cnu.IsEq(cert_text)) {
 				p_cert_context = CertDuplicateCertificateContext(p_cert_next);
 				break;
 			}

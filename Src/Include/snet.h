@@ -56,7 +56,7 @@ public:
 	void   FASTCALL Copy(const InetAddr & rS);
 	operator ulong() const { return V4; }
 	InetAddr & Z();
-	int    FASTCALL IsEqual(const InetAddr & rS) const;
+	int    FASTCALL IsEq(const InetAddr & rS) const;
 	int    FASTCALL operator == (const InetAddr & rS) const;
 	int    FASTCALL operator != (const InetAddr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -214,7 +214,7 @@ public:
 	~TcpSocket();
 	int    IsValid() const;
 	operator SOCKET () const { return S; }
-	int    FASTCALL IsEqual(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
+	int    FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
 	//
 	// Descr:
 	//

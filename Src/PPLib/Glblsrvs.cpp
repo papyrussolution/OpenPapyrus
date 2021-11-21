@@ -1179,9 +1179,9 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 						StringSet ss('&', temp_buf);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							temp_buf.Divide('=', left, right);
-							if(left.IsEqual("access_token"))
+							if(left.IsEq("access_token"))
 								Data.ApiKey.Z().Cat(right);
-							else if(left.IsEqual("user_id"))
+							else if(left.IsEq("user_id"))
 								Data.PageIdent.Z().Cat(right);
 						}
 						setCtrlString(CTL_SUVK_APIKEY, Data.ApiKey);

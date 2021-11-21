@@ -263,10 +263,9 @@ static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
 	uint8 t;
 #define CRC32(c, b) (crc32(c ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL)
-
 	ctx->keys[0] = CRC32(ctx->keys[0], c);
 	ctx->keys[1] = (ctx->keys[1] + (ctx->keys[0] & 0xff)) * 134775813L + 1;
-	t = (ctx->keys[1] >> 24) & 0xff;
+	t = static_cast<uint8>((ctx->keys[1] >> 24) & 0xff);
 	ctx->keys[2] = CRC32(ctx->keys[2], t);
 #undef CRC32
 }
@@ -646,8 +645,7 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 				    uint32 internal_attributes;
 				    if(datasize < 2)
 					    break;
-				    internal_attributes
-					    = archive_le16dec(p + offset);
+				    internal_attributes = archive_le16dec(p + offset);
 				    /* Not used by libarchive at present. */
 				    (void)internal_attributes; /* UNUSED */
 				    offset += 2;
@@ -658,27 +656,20 @@ static int process_extra(struct archive_read * a, struct archive_entry * entry,
 				    uint32 external_attributes;
 				    if(datasize < 4)
 					    break;
-				    external_attributes
-					    = archive_le32dec(p + offset);
+				    external_attributes = archive_le32dec(p + offset);
 				    if(zip_entry->system == 3) {
-					    zip_entry->mode
-						    = external_attributes >> 16;
+					    zip_entry->mode = static_cast<uint16_t>(external_attributes >> 16);
 				    }
 				    else if(zip_entry->system == 0) {
 					    // Interpret MSDOS directory bit
-					    if(0x10 == (external_attributes &
-						0x10)) {
-						    zip_entry->mode =
-							AE_IFDIR | 0775;
+					    if(0x10 == (external_attributes & 0x10)) {
+						    zip_entry->mode = AE_IFDIR | 0775;
 					    }
 					    else {
-						    zip_entry->mode =
-							AE_IFREG | 0664;
+						    zip_entry->mode = AE_IFREG | 0664;
 					    }
-					    if(0x01 == (external_attributes &
-						0x01)) {
-						    /* Read-only bit;
-						     * strip write permissions */
+					    if(0x01 == (external_attributes & 0x01)) {
+						    // Read-only bit; strip write permissions 
 						    zip_entry->mode &= 0555;
 					    }
 				    }
@@ -1157,8 +1148,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 			 * symlink name, do not report the conversion error
 			 * in an automatic conversion.
 			 */
-			if(sconv != zip->sconv_utf8 ||
-			    (zip->entry->zip_flags & ZIP_UTF8_NAME) == 0) {
+			if(sconv != zip->sconv_utf8 || (zip->entry->zip_flags & ZIP_UTF8_NAME) == 0) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Symlink cannot be converted from %s to current locale.", 
 					archive_string_conversion_charset_name(sconv));
 				ret = ARCHIVE_WARN;
@@ -1717,39 +1707,30 @@ static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** 
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lzma alone premature end of stream");
 			    return ARCHIVE_FATAL;
 		    }
-
 		    zip->end_of_entry = 1;
 		    break;
-
 		case LZMA_OK:
 		    break;
-
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lzma unknown error %d", (int)lz_ret);
 		    return ARCHIVE_FATAL;
 	}
-
 	to_consume = zip->zipx_lzma_stream.total_in;
-
 	/* Update pointers. */
 	__archive_read_consume(a, to_consume);
 	zip->entry_bytes_remaining -= to_consume;
 	zip->entry_compressed_bytes_read += to_consume;
 	zip->entry_uncompressed_bytes_read += zip->zipx_lzma_stream.total_out;
-
 	if(zip->entry_bytes_remaining == 0) {
 		zip->end_of_entry = 1;
 	}
-
 	/* Return values. */
 	*size = zip->zipx_lzma_stream.total_out;
 	*buff = zip->uncompressed_buffer;
-
 	/* Behave the same way as during deflate decompression. */
 	ret = consume_optional_marker(a, zip);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	/* Free lzma decoder handle because we'll no longer need it. */
 	if(zip->end_of_entry) {
 		lzma_end(&zip->zipx_lzma_stream);
@@ -2893,33 +2874,24 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 
 static int archive_read_format_zip_read_data_skip_streamable(struct archive_read * a)
 {
-	struct zip * zip;
-	int64 bytes_skipped;
-
-	zip = (struct zip *)(a->format->data);
-	bytes_skipped = __archive_read_consume(a, zip->unconsumed);
+	struct zip * zip = (struct zip *)(a->format->data);
+	int64 bytes_skipped = __archive_read_consume(a, zip->unconsumed);
 	zip->unconsumed = 0;
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
-
 	/* If we've already read to end of data, we're done. */
 	if(zip->end_of_entry)
 		return ARCHIVE_OK;
-
 	/* So we know we're streaming... */
-	if(0 == (zip->entry->zip_flags & ZIP_LENGTH_AT_END)
-	    || zip->entry->compressed_size > 0) {
+	if(0 == (zip->entry->zip_flags & ZIP_LENGTH_AT_END) || zip->entry->compressed_size > 0) {
 		/* We know the compressed length, so we can just skip. */
-		bytes_skipped = __archive_read_consume(a,
-			zip->entry_bytes_remaining);
+		bytes_skipped = __archive_read_consume(a, zip->entry_bytes_remaining);
 		if(bytes_skipped < 0)
 			return ARCHIVE_FATAL;
 		return ARCHIVE_OK;
 	}
-
 	if(zip->init_decryption) {
 		int r;
-
 		zip->has_encrypted_entries = 1;
 		if(zip->entry->zip_flags & ZIP_STRONG_ENCRYPTED)
 			r = read_decryption_header(a);
@@ -2931,7 +2903,6 @@ static int archive_read_format_zip_read_data_skip_streamable(struct archive_read
 			return r;
 		zip->init_decryption = 0;
 	}
-
 	/* We're streaming and we don't know the length. */
 	/* If the body is compressed and we know the format, we can
 	 * find an exact end-of-entry by decompressing it. */
@@ -2942,8 +2913,7 @@ static int archive_read_format_zip_read_data_skip_streamable(struct archive_read
 			    int64 offset = 0;
 			    const void * buff = NULL;
 			    size_t size = 0;
-			    int r;
-			    r =  zip_read_data_deflate(a, &buff, &size, &offset);
+			    int r =  zip_read_data_deflate(a, &buff, &size, &offset);
 			    if(r != ARCHIVE_OK)
 				    return r;
 		    }
@@ -2952,9 +2922,9 @@ static int archive_read_format_zip_read_data_skip_streamable(struct archive_read
 		default: /* Uncompressed or unknown. */
 		    /* Scan for a PK\007\010 signature. */
 		    for(;;) {
-			    const char * p, * buff;
+			    const char * p;
 			    ssize_t bytes_avail;
-			    buff = static_cast<const char *>(__archive_read_ahead(a, 16, &bytes_avail));
+			    const char * buff = static_cast<const char *>(__archive_read_ahead(a, 16, &bytes_avail));
 			    if(bytes_avail < 16) {
 				    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated ZIP file data");
 				    return ARCHIVE_FATAL;
@@ -2970,14 +2940,11 @@ static int archive_read_format_zip_read_data_skip_streamable(struct archive_read
 				    else if(p[3] == '\007') {
 					    p += 1;
 				    }
-				    else if(p[3] == '\010' && p[2] == '\007'
-					&& p[1] == 'K' && p[0] == 'P') {
+				    else if(p[3] == '\010' && p[2] == '\007' && p[1] == 'K' && p[0] == 'P') {
 					    if(zip->entry->flags & LA_USED_ZIP64)
-						    __archive_read_consume(a,
-							p - buff + 24);
+						    __archive_read_consume(a, p - buff + 24);
 					    else
-						    __archive_read_consume(a,
-							p - buff + 16);
+						    __archive_read_consume(a, p - buff + 16);
 					    return ARCHIVE_OK;
 				    }
 				    else {
@@ -3382,7 +3349,7 @@ static int slurp_central_directory(struct archive_read * a, struct archive_entry
 		   when we read the local file header we might get
 		   more information. */
 		if(zip_entry->system == 3) {
-			zip_entry->mode = external_attributes >> 16;
+			zip_entry->mode = static_cast<uint16_t>(external_attributes >> 16);
 		}
 		else if(zip_entry->system == 0) {
 			// Interpret MSDOS directory bit
@@ -3611,14 +3578,12 @@ exit_mac_metadata:
 	return ret;
 }
 
-static int archive_read_format_zip_seekable_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_zip_seekable_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	struct zip * zip = (struct zip *)a->format->data;
 	struct zip_entry * rsrc;
 	int64 offset;
 	int r, ret = ARCHIVE_OK;
-
 	/*
 	 * It should be sufficient to call archive_read_next_header() for
 	 * a reader to determine if an entry is encrypted or not. If the
@@ -3655,17 +3620,14 @@ static int archive_read_format_zip_seekable_read_header(struct archive_read * a,
 		archive_hmac_sha1_cleanup(&zip->hctx);
 	zip->tctx_valid = zip->cctx_valid = zip->hctx_valid = 0;
 	__archive_read_reset_passphrase(a);
-
 	/* File entries are sorted by the header offset, we should mostly
 	 * use __archive_read_consume to advance a read point to avoid
 	 * redundant data reading.  */
 	offset = archive_filter_bytes(&a->archive, 0);
 	if(offset < zip->entry->local_header_offset)
-		__archive_read_consume(a,
-		    zip->entry->local_header_offset - offset);
+		__archive_read_consume(a, zip->entry->local_header_offset - offset);
 	else if(offset != zip->entry->local_header_offset) {
-		__archive_read_seek(a, zip->entry->local_header_offset,
-		    SEEK_SET);
+		__archive_read_seek(a, zip->entry->local_header_offset, SEEK_SET);
 	}
 	zip->unconsumed = 0;
 	r = zip_read_local_file_header(a, entry, zip);
@@ -3678,16 +3640,13 @@ static int archive_read_format_zip_seekable_read_header(struct archive_read * a,
 	}
 	return ret;
 }
-
 /*
  * We're going to seek for the next header anyway, so we don't
  * need to bother doing anything here.
  */
 static int archive_read_format_zip_read_data_skip_seekable(struct archive_read * a)
 {
-	struct zip * zip;
-	zip = (struct zip *)(a->format->data);
-
+	struct zip * zip = (struct zip *)(a->format->data);
 	zip->unconsumed = 0;
 	return ARCHIVE_OK;
 }

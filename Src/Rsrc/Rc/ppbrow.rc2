@@ -1645,9 +1645,9 @@ browser SELLTRNOVR_EXT_EXPPART north(100), 2, 1, "Доля просроченных долгов {%s}"
 {
 	"@appellation", 4, notype, 0, 20
 	"#",            3, notype, 0, 4
-	"Общая\nзадолженности",                5, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
+	"@debttrovrtotal_tdebt",               5, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	"@expirydebt",                         7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
-	"Доля просроченной\nзадолженности, %", 9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
+	"@{debttrovrtotal_expirydebtpart}, %", 9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	toolbar DEBTTRNOVR
 }
 
@@ -1701,15 +1701,15 @@ browser ACCREGISTEROPS north(100), 1, 0, "Операции по бухгалтерскому регистру {%
 
 browser ACCTOACC north(100), 1, 0, "@{view_accanlz} {%s}", OWNER|GRID, 0
 {
-	"@date",         0, notype, DATF_DMY, 8
-	"@billno",       5, notype, 0, 7
-	"Корр счет",     6, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 6
-	"@currency",    10, notype, 0, 6
-	"@debit",       11, notype, NMBF_NOZERO, 12.2
-	"@credit",      12, notype, NMBF_NOZERO, 12.2
-	"@rest",        13, notype, NMBF_NOZERO, 14.2
-	"@article",     15, notype, 0, 20
-	"@memo",        14, notype, 0, 64
+	"@date",                   0, notype, DATF_DMY, 8
+	"@billno",                 5, notype, 0, 7
+	"@correspondentaccount_s", 6, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 6
+	"@currency",              10, notype, 0, 6
+	"@debit",                 11, notype, NMBF_NOZERO, 12.2
+	"@credit",                12, notype, NMBF_NOZERO, 12.2
+	"@rest",                  13, notype, NMBF_NOZERO, 14.2
+	"@article",               15, notype, 0, 20
+	"@memo",                  14, notype, 0, 64
 	toolbar ACCANLZ2
 }
 
@@ -4246,7 +4246,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	DETACH           : kbCtrlD,   PPDV_NOICON, hidden, "Отвязать сессию от суперсессии\tCtrl-D"
 	separator
 	CLOSESESS        : kbF8,      TBBM_CLOSECSESS,     "Закрыть последнюю сессию\tF8"
-	WROFFSESS        : kbCtrlF8,  TBBM_COMPLETECSESS,  "Завершить сессию\tCtrl-F8"
+	WROFFSESS        : kbCtrlF8,  TBBM_COMPLETECSESS,  "@{dofinishsess}\tCtrl-F8"
 	WROFFDRAFT       : kbShiftF8, TBBM_WROFFDRAFT,     "@{writeoffsessdfctdrafts}\tShift-F8"
 	TRANSMIT         : kbCtrlH,   PPDV_SYNC01,         "@{dotransmitsession}\tCtrl-H"
 	CREATEDRAFT      : kbCtrlC,   TBBM_EXTADDTI,       "@{createnewdraftbill}\tCtrl-C"
@@ -7194,7 +7194,7 @@ record CliBnkData {
 	PayerBankAcc     zstring(32)  "@{payersbankaccount}";
 	PayerBankName    zstring(128) "@{payersbankname}";
 	PayerBankCode    zstring(24)  "@{payersbankbic}";
-	PayerBankCorr    zstring(32)  "Корр счет банка плательщика";
+	PayerBankCorr    zstring(32)  "@{payersbankcorracc}";
 	ReceiverID       long         format(10)   "ИД персоналии получателя";
 	ReceiverName     zstring(255) "@{receivername}"; // @v8.6.4 (128)-->(255)
 	ReceiverINN      zstring(24)  "@{receiversinn}";
@@ -7202,7 +7202,7 @@ record CliBnkData {
 	ReceiverBankAcc  zstring(32)  "@{receiversbankaccount}";
 	ReceiverBankName zstring(128) "@{receiversbankname}";
 	ReceiverBankCode zstring(24)  "@{receiversbankbic}";
-	ReceiverBankCorr zstring(32)  "Корр счет банка получателя";
+	ReceiverBankCorr zstring(32)  "@{receiversbankcorracc}";
 	Obj2Name         zstring(48)  "@{docextobjname}";
 	Obj2INN          zstring(24)  "@{docextobjinn}";
 	TaxPayerKPP      zstring(24)  "@{fiscalpayerskpp}";
@@ -7482,7 +7482,7 @@ record SCard {
 
 record CSessComplex {
 	StoreID      long         format(8)    "@{warehouseid}";
-	PosNodeID    long         format(8)    "ИД кассового узла";
+	PosNodeID    long         format(8)    "@{posnodeid}";
 	PosN         long         format(8)    "@{posnodeno}";
 	SessN        long         format(8)    "@{sessionno}";
 	SessID       long         format(8)    "@{sessionid}";
@@ -7938,11 +7938,11 @@ record Goods2 {
 	Serial         zstring(32)         "@{serial}";
 	Expiry         date                "@{expirationdate_amp}";
 	ExpiryPeriod   long                "@{goods_expiryperiod}";
-	PckgQtty       double              "Емкость упаковки поставки (количество торговых единиц)";
+	PckgQtty       double              "@{goods_package}";
 	PckgBrutto     long                "Масса брутто упаковки поставки, г";
-	PckgLength     long                "Длина упаковки поставки, мм";
-	PckgWidth      long                "Ширина упаковки поставки, мм";
-	PckgHeight     long                "Высота упаковки поставки, мм";
+	PckgLength     long                "@{goods_pckgln}";
+	PckgWidth      long                "@{goods_pckgwd}";
+	PckgHeight     long                "@{goods_pckght}";
 	MinStock       double              "@{minstock}"; // @v9.5.10 В контексте склада
 	MinShippmQtty  double              "@{goods_minshippmqtty}";
 	MultMinShippm  long                "MinShippmQtty одновременно определяет кратность отгужаемого количества";
@@ -7964,7 +7964,7 @@ record Goods2 {
 	BillSupplCode  zstring(32)         "@{document}: @{suppliercode}";
 	BillCode       zstring(32)         "@{document}: @{billno}";
 	BillDate       date                "@{document}: @{billdate}";
-	ClsCode        zstring(20)         "Код класса товара";
+	ClsCode        zstring(20)         "@{goodsclasscode}";
 	DimX           double              "@{classifier} X";
 	DimY           double              "@{classifier} Y";
 	DimZ           double              "@{classifier} Z";
@@ -8017,8 +8017,8 @@ record Person {
 	ComplELink         zstring(256)    "Комплексная строка электронных адресов";
 	INN                zstring(48)     "@{inn}";
 	KPP                zstring(48)     "@{kpp}";
-	OKONH              zstring(48)     "ОКОНХ";
-	OKPO               zstring(48)     "ОКПО";
+	OKONH              zstring(48)     "@{okonh}";
+	OKPO               zstring(48)     "@{okpo}";
 	BIC                zstring(48)     "@{bic}";
 	CorrAcc            zstring(48)     "@{correspondentaccount}";
 	BankName           zstring(128)    "@{bankname}";
@@ -8316,7 +8316,7 @@ record CPosHeader {
 	FormatVersion  long        "Версия формата";
 	ProductName    zstring(32) "@{productname}";
 	ProductVersion long        "Версия продукта";
-	TableName      zstring(32) "Наименование таблицы данных";
+	TableName      zstring(32) "@{datatablename}";
 }
 
 record CPosTable {
@@ -8324,7 +8324,7 @@ record CPosTable {
 	Name       zstring(32)         "Наименование столика";
 	GuestCount long                "@{guestcount}";
 	Flags      long                "@{flags}";
-	Amount     double format(10.2) "Сумма заказа";
+	Amount     double format(10.2) "@{orderamount}";
 }
 
 record CPosGoods {
@@ -8459,7 +8459,7 @@ record FiasRawAddrObj {
 	UPDATEDATE   date         "@{fias_recupdatetime}";
 	SHORTNAME    zstring(16)  "Краткое наименование типа объекта";
 	AOLEVEL      zstring(16)  "Уровень адресного объекта"; // 10 digits
-	PARENTGUID   guid         "Идентификатор объекта родительского объекта";
+	PARENTGUID   guid         "Идентификатор родительского объекта";
 	AOID         guid         "Уникальный идентификатор записи. Ключевое поле.";
 	PREVID       guid         "@{fias_prevhistrecid}";
 	NEXTID       guid         "@{fias_nexthistrecid}";
@@ -8695,7 +8695,7 @@ reportstub AccGrpngByOp		{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой 
 reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по складам"}
 reportstub AccGrpng			{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой"}
 reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"@{view_accanlz_suppltrnovr}"}
-reportstub AccTrnovr		{ dl600data=AccAnlz,			"Оборотка по аналитическим статьям"}
+reportstub AccTrnovr		{ dl600data=AccAnlz,			"@{accanlz_aakndacctrnovr}"}
 reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountsreceivable}"}
 reportstub CrdtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountspayable}"}
 reportstub DebtAck			{ dl600data=DebtAck,			"@{view_accanlz_accrcvblreconcstatement}"}
@@ -8735,9 +8735,9 @@ reportstub CashPayOrder		{ dl600data=PayCashOrder,		"@{cashorder_expend}"}
 reportstub CashRcvOrder		{ dl600data=RcvCashOrder,		"@{cashorder_income}"}
 reportstub LogList			{ dl600data=LogList,			"LogList"}
 reportstub PaymBillList		{ dl600data=PaymBillList,		"Список оплат документа"}
-reportstub VATBookBuy		{ dl600data=VatBook,			"Книга покупок (раскладка полей таже, что и в VATBookSell)"}
-reportstub VATBookSell		{ dl600data=VatBook,			"Книга продаж"}
-reportstub SimpleLedger		{ dl600data=VatBook,			"Книга доходов/расходов"}
+reportstub VATBookBuy		{ dl600data=VatBook,			"@{purchaseledger}"} // Раскладка полей таже, что и в VATBookSell
+reportstub VATBookSell		{ dl600data=VatBook,			"@{salesledger}"}
+reportstub SimpleLedger		{ dl600data=VatBook,			"@{incnexpledger}"}
 reportstub SCardSeriesView	{ dl600data=SCardSerView,		"@{obj_scardseries}"}
 reportstub GoodsStrucRecur	{ dl600data=GoodsStruc,			"@{goods_struc} с элементами вложенных структур"}
 reportstub GoodsStruc		{ dl600data=GoodsStruc,			"@{goods_struc}"}

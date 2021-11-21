@@ -24,7 +24,7 @@ PPTssModel::PPTssModel()
 	THISZERO();
 }
 
-int FASTCALL PPTssModel::IsEqual(const PPTssModel & rS) const
+int FASTCALL PPTssModel::IsEq(const PPTssModel & rS) const
 {
 	int    eq = 1;
 #define CMPF(f) if(f!=rS.f) eq = 0;
@@ -64,7 +64,7 @@ PPTssModelPacket::Extension::Extension() : AdoptSlShiftDn(0), AdoptSlShiftUp(0),
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL PPTssModelPacket::Extension::IsEqual(const Extension & rS) const
+int FASTCALL PPTssModelPacket::Extension::IsEq(const Extension & rS) const
 {
 	int    yes = 1;
 	if(AdoptSlShiftDn != rS.AdoptSlShiftDn)
@@ -84,22 +84,22 @@ PPTssModelPacket::PPTssModelPacket()
 {
 }
 
-int FASTCALL PPTssModelPacket::IsEqual(const PPTssModelPacket & rS) const
+int FASTCALL PPTssModelPacket::IsEq(const PPTssModelPacket & rS) const
 {
 	int    eq = 1;
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
-	else if(!MainFrameSizeList.IsEqual(&rS.MainFrameSizeList))
+	else if(!MainFrameSizeList.IsEq(&rS.MainFrameSizeList))
 		eq = 0;
-	else if(!InputFrameSizeList.IsEqual(&rS.InputFrameSizeList))
+	else if(!InputFrameSizeList.IsEq(&rS.InputFrameSizeList))
 		eq = 0;
-	else if(!MaxDuckQuantList_Obsolete.IsEqual(&rS.MaxDuckQuantList_Obsolete))
+	else if(!MaxDuckQuantList_Obsolete.IsEq(&rS.MaxDuckQuantList_Obsolete))
 		eq = 0;
-	else if(!TargetQuantList_Obsolete.IsEqual(&rS.TargetQuantList_Obsolete))
+	else if(!TargetQuantList_Obsolete.IsEq(&rS.TargetQuantList_Obsolete))
 		eq = 0;
-	else if(!StakeBoundList.IsEqual(rS.StakeBoundList))
+	else if(!StakeBoundList.IsEq(rS.StakeBoundList))
 		eq = 0;
-	else if(!E.IsEqual(rS.E))
+	else if(!E.IsEq(rS.E))
 		eq = 0;
 	return eq;
 }
@@ -779,7 +779,7 @@ int PPObjTssModel::PutPacket(PPID * pID, PPTssModelPacket * pPack, int use_ta)
 			SSerializeContext sctx;
 			THROW(CheckRightsModByID(pID));
 			if(_id) {
-				if(pPack->IsEqual(org_pack))
+				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
 					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
@@ -839,7 +839,7 @@ PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), Type(tUnk
 	PTR32(CurrencySymb)[0] = 0;
 }
 
-int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
+int FASTCALL PPTimeSeries::IsEq(const PPTimeSeries & rS) const
 {
 	int    eq = 1;
 	if(!sstreq(Name, rS.Name))
@@ -886,7 +886,7 @@ int PPTimeSeriesPacket::Extension::IsEmpty() const
 	return (MarginManual == 0.0 && FixedStakeVolume == 0.0 && AvgLocalDeviation == 0.0 && !checkdate(UseDataForStrategiesSince));
 }
 
-int FASTCALL PPTimeSeriesPacket::Extension::IsEqual(const PPTimeSeriesPacket::Extension & rS) const
+int FASTCALL PPTimeSeriesPacket::Extension::IsEq(const PPTimeSeriesPacket::Extension & rS) const
 {
 	int    eq = 1;
 	if(MarginManual != rS.MarginManual)
@@ -904,12 +904,12 @@ PPTimeSeriesPacket::PPTimeSeriesPacket()
 {
 }
 
-int FASTCALL PPTimeSeriesPacket::IsEqual(const PPTimeSeriesPacket & rS) const
+int FASTCALL PPTimeSeriesPacket::IsEq(const PPTimeSeriesPacket & rS) const
 {
 	int    eq = 1;
-	if(!Rec.IsEqual(rS.Rec))
+	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
-	else if(!E.IsEqual(rS.E))
+	else if(!E.IsEq(rS.E))
 		eq = 0;
 	return eq;
 }
@@ -934,7 +934,7 @@ PPObjTimeSeries::Config::Config() : /*Tag(PPOBJ_CONFIG), ID(PPCFG_MAIN), Prop(PP
 {
 }
 
-int FASTCALL PPObjTimeSeries::Config::IsEqual(const PPObjTimeSeries::Config & rS) const
+int FASTCALL PPObjTimeSeries::Config::IsEq(const PPObjTimeSeries::Config & rS) const
 {
 	int    eq = 1;
 	if(Ver != rS.Ver)
@@ -967,7 +967,7 @@ int FASTCALL PPObjTimeSeries::Config::IsEqual(const PPObjTimeSeries::Config & rS
 		eq = 0;
 	else if(E.TestCount != rS.E.TestCount) // @v10.7.7
 		eq = 0;
-	else if(!List.IsEqual(rS.List))
+	else if(!List.IsEq(rS.List))
 		eq = 0;
 	return eq;
 }
@@ -1219,7 +1219,7 @@ int PPObjTimeSeries::WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta)
 	int    is_upd = 1;
 	PPObjTimeSeries::Config ex_cfg;
 	if(ReadConfig(&ex_cfg) > 0) {
-		if(pCfg && pCfg->IsEqual(ex_cfg))
+		if(pCfg && pCfg->IsEq(ex_cfg))
 			is_upd = 0;
 	}
 	else
@@ -1506,7 +1506,7 @@ int PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_t
 			}
 			THROW(CheckRightsModByID(pID));
 			if(_id) {
-				if(pPack->IsEqual(org_pack))
+				if(pPack->IsEq(org_pack))
 					ok = -1;
 				else {
 					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0)); // @v10.7.4 @fix pPack-->&pPack->Rec
@@ -1844,7 +1844,7 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 		dlg = new TDialog(DLG_TSOELGRAPH);
 		if(CheckDialogPtr(&dlg)) {
 			fid = selected_file_id;
-			SetupStrAssocCombo(dlg, CTLSEL_TSOELGRAPH_FILE, &file_list, fid, 0, 0, 0);
+			SetupStrAssocCombo(dlg, CTLSEL_TSOELGRAPH_FILE, file_list, fid, 0, 0, 0);
 			dlg->AddClusterAssocDef(CTL_TSOELGRAPH_FUNC, 0, param_.funcResult1);
 			dlg->AddClusterAssoc(CTL_TSOELGRAPH_FUNC, 1, param_.funcResult2);
 			dlg->SetClusterData(CTL_TSOELGRAPH_FUNC, param_.Func);
@@ -4670,7 +4670,7 @@ struct StrategyContainerChunk {
 			return 0;
 		else if(rS.MainFrameSize != MainFrameSize)
 			return 0;
-		else if(MainFrameSize && !static_cast<RealRange>(MainFrameRange).IsEqual(rS.OptDelta2Range))
+		else if(MainFrameSize && !static_cast<RealRange>(MainFrameRange).IsEq(rS.OptDelta2Range))
 			return 0;
 		else
 			return 1;
@@ -4863,7 +4863,7 @@ int PPObjTimeSeries::StrategyContainer::FindAngularNearestNeighbour(const Strate
 	uint   min_diff_idx = 0;
 	for(uint i = 0; i < getCount(); i++) {
 		const Strategy & r_test_s = at(i);
-		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEqual(rS.OptDelta2Range))) {
+		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEq(rS.OptDelta2Range))) {
 			const double _this_diff = fabs(r_test_s.OptDeltaRange.GetMiddle() - ma);
 			if(min_diff > _this_diff) {
 				min_diff = _this_diff;
@@ -4879,7 +4879,7 @@ int PPObjTimeSeries::StrategyContainer::FindAngularIntersection(const Strategy &
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const Strategy & r_test_s = at(i);
-		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEqual(rS.OptDelta2Range))) {
+		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEq(rS.OptDelta2Range))) {
 			RealRange ar_this;
 			RealRange ar_other;
 			ar_this.low = atan(r_test_s.OptDeltaRange.low);
@@ -5478,7 +5478,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	rMp.BestSubsetDimention = inrangeordefault(rMp.BestSubsetDimention, 1U, 1000U, 4U); // @v10.8.6 3000U-->1000U, 100U-->4U
 	// @v10.4.3 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETTF, temp_buf) > 0) {
-		if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEqual("1"))
+		if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEq("1"))
 			rMp.Flags |= rMp.fBestSubsetTrendFollowing;
 	}
 	// } @v10.4.3
@@ -5497,7 +5497,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 				rMp.OptTargetCriterion = rMp.tcAmount; // @default
 		}
 		if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGEMULTI, temp_buf) > 0) {
-			if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEqual("1"))
+			if(temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes") || temp_buf.IsEq("1"))
 				rMp.Flags |= rMp.fOptRangeMulti;
 		}
 	}
@@ -7481,7 +7481,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 					int   mf_found = 0;
 					for(uint i = 0; i < main_frame_count_list.getCount(); i++) {
 						MainFrameCountEntry * p_mfce = static_cast<MainFrameCountEntry *>(main_frame_count_list.at(i));
-						if(p_mfce->R.IsEqual(r_sc.OptDelta2Range)) {
+						if(p_mfce->R.IsEq(r_sc.OptDelta2Range)) {
 							p_mfce->Count++;
 							mf_found = 1;
 						}
@@ -9371,9 +9371,7 @@ int PPObjTimeSeries::TsDensityMap::SearchKNN(uint idx, uint K, long flags, RAsso
 				if((!(flags & knnfSameTS) || (r_ientry.TsID == r_jentry.TsID)) && (!(flags & knnfSameSide) || (iside == jside))) {
 					const uint fvd2 = r_jentry.GetFactorVector(factor_vec2);
 					assert(fvd2 == fvd);
-					RAssoc ev;
-					ev.Key = j;
-					ev.Val = feuclideandistance(fvd, factor_vec, factor_vec2);
+					RAssoc ev(j, feuclideandistance(fvd, factor_vec, factor_vec2));
 					rResult.insert(&ev);
 				}
 			}

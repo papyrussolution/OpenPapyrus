@@ -323,7 +323,7 @@ PPViewDisplayExtList & PPViewDisplayExtList::Z()
 	return *this;
 }
 
-int FASTCALL PPViewDisplayExtList::IsEqual(const PPViewDisplayExtList & rS) const
+int FASTCALL PPViewDisplayExtList::IsEq(const PPViewDisplayExtList & rS) const
 {
 	int    ok = 0;
 	uint   c = L.getCount();
@@ -1066,7 +1066,7 @@ int PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 	return ok;
 }
 
-int PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
+int PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 {
 	int    ok = 0;
 	if(IsA(pS)) {
@@ -1084,38 +1084,38 @@ int PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 					else if(p_b->Type == Branch::tSArray) {
 						const SArray * p_ary = reinterpret_cast<const SArray *>(PTR8C(this) + p_b->Offs);
 						const SArray * p_src_ary = reinterpret_cast<const SArray *>(PTR8C(pS) + p_b->Offs);
-						if(!p_ary->IsEqual(*p_src_ary))
+						if(!p_ary->IsEq(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tSVector) {
 						const SVector * p_ary = reinterpret_cast<const SVector *>(PTR8C(this) + p_b->Offs);
 						const SVector * p_src_ary = reinterpret_cast<const SVector *>(PTR8C(pS) + p_b->Offs);
-						if(!p_ary->IsEqual(*p_src_ary))
+						if(!p_ary->IsEq(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
 						const ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
 						const ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
-						if(!p_list->IsEqual(*p_src_list))
+						if(!p_list->IsEq(*p_src_list))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tStrAssocArray) {
 						const StrAssocArray * p_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(this) + p_b->Offs);
 						const StrAssocArray * p_src_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(pS) + p_b->Offs);
-						if(!p_ary->IsEqual(*p_src_ary))
+						if(!p_ary->IsEq(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tDisplayExtList) {
 						const PPViewDisplayExtList * p_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(this) + p_b->Offs);
 						const PPViewDisplayExtList * p_src_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(pS) + p_b->Offs);
-						if(!p_list->IsEqual(*p_src_list))
+						if(!p_list->IsEq(*p_src_list))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tBaseFiltPtr) {
 						const PPBaseFilt * p_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(this) + p_b->Offs);
 						const PPBaseFilt * p_src_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(pS) + p_b->Offs);
 						if(p_filt && p_src_filt) {
-							if(!p_filt->IsEqual(p_src_filt, 0))
+							if(!p_filt->IsEq(p_src_filt, 0))
 								ok = 0;
 						}
 						else if(!(!p_filt && !p_src_filt))
@@ -1132,7 +1132,7 @@ int PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
-	int    r = BIN(p_filt && IsEqual(p_filt, 0));
+	int    r = BIN(p_filt && IsEq(p_filt, 0));
 	ZDELETE(p_filt);
 	return r;
 }
@@ -1568,7 +1568,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 				sel_nf_id = nf.ID;
 			nf_list.Add(nf.ID, nf.Name);
 		}
-		SetupStrAssocCombo(dlg, CTLSEL_JOB_EXPVIEW_FILT, &nf_list, sel_nf_id, 0, 0, 0);
+		SetupStrAssocCombo(dlg, CTLSEL_JOB_EXPVIEW_FILT, nf_list, sel_nf_id, 0, 0, 0);
 		dlg->setCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, rData.Dl600_Name);
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_JOB_EXPVIEW_OUT, CTL_JOB_EXPVIEW_OUT, 1, 0, 0,
 			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfAllowNExists);
@@ -1785,10 +1785,9 @@ int FASTCALL PPView::Helper_Print(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
-		PView  pv(this);
 		PPReportEnv env;
 		env.Sort = ord;
-		ok = PPAlddPrint(rptId, &pv, &env);
+		ok = PPAlddPrint(rptId, PView(this), &env);
 	}
 	else
 		ok = -1;
@@ -1799,11 +1798,10 @@ int PPView::ExportXml(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
-		PView  pv(this);
 		PPReportEnv env;
 		env.Sort = ord;
 		env.PrnFlags = SReport::XmlExport|SReport::PrintingNoAsk;
-		ok = PPAlddPrint(rptId, &pv, &env);
+		ok = PPAlddPrint(rptId, PView(this), &env);
 	}
 	else
 		ok = -1;
@@ -1813,7 +1811,7 @@ int PPView::ExportXml(uint rptId, int ord)
 int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 {
 	int    ok = -1;
-	uint   prev_rez_id = pW ? pW->GetResID() : 0;
+	const  uint prev_rez_id = pW ? pW->GetResID() : 0;
 	PPBaseFilt * p_filt = CreateFilt(0);
 	const PPBaseFilt * p_src_filt = GetBaseFilt();
 	DBQuery * p_q = 0;
@@ -2380,6 +2378,25 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	return ok;
 }
 
+/*static int CreateComboBoxComplex(uint cbOptions, uint maxTextLen, TGroup * pOwner, TInputLine ** ppInp, ComboBox ** pCb)
+{
+	int    ok = 1;
+	TRect  r;
+	ComboBox * p_cb  = new ComboBox(r, cbOptions); //cbxAllowEmpty|cbxDisposeData|cbxListOnly
+	TInputLine * p_inp = new TInputLine(r, S_ZSTRING, MKSFMT(maxTextLen, 0));
+	p_cb->P_Owner = pOwner;
+	p_cb->setState(sfMsgToParent, false);
+	p_inp->setState(sfMsgToParent, false);
+	p_inp->Parent = parent;
+	p_inp->SetId(CTL_TOOLBAR_INPUTLI);
+	p_cb->SetId(CTL_TOOLBAR_BTN);
+	p_cb->Parent  = parent;
+	p_inp->setupCombo(P_ComboBox);
+	p_cb->handleWindowsMessage(WM_INITDIALOG,  0, 0);
+	p_inp->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+	return ok;
+}*/
+
 void * PPViewBrowser::Helper_InitToolbarCombo()
 {
 #define CTL_TOOLBAR_BTN     1000
@@ -2407,8 +2424,8 @@ void * PPViewBrowser::Helper_InitToolbarCombo()
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		ZDeleteWinGdiObject(&H_ComboFont);
 		H_ComboFont = TView::setFont(hwnd_li, font_face, 8);
-		P_ComboBox  = new ComboBox(r, cbxAllowEmpty|cbxDisposeData|cbxListOnly);
 		P_InputLine = new TInputLine(r, S_ZSTRING, MKSFMT(128, 0));
+		P_ComboBox  = new ComboBox(r, cbxAllowEmpty|cbxDisposeData|cbxListOnly, P_InputLine);
 		P_ComboBox->P_Owner = this;
 		P_ComboBox->setState(sfMsgToParent, false);
 		P_InputLine->setState(sfMsgToParent, false);
@@ -2416,7 +2433,6 @@ void * PPViewBrowser::Helper_InitToolbarCombo()
 		P_InputLine->SetId(CTL_TOOLBAR_INPUTLI);
 		P_ComboBox->SetId(CTL_TOOLBAR_BTN);
 		P_ComboBox->Parent  = parent;
-		P_InputLine->setupCombo(P_ComboBox);
 		P_ComboBox->handleWindowsMessage(WM_INITDIALOG,  0, 0);
 		P_InputLine->handleWindowsMessage(WM_INITDIALOG, 0, 0);
 	}

@@ -869,10 +869,8 @@ int PPViewProject::PrintProjectTasks(PPID prjID)
 	filt.ParentID = prjID;
 	filt.Flags    = ProjectFilt::fPrintPrjTasks;
 	prj_view.Init_(&filt);
-	if(prj_view.InitPrjTaskIterations(prjID) > 0) {
-		PView  pv(&prj_view);
-		ok = PPAlddPrint(REPORT_PROJECTTASKS, &pv);
-	}
+	if(prj_view.InitPrjTaskIterations(prjID) > 0)
+		ok = PPAlddPrint(REPORT_PROJECTTASKS, PView(&prj_view), 0);
 	return ok;
 }
 

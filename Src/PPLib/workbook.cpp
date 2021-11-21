@@ -144,7 +144,7 @@ PPWorkbookPacket::~PPWorkbookPacket()
 	destroy();
 }
 
-int FASTCALL PPWorkbookPacket::IsEqual(const PPWorkbookPacket & rS) const
+int FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 {
 #define NRECFLD(f) if(Rec.f != rS.Rec.f) return 0
 	NRECFLD(ID);
@@ -164,7 +164,7 @@ int FASTCALL PPWorkbookPacket::IsEqual(const PPWorkbookPacket & rS) const
 		return 0;
 	else if(!sstreq(Rec.Version, rS.Rec.Version)) // @v9.3.8
 		return 0;
-	else if(!TagL.IsEqual(rS.TagL))
+	else if(!TagL.IsEq(rS.TagL))
 		return 0;
 	else if(ExtString != rS.ExtString)
 		return 0;
@@ -1294,7 +1294,7 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 		}
 		else if(is_edit) {
 			THROW(GetPacket(_id, &org_pack) > 0);
-			if(pPack->IsEqual(org_pack))
+			if(pPack->IsEq(org_pack))
 				ok = -1;
 			else {
 				THROW(UpdateByID(P_Tbl, Obj, _id, &pPack->Rec, 0));

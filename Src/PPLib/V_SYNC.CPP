@@ -42,10 +42,10 @@ int ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 	return ok;
 }
 
-int ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
+int ObjSyncFilt::IsEq(const PPBaseFilt * pS, int deep) const
 {
-	return BIN(PPBaseFilt::IsEqual(pS, deep) && 
-		ObjIDList.IsEqual(&static_cast<const ObjSyncFilt *>(pS)->ObjIDList) && CommIDList.IsEqual(static_cast<const ObjSyncFilt *>(pS)->CommIDList));
+	return BIN(PPBaseFilt::IsEq(pS, deep) && 
+		ObjIDList.IsEq(&static_cast<const ObjSyncFilt *>(pS)->ObjIDList) && CommIDList.IsEq(static_cast<const ObjSyncFilt *>(pS)->CommIDList));
 }
 //
 //

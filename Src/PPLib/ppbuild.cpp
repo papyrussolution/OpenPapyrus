@@ -258,8 +258,8 @@ int	PrcssrBuild::EditParam(Param * pParam)
 					if(p_entry)
 						config_str_list.Add(i+1, p_entry->Name);
 				}
-				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, &config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
-				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_SCFG,   &config_str_list, Data.XpConfigEntryIdx, 0, 0, 0); // @v10.6.1
+				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
+				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_SCFG,   config_str_list, Data.XpConfigEntryIdx, 0, 0, 0); // @v10.6.1
 			}
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 0, PrcssrBuild::Param::fBuildClient);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 1, PrcssrBuild::Param::fBuildServer);

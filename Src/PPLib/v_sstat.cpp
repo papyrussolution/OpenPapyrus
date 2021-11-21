@@ -22,11 +22,11 @@ SStatFilt & FASTCALL SStatFilt::operator = (const SStatFilt & s)
 
 int SStatFilt::IsEqualExceptOrder(const SStatFilt * pFilt) const
 {
-	if(pFilt && Period.IsEqual(pFilt->Period) && GoodsGrpID == pFilt->GoodsGrpID &&
+	if(pFilt && Period.IsEq(pFilt->Period) && GoodsGrpID == pFilt->GoodsGrpID &&
 		Flags == pFilt->Flags && Sgg == pFilt->Sgg && Cycl == pFilt->Cycl &&
 		OrdTerm == pFilt->OrdTerm && DlvrTerm == pFilt->DlvrTerm && SupplID == pFilt->SupplID &&
 		DefInsurStock == pFilt->DefInsurStock && UpRestriction == pFilt->UpRestriction &&
-		RestDate == pFilt->RestDate && LocList.IsEqual(pFilt->LocList)) {
+		RestDate == pFilt->RestDate && LocList.IsEq(pFilt->LocList)) {
 		return 1;
 	}
 	else
@@ -1334,11 +1334,10 @@ int PPViewSStat::Print(const void *)
 	int    ok = 1;
 	uint   rpt_id = (Filt.Flags & SStatFilt::fSupplOrderForm) ? (P_Ct ? REPORT_SSTATSUPPLORD_CT : REPORT_SSTATSUPPLORD) : REPORT_SSTATGGROUP;
 	PPReportEnv env;
-	PView  pv(this);
 	env.Sort = Filt.Order;
 	if(!oneof2(env.Sort, OrdByDefault, OrdByGoodsName))
 		env.PrnFlags = SReport::DisableGrouping;
-	PPAlddPrint(rpt_id, &pv, &env);
+	PPAlddPrint(rpt_id, PView(this), &env);
 	return ok;
 }
 

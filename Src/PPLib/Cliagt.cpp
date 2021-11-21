@@ -29,7 +29,7 @@ PPClientAgreement & PPClientAgreement::Z()
 	return *this;
 }
 
-int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
+int FASTCALL PPClientAgreement::IsEq(const PPClientAgreement & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
 	CMP_FLD(Flags);
@@ -52,7 +52,7 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	CMP_FLD(Code_); // @v11.2.0
 #undef CMP_FLD
 	// @v11.2.0 (see above) if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
-	if(!Bmpp.IsEqual(rS.Bmpp))
+	if(!Bmpp.IsEq(rS.Bmpp))
 		return 0;
 	else {
 		const uint _c1 = DebtLimList.getCount();
@@ -725,7 +725,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		if(P_DebtDimList)
-			SetupStrAssocCombo(this, CTLSEL_DBTLIMITEM_DIM, P_DebtDimList, Data.DebtDimID, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_DBTLIMITEM_DIM, *P_DebtDimList, Data.DebtDimID, 0, 0);
 		else
 			SetupPPObjCombo(this, CTLSEL_DBTLIMITEM_DIM, PPOBJ_DEBTDIM, Data.DebtDimID, 0, 0);
 		setCtrlData(CTL_DBTLIMITEM_LIMIT, &Data.Limit);
@@ -749,7 +749,7 @@ public:
 		return ok;
 	}
 private:
-	StrAssocArray * P_DebtDimList;
+	const StrAssocArray * P_DebtDimList;
 };
 
 int DebtLimListDialog::Edit(PPClientAgreement::DebtLimit * pItem)
@@ -823,10 +823,12 @@ int EditDebtLimList(PPClientAgreement & rCliAgt) { DIALOG_PROC_BODY(DebtLimListD
 
 int SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 {
-	SString buf, id_buf, txt_buf;
+	SString buf;
+	SString id_buf;
+	SString txt_buf;
 	StrAssocArray ary;
 	StringSet ss(';', PPLoadTextS(PPTXT_PAYMDATEBASE, buf));
-	for(uint i = 0; ss.get(&i, buf) > 0;)
+	for(uint i = 0; ss.get(&i, buf);)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
     {
@@ -839,7 +841,7 @@ int SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 			}
 		}
     }
-	return SetupStrAssocCombo(pDlg, ctlID, &ary, initVal, 0);
+	return SetupStrAssocCombo(pDlg, ctlID, ary, initVal, 0);
 }
 
 int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
@@ -1190,7 +1192,7 @@ PPSupplAgreement::ExchangeParam & PPSupplAgreement::ExchangeParam::Z()
 	return *this;
 }
 
-int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) const
+int FASTCALL PPSupplAgreement::ExchangeParam::IsEq(const ExchangeParam & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
 	CMP_FLD(LastDt);
@@ -1215,8 +1217,8 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) 
 	CMP_FLD(Fb.NativeGIdType); // @v9.9.5
 	CMP_FLD(Fb.ForeignGIdType); // @v9.9.5
 #undef CMP_FLD
-	if(!DebtDimList.IsEqual(rS.DebtDimList)) return 0; // @v9.1.3
-	if(!WhList.IsEqual(rS.WhList)) return 0; // @v9.9.5
+	if(!DebtDimList.IsEq(rS.DebtDimList)) return 0; // @v9.1.3
+	if(!WhList.IsEq(rS.WhList)) return 0; // @v9.9.5
 	return 1;
 }
 
@@ -1296,7 +1298,7 @@ PPSupplAgreement::OrderParamEntry::OrderParamEntry()
 	THISZERO();
 }
 
-int FASTCALL PPSupplAgreement::OrderParamEntry::IsEqual(const OrderParamEntry & rS) const
+int FASTCALL PPSupplAgreement::OrderParamEntry::IsEq(const OrderParamEntry & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
 	CMP_FLD(GoodsGrpID);
@@ -1327,7 +1329,7 @@ PPSupplAgreement::PPSupplAgreement()
 	Z();
 }
 
-int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
+int FASTCALL PPSupplAgreement::IsEq(const PPSupplAgreement & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
 	// Ver не сравниваем - не значащее поле
@@ -1348,7 +1350,7 @@ int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
 	CMP_FLD(MngrRelID);
 	CMP_FLD(Dr);
 #undef CMP_FLD
-	if(!Ep.IsEqual(rS.Ep))
+	if(!Ep.IsEq(rS.Ep))
 		return 0;
 	{
 		const uint _c1 = OrderParamList.getCount();
@@ -1359,7 +1361,7 @@ int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
 			for(uint i = 0; i < _c1; i++) {
 				const OrderParamEntry & r_e1 = OrderParamList.at(i);
 				const OrderParamEntry & r_e2 = rS.OrderParamList.at(i);
-				if(!r_e1.IsEqual(r_e2))
+				if(!r_e1.IsEq(r_e2))
 					return 0;
 			}
 		}
@@ -2047,7 +2049,7 @@ int SupplAgtDialog::EditExchangeCfg()
 					if(tech_symb.CmpNC(temp_buf) == 0)
 						_tech_id = _ss_id;
                 }
-                SetupStrAssocCombo(this, CTLSEL_SUPLEXCHCFG_TECH, &tech_list, _tech_id, 0);
+                SetupStrAssocCombo(this, CTLSEL_SUPLEXCHCFG_TECH, tech_list, _tech_id, 0);
 			}
 			setCtrlData(CTL_SUPLEXCHCFG_LASTDT,  &Data.LastDt);
 			{

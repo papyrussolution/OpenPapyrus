@@ -936,8 +936,8 @@ static int ConvertInBill(ILBillPacket * pPack, const ObjTransmContext * pCtx)
 		ILTI * p_ilti;
 		const DBDivPack * p_dbd = pCtx->P_ThisDbDivPack;
 		if(p_dbd->LocList.getCount() && p_dbd->Rec.IntrRcptOpr) {
-			PPID   loc_id  = pPack->Rec.LocID;
-			PPID   dest_loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
+			const  PPID loc_id = pPack->Rec.LocID;
+			const  PPID dest_loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
 			if(!p_dbd->LocList.lsearch(loc_id) && p_dbd->LocList.lsearch(dest_loc_id)) {
 				pPack->Rec.OpID   = p_dbd->Rec.IntrRcptOpr;
 				pPack->Rec.LocID  = dest_loc_id;

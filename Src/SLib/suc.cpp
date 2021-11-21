@@ -2328,13 +2328,13 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
 					}
 					map.TranslateToU(org_cstr.ucptr(), org_cstr.Len(), test_ustr);
 					assert(test_ustr.Len() == org_ustr.Len());
-					assert(test_ustr.IsEqual(org_ustr));
-					THROW(test_ustr.IsEqual(org_ustr));
+					assert(test_ustr.IsEq(org_ustr));
+					THROW(test_ustr.IsEq(org_ustr));
 					//
 					map.TranslateToB2(test_ustr, test_ustr.Len(), test_cstr.Z());
 					assert(test_cstr.Len() == org_cstr.Len());
-					assert(test_cstr.IsEqual(org_cstr));
-					THROW(test_cstr.IsEqual(org_cstr));
+					assert(test_cstr.IsEq(org_cstr));
+					THROW(test_cstr.IsEq(org_cstr));
 				}
 				/* Тест построения ACS-таблиц для btrieve
 				if(map.MapCount <= 256 && map.MbMl == 1) {

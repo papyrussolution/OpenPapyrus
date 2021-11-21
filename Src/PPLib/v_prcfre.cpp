@@ -367,10 +367,8 @@ int PPViewPrcBusy::Print(const void * pHdr)
 {
 	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
-	if(GetItem(__id, &item) > 0 && item.TSessID) {
-		PPFilt pf(item.TSessID);
-		PPAlddPrint(REPORT_TSESSION, &pf);
-	}
+	if(GetItem(__id, &item) > 0 && item.TSessID)
+		PPAlddPrint(REPORT_TSESSION, PPFilt(item.TSessID), 0);
 	return -1;
 }
 

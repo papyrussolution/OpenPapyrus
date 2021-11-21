@@ -367,9 +367,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 					rez->getUINT(); // bmp_id == 0
 					p_view = dlg->getCtrlView(temp_id);
 					if(temp_id) {
-						ComboBox * combo = new ComboBox(r,  options);
-						TInputLine * il = static_cast<TInputLine *>(p_view);
-						CALLPTRMEMB(il, setupCombo(combo));
+						ComboBox * combo = new ComboBox(r,  options, static_cast<TInputLine *>(p_view));
 						dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
 					break;

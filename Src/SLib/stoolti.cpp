@@ -322,7 +322,7 @@ int SMessageWindow::Move()
 				Text.Z();
 				if(Font)
 					SelectObject(hdc, Font);
-				for(uint i = 0; ss.get(&i, buf) > 0;) {
+				for(uint i = 0; ss.get(&i, buf);) {
 					SIZE size;
 					if(buf.Len() == 0)
 						buf.Space();
@@ -333,7 +333,7 @@ int SMessageWindow::Move()
 						StringSet ss2('\n', buf);
 						buf.Z();
 						uint j = 0, k = 0;
-						while(ss2.get(&j, buf2) > 0 && buf2.Len() > 0) {
+						while(ss2.get(&j, buf2) && buf2.Len()) {
 							buf.Cat(buf2).CR();
 							k++;
 						}

@@ -253,7 +253,6 @@ public:
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	virtual ChoiceFormat* clone() const override;
-
 	/**
 	 * Returns true if the given Format objects are semantically equal.
 	 * Objects of different subclasses are considered unequal.
@@ -263,7 +262,6 @@ public:
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
 	virtual bool operator==(const Format& other) const override;
-
 	/**
 	 * Sets the pattern.
 	 * @param pattern   The pattern to be applied.
@@ -272,9 +270,7 @@ public:
 	 *                  set to a failure result.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	virtual void applyPattern(const UnicodeString & pattern,
-	    UErrorCode& status);
-
+	virtual void applyPattern(const UnicodeString & pattern, UErrorCode& status);
 	/**
 	 * Sets the pattern.
 	 * @param pattern    The pattern to be applied.
@@ -285,9 +281,7 @@ public:
 	 *                   set to a failure result.
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	virtual void applyPattern(const UnicodeString & pattern,
-	    UParseError& parseError,
-	    UErrorCode& status);
+	virtual void applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode& status);
 	/**
 	 * Gets the pattern.
 	 *

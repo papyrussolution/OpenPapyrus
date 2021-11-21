@@ -201,7 +201,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 	keyword = ssh_config_get_token(&s);
 	if(keyword == NULL || *keyword == '#' ||
 	    *keyword == '\0' || *keyword == '\n') {
-		SAFE_FREE(x);
+		ZFREE(x);
 		return 0;
 	}
 
@@ -213,7 +213,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 	    opcode > BIND_CFG_UNSUPPORTED) { /* Ignore all unknown types here */
 		/* Skip all the options that were already applied */
 		if(seen[opcode] != 0) {
-			SAFE_FREE(x);
+			ZFREE(x);
 			return 0;
 		}
 		seen[opcode] = 1;
@@ -404,7 +404,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 					ssh_set_error(bind, SSH_FATAL,
 					    "line %d: ERROR - Match all cannot be combined with "
 					    "other Match attributes", count);
-					SAFE_FREE(x);
+					ZFREE(x);
 					return -1;
 				    case BIND_MATCH_USER:
 				    case BIND_MATCH_GROUP:
@@ -419,7 +419,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 					if(p == NULL || p[0] == '\0') {
 						SSH_LOG(SSH_LOG_WARN, "line %d: Match keyword "
 						    "'%s' requires argument\n", count, p2);
-						SAFE_FREE(x);
+						ZFREE(x);
 						return -1;
 					}
 					args++;
@@ -433,14 +433,14 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 				    default:
 					ssh_set_error(bind, SSH_FATAL,
 					    "ERROR - Unknown argument '%s' for Match keyword", p);
-					SAFE_FREE(x);
+					ZFREE(x);
 					return -1;
 			    }
 		    } while(p != NULL && p[0] != '\0');
 		    if(args == 0) {
 			    ssh_set_error(bind, SSH_FATAL,
 				"ERROR - Match keyword requires an argument");
-			    SAFE_FREE(x);
+			    ZFREE(x);
 			    return -1;
 		    }
 		    /* This line only sets the PARSING flag if all checks passed */
@@ -490,12 +490,12 @@ static int ssh_bind_config_parse_line(ssh_bind bind,
 		default:
 		    ssh_set_error(bind, SSH_FATAL, "ERROR - unimplemented opcode: %d",
 			opcode);
-		    SAFE_FREE(x);
+		    ZFREE(x);
 		    return -1;
 		    break;
 	}
 
-	SAFE_FREE(x);
+	ZFREE(x);
 	return rc;
 }
 

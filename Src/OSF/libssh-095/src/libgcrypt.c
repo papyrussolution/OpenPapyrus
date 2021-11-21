@@ -27,12 +27,12 @@
 
 static int libgcrypt_initialized = 0;
 
-static int alloc_key(struct ssh_cipher_struct * cipher) {
+static int alloc_key(struct ssh_cipher_struct * cipher) 
+{
 	cipher->key = SAlloc::M(cipher->keylen);
 	if(cipher->key == NULL) {
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -261,15 +261,15 @@ static int blowfish_set_key(struct ssh_cipher_struct * cipher, void * key, void 
 
 		if(gcry_cipher_open(&cipher->key[0], GCRY_CIPHER_BLOWFISH,
 		    GCRY_CIPHER_MODE_CBC, 0)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 		if(gcry_cipher_setkey(cipher->key[0], key, 16)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 		if(gcry_cipher_setiv(cipher->key[0], IV, 8)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 	}
@@ -304,36 +304,36 @@ static int aes_set_key(struct ssh_cipher_struct * cipher, void * key, void * IV)
 			case 128:
 			    if(gcry_cipher_open(&cipher->key[0], GCRY_CIPHER_AES128,
 				mode, 0)) {
-				    SAFE_FREE(cipher->key);
+				    ZFREE(cipher->key);
 				    return -1;
 			    }
 			    break;
 			case 192:
 			    if(gcry_cipher_open(&cipher->key[0], GCRY_CIPHER_AES192,
 				mode, 0)) {
-				    SAFE_FREE(cipher->key);
+				    ZFREE(cipher->key);
 				    return -1;
 			    }
 			    break;
 			case 256:
 			    if(gcry_cipher_open(&cipher->key[0], GCRY_CIPHER_AES256,
 				mode, 0)) {
-				    SAFE_FREE(cipher->key);
+				    ZFREE(cipher->key);
 				    return -1;
 			    }
 			    break;
 			default:
 			    SSH_LOG(SSH_LOG_WARNING, "Unksupported key length %u.", cipher->keysize);
-			    SAFE_FREE(cipher->key);
+			    ZFREE(cipher->key);
 			    return -1;
 		}
 		if(gcry_cipher_setkey(cipher->key[0], key, cipher->keysize / 8)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 		if(mode == GCRY_CIPHER_MODE_CBC) {
 			if(gcry_cipher_setiv(cipher->key[0], IV, 16)) {
-				SAFE_FREE(cipher->key);
+				ZFREE(cipher->key);
 				return -1;
 			}
 		}
@@ -345,7 +345,7 @@ static int aes_set_key(struct ssh_cipher_struct * cipher, void * key, void * IV)
 		}
 		else {
 			if(gcry_cipher_setctr(cipher->key[0], IV, 16)) {
-				SAFE_FREE(cipher->key);
+				ZFREE(cipher->key);
 				return -1;
 			}
 		}
@@ -495,15 +495,15 @@ static int des3_set_key(struct ssh_cipher_struct * cipher, void * key, void * IV
 		}
 		if(gcry_cipher_open(&cipher->key[0], GCRY_CIPHER_3DES,
 		    GCRY_CIPHER_MODE_CBC, 0)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 		if(gcry_cipher_setkey(cipher->key[0], key, 24)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 		if(gcry_cipher_setiv(cipher->key[0], IV, 8)) {
-			SAFE_FREE(cipher->key);
+			ZFREE(cipher->key);
 			return -1;
 		}
 	}

@@ -194,7 +194,7 @@ char * ssh_string_to_char(struct ssh_string_struct * s)
  */
 void ssh_string_free_char(char * s) 
 {
-	SAFE_FREE(s);
+	ZFREE(s);
 }
 
 /**
@@ -258,7 +258,7 @@ void * ssh_string_data(struct ssh_string_struct * s) {
  * \param[in] s         The SSH string to delete.
  */
 void ssh_string_free(struct ssh_string_struct * s) {
-	SAFE_FREE(s);
+	ZFREE(s);
 }
 
 /** @} */

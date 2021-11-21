@@ -377,7 +377,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				line.Strip();
 				StringSet ss(P.FldDiv);
 				ss.setBuf(line, line.Len() + 1);
-				for(uint p = 0, fld_pos = 0, fn_pos = 0; ss.get(&p, field_buf) > 0; fld_pos++) {
+				for(uint p = 0, fld_pos = 0, fn_pos = 0; ss.get(&p, field_buf); fld_pos++) {
 					if(P.Flags & fFldNameRec) {
 						if(FldNames.get(&fn_pos, fn) && rRec.GetFieldByName(fn, &fld) > 0) {
 							PutFieldDataToBuf(fld, field_buf, pDataBuf);

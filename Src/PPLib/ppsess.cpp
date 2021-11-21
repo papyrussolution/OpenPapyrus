@@ -2105,6 +2105,48 @@ static void InitTest()
 	}
 #endif
 	// } @v11.0.4 
+	// @v11.2.4 {
+	{
+		//
+		// Экспресс-тест проверки консистентности указателей на SUiLayout и коллекции ссылок на лейауты SUiLayout::RefCollection
+		//
+		SUiLayout * pp_lo[10];
+		{
+			SUiLayout::RefCollection reflist;
+			SUiLayout::RefCollection reflist2;
+			MEMSZERO(pp_lo);
+			for(uint i = 0; i < SIZEOFARRAY(pp_lo); i++) {
+				assert(pp_lo[i] == 0);
+				assert(!pp_lo[i]->IsConsistent());
+				pp_lo[i] = new SUiLayout;
+				assert(pp_lo[i]->IsConsistent());
+				reflist.Add(pp_lo[i]);
+				reflist2.Add(pp_lo[i]);
+			}
+			assert(reflist.GetCount() == SIZEOFARRAY(pp_lo));
+			assert(reflist2.GetCount() == SIZEOFARRAY(pp_lo));
+			for(uint j = 0; j < reflist.GetCount(); j++) {
+				assert(reflist.Get(j) == reflist2.Get(j));
+				assert(reflist.Get(j)->IsConsistent());
+				assert(reflist2.Get(j)->IsConsistent());
+			}
+			reflist.Z(); // Ручное разрушение коллекции ссылок
+			assert(reflist.GetCount() == 0);
+			// Здесь произошло автоматическое разрушение коллекции ссылок reflist2
+		}
+		//
+		// После того как мы создали и разрушили 2 коллекции ссылок на лейауты pp_lo[]
+		// проверяем их консистентности и разрушаем их.
+		//
+		for(uint k = 0; k < SIZEOFARRAY(pp_lo); k++) {
+			assert(pp_lo[k]->IsConsistent());
+			delete pp_lo[k];
+			assert(!pp_lo[k]->IsConsistent());
+			pp_lo[k] = 0;
+			assert(!pp_lo[k]->IsConsistent());
+		}
+	}
+	// } @v11.2.4
 #endif // } _DEBUG
 }
 
@@ -4616,7 +4658,7 @@ int PPDriveMapping::Load(PPIniFile * pIniFile)
 int PPDriveMapping::Get(int drive, SString & rMapping) const
 {
 	SString entry, drv;
-	for(uint i = 0; get(&i, entry) > 0;) {
+	for(uint i = 0; get(&i, entry);) {
 		if(entry.Divide('=', drv, rMapping) > 0 && toupper(drv[0]) == toupper(drive)) {
 			rMapping.Strip();
 			return 1;
@@ -5020,7 +5062,7 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 	{
 		PPLoadText(PPTXT_CFGNAMES, name_buf);
 		StringSet ss(';', name_buf);
-		for(uint i = 0, j = 1; ss.get(&i, name_buf) > 0; j++)
+		for(uint i = 0, j = 1; ss.get(&i, name_buf); j++)
 			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf);
 	}
 	TitleList.SortByID();

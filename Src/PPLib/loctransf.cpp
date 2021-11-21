@@ -51,7 +51,7 @@ LocTransfOpBlock & FASTCALL LocTransfOpBlock::operator = (const LocTransfTbl::Re
 	return *this;
 }
 
-int FASTCALL LocTransfOpBlock::IsEqual(const LocTransfTbl::Rec & rRec) const
+int FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
 {
 	return BIN(Op == rRec.Op &&
 		BillID == rRec.BillID &&

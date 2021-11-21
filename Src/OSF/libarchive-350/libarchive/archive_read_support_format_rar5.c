@@ -549,9 +549,8 @@ static int run_e8e9_filter(struct rar5* rar, struct filter_info* flt, int extend
 		 * 0xE9 = x86's jmp <relative_addr_uint32> (unconditional jump)
 		 */
 		if(b == 0xE8 || (extended && b == 0xE9)) {
-			uint32 addr;
-			uint32 offset = (i + flt->block_start) % file_size;
-			addr = read_filter_data(rar, (uint32)(rar->cstate.solid_offset + flt->block_start + i) & rar->cstate.window_mask);
+			uint32 offset = static_cast<uint32>((i + flt->block_start) % file_size);
+			uint32 addr = read_filter_data(rar, (uint32)(rar->cstate.solid_offset + flt->block_start + i) & rar->cstate.window_mask);
 			if(addr & 0x80000000) {
 				if(((addr + offset) & 0x80000000) == 0) {
 					write_filter_data(rar, (uint32)i, addr + file_size);

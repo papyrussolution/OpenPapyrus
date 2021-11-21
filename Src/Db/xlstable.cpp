@@ -340,7 +340,7 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		}
 		else {
 			cur_rec++; // Пропустим наименования столбцов/строк
-			for(uint p = 0, fld_pos = 0; FldNames.get(&p, temp_buf) > 0; fld_pos++) {
+			for(uint p = 0, fld_pos = 0; FldNames.get(&p, temp_buf); fld_pos++) {
 				if(rRec.GetFieldByName(temp_buf, &fld) > 0) {
 					row = (is_vert) ? 1 + fld_pos + P.HdrLinesCount : cur_rec;
 					col = (is_vert) ? cur_rec : 1 + fld_pos + P.ColumnsCount;

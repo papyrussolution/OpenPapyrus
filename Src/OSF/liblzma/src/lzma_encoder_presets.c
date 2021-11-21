@@ -7,7 +7,7 @@
 #include "common.h"
 #pragma hdrstop
 
-lzma_bool lzma_lzma_preset(lzma_options_lzma *options, uint32_t preset)
+bool lzma_lzma_preset(lzma_options_lzma *options, uint32_t preset)
 {
 	const uint32_t level = preset & LZMA_PRESET_LEVEL_MASK;
 	const uint32_t flags = preset & ~LZMA_PRESET_LEVEL_MASK;

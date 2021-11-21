@@ -26,42 +26,35 @@
 #ifdef HAVE_LIBMBEDCRYPTO
 bignum ssh_mbedcry_bn_new()
 {
-	bignum bn;
-	bn = SAlloc::M(sizeof(mbedtls_mpi));
-	if(bn) {
+	bignum bn = SAlloc::M(sizeof(mbedtls_mpi));
+	if(bn)
 		mbedtls_mpi_init(bn);
-	}
 	return bn;
 }
 
 void ssh_mbedcry_bn_free(bignum bn)
 {
 	mbedtls_mpi_free(bn);
-	SAFE_FREE(bn);
+	ZFREE(bn);
 }
 
 uchar * ssh_mbedcry_bn2num(const_bignum num, int radix)
 {
 	char * buf = NULL;
 	size_t olen;
-	int rc;
-
-	rc = mbedtls_mpi_write_string(num, radix, buf, 0, &olen);
+	int rc = mbedtls_mpi_write_string(num, radix, buf, 0, &olen);
 	if(rc != 0 && rc != MBEDTLS_ERR_MPI_BUFFER_TOO_SMALL) {
 		return NULL;
 	}
-
 	buf = SAlloc::M(olen);
 	if(buf == NULL) {
 		return NULL;
 	}
-
 	rc = mbedtls_mpi_write_string(num, radix, buf, olen, &olen);
 	if(rc != 0) {
-		SAFE_FREE(buf);
+		ZFREE(buf);
 		return NULL;
 	}
-
 	return (uchar*)buf;
 }
 
@@ -70,7 +63,6 @@ int ssh_mbedcry_rand(bignum rnd, int bits, int top, int bottom)
 	size_t len;
 	int rc;
 	int i;
-
 	if(bits <= 0) {
 		return 0;
 	}
@@ -159,7 +151,6 @@ int ssh_mbedcry_rand_range(bignum dest, bignum max)
 int ssh_mbedcry_hex2bn(bignum * dest, char * data)
 {
 	int rc;
-
 	*dest = bignum_new();
 	if(*dest == NULL) {
 		return 0;
@@ -168,7 +159,6 @@ int ssh_mbedcry_hex2bn(bignum * dest, char * data)
 	if(rc == 0) {
 		return 1;
 	}
-
 	return 0;
 }
 

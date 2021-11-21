@@ -223,7 +223,7 @@ public:
 	size_t GetLength() const { return Len; }
 	int FASTCALL Copy(const SrSList & rS);
 	virtual void Clear();
-	virtual int IsEqual(const SrSList & rS) const;
+	virtual int IsEq(const SrSList & rS) const;
 	virtual int Validate() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 protected:
@@ -253,7 +253,7 @@ public:
 	SrWordForm & Merge_(const SrWordForm & rBase, const SrWordForm & rVar, int mode);
 	int    Normalize();
 	int    FASTCALL IsSubsetOf(const SrWordForm & rS) const;
-	int    FASTCALL IsEqual(const SrWordForm & rS) const;
+	int    FASTCALL IsEq(const SrWordForm & rS) const;
 	//
 	// Descr: Сопоставляет словоформу this со словоформой rS.
 	//   Возвращает значение эквивалентности как Real-число. Чем больше число, тем
@@ -321,7 +321,7 @@ public:
 	};
 	SrFlexiaModel();
 	int    Normalize();
-	int    FASTCALL IsEqual(const SrFlexiaModel & rS) const;
+	int    FASTCALL IsEq(const SrFlexiaModel & rS) const;
 	int    FASTCALL Add(const SrFlexiaModel::Item & rItem);
 	int    Search(LEXID afxID, LEXID pfxID, LongArray & rWordFormList) const;
 	int    GetNext(size_t * pPos, SrFlexiaModel::Item & rItem) const;
@@ -337,7 +337,7 @@ private:
 //
 struct SrWordAssoc { // @flat
 	SrWordAssoc();
-	int    FASTCALL IsEqual(const SrWordAssoc & rS) const;
+	int    FASTCALL IsEq(const SrWordAssoc & rS) const;
 	SrWordAssoc & Normalize();
 	SString & FASTCALL ToStr(SString & rBuf) const;
 
@@ -493,7 +493,7 @@ class SrCPropDecl {
 public:
 	SrCPropDecl();
 	~SrCPropDecl();
-	int    FASTCALL IsEqual(const SrCPropDecl & rS) const;
+	int    FASTCALL IsEq(const SrCPropDecl & rS) const;
 //private:
 	CONCEPTID PropID; // ИД концепции-свойства
 	LEXID  SymbID;    // Опциональный идентификатор символа свойства
@@ -516,7 +516,7 @@ public:
 	int    Get(uint idx, SrCPropDecl & rP) const;
 	int    GetBySymbID(LEXID id, SrCPropDecl & rP) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    FASTCALL IsEqual(const SrCPropDeclList & rS) const;
+	int    FASTCALL IsEq(const SrCPropDeclList & rS) const;
 	int    FASTCALL Merge(const SrCPropDeclList & rS);
 private:
 	struct Item { // @flat
@@ -558,7 +558,7 @@ public:
 	static int IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize);
 
 	SrConcept();
-	int    FASTCALL IsEqual(const SrConcept & rS) const;
+	int    FASTCALL IsEq(const SrConcept & rS) const;
 	SrConcept & Z();
 
 	CONCEPTID ID;
@@ -596,7 +596,7 @@ class SrCProp {
 public:
 	SrCProp();
 	SrCProp(CONCEPTID cID, CONCEPTID propID);
-	int    FASTCALL IsEqual(const SrCProp & rS) const;
+	int    FASTCALL IsEq(const SrCProp & rS) const;
 	SrCProp & Z();
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);

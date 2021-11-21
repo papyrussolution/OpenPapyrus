@@ -495,7 +495,8 @@ public:
 	SlConstParam() :
 		VectorImageMask(0x00008000U),
 		Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
-		WaitableObjCheckTimeout(1 * 60 * 1000)
+		WaitableObjCheckTimeout(1 * 60 * 1000),
+		SUiLayoutSignature(0x28785EB8U)
 	{
 	}
 	const uint VectorImageMask;
@@ -506,6 +507,7 @@ public:
 	//   информирующие действия (например, вывод в журнал).
 	//
 	const long WaitableObjCheckTimeout;
+	const uint32 SUiLayoutSignature; // @v11.2.4 Сигнатура экземпляров класса SUiLayout для верификации валидности
 };
 
 extern const SlConstParam _SlConst;
@@ -1774,6 +1776,9 @@ struct LTIME {
 	int    hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
 	int    minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
 	int    sec() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
+	//
+	// Descr: Возвращает количество сотых долей секунды в значении this.
+	//
 	int    hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
 	long   totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
@@ -1851,8 +1856,8 @@ public:
 	LDATE  IsDate() const;
 	int    IsDayOfWeek() const;
 	LDATE  IsDayOfYear() const;
-	int    FASTCALL IsEqual(LDATE) const;
-	int    FASTCALL IsEqual(WorkDate) const;
+	int    FASTCALL IsEq(LDATE) const;
+	int    FASTCALL IsEq(WorkDate) const;
 	int    GetVal() const;
 private:
 	static LDATE InitDate; // @global
@@ -2233,7 +2238,7 @@ public:
 		cmprSureFalse     = 0,  // Значения точно не равны
 		cmprUncertainTrue = 2   // Значения равны с учетом того, что их точности различны ("5 июня 2018" vs "июнь 2018" например)
 	};
-	int    FASTCALL IsEqual(const SUniTime & rS) const; // @construction
+	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
 private:
 	int    Implement_Set(uint8 signature, const void *);
 	uint8  Implement_Get(void *) const;
@@ -2828,7 +2833,7 @@ struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
 	void   Init();
 	int    IsPure() const;
-	int    FASTCALL IsEqual(const STypEx &) const;
+	int    FASTCALL IsEq(const STypEx &) const;
 	int    FASTCALL IsZStr(size_t * pLen) const;
 	int    FASTCALL IsWZStr(size_t * pLen) const;
 	int    FASTCALL IsRaw(size_t * pLen) const;
@@ -3197,7 +3202,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Возвращает true если low < upp
 	//
 	bool   IsStrictlyNormalized() const;
-	int    FASTCALL IsEqual(const RealRange & rS) const;
+	int    FASTCALL IsEq(const RealRange & rS) const;
 	int    FASTCALL LessThan(double v) const;
 	int    FASTCALL GreaterThan(double v) const;
 	double GetDistance() const;
@@ -3271,9 +3276,9 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 
 struct DateRange { // @persistent @size=8
 	DECL_INVARIANT_C();
-	int    FASTCALL operator == (const DateRange & rS) const { return IsEqual(rS); }
-	int    FASTCALL operator != (const DateRange & rS) const { return !IsEqual(rS); }
-	int    FASTCALL IsEqual(const DateRange & rS) const;
+	int    FASTCALL operator == (const DateRange & rS) const { return IsEq(rS); }
+	int    FASTCALL operator != (const DateRange & rS) const { return !IsEq(rS); }
+	int    FASTCALL IsEq(const DateRange & rS) const;
 	int    FASTCALL Cmp(const DateRange & rS) const;
 	//
 	// Descr: Возвращает длину интервала в днях.
@@ -3297,6 +3302,16 @@ struct DateRange { // @persistent @size=8
 	DateRange & Z();
 	void   FASTCALL SetDate(LDATE);
 	int    SetPeriod(LDATE date, int prd);
+	//
+	// Descr: Устанавливает предопределенный период, заданный параметром predefPrdId относительно даты rel.
+	// ARG(predefPrdId IN): Одно из зарезервированных значений PREDEFPRD_XXX (кроме PREDEFPRD_NONE).
+	// ARG(rel IN): дата, относительно которой вычисляется период. Если rel == 0, то применяется текущая системная дата.
+	// Returns:
+	//   >0 - период успешно установлен
+	//   0  - ошибка. Ошибка может быть связана с недопустимыми значениями параметров predefPrdId или rel.
+	//     В случае ошибки период this остается неизменным.   
+	//
+	int    SetPredefined(int predefPrdId, LDATE rel);
 	//
 	// Descr: Если период в точности равен кварталу, то по указателю pQuartN
 	//   присваивает номер квартала [1..4] а по указателю pYear - значение года.
@@ -3482,7 +3497,7 @@ public:
 	SPoint2F & FASTCALL operator = (float f);
 	int    FASTCALL operator == (const SPoint2F & rS) const;
 	int    FASTCALL operator != (const SPoint2F & rS) const;
-	int    FASTCALL IsEqual(const SPoint2F & rS) const;
+	int    FASTCALL IsEq(const SPoint2F & rS) const;
 	bool   IsZero() const;
 	bool   IsPositive() const;
 	SPoint2F Set(float xy);
@@ -3704,8 +3719,8 @@ public:
 	// Descr: Возвращает !0 если после применения метода Strip строка становится пустой.
 	//
 	int    NotEmptyS();
-	int    FASTCALL IsEqual(const SString & rS) const;
-	int    FASTCALL IsEqual(const char * pS) const;
+	int    FASTCALL IsEq(const SString & rS) const;
+	int    FASTCALL IsEq(const char * pS) const;
 	int    FASTCALL IsEqNC(const SString & rS) const;
 	int    FASTCALL IsEqNC(const char * pS) const;
 	bool   FASTCALL IsEqiAscii(const char * pS) const;
@@ -4236,8 +4251,8 @@ public:
 	const wchar_t * ucptr() const { return P_Buf; }
 	SStringU & FASTCALL operator = (const SStringU &);
 	SStringU & FASTCALL operator = (const wchar_t *);
-	int    FASTCALL IsEqual(const SStringU & rS) const;
-	int    FASTCALL IsEqual(const wchar_t * pS) const;
+	int    FASTCALL IsEq(const SStringU & rS) const;
+	int    FASTCALL IsEq(const wchar_t * pS) const;
 	int    FASTCALL Cmp(const SStringU & rS) const;
 	//
 	// Descr: Сравнивает префикс строки this со строкой pS.
@@ -4320,9 +4335,9 @@ public:
 	StringSet(char delim, const char * pBuf);
 	StringSet(const StringSet &);
 	~StringSet();
-	bool   FASTCALL IsEqual(const StringSet & rS) const;
-	bool   FASTCALL operator == (const StringSet & rS) const { return IsEqual(rS); }
-	bool   FASTCALL operator != (const StringSet & rS) const { return !IsEqual(rS); }
+	bool   FASTCALL IsEq(const StringSet & rS) const;
+	bool   FASTCALL operator == (const StringSet & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const StringSet & rS) const { return !IsEq(rS); }
 	//
 	// Descr: Разрушает внутренний буфер экземпляра и обнуляет текущую длину данных (DataLen).
 	//   Параметр Delim (разделитель элементов) не меняет.
@@ -4367,23 +4382,23 @@ public:
 	// Descr: возвращает длину подстроки, начинающейся в позиции pos.
 	//
 	size_t FASTCALL getLen(uint pos) const;
-	int    get(uint * pPos, char * pStr, size_t maxlen) const;
-	int    get(uint * pPos, SString &) const;
-	int    get(uint pos, SString & rBuf) const;
+	bool   get(uint * pPos, char * pStr, size_t maxlen) const;
+	bool   get(uint * pPos, SString &) const;
+	bool   get(uint pos, SString & rBuf) const;
 	//
 	// Descr: Специализированный вариант функции get(uint, SString &). Если pos == 0,
 	//   то присваивает буферу rBuf нулевую строку, в остальных случаях работает
 	//   как get(uint, SString &).
 	//
-	int    getnz(uint pos, SString & rBuf) const;
-	int    search(const char * pPattern, uint * pPos, int ignoreCase) const;
-	int    search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
+	bool   getnz(uint pos, SString & rBuf) const;
+	bool   search(const char * pPattern, uint * pPos, int ignoreCase) const;
+	bool   search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
 	//
 	// Descr: Специальный, но часто встречаемый случай: поиск элемента, совпадающего
 	//  с pPattern с точностью до регистра символов, исходя из предположения, что все
 	//  символы в pPattern - ascii.
 	//
-	int    searchNcAscii(const char * pPattern, uint * pPos) const;
+	bool   searchNcAscii(const char * pPattern, uint * pPos) const;
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
@@ -4539,7 +4554,7 @@ struct SVerT { // @persistent Size=4
 	bool   IsLt(int, int, int) const;
 	bool   IsGt(int, int, int) const;
 	bool   IsGe(int, int, int) const;
-	bool   IsEqual(int, int, int) const;
+	bool   IsEq(int, int, int) const;
 	int    FASTCALL Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
 	//
@@ -4845,6 +4860,17 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #define PRD_QUART          90
 #define PRD_SEMIAN        180
 #define PRD_ANNUAL        360
+//
+// Descr: Предопределенные периоды 
+//
+#define PREDEFPRD_NONE         0 // 
+#define PREDEFPRD_TODAY        1 // Сегодня
+#define PREDEFPRD_YESTERDAY    2 // Вчера
+#define PREDEFPRD_LAST7DAYS    3 // Последние семь дней
+#define PREDEFPRD_LASTWEEK     4 // Прошедшая неделя
+#define PREDEFPRD_LASTWORKWEEK 5 // Прошедшая рабочая неделя (понедельник-пятница)
+#define PREDEFPRD_THISMONTH    6 // Текущий месяц
+#define PREDEFPRD_LASTMONTH    7 // Прошедший месяц
 
 #define PRD_PRECDAYSMASK  0x7000
 #define NUM_MONTHES        12
@@ -5176,7 +5202,7 @@ int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, lo
 //
 struct BNField {
 	uint   size() const { return stsize(T); }
-	int    IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
+	int    IsEq(const BNField & rS, int nameAndTypeOnly = 0) const;
 	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    setValue(void * pDataBuf, const void * pValBuf) const;
 	int    putValueToString(const void * pDataBuf, char * pBuf) const;
@@ -5198,7 +5224,7 @@ public:
 	~BNFieldList();
 	BNFieldList & FASTCALL operator = (const BNFieldList &);
 	int    FASTCALL copy(const BNFieldList *);
-	int    IsEqual(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
+	int    IsEq(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
 	void   reset();
 	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
@@ -5670,7 +5696,7 @@ struct SBaseBuffer {
 	// no destructor  (used in unions)
 	SBaseBuffer & Init();
 	SBaseBuffer & Destroy();
-	int    FASTCALL IsEqual(const SBaseBuffer & rS) const;
+	int    FASTCALL IsEq(const SBaseBuffer & rS) const;
 	//
 	// Descr: Копирует содержимое буфера rS в буфер this.
 	// Note: И rS и this должны быть "правильными" объектами. То есть, для них
@@ -5742,7 +5768,7 @@ public:
 	SBinaryChunk(const SBinaryChunk & rS);
 	~SBinaryChunk();
 	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
-	int    FASTCALL IsEqual(const SBinaryChunk & rS) const;
+	int    FASTCALL IsEq(const SBinaryChunk & rS) const;
 	//
 	// Descr: Сравнивает на равенство экземпляр this с участком памяти pData длиной len.
 	//   Для выполнения равенства len должна быть равна this->Len() и данные pData должны
@@ -5750,7 +5776,7 @@ public:
 	//   Если len == 0 и this->Len() == 0, то равенство выполняется независимо от значений
 	//   pData, this->P_Buf и данных по этим указателям.
 	//
-	int    FASTCALL IsEqual(const void * pData, size_t len) const;
+	int    FASTCALL IsEq(const void * pData, size_t len) const;
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
 	int   operator !() const { return Len() == 0; }
@@ -5861,7 +5887,7 @@ public:
 	//   и rS.P_Buf[0..rS.WrOffs-1].
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
-	int    FASTCALL IsEqual(const SBuffer & rS) const;
+	int    FASTCALL IsEq(const SBuffer & rS) const;
 	//operator const void * () const { return P_Buf; }
 	const void * constptr() const { return P_Buf; }
 	size_t GetSize() const { return Size; }
@@ -6014,7 +6040,7 @@ public:
 	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
 	//   Сравнение осуществляется по каждому отрезку, находящемуся в this.
 	//
-	int    FASTCALL IsEqual(const SBinarySet & rS) const;
+	int    FASTCALL IsEq(const SBinarySet & rS) const;
 	int    IsValid() const;
 	int    Ensure(size_t size);
 	//
@@ -7094,7 +7120,7 @@ public:
 	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
 	//   побайтно все элементы массивов.
 	//
-	int    FASTCALL IsEqual(const SVector & src) const;
+	int    FASTCALL IsEq(const SVector & src) const;
 	//
 	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
 	//   сдвигаются на одну позицию вниз.
@@ -7183,7 +7209,7 @@ public:
 	//   Для массивов с признаками aryPtrContainer и aryEachItem возвращает 0 (считает, что
 	//   невозможно корректно побайтно сравнить такие объекты).
 	//
-	int    FASTCALL IsEqual(const SArray & src) const;
+	int    FASTCALL IsEq(const SArray & src) const;
 	//
 	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
 	//   сдвигаются на одну позицию вниз.
@@ -7532,7 +7558,7 @@ public:
 	FloatArray();
 	int    FASTCALL operator == (const FloatArray & rS) const;
 	int    FASTCALL operator != (const FloatArray & rS) const;
-	int    FASTCALL IsEqual(const FloatArray *) const;
+	int    FASTCALL IsEq(const FloatArray *) const;
 	int    FASTCALL add(float);
 	int    FASTCALL add(SPoint2F);
 	float  FASTCALL get(uint) const;
@@ -7564,7 +7590,7 @@ public:
 	int    FASTCALL bsearch(long) const;
 	int    FASTCALL lsearch(long) const;
 	int    isList() const;
-	int    FASTCALL IsEqual(const LongArray *) const;
+	int    FASTCALL IsEq(const LongArray *) const;
 	long   FASTCALL get(uint) const;
 	long   getSingle() const;
 	long   getLast() const;
@@ -7629,7 +7655,7 @@ public:
 	Int64Array & FASTCALL operator = (const Int64Array & s);
 	int    FASTCALL operator == (const Int64Array & rS) const;
 	int    FASTCALL operator != (const Int64Array & rS) const;
-	int    FASTCALL IsEqual(const Int64Array * pS) const;
+	int    FASTCALL IsEq(const Int64Array * pS) const;
 	int64  FASTCALL get(uint pos) const;
 	int    lsearch(int64 key, uint * pPos) const;
 	int    FASTCALL lsearch(int64 key) const;
@@ -7836,6 +7862,12 @@ public:
 //
 //
 struct RAssoc {
+	RAssoc() : Key(0), Val(0.0)
+	{
+	}
+	RAssoc(long k, double v) : Key(k), Val(v)
+	{
+	}
 	long   Key;
 	double Val;
 };
@@ -7952,7 +7984,7 @@ public:
 	SStrGroup & FASTCALL CopyS(const SStrGroup & rS);
 	int    AddS(const char * pStr, uint * pPos);
 	int    AddS(const char * pStr, uint32 * pPos);
-	int    GetS(uint pos, SString & rStr) const;
+	bool   GetS(uint pos, SString & rStr) const;
 	int    SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL WriteS(SBuffer & rBuf) const;
 	int    FASTCALL ReadS(SBuffer & rBuf);
@@ -8015,7 +8047,7 @@ public:
 	//   1 - массивы равны
 	//   0 - массивы не равны
 	//
-	int    FASTCALL IsEqual(const StrAssocArray & src) const;
+	int    FASTCALL IsEq(const StrAssocArray & src) const;
 	uint   getCount() const { return LAssocArray::count; }
 	uint   getPointer() const;
 	uint   setPointer(uint p);
@@ -8205,7 +8237,7 @@ public:
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
 	int    FASTCALL Copy(const StrStrAssocArray &);
 	StrStrAssocArray & Z();
-	int    FASTCALL IsEqual(const StrStrAssocArray & src) const;
+	int    FASTCALL IsEq(const StrStrAssocArray & src) const;
 	uint   getCount() const;
 	Item   FASTCALL at(uint pos) const;
 	int    Search(const char * pKey, SString * pVal, uint * pPos) const;
@@ -8837,7 +8869,7 @@ public:
 	//
 	void   Clear();
 	size_t getCount() const;
-	int    FASTCALL IsEqual(const BitArray &) const;
+	int    FASTCALL IsEq(const BitArray &) const;
 	//
 	// Descr: Возвращает количество бит, соответствующих величине val.
 	//   Т.е. если val == 0, то возвращает количество нулевых бит,
@@ -8890,7 +8922,7 @@ public:
 		long   Flags;
 		void * P_Data;
 	};
-	STree(uint itemSize, uint o = O_ARRAY);
+	explicit STree(uint itemSize, uint o = O_ARRAY);
 	~STree();
 	STree & Z();
 	int    Insert(const void * pData, uint32 parentP, uint32 * pSvcPos);
@@ -8965,7 +8997,7 @@ public:
 	int    FASTCALL Copy(const SV_Uint32 &);
 	int    FASTCALL Add(uint32);
 	int    Add(uint count, const uint32 * pSrc);
-	int    FASTCALL IsEqual(const SV_Uint32 & rPat) const;
+	int    FASTCALL IsEq(const SV_Uint32 & rPat) const;
 	int    Search(uint val, uint * pPos) const;
 	uint   GetCount() const;
 	uint32 FASTCALL Get(uint idx) const;
@@ -12390,7 +12422,7 @@ struct FRect { // @persistent
 	FRect & Grow(float aDX, float aDY);
 	FRect & Move__(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(SPoint2F center);
-	int    FASTCALL IsEqual(const FRect & rS) const;
+	int    FASTCALL IsEq(const FRect & rS) const;
 	int    IsEmpty() const;
 	int    Contains(SPoint2F p) const;
 	int    FASTCALL Contains(const FRect & rR) const;
@@ -12697,7 +12729,7 @@ public:
 		return *this;
 	}
 	SPoint2R & GetXY() { return *reinterpret_cast<SPoint2R *>(&x); }
-	bool   FASTCALL IsEqual(const SPoint3R & rS) const { return (x == rS.x && y == rS.y && z == rS.z); }
+	bool   FASTCALL IsEq(const SPoint3R & rS) const { return (x == rS.x && y == rS.y && z == rS.z); }
 	friend SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator * (const SPoint3R & p, double m);
@@ -14995,7 +15027,7 @@ public:
 	void   Destroy();
 	int    Init(uint w, uint h); // pixformat: PixF::s32ARGB
 	int    Init(uint w, uint h, PixF f);
-	int    FASTCALL IsEqual(const SImageBuffer & rS) const;
+	int    FASTCALL IsEq(const SImageBuffer & rS) const;
 	int    FASTCALL Copy(const SImageBuffer & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    AddLines(const void * pSrc, PixF s, uint count, const Palette * pPalette);
@@ -15714,7 +15746,7 @@ public:
 	friend class SGeoGridTab::Finder;
 
 	SGeoGridTab(uint dim);
-	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
+	int    FASTCALL IsEq(const SGeoGridTab & rS) const;
 	int    FASTCALL operator == (const SGeoGridTab & rS) const;
 	int    FASTCALL operator != (const SGeoGridTab & rS) const;
 	void   SetSrcCountLat(uint64 c);
@@ -16174,7 +16206,7 @@ public:
 	STestDataArray();
 	const  Item & Get(uint idx) const;
 	uint   GetCount() const;
-	int    GetDataByPos(uint pos, SString & rData) const;
+	bool   GetDataByPos(uint pos, SString & rData) const;
 	//
 	// Descr: Считывает тестовые данные из файлов пакета botan.
 	//   Старые версии botan и более новые имеют различный формат представления данных.

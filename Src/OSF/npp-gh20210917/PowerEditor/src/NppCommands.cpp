@@ -2598,7 +2598,7 @@ void Notepad_plus::command(int id)
 					__md5_str.CatHex(&__md5, sizeof(__md5));
 				    //MD5 md5;
 				    //std::string md5ResultA = md5.digestString(selectedStr);
-					//bool __debug_eq = __md5_str.IsEqual(md5ResultA.c_str());
+					//bool __debug_eq = __md5_str.IsEq(md5ResultA.c_str());
 					std::string md5ResultA(__md5_str.cptr());
 					//
 					std::wstring md5ResultW(md5ResultA.begin(), md5ResultA.end());

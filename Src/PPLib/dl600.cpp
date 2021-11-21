@@ -11,7 +11,7 @@ DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Fla
 	ArgNamList.add("$"); // zero index - undefined name
 }
 
-int DlFunc::IsEqual(const DlFunc & rPat) const
+int DlFunc::IsEq(const DlFunc & rPat) const
 {
 	int    ok = 1;
 	THROW(TypID == rPat.TypID);
@@ -158,7 +158,7 @@ int FASTCALL DlFuncPool::Read(SBuffer & rBuf)
 	return 1;
 }
 
-int FASTCALL DlFuncPool::IsEqual(const DlFuncPool & rPat) const
+int FASTCALL DlFuncPool::IsEq(const DlFuncPool & rPat) const
 {
 	int    ok = 1;
 	uint   c = Items.getCount();
@@ -169,7 +169,7 @@ int FASTCALL DlFuncPool::IsEqual(const DlFuncPool & rPat) const
 			--c;
 			THROW(GetByPos(c, &f1));
 			THROW(rPat.GetByPos(c, &f2));
-			THROW(f1.IsEqual(f2));
+			THROW(f1.IsEq(f2));
 		} while(c);
 	}
 	CATCHZOK
@@ -2574,7 +2574,7 @@ DLSYMBID DlContext::SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const
 	uint   c = TypeList.getCount();
 	if(c) do {
 		--c;
-		if(TypeList.at(c).T.IsEqual(rTyp)) {
+		if(TypeList.at(c).T.IsEq(rTyp)) {
 			ASSIGN_PTR(pEntry, TypeList.at(c));
 			return TypeList.at(c).SymbID;
 		}
@@ -3056,9 +3056,9 @@ int DlContext::Test_ReWr_Code(const DlContext & rPattern)
 	int    ok = 1;
 	THROW(Tab.Test_Cmp(rPattern.Tab));
 	THROW(ConstList.Test_Cmp(rPattern.ConstList));
-	THROW(TypeList.IsEqual(rPattern.TypeList));
-	THROW(UuidList.IsEqual(rPattern.UuidList));
-	THROW(Sc.IsEqual(rPattern.Sc));
+	THROW(TypeList.IsEq(rPattern.TypeList));
+	THROW(UuidList.IsEq(rPattern.UuidList));
+	THROW(Sc.IsEq(rPattern.Sc));
 	CATCHZOK
 	return ok;
 }

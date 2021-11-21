@@ -34,7 +34,7 @@ StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID
 	Period.Z();
 }
 
-int FASTCALL StaffAmtEntry::IsEqual(const StaffAmtEntry & rS) const
+int FASTCALL StaffAmtEntry::IsEq(const StaffAmtEntry & rS) const
 {
 	int    eq = 1;
 	if(AmtTypeID != rS.AmtTypeID)
@@ -54,7 +54,7 @@ StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>() // @v9.8.6 TSArray-->T
 {
 }
 
-int FASTCALL StaffAmtList::IsEqual(const StaffAmtList & rS) const
+int FASTCALL StaffAmtList::IsEq(const StaffAmtList & rS) const
 {
 	int    eq = 1;
 	const  uint c = getCount();
@@ -65,7 +65,7 @@ int FASTCALL StaffAmtList::IsEqual(const StaffAmtList & rS) const
 		for(uint i = 0; eq && i < c; i++) {
 			const StaffAmtEntry & r_rec = at(i);
 			const StaffAmtEntry & r_rec2 = rS.at(i);
-			if(!r_rec.IsEqual(r_rec2))
+			if(!r_rec.IsEq(r_rec2))
 				eq = 0;
 		}
 	}
@@ -474,7 +474,7 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 				{
 					StaffAmtList org_list;
 					THROW(P_Ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
-					if(!org_list.IsEqual(pPack->Amounts)) {
+					if(!org_list.IsEq(pPack->Amounts)) {
 						was_updated = 1;
 						// @v10.3.0 (never used) was_list_updated = 1;
 						THROW(P_Ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));

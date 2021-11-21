@@ -64,7 +64,7 @@ SBuffer::SBuffer(const SBuffer & s) : Size(0), WrOffs(0), RdOffs(0), Flags(0), P
 	Copy(s);
 }
 
-int FASTCALL SBuffer::IsEqual(const SBuffer & rS) const
+int FASTCALL SBuffer::IsEq(const SBuffer & rS) const
 {
 	int    ok = 1;
 	if(WrOffs != rS.WrOffs)
@@ -549,7 +549,7 @@ SBaseBuffer & SBaseBuffer::Destroy()
 	return *this;
 }
 
-int FASTCALL SBaseBuffer::IsEqual(const SBaseBuffer & rS) const
+int FASTCALL SBaseBuffer::IsEq(const SBaseBuffer & rS) const
 {
 	if(Size != rS.Size)
 		return 0;
@@ -670,20 +670,20 @@ SBinaryChunk & SBinaryChunk::Randomize(size_t len)
 	return *this;
 }
 
-int FASTCALL SBinaryChunk::IsEqual(const SBinaryChunk & rS) const
+int FASTCALL SBinaryChunk::IsEq(const SBinaryChunk & rS) const
 {
 	const size_t _len = Len();
 	return (_len == rS.Len() && (!_len || memcmp(P_Buf, rS.P_Buf, _len) == 0));
 }
 
-int FASTCALL SBinaryChunk::IsEqual(const void * pData, size_t len) const
+int FASTCALL SBinaryChunk::IsEq(const void * pData, size_t len) const
 {
 	return (Len() == len && (!len || memcmp(P_Buf, pData, len) == 0));
 }
 
 bool FASTCALL SBinaryChunk::operator == (const SBinaryChunk & rS) const
 {
-	return IsEqual(rS);
+	return IsEq(rS);
 }
 
 SBinaryChunk & FASTCALL SBinaryChunk::operator = (const SBinaryChunk & rS)
@@ -896,7 +896,7 @@ int FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
 int SBinarySet::IsValid() const { return Helper_GetChunkIdList(0); }
 int FASTCALL SBinarySet::GetChunkIdList(LongArray & rList) const { return Helper_GetChunkIdList(&rList); }
 
-int FASTCALL SBinarySet::IsEqual(const SBinarySet & rS) const
+int FASTCALL SBinarySet::IsEq(const SBinarySet & rS) const
 {
 	int   eq = 1;
 	LongArray id_list_my;
@@ -907,7 +907,7 @@ int FASTCALL SBinarySet::IsEqual(const SBinarySet & rS) const
 		else {
 			id_list_my.sort();
 			id_list_other.sort();
-			if(!id_list_my.IsEqual(&id_list_other))
+			if(!id_list_my.IsEq(&id_list_other))
 				eq = 0;
 			else {
 				SBinaryChunk cm;
@@ -919,7 +919,7 @@ int FASTCALL SBinarySet::IsEqual(const SBinarySet & rS) const
 					int r2 = rS.Get(cid, &co);
 					assert(r1 > 0 && r2 > 0); // Не может такого быть, чтоб было иначе!
 					if(r1 > 0 && r2 > 0) {
-						if(!cm.IsEqual(co))
+						if(!cm.IsEq(co))
 							eq = 0;
 					}
 					else
@@ -1617,7 +1617,7 @@ int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pF
 		if(temp_val == 1) {
 			BNFieldList temp_flist;
 			THROW(SerializeFieldList(-1, &temp_flist, rBuf));
-			THROW_S(temp_flist.IsEqual(inner_fld_list), SLERR_SRLZ_UNEQFLDLIST);
+			THROW_S(temp_flist.IsEq(inner_fld_list), SLERR_SRLZ_UNEQFLDLIST);
 		}
 	}
 	else {
@@ -1644,7 +1644,7 @@ int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pF
 		THROW(rBuf.ReadV(p_ind_list, ind_len));
 		THROW(rBuf.Read(temp_buf));
 		if(pFldList) {
-			const int is_eq_struc = inner_fld_list.IsEqual(*pFldList);
+			const int is_eq_struc = inner_fld_list.IsEq(*pFldList);
 			if(!is_eq_struc) {
 				//
 				// При не эквивалентных структурах придется использовать временный буфер

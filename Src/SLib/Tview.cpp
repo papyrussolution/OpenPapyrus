@@ -474,9 +474,35 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		if(hw_parent) {
 			uint ctl_id = pV->GetId();
 			switch(pV->GetSubSign()) {
+				case TV_SUBSIGN_COMBOBOX:
+					{
+						ComboBox * p_cv = static_cast<ComboBox *>(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						TInputLine * p_il = p_cv->link();
+						if(p_il) {
+							p_il->Parent = hw_parent;
+							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
+							p_il->Parent = hw_parent;
+							HWND hw_il = ::CreateWindow(_T("EDIT"), 0, style, p_il->ViewOrigin.x,
+								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
+							if(hw_il) {
+								{
+									SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+									if(p_f) {
+										HFONT f = static_cast<HFONT>(*p_f);
+										::SendMessage(hw_il, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+									}
+								}
+								TView::SetWindowUserData(hw_il, p_il);
+							}
+						}
+					}
+					break;
 				case TV_SUBSIGN_BUTTON:
 					{
-						TButton * p_cv = (TButton *)(pV);
+						TButton * p_cv = static_cast<TButton *>(pV);
 						pV->Parent = hw_parent;
 						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);

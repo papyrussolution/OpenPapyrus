@@ -2382,23 +2382,23 @@ static size_t unicode_to_utf8(char * p, size_t remaining, uint32 uc)
 	else if(uc <= 0x7ff) {
 		if(remaining < 2)
 			return 0;
-		*p++ = 0xc0 | ((uc >> 6) & 0x1f);
-		*p++ = 0x80 | (uc & 0x3f);
+		*p++ = static_cast<char>(0xc0 | ((uc >> 6) & 0x1f));
+		*p++ = static_cast<char>(0x80 | (uc & 0x3f));
 	}
 	else if(uc <= 0xffff) {
 		if(remaining < 3)
 			return 0;
-		*p++ = 0xe0 | ((uc >> 12) & 0x0f);
-		*p++ = 0x80 | ((uc >> 6) & 0x3f);
-		*p++ = 0x80 | (uc & 0x3f);
+		*p++ = static_cast<char>(0xe0 | ((uc >> 12) & 0x0f));
+		*p++ = static_cast<char>(0x80 | ((uc >> 6) & 0x3f));
+		*p++ = static_cast<char>(0x80 | (uc & 0x3f));
 	}
 	else {
 		if(remaining < 4)
 			return 0;
-		*p++ = 0xf0 | ((uc >> 18) & 0x07);
-		*p++ = 0x80 | ((uc >> 12) & 0x3f);
-		*p++ = 0x80 | ((uc >> 6) & 0x3f);
-		*p++ = 0x80 | (uc & 0x3f);
+		*p++ = static_cast<char>(0xf0 | ((uc >> 18) & 0x07));
+		*p++ = static_cast<char>(0x80 | ((uc >> 12) & 0x3f));
+		*p++ = static_cast<char>(0x80 | ((uc >> 6) & 0x3f));
+		*p++ = static_cast<char>(0x80 | (uc & 0x3f));
 	}
 	return (p - _p);
 }
@@ -2490,7 +2490,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 	else {
 		if(remaining < 2)
 			return 0;
-		archive_be16enc(utf16, uc);
+		archive_be16enc(utf16, static_cast<uint16_t>(uc));
 		return (2);
 	}
 }
@@ -2498,10 +2498,8 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 static size_t unicode_to_utf16le(char * p, size_t remaining, uint32 uc)
 {
 	char * utf16 = p;
-
 	if(uc > 0xffff) {
-		/* We have a code point that won't fit into a
-		* wchar_t; convert it to a surrogate pair. */
+		// We have a code point that won't fit into a wchar_t; convert it to a surrogate pair. 
 		if(remaining < 4)
 			return 0;
 		uc -= 0x10000;
@@ -2512,7 +2510,7 @@ static size_t unicode_to_utf16le(char * p, size_t remaining, uint32 uc)
 	else {
 		if(remaining < 2)
 			return 0;
-		archive_le16enc(utf16, uc);
+		archive_le16enc(utf16, static_cast<uint16_t>(uc));
 		return (2);
 	}
 }

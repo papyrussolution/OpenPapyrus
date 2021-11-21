@@ -500,7 +500,7 @@ int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, 
 				if(s_arr.NotEmpty()) {
 					ss.setBuf(s_arr);
 					rOut.Z();
-					for(uint i = 0, j = 0; ss.get(&i, temp_buf) > 0; j++)
+					for(uint i = 0, j = 0; ss.get(&i, temp_buf); j++)
 						rOut.Add(j, temp_buf, 1);
 				}
 			}

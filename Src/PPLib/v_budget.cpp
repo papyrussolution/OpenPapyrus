@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -1021,7 +1021,7 @@ int PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString & rTex
 			StringSet ss(";");
 			SString idx_str, name_str;
 			ss.setBuf(str, str.Len() + 1);
-			for(uint i = 0; ok < 0 && ss.get(&i, str.Z()) > 0;) {
+			for(uint i = 0; ok < 0 && ss.get(&i, str);) {
 				str.Divide(',', idx_str, name_str);
 				if(idx_str.ToLong() == dt.v)
 					rText = name_str;
@@ -1613,10 +1613,9 @@ void PPViewBudget::ViewTotal()
 	PPID budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *static_cast<const long *>(pHdr) : 0) : Filt.BudgetID;
 	PPBudgetPacket pack;
 	if(budg_id && ObjBudg.GetPacket(budg_id, &pack) > 0) {
-		PView  pv(&pack);
 		PPReportEnv env;
 		env.Sort = 0;
-		ok = PPAlddPrint(rpt_id, &pv, &env);
+		ok = PPAlddPrint(rpt_id, PView(&pack), &env);
 	}
 	else
 		ok = -1;

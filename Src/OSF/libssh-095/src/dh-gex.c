@@ -405,15 +405,15 @@ static int ssh_retrieve_dhgroup_file(FILE * moduli,
 
 		/* Use reservoir sampling algorithm */
 		if(proposed_size == *best_size && invn_chance(best_nlines)) {
-			SAFE_FREE(*best_generator);
-			SAFE_FREE(*best_modulus);
+			ZFREE(*best_generator);
+			ZFREE(*best_modulus);
 			*best_generator = _strdup(generator);
 			if(*best_generator == NULL) {
 				return SSH_ERROR;
 			}
 			*best_modulus = _strdup(modulus);
 			if(*best_modulus == NULL) {
-				SAFE_FREE(*best_generator);
+				ZFREE(*best_generator);
 				return SSH_ERROR;
 			}
 		}
@@ -496,16 +496,16 @@ static int ssh_retrieve_dhgroup(uint32_t pmin,
 	if(rc == 0) {
 		goto error;
 	}
-	SAFE_FREE(generator);
-	SAFE_FREE(modulus);
+	ZFREE(generator);
+	ZFREE(modulus);
 
 	return SSH_OK;
 
 error:
 	bignum_safe_free(*g);
 	bignum_safe_free(*p);
-	SAFE_FREE(generator);
-	SAFE_FREE(modulus);
+	ZFREE(generator);
+	ZFREE(modulus);
 
 	return SSH_ERROR;
 }

@@ -72,7 +72,7 @@ public:
 					}
 				}
 				DesktopList.GetStrAssocList(list);
-				SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, &list, desktop_surr_id, 0);
+				SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, list, desktop_surr_id, 0);
 			}
 			// } @v11.0.0 
 		}
@@ -431,7 +431,7 @@ public:
 						}
 					}
 					DesktopList.GetStrAssocList(list);
-					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, /*Data.DesktopID*/desktop_surr_id, 0);
+					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, list, /*Data.DesktopID*/desktop_surr_id, 0);
 				}
 				{
 					PPCommandFolder::GetCommandGroupList(0, cmdgrpcMenu, MenuList);
@@ -451,7 +451,7 @@ public:
 						}						
 					}
 					MenuList.GetStrAssocList(list);
-					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, /*Data.MenuID*/menu_surr_id, 0);
+					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, list, /*Data.MenuID*/menu_surr_id, 0);
 				}
 			}
 			AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 0, RLZORD_FIFO);

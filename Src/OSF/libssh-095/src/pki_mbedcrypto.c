@@ -30,8 +30,7 @@
 #define MAX_PASSPHRASE_SIZE 1024
 #define MAX_KEY_SIZE 32
 
-ssh_string pki_private_key_to_pem(const ssh_key key, const char * passphrase,
-    ssh_auth_callback auth_fn, void * auth_data)
+ssh_string pki_private_key_to_pem(const ssh_key key, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
 	(void)key;
 	(void)passphrase;
@@ -41,9 +40,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key, const char * passphrase,
 
 static int pki_key_ecdsa_to_nid(mbedtls_ecdsa_context * ecdsa)
 {
-	mbedtls_ecp_group_id id;
-
-	id = ecdsa->grp.id;
+	mbedtls_ecp_group_id id = ecdsa->grp.id;
 	if(id == MBEDTLS_ECP_DP_SECP256R1) {
 		return NID_mbedtls_nistp256;
 	}
@@ -53,29 +50,21 @@ static int pki_key_ecdsa_to_nid(mbedtls_ecdsa_context * ecdsa)
 	else if(id == MBEDTLS_ECP_DP_SECP521R1) {
 		return NID_mbedtls_nistp521;
 	}
-
 	return -1;
 }
 
-static enum ssh_keytypes_e pki_key_ecdsa_to_key_type(mbedtls_ecdsa_context * ecdsa){
-	int nid;
-
-	nid = pki_key_ecdsa_to_nid(ecdsa);
-
+static enum ssh_keytypes_e pki_key_ecdsa_to_key_type(mbedtls_ecdsa_context * ecdsa)
+{
+	int nid = pki_key_ecdsa_to_nid(ecdsa);
 	switch(nid) {
-		case NID_mbedtls_nistp256:
-		    return SSH_KEYTYPE_ECDSA_P256;
-		case NID_mbedtls_nistp384:
-		    return SSH_KEYTYPE_ECDSA_P384;
-		case NID_mbedtls_nistp521:
-		    return SSH_KEYTYPE_ECDSA_P521;
-		default:
-		    return SSH_KEYTYPE_UNKNOWN;
+		case NID_mbedtls_nistp256: return SSH_KEYTYPE_ECDSA_P256;
+		case NID_mbedtls_nistp384: return SSH_KEYTYPE_ECDSA_P384;
+		case NID_mbedtls_nistp521: return SSH_KEYTYPE_ECDSA_P521;
+		default: return SSH_KEYTYPE_UNKNOWN;
 	}
 }
 
-ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphrase,
-    ssh_auth_callback auth_fn, void * auth_data)
+ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
 	ssh_key key = NULL;
 	mbedtls_pk_context * rsa = NULL;
@@ -86,40 +75,29 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 	/* mbedtls pk_parse_key expects strlen to count the 0 byte */
 	size_t b64len = strlen(b64_key) + 1;
 	uchar tmp[MAX_PASSPHRASE_SIZE] = {0};
-
 	type = pki_privatekey_type_from_string(b64_key);
 	if(type == SSH_KEYTYPE_UNKNOWN) {
 		SSH_LOG(SSH_LOG_WARN, "Unknown or invalid private key.");
 		return NULL;
 	}
-
 	switch(type) {
 		case SSH_KEYTYPE_RSA:
 		    rsa = SAlloc::M(sizeof(mbedtls_pk_context));
 		    if(rsa == NULL) {
 			    return NULL;
 		    }
-
 		    mbedtls_pk_init(rsa);
-
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = auth_fn("Passphrase for private key:", (char *)tmp,
-					    MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
+				    valid = auth_fn("Passphrase for private key:", (char *)tmp, MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
 				    if(valid < 0) {
 					    goto fail;
 				    }
 				    /* TODO fix signedness and strlen */
-				    valid = mbedtls_pk_parse_key(rsa,
-					    (const uchar*)b64_key,
-					    b64len, tmp,
-					    strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
+				    valid = mbedtls_pk_parse_key(rsa, (const uchar*)b64_key, b64len, tmp, strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
-				    valid = mbedtls_pk_parse_key(rsa,
-					    (const uchar*)b64_key,
-					    b64len, NULL,
-					    0);
+				    valid = mbedtls_pk_parse_key(rsa, (const uchar*)b64_key, b64len, NULL, 0);
 			    }
 		    }
 		    else {
@@ -203,7 +181,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 		mbedtls_ecdsa_init(key->ecdsa);
 		mbedtls_ecdsa_from_keypair(key->ecdsa, keypair);
 		mbedtls_pk_free(ecdsa);
-		SAFE_FREE(ecdsa);
+		ZFREE(ecdsa);
 
 		key->ecdsa_nid = pki_key_ecdsa_to_nid(key->ecdsa);
 
@@ -232,11 +210,11 @@ fail:
 	ssh_key_free(key);
 	if(rsa != NULL) {
 		mbedtls_pk_free(rsa);
-		SAFE_FREE(rsa);
+		ZFREE(rsa);
 	}
 	if(ecdsa != NULL) {
 		mbedtls_pk_free(ecdsa);
-		SAFE_FREE(ecdsa);
+		ZFREE(ecdsa);
 	}
 	return NULL;
 }
@@ -295,7 +273,7 @@ int pki_privkey_build_rsa(ssh_key key,
 
 fail:
 	mbedtls_pk_free(key->rsa);
-	SAFE_FREE(key->rsa);
+	ZFREE(key->rsa);
 	return SSH_ERROR;
 }
 
@@ -337,7 +315,7 @@ int pki_pubkey_build_rsa(ssh_key key, ssh_string e, ssh_string n)
 
 fail:
 	mbedtls_pk_free(key->rsa);
-	SAFE_FREE(key->rsa);
+	ZFREE(key->rsa);
 	return SSH_ERROR;
 }
 
@@ -1066,19 +1044,19 @@ static ssh_string rsa_do_sign_hash(const uchar * digest,
 		ssh_get_mbedtls_ctr_drbg_context());
 
 	if(ok != 0) {
-		SAFE_FREE(sig);
+		ZFREE(sig);
 		return NULL;
 	}
 
 	sig_blob = ssh_string_new(slen);
 	if(sig_blob == NULL) {
-		SAFE_FREE(sig);
+		ZFREE(sig);
 		return NULL;
 	}
 
 	ssh_string_fill(sig_blob, sig, slen);
 	memzero(sig, slen);
-	SAFE_FREE(sig);
+	ZFREE(sig);
 
 	return sig_blob;
 }
@@ -1454,7 +1432,7 @@ fail:
 	mbedtls_ecp_point_free(&Q);
 	mbedtls_ecp_group_free(&group);
 	mbedtls_ecp_keypair_free(&keypair);
-	SAFE_FREE(key->ecdsa);
+	ZFREE(key->ecdsa);
 	return SSH_ERROR;
 }
 
@@ -1516,7 +1494,7 @@ fail:
 	mbedtls_ecp_point_free(&Q);
 	mbedtls_ecp_group_free(&group);
 	mbedtls_ecp_keypair_free(&keypair);
-	SAFE_FREE(key->ecdsa);
+	ZFREE(key->ecdsa);
 	return SSH_ERROR;
 }
 
@@ -1554,7 +1532,7 @@ int pki_key_generate_ecdsa(ssh_key key, int parameter)
 
 	if(ok != 0) {
 		mbedtls_ecdsa_free(key->ecdsa);
-		SAFE_FREE(key->ecdsa);
+		ZFREE(key->ecdsa);
 	}
 
 	return SSH_OK;

@@ -523,7 +523,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 				StringSet ss(',', format);
 				memzero(options.formatDLLName, PE_DLL_NAME_LEN);
 				memzero(options.destinationDLLName, PE_DLL_NAME_LEN);
-				if(ss.get(&(i = 0), buf) > 0) {
+				if(ss.get(&(i = 0), buf)) {
 					if(PPSearchSubStr(types, &idx, buf, 1) > 0) {
 						const static DWORD FormatTypes[] = {
 							UXFWordWinType,
@@ -567,10 +567,10 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 						{
 							UXFCommaTabSeparatedOptions * p_options = static_cast<UXFCommaTabSeparatedOptions *>(options.formatOptions);
 							p_options->useReportDateFormat = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->useReportDateFormat = buf.ToLong();
 							p_options->useReportNumberFormat = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->useReportNumberFormat = buf.ToLong();
 						}
 						break;
@@ -579,18 +579,18 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 							char host_buf[128];
 							UXFCharSeparatedOptions * p_options = static_cast<UXFCharSeparatedOptions *>(options.formatOptions);
 							p_options->useReportDateFormat = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->useReportDateFormat = buf.ToLong();
 							p_options->useReportNumberFormat = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->useReportNumberFormat = buf.ToLong();
 							p_options->stringDelimiter = '=';
-							if(ss.get(&i, buf) > 0) {
+							if(ss.get(&i, buf)) {
 								hostrtocstr(buf, host_buf, sizeof(host_buf));
 								p_options->stringDelimiter = host_buf[0];
 							}
 							p_options->fieldDelimiter = 0;
-							if(ss.get(&i, buf) > 0) {
+							if(ss.get(&i, buf)) {
 								hostrtocstr(buf, host_buf, sizeof(host_buf));
 								p_options->fieldDelimiter = new char[sizeof(host_buf)];
 								strnzcpy(p_options->fieldDelimiter, host_buf, sizeof(host_buf));
@@ -601,19 +601,19 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 						{
 							UXFXlsOptions * p_options = static_cast<UXFXlsOptions *>(options.formatOptions);
 							p_options->bColumnHeadings = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->bColumnHeadings = buf.ToLong();
 							p_options->bTabularFormat = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->bTabularFormat = buf.ToLong();
 							p_options->bUseConstColWidth = 0;
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->bUseConstColWidth = buf.ToLong();
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->baseAreaGroupNum = (WORD)buf.ToLong();
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->baseAreaType = (WORD)buf.ToLong();
-							if(ss.get(&i, buf) > 0)
+							if(ss.get(&i, buf))
 								p_options->fConstColWidth = buf.ToReal();
 						}
 						break;
@@ -640,7 +640,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 					static const DWORD DestinationTypes[] = { UXDApplicationType, UXDDiskType, UXDMailType };
 
 					StringSet ss2(',', dest);
-					if(ss2.get(&(i = 0), buf) > 0 && PPSearchSubStr(types, &idx, buf, 1) > 0) {
+					if(ss2.get(&(i = 0), buf) && PPSearchSubStr(types, &idx, buf, 1) > 0) {
 						PPGetSubStr(PPTXT_EXPORT_DESTDLL32, idx, options.destinationDLLName, PE_DLL_NAME_LEN);
 						options.destinationType = DestinationTypes[idx];
 						switch(idx) {
@@ -658,7 +658,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int 
 						}
 					}
 					buf.Z();
-					if(ss2.get(&i, buf) > 0) {
+					if(ss2.get(&i, buf)) {
 						SString dir;
 						if(buf.NotEmptyS()) {
 							if(IsDirectory(buf.RmvLastSlash())) {
@@ -1022,7 +1022,7 @@ public:
 			}
 		}
 		SForEachVectorItem(Data.Entries, i) { list.Add(i+1, temp_buf.Z().Cat(Data.Entries.at(i)->Description_).Transf(CTRANSF_OUTER_TO_INNER)); }
-		SetupStrAssocCombo(this, CTLSEL_PRINT2_REPORT, &list, 1, 0);
+		SetupStrAssocCombo(this, CTLSEL_PRINT2_REPORT, list, 1, 0);
 		{
 			SString last_selected_printer;
 			SPrinting::GetListOfPrinters(&PrnList);
@@ -1059,7 +1059,7 @@ public:
 				PrnList.swap(0, static_cast<uint>(def_prn_id-1));
 			//
 			SForEachVectorItem(PrnList, j) { list.Add(j+1, temp_buf.Z().Cat(PrnList.at(j).PrinterName).Transf(CTRANSF_OUTER_TO_INNER)); }
-			SetupStrAssocCombo(this, CTLSEL_PRINT2_PRINTER, &list, sel_prn_id, 0);
+			SetupStrAssocCombo(this, CTLSEL_PRINT2_PRINTER, list, sel_prn_id, 0);
 		}
 		setCtrlLong(CTL_PRINT2_NUMCOPIES, Data.NumCopies);
 		{
@@ -2637,10 +2637,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	return ok;
 }
 
-int FASTCALL PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
-	{ return __PPAlddPrint(rptId, pf, 0, pEnv); }
-int FASTCALL PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
-	{ return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(pview), 1, pEnv); }
+int FASTCALL PPAlddPrint(int rptId, PPFilt & rF, const PPReportEnv * pEnv) { return __PPAlddPrint(rptId, &rF, 0, pEnv); }
+int FASTCALL PPAlddPrint(int rptId, PView & rV, const PPReportEnv * pEnv)  { return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(&rV), 1, pEnv); }
 
 static int Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
 {

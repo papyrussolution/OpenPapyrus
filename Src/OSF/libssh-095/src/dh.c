@@ -639,7 +639,7 @@ static char * ssh_get_b64_unpadded(const uchar * hash, size_t len)
 		for(k = strlen(b64_padded); k != 0 && b64_padded[k-1] == '='; k--)
 			;
 		b64_unpadded = strndup(b64_padded, k);
-		SAFE_FREE(b64_padded);
+		ZFREE(b64_padded);
 	}
 	return b64_unpadded;
 }
@@ -686,19 +686,19 @@ char * ssh_get_fingerprint_hash(enum ssh_publickey_hash_type type, uchar * hash,
 	}
 	str_len = strlen(prefix);
 	if(str_len + 1 + strlen(fingerprint) + 1 < str_len) {
-		SAFE_FREE(fingerprint);
+		ZFREE(fingerprint);
 		return NULL;
 	}
 	str_len += 1 + strlen(fingerprint) + 1;
 	str = (char *)SAlloc::M(str_len);
 	if(str == NULL) {
-		SAFE_FREE(fingerprint);
+		ZFREE(fingerprint);
 		return NULL;
 	}
 	rc = snprintf(str, str_len, "%s:%s", prefix, fingerprint);
-	SAFE_FREE(fingerprint);
+	ZFREE(fingerprint);
 	if(rc < 0 || rc < (int)(str_len - 1)) {
-		SAFE_FREE(str);
+		ZFREE(str);
 	}
 	return str;
 }
@@ -724,7 +724,7 @@ void ssh_print_hash(enum ssh_publickey_hash_type type, uchar * hash, size_t len)
 	char * fingerprint = ssh_get_fingerprint_hash(type, hash, len);
 	if(fingerprint) {
 		slfprintf_stderr("%s\n", fingerprint);
-		SAFE_FREE(fingerprint);
+		ZFREE(fingerprint);
 	}
 }
 

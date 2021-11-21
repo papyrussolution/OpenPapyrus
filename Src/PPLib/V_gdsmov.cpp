@@ -571,7 +571,6 @@ int PPViewGoodsMov::EditGoods(PPID goodsID)
 	ushort v = 0, what = 0;
 	PrintGoodsMovDialog * p_dlg = 0;
 	PPReportEnv env;
-	PView  pv(this);
 	THROW(CheckDialogPtr(&(p_dlg = new PrintGoodsMovDialog())));
 	p_dlg->setCtrlData(CTL_PRNGOODSMOV_WHAT, &what);
 	SETFLAG(v, 0x0001, avprice);
@@ -606,7 +605,7 @@ int PPViewGoodsMov::EditGoods(PPID goodsID)
 		else
 			env.Sort = PPViewGoodsMov::OrdByGrp_GoodsName;
 		env.PrnFlags = disable_grouping ? SReport::DisableGrouping : 0;
-		PPAlddPrint(rpt_id, &pv, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 		ok = 1;
 	}
 	else

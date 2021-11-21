@@ -177,9 +177,9 @@ int PPRentCondition::IsEmpty() const
 	return (!Period.IsZero() || Cycle || Percent || PartAmount) ? 0 : 1;
 }
 
-int FASTCALL PPRentCondition::IsEqual(const PPRentCondition & rS) const
+int FASTCALL PPRentCondition::IsEq(const PPRentCondition & rS) const
 {
-	if(!Period.IsEqual(rS.Period))
+	if(!Period.IsEq(rS.Period))
 		return 0;
 	else if(Cycle != rS.Cycle)
 		return 0;

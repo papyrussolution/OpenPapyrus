@@ -2039,10 +2039,8 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 		{
 			RVALUEPTR(Data, pData);
 			int    ok = 1;
-			long   cfg_id = 0;
-			if(CfgList.getCount() == 1)
-				cfg_id = CfgList.Get(0).Id;
-			SetupStrAssocCombo(this, CTLSEL_IEPHONE_CFG, &CfgList, cfg_id, 0, 0, 0);
+			const  long cfg_id = (CfgList.getCount() == 1) ? CfgList.Get(0).Id : 0;
+			SetupStrAssocCombo(this, CTLSEL_IEPHONE_CFG, CfgList, cfg_id, 0, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_IEPHONE_DEFCITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 			return ok;
 		}
@@ -3080,7 +3078,7 @@ public:
 		long   cfg_id = 0;
 		if(CfgList.getCount() == 1)
 			cfg_id = CfgList.Get(0).Id;
-		SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, &CfgList, cfg_id, 0, 0, 0);
+		SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, CfgList, cfg_id, 0, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0);
 		return ok;
 	}
@@ -6484,7 +6482,7 @@ int PrcssrOsm::Run()
 						if(!lr)
 							test_result = 0;
 						else {
-							int cr = test_tab.IsEqual(*p_grid);
+							int cr = test_tab.IsEq(*p_grid);
 							if(!cr)
 								test_result = 0;
 							else {

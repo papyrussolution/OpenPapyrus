@@ -369,8 +369,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 				THROW(pList->AddItem(gs_item.GoodsID, sign, gs_item.Formula__));
 				if(useSubst) {
 					PPGoodsStruc subst_gs;
-					const PPGoodsStruc::Ident gsid(gs_item.GoodsID, GSF_SUBST);
-					if(LoadGoodsStruc(&gsid, &subst_gs) > 0) {
+					if(LoadGoodsStruc(PPGoodsStruc::Ident(gs_item.GoodsID, GSF_SUBST), &subst_gs) > 0) {
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
 						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;)

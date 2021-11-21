@@ -886,27 +886,27 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 				pack.ELA.GetPhones(10, temp_buf);
 				{
 					StringSet ss(';', temp_buf);
-					if(ss.get(&(i = 0), temp_buf) > 0)
+					if(ss.get(&(i = 0), temp_buf))
 						rec.WorkPhone = temp_buf;
-					if(ss.get(&i, temp_buf) > 0)
+					if(ss.get(&i, temp_buf))
 						rec.HomePhone = temp_buf;
-					if(ss.get(&i, temp_buf) > 0)
+					if(ss.get(&i, temp_buf))
 						rec.MobilePhone = temp_buf;
 				}
 				pack.ELA.GetPhones(10, temp_buf, ELNKRT_FAX);
 				{
 					StringSet ss(';', temp_buf);
-					if(ss.get(&(i = 0), temp_buf) > 0)
+					if(ss.get(&(i = 0), temp_buf))
 						rec.WorkFax = temp_buf;
-					if(ss.get(&i, temp_buf.Z()) > 0)
+					if(ss.get(&i, temp_buf))
 						rec.HomeFax = temp_buf;
 				}
 				pack.ELA.GetPhones(10, temp_buf, ELNKRT_EMAIL);
 				{
 					StringSet ss(';', temp_buf);
-					if(ss.get(&(i = 0), temp_buf) > 0)
+					if(ss.get(&(i = 0), temp_buf))
 						rec.Email1 = temp_buf;
-					if(ss.get(&i, temp_buf) > 0)
+					if(ss.get(&i, temp_buf))
 						rec.Email2 = temp_buf;
 				}
 			}
@@ -3111,7 +3111,6 @@ int EditMainOrg()
 int PPViewPerson::Print(const void *)
 {
 	int    rpt_id = 0;
-	PView  pv(this);
 	switch(Filt.AttribType) {
 		case PPPSNATTR_BNKACCT: rpt_id = REPORT_PSNATTRBNKACCT; break;
 		case PPPSNATTR_PHONEADDR: rpt_id = REPORT_PSNATTRPHONEADDR; break;
@@ -3125,7 +3124,7 @@ int PPViewPerson::Print(const void *)
 		case PPPSNATTR_STANDALONEADDR: rpt_id = REPORT_PSNATTRADDR; break;
 		default: rpt_id = REPORT_PERSONLIST; break;
 	}
-	return PPAlddPrint(rpt_id, &pv, 0);
+	return PPAlddPrint(rpt_id, PView(this), 0);
 }
 //
 // Implementation of PPALDD_RegisterType

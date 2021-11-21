@@ -423,6 +423,581 @@ int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 #define HS_DIAGCROSS     6
 #endif // } _WIN32_WCE
 //
+// @construction {
+// Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
+//
+// Будем рассматривать следующие режимы перемещения:
+// по-страничный
+//   при этом режиме фрейм перемещается так, что первый невидимый элемент, который предшествовал крайнему элементу страницы,
+//   становится крайним элементом.
+// по-строчный
+// 
+//
+class SScroller {
+public:
+	DECL_INVARIANT_C();
+
+	SScroller();
+	SScroller(const SScroller & rS);
+	~SScroller();
+	SScroller & FASTCALL operator = (const SScroller & rS);
+	SScroller & FASTCALL Copy(const SScroller & rS);
+	SScroller & Z();
+	//
+	// Descr: Возвращает общее количество элементов под управлением экземпляра
+	//
+	uint   GetCount() const;
+	//
+	// Descr: Возвращает индекс текущей позиции.
+	//
+	uint   GetCurrentIndex() const;
+	//
+	// Descr: Возвращает значение текущей позиции в точках.
+	//
+	float  GetCurrentPoint() const;
+	//
+	// Descr: Возвращает индекс верхней позиции текущей страницы.
+	//
+	uint   GetCurrentPageTopIndex() const;
+	//
+	// Descr: Возвращает значение верхней позиции текущей страницы в точках.
+	//
+	float  GetCurrentPageTopPoint() const;
+	int    LineDown(uint ic, bool moveCursor);
+	int    LineUp(uint ic, bool moveCursor);
+	int    PageDown(uint pc);
+	int    PageUp(uint pc);
+	int    Top();
+	int    Bottom();
+	uint   GetPageBottomIndex(uint topIdx) const;
+	uint   GetPageTopIndex(uint bottomIdx) const;
+	//
+	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
+	//
+	enum {
+		fDisabled            = 0x0001,
+		fUsePaging           = 0x0002,
+		fReverse             = 0x0004,
+		fUseCursor           = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
+			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
+			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
+		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
+			// осуществлять до соответствующей границы текущей страницы.
+	};
+	struct SetupBlock {
+		SetupBlock();
+		uint   ItemCount;
+		float  ViewSize;
+		float  FixedItemSize;
+		FloatArray ItemSizeList; // Если FixedItemSize > 0.0 то ItemSizeList игнорируется в противном случае
+			// assert(ItemSizeList.getCount() == ItemCount)
+	};
+	int    Setup(const SetupBlock & rBlk);
+private:
+	uint   AdjustTopIdx(uint idx) const;
+	//
+	// Descr: Возвращает положение элемента с индексом idx относительно первого элемента в точках.
+	//
+	float  GetAbsolutePosition(uint idx) const;
+
+	uint   Flags;
+	uint   ItemCount;
+	uint   PageCurrent;
+	float  ViewSize;
+	float  FixedItemSize;
+	uint   ItemIdxPageTop;
+	uint   ItemIdxCurrent;
+	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
+	TSCollection <LongArray> * P_LineContent; // Список якорных идентификаторов, ассоциированных с элементами
+		// assert(!P_LineContent || P_LineContent->getCount() == ItemCount)
+	TSCollection <LongArray> * P_PageContent; // Список якорных идентификаторов, ассоциированных со страницами
+		// assert(!P_PageContent || P_PageContent->getCount() == PageCount)
+};
+
+struct SUiLayoutParam { // @persistent
+	enum {
+		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
+		fContainerCol             = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
+			// if fContainerRow && fContainerCol, then no direction
+		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
+		fContainerWrap            = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
+		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
+		fEntryPositionAbsolute    = 0x0020, // else Relative
+		fNominalDefL              = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
+		fNominalDefT              = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
+		fNominalDefR              = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
+		fNominalDefB              = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
+		fEvaluateScroller         = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
+			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
+	};
+	enum {
+		alignAuto = 0,
+		alignStretch,
+		alignCenter,
+		alignStart,
+		alignEnd,
+		alignSpaceBetween,
+		alignSpaceAround,
+		alignSpaceEvenly
+	};
+	//
+	// Descr: Зоны притяжения лейаутов. Применяются для вычисления размещения элементов
+	//   в неориентированных контейнерах.
+	//   В комментариях к каждому варианту приведена пара значений для горизонтального (X) и 
+	//   вертикального (Y) притяжения (Gravity), которой этот вариант соответствует.
+	//
+	//   Порядок следования зон в этом enum'е соответствует порядку, в котором
+	//   будут размещаться элементы. То есть, сначала углы, потом стороны, и, что осталось, отдается центральным элементам.
+	// @todo Сделать управляемый порядок размещения //	
+	//
+	enum { // @persistent
+		areaUndef = -1,
+		areaCornerLU = 0, // {SIDE_LEFT, SIDE_TOP} 
+		areaCornerRU,     // {SIDE_RIGHT, SIDE_TOP}
+		areaCornerRB,     // {SIDE_RIGHT, SIDE_BOTTOM}
+		areaCornerLB,     // {SIDE_LEFT, SIDE_BOTTOM}
+		areaSideU,        // {0, SIDE_TOP} {SIDE_CENTER, SIDE_TOP}
+		areaSideR,        // {SIDE_RIGHT, 0} {SIDE_RIGHT, SIDE_CENTER}
+		areaSideB,        // {0, SIDE_BOTTOM} {SIDE_CENTER, SIDE_BOTTOM}
+		areaSideL,        // {SIDE_LEFT, 0} {SIDE_LEFT, SIDE_CENTER}
+		areaCenter        // {0, SIDE_CENTER} {0, 0} {SIDE_CENTER, 0} {SIDE_CENTER, SIDE_CENTER}
+	};
+	//
+	// Descr: Опции расчета размера
+	//
+	enum {
+		szInvalid     = -1, // Специальное значение, в некоторых случаях возвращаемое для индикации ошибки
+		szUndef       =  0, // Размер никак не определен. Должен быть определен во время пересчета (если возможно)
+		szFixed       =  1, // assert(Size.x > 0.0f)
+		szByContent   =  2, // Размер определяется содержимым
+		szByContainer =  3, // Размер определяется по размеру контейнера
+	};
+	//
+	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
+	//
+	static uint32 GetSerializeSignature();
+	SUiLayoutParam();
+	//
+	// Descr: конструктор для контейнера с наиболее популярными аргументами.
+	//
+	explicit SUiLayoutParam(int direction, uint justifyContent = alignAuto, uint alignContent = alignAuto);
+	int    FASTCALL operator == (const SUiLayoutParam & rS) const;
+	int    FASTCALL operator != (const SUiLayoutParam & rS) const;
+	SUiLayoutParam & SetDefault();
+	int    FASTCALL IsEq(const SUiLayoutParam & rS) const;
+	//
+	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
+	// Returns:
+	//   !0 - блок находится в консистентном состоянии
+	//    0 - некоторые параметры блока противоречивы
+	//
+	int    Validate() const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	//
+	// Descr: Возвращает заданный размер по оси X.
+	//   Если SzX == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
+	// Returns:
+	//   if oneof4(SzX, szUndef, szFixed, szByContent, szByContainer) then SzX, else szInvalid.
+	//
+	int    GetSizeX(float * pS) const;
+	//
+	// Descr: Возвращает заданный размер по оси Y.
+	//   Если SzY == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
+	// Returns:
+	//   if oneof4(SzY, szUndef, szFixed, szByContent, szByContainer) then SzY, else szInvalid.
+	//
+	int    GetSizeY(float * pS) const;
+	//
+	// Descr: Если SzX == szByContainer то по указателю pS присваивает эффективное значение
+	//   размера, вычисленное с учетом размера контейнера containerSize.
+	//   Если SzX != szByContainer или что-то не так с containerSize либо с Size.X, то
+	//   по указателю pS ничего присвоено не будет.
+	// Returns:
+	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
+	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
+	//
+	int    GetSizeByContainerX(float containerSize, float * pS) const;
+	//
+	// Descr: Если SzY == szByContainer то по указателю pS присваивает эффективное значение
+	//   размера, вычисленное с учетом размера контейнера containerSize.
+	//   Если SzY != szByContainer или что-то не так с containerSize либо с Size.Y, то
+	//   по указателю pS ничего присвоено не будет.
+	// Returns:
+	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
+	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
+	//
+	int    GetSizeByContainerY(float containerSize, float * pS) const;
+	float  CalcEffectiveSizeX(float containerSize) const;
+	float  CalcEffectiveSizeY(float containerSize) const;
+	SPoint2F CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
+	void   SetFixedSizeX(float s);
+	void   SetFixedSizeY(float s);
+	void   SetVariableSizeX(uint var/* szXXX */, float s);
+	void   SetVariableSizeY(uint var/* szXXX */, float s);
+	void   SetFixedSize(const TRect & rR);
+	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
+	void   SetContainerDirection(int direc /*DIREC_XXX*/);
+	static SString & MarginsToString(const FRect & rR, SString & rBuf);
+	static int    MarginsFromString(const char * pBuf, FRect & rR);
+	SString & SizeToString(SString & rBuf) const;
+	int    SizeFromString(const char * pBuf);
+	//
+	// Descr: Определяет являются ли координаты по оси X фиксированными.
+	//
+	bool   IsNominalFullDefinedX() const;
+	//
+	// Descr: Определяет являются ли координаты по оси Y фиксированными.
+	//
+	bool   IsNominalFullDefinedY() const;
+	//
+	// Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
+	//   направления direction.
+	//   Если direction == DIREC_HORZ, то возвращает DIREC_VERT; если direction == DIREC_VERT, то возвращает DIREC_HORZ.
+	//   Если !oneof2(direction, DIREC_HORZ, DIREC_VERT) то возвращает DIREC_UNKN.
+	//
+	static int GetCrossDirection(int direction);
+	//
+	// Descr: Определяет является ли позиция элемента абсолютной вдоль направления direction.
+	// ARG(direction IN): DIREC_HORZ || DIREC_VERT
+	//
+	bool   IsPositionAbsolute(int direction) const;
+	//
+	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
+	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
+	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
+	//   хотя бы одна из координат по оси.
+	//
+	bool   IsPositionAbsoluteX() const;
+	float  GetAbsoluteLowX() const;
+	float  GetAbsoluteLowY() const;
+	float  GetAbsoluteSizeX() const;
+	float  GetAbsoluteSizeY() const;
+	//
+	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
+	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
+	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
+	//   хотя бы одна из координат по оси.
+	//
+	bool   IsPositionAbsoluteY() const;
+	//
+	// Descr: Возвращает зону притяжения элемента (SUiLayoutParam::areaXXX) в зависимости от значений
+	//   полей {GravityX, GravityY}
+	//
+	int    GetVArea() const;
+	//
+	// Descr: Устанавливает атрибуты GravityX и GravityY в зависимости от параметра
+	//   area.
+	// Returns:
+	//   >0 - значения GravityX и GravityY успешно установлены. При этом они изменились.
+	//   <0 - значения GravityX и GravityY успешно установлены, но ничего при этом не изменилось (они такими же и были).
+	//    0 - ошибка (аргумент area не валиден либо что-то не так с внутренним состоянием объекта).
+	//
+	int    SetVArea(int area);
+	static int RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect);
+
+	uint32 Flags;          // @flags fXXX
+	uint16 SzX;            // SUiLayoutParam::szXXX Опции расчета размера по оси X
+	uint16 SzY;            // SUiLayoutParam::szXXX Опции расчета размера по оси Y
+	uint16 JustifyContent; // {alignStart}   SUiLayoutParam::alignXXX Выравнивание внутренних элементов вдоль основной оси
+	uint16 AlignContent;   // {alignStretch} SUiLayoutParam::alignXXX Выравнивание внутренних элементов по кросс-оси
+	uint16 AlignItems;     // {alignStretch} SUiLayoutParam::alignXXX
+	uint16 AlignSelf;      // {alignAuto}    SUiLayoutParam::alignXXX
+	uint16 GravityX;       // Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
+	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
+	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
+	SPoint2F Size;         // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
+	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
+	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
+	float  GrowFactor;     // Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
+	float  ShrinkFactor;   //
+	float  Basis;          //
+	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+private:
+	int    ParseSizeStr(const SString & rStr, float & rS) const;
+};
+
+class SUiLayout {
+	friend class LayoutFlexProcessor;
+public:
+	//
+	// Descr: Специализированная коллекция ссылок на лейауты, не владеющая этими ссылками
+	//   (SCollection не содержит флага aryEachItem).
+	//
+	class RefCollection : private SCollection {
+	public:
+		RefCollection();
+		RefCollection & Z();
+		void   Add(const SUiLayout * pLo);
+		uint   GetCount() const;
+		const SUiLayout * Get(uint idx) const;
+	};
+
+	struct Result { // @persistent @size=24
+		enum {
+			fNotFit         = 0x0001, // Элемент не уместился в контейнер
+			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
+			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
+		};
+		Result();
+		Result(const Result & rS);
+		~Result();
+		Result & FASTCALL operator = (const Result & rS);
+		operator FRect() const;
+		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
+		float  Frame[4];
+		uint32 Flags;
+		uint32 Reserve;
+		SScroller * P_Scrlr;
+	};
+	struct IndexEntry {
+		IndexEntry();
+		uint32 ItemIdx; // Индекс элемента в TSCollection::this
+		uint32 HglIdx;  // Индекс[1..] элемента в P_HgL. Если SVectorBase::GetCount(P_HgL) == 0, то 0
+		Result R;       // Результат размещения
+	};
+	// size[0] == width, size[1] == height
+	typedef void (__stdcall * FlexSelfSizingProc)(const SUiLayout * pItem, float size[2]);
+	typedef void (__stdcall * FlexSetupProc)(SUiLayout * pItem, /*float size[4]*/const SUiLayout::Result & rR);
+
+	static void * GetManagedPtr(SUiLayout * pItem);
+	static void * GetParentsManagedPtr(SUiLayout * pItem);
+
+	SUiLayout();
+	~SUiLayout();
+	bool   IsConsistent() const;
+	//
+	// Descr: Если экземпляр this имеет родителя, то обращается к родительскому
+	//   объекту для того, что бы тот удалил его.
+	// Returns:
+	//   >0 - this имеет родителя и тот успешно убил его. В этом случае указатель this более
+	//     не действителен.
+	//   0  - this не имеет родителя (либо родитель не имеет в своем списке ссылки на this, что есть сбойная ситуация) и должен совершить суицид самостоятельно.
+	//
+	int    FatherKillMe();
+	uint   GetChildrenCount() const;
+	SUiLayout * GetChild(uint idx);
+	const  SUiLayout * GetChildC(uint idx) const;
+	void   SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr);
+	int    SetLayoutBlock(const SUiLayoutParam & rAlb);
+	SUiLayoutParam & GetLayoutBlock() { return ALB; }
+	const SUiLayoutParam & GetLayoutBlockC() const { return ALB; }
+	SUiLayout * GetParent() { return P_Parent; }
+
+	struct Param {
+		enum {
+			fPaginate                = 0x0001, // Рассчитывать раскладку по страницам.
+			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
+		};
+		Param() : Flags(0), FirstItemIndex(0), ForceWidth(0.0f), ForceHeight(0.0f)
+		{
+		}
+		uint   Flags;
+		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
+		float  ForceWidth;
+		float  ForceHeight;
+	};
+	int    Evaluate(const Param * pP);
+	SUiLayout * InsertItem();
+	SUiLayout * InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb);
+	void   DeleteItem(uint idx);
+	void   DeleteAllItems();
+	int    GetOrder() const;
+	void   SetOrder(int o);
+	//
+	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
+	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
+	//   (margin_left, margin_right, padding_left, padding_right).
+	// Returns:
+	//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)).
+	//      В этом случае по адресу pS присваивается полная ширина элемента.
+	//    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
+	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+	//
+	int    GetFullWidth(float * pS) const;
+	//
+	// Descr: Вычисляет полную высоту элемента без рассмотрения его внутренних компонентов.
+	//   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
+	//   (margin_top, margin_bottom, padding_top, padding_bottom).
+	// Returns:
+	//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)).
+	//      В этом случае по адресу pS присваивается полная высота элемента.
+	//    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
+	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+	//
+	int    GetFullHeight(float * pS) const;
+	//
+	// Descr: Возвращает финальный расчетный прямоугольник элемента.
+	//
+	FRect  GetFrame() const;
+	//
+	// Descr: Возвращаете финальный расчетный прямоугольник элемента, скорректированный относительно
+	//   родительских прямоугольников.
+	//
+	FRect  GetFrameAdjustedToParent() const;
+	//
+	// Descr: Ищет элемент с наименьшим размером, в котором находится точка {x, y}.
+	// Note: Функция предполагает, что если точка не попадает в родительский элемент, то не попадает и 
+	//   ни в один из дочерних элементов. В общем случае, это - сильное и не обязательно истинное утверждение.
+	// Returns:
+	//   !0 - указатель на минимальный элемент, включающий точку {x, y}
+	//    0 - нет ни одного элемента, включающего точку {x, y}
+	//
+	const  SUiLayout * FindMinimalItemAroundPoint(float x, float y) const;
+	//
+	// Descr: Рассчитывает минимальный прямоугольник, охватывающий все дочерние элементы
+	//   контейнера. Размеры самого контейнера в расчет не принимаются.
+	// Returns:
+	//   1 - все дочерние элементы имеют определенный размер
+	//  -1 - контейнер не имеет элементов 
+	//  -2 - только часть дочерних элементов имеет определенный размер
+	//   0 - ошибка (черт его знает, что там еще может произойти)
+	//
+	int    GetInnerCombinedFrame(FRect * pResult) const;
+	//
+	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
+	//
+	SUiLayout * GetRoot();
+	const  Result & GetResult() const { return R; }
+	//
+	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
+	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
+	//   значительное ускорение и упрощенние работы в ряде частных случаев.
+	//   За исключением опционального параметра Vf все остальные атрибуты элемента определяются
+	//   элементом-владецем.
+	//
+	struct HomogeneousEntry {
+		long   ID; // Уникальный (среди элементов HomogeneousArray) идентификатор
+		float  Vf; // Значение изменяемого фактора, определяемого параметром HomogeneousArray::VariableFactor
+	};
+	struct HomogeneousArray : public TSVector <HomogeneousEntry> {
+		enum {
+			vfNone = 0,
+			vfFixedSizeX,
+			vfFixedSizeY,
+			vfGrowFactor
+		};
+		HomogeneousArray();
+		uint   VariableFactor;
+	};
+
+	int    InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */);
+	int    AddHomogeneousEntry(long id, float vf);
+	//
+	// Descr: Типы комплексных лейаутов
+	//
+	enum { // @persistent
+		cmplxtNone       = 0,
+		// Для следующих 3 комплексов фиксированное базовое измерение - высота поля ввода
+		cmplxtInpLbl     = 1, // Комплексный layout { [input-line] [label] }
+		cmplxtInpLblBtn  = 2, // Комплексный layout { [input-line] [label] [square-button] }
+		cmplxtInpLblBtn2 = 3, // Комплексный layout { [input-line] [label] [square-button] [square-button] }
+	};
+	//
+	// Desc: Зарезервированные метки компонентов комплексного layout'а
+	//
+	enum {
+		cmlxcUndef   = 0,
+		cmlxcInput   = 1, 
+		cmlxcLabel   = 2,
+		cmlxcButton1 = 3,
+		cmlxcButton2 = 4,
+	};
+
+	SUiLayout * FASTCALL FindComplexComponentId(uint id);
+	//
+	// Descr: Опции комплексных layout'ов
+	//
+	enum {
+		clfLabelLeft = 0x0001, // Этикетка располагается слева от основного элемента. Иначе - сверху
+	};
+	//
+	// Descr: Создает комплексный layout типа type.
+	//   Внешние размеры результата не определены (должны быть установлены вызывающей функцией)
+	//
+	static SUiLayout * CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, SUiLayout * pTopLevel);
+protected:
+	void   UpdateShouldOrderChildren();
+	void   DoLayout(const Param & rP) const;
+	void   DoFloatLayout(const Param & rP);
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout, SScroller::SetupBlock * pSsb) const;
+	//
+	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
+	//   с поправкой на rOffs и разрушает pCurrentLayout.
+	//
+	void   Helper_CommitInnerFloatLayout(SUiLayout * pCurrentLayout, const SPoint2F & rOffs) const;
+	/*flex_align*/int FASTCALL GetChildAlign(const SUiLayout & rChild) const;
+private:
+	class IterIndex : public TSVector <IndexEntry> {
+	public:
+		IterIndex();
+		SUiLayout * GetHomogeneousItem(const SUiLayout * pBaseItem, uint hgeIdx) const;
+		void   ReleaseHomogeneousItem(SUiLayout *) const;
+	private:
+		mutable TSCollection <SUiLayout> HomogeneousEntryPool;
+	};
+	//
+	// Методы для внутренней индексации элементов контейнера.
+	// Идея такая: 
+	//   -- вызываем MakeIndex - получаем индекс всех элементов контейнера включая неявные гомогенные элементы 
+	//   -- при построении раскладки обращаемся к элементам строго посредством GetChildByIndex
+	//   -- закончив раскладку возвращаем контейнеру элементы вызовами CommitChildResult
+	// Замечания:
+	//   -- индексация учитывает атрибут ALB.Order
+	//   -- представления гомогенных элементов физически в контейнере не существуют, потому SetChildByIndex
+	//     будет реализовать не просто.
+	//   -- пока имеет место путаница насчет того какие поля SUiLayout меняются функциями расчета, а 
+	//     какие нет. Потому я в некотором замешательстве.
+	//
+	void   MakeIndex(IterIndex & rIndex) const;
+	//
+	// Descr: Получает указатель на элемент по позиции idxPos в индексе rIndex.
+	//   Если элемент является гомоморфной коллекцией, то возвращается указатель на суррогатный экземпляр.
+	// Returns:
+	//   0 - error. Скорее всего, инвалидный индекс.
+	//
+	const  SUiLayout * GetChildByIndex(const IterIndex & rIndex, uint idxPos) const;
+	int    CommitChildResult(const IterIndex & rIndex, uint idxPos, const SUiLayout * pItem);
+	//
+	// Descr: Вызывается после завершения расчета элемента
+	//   Вызывает DoLayout(R.Frame[2], R.Frame[3])
+	//
+	void   Commit_() const;
+	int    SetupResultScroller(SScroller::SetupBlock * pSb) const; // Result is mutable
+	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
+
+	enum {
+		setupfChildrenOnly = 0x0001 // Вызывать callback-функцию CbSetup только для дочерних элементов, но не для самого себя //
+	};
+	//
+	// Descr: Вызывает функцию CbSetup для самого себя и рекурсивно для дочерних элементов
+	// ARG(flags IN)
+	//
+	void   Setup(uint flags);
+	//
+	enum {
+		stShouldOrderChildren = 0x0001,
+		stHomogeneousItem     = 0x0002  // Элемент является виртуальным экземпляром, сформированным по шаблону из HomogeneousArray основного элемента
+	};
+	uint32 Signature; // non const. Инициализиуется в ctr, обнуляется в dtr.
+	SUiLayoutParam ALB;
+	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
+		// An item can provide a self_sizing callback function that will be called
+		// during layout and which can customize the dimensions (width and height) of the item.
+	FlexSelfSizingProc CbSelfSizing; // NULL
+	FlexSetupProc CbSetup; // NULL
+	SUiLayout * P_Parent;
+	uint   State;
+	uint16 CplxComponentId;
+	uint16 Reserve;
+	const  SUiLayout * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
+		// в этом поле ссылку на порождающий реальный элемент. 
+	TSCollection <SUiLayout> * P_Children;
+	HomogeneousArray * P_HgL;
+	mutable Result R;
+};
+//
 // Descr: Определитель шрифта
 //
 class SFontDescr { // @persistent
@@ -438,7 +1013,7 @@ public:
 
 	SFontDescr(const char * pFace, int size, int flags);
 	void   Init();
-	int    FASTCALL IsEqual(const SFontDescr & rS) const;
+	int    FASTCALL IsEq(const SFontDescr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    ToStr(SString & rBuf, long fmt) const;
 	int    FASTCALL FromStr(const char *);
@@ -462,7 +1037,7 @@ private:
 //
 struct SParaDescr { // @persistent
 	SParaDescr();
-	int    FASTCALL IsEqual(const SParaDescr &) const;
+	int    FASTCALL IsEq(const SParaDescr &) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetJustif() const;
 
@@ -598,7 +1173,7 @@ public:
 		~Pen();
 		Pen  & FASTCALL operator = (const Pen & rS);
 		int    FASTCALL Copy(const Pen & rS);
-		int    FASTCALL IsEqual(const Pen & rS) const;
+		int    FASTCALL IsEq(const Pen & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    IsDashed() const;
 		//
@@ -636,7 +1211,7 @@ public:
 		Brush & FASTCALL operator = (const Brush &);
 		int    FASTCALL operator == (const Brush &) const;
 		void   FASTCALL Copy(const Brush & rS);
-		int    FASTCALL IsEqual(const Brush & rS) const;
+		int    FASTCALL IsEq(const Brush & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    IsSimple() const;
 		void   FASTCALL SetSimple(SColor);
@@ -733,7 +1308,7 @@ public:
 	public:
 		CStyle();
 		CStyle(int fontId, int penId, int brushId);
-		int    FASTCALL IsEqual(const CStyle & rS) const;
+		int    FASTCALL IsEq(const CStyle & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		int    FontId;
@@ -1843,6 +2418,7 @@ public:
 	//   0 - либо не найден элемент с идентификатором id, либо у него нет символа.
 	//
 	int    GetCtlSymb(uint id, SString & rBuf) const;
+	void   InvalidateLayoutRefList(const SUiLayout::RefCollection & rRedrawLoList, int erase);
 	//
 	//
 	HWND   PrevInStack;
@@ -1976,568 +2552,6 @@ private:
 	TRect ContainerBounds;
 };
 #endif // } 0 @v10.9.12 (depricated) {
-//
-//
-//
-//
-// @construction {
-// Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
-//
-// Будем рассматривать следующие режимы перемещения:
-// по-страничный
-//   при этом режиме фрейм перемещается так, что первый невидимый элемент, который предшествовал крайнему элементу страницы,
-//   становится крайним элементом.
-// по-строчный
-// 
-//
-class SScroller {
-public:
-	DECL_INVARIANT_C();
-
-	SScroller();
-	SScroller(const SScroller & rS);
-	~SScroller();
-	SScroller & FASTCALL operator = (const SScroller & rS);
-	SScroller & FASTCALL Copy(const SScroller & rS);
-	SScroller & Z();
-	//
-	// Descr: Возвращает общее количество элементов под управлением экземпляра
-	//
-	uint   GetCount() const;
-	//
-	// Descr: Возвращает индекс текущей позиции.
-	//
-	uint   GetCurrentIndex() const;
-	//
-	// Descr: Возвращает значение текущей позиции в точках.
-	//
-	float  GetCurrentPoint() const;
-	//
-	// Descr: Возвращает индекс верхней позиции текущей страницы.
-	//
-	uint   GetCurrentPageTopIndex() const;
-	//
-	// Descr: Возвращает значение верхней позиции текущей страницы в точках.
-	//
-	float  GetCurrentPageTopPoint() const;
-	int    LineDown(uint ic, bool moveCursor);
-	int    LineUp(uint ic, bool moveCursor);
-	int    PageDown(uint pc);
-	int    PageUp(uint pc);
-	int    Top();
-	int    Bottom();
-	uint   GetPageBottomIndex(uint topIdx) const;
-	uint   GetPageTopIndex(uint bottomIdx) const;
-	//
-	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
-	//
-	enum {
-		fDisabled            = 0x0001,
-		fUsePaging           = 0x0002,
-		fReverse             = 0x0004,
-		fUseCursor           = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
-			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
-			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
-		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
-			// осуществлять до соответствующей границы текущей страницы.
-	};
-	struct SetupBlock {
-		SetupBlock();
-		uint   ItemCount;
-		float  ViewSize;
-		float  FixedItemSize;
-		FloatArray ItemSizeList; // Если FixedItemSize > 0.0 то ItemSizeList игнорируется в противном случае
-			// assert(ItemSizeList.getCount() == ItemCount)
-	};
-	int    Setup(const SetupBlock & rBlk);
-private:
-	uint   AdjustTopIdx(uint idx) const;
-	//
-	// Descr: Возвращает положение элемента с индексом idx относительно первого элемента в точках.
-	//
-	float  GetAbsolutePosition(uint idx) const;
-
-	uint   Flags;
-	uint   ItemCount;
-	uint   PageCurrent;
-	float  ViewSize;
-	float  FixedItemSize;
-	uint   ItemIdxPageTop;
-	uint   ItemIdxCurrent;
-	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
-	TSCollection <LongArray> * P_LineContent; // Список якорных идентификаторов, ассоциированных с элементами
-		// assert(!P_LineContent || P_LineContent->getCount() == ItemCount)
-	TSCollection <LongArray> * P_PageContent; // Список якорных идентификаторов, ассоциированных со страницами
-		// assert(!P_PageContent || P_PageContent->getCount() == PageCount)
-};
-
-struct AbstractLayoutBlock { // @persistent
-	enum {
-		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
-		fContainerCol             = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
-			// if fContainerRow && fContainerCol, then no direction
-		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fContainerWrap            = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
-		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
-		fEntryPositionAbsolute    = 0x0020, // else Relative
-		fNominalDefL              = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
-		fNominalDefT              = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
-		fNominalDefR              = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
-		fNominalDefB              = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
-		fEvaluateScroller         = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
-			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
-			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю LayoutFlexItem::Result::P_Scrlr.
-	};
-	enum {
-		alignAuto = 0,
-		alignStretch,
-		alignCenter,
-		alignStart,
-		alignEnd,
-		alignSpaceBetween,
-		alignSpaceAround,
-		alignSpaceEvenly
-	};
-	//
-	// Descr: Зоны притяжения лейаутов. Применяются для вычисления размещения элементов
-	//   в неориентированных контейнерах.
-	//   В комментариях к каждому варианту приведена пара значений для горизонтального (X) и 
-	//   вертикального (Y) притяжения (Gravity), которой этот вариант соответствует.
-	//
-	//   Порядок следования зон в этом enum'е соответствует порядку, в котором
-	//   будут размещаться элементы. То есть, сначала углы, потом стороны, и, что осталось, отдается центральным элементам.
-	// @todo Сделать управляемый порядок размещения //	
-	//
-	enum { // @persistent
-		areaUndef = -1,
-		areaCornerLU = 0, // {SIDE_LEFT, SIDE_TOP} 
-		areaCornerRU,     // {SIDE_RIGHT, SIDE_TOP}
-		areaCornerRB,     // {SIDE_RIGHT, SIDE_BOTTOM}
-		areaCornerLB,     // {SIDE_LEFT, SIDE_BOTTOM}
-		areaSideU,        // {0, SIDE_TOP} {SIDE_CENTER, SIDE_TOP}
-		areaSideR,        // {SIDE_RIGHT, 0} {SIDE_RIGHT, SIDE_CENTER}
-		areaSideB,        // {0, SIDE_BOTTOM} {SIDE_CENTER, SIDE_BOTTOM}
-		areaSideL,        // {SIDE_LEFT, 0} {SIDE_LEFT, SIDE_CENTER}
-		areaCenter        // {0, SIDE_CENTER} {0, 0} {SIDE_CENTER, 0} {SIDE_CENTER, SIDE_CENTER}
-	};
-	//
-	// Descr: Опции расчета размера
-	//
-	enum {
-		szInvalid     = -1, // Специальное значение, в некоторых случаях возвращаемое для индикации ошибки
-		szUndef       =  0, // Размер никак не определен. Должен быть определен во время пересчета (если возможно)
-		szFixed       =  1, // assert(Size.x > 0.0f)
-		szByContent   =  2, // Размер определяется содержимым
-		szByContainer =  3, // Размер определяется по размеру контейнера
-	};
-	//
-	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
-	//
-	static uint32 GetSerializeSignature();
-	AbstractLayoutBlock();
-	explicit AbstractLayoutBlock(int direction);
-	int    FASTCALL operator == (const AbstractLayoutBlock & rS) const;
-	int    FASTCALL operator != (const AbstractLayoutBlock & rS) const;
-	AbstractLayoutBlock & SetDefault();
-	int    FASTCALL IsEqual(const AbstractLayoutBlock & rS) const;
-	//
-	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
-	// Returns:
-	//   !0 - блок находится в консистентном состоянии
-	//    0 - некоторые параметры блока противоречивы
-	//
-	int    Validate() const;
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	//
-	// Descr: Возвращает заданный размер по оси X.
-	//   Если SzX == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
-	// Returns:
-	//   if oneof4(SzX, szUndef, szFixed, szByContent, szByContainer) then SzX, else szInvalid.
-	//
-	int    GetSizeX(float * pS) const;
-	//
-	// Descr: Возвращает заданный размер по оси Y.
-	//   Если SzY == szFixed, то по указателю pS присваивается фиксированный размер, иначе - 0.0f
-	// Returns:
-	//   if oneof4(SzY, szUndef, szFixed, szByContent, szByContainer) then SzY, else szInvalid.
-	//
-	int    GetSizeY(float * pS) const;
-	//
-	// Descr: Если SzX == szByContainer то по указателю pS присваивает эффективное значение
-	//   размера, вычисленное с учетом размера контейнера containerSize.
-	//   Если SzX != szByContainer или что-то не так с containerSize либо с Size.X, то
-	//   по указателю pS ничего присвоено не будет.
-	// Returns:
-	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
-	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
-	//
-	int    GetSizeByContainerX(float containerSize, float * pS) const;
-	//
-	// Descr: Если SzY == szByContainer то по указателю pS присваивает эффективное значение
-	//   размера, вычисленное с учетом размера контейнера containerSize.
-	//   Если SzY != szByContainer или что-то не так с containerSize либо с Size.Y, то
-	//   по указателю pS ничего присвоено не будет.
-	// Returns:
-	//   !0 - корректно вычислен эффективный размер, зависящий от размера контейнера
-	//    0 - размер элемента не зависит от размера контейнера либо что-то не так с размерами.
-	//
-	int    GetSizeByContainerY(float containerSize, float * pS) const;
-	float  CalcEffectiveSizeX(float containerSize) const;
-	float  CalcEffectiveSizeY(float containerSize) const;
-	SPoint2F CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
-	void   SetFixedSizeX(float s);
-	void   SetFixedSizeY(float s);
-	void   SetVariableSizeX(uint var/* szXXX */, float s);
-	void   SetVariableSizeY(uint var/* szXXX */, float s);
-	void   SetFixedSize(const TRect & rR);
-	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
-	void   SetContainerDirection(int direc /*DIREC_XXX*/);
-	static SString & MarginsToString(const FRect & rR, SString & rBuf);
-	static int    MarginsFromString(const char * pBuf, FRect & rR);
-	SString & SizeToString(SString & rBuf) const;
-	int    SizeFromString(const char * pBuf);
-	//
-	// Descr: Определяет являются ли координаты по оси X фиксированными.
-	//
-	bool   IsNominalFullDefinedX() const;
-	//
-	// Descr: Определяет являются ли координаты по оси Y фиксированными.
-	//
-	bool   IsNominalFullDefinedY() const;
-	//
-	// Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
-	//   направления direction.
-	//   Если direction == DIREC_HORZ, то возвращает DIREC_VERT; если direction == DIREC_VERT, то возвращает DIREC_HORZ.
-	//   Если !oneof2(direction, DIREC_HORZ, DIREC_VERT) то возвращает DIREC_UNKN.
-	//
-	static int GetCrossDirection(int direction);
-	//
-	// Descr: Определяет является ли позиция элемента абсолютной вдоль направления direction.
-	// ARG(direction IN): DIREC_HORZ || DIREC_VERT
-	//
-	bool   IsPositionAbsolute(int direction) const;
-	//
-	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
-	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
-	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
-	//   хотя бы одна из координат по оси.
-	//
-	bool   IsPositionAbsoluteX() const;
-	float  GetAbsoluteLowX() const;
-	float  GetAbsoluteLowY() const;
-	float  GetAbsoluteSizeX() const;
-	float  GetAbsoluteSizeY() const;
-	//
-	// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
-	//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
-	//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
-	//   хотя бы одна из координат по оси.
-	//
-	bool   IsPositionAbsoluteY() const;
-	//
-	// Descr: Возвращает зону притяжения элемента (AbstractLayoutBlock::areaXXX) в зависимости от значений
-	//   полей {GravityX, GravityY}
-	//
-	int    GetVArea() const;
-	//
-	// Descr: Устанавливает атрибуты GravityX и GravityY в зависимости от параметра
-	//   area.
-	// Returns:
-	//   >0 - значения GravityX и GravityY успешно установлены. При этом они изменились.
-	//   <0 - значения GravityX и GravityY успешно установлены, но ничего при этом не изменилось (они такими же и были).
-	//    0 - ошибка (аргумент area не валиден либо что-то не так с внутренним состоянием объекта).
-	//
-	int    SetVArea(int area);
-	static int RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect);
-
-	uint32 Flags;          // @flags fXXX
-	uint16 SzX;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси X
-	uint16 SzY;            // AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
-	uint16 JustifyContent; // {alignStart}   AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
-	uint16 AlignContent;   // {alignStretch} AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
-	uint16 AlignItems;     // {alignStretch} AbstractLayoutBlock::alignXXX
-	uint16 AlignSelf;      // {alignAuto}    AbstractLayoutBlock::alignXXX
-	uint16 GravityX;       // Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
-	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
-	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
-	SPoint2F Size;         // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
-	FRect  Padding;        // { 0.0f, 0.0f, 0.0f, 0.0f } Внешние поля элемента
-	FRect  Margin;         // { 0.0f, 0.0f, 0.0f, 0.0f } Внутренние поля контейнера
-	float  GrowFactor;     // Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
-	float  ShrinkFactor;   //
-	float  Basis;          //
-	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
-private:
-	int    ParseSizeStr(const SString & rStr, float & rS) const;
-};
-
-class LayoutFlexItem {
-	friend class LayoutFlexProcessor;
-public:
-	struct Result { // @persistent @size=24
-		enum {
-			fNotFit         = 0x0001, // Элемент не уместился в контейнер
-			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
-			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
-		};
-		Result();
-		Result(const Result & rS);
-		~Result();
-		Result & FASTCALL operator = (const Result & rS);
-		operator FRect() const;
-		Result & CopyWithOffset(const Result & rS, float offsX, float offsY);
-		float  Frame[4];
-		uint32 Flags;
-		uint32 Reserve;
-		SScroller * P_Scrlr;
-	};
-	struct IndexEntry {
-		IndexEntry();
-		uint32 ItemIdx; // Индекс элемента в TSCollection::this
-		uint32 HglIdx;  // Индекс[1..] элемента в P_HgL. Если SVectorBase::GetCount(P_HgL) == 0, то 0
-		Result R;       // Результат размещения
-	};
-	// size[0] == width, size[1] == height
-	typedef void (__stdcall * FlexSelfSizingProc)(const LayoutFlexItem * pItem, float size[2]);
-	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, /*float size[4]*/const LayoutFlexItem::Result & rR);
-
-	static void * GetManagedPtr(LayoutFlexItem * pItem);
-	static void * GetParentsManagedPtr(LayoutFlexItem * pItem);
-
-	LayoutFlexItem();
-	~LayoutFlexItem();
-	//
-	// Descr: Если экземпляр this имеет родителя, то обращается к родительскому
-	//   объекту для того, что бы тот удалил его.
-	// Returns:
-	//   >0 - this имеет родителя и тот успешно убил его. В этом случае указатель this более
-	//     не действителен.
-	//   0  - this не имеет родителя (либо родитель не имеет в своем списке ссылки на this, что есть сбойная ситуация) и должен совершить суицид самостоятельно.
-	//
-	int    FatherKillMe();
-	uint   GetChildrenCount() const;
-	LayoutFlexItem * GetChild(uint idx);
-	const  LayoutFlexItem * GetChildC(uint idx) const;
-	void   SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr);
-	int    SetLayoutBlock(const AbstractLayoutBlock & rAlb);
-	AbstractLayoutBlock & GetLayoutBlock() { return ALB; }
-	const AbstractLayoutBlock & GetLayoutBlockC() const { return ALB; }
-	LayoutFlexItem * GetParent() { return P_Parent; }
-
-	struct Param {
-		enum {
-			fPaginate                = 0x0001, // Рассчитывать раскладку по страницам.
-			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
-		};
-		Param() : Flags(0), FirstItemIndex(0), ForceWidth(0.0f), ForceHeight(0.0f)
-		{
-		}
-		uint   Flags;
-		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
-		float  ForceWidth;
-		float  ForceHeight;
-	};
-	int    Evaluate(const Param * pP);
-	LayoutFlexItem * InsertItem();
-	LayoutFlexItem * InsertItem(void * pManagedPtr, const AbstractLayoutBlock * pAlb);
-	void   DeleteItem(uint idx);
-	void   DeleteAllItems();
-	int    GetOrder() const;
-	void   SetOrder(int o);
-	//
-	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
-	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
-	//   (margin_left, margin_right, padding_left, padding_right).
-	// Returns:
-	//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)).
-	//      В этом случае по адресу pS присваивается полная ширина элемента.
-	//    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
-	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
-	//
-	int    GetFullWidth(float * pS) const;
-	//
-	// Descr: Вычисляет полную высоту элемента без рассмотрения его внутренних компонентов.
-	//   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
-	//   (margin_top, margin_bottom, padding_top, padding_bottom).
-	// Returns:
-	//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)).
-	//      В этом случае по адресу pS присваивается полная высота элемента.
-	//    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
-	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
-	//
-	int    GetFullHeight(float * pS) const;
-	//
-	// Descr: Возвращает финальный расчетный прямоугольник элемента.
-	//
-	FRect  GetFrame() const;
-	//
-	// Descr: Возвращаете финальный расчетный прямоугольник элемента, скорректированный относительно
-	//   родительских прямоугольников.
-	//
-	FRect  GetFrameAdjustedToParent() const;
-	//
-	// Descr: Ищет элемент с наименьшим размером, в котором находится точка {x, y}.
-	// Note: Функция предполагает, что если точка не попадает в родительский элемент, то не попадает и 
-	//   ни в один из дочерних элементов. В общем случае, это - сильное и не обязательно истинное утверждение.
-	// Returns:
-	//   !0 - указатель на минимальный элемент, включающий точку {x, y}
-	//    0 - нет ни одного элемента, включающего точку {x, y}
-	//
-	const  LayoutFlexItem * FindMinimalItemAroundPoint(float x, float y) const;
-	//
-	// Descr: Рассчитывает минимальный прямоугольник, охватывающий все дочерние элементы
-	//   контейнера. Размеры самого контейнера в расчет не принимаются.
-	// Returns:
-	//   1 - все дочерние элементы имеют определенный размер
-	//  -1 - контейнер не имеет элементов 
-	//  -2 - только часть дочерних элементов имеет определенный размер
-	//   0 - ошибка (черт его знает, что там еще может произойти)
-	//
-	int    GetInnerCombinedFrame(FRect * pResult) const;
-	//
-	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
-	//
-	LayoutFlexItem * GetRoot();
-	const  Result & GetResult() const { return R; }
-	//
-	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
-	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
-	//   значительное ускорение и упрощенние работы в ряде частных случаев.
-	//   За исключением опционального параметра Vf все остальные атрибуты элемента определяются
-	//   элементом-владецем.
-	//
-	struct HomogeneousEntry {
-		long   ID; // Уникальный (среди элементов HomogeneousArray) идентификатор
-		float  Vf; // Значение изменяемого фактора, определяемого параметром HomogeneousArray::VariableFactor
-	};
-	struct HomogeneousArray : public TSVector <HomogeneousEntry> {
-		enum {
-			vfNone = 0,
-			vfFixedSizeX,
-			vfFixedSizeY,
-			vfGrowFactor
-		};
-		HomogeneousArray() : VariableFactor(vfNone)
-		{
-		}
-		uint   VariableFactor;
-	};
-
-	int    InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */);
-	int    AddHomogeneousEntry(long id, float vf);
-	//
-	// Descr: Типы комплексных лейаутов
-	//
-	enum { // @persistent
-		cmplxtNone       = 0,
-		// Для следующих 3 комплексов фиксированное базовое измерение - высота поля ввода
-		cmplxtInpLbl     = 1, // Комплексный layout { [input-line] [label] }
-		cmplxtInpLblBtn  = 2, // Комплексный layout { [input-line] [label] [square-button] }
-		cmplxtInpLblBtn2 = 3, // Комплексный layout { [input-line] [label] [square-button] [square-button] }
-	};
-	//
-	// Desc: Зарезервированные метки компонентов комплексного layout'а
-	//
-	enum {
-		cmlxcUndef   = 0,
-		cmlxcInput   = 1, 
-		cmlxcLabel   = 2,
-		cmlxcButton1 = 3,
-		cmlxcButton2 = 4,
-	};
-
-	LayoutFlexItem * FASTCALL FindComplexComponentId(uint id);
-	//
-	// Descr: Опции комплексных layout'ов
-	//
-	enum {
-		clfLabelLeft = 0x0001, // Этикетка располагается слева от основного элемента. Иначе - сверху
-	};
-	//
-	// Descr: Создает комплексный layout типа type.
-	//   Внешние размеры результата не определены (должны быть установлены вызывающей функцией)
-	//
-	static LayoutFlexItem * CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, LayoutFlexItem * pTopLevel);
-protected:
-	void   UpdateShouldOrderChildren();
-	void   DoLayout(const Param & rP) const;
-	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout, SScroller::SetupBlock * pSsb) const;
-	//
-	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
-	//   с поправкой на rOffs и разрушает pCurrentLayout.
-	//
-	void   Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const SPoint2F & rOffs) const;
-	/*flex_align*/int FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
-private:
-	class IterIndex : public TSVector <IndexEntry> {
-	public:
-		IterIndex();
-		LayoutFlexItem * GetHomogeneousItem(const LayoutFlexItem * pBaseItem, uint hgeIdx) const;
-		void   ReleaseHomogeneousItem(LayoutFlexItem *) const;
-	private:
-		mutable TSCollection <LayoutFlexItem> HomogeneousEntryPool;
-	};
-	//
-	// Методы для внутренней индексации элементов контейнера.
-	// Идея такая: 
-	//   -- вызываем MakeIndex - получаем индекс всех элементов контейнера включая неявные гомогенные элементы 
-	//   -- при построении раскладки обращаемся к элементам строго посредством GetChildByIndex
-	//   -- закончив раскладку возвращаем контейнеру элементы вызовами CommitChildResult
-	// Замечания:
-	//   -- индексация учитывает атрибут ALB.Order
-	//   -- представления гомогенных элементов физически в контейнере не существуют, потому SetChildByIndex
-	//     будет реализовать не просто.
-	//   -- пока имеет место путаница насчет того какие поля LayoutFlexItem меняются функциями расчета, а 
-	//     какие нет. Потому я в некотором замешательстве.
-	//
-	void   MakeIndex(IterIndex & rIndex) const;
-	//
-	// Descr: Получает указатель на элемент по позиции idxPos в индексе rIndex.
-	//   Если элемент является гомоморфной коллекцией, то возвращается указатель на суррогатный экземпляр.
-	// Returns:
-	//   0 - error. Скорее всего, инвалидный индекс.
-	//
-	const  LayoutFlexItem * GetChildByIndex(const IterIndex & rIndex, uint idxPos) const;
-	int    CommitChildResult(const IterIndex & rIndex, uint idxPos, const LayoutFlexItem * pItem);
-	//
-	// Descr: Вызывается после завершения расчета элемента
-	//   Вызывает DoLayout(R.Frame[2], R.Frame[3])
-	//
-	void   Commit_() const;
-	int    SetupResultScroller(SScroller::SetupBlock * pSb) const; // Result is mutable
-	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
-
-	enum {
-		setupfChildrenOnly = 0x0001 // Вызывать callback-функцию CbSetup только для дочерних элементов, но не для самого себя //
-	};
-	//
-	// Descr: Вызывает функцию CbSetup для самого себя и рекурсивно для дочерних элементов
-	// ARG(flags IN)
-	//
-	void   Setup(uint flags);
-	//
-	enum {
-		stShouldOrderChildren = 0x0001,
-		stHomogeneousItem     = 0x0002  // Элемент является виртуальным экземпляром, сформированным по шаблону из HomogeneousArray основного элемента
-	};
-	AbstractLayoutBlock ALB;
-	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
-		// An item can provide a self_sizing callback function that will be called
-		// during layout and which can customize the dimensions (width and height) of the item.
-	FlexSelfSizingProc CbSelfSizing; // NULL
-	FlexSetupProc CbSetup; // NULL
-	LayoutFlexItem * P_Parent;
-	uint   State;
-	uint16 CplxComponentId;
-	uint16 Reserve;
-	const  LayoutFlexItem * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
-		// в этом поле ссылку на порождающий реальный элемент. 
-	TSCollection <LayoutFlexItem> * P_Children;
-	HomogeneousArray * P_HgL;
-	mutable Result R;
-};
 /*
 length-unit: % | mm | m | cm
 length-unit-optional: length-unit | ;
@@ -2615,13 +2629,13 @@ protected:
 	//
 	void   SetupLayoutItem(void * pLayout);
 protected:
-	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR); // @v10.9.3
+	static void __stdcall SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR); // @v10.9.3
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView); // @v10.9.11
 	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
 
-	LayoutFlexItem * P_Lfc; // @v10.9.3 @construction
+	SUiLayout * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -2685,7 +2699,7 @@ public:
 		SPoint2S PicSize;       	 // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
 		long   Flags;         	 // @flags
 		SColor ReplacedColor; 	 // Цвет, который должен замещаться на какой-либо внешний цвет. Если ReplacedColor.IsEmpty(), то замещаемый цвет не определен.
-		AbstractLayoutBlock Alb; // @v10.9.10
+		SUiLayoutParam Alb; // @v10.9.10
 		const  TWhatmanToolArray * P_Owner; // @notowned
 		uint32 ExtSize;         // Размер данных, используемый элементом в буфере ExtData
 		uint8  ExtData[256];
@@ -2743,7 +2757,7 @@ private:
 		uint32 ExtDataP;       	 // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
 		uint32 Id;             	 // Целочисленный идентификатор элемента
 		SColor ReplacedColor;  	 //
-		AbstractLayoutBlock Alb; // @v10.9.10
+		SUiLayoutParam Alb; // @v10.9.10
 	};
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	uint32 SymbP;
@@ -2758,7 +2772,7 @@ private:
 	// Принадлежность иконок и фигур элементу контейнера определяется по символу Item.Symb.
 	// Иконка хранится с символом "{SYMB}-PIC", а фигура с символом "{SYMB}-FIG"
 	//
-	AbstractLayoutBlock ALB__; // @v10.9.9 Параметры размещения объекта, создаваемого в соответствии с данным инструментом
+	SUiLayoutParam ALB__; // @v10.9.9 Параметры размещения объекта, создаваемого в соответствии с данным инструментом
 };
 //
 // Descr: Фабрика создания экземпляра объекта ватмана.
@@ -2918,8 +2932,8 @@ public:
 	const  SString & GetObjTypeSymb() const;
 	const  SString & GetIdentSymb() const;
 	int    SetIdentSymb(const char * pIdent);
-	const  AbstractLayoutBlock & GetLayoutBlock() const;
-	void   SetLayoutBlock(const AbstractLayoutBlock * pBlk);
+	const  SUiLayoutParam & GetLayoutBlock() const;
+	void   SetLayoutBlock(const SUiLayoutParam * pBlk);
 	const  SString & GetLayoutContainerIdent() const;
 	void   SetLayoutContainerIdent(const char * pIdent);
 
@@ -2954,7 +2968,7 @@ private:
 	SString IdentSymb; // @v11.2.2 Символ идентификации экземпляра
 	TRect  Bounds;
 	SString LayoutContainerIdent; // @v10.4.8 @persistent Символ родительского объекта типа Layout
-	AbstractLayoutBlock Le2; // @v10.9.8 @persistent 
+	SUiLayoutParam Le2; // @v10.9.8 @persistent 
 	TWhatman * P_Owner; // @transient
 };
 //
@@ -3185,7 +3199,7 @@ private:
 	int    SnapX(float p, float * pDest) const;
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
-	int    Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, WhatmanObjectLayoutBase * pC);
+	int    Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC);
 
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	TRect  Area;        // @transient Видимая область
@@ -4043,7 +4057,7 @@ public:
 	int    RemoveColumn(int pos);
 	void   RemoveColumns();
 	int    SetupColumns(const char * pColsBuf);
-	int    GetOrgColumnsDescr(SString & rBuf) const;
+	bool   GetOrgColumnsDescr(SString & rBuf) const;
 	void   setHorzRange(int);
 	void   setRange(long aRange);
 	void   search(char * firstLetter, int srchMode);
@@ -4201,7 +4215,7 @@ class ComboBox : public TView {
 public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	ComboBox(const TRect &, ushort aFlags);
+	ComboBox(const TRect &, ushort aFlags, TInputLine * pCorrespondCtrl);
 	ComboBox(const TRect &, ListBoxDef * aDef);
 	~ComboBox();
 	virtual void   setState(uint aState, bool enable);

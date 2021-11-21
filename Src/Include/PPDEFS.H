@@ -1854,6 +1854,9 @@
 #define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
 #define cmNow                    1185 // @v11.2.0 Кнопка [Сегодня] или [Сейчас] в календарях
 #define cmLayoutList             1186 // @v11.2.1 Команда отображения иерархического списка layout'ов
+#define cmPeriodResetLeft        1187 // @v11.2.4 Кнопка сброса левой границы периода в календарях
+#define cmPeriodResetRight       1188 // @v11.2.4 Кнопка сброса правой границы периода в календарях
+#define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11232,6 +11235,7 @@
 	#define CTL_CALENDAR_PERIODEDIT     1038
 	#define CTL_CALENDAR_WEEKS          1039
 	#define CTL_CALENDAR_FASTPRD        1040
+	#define CTLSEL_CALENDAR_FASTPRD     1041
 #define DLGW_GRAPH               4106
 // 4107 occupied by DLGW_TREELISTBOX defined in tvdefs.h
 // 4108 occupied by DLGW_OWNDRAWLBX defined in tvdefs.h

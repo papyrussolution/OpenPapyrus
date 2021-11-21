@@ -566,7 +566,7 @@ void PhonePaneDialog::SetupOidList(const PPObjID * pOidToSelect)
 				SETIFZ(init_id, i+1);
 		}
 	}
-	SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+	SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, name_list, init_id, 0, 0, 0);
 }
 
 void PhonePaneDialog::Setup(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)

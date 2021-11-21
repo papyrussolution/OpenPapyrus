@@ -1140,9 +1140,9 @@ int WorkDate::SetDayOfYear(int day, int mon)
 LDATE  WorkDate::IsDate() const { return (V > 0) ? ExpandDate(V) : ZERODATE; }
 int    WorkDate::IsDayOfWeek() const { return (V >= -7 && V <= -1) ? -V : 0; }
 LDATE  WorkDate::IsDayOfYear() const { return (V <= -100) ? ExpandDate(-V) : ZERODATE; }
-int    FASTCALL WorkDate::IsEqual(WorkDate wd) const { return (wd.V == V); }
+int    FASTCALL WorkDate::IsEq(WorkDate wd) const { return (wd.V == V); }
 
-int FASTCALL WorkDate::IsEqual(LDATE dt) const
+int FASTCALL WorkDate::IsEq(LDATE dt) const
 {
 	int    dow = IsDayOfWeek();
 	if(dow)
@@ -3181,7 +3181,7 @@ int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 	return result;
 }
 
-int FASTCALL SUniTime::IsEqual(const SUniTime & rS) const
+int FASTCALL SUniTime::IsEq(const SUniTime & rS) const
 {
 	int   cq = 0;
 	int   result = Compare(rS, &cq);

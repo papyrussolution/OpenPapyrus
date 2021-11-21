@@ -357,7 +357,7 @@ int PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
 	return ok;
 }
 
-int PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandItem::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
 	int yes = 1;
 	if(!pCommand)
@@ -508,13 +508,13 @@ int PPCommand::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommand::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
 	if(!pCommand)
 		return 0;
 	else {
 		const PPCommand * p_compare_command = static_cast<const PPCommand *>(pCommand);
-		if(!PPCommandItem::IsEqual(pCommand)) {
+		if(!PPCommandItem::IsEq(pCommand)) {
 			return 0;
 		}
 		else {
@@ -522,7 +522,7 @@ int PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
 			CMPF(CmdID);
 			CMPF(P);
 			#undef CMPF
-			if(!Param.IsEqual(p_compare_command->Param))
+			if(!Param.IsEq(p_compare_command->Param))
 				return 0;
 		}	
 	}
@@ -734,12 +734,12 @@ int PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandFolder::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
 	int    yes = 1;
 	if(pCommand) {
 		const  PPCommandFolder * p_compare_folder = static_cast<const PPCommandFolder *>(pCommand);
-		if(!PPCommandItem::IsEqual(p_compare_folder))
+		if(!PPCommandItem::IsEq(p_compare_folder))
 			yes = 0;
 		else {
 			const uint c = List.getCount();
@@ -750,7 +750,7 @@ int PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
 					const PPCommandItem * p_comm_item = List.at(i);
 					if(p_comm_item) {
 						const PPCommandItem * p_other_comm_item = p_compare_folder->SearchByID(p_comm_item->ID, 0);
-						if(!p_other_comm_item || !p_comm_item->IsEqual(p_other_comm_item))
+						if(!p_other_comm_item || !p_comm_item->IsEq(p_other_comm_item))
 							yes = 0;
 					}
 				}
@@ -1570,7 +1570,7 @@ int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommandGroup::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandGroup::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
 	int yes = 1;
 	if(pCommand){
@@ -1582,7 +1582,7 @@ int PPCommandGroup::IsEqual(const void * pCommand) const  //@erik v10.6.1
 			if(BIN(Logo_.CmpNC(p_compare_group->Logo_)!=0)) {
 				yes = 0;
 			}
-			else if(!PPCommandFolder::IsEqual(p_compare_group)) {
+			else if(!PPCommandFolder::IsEq(p_compare_group)) {
 				yes = 0;
 			}
 		}

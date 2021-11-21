@@ -2034,8 +2034,7 @@ int PsnEventDialog::Print()
 	getDTS(&pack);
 	prn_struc.P_ObjTag = &objtag;
 	prn_struc.P_Pack   = &pack;
-	PView  pv(&prn_struc);
-	return PPAlddPrint(GetReportID(), &pv, 0);
+	return PPAlddPrint(GetReportID(), PView(&prn_struc), 0);
 }
 //
 //

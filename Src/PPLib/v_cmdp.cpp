@@ -45,7 +45,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			CmdDescr.GetResourceList(1, cmd_txt_list);
 			uint   pos = 0;
 			cmd_txt_list.SortByText();
-			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, &cmd_txt_list, Data.CmdID, 0);
+			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, cmd_txt_list, Data.CmdID, 0);
 			SetupWordSelector(CTLSEL_CMDITEM_CMD, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
 			setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
 			AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);
@@ -240,7 +240,7 @@ private:
 		P_Box->getCurID(&parent_id);
 		if(!(p_selitem = Data.SearchByIDRecursive_Const(parent_id, &parent_id2)) || p_selitem->Kind != PPCommandItem::kFolder)
 			parent_id = parent_id2;
-		SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, &cmd_list, parent_id, 0, 0);
+		SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, cmd_list, parent_id, 0, 0);
 		if(ExecView(p_dlg) == cmOK) {
 			PPCommandItem * p_item = 0;
 			PPCommandItem new_sep;
@@ -404,7 +404,7 @@ private:
 			PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
 			DesktopList.GetStrAssocList(list);
 			long  surr_id = DesktopList.GetSurrIdByUuid(Data.GetDesktopUuid());
-			SetupStrAssocCombo(this, CTLSEL_DESKCMDA_DESKTOP, &list, /*Data.GetDesktopID()*/surr_id, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_DESKCMDA_DESKTOP, list, /*Data.GetDesktopID()*/surr_id, 0, 0);
 			updateList(-1);
 			return 1;
 		}
@@ -489,7 +489,7 @@ private:
 					setCtrlString(CTL_DESKCMDAI_CODE, Data.Code);
 					setCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
 					setCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
-					SetupStrAssocCombo(this, CTLSEL_DESKCMDAI_COMMAND, &cmd_list, Data.CmdID, 0, 0);
+					SetupStrAssocCombo(this, CTLSEL_DESKCMDAI_COMMAND, cmd_list, Data.CmdID, 0, 0);
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 0, PPDesktopAssocCmd::fSpecCode);
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 1, PPDesktopAssocCmd::fSpecCodePrefx);
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 2, PPDesktopAssocCmd::fNonInteractive);
@@ -1107,7 +1107,7 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 					if(!p_selitem || p_selitem->Kind != PPCommandItem::kFolder)
 						parent_id = parent_id2;
 				}
-				SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, &cmd_list, parent_id, 0, 0);
+				SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, cmd_list, parent_id, 0, 0);
 				if(ExecView(p_dlg) == cmOK) {
 					p_dlg->GetClusterData(CTL_ADDCMD_WHAT, &v);
 					p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
@@ -1267,7 +1267,7 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 		uint   locm_id = 0;
 		PPLoadText(PPTXT_DEFAULTMENUS, buf);
 		StringSet ss(';', buf);
-		for(uint i = 0; ss.get(&i, buf) > 0;) {
+		for(uint i = 0; ss.get(&i, buf);) {
 			buf.Divide(',', left, right);
 			list.Add(left.ToLong() + DEFAULT_MENUS_OFFS, right);
 		}
@@ -1282,9 +1282,9 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 		// PPTXT_CMDPOOLSEL "Выберите рабочий стол,@{desktop};Выберите шаблон рабочего стола,Шаблон рабочего стола;Выберите меню,Меню;Выберите шаблон меню,Шаблон меню"
 		int    text_index = -1;
 		if(kind == cmdgrpcDesktop)
-			text_index = asTemplate ? 1 : 0;
+			text_index = (asTemplate ? 1 : 0);
 		else if(kind == cmdgrpcMenu)
-			text_index = asTemplate ? 3 : 2;
+			text_index = (asTemplate ? 3 : 2);
 		if(PPGetSubStr(PPTXT_CMDPOOLSEL, text_index, buf))
 			buf.Divide(',', left, right);
 		else {
@@ -1298,7 +1298,7 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 			cgdata.Get(idx, cgentry);
 			surr_id = cgentry.SurrID;
 		}
-		THROW(ok = AdvComboBoxSelDialog(&list, left, right, /*pID*/&surr_id, pName, 0));
+		THROW(ok = AdvComboBoxSelDialog(list, left, right, /*pID*/&surr_id, pName, 0));
 		if(ok > 0 && surr_id) {
 			if(surr_id > DEFAULT_MENUS_OFFS) {
 				resource_template_id = surr_id;
@@ -1691,7 +1691,7 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 						entry.Uuid.Z();
 						entry.Kind = UserMenuFilt::kMenu;
 						entry.Flags |= entry.fReservedMenu;
-						for(uint i = 0; ss_defmenu.get(&i, temp_buf) > 0;) {
+						for(uint i = 0; ss_defmenu.get(&i, temp_buf);) {
 							temp_buf.Divide(',', left_buf, right_buf);
 							if(left_buf.ToLong() == static_cast<long>(locm_id)) {
 								STRNSCPY(entry.Name, right_buf);

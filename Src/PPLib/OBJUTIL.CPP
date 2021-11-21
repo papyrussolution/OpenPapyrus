@@ -1652,7 +1652,7 @@ int PPGetConfigList(StrAssocArray * pAry)
 		SString buf, names;
 		PPLoadText(PPTXT_CFGNAMES, names);
 		StringSet ss(';', names);
-		for(uint i = 0, j = 1; ss.get(&i, buf) > 0; j++)
+		for(uint i = 0, j = 1; ss.get(&i, buf); j++)
 			pAry->Add(PPOBJ_FIRST_CFG_OBJ + j, buf);
 		ok = 1;
 	}

@@ -32,10 +32,10 @@ int OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) const
 		temp2 = rS;
 		temp1.CycleStat = 0;
 		temp2.CycleStat = 0;
-		return temp1.IsEqual(&temp2, 1);
+		return temp1.IsEq(&temp2, 1);
 	}
 	else
-		return IsEqual(&rS, 1);
+		return IsEq(&rS, 1);
 }
 
 PPViewOpGrouping::OpGroupingStatEntry::OpGroupingStatEntry() : OpID(0), Sign(0), S(0)
@@ -95,7 +95,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		Filt.ExtGoodsTypeID = 0;
 	THROW(AdjustPeriodToRights(Filt.Period, 0));
 	if(P_TempTbl) {
-		if(Filt.IsEqual(&prev_filt, 1))
+		if(Filt.IsEq(&prev_filt, 1))
 			done = 1;
 		else if(Filt.IsEqualExcept(prev_filt, OpGroupingFilt::eqxCycleStat)) {
 			create_stat = 1;
@@ -830,8 +830,7 @@ int PPViewOpGrouping::Print(const void * pHdr)
 			rpt_id = sel ? REPORT_BILLOPGRPNGBLIST : REPORT_BILLOPGRPNG;
 		if(!sel && !Filt.Cycl)
 			env.PrnFlags |= SReport::DisableGrouping;
-		PView  pv(this);
-		PPAlddPrint(rpt_id, &pv, &env);
+		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	return ok;
 }

@@ -237,7 +237,7 @@ int PPCheckInPersonItem::SetStatus(int status)
 	return ok;
 }
 
-int FASTCALL PPCheckInPersonItem::IsEqual(const PPCheckInPersonItem & rS, long options) const
+int FASTCALL PPCheckInPersonItem::IsEq(const PPCheckInPersonItem & rS, long options) const
 {
 	int    ok = 1;
 	#define FLDEQ(f) (f==rS.f)
@@ -266,7 +266,7 @@ int FASTCALL PPCheckInPersonItem::IsEqual(const PPCheckInPersonItem & rS, long o
 
 int FASTCALL PPCheckInPersonItem::operator == (const PPCheckInPersonItem & rS) const
 {
-	return IsEqual(rS, 0);
+	return IsEq(rS, 0);
 }
 //
 //
@@ -571,7 +571,7 @@ int PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, uint * p
 	int    ok = 0;
 	for(uint   i = DEREFPTRORZ(pPos); !ok && i < getCount(); i++) {
 		const PPCheckInPersonItem & r_test = at(i);
-		if(r_test.IsEqual(rItem, PPCheckInPersonItem::eqoKeyOnly)) {
+		if(r_test.IsEq(rItem, PPCheckInPersonItem::eqoKeyOnly)) {
 			ASSIGN_PTR(pPos, i);
 			ok = 1;
 		}
@@ -685,7 +685,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 			// PPCheckInPersonItem::eqoNoID|PPCheckInPersonItem::eqoNoNum
 			SETIFZ(rItem.ID, org_item.ID);
 			SETIFZ(rItem.Num, org_item.Num);
-			if(rItem.IsEqual(org_item, 0)) {
+			if(rItem.IsEq(org_item, 0)) {
 				ok = -1;
 			}
 			else {
@@ -746,7 +746,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 			uint   pos = 0;
 			if(org_list.SearchItem(r_item, &pos)) {
 				org_list.GetMemo(pos, memo_buf2);
-				if(!r_item.IsEqual(org_list.Get(pos), 0) || memo_buf != memo_buf2) {
+				if(!r_item.IsEq(org_list.Get(pos), 0) || memo_buf != memo_buf2) {
 					upd_pos_list.add(i);
 				}
 			}

@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -472,8 +472,7 @@ int PPViewGoodsTrnovr::Browse(int modeless)
 int PPViewGoodsTrnovr::Print()
 {
 	int    ok = -1;
-	PView  pv(this);
-	PPAlddPrint(Filt.LocList.GetCount() ? REPORT_LGOODSTRNOVR : REPORT_GOODSTRNOVR, &pv);
+	PPAlddPrint(Filt.LocList.GetCount() ? REPORT_LGOODSTRNOVR : REPORT_GOODSTRNOVR, PView(this), 0);
 	return ok;
 }
 

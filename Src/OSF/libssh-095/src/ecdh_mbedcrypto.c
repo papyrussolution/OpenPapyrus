@@ -154,7 +154,7 @@ int ecdh_build_k(ssh_session session)
 
 out:
 	mbedtls_ecp_keypair_free(session->next_crypto->ecdh_privkey);
-	SAFE_FREE(session->next_crypto->ecdh_privkey);
+	ZFREE(session->next_crypto->ecdh_privkey);
 	mbedtls_ecp_group_free(&grp);
 	mbedtls_ecp_point_free(&pubkey);
 	return rc;

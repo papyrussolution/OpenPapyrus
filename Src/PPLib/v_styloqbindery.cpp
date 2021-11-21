@@ -449,7 +449,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr)
 		{
 			CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
-			SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, &CmdTextList, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, 0, 0);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -463,7 +463,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				StrAssocArray basecmd_list;
 				basecmd_list.Add(StyloQCommandList::Item::sqbcPersonEvent, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcPersonEvent, temp_buf));
 				basecmd_list.Add(StyloQCommandList::Item::sqbcReport, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcReport, temp_buf));
-				SetupStrAssocCombo(this, CTLSEL_STQCMD_BASECMD, &basecmd_list, Data.BaseCmdId, 0, 0, 0);
+				SetupStrAssocCombo(this, CTLSEL_STQCMD_BASECMD, basecmd_list, Data.BaseCmdId, 0, 0, 0);
 			}
 			{
 				PPIDArray obj_type_list;

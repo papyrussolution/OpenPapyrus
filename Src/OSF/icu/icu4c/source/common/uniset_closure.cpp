@@ -36,18 +36,14 @@ U_NAMESPACE_BEGIN
 // Constructors &c
 //----------------------------------------------------------------
 
-UnicodeSet::UnicodeSet(const UnicodeString & pattern,
-    uint32_t options,
-    const SymbolTable* symbols,
-    UErrorCode & status) {
+UnicodeSet::UnicodeSet(const UnicodeString & pattern, uint32_t options, const SymbolTable* symbols, UErrorCode & status) 
+{
 	applyPattern(pattern, options, symbols, status);
 	_dbgct(this);
 }
 
-UnicodeSet::UnicodeSet(const UnicodeString & pattern, ParsePosition& pos,
-    uint32_t options,
-    const SymbolTable* symbols,
-    UErrorCode & status) {
+UnicodeSet::UnicodeSet(const UnicodeString & pattern, ParsePosition& pos, uint32_t options, const SymbolTable* symbols, UErrorCode & status) 
+{
 	applyPattern(pattern, pos, options, symbols, status);
 	_dbgct(this);
 }
@@ -56,67 +52,51 @@ UnicodeSet::UnicodeSet(const UnicodeString & pattern, ParsePosition& pos,
 // Public API
 //----------------------------------------------------------------
 
-UnicodeSet & UnicodeSet::applyPattern(const UnicodeString & pattern,
-    uint32_t options,
-    const SymbolTable* symbols,
-    UErrorCode & status) {
+UnicodeSet & UnicodeSet::applyPattern(const UnicodeString & pattern, uint32_t options, const SymbolTable* symbols, UErrorCode & status) 
+{
 	ParsePosition pos(0);
 	applyPattern(pattern, pos, options, symbols, status);
-	if(U_FAILURE(status)) return *this;
-
+	if(U_FAILURE(status)) 
+		return *this;
 	int32_t i = pos.getIndex();
-
 	if(options & USET_IGNORE_SPACE) {
 		// Skip over trailing whitespace
 		ICU_Utility::skipWhitespace(pattern, i, TRUE);
 	}
-
 	if(i != pattern.length()) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	return *this;
 }
 
-UnicodeSet & UnicodeSet::applyPattern(const UnicodeString & pattern,
-    ParsePosition& pos,
-    uint32_t options,
-    const SymbolTable* symbols,
-    UErrorCode & status) {
-	if(U_FAILURE(status)) {
-		return *this;
+UnicodeSet & UnicodeSet::applyPattern(const UnicodeString & pattern, ParsePosition& pos, uint32_t options, const SymbolTable* symbols, UErrorCode & status) 
+{
+	if(!U_FAILURE(status)) {
+		if(isFrozen()) {
+			status = U_NO_WRITE_PERMISSION;
+		} 
+		else {
+			// Need to build the pattern in a temporary string because
+			// _applyPattern calls add() etc., which set pat to empty.
+			UnicodeString rebuiltPat;
+			RuleCharacterIterator chars(pattern, symbols, pos);
+			applyPattern(chars, symbols, rebuiltPat, options, &UnicodeSet::closeOver, 0, status);
+			if(!U_FAILURE(status)) {
+				if(chars.inVariable())
+					status = U_MALFORMED_SET; // syntaxError(chars, "Extra chars in variable value");
+				else
+					setPattern(rebuiltPat);
+			}
+		}
 	}
-	if(isFrozen()) {
-		status = U_NO_WRITE_PERMISSION;
-		return *this;
-	}
-	// Need to build the pattern in a temporary string because
-	// _applyPattern calls add() etc., which set pat to empty.
-	UnicodeString rebuiltPat;
-	RuleCharacterIterator chars(pattern, symbols, pos);
-	applyPattern(chars, symbols, rebuiltPat, options, &UnicodeSet::closeOver, 0, status);
-	if(U_FAILURE(status)) return *this;
-	if(chars.inVariable()) {
-		// syntaxError(chars, "Extra chars in variable value");
-		status = U_MALFORMED_SET;
-		return *this;
-	}
-	setPattern(rebuiltPat);
 	return *this;
 }
 
 // USetAdder implementation
 // Does not use uset.h to reduce code dependencies
-static void U_CALLCONV _set_add(USet * set, UChar32 c) {
-	((UnicodeSet*)set)->add(c);
-}
-
-static void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->add(start, end);
-}
-
-static void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) {
-	((UnicodeSet*)set)->add(UnicodeString((bool)(length<0), str, length));
-}
+static void U_CALLCONV _set_add(USet * set, UChar32 c) { ((UnicodeSet*)set)->add(c); }
+static void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->add(start, end); }
+static void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) { ((UnicodeSet*)set)->add(UnicodeString((bool)(length<0), str, length)); }
 
 //----------------------------------------------------------------
 // Case folding API

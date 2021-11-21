@@ -7,11 +7,11 @@
 #pragma hdrstop
 //#include "check-internal.h"
 
-lzma_bool lzma_check_is_supported(lzma_check type)
+bool lzma_check_is_supported(lzma_check type)
 {
 	if((uint)(type) > LZMA_CHECK_ID_MAX)
 		return false;
-	static const lzma_bool available_checks[LZMA_CHECK_ID_MAX + 1] = {
+	static const bool available_checks[LZMA_CHECK_ID_MAX + 1] = {
 		true,   // LZMA_CHECK_NONE
 
 #ifdef HAVE_CHECK_CRC32

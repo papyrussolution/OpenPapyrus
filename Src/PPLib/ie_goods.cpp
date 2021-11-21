@@ -9,17 +9,17 @@
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(QUOTVAL, PPQuotImpExpParam);
 
-PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), QuotKindID(0), CurrID(0), ArID(0), LocID(0)
 {
-	Clear();
 }
 
-void PPQuotImpExpParam::Clear()
+PPQuotImpExpParam & PPQuotImpExpParam::Z()
 {
 	QuotKindID = 0;
 	CurrID = 0;
 	ArID = 0;
 	LocID = 0;
+	return *this;
 }
 
 /*virtual*/int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
@@ -42,7 +42,7 @@ void PPQuotImpExpParam::Clear()
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
-		Clear();
+		Z();
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
@@ -799,7 +799,7 @@ int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		#endif
 		// } конец
 		THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_IEGOODS))));
-		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, &list, id, 0, 0, 0);
+		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, list, id, 0, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			id = dlg->getCtrlLong(CTLSEL_IEGOODS_CFG);

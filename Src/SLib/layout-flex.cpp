@@ -8,19 +8,27 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-AbstractLayoutBlock::AbstractLayoutBlock()
+SUiLayoutParam::SUiLayoutParam()
 {
 	SetDefault();
 }
 
-AbstractLayoutBlock::AbstractLayoutBlock(int direction)
+SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignContent)
 {
 	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
+	assert(oneof8(justifyContent, alignAuto, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly));
+	assert(oneof8(alignContent, alignAuto, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly));
 	SetDefault();
 	SetContainerDirection(direction);
+	if(justifyContent != alignAuto && oneof7(justifyContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
+		JustifyContent = justifyContent;
+	}
+	if(alignContent != alignAuto && oneof7(alignContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
+		AlignContent = alignContent;
+	}
 }
 
-AbstractLayoutBlock & AbstractLayoutBlock::SetDefault()
+SUiLayoutParam & SUiLayoutParam::SetDefault()
 {
 	Flags = 0;
 	SzX = szUndef;
@@ -46,10 +54,10 @@ AbstractLayoutBlock & AbstractLayoutBlock::SetDefault()
 	return *this;
 }
 
-int FASTCALL AbstractLayoutBlock::operator == (const AbstractLayoutBlock & rS) const { return IsEqual(rS); }
-int FASTCALL AbstractLayoutBlock::operator != (const AbstractLayoutBlock & rS) const { return !IsEqual(rS); }
+int FASTCALL SUiLayoutParam::operator == (const SUiLayoutParam & rS) const { return IsEq(rS); }
+int FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { return !IsEq(rS); }
 
-int FASTCALL AbstractLayoutBlock::IsEqual(const AbstractLayoutBlock & rS) const
+int FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 {
 	#define I(f) if(f != rS.f) return 0;
 	I(Flags);
@@ -74,7 +82,7 @@ int FASTCALL AbstractLayoutBlock::IsEqual(const AbstractLayoutBlock & rS) const
 	return 1;
 }
 
-int AbstractLayoutBlock::Validate() const
+int SUiLayoutParam::Validate() const
 {
 	int    ok = 1;
 	if(SzX == szFixed && IsNominalFullDefinedX()) {
@@ -100,18 +108,18 @@ int AbstractLayoutBlock::Validate() const
 	return ok;
 }
 
-/*static*/uint32 AbstractLayoutBlock::GetSerializeSignature() { return 0x15DE0522U; }
+/*static*/uint32 SUiLayoutParam::GetSerializeSignature() { return 0x15DE0522U; }
 
-int AbstractLayoutBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	//const  uint32 valid_signature = 0x15DE0522U;
 	const  uint32 valid_version = 0U;
-	uint32 signature = AbstractLayoutBlock::GetSerializeSignature(); // Сигнатура для сериализации
+	uint32 signature = SUiLayoutParam::GetSerializeSignature(); // Сигнатура для сериализации
 	uint32 version = 0;   // Версия сериализации
 	THROW(pSCtx->Serialize(dir, signature, rBuf));
 	if(dir < 0) {
-		THROW(signature == AbstractLayoutBlock::GetSerializeSignature());
+		THROW(signature == SUiLayoutParam::GetSerializeSignature());
 	}
 	THROW(pSCtx->Serialize(dir, version, rBuf));
 	THROW(pSCtx->Serialize(dir, Flags, rBuf));
@@ -136,7 +144,7 @@ int AbstractLayoutBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	return ok;
 }
 
-int AbstractLayoutBlock::GetSizeX(float * pS) const
+int SUiLayoutParam::GetSizeX(float * pS) const
 {
 	int   result = szInvalid;
 	float s = 0.0f;
@@ -155,7 +163,7 @@ int AbstractLayoutBlock::GetSizeX(float * pS) const
 	return result;
 }
 
-int AbstractLayoutBlock::GetSizeY(float * pS) const
+int SUiLayoutParam::GetSizeY(float * pS) const
 {
 	int   result = szInvalid;
 	float s = 0.0f;
@@ -174,7 +182,7 @@ int AbstractLayoutBlock::GetSizeY(float * pS) const
 	return result;
 }
 
-int AbstractLayoutBlock::GetSizeByContainerX(float containerSize, float * pS) const
+int SUiLayoutParam::GetSizeByContainerX(float containerSize, float * pS) const
 {
 	int   ok = 0;
 	float result_size = 0.0f;
@@ -195,7 +203,7 @@ int AbstractLayoutBlock::GetSizeByContainerX(float containerSize, float * pS) co
 	return ok;
 }
 
-int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) const
+int SUiLayoutParam::GetSizeByContainerY(float containerSize, float * pS) const
 {
 	int   ok = 0;
 	float result_size = 0.0f;
@@ -216,7 +224,7 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 	return ok;
 }
 
-SPoint2F AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
+SPoint2F SUiLayoutParam::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
 {
 	SPoint2F result;
 	result.x = CalcEffectiveSizeX(containerSizeX);
@@ -230,23 +238,23 @@ SPoint2F AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float co
 	return result;
 }
 
-float AbstractLayoutBlock::CalcEffectiveSizeX(float containerSize) const
+float SUiLayoutParam::CalcEffectiveSizeX(float containerSize) const
 {
 	float result = 0.0f;
-	if(SzX == AbstractLayoutBlock::szFixed) {
+	if(SzX == SUiLayoutParam::szFixed) {
 		result = Size.x;
 	}
 	else if(GetSizeByContainerX(containerSize, &result)) {
 		; // @todo Тут, вероятно, надо поля и отступы учесть
 	}
-	else if(SzX == AbstractLayoutBlock::szByContent) {
+	else if(SzX == SUiLayoutParam::szByContent) {
 		result = 0.0f; // @todo
 	}
 	else {
 		//
 		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
 		//
-		if(SzY == AbstractLayoutBlock::szFixed && AspectRatio > 0.0f) {
+		if(SzY == SUiLayoutParam::szFixed && AspectRatio > 0.0f) {
 			result = Size.y / AspectRatio;
 		}
 		else {
@@ -256,23 +264,23 @@ float AbstractLayoutBlock::CalcEffectiveSizeX(float containerSize) const
 	return result;
 }
 
-float AbstractLayoutBlock::CalcEffectiveSizeY(float containerSize) const
+float SUiLayoutParam::CalcEffectiveSizeY(float containerSize) const
 {
 	float result = 0.0f;
-	if(SzY == AbstractLayoutBlock::szFixed) {
+	if(SzY == SUiLayoutParam::szFixed) {
 		result = Size.y;
 	}
 	else if(GetSizeByContainerY(containerSize, &result)) {
 		; // @todo Тут, вероятно, надо поля и отступы учесть
 	}
-	else if(SzY == AbstractLayoutBlock::szByContent) {
+	else if(SzY == SUiLayoutParam::szByContent) {
 		result = 0.0f; // @todo 
 	}
 	else {
 		//
 		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
 		//
-		if(SzX == AbstractLayoutBlock::szFixed && AspectRatio > 0.0f) {
+		if(SzX == SUiLayoutParam::szFixed && AspectRatio > 0.0f) {
 			result = Size.x * AspectRatio;
 		}
 		else {
@@ -282,7 +290,7 @@ float AbstractLayoutBlock::CalcEffectiveSizeY(float containerSize) const
 	return result;
 }
 
-void AbstractLayoutBlock::SetFixedSizeX(float s)
+void SUiLayoutParam::SetFixedSizeX(float s)
 {
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnan(s) || s < 0.0f)
@@ -291,7 +299,7 @@ void AbstractLayoutBlock::SetFixedSizeX(float s)
 	SzX = szFixed;
 }
 
-void AbstractLayoutBlock::SetVariableSizeX(uint var/* szXXX */, float s)
+void SUiLayoutParam::SetVariableSizeX(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
@@ -303,7 +311,7 @@ void AbstractLayoutBlock::SetVariableSizeX(uint var/* szXXX */, float s)
 	SzX = var;
 }
 
-void AbstractLayoutBlock::SetFixedSizeY(float s)
+void SUiLayoutParam::SetFixedSizeY(float s)
 {
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnanf(s) || s < 0.0f)
@@ -312,13 +320,13 @@ void AbstractLayoutBlock::SetFixedSizeY(float s)
 	SzY = szFixed;
 }
 
-void AbstractLayoutBlock::SetFixedSize(const TRect & rR)
+void SUiLayoutParam::SetFixedSize(const TRect & rR)
 {
 	SetFixedSizeX(static_cast<float>(rR.width()));
 	SetFixedSizeY(static_cast<float>(rR.height()));
 }
 
-void AbstractLayoutBlock::SetVariableSizeY(uint var/* szXXX */, float s)
+void SUiLayoutParam::SetVariableSizeY(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
@@ -330,7 +338,7 @@ void AbstractLayoutBlock::SetVariableSizeY(uint var/* szXXX */, float s)
 	SzY = var;
 }
 
-int AbstractLayoutBlock::GetContainerDirection() const // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
+int SUiLayoutParam::GetContainerDirection() const // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
 {
 	if((Flags & (fContainerRow|fContainerCol)) == fContainerRow)
 		return DIREC_HORZ;
@@ -340,7 +348,7 @@ int AbstractLayoutBlock::GetContainerDirection() const // returns DIREC_HORZ || 
 		return DIREC_UNKN;
 }
 
-void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
+void SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
 {
 	if(direc == DIREC_HORZ) {
 		Flags &= ~fContainerCol;
@@ -355,7 +363,7 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 	}
 }
 
-/*static*/SString & AbstractLayoutBlock::MarginsToString(const FRect & rR, SString & rBuf)
+/*static*/SString & SUiLayoutParam::MarginsToString(const FRect & rR, SString & rBuf)
 {
 	rBuf.Z();
 	if(!rR.IsEmpty()) {
@@ -371,7 +379,7 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 	return rBuf;
 }
 
-/*static*/int AbstractLayoutBlock::MarginsFromString(const char * pBuf, FRect & rR)
+/*static*/int SUiLayoutParam::MarginsFromString(const char * pBuf, FRect & rR)
 {
 	int    ok = 1;
 	SString temp_buf(pBuf);
@@ -430,7 +438,7 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 	return ok;
 }
 
-SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
+SString & SUiLayoutParam::SizeToString(SString & rBuf) const
 {
 	rBuf.Z();
 	SPoint2F s;
@@ -473,7 +481,7 @@ SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
 	return rBuf;
 }
 
-int AbstractLayoutBlock::ParseSizeStr(const SString & rStr, float & rS) const
+int SUiLayoutParam::ParseSizeStr(const SString & rStr, float & rS) const
 {
 	rS = 0.0f;
 	int    result = szUndef;
@@ -524,7 +532,7 @@ int AbstractLayoutBlock::ParseSizeStr(const SString & rStr, float & rS) const
 	return result;
 }
 
-int AbstractLayoutBlock::SizeFromString(const char * pBuf)
+int SUiLayoutParam::SizeFromString(const char * pBuf)
 {
 	int    ok = 1;
 	SString input(pBuf);
@@ -568,18 +576,18 @@ int AbstractLayoutBlock::SizeFromString(const char * pBuf)
 //
 // Descr: Определяет являются ли координаты по оси X фиксированными.
 //
-bool AbstractLayoutBlock::IsNominalFullDefinedX() const { return ((Flags & (fNominalDefL|fNominalDefR)) == (fNominalDefL|fNominalDefR)); }
+bool SUiLayoutParam::IsNominalFullDefinedX() const { return ((Flags & (fNominalDefL|fNominalDefR)) == (fNominalDefL|fNominalDefR)); }
 //
 // Descr: Определяет являются ли координаты по оси Y фиксированными.
 //
-bool AbstractLayoutBlock::IsNominalFullDefinedY() const { return ((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
+bool SUiLayoutParam::IsNominalFullDefinedY() const { return ((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
 //
 // Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
 //   направления direction.
 //   Если direction == DIREC_HORZ, то возвращает DIREC_VERT; если direction == DIREC_VERT, то возвращает DIREC_HORZ.
 //   Если !oneof2(direction, DIREC_HORZ, DIREC_VERT) то возвращает DIREC_UNKN.
 //
-/*static*/int AbstractLayoutBlock::GetCrossDirection(int direction)
+/*static*/int SUiLayoutParam::GetCrossDirection(int direction)
 {
 	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
 	return (direction == DIREC_HORZ) ? DIREC_VERT : ((direction == DIREC_VERT) ? DIREC_HORZ : DIREC_UNKN);
@@ -588,7 +596,7 @@ bool AbstractLayoutBlock::IsNominalFullDefinedY() const { return ((Flags & (fNom
 // Descr: Определяет является ли позиция элемента абсолютной вдоль направления direction.
 // ARG(direction IN): DIREC_HORZ || DIREC_VERT
 //
-bool AbstractLayoutBlock::IsPositionAbsolute(int direction) const
+bool SUiLayoutParam::IsPositionAbsolute(int direction) const
 {
 	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
 	return (direction == DIREC_HORZ) ? IsPositionAbsoluteX() : IsPositionAbsoluteY();
@@ -599,7 +607,7 @@ bool AbstractLayoutBlock::IsPositionAbsolute(int direction) const
 //   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
 //   хотя бы одна из координат по оси.
 //
-bool AbstractLayoutBlock::IsPositionAbsoluteX() const
+bool SUiLayoutParam::IsPositionAbsoluteX() const
 {
 	bool result = false;
 	if(SzX == szFixed) {
@@ -611,7 +619,7 @@ bool AbstractLayoutBlock::IsPositionAbsoluteX() const
 	return result;
 }
 
-float AbstractLayoutBlock::GetAbsoluteLowX() const
+float SUiLayoutParam::GetAbsoluteLowX() const
 {
 	float result = 0.0f;
 	if(Flags & fNominalDefL)
@@ -621,7 +629,7 @@ float AbstractLayoutBlock::GetAbsoluteLowX() const
 	return result;
 }
 
-float AbstractLayoutBlock::GetAbsoluteLowY() const
+float SUiLayoutParam::GetAbsoluteLowY() const
 {
 	float result = 0.0f;
 	if(Flags & fNominalDefT)
@@ -631,7 +639,7 @@ float AbstractLayoutBlock::GetAbsoluteLowY() const
 	return result;
 }
 
-float AbstractLayoutBlock::GetAbsoluteSizeX() const
+float SUiLayoutParam::GetAbsoluteSizeX() const
 {
 	float result = 0.0f;
 	if(SzX == szFixed)
@@ -641,7 +649,7 @@ float AbstractLayoutBlock::GetAbsoluteSizeX() const
 	return result;
 }
 
-float AbstractLayoutBlock::GetAbsoluteSizeY() const
+float SUiLayoutParam::GetAbsoluteSizeY() const
 {
 	float result = 0.0f;
 	if(SzY == szFixed)
@@ -656,7 +664,7 @@ float AbstractLayoutBlock::GetAbsoluteSizeY() const
 //   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
 //   хотя бы одна из координат по оси.
 //
-bool AbstractLayoutBlock::IsPositionAbsoluteY() const
+bool SUiLayoutParam::IsPositionAbsoluteY() const
 {
 	bool result = false;
 	if(SzY == szFixed) {
@@ -670,12 +678,37 @@ bool AbstractLayoutBlock::IsPositionAbsoluteY() const
 //
 //
 //
-LayoutFlexItem::Result::Result() : Flags(0), P_Scrlr(0)
+SUiLayout::RefCollection::RefCollection() : SCollection(aryPtrContainer|aryDataOwner)
+{
+}
+
+SUiLayout::RefCollection & SUiLayout::RefCollection::Z()
+{
+	SCollection::freeAll();
+	return *this;
+}
+
+void SUiLayout::RefCollection::Add(const SUiLayout * pLo)
+{
+	if(pLo)
+		SCollection::insert(pLo);
+}
+
+uint SUiLayout::RefCollection::GetCount() const { return SCollection::getCount(); }
+
+const SUiLayout * SUiLayout::RefCollection::Get(uint idx) const
+{
+	return static_cast<const SUiLayout *>(SCollection::at(idx));
+}
+//
+//
+//
+SUiLayout::Result::Result() : Flags(0), P_Scrlr(0)
 {
 	memzero(Frame, sizeof(Frame));
 }
 
-LayoutFlexItem::Result::Result(const Result & rS) : Flags(rS.Flags), P_Scrlr(0)
+SUiLayout::Result::Result(const Result & rS) : Flags(rS.Flags), P_Scrlr(0)
 {
 	memcpy(Frame, rS.Frame, sizeof(Frame));
 	if(rS.P_Scrlr) {
@@ -683,12 +716,12 @@ LayoutFlexItem::Result::Result(const Result & rS) : Flags(rS.Flags), P_Scrlr(0)
 	}
 }
 
-LayoutFlexItem::Result::~Result()
+SUiLayout::Result::~Result()
 {
 	delete P_Scrlr;
 }
 
-LayoutFlexItem::Result & FASTCALL LayoutFlexItem::Result::operator = (const Result & rS)
+SUiLayout::Result & FASTCALL SUiLayout::Result::operator = (const Result & rS)
 {
 	memcpy(Frame, rS.Frame, sizeof(Frame));
 	Flags = rS.Flags;
@@ -701,12 +734,12 @@ LayoutFlexItem::Result & FASTCALL LayoutFlexItem::Result::operator = (const Resu
 	return *this;
 }
 
-LayoutFlexItem::Result::operator FRect() const
+SUiLayout::Result::operator FRect() const
 {
 	return FRect(Frame[0], Frame[1], Frame[0] + Frame[2], Frame[1] + Frame[3]);
 }
 
-LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlexItem::Result & rS, float offsX, float offsY)
+SUiLayout::Result & SUiLayout::Result::CopyWithOffset(const SUiLayout::Result & rS, float offsX, float offsY)
 {
 	Frame[0] = rS.Frame[0] + offsX;
 	Frame[1] = rS.Frame[1] + offsY;
@@ -722,61 +755,76 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 	return *this;
 }
 
-/*static*/void * LayoutFlexItem::GetManagedPtr(LayoutFlexItem * pItem)
+SUiLayout::SUiLayout() : Signature(_SlConst.SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
+	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0)
+{
+}
+
+SUiLayout::~SUiLayout()
+{
+	ZDELETE(P_Children);
+	ZDELETE(P_HgL);
+	managed_ptr = 0; // @v11.0.0
+	CbSelfSizing = 0; // @v11.0.0
+	CbSetup = 0; // @v11.0.0
+	P_Link = 0;
+}
+
+bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == _SlConst.SUiLayoutSignature); }
+
+/*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem)
 {
 	return pItem ? pItem->managed_ptr : 0;
 }
 
-/*static*/void * LayoutFlexItem::GetParentsManagedPtr(LayoutFlexItem * pItem)
+/*static*/void * SUiLayout::GetParentsManagedPtr(SUiLayout * pItem)
 {
 	return pItem ? GetManagedPtr(pItem->P_Parent) : 0;
 }
 
-/*static*/LayoutFlexItem * LayoutFlexItem::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, LayoutFlexItem * pTopLevel)
+/*static*/SUiLayout * SUiLayout::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, SUiLayout * pTopLevel)
 {
 	const float lbl_to_inp_height_ratio = 0.75f;
 	const float lbl_to_inp_width_ratio  = 1.5f;
-	LayoutFlexItem * p_result = 0/*pTopLevel*/;
+	SUiLayout * p_result = 0/*pTopLevel*/;
 	switch(type) {
 		case cmplxtInpLbl:
 			{
-				p_result = pTopLevel ? pTopLevel->InsertItem() : new LayoutFlexItem();
+				p_result = pTopLevel ? pTopLevel->InsertItem() : new SUiLayout();
 				if(flags & clfLabelLeft) {
-					AbstractLayoutBlock alb(DIREC_HORZ);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = lbl_to_inp_width_ratio;
 						if(baseFixedMeasure > 0.0f)
 							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
 						else
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{ // Input
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = 1.0f;
 						if(baseFixedMeasure > 0.0f)
 							alb.SetFixedSizeY(baseFixedMeasure);
 						else
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
 					}		
 				}
 				else { // label above
-					AbstractLayoutBlock alb(DIREC_VERT);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						if(baseFixedMeasure > 0.0f)
 							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
 						else
@@ -785,12 +833,12 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 						alb.Margin.a.y = 2.0f;
 						alb.Margin.b.x = 4.0f;
 						alb.Margin.b.y = 1.0f;
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{ // Input
-						AbstractLayoutBlock alb;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						if(baseFixedMeasure > 0.0f)
 							alb.SetFixedSizeY(baseFixedMeasure);
 						else
@@ -799,7 +847,7 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 						alb.Margin.a.y = 1.0f;
 						alb.Margin.b.x = 4.0f;
 						alb.Margin.b.y = 2.0f;
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
 					}		
 				}
@@ -807,73 +855,84 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 			break;
 		case cmplxtInpLblBtn:
 			{
-				p_result = pTopLevel ? pTopLevel->InsertItem() : new LayoutFlexItem();
+				p_result = pTopLevel ? pTopLevel->InsertItem() : new SUiLayout();
 				if(flags & clfLabelLeft) {
-					AbstractLayoutBlock alb(DIREC_HORZ);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						SUiLayoutParam alb;
+						alb.GrowFactor = lbl_to_inp_width_ratio;
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
+						else
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{ // Input
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure);
+						else
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
 					}		
 					{ // Button
-						AbstractLayoutBlock alb;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+						alb.ShrinkFactor = 0.0f;
 						alb.AspectRatio = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcButton1;
 					}
 				}
 				else { // label above
-					AbstractLayoutBlock alb(DIREC_VERT);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
-						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						if(baseFixedMeasure > 0.0f)
+							alb.SetFixedSizeY(baseFixedMeasure * lbl_to_inp_height_ratio);
+						else
+							alb.GrowFactor = lbl_to_inp_height_ratio;
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{
-						AbstractLayoutBlock alb_frame(DIREC_HORZ);
-						alb_frame.AlignContent = AbstractLayoutBlock::alignStart;
-						alb_frame.GrowFactor = 1.0f;
-						alb_frame.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						SUiLayoutParam alb_frame(DIREC_HORZ, 0, SUiLayoutParam::alignStart);
+						alb_frame.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						if(baseFixedMeasure > 0.0f)
+							alb_frame.SetFixedSizeY(baseFixedMeasure);
+						else
+							alb_frame.GrowFactor = 1.0f;
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_frame = p_result->InsertItem(0, &alb_frame);
+						SUiLayout * p_lo_frame = p_result->InsertItem(0, &alb_frame);
 						{ // Input
-							AbstractLayoutBlock alb;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							SUiLayoutParam alb;
+							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 							//alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							SUiLayout * p_lo_item = p_lo_frame->InsertItem(0, &alb);
 							p_lo_item->CplxComponentId = cmlxcInput;
 						}		
 						{ // Button
-							AbstractLayoutBlock alb;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							SUiLayoutParam alb;
+							alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+							alb.ShrinkFactor = 0.0f;
 							alb.AspectRatio = 1.0f;
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 							//alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							SUiLayout * p_lo_item = p_lo_frame->InsertItem(0, &alb);
 							p_lo_item->CplxComponentId = cmlxcButton1;
 						}
 					}
@@ -882,95 +941,92 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 			break;
 		case cmplxtInpLblBtn2:
 			{
-				SETIFZ(p_result, new LayoutFlexItem());
+				SETIFZ(p_result, new SUiLayout());
 				if(flags & clfLabelLeft) {
-					AbstractLayoutBlock alb(DIREC_HORZ);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{ // Input
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcInput;
 					}		
 					{ // Button
-						AbstractLayoutBlock alb;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
 						alb.ShrinkFactor = 0.0f;
 						alb.AspectRatio = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcButton1;
 					}		
 					{ // Button
-						AbstractLayoutBlock alb;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+						SUiLayoutParam alb;
+						alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
 						alb.ShrinkFactor = 0.0f;
 						alb.AspectRatio = 1.0f;
-						alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcButton2;
 					}		
 				}
 				else { // Label above
-					AbstractLayoutBlock alb(DIREC_VERT);
-					alb.AlignContent = AbstractLayoutBlock::alignStart;
-					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+					SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStart);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					p_result->SetLayoutBlock(alb);
 					{ // Label
-						AbstractLayoutBlock alb;
+						SUiLayoutParam alb;
 						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_item = p_result->InsertItem(0, &alb);
+						SUiLayout * p_lo_item = p_result->InsertItem(0, &alb);
 						p_lo_item->CplxComponentId = cmlxcLabel;
 					}
 					{
-						AbstractLayoutBlock alb_frame(DIREC_HORZ);
-						alb_frame.AlignContent = AbstractLayoutBlock::alignStart;
+						SUiLayoutParam alb_frame(DIREC_HORZ, 0, SUiLayoutParam::alignStart);
 						alb_frame.GrowFactor = 1.0f;
-						alb_frame.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
+						alb_frame.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						//alb.Margin.Set(4);
-						LayoutFlexItem * p_lo_frame = p_result->InsertItem(0, &alb_frame);
+						SUiLayout * p_lo_frame = p_result->InsertItem(0, &alb_frame);
 						{ // Input
-							AbstractLayoutBlock alb;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, 1.0f);
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							SUiLayoutParam alb;
+							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 							//alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							SUiLayout * p_lo_item = p_lo_frame->InsertItem(0, &alb);
 							p_lo_item->CplxComponentId = cmlxcInput;
 						}		
 						{ // Button
-							AbstractLayoutBlock alb;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							SUiLayoutParam alb;
+							alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
 							alb.ShrinkFactor = 0.0f;
 							alb.AspectRatio = 1.0f;
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 							//alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							SUiLayout * p_lo_item = p_lo_frame->InsertItem(0, &alb);
 							p_lo_item->CplxComponentId = cmlxcButton1;
 						}
 						{ // Button2
-							AbstractLayoutBlock alb;
-							alb.SetVariableSizeX(AbstractLayoutBlock::szUndef, 0.0f);
+							SUiLayoutParam alb;
+							alb.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
 							alb.ShrinkFactor = 0.0f;
 							alb.AspectRatio = 1.0f;
-							alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, 1.0f);
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 							//alb.Margin.Set(4);
-							LayoutFlexItem * p_lo_item = p_lo_frame->InsertItem(0, &alb);
+							SUiLayout * p_lo_item = p_lo_frame->InsertItem(0, &alb);
 							p_lo_item->CplxComponentId = cmlxcButton2;
 						}
 					}
@@ -981,27 +1037,13 @@ LayoutFlexItem::Result & LayoutFlexItem::Result::CopyWithOffset(const LayoutFlex
 	return p_result;
 }
 
-LayoutFlexItem::LayoutFlexItem() : P_Parent(0), P_Link(0), managed_ptr(0), CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0)
-{
-}
-
-LayoutFlexItem::~LayoutFlexItem()
-{
-	ZDELETE(P_Children);
-	ZDELETE(P_HgL);
-	managed_ptr = 0; // @v11.0.0
-	CbSelfSizing = 0; // @v11.0.0
-	CbSetup = 0; // @v11.0.0
-	P_Link = 0;
-}
-
-int LayoutFlexItem::FatherKillMe()
+int SUiLayout::FatherKillMe()
 {
 	int    ok = 0;
 	if(P_Parent) {
 		const uint _pcc = P_Parent->GetChildrenCount();
 		for(uint i = 0; !ok && i < _pcc; i++) {
-			const LayoutFlexItem * p_sibl = P_Parent->GetChildC(i);
+			const SUiLayout * p_sibl = P_Parent->GetChildC(i);
 			if(p_sibl == this) {
 				P_Parent->P_Children->atFree(i);
 				ok = 1;
@@ -1012,29 +1054,29 @@ int LayoutFlexItem::FatherKillMe()
 	return ok;
 }
 
-uint LayoutFlexItem::GetChildrenCount() const
+uint SUiLayout::GetChildrenCount() const
 {
 	return SVectorBase::GetCount(P_Children);
 }
 
-LayoutFlexItem * LayoutFlexItem::GetChild(uint idx)
+SUiLayout * SUiLayout::GetChild(uint idx)
 {
 	return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0;
 }
 
-const  LayoutFlexItem * LayoutFlexItem::GetChildC(uint idx) const
+const  SUiLayout * SUiLayout::GetChildC(uint idx) const
 {
 	return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0;
 }
 
-void LayoutFlexItem::SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr)
+void SUiLayout::SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr)
 {
 	CbSelfSizing = selfSizingCb;
 	CbSetup = setupCb;
 	managed_ptr = managedPtr;
 }
 
-int LayoutFlexItem::SetLayoutBlock(const AbstractLayoutBlock & rAlb)
+int SUiLayout::SetLayoutBlock(const SUiLayoutParam & rAlb)
 {
 	int    ok = 1;
 	int    vr = rAlb.Validate();
@@ -1046,12 +1088,12 @@ int LayoutFlexItem::SetLayoutBlock(const AbstractLayoutBlock & rAlb)
 	return ok;
 }
 
-int LayoutFlexItem::GetOrder() const
+int SUiLayout::GetOrder() const
 {
 	return ALB.Order;
 }
 
-void LayoutFlexItem::SetOrder(int o)
+void SUiLayout::SetOrder(int o)
 {
 	ALB.Order = o;
 	UpdateShouldOrderChildren();
@@ -1066,12 +1108,12 @@ void LayoutFlexItem::SetOrder(int o)
 //    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
 //      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
 //
-int LayoutFlexItem::GetFullWidth(float * pS) const
+int SUiLayout::GetFullWidth(float * pS) const
 {
 	int    ok = 1;
 	float  s = 0.0f;
 	//if(fisnanf(Size.x))
-	if(ALB.SzX != AbstractLayoutBlock::szFixed)
+	if(ALB.SzX != SUiLayoutParam::szFixed)
 		ok = 0;
 	else {
 		s += ALB.Size.x;
@@ -1093,12 +1135,12 @@ int LayoutFlexItem::GetFullWidth(float * pS) const
 //    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
 //      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
 //
-int LayoutFlexItem::GetFullHeight(float * pS) const
+int SUiLayout::GetFullHeight(float * pS) const
 {
 	int    ok = 1;
 	float  s = 0.0f;
 	//if(fisnanf(Size.y))
-	if(ALB.SzY != AbstractLayoutBlock::szFixed)
+	if(ALB.SzY != SUiLayoutParam::szFixed)
 		ok = 0;
 	else {
 		s += ALB.Size.y;
@@ -1113,15 +1155,15 @@ int LayoutFlexItem::GetFullHeight(float * pS) const
 //
 // Descr: Возвращает финальный расчетный прямоугольник элемента.
 //
-FRect LayoutFlexItem::GetFrame() const
+FRect SUiLayout::GetFrame() const
 {
 	return R;
 }
 
-FRect LayoutFlexItem::GetFrameAdjustedToParent() const
+FRect SUiLayout::GetFrameAdjustedToParent() const
 {
 	FRect f = R;
-	const LayoutFlexItem * p_parent = P_Parent;
+	const SUiLayout * p_parent = P_Parent;
 	if(p_parent) {
 		const FRect parent_frame = p_parent->GetFrameAdjustedToParent(); // @recursion
 		f.Move__(parent_frame.a.x, parent_frame.a.y);
@@ -1129,18 +1171,18 @@ FRect LayoutFlexItem::GetFrameAdjustedToParent() const
 	return f;
 }
 
-const LayoutFlexItem * LayoutFlexItem::FindMinimalItemAroundPoint(float x, float y) const
+const SUiLayout * SUiLayout::FindMinimalItemAroundPoint(float x, float y) const
 {
-	const LayoutFlexItem * p_result = 0;
+	const SUiLayout * p_result = 0;
 	FRect f = GetFrameAdjustedToParent();
 	if(f.IsEmpty() || f.Contains(SPoint2F(x, y))) {
 		FRect min_child_f(0.0f, 0.0f);
 		if(!f.IsEmpty())
 			p_result = this;
 		for(uint i = 0; i < GetChildrenCount(); i++) {
-			const LayoutFlexItem * p_child = GetChildC(i);
+			const SUiLayout * p_child = GetChildC(i);
 			if(p_child) {
-				const LayoutFlexItem * p_inner_result = p_child->FindMinimalItemAroundPoint(x, y); // @recursion
+				const SUiLayout * p_inner_result = p_child->FindMinimalItemAroundPoint(x, y); // @recursion
 				if(p_inner_result) {
 					FRect f = GetFrameAdjustedToParent();
 					const double mcfs = min_child_f.Square();
@@ -1155,7 +1197,7 @@ const LayoutFlexItem * LayoutFlexItem::FindMinimalItemAroundPoint(float x, float
 	return p_result;
 }
 
-int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
+int SUiLayout::GetInnerCombinedFrame(FRect * pResult) const
 {
 	int    ok = 0;
 	FRect  rf;
@@ -1163,7 +1205,7 @@ int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
 	if(_cc) {
 		bool is_first = true;
 		for(uint i = 0; i < _cc; i++) {
-			const LayoutFlexItem * p_child = GetChildC(i);
+			const SUiLayout * p_child = GetChildC(i);
 			assert(p_child);
 			if(p_child) {
 				if(is_first) {
@@ -1183,33 +1225,39 @@ int LayoutFlexItem::GetInnerCombinedFrame(FRect * pResult) const
 	return ok;
 }
 
-LayoutFlexItem * FASTCALL LayoutFlexItem::FindComplexComponentId(uint id)
+SUiLayout * FASTCALL SUiLayout::FindComplexComponentId(uint id)
 {
-	LayoutFlexItem * p_result = 0;
-	for(uint i = 0; !p_result && i < GetChildrenCount(); i++) {
-		LayoutFlexItem * p_child = GetChild(i);
-		if(p_child && p_child->CplxComponentId == id)
-			p_result = p_child;
+	SUiLayout * p_result = 0;
+	if(id) {
+		for(uint i = 0; !p_result && i < GetChildrenCount(); i++) {
+			SUiLayout * p_child = GetChild(i);
+			if(p_child) {
+				if(p_child->CplxComponentId == id)
+					p_result = p_child;
+				else
+					p_result = p_child->FindComplexComponentId(id)/* @recursion */; 
+			}
+		}
 	}
 	return p_result;
 }
 //
 // Descr: Возвращает корневой элемент дерева, компонентом которого является this.
 //
-LayoutFlexItem * LayoutFlexItem::GetRoot()
+SUiLayout * SUiLayout::GetRoot()
 {
-	LayoutFlexItem * p_root = this;
+	SUiLayout * p_root = this;
 	while(p_root->P_Parent) {
 		p_root = p_root->P_Parent;
 	}
 	return p_root;
 }
 
-LayoutFlexItem * LayoutFlexItem::InsertItem(void * pManagedPtr, const AbstractLayoutBlock * pAlb)
+SUiLayout * SUiLayout::InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb)
 {
-	LayoutFlexItem * p_result_item = 0;
+	SUiLayout * p_result_item = 0;
 	if(!P_Children) {
-		P_Children = new TSCollection <LayoutFlexItem>;
+		P_Children = new TSCollection <SUiLayout>;
 	}
 	if(P_Children) {
 		p_result_item = P_Children->CreateNewItem();
@@ -1224,24 +1272,24 @@ LayoutFlexItem * LayoutFlexItem::InsertItem(void * pManagedPtr, const AbstractLa
 	return p_result_item;
 }
 
-LayoutFlexItem * LayoutFlexItem::InsertItem()
+SUiLayout * SUiLayout::InsertItem()
 {
 	return InsertItem(0/*pManagedPtr*/, 0);
 }
 
-void LayoutFlexItem::DeleteItem(uint idx)
+void SUiLayout::DeleteItem(uint idx)
 {
 	const uint _cc = GetChildrenCount();
 	assert(idx < _cc);
 	assert(_cc);
 	if(idx < _cc) {
-		LayoutFlexItem * p_child = GetChild(idx);
+		SUiLayout * p_child = GetChild(idx);
 		p_child->P_Parent = 0;
 		P_Children->atFree(idx);
 	}
 }
 
-void LayoutFlexItem::DeleteAllItems()
+void SUiLayout::DeleteAllItems()
 {
 	uint i = GetChildrenCount();
 	if(i) do {
@@ -1249,18 +1297,18 @@ void LayoutFlexItem::DeleteAllItems()
 	} while(i);
 }
 
-LayoutFlexItem::IndexEntry::IndexEntry() : ItemIdx(0), HglIdx(0)
+SUiLayout::IndexEntry::IndexEntry() : ItemIdx(0), HglIdx(0)
 {
 }
 
-LayoutFlexItem::IterIndex::IterIndex() : TSVector <IndexEntry>()
+SUiLayout::IterIndex::IterIndex() : TSVector <IndexEntry>()
 {
 }
 
-LayoutFlexItem * LayoutFlexItem::IterIndex::GetHomogeneousItem(const LayoutFlexItem * pBaseItem, uint hgeIdx) const
+SUiLayout * SUiLayout::IterIndex::GetHomogeneousItem(const SUiLayout * pBaseItem, uint hgeIdx) const
 {
 	assert(pBaseItem);
-	LayoutFlexItem * p_new_item = HomogeneousEntryPool.CreateNewItem();
+	SUiLayout * p_new_item = HomogeneousEntryPool.CreateNewItem();
 	if(p_new_item) {
 		if(pBaseItem) {
 			const HomogeneousEntry & r_hge = pBaseItem->P_HgL->at(hgeIdx);
@@ -1285,12 +1333,12 @@ LayoutFlexItem * LayoutFlexItem::IterIndex::GetHomogeneousItem(const LayoutFlexI
 	return p_new_item;
 }
 
-void LayoutFlexItem::IterIndex::ReleaseHomogeneousItem(LayoutFlexItem * pItem) const
+void SUiLayout::IterIndex::ReleaseHomogeneousItem(SUiLayout * pItem) const
 {
 	bool   found = false;
 	uint   i = HomogeneousEntryPool.getCount();
 	if(i) do {
-		LayoutFlexItem * p = HomogeneousEntryPool.at(--i);
+		SUiLayout * p = HomogeneousEntryPool.at(--i);
 		if(p == pItem) {
 			HomogeneousEntryPool.atFree(i);
 			found = true;
@@ -1301,9 +1349,9 @@ void LayoutFlexItem::IterIndex::ReleaseHomogeneousItem(LayoutFlexItem * pItem) c
 
 static IMPL_CMPFUNC(LayoutFlexItemIndexEntry, i1, i2)
 {
-	const LayoutFlexItem::IndexEntry * p1 = static_cast<const LayoutFlexItem::IndexEntry *>(i1);
-	const LayoutFlexItem::IndexEntry * p2 = static_cast<const LayoutFlexItem::IndexEntry *>(i2);
-	const LayoutFlexItem * p_extra = static_cast<const LayoutFlexItem *>(pExtraData);
+	const SUiLayout::IndexEntry * p1 = static_cast<const SUiLayout::IndexEntry *>(i1);
+	const SUiLayout::IndexEntry * p2 = static_cast<const SUiLayout::IndexEntry *>(i2);
+	const SUiLayout * p_extra = static_cast<const SUiLayout *>(pExtraData);
 	assert(p1 && p2 && p_extra);
 	const uint _cc = p_extra->GetChildrenCount();
 	assert(p1->ItemIdx < _cc);
@@ -1318,12 +1366,12 @@ static IMPL_CMPFUNC(LayoutFlexItemIndexEntry, i1, i2)
 }
 
 // @construction
-void LayoutFlexItem::MakeIndex(IterIndex & rIndex) const
+void SUiLayout::MakeIndex(IterIndex & rIndex) const
 {
 	rIndex.clear();
 	const uint _cc = GetChildrenCount();
 	for(uint i = 0; i < _cc; i++) {
-		const LayoutFlexItem * p_child = GetChildC(i);
+		const SUiLayout * p_child = GetChildC(i);
 		if(p_child) {
 			if(SVectorBase::GetCount(p_child->P_HgL)) {
 				for(uint j = 0; j < p_child->P_HgL->getCount(); j++) {
@@ -1342,20 +1390,20 @@ void LayoutFlexItem::MakeIndex(IterIndex & rIndex) const
 		}
 	}
 	if(rIndex.getCount() > 1) {
-		rIndex.sort(PTR_CMPFUNC(LayoutFlexItemIndexEntry), const_cast<LayoutFlexItem *>(this)); // @badcase See IMPL_CMPFUNC(LayoutFlexItemIndexEntry)
+		rIndex.sort(PTR_CMPFUNC(LayoutFlexItemIndexEntry), const_cast<SUiLayout *>(this)); // @badcase See IMPL_CMPFUNC(LayoutFlexItemIndexEntry)
 	}
 }
 
 // @construction {
-const LayoutFlexItem * LayoutFlexItem::GetChildByIndex(const IterIndex & rIndex, uint idxPos) const
+const SUiLayout * SUiLayout::GetChildByIndex(const IterIndex & rIndex, uint idxPos) const
 {
-	const LayoutFlexItem * p_result = 0;
+	const SUiLayout * p_result = 0;
 	if(idxPos < rIndex.getCount()) {
 		const IndexEntry & r_ie = rIndex.at(idxPos);
 		const uint _cc = GetChildrenCount();
 		assert(r_ie.ItemIdx < _cc);
 		if(r_ie.ItemIdx < _cc) {
-			const LayoutFlexItem * p_inner_item = GetChildC(r_ie.ItemIdx);
+			const SUiLayout * p_inner_item = GetChildC(r_ie.ItemIdx);
 			assert(p_inner_item);
 			const uint hglc = SVectorBase::GetCount(p_inner_item->P_HgL);
 			if(hglc) {
@@ -1377,7 +1425,7 @@ const LayoutFlexItem * LayoutFlexItem::GetChildByIndex(const IterIndex & rIndex,
 }
 
 // @construction
-int LayoutFlexItem::CommitChildResult(const IterIndex & rIndex, uint idxPos, const LayoutFlexItem * pItem)
+int SUiLayout::CommitChildResult(const IterIndex & rIndex, uint idxPos, const SUiLayout * pItem)
 {
 	int    ok = 0;
 	if(idxPos < rIndex.getCount()) {
@@ -1385,7 +1433,7 @@ int LayoutFlexItem::CommitChildResult(const IterIndex & rIndex, uint idxPos, con
 		const uint _cc = GetChildrenCount();
 		assert(r_ie.ItemIdx < _cc);
 		if(r_ie.ItemIdx < _cc) {
-			const LayoutFlexItem * p_inner_item = GetChildC(r_ie.ItemIdx);
+			const SUiLayout * p_inner_item = GetChildC(r_ie.ItemIdx);
 		}
 	}
 	return ok;
@@ -1394,25 +1442,25 @@ int LayoutFlexItem::CommitChildResult(const IterIndex & rIndex, uint idxPos, con
 
 class LayoutFlexProcessor {
 public:
-	static uint DetermineFlags(const LayoutFlexItem * pItem)
+	static uint DetermineFlags(const SUiLayout * pItem)
 	{
 		uint   flags = 0;
 		if(pItem) {
 			if(pItem->ALB.GetContainerDirection() == DIREC_VERT)
 				flags |= fVertical;
-			if(pItem->ALB.Flags & AbstractLayoutBlock::fContainerReverseDir)
+			if(pItem->ALB.Flags & SUiLayoutParam::fContainerReverseDir)
 				flags |= fReverse;
-			if(pItem->ALB.Flags & AbstractLayoutBlock::fContainerWrap) {
+			if(pItem->ALB.Flags & SUiLayoutParam::fContainerWrap) {
 				flags |= fWrap;
-				if(pItem->ALB.Flags & AbstractLayoutBlock::fContainerWrapReverse)
+				if(pItem->ALB.Flags & SUiLayoutParam::fContainerWrapReverse)
 					flags |= fReverse2;
-				// @v11.0.0 @experimental if(pItem->ALB.AlignContent != AbstractLayoutBlock::alignStart)
+				// @v11.0.0 @experimental if(pItem->ALB.AlignContent != SUiLayoutParam::alignStart)
 					flags |= fNeedLines;
 			}
 		}
 		return flags;
 	}
-	LayoutFlexProcessor(const LayoutFlexItem * pItem, const LayoutFlexItem::Param & rP) : Flags(DetermineFlags(pItem)),
+	LayoutFlexProcessor(const SUiLayout * pItem, const SUiLayout::Param & rP) : Flags(DetermineFlags(pItem)),
 		SizeDim(0.0f), AlignDim(0.0f), FramePos1i(0), FramePos2i(0), FrameSz1i(0), FrameSz2i(0),
 		ordered_indices(0), LineDim(0.0f), FlexDim(0.0f), ExtraFlexDim(0.0f), FlexGrows(0.0f), FlexShrinks(0.0f),
 		Pos2(0.0f), P(rP)
@@ -1448,7 +1496,7 @@ public:
 				break;
 		}
 		const uint _item_cc = pItem->GetChildrenCount();
-		if((pItem->State & LayoutFlexItem::stShouldOrderChildren) && _item_cc) {
+		if((pItem->State & SUiLayout::stShouldOrderChildren) && _item_cc) {
 			uint * p_indices = static_cast<uint *>(SAlloc::M(sizeof(uint) * _item_cc));
 			assert(p_indices != NULL);
 			// Creating a list of item indices sorted using the children's `order'
@@ -1471,7 +1519,7 @@ public:
 			ordered_indices = p_indices;
 		}
 		if(Flags & fWrap) {
-			if(pItem->ALB.Flags & AbstractLayoutBlock::fContainerWrapReverse)
+			if(pItem->ALB.Flags & SUiLayoutParam::fContainerWrapReverse)
 				Pos2 = AlignDim;
 		}
 		else
@@ -1487,13 +1535,13 @@ public:
 		FlexGrows = 0.0f;
 		FlexShrinks = 0.0f;
 	}
-	const LayoutFlexItem & GetChildByIndex(const LayoutFlexItem * pContainer, uint idx) const
+	const SUiLayout & GetChildByIndex(const SUiLayout * pContainer, uint idx) const
 	{
 		const uint _pos = ordered_indices ? ordered_indices[idx] : idx;
 		assert(_pos < pContainer->GetChildrenCount());
 		return *pContainer->GetChildC(_pos);
 	}
-	void   ProcessLines(const LayoutFlexItem & rItem);
+	void   ProcessLines(const SUiLayout & rItem);
 	// Set during init.
 	enum {
 		fWrap      = 0x0001,
@@ -1544,41 +1592,41 @@ public:
 		float  TotalSize;
 	};
 	LineArray Lines;
-	const  LayoutFlexItem::Param P;
+	const  SUiLayout::Param P;
 };
 
-bool LayoutFlexItem::LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const
+bool SUiLayout::LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const
 {
 	assert(flexDim > 0);
 	float pos = 0.0f;
 	float spacing = 0.0f;
 	switch(align) {
-		case AbstractLayoutBlock::alignStart: break;
-		case AbstractLayoutBlock::alignEnd: pos = flexDim; break;
-		case AbstractLayoutBlock::alignCenter: pos = flexDim / 2; break;
-		case AbstractLayoutBlock::alignSpaceBetween:
+		case SUiLayoutParam::alignStart: break;
+		case SUiLayoutParam::alignEnd: pos = flexDim; break;
+		case SUiLayoutParam::alignCenter: pos = flexDim / 2; break;
+		case SUiLayoutParam::alignSpaceBetween:
 		    if(childrenCount > 1) {
 			    spacing = flexDim / (childrenCount-1);
 		    }
 		    break;
-		case AbstractLayoutBlock::alignSpaceAround:
+		case SUiLayoutParam::alignSpaceAround:
 		    if(childrenCount) {
 			    spacing = flexDim / childrenCount;
 			    pos = spacing / 2;
 		    }
 		    break;
-		case AbstractLayoutBlock::alignSpaceEvenly:
+		case SUiLayoutParam::alignSpaceEvenly:
 		    if(childrenCount) {
 			    spacing = flexDim / (childrenCount+1);
 			    pos = spacing;
 		    }
 		    break;
-		case AbstractLayoutBlock::alignStretch:
+		case SUiLayoutParam::alignStretch:
 		    if(stretchAllowed) {
 			    spacing = flexDim / childrenCount;
 			    break;
 		    }
-			else { // by default: AbstractLayoutBlock::alignStart
+			else { // by default: SUiLayoutParam::alignStart
 				break;
 			}
 		// @fallthrough
@@ -1590,7 +1638,11 @@ bool LayoutFlexItem::LayoutAlign(/*flex_align*/int align, float flexDim, uint ch
 	return true;
 }
 
-int LayoutFlexItem::InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */)
+SUiLayout::HomogeneousArray::HomogeneousArray() : VariableFactor(vfNone)
+{
+}
+
+int SUiLayout::InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */)
 {
 	int    ok = 1;
 	if(!P_HgL) {
@@ -1607,7 +1659,7 @@ int LayoutFlexItem::InitHomogeneousArray(uint variableFactor /* HomogeneousArray
 	return ok;
 }
 
-int LayoutFlexItem::AddHomogeneousEntry(long id, float vf)
+int SUiLayout::AddHomogeneousEntry(long id, float vf)
 {
 	int    ok = 1;
 	if(P_HgL) {
@@ -1621,13 +1673,13 @@ int LayoutFlexItem::AddHomogeneousEntry(long id, float vf)
 	return ok;
 }
 
-void LayoutFlexItem::UpdateShouldOrderChildren()
+void SUiLayout::UpdateShouldOrderChildren()
 {
 	if(ALB.Order != 0 && P_Parent)
 		P_Parent->State |= stShouldOrderChildren;
 }
 
-/*flex_align*/int FASTCALL LayoutFlexItem::GetChildAlign(const LayoutFlexItem & rChild) const
+/*flex_align*/int FASTCALL SUiLayout::GetChildAlign(const SUiLayout & rChild) const
 {
 	return (rChild.ALB.AlignSelf == ALB.alignAuto) ? ALB.AlignItems : rChild.ALB.AlignSelf;
 }
@@ -1635,7 +1687,7 @@ void LayoutFlexItem::UpdateShouldOrderChildren()
 #define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.x : child.ALB.Margin.pnt.y)
 #define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.y : child.ALB.Margin.pnt.x)
 
-void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, void * pLayout, SScroller::SetupBlock * pSsb) const
+void SUiLayout::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, void * pLayout, SScroller::SetupBlock * pSsb) const
 {
 	LayoutFlexProcessor * p_layout = static_cast<LayoutFlexProcessor *>(pLayout);
 	assert(childrenCount <= (childEndIdx - childBeginIdx));
@@ -1664,7 +1716,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 			p_layout->Pos2 -= p_layout->LineDim;
 		}
 		for(uint i = childBeginIdx; i < childEndIdx; i++) {
-			const LayoutFlexItem & r_child = p_layout->GetChildByIndex(this, i);
+			const SUiLayout & r_child = p_layout->GetChildByIndex(this, i);
 			if(!r_child.ALB.IsPositionAbsolute(ALB.GetContainerDirection())) { // Isn't already positioned
 				// Grow or shrink the main axis item size if needed.
 				float flex_size = 0.0f;
@@ -1686,27 +1738,27 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 				{
 					const int ca = GetChildAlign(r_child);
 					switch(ca) {
-						case AbstractLayoutBlock::alignEnd:
+						case SUiLayoutParam::alignEnd:
 							{
 								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
 								align_pos += (p_layout->LineDim - align_size - mar_b);
 							}
 							break;
-						case AbstractLayoutBlock::alignCenter:
+						case SUiLayoutParam::alignCenter:
 							{
 								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
 								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
 								align_pos += (p_layout->LineDim / 2.0f) - (align_size / 2.0f) + (mar_a - mar_b);
 							}
 							break;
-						case AbstractLayoutBlock::alignStretch:
+						case SUiLayoutParam::alignStretch:
 							if(align_size == 0) {
 								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
 								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
 								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (mar_a + mar_b);
 							}
 						// @fallthrough
-						case AbstractLayoutBlock::alignStart:
+						case SUiLayoutParam::alignStart:
 							{
 								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
 								align_pos += mar_a;
@@ -1716,7 +1768,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 							//assert(false && "incorrect align_self");
 							{
 								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								align_pos += mar_a; // По умолчанию пусть будет AbstractLayoutBlock::alignStart
+								align_pos += mar_a; // По умолчанию пусть будет SUiLayoutParam::alignStart
 							}
 							break;
 					}
@@ -1744,10 +1796,10 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 					}
 				}
 				if(r_child.ALB.AspectRatio > 0.0) {
-					if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef && r_child.R.Frame[3] > 0.0f) {
+					if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == SUiLayoutParam::szUndef && r_child.R.Frame[3] > 0.0f) {
 						r_child.R.Frame[2] = r_child.R.Frame[3] / r_child.ALB.AspectRatio;
 					}
-					if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == AbstractLayoutBlock::szUndef && r_child.R.Frame[2] > 0.0f) {
+					if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == SUiLayoutParam::szUndef && r_child.R.Frame[2] > 0.0f) {
 						r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
 					}
 				}
@@ -1761,7 +1813,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 	}
 }
 
-int LayoutFlexItem::SetupResultScroller(SScroller::SetupBlock * pSb) const
+int SUiLayout::SetupResultScroller(SScroller::SetupBlock * pSb) const
 {
 	int    ok = 1;
 	if(pSb)	{
@@ -1774,7 +1826,7 @@ int LayoutFlexItem::SetupResultScroller(SScroller::SetupBlock * pSb) const
 	return ok;
 }
 
-void LayoutFlexItem::Commit_() const
+void SUiLayout::Commit_() const
 {
 	const FRect bb = R;
 	//SETFLAG(R.Flags, R.fNotFit, (P_Parent && !static_cast<FRect>(P_Parent->R).Contains(bb)));
@@ -1789,17 +1841,17 @@ void LayoutFlexItem::Commit_() const
 
 }
 
-void LayoutFlexItem::DoLayout(const Param & rP) const
+void SUiLayout::DoLayout(const Param & rP) const
 {
 	const uint _cc = GetChildrenCount();
 	const int  _direction = ALB.GetContainerDirection();
-	const int  _cross_direction = AbstractLayoutBlock::GetCrossDirection(_direction);
+	const int  _cross_direction = SUiLayoutParam::GetCrossDirection(_direction);
 	if(_cc && oneof2(_direction, DIREC_HORZ, DIREC_VERT)) {
 		LayoutFlexProcessor layout_s(this, rP);
 		uint last_layout_child = 0;
 		uint relative_children_count = 0;
 		for(uint i = 0; i < _cc; i++) {
-			const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, i);
+			const SUiLayout & r_child = layout_s.GetChildByIndex(this, i);
 			// Items with an absolute position have their frames determined
 			// directly and are skipped during layout.
 			if(r_child.ALB.IsPositionAbsoluteX() && r_child.ALB.IsPositionAbsoluteY()) {
@@ -1838,7 +1890,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					r_child.CbSelfSizing(&r_child, size);
 					for(uint j = 0; j < 2; j++) {
 						const uint size_off = j + 2;
-						if(size_off != layout_s.FrameSz2i || GetChildAlign(r_child) != AbstractLayoutBlock::alignStretch) {
+						if(size_off != layout_s.FrameSz2i || GetChildAlign(r_child) != SUiLayoutParam::alignStretch) {
 							float val = size[j];
 							if(!fisnanf(val))
 								r_child.R.Frame[size_off] = val;
@@ -1912,7 +1964,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					if(ALB.Flags & ALB.fEvaluateScroller) {
 						ssb.ViewSize = page_size;
 					}
-					const bool is_align_stretch = (ALB.AlignContent == AbstractLayoutBlock::alignStretch);
+					const bool is_align_stretch = (ALB.AlignContent == SUiLayoutParam::alignStretch);
 					for(uint i = 0; i < layout_s.Lines.getCount(); i++) {
 						const LayoutFlexProcessor::Line & r_line = layout_s.Lines.at(i);
 						const float _s = r_line.Size + spacing;
@@ -1933,7 +1985,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 						}
 						// Re-position the children of this line, honoring any child alignment previously set within the line.
 						for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
-							const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, j);
+							const SUiLayout & r_child = layout_s.GetChildByIndex(this, j);
 							if(!r_child.ALB.IsPositionAbsolute(_cross_direction)) { // Should not be re-positioned.
 								if(fisnanf(r_child.R.Frame[layout_s.FrameSz2i])) {
 									// If the child's cross axis size hasn't been set it, it defaults to the line size.
@@ -1967,7 +2019,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 	//ASSIGN_PTR(pPgR, pr);
 }
 
-int AbstractLayoutBlock::SetVArea(int area)
+int SUiLayoutParam::SetVArea(int area)
 {
 	int    ok = 1;
 	struct LocalAreaGravity {
@@ -2001,7 +2053,7 @@ int AbstractLayoutBlock::SetVArea(int area)
 	return ok;
 }
 
-int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
+int SUiLayoutParam::GetVArea(/*const SUiLayout & rItem*/) const
 {
 	int   a = -1;
 	const int gx = /*rItem.ALB.*/GravityX;
@@ -2009,37 +2061,37 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 	switch(gx) {
 		case 0:
 			switch(gy) {
-				case 0: a = AbstractLayoutBlock::areaCenter; break;
-				case SIDE_TOP: a = AbstractLayoutBlock::areaSideU; break;
-				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaSideB; break;
-				case SIDE_CENTER: a = AbstractLayoutBlock::areaCenter; break;
+				case 0: a = SUiLayoutParam::areaCenter; break;
+				case SIDE_TOP: a = SUiLayoutParam::areaSideU; break;
+				case SIDE_BOTTOM: a = SUiLayoutParam::areaSideB; break;
+				case SIDE_CENTER: a = SUiLayoutParam::areaCenter; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_LEFT:
 			switch(gy) {
-				case 0: a = AbstractLayoutBlock::areaSideL; break;
-				case SIDE_TOP: a = AbstractLayoutBlock::areaCornerLU; break;
-				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaCornerLB; break;
-				case SIDE_CENTER: a = AbstractLayoutBlock::areaSideL; break;
+				case 0: a = SUiLayoutParam::areaSideL; break;
+				case SIDE_TOP: a = SUiLayoutParam::areaCornerLU; break;
+				case SIDE_BOTTOM: a = SUiLayoutParam::areaCornerLB; break;
+				case SIDE_CENTER: a = SUiLayoutParam::areaSideL; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_RIGHT:
 			switch(gy) {
-				case 0: a = AbstractLayoutBlock::areaSideR; break;
-				case SIDE_TOP: a = AbstractLayoutBlock::areaCornerRU; break;
-				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaCornerRB; break;
-				case SIDE_CENTER: a = AbstractLayoutBlock::areaSideR; break;
+				case 0: a = SUiLayoutParam::areaSideR; break;
+				case SIDE_TOP: a = SUiLayoutParam::areaCornerRU; break;
+				case SIDE_BOTTOM: a = SUiLayoutParam::areaCornerRB; break;
+				case SIDE_CENTER: a = SUiLayoutParam::areaSideR; break;
 				default: assert(0);
 			}
 			break;
 		case SIDE_CENTER:
 			switch(gy) {
-				case 0: a = AbstractLayoutBlock::areaCenter; break;
-				case SIDE_TOP: a = AbstractLayoutBlock::areaSideU; break;
-				case SIDE_BOTTOM: a = AbstractLayoutBlock::areaSideB; break;
-				case SIDE_CENTER: a = AbstractLayoutBlock::areaCenter; break;
+				case 0: a = SUiLayoutParam::areaCenter; break;
+				case SIDE_TOP: a = SUiLayoutParam::areaSideU; break;
+				case SIDE_BOTTOM: a = SUiLayoutParam::areaSideB; break;
+				case SIDE_CENTER: a = SUiLayoutParam::areaCenter; break;
 				default: assert(0);
 			}
 			break;
@@ -2049,7 +2101,7 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 	return a;
 }
 
-/*static*/int AbstractLayoutBlock::RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect)
+/*static*/int SUiLayoutParam::RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect)
 {
 	int    ok = 1;
 	assert(restrictedArea != restrictingArea);
@@ -2244,13 +2296,13 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 	return ok;
 }
 
-void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const SPoint2F & rOffs) const
+void SUiLayout::Helper_CommitInnerFloatLayout(SUiLayout * pCurrentLayout, const SPoint2F & rOffs) const
 {
 	//const float offs_x = area_rect[prev_area].a.x;
 	//const float offs_y = area_rect[prev_area].a.y;
 	const uint _cl_cc = pCurrentLayout->GetChildrenCount();
 	for(uint ci = 0; ci < _cl_cc; ci++) {
-		const LayoutFlexItem * p_layout_item = pCurrentLayout->GetChildC(ci);
+		const SUiLayout * p_layout_item = pCurrentLayout->GetChildC(ci);
 		if(p_layout_item && p_layout_item->P_Link) {
 			p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, rOffs.x, rOffs.y);
 			p_layout_item->P_Link->Commit_();
@@ -2259,7 +2311,7 @@ void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayo
 	delete pCurrentLayout;
 }
 
-void LayoutFlexItem::DoFloatLayout(const Param & rP)
+void SUiLayout::DoFloatLayout(const Param & rP)
 {
 	const uint _cc = GetChildrenCount();
 	if(_cc) {
@@ -2286,7 +2338,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 			LayoutFlexProcessor layout_s(this, rP);
 			{
 				for(uint cidx = 0; cidx < _cc; cidx++) {
-					const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, cidx);
+					const SUiLayout & r_child = layout_s.GetChildByIndex(this, cidx);
 					const int va = r_child.ALB.GetVArea();
 					assert(va >= 0 && va < SIZEOFARRAY(area_rect));
 					if(va >= 0 && va < SIZEOFARRAY(area_rect)) {
@@ -2305,7 +2357,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 			}
 			{
 				int    prev_area = -1;
-				LayoutFlexItem * p_current_layout = 0;
+				SUiLayout * p_current_layout = 0;
 				LongArray actual_area_list; // Список идентификаторов областей, которые подлежат рассмотрению
 				LongArray seen_area_list; // Список уже обработанных идентификаторов областей
 				item_map.GetValList(actual_area_list);
@@ -2315,7 +2367,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 					const int  area = static_cast<int>(r_ai.Val);
 					assert(area >= 0 && area < SIZEOFARRAY(area_rect));
 					assert(cidx >= 0 && cidx < _cc);
-					const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, cidx);
+					const SUiLayout & r_child = layout_s.GetChildByIndex(this, cidx);
 					if(area != prev_area) {
 						if(p_current_layout) {
 							assert(prev_area >= 0 && prev_area < SIZEOFARRAY(area_rect));
@@ -2331,7 +2383,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 									for(uint ai = 0; ai < actual_area_list.getCount(); ai++) {
 										const int local_area = actual_area_list.get(ai);
 										if(local_area != prev_area && !seen_area_list.lsearch(local_area)) {
-											const int rvar = AbstractLayoutBlock::RestrictVArea(prev_area, cf, local_area, area_rect[local_area]);
+											const int rvar = SUiLayoutParam::RestrictVArea(prev_area, cf, local_area, area_rect[local_area]);
 											assert(rvar);
 										}
 									}
@@ -2342,9 +2394,9 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 							p_current_layout = 0;
 						}
 						{
-							p_current_layout = new LayoutFlexItem();
+							p_current_layout = new SUiLayout();
 							struct LocalLayoutEntry {
-								LocalLayoutEntry() : ContainerDirec(DIREC_UNKN), ContainerFlags(AbstractLayoutBlock::fContainerWrap), JustifyContent(0), AlignContent(0)
+								LocalLayoutEntry() : ContainerDirec(DIREC_UNKN), ContainerFlags(SUiLayoutParam::fContainerWrap), JustifyContent(0), AlignContent(0)
 								{
 								}
 								void Set(int direc, uint32 cf, uint16 justifyContent, uint16 alignContent)
@@ -2356,38 +2408,38 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 								}
 								int    ContainerDirec;
 								uint32 ContainerFlags;
-								uint16 JustifyContent; // AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
-								uint16 AlignContent;   // AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
+								uint16 JustifyContent; // SUiLayoutParam::alignXXX Выравнивание внутренних элементов вдоль основной оси
+								uint16 AlignContent;   // SUiLayoutParam::alignXXX Выравнивание внутренних элементов по кросс-оси
 							};
 							LocalLayoutEntry lle;
 							switch(area) {
-								case AbstractLayoutBlock::areaCornerLU:
-									lle.Set(DIREC_HORZ, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart);
+								case SUiLayoutParam::areaCornerLU:
+									lle.Set(DIREC_HORZ, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 									break;
-								case AbstractLayoutBlock::areaCornerRU:
-									lle.Set(DIREC_HORZ, AbstractLayoutBlock::fContainerReverseDir, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart);
+								case SUiLayoutParam::areaCornerRU:
+									lle.Set(DIREC_HORZ, SUiLayoutParam::fContainerReverseDir, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 									break;
-								case AbstractLayoutBlock::areaCornerRB:
-									lle.Set(DIREC_HORZ, AbstractLayoutBlock::fContainerReverseDir|AbstractLayoutBlock::fContainerWrapReverse,
-										AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart);
+								case SUiLayoutParam::areaCornerRB:
+									lle.Set(DIREC_HORZ, SUiLayoutParam::fContainerReverseDir|SUiLayoutParam::fContainerWrapReverse,
+										SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 									break;
-								case AbstractLayoutBlock::areaCornerLB:
-									lle.Set(DIREC_HORZ, 0/*AbstractLayoutBlock::fContainerWrapReverse*/, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignEnd);
+								case SUiLayoutParam::areaCornerLB:
+									lle.Set(DIREC_HORZ, 0/*SUiLayoutParam::fContainerWrapReverse*/, SUiLayoutParam::alignStart, SUiLayoutParam::alignEnd);
 									break;
-								case AbstractLayoutBlock::areaSideU:
-									lle.Set(DIREC_HORZ, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart);
+								case SUiLayoutParam::areaSideU:
+									lle.Set(DIREC_HORZ, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 									break;
-								case AbstractLayoutBlock::areaSideR:
-									lle.Set(DIREC_VERT, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignEnd);
+								case SUiLayoutParam::areaSideR:
+									lle.Set(DIREC_VERT, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignEnd);
 									break;
-								case AbstractLayoutBlock::areaSideB:
-									lle.Set(DIREC_HORZ, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignEnd);
+								case SUiLayoutParam::areaSideB:
+									lle.Set(DIREC_HORZ, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignEnd);
 									break;
-								case AbstractLayoutBlock::areaSideL:
-									lle.Set(DIREC_VERT, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart);
+								case SUiLayoutParam::areaSideL:
+									lle.Set(DIREC_VERT, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart);
 									break;
-								case AbstractLayoutBlock::areaCenter:
-									lle.Set(DIREC_HORZ, 0, AbstractLayoutBlock::alignStart, AbstractLayoutBlock::alignStart); // @?
+								case SUiLayoutParam::areaCenter:
+									lle.Set(DIREC_HORZ, 0, SUiLayoutParam::alignStart, SUiLayoutParam::alignStart); // @?
 									break;
 							}
 							p_current_layout->ALB.SetContainerDirection(lle.ContainerDirec);
@@ -2400,7 +2452,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 					}
 					{
 						assert(p_current_layout);
-						LayoutFlexItem * p_layout_item = p_current_layout->InsertItem();
+						SUiLayout * p_layout_item = p_current_layout->InsertItem();
 						p_layout_item->SetLayoutBlock(r_child.ALB);
 						p_layout_item->SetCallbacks(r_child.CbSelfSizing, r_child.CbSetup, r_child.managed_ptr);
 						p_layout_item->P_Link = &r_child;
@@ -2420,7 +2472,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 	}
 }
 
-void LayoutFlexItem::Setup(uint flags)
+void SUiLayout::Setup(uint flags)
 {
 	if(!(flags & setupfChildrenOnly)) {
 		if(CbSetup) {
@@ -2433,7 +2485,7 @@ void LayoutFlexItem::Setup(uint flags)
 	}
 }
 
-int LayoutFlexItem::Evaluate(const Param * pP)
+int SUiLayout::Evaluate(const Param * pP)
 {
 	int    ok = -1;
 	const  uint _cc = GetChildrenCount();
@@ -2448,13 +2500,13 @@ int LayoutFlexItem::Evaluate(const Param * pP)
 			local_evaluate_param.Flags = pP->Flags;
 			if(pP->ForceWidth > 0.0f) {
 				local_evaluate_param.ForceWidth = pP->ForceWidth;
-				stag_x = AbstractLayoutBlock::szFixed;
+				stag_x = SUiLayoutParam::szFixed;
 			}
 			else
 				local_evaluate_param.ForceWidth = sx;
 			if(pP->ForceHeight > 0.0f) {
 				local_evaluate_param.ForceHeight = pP->ForceHeight;
-				stag_y = AbstractLayoutBlock::szFixed;
+				stag_y = SUiLayoutParam::szFixed;
 			}
 			else
 				local_evaluate_param.ForceHeight = sy;
@@ -2464,7 +2516,7 @@ int LayoutFlexItem::Evaluate(const Param * pP)
 			local_evaluate_param.ForceHeight = sy;
 		}
 		if(oneof2(cdir, DIREC_HORZ, DIREC_VERT)) {
-			if(stag_x == AbstractLayoutBlock::szFixed && stag_y == AbstractLayoutBlock::szFixed && !CbSelfSizing) {
+			if(stag_x == SUiLayoutParam::szFixed && stag_y == SUiLayoutParam::szFixed && !CbSelfSizing) {
 				assert(P_Parent == NULL);
 				assert(CbSelfSizing == NULL);
 				DoLayout(local_evaluate_param);
@@ -2473,7 +2525,7 @@ int LayoutFlexItem::Evaluate(const Param * pP)
 			}
 		}
 		else {
-			if(stag_x == AbstractLayoutBlock::szFixed && stag_y == AbstractLayoutBlock::szFixed && !CbSelfSizing) {
+			if(stag_x == SUiLayoutParam::szFixed && stag_y == SUiLayoutParam::szFixed && !CbSelfSizing) {
 				DoFloatLayout(local_evaluate_param);
 				Setup(setupfChildrenOnly);
 				ok = 1;

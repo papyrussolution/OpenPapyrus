@@ -137,7 +137,7 @@ struct DlFunc {
 	int    GetArg(uint argN, Arg *) const;
 	DLSYMBID GetArgType(uint argN) const;
 	int    GetArgName(uint argN, SString & rArgName) const;
-	int    IsEqual(const DlFunc & rPat) const;
+	int    IsEq(const DlFunc & rPat) const;
 	void   AddArg(uint typeId, const char * pName, uint argFlags = 0);
 
 	enum {
@@ -166,7 +166,7 @@ public:
 	DlFuncPool();
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
-	int    FASTCALL IsEqual(const DlFuncPool & rPat) const;
+	int    FASTCALL IsEq(const DlFuncPool & rPat) const;
 	void   FASTCALL Add(const DlFunc * pF);
 	uint   GetCount() const { return Items.getCount(); }
 	int    GetByPos(uint pos, DlFunc * pF) const;
@@ -366,14 +366,14 @@ public:
 		cuifLayoutType,   // int8 @construction
 		//
 		//cuifLayoutFlags,          // @v10.9.12 uint32
-		//cuifLayoutSzkX,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси X
-		//cuifLayoutSzkY,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
+		//cuifLayoutSzkX,           // @v10.9.12 SUiLayoutParam::szXXX Опции расчета размера по оси X
+		//cuifLayoutSzkY,           // @v10.9.12 SUiLayoutParam::szXXX Опции расчета размера по оси Y
 		//cuifLayoutUOM,            // @v10.9.12 int32 
 		//cuifLayoutSize,           // @v10.9.12 SPoint2F
-		//cuifLayoutJustifyContent, // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
-		//cuifLayoutAlignContent,   // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
-		//cuifLayoutAlignItems,     // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
-		//cuifLayoutAlignSelf,      // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
+		//cuifLayoutJustifyContent, // @v10.9.12 uint16 SUiLayoutParam::alignXXX Выравнивание внутренних элементов вдоль основной оси
+		//cuifLayoutAlignContent,   // @v10.9.12 uint16 SUiLayoutParam::alignXXX Выравнивание внутренних элементов по кросс-оси
+		//cuifLayoutAlignItems,     // @v10.9.12 uint16 SUiLayoutParam::alignXXX
+		//cuifLayoutAlignSelf,      // @v10.9.12 uint16 SUiLayoutParam::alignXXX
 		//cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
 		//cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
 		//cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
@@ -385,7 +385,7 @@ public:
 		//cuifLayoutBasis,          // @v10.9.12 float
 		//cuifLayoutAspectRatio,    // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
 		cuifViewTabStop,          // @v11.0.4 bool // deprecated in favor of cuifFlags
-		cuifLayoutBlock,          // @v11.0.5 AbstractLayoutBlock
+		cuifLayoutBlock,          // @v11.0.5 SUiLayoutParam
 		cuifFlags,                // @v11.0.4 UiItemKind::fXXX 
 		cuifViewDataType,         // @v11.0.5 Тип данных, ассоциированный с элементом View
 		cuifCtrlLblRelation,      // @v11.0.5 uint8 Расположение этикетки относительно основного управляющего элемента
@@ -394,7 +394,7 @@ public:
 		cuifFontSize              // @v11.0.5 double Размер шрифта  
 	};
 	struct IfaceBase {
-		bool   FASTCALL IsEqual(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
+		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
 		bool   FASTCALL operator == (const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
 		enum {
 			fDefault    = 0x0001,
@@ -500,7 +500,7 @@ public:
 	int    EnumFunctions(uint * pI, DlFunc * pFunc) const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
-	int    FASTCALL IsEqual(const DlScope & rPat) const;
+	int    FASTCALL IsEq(const DlScope & rPat) const;
 	void   SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
 	void * FASTCALL GetFixDataPtr(size_t offs) const;
 	//
@@ -1512,8 +1512,8 @@ struct PPReportEnv {
 		// [Ccheckdetailview:CN001]
 };
 
-int  FASTCALL PPAlddPrint(int RptId, PPFilt * pf, const PPReportEnv * pEnv = 0);
-int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0);
+int  FASTCALL PPAlddPrint(int RptId, PPFilt & rF, const PPReportEnv * pEnv);
+int  FASTCALL PPAlddPrint(int RptId, PView & rV, const PPReportEnv * pEnv);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf);

@@ -2026,7 +2026,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 			SetProp(Mode, MODE_REGISTER);
 		}
 		{
-			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+			for(uint pos = 0; str_set.get(&pos, str);) {
 				str.Chomp();
 				THROW(PrintText(str, ptfWrap, 0));
 				SDelay(10); // @v10.4.11 Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.

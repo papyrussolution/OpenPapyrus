@@ -1069,7 +1069,7 @@ void DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const ch
 	SString huge_buf(ss_dtd.getBuf());
 	huge_buf.Quot('(', ')');
 	xmlTextWriterWriteDTDElement(pWriter, (const xmlChar *)pElemName, huge_buf.ucptr());
-	for(uint p = 0; ss_dtd.get(&p, buf) > 0;)
+	for(uint p = 0; ss_dtd.get(&p, buf);)
 		xmlTextWriterWriteDTDElement(pWriter, buf.ucptr(), (const xmlChar *)"(#PCDATA)");
 }
 

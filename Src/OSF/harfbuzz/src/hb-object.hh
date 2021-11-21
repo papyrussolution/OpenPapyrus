@@ -57,7 +57,7 @@ struct hb_lockable_set_t {
 		if(item) {
 			if(replace) {
 				item_t old = *item;
-				* item = v;
+				*item = v;
 				l.unlock();
 				old.fini();
 			}
@@ -80,7 +80,7 @@ struct hb_lockable_set_t {
 		item_t * item = items.find(v);
 		if(item) {
 			item_t old = *item;
-			* item = items[items.length - 1];
+			*item = items[items.length - 1];
 			items.pop();
 			l.unlock();
 			old.fini();
@@ -143,34 +143,13 @@ struct hb_lockable_set_t {
 
 struct hb_reference_count_t {
 	mutable hb_atomic_int_t ref_count;
-
-	void init(int v = 1) {
-		ref_count.set_relaxed(v);
-	}
-
-	int get_relaxed() const {
-		return ref_count.get_relaxed();
-	}
-
-	int inc() const {
-		return ref_count.inc();
-	}
-
-	int dec() const {
-		return ref_count.dec();
-	}
-
-	void fini() {
-		ref_count.set_relaxed(HB_REFERENCE_COUNT_POISON_VALUE);
-	}
-
-	bool is_inert() const {
-		return ref_count.get_relaxed() == HB_REFERENCE_COUNT_INERT_VALUE;
-	}
-
-	bool is_valid() const {
-		return ref_count.get_relaxed() > 0;
-	}
+	void init(int v = 1) { ref_count.set_relaxed(v); }
+	int get_relaxed() const { return ref_count.get_relaxed(); }
+	int inc() const { return ref_count.inc(); }
+	int dec() const { return ref_count.dec(); }
+	void fini() { ref_count.set_relaxed(HB_REFERENCE_COUNT_POISON_VALUE); }
+	bool is_inert() const { return ref_count.get_relaxed() == HB_REFERENCE_COUNT_INERT_VALUE; }
+	bool is_valid() const { return ref_count.get_relaxed() > 0; }
 };
 
 /* user_data */
@@ -180,31 +159,26 @@ struct hb_user_data_array_t {
 		hb_user_data_key_t * key;
 		void * data;
 		hb_destroy_func_t destroy;
-
 		bool operator == (const hb_user_data_key_t *other_key) const { return key == other_key; }
 		bool operator == (const hb_user_data_item_t &other) const { return key == other.key; }
-
-		void fini() {
-			if(destroy) destroy(data);
+		void fini() 
+		{
+			if(destroy) 
+				destroy(data);
 		}
 	};
-
 	hb_mutex_t lock;
 	hb_lockable_set_t<hb_user_data_item_t, hb_mutex_t> items;
-
-	void init() {
+	void init() 
+	{
 		lock.init(); items.init();
 	}
-
-	HB_INTERNAL bool set(hb_user_data_key_t * key,
-	    void * data,
-	    hb_destroy_func_t destroy,
-	    hb_bool_t replace);
-
+	HB_INTERNAL bool set(hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace);
 	HB_INTERNAL void * get(hb_user_data_key_t * key);
-
-	void fini() {
-		items.fini(lock); lock.fini();
+	void fini() 
+	{
+		items.fini(lock); 
+		lock.fini();
 	}
 };
 
@@ -218,13 +192,7 @@ struct hb_object_header_t {
 	hb_atomic_ptr_t<hb_user_data_array_t> user_data;
 };
 
-#define HB_OBJECT_HEADER_STATIC \
-	{ \
-		HB_REFERENCE_COUNT_INIT, \
-		HB_ATOMIC_INT_INIT(false), \
-		HB_ATOMIC_PTR_INIT(nullptr) \
-	}
-
+#define HB_OBJECT_HEADER_STATIC { HB_REFERENCE_COUNT_INIT, HB_ATOMIC_INT_INIT(false), HB_ATOMIC_PTR_INIT(nullptr) }
 /*
  * Object
  */
@@ -252,29 +220,15 @@ template <typename Type> static inline void hb_object_init(Type * obj)
 }
 
 template <typename Type> static inline bool hb_object_is_inert(const Type * obj)
-{
-	return UNLIKELY(obj->header.ref_count.is_inert());
-}
-
+	{ return UNLIKELY(obj->header.ref_count.is_inert()); }
 template <typename Type> static inline bool hb_object_is_valid(const Type * obj)
-{
-	return LIKELY(obj->header.ref_count.is_valid());
-}
+	{ return LIKELY(obj->header.ref_count.is_valid()); }
+template <typename Type> static inline bool hb_object_is_immutable(const Type * obj)
+	{ return !obj->header.writable.get_relaxed(); }
+template <typename Type> static inline void hb_object_make_immutable(const Type * obj)
+	{ obj->header.writable.set_relaxed(false); }
 
-template <typename Type>
-static inline bool hb_object_is_immutable(const Type * obj)
-{
-	return !obj->header.writable.get_relaxed();
-}
-
-template <typename Type>
-static inline void hb_object_make_immutable(const Type * obj)
-{
-	obj->header.writable.set_relaxed(false);
-}
-
-template <typename Type>
-static inline Type * hb_object_reference(Type * obj)
+template <typename Type> static inline Type * hb_object_reference(Type * obj)
 {
 	hb_object_trace(obj, HB_FUNC);
 	if(UNLIKELY(!obj || hb_object_is_inert(obj)))
@@ -284,8 +238,7 @@ static inline Type * hb_object_reference(Type * obj)
 	return obj;
 }
 
-template <typename Type>
-static inline bool hb_object_destroy(Type * obj)
+template <typename Type> static inline bool hb_object_destroy(Type * obj)
 {
 	hb_object_trace(obj, HB_FUNC);
 	if(UNLIKELY(!obj || hb_object_is_inert(obj)))
@@ -293,13 +246,11 @@ static inline bool hb_object_destroy(Type * obj)
 	assert(hb_object_is_valid(obj));
 	if(obj->header.ref_count.dec() != 1)
 		return false;
-
 	hb_object_fini(obj);
 	return true;
 }
 
-template <typename Type>
-static inline void hb_object_fini(Type * obj)
+template <typename Type> static inline void hb_object_fini(Type * obj)
 {
 	obj->header.ref_count.fini(); /* Do this before user_data */
 	hb_user_data_array_t * user_data = obj->header.user_data.get();
@@ -310,17 +261,12 @@ static inline void hb_object_fini(Type * obj)
 	}
 }
 
-template <typename Type>
-static inline bool hb_object_set_user_data(Type * obj,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+template <typename Type> static inline bool hb_object_set_user_data(Type * obj,
+    hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	if(UNLIKELY(!obj || hb_object_is_inert(obj)))
 		return false;
 	assert(hb_object_is_valid(obj));
-
 retry:
 	hb_user_data_array_t *user_data = obj->header.user_data.get();
 	if(UNLIKELY(!user_data)) {
@@ -338,9 +284,7 @@ retry:
 	return user_data->set(key, data, destroy, replace);
 }
 
-template <typename Type>
-static inline void * hb_object_get_user_data(Type * obj,
-    hb_user_data_key_t * key)
+template <typename Type> static inline void * hb_object_get_user_data(Type * obj, hb_user_data_key_t * key)
 {
 	if(UNLIKELY(!obj || hb_object_is_inert(obj)))
 		return nullptr;

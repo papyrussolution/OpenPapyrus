@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -842,7 +842,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 			cash_no = buf.ToLong();
 			if(LogNumList.lsearch(cash_no)) {
 				PPID   sess_id;
-				for(field_no = 5; field_no < 9 && ss.get(&pos, buf) > 0; field_no++); // Поля 6-8 пропускаем
+				for(field_no = 5; field_no < 9 && ss.get(&pos, buf); field_no++); // Поля 6-8 пропускаем
 				nsmena = buf.ToLong(); // Номер смены
 				if(CS.SearchByNumber(&sess_id, NodeID, cash_no, nsmena, dtm) > 0) {
 					if(CS.data.Temporary)
@@ -888,7 +888,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 				dttm2 = dtm;
 				ss.get(&pos, buf);       // Поле 7 пропускаем
 				ss.get(&pos, card_code); // Код дисконтной карты
-				for(field_no = 8; field_no < 13 && ss.get(&pos, buf) > 0; field_no++); // Поля 9-12 пропускаем
+				for(field_no = 8; field_no < 13 && ss.get(&pos, buf); field_no++); // Поля 9-12 пропускаем
 				chk_type = buf.ToLong(); // Тип чека
 				ss.get(&pos, buf);       // Номер смены
 				nsmena = buf.ToLong();
@@ -915,7 +915,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 		ss.add(buf);
 		pos = 0;
 		//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
-		for(field_no = 0; field_no < 4 && ss.get(&pos, buf) > 0; field_no++);
+		for(field_no = 0; field_no < 4 && ss.get(&pos, buf); field_no++);
 		op_type = buf.ToLong();      // 4. Тип операции
 		ss.get(&pos, buf);
 		cash_no = buf.ToLong();      // 5. Номер ККМ
@@ -959,7 +959,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 			price = buf.ToReal();    // 10. Цена
 			ss.get(&pos, buf);
 			qtty = buf.ToReal();     // 11. Количество
-			for(field_no = 11; field_no < 15 && ss.get(&pos, buf) > 0; field_no++); // Поля 12-14 пропускаем
+			for(field_no = 11; field_no < 15 && ss.get(&pos, buf); field_no++); // Поля 12-14 пропускаем
 			dscnt_price = buf.ToReal(); // Цена  со скидками
 			ss.get(&pos, buf);
 			dscnt = buf.ToReal();    // Сумма со скидками

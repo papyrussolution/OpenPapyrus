@@ -3323,11 +3323,10 @@ int PPViewGoods::Print(const void *)
 		rpt_id = REPORT_GOODSWITHSTRUC;
 	else
 		rpt_id = REPORT_GOODSVIEW;
-	PView  pf(this);
 	PPReportEnv env;
 	env.Sort = Filt.InitOrder;
 	// env.PrnFlags = SReport::DisableGrouping;
-	PPAlddPrint(rpt_id, &pf, &env);
+	PPAlddPrint(rpt_id, PView(this), &env);
 	return 1;
 }
 
@@ -3339,7 +3338,6 @@ int PPViewGoods::PrintPLabel(PPID goodsID)
 	TDialog * p_dlg = 0;
 	PriceListFilt flt;
 	PPViewPriceList v_price;
-	PView  pf(&v_price); // @v9.0.4 (&v_price)
 	PPReportEnv env;
 	env.Sort = OrdByName;
 	env.PrnFlags = SReport::DisableGrouping;
@@ -3362,7 +3360,7 @@ int PPViewGoods::PrintPLabel(PPID goodsID)
 		else
 			r = 0;
 	}
-	return (r > 0) ? PPAlddPrint(rpt_id, &pf, &env) : r;
+	return (r > 0) ? PPAlddPrint(rpt_id, PView(&v_price), &env) : r;
 }
 
 int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)

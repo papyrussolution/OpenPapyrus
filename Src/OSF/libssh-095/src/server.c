@@ -117,7 +117,7 @@ int server_set_kex(ssh_session session)
 		return -1;
 	}
 	rc = ssh_options_set_algo(session, SSH_HOSTKEYS, kept);
-	SAFE_FREE(kept);
+	ZFREE(kept);
 	if(rc < 0) {
 		return -1;
 	}
@@ -133,14 +133,14 @@ int server_set_kex(ssh_session session)
 		}
 		if(wanted == NULL) {
 			for(j = 0; j < i; j++) {
-				SAFE_FREE(server->methods[j]);
+				ZFREE(server->methods[j]);
 			}
 			return -1;
 		}
 		server->methods[i] = _strdup(wanted);
 		if(server->methods[i] == NULL) {
 			for(j = 0; j < i; j++) {
-				SAFE_FREE(server->methods[j]);
+				ZFREE(server->methods[j]);
 			}
 			return -1;
 		}
@@ -156,7 +156,7 @@ int ssh_server_init_kex(ssh_session session)
 	}
 	/* free any currently-set methods: server_set_kex will allocate new ones */
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
-		SAFE_FREE(session->next_crypto->server_kex.methods[i]);
+		ZFREE(session->next_crypto->server_kex.methods[i]);
 	}
 	return server_set_kex(session);
 }

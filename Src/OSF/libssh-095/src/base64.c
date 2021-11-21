@@ -66,13 +66,13 @@ ssh_buffer base64_to_bin(const char * source)
 	/* Get the number of equals signs, which mirrors the padding */
 	equals = get_equals(ptr);
 	if(equals > 2) {
-		SAFE_FREE(base64);
+		ZFREE(base64);
 		return NULL;
 	}
 
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
-		SAFE_FREE(base64);
+		ZFREE(base64);
 		return NULL;
 	}
 	/*
@@ -112,7 +112,7 @@ ssh_buffer base64_to_bin(const char * source)
 		    if(ssh_buffer_add_data(buffer, block, 3) < 0) {
 			    goto error;
 		    }
-		    SAFE_FREE(base64);
+		    ZFREE(base64);
 
 		    return buffer;
 		/*
@@ -131,7 +131,7 @@ ssh_buffer base64_to_bin(const char * source)
 		    if(ssh_buffer_add_data(buffer, block, 1) < 0) {
 			    goto error;
 		    }
-		    SAFE_FREE(base64);
+		    ZFREE(base64);
 
 		    return buffer;
 		/*
@@ -149,7 +149,7 @@ ssh_buffer base64_to_bin(const char * source)
 		    if(ssh_buffer_add_data(buffer, block, 2) < 0) {
 			    goto error;
 		    }
-		    SAFE_FREE(base64);
+		    ZFREE(base64);
 
 		    return buffer;
 		default:
@@ -158,7 +158,7 @@ ssh_buffer base64_to_bin(const char * source)
 	}
 
 error:
-	SAFE_FREE(base64);
+	ZFREE(base64);
 	SSH_BUFFER_FREE(buffer);
 	return NULL;
 }

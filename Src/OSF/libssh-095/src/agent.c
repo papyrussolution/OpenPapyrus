@@ -127,7 +127,7 @@ ssh_agent ssh_agent_new(struct ssh_session_struct * session)
 	agent->count = 0;
 	agent->sock = ssh_socket_new(session);
 	if(agent->sock == NULL) {
-		SAFE_FREE(agent);
+		ZFREE(agent);
 		return NULL;
 	}
 	agent->channel = NULL;
@@ -196,7 +196,7 @@ void ssh_agent_free(ssh_agent agent) {
 			ssh_agent_close(agent);
 			ssh_socket_free(agent->sock);
 		}
-		SAFE_FREE(agent);
+		ZFREE(agent);
 	}
 }
 

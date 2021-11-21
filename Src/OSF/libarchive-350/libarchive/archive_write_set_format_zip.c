@@ -1459,10 +1459,9 @@ static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
 	uint8 t;
 #define CRC32(c, b) (crc32(c ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL)
-
 	ctx->keys[0] = CRC32(ctx->keys[0], c);
 	ctx->keys[1] = (ctx->keys[1] + (ctx->keys[0] & 0xff)) * 134775813L + 1;
-	t = (ctx->keys[1] >> 24) & 0xff;
+	t = static_cast<uint8>((ctx->keys[1] >> 24) & 0xff);
 	ctx->keys[2] = CRC32(ctx->keys[2], t);
 #undef CRC32
 }
@@ -1476,10 +1475,8 @@ static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in,
     size_t in_len, uint8 * out, size_t out_len)
 {
-	unsigned i, max;
-
-	max = (uint)((in_len < out_len) ? in_len : out_len);
-
+	unsigned i;
+	const unsigned max = (uint)((in_len < out_len) ? in_len : out_len);
 	for(i = 0; i < max; i++) {
 		uint8 t = in[i];
 		out[i] = t ^ trad_enc_decrypt_byte(ctx);

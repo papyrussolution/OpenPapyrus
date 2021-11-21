@@ -54,8 +54,8 @@ int pki_privkey_build_ed25519(ssh_key key, ssh_string pubkey, ssh_string privkey
 	memcpy(key->ed25519_pubkey, ssh_string_data(pubkey), ED25519_KEY_LEN);
 	return SSH_OK;
 error:
-	SAFE_FREE(key->ed25519_privkey);
-	SAFE_FREE(key->ed25519_pubkey);
+	ZFREE(key->ed25519_privkey);
+	ZFREE(key->ed25519_pubkey);
 	return SSH_ERROR;
 }
 
@@ -148,7 +148,7 @@ int pki_ed25519_key_dup(ssh_key pNew, const ssh_key key)
 	if(key->ed25519_pubkey != NULL) {
 		pNew->ed25519_pubkey = (uint8 *)SAlloc::M(ED25519_KEY_LEN);
 		if(pNew->ed25519_pubkey == NULL) {
-			SAFE_FREE(pNew->ed25519_privkey);
+			ZFREE(pNew->ed25519_privkey);
 			return SSH_ERROR;
 		}
 		memcpy(pNew->ed25519_pubkey, key->ed25519_pubkey, ED25519_KEY_LEN);

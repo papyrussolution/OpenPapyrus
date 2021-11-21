@@ -152,7 +152,7 @@ int ssh_scp_init(ssh_scp scp)
 	if(rc <= 0) {
 		ssh_set_error(scp->session, SSH_FATAL,
 		    "Failed to single quote command location");
-		SAFE_FREE(quoted_location);
+		ZFREE(quoted_location);
 		scp->state = SSH_SCP_ERROR;
 		return SSH_ERROR;
 	}
@@ -166,7 +166,7 @@ int ssh_scp_init(ssh_scp scp)
 		    scp->recursive ? "-r" : "", quoted_location);
 	}
 
-	SAFE_FREE(quoted_location);
+	ZFREE(quoted_location);
 
 	SSH_LOG(SSH_LOG_DEBUG, "Executing command: %s", execbuffer);
 
@@ -266,10 +266,10 @@ void ssh_scp_free(ssh_scp scp)
 		ssh_channel_free(scp->channel);
 	}
 
-	SAFE_FREE(scp->location);
-	SAFE_FREE(scp->request_name);
-	SAFE_FREE(scp->warning);
-	SAFE_FREE(scp);
+	ZFREE(scp->location);
+	ZFREE(scp->request_name);
+	ZFREE(scp->warning);
+	ZFREE(scp);
 }
 
 /**
@@ -342,9 +342,9 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	    "D%s 0 %s\n",
 	    perms, vis_encoded);
 
-	SAFE_FREE(dir);
-	SAFE_FREE(perms);
-	SAFE_FREE(vis_encoded);
+	ZFREE(dir);
+	ZFREE(perms);
+	ZFREE(vis_encoded);
 
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
@@ -360,9 +360,9 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	return SSH_OK;
 
 error:
-	SAFE_FREE(dir);
-	SAFE_FREE(perms);
-	SAFE_FREE(vis_encoded);
+	ZFREE(dir);
+	ZFREE(perms);
+	ZFREE(vis_encoded);
 
 	return SSH_ERROR;
 }
@@ -479,9 +479,9 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	    "C%s %" PRIu64 " %s\n",
 	    perms, size, vis_encoded);
 
-	SAFE_FREE(file);
-	SAFE_FREE(perms);
-	SAFE_FREE(vis_encoded);
+	ZFREE(file);
+	ZFREE(perms);
+	ZFREE(vis_encoded);
 
 	rc = ssh_channel_write(scp->channel, buffer, strlen(buffer));
 	if(rc == SSH_ERROR) {
@@ -501,9 +501,9 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	return SSH_OK;
 
 error:
-	SAFE_FREE(file);
-	SAFE_FREE(perms);
-	SAFE_FREE(vis_encoded);
+	ZFREE(file);
+	ZFREE(perms);
+	ZFREE(vis_encoded);
 
 	return SSH_ERROR;
 }
@@ -791,7 +791,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    size = strtoull(tmp, NULL, 10);
 		    p++;
 		    name = _strdup(p);
-		    SAFE_FREE(scp->request_name);
+		    ZFREE(scp->request_name);
 		    scp->request_name = name;
 		    if(buffer[0] == 'C') {
 			    scp->filelen = size;
@@ -813,7 +813,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    ssh_set_error(scp->session, SSH_REQUEST_DENIED,
 			"SCP: Warning: %s", &buffer[1]);
 		    scp->request_type = SSH_SCP_REQUEST_WARNING;
-		    SAFE_FREE(scp->warning);
+		    ZFREE(scp->warning);
 		    scp->warning = _strdup(&buffer[1]);
 		    return scp->request_type;
 		case 0x2:
@@ -830,8 +830,8 @@ int ssh_scp_pull_request(ssh_scp scp)
 
 	/* a parsing error occured */
 error:
-	SAFE_FREE(name);
-	SAFE_FREE(mode);
+	ZFREE(name);
+	ZFREE(mode);
 	ssh_set_error(scp->session, SSH_FATAL,
 	    "Parsing error while parsing message: %s", buffer);
 	return SSH_ERROR;

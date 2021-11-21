@@ -608,7 +608,7 @@ struct Fann2 {
 		FANN_COS            // Periodical cosinus activation function. span: 0 <= y <= 1; y = cos(x*s)/2+0.5; d = s*-sin(x*s)/2
 	};
 	struct Neuron {
-		int    FASTCALL IsEqual(const Neuron & rS) const // @construction
+		int    FASTCALL IsEq(const Neuron & rS) const // @construction
 		{
 #define FLD(f) if(f != rS.f) return 0;
 			FLD(first_con);
@@ -636,7 +636,7 @@ struct Fann2 {
 	// Descr: A single layer in the neural network.
 	// 
 	struct Layer {
-		int    FASTCALL IsEqual(const Layer & rS) const // @construction
+		int    FASTCALL IsEq(const Layer & rS) const // @construction
 		{
 			const uint nn = (uint)(last_neuron - first_neuron);
 			const uint nn_s = (uint)(rS.last_neuron - rS.first_neuron);
@@ -644,7 +644,7 @@ struct Fann2 {
 				return 0;
 			else {
 				for(uint i = 0; i < nn; i++) {
-					if(!first_neuron[i].IsEqual(rS.first_neuron[i]))
+					if(!first_neuron[i].IsEq(rS.first_neuron[i]))
 						return 0;
 				}
 			}
@@ -657,7 +657,7 @@ struct Fann2 {
 		Neuron * last_neuron; // A pointer to the neuron past the last neuron in the layer the number of neurons is last_neuron - first_neuron 
 	};
 	
-	int    FASTCALL IsEqual(const Fann2 & rS) const; // @construction
+	int    FASTCALL IsEq(const Fann2 & rS) const; // @construction
 
 	enum fann_errno_enum errno_f; // The type of error that last occured. 
 	FILE * error_log;         // Where to log error messages. 
