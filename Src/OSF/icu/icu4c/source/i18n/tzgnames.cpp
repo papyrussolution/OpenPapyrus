@@ -1,12 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2011-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
-
+	Copyright (C) 2011-2016, International Business Machines Corporation and others. All Rights Reserved.
+*/
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -104,10 +100,9 @@ typedef struct GMatchInfo {
 } ZMatchInfo;
 
 U_CDECL_END
-
-// ---------------------------------------------------
+//
 // The class stores time zone generic name match information
-// ---------------------------------------------------
+//
 class TimeZoneGenericNameMatchInfo : public UMemory {
 public:
 	TimeZoneGenericNameMatchInfo(UVector* matches);
@@ -165,10 +160,9 @@ UnicodeString &TimeZoneGenericNameMatchInfo::getTimeZoneID(int32_t index, Unicod
 	}
 	return tzID;
 }
-
-// ---------------------------------------------------
+//
 // GNameSearchHandler
-// ---------------------------------------------------
+//
 class GNameSearchHandler : public TextTrieMapSearchResultHandler {
 public:
 	GNameSearchHandler(uint32_t types);
@@ -257,75 +251,47 @@ class TZGNCore : public UMemory {
 public:
 	TZGNCore(const Locale & locale, UErrorCode & status);
 	virtual ~TZGNCore();
-
-	UnicodeString & getDisplayName(const TimeZone& tz, UTimeZoneGenericNameType type,
-	    UDate date, UnicodeString & name) const;
-
+	UnicodeString & getDisplayName(const TimeZone& tz, UTimeZoneGenericNameType type, UDate date, UnicodeString & name) const;
 	UnicodeString & getGenericLocationName(const UnicodeString & tzCanonicalID, UnicodeString & name) const;
-
-	int32_t findBestMatch(const UnicodeString & text, int32_t start, uint32_t types,
-	    UnicodeString & tzID, UTimeZoneFormatTimeType& timeType, UErrorCode & status) const;
-
+	int32_t findBestMatch(const UnicodeString & text, int32_t start, uint32_t types, UnicodeString & tzID, UTimeZoneFormatTimeType& timeType, UErrorCode & status) const;
 private:
 	Locale fLocale;
 	const TimeZoneNames* fTimeZoneNames;
 	UHashtable * fLocationNamesMap;
 	UHashtable * fPartialLocationNamesMap;
-
 	SimpleFormatter fRegionFormat;
 	SimpleFormatter fFallbackFormat;
-
 	LocaleDisplayNames* fLocaleDisplayNames;
 	ZNStringPool fStringPool;
-
 	TextTrieMap fGNamesTrie;
 	bool fGNamesTrieFullyLoaded;
-
 	char fTargetRegion[ULOC_COUNTRY_CAPACITY];
 
 	void initialize(const Locale & locale, UErrorCode & status);
 	void cleanup();
-
 	void loadStrings(const UnicodeString & tzCanonicalID);
-
 	const UChar * getGenericLocationName(const UnicodeString & tzCanonicalID);
-
-	UnicodeString & formatGenericNonLocationName(const TimeZone& tz, UTimeZoneGenericNameType type,
-	    UDate date, UnicodeString & name) const;
-
-	UnicodeString & getPartialLocationName(const UnicodeString & tzCanonicalID,
-	    const UnicodeString & mzID, bool isLong, const UnicodeString & mzDisplayName,
-	    UnicodeString & name) const;
-
-	const UChar * getPartialLocationName(const UnicodeString & tzCanonicalID,
-	    const UnicodeString & mzID, bool isLong, const UnicodeString & mzDisplayName);
-
+	UnicodeString & formatGenericNonLocationName(const TimeZone& tz, UTimeZoneGenericNameType type, UDate date, UnicodeString & name) const;
+	UnicodeString & getPartialLocationName(const UnicodeString & tzCanonicalID, const UnicodeString & mzID, bool isLong, const UnicodeString & mzDisplayName, UnicodeString & name) const;
+	const UChar * getPartialLocationName(const UnicodeString & tzCanonicalID, const UnicodeString & mzID, bool isLong, const UnicodeString & mzDisplayName);
 	TimeZoneGenericNameMatchInfo* findLocal(const UnicodeString & text, int32_t start, uint32_t types, UErrorCode & status) const;
-
-	TimeZoneNames::MatchInfoCollection* findTimeZoneNames(const UnicodeString & text, int32_t start, uint32_t types,
-	    UErrorCode & status) const;
+	TimeZoneNames::MatchInfoCollection* findTimeZoneNames(const UnicodeString & text, int32_t start, uint32_t types, UErrorCode & status) const;
 };
-
-// ---------------------------------------------------
+//
 // TZGNCore - core implementation of TimeZoneGenericNames
 //
 // TimeZoneGenericNames is parallel to TimeZoneNames,
 // but handles run-time generated time zone names.
 // This is the main part of this module.
-// ---------------------------------------------------
-TZGNCore::TZGNCore(const Locale & locale, UErrorCode & status)
-	: fLocale(locale),
-	fTimeZoneNames(NULL),
-	fLocationNamesMap(NULL),
-	fPartialLocationNamesMap(NULL),
-	fLocaleDisplayNames(NULL),
-	fStringPool(status),
-	fGNamesTrie(TRUE, deleteGNameInfo),
-	fGNamesTrieFullyLoaded(FALSE) {
+//
+TZGNCore::TZGNCore(const Locale & locale, UErrorCode & status) : fLocale(locale), fTimeZoneNames(NULL), fLocationNamesMap(NULL),
+	fPartialLocationNamesMap(NULL), fLocaleDisplayNames(NULL), fStringPool(status), fGNamesTrie(TRUE, deleteGNameInfo), fGNamesTrieFullyLoaded(FALSE) 
+{
 	initialize(locale, status);
 }
 
-TZGNCore::~TZGNCore() {
+TZGNCore::~TZGNCore() 
+{
 	cleanup();
 }
 

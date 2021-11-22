@@ -1,15 +1,9 @@
+// DCFMTSYM.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File DCFMTSYM.CPP
- *
+	Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   02/19/97    aliu        Converted from java.
  *   03/18/97    clhuang     Implemented with C++ APIs.
@@ -27,11 +21,9 @@
 #include "locbased.h"
 #include "uresimp.h"
 #include "ureslocs.h"
-
-// *****************************************************************************
+//
 // class DecimalFormatSymbols
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
     UOBJECT_DEFINE_RTTI_IMPLEMENTATION(DecimalFormatSymbols)
@@ -82,20 +74,18 @@ static const char * gNumberElementKeys[DecimalFormatSymbols::kFormatSymbolCount]
 	"superscriptingExponent", /* Multiplication (x) symbol for exponents */
 	"approximatelySign" /* Approximately sign symbol */
 };
-
-// -------------------------------------
+//
 // Initializes this with the decimal format symbols in the default locale.
-
+//
 DecimalFormatSymbols::DecimalFormatSymbols(UErrorCode & status)
 	: UObject(), locale(), currPattern(NULL) {
 	initialize(locale, status, TRUE);
 }
 
-// -------------------------------------
+//
 // Initializes this with the decimal format symbols in the desired locale.
-
-DecimalFormatSymbols::DecimalFormatSymbols(const Locale & loc, UErrorCode & status)
-	: UObject(), locale(loc), currPattern(NULL) {
+//
+DecimalFormatSymbols::DecimalFormatSymbols(const Locale & loc, UErrorCode & status) : UObject(), locale(loc), currPattern(NULL) {
 	initialize(locale, status);
 }
 
@@ -121,24 +111,17 @@ DecimalFormatSymbols* DecimalFormatSymbols::createWithLastResortData(UErrorCode 
 	return sym;
 }
 
-// -------------------------------------
-
 DecimalFormatSymbols::~DecimalFormatSymbols()
 {
 }
 
-// -------------------------------------
-// copy constructor
-
-DecimalFormatSymbols::DecimalFormatSymbols(const DecimalFormatSymbols &source)
-	: UObject(source)
+DecimalFormatSymbols::DecimalFormatSymbols(const DecimalFormatSymbols &source) : UObject(source)
 {
 	*this = source;
 }
-
-// -------------------------------------
+//
 // assignment operator
-
+//
 DecimalFormatSymbols&DecimalFormatSymbols::operator = (const DecimalFormatSymbols& rhs)
 {
 	if(this != &rhs) {
@@ -160,8 +143,6 @@ DecimalFormatSymbols&DecimalFormatSymbols::operator = (const DecimalFormatSymbol
 	}
 	return *this;
 }
-
-// -------------------------------------
 
 bool DecimalFormatSymbols::operator==(const DecimalFormatSymbols& that) const
 {
@@ -192,8 +173,6 @@ bool DecimalFormatSymbols::operator==(const DecimalFormatSymbols& that) const
 	       uprv_strcmp(validLocale, that.validLocale) == 0 &&
 	       uprv_strcmp(actualLocale, that.actualLocale) == 0;
 }
-
-// -------------------------------------
 
 namespace {
 /**

@@ -7,8 +7,7 @@
 #pragma once
 #ifndef MIMALLOC_NEW_DELETE_H
 #define MIMALLOC_NEW_DELETE_H
-
-// ----------------------------------------------------------------------------
+//
 // This header provides convenient overrides for the new and
 // delete operations in C++.
 //
@@ -17,7 +16,7 @@
 // On Windows, or when linking dynamically with mimalloc, these
 // can be more performant than the standard new-delete operations.
 // See <https://en.cppreference.com/w/cpp/memory/new/operator_new>
-// ---------------------------------------------------------------------------
+//
 #if defined(__cplusplus)
 	#include <new>
 	//#include <mimalloc.h>

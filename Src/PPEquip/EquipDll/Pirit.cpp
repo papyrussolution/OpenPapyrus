@@ -136,7 +136,7 @@ struct CheckStruct {
 		ChZnGTIN.Z(); // @v10.7.2
 		ChZnSerial.Z(); // @v10.7.2
 		ChZnPartN.Z(); // @v10.7.8
-		ChZnCid.Z(); // @v10.8.12
+		ChZnSid.Z(); // @v10.8.12
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
@@ -179,7 +179,7 @@ struct CheckStruct {
 	SString ChZnGTIN;    // @v10.7.2
 	SString ChZnSerial;  // @v10.7.2
 	SString ChZnPartN;   // @v10.7.8
-	SString ChZnCid;     // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString ChZnSid;     // @v10.8.12 Ид предприятия для передачи в честный знак
 };
 
 class PiritEquip {
@@ -1194,10 +1194,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.PaymBank = param_val.ToReal();
 			if(pb.Get("PAYMCCRD", param_val) > 0) // @v10.4.6
 				Check.PaymCCrdCard = param_val.ToReal();
-			// @v10.8.12 {
-			if(pb.Get("CHZNCID", param_val) > 0)
-				Check.ChZnCid = param_val;
-			// } @v10.8.12
+			if(pb.Get("CHZNSID", param_val) > 0) // @v10.8.12
+				Check.ChZnSid = param_val;
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
@@ -1406,12 +1404,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.ChZnPartN = param_val;
 			if(pb.Get("CHZNPRODTYPE", param_val) > 0) // @v10.7.2
 				Check.ChZnProdType = param_val.ToLong();
-			// @v11.1.11 {
-			if(pb.Get("CHZNPPRESULT", param_val) > 0)
+			if(pb.Get("CHZNPPRESULT", param_val) > 0) // @v11.1.11
 				Check.ChZnPpResult = param_val.ToLong();
-			if(pb.Get("CHZNPPSTATUS", param_val) > 0) 
+			if(pb.Get("CHZNPPSTATUS", param_val) > 0) // @v11.1.11
 				Check.ChZnPpStatus = param_val.ToLong();
-			// } @v11.1.11
+			if(pb.Get("CHZNSID", param_val) > 0) // @v11.2.4
+				Check.ChZnSid = param_val;
 			if(pb.Get("VATRATE", param_val) > 0) {
 				_vat_rate = R2(param_val.ToReal());
 			}
@@ -2232,9 +2230,9 @@ int PiritEquip::RunCheck(int opertype)
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				// @v10.8.12 {
-				if(Check.ChZnCid.NotEmpty()) {
+				if(Check.ChZnSid.NotEmpty()) {
 					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
-					str.Z().Cat("sid").Cat(Check.ChZnCid).CatChar('&');
+					str.Z().Cat("sid").Cat(Check.ChZnSid).CatChar('&');
 					CreateStr(str, in_data); // Значение дополнительного реквизита пользователя
 					if(LogFileName.NotEmpty()) {
 						(out_data = "1084").CatDiv(':', 2).CatEq("mdlp", str);
@@ -2442,8 +2440,8 @@ int PiritEquip::RunCheck(int opertype)
 									// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
 									if(Check.ChZnProdType == 4) {
 										str.Z().CatEq("tm", "mdlp");
-										if(Check.ChZnCid.NotEmpty())
-											str.CatChar('&').CatEq("sid", Check.ChZnCid);
+										if(Check.ChZnSid.NotEmpty())
+											str.CatChar('&').CatEq("sid", Check.ChZnSid);
 										str.CatChar('&');
 									}
 									else

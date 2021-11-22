@@ -52,12 +52,10 @@ static icu::UInitOnce gServiceInitOnce = U_INITONCE_INITIALIZER;
 
 // INTERNAL - for cleanup
 U_CDECL_BEGIN
-static bool calendar_cleanup() {
+static bool calendar_cleanup() 
+{
 #if !UCONFIG_NO_SERVICE
-	if(gService) {
-		delete gService;
-		gService = NULL;
-	}
+	ZDELETE(gService);
 	gServiceInitOnce.reset();
 #endif
 	return TRUE;
@@ -65,15 +63,11 @@ static bool calendar_cleanup() {
 
 U_CDECL_END
 #endif
-
-// ------------------------------------------
 //
 // Registration
 //
-//-------------------------------------------
 //#define U_DEBUG_CALSVC 1
 //
-
 #if defined( U_DEBUG_CALSVC ) || defined (U_DEBUG_CAL)
 
 /**
@@ -187,7 +181,8 @@ typedef enum ECalType {
 
 U_NAMESPACE_BEGIN
 
-SharedCalendar::~SharedCalendar() {
+SharedCalendar::~SharedCalendar() 
+{
 	delete ptr;
 }
 
@@ -383,9 +378,6 @@ static Calendar * createStandardCalendar(ECalType calType, const Locale &loc, UE
 }
 
 #if !UCONFIG_NO_SERVICE
-
-// -------------------------------------
-
 /**
  * a Calendar Factory which creates the "basic" calendar types, that is, those
  * shipped with ICU.
@@ -496,11 +488,9 @@ protected:
 DefaultCalendarFactory::~DefaultCalendarFactory() {
 }
 
-// -------------------------------------
 class CalendarService : public ICULocaleService {
 public:
-	CalendarService()
-		: ICULocaleService(UNICODE_STRING_SIMPLE("Calendar"))
+	CalendarService() : ICULocaleService(UNICODE_STRING_SIMPLE("Calendar"))
 	{
 		UErrorCode status = U_ZERO_ERROR;
 		registerFactory(new DefaultCalendarFactory(), status);
@@ -550,22 +540,14 @@ public:
 #endif
 		return nc;
 	}
-
-	virtual bool isDefault() const override {
-		return countFactories() == 1;
-	}
+	virtual bool isDefault() const override { return countFactories() == 1; }
 };
 
-CalendarService::~CalendarService() {
+CalendarService::~CalendarService() 
+{
 }
 
-// -------------------------------------
-
-static inline bool isCalendarServiceUsed() {
-	return !gServiceInitOnce.isReset();
-}
-
-// -------------------------------------
+static inline bool isCalendarServiceUsed() { return !gServiceInitOnce.isReset(); }
 
 static void U_CALLCONV initCalendarService(UErrorCode & status)
 {
@@ -581,10 +563,8 @@ static void U_CALLCONV initCalendarService(UErrorCode & status)
 #ifdef U_DEBUG_CALSVC
 	fprintf(stderr, "Registering classes..\n");
 #endif
-
 	// Register all basic instances.
 	gService->registerFactory(new BasicCalendarFactory(), status);
-
 #ifdef U_DEBUG_CALSVC
 	fprintf(stderr, "Done..\n");
 #endif
@@ -593,8 +573,7 @@ static void U_CALLCONV initCalendarService(UErrorCode & status)
 #ifdef U_DEBUG_CALSVC
 		fprintf(stderr, "err (%s) registering classes, deleting service.....\n", u_errorName(status));
 #endif
-		delete gService;
-		gService = NULL;
+		ZDELETE(gService);
 	}
 }
 
@@ -614,8 +593,6 @@ bool Calendar::unregister(URegistryKey key, UErrorCode & status) {
 }
 
 #endif /* UCONFIG_NO_SERVICE */
-
-// -------------------------------------
 
 static const int32_t kCalendarLimits[UCAL_FIELD_COUNT][4] = {
 	//    Minimum  Greatest min      Least max   Greatest max
@@ -699,20 +676,9 @@ static const char gGregorian[] = "gregorian";
 // the Calendar is lenient, the fields are also renormalized to standard
 // ranges when they are regenerated.
 
-// -------------------------------------
-
-Calendar::Calendar(UErrorCode & success)
-	:   UObject(),
-	fIsTimeSet(FALSE),
-	fAreFieldsSet(FALSE),
-	fAreAllFieldsSet(FALSE),
-	fAreFieldsVirtuallySet(FALSE),
-	fNextStamp((int32_t)kMinimumUserStamp),
-	fTime(0),
-	fLenient(TRUE),
-	fZone(NULL),
-	fRepeatedWallTime(UCAL_WALLTIME_LAST),
-	fSkippedWallTime(UCAL_WALLTIME_LAST)
+Calendar::Calendar(UErrorCode & success) : UObject(), fIsTimeSet(FALSE), fAreFieldsSet(FALSE), fAreAllFieldsSet(FALSE),
+	fAreFieldsVirtuallySet(FALSE), fNextStamp((int32_t)kMinimumUserStamp), fTime(0), fLenient(TRUE),
+	fZone(NULL), fRepeatedWallTime(UCAL_WALLTIME_LAST), fSkippedWallTime(UCAL_WALLTIME_LAST)
 {
 	validLocale[0] = 0;
 	actualLocale[0] = 0;
@@ -727,20 +693,9 @@ Calendar::Calendar(UErrorCode & success)
 	setWeekData(Locale::getDefault(), NULL, success);
 }
 
-// -------------------------------------
-
-Calendar::Calendar(TimeZone* zone, const Locale & aLocale, UErrorCode & success)
-	:   UObject(),
-	fIsTimeSet(FALSE),
-	fAreFieldsSet(FALSE),
-	fAreAllFieldsSet(FALSE),
-	fAreFieldsVirtuallySet(FALSE),
-	fNextStamp((int32_t)kMinimumUserStamp),
-	fTime(0),
-	fLenient(TRUE),
-	fZone(NULL),
-	fRepeatedWallTime(UCAL_WALLTIME_LAST),
-	fSkippedWallTime(UCAL_WALLTIME_LAST)
+Calendar::Calendar(TimeZone* zone, const Locale & aLocale, UErrorCode & success) : UObject(), fIsTimeSet(FALSE), fAreFieldsSet(FALSE),
+	fAreAllFieldsSet(FALSE), fAreFieldsVirtuallySet(FALSE), fNextStamp((int32_t)kMinimumUserStamp), fTime(0), fLenient(TRUE),
+	fZone(NULL), fRepeatedWallTime(UCAL_WALLTIME_LAST), fSkippedWallTime(UCAL_WALLTIME_LAST)
 {
 	validLocale[0] = 0;
 	actualLocale[0] = 0;
@@ -762,20 +717,9 @@ Calendar::Calendar(TimeZone* zone, const Locale & aLocale, UErrorCode & success)
 	setWeekData(aLocale, NULL, success);
 }
 
-// -------------------------------------
-
-Calendar::Calendar(const TimeZone& zone, const Locale & aLocale, UErrorCode & success)
-	:   UObject(),
-	fIsTimeSet(FALSE),
-	fAreFieldsSet(FALSE),
-	fAreAllFieldsSet(FALSE),
-	fAreFieldsVirtuallySet(FALSE),
-	fNextStamp((int32_t)kMinimumUserStamp),
-	fTime(0),
-	fLenient(TRUE),
-	fZone(NULL),
-	fRepeatedWallTime(UCAL_WALLTIME_LAST),
-	fSkippedWallTime(UCAL_WALLTIME_LAST)
+Calendar::Calendar(const TimeZone& zone, const Locale & aLocale, UErrorCode & success) : UObject(), fIsTimeSet(FALSE),
+	fAreFieldsSet(FALSE), fAreAllFieldsSet(FALSE), fAreFieldsVirtuallySet(FALSE), fNextStamp((int32_t)kMinimumUserStamp),
+	fTime(0), fLenient(TRUE), fZone(NULL), fRepeatedWallTime(UCAL_WALLTIME_LAST), fSkippedWallTime(UCAL_WALLTIME_LAST)
 {
 	validLocale[0] = 0;
 	actualLocale[0] = 0;
@@ -790,21 +734,15 @@ Calendar::Calendar(const TimeZone& zone, const Locale & aLocale, UErrorCode & su
 	setWeekData(aLocale, NULL, success);
 }
 
-// -------------------------------------
-
 Calendar::~Calendar()
 {
 	delete fZone;
 }
 
-// -------------------------------------
-
 Calendar::Calendar(const Calendar &source) : UObject(source), fZone(NULL)
 {
 	*this = source;
 }
-
-// -------------------------------------
 
 Calendar & Calendar::operator = (const Calendar &right)
 {
@@ -820,11 +758,9 @@ Calendar & Calendar::operator = (const Calendar &right)
 		fLenient                 = right.fLenient;
 		fRepeatedWallTime        = right.fRepeatedWallTime;
 		fSkippedWallTime         = right.fSkippedWallTime;
-		delete fZone;
-		fZone = NULL;
-		if(right.fZone != NULL) {
-			fZone                = right.fZone->clone();
-		}
+		ZDELETE(fZone);
+		if(right.fZone)
+			fZone = right.fZone->clone();
 		fFirstDayOfWeek          = right.fFirstDayOfWeek;
 		fMinimalDaysInFirstWeek  = right.fMinimalDaysInFirstWeek;
 		fWeekendOnset            = right.fWeekendOnset;
@@ -841,32 +777,27 @@ Calendar & Calendar::operator = (const Calendar &right)
 	return *this;
 }
 
-// -------------------------------------
-
 Calendar* U_EXPORT2 Calendar::createInstance(UErrorCode & success)
 {
 	return createInstance(TimeZone::createDefault(), Locale::getDefault(), success);
 }
-
-// -------------------------------------
 
 Calendar* U_EXPORT2 Calendar::createInstance(const TimeZone& zone, UErrorCode & success)
 {
 	return createInstance(zone, Locale::getDefault(), success);
 }
 
-// -------------------------------------
-
 Calendar* U_EXPORT2 Calendar::createInstance(const Locale & aLocale, UErrorCode & success)
 {
 	return createInstance(TimeZone::forLocaleOrDefault(aLocale), aLocale, success);
 }
-
-// ------------------------------------- Adopting
-
+//
+// Adopting
+//
 // Note: this is the bottleneck that actually calls the service routines.
 
-Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode & success) {
+Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode & success) 
+{
 	if(U_FAILURE(success)) {
 		return NULL;
 	}
@@ -891,7 +822,6 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		}
 		return NULL;
 	}
-
 #if !UCONFIG_NO_SERVICE
 	const UnicodeString * str = dynamic_cast<const UnicodeString *>(u);
 	if(str != NULL) {
@@ -899,27 +829,21 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		// Create a Locale over this string
 		Locale l("");
 		LocaleUtility::initLocaleFromName(*str, l);
-
 #ifdef U_DEBUG_CALSVC
 		fprintf(stderr, "Calendar::createInstance(%s), looking up [%s]\n", aLocale.getName(), l.getName());
 #endif
-
 		Locale actualLoc2;
-		delete u;
-		u = NULL;
-
+		ZDELETE(u);
 		// Don't overwrite actualLoc, since the actual loc from this call
 		// may be something like "@calendar=gregorian" -- TODO investigate
 		// further...
 		c = (Calendar*)getCalendarService(success)->get(l, LocaleKey::KIND_ANY, &actualLoc2, success);
-
 		if(U_FAILURE(success) || !c) {
 			if(U_SUCCESS(success)) {
 				success = U_INTERNAL_PROGRAM_ERROR; // Propagate some err
 			}
 			return NULL;
 		}
-
 		str = dynamic_cast<const UnicodeString *>(c);
 		if(str != NULL) {
 			// recursed! Second lookup returned a UnicodeString.
@@ -988,8 +912,6 @@ Calendar* U_EXPORT2 Calendar::createInstance(TimeZone* zone, const Locale & aLoc
 	return c;
 }
 
-// -------------------------------------
-
 Calendar* U_EXPORT2 Calendar::createInstance(const TimeZone& zone, const Locale & aLocale, UErrorCode & success)
 {
 	Calendar* c = createInstance(aLocale, success);
@@ -998,8 +920,6 @@ Calendar* U_EXPORT2 Calendar::createInstance(const TimeZone& zone, const Locale 
 	}
 	return c;
 }
-
-// -------------------------------------
 
 void U_EXPORT2 Calendar::getCalendarTypeFromLocale(const Locale &aLocale,
     char * typeBuffer,
@@ -1041,38 +961,25 @@ bool Calendar::isEquivalentTo(const Calendar& other) const
 	       *fZone                  == *other.fZone;
 }
 
-// -------------------------------------
-
 bool Calendar::equals(const Calendar& when, UErrorCode & status) const
 {
-	return (this == &when ||
-	       getTime(status) == when.getTime(status));
+	return (this == &when || getTime(status) == when.getTime(status));
 }
-
-// -------------------------------------
 
 bool Calendar::before(const Calendar& when, UErrorCode & status) const
 {
-	return (this != &when &&
-	       getTimeInMillis(status) < when.getTimeInMillis(status));
+	return (this != &when && getTimeInMillis(status) < when.getTimeInMillis(status));
 }
-
-// -------------------------------------
 
 bool Calendar::after(const Calendar& when, UErrorCode & status) const
 {
-	return (this != &when &&
-	       getTimeInMillis(status) > when.getTimeInMillis(status));
+	return (this != &when && getTimeInMillis(status) > when.getTimeInMillis(status));
 }
-
-// -------------------------------------
 
 const Locale* U_EXPORT2 Calendar::getAvailableLocales(int32_t& count)
 {
 	return Locale::getAvailableLocales(count);
 }
-
-// -------------------------------------
 
 StringEnumeration * U_EXPORT2 Calendar::getKeywordValuesForLocale(const char * key,
     const Locale & locale, bool commonlyUsed, UErrorCode & status)
@@ -1091,15 +998,10 @@ StringEnumeration * U_EXPORT2 Calendar::getKeywordValuesForLocale(const char * k
 	return ustringenum;
 }
 
-// -------------------------------------
-
 UDate U_EXPORT2 Calendar::getNow()
 {
 	return uprv_getUTCtime(); // return as milliseconds
 }
-
-// -------------------------------------
-
 /**
  * Gets this Calendar's current time as a long.
  * @return the current time as UTC milliseconds from the epoch.
@@ -1108,19 +1010,14 @@ double Calendar::getTimeInMillis(UErrorCode & status) const
 {
 	if(U_FAILURE(status))
 		return 0.0;
-
 	if(!fIsTimeSet)
 		((Calendar*)this)->updateTime(status);
-
 	/* Test for buffer overflows */
 	if(U_FAILURE(status)) {
 		return 0.0;
 	}
 	return fTime;
 }
-
-// -------------------------------------
-
 /**
  * Sets this Calendar's current time from the given long value.
  * A status of U_ILLEGAL_ARGUMENT_ERROR is set when millis is
@@ -1162,8 +1059,6 @@ void Calendar::setTimeInMillis(double millis, UErrorCode & status) {
 	}
 }
 
-// -------------------------------------
-
 int32_t Calendar::get(UCalendarDateFields field, UErrorCode & status) const
 {
 	// field values are only computed when actually requested; for more on when computation
@@ -1172,8 +1067,6 @@ int32_t Calendar::get(UCalendarDateFields field, UErrorCode & status) const
 	if(U_SUCCESS(status)) ((Calendar*)this)->complete(status); // Cast away const
 	return U_SUCCESS(status) ? fFields[field] : 0;
 }
-
-// -------------------------------------
 
 void Calendar::set(UCalendarDateFields field, int32_t value)
 {
@@ -1191,16 +1084,12 @@ void Calendar::set(UCalendarDateFields field, int32_t value)
 	fIsTimeSet = fAreFieldsSet = fAreFieldsVirtuallySet = FALSE;
 }
 
-// -------------------------------------
-
 void Calendar::set(int32_t year, int32_t month, int32_t date)
 {
 	set(UCAL_YEAR, year);
 	set(UCAL_MONTH, month);
 	set(UCAL_DATE, date);
 }
-
-// -------------------------------------
 
 void Calendar::set(int32_t year, int32_t month, int32_t date, int32_t hour, int32_t minute)
 {
@@ -1210,8 +1099,6 @@ void Calendar::set(int32_t year, int32_t month, int32_t date, int32_t hour, int3
 	set(UCAL_HOUR_OF_DAY, hour);
 	set(UCAL_MINUTE, minute);
 }
-
-// -------------------------------------
 
 void Calendar::set(int32_t year, int32_t month, int32_t date, int32_t hour, int32_t minute, int32_t second)
 {
@@ -1223,12 +1110,13 @@ void Calendar::set(int32_t year, int32_t month, int32_t date, int32_t hour, int3
 	set(UCAL_SECOND, second);
 }
 
-// -------------------------------------
+// 
 // For now the full getRelatedYear implementation is here;
 // per #10752 move the non-default implementation to subclasses
 // (default implementation will do no year adjustment)
-
-static int32_t gregoYearFromIslamicStart(int32_t year) {
+//
+static int32_t gregoYearFromIslamicStart(int32_t year) 
+{
 	// ad hoc conversion, improve under #10752
 	// rough est for now, ok for grego 1846-2138,
 	// otherwise occasionally wrong (for 3% of years)
@@ -1291,13 +1179,13 @@ int32_t Calendar::getRelatedYear(UErrorCode & status) const
 	}
 	return year;
 }
-
-// -------------------------------------
+// 
 // For now the full setRelatedYear implementation is here;
 // per #10752 move the non-default implementation to subclasses
 // (default implementation will do no year adjustment)
-
-static int32_t firstIslamicStartYearFromGrego(int32_t year) {
+//
+static int32_t firstIslamicStartYearFromGrego(int32_t year) 
+{
 	// ad hoc conversion, improve under #10752
 	// rough est for now, ok for grego 1846-2138,
 	// otherwise occasionally wrong (for 3% of years)
@@ -1355,8 +1243,6 @@ void Calendar::setRelatedYear(int32_t year)
 	set(UCAL_EXTENDED_YEAR, year);
 }
 
-// -------------------------------------
-
 void Calendar::clear()
 {
 	for(int32_t i = 0; i<UCAL_FIELD_COUNT; ++i) {
@@ -1367,8 +1253,6 @@ void Calendar::clear()
 	fIsTimeSet = fAreFieldsSet = fAreAllFieldsSet = fAreFieldsVirtuallySet = FALSE;
 	// fTime is not 'cleared' - may be used if no fields are set.
 }
-
-// -------------------------------------
 
 void Calendar::clear(UCalendarDateFields field)
 {
@@ -1381,8 +1265,6 @@ void Calendar::clear(UCalendarDateFields field)
 	fIsSet[field]         = FALSE;// Remove later
 	fIsTimeSet = fAreFieldsSet = fAreAllFieldsSet = fAreFieldsVirtuallySet = FALSE;
 }
-
-// -------------------------------------
 
 bool Calendar::isSet(UCalendarDateFields field) const
 {
@@ -1399,8 +1281,6 @@ int32_t Calendar::newestStamp(UCalendarDateFields first, UCalendarDateFields las
 	}
 	return bestStamp;
 }
-
-// -------------------------------------
 
 void Calendar::complete(UErrorCode & status)
 {
@@ -1722,8 +1602,6 @@ void Calendar::handleComputeFields(int32_t /* julianDay */, UErrorCode & /* stat
 	internalSet(UCAL_ERA, era);
 	internalSet(UCAL_YEAR, eyear);
 }
-
-// -------------------------------------
 
 void Calendar::roll(EDateFields field, int32_t amount, UErrorCode & status)
 {
@@ -2079,7 +1957,6 @@ void Calendar::add(EDateFields field, int32_t amount, UErrorCode & status)
 	Calendar::add((UCalendarDateFields)field, amount, status);
 }
 
-// -------------------------------------
 void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & status)
 {
 	if(amount == 0) {
@@ -2264,12 +2141,13 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 	}
 }
 
-// -------------------------------------
-int32_t Calendar::fieldDifference(UDate when, EDateFields field, UErrorCode & status) {
+int32_t Calendar::fieldDifference(UDate when, EDateFields field, UErrorCode & status) 
+{
 	return fieldDifference(when, (UCalendarDateFields)field, status);
 }
 
-int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UErrorCode & ec) {
+int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UErrorCode & ec) 
+{
 	if(U_FAILURE(ec)) return 0;
 	int32_t min = 0;
 	double startMs = getTimeInMillis(ec);
@@ -2371,7 +2249,6 @@ int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UEr
 	// Set calendar to end point
 	setTimeInMillis(startMs, ec);
 	add(field, min, ec);
-
 	/* Test for buffer overflows */
 	if(U_FAILURE(ec)) {
 		return 0;
@@ -2379,36 +2256,28 @@ int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UEr
 	return min;
 }
 
-// -------------------------------------
-
 void Calendar::adoptTimeZone(TimeZone* zone)
 {
 	// Do nothing if passed-in zone is NULL
-	if(zone == NULL) return;
-
-	// fZone should always be non-null
-	delete fZone;
-	fZone = zone;
-
-	// if the zone changes, we need to recompute the time fields
-	fAreFieldsSet = FALSE;
+	if(zone) {
+		// fZone should always be non-null
+		delete fZone;
+		fZone = zone;
+		// if the zone changes, we need to recompute the time fields
+		fAreFieldsSet = FALSE;
+	}
 }
 
-// -------------------------------------
 void Calendar::setTimeZone(const TimeZone& zone)
 {
 	adoptTimeZone(zone.clone());
 }
-
-// -------------------------------------
 
 const TimeZone&Calendar::getTimeZone() const
 {
 	U_ASSERT(fZone != NULL);
 	return *fZone;
 }
-
-// -------------------------------------
 
 TimeZone* Calendar::orphanTimeZone()
 {
@@ -2423,21 +2292,15 @@ TimeZone* Calendar::orphanTimeZone()
 	return z;
 }
 
-// -------------------------------------
-
 void Calendar::setLenient(bool lenient)
 {
 	fLenient = lenient;
 }
 
-// -------------------------------------
-
 bool Calendar::isLenient() const
 {
 	return fLenient;
 }
-
-// -------------------------------------
 
 void Calendar::setRepeatedWallTimeOption(UCalendarWallTimeOption option)
 {
@@ -2446,39 +2309,28 @@ void Calendar::setRepeatedWallTimeOption(UCalendarWallTimeOption option)
 	}
 }
 
-// -------------------------------------
-
 UCalendarWallTimeOption Calendar::getRepeatedWallTimeOption(void) const
 {
 	return fRepeatedWallTime;
 }
-
-// -------------------------------------
 
 void Calendar::setSkippedWallTimeOption(UCalendarWallTimeOption option)
 {
 	fSkippedWallTime = option;
 }
 
-// -------------------------------------
-
 UCalendarWallTimeOption Calendar::getSkippedWallTimeOption(void) const
 {
 	return fSkippedWallTime;
 }
 
-// -------------------------------------
-
 void Calendar::setFirstDayOfWeek(UCalendarDaysOfWeek value)
 {
-	if(fFirstDayOfWeek != value &&
-	    value >= UCAL_SUNDAY && value <= UCAL_SATURDAY) {
+	if(fFirstDayOfWeek != value && value >= UCAL_SUNDAY && value <= UCAL_SATURDAY) {
 		fFirstDayOfWeek = value;
 		fAreFieldsSet = FALSE;
 	}
 }
-
-// -------------------------------------
 
 Calendar::EDaysOfWeek Calendar::getFirstDayOfWeek() const
 {
@@ -2489,8 +2341,6 @@ UCalendarDaysOfWeek Calendar::getFirstDayOfWeek(UErrorCode & /*status*/) const
 {
 	return fFirstDayOfWeek;
 }
-
-// -------------------------------------
 
 void Calendar::setMinimalDaysInFirstWeek(uint8_t value)
 {
@@ -2509,16 +2359,13 @@ void Calendar::setMinimalDaysInFirstWeek(uint8_t value)
 	}
 }
 
-// -------------------------------------
-
 uint8_t Calendar::getMinimalDaysInFirstWeek() const
 {
 	return fMinimalDaysInFirstWeek;
 }
-
-// -------------------------------------
+//
 // weekend functions, just dummy implementations for now (for API freeze)
-
+//
 UCalendarWeekdayType Calendar::getDayOfWeekType(UCalendarDaysOfWeek dayOfWeek, UErrorCode & status) const
 {
 	if(U_FAILURE(status)) {
@@ -2619,57 +2466,18 @@ bool Calendar::isWeekend(void) const
 	return FALSE;
 }
 
-// ------------------------------------- limits
+int32_t Calendar::getMinimum(EDateFields field) const { return getLimit((UCalendarDateFields)field, UCAL_LIMIT_MINIMUM); }
+int32_t Calendar::getMinimum(UCalendarDateFields field) const { return getLimit(field, UCAL_LIMIT_MINIMUM); }
+int32_t Calendar::getMaximum(EDateFields field) const { return getLimit((UCalendarDateFields)field, UCAL_LIMIT_MAXIMUM); }
+int32_t Calendar::getMaximum(UCalendarDateFields field) const { return getLimit(field, UCAL_LIMIT_MAXIMUM); }
+int32_t Calendar::getGreatestMinimum(EDateFields field) const { return getLimit((UCalendarDateFields)field, UCAL_LIMIT_GREATEST_MINIMUM); }
+int32_t Calendar::getGreatestMinimum(UCalendarDateFields field) const { return getLimit(field, UCAL_LIMIT_GREATEST_MINIMUM); }
+int32_t Calendar::getLeastMaximum(EDateFields field) const { return getLimit((UCalendarDateFields)field, UCAL_LIMIT_LEAST_MAXIMUM); }
+int32_t Calendar::getLeastMaximum(UCalendarDateFields field) const { return getLimit(field, UCAL_LIMIT_LEAST_MAXIMUM); }
+int32_t Calendar::getActualMinimum(EDateFields field, UErrorCode & status) const { return getActualMinimum((UCalendarDateFields)field, status); }
 
-int32_t Calendar::getMinimum(EDateFields field) const {
-	return getLimit((UCalendarDateFields)field, UCAL_LIMIT_MINIMUM);
-}
-
-int32_t Calendar::getMinimum(UCalendarDateFields field) const
+int32_t Calendar::getLimit(UCalendarDateFields field, ELimitType limitType) const 
 {
-	return getLimit(field, UCAL_LIMIT_MINIMUM);
-}
-
-// -------------------------------------
-int32_t Calendar::getMaximum(EDateFields field) const
-{
-	return getLimit((UCalendarDateFields)field, UCAL_LIMIT_MAXIMUM);
-}
-
-int32_t Calendar::getMaximum(UCalendarDateFields field) const
-{
-	return getLimit(field, UCAL_LIMIT_MAXIMUM);
-}
-
-// -------------------------------------
-int32_t Calendar::getGreatestMinimum(EDateFields field) const
-{
-	return getLimit((UCalendarDateFields)field, UCAL_LIMIT_GREATEST_MINIMUM);
-}
-
-int32_t Calendar::getGreatestMinimum(UCalendarDateFields field) const
-{
-	return getLimit(field, UCAL_LIMIT_GREATEST_MINIMUM);
-}
-
-// -------------------------------------
-int32_t Calendar::getLeastMaximum(EDateFields field) const
-{
-	return getLimit((UCalendarDateFields)field, UCAL_LIMIT_LEAST_MAXIMUM);
-}
-
-int32_t Calendar::getLeastMaximum(UCalendarDateFields field) const
-{
-	return getLimit(field, UCAL_LIMIT_LEAST_MAXIMUM);
-}
-
-// -------------------------------------
-int32_t Calendar::getActualMinimum(EDateFields field, UErrorCode & status) const
-{
-	return getActualMinimum((UCalendarDateFields)field, status);
-}
-
-int32_t Calendar::getLimit(UCalendarDateFields field, ELimitType limitType) const {
 	switch(field) {
 		case UCAL_DAY_OF_WEEK:
 		case UCAL_AM_PM:
@@ -2755,9 +2563,6 @@ int32_t Calendar::getActualMinimum(UCalendarDateFields field, UErrorCode & statu
 	}
 	return result;
 }
-
-// -------------------------------------
-
 /**
  * Ensure that each field is within its valid range by calling {@link
  * #validateField(int)} on each field that has been set.  This method
@@ -2765,7 +2570,8 @@ int32_t Calendar::getActualMinimum(UCalendarDateFields field, UErrorCode & statu
  * @see #isLenient
  * @see #validateField(int)
  */
-void Calendar::validateFields(UErrorCode & status) {
+void Calendar::validateFields(UErrorCode & status) 
+{
 	for(int32_t field = 0; U_SUCCESS(status) && (field < UCAL_FIELD_COUNT); field++) {
 		if(fStamp[field] >= kMinimumUserStamp) {
 			validateField((UCalendarDateFields)field, status);
@@ -3214,42 +3020,31 @@ int32_t Calendar::computeJulianDay()
 	return handleComputeJulianDay(bestField);
 }
 
-// -------------------------------------------
-
-int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)  {
-	bool useMonth = (bestField == UCAL_DAY_OF_MONTH ||
-	    bestField == UCAL_WEEK_OF_MONTH ||
-	    bestField == UCAL_DAY_OF_WEEK_IN_MONTH);
+int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)  
+{
+	bool useMonth = oneof3(bestField, UCAL_DAY_OF_MONTH, UCAL_WEEK_OF_MONTH, UCAL_DAY_OF_WEEK_IN_MONTH);
 	int32_t year;
-
 	if(bestField == UCAL_WEEK_OF_YEAR && newerField(UCAL_YEAR_WOY, UCAL_YEAR) == UCAL_YEAR_WOY) {
 		year = internalGet(UCAL_YEAR_WOY);
 	}
 	else {
 		year = handleGetExtendedYear();
 	}
-
 	internalSet(UCAL_EXTENDED_YEAR, year);
-
 #if defined (U_DEBUG_CAL)
 	fprintf(stderr, "%s:%d: bestField= %s - y=%d\n", __FILE__, __LINE__, fldName(bestField), year);
 #endif
-
 	// Get the Julian day of the day BEFORE the start of this year.
 	// If useMonth is true, get the day before the start of the month.
-
 	// give calendar subclass a chance to have a default 'first' month
 	int32_t month;
-
 	if(isSet(UCAL_MONTH)) {
 		month = internalGet(UCAL_MONTH);
 	}
 	else {
 		month = getDefaultMonthInYear(year);
 	}
-
 	int32_t julianDay = handleComputeMonthStart(year, useMonth ? month : 0, useMonth);
-
 	if(bestField == UCAL_DAY_OF_MONTH) {
 		// give calendar subclass a chance to have a default 'first' dom
 		int32_t dayOfMonth;
@@ -3320,23 +3115,17 @@ int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)  {
 #if defined (U_DEBUG_CAL)
 		fprintf(stderr, "%s:%d - bf= %s\n", __FILE__, __LINE__, fldName(bestField));
 #endif
-
 		if(bestField == UCAL_WEEK_OF_YEAR) { // ------------------------------------- WOY -------------
 			if(!isSet(UCAL_YEAR_WOY) || // YWOY not set at all or
 			    ( (resolveFields(kYearPrecedence) != UCAL_YEAR_WOY) // YWOY doesn't have precedence
-			  && (fStamp[UCAL_YEAR_WOY]!=kInternallySet) ) ) { // (excluding where all fields are
-			                                                     // internally set - then YWOY is used)
+			  && (fStamp[UCAL_YEAR_WOY]!=kInternallySet) ) ) { // (excluding where all fields are internally set - then YWOY is used)
 				// need to be sure to stay in 'real' year.
 				int32_t woy = internalGet(bestField);
-
-				int32_t nextJulianDay = handleComputeMonthStart(year+1, 0, FALSE); // jd of day before
-				                                                                   // jan 1
+				int32_t nextJulianDay = handleComputeMonthStart(year+1, 0, FALSE); // jd of day before jan 1
 				int32_t nextFirst = julianDayToDayOfWeek(nextJulianDay + 1) - firstDayOfWeek;
-
 				if(nextFirst < 0) { // 0..6 ldow of Jan 1
 					nextFirst += 7;
 				}
-
 				if(woy==1) { // FIRST WEEK ---------------------------------
 #if defined (U_DEBUG_CAL)
 					fprintf(stderr, "%s:%d - woy=%d, yp=%d, nj(%d)=%d, nf=%d", __FILE__, __LINE__,
@@ -3666,13 +3455,11 @@ int32_t Calendar::getActualMaximum(UCalendarDateFields field, UErrorCode & statu
 void Calendar::prepareGetActual(UCalendarDateFields field, bool isMinimum, UErrorCode & status)
 {
 	set(UCAL_MILLISECONDS_IN_DAY, 0);
-
 	switch(field) {
 		case UCAL_YEAR:
 		case UCAL_EXTENDED_YEAR:
 		    set(UCAL_DAY_OF_YEAR, getGreatestMinimum(UCAL_DAY_OF_YEAR));
 		    break;
-
 		case UCAL_YEAR_WOY:
 		    set(UCAL_WEEK_OF_YEAR, getGreatestMinimum(UCAL_WEEK_OF_YEAR));
 		    U_FALLTHROUGH;
@@ -3789,12 +3576,10 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 	return result;
 }
 
-// -------------------------------------
-
 void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErrorCode & status)
 {
-	if(U_FAILURE(status)) return;
-
+	if(U_FAILURE(status)) 
+		return;
 	fFirstDayOfWeek = UCAL_SUNDAY;
 	fMinimalDaysInFirstWeek = 1;
 	fWeekendOnset = UCAL_SATURDAY;
@@ -3896,7 +3681,6 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	ures_close(weekData);
 	ures_close(rb);
 }
-
 /**
  * Recompute the time and update the status fields isTimeSet
  * and areFieldsSet.  Callers should check isTimeSet and only
@@ -3907,13 +3691,11 @@ void Calendar::updateTime(UErrorCode & status)
 	computeTime(status);
 	if(U_FAILURE(status))
 		return;
-
 	// If we are lenient, we need to recompute the fields to normalize
 	// the values.  Also, if we haven't set all the fields yet (i.e.,
 	// in a newly-created object), we need to fill in the fields. [LIU]
 	if(isLenient() || !fAreAllFieldsSet)
 		fAreFieldsSet = FALSE;
-
 	fIsTimeSet = TRUE;
 	fAreFieldsVirtuallySet = FALSE;
 }
@@ -3928,13 +3710,12 @@ const char * Calendar::getLocaleID(ULocDataLocaleType type, UErrorCode & status)
 	return locBased.getLocaleID(type, status);
 }
 
-void Calendar::recalculateStamp() {
+void Calendar::recalculateStamp() 
+{
 	int32_t index;
 	int32_t currentValue;
 	int32_t j, i;
-
 	fNextStamp = 1;
-
 	for(j = 0; j < UCAL_FIELD_COUNT; j++) {
 		currentValue = STAMP_MAX;
 		index = -1;
@@ -3944,7 +3725,6 @@ void Calendar::recalculateStamp() {
 				index = i;
 			}
 		}
-
 		if(index >= 0) {
 			fStamp[index] = ++fNextStamp;
 		}
@@ -3961,11 +3741,10 @@ void Calendar::internalSet(EDateFields field, int32_t value)
 	internalSet((UCalendarDateFields)field, value);
 }
 
-BasicTimeZone* Calendar::getBasicTimeZone() const {
-	if(dynamic_cast<const OlsonTimeZone *>(fZone) != NULL
-	 || dynamic_cast<const SimpleTimeZone *>(fZone) != NULL
-	 || dynamic_cast<const RuleBasedTimeZone *>(fZone) != NULL
-	 || dynamic_cast<const VTimeZone *>(fZone) != NULL) {
+BasicTimeZone* Calendar::getBasicTimeZone() const 
+{
+	if(dynamic_cast<const OlsonTimeZone *>(fZone) != NULL || dynamic_cast<const SimpleTimeZone *>(fZone) != NULL || 
+		dynamic_cast<const RuleBasedTimeZone *>(fZone) != NULL || dynamic_cast<const VTimeZone *>(fZone) != NULL) {
 		return (BasicTimeZone*)fZone;
 	}
 	return NULL;
@@ -3974,5 +3753,3 @@ BasicTimeZone* Calendar::getBasicTimeZone() const {
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

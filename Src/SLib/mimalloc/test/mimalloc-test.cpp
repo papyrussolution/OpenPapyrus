@@ -459,9 +459,9 @@ int MiMalloc_Test03()
 		}
 	};
 	mi_option_disable(mi_option_verbose);
-	// ---------------------------------------------------
+	//
 	// Malloc
-	// ---------------------------------------------------
+	//
 	CHECK_BODY("malloc-zero", { void * p = mi_malloc(0); mi_free(p); });
 	CHECK_BODY("malloc-nomem1", { result = (mi_malloc(SIZE_MAX/2) == NULL); });
 	CHECK_BODY("malloc-null", { mi_free(NULL); });
@@ -470,9 +470,9 @@ int MiMalloc_Test03()
 		result = (mi_calloc((size_t)&mi_calloc, SIZE_MAX/1000) == NULL);
 	});
 	CHECK_BODY("calloc0", { result = (mi_usable_size(mi_calloc(0, 1000)) <= 16); });
-	// ---------------------------------------------------
+	//
 	// Extended
-	// ---------------------------------------------------
+	//
 	CHECK_BODY("posix_memalign1", {
 		void * p = &p;
 		int err = mi_posix_memalign(&p, sizeof(void *), 32);
@@ -500,10 +500,9 @@ int MiMalloc_Test03()
 		int err = mi_posix_memalign(&p, sizeof(void *), SIZE_MAX);
 		result = (err==ENOMEM && p==&p);
 	});
-
-	// ---------------------------------------------------
+	//
 	// Aligned API
-	// ---------------------------------------------------
+	//
 	CHECK_BODY("malloc-aligned1", {
 		void * p = mi_malloc_aligned(32, 32); result = (p != NULL && (uintptr_t)(p) % 32 == 0); mi_free(p);
 	});
@@ -545,18 +544,15 @@ int MiMalloc_Test03()
 		}
 		result = ok;
 	});
-
-	// ---------------------------------------------------
+	//
 	// Heaps
-	// ---------------------------------------------------
+	//
 	CHECK("heap_destroy", InnerBlock::test_heap1());
 	CHECK("heap_delete", InnerBlock::test_heap2());
-
 	//mi_stats_print(NULL);
-
-	// ---------------------------------------------------
+	//
 	// various
-	// ---------------------------------------------------
+	//
 	CHECK_BODY("realpath", {
 		char * s = mi_realpath(".", NULL);
 		// printf("realpath: %s\n",s);

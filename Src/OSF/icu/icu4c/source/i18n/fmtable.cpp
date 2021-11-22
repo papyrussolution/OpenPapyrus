@@ -1,18 +1,11 @@
+// FMTABLE.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File FMTABLE.CPP
- *
+ * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   03/25/97    clhuang     Initial Implementation.
- ********************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -23,11 +16,9 @@
 #include "unicode/uformattable.h"
 #include "fmtableimp.h"
 #include "number_decimalquantity.h"
-
-// *****************************************************************************
+//
 // class Formattable
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
     UOBJECT_DEFINE_RTTI_IMPLEMENTATION(Formattable)
@@ -100,75 +91,68 @@ void Formattable::init() {
 	fBogus.setToBogus();
 }
 
-// -------------------------------------
+//
 // default constructor.
 // Creates a formattable object with a long value 0.
-
-Formattable::Formattable() {
+//
+Formattable::Formattable() 
+{
 	init();
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with a Date instance.
-
+//
 Formattable::Formattable(UDate date, ISDATE /*isDate*/)
 {
 	init();
 	fType = kDate;
 	fValue.fDate = date;
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with a double value.
-
+//
 Formattable::Formattable(double value)
 {
 	init();
 	fType = kDouble;
 	fValue.fDouble = value;
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with an int32_t value.
-
+//
 Formattable::Formattable(int32_t value)
 {
 	init();
 	fValue.fInt64 = value;
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with an int64_t value.
-
+//
 Formattable::Formattable(int64_t value)
 {
 	init();
 	fType = kInt64;
 	fValue.fInt64 = value;
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with a decimal number value from a string.
-
+//
 Formattable::Formattable(StringPiece number, UErrorCode & status) {
 	init();
 	setDecimalNumber(number, status);
 }
-
-// -------------------------------------
+//
 // Creates a formattable object with a UnicodeString instance.
-
+//
 Formattable::Formattable(const UnicodeString & stringToCopy)
 {
 	init();
 	fType = kString;
 	fValue.fString = new UnicodeString(stringToCopy);
 }
-
-// -------------------------------------
-// Creates a formattable object with a UnicodeString * value.
-// (adopting semantics)
-
+//
+// Creates a formattable object with a UnicodeString * value. (adopting semantics)
+//
 Formattable::Formattable(UnicodeString * stringToAdopt)
 {
 	init();
@@ -183,41 +167,32 @@ Formattable::Formattable(UObject* objectToAdopt)
 	fValue.fObject = objectToAdopt;
 }
 
-// -------------------------------------
-
-Formattable::Formattable(const Formattable* arrayToCopy, int32_t count)
-	:   UObject(), fType(kArray)
+Formattable::Formattable(const Formattable* arrayToCopy, int32_t count) : UObject(), fType(kArray)
 {
 	init();
 	fType = kArray;
 	fValue.fArrayAndCount.fArray = createArrayCopy(arrayToCopy, count);
 	fValue.fArrayAndCount.fCount = count;
 }
-
-// -------------------------------------
+//
 // copy constructor
-
-Formattable::Formattable(const Formattable &source)
-	:  UObject(*this)
+//
+Formattable::Formattable(const Formattable &source) :  UObject(*this)
 {
 	init();
 	*this = source;
 }
-
-// -------------------------------------
+//
 // assignment operator
-
-Formattable&
-Formattable::operator = (const Formattable &source)
+//
+Formattable& Formattable::operator = (const Formattable &source)
 {
 	if(this != &source) {
 		// Disposes the current formattable value/setting.
 		dispose();
-
 		// Sets the correct data type for this value.
 		fType = source.fType;
-		switch(fType)
-		{
+		switch(fType) {
 			case kArray:
 			    // Sets each element in the array one by one and records the array count.
 			    fValue.fArrayAndCount.fCount = source.fValue.fArrayAndCount.fCount;
@@ -261,18 +236,12 @@ Formattable::operator = (const Formattable &source)
 	return *this;
 }
 
-// -------------------------------------
-
-bool
-Formattable::operator==(const Formattable &that) const
+bool Formattable::operator==(const Formattable &that) const
 {
 	int32_t i;
-
 	if(this == &that) return true;
-
 	// Returns false if the data types are different.
 	if(fType != that.fType) return false;
-
 	// Compares the actual data values.
 	bool equal = true;
 	switch(fType) {
@@ -316,14 +285,10 @@ Formattable::operator==(const Formattable &that) const
 	return equal;
 }
 
-// -------------------------------------
-
 Formattable::~Formattable()
 {
 	dispose();
 }
-
-// -------------------------------------
 
 void Formattable::dispose()
 {
@@ -341,29 +306,20 @@ void Formattable::dispose()
 		default:
 		    break;
 	}
-
 	fType = kLong;
 	fValue.fInt64 = 0;
-
-	delete fDecimalStr;
-	fDecimalStr = NULL;
-
-	delete fDecimalQuantity;
-	fDecimalQuantity = NULL;
+	ZDELETE(fDecimalStr);
+	ZDELETE(fDecimalQuantity);
 }
 
-Formattable * Formattable::clone() const {
-	return new Formattable(*this);
-}
-
-// -------------------------------------
+Formattable * Formattable::clone() const { return new Formattable(*this); }
+//
 // Gets the data type of this Formattable object.
-Formattable::Type Formattable::getType() const
-{
-	return fType;
-}
+//
+Formattable::Type Formattable::getType() const { return fType; }
 
-bool Formattable::isNumeric() const {
+bool Formattable::isNumeric() const 
+{
 	switch(fType) {
 		case kDouble:
 		case kLong:
@@ -374,15 +330,12 @@ bool Formattable::isNumeric() const {
 	}
 }
 
-// -------------------------------------
-int32_t
 //Formattable::getLong(UErrorCode * status) const
-Formattable::getLong(UErrorCode & status) const
+int32_t Formattable::getLong(UErrorCode & status) const
 {
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	switch(fType) {
 		case Formattable::kLong:
 		    return (int32_t)fValue.fInt64;
@@ -427,7 +380,7 @@ Formattable::getLong(UErrorCode & status) const
 	}
 }
 
-// -------------------------------------
+//
 // Maximum int that can be represented exactly in a double.  (53 bits)
 //    Larger ints may be rounded to a near-by value as not all are representable.
 // TODO:  move this constant elsewhere, possibly configure it for different
@@ -439,7 +392,6 @@ int64_t Formattable::getInt64(UErrorCode & status) const
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	switch(fType) {
 		case Formattable::kLong:
 		case Formattable::kInt64:
@@ -472,8 +424,7 @@ int64_t Formattable::getInt64(UErrorCode & status) const
 			    return 0;
 		    }
 		    if(instanceOfMeasure(fValue.fObject)) {
-			    return ((const Measure*)fValue.fObject)->
-				   getNumber().getInt64(status);
+			    return ((const Measure*)fValue.fObject)->getNumber().getInt64(status);
 		    }
 		    U_FALLTHROUGH;
 		default:
@@ -482,13 +433,11 @@ int64_t Formattable::getInt64(UErrorCode & status) const
 	}
 }
 
-// -------------------------------------
 double Formattable::getDouble(UErrorCode & status) const
 {
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	switch(fType) {
 		case Formattable::kLong:
 		case Formattable::kInt64: // loses precision
@@ -515,60 +464,54 @@ double Formattable::getDouble(UErrorCode & status) const
 const UObject* Formattable::getObject() const {
 	return (fType == kObject) ? fValue.fObject : NULL;
 }
-
-// -------------------------------------
+//
 // Sets the value to a double value d.
-
+//
 void Formattable::setDouble(double d)
 {
 	dispose();
 	fType = kDouble;
 	fValue.fDouble = d;
 }
-
-// -------------------------------------
+//
 // Sets the value to a long value l.
-
+//
 void Formattable::setLong(int32_t l)
 {
 	dispose();
 	fType = kLong;
 	fValue.fInt64 = l;
 }
-
-// -------------------------------------
+//
 // Sets the value to an int64 value ll.
-
+//
 void Formattable::setInt64(int64_t ll)
 {
 	dispose();
 	fType = kInt64;
 	fValue.fInt64 = ll;
 }
-
-// -------------------------------------
+//
 // Sets the value to a Date instance d.
-
+//
 void Formattable::setDate(UDate d)
 {
 	dispose();
 	fType = kDate;
 	fValue.fDate = d;
 }
-
-// -------------------------------------
+//
 // Sets the value to a string value stringToCopy.
-
+//
 void Formattable::setString(const UnicodeString & stringToCopy)
 {
 	dispose();
 	fType = kString;
 	fValue.fString = new UnicodeString(stringToCopy);
 }
-
-// -------------------------------------
+//
 // Sets the value to an array of Formattable objects.
-
+//
 void Formattable::setArray(const Formattable* array, int32_t count)
 {
 	dispose();
@@ -576,20 +519,18 @@ void Formattable::setArray(const Formattable* array, int32_t count)
 	fValue.fArrayAndCount.fArray = createArrayCopy(array, count);
 	fValue.fArrayAndCount.fCount = count;
 }
-
-// -------------------------------------
+//
 // Adopts the stringToAdopt value.
-
+//
 void Formattable::adoptString(UnicodeString * stringToAdopt)
 {
 	dispose();
 	fType = kString;
 	fValue.fString = stringToAdopt;
 }
-
-// -------------------------------------
+//
 // Adopts the array value and its count.
-
+//
 void Formattable::adoptArray(Formattable* array, int32_t count)
 {
 	dispose();
@@ -598,13 +539,13 @@ void Formattable::adoptArray(Formattable* array, int32_t count)
 	fValue.fArrayAndCount.fCount = count;
 }
 
-void Formattable::adoptObject(UObject* objectToAdopt) {
+void Formattable::adoptObject(UObject* objectToAdopt) 
+{
 	dispose();
 	fType = kObject;
 	fValue.fObject = objectToAdopt;
 }
 
-// -------------------------------------
 UnicodeString &Formattable::getString(UnicodeString & result, UErrorCode & status) const
 {
 	if(fType != kString) {
@@ -612,17 +553,14 @@ UnicodeString &Formattable::getString(UnicodeString & result, UErrorCode & statu
 		result.setToBogus();
 	}
 	else {
-		if(fValue.fString == NULL) {
+		if(fValue.fString == NULL)
 			setError(status, U_MEMORY_ALLOCATION_ERROR);
-		}
-		else {
+		else
 			result = *fValue.fString;
-		}
 	}
 	return result;
 }
 
-// -------------------------------------
 const UnicodeString &Formattable::getString(UErrorCode & status) const
 {
 	if(fType != kString) {
@@ -636,7 +574,6 @@ const UnicodeString &Formattable::getString(UErrorCode & status) const
 	return *fValue.fString;
 }
 
-// -------------------------------------
 UnicodeString &Formattable::getString(UErrorCode & status)
 {
 	if(fType != kString) {
@@ -650,7 +587,6 @@ UnicodeString &Formattable::getString(UErrorCode & status)
 	return *fValue.fString;
 }
 
-// -------------------------------------
 const Formattable* Formattable::getArray(int32_t& count, UErrorCode & status) const
 {
 	if(fType != kArray) {
@@ -661,24 +597,23 @@ const Formattable* Formattable::getArray(int32_t& count, UErrorCode & status) co
 	count = fValue.fArrayAndCount.fCount;
 	return fValue.fArrayAndCount.fArray;
 }
-
-// -------------------------------------
+//
 // Gets the bogus string, ensures mondo bogosity.
-
+//
 UnicodeString * Formattable::getBogus() const
 {
 	return (UnicodeString *)&fBogus; /* cast away const :-( */
 }
 
-// --------------------------------------
-StringPiece Formattable::getDecimalNumber(UErrorCode & status) {
+
+StringPiece Formattable::getDecimalNumber(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return "";
 	}
 	if(fDecimalStr != NULL) {
 		return fDecimalStr->toStringPiece();
 	}
-
 	CharString * decimalStr = internalGetCharString(status);
 	if(decimalStr == NULL) {
 		return ""; // getDecimalNumber returns "" for error cases
@@ -688,7 +623,8 @@ StringPiece Formattable::getDecimalNumber(UErrorCode & status) {
 	}
 }
 
-CharString * Formattable::internalGetCharString(UErrorCode & status) {
+CharString * Formattable::internalGetCharString(UErrorCode & status) 
+{
 	if(fDecimalStr == NULL) {
 		if(fDecimalQuantity == NULL) {
 			// No decimal number for the formattable yet.  Which means the value was
@@ -735,12 +671,12 @@ CharString * Formattable::internalGetCharString(UErrorCode & status) {
 	return fDecimalStr;
 }
 
-void Formattable::populateDecimalQuantity(number::impl::DecimalQuantity& output, UErrorCode & status) const {
+void Formattable::populateDecimalQuantity(number::impl::DecimalQuantity& output, UErrorCode & status) const 
+{
 	if(fDecimalQuantity != nullptr) {
 		output = *fDecimalQuantity;
 		return;
 	}
-
 	switch(fType) {
 		case kDouble:
 		    output.setToDouble(this->getDouble());
@@ -758,16 +694,13 @@ void Formattable::populateDecimalQuantity(number::impl::DecimalQuantity& output,
 	}
 }
 
-// ---------------------------------------
-void Formattable::adoptDecimalQuantity(DecimalQuantity * dq) {
-	if(fDecimalQuantity != NULL) {
-		delete fDecimalQuantity;
-	}
+void Formattable::adoptDecimalQuantity(DecimalQuantity * dq) 
+{
+	delete fDecimalQuantity;
 	fDecimalQuantity = dq;
 	if(dq == NULL) { // allow adoptDigitList(NULL) to clear
 		return;
 	}
-
 	// Set the value into the Union of simple type values.
 	// Cannot use the set() functions because they would delete the fDecimalNum value.
 	if(fDecimalQuantity->fitsInLong()) {
@@ -785,13 +718,12 @@ void Formattable::adoptDecimalQuantity(DecimalQuantity * dq) {
 	}
 }
 
-// ---------------------------------------
-void Formattable::setDecimalNumber(StringPiece numberString, UErrorCode & status) {
+void Formattable::setDecimalNumber(StringPiece numberString, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	dispose();
-
 	auto* dq = new DecimalQuantity();
 	dq->setToDecNumber(numberString, status);
 	adoptDecimalQuantity(dq);

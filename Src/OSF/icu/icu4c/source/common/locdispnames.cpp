@@ -1,20 +1,11 @@
+// locdispnames.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  locdispnames.cpp
+ *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2010feb25
  *   created by: Markus W. Scherer
- *
  *   Code for locale display names, separated out from other .cpp files
  *   that then do not depend on resource bundle code and display name data.
  */
@@ -51,12 +42,8 @@ UnicodeString &Locale::getDisplayLanguage(const Locale &displayLocale, UnicodeSt
 		result.truncate(0);
 		return result;
 	}
-
-	length = uloc_getDisplayLanguage(fullName, displayLocale.fullName,
-		buffer, result.getCapacity(),
-		&errorCode);
+	length = uloc_getDisplayLanguage(fullName, displayLocale.fullName, buffer, result.getCapacity(), &errorCode);
 	result.releaseBuffer(U_SUCCESS(errorCode) ? length : 0);
-
 	if(errorCode==U_BUFFER_OVERFLOW_ERROR) {
 		buffer = result.getBuffer(length);
 		if(buffer==0) {
@@ -69,7 +56,6 @@ UnicodeString &Locale::getDisplayLanguage(const Locale &displayLocale, UnicodeSt
 			&errorCode);
 		result.releaseBuffer(U_SUCCESS(errorCode) ? length : 0);
 	}
-
 	return result;
 }
 
@@ -226,20 +212,18 @@ UnicodeString &Locale::getDisplayName(const Locale &displayLocale,
 }
 
 #if !UCONFIG_NO_BREAK_ITERATION
-
-// -------------------------------------
+//
 // Gets the objectLocale display name in the default locale language.
+//
 UnicodeString & U_EXPORT2 BreakIterator::getDisplayName(const Locale & objectLocale,
     UnicodeString & name)
 {
 	return objectLocale.getDisplayName(name);
 }
-
-// -------------------------------------
+//
 // Gets the objectLocale display name in the displayLocale language.
-UnicodeString & U_EXPORT2 BreakIterator::getDisplayName(const Locale & objectLocale,
-    const Locale & displayLocale,
-    UnicodeString & name)
+//
+UnicodeString & U_EXPORT2 BreakIterator::getDisplayName(const Locale & objectLocale, const Locale & displayLocale, UnicodeString & name)
 {
 	return objectLocale.getDisplayName(displayLocale, name);
 }
@@ -725,11 +709,9 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 					}
 				}
 			}
-
 			if(*pErrorCode == U_BUFFER_OVERFLOW_ERROR) {
 				*pErrorCode = U_ZERO_ERROR;
 			}
-
 			if(subdone) {
 				if(haveLang && haveRest) {
 					/* append internal portion of pattern, the first time,
@@ -764,18 +746,15 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 						}
 						else {
 							/* would have fit, but didn't because of pattern prefix. */
-							sub0Pos = 0; /* stops initial padding (and a second retry,
-							                so we won't end up here again) */
+							sub0Pos = 0; /* stops initial padding (and a second retry, so we won't end up here again) */
 							retry = TRUE;
 						}
 					}
 				}
-
 				++subi; /* move on to next substitution */
 			}
 		}
 	} while(retry);
-
 	return u_terminateUChars(dest, destCapacity, length, pErrorCode);
 }
 

@@ -502,12 +502,11 @@ static uint32 BobJencHash_Word(const uint32 * k, size_t length, uint32 initval)
 	}
 	return c;
 }
-// --------------------------------------------------------------------
+//
 // hashword2() -- same as BobJencHash_Word(), but take two seeds and return two
 // 32-bit values.  pc and pb must both be nonnull, and *pc and *pb must
 // both be initialized with seeds.  If you pass in (*pb)==0, the output
 // (*pc) will be the same as the return value from BobJencHash_Word().
-// --------------------------------------------------------------------
 //
 // ARG(k      IN) the key, an array of uint32 values
 // ARG(length IN) the length of the key, in uint32_ts

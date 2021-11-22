@@ -665,11 +665,9 @@ static inline void mi_block_set_next(const mi_page_t* page, mi_block_t* block, c
 	mi_block_set_nextx(page, block, next, NULL);
   #endif
 }
-
-// -------------------------------------------------------------------
+//
 // Fast "random" shuffle
-// -------------------------------------------------------------------
-
+//
 static inline uintptr_t _mi_random_shuffle(uintptr_t x) 
 {
 	if(x==0) {
@@ -692,11 +690,9 @@ static inline uintptr_t _mi_random_shuffle(uintptr_t x)
 #endif
 	return x;
 }
-
-// -------------------------------------------------------------------
+//
 // Optimize numa node access for the common case (= one node)
-// -------------------------------------------------------------------
-
+//
 int    _mi_os_numa_node_get(mi_os_tld_t* tld);
 size_t _mi_os_numa_node_count_get();
 
@@ -713,11 +709,10 @@ static inline size_t _mi_os_numa_node_count()
 	if(LIKELY(count>0)) return count;
 	else return _mi_os_numa_node_count_get();
 }
-
-// -------------------------------------------------------------------
+//
 // Getting the thread id should be performant as it is called in the
 // fast path of `_mi_free` and we specialize for various platforms.
-// -------------------------------------------------------------------
+//
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -795,19 +790,13 @@ static inline uintptr_t _mi_thread_id(void) NOEXCEPT {
 	return (uintptr_t)mi_tls_slot(0);
 #endif
 }
-
 #else
-// otherwise use standard C
-static inline uintptr_t _mi_thread_id(void) NOEXCEPT {
-	return (uintptr_t)&_mi_heap_default;
-}
-
+	// otherwise use standard C
+	static inline uintptr_t _mi_thread_id(void) NOEXCEPT { return (uintptr_t)&_mi_heap_default; }
 #endif
-
-// -----------------------------------------------------------------------
+//
 // Count bits: trailing or leading zeros (with MI_INTPTR_BITS on all zero)
-// -----------------------------------------------------------------------
-
+//
 #if defined(__GNUC__)
 
 #include <limits.h>       // LONG_MAX
@@ -913,15 +902,13 @@ static inline size_t mi_ctz(uintptr_t x) {
 static inline size_t mi_bsr(uintptr_t x) {
 	return (x==0 ? MI_INTPTR_BITS : MI_INTPTR_BITS - 1 - mi_clz(x));
 }
-
-// ---------------------------------------------------------------------------------
+//
 // Provide our own `_mi_memcpy` for potential performance optimizations.
 //
 // For now, only on Windows with msvc/clang-cl we optimize to `rep movsb` if
 // we happen to run on x86/x64 cpu's that have "fast short rep movsb" (FSRM) support
 // (AMD Zen3+ (~2020) or Intel Ice Lake+ (~2017). See also issue #201 and pr #253.
-// ---------------------------------------------------------------------------------
-
+//
 #if defined(_WIN32) && (defined(_M_IX86) || defined(_M_X64))
 #include <intrin.h>
 #include <string.h>
@@ -945,12 +932,10 @@ static inline void _mi_memcpy(void * dst, const void * src, size_t n) {
 }
 
 #endif
-
-// -------------------------------------------------------------------------------
+//
 // The `_mi_memcpy_aligned` can be used if the pointers are machine-word aligned
 // This is used for example in `mi_realloc`.
-// -------------------------------------------------------------------------------
-
+//
 #if (__GNUC__ >= 4) || defined(__clang__)
 // On GCC/CLang we provide a hint that the pointers are word aligned.
 #include <string.h>

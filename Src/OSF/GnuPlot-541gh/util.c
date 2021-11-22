@@ -456,6 +456,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		//{{{  convert conversion character 
 		switch(*pFormat) {
 			/*{{{  x and o can handle 64bit unsigned integers */
+			case 'd': // @sobolev
 			case 'x':
 			case 'X':
 			case 'o':

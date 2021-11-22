@@ -1,26 +1,18 @@
+// MSGFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2015, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************
-*
-* File MSGFMT.CPP
-*
-* Modification History:
-*
-*   Date        Name        Description
-*   02/19/97    aliu        Converted from java.
-*   03/20/97    helena      Finished first cut of implementation.
-*   04/10/97    aliu        Made to work on AIX.  Added stoi to replace wtoi.
-*   06/11/97    helena      Fixed addPattern to take the pattern correctly.
-*   06/17/97    helena      Fixed the getPattern to return the correct pattern.
-*   07/09/97    helena      Made ParsePosition into a class.
-*   02/22/99    stephen     Removed character literals for EBCDIC safety
-*   11/01/09    kirtig      Added SelectFormat
-********************************************************************/
-
+// Copyright (c) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+//   Date        Name        Description
+//   02/19/97    aliu        Converted from java.
+//   03/20/97    helena      Finished first cut of implementation.
+//   04/10/97    aliu        Made to work on AIX.  Added stoi to replace wtoi.
+//   06/11/97    helena      Fixed addPattern to take the pattern correctly.
+//   06/17/97    helena      Fixed the getPattern to return the correct pattern.
+//   07/09/97    helena      Made ParsePosition into a class.
+//   02/22/99    stephen     Removed character literals for EBCDIC safety
+//   11/01/09    kirtig      Added SelectFormat
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -148,7 +140,7 @@ static bool U_CALLCONV equalFormatsForHash(const UHashTok key1,
 U_CDECL_END
 
 U_NAMESPACE_BEGIN
-// -------------------------------------
+
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(MessageFormat)
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(FormatNameEnumeration)
 
@@ -214,10 +206,9 @@ private:
 	Appendable& app;
 	int32_t len;
 };
-
-// -------------------------------------
+//
 // Creates a MessageFormat instance based on the pattern.
-
+//
 MessageFormat::MessageFormat(const UnicodeString & pattern,
     UErrorCode & success)
 	: fLocale(Locale::getDefault()), // Uses the default locale
@@ -354,10 +345,9 @@ bool MessageFormat::allocateArgTypes(int32_t capacity, UErrorCode & status) {
 	argTypeCapacity = capacity;
 	return TRUE;
 }
-
-// -------------------------------------
+//
 // assignment operator
-
+//
 const MessageFormat&MessageFormat::operator = (const MessageFormat& that)
 {
 	if(this != &that) {
@@ -419,18 +409,16 @@ bool MessageFormat::operator==(const Format& rhs) const
 	}
 	return true;
 }
-
-// -------------------------------------
+//
 // Creates a copy of this MessageFormat, the caller owns the copy.
-
+//
 MessageFormat* MessageFormat::clone() const
 {
 	return new MessageFormat(*this);
 }
-
-// -------------------------------------
+//
 // Sets the locale of this MessageFormat object to theLocale.
-
+//
 void MessageFormat::setLocale(const Locale & theLocale)
 {
 	if(fLocale != theLocale) {
@@ -444,25 +432,23 @@ void MessageFormat::setLocale(const Locale & theLocale)
 		ordinalProvider.reset();
 	}
 }
-
-// -------------------------------------
+//
 // Gets the locale of this MessageFormat object.
-
+//
 const Locale&MessageFormat::getLocale() const
 {
 	return fLocale;
 }
 
-void MessageFormat::applyPattern(const UnicodeString & newPattern,
-    UErrorCode & status)
+void MessageFormat::applyPattern(const UnicodeString & newPattern, UErrorCode & status)
 {
 	UParseError parseError;
 	applyPattern(newPattern, parseError, status);
 }
-
-// -------------------------------------
+//
 // Applies the new pattern and returns an error if the pattern
 // is not correct.
+//
 void MessageFormat::applyPattern(const UnicodeString & pattern,
     UParseError& parseError,
     UErrorCode & ec)
@@ -497,10 +483,9 @@ void MessageFormat::applyPattern(const UnicodeString & pattern,
 	}
 	applyPattern(pattern, *parseError, status);
 }
-
-// -------------------------------------
+//
 // Converts this MessageFormat instance to a pattern.
-
+//
 UnicodeString &MessageFormat::toPattern(UnicodeString & appendTo) const {
 	if((customFormatArgStarts != NULL && 0 != uhash_count(customFormatArgStarts)) ||
 	    0 == msgPattern.countParts()
@@ -580,10 +565,10 @@ Format* MessageFormat::getCachedFormatter(int32_t argumentNumber) const {
 		return NULL;
 	}
 }
-
-// -------------------------------------
+//
 // Adopts the new formats array and updates the array count.
 // This MessageFormat instance owns the new formats.
+//
 void MessageFormat::adoptFormats(Format** newFormats,
     int32_t count) {
 	if(newFormats == NULL || count < 0) {
@@ -610,13 +595,12 @@ void MessageFormat::adoptFormats(Format** newFormats,
 		delete newFormats[formatNumber];
 	}
 }
-
-// -------------------------------------
+//
 // Sets the new formats array and updates the array count.
 // This MessageFormat instance makes a copy of the new formats.
-
-void MessageFormat::setFormats(const Format** newFormats,
-    int32_t count) {
+//
+void MessageFormat::setFormats(const Format** newFormats, int32_t count) 
+{
 	if(newFormats == NULL || count < 0) {
 		return;
 	}
@@ -646,11 +630,10 @@ void MessageFormat::setFormats(const Format** newFormats,
 		resetPattern();
 	}
 }
-
-// -------------------------------------
+//
 // Adopt a single format by format number.
 // Do nothing if the format number is not less than the array count.
-
+//
 void MessageFormat::adoptFormat(int32_t n, Format * newFormat) {
 	LocalPointer<Format> p(newFormat);
 	if(n >= 0) {
@@ -665,10 +648,10 @@ void MessageFormat::adoptFormat(int32_t n, Format * newFormat) {
 		}
 	}
 }
-
-// -------------------------------------
+//
 // Adopt a single format by format name.
 // Do nothing if there is no match of formatName.
+//
 void MessageFormat::adoptFormat(const UnicodeString & formatName,
     Format* formatToAdopt,
     UErrorCode & status) {
@@ -703,10 +686,10 @@ void MessageFormat::adoptFormat(const UnicodeString & formatName,
 		}
 	}
 }
-
-// -------------------------------------
+//
 // Set a single format.
 // Do nothing if the variable is not less than the array count.
+//
 void MessageFormat::setFormat(int32_t n, const Format& newFormat) {
 	if(n >= 0) {
 		int32_t formatNumber = 0;
@@ -724,10 +707,10 @@ void MessageFormat::setFormat(int32_t n, const Format& newFormat) {
 		}
 	}
 }
-
-// -------------------------------------
+//
 // Get a single format by format name.
 // Do nothing if the variable is not less than the array count.
+//
 Format * MessageFormat::getFormat(const UnicodeString & formatName, UErrorCode & status) {
 	if(U_FAILURE(status) || cachedFormatters == NULL) return NULL;
 
@@ -743,10 +726,10 @@ Format * MessageFormat::getFormat(const UnicodeString & formatName, UErrorCode &
 	}
 	return NULL;
 }
-
-// -------------------------------------
+//
 // Set a single format by format name
 // Do nothing if the variable is not less than the array count.
+//
 void MessageFormat::setFormat(const UnicodeString & formatName,
     const Format& newFormat,
     UErrorCode & status) {
@@ -770,9 +753,9 @@ void MessageFormat::setFormat(const UnicodeString & formatName,
 		}
 	}
 }
-
-// -------------------------------------
+//
 // Gets the format array.
+//
 const Format** MessageFormat::getFormats(int32_t& cnt) const
 {
 	// This old API returns an array (which we hold) of Format*
@@ -821,28 +804,25 @@ UnicodeString MessageFormat::getArgName(int32_t partIndex) {
 	return msgPattern.getSubstring(part);
 }
 
-StringEnumeration * MessageFormat::getFormatNames(UErrorCode & status) {
+StringEnumeration * MessageFormat::getFormatNames(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) return NULL;
-
 	UVector * fFormatNames = new UVector(status);
 	if(U_FAILURE(status)) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
 	fFormatNames->setDeleter(uprv_deleteUObject);
-
 	for(int32_t partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
 		fFormatNames->addElementX(new UnicodeString(getArgName(partIndex + 1)), status);
 	}
-
 	StringEnumeration * nameEnumerator = new FormatNameEnumeration(fFormatNames, status);
 	return nameEnumerator;
 }
-
-// -------------------------------------
+//
 // Formats the source Formattable array and copy into the result buffer.
 // Ignore the FieldPosition result for error checking.
-
+//
 UnicodeString &MessageFormat::format(const Formattable* source,
     int32_t cnt,
     UnicodeString & appendTo,
@@ -851,12 +831,11 @@ UnicodeString &MessageFormat::format(const Formattable* source,
 {
 	return format(source, NULL, cnt, appendTo, &ignore, success);
 }
-
-// -------------------------------------
+//
 // Internally creates a MessageFormat instance based on the
 // pattern and formats the arguments Formattable array and
 // copy into the appendTo buffer.
-
+//
 UnicodeString &MessageFormat::format(const UnicodeString & pattern,
     const Formattable* arguments,
     int32_t cnt,
@@ -866,12 +845,11 @@ UnicodeString &MessageFormat::format(const UnicodeString & pattern,
 	MessageFormat temp(pattern, success);
 	return temp.format(arguments, NULL, cnt, appendTo, NULL, success);
 }
-
-// -------------------------------------
+//
 // Formats the source Formattable object and copy into the
 // appendTo buffer.  The Formattable object must be an array
 // of Formattable instances, returns error otherwise.
-
+//
 UnicodeString &MessageFormat::format(const Formattable& source,
     UnicodeString & appendTo,
     FieldPosition& ignore,
@@ -1482,24 +1460,22 @@ Formattable* MessageFormat::parse(int32_t msgStart,
 		i = argLimit;
 	}
 }
-
-// -------------------------------------
+//
 // Parses the source pattern and returns the Formattable objects array,
 // the array count and the ending parse position.  The caller of this method
 // owns the array.
-
+//
 Formattable* MessageFormat::parse(const UnicodeString & source,
     ParsePosition& pos,
     int32_t& count) const {
 	UErrorCode ec = U_ZERO_ERROR;
 	return parse(0, source, pos, count, ec);
 }
-
-// -------------------------------------
+//
 // Parses the source string and returns the array of
 // Formattable objects and the array count.  The caller
 // owns the returned array.
-
+//
 Formattable* MessageFormat::parse(const UnicodeString & source,
     int32_t& cnt,
     UErrorCode & success) const
@@ -1519,10 +1495,9 @@ Formattable* MessageFormat::parse(const UnicodeString & source,
 	}
 	return result;
 }
-
-// -------------------------------------
+//
 // Parses the source text and copy into the result buffer.
-
+//
 void MessageFormat::parseObject(const UnicodeString & source,
     Formattable& result,
     ParsePosition& status) const
@@ -1554,8 +1529,6 @@ UnicodeString MessageFormat::autoQuoteApostrophe(const UnicodeString & pattern, 
 	return result;
 }
 
-// -------------------------------------
-
 static Format* makeRBNF(URBNFRuleSetTag tag, const Locale & locale, const UnicodeString & defaultRuleSet, UErrorCode & ec) {
 	RuleBasedNumberFormat* fmt = new RuleBasedNumberFormat(tag, locale, ec);
 	if(fmt == NULL) {
@@ -1572,7 +1545,6 @@ void MessageFormat::cacheExplicitFormats(UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	if(cachedFormatters != NULL) {
 		uhash_removeAll(cachedFormatters);
 	}
@@ -1892,12 +1864,12 @@ UnicodeString & MessageFormat::DummyFormat::format(const Formattable&,
 	return appendTo;
 }
 
-void MessageFormat::DummyFormat::parseObject(const UnicodeString &,
-    Formattable&,
-    ParsePosition&) const {
+void MessageFormat::DummyFormat::parseObject(const UnicodeString &, Formattable&, ParsePosition&) const 
+{
 }
 
-FormatNameEnumeration::FormatNameEnumeration(UVector * fNameList, UErrorCode & /*status*/) {
+FormatNameEnumeration::FormatNameEnumeration(UVector * fNameList, UErrorCode & /*status*/) 
+{
 	pos = 0;
 	fFormatNames = fNameList;
 }
@@ -1909,28 +1881,32 @@ const UnicodeString * FormatNameEnumeration::snext(UErrorCode & status) {
 	return NULL;
 }
 
-void FormatNameEnumeration::reset(UErrorCode & /*status*/) {
+void FormatNameEnumeration::reset(UErrorCode & /*status*/) 
+{
 	pos = 0;
 }
 
-int32_t FormatNameEnumeration::count(UErrorCode & /*status*/) const {
+int32_t FormatNameEnumeration::count(UErrorCode & /*status*/) const 
+{
 	return (fFormatNames==NULL) ? 0 : fFormatNames->size();
 }
 
-FormatNameEnumeration::~FormatNameEnumeration() {
+FormatNameEnumeration::~FormatNameEnumeration() 
+{
 	delete fFormatNames;
 }
 
-MessageFormat::PluralSelectorProvider::PluralSelectorProvider(const MessageFormat &mf, UPluralType t)
-	: msgFormat(mf), rules(NULL), type(t) {
+MessageFormat::PluralSelectorProvider::PluralSelectorProvider(const MessageFormat &mf, UPluralType t) : msgFormat(mf), rules(NULL), type(t) 
+{
 }
 
-MessageFormat::PluralSelectorProvider::~PluralSelectorProvider() {
+MessageFormat::PluralSelectorProvider::~PluralSelectorProvider() 
+{
 	delete rules;
 }
 
-UnicodeString MessageFormat::PluralSelectorProvider::select(void * ctx, double number,
-    UErrorCode & ec) const {
+UnicodeString MessageFormat::PluralSelectorProvider::select(void * ctx, double number, UErrorCode & ec) const 
+{
 	if(U_FAILURE(ec)) {
 		return UnicodeString(FALSE, OTHER_STRING, 5);
 	}
@@ -1979,12 +1955,9 @@ UnicodeString MessageFormat::PluralSelectorProvider::select(void * ctx, double n
 
 void MessageFormat::PluralSelectorProvider::reset() 
 {
-	delete rules;
-	rules = NULL;
+	ZDELETE(rules);
 }
 
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

@@ -268,11 +268,11 @@ void AnyTransliterator::handleTransliterate(Replaceable& text, UTransPosition& p
 	pos.limit = allLimit;
 }
 
-Transliterator* AnyTransliterator::getTransliterator(UScriptCode source) const {
+Transliterator* AnyTransliterator::getTransliterator(UScriptCode source) const 
+{
 	if(source == targetScript || source == USCRIPT_INVALID_CODE) {
 		return NULL;
 	}
-
 	Transliterator* t = NULL;
 	{
 		Mutex m(NULL);
@@ -283,21 +283,17 @@ Transliterator* AnyTransliterator::getTransliterator(UScriptCode source) const {
 		UnicodeString sourceName(uscript_getShortName(source), -1, US_INV);
 		UnicodeString id(sourceName);
 		id.append(TARGET_SEP).append(target);
-
 		t = Transliterator::createInstance(id, UTRANS_FORWARD, ec);
 		if(U_FAILURE(ec) || t == NULL) {
 			delete t;
-
 			// Try to pivot around Latin, our most common script
 			id = sourceName;
 			id.append(LATIN_PIVOT, -1).append(target);
 			t = Transliterator::createInstance(id, UTRANS_FORWARD, ec);
 			if(U_FAILURE(ec) || t == NULL) {
-				delete t;
-				t = NULL;
+				ZDELETE(t);
 			}
 		}
-
 		if(t) {
 			Transliterator * rt = NULL;
 			{
@@ -310,8 +306,7 @@ Transliterator* AnyTransliterator::getTransliterator(UScriptCode source) const {
 				else {
 					// Race case, some other thread beat us to caching this transliterator.
 					Transliterator * temp = rt;
-					rt = t; // Our newly created transliterator that lost the race & now needs
-					        // deleting.
+					rt = t; // Our newly created transliterator that lost the race & now needs deleting.
 					t  = temp;// The transliterator from the cache that we will return.
 				}
 			}
@@ -320,7 +315,6 @@ Transliterator* AnyTransliterator::getTransliterator(UScriptCode source) const {
 	}
 	return t;
 }
-
 /**
  * Return the script code for a given name, or -1 if not found.
  */
@@ -366,7 +360,6 @@ void AnyTransliterator::registerIDs()
 				continue;
 			ec = U_ZERO_ERROR;
 			seen.puti(target, 1, ec);
-
 			// Get the script code for the target.  If not a script, ignore.
 			UScriptCode targetScript = scriptNameToCode(target);
 			if(targetScript == USCRIPT_INVALID_CODE) 

@@ -1,15 +1,10 @@
+// TIMEZONE.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File TIMEZONE.CPP
+ * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
  *
  * Modification History:
- *
  *   Date        Name        Description
  *   12/05/96    clhuang     Creation.
  *   04/21/97    aliu        General clean-up and bug fixing.
@@ -299,8 +294,6 @@ static UResourceBundle * openOlsonResource(const UnicodeString & id,
 	return top;
 }
 
-// -------------------------------------
-
 namespace {
 void U_CALLCONV initStaticTimeZones() {
 	// Initialize _GMT independently of other static data; it should
@@ -338,27 +331,17 @@ TimeZone::TimeZone()
 {
 }
 
-// -------------------------------------
-
-TimeZone::TimeZone(const UnicodeString & id)
-	:   UObject(), fID(id)
+TimeZone::TimeZone(const UnicodeString & id) :   UObject(), fID(id)
 {
 }
-
-// -------------------------------------
 
 TimeZone::~TimeZone()
 {
 }
 
-// -------------------------------------
-
-TimeZone::TimeZone(const TimeZone &source)
-	:   UObject(source), fID(source.fID)
+TimeZone::TimeZone(const TimeZone &source) :   UObject(source), fID(source.fID)
 {
 }
-
-// -------------------------------------
 
 TimeZone &TimeZone::operator = (const TimeZone &right)
 {
@@ -366,15 +349,10 @@ TimeZone &TimeZone::operator = (const TimeZone &right)
 	return *this;
 }
 
-// -------------------------------------
-
 bool TimeZone::operator==(const TimeZone& that) const
 {
-	return typeid(*this) == typeid(that) &&
-	       fID == that.fID;
+	return typeid(*this) == typeid(that) && fID == that.fID;
 }
-
-// -------------------------------------
 
 namespace {
 TimeZone* createSystemTimeZone(const UnicodeString & id, UErrorCode & ec) {
@@ -437,8 +415,6 @@ TimeZone* U_EXPORT2 TimeZone::createTimeZone(const UnicodeString & ID)
 	}
 	return result;
 }
-
-// -------------------------------------
 
 TimeZone* U_EXPORT2 TimeZone::detectHostTimeZone()
 {
@@ -510,8 +486,6 @@ TimeZone* U_EXPORT2 TimeZone::detectHostTimeZone()
 	return hostZone;
 }
 
-// -------------------------------------
-
 static UMutex gDefaultZoneMutex;
 
 /**
@@ -550,8 +524,6 @@ static void U_CALLCONV initDefault()
 	DEFAULT_ZONE = default_zone;
 }
 
-// -------------------------------------
-
 TimeZone* U_EXPORT2 TimeZone::createDefault()
 {
 	umtx_initOnce(gDefaultZoneInitOnce, initDefault);
@@ -560,8 +532,6 @@ TimeZone* U_EXPORT2 TimeZone::createDefault()
 		return (DEFAULT_ZONE != NULL) ? DEFAULT_ZONE->clone() : NULL;
 	}
 }
-
-// -------------------------------------
 
 TimeZone* U_EXPORT2 TimeZone::forLocaleOrDefault(const Locale & locale)
 {
@@ -578,8 +548,6 @@ TimeZone* U_EXPORT2 TimeZone::forLocaleOrDefault(const Locale & locale)
 	return TimeZone::createDefault();
 }
 
-// -------------------------------------
-
 void U_EXPORT2 TimeZone::adoptDefault(TimeZone* zone)
 {
 	if(zone != NULL) {
@@ -592,8 +560,6 @@ void U_EXPORT2 TimeZone::adoptDefault(TimeZone* zone)
 		ucln_i18n_registerCleanup(UCLN_I18N_TIMEZONE, timeZone_cleanup);
 	}
 }
-
-// -------------------------------------
 
 void U_EXPORT2 TimeZone::setDefault(const TimeZone& zone)
 {
@@ -728,8 +694,6 @@ void TimeZone::getOffset(UDate date, bool local, int32_t& rawOffset,
 		date -= dstOffset;
 	}
 }
-
-// -------------------------------------
 
 // New available IDs API as of ICU 2.4.  Uses StringEnumeration API.
 
@@ -1007,8 +971,6 @@ StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(const char * region) {
 	return createEnumerationForRegion(region, ec);
 }
 
-// ---------------------------------------
-
 int32_t U_EXPORT2 TimeZone::countEquivalentIDs(const UnicodeString & id) {
 	int32_t result = 0;
 	UErrorCode ec = U_ZERO_ERROR;
@@ -1023,8 +985,6 @@ int32_t U_EXPORT2 TimeZone::countEquivalentIDs(const UnicodeString & id) {
 	ures_close(top);
 	return result;
 }
-
-// ---------------------------------------
 
 const UnicodeString U_EXPORT2 TimeZone::getEquivalentID(const UnicodeString & id, int32_t index) {
 	U_DEBUG_TZ_MSG(("gEI(%d)\n", index));
@@ -1062,8 +1022,6 @@ const UnicodeString U_EXPORT2 TimeZone::getEquivalentID(const UnicodeString & id
 #endif
 	return result;
 }
-
-// ---------------------------------------
 
 // These methods are used by ZoneMeta class only.
 
@@ -1144,7 +1102,6 @@ const UChar * TimeZone::getRegion(const UnicodeString & id, UErrorCode & status)
 	return result;
 }
 
-// ---------------------------------------
 int32_t TimeZone::getRegion(const UnicodeString & id, char * region, int32_t capacity, UErrorCode & status)
 {
 	int32_t resultLen = 0;
@@ -1175,8 +1132,6 @@ int32_t TimeZone::getRegion(const UnicodeString & id, char * region, int32_t cap
 	return u_terminateChars(region, capacity, resultLen, &status);
 }
 
-// ---------------------------------------
-
 UnicodeString &TimeZone::getDisplayName(UnicodeString & result) const
 {
 	return getDisplayName(FALSE, LONG, Locale::getDefault(), result);
@@ -1192,15 +1147,14 @@ UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, Uni
 	return getDisplayName(inDaylight, style, Locale::getDefault(), result);
 }
 
-//--------------------------------------
-int32_t TimeZone::getDSTSavings() const {
+int32_t TimeZone::getDSTSavings() const 
+{
 	if(useDaylightTime()) {
 		return 3600000;
 	}
 	return 0;
 }
 
-//---------------------------------------
 UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, const Locale & locale, UnicodeString & result) const
 {
 	UErrorCode status = U_ZERO_ERROR;

@@ -1,22 +1,15 @@
+// UMUTEX.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1997-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * File UMUTEX.H
- *
+ *   Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   04/02/97  aliu        Creation.
  *   04/07/99  srl         rewrite - C interface, multiple mutices
  *   05/13/99  stephen     Changed to umutex (from cmutex)
  ******************************************************************************
  */
-
 #ifndef UMUTEX_H
 #define UMUTEX_H
 
@@ -62,47 +55,26 @@ template struct std::atomic<std::mutex *>;
 U_NAMESPACE_BEGIN
 
 /****************************************************************************
-*
 *   Low Level Atomic Operations, ICU wrappers for.
-*
 ****************************************************************************/
 
 typedef std::atomic<int32_t> u_atomic_int32_t;
 #define ATOMIC_INT32_T_INITIALIZER(val) ATOMIC_VAR_INIT(val)
 
-inline int32_t umtx_loadAcquire(u_atomic_int32_t &var) {
-	return var.load(std::memory_order_acquire);
-}
-
-inline void umtx_storeRelease(u_atomic_int32_t &var, int32_t val) {
-	var.store(val, std::memory_order_release);
-}
-
-inline int32_t umtx_atomic_inc(u_atomic_int32_t * var) {
-	return var->fetch_add(1) + 1;
-}
-
-inline int32_t umtx_atomic_dec(u_atomic_int32_t * var) {
-	return var->fetch_sub(1) - 1;
-}
+inline int32_t umtx_loadAcquire(u_atomic_int32_t &var) { return var.load(std::memory_order_acquire); }
+inline void umtx_storeRelease(u_atomic_int32_t &var, int32_t val) { var.store(val, std::memory_order_release); }
+inline int32_t umtx_atomic_inc(u_atomic_int32_t * var) { return var->fetch_add(1) + 1; }
+inline int32_t umtx_atomic_dec(u_atomic_int32_t * var) { return var->fetch_sub(1) - 1; }
 
 /*************************************************************************************************
-*
 *  UInitOnce Definitions.
-*
 *************************************************************************************************/
 
 struct UInitOnce {
 	u_atomic_int32_t fState;
 	UErrorCode fErrCode;
-	void reset() {
-		fState = 0;
-	}
-
-	bool isReset() {
-		return umtx_loadAcquire(fState) == 0;
-	}
-
+	void reset() { fState = 0; }
+	bool isReset() { return umtx_loadAcquire(fState) == 0; }
 // Note: isReset() is used by service registration code.
 //                 Thread safety of this usage needs review.
 };

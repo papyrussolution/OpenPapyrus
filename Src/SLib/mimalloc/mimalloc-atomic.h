@@ -7,16 +7,14 @@
 #pragma once
 #ifndef MIMALLOC_ATOMIC_H
 #define MIMALLOC_ATOMIC_H
-
-// --------------------------------------------------------------------------------------------
+//
 // Atomics
 // We need to be portable between C, C++, and MSVC.
 // We base the primitives on the C/C++ atomics and create a mimimal wrapper for MSVC in C compilation mode.
 // This is why we try to use only `uintptr_t` and `<type>*` as atomic types.
 // To gain better insight in the range of used atomics, we use explicitly named memory order operations
 // instead of passing the memory order as a parameter.
-// -----------------------------------------------------------------------------------------------
-
+//
 #if defined(__cplusplus)
 // Use C++ atomics
 #include <atomic>

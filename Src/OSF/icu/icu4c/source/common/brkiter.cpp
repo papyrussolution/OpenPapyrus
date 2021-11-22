@@ -1,21 +1,13 @@
+// brkiter.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File brkiter.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/18/97    aliu        Converted from OpenClass.  Added DONE.
- *   01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
- *****************************************************************************************
- */
-
+	Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+	Modification History:
+	Date        Name        Description
+	02/18/97    aliu        Converted from OpenClass.  Added DONE.
+	01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
+*/
 // *****************************************************************************
 // This file was generated from the java source file BreakIterator.java
 // *****************************************************************************
@@ -34,8 +26,6 @@
 // *****************************************************************************
 
 U_NAMESPACE_BEGIN
-
-// -------------------------------------
 
 BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * type, UErrorCode & status)
 {
@@ -97,31 +87,25 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 		ures_close(b);
 		return NULL;
 	}
-
 	// Create a RuleBasedBreakIterator
 	result = new RuleBasedBreakIterator(file, status);
-
 	// If there is a result, set the valid locale and actual locale, and the kind
 	if(U_SUCCESS(status) && result != NULL) {
 		U_LOCALE_BASED(locBased, *(BreakIterator*)result);
 		locBased.setLocaleIDs(ures_getLocaleByType(b, ULOC_VALID_LOCALE, &status),
 		    actualLocale.data());
 	}
-
 	ures_close(b);
-
 	if(U_FAILURE(status) && result != NULL) { // Sometimes redundant check, but simple
 		delete result;
 		return NULL;
 	}
-
 	if(result == NULL) {
 		udata_close(file);
 		if(U_SUCCESS(status)) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
 	}
-
 	return result;
 }
 
@@ -131,15 +115,11 @@ BreakIterator* U_EXPORT2 BreakIterator::createWordInstance(const Locale & key, U
 	return createInstance(key, UBRK_WORD, status);
 }
 
-// -------------------------------------
-
 // Creates a break iterator  for line breaks.
 BreakIterator* U_EXPORT2 BreakIterator::createLineInstance(const Locale & key, UErrorCode & status)
 {
 	return createInstance(key, UBRK_LINE, status);
 }
-
-// -------------------------------------
 
 // Creates a break iterator  for character breaks.
 BreakIterator* U_EXPORT2 BreakIterator::createCharacterInstance(const Locale & key, UErrorCode & status)
@@ -147,15 +127,11 @@ BreakIterator* U_EXPORT2 BreakIterator::createCharacterInstance(const Locale & k
 	return createInstance(key, UBRK_CHARACTER, status);
 }
 
-// -------------------------------------
-
 // Creates a break iterator  for sentence breaks.
 BreakIterator* U_EXPORT2 BreakIterator::createSentenceInstance(const Locale & key, UErrorCode & status)
 {
 	return createInstance(key, UBRK_SENTENCE, status);
 }
-
-// -------------------------------------
 
 // Creates a break iterator for title casing breaks.
 BreakIterator* U_EXPORT2 BreakIterator::createTitleInstance(const Locale & key, UErrorCode & status)
@@ -163,20 +139,14 @@ BreakIterator* U_EXPORT2 BreakIterator::createTitleInstance(const Locale & key, 
 	return createInstance(key, UBRK_TITLE, status);
 }
 
-// -------------------------------------
-
 // Gets all the available locales that has localized text boundary data.
 const Locale* U_EXPORT2 BreakIterator::getAvailableLocales(int32_t& count)
 {
 	return Locale::getAvailableLocales(count);
 }
-
-// ------------------------------------------
 //
 // Constructors, destructor and assignment operator
 //
-//-------------------------------------------
-
 BreakIterator::BreakIterator()
 {
 	*validLocale = *actualLocale = 0;
@@ -199,14 +169,10 @@ BreakIterator::~BreakIterator()
 {
 }
 
-// ------------------------------------------
 //
 // Registration
 //
-//-------------------------------------------
 #if !UCONFIG_NO_SERVICE
-
-// -------------------------------------
 
 class ICUBreakIteratorFactory : public ICUResourceBundleFactory {
 public:
@@ -217,10 +183,9 @@ protected:
 	}
 };
 
-ICUBreakIteratorFactory::~ICUBreakIteratorFactory() {
+ICUBreakIteratorFactory::~ICUBreakIteratorFactory() 
+{
 }
-
-// -------------------------------------
 
 class ICUBreakIteratorService : public ICULocaleService {
 public:
@@ -253,8 +218,6 @@ public:
 ICUBreakIteratorService::~ICUBreakIteratorService() {
 }
 
-// -------------------------------------
-
 // defined in ucln_cmn.h
 U_NAMESPACE_END
 
@@ -267,10 +230,7 @@ static icu::ICULocaleService* gService = NULL;
 U_CDECL_BEGIN
 static bool U_CALLCONV breakiterator_cleanup() {
 #if !UCONFIG_NO_SERVICE
-	if(gService) {
-		delete gService;
-		gService = NULL;
-	}
+	ZDELETE(gService);
 	gInitOnceBrkiter.reset();
 #endif
 	return TRUE;
@@ -279,7 +239,8 @@ static bool U_CALLCONV breakiterator_cleanup() {
 U_CDECL_END
 U_NAMESPACE_BEGIN
 
-static void U_CALLCONV initService() {
+static void U_CALLCONV initService() 
+{
 	gService = new ICUBreakIteratorService();
 	ucln_common_registerCleanup(UCLN_COMMON_BREAKITERATOR, breakiterator_cleanup);
 }
@@ -290,14 +251,10 @@ static ICULocaleService* getService(void)
 	return gService;
 }
 
-// -------------------------------------
-
 static inline bool hasService(void)
 {
 	return !gInitOnceBrkiter.isReset() && getService() != NULL;
 }
-
-// -------------------------------------
 
 URegistryKey U_EXPORT2 BreakIterator::registerInstance(BreakIterator* toAdopt,
     const Locale & locale,
@@ -312,8 +269,6 @@ URegistryKey U_EXPORT2 BreakIterator::registerInstance(BreakIterator* toAdopt,
 	return service->registerInstance(toAdopt, locale, kind, status);
 }
 
-// -------------------------------------
-
 bool U_EXPORT2 BreakIterator::unregister(URegistryKey key, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
@@ -325,8 +280,6 @@ bool U_EXPORT2 BreakIterator::unregister(URegistryKey key, UErrorCode & status)
 	return FALSE;
 }
 
-// -------------------------------------
-
 StringEnumeration * U_EXPORT2 BreakIterator::getAvailableLocales(void)
 {
 	ICULocaleService * service = getService();
@@ -337,8 +290,6 @@ StringEnumeration * U_EXPORT2 BreakIterator::getAvailableLocales(void)
 }
 
 #endif /* UCONFIG_NO_SERVICE */
-
-// -------------------------------------
 
 BreakIterator* BreakIterator::createInstance(const Locale & loc, int32_t kind, UErrorCode & status)
 {
@@ -373,8 +324,9 @@ BreakIterator* BreakIterator::createInstance(const Locale & loc, int32_t kind, U
 	}
 }
 
-// -------------------------------------
-enum { kKeyValueLenMax = 32 };
+enum { 
+	kKeyValueLenMax = 32 
+};
 
 BreakIterator* BreakIterator::makeInstance(const Locale & loc, int32_t kind, UErrorCode & status)
 {

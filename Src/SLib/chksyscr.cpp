@@ -2,12 +2,10 @@
 // 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020
 // Слегка видоизмененный метод проверки имени пользователя и пароля в Windows
 //
-// ----------------------------------------------------------------
 //  SSPI Authentication Sample
 //  This program demonstrates how to use SSPI to authenticate user credentials.
 //  Copyright (C) 2001.  Microsoft Corporation.  All rights reserved.
-// ----------------------------------------------------------------
-
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #include <tchar.h>

@@ -1,12 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (c) 2002-2016, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
+ * Copyright (c) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -321,19 +317,13 @@ static const int32_t* _findMetaData(const UChar * currency, UErrorCode & ec) {
 	return data;
 }
 
-// -------------------------------------
-
 static void idForLocale(const char * locale, char * countryAndVariant, int capacity, UErrorCode * ec)
 {
 	ulocimp_getRegionForSupplementalData(locale, FALSE, countryAndVariant, capacity, ec);
 }
-
-// ------------------------------------------
 //
 // Registration
 //
-//-------------------------------------------
-
 // don't use ICUService since we don't need fallback
 
 U_CDECL_BEGIN
@@ -431,8 +421,6 @@ struct CReg : public icu::UMemory {
 	}
 };
 
-// -------------------------------------
-
 U_CAPI UCurrRegistryKey U_EXPORT2 ucurr_register(const UChar * isoCode, const char * locale, UErrorCode * status)
 {
 	if(status && U_SUCCESS(*status)) {
@@ -443,8 +431,6 @@ U_CAPI UCurrRegistryKey U_EXPORT2 ucurr_register(const UChar * isoCode, const ch
 	return NULL;
 }
 
-// -------------------------------------
-
 U_CAPI bool U_EXPORT2 ucurr_unregister(UCurrRegistryKey key, UErrorCode * status)
 {
 	if(status && U_SUCCESS(*status)) {
@@ -454,9 +440,6 @@ U_CAPI bool U_EXPORT2 ucurr_unregister(UCurrRegistryKey key, UErrorCode * status
 }
 
 #endif /* UCONFIG_NO_SERVICE */
-
-// -------------------------------------
-
 /**
  * Release all static memory held by currency.
  */
@@ -482,12 +465,8 @@ static bool U_CALLCONV currency_cleanup() {
 
 U_CDECL_END
 
-// -------------------------------------
-
-U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale,
-    UChar * buff,
-    int32_t buffCapacity,
-    UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, UChar * buff, int32_t buffCapacity, UErrorCode * ec) 
+{
 	if(U_FAILURE(*ec)) {
 		return 0;
 	}
@@ -495,7 +474,6 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale,
 		*ec = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	char currency[4]; // ISO currency codes are alpha3 codes.
 	UErrorCode localStatus = U_ZERO_ERROR;
 	int32_t resLen = uloc_getKeywordValue(locale, "currency",
@@ -2600,17 +2578,15 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 	ures_close(&regbndl);
 	ures_close(&bundlekey);
 	ures_close(bundle);
-
 	ulist_deleteList(otherValues);
-
 	return en;
 }
 
-U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const UChar * currency) {
+U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const UChar * currency) 
+{
 	int32_t code = 0;
 	if(currency && u_strlen(currency) == ISO_CURRENCY_CODE_LENGTH) {
 		UErrorCode status = U_ZERO_ERROR;
-
 		UResourceBundle * bundle = ures_openDirect(0, "currencyNumericCodes", &status);
 		ures_getByKey(bundle, "codeMap", bundle, &status);
 		if(U_SUCCESS(status)) {
@@ -2629,5 +2605,3 @@ U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const UChar * currency) {
 }
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

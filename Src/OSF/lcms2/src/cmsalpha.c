@@ -21,14 +21,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//---------------------------------------------------------------------------------
-//
 #include "lcms2_internal.h"
 #pragma hdrstop
-
+//
 // Alpha copy
-// ------------------------------------------------------------------------------------------------------------------
-
+//
 // This macro return words stored as big endian
 #define CHANGE_ENDIAN(w)    (cmsUInt16Number)((cmsUInt16Number)((w)<<8)|((w)>>8))
 
@@ -38,7 +35,6 @@ cmsINLINE cmsUInt8Number _cmsQuickSaturateByte(cmsFloat64Number d)
 	d += 0.5;
 	if(d <= 0) return 0;
 	if(d >= 255.0) return 255;
-
 	return (cmsUInt8Number)_cmsQuickFloorWord(d);
 }
 

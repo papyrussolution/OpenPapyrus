@@ -35,7 +35,7 @@ SlipLineParam & SlipLineParam::Z()
 	ChZnCode.Z(); // @v10.6.8
 	ChZnGTIN.Z(); // @v10.7.2
 	ChZnSerial.Z(); // @v10.7.2
-	ChZnCid.Z(); // @v10.8.12
+	ChZnSid.Z(); // @v10.8.12
 	return *this;
 }
 //

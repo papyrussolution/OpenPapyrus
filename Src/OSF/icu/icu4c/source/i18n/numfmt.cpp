@@ -1,15 +1,9 @@
+// NUMFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File NUMFMT.CPP
- *
+ * Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   02/19/97    aliu        Converted from java.
  *   03/18/97    clhuang     Implemented with C++ APIs.
@@ -182,13 +176,14 @@ U_CDECL_END
 U_NAMESPACE_BEGIN UOBJECT_DEFINE_ABSTRACT_RTTI_IMPLEMENTATION(NumberFormat)
 
 #if !UCONFIG_NO_SERVICE
-// -------------------------------------
+//
 // SimpleNumberFormatFactory implementation
-NumberFormatFactory::~NumberFormatFactory() {
+//
+NumberFormatFactory::~NumberFormatFactory() 
+{
 }
 
-SimpleNumberFormatFactory::SimpleNumberFormatFactory(const Locale & locale, bool visible)
-	: _visible(visible)
+SimpleNumberFormatFactory::SimpleNumberFormatFactory(const Locale & locale, bool visible) : _visible(visible)
 {
 	LocaleUtility::initNameFromLocale(locale, _id);
 }
@@ -211,9 +206,9 @@ const UnicodeString * SimpleNumberFormatFactory::getSupportedIDs(int32_t &count,
 }
 
 #endif /* #if !UCONFIG_NO_SERVICE */
-
-// -------------------------------------
+//
 // default constructor
+//
 NumberFormat::NumberFormat()
 	:   fGroupingUsed(TRUE),
 	fMaxIntegerDigits(gDefaultMaxIntegerDigits),
@@ -227,8 +222,6 @@ NumberFormat::NumberFormat()
 	fCurrency[0] = 0;
 }
 
-// -------------------------------------
-
 NumberFormat::~NumberFormat()
 {
 }
@@ -236,19 +229,16 @@ NumberFormat::~NumberFormat()
 SharedNumberFormat::~SharedNumberFormat() {
 	delete ptr;
 }
-
-// -------------------------------------
+//
 // copy constructor
-
-NumberFormat::NumberFormat(const NumberFormat &source)
-	:   Format(source)
+//
+NumberFormat::NumberFormat(const NumberFormat &source) :   Format(source)
 {
 	*this = source;
 }
-
-// -------------------------------------
+//
 // assignment operator
-
+//
 NumberFormat&NumberFormat::operator = (const NumberFormat& rhs)
 {
 	if(this != &rhs) {
@@ -266,8 +256,6 @@ NumberFormat&NumberFormat::operator = (const NumberFormat& rhs)
 	}
 	return *this;
 }
-
-// -------------------------------------
 
 bool NumberFormat::operator==(const Format& that) const
 {
@@ -369,11 +357,9 @@ bool NumberFormat::operator==(const Format& that) const
 	       fLenient == other->fLenient &&
 	       fCapitalizationContext == other->fCapitalizationContext)));
 }
-
-// -------------------------------------
-// Default implementation sets unsupported error; subclasses should
-// override.
-
+//
+// Default implementation sets unsupported error; subclasses should override.
+//
 UnicodeString &NumberFormat::format(double /* unused number */,
     UnicodeString & toAppendTo,
     FieldPositionIterator* /* unused posIter */,
@@ -384,11 +370,9 @@ UnicodeString &NumberFormat::format(double /* unused number */,
 	}
 	return toAppendTo;
 }
-
-// -------------------------------------
-// Default implementation sets unsupported error; subclasses should
-// override.
-
+//
+// Default implementation sets unsupported error; subclasses should override.
+//
 UnicodeString &NumberFormat::format(int32_t /* unused number */,
     UnicodeString & toAppendTo,
     FieldPositionIterator* /* unused posIter */,
@@ -399,11 +383,9 @@ UnicodeString &NumberFormat::format(int32_t /* unused number */,
 	}
 	return toAppendTo;
 }
-
-// -------------------------------------
-// Default implementation sets unsupported error; subclasses should
-// override.
-
+//
+// Default implementation sets unsupported error; subclasses should override.
+//
 UnicodeString &NumberFormat::format(int64_t /* unused number */,
     UnicodeString & toAppendTo,
     FieldPositionIterator* /* unused posIter */,
@@ -414,9 +396,9 @@ UnicodeString &NumberFormat::format(int64_t /* unused number */,
 	}
 	return toAppendTo;
 }
-
-// ------------------------------------------
+//
 // These functions add the status code, just fall back to the non-status versions
+//
 UnicodeString &NumberFormat::format(double number,
     UnicodeString & appendTo,
     FieldPosition& pos,
@@ -452,8 +434,7 @@ UnicodeString &NumberFormat::format(int64_t number,
 		return appendTo;
 	}
 }
-
-// -------------------------------------
+//
 // Decimal Number format() default implementation
 // Subclasses do not normally override this function, but rather the DigitList
 // formatting functions..
@@ -467,7 +448,7 @@ UnicodeString &NumberFormat::format(int64_t number,
 //       NumberFormat::format(Formattable  ->
 //       NumberFormat::format(DigitList  ->
 //       XXXFormat::format(double
-
+//
 UnicodeString &NumberFormat::format(StringPiece decimalNum,
     UnicodeString & toAppendTo,
     FieldPositionIterator* fpi,
@@ -617,11 +598,10 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 
 	return appendTo;
 }
-
-// -------------------------------------x
+//
 // Formats the number object and save the format
 // result in the toAppendTo string buffer.
-
+//
 UnicodeString &NumberFormat::format(const Formattable& obj,
     UnicodeString & appendTo,
     FieldPositionIterator* posIter,
@@ -666,66 +646,52 @@ UnicodeString &NumberFormat::format(const Formattable& obj,
 	return appendTo;
 }
 
-// -------------------------------------
-
-UnicodeString &NumberFormat::format(int64_t number,
-    UnicodeString & appendTo,
-    FieldPosition& pos) const
+UnicodeString &NumberFormat::format(int64_t number, UnicodeString & appendTo, FieldPosition& pos) const
 {
 	// default so we don't introduce a new abstract method
 	return format((int32_t)number, appendTo, pos);
 }
-
-// -------------------------------------
+//
 // Parses the string and save the result object as well
 // as the final parsed position.
-
-void NumberFormat::parseObject(const UnicodeString & source,
-    Formattable& result,
-    ParsePosition& parse_pos) const
+//
+void NumberFormat::parseObject(const UnicodeString & source, Formattable& result, ParsePosition& parse_pos) const
 {
 	parse(source, result, parse_pos);
 }
-
-// -------------------------------------
+//
 // Formats a double number and save the result in a string.
-
+//
 UnicodeString &NumberFormat::format(double number, UnicodeString & appendTo) const
 {
 	FieldPosition pos(FieldPosition::DONT_CARE);
 	return format(number, appendTo, pos);
 }
-
-// -------------------------------------
+//
 // Formats a long number and save the result in a string.
-
+//
 UnicodeString &NumberFormat::format(int32_t number, UnicodeString & appendTo) const
 {
 	FieldPosition pos(FieldPosition::DONT_CARE);
 	return format(number, appendTo, pos);
 }
-
-// -------------------------------------
+//
 // Formats a long number and save the result in a string.
-
+//
 UnicodeString &NumberFormat::format(int64_t number, UnicodeString & appendTo) const
 {
 	FieldPosition pos(FieldPosition::DONT_CARE);
 	return format(number, appendTo, pos);
 }
-
-// -------------------------------------
+//
 // Parses the text and save the result object.  If the returned
 // parse position is 0, that means the parsing failed, the status
 // code needs to be set to failure.  Ignores the returned parse
 // position, otherwise.
-
-void NumberFormat::parse(const UnicodeString & text,
-    Formattable& result,
-    UErrorCode & status) const
+//
+void NumberFormat::parse(const UnicodeString & text, Formattable& result, UErrorCode & status) const
 {
 	if(U_FAILURE(status)) return;
-
 	ParsePosition parsePosition(0);
 	parse(text, result, parsePosition);
 	if(parsePosition.getIndex() == 0) {
@@ -755,103 +721,85 @@ CurrencyAmount* NumberFormat::parseCurrency(const UnicodeString & text,
 	}
 	return NULL;
 }
-
-// -------------------------------------
+//
 // Sets to only parse integers.
-
+//
 void NumberFormat::setParseIntegerOnly(bool value)
 {
 	fParseIntegerOnly = value;
 }
-
-// -------------------------------------
+//
 // Sets whether lenient parse is enabled.
-
+//
 void NumberFormat::setLenient(bool enable)
 {
 	fLenient = enable;
 }
-
-// -------------------------------------
+//
 // Create a number style NumberFormat instance with the default locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createInstance(UErrorCode & status)
 {
 	return createInstance(Locale::getDefault(), UNUM_DECIMAL, status);
 }
-
-// -------------------------------------
+//
 // Create a number style NumberFormat instance with the inLocale locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createInstance(const Locale & inLocale, UErrorCode & status)
 {
 	return createInstance(inLocale, UNUM_DECIMAL, status);
 }
-
-// -------------------------------------
+//
 // Create a currency style NumberFormat instance with the default locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createCurrencyInstance(UErrorCode & status)
 {
 	return createCurrencyInstance(Locale::getDefault(),  status);
 }
-
-// -------------------------------------
+//
 // Create a currency style NumberFormat instance with the inLocale locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createCurrencyInstance(const Locale & inLocale, UErrorCode & status)
 {
 	return createInstance(inLocale, UNUM_CURRENCY, status);
 }
-
-// -------------------------------------
+//
 // Create a percent style NumberFormat instance with the default locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createPercentInstance(UErrorCode & status)
 {
 	return createInstance(Locale::getDefault(), UNUM_PERCENT, status);
 }
-
-// -------------------------------------
+//
 // Create a percent style NumberFormat instance with the inLocale locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createPercentInstance(const Locale & inLocale, UErrorCode & status)
 {
 	return createInstance(inLocale, UNUM_PERCENT, status);
 }
-
-// -------------------------------------
+//
 // Create a scientific style NumberFormat instance with the default locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createScientificInstance(UErrorCode & status)
 {
 	return createInstance(Locale::getDefault(), UNUM_SCIENTIFIC, status);
 }
-
-// -------------------------------------
+//
 // Create a scientific style NumberFormat instance with the inLocale locale.
-
+//
 NumberFormat* U_EXPORT2 NumberFormat::createScientificInstance(const Locale & inLocale, UErrorCode & status)
 {
 	return createInstance(inLocale, UNUM_SCIENTIFIC, status);
 }
 
-// -------------------------------------
-
 const Locale* U_EXPORT2 NumberFormat::getAvailableLocales(int32_t& count)
 {
 	return Locale::getAvailableLocales(count);
 }
-
-// ------------------------------------------
 //
 // Registration
 //
-//-------------------------------------------
-
 #if !UCONFIG_NO_SERVICE
-
-// -------------------------------------
 
 class ICUNumberFormatFactory : public ICUResourceBundleFactory {
 public:
@@ -864,8 +812,6 @@ protected:
 
 ICUNumberFormatFactory::~ICUNumberFormatFactory() {
 }
-
-// -------------------------------------
 
 class NFFactory : public LocaleKeyFactory {
 private:
@@ -961,8 +907,6 @@ public:
 ICUNumberFormatService::~ICUNumberFormatService() {
 }
 
-// -------------------------------------
-
 static void U_CALLCONV initNumberFormatService() {
 	U_ASSERT(gService == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_NUMFMT, numfmt_cleanup);
@@ -978,8 +922,6 @@ static ICULocaleService* getNumberFormatService(void)
 static bool haveService() {
 	return !gServiceInitOnce.isReset() && (getNumberFormatService() != NULL);
 }
-
-// -------------------------------------
 
 URegistryKey U_EXPORT2 NumberFormat::registerFactory(NumberFormatFactory* toAdopt, UErrorCode & status)
 {
@@ -998,8 +940,6 @@ URegistryKey U_EXPORT2 NumberFormat::registerFactory(NumberFormatFactory* toAdop
 	return NULL;
 }
 
-// -------------------------------------
-
 bool U_EXPORT2 NumberFormat::unregister(URegistryKey key, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
@@ -1014,7 +954,6 @@ bool U_EXPORT2 NumberFormat::unregister(URegistryKey key, UErrorCode & status)
 	}
 }
 
-// -------------------------------------
 StringEnumeration * U_EXPORT2 NumberFormat::getAvailableLocales(void)
 {
 	ICULocaleService * service = getNumberFormatService();
@@ -1025,7 +964,6 @@ StringEnumeration * U_EXPORT2 NumberFormat::getAvailableLocales(void)
 }
 
 #endif /* UCONFIG_NO_SERVICE */
-// -------------------------------------
 
 enum { kKeyValueLenMax = 32 };
 
@@ -1061,106 +999,94 @@ NumberFormat* U_EXPORT2 NumberFormat::createInstance(const Locale & loc, UNumber
 	}
 	return result;
 }
-
-// -------------------------------------
+//
 // Checks if the thousand/10 thousand grouping is used in the
 // NumberFormat instance.
-
+//
 bool NumberFormat::isGroupingUsed() const
 {
 	return fGroupingUsed;
 }
-
-// -------------------------------------
+//
 // Sets to use the thousand/10 thousand grouping in the
 // NumberFormat instance.
-
+//
 void NumberFormat::setGroupingUsed(bool newValue)
 {
 	fGroupingUsed = newValue;
 }
-
-// -------------------------------------
+//
 // Gets the maximum number of digits for the integral part for
 // this NumberFormat instance.
-
+//
 int32_t NumberFormat::getMaximumIntegerDigits() const
 {
 	return fMaxIntegerDigits;
 }
-
-// -------------------------------------
+//
 // Sets the maximum number of digits for the integral part for
 // this NumberFormat instance.
-
+//
 void NumberFormat::setMaximumIntegerDigits(int32_t newValue)
 {
 	fMaxIntegerDigits = uprv_max(0, uprv_min(newValue, gDefaultMaxIntegerDigits));
 	if(fMinIntegerDigits > fMaxIntegerDigits)
 		fMinIntegerDigits = fMaxIntegerDigits;
 }
-
-// -------------------------------------
+//
 // Gets the minimum number of digits for the integral part for
 // this NumberFormat instance.
-
+//
 int32_t NumberFormat::getMinimumIntegerDigits() const
 {
 	return fMinIntegerDigits;
 }
-
-// -------------------------------------
+//
 // Sets the minimum number of digits for the integral part for
 // this NumberFormat instance.
-
+//
 void NumberFormat::setMinimumIntegerDigits(int32_t newValue)
 {
 	fMinIntegerDigits = uprv_max(0, uprv_min(newValue, gDefaultMinIntegerDigits));
 	if(fMinIntegerDigits > fMaxIntegerDigits)
 		fMaxIntegerDigits = fMinIntegerDigits;
 }
-
-// -------------------------------------
+//
 // Gets the maximum number of digits for the fractional part for
 // this NumberFormat instance.
-
+//
 int32_t NumberFormat::getMaximumFractionDigits() const
 {
 	return fMaxFractionDigits;
 }
-
-// -------------------------------------
+//
 // Sets the maximum number of digits for the fractional part for
 // this NumberFormat instance.
-
+//
 void NumberFormat::setMaximumFractionDigits(int32_t newValue)
 {
 	fMaxFractionDigits = uprv_max(0, uprv_min(newValue, gDefaultMaxIntegerDigits));
 	if(fMaxFractionDigits < fMinFractionDigits)
 		fMinFractionDigits = fMaxFractionDigits;
 }
-
-// -------------------------------------
+//
 // Gets the minimum number of digits for the fractional part for
 // this NumberFormat instance.
-
+//
 int32_t NumberFormat::getMinimumFractionDigits() const
 {
 	return fMinFractionDigits;
 }
-
-// -------------------------------------
+//
 // Sets the minimum number of digits for the fractional part for
 // this NumberFormat instance.
-
+//
 void NumberFormat::setMinimumFractionDigits(int32_t newValue)
 {
 	fMinFractionDigits = uprv_max(0, uprv_min(newValue, gDefaultMinIntegerDigits));
 	if(fMaxFractionDigits < fMinFractionDigits)
 		fMaxFractionDigits = fMinFractionDigits;
 }
-
-// -------------------------------------
 
 void NumberFormat::setCurrency(const UChar * theCurrency, UErrorCode & ec) {
 	if(U_FAILURE(ec)) {
@@ -1218,19 +1144,16 @@ UDisplayContext NumberFormat::getContext(UDisplayContextType type, UErrorCode & 
 	}
 	return fCapitalizationContext;
 }
-
-// -------------------------------------
+//
 // Creates the NumberFormat instance of the specified style (number, currency,
 // or percent) for the desired locale.
-
-static void U_CALLCONV nscacheInit() {
+//
+static void U_CALLCONV nscacheInit() 
+{
 	U_ASSERT(NumberingSystem_cache == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_NUMFMT, numfmt_cleanup);
 	UErrorCode status = U_ZERO_ERROR;
-	NumberingSystem_cache = uhash_open(uhash_hashLong,
-		uhash_compareLong,
-		NULL,
-		&status);
+	NumberingSystem_cache = uhash_open(uhash_hashLong, uhash_compareLong, NULL, &status);
 	if(U_FAILURE(status)) {
 		// Number Format code will run with no cache if creation fails.
 		NumberingSystem_cache = NULL;
@@ -1469,14 +1392,11 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		if(style == UNUM_CASH_CURRENCY) {
 			df->setCurrencyUsage(UCURR_USAGE_CASH, &status);
 		}
-
 		if(U_FAILURE(status)) {
 			return nullptr;
 		}
-
 		f.adoptInstead(df.orphan());
 	}
-
 	f->setLocaleIDs(ures_getLocaleByType(ownedResource.getAlias(), ULOC_VALID_LOCALE, &status),
 	    ures_getLocaleByType(ownedResource.getAlias(), ULOC_ACTUAL_LOCALE, &status));
 	if(U_FAILURE(status)) {
@@ -1484,7 +1404,6 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 	}
 	return f.orphan();
 }
-
 /**
  * Get the rounding mode.
  * @return A rounding mode
@@ -1493,7 +1412,6 @@ NumberFormat::ERoundingMode NumberFormat::getRoundingMode() const {
 	// Default value. ICU4J throws an exception and we can't change this API.
 	return NumberFormat::ERoundingMode::kRoundUnnecessary;
 }
-
 /**
  * Set the rounding mode.  This has no effect unless the rounding
  * increment is greater than zero.
@@ -1506,5 +1424,3 @@ void NumberFormat::setRoundingMode(NumberFormat::ERoundingMode /*roundingMode*/)
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

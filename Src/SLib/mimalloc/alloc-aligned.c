@@ -10,11 +10,9 @@
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
 //#include <string.h>  // memset
-
-// ------------------------------------------------------
+//
 // Aligned Allocation
-// ------------------------------------------------------
-
+//
 static void * mi_heap_malloc_zero_aligned_at(mi_heap_t* const heap, const size_t size, const size_t alignment, const size_t offset, const bool zero) NOEXCEPT 
 {
 	// note: we don't require `size > offset`, we just guarantee that

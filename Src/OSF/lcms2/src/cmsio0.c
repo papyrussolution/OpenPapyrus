@@ -463,8 +463,6 @@ cmsBool CMSEXPORT cmsCloseIOhandler(cmsIOHANDLER* io)
 	return io->Close(io);
 }
 
-// -------------------------------------------------------------------------------------------------------
-
 cmsIOHANDLER* CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
@@ -814,9 +812,9 @@ cmsBool _cmsWriteHeader(_cmsICCPROFILE* Icc, cmsUInt32Number UsedSpace)
 
 	return TRUE;
 }
-
-// ----------------------------------------------------------------------- Set/Get several struct members
-
+//
+// Set/Get several struct members
+//
 cmsUInt32Number CMSEXPORT cmsGetHeaderRenderingIntent(cmsHPROFILE hProfile)
 {
 	_cmsICCPROFILE*  Icc = (_cmsICCPROFILE*)hProfile;
@@ -987,22 +985,16 @@ cmsFloat64Number CMSEXPORT cmsGetProfileVersion(cmsHPROFILE hProfile)
 	return BaseToBase(n, 16, 10) / 100.0;
 }
 
-// --------------------------------------------------------------------------------------------------------------
-
 // Create profile from IOhandler
 cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandlerTHR(cmsContext ContextID, cmsIOHANDLER* io)
 {
 	_cmsICCPROFILE* NewIcc;
 	cmsHPROFILE hEmpty = cmsCreateProfilePlaceholder(ContextID);
-
 	if(hEmpty == NULL) return NULL;
-
 	NewIcc = (_cmsICCPROFILE*)hEmpty;
-
 	NewIcc->IOhandler = io;
 	if(!_cmsReadHeader(NewIcc)) goto Error;
 	return hEmpty;
-
 Error:
 	cmsCloseProfile(hEmpty);
 	return NULL;
@@ -1013,20 +1005,15 @@ cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandler2THR(cmsContext ContextID, cmsI
 {
 	_cmsICCPROFILE* NewIcc;
 	cmsHPROFILE hEmpty = cmsCreateProfilePlaceholder(ContextID);
-
 	if(hEmpty == NULL) return NULL;
-
 	NewIcc = (_cmsICCPROFILE*)hEmpty;
-
 	NewIcc->IOhandler = io;
 	if(write) {
 		NewIcc->IsWrite = TRUE;
 		return hEmpty;
 	}
-
 	if(!_cmsReadHeader(NewIcc)) goto Error;
 	return hEmpty;
-
 Error:
 	cmsCloseProfile(hEmpty);
 	return NULL;
@@ -1394,14 +1381,10 @@ cmsBool CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile)
 	return rc;
 }
 
-// -------------------------------------------------------------------------------------------------------------------
-
 // Returns TRUE if a given tag is supported by a plug-in
-static
-cmsBool IsTypeSupported(cmsTagDescriptor* TagDescriptor, cmsTagTypeSignature Type)
+static cmsBool IsTypeSupported(cmsTagDescriptor* TagDescriptor, cmsTagTypeSignature Type)
 {
 	cmsUInt32Number i, nMaxTypes;
-
 	nMaxTypes = TagDescriptor->nSupportedTypes;
 	if(nMaxTypes >= MAX_TYPES_IN_LCMS_PLUGIN)
 		nMaxTypes = MAX_TYPES_IN_LCMS_PLUGIN;

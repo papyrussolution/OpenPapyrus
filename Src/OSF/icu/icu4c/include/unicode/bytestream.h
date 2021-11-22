@@ -56,15 +56,14 @@ public:
 	 * Default constructor.
 	 * @stable ICU 4.2
 	 */
-	ByteSink() {
+	ByteSink() 
+	{
 	}
-
 	/**
 	 * Virtual destructor.
 	 * @stable ICU 4.2
 	 */
 	virtual ~ByteSink();
-
 	/**
 	 * Append "bytes[0,n-1]" to this.
 	 * @param bytes the pointer to the bytes
@@ -147,11 +146,7 @@ public:
 	 * @return a buffer with *result_capacity>=min_capacity
 	 * @stable ICU 4.2
 	 */
-	virtual char * GetAppendBuffer(int32_t min_capacity,
-	    int32_t desired_capacity_hint,
-	    char * scratch, int32_t scratch_capacity,
-	    int32_t* result_capacity);
-
+	virtual char * GetAppendBuffer(int32_t min_capacity, int32_t desired_capacity_hint, char * scratch, int32_t scratch_capacity, int32_t* result_capacity);
 	/**
 	 * Flush internal buffers.
 	 * Some byte sinks use internal buffers or provide buffering
@@ -161,15 +156,13 @@ public:
 	 * @stable ICU 4.2
 	 */
 	virtual void Flush();
-
 private:
 	ByteSink(const ByteSink &) = delete;
 	ByteSink & operator = (const ByteSink &) = delete;
 };
-
-// -------------------------------------------------------------
+//
 // Some standard implementations
-
+//
 /**
  * Implementation of ByteSink that writes to a flat byte array,
  * with bounds-checking:

@@ -1243,7 +1243,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	bool   some_data_files = FALSE, some_functions = FALSE;
 	bool   was_definition = FALSE;
 	int    df_return = 0;
-	int    plot_num, line_num;
+	int    plot_num = 0;
+	int    line_num = 0; // default line type 
 	// part number of parametric function triplet: 0 = z, 1 = y, 2 = x 
 	int    crnt_param = 0;
 	char * xtitle;
@@ -1261,8 +1262,6 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	AxS.Idx_Y = FIRST_Y_AXIS;
 	AxS.Idx_Z = FIRST_Z_AXIS;
 	tp_3d_ptr = &_Plt.first_3dplot;
-	plot_num = 0;
-	line_num = 0;           /* default line type */
 	// Assume that the input data can be re-read later 
 	Gg.VolatileData = false;
 	// Track complex values so that we can warn about trying to plot a complex-valued function directly.

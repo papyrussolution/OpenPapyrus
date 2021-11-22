@@ -8964,7 +8964,9 @@ private:
 
 	UintHashTable SvcFreeList;
 	UintHashTable DatFreeList;
-	TSVector <Item_> TreeList;
+	TSVector <Item_> TreeList; // Сервисный линейный список узлов дерева. Оперирует позиционными ссылками.
+		// Так как ссылки позиционные, то удаление и перемешивание этого вектора недопустимо. В случае удаления элемента
+		// его позиция попадает в SvcFreeList, но из вектора TreeList блок не удаляется.
 };
 
 template <class T> class TSTree : public STree {

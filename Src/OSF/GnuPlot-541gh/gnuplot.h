@@ -768,9 +768,15 @@ enum t_fillstyle {
 	// EAM July 2004 - Disentangle polygon support and PM3D support 
 	// a point (with integer coordinates) for use in polygon drawing 
 	//
-	struct gpiPoint {
-		int    x;
-		int    y;
+	struct gpiPoint : public SPoint2I {
+		//int    x;
+		//int    y;
+		gpiPoint() : SPoint2I(), style(0)
+		{
+		}
+		gpiPoint(int _x, int _y) : SPoint2I(_x, _y), style(0)
+		{
+		}
 		int    style;
 	};
 	//

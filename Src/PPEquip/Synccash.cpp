@@ -803,6 +803,10 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
 							}
 							// } @v11.1.11
+							// @v11.2.4 {
+							if(sl_param.ChZnSid.NotEmpty())
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
+							// } @v11.2.4
 						}
 						// @v10.4.1 {
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
@@ -966,7 +970,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		{
 			// @v10.8.12 {
 			if(chzn_sid.NotEmpty())
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_sid));
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
 			// } @v10.8.12
 		}
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек

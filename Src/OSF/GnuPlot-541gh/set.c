@@ -4810,14 +4810,7 @@ void GnuPlot::SetTimeFmt()
 {
 	Pgm.Shift();
 	char * ctmp = TryToGetString();
-	if(ctmp) {
-		SAlloc::F(AxS.P_TimeFormat);
-		AxS.P_TimeFormat = ctmp;
-	}
-	else {
-		SAlloc::F(AxS.P_TimeFormat);
-		AxS.P_TimeFormat = sstrdup(TIMEFMT);
-	}
+	FREEANDASSIGN(AxS.P_TimeFormat, ctmp ? ctmp : sstrdup(TIMEFMT));
 }
 //
 // process 'set timestamp' command 
@@ -5136,7 +5129,7 @@ void GnuPlot::SetZeroAxis(AXIS_INDEX axis)
 //static void set_allzeroaxis()
 void GnuPlot::SetAllZeroAxis()
 {
-	int save_token = Pgm.GetCurTokenIdx();
+	const int save_token = Pgm.GetCurTokenIdx();
 	SetZeroAxis(FIRST_X_AXIS);
 	Pgm.SetTokenIdx(save_token);
 	SetZeroAxis(FIRST_Y_AXIS);
@@ -5295,14 +5288,17 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 				pThisAxis->tictype = DT_NORMAL;
 			}
 			else if(Pgm.EqualsCur("format")) {
-				char * format;
+				char * format = 0;
 				Pgm.Shift();
 				if(Pgm.EndOfCommand())
 					format = sstrdup(DEF_FORMAT);
-				else if(!((format = TryToGetString())))
-					IntErrorCurToken("expected format");
+				else {
+					format = TryToGetString();
+					if(!format)
+						IntErrorCurToken("expected format");
+				}
 				SAlloc::F(pThisAxis->formatstring);
-				pThisAxis->formatstring  = format;
+				pThisAxis->formatstring = format;
 			}
 			else if(Pgm.AlmostEqualsCur("enh$anced")) {
 				Pgm.Shift();

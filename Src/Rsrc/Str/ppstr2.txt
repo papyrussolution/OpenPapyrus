@@ -5595,7 +5595,7 @@ DVCPARAM_CHZNGTIN              "CHZNGTIN"       // @v10.7.2 GTIN марки че
 DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // @v10.7.2 Серия марки честный знак
 DVCPARAM_CHZNPARTN             "CHZNPARTN"      // @v10.7.8 Номер партии в марке честный знак
 DVCPARAM_CHZNPRODTYPE          "CHZNPRODTYPE"   // @v10.7.2 Тип продукта честный знак
-DVCPARAM_CHZNCID               "CHZNCID"        // @v10.8.12 Ид предприятия для передачи в честный знак
+DVCPARAM_CHZNSID               "CHZNSID"        // @v10.8.12 Ид предприятия для передачи в честный знак
 DVCPARAM_PAYMCCRD              "PAYMCCRD"       // @v10.4.1 Оплата корпоративной кредитной картой
 DVCPARAM_PAYMENTTERMTAG        "PAYMENTTERMTAG" // @v10.4.1
 DVCPARAM_SUBJTERMTAG           "SUBJTERMTAG"    // @erik v10.4.12

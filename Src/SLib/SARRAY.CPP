@@ -3029,6 +3029,7 @@ public:
 		SStrGroup::ClearS();
 		return *this;
 	}
+	uint   GetCount() const;
 	bool Search(long id, long * pParentId, SString * pBuf) const
 	{
 		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
@@ -3071,7 +3072,11 @@ public:
 		if(p_entry) {
 		}
 		else {
-			
+			if(p_parent_entry) {
+				uint strp = 0;
+				AddS(pStr, &strp);
+				ok = p_parent_entry->P_Children->Implement_Add(id, strp);
+			}			
 		}
 		return ok;
 	}
@@ -3080,6 +3085,59 @@ protected:
 private:
 	StrAssocTreeEntry::BaseList L;
 };
+//
+// Descr: Функция тестирования стркуктуры StrAssocTree.
+//   Полагается на то, что структура StrAssocArray (которя тоже умеет хранить иерархию строк, но медленная) работает правильно.
+//
+#if 0 // @construction {
+int Test_StrAssocTree()
+{
+	class InnerBlock {
+	public:
+		InnerBlock() : LastId(0)
+		{
+		}
+		int Helper_GetFiles(const char * pDir, long parentId)
+		{
+			int    ok = 1;
+			SDirEntry de;
+			SString temp_buf;
+			SString norm_text;
+			for(SDirec dir(pDir, 1); dir.Next(&de);) {
+				if(de.IsFolder() || de.IsFile()) {
+					(temp_buf = pDir).SetLastSlash().Cat(de.FileName);
+					SPathStruc::NormalizePath(temp_buf, 0, norm_text);
+					LastId++;
+					THROW(Saa.Add(LastId, parentId, norm_text, 0));
+					THROW(Sat.Add(LastId, parentId, norm_text, 0))
+					if(de.IsFolder()) {
+						THROW(Helper_GetFiles(temp_buf, LastId)); // @recursion
+					}
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		long   LastId;
+		StrAssocArray Saa;
+		StrAssocTree  Sat;
+	};
+	int    ok = 1;
+	SString root_path;
+	SLS.QueryPath("testroot", root_path);
+	if(root_path.NotEmpty()) {
+		InnerBlock blk;
+		if(blk.Helper_GetFiles(root_path, 0)) {
+			assert(blk.Saa.getCount() == blk.Sat.GetCount());
+			for(long i = 1; i < blk.LastId; i++) {
+				assert(blk.Saa.Search(i, 0));
+				assert(blk.Sat.Search(i));
+			}
+		}
+	}
+	return ok;
+}
+#endif // } 0 @construction 
 // } @construction
 //
 //

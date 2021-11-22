@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2011-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
+	Copyright (C) 2011-2015, International Business Machines Corporation and others. All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -149,29 +146,20 @@ U_CDECL_BEGIN
  */
 static bool U_CALLCONV tzfmt_cleanup(void)
 {
-	if(gZoneIdTrie != NULL) {
-		delete gZoneIdTrie;
-	}
-	gZoneIdTrie = NULL;
+	ZDELETE(gZoneIdTrie);
 	gZoneIdTrieInitOnce.reset();
-
-	if(gShortZoneIdTrie != NULL) {
-		delete gShortZoneIdTrie;
-	}
-	gShortZoneIdTrie = NULL;
+	ZDELETE(gShortZoneIdTrie);
 	gShortZoneIdTrieInitOnce.reset();
-
 	return TRUE;
 }
 
 U_CDECL_END
-
-// ------------------------------------------------------------------
+//
 // GMTOffsetField
 //
 // This class represents a localized GMT offset pattern
 // item and used by TimeZoneFormat
-// ------------------------------------------------------------------
+//
 class GMTOffsetField : public UMemory {
 public:
 	enum FieldType {
@@ -295,9 +283,9 @@ static void U_CALLCONV deleteGMTOffsetField(void * obj) {
 }
 
 U_CDECL_END
-// ------------------------------------------------------------------
+//
 // TimeZoneFormat
-// ------------------------------------------------------------------
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(TimeZoneFormat)
 
 TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status)
@@ -494,11 +482,10 @@ bool TimeZoneFormat::operator==(const Format& other) const {
 	return isEqual;
 }
 
-TimeZoneFormat* TimeZoneFormat::clone() const {
-	return new TimeZoneFormat(*this);
-}
+TimeZoneFormat* TimeZoneFormat::clone() const { return new TimeZoneFormat(*this); }
 
-TimeZoneFormat* U_EXPORT2 TimeZoneFormat::createInstance(const Locale & locale, UErrorCode & status) {
+TimeZoneFormat* U_EXPORT2 TimeZoneFormat::createInstance(const Locale & locale, UErrorCode & status) 
+{
 	TimeZoneFormat* tzfmt = new TimeZoneFormat(locale, status);
 	if(U_SUCCESS(status)) {
 		return tzfmt;
@@ -506,10 +493,9 @@ TimeZoneFormat* U_EXPORT2 TimeZoneFormat::createInstance(const Locale & locale, 
 	delete tzfmt;
 	return NULL;
 }
-
-// ------------------------------------------------------------------
+//
 // Setter and Getter
-
+//
 const TimeZoneNames* TimeZoneFormat::getTimeZoneNames() const {
 	return (const TimeZoneNames*)fTimeZoneNames;
 }
@@ -620,10 +606,9 @@ void TimeZoneFormat::setGMTZeroFormat(const UnicodeString & gmtZeroFormat, UErro
 		}
 	}
 }
-
-// ------------------------------------------------------------------
+//
 // Format and Parse
-
+//
 UnicodeString &TimeZoneFormat::format(UTimeZoneFormatStyle style, const TimeZone& tz, UDate date,
     UnicodeString & name, UTimeZoneFormatTimeType* timeType /* = NULL */) const {
 	if(timeType) {
@@ -1303,10 +1288,9 @@ void TimeZoneFormat::parseObject(const UnicodeString & source, Formattable& resu
     ParsePosition& parse_pos) const {
 	result.adoptObject(parse(UTZFMT_STYLE_GENERIC_LOCATION, source, parse_pos, UTZFMT_PARSE_OPTION_ALL_STYLES));
 }
-
-// ------------------------------------------------------------------
+//
 // Private zone name format/parse implementation
-
+//
 UnicodeString &TimeZoneFormat::formatGeneric(const TimeZone& tz, int32_t genType, UDate date, UnicodeString & name) const {
 	UErrorCode status = U_ZERO_ERROR;
 	const TimeZoneGenericNames* gnames = getTimeZoneGenericNames(status);
@@ -1415,10 +1399,9 @@ UnicodeString &TimeZoneFormat::formatExemplarLocation(const TimeZone& tz, Unicod
 	}
 	return name;
 }
-
-// ------------------------------------------------------------------
+//
 // Zone offset format and parse
-
+//
 UnicodeString &TimeZoneFormat::formatOffsetISO8601Basic(int32_t offset, bool useUtcIndicator, bool isShort, bool ignoreSeconds,
     UnicodeString & result, UErrorCode & status) const {
 	return formatOffsetISO8601(offset, TRUE, useUtcIndicator, isShort, ignoreSeconds, result, status);
@@ -1448,10 +1431,9 @@ int32_t TimeZoneFormat::parseOffsetLocalizedGMT(const UnicodeString & text, Pars
 int32_t TimeZoneFormat::parseOffsetShortLocalizedGMT(const UnicodeString & text, ParsePosition& pos) const {
 	return parseOffsetLocalizedGMT(text, pos, TRUE, NULL);
 }
-
-// ------------------------------------------------------------------
+//
 // Private zone offset format/parse implementation
-
+//
 UnicodeString &TimeZoneFormat::formatOffsetISO8601(int32_t offset, bool isBasic, bool useUtcIndicator,
     bool isShort, bool ignoreSeconds, UnicodeString & result, UErrorCode & status) const {
 	if(U_FAILURE(status)) {
@@ -2374,9 +2356,9 @@ void TimeZoneFormat::appendOffsetDigits(UnicodeString & buf, int32_t n, uint8_t 
 	}
 	buf.append(fGMTOffsetDigits[n % 10]);
 }
-
-// ------------------------------------------------------------------
+//
 // Private misc
+//
 void TimeZoneFormat::initGMTPattern(const UnicodeString & gmtPattern, UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return;
@@ -2838,14 +2820,13 @@ static void U_CALLCONV initShortZoneIdTrie(UErrorCode & status) {
 	delete tzenum;
 }
 
-UnicodeString &TimeZoneFormat::parseShortZoneID(const UnicodeString & text, ParsePosition& pos, UnicodeString & tzID) const {
+UnicodeString &TimeZoneFormat::parseShortZoneID(const UnicodeString & text, ParsePosition& pos, UnicodeString & tzID) const 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	umtx_initOnce(gShortZoneIdTrieInitOnce, &initShortZoneIdTrie, status);
-
 	int32_t start = pos.getIndex();
 	int32_t len = 0;
 	tzID.setToBogus();
-
 	if(U_SUCCESS(status)) {
 		LocalPointer<ZoneIdMatchHandler> handler(new ZoneIdMatchHandler());
 		gShortZoneIdTrie->search(text, start, handler.getAlias(), status);
@@ -2854,22 +2835,20 @@ UnicodeString &TimeZoneFormat::parseShortZoneID(const UnicodeString & text, Pars
 			tzID.setTo(handler->getID(), -1);
 		}
 	}
-
 	if(len > 0) {
 		pos.setIndex(start + len);
 	}
 	else {
 		pos.setErrorIndex(start);
 	}
-
 	return tzID;
 }
 
-UnicodeString &TimeZoneFormat::parseExemplarLocation(const UnicodeString & text, ParsePosition& pos, UnicodeString & tzID) const {
+UnicodeString &TimeZoneFormat::parseExemplarLocation(const UnicodeString & text, ParsePosition& pos, UnicodeString & tzID) const 
+{
 	int32_t startIdx = pos.getIndex();
 	int32_t parsedPos = -1;
 	tzID.setToBogus();
-
 	UErrorCode status = U_ZERO_ERROR;
 	LocalPointer<TimeZoneNames::MatchInfoCollection> exemplarMatches(fTimeZoneNames->find(text,
 	    startIdx,

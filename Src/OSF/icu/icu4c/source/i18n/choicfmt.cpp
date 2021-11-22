@@ -1,22 +1,15 @@
+// CHOICFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
  * Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- *
- * File CHOICFMT.CPP
- *
  * Modification History:
- *
  *   Date        Name        Description
  *   02/19/97    aliu        Converted from java.
  *   03/20/97    helena      Finished first cut of implementation and got rid
- *        of nextDouble/previousDouble and replaced with
- *        boolean array.
+ *        of nextDouble/previousDouble and replaced with boolean array.
  *   4/10/97     aliu        Clean up.  Modified to work on AIX.
- *   06/04/97    helena      Fixed applyPattern(), toPattern() and not to include
- *        wchar.h.
+ *   06/04/97    helena      Fixed applyPattern(), toPattern() and not to include wchar.h.
  *   07/09/97    helena      Made ParsePosition into a class.
  *   08/06/97    nos         removed overloaded constructor, fixed 'format(array)'
  *   07/22/98    stephen     JDK 1.2 Sync - removed bool array (doubleFlags)
@@ -31,11 +24,9 @@
 #include "cpputils.h"
 #include "messageimpl.h"
 #include "putilimp.h"
-
-// *****************************************************************************
+//
 // class ChoiceFormat
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
     UOBJECT_DEFINE_RTTI_IMPLEMENTATION(ChoiceFormat)
@@ -63,67 +54,46 @@ static const UChar RIGHT_CURLY_BRACE = 0x7D;    /*}*/
 #define POSITIVE_INF_STRLEN 1
 #define NEGATIVE_INF_STRLEN 2
 
-// -------------------------------------
+//
 // Creates a ChoiceFormat instance based on the pattern.
-
-ChoiceFormat::ChoiceFormat(const UnicodeString & newPattern,
-    UErrorCode & status)
-	: constructorErrorCode(status),
-	msgPattern(status)
+//
+ChoiceFormat::ChoiceFormat(const UnicodeString & newPattern, UErrorCode & status) : 
+	constructorErrorCode(status), msgPattern(status)
 {
 	applyPattern(newPattern, status);
 }
-
-// -------------------------------------
+//
 // Creates a ChoiceFormat instance with the limit array and
 // format strings for each limit.
-
-ChoiceFormat::ChoiceFormat(const double* limits,
-    const UnicodeString * formats,
-    int32_t cnt)
-	: constructorErrorCode(U_ZERO_ERROR),
-	msgPattern(constructorErrorCode)
+//
+ChoiceFormat::ChoiceFormat(const double* limits, const UnicodeString * formats, int32_t cnt) : 
+	constructorErrorCode(U_ZERO_ERROR), msgPattern(constructorErrorCode)
 {
 	setChoices(limits, NULL, formats, cnt, constructorErrorCode);
 }
 
-// -------------------------------------
-
-ChoiceFormat::ChoiceFormat(const double* limits,
-    const bool* closures,
-    const UnicodeString * formats,
-    int32_t cnt)
-	: constructorErrorCode(U_ZERO_ERROR),
-	msgPattern(constructorErrorCode)
+ChoiceFormat::ChoiceFormat(const double* limits, const bool* closures, const UnicodeString * formats, int32_t cnt) : 
+	constructorErrorCode(U_ZERO_ERROR), msgPattern(constructorErrorCode)
 {
 	setChoices(limits, closures, formats, cnt, constructorErrorCode);
 }
-
-// -------------------------------------
+//
 // copy constructor
-
-ChoiceFormat::ChoiceFormat(const ChoiceFormat&   that)
-	: NumberFormat(that),
-	constructorErrorCode(that.constructorErrorCode),
-	msgPattern(that.msgPattern)
+//
+ChoiceFormat::ChoiceFormat(const ChoiceFormat&   that) : NumberFormat(that),
+	constructorErrorCode(that.constructorErrorCode), msgPattern(that.msgPattern)
 {
 }
-
-// -------------------------------------
+//
 // Private constructor that creates a
 // ChoiceFormat instance based on the
 // pattern and populates UParseError
-
-ChoiceFormat::ChoiceFormat(const UnicodeString & newPattern,
-    UParseError& parseError,
-    UErrorCode & status)
-	: constructorErrorCode(status),
-	msgPattern(status)
+//
+ChoiceFormat::ChoiceFormat(const UnicodeString & newPattern, UParseError& parseError, UErrorCode & status) : 
+	constructorErrorCode(status), msgPattern(status)
 {
 	applyPattern(newPattern, parseError, status);
 }
-
-// -------------------------------------
 
 bool ChoiceFormat::operator==(const Format& that) const
 {
@@ -132,10 +102,9 @@ bool ChoiceFormat::operator==(const Format& that) const
 	ChoiceFormat& thatAlias = (ChoiceFormat&)that;
 	return msgPattern == thatAlias.msgPattern;
 }
-
-// -------------------------------------
+//
 // copy constructor
-
+//
 const ChoiceFormat&ChoiceFormat::operator = (const ChoiceFormat& that)
 {
 	if(this != &that) {
@@ -146,19 +115,13 @@ const ChoiceFormat&ChoiceFormat::operator = (const ChoiceFormat& that)
 	return *this;
 }
 
-// -------------------------------------
-
 ChoiceFormat::~ChoiceFormat()
 {
 }
-
-// -------------------------------------
-
 /**
  * Convert a double value to a string without the overhead of NumberFormat.
  */
-UnicodeString &ChoiceFormat::dtos(double value,
-    UnicodeString & string)
+UnicodeString &ChoiceFormat::dtos(double value, UnicodeString & string)
 {
 	/* Buffer to contain the digits and any extra formatting stuff. */
 	char temp[DBL_DIG + 16];
@@ -207,62 +170,49 @@ UnicodeString &ChoiceFormat::dtos(double value,
 	string = UnicodeString(temp, -1, US_INV); /* invariant codepage */
 	return string;
 }
-
-// -------------------------------------
+//
 // calls the overloaded applyPattern method.
-
-void ChoiceFormat::applyPattern(const UnicodeString & pattern,
-    UErrorCode & status)
+//
+void ChoiceFormat::applyPattern(const UnicodeString & pattern, UErrorCode & status)
 {
 	msgPattern.parseChoiceStyle(pattern, NULL, status);
 	constructorErrorCode = status;
 }
-
-// -------------------------------------
+//
 // Applies the pattern to this ChoiceFormat instance.
-
-void ChoiceFormat::applyPattern(const UnicodeString & pattern,
-    UParseError& parseError,
-    UErrorCode & status)
+//
+void ChoiceFormat::applyPattern(const UnicodeString & pattern, UParseError& parseError, UErrorCode & status)
 {
 	msgPattern.parseChoiceStyle(pattern, &parseError, status);
 	constructorErrorCode = status;
 }
-
-// -------------------------------------
+//
 // Returns the input pattern string.
-
+//
 UnicodeString &ChoiceFormat::toPattern(UnicodeString & result) const
 {
 	return result = msgPattern.getPatternString();
 }
-
-// -------------------------------------
+//
 // Sets the limit and format arrays.
-void ChoiceFormat::setChoices(const double* limits,
-    const UnicodeString * formats,
-    int32_t cnt)
+//
+void ChoiceFormat::setChoices(const double* limits, const UnicodeString * formats, int32_t cnt)
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	setChoices(limits, NULL, formats, cnt, errorCode);
 }
-
-// -------------------------------------
+//
 // Sets the limit and format arrays.
-void ChoiceFormat::setChoices(const double* limits,
-    const bool* closures,
-    const UnicodeString * formats,
-    int32_t cnt)
+//
+void ChoiceFormat::setChoices(const double* limits, const bool* closures, const UnicodeString * formats, int32_t cnt)
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	setChoices(limits, closures, formats, cnt, errorCode);
 }
 
-void ChoiceFormat::setChoices(const double* limits,
-    const bool* closures,
-    const UnicodeString * formats,
-    int32_t count,
-    UErrorCode & errorCode) {
+void ChoiceFormat::setChoices(const double* limits, const bool* closures, const UnicodeString * formats,
+    int32_t count, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -330,63 +280,50 @@ void ChoiceFormat::setChoices(const double* limits,
 	// Apply the reconstructed pattern.
 	applyPattern(result, errorCode);
 }
-
-// -------------------------------------
+//
 // Gets the limit array.
-
+//
 const double* ChoiceFormat::getLimits(int32_t& cnt) const
 {
 	cnt = 0;
 	return NULL;
 }
-
-// -------------------------------------
+//
 // Gets the closures array.
-
+//
 const bool* ChoiceFormat::getClosures(int32_t& cnt) const
 {
 	cnt = 0;
 	return NULL;
 }
-
-// -------------------------------------
+//
 // Gets the format array.
-
+//
 const UnicodeString * ChoiceFormat::getFormats(int32_t& cnt) const
 {
 	cnt = 0;
 	return NULL;
 }
-
-// -------------------------------------
+//
 // Formats an int64 number, it's actually formatted as
 // a double.  The returned format string may differ
 // from the input number because of this.
-
-UnicodeString &ChoiceFormat::format(int64_t number,
-    UnicodeString & appendTo,
-    FieldPosition& status) const
+//
+UnicodeString &ChoiceFormat::format(int64_t number, UnicodeString & appendTo, FieldPosition& status) const
 {
 	return format((double)number, appendTo, status);
 }
-
-// -------------------------------------
-// Formats an int32_t number, it's actually formatted as
-// a double.
-
-UnicodeString &ChoiceFormat::format(int32_t number,
-    UnicodeString & appendTo,
-    FieldPosition& status) const
+//
+// Formats an int32_t number, it's actually formatted as a double.
+//
+UnicodeString &ChoiceFormat::format(int32_t number, UnicodeString & appendTo, FieldPosition& status) const
 {
 	return format((double)number, appendTo, status);
 }
-
-// -------------------------------------
+//
 // Formats a double number.
-
-UnicodeString &ChoiceFormat::format(double number,
-    UnicodeString & appendTo,
-    FieldPosition& /*pos*/) const
+//
+UnicodeString &ChoiceFormat::format(double number, UnicodeString & appendTo, FieldPosition& /*pos*/) const
 {
 	if(msgPattern.countParts() == 0) {
 		// No pattern was applied, or it failed.
@@ -445,16 +382,12 @@ int32_t ChoiceFormat::findSubMessage(const MessagePattern &pattern, int32_t part
 	}
 	return msgStart;
 }
-
-// -------------------------------------
+//
 // Formats an array of objects. Checks if the data type of the objects
 // to get the right value for formatting.
-
-UnicodeString &ChoiceFormat::format(const Formattable* objs,
-    int32_t cnt,
-    UnicodeString & appendTo,
-    FieldPosition& pos,
-    UErrorCode & status) const
+//
+UnicodeString &ChoiceFormat::format(const Formattable* objs, int32_t cnt, UnicodeString & appendTo,
+    FieldPosition& pos, UErrorCode & status) const
 {
 	if(cnt < 0) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -475,11 +408,7 @@ UnicodeString &ChoiceFormat::format(const Formattable* objs,
 	return appendTo;
 }
 
-// -------------------------------------
-
-void ChoiceFormat::parse(const UnicodeString & text,
-    Formattable& result,
-    ParsePosition& pos) const
+void ChoiceFormat::parse(const UnicodeString & text, Formattable& result, ParsePosition& pos) const
 {
 	result.setDouble(parseArgument(msgPattern, 0, text, pos));
 }
@@ -540,8 +469,6 @@ int32_t ChoiceFormat::matchStringUntilLimitPart(const MessagePattern &pattern, i
 	}
 }
 
-// -------------------------------------
-
 ChoiceFormat* ChoiceFormat::clone() const
 {
 	ChoiceFormat * aCopy = new ChoiceFormat(*this);
@@ -551,5 +478,3 @@ ChoiceFormat* ChoiceFormat::clone() const
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

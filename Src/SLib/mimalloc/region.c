@@ -287,8 +287,7 @@ static void * mi_region_try_alloc(size_t blocks, bool* commit, bool* large, bool
 			return NULL;
 		}
 	}
-
-	// ------------------------------------------------
+	//
 	// found a region and claimed `blocks` at `bit_idx`, initialize them now
 	mi_assert_internal(region != NULL);
 	mi_assert_internal(_mi_bitmap_is_claimed(&region->in_use, 1, blocks, bit_idx));
@@ -410,12 +409,12 @@ void * _mi_mem_alloc_aligned(size_t size,
    -----------------------------------------------------------------------------*/
 
 // Free previously allocated memory with a given id.
-void _mi_mem_free(void * p, size_t size, size_t id, bool full_commit, bool any_reset, mi_os_tld_t* tld) {
+void _mi_mem_free(void * p, size_t size, size_t id, bool full_commit, bool any_reset, mi_os_tld_t* tld) 
+{
 	mi_assert_internal(size > 0 && tld != NULL);
 	if(p==NULL) return;
 	if(size==0) return;
 	size = _mi_align_up(size, _mi_os_page_size());
-
 	size_t arena_memid = 0;
 	mi_bitmap_index_t bit_idx;
 	mem_region_t* region;
@@ -445,30 +444,24 @@ void _mi_mem_free(void * p, size_t size, size_t id, bool full_commit, bool any_r
 			// set the is_reset bits if any pages were reset
 			_mi_bitmap_claim(&region->reset, 1, blocks, bit_idx, NULL);
 		}
-
 		// reset the blocks to reduce the working set.
-		if(!info.x.is_large && !info.x.is_pinned && mi_option_is_enabled(mi_option_segment_reset)
-		  && (mi_option_is_enabled(mi_option_eager_commit) ||
-		    mi_option_is_enabled(mi_option_reset_decommits))) { // cannot reset halfway committed segments, use
-		                                                        // only `option_page_reset` instead
+		if(!info.x.is_large && !info.x.is_pinned && mi_option_is_enabled(mi_option_segment_reset) && (mi_option_is_enabled(mi_option_eager_commit) ||
+		    mi_option_is_enabled(mi_option_reset_decommits))) { // cannot reset halfway committed segments, use only `option_page_reset` instead
 			bool any_unreset;
 			_mi_bitmap_claim(&region->reset, 1, blocks, bit_idx, &any_unreset);
 			if(any_unreset) {
-				_mi_abandoned_await_readers(); // ensure no more pending write (in case reset =
-				                               // decommit)
+				_mi_abandoned_await_readers(); // ensure no more pending write (in case reset = decommit)
 				_mi_mem_reset(p, blocks * MI_SEGMENT_SIZE, tld);
 			}
 		}
-
 		// and unclaim
 		bool all_unclaimed = mi_bitmap_unclaim(&region->in_use, 1, blocks, bit_idx);
 		mi_assert_internal(all_unclaimed); UNUSED(all_unclaimed);
 	}
 }
-
-/* ----------------------------------------------------------------------------
-   collection
-   -----------------------------------------------------------------------------*/
+//
+// collection
+//
 void _mi_mem_collect(mi_os_tld_t* tld) 
 {
 	// free every region that has no segments in use.
@@ -497,31 +490,12 @@ void _mi_mem_collect(mi_os_tld_t* tld)
 		}
 	}
 }
-
-/* ----------------------------------------------------------------------------
-   Other
-   -----------------------------------------------------------------------------*/
-
-bool _mi_mem_reset(void * p, size_t size, mi_os_tld_t* tld) {
-	return _mi_os_reset(p, size, tld->stats);
-}
-
-bool _mi_mem_unreset(void * p, size_t size, bool* is_zero, mi_os_tld_t* tld) {
-	return _mi_os_unreset(p, size, is_zero, tld->stats);
-}
-
-bool _mi_mem_commit(void * p, size_t size, bool* is_zero, mi_os_tld_t* tld) {
-	return _mi_os_commit(p, size, is_zero, tld->stats);
-}
-
-bool _mi_mem_decommit(void * p, size_t size, mi_os_tld_t* tld) {
-	return _mi_os_decommit(p, size, tld->stats);
-}
-
-bool _mi_mem_protect(void * p, size_t size) {
-	return _mi_os_protect(p, size);
-}
-
-bool _mi_mem_unprotect(void * p, size_t size) {
-	return _mi_os_unprotect(p, size);
-}
+//
+// Other
+//
+bool _mi_mem_reset(void * p, size_t size, mi_os_tld_t* tld) { return _mi_os_reset(p, size, tld->stats); }
+bool _mi_mem_unreset(void * p, size_t size, bool* is_zero, mi_os_tld_t* tld) { return _mi_os_unreset(p, size, is_zero, tld->stats); }
+bool _mi_mem_commit(void * p, size_t size, bool* is_zero, mi_os_tld_t* tld) { return _mi_os_commit(p, size, is_zero, tld->stats); }
+bool _mi_mem_decommit(void * p, size_t size, mi_os_tld_t* tld) { return _mi_os_decommit(p, size, tld->stats); }
+bool _mi_mem_protect(void * p, size_t size) { return _mi_os_protect(p, size); }
+bool _mi_mem_unprotect(void * p, size_t size) { return _mi_os_unprotect(p, size); }

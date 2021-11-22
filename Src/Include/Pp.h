@@ -21530,7 +21530,7 @@ struct SlipLineParam {
 	SString ChZnGTIN;     // @v10.7.2
 	SString ChZnSerial;   // @v10.7.2
 	SString ChZnPartN;    // @v10.7.8 Номер партии в марке честный знак
-	SString ChZnCid;      // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString ChZnSid;      // @v10.8.12 Ид предприятия для передачи в честный знак
 };
 
 struct SlipDocCommonParam {

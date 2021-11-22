@@ -1,53 +1,42 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ************************************************************************************
- * Copyright (C) 2006-2016, International Business Machines Corporation
- * and others. All Rights Reserved.
- ************************************************************************************
- */
+	Copyright (C) 2006-2016, International Business Machines Corporation and others. All Rights Reserved.
+*/
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_BREAK_ITERATION
 
 U_NAMESPACE_BEGIN
-/*
- ******************************************************************
- */
 
-LanguageBreakEngine::LanguageBreakEngine() {
+LanguageBreakEngine::LanguageBreakEngine() 
+{
 }
 
-LanguageBreakEngine::~LanguageBreakEngine() {
+LanguageBreakEngine::~LanguageBreakEngine() 
+{
 }
 
-/*
- ******************************************************************
- */
-
-LanguageBreakFactory::LanguageBreakFactory() {
+LanguageBreakFactory::LanguageBreakFactory() 
+{
 }
 
-LanguageBreakFactory::~LanguageBreakFactory() {
+LanguageBreakFactory::~LanguageBreakFactory() 
+{
 }
 
-/*
- ******************************************************************
- */
-
-UnhandledEngine::UnhandledEngine(UErrorCode & status) : fHandled(nullptr) {
+UnhandledEngine::UnhandledEngine(UErrorCode & status) : fHandled(nullptr) 
+{
 	(void)status;
 }
 
-UnhandledEngine::~UnhandledEngine() {
-	delete fHandled;
-	fHandled = nullptr;
+UnhandledEngine::~UnhandledEngine() 
+{
+	ZDELETE(fHandled);
 }
 
-bool UnhandledEngine::handles(UChar32 c) const {
-	return fHandled && fHandled->contains(c);
-}
+bool UnhandledEngine::handles(UChar32 c) const { return fHandled && fHandled->contains(c); }
 
 int32_t UnhandledEngine::findBreaks(UText * text,
     int32_t /* startPos */,
@@ -82,11 +71,13 @@ void UnhandledEngine::handleCharacter(UChar32 c) {
  ******************************************************************
  */
 
-ICULanguageBreakFactory::ICULanguageBreakFactory(UErrorCode & /*status*/) {
+ICULanguageBreakFactory::ICULanguageBreakFactory(UErrorCode & /*status*/) 
+{
 	fEngines = 0;
 }
 
-ICULanguageBreakFactory::~ICULanguageBreakFactory() {
+ICULanguageBreakFactory::~ICULanguageBreakFactory() 
+{
 	if(fEngines != 0) {
 		delete fEngines;
 	}
@@ -94,20 +85,20 @@ ICULanguageBreakFactory::~ICULanguageBreakFactory() {
 
 U_NAMESPACE_END
 U_CDECL_BEGIN
-static void U_CALLCONV _deleteEngine(void * obj) {
+static void U_CALLCONV _deleteEngine(void * obj) 
+{
 	delete (const icu::LanguageBreakEngine*)obj;
 }
 
 U_CDECL_END
 U_NAMESPACE_BEGIN
 
-const LanguageBreakEngine * ICULanguageBreakFactory::getEngineFor(UChar32 c) {
+const LanguageBreakEngine * ICULanguageBreakFactory::getEngineFor(UChar32 c) 
+{
 	const LanguageBreakEngine * lbe = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-
 	static UMutex gBreakEngineMutex;
 	Mutex m(&gBreakEngineMutex);
-
 	if(fEngines == nullptr) {
 		LocalPointer<UStack>  engines(new UStack(_deleteEngine, nullptr, status), status);
 		if(U_FAILURE(status) ) {
@@ -134,7 +125,8 @@ const LanguageBreakEngine * ICULanguageBreakFactory::getEngineFor(UChar32 c) {
 	return U_SUCCESS(status) ? lbe : nullptr;
 }
 
-const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c) {
+const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UScriptCode code = uscript_getScript(c, &status);
 	if(U_SUCCESS(status)) {
@@ -148,8 +140,7 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c) {
 					return engine;
 				}
 				if(engine != nullptr) {
-					delete engine;
-					engine = nullptr;
+					ZDELETE(engine);
 				}
 				else {
 					DeleteLSTMData(data);
@@ -199,7 +190,6 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c) {
 			    }
 #endif
 #endif
-
 				default:
 				    break;
 			}
@@ -207,8 +197,7 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c) {
 				delete m;
 			}
 			else if(U_FAILURE(status)) {
-				delete engine;
-				engine = NULL;
+				ZDELETE(engine);
 			}
 			return engine;
 		}

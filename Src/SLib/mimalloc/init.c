@@ -78,16 +78,14 @@ const mi_page_t _mi_page_empty = {
 	{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },     \
 	{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } \
 	MI_STAT_COUNT_END_NULL()
-
-// --------------------------------------------------------
+//
 // Statically allocate an empty heap as the initial
 // thread local value for the default heap,
 // and statically allocate the backing heap for the main
 // thread so it can function without doing any allocation
 // itself (as accessing a thread local for the first time
 // may lead to allocation itself on some platforms)
-// --------------------------------------------------------
-
+//
 mi_decl_cache_align const mi_heap_t _mi_heap_empty = {
 	NULL,
 	MI_SMALL_PAGES_EMPTY,
@@ -256,8 +254,7 @@ static bool _mi_heap_done(mi_heap_t* heap)
 #endif
 	return false;
 }
-
-// --------------------------------------------------------
+//
 // Try to run `mi_thread_done()` automatically so any memory
 // owned by the thread but not yet released can be abandoned
 // and re-owned by another thread.
@@ -271,8 +268,7 @@ static bool _mi_heap_done(mi_heap_t* heap)
 //
 // In the last two cases we also need to call `mi_process_init`
 // to set up the thread local keys.
-// --------------------------------------------------------
-
+//
 static void _mi_thread_done(mi_heap_t* default_heap);
 
 #ifdef __wasi__
@@ -387,23 +383,17 @@ void _mi_heap_set_default_direct(mi_heap_t* heap)  {
 	}
   #endif
 }
-
-// --------------------------------------------------------
+//
 // Run functions on process init/done, and thread init/done
-// --------------------------------------------------------
+//
 static void mi_process_done(void);
 
 static bool os_preloading = true;    // true until this module is initialized
 static bool mi_redirected = false;   // true if malloc redirects to mi_malloc
 
 // Returns true if this module has not been initialized; Don't use C runtime routines until it returns false.
-bool _mi_preloading(void) {
-	return os_preloading;
-}
-
-bool mi_is_redirected(void) NOEXCEPT {
-	return mi_redirected;
-}
+bool _mi_preloading(void) { return os_preloading; }
+bool mi_is_redirected(void) NOEXCEPT { return mi_redirected; }
 
 // Communicate with the redirection module on Windows
 #if defined(_WIN32) && defined(MI_SHARED_LIB)

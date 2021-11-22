@@ -17,11 +17,9 @@
 #endif
 
 #if defined(MI_MALLOC_OVERRIDE) && !(defined(_WIN32)) // || (defined(__APPLE__) && !defined(MI_INTERPOSE)))
-
-// ------------------------------------------------------
+//
 // Override system malloc
-// ------------------------------------------------------
-
+//
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
 // use aliasing to alias the exported function to one of our `mi_` functions
   #if (defined(__GNUC__) && __GNUC__ >= 9)
@@ -86,21 +84,19 @@ void * calloc(size_t size, size_t n)    MI_FORWARD2(mi_calloc, size, n)
 void * realloc(void * p, size_t newsize) MI_FORWARD2(mi_realloc, p, newsize)
 void  free(void * p)                    MI_FORWARD0(mi_free, p)
 #endif
-
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
-#pragma GCC visibility push(default)
+	#pragma GCC visibility push(default)
 #endif
-
-// ------------------------------------------------------
+//
 // Override new/delete
 // This is not really necessary as they usually call
 // malloc/free anyway, but it improves performance.
-// ------------------------------------------------------
+//
 #ifdef __cplusplus
-// ------------------------------------------------------
+//
 // With a C++ compiler we override the new/delete operators.
 // see <https://en.cppreference.com/w/cpp/memory/new/operator_new>
-// ------------------------------------------------------
+//
   #include <new>
 void operator delete(void * p) noexcept              MI_FORWARD0(mi_free, p)
 void operator delete[] (void * p) noexcept            MI_FORWARD0(mi_free, p)
@@ -145,11 +141,11 @@ void * operator new[] (std::size_t n, std::align_val_t al, const std::nothrow_t&
   #endif
 
 #elif (defined(__GNUC__) || defined(__clang__))
-// ------------------------------------------------------
+//
 // Override by defining the mangled C++ names of the operators (as
 // used by GCC and CLang).
 // See <https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling>
-// ------------------------------------------------------
+//
 void _ZdlPv(void * p)            MI_FORWARD0(mi_free, p)  // delete
 void _ZdaPv(void * p)            MI_FORWARD0(mi_free, p)  // delete[]
 void _ZdlPvm(void * p, size_t n) MI_FORWARD02(mi_free_size, p, n)
@@ -208,11 +204,9 @@ void * _ZnajSt11align_val_tRKSt9nothrow_t(size_t n, size_t al, mi_nothrow_t tag)
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// ------------------------------------------------------
+//
 // Posix & Unix functions definitions
-// ------------------------------------------------------
-
+//
 void   cfree(void * p)                    MI_FORWARD0(mi_free, p)
 void *  reallocf(void * p, size_t newsize) MI_FORWARD2(mi_reallocf, p, newsize)
 size_t malloc_size(const void * p)        MI_FORWARD1(mi_usable_size, p)
@@ -223,35 +217,12 @@ size_t malloc_usable_size(const void * p) MI_FORWARD1(mi_usable_size, p)
 #endif
 
 // no forwarding here due to aliasing/name mangling issues
-void * valloc(size_t size)                                     
-{
-	return mi_valloc(size);
-}
-
-void * pvalloc(size_t size)                                    
-{
-	return mi_pvalloc(size);
-}
-
-void * reallocarray(void * p, size_t count, size_t size)        
-{
-	return mi_reallocarray(p, count, size);
-}
-
-void * memalign(size_t alignment, size_t size)                 
-{
-	return mi_memalign(alignment, size);
-}
-
-int   posix_memalign(void ** p, size_t alignment, size_t size) 
-{
-	return mi_posix_memalign(p, alignment, size);
-}
-
-void * _aligned_malloc(size_t alignment, size_t size)          
-{
-	return mi_aligned_alloc(alignment, size);
-}
+void * valloc(size_t size) { return mi_valloc(size); }
+void * pvalloc(size_t size) { return mi_pvalloc(size); }
+void * reallocarray(void * p, size_t count, size_t size) { return mi_reallocarray(p, count, size); }
+void * memalign(size_t alignment, size_t size) { return mi_memalign(alignment, size); }
+int   posix_memalign(void ** p, size_t alignment, size_t size) { return mi_posix_memalign(p, alignment, size); }
+void * _aligned_malloc(size_t alignment, size_t size) { return mi_aligned_alloc(alignment, size); }
 
 // `aligned_alloc` is only available when __USE_ISOC11 is defined.
 // Note: Conda has a custom glibc where `aligned_alloc` is declared `static inline` and we cannot
@@ -259,9 +230,7 @@ void * _aligned_malloc(size_t alignment, size_t size)
 // Fortunately, in the case where `aligned_alloc` is declared as `static inline` it
 // uses internally `memalign`, `posix_memalign`, or `_aligned_malloc` so we  can avoid overriding it ourselves.
 #if __USE_ISOC11
-void * aligned_alloc(size_t alignment, size_t size)   {
-	return mi_aligned_alloc(alignment, size);
-}
+void * aligned_alloc(size_t alignment, size_t size)   { return mi_aligned_alloc(alignment, size); }
 
 #endif
 

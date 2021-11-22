@@ -1,12 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2011-2015, International Business Machines Corporation and    *
- * others. All Rights Reserved.
- *******************************************************************************
+ * Copyright (C) 2011-2015, International Business Machines Corporation and others. All Rights Reserved.
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -72,11 +68,11 @@ U_CDECL_END
  * the expiration time. This function must be called with in the mutex
  * block.
  */
-static void sweepCache() {
+static void sweepCache() 
+{
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* elem;
 	double now = (double)uprv_getUTCtime();
-
 	while((elem = uhash_nextElement(gTimeZoneNamesCache, &pos)) != 0) {
 		TimeZoneNamesCacheEntry * entry = (TimeZoneNamesCacheEntry*)elem->value.pointer;
 		if(entry->refCount <= 0 && (now - entry->lastAccess) > CACHE_EXPIRATION) {
@@ -85,10 +81,9 @@ static void sweepCache() {
 		}
 	}
 }
-
-// ---------------------------------------------------
+//
 // TimeZoneNamesDelegate
-// ---------------------------------------------------
+//
 class TimeZoneNamesDelegate : public TimeZoneNames {
 public:
 	TimeZoneNamesDelegate(const Locale & locale, UErrorCode & status);
@@ -296,10 +291,9 @@ TimeZoneNames::MatchInfoCollection* TimeZoneNamesDelegate::find(const UnicodeStr
     UErrorCode & status) const {
 	return fTZnamesCacheEntry->names->find(text, start, types, status);
 }
-
-// ---------------------------------------------------
+//
 // TimeZoneNames base class
-// ---------------------------------------------------
+//
 TimeZoneNames::~TimeZoneNames() {
 }
 
@@ -375,8 +369,8 @@ struct MatchInfo : UMemory {
 	UnicodeString id;
 	int32_t matchLength;
 	bool isTZID;
-
-	MatchInfo(UTimeZoneNameType nameType, int32_t matchLength, const UnicodeString * tzID, const UnicodeString * mzID) {
+	MatchInfo(UTimeZoneNameType nameType, int32_t matchLength, const UnicodeString * tzID, const UnicodeString * mzID) 
+	{
 		this->nameType = nameType;
 		this->matchLength = matchLength;
 		if(tzID != NULL) {
@@ -391,28 +385,25 @@ struct MatchInfo : UMemory {
 };
 
 U_CDECL_BEGIN
-static void U_CALLCONV deleteMatchInfo(void * obj) {
+static void U_CALLCONV deleteMatchInfo(void * obj) 
+{
 	delete static_cast<MatchInfo *>(obj);
 }
-
 U_CDECL_END
-
-// ---------------------------------------------------
+//
 // MatchInfoCollection class
-// ---------------------------------------------------
-TimeZoneNames::MatchInfoCollection::MatchInfoCollection()
-	: fMatches(NULL) {
+//
+TimeZoneNames::MatchInfoCollection::MatchInfoCollection() : fMatches(NULL) 
+{
 }
 
-TimeZoneNames::MatchInfoCollection::~MatchInfoCollection() {
-	if(fMatches != NULL) {
-		delete fMatches;
-	}
+TimeZoneNames::MatchInfoCollection::~MatchInfoCollection() 
+{
+	delete fMatches;
 }
 
-void
-TimeZoneNames::MatchInfoCollection::addZone(UTimeZoneNameType nameType, int32_t matchLength,
-    const UnicodeString &tzID, UErrorCode & status) {
+void TimeZoneNames::MatchInfoCollection::addZone(UTimeZoneNameType nameType, int32_t matchLength, const UnicodeString &tzID, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}

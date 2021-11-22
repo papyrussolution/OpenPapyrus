@@ -1,16 +1,9 @@
+// TZNAMES_IMPL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2011-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File TZNAMES_IMPL.CPP
- *
- *******************************************************************************
- */
-
+ * Copyright (C) 2011-2016, International Business Machines Corporation and others. All Rights Reserved.
+*/
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -66,19 +59,15 @@ enum UTimeZoneNameTypeIndex {
 static const UChar * const EMPTY_NAMES[UTZNM_INDEX_COUNT] = {0, 0, 0, 0, 0, 0, 0};
 
 U_CDECL_BEGIN
-static bool U_CALLCONV tzdbTimeZoneNames_cleanup() {
+static bool U_CALLCONV tzdbTimeZoneNames_cleanup() 
+{
 	if(gTZDBNamesMap != NULL) {
 		uhash_close(gTZDBNamesMap);
 		gTZDBNamesMap = NULL;
 	}
 	gTZDBNamesMapInitOnce.reset();
-
-	if(gTZDBNamesTrie != NULL) {
-		delete gTZDBNamesTrie;
-		gTZDBNamesTrie = NULL;
-	}
+	ZDELETE(gTZDBNamesTrie);
 	gTZDBNamesTrieInitOnce.reset();
-
 	return TRUE;
 }
 
@@ -105,16 +94,16 @@ struct ZMatchInfo {
 static void mergeTimeZoneKey(const UnicodeString & mzID, char * result);
 
 #define DEFAULT_CHARACTERNODE_CAPACITY 1
-
-// ---------------------------------------------------
+//
 // CharacterNode class implementation
-// ---------------------------------------------------
+//
 void CharacterNode::clear() 
 {
 	memzero(this, sizeof(*this));
 }
 
-void CharacterNode::deleteValues(UObjectDeleter * valueDeleter) {
+void CharacterNode::deleteValues(UObjectDeleter * valueDeleter) 
+{
 	if(fValues == NULL) {
 		// Do nothing.
 	}
@@ -128,7 +117,8 @@ void CharacterNode::deleteValues(UObjectDeleter * valueDeleter) {
 	}
 }
 
-void CharacterNode::addValue(void * value, UObjectDeleter * valueDeleter, UErrorCode & status) {
+void CharacterNode::addValue(void * value, UObjectDeleter * valueDeleter, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		if(valueDeleter) {
 			valueDeleter(value);
@@ -158,16 +148,14 @@ void CharacterNode::addValue(void * value, UObjectDeleter * valueDeleter, UError
 		((UVector*)fValues)->addElementX(value, status);
 	}
 }
-
-// ---------------------------------------------------
+//
 // TextTrieMapSearchResultHandler class implementation
-// ---------------------------------------------------
+//
 TextTrieMapSearchResultHandler::~TextTrieMapSearchResultHandler() {
 }
-
-// ---------------------------------------------------
+//
 // TextTrieMap class implementation
-// ---------------------------------------------------
+//
 TextTrieMap::TextTrieMap(bool ignoreCase, UObjectDeleter * valueDeleter)
 	: fIgnoreCase(ignoreCase), fNodes(NULL), fNodesCapacity(0), fNodesCount(0),
 	fLazyContents(NULL), fIsEmpty(TRUE), fValueDeleter(valueDeleter) {
@@ -261,16 +249,15 @@ void TextTrieMap::putImpl(const UnicodeString & key, void * value, UErrorCode & 
 		keyBuffer = key.getBuffer();
 		keyLength = key.length();
 	}
-
 	CharacterNode * node = fNodes;
-	int32_t index;
-	for(index = 0; index < keyLength; ++index) {
+	for(int32_t index = 0; index < keyLength; ++index) {
 		node = addChildNode(node, keyBuffer[index], status);
 	}
 	node->addValue(value, fValueDeleter, status);
 }
 
-bool TextTrieMap::growNodes() {
+bool TextTrieMap::growNodes() 
+{
 	if(fNodesCapacity == 0xffff) {
 		return FALSE; // We use 16-bit node indexes.
 	}
@@ -431,10 +418,9 @@ void TextTrieMap::search(CharacterNode * node, const UnicodeString & text, int32
 		search(node, text, start, index, handler, status);
 	}
 }
-
-// ---------------------------------------------------
+//
 // ZNStringPool class implementation
-// ---------------------------------------------------
+//
 static const int32_t POOL_CHUNK_SIZE = 2000;
 struct ZNStringPoolChunk : public UMemory {
 	ZNStringPoolChunk    * fNext;                  // Ptr to next pool chunk
@@ -855,10 +841,9 @@ struct ZNames::ZNamesLoader : public ResourceSink {
 
 ZNames::ZNamesLoader::~ZNamesLoader() {
 }
-
-// ---------------------------------------------------
+//
 // The meta zone ID enumeration class
-// ---------------------------------------------------
+//
 class MetaZoneIDsEnumeration : public StringEnumeration {
 public:
 	MetaZoneIDsEnumeration();
@@ -916,10 +901,9 @@ MetaZoneIDsEnumeration::~MetaZoneIDsEnumeration() {
 		delete fLocalVector;
 	}
 }
-
-// ---------------------------------------------------
+//
 // ZNameSearchHandler
-// ---------------------------------------------------
+//
 class ZNameSearchHandler : public TextTrieMapSearchResultHandler {
 public:
 	ZNameSearchHandler(uint32_t types);
@@ -993,14 +977,12 @@ TimeZoneNames::MatchInfoCollection* ZNameSearchHandler::getMatches(int32_t& maxM
 	fMaxMatchLen = 0;
 	return results;
 }
-
-// ---------------------------------------------------
+//
 // TimeZoneNamesImpl
 //
 // TimeZoneNames implementation class. This is the main
 // part of this module.
-// ---------------------------------------------------
-
+//
 U_CDECL_BEGIN
 /**
  * Deleter for ZNames
@@ -1753,14 +1735,12 @@ UnicodeString & U_EXPORT2 TimeZoneNamesImpl::getDefaultExemplarLocationName(cons
 	}
 	return name;
 }
-
-// ---------------------------------------------------
+//
 // TZDBTimeZoneNames and its supporting classes
 //
 // TZDBTimeZoneNames is an implementation class of
 // TimeZoneNames holding the IANA tz database abbreviations.
-// ---------------------------------------------------
-
+//
 class TZDBNames : public UMemory {
 public:
 	virtual ~TZDBNames();

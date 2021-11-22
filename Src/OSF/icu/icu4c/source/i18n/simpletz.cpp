@@ -1,15 +1,10 @@
+// SIMPLETZ.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File SIMPLETZ.H
- *
+	Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
+
  * Modification History:
- *
  *   Date        Name        Description
  *   12/05/96    clhuang     Creation.
  *   04/21/97    aliu        Fixed miscellaneous bugs found by inspection and
@@ -74,8 +69,6 @@ SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID)
 	clearTransitionRules();
 }
 
-// -------------------------------------
-
 SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID,
     int8_t savingsStartMonth, int8_t savingsStartDay,
     int8_t savingsStartDayOfWeek, int32_t savingsStartTime,
@@ -93,8 +86,6 @@ SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID,
 	    U_MILLIS_PER_HOUR, status);
 }
 
-// -------------------------------------
-
 SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID,
     int8_t savingsStartMonth, int8_t savingsStartDay,
     int8_t savingsStartDayOfWeek, int32_t savingsStartTime,
@@ -111,8 +102,6 @@ SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID,
 	    savingsEndTime, WALL_TIME,
 	    savingsDST, status);
 }
-
-// -------------------------------------
 
 SimpleTimeZone::SimpleTimeZone(int32_t rawOffsetGMT, const UnicodeString & ID,
     int8_t savingsStartMonth, int8_t savingsStartDay,
@@ -173,14 +162,10 @@ void SimpleTimeZone::construct(int32_t rawOffsetGMT,
 	}
 }
 
-// -------------------------------------
-
 SimpleTimeZone::~SimpleTimeZone()
 {
 	deleteTransitionRules();
 }
-
-// -------------------------------------
 
 // Called by TimeZone::createDefault(), then clone() inside a Mutex - be careful.
 SimpleTimeZone::SimpleTimeZone(const SimpleTimeZone &source)
@@ -188,8 +173,6 @@ SimpleTimeZone::SimpleTimeZone(const SimpleTimeZone &source)
 {
 	*this = source;
 }
-
-// -------------------------------------
 
 // Called by TimeZone::createDefault(), then clone() inside a Mutex - be careful.
 SimpleTimeZone &SimpleTimeZone::operator = (const SimpleTimeZone &right)
@@ -217,8 +200,6 @@ SimpleTimeZone &SimpleTimeZone::operator = (const SimpleTimeZone &right)
 	return *this;
 }
 
-// -------------------------------------
-
 bool SimpleTimeZone::operator==(const TimeZone& that) const
 {
 	return ((this == &that) ||
@@ -227,15 +208,11 @@ bool SimpleTimeZone::operator==(const TimeZone& that) const
 	       hasSameRules(that)));
 }
 
-// -------------------------------------
-
 // Called by TimeZone::createDefault() inside a Mutex - be careful.
 SimpleTimeZone* SimpleTimeZone::clone() const
 {
 	return new SimpleTimeZone(*this);
 }
-
-// -------------------------------------
 
 /**
  * Sets the daylight savings starting year, that is, the year this time zone began
@@ -249,8 +226,6 @@ void SimpleTimeZone::setStartYear(int32_t year)
 	startYear = year;
 	transitionRulesInitialized = FALSE;
 }
-
-// -------------------------------------
 
 /**
  * Sets the daylight savings starting rule. For example, in the U.S., Daylight Savings
@@ -303,15 +278,11 @@ void SimpleTimeZone::setStartRule(int32_t month, int32_t dayOfWeekInMonth, int32
 	transitionRulesInitialized = FALSE;
 }
 
-// -------------------------------------
-
 void SimpleTimeZone::setStartRule(int32_t month, int32_t dayOfMonth,
     int32_t time, TimeMode mode, UErrorCode & status)
 {
 	setStartRule(month, dayOfMonth, 0, time, mode, status);
 }
-
-// -------------------------------------
 
 void SimpleTimeZone::setStartRule(int32_t month, int32_t dayOfMonth, int32_t dayOfWeek,
     int32_t time, TimeMode mode, bool after, UErrorCode & status)
@@ -319,8 +290,6 @@ void SimpleTimeZone::setStartRule(int32_t month, int32_t dayOfMonth, int32_t day
 	setStartRule(month, after ? dayOfMonth : -dayOfMonth,
 	    -dayOfWeek, time, mode, status);
 }
-
-// -------------------------------------
 
 /**
  * Sets the daylight savings ending rule. For example, in the U.S., Daylight
@@ -352,15 +321,11 @@ void SimpleTimeZone::setEndRule(int32_t month, int32_t dayOfWeekInMonth, int32_t
 	transitionRulesInitialized = FALSE;
 }
 
-// -------------------------------------
-
 void SimpleTimeZone::setEndRule(int32_t month, int32_t dayOfMonth,
     int32_t time, TimeMode mode, UErrorCode & status)
 {
 	setEndRule(month, dayOfMonth, 0, time, mode, status);
 }
-
-// -------------------------------------
 
 void SimpleTimeZone::setEndRule(int32_t month, int32_t dayOfMonth, int32_t dayOfWeek,
     int32_t time, TimeMode mode, bool after, UErrorCode & status)
@@ -368,8 +333,6 @@ void SimpleTimeZone::setEndRule(int32_t month, int32_t dayOfMonth, int32_t dayOf
 	setEndRule(month, after ? dayOfMonth : -dayOfMonth,
 	    -dayOfWeek, time, mode, status);
 }
-
-// -------------------------------------
 
 int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
     uint8_t dayOfWeek, int32_t millis, UErrorCode & status) const
@@ -534,9 +497,6 @@ void SimpleTimeZone::getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExis
 			status) - rawOffsetGMT;
 	}
 }
-
-// -------------------------------------
-
 /**
  * Compare a given date in the year to a rule. Return 1, 0, or -1, depending
  * on whether the date is after, equal to, or before the rule date. The
@@ -641,22 +601,16 @@ int32_t SimpleTimeZone::compareToRule(int8_t month, int8_t monthLen, int8_t prev
 	else return 0;
 }
 
-// -------------------------------------
-
 int32_t SimpleTimeZone::getRawOffset() const
 {
 	return rawOffset;
 }
-
-// -------------------------------------
 
 void SimpleTimeZone::setRawOffset(int32_t offsetMillis)
 {
 	rawOffset = offsetMillis;
 	transitionRulesInitialized = FALSE;
 }
-
-// -------------------------------------
 
 void SimpleTimeZone::setDSTSavings(int32_t millisSavedDuringDST, UErrorCode & status)
 {
@@ -669,22 +623,15 @@ void SimpleTimeZone::setDSTSavings(int32_t millisSavedDuringDST, UErrorCode & st
 	transitionRulesInitialized = FALSE;
 }
 
-// -------------------------------------
-
 int32_t SimpleTimeZone::getDSTSavings() const
 {
 	return dstSavings;
 }
 
-// -------------------------------------
-
 bool SimpleTimeZone::useDaylightTime() const
 {
 	return useDaylight;
 }
-
-// -------------------------------------
-
 /**
  * Overrides TimeZone
  * Queries if the given date is in Daylight Savings Time.
@@ -706,9 +653,6 @@ bool SimpleTimeZone::inDaylightTime(UDate date, UErrorCode & status) const
 	delete gc;
 	return result;
 }
-
-// -------------------------------------
-
 /**
  * Return true if this zone has the same rules and offset as another zone.
  * @param other the TimeZone object to be compared with
@@ -738,10 +682,7 @@ bool SimpleTimeZone::hasSameRules(const TimeZone& other) const
 	       endTimeMode    == that->endTimeMode &&
 	       startYear      == that->startYear));
 }
-
-// -------------------------------------
-
-//----------------------------------------------------------------------
+//
 // Rule representation
 //
 // We represent the following flavors of rules:
@@ -792,8 +733,7 @@ bool SimpleTimeZone::hasSameRules(const TimeZone& other) const
 // versions of this class may specify different versions.  If they wish to
 // include additional data, they should do so by storing them after the
 // packed representation below.
-//----------------------------------------------------------------------
-
+//
 /**
  * Given a set of encoded rules in startDay and startDayOfMonth, decode
  * them and set the startMode appropriately.  Do the same for endDay and
@@ -836,8 +776,8 @@ void SimpleTimeZone::decodeRules(UErrorCode & status)
  */
 void SimpleTimeZone::decodeStartRule(UErrorCode & status)
 {
-	if(U_FAILURE(status)) return;
-
+	if(U_FAILURE(status)) 
+		return;
 	useDaylight = (bool)((startDay != 0) && (endDay != 0) ? TRUE : FALSE);
 	if(useDaylight && dstSavings == 0) {
 		dstSavings = U_MILLIS_PER_HOUR;
@@ -1191,18 +1131,16 @@ void SimpleTimeZone::initTransitionRules(UErrorCode & status) {
 			return;
 		}
 	}
-
 	transitionRulesInitialized = TRUE;
 }
 
-int32_t SimpleTimeZone::countTransitionRules(UErrorCode & /*status*/) const {
+int32_t SimpleTimeZone::countTransitionRules(UErrorCode & /*status*/) const 
+{
 	return (useDaylight) ? 2 : 0;
 }
 
-void SimpleTimeZone::getTimeZoneRules(const InitialTimeZoneRule*& initial,
-    const TimeZoneRule* trsrules[],
-    int32_t& trscount,
-    UErrorCode & status) const {
+void SimpleTimeZone::getTimeZoneRules(const InitialTimeZoneRule*& initial, const TimeZoneRule* trsrules[], int32_t& trscount, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1226,5 +1164,3 @@ void SimpleTimeZone::getTimeZoneRules(const InitialTimeZoneRule*& initial,
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

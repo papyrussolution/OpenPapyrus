@@ -15,11 +15,9 @@
 #define MI_IN_ALLOC_C
 #include "alloc-override.c"
 #undef MI_IN_ALLOC_C
-
-// ------------------------------------------------------
+//
 // Allocation
-// ------------------------------------------------------
-
+//
 // Fast allocation in a page: just pop from the free list.
 // Fall back to generic allocation only if the list is empty.
 extern inline void * _mi_page_malloc(mi_heap_t* heap, mi_page_t* page, size_t size) NOEXCEPT 
@@ -173,12 +171,10 @@ mi_decl_restrict void * mi_zalloc(size_t size) NOEXCEPT
 {
 	return mi_heap_zalloc(mi_get_default_heap(), size);
 }
-
-// ------------------------------------------------------
+//
 // Check for double free in secure and debug mode
 // This is somewhat expensive so only enabled for secure mode 4
-// ------------------------------------------------------
-
+//
 #if (MI_ENCODE_FREELIST && (MI_SECURE>=4 || MI_DEBUG!=0))
 // linear check if the free list contains a specific element
 static bool mi_list_contains(const mi_page_t* page, const mi_block_t* list, const mi_block_t* elem) {
@@ -220,11 +216,9 @@ static inline bool mi_check_is_double_free(const mi_page_t* page, const mi_block
 }
 
 #endif
-
-// ---------------------------------------------------------------------------
+//
 // Check for heap block overflow by setting up padding at the end of the block
-// ---------------------------------------------------------------------------
-
+//
 #if (MI_PADDING>0) && defined(MI_ENCODE_FREELIST)
 static bool mi_page_decode_padding(const mi_page_t* page, const mi_block_t* block, size_t* delta, size_t* bsize) {
 	*bsize = mi_page_usable_block_size(page);
@@ -353,11 +347,9 @@ static void mi_stat_huge_free(const mi_page_t* page) {
 }
 
 #endif
-
-// ------------------------------------------------------
+//
 // Free
-// ------------------------------------------------------
-
+//
 // multi-threaded free
 static mi_decl_noinline void _mi_free_block_mt(mi_page_t* page, mi_block_t* block)
 {
@@ -563,14 +555,13 @@ static size_t _mi_usable_size(const void * p, const char * msg) NOEXCEPT {
 	}
 }
 
-size_t mi_usable_size(const void * p) NOEXCEPT {
+size_t mi_usable_size(const void * p) NOEXCEPT 
+{
 	return _mi_usable_size(p, "mi_usable_size");
 }
-
-// ------------------------------------------------------
+//
 // ensure explicit external inline definitions are emitted!
-// ------------------------------------------------------
-
+//
 #ifdef __cplusplus
 void * _mi_externs[] = {
 	(void *)&_mi_page_malloc,
@@ -582,12 +573,11 @@ void * _mi_externs[] = {
 	(void *)&mi_heap_malloc_small
 };
 #endif
-
-// ------------------------------------------------------
+//
 // Allocation extensions
-// ------------------------------------------------------
-
-void mi_free_size(void * p, size_t size) NOEXCEPT {
+//
+void mi_free_size(void * p, size_t size) NOEXCEPT 
+{
 	UNUSED_RELEASE(size);
 	mi_assert(p == NULL || size <= _mi_usable_size(p, "mi_free_size"));
 	mi_free(p);
@@ -721,11 +711,9 @@ void * mi_recalloc(void * p, size_t count, size_t size) NOEXCEPT
 {
 	return mi_heap_recalloc(mi_get_default_heap(), p, count, size);
 }
-
-// ------------------------------------------------------
+//
 // strdup, strndup, and realpath
-// ------------------------------------------------------
-
+//
 // `strdup` using mi_malloc
 mi_decl_restrict char * mi_heap_strdup(mi_heap_t* heap, const char * s) NOEXCEPT 
 {
@@ -838,57 +826,46 @@ mi_decl_restrict char * mi_realpath(const char * fname, char * resolved_name) NO
    -------------------------------------------------------*/
 
 #ifdef __cplusplus
-#include <new>
-static bool mi_try_new_handler(bool nothrow) 
-{
-#if defined(_MSC_VER) || (__cplusplus >= 201103L)
-	std::new_handler h = std::get_new_handler();
+	#include <new>
+	static bool mi_try_new_handler(bool nothrow) 
+	{
+	#if defined(_MSC_VER) || (__cplusplus >= 201103L)
+		std::new_handler h = std::get_new_handler();
+	#else
+		std::new_handler h = std::set_new_handler();
+		std::set_new_handler(h);
+	#endif
+		if(h == NULL) {
+			if(!nothrow) 
+				throw std::bad_alloc();
+			return false;
+		}
+		else {
+			h();
+			return true;
+		}
+	}
 #else
-	std::new_handler h = std::set_new_handler();
-	std::set_new_handler(h);
-#endif
-	if(h == NULL) {
-		if(!nothrow) 
-			throw std::bad_alloc();
-		return false;
+	typedef void (* std_new_handler_t)();
+	#if (defined(__GNUC__) || defined(__clang__))
+		std_new_handler_t __attribute((weak)) _ZSt15get_new_handlerv() { return NULL; }
+		static std_new_handler_t mi_get_new_handler() { return _ZSt15get_new_handlerv(); }
+	#else
+		// note: on windows we could dynamically link to `?get_new_handler@std@@YAP6AXXZXZ`.
+		static std_new_handler_t mi_get_new_handler() { return NULL; }
+	#endif
+	static bool mi_try_new_handler(bool nothrow) 
+	{
+		std_new_handler_t h = mi_get_new_handler();
+		if(h==NULL) {
+			if(!nothrow) exit(ENOMEM); // cannot throw in plain C, use exit as we are out of memory anyway.
+			return false;
+		}
+		else {
+			h();
+			return true;
+		}
 	}
-	else {
-		h();
-		return true;
-	}
-}
-
-#else
-typedef void (* std_new_handler_t)();
-
-#if (defined(__GNUC__) || defined(__clang__))
-std_new_handler_t __attribute((weak)) _ZSt15get_new_handlerv() {
-	return NULL;
-}
-static std_new_handler_t mi_get_new_handler() {
-	return _ZSt15get_new_handlerv();
-}
-
-#else
-// note: on windows we could dynamically link to `?get_new_handler@std@@YAP6AXXZXZ`.
-static std_new_handler_t mi_get_new_handler() {
-	return NULL;
-}
-
-#endif
-
-static bool mi_try_new_handler(bool nothrow) {
-	std_new_handler_t h = mi_get_new_handler();
-	if(h==NULL) {
-		if(!nothrow) exit(ENOMEM); // cannot throw in plain C, use exit as we are out of memory anyway.
-		return false;
-	}
-	else {
-		h();
-		return true;
-	}
-}
-
 #endif
 
 static mi_decl_noinline void * mi_try_new(size_t size, bool nothrow) 
@@ -921,8 +898,7 @@ mi_decl_restrict void * mi_new_aligned(size_t size, size_t alignment)
 	void * p;
 	do {
 		p = mi_malloc_aligned(size, alignment);
-	}
-	while(p == NULL && mi_try_new_handler(false));
+	} while(p == NULL && mi_try_new_handler(false));
 	return p;
 }
 
@@ -931,8 +907,7 @@ mi_decl_restrict void * mi_new_aligned_nothrow(size_t size, size_t alignment) NO
 	void * p;
 	do {
 		p = mi_malloc_aligned(size, alignment);
-	}
-	while(p == NULL && mi_try_new_handler(true));
+	} while(p == NULL && mi_try_new_handler(true));
 	return p;
 }
 
@@ -943,9 +918,8 @@ mi_decl_restrict void * mi_new_n(size_t count, size_t size)
 		mi_try_new_handler(false); // on overflow we invoke the try_new_handler once to potentially throw std::bad_alloc
 		return NULL;
 	}
-	else {
+	else
 		return mi_new(total);
-	}
 }
 
 void * mi_new_realloc(void * p, size_t newsize) 
@@ -964,7 +938,6 @@ void * mi_new_reallocn(void * p, size_t newcount, size_t size)
 		mi_try_new_handler(false); // on overflow we invoke the try_new_handler once to potentially throw std::bad_alloc
 		return NULL;
 	}
-	else {
+	else
 		return mi_new_realloc(p, total);
-	}
 }

@@ -32,12 +32,10 @@
 
 #ifndef _PCRECPP_H
 #define _PCRECPP_H
-
-// C++ interface to the pcre regular-expression library.  RE supports
-// Perl-style regular expressions (with extensions like \d, \w, \s,
-// ...).
 //
-// -----------------------------------------------------------------------
+// C++ interface to the pcre regular-expression library.  RE supports
+// Perl-style regular expressions (with extensions like \d, \w, \s, ...).
+//
 // REGEXP SYNTAX:
 //
 // This module is part of the pcre library and hence supports its syntax

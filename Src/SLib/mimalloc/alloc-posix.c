@@ -7,17 +7,15 @@
 
 #include <slib-internal.h>
 #pragma hdrstop
-// ------------------------------------------------------------------------
+//
 // mi prefixed publi definitions of various Posix, Unix, and C++ functions
 // for convenience and used when overriding these functions.
-// ------------------------------------------------------------------------
+//
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
-
-// ------------------------------------------------------
+//
 // Posix & Unix functions definitions
-// ------------------------------------------------------
-
+//
 //#include <errno.h>
 //#include <string.h>  // memset
 //#include <stdlib.h>  // getenv
@@ -31,21 +29,18 @@
 	#define ENOMEM 12
 #endif
 
-size_t mi_malloc_size(const void * p) NOEXCEPT {
-	return mi_usable_size(p);
-}
+size_t mi_malloc_size(const void * p) NOEXCEPT { return mi_usable_size(p); }
+size_t mi_malloc_usable_size(const void * p) NOEXCEPT { return mi_usable_size(p); }
 
-size_t mi_malloc_usable_size(const void * p) NOEXCEPT {
-	return mi_usable_size(p);
-}
-
-void mi_cfree(void * p) NOEXCEPT {
+void mi_cfree(void * p) NOEXCEPT 
+{
 	if(mi_is_in_heap_region(p)) {
 		mi_free(p);
 	}
 }
 
-int mi_posix_memalign(void ** p, size_t alignment, size_t size) NOEXCEPT {
+int mi_posix_memalign(void ** p, size_t alignment, size_t size) NOEXCEPT 
+{
 	// Note: The spec dictates we should not modify `*p` on an error. (issue#27)
 	// <http://man7.org/linux/man-pages/man3/posix_memalign.3.html>
 	if(p == NULL) return EINVAL;

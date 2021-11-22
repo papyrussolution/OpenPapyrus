@@ -1,18 +1,12 @@
+// bytestriebuilder.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2010-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  bytestriebuilder.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010sep25
- *   created by: Markus W. Scherer
- */
+	Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
+	encoding:   UTF-8
+	created on: 2010sep25
+	created by: Markus W. Scherer
+*/
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/bytestriebuilder.h"
@@ -31,8 +25,8 @@ public:
 	// Use compiler's default constructor, initializes nothing.
 
 	void setTo(StringPiece s, int32_t val, CharString &strings, UErrorCode & errorCode);
-
-	StringPiece getString(const CharString &strings) const {
+	StringPiece getString(const CharString &strings) const 
+	{
 		int32_t offset = stringOffset;
 		int32_t length;
 		if(offset>=0) {
@@ -126,9 +120,9 @@ int32_t BytesTrieElement::compareStringTo(const BytesTrieElement &other, const C
 	return diff!=0 ? diff : lengthDiff;
 }
 
-BytesTrieBuilder::BytesTrieBuilder(UErrorCode & errorCode)
-	: strings(NULL), elements(NULL), elementsCapacity(0), elementsLength(0),
-	bytes(NULL), bytesCapacity(0), bytesLength(0) {
+BytesTrieBuilder::BytesTrieBuilder(UErrorCode & errorCode) : strings(NULL), elements(NULL), elementsCapacity(0), elementsLength(0),
+	bytes(NULL), bytesCapacity(0), bytesLength(0) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -138,13 +132,15 @@ BytesTrieBuilder::BytesTrieBuilder(UErrorCode & errorCode)
 	}
 }
 
-BytesTrieBuilder::~BytesTrieBuilder() {
+BytesTrieBuilder::~BytesTrieBuilder() 
+{
 	delete strings;
 	delete[] elements;
 	uprv_free(bytes);
 }
 
-BytesTrieBuilder &BytesTrieBuilder::add(StringPiece s, int32_t value, UErrorCode & errorCode) {
+BytesTrieBuilder &BytesTrieBuilder::add(StringPiece s, int32_t value, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return *this;
 	}
@@ -179,7 +175,8 @@ BytesTrieBuilder &BytesTrieBuilder::add(StringPiece s, int32_t value, UErrorCode
 
 U_CDECL_BEGIN
 
-static int32_t U_CALLCONV compareElementStrings(const void * context, const void * left, const void * right) {
+static int32_t U_CALLCONV compareElementStrings(const void * context, const void * left, const void * right) 
+{
 	const CharString * strings = static_cast<const CharString *>(context);
 	const BytesTrieElement * leftElement = static_cast<const BytesTrieElement *>(left);
 	const BytesTrieElement * rightElement = static_cast<const BytesTrieElement *>(right);

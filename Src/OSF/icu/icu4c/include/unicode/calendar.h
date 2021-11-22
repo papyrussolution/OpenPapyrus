@@ -1,36 +1,25 @@
+// CALENDAR.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************************
- *   Copyright (C) 1997-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File CALENDAR.H
- *
+ *   Copyright (C) 1997-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
- *   04/22/97    aliu        Expanded and corrected comments and other header
- *                           contents.
+ *   04/22/97    aliu        Expanded and corrected comments and other header contents.
  *   05/01/97    aliu        Made equals(), before(), after() arguments const.
- *   05/20/97    aliu        Replaced fAreFieldsSet with fAreFieldsInSync and
- *                           fAreAllFieldsSet.
+ *   05/20/97    aliu        Replaced fAreFieldsSet with fAreFieldsInSync and fAreAllFieldsSet.
  *   07/27/98    stephen     Sync up with JDK 1.2
- *   11/15/99    weiv        added YEAR_WOY and DOW_LOCAL
- *                           to EDateFields
+ *   11/15/99    weiv        added YEAR_WOY and DOW_LOCAL to EDateFields
  *    8/19/2002  srl         Removed Javaisms
  *   11/07/2003  srl         Update, clean up documentation.
  ********************************************************************************
  */
-
 #ifndef CALENDAR_H
 #define CALENDAR_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 /**
  * \file
  * \brief C++ API: Calendar object
@@ -279,15 +268,12 @@ public:
 		AM,
 		PM
 	};
-
 #endif  /* U_HIDE_DEPRECATED_API */
-
 	/**
 	 * destructor
 	 * @stable ICU 2.0
 	 */
 	virtual ~Calendar();
-
 	/**
 	 * Create and return a polymorphic copy of this calendar.
 	 *
@@ -295,7 +281,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual Calendar* clone() const = 0;
-
 	/**
 	 * Creates a Calendar using the default timezone and locale. Clients are responsible
 	 * for deleting the object returned.
@@ -2506,15 +2491,11 @@ public:
 #endif  /* U_HIDE_INTERNAL_API */
 };
 
-// -------------------------------------
-
 inline Calendar* Calendar::createInstance(TimeZone* zone, UErrorCode& errorCode)
 {
 	// since the Locale isn't specified, use the default locale
 	return createInstance(zone, Locale::getDefault(), errorCode);
 }
-
-// -------------------------------------
 
 inline void Calendar::roll(UCalendarDateFields field, bool up, UErrorCode& status)
 {
@@ -2522,20 +2503,15 @@ inline void Calendar::roll(UCalendarDateFields field, bool up, UErrorCode& statu
 }
 
 #ifndef U_HIDE_DEPRECATED_API
-inline void Calendar::roll(EDateFields field, bool up, UErrorCode& status)
-{
-	roll((UCalendarDateFields)field, up, status);
-}
-
+	inline void Calendar::roll(EDateFields field, bool up, UErrorCode& status)
+	{
+		roll((UCalendarDateFields)field, up, status);
+	}
 #endif  /* U_HIDE_DEPRECATED_API */
-
-// -------------------------------------
-
 /**
  * Fast method for subclasses.  The caller must maintain fUserSetDSTOffset and
  * fUserSetZoneOffset, as well as the isSet[] array.
  */
-
 inline void Calendar::internalSet(UCalendarDateFields field, int32_t value)
 {
 	fFields[field] = value;
@@ -2544,17 +2520,14 @@ inline void Calendar::internalSet(UCalendarDateFields field, int32_t value)
 }
 
 #ifndef U_HIDE_INTERNAL_API
-inline int32_t Calendar::weekNumber(int32_t dayOfPeriod, int32_t dayOfWeek)
-{
-	return weekNumber(dayOfPeriod, dayOfPeriod, dayOfWeek);
-}
-
-#endif  /* U_HIDE_INTERNAL_API */
+	inline int32_t Calendar::weekNumber(int32_t dayOfPeriod, int32_t dayOfWeek)
+	{
+		return weekNumber(dayOfPeriod, dayOfPeriod, dayOfWeek);
+	}
+#endif
 
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif // _CALENDAR

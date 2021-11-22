@@ -1,12 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/************************************************************************
- * Copyright (C) 1996-2012, International Business Machines Corporation
- * and others. All Rights Reserved.
- ************************************************************************
- *  2003-nov-07   srl       Port from Java
- */
-
+// Copyright (C) 1996-2012, International Business Machines Corporation and others. All Rights Reserved.
+// 2003-nov-07   srl       Port from Java
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "astro.h"
@@ -1540,7 +1536,8 @@ UnicodeString CalendarAstronomer::Horizon::toString() const
 
 // =============== Calendar Cache ================
 
-void CalendarCache::createCache(CalendarCache** cache, UErrorCode & status) {
+void CalendarCache::createCache(CalendarCache** cache, UErrorCode & status) 
+{
 	ucln_i18n_registerCleanup(UCLN_I18N_ASTRO_CALENDAR, calendar_astro_cleanup);
 	if(cache == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -1548,20 +1545,18 @@ void CalendarCache::createCache(CalendarCache** cache, UErrorCode & status) {
 	else {
 		*cache = new CalendarCache(32, status);
 		if(U_FAILURE(status)) {
-			delete *cache;
-			*cache = NULL;
+			ZDELETE(*cache);
 		}
 	}
 }
 
-int32_t CalendarCache::get(CalendarCache** cache, int32_t key, UErrorCode & status) {
+int32_t CalendarCache::get(CalendarCache** cache, int32_t key, UErrorCode & status) 
+{
 	int32_t res;
-
 	if(U_FAILURE(status)) {
 		return 0;
 	}
 	umtx_lock(&ccLock);
-
 	if(*cache == NULL) {
 		createCache(cache, status);
 		if(U_FAILURE(status)) {
@@ -1569,20 +1564,18 @@ int32_t CalendarCache::get(CalendarCache** cache, int32_t key, UErrorCode & stat
 			return 0;
 		}
 	}
-
 	res = uhash_igeti((*cache)->fTable, key);
 	U_DEBUG_ASTRO_MSG(("%p: GET: [%d] == %d\n", (*cache)->fTable, key, res));
-
 	umtx_unlock(&ccLock);
 	return res;
 }
 
-void CalendarCache::put(CalendarCache** cache, int32_t key, int32_t value, UErrorCode & status) {
+void CalendarCache::put(CalendarCache** cache, int32_t key, int32_t value, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	umtx_lock(&ccLock);
-
 	if(*cache == NULL) {
 		createCache(cache, status);
 		if(U_FAILURE(status)) {
@@ -1590,19 +1583,19 @@ void CalendarCache::put(CalendarCache** cache, int32_t key, int32_t value, UErro
 			return;
 		}
 	}
-
 	uhash_iputi((*cache)->fTable, key, value, &status);
 	U_DEBUG_ASTRO_MSG(("%p: PUT: [%d] := %d\n", (*cache)->fTable, key, value));
-
 	umtx_unlock(&ccLock);
 }
 
-CalendarCache::CalendarCache(int32_t size, UErrorCode & status) {
+CalendarCache::CalendarCache(int32_t size, UErrorCode & status) 
+{
 	fTable = uhash_openSize(uhash_hashLong, uhash_compareLong, NULL, size, &status);
 	U_DEBUG_ASTRO_MSG(("%p: Opening.\n", fTable));
 }
 
-CalendarCache::~CalendarCache() {
+CalendarCache::~CalendarCache() 
+{
 	if(fTable != NULL) {
 		U_DEBUG_ASTRO_MSG(("%p: Closing.\n", fTable));
 		uhash_close(fTable);

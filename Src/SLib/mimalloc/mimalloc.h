@@ -9,11 +9,9 @@
 #define MIMALLOC_H
 
 #define MI_MALLOC_VERSION 171   // major + 2 digits minor
-
-// ------------------------------------------------------
+//
 // Compiler specific attributes
-// ------------------------------------------------------
-
+//
 /* (see slport.h; mi_attr_noexcept_Removed replaced with NOEXCEPT)
 #ifdef __cplusplus
   #if (__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
@@ -85,22 +83,18 @@
   #define mi_attr_alloc_size2(s1, s2)
   #define mi_attr_alloc_align(p)
 #endif
-
-// ------------------------------------------------------
+//
 // Includes
-// ------------------------------------------------------
-
+//
 #include <stddef.h>     // size_t
 #include <stdbool.h>    // bool
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// ------------------------------------------------------
+//
 // Standard malloc interface
-// ------------------------------------------------------
-
+//
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * FASTCALL mi_malloc(size_t size)  NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * FASTCALL mi_calloc(size_t count, size_t size)  NOEXCEPT mi_attr_malloc mi_attr_alloc_size2(1, 2);
 mi_decl_nodiscard mi_decl_export void * FASTCALL mi_realloc(void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(2);
@@ -109,10 +103,9 @@ mi_decl_export void FASTCALL mi_free(void * p) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_strdup(const char * s) NOEXCEPT mi_attr_malloc;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_strndup(const char * s, size_t n) NOEXCEPT mi_attr_malloc;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict char * mi_realpath(const char * fname, char * resolved_name) NOEXCEPT mi_attr_malloc;
-
-// ------------------------------------------------------
+//
 // Extended functionality
-// ------------------------------------------------------
+//
 #define MI_SMALL_WSIZE_MAX  (128)
 #define MI_SMALL_SIZE_MAX   (MI_SMALL_WSIZE_MAX* sizeof(void *))
 
@@ -124,11 +117,9 @@ mi_decl_nodiscard mi_decl_export void * mi_reallocn(void * p, size_t count, size
 mi_decl_nodiscard mi_decl_export void * mi_reallocf(void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(2);
 mi_decl_nodiscard mi_decl_export size_t mi_usable_size(const void * p) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export size_t mi_good_size(size_t size) NOEXCEPT;
-
-// ------------------------------------------------------
+//
 // Internals
-// ------------------------------------------------------
-
+//
 typedef void (mi_cdecl mi_deferred_free_fun)(bool force, unsigned long long heartbeat, void * arg);
 mi_decl_export void mi_register_deferred_free(mi_deferred_free_fun* deferred_free, void * arg) NOEXCEPT;
 
@@ -149,13 +140,11 @@ mi_decl_export void mi_thread_done(void) NOEXCEPT;
 mi_decl_export void mi_thread_stats_print_out(mi_output_fun* out, void * arg) NOEXCEPT;
 mi_decl_export void mi_process_info(size_t* elapsed_msecs, size_t* user_msecs, size_t* system_msecs,
     size_t* current_rss, size_t* peak_rss, size_t* current_commit, size_t* peak_commit, size_t* page_faults) NOEXCEPT;
-
-// -------------------------------------------------------------------------------------
+//
 // Aligned allocation
 // Note that `alignment` always follows `size` for consistency with unaligned
 // allocation, but unfortunately this differs from `posix_memalign` and `aligned_alloc`.
-// -------------------------------------------------------------------------------------
-
+//
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_malloc_aligned(size_t size, size_t alignment) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1) mi_attr_alloc_align(2);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_malloc_aligned_at(size_t size, size_t alignment, size_t offset) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1);
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_zalloc_aligned(size_t size, size_t alignment) NOEXCEPT mi_attr_malloc mi_attr_alloc_size(1) mi_attr_alloc_align(2);
@@ -198,14 +187,12 @@ mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_calloc_aligned(
 mi_decl_nodiscard mi_decl_export mi_decl_restrict void * mi_heap_calloc_aligned_at(mi_heap_t* heap, size_t count, size_t size, size_t alignment, size_t offset) NOEXCEPT mi_attr_malloc mi_attr_alloc_size2(2, 3);
 mi_decl_nodiscard mi_decl_export void * mi_heap_realloc_aligned(mi_heap_t* heap, void * p, size_t newsize, size_t alignment) NOEXCEPT mi_attr_alloc_size(3) mi_attr_alloc_align(4);
 mi_decl_nodiscard mi_decl_export void * mi_heap_realloc_aligned_at(mi_heap_t* heap, void * p, size_t newsize, size_t alignment, size_t offset) NOEXCEPT mi_attr_alloc_size(3);
-
-// --------------------------------------------------------------------------------
+//
 // Zero initialized re-allocation.
 // Only valid on memory that was originally allocated with zero initialization too.
 // e.g. `mi_calloc`, `mi_zalloc`, `mi_zalloc_aligned` etc.
 // see <https://github.com/microsoft/mimalloc/issues/63#issuecomment-508272992>
-// --------------------------------------------------------------------------------
-
+//
 mi_decl_nodiscard mi_decl_export void * mi_rezalloc(void * p, size_t newsize) NOEXCEPT mi_attr_alloc_size(2);
 mi_decl_nodiscard mi_decl_export void * mi_recalloc(void * p, size_t newcount, size_t size)  NOEXCEPT mi_attr_alloc_size2(2, 3);
 mi_decl_nodiscard mi_decl_export void * mi_rezalloc_aligned(void * p, size_t newsize, size_t alignment) NOEXCEPT mi_attr_alloc_size(2) mi_attr_alloc_align(3);
@@ -251,11 +238,9 @@ mi_decl_export bool mi_manage_os_memory(void * start, size_t size, bool is_commi
 
 // deprecated
 mi_decl_export int  mi_reserve_huge_os_pages(size_t pages, double max_secs, size_t* pages_reserved) NOEXCEPT;
-
-// ------------------------------------------------------
+//
 // Convenience
-// ------------------------------------------------------
-
+//
 #define mi_malloc_tp(tp)                ((tp*)mi_malloc(sizeof(tp)))
 #define mi_zalloc_tp(tp)                ((tp*)mi_zalloc(sizeof(tp)))
 #define mi_calloc_tp(tp, n)              ((tp*)mi_calloc(n, sizeof(tp)))
@@ -269,11 +254,9 @@ mi_decl_export int  mi_reserve_huge_os_pages(size_t pages, double max_secs, size
 #define mi_heap_mallocn_tp(hp, tp, n)     ((tp*)mi_heap_mallocn(hp, n, sizeof(tp)))
 #define mi_heap_reallocn_tp(hp, p, tp, n) ((tp*)mi_heap_reallocn(hp, p, n, sizeof(tp)))
 #define mi_heap_recalloc_tp(hp, p, tp, n) ((tp*)mi_heap_recalloc(hp, p, n, sizeof(tp)))
-
-// ------------------------------------------------------
+//
 // Options, all `false` by default
-// ------------------------------------------------------
-
+//
 typedef enum mi_option_e {
 	// stable options
 	mi_option_show_errors,
@@ -308,13 +291,11 @@ mi_decl_export void mi_option_set_enabled_default(mi_option_t option, bool enabl
 mi_decl_nodiscard mi_decl_export long mi_option_get(mi_option_t option);
 mi_decl_export void mi_option_set(mi_option_t option, long value);
 mi_decl_export void mi_option_set_default(mi_option_t option, long value);
-
-// -------------------------------------------------------------------------------------------------------
+//
 // "mi" prefixed implementations of various posix, Unix, Windows, and C++ allocation functions.
 // (This can be convenient when providing overrides of these functions as done in `mimalloc-override.h`.)
 // note: we use `mi_cfree` as "checked free" and it checks if the pointer is in our heap before free-ing.
-// -------------------------------------------------------------------------------------------------------
-
+//
 mi_decl_export void  mi_cfree(void * p) NOEXCEPT;
 mi_decl_export void * mi__expand(void * p, size_t newsize) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export size_t mi_malloc_size(const void * p) NOEXCEPT;
@@ -348,11 +329,10 @@ mi_decl_nodiscard mi_decl_export void * mi_new_reallocn(void * p, size_t newcoun
 #ifdef __cplusplus
 }
 #endif
-
-// ---------------------------------------------------------------------------------------------
+//
 // Implement the C++ std::allocator interface for use in STL containers.
 // (note: see `mimalloc-new-delete.h` for overriding the new/delete operators globally)
-// ---------------------------------------------------------------------------------------------
+//
 #ifdef __cplusplus
 
 #include <cstdint>     // PTRDIFF_MAX

@@ -1,19 +1,12 @@
+// coll.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- * Copyright (C) 1996-2014, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
+ * Copyright (C) 1996-2014, International Business Machines Corporation and others. All Rights Reserved.
  */
-
 /**
- * File coll.cpp
- *
  * Created by: Helena Shih
- *
  * Modification History:
- *
  *  Date        Name        Description
  *  2/5/97      aliu        Modified createDefault to load collation data from
  *       binary files when possible.  Added related methods
@@ -84,37 +77,25 @@ U_CDECL_END
     U_NAMESPACE_BEGIN
 
 #if !UCONFIG_NO_SERVICE
-
-// ------------------------------------------
 //
 // Registration
 //
-
-//-------------------------------------------
-
-CollatorFactory::~CollatorFactory() {
+CollatorFactory::~CollatorFactory() 
+{
 }
-
-//-------------------------------------------
 
 bool CollatorFactory::visible() const { return TRUE; }
 
-//-------------------------------------------
-
-UnicodeString &CollatorFactory::getDisplayName(const Locale & objectLocale,
-    const Locale & displayLocale,
-    UnicodeString & result)
+UnicodeString &CollatorFactory::getDisplayName(const Locale & objectLocale, const Locale & displayLocale, UnicodeString & result)
 {
 	return objectLocale.getDisplayName(displayLocale, result);
 }
 
-// -------------------------------------
-
 class ICUCollatorFactory : public ICUResourceBundleFactory {
 public:
-	ICUCollatorFactory() : ICUResourceBundleFactory(UnicodeString(U_ICUDATA_COLL, -1, US_INV)) {
+	ICUCollatorFactory() : ICUResourceBundleFactory(UnicodeString(U_ICUDATA_COLL, -1, US_INV)) 
+	{
 	}
-
 	virtual ~ICUCollatorFactory();
 protected:
 	virtual UObject* create(const ICUServiceKey& key, const ICUService* service, UErrorCode & status) const override;
@@ -137,24 +118,20 @@ UObject* ICUCollatorFactory::create(const ICUServiceKey& key, const ICUService* 
 	return NULL;
 }
 
-// -------------------------------------
-
 class ICUCollatorService : public ICULocaleService {
 public:
-	ICUCollatorService()
-		: ICULocaleService(UNICODE_STRING_SIMPLE("Collator"))
+	ICUCollatorService() : ICULocaleService(UNICODE_STRING_SIMPLE("Collator"))
 	{
 		UErrorCode status = U_ZERO_ERROR;
 		registerFactory(new ICUCollatorFactory(), status);
 	}
-
 	virtual ~ICUCollatorService();
-
-	virtual UObject* cloneInstance(UObject* instance) const override {
+	virtual UObject* cloneInstance(UObject* instance) const override 
+	{
 		return ((Collator*)instance)->clone();
 	}
-
-	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * actualID, UErrorCode & status) const override {
+	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * actualID, UErrorCode & status) const override 
+	{
 		LocaleKey& lkey = (LocaleKey&)key;
 		if(actualID) {
 			// Ugly Hack Alert! We return an empty actualID to signal
@@ -180,10 +157,9 @@ public:
 	}
 };
 
-ICUCollatorService::~ICUCollatorService() {
+ICUCollatorService::~ICUCollatorService() 
+{
 }
-
-// -------------------------------------
 
 static void U_CALLCONV initService() {
 	gService = new ICUCollatorService();
@@ -195,8 +171,6 @@ static ICULocaleService* getService(void)
 	umtx_initOnce(gServiceInitOnce, &initService);
 	return gService;
 }
-
-// -------------------------------------
 
 static inline bool hasService(void)
 {
@@ -657,8 +631,6 @@ UnicodeSet * Collator::getTailoredSet(UErrorCode & status) const
 	return new UnicodeSet(0, 0x10FFFF);
 }
 
-// -------------------------------------
-
 #if !UCONFIG_NO_SERVICE
 URegistryKey U_EXPORT2 Collator::registerInstance(Collator* toAdopt, const Locale & locale, UErrorCode & status)
 {
@@ -671,8 +643,6 @@ URegistryKey U_EXPORT2 Collator::registerInstance(Collator* toAdopt, const Local
 	}
 	return NULL;
 }
-
-// -------------------------------------
 
 class CFactory : public LocaleKeyFactory {
 private:
@@ -765,8 +735,6 @@ URegistryKey U_EXPORT2 Collator::registerFactory(CollatorFactory* toAdopt, UErro
 	return NULL;
 }
 
-// -------------------------------------
-
 bool U_EXPORT2 Collator::unregister(URegistryKey key, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
@@ -841,8 +809,6 @@ CollationLocaleListEnumeration::~CollationLocaleListEnumeration() {
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(CollationLocaleListEnumeration)
-
-// -------------------------------------
 
 StringEnumeration * U_EXPORT2 Collator::getAvailableLocales(void)
 {
@@ -984,10 +950,6 @@ int32_t Collator::internalNextSortKeyPart(UCharIterator * /*iter*/, uint32_t /*s
 /* This is useless information */
 /*const UVersionInfo Collator::fVersion = {1, 1, 0, 0};*/
 
-// -------------------------------------
-
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_COLLATION */
-
-/* eof */

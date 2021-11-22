@@ -21,21 +21,19 @@
 
 static uintptr_t mi_max_error_count   = 16; // stop outputting errors after this
 static uintptr_t mi_max_warning_count = 16; // stop outputting warnings after this
-
 static void mi_add_stderr_output();
 
 int mi_version(void) NOEXCEPT { return MI_MALLOC_VERSION; }
 
 #ifdef _WIN32
-#include <conio.h>
+	#include <conio.h>
 #endif
-
-// --------------------------------------------------------
+//
 // Options
 // These can be accessed by multiple threads and may be
 // concurrently initialized, but an initializing data race
 // is ok since they resolve to the same value.
-// --------------------------------------------------------
+//
 typedef enum mi_init_e {
 	UNINIT, // not yet initialized
 	DEFAULTED, // not found in the environment, use default value
@@ -232,11 +230,9 @@ static void mi_out_buf_stderr(const char * msg, void * arg)
 	mi_out_stderr(msg, arg);
 	mi_out_buf(msg, arg);
 }
-
-// --------------------------------------------------------
+//
 // Default output handler
-// --------------------------------------------------------
-
+//
 // Should be atomic but gives errors on many platforms as generally we cannot cast a function pointer to a uintptr_t.
 // For now, don't register output from multiple threads.
 static mi_output_fun* volatile mi_out_default; // = NULL
@@ -262,10 +258,9 @@ static void mi_add_stderr_output() {
 	mi_out_buf_flush(&mi_out_stderr, false, NULL); // flush current contents to stderr
 	mi_out_default = &mi_out_buf_stderr;     // and add stderr to the delayed output
 }
-
-// --------------------------------------------------------
+//
 // Messages, all end up calling `_mi_fputs`.
-// --------------------------------------------------------
+//
 static _Atomic(uintptr_t) error_count;   // = 0;  // when >= max_error_count stop emitting errors
 static _Atomic(uintptr_t) warning_count; // = 0;  // when >= max_warning_count stop emitting warnings
 
@@ -361,11 +356,9 @@ void _mi_warning_message(const char * fmt, ...)
 		abort();
 	}
 #endif
-
-// --------------------------------------------------------
+//
 // Errors
-// --------------------------------------------------------
-
+//
 static mi_error_fun* volatile mi_error_handler;  // = NULL
 static _Atomic(void *) mi_error_arg;     // = NULL
 
@@ -410,23 +403,24 @@ void _mi_error_message(int err, const char * fmt, ...) {
 		mi_error_default(err);
 	}
 }
-
-// --------------------------------------------------------
+//
 // Initialize options by checking the environment
-// --------------------------------------------------------
-
-static void mi_strlcpy(char * dest, const char * src, size_t dest_size) {
+//
+static void mi_strlcpy(char * dest, const char * src, size_t dest_size) 
+{
 	dest[0] = 0;
 	strncpy(dest, src, dest_size - 1);
 	dest[dest_size - 1] = 0;
 }
 
-static void mi_strlcat(char * dest, const char * src, size_t dest_size) {
+static void mi_strlcat(char * dest, const char * src, size_t dest_size) 
+{
 	strncat(dest, src, dest_size - 1);
 	dest[dest_size - 1] = 0;
 }
 
-static inline int mi_strnicmp(const char * s, const char * t, size_t n) {
+static inline int mi_strnicmp(const char * s, const char * t, size_t n) 
+{
 	if(n==0) return 0;
 	for(; *s != 0 && *t != 0 && n > 0; s++, t++, n--) {
 		if(toupper(*s) != toupper(*t)) break;
@@ -440,7 +434,8 @@ static inline int mi_strnicmp(const char * s, const char * t, size_t n) {
 // i.e. when `_mi_preloading() == true`.
 // Note: on windows, environment names are not case sensitive.
 #include <windows.h>
-static bool mi_getenv(const char * name, char * result, size_t result_size) {
+static bool mi_getenv(const char * name, char * result, size_t result_size) 
+{
 	result[0] = 0;
 	size_t len = GetEnvironmentVariableA(name, result, (DWORD)result_size);
 	return (len > 0 && len < result_size);

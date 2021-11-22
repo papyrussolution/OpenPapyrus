@@ -1,22 +1,15 @@
+// FORMAT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1997-2012, International Business Machines Corporation and    *
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File FORMAT.CPP
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   03/17/97    clhuang     Implemented with new APIs.
- *   03/27/97    helena      Updated to pass the simple test after code review.
- *   07/20/98    stephen        Added explicit init values for Field/ParsePosition
- ********************************************************************************
- */
+	Copyright (C) 1997-2012, International Business Machines Corporation and others. All Rights Reserved.
+	Modification History:
+	  Date        Name        Description
+	  02/19/97    aliu        Converted from java.
+	  03/17/97    clhuang     Implemented with new APIs.
+	  03/27/97    helena      Updated to pass the simple test after code review.
+	  07/20/98    stephen        Added explicit init values for Field/ParsePosition
+*/
 // *****************************************************************************
 // This file was generated from the java source file Format.java
 // *****************************************************************************
@@ -46,11 +39,9 @@ U_CAPI int32_t U_EXPORT2 uprv_icuin_lib_dummy(int32_t i) {
 #if !UCONFIG_NO_FORMATTING
 
 #include "locbased.h"
-
-// *****************************************************************************
+//
 // class Format
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN UOBJECT_DEFINE_RTTI_IMPLEMENTATION(FieldPosition)
 
 FieldPosition::~FieldPosition() {
@@ -59,34 +50,27 @@ FieldPosition::~FieldPosition() {
 FieldPosition * FieldPosition::clone() const {
 	return new FieldPosition(*this);
 }
-
-// -------------------------------------
+//
 // default constructor
-
-Format::Format()
-	: UObject()
+//
+Format::Format() : UObject()
 {
 	*validLocale = *actualLocale = 0;
 }
 
-// -------------------------------------
-
 Format::~Format()
 {
 }
-
-// -------------------------------------
+//
 // copy constructor
-
-Format::Format(const Format &that)
-	: UObject(that)
+//
+Format::Format(const Format &that) : UObject(that)
 {
 	*this = that;
 }
-
-// -------------------------------------
+//
 // assignment operator
-
+//
 Format&Format::operator = (const Format& that)
 {
 	if(this != &that) {
@@ -95,11 +79,10 @@ Format&Format::operator = (const Format& that)
 	}
 	return *this;
 }
-
-// -------------------------------------
+//
 // Formats the obj and append the result in the buffer, toAppendTo.
 // This calls the actual implementation in the concrete subclasses.
-
+//
 UnicodeString &Format::format(const Formattable& obj,
     UnicodeString & toAppendTo,
     UErrorCode & status) const
@@ -110,11 +93,10 @@ UnicodeString &Format::format(const Formattable& obj,
 
 	return format(obj, toAppendTo, pos, status);
 }
-
-// -------------------------------------
+//
 // Default implementation sets unsupported error; subclasses should
 // override.
-
+//
 UnicodeString &Format::format(const Formattable& /* unused obj */,
     UnicodeString & toAppendTo,
     FieldPositionIterator* /* unused posIter */,
@@ -125,17 +107,13 @@ UnicodeString &Format::format(const Formattable& /* unused obj */,
 	}
 	return toAppendTo;
 }
-
-// -------------------------------------
+//
 // Parses the source string and create the corresponding
 // result object.  Checks the parse position for errors.
-
-void Format::parseObject(const UnicodeString & source,
-    Formattable& result,
-    UErrorCode & status) const
+//
+void Format::parseObject(const UnicodeString & source, Formattable& result, UErrorCode & status) const
 {
 	if(U_FAILURE(status)) return;
-
 	ParsePosition parsePosition(0);
 	parseObject(source, result, parsePosition);
 	if(parsePosition.getIndex() == 0) {
@@ -143,16 +121,11 @@ void Format::parseObject(const UnicodeString & source,
 	}
 }
 
-// -------------------------------------
-
 bool Format::operator==(const Format& that) const
 {
 	// Subclasses: Call this method and then add more specific checks.
 	return typeid(*this) == typeid(that);
 }
-
-//---------------------------------------
-
 /**
  * Simple function for initializing a UParseError from a UnicodeString.
  *
@@ -202,5 +175,3 @@ void Format::setLocaleIDs(const char * valid, const char * actual) {
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

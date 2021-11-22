@@ -189,33 +189,19 @@ void BasicTimeZone::getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial
 					 || (tr.getFrom()->getDSTSavings() != 0 && tr.getTo()->getDSTSavings() == 0))
 					  && nextTransitionTime + MILLIS_PER_YEAR > tr.getTime()) {
 						// Get local wall time for the next transition time
-						Grego::timeToFields(
-							tr.getTime() + tr.getFrom()->getRawOffset() + tr.getFrom()->getDSTSavings(),
-							year,
-							month,
-							dom,
-							dow,
-							doy,
-							mid);
+						Grego::timeToFields(tr.getTime() + tr.getFrom()->getRawOffset() + tr.getFrom()->getDSTSavings(),
+							year, month, dom, dow, doy, mid);
 						weekInMonth = Grego::dayOfWeekInMonth(year, month, dom);
 						// Generate another DOW rule
 						dtr = new DateTimeRule(month, weekInMonth, dow, mid, DateTimeRule::WALL_TIME);
 						tr.getTo()->getName(name);
 						ar2 = new AnnualTimeZoneRule(name, tr.getTo()->getRawOffset(), tr.getTo()->getDSTSavings(),
 							dtr, year - 1, AnnualTimeZoneRule::MAX_YEAR);
-
 						// Make sure this rule can be applied to the specified date
-						avail = ar2->getPreviousStart(date,
-							tr.getFrom()->getRawOffset(),
-							tr.getFrom()->getDSTSavings(),
-							TRUE,
-							d);
-						if(!avail || d > date
-						 || initialRaw != tr.getTo()->getRawOffset()
-						 || initialDst != tr.getTo()->getDSTSavings()) {
+						avail = ar2->getPreviousStart(date, tr.getFrom()->getRawOffset(), tr.getFrom()->getDSTSavings(), TRUE, d);
+						if(!avail || d > date || initialRaw != tr.getTo()->getRawOffset() || initialDst != tr.getTo()->getDSTSavings()) {
 							// We cannot use this rule as the second transition rule
-							delete ar2;
-							ar2 = NULL;
+							ZDELETE(ar2);
 						}
 					}
 				}
@@ -226,45 +212,29 @@ void BasicTimeZone::getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial
 				if(avail) {
 					// Check if the previous transition is either DST->STD or STD->DST.
 					// The actual transition time does not matter here.
-					if((tr.getFrom()->getDSTSavings() == 0 && tr.getTo()->getDSTSavings() != 0)
-					 || (tr.getFrom()->getDSTSavings() != 0 && tr.getTo()->getDSTSavings() == 0)) {
+					if((tr.getFrom()->getDSTSavings() == 0 && tr.getTo()->getDSTSavings() != 0) || (tr.getFrom()->getDSTSavings() != 0 && tr.getTo()->getDSTSavings() == 0)) {
 						// Generate another DOW rule
-						Grego::timeToFields(
-							tr.getTime() + tr.getFrom()->getRawOffset() + tr.getFrom()->getDSTSavings(),
-							year,
-							month,
-							dom,
-							dow,
-							doy,
-							mid);
+						Grego::timeToFields(tr.getTime() + tr.getFrom()->getRawOffset() + tr.getFrom()->getDSTSavings(),
+							year, month, dom, dow, doy, mid);
 						weekInMonth = Grego::dayOfWeekInMonth(year, month, dom);
 						dtr = new DateTimeRule(month, weekInMonth, dow, mid, DateTimeRule::WALL_TIME);
 						tr.getTo()->getName(name);
-
 						// second rule raw/dst offsets should match raw/dst offsets
 						// at the given time
-						ar2 = new AnnualTimeZoneRule(name, initialRaw, initialDst,
-							dtr, ar1->getStartYear() - 1, AnnualTimeZoneRule::MAX_YEAR);
-
+						ar2 = new AnnualTimeZoneRule(name, initialRaw, initialDst, dtr, ar1->getStartYear() - 1, AnnualTimeZoneRule::MAX_YEAR);
 						// Check if this rule start after the first rule after the specified
 						// date
-						avail = ar2->getNextStart(date,
-							tr.getFrom()->getRawOffset(),
-							tr.getFrom()->getDSTSavings(),
-							FALSE,
-							d);
+						avail = ar2->getNextStart(date, tr.getFrom()->getRawOffset(), tr.getFrom()->getDSTSavings(), FALSE, d);
 						if(!avail || d <= nextTransitionTime) {
 							// We cannot use this rule as the second transition rule
-							delete ar2;
-							ar2 = NULL;
+							ZDELETE(ar2);
 						}
 					}
 				}
 			}
 			if(ar2 == NULL) {
 				// Cannot find a good pair of AnnualTimeZoneRule
-				delete ar1;
-				ar1 = NULL;
+				ZDELETE(ar1);
 			}
 			else {
 				// The initial rule should represent the rule before the previous transition
@@ -306,12 +276,11 @@ void BasicTimeZone::getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial
 	}
 }
 
-void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& initial,
-    UVector*& transitionRules, UErrorCode & status) const {
+void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& initial, UVector*& transitionRules, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	const InitialTimeZoneRule * orgini;
 	TimeZoneTransition tzt;
 	bool avail;
@@ -322,17 +291,14 @@ void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& ini
 	UDate time, t;
 	UDate firstStart;
 	bool bFinalStd = false, bFinalDst = false;
-
 	initial = nullptr;
 	transitionRules = nullptr;
-
 	// Original transition rules
 	ruleCount = countTransitionRules(status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-	LocalPointer<UVector> orgRules(
-		new UVector(uprv_deleteUObject, nullptr, ruleCount, status), status);
+	LocalPointer<UVector> orgRules(new UVector(uprv_deleteUObject, nullptr, ruleCount, status), status);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -371,12 +337,10 @@ void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& ini
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	LocalPointer<UVector> filteredRules(
-		new UVector(uprv_deleteUObject, nullptr, status), status);
+	LocalPointer<UVector> filteredRules(new UVector(uprv_deleteUObject, nullptr, status), status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Create initial rule
 	tzt.getTo()->getName(name);
 	LocalPointer<InitialTimeZoneRule> res_initial(
@@ -384,7 +348,6 @@ void BasicTimeZone::getTimeZoneRulesAfter(UDate start, InitialTimeZoneRule*& ini
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Mark rules which does not need to be processed
 	for(i = 0; i < ruleCount; i++) {
 		r = (TimeZoneRule*)orgRules->elementAt(i);

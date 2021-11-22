@@ -197,7 +197,7 @@ void GnuPlot::PlacePixmaps(GpTermEntry * pTerm, int layer, int dimensions)
 				y -= dy/2;
 			}
 			{
-				const gpiPoint corner[4] = { {x, y + dy}, {x + dx, y}, {0/* no clipping */, static_cast<int>(pTerm->MaxY)}, {static_cast<int>(pTerm->MaxX), 0}};
+				const gpiPoint corner[4] = { gpiPoint(x, y + dy), gpiPoint(x + dx, y), gpiPoint(0/* no clipping */, static_cast<int>(pTerm->MaxY)), gpiPoint(static_cast<int>(pTerm->MaxX), 0)};
 				//corner[0].x = x;
 				//corner[0].y = y + dy;
 				//corner[1].x = x + dx;
@@ -935,10 +935,11 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 				}
 				break;
 			case FILLEDCURVES_ATXY:
-				pCorners[points].x = MapiX(filledcurves_options->at);
+				//pCorners[points].x = MapiX(filledcurves_options->at);
 				// should be mapping real x1axis/graph/screen => screen 
-				pCorners[points].y = MapiY(filledcurves_options->aty);
+				//pCorners[points].y = MapiY(filledcurves_options->aty);
 				// should be mapping real y1axis/graph/screen => screen 
+				pCorners[points].Set(MapiX(filledcurves_options->at), MapiY(filledcurves_options->aty));
 				points++;
 				break;
 			case FILLEDCURVES_ATY1:
@@ -984,7 +985,7 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 
 void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 {
-	int x, y; // point in terminal coordinates 
+	//int x, y; // point in terminal coordinates 
 	enum coord_type prev = UNDEFINED; // type of previous point 
 	int points = 0; // how many corners 
 	static gpiPoint * corners = 0; // array of corners 
@@ -1020,10 +1021,7 @@ void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 			switch(pPlot->points[i].type) {
 				case INRANGE:
 				case OUTRANGE:
-					x = MapiX(pPlot->points[i].Pt.x);
-					y = MapiY(pPlot->points[i].Pt.y);
-					corners[points].x = x;
-					corners[points].y = y;
+					corners[points].Set(MapiX(pPlot->points[i].Pt.x), MapiY(pPlot->points[i].Pt.y));
 					if(points == 0)
 						CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
 					points++;
@@ -1096,8 +1094,7 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 				dy = 0.0;
 			}
 			if(finish == 2) { // start the polygon at the previously-found crossing 
-				corners[points].x = MapiX(xmid);
-				corners[points].y = MapiY(ymid);
+				corners[points].Set(MapiX(xmid), MapiY(ymid));
 				points++;
 			}
 			x1  = plot->points[i].Pt.x;
@@ -1113,8 +1110,7 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 				yl2 = plot->points[i+1].Pt.y;
 				yu2 = plot->points[i+1].yhigh;
 			}
-			corners[points].x = MapiX(x1);
-			corners[points].y = MapiY(yl1);
+			corners[points].Set(MapiX(x1), MapiY(yl1));
 			points++;
 			if(Gg.Polar) {
 				double ox = MapiX(0);
@@ -1155,14 +1151,12 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 				}
 			}
 			if(finish == 2) { // curves cross 
-				corners[points].x = MapiX(xmid);
-				corners[points].y = MapiY(ymid);
+				corners[points].Set(MapiX(xmid), MapiY(ymid));
 				points++;
 			}
 			if(finish) {
 				for(j = i; j >= istart; j--) {
-					corners[points].x = MapiX(plot->points[j].xhigh);
-					corners[points].y = MapiY(plot->points[j].yhigh);
+					corners[points].Set(MapiX(plot->points[j].xhigh), MapiY(plot->points[j].yhigh));
 					points++;
 				}
 				corners[points].x = (dy < 0) ? 1 : 0;
@@ -1280,12 +1274,9 @@ static curve_points * histeps_current_plot;
 
 static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
-	double x1 = histeps_current_plot->points[*(int *)p1].Pt.x;
-	double x2 = histeps_current_plot->points[*(int *)p2].Pt.x;
-	if(x1 < x2)
-		return -1;
-	else
-		return (x1 > x2);
+	const double x1 = histeps_current_plot->points[*(int *)p1].Pt.x;
+	const double x2 = histeps_current_plot->points[*(int *)p2].Pt.x;
+	return (x1 < x2) ? -1 : (x1 > x2);
 }
 // 
 // CAC  
@@ -1398,7 +1389,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 			yM = MapiY(y);
 			// find low and high points of bar, and check yrange 
 			yhigh = plot->points[i].yhigh;
-			ylow = plot->points[i].ylow;
+			ylow  = plot->points[i].ylow;
 			yhighM = MapiY(yhigh);
 			ylowM  = MapiY(ylow);
 			// This can happen if the y errorbar on a log-scaled Y goes negative 
@@ -2375,8 +2366,9 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 		n_spokes++;
 		// Use plot title to label the corresponding radial axis 
 		if(thisplot->title) {
-			SAlloc::F(AxS.Parallel(thisplot->AxIdx_P-1).label.text);
-			AxS.Parallel(thisplot->AxIdx_P-1).label.text = sstrdup(thisplot->title);
+			text_label & r_lbl = AxS.Parallel(thisplot->AxIdx_P-1).label;
+			SAlloc::F(r_lbl.text);
+			r_lbl.text = sstrdup(thisplot->title);
 		}
 	}
 	if(n_spokes < 3)
@@ -2416,8 +2408,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].Pt.x - 1.0) * SMathConst::Pi2 / n_spokes;
 					const double r = (thisplot->points[i].Pt.y - this_axis->min) / this_axis->GetRange();
 					PolarToXY(theta, r, &x, &y, false);
-					corners[thisplot->AxIdx_P-1].x = MapiX(x);
-					corners[thisplot->AxIdx_P-1].y = MapiY(y);
+					corners[thisplot->AxIdx_P-1].Set(MapiX(x), MapiY(y));
 				}
 			}
 		}
@@ -3675,47 +3666,47 @@ double GpGraphics::RgbScale(double component) const
 //void process_image(GpTermEntry * pTerm, const void * plot, t_procimg_action action)
 void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_action action)
 {
-	GpCoordinate * points;
+	const  GpCoordinate * points = 0;
 	int    p_count;
 	int    i;
-	double p_start_corner[2], p_end_corner[2]; /* Points used for computing hyperplane. */
-	int    K = 0, L = 0;                      /* Dimensions of image grid. K = <scan line length>, L = <number of scan lines>. */
-	uint   ncols, nrows;              /* EAM DEBUG - intended to replace K and L above */
-	double p_mid_corner[2];                /* Point representing first corner found, i.e. p(K-1) */
-	double delta_x_grid[2] = {0, 0};       /* Spacings between points, two non-orthogonal directions. */
+	double p_start_corner[2]; // Points used for computing hyperplane
+	double p_end_corner[2];   //
+	int    K = 0, L = 0; // Dimensions of image grid. K = <scan line length>, L = <number of scan lines>. 
+	uint   ncols, nrows; // EAM DEBUG - intended to replace K and L above 
+	double p_mid_corner[2]; // Point representing first corner found, i.e. p(K-1) 
+	double delta_x_grid[2] = {0, 0}; // Spacings between points, two non-orthogonal directions. 
 	double delta_y_grid[2] = {0, 0};
 	int    grid_corner[4] = {-1, -1, -1, -1}; /* The corner pixels of the image. */
-	double view_port_x[2];                 /* Viewable portion of the image. */
+	double view_port_x[2]; // Viewable portion of the image. 
 	double view_port_y[2];
 	double view_port_z[2] = {0, 0};
 	t_imagecolor pixel_planes;
 	udvt_entry * private_colormap = NULL; // "fc palette <colormap>" 
 	// Detours necessary to handle 3D plots 
-	bool project_points = false; // True if 3D plot 
-	int image_x_axis, image_y_axis;
+	int image_x_axis;
+	int image_y_axis;
+	const bool project_points = (oneof2(static_cast<const GpSurfacePoints *>(plot)->plot_type, DATA3D, FUNC3D)) ? true : false; // True if 3D plot 
 	if(static_cast<const GpSurfacePoints *>(plot)->plot_type == NODATA) {
 		IntWarn(NO_CARET, "no image data");
 		return;
 	}
-	if(oneof2(static_cast<const GpSurfacePoints *>(plot)->plot_type, DATA3D, FUNC3D))
-		project_points = TRUE;
 	if(project_points) {
-		points = ((const GpSurfacePoints *)plot)->iso_crvs->points;
-		p_count = ((const GpSurfacePoints *)plot)->iso_crvs->p_count;
-		pixel_planes = ((const GpSurfacePoints *)plot)->image_properties.type;
-		ncols = ((const GpSurfacePoints *)plot)->image_properties.ncols;
-		nrows = ((const GpSurfacePoints *)plot)->image_properties.nrows;
+		points = static_cast<const GpSurfacePoints *>(plot)->iso_crvs->points;
+		p_count = static_cast<const GpSurfacePoints *>(plot)->iso_crvs->p_count;
+		pixel_planes = static_cast<const GpSurfacePoints *>(plot)->image_properties.type;
+		ncols = static_cast<const GpSurfacePoints *>(plot)->image_properties.ncols;
+		nrows = static_cast<const GpSurfacePoints *>(plot)->image_properties.nrows;
 		image_x_axis = FIRST_X_AXIS;
 		image_y_axis = FIRST_Y_AXIS;
 	}
 	else {
-		points = ((const curve_points *)plot)->points;
-		p_count = ((const curve_points *)plot)->p_count;
-		pixel_planes = ((const curve_points *)plot)->image_properties.type;
-		ncols = ((const curve_points *)plot)->image_properties.ncols;
-		nrows = ((const curve_points *)plot)->image_properties.nrows;
-		image_x_axis = ((const curve_points *)plot)->AxIdx_X;
-		image_y_axis = ((const curve_points *)plot)->AxIdx_Y;
+		points  = static_cast<const curve_points *>(plot)->points;
+		p_count = static_cast<const curve_points *>(plot)->p_count;
+		pixel_planes = static_cast<const curve_points *>(plot)->image_properties.type;
+		ncols = static_cast<const curve_points *>(plot)->image_properties.ncols;
+		nrows = static_cast<const curve_points *>(plot)->image_properties.nrows;
+		image_x_axis = static_cast<const curve_points *>(plot)->AxIdx_X;
+		image_y_axis = static_cast<const curve_points *>(plot)->AxIdx_Y;
 	}
 	if(p_count < 1) {
 		IntWarn(NO_CARET, "No points (visible or invisible) to plot.\n\n");
@@ -3919,15 +3910,17 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 			if(image) {
 				int j;
 				gpiPoint corners[4];
-				int M = 0, N = 0; /* M = number of columns, N = number of rows.  (K and L don't have a set direction, but M and N do.) */
-				int i_image, i_sub_image = 0;
+				int M = 0; // M = number of columns
+				int N = 0; // N = number of rows.  (K and L don't have a set direction, but M and N do.) 
+				int i_image;
+				int i_sub_image = 0;
 				int line_pixel_count = 0;
 				const double d_x_o_2 = ((points[grid_corner[0]].Pt.x - points[grid_corner[1]].Pt.x)/(K-1) + (points[grid_corner[0]].Pt.x - points[grid_corner[2]].Pt.x)/(L-1)) / 2;
 				const double d_y_o_2 = ((points[grid_corner[0]].Pt.y - points[grid_corner[1]].Pt.y)/(K-1) + (points[grid_corner[0]].Pt.y - points[grid_corner[2]].Pt.y)/(L-1)) / 2;
 				const double d_z_o_2 = ((points[grid_corner[0]].Pt.z - points[grid_corner[1]].Pt.z)/(K-1) + (points[grid_corner[0]].Pt.z - points[grid_corner[2]].Pt.z)/(L-1)) / 2;
 				pixel_1_1 = -1;
 				pixel_M_N = -1;
-				/* Step through the points placing them in the proper spot in the matrix array. */
+				// Step through the points placing them in the proper spot in the matrix array. 
 				for(i = 0, j = line_length, i_image = i_start; i < p_count; i++) {
 					bool visible;
 					// This of course should not happen, but if an improperly constructed
@@ -4139,14 +4132,10 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 								}
 								// Clip rectangle if necessary 
 								if(rectangular_image && pTerm->fillbox && (corners_in_view < 4) && V.P_ClipArea) {
-									if(corners[i_corners].x < V.P_ClipArea->xleft)
-										corners[i_corners].x = V.P_ClipArea->xleft;
-									if(corners[i_corners].x > V.P_ClipArea->xright)
-										corners[i_corners].x = V.P_ClipArea->xright;
-									if(corners[i_corners].y > V.P_ClipArea->ytop)
-										corners[i_corners].y = V.P_ClipArea->ytop;
-									if(corners[i_corners].y < V.P_ClipArea->ybot)
-										corners[i_corners].y = V.P_ClipArea->ybot;
+									SETMAX(corners[i_corners].x, V.P_ClipArea->xleft);
+									SETMIN(corners[i_corners].x, V.P_ClipArea->xright);
+									SETMIN(corners[i_corners].y, V.P_ClipArea->ytop);
+									SETMAX(corners[i_corners].y, V.P_ClipArea->ybot);
 								}
 							}
 						}
