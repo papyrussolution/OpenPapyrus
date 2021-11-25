@@ -38,10 +38,12 @@
     <ClCompile Include="..\OSF\FreeType\truetype.c" />
     <ClCompile Include="..\OSF\FreeType\type1.c" />
     <ClCompile Include="..\OSF\FreeType\type1cid.c" />
-    <ClCompile Include="..\OSF\FreeType\type42.c" />
     <ClCompile Include="..\OSF\FreeType\winfnt.c" />
     <ClCompile Include="..\OSF\FreeType\ftobjs.c" />
     <ClCompile Include="..\OSF\FreeType\ftrfork.c" />
+    <ClCompile Include="..\OSF\FreeType\t42drivr.c" />
+    <ClCompile Include="..\OSF\FreeType\t42objs.c" />
+    <ClCompile Include="..\OSF\FreeType\t42parse.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\freetype\internal\autohint.h">

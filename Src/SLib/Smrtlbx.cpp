@@ -163,7 +163,8 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			break;
 		*/
 	}
-	return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
+	INT_PTR result = p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
+	return result;
 }
 //
 //
@@ -406,7 +407,7 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.x = rc_list.right;
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
-		h_wnd = ::CreateWindow(_T("SCROLLBAR"), _T(""), WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
+		h_wnd = ::CreateWindowEx(0, _T("SCROLLBAR"), _T(""), WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
 			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0);
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
@@ -433,6 +434,13 @@ void SmartListBox::onInitDialog(int useScrollBar)
 {
 	const  HWND h_lb = getHandle();
 	DLGPROC dlg_proc = 0;
+	// @v11.2.4 {
+	if(Parent) {
+		long   exstyle = TView::GetWindowExStyle(Parent);
+		if(exstyle & WS_EX_COMPOSITED)
+			TView::SetWindowProp(Parent, GWL_EXSTYLE, (exstyle & ~WS_EX_COMPOSITED));
+	}
+	// } @v11.2.4 
 	if(State & stTreeList) {
 		//StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)def;
 		dlg_proc = TreeListBoxDialogProc;
@@ -928,7 +936,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			else {
 				if(p_nm && p_nm->code == NM_CUSTOMDRAW) {
 					NMTVCUSTOMDRAW * p_cd = (NMTVCUSTOMDRAW *)p_nm;
-					HWND   h_ctl = p_nm->hwndFrom;
+					//HWND   h_ctl = p_nm->hwndFrom;
 					long   result = CDRF_DODEFAULT;
 					if(!p_cd)
 						result = -1;
@@ -937,6 +945,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	    					case CDDS_PREPAINT:
 								if(def && def->HasItemColorSpec())
 									result = CDRF_NOTIFYITEMDRAW;
+								else
+									result = -1;
 								break;
 							case CDDS_ITEMPREPAINT:
 								{
@@ -961,6 +971,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 					}
 					TView::SetWindowProp(Parent, DWLP_MSGRESULT, result);
+					return 0; // @v11.2.4
 				}
 				else
 					return 0;
@@ -1454,8 +1465,10 @@ int SmartListBox::TransmitData(int dir, void * pData)
 
 IMPL_HANDLE_EVENT(SmartListBox)
 {
+	TView::handleEvent(event); // @v11.2.4
 	if(event.isCmd(cmDraw)) {
 		Implement_Draw();
+		clearEvent(event); // @v11.2.4
 	}
 }
 
@@ -1648,8 +1661,9 @@ void SmartListBox::setRange(long aRange)
 
 void SmartListBox::setState(uint aState, bool enable)
 {
+	const long preserve_state = State; // @v11.2.4
 	TView::setState(aState, enable);
-	if((aState & (sfSelected | sfActive)) && !Columns.getCount())
+	if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !Columns.getCount())
 		if(!(State & stTreeList))
 			Draw_();
 }

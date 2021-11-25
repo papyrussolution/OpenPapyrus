@@ -50,8 +50,8 @@ int PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	filt = *static_cast<AssetFilt *>(pBaseFilt);
 	THROW(CheckDialogPtrErr(&dlg));
-	SetupCalCtrl(CTLCAL_ASSETFLT_PERIOD, dlg, CTL_ASSETFLT_PERIOD, 1);
-	SetupCalCtrl(CTLCAL_ASSETFLT_OPERAT, dlg, CTL_ASSETFLT_OPERAT, 2);
+	dlg->SetupCalPeriod(CTLCAL_ASSETFLT_PERIOD, CTL_ASSETFLT_PERIOD);
+	dlg->SetupCalPeriod(CTLCAL_ASSETFLT_OPERAT, CTL_ASSETFLT_OPERAT);
 	SetPeriodInput(dlg, CTL_ASSETFLT_PERIOD, &filt.Period);
 	SetPeriodInput(dlg, CTL_ASSETFLT_OPERAT, &filt.OperPeriod);
 	SetupPPObjCombo(dlg, CTLSEL_ASSETFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0, 0);

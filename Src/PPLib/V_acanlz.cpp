@@ -430,7 +430,7 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 	THROW(P_BObj->atobj->ConvertAcct(&CConfig.SupplAcct, 0 /*@curID*/, &pFilt->AcctId, &pFilt->AccSheetID));
 	THROW(search = SearchObject(PPOBJ_ACCSHEET, pFilt->AccSheetID, &acc_sheet_rec));
 	THROW_PP(search > 0, PPERR_INVACCSUPPL);
-	SetupCalCtrl(CTLCAL_SPLTOFLT_PERIOD, dlg, CTL_SPLTOFLT_PERIOD, 1);
+	dlg->SetupCalPeriod(CTLCAL_SPLTOFLT_PERIOD, CTL_SPLTOFLT_PERIOD);
 	SetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, &pFilt->Period);
 	SetupArCombo(dlg, CTLSEL_SPLTOFLT_SUPPL, pFilt->SingleArID, OLW_LOADDEFONOPEN, pFilt->AccSheetID, 0);
 	dlg->AddClusterAssoc(CTL_SPLTOFLT_FLAGS, 0, AccAnlzFilt::fSpprZTrnovr);

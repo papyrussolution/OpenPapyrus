@@ -177,7 +177,7 @@ FT_BEGIN_HEADER
       _node = _first;                                                       \
       do                                                                    \
       {                                                                     \
-        if ( _compare( _node, (key) ) )                                     \
+        if ( _compare( _node, (key)) )                                     \
         {                                                                   \
           if ( _node != _first )                                            \
             FTC_MruNode_Up( _pfirst, _node );                               \
@@ -190,7 +190,7 @@ FT_BEGIN_HEADER
       } while ( _node != _first);                                           \
     }                                                                       \
                                                                             \
-    error = FTC_MruList_New( (list), (key), (FTC_MruNode*)(void*)&(node) ); \
+    error = FTC_MruList_New((list), (key), (FTC_MruNode*)(void*)&(node)); \
   MruOk_:                                                                   \
     ;                                                                       \
   FT_END_STMNT
@@ -210,7 +210,7 @@ FT_BEGIN_HEADER
                       FTC_MruNode  *pnode );
 
 #define FTC_MRULIST_LOOKUP( list, key, node, error ) \
-  error = FTC_MruList_Lookup( (list), (key), (FTC_MruNode*)&(node) )
+  error = FTC_MruList_Lookup((list), (key), (FTC_MruNode*)&(node))
 
 #endif /* !FTC_INLINE */
 

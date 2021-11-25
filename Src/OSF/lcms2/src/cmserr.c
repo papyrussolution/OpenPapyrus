@@ -198,30 +198,24 @@ cmsBool  _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data
 {
 	cmsPluginMemHandler* Plugin = (cmsPluginMemHandler*)Data;
 	_cmsMemPluginChunkType* ptr;
-
 	// NULL forces to reset to defaults. In this special case, the defaults are stored in the context structure.
 	// Remaining plug-ins does NOT have any copy in the context structure, but this is somehow special as the
 	// context internal data should be malloce'd by using those functions.
 	if(Data == NULL) {
 		struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)ContextID;
-
 		// Return to the default allocators
 		if(ContextID != NULL) {
 			ctx->chunks[MemPlugin] = (void *)&ctx->DefaultMemoryManager;
 		}
 		return TRUE;
 	}
-
 	// Check for required callbacks
-	if(Plugin->MallocPtr == NULL ||
-	    Plugin->FreePtr == NULL ||
-	    Plugin->ReallocPtr == NULL) return FALSE;
-
+	if(Plugin->MallocPtr == NULL || Plugin->FreePtr == NULL || Plugin->ReallocPtr == NULL) 
+		return FALSE;
 	// Set replacement functions
 	ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	if(ptr == NULL)
 		return FALSE;
-
 	_cmsInstallAllocFunctions(Plugin, ptr);
 	return TRUE;
 }
@@ -257,7 +251,7 @@ void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number s
 // Generic free memory
 void CMSEXPORT _cmsFree(cmsContext ContextID, void * Ptr)
 {
-	if(Ptr != NULL) {
+	if(Ptr) {
 		_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 		ptr->FreePtr(ContextID, Ptr);
 	}
@@ -280,15 +274,12 @@ static
 _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32Number Initial)
 {
 	_cmsSubAllocator_chunk* chunk;
-
 	// 20K by default
-	if(Initial == 0)
-		Initial = 20*1024;
-
+	SETIFZQ(Initial, 20*1024);
 	// Create the container
 	chunk = (_cmsSubAllocator_chunk*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator_chunk));
-	if(chunk == NULL) return NULL;
-
+	if(chunk == NULL) 
+		return NULL;
 	// Initialize values
 	chunk->Block     = (cmsUInt8Number *)_cmsMalloc(ContextID, Initial);
 	if(chunk->Block == NULL) {
@@ -296,11 +287,9 @@ _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32N
 		_cmsFree(ContextID, chunk);
 		return NULL;
 	}
-
 	chunk->BlockSize = Initial;
 	chunk->Used      = 0;
 	chunk->next      = NULL;
-
 	return chunk;
 }
 
@@ -308,20 +297,15 @@ _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32N
 // the thread ID in this structure.
 _cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, cmsUInt32Number Initial)
 {
-	_cmsSubAllocator* sub;
-
 	// Create the container
-	sub = (_cmsSubAllocator*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator));
+	_cmsSubAllocator* sub = (_cmsSubAllocator*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator));
 	if(sub == NULL) return NULL;
-
 	sub->ContextID = ContextID;
-
 	sub->h = _cmsCreateSubAllocChunk(ContextID, Initial);
 	if(sub->h == NULL) {
 		_cmsFree(ContextID, sub);
 		return NULL;
 	}
-
 	return sub;
 }
 
@@ -329,13 +313,11 @@ _cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, cmsUInt32Number Initi
 void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 {
 	_cmsSubAllocator_chunk * chunk, * n;
-
 	for(chunk = sub->h; chunk != NULL; chunk = n) {
 		n = chunk->next;
 		if(chunk->Block != NULL) _cmsFree(sub->ContextID, chunk->Block);
 		_cmsFree(sub->ContextID, chunk);
 	}
-
 	// Free the header
 	_cmsFree(sub->ContextID, sub);
 }
@@ -366,17 +348,13 @@ void *  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
 void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size)
 {
 	void * NewPtr;
-
 	// Dup of null pointer is also NULL
 	if(ptr == NULL)
 		return NULL;
-
 	NewPtr = _cmsSubAlloc(s, size);
-
 	if(ptr != NULL && NewPtr != NULL) {
 		memcpy(NewPtr, ptr, size);
 	}
-
 	return NewPtr;
 }
 
@@ -410,15 +388,7 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
     const struct _cmsContext_struct* src)
 {
 	static _cmsLogErrorChunkType LogErrorChunk = { DefaultLogErrorHandlerFunction };
-	void * from;
-
-	if(src != NULL) {
-		from = src->chunks[Logger];
-	}
-	else {
-		from = &LogErrorChunk;
-	}
-
+	void * from = src ? src->chunks[Logger] : &LogErrorChunk;
 	ctx->chunks[Logger] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsLogErrorChunkType));
 }
 
@@ -428,7 +398,6 @@ void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorC
 {
 	// slfprintf_stderr("[lcms]: %s\n", Text);
 	// fflush(stderr);
-
 	cmsUNUSED_PARAMETER(ContextID);
 	cmsUNUSED_PARAMETER(ErrorCode);
 	cmsUNUSED_PARAMETER(Text);
@@ -438,7 +407,6 @@ void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorC
 void CMSEXPORT cmsSetLogErrorHandlerTHR(cmsContext ContextID, cmsLogErrorHandlerFunction Fn)
 {
 	_cmsLogErrorChunkType* lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
-
 	if(lhg != NULL) {
 		if(Fn == NULL)
 			lhg->LogErrorHandler = DefaultLogErrorHandlerFunction;
@@ -460,11 +428,9 @@ void CMSEXPORT cmsSignalError(cmsContext ContextID, cmsUInt32Number ErrorCode, c
 	va_list args;
 	char Buffer[MAX_ERROR_MESSAGE_LEN];
 	_cmsLogErrorChunkType* lhg;
-
 	va_start(args, ErrorText);
 	vsnprintf(Buffer, MAX_ERROR_MESSAGE_LEN-1, ErrorText, args);
 	va_end(args);
-
 	// Check for the context, if specified go there. If not, go for the global
 	lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
 	if(lhg->LogErrorHandler) {
@@ -475,14 +441,10 @@ void CMSEXPORT cmsSignalError(cmsContext ContextID, cmsUInt32Number ErrorCode, c
 // Utility function to print signatures
 void _cmsTagSignature2String(char String[5], cmsTagSignature sig)
 {
-	cmsUInt32Number be;
-
 	// Convert to big endian
-	be = _cmsAdjustEndianess32((cmsUInt32Number)sig);
-
+	cmsUInt32Number be = _cmsAdjustEndianess32((cmsUInt32Number)sig);
 	// Move chars
 	memmove(String, &be, 4);
-
 	// Make sure of terminator
 	String[4] = 0;
 }
@@ -518,17 +480,10 @@ static void defMtxUnlock(cmsContext id, void * mtx)
 _cmsMutexPluginChunkType _cmsMutexPluginChunk = { defMtxCreate, defMtxDestroy, defMtxLock, defMtxUnlock };
 
 // Allocate and init mutex container.
-void _cmsAllocMutexPluginChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void _cmsAllocMutexPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsMutexPluginChunkType MutexChunk = {defMtxCreate, defMtxDestroy, defMtxLock, defMtxUnlock };
-	void * from;
-	if(src != NULL) {
-		from = src->chunks[MutexPlugin];
-	}
-	else {
-		from = &MutexChunk;
-	}
+	void * from = src ? src->chunks[MutexPlugin] : &MutexChunk;
 	ctx->chunks[MutexPlugin] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsMutexPluginChunkType));
 }
 
@@ -545,16 +500,13 @@ cmsBool  _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 		ctx->UnlockMutexPtr = NULL;
 		return TRUE;
 	}
-
 	// Factory callback is required
 	if(Plugin->CreateMutexPtr == NULL || Plugin->DestroyMutexPtr == NULL ||
 	    Plugin->LockMutexPtr == NULL || Plugin->UnlockMutexPtr == NULL) return FALSE;
-
 	ctx->CreateMutexPtr  = Plugin->CreateMutexPtr;
 	ctx->DestroyMutexPtr = Plugin->DestroyMutexPtr;
 	ctx->LockMutexPtr   = Plugin->LockMutexPtr;
 	ctx->UnlockMutexPtr = Plugin->UnlockMutexPtr;
-
 	// All is ok
 	return TRUE;
 }
@@ -587,7 +539,6 @@ cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx)
 void CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-
 	if(ptr->UnlockMutexPtr != NULL) {
 		ptr->UnlockMutexPtr(ContextID, mtx);
 	}

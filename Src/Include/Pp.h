@@ -15824,9 +15824,12 @@ public:
 		fBkgndImage       = 0x0008, // Элемент имеет привязанный файл изображения. Только для kGroup //
 		fBkgndImageLoaded = 0x0010  // @transient Признак того, что при загрузке из хранилища объект содержал изображение. Только для kGroup //
 	};
-	explicit PPCommandItem(int kind = kUndef);
+	explicit PPCommandItem(int kind/*= kUndef*/);
 	PPCommandItem(const PPCommandItem & rS);
 	PPCommandItem & FASTCALL operator = (const PPCommandItem & rS);
+	long   GetID() const { return ID; }
+	int    GetKind() const { return Kind; }
+	bool   IsKind(int k) const { return (static_cast<int>(Kind) == k); }
 	virtual ~PPCommandItem();
 	virtual int Write_Depricated(SBuffer &, long) const;
 	virtual int Read_Depricated(SBuffer &, long);
@@ -15838,7 +15841,8 @@ public:
 	virtual void FASTCALL SetUniqueID(long * pID);
 	int    FASTCALL Copy(const PPCommandItem &);
 	int    Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const;
-
+// @todo Теоретически, следующие поля надо бы сделать protected, но первая попытка "захлебнулась" - много неочевидных присваиваний. 
+// частично я закрыл прямой доступ посредством конструкторов и getter'ов (GetID(), GetKind(), IsKind())
 	int16  Kind;
 	int16  Flags;
 	long   ID;
@@ -15958,6 +15962,8 @@ public:
 	virtual void FASTCALL SetUniqueID(long * pID);
 
 	TSCollection <PPCommandItem> List;
+protected:
+	PPCommandFolder(int kind);
 };
 
 class PPCommandGroup : public PPCommandFolder {
@@ -54445,7 +54451,7 @@ public:
 	int    BeginIconMove(SPoint2S p);
 	int    MoveIcon(SPoint2S p);
 	void   EndIconMove(SPoint2S p);
-	void   Update(const TRect * pR, int drawBackgnd);
+	void   Update(const TRect * pR, bool drawBackgnd);
 	int    EditIconName(long id);
 	int    DoCommand(SPoint2S p);
 	void   ArrangeIcons();
@@ -55947,6 +55953,80 @@ struct CalcPriceParam { // @{calcprice}
 	int16  Reserve;    // @alignment
 	long   Flags;      // IN/OUT CalcPriceParam::fXXX
 };
+// 
+// Descr: Новый вариант виджета для выбора даты и периода и времени
+// 
+class SCalendarPicker : public TWindowBase {
+public:
+	struct DataBlock {
+		DataBlock();
+		LDATETIME Dtm;
+		DateRange Period;
+	};
+private:
+	DECL_DIALOG_DATA(DataBlock);
+public:
+	enum {
+		kDate     = 1,
+		kPeriod   = 2,
+		kTime     = 3,
+		kDateTime = 4
+	};
+	static int Exec(const int kind, DataBlock & rData);
+	static int Exec(const int kind, TDialog * pParentDlg, uint inputCtlId);
+	explicit SCalendarPicker(int kind);
+	~SCalendarPicker();
+	DECL_DIALOG_SETDTS();
+	DECL_DIALOG_GETDTS();
+private:
+	enum {
+		loiYear,
+		loiYearArrow,
+		loiMonth,
+		loiWeekday,
+		loiDay,
+		//loiHour,        // 
+		//loiMinute,      //
+		loiFrame_Main,
+		loiFrame_Years,
+		loiFrame_Monthes,
+		loiFrame_Days,
+		loiFrame_Buttons, // 0 - frame, 1 - now, 2 - ok, 3 - cancel, 4 - left-opened-period, 5 - right-opened-period, 6 - reset period
+		loiFrame_PeriodTypeButtons, // 0 - frame, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUARD, PRD_ANNUAL
+		loiFrame_Hours,  // 0 - frame
+		loiFrame_Minuts, // 0 - frame
+	};
+	struct LayoutExtra {
+		LayoutExtra(int ident, uint value);
+		int   Ident; // loiXXX
+		uint  Value; // Для месяцев - месяц, для дней - день, для дней недели - день недели, 
+			// для loiYearArrow: SIDE_LEFT - left, SIDE_RIGHT - right
+			// Для лет - (year - StartLoYear)
+	};
+	DECL_HANDLE_EVENT;
+	static const char * GetWindowTitle(int kind);
+	static const SVector & GetLayoutExtraVector();
+	const LayoutExtra * GetLayoutExtra(int ident, uint val) const;
+	void   CreateFont_();
+	void   CreateLayout(LDATE selectedDate);
+	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
+	void   EvaluateLayout(/*float width, float height*/const TRect & rR);
+	SUiLayout * Helper_FindLayout(SUiLayout * pItem, int extraIdent, uint extraValue);
+	SUiLayout * FindLayout(int extraIdent, uint extraValue);
+	LDATE  AdjustLeftDate(int prdType, LDATE d) const;
+	LDATE  AdjustRightDate(int prdType, LDATE d) const;
+	void   UpdateSelectedPeriod(const DateRange * pNewPeriod);
+	
+	const  int Kind;
+	const  SUiLayout * P_LoFocused;
+	const  SVector LoExtraList;
+	int    FontId;
+	int    CStyleId;
+	int    CStyleFocusId;
+	uint   StartLoYear;  // Стартовый год в блоке выбора года.
+	long   PeriodTerm;   // PRD_XXX Kind==kPeriod
+	long   PeriodPredef; // Предопределенный период (сегодня, вчера, последняя неделя и т.д.)
+};
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому
 //   дают расчет суммы НДС без остатка.
@@ -56207,7 +56287,7 @@ int    DatabaseCutting();
 //   GetCalCtrlSignature, то кнопка относится к искомому типу.
 //
 const  char * GetCalCtrlSignature(int type);
-void   STDCALL SetupCalCtrl(int, TDialog *, uint, uint);
+// @v11.2.4 (static now) void   STDCALL SetupCalCtrl(int, TDialog *, uint, uint);
 void   ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show);
 int    Import(PPID objType, long extraParam = 0);
 int    ImportBanks();

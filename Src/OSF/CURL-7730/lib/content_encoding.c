@@ -783,7 +783,7 @@ char * Curl_all_content_encodings(void)
 	}
 	if(!len)
 		return sstrdup(CONTENT_ENCODING_DEFAULT);
-	ace = (char *)SAlloc::M(len);
+	ace = static_cast<char *>(SAlloc::M(len));
 	if(ace) {
 		char * p = ace;
 		for(cep = encodings; *cep; cep++) {

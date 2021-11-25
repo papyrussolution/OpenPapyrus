@@ -3186,9 +3186,9 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 		};
 		GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int doDisable) : TDialog(rezID), CtlDisableSuppl(doDisable)
 		{
-			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0));
 			setDTS(pF);
-			SetupCalCtrl(CTLCAL_GFLTADVOPT_LOTPERIOD, this, CTL_GFLTADVOPT_LOTPERIOD, 1);
+			SetupCalPeriod(CTLCAL_GFLTADVOPT_LOTPERIOD, CTL_GFLTADVOPT_LOTPERIOD);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -3292,7 +3292,7 @@ int GoodsFiltDialog::vatFilt()
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSFLTVAT);
 	if(CheckDialogPtrErr(&dlg)) {
-		SetupCalCtrl(CTLCAL_GOODSFLTVAT_DATE, dlg, CTL_GOODSFLTVAT_DATE, 4);
+		dlg->SetupCalDate(CTLCAL_GOODSFLTVAT_DATE, CTL_GOODSFLTVAT_DATE);
 		double rate = fdiv100i(Data.VatRate);
 		dlg->setCtrlData(CTL_GOODSFLTVAT_RATE, &rate);
 		dlg->setCtrlData(CTL_GOODSFLTVAT_DATE, &Data.VatDate);

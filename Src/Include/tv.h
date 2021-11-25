@@ -2389,10 +2389,10 @@ public:
 	void   showLocalMenu();
 	TRect  getClientRect() const;
 	TRect  getRect() const;
-	int    invalidateRect(const TRect &, int erase);
-	int    invalidateRect(const FRect &, int erase);
-	int    invalidateRegion(const SRegion & rRgn, int erase);
-	void   FASTCALL invalidateAll(int erase);
+	int    invalidateRect(const TRect &, bool erase);
+	int    invalidateRect(const FRect &, bool erase);
+	int    invalidateRegion(const SRegion & rRgn, bool erase);
+	void   FASTCALL invalidateAll(bool erase);
 	//
 	// Descr: Инициализирует ожидание системой события покидания мышью клиентской области
 	//   окна и (или) "замирания" мыши над клиентской областью (MouseHover).
@@ -2639,7 +2639,7 @@ protected:
 	SPaintToolBox Tb;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-	int    MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
+	void   MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
 	void   RegisterMouseTracking(int force);
 
 	const  SString ClsName;     // Window class name
@@ -3381,7 +3381,6 @@ public:
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
 	void   SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);
-	void   SetupCalendar(uint calCtlID, uint inputCtlID, int kind);
 	void   SetupCalDate(uint calCtlID, uint inputCtlID);
 	void   SetupCalPeriod(uint calCtlID, uint inputCtlID);
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
@@ -3484,6 +3483,7 @@ private:
 	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam);
 	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
+	//void   SetupCalendar(uint calCtlID, uint inputCtlID, int kind);
 	//
 	TRect  InitRect;
 	RECT   ResizedRect;  // @todo RECT-->TRect

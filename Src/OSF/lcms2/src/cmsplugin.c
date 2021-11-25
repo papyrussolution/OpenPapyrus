@@ -292,7 +292,7 @@ cmsBool CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, cmsFloat32Number n)
 {
 	cmsUInt32Number tmp;
 	_cmsAssert(io != NULL);
-	tmp = *(cmsUInt32Number*)(void *)&n;
+	tmp = *(cmsUInt32Number *)(void *)&n;
 	tmp = _cmsAdjustEndianess32(tmp);
 	if(io->Write(io, sizeof(cmsUInt32Number), &tmp) != 1)
 		return FALSE;

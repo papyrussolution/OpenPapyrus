@@ -834,10 +834,12 @@
     <ClCompile Include="..\OSF\FreeType\raster.c" />
     <ClCompile Include="..\OSF\FreeType\sfnt.c" />
     <ClCompile Include="..\OSF\FreeType\smooth.c" />
+    <ClCompile Include="..\OSF\FreeType\t42drivr.c" />
+    <ClCompile Include="..\OSF\FreeType\t42objs.c" />
+    <ClCompile Include="..\OSF\FreeType\t42parse.c" />
     <ClCompile Include="..\OSF\FreeType\truetype.c" />
     <ClCompile Include="..\OSF\FreeType\type1.c" />
     <ClCompile Include="..\OSF\FreeType\type1cid.c" />
-    <ClCompile Include="..\OSF\FreeType\type42.c" />
     <ClCompile Include="..\OSF\FreeType\winfnt.c" />
   </ItemGroup>
   <ItemGroup>

@@ -5182,7 +5182,7 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 	// @v10.6.4 MEMSZERO(cc_rec);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(isDraft) {
-		SetupCalCtrl(CTLCAL_SCARDNUM_CHKDT, p_dlg, CTL_SCARDNUM_CHKDT, 4);
+		p_dlg->SetupCalDate(CTLCAL_SCARDNUM_CHKDT, CTL_SCARDNUM_CHKDT);
 		p_dlg->setCtrlData(CTL_SCARDNUM_CHKDT, &(dt = getcurdate_()));
 	}
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {

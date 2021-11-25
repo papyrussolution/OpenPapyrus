@@ -41,7 +41,7 @@
 #ifdef FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
 
 #define VARIANT_BIT         0x80000000UL
-#define BASE_GLYPH(code)  ( (FT_UInt32)( (code) & ~VARIANT_BIT ) )
+#define BASE_GLYPH(code)  ((FT_UInt32)((code) & ~VARIANT_BIT ))
 
 /* Return the Unicode value corresponding to a given glyph.  Note that */
 /* we do deal with glyph variants by detecting a non-initial dot in    */
@@ -63,7 +63,7 @@ static FT_UInt32 ps_unicode_value(const char *  glyph_name)
 
 		FT_Int count;
 		FT_UInt32 value = 0;
-		const char *  p     = glyph_name + 3;
+		const char *  p  = glyph_name + 3;
 
 		for(count = 4; count > 0; count--, p++) {
 			char c = *p;
@@ -101,7 +101,7 @@ static FT_UInt32 ps_unicode_value(const char *  glyph_name)
 	if(glyph_name[0] == 'u') {
 		FT_Int count;
 		FT_UInt32 value = 0;
-		const char *  p     = glyph_name + 1;
+		const char *  p  = glyph_name + 1;
 
 		for(count = 6; count > 0; count--, p++) {
 			char c = *p;
@@ -133,7 +133,7 @@ static FT_UInt32 ps_unicode_value(const char *  glyph_name)
 	/* Look for a non-initial dot in the glyph name in order to */
 	/* find variants like `A.swash', `e.final', etc.      */
 	{
-		const char *  p   = glyph_name;
+		const char *  p = glyph_name;
 		const char *  dot = NULL;
 
 		for(; *p; p++) {
@@ -243,7 +243,7 @@ static void ps_check_extra_glyph_name(const char *  gname,
 		    ft_extra_glyph_name_offsets[n], gname) == 0) {
 			if(states[n] == 0) {
 				/* mark this extra glyph as a candidate for the cmap */
-				states[n]     = 1;
+				states[n]  = 1;
 				extra_glyphs[n] = glyph;
 			}
 
@@ -282,9 +282,9 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 
 	/* we first allocate the table */
 	table->num_maps = 0;
-	table->maps     = NULL;
+	table->maps  = NULL;
 
-	if(!FT_NEW_ARRAY(table->maps, num_glyphs + EXTRA_GLYPH_LIST_SIZE) ) {
+	if(!FT_NEW_ARRAY(table->maps, num_glyphs + EXTRA_GLYPH_LIST_SIZE)) {
 		FT_UInt n;
 		FT_UInt count;
 		PS_UniMap*  map;
@@ -303,7 +303,7 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 				if(BASE_GLYPH(uni_char) != 0) {
 					ps_check_extra_glyph_unicode(uni_char,
 					    extra_glyph_list_states);
-					map->unicode     = uni_char;
+					map->unicode  = uni_char;
 					map->glyph_index = n;
 					map++;
 				}
@@ -318,7 +318,7 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 				/* This glyph name has an additional representation. */
 				/* Add it to the cmap.            */
 
-				map->unicode     = ft_extra_glyph_unicodes[n];
+				map->unicode  = ft_extra_glyph_unicodes[n];
 				map->glyph_index = extra_glyphs[n];
 				map++;
 			}
@@ -387,7 +387,7 @@ static FT_UInt ps_unicodes_char_index(PS_Unicodes table, FT_UInt32 unicode)
 
 static FT_UInt32 ps_unicodes_char_next(PS_Unicodes table, FT_UInt32   * unicode)
 {
-	FT_UInt result    = 0;
+	FT_UInt result = 0;
 	FT_UInt32 char_code = *unicode + 1;
 	{
 		FT_UInt min = 0;
@@ -415,8 +415,8 @@ static FT_UInt32 ps_unicodes_char_next(PS_Unicodes table, FT_UInt32   * unicode)
 		/* we didn't find it; check whether we have a map just above it */
 		char_code = 0;
 		if(min < table->num_maps) {
-			map       = table->maps + min;
-			result    = map->glyph_index;
+			map  = table->maps + min;
+			result = map->glyph_index;
 			char_code = BASE_GLYPH(map->unicode);
 		}
 	}

@@ -118,7 +118,7 @@ FT_BEGIN_HEADER
 
   typedef enum  GXV_GlyphOffset_Format_
   {
-    GXV_GLYPHOFFSET_NONE   = -1,
+    GXV_GLYPHOFFSET_NONE = -1,
     GXV_GLYPHOFFSET_UCHAR  = 2,
     GXV_GLYPHOFFSET_CHAR,
     GXV_GLYPHOFFSET_USHORT = 4,
@@ -262,15 +262,15 @@ FT_BEGIN_HEADER
 
 
 #define GXV_TABLE_DATA( tag, field )                           \
-        ( ( (GXV_ ## tag ## _Data)gxvalid->table_data )->field )
+        (((GXV_ ## tag ## _Data)gxvalid->table_data )->field )
 
 #undef  FT_INVALID_
 #define FT_INVALID_( _error ) \
-          ft_validator_error( gxvalid->root, FT_THROW( _error ) )
+          ft_validator_error( gxvalid->root, FT_THROW( _error ))
 
 #define GXV_LIMIT_CHECK( _count )                                     \
           FT_BEGIN_STMNT                                              \
-            if ( p + _count > ( limit? limit : gxvalid->root->limit ) ) \
+            if ( p + _count > ( limit? limit : gxvalid->root->limit )) \
               FT_INVALID_TOO_SHORT;                                   \
           FT_END_STMNT
 
@@ -316,7 +316,7 @@ FT_BEGIN_HEADER
 #define GXV_32BIT_ALIGNMENT_VALIDATE( a ) \
           FT_BEGIN_STMNT                  \
             {                             \
-              if ( (a) & 3 )              \
+              if ((a) & 3 )              \
                 FT_INVALID_OFFSET;        \
             }                             \
           FT_END_STMNT
@@ -502,19 +502,19 @@ FT_BEGIN_HEADER
 
 #define GXV_SUBTABLE_OFFSET_CHECK( _offset )          \
           FT_BEGIN_STMNT                              \
-            if ( (_offset) > gxvalid->subtable_length ) \
+            if ((_offset) > gxvalid->subtable_length ) \
               FT_INVALID_OFFSET;                      \
           FT_END_STMNT
 
 #define GXV_SUBTABLE_LIMIT_CHECK( _count )                  \
           FT_BEGIN_STMNT                                    \
-            if ( ( p + (_count) - gxvalid->subtable_start ) > \
+            if (( p + (_count) - gxvalid->subtable_start ) > \
                    gxvalid->subtable_length )                 \
               FT_INVALID_TOO_SHORT;                         \
           FT_END_STMNT
 
 #define GXV_USHORT_TO_SHORT( _us )                                    \
-          ( ( 0x8000U < ( _us ) ) ? ( ( _us ) - 0x8000U ) : ( _us ) )
+          (( 0x8000U < ( _us )) ? (( _us ) - 0x8000U ) : ( _us ))
 
 #define GXV_STATETABLE_HEADER_SIZE  ( 2 + 2 + 2 + 2 )
 #define GXV_STATEHEADER_SIZE        GXV_STATETABLE_HEADER_SIZE
@@ -566,8 +566,8 @@ FT_BEGIN_HEADER
 #define GXV_ODTECT_INIT( odtect )                      \
           FT_BEGIN_STMNT                               \
             odtect ## _rec.nRanges = 0;                \
-            odtect ## _rec.range   = odtect ## _range; \
-            odtect                 = & odtect ## _rec; \
+            odtect ## _rec.range = odtect ## _range; \
+            odtect   = & odtect ## _rec; \
           FT_END_STMNT
 
 

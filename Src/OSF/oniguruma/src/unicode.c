@@ -74,13 +74,11 @@ extern int onigenc_unicode_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag
 		buk = onigenc_unicode_unfold_key(code);
 		if(buk != 0) {
 			if(buk->fold_len == 1) {
-				if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) ||
-				    ONIGENC_IS_ASCII_CODE(*FOLDS1_FOLD(buk->index)))
+				if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) || ONIGENC_IS_ASCII_CODE(*FOLDS1_FOLD(buk->index)))
 					return ONIGENC_CODE_TO_MBC(enc, *FOLDS1_FOLD(buk->index), fold);
 			}
 			else {
 				OnigCodePoint* addr;
-
 				FOLDS_FOLD_ADDR_BUK(buk, addr);
 				rlen = 0;
 				for(i = 0; i < buk->fold_len; i++) {
@@ -93,49 +91,39 @@ extern int onigenc_unicode_mbc_case_fold(OnigEncoding enc, OnigCaseFoldType flag
 			}
 		}
 	}
-
 	for(i = 0; i < len; i++) {
 		*fold++ = *p++;
 	}
 	return len;
 }
 
-static int apply_case_fold1(OnigCaseFoldType flag, int from, int to,
-    OnigApplyAllCaseFoldFunc f, void * arg)
+static int apply_case_fold1(OnigCaseFoldType flag, int from, int to, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int i, j, k, n, r;
-
 	for(i = from; i < to;) {
 		OnigCodePoint fold = *FOLDS1_FOLD(i);
-		if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(fold)) break;
-
+		if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(fold)) 
+			break;
 		n = FOLDS1_UNFOLDS_NUM(i);
 		for(j = 0; j < n; j++) {
 			OnigCodePoint unfold = FOLDS1_UNFOLDS(i)[j];
-
 			if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(unfold))
 				continue;
-
 			r = (*f)(fold, &unfold, 1, arg);
 			if(r != 0) return r;
 			r = (*f)(unfold, &fold, 1, arg);
 			if(r != 0) return r;
-
 			for(k = 0; k < j; k++) {
 				OnigCodePoint unfold2 = FOLDS1_UNFOLDS(i)[k];
-				if(CASE_FOLD_IS_ASCII_ONLY(flag) &&
-				    !ONIGENC_IS_ASCII_CODE(unfold2)) continue;
-
+				if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(unfold2)) continue;
 				r = (*f)(unfold, &unfold2, 1, arg);
 				if(r != 0) return r;
 				r = (*f)(unfold2, &unfold, 1, arg);
 				if(r != 0) return r;
 			}
 		}
-
 		i = FOLDS1_NEXT_INDEX(i);
 	}
-
 	return 0;
 }
 

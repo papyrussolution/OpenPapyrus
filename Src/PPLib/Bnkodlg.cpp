@@ -1,5 +1,5 @@
 // BNKODLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 // Диалог редактирования данных для банковских платежных документов
 //
@@ -72,7 +72,7 @@ class BnkOrdTaxMarkersDialog : public TDialog {
 public:
 	BnkOrdTaxMarkersDialog() : TDialog(DLG_TXM)
 	{
-		SetupCalCtrl(CTLCAL_TXM_DOCDATE, this, CTL_TXM_DOCDATE, 4);
+		SetupCalDate(CTLCAL_TXM_DOCDATE, CTL_TXM_DOCDATE);
 	}
 	int    setDTS(const PPBankingOrder *);
 	//
@@ -183,7 +183,7 @@ int BnkOrdTaxMarkersDialog::getDTS(PPBankingOrder * pData)
 //
 BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM), PayerValidCode(-1), RcvrValidCode(-1)
 {
-	SetupCalCtrl(CTLCAL_BNKPAYM_DT, this, CTL_BNKPAYM_DT, 4);
+	SetupCalDate(CTLCAL_BNKPAYM_DT, CTL_BNKPAYM_DT);
 	Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 	Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 }

@@ -106,7 +106,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 	int i;
 	char * buffer = (char *)SAlloc::M(BUFFERSIZE);
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char *)SAlloc::M(size);
+	char * line = static_cast<char *>(SAlloc::M(size));
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, GPT.P_GpOutFile);
 	for(int curve = 0; curve < plotNum; curve++, pPlot = pPlot->next) {
@@ -309,7 +309,7 @@ void GnuPlot::Print3DTable(int pcount)
 	GpCoordinate * tail;
 	char * buffer = (char *)SAlloc::M(BUFFERSIZE);
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char *)SAlloc::M(size);
+	char * line = static_cast<char *>(SAlloc::M(size));
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, GPT.P_GpOutFile);
 	for(surface = 0, this_plot = _Plt.first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
@@ -474,7 +474,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		char buf[64]; /* buffer large enough to hold %g + 2 extra chars */
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		size_t size = sizeof(buf);
-		char * line = (char *)SAlloc::M(size);
+		char * line = static_cast<char *>(SAlloc::M(size));
 		size_t len = 0;
 		line[0] = '\0';
 		for(col = 0; col < ncols; col++) {

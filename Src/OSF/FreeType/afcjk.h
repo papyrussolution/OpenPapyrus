@@ -47,9 +47,9 @@ FT_BEGIN_HEADER
    */
 
 #define AF_CJK_IS_TOP_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_CJK_TOP )
+          ((b)->properties & AF_BLUE_PROPERTY_CJK_TOP )
 #define AF_CJK_IS_HORIZ_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_CJK_HORIZ )
+          ((b)->properties & AF_BLUE_PROPERTY_CJK_HORIZ )
 #define AF_CJK_IS_RIGHT_BLUE  AF_CJK_IS_TOP_BLUE
 
 #define AF_CJK_MAX_WIDTHS  16

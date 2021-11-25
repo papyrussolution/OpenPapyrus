@@ -39,15 +39,11 @@
 #ifdef FT_CONFIG_OPTION_USE_LZW
 
 #include "ftzopen.h"
-
-/***************************************************************************/
-/*****                  M E M O R Y   M A N A G E M E N T              *****/
-/***************************************************************************/
-
-/***************************************************************************/
-/*****                   F I L E   D E S C R I P T O R                 *****/
-/***************************************************************************/
-
+// 
+// M E M O R Y   M A N A G E M E N T
+// 
+// F I L E   D E S C R I P T O R
+// 
 #define FT_LZW_BUFFER_SIZE  4096
 
 typedef struct  FT_LZWFileRec_ {
@@ -67,7 +63,7 @@ static FT_Error ft_lzw_check_header(FT_Stream stream)
 {
 	FT_Error error;
 	FT_Byte head[2];
-	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 2) )
+	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 2))
 		goto Exit;
 	/* head[0] && head[1] are the magic numbers */
 	if(head[0] != 0x1F || head[1] != 0x9D)
@@ -78,14 +74,14 @@ Exit:
 
 static FT_Error ft_lzw_file_init(FT_LZWFile zip, FT_Stream stream, FT_Stream source)
 {
-	FT_LzwState lzw   = &zip->lzw;
+	FT_LzwState lzw = &zip->lzw;
 	FT_Error error;
 	zip->stream = stream;
 	zip->source = source;
 	zip->memory = stream->memory;
 	zip->limit  = zip->buffer + FT_LZW_BUFFER_SIZE;
 	zip->cursor = zip->limit;
-	zip->pos    = 0;
+	zip->pos = 0;
 	/* check and skip .Z header */
 	error = ft_lzw_check_header(source);
 	if(error)
@@ -109,11 +105,11 @@ static FT_Error ft_lzw_file_reset(FT_LZWFile zip)
 {
 	FT_Stream stream = zip->source;
 	FT_Error error;
-	if(!FT_STREAM_SEEK(0) ) {
+	if(!FT_STREAM_SEEK(0)) {
 		ft_lzwstate_reset(&zip->lzw);
 		zip->limit  = zip->buffer + FT_LZW_BUFFER_SIZE;
 		zip->cursor = zip->limit;
-		zip->pos    = 0;
+		zip->pos = 0;
 	}
 	return error;
 }
@@ -170,9 +166,9 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer,
 	if(pos < zip->pos) {
 		/* If the new position is within the output buffer, simply */
 		/* decrement pointers, otherwise we reset the stream completely! */
-		if(( zip->pos - pos ) <= (FT_ULong)( zip->cursor - zip->buffer ) ) {
+		if(( zip->pos - pos ) <= (FT_ULong)( zip->cursor - zip->buffer )) {
 			zip->cursor -= zip->pos - pos;
-			zip->pos     = pos;
+			zip->pos  = pos;
 		}
 		else {
 			error = ft_lzw_file_reset(zip);
@@ -214,7 +210,7 @@ Exit:
 
 static void ft_lzw_stream_close(FT_Stream stream)
 {
-	FT_LZWFile zip    = (FT_LZWFile)stream->descriptor.pointer;
+	FT_LZWFile zip = (FT_LZWFile)stream->descriptor.pointer;
 	FT_Memory memory = stream->memory;
 	if(zip) {
 		/* finalize lzw file descriptor */
@@ -252,7 +248,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
 		goto Exit;
 	FT_ZERO(stream);
 	stream->memory = memory;
-	if(!FT_NEW(zip) ) {
+	if(!FT_NEW(zip)) {
 		error = ft_lzw_file_init(zip, stream, source);
 		if(error) {
 			FT_FREE(zip);
@@ -261,7 +257,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenLZW(FT_Stream stream, FT_Stream source)
 		stream->descriptor.pointer = zip;
 	}
 	stream->size  = 0x7FFFFFFFL; /* don't know the real size! */
-	stream->pos   = 0;
+	stream->pos = 0;
 	stream->base  = 0;
 	stream->read  = ft_lzw_stream_io;
 	stream->close = ft_lzw_stream_close;

@@ -85,12 +85,12 @@ FT_BEGIN_HEADER
   enum
   {
     CF2_GhostBottom = 0x1,  /* a single bottom edge     */
-    CF2_GhostTop    = 0x2,  /* a single top edge */
+    CF2_GhostTop = 0x2,  /* a single top edge */
     CF2_PairBottom  = 0x4,  /* the bottom edge of a stem hint */
-    CF2_PairTop     = 0x8,  /* the top edge of a stem hint    */
-    CF2_Locked      = 0x10, /* this edge has been aligned     */
+    CF2_PairTop  = 0x8,  /* the top edge of a stem hint    */
+    CF2_Locked = 0x10, /* this edge has been aligned     */
                             /* by a blue zone    */
-    CF2_Synthetic   = 0x20  /* this edge was synthesized      */
+    CF2_Synthetic = 0x20  /* this edge was synthesized      */
   };
 
 
@@ -102,7 +102,7 @@ FT_BEGIN_HEADER
    */
   enum
   {
-    CF2_ICF_Top    = cf2_intToFixed(  880 ),
+    CF2_ICF_Top = cf2_intToFixed(  880 ),
     CF2_ICF_Bottom = cf2_intToFixed( -120 )
   };
 
@@ -141,7 +141,7 @@ FT_BEGIN_HEADER
   /* max total blue zones is 12 */
   enum
   {
-    CF2_MAX_BLUES      = 7,
+    CF2_MAX_BLUES = 7,
     CF2_MAX_OTHERBLUES = 5
   };
 

@@ -44,53 +44,41 @@ typedef struct {
 	cmsUInt32Number Pointer;     // Points to current location
 } FILENULL;
 
-static
-cmsUInt32Number NULLRead(cmsIOHANDLER* iohandler, void * Buffer, cmsUInt32Number size, cmsUInt32Number count)
+static cmsUInt32Number NULLRead(cmsIOHANDLER* iohandler, void * Buffer, cmsUInt32Number size, cmsUInt32Number count)
 {
 	FILENULL* ResData = (FILENULL*)iohandler->stream;
-
 	cmsUInt32Number len = size * count;
 	ResData->Pointer += len;
 	return count;
-
 	cmsUNUSED_PARAMETER(Buffer);
 }
 
-static
-cmsBool  NULLSeek(cmsIOHANDLER* iohandler, cmsUInt32Number offset)
+static cmsBool  NULLSeek(cmsIOHANDLER* iohandler, cmsUInt32Number offset)
 {
 	FILENULL* ResData = (FILENULL*)iohandler->stream;
-
 	ResData->Pointer = offset;
 	return TRUE;
 }
 
-static
-cmsUInt32Number NULLTell(cmsIOHANDLER* iohandler)
+static cmsUInt32Number NULLTell(cmsIOHANDLER* iohandler)
 {
 	FILENULL* ResData = (FILENULL*)iohandler->stream;
 	return ResData->Pointer;
 }
 
-static
-cmsBool  NULLWrite(cmsIOHANDLER* iohandler, cmsUInt32Number size, const void * Ptr)
+static cmsBool  NULLWrite(cmsIOHANDLER* iohandler, cmsUInt32Number size, const void * Ptr)
 {
 	FILENULL* ResData = (FILENULL*)iohandler->stream;
-
 	ResData->Pointer += size;
 	if(ResData->Pointer > iohandler->UsedSpace)
 		iohandler->UsedSpace = ResData->Pointer;
-
 	return TRUE;
-
 	cmsUNUSED_PARAMETER(Ptr);
 }
 
-static
-cmsBool  NULLClose(cmsIOHANDLER* iohandler)
+static cmsBool  NULLClose(cmsIOHANDLER* iohandler)
 {
 	FILENULL* ResData = (FILENULL*)iohandler->stream;
-
 	_cmsFree(iohandler->ContextID, ResData);
 	_cmsFree(iohandler->ContextID, iohandler);
 	return TRUE;
@@ -101,15 +89,11 @@ cmsIOHANDLER*  CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID)
 {
 	struct _cms_io_handler* iohandler = NULL;
 	FILENULL* fm = NULL;
-
 	iohandler = (struct _cms_io_handler*)_cmsMallocZero(ContextID, sizeof(struct _cms_io_handler));
 	if(iohandler == NULL) return NULL;
-
 	fm = (FILENULL*)_cmsMallocZero(ContextID, sizeof(FILENULL));
 	if(fm == NULL) goto Error;
-
 	fm->Pointer = 0;
-
 	iohandler->ContextID = ContextID;
 	iohandler->stream  = (void *)fm;
 	iohandler->UsedSpace = 0;
@@ -709,7 +693,7 @@ cmsBool _cmsReadHeader(_cmsICCPROFILE* Icc)
 	// Read tag directory
 	Icc->TagCount = 0;
 	for(i = 0; i < TagCount; i++) {
-		if(!_cmsReadUInt32Number(io, (cmsUInt32Number*)&Tag.sig)) return FALSE;
+		if(!_cmsReadUInt32Number(io, (cmsUInt32Number *)&Tag.sig)) return FALSE;
 		if(!_cmsReadUInt32Number(io, &Tag.offset)) return FALSE;
 		if(!_cmsReadUInt32Number(io, &Tag.size)) return FALSE;
 
@@ -1761,25 +1745,19 @@ cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, cons
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	int i;
-
 	if(!_cmsLockMutex(Icc->ContextID, Icc->UsrMutex)) return 0;
-
 	if(!_cmsNewTag(Icc, sig, &i)) {
 		_cmsUnlockMutex(Icc->ContextID, Icc->UsrMutex);
 		return FALSE;
 	}
-
 	// Mark the tag as being written as RAW
 	Icc->TagSaveAsRaw[i] = TRUE;
 	Icc->TagNames[i]     = sig;
 	Icc->TagLinked[i]    = (cmsTagSignature)0;
-
 	// Keep a copy of the block
 	Icc->TagPtrs[i]  = _cmsDupMem(Icc->ContextID, data, Size);
 	Icc->TagSizes[i] = Size;
-
 	_cmsUnlockMutex(Icc->ContextID, Icc->UsrMutex);
-
 	if(Icc->TagPtrs[i] == NULL) {
 		Icc->TagNames[i] = (cmsTagSignature)0;
 		return FALSE;

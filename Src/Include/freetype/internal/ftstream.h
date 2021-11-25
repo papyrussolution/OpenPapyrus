@@ -46,11 +46,11 @@ FT_BEGIN_HEADER
 #define FT_FRAME_OP_BYTES  6  /* read a bytes sequence */
 
 typedef enum  FT_Frame_Op_ {
-	ft_frame_end       = 0,
-	ft_frame_start     = FT_MAKE_FRAME_OP(FT_FRAME_OP_START, 0, 0),
+	ft_frame_end  = 0,
+	ft_frame_start  = FT_MAKE_FRAME_OP(FT_FRAME_OP_START, 0, 0),
 
-	ft_frame_byte      = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTE,  0, 0),
-	ft_frame_schar     = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTE,  0, 1),
+	ft_frame_byte = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTE,  0, 0),
+	ft_frame_schar  = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTE,  0, 1),
 
 	ft_frame_ushort_be = FT_MAKE_FRAME_OP(FT_FRAME_OP_SHORT, 0, 0),
 	ft_frame_short_be  = FT_MAKE_FRAME_OP(FT_FRAME_OP_SHORT, 0, 1),
@@ -58,17 +58,17 @@ typedef enum  FT_Frame_Op_ {
 	ft_frame_short_le  = FT_MAKE_FRAME_OP(FT_FRAME_OP_SHORT, 1, 1),
 
 	ft_frame_ulong_be  = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 0, 0),
-	ft_frame_long_be   = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 0, 1),
+	ft_frame_long_be = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 0, 1),
 	ft_frame_ulong_le  = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 1, 0),
-	ft_frame_long_le   = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 1, 1),
+	ft_frame_long_le = FT_MAKE_FRAME_OP(FT_FRAME_OP_LONG, 1, 1),
 
 	ft_frame_uoff3_be  = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 0, 0),
-	ft_frame_off3_be   = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 0, 1),
+	ft_frame_off3_be = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 0, 1),
 	ft_frame_uoff3_le  = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 1, 0),
-	ft_frame_off3_le   = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 1, 1),
+	ft_frame_off3_le = FT_MAKE_FRAME_OP(FT_FRAME_OP_OFF3, 1, 1),
 
-	ft_frame_bytes     = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTES, 0, 0),
-	ft_frame_skip      = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTES, 0, 1)
+	ft_frame_bytes  = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTES, 0, 0),
+	ft_frame_skip = FT_MAKE_FRAME_OP(FT_FRAME_OP_BYTES, 0, 1)
 } FT_Frame_Op;
 
 typedef struct  FT_Frame_Field_ {
@@ -82,13 +82,13 @@ typedef struct  FT_Frame_Field_ {
 /* calling the FT_FRAME_START() macro.                                   */
 /*                                                                       */
 #define FT_FIELD_SIZE(f)                          \
-	(FT_Byte)sizeof( ((FT_STRUCTURE*)0)->f )
+	(FT_Byte)sizeof(((FT_STRUCTURE*)0)->f )
 
 #define FT_FIELD_SIZE_DELTA(f)                       \
-	(FT_Byte)sizeof( ((FT_STRUCTURE*)0)->f[0])
+	(FT_Byte)sizeof(((FT_STRUCTURE*)0)->f[0])
 
 #define FT_FIELD_OFFSET(f)                         \
-	(FT_UShort)( offsetof(FT_STRUCTURE, f) )
+	(FT_UShort)( offsetof(FT_STRUCTURE, f))
 
 #define FT_FRAME_FIELD(frame_op, field) \
 	{                               \
@@ -137,15 +137,15 @@ typedef struct  FT_Frame_Field_ {
  * type 'char *' or equivalent (1-byte elements).
  */
 
-#define FT_BYTE_(p, i)  ( ((const FT_Byte*)(p))[(i)])
+#define FT_BYTE_(p, i)  (((const FT_Byte*)(p))[(i)])
 
-#define FT_INT16(x)   ( (FT_Int16)(x)  )
-#define FT_UINT16(x)  ( (FT_UInt16)(x) )
-#define FT_INT32(x)   ( (FT_Int32)(x)  )
-#define FT_UINT32(x)  ( (FT_UInt32)(x) )
+#define FT_INT16(x)   ((FT_Int16)(x)  )
+#define FT_UINT16(x)  ((FT_UInt16)(x))
+#define FT_INT32(x)   ((FT_Int32)(x)  )
+#define FT_UINT32(x)  ((FT_UInt32)(x))
 
-#define FT_BYTE_U16(p, i, s)  ( FT_UINT16(FT_BYTE_(p, i) ) << (s) )
-#define FT_BYTE_U32(p, i, s)  ( FT_UINT32(FT_BYTE_(p, i) ) << (s) )
+#define FT_BYTE_U16(p, i, s)  ( FT_UINT16(FT_BYTE_(p, i)) << (s))
+#define FT_BYTE_U32(p, i, s)  ( FT_UINT32(FT_BYTE_(p, i)) << (s))
 
 /*
  *    function      acts on      increases  does range   for    emits
@@ -162,98 +162,98 @@ typedef struct  FT_Frame_Field_ {
  * safety checks are performed.
  */
 #define FT_PEEK_SHORT(p)  FT_INT16(FT_BYTE_U16(p, 0, 8) | \
-	    FT_BYTE_U16(p, 1, 0) )
+	    FT_BYTE_U16(p, 1, 0))
 
 #define FT_PEEK_USHORT(p)  FT_UINT16(FT_BYTE_U16(p, 0, 8) | \
-	    FT_BYTE_U16(p, 1, 0) )
+	    FT_BYTE_U16(p, 1, 0))
 
 #define FT_PEEK_LONG(p)  FT_INT32(FT_BYTE_U32(p, 0, 24) | \
 	    FT_BYTE_U32(p, 1, 16) | \
 	    FT_BYTE_U32(p, 2,  8) | \
-	    FT_BYTE_U32(p, 3,  0) )
+	    FT_BYTE_U32(p, 3,  0))
 
 #define FT_PEEK_ULONG(p)  FT_UINT32(FT_BYTE_U32(p, 0, 24) | \
 	    FT_BYTE_U32(p, 1, 16) | \
 	    FT_BYTE_U32(p, 2,  8) | \
-	    FT_BYTE_U32(p, 3,  0) )
+	    FT_BYTE_U32(p, 3,  0))
 
 #define FT_PEEK_OFF3(p)  FT_INT32(FT_BYTE_U32(p, 0, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 2,  0) )
+	    FT_BYTE_U32(p, 2,  0))
 
 #define FT_PEEK_UOFF3(p)  FT_UINT32(FT_BYTE_U32(p, 0, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 2,  0) )
+	    FT_BYTE_U32(p, 2,  0))
 
 #define FT_PEEK_SHORT_LE(p)  FT_INT16(FT_BYTE_U16(p, 1, 8) | \
-	    FT_BYTE_U16(p, 0, 0) )
+	    FT_BYTE_U16(p, 0, 0))
 
 #define FT_PEEK_USHORT_LE(p)  FT_UINT16(FT_BYTE_U16(p, 1, 8) |  \
-	    FT_BYTE_U16(p, 0, 0) )
+	    FT_BYTE_U16(p, 0, 0))
 
 #define FT_PEEK_LONG_LE(p)  FT_INT32(FT_BYTE_U32(p, 3, 24) | \
 	    FT_BYTE_U32(p, 2, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 0,  0) )
+	    FT_BYTE_U32(p, 0,  0))
 
 #define FT_PEEK_ULONG_LE(p)  FT_UINT32(FT_BYTE_U32(p, 3, 24) | \
 	    FT_BYTE_U32(p, 2, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 0,  0) )
+	    FT_BYTE_U32(p, 0,  0))
 
 #define FT_PEEK_OFF3_LE(p)  FT_INT32(FT_BYTE_U32(p, 2, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 0,  0) )
+	    FT_BYTE_U32(p, 0,  0))
 
 #define FT_PEEK_UOFF3_LE(p)  FT_UINT32(FT_BYTE_U32(p, 2, 16) | \
 	    FT_BYTE_U32(p, 1,  8) | \
-	    FT_BYTE_U32(p, 0,  0) )
+	    FT_BYTE_U32(p, 0,  0))
 
 /*
  * `FT_NEXT_XXX' are generic macros to get data from a buffer position
  * which is then increased appropriately.  No safety checks are performed.
  */
 #define FT_NEXT_CHAR(buffer)       \
-	( (signed char)*buffer++ )
+	((signed char)*buffer++ )
 
 #define FT_NEXT_BYTE(buffer)         \
-	( (uchar)*buffer++ )
+	((uchar)*buffer++ )
 
 #define FT_NEXT_SHORT(buffer)                                   \
-	( (short)( buffer += 2, FT_PEEK_SHORT(buffer - 2) ) )
+	((short)( buffer += 2, FT_PEEK_SHORT(buffer - 2)) )
 
 #define FT_NEXT_USHORT(buffer)                                            \
-	( (unsigned short)( buffer += 2, FT_PEEK_USHORT(buffer - 2) ) )
+	((unsigned short)( buffer += 2, FT_PEEK_USHORT(buffer - 2)) )
 
 #define FT_NEXT_OFF3(buffer)                                  \
-	( (long)( buffer += 3, FT_PEEK_OFF3(buffer - 3) ) )
+	((long)( buffer += 3, FT_PEEK_OFF3(buffer - 3)) )
 
 #define FT_NEXT_UOFF3(buffer)                                           \
-	( (unsigned long)( buffer += 3, FT_PEEK_UOFF3(buffer - 3) ) )
+	((unsigned long)( buffer += 3, FT_PEEK_UOFF3(buffer - 3)) )
 
 #define FT_NEXT_LONG(buffer)                                  \
-	( (long)( buffer += 4, FT_PEEK_LONG(buffer - 4) ) )
+	((long)( buffer += 4, FT_PEEK_LONG(buffer - 4)) )
 
 #define FT_NEXT_ULONG(buffer)                                           \
-	( (unsigned long)( buffer += 4, FT_PEEK_ULONG(buffer - 4) ) )
+	((unsigned long)( buffer += 4, FT_PEEK_ULONG(buffer - 4)) )
 
 #define FT_NEXT_SHORT_LE(buffer)                                   \
-	( (short)( buffer += 2, FT_PEEK_SHORT_LE(buffer - 2) ) )
+	((short)( buffer += 2, FT_PEEK_SHORT_LE(buffer - 2)) )
 
 #define FT_NEXT_USHORT_LE(buffer)                                            \
-	( (unsigned short)( buffer += 2, FT_PEEK_USHORT_LE(buffer - 2) ) )
+	((unsigned short)( buffer += 2, FT_PEEK_USHORT_LE(buffer - 2)) )
 
 #define FT_NEXT_OFF3_LE(buffer)                                  \
-	( (long)( buffer += 3, FT_PEEK_OFF3_LE(buffer - 3) ) )
+	((long)( buffer += 3, FT_PEEK_OFF3_LE(buffer - 3)) )
 
 #define FT_NEXT_UOFF3_LE(buffer)                                           \
-	( (unsigned long)( buffer += 3, FT_PEEK_UOFF3_LE(buffer - 3) ) )
+	((unsigned long)( buffer += 3, FT_PEEK_UOFF3_LE(buffer - 3)) )
 
 #define FT_NEXT_LONG_LE(buffer)                                  \
-	( (long)( buffer += 4, FT_PEEK_LONG_LE(buffer - 4) ) )
+	((long)( buffer += 4, FT_PEEK_LONG_LE(buffer - 4)) )
 
 #define FT_NEXT_ULONG_LE(buffer)                                           \
-	( (unsigned long)( buffer += 4, FT_PEEK_ULONG_LE(buffer - 4) ) )
+	((unsigned long)( buffer += 4, FT_PEEK_ULONG_LE(buffer - 4)) )
 
 /**************************************************************************
  *
@@ -282,7 +282,7 @@ typedef struct  FT_Frame_Field_ {
 #define FT_GET_ULONG_LE()   FT_GET_MACRO(ULONG_LE)
 
 #else
-#define FT_GET_MACRO(func, type)        ( (type)func(stream) )
+#define FT_GET_MACRO(func, type)        ((type)func(stream))
 
 #define FT_GET_CHAR()       FT_GET_MACRO(FT_Stream_GetChar, FT_Char)
 #define FT_GET_BYTE()       FT_GET_MACRO(FT_Stream_GetChar, FT_Byte)
@@ -495,43 +495,43 @@ FT_Stream_ReadFields(FT_Stream stream,
 
 #define FT_STREAM_SEEK(position)                               \
 	FT_SET_ERROR(FT_Stream_Seek(stream,                  \
-	    (FT_ULong)(position) ) )
+	    (FT_ULong)(position)) )
 
 #define FT_STREAM_SKIP(distance)                              \
 	FT_SET_ERROR(FT_Stream_Skip(stream,                 \
-	    (FT_Long)(distance) ) )
+	    (FT_Long)(distance)) )
 
 #define FT_STREAM_READ(buffer, count)                       \
 	FT_SET_ERROR(FT_Stream_Read(stream,               \
 	    (FT_Byte*)(buffer),   \
-	    (FT_ULong)(count) ) )
+	    (FT_ULong)(count)) )
 
 #define FT_STREAM_READ_AT(position, buffer, count)            \
 	FT_SET_ERROR(FT_Stream_ReadAt(stream,               \
 	    (FT_ULong)(position), \
 	    (FT_Byte*)(buffer),   \
-	    (FT_ULong)(count) ) )
+	    (FT_ULong)(count)) )
 
 #define FT_STREAM_READ_FIELDS(fields, object)                          \
-	FT_SET_ERROR(FT_Stream_ReadFields(stream, fields, object) )
+	FT_SET_ERROR(FT_Stream_ReadFields(stream, fields, object))
 
 #define FT_FRAME_ENTER(size)                                           \
 	FT_SET_ERROR(                                                  \
 		FT_DEBUG_INNER(FT_Stream_EnterFrame(stream,                \
-		(FT_ULong)(size) ) ) )
+		(FT_ULong)(size)) ))
 
 #define FT_FRAME_EXIT()                                   \
-	FT_DEBUG_INNER(FT_Stream_ExitFrame(stream) )
+	FT_DEBUG_INNER(FT_Stream_ExitFrame(stream))
 
 #define FT_FRAME_EXTRACT(size, bytes)                                       \
 	FT_SET_ERROR(                                                       \
 		FT_DEBUG_INNER(FT_Stream_ExtractFrame(stream,                   \
 		(FT_ULong)(size),         \
-		(FT_Byte**)&(bytes) ) ) )
+		(FT_Byte**)&(bytes)) ))
 
 #define FT_FRAME_RELEASE(bytes)                                         \
 	FT_DEBUG_INNER(FT_Stream_ReleaseFrame(stream,                 \
-	    (FT_Byte**)&(bytes) ) )
+	    (FT_Byte**)&(bytes)) )
 
 FT_END_HEADER
 

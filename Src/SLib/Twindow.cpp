@@ -1002,32 +1002,32 @@ TRect TWindow::getRect() const
 	return ret;
 }
 
-int TWindow::invalidateRect(const TRect & rRect, int erase)
+int TWindow::invalidateRect(const TRect & rRect, bool erase)
 {
 	RECT r = rRect;
-	return ::InvalidateRect(HW, &r, BIN(erase));
+	return ::InvalidateRect(HW, &r, erase);
 }
 
-int TWindow::invalidateRect(const FRect & rRect, int erase)
+int TWindow::invalidateRect(const FRect & rRect, bool erase)
 {
 	RECT r;
 	r.left = R0i(rRect.a.x);
 	r.top = R0i(rRect.a.y);
 	r.right = R0i(rRect.b.x);
 	r.bottom = R0i(rRect.b.y);
-	return ::InvalidateRect(HW, &r, BIN(erase));
+	return ::InvalidateRect(HW, &r, erase);
 }
 
-int TWindow::invalidateRegion(const SRegion & rRgn, int erase)
+int TWindow::invalidateRegion(const SRegion & rRgn, bool erase)
 {
 	const SHandle * p_hdl = reinterpret_cast<const SHandle *>(&rRgn); // @trick
 	const HRGN h_rgn = static_cast<HRGN>(static_cast<void *>(*p_hdl));
 	return ::InvalidateRgn(HW, h_rgn, erase);
 }
 
-void FASTCALL TWindow::invalidateAll(int erase)
+void FASTCALL TWindow::invalidateAll(bool erase)
 {
-	::InvalidateRect(HW, 0, erase ? TRUE : FALSE);
+	::InvalidateRect(HW, 0, erase);
 }
 
 int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
@@ -1424,7 +1424,6 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 {
 	const HINSTANCE h_inst = TProgram::GetInst();
 	TWindowBase::RegWindowClass(102);
-
 	SString title_buf = getTitle();
 	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	HWND  hw_parent = static_cast<HWND>(hParentWnd);
@@ -1457,9 +1456,10 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 	else {
 
 	}
+	Parent = hw_parent; // @v11.2.4
 	if(createOptions & coChild) {
 		style = WS_CHILD|WS_TABSTOP;
-		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, 0, 0, cx, cy, hw_parent, 0, h_inst, this);
 	}
 	else { // coPopup
 		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
@@ -1474,10 +1474,10 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			child.cy = CW_USEDEFAULT;
 			child.style  = style;
 			child.lParam = reinterpret_cast<LPARAM>(this);
-			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
+			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
 		}
 		else {
-			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, /*h_inst*/0, this);
 		}
 	}
 	return BIN(HW);
@@ -1537,18 +1537,19 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		ushort last_command = 0;
 		SString buf = getTitle();
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
-		if(::IsIconic(APPL->H_MainWnd))
-			::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 		if(APPL->H_MainWnd) {
+			if(::IsIconic(APPL->H_MainWnd))
+				::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 			if(IsMDIClientWindow(APPL->H_MainWnd))
 				Create(APPL->H_MainWnd, coMDI);
 			else
 				Create(APPL->H_TopOfStack, coPopup /* @v11.2.0 | coMaxSize*/);
 		}
-		::ShowWindow(HW, SW_NORMAL);
-		::UpdateWindow(HW);
+		SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
+		// @v11.2.4 ::ShowWindow(HW, SW_SHOW); // @v11.2.4 SW_NORMAL-->SW_SHOW
+		// @v11.2.4 ::UpdateWindow(HW);
 		if(APPL->PushModalWindow(this, HW)) {
-			::EnableWindow(PrevInStack, 0);
+			// @v11.2.4 ::EnableWindow(PrevInStack, 0);
 			APPL->MsgLoop(this, EndModalCmd);
 			last_command = EndModalCmd;
 			EndModalCmd = 0;
@@ -1579,7 +1580,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
 					P_Lfc->Evaluate(0);
 				}
-				invalidateAll(1);
+				invalidateAll(true);
 				::UpdateWindow(H());
 				// Don't call clearEvent(event) there!
 			}
@@ -1600,7 +1601,7 @@ void TWindowBase::RegisterMouseTracking(int force)
 	}
 }
 
-int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
+void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
 {
 	MEMSZERO(rMe);
 	rMe.Coord.setwparam(lParam);
@@ -1638,7 +1639,7 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 			rMe.WeelDelta = static_cast<signed short>(HIWORD(wParam)); // @v11.2.4 static_cast<signed short>()
 			break;
 		default:
-			return 0;
+			return;
 	}
 	if(wParam & MK_CONTROL)
 		rMe.Flags |= MouseEvent::fControl;
@@ -1654,7 +1655,6 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 		rMe.Flags |= MouseEvent::fX1;
 	if(wParam & MK_XBUTTON2)
 		rMe.Flags |= MouseEvent::fX2;
-	return 1;
 }
 
 PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
@@ -1798,6 +1798,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			break;
 		case WM_PAINT:
 			if(p_view) {
+				void * p_ret = 0;
 				PAINTSTRUCT ps;
 				PaintEvent pe;
 				// @v10.6.5 @ctr MEMSZERO(pe);
@@ -1805,30 +1806,31 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				BeginPaint(hWnd, &ps);
 				SETFLAG(pe.Flags, PaintEvent::fErase, ps.fErase);
 				pe.Rect = ps.rcPaint;
-				int    use_draw_buf = 0;
-				RECT   cr;
-				HDC    h_dc_mem = 0;
-				HBITMAP h_bmp = 0;
-				HBITMAP h_old_bmp = 0;
-				if(static_cast<const TWindowBase *>(p_view)->WbCapability & wbcDrawBuffer) {
-					GetClientRect(hWnd, &cr);
-					h_dc_mem = CreateCompatibleDC(ps.hdc);
-					h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);
-					h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
-					use_draw_buf = 1;
-					pe.H_DeviceContext = h_dc_mem;
-				}
-				else
-					pe.H_DeviceContext = ps.hdc;
-				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
-				if(use_draw_buf) {
-					BitBlt(ps.hdc, 0, 0, cr.right - cr.left, cr.bottom - cr.top, h_dc_mem, 0, 0, SRCCOPY);
-					SelectObject(h_dc_mem, h_old_bmp);
-					ZDeleteWinGdiObject(&h_bmp);
-					DeleteDC(h_dc_mem);
+				const  bool use_draw_buf = LOGIC(static_cast<const TWindowBase *>(p_view)->WbCapability & wbcDrawBuffer);
+				if(!use_draw_buf || !ps.fErase) {
+					RECT   cr;
+					HDC    h_dc_mem = 0;
+					HBITMAP h_bmp = 0;
+					HBITMAP h_old_bmp = 0;
+					if(use_draw_buf) {
+						GetClientRect(hWnd, &cr);
+						h_dc_mem = CreateCompatibleDC(ps.hdc);
+						h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);
+						h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
+						pe.H_DeviceContext = h_dc_mem;
+					}
+					else
+						pe.H_DeviceContext = ps.hdc;
+					p_ret = TView::messageCommand(p_view, cmPaint, &pe);
+					if(use_draw_buf) {
+						BitBlt(ps.hdc, 0, 0, cr.right - cr.left, cr.bottom - cr.top, h_dc_mem, 0, 0, SRCCOPY);
+						SelectObject(h_dc_mem, h_old_bmp);
+						ZDeleteWinGdiObject(&h_bmp);
+						DeleteDC(h_dc_mem);
+					}
 				}
 				EndPaint(hWnd, &ps);
-				if(p_ret)
+				//if(p_ret)
 					return 0;
 			}
 			break;
@@ -1927,6 +1929,12 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			return 0;
 		case WM_DRAWITEM: // @v11.2.0
 			return p_view ? p_view->RedirectDrawItemMessage(message, wParam, lParam) : FALSE;
+		case WM_CLOSE: // @v11.2.4
+			if(p_view && p_view->IsInState(sfModal)) {
+				TView::messageCommand(p_view, cmCancel, p_view);
+				return 0;
+			}
+			break;
 		case WM_COMMAND: // @v11.2.0
 			// Этот участок кода почти в точности скопирован из класса TDialog. Вполне возможно, что возникнут проблемы!
 			{

@@ -613,7 +613,7 @@ typedef struct FTC_ImageTypeRec_*  FTC_ImageType;
 /* */
 
 #define FTC_IMAGE_TYPE_COMPARE(d1, d2)      \
-	( (d1)->face_id == (d2)->face_id && \
+	((d1)->face_id == (d2)->face_id && \
 	(d1)->width   == (d2)->width && \
 	(d1)->flags   == (d2)->flags   )
 

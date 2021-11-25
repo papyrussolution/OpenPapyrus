@@ -106,7 +106,7 @@ int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 		{
 			addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
 			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
-			SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
+			SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 		}
 		DECL_DIALOG_SETDTS()
 		{

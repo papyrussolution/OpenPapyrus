@@ -123,7 +123,7 @@
                                 /*       on certain platforms            */
 
 #define ft_longjmp     longjmp
-#define ft_setjmp(b) setjmp(*(ft_jmp_buf*)&(b) )     /* same thing here */
+#define ft_setjmp(b) setjmp(*(ft_jmp_buf*)&(b))     /* same thing here */
 
 /* The following is only used for debugging purposes, i.e., if   */
 /* `FT_DEBUG_LEVEL_ERROR` or `FT_DEBUG_LEVEL_TRACE` are defined. */

@@ -620,7 +620,7 @@ int ssh_try_publickey_from_file(ssh_session session, const char * keyfile, ssh_s
 		return -1;
 	}
 	len = strlen(keyfile) + 5;
-	pubkey_file = (char *)SAlloc::M(len);
+	pubkey_file = static_cast<char *>(SAlloc::M(len));
 	if(pubkey_file == NULL) {
 		return -1;
 	}

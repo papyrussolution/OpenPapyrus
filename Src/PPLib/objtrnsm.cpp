@@ -2229,7 +2229,7 @@ public:
 	};
 	BillTransDialog() : WLDialog(DLG_BTRAN, CTL_BTRAN_LABEL)
 	{
-		SetupCalCtrl(CTLCAL_BTRAN_PERIOD, this, CTL_BTRAN_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_BTRAN_PERIOD, CTL_BTRAN_PERIOD);
 		addGroup(ctlgroupBtranAr,  new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR,  0, 0, 0));
 		addGroup(ctlgroupBtranAr2, new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR2, 0, 0, ArticleCtrlGroup::fByOpAccSheet2));
 		//ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID);

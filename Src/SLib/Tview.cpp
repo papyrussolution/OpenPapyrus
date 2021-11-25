@@ -478,14 +478,14 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						ComboBox * p_cv = static_cast<ComboBox *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						TInputLine * p_il = p_cv->link();
 						if(p_il) {
 							p_il->Parent = hw_parent;
 							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
 							p_il->Parent = hw_parent;
-							HWND hw_il = ::CreateWindow(_T("EDIT"), 0, style, p_il->ViewOrigin.x,
+							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
 								{
@@ -504,7 +504,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TButton * p_cv = static_cast<TButton *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindow(_T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							//::SetWindowText(hw, SUcSwitch(p_b->Title));
@@ -527,7 +527,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
-						hw = ::CreateWindow(_T("EDIT"), 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowEx(0, _T("EDIT"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							{
@@ -546,7 +546,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						TLabel * p_cv = static_cast<TLabel *>(pV);
 						pV->Parent = hw_parent;
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
-						hw = ::CreateWindow(_T("STATIC"), 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowEx(0, _T("STATIC"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							SString temp_buf;
@@ -1462,6 +1462,7 @@ ushort FASTCALL TGroup::execView(TWindow * p)
 		p->ViewOptions &= ~ofSelectable;
 		p->setState(sfModal, true);
 		SetCurrentView(p, enterSelect);
+		::SetFocus(p->H()); // @v11.2.4
 		if(save_owner == 0)
 			Insert_(p);
 		{
@@ -1603,11 +1604,13 @@ void TGroup::SetCurrentView(TView * p, selectMode mode)
 			p->setState(sfFocused, true);
 		if(!p || p->IsConsistent()) {
 			P_Current = p;
-			if(p && p->Parent) {
-				HWND   ctrl = p->getHandle();
-				if(ctrl || (ctrl = GetDlgItem(p->Parent, MAKE_BUTTON_ID(p->GetId(), 1))))
-					SetFocus(ctrl);
-				P_Current->Draw_();
+			if(p) {
+				if(p->Parent) {
+					HWND   ctrl = p->getHandle();
+					if(ctrl || (ctrl = GetDlgItem(p->Parent, MAKE_BUTTON_ID(p->GetId(), 1))))
+						::SetFocus(ctrl);
+					P_Current->Draw_();
+				}
 			}
 		}
 		if(!(MsgLockFlags & TGroup::fLockMsgChangedFocus)) {

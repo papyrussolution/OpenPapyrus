@@ -329,30 +329,24 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			if(IsMDIClientWindow(h_main_wnd)) {
 				MDICREATESTRUCT child;
 				child.szClass = BrowserWindow::WndClsName;
-				child.szTitle = p_title; // @unicodeproblem
+				child.szTitle = p_title;
 				child.hOwner = TProgram::GetInst();
-				child.x  = CW_USEDEFAULT;	// rect->Left;
-				child.y  = CW_USEDEFAULT;	// rect->top;
-				child.cx = CW_USEDEFAULT;	// rect->Right;
-				child.cy = CW_USEDEFAULT;	// rect->bottom;
+				child.x  = CW_USEDEFAULT;
+				child.y  = CW_USEDEFAULT;
+				child.cx = CW_USEDEFAULT;
+				child.cy = CW_USEDEFAULT;
 				child.style  = style;
 				child.lParam = reinterpret_cast<LPARAM>(static_cast<BrowserWindow *>(this));
-				HW = reinterpret_cast<HWND>(LOWORD(::SendMessage(h_main_wnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
+				HW = reinterpret_cast<HWND>(LOWORD(::SendMessage(h_main_wnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
 			}
 			else {
-				HW = ::CreateWindow(SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
+				HW = ::CreateWindowEx(0, SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
 			}
-			// @v10.3.1 {
-			if(HW) {
+			if(HW) { // @v10.3.1
 				TEvent event;
 				this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 			}
-			// } @v10.3.1 
 		}
-		/*
-		if(InitPos > 0)
-			go(InitPos);
-		*/
 		if(BbState & bbsCancel) { // @v10.3.4
 			clearEvent(event);
 			event.message.infoLong = cmCancel;
@@ -723,7 +717,7 @@ int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMod
 		LineRect(VScrollPos, &RectCursors.LineCursor, TRUE);
 		AdjustCursorsForHdr();
 		TRect inv_rec;
-		invalidateRect(inv_rec.setwidthrel(0, CliSz.x).setheightrel(CapOffs + hdr_width, ViewHeight * YCell).setmarginy(-3), 1);
+		invalidateRect(inv_rec.setwidthrel(0, CliSz.x).setheightrel(CapOffs + hdr_width, ViewHeight * YCell).setmarginy(-3), true);
 		ok = 1;
 	}
 	else
@@ -764,7 +758,7 @@ void BrowserWindow::__Init(/*BrowserDef * pDef*/)
 		setRange((uint16)P_Def->getRecsCount());
 	}*/
 	if(H())
-		invalidateAll(1);
+		invalidateAll(true);
 }
 
 void BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
@@ -1090,7 +1084,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 						LineRect(0, &RectCursors.LineCursor, TRUE);
 						SetupScroll();
 						if(p_sfe->DoRedraw) {
-							invalidateAll(1);
+							invalidateAll(true);
 							::UpdateWindow(H());
 						}
 					}
@@ -1441,7 +1435,7 @@ void BrowserWindow::Refresh()
 		LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
 		AdjustCursorsForHdr();
 	}
-	invalidateAll(1);
+	invalidateAll(true);
 }
 
 int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, int fmt, int isLineCursor)

@@ -61,7 +61,7 @@ FT_LOCAL_DEF(FT_Error) FTC_INode_New(FTC_INode   *pinode, FTC_GQuery gquery, FTC
 	FT_Memory memory = cache->memory;
 	FT_Error error;
 	FTC_INode inode  = NULL;
-	if(!FT_NEW(inode) ) {
+	if(!FT_NEW(inode)) {
 		FTC_GNode gnode  = FTC_GNODE(inode);
 		FTC_Family family = gquery->family;
 		FT_UInt gindex = gquery->gindex;
@@ -102,7 +102,7 @@ FT_LOCAL_DEF(FT_Offset) ftc_inode_weight(FTC_Node ftcinode, FTC_Cache ftccache)
 		case FT_GLYPH_FORMAT_OUTLINE:
 	    {
 		    FT_OutlineGlyph outg = (FT_OutlineGlyph)glyph;
-		    size = (FT_Offset)outg->outline.n_points * ( sizeof( FT_Vector ) + sizeof( FT_Byte ) ) + 
+		    size = (FT_Offset)outg->outline.n_points * ( sizeof( FT_Vector ) + sizeof( FT_Byte )) + 
 				(FT_Offset)outg->outline.n_contours * sizeof( FT_Short ) + sizeof( *outg );
 	    }
 	    break;

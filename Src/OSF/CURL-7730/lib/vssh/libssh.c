@@ -1417,7 +1417,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 					    memcpy(sshc->readdir_line, sshc->readdir_longentry,
 						sshc->readdir_currLen);
 					    if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) && ((sshc->readdir_attrs->permissions & S_IFMT) == S_IFLNK)) {
-						    sshc->readdir_linkPath = (char *)SAlloc::M(PATH_MAX + 1);
+						    sshc->readdir_linkPath = (char *)SAlloc::M(PATH_MAX+1);
 						    if(sshc->readdir_linkPath == NULL) {
 							    state(conn, SSH_SFTP_CLOSE);
 							    sshc->actualcode = CURLE_OUT_OF_MEMORY;

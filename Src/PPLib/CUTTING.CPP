@@ -1,5 +1,5 @@
 // CUTTING.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -447,7 +447,7 @@ int DatabaseCutting()
 	TDialog * dlg = new TDialog(DLG_CUTTING);
 	if(CheckDialogPtrErr(&dlg)) {
 		LDATE  end_date = ZERODATE;
-		SetupCalCtrl(CTLCAL_CUTTING_DATE, dlg, CTL_CUTTING_DATE, 4);
+		dlg->SetupCalDate(CTLCAL_CUTTING_DATE, CTL_CUTTING_DATE);
 		dlg->setCtrlData(CTL_CUTTING_DATE, &end_date);
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_CUTTING_DATE, &end_date);

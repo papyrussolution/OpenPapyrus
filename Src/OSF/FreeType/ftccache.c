@@ -30,20 +30,15 @@ static void ftc_node_mru_link(FTC_Node node,
     FTC_Manager manager)
 {
 	void  * nl = &manager->nodes_list;
-
-	FTC_MruNode_Prepend( (FTC_MruNode*)nl,
-	    (FTC_MruNode)node);
+	FTC_MruNode_Prepend( (FTC_MruNode*)nl, (FTC_MruNode)node);
 	manager->num_nodes++;
 }
 
 /* remove a node from the manager's MRU list */
-static void ftc_node_mru_unlink(FTC_Node node,
-    FTC_Manager manager)
+static void ftc_node_mru_unlink(FTC_Node node, FTC_Manager manager)
 {
 	void  * nl = &manager->nodes_list;
-
-	FTC_MruNode_Remove( (FTC_MruNode*)nl,
-	    (FTC_MruNode)node);
+	FTC_MruNode_Remove( (FTC_MruNode*)nl, (FTC_MruNode)node);
 	manager->num_nodes--;
 }
 
@@ -162,7 +157,6 @@ static void ftc_cache_resize(FTC_Cache cache)
 			cache->slack -= FTC_HASH_MAX_LOAD;
 			cache->p      = p;
 		}
-
 		/* otherwise, the hash table is balanced */
 		else
 			break;
@@ -170,52 +164,40 @@ static void ftc_cache_resize(FTC_Cache cache)
 }
 
 /* remove a node from its cache's hash table */
-static void ftc_node_hash_unlink(FTC_Node node0,
-    FTC_Cache cache)
+static void ftc_node_hash_unlink(FTC_Node node0, FTC_Cache cache)
 {
 	FTC_Node  * pnode = FTC_NODE_TOP_FOR_HASH(cache, node0->hash);
-
 	for(;;) {
 		FTC_Node node = *pnode;
-
 		if(!node) {
 			FT_TRACE0(( "ftc_node_hash_unlink: unknown node\n" ));
 			return;
 		}
-
 		if(node == node0)
 			break;
 
 		pnode = &(*pnode)->link;
 	}
-
 	*pnode      = node0->link;
 	node0->link = NULL;
-
 	cache->slack++;
 	ftc_cache_resize(cache);
 }
 
 /* add a node to the `top' of its cache's hash table */
-static void ftc_node_hash_link(FTC_Node node,
-    FTC_Cache cache)
+static void ftc_node_hash_link(FTC_Node node, FTC_Cache cache)
 {
 	FTC_Node  * pnode = FTC_NODE_TOP_FOR_HASH(cache, node->hash);
-
 	node->link = *pnode;
 	*pnode     = node;
-
 	cache->slack--;
 	ftc_cache_resize(cache);
 }
 
 /* remove a node from the cache manager */
-FT_LOCAL_DEF(void)
-ftc_node_destroy(FTC_Node node,
-    FTC_Manager manager)
+FT_LOCAL_DEF(void) ftc_node_destroy(FTC_Node node, FTC_Manager manager)
 {
 	FTC_Cache cache;
-
 #ifdef FT_DEBUG_ERROR
 	/* find node's cache */
 	if(node->cache_index >= manager->num_caches) {
@@ -223,59 +205,41 @@ ftc_node_destroy(FTC_Node node,
 		return;
 	}
 #endif
-
 	cache = manager->caches[node->cache_index];
-
 #ifdef FT_DEBUG_ERROR
 	if(!cache) {
 		FT_TRACE0(( "ftc_node_destroy: invalid node handle\n" ));
 		return;
 	}
 #endif
-
 	manager->cur_weight -= cache->clazz.node_weight(node, cache);
-
 	/* remove node from mru list */
 	ftc_node_mru_unlink(node, manager);
-
 	/* remove node from cache's hash table */
 	ftc_node_hash_unlink(node, cache);
-
 	/* now finalize it */
 	cache->clazz.node_free(node, cache);
-
 #if 0
 	/* check, just in case of general corruption :-) */
 	if(manager->num_nodes == 0)
-		FT_TRACE0(( "ftc_node_destroy: invalid cache node count (%d)\n",
-		    manager->num_nodes ));
+		FT_TRACE0(( "ftc_node_destroy: invalid cache node count (%d)\n", manager->num_nodes ));
 #endif
 }
-
 // 
+// ABSTRACT CACHE CLASS
 // 
-/*****                                                               *****/
-/*****                    ABSTRACT CACHE CLASS                       *****/
-/*****                                                               *****/
-// 
-// 
-
-FT_LOCAL_DEF(FT_Error)
-FTC_Cache_Init(FTC_Cache cache)
+FT_LOCAL_DEF(FT_Error) FTC_Cache_Init(FTC_Cache cache)
 {
 	return ftc_cache_init(cache);
 }
 
-FT_LOCAL_DEF(FT_Error)
-ftc_cache_init(FTC_Cache cache)
+FT_LOCAL_DEF(FT_Error) ftc_cache_init(FTC_Cache cache)
 {
 	FT_Memory memory = cache->memory;
 	FT_Error error;
-
 	cache->p     = 0;
 	cache->mask  = FTC_HASH_INITIAL_SIZE - 1;
 	cache->slack = FTC_HASH_INITIAL_SIZE * FTC_HASH_MAX_LOAD;
-
 	(void)FT_NEW_ARRAY(cache->buckets, FTC_HASH_INITIAL_SIZE * 2);
 	return error;
 }
@@ -285,23 +249,16 @@ static void FTC_Cache_Clear(FTC_Cache cache)
 	if(cache && cache->buckets) {
 		FTC_Manager manager = cache->manager;
 		FT_UFast i;
-		FT_UFast count;
-
-		count = cache->p + cache->mask + 1;
-
+		FT_UFast count = cache->p + cache->mask + 1;
 		for(i = 0; i < count; i++) {
 			FTC_Node  * pnode = cache->buckets + i, next, node = *pnode;
-
 			while(node) {
 				next        = node->link;
 				node->link  = NULL;
-
 				/* remove node from mru list */
 				ftc_node_mru_unlink(node, manager);
-
 				/* now finalize it */
 				manager->cur_weight -= cache->clazz.node_weight(node, cache);
-
 				cache->clazz.node_free(node, cache);
 				node = next;
 			}
@@ -311,19 +268,15 @@ static void FTC_Cache_Clear(FTC_Cache cache)
 	}
 }
 
-FT_LOCAL_DEF(void)
-ftc_cache_done(FTC_Cache cache)
+FT_LOCAL_DEF(void) ftc_cache_done(FTC_Cache cache)
 {
 	if(cache->memory) {
 		FT_Memory memory = cache->memory;
-
 		FTC_Cache_Clear(cache);
-
 		FT_FREE(cache->buckets);
 		cache->mask  = 0;
 		cache->p     = 0;
 		cache->slack = 0;
-
 		cache->memory = NULL;
 	}
 }

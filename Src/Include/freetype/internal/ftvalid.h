@@ -81,7 +81,7 @@ typedef struct  FT_ValidatorRec_ {
 #pragma warning( pop )
 #endif
 
-#define FT_VALIDATOR(x)  ( (FT_Validator)( x ) )
+#define FT_VALIDATOR(x)  ((FT_Validator)( x ))
 
 FT_BASE(void)
 ft_validator_init(FT_Validator valid,
@@ -107,7 +107,7 @@ ft_validator_error(FT_Validator valid,
 /*                                                                   */
 #define FT_INVALID(_error)  FT_INVALID_(_error)
 #define FT_INVALID_(_error) \
-	ft_validator_error(valid, FT_THROW(_error) )
+	ft_validator_error(valid, FT_THROW(_error))
 
 /* called when a broken table is detected */
 #define FT_INVALID_TOO_SHORT \

@@ -504,7 +504,7 @@ void GnuPlot::LoadRcFile(int where)
 	else if(where == 2 && _Plt.user_homedir) {
 		// length of homedir + directory separator + length of file name + \0 
 		int len = (_Plt.user_homedir ? strlen(_Plt.user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
-		rcfile = (char *)SAlloc::M(len);
+		rcfile = static_cast<char *>(SAlloc::M(len));
 		strcpy(rcfile, _Plt.user_homedir);
 		PATH_CONCAT(rcfile, PLOTRC);
 		plotrc = fopen(rcfile, "r");

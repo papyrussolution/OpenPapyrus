@@ -60,7 +60,7 @@
  *     inequality, respectively.  Example:
  *
  *     ```
- * if ( FT_ERR_EQ( error, Invalid_Outline ) )
+ * if ( FT_ERR_EQ( error, Invalid_Outline ))
  *   ...
  *     ```
  *

@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -71,7 +71,7 @@ GoodsMovFiltDialog::GoodsMovFiltDialog() : WLDialog(DLG_GDSMOV, CTL_GTO_LABEL)
 {
 	addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
 	addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
-	SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
+	SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 }
 
 IMPL_HANDLE_EVENT(GoodsMovFiltDialog)

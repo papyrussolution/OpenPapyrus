@@ -235,7 +235,7 @@ int    TWhatmanObject::Edit() { return HandleCommand(cmdEdit, 0); }
 int    FASTCALL TWhatmanObject::HasOption(int f) const { return BIN(Options & f); }
 int    FASTCALL TWhatmanObject::HasState(int f) const { return BIN(State & f); }
 TRect  TWhatmanObject::GetBounds() const { return Bounds; }
-TRect  TWhatmanObject::GetInvalidationRect() const { return TRect(Bounds).grow(10, 10); }
+TRect  TWhatmanObject::GetInvalidationRect() const { return TRect(Bounds).grow(4, 4); } // @v11.2.4 grow(10, 10)-->grow(4, 4)
 int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
 const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
 TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
@@ -1624,10 +1624,10 @@ int FASTCALL TWhatman::InvalidateObjScope(const TWhatmanObject * pObj)
 		if(GetObjTextLayout(pObj, tlo, TWhatmanObject::gtloBoundsOnly) > 0) {
 			SRegion rgn(ob);
 			rgn.Add(ob.set(tlo.GetBounds()), SCOMBINE_OR);
-			P_Wnd->invalidateRegion(rgn, 1);
+			P_Wnd->invalidateRegion(rgn, /*true*/false);
 		}
 		else
-			P_Wnd->invalidateRect(ob, 1);
+			P_Wnd->invalidateRect(ob, /*true*/false);
 	}
 	return ok;
 }
@@ -1651,7 +1651,7 @@ int TWhatman::InvalidateMultSelContour(const SPoint2S * pOffs)
 				}
 			}
 			if(ok > 0) {
-				P_Wnd->invalidateRegion(rgn, 1);
+				P_Wnd->invalidateRegion(rgn, true);
 			}
 		}
 	}

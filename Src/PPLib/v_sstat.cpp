@@ -324,7 +324,7 @@ int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		LocationCtrlGroup::Rec loc_rec(&p_filt->LocList);
 		dlg->setGroupData(GRP_LOC, &loc_rec);
 		SetupSubstGoodsCombo(dlg, CTLSEL_SSTATFLT_SUBST, p_filt->Sgg);
-		SetupCalCtrl(CTLCAL_SSTATFLT_PERIOD, dlg, CTL_SSTATFLT_PERIOD, 1);
+		dlg->SetupCalPeriod(CTLCAL_SSTATFLT_PERIOD, CTL_SSTATFLT_PERIOD);
 		SetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, &p_filt->Period);
 
 		CycleCtrlGroup::Rec cycle_rec;

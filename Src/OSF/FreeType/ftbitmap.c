@@ -116,21 +116,21 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 	unsigned int pitch  = (uint)FT_ABS(bitmap->pitch);
 	switch(bitmap->pixel_mode) {
 		case FT_PIXEL_MODE_MONO:
-		    bpp       = 1;
+		    bpp  = 1;
 		    new_pitch = ( width + xpixels + 7 ) >> 3;
 		    break;
 		case FT_PIXEL_MODE_GRAY2:
-		    bpp       = 2;
+		    bpp  = 2;
 		    new_pitch = ( width + xpixels + 3 ) >> 2;
 		    break;
 		case FT_PIXEL_MODE_GRAY4:
-		    bpp       = 4;
+		    bpp  = 4;
 		    new_pitch = ( width + xpixels + 1 ) >> 1;
 		    break;
 		case FT_PIXEL_MODE_GRAY:
 		case FT_PIXEL_MODE_LCD:
 		case FT_PIXEL_MODE_LCD_V:
-		    bpp       = 8;
+		    bpp  = 8;
 		    new_pitch = width + xpixels;
 		    break;
 		default:
@@ -144,7 +144,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 		FT_UInt bit_last  = ( width + xpixels ) * bpp;
 		if(bit_last < bit_width) {
 			FT_Byte*  line  = bitmap->buffer + ( bit_last >> 3 );
-			FT_Byte*  end   = bitmap->buffer + pitch;
+			FT_Byte*  end = bitmap->buffer + pitch;
 			FT_UInt shift = bit_last & 7;
 			FT_UInt mask  = 0xFF00U >> shift;
 			FT_UInt count = height;
@@ -161,7 +161,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 		return FT_Err_Ok;
 	}
 	/* otherwise allocate new buffer */
-	if(FT_QALLOC_MULT(buffer, bitmap->rows + ypixels, new_pitch) )
+	if(FT_QALLOC_MULT(buffer, bitmap->rows + ypixels, new_pitch))
 		return error;
 	/* new rows get added at the top of the bitmap, */
 	/* thus take care of the flow direction   */
@@ -220,7 +220,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitma
 		return FT_THROW(Invalid_Library_Handle);
 	if(!bitmap || !bitmap->buffer)
 		return FT_THROW(Invalid_Argument);
-	if(((FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) || ((FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ) )
+	if(((FT_PIX_ROUND(xStrength) >> 6 ) > FT_INT_MAX ) || ((FT_PIX_ROUND(yStrength) >> 6 ) > FT_INT_MAX ))
 		return FT_THROW(Invalid_Argument);
 	xstr = (FT_Int)FT_PIX_ROUND(xStrength) >> 6;
 	ystr = (FT_Int)FT_PIX_ROUND(yStrength) >> 6;
@@ -391,8 +391,8 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 			    old_target_pitch = -old_target_pitch;
 		    old_size = target->rows * (FT_UInt)old_target_pitch;
 		    target->pixel_mode = FT_PIXEL_MODE_GRAY;
-		    target->rows       = source->rows;
-		    target->width      = source->width;
+		    target->rows  = source->rows;
+		    target->width = source->width;
 		    pad = 0;
 		    if(alignment > 0) {
 			    pad = (FT_Int)source->width % alignment;
@@ -402,7 +402,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Convert(FT_Library library, const FT_Bitmap  *
 		    target_pitch = (FT_Int)source->width + pad;
 		    if(target_pitch > 0 && (FT_ULong)target->rows > FT_ULONG_MAX / (FT_ULong)target_pitch)
 			    return FT_THROW(Invalid_Argument);
-		    if(FT_QREALLOC(target->buffer, old_size, target->rows * (FT_UInt)target_pitch) )
+		    if(FT_QREALLOC(target->buffer, old_size, target->rows * (FT_UInt)target_pitch))
 			    return error;
 		    target->pitch = target->pitch < 0 ? -target_pitch : target_pitch;
 	    }
@@ -591,7 +591,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	const FT_Bitmap*  source;
 	FT_Vector source_offset;
 	FT_Vector target_offset;
-	FT_Bool free_source_bitmap          = 0;
+	FT_Bool free_source_bitmap = 0;
 	FT_Bool free_target_bitmap_on_error = 0;
 	FT_Pos source_llx, source_lly, source_urx, source_ury;
 	FT_Pos target_llx, target_lly, target_urx, target_ury;
@@ -604,9 +604,9 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 
 	memory = library->memory;
 
-	if(!(target->pixel_mode == FT_PIXEL_MODE_NONE     ||
+	if(!(target->pixel_mode == FT_PIXEL_MODE_NONE || 
 	    ( target->pixel_mode == FT_PIXEL_MODE_BGRA &&
-	    target->buffer                           ) ) )
+	    target->buffer                           )) )
 		return FT_THROW(Invalid_Argument);
 
 	if(source_->pixel_mode == FT_PIXEL_MODE_NONE)
@@ -617,7 +617,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	    ( source_->pitch ^ target->pitch ) < 0)
 		return FT_THROW(Invalid_Argument);
 
-	if(!(source_->width && source_->rows ) )
+	if(!(source_->width && source_->rows ))
 		return FT_Err_Ok;     /* nothing to do */
 
 	/* assure integer pixel offsets */
@@ -693,7 +693,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		FT_TRACE5(( "  final bitmap: empty\n" ));
 #endif /* FT_DEBUG_LEVEL_TRACE */
 
-	if(!(final_width && final_rows ) )
+	if(!(final_width && final_rows ))
 		return FT_Err_Ok;     /* nothing to do */
 
 	/* for blending, set offset vector of final bitmap */
@@ -709,17 +709,17 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	/* set up target bitmap */
 	if(target->pixel_mode == FT_PIXEL_MODE_NONE) {
 		/* create new empty bitmap */
-		target->width      = final_width;
-		target->rows       = final_rows;
+		target->width = final_width;
+		target->rows  = final_rows;
 		target->pixel_mode = FT_PIXEL_MODE_BGRA;
-		target->pitch      = (int)final_width * 4;
+		target->pitch = (int)final_width * 4;
 		target->num_grays  = 256;
 
 		if(FT_LONG_MAX / target->pitch < (int)target->rows) {
 			FT_TRACE5(( "FT_Blend_Bitmap: target bitmap too large (%d x %d)\n", final_width, final_rows ));
 			return FT_THROW(Invalid_Argument);
 		}
-		if(FT_ALLOC(target->buffer, target->pitch * (int)target->rows) )
+		if(FT_ALLOC(target->buffer, target->pitch * (int)target->rows))
 			return error;
 		free_target_bitmap_on_error = 1;
 	}
@@ -738,7 +738,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		}
 		/* TODO: provide an in-buffer solution for large bitmaps */
 		/*       to avoid allocation of a new buffer       */
-		if(FT_ALLOC(buffer, new_pitch * (int)final_rows) )
+		if(FT_ALLOC(buffer, new_pitch * (int)final_rows))
 			goto Error;
 
 		/* copy data to new buffer */
@@ -778,7 +778,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		error = FT_Bitmap_Convert(library, source_, &source_bitmap, 1);
 		if(error)
 			goto Error;
-		source             = &source_bitmap;
+		source   = &source_bitmap;
 		free_source_bitmap = 1;
 	}
 	else
@@ -799,8 +799,8 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		uchar*  q = target->buffer + ( target->rows - y - source->rows ) * target->pitch + x * 4;
 		uchar*  limit_p = p + source->pitch * (int)source->rows;
 		while(p < limit_p) {
-			uchar*  r       = p;
-			uchar*  s       = q;
+			uchar*  r  = p;
+			uchar*  s  = q;
 			uchar*  limit_r = r + source->width;
 			while(r < limit_r) {
 				int aa = *r++;
@@ -835,7 +835,7 @@ Error:
 /* documentation is in ftbitmap.h */
 FT_EXPORT_DEF(FT_Error) FT_GlyphSlot_Own_Bitmap(FT_GlyphSlot slot)
 {
-	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP && !(slot->internal->flags & FT_GLYPH_OWN_BITMAP ) ) {
+	if(slot && slot->format == FT_GLYPH_FORMAT_BITMAP && !(slot->internal->flags & FT_GLYPH_OWN_BITMAP )) {
 		FT_Bitmap bitmap;
 		FT_Error error;
 		FT_Bitmap_Init(&bitmap);

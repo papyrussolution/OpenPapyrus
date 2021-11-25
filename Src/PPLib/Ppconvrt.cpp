@@ -7684,7 +7684,7 @@ int Convert10903()
 										Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
 										if(cfgp_rec.DesktopID_Obsolete && !cfgp_rec.DesktopUuid) {
 											const PPCommandItem * p_cg_item = cg_desktop.SearchByID(cfgp_rec.DesktopID_Obsolete, 0);
-											if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+											if(p_cg_item && p_cg_item->IsKind(PPCommandItem::kGroup)) {
 												const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
 												if(oneof2(p_cg_local->Type, cmdgrpcDesktop, cmdgrpcUndef) && !!p_cg_local->Uuid) {
 													cfgp_rec.DesktopUuid = p_cg_local->Uuid;
@@ -7719,7 +7719,7 @@ int Convert10903()
 									int local_do_update = 0;
 									if(cfg_rec.DesktopID_Obsolete && !cfg_rec.DesktopUuid_) {
 										const PPCommandItem * p_cg_item = cg_desktop.SearchByID(cfg_rec.DesktopID_Obsolete, 0);
-										if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+										if(p_cg_item && p_cg_item->IsKind(PPCommandItem::kGroup)) {
 											const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
 											if(oneof2(p_cg_local->Type, cmdgrpcDesktop, cmdgrpcUndef) && !!p_cg_local->Uuid) {
 												cfg_rec.DesktopUuid_ = p_cg_local->Uuid;
@@ -7745,7 +7745,7 @@ int Convert10903()
 									}
 									if(cfg_rec.MenuID_Obsolete && !cfg_rec.MenuUuid) {
 										const PPCommandItem * p_cg_item = cg_menu.SearchByID(cfg_rec.MenuID_Obsolete, 0);
-										if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+										if(p_cg_item && p_cg_item->IsKind(PPCommandItem::kGroup)) {
 											const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
 											if(oneof2(p_cg_local->Type, cmdgrpcMenu, cmdgrpcUndef) && !!p_cg_local->Uuid) {
 												cfg_rec.MenuUuid = p_cg_local->Uuid;

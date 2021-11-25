@@ -41,11 +41,11 @@ FT_BEGIN_HEADER
 /* Imported from bdfP.h */
 
 #define _bdf_glyph_modified( map, e )                     \
-          ( (map)[(e) >> 5] & ( 1UL << ( (e) & 31 ) ) )
+          ((map)[(e) >> 5] & ( 1UL << ((e) & 31 )) )
 #define _bdf_set_glyph_modified( map, e )                 \
-          ( (map)[(e) >> 5] |= ( 1UL << ( (e) & 31 ) ) )
+          ((map)[(e) >> 5] |= ( 1UL << ((e) & 31 )) )
 #define _bdf_clear_glyph_modified( map, e )               \
-          ( (map)[(e) >> 5] &= ~( 1UL << ( (e) & 31 ) ) )
+          ((map)[(e) >> 5] &= ~( 1UL << ((e) & 31 )) )
 
 /* end of bdfP.h */
 

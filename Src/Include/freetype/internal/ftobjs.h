@@ -58,9 +58,9 @@ FT_BEGIN_HEADER
  * The min and max functions missing in C.  As usual, be careful not to
  * write things like FT_MIN( a++, b++ ) to avoid side effects.
  */
-#define FT_MIN(a, b)  ( (a) < (b) ? (a) : (b) )
-#define FT_MAX(a, b)  ( (a) > (b) ? (a) : (b) )
-#define FT_ABS(a)     ( (a) < 0 ? -(a) : (a) )
+#define FT_MIN(a, b)  ((a) < (b) ? (a) : (b))
+#define FT_MAX(a, b)  ((a) > (b) ? (a) : (b))
+#define FT_ABS(a)     ((a) < 0 ? -(a) : (a))
 /*
  * Approximate sqrt(x*x+y*y) using the `alpha max plus beta min' algorithm.
  * We use alpha = 1, beta = 3/8, giving us results with a largest error
@@ -69,38 +69,38 @@ FT_BEGIN_HEADER
 #define FT_HYPOT(x, y) (x = FT_ABS(x), y = FT_ABS(y), x > y ? x + ( 3 * y >> 3 ) : y + ( 3 * x >> 3 ))
 
 /* we use FT_TYPEOF to suppress signedness compilation warnings */
-#define FT_PAD_FLOOR(x, n)  ( (x) & ~FT_TYPEOF(x)( (n) - 1 ) )
-#define FT_PAD_ROUND(x, n)  FT_PAD_FLOOR( (x) + (n) / 2, n)
-#define FT_PAD_CEIL(x, n)   FT_PAD_FLOOR( (x) + (n) - 1, n)
+#define FT_PAD_FLOOR(x, n)  ((x) & ~FT_TYPEOF(x)((n) - 1 ))
+#define FT_PAD_ROUND(x, n)  FT_PAD_FLOOR((x) + (n) / 2, n)
+#define FT_PAD_CEIL(x, n)   FT_PAD_FLOOR((x) + (n) - 1, n)
 
-#define FT_PIX_FLOOR(x)     ( (x) & ~FT_TYPEOF(x) 63 )
-#define FT_PIX_ROUND(x)     FT_PIX_FLOOR( (x) + 32)
-#define FT_PIX_CEIL(x)      FT_PIX_FLOOR( (x) + 63)
+#define FT_PIX_FLOOR(x)     ((x) & ~FT_TYPEOF(x) 63 )
+#define FT_PIX_ROUND(x)     FT_PIX_FLOOR((x) + 32)
+#define FT_PIX_CEIL(x)      FT_PIX_FLOOR((x) + 63)
 
 /* specialized versions (for signed values)                   */
 /* that don't produce run-time errors due to integer overflow */
-#define FT_PAD_ROUND_LONG(x, n)  FT_PAD_FLOOR(ADD_LONG( (x), (n) / 2), n)
-#define FT_PAD_CEIL_LONG(x, n)   FT_PAD_FLOOR(ADD_LONG( (x), (n) - 1), n)
-#define FT_PIX_ROUND_LONG(x)     FT_PIX_FLOOR(ADD_LONG( (x), 32) )
-#define FT_PIX_CEIL_LONG(x)      FT_PIX_FLOOR(ADD_LONG( (x), 63) )
+#define FT_PAD_ROUND_LONG(x, n)  FT_PAD_FLOOR(ADD_LONG((x), (n) / 2), n)
+#define FT_PAD_CEIL_LONG(x, n)   FT_PAD_FLOOR(ADD_LONG((x), (n) - 1), n)
+#define FT_PIX_ROUND_LONG(x)     FT_PIX_FLOOR(ADD_LONG((x), 32))
+#define FT_PIX_CEIL_LONG(x)      FT_PIX_FLOOR(ADD_LONG((x), 63))
 
-#define FT_PAD_ROUND_INT32(x, n)  FT_PAD_FLOOR(ADD_INT32( (x), (n) / 2), n)
-#define FT_PAD_CEIL_INT32(x, n)   FT_PAD_FLOOR(ADD_INT32( (x), (n) - 1), n)
-#define FT_PIX_ROUND_INT32(x)     FT_PIX_FLOOR(ADD_INT32( (x), 32) )
-#define FT_PIX_CEIL_INT32(x)      FT_PIX_FLOOR(ADD_INT32( (x), 63) )
+#define FT_PAD_ROUND_INT32(x, n)  FT_PAD_FLOOR(ADD_INT32((x), (n) / 2), n)
+#define FT_PAD_CEIL_INT32(x, n)   FT_PAD_FLOOR(ADD_INT32((x), (n) - 1), n)
+#define FT_PIX_ROUND_INT32(x)     FT_PIX_FLOOR(ADD_INT32((x), 32))
+#define FT_PIX_CEIL_INT32(x)      FT_PIX_FLOOR(ADD_INT32((x), 63))
 
 /*
  * character classification functions -- since these are used to parse font
  * files, we must not use those in <ctypes.h> which are locale-dependent
  */
 #define  ft_isdigit(x)   (((uint)(x) - '0' ) < 10U )
-#define  ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U  || ((uint)(x) - 'A' ) < 6U)
+#define  ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U || ((uint)(x) - 'A' ) < 6U)
 
 /* the next two macros assume ASCII representation */
 #define  ft_isupper(x)  (((uint)(x) - 'A' ) < 26U )
 #define  ft_islower(x)  (((uint)(x) - 'a' ) < 26U )
-#define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x) )
-#define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x) )
+#define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x))
+#define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x))
 
 // 
 /****                       C H A R M A P S                           ****/
@@ -117,7 +117,7 @@ typedef struct  FT_CMapRec_ {
 } FT_CMapRec;
 
 /* typecast any pointer to a charmap handle */
-#define FT_CMAP(x)  ( (FT_CMap)( x ) )
+#define FT_CMAP(x)  ((FT_CMap)( x ))
 
 /* obvious macros */
 #define FT_CMAP_PLATFORM_ID(x)  FT_CMAP(x)->charmap.platform_id
@@ -439,7 +439,7 @@ typedef struct  FT_ModuleRec_ {
 } FT_ModuleRec;
 
 /* typecast an object to an FT_Module */
-#define FT_MODULE(x)  ( (FT_Module)(x) )
+#define FT_MODULE(x)  ((FT_Module)(x))
 
 #define FT_MODULE_CLASS(x)    FT_MODULE(x)->clazz
 #define FT_MODULE_LIBRARY(x)  FT_MODULE(x)->library
@@ -517,9 +517,9 @@ ft_property_string_set(FT_Library library,
 
 /* a few macros used to perform easy typecasts with minimal brain damage */
 
-#define FT_FACE(x)          ( (FT_Face)(x) )
-#define FT_SIZE(x)          ( (FT_Size)(x) )
-#define FT_SLOT(x)          ( (FT_GlyphSlot)(x) )
+#define FT_FACE(x)          ((FT_Face)(x))
+#define FT_SIZE(x)          ((FT_Size)(x))
+#define FT_SLOT(x)          ((FT_GlyphSlot)(x))
 
 #define FT_FACE_DRIVER(x)   FT_FACE(x)->driver
 #define FT_FACE_LIBRARY(x)  FT_FACE_DRIVER(x)->root.library
@@ -577,13 +577,13 @@ FT_Done_GlyphSlot(FT_GlyphSlot slot);
 /* */
 
 #define FT_REQUEST_WIDTH(req)                                            \
-	( (req)->horiResolution                                          \
-	? ( (req)->width * (FT_Pos)(req)->horiResolution + 36 ) / 72 \
+	((req)->horiResolution                                          \
+	? ((req)->width * (FT_Pos)(req)->horiResolution + 36 ) / 72 \
 	: (req)->width )
 
 #define FT_REQUEST_HEIGHT(req)                                            \
-	( (req)->vertResolution                                           \
-	? ( (req)->height * (FT_Pos)(req)->vertResolution + 36 ) / 72 \
+	((req)->vertResolution                                           \
+	? ((req)->height * (FT_Pos)(req)->vertResolution + 36 ) / 72 \
 	: (req)->height )
 
 /* Set the metrics according to a bitmap strike. */
@@ -636,10 +636,10 @@ ft_glyphslot_set_bitmap(FT_GlyphSlot slot,
 /****                        R E N D E R E R S                        ****/
 // 
 
-#define FT_RENDERER(x)       ( (FT_Renderer)(x) )
-#define FT_GLYPH(x)          ( (FT_Glyph)(x) )
-#define FT_BITMAP_GLYPH(x)   ( (FT_BitmapGlyph)(x) )
-#define FT_OUTLINE_GLYPH(x)  ( (FT_OutlineGlyph)(x) )
+#define FT_RENDERER(x)       ((FT_Renderer)(x))
+#define FT_GLYPH(x)          ((FT_Glyph)(x))
+#define FT_BITMAP_GLYPH(x)   ((FT_BitmapGlyph)(x))
+#define FT_OUTLINE_GLYPH(x)  ((FT_OutlineGlyph)(x))
 
 typedef struct  FT_RendererRec_ {
 	FT_ModuleRec root;
@@ -657,7 +657,7 @@ typedef struct  FT_RendererRec_ {
 // 
 
 /* typecast a module into a driver easily */
-#define FT_DRIVER(x)  ( (FT_Driver)(x) )
+#define FT_DRIVER(x)  ((FT_Driver)(x))
 
 /* typecast a module as a driver, and get its driver class */
 #define FT_DRIVER_CLASS(x)  FT_DRIVER(x)->clazz

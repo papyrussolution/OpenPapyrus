@@ -84,11 +84,11 @@ FT_BEGIN_HEADER
   } T1_ParserRec, *T1_Parser;
 
 
-#define T1_Add_Table( p, i, o, l )  (p)->funcs.add( (p), i, o, l )
+#define T1_Add_Table( p, i, o, l )  (p)->funcs.add((p), i, o, l )
 #define T1_Release_Table( p )          \
           do                           \
           {                            \
-            if ( (p)->funcs.release )  \
+            if ((p)->funcs.release )  \
               (p)->funcs.release( p ); \
           } while ( 0 )
 

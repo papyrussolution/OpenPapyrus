@@ -115,7 +115,7 @@
 /*                                                                   */
 /* work for backward compatibility.                                  */
 /*                                                                   */
-#if !(defined( FTERRORS_H_ ) && defined ( __FTERRORS_H__ ) )
+#if !(defined( FTERRORS_H_ ) && defined ( __FTERRORS_H__ ))
 #define FTERRORS_H_
 #define __FTERRORS_H__
 
@@ -259,7 +259,7 @@ FT_BEGIN_HEADER
  *
  *   ```c
  *     strcmp( FT_Error_String(  FT_Err_Unknown_File_Format ),
- *       FT_Error_String( BDF_Err_Unknown_File_Format ) ) == 0;
+ *       FT_Error_String( BDF_Err_Unknown_File_Format )) == 0;
  *   ```
  */
 FT_EXPORT(const char *) FT_Error_String(FT_Error error_code);

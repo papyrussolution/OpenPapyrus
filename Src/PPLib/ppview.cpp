@@ -2417,9 +2417,9 @@ void * PPViewBrowser::Helper_InitToolbarCombo()
 			::DestroyWindow(P_ComboBox->getHandle());
 			ZDELETE(P_ComboBox);
 		}
-		hwnd_li = ::CreateWindow(_T("EDIT"), 0, style|ES_AUTOHSCROLL|ES_READONLY,
+		hwnd_li = ::CreateWindowEx(0, _T("EDIT"), 0, style|ES_AUTOHSCROLL|ES_READONLY,
 			rect.left, rect.top, rect.right, rect.bottom, parent, (HMENU)CTL_TOOLBAR_INPUTLI, TProgram::GetInst(), 0);
-		::CreateWindow(_T("BUTTON"), 0, style|BS_PUSHBUTTON|BS_BITMAP|BS_FLAT, rect.left + rect.right - 1,
+		::CreateWindowEx(0, _T("BUTTON"), 0, style|BS_PUSHBUTTON|BS_BITMAP|BS_FLAT, rect.left + rect.right - 1,
 			rect.top, rect.bottom, rect.bottom, parent, (HMENU)CTL_TOOLBAR_BTN, TProgram::GetInst(), 0);
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		ZDeleteWinGdiObject(&H_ComboFont);

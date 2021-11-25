@@ -38,10 +38,12 @@
     <ClCompile Include="..\OSF\FreeType\truetype.c" />
     <ClCompile Include="..\OSF\FreeType\type1.c" />
     <ClCompile Include="..\OSF\FreeType\type1cid.c" />
-    <ClCompile Include="..\OSF\FreeType\type42.c" />
     <ClCompile Include="..\OSF\FreeType\winfnt.c" />
     <ClCompile Include="..\OSF\FreeType\ftobjs.c" />
     <ClCompile Include="..\OSF\FreeType\ftrfork.c" />
+    <ClCompile Include="..\OSF\FreeType\t42drivr.c" />
+    <ClCompile Include="..\OSF\FreeType\t42objs.c" />
+    <ClCompile Include="..\OSF\FreeType\t42parse.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\freetype\internal\autohint.h">
@@ -291,6 +293,450 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\FreeType\ftbase.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t42objs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t42parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afangles.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afblue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afcjk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afcover.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afdummy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\aferrors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afglobal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afhints.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afindic.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\aflatin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\aflatin2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afloader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afmodule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afmparse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afranges.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afscript.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afshaper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afstyles.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\aftypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afwarp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\afwrtsys.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\bdf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\bdfdrivr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\bdferror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffcmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffdecode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffdrivr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cfferrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffgload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cffparse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cfftoken.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ciderrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidgload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidparse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\cidtoken.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\fnterrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftccache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftccback.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcglyph.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcimage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcmanag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcmru.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftcsbits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftgrays.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftmisc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftraster.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftrend1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftsmerrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftsmooth.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ftzopen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvalid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvcommn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxverror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvfeat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvmod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvmort.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\gxvmorx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\otvalid.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\otvcommn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\otverror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\otvgpos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\otvmod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pcf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pcfdrivr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pcferror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pcfread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pcfutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrcmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrdrivr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrgload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrsbit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pfrtypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pngshim.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psarrst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psauxerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psauxmod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psblues.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psconv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pserror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psfixed.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psfont.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psft.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psglue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshalgo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshglob.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshints.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshmod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshnterr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pshrec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psintrp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psmodule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psnamerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\psstack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pstables.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\pstypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\rasterrs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\sfdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\sferrors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\sfobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\sfwoff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\sfwoff2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1afm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1cmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1decode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1driver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1errors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1gload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1load.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1objs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t1tokens.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t42drivr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t42error.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\t42types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttbdf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttcmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttcmapc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttcolr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttcpal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttdriver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\tterrors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttgload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttgxvar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttinterp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttkern.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttmtx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttobjs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttpload.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttpost.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttsbit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\ttsubpix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\winfnt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\FreeType\woff2tags.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

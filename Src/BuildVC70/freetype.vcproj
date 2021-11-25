@@ -525,6 +525,15 @@
 				RelativePath="..\Osf\FreeType\smooth.c">
 			</File>
 			<File
+				RelativePath="..\Osf\FreeType\t42drivr.c">
+			</File>
+			<File
+				RelativePath="..\Osf\FreeType\t42objs.c">
+			</File>
+			<File
+				RelativePath="..\Osf\FreeType\t42parse.c">
+			</File>
+			<File
 				RelativePath="..\Osf\FreeType\truetype.c">
 			</File>
 			<File
@@ -532,9 +541,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\FreeType\type1cid.c">
-			</File>
-			<File
-				RelativePath="..\Osf\FreeType\type42.c">
 			</File>
 			<File
 				RelativePath="..\Osf\FreeType\winfnt.c">

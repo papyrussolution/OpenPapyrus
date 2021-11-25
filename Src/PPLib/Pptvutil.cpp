@@ -8,6 +8,8 @@
 #include <htmlhelp.h>
 #pragma comment (lib, "htmlhelp.lib")
 
+#define USE_NEW_TIMEPICKER 1 // @v11.2.4
+
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
@@ -5819,7 +5821,7 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 		Data = getcurtime_();
 		int    m = Data.minut();
 		Data = encodetime(Data.hour(), m - (m % 5), 0, 0);
-		invalidateRect(getClientRect(), 1);
+		invalidateRect(getClientRect(), true);
 		::UpdateWindow(H());
 	}
 	else if(TVEVENT == TEvent::evMouseDown) {
@@ -5838,7 +5840,7 @@ void TimePickerDialog::Select(long x, long y)
 	long   m = Data.minut();
 	TmRects.GetTimeByCoord(x, y, &h, &m);
 	Data = encodetime(h, m, 0, 0);
-	invalidateRect(getClientRect(), 1);
+	invalidateRect(getClientRect(), true);
 	::UpdateWindow(H());
 }
 
@@ -6068,6 +6070,9 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 					return 0;
 				case WM_LBUTTONUP:
 					{
+#if USE_NEW_TIMEPICKER
+						SCalendarPicker::Exec(SCalendarPicker::kTime, p_cbwe->Dlg, p_cbwe->EditID);
+#else
 						LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
 						TimePickerDialog * dlg = new TimePickerDialog;
 						if(CheckDialogPtrErr(&dlg)) {
@@ -6078,6 +6083,7 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 							}
 						}
 						delete dlg;
+#endif
 					}
 					break;
 			}
@@ -6102,6 +6108,7 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbm_clock));
 	}
 }
+#if 0 // @v11.2.4 {
 //
 // TimePickerCtrlGroup
 //
@@ -6172,6 +6179,7 @@ int SetupTimePicker(uint ctl, uint ctlSel, uint grpID, TDialog * pDlg)
 {
 	return pDlg ? pDlg->addGroup(grpID, new TimePickerCtrlGroup(ctl, ctlSel, pDlg)) : 0;
 }
+#endif // } 0 @v11.2.4
 //
 //
 //

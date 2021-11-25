@@ -932,7 +932,7 @@ int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
 			ChkRepPeriod.SetDate(LConfig.OperDate);
-			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
+			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {

@@ -50,7 +50,7 @@ FT_BEGIN_HEADER
 
   } FTC_INodeRec, *FTC_INode;
 
-#define FTC_INODE( x )         ( (FTC_INode)( x ) )
+#define FTC_INODE( x )         ((FTC_INode)( x ))
 #define FTC_INODE_GINDEX( x )  FTC_GNODE(x)->gindex
 #define FTC_INODE_FAMILY( x )  FTC_GNODE(x)->family
 

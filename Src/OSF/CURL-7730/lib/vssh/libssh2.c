@@ -1933,26 +1933,24 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    strlen(sftp_scp->path)),
 				    0, 0, LIBSSH2_SFTP_OPENDIR);
 			    if(!sshc->sftp_handle) {
-				    if(libssh2_session_last_errno(sshc->ssh_session) ==
-					LIBSSH2_ERROR_EAGAIN) {
+				    if(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN) {
 					    rc = LIBSSH2_ERROR_EAGAIN;
 					    break;
 				    }
 				    sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-				    failf(data, "Could not open directory for reading: %s",
-					sftp_libssh2_strerror(sftperr));
+				    failf(data, "Could not open directory for reading: %s", sftp_libssh2_strerror(sftperr));
 				    state(conn, SSH_SFTP_CLOSE);
 				    result = sftp_libssh2_error_to_CURLE(sftperr);
 				    sshc->actualcode = result ? result : CURLE_SSH;
 				    break;
 			    }
-			    sshc->readdir_filename = (char *)SAlloc::M(PATH_MAX + 1);
+			    sshc->readdir_filename = (char *)SAlloc::M(PATH_MAX+1);
 			    if(!sshc->readdir_filename) {
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    break;
 			    }
-			    sshc->readdir_longentry = (char *)SAlloc::M(PATH_MAX + 1);
+			    sshc->readdir_longentry = (char *)SAlloc::M(PATH_MAX+1);
 			    if(!sshc->readdir_longentry) {
 				    Curl_safefree(sshc->readdir_filename);
 				    state(conn, SSH_SFTP_CLOSE);

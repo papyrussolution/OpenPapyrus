@@ -53,10 +53,9 @@ FT_CALLBACK_DEF(FT_Error) ftc_basic_family_init(FTC_MruNode ftcfamily, FT_Pointe
 FT_CALLBACK_DEF(FT_UInt) ftc_basic_family_get_count(FTC_Family ftcfamily, FTC_Manager manager)
 {
 	FTC_BasicFamily family = (FTC_BasicFamily)ftcfamily;
-	FT_Error error;
 	FT_Face face;
 	FT_UInt result = 0;
-	error = FTC_Manager_LookupFace(manager, family->attrs.scaler.face_id, &face);
+	FT_Error error = FTC_Manager_LookupFace(manager, family->attrs.scaler.face_id, &face);
 	if(error || !face)
 		return result;
 	if( (FT_ULong)face->num_glyphs > FT_UINT_MAX || 0 > face->num_glyphs)
@@ -116,9 +115,7 @@ FT_CALLBACK_DEF(FT_Bool) ftc_basic_gnode_compare_faceid(FTC_Node ftcgnode, FT_Po
 	FTC_FaceID face_id = (FTC_FaceID)ftcface_id;
 	FTC_BasicFamily family  = (FTC_BasicFamily)gnode->family;
 	FT_Bool result;
-
-	if(list_changed)
-		*list_changed = FALSE;
+	ASSIGN_PTR(list_changed, FALSE);
 	result = FT_BOOL(family->attrs.scaler.face_id == face_id);
 	if(result) {
 		/* we must call this function to avoid this node from appearing

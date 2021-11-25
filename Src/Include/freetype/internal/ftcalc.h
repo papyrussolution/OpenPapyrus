@@ -45,11 +45,11 @@ static __inline FT_Int32 FT_MulFix_arm(FT_Int32 a,
 	__asm
 	{
 		smull t2, t,  b,  a /* (lo=t2,hi=t) = a*b */
-		mov a,  t,  asr #31 /* a   = (hi >> 31) */
+		mov a,  t,  asr #31 /* a = (hi >> 31) */
 		add a,  a,  #0x8000 /* a  += 0x8000 */
 		adds t2, t2, a      /* t2 += a */
 		adc t,  t,  #0      /* t  += carry */
-		mov a,  t2, lsr #16 /* a   = t2 >> 16 */
+		mov a,  t2, lsr #16 /* a = t2 >> 16 */
 		orr a,  a,  t,  lsl #16/* a  |= t << 16 */
 	}
 	return a;
@@ -59,9 +59,9 @@ static __inline FT_Int32 FT_MulFix_arm(FT_Int32 a,
 
 #ifdef __GNUC__
 
-#if defined( __arm__ )                               && \
-	( !defined( __thumb__ ) || defined( __thumb2__ ) ) && \
-	!(defined( __CC_ARM ) || defined( __ARMCC__ ) )
+#if defined( __arm__ ) && \
+	( !defined( __thumb__ ) || defined( __thumb2__ )) && \
+	!(defined( __CC_ARM ) || defined( __ARMCC__ ))
 
 #define FT_MULFIX_ASSEMBLER  FT_MulFix_arm
 
@@ -90,7 +90,7 @@ static __inline__ FT_Int32 FT_MulFix_arm(FT_Int32 a,
 	return a;
 }
 
-#endif /* __arm__                    && */
+#endif /* __arm__ && */
        /* ( __thumb2__ || !__thumb__ ) && */
        /* !(__CC_ARM || __ARMCC__ )      */
 
@@ -217,7 +217,7 @@ static __inline__ FT_Int32 FT_MulFix_x86_64(FT_Int32 a,
 
 #ifdef FT_CONFIG_OPTION_INLINE_MULFIX
 #ifdef FT_MULFIX_ASSEMBLER
-#define FT_MulFix(a, b)  FT_MULFIX_ASSEMBLER( (FT_Int32)(a), (FT_Int32)(b) )
+#define FT_MulFix(a, b)  FT_MULFIX_ASSEMBLER((FT_Int32)(a), (FT_Int32)(b))
 #endif
 #endif
 
@@ -325,11 +325,11 @@ ft_corner_is_flat(FT_Pos in_x,
  * Return the most significant bit index.
  */
 #ifndef  FT_CONFIG_OPTION_NO_ASSEMBLER
-#if defined( __GNUC__) && (__GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ) )
+#if defined( __GNUC__) && (__GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ))
 	#if FT_SIZEOF_INT == 4
-		#define FT_MSB(x)  ( 31 - __builtin_clz(x) )
+		#define FT_MSB(x)  ( 31 - __builtin_clz(x))
 	#elif FT_SIZEOF_LONG == 4
-		#define FT_MSB(x)  ( 31 - __builtin_clzl(x) )
+		#define FT_MSB(x)  ( 31 - __builtin_clzl(x))
 	#endif /* __GNUC__ */
 #elif defined( _MSC_VER) && (_MSC_VER >= 1400 )
 
@@ -345,7 +345,7 @@ static __inline FT_Int32 FT_MSB_i386(FT_UInt32 x)
 	return (FT_Int32)where;
 }
 
-#define FT_MSB(x)  ( FT_MSB_i386(x) )
+#define FT_MSB(x)  ( FT_MSB_i386(x))
 
 #endif
 
@@ -393,13 +393,13 @@ FT_SqrtFixed(FT_Int32 x);
 
 #endif /* 0 */
 
-#define INT_TO_F26DOT6(x)    ( (FT_Long)(x) * 64  )      /* << 6  */
-#define INT_TO_F2DOT14(x)    ( (FT_Long)(x) * 16384 )    /* << 14 */
-#define INT_TO_FIXED(x)      ( (FT_Long)(x) * 65536 )    /* << 16 */
-#define F2DOT14_TO_FIXED(x)  ( (FT_Long)(x) * 4 )        /* << 2  */
+#define INT_TO_F26DOT6(x)    ((FT_Long)(x) * 64  )      /* << 6  */
+#define INT_TO_F2DOT14(x)    ((FT_Long)(x) * 16384 )    /* << 14 */
+#define INT_TO_FIXED(x)      ((FT_Long)(x) * 65536 )    /* << 16 */
+#define F2DOT14_TO_FIXED(x)  ((FT_Long)(x) * 4 )        /* << 2  */
 #define FIXED_TO_INT(x)      ( FT_RoundFix(x) >> 16 )
 
-#define ROUND_F26DOT6(x)     (((x) + 32 - ( x < 0) ) & -64 )
+#define ROUND_F26DOT6(x)     (((x) + 32 - ( x < 0)) & -64 )
 
 /*
  * The following macros have two purposes.
@@ -411,34 +411,34 @@ FT_SqrtFixed(FT_Int32 x);
  * Use with care!
  */
 #define ADD_INT(a, b)                           \
-	(FT_Int)( (FT_UInt)(a) + (FT_UInt)(b) )
+	(FT_Int)((FT_UInt)(a) + (FT_UInt)(b))
 #define SUB_INT(a, b)                           \
-	(FT_Int)( (FT_UInt)(a) - (FT_UInt)(b) )
+	(FT_Int)((FT_UInt)(a) - (FT_UInt)(b))
 #define MUL_INT(a, b)                           \
-	(FT_Int)( (FT_UInt)(a) * (FT_UInt)(b) )
+	(FT_Int)((FT_UInt)(a) * (FT_UInt)(b))
 #define NEG_INT(a)                              \
-	(FT_Int)( (FT_UInt)0 - (FT_UInt)(a) )
+	(FT_Int)((FT_UInt)0 - (FT_UInt)(a))
 
 #define ADD_LONG(a, b)                             \
-	(FT_Long)( (FT_ULong)(a) + (FT_ULong)(b) )
+	(FT_Long)((FT_ULong)(a) + (FT_ULong)(b))
 #define SUB_LONG(a, b)                             \
-	(FT_Long)( (FT_ULong)(a) - (FT_ULong)(b) )
+	(FT_Long)((FT_ULong)(a) - (FT_ULong)(b))
 #define MUL_LONG(a, b)                             \
-	(FT_Long)( (FT_ULong)(a) * (FT_ULong)(b) )
+	(FT_Long)((FT_ULong)(a) * (FT_ULong)(b))
 #define NEG_LONG(a)                                \
-	(FT_Long)( (FT_ULong)0 - (FT_ULong)(a) )
+	(FT_Long)((FT_ULong)0 - (FT_ULong)(a))
 
-#define ADD_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) + (FT_UInt32)(b) )
-#define SUB_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) - (FT_UInt32)(b) )
-#define MUL_INT32(a, b) (FT_Int32)( (FT_UInt32)(a) * (FT_UInt32)(b) )
-#define NEG_INT32(a)    (FT_Int32)( (FT_UInt32)0 - (FT_UInt32)(a) )
+#define ADD_INT32(a, b) (FT_Int32)((FT_UInt32)(a) + (FT_UInt32)(b))
+#define SUB_INT32(a, b) (FT_Int32)((FT_UInt32)(a) - (FT_UInt32)(b))
+#define MUL_INT32(a, b) (FT_Int32)((FT_UInt32)(a) * (FT_UInt32)(b))
+#define NEG_INT32(a)    (FT_Int32)((FT_UInt32)0 - (FT_UInt32)(a))
 
 #ifdef FT_LONG64
 
-#define ADD_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) + (FT_UInt64)(b) )
-#define SUB_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) - (FT_UInt64)(b) )
-#define MUL_INT64(a, b) (FT_Int64)( (FT_UInt64)(a) * (FT_UInt64)(b) )
-#define NEG_INT64(a)    (FT_Int64)( (FT_UInt64)0 - (FT_UInt64)(a) )
+#define ADD_INT64(a, b) (FT_Int64)((FT_UInt64)(a) + (FT_UInt64)(b))
+#define SUB_INT64(a, b) (FT_Int64)((FT_UInt64)(a) - (FT_UInt64)(b))
+#define MUL_INT64(a, b) (FT_Int64)((FT_UInt64)(a) * (FT_UInt64)(b))
+#define NEG_INT64(a)    (FT_Int64)((FT_UInt64)0 - (FT_UInt64)(a))
 
 #endif /* FT_LONG64 */
 

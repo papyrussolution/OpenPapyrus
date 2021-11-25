@@ -153,10 +153,10 @@ static cmsBool ReadPositionTable(struct _cms_typehandler_struct* self, cmsIOHAND
 	if(((io->ReportedSize - currentPosition) / (2 * sizeof(cmsUInt32Number))) < Count)
 		return FALSE;
 	// Let's take the offsets to each element
-	ElementOffsets = (cmsUInt32Number*)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
+	ElementOffsets = (cmsUInt32Number *)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
 	if(ElementOffsets == NULL) 
 		goto Error;
-	ElementSizes = (cmsUInt32Number*)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
+	ElementSizes = (cmsUInt32Number *)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
 	if(ElementSizes == NULL) 
 		goto Error;
 	for(i = 0; i < Count; i++) {
@@ -190,9 +190,9 @@ static cmsBool WritePositionTable(struct _cms_typehandler_struct* self, cmsIOHAN
 	cmsUInt32Number DirectoryPos, CurrentPos, Before;
 	cmsUInt32Number * ElementOffsets = NULL, * ElementSizes = NULL;
 	// Create table
-	ElementOffsets = (cmsUInt32Number*)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
+	ElementOffsets = (cmsUInt32Number *)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
 	if(ElementOffsets == NULL) goto Error;
-	ElementSizes = (cmsUInt32Number*)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
+	ElementSizes = (cmsUInt32Number *)_cmsCalloc(io->ContextID, Count, sizeof(cmsUInt32Number));
 	if(ElementSizes == NULL) goto Error;
 	// Keep starting position of curve offsets
 	DirectoryPos = io->Tell(io);
@@ -2931,7 +2931,7 @@ void * Type_ProfileSequenceDesc_Read(struct _cms_typehandler_struct* self,
 		if(SizeOfTag < sizeof(cmsUInt64Number)) goto Error;
 		SizeOfTag -= sizeof(cmsUInt64Number);
 
-		if(!_cmsReadUInt32Number(io, (cmsUInt32Number*)&sec->technology)) goto Error;
+		if(!_cmsReadUInt32Number(io, (cmsUInt32Number *)&sec->technology)) goto Error;
 		if(SizeOfTag < sizeof(cmsUInt32Number)) goto Error;
 		SizeOfTag -= sizeof(cmsUInt32Number);
 
@@ -3523,7 +3523,7 @@ cmsToneCurve* ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHAND
 	cmsFloat32Number PrevBreak = MINUS_INF; // - infinite
 
 	// Take signature and channels for each element.
-	if(!_cmsReadUInt32Number(io, (cmsUInt32Number*)&ElementSig)) return NULL;
+	if(!_cmsReadUInt32Number(io, (cmsUInt32Number *)&ElementSig)) return NULL;
 
 	// That should be a segmented curve
 	if(ElementSig != cmsSigSegmentedCurve) return NULL;
@@ -3548,7 +3548,7 @@ cmsToneCurve* ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHAND
 
 	// Read segments
 	for(i = 0; i < nSegments; i++) {
-		if(!_cmsReadUInt32Number(io, (cmsUInt32Number*)&ElementSig)) goto Error;
+		if(!_cmsReadUInt32Number(io, (cmsUInt32Number *)&ElementSig)) goto Error;
 		if(!_cmsReadUInt32Number(io, NULL)) goto Error;
 
 		switch(ElementSig) {
@@ -3979,7 +3979,7 @@ cmsBool ReadMPEElem(struct _cms_typehandler_struct* self,
 	    (_cmsTagTypePluginChunkType*)_cmsContextGetClientChunk(self->ContextID, MPEPlugin);
 
 	// Take signature and channels for each element.
-	if(!_cmsReadUInt32Number(io, (cmsUInt32Number*)&ElementSig)) return FALSE;
+	if(!_cmsReadUInt32Number(io, (cmsUInt32Number *)&ElementSig)) return FALSE;
 
 	// The reserved placeholder
 	if(!_cmsReadUInt32Number(io, NULL)) return FALSE;
@@ -4074,10 +4074,10 @@ cmsBool Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, v
 	outputChan = cmsPipelineOutputChannels(Lut);
 	ElemCount  = cmsPipelineStageCount(Lut);
 
-	ElementOffsets = (cmsUInt32Number*)_cmsCalloc(self->ContextID, ElemCount, sizeof(cmsUInt32Number));
+	ElementOffsets = (cmsUInt32Number *)_cmsCalloc(self->ContextID, ElemCount, sizeof(cmsUInt32Number));
 	if(ElementOffsets == NULL) goto Error;
 
-	ElementSizes = (cmsUInt32Number*)_cmsCalloc(self->ContextID, ElemCount, sizeof(cmsUInt32Number));
+	ElementSizes = (cmsUInt32Number *)_cmsCalloc(self->ContextID, ElemCount, sizeof(cmsUInt32Number));
 	if(ElementSizes == NULL) goto Error;
 
 	// Write the head
@@ -4406,10 +4406,10 @@ typedef struct {
 static
 cmsBool AllocElem(cmsContext ContextID, _cmsDICelem* e,  cmsUInt32Number Count)
 {
-	e->Offsets = (cmsUInt32Number*)_cmsCalloc(ContextID, Count, sizeof(cmsUInt32Number));
+	e->Offsets = (cmsUInt32Number *)_cmsCalloc(ContextID, Count, sizeof(cmsUInt32Number));
 	if(e->Offsets == NULL) return FALSE;
 
-	e->Sizes = (cmsUInt32Number*)_cmsCalloc(ContextID, Count, sizeof(cmsUInt32Number));
+	e->Sizes = (cmsUInt32Number *)_cmsCalloc(ContextID, Count, sizeof(cmsUInt32Number));
 	if(e->Sizes == NULL) {
 		_cmsFree(ContextID, e->Offsets);
 		return FALSE;

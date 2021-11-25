@@ -92,11 +92,18 @@ bool FASTCALL StringSet::IsEq(const StringSet & rS) const
 			SString & r_temp_buf2 = SLS.AcquireRvlStr();
 			uint   p1 = 0;
 			uint   p2 = 0;
-			int    r1;
-			int    r2;
-			while(eq && (r1 = get(&p1, r_temp_buf1)) != 0 && (r2 = rS.get(&p2, r_temp_buf2)) != 0) {
-				if(r_temp_buf1 != r_temp_buf2)
-					eq = false;
+			int    r1 = 0;
+			int    r2 = 0;
+			while(eq) {
+				r1 = get(&p1, r_temp_buf1);
+				r2 = rS.get(&p2, r_temp_buf2);
+				assert(r1 == r2);
+				if(r1 != 0 && r2 != 0) {
+					if(r_temp_buf1 != r_temp_buf2)
+						eq = false;
+				}
+				else
+					break;
 			}
 			assert(r1 == 0 && r2 == 0); // Мы выше сравнили количество элементов. Если результаты получения очередной
 				// подстроки отличаются для разных экземпляров, то значит у нас тяжелая ошибка в коде.
@@ -280,7 +287,7 @@ void StringSet::sort()
 	uint   i;
 	long   id = 0;
 	for(i = 0; get(&i, str);)
-		temp_list.Add(++id, str);
+		temp_list.AddFast(++id, str); // @v11.2.4 Add-->AddFast
 	temp_list.SortByText();
 	clear();
 	for(i = 0; i < temp_list.getCount(); i++)
@@ -699,3 +706,113 @@ int SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 	rPos = new_pos;
 	return ok;
 }
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(StringSet)
+{
+	class InnerBlock {
+	public:
+		static int Verify(const StringSet & rSs, const SStrCollection & rStringList, LongArray * pPosList)
+		{
+			int    ok = 1;
+			SString temp_buf;
+			uint sspos = 0;
+			for(uint i = 0; i < rStringList.getCount(); i++) {
+				const uint _prev_sspos = sspos;
+				THROW(rSs.get(&sspos, temp_buf));
+				const char * p_str = rStringList.at(i);
+				THROW(temp_buf == p_str);
+				if(pPosList) {
+					THROW(pPosList->at(i) == static_cast<long>(_prev_sspos));
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+	};
+	int    ok = 1;
+	{
+		SStrCollection string_list;
+		SString temp_buf;
+		(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
+		SFile f_in(temp_buf, SFile::mRead);
+		THROW(f_in.IsValid());
+		while(f_in.ReadLine(temp_buf)) {
+			temp_buf.Chomp();
+			temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+			if(temp_buf.Len())
+				THROW(string_list.insert(newStr(temp_buf)));
+		}
+		{
+			// Сначала тестируем StringSet с пустым разделителем. В такой StringSet пустые строки вставлять нельзя!
+			StringSet ss;
+			LongArray pos_list;
+			for(uint i = 0; i < string_list.getCount(); i++) {
+				uint pos = 0;
+				THROW(ss.add(string_list.at(i), &pos));
+				THROW(pos_list.add(static_cast<long>(pos)));
+			}
+			THROW(SLTEST_CHECK_EQ(string_list.getCount(), ss.getCount()));
+			THROW(SLTEST_CHECK_EQ(pos_list.getCount(), ss.getCount()));
+			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
+			//
+			// Теперь сортируем string_list и ss и сравниваем без позиций (они стали инвалидными)
+			//
+			string_list.sort(PTR_CMPFUNC(PcharNoCase));
+			ss.sort();
+			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
+		}
+		{
+			// Теперь тестируем StringSet с непустым разделителем. Дополнительно вставляем пустые строки в string_list
+			for(uint j = 0; j < 20; j++) {
+				THROW(string_list.insert(newStr("")));
+			}
+			string_list.shuffle();
+			//
+			StringSet ss("*-$");
+			LongArray pos_list;
+			for(uint i = 0; i < string_list.getCount(); i++) {
+				uint pos = 0;
+				THROW(ss.add(string_list.at(i), &pos));
+				THROW(pos_list.add(static_cast<long>(pos)));
+			}
+			THROW(SLTEST_CHECK_EQ(string_list.getCount(), ss.getCount()));
+			THROW(SLTEST_CHECK_EQ(pos_list.getCount(), ss.getCount()));
+			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
+			//
+			// Теперь сортируем string_list и ss и сравниваем без позиций (они стали инвалидными)
+			//
+			string_list.sort(PTR_CMPFUNC(PcharNoCase));
+			ss.sort();
+			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
+			{
+				// Проверяем copy-constructor StringSet
+				StringSet ss2(ss);
+				SLTEST_CHECK_NZ(ss2.IsEq(ss));
+				SLTEST_CHECK_NZ(ss2 == ss);
+				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+			}
+			{
+				// Проверяем operator = StringSet
+				StringSet ss2;
+				ss2 = ss;
+				SLTEST_CHECK_NZ(ss2.IsEq(ss));
+				SLTEST_CHECK_NZ(ss == ss2);
+				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+			}
+			{
+				// Проверяем StringSet::Copy
+				StringSet ss2;
+				ss2.copy(ss);
+				SLTEST_CHECK_NZ(ss.IsEq(ss2));
+				SLTEST_CHECK_NZ(ss2 == ss);
+				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+			}
+		}
+	}
+	CATCHZOK
+	return ok ? CurrentStatus : 0;
+}
+
+#endif // } SLTEST_RUNNING

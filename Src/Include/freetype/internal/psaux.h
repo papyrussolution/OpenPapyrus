@@ -1248,12 +1248,12 @@ typedef PSAux_ServiceRec PSAux_Interface;
 #define IS_PS_NEWLINE(ch) ((ch) == '\r' || (ch) == '\n')
 #define IS_PS_SPACE(ch)   ((ch) == ' ' || IS_PS_NEWLINE(ch) || (ch) == '\t' || (ch) == '\f' || (ch) == '\0')
 #define IS_PS_SPECIAL(ch) ((ch) == '/' || (ch) == '(' || (ch) == ')' || (ch) == '<' || (ch) == '>' || (ch) == '[' || (ch) == ']' || (ch) == '{' || (ch) == '}' || (ch) == '%')
-#define IS_PS_DELIM(ch)  (IS_PS_SPACE(ch) || IS_PS_SPECIAL(ch) )
+#define IS_PS_DELIM(ch)  (IS_PS_SPACE(ch) || IS_PS_SPECIAL(ch))
 #define IS_PS_DIGIT(ch) ((ch) >= '0' && (ch) <= '9')
 #define IS_PS_XDIGIT(ch) (IS_PS_DIGIT(ch) || ((ch) >= 'A' && (ch) <= 'F' ) || ((ch) >= 'a' && (ch) <= 'f' ))
-#define IS_PS_BASE85(ch) ( (ch) >= '!' && (ch) <= 'u' )
-#define IS_PS_TOKEN(cur, limit, token) ((char)(cur)[0] == (token)[0] && ((cur) + sizeof( (token) ) == (limit) || \
-	((cur) + sizeof( (token) ) < (limit) && IS_PS_DELIM( (cur)[sizeof( (token) ) - 1]) ) ) && ft_strncmp( (char *)(cur), (token), sizeof( (token) ) - 1) == 0)
+#define IS_PS_BASE85(ch) ((ch) >= '!' && (ch) <= 'u' )
+#define IS_PS_TOKEN(cur, limit, token) ((char)(cur)[0] == (token)[0] && ((cur) + sizeof((token)) == (limit) || \
+	((cur) + sizeof((token)) < (limit) && IS_PS_DELIM((cur)[sizeof((token)) - 1])) ) && ft_strncmp((char *)(cur), (token), sizeof((token)) - 1) == 0)
 
 FT_END_HEADER
 

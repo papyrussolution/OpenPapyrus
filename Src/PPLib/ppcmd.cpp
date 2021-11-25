@@ -164,11 +164,11 @@ int PPCommandDescr::DoCommand(PPCommand * pCmd, void * extraPtr)
 			int    r = 1;
 			if(pCmd->Flags & PPCommandItem::fAllowEditFilt) {
 				temp_param = pCmd->Param;
-				r = p_h->EditParam(&temp_param, pCmd->ID, extraPtr);
+				r = p_h->EditParam(&temp_param, pCmd->GetID(), extraPtr);
 				p_param = &temp_param;
 			}
 			if(r > 0)
-				ok = p_h->Run(p_param, pCmd->ID, extraPtr);
+				ok = p_h->Run(p_param, pCmd->GetID(), extraPtr);
 		}
 		else
 			ok = 0;
@@ -260,13 +260,13 @@ int PPCommandItem::Enumerate(CmdItemIterFunc func, long parentID, void * extraPt
 
 PPCommandItem * PPCommandItem::Dup() const
 {
-	PPCommandItem * p_item = new PPCommandItem;
+	PPCommandItem * p_item = new PPCommandItem(PPCommandItem::kUndef);
 	p_item->Copy(*this);
 	return p_item;
 }
 
 struct _kf_block {
-	_kf_block(const PPCommandItem * pItem) : Kind(pItem ? pItem->Kind : 0), Flags(pItem ? (pItem->Flags & ~PPCommandItem::fBkgndImageLoaded) : 0)
+	_kf_block(const PPCommandItem * pItem) : Kind(pItem ? pItem->GetKind() : 0), Flags(pItem ? (pItem->Flags & ~PPCommandItem::fBkgndImageLoaded) : 0)
 	{
 	}
 	int16  Kind;
@@ -535,6 +535,10 @@ PPCommandFolder::PPCommandFolder() : PPCommandItem(kFolder)
 {
 }
 
+PPCommandFolder::PPCommandFolder(int kind) : PPCommandItem(kind) // protected ctr
+{
+}
+
 PPCommandFolder::PPCommandFolder(const PPCommandFolder & rS) : PPCommandItem(rS)
 {
 	Copy(rS);
@@ -549,7 +553,7 @@ PPCommandFolder & FASTCALL PPCommandFolder::operator = (const PPCommandFolder & 
 static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem)
-		static_cast<PPIDArray *>(extraPtr)->add(pItem->ID); // @v10.9.3 addUnique-->add
+		static_cast<PPIDArray *>(extraPtr)->add(pItem->GetID()); // @v10.9.3 addUnique-->add
 	return 1;
 }
 
@@ -619,23 +623,23 @@ int PPCommandFolder::Read_Depricated(SBuffer & rBuf, long extraParam)
 	for(i = 0; i < c; i++) {
 		PPCommandItem * ptr = 0;
 		size_t offs = rBuf.GetRdOffs();
-		PPCommandItem item;
+		PPCommandItem item(PPCommandItem::kUndef);
 		THROW(item.Read_Depricated(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
-		if(item.Kind == PPCommandItem::kCommand) {
+		if(item.IsKind(PPCommandItem::kCommand)) {
 			ptr = new PPCommand;
 			THROW(static_cast<PPCommand *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
-		else if(item.Kind == PPCommandItem::kFolder) {
+		else if(item.IsKind(PPCommandItem::kFolder)) {
 			ptr = new PPCommandFolder;
 			THROW(static_cast<PPCommandFolder *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
-		else if(item.Kind == PPCommandItem::kGroup) {
+		else if(item.IsKind(PPCommandItem::kGroup)) {
 			ptr = new PPCommandGroup;
 			THROW(static_cast<PPCommandGroup *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
-		else if(item.Kind == PPCommandItem::kSeparator) {
-			ptr = new PPCommandItem;
+		else if(item.IsKind(PPCommandItem::kSeparator)) {
+			ptr = new PPCommandItem(PPCommandItem::kUndef);
 			THROW(static_cast<PPCommandItem *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
 		if(ptr) { // @v11.0.4 @fix
@@ -694,14 +698,14 @@ int PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 		if(SXml::IsName(p_parent_node, "CommandFolder")) {
 			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "CommandItem")) {
-					p_command_item = new PPCommandItem;
+					p_command_item = new PPCommandItem(PPCommandItem::kUndef);
 					THROW(p_command_item->Read2(p_node, rwFlag));
-					if(p_command_item->Kind == PPCommandItem::kSeparator) {
+					if(p_command_item->IsKind(PPCommandItem::kSeparator)) {
 						THROW_SL(List.insert(p_command_item));						
 					}
 					else {
 						Kind = p_command_item->Kind;
-						ID = p_command_item->ID;
+						ID = p_command_item->GetID();
 						Flags = p_command_item->Flags;
 						Name = p_command_item->Name;
 						Icon = p_command_item->Icon;
@@ -749,7 +753,7 @@ int PPCommandFolder::IsEq(const void * pCommand) const  //@erik v10.6.1
 				for(uint i = 0; yes && i < c; i++) {
 					const PPCommandItem * p_comm_item = List.at(i);
 					if(p_comm_item) {
-						const PPCommandItem * p_other_comm_item = p_compare_folder->SearchByID(p_comm_item->ID, 0);
+						const PPCommandItem * p_other_comm_item = p_compare_folder->SearchByID(p_comm_item->GetID(), 0);
 						if(!p_other_comm_item || !p_comm_item->IsEq(p_other_comm_item))
 							yes = 0;
 					}
@@ -777,13 +781,13 @@ int PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 {
 	int    ok = 1;
 	const  uint c = GetCount();
-	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
+	const  PPCommandGroup * p_new_grp = pItem->IsKind(PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
 	THROW(pos < c);
 	for(uint i = 0; i < c; i++) {
 		if(i != pos) {
 			const PPCommandItem * p = List.at(i);
-			if(p && p->Kind == pItem->Kind) {
-				const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
+			if(p && p->IsKind(pItem->GetKind())) {
+				const PPCommandGroup * p_grp = p->IsKind(PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
 				if(p_new_grp && p_grp) {
 					THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || !p_new_grp->IsDbSymbEq(*p_grp), PPERR_DUPCMDNAME, pItem->Name);
 				}
@@ -808,11 +812,11 @@ int PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 	int    ok = 1;
 	THROW_INVARG(pItem);
 	const  uint c = GetCount();
-	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
+	const  PPCommandGroup * p_new_grp = pItem->IsKind(PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
 	for(uint i = 0; i < c; i++) {
 		const PPCommandItem * p = List.at(i);
-		if(p && p->Kind == pItem->Kind) {
-			const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
+		if(p && p->IsKind(pItem->GetKind())) {
+			const PPCommandGroup * p_grp = p->IsKind(PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
 			if(p_new_grp && p_grp) {
 				THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || !p_new_grp->IsDbSymbEq(*p_grp), PPERR_DUPCMDNAME, pItem->Name);
 			}
@@ -994,7 +998,7 @@ int PPCommandFolder::CommandGroupList::Add(long nativeId, const S_GUID & rUuid, 
 		ZDELETE(p_mgr);
 	}
 	for(uint i = 0; (p_item = p_grp->Next(&i)) != 0;) {
-		if(p_item->Kind == PPCommandItem::kGroup) {
+		if(p_item->IsKind(PPCommandItem::kGroup)) {
 			const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
 			if(kind == cmdgrpcDesktop) {
 				if(p_cg->IsDbSymbEq(db_symb)) {
@@ -1025,14 +1029,14 @@ int _GetIdParentList(const PPCommandItem * pItem, long parentID, void * extraPtr
 		int    only_folders = static_cast<_ParentList *>(extraPtr)->OnlyFolders;
 		StrAssocArray * p_list = static_cast<_ParentList *>(extraPtr)->P_List;
 		if(p_list) {
-			if(!only_folders || pItem->Kind == PPCommandItem::kFolder) {
-				SString cmd_buf = pItem->Name;
+			if(!only_folders || pItem->IsKind(PPCommandItem::kFolder)) {
+				SString cmd_buf(pItem->Name);
 				if(cmd_buf.C(0) == '@') {
 					SString temp_buf;
 					if(PPLoadString(cmd_buf.ShiftLeft(), temp_buf) > 0)
 						cmd_buf = temp_buf;
 				}
-				p_list->Add(pItem->ID, parentID, cmd_buf.Strip(), 0);
+				p_list->Add(pItem->GetID(), parentID, cmd_buf.Strip(), 0);
 			}
 			ok = 1;
 		}
@@ -1067,7 +1071,7 @@ const PPCommandItem * PPCommandFolder::SearchByName(const char * pName, const ch
 	while(pos < List.getCount()) {
 		const PPCommandItem * p_item = List.at(pos++);
 		if(p_item->Name.CmpNC(pName) == 0) {
-			if(!pDbSymb || (p_item->Kind == PPCommandItem::kGroup && static_cast<const PPCommandGroup *>(p_item)->IsDbSymbEq(pDbSymb))) {
+			if(!pDbSymb || (p_item->IsKind(PPCommandItem::kGroup) && static_cast<const PPCommandGroup *>(p_item)->IsDbSymbEq(pDbSymb))) {
 				ASSIGN_PTR(pPos, pos);
 				p_ret_item = p_item;
 				break;
@@ -1082,7 +1086,7 @@ const PPCommandItem * PPCommandFolder::SearchByUuid(const S_GUID & rUuid, uint *
 	const PPCommandItem * p_result = 0;
 	for(uint i = 0; !p_result && i < List.getCount(); i++) {
 		const PPCommandItem * p_item = List.at(i);
-		if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+		if(p_item && p_item->IsKind(PPCommandItem::kGroup)) {
 			if(static_cast<const PPCommandGroup *>(p_item)->Uuid == rUuid) {
 				p_result = p_item;
 				ASSIGN_PTR(pPos, i);
@@ -1117,7 +1121,7 @@ static int _SearchByID(const PPCommandItem * pItem, long parentID, void * extraP
 	int    ok = -1;
 	if(pItem) {
 		_Srch * p_s = static_cast<_Srch *>(extraPtr);
-		if(p_s->ID == pItem->ID) {
+		if(p_s->ID == pItem->GetID()) {
 			p_s->ParentID = parentID;
 			p_s->P_Item   = pItem;
 			ok = 1;
@@ -1148,7 +1152,7 @@ const PPCommandItem * PPCommandFolder::SearchByCoord(SPoint2S coord, const PPDes
 	const  int _isz  = rD.GetIconSize();
 	const PPCommandItem * p_item = 0;
 	for(uint i = 0; p_item = Next(&i);) {
-		if(p_item->Kind == PPCommandItem::kCommand) {
+		if(p_item->IsKind(PPCommandItem::kCommand)) {
 			SPoint2S lu = static_cast<const PPCommand *>(p_item)->P;
 			TRect sqr_coord(lu, lu + (_isz * 2));
 			if(sqr_coord.contains(coord)) {
@@ -1189,7 +1193,7 @@ const PPCommandItem * PPCommandFolder::SearchFirst(uint * pPos)
 	const  PPCommandItem * p_item = 0;
 	MEMSZERO(c);
 	for(uint i = 0; p_item = Next(&i);) {
-		if(p_item->Kind == PPCommandItem::kCommand) {
+		if(p_item->IsKind(PPCommandItem::kCommand)) {
 			const long x = static_cast<const PPCommand *>(p_item)->P.x;
 			const long y = static_cast<const PPCommand *>(p_item)->P.y;
 			if((c.y == 0 || y < c.y) || (c.x == 0 || y == c.y && x <= c.x)) {
@@ -1214,7 +1218,7 @@ const PPCommandItem * PPCommandFolder::SearchNextByCoord(POINT coord, const PPDe
 	c.x = coord.x + _isz;
 	c.y = coord.y + _isz;
 	for(uint i = 0; p_item = Next(&i);) {
-		if(p_item->Kind == PPCommandItem::kCommand) {
+		if(p_item->IsKind(PPCommandItem::kCommand)) {
 			long   x = static_cast<const PPCommand *>(p_item)->P.x;
 			long   y = static_cast<const PPCommand *>(p_item)->P.y;
 			if(next == nextUp && y < coord.y || next == nextDown && y > coord.y ||
@@ -1239,7 +1243,7 @@ int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPI
 	int    found = 0;
 	const PPCommandItem * p_item = 0;
 	for(uint i = 0; p_item = Next(&i);) {
-		if(p_item->Kind == PPCommandItem::kCommand) {
+		if(p_item->IsKind(PPCommandItem::kCommand)) {
 			TRect ir;
 			/*
 			RECT ri;
@@ -1251,7 +1255,7 @@ int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPI
 			rD.CalcIconRect(static_cast<const PPCommand *>(p_item)->P, ir);
 			//if(SIntersectRect(ir, rect)) {
 			if(rR.Intersect(ir, 0)) {
-				CALLPTRMEMB(pAry, add(p_item->ID));
+				CALLPTRMEMB(pAry, add(p_item->GetID()));
 				found = 1;
 			}
 		}
@@ -1280,7 +1284,7 @@ int PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pRect) c
 	int    ok = -1;
 	TRect  ir;
 	const  PPCommandItem * p_item = SearchByID(id, 0);
-	if(p_item && p_item->Kind == PPCommandItem::kCommand) {
+	if(p_item && p_item->IsKind(PPCommandItem::kCommand)) {
         rD.CalcIconRect(static_cast<const PPCommand *>(p_item)->P, ir);
 		ok = 1;
 	}
@@ -1290,15 +1294,13 @@ int PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pRect) c
 //
 //
 //
-PPCommandGroup::PPCommandGroup() : PPCommandFolder(), Type(cmdgrpcUndef)
+PPCommandGroup::PPCommandGroup() : PPCommandFolder(kGroup), Type(cmdgrpcUndef)
 {
-	Kind = kGroup;
 }
 
 PPCommandGroup::PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName) : 
-	PPCommandFolder(), Type(cmdgrpc), Uuid(SCtrGenerate_)
+	PPCommandFolder(kGroup), Type(cmdgrpc), Uuid(SCtrGenerate_)
 {
-	Kind = kGroup;
 	assert(oneof2(Type, cmdgrpcDesktop, cmdgrpcMenu));
 	if(isempty(pDbSymb)) {
 		if(Type == cmdgrpcDesktop && CurDict) {
@@ -1629,7 +1631,7 @@ int PPCommandGroup::StoreLogo()
 PPCommandGroup * PPCommandGroup::GetGroup(PPCommandGroupCategory kind, const S_GUID & rUuid)
 {
 	const PPCommandItem * p_item = SearchByUuid(rUuid, 0);
-	if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+	if(p_item && p_item->IsKind(PPCommandItem::kGroup)) {
 		const PPCommandGroup * p_grp = static_cast<const PPCommandGroup *>(p_item);
 		return (kind == cmdgrpcUndef || p_grp->Type == kind) ? const_cast<PPCommandGroup *>(p_grp) : 0; // @badcast
 	}
@@ -1773,7 +1775,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 				const PPCommandItem * p_item = pCmdGrp->List.at(i);
 				assert(p_item);
 				THROW(p_item);
-				if(p_item->Kind == PPCommandItem::kGroup) {
+				if(p_item->IsKind(PPCommandItem::kGroup)) {
 					//PPCommandGroup cg = *static_cast<const PPCommandGroup *>(p_item->Dup());
 					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
 					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
@@ -1786,7 +1788,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 					}
 				}
 				// @sobolev @v10.7.6 {
-				else if(p_item->Kind == PPCommandItem::kFolder) {
+				else if(p_item->IsKind(PPCommandItem::kFolder)) {
 					const PPCommandFolder * p_cf = static_cast<const PPCommandFolder *>(p_item);
 					// @v11.0.0 SXml::WDoc _doc(p_xml_writer, cpUTF8);
 					THROW(p_cf->Write2(p_xml_writer, rwFlag));
@@ -1842,13 +1844,13 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 								if(p_item) {
 									//assert(p_item);
 									//THROW(p_item);
-									if(p_item->Kind == PPCommandItem::kFolder) { // Если так, то это меню. Значит его нужно обернуть в CommandGroup, задать GuiD и Type
+									if(p_item->IsKind(PPCommandItem::kFolder)) { // Если так, то это меню. Значит его нужно обернуть в CommandGroup, задать GuiD и Type
 										PPCommandFolder * p_menu = static_cast<PPCommandFolder *>(p_item->Dup());
 										if(p_menu) {
 											p_tmp_cg = new PPCommandGroup();
 											p_tmp_cg->List = p_menu->List;
 											p_tmp_cg->Name = p_menu->Name;
-											p_tmp_cg->ID = p_menu->ID;
+											p_tmp_cg->ID = p_menu->GetID();
 											p_tmp_cg->Flags = p_menu->Flags;
 											p_tmp_cg->Icon = p_menu->Icon;
 											p_tmp_cg->GenerateGuid();
@@ -1979,9 +1981,9 @@ int PPCommandMngr::GetMaxEntryID(long * pMaxId)
 	if(Load__2(&group_list, 0, PPCommandMngr::fRWByXml) > 0) {
 		const PPCommandItem * p_item = 0;
 		for(uint i = 0; (p_item = group_list.Next(&i)) != 0;) {
-			if(p_item->Kind == PPCommandItem::kGroup) {
+			if(p_item->IsKind(PPCommandItem::kGroup)) {
 				const PPCommandGroup * p_group = static_cast<const PPCommandGroup *>(p_item);
-				SETMAX(max_id, p_group->ID);
+				SETMAX(max_id, p_group->GetID());
 				ok = 1;
 			}
 		}

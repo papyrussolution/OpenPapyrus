@@ -552,12 +552,10 @@ IMPL_HANDLE_EVENT(TDialog)
 					is_list_win = true;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
-				// @v10.8.1 {
-				if(HW) {
+				if(HW) { // @v10.8.1
 					TEvent event;
 					this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 				}
-				// } @v10.8.1 
 				MSG msg;
 				do {
 					GetMessage(&msg, 0, 0, 0);

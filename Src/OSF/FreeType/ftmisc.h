@@ -48,9 +48,9 @@
   typedef int            FT_Error;
 
 #define FT_MAKE_TAG( _x1, _x2, _x3, _x4 ) \
-          ( ( (FT_ULong)_x1 << 24 ) |     \
-            ( (FT_ULong)_x2 << 16 ) |     \
-            ( (FT_ULong)_x3 <<  8 ) |     \
+          (((FT_ULong)_x1 << 24 ) |     \
+            ((FT_ULong)_x2 << 16 ) |     \
+            ((FT_ULong)_x3 <<  8 ) |     \
               (FT_ULong)_x4         )
 
 
@@ -109,7 +109,7 @@
     if ( b < 0 ) { b = -b; s = -s; }
     if ( c < 0 ) { c = -c; s = -s; }
 
-    d = (FT_Long)( c > 0 ? ( (FT_Int64)a * b + ( c >> 1 ) ) / c
+    d = (FT_Long)( c > 0 ? ((FT_Int64)a * b + ( c >> 1 )) / c
                          : 0x7FFFFFFFL );
 
     return ( s > 0 ) ? d : -d;

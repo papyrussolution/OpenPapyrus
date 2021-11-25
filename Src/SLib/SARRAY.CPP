@@ -382,12 +382,26 @@ int SVectorBase::shuffle()
 	const uint cnt = getCount();
 	uint   c = cnt;
 	if(c) {
+		const uint _isz = isize;
 		SRandGenerator & r_rg = SLS.GetTLA().Rg;
-		do {
-			const uint p = r_rg.GetUniformInt(--c);
-			if(p < cnt && p != c)
-				memswap(at(p), at(c), isize);
-		} while(c);
+		if(VFlags & aryPtrContainer) {
+			do {
+				const uint p = r_rg.GetUniformInt(--c);
+				if(p < cnt && p != c) {
+					void * ptr1 = P_VData + p * _isz;
+					void * ptr2 = P_VData + c * _isz;
+					memswap(ptr1, ptr2, _isz);
+				}
+			} while(c);
+		}
+		else {
+			do {
+				const uint p = r_rg.GetUniformInt(--c);
+				if(p < cnt && p != c) {
+					memswap(at(p), at(c), _isz);
+				}
+			} while(c);
+		}
 	}
 	return ok;
 }
@@ -2933,12 +2947,20 @@ public:
 			CATCHZOK
 			return ok;			
 		}
+		uint   GetCount() const
+		{
+			uint _c = 0;
+			for(uint i = 0; i < getCount(); i++) {
+				_c += at(i).GetCount();
+			}
+			return _c;
+		}
 		int    Implement_Add(int32 key, uint strP)
 		{
 			StrAssocTreeEntry new_entry(key, strP);
 			return insert(&new_entry);
 		}
-		StrAssocTreeEntry * Implement_Search(int32 key, int32 currentParentId) const
+		StrAssocTreeEntry * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const
 		{
 			StrAssocTreeEntry * p_result = 0;
 			uint   idx = 0;
@@ -2946,12 +2968,13 @@ public:
 				StrAssocTreeEntry & r_entry = at(idx);
 				assert(r_entry.Key == key);
 				p_result = &r_entry;
+				ASSIGN_PTR(pResultParentId, currentParentId);
 			}
 			else {
 				for(uint i = 0; !p_result && i < getCount(); i++) {
 					StrAssocTreeEntry & r_entry = at(i);
 					if(r_entry.P_Children)
-						p_result = r_entry.P_Children->Implement_Search(key, r_entry.Key); // @recursion
+						p_result = r_entry.P_Children->Implement_Search(key, r_entry.Key, pResultParentId); // @recursion
 				}
 			}
 			return p_result;
@@ -2996,6 +3019,10 @@ public:
 		}
 		return ok;
 	}
+	uint   GetCount() const
+	{
+		return 1 + (P_Children ? P_Children->GetCount() : 0);
+	}
 };
 //
 // Descr: Древовидная коллекция ассоциаций {int32; string}.
@@ -3029,10 +3056,13 @@ public:
 		SStrGroup::ClearS();
 		return *this;
 	}
-	uint   GetCount() const;
+	uint   GetCount() const
+	{
+		return L.GetCount();
+	}
 	bool Search(long id, long * pParentId, SString * pBuf) const
 	{
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, pParentId);
 		if(p_entry) {
 			if(pBuf)
 				GetS(p_entry->StrP, *pBuf);
@@ -3043,12 +3073,13 @@ public:
 	}
 	bool Search(long id) const
 	{
-		return LOGIC(L.Implement_Search(id, 0));
+		return LOGIC(L.Implement_Search(id, 0, 0));
 	}
 	int    Add(long id, const char * pStr, int replaceDup)
 	{
 		int    ok = 1;
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
+		int32  srch_parent_id = 0;
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
 		if(p_entry) {
 			if(replaceDup) {
 				AddS(pStr, &p_entry->StrP);
@@ -3067,14 +3098,17 @@ public:
 	int    Add(long id, long parentId, const char * pStr, int replaceDup)
 	{
 		int    ok = 1;
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0);
-		StrAssocTreeEntry * p_parent_entry = L.Implement_Search(id, 0);
+		int32  srch_parent_id = 0;
+		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
+		StrAssocTreeEntry * p_parent_entry = L.Implement_Search(parentId, 0, 0);
 		if(p_entry) {
 		}
 		else {
 			if(p_parent_entry) {
 				uint strp = 0;
 				AddS(pStr, &strp);
+				if(p_parent_entry->P_Children == 0)
+					p_parent_entry->P_Children = new StrAssocTreeEntry::BaseList();
 				ok = p_parent_entry->P_Children->Implement_Add(id, strp);
 			}			
 		}
@@ -3086,10 +3120,10 @@ private:
 	StrAssocTreeEntry::BaseList L;
 };
 //
-// Descr: Функция тестирования стркуктуры StrAssocTree.
-//   Полагается на то, что структура StrAssocArray (которя тоже умеет хранить иерархию строк, но медленная) работает правильно.
+// Descr: Функция тестирования структуры StrAssocTree.
+//   Полагается на то, что структура StrAssocArray (которая тоже умеет хранить иерархию строк, но медленная) работает правильно.
 //
-#if 0 // @construction {
+#if 1 // @construction {
 int Test_StrAssocTree()
 {
 	class InnerBlock {
@@ -3103,13 +3137,19 @@ int Test_StrAssocTree()
 			SDirEntry de;
 			SString temp_buf;
 			SString norm_text;
-			for(SDirec dir(pDir, 1); dir.Next(&de);) {
-				if(de.IsFolder() || de.IsFile()) {
+			(temp_buf = pDir).SetLastSlash().Cat("*.*");
+			for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
+				if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 					(temp_buf = pDir).SetLastSlash().Cat(de.FileName);
-					SPathStruc::NormalizePath(temp_buf, 0, norm_text);
+					SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, norm_text);
 					LastId++;
 					THROW(Saa.Add(LastId, parentId, norm_text, 0));
-					THROW(Sat.Add(LastId, parentId, norm_text, 0))
+					if(parentId) {
+						THROW(Sat.Add(LastId, parentId, norm_text, 0))
+					}
+					else {
+						THROW(Sat.Add(LastId, norm_text, 0))
+					}
 					if(de.IsFolder()) {
 						THROW(Helper_GetFiles(temp_buf, LastId)); // @recursion
 					}
@@ -3127,11 +3167,23 @@ int Test_StrAssocTree()
 	SLS.QueryPath("testroot", root_path);
 	if(root_path.NotEmpty()) {
 		InnerBlock blk;
+		root_path.SetLastSlash().Cat("..")/*.SetLastSlash().Cat("..")*/;
 		if(blk.Helper_GetFiles(root_path, 0)) {
+			SString saa_buf;
+			SString sat_buf;
+			int32   saa_parent_id = 0;
+			int32   sat_parent_id = 0;
 			assert(blk.Saa.getCount() == blk.Sat.GetCount());
 			for(long i = 1; i < blk.LastId; i++) {
-				assert(blk.Saa.Search(i, 0));
-				assert(blk.Sat.Search(i));
+				uint   saa_pos;
+				int    saa_r = blk.Saa.Search(i, &saa_pos);
+				int    sat_r = blk.Sat.Search(i, &sat_parent_id, &sat_buf);
+				assert(saa_r && sat_r);
+				assert(saa_pos < blk.Saa.getCount());
+				StrAssocArray::Item saa_item = blk.Saa.Get(saa_pos);
+				saa_buf = saa_item.Txt;
+				assert(saa_item.ParentId == sat_parent_id);
+				assert(sat_buf == saa_buf);
 			}
 		}
 	}

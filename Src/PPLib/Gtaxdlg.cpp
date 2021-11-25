@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,7 @@ class GoodsTaxDialog : public TDialog {
 public:
 	GoodsTaxDialog(uint dlgID) : TDialog(dlgID)
 	{
-		SetupCalCtrl(CTLCAL_GDSTAX_PERIOD, this, CTL_GDSTAX_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_GDSTAX_PERIOD, CTL_GDSTAX_PERIOD);
 	}
 	int    setDTS(const PPGoodsTaxPacket *);
 	int    getDTS(PPGoodsTaxPacket *);

@@ -753,7 +753,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 		THROW(p_tool_win->LoadTools(file_name));
 	}
 	ShowWindow(p_frame_win->H(), SW_SHOWNORMAL);
-	p_frame_win->invalidateAll(1);
+	p_frame_win->invalidateAll(true);
 	UpdateWindow(p_frame_win->H());
 	CATCH
 		ZDELETE(p_frame_win);

@@ -657,7 +657,7 @@ cmsInt32Number CheckFormattersPlugin(void)
 
 static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number /*SizeOfTag*/)
 {
-	cmsUInt32Number* Ptr = (cmsUInt32Number*)_cmsMalloc(self->ContextID, sizeof(cmsUInt32Number));
+	cmsUInt32Number* Ptr = (cmsUInt32Number *)_cmsMalloc(self->ContextID, sizeof(cmsUInt32Number));
 	if(Ptr == NULL) return NULL;
 	if(!_cmsReadUInt32Number(io, Ptr)) return NULL;
 	*nItems = 1;
@@ -666,7 +666,7 @@ static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 
 static cmsBool Type_int_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number /*nItems*/)
 {
-	return _cmsWriteUInt32Number(io, *(cmsUInt32Number*)Ptr);
+	return _cmsWriteUInt32Number(io, *(cmsUInt32Number *)Ptr);
 }
 
 static void * Type_int_Dup(struct _cms_typehandler_struct* self, const void * Ptr, cmsUInt32Number n)
@@ -723,27 +723,24 @@ cmsInt32Number CheckTagTypePlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char *)SAlloc::M(clen);
+	data = static_cast<char *>(SAlloc::M(clen));
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
 	}
-
 	rc = cmsSaveProfileToMem(h, data, &clen);
 	if(!rc) {
 		Fail("Save to mem failed");
 		goto Error;
 	}
-
 	cmsCloseProfile(h);
-
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
 	if(h == NULL) {
 		Fail("Open profile failed");
 		goto Error;
 	}
-	ptr = (cmsUInt32Number*)cmsReadTag(h, SigInt);
+	ptr = (cmsUInt32Number *)cmsReadTag(h, SigInt);
 	if(ptr != NULL) {
 		Fail("read tag/context switching failed");
 		goto Error;
@@ -758,7 +755,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 	// Get rid of data
 	SAlloc::F(data);
 	data = NULL;
-	ptr = (cmsUInt32Number*)cmsReadTag(h, SigInt);
+	ptr = (cmsUInt32Number *)cmsReadTag(h, SigInt);
 	if(ptr == NULL) {
 		Fail("Read tag/conext switching failed (2)");
 		return 0;
@@ -868,7 +865,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Fetch mem size failed");
 		goto Error;
 	}
-	data = (char *)SAlloc::M(clen);
+	data = static_cast<char *>(SAlloc::M(clen));
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;

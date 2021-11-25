@@ -152,18 +152,18 @@ FT_BEGIN_HEADER
  /* */
 
 #define FTC_SCALER_COMPARE( a, b )                \
-    ( (a)->face_id      == (b)->face_id      &&   \
-      (a)->width        == (b)->width        &&   \
-      (a)->height       == (b)->height       &&   \
+    ((a)->face_id      == (b)->face_id &&   \
+      (a)->width        == (b)->width &&   \
+      (a)->height       == (b)->height &&   \
       ((a)->pixel != 0) == ((b)->pixel != 0) &&   \
-      ( (a)->pixel ||                             \
-        ( (a)->x_res == (b)->x_res &&             \
-          (a)->y_res == (b)->y_res ) ) )
+      ((a)->pixel || \
+        ((a)->x_res == (b)->x_res &&             \
+          (a)->y_res == (b)->y_res )) )
 
 #define FTC_SCALER_HASH( q )                                 \
-    ( FTC_FACE_ID_HASH( (q)->face_id ) +                     \
+    ( FTC_FACE_ID_HASH((q)->face_id ) +                     \
       (q)->width + (q)->height*7 +                           \
-      ( (q)->pixel ? 0 : ( (q)->x_res*33 ^ (q)->y_res*61 ) ) )
+      ((q)->pixel ? 0 : ((q)->x_res*33 ^ (q)->y_res*61 )) )
 
  /* */
 

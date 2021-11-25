@@ -2050,7 +2050,7 @@ int PPWhatmanWindow::Rearrange()
 		Tools.GetParam(param);
 		W.ArrangeObjects2(0, param.Ap, &ScrlB.ScrlrY);
 		ScrlB.SetUseScrlrY(true);
-		invalidateAll(1);
+		invalidateAll(true);
 		::UpdateWindow(H());
 		ok = 1;
 	}
@@ -2293,12 +2293,12 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 			}
 			else if(St.Rsz.Kind == ResizeState::kRectSelection) {
 				if(W.SetupMultSelBySelArea() > 0) {
-					invalidateAll(1);
+					invalidateAll(true);
 				}
 				else {
 					SRegion rgn;
 					rgn.AddFrame(W.GetSelArea(), 5, SCOMBINE_OR);
-					invalidateRegion(rgn, 1);
+					invalidateRegion(rgn, true);
 				}
 				W.SetSelArea(p, 0);
 				do_update_win = 1;
@@ -2432,7 +2432,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					rgn.AddFrame(W.GetSelArea(), 5, SCOMBINE_OR);
 					W.SetSelArea(p, 2);
 					rgn.AddFrame(W.GetSelArea(), 5, SCOMBINE_OR);
-					invalidateRegion(rgn, 1);
+					invalidateRegion(rgn, true);
 					do_update_win = 1;
 				}
 			}
@@ -2588,7 +2588,7 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 					break;
 			}
 			if(do_redraw) {
-				invalidateAll(0);
+				invalidateAll(false);
 				::UpdateWindow(H());
 			}
 		}
@@ -2616,7 +2616,7 @@ int PPWhatmanWindow::EditObject(int objIdx)
 {
 	int   ok = -1;
 	if(W.EditObject(objIdx) > 0) {
-		invalidateAll(0);
+		invalidateAll(false);
 		::UpdateWindow(H());
 		ok = 1;
 	}
@@ -2648,14 +2648,14 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			case kbDel:
 				if(W.GetCurrentObject(&cur_obj_idx)) {
 					if(W.RemoveObject(cur_obj_idx) > 0) {
-						invalidateAll(0);
+						invalidateAll(false);
 						::UpdateWindow(H());
 					}
 				}
 				break;
 			case kbCtrlX:
 				if(Test_LoadDl600View()) {
-					invalidateAll(0);
+					invalidateAll(false);
 					::UpdateWindow(H());
 				}
 				break;
@@ -2701,10 +2701,10 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				}
 			}
 			else if(p_pe->PaintType == PaintEvent::tEraseBackground) {
-				/*
+				///*
 				TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
 				canv.Rect(p_pe->Rect, 0, brBackg);
-				*/
+				//*/
 			}
 			else
 				return;
@@ -2716,13 +2716,13 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				TWhatmanToolArray::Param param;
 				Tools.GetParam(param);
 				W.ArrangeObjects2(0, param.Ap, &ScrlB.ScrlrY);
-				invalidateAll(1);
+				invalidateAll(true);
 			}
 			else {
 				if(p_se->NewSize.x > p_se->PrevSize.x)
-					invalidateRect(b.set(p_se->PrevSize.x, 0, ViewSize.x, ViewSize.y), 1);
+					invalidateRect(b.set(p_se->PrevSize.x, 0, ViewSize.x, ViewSize.y), true);
 				if(p_se->NewSize.y > p_se->PrevSize.y)
-					invalidateRect(b.set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), 1);
+					invalidateRect(b.set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), true);
 			}
 			{
 				{
@@ -2764,7 +2764,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						TWhatmanObject * p_obj = W.GetObjectByIndex(obj_idx);
 						if(!p_obj || !p_obj->HasState(TWhatmanObject::stSelected)) {
 							if(W.RmvMultSelObject(-1) > 0) {
-								invalidateAll(1);
+								invalidateAll(true);
 								::UpdateWindow(H());
 							}
 						}
@@ -2785,7 +2785,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					}
 					else {
 						if(W.RmvMultSelObject(-1) > 0) {
-							invalidateAll(1);
+							invalidateAll(true);
 							::UpdateWindow(H());
 						}
 						if(W.GetCurrentObject(&prev_idx)) {
@@ -2877,7 +2877,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 							SPoint2S sp;
 							W.SetScrollPos(sp.Set(ScrlB.GetX(), ScrlB.GetY()));
 							ScrlB.SetupWindow(H());
-							invalidateAll(0);
+							invalidateAll(false);
 							::UpdateWindow(H());
 						}
 					}
@@ -2951,7 +2951,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					SPoint2S sp;
 					W.SetScrollPos(sp.Set(ScrlB.GetX(), ScrlB.GetY()));
 					ScrlB.SetupWindow(H());
-					invalidateAll(0);
+					invalidateAll(false);
 					::UpdateWindow(H());
 				}
 			}
@@ -3145,7 +3145,7 @@ int PPWhatmanWindow::FileOpen()
 		if(PPOpenFile(PPTXT_FILPAT_WTM, path, 0, 0) > 0) {
 			W.Clear();
 			if(W.Load(path)) {
-				invalidateAll(1);
+				invalidateAll(true);
 				::UpdateWindow(H());
 			}
 			else {
@@ -3547,7 +3547,7 @@ int TWhatmanBrowser::WMHCreate()
 		p_frame_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
 		THROW(PPWhatmanWindow::Helper_MakeFrameWindow(p_frame_win, pWtmFileName, pWtaFileName));
 		::ShowWindow(p_frame_win->H(), SW_SHOWNORMAL);
-		p_frame_win->invalidateAll(1);
+		p_frame_win->invalidateAll(true);
 		::UpdateWindow(p_frame_win->H());
 	}
 	CATCH

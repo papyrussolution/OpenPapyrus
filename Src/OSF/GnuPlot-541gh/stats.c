@@ -401,7 +401,7 @@ void GnuPlot::TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats
 void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 {
 	int len = strlen(pPrefix) + strlen(pBase) + 2;
-	char * varname = (char *)SAlloc::M(len);
+	char * varname = static_cast<char *>(SAlloc::M(len));
 	sprintf(varname, "%s_%s", pPrefix, pBase);
 	DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
@@ -478,7 +478,7 @@ void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, con
 	SETIFZ(pPrefix, "");
 	SETIFZ(pSuffix, "");
 	int len = strlen(pPrefix) + strlen(pBase) + strlen(pSuffix) + 1;
-	char * varname = (char *)SAlloc::M(len);
+	char * varname = static_cast<char *>(SAlloc::M(len));
 	sprintf(varname, "%s%s%s", pPrefix, pBase, pSuffix);
 	// Note that add_udv_by_name() checks if the name already exists, and
 	// returns the existing ptr if found. It also allocates memory for

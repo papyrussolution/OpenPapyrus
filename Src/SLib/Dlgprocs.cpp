@@ -113,6 +113,12 @@ void TDialog::RemoveUnusedControls()
 		case WM_INITDIALOG:
 			if(lParam) {
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
+				// @v11.2.4 {
+				{
+					long   exstyle = TView::GetWindowExStyle(hwndDlg);
+					TView::SetWindowProp(hwndDlg, GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
+				}
+				// } @v11.2.4 
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				const bool export_mode = LOGIC(p_dlg->CheckFlag(TDialog::fExport));
@@ -449,7 +455,7 @@ void TDialog::RemoveUnusedControls()
 		case WM_PAINT:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(TView::messageCommand(p_dlg, cmPaint))
-				return (BOOL)0;
+				return FALSE;
 		default:
 			return FALSE;
 	}

@@ -57,30 +57,18 @@ typedef struct  FTC_CMapNodeRec_ {
 /* if (indices[n] == FTC_CMAP_UNKNOWN), we assume that the corresponding */
 /* glyph indices haven't been queried through FT_Get_Glyph_Index() yet   */
 #define FTC_CMAP_UNKNOWN  (FT_UInt16) ~0
-
 // 
+// CHARMAP NODES
 // 
-/*****                                                               *****/
-/*****                        CHARMAP NODES                          *****/
-/*****                                                               *****/
-// 
-// 
-
-FT_CALLBACK_DEF(void)
-ftc_cmap_node_free(FTC_Node ftcnode,
-    FTC_Cache cache)
+FT_CALLBACK_DEF(void) ftc_cmap_node_free(FTC_Node ftcnode, FTC_Cache cache)
 {
 	FTC_CMapNode node   = (FTC_CMapNode)ftcnode;
 	FT_Memory memory = cache->memory;
-
 	FT_FREE(node);
 }
 
 /* initialize a new cmap node */
-FT_CALLBACK_DEF(FT_Error)
-ftc_cmap_node_new(FTC_Node   *ftcanode,
-    FT_Pointer ftcquery,
-    FTC_Cache cache)
+FT_CALLBACK_DEF(FT_Error) ftc_cmap_node_new(FTC_Node   *ftcanode, FT_Pointer ftcquery, FTC_Cache cache)
 {
 	FTC_CMapNode  * anode  = (FTC_CMapNode*)ftcanode;
 	FTC_CMapQuery query  = (FTC_CMapQuery)ftcquery;
@@ -104,51 +92,33 @@ ftc_cmap_node_new(FTC_Node   *ftcanode,
 }
 
 /* compute the weight of a given cmap node */
-FT_CALLBACK_DEF(FT_Offset)
-ftc_cmap_node_weight(FTC_Node cnode,
-    FTC_Cache cache)
+FT_CALLBACK_DEF(FT_Offset) ftc_cmap_node_weight(FTC_Node cnode, FTC_Cache cache)
 {
 	FT_UNUSED(cnode);
 	FT_UNUSED(cache);
-
 	return sizeof( *cnode );
 }
 
 /* compare a cmap node to a given query */
-FT_CALLBACK_DEF(FT_Bool)
-ftc_cmap_node_compare(FTC_Node ftcnode,
-    FT_Pointer ftcquery,
-    FTC_Cache cache,
-    FT_Bool*    list_changed)
+FT_CALLBACK_DEF(FT_Bool) ftc_cmap_node_compare(FTC_Node ftcnode, FT_Pointer ftcquery, FTC_Cache cache, FT_Bool*    list_changed)
 {
 	FTC_CMapNode node  = (FTC_CMapNode)ftcnode;
 	FTC_CMapQuery query = (FTC_CMapQuery)ftcquery;
 	FT_UNUSED(cache);
-
-	if(list_changed)
-		*list_changed = FALSE;
-	if(node->face_id    == query->face_id    &&
-	    node->cmap_index == query->cmap_index) {
+	ASSIGN_PTR(list_changed, FALSE);
+	if(node->face_id    == query->face_id    && node->cmap_index == query->cmap_index) {
 		FT_UInt32 offset = (FT_UInt32)( query->char_code - node->first );
-
 		return FT_BOOL(offset < FTC_CMAP_INDICES_MAX);
 	}
-
 	return 0;
 }
 
-FT_CALLBACK_DEF(FT_Bool)
-ftc_cmap_node_remove_faceid(FTC_Node ftcnode,
-    FT_Pointer ftcface_id,
-    FTC_Cache cache,
-    FT_Bool*    list_changed)
+FT_CALLBACK_DEF(FT_Bool) ftc_cmap_node_remove_faceid(FTC_Node ftcnode, FT_Pointer ftcface_id, FTC_Cache cache, FT_Bool*    list_changed)
 {
 	FTC_CMapNode node    = (FTC_CMapNode)ftcnode;
 	FTC_FaceID face_id = (FTC_FaceID)ftcface_id;
 	FT_UNUSED(cache);
-
-	if(list_changed)
-		*list_changed = FALSE;
+	ASSIGN_PTR(list_changed, FALSE);
 	return FT_BOOL(node->face_id == face_id);
 }
 
@@ -159,16 +129,12 @@ ftc_cmap_node_remove_faceid(FTC_Node ftcnode,
 /*****                                                               *****/
 // 
 // 
-
-static
-const FTC_CacheClassRec ftc_cmap_cache_class =
-{
+static const FTC_CacheClassRec ftc_cmap_cache_class = {
 	ftc_cmap_node_new,       /* FTC_Node_NewFunc      node_new     */
 	ftc_cmap_node_weight,    /* FTC_Node_WeightFunc   node_weight  */
 	ftc_cmap_node_compare,   /* FTC_Node_CompareFunc  node_compare */
 	ftc_cmap_node_remove_faceid, /* FTC_Node_CompareFunc  node_remove_faceid */
 	ftc_cmap_node_free,      /* FTC_Node_FreeFunc     node_free    */
-
 	sizeof( FTC_CacheRec ),
 	ftc_cache_init,          /* FTC_Cache_InitFunc    cache_init   */
 	ftc_cache_done,          /* FTC_Cache_DoneFunc    cache_done   */
@@ -176,22 +142,14 @@ const FTC_CacheClassRec ftc_cmap_cache_class =
 
 /* documentation is in ftcache.h */
 
-FT_EXPORT_DEF(FT_Error)
-FTC_CMapCache_New(FTC_Manager manager,
-    FTC_CMapCache  *acache)
+FT_EXPORT_DEF(FT_Error) FTC_CMapCache_New(FTC_Manager manager, FTC_CMapCache  *acache)
 {
-	return FTC_Manager_RegisterCache(manager,
-		   &ftc_cmap_cache_class,
-		   FTC_CACHE_P(acache) );
+	return FTC_Manager_RegisterCache(manager, &ftc_cmap_cache_class, FTC_CACHE_P(acache) );
 }
 
 /* documentation is in ftcache.h */
 
-FT_EXPORT_DEF(FT_UInt)
-FTC_CMapCache_Lookup(FTC_CMapCache cmap_cache,
-    FTC_FaceID face_id,
-    FT_Int cmap_index,
-    FT_UInt32 char_code)
+FT_EXPORT_DEF(FT_UInt) FTC_CMapCache_Lookup(FTC_CMapCache cmap_cache, FTC_FaceID face_id, FT_Int cmap_index, FT_UInt32 char_code)
 {
 	FTC_Cache cache = FTC_CACHE(cmap_cache);
 	FTC_CMapQueryRec query;
@@ -200,31 +158,24 @@ FTC_CMapCache_Lookup(FTC_CMapCache cmap_cache,
 	FT_UInt gindex = 0;
 	FT_Offset hash;
 	FT_Int no_cmap_change = 0;
-
 	if(cmap_index < 0) {
 		/* Treat a negative cmap index as a special value, meaning that you */
 		/* don't want to change the FT_Face's character map through this    */
 		/* call.  This can be useful if the face requester callback already */
 		/* sets the face's charmap to the appropriate value.   */
-
 		no_cmap_change = 1;
 		cmap_index     = 0;
 	}
-
 	if(!cache) {
 		FT_TRACE0(( "FTC_CMapCache_Lookup: bad arguments, returning 0\n" ));
 		return 0;
 	}
-
 	query.face_id    = face_id;
 	query.cmap_index = (FT_UInt)cmap_index;
 	query.char_code  = char_code;
-
 	hash = FTC_CMAP_HASH(face_id, (FT_UInt)cmap_index, char_code);
-
 #if 1
-	FTC_CACHE_LOOKUP_CMP(cache, ftc_cmap_node_compare, hash, &query,
-	    node, error);
+	FTC_CACHE_LOOKUP_CMP(cache, ftc_cmap_node_compare, hash, &query, node, error);
 #else
 	error = FTC_Cache_Lookup(cache, hash, &query, &node);
 #endif

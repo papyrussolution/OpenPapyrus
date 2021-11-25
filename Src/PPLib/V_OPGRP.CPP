@@ -557,10 +557,6 @@ int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGrouping
 //
 //
 //
-//#define GRP_GOODSFILT 1
-//#define GRP_CYCLE     2
-//#define GRP_LOC       3
-
 class OpGroupingFiltDialog : public WLDialog {
 	DECL_DIALOG_DATA(OpGroupingFilt);
 	enum {
@@ -573,7 +569,7 @@ public:
 	{
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
 		addGroup(ctlgroupCycle, new CycleCtrlGroup(CTLSEL_GTO_CYCLE, CTL_GTO_NUMCYCLES, CTL_GTO_PERIOD));
-		SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 	}
 	DECL_DIALOG_SETDTS()
@@ -657,7 +653,7 @@ int OpGroupingFiltDialog::EditAdvOptions()
 	int    valid_data = 0, ok = -1;
 	TDialog * p_dlg = new TDialog(DLG_OPGRPNGFLTA);
 	THROW(CheckDialogPtr(&p_dlg));
-	SetupCalCtrl(CTLCAL_OPGRPNGFLTA_PRD, p_dlg, CTL_OPGRPNGFLTA_PRD, 1);
+	p_dlg->SetupCalPeriod(CTLCAL_OPGRPNGFLTA_PRD, CTL_OPGRPNGFLTA_PRD);
 	SetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, &Data.ShipmentPeriod);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(GetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, &Data.ShipmentPeriod) <= 0)

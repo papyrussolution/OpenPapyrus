@@ -66,7 +66,7 @@ void GnuPlot::ExtendInputLine()
 {
 	if(Pgm.InputLineLen == 0) {
 		// first time 
-		Pgm.P_InputLine = (char *)SAlloc::M(MAX_LINE_LEN);
+		Pgm.P_InputLine = static_cast<char *>(SAlloc::M(MAX_LINE_LEN));
 		Pgm.InputLineLen = MAX_LINE_LEN;
 		Pgm.P_InputLine[0] = '\0';
 	}
@@ -1707,7 +1707,7 @@ void GnuPlot::PrintCommand()
 	size_t len = 0;
 	SETIFZ(Pgm.print_out, stderr);
 	if(Pgm.print_out_var) { // print to datablock 
-		dataline = (char *)SAlloc::M(size);
+		dataline = static_cast<char *>(SAlloc::M(size));
 		*dataline = '\0';
 	}
 	GpU.screen_ok = FALSE;
@@ -2414,8 +2414,8 @@ void GnuPlot::HelpCommand()
 	// huge static variables (1k each). Instead we dynamically allocate them 
 	// on the first call to this function...                                 
 	if(helpbuf == NULL) {
-		helpbuf = (char *)SAlloc::M(MAX_LINE_LEN);
-		prompt = (char *)SAlloc::M(MAX_LINE_LEN);
+		helpbuf = static_cast<char *>(SAlloc::M(MAX_LINE_LEN));
+		prompt = static_cast<char *>(SAlloc::M(MAX_LINE_LEN));
 		helpbuf[0] = prompt[0] = 0;
 	}
 	if(toplevel)
@@ -2883,7 +2883,7 @@ int GnuPlot::DoSystemFunc(const char * cmd, char ** output)
 	// get output 
 	result_pos = 0;
 	result_allocated = MAX_LINE_LEN;
-	result = (char *)SAlloc::M(MAX_LINE_LEN);
+	result = static_cast<char *>(SAlloc::M(MAX_LINE_LEN));
 	result[0] = '\0';
 	while(1) {
 		if((c = getc(f)) == EOF)

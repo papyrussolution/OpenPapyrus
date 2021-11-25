@@ -44,7 +44,7 @@ typedef enum  AF_Direction_ {
 	AF_DIR_NONE  =  4,
 	AF_DIR_RIGHT =  1,
 	AF_DIR_LEFT  = -1,
-	AF_DIR_UP    =  2,
+	AF_DIR_UP =  2,
 	AF_DIR_DOWN  = -2
 } AF_Direction;
 
@@ -344,18 +344,18 @@ typedef struct  AF_GlyphHintsRec_ {
 	} embedded;
 } AF_GlyphHintsRec;
 
-#define AF_HINTS_TEST_SCALER(h, f)  ( (h)->scaler_flags & (f) )
-#define AF_HINTS_TEST_OTHER(h, f)   ( (h)->other_flags  & (f) )
+#define AF_HINTS_TEST_SCALER(h, f)  ((h)->scaler_flags & (f))
+#define AF_HINTS_TEST_OTHER(h, f)   ((h)->other_flags  & (f))
 
 #ifdef FT_DEBUG_AUTOFIT
 
 #define AF_HINTS_DO_HORIZONTAL(h)                                     \
-	( !_af_debug_disable_horz_hints                            && \
-	!AF_HINTS_TEST_SCALER(h, AF_SCALER_FLAG_NO_HORIZONTAL) )
+	( !_af_debug_disable_horz_hints && \
+	!AF_HINTS_TEST_SCALER(h, AF_SCALER_FLAG_NO_HORIZONTAL))
 
 #define AF_HINTS_DO_VERTICAL(h)                                     \
-	( !_af_debug_disable_vert_hints                          && \
-	!AF_HINTS_TEST_SCALER(h, AF_SCALER_FLAG_NO_VERTICAL) )
+	( !_af_debug_disable_vert_hints && \
+	!AF_HINTS_TEST_SCALER(h, AF_SCALER_FLAG_NO_VERTICAL))
 
 #define AF_HINTS_DO_BLUES(h)  ( !_af_debug_disable_blue_hints )
 
@@ -435,9 +435,9 @@ af_glyph_hints_done(AF_GlyphHints hints);
 
 /* */
 
-#define AF_SEGMENT_LEN(seg)          ( (seg)->max_coord - (seg)->min_coord )
+#define AF_SEGMENT_LEN(seg)          ((seg)->max_coord - (seg)->min_coord )
 
-#define AF_SEGMENT_DIST(seg1, seg2)  ( ( (seg1)->pos > (seg2)->pos )   \
+#define AF_SEGMENT_DIST(seg1, seg2)  (((seg1)->pos > (seg2)->pos )   \
 	? (seg1)->pos - (seg2)->pos   \
 	: (seg2)->pos - (seg1)->pos )
 

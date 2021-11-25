@@ -44,14 +44,14 @@
 /* documentation is in ftsnames.h */
 FT_EXPORT_DEF(FT_UInt) FT_Get_Sfnt_Name_Count(FT_Face face)
 {
-	return ( face && FT_IS_SFNT(face) ) ? ((TT_Face)face)->num_names : 0;
+	return ( face && FT_IS_SFNT(face)) ? ((TT_Face)face)->num_names : 0;
 }
 
 /* documentation is in ftsnames.h */
 FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_Name(FT_Face face, FT_UInt idx, FT_SfntName  *aname)
 {
 	FT_Error error = FT_ERR(Invalid_Argument);
-	if(aname && face && FT_IS_SFNT(face) ) {
+	if(aname && face && FT_IS_SFNT(face)) {
 		TT_Face ttface = (TT_Face)face;
 		if(idx < (FT_UInt)ttface->num_names) {
 			TT_Name entry = ttface->name_table.names + idx;
@@ -59,9 +59,7 @@ FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_Name(FT_Face face, FT_UInt idx, FT_SfntName 
 			if(entry->stringLength > 0 && !entry->string) {
 				FT_Memory memory = face->memory;
 				FT_Stream stream = face->stream;
-				if(FT_NEW_ARRAY(entry->string, entry->stringLength) ||
-				    FT_STREAM_SEEK(entry->stringOffset)                ||
-				    FT_STREAM_READ(entry->string, entry->stringLength) ) {
+				if(FT_NEW_ARRAY(entry->string, entry->stringLength) || FT_STREAM_SEEK(entry->stringOffset) || FT_STREAM_READ(entry->string, entry->stringLength)) {
 					FT_FREE(entry->string);
 					entry->stringLength = 0;
 				}
@@ -69,8 +67,8 @@ FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_Name(FT_Face face, FT_UInt idx, FT_SfntName 
 			aname->platform_id = entry->platformID;
 			aname->encoding_id = entry->encodingID;
 			aname->language_id = entry->languageID;
-			aname->name_id     = entry->nameID;
-			aname->string      = (FT_Byte*)entry->string;
+			aname->name_id  = entry->nameID;
+			aname->string = (FT_Byte*)entry->string;
 			aname->string_len  = entry->stringLength;
 			error = FT_Err_Ok;
 		}
@@ -82,7 +80,7 @@ FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_Name(FT_Face face, FT_UInt idx, FT_SfntName 
 FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_LangTag(FT_Face face, FT_UInt langID, FT_SfntLangTag  *alangTag)
 {
 	FT_Error error = FT_ERR(Invalid_Argument);
-	if(alangTag && face && FT_IS_SFNT(face) ) {
+	if(alangTag && face && FT_IS_SFNT(face)) {
 		TT_Face ttface = (TT_Face)face;
 		if(ttface->name_table.format != 1)
 			return FT_THROW(Invalid_Table);
@@ -92,14 +90,12 @@ FT_EXPORT_DEF(FT_Error) FT_Get_Sfnt_LangTag(FT_Face face, FT_UInt langID, FT_Sfn
 			if(entry->stringLength > 0 && !entry->string) {
 				FT_Memory memory = face->memory;
 				FT_Stream stream = face->stream;
-				if(FT_NEW_ARRAY(entry->string, entry->stringLength) ||
-				    FT_STREAM_SEEK(entry->stringOffset)                ||
-				    FT_STREAM_READ(entry->string, entry->stringLength) ) {
+				if(FT_NEW_ARRAY(entry->string, entry->stringLength) || FT_STREAM_SEEK(entry->stringOffset) || FT_STREAM_READ(entry->string, entry->stringLength)) {
 					FT_FREE(entry->string);
 					entry->stringLength = 0;
 				}
 			}
-			alangTag->string     = (FT_Byte*)entry->string;
+			alangTag->string  = (FT_Byte*)entry->string;
 			alangTag->string_len = entry->stringLength;
 			error = FT_Err_Ok;
 		}
@@ -171,7 +167,7 @@ static const FT_Angle ft_trig_arctan_table[] = {
 		}
 		/* 0x40000000 comes from regression analysis between true */
 		/* and CORDIC hypotenuse, so it minimizes the error */
-		val = (FT_Fixed)(( (FT_UInt64)val * FT_TRIG_SCALE + 0x40000000UL ) >> 32 );
+		val = (FT_Fixed)(((FT_UInt64)val * FT_TRIG_SCALE + 0x40000000UL ) >> 32 );
 		return s < 0 ? -val : val;
 	}
 #else /* !FT_LONG64 */
@@ -218,11 +214,11 @@ static FT_Int ft_trig_prenorm(FT_Vector*  vec)
 {
 	FT_Pos x = vec->x;
 	FT_Pos y = vec->y;
-	FT_Int shift = FT_MSB( (FT_UInt32)( FT_ABS(x) | FT_ABS(y) ));
+	FT_Int shift = FT_MSB((FT_UInt32)( FT_ABS(x) | FT_ABS(y)));
 	if(shift <= FT_TRIG_SAFE_MSB) {
 		shift  = FT_TRIG_SAFE_MSB - shift;
-		vec->x = (FT_Pos)( (FT_ULong)x << shift );
-		vec->y = (FT_Pos)( (FT_ULong)y << shift );
+		vec->x = (FT_Pos)((FT_ULong)x << shift );
+		vec->y = (FT_Pos)((FT_ULong)y << shift );
 	}
 	else {
 		shift -= FT_TRIG_SAFE_MSB;
@@ -243,14 +239,14 @@ static void ft_trig_pseudo_rotate(FT_Vector*  vec, FT_Angle theta)
 	/* Rotate inside [-PI/4,PI/4] sector */
 	while(theta < -FT_ANGLE_PI4) {
 		xtemp  =  y;
-		y      = -x;
-		x      =  xtemp;
+		y = -x;
+		x =  xtemp;
 		theta +=  FT_ANGLE_PI2;
 	}
 	while(theta > FT_ANGLE_PI4) {
 		xtemp  = -y;
-		y      =  x;
-		x      =  xtemp;
+		y =  x;
+		x =  xtemp;
 		theta -=  FT_ANGLE_PI2;
 	}
 	arctanptr = ft_trig_arctan_table;
@@ -258,14 +254,14 @@ static void ft_trig_pseudo_rotate(FT_Vector*  vec, FT_Angle theta)
 	for(i = 1, b = 1; i < FT_TRIG_MAX_ITERS; b <<= 1, i++) {
 		if(theta < 0) {
 			xtemp  = x + ((y + b ) >> i );
-			y      = y - ((x + b ) >> i );
-			x      = xtemp;
+			y = y - ((x + b ) >> i );
+			x = xtemp;
 			theta += *arctanptr++;
 		}
 		else {
 			xtemp  = x - ((y + b ) >> i );
-			y      = y + ((x + b ) >> i );
-			x      = xtemp;
+			y = y + ((x + b ) >> i );
+			x = xtemp;
 			theta -= *arctanptr++;
 		}
 	}
@@ -286,21 +282,21 @@ static void ft_trig_pseudo_polarize(FT_Vector*  vec)
 		if(y > -x) {
 			theta =  FT_ANGLE_PI2;
 			xtemp =  y;
-			y     = -x;
-			x     =  xtemp;
+			y  = -x;
+			x  =  xtemp;
 		}
 		else {
 			theta =  y > 0 ? FT_ANGLE_PI : -FT_ANGLE_PI;
-			x     = -x;
-			y     = -y;
+			x  = -x;
+			y  = -y;
 		}
 	}
 	else {
 		if(y < -x) {
 			theta = -FT_ANGLE_PI2;
 			xtemp = -y;
-			y     =  x;
-			x     =  xtemp;
+			y  =  x;
+			x  =  xtemp;
 		}
 		else {
 			theta = 0;
@@ -311,14 +307,14 @@ static void ft_trig_pseudo_polarize(FT_Vector*  vec)
 	for(i = 1, b = 1; i < FT_TRIG_MAX_ITERS; b <<= 1, i++) {
 		if(y > 0) {
 			xtemp  = x + ((y + b ) >> i );
-			y      = y - ((x + b ) >> i );
-			x      = xtemp;
+			y = y - ((x + b ) >> i );
+			x = xtemp;
 			theta += *arctanptr++;
 		}
 		else {
 			xtemp  = x - ((y + b ) >> i );
-			y      = y + ((x + b ) >> i );
-			x      = xtemp;
+			y = y + ((x + b ) >> i );
+			x = xtemp;
 			theta -= *arctanptr++;
 		}
 	}
@@ -397,13 +393,13 @@ FT_EXPORT_DEF(void) FT_Vector_Rotate(FT_Vector*  vec, FT_Angle angle)
 	v.y = ft_trig_downscale(v.y);
 	if(shift > 0) {
 		FT_Int32 half = (FT_Int32)1L << ( shift - 1 );
-		vec->x = ( v.x + half - ( v.x < 0) ) >> shift;
-		vec->y = ( v.y + half - ( v.y < 0) ) >> shift;
+		vec->x = ( v.x + half - ( v.x < 0)) >> shift;
+		vec->y = ( v.y + half - ( v.y < 0)) >> shift;
 	}
 	else {
 		shift  = -shift;
-		vec->x = (FT_Pos)( (FT_ULong)v.x << shift );
-		vec->y = (FT_Pos)( (FT_ULong)v.y << shift );
+		vec->x = (FT_Pos)((FT_ULong)v.x << shift );
+		vec->y = (FT_Pos)((FT_ULong)v.y << shift );
 	}
 }
 
@@ -427,8 +423,8 @@ FT_EXPORT_DEF(FT_Fixed) FT_Vector_Length(FT_Vector*  vec)
 	ft_trig_pseudo_polarize(&v);
 	v.x = ft_trig_downscale(v.x);
 	if(shift > 0)
-		return ( v.x + ( 1L << ( shift - 1 ) ) ) >> shift;
-	return (FT_Fixed)( (FT_UInt32)v.x << -shift );
+		return ( v.x + ( 1L << ( shift - 1 )) ) >> shift;
+	return (FT_Fixed)((FT_UInt32)v.x << -shift );
 }
 
 /* documentation is in fttrigon.h */
@@ -444,7 +440,7 @@ FT_EXPORT_DEF(void) FT_Vector_Polarize(FT_Vector*  vec, FT_Fixed   *length, FT_A
 	shift = ft_trig_prenorm(&v);
 	ft_trig_pseudo_polarize(&v);
 	v.x = ft_trig_downscale(v.x);
-	*length = shift >= 0 ? ( v.x >>  shift ) : (FT_Fixed)( (FT_UInt32)v.x << -shift );
+	*length = shift >= 0 ? ( v.x >>  shift ) : (FT_Fixed)((FT_UInt32)v.x << -shift );
 	*angle  = v.y;
 }
 
@@ -518,7 +514,7 @@ FT_BASE_DEF(FT_Pointer) ft_mem_realloc(FT_Memory memory, FT_Long item_size, FT_L
 	FT_Error error = FT_Err_Ok;
 	block = ft_mem_qrealloc(memory, item_size, cur_count, new_count, block, &error);
 	if(!error && block && new_count > cur_count)
-		memzero( (char *)block + cur_count * item_size, ( new_count - cur_count ) * item_size);
+		memzero((char *)block + cur_count * item_size, ( new_count - cur_count ) * item_size);
 	*p_error = error;
 	return block;
 }
@@ -673,10 +669,10 @@ FT_EXPORT_DEF(void) FT_List_Up(FT_List list, FT_ListNode node)
 				after->prev = before;
 			else
 				list->tail = before;
-			node->prev       = NULL;
-			node->next       = list->head;
+			node->prev  = NULL;
+			node->next  = list->head;
 			list->head->prev = node;
-			list->head       = node;
+			list->head  = node;
 		}
 	}
 }

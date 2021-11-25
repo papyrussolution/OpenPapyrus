@@ -251,7 +251,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 		for(uint i = 0; i < RL.getCount(); i++) {
 			const SRect & r_sr = RL.at(i);
 			if(r_sr.C.Id == chunkId) {
-				invalidateRect(r_sr, 0);
+				invalidateRect(r_sr, false);
 				ok = 1;
 			}
 		}
@@ -285,7 +285,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				::SetFocus(hWnd);
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0);
 				p_view->SetupScroll();
-				p_view->invalidateAll(1);
+				p_view->invalidateAll(true);
 				::PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
 					SString temp_buf;
@@ -667,7 +667,7 @@ int FASTCALL STimeChunkBrowser::IsKeepingData(const STimeChunkGrid * pGrid) cons
 void STimeChunkBrowser::UpdateData()
 {
 	OnUpdateData();
-	invalidateAll(1);
+	invalidateAll(true);
 	::UpdateWindow(H());
 }
 
@@ -1038,11 +1038,11 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 		GetArea(a2);
 		CalcChunkRect(&a2, RL);
 		if(sbType == SB_HORZ) {
-			invalidateRect(a2.RightHeader, 1);
-			invalidateRect(a2.Right, 1);
+			invalidateRect(a2.RightHeader, true);
+			invalidateRect(a2.Right, true);
 		}
 		else
-			invalidateAll(1);
+			invalidateAll(true);
 		UpdateWindow(H());
 	}
 }
@@ -1157,7 +1157,7 @@ int STimeChunkBrowser::ProcessDblClk(SPoint2S p)
 	}
 	if(ok > 0 && !done) {
 		OnUpdateData();
-		invalidateAll(1);
+		invalidateAll(true);
 		::UpdateWindow(H());
 	}
 	return ok;
@@ -1346,7 +1346,7 @@ int STimeChunkBrowser::Resize(int mode, SPoint2S p)
 					GetArea(a2);
 					CalcChunkRect(&a2, RL);
 				}
-				invalidateAll(1);
+				invalidateAll(true);
 				::UpdateWindow(H());
 			}
 			::SetCapture(H());
@@ -1408,7 +1408,7 @@ int STimeChunkBrowser::Resize(int mode, SPoint2S p)
 				St.Rsz.Shift = delta;
 				do_redraw = 1;
 			}
-			invalidateRect(St.Rsz.Prev, 1);
+			invalidateRect(St.Rsz.Prev, true);
 			ok = 1;
 		}
 		else if(St.Rsz.Kind == ResizeState::kRowHeight) {
@@ -1724,7 +1724,7 @@ int STimeChunkBrowser::InvalidateResizeArea()
 			do {
 				y += P.HdrLevelHeight;
 				if(St.Rsz.HdrLevel == i) {
-					invalidateRect(rect.setwidth(a2.Right).setheightrel(y-5, 5), 0);
+					invalidateRect(rect.setwidth(a2.Right).setheightrel(y-5, 5), false);
 					ok = 1;
 				}
 			} while(!ok && i--);
@@ -1732,8 +1732,8 @@ int STimeChunkBrowser::InvalidateResizeArea()
 	}
 	else if(St.Rsz.Kind == ResizeState::kMoveChunk) {
 		GetRowRect(St.Rsz.RowId, 2, 0, &rect);
-		invalidateRect(rect, 0);
-		invalidateRect(St.Rsz.Prev, 0);
+		invalidateRect(rect, false);
+		invalidateRect(St.Rsz.Prev, false);
 		ok = 1;
 	}
 	else if(oneof2(St.Rsz.Kind, ResizeState::kChunkLeft, ResizeState::kChunkRight)) {
@@ -1743,7 +1743,7 @@ int STimeChunkBrowser::InvalidateResizeArea()
 				const SRect & r_sr = RL.at(i);
 				if(r_sr.C.Id == St.Rsz.ChunkId) {
 					TRect cr = r_sr;
-					invalidateRect(cr.setwidth(a2.Right), 0);
+					invalidateRect(cr.setwidth(a2.Right), false);
 					ok = 1;
 				}
 			}
@@ -1752,7 +1752,7 @@ int STimeChunkBrowser::InvalidateResizeArea()
 	else if(St.Rsz.Kind == ResizeState::kSplit) {
 		GetArea(a2);
 		int    c = (int)(St.Rsz.Org.x + St.Rsz.Shift);
-		invalidateRect(rect.setwidthrel(MAX(0, c - 6), 12).setheight(a2.Full), 0);
+		invalidateRect(rect.setwidthrel(MAX(0, c - 6), 12).setheight(a2.Full), false);
 		ok = 1;
 	}
 	else if(St.Rsz.Kind == ResizeState::kRowHeight) {
@@ -1762,14 +1762,14 @@ int STimeChunkBrowser::InvalidateResizeArea()
 				rect.b.y += static_cast<int16>((rect.height() + St.Rsz.Shift) * 2);
 			else
 				rect.b.y += (rect.height() * 2);
-			invalidateRect(rect, 0);
+			invalidateRect(rect, false);
 		}
 	}
 	else if(St.Rsz.Kind == ResizeState::kSwitchMode) {
 		ok = 1;
 	}
 	if(ok <= 0)
-		invalidateAll(1);
+		invalidateAll(true);
 	return ok;
 }
 //

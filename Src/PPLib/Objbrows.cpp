@@ -344,8 +344,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				}
 				break;
 			case cmaDelete:
-				if(getCurItem(&p, &i) && delItem(p, i) > 0)
-				{
+				if(getCurItem(&p, &i) && delItem(p, i) > 0) {
 					updateList(-1);
 				}
 				break;
@@ -435,7 +434,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 		}
 		return;
 	}
-	else if(TVKEYDOWN)
+	else if(TVKEYDOWN) {
 		if(TVKEY == KB_CTRLENTER) {
 			if(Options & oHasOkButton) {
 				if(IsInState(sfModal)) {
@@ -448,6 +447,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 		}
 		else
 			return;
+	}
 	else
 		return;
 	clearEvent(event);

@@ -134,7 +134,7 @@ int TStatusWin::Update()
 		}
 	}
 	::ReleaseDC(hw, hdc);
-	invalidateAll(1);
+	invalidateAll(true);
 	LEAVE_CRITICAL_SECTION
 	return ok;
 }
@@ -785,7 +785,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 						}
 					}
 				}
-				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), _T("X"),
+				p_pgm->H_CloseWnd = CreateWindowEx(0, _T("BUTTON"), _T("X"),
 					WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
@@ -1026,7 +1026,8 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassEx(&wc);
 	}
-	hWnd = ::CreateWindow(SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
+	// @v11.2.4 WS_EX_COMPOSITED
+	hWnd = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
 		WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	UpdateWindow(hWnd);
@@ -1235,7 +1236,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						title_rect.left    = 10;
 						title_rect.right   = r.right - r.left - 50;
 						title_rect.bottom  = 24;
-						title_hwnd = ::CreateWindow(_T("STATIC"), SUcSwitch(title_buf), WS_CHILD,
+						title_hwnd = ::CreateWindowEx(0, _T("STATIC"), SUcSwitch(title_buf), WS_CHILD,
 							title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0);
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
@@ -1250,7 +1251,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						TButton * p_btn  = new TButton(TRect(10, 10, 10, 10), 0, cmCancel, 0, CLOSEBTN_BITMAPID);
 						p_btn->Parent = hWnd;
 						p_dlg->Insert_(&p_btn->SetId(SPEC_TITLEWND_ID + 1));
-						btn_hwnd = ::CreateWindow(_T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
+						btn_hwnd = ::CreateWindowEx(0, _T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);

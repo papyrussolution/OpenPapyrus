@@ -37,7 +37,7 @@ FT_BEGIN_HEADER
   } FTC_SNodeRec, *FTC_SNode;
 
 
-#define FTC_SNODE( x )         ( (FTC_SNode)( x ) )
+#define FTC_SNODE( x )         ((FTC_SNode)( x ))
 #define FTC_SNODE_GINDEX( x )  FTC_GNODE( x )->gindex
 #define FTC_SNODE_FAMILY( x )  FTC_GNODE( x )->family
 

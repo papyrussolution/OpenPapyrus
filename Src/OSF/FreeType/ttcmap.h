@@ -103,7 +103,7 @@ FT_BEGIN_HEADER
   } TT_ValidatorRec, *TT_Validator;
 
 
-#define TT_VALIDATOR( x )          ( (TT_Validator)( x ) )
+#define TT_VALIDATOR( x )          ((TT_Validator)( x ))
 #define TT_VALID_GLYPH_COUNT( x )  TT_VALIDATOR( x )->num_glyphs
 
 

@@ -1931,7 +1931,7 @@ SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFil
 	TDialog(DLG_FLTSCARDCHNG), P_View(pView), EditSCardFilt(editSCardFilt)
 {
 	enableCommand(cmSCardFilt, EditSCardFilt);
-	SetupCalCtrl(CTLCAL_FLTSCARDCHNG_DTEND, this, CTL_FLTSCARDCHNG_DTEND, 0);
+	SetupCalDate(CTLCAL_FLTSCARDCHNG_DTEND, CTL_FLTSCARDCHNG_DTEND);
 }
 
 int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)

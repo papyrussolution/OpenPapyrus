@@ -131,7 +131,7 @@ FT_CALLBACK_DEF(void) ft_free(FT_Memory memory, void * block)
 
 /* We use the macro STREAM_FILE for convenience to extract the */
 /* system-specific stream handle from a given FreeType stream object */
-#define STREAM_FILE(stream)  ( (FT_FILE*)stream->descriptor.pointer )
+#define STREAM_FILE(stream)  ((FT_FILE*)stream->descriptor.pointer )
 
 /**************************************************************************
  *
@@ -149,8 +149,8 @@ FT_CALLBACK_DEF(void) ft_ansi_stream_close(FT_Stream stream)
 {
 	ft_fclose(STREAM_FILE(stream));
 	stream->descriptor.pointer = NULL;
-	stream->size               = 0;
-	stream->base               = NULL;
+	stream->size = 0;
+	stream->base = NULL;
 }
 /**************************************************************************
  *
@@ -196,11 +196,11 @@ FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char *  filepathnam
 	if(!stream)
 		return FT_THROW(Invalid_Stream_Handle);
 	stream->descriptor.pointer = NULL;
-	stream->pathname.pointer   = (char *)filepathname;
-	stream->base               = NULL;
-	stream->pos                = 0;
-	stream->read               = NULL;
-	stream->close              = NULL;
+	stream->pathname.pointer = (char *)filepathname;
+	stream->base = NULL;
+	stream->pos  = 0;
+	stream->read = NULL;
+	stream->close    = NULL;
 	file = ft_fopen(filepathname, "rb");
 	if(!file) {
 		FT_ERROR(( "FT_Stream_Open: could not open `%s'\n", filepathname ));
@@ -234,10 +234,10 @@ FT_BASE_DEF(FT_Memory) FT_New_Memory(void)
 {
 	FT_Memory memory = (FT_Memory)SAlloc::M(sizeof(*memory));
 	if(memory) {
-		memory->user    = NULL;
-		memory->alloc   = ft_alloc;
+		memory->user = NULL;
+		memory->alloc = ft_alloc;
 		memory->realloc = ft_realloc;
-		memory->free    = ft_free;
+		memory->free = ft_free;
 #ifdef FT_DEBUG_MEMORY
 		ft_mem_debug_init(memory);
 #endif

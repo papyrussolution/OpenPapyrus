@@ -7,9 +7,10 @@
 
 //
 // @v11.2.3 Поступила информация, что JobServer в последних резах "падает". Отключаем для сервера mimalloc и проверям.
+// @v11.2.4 Похоже, возникают спонтанные аварии и на клиентских сессиях
 //
 #if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/ && !defined(_PPSERVER)
-	#define USE_MIMALLOC
+	// @v11.2.4 #define USE_MIMALLOC
 #endif
 #ifdef USE_MIMALLOC
 	#include "mimalloc\mimalloc.h"
@@ -42,9 +43,8 @@ void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
 			case 4: *PTR32(pDest) = *PTR32C(pSrc); return;
 			case 8:
 				{
-					uint32 t1, t2;
-					t1 = PTR32C(pSrc)[0];
-					t2 = PTR32C(pSrc)[1];
+					uint32 t1 = PTR32C(pSrc)[0];
+					uint32 t2 = PTR32C(pSrc)[1];
 					PTR32(pDest)[0] = t1;
 					PTR32(pDest)[1] = t2;
 				}

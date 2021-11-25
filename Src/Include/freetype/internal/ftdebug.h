@@ -209,7 +209,7 @@ FT_Trace_Enable(void);
 #define FT_ASSERT(condition)                                      \
 	do                                                        \
 	{                                                         \
-		if(!(condition ) )                                   \
+		if(!(condition ))                                   \
 			FT_Panic("assertion failed on line %d of file %s\n", \
 			    __LINE__, __FILE__);                       \
 	} while(0)

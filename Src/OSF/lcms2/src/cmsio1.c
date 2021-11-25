@@ -63,17 +63,13 @@ static const cmsFloat64Number PickLstarMatrix[] = { 1, 0, 0 };
 cmsBool  _cmsReadMediaWhitePoint(cmsCIEXYZ* Dest, cmsHPROFILE hProfile)
 {
 	cmsCIEXYZ* Tag;
-
 	_cmsAssert(Dest != NULL);
-
 	Tag = (cmsCIEXYZ*)cmsReadTag(hProfile, cmsSigMediaWhitePointTag);
-
 	// If no wp, take D50
 	if(Tag == NULL) {
 		*Dest = *cmsD50_XYZ();
 		return TRUE;
 	}
-
 	// V2 display profiles should give D50
 	if(cmsGetEncodedICCversion(hProfile) < 0x4000000) {
 		if(cmsGetDeviceClass(hProfile) == cmsSigDisplayClass) {
@@ -709,21 +705,16 @@ Error:
 
 	// We need to adjust data for Lab16 on output
 	if(OriginalType != cmsSigLut16Type) return Lut;
-
 	// Here it is possible to get Lab on both sides
-
 	if(cmsGetColorSpace(hProfile) == cmsSigLabData) {
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageAllocLabV4ToV2(ContextID)))
 			goto Error2;
 	}
-
 	if(cmsGetPCS(hProfile) == cmsSigLabData) {
 		if(!cmsPipelineInsertStage(Lut, cmsAT_END, _cmsStageAllocLabV2ToV4(ContextID)))
 			goto Error2;
 	}
-
 	return Lut;
-
 Error2:
 	cmsPipelineFree(Lut);
 	return NULL;
@@ -736,20 +727,12 @@ cmsBool CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile)
 {
 	switch(cmsGetColorSpace(hProfile)) {
 		case cmsSigGrayData:
-
 		    return cmsIsTag(hProfile, cmsSigGrayTRCTag);
-
 		case cmsSigRgbData:
-
-		    return (cmsIsTag(hProfile, cmsSigRedColorantTag) &&
-			   cmsIsTag(hProfile, cmsSigGreenColorantTag) &&
-			   cmsIsTag(hProfile, cmsSigBlueColorantTag) &&
-			   cmsIsTag(hProfile, cmsSigRedTRCTag) &&
-			   cmsIsTag(hProfile, cmsSigGreenTRCTag) &&
+		    return (cmsIsTag(hProfile, cmsSigRedColorantTag) && cmsIsTag(hProfile, cmsSigGreenColorantTag) &&
+			   cmsIsTag(hProfile, cmsSigBlueColorantTag) && cmsIsTag(hProfile, cmsSigRedTRCTag) && cmsIsTag(hProfile, cmsSigGreenTRCTag) &&
 			   cmsIsTag(hProfile, cmsSigBlueTRCTag));
-
 		default:
-
 		    return FALSE;
 	}
 }
@@ -888,41 +871,24 @@ cmsSEQ* _cmsCompileProfileSequence(cmsContext ContextID, cmsUInt32Number nProfil
 
 // -------------------------------------------------------------------------------------------------------------------
 
-static
-const cmsMLU* GetInfo(cmsHPROFILE hProfile, cmsInfoType Info)
+static const cmsMLU* GetInfo(cmsHPROFILE hProfile, cmsInfoType Info)
 {
 	cmsTagSignature sig;
-
 	switch(Info) {
-		case cmsInfoDescription:
-		    sig = cmsSigProfileDescriptionTag;
-		    break;
-
-		case cmsInfoManufacturer:
-		    sig = cmsSigDeviceMfgDescTag;
-		    break;
-
-		case cmsInfoModel:
-		    sig = cmsSigDeviceModelDescTag;
-		    break;
-
-		case cmsInfoCopyright:
-		    sig = cmsSigCopyrightTag;
-		    break;
-
+		case cmsInfoDescription: sig = cmsSigProfileDescriptionTag; break;
+		case cmsInfoManufacturer: sig = cmsSigDeviceMfgDescTag; break;
+		case cmsInfoModel: sig = cmsSigDeviceModelDescTag; break;
+		case cmsInfoCopyright: sig = cmsSigCopyrightTag; break;
 		default: return NULL;
 	}
-
 	return (cmsMLU*)cmsReadTag(hProfile, sig);
 }
 
 cmsUInt32Number CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3],
-    wchar_t* Buffer, cmsUInt32Number BufferSize)
+    const char LanguageCode[3], const char CountryCode[3], wchar_t* Buffer, cmsUInt32Number BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
 	if(mlu == NULL) return 0;
-
 	return cmsMLUgetWide(mlu, LanguageCode, CountryCode, Buffer, BufferSize);
 }
 

@@ -1404,6 +1404,7 @@ int  SrpTest();
 int  Test_PPStyloQInterchange();
 int  Test_StyloQInvitation();
 int  Test_Launch_SCalendarPicker();
+int  Test_StrAssocTree();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1474,7 +1475,8 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	Test_Launch_SCalendarPicker();
+	Test_StrAssocTree();
+	//Test_Launch_SCalendarPicker();
 	//Test_StyloQInvitation();
 	//Test_PPStyloQInterchange();
 	/*{

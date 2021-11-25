@@ -638,7 +638,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 			// } @erik
 			ZDELETE(p_mgr);
 		}
-		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
+		P_ActiveDesktop = (p_item && p_item->IsKind(PPCommandItem::kGroup)) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		THROW_PP(P_ActiveDesktop && P_ActiveDesktop->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
 		PrivateCp.ReadFromProp(rDesktopUuid);
 		{
@@ -649,7 +649,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		Selected = 0;
 		State &= ~stIconMove;
 		MEMSZERO(MoveIconCoord);
-		Selected = ((p_item = P_ActiveDesktop->SearchFirst(0)) != 0 && p_item->Kind == PPCommandItem::kCommand) ? p_item->ID : 0;
+		Selected = ((p_item = P_ActiveDesktop->SearchFirst(0)) != 0 && p_item->IsKind(PPCommandItem::kCommand)) ? p_item->GetID() : 0;
 		//
 		// Если установлены обои, то создадим временный файл для них, и будем использовать его
 		//
@@ -777,9 +777,9 @@ int PPDesktop::DrawText(TCanvas & rC, SPoint2S coord, COLORREF color, const char
 void PPDesktop::DrawIcon(TCanvas & rC, long cmdID, int isSelected)
 {
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByID(cmdID, 0);
-	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+	PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
     if(p_cmd)
-		DrawIcon(rC, p_cmd->ID, p_cmd->P, p_cmd->Name, p_cmd->Icon, isSelected);
+		DrawIcon(rC, p_cmd->GetID(), p_cmd->P, p_cmd->Name, p_cmd->Icon, isSelected);
 	ZDELETE(p_cmd);
 }
 
@@ -819,8 +819,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 					{
 						TCanvas2 canv_temp(APPL->GetUiToolBox(), ib);
 						if(!tool_item.ReplacedColor.IsEmpty()) {
-							SColor replacement_color;
-							replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+							SColor replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
 							canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 						}
 						LMatrix2D mtx;
@@ -869,7 +868,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 void PPDesktop::Paint()
 {
 	SLS.InitGdiplus();
-	const  int  use_buffer = 1; // @debug
+	const  bool use_buffer = false;
 	const  PPCommandItem * p_item = 0;
 	PPCommand * p_cmd = 0;
 	PAINTSTRUCT ps;
@@ -884,7 +883,7 @@ void PPDesktop::Paint()
 		h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
 		h_dc = h_dc_mem;
 	}
-	{
+	if(!use_buffer/*|| !ps.fErase*/) { // @v11.2.4
 		TCanvas canv(h_dc);
 		{
 			SColor bkg_color = Ptb.GetColor(colorBkg);
@@ -935,9 +934,9 @@ void PPDesktop::Paint()
 			if(Selected > 0) {
 				if(State & stIconMove) {
 					const PPCommandItem * p_item = P_ActiveDesktop->SearchByID(Selected, 0);
-					const PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<const PPCommand *>(p_item) : 0;
+					const PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<const PPCommand *>(p_item) : 0;
 					if(p_cmd)
-						DrawIcon(canv, p_cmd->ID, MoveIconCoord, p_cmd->Name, p_cmd->Icon, 1);
+						DrawIcon(canv, p_cmd->GetID(), MoveIconCoord, p_cmd->Name, p_cmd->Icon, 1);
 				}
 				else
 					DrawIcon(canv, Selected, 1);
@@ -957,20 +956,20 @@ int PPDesktop::BeginIconMove(SPoint2S coord)
 {
 	int    ok = -1;
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, 0);
-	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+	PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 	if(Selected) {
 		TRect ir;
 		P_ActiveDesktop->GetIconRect(Selected, *this, &ir);
 		Selected = 0;
-		invalidateRect(ir, 0);
+		invalidateRect(ir, false);
 	}
 	if(p_cmd) {
 		TRect ir;
-		Selected = p_cmd->ID;
+		Selected = p_cmd->GetID();
 		MoveIconCoord = p_cmd->P;
 		CoordOffs = coord - MoveIconCoord;
 		P_ActiveDesktop->GetIconRect(Selected, *this, &ir);
-		invalidateRect(ir, 0);
+		invalidateRect(ir, false);
 		State |= stIconMove;
 		ok = 1;
 	}
@@ -995,17 +994,19 @@ int PPDesktop::MoveIcon(SPoint2S coord)
 	int    ok = -1;
 	if(State & stIconMove) {
 		const PPCommandItem * p_item = static_cast<const PPCommand *>(P_ActiveDesktop->SearchByID(Selected, 0));
-		if(p_item && p_item->Kind == PPCommandItem::kCommand) {
+		if(p_item && p_item->IsKind(PPCommandItem::kCommand)) {
 			TRect ir;
 			SRegion inv_reg;
 			CalcIconRect(MoveIconCoord, ir);
+			//ir.grow(+12, +12); // @v11.2.4
 			inv_reg.Add(ir, SCOMBINE_OR);
 			Selected = -Selected;
 			Selected = labs(Selected);
 			MoveIconCoord = coord - CoordOffs;
 			CalcIconRect(MoveIconCoord, ir);
+			//ir.grow(+12, +12); // @v11.2.4
 			inv_reg.Add(ir, SCOMBINE_OR);
-			invalidateRegion(inv_reg, 0);
+			invalidateRegion(inv_reg, true);
 			::UpdateWindow(H());
 			ok = 1;
 		}
@@ -1019,14 +1020,14 @@ void PPDesktop::EndIconMove(SPoint2S coord)
 		int    intersect = 0;
 		uint   pos = 0;
 		const PPCommandItem * p_item = P_ActiveDesktop->SearchByID(Selected, &pos);
-		PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+		PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 		if(p_cmd) {
 			PPIDArray ary;
 			TRect ir;
 			MoveIconCoord = coord - CoordOffs;
 			CalcIconRect(MoveIconCoord, ir);
 			Selected =- Selected;
-			invalidateRect(ir, 0);
+			invalidateRect(ir, false);
 			Selected = labs(Selected);
 			if(P_ActiveDesktop->GetIntersectIDs(MoveIconCoord, *this, &ary) > 0)
 				for(uint i = 0; !intersect && i < ary.getCount(); i++)
@@ -1043,7 +1044,7 @@ void PPDesktop::EndIconMove(SPoint2S coord)
 			P_ActiveDesktop->Update(pos, static_cast<PPCommandItem *>(p_cmd));
 			State &= ~stIconMove;
 			CalcIconRect(p_cmd->P, ir);
-			invalidateRect(ir, 0);
+			invalidateRect(ir, false);
 			ZDELETE(p_cmd);
 			::UpdateWindow(H());
 		}
@@ -1152,7 +1153,7 @@ void PPDesktop::Layout()
 		{
 			const PPCommandItem * p_item = 0;
 			for(uint i = 0; p_item = P_ActiveDesktop->Next(&i);) {
-				const PPCommand * p_cmd = (p_item->Kind == PPCommandItem::kCommand) ? static_cast<const PPCommand *>(p_item) : 0;
+				const PPCommand * p_cmd = p_item->IsKind(PPCommandItem::kCommand) ? static_cast<const PPCommand *>(p_item) : 0;
 				if(p_cmd) {
 					SUiLayout * p_lo_item = p_lo_center_frame->InsertItem();
 					SUiLayoutParam alb;
@@ -1182,7 +1183,7 @@ void PPDesktop::ArrangeIcons()
 	PPCommand * p_cmd = 0;
 	GetClientRect(H(), &cli_rect);
 	for(uint i = 0; p_item = P_ActiveDesktop->Next(&i);) {
-		p_cmd = (p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+		p_cmd = p_item->IsKind(PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 		if(p_cmd) {
 			const SPoint2S preserve_pnt = p_cmd->P;
 			if(ArrangeIcon(p_cmd)) {
@@ -1246,7 +1247,7 @@ int PPDesktop::ArrangeIcon(SPoint2S * pCoord)
 	return ok;
 }
 
-void PPDesktop::Update(const TRect * pR, int drawBackgnd)
+void PPDesktop::Update(const TRect * pR, bool drawBackgnd)
 {
 	if(pR) {
 		invalidateRect(*pR, drawBackgnd);
@@ -1262,7 +1263,7 @@ int PPDesktop::EditIconName(long id)
 	int    ok = -1;
 	uint   pos = 0;
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByID(id, &pos);
-	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+	PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 	if(p_cmd) {
 		if(EditName(p_cmd->Name) > 0)
 			ok = P_ActiveDesktop->Update(pos, p_cmd);
@@ -1276,7 +1277,7 @@ int PPDesktop::DoCommand(SPoint2S coord)
 	int    ok = -1;
 	uint   pos = 0;
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+	PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 	if(p_cmd) {
 		PPCommandDescr cmd_descr;
 		ok = cmd_descr.DoCommand(p_cmd, 0);
@@ -1299,11 +1300,11 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = CreateWindowEx(0, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+	HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
 		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this);
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
-	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+	HwndTT = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, H(), NULL, TProgram::GetInst(), 0);
 	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	CreateServiceView(svcviewBizScore);
@@ -1523,7 +1524,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 			p_item = desktop_list_from_bin.SearchByUuid(rDesktopUuid, 0);
 		}
 		// } @erik
-		p_desk = (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
+		p_desk = (p_item && p_item->IsKind(PPCommandItem::kGroup)) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		THROW_PP(p_desk && p_desk->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
 		rDeskName = p_desk->Name;
 	}
@@ -1543,7 +1544,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 			THROW_MEM(p_desktop_list = new PPCommandGroup);
 			do {
 				//@erik v10.6.7 {
-				const  PPCommandItem * p_item = 0;
+				//const  PPCommandItem * p_item = 0;
 				ok = BIN(p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, cmdgrpcDesktop, 0)); 
 				p_mgr->Load__2(p_desktop_list, 0, PPCommandMngr::fRWByXml);
 				// } @erik
@@ -1557,18 +1558,17 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 		THROW(ok);
 		{
 			uint   pos = 0;
-			const  PPCommandItem * p_item = 0;
 			//
 			// Сохраняем только изменения в расположении, названии и кол-ве иконок на рабочем столе
 			//
 			//@erik v10.6.7 {
-			p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
+			const  PPCommandItem * p_item = p_desktop_list->SearchByID(P_ActiveDesktop->GetID(), 0);
 			if(!p_item) {
 				p_mgr->Load_Depricated(p_desktop_list);
-				p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
+				p_item = p_desktop_list->SearchByID(P_ActiveDesktop->GetID(), 0);
 			}
 			// } @erik
-			if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+			if(p_item && p_item->IsKind(PPCommandItem::kGroup)) {
 				PPCommandGroup * p_prev = static_cast<PPCommandGroup *>(p_item->Dup());
 				if(p_prev) {
 					P_ActiveDesktop->Flags = p_prev->Flags;
@@ -1699,7 +1699,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmaInsert:
-				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_MOD)) {
 					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					PPCommand cmd;
@@ -1720,7 +1720,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 									P_ActiveDesktop->SearchFreeCoord(cr, *this, &coord);
 								cmd.P = coord;
 								P_ActiveDesktop->Add(-1, &cmd);
-								P_ActiveDesktop->GetIconRect(cmd.ID, *this, &ir);
+								P_ActiveDesktop->GetIconRect(cmd.GetID(), *this, &ir);
 								State |= stChanged;
 								SaveDesktop(p_mgr, &desktop_list);
 								Update(&ir, 0);
@@ -1736,16 +1736,16 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					PPErrorTooltip(-1, 0);
 				break;
 			case cmaEdit: // Редактирование иконки
-				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_MOD)) {
 					uint   pos = 0;
 					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd && EditCmdItem(P_ActiveDesktop, p_cmd, cmdgrpcDesktop) > 0) {
 						TRect ir;
 						P_ActiveDesktop->Update(pos, p_cmd);
-						P_ActiveDesktop->GetIconRect(p_cmd->ID, *this, &ir);
+						P_ActiveDesktop->GetIconRect(p_cmd->GetID(), *this, &ir);
 						State |= stChanged;
 						Update(&ir, 0);
 					}
@@ -1755,12 +1755,12 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					PPErrorTooltip(-1, 0);
 				break;
 			case cmaDelete:
-				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_MOD)) {
 					uint   pos = 0;
 					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd && CONFIRM(PPCFM_DELICON)) {
 						TRect ir;
 						PPCommandGroup desktop_list;
@@ -1770,7 +1770,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						// } @erik
 						if(p_mgr) {
 							P_ActiveDesktop->Remove(pos);
-							Selected = (Selected == p_cmd->ID) ? 0 : Selected;
+							Selected = (Selected == p_cmd->GetID()) ? 0 : Selected;
 							CalcIconRect(p_cmd->P, ir);
 							State |= stChanged;
 							SaveDesktop(p_mgr, &desktop_list);
@@ -1791,11 +1791,11 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					SPoint2S coord;
 					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd) {
 						TRect ir;
-						EditIconName(p_cmd->ID);
-						P_ActiveDesktop->GetIconRect(p_cmd->ID, *this, &ir);
+						EditIconName(p_cmd->GetID());
+						P_ActiveDesktop->GetIconRect(p_cmd->GetID(), *this, &ir);
 						State |= stChanged;
 						Update(&ir, 1);
 					}
@@ -1805,7 +1805,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			case cmSelDesktop:
 				{
 					S_GUID desktop_uuid = P_ActiveDesktop->Uuid;
-					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_INS)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_INS)) {
 						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) /* @v11.0.0 && desktop_uuid != P_ActiveDesktop->Uuid*/)
 							PPDesktop::Open(desktop_uuid, 0/*createIfZero*/);
 					}
@@ -1829,7 +1829,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 		switch(TVKEY) {
 			case kbF2:
 				if(Selected) {
-					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->GetID(), PPR_MOD)) {
 						TRect ir;
 						EditIconName(Selected);
 						P_ActiveDesktop->GetIconRect(Selected, *this, &ir);
@@ -1845,7 +1845,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					uint   pos = 0;
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByID(Selected, &pos);
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd) {
 						PPCommandDescr cmd_descr;
 						cmd_descr.DoCommand(p_cmd, 0);
@@ -1861,7 +1861,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					int is_first = 0;
 					const PPCommandItem * p_item = (Selected) ? P_ActiveDesktop->SearchByID(Selected, 0) :
 						(is_first = 1, P_ActiveDesktop->SearchFirst(0));
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					PPCommand * p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd) {
 						if(!is_first) {
 							POINT coord;
@@ -1878,12 +1878,12 @@ IMPL_HANDLE_EVENT(PPDesktop)
 							else if(TVKEY == kbDown)
 								direction = PPCommandFolder::nextDown;
 							p_item = P_ActiveDesktop->SearchNextByCoord(coord, *this, direction, 0);
-							p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+							p_cmd = (p_item && p_item->IsKind(PPCommandItem::kCommand)) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 						}
 						if(p_cmd) {
 							TRect ir;
 							P_ActiveDesktop->GetIconRect(Selected, *this, &ir);
-							Selected = p_cmd->ID;
+							Selected = p_cmd->GetID();
 							Update(&ir, 1);
 							P_ActiveDesktop->GetIconRect(Selected, *this, &ir);
 							Update(&ir, 0);
@@ -2412,7 +2412,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 		SString def_desk_name;
 		(def_desk_name = "def").CatChar('-').Cat(DS.GetTLA().UserName).CatChar('-').Cat("desktop");
 		const PPCommandItem * p_item = desktop_list.SearchByName(def_desk_name, db_symb, 0);
-		if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+		if(p_item && p_item->IsKind(PPCommandItem::kGroup)) {
 			desktop_uuid = static_cast<const PPCommandGroup *>(p_item)->Uuid;
 		}
 		else {

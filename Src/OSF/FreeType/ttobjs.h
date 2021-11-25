@@ -229,7 +229,7 @@ FT_BEGIN_HEADER
    *       ratio = y_ratio
    *
    *   - else,
-   *       ratio = sqrt( (proj.x * x_ratio) ^ 2 + (proj.y * y_ratio) ^ 2 )
+   *       ratio = sqrt((proj.x * x_ratio) ^ 2 + (proj.y * y_ratio) ^ 2 )
    *
    *   Reading a cvt value returns
    *     ratio * cvt[index]
@@ -413,7 +413,7 @@ FT_BEGIN_HEADER
 
 
   /* auxiliary */
-#define IS_HINTED( flags )  ( ( flags & FT_LOAD_NO_HINTING ) == 0 )
+#define IS_HINTED( flags )  (( flags & FT_LOAD_NO_HINTING ) == 0 )
 
 
 FT_END_HEADER

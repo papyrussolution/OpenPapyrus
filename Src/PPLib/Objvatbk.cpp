@@ -1022,7 +1022,7 @@ int VATBCfgDialog::setDTS(const VATBCfg * pData)
 		AddClusterAssoc(CTL_VATBCFG_INCMPRD,  2, INCM_BYPAYMENTINPERIOD);
 	}
 	SetClusterData(CTL_VATBCFG_INCMPRD, Data.AcctgBasisAtPeriod);
-	SetupCalCtrl(CTLCAL_VATBCFG_PERIOD, this, CTL_VATBCFG_PERIOD, 1);
+	SetupCalPeriod(CTLCAL_VATBCFG_PERIOD, CTL_VATBCFG_PERIOD);
 	SetPeriodInput(this, CTL_VATBCFG_PERIOD, &Data.Period);
 	v = 0;
 	if(Data.Kind == PPVTB_SELL) {
@@ -1412,7 +1412,7 @@ class VATBFiltDialog : public TDialog {
 public:
 	VATBFiltDialog(uint rezID, PPObjVATBook * pObj) : TDialog(rezID), P_VBObj(pObj)
 	{
-		SetupCalCtrl(CTLCAL_VATBFLT_PERIOD, this, CTL_VATBFLT_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_VATBFLT_PERIOD, CTL_VATBFLT_PERIOD);
 	}
 	DECL_DIALOG_SETDTS()
 	{

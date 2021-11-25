@@ -1172,7 +1172,7 @@ public:
 	{
 		CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_DL200P_CYCLE, CTL_DL200P_NUMCYCLES, CTL_DL200P_PERIOD);
 		addGroup(ctlgroupCycle, grp);
-		SetupCalCtrl(CTLCAL_DL200P_PERIOD, this, CTL_DL200P_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_DL200P_PERIOD, CTL_DL200P_PERIOD);
 	}
 	DECL_DIALOG_SETDTS()
 	{

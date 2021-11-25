@@ -609,7 +609,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 		{
 			CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, CTL_ATFLT_PERIOD);
 			addGroup(ctrgroupCycle, grp);
-			SetupCalCtrl(CTLCAL_ATFLT_PERIOD, this, CTL_ATFLT_PERIOD, 1);
+			SetupCalPeriod(CTLCAL_ATFLT_PERIOD, CTL_ATFLT_PERIOD);
 		}
 		DECL_DIALOG_SETDTS()
 		{

@@ -130,7 +130,7 @@ typedef struct  AF_ScalerRec_ {
 } AF_ScalerRec, * AF_Scaler;
 
 #define AF_SCALER_EQUAL_SCALES(a, b)      \
-	( (a)->x_scale == (b)->x_scale && \
+	((a)->x_scale == (b)->x_scale && \
 	(a)->y_scale == (b)->y_scale && \
 	(a)->x_delta == (b)->x_delta && \
 	(a)->y_delta == (b)->y_delta )

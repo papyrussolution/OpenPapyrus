@@ -160,7 +160,7 @@ char * ssh_get_local_username()
 	char * user;
 	// get the size 
 	GetUserNameA(NULL, &size);
-	user = (char *)SAlloc::M(size);
+	user = static_cast<char *>(SAlloc::M(size));
 	if(user == NULL) {
 		return NULL;
 	}
@@ -237,7 +237,6 @@ int ssh_file_readaccess_ok(const char * file)
 	if(access(file, R_OK) < 0) {
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -268,47 +267,39 @@ char * ssh_get_local_username()
 	struct passwd * pwdbuf = NULL;
 	char buf[NSS_BUFLEN_PASSWD];
 	char * name;
-	int rc;
-
-	rc = getpwuid_r(getuid(), &pwd, buf, NSS_BUFLEN_PASSWD, &pwdbuf);
+	int rc = getpwuid_r(getuid(), &pwd, buf, NSS_BUFLEN_PASSWD, &pwdbuf);
 	if(rc != 0 || pwdbuf == NULL) {
 		return NULL;
 	}
-
 	name = _strdup(pwd.pw_name);
-
 	if(name == NULL) {
 		return NULL;
 	}
-
 	return name;
 }
 
-int ssh_is_ipaddr_v4(const char * str) {
+int ssh_is_ipaddr_v4(const char * str) 
+{
 	int rc = -1;
 	struct in_addr dest;
-
 	rc = inet_pton(AF_INET, str, &dest);
 	if(rc > 0) {
 		return 1;
 	}
-
 	return 0;
 }
 
-int ssh_is_ipaddr(const char * str) {
+int ssh_is_ipaddr(const char * str) 
+{
 	int rc = -1;
-
 	if(strchr(str, ':')) {
 		struct in6_addr dest6;
-
 		/* TODO link-local (IP:v6:addr%ifname). */
 		rc = inet_pton(AF_INET6, str, &dest6);
 		if(rc > 0) {
 			return 1;
 		}
 	}
-
 	return ssh_is_ipaddr_v4(str);
 }
 
@@ -340,15 +331,13 @@ char * ssh_hostport(const char * host, int port)
 	}
 	/* 3 for []:, 5 for 65536 and 1 for nul */
 	len = strlen(host) + 3 + 5 + 1;
-	dest = (char *)SAlloc::M(len);
+	dest = static_cast<char *>(SAlloc::M(len));
 	if(dest == NULL) {
 		return NULL;
 	}
 	snprintf(dest, len, "[%s]:%d", host, port);
-
 	return dest;
 }
-
 /**
  * @brief Convert a buffer into a colon separated hex string.
  * The caller has to free the memory.

@@ -244,7 +244,8 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				ctl_rect.top    -= (parent_rect.top + img_rect.top);
 				DestroyWindow(h_ctl);
 				style &= ~SS_CENTER;
-				h_ctl = ::CreateWindow(_T("STATIC"), _T(""), style|SS_LEFT, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
+				h_ctl = ::CreateWindowEx(0, _T("STATIC"), _T(""), style|SS_LEFT, 
+					ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
 				if(h_ctl) {
 					SetFont(h_ctl);
 					::SetWindowLong(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);

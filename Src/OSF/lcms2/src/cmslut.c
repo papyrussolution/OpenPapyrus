@@ -27,30 +27,21 @@
 #pragma hdrstop
 
 // Allocates an empty multi profile element
-cmsStage* CMSEXPORT _cmsStageAllocPlaceholder(cmsContext ContextID,
-    cmsStageSignature Type,
-    cmsUInt32Number InputChannels,
-    cmsUInt32Number OutputChannels,
-    _cmsStageEvalFn EvalPtr,
-    _cmsStageDupElemFn DupElemPtr,
-    _cmsStageFreeElemFn FreePtr,
-    void *  Data)
+cmsStage* CMSEXPORT _cmsStageAllocPlaceholder(cmsContext ContextID, cmsStageSignature Type, cmsUInt32Number InputChannels,
+    cmsUInt32Number OutputChannels, _cmsStageEvalFn EvalPtr, _cmsStageDupElemFn DupElemPtr, _cmsStageFreeElemFn FreePtr, void *  Data)
 {
 	cmsStage* ph = (cmsStage*)_cmsMallocZero(ContextID, sizeof(cmsStage));
-
-	if(ph == NULL) return NULL;
-
-	ph->ContextID = ContextID;
-
-	ph->Type       = Type;
-	ph->Implements = Type; // By default, no clue on what is implementing
-
-	ph->InputChannels  = InputChannels;
-	ph->OutputChannels = OutputChannels;
-	ph->EvalPtr        = EvalPtr;
-	ph->DupElemPtr     = DupElemPtr;
-	ph->FreePtr        = FreePtr;
-	ph->Data           = Data;
+	if(ph) {
+		ph->ContextID = ContextID;
+		ph->Type       = Type;
+		ph->Implements = Type; // By default, no clue on what is implementing
+		ph->InputChannels  = InputChannels;
+		ph->OutputChannels = OutputChannels;
+		ph->EvalPtr        = EvalPtr;
+		ph->DupElemPtr     = DupElemPtr;
+		ph->FreePtr        = FreePtr;
+		ph->Data           = Data;
+	}
 	return ph;
 }
 
@@ -1033,11 +1024,9 @@ cmsStage* _cmsStageNormalizeToXyzFloat(cmsContext ContextID)
 }
 
 // Clips values smaller than zero
-static
-void Clipper(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * mpe)
+static void Clipper(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * mpe)
 {
-	cmsUInt32Number i;
-	for(i = 0; i < mpe->InputChannels; i++) {
+	for(cmsUInt32Number i = 0; i < mpe->InputChannels; i++) {
 		cmsFloat32Number n = In[i];
 		Out[i] = n < 0 ? 0 : n;
 	}
@@ -1045,36 +1034,28 @@ void Clipper(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage
 
 cmsStage*  _cmsStageClipNegatives(cmsContext ContextID, cmsUInt32Number nChannels)
 {
-	return _cmsStageAllocPlaceholder(ContextID, cmsSigClipNegativesElemType,
-		   nChannels, nChannels, Clipper, NULL, NULL, NULL);
+	return _cmsStageAllocPlaceholder(ContextID, cmsSigClipNegativesElemType, nChannels, nChannels, Clipper, NULL, NULL, NULL);
 }
 
 // ********************************************************************************
 // Type cmsSigXYZ2LabElemType
 // ********************************************************************************
 
-static
-void EvaluateXYZ2Lab(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * mpe)
+static void EvaluateXYZ2Lab(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * mpe)
 {
 	cmsCIELab Lab;
 	cmsCIEXYZ XYZ;
 	const cmsFloat64Number XYZadj = MAX_ENCODEABLE_XYZ;
-
 	// From 0..1.0 to XYZ
-
 	XYZ.X = In[0] * XYZadj;
 	XYZ.Y = In[1] * XYZadj;
 	XYZ.Z = In[2] * XYZadj;
-
 	cmsXYZ2Lab(NULL, &Lab, &XYZ);
-
 	// From V4 Lab to 0..1.0
-
 	Out[0] = (cmsFloat32Number)(Lab.L / 100.0);
 	Out[1] = (cmsFloat32Number)((Lab.a + 128.0) / 255.0);
 	Out[2] = (cmsFloat32Number)((Lab.b + 128.0) / 255.0);
 	return;
-
 	cmsUNUSED_PARAMETER(mpe);
 }
 
@@ -1137,23 +1118,13 @@ cmsStage*  CMSEXPORT cmsStageNext(const cmsStage* mpe)
 cmsStage* CMSEXPORT cmsStageDup(cmsStage* mpe)
 {
 	cmsStage* NewMPE;
-
 	if(mpe == NULL) return NULL;
-	NewMPE = _cmsStageAllocPlaceholder(mpe->ContextID,
-		mpe->Type,
-		mpe->InputChannels,
-		mpe->OutputChannels,
-		mpe->EvalPtr,
-		mpe->DupElemPtr,
-		mpe->FreePtr,
-		NULL);
+	NewMPE = _cmsStageAllocPlaceholder(mpe->ContextID, mpe->Type, mpe->InputChannels, mpe->OutputChannels,
+		mpe->EvalPtr, mpe->DupElemPtr, mpe->FreePtr, NULL);
 	if(NewMPE == NULL) return NULL;
-
 	NewMPE->Implements = mpe->Implements;
-
 	if(mpe->DupElemPtr) {
 		NewMPE->Data = mpe->DupElemPtr(mpe);
-
 		if(NewMPE->Data == NULL) {
 			cmsStageFree(NewMPE);
 			return NULL;
@@ -1162,15 +1133,13 @@ cmsStage* CMSEXPORT cmsStageDup(cmsStage* mpe)
 	else {
 		NewMPE->Data       = NULL;
 	}
-
 	return NewMPE;
 }
 
 // ***********************************************************************************************************
 
 // This function sets up the channel count
-static
-cmsBool BlessLUT(cmsPipeline* lut)
+static cmsBool BlessLUT(cmsPipeline* lut)
 {
 	// We can set the input/output channels only if we have elements.
 	if(lut->Elements != NULL) {
@@ -1178,72 +1147,53 @@ cmsBool BlessLUT(cmsPipeline* lut)
 		cmsStage* next;
 		cmsStage* First;
 		cmsStage* Last;
-
 		First  = cmsPipelineGetPtrToFirstStage(lut);
 		Last   = cmsPipelineGetPtrToLastStage(lut);
-
 		if(First == NULL || Last == NULL) return FALSE;
-
 		lut->InputChannels = First->InputChannels;
 		lut->OutputChannels = Last->OutputChannels;
-
 		// Check chain consistency
 		prev = First;
 		next = prev->Next;
-
 		while(next != NULL) {
 			if(next->InputChannels != prev->OutputChannels)
 				return FALSE;
-
 			next = next->Next;
 			prev = prev->Next;
 		}
 	}
-
 	return TRUE;
 }
 
 // Default to evaluate the LUT on 16 bit-basis. Precision is retained.
-static
-void _LUTeval16(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[],  CMSREGISTER const void * D)
+static void _LUTeval16(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[],  CMSREGISTER const void * D)
 {
 	cmsPipeline* lut = (cmsPipeline*)D;
 	cmsStage * mpe;
 	cmsFloat32Number Storage[2][MAX_STAGE_CHANNELS];
 	int Phase = 0, NextPhase;
-
 	From16ToFloat(In, &Storage[Phase][0], lut->InputChannels);
-
-	for(mpe = lut->Elements;
-	    mpe != NULL;
-	    mpe = mpe->Next) {
+	for(mpe = lut->Elements; mpe != NULL; mpe = mpe->Next) {
 		NextPhase = Phase ^ 1;
 		mpe->EvalPtr(&Storage[Phase][0], &Storage[NextPhase][0], mpe);
 		Phase = NextPhase;
 	}
-
 	FromFloatTo16(&Storage[Phase][0], Out, lut->OutputChannels);
 }
 
 // Does evaluate the LUT on cmsFloat32Number-basis.
-static
-void _LUTevalFloat(CMSREGISTER const cmsFloat32Number In[], CMSREGISTER cmsFloat32Number Out[], const void * D)
+static void _LUTevalFloat(CMSREGISTER const cmsFloat32Number In[], CMSREGISTER cmsFloat32Number Out[], const void * D)
 {
 	cmsPipeline* lut = (cmsPipeline*)D;
 	cmsStage * mpe;
 	cmsFloat32Number Storage[2][MAX_STAGE_CHANNELS];
 	int Phase = 0, NextPhase;
-
 	memmove(&Storage[Phase][0], In, lut->InputChannels  * sizeof(cmsFloat32Number));
-
-	for(mpe = lut->Elements;
-	    mpe != NULL;
-	    mpe = mpe->Next) {
+	for(mpe = lut->Elements; mpe != NULL; mpe = mpe->Next) {
 		NextPhase = Phase ^ 1;
 		mpe->EvalPtr(&Storage[Phase][0], &Storage[NextPhase][0], mpe);
 		Phase = NextPhase;
 	}
-
 	memmove(Out, &Storage[Phase][0], lut->OutputChannels * sizeof(cmsFloat32Number));
 }
 
@@ -1251,29 +1201,22 @@ void _LUTevalFloat(CMSREGISTER const cmsFloat32Number In[], CMSREGISTER cmsFloat
 cmsPipeline* CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, cmsUInt32Number InputChannels, cmsUInt32Number OutputChannels)
 {
 	cmsPipeline* NewLUT;
-
 	// A value of zero in channels is allowed as placeholder
-	if(InputChannels >= cmsMAXCHANNELS ||
-	    OutputChannels >= cmsMAXCHANNELS) return NULL;
-
+	if(InputChannels >= cmsMAXCHANNELS || OutputChannels >= cmsMAXCHANNELS) return NULL;
 	NewLUT = (cmsPipeline*)_cmsMallocZero(ContextID, sizeof(cmsPipeline));
 	if(NewLUT == NULL) return NULL;
-
 	NewLUT->InputChannels  = InputChannels;
 	NewLUT->OutputChannels = OutputChannels;
-
 	NewLUT->Eval16Fn    = _LUTeval16;
 	NewLUT->EvalFloatFn = _LUTevalFloat;
 	NewLUT->DupDataFn   = NULL;
 	NewLUT->FreeDataFn  = NULL;
 	NewLUT->Data        = NewLUT;
 	NewLUT->ContextID   = ContextID;
-
 	if(!BlessLUT(NewLUT)) {
 		_cmsFree(ContextID, NewLUT);
 		return NULL;
 	}
-
 	return NewLUT;
 }
 
@@ -1470,30 +1413,24 @@ void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline* lut, cmsStageLoc loc, cmsStag
 cmsBool CMSEXPORT cmsPipelineCat(cmsPipeline* l1, const cmsPipeline* l2)
 {
 	cmsStage* mpe;
-
 	// If both LUTS does not have elements, we need to inherit
 	// the number of channels
 	if(l1->Elements == NULL && l2->Elements == NULL) {
 		l1->InputChannels  = l2->InputChannels;
 		l1->OutputChannels = l2->OutputChannels;
 	}
-
 	// Cat second
-	for(mpe = l2->Elements;
-	    mpe != NULL;
-	    mpe = mpe->Next) {
+	for(mpe = l2->Elements; mpe != NULL; mpe = mpe->Next) {
 		// We have to dup each element
 		if(!cmsPipelineInsertStage(l1, cmsAT_END, cmsStageDup(mpe)))
 			return FALSE;
 	}
-
 	return BlessLUT(l1);
 }
 
 cmsBool CMSEXPORT cmsPipelineSetSaveAs8bitsFlag(cmsPipeline* lut, cmsBool On)
 {
 	cmsBool Anterior = lut->SaveAs8Bits;
-
 	lut->SaveAs8Bits = On;
 	return Anterior;
 }
@@ -1506,10 +1443,8 @@ cmsStage* CMSEXPORT cmsPipelineGetPtrToFirstStage(const cmsPipeline* lut)
 cmsStage* CMSEXPORT cmsPipelineGetPtrToLastStage(const cmsPipeline* lut)
 {
 	cmsStage * mpe, * Anterior = NULL;
-
 	for(mpe = lut->Elements; mpe != NULL; mpe = mpe->Next)
 		Anterior = mpe;
-
 	return Anterior;
 }
 
@@ -1517,7 +1452,6 @@ cmsUInt32Number CMSEXPORT cmsPipelineStageCount(const cmsPipeline* lut)
 {
 	cmsStage * mpe;
 	cmsUInt32Number n;
-
 	for(n = 0, mpe = lut->Elements; mpe != NULL; mpe = mpe->Next)
 		n++;
 
@@ -1565,29 +1499,23 @@ void CMSEXPORT _cmsPipelineSetOptimizationParameters(cmsPipeline* Lut,
 #define INVERSION_MAX_ITERATIONS    30
 
 // Increment with reflexion on boundary
-static
-void IncDelta(cmsFloat32Number * Val)
+static void IncDelta(cmsFloat32Number * Val)
 {
 	if(*Val < (1.0 - JACOBIAN_EPSILON))
-
 		*Val += JACOBIAN_EPSILON;
-
 	else
 		*Val -= JACOBIAN_EPSILON;
 }
 
 // Euclidean distance between two vectors of n elements each one
-static
-cmsFloat32Number EuclideanDistance(cmsFloat32Number a[], cmsFloat32Number b[], int n)
+static cmsFloat32Number EuclideanDistance(cmsFloat32Number a[], cmsFloat32Number b[], int n)
 {
 	cmsFloat32Number sum = 0;
 	int i;
-
 	for(i = 0; i < n; i++) {
 		cmsFloat32Number dif = b[i] - a[i];
 		sum +=  dif * dif;
 	}
-
 	return sqrtf(sum);
 }
 
@@ -1600,21 +1528,16 @@ cmsFloat32Number EuclideanDistance(cmsFloat32Number a[], cmsFloat32Number b[], i
 // Result: The obtained CMYK
 // Hint:   Location where begin the search
 
-cmsBool CMSEXPORT cmsPipelineEvalReverseFloat(cmsFloat32Number Target[],
-    cmsFloat32Number Result[],
-    cmsFloat32Number Hint[],
-    const cmsPipeline* lut)
+cmsBool CMSEXPORT cmsPipelineEvalReverseFloat(cmsFloat32Number Target[], cmsFloat32Number Result[], cmsFloat32Number Hint[], const cmsPipeline* lut)
 {
 	cmsUInt32Number i, j;
 	cmsFloat64Number error, LastError = 1E20;
 	cmsFloat32Number fx[4], x[4], xd[4], fxd[4];
 	cmsVEC3 tmp, tmp2;
 	cmsMAT3 Jacobian;
-
 	// Only 3->3 and 4->3 are supported
 	if(lut->InputChannels != 3 && lut->InputChannels != 4) return FALSE;
 	if(lut->OutputChannels != 3) return FALSE;
-
 	// Take the hint as starting point if specified
 	if(Hint == NULL) {
 		// Begin at any point, we choose 1/3 of CMY axis
@@ -1625,7 +1548,6 @@ cmsBool CMSEXPORT cmsPipelineEvalReverseFloat(cmsFloat32Number Target[],
 		for(j = 0; j < 3; j++)
 			x[j] = Hint[j];
 	}
-
 	// If Lut is 4-dimensions, then grab target[3], which is fixed
 	if(lut->InputChannels == 4) {
 		x[3] = Target[3];
@@ -1636,58 +1558,45 @@ cmsBool CMSEXPORT cmsPipelineEvalReverseFloat(cmsFloat32Number Target[],
 	for(i = 0; i < INVERSION_MAX_ITERATIONS; i++) {
 		// Get beginning fx
 		cmsPipelineEvalFloat(x, fx, lut);
-
 		// Compute error
 		error = EuclideanDistance(fx, Target, 3);
-
 		// If not convergent, return last safe value
 		if(error >= LastError)
 			break;
-
 		// Keep latest values
 		LastError     = error;
 		for(j = 0; j < lut->InputChannels; j++)
 			Result[j] = x[j];
-
 		// Found an exact match?
 		if(error <= 0)
 			break;
-
 		// Obtain slope (the Jacobian)
 		for(j = 0; j < 3; j++) {
 			xd[0] = x[0];
 			xd[1] = x[1];
 			xd[2] = x[2];
 			xd[3] = x[3]; // Keep fixed channel
-
 			IncDelta(&xd[j]);
-
 			cmsPipelineEvalFloat(xd, fxd, lut);
-
 			Jacobian.v[0].n[j] = ((fxd[0] - fx[0]) / JACOBIAN_EPSILON);
 			Jacobian.v[1].n[j] = ((fxd[1] - fx[1]) / JACOBIAN_EPSILON);
 			Jacobian.v[2].n[j] = ((fxd[2] - fx[2]) / JACOBIAN_EPSILON);
 		}
-
 		// Solve system
 		tmp2.n[0] = fx[0] - Target[0];
 		tmp2.n[1] = fx[1] - Target[1];
 		tmp2.n[2] = fx[2] - Target[2];
-
 		if(!_cmsMAT3solve(&tmp, &Jacobian, &tmp2))
 			return FALSE;
-
 		// Move our guess
 		x[0] -= (cmsFloat32Number)tmp.n[0];
 		x[1] -= (cmsFloat32Number)tmp.n[1];
 		x[2] -= (cmsFloat32Number)tmp.n[2];
-
 		// Some clipping....
 		for(j = 0; j < 3; j++) {
 			if(x[j] < 0) x[j] = 0;
 			else if(x[j] > 1.0) x[j] = 1.0;
 		}
 	}
-
 	return TRUE;
 }

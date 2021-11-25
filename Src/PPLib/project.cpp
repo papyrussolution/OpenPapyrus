@@ -443,10 +443,10 @@ class ProjectDialog : public TDialog {
 public:
 	explicit ProjectDialog(uint dlgID) : TDialog(dlgID)
 	{
-		SetupCalCtrl(CTLCAL_PRJ_DT, this, CTL_PRJ_DT, 4);
-		SetupCalCtrl(CTLCAL_PRJ_START, this, CTL_PRJ_START, 4);
-		SetupCalCtrl(CTLCAL_PRJ_ESTFINISH, this, CTL_PRJ_ESTFINISH, 4);
-		SetupCalCtrl(CTLCAL_PRJ_FINISH, this, CTL_PRJ_FINISH, 4);
+		SetupCalDate(CTLCAL_PRJ_DT, CTL_PRJ_DT);
+		SetupCalDate(CTLCAL_PRJ_START, CTL_PRJ_START);
+		SetupCalDate(CTLCAL_PRJ_ESTFINISH, CTL_PRJ_ESTFINISH);
+		SetupCalDate(CTLCAL_PRJ_FINISH, CTL_PRJ_FINISH);
 		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0)); // @v10.7.2 256-->2048
 	}
 	DECL_DIALOG_SETDTS()
@@ -601,8 +601,8 @@ int PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	filt = *static_cast<const ProjectFilt *>(pBaseFilt);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRJFLT))));
-	SetupCalCtrl(CTLCAL_PRJFLT_PRDSTART, dlg, CTL_PRJFLT_PRDSTART, 1);
-	SetupCalCtrl(CTLCAL_PRJFLT_PRDESTFINISH, dlg, CTL_PRJFLT_PRDESTFINISH, 1);
+	dlg->SetupCalPeriod(CTLCAL_PRJFLT_PRDSTART, CTL_PRJFLT_PRDSTART);
+	dlg->SetupCalPeriod(CTLCAL_PRJFLT_PRDESTFINISH, CTL_PRJFLT_PRDESTFINISH);
 	SetPeriodInput(dlg, CTL_PRJFLT_PRDSTART, &filt.StartPeriod);
 	SetPeriodInput(dlg, CTL_PRJFLT_PRDESTFINISH, &filt.EstFinishPeriod);
 	SetupPersonCombo(dlg, CTLSEL_PRJFLT_CLIENT, filt.ClientID, 0, PPPRK_CLIENT, 0);

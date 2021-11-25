@@ -51,22 +51,10 @@ FT_BASE_DEF(FT_Error) FT_Raccess_Get_HeaderInfo(FT_Library library, FT_Stream st
 	/* ensure positive values */
 	if(head[0]  >= 0x80 || head[4]  >= 0x80 || head[8]  >= 0x80 || head[12] >= 0x80)
 		return FT_THROW(Unknown_File_Format);
-	*rdata_pos = ( head[ 0] << 24 ) |
-	    ( head[ 1] << 16 ) |
-	    ( head[ 2] <<  8 ) |
-	    head[ 3];
-	map_pos    = ( head[ 4] << 24 ) |
-	    ( head[ 5] << 16 ) |
-	    ( head[ 6] <<  8 ) |
-	    head[ 7];
-	rdata_len  = ( head[ 8] << 24 ) |
-	    ( head[ 9] << 16 ) |
-	    ( head[10] <<  8 ) |
-	    head[11];
-	map_len    = ( head[12] << 24 ) |
-	    ( head[13] << 16 ) |
-	    ( head[14] <<  8 ) |
-	    head[15];
+	*rdata_pos = ( head[ 0] << 24 ) | ( head[ 1] << 16 ) | ( head[ 2] <<  8 ) | head[ 3];
+	map_pos = ( head[ 4] << 24 ) | ( head[ 5] << 16 ) | ( head[ 6] <<  8 ) | head[ 7];
+	rdata_len  = ( head[ 8] << 24 ) | ( head[ 9] << 16 ) | ( head[10] <<  8 ) | head[11];
+	map_len = ( head[12] << 24 ) | ( head[13] << 16 ) | ( head[14] <<  8 ) | head[15];
 
 	/* the map must not be empty */
 	if(!map_pos)
@@ -81,31 +69,20 @@ FT_BASE_DEF(FT_Error) FT_Raccess_Get_HeaderInfo(FT_Library library, FT_Stream st
 		if(map_pos > *rdata_pos - map_len)
 			return FT_THROW(Unknown_File_Format);
 	}
-
 	/* check whether end of rdata or map exceeds stream size */
-	if(FT_LONG_MAX - rdata_len < *rdata_pos                               ||
-	    FT_LONG_MAX - map_len < map_pos                                    ||
-
-	    FT_LONG_MAX - ( *rdata_pos + rdata_len ) < rfork_offset            ||
-	    FT_LONG_MAX - ( map_pos + map_len ) < rfork_offset                 ||
-
-	    (FT_ULong)( rfork_offset + *rdata_pos + rdata_len ) > stream->size ||
-	    (FT_ULong)( rfork_offset + map_pos + map_len ) > stream->size)
+	if(FT_LONG_MAX - rdata_len < *rdata_pos || FT_LONG_MAX - map_len < map_pos ||
+	    FT_LONG_MAX - ( *rdata_pos + rdata_len ) < rfork_offset || FT_LONG_MAX - ( map_pos + map_len ) < rfork_offset ||
+	    (FT_ULong)( rfork_offset + *rdata_pos + rdata_len ) > stream->size || (FT_ULong)( rfork_offset + map_pos + map_len ) > stream->size)
 		return FT_THROW(Unknown_File_Format);
-
 	*rdata_pos += rfork_offset;
 	map_pos    += rfork_offset;
-
 	error = FT_Stream_Seek(stream, (FT_ULong)map_pos);
 	if(error)
 		return error;
-
 	head2[15] = (FT_Byte)( head[15] + 1 );   /* make it be different */
-
 	error = FT_Stream_Read(stream, (FT_Byte*)head2, 16);
 	if(error)
 		return error;
-
 	allzeros = 1;
 	allmatch = 1;
 	for(i = 0; i < 16; i++) {
@@ -124,7 +101,7 @@ FT_BASE_DEF(FT_Error) FT_Raccess_Get_HeaderInfo(FT_Library library, FT_Stream st
 	    + 2                    /* skip file resource number */
 	    + 2);                  /* skip attributes */
 
-	if(FT_READ_SHORT(type_list) )
+	if(FT_READ_SHORT(type_list))
 		return error;
 	if(type_list < 0)
 		return FT_THROW(Unknown_File_Format);
@@ -171,7 +148,7 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 	if(error)
 		return error;
 
-	if(FT_READ_SHORT(cnt) )
+	if(FT_READ_SHORT(cnt))
 		return error;
 	cnt++;
 
@@ -195,16 +172,14 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 		return FT_THROW(Invalid_Table);
 
 	for(i = 0; i < cnt; i++) {
-		if(FT_READ_LONG(tag_internal) ||
-		    FT_READ_SHORT(subcnt)      ||
-		    FT_READ_SHORT(rpos)        )
+		if(FT_READ_LONG(tag_internal) || FT_READ_SHORT(subcnt) || FT_READ_SHORT(rpos)        )
 			return error;
 
 		FT_TRACE2(( "Resource tags: %c%c%c%c\n",
-		    (char)( 0xFF & ( tag_internal >> 24 ) ),
-		    (char)( 0xFF & ( tag_internal >> 16 ) ),
-		    (char)( 0xFF & ( tag_internal >>  8 ) ),
-		    (char)( 0xFF & ( tag_internal >>  0) ) ));
+		    (char)( 0xFF & ( tag_internal >> 24 )),
+		    (char)( 0xFF & ( tag_internal >> 16 )),
+		    (char)( 0xFF & ( tag_internal >>  8 )),
+		    (char)( 0xFF & ( tag_internal >>  0)) ));
 		FT_TRACE3(( "             : subcount=%d, suboffset=0x%04lx\n",
 		    subcnt, rpos ));
 
@@ -221,17 +196,17 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 			if(error)
 				return error;
 
-			if(FT_NEW_ARRAY(ref, *count) )
+			if(FT_NEW_ARRAY(ref, *count))
 				return error;
 
 			for(j = 0; j < *count; j++) {
-				if(FT_READ_SHORT(ref[j].res_id) )
+				if(FT_READ_SHORT(ref[j].res_id))
 					goto Exit;
-				if(FT_STREAM_SKIP(2) ) /* resource name offset */
+				if(FT_STREAM_SKIP(2)) /* resource name offset */
 					goto Exit;
-				if(FT_READ_LONG(temp) ) /* attributes (8bit), offset (24bit) */
+				if(FT_READ_LONG(temp)) /* attributes (8bit), offset (24bit) */
 					goto Exit;
-				if(FT_STREAM_SKIP(4) ) /* mbz */
+				if(FT_STREAM_SKIP(4)) /* mbz */
 					goto Exit;
 
 				/*
@@ -257,7 +232,7 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 				    (size_t)*count,
 				    sizeof( FT_RFork_Ref ),
 				    ( int (*)(const void *,
-				    const void *) )ft_raccess_sort_ref_by_id);
+				    const void *))ft_raccess_sort_ref_by_id);
 
 				FT_TRACE3(( "             -- sort resources by their ids --\n" ));
 
@@ -267,7 +242,7 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 					    j, ref[j].res_id, ref[j].offset ));
 			}
 
-			if(FT_NEW_ARRAY(offsets_internal, *count) )
+			if(FT_NEW_ARRAY(offsets_internal, *count))
 				goto Exit;
 
 			/* XXX: duplicated reference ID,
@@ -278,7 +253,7 @@ FT_Raccess_Get_DataOffsets(FT_Library library,
 				offsets_internal[j] = rdata_pos + ref[j].offset;
 
 			*offsets = offsets_internal;
-			error    = FT_Err_Ok;
+			error = FT_Err_Ok;
 
 Exit:
 			FT_FREE(ref);
@@ -520,14 +495,14 @@ static FT_Error raccess_guess_darwin_hfsplus(FT_Library library,
 	if(base_file_len + 6 > FT_INT_MAX)
 		return FT_THROW(Array_Too_Large);
 
-	if(FT_ALLOC(newpath, base_file_len + 6) )
+	if(FT_ALLOC(newpath, base_file_len + 6))
 		return error;
 
 	FT_MEM_COPY(newpath, base_file_name, base_file_len);
 	FT_MEM_COPY(newpath + base_file_len, "/rsrc", 6);
 
 	*result_file_name = newpath;
-	*result_offset    = 0;
+	*result_offset = 0;
 
 	return FT_Err_Ok;
 }
@@ -549,12 +524,12 @@ static FT_Error raccess_guess_darwin_newvfs(FT_Library library,
 	memory = library->memory;
 	if(base_file_len + 18 > FT_INT_MAX)
 		return FT_THROW(Array_Too_Large);
-	if(FT_ALLOC(newpath, base_file_len + 18) )
+	if(FT_ALLOC(newpath, base_file_len + 18))
 		return error;
 	FT_MEM_COPY(newpath, base_file_name, base_file_len);
 	FT_MEM_COPY(newpath + base_file_len, "/..namedfork/rsrc", 18);
 	*result_file_name = newpath;
-	*result_offset    = 0;
+	*result_offset = 0;
 	return FT_Err_Ok;
 }
 
@@ -568,7 +543,7 @@ static FT_Error raccess_guess_vfat(FT_Library library, FT_Stream stream, char   
 	if(!newpath)
 		return FT_THROW(Out_Of_Memory);
 	*result_file_name = newpath;
-	*result_offset    = 0;
+	*result_offset = 0;
 	return FT_Err_Ok;
 }
 
@@ -586,7 +561,7 @@ static FT_Error raccess_guess_linux_cap(FT_Library library,
 	if(!newpath)
 		return FT_THROW(Out_Of_Memory);
 	*result_file_name = newpath;
-	*result_offset    = 0;
+	*result_offset = 0;
 	return FT_Err_Ok;
 }
 
@@ -663,12 +638,12 @@ static FT_Error raccess_guess_apple_generic(FT_Library library,
 	FT_UNUSED(version_number);
 	FT_UNUSED(entry_length);
 
-	if(FT_READ_LONG(magic_from_stream) )
+	if(FT_READ_LONG(magic_from_stream))
 		return error;
 	if(magic_from_stream != magic)
 		return FT_THROW(Unknown_File_Format);
 
-	if(FT_READ_LONG(version_number) )
+	if(FT_READ_LONG(version_number))
 		return error;
 
 	/* filler */
@@ -676,17 +651,17 @@ static FT_Error raccess_guess_apple_generic(FT_Library library,
 	if(error)
 		return error;
 
-	if(FT_READ_USHORT(n_of_entries) )
+	if(FT_READ_USHORT(n_of_entries))
 		return error;
 	if(n_of_entries == 0)
 		return FT_THROW(Unknown_File_Format);
 
 	for(i = 0; i < n_of_entries; i++) {
-		if(FT_READ_LONG(entry_id) )
+		if(FT_READ_LONG(entry_id))
 			return error;
 		if(entry_id == resource_fork_entry_id) {
 			if(FT_READ_LONG(entry_offset) ||
-			    FT_READ_LONG(entry_length) )
+			    FT_READ_LONG(entry_length))
 				continue;
 			*result_offset = entry_offset;
 
@@ -710,7 +685,7 @@ static FT_Error raccess_guess_linux_double_from_file_name(FT_Library library,
 	FT_Stream stream2;
 	char *         nouse = NULL;
 	FT_Error error;
-	args2.flags    = FT_OPEN_PATHNAME;
+	args2.flags = FT_OPEN_PATHNAME;
 	args2.pathname = file_name;
 	error = FT_Stream_New(library, &args2, &stream2);
 	if(error)
@@ -730,7 +705,7 @@ static char * raccess_make_file_name(FT_Memory memory, const char  * original_na
 	FT_Error error = FT_Err_Ok;
 	FT_UNUSED(error);
 	new_length = ft_strlen(original_name) + ft_strlen(insertion);
-	if(FT_ALLOC(new_name, new_length + 1) )
+	if(FT_ALLOC(new_name, new_length + 1))
 		return NULL;
 
 	tmp = ft_strrchr(original_name, '/');
@@ -742,7 +717,7 @@ static char * raccess_make_file_name(FT_Memory memory, const char  * original_na
 		slash = tmp + 1;
 	}
 	else {
-		slash       = original_name;
+		slash  = original_name;
 		new_name[0] = '\0';
 	}
 	ft_strcat(new_name, insertion);
@@ -764,8 +739,8 @@ FT_BASE_DEF(void) FT_Raccess_Guess(FT_Library library, FT_Stream stream,
 	FT_UNUSED(base_name);
 	for(i = 0; i < FT_RACCESS_N_RULES; i++) {
 		new_names[i] = NULL;
-		offsets[i]   = 0;
-		errors[i]    = FT_ERR(Unimplemented_Feature);
+		offsets[i] = 0;
+		errors[i] = FT_ERR(Unimplemented_Feature);
 	}
 }
 

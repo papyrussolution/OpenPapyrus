@@ -4972,11 +4972,42 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 			rNormalizedPath.ToLower1251();
 		}
 	}
-	if(flags & npfSlash) {
-		rNormalizedPath.ReplaceChar('\\', '/');
-	}
-	else {
-		rNormalizedPath.ReplaceChar('/', '\\');
+	{
+		const char divider = (flags & npfSlash) ? '/' : '\\';
+		const char divider_to_replace = (flags & npfSlash) ? '\\' : '/';
+		rNormalizedPath.ReplaceChar(divider_to_replace, divider);
+		char  dotdot_pattern[16];
+		dotdot_pattern[0] = divider;
+		dotdot_pattern[1] = '.';
+		dotdot_pattern[2] = '.';
+		dotdot_pattern[3] = 0;
+		if(flags & npfCompensateDotDot && rNormalizedPath.Search(dotdot_pattern, 0, 1, 0)) {
+			// //abc/d/e/../f/g/../../i"
+			// /a/..
+			StringSet ss(divider, rNormalizedPath);
+			SString temp_buf;
+			SString new_result;
+			uint   p = 0;
+			while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
+				char next_chr = rNormalizedPath.C(p+3);
+				if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
+					uint start_pos = 0;
+					uint i = p-3;
+					if(i) {
+						do {
+							char c = rNormalizedPath.C(--i);
+							if(c == divider) {
+								start_pos = i;
+								break;
+							}
+						} while(i);
+						if(start_pos) {
+							rNormalizedPath.Excise(start_pos, p+3-start_pos);
+						}
+					}
+				}
+			}
+		}
 	}
 	return rNormalizedPath;
 }

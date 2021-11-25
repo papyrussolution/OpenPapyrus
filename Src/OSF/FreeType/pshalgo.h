@@ -38,9 +38,9 @@ FT_BEGIN_HEADER
 #define PSH_HINT_FITTED  8U
 
 
-#define psh_hint_is_active( x )  ( ( (x)->flags & PSH_HINT_ACTIVE ) != 0 )
-#define psh_hint_is_ghost( x )   ( ( (x)->flags & PSH_HINT_GHOST  ) != 0 )
-#define psh_hint_is_fitted( x )  ( ( (x)->flags & PSH_HINT_FITTED ) != 0 )
+#define psh_hint_is_active( x )  (((x)->flags & PSH_HINT_ACTIVE ) != 0 )
+#define psh_hint_is_ghost( x )   (((x)->flags & PSH_HINT_GHOST  ) != 0 )
+#define psh_hint_is_fitted( x )  (((x)->flags & PSH_HINT_FITTED ) != 0 )
 
 #define psh_hint_activate( x )    (x)->flags |=  PSH_HINT_ACTIVE
 #define psh_hint_deactivate( x )  (x)->flags &= ~PSH_HINT_ACTIVE
@@ -96,7 +96,7 @@ FT_BEGIN_HEADER
   enum
   {
     PSH_DIR_NONE  =  4,
-    PSH_DIR_UP    = -1,
+    PSH_DIR_UP = -1,
     PSH_DIR_DOWN  =  1,
     PSH_DIR_LEFT  = -2,
     PSH_DIR_RIGHT =  2
@@ -105,7 +105,7 @@ FT_BEGIN_HEADER
 #define PSH_DIR_HORIZONTAL  2
 #define PSH_DIR_VERTICAL    1
 
-#define PSH_DIR_COMPARE( d1, d2 )   ( (d1) == (d2) || (d1) == -(d2) )
+#define PSH_DIR_COMPARE( d1, d2 )   ((d1) == (d2) || (d1) == -(d2))
 #define PSH_DIR_IS_HORIZONTAL( d )  PSH_DIR_COMPARE( d, PSH_DIR_HORIZONTAL )
 #define PSH_DIR_IS_VERTICAL( d )    PSH_DIR_COMPARE( d, PSH_DIR_VERTICAL )
 
@@ -117,9 +117,9 @@ FT_BEGIN_HEADER
 #define PSH_POINT_INFLEX  4U      /* point is inflection    */
 
 
-#define psh_point_is_smooth( p )  ( (p)->flags & PSH_POINT_SMOOTH )
-#define psh_point_is_off( p )     ( (p)->flags & PSH_POINT_OFF    )
-#define psh_point_is_inflex( p )  ( (p)->flags & PSH_POINT_INFLEX )
+#define psh_point_is_smooth( p )  ((p)->flags & PSH_POINT_SMOOTH )
+#define psh_point_is_off( p )     ((p)->flags & PSH_POINT_OFF    )
+#define psh_point_is_inflex( p )  ((p)->flags & PSH_POINT_INFLEX )
 
 #define psh_point_set_smooth( p )  (p)->flags |= PSH_POINT_SMOOTH
 #define psh_point_set_off( p )     (p)->flags |= PSH_POINT_OFF
@@ -136,13 +136,13 @@ FT_BEGIN_HEADER
 #define PSH_POINT_EDGE_MAX  1024U /* point is aligned to top/right stem edge   */
 
 
-#define psh_point_is_strong( p )    ( (p)->flags2 & PSH_POINT_STRONG )
-#define psh_point_is_fitted( p )    ( (p)->flags2 & PSH_POINT_FITTED )
-#define psh_point_is_extremum( p )  ( (p)->flags2 & PSH_POINT_EXTREMUM )
-#define psh_point_is_positive( p )  ( (p)->flags2 & PSH_POINT_POSITIVE )
-#define psh_point_is_negative( p )  ( (p)->flags2 & PSH_POINT_NEGATIVE )
-#define psh_point_is_edge_min( p )  ( (p)->flags2 & PSH_POINT_EDGE_MIN )
-#define psh_point_is_edge_max( p )  ( (p)->flags2 & PSH_POINT_EDGE_MAX )
+#define psh_point_is_strong( p )    ((p)->flags2 & PSH_POINT_STRONG )
+#define psh_point_is_fitted( p )    ((p)->flags2 & PSH_POINT_FITTED )
+#define psh_point_is_extremum( p )  ((p)->flags2 & PSH_POINT_EXTREMUM )
+#define psh_point_is_positive( p )  ((p)->flags2 & PSH_POINT_POSITIVE )
+#define psh_point_is_negative( p )  ((p)->flags2 & PSH_POINT_NEGATIVE )
+#define psh_point_is_edge_min( p )  ((p)->flags2 & PSH_POINT_EDGE_MIN )
+#define psh_point_is_edge_max( p )  ((p)->flags2 & PSH_POINT_EDGE_MAX )
 
 #define psh_point_set_strong( p )    (p)->flags2 |= PSH_POINT_STRONG
 #define psh_point_set_fitted( p )    (p)->flags2 |= PSH_POINT_FITTED

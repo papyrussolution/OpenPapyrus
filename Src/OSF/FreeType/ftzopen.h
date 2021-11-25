@@ -44,7 +44,7 @@ FT_BEGIN_HEADER
 
 #define LZW_BIT_MASK      0x1F
 #define LZW_BLOCK_MASK    0x80
-#define LZW_MASK( n )     ( ( 1U << (n) ) - 1U )
+#define LZW_MASK( n )     (( 1U << (n)) - 1U )
 
 
   typedef enum  FT_LzwPhase_

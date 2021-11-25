@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -89,9 +89,9 @@ class FreightFiltDialog : public TDialog {
 public:
 	FreightFiltDialog() : TDialog(DLG_FRGHTFLT)
 	{
-		SetupCalCtrl(CTLCAL_FRGHTFLT_PERIOD, this, CTL_FRGHTFLT_PERIOD, 1);
-		SetupCalCtrl(CTLCAL_FRGHTFLT_SHIPMPERIOD, this, CTL_FRGHTFLT_SHIPMPERIOD, 1);
-		SetupCalCtrl(CTLCAL_FRGHTFLT_ARRVLPERIOD, this, CTL_FRGHTFLT_ARRVLPERIOD, 1);
+		SetupCalPeriod(CTLCAL_FRGHTFLT_PERIOD, CTL_FRGHTFLT_PERIOD);
+		SetupCalPeriod(CTLCAL_FRGHTFLT_SHIPMPERIOD, CTL_FRGHTFLT_SHIPMPERIOD);
+		SetupCalPeriod(CTLCAL_FRGHTFLT_ARRVLPERIOD, CTL_FRGHTFLT_ARRVLPERIOD);
 	}
 	int    setDTS(const FreightFilt *);
 	int    getDTS(FreightFilt *);

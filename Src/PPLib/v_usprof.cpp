@@ -26,7 +26,7 @@ class UserProfileFiltDialog : public TDialog {
 public:
 	explicit UserProfileFiltDialog(TSArray <PPUserProfileCore::UfpDbEntry> & rUfpDbList) : TDialog(DLG_FLTUSRPROF), R_UfpDbList(rUfpDbList)
 	{
-		SetupCalCtrl(CTLCAL_FLTUSRPROF_PRD, this, CTL_FLTUSRPROF_PRD, 1);
+		SetupCalPeriod(CTLCAL_FLTUSRPROF_PRD, CTL_FLTUSRPROF_PRD);
 	}
 	DECL_DIALOG_SETDTS()
 	{

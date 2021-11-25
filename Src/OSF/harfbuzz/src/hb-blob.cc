@@ -407,7 +407,7 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 {
 	size_t name_len = strlen(file_name);
 	size_t len = name_len + sizeof(_PATH_RSRCFORKSPEC);
-	char * rsrc_name = (char *)SAlloc::M(len);
+	char * rsrc_name = static_cast<char *>(SAlloc::M(len));
 	if(UNLIKELY(!rsrc_name)) 
 		return -1;
 	strncpy(rsrc_name, file_name, name_len);

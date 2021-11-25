@@ -5,6 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+#define USE_NEW_CALENDAR 1 // @v11.2.4
+
 static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -348,7 +350,7 @@ int TDateCalendar::OnTodaySelection()
 					::RegisterClassEx(&wc); // @unicodeproblem
 				}
 				::GetClientRect(hWnd, &r);
-				dc->c_hWnd = ::CreateWindow(p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
+				dc->c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
 					left, top, r.right - from_right, r.bottom - from_bottom, hWnd, NULL, TProgram::GetInst(), dc); // @unicodeproblem
 				::ShowWindow(dc->c_hWnd, SW_SHOWNORMAL);
 				::SetFocus(dc->c_hWnd);
@@ -1410,83 +1412,6 @@ void TCalendar::SendToEditBox(int y1, int y2)
 }
 
 const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
-//
-// SetupCalCtrl
-//
-void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
-{
-	struct CalButtonWndEx {
-		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), CalType(calType), PrevWndProc(fPrevWndProc)
-		{
-			STRNSCPY(Signature, GetCalCtrlSignature(calType));
-		}
-		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-		{
-			CalButtonWndEx * p_cbwe = (CalButtonWndEx *)TView::GetWindowUserData(hWnd);
-			switch(message) {
-				case WM_DESTROY:
-					TView::SetWindowUserData(hWnd, (void *)0);
-					if(p_cbwe->PrevWndProc) {
-						TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_cbwe->PrevWndProc);
-					}
-					delete p_cbwe;
-					return 0;
-				case WM_LBUTTONUP:
-					if(p_cbwe->CalType) {
-						TPeriodCalendar * pc = new TPeriodCalendar(p_cbwe->Dlg, p_cbwe->EditID);
-						if(pc) {
-							pc->Show();
-							delete pc;
-						}
-					}
-					else {
-						TDateCalendar * pc = new TDateCalendar(p_cbwe->Dlg, p_cbwe->EditID);
-						if(pc) {
-							pc->ShowCalendar(0);
-							delete pc;
-						}
-					}
-					break;
-			}
-			return CallWindowProc(p_cbwe->PrevWndProc, hWnd, message, wParam, lParam);
-		}
-		char   Signature[24];
-		TDialog * Dlg;
-		uint   EditID;
-		uint   CalType;
-		WNDPROC PrevWndProc;
-	};
-	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
-	if(hwnd && T >= 0 && T <= 6) {
-		HWND   hwnd_input = GetDlgItem(pDlg->H(), editCtlID);
-		SString cls_name;
-		TView::SGetWindowClassName(hwnd, cls_name);
-		static HBITMAP hbm_daterange = 0; // @global @threadsafe
-		static HBITMAP hbm_calendar = 0;  // @global @threadsafe
-		const int cal_type = BIN(oneof3(T, 1, 2, 3)); // 1 - period, 0 - date
-		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
-		TView::SetWindowUserData(hwnd, p_cbwe);
-		TView::SetWindowProp(hwnd, GWLP_WNDPROC, CalButtonWndEx::WndProc);
-		{
-			RECT r, cr;
-			if(::GetWindowRect(hwnd_input, &r)) {
-				::GetWindowRect(hwnd, &cr);
-				POINT p;
-				p.x = r.right;
-				p.y = r.top;
-				::ScreenToClient(pDlg->H(), &p);
-				::MoveWindow(hwnd, p.x, p.y, cr.right-cr.left, r.bottom-r.top, TRUE);
-			}
-		}
-		if(!hbm_daterange || !hbm_calendar) {
-			ENTER_CRITICAL_SECTION
-			SETIFZ(hbm_daterange, APPL->LoadBitmap_(IDB_DATERANGE));
-			SETIFZ(hbm_calendar,  APPL->LoadBitmap_(IDB_CALENDAR));
-			LEAVE_CRITICAL_SECTION
-		}
-		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
-	}
-}
 
 int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
@@ -1746,7 +1671,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 		wc.hbrBackground = static_cast<HBRUSH>(::GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
-	c_hWnd = ::CreateWindow(p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
+	c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
 		8, 85, 188, 200, parent_hWnd, NULL, TProgram::GetInst(), this); // @unicodeproblem
 	Top  = 80;
 	Left = 7;
@@ -1761,105 +1686,104 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 void ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show)
 	{ ShowWindow(GetDlgItem(pDlg->H(), buttCtlID), show ? SW_SHOW : SW_HIDE); }
 
-void TDialog::SetupCalendar(uint calCtlID, uint inputCtlID, int kind)
-	{ SetupCalCtrl(calCtlID, this, inputCtlID, kind); }
-void TDialog::SetupCalDate(uint calCtlID, uint inputCtlID)
-	{ SetupCalendar(calCtlID, inputCtlID, 4); }
-void TDialog::SetupCalPeriod(uint calCtlID, uint inputCtlID)
-	{ SetupCalendar(calCtlID, inputCtlID, 1); }
-//
-// @construction 
-// Новый вариант виджета для выбора даты и периода
-// 
-class SCalendarPicker : public TWindowBase {
-public:
-	struct DataBlock {
-		DataBlock() : Dtm(ZERODATETIME)
+static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
+{
+	struct CalButtonWndEx {
+		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), CalType(calType), PrevWndProc(fPrevWndProc)
 		{
-			Period.Z();
+			STRNSCPY(Signature, GetCalCtrlSignature(calType));
 		}
-		LDATETIME Dtm;
-		DateRange Period;
-	};
-private:
-	DECL_DIALOG_DATA(DataBlock);
-public:
-	enum {
-		kDate     = 1,
-		kPeriod   = 2,
-		kTime     = 3,
-		kDateTime = 4
-	};
-	explicit SCalendarPicker(int kind);
-	~SCalendarPicker()
-	{
-		//delete P_Lfc;
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		return ok;
-	}
-protected:
-	enum {
-		loiYear,
-		loiYearArrow,
-		loiMonth,
-		loiWeekday,
-		loiDay,
-		//loiHour,        // 
-		//loiMinute,      //
-		loiFrame_Main,
-		loiFrame_Years,
-		loiFrame_Monthes,
-		loiFrame_Days,
-		loiFrame_Buttons, // 0 - frame, 1 - now, 2 - ok, 3 - cancel, 4 - left-opened-period, 5 - right-opened-period, 6 - reset period
-		loiFrame_PeriodTypeButtons, // 0 - frame, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUARD, PRD_ANNUAL
-		loiFrame_Hours,  // 0 - frame
-		loiFrame_Minuts, // 0 - frame
-	};
-	struct LayoutExtra {
-		LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
+		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
+			CalButtonWndEx * p_cbwe = static_cast<CalButtonWndEx *>(TView::GetWindowUserData(hWnd));
+			switch(message) {
+				case WM_DESTROY:
+					TView::SetWindowUserData(hWnd, (void *)0);
+					if(p_cbwe->PrevWndProc) {
+						TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_cbwe->PrevWndProc);
+					}
+					delete p_cbwe;
+					return 0;
+				case WM_LBUTTONUP:
+					if(p_cbwe->CalType) {
+#if USE_NEW_CALENDAR
+						SCalendarPicker::Exec(SCalendarPicker::kPeriod, p_cbwe->Dlg, p_cbwe->EditID);
+#else
+						TPeriodCalendar * pc = new TPeriodCalendar(p_cbwe->Dlg, p_cbwe->EditID);
+						if(pc) {
+							pc->Show();
+							delete pc;
+						}
+#endif
+					}
+					else {
+#if USE_NEW_CALENDAR
+						SCalendarPicker::Exec(SCalendarPicker::kDate, p_cbwe->Dlg, p_cbwe->EditID);
+#else
+						TDateCalendar * pc = new TDateCalendar(p_cbwe->Dlg, p_cbwe->EditID);
+						if(pc) {
+							pc->ShowCalendar(0);
+							delete pc;
+						}
+#endif
+					}
+					break;
+			}
+			return CallWindowProc(p_cbwe->PrevWndProc, hWnd, message, wParam, lParam);
 		}
-		int   Ident; // loiXXX
-		uint  Value; // Для месяцев - месяц, для дней - день, для дней недели - день недели, 
-			// для loiYearArrow: SIDE_LEFT - left, SIDE_RIGHT - right
-			// Для лет - (year - StartLoYear)
+		char   Signature[24];
+		TDialog * Dlg;
+		const uint EditID;
+		const uint CalType;
+		WNDPROC PrevWndProc;
 	};
-	DECL_HANDLE_EVENT;
-	static const char * GetWindowTitle(int kind);
-	static const SVector & GetLayoutExtraVector();
-	const LayoutExtra * GetLayoutExtra(int ident, uint val) const;
-	void   CreateFont_();
-	void   CreateLayout(LDATE selectedDate);
-	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
-	void   EvaluateLayout(/*float width, float height*/const TRect & rR);
-	SUiLayout * Helper_FindLayout(SUiLayout * pItem, int extraIdent, uint extraValue);
-	SUiLayout * FindLayout(int extraIdent, uint extraValue);
-	LDATE  AdjustLeftDate(int prdType, LDATE d) const;
-	LDATE  AdjustRightDate(int prdType, LDATE d) const;
-	void   UpdateSelectedPeriod(const DateRange * pNewPeriod);
-	//SUiLayout * P_LastLayout;
-	const  int Kind;
-	const  SUiLayout * P_LoFocused;
-	const  SVector LoExtraList;
-	int    FontId;
-	int    CStyleId;
-	int    CStyleFocusId;
-	uint   StartLoYear;  // Стартовый год в блоке выбора года.
-	long   PeriodTerm;   // PRD_XXX Kind==kPeriod
-	long   PeriodPredef; // Предопределенный период (сегодня, вчера, последняя неделя и т.д.)
-	//LDATETIME SelectedValue_;
-	//DateRange SelectedPeriod_; // Kind==kPeriod
-};
+	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
+	if(hwnd && T >= 0 && T <= 6) {
+		HWND   hwnd_input = GetDlgItem(pDlg->H(), editCtlID);
+		SString cls_name;
+		TView::SGetWindowClassName(hwnd, cls_name);
+		static HBITMAP hbm_daterange = 0; // @global @threadsafe
+		static HBITMAP hbm_calendar = 0;  // @global @threadsafe
+		const int cal_type = BIN(oneof3(T, 1, 2, 3)); // 1 - period, 0 - date
+		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
+		TView::SetWindowUserData(hwnd, p_cbwe);
+		TView::SetWindowProp(hwnd, GWLP_WNDPROC, CalButtonWndEx::WndProc);
+		{
+			RECT r, cr;
+			if(::GetWindowRect(hwnd_input, &r)) {
+				::GetWindowRect(hwnd, &cr);
+				POINT p;
+				p.x = r.right;
+				p.y = r.top;
+				::ScreenToClient(pDlg->H(), &p);
+				::MoveWindow(hwnd, p.x, p.y, cr.right-cr.left, r.bottom-r.top, TRUE);
+			}
+		}
+		if(!hbm_daterange || !hbm_calendar) {
+			ENTER_CRITICAL_SECTION
+			SETIFZ(hbm_daterange, APPL->LoadBitmap_(IDB_DATERANGE));
+			SETIFZ(hbm_calendar,  APPL->LoadBitmap_(IDB_CALENDAR));
+			LEAVE_CRITICAL_SECTION
+		}
+		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
+	}
+}
 
+//void TDialog::SetupCalendar(uint calCtlID, uint inputCtlID, int kind) { SetupCalCtrl(calCtlID, this, inputCtlID, kind); }
+void TDialog::SetupCalDate(uint calCtlID, uint inputCtlID) { SetupCalCtrl(calCtlID, this, inputCtlID, 4); } //{ SetupCalendar(calCtlID, inputCtlID, 4); }
+void TDialog::SetupCalPeriod(uint calCtlID, uint inputCtlID) { SetupCalCtrl(calCtlID, this, inputCtlID, 1); } //{ SetupCalendar(calCtlID, inputCtlID, 1); }
+//
 static const uint NumYearsInView = 5;
+static const float FixedCtrlHeight = 20.0f;
+
+SCalendarPicker::DataBlock::DataBlock() : Dtm(ZERODATETIME)
+{
+	Period.Z();
+}
+
+SCalendarPicker::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
+{
+}
 
 /*static*/const SVector & SCalendarPicker::GetLayoutExtraVector()
 {
@@ -1932,6 +1856,26 @@ SCalendarPicker::SCalendarPicker(int kind) : TWindowBase(SUcSwitch(SCalendarPick
 	Data.Dtm = getcurdatetime_();
 	Data.Period.Z();
 	assert(oneof4(kind, kDate, kPeriod, kTime, kDateTime));
+}
+
+SCalendarPicker::~SCalendarPicker()
+{
+}
+
+IMPL_DIALOG_SETDTS(SCalendarPicker)
+{
+	int    ok = 1;
+	RVALUEPTR(Data, pData);
+	invalidateAll(true);
+	::UpdateWindow(H());
+	return ok;
+}
+	
+IMPL_DIALOG_GETDTS(SCalendarPicker)
+{
+	int    ok = 1;
+	ASSIGN_PTR(pData, Data);
+	return ok;
 }
 
 const SCalendarPicker::LayoutExtra * SCalendarPicker::GetLayoutExtra(int ident, uint val) const
@@ -2158,8 +2102,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			{
 				SUiLayoutParam alb;
 				alb.GrowFactor = 1.0f;
-				//alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetFixedSizeY(20.0f);
+				alb.SetFixedSizeY(FixedCtrlHeight);
 				alb.Margin.Set(def_margin);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_TODAY, alb, 1.0f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_OKBUTTON, alb, 1.0f);
@@ -2171,7 +2114,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		{
 			TView * p = getCtrlView(CTLSEL_CALENDAR_FASTPRD);
 			if(p && p->GetSubSign() == TV_SUBSIGN_COMBOBOX) {
-				SUiLayout * p_lo_inp2 = SUiLayout::CreateComplexLayout(SUiLayout::cmplxtInpLblBtn, /*SUiLayout::clfLabelLeft*/0, 20.0f, p_lo_result);
+				SUiLayout * p_lo_inp2 = SUiLayout::CreateComplexLayout(SUiLayout::cmplxtInpLblBtn, /*SUiLayout::clfLabelLeft*/0, FixedCtrlHeight, p_lo_result);
 				if(p_lo_inp2) {
 					TInputLine * p_il = static_cast<ComboBox *>(p)->link();
 					{
@@ -2213,7 +2156,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		{
 			TView * p = getCtrlView(CTL_CALENDAR_PERIODEDIT);
 			if(p) {
-				SUiLayout * p_lo_inp2 = SUiLayout::CreateComplexLayout(SUiLayout::cmplxtInpLbl, /*SUiLayout::clfLabelLeft*/0, 20.0f, p_lo_result);
+				SUiLayout * p_lo_inp2 = SUiLayout::CreateComplexLayout(SUiLayout::cmplxtInpLbl, /*SUiLayout::clfLabelLeft*/0, FixedCtrlHeight, p_lo_result);
 				if(p_lo_inp2) {
 					{
 						SUiLayoutParam alb = p_lo_inp2->GetLayoutBlock();
@@ -2255,7 +2198,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				SUiLayoutParam alb;
 				alb.GrowFactor = 1.0f;
 				//alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetFixedSizeY(20.0f);
+				alb.SetFixedSizeY(FixedCtrlHeight);
 				alb.Margin.Set(def_margin);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_LEFTRESET, alb, 0.4f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_RESET, alb, 0.4f);
@@ -2396,7 +2339,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				alb.GrowFactor = 1.0f;
 				alb.AlignSelf = SUiLayoutParam::alignEnd;
 				//alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetFixedSizeY(20.0f);
+				alb.SetFixedSizeY(FixedCtrlHeight);
 				alb.Margin.Set(def_margin);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_TODAY, alb, 1.0f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_OKBUTTON, alb, 1.0f);
@@ -2857,8 +2800,8 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			}
 			CreateLayout(NZOR(Data.Dtm.d, getcurdate_()));
 			EvaluateLayout(p_blk->Coord);
-			invalidateAll(1);
-			::UpdateWindow(H());
+			invalidateAll(true);
+			//::UpdateWindow(H());
 		}
 		else if(event.isCbSelected(CTLSEL_CALENDAR_FASTPRD)) {
 			if(Kind == kPeriod) {
@@ -2866,6 +2809,12 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				DateRange np;
 				if(np.SetPredefined(predefprdid, ZERODATE))
 					UpdateSelectedPeriod(&np);
+			}
+		}
+		else if(event.isCmd(cmClose)) {
+			if(IsInState(sfModal)) {
+				EndModalCmd = cmCancel;
+				clearEvent(event);
 			}
 		}
 		else if(event.isCmd(cmOK) || event.isCmd(cmCancel)) {
@@ -2887,7 +2836,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					CreateLayout(Data.Dtm.d);
 					if(P_Lfc) {
 						EvaluateLayout(getClientRect());
-						invalidateAll(1);
+						invalidateAll(true);
 						::UpdateWindow(H());
 					}
 				}
@@ -2895,7 +2844,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			else if(Kind == kTime) {
 				if(Data.Dtm.t != _now.t) {
 					Data.Dtm.t = _now.t;
-					invalidateAll(1);
+					invalidateAll(true);
 					::UpdateWindow(H());
 				}
 			}
@@ -2939,6 +2888,43 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					}
 				}
 			}
+			else if(p_blk->Type == MouseEvent::tLDblClk) {
+				if(IsInState(sfModal)) {
+					if(Kind == kDate) {
+						const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
+						if(p_lo_extra->Ident == loiDay) {
+							const int d = p_lo_extra->Value;
+							int y = Data.Dtm.d.year();
+							int m = Data.Dtm.d.month();
+							const int dpm = dayspermonth(m, y);
+							if(checkirange(d, 1, dpm)) {
+								Data.Dtm.d.encode(d, m, y);
+								EndModalCmd = cmOK;
+								clearEvent(event);
+							}
+						}
+					}
+					else if(Kind == kTime) {
+						const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
+						if(p_lo_extra->Ident == loiFrame_Minuts) {
+							const int m = p_lo_extra->Value;
+							bool do_finish = false;
+							if(m == 0xffffU) {
+								Data.Dtm.t.encode(Data.Dtm.t.hour(), 0, 0, 0);
+								do_finish = true;
+							}
+							else if(checkirange(m, 1, 59)) {
+								Data.Dtm.t.encode(Data.Dtm.t.hour(), m, 0, 0);
+								do_finish = true;
+							}
+							if(do_finish) {
+								EndModalCmd = cmOK;
+								clearEvent(event);								
+							}
+						}
+					}
+				}
+			}
 			else if(p_blk->Type == MouseEvent::tLDown) {
 				const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
 				if(p_lo_extra) {
@@ -2973,7 +2959,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 									redraw_lo_list.Add(FindLayout(loiFrame_Monthes, 0));
 									redraw_lo_list.Add(FindLayout(loiFrame_Years, 0));
 									redraw_lo_list.Add(FindLayout(loiFrame_PeriodTypeButtons, 0));
-									//invalidateAll(1);
+									//invalidateAll(true);
 									do_redraw = true;
 								}
 							}
@@ -3035,11 +3021,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 											}
 										}
 										else {
-											//do_rebuild = true;
 											redraw_lo_list.Add(FindLayout(loiFrame_Days, 0));
-											//redraw_lo_list.Add(FindLayout(loiFrame_Monthes, 0));
-											//redraw_lo_list.Add(FindLayout(loiFrame_Years, 0));
-											//redraw_lo_list.Add(FindLayout(loiFrame_PeriodTypeButtons, 0));
 											do_redraw = true;
 										}
 									}
@@ -3050,7 +3032,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							{
 								const int h = p_lo_extra->Value;
 								if(checkirange(h, 1, 24)) {
-									Data.Dtm.t.encode(h-1, Data.Dtm.t.minut(), Data.Dtm.t.sec(), Data.Dtm.t.hs() * 10);
+									Data.Dtm.t.encode(h-1, Data.Dtm.t.minut(), 0, 0);
 									redraw_lo_list.Add(FindLayout(loiFrame_Hours, 0));
 									redraw_lo_list.Add(FindLayout(loiFrame_Minuts, 0));
 									do_redraw = true;
@@ -3061,13 +3043,13 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							{
 								const int m = p_lo_extra->Value;
 								if(m == 0xffffU) {
-									Data.Dtm.t.encode(Data.Dtm.t.hour(), 0, Data.Dtm.t.sec(), Data.Dtm.t.hs() * 10);
+									Data.Dtm.t.encode(Data.Dtm.t.hour(), 0, 0, 0);
 									redraw_lo_list.Add(FindLayout(loiFrame_Hours, 0));
 									redraw_lo_list.Add(FindLayout(loiFrame_Minuts, 0));
 									do_redraw = true;
 								}
 								else if(checkirange(m, 1, 59)) {
-									Data.Dtm.t.encode(Data.Dtm.t.hour(), m, Data.Dtm.t.sec(), Data.Dtm.t.hs() * 10);
+									Data.Dtm.t.encode(Data.Dtm.t.hour(), m, 0, 0);
 									redraw_lo_list.Add(FindLayout(loiFrame_Hours, 0));
 									redraw_lo_list.Add(FindLayout(loiFrame_Minuts, 0));
 									do_redraw = true;
@@ -3081,19 +3063,11 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				CreateLayout(Data.Dtm.d);
 				if(P_Lfc) {
 					EvaluateLayout(getClientRect());
-					invalidateAll(1);
+					invalidateAll(true);
 					do_redraw = true;
 				}
 			}
-			/*if(Data.Period != prev_selected_period) {
-				redraw_lo_list.Add(FindLayout(loiFrame_Days, 0));
-				redraw_lo_list.Add(FindLayout(loiFrame_Monthes, 0));
-				redraw_lo_list.Add(FindLayout(loiFrame_Years, 0));
-				redraw_lo_list.Add(FindLayout(loiFrame_PeriodTypeButtons, 0));
-				//invalidateAll(1);
-				do_redraw = true;
-			}
-			else*/if(p_prev_focused != P_LoFocused) {
+			if(p_prev_focused != P_LoFocused) {
 				redraw_lo_list.Add(p_prev_focused);
 				redraw_lo_list.Add(P_LoFocused);
 				do_redraw = true;
@@ -3127,29 +3101,112 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				}
 			}
 		}
-		/*else if(event.isCmd(cmSize)) {
-			SizeEvent * p_blk = static_cast<SizeEvent *>(TVINFOPTR);
-			{
-				//CreateLayout(NZOR(SelectedDate, getcurdate_()));
-				//SUiLayout::Param evp;
-				//evp.ForceWidth = p_blk->NewSize.x;
-				//evp.ForceHeight = p_blk->NewSize.y;
-				//P_Lfc->GetLayoutBlock().SetFixedSizeX(p_blk->NewSize.x);
-				//P_Lfc->GetLayoutBlock().SetFixedSizeY(p_blk->NewSize.y);
-				//P_Lfc->Evaluate(0);
-			}
-			invalidateAll(1);
-			::UpdateWindow(H());
-		}*/
 	}
 }
 //
+/*static*/int SCalendarPicker::Exec(const int kind, DataBlock & rData)
+{
+	int    ok = -1;
+	TRect  b;
+	switch(kind) {
+		case SCalendarPicker::kDate: b.set(0, 0, 295, 340); break;
+		case SCalendarPicker::kPeriod: b.set(0, 0, 295, 440); break;
+		case SCalendarPicker::kTime: b.set(0, 0, 452, 306); break;
+	}
+	SCalendarPicker * p_win = new SCalendarPicker(kind);
+	THROW_MEM(p_win);
+	p_win->setBounds(b);
+	p_win->setDTS(&rData);
+	ok = APPL->P_DeskTop->execView(p_win);
+	if(ok > 0) {
+		p_win->getDTS(&rData);
+	}
+	CATCHZOK
+	delete p_win;
+	return ok;
+}
+
+/*static*/int SCalendarPicker::Exec(const int kind, TDialog * pParentDlg, uint inputCtlId)
+{
+	int    ok = -1;
+	SCalendarPicker * p_win = 0;
+	if(pParentDlg) {
+		TView * p_view = pParentDlg->getCtrlView(inputCtlId);
+		if(p_view) {
+			TRect  b;
+			DataBlock blk;
+			blk.Dtm = getcurdatetime_();
+			switch(kind) {
+				case SCalendarPicker::kDate: 
+					b.set(0, 0, 295, 340);
+					blk.Dtm.d = pParentDlg->getCtrlDate(inputCtlId);
+					break;
+				case SCalendarPicker::kPeriod: 
+					b.set(0, 0, 295, 440); 
+					GetPeriodInput(pParentDlg, inputCtlId, &blk.Period);
+					if(checkdate(blk.Period.low))
+						blk.Dtm.d = blk.Period.low;
+					else if(checkdate(blk.Period.upp))
+						blk.Dtm.d = blk.Period.upp;
+					break;
+				case SCalendarPicker::kTime: 
+					b.set(0, 0, 452, 306); 
+					blk.Dtm.t = pParentDlg->getCtrlTime(inputCtlId);
+					break;
+				default:
+					CALLEXCEPT();
+			}
+			{
+				HWND   h_ctl = GetDlgItem(pParentDlg->H(), inputCtlId);
+				if(h_ctl) {
+					RECT rect;
+					GetWindowRect(h_ctl, &rect);
+					b.move(rect.left, rect.bottom);
+				}
+			}
+			SlBreakpointCondition[0] = true; // @debug
+			p_win = new SCalendarPicker(kind);
+			THROW_MEM(p_win);
+			p_win->setBounds(b);
+			p_win->setDTS(&blk);
+			ok = APPL->P_DeskTop->execView(p_win);
+			SlBreakpointCondition[0] = false; // @debug
+			if(ok > 0) {
+				p_win->getDTS(&blk);
+				switch(kind) {
+					case SCalendarPicker::kDate: 
+						pParentDlg->setCtrlDate(inputCtlId, blk.Dtm.d);
+						break;
+					case SCalendarPicker::kPeriod: 
+						SetPeriodInput(pParentDlg, inputCtlId, &blk.Period);
+						break;
+					case SCalendarPicker::kTime: 
+						pParentDlg->setCtrlTime(inputCtlId, blk.Dtm.t);
+						break;
+					default:
+						assert(0);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_win;
+	return ok;
+}
+
 int Test_Launch_SCalendarPicker()
 {
 	int    ok = 1;
-	SCalendarPicker * p_win = new SCalendarPicker(SCalendarPicker::/*kDate*/kPeriod/*kTime*/);
+	int    kind = SCalendarPicker::kDate/*kPeriod*//*kTime*/;
+	TRect b;
+	switch(kind) {
+		case SCalendarPicker::kDate: b.set(0, 0, 295, 340); break;
+		case SCalendarPicker::kPeriod: b.set(0, 0, 295, 440); break;
+		case SCalendarPicker::kTime: b.set(0, 0, 452, 306); break;
+	}
+	SCalendarPicker * p_win = new SCalendarPicker(kind);
 	THROW_MEM(p_win);
-	p_win->setBounds(TRect(0, 0, 300, 440));
+	p_win->setBounds(b);
 	ok = APPL->P_DeskTop->execView(p_win);
 	CATCHZOK
 	delete p_win;

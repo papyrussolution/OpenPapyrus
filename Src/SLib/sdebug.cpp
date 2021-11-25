@@ -1,10 +1,12 @@
 // SDEBUG.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <malloc.h>
 #include <crtdbg.h>
+
+bool SlBreakpointCondition[16];
 
 MemLeakTracer::MemLeakTracer()
 {

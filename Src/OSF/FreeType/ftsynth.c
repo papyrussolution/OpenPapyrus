@@ -70,7 +70,7 @@ FT_EXPORT_DEF(void) FT_GlyphSlot_Embolden(FT_GlyphSlot slot)
 	if(!slot)
 		return;
 	library = slot->library;
-	face    = slot->face;
+	face = slot->face;
 	if(slot->format != FT_GLYPH_FORMAT_OUTLINE && slot->format != FT_GLYPH_FORMAT_BITMAP)
 		return;
 	/* some reasonable strength */

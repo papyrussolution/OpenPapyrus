@@ -30,8 +30,8 @@
 static void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
 {
 	do {
-		cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number*)buf);
-		*(cmsUInt32Number*)buf = t;
+		cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number *)buf);
+		*(cmsUInt32Number *)buf = t;
 		buf += sizeof(cmsUInt32Number);
 	} while(--longs);
 }
@@ -173,7 +173,7 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const cmsUInt8Number* buf, cmsUInt32N
 		memmove(p, buf, t);
 		byteReverse(ctx->in, 16);
 
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
+		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
 		buf += t;
 		len -= t;
 	}
@@ -181,7 +181,7 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const cmsUInt8Number* buf, cmsUInt32N
 	while(len >= 64) {
 		memmove(ctx->in, buf, 64);
 		byteReverse(ctx->in, 16);
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
+		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
 		buf += 64;
 		len -= 64;
 	}
@@ -202,7 +202,7 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	if(count < 8) {
 		memzero(p, count);
 		byteReverse(ctx->in, 16);
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
+		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
 		memzero(ctx->in, 56);
 	}
 	else {
@@ -210,10 +210,10 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	}
 	byteReverse(ctx->in, 14);
 
-	((cmsUInt32Number*)ctx->in)[14] = ctx->bits[0];
-	((cmsUInt32Number*)ctx->in)[15] = ctx->bits[1];
+	((cmsUInt32Number *)ctx->in)[14] = ctx->bits[0];
+	((cmsUInt32Number *)ctx->in)[15] = ctx->bits[1];
 
-	cmsMD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
+	cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
 	byteReverse((cmsUInt8Number *)ctx->buf, 4);
 	memmove(ProfileID->ID8, ctx->buf, 16);
 	_cmsFree(ctx->ContextID, ctx);

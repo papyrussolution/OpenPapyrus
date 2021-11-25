@@ -133,7 +133,7 @@ public:
 	{
 		PPWaitStart();
 		ReportViewItemArray _list;
-		SetupCalCtrl(CTLCAL_REPORTFLT_PERIOD, this, CTL_REPORTFLT_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_REPORTFLT_PERIOD, CTL_REPORTFLT_PERIOD);
 		if(pView) {
 			if(pView->CreateStdRptList(&_list) > 0) {
 				_list.sort(PTR_CMPFUNC(REPORTNAME));

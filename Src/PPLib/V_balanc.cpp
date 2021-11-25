@@ -213,7 +213,7 @@ class BalanceFiltDialog : public TDialog {
 public:
 	BalanceFiltDialog() : TDialog(DLG_BALFORM)
 	{
-		SetupCalCtrl(CTLCAL_BALFORM_PERIOD, this, CTL_BALFORM_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_BALFORM_PERIOD, CTL_BALFORM_PERIOD);
 		setDTS(0);
 	}
 	DECL_DIALOG_SETDTS()

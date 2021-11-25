@@ -354,29 +354,25 @@ static const char * PredefinedSampleID[] = {
 static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size);
 
 // Checks whatever c is a separator
-static
-cmsBool isseparator(int c)
+static cmsBool isseparator(int c)
 {
 	return (c == ' ') || (c == '\t');
 }
 
 // Checks whatever c is a valid identifier char
-static
-cmsBool ismiddle(int c)
+static cmsBool ismiddle(int c)
 {
 	return (!isseparator(c) && (c != '#') && (c !='\"') && (c != '\'') && (c > 32) && (c < 127));
 }
 
 // Checks whatsever c is a valid identifier middle char.
-static
-cmsBool isidchar(int c)
+static cmsBool isidchar(int c)
 {
 	return isalnum(c) || ismiddle(c);
 }
 
 // Checks whatsever c is a valid identifier first char.
-static
-cmsBool isfirstidchar(int c)
+static cmsBool isfirstidchar(int c)
 {
 	return !isdigit(c) && ismiddle(c);
 }
@@ -559,8 +555,7 @@ static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 // Parses a float number
 // This can not call directly atof because it uses locale dependent
 // parsing, while CCMX files always use . as decimal separator
-static
-cmsFloat64Number ParseFloatNumber(const char * Buffer)
+static cmsFloat64Number ParseFloatNumber(const char * Buffer)
 {
 	cmsFloat64Number dnum = 0.0;
 	int sign = 1;
@@ -628,8 +623,7 @@ cmsFloat64Number ParseFloatNumber(const char * Buffer)
 }
 
 // Reads next symbol
-static
-void InSymbol(cmsIT8* it8)
+static void InSymbol(cmsIT8* it8)
 {
 	CMSREGISTER char * idptr;
 	CMSREGISTER int k;
@@ -861,8 +855,7 @@ void InSymbol(cmsIT8* it8)
 }
 
 // Checks end of line separator
-static
-cmsBool CheckEOLN(cmsIT8* it8)
+static cmsBool CheckEOLN(cmsIT8* it8)
 {
 	if(!Check(it8, SEOLN, "Expected separator")) return FALSE;
 	while(it8->sy == SEOLN)
@@ -872,8 +865,7 @@ cmsBool CheckEOLN(cmsIT8* it8)
 
 // Skip a symbol
 
-static
-void Skip(cmsIT8* it8, SYMBOL sy)
+static void Skip(cmsIT8* it8, SYMBOL sy)
 {
 	if(it8->sy == sy && it8->sy != SEOF)
 		InSymbol(it8);
@@ -944,32 +936,25 @@ void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 {
 	OWNEDMEM* ptr1;
 	void * ptr = _cmsMallocZero(it8->ContextID, size);
-
 	if(ptr != NULL) {
 		ptr1 = (OWNEDMEM*)_cmsMallocZero(it8->ContextID, sizeof(OWNEDMEM));
-
 		if(ptr1 == NULL) {
 			_cmsFree(it8->ContextID, ptr);
 			return NULL;
 		}
-
 		ptr1->Ptr        = ptr;
 		ptr1->Next       = it8->MemorySink;
 		it8->MemorySink = ptr1;
 	}
-
 	return ptr;
 }
 
 // Suballocator.
-static
-void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
+static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 {
 	cmsUInt32Number Free = it8->Allocator.BlockSize - it8->Allocator.Used;
 	cmsUInt8Number* ptr;
-
 	size = _cmsALIGNMEM(size);
-
 	if(size > Free) {
 		if(it8->Allocator.BlockSize == 0)
 
@@ -1085,29 +1070,22 @@ static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const
 	return p;
 }
 
-static
-KEYVALUE* AddAvailableProperty(cmsIT8* it8, const char * Key, WRITEMODE as)
+static KEYVALUE* AddAvailableProperty(cmsIT8* it8, const char * Key, WRITEMODE as)
 {
 	return AddToList(it8, &it8->ValidKeywords, Key, NULL, NULL, as);
 }
 
-static
-KEYVALUE* AddAvailableSampleID(cmsIT8* it8, const char * Key)
+static KEYVALUE* AddAvailableSampleID(cmsIT8* it8, const char * Key)
 {
 	return AddToList(it8, &it8->ValidSampleID, Key, NULL, NULL, WRITE_UNCOOKED);
 }
 
-static
-void AllocTable(cmsIT8* it8)
+static void AllocTable(cmsIT8* it8)
 {
-	TABLE* t;
-
-	t = it8->Tab + it8->TablesCount;
-
+	TABLE* t = it8->Tab + it8->TablesCount;
 	t->HeaderList = NULL;
 	t->DataFormat = NULL;
 	t->Data       = NULL;
-
 	it8->TablesCount++;
 }
 
@@ -1270,15 +1248,11 @@ const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, 
 
 // ----------------------------------------------------------------- Datasets
 
-static
-void AllocateDataFormat(cmsIT8* it8)
+static void AllocateDataFormat(cmsIT8* it8)
 {
 	TABLE* t = GetTable(it8);
-
 	if(t->DataFormat) return;   // Already allocated
-
 	t->nSamples  = (int)cmsIT8GetPropertyDbl(it8, "NUMBER_OF_FIELDS");
-
 	if(t->nSamples <= 0) {
 		SynError(it8, "AllocateDataFormat: Unknown NUMBER_OF_FIELDS");
 		t->nSamples = 10;
@@ -1290,25 +1264,19 @@ void AllocateDataFormat(cmsIT8* it8)
 	}
 }
 
-static
-const char * GetDataFormat(cmsIT8* it8, int n)
+static const char * GetDataFormat(cmsIT8* it8, int n)
 {
 	TABLE* t = GetTable(it8);
-
 	if(t->DataFormat)
 		return t->DataFormat[n];
-
 	return NULL;
 }
 
-static
-cmsBool SetDataFormat(cmsIT8* it8, int n, const char * label)
+static cmsBool SetDataFormat(cmsIT8* it8, int n, const char * label)
 {
 	TABLE* t = GetTable(it8);
-
 	if(!t->DataFormat)
 		AllocateDataFormat(it8);
-
 	if(n > t->nSamples) {
 		SynError(it8, "More than NUMBER_OF_FIELDS fields.");
 		return FALSE;
@@ -1327,16 +1295,12 @@ cmsBool CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE h, int n, const char * Sample)
 	return SetDataFormat(it8, n, Sample);
 }
 
-static
-void AllocateDataSet(cmsIT8* it8)
+static void AllocateDataSet(cmsIT8* it8)
 {
 	TABLE* t = GetTable(it8);
-
 	if(t->Data) return;   // Already allocated
-
 	t->nSamples   = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
 	t->nPatches   = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_SETS"));
-
 	if(t->nSamples < 0 || t->nSamples > 0x7ffe || t->nPatches < 0 || t->nPatches > 0x7ffe) {
 		SynError(it8, "AllocateDataSet: too much data");
 	}
@@ -1348,8 +1312,7 @@ void AllocateDataSet(cmsIT8* it8)
 	}
 }
 
-static
-char * GetData(cmsIT8* it8, int nSet, int nField)
+static char * GetData(cmsIT8* it8, int nSet, int nField)
 {
 	TABLE* t = GetTable(it8);
 	int nSamples    = t->nSamples;
@@ -1362,8 +1325,7 @@ char * GetData(cmsIT8* it8, int nSet, int nField)
 	return t->Data [nSet * nSamples + nField];
 }
 
-static
-cmsBool SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
+static cmsBool SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
 {
 	TABLE* t = GetTable(it8);
 
@@ -1387,8 +1349,7 @@ cmsBool SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
 // --------------------------------------------------------------- File I/O
 
 // Writes a string to file
-static
-void WriteStr(SAVESTREAM* f, const char * str)
+static void WriteStr(SAVESTREAM* f, const char * str)
 {
 	cmsUInt32Number len;
 
@@ -1420,8 +1381,7 @@ void WriteStr(SAVESTREAM* f, const char * str)
 
 // Write formatted
 
-static
-void Writef(SAVESTREAM* f, const char * frm, ...)
+static void Writef(SAVESTREAM* f, const char * frm, ...)
 {
 	char Buffer[4096];
 	va_list args;
@@ -1434,8 +1394,7 @@ void Writef(SAVESTREAM* f, const char * frm, ...)
 }
 
 // Writes full header
-static
-void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
+static void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 {
 	KEYVALUE* p;
 	TABLE* t = GetTable(it8);
@@ -1504,8 +1463,7 @@ void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 }
 
 // Writes the data format
-static
-void WriteDataFormat(SAVESTREAM* fp, cmsIT8* it8)
+static void WriteDataFormat(SAVESTREAM* fp, cmsIT8* it8)
 {
 	int i, nSamples;
 	TABLE* t = GetTable(it8);
@@ -1525,8 +1483,7 @@ void WriteDataFormat(SAVESTREAM* fp, cmsIT8* it8)
 }
 
 // Writes data array
-static
-void WriteData(SAVESTREAM* fp, cmsIT8* it8)
+static void WriteData(SAVESTREAM* fp, cmsIT8* it8)
 {
 	int i, j;
 	TABLE* t = GetTable(it8);
@@ -1615,8 +1572,7 @@ cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number
 
 // -------------------------------------------------------------- Higher level parsing
 
-static
-cmsBool DataFormatSection(cmsIT8* it8)
+static cmsBool DataFormatSection(cmsIT8* it8)
 {
 	int iField = 0;
 	TABLE* t = GetTable(it8);
@@ -1650,8 +1606,7 @@ cmsBool DataFormatSection(cmsIT8* it8)
 	return TRUE;
 }
 
-static
-cmsBool DataSection(cmsIT8* it8)
+static cmsBool DataSection(cmsIT8* it8)
 {
 	int iField = 0;
 	int iSet   = 0;
@@ -1696,8 +1651,7 @@ cmsBool DataSection(cmsIT8* it8)
 	return TRUE;
 }
 
-static
-cmsBool HeaderSection(cmsIT8* it8)
+static cmsBool HeaderSection(cmsIT8* it8)
 {
 	char VarName[MAXID];
 	char Buffer[MAXSTR];
@@ -1793,8 +1747,7 @@ cmsBool HeaderSection(cmsIT8* it8)
 	return TRUE;
 }
 
-static
-void ReadType(cmsIT8* it8, char * SheetTypePtr)
+static void ReadType(cmsIT8* it8, char * SheetTypePtr)
 {
 	cmsInt32Number cnt = 0;
 
@@ -1812,8 +1765,7 @@ void ReadType(cmsIT8* it8, char * SheetTypePtr)
 	*SheetTypePtr = 0;
 }
 
-static
-cmsBool ParseIT8(cmsIT8* it8, cmsBool nosheet)
+static cmsBool ParseIT8(cmsIT8* it8, cmsBool nosheet)
 {
 	char * SheetTypePtr = it8->Tab[0].SheetType;
 
@@ -1885,8 +1837,7 @@ cmsBool ParseIT8(cmsIT8* it8, cmsBool nosheet)
 
 // Init useful pointers
 
-static
-void CookPointers(cmsIT8* it8)
+static void CookPointers(cmsIT8* it8)
 {
 	int idField, i;
 	char * Fld;
@@ -1953,8 +1904,7 @@ void CookPointers(cmsIT8* it8)
 // Try to infere if the file is a CGATS/IT8 file at all. Read first line
 // that should be something like some printable characters plus a \n
 // returns 0 if this is not like a CGATS, or an integer otherwise. This integer is the number of words in first line?
-static
-int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
+static int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
 {
 	int words = 1, space = 0, quot = 0;
 	cmsUInt32Number i;
@@ -1990,8 +1940,7 @@ int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
 	return 0;
 }
 
-static
-cmsBool IsMyFile(const char * FileName)
+static cmsBool IsMyFile(const char * FileName)
 {
 	FILE * fp;
 	cmsUInt32Number Size;
@@ -2164,8 +2113,7 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * c
 	return n;
 }
 
-static
-int LocatePatch(cmsIT8* it8, const char * cPatch)
+static int LocatePatch(cmsIT8* it8, const char * cPatch)
 {
 	int i;
 	const char * data;
@@ -2184,8 +2132,7 @@ int LocatePatch(cmsIT8* it8, const char * cPatch)
 	return -1;
 }
 
-static
-int LocateEmptyPatch(cmsIT8* it8)
+static int LocateEmptyPatch(cmsIT8* it8)
 {
 	int i;
 	const char * data;
@@ -2201,8 +2148,7 @@ int LocateEmptyPatch(cmsIT8* it8)
 	return -1;
 }
 
-static
-int LocateSample(cmsIT8* it8, const char * cSample)
+static int LocateSample(cmsIT8* it8, const char * cSample)
 {
 	int i;
 	const char * fld;

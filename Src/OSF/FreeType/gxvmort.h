@@ -49,8 +49,8 @@ FT_BEGIN_HEADER
 #define GXV_MORT_FEATURE_OFF  {0, 1, 0x00000000UL, 0x00000000UL}
 
 #define IS_GXV_MORT_FEATURE_OFF( f )              \
-          ( (f).featureType    == 0            || \
-            (f).featureSetting == 1            || \
+          ((f).featureType    == 0 || \
+            (f).featureSetting == 1 || \
             (f).enableFlags    == 0x00000000UL || \
             (f).disableFlags   == 0x00000000UL )
 

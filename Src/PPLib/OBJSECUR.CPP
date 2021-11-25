@@ -269,7 +269,7 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, S_GUID & rDesktopUuid)
 					const S_GUID & r_local_uuid = desktop_uuid_list[i];
 					if(!!r_local_uuid) {
 						const PPCommandItem * p_item = desktop_list.SearchByUuid(r_local_uuid, 0);
-						if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+						if(p_item && p_item->IsKind(PPCommandItem::kGroup)) {
 							assert(static_cast<const PPCommandGroup *>(p_item)->Uuid == r_local_uuid);
 							rDesktopUuid = r_local_uuid;
 							break; 

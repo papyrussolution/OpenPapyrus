@@ -9104,6 +9104,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_OP_GOODSMODIF
 	PPDV_OP_GOODSRETURN
 	PPDV_TREEVIEW
+	PPDV_INFO01
 }
 //
 // Следующие изображения используются без замещения цвета

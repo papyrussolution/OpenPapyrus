@@ -127,12 +127,12 @@ static void ft_gzip_free(FT_Memory memory, voidpf address)
 
 static/*local*/ voidpf zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
-	return ft_gzip_alloc( (FT_Memory)opaque, items, size);
+	return ft_gzip_alloc((FT_Memory)opaque, items, size);
 }
 
 static/*local*/ void zcfree(voidpf opaque, voidpf ptr)
 {
-	ft_gzip_free( (FT_Memory)opaque, ptr);
+	ft_gzip_free((FT_Memory)opaque, ptr);
 }
 
 #endif /* !SYSTEM_ZLIB && !USE_ZLIB_ZCALLOC */
@@ -169,7 +169,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 {
 	FT_Error error;
 	FT_Byte head[4];
-	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 4) )
+	if(FT_STREAM_SEEK(0) || FT_STREAM_READ(head, 4))
 		goto Exit;
 	/* head[0] && head[1] are the magic numbers;    */
 	/* head[2] is the method, and head[3] the flags */
@@ -189,7 +189,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 	if(head[3] & FT_GZIP_ORIG_NAME)
 		for(;;) {
 			FT_UInt c;
-			if(FT_READ_BYTE(c) )
+			if(FT_READ_BYTE(c))
 				goto Exit;
 			if(c == 0)
 				break;
@@ -198,14 +198,14 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 	if(head[3] & FT_GZIP_COMMENT)
 		for(;;) {
 			FT_UInt c;
-			if(FT_READ_BYTE(c) )
+			if(FT_READ_BYTE(c))
 				goto Exit;
 			if(c == 0)
 				break;
 		}
 	/* skip CRC */
 	if(head[3] & FT_GZIP_HEAD_CRC)
-		if(FT_STREAM_SKIP(2) )
+		if(FT_STREAM_SKIP(2))
 			goto Exit;
 Exit:
 	return error;
@@ -214,13 +214,13 @@ Exit:
 static FT_Error ft_gzip_file_init(FT_GZipFile zip, FT_Stream stream, FT_Stream source)
 {
 	z_stream*  zstream = &zip->zstream;
-	FT_Error error   = FT_Err_Ok;
+	FT_Error error = FT_Err_Ok;
 	zip->stream = stream;
 	zip->source = source;
 	zip->memory = stream->memory;
 	zip->limit  = zip->buffer + FT_GZIP_BUFFER_SIZE;
 	zip->cursor = zip->limit;
-	zip->pos    = 0;
+	zip->pos = 0;
 
 	/* check and skip .gz header */
 	{
@@ -256,10 +256,10 @@ static void ft_gzip_file_done(FT_GZipFile zip)
 	inflateEnd(zstream);
 
 	/* clear the rest */
-	zstream->zalloc    = NULL;
-	zstream->zfree     = NULL;
-	zstream->opaque    = NULL;
-	zstream->next_in   = NULL;
+	zstream->zalloc = NULL;
+	zstream->zfree  = NULL;
+	zstream->opaque = NULL;
+	zstream->next_in = NULL;
 	zstream->next_out  = NULL;
 	zstream->avail_in  = 0;
 	zstream->avail_out = 0;
@@ -274,19 +274,19 @@ static FT_Error ft_gzip_file_reset(FT_GZipFile zip)
 	FT_Stream stream = zip->source;
 	FT_Error error;
 
-	if(!FT_STREAM_SEEK(zip->start) ) {
+	if(!FT_STREAM_SEEK(zip->start)) {
 		z_stream*  zstream = &zip->zstream;
 
 		inflateReset(zstream);
 
 		zstream->avail_in  = 0;
-		zstream->next_in   = zip->input;
+		zstream->next_in = zip->input;
 		zstream->avail_out = 0;
 		zstream->next_out  = zip->buffer;
 
 		zip->limit  = zip->buffer + FT_GZIP_BUFFER_SIZE;
 		zip->cursor = zip->limit;
-		zip->pos    = 0;
+		zip->pos = 0;
 	}
 
 	return error;
@@ -323,9 +323,9 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 static FT_Error ft_gzip_file_fill_output(FT_GZipFile zip)
 {
 	z_stream*  zstream = &zip->zstream;
-	FT_Error error   = FT_Err_Ok;
+	FT_Error error = FT_Err_Ok;
 
-	zip->cursor        = zip->buffer;
+	zip->cursor   = zip->buffer;
 	zstream->next_out  = zip->cursor;
 	zstream->avail_out = FT_GZIP_BUFFER_SIZE;
 
@@ -348,7 +348,7 @@ static FT_Error ft_gzip_file_fill_output(FT_GZipFile zip)
 		}
 		else if(err != Z_OK) {
 			zip->limit = zip->cursor;
-			error      = FT_THROW(Invalid_Stream_Operation);
+			error = FT_THROW(Invalid_Stream_Operation);
 			break;
 		}
 	}
@@ -438,7 +438,7 @@ Exit:
 /***************************************************************************/
 static void ft_gzip_stream_close(FT_Stream stream)
 {
-	FT_GZipFile zip    = (FT_GZipFile)stream->descriptor.pointer;
+	FT_GZipFile zip = (FT_GZipFile)stream->descriptor.pointer;
 	FT_Memory memory = stream->memory;
 	if(zip) {
 		/* finalize gzip file descriptor */
@@ -463,7 +463,7 @@ static FT_ULong ft_gzip_get_uncompressed_size(FT_Stream stream)
 	FT_ULong result = 0;
 
 	old_pos = stream->pos;
-	if(!FT_Stream_Seek(stream, stream->size - 4) ) {
+	if(!FT_Stream_Seek(stream, stream->size - 4)) {
 		result = FT_Stream_ReadULongLE(stream, &error);
 		if(error)
 			result = 0;
@@ -497,7 +497,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 	FT_ZERO(stream);
 	stream->memory = memory;
 
-	if(!FT_QNEW(zip) ) {
+	if(!FT_QNEW(zip)) {
 		error = ft_gzip_file_init(zip, stream, source);
 		if(error) {
 			FT_FREE(zip);
@@ -521,7 +521,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 		if(zip_size != 0 && zip_size < 40 * 1024) {
 			FT_Byte*  zip_buff = NULL;
 
-			if(!FT_ALLOC(zip_buff, zip_size) ) {
+			if(!FT_ALLOC(zip_buff, zip_size)) {
 				FT_ULong count;
 
 				count = ft_gzip_file_io(zip, 0, zip_buff, zip_size);
@@ -532,7 +532,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 					stream->descriptor.pointer = NULL;
 
 					stream->size  = zip_size;
-					stream->pos   = 0;
+					stream->pos = 0;
 					stream->base  = zip_buff;
 					stream->read  = NULL;
 					stream->close = ft_gzip_stream_close;
@@ -552,7 +552,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_OpenGzip(FT_Stream stream, FT_Stream source)
 			stream->size  = 0x7FFFFFFFL; /* don't know the real size! */
 	}
 
-	stream->pos   = 0;
+	stream->pos = 0;
 	stream->base  = NULL;
 	stream->read  = ft_gzip_stream_io;
 	stream->close = ft_gzip_stream_close;

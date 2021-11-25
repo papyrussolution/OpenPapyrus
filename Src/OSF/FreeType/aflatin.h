@@ -32,7 +32,7 @@ FT_BEGIN_HEADER
 
   /* constants are given with units_per_em == 2048 in mind */
 #define AF_LATIN_CONSTANT( metrics, c )                                      \
-  ( ( (c) * (FT_Long)( (AF_LatinMetrics)(metrics) )->units_per_em ) / 2048 )
+  (((c) * (FT_Long)((AF_LatinMetrics)(metrics))->units_per_em ) / 2048 )
 
 
   // 
@@ -52,15 +52,15 @@ FT_BEGIN_HEADER
 
 
 #define AF_LATIN_IS_TOP_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_LATIN_TOP )
+          ((b)->properties & AF_BLUE_PROPERTY_LATIN_TOP )
 #define AF_LATIN_IS_SUB_TOP_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_LATIN_SUB_TOP )
+          ((b)->properties & AF_BLUE_PROPERTY_LATIN_SUB_TOP )
 #define AF_LATIN_IS_NEUTRAL_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_LATIN_NEUTRAL )
+          ((b)->properties & AF_BLUE_PROPERTY_LATIN_NEUTRAL )
 #define AF_LATIN_IS_X_HEIGHT_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_LATIN_X_HEIGHT )
+          ((b)->properties & AF_BLUE_PROPERTY_LATIN_X_HEIGHT )
 #define AF_LATIN_IS_LONG_BLUE( b ) \
-          ( (b)->properties & AF_BLUE_PROPERTY_LATIN_LONG )
+          ((b)->properties & AF_BLUE_PROPERTY_LATIN_LONG )
 
 #define AF_LATIN_MAX_WIDTHS  16
 

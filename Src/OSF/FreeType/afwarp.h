@@ -25,8 +25,8 @@ FT_BEGIN_HEADER
 
 #define AF_WARPER_SCALE
 
-#define AF_WARPER_FLOOR( x )  ( (x) & ~FT_TYPEOF( x )63 )
-#define AF_WARPER_CEIL( x )   AF_WARPER_FLOOR( (x) + 63 )
+#define AF_WARPER_FLOOR( x )  ((x) & ~FT_TYPEOF( x )63 )
+#define AF_WARPER_CEIL( x )   AF_WARPER_FLOOR((x) + 63 )
 
 
   typedef FT_Int32  AF_WarpScore;

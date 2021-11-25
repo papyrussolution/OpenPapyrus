@@ -190,13 +190,13 @@ FT_BEGIN_HEADER
 
 
 #define PFR_KERN_INDEX( g1, g2 )                          \
-          ( ( (FT_UInt32)(g1) << 16 ) | (FT_UInt16)(g2) )
+          (((FT_UInt32)(g1) << 16 ) | (FT_UInt16)(g2))
 
 #define PFR_KERN_PAIR_INDEX( pair )                        \
-          PFR_KERN_INDEX( (pair)->glyph1, (pair)->glyph2 )
+          PFR_KERN_INDEX((pair)->glyph1, (pair)->glyph2 )
 
 #define PFR_NEXT_KPAIR( p )  ( p += 2,                              \
-                               ( (FT_UInt32)p[-2] << 16 ) | p[-1] )
+                               ((FT_UInt32)p[-2] << 16 ) | p[-1] )
 
 
   /************************************************************************/

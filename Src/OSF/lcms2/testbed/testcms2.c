@@ -2662,8 +2662,7 @@ static void AddIdentityCLUTfloat(cmsPipeline* lut)
 }
 
 // Create a MPE for identity cmsFloat32Number CLUT
-static
-void AddIdentityCLUT16(cmsPipeline* lut)
+static void AddIdentityCLUT16(cmsPipeline* lut)
 {
 	const cmsUInt16Number Table[] = {
 		0,    0,    0,
@@ -2684,8 +2683,7 @@ void AddIdentityCLUT16(cmsPipeline* lut)
 
 // Create a 3 fn identity curves
 
-static
-void Add3GammaCurves(cmsPipeline* lut, cmsFloat64Number Curve)
+static void Add3GammaCurves(cmsPipeline* lut, cmsFloat64Number Curve)
 {
 	cmsToneCurve* id = cmsBuildGamma(DbgThread(), Curve);
 	cmsToneCurve* id3[3];
@@ -2699,8 +2697,7 @@ void Add3GammaCurves(cmsPipeline* lut, cmsFloat64Number Curve)
 	cmsFreeToneCurve(id);
 }
 
-static
-cmsInt32Number CheckFloatLUT(cmsPipeline* lut)
+static cmsInt32Number CheckFloatLUT(cmsPipeline* lut)
 {
 	cmsInt32Number n1, i, j;
 	cmsFloat32Number Inf[3], Outf[3];
@@ -2727,8 +2724,7 @@ cmsInt32Number CheckFloatLUT(cmsPipeline* lut)
 	return (n1 == 0);
 }
 
-static
-cmsInt32Number Check16LUT(cmsPipeline* lut)
+static cmsInt32Number Check16LUT(cmsPipeline* lut)
 {
 	cmsInt32Number n2, i, j;
 	cmsUInt16Number Inw[3], Outw[3];
@@ -2755,8 +2751,7 @@ cmsInt32Number Check16LUT(cmsPipeline* lut)
 }
 
 // Check any LUT that is linear
-static
-cmsInt32Number CheckStagesLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
+static cmsInt32Number CheckStagesLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
 {
 	cmsInt32Number nInpChans, nOutpChans, nStages;
 
@@ -2767,8 +2762,7 @@ cmsInt32Number CheckStagesLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
 	return (nInpChans == 3) && (nOutpChans == 3) && (nStages == ExpectedStages);
 }
 
-static
-cmsInt32Number CheckFullLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
+static cmsInt32Number CheckFullLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
 {
 	cmsInt32Number rc = CheckStagesLUT(lut, ExpectedStages) && Check16LUT(lut) && CheckFloatLUT(lut);
 
@@ -2776,8 +2770,7 @@ cmsInt32Number CheckFullLUT(cmsPipeline* lut, cmsInt32Number ExpectedStages)
 	return rc;
 }
 
-static
-cmsInt32Number Check1StageLUT(void)
+static cmsInt32Number Check1StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2785,8 +2778,7 @@ cmsInt32Number Check1StageLUT(void)
 	return CheckFullLUT(lut, 1);
 }
 
-static
-cmsInt32Number Check2StageLUT(void)
+static cmsInt32Number Check2StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2796,8 +2788,7 @@ cmsInt32Number Check2StageLUT(void)
 	return CheckFullLUT(lut, 2);
 }
 
-static
-cmsInt32Number Check2Stage16LUT(void)
+static cmsInt32Number Check2Stage16LUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2807,8 +2798,7 @@ cmsInt32Number Check2Stage16LUT(void)
 	return CheckFullLUT(lut, 2);
 }
 
-static
-cmsInt32Number Check3StageLUT(void)
+static cmsInt32Number Check3StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2819,8 +2809,7 @@ cmsInt32Number Check3StageLUT(void)
 	return CheckFullLUT(lut, 3);
 }
 
-static
-cmsInt32Number Check3Stage16LUT(void)
+static cmsInt32Number Check3Stage16LUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2831,8 +2820,7 @@ cmsInt32Number Check3Stage16LUT(void)
 	return CheckFullLUT(lut, 3);
 }
 
-static
-cmsInt32Number Check4StageLUT(void)
+static cmsInt32Number Check4StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2844,8 +2832,7 @@ cmsInt32Number Check4StageLUT(void)
 	return CheckFullLUT(lut, 4);
 }
 
-static
-cmsInt32Number Check4Stage16LUT(void)
+static cmsInt32Number Check4Stage16LUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2857,8 +2844,7 @@ cmsInt32Number Check4Stage16LUT(void)
 	return CheckFullLUT(lut, 4);
 }
 
-static
-cmsInt32Number Check5StageLUT(void)
+static cmsInt32Number Check5StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2871,8 +2857,7 @@ cmsInt32Number Check5StageLUT(void)
 	return CheckFullLUT(lut, 5);
 }
 
-static
-cmsInt32Number Check5Stage16LUT(void)
+static cmsInt32Number Check5Stage16LUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2885,8 +2870,7 @@ cmsInt32Number Check5Stage16LUT(void)
 	return CheckFullLUT(lut, 5);
 }
 
-static
-cmsInt32Number Check6StageLUT(void)
+static cmsInt32Number Check6StageLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2900,8 +2884,7 @@ cmsInt32Number Check6StageLUT(void)
 	return CheckFullLUT(lut, 6);
 }
 
-static
-cmsInt32Number Check6Stage16LUT(void)
+static cmsInt32Number Check6Stage16LUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 
@@ -2915,8 +2898,7 @@ cmsInt32Number Check6Stage16LUT(void)
 	return CheckFullLUT(lut, 6);
 }
 
-static
-cmsInt32Number CheckLab2LabLUT(void)
+static cmsInt32Number CheckLab2LabLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 	cmsInt32Number rc;
@@ -2931,8 +2913,7 @@ cmsInt32Number CheckLab2LabLUT(void)
 	return rc;
 }
 
-static
-cmsInt32Number CheckXYZ2XYZLUT(void)
+static cmsInt32Number CheckXYZ2XYZLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 	cmsInt32Number rc;
@@ -2947,8 +2928,7 @@ cmsInt32Number CheckXYZ2XYZLUT(void)
 	return rc;
 }
 
-static
-cmsInt32Number CheckLab2LabMatLUT(void)
+static cmsInt32Number CheckLab2LabMatLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 	cmsInt32Number rc;
@@ -2964,8 +2944,7 @@ cmsInt32Number CheckLab2LabMatLUT(void)
 	return rc;
 }
 
-static
-cmsInt32Number CheckNamedColorLUT(void)
+static cmsInt32Number CheckNamedColorLUT(void)
 {
 	cmsPipeline* lut = cmsPipelineAlloc(DbgThread(), 3, 3);
 	cmsNAMEDCOLORLIST* nc;
@@ -3124,8 +3103,7 @@ Error:
 }
 
 // A lightweight test of named color structures.
-static
-cmsInt32Number CheckNamedColorList(void)
+static cmsInt32Number CheckNamedColorList(void)
 {
 	cmsNAMEDCOLORLIST* nc = NULL, * nc2;
 	cmsInt32Number i, j, rc = 1;
@@ -3299,8 +3277,7 @@ static void CheckSingleFormatter16(cmsContext id, cmsUInt32Number Type, const ch
 #define C(a) CheckSingleFormatter16(0, a, #a)
 
 // Check all formatters
-static
-cmsInt32Number CheckFormatters16(void)
+static cmsInt32Number CheckFormatters16(void)
 {
 	FormatterFailed = FALSE;
 
@@ -3480,8 +3457,7 @@ cmsInt32Number CheckFormatters16(void)
 
 #undef C
 
-static
-void CheckSingleFormatterFloat(cmsUInt32Number Type, const char * Text)
+static void CheckSingleFormatterFloat(cmsUInt32Number Type, const char * Text)
 {
 	cmsFloat32Number Values[cmsMAXCHANNELS];
 	cmsUInt8Number Buffer[1024];
@@ -3579,17 +3555,13 @@ static cmsInt32Number CheckFormattersFloat(void)
 
 // Check half float
 #define my_isfinite(x) ((x) != (x))
-static
-cmsInt32Number CheckFormattersHalf(void)
+static cmsInt32Number CheckFormattersHalf(void)
 {
 	int i, j;
-
 	for(i = 0; i < 0xffff; i++) {
 		cmsFloat32Number f = _cmsHalf2Float((cmsUInt16Number)i);
-
 		if(!my_isfinite(f)) {
 			j = _cmsFloat2Half(f);
-
 			if(i != j) {
 				Fail("%d != %d in Half float support!\n", i, j);
 				return 0;
@@ -3602,8 +3574,7 @@ cmsInt32Number CheckFormattersHalf(void)
 
 #endif
 
-static
-cmsInt32Number CheckOneRGB(cmsHTRANSFORM xform,
+static cmsInt32Number CheckOneRGB(cmsHTRANSFORM xform,
     cmsUInt16Number R,
     cmsUInt16Number G,
     cmsUInt16Number B,
@@ -3626,8 +3597,7 @@ cmsInt32Number CheckOneRGB(cmsHTRANSFORM xform,
 }
 
 // Check known values going from sRGB to XYZ
-static
-cmsInt32Number CheckOneRGB_double(cmsHTRANSFORM xform,
+static cmsInt32Number CheckOneRGB_double(cmsHTRANSFORM xform,
     cmsFloat64Number R,
     cmsFloat64Number G,
     cmsFloat64Number B,
@@ -3649,8 +3619,7 @@ cmsInt32Number CheckOneRGB_double(cmsHTRANSFORM xform,
 	       IsGoodVal("B", Bo, Out[2], 0.01);
 }
 
-static
-cmsInt32Number CheckChangeBufferFormat(void)
+static cmsInt32Number CheckChangeBufferFormat(void)
 {
 	cmsHPROFILE hsRGB = cmsCreate_sRGBProfile();
 	cmsHTRANSFORM xform;
@@ -3680,14 +3649,11 @@ cmsInt32Number CheckChangeBufferFormat(void)
 
 // Write tag testbed ----------------------------------------------------------------------------------------
 
-static
-cmsInt32Number CheckXYZ(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckXYZ(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsCIEXYZ XYZ, * Pt;
-
 	switch(Pass) {
 		case 1:
-
 		    XYZ.X = 1.0; XYZ.Y = 1.1; XYZ.Z = 1.2;
 		    return cmsWriteTag(hProfile, tag, &XYZ);
 
@@ -3703,8 +3669,7 @@ cmsInt32Number CheckXYZ(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignatu
 	}
 }
 
-static
-cmsInt32Number CheckGamma(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckGamma(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsToneCurve * g, * Pt;
 	cmsInt32Number rc;
@@ -3727,8 +3692,7 @@ cmsInt32Number CheckGamma(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSigna
 	}
 }
 
-static
-cmsInt32Number CheckTextSingle(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckTextSingle(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsMLU * m, * Pt;
 	cmsInt32Number rc;
@@ -3754,8 +3718,7 @@ cmsInt32Number CheckTextSingle(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTag
 	}
 }
 
-static
-cmsInt32Number CheckText(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckText(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsMLU * m, * Pt;
 	cmsInt32Number rc;
@@ -3793,8 +3756,7 @@ cmsInt32Number CheckText(cmsInt32Number Pass, cmsHPROFILE hProfile, cmsTagSignat
 	}
 }
 
-static
-cmsInt32Number CheckData(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckData(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsICCData * Pt;
 	cmsICCData d = { 1, 0, { '?' }};
@@ -3815,8 +3777,7 @@ cmsInt32Number CheckData(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSigna
 	}
 }
 
-static
-cmsInt32Number CheckSignature(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckSignature(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsTagSignature * Pt, Holder;
 
@@ -3835,8 +3796,7 @@ cmsInt32Number CheckSignature(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTag
 	}
 }
 
-static
-cmsInt32Number CheckDateTime(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckDateTime(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	struct tm * Pt, Holder;
 
@@ -3867,8 +3827,7 @@ cmsInt32Number CheckDateTime(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagS
 	}
 }
 
-static
-cmsInt32Number CheckNamedColor(cmsInt32Number Pass,
+static cmsInt32Number CheckNamedColor(cmsInt32Number Pass,
     cmsHPROFILE hProfile,
     cmsTagSignature tag,
     cmsInt32Number max_check,
@@ -3944,8 +3903,7 @@ cmsInt32Number CheckNamedColor(cmsInt32Number Pass,
 	}
 }
 
-static
-cmsInt32Number CheckLUT(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckLUT(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsPipeline* Lut, * Pt;
 	cmsInt32Number rc;
@@ -3977,8 +3935,7 @@ cmsInt32Number CheckLUT(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignat
 	}
 }
 
-static
-cmsInt32Number CheckCHAD(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckCHAD(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsFloat64Number * Pt;
 	cmsFloat64Number CHAD[] = { 0, .1, .2, .3, .4, .5, .6, .7, .8 };
@@ -4003,8 +3960,7 @@ cmsInt32Number CheckCHAD(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSigna
 	}
 }
 
-static
-cmsInt32Number CheckChromaticity(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckChromaticity(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsCIExyYTRIPLE * Pt, c = { {0, .1, 1 }, { .3, .4, 1 }, { .6, .7, 1 }};
 
@@ -4029,8 +3985,7 @@ cmsInt32Number CheckChromaticity(cmsInt32Number Pass,  cmsHPROFILE hProfile, cms
 	}
 }
 
-static
-cmsInt32Number CheckColorantOrder(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckColorantOrder(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsUInt8Number * Pt, c[cmsMAXCHANNELS];
 	cmsInt32Number i;
@@ -4054,8 +4009,7 @@ cmsInt32Number CheckColorantOrder(cmsInt32Number Pass,  cmsHPROFILE hProfile, cm
 	}
 }
 
-static
-cmsInt32Number CheckMeasurement(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckMeasurement(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsICCMeasurementConditions * Pt, m;
 
@@ -4089,8 +4043,7 @@ cmsInt32Number CheckMeasurement(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsT
 	}
 }
 
-static
-cmsInt32Number CheckUcrBg(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckUcrBg(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsUcrBg * Pt, m;
 	cmsInt32Number rc;
@@ -4121,8 +4074,7 @@ cmsInt32Number CheckUcrBg(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSign
 	}
 }
 
-static
-cmsInt32Number CheckCRDinfo(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckCRDinfo(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsMLU * mlu;
 	char Buffer[256];
@@ -4166,8 +4118,7 @@ cmsInt32Number CheckCRDinfo(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSi
 	}
 }
 
-static
-cmsToneCurve * CreateSegmentedCurve(void)
+static cmsToneCurve * CreateSegmentedCurve(void)
 {
 	cmsCurveSegment Seg[3];
 	cmsFloat32Number Sampled[2] = { 0, 1};
@@ -4197,8 +4148,7 @@ cmsToneCurve * CreateSegmentedCurve(void)
 	return cmsBuildSegmentedToneCurve(DbgThread(), 3, Seg);
 }
 
-static
-cmsInt32Number CheckMPE(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckMPE(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsPipeline* Lut, * Pt;
 	cmsToneCurve* G[3];
@@ -4231,8 +4181,7 @@ cmsInt32Number CheckMPE(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignat
 	}
 }
 
-static
-cmsInt32Number CheckScreening(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
+static cmsInt32Number CheckScreening(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTagSignature tag)
 {
 	cmsScreening * Pt, sc;
 	cmsInt32Number rc;
@@ -4265,8 +4214,7 @@ cmsInt32Number CheckScreening(cmsInt32Number Pass,  cmsHPROFILE hProfile, cmsTag
 	}
 }
 
-static
-cmsBool CheckOneStr(cmsMLU* mlu, cmsInt32Number n)
+static cmsBool CheckOneStr(cmsMLU* mlu, cmsInt32Number n)
 {
 	char Buffer[256], Buffer2[256];
 
@@ -4281,16 +4229,14 @@ cmsBool CheckOneStr(cmsMLU* mlu, cmsInt32Number n)
 	return TRUE;
 }
 
-static
-void SetOneStr(cmsMLU** mlu, wchar_t* s1, wchar_t* s2)
+static void SetOneStr(cmsMLU** mlu, wchar_t* s1, wchar_t* s2)
 {
 	*mlu = cmsMLUalloc(DbgThread(), 0);
 	cmsMLUsetWide(*mlu, "en", "US", s1);
 	cmsMLUsetWide(*mlu, "es", "ES", s2);
 }
 
-static
-cmsInt32Number CheckProfileSequenceTag(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckProfileSequenceTag(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsSEQ* s;
 	cmsInt32Number i;
@@ -4373,8 +4319,7 @@ cmsInt32Number CheckProfileSequenceTag(cmsInt32Number Pass,  cmsHPROFILE hProfil
 	}
 }
 
-static
-cmsInt32Number CheckProfileSequenceIDTag(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckProfileSequenceIDTag(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsSEQ* s;
 	cmsInt32Number i;
@@ -4419,8 +4364,7 @@ cmsInt32Number CheckProfileSequenceIDTag(cmsInt32Number Pass,  cmsHPROFILE hProf
 	}
 }
 
-static
-cmsInt32Number CheckICCViewingConditions(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckICCViewingConditions(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsICCViewingConditions* v;
 	cmsICCViewingConditions s;
@@ -4458,8 +4402,7 @@ cmsInt32Number CheckICCViewingConditions(cmsInt32Number Pass,  cmsHPROFILE hProf
 	}
 }
 
-static
-cmsInt32Number CheckVCGT(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckVCGT(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsToneCurve* Curves[3];
 	cmsToneCurve** PtrCurve;
@@ -4491,8 +4434,7 @@ cmsInt32Number CheckVCGT(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 }
 
 // Only one of the two following may be used, as they share the same tag
-static
-cmsInt32Number CheckDictionary16(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckDictionary16(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsHANDLE hDict;
 	const cmsDICTentry* e;
@@ -4532,8 +4474,7 @@ cmsInt32Number CheckDictionary16(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 	return 0;
 }
 
-static
-cmsInt32Number CheckDictionary24(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckDictionary24(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	cmsHANDLE hDict;
 	const cmsDICTentry* e;
@@ -4595,8 +4536,7 @@ cmsInt32Number CheckDictionary24(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 	return 0;
 }
 
-static
-cmsInt32Number CheckRAWtags(cmsInt32Number Pass,  cmsHPROFILE hProfile)
+static cmsInt32Number CheckRAWtags(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 {
 	char Buffer[7];
 
@@ -4616,8 +4556,7 @@ cmsInt32Number CheckRAWtags(cmsInt32Number Pass,  cmsHPROFILE hProfile)
 }
 
 // This is a very big test that checks every single tag
-static
-cmsInt32Number CheckProfileCreation(void)
+static cmsInt32Number CheckProfileCreation(void)
 {
 	cmsHPROFILE h;
 	cmsInt32Number Pass;
@@ -4796,8 +4735,7 @@ Error:
 }
 
 // Thanks to Christopher James Halse Rogers for the bugfixing and providing this test
-static
-cmsInt32Number CheckVersionHeaderWriting(void)
+static cmsInt32Number CheckVersionHeaderWriting(void)
 {
 	cmsHPROFILE h;
 	int index;
@@ -4833,8 +4771,7 @@ cmsInt32Number CheckVersionHeaderWriting(void)
 }
 
 // Test on Richard Hughes "crayons.icc"
-static
-cmsInt32Number CheckMultilocalizedProfile(void)
+static cmsInt32Number CheckMultilocalizedProfile(void)
 {
 	char Buffer[256];
 	cmsHPROFILE hProfile = cmsOpenProfileFromFile("crayons.icc", "r");
@@ -4850,8 +4787,7 @@ cmsInt32Number CheckMultilocalizedProfile(void)
 // Error reporting
 //  -------------------------------------------------------------------------------------------------------
 
-static
-void ErrorReportingFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
+static void ErrorReportingFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
 {
 	TrappedError = TRUE;
 	SimultaneousErrors++;
@@ -4929,8 +4865,7 @@ static cmsInt32Number CheckErrReportingOnBadProfiles(void)
 	return rc;
 }
 
-static
-cmsInt32Number CheckBadTransforms(void)
+static cmsInt32Number CheckBadTransforms(void)
 {
 	cmsHPROFILE h1 = cmsCreate_sRGBProfile();
 	cmsHTRANSFORM x1;
@@ -4980,8 +4915,7 @@ cmsInt32Number CheckBadTransforms(void)
 	return 1;
 }
 
-static
-cmsInt32Number CheckErrReportingOnBadTransforms(void)
+static cmsInt32Number CheckErrReportingOnBadTransforms(void)
 {
 	cmsInt32Number rc;
 
@@ -5041,8 +4975,7 @@ static cmsInt32Number Compare8bitXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform
 }
 
 // Check a linear xform
-static
-cmsInt32Number Check16linearXFORM(cmsHTRANSFORM xform, cmsInt32Number nChan)
+static cmsInt32Number Check16linearXFORM(cmsHTRANSFORM xform, cmsInt32Number nChan)
 {
 	cmsInt32Number n2, i, j;
 	cmsUInt16Number Inw[cmsMAXCHANNELS], Outw[cmsMAXCHANNELS];
@@ -5068,14 +5001,11 @@ cmsInt32Number Check16linearXFORM(cmsHTRANSFORM xform, cmsInt32Number nChan)
 	return 1;
 }
 
-static
-cmsInt32Number Compare16bitXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform2, cmsInt32Number nChan)
+static cmsInt32Number Compare16bitXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform2, cmsInt32Number nChan)
 {
 	cmsInt32Number n2, i, j;
 	cmsUInt16Number Inw[cmsMAXCHANNELS], Outw1[cmsMAXCHANNELS], Outw2[cmsMAXCHANNELS];;
-
 	n2 = 0;
-
 	for(j = 0; j < 0xFFFF; j++) {
 		for(i = 0; i < nChan; i++) Inw[i] = (cmsUInt16Number)j;
 
@@ -6879,7 +6809,7 @@ static cmsInt32Number CheckMeta(void)
 	/* serialize profile to memory */
 	rc = cmsSaveProfileToMem(p, NULL, &clen);
 	if(!rc) return 0;
-	data = (char *)SAlloc::M(clen);
+	data = static_cast<char *>(SAlloc::M(clen));
 	rc = cmsSaveProfileToMem(p, data, &clen);
 	if(!rc) return 0;
 

@@ -108,7 +108,7 @@ FT_BEGIN_HEADER
    *
   */
 #define CF2_SET_ERROR( error, e )              \
-          cf2_setError( error, FT_THROW( e ) )
+          cf2_setError( error, FT_THROW( e ))
 
 
 FT_END_HEADER

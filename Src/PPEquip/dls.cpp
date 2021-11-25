@@ -445,7 +445,7 @@ int DLSFiltDialog::setDTS(const DvcLoadingStatFilt * pData)
 		Data.Init(1, 0);
 	SetupStringCombo(this, CTLSEL_DLSFLT_DVCTYPE, PPTXT_DEVICE_TYPES, Data.DvcType);
 	ReplyOnDvcTypeSel(Data.DvcType, Data.DvcID);
-	SetupCalCtrl(CTLCAL_DLSFLT_PERIOD, this, CTL_DLSFLT_PERIOD, 1);
+	SetupCalPeriod(CTLCAL_DLSFLT_PERIOD, CTL_DLSFLT_PERIOD);
 	SetPeriodInput(this, CTL_DLSFLT_PERIOD, &Data.Period);
 	{
 		GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);

@@ -122,7 +122,7 @@ FT_BEGIN_HEADER
 	FT_Module module = FT_MODULE(FT_FACE(face)->driver);        \
 	FT_Pointer _tmp_;                                                \
 	_tmp_ = ft_module_get_service(module, FT_SERVICE_ID_ ## id, 1); \
-	ptr   = _tmp_;                                                    \
+	ptr = _tmp_;                                                    \
 	FT_END_STMNT
 
 #endif /* !C++ */

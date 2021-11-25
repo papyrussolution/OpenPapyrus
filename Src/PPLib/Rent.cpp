@@ -365,7 +365,7 @@ int RentChrgDialog(RentChrgFilt * pFlt)
 	public:
 		RentChrgDlg() : TDialog(DLG_RENTCHARGE)
 		{
-			SetupCalCtrl(CTLCAL_RENTCHARGE_PERIOD, this, CTL_RENTCHARGE_PERIOD, 1);
+			SetupCalPeriod(CTLCAL_RENTCHARGE_PERIOD, CTL_RENTCHARGE_PERIOD);
 		}
 		DECL_DIALOG_SETDTS()
 		{

@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Шаблон бухгалтерской проводки
 //
@@ -1025,7 +1025,7 @@ public:
 	};
 	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID), ppobj(_ppobj)
 	{
-		SetupCalCtrl(CTLCAL_ATRNTMPL_PERIOD, this, CTL_ATRNTMPL_PERIOD, 1);
+		SetupCalPeriod(CTLCAL_ATRNTMPL_PERIOD, CTL_ATRNTMPL_PERIOD);
 		AcctCtrlGroup * p_acc_grp = 0;
 		setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
 		setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);

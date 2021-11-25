@@ -178,9 +178,9 @@ static int BBox_Conic_To(FT_Vector*  control, FT_Vector*  to, TBBox_Rec*  user)
 {
 	/* in case `to' is implicit and not included in bbox yet */
 	FT_UPDATE_BBOX(to, user->bbox);
-	if(CHECK_X(control, user->bbox) )
+	if(CHECK_X(control, user->bbox))
 		BBox_Conic_Check(user->last.x, control->x, to->x, &user->bbox.xMin, &user->bbox.xMax);
-	if(CHECK_Y(control, user->bbox) )
+	if(CHECK_Y(control, user->bbox))
 		BBox_Conic_Check(user->last.y, control->y, to->y, &user->bbox.yMin, &user->bbox.yMax);
 	user->last = *to;
 	return 0;
@@ -227,7 +227,7 @@ static FT_Pos cubic_peak(FT_Pos q1, FT_Pos q2, FT_Pos q3, FT_Pos q4)
 	/* to be downscaled to avoid overflows during bisection.       */
 	/* It is called with either q2 or q3 positive, which is necessary    */
 	/* for the peak to exist and avoids undefined FT_MSB.   */
-	FT_Int shift = 27 - FT_MSB( (FT_UInt32)( FT_ABS(q1) | FT_ABS(q2) | FT_ABS(q3) | FT_ABS(q4) ));
+	FT_Int shift = 27 - FT_MSB((FT_UInt32)( FT_ABS(q1) | FT_ABS(q2) | FT_ABS(q3) | FT_ABS(q4)));
 	if(shift > 0) {
 		/* upscaling too much just wastes time */
 		if(shift > 2)
@@ -336,9 +336,9 @@ static int BBox_Cubic_To(FT_Vector*  control1, FT_Vector*  control2, FT_Vector* 
 	/* We don't need to check `to' since it is always an on-point,    */
 	/* thus within the bbox.  Only segments with an off-point outside */
 	/* the bbox can possibly reach new extreme values.   */
-	if(CHECK_X(control1, user->bbox) || CHECK_X(control2, user->bbox) )
+	if(CHECK_X(control1, user->bbox) || CHECK_X(control2, user->bbox))
 		BBox_Cubic_Check(user->last.x, control1->x, control2->x, to->x, &user->bbox.xMin, &user->bbox.xMax);
-	if(CHECK_Y(control1, user->bbox) || CHECK_Y(control2, user->bbox) )
+	if(CHECK_Y(control1, user->bbox) || CHECK_Y(control2, user->bbox))
 		BBox_Cubic_Check(user->last.y, control1->y, control2->y, to->y, &user->bbox.yMin, &user->bbox.yMax);
 	user->last = *to;
 	return 0;
