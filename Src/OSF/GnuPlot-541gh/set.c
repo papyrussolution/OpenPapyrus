@@ -945,11 +945,10 @@ void GnuPlot::SetCntrLabel()
 			SAlloc::F(p_new);
 		}
 		else if(Pgm.EqualsCur("font")) {
-			char * ctmp;
 			Pgm.Shift();
-			if((ctmp = TryToGetString())) {
-				SAlloc::F(_3DBlk.clabel_font);
-				_3DBlk.clabel_font = ctmp;
+			char * ctmp = TryToGetString();
+			if(ctmp) {
+				FREEANDASSIGN(_3DBlk.clabel_font, ctmp);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("one$color")) {
@@ -1213,8 +1212,7 @@ void GnuPlot::SetDecimalSign()
 		GpU.decimalsign = sstrdup(get_decimal_locale());
 		fprintf(stderr, "decimal_sign in locale is %s\n", GpU.decimalsign);
 		// Save pThis locale for later use, but return to "C" for now 
-		SAlloc::F(GpU.numeric_locale);
-		GpU.numeric_locale = newlocale;
+		FREEANDASSIGN(GpU.numeric_locale, newlocale);
 		setlocale(LC_NUMERIC, "C");
 #endif
 	}
@@ -1307,8 +1305,7 @@ void GnuPlot::SetFit()
 				ZFREE(_Fit.fitlogfile);
 			}
 			else if((tmp = TryToGetString()) != NULL) {
-				SAlloc::F(_Fit.fitlogfile);
-				_Fit.fitlogfile = tmp;
+				FREEANDASSIGN(_Fit.fitlogfile, tmp);
 			}
 			else {
 				IntErrorCurToken("expecting string");
@@ -1438,8 +1435,7 @@ void GnuPlot::SetFit()
 				ZFREE(_Fit.fit_script);
 			}
 			else if((tmp = TryToGetString())) {
-				SAlloc::F(_Fit.fit_script);
-				_Fit.fit_script = tmp;
+				FREEANDASSIGN(_Fit.fit_script, tmp);
 			}
 			else {
 				IntErrorCurToken("expecting string");
@@ -1495,8 +1491,7 @@ void GnuPlot::SetFormat()
 	if(Pgm.EndOfCommand()) {
 		for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 			if(set_for_axis[axis]) {
-				SAlloc::F(AxS[axis].formatstring);
-				AxS[axis].formatstring = sstrdup(DEF_FORMAT);
+				FREEANDASSIGN(AxS[axis].formatstring, sstrdup(DEF_FORMAT));
 				AxS[axis].tictype = DT_NORMAL;
 			}
 		}
@@ -1518,8 +1513,7 @@ void GnuPlot::SetFormat()
 	}
 	for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		if(set_for_axis[axis]) {
-			SAlloc::F(AxS[axis].formatstring);
-			AxS[axis].formatstring = sstrdup(format);
+			FREEANDASSIGN(AxS[axis].formatstring, sstrdup(format));
 			if(tictype != DT_UNINITIALIZED)
 				AxS[axis].tictype = tictype;
 		}
@@ -1755,8 +1749,7 @@ void GnuPlot::SetPixMap()
 		}
 		if((temp = TryToGetString())) {
 			GpExpandTilde(&temp);
-			SAlloc::F(this_pixmap->filename);
-			this_pixmap->filename = temp;
+			FREEANDASSIGN(this_pixmap->filename, temp);
 			continue;
 		}
 		if(Pgm.EqualsCur("colormap")) {
@@ -2070,8 +2063,7 @@ S_KEYTITLE:
 			    else {
 				    char * tmp = TryToGetString();
 				    if(tmp) {
-					    SAlloc::F(key->font);
-					    key->font = tmp;
+					    FREEANDASSIGN(key->font, tmp);
 				    }
 				    Pgm.Rollback();
 			    }
@@ -2192,12 +2184,10 @@ void GnuPlot::SetLabel()
 		this_label = new_label;
 	}
 	if(!Pgm.EndOfCommand()) {
-		char * text;
 		ParseLabelOptions(this_label, 0);
-		text = TryToGetString();
+		char * text = TryToGetString();
 		if(text) {
-			SAlloc::F(this_label->text);
-			this_label->text = text;
+			FREEANDASSIGN(this_label->text, text);
 		}
 	}
 	// Now parse the label format and style options 
@@ -2263,8 +2253,7 @@ void GnuPlot::SetLoadPath()
 void GnuPlot::SetFontPath()
 {
 	Pgm.Shift();
-	SAlloc::F(GPT.P_PS_FontPath);
-	GPT.P_PS_FontPath = TryToGetString();
+	FREEANDASSIGN(GPT.P_PS_FontPath, TryToGetString());
 }
 //
 // process 'set locale' command 
@@ -2452,12 +2441,10 @@ void GnuPlot::SetDataFileCommentsChars()
 	char * s;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		SAlloc::F(_Df.df_commentschars);
-		_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+		FREEANDASSIGN(_Df.df_commentschars, sstrdup(DEFAULT_COMMENTS_CHARS));
 	}
 	else if((s = TryToGetString())) {
-		SAlloc::F(_Df.df_commentschars);
-		_Df.df_commentschars = s;
+		FREEANDASSIGN(_Df.df_commentschars, s);
 	}
 	else // Leave it the way it was 
 		IntErrorCurToken("expected string with comments chars");
@@ -2554,8 +2541,7 @@ void GnuPlot::SetMouse(GpTermEntry * pTerm)
 			Pgm.Shift();
 			// check if the optional argument "<label options>" is present 
 			if(IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
-				SAlloc::F(mouse_setting.labelopts);
-				mouse_setting.labelopts = ctmp;
+				FREEANDASSIGN(mouse_setting.labelopts, ctmp);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nola$bels")) {
@@ -2602,8 +2588,7 @@ void GnuPlot::SetMouse(GpTermEntry * pTerm)
 				mouse_mode = MOUSE_COORDINATES_FUNCTION;
 			}
 			else if(IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
-				SAlloc::F(mouse_alt_string);
-				mouse_alt_string = ctmp;
+				FREEANDASSIGN(mouse_alt_string, ctmp);
 				if(!strlen(mouse_alt_string)) {
 					ZFREE(mouse_alt_string);
 					if(MOUSE_COORDINATES_ALT == mouse_mode)
@@ -2736,8 +2721,7 @@ void GnuPlot::SetOutput()
 		GpExpandTilde(&testfile);
 		TermSetOutput(GPT.P_Term, testfile);
 		if(testfile != GPT.P_OutStr) {
-			SAlloc::F(testfile);
-			testfile = GPT.P_OutStr;
+			FREEANDASSIGN(testfile, GPT.P_OutStr);
 		}
 		// if we get here then it worked, and outstr now = testfile 
 	}
@@ -2872,8 +2856,7 @@ int GnuPlot::SetPaletteDefined()
 	int num, named_colors = 0;
 	int actual_size = 8;
 	InvalidatePalette(); // Invalidate previous gradient 
-	SAlloc::F(SmPltt.P_Gradient);
-	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
+	FREEANDASSIGN(SmPltt.P_Gradient, (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct)));
 	SmPltt.SmallestGradientInterval = 1;
 	if(Pgm.EndOfCommand()) {
 		// some default gradient 
@@ -4850,8 +4833,7 @@ void GnuPlot::SetTimeStamp()
 		if(Pgm.EqualsCur("font")) {
 			Pgm.Shift();
 			p_new = TryToGetString();
-			SAlloc::F(Gg.LblTime.font);
-			Gg.LblTime.font = p_new;
+			FREEANDASSIGN(Gg.LblTime.font, p_new);
 			continue;
 		}
 		if(Pgm.EqualsCur("tc") || Pgm.AlmostEqualsCur("text$color")) {
@@ -4860,8 +4842,7 @@ void GnuPlot::SetTimeStamp()
 		}
 		if(!got_format && ((p_new = TryToGetString()))) {
 			// we have a format string 
-			SAlloc::F(Gg.LblTime.text);
-			Gg.LblTime.text = p_new;
+			FREEANDASSIGN(Gg.LblTime.text, p_new);
 			got_format = TRUE;
 			continue;
 		}
@@ -5089,8 +5070,7 @@ void GnuPlot::SetPAxis()
 			lp_style_type axis_line(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
 			LpParse(GPT.P_Term, &axis_line, LP_ADHOC, FALSE);
 			if(Pgm.GetCurTokenIdx() != save_token) {
-				SAlloc::F(AxS.Parallel(p-1).zeroaxis);
-				AxS.Parallel(p-1).zeroaxis = (lp_style_type *)SAlloc::M(sizeof(lp_style_type));
+				FREEANDASSIGN(AxS.Parallel(p-1).zeroaxis, (lp_style_type *)SAlloc::M(sizeof(lp_style_type)));
 				memcpy(AxS.Parallel(p-1).zeroaxis, &axis_line, sizeof(lp_style_type));
 			}
 			else
@@ -5297,8 +5277,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 					if(!format)
 						IntErrorCurToken("expected format");
 				}
-				SAlloc::F(pThisAxis->formatstring);
-				pThisAxis->formatstring = format;
+				FREEANDASSIGN(pThisAxis->formatstring, format);
 			}
 			else if(Pgm.AlmostEqualsCur("enh$anced")) {
 				Pgm.Shift();
@@ -5458,8 +5437,7 @@ void GnuPlot::SetXYZLabel(text_label * pLabel)
 		if(!Pgm.EndOfCommand()) {
 			char * text = TryToGetString();
 			if(text) {
-				SAlloc::F(pLabel->text);
-				pLabel->text = text;
+				FREEANDASSIGN(pLabel->text, text);
 			}
 		}
 		ParseLabelOptions(pLabel, 0);
@@ -5693,8 +5671,7 @@ ticmark * prune_dataticks(struct ticmark * list)
 		if(list->level < 0) {
 			SAlloc::F(list->label);
 			tmp = list->next;
-			SAlloc::F(list);
-			list = tmp;
+			FREEANDASSIGN(list, tmp);
 		}
 		else {
 			b->next = list;
@@ -5983,8 +5960,7 @@ void GnuPlot::ParseLabelOptions(text_label * pLabel, int ndim)
 	if(set_layer)
 		pLabel->layer = layer;
 	if(set_font) {
-		SAlloc::F(pLabel->font);
-		pLabel->font = font;
+		FREEANDASSIGN(pLabel->font, font);
 	}
 	if(set_textcolor)
 		pLabel->textcolor = textcolor;

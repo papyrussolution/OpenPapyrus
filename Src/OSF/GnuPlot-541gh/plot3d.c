@@ -100,8 +100,7 @@ void sp_free(GpSurfacePoints * sp)
 		while(sp->contours) {
 			gnuplot_contours * next_cntrs = sp->contours->next;
 			SAlloc::F(sp->contours->coords);
-			SAlloc::F(sp->contours);
-			sp->contours = next_cntrs;
+			FREEANDASSIGN(sp->contours, next_cntrs);
 		}
 		while(sp->iso_crvs) {
 			iso_curve * next_icrvs = sp->iso_crvs->next;
@@ -110,8 +109,7 @@ void sp_free(GpSurfacePoints * sp)
 		}
 		free_labels(sp->labels);
 		sp->labels = NULL;
-		SAlloc::F(sp);
-		sp = next;
+		FREEANDASSIGN(sp, next);
 	}
 }
 // 

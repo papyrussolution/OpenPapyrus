@@ -597,9 +597,8 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    goto PS_options_error;
 			    set_epslheader = TRUE;
 			    pGp->Pgm.Shift();
-			    SAlloc::F(epslatex_header);
-			    /* Protect against pGp->IntError() bail from pGp->TryToGetString() */
-			    epslatex_header = NULL;
+			    ZFREE(epslatex_header);
+			    // Protect against pGp->IntError() bail from pGp->TryToGetString() 
 			    epslatex_header = pGp->TryToGetString();
 			    if(!epslatex_header)
 				    pGp->IntErrorCurToken("String containing header information expected");
@@ -609,8 +608,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    if(set_epslheader || pGp->TPsB.P_Params->terminal != PSTERM_EPSLATEX)
 				    goto PS_options_error;
 			    set_epslheader = TRUE;
-			    SAlloc::F(epslatex_header);
-			    epslatex_header = NULL;
+			    ZFREE(epslatex_header);
 			    pGp->Pgm.Shift();
 			    break;
 			case PSLATEX_ROTATE:
@@ -1502,8 +1500,7 @@ end\n\
 	{
 		char * outstr2 = PS_escape_string(GPT.P_OutStr, "()\\");
 		fprintf(GPT.P_GpPsFile, psi3, outstr2 ? outstr2 : "", gnuplot_version, gnuplot_patchlevel, timedate);
-		if(outstr2)
-			SAlloc::F(outstr2);
+		SAlloc::F(outstr2);
 	}
 	// Define macros supporting boxed text 
 	fprintf(GPT.P_GpPsFile, psi4);
@@ -2043,8 +2040,7 @@ static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller
 	wants_bold = strstr(name, ":Bold");
 	sep = strcspn(name, ":");
 	styledfontname = GnuPlot::_StyleFont((sep == 0 || *name == '/') ? PS_default_font : name, wants_bold, wants_italic);
-	SAlloc::F(name);
-	name = styledfontname;
+	FREEANDASSIGN(name, styledfontname);
 	// PostScript does not like blanks in font names 
 	for(i = 0; name[i] != '\0'; i++)
 		if(name[i] == ' ') 
@@ -2212,8 +2208,7 @@ TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsiz
 	if(!ENHps_opened_string) {
 		int safelen = strlen(fontname) + 40;
 		bool show_this = showflag && (PS_in_textbox >= 0);
-		SAlloc::F(ENHps_opensequence);
-		ENHps_opensequence = (char *)SAlloc::M(safelen);
+		FREEANDASSIGN(ENHps_opensequence, (char *)SAlloc::M(safelen));
 		if(isempty(fontname))
 			fontname = p_gp->TPsB.EnhFont;
 		else
@@ -3742,8 +3737,7 @@ static char * fontpath_fullname(GpTermEntry * pThis, const char * name, const ch
 	}
 	else if(!dir && (fp = pThis->P_Gp->LoadPath_fopen(fullname, "r"))) {
 		// Found it in a loadpath directory 
-		SAlloc::F(fullname);
-		fullname = sstrdup(loadpath_fontname);
+		FREEANDASSIGN(fullname, sstrdup(loadpath_fontname));
 		fclose(fp);
 	}
 	else {

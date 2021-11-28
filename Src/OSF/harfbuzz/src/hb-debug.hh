@@ -162,33 +162,14 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 }
 
 template <> inline void HB_PRINTF_FUNC(7, 0)
-_hb_debug_msg_va<0> (const char * what HB_UNUSED,
-const void * obj HB_UNUSED,
-const char * func HB_UNUSED,
-bool indented HB_UNUSED,
-unsigned int level HB_UNUSED,
-int level_dir HB_UNUSED,
-const char * message HB_UNUSED,
-va_list ap HB_UNUSED) {
+_hb_debug_msg_va<0> (const char * what HB_UNUSED, const void * obj HB_UNUSED, const char * func HB_UNUSED,
+bool indented HB_UNUSED, unsigned int level HB_UNUSED, int level_dir HB_UNUSED, const char * message HB_UNUSED, va_list ap HB_UNUSED) {
 }
 
-template <int max_level> static inline void _hb_debug_msg(const char * what,
-    const void * obj,
-    const char * func,
-    bool indented,
-    unsigned int level,
-    int level_dir,
-    const char * message,
-    ...) HB_PRINTF_FUNC(7, 8);
+template <int max_level> static inline void _hb_debug_msg(const char * what, const void * obj, const char * func,
+    bool indented, unsigned int level, int level_dir, const char * message, ...) HB_PRINTF_FUNC(7, 8);
 template <int max_level> static inline void HB_PRINTF_FUNC(7, 8)
-_hb_debug_msg(const char * what,
-    const void * obj,
-    const char * func,
-    bool indented,
-    unsigned int level,
-    int level_dir,
-    const char * message,
-    ...)
+_hb_debug_msg(const char * what, const void * obj, const char * func, bool indented, unsigned int level, int level_dir, const char * message, ...)
 {
 	va_list ap;
 	va_start(ap, message);
@@ -215,13 +196,9 @@ const char * message HB_UNUSED,
 ...) {
 }
 
-#define DEBUG_MSG_LEVEL(WHAT, OBJ, LEVEL, LEVEL_DIR, \
-	    ...)       _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    true, (LEVEL), (LEVEL_DIR), __VA_ARGS__)
-#define DEBUG_MSG(WHAT, OBJ, \
-	    ...)                               _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    false, 0, 0, __VA_ARGS__)
-#define DEBUG_MSG_FUNC(WHAT, OBJ, \
-	    ...)                          _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), HB_FUNC, false, 0, 0, __VA_ARGS__)
-
+#define DEBUG_MSG_LEVEL(WHAT, OBJ, LEVEL, LEVEL_DIR, ...) _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    true, (LEVEL), (LEVEL_DIR), __VA_ARGS__)
+#define DEBUG_MSG(WHAT, OBJ, ...) _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    false, 0, 0, __VA_ARGS__)
+#define DEBUG_MSG_FUNC(WHAT, OBJ, ...) _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), HB_FUNC, false, 0, 0, __VA_ARGS__)
 /*
  * Printer
  */

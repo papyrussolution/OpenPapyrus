@@ -221,8 +221,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 			// we can't call open_printer() while printer is open, so 
 			ClosePrinter(pTerm, GPT.P_GpOutFile); // close printer immediately if open 
 			GPT.P_GpOutFile = stdout; // and reset output to stdout 
-			SAlloc::F(GPT.P_OutStr);
-			GPT.P_OutStr = NULL;
+			ZFREE(GPT.P_OutStr);
 		}
 		if(sstreqi_ascii(pDest, "PRN")) {
 			if((f = open_printer()) == (FILE*)NULL)
@@ -274,8 +273,7 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 			strcpy(temp, GPT.P_OutStr);
 			TermSetOutput(pTerm, temp); // will free GPT.P_OutStr 
 			if(temp != GPT.P_OutStr) {
-				SAlloc::F(temp);
-				temp = GPT.P_OutStr;
+				FREEANDASSIGN(temp, GPT.P_OutStr);
 			}
 		}
 		else

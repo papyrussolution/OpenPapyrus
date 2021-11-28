@@ -474,13 +474,9 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 	}
 	return res;
 }
-
-/************************************************************************
-*									*
-*	The list of HTML elements and their properties		*
-*									*
-************************************************************************/
-
+//
+// The list of HTML elements and their properties
+//
 /*
  *  Start Tag: 1 means the start tag can be ommited
  *  End Tag:   1 means the end tag can be ommited

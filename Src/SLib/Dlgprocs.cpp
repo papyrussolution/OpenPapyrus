@@ -70,6 +70,8 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 		}
 		else if(GetKeyState(VK_MENU) & 0x8000)
 			event.keyDown.keyCode = __MapVk(wParam, 3);
+		else if(wParam == VK_ESCAPE) // @v11.2.4
+			event.keyDown.keyCode = kbEsc;
 		else
 			event.keyDown.keyCode = __MapVk(wParam, 0);
 	}

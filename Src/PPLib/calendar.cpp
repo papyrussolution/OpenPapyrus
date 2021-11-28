@@ -7,6 +7,10 @@
 
 #define USE_NEW_CALENDAR 1 // @v11.2.4
 
+const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
+
+#if (USE_NEW_CALENDAR == 0) // @v11.2.4 {
+
 static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -1411,8 +1415,6 @@ void TCalendar::SendToEditBox(int y1, int y2)
 	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s);
 }
 
-const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
-
 int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
 	int    ok = -1;
@@ -1680,6 +1682,17 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 	TimerFreq = 50;
 	SetTimer(c_hWnd, 1, 50, 0);
 }
+#else
+int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
+{
+	SCalendarPicker::DataBlock data;
+	RVALUEPTR(data.Dtm.d, pDate);
+	int ok = SCalendarPicker::Exec(SCalendarPicker::kDate, data);
+	if(ok > 0)
+		ASSIGN_PTR(pDate, data.Dtm.d);
+	return ok;
+}
+#endif // } @v11.2.4 (USE_NEW_CALENDAR == 0) 
 //
 //
 //
@@ -1862,6 +1875,11 @@ SCalendarPicker::~SCalendarPicker()
 {
 }
 
+LDATE SCalendarPicker::ISD() const
+{
+	return checkdate(Data.Dtm.d) ? Data.Dtm.d : getcurdate_();
+}
+
 IMPL_DIALOG_SETDTS(SCalendarPicker)
 {
 	int    ok = 1;
@@ -1926,6 +1944,12 @@ void SCalendarPicker::CreateFont_()
 			FontId = r_tb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
 		}
 	}
+}
+
+void SCalendarPicker::SetupStartLoYear()
+{
+	if(StartLoYear <= 1600 || StartLoYear >= 2200)
+		StartLoYear = ISD().year()-2;
 }
 
 void SCalendarPicker::CreateLayout(LDATE selectedDate)
@@ -2072,7 +2096,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			}
 		}
 	};
-	SETIFZ(StartLoYear, Data.Dtm.d.year()-2);
+	SetupStartLoYear();
 	SUiLayout * p_lo_result = new SUiLayout();
 	{
 		SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
@@ -2410,8 +2434,15 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					case loiYear:
 						{
 							const int year = p_lo_extra->Value+StartLoYear;
+							const LDATE _isd = ISD();
 							//brush_ident = TProgram::tbiIconRegColor;
-							if(year == Data.Dtm.d.year()) {
+							if(Kind == kPeriod && !Data.Period.IsZero()) {
+								if(Data.Period.CheckDate(encodedate(1, 1, year)) && Data.Period.CheckDate(encodedate(31, 12, year))) {
+									pen_ident = TProgram::tbiIconAlertColor;
+									brush_ident = TProgram::tbiListSelBrush;								
+								}
+							}
+							if(year == _isd.year()) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;
 							}
@@ -2430,7 +2461,18 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						//brush_ident = TProgram::tbiIconRegColor;
 						pen_ident = TProgram::tbiIconRegColor;
 						if(checkirange(p_lo_extra->Value, 1, 12)) {
-							if(p_lo_extra->Value == Data.Dtm.d.month()) {
+							const LDATE _isd = ISD();
+							if(Kind == kPeriod && !Data.Period.IsZero()) {
+								int y = _isd.year();
+								int m = p_lo_extra->Value;
+								int d = _isd.day();
+								int dpm = dayspermonth(m, y);
+								if(Data.Period.CheckDate(encodedate(1, m, y)) && Data.Period.CheckDate(encodedate(dpm, m, y))) {
+									pen_ident = TProgram::tbiIconAlertColor;
+									brush_ident = TProgram::tbiListSelBrush;								
+								}
+							}
+							if(p_lo_extra->Value == _isd.month()) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;
 							}
@@ -2446,7 +2488,8 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						//brush_ident = TProgram::tbiIconRegColor;
 						pen_ident = TProgram::tbiIconRegColor;
 						if(checkirange(p_lo_extra->Value, 1, 7)) {
-							if(p_lo_extra->Value == dayofweek(&Data.Dtm.d, 1)) {
+							const LDATE _isd = ISD();
+							if(p_lo_extra->Value == dayofweek(&_isd, 1)) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;
 							}
@@ -2463,12 +2506,13 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						pen_ident = TProgram::tbiIconRegColor;
 						if(checkirange(p_lo_extra->Value, 1, 31)) {
 							LDATE _d;
-							_d.encode(p_lo_extra->Value, Data.Dtm.d.month(), Data.Dtm.d.year());
+							const LDATE _isd = ISD();
+							_d.encode(p_lo_extra->Value, _isd.month(), _isd.year());
 							if(Kind == kPeriod && !Data.Period.IsZero() && Data.Period.CheckDate(_d)) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListSelBrush;								
 							}
-							if(p_lo_extra->Value == Data.Dtm.d.day()) {
+							if(p_lo_extra->Value == _isd.day()) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;
 							}
@@ -2706,7 +2750,13 @@ void SCalendarPicker::UpdateSelectedPeriod(const DateRange * pNewPeriod)
 IMPL_HANDLE_EVENT(SCalendarPicker)
 {
 	TWindowBase::handleEvent(event);
-	if(TVINFOPTR) {
+	if(event.isKeyDown(kbEsc)) {
+		if(IsInState(sfModal)) {
+			EndModalCmd = cmCancel;
+			clearEvent(event);
+		}
+	}
+	else if(TVINFOPTR) {
 		if(event.isCmd(cmInit)) {
 			CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 			{
@@ -2798,7 +2848,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, bfDefault, 0), STDCTL_OKBUTTON, 0);
 				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
 			}
-			CreateLayout(NZOR(Data.Dtm.d, getcurdate_()));
+			CreateLayout(ISD());
 			EvaluateLayout(p_blk->Coord);
 			invalidateAll(true);
 			//::UpdateWindow(H());
@@ -2894,8 +2944,9 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
 						if(p_lo_extra->Ident == loiDay) {
 							const int d = p_lo_extra->Value;
-							int y = Data.Dtm.d.year();
-							int m = Data.Dtm.d.month();
+							const LDATE _isd = ISD();
+							const int y = _isd.year();
+							const int m = _isd.month();
 							const int dpm = dayspermonth(m, y);
 							if(checkirange(d, 1, dpm)) {
 								Data.Dtm.d.encode(d, m, y);
@@ -2925,6 +2976,12 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					}
 				}
 			}
+			else if(p_blk->Type == MouseEvent::tRDown) {
+				if(Kind == kPeriod && !Data.Period.IsZero()) {
+					Data.Period.Z();
+					UpdateSelectedPeriod(0);
+				}
+			}
 			else if(p_blk->Type == MouseEvent::tLDown) {
 				const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
 				if(p_lo_extra) {
@@ -2945,7 +3002,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						case loiYearArrow:
 							{
 								const uint prev_start_year = StartLoYear;
-								SETIFZ(StartLoYear, Data.Dtm.d.year()-2);
+								SetupStartLoYear();
 								if(p_lo_extra->Value == SIDE_LEFT) {
 									if(StartLoYear > 1600)
 										StartLoYear--;
@@ -2967,12 +3024,30 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						case loiYear:
 							{
 								const int year = p_lo_extra->Value+StartLoYear;
-								if(year != Data.Dtm.d.year()) {
-									int m = Data.Dtm.d.month();
-									int d = Data.Dtm.d.day();
+								const LDATE _isd = ISD();
+								if(year != _isd.year()) {
+									int m = _isd.month();
+									int d = _isd.day();
 									const int dpm = dayspermonth(m, year);
 									SETMIN(d, dpm);
 									Data.Dtm.d.encode(d, m, year);
+									if(Kind == kPeriod) {
+										if(PeriodTerm == PRD_ANNUAL) {
+											DateRange _p;
+											_p.Set(AdjustLeftDate(PeriodTerm, encodedate(1, 1, year)), AdjustRightDate(PeriodTerm, encodedate(31, 12, year)));
+											if(checkdate(_p.low) && checkdate(_p.upp)) {
+												if(_p.low < Data.Period.low || !Data.Period.low) {
+													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
+													Data.Period.low = _p.low;
+												}
+												else if(_p.upp > Data.Period.upp) {
+													Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
+													Data.Period.upp = _p.upp;
+												}
+												UpdateSelectedPeriod(0);
+											}
+										}
+									}
 									do_rebuild = true;
 								}
 							}
@@ -2980,12 +3055,30 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						case loiMonth:
 							{
 								const int month = p_lo_extra->Value;
-								if(month != Data.Dtm.d.month() && checkirange(month, 1, 12)) {
-									int y = Data.Dtm.d.year();
-									int d = Data.Dtm.d.day();
+								const LDATE _isd = ISD();
+								if(month != _isd.month() && checkirange(month, 1, 12)) {
+									int y = _isd.year();
+									int d = _isd.day();
 									const int dpm = dayspermonth(month, y);
 									SETMIN(d, dpm);
 									Data.Dtm.d.encode(d, month, y);
+									if(Kind == kPeriod) {
+										if(oneof3(PeriodTerm, PRD_MONTH, PRD_QUART, PRD_ANNUAL)) {
+											DateRange _p;
+											_p.Set(AdjustLeftDate(PeriodTerm, encodedate(1, month, y)), AdjustRightDate(PeriodTerm, encodedate(dpm, month, y)));
+											if(checkdate(_p.low) && checkdate(_p.upp)) {
+												if(_p.low < Data.Period.low || !Data.Period.low) {
+													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
+													Data.Period.low = _p.low;
+												}
+												else if(_p.upp > Data.Period.upp) {
+													Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
+													Data.Period.upp = _p.upp;
+												}
+												UpdateSelectedPeriod(0);
+											}
+										}
+									}
 									do_rebuild = true;
 								}
 							}
@@ -2995,15 +3088,17 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						case loiDay:
 							{
 								const int d = p_lo_extra->Value;
-								if(d != Data.Dtm.d.day()) {
-									int y = Data.Dtm.d.year();
-									int m = Data.Dtm.d.month();
+								const LDATE _isd = ISD();
+								if(d != _isd.day()) {
+									int y = _isd.year();
+									int m = _isd.month();
 									const int dpm = dayspermonth(m, y);
 									if(checkirange(d, 1, dpm)) {
 										Data.Dtm.d.encode(d, m, y);
 										if(Kind == kPeriod) {
 											DateRange _p;
-											_p.Set(AdjustLeftDate(PeriodTerm, Data.Dtm.d), AdjustRightDate(PeriodTerm, Data.Dtm.d));
+											const LDATE _isd = ISD();
+											_p.Set(AdjustLeftDate(PeriodTerm, _isd), AdjustRightDate(PeriodTerm, _isd));
 											if(checkdate(_p.low) && checkdate(_p.upp)) {
 												if(_p.low < Data.Period.low || !Data.Period.low) {
 													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
@@ -3060,7 +3155,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				}
 			}
 			if(do_rebuild) {
-				CreateLayout(Data.Dtm.d);
+				CreateLayout(ISD());
 				if(P_Lfc) {
 					EvaluateLayout(getClientRect());
 					invalidateAll(true);
@@ -3099,6 +3194,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					if(p_blk->PaintType == PaintEvent::tPaint)
 						DrawLayout(canv, P_Lfc);
 				}
+				clearEvent(event);
 			}
 		}
 	}

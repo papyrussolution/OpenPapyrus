@@ -628,12 +628,9 @@ void GnuPlot::StatsRequest()
 	out_of_range = 0; /* number pts rejected, because out of range */
 	n = 0;            /* number of records retained */
 	max_n = INITIAL_DATA_SIZE;
-	SAlloc::F(data_x);
-	SAlloc::F(data_y);
-	data_x = vec(max_n); /* start with max. value */
-	data_y = vec(max_n);
-	SAlloc::F(prefix);
-	prefix = NULL;
+	FREEANDASSIGN(data_x, vec(max_n)); // start with max. value 
+	FREEANDASSIGN(data_y, vec(max_n));
+	ZFREE(prefix);
 	if(!data_x || !data_y)
 		IntError(NO_CARET, "Internal error: out of memory in stats");
 	n = invalid = blanks = header_records = doubleblanks = out_of_range = 0;
@@ -641,8 +638,7 @@ void GnuPlot::StatsRequest()
 	i = Pgm.GetCurTokenIdx();
 	temp_name = StringOrExpress(NULL);
 	if(temp_name) {
-		SAlloc::F(file_name);
-		file_name = sstrdup(temp_name);
+		FREEANDASSIGN(file_name, sstrdup(temp_name));
 	}
 	else
 		IntError(i, "missing filename or datablock");

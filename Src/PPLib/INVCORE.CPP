@@ -48,7 +48,7 @@ int InventoryCore::NextEnum(long enumHandle, void * pRec)
 int InventoryCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-SEnumImp * InventoryCore::Enum(PPID billID)
+SEnum::Imp * InventoryCore::Enum(PPID billID)
 {
 	long   h = -1;
 	return InitEnum(billID, &h) ? new PPTblEnum <InventoryCore>(this, h) : 0;

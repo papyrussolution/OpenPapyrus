@@ -5804,8 +5804,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prep_in                             "в"
 @prep_including                      "В том числе"
 @nomatter                            "Все равно"
-@undefined                           "Не определен"
-@undefined_neut                      "Не определено" // @undefined в среднем роде
+@undefined                           "Неопределен"
+@undefined_neut                      "Неопределено" // @undefined в среднем роде
 @reference                           "Справочник"
 @reference_pl                        "Справочники"
 @forreference                        "(справочно)"
@@ -13005,7 +13005,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @unit_mass                                "Вес"
 @unit_name                                "@{appellation}"
 @unit_phisical                            "Физическая"
-@unit_rounding                            "Дробность"
+@unit_rounding                            "Округление" // @v11.2.4 Дробность-->Округление
+@unit_fragmentation                       "Дробность"  // @v11.2.4
 @unit_si                                  "СИ"
 @unit_tag                                 "@{tag}"
 @unit_trade                               "Товарная"
@@ -17118,6 +17119,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqface_rukpp                             "@{kpp}"
 @styloqface_rusnils                           "@{snils}"
 @styloqface_expiryperiodsec                   "Период актуальности, сек"
+
+@styloqsvc_assignedface                       "Ассоциированный лик" // see slib.h SSecretTagPool::tagAssignedFaceRef
 
 @serverstat_startmoment                       "Время запуска"
 @serverstat_elapsedtime                       "Время работы"

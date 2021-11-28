@@ -8,14 +8,14 @@
 #include <snet.h>
 
 /*enum SqlServerType {
-	sqlstNone    = 0, // Не определенное значение
+	sqlstNone    = 0, // Неопределенное значение
 	sqlstGeneric = 1, // Общий
 	sqlstORA,         // Oracle
 	sqlstMSS,         // Ms SQL Server
 	sqlstFB,          // FireBird
 	sqlstPg,          // PostgreSQL
 	sqlstMySQL,       // @v10.9.0 MySQL
-	sqlstSQLite       // @v10.9.0 SQLite 
+	sqlstSQLite       // @v10.9.0 SQLite
 };*/
 
 static const SIntToSymbTabEntry SqlServerTypeSymbList[] = {
@@ -121,7 +121,7 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 		if(attr == attrPassword) {
 			len = ATTR_PW_LEN;
 			// @v11.1.1 IdeaRandMem(temp_buf, len);
-			SObfuscateBuffer(temp_buf, len); // @v11.1.1 
+			SObfuscateBuffer(temp_buf, len); // @v11.1.1
 			strnzcpy(temp_buf, pVal, len);
 			IdeaEncrypt(0, temp_buf, len);
 			p_val_buf = temp_buf;
@@ -351,10 +351,10 @@ DbProvider::~DbProvider()
 }
 
 //virtual default-implementation
-int DbProvider::GetDatabaseState(uint * pStateFlags) 
-{ 
+int DbProvider::GetDatabaseState(uint * pStateFlags)
+{
 	ASSIGN_PTR(pStateFlags, 0);
-	return -1; 
+	return -1;
 }
 
 int DbProvider::IsValid() const
@@ -546,8 +546,8 @@ int DbProvider::DropTable(const char * pTblName, int inDictOnly)
 
 static char * cryptPassword(char * p)
 {
-	p[2] = 'e'; p[3] = '$'; p[9] = 0;   p[1] = '8'; p[4] = 'g'; 
-	p[7] = '+'; p[0] = '-'; p[6] = '+'; p[5] = 'p'; p[8] = '+'; 
+	p[2] = 'e'; p[3] = '$'; p[9] = 0;   p[1] = '8'; p[4] = 'g';
+	p[7] = '+'; p[0] = '-'; p[6] = '+'; p[5] = 'p'; p[8] = '+';
 	return p;
 }
 
@@ -619,8 +619,8 @@ int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 	p_temp = static_cast<char *>(SAlloc::M(PASZ));
 	// @v11.1.1 IdeaRandMem(p_temp, PASZ);
 	// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
-	SObfuscateBuffer(p_temp, PASZ); // @v11.1.1 
-	SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
+	SObfuscateBuffer(p_temp, PASZ); // @v11.1.1
+	SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1
 	strcpy((char *)buf, pNewPw);
 	::encrypt((char *)buf, sizeof(buf));
 	memcpy(p_temp + PAOFS, buf, sizeof(buf));
@@ -757,7 +757,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 			else if(pTbl->deleteRec() == 0) // @sfu
 				ok = 0;
 		} while(ok && q->single_fetch(0, 0, spNext));
-		// } @v10.3.0 
+		// } @v10.3.0
 		if(q->error)
 			ok = 0;
 		if(useTa)

@@ -372,8 +372,7 @@ int _tmain(int argc, TCHAR ** argv)
 		p_gp->GpExpandTilde(&inifile);
 		// if tilde expansion fails use current directory as default - that was the previous default behaviour 
 		if(inifile[0] == '~') {
-			SAlloc::F(inifile);
-			inifile = "wgnuplot.ini";
+			FREEANDASSIGN(inifile, "wgnuplot.ini");
 		}
 #ifdef UNICODE
 		_WinM.P_GraphWin->IniFile = winifile = UnicodeText(inifile, S_ENC_DEFAULT);
@@ -1290,8 +1289,7 @@ FILE * win_fopen(const char * filename, const char * mode)
 	FILE * file = _wfopen(wfilename, wmode);
 	if(file == NULL) {
 		// "encoding" didn't work, try UTF-8 instead 
-		SAlloc::F(wfilename);
-		wfilename = UnicodeText(filename, S_ENC_UTF8);
+		FREEANDASSIGN(wfilename, UnicodeText(filename, S_ENC_UTF8));
 		file = _wfopen(wfilename, wmode);
 	}
 	SAlloc::F(wfilename);

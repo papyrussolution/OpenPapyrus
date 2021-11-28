@@ -4131,50 +4131,50 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 // If presented with a length > 4, this returns false.
 // The Unicode definition of UTF-8 goes up to 4-byte sequences.
 //
-/*static*/int FASTCALL SUnicode::IsLegalUtf8(const uint8 * pSource, size_t length)
+/*static*/bool FASTCALL SUnicode::IsLegalUtf8(const uint8 * pSource, size_t length)
 {
 	uint8 a;
 	const uint8 * srcptr = pSource+length;
 	switch(length) {
 		default:
-			return 0;
+			return false;
 		// Everything else falls through when "true"...
 		case 4:
 			if((a = (*--srcptr)) < 0x80 || a > 0xBF)
-				return 0;
+				return false;
 		case 3:
 			if((a = (*--srcptr)) < 0x80 || a > 0xBF)
-				return 0;
+				return false;
 		case 2:
 			if((a = (*--srcptr)) > 0xBF)
-				return 0;
+				return false;
 			switch(*pSource) {
 				// no fall-through in this inner switch
 				case 0xE0:
 					if(a < 0xA0)
-						return 0;
+						return false;
 					break;
 				case 0xED:
 					if(a > 0x9F)
-						return 0;
+						return false;
 					break;
 				case 0xF0:
 					if(a < 0x90)
-						return 0;
+						return false;
 					break;
 				case 0xF4:
 					if(a > 0x8F)
-						return 0;
+						return false;
 					break;
 				default:
 					if(a < 0x80)
-						return 0;
+						return false;
 			}
 		case 1:
 			if(*pSource >= 0x80 && *pSource < 0xC2)
-				return 0;
+				return false;
 	}
-	return (*pSource > 0xF4) ? 0 : 1;
+	return (*pSource > 0xF4) ? false : true;
 }
 
 /*static*/uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
@@ -4256,9 +4256,9 @@ int SString::IsAscii() const
 	*/
 }
 
-int SString::IsLegalUtf8() const
+bool SString::IsLegalUtf8() const
 {
-	int    ok = 1;
+	bool   ok = true;
 	const  size_t _len = Len();
 	for(size_t idx = 0; ok && idx < _len;) {
 		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
@@ -4269,20 +4269,20 @@ int SString::IsLegalUtf8() const
 			if(p[1] != 0 && SUnicode::IsLegalUtf8(p, 2))
 				idx += 2;
 			else
-				ok = 0;
+				ok = false;
 		}
 		else if(extra == 2) {
 			if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8(p, 3))
 				idx += 3;
 			else
-				ok = 0;
+				ok = false;
 		}
 		else {
 			const size_t tail = (_len - idx);
 			if((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1))
 				idx += (1+extra);
 			else
-				ok = 0;
+				ok = false;
 		}
 	}
 	return ok;

@@ -405,10 +405,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 			    else {
 				    // remove the old header if any 
-				    if(CONTEXT_params.header) {
-					    SAlloc::F(CONTEXT_params.header);
-					    CONTEXT_params.header = NULL;
-				    }
+				    ZFREE(CONTEXT_params.header);
 				    // and set the new one if nonempty; empty header will be treated as 'noheader' 
 				    if(!isempty(tmp_string)) {
 					    CONTEXT_params.header = tmp_string;
@@ -420,11 +417,8 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CONTEXT_OPT_NOHEADER:
 			    pGp->Pgm.Shift();
-			    /* delete the header if it exists */
-			    if(CONTEXT_params.header) {
-				    SAlloc::F(CONTEXT_params.header);
-				    CONTEXT_params.header = NULL;
-			    }
+			    // delete the header if it exists 
+			    ZFREE(CONTEXT_params.header);
 			    break;
 			case CONTEXT_OPT_COLOR:
 			    pGp->Pgm.Shift();
@@ -648,8 +642,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 	/* only if external images are both requested and supported, we switch to them (double paranoia) */
 	/* delete the stored filename first */
 	if(CONTEXT_image_filename) {
-		SAlloc::F(CONTEXT_image_filename);
-		CONTEXT_image_filename = NULL;
+		ZFREE(CONTEXT_image_filename);
 		CONTEXT_image_filename_length = 0;
 		CONTEXT_image_filename_start  = 0;
 	}
@@ -818,12 +811,10 @@ TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis)
 	}
 	/* deallocate image name if present */
 	if(CONTEXT_image_filename) {
-		SAlloc::F(CONTEXT_image_filename);
-		CONTEXT_image_filename = NULL;
+		ZFREE(CONTEXT_image_filename);
 		CONTEXT_image_filename_length = 0;
 		CONTEXT_image_filename_start  = 0;
 	}
-	;
 }
 //
 // Ends the current graphic.

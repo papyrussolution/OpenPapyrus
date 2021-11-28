@@ -808,8 +808,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		return 1;
 	}
 	else {
-		SAlloc::F(_Df.df_filename);
-		_Df.df_filename = sstrdup(pCmdFileName);
+		FREEANDASSIGN(_Df.df_filename, sstrdup(pCmdFileName));
 	}
 	// defer opening until we have parsed the modifiers... 
 	// pm 25.11.2001 allow any order of options 
@@ -1366,8 +1365,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				_Df.fast_columns = 0;
 				// FIXME - is it safe to always take the title from the 2nd use spec? 
 				if(_Df.df_no_use_specs == 2) {
-					SAlloc::F(_Df.df_key_title);
-					_Df.df_key_title = sstrdup(column_label);
+					FREEANDASSIGN(_Df.df_key_title, sstrdup(column_label));
 				}
 			}
 			else {
@@ -1632,8 +1630,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 			int j;
 			FPRINTF((stderr, "datafile.c:%d processing %d column headers\n", __LINE__, _Df.df_no_cols));
 			for(j = 0; j < _Df.df_no_cols; j++) {
-				SAlloc::F(_Df.df_column[j].header);
-				_Df.df_column[j].header = DfParseStringField(_Df.df_column[j].position);
+				FREEANDASSIGN(_Df.df_column[j].header, DfParseStringField(_Df.df_column[j].position));
 				if(_Df.df_column[j].header) {
 					SETMAX(_Df.LongestColumnHead, sstrleni(_Df.df_column[j].header));
 					FPRINTF((stderr, "Col %d: \"%s\"\n", j+1, _Df.df_column[j].header));
@@ -2478,8 +2475,7 @@ void GnuPlot::DfSetKeyTitle(curve_points * pPlot)
 			;
 		else {
 			// Note: I think we can only get here for histogram labels 
-			SAlloc::F(pPlot->title);
-			pPlot->title = _Df.df_key_title;
+			FREEANDASSIGN(pPlot->title, _Df.df_key_title);
 			_Df.df_key_title = NULL;
 			pPlot->title_no_enhanced = !Gg.KeyT.enhanced;
 		}
@@ -3435,8 +3431,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				IntErrorCurToken(equal_symbol_msg);
 			Pgm.Shift();
 			if(setDefault) {
-				SAlloc::F(_Df.df_binary_format);
-				_Df.df_binary_format = TryToGetString();
+				FREEANDASSIGN(_Df.df_binary_format, TryToGetString());
 			}
 			else {
 				char * format_string = TryToGetString();

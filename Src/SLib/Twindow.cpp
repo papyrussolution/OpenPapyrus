@@ -1859,7 +1859,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				// Если получатель очистил фон, он должен акцептировть сообщение.
 				// Windows ожидает получить в этом случае !0.
 				//
-				return p_ret ? 1 : 0;
+				return BIN(p_ret);
 			}
 			break;
 		case WM_HSCROLL:

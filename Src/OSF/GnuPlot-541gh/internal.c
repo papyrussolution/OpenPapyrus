@@ -1676,7 +1676,6 @@ void GnuPlot::F_Trim(union argument * arg)
 	s = &trim[strlen(trim)-1];
 	while((s > trim) && isspace(*s))
 		*(s--) = '\0';
-	SAlloc::F(a.v.string_val);
-	a.v.string_val = trim;
+	FREEANDASSIGN(a.v.string_val, trim);
 	Push(&a);
 }

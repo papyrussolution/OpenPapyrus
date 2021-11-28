@@ -118,8 +118,7 @@ void GnuPlot::CpFree(curve_points * cp)
 		ZFREE(cp->varcolor);
 		free_labels(cp->labels);
 		cp->labels = NULL;
-		SAlloc::F(cp);
-		cp = next;
+		FREEANDASSIGN(cp, next);
 	}
 }
 // 

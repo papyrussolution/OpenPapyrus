@@ -712,14 +712,14 @@ int AcctRel::EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec * pRec)
 		return PPDbSearchError();
 }
 
-SEnumImp * AcctRel::Enum(int keyN, PPID keyID)
+SEnum::Imp * AcctRel::Enum(int keyN, PPID keyID)
 {
 	union {
 		AcctRelTbl::Key1 k1;
 		AcctRelTbl::Key2 k2;
 	} k;
 	MEMSZERO(k);
-	SEnumImp * p_enum = 0;
+	SEnum::Imp * p_enum = 0;
 	long   h = -1;
 	BExtQuery * q = 0;
 	THROW_INVARG(oneof2(keyN, 1, 2));
@@ -742,8 +742,8 @@ SEnumImp * AcctRel::Enum(int keyN, PPID keyID)
 	return p_enum;
 }
 
-SEnumImp * AcctRel::EnumByAcc(PPID accID) { return Enum(1, accID); }
-SEnumImp * AcctRel::EnumByArticle(PPID arID) { return Enum(2, arID); }
+SEnum::Imp * AcctRel::EnumByAcc(PPID accID) { return Enum(1, accID); }
+SEnum::Imp * AcctRel::EnumByArticle(PPID arID) { return Enum(2, arID); }
 //
 //
 //

@@ -1993,9 +1993,8 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 						if(P_BObj->trfr->Rcpt.Search(src_lot_id, &src_lot_rec) > 0 && src_lot_rec.Rest > 0.0) {
 							for(uint sidx = 0; sidx < gs_list.getCount(); sidx++) {
 								const PPGoodsStruc * p_gs = gs_list.at(sidx);
-								if(p_gs->HasGoods(src_lot_rec.GoodsID)) {
+								if(p_gs->HasGoods(src_lot_rec.GoodsID))
 									potential_gs_pos_list.add(sidx+1);
-								}
 							}
 						}
 					}
@@ -2009,10 +2008,8 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 				if(do_select) {
 					PPObjGoodsStruc gs_obj;
 					uint   gs_pos = 0;
-					if(gs_obj.SelectorDialog(gs_list, &gs_pos) > 0) {
-						if(gs_pos < gs_list.getCount()) {
-							THROW(P_Pack->InsertComplete(*gs_list.at(gs_pos), pos, 0, 0, 0/*goods-replacement-array*/, recursive));
-						}
+					if(gs_obj.SelectorDialog(gs_list, &gs_pos) > 0 && gs_pos < gs_list.getCount()) {
+						THROW(P_Pack->InsertComplete(*gs_list.at(gs_pos), pos, 0, 0, 0/*goods-replacement-array*/, recursive));
 					}
 				}
 			}

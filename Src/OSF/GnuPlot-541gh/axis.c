@@ -490,8 +490,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 			if((axmin*axmax > 0) && 4 < precision && precision < 10)
 				sprintf(tempfmt, "%%.%df", precision);
 		}
-		SAlloc::F(pAx->ticfmt);
-		pAx->ticfmt = sstrdup(tempfmt);
+		FREEANDASSIGN(pAx->ticfmt, sstrdup(tempfmt));
 		return pAx->ticfmt;
 	}
 	// Else, have to invent an output format string. 
@@ -536,8 +535,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 			strcat(tempfmt, "\n%H:%M");
 		}
 	}
-	SAlloc::F(pAx->ticfmt);
-	pAx->ticfmt = sstrdup(tempfmt);
+	FREEANDASSIGN(pAx->ticfmt, sstrdup(tempfmt));
 	return pAx->ticfmt;
 }
 /* }}} */
@@ -1830,10 +1828,7 @@ void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int
 		// FIXME: But are they preferred to data-generated tics?    
 		if(newtic->level < level)
 			return;
-		if(newtic->label) {
-			SAlloc::F(newtic->label);
-			newtic->label = NULL;
-		}
+		ZFREE(newtic->label);
 	}
 	newtic->level = level;
 	newtic->label = pLabel ? sstrdup(pLabel) : 0;

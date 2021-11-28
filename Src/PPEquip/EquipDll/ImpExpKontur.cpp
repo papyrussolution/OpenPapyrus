@@ -396,7 +396,7 @@ public:
 	int    NextFileName(const char * pFtpSrc, SString & rFileName);
 	int    DeleteFile(const char * pFtpFile);
 
-	SEnumImp * Enum(const char * pWildcard); // SDirEntry
+	SEnum::Imp * Enum(const char * pWildcard); // SDirEntry
 private:
 	int    Status;
     SString Login;
@@ -478,9 +478,9 @@ int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
     return ok;
 }
 
-SEnumImp * FtpClient::Enum(const char * pWildcard)
+SEnum::Imp * FtpClient::Enum(const char * pWildcard)
 {
-	class FtpEnum : public SEnumImp {
+	class FtpEnum : public SEnum::Imp {
 	public:
 		FtpEnum(HINTERNET hSess, const char * pWildcard) : H(0), HSess(hSess), Wildcard(pWildcard)
 		{

@@ -1342,8 +1342,7 @@ GpIterator * cleanup_iteration(GpIterator * iter)
 		SAlloc::F(iter->iteration_string);
 		free_at(iter->start_at);
 		free_at(iter->end_at);
-		SAlloc::F(iter);
-		iter = next;
+		FREEANDASSIGN(iter, next);
 	}
 	return NULL;
 }

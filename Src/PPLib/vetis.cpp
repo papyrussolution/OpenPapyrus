@@ -3914,23 +3914,19 @@ int PPVetisInterface::ParsePackage(const xmlNode * pParentNode, VetisPackage & r
 	SString temp_buf;
 	SString attr_buf;
 	FOREACHXMLCHILD(pParentNode, p_a) {
-		if(SXml::GetContentByName(p_a, "level", temp_buf)) {
+		if(SXml::GetContentByName(p_a, "level", temp_buf))
 			rResult.Level = temp_buf.ToLong();
-		}
-		else if(SXml::GetContentByName(p_a, "packingType", temp_buf)) {
+		else if(SXml::GetContentByName(p_a, "packingType", temp_buf))
 			ParsePackingType(p_a, rResult.PackingType);
-		}
-		else if(SXml::GetContentByName(p_a, "quantity", temp_buf)) {
+		else if(SXml::GetContentByName(p_a, "quantity", temp_buf))
 			rResult.Quantity = temp_buf.ToLong();
-		}
 		else if(SXml::GetContentByName(p_a, "productMarks", temp_buf)) {
-			if(temp_buf.NotEmptyS()) {
+			if(temp_buf.NotEmptyS() && temp_buf.IsLegalUtf8()) { // @v11.2.4 (&& temp_buf.IsLegalUtf8())
 				VetisProductMarks * p_new_mark = rResult.ProductMarks.CreateNewItem();
 				p_new_mark->Item = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_mark->Cls = vpmcUNDEFINED;
-				if(SXml::GetAttrib(p_a, "class", temp_buf)) {
+				if(SXml::GetAttrib(p_a, "class", temp_buf))
 					p_new_mark->Cls = SIntToSymbTab_GetId(VetisProductMarkingClass_SymbTab, SIZEOFARRAY(VetisProductMarkingClass_SymbTab), temp_buf);
-				}
 			}
 		}
 	}
@@ -11507,9 +11503,8 @@ public:
 			for(uint i = 0; !found_pos && i < getCount(); i++) {
 				const _VetisRegionRouteEntry * p_entry = at(i);
 				assert(p_entry);
-				if(p_entry && p_entry->RegionGuid_From == rRegFrom && p_entry->RegionGuid_To == rRegTo) {
+				if(p_entry && p_entry->RegionGuid_From == rRegFrom && p_entry->RegionGuid_To == rRegTo)
 					found_pos = i+1;
-				}
 			}
 			if(!found_pos) {
 				_VetisRegionRouteEntry * p_new_entry = CreateNewItem();
@@ -11525,9 +11520,8 @@ public:
 				_VetisRegionRouteEntry * p_entry = at(found_pos-1);
 				assert(p_entry->RegionGuid_From == rRegFrom);
 				assert(p_entry->RegionGuid_To == rRegTo);
-				if(!!rSubp && p_entry->SubProductGuidList.lsearch(&rSubp, 0, PTR_CMPFUNC(S_GUID))) {
+				if(!!rSubp && p_entry->SubProductGuidList.lsearch(&rSubp, 0, PTR_CMPFUNC(S_GUID)))
 					p_entry->SubProductGuidList.insert(&rSubp);
-				}
 				if(srcRecID)
 					p_entry->SrcIdList.add(srcRecID);
 			}

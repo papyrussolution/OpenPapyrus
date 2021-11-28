@@ -6,6 +6,8 @@
 #include <slib-internal.h>
 #pragma hdrstop
 //
+int ExecDateCalendar(void * hParentWnd, LDATE * pDt); // @prototype
+//
 //
 //
 STimeChunkGrid::HolidayArray::HolidayArray(long id) : Id(id)
@@ -1054,8 +1056,6 @@ void FASTCALL STimeChunkBrowser::GetStartPageDate(LDATE * pDt)
 	STimeChunk view_time_bounds = GetBoundsTime(a2);
 	ASSIGN_PTR(pDt, view_time_bounds.Start.d);
 }
-
-int ExecDateCalendar(void * hParentWnd, LDATE * pDt); // @prototype
 
 int STimeChunkBrowser::SetupDate(LDATE dt)
 {

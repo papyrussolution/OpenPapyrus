@@ -172,13 +172,11 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 	SAlloc::F(zlist);
 	while(p_polys) {
 		p_poly = p_polys->next;
-		SAlloc::F(p_polys);
-		p_polys = p_poly;
+		FREEANDASSIGN(p_polys, p_poly);
 	}
 	while(p_edges) {
 		p_edge = p_edges->next;
-		SAlloc::F(p_edges);
-		p_edges = p_edge;
+		FREEANDASSIGN(p_edges, p_edge);
 	}
 	return _Cntr.P_ContourList;
 }

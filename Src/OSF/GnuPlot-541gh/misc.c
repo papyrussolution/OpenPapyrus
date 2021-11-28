@@ -285,8 +285,7 @@ bool GnuPlot::LfPop()
 		// call arguments are not relevant when invoked from do_string_and_free 
 		if(!lf->cmdline) {
 			for(argindex = 0; argindex < 10; argindex++) {
-				SAlloc::F(call_args[argindex]);
-				call_args[argindex] = lf->call_args[argindex];
+				FREEANDASSIGN(call_args[argindex], lf->call_args[argindex]);
 			}
 			call_argc = lf->call_argc;
 			// Restore ARGC and ARG0 ... ARG9 
@@ -476,10 +475,8 @@ FILE * GnuPlot::LoadPath_fopen(const char * filename, const char * mode)
 void GnuPlot::PushTerminal(int isInteractive)
 {
 	if(GPT.P_Term) {
-		SAlloc::F(P_PushTermName);
-		SAlloc::F(P_PushTermOpts);
-		P_PushTermName = sstrdup(GPT.P_Term->name);
-		P_PushTermOpts = sstrdup(GPT._TermOptions);
+		FREEANDASSIGN(P_PushTermName, sstrdup(GPT.P_Term->name));
+		FREEANDASSIGN(P_PushTermOpts, sstrdup(GPT._TermOptions));
 		if(isInteractive)
 			fprintf(stderr, "   pushed terminal %s %s\n", P_PushTermName, P_PushTermOpts);
 	}
@@ -1458,8 +1455,7 @@ void GnuPlot::PixMapFromColorMap(t_pixmap * pPixmap)
 	if(!colormap)
 		IntErrorCurToken("not a colormap");
 	Pgm.Shift();
-	SAlloc::F(pPixmap->colormapname);
-	pPixmap->colormapname = sstrdup(colormap->udv_name);
+	FREEANDASSIGN(pPixmap->colormapname, sstrdup(colormap->udv_name));
 	size = colormap->udv_value.v.value_array[0].v.int_val;
 	pPixmap->image_data = (coordval *)SAlloc::R(pPixmap->image_data, static_cast<size_t>(size * 4.0 * sizeof(coordval)));
 	// Unpack ARGB colormap entry into 4 separate values R G B A 

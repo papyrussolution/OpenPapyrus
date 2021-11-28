@@ -2367,8 +2367,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 		// Use plot title to label the corresponding radial axis 
 		if(thisplot->title) {
 			text_label & r_lbl = AxS.Parallel(thisplot->AxIdx_P-1).label;
-			SAlloc::F(r_lbl.text);
-			r_lbl.text = sstrdup(thisplot->title);
+			FREEANDASSIGN(r_lbl.text, sstrdup(thisplot->title));
 		}
 	}
 	if(n_spokes < 3)
@@ -4231,8 +4230,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 				SetupTics(this_axis, 20);
 				// Use plot title to label the corresponding radial axis 
 				if(plot->title) {
-					SAlloc::F(this_axis->label.text);
-					this_axis->label.text = sstrdup(plot->title);
+					FREEANDASSIGN(this_axis->label.text, sstrdup(plot->title));
 				}
 			}
 		}

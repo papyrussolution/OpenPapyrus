@@ -1002,7 +1002,7 @@ public:
 	int    PutFile(const char * pLocSrc, const char * pFtpDst);
 	int    GetFile(const char * pFtpSrc, const char * pLocDst);
 
-    class Enum : public SEnumImp {
+    class Enum : public SEnum::Imp {
 	public:
 		Enum(const char * pWildcard);
 		virtual ~Enum();

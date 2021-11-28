@@ -1845,17 +1845,14 @@ out_of_range:
 	}
 	// remember parameter names for 'update' 
 	_Fit.last_num_params = _Fit.num_params;
-	SAlloc::F(_Fit.last_par_name);
-	_Fit.last_par_name = _Fit.par_name;
+	FREEANDASSIGN(_Fit.last_par_name, _Fit.par_name);
 	// remember names of indep. variables for 'update' 
 	for(i = 0; i < MAX_NUM_VAR; i++) {
-		SAlloc::F(_Fit.last_dummy_var[i]);
-		_Fit.last_dummy_var[i] = sstrdup(_Pb.c_dummy_var[i]);
+		FREEANDASSIGN(_Fit.last_dummy_var[i], sstrdup(_Pb.c_dummy_var[i]));
 	}
 	// remember last fit command for 'save fit' 
 	// FIXME: This breaks if there is a ; internal to the fit command 
-	SAlloc::F(_Fit.last_fit_command);
-	_Fit.last_fit_command = sstrdup(&Pgm.P_InputLine[Pgm.P_Token[fit_token].StartIdx]);
+	FREEANDASSIGN(_Fit.last_fit_command, sstrdup(&Pgm.P_InputLine[Pgm.P_Token[fit_token].StartIdx]));
 	if(strchr(_Fit.last_fit_command, ';'))
 		*strchr(_Fit.last_fit_command, ';') = '\0';
 	// save fit command to user variable 

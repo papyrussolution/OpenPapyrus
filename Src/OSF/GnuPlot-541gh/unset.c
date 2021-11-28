@@ -119,8 +119,7 @@ ITERATE:
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("com$mentschars")) {
-			    SAlloc::F(_Df.df_commentschars);
-			    _Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+			    FREEANDASSIGN(_Df.df_commentschars, sstrdup(DEFAULT_COMMENTS_CHARS));
 			    Pgm.Shift();
 			    break;
 		    }
@@ -142,8 +141,7 @@ ITERATE:
 		    _Df.df_fortran_constants = false;
 		    UnsetMissing();
 		    ZFREE(_Df.df_separators);
-		    SAlloc::F(_Df.df_commentschars);
-		    _Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+		    FREEANDASSIGN(_Df.df_commentschars, sstrdup(DEFAULT_COMMENTS_CHARS));
 		    DfUnsetDatafileBinary();
 		    _Df.df_columnheaders = false;
 		    break;
@@ -363,8 +361,7 @@ void GnuPlot::UnsetPixmap(int i)
 			SAlloc::F(pixmap->filename);
 			SAlloc::F(pixmap->colormapname);
 			SAlloc::F(pixmap->image_data);
-			SAlloc::F(pixmap);
-			pixmap = prev->next;
+			FREEANDASSIGN(pixmap, prev->next);
 		}
 		else {
 			prev = pixmap;
@@ -1078,8 +1075,7 @@ void GnuPlot::UnsetPolar()
 	AxS.Theta().max = 360.;
 	AxS.Theta().ticdef = default_axis_ticdef;
 	AxS.Theta().index = THETA_index;
-	SAlloc::F(AxS.Theta().formatstring);
-	AxS.Theta().formatstring = sstrdup(DEF_FORMAT);
+	FREEANDASSIGN(AxS.Theta().formatstring, sstrdup(DEF_FORMAT));
 	AxS.Theta().ticscale = 1.0;
 	AxS.Theta().miniticscale = 0.5;
 	AxS.Theta().TicIn = TRUE;
@@ -1252,8 +1248,7 @@ void GnuPlot::UnsetTicsLevel()
 //
 void GnuPlot::UnsetTimeFmt()
 {
-	SAlloc::F(AxS.P_TimeFormat);
-	AxS.P_TimeFormat = sstrdup(TIMEFMT);
+	FREEANDASSIGN(AxS.P_TimeFormat, sstrdup(TIMEFMT));
 }
 //
 // process 'unset timestamp' command 
@@ -1526,8 +1521,7 @@ void GnuPlot::ResetCommand()
 				MultiplotReset();
 			UnsetMissing();
 			ZFREE(_Df.df_separators);
-			SAlloc::F(_Df.df_commentschars);
-			_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+			FREEANDASSIGN(_Df.df_commentschars, sstrdup(DEFAULT_COMMENTS_CHARS));
 			DfInit();
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
 				verbosity_level save_verbosity = _Fit.fit_verbosity;

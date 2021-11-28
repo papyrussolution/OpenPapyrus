@@ -348,7 +348,7 @@ DIR * gp_opendir(const char * name)
 		size_t base_length = strlen(name);
 		// search pattern must end with suitable wildcard 
 		const char * all = strchr("/\\", name[base_length-1]) ? "*" : "/*";
-		dir = (DIR*)SAlloc::M(sizeof(*dir));
+		dir = (DIR *)SAlloc::M(sizeof(*dir));
 		if(dir && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
 			dir->name = UnicodeText(mbname, GPT._Encoding);

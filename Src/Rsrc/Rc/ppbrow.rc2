@@ -417,7 +417,8 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
 	//EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          "Ёкспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,         "@{refresh}\tCtrl-V"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -479,7 +480,8 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,           "@{exportbills}\tCtrl-R"
 	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,  hidden, "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	//EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,       "Ёкспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,      "@{refresh}\tCtrl-V"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -540,7 +542,8 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,        "@{exportbills}\tCtrl-R"
 	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Ёкспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -580,7 +583,8 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,         "@{refresh}\tCtrl-V"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,         "@{refresh}\tAlt-V" // @v11.2.4
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -639,7 +643,8 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
 	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Ёкспорт в @{brand_egais}\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Ёкспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
+	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
+	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	separator
 	EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          hidden, "–едактировать документ подтверждени€\tCtrl-K"
 	DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          hidden, "”далить документ подтверждени€\tCtrl-D"

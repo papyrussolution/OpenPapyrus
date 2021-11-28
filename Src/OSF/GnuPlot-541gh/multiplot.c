@@ -156,10 +156,8 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 	MpLo.auto_layout_margins = FALSE;
 	MpLo.current_panel = 0;
 	MpLo.title.noenhanced = FALSE;
-	SAlloc::F(MpLo.title.text);
-	MpLo.title.text = NULL;
-	SAlloc::F(MpLo.title.font);
-	MpLo.title.font = NULL;
+	ZFREE(MpLo.title.text);
+	ZFREE(MpLo.title.font);
 	MpLo.title.boxed = 0;
 	// Parse options 
 	while(!Pgm.EndOfCommand()) {

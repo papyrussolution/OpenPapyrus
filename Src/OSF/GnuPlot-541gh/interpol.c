@@ -798,8 +798,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			case SMOOTH_BEZIER:
 			case SMOOTH_SBEZIER:
 			    bc = cp_binomial(num_points);
-			    DoBezier(pPlot, bc, first_point, num_points,
-				new_points + i * (Gg.Samples1 + 1));
+			    DoBezier(pPlot, bc, first_point, num_points, new_points + i * (Gg.Samples1 + 1));
 			    SAlloc::F((char *)bc);
 			    break;
 			case SMOOTH_KDENSITY:
@@ -1346,8 +1345,7 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	SAlloc::F(sc_y);
 	SAlloc::F(sc_z);
 	// Replace original data with spline approximation 
-	SAlloc::F(pCurve->points);
-	pCurve->points = new_points;
+	FREEANDASSIGN(pCurve->points, new_points);
 	pCurve->p_count = nseg;
 	pCurve->p_max = nseg+1;  /* not sure why we asked for 1 extra */
 }
@@ -1466,8 +1464,7 @@ void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 	}
 	// Replace original data with splined approximation 
 	SAlloc::F(old_points);
-	SAlloc::F(pPlot->points);
-	pPlot->points = splined_points;
+	FREEANDASSIGN(pPlot->points, splined_points);
 	pPlot->p_max = curves * Gg.Samples1;
 	pPlot->p_count = is;
 }

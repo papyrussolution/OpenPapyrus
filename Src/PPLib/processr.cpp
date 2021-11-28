@@ -12,7 +12,7 @@ ProcessorCore::ProcessorCore() : ProcessorTbl()
 {
 }
 
-SEnumImp * ProcessorCore::Enum(long prcKind, PPID parentID)
+SEnum::Imp * ProcessorCore::Enum(long prcKind, PPID parentID)
 {
 	long   h = -1;
 	return InitEnum(prcKind, parentID, &h) ? new PPTblEnum <ProcessorCore>(this, h) : 0;

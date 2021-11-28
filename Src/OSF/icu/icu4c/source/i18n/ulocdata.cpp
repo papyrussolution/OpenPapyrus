@@ -58,7 +58,7 @@ U_CAPI ULocaleData* U_EXPORT2 ulocdata_open(const char * localeID, UErrorCode * 
 	uld = (ULocaleData*)uprv_malloc(sizeof(ULocaleData));
 	if(uld == NULL) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
-		return(NULL);
+		return NULL;
 	}
 
 	uld->langBundle = NULL;

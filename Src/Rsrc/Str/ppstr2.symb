@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494434
+LastSignatureCode=2147494436
 LastAutoCodeList=1,12090;102,10174;103,10072;110,10000;111,12013;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10138;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10227
 
 [SignatureList]
@@ -7026,6 +7026,7 @@ unit_mass=2147490089
 unit_name=2147490090
 unit_phisical=2147490091
 unit_rounding=2147490092
+unit_fragmentation=2147494435
 unit_si=2147490093
 unit_tag=2147490094
 unit_trade=2147490095
@@ -10773,6 +10774,7 @@ styloqface_ruinn=2147494401
 styloqface_rukpp=2147494402
 styloqface_rusnils=2147494403
 styloqface_expiryperiodsec=2147494406
+styloqsvc_assignedface=2147494436
 serverstat_startmoment=2147494264
 serverstat_elapsedtime=2147494265
 serverstat_lastmessage=2147494266

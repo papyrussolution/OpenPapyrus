@@ -1161,10 +1161,10 @@ void BrowserWindow::SetupScroll()
 	SetScrollPos(H(), SB_HORZ, HScrollPos, TRUE);
 	HWND   parent = GetParent(H());
 	if(parent) {
-		SendMessage(parent, BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
-		SendMessage(parent, BRO_COLCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
+		::SendMessage(parent, BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
+		::SendMessage(parent, BRO_COLCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
 	}
-	SendMessage(H(), WM_VSCROLL, SB_THUMBPOSITION, 0);
+	::SendMessage(H(), WM_VSCROLL, SB_THUMBPOSITION, 0);
 }
 
 void BrowserWindow::SetColorsSchema(uint32 schemaNum)
@@ -1585,12 +1585,11 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 					br = CreateSolidBrush(color);
 					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
-
 					const int _diam = 6;
-					int   _right = r.right - 6;
-					int   _left = _right - _diam;
-					int   _top = r.top + 4;
-					int   _bottom = _top + _diam + 2;
+					const int _right = r.right - 6;
+					const int _left = _right - _diam;
+					const int _top = r.top + 4;
+					const int _bottom = _top + _diam + 2;
 					Ellipse(hdc, _left, _top, _right, _bottom);
 
 					SelectObject(hdc, oldpen);

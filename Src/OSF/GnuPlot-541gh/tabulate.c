@@ -127,32 +127,16 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 		len = snprintf(line, size, "# x y");
 		switch(pPlot->plot_style) {
 			case BOXES:
-			case XERRORBARS:
-			    len = strappend(&line, &size, len, " xlow xhigh");
-			    break;
+			case XERRORBARS: len = strappend(&line, &size, len, " xlow xhigh"); break;
 			case BOXERROR:
-			case YERRORBARS:
-			    len = strappend(&line, &size, len, " ylow yhigh");
-			    break;
+			case YERRORBARS: len = strappend(&line, &size, len, " ylow yhigh"); break;
 			case BOXXYERROR:
-			case XYERRORBARS:
-			    len = strappend(&line, &size, len, " xlow xhigh ylow yhigh");
-			    break;
-			case FILLEDCURVES:
-			    len = strappend(&line, &size, len, "1 y2");
-			    break;
-			case FINANCEBARS:
-			    len = strappend(&line, &size, len, " open ylow yhigh yclose");
-			    break;
-			case CANDLESTICKS:
-			    len = strappend(&line, &size, len, " open ylow yhigh yclose width");
-			    break;
-			case LABELPOINTS:
-			    len = strappend(&line, &size, len, " label");
-			    break;
-			case VECTOR:
-			    len = strappend(&line, &size, len, " delta_x delta_y");
-			    break;
+			case XYERRORBARS: len = strappend(&line, &size, len, " xlow xhigh ylow yhigh"); break;
+			case FILLEDCURVES: len = strappend(&line, &size, len, "1 y2"); break;
+			case FINANCEBARS: len = strappend(&line, &size, len, " open ylow yhigh yclose"); break;
+			case CANDLESTICKS: len = strappend(&line, &size, len, " open ylow yhigh yclose width"); break;
+			case LABELPOINTS: len = strappend(&line, &size, len, " label"); break;
+			case VECTOR: len = strappend(&line, &size, len, " delta_x delta_y"); break;
 			case LINES:
 			case POINTSTYLE:
 			case LINESPOINTS:
@@ -160,16 +144,10 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 			case IMPULSES:
 			case STEPS:
 			case FSTEPS:
-			case HISTEPS:
-			    break;
-			case IMAGE:
-			    len = strappend(&line, &size, len, "  pixel");
-			    break;
+			case HISTEPS: break;
+			case IMAGE: len = strappend(&line, &size, len, "  pixel"); break;
 			case RGBIMAGE:
-			case RGBA_IMAGE:
-			    len = strappend(&line, &size, len, "  red green blue alpha");
-			    break;
-
+			case RGBA_IMAGE: len = strappend(&line, &size, len, "  red green blue alpha"); break;
 			default:
 			    if(_Plt.interactive)
 				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n", pPlot->plot_style == HISTOGRAMS ? "histograms" : "this");

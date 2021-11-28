@@ -910,7 +910,7 @@ BExtQuery * PrjTaskCore::StartupEnumQuery(int idx, int options)
 	return q;
 }
 
-SEnumImp * PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options)
+SEnum::Imp * PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 5;
@@ -924,7 +924,7 @@ SEnumImp * PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
-SEnumImp * PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options)
+SEnum::Imp * PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 4;

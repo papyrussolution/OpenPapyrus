@@ -735,8 +735,7 @@ void free_labels(text_label * pLabel)
 			if(pLabel->font && pLabel->font != master_font)
 				SAlloc::F(pLabel->font);
 			text_label * temp = pLabel->next;
-			SAlloc::F(pLabel);
-			pLabel = temp;
+			FREEANDASSIGN(pLabel, temp);
 		}
 	}
 }

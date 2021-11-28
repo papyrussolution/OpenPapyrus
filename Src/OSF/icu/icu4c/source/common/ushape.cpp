@@ -448,7 +448,7 @@ static UChar getLink(UChar ch) {
 		return(presBLink[ch-0xFE70]);
 	}
 	else {
-		return(0);
+		return 0;
 	}
 }
 

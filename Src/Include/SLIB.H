@@ -1574,7 +1574,7 @@ public:
 
 class SUnicode {
 public:
-	static int   FASTCALL IsLegalUtf8(const uint8 * pSource, size_t length);
+	static bool  FASTCALL IsLegalUtf8(const uint8 * pSource, size_t length);
 	//
 	// Descr: Транслирует unicode32 в один или 2 широких символа wchar_t.
 	// Returns:
@@ -4000,7 +4000,7 @@ public:
 	SString & FASTCALL SetIfEmpty(const char *);
 	SString & FASTCALL SetIfEmpty(const SString &);
 	int    IsAscii() const;
-	int    IsLegalUtf8() const;
+	bool   IsLegalUtf8() const;
 	int    CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
 	// Descr: Копирует в нашу строку не более maxLen символов из строки pSrc.
@@ -5252,7 +5252,7 @@ private:
 //   Механизм использования на примере:
 // class Foo {
 // private:
-//	 class EnImp : public SEnumImp {
+//	 class EnImp : public SEnum::Imp {
 //	 public:
 //	 	EnImp(const void * pArg) : I(0), P_Arg(pArg)
 //		{
@@ -5272,7 +5272,7 @@ private:
 //		const void * P_Arg;
 //	};
 // public:
-//	SEnumImp * Enum(const void * pArg)
+//	SEnum::Imp * Enum(const void * pArg)
 //	{
 //		return new EnImp(pArg);
 //	}
@@ -5287,26 +5287,25 @@ private:
 //	}
 // }
 //
-// Класс Foo реализует механизм итерирования (от 0 до 9) посредством вложенного класса, унаследованного от SEnumImp, экземпляр
+// Класс Foo реализует механизм итерирования (от 0 до 9) посредством вложенного класса, унаследованного от SEnum::Imp, экземпляр
 // которого возвращает публичной функцией Enum().
 // Клиентская функция foo() не знает о реализации Foo::EnImp но знает о том, какого типа итерируемый объект (в примере double).
 // Аргумент итератора pArg приведен только для примера и не используется.
 //
-class SEnumImp {
-public:
-	virtual ~SEnumImp();
-	virtual int Next(void * pData) = 0;
-};
-
 class SEnum {
 public:
-	SEnum(SEnumImp * pE = 0);
-	SEnum & FASTCALL operator = (SEnumImp * pE);
+	class Imp {
+	public:
+		virtual ~Imp();
+		virtual int Next(void * pData) = 0;
+	};
+	SEnum(SEnum::Imp * pE = 0);
+	SEnum & FASTCALL operator = (SEnum::Imp * pE);
 	~SEnum();
 	int    operator !() const;
 	int    FASTCALL Next(void * pData);
 private:
-	SEnumImp * P_E;
+	Imp * P_E;
 };
 //
 // File utilities
@@ -6382,8 +6381,10 @@ public:
 		tagRoundTripIdent          = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
 			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
 		tagDocDeclaration          = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
-		tagSvcLoclAddendum         = 33   // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
+		tagSvcLoclAddendum         = 33,  // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
 			// Участвует в формировании символа очереди в случае MQB-обмена.
+		tagAssignedFaceRef         = 34   // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
+			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -8247,6 +8248,82 @@ public:
 	int    Remove(const char * pKey);
 protected:
 	LAssocArray L;
+};
+//
+// Descr: Древовидная коллекция ассоциаций {int32; string}.
+//   Во-многом повторяет StrAssocArray но быстрее за счет хранения элементов в виде дерева, а не в виде
+//   линейного массива.
+//   Соответственно, есть и ограничения: 
+//     -- ключевой элемент строго не нулевой
+//     -- дубликаты по ключу не допускаются
+//
+class StrAssocTree : private SStrGroup {
+private:
+	class ENTRY {
+	public:
+		class BaseList : public TSArray <ENTRY> {
+		public:
+			BaseList();
+			BaseList(const BaseList & rS);
+			BaseList & Z();
+			int    FASTCALL Copy(const BaseList & rS);
+			uint   GetCount() const;
+			int    Implement_Add(int32 key, uint strP);
+			ENTRY * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const;
+			void   Implement_SortByID();
+			void   Implement_SortByText(void * pMaster);
+			//
+			// Descr: Дополняет список rList собственными идентификаторами ключей.
+			//   Если параметр recursive == true, то рекурсивно перебирает все дочерние деревья //
+			//
+			void   GetKeyList(bool recursive, LongArray & rList) const;
+			bool   FASTCALL ValidateEntryPtr(const void * pEntry) const;
+		private:
+			virtual void FASTCALL freeItem(void * pItem);
+		};
+
+		int32  Key;
+		uint32 StrP;
+		BaseList * P_Children;
+
+		ENTRY();
+		ENTRY(int32 key, uint32 strP);
+		void   Destroy();
+		int    FASTCALL Copy(const ENTRY & rS);
+		uint   GetCount() const;
+	};
+public:
+	class EntryHandle { 
+	public:
+		EntryHandle() : P(0)
+		{
+		}
+		bool operator !() const { return P == 0; }
+		bool IsEmpty() const { return P == 0; }
+	private:
+		EntryHandle(StrAssocTree::ENTRY *);
+		friend class StrAssocTree;
+		void * P; 
+	};
+	StrAssocTree();
+	StrAssocTree(const StrAssocTree & rS);
+	int    FASTCALL Copy(const StrAssocTree & rS);
+	StrAssocTree & Z();
+	uint   GetCount() const;
+	bool   Search(long id, long * pParentId, SString * pBuf) const;
+	EntryHandle FASTCALL Search(long id) const;
+	int    GetListByParent(long parentId, bool recursive, LongArray & rList) const;
+	int    Add(long id, const char * pStr, int replaceDup);
+	int    Add(long id, long parentId, const char * pStr, int replaceDup);
+	void   SortByID();
+	void   SortByText();
+protected:
+	CompFunc TextCmpProc;
+private:
+	ENTRY::BaseList L;
+	static int Helper_CmpFunc_ByText(const void * p1, const void * p2, const StrAssocTree * pArray);
+	friend DECL_CMPFUNC(StrAssocTreeEntry_ByText);
+	bool   FASTCALL ValidateEntryHandle(const EntryHandle h) const;
 };
 //
 //
@@ -10990,7 +11067,7 @@ struct SStrScan : public SRegExpSet {
 	// Descr: Проверяет, является ли текущий символ (P_Buf+Offs) вместе, возможно, со следующими
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
 	//
-	int    IsLegalUtf8() const;
+	int    IsLegalUtf8() const; // return type must be int (not bool)!
 	size_t Offs;
 	size_t Len;
 private:
@@ -16357,7 +16434,7 @@ public:
 	//			}
 	//		}
 	//
-	SEnumImp * EnumTab(const char * pTabName);
+	SEnum::Imp * EnumTab(const char * pTabName);
 	int    GetCurrentStatus() const { return CurrentStatus; }
 protected:
 	const  STestSuite::Entry * GetSuiteEntry() const;
@@ -16380,7 +16457,7 @@ private:
 	STestSuite * P_Suite;
 	SString TempBuf; // @allocreuse
 
-	class TabEnum : public SEnumImp {
+	class TabEnum : public SEnum::Imp {
 	public:
 		TabEnum(const char * pTabFileName, const char * pTabName);
 		virtual int Next(void * pData);

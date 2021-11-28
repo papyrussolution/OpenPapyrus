@@ -676,7 +676,7 @@ int FASTCALL _dayofweek(const void * pDate, int format)
 void STDCALL encodedate(int day, int mon, int year, void * pBinDate) { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
 void STDCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
 long STDCALL diffdate(const void * pDest, const void * pSrc, int _360) { return _diffdate(pDest, pSrc, BinDateFmt, _360); }
-void STDCALL plusdate(void * pDest, int numdays, int _360)                          { _plusdate(pDest, numdays, BinDateFmt, _360); }
+void STDCALL plusdate(void * pDest, int numdays, int _360) { _plusdate(pDest, numdays, BinDateFmt, _360); }
 void STDCALL plusperiod(void * pDest, int period, int numperiods, int _360) { _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
 
 int FASTCALL dayofweek(const void * pDate, int sundayIsSeventh)
@@ -1535,8 +1535,8 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 		ok = MAXDATEVALID.decode(pD, pM, pY);
 	}
 	else {
-		int    d, m, y;
-		y = year();
+		int    d, m;
+		int    y = year();
 		if(y == 0x8000) {
 			d = MakeLong((int16)v, 0x8000);
 			y = -1;

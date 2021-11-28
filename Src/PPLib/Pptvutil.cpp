@@ -5646,6 +5646,8 @@ int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 	delete p_dlg;
 	return ok;
 }
+
+#if (USE_NEW_TIMEPICKER==0) // @v11.2.4 {
 //
 // TimePickerDialog
 //
@@ -6050,6 +6052,7 @@ void TimePickerDialog::Implement_Draw()
 	}
 	::EndPaint(H(), &ps);
 }
+#endif // } @v11.2.4 (USE_NEW_TIMEPICKER==0)
 
 void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 {

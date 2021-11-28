@@ -357,13 +357,13 @@ int TSessionCore::DestroyIter(long enumHandle)
 	return Lines.EnumList.DestroyIterHandler(enumHandle);
 }
 
-SEnumImp * TSessionCore::EnumLines(PPID sessID)
+SEnum::Imp * TSessionCore::EnumLines(PPID sessID)
 {
 	long   h = -1;
 	return InitLineEnum(sessID, &h) ? new PPTblEnum <TSessLineCore>(&Lines, h) : 0;
 }
 
-SEnumImp * TSessionCore::EnumLinesBySerial(const char * pSerial, int sign)
+SEnum::Imp * TSessionCore::EnumLinesBySerial(const char * pSerial, int sign)
 {
 	long   h = -1;
 	return InitLineEnumBySerial(pSerial, sign, &h) ? new PPTblEnum <TSessLineCore>(&Lines, h) : 0;

@@ -45,8 +45,8 @@ char * loadpath_handler(int action, char * path)
 		case ACTION_CLEAR:
 		    /* Clear loadpath, fall through to init */
 		    FPRINTF((stderr, "Clear loadpath\n"));
-		    SAlloc::F(loadpath);
-		    loadpath = p = last = NULL;
+		    ZFREE(loadpath);
+		    p = last = NULL;
 		    /* HBB 20000726: 'limit' has to be initialized to NULL, too! */
 		    limit = NULL;
 		case ACTION_INIT:
@@ -178,21 +178,19 @@ char * GnuPlot::LocaleHandler(int action, char * newlocale)
 	switch(action) {
 		case ACTION_CLEAR:
 		case ACTION_INIT:
-		    SAlloc::F(GpU.time_locale);
 #ifdef HAVE_LOCALE_H
 		    setlocale(LC_TIME, "");
 		    setlocale(LC_CTYPE, "");
-		    GpU.time_locale = sstrdup(setlocale(LC_TIME, NULL));
+		    FREEANDASSIGN(GpU.time_locale, sstrdup(setlocale(LC_TIME, NULL)));
 #else
-		    time_locale = sstrdup(INITIAL_LOCALE);
+		    FREEANDASSIGN(GpU.time_locale, sstrdup(INITIAL_LOCALE));
 #endif
 		    break;
 
 		case ACTION_SET:
 #ifdef HAVE_LOCALE_H
 		    if(setlocale(LC_TIME, newlocale)) {
-			    SAlloc::F(GpU.time_locale);
-			    GpU.time_locale = sstrdup(setlocale(LC_TIME, NULL));
+			    FREEANDASSIGN(GpU.time_locale, sstrdup(setlocale(LC_TIME, NULL)));
 		    }
 		    else {
 			    IntErrorCurToken("Locale not available");

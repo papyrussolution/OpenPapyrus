@@ -326,10 +326,11 @@ int ArticleAutoAddDialog::makeQuery()
 
 int ArticleAutoAddDialog::extractFromQuery()
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	STRNSCPY(Rec.Name, P_Buf + sizeof(PPID));
-	Rec.ObjID = *(PPID *)P_Buf;
-	THROW((r = ArObj.P_Tbl->SearchObjRef(Rec.AccSheetID, Rec.ObjID)) != 0);
+	Rec.ObjID = *reinterpret_cast<const PPID *>(P_Buf);
+	int    r = ArObj.P_Tbl->SearchObjRef(Rec.AccSheetID, Rec.ObjID);
+	THROW(r);
 	if(r < 0) {
 		Rec.ID = 0;
 		Rec.Article = 0;
@@ -357,9 +358,9 @@ int ArticleAutoAddDialog::fetch(int sp)
 
 int ArticleAutoAddDialog::save()
 {
-	int    r;
 	long   n = getCtrlLong(CTL_ARTICLE_NUMBER);
-	if((r = ArObj.GetFreeArticle(&n, Rec.AccSheetID)) > 0)
+	int    r = ArObj.GetFreeArticle(&n, Rec.AccSheetID);
+	if(r > 0)
 		Rec.Article = n;
 	else if(r == 0)
 		return (endModal(cmError), 0);
@@ -955,7 +956,8 @@ int PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
 int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 {
 	int    ok = 1;
-	int    cm = cmCancel, done = 0;
+	int    cm = cmCancel;
+	bool   done = false;
 	PPID   obj_id = 0;
 	PPObject * ppobj = 0;
 	PPAccSheet acs_rec;
@@ -983,7 +985,7 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 			if(P_Tbl->SearchObjRef(sheetID, obj_id) > 0) {
 				ASSIGN_PTR(pID, P_Tbl->data.ID);
 				cm = cmOK;
-				done = 1;
+				done = true;
 			}
 			else {
 				PersonTbl::Rec   psn_rec;
@@ -1044,7 +1046,37 @@ PPObjArticle::~PPObjArticle()
 int PPObjArticle::Search(PPID id, void * b)
 	{ return SearchByID(P_Tbl, Obj, id, b); }
 int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
-	{ return P_Tbl->SearchFreeNum(accSheetID, pID); }
+{ 
+	assert(pID != 0);
+	// @v11.2.4 {
+	// Если статья не ассоциирована с объектом, то в новой записи ObjID будет равно Article по-этому надо
+	// проверить свободен ли соответствующий номер по ключу ArticleTbl::Key3
+	bool check_surr_obj_ref = false;
+	if(*pID == 0) {
+		PPObjAccSheet acs_obj;
+		PPAccSheet acs_rec;
+		if(acs_obj.Search(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == 0)
+			check_surr_obj_ref = true;
+	}
+	// } @v11.2.4 
+	int r = P_Tbl->SearchFreeNum(accSheetID, pID); 
+	// @v11.2.4 {
+	if(r) {
+		while(check_surr_obj_ref) { 
+			ArticleTbl::Key3 k3;
+			k3.AccSheetID = accSheetID;
+			k3.ObjID = *pID;
+			if(P_Tbl->search(3, &k3, spEq)) {
+				// Проверять на существование записи с ключом {accsheet; article} нет смысла поскольку мы вызовом SearchFreeNum получили максимальный номер
+				(*pID)++;
+			}
+			else
+				check_surr_obj_ref = false;
+		}
+	}
+	// } @v11.2.4
+	return r;
+}
 
 /*static*/int PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
 {

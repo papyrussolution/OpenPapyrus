@@ -1092,7 +1092,7 @@ int BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
 int BillCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-SEnumImp * BillCore::EnumByOp(PPID opID, const DateRange * pPeriod, int options)
+SEnum::Imp * BillCore::EnumByOp(PPID opID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	return InitEnumByOp(opID, pPeriod, options, &h) ? new PPTblEnum <BillCore>(this, h) : 0;

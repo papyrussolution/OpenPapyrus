@@ -309,8 +309,8 @@ int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 }
 
 int PPObjReference::EnumItems(PPID * pID, void * b) { return P_Ref->EnumItems(Obj, pID, b); }
-SEnumImp * FASTCALL PPObjReference::Enum(int options) { return P_Ref->Enum(Obj, options); }
-SEnumImp * PPObjReference::EnumByIdxVal(int valN, long val) { return P_Ref->EnumByIdxVal(Obj, valN, val); }
+SEnum::Imp * FASTCALL PPObjReference::Enum(int options) { return P_Ref->Enum(Obj, options); }
+SEnum::Imp * PPObjReference::EnumByIdxVal(int valN, long val) { return P_Ref->EnumByIdxVal(Obj, valN, val); }
 
 int PPObjReference::CheckDupName(PPID objID, const char * pName)
 {
@@ -977,7 +977,7 @@ public:
 	struct UnitData : public ObjCacheEntry {
 		PPID   BaseUnitID;
 		double BaseRatio;
-		double Rounding;
+		double Rounding_;
 		long   Flags;
 	};
 };
@@ -991,7 +991,7 @@ int UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	if(u_obj.Search(id, &rec) > 0) {
 		p_cache_rec->BaseUnitID = rec.BaseUnitID;
 		p_cache_rec->BaseRatio  = rec.BaseRatio;
-		p_cache_rec->Rounding   = rec.Rounding;
+		p_cache_rec->Rounding_  = rec.Rounding_;
 		p_cache_rec->Flags = rec.Flags;
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -1013,7 +1013,7 @@ void UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	p_data_rec->ID         = p_cache_rec->ID;
 	p_data_rec->BaseUnitID = p_cache_rec->BaseUnitID;
 	p_data_rec->BaseRatio  = p_cache_rec->BaseRatio;
-	p_data_rec->Rounding   = p_cache_rec->Rounding;
+	p_data_rec->Rounding_  = p_cache_rec->Rounding_;
 	p_data_rec->Flags      = p_cache_rec->Flags;
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
@@ -1031,7 +1031,8 @@ int PPObjUnit::Fetch(PPID id, PPUnit * pRec)
 int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPUnit unit;
 	TDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -1056,7 +1057,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	dlg->SetClusterData(CTL_UNIT_FLAGS, unit.Flags);
 	SetupPPObjCombo(dlg, CTLSEL_UNIT_BASE, PPOBJ_UNIT, unit.BaseUnitID, 0, reinterpret_cast<void *>(PPUnit::SI));
 	dlg->setCtrlReal(CTL_UNIT_BASERATIO, unit.BaseRatio);
-	dlg->setCtrlReal(CTL_UNIT_ROUNDING,  unit.Rounding);
+	dlg->setCtrlReal(CTL_UNIT_ROUNDING,  unit.Rounding_);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_UNIT_NAME, unit.Name);
 		if(!CheckName(*pID, strip(unit.Name), 0))
@@ -1074,7 +1075,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 				PPErrorByDialog(dlg, CTL_UNIT_BASE, PPERR_BASEUNITEQTHIS);
 			else {
 				dlg->getCtrlData(CTL_UNIT_BASERATIO, &unit.BaseRatio);
-				dlg->getCtrlData(CTL_UNIT_ROUNDING, &unit.Rounding);
+				dlg->getCtrlData(CTL_UNIT_ROUNDING, &unit.Rounding_);
 				if(*pID)
 					*pID = unit.ID;
 				THROW(EditItem(PPOBJ_UNIT, *pID, &unit, 1));

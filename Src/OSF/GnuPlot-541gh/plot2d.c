@@ -1295,8 +1295,7 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 		case HT_STACKED_IN_LAYERS:
 		    if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
 			    if(pPlot->histogram_sequence == 0) {
-				    SAlloc::F(_Plt.stackheight);
-				    _Plt.stackheight = (GpCoordinate *)SAlloc::M(pPlot->p_count * sizeof(GpCoordinate));
+				    FREEANDASSIGN(_Plt.stackheight, (GpCoordinate *)SAlloc::M(pPlot->p_count * sizeof(GpCoordinate)));
 				    for(_Plt.stack_count = 0; _Plt.stack_count < pPlot->p_count; _Plt.stack_count++) {
 					    _Plt.stackheight[_Plt.stack_count].yhigh = 0;
 					    _Plt.stackheight[_Plt.stack_count].ylow = 0;
@@ -3116,8 +3115,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 			else if(Pgm.IsString(Pgm.GetCurTokenIdx()) && !Pgm.EqualsNext(".")) {
 				free_at(_Df.df_plot_title_at);
 				_Df.df_plot_title_at = NULL;
-				SAlloc::F(pPlot->title);
-				pPlot->title = TryToGetString();
+				FREEANDASSIGN(pPlot->title, TryToGetString());
 				// Create an action table that can generate the title later 
 			}
 			else {
@@ -3130,8 +3128,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 					GpValue a;
 					EvaluateAt(_Df.df_plot_title_at, &a);
 					if(a.Type == STRING) {
-						SAlloc::F(pPlot->title);
-						pPlot->title = a.v.string_val;
+						FREEANDASSIGN(pPlot->title, a.v.string_val);
 					}
 					else
 						IntWarn(save_token, "expecting string for title");
@@ -3198,8 +3195,7 @@ void GnuPlot::ReevaluatePlotTitle(curve_points * pPlot)
 		EvaluateAt(_Df.df_plot_title_at, &a);
 		_Df.evaluate_inside_using = false;
 		if(!Ev.IsUndefined_ && a.Type == STRING) {
-			SAlloc::F(pPlot->title);
-			pPlot->title = a.v.string_val;
+			FREEANDASSIGN(pPlot->title, a.v.string_val);
 			// Special case where the "title" is used as a tic label 
 			if(pPlot->plot_style == HISTOGRAMS && Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
 				double xpos = pPlot->histogram_sequence + pPlot->histogram->start;

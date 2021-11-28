@@ -357,28 +357,26 @@ uint sb_calc_length(SB * sb)
  */
 void sb_resize(SB * sb, uint size)
 {
-	LB * lb;
 	uint sidx, idx, count;
 	uint len;
 	// allocate new buffer 
-	lb = (LB *)SAlloc::C(size + 1, sizeof(LB));
-	if(lb == NULL) /* memory allocation failed */
-		return;
-	len = sb_internal_length(sb);
-	sidx = (size > len) ? 0 : (len - size);
-	count = (size > len) ? len : size;
-	/* free elements if necessary */
-	for(idx = 0; idx < sidx; idx++)
-		lb_free(sb_internal_get(sb, idx));
-	/* copy elements to new buffer */
-	for(idx = 0; idx < count; idx++, sidx++)
-		lb_copy(&(lb[idx]), sb_internal_get(sb, sidx));
-	/* replace old buffer by new one */
-	SAlloc::F(sb->lb);
-	sb->lb = lb;
-	sb->size = size + 1;
-	sb->head = 0;
-	sb->tail = count;
+	LB * lb = (LB *)SAlloc::C(size + 1, sizeof(LB));
+	if(lb) {
+		len = sb_internal_length(sb);
+		sidx = (size > len) ? 0 : (len - size);
+		count = (size > len) ? len : size;
+		// free elements if necessary 
+		for(idx = 0; idx < sidx; idx++)
+			lb_free(sb_internal_get(sb, idx));
+		// copy elements to new buffer 
+		for(idx = 0; idx < count; idx++, sidx++)
+			lb_copy(&(lb[idx]), sb_internal_get(sb, sidx));
+		// replace old buffer by new one 
+		FREEANDASSIGN(sb->lb, lb);
+		sb->size = size + 1;
+		sb->head = 0;
+		sb->tail = count;
+	}
 }
 //
 //  sb_lines:

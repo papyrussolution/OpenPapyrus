@@ -8908,8 +8908,8 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 				PPUnit u_rec;
 				double u_rounding = 0.0;
 				if(restr_qtty_by_unit && GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-					if(u_rec.Rounding > 0.0)
-						u_rounding = u_rec.Rounding;
+					if(u_rec.Rounding_ > 0.0)
+						u_rounding = u_rec.Rounding_;
 					else if(u_rec.Flags & PPUnit::IntVal)
 						u_rounding = 1.0;
 				}

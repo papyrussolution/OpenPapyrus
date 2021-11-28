@@ -982,7 +982,7 @@ private:
 //
 //
 //
-template <class T> class PPTblEnum : public SEnumImp {
+template <class T> class PPTblEnum : public SEnum::Imp {
 public:
 	PPTblEnum(T * pT, long h) : P_T(pT), H(h)
 	{
@@ -3294,11 +3294,11 @@ public:
 	//
 	int    SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta);
 	//
-	SEnumImp * Enum(PPID objType, int prop);
+	SEnum::Imp * Enum(PPID objType, int prop);
 	int    InitEnum(PPID objType, int prop, long * pHandle);
 	int    NextEnum(long enumHandle, TextRefEnumItem * pRec);
 private:
-	class _Enum : public SEnumImp {
+	class _Enum : public SEnum::Imp {
 	public:
 		_Enum(UnxTextRefCore * pT, long h);
 		virtual ~_Enum();
@@ -3365,7 +3365,7 @@ public:
 	int    SearchNum(PPID asscTyp, PPID prmrID, long num, ObjAssocTbl::Rec * = 0);
 	int    SearchFreeNum(PPID asscTyp, PPID prmrID, long * num, ObjAssocTbl::Rec * = 0);
 	int    EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * scnd, ObjAssocTbl::Rec * = 0);
-	SEnumImp * Enum(PPID asscType, PPID keyID, int byScnd);
+	SEnum::Imp * Enum(PPID asscType, PPID keyID, int byScnd);
 	int    GetList(PPID asscTyp, LAssocArray *);
 	int    GetListByPrmr(PPID asscTyp, PPID prmrID, PPIDArray * pList);
 	int    GetItemsListByPrmr(PPID asscType, PPID prmrID, TSVector <ObjAssocTbl::Rec> * pList);
@@ -3972,8 +3972,8 @@ public:
 	int    InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle);
 	int    NextEnum(long enumHandle, void * pRec);
 	int    DestroyIter(long enumHandle);
-	SEnumImp * Enum(PPID objType, int options);
-	SEnumImp * EnumByIdxVal(PPID objType, int valN, long val);
+	SEnum::Imp * Enum(PPID objType, int options);
+	SEnum::Imp * EnumByIdxVal(PPID objType, int valN, long val);
 	int    EnumItems(PPID obj, PPID * pID, void * = 0);
 	//
 	// Descr: Загружает в массив pList все элементы справочника типа objType.
@@ -7182,7 +7182,7 @@ public:
 	// Descr: Вид потоков
 	//
 	enum {
-		kUnknown = 0,    // Не определенный
+		kUnknown = 0,    // Неопределенный
 		kJobServer,      // Серверный поток
 		kNetServer,      //
 		kJob,            // Исполняемое задание сервера
@@ -7572,7 +7572,7 @@ public:
 	//
 	// Descr: Возвращает енумератор для перечисления зарезервированных файлов.
 	//
-	SEnumImp * EnumRFileInfo();
+	SEnum::Imp * EnumRFileInfo();
 	int    SetLocation(PPID locID, int notInteractive = 0);
 	void   SetOperDate(LDATE);
 	void   SetCurCashNodeID(PPID);
@@ -9248,7 +9248,7 @@ public:
 		eoParentAsOwner = 0x0001, // ИД родительского элемента (parentID) трактуется как LocationTbl::Rec::OwnerID
 		eoIgnoreParent  = 0x0002  // parentID не трактуется как ограничение выборки.
 	};
-	SEnumImp * Enum(PPID locTyp, PPID parentID, int options);
+	SEnum::Imp * Enum(PPID locTyp, PPID parentID, int options);
 	int    Add(PPID * pID, LocationTbl::Rec *, int use_ta);
 	int    SearchRef(PPID locType, PPID objType, PPID objID, PPID *);
 	int    SearchPersonRef(PPID locType, PPID personID, PPID *);
@@ -11996,7 +11996,7 @@ public:
 	int    EnumByObj(PPID arID, DateIter *, void * = 0);
 	int    EnumByOpr(PPID opID, DateIter *, void * = 0);
 	int    EnumByDate(DateIter *, BillTbl::Rec * pRec = 0);
-	SEnumImp * EnumByOp(PPID opID, const DateRange * pPeriod, int options);
+	SEnum::Imp * EnumByOp(PPID opID, const DateRange * pPeriod, int options);
 	//
 	// Descr: Находит список документов заказа, по которым отгружен документ billID.
 	// Returns:
@@ -13767,8 +13767,8 @@ public:
 	//
 	int    NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec);
 	int    DestroyIter(long enumHandle);
-	SEnumImp * EnumLines(PPID sessID);
-	SEnumImp * EnumLinesBySerial(const char * pSerial, int sign);
+	SEnum::Imp * EnumLines(PPID sessID);
+	SEnum::Imp * EnumLinesBySerial(const char * pSerial, int sign);
 	//
 	// Descr: Подсчитывает итоги по технологической сессии sessID.
 	//   Если параметр goodsID != 0, то подсчитывает итоги только по строкам, соответствующим этому товару.
@@ -13855,8 +13855,8 @@ public:
 
 	PrjTaskCore();
 	int    Search(PPID id, PrjTaskTbl::Rec * pRec);
-	SEnumImp * EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options);
-	SEnumImp * EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options);
+	SEnum::Imp * EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options);
+	SEnum::Imp * EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options);
 	int    SearchByTime(const LDATETIME &, PPID * pID, PrjTaskTbl::Rec *);
 	int    SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta);
@@ -15841,7 +15841,7 @@ public:
 	virtual void FASTCALL SetUniqueID(long * pID);
 	int    FASTCALL Copy(const PPCommandItem &);
 	int    Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const;
-// @todo Теоретически, следующие поля надо бы сделать protected, но первая попытка "захлебнулась" - много неочевидных присваиваний. 
+// @todo Теоретически, следующие поля надо бы сделать protected, но первая попытка "захлебнулась" - много неочевидных присваиваний.
 // частично я закрыл прямой доступ посредством конструкторов и getter'ов (GetID(), GetKind(), IsKind())
 	int16  Kind;
 	int16  Flags;
@@ -16551,8 +16551,8 @@ public:
 	// Note: Просто вызывает енумератор Reference::Enum(Obj, options)
 	// ARG(options IN): Опции перечисления Reference::eoXXX
 	//
-	SEnumImp * FASTCALL Enum(int options);
-	SEnumImp * EnumByIdxVal(int valN, long val);
+	SEnum::Imp * FASTCALL Enum(int options);
+	SEnum::Imp * EnumByIdxVal(int valN, long val);
 	int    SearchByName(const char *, PPID *, void * = 0);
 	int    SearchBySymb(const char * pSymb, PPID * pID, void * pRec = 0);
 	int    CheckDupName(PPID objID, const char * pName);
@@ -16927,7 +16927,7 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 		Hide     = 0x0008, // (H) Единицу не следует показывать
 		IntVal   = 0x0010, // (I) Единица может быть только целочисленной
 		Common   = 0x0020, // Унифицированная единица измерения (имеет конкретные габариты и, возможно, массу и емкость) //
-		Default  = 0x0040  // @v9.8.6 @transient Флаг только для передачи данных, информирующий о том, что единица измерения
+		Default  = 0x0040  // @transient Флаг только для передачи данных, информирующий о том, что единица измерения
 			// применяется "по умолчанию" для товаров, у которых единица измерения не определена.
 	};
 	long   Tag;            // Const=PPOBJ_UNIT
@@ -16935,8 +16935,12 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Abbr[20];       // Символьный код единицы измерения //
 	char   Code[12];       // Цифровой код единицы измерения //
-	char   Reserve[16];    // @reserve
-	double Rounding;       // Округление величины. (0.001 - до трех знаков после точки, 1 - целое и т.д.)
+	char   Reserve[14];    // @reserve // @v11.2.4
+	uint16 Fragmentation;  // @v11.2.4 Дробнобность единицы измерения. Позволяет оперировать количествами
+		// меньшими единицы, но пропорционально величине Fragmentation (с поправкой на десятичное округление).
+		// Например, если Fragmentation == 8, то допускается оперировать величинами 1, 0.125, 0.25, 0.5, 0.75, 0.875.
+		// Если Fragmentation == 3, то допускаются значения 1, 0.3333.., 0.6666..
+	double Rounding_;      // Округление величины. (0.001 - до трех знаков после точки, 1 - целое и т.д.)
 	//
 	// Следующие 4 поля будут использованы для унифицированной системы обработки атрибутов товарной логистики
 	//
@@ -21304,8 +21308,8 @@ public:
 	//   0  - ошибка
 	//
 	int    EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec *);
-	SEnumImp * EnumByAcc(PPID accID);
-	SEnumImp * EnumByArticle(PPID arID);
+	SEnum::Imp * EnumByAcc(PPID accID);
+	SEnum::Imp * EnumByArticle(PPID arID);
 	//
 	// Заменяет все сочетания {oldAc, oldSb} на {newAc, newSb}
 	// @! Без транзакции
@@ -21324,7 +21328,7 @@ public:
 	int    OpenAcct(PPID *, const Acct *, PPID curID, const AcctID *, int accKind, int accsLevel = 0);
 	int    CloseAcct(PPID, int use_ta);
 private:
-	SEnumImp * Enum(int keyN, PPID keyID);
+	SEnum::Imp * Enum(int keyN, PPID keyID);
 
 	PPTblEnumList EnumList;
 };
@@ -23242,9 +23246,9 @@ public:
 
 	WorkbookCore();
 	int    GetChildList(PPID id, int recursive, PPIDArray & rList);
-	SEnumImp * Enum(int options);
-	SEnumImp * EnumByParent(PPID parentID, int options);
-	SEnumImp * EnumByType(long type, int options);
+	SEnum::Imp * Enum(int options);
+	SEnum::Imp * EnumByParent(PPID parentID, int options);
+	SEnum::Imp * EnumByType(long type, int options);
 	int    NextEnum(long enumHandle, WorkbookTbl::Rec * pRec);
 	int    Arrange(PPID rootID);
 private:
@@ -24435,7 +24439,7 @@ public:
 //
 // Категории котировок
 //
-#define PPQC_UNKN                 0 // Не определенная категория (вид котировки 0 или не найден) //
+#define PPQC_UNKN                 0 // Неопределенная категория (вид котировки 0 или не найден) //
 #define PPQC_PRICE                1 // Обыкновенная ценовая котировка
 #define PPQC_SUPPLDEAL            2 // Контрактная цена (включает и ограничения для контрактных цен)
 #define PPQC_MATRIX               3 // Товарная матрица
@@ -27321,7 +27325,7 @@ public:
 	int    Update(PPID id, PersonEventTbl::Rec *, int use_ta);
 	int    Remove(PPID id, int use_ta);
 	int    CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount);
-	SEnumImp * EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod);
+	SEnum::Imp * EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod);
 private:
 	int    InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle);
 
@@ -32627,7 +32631,7 @@ public:
 	int    Search(PPID billID, long oprNo, void * = 0);
 	int    SearchByGoods(PPID id, PPID goodsID, InventoryArray * pList);
 	int    SearchIdentical(PPID billID, PPID goodsID, const char * pSerial, InventoryTbl::Rec * pRec = 0);
-	SEnumImp * Enum(PPID billID);
+	SEnum::Imp * Enum(PPID billID);
 	int    Set(PPID id, long * oprNo, InventoryTbl::Rec * rec, int use_ta);
 	int    Remove(PPID id, int use_ta);
 	int    Move(PPID destBillID, PPID srcBillID, int sgoptions /* INVMOVSGO_XXX */, int use_ta);
@@ -32675,7 +32679,7 @@ public:
 	bool   GetFormula(uint idx/*0..*/, SString & rFormula) const;
 	//
 	// Descr: Возвращает указатель на структуру, ассоциированную с элементом по индексу idx.
-	//   Если индекс idx неверный либо структура не найдена, то возвращает 0 
+	//   Если индекс idx неверный либо структура не найдена, то возвращает 0
 	//   (в контексте использования данного класса, это - серьезная ошибка).
 	//
 	const  PPGoodsStruc * GetGoodsStruc(uint idx/*0..*/) const;
@@ -36180,7 +36184,7 @@ public:
 	friend class PPTblEnum <ProcessorCore>;
 
 	ProcessorCore();
-	SEnumImp * Enum(long prcKind, PPID parentID);
+	SEnum::Imp * Enum(long prcKind, PPID parentID);
 	int    InitEnum(long prcKind, PPID parentID, long * pHandle);
 	int    NextEnum(long enumHandle, ProcessorTbl::Rec * pRec);
 private:
@@ -55953,9 +55957,9 @@ struct CalcPriceParam { // @{calcprice}
 	int16  Reserve;    // @alignment
 	long   Flags;      // IN/OUT CalcPriceParam::fXXX
 };
-// 
+//
 // Descr: Новый вариант виджета для выбора даты и периода и времени
-// 
+//
 class SCalendarPicker : public TWindowBase {
 public:
 	struct DataBlock {
@@ -55985,7 +55989,7 @@ private:
 		loiMonth,
 		loiWeekday,
 		loiDay,
-		//loiHour,        // 
+		//loiHour,        //
 		//loiMinute,      //
 		loiFrame_Main,
 		loiFrame_Years,
@@ -55999,7 +56003,7 @@ private:
 	struct LayoutExtra {
 		LayoutExtra(int ident, uint value);
 		int   Ident; // loiXXX
-		uint  Value; // Для месяцев - месяц, для дней - день, для дней недели - день недели, 
+		uint  Value; // Для месяцев - месяц, для дней - день, для дней недели - день недели,
 			// для loiYearArrow: SIDE_LEFT - left, SIDE_RIGHT - right
 			// Для лет - (year - StartLoYear)
 	};
@@ -56016,7 +56020,9 @@ private:
 	LDATE  AdjustLeftDate(int prdType, LDATE d) const;
 	LDATE  AdjustRightDate(int prdType, LDATE d) const;
 	void   UpdateSelectedPeriod(const DateRange * pNewPeriod);
-	
+	void   SetupStartLoYear();
+	LDATE  ISD() const; // Inner selected date. Если Data.Dtm.d не валидно, то ISD возвращает текущую системную дату
+
 	const  int Kind;
 	const  SUiLayout * P_LoFocused;
 	const  SVector LoExtraList;

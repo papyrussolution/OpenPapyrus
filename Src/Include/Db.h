@@ -43,14 +43,14 @@ typedef struct st_mysql_time MYSQL_TIME;
 //
 //
 enum SqlServerType {
-	sqlstNone    = 0, // Не определенное значение
+	sqlstNone    = 0, // Неопределенное значение
 	sqlstGeneric = 1, // Общий
 	sqlstORA,         // Oracle
 	sqlstMSS,         // Ms SQL Server
 	sqlstFB,          // FireBird
 	sqlstPg,          // PostgreSQL
 	sqlstMySQL,       // @v10.9.0 MySQL
-	sqlstSQLite       // @v10.9.0 SQLite 
+	sqlstSQLite       // @v10.9.0 SQLite
 };
 
 int    GetSqlServerTypeSymb(SqlServerType t, SString & rBuf);
@@ -154,7 +154,7 @@ public:
 	SString Name;       // Наименование поля       //
 	SString Descr;      // Текстовое описание поля //
 	SString OuterFormula; // Если поле представлено не значением, а формулой, то последняя хранится здесь.
-	SString InnerFormula; // @v10.9.1 При транзите настройки сопоставления полей здесь 
+	SString InnerFormula; // @v10.9.1 При транзите настройки сопоставления полей здесь
 		// хранится формула, сопоставленная с внутренним представлением данных (со значением ID)
 private:
 	int    Helper_TranslateString(SStrScan & rScan, void * pData);
@@ -203,9 +203,9 @@ public:
 	// Descr: Сериализация объекта.
 	// Note: формат хранения в буфере не совместим с функциями Write_/Read_.
 	//
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v10.9.1 
-	int    FASTCALL Write_(SBuffer & rBuf) const; // @v10.9.1 
-	int    FASTCALL Read_(SBuffer & rBuf); // @v10.9.1 
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v10.9.1
+	int    FASTCALL Write_(SBuffer & rBuf) const; // @v10.9.1
+	int    FASTCALL Read_(SBuffer & rBuf); // @v10.9.1
 	//
 	// Descr: Добавляет в конец записи новое поле с типом typ, именем pName и описанием pDescr.
 	// ARG(pID     OUT): @#{vptr0} Указатель, по которому будет присвоен идентификатор нового поля //
@@ -381,7 +381,7 @@ private:
 	int32  Ver;              // @persistent (Serialize())
 	int32  Flags;            // @persistent
 	uint32 DescrPos;         // @persistent
-	SVector Items;           // @persistent 
+	SVector Items;           // @persistent
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
 	// @v10.8.4 mutable SString TempBuf; // @transient @allocreuse
@@ -1006,7 +1006,7 @@ int btrnfound__();
 #define XTF_MANUALKEYNUMBER   0x00000400 // v6.x
 #define XTF_VAT               0x00000800 // v6.x
 #define XTF_TEMP              0x00010000 // temporary table
-#define XTF_DISABLEOUTOFTAMSG 0x10000000 // 
+#define XTF_DISABLEOUTOFTAMSG 0x10000000 //
 //
 // Index flags
 // Note:
@@ -1104,7 +1104,7 @@ struct XFile {
 	int16  XfOwnrLvl;   // Owner access level (A. Sobolev)
 	int16  XfBTFlags;   // Btrieve File flags (A. Sobolev)
 	int8   reserv[6];   // Real file has record size 97 bytes
-	// Indexes: { XfId } { XfName } 
+	// Indexes: { XfId } { XfName }
 };
 //
 // XField (DDF struct)
@@ -1119,7 +1119,7 @@ struct XField {
 	int8   XeDec;       // Field decimal places
 	int16  XeFlags;     // Flags (Bit 0 - case flag for str data types)
 	int16  reserv;      // Real file has record size 32 bytes
-	// Indexes: { XeId } { XeFile DUP } { XeName DUP } { XeFile XeName } 
+	// Indexes: { XeId } { XeFile DUP } { XeName DUP } { XeFile XeName }
 };
 //
 // XIndex (DDF struct)
@@ -1130,7 +1130,7 @@ struct XIndex {
 	int16  XiNumber;
 	int16  XiPart;
 	int16  XiFlags;
-	// Indexes: { XiFile DUP } { XiField DUP } 
+	// Indexes: { XiFile DUP } { XiField DUP }
 };
 //
 // PageSzInfo
@@ -2034,7 +2034,7 @@ public:
 		attrDbUuid,         // (S_GUID) UUID базы данных (передается как строка в формате S_GUID::fmtIDL)
 		attrUserName,       // Имя пользователя для регистрации в базе данных
 		attrPassword,       // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
-		attrServerUrl       // @v10.9.2 URL хоста, на котором запущен сервер 
+		attrServerUrl       // @v10.9.2 URL хоста, на котором запущен сервер
 	};
 	DbLoginBlock();
 	DbLoginBlock(const DbLoginBlock & rS);
@@ -2367,7 +2367,7 @@ public:
 #define BACKUPLOG_SUC_REMOVE        10 // Удаление резервной копии
 #define BACKUPLOG_ERROR             11 // Общая ошибка
 #define BACKUPLOG_ERR_DECOMPRESSCRC 12 // Ошибка распаковки файла (неверный CRC)
-#define BACKUPLOG_ERR_REMOVE        13 // @v10.8.6 Ошибка удаления резервной копии 
+#define BACKUPLOG_ERR_REMOVE        13 // @v10.8.6 Ошибка удаления резервной копии
 //
 // callback function ptr
 //
@@ -2786,7 +2786,7 @@ public:
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:
-	struct OD { 
+	struct OD {
 		OD() : H(0), T(0)
 		{
 		}
@@ -3197,7 +3197,7 @@ public:
 	//
 	static int CDECL RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
 	//
-	// Descr: Тоже что и RegisterDyn(0, retType, pProc, paramCount,...) 
+	// Descr: Тоже что и RegisterDyn(0, retType, pProc, paramCount,...)
 	//   Но возвращает идентификатор функции, а не сигнал успеха/неудачи.
 	//
 	static int CDECL RegisterDynR(int retType, DBQProc pProc, int paramCount, ...); // @cs
@@ -3943,8 +3943,8 @@ private:
 	long   State;
 	SSqlStmt * P_Stmt;
 	int    InitSpMode;
-	BtrDbKey InitKey_; // @v10.6.8 
-	BtrDbKey _Key_;    // @v10.6.8 
+	BtrDbKey InitKey_; // @v10.6.8
+	BtrDbKey _Key_;    // @v10.6.8
 	// @v10.6.8 char   InitKey[ALIGNSIZE(MAXKEYLEN, 2)];
 	// @v10.6.8 char   _Key[ALIGNSIZE(MAXKEYLEN, 2)];
 };

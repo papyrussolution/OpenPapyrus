@@ -97,7 +97,7 @@ int PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * PersonEventCore::EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod)
+SEnum::Imp * PersonEventCore::EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod)
 {
 	long   h = -1;
 	return InitEnum(prmrPesonID, pPeriod, &h) ? new PPTblEnum <PersonEventCore>(this, h) : 0;

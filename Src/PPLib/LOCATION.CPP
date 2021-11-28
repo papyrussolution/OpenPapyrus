@@ -364,7 +364,7 @@ int LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * LocationCore::Enum(PPID locTyp, PPID parentID, int options)
+SEnum::Imp * LocationCore::Enum(PPID locTyp, PPID parentID, int options)
 {
 	long   h = -1;
 	return InitEnum(locTyp, parentID, options, &h) ? new PPTblEnum <LocationCore>(this, h) : 0;

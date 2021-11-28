@@ -467,13 +467,13 @@ int Reference::DestroyIter(long enumHandle)
 	return EnumList.DestroyIterHandler(enumHandle);
 }
 
-SEnumImp * Reference::Enum(PPID objType, int options)
+SEnum::Imp * Reference::Enum(PPID objType, int options)
 {
 	long   h = -1;
 	return InitEnum(objType, options, &h) ? new PPTblEnum <Reference>(this, h) : 0;
 }
 
-SEnumImp * Reference::EnumByIdxVal(PPID objType, int valN, long val)
+SEnum::Imp * Reference::EnumByIdxVal(PPID objType, int valN, long val)
 {
 	long   h = -1;
 	return InitEnumByIdxVal(objType, valN, val, &h) ? new PPTblEnum<Reference>(this, h) : 0;
@@ -2734,7 +2734,7 @@ int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * UnxTextRefCore::Enum(PPID objType, int prop)
+SEnum::Imp * UnxTextRefCore::Enum(PPID objType, int prop)
 {
 	long   h = -1;
 	return InitEnum(objType, prop, &h) ? new _Enum(this, h) : 0;

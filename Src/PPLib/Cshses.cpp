@@ -1906,8 +1906,8 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					Rec.Cost     = rtl_ext_item.Cost;
 					Rec.Price    = price_;
 					Rec.Precision = fpow10i(-3);
-					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding > 0.0)
-						Rec.Precision = unit_rec.Rounding;
+					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding_ > 0.0)
+						Rec.Precision = unit_rec.Rounding_;
 					Rec.GoodsFlags = grec.Flags;
 					if(Flags & ACGIF_IGNOREGWODISTAG) // @v10.6.11
 						Rec.NoDis = 0;

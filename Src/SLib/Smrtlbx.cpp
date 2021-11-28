@@ -361,7 +361,7 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 		lv.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lv.cx = 6 * slbc.Width;
 		StrPool.getnz(slbc.TitlePos, title_buf);
-		lv.pszText = const_cast<TCHAR *>(SUcSwitch(title_buf.cptr())); // @badcast // @unicodeproblem
+		lv.pszText = const_cast<TCHAR *>(SUcSwitch(title_buf.cptr())); // @badcast
 		if(slbc.Format & ALIGN_LEFT)
 			lv.fmt = LVCFMT_LEFT;
 		else if(slbc.Format & ALIGN_RIGHT)
@@ -370,7 +370,7 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 			lv.fmt = LVCFMT_CENTER;
 		else
 			lv.fmt = LVCFMT_LEFT;
-		ListView_InsertColumn(getHandle(), pos, &lv); // @unicodeproblem
+		ListView_InsertColumn(getHandle(), pos, &lv);
 	}
 }
 

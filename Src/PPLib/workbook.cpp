@@ -109,19 +109,19 @@ int WorkbookCore::InitEnumByParam(int fldId, PPID param, int flags, long * pHand
 	return ok;
 }
 
-SEnumImp * WorkbookCore::Enum(int options)
+SEnum::Imp * WorkbookCore::Enum(int options)
 {
 	long   h = -1;
 	return InitEnum(options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;
 }
 
-SEnumImp * WorkbookCore::EnumByParent(PPID parentID, int options)
+SEnum::Imp * WorkbookCore::EnumByParent(PPID parentID, int options)
 {
 	long   h = -1;
 	return InitEnumByParam(idxfldParent, parentID, options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;
 }
 
-SEnumImp * WorkbookCore::EnumByType(long type, int options)
+SEnum::Imp * WorkbookCore::EnumByType(long type, int options)
 {
 	long   h = -1;
 	return InitEnumByParam(idxfldType, type, options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;

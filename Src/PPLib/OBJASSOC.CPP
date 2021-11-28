@@ -165,7 +165,7 @@ int ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl:
 	return ok;
 }
 
-SEnumImp * ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
+SEnum::Imp * ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
 {
 	union {
 		ObjAssocTbl::Key1 k1;

@@ -609,8 +609,8 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 								}
 								w_s.PutInner("physical", STextConst::GetBool(unit_rec.Flags & PPUnit::Physical));
 								w_s.PutInner("integer",  STextConst::GetBool(unit_rec.Flags & PPUnit::IntVal)); // @v10.2.7
-								if(unit_rec.Rounding > 0.0) {
-									temp_buf.Z().Cat(unit_rec.Rounding, MKSFMTD(0, 8, NMBF_NOTRAILZ|NMBF_OMITEPS));
+								if(unit_rec.Rounding_ > 0.0) {
+									temp_buf.Z().Cat(unit_rec.Rounding_, MKSFMTD(0, 8, NMBF_NOTRAILZ|NMBF_OMITEPS));
 									w_s.PutInner("rounding", temp_buf);
 								}
 								if(unit_rec.BaseUnitID && unit_rec.BaseRatio > 0.0 && unit_list.lsearch(unit_rec.BaseUnitID)) {

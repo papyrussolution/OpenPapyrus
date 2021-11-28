@@ -805,7 +805,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			p_pgm->SetupTreeWnd(GetMenu(hWnd), TVI_ROOT);
 			CALLPTRMEMB(p_pgm->P_Toolbar, Init(TOOLBAR_MAIN, TV_GLBTOOLBAR));
-			CALLPTRMEMB(p_pgm->P_TreeWnd, Show(1));
+			// @v11.2.4 CALLPTRMEMB(p_pgm->P_TreeWnd, Show(1));
 			::PostMessage(hWnd, WM_COMMAND, cmShowTree, 0);
 			::PostMessage(hWnd, WM_SIZE, 0, 0);
 			break;

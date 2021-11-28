@@ -960,8 +960,7 @@ void GnuPlot::HistoryCommand()
 			n = IntExpression();
 		}
 		if((tmp = TryToGetString())) {
-			SAlloc::F(name);
-			name = tmp;
+			FREEANDASSIGN(name, tmp);
 			if(!Pgm.EndOfCommand() && Pgm.AlmostEqualsCur("ap$pend")) {
 				append = TRUE;
 				Pgm.Shift();
@@ -1522,8 +1521,7 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 #endif
 	sleep_time = RealExpression();
 	if(Pgm.EndOfCommand()) {
-		SAlloc::F(buf); /* remove the previous message */
-		buf = sstrdup("paused"); /* default message, used in Windows GUI pause dialog */
+		FREEANDASSIGN(buf, sstrdup("paused")); // default message, used in Windows GUI pause dialog 
 	}
 	else {
 		char * tmp = TryToGetString();
@@ -1531,14 +1529,12 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 			IntErrorCurToken("expecting string");
 		else {
 #ifdef _WIN32
-			SAlloc::F(buf);
-			buf = tmp;
+			FREEANDASSIGN(buf, tmp);
 			if(sleep_time >= 0) {
 				fputs(buf, stderr);
 			}
 #else /* Not _WIN32 or OS2 */
-			SAlloc::F(buf);
-			buf = tmp;
+			FREEANDASSIGN(buf, temp);
 			fputs(buf, stderr);
 #endif
 			text = 1;

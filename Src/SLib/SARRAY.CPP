@@ -2712,7 +2712,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 		uint   pos1 = p1->Val;
 		uint   pos2 = p2->Val;
 		char   stub[8];
-		stub[0] = 0;
+		PTR32(stub)[0] = 0;
 		size_t ss_data_len = pArray->Pool.getDataLen();
 		const char * p_buf = pArray->Pool.getBuf();
 		const char * p_str1 = (pos1 == 0 || pos1 >= ss_data_len) ? stub : (p_buf + pos1);
@@ -2915,210 +2915,299 @@ int StrAssocArray::Read(SFile & rFile, long o)
 //
 // @construction {
 //
-class StrAssocTreeEntry {
-public:
-	class BaseList : public TSArray <StrAssocTreeEntry> {
-	public:
-		BaseList() : TSArray <StrAssocTreeEntry>(aryDataOwner|aryEachItem)
-		{
-		}
-		BaseList(const BaseList & rS) : TSArray <StrAssocTreeEntry>(aryDataOwner|aryEachItem)
-		{
-			Copy(rS);
-		}
-		BaseList & Z()
-		{
-			clear();
-			return *this;
-		}
-		int    FASTCALL Copy(const BaseList & rS)
-		{
-			clear();
-			int    ok = 1;
-			for(uint i = 0; i < rS.SArray::getCount(); i++) {
-				{
-					StrAssocTreeEntry new_entry;
-					THROW(insert(&new_entry));
-				}
-				assert(getCount() == (i+1));
-				StrAssocTreeEntry & r_new_entry = at(i);
-				THROW(r_new_entry.Copy(rS.at(i)));
-			}
-			CATCHZOK
-			return ok;			
-		}
-		uint   GetCount() const
-		{
-			uint _c = 0;
-			for(uint i = 0; i < getCount(); i++) {
-				_c += at(i).GetCount();
-			}
-			return _c;
-		}
-		int    Implement_Add(int32 key, uint strP)
-		{
-			StrAssocTreeEntry new_entry(key, strP);
-			return insert(&new_entry);
-		}
-		StrAssocTreeEntry * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const
-		{
-			StrAssocTreeEntry * p_result = 0;
-			uint   idx = 0;
-			if(lsearch(&key, &idx, CMPF_LONG)) {
-				StrAssocTreeEntry & r_entry = at(idx);
-				assert(r_entry.Key == key);
-				p_result = &r_entry;
-				ASSIGN_PTR(pResultParentId, currentParentId);
-			}
-			else {
-				for(uint i = 0; !p_result && i < getCount(); i++) {
-					StrAssocTreeEntry & r_entry = at(i);
-					if(r_entry.P_Children)
-						p_result = r_entry.P_Children->Implement_Search(key, r_entry.Key, pResultParentId); // @recursion
-				}
-			}
-			return p_result;
-		}
-	private:
-		virtual void FASTCALL freeItem(void * pItem)
-		{
-			CALLPTRMEMB(static_cast<StrAssocTreeEntry *>(pItem), Destroy());
-		}
-	};
+StrAssocTree::EntryHandle::EntryHandle(StrAssocTree::ENTRY * pE) : P(pE)
+{
+}
 
-	int32  Key;
-	uint32 StrP;
-	BaseList * P_Children;
+StrAssocTree::ENTRY::BaseList::BaseList() : TSArray <ENTRY>(aryDataOwner|aryEachItem)
+{
+}
 
-	StrAssocTreeEntry() : Key(0), StrP(0), P_Children(0)
-	{
-	}
-	StrAssocTreeEntry(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
-	{
-	}
-	void Destroy()
-	{
-		Key = 0;
-		StrP = 0;
-		ZDELETEFAST(P_Children);
-	}
-	int Copy(const StrAssocTreeEntry & rS)
-	{
-		int    ok = 1;
-		Key = rS.Key;
-		StrP = rS.StrP;
-		if(rS.P_Children) {
-			if(P_Children) {
-				P_Children->Copy(*rS.P_Children);
-			}
-			else
-				P_Children = new BaseList(*rS.P_Children);
+StrAssocTree::ENTRY::BaseList::BaseList(const BaseList & rS) : TSArray <ENTRY>(aryDataOwner|aryEachItem)
+{
+	Copy(rS);
+}
+
+StrAssocTree::ENTRY::BaseList & StrAssocTree::ENTRY::BaseList::Z()
+{
+	clear();
+	return *this;
+}
+
+int FASTCALL StrAssocTree::ENTRY::BaseList::Copy(const StrAssocTree::ENTRY::BaseList & rS)
+{
+	clear();
+	int    ok = 1;
+	for(uint i = 0; i < rS.SArray::getCount(); i++) {
+		{
+			ENTRY new_entry;
+			THROW(insert(&new_entry));
 		}
-		else {
-			ZDELETE(P_Children);
+		assert(getCount() == (i+1));
+		ENTRY & r_new_entry = at(i);
+		THROW(r_new_entry.Copy(rS.at(i)));
+	}
+	CATCHZOK
+	return ok;			
+}
+
+uint StrAssocTree::ENTRY::BaseList::GetCount() const
+{
+	uint _c = 0;
+	for(uint i = 0; i < getCount(); i++)
+		_c += at(i).GetCount();
+	return _c;
+}
+
+int StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
+{
+	ENTRY new_entry(key, strP);
+	return insert(&new_entry);
+}
+
+StrAssocTree::ENTRY * StrAssocTree::ENTRY::BaseList::Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const
+{
+	ENTRY * p_result = 0;
+	uint   idx = 0;
+	if(lsearch(&key, &idx, CMPF_LONG)) {
+		ENTRY & r_entry = at(idx);
+		assert(r_entry.Key == key);
+		p_result = &r_entry;
+		ASSIGN_PTR(pResultParentId, currentParentId);
+	}
+	else {
+		for(uint i = 0; !p_result && i < getCount(); i++) {
+			ENTRY & r_entry = at(i);
+			if(r_entry.P_Children)
+				p_result = r_entry.P_Children->Implement_Search(key, r_entry.Key, pResultParentId); // @recursion
 		}
-		return ok;
 	}
-	uint   GetCount() const
-	{
-		return 1 + (P_Children ? P_Children->GetCount() : 0);
+	return p_result;
+}
+
+void StrAssocTree::ENTRY::BaseList::GetKeyList(bool recursive, LongArray & rList) const
+{
+	for(uint i = 0; i < SArray::getCount(); i++) {
+		const ENTRY & r_entry = at(i);
+		rList.add(r_entry.Key);
+		if(recursive && r_entry.P_Children)
+			GetKeyList(recursive, rList); // @recursion
 	}
-};
-//
-// Descr: Древовидная коллекция ассоциаций {int32; string}.
-//   Во-многом повторяет StrAssocArray но быстрее за счет хранения элементов в виде дерева, а не в виде
-//   линейного массива.
-//   Соответственно, есть и ограничения: 
-//     -- ключевой элемент строго не нулевой
-//     -- дубликаты по ключу не допускаются
-//
-class StrAssocTree : private SStrGroup {
-public:
-	StrAssocTree() : SStrGroup(), TextCmpProc(0)
-	{
+}
+
+bool FASTCALL StrAssocTree::ENTRY::BaseList::ValidateEntryPtr(const void * pEntry) const
+{
+	bool result = false;
+	for(uint i = 0; !result && i < SArray::getCount(); i++) {
+		const ENTRY & r_entry = at(i);
+		if(pEntry == &r_entry)
+			result = true;
+		else if(r_entry.P_Children)
+			result = r_entry.P_Children->ValidateEntryPtr(pEntry); // @recursion
 	}
-	StrAssocTree(const StrAssocTree & rS) : SStrGroup(static_cast<SStrGroup>(rS))
-	{
-		Copy(rS);
+	return result;
+}
+
+void StrAssocTree::ENTRY::BaseList::Implement_SortByID()
+{
+	// Сначала рекурсивно сортируем все дочерние элементы...
+	for(uint i = 0; i < getCount(); i++) {
+		ENTRY & r_entry = at(i);
+		if(r_entry.P_Children && r_entry.P_Children->getCount() > 1)
+			r_entry.P_Children->Implement_SortByID(); // @recursion
 	}
-	int    FASTCALL Copy(const StrAssocTree & rS)
-	{
-		Z();
-		int    ok = 1;
-		THROW(L.Copy(rS.L));
-		SStrGroup::CopyS(rS);
-		CATCHZOK
-		return ok;
+	SArray::sort(CMPF_LONG); // ...затем сортируем собственный массив
+}
+
+/*static*/int StrAssocTree::Helper_CmpFunc_ByText(const void * p1, const void * p2, const StrAssocTree * pArray)
+{
+	const uint   pos1 = static_cast<const ENTRY *>(p1)->StrP;
+	const uint   pos2 = static_cast<const ENTRY *>(p2)->StrP;
+	char   stub[8];
+	PTR32(stub)[0] = 0;
+	size_t ss_data_len = pArray->Pool.getDataLen();
+	const char * p_buf = pArray->Pool.getBuf();
+	const char * p_str1 = (pos1 == 0 || pos1 >= ss_data_len) ? stub : (p_buf + pos1);
+	const char * p_str2 = (pos2 == 0 || pos2 >= ss_data_len) ? stub : (p_buf + pos2);
+	return pArray->TextCmpProc ? pArray->TextCmpProc(p_str1, p_str2, 0) : stricmp866(p_str1, p_str2);
+}
+
+IMPL_CMPFUNC(StrAssocTreeEntry_ByText, i1, i2) 
+	{ return StrAssocTree::Helper_CmpFunc_ByText(i1, i2, static_cast<const StrAssocTree *>(pExtraData)); }
+
+void StrAssocTree::ENTRY::BaseList::Implement_SortByText(void * pMaster)
+{
+	// Сначала рекурсивно сортируем все дочерние элементы...
+	for(uint i = 0; i < getCount(); i++) {
+		ENTRY & r_entry = at(i);
+		if(r_entry.P_Children && r_entry.P_Children->getCount() > 1)
+			r_entry.P_Children->Implement_SortByText(pMaster); // @recursion
 	}
-	StrAssocTree & Z()
-	{
-		L.Z();
-		SStrGroup::ClearS();
-		return *this;
+	SArray::sort(PTR_CMPFUNC(StrAssocTreeEntry_ByText), pMaster); // ...затем сортируем собственный массив
+}
+
+/*virtual*/void FASTCALL StrAssocTree::ENTRY::BaseList::freeItem(void * pItem)
+{
+	CALLPTRMEMB(static_cast<ENTRY *>(pItem), Destroy());
+}
+
+StrAssocTree::ENTRY::ENTRY() : Key(0), StrP(0), P_Children(0)
+{
+}
+
+StrAssocTree::ENTRY::ENTRY(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
+{
+}
+
+void StrAssocTree::ENTRY::Destroy()
+{
+	Key = 0;
+	StrP = 0;
+	ZDELETEFAST(P_Children);
+}
+
+int FASTCALL StrAssocTree::ENTRY::Copy(const ENTRY & rS)
+{
+	int    ok = 1;
+	Key = rS.Key;
+	StrP = rS.StrP;
+	if(rS.P_Children) {
+		if(P_Children)
+			P_Children->Copy(*rS.P_Children);
+		else
+			P_Children = new BaseList(*rS.P_Children);
 	}
-	uint   GetCount() const
-	{
-		return L.GetCount();
+	else {
+		ZDELETE(P_Children);
 	}
-	bool Search(long id, long * pParentId, SString * pBuf) const
-	{
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, pParentId);
-		if(p_entry) {
-			if(pBuf)
-				GetS(p_entry->StrP, *pBuf);
-			return true;
+	return ok;
+}
+
+uint StrAssocTree::ENTRY::GetCount() const
+{
+	return 1 + (P_Children ? P_Children->GetCount() : 0);
+}
+
+StrAssocTree::StrAssocTree() : SStrGroup(), TextCmpProc(0)
+{
+}
+	
+StrAssocTree::StrAssocTree(const StrAssocTree & rS) : SStrGroup(static_cast<SStrGroup>(rS))
+{
+	Copy(rS);
+}
+	
+int FASTCALL StrAssocTree::Copy(const StrAssocTree & rS)
+{
+	Z();
+	int    ok = 1;
+	TextCmpProc = rS.TextCmpProc;
+	THROW(L.Copy(rS.L));
+	SStrGroup::CopyS(rS);
+	CATCHZOK
+	return ok;
+}
+	
+StrAssocTree & StrAssocTree::Z()
+{
+	L.Z();
+	SStrGroup::ClearS();
+	return *this;
+}
+	
+uint StrAssocTree::GetCount() const
+{
+	return L.GetCount();
+}
+	
+bool StrAssocTree::Search(long id, long * pParentId, SString * pBuf) const
+{
+	ENTRY * p_entry = L.Implement_Search(id, 0, pParentId);
+	if(p_entry) {
+		if(pBuf)
+			GetS(p_entry->StrP, *pBuf);
+		return true;
+	}
+	else
+		return false;
+}
+
+bool FASTCALL StrAssocTree::ValidateEntryHandle(const EntryHandle h) const
+{
+	return L.ValidateEntryPtr(h.P);
+}
+	
+StrAssocTree::EntryHandle FASTCALL StrAssocTree::Search(long id) const
+{
+	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
+	return EntryHandle(p_entry);
+}
+
+int StrAssocTree::GetListByParent(long parentId, bool recursive, LongArray & rList) const
+{
+	rList.Z();
+	const ENTRY::BaseList * p_list = 0;
+	if(parentId == 0)
+		p_list = &L;
+	else {
+		const ENTRY * p_entry = L.Implement_Search(parentId, 0, 0);
+		if(p_entry)
+			p_list = p_entry->P_Children;
+	}
+	CALLPTRMEMB(p_list, GetKeyList(recursive, rList));
+	return rList.getCount() ? 1 : -1;
+}
+	
+int StrAssocTree::Add(long id, const char * pStr, int replaceDup)
+{
+	int    ok = 1;
+	int32  srch_parent_id = 0;
+	ENTRY * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
+	if(p_entry) {
+		if(replaceDup) {
+			AddS(pStr, &p_entry->StrP);
+			ok = 2;
 		}
 		else
-			return false;
+			ok = -1;
 	}
-	bool Search(long id) const
-	{
-		return LOGIC(L.Implement_Search(id, 0, 0));
+	else {
+		uint strp = 0;
+		AddS(pStr, &strp);
+		ok = L.Implement_Add(id, strp);
 	}
-	int    Add(long id, const char * pStr, int replaceDup)
-	{
-		int    ok = 1;
-		int32  srch_parent_id = 0;
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
-		if(p_entry) {
-			if(replaceDup) {
-				AddS(pStr, &p_entry->StrP);
-				ok = 2;
-			}
-			else
-				ok = -1;
-		}
-		else {
+	return ok;
+}
+
+int StrAssocTree::Add(long id, long parentId, const char * pStr, int replaceDup)
+{
+	int    ok = 1;
+	int32  srch_parent_id = 0;
+	ENTRY * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
+	ENTRY * p_parent_entry = L.Implement_Search(parentId, 0, 0);
+	if(p_entry) {
+		ok = -1;
+	}
+	else {
+		if(p_parent_entry) {
 			uint strp = 0;
 			AddS(pStr, &strp);
-			ok = L.Implement_Add(id, strp);
-		}
-		return ok;
+			SETIFZ(p_parent_entry->P_Children, new ENTRY::BaseList());
+			ok = p_parent_entry->P_Children->Implement_Add(id, strp);
+		}			
 	}
-	int    Add(long id, long parentId, const char * pStr, int replaceDup)
-	{
-		int    ok = 1;
-		int32  srch_parent_id = 0;
-		StrAssocTreeEntry * p_entry = L.Implement_Search(id, 0, &srch_parent_id);
-		StrAssocTreeEntry * p_parent_entry = L.Implement_Search(parentId, 0, 0);
-		if(p_entry) {
-		}
-		else {
-			if(p_parent_entry) {
-				uint strp = 0;
-				AddS(pStr, &strp);
-				if(p_parent_entry->P_Children == 0)
-					p_parent_entry->P_Children = new StrAssocTreeEntry::BaseList();
-				ok = p_parent_entry->P_Children->Implement_Add(id, strp);
-			}			
-		}
-		return ok;
-	}
-protected:
-	CompFunc TextCmpProc;
-private:
-	StrAssocTreeEntry::BaseList L;
-};
+	return ok;
+}
+
+void StrAssocTree::SortByID()
+{
+	L.Implement_SortByID();
+}
+
+void StrAssocTree::SortByText()
+{
+	L.Implement_SortByText(this);
+}
 //
 // Descr: Функция тестирования структуры StrAssocTree.
 //   Полагается на то, что структура StrAssocArray (которая тоже умеет хранить иерархию строк, но медленная) работает правильно.
@@ -3158,6 +3247,14 @@ int Test_StrAssocTree()
 			CATCHZOK
 			return ok;
 		}
+		int    Helper_CompareLists(long parentId, const void * pTreeParent)
+		{
+			int    ok = 1;
+			THROW(Sat.GetCount() == Saa.getCount());
+			//Saa.GetListByParent()
+			CATCHZOK
+			return ok;
+		}
 		long   LastId;
 		StrAssocArray Saa;
 		StrAssocTree  Sat;
@@ -3166,8 +3263,22 @@ int Test_StrAssocTree()
 	SString root_path;
 	SLS.QueryPath("testroot", root_path);
 	if(root_path.NotEmpty()) {
+		//•Общество с ограниченной ответственностью "Тамбовский бекон" (Российская Федерация, Белгородская обл., Ивнянский район, с. Владимировка, Владимировское с/п, район урочища Зоринский лог, строение 1)
+		SString temp_buf;
+		//text-utf8.txt
+		(temp_buf = root_path).SetLastSlash().Cat("data").SetLastSlash().Cat("text-utf8.txt");
+		{
+			SFile _uf(temp_buf, SFile::mRead);
+			if(_uf.IsValid()) {
+				if(_uf.ReadLine(temp_buf)) {
+					bool is_utf8 = temp_buf.IsLegalUtf8();
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+			}
+		}
+		//
 		InnerBlock blk;
-		root_path.SetLastSlash().Cat("..")/*.SetLastSlash().Cat("..")*/;
 		if(blk.Helper_GetFiles(root_path, 0)) {
 			SString saa_buf;
 			SString sat_buf;
@@ -3185,6 +3296,8 @@ int Test_StrAssocTree()
 				assert(saa_item.ParentId == sat_parent_id);
 				assert(sat_buf == saa_buf);
 			}
+			blk.Saa.SortByText();
+			blk.Sat.SortByText();
 		}
 	}
 	return ok;
@@ -4544,7 +4657,6 @@ int TestSTree()
 				f_sa.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_sa).CatDiv(';', 2).Cat(text_buf).CR());
 			}
 		}
-
 	}
 	CATCHZOK
 	return ok;

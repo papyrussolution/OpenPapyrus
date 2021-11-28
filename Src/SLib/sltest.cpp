@@ -532,7 +532,7 @@ int STestCase::TabEnum::Next(void * pData)
 	return ok;
 }
 
-SEnumImp * STestCase::EnumTab(const char * pTabName)
+SEnum::Imp * STestCase::EnumTab(const char * pTabName)
 {
 	TabEnum * p_en = 0;
 	if(P_Suite) {

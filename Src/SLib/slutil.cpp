@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -118,15 +118,15 @@ void FASTCALL IterCounter::Init(ulong total)
 //
 // SEnum
 //
-SEnumImp::~SEnumImp()
+SEnum::Imp::~Imp()
 {
 }
 
-SEnum::SEnum(SEnumImp * pE) : P_E(pE)
+SEnum::SEnum(SEnum::Imp * pE) : P_E(pE)
 {
 }
 
-SEnum & FASTCALL SEnum::operator = (SEnumImp * pE)
+SEnum & FASTCALL SEnum::operator = (SEnum::Imp * pE)
 {
 	delete P_E;
 	P_E = pE;
@@ -152,7 +152,7 @@ int FASTCALL SEnum::Next(void * pData)
 
 class Foo {
 private:
-	class EnImp : public SEnumImp {
+	class EnImp : public SEnum::Imp {
 	public:
 		EnImp(const void * pArg) : I(0), P_Arg(pArg)
 		{
@@ -172,7 +172,7 @@ private:
 		const void * P_Arg;
 	};
 public:
-	SEnumImp * Enum(const void * pArg)
+	SEnum::Imp * Enum(const void * pArg)
 	{
 		return new EnImp(pArg);
 	}

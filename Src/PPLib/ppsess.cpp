@@ -4823,9 +4823,9 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 long PPSession::GetMaxLogFileSize() const { return MaxLogFileSize; }
 int  PPSession::GetRFileInfo(PPID fileId, PPRFile & rInfo) { return Helper_GetRFileInfo(fileId, rInfo); }
 
-SEnumImp * PPSession::EnumRFileInfo()
+SEnum::Imp * PPSession::EnumRFileInfo()
 {
-	class PPRFileEnum : public SEnumImp {
+	class PPRFileEnum : public SEnum::Imp {
 	public:
 		PPRFileEnum() : P_Rez(P_SlRez), DwPos(0)
 		{
